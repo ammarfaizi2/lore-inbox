@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289203AbSANLk1>; Mon, 14 Jan 2002 06:40:27 -0500
+	id <S288638AbSANLnH>; Mon, 14 Jan 2002 06:43:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288638AbSANLkO>; Mon, 14 Jan 2002 06:40:14 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:4632 "EHLO
+	id <S289204AbSANLnD>; Mon, 14 Jan 2002 06:43:03 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:17432 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S289212AbSANLj4>; Mon, 14 Jan 2002 06:39:56 -0500
-Date: Mon, 14 Jan 2002 12:39:42 +0100
+	id <S289208AbSANLlx>; Mon, 14 Jan 2002 06:41:53 -0500
+Date: Mon, 14 Jan 2002 12:41:56 +0100
 From: Andrea Arcangeli <andrea@suse.de>
-To: Robert Love <rml@tech9.net>
-Cc: jogi@planetzork.ping.de, Andrew Morton <akpm@zip.com.au>,
-        Ed Sweetman <ed.sweetman@wmich.edu>, yodaiken@fsmlabs.com,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, nigel@nrg.org,
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Robert Love <rml@tech9.net>, jogi@planetzork.ping.de,
+        Andrew Morton <akpm@zip.com.au>, Ed Sweetman <ed.sweetman@wmich.edu>,
+        yodaiken@fsmlabs.com, nigel@nrg.org,
         Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
 Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020114123942.C10227@athlon.random>
-In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy> <20020112121315.B1482@inspiron.school.suse.de> <20020112160714.A10847@planetzork.spacenet> <20020112095209.A5735@hq.fsmlabs.com> <20020112180016.T1482@inspiron.school.suse.de> <005301c19b9b$6acc61e0$0501a8c0@psuedogod> <3C409B2D.DB95D659@zip.com.au> <20020113184249.A15955@planetzork.spacenet> <1010946178.11848.14.camel@phantasy>
+Message-ID: <20020114124156.D10227@athlon.random>
+In-Reply-To: <1010946178.11848.14.camel@phantasy> <E16PqMc-0007ks-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.12i
-In-Reply-To: <1010946178.11848.14.camel@phantasy>; from rml@tech9.net on Sun, Jan 13, 2002 at 01:22:57PM -0500
+In-Reply-To: <E16PqMc-0007ks-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Jan 13, 2002 at 07:32:18PM +0000
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 13, 2002 at 01:22:57PM -0500, Robert Love wrote:
-> On Sun, 2002-01-13 at 12:42, jogi@planetzork.ping.de wrote:
+On Sun, Jan 13, 2002 at 07:32:18PM +0000, Alan Cox wrote:
+> > Again, preempt seems to reign supreme.  Where is all the information
+> > correlating preempt is inferior?  To be fair, however, we should bench a
+> > mini-ll+s test.
 > 
-> >         13-pre5aa1      18-pre2aa2      18-pre3         18-pre3s        18-pre3sp       18-pre3minill  
-> > j100:   6:59.79  78%    7:07.62  76%        *           6:39.55  81%    6:24.79  83%        *
-> > j100:   7:03.39  77%    8:10.04  66%        *           8:07.13  66%    6:21.23  83%        *
-> > j100:   6:40.40  81%    7:43.15  70%        *           6:37.46  81%    6:03.68  87%        *
-> > j100:   7:45.12  70%    7:11.59  75%        *           7:14.46  74%    6:06.98  87%        *
-> > j100:   6:56.71  79%    7:36.12  71%        *           6:26.59  83%    6:11.30  86%        *
-> > 		                                                                                          
-> > j75:    6:22.33  85%    6:42.50  81%    6:48.83  80%    6:01.61  89%    5:42.66  93%    7:07.56  77%
-> > j75:    6:41.47  81%    7:19.79  74%    6:49.43  79%    5:59.82  89%    6:00.83  88%    7:17.15  74%
-> > j75:    6:10.32  88%    6:44.98  80%    7:01.01  77%    6:02.99  88%    5:48.00  91%    6:47.48  80%
-> > j75:    6:28.55  84%    6:44.21  80%    9:33.78  57%    6:19.83  85%    5:49.07  91%    6:34.02  83%
-> > j75:    6:17.15  86%    6:46.58  80%    7:24.52  73%    6:23.50  84%    5:58.06  88%    7:01.39  77%
-> 
-> Again, preempt seems to reign supreme.  Where is all the information
+> How about some actual latency numbers ?
 
-those comparison are totally flawed. There's nothing to compare in
-there. 
-
-minill misses the O(1) scheduler, and -aa has faster vm etc... there's
-absolutely nothing to compare in the above numbers, all variables
-changes at the same time.
-
-I'm amazed I've to say this, but in short:
-
-1) to compare minill with preempt, apply both patches to 18-pre3, as the
-   only patch applied (no O(1) in the way of preempt!!!!)
-2) to compare -aa with preempt, apply -preempt on top of -aa and see
-   what difference it makes
-
-If you don't follow exactly those simple rules you will change an huge
-amount of variables at the same time, and it will be again impossible to
-make any comparison or deduction from the numbers.
+with an huge rescheduling rate (huge swapout/swapin load) and the
+scheduler walking over 100 tasks at each schedule it is insane to
+deduct anything from those numbers (-preempt was using O(1)
+scheduler!!!!). so please don't make any assumption by just looking at
+those numbers.
 
 Andrea

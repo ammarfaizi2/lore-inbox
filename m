@@ -1,67 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265937AbUACJHS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 04:07:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265939AbUACJGA
+	id S263015AbUACKDn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 05:03:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263053AbUACKDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 04:06:00 -0500
-Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:44938 "HELO
-	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265940AbUACJE1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 04:04:27 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH 5/7] missing module licenses
-Date: Sat, 3 Jan 2004 04:02:15 -0500
-User-Agent: KMail/1.5.4
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200401030350.43437.dtor_core@ameritech.net> <200401030400.55755.dtor_core@ameritech.net> <200401030401.35798.dtor_core@ameritech.net>
-In-Reply-To: <200401030401.35798.dtor_core@ameritech.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sat, 3 Jan 2004 05:03:43 -0500
+Received: from gprs178-245.eurotel.cz ([160.218.178.245]:48256 "EHLO
+	midnight.ucw.cz") by vger.kernel.org with ESMTP id S263015AbUACKDl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 05:03:41 -0500
+Date: Sat, 3 Jan 2004 11:03:47 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/7] i8042 suspend
+Message-ID: <20040103100347.GA499@ucw.cz>
+References: <200401030350.43437.dtor_core@ameritech.net> <200401030356.48071.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401030402.16745.dtor_core@ameritech.net>
+In-Reply-To: <200401030356.48071.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-===================================================================
+On Sat, Jan 03, 2004 at 03:56:45AM -0500, Dmitry Torokhov wrote:
+> diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+> --- a/drivers/input/serio/i8042.c	Sat Jan  3 03:07:29 2004
+> +++ b/drivers/input/serio/i8042.c	Sat Jan  3 03:07:29 2004
+> @@ -746,6 +746,29 @@
+>  
+>  
+>  /*
+> + * Reset the controller.
+> + */
+> +void i8042_controller_reset(void)
+> +{
+> +	if (i8042_reset) {
+> +		unsigned char param;
+> +
+> +		if (i8042_command(&param, I8042_CMD_CTL_TEST))
+> +			printk(KERN_ERR "i8042.c: i8042 controller reset timeout.\n");
+> +	}
+
+We should be checking the return value from the TEST command as well,
+if we want to use this to initialize the controller on non-x86 platforms
+(where i8042.reset is 0).
+
+>  
+> -/*
+> - * Reset the controller.
+> - */
+> -
+> -	if (i8042_reset) {
+> -		unsigned char param;
+> +	i8042_controller_reset();
+> +}
+>  
+> -		if (i8042_command(&param, I8042_CMD_CTL_TEST))
+> -			printk(KERN_ERR "i8042.c: i8042 controller reset timeout.\n");
+> -	}
 
 
-ChangeSet@1.1575, 2004-01-03 02:47:21-05:00, dtor_core@ameritech.net
-  Input: Add missing MODULE_LICENSEs
+This actually introduces a bug, because we don't want to restore the CTR
+setting before we save it, which the new code does.
 
+> @@ -809,7 +826,7 @@
+>  	if (i8042_mux_present)
+>  		if (i8042_enable_mux_mode(&i8042_aux_values, NULL) ||
+>  		    i8042_enable_mux_ports(&i8042_aux_values)) {
+> -			printk(KERN_WARNING "i8042: failed to resume active multiplexor, mouse won't wotk.\n");
+> +			printk(KERN_WARNING "i8042: failed to resume active multiplexor, mouse won't work.\n");
 
- maple_keyb.c |    1 +
- newtonkbd.c  |    2 ++
- 2 files changed, 3 insertions(+)
+Ahh, a typo. :)
 
-
-===================================================================
-
-
-
-diff -Nru a/drivers/input/keyboard/maple_keyb.c b/drivers/input/keyboard/maple_keyb.c
---- a/drivers/input/keyboard/maple_keyb.c	Sat Jan  3 03:09:34 2004
-+++ b/drivers/input/keyboard/maple_keyb.c	Sat Jan  3 03:09:34 2004
-@@ -14,6 +14,7 @@
- 
- MODULE_AUTHOR("YAEGASHI Takeshi <t@keshi.org>");
- MODULE_DESCRIPTION("SEGA Dreamcast keyboard driver");
-+MODULE_LICENSE("GPL");
- 
- static unsigned char dc_kbd_keycode[256] = {
- 	  0,  0,  0,  0, 30, 48, 46, 32, 18, 33, 34, 35, 23, 36, 37, 38,
-diff -Nru a/drivers/input/keyboard/newtonkbd.c b/drivers/input/keyboard/newtonkbd.c
---- a/drivers/input/keyboard/newtonkbd.c	Sat Jan  3 03:09:34 2004
-+++ b/drivers/input/keyboard/newtonkbd.c	Sat Jan  3 03:09:34 2004
-@@ -33,6 +33,8 @@
- #include <linux/serio.h>
- 
- MODULE_AUTHOR("Justin Cormack <j.cormack@doc.ic.ac.uk>");
-+MODULE_DESCRIPTION("Newton keyboard driver");
-+MODULE_LICENSE("GPL");
- 
- #define NKBD_KEY	0x7f
- #define NKBD_PRESS	0x80
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,53 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbUGQVX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbUGQVap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261951AbUGQVX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 17:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbUGQVX4
+	id S261987AbUGQVap (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 17:30:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUGQVao
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 17:23:56 -0400
-Received: from mail3.absamail.co.za ([196.35.40.69]:17471 "EHLO absamail.co.za")
-	by vger.kernel.org with ESMTP id S261951AbUGQVXz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 17:23:55 -0400
-Subject: Re: [2.6.7-mm5 ACPI] Error: Looking up [SERN] in namespace
-From: Niel Lambrechts <antispam@absamail.co.za>
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1089931816.9446.19.camel@ksyrium.local>
-References: <1089931816.9446.19.camel@ksyrium.local>
-Content-Type: text/plain
-Message-Id: <1090099462.5970.1.camel@ksyrium.local>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 17 Jul 2004 23:24:23 +0200
-Content-Transfer-Encoding: 7bit
+	Sat, 17 Jul 2004 17:30:44 -0400
+Received: from gw01.mail.saunalahti.fi ([195.197.172.115]:17575 "EHLO
+	gw01.mail.saunalahti.fi") by vger.kernel.org with ESMTP
+	id S261987AbUGQVam (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jul 2004 17:30:42 -0400
+Message-ID: <40F99A7A.7060405@sci.fi>
+Date: Sun, 18 Jul 2004 00:30:34 +0300
+From: =?UTF-8?B?TGFzc2UgS8Okcmtrw6RpbmVuIC8gVHJvbmlj?= <tronic2@sci.fi>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040314)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: OT: tabs and spaces
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigF1CD5B4C52121183B4E6B5E9"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-07-16 at 00:50, Niel Lambrechts wrote:
-> Hi,
-> 
-> I get the following (repetitive) dmesg on my Thinkpad R50P:
-> 
->  dswload-0292: *** Error: Looking up [SERN] in namespace, AE_ALREADY_EXISTS
->  psparse-0597 [86051] ps_parse_loop         : During name lookup/catalog, AE_ALREADY_EXISTS
->  psparse-1133: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.GBIF] (Node c1567fa8), AE_ALREADY_EXISTS
->      osl-0899 [86055] os_wait_semaphore     : Failed to acquire semaphore[dff5e580|1|0], AE_TIME
->  dswload-0641: *** Error: Looking up [SERN] in namespace, AE_NOT_FOUND
->  psparse-0597 [86064] ps_parse_loop         : During name lookup/catalog, AE_NOT_FOUND
->  psparse-1133: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.GBIF] (Node c1567fa8), AE_NOT_FOUND
->  psparse-1133: *** Error: Method execution failed [\_SB_.PCI0.LPC_.EC__.BAT0._BIF] (Node c1567928), AE_NOT_FOUND
-> acpi_battery-0146 [86057] acpi_battery_get_info : Error evaluating _BIF
->      osl-0899 [87427] os_wait_semaphore     : Failed to acquire semaphore[dff5e580|1|0], AE_TIME
->      osl-0899 [95484] os_wait_semaphore     : Failed to acquire semaphore[dff5e580|1|0], AE_TIME
->      osl-0899 [96766] os_wait_semaphore     : Failed to acquire semaphore[dff5e580|1|0], AE_TIME
->      osl-0899 [98886] os_wait_semaphore     : Failed to acquire semaphore[dff5e580|1|0], AE_TIME
->      osl-0899 [101057] os_wait_semaphore     : Failed to acquire semaphore[dff5e580|1|0], AE_TIME
-> 
-> The last line is especially repetitive.
-> 
-> I also notice:
-> acpi_battery-0146 [86057] acpi_battery_get_info : Error evaluating _BIF
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigF1CD5B4C52121183B4E6B5E9
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-My fault - failed to do a make clean after replacing the previous version of my dsdt table and recompiling the kernel.
+Hi,
 
+When you write prettyprinters, programmers' editors or anything that 
+does some kind of code indentation, please take care of the following rules:
 
+1. NEVER convert N spaces into one tab; they are not equal with any N
+2. count spaces and tabs separately (one tab for each { }, etc)
+3. if aligning with anything (text, not indent), use spaces only
+4. print tab chars at the very beginning of the line, never after any 
+other characters
+
+GNU indent and all other prettyprinters I know of violate the first 
+three rules. I chose to write LKML because so many people writing 
+indenting software, or just writing code, will be reading this now...
+
+If the indentation is done this way, it never breaks with any tab width. 
+The only (minor) issue concerns cutting long lines, because you cannot 
+know the line length if you don't know tab length.
+
+Before the flamewar begins: I am not saying that tab indentation or 
+space indentation is better, just saying that the regular tab 
+indentation is not optimal. So far I haven't seen anyone thinking that 
+the regular way is better than this one, so there doesn't seem to be any 
+debate about that.
+
+If you agree with the above, please spread the message :)
+
+As this is clearly off-topic, it may be better to answer to me only, not 
+to the list.
+
+- Tronic -
+
+--------------enigF1CD5B4C52121183B4E6B5E9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFA+ZqAOBbAI1NE8/ERArh+AKCJYR+1g6TGB1UhyFxU/xM7rwAsJwCfcKZT
+Po+mndvfkL153V1In+IXcbQ=
+=XG6W
+-----END PGP SIGNATURE-----
+
+--------------enigF1CD5B4C52121183B4E6B5E9--

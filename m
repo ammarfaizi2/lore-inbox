@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131696AbQLGAhT>; Wed, 6 Dec 2000 19:37:19 -0500
+	id <S129406AbQLGAg3>; Wed, 6 Dec 2000 19:36:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129431AbQLGAhK>; Wed, 6 Dec 2000 19:37:10 -0500
-Received: from smtp.lax.megapath.net ([216.34.237.2]:35844 "EHLO
-	smtp.lax.megapath.net") by vger.kernel.org with ESMTP
-	id <S131696AbQLGAhG>; Wed, 6 Dec 2000 19:37:06 -0500
-Message-ID: <3A2ED42C.9050304@megapathdsl.net>
-Date: Wed, 06 Dec 2000 16:05:00 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test12 i686; en-US; m18) Gecko/20001202
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        jerdfelt@valinux.com, usb@in.tum.de
-Subject: Re: test12-pre6
-In-Reply-To: <20001206200803.C847@arthur.ubicom.tudelft.nl> <Pine.LNX.4.10.10012061131320.1873-100000@penguin.transmeta.com> <20001206210928.G847@arthur.ubicom.tudelft.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S129431AbQLGAgT>; Wed, 6 Dec 2000 19:36:19 -0500
+Received: from jalon.able.es ([212.97.163.2]:53464 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129406AbQLGAgN>;
+	Wed, 6 Dec 2000 19:36:13 -0500
+Date: Thu, 7 Dec 2000 01:05:37 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: poll() blocking
+Message-ID: <20001207010537.A1611@werewolf.able.es>
+Reply-To: jamagallon@able.es
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw wrote:
+I saw some time ago some discussion about poll(). This is may question
+(if it remembers anyone a known issue):
 
-> On Wed, Dec 06, 2000 at 11:38:30AM -0800, Linus Torvalds wrote:
-> 
->> But I see something obviously wrong there: you have busmaster disabled.
->> 
->> Looking into the UHCI controller code, I notice that neither UHCI driver
->> actually does the (required)
->> 
->> 	pci_set_master(dev);
->> 
->> Please add that to just after a successful "pci_enable_device(dev)", and I
->> just bet your USB will start working.
+A driver poll_wait()s hardware and wants to raise an interrupt on hardware
+change.
 
+It works on 2.2 SMP but locks in 2.4 SMP. Works on 2.4 UP.
 
-I tested this change applied to usb-ohci.
-I did not fix the problem where eth0 spits
-out a ton of error messages:
+Is any SMP issue with poll ?
 
-eth0: Host error, FIFO diagnostic register 0000.
-eth0: using default media MII
-eth0: Host error, FIFO diagnostic register 0000.
-eth0: using default media MII
-eth0: Too much work in interrupt, status e003.
-eth0: Host error, FIFO diagnostic register 0000.
-eth0: using default media MII
+Thanks.
 
-This error occurs when I am trasfering data over my
-DSL connection while moving my USB mouse.
+-- 
+Juan Antonio Magallon Lacarta                                 #> cd /pub
+mailto:jamagallon@able.es                                     #> more beer
+
+Linux 2.2.18-pre24-vm #2 SMP Wed Nov 29 02:56:21 CET 2000 i686 unknown
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

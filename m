@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130216AbQK2TDx>; Wed, 29 Nov 2000 14:03:53 -0500
+        id <S131231AbQK2TJp>; Wed, 29 Nov 2000 14:09:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131231AbQK2TDm>; Wed, 29 Nov 2000 14:03:42 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:46857 "EHLO
-        vger.timpanogas.org") by vger.kernel.org with ESMTP
-        id <S130216AbQK2TD1>; Wed, 29 Nov 2000 14:03:27 -0500
-Date: Wed, 29 Nov 2000 12:28:32 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: "Joseph K. Malek" <malekjo@aphrodite.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Broken NTFS
-Message-ID: <20001129122832.A8639@vger.timpanogas.org>
-In-Reply-To: <Pine.LNX.3.95.1001129091726.14820A-100000@chaos.analogic.com> <Pine.LNX.4.21.0011290628350.2047-100000@fluffy.aphrodite.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0011290628350.2047-100000@fluffy.aphrodite.com>; from malekjo@aphrodite.com on Wed, Nov 29, 2000 at 06:33:36AM -0800
+        id <S131640AbQK2TJg>; Wed, 29 Nov 2000 14:09:36 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:1802 "EHLO
+        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+        id <S131231AbQK2TJV>; Wed, 29 Nov 2000 14:09:21 -0500
+Date: Wed, 29 Nov 2000 10:38:05 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Tigran Aivazian <tigran@veritas.com>
+cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: corruption
+In-Reply-To: <Pine.LNX.4.21.0011291806020.1306-100000@penguin.homenet>
+Message-ID: <Pine.LNX.4.10.10011291036180.11951-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 29, 2000 at 06:33:36AM -0800, Joseph K. Malek wrote:
-> Hi all,
+
+
+On Wed, 29 Nov 2000, Tigran Aivazian wrote:
+
+> On Wed, 29 Nov 2000, Tigran Aivazian wrote:
 > 
-> I have a broken NTFS, due to my own mistake of mounting the
-> partition RW and moving a file instead of copying it....I've been poking
-> around for an NTFS editing tool; only to find that this is easier said
-> than done.  Does anyone have an NTFS repair tool for winnt 4 (I already
-> have the ddk), or any idea where I can find one?
+> > On Wed, 29 Nov 2000, Linus Torvalds wrote:
+> > > That still leaves the SCSI corruption, which could not have been due to
+> > > the request issue. What's the pattern there for people?
 > 
-
-I have a tool that will repair the damage caused to an NTFS volume by 
-Linux.  Questions:
-
-1.  Did you boot NT on the drive and did it become RAW?
-2.  Have you run checkdisk against the drive, and if so, what happened?
-
-If you answer yes to #1, you have probably already experienced permanent
-data loss on the device.  Older NTFS versions on Linux would make changes
-to the MFT without clearing the old journal file, then leave the drive
-marked as "clean" to NT.  What can happen in this case is that NTFS 
-on W2K will see the logfile, then attempt to roll out the changes.  In NT
-the MFT is updated real time and the logfile is transacted after the fact.
-This can (but not always) cause massive data loss on NTFS drives.  Anton
-has fixed a lot of these issues on the newer code, but Linux NTFS
-is still a very dangerous piece of software to use R/W (R/O works 
-OK).
-
-Do you need this tool?
-
-
-Jeff
-
-> thanks in advance!
+> one more thing I remember when this happened:
 > 
-> -- 
+> a) lots of ld processes from kernel compilation were failing with ENOSPC
+> although df(1) was showing plenty of memory and I could manually "touch
+> ok" in the same filesystem just fine.
 > 
-> .oO0Oo.|.oO0Oo.|.oO0Oo.|.oO0Oo.|.oO0Oo.|.oO0Oo.
-> This message was made from 100% post-consumer
-> recycled magnetic domains. No binary trees were
-> destroyed to make it.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+> b) immediately restarting "make -j4 bzImage" would go on for quite a bit
+> and then hit the same set of .c files and "run out of space" again.
+
+Ehh, this is a stupid question, but I've had that happen too, and it
+turned out my /tmp filesystem was full, and it runs out of space only with
+certain large link cases (never anything else, because all the other
+stages of compilation are done with -pipe and do not use /tmp files).
+
+I'm embarrassed to even mention this, but I'v ebeen confused myself.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

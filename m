@@ -1,58 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271627AbRHUKEt>; Tue, 21 Aug 2001 06:04:49 -0400
+	id <S271629AbRHUKGt>; Tue, 21 Aug 2001 06:06:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271629AbRHUKEj>; Tue, 21 Aug 2001 06:04:39 -0400
-Received: from finch-post-10.mail.demon.net ([194.217.242.38]:12815 "EHLO
-	finch-post-10.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S271627AbRHUKEX>; Tue, 21 Aug 2001 06:04:23 -0400
-Date: Tue, 21 Aug 2001 11:03:29 +0100 (BST)
-From: Steve Hill <steve@navaho.co.uk>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-cc: Doug McNaught <doug@wireboard.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: /dev/random in 2.4.6
-In-Reply-To: <3B812FD2.836572F5@nortelnetworks.com>
-Message-ID: <Pine.LNX.4.21.0108211049520.6695-100000@sorbus.navaho>
+	id <S271630AbRHUKGc>; Tue, 21 Aug 2001 06:06:32 -0400
+Received: from miranda.axis.se ([193.13.178.2]:9155 "EHLO miranda.axis.se")
+	by vger.kernel.org with ESMTP id <S271629AbRHUKGP>;
+	Tue, 21 Aug 2001 06:06:15 -0400
+Message-ID: <256901c12a29$03e30580$0a070d0a@axis.se>
+From: "Johan Adolfsson" <johan.adolfsson@axis.com>
+To: "Alex Bligh - linux-kernel" <linux-kernel@alex.org.uk>,
+        "David Lang" <david.lang@digitalinsight.com>
+Cc: "David Schwartz" <davids@webmaster.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0108210042520.32719-100000@dlang.diginsite.com> <608038730.998389316@[169.254.45.213]>
+Subject: Re: Entropy from net devices - keyboard & IDE just as 'bad' (better timing in random.c)
+Date: Tue, 21 Aug 2001 12:06:58 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2314.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Aug 2001, Chris Friesen wrote:
 
-> The main reason for my comment was the suggestion by Steve Hill that
-> /dev/urandom was NOT cryptographically secure.  Re-reading it, his comment was
-> in the context of generating cryptographic keys, so perhaps I misunderstood what
-> he meant.
+Alex Bligh - linux-kernel <linux-kernel@alex.org.uk> wrote:
 
-Sorry - I'm not a cryptography expert, just your average Linux hacker :)
+> Well, I was arguing that network traffic was sufficiently unobservable
+> that it constitutes valid entropy under some circumstances, until I went
+> and read the code. It is so (it seems to me) on some i386 versions, where
+> the cycle clock is used. It is definitely not (and neither are any of
+> the other interrupt timings) where jiffies are used, for a start
+> because /proc/interrupts gives you the jiffie count (timer interrupts)
+> and the other interrupt counters simultaneously. So my argument is
+> that in some situations (where you know are happy with the extent
+> to which there is no observation of your wire locally), net IRQs
+> are no worse than the other sources of entropy, and sometimes they
+> are better (consider keyboards connected by radio). Obviously, in
+> cases like 802.11, they are substantially worse (and, no doubt, we
+> could omit Robert's patch from things like 802.11 drivers which
+> are obvious 'don't do that' cases).
 
-I was under the impression that urandom was considered insecure (hence why
-it is not used by ssh, FreeS/WAN, etc), and so was very dubious about just
-linking /dev/random to /dev/urandom.  However I still had the problem that
-being a headless system, there wasn't much entropy (something which had
-never been a problem under Cobalt's kernels - presumably they had kludged
-/dev/random on the kernel-side).
+How about improving that with something like this (not test compiled)
 
-After various suggestions, and a correction (I now understand urandom to
-be secure despite the very theoretical vulnerability), I opted to get
-extra entropy from the eepro100 and natsemi network devices.
+static void add_timer_randomness(struct timer_rand_state *state, unsigned
+num)
+{
+ __u32  time;
+ __s32  delta, delta2, delta3;
+ int  entropy = 0;
 
-Anyway, I would consider that the idea of generating entropy purely from
-the local console (keyboard / mouse) to be a rather flawed idea - think
-how many headless linux servers there are that are running some kind of
-cryptographic software.  Maybe a compile-time option in the kernel to
-change quality of /dev/random would be an idea so that the person
-compiling the kernel can decide on the level of the tradeoff between the
-quality and speed/amount of randomness...  Just a thought anyway.
+#if defined (__i386__)
+ if ( test_bit(X86_FEATURE_TSC, &boot_cpu_data.x86_capability) ) {
+  __u32 high;
+  __asm__(".byte 0x0f,0x31"
+   :"=a" (time), "=d" (high));
+  num ^= high;
+ } else {
+  time = jiffies;
+ }
+#else
++ struct timeval tv;
++ do_gettimeofday(&tv);
++ num ^= tv.tv_usec;
+ time = jiffies;
+#endif
 
--- 
+Of course do_gettimeofday() is probably a little to heavyweigt for doing
+this,
+so how about adding an arch specific macro:
+GET_JIFFIES_USEC()
+that returns the number of microseconds in the current jiffie and simply
+use that to modify the num?
 
-- Steve Hill
-System Administrator         Email: steve@navaho.co.uk
-Navaho Technologies Ltd.       Tel: +44-870-7034015
-
-        ... Alcohol and calculus don't mix - Don't drink and derive! ...
+/Johan
 
 

@@ -1,32 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314351AbSESMWF>; Sun, 19 May 2002 08:22:05 -0400
+	id <S314379AbSESMY6>; Sun, 19 May 2002 08:24:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314379AbSESMWF>; Sun, 19 May 2002 08:22:05 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:19982 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S314351AbSESMWE>; Sun, 19 May 2002 08:22:04 -0400
-Message-Id: <200205191219.g4JCJ7Y25884@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: mru@users.sourceforge.net (M?ns Rullg?rd), linux-kernel@vger.kernel.org
-Subject: Re: ide cd/dvd with 2.4.19-pre8
-Date: Sun, 19 May 2002 15:21:02 -0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <yw1x1ycak586.fsf@gladiusit.e.kth.se>
+	id <S314380AbSESMY5>; Sun, 19 May 2002 08:24:57 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47116 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314379AbSESMY4>; Sun, 19 May 2002 08:24:56 -0400
+Subject: Re: AUDIT: copy_from_user is a deathtrap.
+To: benh@kernel.crashing.org (Benjamin Herrenschmidt)
+Date: Sun, 19 May 2002 13:22:12 +0100 (BST)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        rusty@rustcorp.com.au (Rusty Russell), linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk
+In-Reply-To: <20020518214717.3526@smtp.wanadoo.fr> from "Benjamin Herrenschmidt" at May 18, 2002 10:47:17 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E179PhU-0003hU-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 May 2002 16:18, M?ns Rullg?rd wrote:
-> I just noticed that reading from both my cdrom and dvd is a lot slower
-> with 2.4.19-pre8 than 2.4.18. Now hdparm reports ~800 kbytes/s compared to
-> 1.7 MBytes/s for CD and >2 MBytes/s for DVD with 2.4.18. It is even
-> impossible to play DVDs. Any ideas?
+> Looking at generic_file_write(), it ignore the count returned by
+> copy_from_user and always commit a write for the whole requested
+> count, regardless of how much could actually be read from userland.
 
-Do you know at which preN this has happened?
---
-vda
+It has to commit the write for the entire block. That is needed to get
+the disk sectors correct versus another reader. The error reporting may
+not be berfect however
+
+Alan

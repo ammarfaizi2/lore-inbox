@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129918AbQKKGVM>; Sat, 11 Nov 2000 01:21:12 -0500
+	id <S129962AbQKKHb2>; Sat, 11 Nov 2000 02:31:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129916AbQKKGVB>; Sat, 11 Nov 2000 01:21:01 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:23306 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129918AbQKKGUv>; Sat, 11 Nov 2000 01:20:51 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [BUG] /proc/<pid>/stat access stalls badly for swapping 
- process,2.4.0-test10
-Date: 10 Nov 2000 22:20:38 -0800
-Organization: Transmeta Corporation
-Message-ID: <8uiofm$1tr$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.10.10011091005390.1909-100000@penguin.transmeta.com> <3A0C6BD6.A8F73950@dm.ultramaster.com>
+	id <S129948AbQKKHbS>; Sat, 11 Nov 2000 02:31:18 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:55565 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129916AbQKKHbC>; Sat, 11 Nov 2000 02:31:02 -0500
+From: Peter Samuelson <peter@cadcamlab.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14860.62888.81093.51268@wire.cadcamlab.org>
+Date: Sat, 11 Nov 2000 01:30:48 -0600 (CST)
+To: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Cc: George Anzinger <george@mvista.com>, Dan Aloni <karrde@callisto.yi.org>,
+        Ivan Passos <lists@cyclades.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Patch generation
+In-Reply-To: <Pine.LNX.4.21.0011100051190.31850-100000@callisto.yi.org>
+	<3A0C2813.E7CB42D2@mvista.com>
+	<20001110215628.A28057@wire.cadcamlab.org>
+	<m3u29ff51b.fsf@matrix.mandrakesoft.com>
+X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
+        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
+        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A0C6BD6.A8F73950@dm.ultramaster.com>,
-David Mansfield  <lkml@dm.ultramaster.com> wrote:
->Linus Torvalds wrote:
->...
->> 
->> And it has everything to do with the fact that the way Linux semaphores
->> are implemented, a non-blocking process has a HUGE advantage over a
->> blocking one. Linux kernel semaphores are extreme unfair in that way.
->>
->...
->> The original running process comes back faulting again, finds the
->> semaphore still unlocked (the "ps" process is awake but has not gotten to
->> run yet), gets the semaphore, and falls asleep on the IO for the next
->> page.
->> 
->> The "ps" process actually gets to run now, but it's a bit late. The
->> semaphore is locked again.
->> 
->> Repeat until luck breaks the bad circle.
->> 
->
->But doesn't __down have a fast path coded in assembly?  In other words,
->it only hits your patched code if there is already contention, which
->there isn't in this case, and therefore the bug...?
 
-The __down() case should be hit if there's a waiter, even if that waiter
-has not yet been able to pick up the lock (the waiter _will_ have
-decremented the count to negative in order to trigger the proper logic
-at release time).
+[Chmouel Boudjnah <chmouel@mandrakesoft.com>]
+> i would recommend to use the orig.el[1] from frederic.lepied with
+> Emacs, it save any files before editing with a particuliar prefix
 
-But as I mentioned, the pseudo-patch was certainly untested, so
-somebody should probably walk through the cases to check that I didn't
-miss something.
+I'll take a look, thanks.
 
-		Linus
+> and you can generate the patch with the gendiff script (included with
+> rpm).
+
+I did not know about gendiff (as a Debian user I rarely use RPM).
+Anyway I prefer my patch[2] as it's more flexible.  gendiff doesn't let
+you pass in other diff options (true, many are not useful in this
+context but think about -d, -p, -b and -U).
+
+Peter
+
+[2] again, http://bugs.debian.org/64958
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

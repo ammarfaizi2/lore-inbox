@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbVDEHPA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVDEHRt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261593AbVDEHPA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 03:15:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVDEHOx
+	id S261575AbVDEHRt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 03:17:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbVDEHRA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 03:14:53 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:43243 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261590AbVDEHIS (ORCPT
+	Tue, 5 Apr 2005 03:17:00 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:33441 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261590AbVDEHQU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 03:08:18 -0400
-Date: Tue, 5 Apr 2005 09:07:56 +0200
+	Tue, 5 Apr 2005 03:16:20 -0400
+Date: Tue, 5 Apr 2005 09:16:04 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, stsp@aknet.ru
 Subject: Re: crash in entry.S restore_all, 2.6.12-rc2, x86, PAGEALLOC
-Message-ID: <20050405070756.GA23079@elte.hu>
+Message-ID: <20050405071604.GA23355@elte.hu>
 References: <20050405065544.GA21360@elte.hu> <20050405000319.4fa1d962.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -34,14 +34,14 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 * Andrew Morton <akpm@osdl.org> wrote:
 
-> Do you have nmis enabled?
+> From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
+> 
+> With nmi_watchdog=1, I got random Oopses (Unable to handle kernel 
+> paging request, not by the NMI oopser) from many processes.  It is not 
+> happend with -rc1.
+> 
+> The following change fixes this problem.
 
-yeah ...
-
->  	call do_nmi
-> -	jmp restore_all
-> +	jmp restore_nocheck
-
-and i was about to take a closer look at the NMI path :-)
+this fixed my crashes too.
 
 	Ingo

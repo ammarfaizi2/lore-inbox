@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316339AbSGGSO3>; Sun, 7 Jul 2002 14:14:29 -0400
+	id <S316364AbSGGS1S>; Sun, 7 Jul 2002 14:27:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316342AbSGGSO2>; Sun, 7 Jul 2002 14:14:28 -0400
-Received: from ftp.realnet.co.sz ([196.28.7.3]:61395 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S316339AbSGGSO1>; Sun, 7 Jul 2002 14:14:27 -0400
-Date: Sun, 7 Jul 2002 20:35:01 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ide__sti usage
-In-Reply-To: <Pine.SOL.4.30.0207071859330.1945-100000@mion.elka.pw.edu.pl>
-Message-ID: <Pine.LNX.4.44.0207072034060.1441-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316355AbSGGS1R>; Sun, 7 Jul 2002 14:27:17 -0400
+Received: from THANK.THUNK.ORG ([216.175.175.163]:7552 "EHLO thunk.org")
+	by vger.kernel.org with ESMTP id <S316342AbSGGS1R>;
+	Sun, 7 Jul 2002 14:27:17 -0400
+Date: Sat, 6 Jul 2002 08:45:34 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Rob Landley <landley@trommello.org>, Bill Davidsen <davidsen@tmr.com>,
+       Adrian Bunk <bunk@fs.tum.de>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OKS] Kernel release management
+Message-ID: <20020706124534.GA476@think.thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Russell King <rmk@arm.linux.org.uk>,
+	Rob Landley <landley@trommello.org>,
+	Bill Davidsen <davidsen@tmr.com>, Adrian Bunk <bunk@fs.tum.de>,
+	Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.3.96.1020702110848.27954D-100000@gatekeeper.tmr.com> <200207030718.g637I0L145202@pimout2-int.prodigy.net> <20020704131654.B11601@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020704131654.B11601@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jul 2002, Bartlomiej Zolnierkiewicz wrote:
-
-> Also for most code in start_request() we dont need lock, we need it only
-> for calling block layer helpers, changing/reading IDE_BUSY bit and
-> ch->handler, timer and drive->rq.
+On Thu, Jul 04, 2002 at 01:16:54PM +0100, Russell King wrote:
+> On Tue, Jul 02, 2002 at 09:19:41PM -0400, Rob Landley wrote:
+> > Look at the pressure to get stuff into 2.4 when it's already in 2.5.  Because 
+> > 2.4 is what people are actually using, and 2.5 is really just for os 
+> > development and testing (and general playing with) at this point.
 > 
-> Also we cannot disable interrupts, because we wont know when drive is
-> interrupting us, missed irqs.
+> If stuff in 2.5 wasn't soo broken (looking at IDE here) then more people
+> would be using it, and less people would be wanting the 2.5 features back
+> ported to 2.4.  IMHO, at the moment 2.5 has a major problem.  It is not
+> getting the testing it deserves because things like IDE and such like
+> aren't reasonably stable enough.
 
-Thanks that explains quite a bit.
+And the obvious answer to this is a backport of the 2.4 IDE subsystem
+to 2.5.....  CONFIG_IDE_WONT_FIND_NEW_E2FSCK_BUGS, anyone?  :-)
 
-Cheers,
-	Zwane Mwaikambo
-
--- 
-function.linuxpower.ca
-
+						- Ted

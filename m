@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267604AbUHEIek@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267602AbUHEIfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267604AbUHEIek (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 04:34:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267608AbUHEIek
+	id S267602AbUHEIfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 04:35:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267606AbUHEIfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 04:34:40 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:49931 "HELO
+	Thu, 5 Aug 2004 04:35:09 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:50955 "HELO
 	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S267604AbUHEIeh convert rfc822-to-8bit (ORCPT
+	id S267602AbUHEIfA convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 04:34:37 -0400
+	Thu, 5 Aug 2004 04:35:00 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: gene.heskett@verizon.net, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@osdl.org>,
+       Gene Heskett <gene.heskett@verizon.net>
 Subject: Re: Possible dcache BUG
-Date: Thu, 5 Aug 2004 11:33:44 +0300
+Date: Thu, 5 Aug 2004 11:33:55 +0300
 X-Mailer: KMail [version 1.4]
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <20040804204640.64cd65fc.akpm@osdl.org> <200408050031.21366.gene.heskett@verizon.net>
-In-Reply-To: <200408050031.21366.gene.heskett@verizon.net>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408042216.12215.gene.heskett@verizon.net> <Pine.LNX.4.58.0408042359460.24588@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0408042359460.24588@ppc970.osdl.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200408051133.44684.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-Id: <200408051133.55359.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well, it has, in the past week, ran memtest86-3a for 12 full passes
-> over the whole gig of ram with no errors.  This was the longest test,
-> I gave it a 2 hour, 5 pass test before I ever booted linux the first
-> time on this motherboard over 2 weeks ago now, a new Biostar
-> M7NCD-Pro, with an nforce2(3?) chipset.  I did that because I was
-> comeing from an older board whose memory had been overstressed by a
-> failing video card and I wanted to make sure this new memory, nearly
-> $210 worth of it, was good. I gave it another, probably 4 hour test
-> after the first couple of crashes, which it also passed.  And it got
+Hi Linus,
 
-You may use cpuburn to test RAM/CPU too.
+On Thursday 05 August 2004 10:25, Linus Torvalds wrote:
+> On Wed, 4 Aug 2004, Gene Heskett wrote:
+> > I *thought* I had PREEMPT turned off, but when I did a make xconfig,
+> > it was turned on.  So its now off, and a new 2.6.8-rc3 is building.
+> > It was frame pointers I had turned on for the last build, still on for
+> > this one underway now.
+>
+> Your latest bug report definitely had preempt on, you could see the
+> preempt code in the oops output when disassembled.
+>
+> Also, could you please enable CONFIG_DEBUG_BUGVERBOSE by hand if you use
+> the -mm tree, since you definitely hit a BUG() in there somewhere, but in
+> the -mm tree, the BUG()  message is totally unreadable unless you enable
+> BUGVERBOSE (and it's not in the config file).
 
-Although I have a memory which, when clocked a bit too high,
-pass both memtest86 and cpuburn for extended periods of time,
-yet large compile runs die with sig11 sometimes. Using a tiny
-bit less aggressive clocking helped. :)
+It is not a BUG().
+
+It's an oops (dereferencing a d_op pointer with value 0x00000900+14
+IIRC, Gene has complete disassembly with location of that event).
+
+It is not reproducible on request, but happens for him from time
+to time in the same place with the same bogus value of d_op.
 -- 
 vda

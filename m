@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261973AbSJQSwn>; Thu, 17 Oct 2002 14:52:43 -0400
+	id <S262178AbSJQS6M>; Thu, 17 Oct 2002 14:58:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262159AbSJQSwn>; Thu, 17 Oct 2002 14:52:43 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:10247 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261973AbSJQSwm>; Thu, 17 Oct 2002 14:52:42 -0400
-Date: Thu, 17 Oct 2002 19:58:38 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Greg KH <greg@kroah.com>
-Cc: Christoph Hellwig <hch@infradead.org>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove sys_security
-Message-ID: <20021017195838.A5325@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Greg KH <greg@kroah.com>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-References: <20021017195015.A4747@infradead.org> <20021017185352.GA32537@kroah.com>
-Mime-Version: 1.0
+	id <S262179AbSJQS6M>; Thu, 17 Oct 2002 14:58:12 -0400
+Received: from [203.199.93.15] ([203.199.93.15]:15625 "EHLO
+	WS0005.indiatimes.com") by vger.kernel.org with ESMTP
+	id <S262178AbSJQS6L>; Thu, 17 Oct 2002 14:58:11 -0400
+From: "arun4linux" <arun4linux@indiatimes.com>
+Message-Id: <200210171839.AAA21371@WS0005.indiatimes.com>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "arun4linux" <arun4linux@indiatimes.com>
+Subject: cache flushing and invalidation in driver
+Date: Fri, 18 Oct 2002 00:03:26 +0530
+X-URL: http://indiatimes.com
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021017185352.GA32537@kroah.com>; from greg@kroah.com on Thu, Oct 17, 2002 at 11:53:52AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 17, 2002 at 11:53:52AM -0700, Greg KH wrote:
-> No, don't remove this!
+Hello,
 
-> Yes, it's a big switch, but what do you propose otherwise?  SELinux
-> would need a _lot_ of different security calls, which would be fine, but
-> we don't want to force every security module to try to go through the
-> process of getting their own syscalls.
+I'm writing a driver for a PCI based application specific controller. Infact porting from OS/2.
 
-They should register their syscalls with the kernel properly. Look
-at what e.g. the streams people did after the sys_call_table
-removal.  It's enough that IRIX suffers from the syssgi syndrome, no
-need to copy redo their mistakes in Linux.
+I have couple of questions on caching problem ( i faced this when I worked on vxworks, PPC machine).
 
-> And other subsystems in the kernel do the same thing with their syscall,
-> like networking, so there is a past history of this usage.
 
-But they don't allow any random module to implement it.  And anyone
-asked today says the horrible sys_Scoketcall and sys_ipc cludges
-were a mistake.
+Our card has its own RAM and we are mapping and using that in the driver. Ours is a pentium target machine.
 
-> Linus, please do not apply.
+I'd like to know how to do cache flushing and cache invalidation in linux? 
 
-Well, getting it applyed was the intent of sending out this mail..
+Do we need to do it explicitly on a pentium/linux machine?
+
+The other question is existing OS/2 implementation exports the hardware personalities (PCI I/O and memory base addresses) to the application and application takes control after that.
+
+We need to use mmap to acheive the same as per requirement. 
+
+Will there be any cache or any other issues on this regard?
+
+
+Your answers would be helpful for us as we are in the design phase.
+
+Warm Regards
+
+Arun
+
+
+
+
+Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
+
+ Buy Music, Video, CD-ROM, Audio-Books and Music Accessories from http://www.planetm.co.in
+
+Change the way you talk. Indiatimes presents Valufon, Your PC to Phone service with clear voice at rates far less than the normal ISD rates. Go to http://www.valufon.indiatimes.com. Choose your plan. BUY NOW.
 

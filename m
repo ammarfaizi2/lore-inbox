@@ -1,69 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264761AbTCEHXN>; Wed, 5 Mar 2003 02:23:13 -0500
+	id <S264730AbTCEHdX>; Wed, 5 Mar 2003 02:33:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264799AbTCEHXN>; Wed, 5 Mar 2003 02:23:13 -0500
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:30120 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S264761AbTCEHXL>; Wed, 5 Mar 2003 02:23:11 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH]  Remove v850 dependency on NR_syscalls
-Cc: linux-kernel@vger.kernel.org
-Reply-To: Miles Bader <miles@gnu.org>
-Message-Id: <20030305073109.900FA3728@mcspd15.ucom.lsi.nec.co.jp>
-Date: Wed,  5 Mar 2003 16:31:09 +0900 (JST)
-From: miles@lsi.nec.co.jp (Miles Bader)
+	id <S264745AbTCEHdX>; Wed, 5 Mar 2003 02:33:23 -0500
+Received: from users.linvision.com ([62.58.92.114]:10881 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S264730AbTCEHdV>; Wed, 5 Mar 2003 02:33:21 -0500
+Date: Wed, 5 Mar 2003 08:43:33 +0100
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Matthew Wilcox <willy@debian.org>,
+       Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Proposal: Eliminate GFP_DMA
+Message-ID: <20030305084332.B22193@bitwizard.nl>
+References: <20030228064631.G23865@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <p73heao7ph2.fsf@amdsimf.suse.de> <20030228141234.H23865@parcelfarce.linux.theplanet.co.uk> <1046445897.16599.60.camel@irongate.swansea.linux.org.uk> <20030228143405.I23865@parcelfarce.linux.theplanet.co.uk> <1046447737.16599.83.camel@irongate.swansea.linux.org.uk> <20030304185616.A9527@bitwizard.nl> <1046819369.12226.34.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1046819369.12226.34.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -ruN -X../cludes linux-2.5.64-moo.orig/arch/v850/kernel/entry.S linux-2.5.64-moo/arch/v850/kernel/entry.S
---- linux-2.5.64-moo.orig/arch/v850/kernel/entry.S	2003-02-25 10:44:59.000000000 +0900
-+++ linux-2.5.64-moo/arch/v850/kernel/entry.S	2003-03-05 16:13:52.000000000 +0900
-@@ -438,11 +438,11 @@
-    LP register should point to the location where the called function
-    should return.  [note that MAKE_SYS_CALL uses label 1]  */
- #define MAKE_SYS_CALL							      \
--	/* See if the system call number is valid.  */			      \
--	addi	-NR_syscalls, r12, r0;					      \
--	bnh	1f;							      \
- 	/* Figure out which function to use for this system call.  */	      \
- 	shl	2, r12;							      \
-+	/* See if the system call number is valid.  */			      \
-+	addi	lo(CSYM(sys_call_table) - sys_call_table_end), r12, r0;	      \
-+	bnh	1f;							      \
- 	mov	hilo(CSYM(sys_call_table)), r19;			      \
- 	add	r19, r12;						      \
- 	ld.w	0[r12], r12;						      \
-@@ -982,8 +980,5 @@
- 	.long CSYM(sys_pivot_root)	// 200
- 	.long CSYM(sys_gettid)
- 	.long CSYM(sys_tkill)
--	.long CSYM(sys_ni_syscall)	// sys_mincore
--	.long CSYM(sys_ni_syscall)	// sys_madvise
--
--	.space (NR_syscalls-205)*4
-+sys_call_table_end:
- C_END(sys_call_table)
-diff -ruN -X../cludes linux-2.5.64-moo.orig/include/asm-v850/unistd.h linux-2.5.64-moo/include/asm-v850/unistd.h
---- linux-2.5.64-moo.orig/include/asm-v850/unistd.h	2002-12-24 15:01:24.000000000 +0900
-+++ linux-2.5.64-moo/include/asm-v850/unistd.h	2003-03-05 14:47:11.000000000 +0900
-@@ -1,8 +1,8 @@
- /*
-  * include/asm-v850/unistd.h -- System call numbers and invocation mechanism
-  *
-- *  Copyright (C) 2001,02  NEC Corporation
-- *  Copyright (C) 2001,02  Miles Bader <miles@gnu.org>
-+ *  Copyright (C) 2001,02,03  NEC Electronics Corporation
-+ *  Copyright (C) 2001,02,03  Miles Bader <miles@gnu.org>
-  *
-  * This file is subject to the terms and conditions of the GNU General
-  * Public License.  See the file COPYING in the main directory of this
-@@ -205,8 +205,6 @@
- #define __NR_pivot_root		200
- #define __NR_gettid		201
- #define __NR_tkill		202
--/* #define __NR_mincore		203 */
--/* #define __NR_madvise		204 */
- 
- 
- /* Syscall protocol:
+On Tue, Mar 04, 2003 at 11:09:30PM +0000, Alan Cox wrote:
+> On Tue, 2003-03-04 at 17:56, Rogier Wolff wrote:
+> > All the modifier flags on kmalloc and GFP should be "memory allocation
+> > descriptors".
+> > A DMA pool descriptor will only point to pools that have that
+> > capability.
+> 
+> Much much too simple. DMA to what from where for example ? Post 2.6 its
+> IMHO a case of making the equivalent of pci_alloc_* pci_map_* work with
+> generic device objects now we have them.
+
+I can't think of a case that doesn't fit my model. So, if you're
+saying that it's simple, that's good.
+
+          dev1      +----------+        dev2
+           |        |  CPU /   |         |
+   --------+--------+  BRIDGE  +---------+--------
+           |        |  ---->   |         |
+          mem1      +----------+        mem2
+
+If for example, there are two PCI busses, and a memory controller on
+both of them, but no DMA cpability in one direction through the PCI 
+bridge (embedded CPU) then there should be two memory pools. 
+
+In the picture above: dev1 can reach mem2, but dev2 can't reach mem1.
+
+PCI devices on the restricted PCI bus (dev2) will have to pass a 
+memory allocation descriptor that describes just the memory on 
+that PCI bus,  the other one (dev1) can pass a descriptor that 
+prefers the non-shared memory, (leaving as much as possible for 
+the devices on the other bus (bus2)), but
+reverts to the memory that the other devices can handle as well. 
+
+But if we end up "reading" from dev1, and writing the same data
+to dev2 we're better off DMAing it to "mem2". So, how to tell
+the dev1 driver that allocing off the allocation descriptor 
+"mem1, then mem2", is not a good a good idea, and that it should
+use "mem2, then mem1" is a problem that remains to be solved... 
+
+
+But if I'm missing a case that can't be modelled, please enlighten
+me as to what I'm missing.... 
+
+			Roger.
+
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* The Worlds Ecosystem is a stable system. Stable systems may experience *
+* excursions from the stable situation. We are currently in such an      * 
+* excursion: The stable situation does not include humans. ***************

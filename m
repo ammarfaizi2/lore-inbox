@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267378AbUG2AdH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267385AbUG2AdH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267378AbUG2AdH (ORCPT <rfc822;willy@w.ods.org>);
+	id S267385AbUG2AdH (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 28 Jul 2004 20:33:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267387AbUG2Aat
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267376AbUG2AaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 20:30:49 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:37021 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267377AbUG2A1T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 20:27:19 -0400
-Date: Wed, 28 Jul 2004 20:27:13 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
-To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>
-cc: linux-kernel@vger.kernel.org, Christophe Saout <christophe@saout.de>
-Subject: Re: [PATCH] Delete cryptoloop
-In-Reply-To: <ce9216$o5o$1@abraham.cs.berkeley.edu>
-Message-ID: <Xine.LNX.4.44.0407282025440.12996-100000@dhcp83-76.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 28 Jul 2004 20:30:25 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48530 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267395AbUG2A32
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 20:29:28 -0400
+Date: Thu, 29 Jul 2004 01:29:24 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: "David S. Miller" <davem@redhat.com>
+Cc: Chris Wedgwood <cw@f00f.org>, peter@chubb.wattle.id.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: stat very inefficient
+Message-ID: <20040729002924.GK12308@parcelfarce.linux.theplanet.co.uk>
+References: <233602095@toto.iv> <16648.10711.200049.616183@wombat.chubb.wattle.id.au> <20040728154523.20713ef1.davem@redhat.com> <20040729000837.GA24956@taniwha.stupidest.org> <20040728171414.5de8da96.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040728171414.5de8da96.davem@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Jul 2004, David Wagner wrote:
-
-> James Morris  wrote:
-> >It would be good if we could get some further review on the issue by an 
-> >independent, well known cryptographer.
+On Wed, Jul 28, 2004 at 05:14:14PM -0700, David S. Miller wrote:
+> On Wed, 28 Jul 2004 17:08:37 -0700
+> Chris Wedgwood <cw@f00f.org> wrote:
 > 
-> I'd be glad to review it if someone can point me to a clear, concise
-> description of the scheme (trying to extract the spec from the code
-> is too much work for me).
+> > Just How bad is it for you?  I just tested stat on my crapbox and for
+> > a short path 1M stats takes 0.5s and for a longer path (30 bytes or
+> > so) 2.8s.
+> 
+> Run "time find . -type f" on the kernel tree, both before and
+> after removing the third unnecessary copy.
 
-That would be great.  It would be best to do this review for dm-crypt.  
-
-Christophe, is there a detailed description of the existing scheme?
-
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+... with hot cache, otherwise IO time will dominate.  I don't disagree
+with you, but in all realistic cases I can think of it's going to be
+noise (e.g. this find over kernel tree is almost certainly followed
+by xargs grep, etc.).

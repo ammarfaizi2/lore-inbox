@@ -1,80 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262351AbTESGHE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 02:07:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbTESGHE
+	id S262356AbTESG0t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 02:26:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262357AbTESG0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 02:07:04 -0400
-Received: from cimice4.lam.cz ([212.71.168.94]:51668 "EHLO
-	vagabond.cybernet.cz") by vger.kernel.org with ESMTP
-	id S262351AbTESGHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 02:07:03 -0400
-Date: Mon, 19 May 2003 08:19:39 +0200
-From: Jan Hudec <bulb@ucw.cz>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: recursive spinlocks. Shoot.
-Message-ID: <20030519061939.GB944@vagabond>
-Mail-Followup-To: Jan Hudec <bulb@ucw.cz>,
-	"Peter T. Breuer" <ptb@it.uc3m.es>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	linux-kernel@vger.kernel.org
-References: <20030518163537.GZ8978@holomorphy.com> <200305181724.h4IHOHU24241@oboe.it.uc3m.es>
+	Mon, 19 May 2003 02:26:49 -0400
+Received: from [193.98.9.7] ([193.98.9.7]:51675 "EHLO mail.provi.de")
+	by vger.kernel.org with ESMTP id S262356AbTESG0s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 02:26:48 -0400
+Subject: Re: 2.4.21-rc:  lost interrupt wgen usinf atapi cdrom-drive
+From: Michael Reincke <reincke.m@stn-atlas.de>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1052811475.1618.7.camel@pcew80.atlas.de>
+References: <E19FTA7-000Mgw-00.arvidjaar-mail-ru@f15.mail.ru>
+	 <1052810966.1602.4.camel@pcew80.atlas.de>
+	 <1052811475.1618.7.camel@pcew80.atlas.de>
+Content-Type: text/plain; charset=ISO-8859-15
+Organization: STN ATLAS Elektronik GmbH
+Message-Id: <1053326382.8024.2.camel@pcew80.atlas.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200305181724.h4IHOHU24241@oboe.it.uc3m.es>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 19 May 2003 08:39:43 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 18, 2003 at 07:24:17PM +0200, Peter T. Breuer wrote:
-> "A month of sundays ago William Lee Irwin III wrote:"
-> > At some point in the past, Peter Breuer's attribution was removed from:
-> > >> Here's a before-breakfast implementation of a recursive spinlock. That
-> > >> is, the same thread can "take" the spinlock repeatedly. 
-> > 
-> > On Sun, May 18, 2003 at 09:30:17AM -0700, Martin J. Bligh wrote:
-> > > Why?
-> > 
-> > netconsole.
+On Tue, 2003-05-13 at 09:37, Michael Reincke wrote:
+> On Tue, 2003-05-13 at 09:29, Michael Reincke wrote:
+> > On Tue, 2003-05-13 at 08:21, Andrey Borzenkov wrote:
+> > > > i upgraded the linux kernel of my computer from 2.4.21-pre4 to
+> > > > 2.4.21-rc2 and got the following messages in syslog when using my
+> > > > atapi-cdrom drive:
+> > > > May 12 09:42:52 pcew80 kernel: hdc: DMA interrupt recovery
+> > > > May 12 09:42:52 pcew80 kernel: hdc: lost interrupt
+> > > > May 12 09:42:52 pcew80 kernel: hdc: status timeout: status=0xd0 { Busy }
+> > > > May 12 09:42:52 pcew80 kernel: hdc: status timeout: error=0x00
+> > > > May 12 09:42:52 pcew80 kernel: hdc: DMA disabled
+> > > > May 12 09:42:52 pcew80 kernel: hdc: drive not ready for command
+> > > > May 12 09:42:52 pcew80 kernel: hdc: ATAPI reset complete
+> > > 
+> > > 
+> > > It smells like ide_do_request forgets to enable interrupts when
+> > > request queue is empty.
+> > > 
+> > > drivers/ide/ide-io.c:
+> > > 
+> > > void ide_do_request (ide_hwgroup_t *hwgroup, int masked_irq)
+> > >                         hwgroup->busy = 0;
+> > > 
+> > > Ironically it does not release ide_intr_lock in this case but we
+> > > are not on m68k so we do not care :)
+> > > 
+> > > Could you please try to add local_irq_enable() before ide_release_lock() above and see if it helps?
+> > > It has been reported to have fixed fix problems for other people. OTOH
+> > > I did have sevral hard lockups with this so there may be more subtle
+> > > problems issues.
+> > The hangs and timeouts and total blocking of the cdrom drive seems to be
+> > away, but the lost interrupt messages are still there.
+> > But have in mind I've only a quick test so far.
 > 
-> That's a problem looking for a solution!  No, the reason for wanting a
-> recursive spinlock is that nonrecursive locks make programming harder.
-> 
-> Though I've got quite good at finding and removing deadlocks in my old
-> age, there are still two popular ways that the rest of the world's
-> prgrammers often shoot themselves in the foot with a spinlock:
-> 
->    a) sleeping while holding the spinlock
->    b) taking the spinlock in a subroutine while you already have it
-> 
-> The first method leads to an early death if the spinlock is a popular
-> one, as the only thread that can release it doesn't seem to be running,
-> errr..
-> 
-> The second method is used by programmers who aren't aware that some
-> obscure subroutine takes a spinlock, and who recklessly take a lock
-> before calling a subroutine (the very thought sends shivers down my
-> spine ...).  A popular scenario involves not /knowing/ that your routine
-> is called by the kernel with some obscure lock already held, and then
-> calling a subroutine that calls the same obscure lock.  The request
-> function is one example, but that's hardly obscure (and in 2.5 the 
-> situation has eased there!).
-> 
-> It's the case (b) that a recursive spinlock makes go away.
+> Bad news the hangs and timeout are still there!
 
-It thought we still have the spinlock debuging level 2 which DOES CHECK
-THIS (seems noone knows about it - I had to fix a trivial error when
-I used it in user-mode arch, but it worked well then). [check means it
-gives backtrace]
+The problem is vanishing when disabling
+IO-APIC support on uniprocessors             
+-- 
+Michael Reincke, NUT Team 2 (Software Build Management)
 
-> Hey, that's not bad for a small change! 50% of potential programming
-> errors sent to the dustbin without ever being encountered.
+STN ATLAS Elektronik GmbH, Bremen (Germany)
+E-mail : reincke.m@stn-atlas.de |  mail: Sebaldsbrücker Heerstr 235    
+phone  : +49-421-457-2302       |        28305 Bremen                  
+fax    : +49-421-457-3913       |
 
-They are errors. Appropriate response to errors is an OOPS.
 
--------------------------------------------------------------------------------
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+
+

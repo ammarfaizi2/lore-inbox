@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269639AbUICL4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269641AbUICL5f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269639AbUICL4r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 07:56:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269641AbUICL4q
+	id S269641AbUICL5f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 07:57:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269643AbUICL5f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 07:56:46 -0400
-Received: from mail.gmx.net ([213.165.64.20]:50124 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S269639AbUICLzz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 07:55:55 -0400
-X-Authenticated: #4399952
-Date: Fri, 3 Sep 2004 14:08:11 +0200
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       rlrevell@joe-job.com, felipe_alfaro@linuxmail.org
-Subject: Re: lockup with voluntary preempt R0 and VP, KP, etc, disabled
-Message-ID: <20040903140811.37ae8067@mango.fruits.de>
-In-Reply-To: <20040903140425.26fddf8e@mango.fruits.de>
-References: <20040903120957.00665413@mango.fruits.de>
-	<20040903100946.GA22819@elte.hu>
-	<20040903123139.565c806b@mango.fruits.de>
-	<20040903103244.GB23726@elte.hu>
-	<20040903135919.719db41d@mango.fruits.de>
-	<20040903140425.26fddf8e@mango.fruits.de>
-X-Mailer: Sylpheed-Claws 0.9.12a (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 3 Sep 2004 07:57:35 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:22931 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S269641AbUICL5X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 07:57:23 -0400
+Subject: Re: PROBLEM: Full CPU-usage on sis5513-chipset disc
+	input/output-operations
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Hendrik Fehr <s4248297@rcs.urz.tu-dresden.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1094206957.413845ed84b54@rmc60-231.urz.tu-dresden.de>
+References: <1094206957.413845ed84b54@rmc60-231.urz.tu-dresden.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1094208914.7535.19.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 03 Sep 2004 11:55:14 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Sep 2004 14:04:25 +0200
-Florian Schmidt <mista.tapas@gmx.net> wrote:
+On Gwe, 2004-09-03 at 11:22, Hendrik Fehr wrote:
+> (note: i use ide0=ata66 because my machine is a laptop which uses a short 40c
+> wire that is equal to an long (i thing 18 inches) 80c cable.)
 
-> 
-> and for completeness sake here's my kernel .config:
-> 
-[snip]
+That should be fine - if it was not you would get CRC errors.
 
-btw: how can i set a different kernel "name" so the modules get their
-own subdir in /lib/? 
+> hda: 78140160 sectors (40007 MB), CHS=65535/16/63, UDMA(100)
+> hda: cache flushes supported
+>  /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 < p5 p6 p7 p8 >
 
-flo
+This all looks fine
+
+> hdc: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
+
+Likewise. So it is booting up with DMA enabled and ought to be fast for
+both devices. What does hdparm -t /dev/hda say ?
 

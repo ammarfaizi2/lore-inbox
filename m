@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262594AbUKXKYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262597AbUKXK0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262594AbUKXKYq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 05:24:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262595AbUKXKYq
+	id S262597AbUKXK0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 05:26:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbUKXK0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 05:24:46 -0500
-Received: from fmmailgate05.web.de ([217.72.192.243]:64384 "EHLO
-	fmmailgate05.web.de") by vger.kernel.org with ESMTP id S262594AbUKXKYo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 05:24:44 -0500
-Message-ID: <41A4610B.3020707@web.de>
-Date: Wed, 24 Nov 2004 11:23:07 +0100
-From: Michael Hunold <hunold-ml@web.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.9 Question w/4port Ethernet Card & MII Transceivers
-References: <Pine.LNX.4.61.0411230759070.3740@p500>
-In-Reply-To: <Pine.LNX.4.61.0411230759070.3740@p500>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Nov 2004 05:26:15 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:48513 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262597AbUKXK0C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 05:26:02 -0500
+Date: Wed, 24 Nov 2004 12:27:45 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>
+Subject: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-0
+Message-ID: <20041124112745.GA3294@elte.hu>
+References: <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041124101626.GA31788@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I'm experiencing the same problems, see:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0409.0/0565.html
+i have released the -V0.7.31-0 Real-Time Preemption patch, which can be
+downloaded from the usual place:
 
-On 23.11.2004 14:02, Justin Piszcz wrote:
-> Question regarding the warnings, it appears to find a MII transceiver 
-> but then it warns saying it does not?
+    http://redhat.com/~mingo/realtime-preempt/
 
-I'm having the same problem with a 2port card. After a cold boot, the 
-transceivers are not found and I need to do a reset. Afterwards, 
-everything is fine.
+this is a merge of the -30-10 patch to 2.6.10-rc2-mm3. There are no
+other changes.
 
-> Is it a problem?
+to create a -V0.7.31-0 tree from scratch, the patching order is:
 
-For me, yes. I'm using one port to connect to my adsl provider. After a 
-cold boot, this fails.
+  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.9.tar.bz2
+  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.10-rc2.bz2
+  http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm3/2.6.10-rc2-mm3.bz2
+  http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.10-rc2-mm3-V0.7.31-0
 
-> If it is not using a HW tranceiver, does this cause a loss in performance?
-
-I don't know.
-
-Can you try to reboot the machine and see if the problem goes away (ie. 
-the transceivers are found)?
-
-Do you have a 2.4 kernel where the card works after a cold boot?
-
-So far nobody has come up with a solution and I don't reboot the machine 
-that often. But it's "good" to know that I'm not alone with the problem. ;-(
-
-CU
-Michael.
+	Ingo

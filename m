@@ -1,66 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262500AbSJETub>; Sat, 5 Oct 2002 15:50:31 -0400
+	id <S262486AbSJETqV>; Sat, 5 Oct 2002 15:46:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262504AbSJETub>; Sat, 5 Oct 2002 15:50:31 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:37393
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S262500AbSJETuZ>; Sat, 5 Oct 2002 15:50:25 -0400
-Date: Sat, 5 Oct 2002 12:53:37 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Gigi Duru <giduru@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: The end of embedded Linux?
-In-Reply-To: <20021005193650.17795.qmail@web13202.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.10.10210051252130.21833-100000@master.linux-ide.org>
+	id <S262488AbSJETqV>; Sat, 5 Oct 2002 15:46:21 -0400
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:15325
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S262486AbSJETqU>; Sat, 5 Oct 2002 15:46:20 -0400
+Date: Sat, 5 Oct 2002 15:51:44 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Larry McVoy <lm@bitmover.com>
+cc: Ulrich Drepper <drepper@redhat.com>, Ben Collins <bcollins@debian.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: New BK License Problem?
+In-Reply-To: <20021005124321.D11375@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0210051549570.5197-100000@xanadu.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 5 Oct 2002, Larry McVoy wrote:
 
-Well have a nice day and go pay for windriver licenses, or use the source
-to adopt to your needs, or hire somebody who can do it for you.
-Whinning will not help, doing will.
+> > patches in the kernel every day.  Now this isn't possible anymore without
+> 
+> Nonsense.  There are all sorts of people who have taken the BK trees and
+> made the patch snapshots available on timely basis. 
 
-Regards,
+Timely != real time.
 
-On Sat, 5 Oct 2002, Gigi Duru wrote:
+See my previous suggestion as a sensible compromise.
 
-> Trivial experiment: configure out _ALL_ the options on
-> 2.5.38 and build bzImage. My result? A totally useless
-> 270KB kernel (compressed). 
-> 
-> Now try to put in some useful stuff and the
-> _compressed_ image will cheerfully approach 1MB. Where
-> are the days when a 200KB kernel would be fully
-> equipped?
-> 
-> I know you guys are struggling to bring "world class
-> VM & IO" to Linux, going for SMPs and other big toys,
-> but you are about to lose what you already have: the
-> embedded market.
-> 
-> As an embedded developer, I can't stand bloat. I think
-> an OS designer should feel the same, and develop in a
-> fully modular and configurable manner, going for both
-> speed and size. For a long time I've felt that Linux
-> has got it right, but lately I'm not that sure
-> anymore. 
-> 
-> Gigi Duru
-> 
-> __________________________________________________
-> Do you Yahoo!?
-> Faith Hill - Exclusive Performances, Videos & More
-> http://faith.yahoo.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 
-Andre Hedrick
-LAD Storage Consulting Group
+Nicolas
 

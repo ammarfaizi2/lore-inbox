@@ -1,65 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262396AbUCJO42 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 09:56:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbUCJO42
+	id S262649AbUCJO7S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 09:59:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262650AbUCJO7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 09:56:28 -0500
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:23815 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S262396AbUCJO40 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 09:56:26 -0500
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.4-rc3] Disable Macintosh device drivers for all but PPC || MAC
-Date: Wed, 10 Mar 2004 15:47:27 +0100
-User-Agent: KMail/1.6.1
-Cc: Andrew Morton <akpm@digeo.com>
-X-Operating-System: Linux 2.4.20-wolk4.10s i686 GNU/Linux
+	Wed, 10 Mar 2004 09:59:18 -0500
+Received: from dhcp065-025-003-198.neo.rr.com ([65.25.3.198]:65041 "HELO
+	dhcp065-025-003-198.neo.rr.com") by vger.kernel.org with SMTP
+	id S262649AbUCJO7Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 09:59:16 -0500
+Message-ID: <757z2030--s5d64ycz-jv$1@kkkhv>
+From: "Ada Durham" <eai71tlo@AOL.COM>
+Reply-To: "Ada Durham" <eai71tlo@AOL.COM>
+To: linux-kernel@vger.kernel.org
+Subject: =?ISO-8859-1?Q?=20R=EA:?= Your  =?ISO-8859-1?Q?=20p=E8n=EF=9A?= will be a legend br rmmaeijdunijd
+Date: Sat, 13 Mar 04 13:54:43 GMT
+X-Mailer: Microsoft Outlook, Build 10.0.2627
 MIME-Version: 1.0
-Content-Disposition: inline
-Organization: Working Overloaded Linux Kernel
-Message-Id: <200403101547.27116@WOLK>
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_/pyTAmTVLWdDe5h"
+Content-Type: multipart/alternative;
+	boundary="C.0_CB4.9B"
+X-Priority: 3
+X-MSMail-Priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-00=_/pyTAmTVLWdDe5h
+--C.0_CB4.9B
 Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi Andrew,
+These Pills Will Make Your Dick A Giant.
+100% Satis-faction Guaranteed! Or Your Money Back! 
 
-the attached patch is needed to stop showing us "Macintosh device 
-drivers" for all architectures via menuconfig || xconfig || gconfig.
-It's only necessary for PPC and/or MAC.
+* Gain 3+ Full Inches In Lngth 
+* Increase Your Penis Width (G=FFFFFFEFrth) By 20% 
+* Stop Premature Ejac-ulation! 
+* Produce Stronger, Rock Hard Erec-tions 
+* 100% Safe To Take, With NO Side Effects 
+* Fast Priority F=FFFFFFE8d-Ex Shipping WorldWide
+* Doctor Approved And Recommended 
+* No Pizumps! No Surgery
+* 100% M0ney Back Guarant=FFFFFFE8e 
 
-ACKed by Benjamim.
+Clicking below will enlarge your P=FFFFFFE8nis 
+http://hecatomb.zxxxc11.info/p1/?id=3Dphade 
 
-ciao, Marc
+Sincerely Yours,
+    Ada Durham eai71tlo@AOL.COM 
+    
+    
+    
+newt convene brownell connoisseur sewage
+sympathetic energetic ethan parade awry
+baptismal albuquerque mohawk strength ibis
+seminole adept herculean excisable petrel
 
---Boundary-00=_/pyTAmTVLWdDe5h
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="mac-menu-for-ALL-arches-eh.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="mac-menu-for-ALL-arches-eh.patch"
-
-diff -Naurp linux-2.6.4-rc1/drivers/macintosh/Kconfig linux-2.6.4-rc1-modified/drivers/macintosh/Kconfig
---- linux-2.6.4-rc1/drivers/macintosh/Kconfig	2004-03-07 20:52:34.000000000 +0100
-+++ linux-2.6.4-rc1-modified/drivers/macintosh/Kconfig	2004-03-07 21:12:47.000000000 +0100
-@@ -1,5 +1,6 @@
- 
- menu "Macintosh device drivers"
-+	depends on PPC || MAC
- 
- config ADB
- 	bool "Apple Desktop Bus (ADB) support"
-
---Boundary-00=_/pyTAmTVLWdDe5h--
+--C.0_CB4.9B--
 

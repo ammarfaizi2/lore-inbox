@@ -1,96 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263139AbUCMRfp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 12:35:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263140AbUCMRfp
+	id S263140AbUCMRlh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 12:41:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263141AbUCMRlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 12:35:45 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:61156 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263139AbUCMRev (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 12:34:51 -0500
-Date: Sat, 13 Mar 2004 18:34:44 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: neilb@cse.unsw.edu.au
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net, davem@redhat.com,
-       sparclinux@vger.kernel.org, ak@suse.de, discuss@x86-64.org,
-       gniibe@m17n.org, kkojima@rr.iij4u.or.jp, linux-sh@m17n.org
-Subject: modular nfsd requires kernel changes on sh, sparc64, x86_64
-Message-ID: <20040313173444.GX14833@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
+	Sat, 13 Mar 2004 12:41:37 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:39073 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S263140AbUCMRlg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 12:41:36 -0500
+Date: Sat, 13 Mar 2004 17:41:37 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Rik van Riel <riel@redhat.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: anon_vma RFC2
+In-Reply-To: <Pine.LNX.4.44.0403131227210.15971-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.44.0403131739270.3628-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compiling and inserting a module into the currently running kernel 
-should work without needing a reboot.
+On Sat, 13 Mar 2004, Rik van Riel wrote:
+> 
+> No, Linus is right.
+> 
+> If a child process uses mremap(), it stands to reason that
+> it's about to use those pages for something.
+> 
+> Think of it as taking the COW faults early, because chances
+> are you'd be taking them anyway, just a little bit later...
 
-For nfsd this seems to work everywhere except on the sh, sparc64 
-and x86_64 architectures where adding the nfsd module changes 
-non-modular kernel code (checked in 2.6.4-mm1):
+Makes perfect sense in the read-write case.  The read-only
+case is less satisfactory, but those will be even rarer.
 
-
-arch/sh/kernel/entry.S:
-
-<--  snip  -->
-
-...
-#if !defined(CONFIG_NFSD) && !defined(CONFIG_NFSD_MODULE)
-#define sys_nfsservctl          sys_ni_syscall
-#endif
-...
-
-<--  snip  -->
-
-
-arch/x86_64/ia32/sys_ia32.c:
-
-<--  snip  -->
-
-...
-#if defined(CONFIG_NFSD) || defined(CONFIG_NFSD_MODULE)
-/* Stuff for NFS server syscalls... */
-struct nfsctl_svc32 {
-        u16                     svc32_port;
-        s32                     svc32_nthreads;
-};
-
-struct nfsctl_client32 {
-...
-
-<--  snip  -->
-
-
-arch/sparc64/kernel/sys_sparc32.c:
-
-<--   snip  -->
-
-...
-#if defined(CONFIG_NFSD) || defined(CONFIG_NFSD_MODULE)
-/* Stuff for NFS server syscalls... */
-struct nfsctl_svc32 {
-        u16                     svc32_port;
-        s32                     svc32_nthreads;
-};
-
-struct nfsctl_client32 {
-...
-
-<--  snip  -->
-
-
-
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Hugh
 

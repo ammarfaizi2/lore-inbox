@@ -1,441 +1,214 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbULJUFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261803AbULJUGA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261810AbULJUFX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 15:05:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbULJUFX
+	id S261803AbULJUGA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 15:06:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbULJUGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 15:05:23 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:34996 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261204AbULJUDf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 15:03:35 -0500
-Date: Fri, 10 Dec 2004 12:03:32 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Hugh Dickins <hugh@veritas.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: pfault V12 : correction to tasklist rss
-In-Reply-To: <Pine.LNX.4.44.0412091830580.17648-300000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0412101150490.9169@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.44.0412091830580.17648-300000@localhost.localdomain>
+	Fri, 10 Dec 2004 15:06:00 -0500
+Received: from dfw-gate4.raytheon.com ([199.46.199.233]:23448 "EHLO
+	dfw-gate4.raytheon.com") by vger.kernel.org with ESMTP
+	id S261803AbULJUEj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 15:04:39 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Mark_H_Johnson@raytheon.com, Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+From: Mark_H_Johnson@raytheon.com
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15
+Date: Fri, 10 Dec 2004 14:03:44 -0600
+Message-ID: <OF27B09B8B.40A67C86-ON86256F66.006E33A8-86256F66.006E34B3@raytheon.com>
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 12/10/2004 02:03:47 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Dec 2004, Hugh Dickins wrote:
+This time, initial test results on -18PK (PREEMPT_DESKTOP, no IRQ
+threading).
 
-> Updating current->rss in do_anonymous_page, current->anon_rss in
-> page_add_anon_rmap, is not always correct: ptrace's access_process_vm
-> uses get_user_pages on another task.  You need check that current->mm ==
-> mm (or vma->vm_mm) before incrementing current->rss or current->anon_rss,
-> fall back to mm (or vma->vm_mm) in rare case not (taking page_table_lock
-> for that).  You'll also need to check !(current->flags & PF_BORROWED_MM),
-> to guard against use_mm.  Or... just go back to sloppy rss.
+Again, results running cpu_delay and collecting user triggered traces.
 
-Use_mm can simply attach the kernel thread to the mm via mm_add_thread
-and will then update mm->rss when being detached again.
+[1] Similar symptoms where I do not get traces that span CPU's plus
+the missing trace symptom.
 
-The issue with ptrace and get_user_pages is a bit thorny. I did the check
-for mm = current->mm in the following patch. If mm != current->mm then
-do the sloppy thing and increment mm->rss without the page table lock.
-This should be a very special rare case.
+# ./cpu_delay 0.000100
+Delay limit set to 0.00010000 seconds
+calibrating loop ....
+time diff= 0.503365 or 397326229 loops/sec.
+Trace activated with 0.000100 second delay.
+Trace triggered with 0.000321 second delay. [not recorded]
+Trace activated with 0.000100 second delay.
+Trace triggered with 0.000136 second delay. [not recorded]
+Trace activated with 0.000100 second delay.
+Trace triggered with 0.000139 second delay. [00]
+Trace activated with 0.000100 second delay.
+Trace triggered with 0.000130 second delay. [not recorded]
+Trace activated with 0.000100 second delay.
+Trace triggered with 0.000240 second delay. [01]
+Trace activated with 0.000100 second delay.
+Trace triggered with 0.000104 second delay. [02]
+Trace activated with 0.000100 second delay.
+Trace triggered with 0.000130 second delay. [03]
+Trace activated with 0.000100 second delay.
+Trace triggered with 0.000109 second delay. [04]
+Trace activated with 0.000100 second delay.
+Trace triggered with 0.000109 second delay. [not recorded]
+Trace activated with 0.000100 second delay.
+Trace triggered with 0.000155 second delay. [not recorded]
+Trace activated with 0.000100 second delay.
+Trace triggered with 0.000100 second delay. [05]
+Trace activated with 0.000100 second delay.
+Trace triggered with 0.000105 second delay. [not recorded]
+Trace activated with 0.000100 second delay.
+Trace triggered with 0.000128 second delay. [06]
+Trace activated with 0.000100 second delay.
+Trace triggered with 0.000123 second delay. [07]
+Trace activated with 0.000100 second delay.
+Trace triggered with 0.000100 second delay. [08]
+Trace activated with 0.000100 second delay.
+Trace triggered with 0.000113 second delay. [not recorded]
+Trace activated with 0.000100 second delay.
+Trace triggered with 0.000136 second delay. [09]
 
-One could also set current to the target task in get_user_pages but then
-faults for the actual current task may increment the wrong counters. Could
-we live with that?
+# chrt -f 1 ./get_ltrace.sh 50
+Current Maximum is 4965280, limit will be 50.
+Resetting max latency from 4965280 to 50.
+No new latency samples at Fri Dec 10 13:42:31 CST 2004.
+No new latency samples at Fri Dec 10 13:42:41 CST 2004.
+No new latency samples at Fri Dec 10 13:42:51 CST 2004.
+No new latency samples at Fri Dec 10 13:43:01 CST 2004.
+New trace 0 w/ 139 usec latency.
+Resetting max latency from 139 to 50.
+No new latency samples at Fri Dec 10 13:43:23 CST 2004.
+New trace 1 w/ 241 usec latency.
+Resetting max latency from 241 to 50.
+No new latency samples at Fri Dec 10 13:43:44 CST 2004.
+New trace 2 w/ 103 usec latency.
+Resetting max latency from 103 to 50.
+New trace 3 w/ 130 usec latency.
+Resetting max latency from 130 to 50.
+No new latency samples at Fri Dec 10 13:44:17 CST 2004.
+No new latency samples at Fri Dec 10 13:44:27 CST 2004.
+No new latency samples at Fri Dec 10 13:44:37 CST 2004.
+New trace 4 w/ 109 usec latency.
+Resetting max latency from 109 to 50.
+No new latency samples at Fri Dec 10 13:44:58 CST 2004.
+New trace 5 w/ 100 usec latency.
+Resetting max latency from 100 to 50.
+New trace 6 w/ 128 usec latency.
+Resetting max latency from 128 to 50.
+New trace 7 w/ 123 usec latency.
+Resetting max latency from 123 to 50.
+New trace 8 w/ 100 usec latency.
+Resetting max latency from 100 to 50.
+No new latency samples at Fri Dec 10 13:45:54 CST 2004.
+New trace 9 w/ 135 usec latency.
+Resetting max latency from 135 to 50.
 
-Or simply leave as is. The pages are after all allocated by the ptrace
-process and it should be held responsible for it.
+I don't see a significant difference in failures to record when compared
+with -18RT (7 vs. 8).
 
-My favorite rss solution is still just getting rid of rss and
-anon_rss and do the long loops in procfs. Whichever process wants to
-know better be willing to pay the price in cpu time and the code for
-incrementing rss can be removed from the page fault handler.
+[2] I get no ksoftirqd activity (as expected).
 
-We have no  real way of establishing the ownership of shared pages
-anyways. Its counted when allocated. But the page may live on afterwards
-in another process and then not be accounted for although its only user is
-the new process. IMHO vm scans may be the only way of really getting an
-accurate count.
+[3] Long sequences of one CPU only was seen again. Though in looking
+at these traces I find several incomplete ones like this:
 
-But here is the improved list_rss patch:
+preemption latency trace v1.1.4 on 2.6.10-rc2-mm3-V0.7.32-18PK
+--------------------------------------------------------------------
+ latency: 139 us, #55/55, CPU#1 | (M:preempt VP:0, KP:1, SP:0 HP:0 #P:2)
+    -----------------
+    | task: cpu_delay-3517 (uid:0 nice:0 policy:1 rt_prio:30)
+    -----------------
+ => started at: <00000000>
+ => ended at:   <00000000>
 
-Index: linux-2.6.9/include/linux/sched.h
-===================================================================
---- linux-2.6.9.orig/include/linux/sched.h	2004-12-06 17:23:55.000000000 -0800
-+++ linux-2.6.9/include/linux/sched.h	2004-12-10 11:39:00.000000000 -0800
-@@ -30,6 +30,7 @@
- #include <linux/pid.h>
- #include <linux/percpu.h>
- #include <linux/topology.h>
-+#include <linux/rcupdate.h>
+                 _------=> CPU#
+                / _-----=> irqs-off
+               | / _----=> need-resched
+               || / _---=> hardirq/softirq
+               ||| / _--=> preempt-depth
+               |||| /
+               |||||     delay
+   cmd     pid ||||| time  |   caller
+      \   /    |||||   \   |   /
+<unknown-0     0d.h1    0탎 : do_nmi (default_idle)
+<unknown-0     0d.h1    0탎 : do_nmi (_raw_spin_lock_irqsave)
+<unknown-3517  1d.H2    0탎 : do_nmi (default_idle)
+<unknown-0     0d.h1    0탎 : do_nmi (<00200246>)
+<unknown-3517  1d.H2    0탎+: do_nmi ((514))
+<unknown-0     0...1    3탎 : default_idle (cpu_idle)
+<unknown-3517  1d.H2    3탎 : do_IRQ (c013a0cc 0 0)
+<unknown-3517  1d.H2    3탎 : _raw_spin_lock (__do_IRQ)
+<unknown-3517  1d.H3    4탎 : ack_edge_ioapic_irq (__do_IRQ)
+<unknown-3517  1d.H3    4탎 : redirect_hardirq (__do_IRQ)
+<unknown-3517  1d.H3    5탎 : _raw_spin_unlock (__do_IRQ)
+<unknown-3517  1d.H2    5탎 : handle_IRQ_event (__do_IRQ)
+<unknown-3517  1d.H2    5탎 : timer_interrupt (handle_IRQ_event)
+<unknown-3517  1d.H2    6탎 : _raw_spin_lock (timer_interrupt)
+<unknown-3517  1d.H3    6탎 : mark_offset_tsc (timer_interrupt)
+<unknown-3517  1d.H3    7탎 : _raw_spin_lock (mark_offset_tsc)
+<unknown-3517  1d.H4    7탎+: _raw_spin_lock_irqsave (mark_offset_tsc)
+<unknown-3517  1d.H5   13탎 : _raw_spin_unlock_irqrestore (mark_offset_tsc)
+<unknown-3517  1d.H4   14탎 : _raw_spin_unlock (mark_offset_tsc)
+<unknown-3517  1d.H3   14탎+: _raw_spin_lock_irqsave (timer_interrupt)
+<unknown-3517  1d.H4   18탎 : _raw_spin_unlock_irqrestore (timer_interrupt)
+<unknown-3517  1d.H3   18탎 : do_timer (timer_interrupt)
+<unknown-3517  1d.H3   19탎 : _raw_spin_unlock (timer_interrupt)
+<unknown-3517  1d.H2   19탎 : _raw_spin_lock (__do_IRQ)
+<unknown-3517  1d.H3   20탎 : note_interrupt (__do_IRQ)
+<unknown-3517  1d.H3   20탎 : end_edge_ioapic_irq (__do_IRQ)
+<unknown-3517  1d.H3   21탎 : _raw_spin_unlock (__do_IRQ)
+<unknown-3517  1d.H2   21탎 : irq_exit (do_IRQ)
+<unknown-3517  1d.s2   21탎 < (0)
+<unknown-3517  1..s1   22탎 : mod_timer (rt_check_expire)
+<unknown-3517  1..s1   23탎 : __mod_timer (rt_check_expire)
+<unknown-3517  1..s1   23탎 : _raw_spin_lock_irqsave (__mod_timer)
+<unknown-3517  1d.s2   24탎 : _raw_spin_lock (__mod_timer)
+<unknown-3517  1d.s3   24탎 : internal_add_timer (__mod_timer)
+<unknown-3517  1d.s3   25탎 : _raw_spin_unlock (__mod_timer)
+<unknown-3517  1d.s2   25탎 : _raw_spin_unlock_irqrestore (__mod_timer)
+<unknown-3517  1..s1   26탎 : cond_resched_all (run_timer_softirq)
+<unknown-3517  1..s1   26탎 : cond_resched_softirq (run_timer_softirq)
+<unknown-3517  1..s1   26탎 : _raw_spin_lock_irq (run_timer_softirq)
+<unknown-3517  1..s1   27탎 : _raw_spin_lock_irqsave (run_timer_softirq)
+<unknown-3517  1d.s2   28탎 : _raw_spin_unlock_irq (run_timer_softirq)
+<unknown-3517  1..s1   29탎 : __wake_up (run_timer_softirq)
+<unknown-3517  1..s1   29탎 : _raw_spin_lock_irqsave (__wake_up)
+<unknown-3517  1d.s2   29탎 : __wake_up_common (__wake_up)
+<unknown-3517  1d.s2   30탎 : _raw_spin_unlock_irqrestore
+(run_timer_softirq)
+<unknown-3517  1..s1   30탎 : cond_resched_all (___do_softirq)
+<unknown-3517  1..s1   30탎 : cond_resched_softirq (___do_softirq)
+<unknown-3517  1d...   31탎 < (0)
+<unknown-3517  1d...   32탎+< (0)
+<unknown-3517  1....   35탎 > sys_gettimeofday (00000000 00000000 0000007b)
+<unknown-3517  1....   35탎 : sys_gettimeofday (sysenter_past_esp)
+<unknown-3517  1....   35탎 : user_trace_stop (sys_gettimeofday)
+<unknown-3517  1...1   36탎 : user_trace_stop (sys_gettimeofday)
+<unknown-3517  1...1   36탎 : _raw_spin_lock_irqsave (user_trace_stop)
+<unknown-3517  1d..2   37탎 : _raw_spin_unlock_irqrestore (user_trace_stop)
 
- struct exec_domain;
+I assume that since it does not start with user_trace_start (or something
+like that) that the missing portion is the first portion.
 
-@@ -217,6 +218,7 @@
- 	int map_count;				/* number of VMAs */
- 	struct rw_semaphore mmap_sem;
- 	spinlock_t page_table_lock;		/* Protects page tables, mm->rss, mm->anon_rss */
-+	long rss, anon_rss;
+[4] Not sure if I can make the same comment on -18PK as I did for -18RT
+on changing CPU's [since I understand we do not have the opportunity to
+do so unless the IRQ's are threaded].
 
- 	struct list_head mmlist;		/* List of maybe swapped mm's.  These are globally strung
- 						 * together off init_mm.mmlist, and are protected
-@@ -226,7 +228,7 @@
- 	unsigned long start_code, end_code, start_data, end_data;
- 	unsigned long start_brk, brk, start_stack;
- 	unsigned long arg_start, arg_end, env_start, env_end;
--	unsigned long rss, anon_rss, total_vm, locked_vm, shared_vm;
-+	unsigned long total_vm, locked_vm, shared_vm;
- 	unsigned long exec_vm, stack_vm, reserved_vm, def_flags, nr_ptes;
+[5] The trace output cosmetic problems are on PREEMPT_DESKTOP as well.
 
- 	unsigned long saved_auxv[42]; /* for /proc/PID/auxv */
-@@ -236,6 +238,8 @@
+Traces to come shortly in a separate message.
+  --Mark
 
- 	/* Architecture-specific MM context */
- 	mm_context_t context;
-+	struct list_head task_list;		/* Tasks using this mm */
-+	struct rcu_head rcu_head;		/* For freeing mm via rcu */
-
- 	/* Token based thrashing protection. */
- 	unsigned long swap_token_time;
-@@ -545,6 +549,9 @@
- 	struct list_head ptrace_list;
-
- 	struct mm_struct *mm, *active_mm;
-+	/* Split counters from mm */
-+	long rss;
-+	long anon_rss;
-
- /* task state */
- 	struct linux_binfmt *binfmt;
-@@ -578,6 +585,9 @@
- 	struct completion *vfork_done;		/* for vfork() */
- 	int __user *set_child_tid;		/* CLONE_CHILD_SETTID */
- 	int __user *clear_child_tid;		/* CLONE_CHILD_CLEARTID */
-+
-+	/* List of other tasks using the same mm */
-+	struct list_head mm_tasks;
-
- 	unsigned long rt_priority;
- 	unsigned long it_real_value, it_prof_value, it_virt_value;
-@@ -1124,6 +1134,12 @@
-
- #endif
-
-+void get_rss(struct mm_struct *mm, unsigned long *rss, unsigned long *anon_rss);
-+
-+void mm_remove_thread(struct mm_struct *mm, struct task_struct *tsk);
-+void mm_add_thread(struct mm_struct *mm, struct task_struct *tsk);
-+
- #endif /* __KERNEL__ */
-
- #endif
-+
-Index: linux-2.6.9/fs/proc/task_mmu.c
-===================================================================
---- linux-2.6.9.orig/fs/proc/task_mmu.c	2004-12-06 17:23:54.000000000 -0800
-+++ linux-2.6.9/fs/proc/task_mmu.c	2004-12-10 11:39:00.000000000 -0800
-@@ -6,8 +6,9 @@
-
- char *task_mem(struct mm_struct *mm, char *buffer)
- {
--	unsigned long data, text, lib;
-+	unsigned long data, text, lib, rss, anon_rss;
-
-+	get_rss(mm, &rss, &anon_rss);
- 	data = mm->total_vm - mm->shared_vm - mm->stack_vm;
- 	text = (PAGE_ALIGN(mm->end_code) - (mm->start_code & PAGE_MASK)) >> 10;
- 	lib = (mm->exec_vm << (PAGE_SHIFT-10)) - text;
-@@ -22,7 +23,7 @@
- 		"VmPTE:\t%8lu kB\n",
- 		(mm->total_vm - mm->reserved_vm) << (PAGE_SHIFT-10),
- 		mm->locked_vm << (PAGE_SHIFT-10),
--		mm->rss << (PAGE_SHIFT-10),
-+		rss << (PAGE_SHIFT-10),
- 		data << (PAGE_SHIFT-10),
- 		mm->stack_vm << (PAGE_SHIFT-10), text, lib,
- 		(PTRS_PER_PTE*sizeof(pte_t)*mm->nr_ptes) >> 10);
-@@ -37,11 +38,14 @@
- int task_statm(struct mm_struct *mm, int *shared, int *text,
- 	       int *data, int *resident)
- {
--	*shared = mm->rss - mm->anon_rss;
-+	unsigned long rss, anon_rss;
-+
-+	get_rss(mm, &rss, &anon_rss);
-+	*shared = rss - anon_rss;
- 	*text = (PAGE_ALIGN(mm->end_code) - (mm->start_code & PAGE_MASK))
- 								>> PAGE_SHIFT;
- 	*data = mm->total_vm - mm->shared_vm;
--	*resident = mm->rss;
-+	*resident = rss;
- 	return mm->total_vm;
- }
-
-Index: linux-2.6.9/fs/proc/array.c
-===================================================================
---- linux-2.6.9.orig/fs/proc/array.c	2004-12-06 17:23:54.000000000 -0800
-+++ linux-2.6.9/fs/proc/array.c	2004-12-10 11:39:00.000000000 -0800
-@@ -302,7 +302,7 @@
-
- static int do_task_stat(struct task_struct *task, char * buffer, int whole)
- {
--	unsigned long vsize, eip, esp, wchan = ~0UL;
-+	unsigned long rss, anon_rss, vsize, eip, esp, wchan = ~0UL;
- 	long priority, nice;
- 	int tty_pgrp = -1, tty_nr = 0;
- 	sigset_t sigign, sigcatch;
-@@ -325,6 +325,7 @@
- 		vsize = task_vsize(mm);
- 		eip = KSTK_EIP(task);
- 		esp = KSTK_ESP(task);
-+		get_rss(mm, &rss, &anon_rss);
- 	}
-
- 	get_task_comm(tcomm, task);
-@@ -420,7 +421,7 @@
- 		jiffies_to_clock_t(task->it_real_value),
- 		start_time,
- 		vsize,
--		mm ? mm->rss : 0, /* you might want to shift this left 3 */
-+		mm ? rss : 0, /* you might want to shift this left 3 */
- 	        rsslim,
- 		mm ? mm->start_code : 0,
- 		mm ? mm->end_code : 0,
-Index: linux-2.6.9/mm/rmap.c
-===================================================================
---- linux-2.6.9.orig/mm/rmap.c	2004-12-10 11:11:26.000000000 -0800
-+++ linux-2.6.9/mm/rmap.c	2004-12-10 11:46:07.000000000 -0800
-@@ -263,8 +263,6 @@
- 	pte_t *pte;
- 	int referenced = 0;
-
--	if (!mm->rss)
--		goto out;
- 	address = vma_address(page, vma);
- 	if (address == -EFAULT)
- 		goto out;
-@@ -438,7 +436,10 @@
- 	BUG_ON(PageReserved(page));
- 	BUG_ON(!anon_vma);
-
--	vma->vm_mm->anon_rss++;
-+	if (current->mm == vma->vm_mm)
-+		current->anon_rss++;
-+	else
-+		vma->vm_mm->anon_rss++;
-
- 	anon_vma = (void *) anon_vma + PAGE_MAPPING_ANON;
- 	index = (address - vma->vm_start) >> PAGE_SHIFT;
-@@ -510,8 +511,6 @@
- 	pte_t pteval;
- 	int ret = SWAP_AGAIN;
-
--	if (!mm->rss)
--		goto out;
- 	address = vma_address(page, vma);
- 	if (address == -EFAULT)
- 		goto out;
-@@ -799,8 +798,7 @@
- 			if (vma->vm_flags & (VM_LOCKED|VM_RESERVED))
- 				continue;
- 			cursor = (unsigned long) vma->vm_private_data;
--			while (vma->vm_mm->rss &&
--				cursor < max_nl_cursor &&
-+			while (cursor < max_nl_cursor &&
- 				cursor < vma->vm_end - vma->vm_start) {
- 				try_to_unmap_cluster(cursor, &mapcount, vma);
- 				cursor += CLUSTER_SIZE;
-Index: linux-2.6.9/kernel/fork.c
-===================================================================
---- linux-2.6.9.orig/kernel/fork.c	2004-12-06 17:23:55.000000000 -0800
-+++ linux-2.6.9/kernel/fork.c	2004-12-10 11:39:00.000000000 -0800
-@@ -151,6 +151,7 @@
- 	*tsk = *orig;
- 	tsk->thread_info = ti;
- 	ti->task = tsk;
-+	tsk->rss = 0;
-
- 	/* One for us, one for whoever does the "release_task()" (usually parent) */
- 	atomic_set(&tsk->usage,2);
-@@ -292,6 +293,7 @@
- 	atomic_set(&mm->mm_count, 1);
- 	init_rwsem(&mm->mmap_sem);
- 	INIT_LIST_HEAD(&mm->mmlist);
-+	INIT_LIST_HEAD(&mm->task_list);
- 	mm->core_waiters = 0;
- 	mm->nr_ptes = 0;
- 	spin_lock_init(&mm->page_table_lock);
-@@ -323,6 +325,13 @@
- 	return mm;
- }
-
-+static void rcu_free_mm(struct rcu_head *head)
-+{
-+	struct mm_struct *mm = container_of(head ,struct mm_struct, rcu_head);
-+
-+	free_mm(mm);
-+}
-+
- /*
-  * Called when the last reference to the mm
-  * is dropped: either by a lazy thread or by
-@@ -333,7 +342,7 @@
- 	BUG_ON(mm == &init_mm);
- 	mm_free_pgd(mm);
- 	destroy_context(mm);
--	free_mm(mm);
-+	call_rcu(&mm->rcu_head, rcu_free_mm);
- }
-
- /*
-@@ -400,6 +409,8 @@
-
- 	/* Get rid of any cached register state */
- 	deactivate_mm(tsk, mm);
-+	if (mm)
-+		mm_remove_thread(mm, tsk);
-
- 	/* notify parent sleeping on vfork() */
- 	if (vfork_done) {
-@@ -447,8 +458,8 @@
- 		 * new threads start up in user mode using an mm, which
- 		 * allows optimizing out ipis; the tlb_gather_mmu code
- 		 * is an example.
-+		 * (mm_add_thread does use the ptl .... )
- 		 */
--		spin_unlock_wait(&oldmm->page_table_lock);
- 		goto good_mm;
- 	}
-
-@@ -470,6 +481,7 @@
- 		goto free_pt;
-
- good_mm:
-+	mm_add_thread(mm, tsk);
- 	tsk->mm = mm;
- 	tsk->active_mm = mm;
- 	return 0;
-Index: linux-2.6.9/mm/memory.c
-===================================================================
---- linux-2.6.9.orig/mm/memory.c	2004-12-10 11:12:44.000000000 -0800
-+++ linux-2.6.9/mm/memory.c	2004-12-10 11:45:00.000000000 -0800
-@@ -1467,8 +1467,10 @@
- 		 */
- 		page_add_anon_rmap(page, vma, addr);
- 		lru_cache_add_active(page);
--		mm->rss++;
--
-+		if (current->mm == mm)
-+			current->rss++;
-+		else
-+			mm->rss++;
- 	}
- 	pte_unmap(page_table);
-
-@@ -1859,3 +1861,49 @@
- }
-
- #endif
-+
-+void get_rss(struct mm_struct *mm, unsigned long *rss, unsigned long *anon_rss)
-+{
-+	struct list_head *y;
-+	struct task_struct *t;
-+        long rss_sum, anon_rss_sum;
-+
-+	rcu_read_lock();
-+	rss_sum = mm->rss;
-+	anon_rss_sum = mm->anon_rss;
-+	list_for_each_rcu(y, &mm->task_list) {
-+		t = list_entry(y, struct task_struct, mm_tasks);
-+		rss_sum += t->rss;
-+		anon_rss_sum += t->anon_rss;
-+	}
-+	if (rss_sum < 0)
-+		rss_sum = 0;
-+	if (anon_rss_sum < 0)
-+		anon_rss_sum = 0;
-+	rcu_read_unlock();
-+	*rss = rss_sum;
-+	*anon_rss = anon_rss_sum;
-+}
-+
-+void mm_remove_thread(struct mm_struct *mm, struct task_struct *tsk)
-+{
-+	if (!mm)
-+		return;
-+
-+	spin_lock(&mm->page_table_lock);
-+	mm->rss += tsk->rss;
-+	mm->anon_rss += tsk->anon_rss;
-+	list_del_rcu(&tsk->mm_tasks);
-+	spin_unlock(&mm->page_table_lock);
-+}
-+
-+void mm_add_thread(struct mm_struct *mm, struct task_struct *tsk)
-+{
-+	spin_lock(&mm->page_table_lock);
-+	tsk->rss = 0;
-+	tsk->anon_rss = 0;
-+	list_add_rcu(&tsk->mm_tasks, &mm->task_list);
-+	spin_unlock(&mm->page_table_lock);
-+}
-+
-+
-Index: linux-2.6.9/include/linux/init_task.h
-===================================================================
---- linux-2.6.9.orig/include/linux/init_task.h	2004-12-06 17:23:55.000000000 -0800
-+++ linux-2.6.9/include/linux/init_task.h	2004-12-10 11:39:00.000000000 -0800
-@@ -42,6 +42,7 @@
- 	.mmlist		= LIST_HEAD_INIT(name.mmlist),		\
- 	.cpu_vm_mask	= CPU_MASK_ALL,				\
- 	.default_kioctx = INIT_KIOCTX(name.default_kioctx, name),	\
-+	.task_list	= LIST_HEAD_INIT(name.task_list),	\
- }
-
- #define INIT_SIGNALS(sig) {	\
-@@ -112,6 +113,7 @@
- 	.proc_lock	= SPIN_LOCK_UNLOCKED,				\
- 	.switch_lock	= SPIN_LOCK_UNLOCKED,				\
- 	.journal_info	= NULL,						\
-+	.mm_tasks	= LIST_HEAD_INIT(tsk.mm_tasks),			\
- }
-
-
-Index: linux-2.6.9/fs/exec.c
-===================================================================
---- linux-2.6.9.orig/fs/exec.c	2004-12-06 17:23:54.000000000 -0800
-+++ linux-2.6.9/fs/exec.c	2004-12-10 11:39:00.000000000 -0800
-@@ -543,6 +543,7 @@
- 	active_mm = tsk->active_mm;
- 	tsk->mm = mm;
- 	tsk->active_mm = mm;
-+	mm_add_thread(mm, current);
- 	activate_mm(active_mm, mm);
- 	task_unlock(tsk);
- 	arch_pick_mmap_layout(mm);
-Index: linux-2.6.9/fs/aio.c
-===================================================================
---- linux-2.6.9.orig/fs/aio.c	2004-12-06 17:23:54.000000000 -0800
-+++ linux-2.6.9/fs/aio.c	2004-12-10 11:39:00.000000000 -0800
-@@ -575,6 +575,7 @@
- 	atomic_inc(&mm->mm_count);
- 	tsk->mm = mm;
- 	tsk->active_mm = mm;
-+	mm_add_thread(mm, tsk);
- 	activate_mm(active_mm, mm);
- 	task_unlock(tsk);
-
-@@ -597,6 +598,7 @@
- 	struct task_struct *tsk = current;
-
- 	task_lock(tsk);
-+	mm_remove_thread(mm,tsk);
- 	tsk->flags &= ~PF_BORROWED_MM;
- 	tsk->mm = NULL;
- 	/* active_mm is still 'mm' */

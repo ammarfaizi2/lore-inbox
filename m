@@ -1,76 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290939AbSAaF3S>; Thu, 31 Jan 2002 00:29:18 -0500
+	id <S290945AbSAaFb6>; Thu, 31 Jan 2002 00:31:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290940AbSAaF3J>; Thu, 31 Jan 2002 00:29:09 -0500
-Received: from dracula.gtri.gatech.edu ([130.207.193.70]:27910 "EHLO
-	shaft.shaftnet.org") by vger.kernel.org with ESMTP
-	id <S290939AbSAaF3D>; Thu, 31 Jan 2002 00:29:03 -0500
-Date: Thu, 31 Jan 2002 00:28:55 -0500
-From: Stuffed Crust <pizza@shaftnet.org>
-To: linux-kernel@vger.kernel.org
-Subject: BUG:  broken I830MP AGP support in 2.4.17 and 2.4.18pre7
-Message-ID: <20020131002855.A10415@shaftnet.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="gBBFr7Ir9EOA20Yy"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S290940AbSAaFbs>; Thu, 31 Jan 2002 00:31:48 -0500
+Received: from femail28.sdc1.sfba.home.com ([24.254.60.18]:21757 "EHLO
+	femail28.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S290945AbSAaFbc>; Thu, 31 Jan 2002 00:31:32 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Subject: Re: A modest proposal -- We need a patch penguin
+Date: Thu, 31 Jan 2002 00:32:40 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: "World Domination Now!" <linux-kernel@vger.kernel.org>
+In-Reply-To: <200201302239.QAA39272@tomcat.admin.navo.hpc.mil> <20020131032832.KJVO14927.femail22.sdc1.sfba.home.com@there> <E16W85P-0000Kc-00@starship.berlin>
+In-Reply-To: <E16W85P-0000Kc-00@starship.berlin>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020131053131.NGIN1833.femail28.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 30 January 2002 10:40 pm, Daniel Phillips wrote:
 
---gBBFr7Ir9EOA20Yy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> You will never figure that out, it isn't predefined.  It reshapes itself on
+> the fly, and is really defined by what is going on at any given time.  That
+> said, it's usually possible to figure out how the main maintainers are, and
+> what to send where, just don't hope to ever nail that down in a rigid
+> structure.  It's not rigid.
 
-I'm blessed with a new Dell Inspiron 4100, which is in turn blessed with
-the i830MP AGP chipset.  It's identical to the i830M except it doesn't
-have the on-chip graphics controller.
+As long as the maintainers know who the lieutenants are, nobody under them 
+should really have to care that much...
 
-When trying to load up the agpgart module under 2.4.17, I get:
+> > I expect it will all get worked out eventually.  Now that the secret of
+> > the difference between maintainers and lieutenants is out.
+>
+> By the way, that never was a secret to anybody in active development.
 
->Linux agpgart interface v0.99 (c) Jeff Hartmann
->agpgart: Maximum main memory to use for agp memory: 262M
->agpgart: Detected an Intel 830M, but could not find the secondary device.
+I.E. the people who knew it knew it, and hence never noticed the problem...
 
-Fine, I see that 2.4.18pre supposedly has fixes for the I830MP.  So I
-compile it, slap it in place.. and get:  (with 2.4.17pre7)
+There are, however, some people writing largeish bits of code that did not in 
+fact seem to know it.  Andre Hedrick's IDE work, Eric Raymond with the help 
+files and CML2, Kieth Owens' new build process...  Maybe it was even a factor 
+in Alan Cox burning out (you'd have to ask him about that)...
 
->Linux agpgart interface v0.99 (c) Jeff Hartmann
->agpgart: Maximum main memory to use for agp memory: 262M
->agpgart: unsupported bridge
->agpgart: no supported devices found.
+> > The thread seems to be dying down a bit... :)
+>
+> Right, people are working on solutions.  As usual, though much dung did
+> fly, Linus comes out smelling like a rose.
 
-lspci yields:
->00:00.0 Host bridge: Intel Corporation: Unknown device 3575 (rev 02)
->        Flags: bus master, fast devsel, latency 0
->        Memory at d0000000 (32-bit, prefetchable) [size=3D256M]
->        Capabilities: [40] #09 [0105]
->        Capabilities: [a0] AGP version 2.0
+Gee, what a suprise. :)
 
-So it appears not all is well with the I830MP patch.
-(Yes, I have tried the 'agp_unsupported' option in both cases)
-
- - Pizza
---=20
-Solomon Peachy                                    pizzaATfucktheusers.org
-I ain't broke, but I'm badly bent.                           ICQ# 1318344
-Patience comes to those who wait.
-    ...It's not "Beanbag Love", it's a "Transanimate Relationship"...
-
---gBBFr7Ir9EOA20Yy
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8WNYXysXuytMhc5ERAl5nAJ4hQc0/smcwHSbEREngASzWqXtfWQCdGne+
-/JcZ7G45+fcbRBuSUbEdkHw=
-=3DuJ
------END PGP SIGNATURE-----
-
---gBBFr7Ir9EOA20Yy--
+Rob

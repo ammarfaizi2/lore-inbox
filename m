@@ -1,65 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267647AbTGON2u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 09:28:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267685AbTGON2u
+	id S267712AbTGONcX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 09:32:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267773AbTGONcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 09:28:50 -0400
-Received: from griffon.mipsys.com ([217.167.51.129]:8404 "EHLO gaston")
-	by vger.kernel.org with ESMTP id S267647AbTGON2t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 09:28:49 -0400
-Subject: Re: radeonfb patch for 2.4.22...
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Peter Osterlund <petero2@telia.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, ajoshi@kernel.crashing.org,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <m2ptkcknfh.fsf@telia.com>
-References: <Pine.LNX.4.10.10307141315170.28093-100000@gate.crashing.org>
-	 <Pine.LNX.4.55L.0307141533330.8994@freak.distro.conectiva>
-	 <1058255052.620.2.camel@gaston>  <m2ptkcknfh.fsf@telia.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1058276604.620.53.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 15 Jul 2003 15:43:25 +0200
+	Tue, 15 Jul 2003 09:32:23 -0400
+Received: from mailc.telia.com ([194.22.190.4]:62404 "EHLO mailc.telia.com")
+	by vger.kernel.org with ESMTP id S267712AbTGONcV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 09:32:21 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+To: Ruben Puettmann <ruben@puettmann.net>, linux-kernel@vger.kernel.org
+Subject: Re: Problems with usb-ohci on 2.4.22-preX
+Date: Tue, 15 Jul 2003 15:47:22 +0200
+User-Agent: KMail/1.5.9
+References: <20030712141431.GA3240@puettmann.net>
+In-Reply-To: <20030712141431.GA3240@puettmann.net>
+Cc: linux-usb-devel@lists.sourceforge.net
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200307151547.22615.roger.larsson@skelleftea.mail.telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am not alone then...
 
-> 
-> I have a small problem with radeonfb in 2.4.22-pre5 (+manually created
-> radeonfb.h file). During boot, when the console is switched over to
-> the frame buffer device, the screen becomes corrupted. Mostly by white
-> squares in a grid pattern and some squares with other colors. Between
-> the squares, normal characters can be seen, but each character is
-> duplicated. Here is a picture: (not very sharp unfortunately)
-> 
->         http://w1.894.telia.com/~u89404340/radeonfb.jpg
-> 
-> Text added after the switch is not corrupted, so eventually the
-> corruption is scrolled off the screen and after that the framebuffer
-> appears to be working correctly.
+On lördagen den 12 juli 2003 16.14, Ruben Puettmann wrote:
+>         hy,
+>
+> i try to install linux on my new motherboard EPOX 8RDA3+
+> with nvidia nforce2 chipset.
+>
+> If I try to attached some usb devices ( usb memory stick ) I got this
+> errors ( 2.4.22-pre5 pre2..):
 
-It's a known artifact caused by my latest stuffs, mostly because
-I setup the display earlier than expected by the fbcon core, at
-which point the console buffer contains junk. I'm working on a fix
-though I can't reproduce on pmac.
+I used a Creative MuVo 64.
 
-> 2.4.22-pre3 does not have this problem. I haven't found a patch for
-> the vanilla 0.1.8 version, so I don't know if that version also has
-> this problem. I think someone has reported a similar problem in 2.5.x,
-> but I don't remember the details.
-> 
-> Here are some messages from the kernel log:
-> 
-> Jul 14 23:08:44 best kernel: radeonfb: ref_clk=2700, ref_div=12, xclk=18300 from BIOS
-> Jul 14 23:08:44 best kernel: radeonfb: panel ID string: Samsung LTN150P1-L02    
-> Jul 14 23:08:44 best kernel: radeonfb: detected LCD panel size from BIOS: 1400x1050
-> Jul 14 23:08:44 best kernel: Console: switching to colour frame buffer device 175x65
-> Jul 14 23:08:44 best kernel: radeonfb: ATI Radeon M7 LW DDR SGRAM 64 MB
-> Jul 14 23:08:44 best kernel: radeonfb: DVI port LCD monitor connected
-> Jul 14 23:08:44 best kernel: radeonfb: CRT port no monitor connected
+>
+>
+> PCI: Setting latency timer of device 00:02.2 to 64
+> ehci_hcd 00:02.2: nVidia Corporation nForce2 USB Controller
+> ehci_hcd 00:02.2: irq 20, pci mem f88eb000
+> usb.c: new USB bus registered, assigned bus number 1
+> PCI: 00:02.2 PCI cache line size set incorrectly (0 bytes) by BIOS/FW.
+> PCI: 00:02.2 PCI cache line size corrected to 64.
+> ehci_hcd 00:02.2: USB 2.0 enabled, EHCI 1.00, driver 2003-Jun-19/2.4
+
+Is ehci compatible with ohci? Or does it get rejected later?
+
+> hub.c: USB hub found
+> hub.c: 6 ports detected
+> PCI: Setting latency timer of device 00:02.0 to 64
+> usb-ohci.c: USB OHCI at membase 0xf88f3000, IRQ 20
+> usb-ohci.c: usb-00:02.0, nVidia Corporation nForce2 USB Controller
+> usb.c: new USB bus registered, assigned bus number 2
+> hub.c: USB hub found
+> hub.c: 3 ports detected
+> PCI: Setting latency timer of device 00:02.1 to 64
+> usb-ohci.c: USB OHCI at membase 0xf88f5000, IRQ 22
+> usb-ohci.c: usb-00:02.1, nVidia Corporation nForce2 USB Controller (#2)
+> usb.c: new USB bus registered, assigned bus number 3
+> hub.c: USB hub found
+> hub.c: 3 ports detected
+
+> uhci.c: USB Universal Host Controller Interface driver v1.1
+> usb-uhci.c: $Revision: 1.275 $ time 15:11:40 Jul 12 2003
+> usb-uhci.c: High bandwidth mode enabled
+> usb-uhci.c: v1.275:USB Universal Host Controller Interface driver
+
+The mix of drivers are confusing... Is usb-uhci rejected?
+Check with lsmod.
+
+> hub.c: new USB device 00:02.1-3, assigned address 2
+> usb_control/bulk_msg: timeout
+> usb-ohci.c: unlink URB timeout
+> usb.c: USB device not accepting new address=2 (error=-110)
+
+This is exactly what I get (2.4.20). But I use quite different hardware.
+STPC Atlas (100MHz, for an embedded project)
+
+>
+> This happend's with usb-ohci and usb-ehci loaded or only with usb-ohci.
+>
+
+Our suspects:
+* Power consumption of device related to how much we can drive.
+  (but this should not be a problem in your case)
+* BIOS/Linux memory IO mapping - cachable... e.t.c.
+* Something in the driver,
+  - a timing mismatch with the HW that was used to develop the driver?
+  - a corrected hardware bug?
+  (we got the driver to work with the USB memory unit on another PC with
+   ohci - so we had almost accepted that the driver was correct... but now...)
+
+/RogerL
+
 -- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Roger Larsson
+Skellefteå
+Sweden

@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278521AbRJPE2G>; Tue, 16 Oct 2001 00:28:06 -0400
+	id <S278523AbRJPEa1>; Tue, 16 Oct 2001 00:30:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278522AbRJPE15>; Tue, 16 Oct 2001 00:27:57 -0400
-Received: from zok.sgi.com ([204.94.215.101]:12451 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S278521AbRJPE1s>;
-	Tue, 16 Oct 2001 00:27:48 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.13-pre3 arm/i386/mips/mips64/s390/s390x/sh die() deadlock 
-In-Reply-To: Your message of "Tue, 16 Oct 2001 12:58:21 +1000."
-             <18966.1003201101@kao2.melbourne.sgi.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 16 Oct 2001 14:27:55 +1000
-Message-ID: <19892.1003206475@kao2.melbourne.sgi.com>
+	id <S278524AbRJPEaS>; Tue, 16 Oct 2001 00:30:18 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6151 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S278523AbRJPEaD>; Tue, 16 Oct 2001 00:30:03 -0400
+Date: Mon, 15 Oct 2001 21:29:45 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT][PATCH] large /proc/mounts and friends
+In-Reply-To: <Pine.GSO.4.21.0110152355010.11608-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0110152110310.8688-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Oct 2001 12:58:21 +1000, 
-Keith Owens <kaos@ocs.com.au> wrote:
->On Mon, 15 Oct 2001 19:36:02 -0700 (PDT), 
->Linus Torvalds <torvalds@transmeta.com> wrote:
->>I much prefer a dead machine with a partially visible oops over a oops
->>where the original oops has scrolled away due to recursive faults.
+
+On Tue, 16 Oct 2001, Alexander Viro wrote:
+> >
+> > Al, do you see any problems in this?  I bet a lot of /proc files will fit
+> > this model, and need only a fairly simple "fillme()" function..
 >
->IMHO it is unrealistic to expect that all code inside die() will never
->fail.  Any unexpected kernel corruption could cause the register or
->backtrace dump to fail.  The patch gets the best of both worlds.  It
->protects against recursive errors and against concurrent calls to
->die().
+> It's _very_ close to what I've done.
 
-Previous message sent too soon.
+Ok, now that I read it right, I agree. And not wasting the low bits of the
+position should allows some sparse indexing..
 
-The patch makes two attempts at dumping registers, one for the original
-oops and one if die() fails, then it gives up.  The second attempt is
-useful for diagnosing why die() is failing, without that data it is
-difficult to fix die() itself.
+One comment: I really think your "lseek()+read()" interaction is fairly
+disgusting, though. the
 
-I was aiming to improve error handling in the rare case that die()
-failed so we could get better diagnostics in the long term, by fixing
-the problems that make die() fail.  If you think that this would scroll
-away useful data then we can compromise.
+	for (p=m->op->start(m), i=0; i<pos; p=m->op->next(m, p), i++) {
+		...
 
-	if (++die_lock_owner_depth < 2+(CONFIG_DIAGNOSE_RECURSIVE_DIE+0)) {
+thing makes it impossible to "jump" to the right location directly, which
+might be perfectly sane and easy for many uses. Maybe simply through a
+simple "seek()" interface (that could have a fall-back with the "one entry
+at a time" loop using the "next" interface if you think that's going to be
+common), and a flag that says "lseek has happened".
 
-CONFIG_DIAGNOSE_RECURSIVE_DIE
-  If this variable is selected then the kernel will attempt to provide
-  extra diagnostics in the rare cases when the kernel die() routine
-  itself dies.  This may cause useful information from the first
-  failure to be lost.  Unless you want to diagnose the die() and
-  show_regs() code in the kernel, say N here.
+So you'd have the start be something like
 
-Acceptable?
+	p = m->op->start(m);
+	if (m->did_lseek) {
+		m->did_lseek = 0;
+		p = m->op->seek(m, pos);
+	}
+	p = m->op->next(m, p);
+
+instead of that for-loop..
+
+		Linus
 

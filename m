@@ -1,74 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265478AbUFWMhE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265377AbUFWMok@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265478AbUFWMhE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 08:37:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266007AbUFWMhE
+	id S265377AbUFWMok (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 08:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266055AbUFWMok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 08:37:04 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:34831 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S265478AbUFWMgq convert rfc822-to-8bit (ORCPT
+	Wed, 23 Jun 2004 08:44:40 -0400
+Received: from mail.donpac.ru ([80.254.111.2]:46217 "EHLO donpac.ru")
+	by vger.kernel.org with ESMTP id S265377AbUFWMof (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 08:36:46 -0400
+	Wed, 23 Jun 2004 08:44:35 -0400
+Subject: [PATCH 0/6] 2.6.7-mm1, port Acer laptop irq routing workaround to new DMI probing
+In-Reply-To: 
+X-Mailer: gregkh_patchbomb_levon_offspring
+Date: Wed, 23 Jun 2004 16:44:31 +0400
+Message-Id: <10879946711727@donpac.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Martin Zwickel <martin.zwickel@technotrend.de>
-Subject: Re: 2.6.7-rc2-mm2 udp multicast problem (sendto hangs)
-Date: Wed, 23 Jun 2004 15:36:10 +0300
-X-Mailer: KMail [version 1.4]
-Cc: linux-kernel@vger.kernel.org
-References: <20040622164000.110f2a63@phoebee> <200406231334.57816.vda@port.imtp.ilyichevsk.odessa.ua> <20040623140023.4cd7aa3e@phoebee>
-In-Reply-To: <20040623140023.4cd7aa3e@phoebee>
-MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200406231536.10112.vda@port.imtp.ilyichevsk.odessa.ua>
+From: Andrey Panin <pazke@donpac.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 June 2004 15:00, Martin Zwickel wrote:
-> On Wed, 23 Jun 2004 13:34:57 +0300
->
-> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> bubbled:
-> > On Wednesday 23 June 2004 12:56, Martin Zwickel wrote:
-> > > if I use MSG_DONTWAIT with sendto, I get temporarily unavailable
-> > > resources (many!):
-> > >
-> > > sendto(sendfd): Resource temporarily unavailable
-> > >
-> > > but isn't udp supposed to not block?
-> >
-> > Think about what will happen if you will try to spew
-> > udp packets continuously:
-> >
-> > while(1)
-> > 	sendto(...);
-> >
-> > They will pile up in queue and eventually it will fill up.
-> > Then kernel may either drop excess packets silently
-> > or return you EAGAIN.
->
-> Yes, but why does the kernel not send out the queue?(I don't know if the
-> queue is empty or full when my sendto stops)
-> Without MSG_DONTWAIT, sendto waits endlessly. But on what?
 
-strace, gdb and/or (SysRq-T with ksymoops) will tell you.
+This patch moves PCI IRQ routing workaround for Acer TravelMate 360
+laptop to arch/i386/pci/irq.c and makes acer_tm360_irqrouting
+variable static. It also fixes VisWs build error caused by this
+workaround code.
 
-> Normally the kernel should put the queued packets on the line and accept
-> new ones, or did I misunderstand this?
+Signed-off-by: Andrey Panin <pazke@donpac.ru>
 
-Hm, yes. What does tcpdump tell you?
+ arch/i386/kernel/dmi_scan.c |   23 -----------------------
+ arch/i386/pci/irq.c         |   23 ++++++++++++++++++++++-
+ 2 files changed, 22 insertions(+), 24 deletions(-)
 
-> My program sends out many udp packets, and sometimes it just stops until
-> the kernel receives a network packet or I access the local network(with arp
-> command).
+diff -urpN -X /usr/share/dontdiff linux-2.6.7-mm1.vanilla/arch/i386/kernel/dmi_scan.c linux-2.6.7-mm1/arch/i386/kernel/dmi_scan.c
+--- linux-2.6.7-mm1.vanilla/arch/i386/kernel/dmi_scan.c	Sun May 23 21:51:28 2004
++++ linux-2.6.7-mm1/arch/i386/kernel/dmi_scan.c	Sun May 23 21:51:34 2004
+@@ -317,21 +317,6 @@ static __init int disable_smbus(struct d
+ }
+ 
+ /*
+- * Work around broken Acer TravelMate 360 Notebooks which assign Cardbus to
+- * IRQ 11 even though it is actually wired to IRQ 10
+- */
+-static __init int fix_acer_tm360_irqrouting(struct dmi_blacklist *d)
+-{
+-#ifdef CONFIG_PCI
+-	extern int acer_tm360_irqrouting;
+-	if (acer_tm360_irqrouting == 0) {
+-		acer_tm360_irqrouting = 1;
+-		printk(KERN_INFO "%s detected - fixing broken IRQ routing\n", d->ident);
+-	}
+-#endif
+-	return 0;
+-}
+-/*
+  *  Check for clue free BIOS implementations who use
+  *  the following QA technique
+  *
+@@ -827,14 +812,6 @@ static __initdata struct dmi_blacklist d
+ 			MATCH(DMI_BIOS_VERSION, "1AET38WW (1.01b)"),
+ 			NO_MATCH, NO_MATCH
+ 			} },
+-	 
+-	{ fix_acer_tm360_irqrouting, "Acer TravelMate 36x Laptop", {
+-			MATCH(DMI_SYS_VENDOR, "Acer"),
+-			MATCH(DMI_PRODUCT_NAME, "TravelMate 360"),
+-			NO_MATCH, NO_MATCH
+-			} },
+-
+- 
+ 
+ 	/*
+ 	 *	Generic per vendor APM settings
+diff -urpN -X /usr/share/dontdiff linux-2.6.7-mm1.vanilla/arch/i386/pci/irq.c linux-2.6.7-mm1/arch/i386/pci/irq.c
+--- linux-2.6.7-mm1.vanilla/arch/i386/pci/irq.c	Sun May 23 21:51:28 2004
++++ linux-2.6.7-mm1/arch/i386/pci/irq.c	Sun May 23 21:51:34 2004
+@@ -24,7 +24,7 @@
+ #define PIRQ_VERSION 0x0100
+ 
+ static int broken_hp_bios_irq9;
+-int acer_tm360_irqrouting;
++static int acer_tm360_irqrouting;
+ 
+ static struct irq_routing_table *pirq_table;
+ 
+@@ -916,6 +916,19 @@ static int __init fix_broken_hp_bios_irq
+ 	return 0;
+ }
+ 
++/*
++ * Work around broken Acer TravelMate 360 Notebooks which assign
++ * Cardbus to IRQ 11 even though it is actually wired to IRQ 10
++ */
++static int __init fix_acer_tm360_irqrouting(struct dmi_system_id *d)
++{
++	if (!acer_tm360_irqrouting) {
++		acer_tm360_irqrouting = 1;
++		printk(KERN_INFO "%s detected - fixing broken IRQ routing\n", d->ident);
++	}
++	return 0;
++}
++
+ static struct dmi_system_id __initdata pciirq_dmi_table[] = {
+ 	{
+ 		.callback = fix_broken_hp_bios_irq9,
+@@ -925,6 +938,14 @@ static struct dmi_system_id __initdata p
+ 			DMI_MATCH(DMI_BIOS_VERSION, "GE.M1.03"),
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "HP Pavilion Notebook Model GE"),
+ 			DMI_MATCH(DMI_BOARD_VERSION, "OmniBook N32N-736"),
++		},
++	},
++	{
++		.callback = fix_acer_tm360_irqrouting,
++		.ident = "Acer TravelMate 36x Laptop",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 360"),
+ 		},
+ 	},
+ 	{ }
 
-arp does not access network. I think it just prints current arp cache.
-
-> So if I run arp in an endless loop(while :; do arp; done), sendto runs
-> smooth.
->
-> For me it smells like a bug ;)
-
-Possible. We need more details. Also CC network folks :)
---
-vda

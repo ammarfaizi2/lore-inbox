@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262036AbVADEqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262030AbVADEtF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262036AbVADEqi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 23:46:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbVADEqh
+	id S262030AbVADEtF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 23:49:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbVADErv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 23:46:37 -0500
-Received: from chilli.pcug.org.au ([203.10.76.44]:22472 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S262036AbVADEny (ORCPT
+	Mon, 3 Jan 2005 23:47:51 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:23496 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S262030AbVADEoC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 23:43:54 -0500
-Date: Tue, 4 Jan 2005 15:08:33 +1100
+	Mon, 3 Jan 2005 23:44:02 -0500
+Date: Tue, 4 Jan 2005 15:12:29 +1100
 From: Stephen Rothwell <sfr@canb.auug.org.au>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/11] PPC64: remove the page table size from the naca
-Message-Id: <20050104150833.5d3f3722.sfr@canb.auug.org.au>
-In-Reply-To: <20050104150410.199b132e.sfr@canb.auug.org.au>
+Subject: [PATCH 3/11] PPC64: remove interrupt_controller from naca
+Message-Id: <20050104151229.521e8083.sfr@canb.auug.org.au>
+In-Reply-To: <20050104150833.5d3f3722.sfr@canb.auug.org.au>
 References: <20050104145356.4d5333dd.sfr@canb.auug.org.au>
 	<20050104150410.199b132e.sfr@canb.auug.org.au>
+	<20050104150833.5d3f3722.sfr@canb.auug.org.au>
 X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: multipart/signed; protocol="application/pgp-signature";
  micalg="pgp-sha1";
- boundary="Signature=_Tue__4_Jan_2005_15_08_33_+1100_krhh3rMOo8D=qyh_"
+ boundary="Signature=_Tue__4_Jan_2005_15_12_30_+1100_ZGRhdYS8ZZAuRF7s"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Tue__4_Jan_2005_15_08_33_+1100_krhh3rMOo8D=qyh_
+--Signature=_Tue__4_Jan_2005_15_12_30_+1100_ZGRhdYS8ZZAuRF7s
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Tue__4_Jan_2005_15_12_29_+1100_wmjHQRv1RAU_qeMa"
+
+
+--Multipart=_Tue__4_Jan_2005_15_12_29_+1100_wmjHQRv1RAU_qeMa
 Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
 
 Hi Andrew,
 
-This patch just removes the page table size field from the naca (and makes
-it ppc64_pft_size instead).
+This patch just moves the interrupt_controller field of the naca into a
+global variable.
 
 Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
 -- 
@@ -42,157 +48,219 @@ Cheers,
 Stephen Rothwell                    sfr@canb.auug.org.au
 http://www.canb.auug.org.au/~sfr/
 
-diff -ruN linus-bk-naca.1/arch/ppc64/kernel/pSeries_lpar.c linus-bk-naca.2/arch/ppc64/kernel/pSeries_lpar.c
---- linus-bk-naca.1/arch/ppc64/kernel/pSeries_lpar.c	2004-12-14 04:07:06.000000000 +1100
-+++ linus-bk-naca.2/arch/ppc64/kernel/pSeries_lpar.c	2004-12-31 15:16:48.000000000 +1100
-@@ -33,7 +33,6 @@
- #include <asm/mmu_context.h>
- #include <asm/ppcdebug.h>
- #include <asm/iommu.h>
--#include <asm/naca.h>
- #include <asm/tlbflush.h>
- #include <asm/tlb.h>
- #include <asm/prom.h>
-@@ -368,7 +367,7 @@
+diff -ruN linus-bk-naca.2/arch/ppc64/kernel/irq.c linus-bk-naca.3/arch/ppc64/kernel/irq.c
+--- linus-bk-naca.2/arch/ppc64/kernel/irq.c	2004-10-21 07:17:18.000000000 +1000
++++ linus-bk-naca.3/arch/ppc64/kernel/irq.c	2004-12-31 14:53:21.000000000 +1100
+@@ -65,6 +65,7 @@
+ int __irq_offset_value;
+ int ppc_spurious_interrupts;
+ unsigned long lpevent_count;
++u64 ppc64_interrupt_controller;
  
- static void pSeries_lpar_hptab_clear(void)
+ int show_interrupts(struct seq_file *p, void *v)
  {
--	unsigned long size_bytes = 1UL << naca->pftSize;
-+	unsigned long size_bytes = 1UL << ppc64_pft_size;
- 	unsigned long hpte_count = size_bytes >> 4;
- 	unsigned long dummy1, dummy2;
- 	int i;
-diff -ruN linus-bk-naca.1/arch/ppc64/kernel/prom.c linus-bk-naca.2/arch/ppc64/kernel/prom.c
---- linus-bk-naca.1/arch/ppc64/kernel/prom.c	2004-11-26 12:08:51.000000000 +1100
-+++ linus-bk-naca.2/arch/ppc64/kernel/prom.c	2004-12-31 14:52:56.000000000 +1100
-@@ -844,12 +844,12 @@
+@@ -360,7 +361,7 @@
+ 	unsigned int virq, first_virq;
+ 	static int warned;
  
- 	/* On LPAR, look for the first ibm,pft-size property for the  hash table size
- 	 */
--	if (systemcfg->platform == PLATFORM_PSERIES_LPAR && naca->pftSize == 0) {
-+	if (systemcfg->platform == PLATFORM_PSERIES_LPAR && ppc64_pft_size == 0) {
- 		u32 *pft_size;
- 		pft_size = (u32 *)get_flat_dt_prop(node, "ibm,pft-size", NULL);
- 		if (pft_size != NULL) {
- 			/* pft_size[0] is the NUMA CEC cookie */
--			naca->pftSize = pft_size[1];
-+			ppc64_pft_size = pft_size[1];
- 		}
+-	if (naca->interrupt_controller == IC_OPEN_PIC)
++	if (ppc64_interrupt_controller == IC_OPEN_PIC)
+ 		return real_irq;	/* no mapping for openpic (for now) */
+ 
+ 	/* don't map interrupts < MIN_VIRT_IRQ */
+diff -ruN linus-bk-naca.2/arch/ppc64/kernel/maple_setup.c linus-bk-naca.3/arch/ppc64/kernel/maple_setup.c
+--- linus-bk-naca.2/arch/ppc64/kernel/maple_setup.c	2004-10-30 08:33:22.000000000 +1000
++++ linus-bk-naca.3/arch/ppc64/kernel/maple_setup.c	2004-12-31 14:53:21.000000000 +1100
+@@ -155,7 +155,7 @@
  	}
  
-@@ -1018,7 +1018,7 @@
- 	initial_boot_params = params;
+ 	/* Setup interrupt mapping options */
+-	naca->interrupt_controller = IC_OPEN_PIC;
++	ppc64_interrupt_controller = IC_OPEN_PIC;
  
- 	/* By default, hash size is not set */
--	naca->pftSize = 0;
-+	ppc64_pft_size = 0;
- 
- 	/* Retreive various informations from the /chosen node of the
- 	 * device-tree, including the platform type, initrd location and
-@@ -1047,7 +1047,7 @@
- 	/* If hash size wasn't obtained above, we calculate it now based on
- 	 * the total RAM size
- 	 */
--	if (naca->pftSize == 0) {
-+	if (ppc64_pft_size == 0) {
- 		unsigned long rnd_mem_size, pteg_count;
- 
- 		/* round mem_size up to next power of 2 */
-@@ -1058,10 +1058,10 @@
- 		/* # pages / 2 */
- 		pteg_count = (rnd_mem_size >> (12 + 1));
- 
--		naca->pftSize = __ilog2(pteg_count << 7);
-+		ppc64_pft_size = __ilog2(pteg_count << 7);
- 	}
- 
--	DBG("Hash pftSize: %x\n", (int)naca->pftSize);
-+	DBG("Hash pftSize: %x\n", (int)ppc64_pft_size);
- 	DBG(" <- early_init_devtree()\n");
+ 	DBG(" <- maple_init_early\n");
  }
+diff -ruN linus-bk-naca.2/arch/ppc64/kernel/pSeries_pci.c linus-bk-naca.3/arch/ppc64/kernel/pSeries_pci.c
+--- linus-bk-naca.2/arch/ppc64/kernel/pSeries_pci.c	2004-11-16 16:05:10.000000000 +1100
++++ linus-bk-naca.3/arch/ppc64/kernel/pSeries_pci.c	2004-12-31 14:53:21.000000000 +1100
+@@ -353,7 +353,7 @@
+ 	unsigned int *opprop = NULL;
+ 	struct device_node *root = of_find_node_by_path("/");
  
-diff -ruN linus-bk-naca.1/arch/ppc64/kernel/setup.c linus-bk-naca.2/arch/ppc64/kernel/setup.c
---- linus-bk-naca.1/arch/ppc64/kernel/setup.c	2004-12-31 16:22:00.000000000 +1100
-+++ linus-bk-naca.2/arch/ppc64/kernel/setup.c	2004-12-31 16:22:49.000000000 +1100
-@@ -55,6 +55,7 @@
- #include <asm/iommu.h>
- #include <asm/serial.h>
- #include <asm/cache.h>
-+#include <asm/page.h>
+-	if (naca->interrupt_controller == IC_OPEN_PIC) {
++	if (ppc64_interrupt_controller == IC_OPEN_PIC) {
+ 		opprop = (unsigned int *)get_property(root,
+ 				"platform-open-pic", NULL);
+ 	}
+@@ -375,7 +375,7 @@
+ 		pci_process_bridge_OF_ranges(phb, node);
+ 		pci_setup_phb_io(phb, index == 0);
  
- #ifdef DEBUG
- #define DBG(fmt...) udbg_printf(fmt)
-@@ -111,6 +112,7 @@
- int boot_cpuid = 0;
- int boot_cpuid_phys = 0;
- dev_t boot_dev;
-+u64 ppc64_pft_size;
+-		if (naca->interrupt_controller == IC_OPEN_PIC && pSeries_mpic) {
++		if (ppc64_interrupt_controller == IC_OPEN_PIC && pSeries_mpic) {
+ 			int addr = root_size_cells * (index + 2) - 1;
+ 			mpic_assign_isu(pSeries_mpic, index, opprop[addr]);
+ 		}
+diff -ruN linus-bk-naca.2/arch/ppc64/kernel/pSeries_setup.c linus-bk-naca.3/arch/ppc64/kernel/pSeries_setup.c
+--- linus-bk-naca.2/arch/ppc64/kernel/pSeries_setup.c	2004-12-14 04:07:06.000000000 +1100
++++ linus-bk-naca.3/arch/ppc64/kernel/pSeries_setup.c	2004-12-31 15:22:17.000000000 +1100
+@@ -196,7 +196,7 @@
+ static void __init pSeries_setup_arch(void)
+ {
+ 	/* Fixup ppc_md depending on the type of interrupt controller */
+-	if (naca->interrupt_controller == IC_OPEN_PIC) {
++	if (ppc64_interrupt_controller == IC_OPEN_PIC) {
+ 		ppc_md.init_IRQ       = pSeries_init_mpic; 
+ 		ppc_md.get_irq        = mpic_get_irq;
+ 		/* Allocate the mpic now, so that find_and_init_phbs() can
+@@ -308,13 +308,13 @@
+ 	 * to properly parse the OF interrupt tree & do the virtual irq mapping
+ 	 */
+ 	__irq_offset_value = NUM_ISA_INTERRUPTS;
+-	naca->interrupt_controller = IC_INVALID;
++	ppc64_interrupt_controller = IC_INVALID;
+ 	for (np = NULL; (np = of_find_node_by_name(np, "interrupt-controller"));) {
+ 		typep = (char *)get_property(np, "compatible", NULL);
+ 		if (strstr(typep, "open-pic"))
+-			naca->interrupt_controller = IC_OPEN_PIC;
++			ppc64_interrupt_controller = IC_OPEN_PIC;
+ 		else if (strstr(typep, "ppc-xicp"))
+-			naca->interrupt_controller = IC_PPC_XIC;
++			ppc64_interrupt_controller = IC_PPC_XIC;
+ 		else
+ 			printk("initialize_naca: failed to recognize"
+ 			       " interrupt-controller\n");
+diff -ruN linus-bk-naca.2/arch/ppc64/kernel/pSeries_smp.c linus-bk-naca.3/arch/ppc64/kernel/pSeries_smp.c
+--- linus-bk-naca.2/arch/ppc64/kernel/pSeries_smp.c	2004-12-14 04:07:06.000000000 +1100
++++ linus-bk-naca.3/arch/ppc64/kernel/pSeries_smp.c	2004-12-31 15:22:45.000000000 +1100
+@@ -348,7 +348,7 @@
  
- struct ppc64_caches ppc64_caches;
+ 	DBG(" -> smp_init_pSeries()\n");
  
-@@ -660,7 +662,7 @@
- 
- 	printk("-----------------------------------------------------\n");
- 	printk("naca                          = 0x%p\n", naca);
--	printk("naca->pftSize                 = 0x%lx\n", naca->pftSize);
-+	printk("ppc64_pft_size                = 0x%lx\n", ppc64_pft_size);
- 	printk("naca->debug_switch            = 0x%lx\n", naca->debug_switch);
- 	printk("naca->interrupt_controller    = 0x%ld\n", naca->interrupt_controller);
- 	printk("systemcfg                     = 0x%p\n", systemcfg);
-diff -ruN linus-bk-naca.1/arch/ppc64/mm/hash_utils.c linus-bk-naca.2/arch/ppc64/mm/hash_utils.c
---- linus-bk-naca.1/arch/ppc64/mm/hash_utils.c	2004-10-29 07:03:21.000000000 +1000
-+++ linus-bk-naca.2/arch/ppc64/mm/hash_utils.c	2004-12-31 14:52:56.000000000 +1100
-@@ -41,7 +41,6 @@
- #include <asm/types.h>
- #include <asm/system.h>
- #include <asm/uaccess.h>
--#include <asm/naca.h>
- #include <asm/machdep.h>
+-	if (naca->interrupt_controller == IC_OPEN_PIC)
++	if (ppc64_interrupt_controller == IC_OPEN_PIC)
+ 		smp_ops = &pSeries_mpic_smp_ops;
+ 	else
+ 		smp_ops = &pSeries_xics_smp_ops;
+diff -ruN linus-bk-naca.2/arch/ppc64/kernel/pmac_setup.c linus-bk-naca.3/arch/ppc64/kernel/pmac_setup.c
+--- linus-bk-naca.2/arch/ppc64/kernel/pmac_setup.c	2004-12-31 14:52:14.000000000 +1100
++++ linus-bk-naca.3/arch/ppc64/kernel/pmac_setup.c	2004-12-31 14:53:21.000000000 +1100
+@@ -70,7 +70,6 @@
+ #include <asm/time.h>
+ #include <asm/of_device.h>
  #include <asm/lmb.h>
- #include <asm/abs_addr.h>
-@@ -147,7 +146,7 @@
- 	 * Calculate the required size of the htab.  We want the number of
- 	 * PTEGs to equal one half the number of real pages.
- 	 */ 
--	htab_size_bytes = 1UL << naca->pftSize;
-+	htab_size_bytes = 1UL << ppc64_pft_size;
- 	pteg_count = htab_size_bytes >> 7;
+-#include <asm/naca.h>
  
- 	/* For debug, make the HTAB 1/8 as big as it normally would be. */
-diff -ruN linus-bk-naca.1/include/asm-ppc64/naca.h linus-bk-naca.2/include/asm-ppc64/naca.h
---- linus-bk-naca.1/include/asm-ppc64/naca.h	2004-12-31 14:52:14.000000000 +1100
-+++ linus-bk-naca.2/include/asm-ppc64/naca.h	2004-12-31 14:52:56.000000000 +1100
-@@ -26,8 +26,6 @@
+ #include "pmac.h"
+ #include "mpic.h"
+@@ -316,7 +315,7 @@
+ 	}
+ 
+ 	/* Setup interrupt mapping options */
+-	naca->interrupt_controller = IC_OPEN_PIC;
++	ppc64_interrupt_controller = IC_OPEN_PIC;
+ 
+ 	DBG(" <- pmac_init_early\n");
+ }
+diff -ruN linus-bk-naca.2/arch/ppc64/kernel/prom.c linus-bk-naca.3/arch/ppc64/kernel/prom.c
+--- linus-bk-naca.2/arch/ppc64/kernel/prom.c	2004-12-31 14:52:56.000000000 +1100
++++ linus-bk-naca.3/arch/ppc64/kernel/prom.c	2004-12-31 14:53:21.000000000 +1100
+@@ -44,7 +44,6 @@
+ #include <asm/system.h>
+ #include <asm/mmu.h>
+ #include <asm/pgtable.h>
+-#include <asm/naca.h>
+ #include <asm/pci.h>
+ #include <asm/iommu.h>
+ #include <asm/bootinfo.h>
+@@ -557,7 +556,7 @@
+ 
+ 	DBG(" -> finish_device_tree\n");
+ 
+-	if (naca->interrupt_controller == IC_INVALID) {
++	if (ppc64_interrupt_controller == IC_INVALID) {
+ 		DBG("failed to configure interrupt controller type\n");
+ 		panic("failed to configure interrupt controller type\n");
+ 	}
+diff -ruN linus-bk-naca.2/arch/ppc64/kernel/setup.c linus-bk-naca.3/arch/ppc64/kernel/setup.c
+--- linus-bk-naca.2/arch/ppc64/kernel/setup.c	2004-12-31 16:22:49.000000000 +1100
++++ linus-bk-naca.3/arch/ppc64/kernel/setup.c	2004-12-31 16:23:03.000000000 +1100
+@@ -664,7 +664,7 @@
+ 	printk("naca                          = 0x%p\n", naca);
+ 	printk("ppc64_pft_size                = 0x%lx\n", ppc64_pft_size);
+ 	printk("naca->debug_switch            = 0x%lx\n", naca->debug_switch);
+-	printk("naca->interrupt_controller    = 0x%ld\n", naca->interrupt_controller);
++	printk("ppc64_interrupt_controller    = 0x%ld\n", ppc64_interrupt_controller);
+ 	printk("systemcfg                     = 0x%p\n", systemcfg);
+ 	printk("systemcfg->platform           = 0x%x\n", systemcfg->platform);
+ 	printk("systemcfg->processorCount     = 0x%lx\n", systemcfg->processorCount);
+diff -ruN linus-bk-naca.2/arch/ppc64/kernel/xics.c linus-bk-naca.3/arch/ppc64/kernel/xics.c
+--- linus-bk-naca.2/arch/ppc64/kernel/xics.c	2004-12-14 04:07:06.000000000 +1100
++++ linus-bk-naca.3/arch/ppc64/kernel/xics.c	2004-12-31 15:24:20.000000000 +1100
+@@ -24,7 +24,6 @@
+ #include <asm/io.h>
+ #include <asm/pgtable.h>
+ #include <asm/smp.h>
+-#include <asm/naca.h>
+ #include <asm/rtas.h>
+ #include <asm/xics.h>
+ #include <asm/hvcall.h>
+@@ -575,7 +574,7 @@
+  */
+ static int __init xics_setup_i8259(void)
+ {
+-	if (naca->interrupt_controller == IC_PPC_XIC &&
++	if (ppc64_interrupt_controller == IC_PPC_XIC &&
+ 	    xics_irq_8259_cascade != -1) {
+ 		if (request_irq(irq_offset_up(xics_irq_8259_cascade),
+ 				no_action, 0, "8259 cascade", NULL))
+diff -ruN linus-bk-naca.2/include/asm-ppc64/naca.h linus-bk-naca.3/include/asm-ppc64/naca.h
+--- linus-bk-naca.2/include/asm-ppc64/naca.h	2004-12-31 14:52:56.000000000 +1100
++++ linus-bk-naca.3/include/asm-ppc64/naca.h	2004-12-31 14:53:21.000000000 +1100
+@@ -25,7 +25,6 @@
+ 	u64 banner;                     /* Ptr to banner string      0x28 */
  	u64 log;                        /* Ptr to log buffer         0x30 */
  	u64 serialPortAddr;		/* Phy addr of serial port   0x38 */
- 	u64 interrupt_controller;	/* Type of int controller    0x40 */ 
--	u64 unused1;			/* was SLB size in entries   0x48 */
--	u64 pftSize;			/* Log 2 of page table size  0x50 */
+-	u64 interrupt_controller;	/* Type of int controller    0x40 */ 
  };
  
  extern struct naca_struct *naca;
-diff -ruN linus-bk-naca.1/include/asm-ppc64/page.h linus-bk-naca.2/include/asm-ppc64/page.h
---- linus-bk-naca.1/include/asm-ppc64/page.h	2004-12-31 14:52:14.000000000 +1100
-+++ linus-bk-naca.2/include/asm-ppc64/page.h	2004-12-31 14:52:56.000000000 +1100
-@@ -183,6 +183,8 @@
+diff -ruN linus-bk-naca.2/include/asm-ppc64/processor.h linus-bk-naca.3/include/asm-ppc64/processor.h
+--- linus-bk-naca.2/include/asm-ppc64/processor.h	2004-12-31 15:01:17.000000000 +1100
++++ linus-bk-naca.3/include/asm-ppc64/processor.h	2004-12-31 15:25:17.000000000 +1100
+@@ -484,6 +484,7 @@
+ #ifdef __KERNEL__
  
- extern int page_is_ram(unsigned long pfn);
+ extern int have_of;
++extern u64 ppc64_interrupt_controller;
  
-+extern u64 ppc64_pft_size;		/* Log 2 of page table size */
-+
- #endif /* __ASSEMBLY__ */
- 
- #ifdef MODULE
+ struct task_struct;
+ void start_thread(struct pt_regs *regs, unsigned long fdptr, unsigned long sp);
 
---Signature=_Tue__4_Jan_2005_15_08_33_+1100_krhh3rMOo8D=qyh_
+
+--Multipart=_Tue__4_Jan_2005_15_12_29_+1100_wmjHQRv1RAU_qeMa
+Content-Type: application/pgp-signature;
+ name="00000000.mimetmp"
+Content-Disposition: attachment;
+ filename="00000000.mimetmp"
+Content-Transfer-Encoding: base64
+
+LS0tLS1CRUdJTiBQR1AgU0lHTkFUVVJFLS0tLS0KVmVyc2lvbjogR251UEcgdjEuMi41IChHTlUv
+TGludXgpCgppRDhEQlFGQjJoZDE0Q0pmcXV4OWErOFJBdlJuQUo5WHJGdUZpaThSTE50QWhmNmtX
+dDVWYmJFd2pnQ2NERVlMCnNKMnNWWFh4S0lsN01TV0c0SEhvZG5nPQo9Z1QzSwotLS0tLUVORCBQ
+R1AgU0lHTkFUVVJFLS0tLS0KCg==
+
+--Multipart=_Tue__4_Jan_2005_15_12_29_+1100_wmjHQRv1RAU_qeMa--
+
+--Signature=_Tue__4_Jan_2005_15_12_30_+1100_ZGRhdYS8ZZAuRF7s
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQFB2hbB4CJfqux9a+8RAmUnAKCFHIPEJZoYFmyqlvPBrcZ+enqKpgCeK+jX
-beij9WKMtjEV/NCsSQkp9qk=
-=M2Wg
+iD8DBQFB2heu4CJfqux9a+8RAr1ZAJsE+LWT96e/abGWUpznKR8/4/i04gCfQJbF
+inwQWOjrSJZqP3AxUEjdO7s=
+=ls4W
 -----END PGP SIGNATURE-----
 
---Signature=_Tue__4_Jan_2005_15_08_33_+1100_krhh3rMOo8D=qyh_--
+--Signature=_Tue__4_Jan_2005_15_12_30_+1100_ZGRhdYS8ZZAuRF7s--

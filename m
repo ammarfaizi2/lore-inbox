@@ -1,75 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262788AbVCJRf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262803AbVCJRf7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262788AbVCJRf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 12:35:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262796AbVCJReB
+	id S262803AbVCJRf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 12:35:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbVCJRcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 12:34:01 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:51967 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262837AbVCJRZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 12:25:09 -0500
-Message-ID: <42308306.2050104@comcast.net>
-Date: Thu, 10 Mar 2005 12:25:26 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
+	Thu, 10 Mar 2005 12:32:22 -0500
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:47500 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S262899AbVCJR1K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 12:27:10 -0500
+Message-ID: <42308351.4090606@am.sony.com>
+Date: Thu, 10 Mar 2005 09:26:41 -0800
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ralf Baechle <ralf@linux-mips.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: binary drivers and development
-References: <423075B7.5080004@comcast.net> <20050310170202.GA26269@linux-mips.org>
-In-Reply-To: <20050310170202.GA26269@linux-mips.org>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: Linus Torvalds <torvalds@osdl.org>
+CC: linux kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] printk-times bugfix for loglevel-only printks
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Linus,
 
+This patch fixes a bug with the recently added printk-times feature.
 
+In the case where a printk consists of only the log level (followed
+subsequently by printks with more text for the same line), the
+printk-times code doesn't correctly recognize the end of the
+string, and starts emitting chars at the 0 byte at the end of the
+string.
 
-Ralf Baechle wrote:
-> On Thu, Mar 10, 2005 at 11:28:39AM -0500, John Richard Moser wrote:
-> 
-> 
->>I've been looking at the UDI project[1] and thinking about binary
->>drivers and the like, and wondering what most peoples' take on these are
->>and what impact that UDI support would have on the kernel's development.
-> 
-> 
-> UDI is already dead.  You just haven't noticed.  And just like with dead
-> people it's death also had a cause :-)
-> 
+The patch below fixes this problem.  It also adjusts the handling
+of printed_len in the routine, which was affected by the
+printk-times feature.
 
-File last modified: 11:28 Tue December 14, 2004
+Please apply. Thanks.
+ -- Tim Bird, Senior Software Engineer, Sony Electronics
 
-3 months and it's dead.  Linux hasn't passed 2.6 in over 3 months, it
-must be dead too :)
->   Ralf
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+diffstat:
+ printk.c |    5 +++++
+ 1 files changed, 5 insertions(+)
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+Signed-off-by: Tim Bird <tim.bird@am.sony.com>
+Acked-by: Tony Luck <tony.luck@intel.com>
+--------------------------------------
+diff -pruN printk-1/kernel/printk.c printk-fix1/kernel/printk.c
+--- printk-1/kernel/printk.c	2005-03-09 15:42:04.550944124 -0800
++++ printk-fix1/kernel/printk.c	2005-03-09 15:36:18.928567360 -0800
+@@ -579,6 +579,7 @@ asmlinkage int vprintk(const char *fmt,
+ 				   p[1] <= '7' && p[2] == '>') {
+ 					loglev_char = p[1];
+ 					p += 3;
++					printed_len += 3;
+ 				} else {
+ 					loglev_char = default_message_loglevel
+ 						+ '0';
+@@ -593,6 +594,7 @@ asmlinkage int vprintk(const char *fmt,
 
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCMIMEhDd4aOud5P8RAvHzAJ99xQyr4SF98zd7VbmcSDCsEUEpFgCePAP8
-7WdLwkOCKXkaycLNdL8KBbI=
-=o68B
------END PGP SIGNATURE-----
+ 				for (tp = tbuf; tp < tbuf + tlen; tp++)
+ 					emit_log_char (*tp);
++				printed_len += tlen - 3;
+ 			} else {
+ 				if (p[0] != '<' || p[1] < '0' ||
+ 				   p[1] > '7' || p[2] != '>') {
+@@ -601,8 +603,11 @@ asmlinkage int vprintk(const char *fmt,
+ 						+ '0');
+ 					emit_log_char('>');
+ 				}
++				printed_len += 3;
+ 			}
+ 			log_level_unknown = 0;
++			if (!*p)
++				break;
+ 		}
+ 		emit_log_char(*p);
+ 		if (*p == '\n')

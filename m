@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263836AbUCZAIt (ORCPT <rfc822;willy@w.ods.org>);
+	id S263854AbUCZAIt (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 25 Mar 2004 19:08:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263832AbUCZAID
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263836AbUCZAIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 19:08:03 -0500
-Received: from hellhawk.shadowen.org ([212.13.208.175]:37130 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S263836AbUCZAAK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 19:00:10 -0500
-Date: Thu, 25 Mar 2004 23:59:21 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: anton@samba.org, sds@epoch.ncsc.mil, ak@suse.de, raybry@sgi.com,
-       lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, mbligh@aracnet.com
-Subject: Re: [PATCH] [0/6] HUGETLB memory commitment
-Message-ID: <1739144.1080259161@[192.168.0.89]>
-In-Reply-To: <20040325155117.60dbc0e1.akpm@osdl.org>
-References: <18429360.1080233672@42.150.104.212.access.eclipse.net.uk>
- 	<20040325130433.0a61d7ef.akpm@osdl.org>
- 	<41997489.1080257240@42.150.104.212.access.eclipse.net.uk>
- <20040325155117.60dbc0e1.akpm@osdl.org>
-X-Mailer: Mulberry/3.1.0 (Win32)
+	Thu, 25 Mar 2004 19:08:10 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57812 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263842AbUCZABZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 19:01:25 -0500
+Message-ID: <406372C5.600@pobox.com>
+Date: Thu, 25 Mar 2004 19:01:09 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: linux-kernel@vger.kernel.org, Kevin Corry <kevcorry@us.ibm.com>,
+       Neil Brown <neilb@cse.unsw.edu.au>, linux-raid@vger.kernel.org
+Subject: Re: "Enhanced" MD code avaible for review
+References: <760890000.1079727553@aslan.btc.adaptec.com> <16480.61927.863086.637055@notabene.cse.unsw.edu.au> <40624235.30108@pobox.com> <200403251200.35199.kevcorry@us.ibm.com> <40632804.1020101@pobox.com> <40632994.7080504@pobox.com> <1035780000.1080258411@aslan.btc.adaptec.com>
+In-Reply-To: <1035780000.1080258411@aslan.btc.adaptec.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On 25 March 2004 15:51 -0800 Andrew Morton <akpm@osdl.org> wrote:
+Justin T. Gibbs wrote:
+>>Jeff Garzik wrote:
+>>
+>>Just so there is no confusion...  the "failing over...in userland" thing I
+>>mention is _only_ during discovery of the root disk.
+> 
+> 
+> None of the solutions being talked about perform "failing over" in
+> userland.  The RAID transforms which perform this operation are kernel
+> resident in DM, MD, and EMD.  Perhaps you are talking about spare
+> activation and rebuild?
 
-> I think it's simply:
->
-> - Make normal overcommit logic skip hugepages completely
->
-> - Teach the overcommit_memory=2 logic that hugepages are basically
->   "pinned", so subtract them from the arithmetic.
->
-> And that's it.  The hugepages are semantically quite different from normal
-> memory (prefaulted, preallocated, unswappable) and we've deliberately
-> avoided pretending otherwise.
+This is precisely why I sent the second email, and made the 
+qualification I did :)
 
-True currently.  Though the thread that prompted this was in response to 
-the time taken for this prefault and for the wish to fault them.
+For a "do it in userland" solution, an initrd or initramfs piece 
+examines the system configuration, and assembles physical disks into 
+RAID arrays based on the information it finds.  I was mainly implying 
+that an initrd solution would have to provide some primitive failover 
+initially, before the kernel is bootstrapped...  much like a bootloader 
+that supports booting off a RAID1 array would need to do.
 
-I'll have a poke about at it and see how small I can make it.
+	Jeff
 
--apw
+
+

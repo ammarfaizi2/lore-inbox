@@ -1,73 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269429AbUJLDv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269430AbUJLDvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269429AbUJLDv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 23:51:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269435AbUJLDv1
+	id S269430AbUJLDvc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 23:51:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269435AbUJLDvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 23:51:27 -0400
-Received: from elektroni.ee.tut.fi ([130.230.131.11]:2432 "HELO
-	elektroni.ee.tut.fi") by vger.kernel.org with SMTP id S269429AbUJLDvW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 23:51:22 -0400
-Date: Tue, 12 Oct 2004 06:51:21 +0300
-From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
-To: Andrew Morton <akpm@osdl.org>
-Cc: roland@redhat.com, joshk@triplehelix.org, linux-kernel@vger.kernel.org
-Subject: Re: Weirdness with suspending jobs in 2.6.9-rc3
-Message-ID: <20041012035121.GA665@elektroni.ee.tut.fi>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, roland@redhat.com,
-	joshk@triplehelix.org, linux-kernel@vger.kernel.org
-References: <20041010211507.GB3316@triplehelix.org> <200410112055.i9BKt5LI031359@magilla.sf.frob.com> <20041012033934.GA275@elektroni.ee.tut.fi> <20041011204512.6c67333c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041011204512.6c67333c.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 11 Oct 2004 23:51:32 -0400
+Received: from relay.pair.com ([209.68.1.20]:38919 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S269430AbUJLDvY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 23:51:24 -0400
+X-pair-Authenticated: 66.190.53.4
+Message-ID: <416B54BA.9050606@cybsft.com>
+Date: Mon, 11 Oct 2004 22:51:22 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Mark_H_Johnson@Raytheon.com, Andrew Morton <akpm@osdl.org>,
+       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [patch] VP-2.6.9-rc4-mm1-T5
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu>
+In-Reply-To: <20041011215909.GA20686@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 11, 2004 at 08:45:12PM -0700, Andrew Morton wrote:
-> Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi> wrote:
-> >
-> > On Mon, Oct 11, 2004 at 01:55:05PM -0700, Roland McGrath wrote:
-> > > > wait4(-1073750280, NULL, 0, NULL)       = -1 ECHILD (No child processes)
-> > > 
-> > > That is a clearly bogus argument.
-> > 
-> > Hi. I see it too:
-> > 
-> > wait4(-1073750328, NULL, 0, NULL)       = -1 ECHILD (No child processes)
-> > 
-> > But the whole problem goes away if I switch CONFIG_REGPARM off. To reproduce
-> > it needs CONFIG_REGPARM=y.
-> > 
+Ingo Molnar wrote:
+> * Mark_H_Johnson@Raytheon.com <Mark_H_Johnson@Raytheon.com> wrote:
 > 
-> Interesting.
 > 
-> What command are you actually running to demonstrate this?  Full details,
-> please.
+>>I would have to say this is "very rough" at this point. I had the
+>>following problems in the build:
+> 
+> 
+> i've uploaded -T5 which should fix most of the build issues:
+> 
 
-First 'make' while the Makefile is this
+This fixed the build problems for me (SMP). I did get one unresolved 
+symbol when building this with REALTIME enabled. Also got error messages 
+scrolling up the screen when I tried to boot it (looked very much like 
+Mark's problem with T4) and it never made it. :( If I had to guess, it 
+might be related to APICs? I always have to use "noapic" boot parameter. 
+Ingo what are you running this on? I don't have the exact error 
+messages, but I'm rebuilding it now to try to get those. Without RT 
+Preemption it seems to be running very nicely.
 
-all:
-	sleep 40
-	echo Hi
-	sleep 5
-
-and then in a different window 'ps ux' and then 'strace -p PID'. If
-CONFIG_REGPARM if off then the strace starts:
-
-Process 324 attached - interrupt to quit
-wait4(-1, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0, NULL) = 325
---- SIGCHLD (Child exited) @ 0 (0) ---
-sigreturn()                             = ? (mask now [])
-write(1, "echo Hi\n", 8)                = 8
-
-if CONFIG_REGPARM=Y then it starts:
-
-Process 14226 attached - interrupt to quit
-wait4(-1073750328, NULL, 0, NULL)       = -1 ECHILD (No child processes)
-write(2, "make: *** ", 10)              = 10
-write(2, "wait: No child processes", 24) = 24
-write(2, ".  Stop.\n", 9)               = 9
-write(2, "make: ", 6)                   = 6
+kr

@@ -1,36 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270838AbUJUVPr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270855AbUJUVPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270838AbUJUVPr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 17:15:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270809AbUJUVP1
+	id S270855AbUJUVPO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 17:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270838AbUJUVL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 17:15:27 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:63197 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S270969AbUJUVO5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 17:14:57 -0400
-Subject: Re: Linux 2.6.9-ac2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041021123404.1d947ee0.davem@davemloft.net>
-References: <1098379853.17095.160.camel@localhost.localdomain>
-	 <20041021123404.1d947ee0.davem@davemloft.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1098389527.17096.166.camel@localhost.localdomain>
+	Thu, 21 Oct 2004 17:11:58 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:60180 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S270936AbUJUUmY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 16:42:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=FLtpiudvs9n/uN07sX14YyjKUzaw3LWbsguVds6+GPuz5rPrZ9X/YzadRvSwmtAvBssKT2xb4WhBvX3ytT8MGQdB/JgyBXAzektHIUJ4RBPGsRfbNdGIn05Y1fZrPzZ3+aCXAJvoidtA2/QknsxEKnngr4yIC0jlMQTh1HZvvtI=
+Message-ID: <58cb370e041021134269c05f17@mail.gmail.com>
+Date: Thu, 21 Oct 2004 22:42:18 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Mark Lord <lkml@rtr.ca>
+Subject: Re: [PATCH 2.4.28-pre4-bk6] delkin_cb: new driver for Cardbus IDE CF adaptor
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+In-Reply-To: <41781B13.3030803@rtr.ca>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 21 Oct 2004 21:12:08 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <41780393.3000606@rtr.ca>
+	 <58cb370e041021121317083a3a@mail.gmail.com> <41781B13.3030803@rtr.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-10-21 at 20:34, David S. Miller wrote:
-> 2.4.x will need this one as well, at least the AF_PACKET
-> case.  Would you mind if I pushed that to Marcelo?
+On Thu, 21 Oct 2004 16:24:51 -0400, Mark Lord <lkml@rtr.ca> wrote:
+> Okay, patch withdrawn.
+> 
+> I'll just apply it to my own kernels for my own use.
 
-Not at all. Andrea has proposed fixing it a little differently. 
-For 2.6 making remap_page_range DTRT itself is ok but for 2.4 the
-vma isn't passed.
+Just port it to 2.6.x...
 
+> Whatever happended to the days when Linux *wanted* more
+> drivers and such?
 
+New drivers are still welcomed... but days of applying
+new drivers without any complaints are long gone... ;-)
+
+Now speaking seriously:
+* 2.4.x is deprecated (sorry, Marcelo ;)
+* this driver shouldn't require much work to port it to 2.6.x
+* ide_unregister() is disallowed, unless IDE locking is fixed
+
+Cheers,
+Bartlomiej

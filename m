@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbUFJRzk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbUFJSCz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262194AbUFJRzk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 13:55:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbUFJRzk
+	id S262175AbUFJSCz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 14:02:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbUFJSCz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 13:55:40 -0400
-Received: from 80-218-63-25.dclient.hispeed.ch ([80.218.63.25]:14818 "EHLO
-	xbox.hb9jnx.ampr.org") by vger.kernel.org with ESMTP
-	id S262170AbUFJRzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 13:55:39 -0400
-Subject: Re: Finding user/kernel pointer bugs [no html]
-From: Thomas Sailer <sailer@scs.ch>
-To: Greg KH <greg@kroah.com>
-Cc: viro@parcelfarce.linux.theplanet.co.uk,
-       David Brownell <david-b@pacbell.net>,
-       "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>,
-       Al Viro <viro@math.psu.edu>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040610165821.GB32577@kroah.com>
-References: <1086838266.32059.320.camel@dooby.cs.berkeley.edu>
-	 <20040610044903.GE12308@parcelfarce.linux.theplanet.co.uk>
-	 <20040610165821.GB32577@kroah.com>
-Content-Type: text/plain
-Organization: Supercomputing Systems AG
-Message-Id: <1086890076.3401.2.camel@gamecube.scs.ch>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 10 Jun 2004 19:54:37 +0200
+	Thu, 10 Jun 2004 14:02:55 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36501 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262175AbUFJSCy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 14:02:54 -0400
+Message-ID: <40C8A241.50608@pobox.com>
+Date: Thu, 10 Jun 2004 14:02:41 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
+       Jens Axboe <axboe@suse.de>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Ed Tomlinson <edt@aei.ca>, Andrew Morton <akpm@osdl.org>
+Subject: Re: flush cache range proposal (was Re: ide errors in 7-rc1-mm1 and
+ later)
+References: <1085689455.7831.8.camel@localhost> <20040605092447.GB13641@suse.de> <20040606161827.GC28576@bounceswoosh.org> <200406100238.11857.bzolnier@elka.pw.edu.pl> <20040610061141.GD13836@suse.de> <20040610164135.GA2230@bounceswoosh.org> <40C89F4D.4070500@pobox.com>
+In-Reply-To: <40C89F4D.4070500@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-06-10 at 18:58, Greg KH wrote:
+Oh, also:
 
-> > 	b) WTF is usb doing messing with it directly?
-> > Note that drivers/usb/core/{devio,inode}.c are the only users of that animal
-> > outside of arch/*.  Looks fishy...
-> 
-> I really don't know.  I think David added that code.  David, any ideas?
+We'll need to write up precisely _why_ this is used, and give some 
+examples of usage, for people reading the proposal (mostly T13-ish 
+people) who have not been following the lkml barrier discussion closely.
 
-The idea was to tell the user which of his queued transfers completed.
-si_addr seemed usable for this. as->userurb is the address of the
-request structure in the user's memory.
+	Jeff
 
-Tom
 
 

@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130198AbRAGVNW>; Sun, 7 Jan 2001 16:13:22 -0500
+	id <S129771AbRAGVRX>; Sun, 7 Jan 2001 16:17:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129669AbRAGVNM>; Sun, 7 Jan 2001 16:13:12 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:35060 "EHLO
+	id <S129669AbRAGVRM>; Sun, 7 Jan 2001 16:17:12 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:51956 "EHLO
 	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131704AbRAGVM6>; Sun, 7 Jan 2001 16:12:58 -0500
-Date: Sun, 7 Jan 2001 19:11:56 -0200 (BRDT)
+	id <S130144AbRAGVRC>; Sun, 7 Jan 2001 16:17:02 -0500
+Date: Sun, 7 Jan 2001 19:16:47 -0200 (BRDT)
 From: Rik van Riel <riel@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Adam J. Richter" <adam@yggdrasil.com>, parsley@roanoke.edu,
-        linux-kernel@vger.kernel.org
-Subject: Re: Patch (repost): cramfs memory corruption fix
-In-Reply-To: <Pine.LNX.4.10.10101071153470.27944-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0101071910200.21675-100000@duckman.distro.conectiva>
+To: Zlatko Calusic <zlatko@iskon.hr>
+cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] mm-cleanup-1 (2.4.0)
+In-Reply-To: <87snmv9k13.fsf@atlas.iskon.hr>
+Message-ID: <Pine.LNX.4.21.0101071912570.21675-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jan 2001, Linus Torvalds wrote:
-> On Sun, 7 Jan 2001, Alan Cox wrote:
+On 7 Jan 2001, Zlatko Calusic wrote:
+
+> The following patch cleans up some obsolete structures from the
+> mm & proc code.
 > 
-> > -ac has the rather extended ramfs with resource limits and stuff. That one
-> > also has rather more extended bugs 8). AFAIK none of those are in the vanilla
-> > ramfs code
-
-> This is actually where I agree with whoever it was that said that ramfs as
-> it stands now (without the limit checking etc) is much nicer simply
-> because it can act as an example of how to do a simple filesystem. 
+> Beside that it also fixes what I think is a bug:
 > 
-> I wonder what to do about this - the limits are obviously useful, as would
-> the "use swap-space as a backing store" thing be. At the same time I'd
-> really hate to lose the lean-mean-clean ramfs. 
+>         if ((rw == WRITE) && atomic_read(&nr_async_pages) >
+>                        pager_daemon.swap_cluster * (1 << page_cluster))
+> 
+> In that (swapout logic) it effectively says swap out 512KB at
+> once (at least on my memory configuration). I think that is a
+> little too much.
 
-Sounds like a job for ... <drum roll> ... tmpfs!!
+Since we submit a whole cluster of (1 << page_cluster)
+size at once, your change would mean that the VM can
+only do one IO at a time...
 
-(and yes, I share your opinion that ramfs is nice _because_
-it's an easy example for filesystem code teaching)
+Have you actually measured your changes or is it just
+a gut feeling that the current default is too much?
 
-cheers,
+(I can agree with 1/2 MB being a bit much, but doing
+just one IO at a time is probably wrong too...)
+
+
+The cleanup part of your patch is nice. I think that
+one should be submitted as soon as the 2.4 bugfix
+period is over ...
+
+(and yes, I'm not submitting any of my own trivial
+patches either unless they're REALLY needed, lets make
+sure Linus has enough time to focus on the real bugfixes)
+
+regards,
 
 Rik
 --

@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVC0BsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVC0B5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbVC0BsP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 20:48:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbVC0BsP
+	id S261386AbVC0B5R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 20:57:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVC0B5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 20:48:15 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:27656 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261582AbVC0BsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 20:48:10 -0500
-Date: Sun, 27 Mar 2005 03:48:08 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] i386/x86_64 early_printk.c: make early_serial_base static
-Message-ID: <20050327014808.GH3237@stusta.de>
+	Sat, 26 Mar 2005 20:57:17 -0500
+Received: from hera.kernel.org ([209.128.68.125]:43174 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261386AbVC0B5O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 20:57:14 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: Squashfs without ./..
+Date: Sun, 27 Mar 2005 01:56:26 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <d253sa$4d5$1@terminus.zytor.com>
+References: <Pine.LNX.4.61.0503221645560.25571@yvahk01.tjqt.qr> <3e74c9409b6e383b7b398fe919418d54@mac.com> <cce9e37e0503251948527d322b@mail.gmail.com> <Pine.LNX.4.61.0503261059430.28431@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1111888586 4518 127.0.0.1 (27 Mar 2005 01:56:26 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Sun, 27 Mar 2005 01:56:26 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes a needlessly global variable static.
+Followup to:  <Pine.LNX.4.61.0503261059430.28431@yvahk01.tjqt.qr>
+By author:    Jan Engelhardt <jengelh@linux01.gwdg.de>
+In newsgroup: linux.dev.kernel
+> 
+> You are right. . and .. do not need to show up (even they have been the 
+> "leaders" of ls -l ;-), Midnight Commander (`mc`) for example synthesizes ".." 
+> nevertheless.
+> 
+> So - what about removing . and .. in readdir for all "standard harddisk 
+> filesystems" (ext*,reiser*, [jx]fs)? I mean, one party always has to loose...
+> 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Are you seriously suggesting changing our behaviour of all the
+conventional filesystems to a non-Unix behaviour, to match cramfs and
+squashfs?
 
----
-
-This patch was already sent on:
-- 20 Mar 2005
-
---- linux-2.6.11-mm4-full/arch/x86_64/kernel/early_printk.c.old	2005-03-20 19:46:41.000000000 +0100
-+++ linux-2.6.11-mm4-full/arch/x86_64/kernel/early_printk.c	2005-03-20 19:46:49.000000000 +0100
-@@ -60,7 +60,7 @@
- 
- /* Serial functions loosely based on a similar package from Klaus P. Gerlicher */ 
- 
--int early_serial_base = 0x3f8;  /* ttyS0 */ 
-+static int early_serial_base = 0x3f8;  /* ttyS0 */ 
- 
- #define XMTRDY          0x20
- 
-
+	-hpa

@@ -1,48 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262355AbVAJRpb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbVAJRsH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262355AbVAJRpb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 12:45:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbVAJRoc
+	id S262351AbVAJRsH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 12:48:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262390AbVAJRrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 12:44:32 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:58579 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262355AbVAJRVE convert rfc822-to-8bit
+	Mon, 10 Jan 2005 12:47:19 -0500
+Received: from relay1.tiscali.de ([62.26.116.129]:60897 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262372AbVAJRZ4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 12:21:04 -0500
-X-Fake: the user-agent is fake
-Subject: Re: [PATCH] PCI patches for 2.6.10
-User-Agent: Mutt/1.5.6i
-In-Reply-To: <11053776562882@kroah.com>
-Date: Mon, 10 Jan 2005 09:20:56 -0800
-Message-Id: <11053776562762@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Mon, 10 Jan 2005 12:25:56 -0500
+Message-ID: <41E2BAAB.3070805@tiscali.de>
+Date: Mon, 10 Jan 2005 18:26:03 +0100
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alexey Dobriyan <adobriyan@mail.ru>
+CC: Adam Anthony <aanthony@sbs.com>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] /driver/net/wan/sbs520
+References: <200501101947.33917.adobriyan@mail.ru>
+In-Reply-To: <200501101947.33917.adobriyan@mail.ru>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.439.48, 2005/01/09 23:00:42-08:00, greg@kroah.com
+Alexey Dobriyan wrote:
 
-PCI Hotplug: remove my old email address
+>On Mon, 10 Jan 2005 07:46:52 -0700, Adam Anthony wrote:
+>
+>  
+>
+>>With the permission of my employer, SBS Technologies, Inc., I have
+>>released a patch for 2.4 kernels that supports the 520 Series of WAN
+>>adapters.
+>>    
+>>
+>
+>My editor shows ^M at the end of every line of new Documentation/Configure.help,
+>MAINTAINERS (add ~63400 bogus lines!). Please, look at the patch _after_
+>generating it.
+>
+>  
+>
+>>+obj-$(CONFIG_LANMEDIA)		+=		syncppp.o^M
+>>    
+>>
+>
+>  
+>
+>>+subdir-$(CONFIG_LANMEDIA) += lmc^M
+>>    
+>>
+>
+>Also random ^M's.
+> 
+>--- linux-2.4.28-virgin/drivers/net/wan/sbs520/lnxosl.c
+>+++ /usr/src/linux-2.4.28/drivers/net/wan/sbs520/lnxosl.c
+>
+>  
+>
+>>+// Programming Language:	C^M
+>>+// Target Processor:		Any^M
+>>+// Target Operating System: Linux^M
+>>    
+>>
+>
+>Well, this is pretty obvious to everyone here. :-)
+>
+>  
+>
+>>+// This software may be used and distributed according to the terms^M
+>>+// of the GNU General Public License, incorporated herein by reference.^M
+>>    
+>>
+>
+>Stupid question: do you mean GPL version 2 or something else?
+>
+>	Alexey
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+That's ugly, that are Microsoft line endings.
 
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- MAINTAINERS |    1 -
- 1 files changed, 1 deletion(-)
-
-
-diff -Nru a/MAINTAINERS b/MAINTAINERS
---- a/MAINTAINERS	2005-01-10 08:58:28 -08:00
-+++ b/MAINTAINERS	2005-01-10 08:58:28 -08:00
-@@ -1713,7 +1713,6 @@
- PCI HOTPLUG CORE
- P:	Greg Kroah-Hartman
- M:	greg@kroah.com
--M:	gregkh@us.ibm.com
- S:	Supported
- 
- PCI HOTPLUG COMPAQ DRIVER
-
+Matthias-Christian Ott

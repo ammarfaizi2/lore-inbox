@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbUFEOFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbUFEOHc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbUFEOFy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 10:05:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbUFEOFy
+	id S261576AbUFEOHc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 10:07:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbUFEOHb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 10:05:54 -0400
-Received: from r200-40-206-130.adsl.anteldata.net.uy ([200.40.206.130]:56200
-	"EHLO proinfo.com.uy") by vger.kernel.org with ESMTP
-	id S261418AbUFEOFt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 10:05:49 -0400
-From: gravadorxyt@yahoo.com.br
-Message-Id: <200406051409.i55E3fUB021539@proinfo.com.uy>
-To: linux@vivaolinux.com.br
-Subject: Conheca a qualidade em seu atendimento. Time:11:05:11
-Date: Sat, 5 Jun 2004 11:05:11
-Mime-Version: 1.0
-Content-Type: text/plain; charset="DEFAULT_CHARSET"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
-X-PAA-AntiVirus: Passed
-X-PAA-AntiVirus-Message: Scanned by http://www.pandasoftware.com/PAA
-X-PAA-AntiVirus: Passed
-X-PAA-AntiVirus-Message: Scanned by http://www.pandasoftware.com/PAA
+	Sat, 5 Jun 2004 10:07:31 -0400
+Received: from mail015.syd.optusnet.com.au ([211.29.132.161]:57542 "EHLO
+	mail015.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261576AbUFEOHX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jun 2004 10:07:23 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: [OT] Who has record no. of  DriveReady SeekComplete DataRequest errors?
+Date: Sun, 6 Jun 2004 00:07:10 +1000
+User-Agent: KMail/1.6.1
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406060007.10150.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GRAVADOR DIGITAL TELEFONICO AUTOMÁTICO.
- 
-www.gigitech.com.br/gravador
+Well since 2.6.3 I think I've been getting the record number of 
 
-gravador@gigitech.com.br
- 
-Telefone: 11 3851-2704 Plantão: 9780-6340 / 9822-0364 
- 
-VOCê CONHECE O NOSSO PRODUTO ? 
- 
-- Gravador  telefônico  digital  automático, para monitoramento de ligações telefonicas.
+hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdd: status error: error=0x00
+hdd: drive not ready for command
+hdd: ATAPI reset complete
+
+errors from my cdrw on hdd; and it's only one drive's worth.
 
 
-- Indicado para uso em empresas que necessitam monitorar seus contatos telefônicos para avaliar a qualidade de atendimento  para  seus  clientes, além do uso doméstico (monitorar ligações telefônicas de filhos, empregados, etc).
+dmesg -s 32768 | grep DataRequest | wc -l
+88
 
-As gravações podem serem efetuadas de modo automático ou manual em formato mp3 que podem serem ouvidas em qualquer computador ou armazenadas em qualquer tipo de midia para serem ouvidas em qualquer lugar, inclusive seu CD player.
+Note the -s 32768 is because my dmesg is so long due to the massive number of 
+seekcomplete errors :-)
 
-Visite nosso site: www.gigitech.com.br/gravador
+Since the cdrw works fine after re-enabling dma I never really bothered to do 
+anything about it, but I'm just curious if anyone has a higher record ;-)
 
-
-Para aquisição ou  duvidas entre em contato pelos meios abaixo:
-
-Telefone:  11 3851-2704 plantão: 9780-6340 / 9822-0364
-
-E-mail: gravador@gigitech.com.br
-
-
-Para sair da lista por favor envie um e-mail para remover2@gigitech.com.br 
-
- 
+Con

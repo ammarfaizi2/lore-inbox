@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280035AbRJaCw5>; Tue, 30 Oct 2001 21:52:57 -0500
+	id <S280041AbRJaCy5>; Tue, 30 Oct 2001 21:54:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280045AbRJaCws>; Tue, 30 Oct 2001 21:52:48 -0500
-Received: from cr845378-a.rchrd1.on.wave.home.com ([24.157.76.7]:27472 "EHLO
-	mielke.cc") by vger.kernel.org with ESMTP id <S280041AbRJaCwe>;
-	Tue, 30 Oct 2001 21:52:34 -0500
-Date: Tue, 30 Oct 2001 21:51:37 -0500 (EST)
-From: Dave Mielke <dave@mielke.cc>
-To: "Linux Kernel (mailing list)" <linux-kernel@vger.kernel.org>
-Subject: Reading vcsa.
-Message-ID: <Pine.LNX.4.30.0110302150310.1007-100000@dave.private.mielke.cc>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280040AbRJaCys>; Tue, 30 Oct 2001 21:54:48 -0500
+Received: from ilm.mech.unsw.EDU.AU ([129.94.171.100]:27143 "EHLO
+	ilm.mech.unsw.edu.au") by vger.kernel.org with ESMTP
+	id <S280039AbRJaCyl>; Tue, 30 Oct 2001 21:54:41 -0500
+Date: Wed, 31 Oct 2001 13:55:07 +1100
+To: Kurt Roeckx <Q@ping.be>
+Cc: linux-kernel@vger.kernel.org, Ian Maclaine-cross <iml@debian.org>
+Subject: Re: PROBLEM: Linux updates RTC secretly when clock synchronizes
+Message-ID: <20011031135507.A9129@ilm.mech.unsw.edu.au>
+In-Reply-To: <20011031113312.A8738@ilm.mech.unsw.edu.au> <20011031020538.A354@ping.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011031020538.A354@ping.be>
+User-Agent: Mutt/1.3.23i
+From: Ian Maclaine-cross <iml@ilm.mech.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I thought I understood how characters are translated between the write()
-system call and when they appear on the screen, but I've now come across an
-example which doesn't fit. Can anyone please tell me where I'm wrong, or at
-least point me to some documentation which explains this process more
-accurately. My goal is to write as accurate as possible a reverse translation
-process.
+On Wed, Oct 31, 2001 at 02:05:38AM +0100, Kurt Roeckx wrote:
+> On Wed, Oct 31, 2001 at 11:33:12AM +1100, Ian Maclaine-cross wrote:
+> > 
+> > PROBLEM: Linux updates RTC secretly when clock synchronizes.
+> > 
+> > When /usr/sbin/ntpd synchronizes the Linux kernel (or system) clock
+> > using the Network Time Protocol the kernel time is accurate to a few
+> > milliseconds. Linux then sets the Real Time (or Hardware or CMOS)
+> > Clock to this time at approximately 11 minute intervals. Typical RTCs
+> > drift less than 10 s/day so rebooting causes only millisecond errors.
 
-My current understanding is as follows: A character is first passed through
-what we might call the host-to-unicode table, i.e. the one which is retrieved
-by GIO_UNISCRNMAP. The resulting unicode value is then passed through what we
-might call the unicode-to-font map, i.e. the one which is retrieved by
-GIO_UNIMAP. If the intermediate unicode value is within the range F000-F0FF,
-then the high-order F0 is zeroed, and the unicode-to-font table is bypassed.
+[snip]
 
-While everything I've read so far seems to indicate that the fore-going is
-correct, I must've missed something because I've encountered a system wherein
-unicode-to-font translation (GIO_UNIMAP) is taking place even though all of the
-host values 00-FF are being translated (GIO_UNISCRNMAP) to their respective
-F000-F0FF unicode values. Is there another flag or state indicator I should be
-checking? Is there another translation table I should be considering? In case
-it matters, the system on which I've encountered this situation is running a
-2.4.8 kernel.
+>
+> 
+> This is all in the manpage, see man hwclock.  If you use ntpd,
+> you probably don't want hwclock to adjust, just set the time.
+> 
+> Kurt
+> 
+
+When the machine reboots from a power interruption Internet connection
+may be unavailable (usual here). Ntpd can start synchronized to an RTC
+but time is inaccurate because hwclock has not adjusted it. When
+Internet connection reestablishes ntpd notices the time conflict and
+terminates.  Human intervention or cron lines can run ntpdate and then
+restart ntpd. This results in time of low quality.
+
+There are lots of high quality and cost hardware solutions.  The
+solution in my first post was a very small kernel patch to add an
+11 minute update log so hwclock etc could adjust the time.  Any
+comments on my patch?
+
 
 -- 
-Dave Mielke           | 2213 Fox Crescent | I believe that the Bible is the
-Phone: 1-613-726-0014 | Ottawa, Ontario   | Word of God. Please contact me
-EMail: dave@mielke.cc | Canada  K2A 1H7   | if you're concerned about Hell.
-
+Regards,
+Ian Maclaine-cross (iml@debian.org)

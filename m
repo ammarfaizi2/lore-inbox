@@ -1,80 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbULWXBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbULWXEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbULWXBV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 18:01:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbULWXBV
+	id S261331AbULWXEu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 18:04:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbULWXEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 18:01:21 -0500
-Received: from ozlabs.org ([203.10.76.45]:27372 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261330AbULWXAb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 18:00:31 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 23 Dec 2004 18:04:50 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:27110 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261337AbULWXBZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Dec 2004 18:01:25 -0500
+Subject: [PATCH] [resend] VFS locking errors on max offset edge cases
+From: Bruce Allan <bwa@us.ibm.com>
+Reply-To: bwa@us.ibm.com
+To: matthew@wil.cx
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>
+Content-Type: text/plain
+Organization: IBM, Corp.
+Message-Id: <1103842880.4702.87.camel@w-bwa3.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Thu, 23 Dec 2004 15:01:20 -0800
 Content-Transfer-Encoding: 7bit
-Message-ID: <16843.19972.17026.69228@cargo.ozlabs.ibm.com>
-Date: Fri, 24 Dec 2004 10:00:20 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: clameter@sgi.com, linux-ia64@vger.kernel.org, torvalds@osdl.org,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: Prezeroing V2 [0/3]: Why and When it works
-In-Reply-To: <20041223133745.1d95bb08.akpm@osdl.org>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F02900FBD@scsmsx401.amr.corp.intel.com>
-	<41C20E3E.3070209@yahoo.com.au>
-	<Pine.LNX.4.58.0412211154100.1313@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0412231119540.31791@schroedinger.engr.sgi.com>
-	<16843.13418.630413.64809@cargo.ozlabs.ibm.com>
-	<20041223133745.1d95bb08.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
+[Sorry for the resend, my mailer fudged the diff (hope it works this
+time]
 
-> When the workload is a gcc run, the pagefault handler dominates the system
-> time.  That's the page zeroing.
+A number of Connectathon (http://www.connectathon.org/nfstests.html)
+POSIX/fcntl() locking tests fail (even on local filesystems) at various
+edge cases (i.e. around maximum allowable offsets) on 64-bit
+architectures.
 
-For a program which uses a lot of heap and doesn't fork, that sounds
-reasonable.
+The overflow tests in fs/compat.c were superfluous where they were
+located because if there was a conflicting lock, l_start and l_len would
+have been overwritten with the values owned by the conflicting lock; if
+no conflicting lock, sys_fcntl() would have returned any applicable
+error.  The tests are moved above the call to sys_fcntl() to capture
+overflow errors which would not have been caught by sys_fcntl(), eg.
+obvious overflow when _FILE_OFFSET_BITS == 32.
 
-> x86's movnta instructions provide a way of initialising memory without
-> trashing the caches and it has pretty good bandwidth, I believe.  We should
-> wire that up to these patches and see if it speeds things up.
+These tests also had a couple 'off by one' errors when comparing with
+the maximum allowable offset.
 
-Yes.  I don't know the movnta instruction, but surely, whatever scheme
-is used, there has to be a snoop for every cache line's worth of
-memory that is zeroed.
+Patch created against 2.6.10-rc3, tested on ppc64 with both
+_FILE_OFFSET_BITS set to 32 and 64.
 
-The other point is that having the page hot in the cache may well be a
-benefit to the program.  Using any sort of cache-bypassing zeroing
-might not actually make things faster, when the user time as well as
-the system time is taken into account.
+Signed-off-by: Bruce Allan <bwa@us.ibm.com>
 
-> > I did some measurements once on my G5 powermac (running a ppc64 linux
-> > kernel) of how long clear_page takes, and it only takes 96ns for a 4kB
-> > page.
-> 
-> 40GB/s.  Is that straight into L1 or does the measurement include writeback?
+diff -Nurp -X dontdiff linux-2.6.10-rc3-vanilla/fs/compat.c linux-2.6.10-rc3/fs/compat.c
+--- linux-2.6.10-rc3-vanilla/fs/compat.c	2004-12-23 11:52:50.642448274 -0800
++++ linux-2.6.10-rc3/fs/compat.c	2004-12-23 12:00:54.113913369 -0800
+@@ -537,17 +537,19 @@ asmlinkage long compat_sys_fcntl64(unsig
+ 		ret = get_compat_flock(&f, compat_ptr(arg));
+ 		if (ret != 0)
+ 			break;
++		if ((cmd == F_GETLK) &&
++		    ((f.l_start > COMPAT_OFF_T_MAX) ||
++		     ((f.l_start + f.l_len - 1) > COMPAT_OFF_T_MAX))) {
++				ret = -EOVERFLOW;
++				break;
++			}
++		}
+ 		old_fs = get_fs();
+ 		set_fs(KERNEL_DS);
+ 		ret = sys_fcntl(fd, cmd, (unsigned long)&f);
+ 		set_fs(old_fs);
+-		if (cmd == F_GETLK && ret == 0) {
+-			if ((f.l_start >= COMPAT_OFF_T_MAX) ||
+-			    ((f.l_start + f.l_len) > COMPAT_OFF_T_MAX))
+-				ret = -EOVERFLOW;
+-			if (ret == 0)
+-				ret = put_compat_flock(&f, compat_ptr(arg));
+-		}
++		if (cmd == F_GETLK && ret == 0)
++			ret = put_compat_flock(&f, compat_ptr(arg));
+ 		break;
+ 
+ 	case F_GETLK64:
+@@ -556,19 +558,21 @@ asmlinkage long compat_sys_fcntl64(unsig
+ 		ret = get_compat_flock64(&f, compat_ptr(arg));
+ 		if (ret != 0)
+ 			break;
++		if ((cmd == F_GETLK64) &&
++		    ((f.l_start > COMPAT_LOFF_T_MAX) ||
++		     ((f.l_start + f.l_len - 1) > COMPAT_LOFF_T_MAX))) {
++				ret = -EOVERFLOW;
++				break;
++			}
++		}
+ 		old_fs = get_fs();
+ 		set_fs(KERNEL_DS);
+ 		ret = sys_fcntl(fd, (cmd == F_GETLK64) ? F_GETLK :
+ 				((cmd == F_SETLK64) ? F_SETLK : F_SETLKW),
+ 				(unsigned long)&f);
+ 		set_fs(old_fs);
+-		if (cmd == F_GETLK64 && ret == 0) {
+-			if ((f.l_start >= COMPAT_LOFF_T_MAX) ||
+-			    ((f.l_start + f.l_len) > COMPAT_LOFF_T_MAX))
+-				ret = -EOVERFLOW;
+-			if (ret == 0)
+-				ret = put_compat_flock64(&f, compat_ptr(arg));
+-		}
++		if (cmd == F_GETLK64 && ret == 0)
++			ret = put_compat_flock64(&f, compat_ptr(arg));
+ 		break;
+ 
+ 	default:
+diff -Nurp -X dontdiff linux-2.6.10-rc3-vanilla/fs/locks.c linux-2.6.10-rc3/fs/locks.c
+--- linux-2.6.10-rc3-vanilla/fs/locks.c	2004-12-23 11:52:50.902423742 -0800
++++ linux-2.6.10-rc3/fs/locks.c	2004-12-23 12:02:35.268404863 -0800
+@@ -314,7 +314,8 @@ static int flock_to_posix_lock(struct fi
+ 
+ 	/* POSIX-1996 leaves the case l->l_len < 0 undefined;
+ 	   POSIX-2001 defines it. */
+-	start += l->l_start;
++	if ((start += l->l_start) < 0)
++		return -EINVAL;
+ 	end = start + l->l_len - 1;
+ 	if (l->l_len < 0) {
+ 		end = start - 1;
 
-It is the average elapsed time in clear_page, so it would include the
-writeback of any cache lines displaced by the zeroing, but not the
-writeback of the newly-zeroed cache lines (which we hope will be
-modified by the program before they get written back anyway).
 
-This is using the dcbz (data cache block zero) instruction, which
-establishes a cache line in modified state with zero contents without
-any memory traffic other than a cache line kill transaction sent to
-the other CPUs and possible writeback of a dirty cache line displaced
-by the newly-zeroed cache line.  The new cache line is established in
-the L2 cache, because the L1 is write-through on the G5, and all
-stores and dcbz instructions have to go to the L2 cache.
+---
+Bruce Allan  <bwa@us.ibm.com>
+Software Engineer, Linux Technology Center
+IBM Corporation, Beaverton OR USA
 
-Thus, on the G5 (and POWER4, which is similar) I don't think there
-will be much if any benefit from having pre-zeroed cache-cold pages.
-We can establish the zero lines in cache much faster using dcbz than
-we can by reading them in from main memory.  If the program uses only
-a few cache lines out of each new page, then reading them from memory
-might be faster, but that seems unlikely.
 
-Paul.
+
+

@@ -1,65 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264300AbTLYMey (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 07:34:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264301AbTLYMey
+	id S264299AbTLYMYD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 07:24:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264300AbTLYMYD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 07:34:54 -0500
-Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:17415 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S264300AbTLYMew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 07:34:52 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Laptop and CPU fan
-Mail-Copies-To: nobody
-From: kilobug@freesurf.fr (=?iso-8859-1?q?Ga=EBl_Le_Mignot?=)
-Organization: HurdFr - http://hurdfr.org
-X-PGP-Fingerprint: 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
-Date: Thu, 25 Dec 2003 13:34:36 +0100
-Message-ID: <plopm3brpx3wkj.fsf@drizzt.kilobug.org>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
+	Thu, 25 Dec 2003 07:24:03 -0500
+Received: from mailgate.uni-paderborn.de ([131.234.22.32]:22501 "EHLO
+	mailgate.uni-paderborn.de") by vger.kernel.org with ESMTP
+	id S264299AbTLYMYA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 07:24:00 -0500
+Message-ID: <3FEAD582.10908@upb.de>
+Date: Thu, 25 Dec 2003 13:18:10 +0100
+From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4.1) Gecko/20031008
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Nick Craig-Wood <ncw1@axis.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: allow process or user to listen on priviledged ports?
+References: <bscg1m$1eg$1@sea.gmane.org> <20031225104526.GA10239@axis.demon.co.uk>
+In-Reply-To: <20031225104526.GA10239@axis.demon.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-UNI-PB_FAK-EIM-MailScanner-Information: Please see http://imap.upb.de for details
+X-UNI-PB_FAK-EIM-MailScanner: Found to be clean
+X-UNI-PB_FAK-EIM-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.275,
+	required 4, AUTH_EIM_USER -5.00, RCVD_IN_NJABL 0.10,
+	RCVD_IN_NJABL_DIALUP 0.53, RCVD_IN_SORBS 0.10)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I would give your application this capability (from #include "linux/capability.h")
+> 
+>   /* Allows binding to TCP/UDP sockets below 1024 */
+>   /* Allows binding to ATM VCIs below 32 */
+> 
+>   #define CAP_NET_BIND_SERVICE 10
+> 
+> You do this with a setuid wrapper which drops all capabilities but
+> that one and then runs your application.
 
-Hello and merry X-mas !
+Thx for the answer! That's exactly what i search for.
 
-I have  a problem with  teh CPU  fan of my  laptop, and it  seems very
-weird to me. Basically,  when I boot Linux, if the CPU  fan was off at
-boot time, it remains off forever (until the laptop turns off, and I'm
-afraid  this would  damage it  one day).  If the  CPU fan  was  on, it
-remains always on, using battery, but at least not damaging anything.
+I will try to write such a program. It seems that sucap keeps all 
+capabilities and drops none. Depending on the other capabilities, that 
+could be a bad idea.
 
-I tried to enable APM, ACPI, both of them, neither of them, it doesn't
-change anything (with 2.4.21 and  2.6.0). ACPI doesn't not see the fan
-(it sees CPU and AC adapter, but no battery nor fan).
+Thx
+   Sven
 
-I can disable PM at the BIOS level, and then the fan is always on, but
-at full  power (if I  just wait  in grub until  the fan starts  at low
-speed and boot  Linux, the fan stays at low  speed and everything goes
-fine).
-
-Then began two very weird things:
-
-- if I boot a non-APM non-ACPI  kernel like GNU Mach, the fan is still
-  controlled  by the  BIOS, and  everything goes  fine. This  does not
-  happen if I  compile 2.6.0 with no APM nor ACPI  support. I tried to
-  play with APM options like "enable  PM at boot time" too, it doesn't
-  change anything.
-
-- if I  boot a Debian kernel (kernel-image-2.4.21-5-686)  then the fan
-  works well,  I tried  to recopy the  PM-related options  from Debian
-  kernel to vanilla kernel, but then the fan doesn't work...
-
-I'll try to find a newer BIOS  for my laptop, but if you have any clue
-to help  me to  understand what's  happening, or any  trick to  use my
-laptop as best as possible, I'ld be thankfull.
-
--- 
-Gael Le Mignot "Kilobug" - kilobug@nerim.net - http://kilobug.free.fr
-GSM         : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
-Fingerprint : 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
-
-Member of HurdFr: http://hurdfr.org - The GNU Hurd: http://hurd.gnu.org

@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284966AbRLQCVn>; Sun, 16 Dec 2001 21:21:43 -0500
+	id <S284965AbRLQC1p>; Sun, 16 Dec 2001 21:27:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284965AbRLQCVe>; Sun, 16 Dec 2001 21:21:34 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:40105 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S284966AbRLQCVS>; Sun, 16 Dec 2001 21:21:18 -0500
-Date: Sun, 16 Dec 2001 19:21:10 -0700
-Message-Id: <200112170221.fBH2LAx01188@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.1 - intermediate bio stuff..
-In-Reply-To: <Pine.LNX.4.33.0112161604030.11129-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0112161604030.11129-100000@penguin.transmeta.com>
+	id <S284968AbRLQC1e>; Sun, 16 Dec 2001 21:27:34 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46858 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S284965AbRLQC10>; Sun, 16 Dec 2001 21:27:26 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Is /dev/shm needed?
+Date: 16 Dec 2001 18:26:57 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9vjl5h$1c6$1@cesium.transmeta.com>
+In-Reply-To: <E16Fkqc-0001Z0-00@DervishD.viadomus.com> <20011216234748.3EDE9FB80D@tabris.net> <E16Fl8j-0000nA-00@phalynx>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
-> 2.5.1 is hopefully a good interim stage - many block drivers should
-> work fine, but many more do not.  However, the pre-patches were
-> getting largish, so I'd rather do a 2.5.1 than wait for all the
-> details.
+Followup to:  <E16Fl8j-0000nA-00@phalynx>
+By author:    Ryan Cumming <bodnar42@phalynx.dhs.org>
+In newsgroup: linux.dev.kernel
+>
+> On December 16, 2001 15:47, Adam Schrotenboer wrote:
+> > I may be wrong about /tmp as well, but I have come to think that it is data
+> > that ought be discarded after logout, and have sometimes considered writing
+> > a script for it in the login/logout scripts.
+> 
+> System daemons can legally use /tmp, and they may not apprechiate having 
+> their files removed from underneath them everytime someone telnets in. ;)
+> 
 
-Trying a quick test-run here:
-# modprobe ide-probe-mod
-/lib/modules/2.5.1/kernel/drivers/ide/ide-mod.o: unresolved symbol block_ioctl
+Not to mention when you kill a secondary session.  It's bogus.
+However, discarding /tmp on *REBOOT* is legitimate.
 
-# modprobe ide-cd
-/lib/modules/2.5.1/kernel/drivers/ide/ide-mod.o: unresolved symbol block_ioctl
-
-# modprobe ide-disk
-/lib/modules/2.5.1/kernel/drivers/ide/ide-mod.o: unresolved symbol block_ioctl
-
-# modprobe nfs
-/lib/modules/2.5.1/kernel/fs/nfs/nfs.o: unresolved symbol seq_escape
-/lib/modules/2.5.1/kernel/fs/nfs/nfs.o: unresolved symbol seq_printf
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+	 -hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

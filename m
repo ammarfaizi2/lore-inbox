@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbTICN0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 09:26:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262082AbTICN0Z
+	id S262182AbTICNiI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 09:38:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbTICNhc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 09:26:25 -0400
-Received: from hauptpostamt.charite.de ([193.175.66.220]:6799 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id S261642AbTICN0X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 09:26:23 -0400
-Date: Wed, 3 Sep 2003 15:25:37 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+	Wed, 3 Sep 2003 09:37:32 -0400
+Received: from chello080109223066.lancity.graz.surfer.at ([80.109.223.66]:20612
+	"EHLO lexx.delysid.org") by vger.kernel.org with ESMTP
+	id S262182AbTICNgt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 09:36:49 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: keyboard - was: Re: Linux 2.6.0-test4
-Message-ID: <20030903132536.GE17516@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030831120605.08D6.CHRIS@heathens.co.nz> <20030902080733.GA14380@charite.de> <20030902124717.B1221@pclin040.win.tue.nl> <20030902123252.GC22365@charite.de> <20030902234133.A1627@pclin040.win.tue.nl>
-Mime-Version: 1.0
+CC: dave@mielke.cc
+Subject: 2.6.0-test4: fbcon missing con_set_default_unimap?
+From: Mario Lang <mlang@delysid.org>
+Date: Wed, 03 Sep 2003 15:36:54 +0200
+Message-ID: <87fzjegfih.fsf@lexx.delysid.org>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030902234133.A1627@pclin040.win.tue.nl>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andries Brouwer <aebr@win.tue.nl>:
+Hi.
 
-> Well, that shows that this particular problem was solved, but there are
-> more problems. No doubt we'll understand everything eventually.
-> 
-> (Unless we remove this i8042_unxlate_seen before understanding all problems.
-> It is really very ugly to have two different arrays that both keep the
-> "key down" status of the keys, and that can get out of sync.)
-> 
-> Again, of course, I would like to see the past few dozen scancodes, like you
-> gave before, up to the moment the problem arises.
-> (If you cannot think of something better, just log every incoming scancode.)
+Well, I investigated the previously reported issue
+regarding a empty SFM when using fbcon a bit more.
 
-Right now I'm building 2.6.0-test4-bk5 (which has "the patch" in it)
-and added the keycode history patch. I'll let you know how it goes.
+What looks strange to me is that it seems that con_set_default_unimap
+is never called when using fbcon.  Below patch fixes my problems,
+after boot, I have a correctly defined sfm.  However, since
+I am totally new to kernel hacking, I suspect it is not really
+correct.  However, it is tested, and it works for me as expected.
+
+--- linux-2.6.0-test4/drivers/video/console/fbcon.c.orig	2003-09-03 15:32:42.000000000 +0200
++++ linux-2.6.0-test4/drivers/video/console/fbcon.c	2003-09-03 15:27:09.000000000 +0200
+@@ -695,6 +695,7 @@
+ 		fb_display[unit].scrollmode = SCROLL_YNOMOVE;
+ 	else
+ 		fb_display[unit].scrollmode = SCROLL_YREDRAW;
++	con_set_default_unimap(unit);
+ 	fbcon_set_display(vc, init, !init);
+ }
+ 
 
 -- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
-Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
-AIM: ralfpostfix
+CYa,
+  Mario | Debian Developer <URL:http://debian.org/>
+        | Get my public key via finger mlang@db.debian.org
+        | 1024D/7FC1A0854909BCCDBE6C102DDFFC022A6B113E44

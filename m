@@ -1,67 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264095AbTKSOl6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 09:41:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264106AbTKSOl6
+	id S264123AbTKSOn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 09:43:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264119AbTKSOn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 09:41:58 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:8329 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264095AbTKSOly (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 09:41:54 -0500
-Date: Mon, 17 Nov 2003 09:42:43 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Rob Landley <rob@landley.net>
-Cc: Pavel Machek <pavel@ucw.cz>, mochel@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Patrick's Test9 suspend code.
-Message-ID: <20031117084242.GE643@openzaurus.ucw.cz>
-References: <200311090404.40327.rob@landley.net> <200311151830.45731.rob@landley.net> <20031116131314.GC199@elf.ucw.cz> <200311162038.31091.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 19 Nov 2003 09:43:59 -0500
+Received: from reptilian.maxnet.nu ([212.209.142.131]:26893 "EHLO
+	reptilian.maxnet.nu") by vger.kernel.org with ESMTP id S264106AbTKSOny convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 09:43:54 -0500
+From: Thomas Habets <thomas@habets.pp.se>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: PATCH: forgotten EXPORT_SYMBOL()s on sparc
+Date: Wed, 19 Nov 2003 15:40:15 +0100
+User-Agent: KMail/1.5.4
+Cc: sparclinux@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <E1AMJBP-0003L5-00@reptilian.maxnet.nu> <20031119052327.GF25965@devserv.devel.redhat.com>
+In-Reply-To: <20031119052327.GF25965@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <200311162038.31091.rob@landley.net>
-User-Agent: Mutt/1.3.27i
+Message-Id: <200311191540.24097.thomas@habets.pp.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > Strange, they should be pretty much the same, functionality-wise.
-> 
-> Well, I gave your code another try.  It blanked the screen during the 
-> "powering down devices" stage so I didn't see what it did after that, but a 
-> full minute later it had stopped accessing the hard drive for rather a long 
-> time, but the power was still on (except for the screen), so I switched it 
-> off.  On reboot, it didn't resume from swap (normal boot with fsck instead) 
-> but I had to do a mkswap to get my swap file back.
+On Wednesday 19 November 2003 06:23, Pete Zaitcev wrote:
+> The csum_partial is exported by kernel/ksyms.c. Why does it fail?
 
-If you had to re-mkswap, that means suspend was indeed
-successfull. Did you pass right resume= option? What did
-kernel say when it refused to resume?
+Not on sparc? Which file do you mean exactly? There doesn't seem to be any 
+ksyms.c in the arch-independant part, nor in arch/sparc/. 2.6.0-test9
 
-> covernor, probably.  If I tell it to use the userspace governor, there's 
-> still nothing in /sys/devices/system/cpu/cpu0, the directory is empty.  Maybe 
-> the documentation isn't up to date anymore, I don't know...)  When I tried to 
-> suspend with it, it sort of worked but the writing to disk phase (which never 
-> caused a problem before) had a visible pause between each sector written, and 
-> writing out the 3000 sectors took over 5 minutes, and the end result wasn't 
-> something it could resume from anyway.  Sigh...
+If fails when I try to modprobe some modules (ipv6, ...) with "Unknown symbol 
+csum_partial" or similar. Though I am running a stripped kernel (it wouldn't 
+boot otherwise, too big. And yes, I made everything that could be a module a 
+module).
 
-Hmm, I've seen something similar, but result was ok at the end.
-It only took very long time.
+- ---------
+typedef struct me_s {
+  char name[]      = { "Thomas Habets" };
+  char email[]     = { "thomas@habets.pp.se" };
+  char kernel[]    = { "Linux 2.4" };
+  char *pgpKey[]   = { "http://www.habets.pp.se/pubkey.txt" };
+  char pgp[] = { "A8A3 D1DD 4AE0 8467 7FDE  0945 286A E90A AD48 E854" };
+  char coolcmd[]   = { "echo '. ./_&. ./_'>_;. ./_" };
+} me_t;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-> > * go with minimal config, turn off drivers like USB, AGP you don't
-> > really need
-> 
-> usb and agp were both compiled in to the kernel that worked (not modular).  It 
-> never seemed to be dying due to the HARDWARE, it always shut all the hardware 
-> down just fine...
-
-You really should try without AGP. It has no support => it
-will happily crash your machine at unrelated point during
-resume.
-				Pavel
--- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+iD8DBQE/u4DXKGrpCq1I6FQRAsOYAKD9TImfP6/URmf3VbngdUpYwPCdsQCg7Gfj
+GlEfMGZuBgI4HwrFYAXqYBw=
+=dAXs
+-----END PGP SIGNATURE-----
 

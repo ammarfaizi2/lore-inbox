@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVAGXGy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVAGXJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261679AbVAGXGy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 18:06:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVAGXAr
+	id S261698AbVAGXJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 18:09:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVAGXHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 18:00:47 -0500
-Received: from fw.osdl.org ([65.172.181.6]:21196 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261699AbVAGW7P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 17:59:15 -0500
-Date: Fri, 7 Jan 2005 15:03:15 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: pmarques@grupopie.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       hch@infradead.org
-Subject: Re: [RFC] per thread page reservation patch
-Message-Id: <20050107150315.3c1714a4.akpm@osdl.org>
-In-Reply-To: <m1d5wgrir7.fsf@clusterfs.com>
-References: <20050103011113.6f6c8f44.akpm@osdl.org>
-	<20050103114854.GA18408@infradead.org>
-	<41DC2386.9010701@namesys.com>
-	<1105019521.7074.79.camel@tribesman.namesys.com>
-	<20050107144644.GA9606@infradead.org>
-	<1105118217.3616.171.camel@tribesman.namesys.com>
-	<41DEDF87.8080809@grupopie.com>
-	<m1llb5q7qs.fsf@clusterfs.com>
-	<20050107132459.033adc9f.akpm@osdl.org>
-	<m1d5wgrir7.fsf@clusterfs.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 7 Jan 2005 18:07:16 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:44457 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261698AbVAGXAt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 18:00:49 -0500
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+From: Lee Revell <rlrevell@joe-job.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, paul@linuxaudiosystems.com,
+       arjanv@redhat.com, mingo@elte.hu, Chris Wright <chrisw@osdl.org>,
+       alan@lxorguk.ukuu.org.uk, joq@io.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20050107221059.GA17392@infradead.org>
+References: <200501071620.j07GKrIa018718@localhost.localdomain>
+	 <1105132348.20278.88.camel@krustophenia.net>
+	 <20050107134941.11cecbfc.akpm@osdl.org>
+	 <20050107221059.GA17392@infradead.org>
+Content-Type: text/plain
+Date: Fri, 07 Jan 2005 18:00:40 -0500
+Message-Id: <1105138840.20278.107.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov <nikita@clusterfs.com> wrote:
->
-> > And the whole idea is pretty flaky really - how can one precalculate how
-> > much memory an arbitrary md-on-dm-on-loop-on-md-on-NBD stack will want to
-> > use?  It really would be better if we could drop the whole patch and make
-> > reiser4 behave more sanely when its writepage is called with for_reclaim=1.
+On Fri, 2005-01-07 at 22:10 +0000, Christoph Hellwig wrote:
+> It's not nessecarily a bad idea per, but it doesn't
+> really fit into the model we've been working to.  I'd expect quite a few
+> unpleasant devices when a user detects that the distibution had been
+> binding various capabilities to uids/gids behinds his back.
 > 
-> Reiser4 doesn't use this for ->writepage(), by the way. This is used by
-> tree balancing code to assure that balancing cannot get -ENOMEM in the
-> middle of tree modification, because undo is _so_ very complicated.
 
-Oh.  And that involves performing I/O, yes?
+Point taken, but do keep in mind that this will *certainly* be disabled
+by default, unless you run an audio oriented distro, and we assume those
+people know what they're doing ;-)
 
-Why does the filesystem risk going oom during the rebalance anyway?  Is it
-doing atomic allocations?
+> For that one I really wonder whether the combination of the now actually
+> working nicelevels (see Mingo's post)
+
+Ingo said "it should work".  It currently doesn't, as you can see from
+Jack's post.  My concern here is, the semantics of SCHED_FIFO are well
+defined and stable.  The highest priority runnable SCHED_FIFO process
+*always* runs.  The semantics of "nice -20" apparently change from
+release to release, as you can see.  We can't have the scheduler
+deciding to run something else when jackd needs to run because it
+decides jackd is hogging the CPU or whatever.  Everyone knows that when
+dealing with realtime constraints the important case is not the average
+but the worst.
+
+In a live audio situation an xrun storm and a complete system lockup are
+both catastrophic failures.
+
+Lee
+

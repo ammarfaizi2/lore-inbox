@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261364AbTEKNAE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 09:00:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbTEKM7m
+	id S261315AbTEKM4Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 08:56:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbTEKM4Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 08:59:42 -0400
-Received: from mx0.gmx.net ([213.165.64.100]:7342 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id S261364AbTEKM7J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 08:59:09 -0400
-Date: Sun, 11 May 2003 15:11:45 +0200 (MEST)
-From: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
-To: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
-Cc: linux-kernel@vger.kernel.org
+	Sun, 11 May 2003 08:56:24 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:15232
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S261315AbTEKM4W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 08:56:22 -0400
+Date: Sun, 11 May 2003 08:58:57 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Jos Hulzink <josh@stack.nl>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: irq balancing: performance disaster
+In-Reply-To: <20030511125438.GJ8978@holomorphy.com>
+Message-ID: <Pine.LNX.4.50.0305110855120.15337-100000@montezuma.mastecende.com>
+References: <200305110118.10136.josh@stack.nl> <7750000.1052619248@[10.10.2.4]>
+ <200305111200.31242.josh@stack.nl> <Pine.LNX.4.50.0305110813140.15337-100000@montezuma.mastecende.com>
+ <20030511125438.GJ8978@holomorphy.com>
 MIME-Version: 1.0
-References: <1052650249.6431.5.camel@LNX.iNES.RO>
-Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0007628267@gmx.net
-X-Authenticated-IP: [217.224.154.184]
-Message-ID: <353.1052658705@www4.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sun, 2003-05-11 at 00:13, Tuncer M zayamut Ayaz wrote:
-> 
-> > well, I actually saw PCMCIA functioning properly after
-> > make clean'ing, recompiling and rebooting.
-> > so no worries about that. now, off to find a replacement
-> > for "APM idle calls".
-> 
-> You can try cpufreqd (to set the cpu according to the usage).
-> http://sourceforge.net/projects/cpufreqd
-> 
-> I also use acpi performance states...
-> 
-> For instance on my laptop (Toshiba Satellite Pro 6100 , 2Ghz)
-> I have this on /proc/acpi/processor/CPU0/performance :
-> 
-> [cioby@LNX cioby]$ cat /proc/acpi/processor/CPU0/performance
-> state count:             2
-> active state:            P0
-> states:
->    *P0:                  2000 MHz, 22000 mW, 250 uS
->     P1:                  1200 MHz, 9800 mW, 250 uS
-> 
-> I often switch to performance state 1 even in if not running on battery.
-> If I keep it in my lap, and do an kernel compile, I don't want my balls
-> to get fryed :)
+On Sun, 11 May 2003, William Lee Irwin III wrote:
 
-exactly why I need it too except that I don't put it on my lap but my
-hands burn anyway. I hope not every laptop gets as hot as this one does.
+> On Sun, May 11, 2003 at 08:17:53AM -0400, Zwane Mwaikambo wrote:
+> > It was a bug in 2.4, fixed in Alan's tree by setting target_cpus to 0xff 
+> > (previously cpu_online_map). There is no noirqbalance option in 2.4 
+> > because there is no in kernel irq balancer.
+> 
+> I vaguely like this notion because it removes a #ifdef and cleans up
+> a tiny bit of its surroundings. But it's not quite a one-liner.
 
-do you
-remember
-http://www.google.de/search?q=cache:qGf0kfmazVgC:www.smh.com.au/articles/2002/11/22/1037697857595.html+&hl=de&ie=UTF-8
-?
+Nice, it's during init too so there really is no need for any sort of 
+optimisation, the inline can also go and make it __init.
+
+	Zwane
 
 -- 
-+++ GMX - Mail, Messaging & more  http://www.gmx.net +++
-Bitte lächeln! Fotogalerie online mit GMX ohne eigene Homepage!
-
+function.linuxpower.ca

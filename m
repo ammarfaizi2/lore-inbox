@@ -1,64 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278944AbRJVVUU>; Mon, 22 Oct 2001 17:20:20 -0400
+	id <S278941AbRJVVVu>; Mon, 22 Oct 2001 17:21:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278943AbRJVVUL>; Mon, 22 Oct 2001 17:20:11 -0400
-Received: from cx552039-a.elcjn1.sdca.home.com ([24.177.44.17]:37823 "EHLO
-	tigger.unnerving.org") by vger.kernel.org with ESMTP
-	id <S278941AbRJVVUA>; Mon, 22 Oct 2001 17:20:00 -0400
-Date: Mon, 22 Oct 2001 14:20:17 -0700 (PDT)
-From: Gregory Ade <gkade@bigbrother.net>
-X-X-Sender: <gkade@tigger.unnerving.org>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: Mark Hahn <hahn@physics.mcmaster.ca>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: nfs mount of msdos fs?
-In-Reply-To: <20011022163051.558d602e.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.33.0110221417260.31371-100000@tigger.unnerving.org>
+	id <S278943AbRJVVVl>; Mon, 22 Oct 2001 17:21:41 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:25354 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S278941AbRJVVV0>; Mon, 22 Oct 2001 17:21:26 -0400
+Message-ID: <3BD48CE9.C8F5FD60@zip.com.au>
+Date: Mon, 22 Oct 2001 14:17:29 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marcos Dione <mdione@hal.famaf.unc.edu.ar>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kjournald and disk sleeping
+In-Reply-To: <3BD4655E.82ED21CC@zip.com.au> <Pine.LNX.4.33.0110221424500.25281-100000@hp11.labcomp.famaf.unc.edu.ar>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Marcos Dione wrote:
+> 
+> On Mon, 22 Oct 2001, Andrew Morton wrote:
+> 
+> > Yes, this is a bit of a problem - it's probably atime updates,
+> > things which write to inodes, etc.  A commit will be forced within
+> > five seconds of this happening.
+> 
+>         Reading journal.c I guessed that kjournald flushes thing *even if
+> it doesn't have things to flush*. I guess that from commit_timeout and
+> the comments on the thread process, but I can be wrong.
 
+It's rather convoluted, but a commit fires if:
 
-Well, it's a really roundabout insecure way to do it, but you might
-be able to get away with sharing it via samba, mounting it on the server
-and then exporting that mount via NFS....  (samba client and server and nfs
-server all running on same machine).
+1: more than approx 1/4 of the journal has been used by the
+   current transaction or
 
-It might work...  Actually, you can save some security hassle by making
-the samba service listen on the loopback address only (127.0.0.1)...  but
-then, every block of data has to go through that many more layers before
-getting where it belongs...
+2: this transaction has been open for >5 seconds.
 
-On Mon, 22 Oct 2001, Stephan von Krawczynski wrote:
+And a commit will close off the current transaction, but will *not*
+open a new one.  Opening a new transaction will only happen when
+new writes come in.
 
-> > > I just found out, that msdos-type fs cannot be exported via nfs.
-> Disregarding
-> > > the security problems with msdos fs, how can I export it anyway via nfs? Is
-> > > this possible at all? I tried with 2.2.19 kernel and kernel nfs.
-> >
-> > I'm guessing because msdos doesn't have inode numbers,
-> > and nfsd wants them to make stable cookies.
->
-> Works under 2.4, btw. Unfortunately I cannot use 2.4 in this special case. But
-> to make it clear:
-> server is 2.2.19, client is 2.4.4
+So there should be no commit activity on an fs which isn't being
+written to.
 
-- -- 
-Gregory K. Ade <gkade@unnerving.org>
-http://unnerving.org/~gkade
-OpenPGP Key ID: EAF4844B  keyserver: pgpkeys.mit.edu
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+You can watch all this happening by building with debug support and
+running
 
-iD8DBQE71I2ceQUEYOr0hEsRAsFAAJ9Rs2ZJzrFrjx8D3C0T1G9o6rgDDQCgk4V/
-0rQZ/YRWQ7Mw+iZ2egxdrYQ=
-=SRQs
------END PGP SIGNATURE-----
+	echo 1 > /proc/sys/fs/jbd-debug
 
+You may want to stop syslogd first though - otherwise you get into
+this loop where commits create logs and logs create commits.  Tends
+to fill your logs up rather boringly.
 
+-

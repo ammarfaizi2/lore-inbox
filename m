@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275484AbTHJJKP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 05:10:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275486AbTHJJKO
+	id S275497AbTHJJZU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 05:25:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275498AbTHJJZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 05:10:14 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:2989 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S275484AbTHJJKI (ORCPT
+	Sun, 10 Aug 2003 05:25:19 -0400
+Received: from post.tau.ac.il ([132.66.16.11]:46315 "EHLO post.tau.ac.il")
+	by vger.kernel.org with ESMTP id S275497AbTHJJZQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 05:10:08 -0400
-Date: Sun, 10 Aug 2003 02:04:44 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: yoshfuji@linux-ipv6.org, linux-kernel@vger.kernel.org
-Subject: Re: virt_to_offset() (Re: [RFC][PATCH] Make cryptoapi
- non-optional?)
-Message-Id: <20030810020444.48cb740b.davem@redhat.com>
-In-Reply-To: <20030810090556.GY31810@waste.org>
-References: <20030809194627.GV31810@waste.org>
-	<20030809131715.17a5be2e.davem@redhat.com>
-	<20030810081529.GX31810@waste.org>
-	<20030810.173215.102258218.yoshfuji@linux-ipv6.org>
-	<20030810013041.679ddc4c.davem@redhat.com>
-	<20030810090556.GY31810@waste.org>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Sun, 10 Aug 2003 05:25:16 -0400
+Subject: usb driver problem when suspending from acpid
+From: Micha Feigin <michf@math.tau.ac.il>
+To: Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1060470222.16293.12.camel@litshi.luna.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 10 Aug 2003 12:26:41 +0300
 Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.13; VAE: 6.20.0.1; VDF: 6.20.0.55; host: vexira.tau.ac.il)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Aug 2003 04:05:56 -0500
-Matt Mackall <mpm@selenic.com> wrote:
+I am running a 2.4.21 kernel with acpi + swsusp patches (had the same
+behavior with swsusp 1.0.* and 1.1-rc)
 
-> > With some name like "virt_to_pageoff()" it sounds like a great
-> > idea.
-> 
-> Had the same thought. Nowhere good to stick it, so I put it in mm.
+When calling the hibernation script that appears on the swsusp site to
+unload all modules and services and then suspend to disk (S4) from the
+command line (anywhere: xterm, console whatever) everything works fine.
+When calling the script from acpid in response to the power button being
+pressed, the script locks on the second suspend attempt when trying to
+unload the usbcore module (rmmod never returns and can't be killed using
+kill -9, presumably since its stuck on a system call)
 
-That looks fine to me.
+I have tracked the lock point to thefile  drivers/usb/hub.c. The
+offending function is usb_hub_cleanup which locks up on the call to 
+wait_for_completion(&khubd_exited);
 
-Yoshfuji, feel free to do your conversions, and use this
-linux/mm.h placement of the virt_to_pageoff() macro instead
-of having to put it into every asm header.
+I don't know if this could be related, but when calling the script with
+--verbose option it also fails since it can't find a tty to print the
+errors to. It tries to open /dev/tty<something> and fails, although I am
+not sure what the difference is since the script switches away from X
+when it starts.
+I have made a few attempts at the kernel source but couldn't solve the
+problem.
+
+

@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310460AbSCGTLm>; Thu, 7 Mar 2002 14:11:42 -0500
+	id <S310464AbSCGTNm>; Thu, 7 Mar 2002 14:13:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310462AbSCGTLd>; Thu, 7 Mar 2002 14:11:33 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:24285 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S310460AbSCGTLW>;
-	Thu, 7 Mar 2002 14:11:22 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hubertus Franke <frankeh@watson.ibm.com>
-Reply-To: frankeh@watson.ibm.com
-Organization: IBM Research
-To: Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: furwocks: Fast Userspace Read/Write Locks
-Date: Thu, 7 Mar 2002 14:11:47 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: arjanv@redhat.com, Rusty Russell <rusty@rustcorp.com.au>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E16iwkE-000216-00@wagner.rustcorp.com.au> <20020307153228.3A6773FE06@smtp.linux.ibm.com> <20020307104241.D24040@devserv.devel.redhat.com>
-In-Reply-To: <20020307104241.D24040@devserv.devel.redhat.com>
+	id <S310467AbSCGTNd>; Thu, 7 Mar 2002 14:13:33 -0500
+Received: from age.cs.columbia.edu ([128.59.22.100]:27908 "EHLO
+	age.cs.columbia.edu") by vger.kernel.org with ESMTP
+	id <S310464AbSCGTNS>; Thu, 7 Mar 2002 14:13:18 -0500
+Date: Thu, 7 Mar 2002 14:13:06 -0500 (EST)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: "David S. Miller" <davem@redhat.com>
+cc: jgarzik@mandrakesoft.com, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] starfire net driver update for 2.4.19pre2
+In-Reply-To: <20020306.141809.112819805.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0203071400080.3930-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020307191043.9C5F33FE15@smtp.linux.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 07 March 2002 10:42 am, Arjan van de Ven wrote:
-> On Thu, Mar 07, 2002 at 10:33:32AM -0500, Hubertus Franke wrote:
-> > On Thursday 07 March 2002 07:50 am, Arjan van de Ven wrote:
-> > > Rusty Russell wrote:
-> > > > This is a userspace implementation of rwlocks on top of futexes.
-> > >
-> > > question: if rwlocks aren't actually slower in the fast path than
-> > > futexes,
-> > > would it make sense to only do the rw variant and in some userspace
-> > > layer
-> > > map "traditional" semaphores to write locks ?
-> > > Saves half the implementation and testing....
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > > in the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> > I m not in favor of that. The dominant lock will be mutexes.
->
-> if there's no extra cost I don't care which is dominant; having one well
-> tested path is worth it then. If there is extra cost then yes a split is
-> better.
+On Wed, 6 Mar 2002, David S. Miller wrote:
 
-Take a look at Rusty's futex-1.2, the code is not that different, however
-if its all inlined it creates additional code on the critical path 
-and why do it if not necessary.
+> On sparc64 you should set the burst settings to 64-byte read/write
+> bursts because the PCI chipset is going to disconnect you on 64-byte
+> boundaries anyways.  If the chip is bursting more than this, you
+> are wasting lots of PCI cycles with the retries done after the
+> disconnect.
 
-In this case the futexes are the well tested path, the rest is a cludge on
-top of it.
+Ahh.. indeed, changing the burst size to 64 bytes (from the default 128)  
+makes a big difference on my ultra5, thanks for the hint. Does it make any
+sense to differentiate between platforms, or is 64 a good all-around
+value?
+
+> Also make sure to use PCI READ MULTIPLE commands for DMA if the chip
+> provides such an option, this helps performance on many PCI
+> controllers to no end.
+
+MRM (and MRL) seem to be enabled by default, although the chip docs are a 
+bit unclear about it.
+
+Thanks,
+Ion
 
 -- 
--- Hubertus Franke  (frankeh@watson.ibm.com)
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+

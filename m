@@ -1,75 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262420AbULRAnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262500AbULRArW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262420AbULRAnd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 19:43:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbULRAnd
+	id S262500AbULRArW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 19:47:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262793AbULRArW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 19:43:33 -0500
-Received: from out012pub.verizon.net ([206.46.170.137]:16573 "EHLO
-	out012.verizon.net") by vger.kernel.org with ESMTP id S262420AbULRAnZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 19:43:25 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] hid-core: Configurable USB HID Mouse Interrupt Polling Interval
-Date: Fri, 17 Dec 2004 19:43:23 -0500
-User-Agent: KMail/1.7
-Cc: Mikkel Krautz <krautz@gmail.com>, vojtech@suse.cz
-References: <1103335970.15567.15.camel@localhost>
-In-Reply-To: <1103335970.15567.15.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Dec 2004 19:47:22 -0500
+Received: from holomorphy.com ([207.189.100.168]:35802 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262500AbULRArK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 19:47:10 -0500
+Date: Fri, 17 Dec 2004 16:47:03 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Brent Casavant <bcasavan@sgi.com>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: Oops on 2.4.x invalid procfs i_ino value
+Message-ID: <20041218004703.GE771@holomorphy.com>
+References: <Pine.SGI.4.61.0412171611120.27132@kzerza.americas.sgi.com> <20041218003835.GD771@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200412171943.23891.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.205.47.244] at Fri, 17 Dec 2004 18:43:24 -0600
+In-Reply-To: <20041218003835.GD771@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 December 2004 21:12, Mikkel Krautz wrote:
->Hi!
->
->This patch adds the option "USB HID Mouse Interrupt Polling
-> Interval" to drivers/usb/input/Kconfig, and a few lines of code to
->drivers/usb/input/hid-core.c, to make the config option function.
->
->It allows people to change the interval, at which their USB HID mice
->are polled at. This is extremely useful for people who require high
->precision, or just likes the feeling of a very precise mouse. ;)
->
->As the Kconfig help implies, setting a lower polling interval is
-> known to work on several mice produced by Logitech and Microsoft. I
-> only have a Logitech MX500 to test it on. My results have been
-> positive, and so have many other people's.
->
->Mikkel Krautz
->
-Mikkel, could you please turn off the word wrap in your MTA's
-composer and repost this?  I'd like to try it.
+On Fri, Dec 17, 2004 at 04:49:44PM -0600, Brent Casavant wrote:
+>> On a related note, if it matters, on about half the crash dumps I've
+>> looked at, I see a pid of 0 has been assigned to a user process,
+>> tripping this same problem.  I suspect there's another bug somewhere
+>> that's allowing a pid of 0 to be chosen in the first place -- but I
+>> don't totally discount that this problem may lay in SGI's patches to
+>> this particular kernel -- I'll need to take a more thorough look.
 
->
->
->Signed-off-by: Mikkel Krautz <krautz@gmail.com>
->---
->
->--- clean/drivers/usb/input/Kconfig
->+++ dirty/drivers/usb/input/Kconfig
->@@ -24,6 +24,38 @@
-> 	  To compile this driver as a module, choose M here: the
-> 	  module will be called usbhid.
+On Fri, Dec 17, 2004 at 04:38:35PM -0800, William Lee Irwin III wrote:
+> That's rather ominous. I'll pore over pid.c and see what's going on.
+> Also, does the pid.c in your kernel version match 2.6.x-CURRENT?
 
-[...]
+Ouch, 2.4.21; this will be trouble. So next, what patches atop 2.4.21?
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.30% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
 
+-- wli

@@ -1,47 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267336AbTABWT6>; Thu, 2 Jan 2003 17:19:58 -0500
+	id <S267290AbTABWcU>; Thu, 2 Jan 2003 17:32:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267337AbTABWT5>; Thu, 2 Jan 2003 17:19:57 -0500
-Received: from bitmover.com ([192.132.92.2]:11170 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S267336AbTABWTx>;
-	Thu, 2 Jan 2003 17:19:53 -0500
-Date: Thu, 2 Jan 2003 14:28:16 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Thomas Ogrisegg <tom@rhadamanthys.org>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       Larry McVoy <lm@bitmover.com>
-Subject: Re: [PATCH] TCP Zero Copy for mmapped files
-Message-ID: <20030102222816.GF2461@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Thomas Ogrisegg <tom@rhadamanthys.org>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-	Larry McVoy <lm@bitmover.com>
-References: <20021230010953.GA17731@window.dhis.org> <20021230012937.GC5156@work.bitmover.com> <1041489421.3703.6.camel@rth.ninka.net> <20030102221210.GA7704@window.dhis.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030102221210.GA7704@window.dhis.org>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+	id <S267291AbTABWcU>; Thu, 2 Jan 2003 17:32:20 -0500
+Received: from falcon.vispa.uk.net ([62.24.228.11]:16649 "EHLO
+	falcon.vispa.com") by vger.kernel.org with ESMTP id <S267290AbTABWcT>;
+	Thu, 2 Jan 2003 17:32:19 -0500
+Message-ID: <3E14BFBA.4070908@walrond.org>
+Date: Thu, 02 Jan 2003 22:39:54 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jon Portnoy <portnoy@tellink.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: GPL and Nvidia
+References: <Pine.LNX.4.44.0301020032220.8691-100000@fogarty.jakma.org> <3E14202D.4050909@walrond.org> <Pine.LNX.4.50.0301021645430.4998-100000@cerberus.localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 1) Does not handle writes that straddle multiple VMAs
-> 
-> What exactly do you mean? In my test, files larger than a
-> page were handled perfectly, as well.
+A "freedom" banner in one hand and a thick license document in the other 
+  beginning "GPL: Thou shall not...", and a fat, smiling lawyer behind you.
 
-	mmap(file1 at location [a,b)
-	mmap(file2 at location [b,c)
-	write(sock, a, (size_t)(c - a));
+Makes me glad to be alive ;)
 
-> However, I didn't like the VM waste either, but I believe there
-> is no other way.
+The BSD license sounds great, but I bet mine's shorter :)
 
-The VM cost hurts.  Badly.  Imagine that the network costs ZERO.  Then
-the map/unmap/vm ops become the dominating term.  That's why it is a
-fruitless approach, it still has a practical limit which is too low.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUJFAvI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266555AbUJFAy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbUJFAvI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 20:51:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUJFAvI
+	id S266555AbUJFAy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 20:54:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUJFAy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 20:51:08 -0400
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:32656 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261451AbUJFAvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 20:51:05 -0400
-Message-ID: <41634174.80409@yahoo.com.au>
-Date: Wed, 06 Oct 2004 10:51:00 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Tue, 5 Oct 2004 20:54:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41856 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266555AbUJFAy1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 20:54:27 -0400
+Message-ID: <41634236.1020602@pobox.com>
+Date: Tue, 05 Oct 2004 20:54:14 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Roland McGrath <roland@redhat.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Christoph Lameter <clameter@sgi.com>
-Subject: Re: [PATCH] CPU time clock support in clock_* syscalls
-References: <200410060033.i960XZ0S007852@magilla.sf.frob.com>
-In-Reply-To: <200410060033.i960XZ0S007852@magilla.sf.frob.com>
+To: Gianluca Cecchi <gianluca.cecchi@tiscali.it>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Cannot enable DMA on SATA drive (SCSI-libsata, VIA SATA)
+References: <4136E4660006E2F7@mail-7.tiscali.it>
+In-Reply-To: <4136E4660006E2F7@mail-7.tiscali.it>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland McGrath wrote:
->>It seemed like a syscall could read the values from a task currently
->>running on another CPU. If not, great.
-> 
-> 
-> Indeed it can.  And yes, there is no locking against updates for this.  For
-> sched_time on 32-bit platforms, there is the possibility it could be read
-> during an update and give a bogus value if the high half is updated before
-> the low half.  Since there are no guarantees about accuracy, period, I
-> decided not to worry about such an anomaly.  Perhaps it would be better to
-> do something about this, but AFAIK nothing perfect can be done without
-> adding more words to task_struct (e.g. seqcount).  I don't know if the
-> nature of SMP cache behavior makes something like:
-> 
-> 	do {
-> 		sample = p->sched_time;
-> 	} while (p->sched_time != sample);
-> 
-> sufficient.  That would certainly be easy to do.
-> 
+Gianluca Cecchi wrote:
+> Eventually I can provide config. Btw, I'm using udev and kernel preemption.
 
-I don't think that will be quite sufficient.
+I strongly recommend disabling kernel preemption.  It is a hack that 
+hides bugs.
 
-A seqcount would probably be the way to go.
+
+
+> ata1: dev 0 ATA, max UDMA/133, 240121728 sectors:
+> ata1: dev 0 configured for UDMA/100
+> and the same for ata2?
+
+The controller maximum is set to UDMA/100.
+
+
+
+> But taking in parallel top with refresh 1s in another window, during the
+> 80
+> seconds elapsed above, I had two freezes in top session: one of 20sec and
+> another
+> of 15 sec: about the half of the time of the total I/O operation!
+> During this time there was one cpu used at about 30%, no other cpu constraints.
+> I repeated the operation with similar behaviour. Sometimes also 50 contiguos
+> secs
+> of freeze, until I/O operation finished.
+> The freeze is not about all system itself, but only certian things.
+> For example I tried also a vmstat session in another window with 3secs of
+> delay
+> and it had no problems while top was blocked:
+
+Make sure you have the latest BIOS update for your system, and latest 
+BIOS update for your card.
+
+	Jeff
+
+

@@ -1,57 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263025AbTDVJW7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 05:22:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263026AbTDVJW7
+	id S263026AbTDVJbA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 05:31:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbTDVJbA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 05:22:59 -0400
-Received: from iits0165.inlink.com ([209.135.140.65]:36303 "EHLO
-	vs365.rosehosting.com") by vger.kernel.org with ESMTP
-	id S263025AbTDVJW6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 05:22:58 -0400
-Message-ID: <38291.207.172.171.44.1051004102.squirrel@miallen.com>
-In-Reply-To: <200304221006.09601.m.c.p@wolk-project.de>
-References: <20030422034821.6a57acc0.mba2000@ioplex.com> 
-     <200304221006.09601.m.c.p@wolk-project.de>
-Date: Tue, 22 Apr 2003 05:35:02 -0400 (EDT)
-Subject: Re: What's the deal McNeil? Bad interactive behavior in X w/ RH's 
-     2.4.18
-From: "Michael B Allen" <mba2000@ioplex.com>
-To: "Marc-Christian Petersen" <m.c.p@wolk-project.de>
-Cc: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.0-1.7.x
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-X-Priority: 3
-Importance: Normal
+	Tue, 22 Apr 2003 05:31:00 -0400
+Received: from port-212-202-172-137.reverse.qdsl-home.de ([212.202.172.137]:60551
+	"EHLO jackson.localnet") by vger.kernel.org with ESMTP
+	id S263026AbTDVJa7 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 05:30:59 -0400
+Date: Tue, 22 Apr 2003 11:46:14 +0200 (CEST)
+Message-Id: <20030422.114614.846960661.rene.rebe@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: mangled isapnp IDs in /proc/bus/isapnp/devices
+From: Rene Rebe <rene.rebe@gmx.net>
+X-Mailer: Mew version 3.1 on XEmacs 21.4.12 (Portable Code)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Spam-Score: 0.0 (/)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *197uM2-0007Qt-LT*uMhWHnzaa3I*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tuesday 22 April 2003 09:48, Michael B Allen wrote:
->
-> Hi Michael,
->
->> I'm running Red Hat 7.3 with their stock 2.4.18-3 kernel on an IBM
->> T30. Once every few hours X locks up for 5-10 seconds while the disk
->> grinds. If I type in an Xterm the characters are not echoed until the
-<snip>
->> I would like very much for this behavior to go away as it is extremely
->> annoying. If there is a patch please let me know where I can get it.
-> There are some hacks. One by Andrea Arcangeli, one by Neil Schemenauer and
-> one
-> by Con Kolivas and me. Search the archives please (lowlat elevator/io
-> scheduler)
+Hi all,
 
-Ok, I searched a little using the Googler at indiana.edu's archives but
-nothing jumped up and bit me. I'm not too excited about applying a patch
-snarfed out of an e-mail anywat. I'm surprised no one else has not
-complained about this enough to the point where you guys don't have a
-canned answer with a link. Is this problem not considered important?
+is there a reason why the isapnp device id are mangled this way:
 
-Does anyone know which RH patch in the 2.4.18-10 RPM adds this elevator
-throughput "improvement"? What identifiers would such a patch have in it?
+drivers/pnp/isapnp_proc.c
 
-Thanks,
-Mike
+static void isapnp_devid(char *str, unsigned short vendor, unsigned short device)
+{
+        sprintf(str, "%c%c%c%x%x%x%x",
+                        'A' + ((vendor >> 2) & 0x3f) - 1,
+                        'A' + (((vendor & 3) << 3) | ((vendor >> 13) & 7)) - 1,
+                        'A' + ((vendor >> 8) & 0x1f) - 1,
+                        (device >> 4) & 0x0f,
+                        device & 0x0f,
+                        (device >> 12) & 0x0f,
+                        (device >> 8) & 0x0f);
+}
 
-PS: Why are there only "hacks"? Is this not considered important?
+This results in output like:
+
+CSCd937 CSC0000
+
+Which I have to un-mangle ... :-( What is the reason for not outputting
+simple hex?
+
+Sincerely,
+- René
+
+--  
+René Rebe - Europe/Germany/Berlin
+e-mail:   rene@rocklinux.org, rene.rebe@gmx.net
+web:      http://www.rocklinux.org/people/rene http://gsmp.tfh-berlin.de/rene/
+
+Anyone sending unwanted advertising e-mail to this address will be
+charged $25 for network traffic and computing time. By extracting my
+address from this message or its header, you agree to these terms.

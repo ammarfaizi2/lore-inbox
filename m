@@ -1,47 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262464AbVAUTBL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262472AbVAUTC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262464AbVAUTBL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 14:01:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262465AbVAUTBL
+	id S262472AbVAUTC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 14:02:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262467AbVAUTCo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 14:01:11 -0500
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:54793 "EHLO
-	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S262464AbVAUTBK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 14:01:10 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@taverner.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: seccomp for 2.6.11-rc1-bk8
-Date: Fri, 21 Jan 2005 18:59:20 +0000 (UTC)
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <csrje8$bsn$1@abraham.cs.berkeley.edu>
-References: <20050121100606.GB8042@dualathlon.random> <20050121120325.GA2934@elte.hu> <20050121093902.O469@build.pdx.osdl.net>
-Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1106333960 12183 128.32.168.222 (21 Jan 2005 18:59:20 GMT)
-X-Complaints-To: usenet@abraham.cs.berkeley.edu
-NNTP-Posting-Date: Fri, 21 Jan 2005 18:59:20 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+	Fri, 21 Jan 2005 14:02:44 -0500
+Received: from smtpout17.mailhost.ntl.com ([212.250.162.17]:14372 "EHLO
+	mta09-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
+	id S262465AbVAUTCa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 14:02:30 -0500
+Date: Fri, 21 Jan 2005 19:04:43 +0000
+From: Stuart Brady <sdbrady@ntlworld.com>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] include/linux/soundcard.h: AFMT_S16_NE macro
+Message-ID: <20050121190443.GA26995@ntlworld.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright  wrote:
->Only difference is in number of context switches, and number of running
->processes (and perhaps ease of determining policy for which syscalls
->are allowed).  Although it's not really seccomp, it's just restricted
->syscalls...
+This fixes the AFMT_S16_NE macro from include/linux/soundcard.h
+on some big-endian machines.
 
-There is a simple tweak to ptrace which fixes that: one could add an
-API to specify a set of syscalls that ptrace should not trap on.  To get
-seccomp-like semantics, the user program could specify {read,write}, but
-if the user program ever wants to change its policy, it could change that
-set.  Solaris /proc (which is what is used for tracing) has this feature.
-I coded up such an extension to ptrace semantics a long time ago, and
-it seemed to work fine for me, though of course I am not a ptrace expert.
+Signed-off-by: Stuart Brady <sdbrady@ntlworld.com>
 
-I don't know whether ptrace + this tweak is a better idea than seccomp.
-It is just another option out there that achieves similar functionality.
+--- include/linux/soundcard.h	29 Jul 2003 17:02:14 -0000	1.1
++++ include/linux/soundcard.h	21 Jan 2005 18:51:45 -0000
+@@ -39,6 +39,13 @@
+ /* In Linux we need to be prepared for cross compiling */
+ #include <linux/ioctl.h>
+ 
++/* Endian macros. */
++#ifdef __KERNEL__
++#  include <asm/byteorder.h>
++#else
++#  include <endian.h>
++#endif
++
+ /*
+  *	Supported card ID numbers (Should be somewhere else?)
+  */
+@@ -179,13 +186,26 @@
+  * Some big endian/little endian handling macros
+  */
+ 
+-#if defined(_AIX) || defined(AIX) || defined(sparc) || defined(__sparc__) || defined(HPPA) || defined(PPC) || defined(__mc68000__)
+-/* Big endian machines */
+-#  define _PATCHKEY(id) (0xfd00|id)
+-#  define AFMT_S16_NE AFMT_S16_BE
+-#else
+-#  define _PATCHKEY(id) ((id<<8)|0xfd)
+-#  define AFMT_S16_NE AFMT_S16_LE
++#if defined(__KERNEL__)
++#  if defined(__BIG_ENDIAN)
++#    define AFMT_S16_NE AFMT_S16_BE
++#    define _PATCHKEY(id) (0xfd00|id)
++#  elif defined(__LITTLE_ENDIAN)
++#    define AFMT_S16_NE AFMT_S16_LE
++#    define _PATCHKEY(id) ((id<<8)|0x00fd)
++#  else
++#    error "could not determine byte order"
++#  endif
++#elif defined(__BYTE_ORDER)
++#  if __BYTE_ORDER == __BIG_ENDIAN
++#    define AFMT_S16_NE AFMT_S16_BE
++#    define _PATCHKEY(id) (0xfd00|id)
++#  elif __BYTE_ORDER == __LITTLE_ENDIAN
++#    define AFMT_S16_NE AFMT_S16_LE
++#    define _PATCHKEY(id) ((id<<8)|0x00fd)
++#  else
++#    error "could not determine byte order"
++#  endif
+ #endif
+ 
+ /*

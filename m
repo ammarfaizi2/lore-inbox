@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263713AbUGLVc1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263731AbUGLVjV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263713AbUGLVc1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 17:32:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263733AbUGLVc1
+	id S263731AbUGLVjV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 17:39:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263733AbUGLVjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 17:32:27 -0400
-Received: from mail013.syd.optusnet.com.au ([211.29.132.67]:38277 "EHLO
-	mail013.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S263713AbUGLVcZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 17:32:25 -0400
-Message-ID: <40F30364.5020405@kolivas.org>
-Date: Tue, 13 Jul 2004 07:32:20 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc1 -ck snapshot
-References: <40F2A9C9.2040107@kolivas.org> <40F2B4C6.5010307@vision.ee>
-In-Reply-To: <40F2B4C6.5010307@vision.ee>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigACC8315636F9C6C0FDCCC6FE"
-Content-Transfer-Encoding: 8bit
+	Mon, 12 Jul 2004 17:39:21 -0400
+Received: from mail.gurulabs.com ([67.137.148.7]:50604 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id S263731AbUGLVjT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 17:39:19 -0400
+Subject: Re: pcmcia on the T42p
+From: Dax Kelson <dax@gurulabs.com>
+To: Rasmus Lerdorf <rasmus@lerdorf.com>
+Cc: linux-kernel@vger.kernel.org, linux-thinkpad@linux-thinkpad.org
+In-Reply-To: <Pine.LNX.4.58.0407102320180.1145@t42p>
+References: <Pine.LNX.4.58.0407102320180.1145@t42p>
+Content-Type: text/plain
+Message-Id: <1089668369.3848.25.camel@mentorng.gurulabs.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 12 Jul 2004 15:39:29 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigACC8315636F9C6C0FDCCC6FE
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+On Sun, 2004-07-11 at 00:27, Rasmus Lerdorf wrote:
+> You mentioned you couldn't get your T42 to see any pcmcia events with a
+> Cisco Aironet 350 card.  I just tried it on mine and it worked fine.  I
+> didn't boot with it and plugged it in and it came right up.  cardctl eject
+> and re-inserted it about 10 times and each time it came back up fine.
 
-Lenar Lõhmus wrote:
-> Hi,
-> 
-> Con Kolivas wrote:
-> 
->> I've posted a snapshot of the current -ck development against 2.6.8-rc1
-> 
-> 
-> Just compiled it, found one minor problem (2.6.8-rc1-ck5+reiserfs4)
-> which was fixed like this (maybe reiserfs4 patch is the offender):
+More details and resolution.
 
-Thanks. The reiser4 snapshot was not part of the full snapshot for 
-safety reasons so I never quite got to fixing it. I'll update the 
-reiser4 snapshot in that directory soon.
+When I tried Debian stable (with a 2.4 kernel), everything worked great
+including audible "beeps" when I inserted/removed PCMCIA cards.
 
-Cheers,
-Con
+I upgraded to Debian testing and then unstable with the 2.6.7 kernel and
+PCMCIA devices would only work if inserted prior to booting. This
+matched my Fedora Core v2 experience with the latest errata kernel, or
+with 2.6.7-mm.
 
---------------enigACC8315636F9C6C0FDCCC6FE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+With Debian testing/unstable using the Debian stable 2.4 kernel
+everything was peachy.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+I found that loading the BIOS default setting that made everything work
+(minus the audible beeps). The default BIOS settings has a screen where
+all IRQs are *forced* to be IRQ 11, and sure enough, cat
+/proc/interrupts showed everything on 11. I had changed it to "Auto"
+instead of "11" and cat /proc/interrupts showed everything spread
+around. Everything seemed to work great, except PCMCIA.
 
-iD8DBQFA8wNkZUg7+tp6mRURAkINAKCJ1x7r8PT1S/pyyDzznLeb5to6EwCfc4YP
-cCPNRKIdSHhpd57kCByjuFI=
-=NqpW
------END PGP SIGNATURE-----
+Resetting my BIOS back to defaults and now PCMCIA hotplug is working.
 
---------------enigACC8315636F9C6C0FDCCC6FE--
+It seems that it *should* work with interrupts not all clumped up on
+IRQ 11 (and indeed, Windows does work with that config), but for now
+at least, my PCMCIA slots are working.
+
+Dax Kelson
+

@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289473AbSA3Q16>; Wed, 30 Jan 2002 11:27:58 -0500
+	id <S289901AbSA3QbG>; Wed, 30 Jan 2002 11:31:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290032AbSA3Q1D>; Wed, 30 Jan 2002 11:27:03 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:46292 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S290010AbSA3QZq>;
-	Wed, 30 Jan 2002 11:25:46 -0500
-Date: Wed, 30 Jan 2002 11:25:44 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Dana Lacoste <dana.lacoste@peregrine.com>
-Cc: "'Chris Ricker'" <kaboom@gatech.edu>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        World Domination Now! <linux-kernel@vger.kernel.org>
-Subject: Re: ANOTHER modest proposal -- We need a documentation package
-Message-ID: <20020130112544.B21325@havoc.gtf.org>
-In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2B2B@ottonexc1.ottawa.loran.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2B2B@ottonexc1.ottawa.loran.com>; from dana.lacoste@peregrine.com on Wed, Jan 30, 2002 at 07:03:05AM -0800
+	id <S289987AbSA3QaE>; Wed, 30 Jan 2002 11:30:04 -0500
+Received: from dsl-213-023-038-145.arcor-ip.net ([213.23.38.145]:29843 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S290017AbSA3Q3b>;
+	Wed, 30 Jan 2002 11:29:31 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Note describing poor dcache utilization under high memory pressure
+Date: Wed, 30 Jan 2002 17:34:18 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0201301354000.11594-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.33L.0201301354000.11594-100000@imladris.surriel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Vxgg-0000Fr-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 07:03:05AM -0800, Dana Lacoste wrote:
-> Take linux/Documentation and split it into a separate package.
-> that way Linus doesn't need to care about documentation, it can
-> be maintained separately.  Having documentation packages co-released
-> with the kernel, but separately maintained would fix this problem,
-> would it not?
+On January 30, 2002 04:54 pm, Rik van Riel wrote:
+> On Wed, 30 Jan 2002, Daniel Phillips wrote:
+> > On January 30, 2002 03:46 pm, Rik van Riel wrote:
+> > > On Wed, 30 Jan 2002, Daniel Phillips wrote:
+> 
+> > > >      |-bash---bash---xinit-+-XFree86
+> > > >      |                     `-xfwm-+-xfce---gnome-terminal-+-bash---pstree
+> > >
+> > > It doesn't matter how deep the tree is, on exec() all
+> > > previously shared page tables will be blown away.
+> > >
+> > > In this part of the tree, I see exactly 2 processes
+> > > which could be sharing page tables (the two bash
+> > > processes).
+> >
+> > Sure, your point is that there is no problem and the speed of rmap on
+> > fork is not something to worry about?
+> 
+> No.  The point is that we should optimise for fork()+exec(),
+> not for a long series of consecutive fork()s all sharing the
+> same page tables.
 
-Alas this would simply make it more difficult for me to update things.
-For example I update Documentation/networking/8139too.txt each time
-there is a corresponding update to drivers/net/8139too.c.  Having to go
-from current situation to patching two totally separate trees would be a
-PITA and regression from current workflow.
+Fork+exec is adequately optimized for.  Fork+100 execs is supremely well
+optimized for.  I'm entirely satisfied with the way the performance looks
+at this point, it will outdo anything we've seen to date.  With Linus's
+write-protect-in-page-directory optimization there's not a lot more fat
+to be squeezed out, if any, and even without it, it will be a screamer.
+I think we've done this one, it's time to move on from here.
 
-	Jeff
-
-
-
+-- 
+Daniel

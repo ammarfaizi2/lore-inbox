@@ -1,60 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265765AbUBKXyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 18:54:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265875AbUBKXyJ
+	id S265691AbUBKXxv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 18:53:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265765AbUBKXxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 18:54:09 -0500
-Received: from hera.kernel.org ([63.209.29.2]:44984 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S265765AbUBKXyF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 18:54:05 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: printk and long long
-Date: Wed, 11 Feb 2004 23:53:57 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c0efal$qfp$1@terminus.zytor.com>
-References: <200402111604.49082.vda@port.imtp.ilyichevsk.odessa.ua> <yw1xvfmdwe4s.fsf@kth.se> <je8yj9cl27.fsf@sykes.suse.de> <yw1xn07pw6sy.fsf@kth.se>
+	Wed, 11 Feb 2004 18:53:51 -0500
+Received: from pgramoul.net2.nerim.net ([80.65.227.234]:62569 "EHLO
+	philou.aspic.com") by vger.kernel.org with ESMTP id S265691AbUBKXxt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 18:53:49 -0500
+Date: Thu, 12 Feb 2004 00:53:45 +0100
+From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= 
+	<philippe.gramoulle@mmania.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       "J. Bruce Fields" <bfields@fieldses.org>
+Subject: Re: 2.6.3-rc1-mm1
+Message-Id: <20040212005345.1805b1d3@philou.gramoulle.local>
+In-Reply-To: <20040209155823.6f884f23.akpm@osdl.org>
+References: <20040209014035.251b26d1.akpm@osdl.org>
+	<20040209151818.32965df6@philou.gramoulle.local>
+	<20040209155823.6f884f23.akpm@osdl.org>
+Organization: Lycos Europe
+X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
-X-Trace: terminus.zytor.com 1076543637 27130 63.209.29.3 (11 Feb 2004 23:53:57 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Wed, 11 Feb 2004 23:53:57 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <yw1xn07pw6sy.fsf@kth.se>
-By author:    mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-In newsgroup: linux.dev.kernel
->
-> Andreas Schwab <schwab@suse.de> writes:
-> 
-> > mru@kth.se (Måns Rullgård) writes:
-> >
-> >> What is the proper way to deal with printing an int64_t when int64_t
-> >> can be either long or long long depending on machine?
-> >
-> > PRId64 from <inttypes.h> (replace d with the desired format character).
-> > This is for user space, not sure whether that is acceptable for kernel
-> > code (<intttypes.h> is not one of the required headers for freestanding
-> > implementations).
-> 
-> That should work for userspace.  What standard specifies those?
-> What about kernel sources?
-> 
 
-C99 defines those.
+Hello Andrew and Bruce,
 
-Another (frequently easier) way is to cast to (intmax_t) and use the %j size modifier:
+Yes, with this patch applied, i can now start the NFSD kernel server again.
 
-	printf("foo = %jd\n", (intmax_t)foo);
+Much Thanks,
 
-	-hpa
--- 
-PGP public key available - finger hpa@zytor.com
-Key fingerprint: 2047/2A960705 BA 03 D3 2C 14 A8 A8 BD  1E DF FE 69 EE 35 BD 74
-"The earth is but one country, and mankind its citizens."  --  Bahá'u'lláh
-Just Say No to Morden * The Shadows were defeated -- Babylon 5 is renewed!!
+Bye,
+
+Philippe
+
+On Mon, 9 Feb 2004 15:58:23 -0800
+Andrew Morton <akpm@osdl.org> wrote:
+
+  | Philippe Gramoullé  <philippe.gramoulle@mmania.com> wrote:
+  | >
+  | > Starting with 2.6.3-rc1-mm1, nfsd isn't working any more. Exportfs just hangs.
+  | 
+  | Yes, sorry.  The nfsd patches had a painful birth.  This chunk got lost.
+  | 
+  | --- 25/net/sunrpc/svcauth.c~nfsd-02-sunrpc-cache-init-fixes	Mon Feb  9 14:04:03 2004
+  | +++ 25-akpm/net/sunrpc/svcauth.c	Mon Feb  9 14:06:26 2004
+  | @@ -150,7 +150,13 @@ DefineCacheLookup(struct auth_domain,
+  |  		  &auth_domain_cache,
+  |  		  auth_domain_hash(item),
+  |  		  auth_domain_match(tmp, item),
+  | -		  kfree(new); if(!set) return NULL;
+  | +		  kfree(new); if(!set) {
+  | +			if (new)
+  | +				write_unlock(&auth_domain_cache.hash_lock);
+  | +			else
+  | +				read_unlock(&auth_domain_cache.hash_lock);
+  | +			return NULL;
+  | +		  }
+  |  		  new=item; atomic_inc(&new->h.refcnt),
+  |  		  /* no update */,
+  |  		  0 /* no inplace updates */
+  | 
+  | _
+  | 

@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312887AbSDPMEI>; Tue, 16 Apr 2002 08:04:08 -0400
+	id <S312899AbSDPMNX>; Tue, 16 Apr 2002 08:13:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312899AbSDPMEH>; Tue, 16 Apr 2002 08:04:07 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:57097 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S312887AbSDPMEG>; Tue, 16 Apr 2002 08:04:06 -0400
-Message-ID: <3CBC04A5.1040201@evision-ventures.com>
-Date: Tue, 16 Apr 2002 13:01:57 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
+	id <S312943AbSDPMNW>; Tue, 16 Apr 2002 08:13:22 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:49131 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S312899AbSDPMNW>; Tue, 16 Apr 2002 08:13:22 -0400
+Date: Tue, 16 Apr 2002 14:10:34 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Robin Johnson <robbat2@fermi.orbis-terrarum.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Incremental Patch Building Script
+In-Reply-To: <Pine.LNX.4.43.0204160302250.3657-200000@fermi.orbis-terrarum.net>
+Message-ID: <Pine.NEB.4.44.0204161404310.12986-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IDE TCQ #4
-In-Reply-To: <27670700DF5@vcnet.vc.cvut.cz> <20020416102501.GG17043@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+On Tue, 16 Apr 2002, Robin Johnson wrote:
+
+> Hi,
+>
+> I have written a script to build incremental patches, as found on
+> bzimage.org previously. I have written this so that other people will find
+> it easier to roll their own incremental patches to use.
+>
+> Comments/Suggestions on improvement welcome
+
+There's already interdiff from Tim Waugh's patchutils [1] that makes
+incremental diffs between patches. And interdiff doesn't need the source
+the patches are against (IOW: to make an incremental patch between two
+kernel -pre patches you don't need any kernel sources). It's pretty
+simple:
+
+  interdiff -z patch-2.4.19-pre6.gz patch-2.4.19-pre7.gz > mydiff
+
+> Please CC me, as I am not subscribed to the list.
+>
+> Thanks.
+
+cu
+Adrian
+
+[1] http://cyberelk.net/tim/data/patchutils/
 
 
-> yes this looks like a silly problem. the fix should be to have
-> ata_ar_get() set ATA_AR_RETURN in ar_flags:
-> 
->         if (!list_empty(&drive->free_req)) {
->                 ar = list_ata_entry(drive->free_req.next);
->                 list_del(&ar->ar_queue);
->                 ata_ar_init(drive, ar);
->                 ar->ar_flags |= ATA_AR_RETURN;
->         }
-> 
-> and then only have ata_ar_put() readd it to the list when it is set:
-> 
-> static inline void ata_ar_put(ide_drive_t *drive, struct ata_request
-> *ar)
-> {
->         if (ar->ar_flags & ATA_AR_RETURN)
->                 list_add(&ar->ar_queue, &drive->free_req);
-> 	...
-> 
-> Then you can also remove the ata_ar_put() conditional in
-> ide_end_drive_cmd(), just call ata_ar_put() unconditionally.
+-- 
 
-Well something similar is already in IDE 37... I have just
-invented a flag ATA_AR_STATIC which get's set in ide_raw_taskfile
-ata_ar_put ich then checking for if (!(ar->ar_flags & ATA_AR_STATIC))...
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 
-It has the desired effect in practice.
+
 

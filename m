@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262153AbTIAE1j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 00:27:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbTIAE1j
+	id S262338AbTIAE2h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 00:28:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbTIAE2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 00:27:39 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:17832 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262153AbTIAE1i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 00:27:38 -0400
-Subject: bitkeeper comments
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, ak@suse.de, lm@bitmover.com
-Content-Type: text/plain
-Organization: 
-Message-Id: <1062389729.314.31.camel@cube>
+	Mon, 1 Sep 2003 00:28:37 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:26630 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S262338AbTIAE2e
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 00:28:34 -0400
+Date: Mon, 1 Sep 2003 06:20:35 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Zach, Yoav" <yoav.zach@intel.com>, akpm@osdl.org, torvalds@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]: non-readable binaries - binfmt_misc 2.6.0-test4
+Message-ID: <20030901042035.GO734@alpha.home.local>
+References: <2C83850C013A2540861D03054B478C0601CF64C8@hasmsx403.iil.intel.com> <1062370720.12058.14.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 01 Sep 2003 00:15:30 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1062370720.12058.14.camel@dhcp23.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This just got into BitKeeper, about 10 hours ago:
+On Sun, Aug 31, 2003 at 11:58:40PM +0100, Alan Cox wrote:
+ 
+> #3 The instant you pass control to the user space loader I can steal the
+> handle via /proc
+> 
+> #4 The instant you pass control to the user space loader I can take it
+> over via ptrace
+> 
+> #5 After you pass control I can core dump the app and recover the data
+> using a signal
+> 
+> 3, 4 and 5 require you make the userspace loader undumpable in the case 
+> where the fd being passed on is executable only. If you do this then it
+> certainly fixes 4 (permission denied) and 5 (no dump) and I think it
+> fixes #3
 
-> [PATCH] x86-64 update
->
-> Make everything compile and boot again.
->
-> The earlier third party ioport.c changes unfortunately
-> didn't even compile, fix that too.
->
-> - Update defconfig
-> - Some minor cleanup
-> - Introduce physid_t for APIC masks (fixes UP kernels)
-> - Finish ioport.c merge and fix compilation
+I confirm that it fixes #3 since I had a problem with /dev/fd/N not working
+in my scripts, until I realized that it was because an exec only bash would
+render /proc/self/fd/ unreadable.
 
-Several days ago, I mailed Andi Kleen a build log which
-showed that ioport.c builds perfectly well on x86-64.
-The whole 2.6.0-test4 kernel does in fact, as downloaded
-from kernel.org. Andi Kleen agreed...
-
-...and now this comment gets submitted to Linus, ending
-up in BitKeeper. I'd like this changed. I realize that
-it may be a rather difficult thing to change at this point,
-but it is clearly wrong.
-
+Willy
 

@@ -1,76 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263407AbTFGTwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 15:52:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263451AbTFGTwY
+	id S263496AbTFGTz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 15:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263458AbTFGTz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 15:52:24 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38412 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263407AbTFGTwX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 15:52:23 -0400
-Date: Sat, 7 Jun 2003 13:05:29 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Paul Mackerras <paulus@samba.org>
-cc: benh@kernel.crashing.org, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix check warnings in drivers/macintosh
-In-Reply-To: <16097.53391.364090.367854@argo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.44.0306071259050.2393-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 7 Jun 2003 15:55:56 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:12829 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263452AbTFGTzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 15:55:54 -0400
+Date: Sat, 7 Jun 2003 13:09:38 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: bunk@fs.tum.de, jt@bougret.hpl.hp.com, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: Re: [patch] fix vlsi_ir.c compile if !CONFIG_PROC_FS
+Message-Id: <20030607130938.01caef92.akpm@digeo.com>
+In-Reply-To: <Pine.SOL.4.30.0306071815120.6449-100000@mion.elka.pw.edu.pl>
+References: <20030607152434.GQ15311@fs.tum.de>
+	<Pine.SOL.4.30.0306071815120.6449-100000@mion.elka.pw.edu.pl>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Jun 2003 20:09:29.0742 (UTC) FILETIME=[B3F5DAE0:01C32D30]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
+>
+> -static inline void remove_proc_entry(const char *name, struct proc_dir_entry *parent) {};
+>  +#define remove_proc_entry(name, parent)	/* nothing */
 
-On Sat, 7 Jun 2003, Paul Mackerras wrote:
-> 
-> This patch removes the warnings that the `check' program came up with
-> in drivers/macintosh.  This involves adding __user in various places
-> and fixing some non-ANSI function definitions for functions that take
-> no arguments.
+oh, OK.
 
-Thanks, but please avoid doing things like this:
+--- 25/include/linux/proc_fs.h~remove_proc_entry-fix	2003-06-07 13:07:46.000000000 -0700
++++ 25-akpm/include/linux/proc_fs.h	2003-06-07 13:08:51.000000000 -0700
+@@ -205,7 +205,8 @@ static inline void proc_pid_flush(struct
+ static inline struct proc_dir_entry *create_proc_entry(const char *name,
+ 	mode_t mode, struct proc_dir_entry *parent) { return NULL; }
+ 
+-static inline void remove_proc_entry(const char *name, struct proc_dir_entry *parent) {};
++#define remove_proc_entry(name, parent) do {} while (0)
++
+ static inline struct proc_dir_entry *proc_symlink(const char *name,
+ 		struct proc_dir_entry *parent,char *dest) {return NULL;}
+ static inline struct proc_dir_entry *proc_mknod(const char *name,mode_t mode,
 
-> diff -urN linux-2.5/drivers/macintosh/macserial.c pmac-2.5/drivers/macintosh/macserial.c
-> --- linux-2.5/drivers/macintosh/macserial.c	2003-06-07 08:57:42.000000000 +1000
-> +++ pmac-2.5/drivers/macintosh/macserial.c	2003-06-07 14:35:34.000000000 +1000
-> @@ -1496,7 +1496,7 @@
->  			if (c <= 0)
->  				break;
->  
-> -			c -= copy_from_user(tmp_buf, buf, c);
-> +			c -= copy_from_user(tmp_buf, (void __user *) buf, c);
-
-The problem here is that "buf" has the wrong type, and you're hiding it 
-with a cast.
-
-That's pointless - yes, it avoids a warning from "check", but the thing 
-is, that warning was _correct_, and you just hid the problem.
-
-If "buf" really is a user pointer, then it should have been marked that 
-way in the first place.
-
-I understand why you did it the way you did: the tty functions are badly 
-designed, and the same function is used for both user and kernel pointers.
-
-And that's something that check does and _should_ warn about. The function 
-definition is crap, and I'd rather have the warning there and hope some 
-tty layer person comes along and makes the user/kernel case into separate 
-functions (they don't share that much code anyway, since most of the 
-function is
-
-	if (from_user) {
-		user case
-	} else {
-		kernel case
-	}
-
-anyway.
-
-I hate these kinds of "flag" arguments anyway. If a function does two
-different things, it should be two different functions. Yeah, I know, the
-"gfp_mask" thing for the memory allocators are the same way, and yeah,
-that was a design mistake too.
-
-		Linus
+_
 

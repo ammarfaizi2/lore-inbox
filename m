@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129926AbQKFRqg>; Mon, 6 Nov 2000 12:46:36 -0500
+	id <S129725AbQKFRtG>; Mon, 6 Nov 2000 12:49:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129959AbQKFRq0>; Mon, 6 Nov 2000 12:46:26 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:17680 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129926AbQKFRqH>;
-	Mon, 6 Nov 2000 12:46:07 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200011061745.UAA20214@ms2.inr.ac.ru>
-Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Mon, 6 Nov 2000 20:45:51 +0300 (MSK)
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <3A067597.FE669D4F@mandrakesoft.com> from "Jeff Garzik" at Nov 6, 0 04:10:47 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S129816AbQKFRs4>; Mon, 6 Nov 2000 12:48:56 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:11532 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129725AbQKFRsl>; Mon, 6 Nov 2000 12:48:41 -0500
+Date: Mon, 6 Nov 2000 09:48:13 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: Negative scalability by removal of
+In-Reply-To: <3A06C007.99EE3746@uow.edu.au>
+Message-ID: <Pine.LNX.4.10.10011060941070.7955-100000@penguin.transmeta.com>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> > Luckily, my old Multia died. 8)
+
+On Tue, 7 Nov 2000, Andrew Morton wrote:
+
+> Alan Cox wrote:
 > > 
-> > Jeff, tulip did not work with genuine Digital cards.
+> > > Even 2.2.x can be fixed to do the wake-one for accept(), if required.
+> > 
+> > Do we really want to retrofit wake_one to 2.2. I know Im not terribly keen to
+> > try and backport all the mechanism. I think for 2.2 using the semaphore is a
+> > good approach. Its a hack to fix an old OS kernel. For 2.4 its not needed
 > 
-> I'm pretty sure I fixed that.  Tested it on my Multia in fact :)  (and
-> my AS200 too)
-> 
-> The fix should be in 2.2.17 tulip.c, as well as 2.4.x...
+> It's a 16-liner!  I'll cheerfully admit that this patch
+> may be completely broken, but hey, it's free.  I suggest
+> that _something_ has to be done for 2.2 now, because
+> Apache has switched to unserialised accept().
 
-Then sed -e 's/Luckily/What a pity/' in may mail. 8)
+This is why I'd love to _not_ see silly work-arounds in apache: we
+obviously _can_ fix the places where our performance sucks, but only if we
+don't have other band-aids hiding the true issues.
 
-Alexey
+For example, with a file-locking apache, we'd have to fix the (noticeably
+harder) file locking thing to be wake-one instead, and even then we'd
+never be able to do as well as something that gets the same wake-one thing
+without the two extra system calls.
+
+The patch looks superficially fine to me, although it does seem to add
+another cache-line to the wakeup setup - it migth be worth-while to have
+the exclusive state closer. But maybe I just didn't count right.
+
+		Linus
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

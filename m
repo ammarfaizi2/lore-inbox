@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264571AbTEPSmV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 14:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264582AbTEPSmV
+	id S264539AbTEPSpF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 14:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264546AbTEPSpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 14:42:21 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:35742 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S264571AbTEPSmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 14:42:20 -0400
-Date: Fri, 16 May 2003 19:56:38 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Alexander Hoogerhuis <alexh@ihatent.com>,
-       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [OOPS] 2.5.69-mm6
-Message-ID: <20030516185638.GA19669@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Alexander Hoogerhuis <alexh@ihatent.com>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030516015407.2768b570.akpm@digeo.com> <87fznfku8z.fsf@lapper.ihatent.com> <20030516180848.GW8978@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030516180848.GW8978@holomorphy.com>
-User-Agent: Mutt/1.5.4i
+	Fri, 16 May 2003 14:45:05 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:5869 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S264539AbTEPSpE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 14:45:04 -0400
+Message-ID: <3EC534AD.5080604@nortelnetworks.com>
+Date: Fri, 16 May 2003 14:57:49 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: help...where is my memory going? --soln found...sysv shared mem
+References: <3EC52BC1.7070003@nortelnetworks.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 16, 2003 at 11:08:48AM -0700, William Lee Irwin III wrote:
- > On Fri, May 16, 2003 at 01:26:20PM +0200, Alexander Hoogerhuis wrote:
- > > This one goes in -mm5 as well, machine runs fine for a while in X, but
- > > trying to switch to a vty send the machine into the tall weeds...
- > 
- > Could you run with the radeon driver non-modular and kernel debugging
- > on? Then when it oopses could you use addr2line(1) to resolve this to
- > a line number?
- > 
- > I'm at something of a loss with respect to dealing with DRM in general.
 
-Not that I'm pointing fingers, but it could be that
-reslabify-pgds-and-pmds.patch again  ? Maybe it's still not quite right?
-Might be worth backing out and retesting, just to rule it out.
+Some of the stuff that had already started up was using sysv shared memory 
+segments, and they didn't get cleaned up properly.  Accounts for all the memory 
+usage that I was trying to figure out.
 
-		Dave
+Thought I'd post the solution in case anyone else gets hit by something similar.
+
+Chris
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

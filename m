@@ -1,82 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284472AbRLEQpO>; Wed, 5 Dec 2001 11:45:14 -0500
+	id <S284484AbRLEQvy>; Wed, 5 Dec 2001 11:51:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284482AbRLEQpF>; Wed, 5 Dec 2001 11:45:05 -0500
-Received: from smtp02.uc3m.es ([163.117.136.122]:40203 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S284472AbRLEQoy>;
-	Wed, 5 Dec 2001 11:44:54 -0500
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200112051644.fB5GiWm19167@oboe.it.uc3m.es>
-Subject: Re: Current NBD 'stuff'
-In-Reply-To: <Pine.LNX.4.10.10112051058140.17617-100000@clements.sc.steeleye.com>
- from "Paul Clements" at "Dec 5, 2001 11:14:43 am"
-To: Paul.Clements@steeleye.com
-Date: Wed, 5 Dec 2001 17:44:32 +0100 (MET)
-Cc: "linux kernel" <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S284487AbRLEQvo>; Wed, 5 Dec 2001 11:51:44 -0500
+Received: from marsh-49.owlnet.rice.edu ([128.42.49.222]:42735 "EHLO
+	marsh.owlnet.rice.edu") by vger.kernel.org with ESMTP
+	id <S284484AbRLEQvd>; Wed, 5 Dec 2001 11:51:33 -0500
+Subject: "NETDEV WATCHDOG eth0 transmit timeout" fun with ne2k-pci
+From: Joshua Adam Ginsberg <rainman@owlnet.rice.edu>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-BALnPoxz9rgql02Cuh+C"
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 05 Dec 2001 10:50:44 -0600
+Message-Id: <1007571044.26591.7.camel@stud-assoc-pc2.rice.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Paul Clements wrote:"
-> On 4 Dec 2001, Edward Muller wrote:
-> > Actually I am playing with ENBD now.
-> Yep. I've looked at that too.
-> > I think ENBD is targeted for inclusion in the kernel in 2.5, but it can
-> > be found seperatly (sp) at http://www.it.uc3m.es/~ptb/nbd/
-> > 
-> > It looks much better than the nbd stuff that is currently in the kernel.
-> 
-> A word of caution on this. I played around with ENBD (as well as some
-> others) about 6 months ago. I also did some performance testing with
-> the different drivers and user-level utilities. What I found was that
-> ENBD achieved only about 1/3 ~ 1/4 the throughput of NBD (even with
-> multiple replication paths and various block sizes). YMMV.
 
-It probably is much slower, because it does networking from userspace
-(permitting things like ssl channels, automatic reconnects and other
-fallover-like things). Nevertheless, I get about 18MB/s writing to
-localhost on my 366MHz portable, and about 5MB/s doing raid resync
-across NBD to scsi devices across 100BT. Come to think of it, maybe
-that IS the speed of the scsi devices, they're a raid5 assembly running
-as a raid0 component connected by NBD .... 
+--=-BALnPoxz9rgql02Cuh+C
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Here's the printout from the device itself in my max speed test on the
-portable in my hands. It seems to be still running (kernel 2.4.3 plus
-xfs)
+In browsing this group's archives, I've found tons of people having
+problems with their ethernet seemingly going dead and their
+/var/log/messages filled with "kernel: NETDEV WATCHDOG: eth0: transmit
+timed out" over and over and over again...
 
-   ...
-   [b] B/s max:    18.6M   (0R+18.6MW)
-   [b] Spectrum:   70%23   15%102  12%252
-   ...
-   
-(uh, the last line is the size-of-sent-request spectrum, data in 1K blocks
-- it looks like I thumped it with 16MB of data to write at once in the
-test and varied the max limit continuously as I did so, but there was
-only time for three limit changes)
+I'm having that problem running a Winbond 89c940 (which I could swear is
+on a Linksys card) using the ne2k-pci drivers on the 2.4.7-10 that ships
+with RH7.2...
 
-Read is always fast, of course.
+Any hope in an easy resolution to this?
 
-> I also looked at DRBD, which performed pretty well (comparable to NBD).
+Thanks!
 
-But then you are talking about kernel 2.2, not kernel 2.4, surely?
-There is now a -pre for DRDB under kernels 2.4, but I didn't think
-there was several months ago.
+-jag
 
-> > But that's mostly because Pavel doesn't have much time at the moment for
-> > it AFAIK.
-> 
-> Yeah. I wish I had the time to develop/maintain a network block 
-> device driver myself...but unfortunately I don't... :/
 
-The real difficulty is in user space with the reconnect strategies and
-what to do with the various weird tcp states you can get into. The
-test above was trying to produce a classic deadlock to localhost, but
-didn't "succeed".
+--=20
+--------------------------------------------------------
+Joshua Ginsberg                 rainman@owlnet.rice.edu
+Director of Technology          dirtech@sa.rice.edu
+Student Association             AIM: L0stInTheDesert
+Rice University, Houston, TX    Cellphone: 713.478.1769
+-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
+"Programming today is a race between software engineers
+striving to build bigger and better idiot-proof programs
+and the Universe trying to produce bigger and better
+idiots. So far, the Universe is winning." -Rich Cook
+--------------------------------------------------------
 
-Peter
+--=-BALnPoxz9rgql02Cuh+C
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEABECAAYFAjwOUGQACgkQtPt+7vptHHik8ACguNV/fFTiD+kZ8UPcLjF0l35R
+aygAoIIAl1O17OR2JxjfKTTaWGT1coa+
+=1LkX
+-----END PGP SIGNATURE-----
+
+--=-BALnPoxz9rgql02Cuh+C--
+

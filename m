@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315971AbSFDAEf>; Mon, 3 Jun 2002 20:04:35 -0400
+	id <S315929AbSFDAJO>; Mon, 3 Jun 2002 20:09:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315942AbSFDAEe>; Mon, 3 Jun 2002 20:04:34 -0400
-Received: from [129.46.51.59] ([129.46.51.59]:64243 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S315929AbSFDAEc>; Mon, 3 Jun 2002 20:04:32 -0400
-Message-Id: <5.1.0.14.2.20020603164649.07e75f80@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 03 Jun 2002 17:04:08 -0700
-To: torvalds@transmeta.com
-From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
-Subject: [PATCH] 2.5.20 Bluetooth PCMCIA drivers update
-Cc: linux-kernel@vger.kernel.org
+	id <S315942AbSFDAJN>; Mon, 3 Jun 2002 20:09:13 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:64528 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S315929AbSFDAJN>;
+	Mon, 3 Jun 2002 20:09:13 -0400
+Date: Mon, 3 Jun 2002 17:06:49 -0700
+From: Greg KH <greg@kroah.com>
+To: Lightweight patch manager <patch@luckynet.dynu.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH][2.5] wait for devices to wake up before mounting root, but don't hang
+Message-ID: <20020604000648.GS23446@kroah.com>
+In-Reply-To: <Pine.LNX.4.44.0206031706400.11309-100000@hawkeye.luckynet.adm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Mon, 06 May 2002 19:43:06 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Mon, Jun 03, 2002 at 05:31:03PM -0600, Lightweight patch manager wrote:
+> Don't hang while waiting for root device to come up
+> 
+> Someone mentioned that USB devices etc. can't be used for root fs since 
+> it's probably not yet available at boot time. This approach is broken, for 
+> sure, but it's at least supposed to rescue a small part of the whole (if 
+> you see a panic, you know something went atree).
 
-This patch cleans up code formatting of the Bluetooth PCMCIA drivers
-and fixes duplicate definitions of the non static variables.
+Why only loop for 60 seconds?
 
-drivers/bluetooth/bluecard_cs.c |   75 +-
-drivers/bluetooth/dtl1_cs.c     | 1338 ++++++++++++++++++----------------------
-2 files changed, 663 insertions(+), 750 deletions(-)
+I prefer the patch posted previously by Eric Lammerts that just loops
+forever.  But that's just me :)
 
-http://bluez.sourceforge.net/patches/bluez-2.5.20-pcmcia-drv.gz
+thanks,
 
-Please apply
-Max
-
+greg k-h

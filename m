@@ -1,73 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263452AbUAEPlu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 10:41:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUAEPlt
+	id S265144AbUAEPnC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 10:43:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265158AbUAEPms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 10:41:49 -0500
-Received: from fed1mtao01.cox.net ([68.6.19.244]:44018 "EHLO
-	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S263452AbUAEPls
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 10:41:48 -0500
-Date: Mon, 5 Jan 2004 08:41:47 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: David Mueller <d.mueller@elsoft.ch>,
-       Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: PPC32: Fix the floppy driver, on CONFIG_NOT_COHERENT_CACHE.
-Message-ID: <20040105154146.GB2415@stop.crashing.org>
-References: <200401032002.i03K25Y9024335@hera.kernel.org> <Pine.GSO.4.58.0401051504050.3740@waterleaf.sonytel.be>
+	Mon, 5 Jan 2004 10:42:48 -0500
+Received: from [68.114.43.143] ([68.114.43.143]:20387 "EHLO wally.rdlg.net")
+	by vger.kernel.org with ESMTP id S265144AbUAEPme (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 10:42:34 -0500
+Date: Mon, 5 Jan 2004 10:42:31 -0500
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: mremap bug and 2.4?
+Message-ID: <20040105154231.GD2247@rdlg.net>
+Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <20040105145421.GC2247@rdlg.net> <Pine.LNX.4.58L.0401051323520.1188@logos.cnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="48TaNjbzBVislYPb"
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.58.0401051504050.3740@waterleaf.sonytel.be>
+In-Reply-To: <Pine.LNX.4.58L.0401051323520.1188@logos.cnet>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 05, 2004 at 03:04:47PM +0100, Geert Uytterhoeven wrote:
-> On Fri, 2 Jan 2004, Linux Kernel Mailing List wrote:
-> > ChangeSet 1.1356.1.2, 2004/01/02 08:51:54-07:00, trini@kernel.crashing.org
-> >
-> > 	PPC32: Fix the floppy driver, on CONFIG_NOT_COHERENT_CACHE.
-> > 	From David Mueller <d.mueller@elsoft.ch>.
-> >
-> >
-> > # This patch includes the following deltas:
-> > #	           ChangeSet	1.1356.1.1 -> 1.1356.1.2
-> > #	include/asm-ppc/floppy.h	1.5     -> 1.6
-> > #
-> >
-> >  floppy.h |    6 +++++-
-> >  1 files changed, 5 insertions(+), 1 deletion(-)
-> >
-> >
-> > diff -Nru a/include/asm-ppc/floppy.h b/include/asm-ppc/floppy.h
-> > --- a/include/asm-ppc/floppy.h	Sat Jan  3 12:02:06 2004
-> > +++ b/include/asm-ppc/floppy.h	Sat Jan  3 12:02:06 2004
-> > @@ -12,7 +12,7 @@
-> >  #define __ASM_PPC_FLOPPY_H
-> >
-> >  #define fd_inb(port)			inb_p(port)
-> > -#define fd_outb(port,value)		outb_p(port,value)
-> > +#define fd_outb(value,port)		outb_p(value,port)
-> >
-> >  #define fd_enable_dma()         enable_dma(FLOPPY_DMA)
-> >  #define fd_disable_dma()        disable_dma(FLOPPY_DMA)
-> > @@ -24,7 +24,11 @@
-> >  #define fd_set_dma_count(count) set_dma_count(FLOPPY_DMA,count)
-> >  #define fd_enable_irq()         enable_irq(FLOPPY_IRQ)
-> >  #define fd_disable_irq()        disable_irq(FLOPPY_IRQ)
-> > +#if CONFIG_NOT_COHERENT_CACHE
->    ^^^
-> Shouldn't this be #ifdef?
 
-Yes, but I don't believe that any gcc that you're supposed to use on 2.4
-complains about that...
+--48TaNjbzBVislYPb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-... not a good way to start a week. :)
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+
+I love you guys.  Yeah, I have to compile a new kernel, test it  and push i=
+t out
+this week to 600 machines but atleast I don't have to wait 6 months and
+then hope it doesn't kill all my apps.
+
+You guys are great, THANKS!
+
+Robert
+
+
+Thus spake Marcelo Tosatti (marcelo.tosatti@cyclades.com):
+
+>=20
+>=20
+> On Mon, 5 Jan 2004, Robert L. Harris wrote:
+>=20
+> >
+> >
+> > Just read this on full disclosure:
+> >
+> > http://isec.pl/vulnerabilities/isec-0013-mremap.txt
+> >
+> > Is it valid?  No working proof of concept code has been posted so I can=
+'t
+> > test my systems.  The article only lists 2.4 and 2.6.  Is this
+> > 2.4.16-current, etc?  Anyone have any details about versions that are
+> > safe so I/We can determine if I need to roll a new production kernel out
+> > again?
+>=20
+> It is possible that the problem is exploitable. There is no known public
+> exploit yet, however.
+>=20
+> 2.4.24 includes a fix for this (mm/mremap.c diff)
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+Life is not a destination, it's a journey.
+  Microsoft produces 15 car pileups on the highway.
+    Don't stop traffic to stand and gawk at the tragedy.
+
+--48TaNjbzBVislYPb
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQE/+YXn8+1vMONE2jsRAmp0AJ45mWWjqNl8WEzxAl+PyXH24gB+NgCglWYo
+yEIqatwOh/qgy88BLbodxrA=
+=04FO
+-----END PGP SIGNATURE-----
+
+--48TaNjbzBVislYPb--

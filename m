@@ -1,49 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291512AbSBADqw>; Thu, 31 Jan 2002 22:46:52 -0500
+	id <S291518AbSBADsc>; Thu, 31 Jan 2002 22:48:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291513AbSBADqn>; Thu, 31 Jan 2002 22:46:43 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:23694 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S291512AbSBADqg>;
-	Thu, 31 Jan 2002 22:46:36 -0500
-Date: Thu, 31 Jan 2002 22:46:35 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: alan@lxorguk.ukuu.org.uk, vandrove@vc.cvut.cz, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, paulus@samba.org, davidm@hpl.hp.com,
-        ralf@gnu.org
-Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does
-Message-ID: <20020131224635.F21864@havoc.gtf.org>
-In-Reply-To: <20020131.162549.74750188.davem@redhat.com> <E16WRmu-0003iO-00@the-village.bc.nu> <20020131.163054.41634626.davem@redhat.com>
+	id <S291517AbSBADsX>; Thu, 31 Jan 2002 22:48:23 -0500
+Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:56200 "EHLO
+	scaup.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S291513AbSBADsL>; Thu, 31 Jan 2002 22:48:11 -0500
+Date: Thu, 31 Jan 2002 22:52:07 -0500
+To: Dave Jones <davej@suse.de>
+Cc: rwhron@earthlink.net, linux-kernel@vger.kernel.org
+Subject: Re: Oops immediately following dbench 192 on 2.5.3
+Message-ID: <20020201035207.GA5961@earthlink.net>
+In-Reply-To: <20020201030951.GA5946@earthlink.net> <Pine.LNX.4.33.0202010423590.14833-100000@Appserv.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020131.163054.41634626.davem@redhat.com>; from davem@redhat.com on Thu, Jan 31, 2002 at 04:30:54PM -0800
+In-Reply-To: <Pine.LNX.4.33.0202010423590.14833-100000@Appserv.suse.de>
+User-Agent: Mutt/1.3.27i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 04:30:54PM -0800, David S. Miller wrote:
->    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
->    Date: Fri, 1 Feb 2002 00:42:44 +0000 (GMT)
->    
->    I'd like to eliminate lots of the magic weird cases in Config.in too - but
->    by making the language express it. Something like
->    
->    tristate_orif "blah" CONFIG_FOO $CONFIG_SMALL
->    
-> This doesn't solve the CRC32 case.  What if you want
-> CONFIG_SMALL, yet some net driver that needs the crc32
-> routines?
+> > Hmm, I don't see my similar report on 2.5.2-dj7 in the archive.
+> 
+> The patches in question..
 
-Maybe not in this hypothetical future situation, but currently makefile
-magic was added for crc32 specifically to ensure that it is linked
-in when needed... even when CONFIG_CRC32=n.
+Cool!  thanks!  It appears you already have them in 2.5.3-dj1.  
+I applied the patch to 2.5.3 and will give it a go.
 
-The Config.in for crc32 only exists for the case where no driver in the
-built kernel uses it... but a 3rd party module might want it.
-
-	Jeff
-
-
+-- 
+Randy Hron
 

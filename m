@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313562AbSDHGFk>; Mon, 8 Apr 2002 02:05:40 -0400
+	id <S313560AbSDHGIG>; Mon, 8 Apr 2002 02:08:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313566AbSDHGFj>; Mon, 8 Apr 2002 02:05:39 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:24211 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S313564AbSDHGFh>; Mon, 8 Apr 2002 02:05:37 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.org>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>, nahshon@actcom.co.il
-Subject: Re: faster boots?
-Date: Mon, 8 Apr 2002 08:02:58 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Pavel Machek <pavel@suse.cz>, Benjamin LaHaise <bcrl@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@zip.com.au>,
-        joeja@mindspring.com, linux-kernel@vger.kernel.org
-In-Reply-To: <E16tTAF-0008F2-00@the-village.bc.nu> <200204080048.g380mt514749@lmail.actcom.co.il> <200204080057.g380vbO00868@vindaloo.ras.ucalgary.ca>
+	id <S313563AbSDHGIF>; Mon, 8 Apr 2002 02:08:05 -0400
+Received: from ns1.crl.go.jp ([133.243.3.1]:12678 "EHLO ns1.crl.go.jp")
+	by vger.kernel.org with ESMTP id <S313560AbSDHGIE>;
+	Mon, 8 Apr 2002 02:08:04 -0400
+Date: Mon, 8 Apr 2002 15:07:23 +0900 (JST)
+From: Tom Holroyd <tomh@po.crl.go.jp>
+X-X-Sender: tomh@holly.crl.go.jp
+To: marcelo@conectiva.com.br
+cc: kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Extraversion in System.map?
+In-Reply-To: <20020405060509.GB30807@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0204081502180.548-100000@holly.crl.go.jp>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <16uSEQ-1XziYCC@fmrl04.sul.t-online.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+As part of my penance for using the wrong System.map file in the
+readprofile data I sent out, I have prepared a patch to readprofile
+that makes it check the version of the file against the kernel.
 
-> > and spin-up on any operation that writes to the disk (and block that
-> > operation).
->
-> Absolutely not! I don't want my writes to spin up the drive.
+Much to my dismay, the extraversion code ('-pre6' for example) does
+not appear to be anywhere in System.map.  Or am I wrong?  If not, why
+not, and can this be fixed?  After all, symbols can and do change
+between -pre versions.
 
-Even if you sync ?
+Dr. Tom Holroyd
+"I am, as I said, inspired by the biological phenomena in which
+chemical forces are used in repetitious fashion to produce all
+kinds of weird effects (one of which is the author)."
+	-- Richard Feynman, _There's Plenty of Room at the Bottom_
 
-> > The opposite to that (which I do not like) processes create as many
-> > dirty buffers as they want and disk spins up only on sync() or when
-> > the system is starving for usable memory.
->
-> Maybe you don't like that, but many of us with laptops prefer that
-> behaviour. And for many reasons, it is definately the correct
-> behaviour.
-
-You are definitely right. I'd even wish for swapping out stuff and doing
-a drastic read ahead before spinning down.
-
-> > An aletrnate ides (more drastic) is that fle systems can mount
-> > internally read-only when a disk is spinned-down. Means - you cannot
-> > spin down when there is a file handle open for writing. Other than
-> > this there are advantages.
->
-> Undesirable behaviour.
-
-Absolutely. One disk is typical and log files will be open.
-
-	Regards
-		Oliver

@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261440AbTCYEWX>; Mon, 24 Mar 2003 23:22:23 -0500
+	id <S261427AbTCYFKb>; Tue, 25 Mar 2003 00:10:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261442AbTCYEWX>; Mon, 24 Mar 2003 23:22:23 -0500
-Received: from mail207.mail.bellsouth.net ([205.152.58.147]:1300 "EHLO
-	imf43bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S261440AbTCYEWW>; Mon, 24 Mar 2003 23:22:22 -0500
-Subject: Re: USB compile error with latest 2.5-bk
-From: Louis Garcia <louisg00@bellsouth.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1048514654.25136.6.camel@irongate.swansea.linux.org.uk>
-References: <1048462471.1739.1.camel@tiger>
-	 <20030324095308.GB5934@kroah.com>
-	 <1048514654.25136.6.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048566820.2455.1.camel@tiger>
+	id <S261442AbTCYFKb>; Tue, 25 Mar 2003 00:10:31 -0500
+Received: from [131.215.233.56] ([131.215.233.56]:7432 "EHLO haxor-lan")
+	by vger.kernel.org with ESMTP id <S261427AbTCYFKa>;
+	Tue, 25 Mar 2003 00:10:30 -0500
+Date: Mon, 24 Mar 2003 21:09:00 -0800
+From: Bryan Rittmeyer <bryanr@bryanr.org>
+To: oprofile-list@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       Segher Boessenkool <segher@koffie.nl>,
+       Andrew Fleming <afleming@motorola.com>, mikpe@csd.uu.se,
+       o.oppitz@web.de
+Subject: [patch] oprofile + ppc750cx perfmon
+Message-ID: <20030325050900.GA30294@bryanr.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 24 Mar 2003 23:33:40 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-just recompiled 2.5.66 and went fine. I must have messed a patch up.
+Hi all,
 
---Lou
+I've created very preliminary patches to add PPC Performance Monitor
+support to oprofile cvs and linux 2.4.20-ben8:
 
-On Mon, 2003-03-24 at 09:04, Alan Cox wrote:
-> On Mon, 2003-03-24 at 09:53, Greg KH wrote:
-> > > drivers/usb/core/hcd.c:124: parse error before '>>' token
-> > > drivers/usb/core/hcd.c:124: initializer element is not constant
-> > > drivers/usb/core/hcd.c:124: (near initialization for
-> > > `usb2_rh_dev_descriptor[12]')
-> > 
-> > I don't see this error with a older compiler.  I suggest filing a bug
-> > with Red Hat's bugzilla.
-> 
-> I don't get this error with a current compiler either. Are you sure the 
-> patching is ok ?
-> 
+http://bryanr.org/linux/oprofile/
 
+Sadly, this approach seems very unstable on a 750CX imac (PVR 0008 2214).
+The box freezes hard and requires a cold reboot after just a few minutes of
+profiling. As benh hinted in a previous thread, I suspect there's an
+undocumented erratum for this CPU related to decrementer + pm use.
+If anyone has contacts in IBM, further info would be helpful to rule out
+software error and possibly to obtain a workaround...
+
+Assuming lots of PPC perfmon hardware is effectively useless with the
+decrementer, some solutions are:
+
+1. use the pm irq for all timer-related stuff in Linux, and turn off the
+decrementer completely. May mean we need to disable idle loop HLTs, hurting
+thermal dissipation / power consumption--I believe the PMC cycle counters
+stop incrementing inside power_save_6xx().
+
+2. use the decrementer for profiling. we'd forfeits the perfmon's ability to
+sample when MSR[EE]=0 (irqs disabled), taking a big chunk out of
+oprofile's appeal imo.
+
+3. hybrid approach. when not using oprofile, the kernel runs as it does
+now via the decrementer. when profiling, we switch everything over to the
+pm system, disabling the power_save stuff. I suspect this is the best
+approach on broken silicon, though there may be some minor nastiness with
+swapping between different exception mechanisms for timer_interrupt()
+
+I'm going to try the hybrid approach and will post new patches soon.
+
+My work is commercially sponsored by Ixia and therefore focuses on 2.4
+and the IBM PPC750FX/CXe. However, I'm happy to discuss a 2.5 port,
+support for other chips, an eventual upstream merge, and any other issues
+related to bringing up oprofile on the PPC.
+
+-Bryan

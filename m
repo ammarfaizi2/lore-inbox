@@ -1,45 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264522AbUGRU6v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264524AbUGRV2c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264522AbUGRU6v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 16:58:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264524AbUGRU6v
+	id S264524AbUGRV2c (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 17:28:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264526AbUGRV2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 16:58:51 -0400
-Received: from delta.ds3.agh.edu.pl ([149.156.124.3]:30727 "EHLO
-	pluto.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S264522AbUGRU6u convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 16:58:50 -0400
-From: =?iso-8859-2?q?Pawe=B3_Sikora?= <pluto@pld-linux.org>
-To: James Morris <jmorris@redhat.com>
-Subject: Re: [PATCH] security/selinux/hooks.c:1898: error: `PER_CLEAR_ON_SETID' undeclared
-Date: Sun, 18 Jul 2004 22:58:37 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <200407181425.43629.pluto@pld-linux.org> <Pine.LNX.4.58.0407181647590.7127@devserv.devel.redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0407181647590.7127@devserv.devel.redhat.com>
-MIME-Version: 1.0
+	Sun, 18 Jul 2004 17:28:32 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15278 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264524AbUGRV2a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 17:28:30 -0400
+Date: Sun, 18 Jul 2004 22:28:28 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] Re: check_mnt() breaks namespaces
+Message-ID: <20040718212828.GF12308@parcelfarce.linux.theplanet.co.uk>
+References: <20040714233646.GA25298@MAIL.13thfloor.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200407182258.41581.pluto@pld-linux.org>
+In-Reply-To: <20040714233646.GA25298@MAIL.13thfloor.at>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 18 of July 2004 22:51, James Morris wrote:
-> On Sun, 18 Jul 2004, [iso-8859-2] Pawe³ Sikora wrote:
-> >   CC      security/selinux/hooks.o
-> > security/selinux/hooks.c: In function `selinux_bprm_apply_creds':
-> > security/selinux/hooks.c:1898: error: `PER_CLEAR_ON_SETID' undeclared
->
-> I can't find this symbol anywhere in the kernel.  Is this stock
-> 2.6.8-rc2?
+	It's not check_mnt(), it's breakage in copy_namespace().
+It forgets to switch new field (->mnt_namespace) in the vfsmounts
+of new namespace.
 
-# grep PER_CLEAR /usr/src/linux/include/linux/personality.h
-#define PER_CLEAR_ON_SETID (READ_IMPLIES_EXEC)
-
--- 
-/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
-
-                           #define say(x) lie(x)
+--- ../RC8-rc2/fs/namespace.c	Sun Jul 18 09:08:42 2004
++++ fs/namespace.c	Sun Jul 18 17:23:15 2004
+@@ -1037,6 +1037,7 @@
+ 	struct namespace *new_ns;
+ 	struct vfsmount *rootmnt = NULL, *pwdmnt = NULL, *altrootmnt = NULL;
+ 	struct fs_struct *fs = tsk->fs;
++	struct vfsmount *p, *q;
+ 
+ 	if (!namespace)
+ 		return 0;
+@@ -1071,14 +1072,16 @@
+ 	list_add_tail(&new_ns->list, &new_ns->root->mnt_list);
+ 	spin_unlock(&vfsmount_lock);
+ 
+-	/* Second pass: switch the tsk->fs->* elements */
+-	if (fs) {
+-		struct vfsmount *p, *q;
+-		write_lock(&fs->lock);
+-
+-		p = namespace->root;
+-		q = new_ns->root;
+-		while (p) {
++	/*
++	 * Second pass: switch the tsk->fs->* elements and mark new vfsmounts
++	 * as belonging to new namespace.  We have already acquired a private
++	 * fs_struct, so tsk->fs->lock is not needed.
++	 */
++	p = namespace->root;
++	q = new_ns->root;
++	while (p) {
++		q->mnt_namespace = new_ns;
++		if (fs) {
+ 			if (p == fs->rootmnt) {
+ 				rootmnt = p;
+ 				fs->rootmnt = mntget(q);
+@@ -1091,10 +1094,9 @@
+ 				altrootmnt = p;
+ 				fs->altrootmnt = mntget(q);
+ 			}
+-			p = next_mnt(p, namespace->root);
+-			q = next_mnt(q, new_ns->root);
+ 		}
+-		write_unlock(&fs->lock);
++		p = next_mnt(p, namespace->root);
++		q = next_mnt(q, new_ns->root);
+ 	}
+ 	up_write(&tsk->namespace->sem);
+ 

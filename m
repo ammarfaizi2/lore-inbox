@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263184AbVCXTkm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263180AbVCXTlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263184AbVCXTkm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 14:40:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbVCXTjk
+	id S263180AbVCXTlm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 14:41:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbVCXTlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 14:39:40 -0500
-Received: from fire.osdl.org ([65.172.181.4]:47291 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262656AbVCXTis (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 14:38:48 -0500
-Date: Thu, 24 Mar 2005 11:38:34 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Jan Kara <jack@suse.cz>, Mark Wong <markw@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, stable@kernel.org
-Subject: Re: ext3 journalling BUG on full filesystem
-Message-ID: <20050324193834.GH28536@shell0.pdx.osdl.net>
-References: <20050323202130.GA30844@osdl.org> <20050323221753.GA6334@cse.unsw.EDU.AU> <20050324103945.GF19394@atrey.karlin.mff.cuni.cz> <1111691379.1995.91.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
+	Thu, 24 Mar 2005 14:41:04 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:24337 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S263180AbVCXTj4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 14:39:56 -0500
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: ubuntu-devel <ubuntu-devel@lists.ubuntu.com>, linux-kernel@vger.kernel.org
+Subject: Re: vfat broken in 2.6.10?
+References: <4241E3EA.4080501@comcast.net>
+	<87fyyl3war.fsf@devron.myhome.or.jp> <42430C26.6000603@comcast.net>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Fri, 25 Mar 2005 04:39:42 +0900
+In-Reply-To: <42430C26.6000603@comcast.net> (John Richard Moser's message of
+ "Thu, 24 Mar 2005 13:51:18 -0500")
+Message-ID: <87psxokf41.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1111691379.1995.91.camel@sisko.sctweedie.blueyonder.co.uk>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stephen C. Tweedie (sct@redhat.com) wrote:
-> Hi,
-> 
-> On Thu, 2005-03-24 at 10:39, Jan Kara wrote:
-> 
-> >   Actually the patch you atached showed in the end as not covering all
-> > the cases and so Stephen agreed to stay with the first try (attached)
-> > which should cover all known cases (although it's not so nice).
-> 
-> Right.  The later patch is getting reworked into a proper locking
-> overhaul for the journal_put_journal_head() code.  The earlier one (that
-> Jan attached) is the one that's appropriate in the mean time; it covers
-> all of the holes we know about for sure and has proven robust in
-> testing.
+John Richard Moser <nigelenki@comcast.net> writes:
 
-OK, good to know.  When I last checked you were working on a higher risk
-yet more complete fix, and I thought we'd wait for that one to stabilize.
-Looks like the one Jan attached is the better -stable candidate?
+> I would really, but I haven't mastered creating debian packages yet; on
+> Gentoo I just wrote ebuilds whenever I wanted to test something, then
+> uninstalled it if it broke.  Maybe someone else can do it. . . .
 
-thanks,
--chris
+dosfstools is simple, so you don't need to install it....
+
+    $ mkdir test
+    $ cd test
+    $ wget http://user.parknet.co.jp/hirofumi/tmp/fatfsprogs.tar.bz2
+    $ tar xjf fatfsprogs.tar.bz2 
+    $ cd fatfsprogs/dosfstools-2.10/
+    $ make
+    $ ./dosfsck/dosfsck /dev/test_device
+      [...]
+    $ cd ../../..
+    $ rm -rf test
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

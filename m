@@ -1,67 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263028AbUFNN6t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbUFNOEA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263028AbUFNN6t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 09:58:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbUFNN6t
+	id S263085AbUFNOEA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 10:04:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbUFNOEA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 09:58:49 -0400
-Received: from trantor.org.uk ([213.146.130.142]:13973 "EHLO trantor.org.uk")
-	by vger.kernel.org with ESMTP id S263028AbUFNN6r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 09:58:47 -0400
-Subject: Local DoS attack on i386 (was: new kernel bug)
-From: Gianni Tedesco <gianni@scaramanga.co.uk>
-To: Manuel Arostegui Ramirez <manuel@todo-linux.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200406121159.28406.manuel@todo-linux.com>
-References: <200406121159.28406.manuel@todo-linux.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-28ZMQTDz0GWNFzAGSDoC"
-Date: Mon, 14 Jun 2004 14:58:37 +0100
-Message-Id: <1087221517.3375.3.camel@sherbert>
+	Mon, 14 Jun 2004 10:04:00 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:16856 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263085AbUFNOD5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 10:03:57 -0400
+Date: Mon, 14 Jun 2004 15:03:56 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Cesar Eduardo Barros <cesarb@nitnet.com.br>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Alexander Viro <viro@math.psu.edu>
+Subject: Re: [PATCH] O_NOATIME support
+Message-ID: <20040614140356.GA21349@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Cesar Eduardo Barros <cesarb@nitnet.com.br>,
+	linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>
+References: <20040612011129.GD1967@flower.home.cesarb.net> <20040614095529.GA11563@infradead.org> <20040614134652.GA1961@flower.home.cesarb.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.8 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040614134652.GA1961@flower.home.cesarb.net>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jun 14, 2004 at 10:46:52AM -0300, Cesar Eduardo Barros wrote:
+> I don't see why preserving the mtime and ctime would be necessary, since
+> to move a file away you either don't touch it (using rename) or only
+> read and unlink it (to write to a tape or other filesystem, and you can
+> save the atime and mtime while doing it). So O_NOATIME is enough for
+> both behaviours.
 
---=-28ZMQTDz0GWNFzAGSDoC
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Sat, 2004-06-12 at 11:59 +0200, Manuel Arostegui Ramirez wrote:
-> Somebody know a patch to solved this new bug?
-> http://reviewed.homelinux.org/news/2004-06-11_kernel_crash/index.html.en
-> Affected versions:
->     * Linux 2.6.x
->           o Linux 2.6.7-rc2
->           o Linux 2.6.6 (all versions)
->           o Linux 2.6.6 SMP (verified by riven)
->           o Linux 2.6.5-gentoo (verified by RatiX)
->           o Linux 2.6.5-mm6 - (verified by Mariux)=20
->     * Linux 2.4.2x
->           o Linux 2.4.26 vanilla
->           o Linux 2.4.26-rc1 vanilla
->           o Linux 2.4.26-gentoo-r1
->           o Linux 2.4.22=20
-
-Seems to be a scheduler race or something?
-
---=20
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/scaramanga.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
-
---=-28ZMQTDz0GWNFzAGSDoC
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAza8NkbV2aYZGvn0RAgnfAJ0R5rTiH3c+saaUJRHnaXRWvf4vkwCfVCS0
-qIXMq8kErZstkveJ1NjhN/I=
-=eCX0
------END PGP SIGNATURE-----
-
---=-28ZMQTDz0GWNFzAGSDoC--
+Maybe some day the file needs to come back from the tape ;-)  Or rather
+in the HSM scenario a part of the file.
 

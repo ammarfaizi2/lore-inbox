@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262314AbSKYBX4>; Sun, 24 Nov 2002 20:23:56 -0500
+	id <S262324AbSKYCBR>; Sun, 24 Nov 2002 21:01:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262322AbSKYBX4>; Sun, 24 Nov 2002 20:23:56 -0500
-Received: from dp.samba.org ([66.70.73.150]:54484 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S262314AbSKYBXz>;
-	Sun, 24 Nov 2002 20:23:55 -0500
-Date: Mon, 25 Nov 2002 12:26:58 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org, John Levon <levon@movementarian.org>
-Subject: Re: New module loader makes kernel debugging much harder
-Message-Id: <20021125122658.0bb41aed.rusty@rustcorp.com.au>
-In-Reply-To: <25797.1038100726@ocs3.intra.ocs.com.au>
-References: <20021124010617.GA58002@compsoc.man.ac.uk>
-	<25797.1038100726@ocs3.intra.ocs.com.au>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+	id <S262326AbSKYCBR>; Sun, 24 Nov 2002 21:01:17 -0500
+Received: from almesberger.net ([63.105.73.239]:44550 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S262324AbSKYCBQ>; Sun, 24 Nov 2002 21:01:16 -0500
+Date: Sun, 24 Nov 2002 23:07:58 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, Doug Ledford <dledford@redhat.com>,
+       Alexander Viro <viro@math.psu.edu>
+Subject: Re: Module Refcount & Stuff mini-FAQ
+Message-ID: <20021124230758.A1549@almesberger.net>
+References: <20021118233047.P1407@almesberger.net> <20021125003005.15F762C095@lists.samba.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021125003005.15F762C095@lists.samba.org>; from rusty@rustcorp.com.au on Mon, Nov 25, 2002 at 09:50:46AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Nov 2002 12:18:46 +1100
-Keith Owens <kaos@ocs.com.au> wrote:
-> One possibility the new loader opens up is the ability to replicate the
-> pure module data (rodata and text) for each node of a NUMA box.  There
-> is already an option to replicate the kernel text on each node to cut
-> down inter-node traffic.  Replicating the pure module data would be
-> nice as well.  I guarantee that will result in something that is not
-> "simply mapped".
+Rusty Russell wrote:
+> Q: But the modules' init routine calls my register() routine which
+>    wants to call back into one of the function pointers immediately,
+>    and so try_module_get() fails! (because the module is not finished
+>    initializing yet)
+> A: You're being called from the module, so someone already has a
+>    reference (unless there's a bug), so you don't need a
+>    try_module_get().
 
-Ewww, you are a sick lad 8)
+Hmm, I wouldn't call this the answer. How about:
+ - Q: why does it fail ?
+ - A: because you're initializing
+ - solution: but since you're calling from a module, and the call
+   goes back to the same module, you don't have to worry
 
-But I'm not sure that there is any interface which wouldn't break horribly
-when faced with that possibility.
+This raises the question: why is this a special case ? The
+registration function shouldn't have to know all these details.
+(That's the whole point of try_module_get, isn't it ?)
 
-The patch to restore /proc/ksyms is trivial.  As is the addition of a start
-entry /proc/modules.  When combined with rth's simplified loader, it should
-be sufficient for both ksymoops and oprofile.
+Wouldn't it be possible to simply allow try_module_get also
+while the module is initializing ?
 
-kgdb needs a patch to work, anyway: you might want to restore /proc/ksyms
-in that patch?  (I don't use kgdb, so my ignorance here is complete).
+> Well, if we continue to start modules unisolated, I need to rewrite
+> the FAQ anyway...
 
-Rusty.
+Does "unisolated" mean that try_module_get would work ? If yes,
+you've already solved the problem ;-)
+
+- Werner
+
 -- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,104 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263425AbTJLG6e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 02:58:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263427AbTJLG6e
+	id S263427AbTJLHOz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 03:14:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbTJLHOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 02:58:34 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:3511 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S263425AbTJLG6c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 02:58:32 -0400
-Message-ID: <3F88FB90.7080801@colorfullife.com>
-Date: Sun, 12 Oct 2003 08:58:24 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: Zwane Mwaikambo <zwane@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test7 DEBUG_PAGEALLOC oops
-References: <5.2.1.1.2.20031011172153.01e49948@pop.gmx.net> <5.2.1.1.2.20031011120059.01e81718@pop.gmx.net> <5.2.1.1.2.20031011120059.01e81718@pop.gmx.net> <5.2.1.1.2.20031011172153.01e49948@pop.gmx.net> <5.2.1.1.2.20031012060658.01e3b840@pop.gmx.net>
-In-Reply-To: <5.2.1.1.2.20031012060658.01e3b840@pop.gmx.net>
-Content-Type: multipart/mixed;
- boundary="------------060503030806000307050403"
+	Sun, 12 Oct 2003 03:14:55 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:19729 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S263427AbTJLHOw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 03:14:52 -0400
+Date: Sun, 12 Oct 2003 00:14:48 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ReiserFS patch for updating ctimes of renamed files
+Message-ID: <20031012071447.GJ8724@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <JIEIIHMANOCFHDAAHBHOIELODAAA.alex_a@caltech.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <JIEIIHMANOCFHDAAHBHOIELODAAA.alex_a@caltech.edu>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: The contents of this message may cause sleeplessness, irritability, loss of appetite, anxiety, depression, or other psychological disorders.  Consult your doctor if these symptoms persist.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060503030806000307050403
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sun, Oct 12, 2003 at 01:05:19AM -0500, Alex Adriaanse wrote:
+> Hi,
+> 
+> I ran into some trouble trying to do incremental backups with GNU tar
+> (using --listed-incremental) where renaming a file in between backups would
+> cause the file to disappear upon restoration.  When investigating the issue
+> I discovered that this doesn't happen on ext2, ext3, and tmpfs filesystems
+> but only on ReiserFS filesystems.  I also noticed that for example ext3
+> updates the affected file's ctime upon rename whereas ReiserFS doesn't, so
+> I'm thinking this causes tar to believe that the file existed before the
+> first backup was taking under the new name, and as a result it doesn't back
+> it up during the second backup.  So I believe ReiserFS needs to update
+> ctimes for renamed files in order for incremental GNU tar backups to work
+> reliably.
+> 
+> I made some changes to the reiserfs_rename function that I *think* should
+> fix the problem.  However, I don't know much about ReiserFS's internals, and
+> I haven't been able to test them out to see if things work now since I can't
+> afford to deal with potential FS corruption with my current Linux box.
+> 
+> I included a patch below against the 2.4.22 kernel with my changes.  Would
+> somebody mind taking a look at this to see if I did things right here (and
+> perhaps wouldn't mind testing it out either)?  If it works then I (and I'm
+> sure others who've experienced the same problem) would like to see the
+> changes applied to the next 2.4.x (and 2.6.x?) release.
 
-Could you try the attached patch?
-It updates the end of stack detection to handle unaligned stacks.
+Hmm.  I'm conflicted.
 
---
-    Manfred
+rename(2) manpage:
+	Any other hard links to the file (as created using
+	link(2)) are unaffected.
 
---------------060503030806000307050403
-Content-Type: text/plain;
- name="patch-end-of-stack"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-end-of-stack"
+A change to ctime would affect the other links.
 
-// $Header$
-// Kernel Version:
-//  VERSION = 2
-//  PATCHLEVEL = 6
-//  SUBLEVEL = 0
-//  EXTRAVERSION = -test7
---- 2.6/include/asm-i386/thread_info.h	2003-10-09 21:20:00.000000000 +0200
-+++ build-2.6/include/asm-i386/thread_info.h	2003-10-12 08:50:12.000000000 +0200
-@@ -101,6 +101,16 @@
- 
- #endif
- 
-+static inline int kstack_end(void *addr)
-+{
-+	unsigned long offset = (unsigned long)addr & (THREAD_SIZE-1);
-+
-+	/* Some APM bios versions misalign the stack */
-+	if (offset == 0 || offset > (THREAD_SIZE-sizeof(void*)))
-+			return 1;
-+	return 0;
-+}
-+
- /*
-  * thread information flags
-  * - these are process state flags that various assembly files may need to access
---- 2.6/mm/slab.c	2003-10-09 21:23:19.000000000 +0200
-+++ build-2.6/mm/slab.c	2003-10-12 08:51:13.000000000 +0200
-@@ -862,7 +862,7 @@
- 		unsigned long *sptr = &caller;
- 		unsigned long svalue;
- 
--		while (((long) sptr & (THREAD_SIZE-1)) != 0) {
-+		while (!kstack_end(sptr)) {
- 			svalue = *sptr++;
- 			if (kernel_text_address(svalue)) {
- 				*addr++=svalue;
---- 2.6/arch/i386/kernel/traps.c	2003-10-09 21:23:03.000000000 +0200
-+++ build-2.6/arch/i386/kernel/traps.c	2003-10-12 08:50:41.000000000 +0200
-@@ -104,7 +104,7 @@
- #ifdef CONFIG_KALLSYMS
- 	printk("\n");
- #endif
--	while (((long) stack & (THREAD_SIZE-1)) != 0) {
-+	while (!kstack_end(stack)) {
- 		addr = *stack++;
- 		if (kernel_text_address(addr)) {
- 			printk(" [<%08lx>] ", addr);
-@@ -138,7 +138,7 @@
- 
- 	stack = esp;
- 	for(i = 0; i < kstack_depth_to_print; i++) {
--		if (((long) stack & (THREAD_SIZE-1)) == 0)
-+		if (kstack_end(stack))
- 			break;
- 		if (i && ((i % 8) == 0))
- 			printk("\n       ");
+stat(2) manpage:
+	The field st_ctime is changed by writing or by
+	setting inode information (i.e., owner, group, link
+	count, mode, etc.).
 
---------------060503030806000307050403--
+I am not aware of any field in the inode structure that must
+be changed by an atomic rename.  Per documentation the only
+reason rename should update st_ctime is if it does a
+link+unlink sequence which would alter st_nlink briefly.
 
+On the other hand it does seem to me there ought to be some
+record that something about the inode changed.  st_ctime would
+be the only appropriate indicator.
+
+rename() SUSv3:
+	Some implementations mark for update the st_ctime
+	field of renamed files and some do not. Applications
+	which make use of the st_ctime field may behave
+	differently with respect to renamed files unless
+	they are designed to allow for either behavior.
+
+So reiserfs is on this point definitely standards conformant
+already.  A change could at best be seen as an enhancement.
+
+
+
+
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

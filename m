@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbUJXIaZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbUJXIbC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261384AbUJXIaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 04:30:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbUJXIaZ
+	id S261386AbUJXIbC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 04:31:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbUJXIbB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 04:30:25 -0400
-Received: from run.smurf.noris.de ([192.109.102.41]:46525 "EHLO
-	server.smurf.noris.de") by vger.kernel.org with ESMTP
-	id S261384AbUJXIaW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 04:30:22 -0400
+	Sun, 24 Oct 2004 04:31:01 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:34253 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261386AbUJXIaz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 04:30:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=Fvoy902FKAKb/eviSvwWAc9R3DHk8x6Q6r4xrvsqhyL1qrm5xczOL1/PIH7LYBtpIqU8ZZ75ACHNPzLVIT2ypF8NDaTDJKdi9CIgRsrljPku/HVkxrvIJFieZ70Ml49ST6bGpPhEYePNkAS9uYr4PetGMLcQQOmhEa+oCetqdHU=
+Message-ID: <b98c6b1a041024013067e06b0a@mail.gmail.com>
+Date: Sun, 24 Oct 2004 16:30:55 +0800
+From: mike lewis <lachlanlewis@gmail.com>
+Reply-To: mike lewis <lachlanlewis@gmail.com>
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Newsgroups: smurf.list.linux.kernel
-Subject: Re: 2.6.10-rc1 initramfs busted
-Date: Sun, 24 Oct 2004 10:30:05 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2004.10.24.08.30.05.584232@smurf.noris.de>
-References: <20041023133120.A28178@flint.arm.linux.org.uk>
-NNTP-Posting-Host: kiste.smurf.noris.de
+Subject: 2.6.9-rc4 stability issues
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: server.smurf.noris.de 1098606605 2133 192.109.102.35 (24 Oct 2004 08:30:05 GMT)
-X-Complaints-To: smurf@noris.de
-NNTP-Posting-Date: Sun, 24 Oct 2004 08:30:05 +0000 (UTC)
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Russell King wrote:
+Hi All,
 
-> A build using O= does this:
+I wouldn't consider my self a complete newb, but you may, so feel free
+to direct me to the newb list if this is where it should be.
 
-I already posted a small patch for this, three days ago.
+I've recently come across (saved and purchased) a dvb card which is
+only supported by cvs linux-dvb of a few days ago, which in turn
+willonly compile on 2.6.9-rc4.  So I upgraded my kernel to 2.6.9-rc4 a
+week ago, and now I have stability issues and I'm not sure where to
+turn.  I looked through the changelog from 2.6.8 to 2.6.9 and say a
+lot a ACPI changes, so I turned acpi off in my kernel to see if this
+was the source.. It is not..
 
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+The device is remote, so I can only ssh / telnet in to debug.  I'm
+wondering what steps I can take to establish why this particular
+flavour of kernel is not happy on my system.   One issue I have, is
+how to establish the cause of the system freezes?  I'm assuming a
+segfault of some kind or another would be logged somewhere, but they
+do not appear in /var/log/messages..
 
+Is there any way to log the segfault cause to post/investigate?
+
+Mick

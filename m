@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132541AbRDATpX>; Sun, 1 Apr 2001 15:45:23 -0400
+	id <S132545AbRDATxO>; Sun, 1 Apr 2001 15:53:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132548AbRDATpO>; Sun, 1 Apr 2001 15:45:14 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:14864 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S132549AbRDATpG>;
-	Sun, 1 Apr 2001 15:45:06 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200104011943.f31JhqL136501@saturn.cs.uml.edu>
-Subject: Re: bug database braindump from the kernel summit
-To: lm@bitmover.com (Larry McVoy)
-Date: Sun, 1 Apr 2001 15:43:52 -0400 (EDT)
+	id <S132546AbRDATxD>; Sun, 1 Apr 2001 15:53:03 -0400
+Received: from laurin.munich.netsurf.de ([194.64.166.1]:19136 "EHLO
+	laurin.munich.netsurf.de") by vger.kernel.org with ESMTP
+	id <S132545AbRDATw4>; Sun, 1 Apr 2001 15:52:56 -0400
+Date: Sun, 1 Apr 2001 18:41:31 +0200
+To: Jerry Hong <jhong001@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200104011754.KAA20725@work.bitmover.com> from "Larry McVoy" at Apr 01, 2001 10:54:40 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+Subject: Re: how mmap() works?
+Message-ID: <20010401184131.A2474@storm.local>
+Mail-Followup-To: Jerry Hong <jhong001@yahoo.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010329221451.27582.qmail@web4303.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010329221451.27582.qmail@web4303.mail.yahoo.com>; from jhong001@yahoo.com on Thu, Mar 29, 2001 at 02:14:51PM -0800
+From: Andreas Bombe <andreas.bombe@munich.netsurf.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Problem details
->     Bug report quality
->     	There was lots of discussion on this.  The main agreement was that we
-> 	wanted the bug reporting system to dig out as much info as possible
-> 	and prefill that.  There was a lot of discussion about possible tools
-> 	that would dig out the /proc/pci info; there was discussion about
-> 	Andre's tools which can tell you if you can write your disk; someone
-> 	else had something similar.
-> 
-> 	But the main thing was to extract all the info we could
-> 	automatically.	One thing was the machine config (hardware and
-> 	at least kernel version).  The other thing was extract any oops
-> 	messages and get a stack traceback.
+On Thu, Mar 29, 2001 at 02:14:51PM -0800, Jerry Hong wrote:
+> Hi, 
+>   mmap() creates a mmaped memory associated with a
+> physical file. If a process updates the mmaped memory,
+> Linux will updates the file "automatically". If this
+> is the case, why do we need msync()?
 
-I'm really sick of being buried in useless information. The signal
-gets lost in the noise. It is easy to discard automatically generated
-bug reports, and way too annoying to wade through the crud.
+For the same reason you might need fsync() or fdatasync().  To force
+changes to be written now, without having to munmap() the area, so that
+you have a gurantee that current data is on disk and will not be lost.
 
-When network connections hang, the console-tools package version
-isn't likely to be of any use. When ramfs leaks memory, nobody needs
-the content of /proc/pci.
+> If this is not
+> the case, what is the interval between 2 "WRITE" (IO
+> request operation) request to the physical file
+> because it really updates the physical file somehow
+> even without msync().
 
-Sometimes the bit of crud are HUGE. Imagine the hardware info
-for a 64-way SGI or Sun box with plenty of devices attached.
+Without syncing, Linux writes whenever it thinks it's appropriate, e.g.
+when pages have to be freed (I think also when the bdflush writes back
+data, i.e. every 30 seconds by default).
 
+-- 
+ Andreas E. Bombe <andreas.bombe@munich.netsurf.de>    DSA key 0x04880A44
+http://home.pages.de/~andreas.bombe/    http://linux1394.sourceforge.net/

@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbTDHOBp (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 10:01:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTDHOBo (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 10:01:44 -0400
-Received: from elixir.e.kth.se ([130.237.48.5]:272 "EHLO elixir.e.kth.se")
-	by vger.kernel.org with ESMTP id S261464AbTDHOBn (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 10:01:43 -0400
-To: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
-Cc: linux-kernel@vger.kernel.org, mru@users.sourceforge.net
-Subject: Re: Emulating insns on Alpha
-References: <871y0doe68.fsf@student.uni-tuebingen.de>
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 08 Apr 2003 16:13:04 +0200
-In-Reply-To: Falk Hueffner's message of "08 Apr 2003 05:34:23 +0200"
-Message-ID: <yw1xistpqdqn.fsf@manganonaujakasit.e.kth.se>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
-MIME-Version: 1.0
+	id S261809AbTDHOJD (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 10:09:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbTDHOJD (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 10:09:03 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:11322 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S261809AbTDHOJC (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 10:09:02 -0400
+Date: Tue, 8 Apr 2003 17:20:20 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] New kernel tree for embedded linux
+Message-ID: <20030408142020.GS159052@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	linux-kernel@vger.kernel.org
+References: <20030407171037.GB8178@wohnheim.fh-wedel.de> <20030408093329.GT23095@lug-owl.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030408093329.GT23095@lug-owl.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Falk Hueffner <falk.hueffner@student.uni-tuebingen.de> writes:
-
-> > Are there any patches around that emulate the BWX instruction set on
-> > older Alpha CPUs, or should I write it myself?
+On Tue, Apr 08, 2003 at 11:33:30AM +0200, you [Jan-Benedict Glaw] wrote:
+> On Mon, 2003-04-07 19:10:37 +0200, Jörn Engel <joern@wohnheim.fh-wedel.de>
+> wrote in message <20030407171037.GB8178@wohnheim.fh-wedel.de>:
+> > Hi!
+> > 
+> > Some days ago, I've started a -je [*] tree which will focus on memory
+> > reduction for the linux kernel.
 > 
-> There's an ancient one at
-> http://www.alphalinux.org/archives/axp-list/October1999/0500.html,
-> although it's probably easier to write it from scratch. I'd write the
-> whole thing in C, the trap is already so expensive that it's of no use
-> trying to be clever when emulating the particular instructions (except
-> when you replace the instruction with a jump to a stub, which seems
-> somewhat hairy, but feasible).
+> If you can live with being blind, substiture printk with a macro (doing
+> nothing but eventually evaluating the parameters). That'll easily give
+> you another 100K or even more.
 
-If you think that's hairy, take a look at this:
-http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/tc2/tc2/include/Attic/tc2_autoload.h?rev=1.1.2.5&only_with_tag=dev-0_4&content-type=text/vnd.viewcvs-markup
+There was a quite flexible solution proposed sometime ago...
 
--- 
-Måns Rullgård
-mru@users.sf.net
+http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=utf-8&threadm=20021024030143.GA13661%40eskimo.com&rnum=4&prev=/groups%3Fq%3Dprintk%2BCONFIG_TINY%26num%3D50%26hl%3Den%26lr%3D%26ie%3DUTF-8%26oe%3Dutf-8%26sa%3DN%26tab%3Dwg
+
+
+
+-- v --
+
+v@iki.fi

@@ -1,53 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275680AbRJQK57>; Wed, 17 Oct 2001 06:57:59 -0400
+	id <S275709AbRJQLCj>; Wed, 17 Oct 2001 07:02:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275709AbRJQK5k>; Wed, 17 Oct 2001 06:57:40 -0400
-Received: from inway106.cdi.cz ([213.151.81.106]:30598 "EHLO luxik.cdi.cz")
-	by vger.kernel.org with ESMTP id <S275680AbRJQK5e>;
-	Wed, 17 Oct 2001 06:57:34 -0400
-Posted-Date: Wed, 17 Oct 2001 12:58:06 +0200
-Date: Wed, 17 Oct 2001 12:58:05 +0200 (CEST)
-From: Martin Devera <devik@cdi.cz>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: NET_PROFILE results for 2.4.12 [was sentto is slow]
-In-Reply-To: <3BCD56A2.B5362224@loewe-komp.de>
-Message-ID: <Pine.LNX.4.10.10110171254590.321-100000@luxik.cdi.cz>
+	id <S275716AbRJQLC3>; Wed, 17 Oct 2001 07:02:29 -0400
+Received: from [202.97.230.81] ([202.97.230.81]:48055 "HELO 0451.com")
+	by vger.kernel.org with SMTP id <S275709AbRJQLCX>;
+	Wed, 17 Oct 2001 07:02:23 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Liu Tao <debian@0451.com>
+Reply-To: debian@0451.com
+Organization: Harbin Engineering University 98-612 Class
+To: linux-kernel@vger.kernel.org
+Subject: Re: VM
+Date: Wed, 17 Oct 2001 19:08:01 +0800
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <DD0DC14935B1D211981A00105A1B28DB033ED3D8@NL-ASD-EXCH-1>
+In-Reply-To: <DD0DC14935B1D211981A00105A1B28DB033ED3D8@NL-ASD-EXCH-1>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011017110224Z275709-17408+1539@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-In my previous posts I was thinking why my PII/375
-system can't handle more than 25000 packet/s. I repaired
-kernel's NET_PROFILEr and got an answer.
-So that for curious, first gprof output of program doing
-send/poll/recv of 200 byte packets loop on the loopback 
-interface using PF_PACKET (total running time was 20 sec):
- 49.67      9.93     9.93   549384     0.02     0.02  sendto
- 17.71     13.47     3.54   549384     0.01     0.01  recv
- 12.01     15.87     2.40   553784     0.00     0.00  poll
+I tested "mtest01 -p 200 -w" on both 2.4.12-ac3 and 2.4.13pre3aa1,
+in single mode both killed mtest01, but in kde 2.4.13pre3aa1 can't kill
+mtest01 after a long wait, and I have to reset.
 
-Now we compare them with kernel profile stats:
-af_packet_send:          7876 ms
-  nested dev_queue_xmit: 3714 ms
-net_rx_action:           1464 ms
-af_packet_recv:          411  ms
+I have 128M ram, 500M swap on IDE disk, Celeron 433 cpu.
 
-For send gprof tells 9930 ms and kernel 7876 so 2 sec in difference
-is generic socket and system call handling overhead (and measure error).
-The recv gproffed is 3540 ms, kernel 1464+411 so there is again about
-2 sec overhead.
-
->From this analysis I can finally say that there is not error in my
-netflow simulator :) but the 2.4 on PII/375 can handle up to 30000 pps
-in userspace loop.
-Without userspace overhead and not bouncing packets (like in my test)
-the router based on 2.4 could handle about 70000 pps without qos,routing
-and filtering overhead ..
-Someone tested in real world ?
-
-best regards, devik
-
-
+Regards
+Liu Tao

@@ -1,43 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274062AbRJQCg1>; Tue, 16 Oct 2001 22:36:27 -0400
+	id <S274064AbRJQCp6>; Tue, 16 Oct 2001 22:45:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274064AbRJQCgH>; Tue, 16 Oct 2001 22:36:07 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:22896 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S274062AbRJQCft>; Tue, 16 Oct 2001 22:35:49 -0400
-Date: Wed, 17 Oct 2001 04:31:03 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: rwhron@earthlink.net
-Cc: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
-Subject: Re: VM test on 2.4.13-pre3aa1 (compared to 2.4.12-aa1 and 2.4.13-pre2aa1)
-Message-ID: <20011017043103.D2380@athlon.random>
-In-Reply-To: <20011016081639.A209@earthlink.net> <20011017021242.S2380@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20011017021242.S2380@athlon.random>; from andrea@suse.de on Wed, Oct 17, 2001 at 02:12:42AM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S274244AbRJQCps>; Tue, 16 Oct 2001 22:45:48 -0400
+Received: from paloma13.e0k.nbg-hannover.de ([62.159.219.13]:48869 "HELO
+	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S274064AbRJQCpd>; Tue, 16 Oct 2001 22:45:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: marc.theaimsgroup.com SLOW or is it dead? Even no ping.
+Date: Wed, 17 Oct 2001 04:45:30 +0200
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011017024540Z274064-17408+1384@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 17, 2001 at 02:12:42AM +0200, Andrea Arcangeli wrote:
-> >  3  3  0  47424   3788   1172   1412 860 40228   892 40236  789   819  12  23  66
-> >  0  5  1  90244   1656   1184   1416 1032 39568  1076 39572  653   425   6   5  89
-> 
-> those swapins could be due mp3blast that is getting swapped out
-> continously while it sleeps.  Not easy for the vm to understand it has
+Hello,
 
-I noticed that anotehr thing that changed between vanilla 2.4.13pre2 and
-2.4.13pre3 is the setting of page_cluster on machine with lots of ram.
+ping gave me nothing:
 
-You'll now find the page_cluster set to 6, that means "1 << 6 << 12"
-bytes will be paged in at each major fault, while previously only "1 <<
-4 << 12" bytes were paged in.
+/home/nuetzel> time ping marc.theaimsgroup.com
+PING marc.theaimsgroup.com (63.238.77.237) from 217.227.7.38 : 56(84) bytes 
+of data.
 
-So I'd suggest to try again after "echo 4 > /proc/sys/vm/page-cluster"
-to see if it makes any difference.
+--- marc.theaimsgroup.com ping statistics ---
+1587 packets transmitted, 0 received, 100% loss, time 1586439ms
 
-Andrea
+0.000u 0.000s 26:36.39 0.0%     0+0k 0+0io 172pf+0w
+
+
+Traceroute didn't look good, too:
+
+/home/nuetzel> time traceroute marc.theaimsgroup.com
+traceroute to marc.theaimsgroup.com (63.238.77.237), 30 hops max, 40 byte 
+packets
+ 1  217.5.98.18 (217.5.98.18)  57 ms  56 ms  57 ms
+ 2  217.5.103.66 (217.5.103.66)  57 ms  56 ms  55 ms
+ 3  NYC-gw14.USA.net.DTAG.DE (62.156.131.138)  138 ms  139 ms  139 ms
+ 4  194.25.6.238 (194.25.6.238)  139 ms  138 ms  140 ms
+ 5  jfk-core-01.inet.qwest.net (205.171.30.13)  138 ms  139 ms  139 ms
+ 6  wdc-core-01.inet.qwest.net (205.171.5.236)  143 ms  144 ms  144 ms
+ 7  dca-core-02.inet.qwest.net (205.171.8.209)  144 ms  145 ms  142 ms
+ 8  atl-core-02.inet.qwest.net (205.171.8.153)  159 ms  160 ms  159 ms
+ 9  tpa-core-03.inet.qwest.net (205.171.5.65)  169 ms  170 ms  169 ms
+10  * * *
+11  208.47.124.146 (208.47.124.146)  184 ms  184 ms  184 ms
+12  fw-dmz.theaimsgroup.com (63.237.12.11)  186 ms  185 ms  186 ms
+13  * * *
+14  * * *
+15  * * *
+16  * * *
+17  * * *
+18  * * *
+19  * * *
+20  * * *
+21  * * *
+22  * * *
+23  * * *
+24  * * *
+25  * * *
+26  * * *
+27  * * *
+28  * * *
+29  * * *
+30  * * *
+0.010u 0.000s 2:56.37 0.0%      0+0k 0+0io 178pf+0w
+
+What's up?
+Or did I missing something?
+
+Latest SuSE 7.3.
+
+Thanks,
+	Dieter
+

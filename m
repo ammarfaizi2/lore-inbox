@@ -1,53 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264507AbUAFPsv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 10:48:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264527AbUAFPsv
+	id S261889AbUAFQEU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 11:04:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbUAFQEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 10:48:51 -0500
-Received: from fw.osdl.org ([65.172.181.6]:41410 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264507AbUAFPsu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 10:48:50 -0500
-Date: Tue, 6 Jan 2004 07:48:37 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@colin2.muc.de>
-cc: Mika Penttil? <mika.penttila@kolumbus.fi>, Andi Kleen <ak@muc.de>,
-       David Hinds <dhinds@sonic.net>, linux-kernel@vger.kernel.org
-Subject: Re: PCI memory allocation bug with CONFIG_HIGHMEM
-In-Reply-To: <20040106153706.GA63471@colin2.muc.de>
-Message-ID: <Pine.LNX.4.58.0401060744240.2653@home.osdl.org>
-References: <1aJdi-7TH-25@gated-at.bofh.it> <m37k054uqu.fsf@averell.firstfloor.org>
- <Pine.LNX.4.58.0401051937510.2653@home.osdl.org> <20040106040546.GA77287@colin2.muc.de>
- <Pine.LNX.4.58.0401052100380.2653@home.osdl.org> <20040106081203.GA44540@colin2.muc.de>
- <3FFA7BB9.1030803@kolumbus.fi> <20040106094442.GB44540@colin2.muc.de>
- <Pine.LNX.4.58.0401060726450.2653@home.osdl.org> <20040106153706.GA63471@colin2.muc.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 6 Jan 2004 11:04:20 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:19600 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261889AbUAFQES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 11:04:18 -0500
+Subject: [PATCH] fix get_jiffies_64 to work on voyager
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Andrew Morton <akpm@osdl.org>, johnstultz@us.ibm.com
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 06 Jan 2004 10:04:07 -0600
+Message-Id: <1073405053.2047.28.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch
 
 
-On Tue, 6 Jan 2004, Andi Kleen wrote:
-> 
-> Anyways, I already implemented reservation for the aperture for the K8
-> driver some time ago. And it's in your tree. But it doesn't help for 
-> finding IO holes because there could be other unmarked hardware lurking
-> there ... Or worse there is just no free space below 4GB.
+ChangeSet@1.1534.5.2, 2003-12-30 15:40:23-08:00, akpm@osdl.org
+  [PATCH] ia32 jiffy wrapping fixes
 
-The "unmarked hardware" is why we have PCI quirks. Look at 
-drivers/pci/quirks.c, and notice how many of the quirks are all about 
-quirk_io_region().  Exactly because there isn't any way for the BIOS to 
-tell us about these things on the IO side.
+Causes the voyager boot to hang.  The problem is this change:
 
-(Actually, there is: PnP-BIOS calls are supposed to give us that
-information. However, not only are the BIOSes buggy and don't give a
-complete list _anyway_, anybody who uses the PnP-BIOS is much more likely
-to just get a kernel oops when the BIOS is buggy and assumes that only
-Windows will call it. So I strongly suggest you not _ever_ use pnp unless
-you absolutely have to).
+--- a/arch/i386/kernel/timers/timer_tsc.c       Tue Jan  6 09:57:34 2004
++++ b/arch/i386/kernel/timers/timer_tsc.c       Tue Jan  6 09:57:34 2004
+@@ -141,7 +140,7 @@
+ #ifndef CONFIG_NUMA
+        if (!use_tsc)
+ #endif
+-               return (unsigned long long)jiffies * (1000000000 / HZ);
++               return (unsigned long long)get_jiffies_64() *
+(1000000000 / HZ);
 
-The same quirks could be done on the MMIO side for northbridges.
+Apart from the fact (that I've whined about before) that this
+sched_clock() function should be one of the timer function pointers, so
+there isn't this CONFIG_NUMA dependence (unless I can also add a
+CONFIG_X86_VOYAGER dependence to it as well), the problem seems to be
+some type of bad resonance between the jiffies_64 update and the
+xtime_lock in get_jiffies_64().  I think this may indicate that HZ needs
+to be reduced to 100 on voyager;  however, there is also no need to get
+the xtime sequence lock every time we do a jiffies_64 read, since the
+only unstable time is when we may be updating both halves of it
+non-atomically.  Thus, we only need the sequence lock when the bottom
+half is zero.  This should improve the fast path of get_jiffies_64() for
+all x86 arch's.
 
-			Linus
+James
+
+===== kernel/time.c 1.18 vs edited =====
+--- 1.18/kernel/time.c	Wed Oct 22 00:09:54 2003
++++ edited/kernel/time.c	Tue Jan  6 09:20:38 2004
+@@ -422,13 +422,20 @@
+ #if (BITS_PER_LONG < 64)
+ u64 get_jiffies_64(void)
+ {
+-	unsigned long seq;
+-	u64 ret;
++	u64 ret = jiffies_64;
+ 
+-	do {
+-		seq = read_seqbegin(&xtime_lock);
++	/* We only have read problems when the lower 32 bits are zero
++	 * indicating that we may be in the process of updating the upper
++	 * 32 bits */
++	while (unlikely((jiffies_64 & 0xffffffffULL) == 0)) {
++		unsigned long seq = read_seqbegin(&xtime_lock);
++		
++		rmb();
+ 		ret = jiffies_64;
+-	} while (read_seqretry(&xtime_lock, seq));
++		rmb();
++		if(!read_seqretry(&xtime_lock, seq))
++			break;
++	}
+ 	return ret;
+ }
+ 
+ 
+

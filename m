@@ -1,100 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262029AbUB2KLb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 05:11:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbUB2KLb
+	id S262028AbUB2KG0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 05:06:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbUB2KG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 05:11:31 -0500
-Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:46859 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S262029AbUB2KL2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 05:11:28 -0500
-Date: Sun, 29 Feb 2004 11:11:39 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: sensors@Stimpy.netroedge.com, linux-kernel@vger.kernel.org, greg@kroah.com,
-       jamagallon@able.es, PrakashKC@gmx.de, akpm@osdl.org
-Subject: Re: 2.6.3-mm4
-Message-Id: <20040229111139.25d69d8d.khali@linux-fr.org>
-In-Reply-To: <40419A15.8030108@matchmail.com>
-References: <20040225185536.57b56716.akpm@osdl.org>
-	<403E82D8.3030209@gmx.de>
-	<20040225185536.57b56716.akpm@osdl.org>
-	<20040227001115.GA2627@werewolf.able.es>
-	<20040227004602.GB15075@kroah.com>
-	<1077870909.403f013dd04b6@imp.gcu.info>
-	<403F898A.2000801@matchmail.com>
-	<20040227205922.6405eff7.khali@linux-fr.org>
-	<40419A15.8030108@matchmail.com>
-Reply-To: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
-X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 29 Feb 2004 05:06:26 -0500
+Received: from mail-in.m-online.net ([62.245.150.237]:33962 "EHLO
+	mail-in.m-online.net") by vger.kernel.org with ESMTP
+	id S262028AbUB2KGY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 05:06:24 -0500
+Subject: [TRIVIAL] fixed indention in Documentation/filesystems/procfs.txt
+From: Florian Huber <florian.huber@mnet-online.de>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-GuR7YfNtOUJkHxfVlb2s"
+Message-Id: <1078049181.3683.7.camel@suprafluid>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 29 Feb 2004 11:06:21 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Working from the premise that there is a current (old-style with
-> mostly chip dependent code), libsensors has 2.4 /proc support, and
-> each specific release supports one of 2.6.[0123]...
 
-Correct, that's mostly that.
+--=-GuR7YfNtOUJkHxfVlb2s
+Content-Type: multipart/mixed; boundary="=-rcDJxiSAwr8g+aBEtqQV"
 
-> I'm glad I'm not the maintainer of libsensors for a distribution. 
-> Since you have effectively pushed the compatibility work to them. 
-> Just think of angry customer complaints about this. :(
 
-Again, this is a temporary situation. I'm struggling for a better
-future, at the cost of a slightly chaotic present, admittedly.
+--=-rcDJxiSAwr8g+aBEtqQV
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-That said, I think that most packaging systems support that kind of
-dependency. Since we clearly advertise the correct combinations of
-lm_sensors and Linux kernel, they should be able to handle it quite
-nicely (although I admit it has to represent some work for them).
+Just a wrong indention is stumbled across while reading the docs.
 
-The compatibility problems brought by libsensors are not new. From the
-very beginning, each new version of lm_sensors had kernel modules,
-libsensors and sensors program that mostly only worked well together. It
-wasn't to the point of what we are experiencing today, of course,
-because things were mostly (but not always) backward compatible. Still,
-supporting each and every new driver or "kind" of chip would require
-upgrading to new libsensors and sensors program. This is precisely what
-I want to avoid with my proposal.
+--=-rcDJxiSAwr8g+aBEtqQV
+Content-Disposition: attachment; filename=procfs-doc.patch
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=procfs-doc.patch; charset=ANSI_X3.4-1968
 
-> Since there is going to be an effective libsensors-new library with
-> chip independent code, I suggest you put the compat code into the old
-> library.
+ZGlmZiAtTnJ1IGxpbnV4LTIuNi4zLW1tMy9Eb2N1bWVudGF0aW9uL2ZpbGVzeXN0ZW1zL3Byb2Mu
+dHh0IGxpbnV4LTIuNi4zLW1tMy1maXhlZC9Eb2N1bWVudGF0aW9uL2ZpbGVzeXN0ZW1zL3Byb2Mu
+dHh0DQotLS0gbGludXgtMi42LjMtbW0zL0RvY3VtZW50YXRpb24vZmlsZXN5c3RlbXMvcHJvYy50
+eHQJMjAwNC0wMi0yNCAyMTowMDo0Ny40MTQxNDk1MjAgKzAxMDANCisrKyBsaW51eC0yLjYuMy1t
+bTMtZml4ZWQvRG9jdW1lbnRhdGlvbi9maWxlc3lzdGVtcy9wcm9jLnR4dAkyMDA0LTAyLTI5IDEw
+OjUwOjIyLjQ0NDAwNDE3NiArMDEwMA0KQEAgLTQzMCw3ICs0MzAsNyBAQA0KICAgICAgICBEaXJ0
+eTogTWVtb3J5IHdoaWNoIGlzIHdhaXRpbmcgdG8gZ2V0IHdyaXR0ZW4gYmFjayB0byB0aGUgZGlz
+aw0KICAgIFdyaXRlYmFjazogTWVtb3J5IHdoaWNoIGlzIGFjdGl2ZWx5IGJlaW5nIHdyaXR0ZW4g
+YmFjayB0byB0aGUgZGlzaw0KICAgICAgIE1hcHBlZDogZmlsZXMgd2hpY2ggaGF2ZSBiZWVuIG1t
+YXBlZCwgc3VjaCBhcyBsaWJyYXJpZXMNCi0gICAgICAgICAgICAgIFNsYWI6IGluLWtlcm5lbCBk
+YXRhIHN0cnVjdHVyZXMgY2FjaGUNCisgICAgICAgIFNsYWI6IGluLWtlcm5lbCBkYXRhIHN0cnVj
+dHVyZXMgY2FjaGUNCiBDb21taXR0ZWRfQVM6IEFuIGVzdGltYXRlIG9mIGhvdyBtdWNoIFJBTSB5
+b3Ugd291bGQgbmVlZCB0byBtYWtlIGENCiAgICAgICAgICAgICAgIDk5Ljk5JSBndWFyYW50ZWUg
+dGhhdCB0aGVyZSBuZXZlciBpcyBPT00gKG91dCBvZiBtZW1vcnkpDQogICAgICAgICAgICAgICBm
+b3IgdGhpcyB3b3JrbG9hZC4gTm9ybWFsbHkgdGhlIGtlcm5lbCB3aWxsIG92ZXJjb21taXQNCg==
 
-Note that there is no effective plan for such a library as of today. I
-am "simply" defining an interface such that writing such a library will
-be possible. I don't think I have the skills to write it at the moment,
-but I have no doubt that people will do (I'm in particular thinking to
-the gkrellm folks who neved liked the old library and wouldn't use it at
-all, at the cost of frequent compatibility issues). That said, if nobody
-seems to go on working on it within a reasonable amount of time, it's
-likely that I will learn what I need to know to do it myself, since I'm
-so interested in seeing it exist.
+--=-rcDJxiSAwr8g+aBEtqQV--
 
-I do not plan to spend time to provide compatibility with early 2.6
-kernels. First, because it would bloat the current libsensors even more.
-Second, because I believe that these kernels will stop being used within
-a few months or even weeks.
+--=-GuR7YfNtOUJkHxfVlb2s
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Distributions or individuals running 2.6 kernels these days know pretty
-well that things are not fully stabilized yet. Granted, the sensors area
-seems to be the more unstable realm of them all at the moment. But I
-just don't think that people need to have, say, a 2.6.1 and a 2.6.3
-kernel running perfectly on their system. We never had any request in
-that direction so far. What they most likely want is to have a 2.4 and a
-2.6 kernel working, and we do provide this compatibility.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-If you really believe that we have to support all early 2.6 kernel
-releases and are able to write a not-too-bloated patch for libsensors
-that does this, we'll consider applying it. But it's unlikely that any
-of us will want to spend time on such a patch.
+iD8DBQBAQbmdTrkbHdnVDqIRAkIHAJ9xnF4YjQFSi/tngPE06hZLDx7qGQCfcU73
+BWdmIscluuB/NqEDEEbKxQc=
+=kNaa
+-----END PGP SIGNATURE-----
 
-Thanks.
+--=-GuR7YfNtOUJkHxfVlb2s--
 
--- 
-Jean Delvare
-http://www.ensicaen.ismra.fr/~delvare/

@@ -1,76 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264912AbTLKOEM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 09:04:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264953AbTLKOEM
+	id S264956AbTLKOLK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 09:11:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264960AbTLKOLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 09:04:12 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:49360 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264912AbTLKOEK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 09:04:10 -0500
-Date: Thu, 11 Dec 2003 15:03:23 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Rob Landley <rob@landley.net>
-cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
-       Kendall Bennett <KendallB@scitechsoft.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux GPL and binary module exception clause?
-In-Reply-To: <200312110132.06286.rob@landley.net>
-Message-ID: <Pine.GSO.4.21.0312111439350.7575-100000@waterleaf.sonytel.be>
+	Thu, 11 Dec 2003 09:11:10 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:4390 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S264956AbTLKOLG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 09:11:06 -0500
+Date: Thu, 11 Dec 2003 14:11:07 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Willy Tarreau <willy@w.ods.org>
+cc: dual_bereta_r0x <dual_bereta_r0x@arenanetwork.com.br>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.23 + tmpfs: where's my mem?!
+In-Reply-To: <20031211133124.GA18161@alpha.home.local>
+Message-ID: <Pine.LNX.4.44.0312111351520.1386-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Dec 2003, Rob Landley wrote:
-> On Wednesday 10 December 2003 10:34, Larry McVoy wrote:
-> > On Wed, Dec 10, 2003 at 08:21:52AM -0800, Linus Torvalds wrote:
-> > > There's a fundamental difference between "plugins" and "kernel modules":
-> > > intent.
-> >
-> > Which is?  How is it that you can spend a page of text saying a judge
-> > doesn't care about technicalities and then base the rest of your argument
-> > on the distinction between a "plugin" and a "kernel module"?
+On Thu, 11 Dec 2003, Willy Tarreau wrote:
+
+> On Thu, Dec 11, 2003 at 10:54:28AM -0200, dual_bereta_r0x wrote:
+> > root@hquest:/tmp# cat /etc/slackware-version
+> > Slackware 9.1.0
+> > root@hquest:/tmp# uname -a
+> > Linux hquest 2.4.23 #6 Sat Nov 29 22:47:03 PST 2003 i686 unknown unknown 
+> > GNU/Linux
+> > root@hquest:/tmp# df /tmp
+> > Filesystem           1K-blocks      Used Available Use% Mounted on
+> > tmpfs                   124024    112388     11636  91% /tmp
+> > root@hquest:/tmp# du -s .
+> > 32      .
+> > root@hquest:/tmp# _
 > 
-> Because there are distinctions that aren't technicalities?
-> 
-> Strange but true...
+> maybe you have a process which creates a temporary file in /tmp, and deletes
+> the entry while keeping the fd open. vmware 1.2 did that, and probably more
+> recent ones still do. It's a very clever way to automatically remove temp
+> files when the process terminates.
 
-Let's take a fresh look, from a historical perspective...
+That's right, and would explain why du may show 32 even if ls -alR
+shows nothing at all (what does ls -alR /tmp show?).
 
-We had a GPLed kernel with (lots of) GPLed drivers. Even too many drivers,
-since a kernel with all drivers enabled is too large to fit in 640 KiB! (of
-course we elitist m68k users didn't suffer from that limitation ;-)
+But the strange thing is that df's Used does not match du: they should
+be identical, though arrived at from different directions.  I've not
+seen that, and have no idea what's going on: it's as if a subtree of
+/tmp has become detached (a non-empty directory removed).
 
-So someone solved this problem and found a way to reduce the kernel image size
-below the magical limit by moving driver code to `loadable kernel modules'. A
-nice side-effect was that people (read: distributors) now no longer needed a
-bloated kernel that took ages to start during device probe. They could provide
-a small kernel instead, with separate driver modules for all possible hardware,
-to be loaded at boot time or on demand.
+What usage led up to this?  What does /proc/meminfo show?
+How many records out does "dd if=/dev/zero of=/tmp/zero bs=1k"
+manage before /tmp fills up (11620 would fit df's Available,
+the remaining 16k being metadata).
 
-Hence technically loadable kernel modules are just a work-around to allow
-larger kernels, and all loadable kernel code should be treated the same as
-in-kernel code. So they are clearly derived from the kernel.
-
-Later people started to realize that:
-  (a) They can build out-of-tree modules, i.e. drivers that can't even be built
-      in,
-  (b) They can build out-of-tree modules and make them non-GPL.
-
-And (b) is where the problem started...
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Hugh
 

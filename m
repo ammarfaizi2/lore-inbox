@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270220AbRHGOVh>; Tue, 7 Aug 2001 10:21:37 -0400
+	id <S270216AbRHGOXh>; Tue, 7 Aug 2001 10:23:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270216AbRHGOVS>; Tue, 7 Aug 2001 10:21:18 -0400
-Received: from ns3.keyaccesstech.com ([209.47.245.85]:58631 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S270218AbRHGOVG>; Tue, 7 Aug 2001 10:21:06 -0400
-Date: Tue, 7 Aug 2001 10:21:13 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: Encrypted Swap
-In-Reply-To: <NDBBLFLJADKDMBPPNBALGEEJEPAA.kkrieser_list@footballmail.com>
-Message-ID: <Pine.LNX.4.33.0108071019150.14052-100000@terbidium.openservices.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+	id <S270215AbRHGOX1>; Tue, 7 Aug 2001 10:23:27 -0400
+Received: from chunnel.redhat.com ([199.183.24.220]:29428 "EHLO
+	dukat.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S270216AbRHGOXP>; Tue, 7 Aug 2001 10:23:15 -0400
+Date: Tue, 7 Aug 2001 15:23:18 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>,
+        "Stephen C. Tweedie" <sct@redhat.com>, Chris Mason <mason@suse.com>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC] using writepage to start io
+Message-ID: <20010807152318.H4036@redhat.com>
+In-Reply-To: <01080623182601.01864@starship> <5.1.0.14.2.20010807123805.027f19a0@pop.cus.cam.ac.uk> <01080715292606.02365@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01080715292606.02365@starship>; from phillips@bonn-fries.net on Tue, Aug 07, 2001 at 03:29:26PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Aug 2001, Kevin Krieser wrote:
+Hi,
 
-> I guess you don't want to run a laptop computer, or even on a good UPS,
-> since you could just steal the UPS too, and leave the computer running :)
+On Tue, Aug 07, 2001 at 03:29:26PM +0200, Daniel Phillips wrote:
 
-**BEEEEP** *Beeep* *beep*
+>   Ext3 has its own writeback daemon
 
-"Uh oh, someone's stolen the computer again!"
+Ext3 has a daemon to schedule commits to the journal, but it uses the
+normal IO scheduler for unforced writebacks.
 
-"Damn, that's the THIRD time this week!"
-
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
-
+Cheers,
+ Stephen

@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262932AbUGFDwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263001AbUGFEAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262932AbUGFDwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 23:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbUGFDwQ
+	id S263001AbUGFEAV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 00:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263003AbUGFEAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 23:52:16 -0400
-Received: from mx2.magma.ca ([206.191.0.250]:8839 "EHLO mx2.magma.ca")
-	by vger.kernel.org with ESMTP id S262932AbUGFDwO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 23:52:14 -0400
-Subject: Re: [PATCH] gcc 3.5 fixes
-From: Jesse Stockall <stockall@magma.ca>
-To: Mark Adler <madler@alumni.caltech.edu>
-Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1C37F9C6-CEEA-11D8-B083-000A95820F30@alumni.caltech.edu>
-References: <2e9is-5YT-1@gated-at.bofh.it> <2e9iu-5YT-5@gated-at.bofh.it>
-	 <2ecq2-80i-1@gated-at.bofh.it>
-	 <7ab39013.0407042237.40ea9035@posting.google.com>
-	 <20040705064010.C9BFB5F7AA@attila.bofh.it>
-	 <9FC7DA98-CEA3-11D8-B083-000A95820F30@alumni.caltech.edu>
-	 <20040705144436.62544a3d.pj@sgi.com>
-	 <1C37F9C6-CEEA-11D8-B083-000A95820F30@alumni.caltech.edu>
-Content-Type: text/plain
-Message-Id: <1089085868.8452.2.camel@localhost>
+	Tue, 6 Jul 2004 00:00:21 -0400
+Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:39340 "HELO
+	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263001AbUGFEAS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 00:00:18 -0400
+Date: Mon, 5 Jul 2004 21:00:15 -0700
+From: Sean Champ <gimbal@sdf.lonestar.org>
+To: Len Brown <len.brown@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: problems with CF card reader, kernel 2.6.7
+Message-ID: <20040706040015.GA5201@tokamak.homeunix.net>
+Mail-Followup-To: Sean Champ <gimbal@sdf.lonestar.org>,
+	Len Brown <len.brown@intel.com>, linux-kernel@vger.kernel.org
+References: <A6974D8E5F98D511BB910002A50A6647615FF3FF@hdsmsx403.hd.intel.com> <1089059503.15671.79.camel@dhcppc4>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 05 Jul 2004 23:51:08 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1089059503.15671.79.camel@dhcppc4>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-07-05 at 21:16, Mark Adler wrote:
+On Mon, Jul 05, 2004 at 04:31:44PM -0400, Len Brown wrote:
+> On Wed, 2004-06-30 at 06:16, Sean Champ wrote:
 > 
-> It's not about the copyright.  I like the string kept in the object 
-> code so that I and others can find out where the code is used and what 
-> version is in use.  This in fact turned out to be useful when a 
-> security vulnerability was found in versions 1.1.3 and earlier and a 
-> script could search for executables with the offending code.
+> > 
+> > Jun 28 21:17:02 tokamak kernel: ACPI disabled because your bios is
+> > from 1995 and too old
+> > {...}
+> 
+> you've got integrated USB on a system from 1995?
+> 
 > 
 
-<-- snip -->
+nope; it's about from 1999 -- K6-II box, something pieced-together by
+Gateway, back when.
 
-> " inflate 1.1.3 Copyright 1995-1998 Mark Adler "
-
-Did I miss something or are you saying that the version in the kernel
-has a security vulnerability?
-
-Jesse
-
--- 
-Jesse Stockall <stockall@magma.ca>
-
+--
+sean

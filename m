@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129624AbRCPC5q>; Thu, 15 Mar 2001 21:57:46 -0500
+	id <S129242AbRCPAeq>; Thu, 15 Mar 2001 19:34:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129679AbRCPC5g>; Thu, 15 Mar 2001 21:57:36 -0500
-Received: from baghira.han.de ([212.63.63.2]:13836 "EHLO baghira.han.de")
-	by vger.kernel.org with ESMTP id <S129624AbRCPC52>;
-	Thu, 15 Mar 2001 21:57:28 -0500
-Message-ID: <20010316033712.A11658@ichabod.han.de>
-Date: Fri, 16 Mar 2001 03:37:12 +0100
-From: Michail Brzitwa <michail@brzitwa.de>
+	id <S129250AbRCPAeg>; Thu, 15 Mar 2001 19:34:36 -0500
+Received: from isc4.tn.cornell.edu ([128.84.242.21]:31409 "EHLO
+	isc4.tn.cornell.edu") by vger.kernel.org with ESMTP
+	id <S129242AbRCPAed>; Thu, 15 Mar 2001 19:34:33 -0500
+Date: Thu, 15 Mar 2001 19:33:24 -0500 (EST)
+From: "Donald J. Barry" <don@astro.cornell.edu>
+Message-Id: <200103160033.TAA09549@isc4.tn.cornell.edu>
 To: linux-kernel@vger.kernel.org
-Cc: Andries.Brouwer@cwi.nl
-Subject: Re: [util-linux] Re: magic device renumbering was -- Re: Linux 2.4.2ac20
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.91.1i
-In-Reply-To: <mng==UTC200103152331.AAA2159588.aeb@vlet.cwi.nl>
+Subject: Write throttling problem in 2.4.2?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <mng==UTC200103152331.AAA2159588.aeb@vlet.cwi.nl> you wrote:
-> The real problem is that our disks usually do not have a volume label.
-> Outside of all file systems.
-> The "signatures" that we rely on today are located in different places,
-> so that a filesystem can have several valid signatures at the same time.
-> And we first know where to look when we know the type already.
->
-> Design a Linux partition table format, where a partition descriptor
-> has fields start, end, fstype, fslabel, and the whole disk has a vollabel.
-> Put it in sector 0-N for an all-Linux disk, and in sectors pointed at
-> by a classical DOS-type partition table entry when the disk is shared.
 
-I don't understand that. Do you propose something like *BSD or Solaris
-disklabels? In that case a whole new set of user utilities would be
-needed to create your new tables as well as maintaining the old style
-partition tables.
+Dear Developers:
 
-The process of copying or moving fs around disks seems to be quite common
-as tools like partition magic or parted suggest. Your idea would make
-that process more difficult and less user-friendly. It should imho always
-be simple to backup an fs to tape from a dying disk and restore it to
-a new one without losing the label etc.
+More on my 2.4.2 oopses concerning the "Unable to handle kernel paging
+request"
 
-Perhaps putting this kind of information into a generalized start sector
-for all Linux fs would be a better idea (is that what you meant?). Copying
-an fs would again be as easy as using dd or cp. Of course this means
-that most Linux fs types including swap partitions should leave this
-start sector alone. A common mkfs would create that leading block after
-the mkfs.<fs type> successfully created the fs meta-contents.
+These only take place during ENORMOUS write pressure, and I'm curious
+as to whether write throttling is an issue here.  Since this is on 
+a reiserfs atop lvm, some of the previously conceived solutions 
+may not apply.  
 
-It would be optimal imho if the partition table entry contains the start
-sector and size only, and all other information like type, uuid, label
-etc. is within the fs disk space. No out-of-band fs information anymore.
+It's not a major problem, as it only occurs I can start a tars transferring 
+tens of gigabytes.  But if I also then launch a task doing enormous activity 
+on the vfs, such as a simultaneous "du -s ." on the directories in 
+question, I can pretty reliably create the kernel paging fault.
 
-The disk volume label should be located outside all fs as you mentioned
-but separated from the actual fs labels.
--- 
-Michail Brzitwa           <michail@brzitwa.de>            +49-511-343215
+Cheers,
+
+Don Barry
+Cornell Astronomy
+
+-- 2.4.2 vanilla kernel + Brown's NFS patches, pretty minimal otherwise
+-- problem first seen on 256M ram, still persists at 392M ram
+-- LVM atop hda/hdb (60g) (motherboard via kt133 chipset) plus promise ultra66
+   controller driving 80 gig drive on hde
+
+
+
+
+

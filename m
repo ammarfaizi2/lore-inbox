@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbUCASd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 13:33:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbUCASd1
+	id S261396AbUCASgS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 13:36:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbUCASgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 13:33:27 -0500
-Received: from gprs159-101.eurotel.cz ([160.218.159.101]:48768 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261397AbUCASdZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 13:33:25 -0500
-Date: Mon, 1 Mar 2004 19:33:10 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Sid Boyce <sboyce@blueyonder.co.uk>
-Cc: linux-kernel@vger.kernel.org, linux-laptop@mobilix.org
-Subject: Re: Acer Aspire 1501LCe
-Message-ID: <20040301183310.GA674@elf.ucw.cz>
-References: <40423148.6050600@blueyonder.co.uk>
+	Mon, 1 Mar 2004 13:36:18 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:59559 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S261396AbUCASgQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 13:36:16 -0500
+Date: Mon, 1 Mar 2004 18:34:41 +0000
+From: Dave Jones <davej@redhat.com>
+To: Christoph Terhechte <ct@fdk-berlin.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.2: drm:drm_init Cannot initialize the agpgart module
+Message-ID: <20040301183441.GA29415@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Christoph Terhechte <ct@fdk-berlin.de>,
+	linux-kernel@vger.kernel.org
+References: <57977.212.184.83.69.1078165110.squirrel@mail.fdk-filmhaus.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40423148.6050600@blueyonder.co.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <57977.212.184.83.69.1078165110.squirrel@mail.fdk-filmhaus.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, Mar 01, 2004 at 07:18:30PM +0100, Christoph Terhechte wrote:
 
-> Apologies to kernel mailing list. This Athlon-64 laptop is available 
-> here in the UK at quite an attractive price, sold with Windows XP Home, 
-> so fit for repartitioning as a Linux only box if an empty HD isn't an 
-> option. I wonder if anyone has Linux up and running on it or any other 
-> Althon-64 laptop.
+ > There was a hint on this list that "intel_agp" should be loaded, too. I
+ > have a VIA based board, so I tried "via_agp". It loads alright, but the
+ > outcame is the same (and it was unnecessary under 2.4.22 anyway).
+ > 
+ > Here's my system's lspci output:
+ > 
+ > 00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 [IGD4-1P] System
+ > Controller (rev 13)
+ > 00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 [IGD4-1P] AGP Bridge
+ > 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South]
 
-I'm running off athlon-64 notebook, so yes, it works.... eMachines
-something seem quite popular. They have broken powernow tables, but
-that should be fixable by powernow-k8-acpi driver.
+You have a VIA southbridge, but an AMD north bridge (where agpgart lives)
+Try modprobe amd-k7-agp
 
-								Pavel
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+		Dave

@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbVCRJBJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVCRJDX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261508AbVCRJBJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 04:01:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVCRJBI
+	id S261517AbVCRJDX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 04:03:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVCRJDX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 04:01:08 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:32262 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S261508AbVCRJAz (ORCPT
+	Fri, 18 Mar 2005 04:03:23 -0500
+Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:44438 "EHLO mta2.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S261517AbVCRJCg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 04:00:55 -0500
-Date: Fri, 18 Mar 2005 10:00:49 +0100
-From: Stelian Pop <stelian@popies.net>
-To: lm@bitmover.com, andersen@codepoet.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: BKCVS broken ?
-Message-ID: <20050318090047.GA12314@sd291.sivit.org>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>, lm@bitmover.com,
-	andersen@codepoet.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050317144522.GK22936@hottah.alcove-fr> <20050318001053.GA23358@bitmover.com> <20050318055040.GA16780@codepoet.org> <20050318063853.GA30603@bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050318063853.GA30603@bitmover.com>
-User-Agent: Mutt/1.5.6+20040523i
+	Fri, 18 Mar 2005 04:02:36 -0500
+In-Reply-To: <16954.7656.838769.483631@cargo.ozlabs.ibm.com>
+References: <E1DBX0o-0000sV-00@mta1.cl.cam.ac.uk> <16952.41973.751326.592933@cargo.ozlabs.ibm.com> <200503161406.01788.jbarnes@engr.sgi.com> <29ab1884ee5724e9efcfe43f14d13376@cl.cam.ac.uk> <16953.20279.77584.501222@cargo.ozlabs.ibm.com> <1111067594.1213.27.camel@localhost.localdomain> <16954.7656.838769.483631@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <03425ef53cbc0ed3d82b5a127f892180@cl.cam.ac.uk>
+Content-Transfer-Encoding: 7bit
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, akpm@osdl.org, Ian.Pratt@cl.cam.ac.uk,
+       riel@redhat.com, Alan Cox <alan@lxorguk.ukuu.org.uk>, kurt@garloff.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christian.Limpach@cl.cam.ac.uk
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Subject: Re: [PATCH] Xen/i386 cleanups - AGP bus/phys cleanups
+Date: Fri, 18 Mar 2005 09:05:06 +0000
+To: Paul Mackerras <paulus@samba.org>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 17, 2005 at 10:38:53PM -0800, Larry McVoy wrote:
 
-> Hey, it's open source, I'm hoping that people will take that code and
-> evolve it do whatever they need.  We're willing to do what we can on
-> this end if people need protocol changes to support new features, 
-> time permitting.  Think of that code as a prototype.  It's really
-> simple, you can hack it trivially.
+On 18 Mar 2005, at 00:16, Paul Mackerras wrote:
 
-	------------
-	if (strncmp("bk://", p, 5)) return (1);
-	------------
+> That sounds like a good way to make AGP accesses slower. :)
+>
+> Seriously, given that AGP is a technology that is being superseded by
+> PCI Express, I think it's reasonable to look at the range of current
+> implementations to see what we have to cope with.  So I don't think
+> it's worth worrying too much about the possibility of GARTs that go
+> through the IOMMU.  However, the idea of having phys_to_agp/agp_to_phys
+> (or virt_to_agp/agp_to_virt) sounds like it wouldn't be too much
+> effort, if it would help Xen.
 
-Any chance this could be made to work over http ?
+I'll post a patch for this next week. Thanks for your patience so far!
 
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>    
+  -- Keir
+

@@ -1,47 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263870AbTLJSMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 13:12:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263883AbTLJSMJ
+	id S263840AbTLJSW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 13:22:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263891AbTLJSW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 13:12:09 -0500
-Received: from dodge.jordet.nu ([217.13.8.142]:24478 "EHLO dodge.jordet.nu")
-	by vger.kernel.org with ESMTP id S263870AbTLJSMG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 13:12:06 -0500
-Subject: Re: PPP over ttyUSB (visor.o, Treo)
-From: Stian Jordet <liste@jordet.nu>
-To: Jan Kasprzak <kas@informatics.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20031210165540.B26394@fi.muni.cz>
-References: <20031210165540.B26394@fi.muni.cz>
-Content-Type: text/plain
-Message-Id: <1071079933.4348.0.camel@chevrolet.hybel>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 10 Dec 2003 19:12:14 +0100
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Dec 2003 13:22:27 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:33291
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S263840AbTLJSWU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 13:22:20 -0500
+Date: Wed, 10 Dec 2003 10:16:37 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
+       Kendall Bennett <KendallB@scitechsoft.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+In-Reply-To: <Pine.LNX.4.58.0312100714390.29676@home.osdl.org>
+Message-ID: <Pine.LNX.4.10.10312101011530.3805-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ons, 10.12.2003 kl. 16.55 skrev Jan Kasprzak:
-> 	Hello @subscribers,
-> 
-> does anybody have working PPP over ttyUSB device in 2.6 kernels?
-> When I connect the Handspring Treo to the 2.6.0-test11 machine,
-> I am able to synchronize it, but not to run PPP to it (it can work
-> as modem). I am able to dial the modem connection using AT commands,
-> but I am not able to run PPP over it. Firstly the chat(1) program
-> complains about not being able to get terminal attributes (TCGETATTR,
-> from strace output), and then pppd(8) complains about not being able
-> to set terminal attributes (TCSETATTR from the strace output).
-> In 2.4 the same setup works OK.
-> 
-> 	Any hints? (Kernel config and other details are available
-> on request). Thanks,
 
-Try to run pppd with "nodetach". Don't ask me why, but it works for me.
+Linus,
 
-Best regards,
-Stian
+Thanks for the clarification !
+
+So as I suspected and validated via other means, the content of the
+headers are not an issue as it relates to GPL as many claim.
+
+Well I have gotten side requests that I was late in joining the thread
+party and I am distracting you from patch merging.  This is a fair point,
+and we can restart after 2.6.0 is out.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Wed, 10 Dec 2003, Linus Torvalds wrote:
+
+> 
+> 
+> On Wed, 10 Dec 2003, Andre Hedrick wrote:
+> >
+> > So why not do the removal of the inlines to real .c files and quit playing
+> > games with bogus attempts to bleed taint into the inprotectable api?
+> 
+> The inlines have nothing to do with _anything_.
+> 
+> Trust me, a federal judge couldn't care less about some very esoteric
+> technical detail. I don't know who brought up inline functions, but they
+> aren't what would force the GPL.
+> 
+> What has meaning for "derived work" is whether it stands on its own or
+> not, and how tightly integrated it is. If something works with just one
+> particular version of the kernel - or depends on things like whether the
+> kernel was compiled with certain options etc - then it pretty clearly is
+> very tightly integrated.
+> 
+> Don't think that copyright would depend on any technicalities.
+> 
+> 		Linus
+> 
 

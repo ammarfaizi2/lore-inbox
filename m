@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266121AbUGOGNT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266081AbUGOGNK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266121AbUGOGNT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 02:13:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266117AbUGOGNT
+	id S266081AbUGOGNK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 02:13:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266114AbUGOGNJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 02:13:19 -0400
-Received: from holomorphy.com ([207.189.100.168]:41634 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266114AbUGOGNO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 02:13:14 -0400
-Date: Wed, 14 Jul 2004 23:12:54 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       mikpe@csd.uu.se, B.Zolnierkiewicz@elka.pw.edu.pl, dgilbert@interlog.com,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH][2.6.8-rc1-mm1] drivers/scsi/sg.c gcc341 inlining fix
-Message-ID: <20040715061254.GP3411@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
-	Jeff Garzik <jgarzik@pobox.com>, mikpe@csd.uu.se,
-	B.Zolnierkiewicz@elka.pw.edu.pl, dgilbert@interlog.com,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <200407141751.i6EHprhf009045@harpo.it.uu.se> <40F57D14.9030005@pobox.com> <20040714143508.3dc25d58.akpm@osdl.org> <20040715055655.GE9383@suse.de>
-Mime-Version: 1.0
+	Thu, 15 Jul 2004 02:13:09 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:35978 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S266081AbUGOGNF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jul 2004 02:13:05 -0400
+To: fastboot@osdl.org
+cc: <linux-kernel@vger.kernel.org>
+Subject: [ANNOUNCE] [PATCH] 2.6.8-rc1-kexec1  (ppc & x86)
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 15 Jul 2004 00:12:52 -0600
+Message-ID: <m1llhlajdn.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040715055655.GE9383@suse.de>
-User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> wrote:
->>> Or you could just call it "gcc is dumb" rather than a compiler bug.
+I finally found some time to work on kexec again.
+I have taken the time to break the patches apart again, because
+with everything all in one patch things get unmaintainable.
 
-On Wed, Jul 14 2004, Andrew Morton wrote:
-[... code snippet ...]
->> is pretty dumb too.  I don't see any harm if this compiler feature/problem
->> pushes us to fix the above in the obvious way.
+But I have also lumped everything together in one big patch to make testing
+easier.
 
-On Thu, Jul 15, 2004 at 07:56:56AM +0200, Jens Axboe wrote:
-> Excuse my ignorance, but why on earth would that be dumb? Looks
-> perfectly legit to me, and I have to agree with Jeff that the compiler
-> is exceedingly dumb if it fails to inline that case.
+While doing this I found a bug where I was not putting IOAPIC into
+virtual wire mode where appropriate.  This allows kexec to work on Opterons
+and other affected systems.
 
-Enter gcc...
-
-Maybe "the obvious way" is sending a someone off to whip gcc into shape,
-or possibly reporting it as a gcc problem.
+The files are available at:
+lynx http://www.xmission.com/~ebiederm/files/kexec/2.6.8-rc1-kexec1
 
 
--- wli
+The first hunk of patches are essentially generic fixes to the boot
+process.  That should be safe to apply in general.
+
+i8259-shutdown.patch
+apic-shutdown.patch
+reboot-on-bsp.patch
+ioapic-virtwire.patch
+
+
+x86 does not like tlb flush or other generic code against the init_mm
+this allows those to proceed.  I think long term I want to get away from
+using init_mm, to many architectures make weird assumptions.
+
+flush-init-mm.patch
+
+The next are the kexec patches themselves.  The generic code and then
+the architecture specific code.
+
+kexec-generic.patch
+i386-kexec.patch
+ppc-gc-kexec.patch
+
+Have fun with it, and please report what breaks.
+
+Eric
+
+
+

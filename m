@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278632AbRJ1SLZ>; Sun, 28 Oct 2001 13:11:25 -0500
+	id <S278629AbRJ1SPf>; Sun, 28 Oct 2001 13:15:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278617AbRJ1SLP>; Sun, 28 Oct 2001 13:11:15 -0500
-Received: from relay-1v.club-internet.fr ([194.158.96.112]:27802 "HELO
-	relay-1v.club-internet.fr") by vger.kernel.org with SMTP
-	id <S278629AbRJ1SK5>; Sun, 28 Oct 2001 13:10:57 -0500
-Message-ID: <3BDC4A55.6080500@freesurf.fr>
-Date: Sun, 28 Oct 2001 19:11:33 +0100
-From: Kilobug <kilobug@freesurf.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011022
-X-Accept-Language: fr, en, fr-fr
+	id <S278617AbRJ1SPZ>; Sun, 28 Oct 2001 13:15:25 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43789 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S278629AbRJ1SPQ>; Sun, 28 Oct 2001 13:15:16 -0500
+Subject: Re: xmm2 - monitor Linux MM active/inactive lists graphically
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Sun, 28 Oct 2001 18:22:00 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        zlatko.calusic@iskon.hr (Zlatko Calusic), axboe@suse.de (Jens Axboe),
+        marcelo@conectiva.com.br (Marcelo Tosatti), linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org (lkml)
+In-Reply-To: <Pine.LNX.4.33.0110280945150.7360-100000@penguin.transmeta.com> from "Linus Torvalds" at Oct 28, 2001 09:59:14 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: lkm <linux-kernel@vger.kernel.org>
-Subject: Re: Radeon Frame Buffer
-In-Reply-To: <1004210340.4537.20.camel@tiger>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15xuZM-0008W5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've problems too with the Radeon frame buffer. When I type shell
-commands, the screen become weird (some pixel lines seems to move, ...);
-I had to use ^L very often, or less it's totally unreadable. (I'm using
--ac kernels for ext3fs).
+> In contrast, the -ac logic says roughly "Who the hell cares if the driver
+> can merge requests or not, we can just give it thousands of small requests
+> instead, and cap the total number of _sectors_ instead of capping the
+> total number of requests earlier"
 
-I've a Radoen 64 DDR with an AMD 761 AGP chipset.
-If someone has experimental pacthes and need beta-testing, feel free to
-mail me the patch.
+If you think about it the major resource constraint is sectors - or another
+way to think of it "number of pinned pages the VM cannot rescue until the
+I/O is done". We also have many devices where the latency is horribly
+important - IDE is one because it lacks sensible overlapping I/O. I'm less
+sure what the latency trade offs are. Less commands means less turnarounds
+so there is counterbalance.
 
-Thanx for your great work
+In the case of IDE the -ac tree will do basically the same merging - the
+limitations on IDE DMA are pretty reasonable. DMA IDE has scatter gather
+tables and is actually smarter than many older scsi controllers. The IDE
+layer supports up to 128 chunks of up to just under 64Kb (should be 64K
+but some chipsets get 64K = 0 wrong and its not pretty)
 
--- 
-   ** Gael Le Mignot, Ing3 EPITA, Coder of The Kilobug Team **
-Home Mail : kilobug@freesurf.fr          Work Mail : le-mig_g@epita.fr
-GSM       : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
-Web       : http://kilobug.freesurf.fr or http://drizzt.dyndns.org
+> In my opinion, the -ac logic is really bad, but one thing it does allow is
+> for stupid drivers that look like high-performance drivers. Which may be
+> why it got implemented.
 
-"Software is like sex it's better when it's free.", Linus Torvalds
-
+Well I'm all for making dumb hardware go as fast as smart stuff but that
+wasn't the original goal - the original goal was to fix the bad behaviour
+with the base kernel and large I/O queues to slow devices like M/O disks.
 

@@ -1,112 +1,81 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314126AbSEFGfc>; Mon, 6 May 2002 02:35:32 -0400
+	id <S314138AbSEFGjH>; Mon, 6 May 2002 02:39:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314138AbSEFGfb>; Mon, 6 May 2002 02:35:31 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43026 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314126AbSEFGfa>;
-	Mon, 6 May 2002 02:35:30 -0400
-Message-ID: <3CD624BA.3D094500@zip.com.au>
-Date: Sun, 05 May 2002 23:37:46 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S314230AbSEFGjG>; Mon, 6 May 2002 02:39:06 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:51407 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S314138AbSEFGjF>; Mon, 6 May 2002 02:39:05 -0400
+Date: Mon, 6 May 2002 08:17:52 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: twaugh@redhat.com
+Subject: [PATCH] Add NetMos 9835 to parport_serial
+Message-ID: <Pine.LNX.4.44.0205060813370.12156-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-To: Miles Lane <miles@megapathdsl.net>
-CC: LKML <linux-kernel@vger.kernel.org>, Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: 2.5.14 -- fs/fs.o: In function `end_buffer_read_file_async': 
- undefinedreference to `clear_buffer_async'
-In-Reply-To: <3CD61A42.7050502@megapathdsl.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane wrote:
-> 
-> fs/fs.o: In function `end_buffer_read_file_async':
-> fs/fs.o(.text+0x705a4): undefined reference to `clear_buffer_async'
+Tested simultaneous serial i/o and parallel port. The base_baud of 115200 
+i just chose as a safe default, i didn't try pushing it any further. 
+During testing of parport interrupt sharing, i noticed an oddity whereupon 
+parport was allowed to register the same irq even though it didn't specify 
+SA_SHIRQ and serial did a request_irq before parport. But then again it 
+was late saturday and the booze was plenty...
 
-oops.  I broke it again.  This is probably a subconcious reaction
-to the "NT" thing.   Apologies.
+Regards,
+	Zwane Mwaikambo
 
---- 2.5.14/fs/ntfs/aops.c~ntfs	Sun May  5 23:33:05 2002
-+++ 2.5.14-akpm/fs/ntfs/aops.c	Sun May  5 23:34:34 2002
-@@ -76,13 +76,13 @@ static void end_buffer_read_file_async(s
- 		SetPageError(page);
+--- linux-2.4.19-pre7-ac3/drivers/parport/parport_serial.c.orig	Sun May  5 14:24:36 2002
++++ linux-2.4.19-pre7-ac3/drivers/parport/parport_serial.c	Sun May  5 14:38:57 2002
+@@ -41,6 +41,7 @@
+ 	avlab_2s1p,
+ 	avlab_2s1p_650,
+ 	avlab_2s1p_850,
++	netmos_9835
+ };
  
- 	spin_lock_irqsave(&page_uptodate_lock, flags);
--	clear_buffer_async(bh);
-+	clear_buffer_async_read(bh);
- 	unlock_buffer(bh);
  
- 	tmp = bh->b_this_page;
- 	while (tmp != bh) {
- 		if (buffer_locked(tmp)) {
--			if (buffer_async(tmp))
-+			if (buffer_async_read(tmp))
- 				goto still_busy;
- 		} else if (!buffer_uptodate(tmp))
- 			SetPageError(page);
-@@ -218,7 +218,7 @@ handle_zblock:
- 			struct buffer_head *tbh = arr[i];
- 			lock_buffer(tbh);
- 			tbh->b_end_io = end_buffer_read_file_async;
--			set_buffer_async(tbh);
-+			set_buffer_async_read(tbh);
- 		}
- 		/* Finally, start i/o on the buffers. */
- 		for (i = 0; i < nr; i++)
-@@ -378,13 +378,13 @@ static void end_buffer_read_mftbmp_async
- 		SetPageError(page);
+@@ -74,6 +75,7 @@
+ 	/* avlab_2s1p     */		{ 1, { { 2, 3}, } },
+ 	/* avlab_2s1p_650 */		{ 1, { { 2, 3}, } },
+ 	/* avlab_2s1p_850 */		{ 1, { { 2, 3}, } },
++	/* netmos_9835 */		{ 1, { { 2, 3}, } },
+ };
  
- 	spin_lock_irqsave(&page_uptodate_lock, flags);
--	clear_buffer_async(bh);
-+	clear_buffer_async_read(bh);
- 	unlock_buffer(bh);
+ static struct pci_device_id parport_serial_pci_tbl[] __devinitdata = {
+@@ -92,6 +94,8 @@
+ 	{ 0x14db, 0x2160, PCI_ANY_ID, PCI_ANY_ID, 0, 0, avlab_2s1p},
+ 	{ 0x14db, 0x2161, PCI_ANY_ID, PCI_ANY_ID, 0, 0, avlab_2s1p_650},
+ 	{ 0x14db, 0x2162, PCI_ANY_ID, PCI_ANY_ID, 0, 0, avlab_2s1p_850},
++	{ PCI_VENDOR_ID_NETMOS, PCI_DEVICE_ID_NETMOS_9835,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, netmos_9835 },
+ 	{ 0, } /* terminate list */
+ };
+ MODULE_DEVICE_TABLE(pci,parport_serial_pci_tbl);
+@@ -129,6 +133,7 @@
+ /* avlab_2s1p (n/t) */	{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 2, 115200 },
+ /* avlab_2s1p_650 (nt)*/{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 2, 115200 },
+ /* avlab_2s1p_850 (nt)*/{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 2, 115200 },
++/* netmos_9835 */	{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 2, 115200 },
+ };
  
- 	tmp = bh->b_this_page;
- 	while (tmp != bh) {
- 		if (buffer_locked(tmp)) {
--			if (buffer_async(tmp))
-+			if (buffer_async_read(tmp))
- 				goto still_busy;
- 		} else if (!buffer_uptodate(tmp))
- 			SetPageError(page);
-@@ -501,7 +501,7 @@ handle_zblock:
- 			struct buffer_head *tbh = arr[i];
- 			lock_buffer(tbh);
- 			tbh->b_end_io = end_buffer_read_mftbmp_async;
--			set_buffer_async(tbh);
-+			set_buffer_async_read(tbh);
- 		}
- 		/* Finally, start i/o on the buffers. */
- 		for (i = 0; i < nr; i++)
-@@ -574,13 +574,13 @@ static void end_buffer_read_mst_async(st
- 		SetPageError(page);
- 
- 	spin_lock_irqsave(&page_uptodate_lock, flags);
--	clear_buffer_async(bh);
-+	clear_buffer_async_read(bh);
- 	unlock_buffer(bh);
- 
- 	tmp = bh->b_this_page;
- 	while (tmp != bh) {
- 		if (buffer_locked(tmp)) {
--			if (buffer_async(tmp))
-+			if (buffer_async_read(tmp))
- 				goto still_busy;
- 		} else if (!buffer_uptodate(tmp))
- 			SetPageError(page);
-@@ -758,7 +758,7 @@ handle_zblock:
- 			struct buffer_head *tbh = arr[i];
- 			lock_buffer(tbh);
- 			tbh->b_end_io = end_buffer_read_mst_async;
--			set_buffer_async(tbh);
-+			set_buffer_async_read(tbh);
- 		}
- 		/* Finally, start i/o on the buffers. */
- 		for (i = 0; i < nr; i++)
+ struct parport_serial_private {
+@@ -266,6 +271,10 @@
+                                         "hi" as an offset (see SYBA
+                                         def.) */
+ 		/* TODO: test if sharing interrupts works */
++
++		/* not with the netmos card i tested with, due to the
++		 * parport ISR methinks -Zwane
++		*/
+ 		printk (KERN_DEBUG "PCI parallel port detected: %04x:%04x, "
+ 			"I/O at %#lx(%#lx)\n",
+ 			parport_serial_pci_tbl[i].vendor,
 
+-- 
+http://function.linuxpower.ca
+		
 
--

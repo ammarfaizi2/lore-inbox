@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129413AbRACHxa>; Wed, 3 Jan 2001 02:53:30 -0500
+	id <S129562AbRACHzU>; Wed, 3 Jan 2001 02:55:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129562AbRACHxU>; Wed, 3 Jan 2001 02:53:20 -0500
-Received: from www.wen-online.de ([212.223.88.39]:22283 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S129413AbRACHxF>;
-	Wed, 3 Jan 2001 02:53:05 -0500
-Date: Wed, 3 Jan 2001 08:21:48 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Anton Blanchard <anton@linuxcare.com.au>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: scheduling problem?
-In-Reply-To: <Pine.LNX.4.10.10101022151430.24870-100000@penguin.transmeta.com>
-Message-ID: <Pine.Linu.4.10.10101030814540.1271-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130422AbRACHzK>; Wed, 3 Jan 2001 02:55:10 -0500
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:52345 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S129562AbRACHy4>; Wed, 3 Jan 2001 02:54:56 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "J . A . Magallon" <jamagallon@able.es>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.19pre5 
+In-Reply-To: Your message of "Wed, 03 Jan 2001 04:15:16 BST."
+             <20010103041516.C1497@werewolf.able.es> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 03 Jan 2001 18:24:16 +1100
+Message-ID: <11635.978506656@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Jan 2001, Linus Torvalds wrote:
+On Wed, 3 Jan 2001 04:15:16 +0100, 
+"J . A . Magallon" <jamagallon@able.es> wrote:
+>I have seen that the CCFOUND stuff has flown away. I have read it
+>breaks somthing, and the CROSS_COMPILE in alphas and m68k.
+>Perhaps this way could be better : ??
+>..
+>include arch/$(ARCH)/Makefile
+>
+>AS  :=$(AS)
+>LD  :=$(LD)
+>CC  :=$(CC)
+>CPP :=$(CPP)
 
-> On Wed, 3 Jan 2001, Mike Galbraith wrote:
-> > 
-> > No difference (except more context switching as expected)
-> 
-> What about the current prerelese patch in testing? It doesn't switch to
-> bdflush at all, but instead does the buffer cleaning by hand.
+Agreed.  Alan, please apply.
 
-99% gone.  The remaining 1% is refill_freelist().  If I use
-flush_dirty_buffers() there instead of waiting, I have no more
-semaphore timeouts (so far.. not thoroughly pounded upon). Without
-that change, I still take hits.  (in my tinker tree, I usually
-make a 'small flush' mode for flush_dirty_buffers() to do that)
-
-Feel is _vastly_ improved.
-
-	-Mike
+Index: 19-pre5.1/Makefile
+--- 19-pre5.1/Makefile Wed, 03 Jan 2001 17:44:03 +1100 kaos (linux-2.2/G/b/14_Makefile 1.3.2.2.1.1.1.5.1.3.6.1.5.1.1.1.1.16.1.16 644)
++++ 19-pre5.1(w)/Makefile Wed, 03 Jan 2001 18:15:57 +1100 kaos (linux-2.2/G/b/14_Makefile 1.3.2.2.1.1.1.5.1.3.6.1.5.1.1.1.1.16.1.16 644)
+@@ -219,6 +219,17 @@ DRIVERS := $(DRIVERS) drivers/telephony/
+ endif
+ 
+ include arch/$(ARCH)/Makefile
++# arch/$(ARCH)/Makefile is the last thing that is allowed to change CROSS_COMPILE.
++# Revaluate final values for speed.
++AS	:=$(AS)
++LD	:=$(LD)
++CC	:=$(CC)
++CPP	:=$(CPP)
++AR	:=$(AR)
++NM	:=$(NM)
++STRIP	:=$(STRIP)
++OBJCOPY	:=$(OBJCOPY)
++OBJDUMP	:=$(OBJDUMP)
+ 
+ .S.s:
+ 	$(CC) -D__ASSEMBLY__ $(AFLAGS) -traditional -E -o $*.s $<
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

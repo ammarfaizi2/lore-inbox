@@ -1,1470 +1,563 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbVCRNd3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVCRNqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261599AbVCRNd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 08:33:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVCRNd3
+	id S261601AbVCRNqH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 08:46:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVCRNqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 08:33:29 -0500
-Received: from metis.extern.pengutronix.de ([83.236.181.26]:11694 "EHLO
-	metis.extern.pengutronix.de") by vger.kernel.org with ESMTP
-	id S261599AbVCRNbq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 08:31:46 -0500
-Date: Fri, 18 Mar 2005 14:31:44 +0100
-From: Sascha Hauer <s.hauer@pengutronix.de>
+	Fri, 18 Mar 2005 08:46:07 -0500
+Received: from mailgate1.mysql.com ([213.115.162.47]:30880 "EHLO
+	mailgate.mysql.com") by vger.kernel.org with ESMTP id S261603AbVCRNot
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 08:44:49 -0500
+Message-ID: <423AE958.3090801@mysql.com>
+Date: Fri, 18 Mar 2005 15:44:40 +0100
+From: Jonas Oreland <jonas.oreland@mysql.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050314
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] DM9000 network driver
-Message-ID: <20050318133143.GA20838@metis.extern.pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Subject: yenta_socket "nobody cared - Disabling IRQ #4"
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Hello all,
+I have a IBM thinkpad G40 and have just upgraded from 2.4.28 to 2.6.11.2
+And I fail to get my netgear wg511t wireless pccard to function.
+(worked fine with 2.4.28)
 
-This patch adds support for the davicom dm9000 network driver. The
-dm9000 is found on some embedded arm boards such as the pimx1 or the
-scb9328.
+I've tried (wo really knowing what i'm doing) using
+*) pci=routeirq
+*) compiling kernel wo/ acpi
+*) modprobe yenta_socket disable_clkrun=1
 
-Sascha Hauer
+NOTE: It works sometimes!
+When I insert the card (or modprobe yenta_socket), it will either work 
+and then I can use the wlan card wo/ problem, or it will fail directly.
 
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+The failures are unfortunatly is majority :-(
 
-diff -urN linux-2.6.11/drivers/net/Kconfig linux-2.6.11-work/drivers/net/Kconfig
---- linux-2.6.11/drivers/net/Kconfig	2005-03-02 08:38:25.000000000 +0100
-+++ linux-2.6.11-work/drivers/net/Kconfig	2005-03-17 12:33:26.000000000 +0100
-@@ -849,6 +849,18 @@
- 	  <file:Documentation/networking/net-modules.txt>. The module
- 	  will be called smc9194.
- 
-+config DM9000
-+	tristate "DM9000 support"
-+	depends on ARM && NET_ETHERNET
-+	select CRC32
-+	select MII
-+	---help---
-+	  Support for DM9000 chipset.
-+
-+	  To compile this driver as a module, choose M here and read
-+	  <file:Documentation/networking/net-modules.txt>.  The module will be
-+	  called dm9000.
-+
- config NET_VENDOR_RACAL
- 	bool "Racal-Interlan (Micom) NI cards"
- 	depends on NET_ETHERNET && ISA
-diff -urN linux-2.6.11/drivers/net/Makefile linux-2.6.11-work/drivers/net/Makefile
---- linux-2.6.11/drivers/net/Makefile	2005-03-02 08:37:52.000000000 +0100
-+++ linux-2.6.11-work/drivers/net/Makefile	2005-03-17 12:32:16.000000000 +0100
-@@ -181,6 +181,7 @@
- obj-$(CONFIG_IBMVETH) += ibmveth.o
- obj-$(CONFIG_S2IO) += s2io.o
- obj-$(CONFIG_SMC91X) += smc91x.o
-+obj-$(CONFIG_DM9000) += dm9000.o
- obj-$(CONFIG_FEC_8XX) += fec_8xx/
- 
- obj-$(CONFIG_ARM) += arm/
-diff -urN linux-2.6.11/drivers/net/dm9000.c linux-2.6.11-work/drivers/net/dm9000.c
---- linux-2.6.11/drivers/net/dm9000.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.11-work/drivers/net/dm9000.c	2005-03-17 16:04:49.000000000 +0100
-@@ -0,0 +1,1219 @@
-+/*
-+ *   dm9000.c: Version 1.2 03/18/2003
-+ *   
-+ *         A Davicom DM9000 ISA NIC fast Ethernet driver for Linux.
-+ * 	Copyright (C) 1997  Sten Wang
-+ * 
-+ * 	This program is free software; you can redistribute it and/or
-+ * 	modify it under the terms of the GNU General Public License
-+ * 	as published by the Free Software Foundation; either version 2
-+ * 	of the License, or (at your option) any later version.
-+ * 
-+ * 	This program is distributed in the hope that it will be useful,
-+ * 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * 	GNU General Public License for more details.
-+ * 
-+ *   (C)Copyright 1997-1998 DAVICOM Semiconductor,Inc. All Rights Reserved.
-+ * 
-+ * V0.11	06/20/2001	REG_0A bit3=1, default enable BP with DA match
-+ * 	06/22/2001 	Support DM9801 progrmming	
-+ * 	 	 	E3: R25 = ((R24 + NF) & 0x00ff) | 0xf000
-+ * 		 	E4: R25 = ((R24 + NF) & 0x00ff) | 0xc200
-+ * 		     		R17 = (R17 & 0xfff0) | NF + 3
-+ * 		 	E5: R25 = ((R24 + NF - 3) & 0x00ff) | 0xc200
-+ * 		     		R17 = (R17 & 0xfff0) | NF
-+ * 				
-+ * v1.00               	modify by simon 2001.9.5
-+ *                         change for kernel 2.4.x    
-+ * 			
-+ * v1.1   11/09/2001      	fix force mode bug             
-+ * 
-+ * v1.2   03/18/2003       Weilun Huang <weilun_huang@davicom.com.tw>: 
-+ * 			Fixed phy reset.
-+ * 			Added tx/rx 32 bit mode.
-+ * 			Cleaned up for kernel merge.
-+ *
-+ *        03/03/2004    Sascha Hauer <s.hauer@pengutronix.de>
-+ *                      Port to 2.6 kernel
-+ *                      
-+ *	  24-Sep-2004   Ben Dooks <ben@simtec.co.uk>
-+ *			Cleanup of code to remove ifdefs
-+ *			Allowed platform device data to influence access width
-+ *			Reformatting areas of code
-+ *
-+ *        17-Mar-2005   Sascha Hauer <s.hauer@pengutronix.de>
-+ *                      * removed 2.4 style module parameters
-+ *                      * removed removed unused stat counter and fixed
-+ *                        net_device_stats
-+ *                      * introduced tx_timeout function
-+ *                      * reworked locking 
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/ioport.h>
-+#include <linux/netdevice.h>
-+#include <linux/etherdevice.h>
-+#include <linux/init.h>
-+#include <linux/skbuff.h>
-+#include <linux/version.h>
-+#include <linux/spinlock.h>
-+#include <linux/crc32.h>
-+#include <linux/mii.h>
-+#include <linux/dm9000.h>
-+#include <linux/delay.h>
-+
-+#include <asm/delay.h>
-+#include <asm/irq.h>
-+#include <asm/io.h>
-+
-+#include "dm9000.h"
-+
-+/* Board/System/Debug information/definition ---------------- */
-+
-+#define DM9000_PHY		0x40	/* PHY address 0x01 */
-+
-+#define TRUE			1
-+#define FALSE			0
-+
-+#define CARDNAME "dm9000"
-+#define PFX CARDNAME ": "
-+
-+#define DM9000_TIMER_WUT  jiffies+(HZ*2)	/* timer wakeup time : 2 second */
-+
-+#define DM9000_DEBUG 0
-+
-+#if DM9000_DEBUG > 2
-+#define PRINTK3(args...)  printk(CARDNAME ": " args)
-+#else
-+#define PRINTK3(args...)  do { } while(0)
-+#endif
-+
-+#if DM9000_DEBUG > 1
-+#define PRINTK2(args...)  printk(CARDNAME ": " args)
-+#else
-+#define PRINTK2(args...)  do { } while(0)
-+#endif
-+
-+#if DM9000_DEBUG > 0
-+#define PRINTK1(args...)  printk(CARDNAME ": " args)
-+#define PRINTK(args...)   printk(CARDNAME ": " args)
-+#else
-+#define PRINTK1(args...)  do { } while(0)
-+#define PRINTK(args...)   printk(KERN_DEBUG args)
-+#endif
-+
-+/*
-+ * Transmit timeout, default 5 seconds.
-+ */
-+static int watchdog = 5000;
-+module_param(watchdog, int, 0400);
-+MODULE_PARM_DESC(watchdog, "transmit timeout in milliseconds");
-+
-+/* Structure/enum declaration ------------------------------- */
-+typedef struct board_info {
-+
-+	void __iomem *io_addr;	/* Register I/O base address */
-+	void __iomem *io_data;	/* Data I/O address */
-+	u16 irq;		/* IRQ */
-+
-+	u16 tx_pkt_cnt;
-+	u16 queue_pkt_len;
-+	u16 queue_start_addr;
-+	u16 dbug_cnt;
-+	u8 io_mode;		/* 0:word, 2:byte */
-+	u8 phy_addr;
-+
-+	void (*inblk)(void __iomem *port, void *data, int length);
-+	void (*outblk)(void __iomem *port, void *data, int length);
-+	void (*dumpblk)(void __iomem *port, int length);
-+
-+	struct resource	*addr_res;   /* resources found */
-+	struct resource *data_res;
-+	struct resource	*addr_req;   /* resources requested */
-+	struct resource *data_req;
-+	struct resource *irq_res;
-+
-+	struct timer_list timer;
-+	struct net_device_stats stats;
-+	unsigned char srom[128];
-+	spinlock_t lock;
-+
-+	struct mii_if_info mii;
-+	u32 msg_enable;
-+} board_info_t;
-+
-+/* function declaration ------------------------------------- */
-+static int dm9000_probe(struct device *);
-+static int dm9000_open(struct net_device *);
-+static int dm9000_start_xmit(struct sk_buff *, struct net_device *);
-+static int dm9000_stop(struct net_device *);
-+static int dm9000_do_ioctl(struct net_device *, struct ifreq *, int);
-+
-+
-+static void dm9000_timer(unsigned long);
-+static void dm9000_init_dm9000(struct net_device *);
-+
-+static struct net_device_stats *dm9000_get_stats(struct net_device *);
-+
-+static irqreturn_t dm9000_interrupt(int, void *, struct pt_regs *);
-+
-+static int dm9000_phy_read(struct net_device *dev, int phyaddr_unsused, int reg);
-+static void dm9000_phy_write(struct net_device *dev, int phyaddr_unused, int reg,
-+			   int value);
-+static u16 read_srom_word(board_info_t *, int);
-+static void dm9000_rx(struct net_device *);
-+static void dm9000_hash_table(struct net_device *);
-+
-+//#define DM9000_PROGRAM_EEPROM
-+#ifdef DM9000_PROGRAM_EEPROM
-+static void program_eeprom(board_info_t * db);
-+#endif
-+/* DM9000 network board routine ---------------------------- */
-+
-+static void
-+dm9000_reset(board_info_t * db)
-+{
-+	PRINTK1("dm9000x: resetting\n");
-+	/* RESET device */
-+	writeb(DM9000_NCR, db->io_addr);
-+	udelay(200);
-+	writeb(NCR_RST, db->io_data);
-+	udelay(200);
-+}
-+
-+/*
-+ *   Read a byte from I/O port
-+ */
-+static u8
-+ior(board_info_t * db, int reg)
-+{
-+	writeb(reg, db->io_addr);
-+	return readb(db->io_data);
-+}
-+
-+/*
-+ *   Write a byte to I/O port
-+ */
-+
-+static void
-+iow(board_info_t * db, int reg, int value)
-+{
-+	writeb(reg, db->io_addr);
-+	writeb(value, db->io_data);
-+}
-+
-+/* routines for sending block to chip */
-+
-+static void dm9000_outblk_8bit(void __iomem *reg, void *data, int count)
-+{
-+	writesb(reg, data, count);
-+}
-+
-+static void dm9000_outblk_16bit(void __iomem *reg, void *data, int count)
-+{
-+	writesw(reg, data, (count+1) >> 1);
-+}
-+
-+static void dm9000_outblk_32bit(void __iomem *reg, void *data, int count)
-+{
-+	writesl(reg, data, (count+3) >> 2);
-+}
-+
-+/* input block from chip to memory */
-+
-+static void dm9000_inblk_8bit(void __iomem *reg, void *data, int count)
-+{
-+	readsb(reg, data, count+1);
-+}
-+
-+
-+static void dm9000_inblk_16bit(void __iomem *reg, void *data, int count)
-+{
-+	readsw(reg, data, (count+1) >> 1);
-+}
-+
-+static void dm9000_inblk_32bit(void __iomem *reg, void *data, int count)
-+{
-+	readsl(reg, data, (count+3) >> 2);
-+}
-+
-+/* dump block from chip to null */
-+
-+static void dm9000_dumpblk_8bit(void __iomem *reg, int count)
-+{
-+	int i;
-+	int tmp;
-+
-+	for (i = 0; i < count; i++)
-+		tmp = readb(reg);
-+}
-+
-+static void dm9000_dumpblk_16bit(void __iomem *reg, int count)
-+{
-+	int i;
-+	int tmp;
-+
-+	count = (count + 1) >> 1;
-+
-+	for (i = 0; i < count; i++)
-+		tmp = readw(reg);
-+}
-+
-+static void dm9000_dumpblk_32bit(void __iomem *reg, int count)
-+{
-+	int i;
-+	int tmp;
-+
-+	count = (count + 3) >> 2;
-+
-+	for (i = 0; i < count; i++)
-+		tmp = readl(reg);
-+}
-+
-+/* dm9000_set_io
-+ *
-+ * select the specified set of io routines to use with the
-+ * device
-+ */
-+
-+static void dm9000_set_io(struct board_info *db, int byte_width) 
-+{
-+	/* use the size of the data resource to work out what IO
-+	 * routines we want to use
-+	 */
-+
-+	switch (byte_width) {
-+	case 1:
-+		db->dumpblk = dm9000_dumpblk_8bit;
-+		db->outblk  = dm9000_outblk_8bit;
-+		db->inblk   = dm9000_inblk_8bit;
-+		break;
-+
-+	case 2:
-+		db->dumpblk = dm9000_dumpblk_16bit;
-+		db->outblk  = dm9000_outblk_16bit;
-+		db->inblk   = dm9000_inblk_16bit;
-+		break;
-+			
-+	case 3:
-+		printk(KERN_ERR PFX ": 3 byte IO, falling back to 16bit\n");
-+		db->dumpblk = dm9000_dumpblk_16bit;
-+		db->outblk  = dm9000_outblk_16bit;
-+		db->inblk   = dm9000_inblk_16bit;
-+		break;			
-+
-+	case 4:
-+	default:
-+		db->dumpblk = dm9000_dumpblk_32bit;
-+		db->outblk  = dm9000_outblk_32bit;
-+		db->inblk   = dm9000_inblk_32bit;
-+		break;
-+	}
-+}
-+
-+
-+/* Our watchdog timed out. Called by the networking layer */
-+static void dm9000_timeout(struct net_device *dev)
-+{
-+	board_info_t *db = (board_info_t *) dev->priv;
-+	u8 reg_save;
-+	unsigned long flags;	
-+
-+	/* Save previous register address */
-+	reg_save = readb(db->io_addr);
-+	spin_lock_irqsave(db->lock,flags);
-+
-+	netif_stop_queue(dev);
-+	dm9000_reset(db);
-+	dm9000_init_dm9000(dev);
-+	/* We can accept TX packets again */
-+	dev->trans_start = jiffies;
-+	netif_wake_queue(dev);
-+
-+	/* Restore previous register address */
-+	writeb(reg_save, db->io_addr);
-+	spin_unlock_irqrestore(db->lock,flags);
-+}
-+
-+
-+/* dm9000_release_board
-+ *
-+ * release a board, and any mapped resources
-+ */
-+
-+static void
-+dm9000_release_board(struct platform_device *pdev, struct board_info *db)
-+{
-+	if (db->data_res == NULL) {
-+		if (db->addr_res != NULL)
-+			release_mem_region((unsigned long)db->io_addr, 4);
-+		return;
-+	}
-+
-+	/* unmap our resources */
-+	
-+	iounmap(db->io_addr);
-+	iounmap(db->io_data);
-+
-+	/* release the resources */
-+
-+	if (db->data_req != NULL) {
-+		release_resource(db->data_req);
-+		kfree(db->data_req);
-+	}
-+
-+	if (db->addr_res != NULL) {
-+		release_resource(db->data_req);
-+		kfree(db->addr_req);
-+	}
-+}
-+
-+#define res_size(_r) (((_r)->end - (_r)->start) + 1)
-+
-+/*
-+ * Search DM9000 board, allocate space and register it
-+ */
-+static int
-+dm9000_probe(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct dm9000_plat_data *pdata = pdev->dev.platform_data;
-+	struct board_info *db;	/* Point a board information structure */
-+	struct net_device *ndev;
-+	unsigned long base;
-+	int ret = 0;
-+	int iosize;
-+	int i;
-+	u32 id_val;
-+
-+	printk(KERN_INFO "%s Ethernet Driver\n", CARDNAME);
-+
-+	/* Init network device */
-+	ndev = alloc_etherdev(sizeof (struct board_info));
-+	if (!ndev) {
-+		printk("%s: could not allocate device.\n", CARDNAME);
-+		return -ENOMEM;
-+	}
-+
-+	SET_MODULE_OWNER(ndev);
-+	SET_NETDEV_DEV(ndev, dev);
-+
-+	PRINTK2("dm9000_probe()");
-+
-+	/* setup board info structure */
-+	db = (struct board_info *) ndev->priv;
-+	memset(db, 0, sizeof (*db));
-+
-+	if (pdev->num_resources < 2) {
-+		ret = -ENODEV;
-+		goto out;
-+	}
-+
-+	switch (pdev->num_resources) {
-+	case 2:
-+		base = pdev->resource[0].start;
-+
-+		if (!request_mem_region(base, 4, ndev->name)) {
-+			ret = -EBUSY;
-+			goto out;
-+		}
-+
-+		ndev->base_addr = base;
-+		ndev->irq = pdev->resource[1].start;		
-+		db->io_addr = (void *)base;
-+		db->io_data = (void *)(base + 4);
-+
-+		break;
-+
-+	case 3:
-+		db->addr_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+		db->data_res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-+		db->irq_res  = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
-+
-+		if (db->addr_res == NULL || db->data_res == NULL) {
-+			printk(KERN_ERR PFX "insufficient resources\n");
-+			ret = -ENOENT;
-+			goto out;
-+		}
-+
-+		i = res_size(db->addr_res);
-+		db->addr_req = request_mem_region(db->addr_res->start, i,
-+						  pdev->name);
-+
-+		if (db->addr_req == NULL) {
-+			printk(KERN_ERR PFX "cannot claim address reg area\n");
-+			ret = -EIO;
-+			goto out;
-+		}
-+
-+		db->io_addr = ioremap(db->addr_res->start, i);
-+
-+		if (db->io_addr == NULL) {
-+			printk(KERN_ERR "failed to ioremap address reg\n");
-+			ret = -EINVAL;
-+			goto out;
-+		}
-+
-+		iosize = res_size(db->data_res);
-+		db->data_req = request_mem_region(db->data_res->start, iosize,
-+						  pdev->name);
-+
-+		if (db->data_req == NULL) {
-+			printk(KERN_ERR PFX "cannot claim data reg area\n");
-+			ret = -EIO;
-+			goto out;
-+		}
-+
-+		db->io_data = ioremap(db->data_res->start, iosize);
-+
-+		if (db->io_data == NULL) {
-+			printk(KERN_ERR "failed to ioremap data reg\n");
-+			ret = -EINVAL;
-+			goto out;
-+		}
-+
-+		/* fill in parameters for net-dev structure */
-+
-+		ndev->base_addr = (unsigned long)db->io_addr;
-+		ndev->irq	= db->irq_res->start;
-+
-+		/* ensure at least we have a default set of IO routines */
-+		dm9000_set_io(db, iosize);
-+
-+	}
-+
-+	/* check to see if anything is being over-ridden */
-+	if (pdata != NULL) {
-+		/* check to see if the driver wants to over-ride the
-+		 * default IO width */
-+
-+		if (pdata->flags & DM9000_PLATF_8BITONLY)
-+			dm9000_set_io(db, 1);
-+
-+		if (pdata->flags & DM9000_PLATF_16BITONLY)
-+			dm9000_set_io(db, 2);
-+
-+		if (pdata->flags & DM9000_PLATF_32BITONLY)
-+			dm9000_set_io(db, 4);
-+
-+		/* check to see if there are any IO routine
-+		 * over-rides */
-+
-+		if (pdata->inblk != NULL)
-+			db->inblk = pdata->inblk;
-+
-+		if (pdata->outblk != NULL)
-+			db->outblk = pdata->outblk;
-+
-+		if (pdata->dumpblk != NULL)
-+			db->dumpblk = pdata->dumpblk;
-+	}
-+
-+	dm9000_reset(db);
-+
-+	/* try two times, DM9000 sometimes gets the first read wrong */
-+	for (i = 0; i < 2; i++) {
-+		id_val  = ior(db, DM9000_VIDL);
-+		id_val |= (u32)ior(db, DM9000_VIDH) << 8;
-+		id_val |= (u32)ior(db, DM9000_PIDL) << 16;
-+		id_val |= (u32)ior(db, DM9000_PIDH) << 24;
-+
-+		if (id_val == DM9000_ID)
-+			break;
-+		printk("%s: read wrong id 0x%08x\n", CARDNAME, id_val);
-+	}
-+
-+	if (id_val != DM9000_ID) {
-+		printk("%s: wrong id: 0x%08x\n", CARDNAME, id_val);
-+		goto release;
-+	}
-+
-+	/* from this point we assume that we have found a DM9000 */
-+
-+	/* driver system function */
-+	ether_setup(ndev);
-+
-+	ndev->open		 = &dm9000_open;
-+	ndev->hard_start_xmit    = &dm9000_start_xmit;
-+	ndev->tx_timeout         = &dm9000_timeout;
-+	ndev->watchdog_timeo = msecs_to_jiffies(watchdog);
-+	ndev->stop		 = &dm9000_stop;
-+	ndev->get_stats		 = &dm9000_get_stats;
-+	ndev->set_multicast_list = &dm9000_hash_table;
-+	ndev->do_ioctl		 = &dm9000_do_ioctl;
-+
-+#ifdef DM9000_PROGRAM_EEPROM
-+	program_eeprom(db);
-+#endif
-+	db->msg_enable       = NETIF_MSG_LINK;
-+	db->mii.phy_id_mask  = 0x1f;
-+	db->mii.reg_num_mask = 0x1f;
-+	db->mii.force_media  = 0;
-+	db->mii.full_duplex  = 0;
-+	db->mii.dev	     = ndev;
-+	db->mii.mdio_read    = dm9000_phy_read;
-+	db->mii.mdio_write   = dm9000_phy_write;
-+
-+	/* Read SROM content */
-+	for (i = 0; i < 64; i++)
-+		((u16 *) db->srom)[i] = read_srom_word(db, i);
-+
-+	/* Set Node Address */
-+	for (i = 0; i < 6; i++)
-+		ndev->dev_addr[i] = db->srom[i];
-+
-+	if (!is_valid_ether_addr(ndev->dev_addr))
-+		printk("%s: Invalid ethernet MAC address.  Please "
-+		       "set using ifconfig\n", ndev->name);
-+
-+	dev_set_drvdata(dev, ndev);
-+	ret = register_netdev(ndev);
-+
-+	if (ret == 0) {
-+		printk("%s: dm9000 at %p,%p IRQ %d MAC: ",
-+		       ndev->name,  db->io_addr, db->io_data, ndev->irq);
-+		for (i = 0; i < 5; i++)
-+			printk("%02x:", ndev->dev_addr[i]);
-+		printk("%02x\n", ndev->dev_addr[5]);
-+	}
-+	return 0;
-+
-+ release:
-+ out:
-+	printk("%s: not found (%d).\n", CARDNAME, ret);
-+
-+	dm9000_release_board(pdev, db);
-+	kfree(ndev);
-+
-+	return ret;
-+}
-+
-+/*
-+ *  Open the interface.
-+ *  The interface is opened whenever "ifconfig" actives it.
-+ */
-+static int
-+dm9000_open(struct net_device *dev)
-+{
-+	board_info_t *db = (board_info_t *) dev->priv;
-+
-+	PRINTK2("entering dm9000_open\n");
-+
-+	if (request_irq(dev->irq, &dm9000_interrupt, SA_SHIRQ, dev->name, dev))
-+		return -EAGAIN;
-+
-+	/* Initialize DM9000 board */
-+	dm9000_reset(db);
-+	dm9000_init_dm9000(dev);
-+
-+	/* Init driver variable */
-+	db->dbug_cnt = 0;
-+
-+	/* set and active a timer process */
-+	init_timer(&db->timer);
-+	db->timer.expires  = DM9000_TIMER_WUT * 2;
-+	db->timer.data     = (unsigned long) dev;
-+	db->timer.function = &dm9000_timer;
-+	add_timer(&db->timer);
-+
-+	mii_check_media(&db->mii, netif_msg_link(db), 1);
-+	netif_start_queue(dev);
-+
-+	return 0;
-+}
-+
-+/* 
-+ * Initilize dm9000 board
-+ */
-+static void
-+dm9000_init_dm9000(struct net_device *dev)
-+{
-+	board_info_t *db = (board_info_t *) dev->priv;
-+
-+	PRINTK1("entering %s\n",__FUNCTION__);
-+
-+	/* I/O mode */
-+	db->io_mode = ior(db, DM9000_ISR) >> 6;	/* ISR bit7:6 keeps I/O mode */
-+
-+	/* GPIO0 on pre-activate PHY */
-+	iow(db, DM9000_GPR, 0);	/* REG_1F bit0 activate phyxcer */
-+	iow(db, DM9000_GPCR, GPCR_GEP_CNTL);	/* Let GPIO0 output */
-+	iow(db, DM9000_GPR, 0);	/* Enable PHY */
-+
-+	/* Program operating register */
-+	iow(db, DM9000_TCR, 0);	        /* TX Polling clear */
-+	iow(db, DM9000_BPTR, 0x3f);	/* Less 3Kb, 200us */
-+	iow(db, DM9000_FCR, 0xff);	/* Flow Control */
-+	iow(db, DM9000_SMCR, 0);        /* Special Mode */
-+	/* clear TX status */
-+	iow(db, DM9000_NSR, NSR_WAKEST | NSR_TX2END | NSR_TX1END);
-+	iow(db, DM9000_ISR, ISR_CLR_STATUS); /* Clear interrupt status */
-+
-+	/* Set address filter table */
-+	dm9000_hash_table(dev);
-+
-+	/* Activate DM9000 */
-+	iow(db, DM9000_RCR, RCR_DIS_LONG | RCR_DIS_CRC | RCR_RXEN);
-+	/* Enable TX/RX interrupt mask */
-+	iow(db, DM9000_IMR, IMR_PAR | IMR_PTM | IMR_PRM);
-+
-+	/* Init Driver variable */
-+	db->tx_pkt_cnt = 0;
-+	db->queue_pkt_len = 0;
-+	dev->trans_start = 0;
-+	spin_lock_init(&db->lock);
-+}
-+
-+/*
-+ *  Hardware start transmission.
-+ *  Send a packet to media from the upper layer.
-+ */
-+static int
-+dm9000_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+{
-+	board_info_t *db = (board_info_t *) dev->priv;
-+
-+	PRINTK3("dm9000_start_xmit\n");
-+
-+	if (db->tx_pkt_cnt > 1)
-+		return 1;
-+
-+	netif_stop_queue(dev);
-+
-+	/* Disable all interrupts */
-+	iow(db, DM9000_IMR, IMR_PAR);
-+
-+	/* Move data to DM9000 TX RAM */
-+	writeb(DM9000_MWCMD, db->io_addr);
-+
-+	(db->outblk)(db->io_data, skb->data, skb->len);
-+	db->stats.tx_bytes += skb->len;
-+
-+	/* TX control: First packet immediately send, second packet queue */
-+	if (db->tx_pkt_cnt == 0) {
-+
-+		/* First Packet */
-+		db->tx_pkt_cnt++;
-+
-+		/* Set TX length to DM9000 */
-+		iow(db, DM9000_TXPLL, skb->len & 0xff);
-+		iow(db, DM9000_TXPLH, (skb->len >> 8) & 0xff);
-+
-+		/* Issue TX polling command */
-+		iow(db, DM9000_TCR, TCR_TXREQ);	/* Cleared after TX complete */
-+
-+		dev->trans_start = jiffies;	/* save the time stamp */
-+
-+	} else {
-+		/* Second packet */
-+		db->tx_pkt_cnt++;
-+		db->queue_pkt_len = skb->len;
-+	}
-+
-+	/* free this SKB */
-+	dev_kfree_skb(skb);
-+
-+	/* Re-enable resource check */
-+	if (db->tx_pkt_cnt == 1)
-+		netif_wake_queue(dev);
-+
-+	/* Re-enable interrupt */
-+	iow(db, DM9000_IMR, IMR_PAR | IMR_PTM | IMR_PRM);
-+
-+	return 0;
-+}
-+
-+static void
-+dm9000_shutdown(struct net_device *dev)
-+{
-+	board_info_t *db = (board_info_t *) dev->priv;
-+
-+	/* RESET device */
-+	dm9000_phy_write(dev, 0, MII_BMCR, BMCR_RESET);	/* PHY RESET */
-+	iow(db, DM9000_GPR, 0x01);	/* Power-Down PHY */
-+	iow(db, DM9000_IMR, IMR_PAR);	/* Disable all interrupt */
-+	iow(db, DM9000_RCR, 0x00);	/* Disable RX */
-+}
-+
-+/*
-+ * Stop the interface.
-+ * The interface is stopped when it is brought.
-+ */
-+static int
-+dm9000_stop(struct net_device *ndev)
-+{
-+	board_info_t *db = (board_info_t *) ndev->priv;
-+
-+	PRINTK1("entering %s\n",__FUNCTION__);
-+
-+	/* deleted timer */
-+	del_timer(&db->timer);
-+
-+	netif_stop_queue(ndev);
-+	netif_carrier_off(ndev);
-+
-+	/* free interrupt */
-+	free_irq(ndev->irq, ndev);
-+
-+	dm9000_shutdown(ndev);
-+
-+	return 0;
-+}
-+
-+/*
-+ * DM9000 interrupt handler
-+ * receive the packet to upper layer, free the transmitted packet
-+ */
-+
-+void
-+dm9000_tx_done(struct net_device *dev, board_info_t * db)
-+{
-+	int tx_status = ior(db, DM9000_NSR);	/* Got TX status */
-+
-+	if (tx_status & (NSR_TX2END | NSR_TX1END)) {
-+		/* One packet sent complete */
-+		db->tx_pkt_cnt--;
-+		db->stats.tx_packets++;
-+
-+		/* Queue packet check & send */
-+		if (db->tx_pkt_cnt > 0) {
-+			iow(db, DM9000_TXPLL, db->queue_pkt_len & 0xff);
-+			iow(db, DM9000_TXPLH, (db->queue_pkt_len >> 8) & 0xff);
-+			iow(db, DM9000_TCR, TCR_TXREQ);
-+			dev->trans_start = jiffies;
-+		}
-+		netif_wake_queue(dev);
-+	}
-+}
-+
-+static irqreturn_t
-+dm9000_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+	struct net_device *dev = dev_id;
-+	board_info_t *db;
-+	int int_status;
-+	u8 reg_save;
-+
-+	PRINTK3("entering %s\n",__FUNCTION__);
-+
-+	if (!dev) {
-+		PRINTK1("dm9000_interrupt() without DEVICE arg\n");
-+		return IRQ_HANDLED;
-+	}
-+
-+	/* A real interrupt coming */
-+	db = (board_info_t *) dev->priv;
-+	spin_lock(&db->lock);
-+
-+	/* Save previous register address */
-+	reg_save = readb(db->io_addr);
-+
-+	/* Disable all interrupts */
-+	iow(db, DM9000_IMR, IMR_PAR);
-+
-+	/* Got DM9000 interrupt status */
-+	int_status = ior(db, DM9000_ISR);	/* Got ISR */
-+	iow(db, DM9000_ISR, int_status);	/* Clear ISR status */
-+
-+	/* Received the coming packet */
-+	if (int_status & ISR_PRS)
-+		dm9000_rx(dev);
-+
-+	/* Trnasmit Interrupt check */
-+	if (int_status & ISR_PTS)
-+		dm9000_tx_done(dev, db);
-+
-+	/* Re-enable interrupt mask */
-+	iow(db, DM9000_IMR, IMR_PAR | IMR_PTM | IMR_PRM);
-+
-+	/* Restore previous register address */
-+	writeb(reg_save, db->io_addr);
-+
-+	spin_unlock(&db->lock);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+/*
-+ *  Get statistics from driver.
-+ */
-+static struct net_device_stats *
-+dm9000_get_stats(struct net_device *dev)
-+{
-+	board_info_t *db = (board_info_t *) dev->priv;
-+	return &db->stats;
-+}
-+
-+/*
-+ *  Process the upper socket ioctl command
-+ */
-+static int
-+dm9000_do_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
-+{
-+	PRINTK1("entering %s\n",__FUNCTION__);
-+	return 0;
-+}
-+
-+/*
-+ *  A periodic timer routine
-+ *  Dynamic media sense, allocated Rx buffer...
-+ */
-+static void
-+dm9000_timer(unsigned long data)
-+{
-+	struct net_device *dev = (struct net_device *) data;
-+	board_info_t *db = (board_info_t *) dev->priv;
-+	u8 reg_save;
-+	unsigned long flags;
-+
-+	PRINTK3("dm9000_timer()\n");
-+
-+	spin_lock_irqsave(db->lock,flags);
-+	/* Save previous register address */
-+	reg_save = readb(db->io_addr);
-+
-+	mii_check_media(&db->mii, netif_msg_link(db), 0);
-+
-+	/* Restore previous register address */
-+	writeb(reg_save, db->io_addr);
-+	spin_unlock_irqrestore(db->lock,flags);
-+
-+	/* Set timer again */
-+	db->timer.expires = DM9000_TIMER_WUT;
-+	add_timer(&db->timer);
-+}
-+
-+struct dm9000_rxhdr {
-+	u16	RxStatus;
-+	u16	RxLen;
-+} __attribute__((__packed__));
-+
-+/*
-+ *  Received a packet and pass to upper layer
-+ */
-+static void
-+dm9000_rx(struct net_device *dev)
-+{
-+	board_info_t *db = (board_info_t *) dev->priv;
-+	struct dm9000_rxhdr rxhdr;
-+	struct sk_buff *skb;
-+	u8 rxbyte, *rdptr;
-+	int GoodPacket;
-+	int RxLen;
-+
-+	/* Check packet ready or not */
-+	do {
-+		ior(db, DM9000_MRCMDX);	/* Dummy read */
-+		
-+		/* Get most updated data */
-+		rxbyte = readb(db->io_data);
-+
-+		/* Status check: this byte must be 0 or 1 */
-+		if (rxbyte > DM9000_PKT_RDY) {
-+			printk("status check failed: %d\n", rxbyte);
-+			iow(db, DM9000_RCR, 0x00);	/* Stop Device */
-+			iow(db, DM9000_ISR, IMR_PAR);	/* Stop INT request */
-+			return;
-+		}
-+
-+		if (rxbyte != DM9000_PKT_RDY)
-+			return;
-+
-+		/* A packet ready now  & Get status/length */
-+		GoodPacket = TRUE;
-+		writeb(DM9000_MRCMD, db->io_addr);
-+
-+		(db->inblk)(db->io_data, &rxhdr, sizeof(rxhdr));
-+
-+		RxLen = rxhdr.RxLen;
-+
-+		/* Packet Status check */
-+		if (RxLen < 0x40) {
-+			GoodPacket = FALSE;
-+			PRINTK1("Bad Packet received (runt)\n");
-+		}
-+
-+		if (RxLen > DM9000_PKT_MAX) {
-+			PRINTK1("RST: RX Len:%x\n", RxLen);
-+		}
-+
-+		if (rxhdr.RxStatus & 0xbf00) {
-+			GoodPacket = FALSE;
-+			if (rxhdr.RxStatus & 0x100) {
-+				PRINTK1("fifo error\n");
-+				db->stats.rx_fifo_errors++;
-+			}
-+			if (rxhdr.RxStatus & 0x200) {
-+				PRINTK1("crc error\n");
-+				db->stats.rx_crc_errors++;
-+			}
-+			if (rxhdr.RxStatus & 0x8000) {
-+				PRINTK1("length error\n");
-+				db->stats.rx_length_errors++;
-+			}
-+		}
-+
-+		/* Move data from DM9000 */
-+		if (GoodPacket
-+		    && ((skb = dev_alloc_skb(RxLen + 4)) != NULL)) {
-+			skb->dev = dev;
-+			skb_reserve(skb, 2);
-+			rdptr = (u8 *) skb_put(skb, RxLen - 4);
-+			
-+			/* Read received packet from RX SRAM */
-+			
-+			(db->inblk)(db->io_data, rdptr, RxLen);
-+			db->stats.rx_bytes += RxLen;
-+
-+			/* Pass to upper layer */
-+			skb->protocol = eth_type_trans(skb, dev);
-+			netif_rx(skb);
-+			db->stats.rx_packets++;
-+
-+		} else {
-+			/* need to dump the packet's data */
-+			
-+			(db->dumpblk)(db->io_data, RxLen);
-+		}
-+	} while (rxbyte == DM9000_PKT_RDY);
-+}
-+
-+/*
-+ *  Read a word data from SROM
-+ */
-+static u16
-+read_srom_word(board_info_t * db, int offset)
-+{
-+	iow(db, DM9000_EPAR, offset);
-+	iow(db, DM9000_EPCR, EPCR_ERPRR);
-+	mdelay(8);		/* according to the datasheet 200us should be enough,
-+				   but it doesn't work */
-+	iow(db, DM9000_EPCR, 0x0);
-+	return (ior(db, DM9000_EPDRL) + (ior(db, DM9000_EPDRH) << 8));
-+}
-+
-+#ifdef DM9000_PROGRAM_EEPROM
-+/*
-+ * Write a word data to SROM
-+ */
-+static void
-+write_srom_word(board_info_t * db, int offset, u16 val)
-+{
-+	iow(db, DM9000_EPAR, offset);
-+	iow(db, DM9000_EPDRH, ((val >> 8) & 0xff));
-+	iow(db, DM9000_EPDRL, (val & 0xff));
-+	iow(db, DM9000_EPCR, EPCR_WEP | EPCR_ERPRW);
-+	mdelay(8);		/* same shit */
-+	iow(db, DM9000_EPCR, 0);
-+}
-+
-+/*
-+ * Only for development:
-+ * Here we write static data to the eeprom in case
-+ * we don't have valid content on a new board
-+ */
-+static void
-+program_eeprom(board_info_t * db)
-+{
-+	u16 eeprom[] = { 0x0c00, 0x007f, 0x1300,	/* MAC Address */
-+		0x0000,		/* Autoload: accept nothing */
-+		0x0a46, 0x9000,	/* Vendor / Product ID */
-+		0x0000,		/* pin control */
-+		0x0000,
-+	};			/* Wake-up mode control */
-+	int i;
-+	for (i = 0; i < 8; i++)
-+		write_srom_word(db, i, eeprom[i]);
-+}
-+#endif
-+
-+
-+/*
-+ *  Calculate the CRC valude of the Rx packet
-+ *  flag = 1 : return the reverse CRC (for the received packet CRC)
-+ *         0 : return the normal CRC (for Hash Table index)
-+ */
-+
-+static unsigned long
-+cal_CRC(unsigned char *Data, unsigned int Len, u8 flag)
-+{
-+
-+       u32 crc = ether_crc_le(Len, Data);
-+
-+       if (flag)
-+               return ~crc;
-+
-+       return crc;
-+}
-+
-+/*
-+ *  Set DM9000 multicast address
-+ */
-+static void
-+dm9000_hash_table(struct net_device *dev)
-+{
-+	board_info_t *db = (board_info_t *) dev->priv;
-+	struct dev_mc_list *mcptr = dev->mc_list;
-+	int mc_cnt = dev->mc_count;
-+	u32 hash_val;
-+	u16 i, oft, hash_table[4];
-+	unsigned long flags;
-+
-+	PRINTK2("dm9000_hash_table()\n");
-+
-+	spin_lock_irqsave(&db->lock,flags);
-+
-+	for (i = 0, oft = 0x10; i < 6; i++, oft++)
-+		iow(db, oft, dev->dev_addr[i]);
-+
-+	/* Clear Hash Table */
-+	for (i = 0; i < 4; i++)
-+		hash_table[i] = 0x0;
-+
-+	/* broadcast address */
-+	hash_table[3] = 0x8000;
-+
-+	/* the multicast address in Hash Table : 64 bits */
-+	for (i = 0; i < mc_cnt; i++, mcptr = mcptr->next) {
-+		hash_val = cal_CRC((char *) mcptr->dmi_addr, 6, 0) & 0x3f;
-+		hash_table[hash_val / 16] |= (u16) 1 << (hash_val % 16);
-+	}
-+
-+	/* Write the hash table to MAC MD table */
-+	for (i = 0, oft = 0x16; i < 4; i++) {
-+		iow(db, oft++, hash_table[i] & 0xff);
-+		iow(db, oft++, (hash_table[i] >> 8) & 0xff);
-+	}
-+
-+	spin_unlock_irqrestore(&db->lock,flags);
-+}
-+
-+
-+/*
-+ *   Read a word from phyxcer
-+ */
-+static int
-+dm9000_phy_read(struct net_device *dev, int phy_reg_unused, int reg)
-+{
-+	board_info_t *db = (board_info_t *) dev->priv;
-+	unsigned long flags;
-+	int ret;
-+
-+	spin_lock_irqsave(&db->lock,flags);
-+	/* Fill the phyxcer register into REG_0C */
-+	iow(db, DM9000_EPAR, DM9000_PHY | reg);
-+
-+	iow(db, DM9000_EPCR, 0xc);	/* Issue phyxcer read command */
-+	udelay(100);		/* Wait read complete */
-+	iow(db, DM9000_EPCR, 0x0);	/* Clear phyxcer read command */
-+
-+	/* The read data keeps on REG_0D & REG_0E */
-+	ret = (ior(db, DM9000_EPDRH) << 8) | ior(db, DM9000_EPDRL);
-+
-+	spin_unlock_irqrestore(&db->lock,flags);
-+
-+	return ret;
-+}
-+
-+/*
-+ *   Write a word to phyxcer
-+ */
-+static void
-+dm9000_phy_write(struct net_device *dev, int phyaddr_unused, int reg, int value)
-+{
-+	board_info_t *db = (board_info_t *) dev->priv;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&db->lock,flags);
-+
-+	/* Fill the phyxcer register into REG_0C */
-+	iow(db, DM9000_EPAR, DM9000_PHY | reg);
-+
-+	/* Fill the written data into REG_0D & REG_0E */
-+	iow(db, DM9000_EPDRL, (value & 0xff));
-+	iow(db, DM9000_EPDRH, ((value >> 8) & 0xff));
-+
-+	iow(db, DM9000_EPCR, 0xa);	/* Issue phyxcer write command */
-+	udelay(500);		/* Wait write complete */
-+	iow(db, DM9000_EPCR, 0x0);	/* Clear phyxcer write command */
-+
-+	spin_unlock_irqrestore(&db->lock,flags);
-+}
-+
-+static int
-+dm9000_drv_suspend(struct device *dev, u32 state, u32 level)
-+{
-+	struct net_device *ndev = dev_get_drvdata(dev);
-+
-+	if (ndev && level == SUSPEND_DISABLE) {
-+		if (netif_running(ndev)) {
-+			netif_device_detach(ndev);
-+			dm9000_shutdown(ndev);
-+		}
-+	}
-+	return 0;
-+}
-+
-+static int
-+dm9000_drv_resume(struct device *dev, u32 level)
-+{
-+	struct net_device *ndev = dev_get_drvdata(dev);
-+	board_info_t *db = (board_info_t *) ndev->priv;
-+
-+	if (ndev && level == RESUME_ENABLE) {
-+
-+		if (netif_running(ndev)) {
-+			dm9000_reset(db);
-+			dm9000_init_dm9000(ndev);
-+
-+			netif_device_attach(ndev);
-+		}
-+	}
-+	return 0;
-+}
-+
-+static int
-+dm9000_drv_remove(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct net_device *ndev = dev_get_drvdata(dev);
-+
-+	dev_set_drvdata(dev, NULL);
-+
-+	unregister_netdev(ndev);
-+	dm9000_release_board(pdev, (board_info_t *) ndev->priv);
-+	kfree(ndev);		/* free device structure */
-+
-+	PRINTK1("clean_module() exit\n");
-+
-+	return 0;
-+}
-+
-+static struct device_driver dm9000_driver = {
-+	.name    = "dm9000",
-+	.bus     = &platform_bus_type,
-+	.probe   = dm9000_probe,
-+	.remove  = dm9000_drv_remove,
-+	.suspend = dm9000_drv_suspend,
-+	.resume  = dm9000_drv_resume,
-+};
-+
-+static int __init
-+dm9000_init(void)
-+{
-+	return driver_register(&dm9000_driver);	/* search board and register */
-+}
-+
-+static void __exit
-+dm9000_cleanup(void)
-+{
-+	driver_unregister(&dm9000_driver);
-+}
-+
-+module_init(dm9000_init);
-+module_exit(dm9000_cleanup);
-+
-+MODULE_AUTHOR("Sascha Hauer, Ben Dooks");
-+MODULE_DESCRIPTION("Davicom DM9000 network driver");
-+MODULE_LICENSE("GPL");
-diff -urN linux-2.6.11/drivers/net/dm9000.h linux-2.6.11-work/drivers/net/dm9000.h
---- linux-2.6.11/drivers/net/dm9000.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.11-work/drivers/net/dm9000.h	2005-03-17 15:59:43.000000000 +0100
-@@ -0,0 +1,135 @@
-+/*
-+ * dm9000 Ethernet
-+ */
-+
-+#ifndef _DM9000X_H_
-+#define _DM9000X_H_
-+
-+#define DM9000_ID		0x90000A46
-+
-+/* although the registers are 16 bit, they are 32-bit aligned.
-+ */
-+
-+#define DM9000_NCR             0x00
-+#define DM9000_NSR             0x01
-+#define DM9000_TCR             0x02
-+#define DM9000_TSR1            0x03
-+#define DM9000_TSR2            0x04
-+#define DM9000_RCR             0x05
-+#define DM9000_RSR             0x06
-+#define DM9000_ROCR            0x07
-+#define DM9000_BPTR            0x08
-+#define DM9000_FCTR            0x09
-+#define DM9000_FCR             0x0A
-+#define DM9000_EPCR            0x0B
-+#define DM9000_EPAR            0x0C
-+#define DM9000_EPDRL           0x0D
-+#define DM9000_EPDRH           0x0E
-+#define DM9000_WCR             0x0F
-+
-+#define DM9000_PAR             0x10
-+#define DM9000_MAR             0x16
-+
-+#define DM9000_GPCR	       0x1e
-+#define DM9000_GPR             0x1f
-+#define DM9000_TRPAL           0x22
-+#define DM9000_TRPAH           0x23
-+#define DM9000_RWPAL           0x24
-+#define DM9000_RWPAH           0x25
-+
-+#define DM9000_VIDL            0x28
-+#define DM9000_VIDH            0x29
-+#define DM9000_PIDL            0x2A
-+#define DM9000_PIDH            0x2B
-+
-+#define DM9000_CHIPR           0x2C
-+#define DM9000_SMCR            0x2F
-+
-+#define DM9000_MRCMDX          0xF0
-+#define DM9000_MRCMD           0xF2
-+#define DM9000_MRRL            0xF4
-+#define DM9000_MRRH            0xF5
-+#define DM9000_MWCMDX          0xF6
-+#define DM9000_MWCMD           0xF8
-+#define DM9000_MWRL            0xFA
-+#define DM9000_MWRH            0xFB
-+#define DM9000_TXPLL           0xFC
-+#define DM9000_TXPLH           0xFD
-+#define DM9000_ISR             0xFE
-+#define DM9000_IMR             0xFF
-+
-+#define NCR_EXT_PHY         (1<<7)
-+#define NCR_WAKEEN          (1<<6)
-+#define NCR_FCOL            (1<<4)
-+#define NCR_FDX             (1<<3)
-+#define NCR_LBK             (3<<1)
-+#define NCR_RST	            (1<<0)
-+
-+#define NSR_SPEED           (1<<7)
-+#define NSR_LINKST          (1<<6)
-+#define NSR_WAKEST          (1<<5)
-+#define NSR_TX2END          (1<<3)
-+#define NSR_TX1END          (1<<2)
-+#define NSR_RXOV            (1<<1)
-+
-+#define TCR_TJDIS           (1<<6)
-+#define TCR_EXCECM          (1<<5)
-+#define TCR_PAD_DIS2        (1<<4)
-+#define TCR_CRC_DIS2        (1<<3)
-+#define TCR_PAD_DIS1        (1<<2)
-+#define TCR_CRC_DIS1        (1<<1)
-+#define TCR_TXREQ           (1<<0)
-+
-+#define TSR_TJTO            (1<<7)
-+#define TSR_LC              (1<<6)
-+#define TSR_NC              (1<<5)
-+#define TSR_LCOL            (1<<4)
-+#define TSR_COL             (1<<3)
-+#define TSR_EC              (1<<2)
-+
-+#define RCR_WTDIS           (1<<6)
-+#define RCR_DIS_LONG        (1<<5)
-+#define RCR_DIS_CRC         (1<<4)
-+#define RCR_ALL	            (1<<3)
-+#define RCR_RUNT            (1<<2)
-+#define RCR_PRMSC           (1<<1)
-+#define RCR_RXEN            (1<<0)
-+
-+#define RSR_RF              (1<<7)
-+#define RSR_MF              (1<<6)
-+#define RSR_LCS             (1<<5)
-+#define RSR_RWTO            (1<<4)
-+#define RSR_PLE             (1<<3)
-+#define RSR_AE              (1<<2)
-+#define RSR_CE              (1<<1)
-+#define RSR_FOE             (1<<0)
-+
-+#define FCTR_HWOT(ot)	(( ot & 0xf ) << 4 )
-+#define FCTR_LWOT(ot)	( ot & 0xf )
-+
-+#define IMR_PAR             (1<<7)
-+#define IMR_ROOM            (1<<3)
-+#define IMR_ROM             (1<<2)
-+#define IMR_PTM             (1<<1)
-+#define IMR_PRM             (1<<0)
-+
-+#define ISR_ROOS            (1<<3)
-+#define ISR_ROS             (1<<2)
-+#define ISR_PTS             (1<<1)
-+#define ISR_PRS             (1<<0)
-+#define ISR_CLR_STATUS      (ISR_ROOS | ISR_ROS | ISR_PTS | ISR_PRS)
-+
-+#define EPCR_REEP           (1<<5)
-+#define EPCR_WEP            (1<<4)
-+#define EPCR_EPOS           (1<<3)
-+#define EPCR_ERPRR          (1<<2)
-+#define EPCR_ERPRW          (1<<1)
-+#define EPCR_ERRE           (1<<0)
-+
-+#define GPCR_GEP_CNTL       (1<<0)
-+
-+#define DM9000_PKT_RDY		0x01	/* Packet ready to receive */
-+#define DM9000_PKT_MAX		1536	/* Received packet max size */
-+
-+#endif /* _DM9000X_H_ */
-+
-diff -urN linux-2.6.11/include/linux/dm9000.h linux-2.6.11-work/include/linux/dm9000.h
---- linux-2.6.11/include/linux/dm9000.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.11-work/include/linux/dm9000.h	2005-03-17 12:34:36.000000000 +0100
-@@ -0,0 +1,36 @@
-+/* include/linux/dm9000.h
-+ *
-+ * Copyright (c) 2004 Simtec Electronics
-+ *   Ben Dooks <ben@simtec.co.uk>
-+ *
-+ * Header file for dm9000 platform data
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+*/
-+
-+#ifndef __DM9000_PLATFORM_DATA
-+#define __DM9000_PLATFORM_DATA __FILE__
-+
-+/* IO control flags */
-+
-+#define DM9000_PLATF_8BITONLY	(0x0001)
-+#define DM9000_PLATF_16BITONLY	(0x0002)
-+#define DM9000_PLATF_32BITONLY	(0x0004)
-+
-+/* platfrom data for platfrom device structure's platfrom_data field */
-+
-+struct dm9000_plat_data {
-+	unsigned int	flags;
-+
-+	/* allow replacement IO routines */
-+
-+	void	(*inblk)(void __iomem *reg, void *data, int len);
-+	void	(*outblk)(void __iomem *reg, void *data, int len);
-+	void	(*dumpblk)(void __iomem *reg, int len);
-+};
-+
-+#endif /* __DM9000_PLATFORM_DATA */
-+
+NOTE2: I have also tried wo/ the madwifi driver, and it can still lock up.
+
+Please let me know I you need more/less info
+
+/Jonas
+
+-- output from uname -a
+Linux eel 2.6.11.2 #2 Fri Mar 18 14:47:09 CET 2005 i686 Intel(R)
+Pentium(R) 4 CPU 3.00GHz GenuineIntel GNU/Linux
+
+-- output from dump_cis
+eel ~ # dump_cis 
+Socket 0:
+  manfid 0x0271, 0x0012
+  config_cb base 0x0000 last_index 0x01
+  cftable_entry_cb 0x01 [default]
+    [master] [parity] [serr] [fast back]
+    Vcc Vnom 3300mV Istatic 25mA Iavg 450mA Ipeak 500mA
+    irq mask 0xffff [level]
+    mem_base 1
+  BAR 1 size 64kb [mem]
+  vers_1 7.1, "Atheros Communications, Inc.", "AR5001-0000-0000",
+    "Wireless LAN Reference Card", "00"
+  funcid network_adapter [post]
+  lan_speed 6 mb/sec
+  lan_speed 9 mb/sec
+  lan_speed 12 mb/sec
+  lan_speed 18 mb/sec
+  lan_speed 24 mb/sec
+  lan_speed 36 mb/sec
+  lan_speed 48 mb/sec
+  lan_speed 54 mb/sec
+  lan_speed 72 mb/sec
+  lan_media 5.4_GHz
+  lan_node_id 00 09 5b ec 43 cd
+  lan_connector Closed connector standard
+
+-- output from dmesg
+Linux version 2.6.11.2 (root@eel) (gcc version 3.3.5 (Gentoo Linux 3.3.5-r1, ssp-3.3.2-3, pie-8.7.7.1)) #2 Fri Mar 18 14:47:09 CET 2005
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009f000 (usable)
+ BIOS-e820: 000000000009f000 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000ce000 - 00000000000d0000 (reserved)
+ BIOS-e820: 00000000000dc000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000000f6f0000 (usable)
+ BIOS-e820: 000000000f6f0000 - 000000000f700000 (reserved)
+ BIOS-e820: 000000000f700000 - 000000003f6f0000 (usable)
+ BIOS-e820: 000000003f6f0000 - 000000003f6f8000 (ACPI data)
+ BIOS-e820: 000000003f6f8000 - 000000003f6fa000 (ACPI NVS)
+ BIOS-e820: 000000003f700000 - 0000000040000000 (reserved)
+ BIOS-e820: 00000000ff800000 - 0000000100000000 (reserved)
+Warning only 896MB will be used.
+Use a HIGHMEM enabled kernel.
+896MB LOWMEM available.
+On node 0 totalpages: 229376
+  DMA zone: 4096 pages, LIFO batch:1
+  Normal zone: 225280 pages, LIFO batch:16
+  HighMem zone: 0 pages, LIFO batch:1
+DMI present.
+ACPI: RSDP (v002 IBM                                   ) @ 0x000f7330
+ACPI: XSDT (v001 IBM    TP-1T    0x00001081  LTP 0x00000000) @ 0x3f6f2435
+ACPI: FADT (v002 IBM    TP-1T    0x00001081 IBM  0x00000001) @ 0x3f6f2479
+ACPI: SSDT (v001 IBM    TP-1T    0x00001081 MSFT 0x0100000d) @ 0x3f6f252d
+ACPI: ECDT (v001 IBM    TP-1T    0x00001081 IBM  0x00000001) @ 0x3f6f7f87
+ACPI: BOOT (v001 IBM    TP-1T    0x00001081  LTP 0x00000001) @ 0x3f6f7fd8
+ACPI: DSDT (v001 IBM    TP-1T    0x00001081 MSFT 0x0100000d) @ 0x00000000
+Allocating PCI resources starting at 40000000 (gap: 40000000:bf800000)
+Built 1 zonelists
+Kernel command line: root=/dev/hda4 resume=/dev/hda3
+Initializing CPU#0
+PID hash table entries: 4096 (order: 12, 65536 bytes)
+Detected 2988.029 MHz processor.
+Using tsc for high-res timesource
+Console: colour VGA+ 80x25
+Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Memory: 904280k/917504k available (3129k kernel code, 12640k reserved, 1103k data, 160k init, 0k highmem)
+Checking if this processor honours the WP bit even in supervisor mode... Ok.
+Calibrating delay loop... 5898.24 BogoMIPS (lpj=2949120)
+Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+CPU: After generic identify, caps: bfebf9ff 00000000 00000000 00000000 00004400 00000000 00000000
+CPU: After vendor identify, caps: bfebf9ff 00000000 00000000 00000000 00004400 00000000 00000000
+CPU: Trace cache: 12K uops, L1 D cache: 8K
+CPU: L2 cache: 512K
+CPU: After all inits, caps: bfebf9ff 00000000 00000000 00000080 00004400 00000000 00000000
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU0: Intel P4/Xeon Extended MCE MSRs (12) available
+CPU: Intel(R) Pentium(R) 4 CPU 3.00GHz stepping 09
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+ACPI: setting ELCR to 0200 (from 0298)
+NET: Registered protocol family 16
+PCI: PCI BIOS revision 2.10 entry at 0xfd966, last bus=5
+PCI: Using configuration type 1
+mtrr: v2.0 (20020519)
+ACPI: Subsystem revision 20050211
+ACPI: Found ECDT
+ACPI: Could not use ECDT
+ACPI: Interpreter enabled
+ACPI: Using PIC for interrupt routing
+ACPI: PCI Interrupt Link [LNKA] (IRQs *3 4 5 6 7 9 10 11)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 3 *4 5 6 7 9 10 11)
+ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 *7 9 10 11)
+ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 7 *9 10 11)
+ACPI: PCI Interrupt Link [LNKE] (IRQs *3 4 5 6 7 9 10 11)
+ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 6 7 9 10 11) *0, disabled.
+ACPI: PCI Interrupt Link [LNKG] (IRQs 3 4 5 6 7 9 10 11) *0, disabled.
+ACPI: PCI Interrupt Link [LNKH] (IRQs 3 4 5 6 *7 9 10 11)
+ACPI: PCI Root Bridge [PCI0] (00:00)
+PCI: Probing PCI hardware (bus 00)
+PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
+PCI: Transparent bridge - 0000:00:1e.0
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+ACPI: Embedded Controller [EC] (gpe 29)
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.PCI1._PRT]
+Linux Plug and Play Support v0.97 (c) Adam Belay
+pnp: PnP ACPI init
+pnp: PnP ACPI: found 10 devices
+Linux Kernel Card Services
+  options:  [pci] [cardbus] [pm]
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+PCI: Using ACPI for IRQ routing
+** PCI interrupts are no longer routed automatically.  If this
+** causes a device to stop working, it is probably because the
+** driver failed to call pci_enable_device().  As a temporary
+** workaround, the "pci=routeirq" argument restores the old
+** behavior.  If this argument makes the device work again,
+** please email the output of "lspci" to bjorn.helgaas@hp.com
+** so I can fix the driver.
+Simple Boot Flag at 0x35 set to 0x1
+IA-32 Microcode Update Driver: v1.14 <tigran@veritas.com>
+audit: initializing netlink socket (disabled)
+audit(1111156449.775:0): initialized
+devfs: 2004-01-31 Richard Gooch (rgooch@atnf.csiro.au)
+devfs: boot_options: 0x1
+Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+NTFS driver 2.1.22 [Flags: R/O].
+Initializing Cryptographic API
+pci_hotplug: PCI Hot Plug PCI Core version: 0.5
+ACPI: AC Adapter [AC] (on-line)
+ACPI: Battery Slot [BAT1] (battery present)
+ACPI: Power Button (FF) [PWRF]
+ACPI: Lid Switch [LID]
+ACPI: Sleep Button (CM) [SLPB]
+ACPI: Video Device [VID] (multi-head: yes  rom: no  post: no)
+ACPI: CPU0 (power states: C1[C1] C2[C2])
+ACPI: Processor [CPU0] (supports 4 throttling states)
+ACPI: Thermal Zone [THRM] (51 C)
+ibm_acpi: IBM ThinkPad ACPI Extras v0.8
+ibm_acpi: http://ibm-acpi.sf.net/
+Linux agpgart interface v0.100 (c) Dave Jones
+agpgart: Detected an Intel 855 Chipset.
+agpgart: Maximum main memory to use for agp memory: 816M
+agpgart: Detected 8060K stolen memory.
+agpgart: AGP aperture is 128M @ 0xe0000000
+[drm] Initialized drm 1.0.0 20040925
+serio: i8042 AUX port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
+ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 4
+PCI: setting IRQ 4 as level-triggered
+ACPI: PCI interrupt 0000:00:1f.6[B] -> GSI 4 (level, low) -> IRQ 4
+parport: PnPBIOS parport detected.
+parport0: PC-style at 0x3bc, irq 5 [PCSPP(,...)]
+io scheduler noop registered
+io scheduler anticipatory registered
+io scheduler deadline registered
+io scheduler cfq registered
+Floppy drive(s): fd0 is 1.44M
+FDC 0 is a National Semiconductor PC87306
+loop: loaded (max 8 devices)
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+ICH4: IDE controller at PCI slot 0000:00:1f.1
+PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
+ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 7
+PCI: setting IRQ 7 as level-triggered
+ACPI: PCI interrupt 0000:00:1f.1[A] -> GSI 7 (level, low) -> IRQ 7
+ICH4: chipset revision 1
+ICH4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0x1810-0x1817, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0x1818-0x181f, BIOS settings: hdc:DMA, hdd:pio
+Probing IDE interface ide0...
+hda: IC25N060ATMR04-0, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Probing IDE interface ide1...
+hdc: DW-224E, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+Probing IDE interface ide2...
+Probing IDE interface ide3...
+Probing IDE interface ide4...
+Probing IDE interface ide5...
+hda: max request size: 128KiB
+hda: Host Protected Area detected.
+        current capacity is 111668597 sectors (57174 MB)
+        native  capacity is 117210240 sectors (60011 MB)
+hda: Host Protected Area disabled.
+hda: 117210240 sectors (60011 MB) w/7884KiB Cache, CHS=65535/16/63, UDMA(100)
+hda: cache flushes supported
+ /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 p4
+hdc: ATAPI 24X DVD-ROM CD-R/RW drive, 1658kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.20
+ACPI: PCI Interrupt Link [LNKH] enabled at IRQ 7
+ACPI: PCI interrupt 0000:00:1d.7[D] -> GSI 7 (level, low) -> IRQ 7
+ehci_hcd 0000:00:1d.7: Intel Corp. 82801DB/DBM (ICH4/ICH4-M) USB 2.0 EHCI Controller
+PCI: Setting latency timer of device 0000:00:1d.7 to 64
+ehci_hcd 0000:00:1d.7: irq 7, pci mem 0xd0100000
+ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 1
+PCI: cache line size of 128 is not supported by device 0000:00:1d.7
+ehci_hcd 0000:00:1d.7: USB 2.0 initialized, EHCI 1.00, driver 10 Dec 2004
+hub 1-0:1.0: USB hub found
+hub 1-0:1.0: 6 ports detected
+USB Universal Host Controller Interface driver v2.2
+ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 3
+PCI: setting IRQ 3 as level-triggered
+ACPI: PCI interrupt 0000:00:1d.0[A] -> GSI 3 (level, low) -> IRQ 3
+uhci_hcd 0000:00:1d.0: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #1
+PCI: Setting latency timer of device 0000:00:1d.0 to 64
+uhci_hcd 0000:00:1d.0: irq 3, io base 0x1820
+uhci_hcd 0000:00:1d.0: new USB bus registered, assigned bus number 2
+hub 2-0:1.0: USB hub found
+hub 2-0:1.0: 2 ports detected
+ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 9
+PCI: setting IRQ 9 as level-triggered
+ACPI: PCI interrupt 0000:00:1d.1[B] -> GSI 9 (level, low) -> IRQ 9
+uhci_hcd 0000:00:1d.1: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #2
+PCI: Setting latency timer of device 0000:00:1d.1 to 64
+uhci_hcd 0000:00:1d.1: irq 9, io base 0x1840
+uhci_hcd 0000:00:1d.1: new USB bus registered, assigned bus number 3
+hub 3-0:1.0: USB hub found
+hub 3-0:1.0: 2 ports detected
+ACPI: PCI interrupt 0000:00:1d.2[C] -> GSI 7 (level, low) -> IRQ 7
+uhci_hcd 0000:00:1d.2: Intel Corp. 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #3
+PCI: Setting latency timer of device 0000:00:1d.2 to 64
+uhci_hcd 0000:00:1d.2: irq 7, io base 0x1860
+uhci_hcd 0000:00:1d.2: new USB bus registered, assigned bus number 4
+hub 4-0:1.0: USB hub found
+hub 4-0:1.0: 2 ports detected
+usb 3-2: new low speed USB device using uhci_hcd and address 2
+input: USB HID v1.10 Mouse [Logitech USB Receiver] on usb-0000:00:1d.1-2
+usbcore: registered new driver usbhid
+drivers/usb/input/hid-core.c: v2.0:USB HID core driver
+mice: PS/2 mouse device common for all mice
+input: AT Translated Set 2 keyboard on isa0060/serio0
+input: PS/2 Generic Mouse on isa0060/serio1
+I2O subsystem v$Rev$
+i2o: max drivers = 8
+I2O Configuration OSM v$Rev$
+I2O ProcFS OSM v$Rev$
+Advanced Linux Sound Architecture Driver Version 1.0.8 (Thu Jan 13 09:39:32 2005 UTC).
+ACPI: PCI interrupt 0000:00:1f.5[B] -> GSI 4 (level, low) -> IRQ 4
+PCI: Setting latency timer of device 0000:00:1f.5 to 64
+intel8x0_measure_ac97_clock: measured 49335 usecs
+intel8x0: clocking to 48000
+ACPI: PCI interrupt 0000:00:1f.6[B] -> GSI 4 (level, low) -> IRQ 4
+PCI: Setting latency timer of device 0000:00:1f.6 to 64
+ALSA device list:
+  #0: Intel 82801DB-ICH4 with AD1981B at 0xd0100c00, irq 4
+  #1: Intel 82801DB-ICH4 Modem at 0x2400, irq 4
+oprofile: using timer interrupt.
+NET: Registered protocol family 2
+IP: routing cache hash table of 8192 buckets, 64Kbytes
+TCP established hash table entries: 131072 (order: 8, 1048576 bytes)
+TCP bind hash table entries: 65536 (order: 6, 262144 bytes)
+TCP: Hash tables configured (established 131072 bind 65536)
+NET: Registered protocol family 1
+NET: Registered protocol family 17
+ACPI wakeup devices: 
+ LID SLPB PCI0 BLAN CBS0 USB0 USB1 USB2 AC97 
+ACPI: (supports S0 S3 S4 S5)
+ReiserFS: hda4: found reiserfs format "3.6" with standard journal
+ReiserFS: hda4: using ordered data mode
+ReiserFS: hda4: journal params: device hda4, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
+ReiserFS: hda4: checking transaction log (hda4)
+ReiserFS: hda4: Using r5 hash to sort names
+VFS: Mounted root (reiserfs filesystem) readonly.
+Mounted devfs on /dev
+Freeing unused kernel memory: 160k freed
+Adding 1005472k swap on /dev/hda3.  Priority:-1 extents:1
+tg3.c:v3.23 (February 15, 2005)
+ACPI: PCI interrupt 0000:02:00.0[A] -> GSI 3 (level, low) -> IRQ 3
+eth0: Tigon3 [partno(BCM95901A50) rev 3001 PHY(5705)] (PCI:33MHz:32-bit) 10/100BaseT Ethernet 00:06:1b:c4:30:dd
+eth0: RXcsums[1] LinkChgREG[0] MIirq[0] ASF[0] Split[0] WireSpeed[1] TSOcap[1] 
+NTFS volume version 3.1.
+tg3: eth0: Link is up at 100 Mbps, full duplex.
+tg3: eth0: Flow control is on for TX and on for RX.
+tg3: eth0: Link is up at 100 Mbps, full duplex.
+tg3: eth0: Flow control is on for TX and on for RX.
+ACPI: PCI interrupt 0000:02:01.0[A] -> GSI 4 (level, low) -> IRQ 4
+Yenta: CardBus bridge found at 0000:02:01.0 [1014:054e]
+Yenta: adjusting diagnostic: 40 -> 60
+Yenta: Using CSCINT to route CSC interrupts to PCI
+Yenta: Routing CardBus interrupts to PCI
+Yenta TI: socket 0000:02:01.0, mfunc 0x011c1112, devctl 0x64
+Yenta: ISA IRQ mask 0x0c00, PCI irq 4
+Socket status: 30000020
+irq 4: nobody cared!
+ [<c01036ce>] dump_stack+0x1e/0x30
+ [<c0136d4b>] __report_bad_irq+0x2b/0xa0
+ [<c0136e56>] note_interrupt+0x66/0xa0
+ [<c0136817>] __do_IRQ+0x147/0x150
+ [<c0104c66>] do_IRQ+0x26/0x40
+ [<c01032ae>] common_interrupt+0x1a/0x20
+ [<c011c84a>] do_softirq+0x2a/0x30
+ [<c011c916>] irq_exit+0x36/0x40
+ [<c0104c6b>] do_IRQ+0x2b/0x40
+ [<c01032ae>] common_interrupt+0x1a/0x20
+ [<c0101110>] cpu_idle+0x50/0x60
+ [<c052681f>] start_kernel+0x14f/0x170
+ [<c010019f>] 0xc010019f
+handlers:
+[<c0389eb0>] (snd_intel8x0_interrupt+0x0/0x260)
+[<c038d1b0>] (snd_intel8x0_interrupt+0x0/0x260)
+[<f8a4a8a0>] (yenta_interrupt+0x0/0x40 [yenta_socket])
+Disabling IRQ #4
+ath_hal: module license 'Proprietary' taints kernel.
+ath_hal: 0.9.14.9 (AR5210, AR5211, AR5212, RF5111, RF5112, RF2413)
+wlan: 0.8.4.5 (EXPERIMENTAL)
+ath_rate_onoe: 1.0
+ath_pci: 0.9.4.12 (EXPERIMENTAL)
+PCI: Enabling device 0000:03:00.0 (0000 -> 0002)
+ACPI: PCI interrupt 0000:03:00.0[A] -> GSI 4 (level, low) -> IRQ 4
+ath0: 11b rates: 1Mbps 2Mbps 5.5Mbps 11Mbps
+ath0: 11g rates: 1Mbps 2Mbps 5.5Mbps 11Mbps 6Mbps 9Mbps 12Mbps 18Mbps 24Mbps 36Mbps 48Mbps 54Mbps
+ath0: mac 5.9 phy 4.3 radio 4.6
+ath0: 802.11 address: 00:09:5b:ec:43:cd
+ath0: Use hw queue 0 for WME_AC_BE traffic
+ath0: Use hw queue 1 for WME_AC_BK traffic
+ath0: Use hw queue 2 for WME_AC_VI traffic
+ath0: Use hw queue 3 for WME_AC_VO traffic
+ath0: Atheros 5212: mem=0x40800000, irq=4
+
+-- output from lspci -vv
+0000:00:00.0 Host bridge: Intel Corporation 82852/82855 GM/GME/PM/GMV Processor to I/O Controller (rev 01)
+        Subsystem: IBM: Unknown device 054a
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 0
+        Region 0: Memory at <unassigned> (32-bit, prefetchable)
+        Capabilities: [40] #09 [e105]
+
+0000:00:00.1 System peripheral: Intel Corporation 82852/82855 GM/GME/PM/GMV Processor to I/O Controller (rev 01)
+        Subsystem: IBM: Unknown device 054b
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+
+0000:00:00.3 System peripheral: Intel Corporation 82852/82855 GM/GME/PM/GMV Processor to I/O Controller (rev 01)
+        Subsystem: IBM: Unknown device 054c
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+
+0000:00:02.0 VGA compatible controller: Intel Corporation 82852/855GM Integrated Graphics Device (rev 01) (prog-if 00 [VGA])
+        Subsystem: IBM: Unknown device 0543
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin A routed to IRQ 3
+        Region 0: Memory at e0000000 (32-bit, prefetchable)
+        Region 1: Memory at d0000000 (32-bit, non-prefetchable) [size=512K]
+        Region 2: I/O ports at 1800 [size=8]
+        Capabilities: [d0] Power Management version 1
+                Flags: PMEClk- DSI+ D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+0000:00:02.1 Display controller: Intel Corporation 82852/855GM Integrated Graphics Device (rev 01)
+        Subsystem: IBM: Unknown device 0543
+        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Region 0: Memory at e8000000 (32-bit, prefetchable)
+        Region 1: Memory at d0080000 (32-bit, non-prefetchable) [size=512K]
+        Capabilities: [d0] Power Management version 1
+                Flags: PMEClk- DSI+ D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+0000:00:1d.0 USB Controller: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #1 (rev 01) (prog-if 00 [UHCI])
+        Subsystem: IBM: Unknown device 0547
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin A routed to IRQ 3
+        Region 4: I/O ports at 1820 [size=32]
+
+0000:00:1d.1 USB Controller: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #2 (rev 01) (prog-if 00 [UHCI])
+        Subsystem: IBM: Unknown device 0547
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin B routed to IRQ 9
+        Region 4: I/O ports at 1840 [size=32]
+
+0000:00:1d.2 USB Controller: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #3 (rev 01) (prog-if 00 [UHCI])
+        Subsystem: IBM: Unknown device 0547
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin C routed to IRQ 7
+        Region 4: I/O ports at 1860 [size=32]
+
+0000:00:1d.7 USB Controller: Intel Corporation 82801DB/DBM (ICH4/ICH4-M) USB2 EHCI Controller (rev 01) (prog-if 20 [EHCI])
+        Subsystem: IBM: Unknown device 0548
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin D routed to IRQ 7
+        Region 0: Memory at d0100000 (32-bit, non-prefetchable)
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [58] #0a [2080]
+
+0000:00:1e.0 PCI bridge: Intel Corporation 82801 Mobile PCI Bridge (rev 81) (prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR+
+        Latency: 0
+        Bus: primary=00, secondary=02, subordinate=05, sec-latency=64
+        I/O behind bridge: 00003000-00006fff
+        Memory behind bridge: d0200000-dfffffff
+        Prefetchable memory behind bridge: f0000000-f7ffffff
+        BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
+
+0000:00:1f.0 ISA bridge: Intel Corporation 82801DBM (ICH4-M) LPC Interface Bridge (rev 01)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+
+0000:00:1f.1 IDE interface: Intel Corporation 82801DBM (ICH4-M) IDE Controller (rev 01) (prog-if 8a [Master SecP PriP])
+        Subsystem: IBM: Unknown device 0547
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin A routed to IRQ 7
+        Region 0: I/O ports at <unassigned>
+        Region 1: I/O ports at <unassigned>
+        Region 2: I/O ports at <unassigned>
+        Region 3: I/O ports at <unassigned>
+        Region 4: I/O ports at 1810 [size=16]
+        Region 5: Memory at 40000000 (32-bit, non-prefetchable) [size=1K]
+
+0000:00:1f.3 SMBus: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) SMBus Controller (rev 01)
+        Subsystem: IBM: Unknown device 0547
+        Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin B routed to IRQ 4
+        Region 4: I/O ports at 1880 [size=32]
+
+0000:00:1f.5 Multimedia audio controller: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) AC'97 Audio Controller (rev 01)
+        Subsystem: IBM: Unknown device 0542
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin B routed to IRQ 4
+        Region 0: I/O ports at 1c00
+        Region 1: I/O ports at 18c0 [size=64]
+        Region 2: Memory at d0100c00 (32-bit, non-prefetchable) [size=512]
+        Region 3: Memory at d0100800 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+0000:00:1f.6 Modem: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) AC'97 Modem Controller (rev 01) (prog-if 00 [Generic])
+        Subsystem: IBM: Unknown device 0544
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin B routed to IRQ 4
+        Region 0: I/O ports at 2400
+        Region 1: I/O ports at 2000 [size=128]
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+0000:02:00.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5901 100Base-TX (rev 01)
+        Subsystem: IBM ThinkPad R40e (2684-HVG) builtin ethernet controller
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (16000ns min), cache line size 08
+        Interrupt: pin A routed to IRQ 3
+        Region 0: Memory at d0200000 (64-bit, non-prefetchable)
+        Capabilities: [48] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=1 PME-
+        Capabilities: [50] Vital Product Data
+        Capabilities: [58] Message Signalled Interrupts: 64bit+ Queue=0/3 Enable-
+                Address: ffbafffffffefffc  Data: dfff
+
+0000:02:01.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus Controller (rev 02)
+        Subsystem: IBM: Unknown device 054e
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 168, cache line size 20
+        Interrupt: pin A routed to IRQ 4
+        Region 0: Memory at 40001000 (32-bit, non-prefetchable)
+        Bus: primary=02, secondary=03, subordinate=06, sec-latency=176
+        Memory window 0: 40400000-407ff000 (prefetchable)
+        Memory window 1: 40800000-40bff000
+        I/O window 0: 00004000-000040ff
+        I/O window 1: 00004400-000044ff
+        BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt- PostWrite+
+        16-bit legacy interface ports at 0001
+
+0000:03:00.0 Ethernet controller: Atheros Communications, Inc. AR5212 802.11abg NIC (rev 01)
+        Subsystem: Netgear: Unknown device 4b00
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 168 (2500ns min, 7000ns max), cache line size 20
+        Interrupt: pin A routed to IRQ 4
+        Region 0: Memory at 40800000 (32-bit, non-prefetchable)
+        Capabilities: [44] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+
+-- 
+Jonas Oreland, Software Engineer
+MySQL AB, www.mysql.com
 

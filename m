@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129485AbRAOSXq>; Mon, 15 Jan 2001 13:23:46 -0500
+	id <S129431AbRAOSe1>; Mon, 15 Jan 2001 13:34:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129601AbRAOSXh>; Mon, 15 Jan 2001 13:23:37 -0500
-Received: from pcep-jamie.cern.ch ([137.138.38.126]:38414 "EHLO
-	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
-	id <S129485AbRAOSX1>; Mon, 15 Jan 2001 13:23:27 -0500
-Date: Mon, 15 Jan 2001 19:22:01 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Ralf Baechle <ralf@uni-koblenz.de>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
-        linux-mm@frodo.biederman.org
-Subject: Re: Caches, page coloring, virtual indexed caches, and more
-Message-ID: <20010115192201.A18795@pcep-jamie.cern.ch>
-In-Reply-To: <Pine.LNX.4.10.10101101100001.4457-100000@penguin.transmeta.com> <E14GR38-0000nM-00@the-village.bc.nu> <20010111005657.B2243@khan.acc.umu.se> <20010112035620.B1254@bacchus.dhis.org> <m17l40hhtd.fsf@frodo.biederman.org> <20010115005315.D1656@bacchus.dhis.org> <m1snmlfbrx.fsf_-_@frodo.biederman.org> <20010115095432.A14351@bacchus.dhis.org>
-Mime-Version: 1.0
+	id <S129593AbRAOSeS>; Mon, 15 Jan 2001 13:34:18 -0500
+Received: from [62.254.209.2] ([62.254.209.2]:62455 "EHLO cam-gw.zeus.co.uk")
+	by vger.kernel.org with ESMTP id <S129431AbRAOSeL>;
+	Mon, 15 Jan 2001 13:34:11 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010115095432.A14351@bacchus.dhis.org>; from ralf@uni-koblenz.de on Mon, Jan 15, 2001 at 09:54:32AM -0200
+Content-Transfer-Encoding: 7bit
+Message-ID: <14947.17050.127502.936533@leda.cam.zeus.com>
+Date: Mon, 15 Jan 2001 18:34:02 +0000
+From: Jonathan Thackray <jthackray@zeus.com>
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <Pine.LNX.4.30.0101150753010.30402-100000@twinlark.arctic.org>
+In-Reply-To: <14947.5703.60574.309140@leda.cam.zeus.com>
+	<Pine.LNX.4.30.0101150753010.30402-100000@twinlark.arctic.org>
+X-Mailer: VM 6.89 under 21.1 (patch 3) "Acadia" XEmacs Lucid
+Organization: Zeus Technology Ltd
+X-Tel: +44 1223 525000
+X-Fax: +44 1223 525100
+X-Url: http://www.zeus.com/
+X-Scanner: exiscan *14IESA-0004Ud-00*NeOFWPCmGQQ* http://duncanthrax.net/exiscan/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralf Baechle wrote:
-> > mremap.  Linux specific but pretty much the same as mmap, but easier.
-> > We just enforce that the virtual address of the source of mremap,
-> > and the destination of mremap match on VIRT_INDEX_BITS.
-> 
-> Correct and as mremap doesn't take any address argument we won't break
-> any expecations on the properties of the returned address in mmap.
 
-See MREMAP_FIXED.  There is an address argument, not mentioned in the
-manpage (man-pages 1.30).
+> how would sendpath() construct the Content-Length in the HTTP header?
 
-> > Hmm.  This doesn't sound right.  And this sounds like a silly way to
-> > use reverse mappings anyway, since you can do it up front in mmap and
-> > their kin.  Which means you don't have to slow any of the page fault
-> > logic up.
-> 
-> Then how do you handle something like:
-> 
->   fd = open(TESTFILE, O_RDWR | O_CREAT, 664);
->   res = write(fd, one, 4096);
->   mmap(addr            , PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
->   mmap(addr + PAGE_SIZE, PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-> 
-> If both mappings are immediately created accessible you'll directly endup
-> with aliases.  There is no choice, if the pagesize is only 4kb an R4x00
-> will create aliases in the case.  Bad.
+You'd still stat() the file to decide whether to use sendpath() to
+send it or not, if it was Last-Modified: etc. Of course, you'd cache
+stat() calls too for a few seconds. The main thing is that you save
+a valuable fd and open() is expensive, even more so than stat().
 
-Indeed, a particularly nice way to handle circular buffers for DSP
-algorithms provided it works :-)
+> TCP_CORK is useful for FAR more than just sendfile() headers and
+> footers.  it's arguably the most correct way to write server code.
 
--- Jamie
+Agreed -- the hard-coded Nagle algorithm makes no sense these days.
+
+> imnsho if you want to optimise static file serving then it's pretty
+> pointless to continue working in userland.  nobody is going to catch up
+> with all the kernel-side implementations in linux, NT, and solaris.
+
+Hmmm, there's a place for userland httpds that are within a few
+percent of kernel ones (like Zeus is, when I last looked). But I
+agree, hybrid approaches will become more common, although the trend
+towards server-side dynamic pages negate this. A kernel approach is a
+definite win if you're used to using a limited-scalability userland
+httpd like Apache.
+
+Jon.
+
+-- 
+Jonathan Thackray         Zeus House, Cowley Road, Cambridge CB4 OZT, UK
+Software Engineer                   +44 1223 525000, fax +44 1223 525100
+Zeus Technology                                     http://www.zeus.com/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,54 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266479AbRGTCES>; Thu, 19 Jul 2001 22:04:18 -0400
+	id <S266483AbRGTCa0>; Thu, 19 Jul 2001 22:30:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266483AbRGTCEJ>; Thu, 19 Jul 2001 22:04:09 -0400
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:59325 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S266479AbRGTCDx>; Thu, 19 Jul 2001 22:03:53 -0400
-Date: Fri, 20 Jul 2001 03:03:58 +0100 (BST)
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-To: Pete Zaitcev <zaitcev@redhat.com>
-cc: linux-kernel@vger.kernel.org
+	id <S266488AbRGTCaP>; Thu, 19 Jul 2001 22:30:15 -0400
+Received: from gull.mail.pas.earthlink.net ([207.217.121.85]:962 "EHLO
+	gull.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S266483AbRGTCaC>; Thu, 19 Jul 2001 22:30:02 -0400
+Date: Thu, 19 Jul 2001 22:29:59 -0400
+Message-Id: <200107200229.f6K2Txb08719@moisil.badula.org>
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Minor cleanup and export three functions
-In-Reply-To: <200107200124.f6K1OYj25195@devserv.devel.redhat.com>
-Message-ID: <Pine.SOL.3.96.1010720025939.20818B-100000@virgo.cus.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <Pine.SOL.3.96.1010720025939.20818B-100000@virgo.cus.cam.ac.uk>
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.2.19 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, 19 Jul 2001, Pete Zaitcev wrote:
+On Fri, 20 Jul 2001 03:03:58 +0100 (BST), Anton Altaparmakov <aia21@cus.cam.ac.uk> wrote:
 
-> >   This message is in MIME format.  The first part should be readable text,
-> >   while the remaining parts are likely unreadable without MIME-aware tools.
-> 
-> Quite so. Linus told you many times not to send patches
-> in MIME and I happen to agree.
-> 
-> > Content-Type: TEXT/PLAIN; charset=US-ASCII; name="patch-2.4.7-pre8-aia1"
-> > Content-Transfer-Encoding: BASE64
-> > Content-ID: <Pine.SOL.3.96.1010720021900.20239B@virgo.cus.cam.ac.uk>
-> > Content-Description: 
-> > 
-> > ZGlmZiAtdXJOIGxpbnV4LTIuNC43LXByZTgtdmFuaWxsYS9mcy9idWZmZXIu
-> > YyBsaW51eC0yLjQuNy1wcmU4LXRuZy1tcnByb3Blci9mcy9idWZmZXIuYw0K
-> >[.... lots of crap skipped ....]
-> 
+> I will repost as soon as I manage to convince pine of it's wrong ways...
 
-I do appologize. I didn't realize pine would do this. In pine I can just
-read the attachment as text and in Eudora it just appears as inlined
-text without any indication of it being a separate attachment, so I just
-assumed that it was sent clear text. Obviously not. <Stupid mailers. Grr.>
+You can't, so don't bother. Just inline it, ctrl-r should do the trick. However
+be careful, newer pine's like to strip trailing spaces even from inlined files
+-- I've fixed mine but most distributions have the broken one.
 
-I will repost as soon as I manage to convince pine of it's wrong ways...
+Ion
 
-Best regards,
-
-	Anton
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

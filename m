@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbUG1Wyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265002AbUG1Wyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbUG1Wyr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 18:54:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267205AbUG1Wx2
+	id S265002AbUG1Wyt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 18:54:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266780AbUG1WxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 18:53:28 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:50661 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267184AbUG1Wrd (ORCPT
+	Wed, 28 Jul 2004 18:53:18 -0400
+Received: from omx2-ext.SGI.COM ([192.48.171.19]:59319 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S266749AbUG1WtS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 18:47:33 -0400
-Date: Wed, 28 Jul 2004 15:45:23 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: stat very inefficient
-Message-Id: <20040728154523.20713ef1.davem@redhat.com>
-In-Reply-To: <16648.10711.200049.616183@wombat.chubb.wattle.id.au>
-References: <233602095@toto.iv>
-	<16648.10711.200049.616183@wombat.chubb.wattle.id.au>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 28 Jul 2004 18:49:18 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
+Date: Wed, 28 Jul 2004 15:44:24 -0700
+User-Agent: KMail/1.6.2
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, ebiederm@xmission.com,
+       suparna@in.ibm.com, fastboot@osdl.org, mbligh@aracnet.com,
+       linux-kernel@vger.kernel.org
+References: <16734.1090513167@ocs3.ocs.com.au> <1091044742.31698.3.camel@localhost.localdomain> <20040728154230.11d658af.akpm@osdl.org>
+In-Reply-To: <20040728154230.11d658af.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407281544.24901.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jul 2004 08:33:59 +1000
-Peter Chubb <peter@chubb.wattle.id.au> wrote:
+On Wednesday, July 28, 2004 3:42 pm, Andrew Morton wrote:
+> But they're welcome to do that: the memory for the DMA transfer has
+> already been allocated and our new universe will not be touching it.
 
-> But is stat{,64} actually showing up badly in profiles?
-> If it's not I don't think it's worth doing *anything* (I can imagine
-> loads where it would, e.g., make on a large sourcetree, or running a
-> backup)
+Yeah, for the most part that should be ok.  We can be paranoid about 
+misdirected DMA later...  (Some platforms will let you protect memory regions 
+at the chipset level, so it seems like the new kernel should be so protected 
+until it's actually jumped to by kexec, but prior to unprotecting it you'd 
+want to make sure that a bad DMA from the broken kernel doesn't hose it.)
 
-"find . -type f" is probably the most often run command somewhere
-in a shell pipeline when I'm doing kernel work and grepping
-around.
+> What we need to do is to ensure that the new kexec-ed kernel appropriately
+> whacks the devices to stop any in-progress operations.  So it's the probe()
+> and open() routines which need to get the device into a sane state, not the
+> shutdown routines.
+
+That makes sense, and means that drivers may want to call a shutdown-like 
+routine in their probe functions to make sure their device is in a known 
+state before starting.  But all of this is very driver specific it seems.
+
+Jesse

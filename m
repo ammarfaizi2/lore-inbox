@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261996AbSJVBrC>; Mon, 21 Oct 2002 21:47:02 -0400
+	id <S261973AbSJVBjx>; Mon, 21 Oct 2002 21:39:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262003AbSJVBrC>; Mon, 21 Oct 2002 21:47:02 -0400
-Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.227]:4565 "EHLO
-	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S261996AbSJVBrB>; Mon, 21 Oct 2002 21:47:01 -0400
-Date: Mon, 21 Oct 2002 21:45:29 -0400 (EDT)
-From: Frank Davis <fdavis@si.rr.com>
-X-X-Sender: fdavis@localhost.localdomain
-To: linux-kernel@vger.kernel.org
-cc: fdavis@si.rr.com
-Subject: 2.5.44 : move files from drivers/media/* ?
-Message-ID: <Pine.LNX.4.44.0210212136030.900-100000@localhost.localdomain>
+	id <S261984AbSJVBjx>; Mon, 21 Oct 2002 21:39:53 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:25751 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S261973AbSJVBjv>; Mon, 21 Oct 2002 21:39:51 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 21 Oct 2002 18:54:38 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Rob Landley <landley@trommello.org>
+cc: Guillaume Boissiere <boissiere@adiglobal.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Son of crunch time: the list v1.2.
+In-Reply-To: <200210211536.25109.landley@trommello.org>
+Message-ID: <Pine.LNX.4.44.0210211852100.1559-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-  There are video and radio drivers within
-drivers/media/video and drivers/media/radio respectively.
+On Mon, 21 Oct 2002, Rob Landley wrote:
 
-Shouldn't those drivers move from drivers/media/video to drivers/video ? 
-and same with radio (either a new directory or within an existing 
-directory). It just seems that the drivers/media/ directory is unneeded. 
-Thoughts?
+> 16) sys_epoll (Davide Libenzi)
+> homepage: http://www.xmailserver.org/linux-patches/nio-improve.html
+> patch: http://www.xmailserver.org/linux-patches/sys_epoll-2.5.44-0.3.diff
 
-Regards,
-Frank
+http://www.xmailserver.org/linux-patches/sys_epoll-2.5.44-0.5.diff
+
+
+
+- Davide
+
 

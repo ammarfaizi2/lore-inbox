@@ -1,62 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263372AbTDYQJi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 12:09:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbTDYQJi
+	id S263277AbTDYQ0I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 12:26:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbTDYQ0I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 12:09:38 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:8117 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S263372AbTDYQJh (ORCPT
+	Fri, 25 Apr 2003 12:26:08 -0400
+Received: from pheriche.sun.com ([192.18.98.34]:14249 "EHLO pheriche.sun.com")
+	by vger.kernel.org with ESMTP id S263277AbTDYQ0H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 12:09:37 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Fri, 25 Apr 2003 12:26:07 -0400
+Message-ID: <3EA964D1.3070908@sun.com>
+Date: Fri, 25 Apr 2003 09:39:45 -0700
+From: Duncan Laurie <duncan@sun.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: problem with Serverworks CSB5 IDE
+References: <3EA85C5C.7060402@sun.com> <20030423212713.GD21689@puck.ch> <1051136469.2062.108.camel@dhcp22.swansea.linux.org.uk> <20030423232909.GE21689@puck.ch> <20030423232909.GE21689@puck.ch> <20030424080023.GG21689@puck.ch> <3EA85C5C.7060402@sun.com> <1051268422.5573.25.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1051268422.5573.25.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16041.24730.267207.671647@napali.hpl.hp.com>
-Date: Fri, 25 Apr 2003 09:21:46 -0700
-To: Roland McGrath <roland@redhat.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [PATCH] i386 vsyscall DSO implementation
-In-Reply-To: <200304250210.h3P2AoU12348@magilla.sf.frob.com>
-References: <3EA8942D.4050201@pobox.com>
-	<200304250210.h3P2AoU12348@magilla.sf.frob.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I like this.  Even better would be if all platforms could do the same.
-I'm definitely interested in doing something similar for ia64 (the
-getunwind() syscall was always just a stop-gap solution).
+Alan Cox wrote:
+> 
+> The revision id is read when we init_chipset_svwks, which comes from the
+> PCI setup. If the chip is in legacy mode we call init chipset early on
+> regardless. If it is in native mode it gets called too and we ignore
+> its view of the IRQ (since thats now PCI defined).
+> 
 
-I assume that these kernel ELF images would then show up in
-dl_iterate_phdr()?
+Yeah I saw that after I hit send, but for serverworks the init_chipset
+is not always called because it can fall into a corner case when in native
+mode because the PCI interrupt pin register is hardwired to zero (don't
+ask me why...) so it follows a codepath in do_ide_setup_pci_device()
+where init_chipset isn't called.
 
-To complete the picture, it would be nice if the kernel ELF images
-were mappable files (either in /sysfs or /proc) and would show up in
-/proc/PID/maps.  That way, a distributed application such as a remote
-debugger could gain access to the kernel unwind tables on a remote
-machine (assuming you have a remote filesystem).
+This patch adds the function call, which fixes the svwks_revision
+variable and the missing /proc/ide/svwks:
 
-	--david
+--- setup-pci.c~        2003-04-25 09:20:31.000000000 -0700
++++ setup-pci.c 2003-04-25 09:24:27.000000000 -0700
+@@ -609,7 +609,7 @@
+                 if (noisy)
+                         printk(KERN_WARNING "%s: bad irq (%d): will probe later\n",
+                                 d->name, pciirq);
+-               pciirq = 0;
++               pciirq = (d->init_chipset) ? d->init_chipset(dev, d->name) : 0;
+         } else {
+                 if (d->init_chipset)
+                         d->init_chipset(dev, d->name);
 
->>>>> On Thu, 24 Apr 2003 19:10:50 -0700, Roland McGrath <roland@redhat.com> said:
+> 
+>> 		/* Check the OSB4 DMA33 enable bit */
+>> 		return ((reg & 0x00004000) == 0x00004000) ? 1 : 0;
+>> 	} else if (svwks_revision < SVWKS_CSB5_REVISION_NEW) {
+>>-		return 1;
+>>+		return 2;
+> 
+> 
+> Why this change ?
+> 
+> 
 
-  >> We already embed a cpio archive into __initdata space.  What
-  >> about putting the images in there, and either copying the data
-  >> out of initramfs, or, directly referencing the pages that store
-  >> each image?
+Because the max supported mode for CSB5 < rev 0x92 is udma 4 (=2),
+not udma 2 (=1).
 
-  Roland> It doesn't matter to me, but I don't see the benefit to
-  Roland> doing that.  It's rather unlike what initramfs is used for
-  Roland> now and would need a bunch of extra code to accomplish
-  Roland> something very simple.
+-duncan
 
-  Roland> The DSO images are not stored page-aligned and padded in the
-  Roland> kernel image, so the pages can't be used directly.  Storing
-  Roland> them that way would use more space in the kernel image on
-  Roland> disk, and then you'd want to free initdata page containing
-  Roland> the unused one.

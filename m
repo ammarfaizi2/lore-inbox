@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266274AbTAFENc>; Sun, 5 Jan 2003 23:13:32 -0500
+	id <S265947AbTAFEZA>; Sun, 5 Jan 2003 23:25:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266292AbTAFENc>; Sun, 5 Jan 2003 23:13:32 -0500
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:56814 "EHLO
+	id <S265982AbTAFEZA>; Sun, 5 Jan 2003 23:25:00 -0500
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:58862 "EHLO
 	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id <S266274AbTAFEN3>; Sun, 5 Jan 2003 23:13:29 -0500
-Date: Sun, 5 Jan 2003 21:21:37 -0700
+	id <S265947AbTAFEY5>; Sun, 5 Jan 2003 23:24:57 -0500
+Date: Sun, 5 Jan 2003 21:33:03 -0700
 From: Andreas Dilger <adilger@clusterfs.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+To: Andrew Morton <akpm@zip.com.au>,
        "Rusty's Trivial Patches" <trivial@rustcorp.com.au>,
-       "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4 ext3 ino_t removal
-Message-ID: <20030105212137.A31555@schatzie.adilger.int>
-Mail-Followup-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5 ext3 ino_t removal
+Message-ID: <20030105213303.B31555@schatzie.adilger.int>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
 	Rusty's Trivial Patches <trivial@rustcorp.com.au>,
-	"Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -25,11 +25,12 @@ X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch against 2.4.21-pre2 removes my erronous use of ino_t in a
+This patch against 2.5.53 removes my erronous use of ino_t in a
 couple of places in the ext3 code.  This has been replaced with unsigned
-long (the same as is used for inode->i_ino).  This quiets a bunch of
-warnings on ia64 compiles, and also replaces a couple of %ld with %lu
-to forestall output wierdness with filesystems with a few billion inodes.
+long (the same as is used for inode->i_ino).  This patch matches the fix
+submitted to 2.4 for fixing 64-bit compiler warnings, and also replaces a
+couple of %ld with %lu to forestall output wierdness with filesystems with
+a few billion inodes.
 
 Cheers, Andreas
 ======================= ext3-2.4-ino_t.diff ===============================
@@ -171,6 +172,15 @@ Cheers, Andreas
  extern unsigned long ext3_count_free_inodes (struct super_block *);
  extern void ext3_check_inodes_bitmap (struct super_block *);
  extern unsigned long ext3_count_free (struct buffer_head *, unsigned);
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+
+
+----- End forwarded message -----
+
+Cheers, Andreas
 --
 Andreas Dilger
 http://sourceforge.net/projects/ext2resize/

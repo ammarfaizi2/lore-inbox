@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286333AbRLTTH3>; Thu, 20 Dec 2001 14:07:29 -0500
+	id <S286338AbRLTTO3>; Thu, 20 Dec 2001 14:14:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286331AbRLTTHV>; Thu, 20 Dec 2001 14:07:21 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:15123 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S286351AbRLTTHH>; Thu, 20 Dec 2001 14:07:07 -0500
-Date: Thu, 20 Dec 2001 11:10:00 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Pavel Machek <pavel@suse.cz>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rusty Russell <rusty@rustcorp.com.au>,
-        <anton@samba.org>, <davej@suse.de>, <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Linux 2.4.17-pre5
-In-Reply-To: <20011219231619.A120@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.40.0112201105000.1622-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286339AbRLTTOT>; Thu, 20 Dec 2001 14:14:19 -0500
+Received: from 217-126-161-163.uc.nombres.ttd.es ([217.126.161.163]:63104 "EHLO
+	DervishD.viadomus.com") by vger.kernel.org with ESMTP
+	id <S286338AbRLTTOP>; Thu, 20 Dec 2001 14:14:15 -0500
+To: matt@theBachChoir.org.uk, michael.dunsky@p4all.de
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
+Cc: esr@thyrsus.com, linux-kernel@vger.kernel.org, scole@lanl.gov
+Message-Id: <E16H8p9-00074z-00@DervishD.viadomus.com>
+Date: Thu, 20 Dec 2001 20:25:47 +0100
+From: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
+	 Coronado <raul@viadomus.com>
+Reply-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
+	   Coronado <raul@viadomus.com>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Dec 2001, Pavel Machek wrote:
+    Hi all :))
 
-> Hi!
->
-> > > Using the scheduler i'm working on and setting a trigger load level of 2,
-> > > as soon as the idle is scheduled it'll go to grab the task waiting on the
-> > > other cpu and it'll make it running.
-> >
-> > That rapidly gets you thrashing around as I suspect you've found.
-> >
-> > I'm currently using the following rule in wake up
-> >
-> > 	if(current->mm->runnable > 0)	/* One already running ? */
-> > 		cpu = current->mm->last_cpu;
->
-> Is this really a win?
->
-> I mean, if I have two tasks that can run from L2 cache, I want them on
-> different physical CPUs even if they share current->mm, no?
+>You are close - he uses "MiB" as short for "mebi" - Mega-binary.
 
-It depends. If you've two CPU and these two tasks are the only ones
-running, yes running them on separate CPUs is ok because the parallelism
-that you'll get is going to pay you back for the cache issues.
-And this is the automatic bahavior that you'll get with sane schedulers.
-But as a general rule, matching MMs should lead to a tentative to run them
-on the same CPU ( give preference, not force ).
+    Personally I don't like very much the abbreviations, but I must
+recognize that they remove all possible ambiguity for the
+Configure.help. With MiB, GiB, etc... you're completely sure that you
+are talking about 2^20, 2^30 and not 10^6, 10^9, etc...
 
+    So I think that is a good idea in general to use that
+abbreviations for the binary units. Moreover, it's official and
+correct use. Eric made a sensible decision here.
 
-
-
-- Davide
-
-
+    Raúl

@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRAYOSD>; Thu, 25 Jan 2001 09:18:03 -0500
+	id <S129101AbRAYOWY>; Thu, 25 Jan 2001 09:22:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129101AbRAYORn>; Thu, 25 Jan 2001 09:17:43 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:15239 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129051AbRAYORb>;
-	Thu, 25 Jan 2001 09:17:31 -0500
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14960.13645.936452.235135@pizda.ninka.net>
-Date: Thu, 25 Jan 2001 06:16:45 -0800 (PST)
+	id <S129235AbRAYOWO>; Thu, 25 Jan 2001 09:22:14 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:30985 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S129101AbRAYOWB>;
+	Thu, 25 Jan 2001 09:22:01 -0500
+Date: Thu, 25 Jan 2001 16:21:45 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
 To: linux-kernel@vger.kernel.org
-Subject: [UPDATE] Zerocopy, last one today I promise :-)
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Subject: Re: make mrproper
+Message-ID: <20010125162145.C25659@mea-ext.zmailer.org>
+In-Reply-To: <Pine.LNX.4.21.0101241718460.10965-100000@mrworry.compsoc.man.ac.uk> <20010124112738.A28476@ksu.edu> <20010124173302.A8027@marvin> <20010125090026.B918@bessie.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010125090026.B918@bessie.dyndns.org>; from jlnance@intrex.net on Thu, Jan 25, 2001 at 09:00:26AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 25, 2001 at 09:00:26AM -0500, James Lewis Nance wrote:
+> On Wed, Jan 24, 2001 at 05:33:02PM +0000, leo.howell@ntlworld.com wrote:
+> > Long ago, about January 24, Joseph wrote:
+> > > >From John Levon on Wednesday, 24 January, 2001:
+> > > >Idle curiosity, but what does the "mr" in make mrproper
+> > > >stand for ?
 
-Ok, it's pretty fast, but due to a critical bug fix, there's a new
-one going up:
+   It does refer to  Procter&Gamble  household cleaning product
+   titled "Mr Proper", which apparently more recently has been
+   renamed as "Mr Clean".  (Or who knows how international companies
+   decide on what to call the products where...)
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/davem/zerocopy-2.4.1p10-3.diff.gz
+   A semi-joke which may or may not make sense to people depending
+   on if they have seen the adverts that at least Finns have seen..
+   (I guess it was american advertisement dubbed into finnish.)
 
-o If sock_writepage is called on path via device without SG support,
-  the cooked up sock_sendmsg() call needs to switch to KERNEL_DS.
-  Discovered and fixed by Ingo Molnar.
+   "'make clean' is simple soap wash, 'make mrproper' cleans also
+    tougher stains by using stronger solvents; user is advised to
+    protect themselves."
 
-This does show that not too many people are testing this all that
-thoroughly :-) Basically, any sys_sendfile() over TCP using a network
-card other than loopback/3c59x/sunhme/acenic would fail with -EFAULT
-or even worse a kernel crash depending upon architecture.
-
-Later,
-David S. Miller
-davem@redhat.com
+/Matti Aarnio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

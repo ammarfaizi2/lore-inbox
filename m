@@ -1,86 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267577AbSKQTp2>; Sun, 17 Nov 2002 14:45:28 -0500
+	id <S267569AbSKQTyW>; Sun, 17 Nov 2002 14:54:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267568AbSKQTp2>; Sun, 17 Nov 2002 14:45:28 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:51525 "EHLO
-	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267577AbSKQTow>; Sun, 17 Nov 2002 14:44:52 -0500
-Date: Sun, 17 Nov 2002 14:52:58 -0500
-From: Doug Ledford <dledford@redhat.com>
-To: Linux Scsi Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Why /dev/sdc1 doesn't show up...
-Message-ID: <20021117195258.GC3280@redhat.com>
-Mail-Followup-To: Linux Scsi Mailing List <linux-scsi@vger.kernel.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Rusty Russell <rusty@rustcorp.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S267570AbSKQTyW>; Sun, 17 Nov 2002 14:54:22 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:12467 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S267569AbSKQTyU>;
+	Sun, 17 Nov 2002 14:54:20 -0500
+Date: Sun, 17 Nov 2002 22:17:49 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Luca Barbieri <ldb@ldb.ods.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] threading fix, tid-2.5.47-A3
+In-Reply-To: <1037562875.1597.107.camel@ldb>
+Message-ID: <Pine.LNX.4.44.0211172212001.18431-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Because module loading of any incestious, cross-locking modules is horked 
-:-P
 
-NOTE: I suspect the same bug applies to IDE devices as well, but you 
-wouldn't see it unless you compile your IDE drivers as modules and use 
-initrd or equivelant to load the modules.
+On 17 Nov 2002, Luca Barbieri wrote:
 
-Longer answer:
+> The new definition of the clone flags is binary incompatible with older
+> 2.5 kernels.
 
-Device scans happen almost exclusively at either host module init time or
-device module init time.  At that point in time, either the host the
-device is on or the high level driver accessing the device will still be
-in it's init_module() routine.  That, of course, implies that either
-host->hostt->module->live is 0 or that *_template->module->live is 0 (and
-consequently so is fops->owner->live == 0).  As a result, when you
-register sdc with the driverfs code, it then tries to fops->open(sdc) to
-read the partition table and then automatically register subdevices.  
-This fails if you are currently loading sd_mod because fops->owner->live
-== 0.  This fails if you are loading your low level driver because the
-replacement for __MOD_INC_USE_COUNT(sdev->host->hostt->module); in
-sd_open() is to instead use try_module_get(sdev->host->hostt->module) and
-with the low level driver still in it's init_module() routine, this fails.
+we broke binary compatibility several times, for the benefit of having a
+cleaner interface. Ulrich has no problems with this approach and NPTL is
+the only user of these interfaces currently. But i think you are one of
+the few peoples who are running an NPTL system (ie. with the new
+NPTL-glibc actually installed as the default system glibc) - is binary
+compatibility important to you for this specific case?
 
-For hot plug events when the module is already live, things work fine.  
-However, that doesn't help hot plug drivers at boot up because when they 
-register their hot plug table they immediately get called for the devices 
-that are already present, and in those cases they will have the exact same 
-problem that we have with non hot plug drivers.
+> > -#if CONFIG_SMP || CONFIG_PREEMPT
+> > +asmlinkage void FASTCALL(schedule_tail(task_t *prev));
+> >  asmlinkage void schedule_tail(task_t *prev)
+> >  {
+> >  	finish_arch_switch(this_rq(), prev);
+> Maybe finish_arch_switch should only be called if CONFIG_SMP ||
+> CONFIG_PREEMPT, like what happened without this patch?
 
-Hrmph...
+finish_arch_switch() is a no-op on UP. (well, almost, i'll fix that.)
 
-Working on a fix.  Haven't decided how to do it yet.  Something as ugly as 
-adding:
+> > +	if (clone_flags & CLONE_PARENT_SETTID)
+> > +		put_user(p->pid, parent_tidptr);
+> How about failing if put_user fails?
 
-driver_template.module->live = 1;
-scsi_register_host(&driver_template);
-driver_template.module->live = 0;
+we could do that - although we cannot fail the CHILD_SETTID variant, and i
+wanted to keep it symmetric.
 
-in scsi_module.c works, but is too ugly to live (and totally defeats the
-purpose of the new module loading code anyway).  Oh, and all the high
-level drivers would have to do the same thing in their module init
-routines in order to make things work properly when the lldd is loaded
-before the high level driver.
+	Ingo
 
-I could make all the scsi drivers delay bus scans (via a work queue entry
-that we don't wait for completion on, but I haven't figured out how to do
-that without leaking mem yet, unless I write a special SCSI worker thread
-that kfree()'s the work structs on completion...) until after their init
-routines have finished (and do the same for the high level scsi drivers),
-but that's quite a pain in the ass and doesn't fix IDE.  A generic fix
-would be preferable.
-
-Suggestions Rusty?
-
-
--- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  

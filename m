@@ -1,64 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272975AbTHKTLt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 15:11:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272956AbTHKTK1
+	id S274788AbTHKTZq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 15:25:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273257AbTHKTYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 15:10:27 -0400
-Received: from bolthole.com ([192.220.72.215]:1543 "HELO bolthole.com")
-	by vger.kernel.org with SMTP id S272963AbTHKTJu (ORCPT
+	Mon, 11 Aug 2003 15:24:00 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:19918 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S273298AbTHKTXp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 15:09:50 -0400
-Date: Mon, 11 Aug 2003 12:09:49 -0700
-From: Philip Brown <phil@bolthole.com>
-To: dri-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Dri-devel] Re: [PATCH] CodingStyle fixes for drm_agpsupport
-Message-ID: <20030811120949.A9285@bolthole.com>
-Reply-To: Philip Brown <phil@bolthole.com>
-Mail-Followup-To: dri-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <E19mF4Y-0005Eg-00@tetrachloride> <20030811164012.GB858@work.bitmover.com> <3F37CB44.5000307@pobox.com> <20030811170425.GA4418@work.bitmover.com> <3F37CF4E.3010605@pobox.com> <20030811172333.GA4879@work.bitmover.com> <3F37D80D.5000703@pobox.com> <20030811175941.GB4879@work.bitmover.com>
+	Mon, 11 Aug 2003 15:23:45 -0400
+Date: Mon, 11 Aug 2003 21:22:35 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Johannes Stezenbach <js@convergence.de>, Gerd Knorr <kraxel@bytesex.org>,
+       Flameeyes <dgp85@users.sourceforge.net>, Pavel Machek <pavel@suse.cz>,
+       Christoph Bartelmus <columbus@hit.handshake.de>,
+       LIRC list <lirc-list@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802
+Message-ID: <20030811192234.GO2627@elf.ucw.cz>
+References: <1060616931.8472.22.camel@defiant.flameeyes> <20030811163913.GA16568@bytesex.org> <20030811175642.GC2053@convergence.de> <20030811185947.GA8549@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030811175941.GB4879@work.bitmover.com>; from lm@bitmover.com on Mon, Aug 11, 2003 at 10:59:41AM -0700
+In-Reply-To: <20030811185947.GA8549@ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 11, 2003 at 10:59:41AM -0700, Larry McVoy wrote:
->...
-> It is inconsistent, on purpose.  It's essentially like perl's
+Hi!
+
+> > If a remote control has e.g. a "1" key this doesn't mean that a user
+> > wants a "1" to be written into your editor while editing source code.
+> > The "1" key on a remote control simply has a differnt _meaning_ than
+> > the "1" key on your keyboard -- depending of course on what the user
+> > thinks this key should mean.
 > 
-> 	return unless pointer;
-> 
-> which is a oneliner, almost like an assert().
+> That's what BTN_1 is for. ;)
 
-perl is EEeeeeevil....
+Perhaps comment about this should be added to input.h?
 
-
-
-> Maybe this will help: I insist on braces on anything with indentation so
-> that I can scan them more quickly.  If I gave you a choice between
-> 
-> 	if (!pointer) {
-> 		return (whatever);
-> 	}
-> 
-> 	if (!pointer) return (whatever);
-> 
-> which one will you type more often?
+--- clean/include/linux/input.h	2003-06-24 12:28:05.000000000 +0200
++++ linux/include/linux/input.h	2003-08-11 21:17:46.000000000 +0200
+@@ -338,6 +338,7 @@
+ 
+ #define KEY_UNKNOWN		240
+ 
++/* This is for keys 0..9 on remote control etc. */
+ #define BTN_MISC		0x100
+ #define BTN_0			0x100
+ #define BTN_1			0x101
 
 
- if (!pointer) {
-	return (whatever);
- }
+I still miss few descriptions... On avermedia remote control there are
+buttons labeled as "preview", "autoscan", "freeze", "capture" and few
+keys without label (5 of them :-(). I mapped that somehow, but it
+might not be ideal:
 
+        case 0xc577c0: return KEY_EJECTCD;      /* Unmarked on my controller */
+        case 0xd77c0: return KEY_INFO; /* preview */
+        case 0xad77c0: return KEY_SEARCH; /* autoscan */
+        case 0x6d77c0: return KEY_BREAK; /* freeze */
+        case 0xed77c0: return KEY_PVR; /* capture */
 
-because it's consistent, and guaranteed safe from stupid parsing errors
-that can waste days of debug time when someone decides to add to it.
-("its just a little change that cant hurt anything", ha ha)
-
-
-Style Matters.  (and so do comments, while we're on the subject)
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

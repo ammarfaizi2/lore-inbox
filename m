@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287177AbSALQbB>; Sat, 12 Jan 2002 11:31:01 -0500
+	id <S287173AbSALQcp>; Sat, 12 Jan 2002 11:32:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287158AbSALQav>; Sat, 12 Jan 2002 11:30:51 -0500
-Received: from svr3.applink.net ([206.50.88.3]:58632 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S287173AbSALQal>;
-	Sat, 12 Jan 2002 11:30:41 -0500
-Message-Id: <200201121630.g0CGU5Sr006966@svr3.applink.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: Robert Love <rml@tech9.net>, timothy.covell@ashavan.org
-Subject: Re: [patch] O(1) scheduler, -G1, 2.5.2-pre10, 2.4.17 (fwd)
-Date: Sat, 12 Jan 2002 10:26:13 -0600
-X-Mailer: KMail [version 1.3.2]
-Cc: =?iso-8859-1?q?Fran=E7ois=20Cami?= <stilgar2k@wanadoo.fr>, mingo@elte.hu,
-        Mike Kravetz <kravetz@us.ibm.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Anton Blanchard <anton@samba.org>, george anzinger <george@mvista.com>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        Rusty Russell <rusty@rustcorp.com.au>
-In-Reply-To: <Pine.LNX.4.33.0201110142160.12174-100000@localhost.localdomain> <200201112150.g0BLoESr004177@svr3.applink.net> <1010814327.2018.5.camel@phantasy>
-In-Reply-To: <1010814327.2018.5.camel@phantasy>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S287158AbSALQbW>; Sat, 12 Jan 2002 11:31:22 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:6100 "EHLO ns1.yggdrasil.com")
+	by vger.kernel.org with ESMTP id <S287173AbSALQbD>;
+	Sat, 12 Jan 2002 11:31:03 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sat, 12 Jan 2002 08:31:01 -0800
+Message-Id: <200201121631.IAA06475@baldur.yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Subject: linux-2.5.2-pre11/drivers/loop.c bio question
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 11 January 2002 23:45, Robert Love wrote:
-> On Fri, 2002-01-11 at 16:46, Timothy Covell wrote:
-> > But, given the above case, what happens when you have Sendmail on
-> > the first CPU and Squid is sharing the second CPU?  This is not optimal
-> > either, or am I missing something?
->
-> Correct.  I sort of took the "optimal cache use" comment as
-> tongue-in-cheek.  If I am mistaken, correct me, but here is my
-> perception of the scenario:
->
-> 2 CPUs, 3 tasks.  1 task receives 100% of the CPU time on one CPU.  The
-> remaining two tasks share the second CPU.  The result is, of three
-> evenly prioritized tasks, one receives double as much CPU time as the
-> others.
->
-> Aside from the cache utilization, this is not really "fair" -- the
-> problem is, the current design of load_balance (which is quite good)
-> just won't throw the tasks around so readily.  What could be done --
-> cleanly -- to make this better?
->
-> 	Robert Love
+	Has anyone out there tried to use linux-2.5.2-pre11/drivers/loop.c?
+In my hacked version of loop.c, do_bio_blockbacked is often
+called with a bio that has bio->bi_idx set to 1 rather than 0
+(and with bi->bi_vcnt == 1), so it thinks it has no transfers to do.
+When I add the kludge of doing "bio->bi_idx = 0;" at the beginning
+of the routine, then it works fine.
 
 
-That's the million dollar question.   I was just concerned that if that
-were to be implemented in a production kernel, then lots of admins
-would be confused.
+	It is possible that my problem is self-inflicted because I
+am using a version that I have adopted the "initial value" patch to,
+and I also added a temporary hack to force the requests to be processed
+one sector at a time, like so:
 
--- 
-timothy.covell@ashavan.org.
+        blk_queue_max_segment_size(BLK_DEFAULT_QUEUE(MAJOR_NR), 512);
+
+	However, I think my changes are probably not the cause.  Anyhow,
+I thought I should mention this now to see if anyone else can
+confirm or refute having similar problems.
+
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

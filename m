@@ -1,50 +1,27 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314267AbSDTAN3>; Fri, 19 Apr 2002 20:13:29 -0400
+	id <S313747AbSDTAN1>; Fri, 19 Apr 2002 20:13:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314285AbSDTAN2>; Fri, 19 Apr 2002 20:13:28 -0400
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:43923 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S314267AbSDTAN0>; Fri, 19 Apr 2002 20:13:26 -0400
-Message-ID: <3CC0B217.902@didntduck.org>
-Date: Fri, 19 Apr 2002 20:11:03 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: "H. Peter Anvin" <hpa@zytor.com>, andrea@suse.de, ak@suse.de,
-        linux-kernel@vger.kernel.org, jh@suse.cz
+	id <S314285AbSDTAN0>; Fri, 19 Apr 2002 20:13:26 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22790 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313747AbSDTANZ>; Fri, 19 Apr 2002 20:13:25 -0400
 Subject: Re: [PATCH] Re: SSE related security hole
-In-Reply-To: <Pine.LNX.4.44.0204191708360.6542-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Sat, 20 Apr 2002 01:31:08 +0100 (BST)
+Cc: hpa@zytor.com (H. Peter Anvin), bgerst@didntduck.org, andrea@suse.de,
+        ak@suse.de, linux-kernel@vger.kernel.org, jh@suse.cz
+In-Reply-To: <Pine.LNX.4.44.0204191708360.6542-100000@home.transmeta.com> from "Linus Torvalds" at Apr 19, 2002 05:09:49 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16yimS-0008GB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Fri, 19 Apr 2002, H. Peter Anvin wrote:
-> 
->>Indeed.  Logically, FNINIT should have been extended to initialize it all -
->>- it is a security hole that it doesn't initialize MMX properly.
-> 
-> 
 > Well, MMX should arguably be initialized with "emms", so the proper
 > sequence migth be something like
-> 
-> 	if (sse)
-> 		asm("emms");
-> 	asm("fninit");
-> 
-> What does emms do to SSE2?
-> 
-> 		Linus
-> 
 
-All emms does is reset the tag word.  It doesn't touch the registers.
-
--- 
-
-						Brian Gerst
-
+Does emms make any guarantees about the register state ?

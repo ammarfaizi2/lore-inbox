@@ -1,96 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263028AbUCPPUK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 10:20:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbUCPOlc
+	id S262244AbUCPOrD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 09:47:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbUCPOqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 09:41:32 -0500
-Received: from styx.suse.cz ([82.208.2.94]:57473 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S261907AbUCPOTg convert rfc822-to-8bit
+	Tue, 16 Mar 2004 09:46:13 -0500
+Received: from mail.convergence.de ([212.84.236.4]:64674 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S261995AbUCPOX5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 09:19:36 -0500
-Content-Transfer-Encoding: 7BIT
-Message-Id: <1079446776784@twilight.ucw.cz>
-Content-Type: text/plain; charset=US-ASCII
-Subject: [PATCH 8/44] Don't reinitialize scancode map after sleep in atkbd.c
-X-Mailer: gregkh_patchbomb_levon_offspring
-To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Date: Tue, 16 Mar 2004 15:19:36 +0100
-In-Reply-To: <10794467763238@twilight.ucw.cz>
-From: Vojtech Pavlik <vojtech@suse.cz>
+	Tue, 16 Mar 2004 09:23:57 -0500
+Message-ID: <40570DF1.7090605@convergence.de>
+Date: Tue, 16 Mar 2004 15:23:45 +0100
+From: Michael Hunold <hunold@convergence.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Cox <adrian@humboldt.co.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][2.6] Additional i2c adapter flags for i2c client	isolation
+References: <4056C805.8090004@convergence.de> <1079443611.1677.194.camel@newt>
+In-Reply-To: <1079443611.1677.194.camel@newt>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can pull this changeset from:
-	bk://kernel.bkbits.net/vojtech/input
+Hello Adrian,
 
-===================================================================
+On 16.03.2004 14:26, Adrian Cox wrote:
+> On Tue, 2004-03-16 at 09:25, Michael Hunold wrote:
 
-ChangeSet@1.1474.188.8, 2004-01-26 13:29:36+01:00, vojtech@suse.cz
-  input: Bail out in atkbd.c if scancode set is changed, don't
-         reinitialize scancode map. This is even more anoying than
-         a new keyboard device in the unlikely case of set change.
+>>What I'd like to have is that client can specify some sort of "class",
+>>too, and that i2c adapters can tell the core that only clients where the
+>>class is matching are allowed to probe their existence.
+> 
+> 
+> How about a general "never probe" flag combined with a function to
+> connect an adapter to a client? High level drivers like DVB or BTTV
+> could then do something like:
+> 	adapter = i2c_bit_add_bus(&my_card_ops);
+> 	i2c_connect_client(adapter, &client_ops, address);
+> 
+> This problem comes up a lot, and i2c probing is only necessary for
+> finding motherboard sensors. For add-in cards and embedded systems the
+> driver developer normally knows exactly what is wired to what.
 
+This is true for most devices (i2c eeprom, video decoder, ...), but not 
+for all. All DVB cards have a device called "frontend" (basically a 
+tuner with some additional stuff) connected via i2c.
 
- atkbd.c |   38 ++++++--------------------------------
- 1 files changed, 6 insertions(+), 32 deletions(-)
+Sometimes different frontends are used for the same revisons of one 
+card, so we need the probe functionality at least for these kinds of 
+devices.
 
-===================================================================
+> - Adrian Cox
+> http://www.humboldt.co.uk/
 
-diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
---- a/drivers/input/keyboard/atkbd.c	Tue Mar 16 13:19:50 2004
-+++ b/drivers/input/keyboard/atkbd.c	Tue Mar 16 13:19:50 2004
-@@ -741,45 +741,19 @@
- {
- 	struct atkbd *atkbd = serio->private;
- 	struct serio_dev *dev = serio->dev;
--	int i;
- 
--        if (!dev) {
--                printk(KERN_DEBUG "atkbd: reconnect request, but serio is disconnected, ignoring...\n");
--                return -1;
--        }
-+	if (!dev) {
-+		printk(KERN_DEBUG "atkbd: reconnect request, but serio is disconnected, ignoring...\n");
-+		return -1;
-+	}
- 
- 	if (atkbd->write) {
- 		if (atkbd_probe(atkbd))
- 			return -1;
--
--		atkbd->set = atkbd_set_3(atkbd);
-+		if (atkbd->set != atkbd_set_3(atkbd))
-+			return -1;
- 		atkbd_enable(atkbd);
--	} else {
--		atkbd->set = 2;
--		atkbd->id = 0xab00;
- 	}
--
--	/*
--	 * Here we probably should check if the keyboard has the same set that
--         * it had before and bail out if it's different. But this will most likely
--         * cause new keyboard device be created... and for the user it will look
--         * like keyboard is lost
--	 */
--
--	if (atkbd->translated) {
--		for (i = 0; i < 128; i++) {
--			atkbd->keycode[i] = atkbd_set2_keycode[atkbd_unxlate_table[i]];
--			atkbd->keycode[i | 0x80] = atkbd_set2_keycode[atkbd_unxlate_table[i] | 0x80];
--		}
--	} else if (atkbd->set == 2) {
--		memcpy(atkbd->keycode, atkbd_set2_keycode, sizeof(atkbd->keycode));
--	} else {
--		memcpy(atkbd->keycode, atkbd_set3_keycode, sizeof(atkbd->keycode));
--	}
--
--	for (i = 0; i < 512; i++)
--		if (atkbd->keycode[i] && atkbd->keycode[i] < 255)
--			set_bit(atkbd->keycode[i], atkbd->dev.keybit);
- 
- 	return 0;
- }
-
+CU
+Michael.

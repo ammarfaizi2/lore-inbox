@@ -1,104 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267801AbTANFnW>; Tue, 14 Jan 2003 00:43:22 -0500
+	id <S267795AbTANFnB>; Tue, 14 Jan 2003 00:43:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267826AbTANFnW>; Tue, 14 Jan 2003 00:43:22 -0500
-Received: from NODE1.HOSTING-NETWORK.COM ([66.216.3.1]:62993 "HELO
-	unix144.hosting-network.com") by vger.kernel.org with SMTP
-	id <S267801AbTANFnS>; Tue, 14 Jan 2003 00:43:18 -0500
-X-Comments: BlackMail headers - Mail to abuse@featureprice.com to report spam.
-X-Authenticated-Connect: 4.47.79.86
-X-Authenticated-Timestamp: 00:51:58(EST) on January 14, 2003
-X-HELO-From: [192.168.123.89]
-X-Mail-From: <michael@hbaum.com>
-X-Sender-IP-Address: 4.47.79.86
-Subject: Re: [Lse-tech] Re: NUMA scheduler 2nd approach
-From: Michael Hohnbaum <michael@hbaum.com>
-To: Andrew Theurer <habanero@us.ibm.com>
-Cc: Erich Focht <efocht@ess.nec.de>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Robert Love <rml@tech9.net>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-In-Reply-To: <000201c2bb97$02bc35e0$29060e09@andrewhcsltgw8>
-References: <52570000.1042156448@flay><200301101734.56182.efocht@ess.nec.de>
-	<967810000.1042217859@titus> <200301130055.28005.efocht@ess.nec.de>
-	<1042507438.24867.153.camel@dyn9-47-17-164.beaverton.ibm.com> 
-	<000201c2bb97$02bc35e0$29060e09@andrewhcsltgw8>
+	id <S267796AbTANFnB>; Tue, 14 Jan 2003 00:43:01 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:34262 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S267795AbTANFm7>;
+	Tue, 14 Jan 2003 00:42:59 -0500
+Subject: [BUG FIX] e100 initialization issue on STL2 motherboard
+From: Louis Zhuang <louis.zhuang@linux.co.intel.com>
+To: jgarzik@redhat.com, scott.feldman@intel.com
+Cc: LKML <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 13 Jan 2003 21:50:46 -0800
-Message-Id: <1042523478.30434.164.camel@kenai>
+Organization: Intel Crop.
+Message-Id: <1042523515.3951.12.camel@hawk.sh.intel.com>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 14 Jan 2003 13:51:55 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-01-13 at 20:45, Andrew Theurer wrote:
-> > Erich,
-> > 
-> > I played with this today on my 4 node (16 CPU) NUMAQ.  Spent most
-> > of the time working with the first three patches.  What I found was
-> > that rebalancing was happening too much between nodes.  I tried a
-> > few things to change this, but have not yet settled on the best
-> > approach.  A key item to work with is the check in find_busiest_node
-> > to determine if the found node is busier enough to warrant stealing
-> > from it.  Currently the check is that the node has 125% of the load
-> > of the current node.  I think that, for my system at least, we need
-> > to add in a constant to this equation.  I tried using 4 and that
-> > helped a little.  
-> 
-> Michael,
-> 
-> in:
-> 
-> +static int find_busiest_node(int this_node)
-> +{
-> + int i, node = this_node, load, this_load, maxload;
-> + 
-> + this_load = maxload = atomic_read(&node_nr_running[this_node]);
-> + for (i = 0; i < numnodes; i++) {
-> +  if (i == this_node)
-> +   continue;
-> +  load = atomic_read(&node_nr_running[i]);
-> +  if (load > maxload && (4*load > ((5*4*this_load)/4))) {
-> +   maxload = load;
-> +   node = i;
-> +  }
-> + }
-> + return node;
-> +}
-> 
-> You changed ((5*4*this_load)/4) to:
->   (5*4*(this_load+4)/4)
-> or
->   (4+(5*4*(this_load)/4))  ?
+Dear Jeff,
+	The patch will increase waiting time in SCB initialization. It will
+resolve the issue on STL2 motherboard. Pls apply. 
+-- 
+Yours truly,
+Louis Zhuang
+---------------
+Fault Injection Test Harness Project
+BK tree: http://fault-injection.bkbits.net/linux-2.5
+Home Page: http://sf.net/projects/fault-injection
 
-I suppose I should not have been so dang lazy and cut-n-pasted
-the line I changed.  The change was (((5*4*this_load)/4) + 4)
-which should be the same as your second choice.
-> 
-> We def need some constant to avoid low load ping pong, right?
+You can import this changeset into BK by piping this whole message to:
+'| bk receive [path to repository]' or apply the patch as usual.
 
-Yep.  Without the constant, one could have 6 processes on node
-A and 4 on node B, and node B would end up stealing.  While making
-a perfect balance, the expense of the off-node traffic does not
-justify it.  At least on the NUMAQ box.  It might be justified
-for a different NUMA architecture, which is why I propose putting
-this check in a macro that can be defined in topology.h for each
-architecture.
-> 
-> Finally I added in the 04 patch, and that helped
-> > a lot.  Still, there is too much process movement between nodes.
-> 
-> perhaps increase INTERNODE_LB?
+===================================================================
 
-That is on the list to try.  Martin was mumbling something about
-use the system wide load average to help make the inter-node
-balance decision.  I'd like to give that a try before tweaking
-ITERNODE_LB.
-> 
-> -Andrew Theurer
-> 
-            Michael Hohnbaum
-            hohnbaum@us.ibm.com
+
+ChangeSet@1.1019, 2003-01-14 13:45:36+08:00, louis@hawk.sh.intel.com
+  fix e100 initialization issue on STL2 motherboard
+
+
+ e100.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+diff -Nru a/drivers/net/e100/e100.h b/drivers/net/e100/e100.h
+--- a/drivers/net/e100/e100.h	Tue Jan 14 13:46:26 2003
++++ b/drivers/net/e100/e100.h	Tue Jan 14 13:46:26 2003
+@@ -100,7 +100,7 @@
+ 
+ #define E100_MAX_NIC 16
+ 
+-#define E100_MAX_SCB_WAIT	100	/* Max udelays in wait_scb */
++#define E100_MAX_SCB_WAIT	5000	/* Max udelays in wait_scb */
+ #define E100_MAX_CU_IDLE_WAIT	50	/* Max udelays in wait_cus_idle */
+ 
+ /* HWI feature related constant */
+
+===================================================================
+
+
+This BitKeeper patch contains the following changesets:
+1.1019
+## Wrapped with gzip_uu ##
+
+
+begin 664 bkpatch4832
+M'XL(`#*D(SX``\U4:VO;,!3]'/V*"_W6$OM>V7)20T;2!UMIRTH?;-^":LNU
+M%ML:EM(7_O%3G)%22O9B@TG"$KK2T3WG'KP#-U:UZ:`R2VW9#GPPUJ6#4CXL
+M`EL&NG&J"C)3^\BE,3X2EJ9687\ZY($8%IKYV(5T60GWJK7I@()HL^.>OJIT
+M<'G\_N9L=LG89`*'I6SNU)5R,)DP9]I[6>5V*EU9F29PK6QLK9Q</=EMCG8<
+MD?LN:!2A2#I*,!YU&>5$,B:5(X_'2<RLDTVEGJ:U;)S.3*M>,7@-%R%1[`'C
+M*.G\;1&S(Z"`D/8!HQ`II!@H2F.11LD>CE-$Z#E/WR@#>P1#9`?P=\D<L@P*
+M_0B*_-.ZT4[+2C]+ITT#VMJE`K^XNC[C4!M7JO;6R#9GI\!%A)Q=O.C,AK_9
+M&$.)[!U\N9/MLUZLY,Q;N5#6%*ZGDK=Z5>FP42Y<I==_@G)-+,(1CCGG48>C
+M?2&Z0JJ"N,!1,LYX,8ZWR?@CU._%BCVUE5R4]$[:<F'EJW^3^@:V57DI?PKH
+ML\:($W).'8G]9&TQ3F\,AK]@,/IO#+8NP$<8M@_]\(:YV%:+/_#>D1<-B)VL
+MIYU<%;I1<.SAYN>SS_.KPX/YI]G)]4`@XB#<A7/Y",M<5?+)>A;P(+6;V^P6
+;=L.7_U)6JFQAE_5D7,1"B$*P;QI*PE?V!```
+`
+end
+
 

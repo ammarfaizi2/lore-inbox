@@ -1,86 +1,157 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262807AbSKMVoa>; Wed, 13 Nov 2002 16:44:30 -0500
+	id <S264610AbSKMVuP>; Wed, 13 Nov 2002 16:50:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262692AbSKMVoa>; Wed, 13 Nov 2002 16:44:30 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:2944 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S262807AbSKMVo2>;
-	Wed, 13 Nov 2002 16:44:28 -0500
-Date: Wed, 13 Nov 2002 22:51:15 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: FW: i386 Linux kernel DoS (clarification)
-Message-ID: <20021113215115.GA1827@vana>
-References: <76D1FF66BB6@vcnet.vc.cvut.cz> <1037224095.11979.156.camel@irongate.swansea.linux.org.uk>
+	id <S264614AbSKMVuP>; Wed, 13 Nov 2002 16:50:15 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:9988 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S264610AbSKMVuH>;
+	Wed, 13 Nov 2002 16:50:07 -0500
+Date: Wed, 13 Nov 2002 22:56:19 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: alan@redhat.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: sysfs support for ide disks
+Message-ID: <20021113215618.GA8744@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1037224095.11979.156.camel@irongate.swansea.linux.org.uk>
 User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 13, 2002 at 09:48:15PM +0000, Alan Cox wrote:
-> On Wed, 2002-11-13 at 21:18, Petr Vandrovec wrote:
-> > >     pushfl          # We get a different stack layout with call
-> > >                 # gates, which has to be cleaned up later..
-> > > +   andl $~0x4500, (%esp)   # Clear NT since we are doing an iret
-> > 
-> > this will clear 'D' and 'T' in caller after we do
-> > iret (if lcall7 returns, of course). I'm not sure that callers
-> 
-> You can adjust that if you want, I copied it about - clearing D is fine,
-> in fact it may let us avoid the cld
+Hi!
 
-Hi,
-   your original code just behaved as my old code: run modprobe successfully,
-and then die. Problem is that copy of eflags on stack is totally unimportant
-to us: current value in eflags is what matters. So this is minimal
-patch which works here: NT, DF and TF are now cleared only for kernel,
-and when we return back from lcall, userspace has its old values.
+sc1200 was doing ide disk suspension by hand. That's wrong -- how to
+suspend ide-disk has nothing to do with sc1200. This fixes it, and
+relies on sysfs to iterate over disks to do the suspension.
 
-   Optimization left to readed is creating SAVE_ALL_NOCLD, and using this
-one in lcall7 and lcall27.
+As a side effect, swsusp should no longer damage data. [It is
+incremental to previous patch].
 
-   With patch below my machine survived test. Unfortunately I do not
-have patched kernel with linux-abi to test whether lcall7 still works
-correctly.
-						Best regards,
-							Petr Vandrovec
-							vandrove@vc.cvut.cz
+I had to select between standby written in ide-disk.c (uses
+ide_raw_taskfile) and standby written in sc1200.c (uses
+ide_wait_cmd). I do not know which one is correct, but I tend to trust
+ide-disk.c version a bit more, and used that.
+
+Apply if it looks good to you,
+								Pavel
 
 
---- linux-2.5.47.dist/arch/i386/kernel/entry.S	2002-11-11 12:26:04.000000000 +0100
-+++ linux-2.5.47/arch/i386/kernel/entry.S	2002-11-13 22:40:19.000000000 +0100
-@@ -66,7 +66,9 @@
- OLDSS		= 0x38
+--- linux-ac.kill/drivers/ide/ide-disk.c	2002-11-13 22:00:22.000000000 +0100
++++ linux-ac/drivers/ide/ide-disk.c	2002-11-13 22:44:03.000000000 +0100
+@@ -1536,6 +1536,39 @@
+ #endif
+ }
  
- CF_MASK		= 0x00000001
-+TF_MASK		= 0x00000100
- IF_MASK		= 0x00000200
-+DF_MASK		= 0x00000400
- NT_MASK		= 0x00004000
- VM_MASK		= 0x00020000
++static int idedisk_suspend(struct device *dev, u32 state, u32 level)
++{
++	ide_drive_t *drive = dev->driver_data;
++
++	printk("Suspending device %p\n", dev->driver_data);
++
++	/* I hope that every freeze operation from the upper levels have
++	 * already been done...
++	 */
++
++	if (level != SUSPEND_SAVE_STATE)
++		return 0;
++
++	/* set the drive to standby */
++	printk(KERN_INFO "suspending: %s ", drive->name);
++	do_idedisk_standby(drive);
++	drive->blocked = 1;
++
++	BUG_ON (HWGROUP(drive)->handler);
++	return 0;
++}
++
++static int idedisk_resume(struct device *dev, u32 level)
++{
++	ide_drive_t *drive = dev->driver_data;
++
++	if (level != RESUME_RESTORE_STATE)
++		return 0;
++	BUG_ON(!drive->blocked);
++	drive->blocked = 0;
++	return 0;
++}
++
+ static void idedisk_setup (ide_drive_t *drive)
+ {
+ 	struct hd_driveid *id = drive->id;
+@@ -1682,6 +1715,10 @@
+ 	.proc			= idedisk_proc,
+ 	.attach			= idedisk_attach,
+ 	.drives			= LIST_HEAD_INIT(idedisk_driver.drives),
++	.gen_driver		= {
++		.suspend	= idedisk_suspend,
++		.resume		= idedisk_resume,
++	}
+ };
  
-@@ -132,6 +134,9 @@
- 	movl CS(%esp), %edx	# this is eip..
- 	movl EFLAGS(%esp), %ecx	# and this is cs..
- 	movl %eax,EFLAGS(%esp)	#
-+	andl $~(NT_MASK|TF_MASK|DF_MASK), %eax
-+	pushl %eax
-+	popfl
- 	movl %edx,EIP(%esp)	# Now we move them to their "normal" places
- 	movl %ecx,CS(%esp)	#
- 	movl %esp, %ebx
-@@ -154,6 +159,9 @@
- 	movl CS(%esp), %edx	# this is eip..
- 	movl EFLAGS(%esp), %ecx	# and this is cs..
- 	movl %eax,EFLAGS(%esp)	#
-+	andl $~(NT_MASK|TF_MASK|DF_MASK), %eax
-+	pushl %eax
-+	popfl
- 	movl %edx,EIP(%esp)	# Now we move them to their "normal" places
- 	movl %ecx,CS(%esp)	#
- 	movl %esp, %ebx
+ static int idedisk_open(struct inode *inode, struct file *filp)
+--- linux-ac.kill/drivers/ide/ide-probe.c	2002-11-13 21:38:11.000000000 +0100
++++ linux-ac/drivers/ide/ide-probe.c	2002-11-13 22:22:36.000000000 +0100
+@@ -1060,6 +1060,7 @@
+ 			 "%s","IDE Drive");
+ 		drive->gendev.parent = &hwif->gendev;
+ 		drive->gendev.bus = &ide_bus_type;
++		drive->gendev.driver_data = drive;
+ 		sprintf (name, "host%d/bus%d/target%d/lun%d",
+ 			(hwif->channel && hwif->mate) ?
+ 			hwif->mate->index : hwif->index,
+--- linux-ac.kill/drivers/ide/pci/sc1200.c	2002-11-13 21:38:11.000000000 +0100
++++ linux-ac/drivers/ide/pci/sc1200.c	2002-11-13 22:31:35.000000000 +0100
+@@ -373,19 +373,6 @@
+  	}
+ }
+ 
+-static int sc1200_spindown_drive (ide_drive_t *drive)
+-{
+-	int rc;
+-
+-#if 0
+-	fsync_dev(MKDEV(HWIF(drive)->major, 0));	// what to do instead of this?  nothing?
+-#endif
+-	if ((rc = ide_wait_cmd(drive, WIN_STANDBYNOW1, 0, 0, 0, NULL))
+-	 && (rc = ide_wait_cmd(drive, WIN_STANDBYNOW2, 0, 0, 0, NULL)))
+-		printk("%s: spindown failed\n", drive->name);
+-	return rc;
+-}
+-
+ static ide_hwif_t *lookup_pci_dev (ide_hwif_t *prev, struct pci_dev *dev)
+ {
+ 	int	h;
+@@ -446,25 +433,9 @@
+ {
+ 	ide_hwif_t	*hwif = NULL;
+ 
+-printk("SC1200: suspend(%u)\n", state);
+-	//
+-	// loop over all interfaces that are part of this pci device:
+-	//
+-	while ((hwif = lookup_pci_dev(hwif, dev)) != NULL) {
+-		unsigned int	d;
+-printk("%s: SC1200: suspend\n", hwif->name);
+-		//
+-		// Spin down all drives on this interface
+-		//
+-		for (d = 0; d < MAX_DRIVES; ++d) {
+-			ide_drive_t *drive = &(hwif->drives[d]);
+-			if (drive->present && drive->media == ide_disk) {
+-				if (sc1200_spindown_drive(drive)) {
+-					return -EBUSY;	// failed to suspend
+-				}
+-			}
+-		}
+-	}
++	printk("SC1200: suspend(%u)\n", state);
++	/* You don't need to iterate over disks -- sysfs should have done that for you already */ 
++
+ 	pci_disable_device(dev);
+ 	pci_set_power_state(dev,state);
+ 	dev->current_state = state;
+
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

@@ -1,47 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288144AbSACCih>; Wed, 2 Jan 2002 21:38:37 -0500
+	id <S288146AbSACCk3>; Wed, 2 Jan 2002 21:40:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288145AbSACCi2>; Wed, 2 Jan 2002 21:38:28 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:22035 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S288144AbSACCiS>;
-	Wed, 2 Jan 2002 21:38:18 -0500
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15411.49911.958835.299377@argo.ozlabs.ibm.com>
-Date: Thu, 3 Jan 2002 13:33:27 +1100 (EST)
-To: Richard Henderson <rth@redhat.com>
-Cc: Tom Rini <trini@kernel.crashing.org>, jtv <jtv@xs4all.nl>,
-        Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
-        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
-        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <20020102160739.A10659@redhat.com>
-In-Reply-To: <87g05py8qq.fsf@fadata.bg>
-	<20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net>
-	<20020102133632.C10362@redhat.com>
-	<20020102220548.GL1803@cpe-24-221-152-185.az.sprintbbd.net>
-	<20020102232320.A19933@xs4all.nl>
-	<20020102231243.GO1803@cpe-24-221-152-185.az.sprintbbd.net>
-	<20020103004514.B19933@xs4all.nl>
-	<20020103000118.GR1803@cpe-24-221-152-185.az.sprintbbd.net>
-	<20020102160739.A10659@redhat.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+	id <S288145AbSACCkS>; Wed, 2 Jan 2002 21:40:18 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:38810 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S288146AbSACCkI>;
+	Wed, 2 Jan 2002 21:40:08 -0500
+Date: Thu, 3 Jan 2002 03:39:56 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200201030239.DAA21812@harpo.it.uu.se>
+To: alan@lxorguk.ukuu.org.uk
+Subject: [PATCH] 2.2.21pre CONFIG_MODVERSIONS make rules update
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Henderson writes:
+Alan,
 
-> Ignore strcpy.  Yes, that's what visibly causing a failure here,
-> but the bug is in the funny pointer arithmetic.  Leave that in
-> there and the compiler _will_ bite your ass sooner or later.
+Here's a backport of the 2.4 CONFIG_MODVERSIONS make rules for
+2.2.21pre. This is needed on fast boxes since 'make dep' can update
+modversions.h at sub-second intervals, and this breaks make's
+'st_mtime'-based dependency checking. (Without this patch, it's
+basically impossible to build 2.2.20 with modversions on my P4,
+due to incomplete expansion of symbol versions.)
 
-I look forward to seeing your patch to remove all uses of
-virt_to_phys, phys_to_virt, __pa, __va, etc. from arch/alpha... :)
+/Mikael
 
-Paul.
+diff -ruN linux-2.2.21pre2/Makefile linux-2.2.21pre2.modver-2.4-backport/Makefile
+--- linux-2.2.21pre2/Makefile	Wed Jan  2 14:01:50 2002
++++ linux-2.2.21pre2.modver-2.4-backport/Makefile	Wed Jan  2 14:11:07 2002
+@@ -445,6 +445,9 @@
+ #	set -e; for i in $(SUBDIRS); do $(MAKE) -C $$i fastdep ;done
+ # let this be made through the fastdep rule in Rules.make
+ 	$(MAKE) $(patsubst %,_sfdep_%,$(SUBDIRS)) _FASTDEP_ALL_SUB_DIRS="$(SUBDIRS)"
++ifdef CONFIG_MODVERSIONS
++	$(MAKE) update-modverfile
++endif
+ 
+ MODVERFILE :=
+ 
+diff -ruN linux-2.2.21pre2/Rules.make linux-2.2.21pre2.modver-2.4-backport/Rules.make
+--- linux-2.2.21pre2/Rules.make	Mon Dec 11 22:10:06 2000
++++ linux-2.2.21pre2.modver-2.4-backport/Rules.make	Wed Jan  2 14:11:07 2002
+@@ -230,8 +230,16 @@
+ 	
+ $(addprefix $(MODINCL)/,$(SYMTAB_OBJS:.o=.ver)): $(TOPDIR)/include/linux/autoconf.h
+ 
+-$(TOPDIR)/include/linux/modversions.h: $(addprefix $(MODINCL)/,$(SYMTAB_OBJS:.o=.ver))
+-	@echo updating $(TOPDIR)/include/linux/modversions.h
++# updates .ver files but not modversions.h
++fastdep: $(addprefix $(MODINCL)/,$(SYMTAB_OBJS:.o=.ver))
++
++# updates .ver files and modversions.h like before (is this needed?)
++dep: fastdep update-modverfile
++
++endif # SYMTAB_OBJS 
++
++# update modversions.h, but only if it would change
++update-modverfile:
+ 	@(echo "#ifndef _LINUX_MODVERSIONS_H";\
+ 	  echo "#define _LINUX_MODVERSIONS_H"; \
+ 	  echo "#include <linux/modsetver.h>"; \
+@@ -240,11 +248,14 @@
+ 	    if [ -f $$f ]; then echo "#include <linux/modules/$${f}>"; fi; \
+ 	  done; \
+ 	  echo "#endif"; \
+-	) > $@
+-
+-dep fastdep: $(TOPDIR)/include/linux/modversions.h
+-
+-endif # SYMTAB_OBJS 
++	) > $(TOPDIR)/include/linux/modversions.h.tmp
++	@if [ -r $(TOPDIR)/include/linux/modversions.h ] && cmp -s $(TOPDIR)/include/linux/modversions.h $(TOPDIR)/include/linux/modversions.h.tmp; then \
++		echo $(TOPDIR)/include/linux/modversions.h was not updated; \
++		rm -f $(TOPDIR)/include/linux/modversions.h.tmp; \
++	else \
++		echo $(TOPDIR)/include/linux/modversions.h was updated; \
++		mv -f $(TOPDIR)/include/linux/modversions.h.tmp $(TOPDIR)/include/linux/modversions.h; \
++	fi
+ 
+ $(M_OBJS): $(TOPDIR)/include/linux/modversions.h
+ ifdef MAKING_MODULES

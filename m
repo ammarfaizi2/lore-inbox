@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276935AbRJCSMS>; Wed, 3 Oct 2001 14:12:18 -0400
+	id <S276937AbRJCSQs>; Wed, 3 Oct 2001 14:16:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276936AbRJCSMI>; Wed, 3 Oct 2001 14:12:08 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34575 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S276935AbRJCSL5>; Wed, 3 Oct 2001 14:11:57 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-Date: Wed, 3 Oct 2001 18:11:50 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9pfkd6$9p5$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0110030920500.9427-100000@penguin.transmeta.com> <Pine.LNX.4.33.0110031920410.9973-100000@localhost.localdomain>
-X-Trace: palladium.transmeta.com 1002132717 19792 127.0.0.1 (3 Oct 2001 18:11:57 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 3 Oct 2001 18:11:57 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S276936AbRJCSQi>; Wed, 3 Oct 2001 14:16:38 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57384 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S276938AbRJCSQd>; Wed, 3 Oct 2001 14:16:33 -0400
+To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Cc: viro@math.psu.edu, Rob Landley <landley@trommello.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
+In-Reply-To: <200110031249.HAA50103@tomcat.admin.navo.hpc.mil>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 03 Oct 2001 12:06:21 -0600
+In-Reply-To: <200110031249.HAA50103@tomcat.admin.navo.hpc.mil>
+Message-ID: <m1r8sk1tuq.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33.0110031920410.9973-100000@localhost.localdomain>,
-Ingo Molnar  <mingo@elte.hu> wrote:
->
->well, just tested my RAID testsystem as well. I have not tested heavy
->IO-related IRQ load with the patch before (so it was not tuned for that
->test in any way), but did so now: an IO test running on 12 disks, (5 IO
->interfaces: 3 SCSI cards and 2 IDE interfaces) producing 150 MB/sec block
->IO load and a fair number of SCSI and IDE interrupts, did not trigger the
->overload code.
+Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil> writes:
 
-Now test it again with the disk interrupt being shared with the network
-card.
+> Alexander Viro <viro@math.psu.edu>:
+> > On Tue, 2 Oct 2001, Rob Landley wrote:
+> > 
+> > > Anybody want to venture an opinion why overwriting executable files that are
+> 
+> > > currently in use gives you a "text file busy" error, but overwriting shared
+> 
+> > > libraries that are in use apparently works just fine (modulo a core dump if
+> 
+> > > you aren't subtle about your run-time patching)?
+> > > 
+> > > Permissions are still enforced, but it seems to me somebody who cracks root
+> 
+> > > on a system could potentially modify the behavior of important system
+> daemons
+> 
+> > > without changing their process ID numbers.
+> > > 
+> > > Did I miss something somewhere?
+> > 
+> > Somebody who cracks root can attach gdb to a daemon, modify the contents of
+> > its text segment and detach.  No need to change any files...
+> 
+> True, but the original problem still appears to be a bug.
+> 
+> Even the owner of the file should not be able to write to a busy executable,
+> whether it is a shared library, or an executable image. Remove it, yes.
+> Create a new one (in a different inode) -  yes.
+> 
+> But not modify a busy executable.
 
-Doesn't happen? It sure does. It happens more often especially on
-slightly lower-end machines (on laptops it's downright disgusting how
-often _every_ single PCI device ends up sharing the same interrupt).
+Have ld-linux.so set the MAP_DENYWRITE bit when it is mapping
+the library.
 
-And as the lower-end machines are the ones that probably can be forced
-to trigger the whole thing more often, this is a real issue.
-
-And on my "high-end" machine, I actually have USB and ethernet on the
-same interrupt.  It would be kind of nasty if heavy network traffic
-makes my camera stop working... 
-
-The fact is, there is never any good reason for limiting "trusted"
-interrupts, ie anything that is internal to the box.  Things like disks,
-graphics controllers etc. 
-
-Which is why I like the NAPI approach.  If somebody overloads my network
-card, my USB camera doesn't stop working. 
-
-I don't disagree with your patch as a last resort when all else fails,
-but I _do_ disagree with it as a network load limiter.
-
-			Linus
+Eric

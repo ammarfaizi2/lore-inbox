@@ -1,67 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143628AbRA1RHo>; Sun, 28 Jan 2001 12:07:44 -0500
+	id <S143627AbRA1RLy>; Sun, 28 Jan 2001 12:11:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143627AbRA1RHf>; Sun, 28 Jan 2001 12:07:35 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:15886 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S143568AbRA1RHX>; Sun, 28 Jan 2001 12:07:23 -0500
-Date: Sun, 28 Jan 2001 17:07:03 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
-In-Reply-To: <3A744CA7.AF41F05D@colorfullife.com>
-Message-ID: <Pine.LNX.4.30.0101281653020.26076-100000@imladris.demon.co.uk>
+	id <S143626AbRA1RLo>; Sun, 28 Jan 2001 12:11:44 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:5552 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S143568AbRA1RLc>; Sun, 28 Jan 2001 12:11:32 -0500
+Date: Sun, 28 Jan 2001 17:11:20 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: jamal <hadi@cyberus.ca>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ECN: Clearing the air (fwd)
+In-Reply-To: <Pine.GSO.4.30.0101281039440.24762-100000@shell.cyberus.ca>
+Message-ID: <Pine.SOL.4.21.0101281704430.16734-100000@green.csi.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 Jan 2001, Manfred Spraul wrote:
-
-> It isn't wrong to call schedule() with disabled interrupts - it's a
-> feature ;-)
-> Those 10% sleep_on() users that aren't broken use it:
+On Sun, 28 Jan 2001, jamal wrote:
+> On Sun, 28 Jan 2001, James Sutherland wrote:
+> > On Sun, 28 Jan 2001, jamal wrote:
+> > > There were people who made the suggestion that TCP should retry after a
+> > > RST because it "might be an anti-ECN path"
+> >
+> > That depends what you mean by "retry"; I wanted the ability to attempt a
+> > non-ECN connection. i.e. if I'm a mailserver, and try connecting to one of
+> > Hotmail's MX hosts with ECN, I'll get RST every time. I would like to be
+> > able to retry with ECN disabled for that connection.
 > 
->  for(;;) {
-> 	cli();
-> 	if(condition)
-> 		break;
-> 	sleep_on(&my_wait_queue);
-> 	sti();
->  }
+> We are allowing two rules to be broken, one is RFC 793 which
+> clearly and unambigously defines what a RST means. the second is
 
-That's valid iff the wake_up() can only happen from an ISR.
+This is NOT being violated: the RST is honoured as normal.
 
-> E.g. TIOCMIWAIT in drivers/char/serial.c - a nearly correct sleep_on()
-> user.
+> the firewall or IDS box which clearly is in violation.
 
-TIOCMIWAIT does restore_flags() before interruptible_sleep_on(). It's 
-broken too.
+Disagreed: it is complying with firewall RFCs, rejecting suspect
+packets. Sending an RST isn't a very bright way to do it, but that's
+irrelevant: it happens. Deal with it.
 
-Anyway, if you're feeling pedantic, consider what happens if shutdown() is
-called from rs_close() just before sleep_on() is called. Regardless of 
-whether interrupts are disabled.
+> The simplest thing in this chaos is to fix the firewall because it is in
+> violation to begin with.
 
-> But I doubt that 10% of the sleep_on() users are non-broken...
+It is not in violation, and you can't fix it: it's not yours.
 
-There are cases where you don't care if you miss a wakeup because you have
-a timeout. So it's only suboptimal rather than broken. I did produce a 
-patch to BUG() in sleep_on if the BKL isn't held, at one point. It was 
-quite interesting.
+> I think it is silly to try to be "robust against RSTs" because of ECN.
+> What if the RST was genuine?
 
-> If you remove sleep_on(), then you can disallow calling schedule() with
-> disabled local interrupts.
+It is genuine, and is treated as such. There is no "robust against
+RSTs" or anything else: just graceful handling of non-ECN routes.
 
-The remaining valid users of sleep_on are mainly filesystems - much fs
-code gets called with the BKL held. I expect that to change during 2.5, at 
-which point sleep_on can be terminated with extreme prejudice. 
+> I see that we mostly have philosphical differences. You'd rather adapt
+> to the criminal and most people would rather have the criminal adjust to
+> society.
 
--- 
-dwmw2
+There is no "criminal": no rules are being broken. Since it is
+"society" (or a tiny minority thereof) which has changed the rules, it is
+"society" which must adapt to be compatible with existing rules.
 
+> I think CISCO have been very good in responding fast. I blame the site
+> owners who dont want to go beyond their 9-5 job and upgrade their boxes.
+> In the old internet where only hackers were qualified for such jobs, the
+> upgrade would have happened by now at hotmail. I suppose it's part of
+> growing pains.
+
+I'd have said that's still true - only "hackers" are qualified. The
+problem is just that the staff doing (or attempting) the job aren't
+necessarily qualified to do it properly...
+
+> If you think the CISCOs were bad sending RSTs, i am sure you havent heard
+> about the Raptor firewalls. They dont even bother to send you anything if
+> you have ECN enabled ;-> Simply swallow your SYNs.
+
+That's regarded as a better response, actually: just drop suspect packets.
+
+> So tell me, what do you propose we deal with these? Do we further
+> disambiguate or assume the packet was lost?
+> I actually bothered calling Raptor, they chose to ignore me.
+
+You mean they are still shipping a firewall which drops ECN
+packets? Hrm...
+
+> You should never ASSume anything about something that is "reserved".
+> I posted the definition from the collegiate dictionary, but i am sure most
+> dictionaries would give the same definition.
+
+It isn't just reserved, though, it's stated "must be zero". Very poor
+wording, but it's too late now.
+
+> It's too bad we end up defining protocols using English. We should use
+> mathematical equations to remove any ambiguity ;->
+
+No, just use English properly. "Must be zero" doesn't actually mean "must
+be set to zero when sending, and ignored when receiving/processing", which
+is probably what the standard SHOULD have said.
+
+However, it's too late now: ECN-disabled routes exist. ECN implementations
+should degrade as well as possible when handling these circumstances.
+
+
+James.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

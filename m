@@ -1,78 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264119AbTKUBC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 20:02:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264126AbTKUBC0
+	id S264176AbTKUBLK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 20:11:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbTKUBLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 20:02:26 -0500
-Received: from draal.physics.wisc.edu ([128.104.222.75]:13502 "EHLO
-	moya.mcelrath.org") by vger.kernel.org with ESMTP id S264119AbTKUBCY
+	Thu, 20 Nov 2003 20:11:10 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:61640 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S264339AbTKUBLF convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 20:02:24 -0500
-Date: Thu, 20 Nov 2003 17:01:55 -0800
-From: Bob McElrath <bob+linux-kernel@mcelrath.org>
-To: jt@hpl.hp.com
-Cc: "Mudama, Eric" <eric_mudama@maxtor.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Announce: ndiswrapper
-Message-ID: <20031121010155.GB10026@mcelrath.org>
-Mail-Followup-To: jt@hpl.hp.com, "Mudama, Eric" <eric_mudama@maxtor.com>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <785F348679A4D5119A0C009027DE33C105CDB514@mcoexc04.mlm.maxtor.com> <20031121000031.GA17869@bougret.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6sX45UoQRIJXqkqR"
-Content-Disposition: inline
-In-Reply-To: <20031121000031.GA17869@bougret.hpl.hp.com>
-User-Agent: Mutt/1.5.4i
+	Thu, 20 Nov 2003 20:11:05 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [PM][ACPI] No ACPI interrupts after resume from S1
+Date: Fri, 21 Nov 2003 09:10:59 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F8401720BDD@pdsmsx403.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PM][ACPI] No ACPI interrupts after resume from S1
+Thread-Index: AcOcCeAVLuBfEU5BRDCRJ8qzwlzWkAAXhl7gBNkH+bA=
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Yu, Luming" <luming.yu@intel.com>, "Karol Kozimor" <sziwan@hell.org.pl>
+Cc: "Pavel Machek" <pavel@ucw.cz>, "M?ns Rullg?rd" <mru@users.sourceforge.net>,
+       <acpi-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 21 Nov 2003 01:11:00.0140 (UTC) FILETIME=[534006C0:01C3AFCC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have made an updated version. Would you please retry?
+-Luming
 
---6sX45UoQRIJXqkqR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Yu, Luming
+Sent: 2003?10?27? 16:56
+To: Karol Kozimor
+Cc: Pavel Machek; M?ns Rullg?rd; acpi-devel@lists.sourceforge.net; linux-kernel@vger.kernel.org
+Subject: RE: [PM][ACPI] No ACPI interrupts after resume from S1
 
-Jean Tourrilhes [jt@bougret.hpl.hp.com] wrote:
->=20
-> 	My point is : why buy this laptop if it's not 100%
-> supported ? They are plenty of other laptops...
 
-There are not plenty.  By the time you limit yourself to:
-    1) No nvidia
-    2) Supported wireless
-    3) Non-winmodem
-    4) OSS driver for sound=20
-    5) Not paying for windoze
-you're left with a fairly small set of laptops and vendors, and I
-haven't even started considering the hardware I *do* want yet.
-(processor, HDD, RAM, screen, etc)
+I made a mistake in using base_number. Would you please have updated patch a try?
+Thanks a lot. --Luming
 
-For the record I maintain a list of linux and no-OS laptop vendors:
-    http://mcelrath.org/laptops.html
-and there aren't that many.  Go through there product lines and start
-cutting out winmodems, broadcam wireless and nvidia, and there is very
-little left.
 
-The problem is consumers don't build laptops, companies do.  I can build
-my desktop component-by-component.  (Rally now for open, interchangable
-laptop hardware!)
+-----Original Message-----
+From: Karol Kozimor [mailto:sziwan@hell.org.pl]
+Sent: 2003?10?27? 5:41
+To: Yu, Luming
+Cc: Pavel Machek; M?ns Rullg?rd; acpi-devel@lists.sourceforge.net; linux-kernel@vger.kernel.org
+Subject: Re: [PM][ACPI] No ACPI interrupts after resume from S1
 
-Cheers,
-Bob McElrath [Univ. of California at Davis, Department of Physics]
 
---6sX45UoQRIJXqkqR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Thus wrote Yu, Luming:
+> Would you please try patch at http://bugme.osdl.org/show_bug.cgi?id=1409
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Hi,
+The patch makes my kernel oops on resume:
+hdc: completing PM  request, resume
+  hwregs-0760 [56] hw_low_level_read     : Unsupported address space: 90
+  hwregs-0760 [56] hw_low_level_read     : Unsupported address space: A0
+  hwregs-0760 [56] hw_low_level_read     : Unsupported address space: 24
+  hwregs-0760 [56] hw_low_level_read     : Unsupported address space: C8
+  hwregs-0760 [56] hw_low_level_read     : Unsupported address space: E0
+  hwregs-0760 [56] hw_low_level_read     : Unsupported address space: F0
+  hwregs-0760 [56] hw_low_level_read     : Unsupported address space:  4
+Unable to handle kernel paging request at virtual address 70677679
+ printing eip:
+c020c44c
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c020c44c>]   Not tainted
+EFLAGS: 00010206
+EIP is at acpi_hw_lowlevel_read+0x30/0x122
+eax: c02e6344   ebx: cffd6408   ecx: cfc51e88   edx: 00000010
+esi: 70677671   edi: cfc51e90   ebp: 00000008   esp: cfc51e58
+ds: 007b   es: 007b   ss: 0068
+Process bash (pid: 304, threadinfo=cfc50000 task=c1368a0)
+Stack: 00000130 c021c9b8 00000002 c02e6499 c02e6344 c02f6720 cffd6408 cfe3b228
+       000001e0 00000001 c020b6b2 00000008 cfc51e90 70677671 c0311650 00000018
+       c020b9c2 cffd6408 00000010 00000000 00000000 cfc51ebc c02da521 00000001
+Call Trace:
+ acpi_ut_acquire_mutex+0xc0/0x16b
+ acpi_hw_enable_gpe+0x1e/0x44
+ acpi_hw_enable_ec_gpes+0x7f0x85
+ acpi_leave_sleep_state+0x119/0x13e
+ dpm_resume+0x34/0x5a
+ acpi_pm_finish+0xb/0x38
+ [...]
 
-iD8DBQE/vWQDjwioWRGe9K0RAutpAKCt+OiDdon4NAAXI1JnAGvjhlQfsACg1J9G
-psLCl0Q1IPcOwnEH70x63IU=
-=sd7m
------END PGP SIGNATURE-----
+Code: 8b 56 08 8b 46 04 89 d1 09 c1 75 0a 31 c0 83 c4 18 5b 5c 5f
+[hand typed, but at least the traces should be OK]
 
---6sX45UoQRIJXqkqR--
+Best regards,
+
+-- 
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

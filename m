@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135749AbRECMMa>; Thu, 3 May 2001 08:12:30 -0400
+	id <S135950AbRECMYU>; Thu, 3 May 2001 08:24:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135950AbRECMMU>; Thu, 3 May 2001 08:12:20 -0400
-Received: from ludwig-alpha.unil.ch ([192.42.197.33]:45985 "EHLO
-	ludwig-alpha.unil.ch") by vger.kernel.org with ESMTP
-	id <S135749AbRECMMF>; Thu, 3 May 2001 08:12:05 -0400
-Message-Id: <200105031211.OAA23354@ludwig-alpha.unil.ch>
-X-Mailer: exmh version 2.1.1 10/15/1999
-To: Alexandre Oliva <aoliva@redhat.com>
-cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.4-ac3, asm problem in asm-i386/rwsem.h using gcc 3.0 CVS 
-In-Reply-To: Message from Alexandre Oliva <aoliva@redhat.com> 
-   of "03 May 2001 08:04:45 -0300." <org0em8zhu.fsf@guarana.lsd.ic.unicamp.br> 
-Mime-Version: 1.0
+	id <S136103AbRECMYL>; Thu, 3 May 2001 08:24:11 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:49676 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S135950AbRECMYC>; Thu, 3 May 2001 08:24:02 -0400
+Message-ID: <3AF14DC5.17E35108@idb.hist.no>
+Date: Thu, 03 May 2001 14:23:33 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre7 i686)
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
+In-Reply-To: <Pine.LNX.4.33.0104281752290.10866-100000@localhost.localdomain> <20010428215301.A1052@gruyere.muc.suse.de> <200104282256.f3SMuRW15999@vindaloo.ras.ucalgary.ca> <9cg7t7$gbt$1@cesium.transmeta.com> <20010430104231.C3294@bug.ucw.cz>
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 03 May 2001 14:11:58 +0200
-From: Christian Iseli <chris@ludwig-alpha.unil.ch>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Pavel Machek wrote:
+> > >
+> > > Whatever happened to that hack that was discussed a year or two ago?
+> > > The one where (also on IA32) a magic page was set up by the kernel
+> > > containing code for fast system calls, and the kernel would write
+> > > calibation information to that magic page. The code written there
+> > > would use the TSC in conjunction with that calibration data.
 
-aoliva@redhat.com said:
-> I believe we'd need at least the source code of this function to be
-> able to duplicate the problem with GCC.  Would you please submit a
-> full bug report, following the guidelines at <URL:http://gcc.gnu.org/
-> bugs.html>?  Thanks in advance, 
+>                                                                 Pavel
+> PS: Hmm, how do you do timewarp for just one userland appliation with
+> this installed?
 
-Ok, I filed a bug report to gcc-gnats, with pre-processed sources: `c/2728'
+1. Kernel solution: give that particular process a different magic page
+2. User solution:   Don't obtain time from the magic page.
+2a                  By changing program source, if available
+2b                  By switching the c library, assuming it is used
 
-BTW, it is possible to compile sys.c with -O instead of -O2, and the problem 
-is not triggered...
-
-Cheers,
-					Christian
-
-
+Helge Hafting

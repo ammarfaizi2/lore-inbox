@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265190AbSL1Fbk>; Sat, 28 Dec 2002 00:31:40 -0500
+	id <S265532AbSL1FqO>; Sat, 28 Dec 2002 00:46:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265457AbSL1Fbk>; Sat, 28 Dec 2002 00:31:40 -0500
-Received: from mnh-1-09.mv.com ([207.22.10.41]:51460 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S265190AbSL1Fbj>;
-	Sat, 28 Dec 2002 00:31:39 -0500
-Message-Id: <200212280544.AAA06441@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: uml-patch-2.5.53-1
+	id <S265523AbSL1FqN>; Sat, 28 Dec 2002 00:46:13 -0500
+Received: from are.twiddle.net ([64.81.246.98]:50313 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S265532AbSL1FqN>;
+	Sat, 28 Dec 2002 00:46:13 -0500
+Date: Fri, 27 Dec 2002 21:54:26 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       william stinson <wstinson@wanadoo.fr>, trivial@rustcorp.com.au
+Subject: Re: [PATCH] Mark deprecated functions so they give a warning on use
+Message-ID: <20021227215426.A4557@twiddle.net>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+	william stinson <wstinson@wanadoo.fr>, trivial@rustcorp.com.au
+References: <20021228035319.903502C04B@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 28 Dec 2002 00:44:21 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021228035319.903502C04B@lists.samba.org>; from rusty@rustcorp.com.au on Sat, Dec 28, 2002 at 11:57:10AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates UML to 2.5.53.  As far as UML itself is concerned,
-this is identical to all recent 2.5 UML releases, except that I tossed in
-a small fix for a race involving multiple xterms popping up at once.
+On Sat, Dec 28, 2002 at 11:57:10AM +1100, Rusty Russell wrote:
+> +#define __DEPRECATED(msg) ({DEPRECATED_##msg: 1; })
+[...]
+> +#define check_region(start,n)	__DEPRECATED(use_request_region_return_value), __check_region(&ioport_resource, (start), (n))
 
-I'm in the process of merging my recent 2.4 changes into my 2.5 tree, but
-I figured I'd get this patch out first.
+So now it's a syntax error to use check_region twice
+in the same function?
 
-The 2.5.53 UML patch is available at
-        http://uml-pub.ists.dartmouth.edu/uml/uml-patch-2.5.53-1.bz2
- 
-For the other UML mirrors and other downloads, see 
-        http://user-mode-linux.sourceforge.net/dl-sf.html
- 
-Other links of interest:
- 
-        The UML project home page : http://user-mode-linux.sourceforge.net
-        The UML Community site : http://usermodelinux.org
-				Jeff
 
+r~

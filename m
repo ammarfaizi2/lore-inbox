@@ -1,141 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263642AbUDVHOC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263655AbUDVHzn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263642AbUDVHOC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 03:14:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263732AbUDVHN3
+	id S263655AbUDVHzn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 03:55:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263741AbUDVHzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 03:13:29 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:58807 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263716AbUDVHJv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 03:09:51 -0400
-Date: Thu, 22 Apr 2004 00:07:48 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: colpatch@us.ibm.com, wli@holomorphy.com, rusty@rustcorp.com.au,
-       linux-kernel@vger.kernel.org
-Subject: [Patch 13 of 17] cpumask v4 - Simplify some sparc64 cpumask loop
- code
-Message-Id: <20040422000748.39284f1b.pj@sgi.com>
-In-Reply-To: <20040421232247.22ffe1f2.pj@sgi.com>
-References: <20040421232247.22ffe1f2.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 22 Apr 2004 03:55:42 -0400
+Received: from [194.89.250.117] ([194.89.250.117]:16274 "EHLO
+	kimputer.holviala.com") by vger.kernel.org with ESMTP
+	id S263655AbUDVHzB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 03:55:01 -0400
+From: Kim Holviala <kim@holviala.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] psmouse: fix ExPS/2 probing
+Date: Thu, 22 Apr 2004 10:53:25 +0300
+User-Agent: KMail/1.6.1
+Cc: vojtech@suse.cz, Dmitry Torokhov <dtor_core@ameritech.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200404221053.25019.kim@holviala.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mask13-cpumask-sparc-simplify - Simplify some sparc64 cpumask loop code
-        Make use of for_each_cpu_mask() macro to simplify and optimize
-        a couple of sparc64 per-CPU loops.  This code change has _not_
-        been tested or reviewed.  Feedback welcome.  There is non-trivial
-        risk that I still don't understand the logic here.
+Split off from an earlier (big and confusing) patch.
 
-Index: 2.6.5.bitmap/arch/sparc64/kernel/smp.c
-===================================================================
---- 2.6.5.bitmap.orig/arch/sparc64/kernel/smp.c	2004-04-05 02:41:32.000000000 -0700
-+++ 2.6.5.bitmap/arch/sparc64/kernel/smp.c	2004-04-08 04:18:02.000000000 -0700
-@@ -406,14 +406,8 @@
- 	int i;
+Some mice (Logitech trackballs at least) support ExPS/2 but don't support
+ImPS/2. The current probing order forces all such devices to use regular
+three-button PS/2. This patch fixes it by taking the ExPS/2 probing out
+of the ImPS/2 if-then block.
+
+Applies to 2.6.5, 2.6.6-rc2. Won't apply to rc2-mm1 nor on top of Dmitry's
+patches.
+
+The third part of the earlier patch fixed protocol probing, but I'll wait
+2.6.6 comes out until I redo it.
+
+
+
+Kim
+
+
+
+--- linux-2.6.6-rc2/drivers/input/mouse/psmouse-base.c	2004-04-21 13:35:43.000000000 +0300
++++ linux-2.6.6-rc2-kim/drivers/input/mouse/psmouse-base.c	2004-04-21 14:17:42.194090939 +0300
+@@ -414,19 +414,19 @@
+ 	if (psmouse_max_proto >= PSMOUSE_IMPS && intellimouse_detect(psmouse)) {
+ 		set_bit(REL_WHEEL, psmouse->dev.relbit);
  
- 	__asm__ __volatile__("rdpr %%pstate, %0" : "=r" (pstate));
--	for (i = 0; i < NR_CPUS; i++) {
--		if (cpu_isset(i, mask)) {
--			spitfire_xcall_helper(data0, data1, data2, pstate, i);
--			cpu_clear(i, mask);
--			if (cpus_empty(mask))
--				break;
--		}
--	}
-+	for_each_cpu_mask(i, mask)
-+		spitfire_xcall_helper(data0, data1, data2, pstate, i);
- }
- 
- /* Cheetah now allows to send the whole 64-bytes of data in the interrupt
-@@ -456,25 +450,19 @@
- 
- 	nack_busy_id = 0;
- 	{
--		cpumask_t work_mask = mask;
- 		int i;
- 
--		for (i = 0; i < NR_CPUS; i++) {
--			if (cpu_isset(i, work_mask)) {
--				u64 target = (i << 14) | 0x70;
+-		if (psmouse_max_proto >= PSMOUSE_IMEX &&
+-					im_explorer_detect(psmouse)) {
+-			set_bit(BTN_SIDE, psmouse->dev.keybit);
+-			set_bit(BTN_EXTRA, psmouse->dev.keybit);
 -
--				if (!is_jalapeno)
--					target |= (nack_busy_id << 24);
--				__asm__ __volatile__(
--					"stxa	%%g0, [%0] %1\n\t"
--					"membar	#Sync\n\t"
--					: /* no outputs */
--					: "r" (target), "i" (ASI_INTR_W));
--				nack_busy_id++;
-- 				cpu_clear(i, work_mask);
--				if (cpus_empty(work_mask))
--					break;
--			}
-+		for_each_cpu_mask(i, mask) {
-+			u64 target = (i << 14) | 0x70;
-+
-+			if (!is_jalapeno)
-+				target |= (nack_busy_id << 24);
-+			__asm__ __volatile__(
-+				"stxa	%%g0, [%0] %1\n\t"
-+				"membar	#Sync\n\t"
-+				: /* no outputs */
-+				: "r" (target), "i" (ASI_INTR_W));
-+			nack_busy_id++;
- 		}
+-			psmouse->name = "Explorer Mouse";
+-			return PSMOUSE_IMEX;
+-		}
+-
+ 		psmouse->name = "Wheel Mouse";
+ 		return PSMOUSE_IMPS;
  	}
  
-@@ -507,7 +495,6 @@
- 			printk("CPU[%d]: mondo stuckage result[%016lx]\n",
- 			       smp_processor_id(), dispatch_stat);
- 		} else {
--			cpumask_t work_mask = mask;
- 			int i, this_busy_nack = 0;
- 
- 			/* Delay some random time with interrupts enabled
-@@ -518,22 +505,17 @@
- 			/* Clear out the mask bits for cpus which did not
- 			 * NACK us.
- 			 */
--			for (i = 0; i < NR_CPUS; i++) {
--				if (cpu_isset(i, work_mask)) {
--					u64 check_mask;
--
--					if (is_jalapeno)
--						check_mask = (0x2UL << (2*i));
--					else
--						check_mask = (0x2UL <<
--							      this_busy_nack);
--					if ((dispatch_stat & check_mask) == 0)
--						cpu_clear(i, mask);
--					this_busy_nack += 2;
--					cpu_clear(i, work_mask);
--					if (cpus_empty(work_mask))
--						break;
--				}
-+			for_each_cpu_mask(i, mask) {
-+				u64 check_mask;
++	if (psmouse_max_proto >= PSMOUSE_IMEX && im_explorer_detect(psmouse)) {
++		set_bit(REL_WHEEL, psmouse->dev.relbit);
++		set_bit(BTN_SIDE, psmouse->dev.keybit);
++		set_bit(BTN_EXTRA, psmouse->dev.keybit);
 +
-+				if (is_jalapeno)
-+					check_mask = (0x2UL << (2*i));
-+				else
-+					check_mask = (0x2UL <<
-+						      this_busy_nack);
-+				if ((dispatch_stat & check_mask) == 0)
-+					cpu_clear(i, mask);
-+				this_busy_nack += 2;
- 			}
- 
- 			goto retry;
++		psmouse->name = "Explorer Mouse";
++		return PSMOUSE_IMEX;
++	}
++
+ /*
+  * Okay, all failed, we have a standard mouse here. The number of the buttons
+  * is still a question, though. We assume 3.
 
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+

@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267522AbUIAUb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267517AbUIAUb1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267522AbUIAUb1 (ORCPT <rfc822;willy@w.ods.org>);
+	id S267517AbUIAUb1 (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 1 Sep 2004 16:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267565AbUIAUaM
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267575AbUIAUaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 16:30:12 -0400
-Received: from smtp-out.hotpop.com ([38.113.3.71]:60891 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S267764AbUIAUUp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 16:20:45 -0400
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: Paolo Ornati <ornati@fastwebnet.it>, adaplas@pol.net
-Subject: Re: 2.6.9-rc1: scrolling with tdfxfb 5 times slower
-Date: Thu, 2 Sep 2004 04:20:55 +0800
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <200408312133.40039.ornati@fastwebnet.it> <200409011851.00777.adaplas@hotpop.com> <200409011355.52999.ornati@fastwebnet.it>
-In-Reply-To: <200409011355.52999.ornati@fastwebnet.it>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Sep 2004 16:30:21 -0400
+Received: from mail.shareable.org ([81.29.64.88]:3786 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S267822AbUIAU10 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 16:27:26 -0400
+Date: Wed, 1 Sep 2004 21:25:49 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Rik van Riel <riel@redhat.com>,
+       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
+       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
+       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
+       linux-fsdevel@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040901202549.GF31934@mail.shareable.org>
+References: <Pine.LNX.4.44.0408261011410.27909-100000@chimarrao.boston.redhat.com> <200408261819.59328.vda@port.imtp.ilyichevsk.odessa.ua> <1093789802.27932.41.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200409020420.55269.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+In-Reply-To: <1093789802.27932.41.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 September 2004 19:55, Paolo Ornati wrote:
-> > Ok, I think I know why the scrolling speed is too slow, the driver is not
-> > maximizing the extra memory of the framebuffer.
-> >
-> > This patch sets info->var.yres_virtual to the maximum upon driver load.
-> > If this works, it's possible to get sub-1 second scrolling speed.
-> >
-> > Reverse the previous patch first, then apply this patch.
->
-> Results for 2.6.9-rc1 + your patch (time cat MAINTAINERS):
->
-> CONFIG_FB_3DFX_ACCEL=n
-> ~1.27 s
->
-> CONFIG_FB_3DFX_ACCEL=y
-> ~0.18 s
->
-> BUT with CONFIG_FB_3DFX_ACCEL enabled I get strange video
-> "corruptions" (like bitmaps with random colors) that go away simply
-> swithcing to another console and than back to the previous.
+Alan Cox wrote:
+> On Iau, 2004-08-26 at 16:19, Denis Vlasenko wrote:
+> > > Office suites can store a document with embedded images
+> > > and spread sheets "easily" by putting the text, the
+> > > images and spread sheets all in different file streams.
+> > 
+> > Kinda far reaching. It's hard to assess whether that is good or bad idea.
+> > Can we start small, like putting metadata (e.g. ACLs) into these streams?
+> 
+> Openoffice does this in user space and the user space vfs code desktops
+> use can handle zips so this "just works" already including over NFS,
+> unlike a kernel proposed method.
 
-And another suggestion:
+OpenOffice is very sensible, and I agree that a method of handling
+document parts that _requires_ kernel support would be foolish.
 
-Try to comment out FBINFO_HWACCEL_COPYAREA.
+However, please see my message "The argument for fs assistance in
+handling archives" for how kernel support can improve performance of
+programs like OpenOffice on large compound documents, while preserving
+the sensible behaviour and remaining portable.
 
-Tony
-
-
+-- Jamie

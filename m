@@ -1,69 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261571AbTCOVLU>; Sat, 15 Mar 2003 16:11:20 -0500
+	id <S261595AbTCOVKL>; Sat, 15 Mar 2003 16:10:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261573AbTCOVLT>; Sat, 15 Mar 2003 16:11:19 -0500
-Received: from mx01.nexgo.de ([151.189.8.96]:57223 "EHLO mx01.nexgo.de")
-	by vger.kernel.org with ESMTP id <S261571AbTCOVLP>;
-	Sat, 15 Mar 2003 16:11:15 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Date: Sat, 15 Mar 2003 22:25:54 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200303151621.h2FGLgaD003246@eeyore.valparaiso.cl>
-In-Reply-To: <200303151621.h2FGLgaD003246@eeyore.valparaiso.cl>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030315212205.CDE923D979@mx01.nexgo.de>
+	id <S261601AbTCOVKL>; Sat, 15 Mar 2003 16:10:11 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:57761 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S261595AbTCOVKK>; Sat, 15 Mar 2003 16:10:10 -0500
+Date: Sat, 15 Mar 2003 21:18:27 -0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: war@lucidpixels.com, linux-kernel@vger.kernel.org
+Subject: Re: Broadcom BCM5702 Major Problems
+Message-ID: <20030315221827.GB26890@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Manfred Spraul <manfred@colorfullife.com>, war@lucidpixels.com,
+	linux-kernel@vger.kernel.org
+References: <3E732F0F.6000806@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E732F0F.6000806@colorfullife.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat 15 Mar 03 17:21, Horst von Brand wrote:
-> Daniel Phillips <phillips@arcor.de> said:
-> > On Thu 13 Mar 03 01:52, Horst von Brand wrote:
->
-> [...]
->
-> > > I don't think so. As the user sees it, a directory is mostly a
-> > > convenient labeled container for files. You think in terms of moving
-> > > files around, not destroying one and magically creating an exact copy
-> > > elsewhere (even if mv(1) does exactly this in some cases). Also, this
-> > > breaks up the operation "mv foo bar/baz" into _two_ changes, and this
-> > > is wrong as the file loses its revision history.
-> >
-> > No, that's a single change to one directory object.
->
-> mv some/where/foo bar/baz
->
-> How is that _one_ change to _one_ directory object?
+On Sat, Mar 15, 2003 at 02:47:59PM +0100, Manfred Spraul wrote:
 
-Oops, sorry, I didn't read your bar/baz correctly.  Yes, it's two directory 
-objects, but it's only one file object, and the history (not including the 
-name changes) is attached to the file object, not the directory object.  This 
-is implemented via an object id for each file object, something like an inode 
-number.
+ > >[*] IO-APIC support on uniprocessors
+ > >
+ > I think the subject is a bit misleading:
+ > There seems to be a problem with interrupt routing if he enables IO-APIC 
+ > support, both with a Broadcom nic and a 3com nic.
+ > Either the MP table that is supplied by the bios is incorrect [wouldn't 
+ > be a big surprise - I think Linux is the only OS that looks at MP tables 
+ > of uniprocessor machines], or the ACPI interpreter did something wrong.
 
-> > > > ...then this part gets much easier.
-> > >
-> > > ... by screwing it up. This is exactly one of the problems noted for
-> > > CVS.
-> >
-> > CVS doesn't have directory objects.
->
-> And it doesn't keep history across moves, as the only way it knows to move
-> a file is destroying the original and creating a fresh copy.
+I've noticed on two seperate testboxes (x86 and x86-64) that 8139too
+won't recieve packets unless I boot with 'noapic acpi=off' now.
+And yes, it has to be both those options, one on its own of either
+doesn't make the problem go away. 100% reproducable.
 
-Ah, but it does.  Sorry for not explaining the object id thing earlier.
+Doesn't seem to affect any other drivers I've tried though.
 
-> > Does anybody have a convenient mailing list for this design discussion?
->
-> Good idea to move this off LKML
+		Dave
 
-Yup, but nobody has offered one yet, so...
-
-Regards,
-
-Daniel

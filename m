@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265823AbUAQAB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 19:01:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265843AbUAQAB1
+	id S265933AbUAQAKd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 19:10:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265934AbUAQAKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 19:01:27 -0500
-Received: from fw.osdl.org ([65.172.181.6]:50049 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265823AbUAQABZ (ORCPT
+	Fri, 16 Jan 2004 19:10:33 -0500
+Received: from mail.kroah.org ([65.200.24.183]:35541 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265933AbUAQAKb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 19:01:25 -0500
-Date: Fri, 16 Jan 2004 16:01:33 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: root@chaos.analogic.com
-Cc: cliffw@osdl.org, bunk@fs.tum.de, piggin@cyberone.com.au, mpm@selenic.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [1/4] better i386 CPU selection
-Message-Id: <20040116160133.5af17a6a.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.53.0401161425110.31018@chaos>
-References: <20040106054859.GA18208@waste.org>
-	<3FFA56D6.6040808@cyberone.com.au>
-	<20040106064607.GB18208@waste.org>
-	<3FFA5ED3.6040000@cyberone.com.au>
-	<20040110004625.GB25089@fs.tum.de>
-	<20040110005232.GD25089@fs.tum.de>
-	<20040116111501.70200cf3.cliffw@osdl.org>
-	<Pine.LNX.4.53.0401161425110.31018@chaos>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 16 Jan 2004 19:10:31 -0500
+Date: Fri, 16 Jan 2004 16:10:09 -0800
+From: Greg KH <greg@kroah.com>
+To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add sysfs class support for ALSA sound devices [08/10]
+Message-ID: <20040117001009.GB3698@kroah.com>
+References: <20040115204048.GA22199@kroah.com> <20040115204111.GB22199@kroah.com> <20040115204125.GC22199@kroah.com> <20040115204138.GD22199@kroah.com> <20040115204153.GE22199@kroah.com> <20040115204209.GF22199@kroah.com> <20040115204241.GG22199@kroah.com> <20040115204259.GH22199@kroah.com> <20040115204311.GI22199@kroah.com> <yw1xu12v7d5t.fsf@kth.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <yw1xu12v7d5t.fsf@kth.se>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> wrote:
->
-> On Fri, 16 Jan 2004, cliff white wrote:
+On Fri, Jan 16, 2004 at 11:15:58PM +0100, Måns Rullgård wrote:
+> Greg KH <greg@kroah.com> writes:
 > 
-> > On Sat, 10 Jan 2004 01:52:32 +0100
-> > Adrian Bunk <bunk@fs.tum.de> wrote:
-> >
-> >
-> > > Changes:
+> > This patch adds support for all ALSA sound devices.  The previous OSS
+> > sound patch is required for this one to work properly.
 > 
-> > > - AMD Elan is a different subarch, you can't configure a kernel that
-> > >   runs on both the AMD Elan and other i386 CPUs
+> This doesn't apply cleanly to the latest ALSA (1.0.1).  It's no
+> problem to do it manually, though.
 > 
-> NO! NO!  This prevents development of an AMD embeded system on an
-> "ordinary" machine like this one (Pentium IV). The fact that the
-> timer runs at a different speed means nothing, one just sets the
-> workstation time every day. Please do NOT do this. It prevents
-> important usage.
+> > diff -Nru a/sound/pci/intel8x0.c b/sound/pci/intel8x0.c
+> > --- a/sound/pci/intel8x0.c	Thu Jan 15 11:05:58 2004
+> > +++ b/sound/pci/intel8x0.c	Thu Jan 15 11:05:58 2004
+> > @@ -2591,6 +2591,7 @@
+> >  			break;
+> >  		}
+> >  	}
+> > +	card->dev = &pci->dev;
+> 
+> Does this need to be done for all drivers?
 
-Can't you just configure it for some lower denominator such as 386?
+Yes.  I just did it for one driver to test it out, and show how to do it
+properly for others.  I figured after this patch went into the kernel
+tree, we could fix the other drivers up.
 
-I must say that I'm a bit wobbly about Adrian's recent patches, simply
-because of the overall intrusiveness and conceptual changes which they
-introduce.
+thanks,
 
-Remind me again, what did they buy us?
-
-
+greg k-h

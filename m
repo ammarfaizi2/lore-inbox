@@ -1,68 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284484AbRLEQvy>; Wed, 5 Dec 2001 11:51:54 -0500
+	id <S284491AbRLEQ5O>; Wed, 5 Dec 2001 11:57:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284487AbRLEQvo>; Wed, 5 Dec 2001 11:51:44 -0500
-Received: from marsh-49.owlnet.rice.edu ([128.42.49.222]:42735 "EHLO
-	marsh.owlnet.rice.edu") by vger.kernel.org with ESMTP
-	id <S284484AbRLEQvd>; Wed, 5 Dec 2001 11:51:33 -0500
-Subject: "NETDEV WATCHDOG eth0 transmit timeout" fun with ne2k-pci
-From: Joshua Adam Ginsberg <rainman@owlnet.rice.edu>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-BALnPoxz9rgql02Cuh+C"
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 05 Dec 2001 10:50:44 -0600
-Message-Id: <1007571044.26591.7.camel@stud-assoc-pc2.rice.edu>
-Mime-Version: 1.0
+	id <S284494AbRLEQ5E>; Wed, 5 Dec 2001 11:57:04 -0500
+Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:26521 "EHLO
+	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
+	id <S284493AbRLEQ4q>; Wed, 5 Dec 2001 11:56:46 -0500
+Date: Wed, 5 Dec 2001 16:56:43 +0000 (GMT)
+From: Matt Bernstein <matt@theBachChoir.org.uk>
+To: Brian Gerst <bgerst@didntduck.org>
+cc: <linuxlist@visto.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: newly compiled kernel no .img file
+In-Reply-To: <3C0E4E1A.9A6D5E64@didntduck.org>
+Message-ID: <Pine.LNX.4.33.0112051651030.5995-100000@nick.dcs.qmul.ac.uk>
+X-URL: http://www.theBachChoir.org.uk/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 11:40 -0500 Brian Gerst wrote:
 
---=-BALnPoxz9rgql02Cuh+C
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>> If you notice the first declaration of image the >
+>> "initrd=/boot/initrd-2.4.7-10.img" is not present . Of course I removed
+>> it so that there would be no kernel panic and I am able to boot into the
+>> new kernel (xunil). > What I want to know is what is this .img file why
+>> is it required in the original kernel compilation and not in the newer .
+>
+>Your distribution put that there so that it can use modules for drivers
+>that are required to mount the root filesystem (ie. SCSI, fs driver,
+>etc.).  If you build your own kernel, those drivers should be built
+>non-modular, therefore you won't need an initrd.
 
-In browsing this group's archives, I've found tons of people having
-problems with their ethernet seemingly going dead and their
-/var/log/messages filled with "kernel: NETDEV WATCHDOG: eth0: transmit
-timed out" over and over and over again...
+Yes for most users.
 
-I'm having that problem running a Winbond 89c940 (which I could swear is
-on a Linksys card) using the ne2k-pci drivers on the 2.4.7-10 that ships
-with RH7.2...
+I'd like to build a quite generic 2.4 tree with everything as a module
+where possible. I am forced to compile in binfmt_elf, initrd and romfs.
 
-Any hope in an easy resolution to this?
+This allows me to use one tree for several different machines (some might
+have an ext3 / on an IDE HDD; others maybe reiserfs on a gdth controller
+etc..) without a huge amount of dead code in the kernel. So.. when a
+subset of them are buggy we can see what modules they have in common..
 
-Thanks!
+My question: is this mega-module setup likely to be less stable than a
+monolith? I'm not fussed about a % or two performance loss.
 
--jag
-
-
---=20
---------------------------------------------------------
-Joshua Ginsberg                 rainman@owlnet.rice.edu
-Director of Technology          dirtech@sa.rice.edu
-Student Association             AIM: L0stInTheDesert
-Rice University, Houston, TX    Cellphone: 713.478.1769
--_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-"Programming today is a race between software engineers
-striving to build bigger and better idiot-proof programs
-and the Universe trying to produce bigger and better
-idiots. So far, the Universe is winning." -Rich Cook
---------------------------------------------------------
-
---=-BALnPoxz9rgql02Cuh+C
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEABECAAYFAjwOUGQACgkQtPt+7vptHHik8ACguNV/fFTiD+kZ8UPcLjF0l35R
-aygAoIIAl1O17OR2JxjfKTTaWGT1coa+
-=1LkX
------END PGP SIGNATURE-----
-
---=-BALnPoxz9rgql02Cuh+C--
+Matt
 

@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130756AbRATEdA>; Fri, 19 Jan 2001 23:33:00 -0500
+	id <S129747AbRATFdC>; Sat, 20 Jan 2001 00:33:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136178AbRATEck>; Fri, 19 Jan 2001 23:32:40 -0500
-Received: from mtiwmhc27.worldnet.att.net ([204.127.131.52]:21137 "EHLO
-	mtiwmhc27.worldnet.att.net") by vger.kernel.org with ESMTP
-	id <S130756AbRATEc3>; Fri, 19 Jan 2001 23:32:29 -0500
-Message-ID: <3A691602.EA63E415@att.net>
-Date: Fri, 19 Jan 2001 23:37:22 -0500
-From: Michael Lindner <mikel@att.net>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Schwartz <davids@webmaster.com>
-CC: linux-kernel@vger.kernel.org, Chris Wedgwood <cw@f00f.org>
-Subject: Re: PROBLEM: select() on TCP socket sleeps for 1 tick even if data  
- available
-In-Reply-To: <NCBBLIEPOCNJOAEKBEAKIEIINCAA.davids@webmaster.com>
+	id <S130356AbRATFcv>; Sat, 20 Jan 2001 00:32:51 -0500
+Received: from fes-qout.whowhere.com ([209.185.123.96]:39617 "HELO
+	mailcity.com") by vger.kernel.org with SMTP id <S129747AbRATFcn>;
+	Sat, 20 Jan 2001 00:32:43 -0500
+To: linux-kernel@vger.kernel.org
+Date: Sat, 20 Jan 2001 00:32:14 -0500
+From: "Gregg Lloyd" <gregg_99@lycos.com>
+Message-ID: <FIGIMNBNAMJCJAAA@mailcity.com>
+Mime-Version: 1.0
+X-Sent-Mail: off
+Reply-To: gregg_99@mailcity.com
+X-Mailer: MailCity Service
+Subject: Kernel is compiled but LILO wont boot it...
+X-Sender-Ip: 209.148.70.123
+Organization: Lycos Mail  (http://mail.lycos.com:80)
 Content-Type: text/plain; charset=us-ascii
+Content-Language: en
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Schwartz wrote:
-> 
->         How can you tell when select wakes up the process? What you are seeing has
-> nothing whatsoever to do with select and simply has to do with the fact that
-> the kernel does not give the CPU to a process the second that process may
-> want it.
+Hi, 
+I did compile my new kernel 2.4 on a Red Hat 6.0 Linux  
+system. My Linux System  was installed so that it can 
+boot from a floppy.
+So on the boot floppy, I have LILO (On the hard drive, 
+there's also LILO). 
+For booting my new kernel (/boot/vmlinuz-2.4.0), I added 
+following stanza to /etc/lilo.conf (the one on the hard drive): 
+image=/boot/vmlinuz-2.4.0
+label=linux2.4
+root=/dev/hda2
+read-only. Lilo was correctly saved. But when I rebooted the system
+with the boot floppy, LILO wont display linux2.4 so that I can boot with it!
+LILO would only show up the old linux. 
+I when adding the same stanza (as previously mentionned) to /etc/lilo.conf
+that is on the floppy. But the problem is still the same: I do not have the choice to boot with linux2.4!
 
-I guess I can't. But on an idle machine, I would expect a process that
-becomes runnable would be run immediately, not on the next clock tick.
-strace reports that each select() is taking 0.009xxx seconds of real
-time, and the system's CPU load (as reported by top) is under 1%.
 
-...
->         If you have scheduling latency requirements, you MUST communicate them to
-> the scheduler. If your process had an altered scheduling class, then you
-> would be right -- it should get the CPU immediately. Otherwise, there's no
-> reason for the scheduler to give that process the CPU immediately.
+Thanks
 
-OK, if this is the case, how do I alter the scheduling class?
 
---
-Mike Lindner
+
+Get your small business started at Lycos Small Business at http://www.lycos.com/business/mail.html
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

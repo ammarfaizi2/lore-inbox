@@ -1,82 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271753AbTHHTDU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 15:03:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271807AbTHHTBg
+	id S271755AbTHHTDV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 15:03:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271811AbTHHTBZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 15:01:36 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:41098 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S271742AbTHHSyt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 14:54:49 -0400
-Date: Fri, 8 Aug 2003 11:54:48 -0700
-To: Jeff Garzik <jgarzik@pobox.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5 IrDA] tekram-sir driver fix
-Message-ID: <20030808185448.GG13274@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	Fri, 8 Aug 2003 15:01:25 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:22400 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S271807AbTHHSzU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 14:55:20 -0400
+Date: Fri, 8 Aug 2003 14:56:11 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Michael Frank <mflt1@micrologica.com.hk>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Dumb question - why is dmesg interleaved with rc.sysinit logs
+ in messages?
+In-Reply-To: <200308090229.26494.mflt1@micrologica.com.hk>
+Message-ID: <Pine.LNX.4.53.0308081453110.1760@chaos>
+References: <200308090229.26494.mflt1@micrologica.com.hk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir260_tekram-sir.diff :
-~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Martin Diehl>
-	o [CORRECT] Update tekram-sir dongle driver to common power-settling
+On Sat, 9 Aug 2003, Michael Frank wrote:
 
+> Why is this and how to fix?
+>
+[SNIPPED...]
 
-diff -u -p linux/drivers/net/irda/tekram-sir.d2.c linux/drivers/net/irda/tekram-sir.c
---- linux/drivers/net/irda/tekram-sir.d2.c	Fri Aug  8 10:29:24 2003
-+++ linux/drivers/net/irda/tekram-sir.c	Fri Aug  8 10:32:46 2003
-@@ -71,38 +71,20 @@ void __exit tekram_sir_cleanup(void)
- 	irda_unregister_dongle(&tekram);
- }
- 
--#define TEKRAM_STATE_POWERED	(SIRDEV_STATE_DONGLE_OPEN + 1)
--
- static int tekram_open(struct sir_dev *dev)
- {
--	unsigned delay = 0;
--	unsigned next_state = dev->fsm.substate;
- 	struct qos_info *qos = &dev->qos;
- 
- 	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
- 
--	switch(dev->fsm.substate) {
--
--	case SIRDEV_STATE_DONGLE_OPEN:
--		dev->set_dtr_rts(dev, TRUE, TRUE);
--		next_state = TEKRAM_STATE_POWERED;
--		delay = 50;
--		break;
--
--	case TEKRAM_STATE_POWERED:
--		qos->baud_rate.bits &= IR_9600|IR_19200|IR_38400|IR_57600|IR_115200;
--		qos->min_turn_time.bits = 0x01; /* Needs at least 10 ms */	
--		irda_qos_bits_to_value(qos);
--		return 0;
--
--	default:
--		ERROR("%s - undefined state\n", __FUNCTION__);
--		return -EINVAL;
--	}
-+	dev->set_dtr_rts(dev, TRUE, TRUE);
-+	qos->baud_rate.bits &= IR_9600|IR_19200|IR_38400|IR_57600|IR_115200;
-+	qos->min_turn_time.bits = 0x01; /* Needs at least 10 ms */	
-+	irda_qos_bits_to_value(qos);
- 
--	dev->fsm.substate = next_state;
-+	/* irda thread waits 50 msec for power settling */
- 
--	return delay;
-+	return 0;
- }
- 
- static int tekram_close(struct sir_dev *dev)
+Fix?
+`man initlog`
+`less /etc/rc.d/rc.sysinit`
+
+RH 9 does this, not the kernel.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+

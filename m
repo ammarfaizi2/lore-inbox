@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261374AbSJUNFn>; Mon, 21 Oct 2002 09:05:43 -0400
+	id <S261363AbSJUNGd>; Mon, 21 Oct 2002 09:06:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261371AbSJUNEr>; Mon, 21 Oct 2002 09:04:47 -0400
-Received: from mail.cyberus.ca ([216.191.240.111]:28327 "EHLO cyberus.ca")
-	by vger.kernel.org with ESMTP id <S261370AbSJUNEM>;
-	Mon, 21 Oct 2002 09:04:12 -0400
-Date: Mon, 21 Oct 2002 09:02:48 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
-Subject: Re: rtnetlink interface state monitoring problems.
-In-Reply-To: <27964.1035199084@passion.cambridge.redhat.com>
-Message-ID: <Pine.GSO.4.30.0210210852130.17911-100000@shell.cyberus.ca>
+	id <S261375AbSJUNFt>; Mon, 21 Oct 2002 09:05:49 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:899 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S261370AbSJUNFm>; Mon, 21 Oct 2002 09:05:42 -0400
+Date: Mon, 21 Oct 2002 09:13:16 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: jdow <jdow@earthlink.net>
+cc: Robert Love <rml@tech9.net>, Neil Conway <nconway.list@ukaea.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4: variable HZ
+In-Reply-To: <005601c2773d$b6fc65a0$6f1ee043@wizardess.wiz>
+Message-ID: <Pine.LNX.3.95.1021021085003.10164A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 19 Oct 2002, jdow wrote:
 
+> Richard, would you believe that this is essentially what is done with the
+> GPS satellites in the dither process and in the clock correction process
+> to make the drifty Rb standards as stable as ground standards?
+> 
+> (You'd better. I designed the beastie involved.)
+> {^_-}    Joanne, jdow@earthlink.net
 
-On Mon, 21 Oct 2002, David Woodhouse wrote:
+Sure. I helped develop a Kalman Filter that would run in real-time.
+It was first implemented in Matlab (which is awful to interpret).
+I rewrote it in ix86 assembly, using synthetic division (where you
+save the remainder and use it in a subsequent division for the same
+element in the polynomial). The result being that the filter generates
+no error even though it performs multiple divisions of non-integral
+numbers.
 
-> I'm playing with userspace applications which want to monitor the status of
-> IrDA and Bluetooth devices. Rather than polling for the interface state
-> (this is a handheld device and polling wastes CPU and battery), I want to
-> use netlink.
->
-> I have two problems:
->
->  1. I appear to need CAP_NET_ADMIN to bind to the netlink groups which give
-> 	me this  information. I can poll for it just fine, but need
-> 	elevated privs to be notified. Why is this, and is there a workaround?
->
+These techniques are great for continuous functions. Early filtering
+techniques, using classical methods (average, r.m.s, r.s.s, etc.)
+develop a bias because of round-off. The synthetic division bounds
+the bias to one less than the last divisor.
 
-Alexey should be able to give you a better comment.
-If you can get the status via ioctl there should be no reason why you
-shouldnt get it via netlink. The change maybe a little involved
-(look at:net/netlink/af_netlink.c::netlink_bind()) since
-there are some valid reasons to block non-admin from receiving certain
-messages. I think the LSM people may have been trying to do this, cant
-remember details.
+If you filter enough stuff, over a long enough time, you can make
+gold out of shit. The onboard GPS software has a very long time
+to tune. Its a good candidate. In principle, the ground standard
+doesn't have to be very good as long as it averages correctly
+with low residual bias.
 
->  2. Even root doesn't get notification of state changes for Bluetooth
-> 	interfaces, because they're not treated as 'normal' network devices
-> 	like IrDA devices are. I can see the logic behind that -- by why
-> 	is it done differently from IrDA? Is there a way to get notification
-> 	of BT interface state changes?
-
-I cant see anything on netlink and irda; i am also not very familiar with
-either IrDA or Bluetooth.
-Regardless,  you dont need to be a net device to use netlink. Its a
-messaging system and you can use it both within the kernel as well as
-kernel<->userspace. If you get stuck writting the interface ping me
-privately.
-
-cheers,
-jamal
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

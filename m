@@ -1,102 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130913AbRARLVF>; Thu, 18 Jan 2001 06:21:05 -0500
+	id <S130633AbRARL36>; Thu, 18 Jan 2001 06:29:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131378AbRARLU4>; Thu, 18 Jan 2001 06:20:56 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:42482 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S130913AbRARLUo>; Thu, 18 Jan 2001 06:20:44 -0500
-Date: Thu, 18 Jan 2001 12:08:03 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Dan Hollis <goemon@sasami.anime.net>, Martin Mares <mj@suse.cz>,
-        Adam Lackorzynski <al10@inf.tu-dresden.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PCI-Devices and ServerWorks chipset
-In-Reply-To: <Pine.LNX.4.10.10101180133460.20569-100000@master.linux-ide.org>
-Message-ID: <Pine.GSO.3.96.1010118111629.8140F-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S131126AbRARL3s>; Thu, 18 Jan 2001 06:29:48 -0500
+Received: from xerxes.thphy.uni-duesseldorf.de ([134.99.64.10]:33507 "EHLO
+	xerxes.thphy.uni-duesseldorf.de") by vger.kernel.org with ESMTP
+	id <S130633AbRARL3k>; Thu, 18 Jan 2001 06:29:40 -0500
+Date: Thu, 18 Jan 2001 12:29:36 +0100 (CET)
+From: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
+To: Derek Wildstar <dwild@starforce.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: (2.4.0->2.4.1-pre8) config problem with PCMCIA causing link
+ error
+In-Reply-To: <Pine.LNX.4.31.0101172039220.30790-200000@argo.starforce.com>
+Message-ID: <Pine.LNX.4.10.10101181131020.7942-100000@chaos.thphy.uni-duesseldorf.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jan 2001, Andre Hedrick wrote:
 
-> I can get any info needed, you just have to define the scope.
+On Wed, 17 Jan 2001, Derek Wildstar wrote:
 
- Good.
-
-> Then will not can and will not give out details on a generic form.
-
- Weird.  Others somehow are able to provide specs.  Documentation for the
-entire line of Intel chipsets is available, for example.
-
-> In short no one person can see the entire design docs or will they get
-> them without a NDA.  I have seen why this is the case, cause the toy are
-> cool.
-
- I don't need design docs -- I need programming specs.
-
-> >  I was asking for a few I/O APIC details -- apparently there are problems
-> > with 8254 interoperability and we have to use the awkward through-8259A
-> > mode for the timer tick.
+> With 2.4.0 thru 2.4.1-pre8 (could possibly be sooner than 2.4.0)
 > 
-> Narrow the point.
-
- The output of the 8254's timer 0 does not appear to be connected to any
-I/O APIC input.  It is connected to the IR0 line of the master 8259A as
-usual.  The 8254, both 8259As and both I/O APICs are all internal to the
-chipset.
-
- The question is: "Is it possible to use the 8254 timer interrupt
-natively, i.e. is it possible to reconfigure the chipset to route the
-interrupt source to any I/O APIC with no 8259A logic in the way?"  It's
-nice we have the through-8259A trick, but I developed it solely as a
-workaround to support the old Intel 82350 EISA chipset, commonly used for
-old APIC SMP systems, which did not route IRQ0 externally just because it
-was designed long before the 82489DX APIC.  It just should not be used for
-modern systems -- it's too fragile.
-
-> >  And I don't actually care.  If they want to lose in the Linux area, it's
-> > their own choice. 
+> PCMCIA_CONFIG_NETCARD is getting defined with CONFIG_PCMCIA, even when no
+> PCMCIA net cards are selected:
 > 
-> You don't get it, they OEM board designs for Compaq and Dell.
-> These guys will work with you on-site but in their sand-box not yours.
+>     458 # PCMCIA network device support
+>     459 #
+>     460 CONFIG_NET_PCMCIA=y
+>     461 # CONFIG_PCMCIA_NETCARD is not set
 
- What don't I get?  If Compaq and Dell chose the ServerWorks chipset, then
-until (unless) docs are available, it's their problem to support Linux on
-their systems.  It's certainly not mine. 
+This looks more like a counterexample to what you're saying. Also, I don't
+see how it could happen that CONFIG_PCMCIA_NETCARD=y without
+CONFIG_NET_PCMCIA=y, from looking at the drivers/net/pcmcia/Config.in.
+(It may be still possible somehow because there is CONFIG_NET_PCMCIA=y in
+defconfig).
 
-> I wish I could say more, but I have something more powerfully than any NDA
-> ever written.  I have given my word and a handshake, and that has more
-> value to me than any stupid NDA.  The very fact that I value this so much
-> and so many in the industry know this about me, I have been shown things
-> without NDA's that you never see otherwise.
+> This causes the nonexistant drivers/net/pcmcia/pcmcia_net.o to try to be
+> linked.  It looks like this is hepenning because CONFIG_NET_PCMCIA is
+> defined, but then CONFIG_PCMCIA_NETCARD is defined elsewhere.
+> 
+> A patch is attached
 
- Nobody seems to push you to leak information you cannot give for a
-reason, and certainly neither do I.
+Your patch is wrong. It removes the config variable CONFIG_NET_PCMCIA,
+which is referenced in drivers/net/Makefile:
 
-> They are very friendly to Linux, but can we be friendly to them?
+	subdir-$(CONFIG_NET_PCMCIA) += pcmcia
 
- I'm neutral at the moment.  Their friendship appears to be purely
-declarational at the moment.  They do neither provide docs nor answer
-specific question.  I've already asked them the question I quoted above. 
-I got no answer.  Neither did the user of the system affected, who
-contacted them as well.  So I'm just sitting and watching the situation. 
+So the pcmcia net drivers will never be built.
 
-> You just can not barge in and demand to see their IP.
+I still don't see what's going wrong with the current code, but it can be
+simplified with the following patch. Does that work for you?
 
- I do not demand anything.  I'm just not willing to work on problems with
-hardware the manufacturer refuses to document.  Anyone feel free to
-undertake this task.
+--Kai
 
-  Maciej
+diff -ur linux-2.4.1-pre8/Makefile linux-2.4.1-pre8.work/Makefile
+--- linux-2.4.1-pre8/Makefile	Thu Jan 18 11:21:38 2001
++++ linux-2.4.1-pre8.work/Makefile	Thu Jan 18 11:23:27 2001
+@@ -155,7 +155,7 @@
+ DRIVERS-$(CONFIG_PCI) += drivers/pci/driver.o
+ DRIVERS-$(CONFIG_MTD) += drivers/mtd/mtdlink.o
+ DRIVERS-$(CONFIG_PCMCIA) += drivers/pcmcia/pcmcia.o
+-DRIVERS-$(CONFIG_PCMCIA_NETCARD) += drivers/net/pcmcia/pcmcia_net.o
++DRIVERS-$(CONFIG_NET_PCMCIA) += drivers/net/pcmcia/pcmcia_net.o
+ DRIVERS-$(CONFIG_PCMCIA_CHRDEV) += drivers/char/pcmcia/pcmcia_char.o
+ DRIVERS-$(CONFIG_DIO) += drivers/dio/dio.a
+ DRIVERS-$(CONFIG_SBUS) += drivers/sbus/sbus_all.o
+diff -ur linux-2.4.1-pre8/drivers/net/pcmcia/Config.in linux-2.4.1-pre8.work/drivers/net/pcmcia/Config.in
+--- linux-2.4.1-pre8/drivers/net/pcmcia/Config.in	Sun Nov 12 03:56:58 2000
++++ linux-2.4.1-pre8.work/drivers/net/pcmcia/Config.in	Thu Jan 18 11:23:33 2001
+@@ -32,13 +32,4 @@
+    fi
+ fi
+ 
+-if [ "$CONFIG_PCMCIA_3C589" = "y" -o "$CONFIG_PCMCIA_3C574" = "y" -o \
+-     "$CONFIG_PCMCIA_FMVJ18X" = "y" -o "$CONFIG_PCMCIA_PCNET" = "y" -o \
+-     "$CONFIG_PCMCIA_NMCLAN" = "y" -o "$CONFIG_PCMCIA_SMC91C92" = "y" -o \
+-     "$CONFIG_PCMCIA_XIRC2PS" = "y" -o "$CONFIG_PCMCIA_RAYCS" = "y" -o \
+-     "$CONFIG_PCMCIA_NETWAVE" = "y" -o "$CONFIG_PCMCIA_WAVELAN" = "y" -o \
+-     "$CONFIG_PCMCIA_XIRTULIP" = "y" ]; then
+-   define_bool CONFIG_PCMCIA_NETCARD y
+-fi
+-
+ endmenu
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

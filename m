@@ -1,48 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262775AbTJJJ0S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 05:26:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262765AbTJJJYr
+	id S262761AbTJJJWt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 05:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbTJJJW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 05:24:47 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:20642 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262774AbTJJJYG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 05:24:06 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Stefan Kaltenbrunner <mm-mailinglist@madness.at>
-Subject: Re: Serverworks CSB5 IDE-DMA Problem (2.4 and 2.6)
-Date: Fri, 10 Oct 2003 11:27:43 +0200
-User-Agent: KMail/1.5.4
-Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0310091634330.3040-100000@logos.cnet> <200310092329.00445.bzolnier@elka.pw.edu.pl> <3F86746C.6040704@madness.at>
-In-Reply-To: <3F86746C.6040704@madness.at>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310101127.43601.bzolnier@elka.pw.edu.pl>
+	Fri, 10 Oct 2003 05:22:27 -0400
+Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:58609 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S262748AbTJJJWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 05:22:11 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH][v850]  Don't reserve root-filesystem memory twice on v850 platforms
+Cc: linux-kernel@vger.kernel.org
+Reply-To: Miles Bader <miles@gnu.org>
+Message-Id: <20031010092200.D5F28371A@mcspd15.ucom.lsi.nec.co.jp>
+Date: Fri, 10 Oct 2003 18:22:00 +0900 (JST)
+From: miles@lsi.nec.co.jp (Miles Bader)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 of October 2003 10:57, Stefan Kaltenbrunner wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > 2.4.18, 2.4.19 w/o APIC and ACPI
->
-> ok 2.4.18 (dmesg at http://www.kaltenbrunner.cc/files/dmesg2418.txt)
-> seems to work better(although not as fast as I would like to have it)
-> but I suspect that:
->
-> ide1: Speed warnings UDMA 3/4/5 is not functional.
-> ide0: Speed warnings UDMA 3/4/5 is not functional.
->
-> is quite interesting - if these UDMA-modes do not work reliable - why do
-> they get enabled with later kernels(not that I would have a problem with
-> getting UDMA > 2 working *g*) ?
+Linus, please apply.
 
-2.4.22 has 80-pin cable dedetecion for more vendors.
-You can try passing "ide0=ata66 ide1=ata66" boot options.
+This reservation is handled by platform-independent code in 2.6.0, but some
+platforms _also_ did it in platform-specific code (left over from 2.4.x).
 
---bartlomiej
-
+diff -ruN -X../cludes linux-2.6.0-test7-moo/arch/v850/kernel/as85ep1.c linux-2.6.0-test7-moo-v850-20031010/arch/v850/kernel/as85ep1.c
+--- linux-2.6.0-test7-moo/arch/v850/kernel/as85ep1.c	2003-10-09 11:54:16.000000000 +0900
++++ linux-2.6.0-test7-moo-v850-20031010/arch/v850/kernel/as85ep1.c	2003-10-10 17:56:46.000000000 +0900
+@@ -114,22 +114,10 @@
+ 
+ void __init mach_reserve_bootmem ()
+ {
+-	extern char _root_fs_image_start, _root_fs_image_end;
+-	u32 root_fs_image_start = (u32)&_root_fs_image_start;
+-	u32 root_fs_image_end = (u32)&_root_fs_image_end;
+-
+ 	if (SDRAM_ADDR < RAM_END && SDRAM_ADDR > RAM_START)
+ 		/* We can't use the space between SRAM and SDRAM, so
+ 		   prevent the kernel from trying.  */
+ 		reserve_bootmem (SRAM_END, SDRAM_ADDR - SRAM_END);
+-
+-	/* Reserve the memory used by the root filesystem image if it's
+-	   in RAM.  */
+-	if (root_fs_image_end > root_fs_image_start
+-	    && root_fs_image_start >= RAM_START
+-	    && root_fs_image_start < RAM_END)
+-		reserve_bootmem (root_fs_image_start,
+-				 root_fs_image_end - root_fs_image_start);
+ }
+ 
+ void mach_gettimeofday (struct timespec *tv)
+diff -ruN -X../cludes linux-2.6.0-test7-moo/arch/v850/kernel/rte_me2_cb.c linux-2.6.0-test7-moo-v850-20031010/arch/v850/kernel/rte_me2_cb.c
+--- linux-2.6.0-test7-moo/arch/v850/kernel/rte_me2_cb.c	2003-07-28 10:13:58.000000000 +0900
++++ linux-2.6.0-test7-moo-v850-20031010/arch/v850/kernel/rte_me2_cb.c	2003-10-10 18:01:48.000000000 +0900
+@@ -53,19 +53,6 @@
+ 	*ram_len = RAM_END - RAM_START;
+ }
+ 
+-void __init mach_reserve_bootmem ()
+-{
+-	extern char _root_fs_image_start, _root_fs_image_end;
+-	u32 root_fs_image_start = (u32)&_root_fs_image_start;
+-	u32 root_fs_image_end = (u32)&_root_fs_image_end;
+-
+-	/* Reserve the memory used by the root filesystem image if it's
+-	   in RAM.  */
+-	if (root_fs_image_start >= RAM_START && root_fs_image_start < RAM_END)
+-		reserve_bootmem (root_fs_image_start,
+-				 root_fs_image_end - root_fs_image_start);
+-}
+-
+ void mach_gettimeofday (struct timespec *tv)
+ {
+ 	tv->tv_sec = 0;
+diff -ruN -X../cludes linux-2.6.0-test7-moo/arch/v850/kernel/rte_nb85e_cb.c linux-2.6.0-test7-moo-v850-20031010/arch/v850/kernel/rte_nb85e_cb.c
+--- linux-2.6.0-test7-moo/arch/v850/kernel/rte_nb85e_cb.c	2003-07-28 10:13:58.000000000 +0900
++++ linux-2.6.0-test7-moo-v850-20031010/arch/v850/kernel/rte_nb85e_cb.c	2003-10-10 17:57:51.000000000 +0900
+@@ -54,21 +54,6 @@
+ 	*ram_len = SDRAM_SIZE;
+ }
+ 
+-void __init mach_reserve_bootmem ()
+-{
+-	extern char _root_fs_image_start, _root_fs_image_end;
+-	u32 root_fs_image_start = (u32)&_root_fs_image_start;
+-	u32 root_fs_image_end = (u32)&_root_fs_image_end;
+-
+-	/* Reserve the memory used by the root filesystem image if it's
+-	   in SDRAM.  */
+-	if (root_fs_image_end > root_fs_image_start
+-	    && root_fs_image_start >= SDRAM_ADDR
+-	    && root_fs_image_start < (SDRAM_ADDR + SDRAM_SIZE))
+-		reserve_bootmem (root_fs_image_start,
+-				 root_fs_image_end - root_fs_image_start);
+-}
+-
+ void mach_gettimeofday (struct timespec *tv)
+ {
+ 	tv->tv_sec = 0;
+diff -ruN -X../cludes linux-2.6.0-test7-moo/arch/v850/kernel/sim85e2.c linux-2.6.0-test7-moo-v850-20031010/arch/v850/kernel/sim85e2.c
+--- linux-2.6.0-test7-moo/arch/v850/kernel/sim85e2.c	2003-10-09 11:54:17.000000000 +0900
++++ linux-2.6.0-test7-moo-v850-20031010/arch/v850/kernel/sim85e2.c	2003-10-10 17:58:19.000000000 +0900
+@@ -150,21 +150,6 @@
+ 	*ram_len = RAM_END - RAM_START;
+ }
+ 
+-void __init mach_reserve_bootmem ()
+-{
+-	extern char _root_fs_image_start, _root_fs_image_end;
+-	u32 root_fs_image_start = (u32)&_root_fs_image_start;
+-	u32 root_fs_image_end = (u32)&_root_fs_image_end;
+-
+-	/* Reserve the memory used by the root filesystem image if it's
+-	   in RAM.  */
+-	if (root_fs_image_end > root_fs_image_start
+-	    && root_fs_image_start >= RAM_START
+-	    && root_fs_image_start < RAM_END)
+-		reserve_bootmem (root_fs_image_start,
+-				 root_fs_image_end - root_fs_image_start);
+-}
+-
+ void __init mach_sched_init (struct irqaction *timer_action)
+ {
+ 	/* The simulator actually cycles through all interrupts

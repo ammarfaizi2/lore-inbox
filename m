@@ -1,53 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267177AbSKPAyW>; Fri, 15 Nov 2002 19:54:22 -0500
+	id <S267183AbSKPA4m>; Fri, 15 Nov 2002 19:56:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267183AbSKPAyV>; Fri, 15 Nov 2002 19:54:21 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:17629 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267177AbSKPAyV> convert rfc822-to-8bit;
-	Fri, 15 Nov 2002 19:54:21 -0500
-Date: Fri, 15 Nov 2002 17:00:30 -0800 (PST)
+	id <S267184AbSKPA4m>; Fri, 15 Nov 2002 19:56:42 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:31453 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267183AbSKPA4k>;
+	Fri, 15 Nov 2002 19:56:40 -0500
+Date: Fri, 15 Nov 2002 17:02:52 -0800 (PST)
 From: "Randy.Dunlap" <rddunlap@osdl.org>
 X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Arun Sharma <arun.sharma@intel.com>
-cc: Xavier Bestel <xavier.bestel@free.fr>, <linux-kernel@vger.kernel.org>
-Subject: Re: Reserving "special" port numbers in the kernel ?
-In-Reply-To: <uadkabais.fsf@unix-os.sc.intel.com>
-Message-ID: <Pine.LNX.4.33L2.0211151658010.6746-100000@dragon.pdx.osdl.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: [announce] 2.5.47-cgl1 patchset
+Message-ID: <Pine.LNX.4.33L2.0211151702190.6746-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Nov 2002, Arun Sharma wrote:
 
-| xavier.bestel@free.fr (Xavier Bestel) writes:
-|
-| > Le sam 16/11/2002 Ã  01:00, Arun Sharma a Ã©critÂ :
-| > > One of the Intel server platforms has a magic port number (623) that
-| > > it uses for remote server management. However, neither the kernel nor
-| > > glibc are aware of this special port.
-| > >
-| > > As a result, when someone requests a privileged port using
-| > > bindresvport(3), they may get this port back and bad things happen.
-| > >
-| > > Has anyone run into this or similar problems before ? Thoughts on
-| > > what's the right place to handle this issue ?
-| >
-| > run a dummy app at startup which reserves that port ?
-|
-| Yes, I'm already aware of this one, but was looking for a lighter weight
-| solution (ideally a config file change) that doesn't involve running an
-| extra process (think of doing this on a large number of machines).
+This is an early release version that enables common CGL and DCL
+development.  It is in two pieces:  a common subset for CGL and DCL,
+and a separate patch for CGL-only stuff.  The generic patches are for
+enhancements that are yet to make the mainline kernel but are requested
+by both Carrier Grade Linux (CGL) and Data Center Linux (DCL).
+The CGL-only patch applies after the first one (OSDL patch) and has
+enhancements that are applicable mostly to carrier-grade
+(telecommunications) systems.
 
-Look in arch/i386/kernel/setup.c (in 2.4.19):
+The latest release is available in downloadable patches from
+	http://sourceforge.net/projects/cglinux
 
-There is this array:
-  struct resource standard_io_resources[] = ...
-that you could add to; you could even make the addition a CONFIG_ option.
+or public BitKeeper repositories
+	Common code:		bk://bk.osdl.org/linux-2.5-osdl
+	Common code + CGL:	bk://bk.osdl.org/linux-2.5-cgl
+	Common code + DCL:	bk://bk.osdl.org/linux-2.5-dcl
+
+The kernel compiles and runs on an SMP system.  It passes the basic
+tests but has not been extensively stress-tested yet.
+
+
+OSDL CGL+DCL common enhancements:  linux-2547-osdl2.diff.bz2
+. More fixes to the megaraid driver	(Matt Domsch, Mark Haverkamp)
+. Fix to LKCD block device setup	(me)
+. Default ACPI to off for SMP systems	(me)
+. Fix I/O errors on loop driver		(Hugh Dickins)
+
+* in linux-2.5.47-osdl1
+. Linux Trace Toolkit (LTT)          (Karim Yaghmour)
+. Linux Kernel Crash Dumps           (Matt Robinson, LKCD team)
+.   Network crash dumps              (Mohammed Abbas)
+. Kprobes			     (Rusty Russell)
+. Kernel Config storage              (Khalid Aziz, Randy Dunlap)
+. DAC960 driver fixes                (Dave Olien)
+
+CGL-specific:  linux-2547-cgl1.diff.bz2
+. High-resolution timers              (George Anzinger)
+
+
+Getting Involved
+----------------
+If interested in development of CGL, please subscribe to the mailing
+list at http://lists.osdl.org/mailman/listinfo/cgl_discussion .
+
+This kernel has been built and run on a small set of machines, SMP
+and UP.  Testers are encouraged to exercise the features.  If a
+problem is found, please compare the result with a standard 2.5.47
+kernel.  Please report any problems or successes to the mailing list.
+
+Developers are encouraged to send any enhancements or bug fix
+patches.  Patches should be tested by using the OSDL Scalable Test
+Platform (STP) and Patch Lifecycle Manager (PLM) facilities.
+
+Project information:
+	http://www.osdl.org/projects/cgl/
+	http://cglinux.sourceforge.net/
+	http://sourceforge.net/projects/cglinux/
+DCL:
+	http://www.osdl.org/projects/dcl/
+	http://osdldcl.sourceforge.net
+	http://sourceforge.net/projects/osdldcl/
+
+###
 
 -- 
 ~Randy
-  "I read part of it all the way through." -- Samuel Goldwyn
 

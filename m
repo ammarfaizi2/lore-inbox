@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311839AbSEHIOz>; Wed, 8 May 2002 04:14:55 -0400
+	id <S311884AbSEHIWA>; Wed, 8 May 2002 04:22:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311884AbSEHIOy>; Wed, 8 May 2002 04:14:54 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:53000 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S311839AbSEHIOy>; Wed, 8 May 2002 04:14:54 -0400
-Date: Wed, 8 May 2002 09:14:42 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Patrick Mochel <mochel@osdl.org>,
-        Thunder from the hill <thunder@ngforever.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-Message-ID: <20020508091442.A16868@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.44.0205071245370.4189-100000@hawkeye.luckynet.adm> <Pine.LNX.4.33.0205071238000.6307-100000@segfault.osdl.org> <200205072203.g47M3o002102@vindaloo.ras.ucalgary.ca>
+	id <S311898AbSEHIV7>; Wed, 8 May 2002 04:21:59 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:36262 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S311884AbSEHIV7>;
+	Wed, 8 May 2002 04:21:59 -0400
+Date: Wed, 08 May 2002 01:10:08 -0700 (PDT)
+Message-Id: <20020508.011008.107273722.davem@redhat.com>
+To: dipankar@in.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] lockfree rtcache lookup using RCU
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020508125711.B10505@in.ibm.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 07, 2002 at 04:03:50PM -0600, Richard Gooch wrote:
-> But it's not actually broken, now that the locking is fixed.
+   From: Dipankar Sarma <dipankar@in.ibm.com>
+   Date: Wed, 8 May 2002 12:57:11 +0530
+   
+   For 1 to 8 CPUs I used the test script
+   to send a fixed number of packets to a single destination address.
+   The results show that time needed for lookup continuously increases
+   for 2.5.3 wherease for rt_rcu-2.5.3, it remains constant.
 
-Really?  What about the case of the missing BKL for device opens that
-you haven't really commented on?
+How does it perform for a write-heavy workload such
+as a massive route flap?
 
-Seems like devfs _still_ has locking problems.
+Both are equally important.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Also, workload for single destination isn't all that interesting
+since such a workload isn't all that common except in benchmarking.

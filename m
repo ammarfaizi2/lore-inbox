@@ -1,127 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263854AbTDYT74 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 15:59:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263871AbTDYT74
+	id S263911AbTDYUDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 16:03:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263875AbTDYUDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 15:59:56 -0400
-Received: from smtp01.web.de ([217.72.192.180]:51493 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S263854AbTDYT7y convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 15:59:54 -0400
-Date: Fri, 25 Apr 2003 22:25:12 +0200
-From: =?ISO-8859-1?Q?Ren=E9?= Scharfe <l.s.r@web.de>
+	Fri, 25 Apr 2003 16:03:13 -0400
+Received: from odpn1.odpn.net ([212.40.96.53]:3803 "EHLO odpn1.odpn.net")
+	by vger.kernel.org with ESMTP id S263871AbTDYUDM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 16:03:12 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5] Remove unused function from fs/isofs/rock.c
-Message-Id: <20030425222512.4d831ebb.l.s.r@web.de>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+From: "Gabor Z. Papp" <gzp@myhost.mynet>
+Subject: Re: Linux 2.4.21pre7-ac1
+References: <200304141616.h3EGG1K22074@devserv.devel.redhat.com> <2895.3e9ae9be.d69c1@gzp1.gzp.hu> <2895.3e9ae9be.d69c1@gzp1.gzp.hu> <20030415133725.GA16728@carfax.org.uk>
+Organization: Who, me?
+User-Agent: tin/1.5.18-20030416 ("Peephole") (UNIX) (Linux/2.4.21-rc1-gzp2 (i686))
+Message-ID: <345d.3ea99756.29f2b@gzp1.gzp.hu>
+Date: Fri, 25 Apr 2003 20:15:18 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+* Hugo Mills <hugo-lkml@carfax.org.uk>:
 
-find_rock_ridge_relocation() has been unused since 2.4.0-test11 -- time
-to bury it. The patch below applies to 2.5 up to the latest -bk, compiles
-fine, and is untested.
+| On Mon, Apr 14, 2003 at 05:02:54PM -0000, Gabor Z. Papp wrote:
+|> ld -m elf_i386 -T /usr/src/linux-2.4.21-pre7-ac1-gzp2/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o init/do_mounts.o \
+|>         --start-group \
+|>         arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
+|>          drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/video/video.o drivers/media/media.o \
+|>         net/network.o \
+|>         /usr/src/linux-2.4.21-pre7-ac1-gzp2/arch/i386/lib/lib.a /usr/src/linux-2.4.21-pre7-ac1-gzp2/lib/lib.a /usr/src/linux-2.4.21-pre7-ac1-gzp2/arch/i386/lib/lib.a \
+|>         --end-group \
+|>         -o vmlinux
+|> fs/fs.o(.text+0x1baa9): In function `do_quotactl':
+|> : undefined reference to `sync_dquots_dev'
+|> make: *** [vmlinux] Error 1
+| 
+|   I see this too. .config below.
 
-Is there an active maintainer for isofs?
+Still exist in rc1-ac2
 
-René
-
-
-
-diff -ur linux-2.5.68-bk6/fs/isofs/rock.c~ linux-2.5.68-bk6/fs/isofs/rock.c
---- linux-2.5.68-bk6/fs/isofs/rock.c~	2002-12-16 03:08:09.000000000 +0100
-+++ linux-2.5.68-bk6/fs/isofs/rock.c	2003-04-25 21:35:14.000000000 +0200
-@@ -84,76 +84,6 @@
-     printk("Unable to read rock-ridge attributes\n");    \
-   }}
- 
--/* This is the inner layer of the get filename routine, and is called
--   for each system area and continuation record related to the file */
--
--int find_rock_ridge_relocation(struct iso_directory_record * de, 
--			       struct inode * inode) {
--  int flag;
--  int len;
--  int retval;
--  unsigned char * chr;
--  CONTINUE_DECLS;
--  flag = 0;
--  
--  /* If this is a '..' then we are looking for the parent, otherwise we
--     are looking for the child */
--  
--  if (de->name[0]==1 && de->name_len[0]==1) flag = 1;
--  /* Return value if we do not find appropriate record. */
--  retval = isonum_733 (de->extent);
--  
--  if (!ISOFS_SB(inode->i_sb)->s_rock) return retval;
--
--  SETUP_ROCK_RIDGE(de, chr, len);
-- repeat:
--  {
--    int rrflag, sig;
--    struct rock_ridge * rr;
--    
--    while (len > 1){ /* There may be one byte for padding somewhere */
--      rr = (struct rock_ridge *) chr;
--      if (rr->len == 0) goto out; /* Something got screwed up here */
--      sig = isonum_721(chr);
--      chr += rr->len; 
--      len -= rr->len;
--
--      switch(sig){
--      case SIG('R','R'):
--	rrflag = rr->u.RR.flags[0];
--	if (flag && !(rrflag & RR_PL)) goto out;
--	if (!flag && !(rrflag & RR_CL)) goto out;
--	break;
--      case SIG('S','P'):
--	CHECK_SP(goto out);
--	break;
--      case SIG('C','L'):
--	if (flag == 0) {
--	  retval = isonum_733(rr->u.CL.location);
--	  goto out;
--	}
--	break;
--      case SIG('P','L'):
--	if (flag != 0) {
--	  retval = isonum_733(rr->u.PL.location);
--	  goto out;
--	}
--	break;
--      case SIG('C','E'):
--	CHECK_CE; /* This tells is if there is a continuation record */
--	break;
--      default:
--	break;
--      }
--    }
--  }
--  MAYBE_CONTINUE(repeat, inode);
--  return retval;
-- out:
--  if(buffer) kfree(buffer);
--  return retval;
--}
--
- /* return length of name field; 0: not found, -1: to be ignored */
- int get_rock_ridge_filename(struct iso_directory_record * de,
- 			    char * retname, struct inode * inode)
-diff -ur linux-2.5.68-bk6/include/linux/iso_fs.h~ linux-2.5.68-bk6/include/linux/iso_fs.h
---- linux-2.5.68-bk6/include/linux/iso_fs.h~	2002-12-16 03:08:11.000000000 +0100
-+++ linux-2.5.68-bk6/include/linux/iso_fs.h	2003-04-25 21:35:37.000000000 +0200
-@@ -224,8 +224,6 @@
- extern int get_rock_ridge_filename(struct iso_directory_record *, char *, struct inode *);
- extern int isofs_name_translate(struct iso_directory_record *, char *, struct inode *);
- 
--extern int find_rock_ridge_relocation(struct iso_directory_record *, struct inode *);
--
- int get_joliet_filename(struct iso_directory_record *, unsigned char *, struct inode *);
- int get_acorn_filename(struct iso_directory_record *, char *, struct inode *);
- 

@@ -1,90 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268844AbTBZSCW>; Wed, 26 Feb 2003 13:02:22 -0500
+	id <S268852AbTBZSD3>; Wed, 26 Feb 2003 13:03:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268850AbTBZSCW>; Wed, 26 Feb 2003 13:02:22 -0500
-Received: from dhcp63.ists.dartmouth.edu ([129.170.249.163]:10369 "EHLO
-	uml.karaya.com") by vger.kernel.org with ESMTP id <S268844AbTBZSCV>;
-	Wed, 26 Feb 2003 13:02:21 -0500
-Message-Id: <200302261816.h1QIG3511220@uml.karaya.com>
+	id <S268851AbTBZSC2>; Wed, 26 Feb 2003 13:02:28 -0500
+Received: from dhcp63.ists.dartmouth.edu ([129.170.249.163]:10881 "EHLO
+	uml.karaya.com") by vger.kernel.org with ESMTP id <S268850AbTBZSCX>;
+	Wed, 26 Feb 2003 13:02:23 -0500
+Message-Id: <200302261816.h1QIG7r11230@uml.karaya.com>
 X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
 To: torvalds@transmeta.com
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] UML fixes 
+Subject: [PATCH] UML updates 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 26 Feb 2003 13:16:03 -0500
+Date: Wed, 26 Feb 2003 13:16:07 -0500
 From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Please pull
-	http://jdike.stearns.org:5000/fixes-2.5
+	http://jdike.stearns.org:5000/updates-2.5
 
-This fixes some UML bugs, including
-	some signal blocking bugs
-	a 'tracing myself' bug
-	a uaccess fencepost bug
-	call schedule_tail correctly
-	block signals correctly in the timer handler
-
-Also, there were a number of code cleanups, particularly in the ubd driver.
-That driver now locks the host files that it uses to prevent multiple UMLs
-from booting on the same filesystem.
-
-stdout is now flushed before entering the kernel to ensure that early messages
-appear before printk output.
+This updates UML to 2.5.63 -
+	fixed the sigprocmask name clash with libc
+	updated ptrace
+	fixed UML's module.h
+	cleaned up page.h and bug.h
+	updated the signal handling
+	added the new clock and timer syscalls
+	fixed some build breakage
 
 				Jeff
 
- arch/um/drivers/line.c                |    6 
- arch/um/drivers/ubd_kern.c            |  227 +++++++++++++++++++---------------
- arch/um/drivers/ubd_user.c            |   44 ++++--
- arch/um/include/os.h                  |    2 
- arch/um/kernel/mem.c                  |    2 
- arch/um/kernel/process.c              |    3 
- arch/um/kernel/skas/include/uaccess.h |    2 
- arch/um/kernel/skas/process_kern.c    |   10 -
- arch/um/kernel/time_kern.c            |    2 
- arch/um/kernel/tt/process_kern.c      |   26 +--
- arch/um/kernel/um_arch.c              |    1 
- arch/um/os-Linux/file.c               |   31 ++++
- include/asm-um/common.lds.S           |   12 +
- 13 files changed, 230 insertions(+), 138 deletions(-)
+ arch/um/Makefile                   |    6 ++++--
+ arch/um/drivers/Makefile           |    2 +-
+ arch/um/drivers/xterm_kern.c       |    1 +
+ arch/um/kernel/init_task.c         |    1 +
+ arch/um/kernel/ptrace.c            |    7 ++-----
+ arch/um/kernel/sigio_kern.c        |    1 +
+ arch/um/kernel/signal_kern.c       |    4 ++--
+ arch/um/kernel/smp.c               |   36 +++++++++++++++++++++++-------------
+ arch/um/kernel/sys_call_table.c    |   18 ++++++++++++++++++
+ arch/um/kernel/tt/process_kern.c   |    5 ++++-
+ include/asm-um/bug.h               |    4 ++--
+ include/asm-um/module-generic.h    |    6 ++++++
+ include/asm-um/module-i386.h       |   13 +++++++++++++
+ include/asm-um/module.h            |   13 -------------
+ include/asm-um/page.h              |    1 -
+ include/asm-um/processor-generic.h |    1 -
+ include/asm-um/thread_info.h       |    3 +++
+ 17 files changed, 81 insertions(+), 41 deletions(-)
 
-ChangeSet@1.1022.1.2, 2003-02-25 00:44:11-05:00, jdike@uml.karaya.com
-  Fixed the calls to schedule_tail to not be conditional on CONFIG_SMP,
-  to be conditional on current->thread.prev_sched being non-NULL,
-  and to pass current->thread.prev_sched in to schedule_tail.
+ChangeSet@1.914.185.4, 2003-02-25 00:24:29-05:00, jdike@uml.karaya.com
+  Added declarations for the new system calls and fixed the includes
+  of asm/signal.h.
 
-ChangeSet@1.914.185.4, 2003-02-24 21:59:25-05:00, jdike@uml.karaya.com
-  Fixed a bug with the initialization of the mode that a device file
-  is opened with.
+ChangeSet@1.914.185.3, 2003-02-24 23:00:04-05:00, jdike@uml.karaya.com
+  Updated to 2.5.63 and made a minor build cleanup.
 
-ChangeSet@1.914.185.3, 2003-02-24 01:48:30-05:00, jdike@uml.karaya.com
-  Fixed a deadlock caused by not disabling interrupts around a call
-  to update_process_times.
+ChangeSet@1.914.185.2, 2003-02-23 14:49:44-05:00, jdike@uml.karaya.com
+  Applied some minor updates to fix things that broke in .62.
 
-ChangeSet@1.914.185.2, 2003-02-23 14:50:33-05:00, jdike@uml.karaya.com
-  Made some minor fixes to get rid of some unneeded code, improve
-  a panic message, and fix a signal blocking bug.
-
-ChangeSet@1.914.185.1, 2003-02-19 11:05:33-05:00, jdike@uml.karaya.com
+ChangeSet@1.914.185.1, 2003-02-19 09:50:28-05:00, jdike@uml.karaya.com
   Merge uml.karaya.com:/home/jdike/linux/2.5/linus-2.5
-  into uml.karaya.com:/home/jdike/linux/2.5/fixes-2.5
+  into uml.karaya.com:/home/jdike/linux/2.5/updates-2.5
 
-ChangeSet@1.914.118.2, 2003-02-19 09:55:14-05:00, jdike@uml.karaya.com
-  Fixed signal blocking and cleaned up the code a bit.
+ChangeSet@1.914.131.3, 2003-02-18 17:50:30-05:00, jdike@uml.karaya.com
+  Copied a ptrace change from i386.
 
-ChangeSet@1.914.93.32, 2003-02-07 13:48:13-05:00, jdike@uml.karaya.com
-  Fixed a few compilation bugs in the ubd changes.
+ChangeSet@1.914.131.2, 2003-02-18 16:39:59-05:00, jdike@uml.karaya.com
+  Changed the kernel sigprocmask to kernel_sigprocmask to avoid a
+  conflict with libc.
 
-ChangeSet@1.914.93.31, 2003-02-07 12:52:23-05:00, jdike@uml.karaya.com
-  Merged in changes from 2.4 up to 2.4.19-50.
-  The ubd driver locks its files.
-  Merged a bunch of ubd fixes from James McMechan.
-  stdout is now flushed before entering the kernel.
-  Fixed a uaccess fencepost bug.
-  Fixed a 'tracing myself' bug.
-  Various other cleanups and error message fixes.
-
+ChangeSet@1.914.131.1, 2003-02-12 09:40:44-05:00, jdike@uml.karaya.com
+  Applied a bunch of patches from Oleg to get UML working in 2.5.60
+  and to clean up some other things.

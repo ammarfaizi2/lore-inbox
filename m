@@ -1,56 +1,284 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268066AbUI1WHj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268080AbUI1WM7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268066AbUI1WHj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 18:07:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268070AbUI1WGr
+	id S268080AbUI1WM7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 18:12:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268079AbUI1WM7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 18:06:47 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:33969 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S268066AbUI1WE6
+	Tue, 28 Sep 2004 18:12:59 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:36529 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S268084AbUI1WJy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 18:04:58 -0400
-Subject: Re: [RFC][PATCH] inotify 0.10.0
+	Tue, 28 Sep 2004 18:09:54 -0400
+Subject: Re: [patch] inotify: use the idr layer
 From: Robert Love <rml@novell.com>
-To: Ray Lee <ray-lk@madrabbit.org>
-Cc: John McCutchan <ttb@tentacle.dhs.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, gamin-list@gnome.org,
-       viro@parcelfarce.linux.theplanet.co.uk, iggy@gentoo.org
-In-Reply-To: <1096408235.5177.49.camel@issola.madrabbit.org>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, iggy@gentoo.org
+In-Reply-To: <1096408694.16622.1.camel@vertex>
 References: <1096250524.18505.2.camel@vertex>
-	 <20040926211758.5566d48a.akpm@osdl.org>
-	 <1096318369.30503.136.camel@betsy.boston.ximian.com>
-	 <1096350328.26742.52.camel@orca.madrabbit.org>
-	 <1096403167.30123.5.camel@vertex>
-	 <1096405848.5177.15.camel@issola.madrabbit.org>
-	 <1096406467.30123.42.camel@vertex>
-	 <1096407301.4911.79.camel@betsy.boston.ximian.com>
-	 <1096408235.5177.49.camel@issola.madrabbit.org>
-Content-Type: text/plain
-Date: Tue, 28 Sep 2004 18:03:37 -0400
-Message-Id: <1096409017.4911.95.camel@betsy.boston.ximian.com>
+	 <1096407964.4911.90.camel@betsy.boston.ximian.com>
+	 <1096408694.16622.1.camel@vertex>
+Content-Type: multipart/mixed; boundary="=-Lz7LiX+X6b5ORCkNqq78"
+Date: Tue, 28 Sep 2004 18:08:33 -0400
+Message-Id: <1096409313.4911.97.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-28 at 14:50 -0700, Ray Lee wrote:
 
-> I'm afraid I'm not seeing the complexity argument. Do you have other
-> concerns regarding dynamic lengths?
+--=-Lz7LiX+X6b5ORCkNqq78
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-You _do_ see the complexity, you just don't that think it matters.
+On Tue, 2004-09-28 at 17:58 -0400, John McCutchan wrote:
+> +       spin_lock(&dev->lock);
+> +       ret = idr_get_new(&dev->idr, watcher, &watcher->wd);
+> +       spin_lock(&dev->lock);
+> 
+> I think you mean spin_unlock on the third line? Other than that I think
+> it should work.
 
-It forces more complexity on user-space (as least as much as you have
-shown) and even more in the kernel (due partly to the current very
-simple event code in place that needs the buffer to be a multiple of the
-struct size, etc.).
-
-Personally, I don't know if it matters.  John and I have both said that
-we will look into going to a dynamic filename.
-
-Also, I am sure that John will take a patch, if you are so inclined.
+Ech, I have an updated patch.
 
 	Robert Love
 
+
+--=-Lz7LiX+X6b5ORCkNqq78
+Content-Disposition: attachment; filename=inotify-idr-layer-2.patch
+Content-Type: text/x-patch; name=inotify-idr-layer-2.patch; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+idr layer support for inotify
+
+Signed-Off-By: Robert Love <rml@novell.com>
+
+ drivers/char/inotify.c |   93 +++++++++++++++++++++++++++----------------------
+ 1 files changed, 53 insertions(+), 40 deletions(-)
+
+diff -urN linux-inotify/drivers/char/inotify.c linux/drivers/char/inotify.c
+--- linux-inotify/drivers/char/inotify.c	2004-09-28 15:22:02.152818864 -0400
++++ linux/drivers/char/inotify.c	2004-09-28 15:27:03.994931888 -0400
+@@ -17,15 +17,14 @@
+ /* TODO: 
+  * rename inotify_watcher to inotify_watch
+  * need a way to connect MOVED_TO/MOVED_FROM events in user space
+- * use b-tree so looking up watch by WD is faster
+  */
+ 
+ #include <linux/bitops.h>
+-#include <linux/bitmap.h>
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+ #include <linux/spinlock.h>
++#include <linux/idr.h>
+ #include <linux/slab.h>
+ #include <linux/fs.h>
+ #include <linux/namei.h>
+@@ -61,22 +60,19 @@
+  * For each inotify device, we need to keep track of the events queued on it,
+  * a list of the inodes that we are watching, and so on.
+  *
+- * 'bitmask' holds one bit for each possible watcher descriptor: a set bit
+- * implies that the given WD is valid, unset implies it is not.
+- *
+  * This structure is protected by 'lock'.  Lock ordering:
+  *	dev->lock
+  *		dev->wait->lock
+  * FIXME: Define lock ordering wrt inode and dentry locking!
+  */
+ struct inotify_device {
+-	DECLARE_BITMAP(bitmask, MAX_INOTIFY_DEV_WATCHERS);
+ 	wait_queue_head_t 	wait;
++	struct idr		idr;
+ 	struct list_head 	events;
+ 	struct list_head 	watchers;
+ 	spinlock_t		lock;
+ 	unsigned int		event_count;
+-	int			nr_watches;
++	unsigned int		nr_watches;
+ };
+ 
+ struct inotify_watcher {
+@@ -179,10 +175,6 @@
+ 		return;
+ 
+ 	event_object_count--;
+-	INIT_LIST_HEAD(&kevent->list);
+-	kevent->event.wd = -1;
+-	kevent->event.mask = 0;
+-
+ 	iprintk(INOTIFY_DEBUG_ALLOC, "free'd kevent %p\n", kevent);
+ 	kmem_cache_free(kevent_cache, kevent);
+ }
+@@ -282,20 +274,30 @@
+ /*
+  * inotify_dev_get_wd - returns the next WD for use by the given dev
+  *
+- * Caller must hold dev->lock before calling.
++ * This function sleeps.
+  */
+-static int inotify_dev_get_wd(struct inotify_device *dev)
++static int inotify_dev_get_wd(struct inotify_device *dev,
++			      struct inotify_watcher *watcher)
+ {
+-	int wd;
++	int ret;
+ 
+-	if (!dev || dev->nr_watches == MAX_INOTIFY_DEV_WATCHERS)
++	if (dev->nr_watches == MAX_INOTIFY_DEV_WATCHERS)
+ 		return -1;
+ 
++repeat:
++	if (!idr_pre_get(&dev->idr, GFP_KERNEL))
++		return -1;
++
++	spin_lock(&dev->lock);
++	ret = idr_get_new(&dev->idr, watcher, &watcher->wd);
++	spin_unlock(&dev->lock);
++	if (ret == -EAGAIN)	/* more memory is required, try again */
++		goto repeat;
++	if (ret == -ENOSPC)	/* the idr is full! */
++		return -1;
+ 	dev->nr_watches++;
+-	wd = find_first_zero_bit(dev->bitmask, MAX_INOTIFY_DEV_WATCHERS);
+-	set_bit(wd, dev->bitmask);
+ 
+-	return wd;
++	return 0;
+ }
+ 
+ /*
+@@ -309,7 +311,7 @@
+ 		return -1;
+ 
+ 	dev->nr_watches--;
+-	clear_bit(wd, dev->bitmask);
++	idr_remove(&dev->idr, wd);
+ 
+ 	return 0;
+ }
+@@ -331,7 +333,6 @@
+ 		return NULL;
+ 	}
+ 
+-	watcher->wd = -1;
+ 	watcher->mask = mask;
+ 	watcher->inode = inode;
+ 	watcher->dev = dev;
+@@ -339,11 +340,7 @@
+ 	INIT_LIST_HEAD(&watcher->i_list);
+ 	INIT_LIST_HEAD(&watcher->u_list);
+ 
+-	spin_lock(&dev->lock);
+-	watcher->wd = inotify_dev_get_wd(dev);
+-	spin_unlock(&dev->lock);
+-
+-	if (watcher->wd < 0) {
++	if (inotify_dev_get_wd(dev, watcher)) {
+ 		iprintk(INOTIFY_DEBUG_ERRORS,
+ 			"Could not get wd for watcher %p\n", watcher);
+ 		iprintk(INOTIFY_DEBUG_ALLOC, "free'd watcher %p\n", watcher);
+@@ -387,15 +384,18 @@
+ 	return NULL;
+ }
+ 
+-static struct inotify_watcher *dev_find_wd(struct inotify_device *dev, int wd)
++/*
++ * dev_find_wd - given a (dev,wd) pair, returns the matching inotify_watcher
++ *
++ * Returns the results of looking up (dev,wd) in the idr layer.  NULL is
++ * returned on error.
++ *
++ * The caller must hold dev->lock.
++ */
++static inline struct inotify_watcher *dev_find_wd(struct inotify_device *dev,
++						  int wd)
+ {
+-	struct inotify_watcher *watcher;
+-
+-	list_for_each_entry(watcher, &dev->watchers, d_list) {
+-		if (watcher->wd == wd)
+-			return watcher;
+-	}
+-	return NULL;
++	return idr_find(&dev->idr, wd);
+ }
+ 
+ static int inotify_dev_is_watching_inode(struct inotify_device *dev,
+@@ -411,6 +411,11 @@
+ 	return 0;
+ }
+ 
++/*
++ * inotify_dev_add_watcher - add the given watcher to the given device instance
++ *
++ * Caller must hold dev->lock.
++ */
+ static int inotify_dev_add_watcher(struct inotify_device *dev,
+ 				   struct inotify_watcher *watcher)
+ {
+@@ -570,11 +575,11 @@
+ 	struct inotify_device *dev;
+ 	struct inode *inode;
+ 
+-	spin_lock(&watcher->dev->lock);
+-	spin_lock(&watcher->inode->i_lock);
+-
+-	inode = watcher->inode;
+ 	dev = watcher->dev;
++	inode = watcher->inode;
++
++	spin_lock(&dev->lock);
++	spin_lock(&inode->i_lock);
+ 
+ 	if (event)
+ 		inotify_dev_queue_event(dev, watcher, event, NULL);
+@@ -590,7 +595,8 @@
+ 	unref_inode(inode);
+ }
+ 
+-static void process_umount_list(struct list_head *umount) {
++static void process_umount_list(struct list_head *umount)
++{
+ 	struct inotify_watcher *watcher, *next;
+ 
+ 	list_for_each_entry_safe(watcher, next, umount, u_list)
+@@ -598,7 +604,7 @@
+ }
+ 
+ static void build_umount_list(struct list_head *head, struct super_block *sb,
+-			       struct list_head *umount)
++			      struct list_head *umount)
+ {
+ 	struct inode *	inode;
+ 
+@@ -766,7 +772,7 @@
+ 	if (!dev)
+ 		return -ENOMEM;
+ 
+-	bitmap_zero(dev->bitmask, MAX_INOTIFY_DEV_WATCHERS);
++	idr_init(&dev->idr);
+ 
+ 	INIT_LIST_HEAD(&dev->events);
+ 	INIT_LIST_HEAD(&dev->watchers);
+@@ -898,9 +904,16 @@
+ {
+ 	struct inotify_watcher *watcher;
+ 
++	/*
++	 * FIXME: Silly to grab dev->lock here and then drop it, when
++	 * ignore_helper() grabs it anyway a few lines down.
++	 */
++	spin_lock(&dev->lock);
+ 	watcher = dev_find_wd(dev, wd);
++	spin_unlock(&dev->lock);
+ 	if (!watcher)
+ 		return -EINVAL;
++
+ 	ignore_helper(watcher, 0);
+ 
+ 	return 0;
+
+--=-Lz7LiX+X6b5ORCkNqq78--
 

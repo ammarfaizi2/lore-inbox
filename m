@@ -1,84 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUJLOhb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265234AbUJLOla@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264704AbUJLOhb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 10:37:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264991AbUJLOgU
+	id S265234AbUJLOla (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 10:41:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264980AbUJLOjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 10:36:20 -0400
-Received: from foss.kharkov.ua ([195.69.184.25]:23700 "EHLO
-	relay.foss.kharkov.ua") by vger.kernel.org with ESMTP
-	id S264704AbUJLOd4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 10:33:56 -0400
-X-AV-Checked: Tue Oct 12 17:33:22 2004 passed
-Message-ID: <416BEB59.5010809@kharkiv.com.ua>
-Date: Tue, 12 Oct 2004 17:34:01 +0300
-From: Oleksiy <Oleksiy@kharkiv.com.ua>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en, ru
+	Tue, 12 Oct 2004 10:39:55 -0400
+Received: from ipx20189.ipxserver.de ([80.190.249.56]:63109 "EHLO
+	ipx20189.ipxserver.de") by vger.kernel.org with ESMTP
+	id S265773AbUJLOiC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 10:38:02 -0400
+Date: Tue, 12 Oct 2004 17:38:10 +0300 (EAT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Nathan Lynch <nathanl@austin.ibm.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] i386 CPU hotplug updated for -mm
+In-Reply-To: <1097590569.6557.107.camel@biclops>
+Message-ID: <Pine.LNX.4.61.0410121730110.4190@musoma.fsmlabs.com>
+References: <20041001204533.GA18684@elte.hu>  <20041001204642.GA18750@elte.hu>
+ <20041001143332.7e3a5aba.akpm@osdl.org>  <Pine.LNX.4.61.0410091550300.2870@musoma.fsmlabs.com>
+  <Pine.LNX.4.61.0410102302170.2745@musoma.fsmlabs.com>  <1097560787.6557.99.camel@biclops>
+  <20041012060410.GE1479@elte.hu> <1097590569.6557.107.camel@biclops>
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: pl2303/usb-serial driver problem in 2.4.27-pre6
-References: <416A6CF8.5050106@kharkiv.com.ua> <20041011113609.GB417@logos.cnet>
-In-Reply-To: <20041011113609.GB417@logos.cnet>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 12 Oct 2004, Nathan Lynch wrote:
 
-No, i haven't changed anything: the same cable, the same modules.
-I was compiling new kernels (-pre1, -pre2 ... all patches ) and just 
-after boot running pppd to test connection.
-2.4.26 and all 2.4.27-preX works fine till -pre6. All after -pre6 
-including 2.4.28-pre4 are not working for me...
+> On Tue, 2004-10-12 at 01:04, Ingo Molnar wrote:
+> > * Nathan Lynch <nathanl@austin.ibm.com> wrote:
+> > 
+> > > I fixed up the warning in cpu_down with the following patch and now am
+> > > running with that + 2.6.9-rc4-mm1 + your patch while doing continuous
+> > > online/offline and make -j8.  It's been running for about 45 minutes
+> > > and I haven't seen the panic yet, although I'm at a loss to explain
+> > > why the change would fix it.  Will let it run overnight and report
+> > > back...
+> > 
+> > >  	/* Move it here so it can run. */
+> > > -	kthread_bind(p, smp_processor_id());
+> > > +	kthread_bind(p, get_cpu());
+> > > +	put_cpu();
+> > 
+> > >  	/* CPU is completely dead: tell everyone.  Too late to complain. */
+> > >  	if (notifier_call_chain(&cpu_chain, CPU_DEAD, (void *)(long)cpu)
+> > 
+> > hm, is there any assurance that smp_processor_id() == cpu?
+> 
+> Actually, cpu != smp_processor_id().  cpu is the processor we have just
+> taken down at that point; we want the kthread to run on some other cpu.
 
-Hardware: Dell Inspiron 1100 notebook
+Nathan, thanks for doing that testing, the warning does indeed look to be 
+a false positive. Looking at the code again, i realised that there might 
+also be cases where someone does the following;
 
-Marcelo Tosatti wrote:
+	preempt_disable();
+	cpu = smp_processor_id();
+	...
+	preempt_enable();
+	...
+	mod_local_cpu_variable[cpu];
 
->Pete, 
->
->I bet this has been caused by your USB changes?
->
->Can you take a look at this please?
->
->On Mon, Oct 11, 2004 at 02:22:32PM +0300, Oleksiy wrote:
->  
->
->>Hi all,
->>
->>I have a problem using GPRS inet vi my Siemens S55 attached with USB 
->>cable since kernel version 2.4.27-pre5, the link is established well, 
->>but then no packets get received, looking with tcpdump shows outgoing 
->>ping packets and just few per several minutes received back. I'm unable 
->>to ping, do nslookup, etc.
->>The problem started when i switched from kernel 2.4.26 (linux slackware 
->>10.0) to 2.4.28-pre3. None of ppp otions haven't changed and all the 
->>same options were set during kerenel config. So i decided to test all 
->>kernels between 2.4.26 and 2.4.28-pre4 (also not working). Link works 
->>well in 2.4.27-pre5 and stop working in 2.4.27-pre6. No "strange" 
->>messages or errors in the logs. firewall is disabled (ACCEPT for all).
->>
->>i'm using:
->>
->>pppd-2.4.2
->>Siemens S55 mobile
->>USB cable (PL2303 conroller)
->>
->>USB drivers:
->>
->>ehci_hcd
->>uhci.c
->>pl2303.c
->>
->>    
->>
-
--- 
-Oleksiy
-http://voodoo.com.ua
-
+So cached values of smp_processor_id() might also be a problem, although i 
+haven't found any cases, but maybe that's just being overly paranoid =)

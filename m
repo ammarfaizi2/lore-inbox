@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263558AbTD1Mn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 08:43:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263566AbTD1Mn5
+	id S263567AbTD1Mzz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 08:55:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbTD1Mzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 08:43:57 -0400
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:17612 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S263558AbTD1MnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 08:43:11 -0400
-Subject: Re: Where to download kernel-headers-2.4.18-18.8.0
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Stephen Liu <satimis@icare.com.hk>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1051529351.2573.16.camel@localhost.localdomain>
-References: <1051529351.2573.16.camel@localhost.localdomain>
-Content-Type: text/plain
-Message-Id: <1051534514.3610.48.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.2.99 (Preview Release)
-Date: 28 Apr 2003 14:55:15 +0200
+	Mon, 28 Apr 2003 08:55:55 -0400
+Received: from mail.gmx.net ([213.165.65.60]:20112 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263567AbTD1Mzy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 08:55:54 -0400
+Message-ID: <3EAD27B2.9010807@gmx.net>
+Date: Mon, 28 Apr 2003 15:08:02 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Henti Smith <bain@tcsn.co.za>
+CC: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: maximum possible memory limit ..
+References: <20030424200524.5030a86b.bain@tcsn.co.za>
+In-Reply-To: <20030424200524.5030a86b.bain@tcsn.co.za>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-04-28 at 13:29, Stephen Liu wrote:
+[CC:ing lse-tech because they know better than me]
 
-> running in my system and I need "kernel-headers-2.4.18-18.8.0" working
-> with them.  Google.com could not find it.
+Henti Smith wrote:
+> Hi all 
+> 
+> I had a discussion with somebody watching the whole M$ server launch and mentioned then new systems supports up to a terabyte of ram. 
+> I've tried looking for a hint at what the max memory support on linux is and cannot find it anywhere.
+> 
+> can somebody here enlighten me on just what the maximum amount of memory linux can deal with ? 
 
-It seems you have a Red Hat Linux system. So, you should look for
-glibc-kernheaders at ftp://ftp.redhat.com/pub/redhat/linux or from
-http://rpmfind.net.
+Linux supports up to 4 GB (~2^32 bytes) of memory on 32-bit
+architectures and 64 GB (~2^36 bytes) on x86 with PAE. No other
+operating system can support more on 32-bit since it is a limitation of
+the hardware.
+On 64-bit systems, Linux supports up to 16 EB (~2^64 bytes) of memory,
+which is about 16 million times more than the 1 TB limit of MS.
 
-> Kindly advise where can I have it downloaded.
+Current Linux 2.4 allows 32 CPUs for 32-bit arches and 64 CPUs on 64-bit
+arches. However, this limit is (was?) being removed in 2.5, so you can
+have up to 32767 CPUs, which should be enough for you right now.
+(Note: I said _right now_, lest anybody make jokes about 640K limit)
 
-I think this question should be directed to the mailing list for your
-Linux distribution (e.g, shrike-list@redhat.com for Red Hat Linux 9)
-instead of Linux Kernel.
 
+Regards,
+Carl-Daniel
 -- 
-Please AVOID sending me WORD, EXCEL or POWERPOINT attachments.
-See http://www.fsf.org/philosophy/no-word-attachments.html
-Linux Registered User #287198
+http://www.hailfinger.org/
 

@@ -1,68 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261401AbSLMFTj>; Fri, 13 Dec 2002 00:19:39 -0500
+	id <S261486AbSLMFVl>; Fri, 13 Dec 2002 00:21:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261426AbSLMFTj>; Fri, 13 Dec 2002 00:19:39 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:62226 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261401AbSLMFTi>;
-	Fri, 13 Dec 2002 00:19:38 -0500
-Date: Thu, 12 Dec 2002 21:25:51 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: lvm-devel@sistina.com, linux-kernel@vger.kernel.org
-Subject: Re: dmfs for 2.5.51
-Message-ID: <20021213052551.GB25099@kroah.com>
-References: <20021213012618.GH23509@kroah.com> <3DF93CC9.979CA988@digeo.com>
+	id <S261451AbSLMFVl>; Fri, 13 Dec 2002 00:21:41 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:13997 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261433AbSLMFVj>;
+	Fri, 13 Dec 2002 00:21:39 -0500
+Date: Thu, 12 Dec 2002 21:23:35 -0800 (PST)
+Message-Id: <20021212.212335.127426137.davem@redhat.com>
+To: matti.aarnio@zmailer.org
+Cc: niv@us.ibm.com, alan@lxorguk.ukuu.org.uk, stefano.andreani.ap@h3g.it,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: R: Kernel bug handling TCP_RTO_MAX?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021213033928.GK32122@mea-ext.zmailer.org>
+References: <1039727809.22174.38.camel@irongate.swansea.linux.org.uk>
+	<3DF94565.2C582DE2@us.ibm.com>
+	<20021213033928.GK32122@mea-ext.zmailer.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DF93CC9.979CA988@digeo.com>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 12, 2002 at 05:50:01PM -0800, Andrew Morton wrote:
-> Greg KH wrote:
-> > 
-> > ..
-> > +Examples
-> > +--------
-> > +
-> > +Example commands will make things a bit clearer:
-> 
-> hm.  The whole thing seems hokey to me.  Not sure why.
+   From: Matti Aarnio <matti.aarnio@zmailer.org>
+   Date: Fri, 13 Dec 2002 05:39:28 +0200
 
-I agree.  It doesn't feel right.  I mean, doing a mkdir(1) to create a
-device, which causes files to be created automagically in that
-directory?  Something needs to change here, and I proposed a single file
-to write to that creates the device, but was shot down by the author.
+   On Thu, Dec 12, 2002 at 06:26:45PM -0800, Nivedita Singhvi wrote:
+   > Assuming you are on a local lan, your round trip
+   > times are going to be much less than 200 ms, and
+   > so using the TCP_RTO_MIN of 200ms ("The algorithm 
+   > ensures that the rto cant go below that").
+   
+     The RTO steps in only when there is a need to RETRANSMIT.
+     For that reason, it makes no sense to place its start
+     any shorter.
 
-Anyone else have any ideas?
+Actually, TCP_RTO_MIN cannot be made any smaller without
+some serious thought.
 
-> > ...
-> > +  echo -e "0 56 linear /dev/hda3 0\n56 102344 linear /dev/hda4 0" > table
-> 
-> Maybe this is why.
+The reason it is 200ms is due to the granularity of the BSD
+TCP socket timers. 
 
-Heh, yeah, welcome to parsers in the kernel :)
-But the dm code today does much the same thing with ioctls, passing a
-string down to the loaded modules below it.  So there is a bit of
-president.  Even if it is ugly :)
-
-> > ...
-> > +static struct page *find_page(struct dmfs_file *f, loff_t len, int fill)
-> 
-> This is called under spinlock.
-> 
-> > ...
-> > +                       void *addr = (void *) __get_free_page(GFP_KERNEL);
-> 
-> whoops.
-
-Nice catch.  I'm not sure that the find_page(), __io() and friends
-functions are really needed at all.
-
-Thanks for looking at this.  I hope the dm authors can help explain
-more.
-
-greg k-h
+In short, the repercussions are not exactly well known, so it's
+a research problem to fiddle here.

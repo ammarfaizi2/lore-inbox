@@ -1,40 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291718AbSBHTMe>; Fri, 8 Feb 2002 14:12:34 -0500
+	id <S291750AbSBHTTO>; Fri, 8 Feb 2002 14:19:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291750AbSBHTMZ>; Fri, 8 Feb 2002 14:12:25 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38161 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S291718AbSBHTMJ>; Fri, 8 Feb 2002 14:12:09 -0500
-Date: Fri, 8 Feb 2002 11:11:50 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Martin Wirth <Martin.Wirth@dlr.de>, Robert Love <rml@tech9.net>,
-        <linux-kernel@vger.kernel.org>, <mingo@elte.hu>, <haveblue@us.ibm.com>
-Subject: Re: [RFC] New locking primitive for 2.5
-In-Reply-To: <3C641EE9.9F31612E@zip.com.au>
-Message-ID: <Pine.LNX.4.31.0202081110190.12981-100000@cesium.transmeta.com>
+	id <S291752AbSBHTTF>; Fri, 8 Feb 2002 14:19:05 -0500
+Received: from [208.179.59.195] ([208.179.59.195]:47984 "EHLO
+	Booterz.killerlabs.com") by vger.kernel.org with ESMTP
+	id <S291750AbSBHTSy>; Fri, 8 Feb 2002 14:18:54 -0500
+Message-ID: <3C64247B.1060103@blue-labs.org>
+Date: Fri, 08 Feb 2002 14:18:19 -0500
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "S. Parker" <linux@sparker.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Sysrq enhancement: process kill facility
+In-Reply-To: <4.2.2.20020208092102.00aa5eb8@10.10.10.29>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms080809020502030609070405"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a cryptographically signed message in MIME format.
 
+--------------ms080809020502030609070405
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, 8 Feb 2002, Andrew Morton wrote:
+Can this kill kill dead die go away forever D state processes?
+
+David
+
+S. Parker wrote:
+
+> Hi,
 >
-> Yesterday, Ingo said:
->
-> > i think one example *could* be to turn inode->i_sem into a combi-lock. Eg.
-> > generic_file_llseek() could use the spin variant.
-> >
-> > this is a real performance problem, i've seen scheduling storms in
-> > dbench-type runs due to llseek taking the inode semaphore.
+> Here's something that myself and others at Cobalt Networks have found 
+> useful.
+> It extends sysrq to support a way to manually kill a process.  In 
+> debugging
+> situations, we have found times where the system gets wedged, and 
+> we'ld like
+> to avoid a reboot.  Show tasks provides the pid information.
 
-... so just make it a spinlock instead.
 
-The semaphore is overkill, as the only thing we're really protecting is
-one 64-bit access against other updates.
 
-		Linus
+--------------ms080809020502030609070405
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJYDCC
+Aw4wggJ3oAMCAQICAwZepDANBgkqhkiG9w0BAQIFADCBkjELMAkGA1UEBhMCWkExFTATBgNV
+BAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UEBxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUx
+HTAbBgNVBAsTFENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVl
+bWFpbCBSU0EgMjAwMC44LjMwMB4XDTAxMTIyMjA4MzkyMFoXDTAyMTIyMjA4MzkyMFowSjEf
+MB0GA1UEAxMWVGhhd3RlIEZyZWVtYWlsIE1lbWJlcjEnMCUGCSqGSIb3DQEJARYYZGF2aWQr
+Y2VydEBibHVlLWxhYnMub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsoCV
+YNGPjureulr7FgVUurk6LiiozxKNqk7YgdbsUZoZ80KCKIjveE7ukwKi6A980uA9lJxXWqcU
+RVu/SHCt/G/DXXu4WXrcQR8mflKbISnGAVPKKN4LiZZEbFZ/RxZgUQ/2OzOGt00oHuQ1TvWX
+NPxKYxwUhVLh4tw9XlNDK7qQHdanp5mzuZdpuMgq1pilDdhYa5i/L87f7aF0SoDKlCBvnhSw
+LNe2BV6NBXNhhgJE6dz6qD9B8cgsSZWccHFjFF4lO23hMl/DlFK0GMa7DcWfz891+0dI39w2
+KO7wg8FUVnzrZHoDAsPZ2vI2O3eowLiGQR5LWq9Ppa02jPjbKwIDAQABozUwMzAjBgNVHREE
+HDAagRhkYXZpZCtjZXJ0QGJsdWUtbGFicy5vcmcwDAYDVR0TAQH/BAIwADANBgkqhkiG9w0B
+AQIFAAOBgQAEDATO3Nq34ZbuCVE7RQneB2/h5KUSQ1raF8FqnJq9Mr5c12VzlkInI8odiCUB
+etciZCnE1u84bewgh4pu6AhAqfRU3u178fP8zDNILQaHsHjqxbZzmvT9dLyaU2GiaCN+KLZw
+Ws/+HOFJWwNIbRt5nbJ+mGwTHZ2xzc5jVFKG3zCCAw4wggJ3oAMCAQICAwZepDANBgkqhkiG
+9w0BAQIFADCBkjELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UE
+BxMJQ2FwZSBUb3duMQ8wDQYDVQQKEwZUaGF3dGUxHTAbBgNVBAsTFENlcnRpZmljYXRlIFNl
+cnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFpbCBSU0EgMjAwMC44LjMwMB4XDTAx
+MTIyMjA4MzkyMFoXDTAyMTIyMjA4MzkyMFowSjEfMB0GA1UEAxMWVGhhd3RlIEZyZWVtYWls
+IE1lbWJlcjEnMCUGCSqGSIb3DQEJARYYZGF2aWQrY2VydEBibHVlLWxhYnMub3JnMIIBIjAN
+BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsoCVYNGPjureulr7FgVUurk6LiiozxKNqk7Y
+gdbsUZoZ80KCKIjveE7ukwKi6A980uA9lJxXWqcURVu/SHCt/G/DXXu4WXrcQR8mflKbISnG
+AVPKKN4LiZZEbFZ/RxZgUQ/2OzOGt00oHuQ1TvWXNPxKYxwUhVLh4tw9XlNDK7qQHdanp5mz
+uZdpuMgq1pilDdhYa5i/L87f7aF0SoDKlCBvnhSwLNe2BV6NBXNhhgJE6dz6qD9B8cgsSZWc
+cHFjFF4lO23hMl/DlFK0GMa7DcWfz891+0dI39w2KO7wg8FUVnzrZHoDAsPZ2vI2O3eowLiG
+QR5LWq9Ppa02jPjbKwIDAQABozUwMzAjBgNVHREEHDAagRhkYXZpZCtjZXJ0QGJsdWUtbGFi
+cy5vcmcwDAYDVR0TAQH/BAIwADANBgkqhkiG9w0BAQIFAAOBgQAEDATO3Nq34ZbuCVE7RQne
+B2/h5KUSQ1raF8FqnJq9Mr5c12VzlkInI8odiCUBetciZCnE1u84bewgh4pu6AhAqfRU3u17
+8fP8zDNILQaHsHjqxbZzmvT9dLyaU2GiaCN+KLZwWs/+HOFJWwNIbRt5nbJ+mGwTHZ2xzc5j
+VFKG3zCCAzgwggKhoAMCAQICEGZFcrfMdPXPY3ZFhNAukQEwDQYJKoZIhvcNAQEEBQAwgdEx
+CzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93
+bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24g
+U2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBD
+QTErMCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMDA4
+MzAwMDAwMDBaFw0wNDA4MjcyMzU5NTlaMIGSMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2Vz
+dGVybiBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UE
+CxMUQ2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJT
+QSAyMDAwLjguMzAwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAN4zMqZjxwklRT7Sbngn
+Z4HF2ogZgpcO40QpimM1Km1wPPrcrvfudG8wvDOQf/k0caCjbZjxw0+iZdsN+kvx1t1hpfmF
+zVWaNRqdknWoJ67Ycvm6AvbXsJHeHOmr4BgDqHxDQlBRh4M88Dm0m1SKE4f/s5udSWYALQmJ
+7JRr6aFpAgMBAAGjTjBMMCkGA1UdEQQiMCCkHjAcMRowGAYDVQQDExFQcml2YXRlTGFiZWwx
+LTI5NzASBgNVHRMBAf8ECDAGAQH/AgEAMAsGA1UdDwQEAwIBBjANBgkqhkiG9w0BAQQFAAOB
+gQAxsUtHXfkBceX1U2xdedY9mMAmE2KBIqcS+CKV6BtJtyd7BDm6/ObyJOuR+r3sDSo491BV
+qGz3Da1MG7wD9LXrokefbKIMWI0xQgkRbLAaadErErJAXWr5edDqLiXdiuT82w0fnQLzWtvK
+PPZE6iZph39Ins6ln+eE2MliYq0FxjGCAycwggMjAgEBMIGaMIGSMQswCQYDVQQGEwJaQTEV
+MBMGA1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xDzANBgNVBAoTBlRo
+YXd0ZTEdMBsGA1UECxMUQ2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFs
+IEZyZWVtYWlsIFJTQSAyMDAwLjguMzACAwZepDAJBgUrDgMCGgUAoIIBYTAYBgkqhkiG9w0B
+CQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0wMjAyMDgxOTE4MTlaMCMGCSqGSIb3
+DQEJBDEWBBTIrzQKVWv2IjXHUwmj0DUWnBfYBjBSBgkqhkiG9w0BCQ8xRTBDMAoGCCqGSIb3
+DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0D
+AgIBKDCBrQYLKoZIhvcNAQkQAgsxgZ2ggZowgZIxCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxX
+ZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEPMA0GA1UEChMGVGhhd3RlMR0wGwYD
+VQQLExRDZXJ0aWZpY2F0ZSBTZXJ2aWNlczEoMCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwg
+UlNBIDIwMDAuOC4zMAIDBl6kMA0GCSqGSIb3DQEBAQUABIIBAJs6tIayQQxy7HB3A+HwoI6G
+WKHNtx1CwMV4hcCNwRlXQ3gnSEtL/i0kElkzhQrqaE+rKLdlbKNgFW3kuENf2dEu+RNRZqWT
+StBqAnnbdJxF05CkTNez3Uh5/piWB7a/gk+9dTGtiDNHWlSLPnG/Hqe2I9XH1B6WI19gf7Ce
+eQtp8NUx3OuuvkYyx30rnuHKmQmTqp1/P+tJwEG4c0xlAFIewW3dPc0UULvM2hrsnyzO83pK
+dfc0nmMfEAdSnXmcelHBEkS5U8ddyHBp9n+GTmVsc7om4qDPSrz5dgVoosuEC6jzVAU12Bua
+vDmcOBxewc1h8Mz9iIa/rB2OVmuiPA4AAAAAAAA=
+--------------ms080809020502030609070405--
 

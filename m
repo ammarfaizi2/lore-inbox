@@ -1,56 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267131AbTBIItZ>; Sun, 9 Feb 2003 03:49:25 -0500
+	id <S267187AbTBIJSf>; Sun, 9 Feb 2003 04:18:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267180AbTBIItZ>; Sun, 9 Feb 2003 03:49:25 -0500
-Received: from [212.71.168.94] ([212.71.168.94]:22750 "HELO ghost.cybernet.cz")
-	by vger.kernel.org with SMTP id <S267131AbTBIItY>;
-	Sun, 9 Feb 2003 03:49:24 -0500
-Date: Sun, 9 Feb 2003 09:59:06 +0100 (MET)
-From: <brain@artax.karlin.mff.cuni.cz>
-To: <linux-kernel@vger.kernel.org>
-Subject: 3c509 driver doesn't compile in 2.5.59
-Message-ID: <Pine.LNX.4.30.0302090957570.12534-100000@ghost.cybernet.cz>
-X-Echelon: GRU Vatutinki Chodynka Khodinka Putin Suvorov USA Aquarium Russia Ladygin Lybia China Moscow missile reconnaissance agent spetsnaz security tactical target operation military nuclear force defense spy attack bomb explode tap MI5 IRS KGB CIA FBI NSA AK-47 MOSSAD M16 plutonium smuggle intercept plan intelligence war analysis president
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267188AbTBIJSf>; Sun, 9 Feb 2003 04:18:35 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25098 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267187AbTBIJSd>; Sun, 9 Feb 2003 04:18:33 -0500
+Date: Sun, 9 Feb 2003 09:28:07 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Roland McGrath <roland@redhat.com>, Anton Blanchard <anton@samba.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@digeo.com>, arjanv@redhat.com
+Subject: Re: heavy handed exit() in latest BK
+Message-ID: <20030209092807.A20121@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Roland McGrath <roland@redhat.com>,
+	Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
+	Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@digeo.com>,
+	arjanv@redhat.com
+References: <200302090348.h193mcn05216@magilla.sf.frob.com> <Pine.LNX.4.44.0302082049420.4686-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0302082049420.4686-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Feb 08, 2003 at 08:51:05PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Sat, Feb 08, 2003 at 08:51:05PM -0800, Linus Torvalds wrote:
+> On Sat, 8 Feb 2003, Roland McGrath wrote:
+> >
+> > Here is the patch vs 2.5.59-1.1007 that I am using now.  gdb seems happy.
+> > I have not run a lot of other tests yet.
+> 
+> Looks like kernel threads still go crazy at shutdown. I saw the migration 
+> threads apparently hogging the CPU.
 
-When I turn on 3c509 support in 2.5.59 kernel and try to compile, I get:
+I hope you're aware that alt-sysrq-t has been broken for some time?
 
-gcc -Wp,-MD,drivers/net/.3c509.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe
--mpreferred-stack-boundary=2 -march=k6 -Iinclude/asm-i386/mach-default
--nostdinc -iwithprefix include    -DKBUILD_BASENAME=3c509
--DKBUILD_MODNAME=3c509   -c -o drivers/net/3c509.o drivers/net/3c509.c
-drivers/net/3c509.c: In function `el3_probe':
-drivers/net/3c509.c:479: warning: `__check_region' is deprecated (declared at
-include/linux/ioport.h:111)
-drivers/net/3c509.c: In function `el3_close':
-drivers/net/3c509.c:1083: structure has no member named `edev'
-make[2]: *** [drivers/net/3c509.o] Error 1
-make[1]: *** [drivers/net] Error 2
-make: *** [drivers] Error 2
+include/linux/sched.h:
 
-I'm not able to attach my config file because you'r mailing system rejects the
-mail even when I put the config into body of the message.
+#define TASK_RUNNING            0
+#define TASK_INTERRUPTIBLE      1
+#define TASK_UNINTERRUPTIBLE    2
+#define TASK_STOPPED            4
+#define TASK_ZOMBIE             8
+#define TASK_DEAD               16
 
-Brain
+kernel/sched.c:
 
---------------------------------
-Petr `Brain' Kulhavy
-<brain@artax.karlin.mff.cuni.cz>
-http://artax.karlin.mff.cuni.cz/~brain
-Faculty of Mathematics and Physics, Charles University Prague, Czech Republic
+        static const char * stat_nam[] = { "R", "S", "D", "Z", "T", "W" };
 
----
-Mr. Cole's Axiom:
-        The sum of the intelligence on the planet is a constant; the
-        population is growing.
+fs/proc/array.c:
+
+static const char *task_state_array[] = {
+        "R (running)",          /*  0 */
+        "S (sleeping)",         /*  1 */
+        "D (disk sleep)",       /*  2 */
+        "T (stopped)",          /*  8 */
+        "Z (zombie)",           /*  4 */
+        "X (dead)"              /* 16 */
+};
+
+So, for one more time, here's another mailing of the same patch to fix
+this brokenness.  In addition, we fix the wrong comment in fs/proc/array.c
+
+--- orig/kernel/sched.c	Sun Feb  9 09:16:31 2003
++++ linux/kernel/sched.c	Sun Feb  9 09:23:44 2003
+@@ -2037,7 +2037,7 @@
+ 	unsigned long free = 0;
+ 	task_t *relative;
+ 	int state;
+-	static const char * stat_nam[] = { "R", "S", "D", "Z", "T", "W" };
++	static const char * stat_nam[] = { "R", "S", "D", "T", "Z", "W" };
+ 
+ 	printk("%-13.13s ", p->comm);
+ 	state = p->state ? __ffs(p->state) + 1 : 0;
+--- orig/fs/proc/array.c	Sun Feb  9 09:17:36 2003
++++ linux/fs/proc/array.c	Sun Feb  9 09:26:00 2003
+@@ -126,8 +126,8 @@
+ 	"R (running)",		/*  0 */
+ 	"S (sleeping)",		/*  1 */
+ 	"D (disk sleep)",	/*  2 */
+-	"T (stopped)",		/*  8 */
+-	"Z (zombie)",		/*  4 */
++	"T (stopped)",		/*  4 */
++	"Z (zombie)",		/*  8 */
+ 	"X (dead)"		/* 16 */
+ };
+ 
 
 
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,24 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129696AbRBSSIO>; Mon, 19 Feb 2001 13:08:14 -0500
+	id <S129458AbRBSS1k>; Mon, 19 Feb 2001 13:27:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130730AbRBSSIE>; Mon, 19 Feb 2001 13:08:04 -0500
-Received: from alto.i-cable.com ([210.80.60.4]:4233 "EHLO alto.i-cable.com")
-	by vger.kernel.org with ESMTP id <S129696AbRBSSHu>;
-	Mon, 19 Feb 2001 13:07:50 -0500
-Message-ID: <3A91611F.8082FEC5@hkicable.com>
-Date: Tue, 20 Feb 2001 02:08:31 +0800
-From: Thomas Lau <lkthomas@hkicable.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac15 i586)
-X-Accept-Language: en
+	id <S129995AbRBSS1a>; Mon, 19 Feb 2001 13:27:30 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:42500 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129458AbRBSS1Q>;
+	Mon, 19 Feb 2001 13:27:16 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200102191826.VAA12894@ms2.inr.ac.ru>
+Subject: Re: MTU and 2.4.x kernel
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Mon, 19 Feb 2001 21:26:38 +0300 (MSK)
+Cc: alan@lxorguk.ukuu.org.uk, roger@kea.GRace.CRi.NZ,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <E14UfN9-000279-00@the-village.bc.nu> from "Alan Cox" at Feb 19, 1 01:44:12 am
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: where can I found AMD k6-2+ optimized gcc ?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-anyone have idea?
-I think someone was done before to optimizer AMD K6-2+ CPU in gcc patch.
+Hello!
 
+> We are implementing an IP stack.
+
+Alan, please, tell me what is wrong. And we will repair this.
+
+The implementation follows RFCs and even relaxes their requirements
+in the cases, when they are far from reality.
+
+Alexey

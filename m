@@ -1,87 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVALQrm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVALQts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261248AbVALQrm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 11:47:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVALQrm
+	id S261250AbVALQts (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 11:49:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbVALQtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 11:47:42 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:33810 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261248AbVALQri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 11:47:38 -0500
-Date: Wed, 12 Jan 2005 17:47:29 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       David Lang <dlang@digitalinsight.com>, Jesper Juhl <juhl-lkml@dif.dk>,
-       Andries Brouwer <aebr@win.tue.nl>, Linus Torvalds <torvalds@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make uselib configurable (was Re: uselib()  & 2.6.X?)
-Message-ID: <20050112164729.GJ29578@stusta.de>
-References: <20050111235907.GG2760@pclin040.win.tue.nl> <Pine.LNX.4.61.0501120203510.2912@dragon.hygekrogen.localhost> <Pine.LNX.4.60.0501111714450.18921@dlang.diginsite.com> <20050111223641.GA27100@logos.cnet> <20050112023218.GF4325@ip68-4-98-123.oc.oc.cox.net> <20050112005647.GB27653@logos.cnet> <20050112061043.GG4325@ip68-4-98-123.oc.oc.cox.net>
+	Wed, 12 Jan 2005 11:49:47 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:65154 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261250AbVALQtp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 11:49:45 -0500
+Date: Wed, 12 Jan 2005 16:49:06 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       torvalds@osdl.org, ak@muc.de, hugh@veritas.com, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org
+Subject: Re: page table lock patch V15 [0/7]: overview
+Message-ID: <20050112164906.GA4935@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Christoph Lameter <clameter@sgi.com>, Andrew Morton <akpm@osdl.org>,
+	Nick Piggin <nickpiggin@yahoo.com.au>, torvalds@osdl.org, ak@muc.de,
+	hugh@veritas.com, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
+	linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+References: <Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org> <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0412011545060.5721@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0501041129030.805@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0501041137410.805@schroedinger.engr.sgi.com> <m1652ddljp.fsf@muc.de> <Pine.LNX.4.58.0501110937450.32744@schroedinger.engr.sgi.com> <41E4BCBE.2010001@yahoo.com.au> <20050112014235.7095dcf4.akpm@osdl.org> <Pine.LNX.4.58.0501120833060.10380@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050112061043.GG4325@ip68-4-98-123.oc.oc.cox.net>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.LNX.4.58.0501120833060.10380@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 10:10:43PM -0800, Barry K. Nathan wrote:
-> On Tue, Jan 11, 2005 at 10:56:47PM -0200, Marcelo Tosatti wrote:
-> > Out of curiosity do you have a list of such syscalls?
-> 
-> Not yet. I wasn't expecting to need the list quite this soon.
-> 
-> > "usually" is the problem - you cannot be sure what syscalls unknown
-> > applications are using. 
-> [snip]
-> > > And if you have programs that need it, you (or your vendor) can set the
-> > > config option accordingly.
-> > 
-> > The possibility is that there might be unknown applications which use
-> > these "obsolete" system calls. 
-> 
-> True, but I would expect to see a strong correlation between the use of
-> "obsolete" syscalls and the use of "obsolete" libraries (libc4, libc5).
-> Until there's a list of obsolete syscalls, we can't say for sure,
-> though.
->...
+On Wed, Jan 12, 2005 at 08:39:21AM -0800, Christoph Lameter wrote:
+> The future is in higher and higher SMP counts since the chase for the
+> higher clock frequency has ended. We will increasingly see multi-core
+> cpus etc. Machines with higher CPU counts are becoming common in business.
 
-The only interesting correlation are system calls that are _only_ used 
-by libc4/libc5 applications.
-
-> > I personally dont like the idea of disabling "obsolete" system calls
-> > with config options, but it is useful for specialized applications to
-> > save memory. 
-> > 
-> > Are many users going to benefit from it?
-> 
-> It's going to be hard to tell without full-blown code to examine and
-> test, but my hope is that it will be able to disable something
-> substantial for people who have completely abandoned libc4/libc5. And
-> that's many users.
-> 
-> Even if the final patch is unable to benefit many users, perhaps the
-> process of creating that patch will still be worth it if it gives us a
-> better idea of which syscalls are being used and which ones aren't.
-
-Make such a patch, test it thoroughly and then send it here for review.
-
-It can't be guaranteed that your patch will be accepted, but as soon as 
-you'll present the patch the discussion will become more flesh.
-
-> -Barry K. Nathan <barryn@pobox.com>
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+An they still are absolutely in the minority.  In fact with multicore
+cpus it becomes more and more important to be fast for SMP systtems with
+a _small_ number of CPUs, while really larget CPUs will remain a small
+nische for the forseeable future.
 

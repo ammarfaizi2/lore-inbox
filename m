@@ -1,57 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135609AbRAJVE5>; Wed, 10 Jan 2001 16:04:57 -0500
+	id <S136421AbRAJVFI>; Wed, 10 Jan 2001 16:05:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136421AbRAJVEh>; Wed, 10 Jan 2001 16:04:37 -0500
-Received: from think.faceprint.com ([166.90.149.11]:22024 "EHLO
-	think.faceprint.com") by vger.kernel.org with ESMTP
-	id <S135609AbRAJVEe>; Wed, 10 Jan 2001 16:04:34 -0500
-Message-ID: <3A5CCD62.A5D0C90D@faceprint.com>
-Date: Wed, 10 Jan 2001 16:00:18 -0500
-From: Nathan Walp <faceprint@faceprint.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac4 i686)
-X-Accept-Language: en
+	id <S136437AbRAJVE6>; Wed, 10 Jan 2001 16:04:58 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:12672 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S136420AbRAJVEh>; Wed, 10 Jan 2001 16:04:37 -0500
+Date: Wed, 10 Jan 2001 15:52:19 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Jonathan Earle <jearle@nortelnetworks.com>
+cc: "'Linux Kernel List'" <linux-kernel@vger.kernel.org>,
+        "'Linux Network List'" <linux-net@vger.kernel.org>
+Subject: Re: Porting network driver to 2.4.0
+In-Reply-To: <28560036253BD41191A10000F8BCBD116BDC78@zcard00g.ca.nortel.com>
+Message-ID: <Pine.LNX.3.95.1010110155123.14197A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Hans Grobler <grobh@sun.ac.za>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Oops in 2.4.0-ac5
-In-Reply-To: <Pine.LNX.4.30.0101102243010.30013-100000@prime.sun.ac.za>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Grobler wrote:
-> 
-> On Wed, 10 Jan 2001, Nathan Walp wrote:
-> > Here it is... I opted to cut out the 1200-odd warnings, which from the
-> > look of them were all because i'm running it under 2.4.0-ac4 (which
-> > boots fine).
-> 
-> Thanks! My local mirror does not have -ac5 yet so I can't help
-> immediately. From the -ac5 log & the oops it looks as if Ingo's change
-> isn't quite complete yet...
-> 
->   o       Uniprocessor APIC support/NMI wdog etc          (Ingo Molnar)
-> 
-> Until then, what about disabling APIC support and trying again. This
-> will help confirm it... although it looks pretty definite.
-> 
-> -- Hans
+On Wed, 10 Jan 2001, Jonathan Earle wrote:
 
-I noticed (and was told by someone else) that it was APIC related.  I
-looked, and realized that IO-APIC got selected between my compiles of
-ac4 and ac5.  I recompiled ac5 w/o the IO-APIC stuff, and still got an
-oops.  So, i recompiled without ANY APIC stuff, and it booted fine, but
-then had the same problems I was having w/ 2.4.1-pre1 related to X and
-(maybe) the framebuffer.  But that's a whole different story that I
-think has been brought up in another thread.
+> Hey all,
+> 
+> Still working with kernel 2.4.0-test9 (other things we use require it for
+> now), and I was looking at a driver for a Znyx zx346q network card that I
+> grabbed from the znyx.com website.  The driver is for a 2.2.x kernel, but
+> figuring I'd try it anyway, downloaded and tried to build it.  It choked on
+> three struct net_device entries which are no longer present:
+>                                                   
+> zxe.c:1200: structure has no member named `tbusy'
+> zxe.c:1201: structure has no member named `interrupt'
+> zxe.c:1202: structure has no member named `start'
+> ...
+> make[2]: *** [zxe.o] Error 1                              
+> 
+> Where do I go from here?  Is there info somewhere to help with this?  Is
+> this a bigger job than it looks on the surface?
+> 
+> Cheers!
+> Jon
 
-Guess I'm back to -ac4 for now ;-)
+You may be lucky. Comment out all references to those structure members
+and see if it works!
 
 
-Thanks,
-Nathan
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270633AbTGUS3B (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 14:29:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270634AbTGUS3B
+	id S270634AbTGUSaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 14:30:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270637AbTGUSaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 14:29:01 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:27348
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S270633AbTGUS3A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 14:29:00 -0400
-Date: Mon, 21 Jul 2003 14:44:00 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: ole.rohne@cern.ch, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 8390too, radeonfb support
-Message-ID: <20030721184400.GA32754@gtf.org>
-References: <20030720213014.GA810@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030720213014.GA810@elf.ucw.cz>
-User-Agent: Mutt/1.3.28i
+	Mon, 21 Jul 2003 14:30:09 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:21393 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S270634AbTGUSaB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 14:30:01 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: nick black <dank@suburbanjihad.net>
+Date: Mon, 21 Jul 2003 20:44:29 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: 2.6.0-test1 + matroxfb = unuusable VC
+Cc: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <7E1E5890331@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 20, 2003 at 11:30:14PM +0200, Pavel Machek wrote:
-> Hi!
+On 21 Jul 03 at 14:33, nick black wrote:
+> Petr Vandrovec assumed the extended riemann hypothesis and showed:
+> > I do not think that it has anything to do with AGP, as matroxfb does not
+> > initiate any AGP transfers. 
 > 
-> Ole put some patches on his webpage. I ported them to
-> 2.6.0-test1. Could someone who has hardware test them/push them to
-> linus?
+> indeed, the issue would only happen after switching from x back to
+> console.  regardless, not building agp worked aorund the 2.4 problem for
+> me.
 
-Please push net driver patches to the net driver maintainer, who has
-already applied the simple 8139too-refrigerator patch.
+In this case, does it happen if you exit X, or only if you are switching
+to the console while X are active? If it happens only in second case, then
+it is bug (I believe fixed long ago) in XFree mga driver: it was sometime
+reprogramming color depth and line length in the accelerator even when
+inactive (Gnome1 clock applet running in top right corner was known to
+trigger this, depending on clock settings matroxfb would cease to
+work in one second or (up to) one minute after VT switch, depending on clock
+applet setting... it is possible that it happened only with kernel mga dri
+driver active, but I'm not 100% sure).
 
-	Jeff
-
-
+I know no other workaround than using same color depth and same xres_virtual
+(vxres on fbdev & desktop width in X) in X and on the console.
+                                                    Best regards,
+                                                        Petr Vandrovec
+                                                        vandrove@vc.cvut.cz
+                                                        
 

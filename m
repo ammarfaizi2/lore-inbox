@@ -1,88 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVAHN2o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVAHNmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbVAHN2o (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 08:28:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVAHN2o
+	id S261159AbVAHNmH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 08:42:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbVAHNmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 08:28:44 -0500
-Received: from gprs215-164.eurotel.cz ([160.218.215.164]:63360 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261165AbVAHN1f (ORCPT
+	Sat, 8 Jan 2005 08:42:07 -0500
+Received: from mproxy.gmail.com ([216.239.56.241]:64197 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261159AbVAHNmE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 08:27:35 -0500
-Date: Sat, 8 Jan 2005 14:27:18 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       John Stultz <johnstul@us.ibm.com>, David Shaohua <shaohua.li@intel.com>
-Subject: Re: Patch 3/3: Reduce number of get_cmos_time_calls.
-Message-ID: <20050108132718.GD7363@elf.ucw.cz>
-References: <1105176732.5478.20.camel@desktop.cunninghams> <1105177308.5478.43.camel@desktop.cunninghams>
+	Sat, 8 Jan 2005 08:42:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=hLGtuTLUzAP+M1z21jyrYQC3fAG7IYGhdGOUcBoHcbF2XNL9SneoJ/doaG9miPNc9bglUjrnByljguNJ7eB2LHvvqUwHavc0Uy2DBW35Rot2gXzsXvqsDoVAmS/W+gpRU9iDnFnTLqKUEAD0iwuwaH88Y8P5D35oNQP0s+ndXPY=
+Message-ID: <21d7e99705010805424ec16550@mail.gmail.com>
+Date: Sun, 9 Jan 2005 00:42:03 +1100
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Benoit Boissinot <bboissin@gmail.com>
+Subject: Re: 2.6.10-mm2
+Cc: Andrew Morton <akpm@osdl.org>, Mike Werner <werner@sgi.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <40f323d00501080427f881c68@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105177308.5478.43.camel@desktop.cunninghams>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050106002240.00ac4611.akpm@osdl.org>
+	 <40f323d005010701395a2f8d00@mail.gmail.com>
+	 <21d7e99705010718435695f837@mail.gmail.com>
+	 <40f323d00501080427f881c68@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> > >
+> > > [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
+> > >
+> > > [drm:drm_unlock] *ERROR* Process 10657 using kernel context 0
+> > >
+> >
+> > this looks like the agp backend isn't loading, Mike sent me parts of
+> > your .config but I lost the mail (don't drink and read e-mail...)
+> >
+> 
 
-> Create new __get_cmos_time patch, which doesn't wait for the start of a
-> new second before returning. Adjust timer_suspend to use this as we
-> don't appear to need the exact start of a second when suspending.
+it looks like agp_backend_acquire is returning NULL in this case, 
+[drm:drm_ioctl] pid=10587, cmd=0x6430, nr=0x30, dev 0xe200, auth=1
+[drm:drm_ioctl] ret = ffffffed
+is the agp acquire ioctl and the return is -ENODEV 
 
-Basically nice cleanup. I do not know if this does not mean up-to
-second error in clock for each suspend/resume?
+Any ideas Mike why that might happen?
 
-> --- 913-old/arch/x86_64/kernel/time.c	2004-12-10 14:27:08.000000000 +1100
-> +++ 913-new/arch/x86_64/kernel/time.c	2005-01-08 19:39:24.664278320 +1100
-> @@ -499,11 +499,56 @@ unsigned long long sched_clock(void)
->  	return cycles_2_ns(a);
->  }
->  
-> +unsigned long __get_cmos_time(void)
-> +{
-
-Missing static?
-
-> +
-> +	/*
-> +	 * Do we need the spinlock in here too?
-> +	 *
-> +	 * If we're called directly (not via get_cmos_time),
-> +	 * we're in the middle of a sysdev suspend/resume
-> +	 * and interrupts are disabled, so this 
-> +	 * should be safe without any locking.
-> +	 * 				-- NC
-> +	 */
-
-I'd say "Caller is responsible for locking"... and explain this in
-caller. Also do not sign comments.
-
-> +	do {
-> +		sec = CMOS_READ(RTC_SECONDS);
-> +		min = CMOS_READ(RTC_MINUTES);
-> +		hour = CMOS_READ(RTC_HOURS);
-> +		day = CMOS_READ(RTC_DAY_OF_MONTH);
-> +		mon = CMOS_READ(RTC_MONTH);
-> +		year = CMOS_READ(RTC_YEAR);
-> +	} while (sec != CMOS_READ(RTC_SECONDS));
-> +
-> +	/*
-> +	 * We know that x86-64 always uses BCD format, no need to check the config
-> +	 * register.
-> +	 */
-> +
-> +	    BCD_TO_BIN(sec);
-> +	    BCD_TO_BIN(min);
-> +	    BCD_TO_BIN(hour);
-> +	    BCD_TO_BIN(day);
-> +	    BCD_TO_BIN(mon);
-> +	    BCD_TO_BIN(year);
-
-Whitespace damage?
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Dave.

@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286288AbRLTX4N>; Thu, 20 Dec 2001 18:56:13 -0500
+	id <S286291AbRLTXzn>; Thu, 20 Dec 2001 18:55:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286480AbRLTX4E>; Thu, 20 Dec 2001 18:56:04 -0500
-Received: from kaboom.dsl.xmission.com ([166.70.87.226]:35237 "EHLO
-	mail.oobleck.net") by vger.kernel.org with ESMTP id <S286476AbRLTXz5>;
-	Thu, 20 Dec 2001 18:55:57 -0500
-Date: Thu, 20 Dec 2001 16:55:55 -0700 (MST)
-From: Chris Ricker <kaboom@gatech.edu>
-Reply-To: Chris Ricker <kaboom@gatech.edu>
-To: Troels Walsted Hansen <troels@thule.no>
-Cc: "'David S. Miller'" <davem@redhat.com>,
-        World Domination Now! <linux-kernel@vger.kernel.org>
-Subject: RE: Scheduler ( was: Just a second ) ...
-In-Reply-To: <007401c189a7$50f6cd60$0300000a@samurai>
-Message-ID: <Pine.LNX.4.33.0112201651370.26999-100000@verdande.oobleck.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286480AbRLTXzd>; Thu, 20 Dec 2001 18:55:33 -0500
+Received: from ns01.netrox.net ([64.118.231.130]:44263 "EHLO smtp01.netrox.net")
+	by vger.kernel.org with ESMTP id <S286291AbRLTXzV>;
+	Thu, 20 Dec 2001 18:55:21 -0500
+Subject: Re: Slight optimizations to entry.S patch
+From: Robert Love <rml@tech9.net>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Alex <akhripin@mit.edu>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.40.0112201443480.1622-100000@blue1.dev.mcafeelabs.com>
+In-Reply-To: <Pine.LNX.4.40.0112201443480.1622-100000@blue1.dev.mcafeelabs.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
+Date: 20 Dec 2001 18:55:23 -0500
+Message-Id: <1008892525.938.14.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Dec 2001, Troels Walsted Hansen wrote:
+On Thu, 2001-12-20 at 17:47, Davide Libenzi wrote:
 
-> >From: David S. Miller
-> >   From: Linus Torvalds <torvalds@transmeta.com>
-> >   Well, that was true when the thing was written, but whether anybody
-> _uses_
-> >   it any more, I don't know. Tux gets the same effect on its own, and
-> I
-> >   don't know if Apache defaults to using sendfile or not.
-> >   
-> >Samba uses it by default, that I know for sure :-)
-> 
-> I wish... Neither Samba 2.2.2 nor the bleeding edge 3.0alpha11 includes
-> the word "sendfile" in the source at least. :( Wonder why the sendfile
-> patches where never merged...
+> The first page of your x86 book starts talking about read-after-write
+> pipeline stall ? Damn what a book :)
 
-The only real-world source I've noticed actually using sendfile() are some
-of the better ftp daemons (such as vsftpd).
+Haha, he actually did help w.r.t to that ... good patch.  Sure, its
+micro optimizations but not in any bad sense.  If it works, submit it.
 
-later,
-chris
+I'll try it out on my next reboot.
 
--- 
-Chris Ricker                                               kaboom@gatech.edu
-
-This is a dare to the Bush administration.
-        -- Thurston Moore
-
+	Robert Love
 

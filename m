@@ -1,154 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293089AbSCOShK>; Fri, 15 Mar 2002 13:37:10 -0500
+	id <S293092AbSCOSju>; Fri, 15 Mar 2002 13:39:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293088AbSCOShC>; Fri, 15 Mar 2002 13:37:02 -0500
-Received: from cm.med.3284844210.kabelnet.net ([195.202.190.178]:2998 "EHLO
-	phobos.hvrlab.org") by vger.kernel.org with ESMTP
-	id <S293082AbSCOSgw>; Fri, 15 Mar 2002 13:36:52 -0500
-Subject: Re: 2.4.19pre3aa2
-From: Herbert Valerio Riedel <hvr@hvrlab.org>
-To: Jari Ruusu <jari.ruusu@pp.inet.fi>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org, linux-crypto@nl.linux.org
-In-Reply-To: <3C923120.B3AF105E@pp.inet.fi>
-In-Reply-To: <20020314032801.C1273@dualathlon.random> 
-	<3C912ACF.AF3EE6F0@pp.inet.fi>
-	<1016194785.5713.200.camel@janus.txd.hvrlab.org> 
-	<3C923120.B3AF105E@pp.inet.fi>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-y+DSGB1VglYtkynIMvf+"
-X-Mailer: Evolution/1.0.2 
-Date: 15 Mar 2002 19:36:36 +0100
-Message-Id: <1016217396.5595.279.camel@janus.txd.hvrlab.org>
+	id <S293088AbSCOSjc>; Fri, 15 Mar 2002 13:39:32 -0500
+Received: from bitmover.com ([192.132.92.2]:11985 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S293075AbSCOSjQ>;
+	Fri, 15 Mar 2002 13:39:16 -0500
+Date: Fri, 15 Mar 2002 10:39:14 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4 and BitKeeper
+Message-ID: <20020315103914.M29887@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3C90E994.2030702@candelatech.com> <3C90E994.2030702@candelatech.com> <2865.1016190641@redhat.com> <20020315080408.D11940@work.bitmover.com> <a6tcnf$shg$1@penguin.transmeta.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <a6tcnf$shg$1@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Mar 15, 2002 at 05:58:07PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Mar 15, 2002 at 05:58:07PM +0000, Linus Torvalds wrote:
+> In article <20020315080408.D11940@work.bitmover.com>,
+> Larry McVoy  <lm@bitmover.com> wrote:
+> >
+> >Has anyone done this and made it work?  It would save a lot of disk space
+> >and performance if someone were to so.
+> 
+> Hey, the _sane_ way to do it is to not have all those crappy SCCS
+> dependencies in all the tools, but to simply make a bk work area be a
+> real file tree!
 
---=-y+DSGB1VglYtkynIMvf+
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+That is *a* sane way to do it and I'm fine with that.  But just because
+you like things to work that way does not mean we will disallow the
+other way.  I *like* the way SCCS works, I can do a "make clobber",
+which nukes all my .o's and does a "bk clean" and do a "ls" to see what
+crud I have left.  I personally like going to a tree that has nothing
+but subdirectories in it, typing making, and having it do the right thing.
 
-hello!
+Neither I nor anyone else will force this mode of working on you.  Not now,
+not ever.  You, in turn, get to respect that some people like this mode and
+accept that it is going to remain one of the ways you can use BK forever.
 
-On Fri, 2002-03-15 at 18:36, Jari Ruusu wrote:
-> > /* definitions for IV metric */
-> > #define LOOP_IV_SECTOR_BITS 9
-> > #define LOOP_IV_SECTOR_SIZE (1 << LOOP_IV_SECTOR_BITS)
-> >=20
-> > typedef int loop_iv_t;
+> Larry, your argument that there are tools that are SCCS-aware is just
+> not sane. 
 
-> Not changing IV parameter type in 2.4 kernels is important. Break that in
-> 2.5/2.6 kernels, but not in stable 2.4, ok?=20
+I want to be really really clear on this.  I'm not saying that because some
+tools know this, that's how it should be.  I'm saying that I, and at least
+some other people, find that mode of operation useful.  It's not going away.
 
-if you look closely at the typedef above, you'll notice that it doesn't
-introduce a _new_ type, but only a synonym for the 'int' type, which
-happens to be the type used in 2.4 kernels...
+That said, watch the changes that we are making and you'll see that we
+keep enhancing / bugfixing the ability to run your tree in checkout:get
+or checkout:edit mode, one of our customers has made some changes which
+seem to actually respect timestamps in an error free way so that you
+can run checkout:edit and not suffer the performance problems and also
+not lose data because of NFS/SMB timestamp issues.  All that stuff is
+actively being hacked on right now.
 
-typedef int (* transfer_proc_t)(struct loop_device *, int cmd,
-                                char *raw_buf, char *loop_buf, int size,
-                                int real_block);
+In addition, our bug database is going to *force* us to offer what you
+want as an option.  LINUS, READ THIS PART.  The bug database uses a
+file as a container for each bug.  That means that a query is as slow
+as an integrity check, and that obviously doesn't scale.  While we can,
+and will, add indices to the bug database to address this, we are also
+addressing it by making a version of the software that stores the s.files
+in what amounts to an "ar" archive, so you can mmap that once and be
+done with it (as with everything, this is a simplification, there are
+actually multiple ar archives which are searched in most recent to least
+recent order so you don't rewrite the whole 170MB repository to make a
+one line fix).
 
-what I'm trying to do by the introduction of this _aesthetic_ syntactic
-element, is to prepare the way to smoothly upgrade the type used for the
-IV value; and more important to keep filter modules from having to add=20
-ugly #ifdef LINUX_VERSION_CODE <=3D KERNEL(2,X,Y)... just for changes
-which could be catched by kernel headers...
+All this means is that the decision to make the bug database a BK
+repository is exactly the right one from your point of view, Linus.
+It means we have to have a mode where there are no s.files, no SCCS
+directories, and it all still works.  And since we're reasonable 
+people, we'll all you to decide on a repository by repository basis
+what mode you want, so I can have my precious SCCS directories and
+make behaviour, and you can get rid of your awful SCCS directories
+and insane make behaviour.
 
-have you ever wondered, why even the C standard defines some typedefs as
-size_t instead of using just a 'long'?
+> Right now simple things like command-line completion and
+> 
+> 	find . -name '*.[chS]' | xargs grep xxxx
+> 
+> do not work, because they either don't find files or they find the wrong
+> ones (the internal bitkeeper files etc). 
 
-> Older 2.4 kernels dont't have
-> loop_iv_t, and being able to compile _existing_ modules for them is
-> important.=20
-as older kernels will likely have the variable-IV-metric, they'll have
-to be patched anyway (loop.[ch]), and after having patched them, the
-problem vanishes...
+Try
 
+	bk -r grep xxxx
 
->> ps: just to make one thing clear (again), I don't care too much whether
->> my loop-fix or jari's goes in; I primarily care for a fixed IV situation
->> (including the above mentioned #define's/typedef) and if possible anyhow
->> to allow for limited compatibility to the old metric...
-> So the choice here is either break (or at least cause need to modify) all
-> other implementations or cryptoapi implementation.
-actually it's just -- either make my life harder w/ cryptoapi or not, as
-it doesn't affect other implementations; but other implementations may
-start to use those typedefs in the future, so when 2.6 (or whatever
-comes out) the 'current' 2.6 has them already, and the 'ultra-stable'
-2.4's will have them as well... and maybe everybody is happy, that he
-can compile the same c source against both, 2.4 and 2.6, loop.h and
-still get a correct filter module...
-
-> Herbert, if this loop_iv_t type goes into mainline kernel, I will have to
-> reverse that on loop-AES patches for backward compatibility.
-I don't see why... loop_iv_t is just a 'reviced-declarator-type-list
-int', i.e. it is is type compatible w/ an 'int'... so you won't even
-notice the difference when compiling loop-AES against it...
-=20
-> Dependency on above mentioned #define's/typedef on kernel include files i=
-s
-> silly, as cryptoapi can define them on any of its own include files.
-yeah, sure... at the expense of having to redundantly keep track (ugly
-#ifdef's) of which kernel version is being used...
-
-another reason I haven't mentioned so far is about the #define's;
-
-#define LOOP_IV_SECTOR_BITS 9
-#define LOOP_IV_SECTOR_SIZE (1 << LOOP_IV_SECTOR_BITS)
-
-...if you don't see any reason for those 2 innocent #define then you
-won't see any reason for other #define in the kernel headers as well;
-e.g.:
-
-fs.h:
-#define BLOCK_SIZE_BITS 10
-#define BLOCK_SIZE (1<<BLOCK_SIZE_BITS)
-
-you may ask why those are used, since they are hardcoded anyway... well,
-lemme show you an example where this would considerably help:
-
-loop.c:
-static unsigned long compute_loop_size(struct loop_device *lo, struct
-dentry * lo_dentry, kdev_t lodev)
-{
-        if (S_ISREG(lo_dentry->d_inode->i_mode))
-                return (lo_dentry->d_inode->i_size - lo->lo_offset) >> BLOC=
-K_SIZE_BITS;
-        if (blk_size[MAJOR(lodev)])
-                return blk_size[MAJOR(lodev)][MINOR(lodev)] -
-                                (lo->lo_offset >> BLOCK_SIZE_BITS);
-        return MAX_DISK_SIZE;
-}
-
-and now imagine the same source fragment, with the #define's
-evaluated... wouldn't that be less self-explaining?
-
-well, I hope I could make clear to you, why using symbolic constants and
-the use of typedefs in C are good practice in general wrt software
-engineering...
-
-regards,
---=20
-Herbert Valerio Riedel       /    Phone: (EUROPE) +43-1-58801-18840
-Email: hvr@hvrlab.org       /    Finger hvr@gnu.org for GnuPG Public Key
-GnuPG Key Fingerprint: 7BB9 2D6C D485 CE64 4748  5F65 4981 E064 883F
-4142
-
---=-y+DSGB1VglYtkynIMvf+
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8kj80SYHgZIg/QUIRAgSbAKCq8MeABYcEmfCEDoGPmvda8ggP/QCginXM
-edUfJD7SrhcS+yaSDe1FrG4=
-=kIEP
------END PGP SIGNATURE-----
-
---=-y+DSGB1VglYtkynIMvf+--
-
+One gotcha, and we'll fix this now that I think of it, is that this only
+greps the revision history.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317219AbSEXQc6>; Fri, 24 May 2002 12:32:58 -0400
+	id <S317218AbSEXQgG>; Fri, 24 May 2002 12:36:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317218AbSEXQc5>; Fri, 24 May 2002 12:32:57 -0400
-Received: from [209.184.141.163] ([209.184.141.163]:39344 "HELO UberGeek")
-	by vger.kernel.org with SMTP id <S317217AbSEXQcx>;
-	Fri, 24 May 2002 12:32:53 -0400
-Subject: Re: Recent kernel SMP scalability Benchmark/White-paper References.
+	id <S317220AbSEXQgF>; Fri, 24 May 2002 12:36:05 -0400
+Received: from [209.184.141.163] ([209.184.141.163]:33971 "HELO UberGeek")
+	by vger.kernel.org with SMTP id <S317218AbSEXQgE>;
+	Fri, 24 May 2002 12:36:04 -0400
+Subject: Re: It hurts when I shoot myself in the foot
 From: Austin Gonyou <austin@digitalroadkill.net>
-To: Hanna V Linder <hannal@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <345429561.1022195743@[10.10.2.2]>
+To: Kasper Dupont <kasperd@daimi.au.dk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CEE5DFB.985EFF6E@daimi.au.dk>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
 X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 24 May 2002 11:32:46 -0500
-Message-Id: <1022257966.9619.21.camel@UberGeek>
+Date: 24 May 2002 11:36:00 -0500
+Message-Id: <1022258160.9600.24.camel@UberGeek>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 2002-05-24 at 01:15, Hanna V Linder wrote:
-
-> > documentation out there hadn't been updated in quite some time as well.
+On Fri, 2002-05-24 at 10:36, Kasper Dupont wrote:
+> Alan Cox wrote:
+> > 
+> > > If the kernel knew multipliers couldn't it actually use the TSCs
+> > > anyway? Of course it would take some work, but is there any
+> > > reason why it would not be posible?
+> > 
+> > In 2.4 yes. In 2.5 it would be close to impossible due to the pre-empt code
 > 
-> I have updated some 8-way kernel comparisons running dbench as recently
-> as a couple weeks ago. Although, I do not know of any specific
-> Linux(TM) vs Solaris(TM) benchmark results on the lse web site. ;)
-> What benchmark would reflect your workload?
+> Couldn't that be solved in one of the following ways?
 > 
-
-Kewl again. I didn't see them, but thanks anyway. I'll check them out. 
-
-
-> Speaking of OLS, Is there any interest in an lse-tech BOF or get-
-> to-gether of some sort in Ottawa this summer? It would be nice
-> to put some more faces to names from the conference calls.
+> 1) Disable pre-emption while reading TSC and CPU nr.
+> 2) Use affinity for processes pre-empted in kernel mode.
+> 3) Disable pre-emption for SMP systems.
 > 
-I wish. My company doesn't *send* me anywhere. :)
+Sorry to chime in on this if it isn't appreciated, but wouldn't #3 open
+some old wounds again? It seems that it would FMPOV. 
 
-One last question for the list. Is there a recent 2.2.x vs. 2.4.x SMP
-kernel comparison available as well? Recent can be as much as 9-10 mo
-ago, preferably younger though.
-
+Austin
 

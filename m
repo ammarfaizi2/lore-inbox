@@ -1,286 +1,179 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261898AbSIYD1x>; Tue, 24 Sep 2002 23:27:53 -0400
+	id <S261888AbSIYDfb>; Tue, 24 Sep 2002 23:35:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261893AbSIYD0C>; Tue, 24 Sep 2002 23:26:02 -0400
-Received: from dp.samba.org ([66.70.73.150]:48768 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261900AbSIYDQr>;
+	id <S261894AbSIYDYS>; Tue, 24 Sep 2002 23:24:18 -0400
+Received: from dp.samba.org ([66.70.73.150]:44928 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261893AbSIYDQr>;
 	Tue, 24 Sep 2002 23:16:47 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
 To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Module rewrite 9/20: x86 module support
-Date: Wed, 25 Sep 2002 13:02:27 +1000
-Message-Id: <20020925032201.DA4DC2C155@lists.samba.org>
+Subject: [PATCH] Module rewrite 15/20: Forced Unload Support
+Date: Wed, 25 Sep 2002 13:18:53 +1000
+Message-Id: <20020925032201.B2EAB2C134@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Name: New Module Loader Base: x86 support
+Name: Forced Module Unload
 Author: Rusty Russell
-Status: Tested on 2.5.27
-Depends: Module/modbase-try.patch.gz
+Status: Experimental
+Depends: Module/module-license.patch.gz
 
-D: This patch provides basic x86 support for modules.
+D: Allows the (very dangerous!) "rmmod -f" for kernel developers and
+D: desperate people.  It is currently under CONFIG_DEBUG_KERNEL, but it
+D: could be moved out.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .916-linux-2.5.38/arch/i386/kernel/Makefile .916-linux-2.5.38.updated/arch/i386/kernel/Makefile
---- .916-linux-2.5.38/arch/i386/kernel/Makefile	2002-09-21 13:55:07.000000000 +1000
-+++ .916-linux-2.5.38.updated/arch/i386/kernel/Makefile	2002-09-23 10:41:45.000000000 +1000
-@@ -26,6 +26,7 @@ obj-$(CONFIG_X86_LOCAL_APIC)	+= apic.o n
- obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o
- obj-$(CONFIG_SOFTWARE_SUSPEND)	+= suspend.o
- obj-$(CONFIG_X86_NUMAQ)		+= numaq.o
-+obj-$(CONFIG_MODULES)		+= module.o
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .10910-linux-2.5.38/arch/i386/Config.help .10910-linux-2.5.38.updated/arch/i386/Config.help
+--- .10910-linux-2.5.38/arch/i386/Config.help	2002-09-18 16:04:37.000000000 +1000
++++ .10910-linux-2.5.38.updated/arch/i386/Config.help	2002-09-25 02:00:14.000000000 +1000
+@@ -976,3 +976,10 @@ CONFIG_SOFTWARE_SUSPEND
+   absence of features.
  
- EXTRA_AFLAGS   := -traditional
+   For more information take a look at Documentation/swsusp.txt.
++
++CONFIG_MODULE_FORCE_UNLOAD
++  This option allows you to force a module to unload, even if the
++  kernel believes it is unsafe: the kernel will remove the module
++  without waiting for anyone to stop using it (using the -F option to
++  rmmod).  This is mainly for kernel developers.  In unsure, say N.
++
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .10910-linux-2.5.38/arch/i386/config.in .10910-linux-2.5.38.updated/arch/i386/config.in
+--- .10910-linux-2.5.38/arch/i386/config.in	2002-09-21 13:55:07.000000000 +1000
++++ .10910-linux-2.5.38.updated/arch/i386/config.in	2002-09-25 02:00:14.000000000 +1000
+@@ -436,6 +436,7 @@ if [ "$CONFIG_DEBUG_KERNEL" != "n" ]; th
+    if [ "$CONFIG_HIGHMEM" = "y" ]; then
+       bool '  Highmem debugging' CONFIG_DEBUG_HIGHMEM
+    fi
++   dep_bool '  Forced module removal' CONFIG_MODULE_FORCE_UNLOAD $CONFIG_MODULE_UNLOAD
+ fi
  
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .916-linux-2.5.38/arch/i386/kernel/entry.S .916-linux-2.5.38.updated/arch/i386/kernel/entry.S
---- .916-linux-2.5.38/arch/i386/kernel/entry.S	2002-09-21 13:55:07.000000000 +1000
-+++ .916-linux-2.5.38.updated/arch/i386/kernel/entry.S	2002-09-23 10:41:33.000000000 +1000
-@@ -610,10 +610,10 @@ ENTRY(sys_call_table)
- 	.long sys_adjtimex
- 	.long sys_mprotect	/* 125 */
- 	.long sys_sigprocmask
--	.long sys_create_module
-+	.long sys_ni_syscall	/* old "create_module" */ 
- 	.long sys_init_module
- 	.long sys_delete_module
--	.long sys_get_kernel_syms	/* 130 */
-+	.long sys_ni_syscall	/* 130:	old "get_kernel_syms" */
- 	.long sys_quotactl
- 	.long sys_getpgid
- 	.long sys_fchdir
-@@ -650,7 +650,7 @@ ENTRY(sys_call_table)
- 	.long sys_setresuid16
- 	.long sys_getresuid16	/* 165 */
- 	.long sys_vm86
--	.long sys_query_module
-+	.long sys_ni_syscall	/* Old sys_query_module */
- 	.long sys_poll
- 	.long sys_nfsservctl
- 	.long sys_setresgid16	/* 170 */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .916-linux-2.5.38/arch/i386/kernel/module.c .916-linux-2.5.38.updated/arch/i386/kernel/module.c
---- .916-linux-2.5.38/arch/i386/kernel/module.c	1970-01-01 10:00:00.000000000 +1000
-+++ .916-linux-2.5.38.updated/arch/i386/kernel/module.c	2002-09-23 10:41:33.000000000 +1000
-@@ -0,0 +1,130 @@
-+/*  Kernel module help for i386.
-+    Copyright (C) 2001 Rusty Russell.
-+
-+    This program is free software; you can redistribute it and/or modify
-+    it under the terms of the GNU General Public License as published by
-+    the Free Software Foundation; either version 2 of the License, or
-+    (at your option) any later version.
-+
-+    This program is distributed in the hope that it will be useful,
-+    but WITHOUT ANY WARRANTY; without even the implied warranty of
-+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+    GNU General Public License for more details.
-+
-+    You should have received a copy of the GNU General Public License
-+    along with this program; if not, write to the Free Software
-+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+*/
-+#include <linux/module.h>
-+#include <linux/elf.h>
-+#include <linux/vmalloc.h>
-+#include <linux/fs.h>
-+#include <linux/string.h>
-+#include <linux/kernel.h>
-+
-+#if 0
-+#define DEBUGP printk
+ if [ "$CONFIG_X86_LOCAL_APIC" = "y" ]; then
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .10910-linux-2.5.38/include/linux/kernel.h .10910-linux-2.5.38.updated/include/linux/kernel.h
+--- .10910-linux-2.5.38/include/linux/kernel.h	2002-09-25 01:59:44.000000000 +1000
++++ .10910-linux-2.5.38.updated/include/linux/kernel.h	2002-09-25 02:00:14.000000000 +1000
+@@ -95,6 +95,7 @@ extern const char *print_tainted(void);
+ #define TAINT_PROPRIETORY_MODULE	(1<<0)
+ #define TAINT_FORCED_MODULE		(1<<1)
+ #define TAINT_UNSAFE_SMP		(1<<2)
++#define TAINT_FORCED_RMMOD		(1<<3)
+ 
+ extern void dump_stack(void);
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .10910-linux-2.5.38/init/Config.help .10910-linux-2.5.38.updated/init/Config.help
+--- .10910-linux-2.5.38/init/Config.help	2002-09-25 01:59:50.000000000 +1000
++++ .10910-linux-2.5.38.updated/init/Config.help	2002-09-25 02:00:14.000000000 +1000
+@@ -93,7 +93,7 @@ CONFIG_MODULES
+ 
+ CONFIG_MODULE_UNLOAD
+   Without this option you will not be able to unload any modules (note
+-  that some modules may not be unloadable anyway).  This makes your
++  that some modules may not be unloadable anyway), which makes your
+   kernel slightly smaller and simpler.  If unsure, say Y.
+ 
+ CONFIG_OBSOLETE_MODPARM
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .10910-linux-2.5.38/kernel/module.c .10910-linux-2.5.38.updated/kernel/module.c
+--- .10910-linux-2.5.38/kernel/module.c	2002-09-25 01:59:51.000000000 +1000
++++ .10910-linux-2.5.38.updated/kernel/module.c	2002-09-25 02:01:30.000000000 +1000
+@@ -191,12 +191,24 @@ static void module_unload_free(struct mo
+ /* This exists whether we can unload or not */
+ static void free_module(struct module *mod);
+ 
++#ifdef CONFIG_MODULE_FORCE_UNLOAD
++static inline int try_force(unsigned int flags)
++{
++	return (flags & O_TRUNC);
++}
 +#else
-+#define DEBUGP(fmt , ...)
-+#endif
-+
-+static void *alloc_and_zero(unsigned long size)
-+{
-+	void *ret;
-+
-+	/* We handle the zero case fine, unlike vmalloc */
-+	if (size == 0)
-+		return NULL;
-+
-+	ret = vmalloc(size);
-+	if (!ret) ret = ERR_PTR(-ENOMEM);
-+	else memset(ret, 0, size);
-+
-+	return ret;
-+}
-+
-+/* Free memory returned from module_core_alloc/module_init_alloc */
-+void module_free(struct module *mod, void *module_region)
-+{
-+	vfree(module_region);
-+	/* FIXME: If module_region == mod->init_region, trim exception
-+           table entries. */
-+}
-+
-+void *module_core_alloc(const Elf32_Ehdr *hdr,
-+			const Elf32_Shdr *sechdrs,
-+			const char *secstrings,
-+			struct module *module)
-+{
-+	return alloc_and_zero(module->core_size);
-+}
-+
-+void *module_init_alloc(const Elf32_Ehdr *hdr,
-+			const Elf32_Shdr *sechdrs,
-+			const char *secstrings,
-+			struct module *module)
-+{
-+	return alloc_and_zero(module->init_size);
-+}
-+
-+int apply_relocate(Elf32_Shdr *sechdrs,
-+		   const char *strtab,
-+		   unsigned int symindex,
-+		   unsigned int relsec,
-+		   struct module *me)
-+{
-+	unsigned int i;
-+	Elf32_Rel *rel = (void *)sechdrs[relsec].sh_offset;
-+	Elf32_Sym *sym;
-+	uint32_t *location;
-+
-+	DEBUGP("Applying relocate section %u to %u\n", relsec,
-+	       sechdrs[relsec].sh_info);
-+	for (i = 0; i < sechdrs[relsec].sh_size / sizeof(*rel); i++) {
-+		/* This is where to make the change */
-+		location = (void *)sechdrs[sechdrs[relsec].sh_info].sh_offset
-+			+ rel[i].r_offset;
-+		/* This is the symbol it is referring to */
-+		sym = (Elf32_Sym *)sechdrs[symindex].sh_offset
-+			+ ELF32_R_SYM(rel[i].r_info);
-+		if (!sym->st_value) {
-+			printk(KERN_WARNING "%s: Unknown symbol %s\n",
-+			       me->name, strtab + sym->st_name);
-+			return -ENOENT;
-+		}
-+
-+		switch (ELF32_R_TYPE(rel[i].r_info)) {
-+		case R_386_32:
-+			/* We add the value into the location given */
-+			*location += sym->st_value;
-+			break;
-+		case R_386_PC32:
-+			/* Add the value, subtract its postition */
-+			*location += sym->st_value - (uint32_t)location;
-+			break;
-+		default:
-+			printk(KERN_ERR "module %s: Unknown relocation: %u\n",
-+			       me->name, ELF32_R_TYPE(rel[i].r_info));
-+			return -ENOEXEC;
-+		}
-+	}
-+	return 0;
-+}
-+
-+int apply_relocate_add(Elf32_Shdr *sechdrs,
-+		       const char *strtab,
-+		       unsigned int symindex,
-+		       unsigned int relsec,
-+		       struct module *me)
-+{
-+	printk(KERN_ERR "module %s: ADD RELOCATION unsupported\n",
-+	       me->name);
-+	return -ENOEXEC;
-+}
-+
-+int module_finalize(const Elf_Ehdr *hdr,
-+		    const Elf_Shdr *sechdrs,
-+		    struct module *me)
++static inline int try_force(unsigned int flags)
 +{
 +	return 0;
 +}
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .916-linux-2.5.38/arch/i386/kernel/traps.c .916-linux-2.5.38.updated/arch/i386/kernel/traps.c
---- .916-linux-2.5.38/arch/i386/kernel/traps.c	2002-09-21 13:55:07.000000000 +1000
-+++ .916-linux-2.5.38.updated/arch/i386/kernel/traps.c	2002-09-23 10:41:33.000000000 +1000
-@@ -94,8 +94,8 @@ static int kstack_depth_to_print = 24;
- 
- #ifdef CONFIG_MODULES
- 
--extern struct module *module_list;
--extern struct module kernel_module;
-+/* FIXME: Accessed without a lock --RR */
-+extern struct list_head modules;
- 
- static inline int kernel_text_address(unsigned long addr)
++#endif /* CONFIG_MODULE_FORCE_UNLOAD */
++
+ asmlinkage long
+ sys_delete_module(const char *name_user, unsigned int flags)
  {
-@@ -106,11 +106,11 @@ static inline int kernel_text_address(un
- 	    addr <= (unsigned long) &_etext)
- 		return 1;
+ 	struct module *mod;
+ 	char name[MODULE_NAME_LEN];
+-	int ret;
++	int ret, forced = 0;
  
--	for (mod = module_list; mod != &kernel_module; mod = mod->next) {
-+	list_for_each_entry(mod, &modules, list) {
- 		/* mod_bound tests for addr being inside the vmalloc'ed
- 		 * module area. Of course it'd be better to test only
- 		 * for the .text subset... */
--		if (mod_bound(addr, 0, mod)) {
-+		if (mod_bound((void *)addr, 0, mod)) {
- 			retval = 1;
- 			break;
- 		}
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .916-linux-2.5.38/arch/i386/mm/extable.c .916-linux-2.5.38.updated/arch/i386/mm/extable.c
---- .916-linux-2.5.38/arch/i386/mm/extable.c	2001-09-18 06:16:30.000000000 +1000
-+++ .916-linux-2.5.38.updated/arch/i386/mm/extable.c	2002-09-23 10:41:33.000000000 +1000
-@@ -44,15 +44,17 @@ search_exception_table(unsigned long add
- 	return ret;
- #else
- 	unsigned long flags;
--	/* The kernel is the last "module" -- no need to treat it special.  */
--	struct module *mp;
-+	struct list_head *i;
- 
-+	/* The kernel is the last "module" -- no need to treat it special.  */
- 	spin_lock_irqsave(&modlist_lock, flags);
--	for (mp = module_list; mp != NULL; mp = mp->next) {
--		if (mp->ex_table_start == NULL || !(mp->flags&(MOD_RUNNING|MOD_INITIALIZING)))
-+	list_for_each(i, &extables) {
-+		struct exception_table *ex
-+			= list_entry(i, struct exception_table, list);
-+		if (ex->num_entries == 0)
- 			continue;
--		ret = search_one_table(mp->ex_table_start,
--				       mp->ex_table_end - 1, addr);
-+		ret = search_one_table(ex->entry,
-+				       ex->entry + ex->num_entries - 1, addr);
- 		if (ret)
- 			break;
+ 	if (!capable(CAP_SYS_MODULE))
+ 		return -EPERM;
+@@ -214,9 +226,12 @@ sys_delete_module(const char *name_user,
+ 		goto out;
  	}
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .916-linux-2.5.38/arch/i386/vmlinux.lds.S .916-linux-2.5.38.updated/arch/i386/vmlinux.lds.S
---- .916-linux-2.5.38/arch/i386/vmlinux.lds.S	2002-09-18 16:03:25.000000000 +1000
-+++ .916-linux-2.5.38.updated/arch/i386/vmlinux.lds.S	2002-09-23 10:41:33.000000000 +1000
-@@ -25,6 +25,7 @@ SECTIONS
-   __ex_table : { *(__ex_table) }
-   __stop___ex_table = .;
+ 	if (!mod->exit || mod->unsafe_to_unload) {
+-		/* This module can't be removed */
+-		ret = -EBUSY;
+-		goto out;
++		forced = try_force(flags);
++		if (!forced) {
++			/* This module can't be removed */
++			ret = -EBUSY;
++			goto out;
++		}
+ 	}
+ 	if (!list_empty(&mod->modules_which_use_me)) {
+ 		/* Other modules depend on us: get rid of them first. */
+@@ -242,29 +257,42 @@ sys_delete_module(const char *name_user,
  
-+  . = ALIGN(64);
-   __start___ksymtab = .;	/* Kernel symbol table */
-   __ksymtab : { *(__ksymtab) }
-   __stop___ksymtab = .;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .916-linux-2.5.38/include/asm-i386/module.h .916-linux-2.5.38.updated/include/asm-i386/module.h
---- .916-linux-2.5.38/include/asm-i386/module.h	2001-09-14 09:33:03.000000000 +1000
-+++ .916-linux-2.5.38.updated/include/asm-i386/module.h	2002-09-23 10:41:33.000000000 +1000
-@@ -1,12 +1,11 @@
- #ifndef _ASM_I386_MODULE_H
- #define _ASM_I386_MODULE_H
--/*
-- * This file contains the i386 architecture specific module code.
-- */
--
--#define module_map(x)		vmalloc(x)
--#define module_unmap(x)		vfree(x)
--#define module_arch_init(x)	(0)
--#define arch_init_modules(x)	do { } while (0)
-+/* x86 is simple */
-+struct mod_arch_specific
-+{
-+};
+ 	/* If they don't want to wait, and refcount non-zero, bring it
+            back to life and report that we lost. */
+-	if (((flags & O_NONBLOCK) && bigref_approx_val(&mod->use) != 0)
+-	    || mod->unsafe_to_unload) {
+-		mod->live = 1;
+-		try_module_get(mod); /* Can't fail */
+-		spin_lock_irq(&modlist_lock);
+-		list_add(&mod->symbols.list, &kernel_symbols.list);
+-		list_add(&mod->gpl_symbols.list, &kernel_symbols.list);
+-		spin_unlock_irq(&modlist_lock);
+-		ret = -EWOULDBLOCK;
+-		goto out;
+-	}
++	if ((flags & O_NONBLOCK) && bigref_approx_val(&mod->use) != 0)
++		if (!(forced = try_force(flags)))
++			goto reanimate;
  
-+#define Elf_Shdr Elf32_Shdr
-+#define Elf_Sym Elf32_Sym
-+#define Elf_Ehdr Elf32_Ehdr
- #endif /* _ASM_I386_MODULE_H */
+-	/* Since it's not live, this should monotonically decrease. */
+-	bigref_wait_for_zero(&mod->use);
++	/* It may have just become unsafe */
++	if (mod->unsafe_to_unload)
++		if (!(forced = try_force(flags)))
++			goto reanimate;
++
++	/* Since it's not live, count should monotonically decrease. */
++	if (!forced)
++		bigref_wait_for_zero(&mod->use);
++	else {
++		printk(KERN_WARNING "Forced removal of %s.\n", mod->name);
++		tainted |= TAINT_FORCED_RMMOD;
++	}
+ 
+ 	/* Final destruction now noone is using it. */
+-	mod->exit();
++	if (mod->exit)
++		mod->exit();
+ 	free_module(mod);
+ 	ret = 0;
+ 
+  out:
+ 	up(&module_mutex);
+ 	return ret;
++
++ reanimate:
++	mod->live = 1;
++	try_module_get(mod); /* Can't fail */
++	spin_lock_irq(&modlist_lock);
++	list_add(&mod->symbols.list, &kernel_symbols.list);
++	list_add(&mod->gpl_symbols.list, &kernel_symbols.list);
++	spin_unlock_irq(&modlist_lock);
++	ret = -EWOULDBLOCK;
++	goto out;
+ }
+ 
+ static void print_unload_info(struct seq_file *m, struct module *mod)
 
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

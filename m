@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261892AbTCTUPv>; Thu, 20 Mar 2003 15:15:51 -0500
+	id <S261908AbTCTUSS>; Thu, 20 Mar 2003 15:18:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261898AbTCTUPv>; Thu, 20 Mar 2003 15:15:51 -0500
-Received: from ns.suse.de ([213.95.15.193]:16146 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S261892AbTCTUPt>;
-	Thu, 20 Mar 2003 15:15:49 -0500
-Subject: Re: share COMPATIBLE_IOCTL()s across architectures
-From: Andi Kleen <ak@suse.de>
-To: Pavel Machek <pavel@suse.cz>
+	id <S261937AbTCTUSS>; Thu, 20 Mar 2003 15:18:18 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:30219 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S261908AbTCTUSR>; Thu, 20 Mar 2003 15:18:17 -0500
+Date: Thu, 20 Mar 2003 20:29:17 +0000
+From: John Levon <levon@movementarian.org>
+To: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030320193315.GB312@elf.ucw.cz>
-References: <20030319232157.GA13415@elf.ucw.cz.suse.lists.linux.kernel>
-	<p7365qe5284.fsf@amdsimf.suse.de>  <20030320193315.GB312@elf.ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 20 Mar 2003 21:26:49 +0100
-Message-Id: <1048192010.15510.192.camel@averell>
+Subject: Re: 2.5.65 performance
+Message-ID: <20030320202917.GA52982@compsoc.man.ac.uk>
+References: <200303192317.22103.cb-lkml@fish.zetnet.co.uk> <20030319173808.7fb1c204.akpm@digeo.com> <20030320194448.GC25197@butterfly.hjsoft.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030320194448.GC25197@butterfly.hjsoft.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18w6f7-000O9m-00*EWN/sc78sVE*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-20 at 20:33, Pavel Machek wrote:
-> Hi!
-> 
-> > > --- linux-test/include/linux/compat_ioctl.h	2003-03-20 00:08:12.000000000 +0100
-> > > +++ linux/include/linux/compat_ioctl.h	2003-03-19 23:36:24.000000000 +0100
-> > > @@ -0,0 +1,641 @@
-> > > +/* List here explicitly which ioctl's are known to have
-> > > + * compatible types passed or none at all...
-> > > + */
-> > > +/* Big T */
-> > > +COMPATIBLE_IOCTL(TCGETA)
-> > 
-> > Shouldn't you put the include files needed for all that in there
-> > too?
-> 
-> List of includes is *way* shorter than 600 lines of
-> COMPATIBLE_IOCTL. I prefer to keep it simple for now.
+On Thu, Mar 20, 2003 at 02:44:48PM -0500, John M Flinchbaugh wrote:
 
-I disagree. The big issue with the duplicated code is not how long it
-is, but that it needs N changesets to fix something instead of one.
-Typically a new ioctl also adds a new include.
-If you keep the includes separated it'll have even more mainteance
-overhead than before (you need N+1 commits to add the new ioctl)
+> doing normal desktop things (gnome, jboss, mozilla, apt-get updates,
+> etc) i've noticed audio skips on occassion that i had not seen in
+> kernels previous to 2.5.65.
 
--Andi
+I've also been seeing this with 2.5.65. 2.5.64 was OK. madplay on .65
+skips whilst running wine, mozilla, kde and a couple of gcc's. No
+massive drop outs though.
 
+regards,
+john
 

@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262289AbVBQStn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVBQSyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262289AbVBQStn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 13:49:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262295AbVBQStn
+	id S261176AbVBQSyl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 13:54:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVBQSyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 13:49:43 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29868 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262289AbVBQStg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 13:49:36 -0500
-Message-ID: <4214E728.3030501@pobox.com>
-Date: Thu, 17 Feb 2005 13:49:12 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+	Thu, 17 Feb 2005 13:54:41 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:18667 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261176AbVBQSyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 13:54:33 -0500
+Message-ID: <4214E829.8040202@comcast.net>
+Date: Thu, 17 Feb 2005 10:53:29 -0800
+From: Nick Winlund <nwinlu@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Matthew Wilcox <matthew@wil.cx>
-CC: Christophe Lucas <c.lucas@ifrance.com>, kernel-janitors@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [KJ] [PATCH] drivers/char/watchdog/* : pci_request_regions
-References: <20050214150111.GH20620@rhum.iomeda.fr> <20050214151244.GF29917@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20050214151244.GF29917@parcelfarce.linux.theplanet.co.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Adrian Bunk <bunk@stusta.de>, Benjamin LaHaise <bcrl@kvack.org>,
+       linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] kill include/linux/eeprom.h
+References: <20050217144825.GJ24808@stusta.de> <4214E419.5060807@pobox.com>
+In-Reply-To: <4214E419.5060807@pobox.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
-> On Mon, Feb 14, 2005 at 04:01:11PM +0100, Christophe Lucas wrote:
+I agree eeprom is memory technology at the least there should be 
+secondary links for a static or symlinked file that leaves PCI/AT boot 
+devices, future PLOS open to development.
+
+Nick
+
+> I would rather update other drivers to use it :)
 > 
->>If PCI request regions fails, then someone else is using the
->>hardware we wish to use. For that one case, calling
->>pci_disable_device() is rather rude.
->>See : http://www.ussg.iu.edu/hypermail/linux/kernel/0502.1/1061.html
+>     Jeff
 > 
 > 
-> Actually, that isn't necessarily true.  If the request_regions call fails,
-> that can mean there's a resource conflict.  If so, leaving the device
-> enabled is the worst possible thing to do as we'll now have two devices
-> trying to respond to the same io accesses.
-
-Incorrect.  If request_region() fails, drivers are coded to _not_ touch 
-the hardware.  That's the entire purpose of the whole charade: to avoid 
-having two devices responding to the same io accesses.
-
-If your driver is talking to the hardware after request_region() fails, 
-it is BROKEN plain and simple.
-
-	Jeff
-
-
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-net" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 

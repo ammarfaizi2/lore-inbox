@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131544AbRBDO4F>; Sun, 4 Feb 2001 09:56:05 -0500
+	id <S131768AbRBDPFi>; Sun, 4 Feb 2001 10:05:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131803AbRBDOz4>; Sun, 4 Feb 2001 09:55:56 -0500
-Received: from james.kalifornia.com ([208.179.0.2]:19547 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S131544AbRBDOzv>; Sun, 4 Feb 2001 09:55:51 -0500
-Message-ID: <3A7D6C66.749318E1@kalifornia.com>
-Date: Sun, 04 Feb 2001 06:51:18 -0800
-From: Ben Ford <ben@kalifornia.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: James Sutherland <jas88@cam.ac.uk>, Russell King <rmk@arm.linux.org.uk>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Pavel Machek <pavel@suse.cz>, andrew.grover@intel.com,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Better battery info/status files
-In-Reply-To: <Pine.LNX.4.30.0102041354060.17227-100000@imladris.demon.co.uk>
+	id <S131789AbRBDPF2>; Sun, 4 Feb 2001 10:05:28 -0500
+Received: from www.inreko.ee ([195.222.18.2]:33233 "EHLO www.inreko.ee")
+	by vger.kernel.org with ESMTP id <S131768AbRBDPFO>;
+	Sun, 4 Feb 2001 10:05:14 -0500
+Date: Sun, 4 Feb 2001 17:15:37 +0200
+From: Marko Kreen <marko@l-t.ee>
+To: "Joachim 'roh' Steiger" <roh@convergence.de>
+Cc: patrick.mourlhon@wanadoo.fr, linux-kernel@vger.kernel.org
+Subject: Re: ATAPI CDRW which doesn't work
+Message-ID: <20010204171537.A19909@l-t.ee>
+In-Reply-To: <20010204030644.A23913@l-t.ee> <Pine.LNX.4.21.0102041112120.20715-100000@campari.convergence.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0102041112120.20715-100000@campari.convergence.de>; from roh@convergence.de on Sun, Feb 04, 2001 at 11:16:16AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
+On Sun, Feb 04, 2001 at 11:16:16AM +0100, Joachim 'roh' Steiger wrote:
+> On Sun, 4 Feb 2001, Marko Kreen wrote:
+> > Compile in options 'SCSI generic', 'SCSI cdrom and 'SCSI
+> > emulation support' then add 'hdb=scsi' to kernel parameters.
+> is there someone working on direct support for Atapi-cdrw this time?
+> i would like to use a clean solution and am ready to help testing such
+> stuff (if existing) with my yamaha atapi-cdrw connected to an asus a7v
 
-> On Sun, 4 Feb 2001, James Sutherland wrote:
->
-> > For the end-user, the ability to see readings in other units would be
-> > useful - how many people on this list work in litres/metres/kilometres,
-> > and how many in gallons/feet/miles? Probably enough in both groups that
-> > neither could count as universal...
->
-> Yeah. We can have this as part of the locale settings, changable by
-> echoing the desired locale string to /proc/sys/kernel/lc_all.
->
-> -
+I guess the kernel does not care, the problem is the user-space
+utilities want to spek SCSI.  You could contact the developers
+of cdwriter or cdrecord I guess.
 
-Just an idea, . .  but isn't this something better done in userland?
-
-(ben@Deacon)-(06:49am Sun Feb  4)-(ben)
-$ date  +%s
-981298161
-(ben@Deacon)-(06:49am Sun Feb  4)-(ben)
-$ date  +%c
-Sun Feb  4 06:49:24 2001
-
-
--b
+-- 
+marko
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

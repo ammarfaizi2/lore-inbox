@@ -1,86 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262224AbUDPERh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 00:17:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbUDPERh
+	id S262205AbUDPEag (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 00:30:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbUDPEaf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 00:17:37 -0400
-Received: from ozlabs.org ([203.10.76.45]:10136 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262224AbUDPERe (ORCPT
+	Fri, 16 Apr 2004 00:30:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:56203 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262205AbUDPEae (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 00:17:34 -0400
-Date: Fri, 16 Apr 2004 14:12:31 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org,
+	Fri, 16 Apr 2004 00:30:34 -0400
+Date: Thu, 15 Apr 2004 21:30:11 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Gibson <david@gibson.dropbear.id.au>
+Cc: kenneth.w.chen@intel.com, linux-kernel@vger.kernel.org,
        linuxppc64-dev@lists.linuxppc.org
-Subject: Fix bogus get_page() calls in hugepage code
-Message-ID: <20040416041231.GB13552@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Andrew Morton <akpm@osdl.org>,
-	"Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-	linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
+Subject: Re: Fix bogus get_page() calls in hugepage code
+Message-Id: <20040415213011.09748d77.akpm@osdl.org>
+In-Reply-To: <20040416041231.GB13552@zax>
+References: <20040416041231.GB13552@zax>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, please apply:
+David Gibson <david@gibson.dropbear.id.au> wrote:
+>
+> On some archs the functions used to implement follow_page() for
+>  hugepages do a get_page().  This is unlike the normal-page path for
+>  follow_page(), so presumably a bug.  This patch fixes it.
 
-On some archs the functions used to implement follow_page() for
-hugepages do a get_page().  This is unlike the normal-page path for
-follow_page(), so presumably a bug.  This patch fixes it.
+get_user_pages() is supposed to pin the pages which it placed into the
+callers pages[] array.
+
+And the caller of get_user_pages() is supposed to unpin those pages when
+they are finished with.
+
+So follow_hugetlb_page() is currently doing the right thing.  The asymmetry
+with follow_page() is awkward, but the overall intent was to minimise the
+amount of impact which the hugepage code has on core MM.
 
 
-Index: working-2.6/arch/ppc64/mm/hugetlbpage.c
-===================================================================
---- working-2.6.orig/arch/ppc64/mm/hugetlbpage.c	2004-04-13 11:42:35.000000000 +1000
-+++ working-2.6/arch/ppc64/mm/hugetlbpage.c	2004-04-16 13:45:22.000000000 +1000
-@@ -360,10 +360,8 @@
- 	BUG_ON(! pmd_hugepage(*pmd));
- 
- 	page = hugepte_page(*(hugepte_t *)pmd);
--	if (page) {
-+	if (page)
- 		page += ((address & ~HPAGE_MASK) >> PAGE_SHIFT);
--		get_page(page);
--	}
- 	return page;
- }
- 
-Index: working-2.6/arch/i386/mm/hugetlbpage.c
-===================================================================
---- working-2.6.orig/arch/i386/mm/hugetlbpage.c	2004-04-13 11:42:35.000000000 +1000
-+++ working-2.6/arch/i386/mm/hugetlbpage.c	2004-04-16 13:45:22.000000000 +1000
-@@ -206,10 +206,8 @@
- 	struct page *page;
- 
- 	page = pte_page(*(pte_t *)pmd);
--	if (page) {
-+	if (page)
- 		page += ((address & ~HPAGE_MASK) >> PAGE_SHIFT);
--		get_page(page);
--	}
- 	return page;
- }
- #endif
-Index: working-2.6/arch/ia64/mm/hugetlbpage.c
-===================================================================
---- working-2.6.orig/arch/ia64/mm/hugetlbpage.c	2004-04-14 12:22:48.000000000 +1000
-+++ working-2.6/arch/ia64/mm/hugetlbpage.c	2004-04-16 13:45:22.000000000 +1000
-@@ -170,7 +170,6 @@
- 	ptep = huge_pte_offset(mm, addr);
- 	page = pte_page(*ptep);
- 	page += ((addr & ~HPAGE_MASK) >> PAGE_SHIFT);
--	get_page(page);
- 	return page;
- }
- int pmd_huge(pmd_t pmd)
+Aside: note that get_user_pages() doesn't hold page_table_lock while
+walking the pagetables, whereas it does hold that lock while walking the
+regular pages' pagetables.  This is because the caller of get_user_pages()
+holds down_read(mmap_sem), whereas hugetlb pagetable setup and teardown
+always happens under down_write(mmap_sem).
 
--- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson

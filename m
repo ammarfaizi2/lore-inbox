@@ -1,69 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136747AbREAWm1>; Tue, 1 May 2001 18:42:27 -0400
+	id <S136743AbREAWkh>; Tue, 1 May 2001 18:40:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136748AbREAWmH>; Tue, 1 May 2001 18:42:07 -0400
-Received: from pop.gmx.net ([194.221.183.20]:16669 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S136744AbREAWl6>;
-	Tue, 1 May 2001 18:41:58 -0400
-Date: Wed, 2 May 2001 00:41:52 +0200
-From: Daniel Elstner <daniel.elstner@gmx.net>
-To: Chris Mason <mason@suse.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: reiserfs+lndir problem [was: 2.4.4 SMP: spurious EOVERFLOW "Value too large for defined data type"]
-Message-Id: <20010502004152.23a0751b.daniel@master.daniel.homenet>
-In-Reply-To: <1026200000.988679027@tiny>
-In-Reply-To: <20010430225557.3f28d1b0.daniel@master.daniel.homenet>
-	<1026200000.988679027@tiny>
-X-Mailer: Sylpheed version 0.4.64 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S136744AbREAWk1>; Tue, 1 May 2001 18:40:27 -0400
+Received: from [206.58.79.242] ([206.58.79.242]:21508 "EHLO daffy.thegoop.com")
+	by vger.kernel.org with ESMTP id <S136743AbREAWkP>;
+	Tue, 1 May 2001 18:40:15 -0400
+Date: Tue, 1 May 2001 15:39:41 -0700
+From: David Bronaugh <dbronaugh@opensourcedot.com>
+To: linux-kernel@vger.kernel.org
+Subject: Breakage of opl3sax cards since 2.4.3 (at least)
+Message-ID: <20010501153941.E498@Woodbox.gv.shawcable.net>
+Reply-To: dbronaugh@opensourcedot.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+OK, cutting to chase:
 
-On Mon, 30 Apr 2001 21:03:47 -0400 Chris Mason <mason@suse.com> wrote:
+opl3sax cards have refused to init in Linux with the in-kernel OSS driver
+since 2.4.3 at least (last I tested and worked was 2.4.1). I'm pretty sure
+this is a kernel issue as it's happened on 2 different machines, one of
+which I never goofed around with.
 
-> > Apparently it's a reiserfs/symlink problem.
-> > I tried doing the lndir on an ext2 partition, sources still
-> > on reiserfs. And it worked just fine!
-> 
-> Neat, thanks for the extra details.  Does that mean you can consistently
-> repeat on reiserfs now?  What happens when you do the lndir on reiserfs and
-> diff the directories?
+Usually message is something like:
 
-I just played around a bit with the following results:
+opl3sa2: Control I/O port 0x220 (or whatever is tried) is not a YMF7xx
+chipset!
 
-sources on reiserfs, lndir on reiserfs -> make fails, diff ok
-sources on reiserfs, lndir on ext2     -> make ok
-sources on ext2, lndir on reiserfs     -> make fails, diff ok
+I'm not sure why this occurs, but here is the code block where the error
+probably occurs:
 
-Doing the diff against a second copy of the tree shows no errors, too.
-Always the same behaviour: You have to run lndir at least twice to
-get the error. If the link tree was already set up after a boot, the
-error occurs only after rm + lndir + rm + lndir.
+	/* SNIP */
+        opl3sa2_read(hw_config->io_base, OPL3SA2_MISC, &misc);
+        opl3sa2_write(hw_config->io_base, OPL3SA2_MISC, misc ^ 0x07);
+        opl3sa2_read(hw_config->io_base, OPL3SA2_MISC, &tmp);
+        if(tmp != misc) {
+                printk(KERN_ERR "opl3sa2: Control I/O port %#x is not a
+YMF7xx chipset!\n",
+                       hw_config->io_base);
+                return 0;
+        }
 
-There's a strange way to get things working just like after a reboot.
-After diff'ing the link tree with the 2nd copy (both on reiserfs),
-make World won't fail - at least once.
+        /*
+         * Check if the MIC register is accessible.
+         */
+        opl3sa2_read(hw_config->io_base, OPL3SA2_MIC, &tmp);
+        opl3sa2_write(hw_config->io_base, OPL3SA2_MIC, 0x8a);
+        opl3sa2_read(hw_config->io_base, OPL3SA2_MIC, &tmp);
+        if((tmp & 0x9f) != 0x8a) {
+                printk(KERN_ERR
+                       "opl3sa2: Control I/O port %#x is not a YMF7xx
+chipset!\n",
+                       hw_config->io_base);
+                return 0;
+        }
+	/* SNIP */
 
-I also tried in the link tree:
-    find ! -type d -exec cat '{}' \; >/dev/null
-And it seems to have the same effect as the diff.
+Maybe this is a dumb check because there's an anomaly with the OPL3SAx
+chip. I don't know.
 
-> Any useful messages in /var/log/messages?
+I'm not on the list, so please forward any mail sent about this to me.
 
-Nope, not any single message (except the usual ones).
+David Bronaugh
 
-The error on shutdown (when umounting /proc) appeared once again,
-with the the same error message. Though I have no clue how that
-could be related to reiserfs.
-
-Two missed details: the reiserfs partion exists on a software
-raid0 device. I configured glibc-2.2.3 with --enable-kernel=2.4.1.
-
-Shall I try moving back to glibc-2.2.2 / configuring for lower kernel?
-
--- Daniel

@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131753AbQLLMwU>; Tue, 12 Dec 2000 07:52:20 -0500
+	id <S129669AbQLLMzb>; Tue, 12 Dec 2000 07:55:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131803AbQLLMwL>; Tue, 12 Dec 2000 07:52:11 -0500
-Received: from tele-post-20.mail.demon.net ([194.217.242.20]:62468 "EHLO
-	tele-post-20.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S131753AbQLLMwB>; Tue, 12 Dec 2000 07:52:01 -0500
-Message-ID: <3A36183F.1EBD9368@agelectronics.co.uk>
-Date: Tue, 12 Dec 2000 12:21:19 +0000
-From: Adrian Cox <apc@agelectronics.co.uk>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17pre6 i686)
-X-Accept-Language: en
+	id <S129710AbQLLMzV>; Tue, 12 Dec 2000 07:55:21 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:261 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129669AbQLLMzJ>; Tue, 12 Dec 2000 07:55:09 -0500
+Subject: Re: Linux 2.2.18 release notes
+To: peter@cadcamlab.org (Peter Samuelson)
+Date: Tue, 12 Dec 2000 12:26:26 +0000 (GMT)
+Cc: paulkf@microgate.com (Paul Fulghum), linux-kernel@vger.kernel.org
+In-Reply-To: <20001211214757.C3199@cadcamlab.org> from "Peter Samuelson" at Dec 11, 2000 09:47:57 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: groudier@club-internet.fr, mj@suse.cz, lk@tantalophile.demon.co.uk,
-        davej@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: pdev_enable_device no longer used ?
-In-Reply-To: <Pine.LNX.4.10.10012112207400.2144-100000@linux.local> <200012112221.OAA01081@pizda.ninka.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E145oVp-00017a-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> Interpreting physical BAR values is another issue altogether.  Kernel
-> wide interfaces for this may be easily added to include/asm/pci.h
-> infrastructure, please just choose some sane name for it and I will
-> compose a patch ok? :-)
+> And thus it follows that 2.2.18 is the least buggy kernel ever, since
+> it has gotten the most bug fixes.
+> 
+> Right? (:
 
-There's a semi-respectable use for BAR values: peer-to-peer mastering. 
-A new kernel interface could actually make that portable, eg:
+Hopefully not.
 
-int pci_peer_master_address(struct pci_dev *master,
-	struct pci_dev *target, int resource, unsigned long offset,
-	unsigned long *address);
-Return values PCI_PEER_OK, PCI_PEER_NOWAY, PCI_PEER_FXBUG,
-PCI_PEER_YOURE_JOKING_RIGHT, ... Bus address usable by master placed in
-address.
+Remove
 
-Implementing something like this with a single hostbridge is simple.
-It's  harder on boards like my Intel 840 motherboard here, where the
-33MHz and 66MHz buses don't talk to each other. It could eventually grow
-into a big list of platform specific workarounds, but at least they'd
-all be in one place where we could see them.
+	arch/m68k
+	arch/arm
+	include/asm-m68k
+	include/asm-arm
+	drivers/usb
+	drivers/char/agp
+	drivers/char/drm
+	..
 
+and count the actual changes to existing code
 
-- Adrian Cox, AG Electronics
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

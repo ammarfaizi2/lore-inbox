@@ -1,118 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261656AbSJJQTp>; Thu, 10 Oct 2002 12:19:45 -0400
+	id <S261650AbSJJQRn>; Thu, 10 Oct 2002 12:17:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261658AbSJJQTp>; Thu, 10 Oct 2002 12:19:45 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:65013 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S261656AbSJJQTk>;
-	Thu, 10 Oct 2002 12:19:40 -0400
-Message-ID: <3DA5A9D6.D72A8E00@mvista.com>
-Date: Thu, 10 Oct 2002 09:24:54 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Oliver Xymoron <oxymoron@waste.org>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/3] High-res-timers part 2 (x86 platform code) take 5.1
-References: <Pine.LNX.4.44.0210091613590.9234-100000@home.transmeta.com> <3DA4BECB.9C7D6119@mvista.com> <20021010155424.GN21400@waste.org>
+	id <S261651AbSJJQRm>; Thu, 10 Oct 2002 12:17:42 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:38669 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S261650AbSJJQRm>;
+	Thu, 10 Oct 2002 12:17:42 -0400
+Date: Thu, 10 Oct 2002 18:22:51 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: make allmodconfig broken in 2.5.41?
+Message-ID: <20021010182251.A1407@mars.ravnborg.org>
+Mail-Followup-To: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0210100100240.19850-100000@alumno.inacap.cl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0210100100240.19850-100000@alumno.inacap.cl>; from rmaureira@alumno.inacap.cl on Thu, Oct 10, 2002 at 01:02:34AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron wrote:
-> 
-> On Wed, Oct 09, 2002 at 04:42:03PM -0700, george anzinger wrote:
-> > Linus Torvalds wrote:
-> > >
-> > > On Wed, 9 Oct 2002, george anzinger wrote:
-> > > >
-> > > > This patch, in conjunction with the "core" high-res-timers
-> > > > patch implements high resolution timers on the i386
-> > > > platforms.
-> > >
-> > > I really don't get the notion of partial ticks, and quite frankly, this
-> > > isn't going into my tree until some major distribution kicks me in the
-> > > head and explains to me why the hell we have partial ticks instead of just
-> > > making the ticks shorter.
-> > >
-> > Well, the notion is to provide timers that have resolution
-> > down into the micro seconds.  Since this take a bit more
-> > overhead, we just set up an interrupt on an as needed
-> > basis.  This is why we define both a high res and a low res
-> > clock.  Timers on the low res clock will always use the 1/HZ
-> > tick to drive them and thus do not introduce any additional
-> > overhead.  If this is all that is needed the configure
-> > option can be left off and only these timers will be
-> > available.
-> >
-> > On the other hand, if a user requires better resolution,
-> > s/he just turns on the high-res option and incures the
-> > overhead only when it is used and then only at timer expire
-> > time.  Note that the only way to access a high-res timer is
-> > via the POSIX clocks and timers API.  They are not available
-> > to select or any other system call.
-> >
-> > Making ticks shorter causes extra overhead ALL the time,
-> > even when it is not needed.  Higher resolution is not free
-> > in any case, but it is much closer to free with this patch
-> > than by increasing HZ (which, of course, can still be
-> > done).  Overhead wise and resolution wise, for timers, we
-> > would be better off with a 1/HZ tick and the "on demand"
-> > high-res interrupts this patch introduces.
-> 
-> I think what Linus is getting at is: why not make the units of jiffies
-> microseconds and give it larger increments on clock ticks? Now you
-> don't need any special logic to go to better than HZ resolution.
-> Unfortunately, this means identifying all the things that use HZ as a
-> measure of how often we check for rescheduling.
+On Thu, Oct 10, 2002 at 01:02:34AM -0400, Robinson Maureira Castillo wrote:
+> drivers/scsi/53c700.c:162:22: 53c700_d.h: No such file or directory
+Error in makefile, attached patch fixes this.
 
-Well then you are still dealing with two measures, the HZ
-and the tick rate.  One might also argue that the subjiffie
-should be some "normal" thing like nanosecond or micro
-second.  I went round and round with this in the beginning. 
-What it comes down to it the conversion back and forth is
-much easier and faster (less overhead) when using the
-natural units of the underlying clock.  This way the
-interrupt code, for example, does not have to even do a
-conversion.
-> 
-> There's also an issue of dynamic range - if we some day soon decide we
-> want internal timestamps with nanosecond resolution (because units of
-> .1us are annoying, not because we'll actually have ns accuracy),
-> then we're seeing timer wraps every couple seconds on 32bit machines
-> and we're pretty much forced to break into seconds and nanoseconds.
-> This is arguably saner than jiffies and subjiffies, but it forces
-> people who are using long timeouts today to use a new interface.
-> 
-> I don't think he can seriously mean cranking HZ up to match whatever
-> timing requirements we might have - that obviously doesn't scale.
+> make -f drivers/scsi/aacraid/Makefile fastdep
+> /home/rmaureira/kj/2.5/linux-2.5.41/Rules.make:15: *** kbuild: 
+> drivers/scsi/aacraid/Makefile - Usage of O_TARGET := aacraid.o is obsolete 
+> in 2.5. Please fix!.  Stop.
+As it says the Makefile for aacraid uses O_TARGET which is now obsolete.
+Fix exists in -ac and in latest snapshot of Linus's tree.
 
-This is at least the third "take" on what he means, each of
-which sends me in a very different direction.  Sure would
-like to know what he really means.
+	Sam
 
-I KNOW there is demand for the high-res timers, else I would
-not have spent the last year + being funded to do it.  It
-also would not be in the OSDL Carrier Grade system if there
-was no demand. 
-
-What I would really like to do is address the real issue.
-> 
-> --
->  "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+===== drivers/scsi/Makefile 1.26 vs edited =====
+--- 1.26/drivers/scsi/Makefile	Tue Oct  1 19:04:56 2002
++++ edited/drivers/scsi/Makefile	Thu Oct 10 18:21:15 2002
+@@ -137,7 +137,7 @@
+ $(obj)/53c7,8xx.o: $(obj)/53c8xx_d.h $(obj)/53c8xx_u.h
+ $(obj)/53c7xx.o:   $(obj)/53c7xx_d.h $(obj)/53c7xx_u.h
+ $(obj)/sim710.o:   $(obj)/sim710_d.h
+-$(obj)/53c700.o $(MODVERDIR)/53c700.ver: $(obj)/53c700_d.h
++$(obj)/53c700.o $(MODVERDIR)/$(obj)/53c700.ver: $(obj)/53c700_d.h
+ 
+ # If you want to play with the firmware, uncomment
+ # GENERATE_FIRMWARE := 1
+@@ -162,4 +162,4 @@
+ $(obj)/53c700_d.h: $(src)/53c700.scr $(src)/script_asm.pl
+ 	$(PERL) -s $(src)/script_asm.pl -ncr7x0_family $@ $(@:_d.h=_u.h) < $<
+ 
+-endif
+\ No newline at end of file
++endif

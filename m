@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263735AbUC3PgE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 10:36:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263734AbUC3PgE
+	id S263733AbUC3Pjz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 10:39:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263732AbUC3Pjy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 10:36:04 -0500
-Received: from kinesis.swishmail.com ([209.10.110.86]:46606 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S263733AbUC3Pfo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 10:35:44 -0500
-Message-ID: <40699843.7030005@techsource.com>
-Date: Tue, 30 Mar 2004 10:54:43 -0500
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Jeff Garzik <jgarzik@pobox.com>, Andrea Arcangeli <andrea@suse.de>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-ide@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] speed up SATA
-References: <4066021A.20308@pobox.com> <200403282030.11743.bzolnier@elka.pw.edu.pl> <20040328183010.GQ24370@suse.de> <200403282045.07246.bzolnier@elka.pw.edu.pl> <406720A7.1050501@pobox.com> <20040329005502.GG3039@dualathlon.random> <40679FE3.3080007@pobox.com> <20040329130410.GH3039@dualathlon.random> <40687CF0.3040206@pobox.com> <20040330110928.GR24370@suse.de>
-In-Reply-To: <20040330110928.GR24370@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Mar 2004 10:39:54 -0500
+Received: from mail.kroah.org ([65.200.24.183]:65232 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263733AbUC3Pid (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 10:38:33 -0500
+Date: Tue, 30 Mar 2004 07:26:29 -0800
+From: Greg KH <greg@kroah.com>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.5-rc3
+Message-ID: <20040330152629.GA22077@kroah.com>
+References: <Pine.LNX.4.58.0403292129200.1096@ppc970.osdl.org> <40690B84.7060203@cornell.edu> <40690DC3.2060302@cornell.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40690DC3.2060302@cornell.edu>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Jens Axboe wrote:
-
+On Tue, Mar 30, 2004 at 01:03:47AM -0500, Ivan Gyurdiev wrote:
 > 
+> >
+> >My binary-only proprietary unfree Nvidia driver is broken (and works on 
+> >2.6.4). What are some interesting changeset numbers to try to locate the 
+> >exact cause?
 > 
-> Here's a quickly done patch that attempts to adjust the value based on a
-> previous range of completed requests. It changes ->max_sectors to be a
-> hardware limit, adding ->optimal_sectors to be our max issued io target.
-> It is split on READ and WRITE. The target is to keep request execution
-> time under BLK_IORATE_TARGET, which is 50ms in this patch. read-ahead
-> max window is kept within a single request in size.
+> Just in case this is helpful:
 > 
-[snip]
+> Mar 29 17:23:15 cobra kernel: Badness in pci_find_subsys at 
+> drivers/pci/search.c:167
+> Mar 29 17:23:15 cobra kernel: Call Trace:
+> Mar 29 17:23:15 cobra kernel:  [pci_find_subsys+232/240] 
+> pci_find_subsys+0xe8/0xf0
 
-Awesome patch!
+known b0rkage in the nvidia driver.  been this way for months.  see the
+archives for details.
 
-One question I have is about how you are determining optimal request 
-size.  You are basing this on the _maximum_ performance of the device, 
-but there could be huge differences between min and max performance. 
-Would it be better to compute optimal based on worst-case performance? 
-Or averaged over time?
+thanks,
 
-Idealy, we'd have a running average where one hit of worst-case will 
-have an impact, but if that happens only once, it'll drop out of the 
-average, and best-case events will be considered but tempered as well.
-
-If we're going for real-time, then we want to avoid any latency over 
-50ms.  In that case, we'd want to go based on worst-case, although it 
-would still be good to let, say, an occasional hardware glitch which had 
-slow response to not have permanent impact.
-
+greg k-h

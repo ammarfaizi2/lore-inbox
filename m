@@ -1,67 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262154AbUKDKVU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262156AbUKDKXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262154AbUKDKVU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 05:21:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbUKDKVU
+	id S262156AbUKDKXr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 05:23:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbUKDKXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 05:21:20 -0500
-Received: from ns9.hostinglmi.net ([213.194.149.146]:9345 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S262154AbUKDKVS
+	Thu, 4 Nov 2004 05:23:46 -0500
+Received: from sartre.ispvip.biz ([209.118.182.154]:7857 "HELO
+	sartre.ispvip.biz") by vger.kernel.org with SMTP id S262156AbUKDKXn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 05:21:18 -0500
-Date: Thu, 4 Nov 2004 11:23:45 +0100
-From: DervishD <lkml@dervishd.net>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>,
+	Thu, 4 Nov 2004 05:23:43 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.7
+From: "Michael J. Cohen" <mjc@unre.st>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "K.R. Foley" <kr@cybsft.com>, sboyce@blueyonder.co.uk,
        linux-kernel@vger.kernel.org
-Subject: Re: is killing zombies possible w/o a reboot?
-Message-ID: <20041104102345.GA23673@DervishD>
-Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
-	=?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>,
-	linux-kernel@vger.kernel.org
-References: <20041103152531.GA22610@DervishD> <418962B0.3080806@tmr.com>
+In-Reply-To: <20041104100634.GA29785@elte.hu>
+References: <4189108C.2050804@blueyonder.co.uk>
+	 <41892899.6080400@cybsft.com> <41897119.6030607@blueyonder.co.uk>
+	 <418988A6.4090902@cybsft.com>  <20041104100634.GA29785@elte.hu>
+Content-Type: text/plain
+Date: Thu, 04 Nov 2004 05:23:25 -0500
+Message-Id: <1099563805.30372.2.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <418962B0.3080806@tmr.com>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Bill :)
+On Thu, 2004-11-04 at 11:06 +0100, Ingo Molnar wrote:
+> * K.R. Foley <kr@cybsft.com> wrote:
+> 
+> > >include/asm/vsyscall.h:48: error: previous declaration of `__xtime_lock'
+> > 
+> > Does the patch below fix the above error?
+> 
+> i applied your earlier patch but many more changes were needed to port
+> PREEMPT_REALTIME (and in particular, PREEMPT_HARDIRQS) to x64. You can
+> check out the x64 bits in -V0.7.8 which can be downloaded from the usual
+> place:
+> 
+>    http://redhat.com/~mingo/realtime-preempt/
+> 
+> Sid, does this one build/work for you? (i had to disable CPUFREQ in the
+> .config to get it to build - an -mm bug i suspect.)
+> 
+> 	Ingo
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
- * Bill Davidsen <davidsen@tmr.com> dixit:
-> >    Or write a little program that just 'wait()'s for the specified
-> >PID's. That is perfectly portable IMHO. But I must admit that the
-> >preferred way should be killing the parent. 'init' will reap the
-> >children after that.
-> You can't wait() for the process, you have to use waitfor(), and the 
-> last time I tried that it didn't work, although I don't remember the 
-> symptom beyond that.
+Ingo
+	Great timing! only 7 minutes after I posted my concession speech. ;)
 
-    You can't wait for other's children. OTOH, if we talk about your
-children, you can do wait() or waitpid() (I assume that you referred
-to waitpid(), since there isn't waitfor() AFAIK). The only difference
-is that wait suspends the process until information from a child is
-available.
+Here you go:
 
-    If you are talking about others' children, then your call to
-waitpid() (or wait()) failed with ECHILD: not your child.
+  LD      .tmp_vmlinux1
+kernel/built-in.o(.text+0x1e57c): In function `___trace':
+: undefined reference to `irqs_disabled_flags'
+kernel/built-in.o(.text+0x1e797): In function `add_preempt_count':
+: undefined reference to `irqs_disabled_flags'
+make: *** [.tmp_vmlinux1] Error 1
 
-    Raúl Núñez de Arenas Coronado
+------
+Michael Cohen
 
--- 
-Linux Registered User 88736
-http://www.dervishd.net & http://www.pleyades.net/

@@ -1,39 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbVBZCdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVBZCny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261173AbVBZCdG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 21:33:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVBZCdG
+	id S261177AbVBZCny (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 21:43:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVBZCny
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 21:33:06 -0500
-Received: from fire.osdl.org ([65.172.181.4]:25814 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261173AbVBZCdD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 21:33:03 -0500
-Date: Fri, 25 Feb 2005 18:32:53 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: akpm@osdl.org
-Cc: linux-audit@redhat.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] fix audit inode filter
-Message-ID: <20050226023253.GG15867@shell0.pdx.osdl.net>
+	Fri, 25 Feb 2005 21:43:54 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49024 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261177AbVBZCnv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 21:43:51 -0500
+Date: Fri, 25 Feb 2005 19:26:08 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Schwarz <schwarz@power-netz.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.29: Zombies not detected or removed
+Message-ID: <20050225222608.GB15251@logos.cnet>
+References: <OBECJKACIGIAEGMGGKMPCEIOHJAA.schwarz@power-netz.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <OBECJKACIGIAEGMGGKMPCEIOHJAA.schwarz@power-netz.de>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Audit inode filter drops high bits on inode number by cut 'n paste mistake.
+On Mon, Feb 21, 2005 at 12:32:33PM +0100, Schwarz wrote:
+> 
+> 
+> Hi everyone,
+> 
+> since 2.4.29 we discovered a strange behaviour.
+> 
+> Severall tasks are no longer detected as destroyed.
+> means, these tasks have ended but arn't removed from
+> the processlist.
+> 
+> An example from today:
+> 
+> [root@d102 ]# date
+> Mon Feb 21 10:14:06 CET 2005
+> [root@d102 ]# strace -p 33326
+> attach: ptrace(PTRACE_ATTACH, ...): No such process
+> [root@d102 ]# ps aux | grep 29579
+> 33326    29579  0.0  0.2 10696 4332 ?        SN   10:11   0:00 -f
+> /home/ajondoco
+> root     19168  0.0  0.0  1768  628 pts/0    S    10:15   0:00 grep 29579
+> [root@d102 ]# strace -p 33326
+> attach: ptrace(PTRACE_ATTACH, ...): No such process
+> [root@d102 ]#
+> 
+> As you can see the process in question "29579" was started
+> 10:11 , but as finished its activity already. After 10
+> minutes it's still not removed from the processlist and 
+> it's not detected as a zombie.  
+> 
+> the task was an Apache 1.3.3 child over a wrapper calling php
+> with -f option. 
+> 
+> We think it's unimportant if its forked or execev(),because on
+> another maschine it was not even an apache invoked. 
+> 
+> Some of the these processes enter zombie state, but were never
+> fully removed !
+> 
+> Any ideas why it and what happens?
 
-Signed-off-by: Chris Wright <chrisw@osdl.org>
+I don't, no. Quite strange.
 
---- linus-2.6/kernel/auditsc.c~audit-inode-filter-fix	2005-02-24 16:55:32.000000000 -0800
-+++ linus-2.6/kernel/auditsc.c	2005-02-25 18:23:15.000000000 -0800
-@@ -358,7 +358,7 @@ static int audit_filter_rules(struct tas
- 		case AUDIT_INODE:
- 			if (ctx) {
- 				for (j = 0; j < ctx->name_count; j++) {
--					if (MINOR(ctx->names[j].ino)==value) {
-+					if (ctx->names[j].ino == value) {
- 						++result;
- 						break;
- 					}
+Can you reproduce this? If sys_ptrace() failed the process is not present. 
+
+Can you please "cat /proc/<pid>/status" when ptrace fails but the ps shows the 
+process existance ?
+
+I suppose you haven't been seeing this behaviour with v2.4.28 ? 

@@ -1,39 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbUDJUau (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Apr 2004 16:30:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbUDJUat
+	id S261920AbUDJUeo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Apr 2004 16:34:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbUDJUeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Apr 2004 16:30:49 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:29702 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S262101AbUDJU3n (ORCPT
+	Sat, 10 Apr 2004 16:34:44 -0400
+Received: from waste.org ([209.173.204.2]:25829 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261920AbUDJUeE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Apr 2004 16:29:43 -0400
-Date: Sat, 10 Apr 2004 22:29:37 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Szakacsits Szabolcs <szaka@sienet.hu>
-Cc: fledely <fledely@bgumail.bgu.ac.il>, linux-ntfs-dev@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Accessing odd last partition sector (was: [Linux-NTFS-Dev] mkntfs dirty volume marking)
-Message-ID: <20040410202937.GB1909@wsdw14.win.tue.nl>
-References: <001601c41db7$aa0a02e0$0100000a@p667> <Pine.LNX.4.21.0404091247430.22481-100000@mlf.linux.rulez.org>
+	Sat, 10 Apr 2004 16:34:04 -0400
+Date: Sat, 10 Apr 2004 15:33:02 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Stelian Pop <stelian@popies.net>, Jeff Garzik <jgarzik@pobox.com>
+Subject: [PATCH] netpoll early ARP handling
+Message-ID: <20040410203302.GR6248@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0404091247430.22481-100000@mlf.linux.rulez.org>
-User-Agent: Mutt/1.4.2i
-X-Spam-DCC: : mailhost.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 09, 2004 at 01:38:51PM +0200, Szakacsits Szabolcs wrote:
+Handle ARP requests while device is trapped before in_dev is
+initialized using netpoll config. Allows early kgdboe usage.
 
-> > TODO.ntfsprogs conatins the following TODO item under mkntfs:
-> >  - We don't know what the real last sector is, thus we mark the volume
-> > dirty and the subsequent chkdsk (which will happen on reboot into
-> > Windows automatically) recreates the backup boot sector if the Linux
-> > kernel lied to us about the number of sectors.
+>From Stelian Pop <stelian@popies.net>
 
-The ioctl BLKGETSIZE64 will tell you the size (in bytes) of a block device.
+%patch
+Index: mm/net/core/netpoll.c
+===================================================================
+--- mm.orig/net/core/netpoll.c	2004-04-10 15:06:57.000000000 -0500
++++ mm/net/core/netpoll.c	2004-04-10 15:15:25.000000000 -0500
+@@ -231,9 +231,8 @@
+ 
+ static void arp_reply(struct sk_buff *skb)
+ {
+-	struct in_device *in_dev = (struct in_device *) skb->dev->ip_ptr;
+ 	struct arphdr *arp;
+-	unsigned char *arp_ptr, *sha, *tha;
++	unsigned char *arp_ptr;
+ 	int size, type = ARPOP_REPLY, ptype = ETH_P_ARP;
+ 	u32 sip, tip;
+ 	struct sk_buff *send_skb;
+@@ -253,7 +252,7 @@
+ 	if (!np) return;
+ 
+ 	/* No arp on this interface */
+-	if (!in_dev || skb->dev->flags & IFF_NOARP)
++	if (skb->dev->flags & IFF_NOARP)
+ 		return;
+ 
+ 	if (!pskb_may_pull(skb, (sizeof(struct arphdr) +
+@@ -270,21 +269,15 @@
+ 	    arp->ar_op != htons(ARPOP_REQUEST))
+ 		return;
+ 
+-	arp_ptr= (unsigned char *)(arp+1);
+-	sha = arp_ptr;
+-	arp_ptr += skb->dev->addr_len;
++	arp_ptr = (unsigned char *)(arp+1) + skb->dev->addr_len;
+ 	memcpy(&sip, arp_ptr, 4);
+-	arp_ptr += 4;
+-	tha = arp_ptr;
+-	arp_ptr += skb->dev->addr_len;
++	arp_ptr += 4 + skb->dev->addr_len;
+ 	memcpy(&tip, arp_ptr, 4);
+ 
+ 	/* Should we ignore arp? */
+-	if (tip != in_dev->ifa_list->ifa_address ||
+-	    LOOPBACK(tip) || MULTICAST(tip))
++	if (tip != htonl(np->local_ip) || LOOPBACK(tip) || MULTICAST(tip))
+ 		return;
+ 
+-
+ 	size = sizeof(struct arphdr) + 2 * (skb->dev->addr_len + 4);
+ 	send_skb = find_skb(np, size + LL_RESERVED_SPACE(np->dev),
+ 			    LL_RESERVED_SPACE(np->dev));
+@@ -325,7 +318,7 @@
+ 	arp_ptr += np->dev->addr_len;
+ 	memcpy(arp_ptr, &tip, 4);
+ 	arp_ptr += 4;
+-	memcpy(arp_ptr, np->local_mac, np->dev->addr_len);
++	memcpy(arp_ptr, np->remote_mac, np->dev->addr_len);
+ 	arp_ptr += np->dev->addr_len;
+ 	memcpy(arp_ptr, &sip, 4);
+ 
 
-Andries
+%diffstat
+ netpoll.c |   19 ++++++-------------
+ 1 files changed, 6 insertions(+), 13 deletions(-)
+
+
+
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

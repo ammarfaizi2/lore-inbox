@@ -1,51 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262502AbVAJUTq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262497AbVAJUYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262502AbVAJUTq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 15:19:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262506AbVAJUQy
+	id S262497AbVAJUYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 15:24:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbVAJUWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 15:16:54 -0500
-Received: from bernache.ens-lyon.fr ([140.77.167.10]:8610 "EHLO
-	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S262473AbVAJUQQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 15:16:16 -0500
-Message-ID: <41E2E276.1070309@ens-lyon.fr>
-Date: Mon, 10 Jan 2005 21:15:50 +0100
-From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
-Reply-To: Brice.Goglin@ens-lyon.org
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/11] FUSE - MAINTAINERS, Kconfig and Makefile changes
-References: <E1Co4iU-00043y-00@dorka.pomaz.szeredi.hu>
-In-Reply-To: <E1Co4iU-00043y-00@dorka.pomaz.szeredi.hu>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Report: 
+	Mon, 10 Jan 2005 15:22:38 -0500
+Received: from hera.kernel.org ([209.128.68.125]:3283 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S262490AbVAJULz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 15:11:55 -0500
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [PATCH] /driver/net/wan/sbs520
+Date: Mon, 10 Jan 2005 12:11:46 -0800
+Organization: Open Source Development Lab
+Message-ID: <20050110121146.384e1ca3@dxpl.pdx.osdl.net>
+References: <4F23E557A0317D45864097982DE907941A3383@pilotmail.sbscorp.sbs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1105387905 5468 172.20.1.103 (10 Jan 2005 20:11:45 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Mon, 10 Jan 2005 20:11:45 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 0.9.13 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi a écrit :
-> This patch adds FUSE filesystem to MAINTAINERS, fs/Kconfig and
-> fs/Makefile.
-> 
-> Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
-> --- a/fs/Kconfig	2004-11-20 21:14:44.000000000 +0100
-> +++ b/fs/Kconfig	2004-11-20 12:50:30.000000000 +0100
-> @@ -492,6 +492,19 @@ config AUTOFS4_FS
->  	  local network, you probably do not need an automounter, and can say
->  	  N here.
->  
-> +config FUSE
-> +	tristate "Filesystem in Userspace support"
+Like most vendor drivers, this looks ugly full of obfuscating typedef's
+and MixedCase. Please make it conform to linux style.
 
- From what I see in my .config, most file systems have their config option
-named CONFIG_FOO_FS. Why wouldn't FUSE follow this model ?
+Also, all global's should be static where possible to avoid name space pollution.
+Replace volatile with wmb() and rmb() which is probably what you need anyway.
+Don't bury volatile inside typedef.s
 
-Regards,
-Brice
+

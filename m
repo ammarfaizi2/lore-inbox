@@ -1,110 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbTLJXal (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 18:30:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbTLJXal
+	id S264119AbTLJXiV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 18:38:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264127AbTLJXiV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 18:30:41 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:51467
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S264261AbTLJXae (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 18:30:34 -0500
-Date: Wed, 10 Dec 2003 15:24:47 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Hua Zhong <hzhong@cisco.com>, "'Arjan van de Ven'" <arjanv@redhat.com>,
-       Valdis.Kletnieks@vt.edu, "'Kendall Bennett'" <KendallB@scitechsoft.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: Linux GPL and binary module exception clause?
-In-Reply-To: <Pine.LNX.4.58.0312101452300.1273@home.osdl.org>
-Message-ID: <Pine.LNX.4.10.10312101518190.3805-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	Wed, 10 Dec 2003 18:38:21 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:15326
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S264119AbTLJXiT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 18:38:19 -0500
+Date: Thu, 11 Dec 2003 00:39:59 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Larry McVoy <lm@work.bitmover.com>,
+       Kendall Bennett <KendallB@scitechsoft.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       "'Andre Hedrick'" <andre@linux-ide.org>,
+       "'Arjan van de Ven'" <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+Message-ID: <20031210233959.GF11193@dualathlon.random>
+References: <00af01c3bf41$2db12770$d43147ab@amer.cisco.com> <3FD7081D.31093.61FCFA36@localhost> <20031210221800.GM6896@work.bitmover.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031210221800.GM6896@work.bitmover.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 10, 2003 at 02:18:00PM -0800, Larry McVoy wrote:
+> interfaces, the EXPORT_GPL stuff, all of that as a way to delibrately
 
-Linus:
+forget EXPORT_GPL, that's an hint, all _GPL can be removed, and any
+EXPORT_SYMBOL can be added. what is a derived work or not, what is legal
+or not, has nothing to do with whatever EXPORT_SYMBOL_GPL or even with
+EXPORT_SYMBOL.
 
-Oh great!
+Clearly if we export everything with EXPORT_SYMBOL we make life easier
+to illegal people, that's why using EXPORT_SYMBOL_GPL can make sense,
+but any distributor is free to drop all _GPL tags everywhere, and export
+every single kernel function with EXPORT_SYMBOL. If somebody than makes
+a derived work through those exported symbols illegally, that's his own
+problem. The distributor has no control on the export symbol users.
 
-> So while I publicaly say that I'm a lazy bastard, and the less I have to
-> do with lawyers, the better - I won't actually say that I will never sue
-> anybody. I'll say that it is "unlikely", or that people would have to
-> irritate me mightily.
-
-So what did you want for Christmas this year :-?
-
-Maybe I should stop now because I have history of being able to "irritate
-you mightily" !!!
-
-You know me from our conversions offline and in person, and enough said
-there.  There are times when I am a classic BOHA and other when I a
-serious and cold.  You know my intent, and that is all that needs to be
-said.
-
-What I really want, is a better License for all.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Wed, 10 Dec 2003, Linus Torvalds wrote:
-
-> 
-> 
-> On Wed, 10 Dec 2003, Andre Hedrick wrote:
-> >
-> > How can the additional words alter the mean of GPL itself?
-> 
-> They can't.
-> 
-> But they _can_ alter your ability to sue. In particular, if you publicly
-> state that you will not sue anybody over something, they can now use that
-> statement to make future plans. If at a later date you decide to sue them
-> anyway, they can point the judge at your earlier statement, and claim
-> estoppel against you.
-> 
-> So note how the license itself didn't change - but your ability to
-> _enforce_ the license has changed by virtue of you stating that you won't.
-> 
-> So while I publicaly say that I'm a lazy bastard, and the less I have to
-> do with lawyers, the better - I won't actually say that I will never sue
-> anybody. I'll say that it is "unlikely", or that people would have to
-> irritate me mightily.
-> 
-> For most developers that literally doesn't much matter what they say. Even
-> when _I_ say something, that doesn't really matter to what other
-> developers do, and while it could potentially limit me from enforcing _my_
-> copyrights, it doesn't stop others from enforcing theirs. So my random
-> email ramblings should really be construed as my opinions rather than any
-> legally relevant stuff.
-> 
-> However, the few extra lines in the main COPYING file end up being
-> somewhat binding to others, simply because they are _so_ public (they are,
-> after all, in the _main_ COPYING file) and they have been there pretty
-> much since the beginning, that they would basically end up being a very
-> strong argument in any legal case where some random kernel developer would
-> try to argue that it doesn't cover "their" code.
-> 
-> You don't have to agree to them, btw - you can remove them from the copy
-> of Linux you distribute, since the GPL in no way requires you to keep
-> them. They're not part of the copyright license per se, they are expressly
-> marked as being my personal viewpoint.  I suspect that if you do, you'll
-> find companies that would be slightly more nervous to work with you,
-> though.
-> 
-> But nobody has really ever argued against the clause, even originally. And
-> in this particular discussion, I don't believe anybody is actually arguing
-> against it now either. The legal meaning of it may be under discussion,
-> but I don't think anybody is really even _trying_ to argue that it should
-> be removed and that we should suddenly try to claim that any future user
-> programs have to be GPL'd.
-> 
-> Quite the reverse - I think everybody involved would argue that that would
-> just be crazy talk.
-> 
-> 			Linus
-> 
-
+just look vmmon, that's a derived work with a non GPL compatible
+licence, it does everything through exported symbols but it doesn't mean
+it's not a derivative work.

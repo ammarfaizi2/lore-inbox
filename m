@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266641AbRGEHfb>; Thu, 5 Jul 2001 03:35:31 -0400
+	id <S266646AbRGEHhK>; Thu, 5 Jul 2001 03:37:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266643AbRGEHfU>; Thu, 5 Jul 2001 03:35:20 -0400
-Received: from porsta.cs.Helsinki.FI ([128.214.48.124]:1385 "EHLO
-	porsta.cs.Helsinki.FI") by vger.kernel.org with ESMTP
-	id <S266641AbRGEHfR>; Thu, 5 Jul 2001 03:35:17 -0400
-Date: Thu, 5 Jul 2001 10:35:15 +0300 (EET DST)
-From: Samuli Kaski <samkaski@cs.Helsinki.FI>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Mail list archives down
-In-Reply-To: <m3u20suxxg.fsf@hakva-2.student.nlh.no>
-Message-ID: <Pine.LNX.4.30.0107051033070.11430-100000@melkinkari.cs.Helsinki.FI>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S266645AbRGEHhA>; Thu, 5 Jul 2001 03:37:00 -0400
+Received: from cs666822-222.austin.rr.com ([66.68.22.222]:14211 "HELO
+	hatchling.taral.net") by vger.kernel.org with SMTP
+	id <S266648AbRGEHgs>; Thu, 5 Jul 2001 03:36:48 -0400
+Date: Thu, 5 Jul 2001 02:36:47 -0500
+From: Taral <taral@taral.net>
+To: linux-kernel@vger.kernel.org
+Subject: tty->name conversion?
+Message-ID: <20010705023647.A18014@taral.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tKW2IUtsqtDRztdT"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you don't require any fancy web features the one at our department
-seems pretty uptodate & functional.
 
-http://www.cs.helsinki.fi/linux/linux-kernel/
+--tKW2IUtsqtDRztdT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-	Samuli
+I noticed that ps still relies on device numbers to determine tty, since
+/proc/*/stat only exports the device number. Is there any way to get the
+device name? I noticed that it is not present in tty_struct anywhere
+(proc_pid_stat() uses task->tty->device, which is a kdev_t).
 
-On 5 Jul 2001, Håvard Kvålen wrote:
+This would be useful to consider if we ever intend to create real
+unnumbered character/block devices.
 
-> David Balazic <david.balazic@uni-mb.si> writes:
->
-> > I noticed 4 out of 5 LKML web archives listed in the FAQ are down as
-> > of today.
->
-> I guess the FAQ needs updating.  Here is one that seems to work:
-> <URL: http://www.lib.uaa.alaska.edu/linux-kernel/ >
->
-> --
-> Håvard Kvålen
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+--=20
+Taral <taral@taral.net>
+(This message is digitally signed. Please encrypt mail if possible.)
+"Any technology, no matter how primitive, is magic to those who don't
+understand it." -- Florence Ambrose
 
+--tKW2IUtsqtDRztdT
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjtEGQ8ACgkQ7rh4CE+nYElMegCdHG8kPZ5Vi1ql/uD7/xco9Awt
+c3oAn1b8nsFydpsBeAmTskMrYCJYY548
+=zA07
+-----END PGP SIGNATURE-----
+
+--tKW2IUtsqtDRztdT--

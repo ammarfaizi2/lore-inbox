@@ -1,78 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263164AbUCSTZz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 14:25:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263167AbUCSTZz
+	id S263165AbUCST2t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 14:28:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263160AbUCST2t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 14:25:55 -0500
-Received: from gw0.infiniconsys.com ([65.219.193.226]:32192 "EHLO
-	mail.infiniconsys.com") by vger.kernel.org with ESMTP
-	id S263164AbUCSTXt convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 14:23:49 -0500
-From: "Fab Tillier" <ftillier@infiniconsys.com>
-To: "'Ulrich Drepper'" <drepper@redhat.com>,
-       "Woodruff, Robert J" <woody@co.intel.com>
-Cc: "Woodruff, Robert J" <woody@jf.intel.com>, <linux-kernel@vger.kernel.org>,
-       "Hefty, Sean" <sean.hefty@intel.com>,
-       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
-       "Davis, Arlin R" <arlin.r.davis@intel.com>
-Subject: RE: PATCH - InfiniBand Access Layer (IBAL)
-Date: Fri, 19 Mar 2004 11:21:15 -0800
-Message-ID: <08628CA53C6CBA4ABAFB9E808A5214CB017C1A7A@mercury.infiniconsys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-Importance: Normal
-In-Reply-To: <405B403F.4000702@redhat.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-OriginalArrivalTime: 19 Mar 2004 19:23:48.0813 (UTC) FILETIME=[B461C7D0:01C40DE7]
+	Fri, 19 Mar 2004 14:28:49 -0500
+Received: from mailgate2.mysql.com ([213.136.52.47]:13235 "EHLO
+	mailgate.mysql.com") by vger.kernel.org with ESMTP id S263165AbUCST1n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 14:27:43 -0500
+Subject: Re: True  fsync() in Linux (on IDE)
+From: Peter Zaitsev <peter@mysql.com>
+To: Chris Mason <mason@suse.com>
+Cc: Hans Reiser <reiser@namesys.com>, Jens Axboe <axboe@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1079704347.11057.130.camel@watt.suse.com>
+References: <1079572101.2748.711.camel@abyss.local>
+	 <20040318064757.GA1072@suse.de> <1079639060.3102.282.camel@abyss.local>
+	 <20040318194745.GA2314@suse.de>  <1079640699.11062.1.camel@watt.suse.com>
+	 <1079641026.2447.327.camel@abyss.local>
+	 <1079642001.11057.7.camel@watt.suse.com>
+	 <1079642801.2447.369.camel@abyss.local>
+	 <1079643740.11057.16.camel@watt.suse.com>
+	 <1079644190.2450.405.camel@abyss.local>
+	 <1079644743.11055.26.camel@watt.suse.com>  <405AA9D9.40109@namesys.com>
+	 <1079704347.11057.130.camel@watt.suse.com>
+Content-Type: text/plain
+Organization: MySQL
+Message-Id: <1079724411.2576.178.camel@abyss.local>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 19 Mar 2004 11:26:53 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Ulrich Drepper [mailto:drepper@redhat.com]
-> Sent: Friday, March 19, 2004 10:47 AM
+On Fri, 2004-03-19 at 05:52, Chris Mason wrote:
+
+
+> I am listening to Peter, Jens and I have spent a significant amount of
+> time on this code.  We can go back and spend many more hours testing and
+> debugging the 2.4 changes, or we can go forward with a very nice
+> solution in 2.6.
 > 
-> So, these people come up with their own software stacks, unreviewed
-> interface extensions, and demand that everybody accepts what they were
-> "designing" without the ability to question anything.
+> I'm planning on going forward with 2.6
 
-Yes, a design review with a period to provide feedback at the design level,
-not the code level, would make sense.  I don't see how one could argue
-against that.
+Chris, Hans
 
-> 
-> I surely find this completely  unacceptable and any consideration of
-> accepting anything the Infiniband group comes up with should be
-> postponed until every bit of the design can be reviewed.  If bits and
-> pieces are accepted prematurely it'll just be "now that this is support
-> you have to add this too, otherwise it'll not be useful".
+It is great to hear this is going to be fixed in 2.6, however it is
+quite a pity we have a real mess with this in  2.4 series. 
 
-For the IBAL stack, there are numerous documents on the Linux InfiniBand
-Project (http://infiniband.sourceforge.net/) describing most everything from
-the overall architecture to the APIs.  On the project home page is a general
-overview of what InfiniBand is, and how it fits into the OS.  More detailed
-documentation is available there too.  Of particular interest to this thread
-would be the Access Layer documents. Below are links to documents of
-interest.
+Resuming what I've heard so far it looks like it depends on:
 
-- The overall software architecture spec is the "Linux SAS", available at
-http://infiniband.sourceforge.net/LinuxSAS.1.0.1.pdf.
-- A presentation describing the IBAL APIs is here:
-http://infiniband.sourceforge.net/IAL/Access/AlInterface.pdf
-- The IBAL high level design is here:
-http://infiniband.sourceforge.net/IAL/Access/IBA_AL_HLD.pdf
-- A user's guide to IBAL is here:
-http://infiniband.sourceforge.net/IAL/Access/AL_Users_Guide.pdf
-- And finally, the API documentation is here:
-http://infiniband.sourceforge.net/IAL/Access/IBAL/IBAL_mi.html
+- If it is fsync/O_SYNC or O_DIRECT   (which user would expect to have
+the same effect in this respect.
+- It depends on kernel version. Some vendors have some fixes, while
+others do not have them.
+- It depends on hardware - if it has write cache on or off 
+- It depends on type of write (if it changes mata data or not)
+- Finally it depends on file system and even journal mount options
 
-HTH,
+Just curious does at least Asynchronous IO have the same behavior as
+standard IO ? 
 
-- Fab
+
+All of these makes it extremely hard to explain what do users need in
+order to get durability for their changes, while preserving performance.
+
+Furthermore as it was broken for years I expect we'll have people which
+developed things with fast fsync() in mind, who would start screaming
+once we have real fsync() 
+
+(see my mail about Apple actually disabling cache flush on fsync() due
+to this reason) 
+
+
+
+
+-- 
+Peter Zaitsev, Senior Support Engineer
+MySQL AB, www.mysql.com
+
+Meet the MySQL Team at User Conference 2004! (April 14-16, Orlando,FL)
+  http://www.mysql.com/uc2004/
 

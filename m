@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262092AbUCDTrM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 14:47:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbUCDTrM
+	id S262101AbUCDTwG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 14:52:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbUCDTwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 14:47:12 -0500
-Received: from pop.gmx.net ([213.165.64.20]:51122 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262092AbUCDTqt (ORCPT
+	Thu, 4 Mar 2004 14:52:06 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:9629 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262101AbUCDTwE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 14:46:49 -0500
-Date: Thu, 4 Mar 2004 20:46:48 +0100 (MET)
-From: =?ISO-8859-1?Q?=22Fabian_LoneStar_Fr=E9d=E9rick=22?= 
-	<fabian.frederick@gmx.fr>
-To: linux-kernel@vger.kernel.org
+	Thu, 4 Mar 2004 14:52:04 -0500
+Date: Thu, 4 Mar 2004 14:51:55 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Arthur Corliss <corliss@digitalmages.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] 2.6.x BSD Process Accounting w/High UID
+In-Reply-To: <Pine.LNX.4.58.0403040901010.30814@bifrost.nevaeh-linux.org>
+Message-ID: <Pine.LNX.4.44.0403041451360.20043-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Subject: inodes_stat_t
-X-Priority: 3 (Normal)
-X-Authenticated: #9223398
-Message-ID: <318.1078429608@www12.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.44.0403041451362.20043@chimarrao.boston.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 4 Mar 2004, Arthur Corliss wrote:
 
-     Someone could explain the reason for dummy[5] in inodes_stat_t ?
-(I'm not subscribed to the list).
+> The patch only changes two lines which redefine the ac_uid/ac_gid fields as
+> uid_t/gid_t respectively.  Fixes accounting for high uid/gids.
 
-Regards,
-Fabian
+Do the userspace commands that parse the acct files
+know how to deal with this format change ?
 
 -- 
-+++ NEU bei GMX und erstmalig in Deutschland: TÜV-geprüfter Virenschutz +++
-100% Virenerkennung nach Wildlist. Infos: http://www.gmx.net/virenschutz
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

@@ -1,77 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUF3UP5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262382AbUF3URz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbUF3UP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 16:15:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbUF3UOU
+	id S262382AbUF3URz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 16:17:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUF3UQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 16:14:20 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:44812 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S262381AbUF3UN0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 16:13:26 -0400
-Message-ID: <40E323CC.5030105@techsource.com>
-Date: Wed, 30 Jun 2004 16:34:20 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Joshua <jhudson@cyberspace.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] restore floppy boot image
-References: <Pine.SUN.3.96.1040630143510.23723A-100000@grex.cyberspace.org>
-In-Reply-To: <Pine.SUN.3.96.1040630143510.23723A-100000@grex.cyberspace.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Jun 2004 16:16:34 -0400
+Received: from mail.shareable.org ([81.29.64.88]:27053 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262382AbUF3UPw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 16:15:52 -0400
+Date: Wed, 30 Jun 2004 21:15:46 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Ian Molton <spyro@f2s.com>, linux-arm-kernel@lists.arm.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: A question about PROT_NONE on ARM and ARM26
+Message-ID: <20040630201546.GD31064@mail.shareable.org>
+References: <20040630024434.GA25064@mail.shareable.org> <20040630091621.A8576@flint.arm.linux.org.uk> <20040630145942.GH29285@mail.shareable.org> <20040630192654.B21104@flint.arm.linux.org.uk> <20040630191428.GC31064@mail.shareable.org> <20040630202313.A1496@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040630202313.A1496@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Russell King wrote:
+> Trust me, it does.  Unless you fully understand how the MMU and domains
+> work on ARM, you've little chance of working it out from the code.
 
+Thanks, that's fine.  I just wanted you to confirm PROT_NONE works
+with set_fs(KERNEL_DS), as it's not apparent from your earlier
+description.  I don't need to know _how_ it works - I can read manuals
+too - although you description was interesting.
 
-Joshua wrote:
+> > Instead of comparing the address against TI_ADDR_LIMIT, compare it
+> > against the hard-coded userspace limit.
+> 
+> Wrong.  That means that if userspace passes an address above the hard
+> coded limit, we _WILL_ bypass all protections and access that memory.
 
-> +enter:
+No - it does check against TI_ADDR_LIMIT in the case that the address
+is above the hard-coded limit, so prevents that.
 
-You get a segment number here into AX...
+The optimisation is valid on all architectures, actually, including
+current ARM where it saves a few instructions in the common path.
 
-> +	pop	%ax	/* Pointer to setup area */
-> +	mov	%ax, %ds
-> +	mov	%ax, %es
-> +	mov	%ax, %fs
-> +	mov	%ax, %gs
-> +	movb	$0x20, 0x210	/* Tell setup.S that we are the bootsect
-> */
-> +	orb	$0x1, 0x211	/* Covert any zImage to bzImage (weird) */
-> +	movw	$0x0, 0x214	/* This is where we loaded it */
-> +	movw	$0x10, 0x216
-> +
-> +	/*
-> +	 * This procedure turns off the floppy drive motor, so
-> +	 * that we enter the kernel in a known state, and
-> +	 * don't have to worry about it later.
-> +	 *
-> +	 * Actually, all this does is not annoy sysadmin, when he is
-> +	 * forced to use this method of booting, because if the floppy
-> +	 * is a demand-loaded module, the motor just won't turn off
-> +	 * otherwise.
-> +	 */
-> +
-> +	mov	$0x3f2, %dx
+Here's the potential improvement to current 32-bit ARM.  It's
+4 instructions instead of 8 and one less load, in the common case:
 
-Then you clobber it here....
+__get_user_4:
+	cmp	r0, #TASK_SIZE-4
+4:	ldrlet	r1, [r0]
+	movle	r0, #0
+	movle	pc, lr
+	bic	r1, sp, #0x1f00
+	bic	r1, r1, #0x00ff
+	ldr	r1, [r1, #TI_ADDR_LIMIT]
+	sub	r1, r1, #4
+	cmp	r0, r1
+14:	ldrlet	r1, [r0]
+	movle	r0, #0
+	movle	pc, lr
+	b	__get_user_bad
 
-> +	mov	$0, %al
-> +	/* outb */
-> +	.byte	0xEE		/* I don't have time to figure out
-> +				 * why this didn't assemble. */
-> +
-> +	/*
-> +	 * Enter kernel with interrupts off, and at segment +20 from
-> +	 * legacy bootsect location
-> +	 */
-> +	cli
+Finally, I think I see a bug in current ARM.  Shouldn't this use
+ldrlet instead of ldrlst?  Think about accesses to addresses
+TASK_SIZE-4 and 0xfffffffc.
 
-And then you use the clobbered value here.  (Unless the low byte of SS 
-is supposed to be zero.)
+	ldr	r1, [r1, #TI_ADDR_LIMIT]
+	sub	r1, r1, #4
+	cmp	r0, r1
+4:	ldrlst	r1, [r0]
 
-> +	mov	%ax, %ss
-> +	mov	$0xFFF0, %sp	/* Plenty heap */
-> +	ljmp	$KS_LOAD + 0x20, $0
-
+Thanks,
+-- Jamie

@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264832AbUETCq6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264652AbUETDLF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264832AbUETCq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 22:46:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264829AbUETCq6
+	id S264652AbUETDLF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 23:11:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264662AbUETDLF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 22:46:58 -0400
-Received: from dcs-server2.cs.uiuc.edu ([128.174.252.3]:17559 "EHLO
-	dcs-server2.cs.uiuc.edu") by vger.kernel.org with ESMTP
-	id S264832AbUETCqu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 22:46:50 -0400
-From: "Zhenmin Li" <zli4@cs.uiuc.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: [OPERA] Potential bug in /arch/sparc/prom/memory.c &  /arch/sparc64/prom/memory.c
-Date: Wed, 19 May 2004 21:45:03 -0500
-Message-ID: <001201c43e14$73e8c840$76f6ae80@Turandot>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Wed, 19 May 2004 23:11:05 -0400
+Received: from mta5.srv.hcvlny.cv.net ([167.206.5.78]:48811 "EHLO
+	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S264652AbUETDLD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 23:11:03 -0400
+Date: Wed, 19 May 2004 23:10:10 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: Re: bk-3.2.0 released
+In-reply-to: <20040519075128.A19221@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
+Message-id: <200405192310.15462.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: Text/Plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.6.1
+References: <20040518233238.GC28206@work.bitmover.com>
+ <20040519075128.A19221@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We ran our bug detection tool upon Linux 2.6.6, and found some potential
-errors. We would sincerely appreciate your help if anyone can confirm
-whether they are bugs or not.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Linux 2.6.6, /arch/sparc/prom/memory.c, Line 153-160
+On Wednesday 19 May 2004 02:51, Christoph Hellwig wrote:
+> On Tue, May 18, 2004 at 04:32:38PM -0700, Larry McVoy wrote:
+> > BitKeeper Users,
+> >
+> > BK/Pro 3.2.0 has been released and is in the BK download area,
 
-153    for(iter=0; iter<num_regs; iter++) {
-154            prom_prom_taken[iter].start_adr =
-155                    (char *) prom_reg_memlist[iter].phys_addr;
-156            prom_prom_taken[iter].num_bytes =
-157                    (unsigned long) prom_reg_memlist[iter].reg_size;
-158            prom_prom_taken[iter].theres_more =
-!159                    &prom_phys_total[iter+1];
-160    }
+Thanks for the announcement.
 
-May be changeg to:
+Jeff.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-153    for(iter=0; iter<num_regs; iter++) {
-154            prom_prom_taken[iter].start_adr =
-155                    (char *) prom_reg_memlist[iter].phys_addr;
-156            prom_prom_taken[iter].num_bytes =
-157                    (unsigned long) prom_reg_memlist[iter].reg_size;
-158            prom_prom_taken[iter].theres_more =
-!159                    & prom_prom_taken[iter+1];
-160    }
-
-
-The same bug is in /arch/sparc64/prom/memory.c, Line 111-118.
-
-
-Thanks a lot,
-OPERA Research Group
-University of Illinois at Urbana-Champaign
-
-
+iD8DBQFArCGVwFP0+seVj/4RAnNjAJ0X+iwHwWI5WVofmd9+twdYweOuygCfRJa5
+fQynPZmVDWDPaFbNZgsgCTw=
+=2dj+
+-----END PGP SIGNATURE-----

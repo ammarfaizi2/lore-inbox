@@ -1,166 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129402AbRA3Qhw>; Tue, 30 Jan 2001 11:37:52 -0500
+	id <S129051AbRA3Qwe>; Tue, 30 Jan 2001 11:52:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129735AbRA3Qhm>; Tue, 30 Jan 2001 11:37:42 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:26125 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129446AbRA3Qh3>; Tue, 30 Jan 2001 11:37:29 -0500
-Date: Tue, 30 Jan 2001 10:32:08 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Todd <todd@unm.edu>
-Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-Subject: Re: [ANNOUNCE] Dolphin PCI-SCI RPM Drivers 1.1-4 released
-Message-ID: <20010130103208.C18047@vger.timpanogas.org>
-In-Reply-To: <20010129164953.A15219@vger.timpanogas.org> <Pine.A41.4.31.0101292123270.54650-100000@aix06.unm.edu> <20010130101958.A18047@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010130101958.A18047@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Tue, Jan 30, 2001 at 10:19:58AM -0700
+	id <S129632AbRA3QwZ>; Tue, 30 Jan 2001 11:52:25 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:59385 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S129051AbRA3QwE>; Tue, 30 Jan 2001 11:52:04 -0500
+Date: Tue, 30 Jan 2001 10:52:02 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <7085.980853087@redhat.com>
+In-Reply-To: <Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com> 
+	<Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com>
+Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-ID: <Mdiqd.A.qe.yEvd6@dinero.interactivesi.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 30, 2001 at 10:19:58AM -0700, Jeff V. Merkey wrote:
-> On Mon, Jan 29, 2001 at 09:41:21PM -0700, Todd wrote:
+** Reply to message from David Woodhouse <dwmw2@infradead.org> on Tue, 30 Jan
+2001 11:11:27 +0000
 
-Todd,
 
-I just got back some more numbers from Dolphin.  The newer D330 
-LC3 chipsets are running at 667 MB/S Link speed, and on a 
-Serverworks HE system, we are seeing 240 MB/S throughput via 
-the newer PCI-SCI adapters.   I have some D330 adapters on 
-the way here, and will repost newer numbers after the Alpha
-changes are rolled in and I repost the drivers again next 
-week sometime. 
+> Note that this is _precisely_ the reason I'm advocating the removal of 
+> sleep_on(). When I was young and stupid (ok, "younger and stupider") I used 
+> sleep_on() in my code. I pondered briefly the fact that I really couldn't 
+> convince myself that it was safe, but because it was used in so many other 
+> places, I decided I had to be missing something, and used it anyway.
+> 
+> I was wrong. I was copying broken code. And now I want to remove all those 
+> bad examples - for the benefit of those who are looking at them now and are 
+> tempted to copy them.
 
-On 32 bit PCI, the average we are seeing going userpace -> userspace is 
-120-140 MB/S ranges in those systems that have a PCI bus with 
-bridge chipsets that can support these data rates.   
+What is wrong with sleep_on()?
 
-That's 2 x G-Enet.  
 
-:-)
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
 
-Jeff
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 
-> 
-> Todd,
-> 
-> I ran the tests on a box that has a limit of 70MB/S PCI throughput.  
-> There are GaAs (Gallium Arsenide) implementations of SCI that run 
-> well into the Gigabyte Ranges, and I've seen some of this hardware.  
-> The NUMA-Q chipsets in Sequents cluster boxes are actually SCI.  
-> Sun Microsystems uses SCI as their clustering interconnect for their 
-> Sparc servers.  The adapters these drivers I posted support are a bi-CMOS 
-> implementation of the SCI LC3 chipsets, and even though they are 
-> bi-CMOS, the Link speed on the back end is still 500 MB/S --
-> very respectable.
-> 
-> The PCI-SCI cards these drivers support in PCI systems have been clocked up 
-> to 140 MB/S+ on those systems that have enough bandwidth to actually 
-> push this much data.  These boards can pump up to 500MB/S over the 
-> SCI fabric, however, current PCI technology doesn't allow you to 
-> push this much data.  I also tested on the D320 chipsets, the newer 
-> D330 chipsets on the PSB66 cards support the 66Mhz bus and have been 
-> measured up to the Max PCI speeds.
-> 
-> The PCI-SCI adapters run circles around G-Enet on systems that can 
-> really pump this much data through the PCI bus.  Also, the numbers I 
-> posted are doing push/pull DMA transfers between user_space -> user_space 
-> in another system with **NO COPYING**.  Ethernet and LAN networking always 
-> copies data into userspace -- SCI has the ability to dump it directly 
-> into user space pages without copying.  That's what is cool about SCI, 
-> you can pump this data around with almost no processor utilization -- 
-> important on a cluster if you are doing computational stuff -- you need 
-> every cycle you can squeeze, and don't want to waste them copying 
-> data all over the place.  Sure, G-Enet can pump 124 MB/S, but the 
-> processor utilitzation will be high, and there will be lots of 
-> copying going on in the system.   What numbers does G-Enet provide 
-> doing userspace -> userspace transfers, and at what processor 
-> overhead?  These are the types of things that are the metrics for 
-> a good comparison.  Also, G-Enet has bandwidth limitations, the 
-> SCI standard does not, it's only limited by the laws of Physics
-> (which are being reached in the Dolphin Labs in Norway).
-> 
-> The GaAs SCI technology I have seen has hop latencies in the SCI 
-> switches @ 16 nano-seconds to route a packet, with xfer rates into
-> the Gigabytes per second -- very fast and low latency.   
-> 
-> These cards will use whatever PCI bandwidth is present in the host 
-> system, up to 500 MB/S.  As the PCI bus gets better, nice to know 
-> SCI is something that will keep it's value, since 500 MB/S gives us 
-> a lot of room to grow into.    
-> 
-> I could ask Dolphin for a GaAs version of the LC3 card (one board would
-> cost the equivalent to the income of a small third world nation), and 
-> rerun the tests on a Sparc system or Sequent system, and watch G-Enet
-> system suck wind in comparison.  
-> 
-> :-)
-> 
-> I posted the **ACCURATE** numbers from my test, but I did clarify that I 
-> was using a system with a limp PCI bus.
-> 
-> Jeff
-> 
-> 
-> > folx,
-> > 
-> > i must be missing something here.  i'm not aware of a PCI bus that only
-> > supports 70 MBps but i am probably ignorant.  this is why i was confused
-> > by jeff's performance numbers.  33MHz 32-bit PCI busses should do around
-> > 120MB/s (just do the math 33*32/8 allowing for some overhead of PCI bus
-> > negotiation), much greater than the numbers jeff is reporting.  66 MHz
-> > 64bit busses should do on the order of 500MB/s.
-> > 
-> > the performance numbers that jeff is reporting are not very impressive
-> > even for the slowest PCI bus.  we're seeing 993 Mbps (124MB/s) using the
-> > alteon acenic gig-e cards on 32-bit cards on a 66MHz bus.  i would expect
-> > to get somewhat slower on a 33MHz bus but not catastrophically so
-> > (certainly nothing as slow as 60MB/s or 480Mb/s).
-> > 
-> > what am i misunderstanding here?
-> > 
-> > todd
-> > 
-> > On Mon, 29 Jan 2001, Jeff V. Merkey wrote:
-> > 
-> > > Date: Mon, 29 Jan 2001 16:49:53 -0700
-> > > From: Jeff V. Merkey <jmerkey@vger.timpanogas.org>
-> > > To: linux-kernel@vger.kernel.org
-> > > Cc: jmerkey@timpanogas.org
-> > > Subject: Re: [ANNOUNCE] Dolphin PCI-SCI RPM Drivers 1.1-4 released
-> > >
-> > >
-> > > Relative to some performance questions folks have asked, the SCI
-> > > adapters are limited by PCI bus speeds.  If your system supports
-> > > 64-bit PCI you get much higher numbers.  If you have a system
-> > > that supports 100+ Megabyte/second PCI throughput, the SCI
-> > > adapters will exploit it.
-> > >
-> > > This test was performed in on a 32-bit PCI system with a PCI bus
-> > > architecture that's limited to 70 MB/S.
-> > >
-> > > Jeff
-> > >
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > Please read the FAQ at http://www.tux.org/lkml/
-> > >
-> > 
-> > =========================================================
-> > Todd Underwood, todd@unm.edu
-> > 
-> > criticaltv.com
-> > news, analysis and criticism.  about tv.
-> > and other stuff.
-> > 
-> > =========================================================
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

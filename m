@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130565AbQKCSvh>; Fri, 3 Nov 2000 13:51:37 -0500
+	id <S131099AbQKCTE3>; Fri, 3 Nov 2000 14:04:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131204AbQKCSv1>; Fri, 3 Nov 2000 13:51:27 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:5132 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S130565AbQKCSvO>;
-	Fri, 3 Nov 2000 13:51:14 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: James Simmons <jsimmons@suse.com>
-Date: Fri, 3 Nov 2000 19:48:57 MET-1
+	id <S131135AbQKCTET>; Fri, 3 Nov 2000 14:04:19 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:16390 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S131099AbQKCTEG>;
+	Fri, 3 Nov 2000 14:04:06 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200011031903.WAA10307@ms2.inr.ac.ru>
+Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
+To: ak@suse.DE (Andi Kleen)
+Date: Fri, 3 Nov 2000 22:03:48 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20001103175546.A963@gruyere.muc.suse.de> from "Andi Kleen" at Nov 3, 0 08:15:01 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [linux-fbdev] [PATCH] fbcon->vgacon->fbcon
-CC: linux-kernel@vger.kernel.org, linux-fbdev@vuser.vu.union.edu,
-        linuxconsole-dev@lists.sourceforge.net, geert@linux-m68k.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <BD211F66773@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  3 Nov 00 at 17:20, James Simmons wrote:
+Hello!
 
-> > > I know. I wanted for vgacon to reset the video mode itself. This way ANY
-> > > fbdev driver can go back top vgacon. 
-> > 
-> > That won't be possible because returning to VGA text mode is chip-specific.
-> 
-> From what I see in the XF4.0 tree you can. I will find out today with me
-> working on the tdfx driver. 
+> It is not safe, just not worse than 2.2.
 
-Yes, you can for example run BIOS initialization. In sandbox with x86
-emulator ;-) It is much easier, and much safer, require for 2.5 that 
-driver has to switch hardware to VGA mode on unload if hardware was 
-in VGA mode before start, and if it is primary device in the box. 
+Andi...... 8)
 
-For post-Millennium Matrox hardware, it is as simple as 
-'outw(0x0003, 0x03DE);' (if you did not ask for disable VGA I/O & disable
-VGA BIOS in matroxfb params. And if you asked... you probably know why 
-better than driver).
-                                        Best regards,
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-                                                                                                    
+That issue, which was meant here, it is 100% safe.
+
+I start to suspect you did not look into this code since 2.2.
+I acn assume that nothing has changed in ISDN,
+in other drivers big changes happened. 8)
+
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

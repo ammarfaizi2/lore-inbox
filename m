@@ -1,64 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262669AbREOIGo>; Tue, 15 May 2001 04:06:44 -0400
+	id <S262672AbREOIJO>; Tue, 15 May 2001 04:09:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262670AbREOIGe>; Tue, 15 May 2001 04:06:34 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:55812 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262669AbREOIGZ>; Tue, 15 May 2001 04:06:25 -0400
-Date: Tue, 15 May 2001 01:06:47 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Getting FS access events
-In-Reply-To: <20010515195607.A13722@metastasis.f00f.org>
-Message-ID: <Pine.LNX.4.31.0105150058370.22938-100000@p4.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262671AbREOIJE>; Tue, 15 May 2001 04:09:04 -0400
+Received: from popeye.ipv6.univ-nantes.fr ([193.52.101.20]:516 "HELO
+	popeye.ipv6.univ-nantes.fr") by vger.kernel.org with SMTP
+	id <S262670AbREOIIw>; Tue, 15 May 2001 04:08:52 -0400
+Subject: Re: PATCH 2.4.4.ac9: Tulip net driver fixes
+From: Yann Dupont <Yann.Dupont@IPv6.univ-nantes.fr>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B002595.76399CE4@mandrakesoft.com>
+In-Reply-To: <3AFD8E2E.302F1AB5@mandrakesoft.com>
+	<20010514112216.A25436@lucon.org> <20010514112407.E781@suse.com> 
+	<3B002595.76399CE4@mandrakesoft.com>
+Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution/0.10+cvs.2001.04.18.22.02 (Preview Release)
+Date: 15 May 2001 10:08:50 +0200
+Message-Id: <989914130.25256.1.camel@olive>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Le 14 May 2001 14:36:05 -0400, Jeff Garzik a écrit :
+> Mads Martin Jørgensen wrote:
+
+> Attached is a patch against 2.4.4-ac9 which includes the changes found
+> in tulip-devel 1.1.6...   (tulip-devel is sort of a misnomer; right now
+> it's really just a staging and testing point for fixes which go straight
+> into the tulip-stable series)
+> 
+> I just checked against ac9 and it applies cleanly here.
 
 
-On Tue, 15 May 2001, Chris Wedgwood wrote:
->
-> On Tue, May 15, 2001 at 12:13:13AM -0700, Linus Torvalds wrote:
->
->     We should not create crap code just because we _can_.
->
-> How about removing code?
+Still the same issue here : On a quad port card, if only 1 port is up,
+all is fine. This can be eth0, eth1, eth2 or eth3, it doesn't matter.
 
-Absolutely. It's not all that often that we can do it, but when we can,
-it's the best thing in the world.
+As soon as more than 1 port is up, the machine freeze. no oops, 
+not event CTRL-Scrollback, nothing.
 
-> In 2.5.x is we move fs metadata into the pagecache, do we even need a
-> buffer cache anymore? Can't we just ditch it completely and make all
-> device access raw?
+As the use I made of the 4 port eth is bridging, you can imagine
+the freeze appears very shortly after boot ;-) 
 
-Yes and no.
+Anyway. using the de4x5 driver for now.
 
-Yes, it would be nice.
+Yann.
 
-But no, I doubt we'll move _all_ metadata into the page-cache. I doubt,
-for example, that we'll find people re-doing all the other filesystems. So
-even if ext2 was page-cache only, what about all the 35 other filesystems
-out there in the standard sources, never mind others that haven't been
-integrated (XFS, ext3 etc..).
-
-Yeah, I know. Some of them already do not use the buffer cache at all (the
-network filesystems come to mind ;), but even so..
-
-Looks like there are 19 filesystems that use the buffer cache right now:
-
-	grep -l bread fs/*/*.c | cut -d/ -f2 | sort -u | wc
-
-So quite a bit of work involved.
-
-But on the whole I'm definitely hoping that yes, we'll relegate the
-"buffer_head" to be mainly just for IO, and not be a first-class caching
-entity at all. It's just that I think it will take a _loooong_ time until
-we actually reach that noble goal completely.
-
-		Linus
+-- 
+\|/ ____ \|/ Fac. des sciences de Nantes-Linux-Python-IPv6-ATM-BONOM....
+"@'/ ,. \@"  Tel :(+33) [0]251125865(AM)[0]251125857(PM)[0]251125868(Fax)
+/_| \__/ |_\ Yann.Dupont@sciences.univ-nantes.fr
+   \__U_/    http://www.unantes.univ-nantes.fr/~dupont
 

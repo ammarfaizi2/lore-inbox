@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130892AbQKVDw3>; Tue, 21 Nov 2000 22:52:29 -0500
+	id <S131602AbQKVD4v>; Tue, 21 Nov 2000 22:56:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131602AbQKVDwK>; Tue, 21 Nov 2000 22:52:10 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:3336 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S130892AbQKVDv5>; Tue, 21 Nov 2000 22:51:57 -0500
-Message-ID: <3A1B3ADB.17200DF6@timpanogas.org>
-Date: Tue, 21 Nov 2000 20:17:47 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
+	id <S131801AbQKVD4k>; Tue, 21 Nov 2000 22:56:40 -0500
+Received: from JJG202.rh.psu.edu ([128.118.128.47]:22289 "HELO
+	dilbert.wizard.dok.org") by vger.kernel.org with SMTP
+	id <S131602AbQKVD40>; Tue, 21 Nov 2000 22:56:26 -0500
+From: "Joseph Gooch" <mrwizard@psu.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: ECN causing problems
+Date: Tue, 21 Nov 2000 22:26:24 -0500
+Message-ID: <006301c05433$feb8c0c0$0200020a@wizws>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: modutils 2.3.20 not backward compatible
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+My RaptorNT 6.5 firewall rejects all connections from my linux box when ECN
+is enabled.  The error is attached.  Perhaps this feature should be disabled
+by default?  Or is there already an option of the sort that i'm missing?  I
+only got the idea to disable it after a search of linux-kernel.
 
-Keith,
+Plz cc me, I"m not on the list.
 
-Was there a reason we removed the -i and -m options from newer modutils
-and broke backwards caompatibility?  I'm re-writing our module build
-scripts for the installer, and I discovered after upgrading to 2.3.20,
-that all the build scripts (about 10MB worth) are now busted and I have
-been spending most of this evening rewriting them so they work again.   
+Later!
+Joe Gooch
 
-Thanks
+TCP packet dropped (10.204.186.7->x.x.x.x: Protocol=TCP[SYN 0xc0] Port
+1255->2401): Bad TCP flags combination (received on interface 192.168.1.1)
+(probable QueSO probe as flags=0xc2)
 
-Jeff
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

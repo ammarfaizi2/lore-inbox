@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267402AbTGZSQM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 14:16:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267471AbTGZSQL
+	id S262710AbTGZSM3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 14:12:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbTGZSLk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 14:16:11 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:4100 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S267402AbTGZSQI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 14:16:08 -0400
-Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       LKML <linux-kernel@vger.kernel.org>, kernel@kolivas.org, mingo@elte.hu
-In-Reply-To: <20030726181913.GY15452@holomorphy.com>
-References: <1059211833.576.13.camel@teapot.felipe-alfaro.com>
-	 <200307261142.43277.m.c.p@wolk-project.de>
-	 <20030726181913.GY15452@holomorphy.com>
-Content-Type: text/plain
-Message-Id: <1059244278.576.0.camel@teapot.felipe-alfaro.com>
+	Sat, 26 Jul 2003 14:11:40 -0400
+Received: from fw.osdl.org ([65.172.181.6]:14483 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262710AbTGZSKx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 14:10:53 -0400
+Date: Sat, 26 Jul 2003 11:25:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Daniele Venzano <webvenza@libero.it>
+Cc: wodecki@gmx.de, rgooch@atnf.csiro.au, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1 devfs question
+Message-Id: <20030726112553.2356cce0.akpm@osdl.org>
+In-Reply-To: <20030726111221.GD9574@renditai.milesteg.arr>
+References: <20030725110830.GA666@gmx.de>
+	<20030726111221.GD9574@renditai.milesteg.arr>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3.99 
-Date: Sat, 26 Jul 2003 20:31:18 +0200
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-07-26 at 20:19, William Lee Irwin III wrote:
-> On Sat, Jul 26, 2003 at 11:46:45AM +0200, Marc-Christian Petersen wrote:
-> > Now that I've tested 2.6.0-test-1-wli (William Lee Irwin's Tree) for over a 
-> > week, I thought about, that the problem might _not_ be only the O(1) 
-> > Scheduler, because -wli has changed almost nothing to the scheduler stuff, 
-> > it's almost 2.6.0-test1 code and running that kernel, my system is _alot_ 
-> > more responsive than 2.6.0-test1 or 2.6.0-test1-mm* or all the Oxint 
-> > scheduler fixes have ever been.
-> > Strange no?
-> > P.S.: I've not tested Ingo's G3 scheduler fix yet. More to come.
+Daniele Venzano <webvenza@libero.it> wrote:
+>
+> There is a bug with devfs and raid, see:
+> http://bugzilla.kernel.org/show_bug.cgi?id=471
 > 
-> I've no plausible explanation for this; perhaps the only possible one
-> is that one of the algorithms that was sped up was behaving badly enough
-> to interfere with scheduling.
+> It's sitting there since 2.5.45, but no one seems interested and I 
+> don't have the knowledge to fix it by myself (or the time to acquire 
+> that knowledge).
 
-I've also noticed that 2.6.0-test1-wl1A behaves pretty well, given that
-no major changes to the CPU scheduler are included.
+Unfortunately, raising a bug in bugzilla doesn't actually mean that anyone
+is paying any attention to it.  You need to keep shouting at people.
+
+Is the problem simply that the device has moved from /dev/md1 to /dev/md/1?
+If so, is this change sufficient?
+
+diff -puN drivers/md/md.c~a drivers/md/md.c
+--- 25/drivers/md/md.c~a	2003-07-26 11:24:58.000000000 -0700
++++ 25-akpm/drivers/md/md.c	2003-07-26 11:25:15.000000000 -0700
+@@ -3505,7 +3505,7 @@ int __init md_init(void)
+ 	for (minor=0; minor < MAX_MD_DEVS; ++minor) {
+ 		devfs_mk_bdev(MKDEV(MAJOR_NR, minor),
+ 				S_IFBLK|S_IRUSR|S_IWUSR,
+-				"md/%d", minor);
++				"md%d", minor);
+ 	}
+ 
+ 	register_reboot_notifier(&md_notifier);
+@@ -3567,7 +3567,7 @@ static __exit void md_exit(void)
+ 	int i;
+ 	blk_unregister_region(MKDEV(MAJOR_NR,0), MAX_MD_DEVS);
+ 	for (i=0; i < MAX_MD_DEVS; i++)
+-		devfs_remove("md/%d", i);
++		devfs_remove("md%d", i);
+ 	devfs_remove("md");
+ 
+ 	unregister_blkdev(MAJOR_NR,"md");
+
+_
 

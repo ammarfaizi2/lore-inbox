@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315687AbSECTiX>; Fri, 3 May 2002 15:38:23 -0400
+	id <S315671AbSECTuo>; Fri, 3 May 2002 15:50:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315688AbSECTiW>; Fri, 3 May 2002 15:38:22 -0400
-Received: from [195.163.186.27] ([195.163.186.27]:27295 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S315687AbSECTiV>;
-	Fri, 3 May 2002 15:38:21 -0400
-Date: Fri, 3 May 2002 22:38:18 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S315673AbSECTun>; Fri, 3 May 2002 15:50:43 -0400
+Received: from web13505.mail.yahoo.com ([216.136.175.84]:5900 "HELO
+	web13505.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S315671AbSECTum>; Fri, 3 May 2002 15:50:42 -0400
+Message-ID: <20020503195042.41494.qmail@web13505.mail.yahoo.com>
+Date: Fri, 3 May 2002 12:50:42 -0700 (PDT)
+From: Tony Luck <aegl@yahoo.com>
 Subject: Re: Virtual address space exhaustion (was  Discontigmem virt_to_page() )
-Message-ID: <20020503223818.C1284@mea-ext.zmailer.org>
-In-Reply-To: <20020503183701.32163.qmail@web13505.mail.yahoo.com> <Pine.LNX.3.95.1020503144728.8291A-100000@chaos.analogic.com>
-Mime-Version: 1.0
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.95.1020503144728.8291A-100000@chaos.analogic.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 03, 2002 at 03:01:48PM -0400, Richard B. Johnson wrote:
-...
-> > This hasn't been an absolute requirement. There have
-> > been 32-bit Unix implementations that gave separate
-> > 4G address spaces to the kernel and to each user
-> > process.  The only real downside to this is that
-> > copyin()/copyout() are more complex. Some processors
-> > provided special instructions to access user-mode
-> > addresses from kernel to mitigate this complexity.
-> > 
-> > -Tony
+
+--- "Richard B. Johnson" <root@chaos.analogic.com>
+wrote:
 > 
-> Really? The only 32-bit Unix's I've seen the details of
-> are SCO Unix, Interactive Unix, Linux, and BSD Unix.
+> I think that if this shared address-space doesn't
+> exist
+> then you don't have "Unix". You have something
+> (perhaps
+> better), but it's not Unix. 
 
-   An example of hardware with fully separable user/kernel spaces
-   are Motorola 68020-68060 series processors.
+Looking back a little earlier in the history of Unix,
+we see that early versions ran on 16-bit
+architectures. Does anyone out there remember Version
+6 on the pdp11. It most certainly did not share the
+address space (all 64k of it) between user and kernel.
+Are you trying to say that what Dennis and Ken wrote
+is not "Unix"?
 
-   They have those special instructions to choose (in kernel mode)
-   what address spaces to use at which data access phase of the
-   special moves.  There is some speed penalty, of course..
+-Tony
 
-...
-> Would you please tell me what Unix has 32-bit address space
-> which is not shared with the kernel?
-
-   That could be the one called "Linux", if a bunch of conditions
-   are met -- beginning with suitable hardware.
-
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-/Matti Aarnio
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Health - your guide to health and wellness
+http://health.yahoo.com

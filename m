@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267741AbTAaJl2>; Fri, 31 Jan 2003 04:41:28 -0500
+	id <S267743AbTAaJtt>; Fri, 31 Jan 2003 04:49:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267742AbTAaJl2>; Fri, 31 Jan 2003 04:41:28 -0500
-Received: from tisch.mail.mindspring.net ([207.69.200.157]:53043 "EHLO
-	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S267741AbTAaJl1>; Fri, 31 Jan 2003 04:41:27 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Robert Bisping <rbisping@mindspring.com>
-Reply-To: rbisping@mindspring.com
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: yenta-cardbus IRQ0
-Date: Fri, 31 Jan 2003 04:45:13 -0500
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E18eXoy-0000iL-00@tisch.mail.mindspring.net>
+	id <S267744AbTAaJtt>; Fri, 31 Jan 2003 04:49:49 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:49801
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267743AbTAaJts>; Fri, 31 Jan 2003 04:49:48 -0500
+Subject: Re: [PATCH] Update PnP IDE (2/6)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adam Belay <ambx1@neo.rr.com>
+Cc: Andre Hedrick <andre@linux-ide.org>, greg@kroah.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030130221030.GG2246@neo.rr.com>
+References: <20030125201516.GA12794@neo.rr.com>
+	 <Pine.LNX.4.10.10301251824510.1744-100000@master.linux-ide.org>
+	 <20030129222632.GD2246@neo.rr.com>
+	 <1043926921.28133.19.camel@irongate.swansea.linux.org.uk>
+	 <20030130221030.GG2246@neo.rr.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1044010443.1654.0.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 31 Jan 2003 10:54:04 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i have been trying to set up a cardbus card on my thinkpad 760ED for about 
-the last month and it keeps coming up with IRQ0 and telling me it cant find a 
-irq for pin A. what would be causing this and how do I correct it i have 
-already tried APCI and it does not work on my laptop so that is no help. I 
-have compiled SMP into the kernel though I dont have a dual processor (of 
-course) to gain the added functionality. I have recompiled my kernel about 
-150 times with different setting hoping it might just be a conflict in the 
-kernel with no luck.  I looked at the yenta driver it's self and noticed that 
-it accepts IRQ0 as a valid irq but that appears to mean no irq at all. which 
-config file would i use to force it to set a irq?
+On Thu, 2003-01-30 at 22:10, Adam Belay wrote:
+> > The IDE layer does not currently handle hotplugging. It needs a lot of work
+> > before that can happen
+> 
+> Would you suggest I remove the ide_unregister and place a error message if that area
+> is ever called in the pnp ide driver or is it better to leave it in there?  I'd like
+> to get this patch out soon so users can take advantage of these changes.  Becuase
+> pnp does not currently support hotplugging, I doubt there will be any problems.
 
-
-Thanx for any assistanc you might give
-
+Leave it there then, the IDE layer will eventually develop hotplug - its taking baby steps
+that way.
 

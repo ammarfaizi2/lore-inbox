@@ -1,34 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292353AbSB0TGV>; Wed, 27 Feb 2002 14:06:21 -0500
+	id <S292826AbSB0THq>; Wed, 27 Feb 2002 14:07:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292891AbSB0TF4>; Wed, 27 Feb 2002 14:05:56 -0500
-Received: from voyager.st-peter.stw.uni-erlangen.de ([131.188.24.132]:8161
-	"EHLO voyager.st-peter.stw.uni-erlangen.de") by vger.kernel.org
-	with ESMTP id <S292761AbSB0TFl>; Wed, 27 Feb 2002 14:05:41 -0500
-Message-ID: <3C7D2E2A.8000905@st-peter.stw.uni-erlangen.de>
-Date: Wed, 27 Feb 2002 20:06:18 +0100
-From: svetljo <galia@st-peter.stw.uni-erlangen.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S289299AbSB0THT>; Wed, 27 Feb 2002 14:07:19 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:56841
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S292894AbSB0TG4>; Wed, 27 Feb 2002 14:06:56 -0500
+Date: Wed, 27 Feb 2002 10:53:41 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Jan Niehusmann <jan@gondor.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: IDE error on 2.4.17
+In-Reply-To: <20020227184758.GA9260@gondor.com>
+Message-ID: <Pine.LNX.4.10.10202271052360.19407-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: compiling Linux 2.5.5-dj2 + console_8.diff
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Scanner: exiscan *16g9OP-0004jK-00*5xhkppHjZEA* (Studentenwohnanlage Nuernberg St.-Peter)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BUILD_BASENAME=dummycon  -c -o dummycon.o dummycon.c
-gcc -D__KERNEL__ -I/usr/src/linux-2.5.5-xfs-dj2/include  -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686   
--DKBUILD_BASENAME=vgacon  -c -o vgacon.o vgacon.c
-vgacon.c: In function `vgacon_do_font_op':
-vgacon.c:816: structure has no member named `vc_sw'
-make[3]: *** [vgacon.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.5.5-xfs-dj2/drivers/video'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.5.5-xfs-dj2/drivers/video
+
+Did you enable smart?
+Did you run the captive smart tests?
+
+If this is on you / drive DO NOT run captive mode, the kernel go into
+starvation mode.
+
+On Wed, 27 Feb 2002, Jan Niehusmann wrote:
+
+> On Wed, Feb 27, 2002 at 02:59:28PM +0000, Alan Cox wrote:
+> > This is the wrong approach. That information is available properly if and
+> > when the vendors install the smart utilities
+> 
+> Doesn't necessarily help. I recently saw a hard drive which made funny
+> noises and got really slow reading some parts of the drive (~30MB/s on
+> some parts, ~300kB/s on others), but ide-smart didn't report failed
+> tests. Two days later the drive was dead...
+> 
+> It was an IBM 60GB drive, but I don't remember the exact type. It
+> called itself "IC35L060AVER07-0".
+> 
+> Jan
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
 

@@ -1,75 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262776AbTLOLjc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 06:39:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbTLOLjb
+	id S263527AbTLOLoi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 06:44:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263539AbTLOLoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 06:39:31 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:47582 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262776AbTLOLja (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 06:39:30 -0500
-Date: Mon, 15 Dec 2003 12:39:24 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: RunNHide <res0g1ta@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test11 intio.o build errors
-Message-ID: <20031215113923.GJ23184@fs.tum.de>
-References: <3FD918D8.7020100@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FD918D8.7020100@verizon.net>
-User-Agent: Mutt/1.4.1i
+	Mon, 15 Dec 2003 06:44:38 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:8912 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263527AbTLOLoh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 06:44:37 -0500
+Date: Mon, 15 Dec 2003 12:43:18 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: dan carpenter <error27@email.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>, Roland McGrath <roland@redhat.com>
+Subject: Re: [patch] Re: Problem with exiting threads under NPTL
+In-Reply-To: <200312142230.20952.error27@email.com>
+Message-ID: <Pine.LNX.4.58.0312151241340.27124@earth>
+References: <20031214052516.GA313@vana.vc.cvut.cz> <Pine.LNX.4.58.0312141433520.1481@home.osdl.org>
+ <Pine.LNX.4.58.0312142358210.16392@earth> <200312142230.20952.error27@email.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-ELTE-SpamVersion: SpamAssassin ELTE 1.0
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 11, 2003 at 08:24:40PM -0500, RunNHide wrote:
-> okay - I'm not a n00b but I'm no C programmer or driver developer, 
-> either - figured I'd post this - understand there's not a lot of this 
-> hardware out there so maybe this will be helpful:
+
+On Sun, 14 Dec 2003, dan carpenter wrote:
+
+>  [<c012a65b>] exit_notify+0x2eb/0x900
+>  [<c012b08f>] do_exit+0x41f/0x5c0
+>  [<c012b3d7>] do_group_exit+0x107/0x190
+>  [<c010aa8f>] syscall_call+0x7/0xb
 > 
->  CC [M]  drivers/scsi/ini9100u.o
-> drivers/scsi/ini9100u.c:111:2: #error Please convert me to 
-> Documentation/DMA-mapping.txt
-> drivers/scsi/ini9100u.c:146: warning: initialization from incompatible 
-> pointer type
-> drivers/scsi/ini9100u.c:151: warning: initialization from incompatible 
-> pointer type
-> drivers/scsi/ini9100u.c:152: warning: initialization from incompatible 
-> pointer type
-> drivers/scsi/ini9100u.c: In function `i91uAppendSRBToQueue':
-> drivers/scsi/ini9100u.c:241: error: structure has no member named `next'
-> drivers/scsi/ini9100u.c:246: error: structure has no member named `next'
-> drivers/scsi/ini9100u.c: In function `i91uPopSRBFromQueue':
-> drivers/scsi/ini9100u.c:268: error: structure has no member named `next'
-> drivers/scsi/ini9100u.c:269: error: structure has no member named `next'
-> drivers/scsi/ini9100u.c: In function `i91uBuildSCB':
-> drivers/scsi/ini9100u.c:507: error: structure has no member named `address'
-> drivers/scsi/ini9100u.c:516: error: structure has no member named `address'
-> make[2]: *** [drivers/scsi/ini9100u.o] Error 1
-> make[1]: *** [drivers/scsi] Error 2
-> make: *** [drivers] Error 2
+> There are some process that are stuck but not in zombie state that look
+> like this.
 
-This is a known problem.
+do they go away if you do a kill -CONT on them?
 
-The driver is marked BROKEN in the Kconfig file, and you were only able 
-to choose it since you said "no" to
-  Select only drivers expected to compile cleanly
-.
-
-Unless someone fixes this driver it will not be available in kernel 2.6.
-
-> Thanks,
-> RunNHide
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+	Ingo

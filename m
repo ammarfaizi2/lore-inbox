@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267677AbSLTAIL>; Thu, 19 Dec 2002 19:08:11 -0500
+	id <S267680AbSLTAIZ>; Thu, 19 Dec 2002 19:08:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267666AbSLTAIL>; Thu, 19 Dec 2002 19:08:11 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:49938
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S267677AbSLTAIK>; Thu, 19 Dec 2002 19:08:10 -0500
-Subject: Re: [BENCHMARK] scheduler tunables with contest - prio_bonus_ratio
-From: Robert Love <rml@tech9.net>
-To: Con Kolivas <conman@kolivas.net>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200212201104.28863.conman@kolivas.net>
-References: <200212200850.32886.conman@kolivas.net>
-	 <200212201042.48161.conman@kolivas.net> <1040341995.2521.81.camel@phantasy>
-	 <200212201104.28863.conman@kolivas.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1040343375.2519.87.camel@phantasy>
+	id <S267682AbSLTAIY>; Thu, 19 Dec 2002 19:08:24 -0500
+Received: from hell.ascs.muni.cz ([147.251.60.186]:34688 "EHLO
+	hell.ascs.muni.cz") by vger.kernel.org with ESMTP
+	id <S267680AbSLTAIX>; Thu, 19 Dec 2002 19:08:23 -0500
+Date: Fri, 20 Dec 2002 01:16:26 +0100
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: module loading on demand is not working? 2.5.52-bk4
+Message-ID: <20021220001626.GB804@mail.muni.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 19 Dec 2002 19:16:16 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4i
+X-Muni: zakazka, vydelek, firma, komerce, vyplata
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, Mossad, Iraq, Pentagon, WTC, president, assassination, A-bomb, kua, vic joudu uz neznam
+X-policie-CR: Neserte mi nebo ukradnu, vyloupim, vybouchnu, znasilnim, zabiju, podpalim, umucim, podriznu, zapichnu a vubec vsechno
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-19 at 19:04, Con Kolivas wrote:
+Hello,
 
-> Thanks. That looks fair enough. My only concern is that io_load performance is 
-> worse with lower prio_bonus_ratio settings and io loads are the most felt.
-> 
-> I was thinking of changing what it varied. I was going to leave the timeslice 
-> fixed and use it to change the prio_bonus_ratio under load. Although that 
-> kind of defeats the purpose of having it in the first place since it is 
-> supposed to decide what is interactive under load?
+Am I something missing? I'm using nvidia kernel module. I have 
+alias char-major-195 nvidia
+in /etc/modules.conf and /etc/modprobe.conf 
+but nvidia module is still not loaded on demand.
+If I make modprobe nvidia then everything is ok.
 
-Yep.
-
-You want to find good defaults that just work.
-
-	Robert Love
-
+-- 
+Luká¹ Hejtmánek

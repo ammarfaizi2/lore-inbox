@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266895AbUIFHfM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266611AbUIFHgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266895AbUIFHfM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 03:35:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUIFHfM
+	id S266611AbUIFHgh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 03:36:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267248AbUIFHgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 03:35:12 -0400
-Received: from cantor.suse.de ([195.135.220.2]:38284 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267554AbUIFHdR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 03:33:17 -0400
-Date: Mon, 6 Sep 2004 09:28:59 +0200
-From: Andi Kleen <ak@suse.de>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Matt Mackall <mpm@selenic.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [PATCH][8/8] Arch agnostic completely out of line locks / x86_64
-Message-ID: <20040906072859.GB31343@wotan.suse.de>
-References: <Pine.LNX.4.58.0409021241291.4481@montezuma.fsmlabs.com> <20040904111605.GA12165@wotan.suse.de> <Pine.LNX.4.58.0409041420590.11262@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0409041420590.11262@montezuma.fsmlabs.com>
+	Mon, 6 Sep 2004 03:36:37 -0400
+Received: from fafner.doit.wisc.edu ([144.92.197.155]:28886 "EHLO
+	smtp6.wiscmail.wisc.edu") by vger.kernel.org with ESMTP
+	id S266611AbUIFHgR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 03:36:17 -0400
+Date: Mon, 06 Sep 2004 07:36:10 +0000
+From: John Lenz <lenz@cs.wisc.edu>
+Subject: Re: [PATCH 2.6.8.1 0/2] leds: new class for led devices
+In-reply-to: <20040904214111.GA19601@atrey.karlin.mff.cuni.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: John Lenz <lenz@cs.wisc.edu>, Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+       linux-kernel@vger.kernel.org, Kalin KOZHUHAROV <kalin@thinrope.net>
+Message-id: <1094456170l.4240l.1l@hydra>
+MIME-version: 1.0
+X-Mailer: Balsa 2.2.4
+Content-type: text/plain; Format=Flowed; DelSp=Yes; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+X-Spam-Score: 
+X-Spam-Report: IsSpam=no, Probability=7%, Hits=__CD 0, __CT 0, __CTE 0,
+ __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __MIME_VERSION 0,
+ __SANE_MSGID 0, __bl.spamcop.net_TIMEOUT
+X-Spam-PmxInfo: Server=avs-3, Version=4.7.0.111621, Antispam-Engine: 2.0.0.0,
+ Antispam-Data: 2004.9.5.0, SenderIP=146.151.41.63
+References: <1094157190l.4235l.2l@hydra> <ch8tdd$1uf$1@sea.gmane.org>
+ <20040903120634.GK6985@lug-owl.de> <1094237243l.7429l.1l@hydra>
+ <20040903232507.A8810@flint.arm.linux.org.uk>
+ <20040904111202.GB28074@atrey.karlin.mff.cuni.cz>
+ <20040904215333.B29410@flint.arm.linux.org.uk>
+ <20040904214111.GA19601@atrey.karlin.mff.cuni.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 04, 2004 at 02:26:12PM -0400, Zwane Mwaikambo wrote:
-> On Sat, 4 Sep 2004, Andi Kleen wrote:
+On 09/04/04 16:41:11, Pavel Machek wrote:
+> > What next?  One sysfs node plus attributes per GPIO line?  How about
+> > we do one sysfs node per virtual memory bit so people can control
+> > anything in their system on a bit granularity without needing mmap
+> > or any other interfaces?  When does this madness stop?
 > 
-> > On Thu, Sep 02, 2004 at 08:03:02PM -0400, Zwane Mwaikambo wrote:
-> > >  arch/x86_64/kernel/time.c        |   13 +++++++++++++
-> > >  arch/x86_64/kernel/vmlinux.lds.S |    1 +
-> > >  include/asm-x86_64/ptrace.h      |    4 ++++
-> > >  3 files changed, 18 insertions(+)
-> > >
-> > > Andi, i'm not so sure about that return address in profile_pc, i think i
-> > > need to read a bit more.
-> >
-> > When frame pointers are enabled the code is correct. But you don't
-> > even need frame pointers, because the spinlock code should not
-> > spill any registers and in such a function the return address
-> > is always *rsp. Same is true on i386 too.
-> 
-> How about the following?
+> GPIO lines are obviously system specific, I guess they could go to
+> /proc or be controlled via ioctl()... But that was attempt at
+> universal LED interface, right?
 
-That is with frame pointers enabled. Indeed with frame pointers
-on it is not true you still have to special case that.
+Yep.  As well, the GPIO interface proposed by Robert Schwebel should be  
+kept seperate... I don't see a reason or anything useful from unifying  
+them.
 
-But the common case is without frame pointers anyways ... 
+John
 
--Andi
+
 

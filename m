@@ -1,57 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263259AbTDYHpF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 03:45:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263399AbTDYHpF
+	id S263426AbTDYHuQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 03:50:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263488AbTDYHuQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 03:45:05 -0400
-Received: from news.cistron.nl ([62.216.30.38]:18447 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S263259AbTDYHpE (ORCPT
+	Fri, 25 Apr 2003 03:50:16 -0400
+Received: from inconnu.isu.edu ([134.50.8.55]:65499 "EHLO inconnu.isu.edu")
+	by vger.kernel.org with ESMTP id S263426AbTDYHuP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 03:45:04 -0400
-From: dth@ncc1701.cistron.net (Danny ter Haar)
-Subject: Re: 2.4.21-rc1-ac1: Filesystem corruption
-Date: Fri, 25 Apr 2003 07:57:13 +0000 (UTC)
-Organization: Cistron
-Message-ID: <b8apop$5ti$1@news.cistron.nl>
-References: <20030425073652.GA2089@defiant.crash>
-X-Trace: ncc1701.cistron.net 1051257433 6066 62.216.30.38 (25 Apr 2003 07:57:13 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: dth@ncc1701.cistron.net (Danny ter Haar)
+	Fri, 25 Apr 2003 03:50:15 -0400
+Date: Fri, 25 Apr 2003 02:02:24 -0600 (MDT)
+From: I Am Falling I Am Fading <skuld@anime.net>
+X-X-Sender: skuld@inconnu.isu.edu
 To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: Highpoint 374 first port device early blocks nonfunctional
+Message-ID: <Pine.LNX.4.44.0304250135020.10384-100000@inconnu.isu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ronald Lembcke  <es186@fen-net.de> wrote:
->Apr 25 02:19:40 defiant kernel: hdb: dma_timer_expiry: dma status == 0x60
->Apr 25 02:19:40 defiant kernel: hdb: timeout waiting for DMA
->Apr 25 02:19:40 defiant kernel: hdb: timeout waiting for DMA
->Apr 25 02:19:40 defiant kernel: hdb: (__ide_dma_test_irq) called while not waiting
->Apr 25 02:19:40 defiant kernel: hdb: status timeout: status=0xd0 { Busy }
->Apr 25 02:19:40 defiant kernel:
->Apr 25 02:19:40 defiant kernel: hda: DMA disabled
->Apr 25 02:19:40 defiant kernel: hdb: drive not ready for command
->Apr 25 02:19:41 defiant kernel: ide0: reset: success
->
->CONFIG_X86_UP_APIC=y
->CONFIG_X86_UP_IOAPIC=y
->CONFIG_X86_LOCAL_APIC=y
->CONFIG_X86_IO_APIC=y
 
-I also encounterd similar problems on several servers.
+(This is my first bug report on the Linux kernel ever, so please bear with 
+me, it will also be a bit sparse on information as I am not following the 
+bug report template exactly due to laziness on my part. I am sending this 
+to the LKML because I can't find a particular maintainer for the hpt3xx 
+driver)
 
-Disabling IO_APIC on uni-processor machine "fixed" things for me.
-Could you recompile a kernel without IO-APIC?
+[1.] Highpoint 374 first port device early blocks nonfunctional
 
-I've found these problems also in 2.5.xx kernels.
+[2.] I have a Epox EP-K9A3+ motherboard with integrated HPT374 controller. 
+Due to issues with the HPT BIOS a bootloader started from the southbridge 
+IDE controller cannot see the hpt374-attached devices, therefore I am 
+placing all of my drives on the HPT controller. I am not using them in any 
+RAID configuration for purposes of just getting the system working 
+properly to begin with. Basically I am just using it as another IDE 
+controller.
 
-My wild guess is that certain motherboards/bioses don't do what
-they are supposed to do. Found problems both on AMD and P4 platforms.
+Using LILO (as GRUB does not function properly with this controller) I can 
+boot into Linux successfully provided that I do not utilize the first 
+port.
 
-Danny
+While experimenting with the controller I discovered that under Linux, 
+using the native hpt7xx drivers as of kernel 2.4.21-pre5, I could not 
+successfully mount the first partition on whichever drive was attached to 
+port 1 of the controller. (in this case /dev/hde). It reports that the 
+partition is "not a block device". Partitions AFTER this do work properly, 
+therefore I can mount /dev/hde3, for instance, but not /dev/hde1. 
 
--- 
-Miguel   | "I can't tell if I have worked all my life or if
-de Icaza |  I have never worked a single day of my life,"
+Moving the drive to a different port (e.g. making it /dev/hdg, /dev/hdi, 
+etc.) fixes the problem, and I can access the first partition properly, 
+therefore it is not a problem with the drive, but rather with the driver 
+(as Win2k can address the first partition on the first port without any 
+problems).
+
+This leads me to believe that there is either a problem addressing the 
+early blocks of the device on the first port, or a problem with how the 
+driver handles its partitioning internally.
+
+[4.] (from memory) 2.4.21-pre5, compiled with 2.95.3, but also observed in 
+2.4.21-pre4.
+
+[5.] There was no Oops:
+
+[6.] 
+
+# Take a drive that is properly partitioned and formatted on another 
+# port/controller with your filesystem of choice, and place it on 
+# port 1 of the onboard HPT374 controller, in the case of my 
+# EP-8K9A3+ it is the bottom port of the four.
+
+mount /dev/hde1 /mnt/myfavoritemountpoint
+
+[7.] This is where I'm getting lazy. As the machine is in pieces at the
+moment I can't generate the necessary output here. I wish I could give
+more info on this. :-( I can only hope that someone with more clue than I
+has similar hardware and can try to replecate the problem. I will briefly 
+describe the system though.
+
+Epox EP-8K9A3+ mb (KT400-based)
+Athlon XP 1800+ Palomino core running at stock rates
+2 X Crucial PC2700 512MB  
+ATI Radeon 7500 AIW
+3Com 3c905-series NIC (driver not loaded, using onboard NIC right now)
+RealMagic Hollywood Plus (no driver loaded)
+
+The error seems to occur regardless of which modules are loaded and what 
+state the system is in.
+
+I'm sorry I'm not giving better info. :-( In any case I hope someone can 
+make use of this information. If anyone is interested in taking up the 
+problem, please write me directly as I do not subscribe to the LKML 
+(though I do read through the archives from time to time). Thanks!
+
+-----
+James Sellman -- ISU CoE-CS/ISLUG Linux Lab Admin   |"Lum, did you just see
+----------------------------------------------------| a hentai rabbit flying
+skuld@inconnu.isu.edu      |   // A4000/604e/60 128M| through the air?"
+skuld@anime.net            | \X/  A500/20 3M        |   - Miyake Shinobu
 

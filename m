@@ -1,92 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268538AbUHYG25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263448AbUHYJbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268538AbUHYG25 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 02:28:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268539AbUHYG25
+	id S263448AbUHYJbL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 05:31:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUHYJ3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 02:28:57 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:50067 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S268538AbUHYG2y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 02:28:54 -0400
-Message-ID: <412C315D.1000708@hovedpuden.dk>
-Date: Wed, 25 Aug 2004 08:27:41 +0200
-From: =?ISO-8859-1?Q?John_Damm_S=F8rensen?= <john@hovedpuden.dk>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us, en
+	Wed, 25 Aug 2004 05:29:30 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:56449 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S266114AbUHYJ0p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 05:26:45 -0400
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: /dev/[*]st* does not work with EXBAYTE 8505 with 2.6 kernels
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-yoursite-MailScanner-Information: Please contact the ISP for more information
-X-yoursite-MailScanner: Found to be clean
+Message-ID: <16684.23372.311191.218551@alkaid.it.uu.se>
+Date: Wed, 25 Aug 2004 11:26:36 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Philippe Elie <phil.el@wanadoo.fr>
+Cc: Zarakin <zarakin@hotpop.com>, linux-kernel@vger.kernel.org
+Subject: Re: nmi_watchdog=2 - Oops with 2.6.8
+In-Reply-To: <20040825061248.GB556@zaniah>
+References: <021101c48a44$c8f846e0$6401a8c0@novustelecom.net>
+	<20040825061248.GB556@zaniah>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have just upgraded from RH9 Linux 2.4 to FC2 Linux 2.6 and now my
-EXABYTE 8505 no longer works.
+Philippe Elie writes:
+ > > EIP:  0060: [<0xc0110d4b>] Not tainted
+ > > EIP is at clear_msr_range+0x18/0x25
+ > > eax: 0  ebx:1f  ecx: 3ba  edx: 0
+ > > esi: 3a0  edi: 1a  ebp:0 esp: d7d83f74
+ > > ds: 7b es: 7b ss: 68
+ > > 
+ > > Dump of assembler code for function clear_msr_range:
+ > > 0xc0110d33 <clear_msr_range+0>: push   %edi
+ > > 0xc0110d34 <clear_msr_range+1>: xor    %edi,%edi
+ > > 0xc0110d36 <clear_msr_range+3>: push   %esi
+ > > 0xc0110d37 <clear_msr_range+4>: push   %ebx
+ > > 0xc0110d38 <clear_msr_range+5>: mov    0x14(%esp,1),%ebx
+ > > 0xc0110d3c <clear_msr_range+9>: mov    0x10(%esp,1),%esi
+ > > 0xc0110d40 <clear_msr_range+13>:        cmp    %ebx,%edi
+ > > 0xc0110d42 <clear_msr_range+15>:        jae    0xc0110d54
+ > > 0xc0110d44 <clear_msr_range+17>:        xor    %eax,%eax
+ > > 0xc0110d46 <clear_msr_range+19>:        lea    (%edi,%esi,1),%ecx
+ > > 0xc0110d49 <clear_msr_range+22>:        mov    %eax,%edx
+ > > 0xc0110d4b <clear_msr_range+24>:        wrmsr
+ > 
+ > Intel removed MSR 0x3ba/0x3bb (MSR_IQ_ESCR0 and 1) in prescott processor
+ > (family 15 model 3). I'm going to sleep, if nobody beat me I'll try to
+ > provide a patch, see nmi.c:setup_p4_watchdog() --> clear_msr_range(0x3A0, 31);
 
-If I try to access it with mt (using any device like nst0) I get no such
-device error message. Same thing with stinit.
+I figured that too. Strangely enough, perfctr has been run
+successfully on two CPUID 0xF3x machines, and it didn't hit
+this problem. I have no idea why, yet. Maybe they haven't
+removed IQ_ESCR{0,1} from the Nocona?
 
-The tape drive is found during boot, as this snippet from dmesg shows:
-qla1280: QLA12160 found on PCI bus 1, dev 8
-ACPI: PCI interrupt 0000:01:08.0[A] -> GSI 11 (level, low) -> IRQ 11
-scsi(1): Reading NVRAM
-qla1280_isr(): index 1 asynchronous BUS_RESET
-qla1280_isr(): index 0 asynchronous BUS_RESET
-scsi(1:0): Resetting SCSI BUS
-scsi(1:1): Resetting SCSI BUS
-scsi1 : QLogic QLA12160 PCI to SCSI Host Adapter
-        Firmware version: 10.04.32, Driver version 3.24.3
-   Vendor: EXABYTE   Model: EXB-85058SQANXR0  Rev: 0808
-   Type:   Sequential-Access                  ANSI SCSI revision: 02
-scsi(1:0:4:0): Sync: period 50, offset 14
+I don't have physical access to either a Prescott or a Nocona,
+but it it shouldn't be difficult to test. Just set up IQ_ESCR{0,1}
+with a clock-like event and see what happens.
 
-cat of /proc/scsi/scsi also shows the tape device:
-Attached devices:
-Host: scsi0 Channel: 00 Id: 02 Lun: 00
-   Vendor: COMPAQ   Model: ST34371W         Rev: 0682
-   Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 04 Lun: 00
-   Vendor: SEAGATE  Model: ST39103LW        Rev: 0002
-   Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi1 Channel: 00 Id: 04 Lun: 00
-   Vendor: EXABYTE  Model: EXB-85058SQANXR0 Rev: 0808
-   Type:   Sequential-Access                ANSI SCSI revision: 02
-
-lsmod seems to contain the necessary driver modules as well:
-
-Module                  Size  Used by
-st                     30429  0
-qlogicfas408            6473  0
-parport_pc             21249  1
-lp                      9133  0
-parport                35977  2 parport_pc,lp
-md5                     3905  1
-ipv6                  217349  16
-autofs4                20677  0
-sunrpc                141861  1
-iptable_filter          2369  0
-ip_tables              13889  1 iptable_filter
-3c59x                  33385  0
-dm_mod                 47317  0
-button                  4825  0
-battery                 7117  0
-asus_acpi               9177  0
-ac                      3533  0
-ext3                   96937  4
-jbd                    66521  1 ext3
-qla1280                81997  0
-sd_mod                 17473  5
-scsi_mod              105360  3 st,qla1280,sd_mod
-
-Any hints?
-Please don't tell me that the 8505 is no longer supported.
-
-Cheers
-John
-
-
-
+/Mikael

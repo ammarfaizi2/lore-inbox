@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262064AbVAYTK3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262069AbVAYTLQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262064AbVAYTK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 14:10:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbVAYTK2
+	id S262069AbVAYTLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 14:11:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVAYTKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 14:10:28 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:23732 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262067AbVAYTKD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 14:10:42 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:8494
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262065AbVAYTKD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 25 Jan 2005 14:10:03 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Jdxwy2ThFze01g5Qh/sGzq/HZvyZqrwDRigFVfMmyAycN86uNnfc3T6VDnOhMRBXJZVgcAH6SFnqWuE9+9MQG65CsLxsggkQV9pKN0TBsR/Oe1tL7D0aSZdI0iIsFWUmF5sCmwzC9lR/XRcLKTkOutkDt3ruYOZJeUKnLFfBfBE=
-Message-ID: <7aaed09105012511104d31fc33@mail.gmail.com>
-Date: Tue, 25 Jan 2005 20:10:00 +0100
-From: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <espenfjo@gmail.com>
-Reply-To: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <espenfjo@gmail.com>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: 2.6.11-rc2-mm1
-Cc: Brice.Goglin@ens-lyon.org, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050125184139.GA1346@elf.ucw.cz>
+Date: Tue, 25 Jan 2005 20:09:58 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Catalin Marinas <catalin.marinas@arm.com>
+Cc: CVSps@dm.cobite.com, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org, Andreas Gruenbacher <agruen@suse.de>
+Subject: Re: kernel CVS troubles with cvsps
+Message-ID: <20050125190958.GC7587@dualathlon.random>
+References: <20050125164203.GY7587@dualathlon.random> <tnxsm4po2o6.fsf@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-References: <20050124021516.5d1ee686.akpm@osdl.org>
-	 <41F59A50.1090203@ens-lyon.fr> <20050125184139.GA1346@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <tnxsm4po2o6.fsf@arm.com>
+X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-AA-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
+X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
+X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Jan 2005 19:41:39 +0100, Pavel Machek <pavel@ucw.cz> wrote:
-> Heh, on my system, I get no cursor, and no letters, either (this is
-> vga text console). I *can* see the backgrounds, for example if I run
-> aumix I see colored blocks... Framebuffer does not seem to work,
-> either.
+On Tue, Jan 25, 2005 at 05:10:17PM +0000, Catalin Marinas wrote:
+> I noticed this problem some time ago when trying to see whether the
+> darcs repository is consistent with the BK one:
 > 
-> Letters are present for a while during boot; not sure what makes them
-> go away.
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=110026570201544&w=2
+> 
+> A solution is to use the "(Logical change ...)" string within each
+> file's commit log instead of the date (I realised that it is simpler
+> to write a shell script to generate the diffs rather than modifying
+> cvsps).
 
-I get the same thing, text disappairs after a second or something like
-that. Framebuffer has no effect.
+Thanks for the confirmation. To me this hour difference looks like a bug
+in bkcvs. It would be nice to get it fixed so we don't have to
+workaround it in cvsps or hack around more scripts.
 
--- 
-Mvh / Best regards
-Espen Fjellvær Olsen
-espenfjo@gmail.com
-Norway
+Thanks.

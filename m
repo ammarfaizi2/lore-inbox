@@ -1,80 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313898AbSGUVez>; Sun, 21 Jul 2002 17:34:55 -0400
+	id <S314829AbSGUVlR>; Sun, 21 Jul 2002 17:41:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314278AbSGUVez>; Sun, 21 Jul 2002 17:34:55 -0400
-Received: from nameservices.net ([208.234.25.16]:27093 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S313898AbSGUVey>;
-	Sun, 21 Jul 2002 17:34:54 -0400
-Message-ID: <3D3B2A11.5DB3C08B@opersys.com>
-Date: Sun, 21 Jul 2002 17:39:29 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
-MIME-Version: 1.0
-To: Mark Spencer <markster@linux-support.net>
-CC: Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
-Subject: Re: Zaptel Pseudo TDM Bus
-References: <Pine.LNX.4.33.0207211551350.25617-100000@hoochie.linux-support.net>
+	id <S315119AbSGUVlR>; Sun, 21 Jul 2002 17:41:17 -0400
+Received: from ip68-102-192-193.ks.ok.cox.net ([68.102.192.193]:21405 "EHLO
+	jakob") by vger.kernel.org with ESMTP id <S314829AbSGUVlQ>;
+	Sun, 21 Jul 2002 17:41:16 -0400
+Date: Sun, 21 Jul 2002 16:45:37 -0500
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.27 build errors - linux/i2c-old.h
+Message-ID: <20020721214537.GA24886@ksu.edu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-School: Kansas State University
+X-vi-or-emacs: vi
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+From: "Johnny Q. Hacker" <trelane@jakob.neurotek.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
-Mark Spencer wrote:
-> > That said, Adeos does offer what appears to be an very efficient model for
-> > handling interrupts.  (Caveat: I haven't tried it myself yet, much less
-> > measured it, just eyeballed the code)  You can load a module directly into
-> > the interrupt pipeline and bypass all of Linux's interrupt machinery, even
-> > bypass cli (it just sets a flag in Adeos).
-> 
-> If someone involved with, or familiar with, this project would care to
-> contact me, I'd be happy to talk about RT enabling zaptel / asterisk.
+We're moving, or I'd track thisone down meself.  I'd guess that it'll
+  be fairly easy to rectify.
 
-Right here :)
+  gcc -E -Wp,-MD,/usr/local/src/kernel/linux-2.5.27/include/linux/modules/drivers/media/video/.i2c-old.ver.d -D__KERNEL__ -I/usr/local/src/kernel/linux-2.5.27/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=i2c_old -D__GENKSYMS__  i2c-old.c | /sbin/genksyms  -k 2.5.27 > /usr/local/src/kernel/linux-2.5.27/include/linux/modules/drivers/media/video/i2c-old.ver.tmp
+i2c-old.c:17: linux/i2c-old.h: No such file or directory
+make[5]: *** [/usr/local/src/kernel/linux-2.5.27/include/linux/modules/drivers/media/video/i2c-old.ver] Error 1
+make[5]: Leaving directory `/usr/local/src/kernel/linux-2.5.27/drivers/media/video'
+make[4]: *** [video] Error 2
+make[4]: Leaving directory `/usr/local/src/kernel/linux-2.5.27/drivers/media'
+make[3]: *** [media] Error 2
+make[3]: Leaving directory `/usr/local/src/kernel/linux-2.5.27/drivers'
+make[2]: *** [_sfdep_drivers] Error 2
+make[2]: Leaving directory `/usr/local/src/kernel/linux-2.5.27'
+make[1]: *** [include/linux/modversions.h] Error 2
+make[1]: Leaving directory `/usr/local/src/kernel/linux-2.5.27'
+make: *** [.hdepend] Error 2
 
-Any driver that needs direct access to the interrupts can use Adeos' interrupt
-pipeline. Your driver's low-level operations should be fairly easy to port to
-Adeos.
-
-Since Adeos' release, such porting of code has actually been successfully
-done a couple of times already. Apart from Philippe's porting of the Xenomai
-interface, here's an interesting tidbit that appeared on the Adeos mailing
-list:
-> We managed to get a proprietary (sorry nobody's perfect) RT nanokernel
-> working with ADEOS. Thus we have two different OSes working at the same
-> time on the same computer thanks to ADEOS. 
-
-And yet another:
-> I explored yesterday the Adeos nanokernel and was surprised by the
-> possibilities and also the stability!
-> 
-> I tested for example multiple domains having different priorities and
-> installing handlers on the same interrupt which works exactly is it is
-> described.
-> 
-> I also tested snooping other interrupts (mouse/keyboard/ide0/ethernet)
-> then the timer example provided in the package. (which works ofcourse
-> also great)
-
-Feel free to post any questions to Adeos' mailing list. It's been quite
-active lately and I'm sure your application will interest others.
-
-Adeos' web site is at:
-http://www.freesoftware.fsf.org/adeos/
-
-If you're looking for an introduction to Adeos' functionality have a look
-at the original LKML announcement:
-http://lwn.net/Articles/1743/
-
-Best regards,
-
-Karim
-
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+-- 
+"We're moving toward a world where all the capabilities of the Internet
+ are reprocessed through a single filter, with Microsoft's business plan
+ behind it."  Mozilla's Mitchell Baker, 
+http://news.com.com/2100-1023-941926.html

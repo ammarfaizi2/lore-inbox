@@ -1,78 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264977AbUFRDbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263529AbUFREhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264977AbUFRDbY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 23:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264979AbUFRDbY
+	id S263529AbUFREhY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 00:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264982AbUFREhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 23:31:24 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:5304 "EHLO
-	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S264977AbUFRDbW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 23:31:22 -0400
-Date: Thu, 17 Jun 2004 21:20:57 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Programtically tell diff between HT and real
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <009101c454e3$45cd0530$6401a8c0@northbrook>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
-References: <fa.dpf28q3.1t6gfg5@ifi.uio.no> <fa.frt3cgc.l145hu@ifi.uio.no>
+	Fri, 18 Jun 2004 00:37:24 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30105 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263529AbUFREhW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 00:37:22 -0400
+Date: Thu, 17 Jun 2004 21:36:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Sean Neakums <sneakums@zork.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.7
+Message-Id: <20040617213619.7f0b5b89.akpm@osdl.org>
+In-Reply-To: <6uisdqryyt.fsf@zork.zork.net>
+References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org>
+	<6uisdqryyt.fsf@zork.zork.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If that 2.8 GHz CPU is not 800 MHz FSB, then it's not HT-capable regardless
-of what the feature flags say (as far as I know, most P4 CPUs show HT
-support in the feature flags even if it doesn't really support it).
+Sean Neakums <sneakums@zork.net> wrote:
+>
+> The 2.6.7 I built seems kind of swap-happy, apparently triggered by an
+>  overnight updatedb run.  I think this also happened with
+>  2.6.7-rc3-mm2.
 
+There were corrections to logic errors in the vm scanner which will cause
+increased pageout.
 
------ Original Message ----- 
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Newsgroups: fa.linux.kernel
-To: "Andre Tomt" <andre@tomt.net>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Wednesday, June 16, 2004 4:02 PM
-Subject: Re: Programtically tell diff between HT and real
+>  I can't seem to find anything particularly out of the
+>  ordinary in the information below.  I started off with swappiness set
+>  to 50 as I have for a while and dropped it twice by ten each time
+>  after a swapoff/swapon.  It starts paging stuff out again pretty fast
+>  after it gets the swap back.  Swap is is a dm-crypt device map.
 
+swapoff/swapon doesn't do what you think it does.  The pages are read from
+the swap device, have the ptes reattached but the pages are placed on the
+inactive list, from where they will be swapped out again very easily after
+a swapon.
 
-> On Wed, 16 Jun 2004, Andre Tomt wrote:
->
-> > Richard B. Johnson wrote:
-> > > flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-> > >   mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe
-cid
-> > >                                                            ^_______
-> > > bogomips : 5570.56
-> > >
-> > > I would love to know how you turn in on! This is one of those
-> > > "latest-and-greatest" Intel D865PERL mother-boards and I've
-> > > even flashed the BIOS with the "latest-and-greatest".
-> >
-> > The usual way is to enable HT in BIOS, and use a SMP enabled kernel.
-> >
->
-> It's a SMP kernel. There is no 'HT enable' in the BIOS setup.
-> In fact, there is very little that can be set and, it's even
-> very hard to convince it that I want to boot from a SCSI and
-> not from the first disk it finds. One has to remove the battery
-> to discharge the CMOS so it won't ignore the 'Del' key
-> on startup. It's a very bad BIOS or a very bad board, I
-> don't know which.
->
->
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
->             Note 96.31% of all statistics are fiction.
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Which is really the correct behaviour: if these pages were earlier swapped
+out then clearly they are the right ones to swap out when swap again
+becomes available.
+
+But that doesn't seem very important, and the old swapoff/swapon trick is
+useful, so...
+
+--- 25/mm/swapfile.c~swapoff-activate-pages	2004-06-17 21:27:41.704568280 -0700
++++ 25-akpm/mm/swapfile.c	2004-06-17 21:28:35.417402688 -0700
+@@ -467,6 +467,13 @@ static unsigned long unuse_pmd(struct vm
+ 		if (unlikely(pte_same(*pte, swp_pte))) {
+ 			unuse_pte(vma, offset + address, pte, entry, page);
+ 			pte_unmap(pte);
++
++			/*
++			 * Move the page to the active list so it is not
++			 * immediately swapped out again after swapon.
++			 */
++			activate_page(page);
++
+ 			/* add 1 since address may be 0 */
+ 			return 1 + offset + address;
+ 		}
+_
 

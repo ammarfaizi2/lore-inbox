@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266550AbRGIJgJ>; Mon, 9 Jul 2001 05:36:09 -0400
+	id <S266996AbRGIJcS>; Mon, 9 Jul 2001 05:32:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266998AbRGIJf6>; Mon, 9 Jul 2001 05:35:58 -0400
-Received: from smtp.alcove.fr ([212.155.209.139]:26633 "EHLO smtp.alcove.fr")
-	by vger.kernel.org with ESMTP id <S266997AbRGIJfm>;
-	Mon, 9 Jul 2001 05:35:42 -0400
-To: rjd@xyzzy.clara.co.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: linux-2.4.7-pre3/drivers/char/sonypi.c would hang some non-Sony notebooks
-In-Reply-To: <20010708174639.A7477@xyzzy.clara.co.uk>
-In-Reply-To: <200107081026.DAA22119@baldur.yggdrasil.com> <20010708174639.A7477@xyzzy.clara.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Message-Id: <E15JXRa-0001Xb-00@come.alcove-fr>
-From: Stelian Pop <stelian@alcove.fr>
-Date: Mon, 09 Jul 2001 11:35:06 +0200
+	id <S266997AbRGIJcI>; Mon, 9 Jul 2001 05:32:08 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:55496 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S266996AbRGIJbu>; Mon, 9 Jul 2001 05:31:50 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: VM in 2.4.7-pre hurts...
+In-Reply-To: <Pine.LNX.4.33.0107091107490.311-100000@mikeg.weiden.de>
+Organisation: SAP LinuxLab
+Date: 09 Jul 2001 11:29:48 +0200
+In-Reply-To: <Pine.LNX.4.33.0107091107490.311-100000@mikeg.weiden.de>
+Message-ID: <m38zhya1rn.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In alcove.lists.linux.kernel, you wrote:
+Hi Mike,
 
-> > 	Yes, although that is a task that is never complete.  So, I
-> > would recommend that we adopt a simple test that should work into the
-> > stock kernels with the expectation that the test will probably be
-> > refined in the future.  Perhaps we could check the Cardbus bridge.
-> > Does "lspci -v" on your Sony Vaio indicate that its cardbus bridge
-> > have a subsystem vendor ID of Sony?
+On Mon, 9 Jul 2001, Mike Galbraith wrote:
+> --- mm/shmem.c.org	Mon Jul  9 09:03:27 2001
+> +++ mm/shmem.c	Mon Jul  9 09:03:46 2001
+> @@ -264,8 +264,8 @@
+>  	info->swapped++;
 > 
-> OK. lspic -v shows
+>  	spin_unlock(&info->lock);
+> -out:
+>  	set_page_dirty(page);
+> +out:
+>  	UnlockPage(page);
+>  	return error;
+>  }
 > 
->   CardBus bridge: Ricoh Co Ltd RL5c475 (rev 80)
->   Subsystem: Sony Corporation: Unknown device 8082
-> 
-> Class 0x0607, vendor 0x1180, dev 0x0x0475, subv 0x104D, subd 0x8082
-> 
-> I guess that's a pretty safe signature if the other VAIO lap and
-> palmtops have it.
+> So, did I fix it or just bust it in a convenient manner ;-)
 
-Except for the subsystem's device ID. My C1VE shows for the cardbus
-bridge:
-	Class 0607: 1180:0475 (rev 80)
-	Subsystem: 104d:80b1
+... now you drop random pages. This of course helps reducing memory
+pressure ;-)
 
-I guess we'd better test for (class,vendor,dev,subsys vendor,ANY).
+But still this may be a hint. You are not running out of swap, aren't
+you?
 
-A much better solution would be using the DMI tables, but the 
-implementation is not so immediate due to design problems (IMHO). See
-my other post below.
+Greetings
+		Christoph
 
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-|---------------- Free Software Engineer -----------------|
-| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
-|------------- Alcôve, liberating software ---------------|
+

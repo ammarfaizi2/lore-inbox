@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262978AbUCRVQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 16:16:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262976AbUCRVQw
+	id S262976AbUCRVXY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 16:23:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262973AbUCRVXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 16:16:52 -0500
-Received: from ns.suse.de ([195.135.220.2]:19082 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262973AbUCRVQr (ORCPT
+	Thu, 18 Mar 2004 16:23:24 -0500
+Received: from zero.aec.at ([193.170.194.10]:34055 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S262951AbUCRVXW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 16:16:47 -0500
-Subject: Re: True  fsync() in Linux (on IDE)
-From: Chris Mason <mason@suse.com>
-To: Peter Zaitsev <peter@mysql.com>
-Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1079644190.2450.405.camel@abyss.local>
-References: <1079572101.2748.711.camel@abyss.local>
-	 <20040318064757.GA1072@suse.de> <1079639060.3102.282.camel@abyss.local>
-	 <20040318194745.GA2314@suse.de>  <1079640699.11062.1.camel@watt.suse.com>
-	 <1079641026.2447.327.camel@abyss.local>
-	 <1079642001.11057.7.camel@watt.suse.com>
-	 <1079642801.2447.369.camel@abyss.local>
-	 <1079643740.11057.16.camel@watt.suse.com>
-	 <1079644190.2450.405.camel@abyss.local>
-Content-Type: text/plain
-Message-Id: <1079644743.11055.26.camel@watt.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 18 Mar 2004 16:19:03 -0500
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Mar 2004 16:23:22 -0500
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: sched_setaffinity usability
+References: <1B0Ls-lY-27@gated-at.bofh.it> <1B42z-3Lx-5@gated-at.bofh.it>
+	<1B4Fh-4sQ-3@gated-at.bofh.it> <1B86P-8gq-69@gated-at.bofh.it>
+	<1Bars-2s6-29@gated-at.bofh.it> <1BaKU-2Lg-49@gated-at.bofh.it>
+	<1BaKX-2Lg-61@gated-at.bofh.it> <1BaUR-2V0-41@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 18 Mar 2004 22:23:18 +0100
+In-Reply-To: <1BaUR-2V0-41@gated-at.bofh.it> (Ingo Molnar's message of "Thu,
+ 18 Mar 2004 20:00:37 +0100")
+Message-ID: <m3r7vponnd.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-03-18 at 16:09, Peter Zaitsev wrote:
-> On Thu, 2004-03-18 at 13:02, Chris Mason wrote:
-> 
-> > > In the former case cache is surely not flushed. 
-> > > 
-> > Hmmm, is it reiser?  For both 2.4 reiserfs and ext3, the flush happens
-> > when you commit.  ext3 always commits on fsync and reiser only commits
-> > when you've changed metadata.
-> 
-> Oh. Yes. This is Reiser, I did not think it is FS issue.
-> I'll know to stay away from ReiserFS now.
+Ingo Molnar <mingo@elte.hu> writes:
 
-For reiserfs data=ordered should be enough to trigger the needed
-commits.  If not, data=journal.  Note that neither fs does barriers for
-O_SYNC, so we're just not perfect in 2.4.
+> * Ingo Molnar <mingo@elte.hu> wrote:
+>
+>> x86-64 has a VDSO page as well, [...]
+>
+> hm, i'm not sure this is the case. It does have a vsyscall page but
+> doesnt fill out AT_SYSINFO. ia64 seems to have something like a vdso,
+> passed down via AT_SYSINFO.
 
--chris
+Yes, the x86-64 64bit vsyscalls predate all the vDSO work and haven't
+been updated. It has a vDSO for 32bit programs though.
 
+I guess it would be not that much work to add it for 64bit too. 
+I would not be opposed to it if somebody sends me patches. 
+
+This means my only objection is that an dwarf2 unwind table written
+without the .cfi_* support in the assembler is incredibly ugly and
+unmaintainable. I really don't want to have more such ugly tables.  I
+guess it would be best to force an binutils update for dwarf2
+information.
+
+-Andi
 

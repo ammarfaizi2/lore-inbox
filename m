@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288012AbSBDUAc>; Mon, 4 Feb 2002 15:00:32 -0500
+	id <S287895AbSBDUEw>; Mon, 4 Feb 2002 15:04:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287895AbSBDUAX>; Mon, 4 Feb 2002 15:00:23 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:1596 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S288047AbSBDUAC>; Mon, 4 Feb 2002 15:00:02 -0500
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: "Erik A. Hendriks" <hendriks@lanl.gov>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org, Werner Almesberger <wa@almesberger.net>
-Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
-In-Reply-To: <m1elk7d37d.fsf@frodo.biederman.org>
-	<3C586355.A396525B@zip.com.au> <m1zo2vb5rt.fsf@frodo.biederman.org>
-	<3C58B078.3070803@zytor.com> <m1vgdjb0x0.fsf@frodo.biederman.org>
-	<3C58CAE0.4040102@zytor.com> <20020131103516.I26855@lanl.gov>
-	<m1elk6t7no.fsf@frodo.biederman.org> <3C59DB56.2070004@zytor.com>
-	<m1r8o5a80f.fsf@frodo.biederman.org> <3C5A5F25.3090101@zytor.com>
-	<m1hep19pje.fsf@frodo.biederman.org> <3C5ADDD1.6000608@zytor.com>
-	<m1665fame3.fsf@frodo.biederman.org> <3C5C54D2.2030700@zytor.com>
-	<m1k7tv8p2z.fsf@frodo.biederman.org> <3C5C98E6.2090701@zytor.com>
-	<m1y9ia76f7.fsf@frodo.biederman.org> <3C5D91EB.4000900@zytor.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 04 Feb 2002 12:55:51 -0700
-In-Reply-To: <3C5D91EB.4000900@zytor.com>
-Message-ID: <m1ofj56myg.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S288047AbSBDUEm>; Mon, 4 Feb 2002 15:04:42 -0500
+Received: from ua0d5hel.dial.kolumbus.fi ([62.248.132.0]:61492 "EHLO
+	porkkala.uworld.dyndns.org") by vger.kernel.org with ESMTP
+	id <S287895AbSBDUE1>; Mon, 4 Feb 2002 15:04:27 -0500
+Message-ID: <3C5EE8AE.1206EEEB@kolumbus.fi>
+Date: Mon, 04 Feb 2002 22:01:50 +0200
+From: Jussi Laako <jussi.laako@kolumbus.fi>
+X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Ed Tomlinson <tomlins@cam.org>
+CC: mingo@elte.hu, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] improving O(1)-J9 in heavily threaded situations
+In-Reply-To: <Pine.LNX.4.33.0202040627001.22583-100000@localhost.localdomain> <20020204044055.EF0579251@oscar.casa.dyndns.org>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
-
-> Eric W. Biederman wrote:
+Ed Tomlinson wrote:
 > 
-> > The simplest is the observation that right now 10MB is about what it
-> > takes to hold every Linux driver out there.  So all you really need is
-> > a 16MB system, to avoid a device probing loader.  And probably
-> > noticeably less than that.  The only systems I see having real
-> > problems are old systems where device enumeration is not reliable, and
-> > require human intervention anyway.
-> >
-> 
-> 
-> A floppy disk is 1.44 MB.
+> One point that seems to get missed is that a group of java threads,
+> posix threads or sometimes forked processes combine to make an 
+> application. Linux, at the scheduler level at least, does not have the 
+> ability to determine that all the tasks are really one application.  
+> Under light loads this makes no difference.  When the load gets heavy 
+> having this ability helps here.
 
-Yes floppies are small.  The nice thing is that there are only 2 or 3
-floppy drivers in the kernel so it is not hard to include access to
-the primary boot medium.  
+My application is very good example of this kind of application. I'm very
+worried about the way new scheduler is beginning to behave. It's combination
+of single processes with many threads and many processes with single
+threads. And because it's kind of realtime application, _all_ processes and
+threads are "interactive". CPU load is typically very high.
 
-Though actually last time I checked you can still fit all of the
-kernels network drivers on a floppy, and it wouldn't surprise me if you
-could do the same with cd drivers as well.
 
-For other medium you can reduce the number of times you interact with
-the user to exactly once, and that is worth handling.  For a floppy
-you either have enough room for all of your drivers or you don't.
-This doesn't really appear to affect the number of user interactions,
-and doesn't seem to me to be a case that the presence of absence of
-firmware callbacks makes a difference.  
+	- Jussi Laako
 
-The only difference I see with firmware callbacks is weather you are
-working from BIOS user space or from kernel user space.
-
-Eric
+-- 
+PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+Available at PGP keyservers
 

@@ -1,58 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277437AbRJJWR5>; Wed, 10 Oct 2001 18:17:57 -0400
+	id <S277473AbRJJWVS>; Wed, 10 Oct 2001 18:21:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277440AbRJJWRr>; Wed, 10 Oct 2001 18:17:47 -0400
-Received: from [213.97.199.90] ([213.97.199.90]:2944 "HELO fargo")
-	by vger.kernel.org with SMTP id <S277437AbRJJWRi> convert rfc822-to-8bit;
-	Wed, 10 Oct 2001 18:17:38 -0400
-From: "David =?ISO-8859-1?Q?G=F3mez" ?= <davidge@jazzfree.com>
-Date: Thu, 11 Oct 2001 00:15:06 +0200 (CEST)
-X-X-Sender: <huma@fargo>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: __alloc_pages error / badblocks proccess killed
-Message-ID: <Pine.LNX.4.33.0110102356550.1004-100000@fargo>
+	id <S277476AbRJJWVH>; Wed, 10 Oct 2001 18:21:07 -0400
+Received: from sweetums.bluetronic.net ([66.57.88.6]:25537 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id <S277473AbRJJWUx>; Wed, 10 Oct 2001 18:20:53 -0400
+Date: Wed, 10 Oct 2001 18:21:01 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetopia.net>
+X-X-Sender: <jfbeam@sweetums.bluetronic.net>
+To: Mingming cao <cmm@us.ibm.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]Fix bug:rmdir could remove current working directory
+In-Reply-To: <3BC4E8AD.72F175E3@us.ibm.com>
+Message-ID: <Pine.GSO.4.33.0110101816320.22872-100000@sweetums.bluetronic.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 10 Oct 2001, Mingming cao wrote:
+>I read the man page of
+>rmdir(2).  It says in this case EBUSY error should be returned.  I
+>suspected this is a bug and added a check in vfs_rmdir(). The following
+>patch is against 2.4.10 and has been verified.  Please comment and
+>apply.
 
-Kernel is 2.4.10. While doing a 'badblocks -w -s -v /dev/hdg' i've found
-some errors.
+The bug is in the manpage.  This was discussed over a year ago (some time
+after 2.1.44 introduced dcache (it was broken then, but that's when it
+appeared.))
 
-badblocks first write a pattern in the disk, and after having finished
-that part, it compares data actually written in the disk and checks
-for errors, then it's when i get these errors, several allocation
-failed messages, and VM killing first syslogd, klogd and in last place
-badblocks proccess. Any idea why is this happening, are VM changes in
-2.4.10 causing this ? Most of the RAM (320mb) is used by blackblocks,
-but almost no swap is used.
-
-Oct 10 23:55:50 fargo kernel: __alloc_pages: 0-order allocation failed
-(gfp=0x1d2/0) from c0122ce7
-Oct 10 23:55:50 fargo kernel: VM: killing process klogd
-Oct 10 23:55:50 fargo kernel: __alloc_pages: 0-order allocation failed
-(gfp=0x1d2/0) from c0122ce7
-Oct 10 23:55:50 fargo last message repeated 2 times
-Oct 10 23:55:50 fargo kernel: __alloc_pages: 0-order allocation failed
-(gfp=0xf0/0) from c0132954
-Oct 10 23:55:50 fargo kernel: __alloc_pages: 0-order allocation failed
-(gfp=0x1d2/0) from c0122ce7
-Oct 10 23:55:50 fargo kernel: __alloc_pages: 0-order allocation failed
-(gfp=0x1d2/0) from c012349e
-Oct 10 23:55:50 fargo kernel: __alloc_pages: 0-order allocation failed
-(gfp=0x1d2/0) from c0122ce7
-Oct 10 23:55:50 fargo last message repeated 12 times
-Oct 10 23:55:50 fargo kernel: VM: killing process badblocks
-
-
-
-
-David Gómez
-
-"The question of whether computers can think is just like the question of
- whether submarines can swim." -- Edsger W. Dijkstra
+--Ricky
 
 

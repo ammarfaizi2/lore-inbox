@@ -1,44 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261842AbSJ2MWK>; Tue, 29 Oct 2002 07:22:10 -0500
+	id <S261849AbSJ2MxA>; Tue, 29 Oct 2002 07:53:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261844AbSJ2MWK>; Tue, 29 Oct 2002 07:22:10 -0500
-Received: from louise.pinerecords.com ([212.71.160.16]:25096 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S261842AbSJ2MWK>; Tue, 29 Oct 2002 07:22:10 -0500
-Date: Tue, 29 Oct 2002 13:28:24 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5 merge candidate list, final version.  (End of "crunch time" series.)
-Message-ID: <20021029122824.GJ22687@louise.pinerecords.com>
-References: <200210280534.16821.landley@trommello.org> <15805.27643.403378.829985@laputa.namesys.com>
+	id <S261850AbSJ2MxA>; Tue, 29 Oct 2002 07:53:00 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:27099 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261849AbSJ2Mw6>; Tue, 29 Oct 2002 07:52:58 -0500
+Date: Tue, 29 Oct 2002 13:59:04 +0100
+From: Martin Waitz <tali@admingilde.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
+Message-ID: <20021029125904.GA6840@admingilde.org>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3DBDCC02.6060100@netscape.com> <Pine.LNX.4.44.0210281606390.966-100000@blue1.dev.mcafeelabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
 Content-Disposition: inline
-In-Reply-To: <15805.27643.403378.829985@laputa.namesys.com>
+In-Reply-To: <Pine.LNX.4.44.0210281606390.966-100000@blue1.dev.mcafeelabs.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Snapshot is available at http://www.namesys.com/snapshots/:
-> 
-> http://www.namesys.com/snapshots/reiser4-2002.10.24.tar.gz
-> http://www.namesys.com/snapshots/reiser4-core-2002.10.24.diff
 
-2.5.44:
-Producing a module I get a couple unresolved symbols,
-and trying to build directly into the kernel results in
+--SUOF0GtieIMvvwua
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-...
-ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
-fs/built-in.o(.init.text+0x1381): In function `init_reiser4':
-: undefined reference to `local symbols in discarded section .exit.text'
-make[1]: *** [vmlinux] Error 1
-make: *** [vmlinux] Error 2
+hi :)
 
-> http://www.namesys.com/snapshots/reiser4progs-2002.10.24.tar.gz
+On Mon, Oct 28, 2002 at 04:08:04PM -0800, Davide Libenzi wrote:
+> > The code you wrote has the standard epoll race condition.  If the file
+> > descriptor 's' becomes readable before the call to sys_epoll_ctl,
+> > sys_epoll_wait() will never return the socket.  The connection will hang
+> > and the file descriptor will effectively leak.
+>=20
+> So, please don't use :
+>=20
+> 	free((void *) rand());
+>=20
+> free() is flawed !! Be warned !!
 
-... is missing the "configure" script.
-Generating one with autoconf 2.53 doesn't seem to work, either.
+this is not a good argument.
+the situation above is real, and a new poll mechanism should handle it.
+(the kevent paper has a nice section about this problem)
+why put the burden on the application, if the kernel already has
+all information needed?
 
-T.
+every api should be build to cause the least astonishment to its users.
+epoll is much more scalable than standard poll, yet i don't think
+it's a nice api.
+
+you should at least build it in a way that it can be extended later.
+it would be sad if one had to add another syscall to build an
+better notification mechanism later.
+
+the unified event mechanism introduced in bsd is a good example imho.
+we should build something that is similar useful for applications.
+
+don't take me wrong, i greatly appreciate the work put in epoll,
+i just think it's far from being perfect at the moment.
+
+--=20
+CU,		  / Friedrich-Alexander University Erlangen, Germany
+Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
+______________/// - - - - - - - - - - - - - - - - - - - - ///
+dies ist eine manuell generierte mail, sie beinhaltet    //
+tippfehler und ist auch ohne grossbuchstaben gueltig.   /
+			    -
+Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich=20
+kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit=20
+noch Sicherheit verdient.
+			Benjamin Franklin  (1706 - 1790)
+
+--SUOF0GtieIMvvwua
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE9voYXj/Eaxd/oD7IRAhq7AJ9Jn98m/jFM7gDhQerdlr9Wu69M7gCfVW7Z
+AaUGQGTK7KXo9+3LCqgOZl8=
+=uqmu
+-----END PGP SIGNATURE-----
+
+--SUOF0GtieIMvvwua--

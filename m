@@ -1,117 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261656AbSJFQMa>; Sun, 6 Oct 2002 12:12:30 -0400
+	id <S261702AbSJFQNX>; Sun, 6 Oct 2002 12:13:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261657AbSJFQMa>; Sun, 6 Oct 2002 12:12:30 -0400
-Received: from bitmover.com ([192.132.92.2]:40333 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S261656AbSJFQM2>;
-	Sun, 6 Oct 2002 12:12:28 -0400
-Date: Sun, 6 Oct 2002 09:18:01 -0700
-From: Larry McVoy <lm@bitmover.com>
+	id <S261659AbSJFQNB>; Sun, 6 Oct 2002 12:13:01 -0400
+Received: from mta05-svc.ntlworld.com ([62.253.162.45]:10151 "EHLO
+	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S261658AbSJFQM4>; Sun, 6 Oct 2002 12:12:56 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Mark Robson <slarty2@ntlworld.com>
 To: linux-kernel@vger.kernel.org
-Subject: BK license questions and answers
-Message-ID: <20021006091801.A29687@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-MailScanner: Found to be clean
+Subject: PROBLEM: Using initrd loaded from syslinux causes oops during boot
+Date: Sun, 6 Oct 2002 17:18:33 +0100
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20021006161834.WOWM27697.mta05-svc.ntlworld.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[1.]  Booting from floppy with syslinux and loading a ramdisk image causes an 
+oops during boot
+[2.] 
+I'm testing kernel 2.5.40 for a single floppy mini-distro which uses initrd.
 
-This thread has raised a pile of issues, not to mention hackles, so I
-went through and extracted the questions that I saw as needing serious
-answers.  Other than answering these questions, I'd like stay out of
-this "discussion", it seems that all I ever do is end up looking like a
-nutcase and while that may be fun for you, I don't particularly enjoy it.
+I get an oops happening on boot, just after
+RAMDISK: Compressed image found at block 0
 
-> I'm at a University and someone might be hacking on CVS here, do I
-> no longer have a license to use BK?
+[3.] ramdisk initrd syslinux
 
-We wanted to allow your sort of use but all the legal language which
-would do so also opened up loopholes for the bad guys.  So we went with
-the more restrictive language.  We're not that thrilled with it either
-but we had to do something to protect ourselves, we're seeing more and
-more people attempting to steal our intellectual property.
+[4.] stock kernel version 2.5.40 (cannot boot the system to cat /proc/version)
 
-It is the corporate position of BitMover that the use described does not
-violate the spirit of the license and we would not attempt to enforce the
-clause in that case or other similar cases.  The clause clearly targets
-competitors and this simply doesn't raise to the level of competition.
+[5.] Output of Oops.. message 
 
-> I want to see the commit messages on the lkml.
+I can't copy the entire oops message here because it's a lot of typing. 
+Needless to say, the message is
 
-No problem, get Linus to check in a commit trigger.  bk help triggers.
+Unable to handle NULL pointer deference at address 00000000
 
-> I want everything available via regular patches on bkbits.net
+eip = c0107b8d <__down+5d/e0>
 
-We won't do this because of the excessive amounts of bandwidth that
-it would take.  We're moving bkbits.net to rackspace.com and we're
-limited to 30GB/month.  If you want this service at bkbits.net (and we
-certainly understand why you would) we can try and work something out
-with rackspace.  We'll work that issue and report back.
+call stack
+c0113210 <default_wake_function+0/40>
+c0107d5c <__down_failed+8/c>
+c016a7cd <.text.lock.util+7d/90>
+c0157ffe <devfs_remove_partitions+8e/a0>
+c015841d <del_gendisk+1d/40>
+c0195149 <initrd_release+19/50>
+c013632b <__fput+2b/e0>
+c0108c37 <syscall_call+7/b>
+c0134dfd <filp_close+4d/60>
+c0134e55 <sys_close+45/60>
+c0108c37 <syscall_call+7/b>
+c0105341 <prepare_namespace+b1/130>
+c0105030 <init+0/160>
+c0105056 etc
+c0105030 etc
+c0107025 etc
 
-Alternatively, there are several people who do the changeset -> patch 
-exports.  
+I've resolved most of the symbols so I hope it's clear where the error is 
+occuring (I'm not an expert at kernel debugging)
 
-> Why did so-and-so get flamed when he asked for RPMs?  Is BitMover going
-> to be less friendly going forward?
+[6.] A small shell script or example program which triggers the problem:
 
-We, especially I, are human.  Contrary to popular opinion, doing what we
-do for the kernel team is not easy, doesn't generate boatloads of money,
-it's just a lot of hard work.  Try and imagine doing the same work and 
-then having people yell at you constantly, telling you that if they were
-doing what you were doing they could do it in less time, produce a better
-product, and do it with a GPLed source base.  It's not much fun being on
-the receiving end of that and we've been hearing that for 5 years.  
+Booting triggers the problem.
 
-It's worth pointing out that it is almost always the non-users who have
-a less than thrilling interaction with us.  We work hard to help people
-using our product, our response time is fantastic, we're here to help
-and that isn't going to change.  We're engineers, we live to help other
-engineers, that's the fun part.
+The syslinux config is:
 
-I can't promise that we'll be friendly to people who are antagonistic
-with us.  We'll try.  It would be nice if they were trying to be friendly
-as well.
+KERNEL linux
+APPEND initrd=rdimage vga=1 rw
 
-> Is BitMover going to sell out?
+[7.1.] Software (add the output of the ver_linux script here)
+Can't boot to run ver_linux
 
-We've been approached several times with acquisition offers as well as
-VC offers.  While it is possible we would sell out, we won't do so if it
-means diluting the quality of the product, the quality of our support,
-dropping the kernel team, or changing the licensing scheme.  The reason
-we have turned down acquisition attempts in the past was that we believed
-we would not be able to support you the way we currently support you.
-We've been making decisions all along to make sure that we have and can
-maintain the control required to do what it takes to support the kernel
-team and other open source developers and we'll continue to do that.
+syslinux 1.63 if that makes a difference.
 
-> Are the commit messages and other BK metadata GPLed?
+[7.2.] Processor information (from /proc/cpuinfo):
+Can't boot to cat /proc/cpuinfo (could go back to an old kernel, I know). 
+It's a Pentium-classic 133Mhz
 
-That isn't up to BitMover, that is up to Linus.  Look at clause 3(b).
-Linus, as the creator and owner of that repository, can put anything he
-wants in BitKeeper/etc/REPO_LICENSE so long as it doesn't conflict with
-the BKL.  He can say that all the metadata is GPLed if that's what the
-world wants.  It's his issue, not ours.
+[7.3.] Module information (from /proc/modules):
+Modules not enabled in the kernel config
 
-This clause is very powerful, it gives Linus the right to place or remove
-any restrictions he wants on the use of BK to access the repository.
-If you don't agree with his license, the BKL is automatically not granted.
-He could use the BKL to enforce the GPL if he wanted to.
+I hope this offers sufficient information to be useful.
 
-> Is BitMover the only place which can legally host BK kernel
-> repositories?
-
-See the answer to the previous question.  Linus could make it such that
-BitMover is the only place which *can't* legally host the BK kernel 
-repositories if he wanted to do so.  Other than that, anyone can host
-anything they want anywhere they want so long as they are obeying the
-terms of the BKL; there is nothing in the BKL which precludes others
-from hosting the repositories.  
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Regards,
+	Mark

@@ -1,82 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261750AbULGDji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbULGECm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261750AbULGDji (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 22:39:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbULGDji
+	id S261757AbULGECm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 23:02:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbULGECl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 22:39:38 -0500
-Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:24986 "EHLO
-	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
-	id S261750AbULGDjf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 22:39:35 -0500
-Date: Mon, 06 Dec 2004 22:39:30 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: wakeup_pmode_return jmp failing?
-In-reply-to: <20041206133455.GA1213@elf.ucw.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>,
-       Hiroshi 2 Itoh <HIROIT@jp.ibm.com>
-Message-id: <41B525F2.7090409@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <41B084B4.1050402@sun.com> <20041206133455.GA1213@elf.ucw.cz>
+	Mon, 6 Dec 2004 23:02:41 -0500
+Received: from quickstop.soohrt.org ([81.2.155.147]:40904 "EHLO
+	quickstop.soohrt.org") by vger.kernel.org with ESMTP
+	id S261755AbULGECk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 23:02:40 -0500
+Date: Tue, 7 Dec 2004 05:02:35 +0100
+From: Karsten Desler <kdesler@soohrt.org>
+To: jamal <hadi@cyberus.ca>
+Cc: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
+       "David S. Miller" <davem@davemloft.net>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: _High_ CPU usage while routing (mostly) small UDP packets
+Message-ID: <20041207040235.GA10501@soohrt.org>
+References: <20041206224107.GA8529@soohrt.org> <E1CbSf8-00047p-00@calista.eckenfels.6bone.ka-ip.net> <20041207002012.GB30674@quickstop.soohrt.org> <1102387595.1088.48.camel@jzny.localdomain> <20041207025456.GA525@soohrt.org> <1102389533.1089.51.camel@jzny.localdomain> <20041207032438.GA7767@soohrt.org> <1102390241.1093.59.camel@jzny.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <1102390241.1093.59.camel@jzny.localdomain>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+* jamal wrote:
+> Beats me. Make sure it boots NAPI. Also if you can turn off ITR; intel
+> loves to turn on that silly feature.
 
-Pavel Machek wrote:
-> Hi!
-> 
-> 
->>Not sure who to direct this to.  I've been trying to get acpi s3 to work
->>on my pentium M laptop (tecra m2).  Without the nvidia driver loaded, I
->>can echo 3 > /proc/acpi/sleep and the machine does indeed suspend (power
->>light throbs and all).  However, when I try to wake up the thing, it
->>would flash the bios screen and throw me back to grub.
->>
->>I've been investigating the code at arch/i386/kernel/acpi/wakeup.S, and
->>have discovered that if I place a busy wait directory before the ljmpl
->>to wakeup_pmode_return, that I indeed do see 'Lin' on the screen instead
->>of the bios screen.
->>
->>The joke is, if I place a busy wait first thing after the
->>wakeup_pmode_return label, it never gets executed and I get a regular boot.
->>
->>It would appear as though the jump from 16bit code into the 32bit code
->>is failing and the bios is kicking in with a regular startup.
-> 
-> 
-> See archives of linux-acpi lists.
-> 								Pavel
+ITR was in fact activated. I think i've disabled it now
+(e1000.InterruptThrottleRate=0 in the kernel cmdline).
+And as I'm reading the e1000 code, there is no way to enable/disable
+NAPI without a recompile. So the fact that ethtool spat out -NAPI in
+the version string means that NAPI is actually used.
 
-FYI, Hiro's patch that copies the GDT to the resume page did the trick:
-
-http://marc.theaimsgroup.com/?l=acpi4linux&m=109813262218004&w=2
-
-Thanks,
-
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBtSXydQs4kOxk3/MRAlYIAJ9iDnQArL4Bo+GQYCPGrxM8bU36bwCdEhjD
-LcoeEeWMkWcNynBARz/nKsU=
-=Zcxz
------END PGP SIGNATURE-----
+- Karsten

@@ -1,55 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262950AbVDBANJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262963AbVDBAUc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262950AbVDBANJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 19:13:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262976AbVDBALO
+	id S262963AbVDBAUc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 19:20:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbVDBASu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 19:11:14 -0500
-Received: from mail.kroah.org ([69.55.234.183]:40412 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262951AbVDAXsS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 18:48:18 -0500
-Cc: jason.d.gaston@intel.com
-Subject: [PATCH] pci_ids.h correction for Intel ICH7M
-In-Reply-To: <11123992723300@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 1 Apr 2005 15:47:52 -0800
-Message-Id: <1112399272178@kroah.com>
+	Fri, 1 Apr 2005 19:18:50 -0500
+Received: from nwkea-mail-1.sun.com ([192.18.42.13]:35725 "EHLO
+	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
+	id S262955AbVDBAMz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 19:12:55 -0500
+Subject: Re: [Pcihpd-discuss] RE: [RFC/Patch 0/12] ACPI based root bridge
+	hot-add
+From: Tom Duffy <tduffy@sun.com>
+To: Rajesh Shah <rajesh.shah@intel.com>
+Cc: Prasad Singamsetty <Prasad.Singamsetty@sun.com>, tony.luck@intel.com,
+       pcihpd-discuss@lists.sourceforge.net,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       len.brown@intel.com, dely.l.sy@intel.com, akpm@osdl.org, gregkh@suse.de,
+       Dely Sy <dlsy@snoqualmie.dp.intel.com>
+In-Reply-To: <20050331140304.C21596@unix-os.sc.intel.com>
+References: <200503230313.j2N3DYpE010786@snoqualmie.dp.intel.com>
+	 <1111618996.12700.44.camel@duffman>
+	 <20050331140304.C21596@unix-os.sc.intel.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YRzS5cHaYPtwx5+WaR2F"
+Date: Fri, 01 Apr 2005 16:10:59 -0800
+Message-Id: <1112400659.8432.15.camel@duffman>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+X-Mailer: Evolution 2.2.1.1 (2.2.1.1-2) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2181.16.14, 2005/03/17 14:32:07-08:00, jason.d.gaston@intel.com
 
-[PATCH] pci_ids.h correction for Intel ICH7M
+--=-YRzS5cHaYPtwx5+WaR2F
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-This patch corrects the ICH7M LPC controller DID in pci_ids.h from x27B1
-to x27B9.
+On Thu, 2005-03-31 at 14:03 -0800, Rajesh Shah wrote:
+> Does this patch help?
+
+YES!  I can now power down the slot, see it gone from pci list, reenable
+it, etc.  Awesome.  Thank you.
+
+[root@intlhotp-1 ~]# lspci -s 08:00
+08:00.0 Ethernet controller: Intel Corp.: Unknown device 105f (rev 03)
+08:00.1 Ethernet controller: Intel Corp.: Unknown device 105f (rev 03)
+[root@intlhotp-1 ~]# cd /sys/bus/pci/slots/4/
+[root@intlhotp-1 4]# cat power
+1
+[root@intlhotp-1 4]# echo 0 > power
+[root@intlhotp-1 4]# lspci -s 08:00
+[root@intlhotp-1 4]# cat power
+0
+[root@intlhotp-1 4]# echo 1 > power
+[root@intlhotp-1 4]# lspci -s 08:00
+08:00.0 Ethernet controller: Intel Corp.: Unknown device 105f (rev 03)
+08:00.1 Ethernet controller: Intel Corp.: Unknown device 105f (rev 03)
 
 
-Signed-off-by: Jason Gaston <Jason.d.gaston@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+--=-YRzS5cHaYPtwx5+WaR2F
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
- include/linux/pci_ids.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+iD8DBQBCTeMTdY502zjzwbwRArapAKCdezcFJEdFzV929zIR4ovUNZTWTACcCeP0
+DHCAyFHjtBfPxTM6Xix8Ahk=
+=3Iu1
+-----END PGP SIGNATURE-----
 
-
-diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
---- a/include/linux/pci_ids.h	2005-04-01 15:35:30 -08:00
-+++ b/include/linux/pci_ids.h	2005-04-01 15:35:30 -08:00
-@@ -2383,7 +2383,7 @@
- #define PCI_DEVICE_ID_INTEL_ICH6_18	0x266e
- #define PCI_DEVICE_ID_INTEL_ICH6_19	0x266f
- #define PCI_DEVICE_ID_INTEL_ICH7_0	0x27b8
--#define PCI_DEVICE_ID_INTEL_ICH7_1	0x27b1
-+#define PCI_DEVICE_ID_INTEL_ICH7_1	0x27b9
- #define PCI_DEVICE_ID_INTEL_ICH7_2	0x27c0
- #define PCI_DEVICE_ID_INTEL_ICH7_3	0x27c1
- #define PCI_DEVICE_ID_INTEL_ICH7_4	0x27c2
-
+--=-YRzS5cHaYPtwx5+WaR2F--

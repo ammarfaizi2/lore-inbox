@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281308AbRKPLeS>; Fri, 16 Nov 2001 06:34:18 -0500
+	id <S281309AbRKPLiS>; Fri, 16 Nov 2001 06:38:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281309AbRKPLeI>; Fri, 16 Nov 2001 06:34:08 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:25094 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S281308AbRKPLdy>; Fri, 16 Nov 2001 06:33:54 -0500
-Date: Fri, 16 Nov 2001 12:33:49 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: infinite loop in 3c509 driver IRQ loop?
-Message-ID: <20011116123349.A25438@emma1.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011116114902.K5520@emma1.emma.line.org> <E164gpo-0003fJ-00@the-village.bc.nu>
+	id <S281311AbRKPLiI>; Fri, 16 Nov 2001 06:38:08 -0500
+Received: from h55p103-2.delphi.afb.lu.se ([130.235.187.175]:43157 "EHLO gin")
+	by vger.kernel.org with ESMTP id <S281309AbRKPLh6>;
+	Fri, 16 Nov 2001 06:37:58 -0500
+Date: Fri, 16 Nov 2001 12:37:35 +0100
+To: Nathan Myers <ncm@nospam.cantrip.org>
+Cc: linux-kernel@vger.kernel.org, alan@redhat.com, torvalds@transmeta.com
+Subject: Re: [PATCH] omnibus include/ cleanup (biggish)
+Message-ID: <20011116123735.B1804@h55p111.delphi.afb.lu.se>
+In-Reply-To: <20011115175144.A6622@shell7.ba.best.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E164gpo-0003fJ-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.22.1i
+In-Reply-To: <20011115175144.A6622@shell7.ba.best.com>
+User-Agent: Mutt/1.3.23i
+From: andersg@0x63.nu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Nov 2001, Alan Cox wrote:
+On Thu, Nov 15, 2001 at 05:51:44PM -0800, Nathan Myers wrote:
+> I have located every place under linux/include/ that #defines
+> a macro with an improper unary expression, like any of
 
-> It means the card kept having work left to do - eg because it was under
-> extreme load at that point. Its not neccessarily a bug - did the box then
-> recover ?
+you missed this which generates a compiletime-error in sched.c with compiled
+with WAITQUEUE_DEBUG
 
-Yes, it did. The LAN (twisted pair cabling, 16 bit prefix) contains
-several hundred Windows workstations alongside some Linux boxes (in the
-same collision domain, that is), so the machine may have been under
-severe broadcast load as is common for Windows machines to toss out.
+--- wait.h~	Thu Nov 15 22:54:50 2001
++++ wait.h	Thu Nov 15 22:59:04 2001
+@@ -105,7 +105,7 @@
+ 	} while (0)
+ #define WQ_CHECK_LIST_HEAD(list) 						\
+ 	do {									\
+-		if (!list->next || !list->prev)					\
++		if (!(list)->next || !(list)->prev)					\
+ 			WQ_BUG();						\
+ 	} while(0)
+ #define WQ_NOTE_WAKER(tsk)							\
+
 
 -- 
-Matthias Andree
 
-"They that can give up essential liberty to obtain a little temporary
-safety deserve neither liberty nor safety."         Benjamin Franklin
+//anders/g
+

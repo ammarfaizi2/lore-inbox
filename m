@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266717AbUIAOad@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266777AbUIAOiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266717AbUIAOad (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 10:30:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266740AbUIAOad
+	id S266777AbUIAOiL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 10:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266798AbUIAOiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 10:30:33 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:43235 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S266717AbUIAOac (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 10:30:32 -0400
-Message-ID: <9ac707cb0409010730f676abb@mail.gmail.com>
-Date: Wed, 1 Sep 2004 10:30:31 -0400
-From: Peter Jones <pmjones@gmail.com>
-Reply-To: Peter Jones <pmjones@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: CD-ripping using ioctl() does not work when DMA is disabled (ide-cd)
-Cc: Johan Billing <billing@df.lth.se>
-In-Reply-To: <41338487.2050007@df.lth.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <41338487.2050007@df.lth.se>
+	Wed, 1 Sep 2004 10:38:10 -0400
+Received: from dfw-gate4.raytheon.com ([199.46.199.233]:57179 "EHLO
+	dfw-gate4.raytheon.com") by vger.kernel.org with ESMTP
+	id S266777AbUIAOiH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 10:38:07 -0400
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>,
+       alsa-devel <alsa-devel@lists.sourceforge.net>
+From: Mark_H_Johnson@Raytheon.com
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
+Date: Wed, 1 Sep 2004 09:37:39 -0500
+Message-ID: <OFCD90FFE9.E98FB2D7-ON86256F02.00505992-86256F02.00505A16@raytheon.com>
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 09/01/2004 09:37:46 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Aug 2004 21:48:23 +0200, Johan Billing <billing@df.lth.se> wrote:
-> So in conclusion, this seems to be a problem that only occurs when
-> reading multiple frames using ioctl() with DMA off. I hope that this
-> will help find and fix the problem.
+>Ok, the second try.
 
-The simple fix, of course, is to not use cooked ioctl mode :)
+This patch appears to work well. No snd_es1371 traces in over 25 minutes
+of testing (I had a couple hundred yesterday in similar tests). The sound
+was OK as well.
 
-This seems like a good time to mention that I've got a version
-modified to use SG_IO, which can be found at
-http://people.redhat.com/pjones/cdparanoia/ .  It still needs plenty
-of testing before I merge any of that code in the main tree, though.
+I am seeing some additional CPU overhead during the disk I/O tests with
+today's kernel but I don't think this is due to this patch.
 
-(Sorry about the double-reply, Johan, but I didn't want to leave you
-off of the copy to l-k, even after I messed up on the first one)
+Thanks.
+  --Mark
+

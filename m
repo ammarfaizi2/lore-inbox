@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316874AbSEXOZu>; Fri, 24 May 2002 10:25:50 -0400
+	id <S317059AbSEXOaH>; Fri, 24 May 2002 10:30:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317054AbSEXOZt>; Fri, 24 May 2002 10:25:49 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:53515 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S316874AbSEXOZs>; Fri, 24 May 2002 10:25:48 -0400
-Subject: Re: [PATCH] SUSv2 msgctl compliance
-To: cyeoh@samba.org (Christopher Yeoh)
-Date: Fri, 24 May 2002 15:45:52 +0100 (BST)
-Cc: marcelo@conectiva.com.br (Marcelo Tosatti),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org,
-        trivial@rustcorp.com.au
-In-Reply-To: <15597.54106.812433.485262@gargle.gargle.HOWL> from "Christopher Yeoh" at May 24, 2002 03:44:58 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S317120AbSEXOaG>; Fri, 24 May 2002 10:30:06 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:60905 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S317059AbSEXOaF>; Fri, 24 May 2002 10:30:05 -0400
+Date: Fri, 24 May 2002 16:29:39 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] New driver for Artop [Acard] controllers.
+Message-ID: <Pine.SOL.4.30.0205241620440.16894-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17BGKG-0006O6-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> For msgctl SUSv2 states:
-> 
-> "IPC_SET can only be executed by a process with appropriate privileges
-> or that has an effective user ID equal to the value of msg_perm.cuid
-> or msg_perm.uid in the msqid_ds data structure associated with
-> msqid. Only a process with appropriate privileges can raise the value
-> of msg_qbytes."
-> 
-> The current linux behaviour is to allow for the value of msg_qbytes to
-> be raised even if the process is not privileged. The following
-> patch (against 2.4.19pre8) fixes this problem:
+Hi!
 
-This is not a bug. We have deemed all users to have appropriate priviledge
-and in fact the generic SYS5 unix interpretation of this one seems if anything
-to be bogus. We are standards compliant.
+I have a very quick look over patch/driver... looks quite ok...
 
-Alan
+But it doesn't support multiple controllers. We should add 'unsigned
+long private' to 'ata_channel struct' and store index in the chipset
+table there.
+You can remove duplicate entries from module data table.
+
+BTW: please don't touch pdc202xx.c I am playing with it...
+
+greets
+--
+bkz
+

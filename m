@@ -1,43 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265327AbUFBCO3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265305AbUFBCS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265327AbUFBCO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 22:14:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265319AbUFBCO3
+	id S265305AbUFBCS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 22:18:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265328AbUFBCS7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 22:14:29 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:28324 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S265300AbUFBCO2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 22:14:28 -0400
-content-class: urn:content-classes:message
+	Tue, 1 Jun 2004 22:18:59 -0400
+Received: from ozlabs.org ([203.10.76.45]:60604 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265305AbUFBCSz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 22:18:55 -0400
+From: Jeremy Kerr <jeremy@redfishsoftware.com.au>
+To: akpm@osdl.org
+Subject: [PATCH] Fix signal race during process exit
+Date: Wed, 2 Jun 2004 12:13:58 +1000
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: ACPI
-Date: Wed, 2 Jun 2004 10:14:21 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F8403BD54F1@PDSMSX403.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ACPI
-Thread-Index: AcRIQnj3BVmhqx5xQLqbROJhPniHhgABTlJg
-From: "Zhu, Yi" <yi.zhu@intel.com>
-To: "Bruce Park" <bpark@dolda2000.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 02 Jun 2004 02:14:22.0214 (UTC) FILETIME=[5199FA60:01C44847]
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406021213.58305.jeremy@redfishsoftware.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-kernel-owner@vger.kernel.org wrote:
-> Hey guys,
-> 
-> I last posted a problem regarding ACPI and shutting down the
-> system. I believe the suggestion was for me to upgrade the
-> kernel. With kernel 2.6.3, ACPI shutdown was working about
-> 90% of the time but once I upgraded to 2.6.4, it never shut off again.
-> 
-> If anyone can tell me where I need to go for to correct this,
-> I would really appreciate it. I've already tried one of the
-> ASUS mailing lists but it's as dead as a ghost town.
+Andrew,
 
-http://bugme.osdl.org
+This patch fixes a race where timer-generated signals are delivered to an 
+exiting process, after task->sighand is cleared.
+
+update_one_process() declared static, as it is only used in kernel/timer.c
+
+Signed-off-by: Jeremy Kerr <jk@ozlabs.org>
+
+
+
+Jeremy
+
+diff -urN linux-2.6.7-rc2-bk2.orig/include/linux/sched.h 
+linux-2.6.7-rc2-bk2/include/linux/sched.h
+--- linux-2.6.7-rc2-bk2.orig/include/linux/sched.h	2004-06-02 
+11:29:13.000000000 +1000
++++ linux-2.6.7-rc2-bk2/include/linux/sched.h	2004-06-02 11:46:57.000000000 
++1000
+@@ -168,8 +168,6 @@
+ extern void cpu_init (void);
+ extern void trap_init(void);
+ extern void update_process_times(int user);
+-extern void update_one_process(struct task_struct *p, unsigned long user,
+-			       unsigned long system, int cpu);
+ extern void scheduler_tick(int user_tick, int system);
+ extern unsigned long cache_decay_ticks;
+ 
+Binary files linux-2.6.7-rc2-bk2.orig/kernel/.signal.c.swp and 
+linux-2.6.7-rc2-bk2/kernel/.signal.c.swp differ
+Binary files linux-2.6.7-rc2-bk2.orig/kernel/.timer.c.swp and 
+linux-2.6.7-rc2-bk2/kernel/.timer.c.swp differ
+diff -urN linux-2.6.7-rc2-bk2.orig/kernel/signal.c 
+linux-2.6.7-rc2-bk2/kernel/signal.c
+--- linux-2.6.7-rc2-bk2.orig/kernel/signal.c	2004-06-02 11:29:13.000000000 
++1000
++++ linux-2.6.7-rc2-bk2/kernel/signal.c	2004-06-02 11:47:28.000000000 +1000
+@@ -323,7 +323,10 @@
+ {
+ 	struct sighand_struct * sighand = tsk->sighand;
+ 
+-	/* Ok, we're done with the signal handlers */
++	/* Ok, we're done with the signal handlers.
++	 * Set sighand to NULL to tell kernel/timer.c not
++	 * to deliver further signals to this task
++	 */
+ 	tsk->sighand = NULL;
+ 	if (atomic_dec_and_test(&sighand->count))
+ 		kmem_cache_free(sighand_cachep, sighand);
+diff -urN linux-2.6.7-rc2-bk2.orig/kernel/timer.c 
+linux-2.6.7-rc2-bk2/kernel/timer.c
+--- linux-2.6.7-rc2-bk2.orig/kernel/timer.c	2004-06-02 11:29:13.000000000 
++1000
++++ linux-2.6.7-rc2-bk2/kernel/timer.c	2004-06-02 11:47:08.000000000 +1000
+@@ -829,7 +829,7 @@
+ 	}
+ }
+ 
+-void update_one_process(struct task_struct *p, unsigned long user,
++static void update_one_process(struct task_struct *p, unsigned long user,
+ 			unsigned long system, int cpu)
+ {
+ 	do_process_times(p, user, system);
+@@ -846,7 +846,9 @@
+ 	struct task_struct *p = current;
+ 	int cpu = smp_processor_id(), system = user_tick ^ 1;
+ 
+-	update_one_process(p, user_tick, system, cpu);
++	/* Don't send signals to current after release_task() */
++	if (likely(p->sighand)) 
++		update_one_process(p, user_tick, system, cpu);
+ 	run_local_timers();
+ 	scheduler_tick(user_tick, system);
+ }
+
+
+

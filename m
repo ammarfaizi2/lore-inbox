@@ -1,67 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273065AbRJQARr>; Tue, 16 Oct 2001 20:17:47 -0400
+	id <S273176AbRJQAcs>; Tue, 16 Oct 2001 20:32:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273176AbRJQARh>; Tue, 16 Oct 2001 20:17:37 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:35918 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S273108AbRJQAR2>; Tue, 16 Oct 2001 20:17:28 -0400
-Date: Wed, 17 Oct 2001 02:12:42 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: rwhron@earthlink.net
-Cc: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
-Subject: Re: VM test on 2.4.13-pre3aa1 (compared to 2.4.12-aa1 and 2.4.13-pre2aa1)
-Message-ID: <20011017021242.S2380@athlon.random>
-In-Reply-To: <20011016081639.A209@earthlink.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20011016081639.A209@earthlink.net>; from rwhron@earthlink.net on Tue, Oct 16, 2001 at 08:16:39AM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S273204AbRJQAcj>; Tue, 16 Oct 2001 20:32:39 -0400
+Received: from [204.177.156.37] ([204.177.156.37]:18048 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S273176AbRJQAc0>; Tue, 16 Oct 2001 20:32:26 -0400
+Message-ID: <023a01c15708$a275d270$3291b40a@fserv2000.net>
+From: "Shirish Kalele" <kalele@veritas.com>
+To: <nfs@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <00f501c156f9$95337ef0$3291b40a@fserv2000.net>
+Subject: Re: [NFS] NFSD over TCP: TCP broken?
+Date: Wed, 17 Oct 2001 05:38:31 -0700
+Organization: Veritas Software Corporation
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 16, 2001 at 08:16:39AM -0400, rwhron@earthlink.net wrote:
-> 
-> Summary:
-> 
-> Wall clock time for this test has dropped dramatically (which
-> is good) over the last 3 Andrea Arcangeli patched kernels.
+Okay, looking at tcp_sendmsg a little more, it looks like it lets go of the
+sock lock in wait_for_tcp_memory before re-acquiring it, which is probably
+where the interleaving gets in. I'm not sure if TCP should be handling this
+or NFSD. From what little I know, TCP should serialize requests it gets and
+atomically write them out, preventing interleaving, and it looks like it
+doesn't do that.
 
-:) I worked the last two days to make it faster under swap, it's nice to
-see that your tests also confirm that.  I'm only scared it swaps too
-much when swap is not used but if this sorts out to be the case it will
-be very easy to fix. And a very minor bit of very seldom background
-pagetable scanning shouldn't hurt anyways. So far on my desktop it seems
-not to swap too much.
+- Shirish
 
-> mp3blaster sounds less pleasant though.
+----- Original Message -----
+From: "Shirish Kalele" <kalele@veritas.com>
+To: <kernel@vger.linux.org>; <nfs@lists.sourceforge.net>
+Sent: Wednesday, October 17, 2001 3:50 AM
+Subject: [NFS] NFSD over TCP: TCP broken?
 
-A (very) optimistic theory could be that the increase of the swap
-throughput is decreasing the bandiwth available to read the mp3 8). Do
-you swap on the same physical disk where you keep the mp3? But it maybe
-that I'm blocking too easily waiting for I/O completion instead, or that
-the mp3blast routines needed for the playback are been swapped out,
-dunno with only this info. You can rule out the "mp3blast is been
-swapped out" by running mp3blast after an mlockall. And you can avoid
-the disk bandwith problems by putting the mp3 in a separate disk.
 
-So far I received very good feedback about 2.4.13pre3aa1 [also Luigi's
-and Mario's problems gone away completly] (I'm also happy myself on my
-machine). It may need further tuning but I'd hope it's only a matter of
-changing some line of code.
+> Hi,
+>
+> I've been looking at running nfsd over tcp on Linux. I modified the #ifdef
+> so that nfsd uses tcp. I also made writes to the socket blocking, so that
+> the thread blocks till the entire reply has been accepted by TCP. (I know
+> the right way is going to be to have an independent thread whose job would
+> be to just pick replies off a queue and block on sending them to tcp, but
+> this is what I've done temporarily.)
+>
+> Then I tried to copy a directory from a Solaris client to the Linux server
+> using nfsv3 over tcp. This took a long time, with lots of delays where
+> nothing was being transferred.
+>
+> Looking at the network traces, it looks like the RPC records being sent
+over
+> TCP are inconsistent with the lengths specified in the record marker. This
+> happens mainly when 3-4 requests arrive one after the other and you have
+3-4
+> threads replying to these requests in parallel. It looks like TCP gets
+> hopelessly confused and botches up the replies being sent. I point my
+finger
+> at TCP because tcp_sendmsg returns a valid length indicating that the
+entire
+> reply was accepted, but the tcp sequence numbers show that the RPC record
+> sent on the wire wasn't equal to the length accepted by TCP. After a
+while,
+> the client realizes it's out of sync when it gets an invalid RPC record
+> marker, and resets and reconnects. This repeats multiple times.
+>
+> Is TCP known to break when multiple threads try to send data down the pipe
+> simulaneously? Is there a known fix for this? Where should I be focussing
+to
+> fix the problem?
+>
+> I'm not on the list, so please include me in replies.
+>
+> Thanks,
+> Shirish
+>
+>
+>
+> _______________________________________________
+> NFS maillist  -  NFS@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/nfs
+>
 
->  3  3  0  47424   3788   1172   1412 860 40228   892 40236  789   819  12  23  66
->  0  5  1  90244   1656   1184   1416 1032 39568  1076 39572  653   425   6   5  89
-
-those swapins could be due mp3blast that is getting swapped out
-continously while it sleeps.  Not easy for the vm to understand it has
-to stay in cache and it makes sense it gets swapped out faster, the
-faster the swap rate is. Could you also make sure to run mp3blast with
--20 priority and the swap-hog at +19 priority just in case?
-
-thanks for feedback!
-
-Andrea

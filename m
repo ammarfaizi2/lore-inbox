@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267976AbUGaRzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267988AbUGaSAg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267976AbUGaRzY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 13:55:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267981AbUGaRzY
+	id S267988AbUGaSAg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 14:00:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267986AbUGaSAd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 13:55:24 -0400
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:22657 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S267976AbUGaRzQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 13:55:16 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Oliver Neukum <oliver@neukum.org>
-Subject: Re: Solving suspend-level confusion
-Date: Sat, 31 Jul 2004 10:51:58 -0700
-User-Agent: KMail/1.6.2
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Pavel Machek <pavel@suse.cz>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-References: <20040730164413.GB4672@elf.ucw.cz> <200407310723.12137.david-b@pacbell.net> <200407311901.17390.oliver@neukum.org>
-In-Reply-To: <200407311901.17390.oliver@neukum.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Sat, 31 Jul 2004 14:00:33 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:20901 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267981AbUGaSAb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 14:00:31 -0400
+Subject: Re: [PATCH] Configure IDE probe delays
+From: Lee Revell <rlrevell@joe-job.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Todd Poynor <tpoynor@mvista.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       tim.bird@am.sony.com, dsingleton@mvista.com
+In-Reply-To: <200407311434.59604.vda@port.imtp.ilyichevsk.odessa.ua>
+References: <20040730191100.GA22201@slurryseal.ddns.mvista.com>
+	 <1091226922.5083.13.camel@localhost.localdomain>
+	 <1091232770.1677.24.camel@mindpipe>
+	 <200407311434.59604.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain
+Message-Id: <1091296857.1677.286.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 31 Jul 2004 14:00:58 -0400
 Content-Transfer-Encoding: 7bit
-Message-Id: <200407311051.58207.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 31 July 2004 10:01, Oliver Neukum wrote:
+On Sat, 2004-07-31 at 07:34, Denis Vlasenko wrote:
+> On Saturday 31 July 2004 03:12, Lee Revell wrote:
+> > On Fri, 2004-07-30 at 18:35, Alan Cox wrote:
+> > > On Gwe, 2004-07-30 at 20:11, Todd Poynor wrote:
+> > > > IDE initialization and probing makes numerous calls to sleep for 50
+> > > > milliseconds while waiting for the interface to return probe status and
+> > > > such.
+> > >
+> > > Please make it taint the kernel if you do that so we can ignore all the
+> > > bug reports. That or justify it with a cite from the ATA standards ?
+> >
+> > Works great on my hardware.  Well worth the savings in boot time.
 > 
-> > So suspend-to-RAM more or less matches PCI D3hot, and
-> > suspend-to-DISK matches PCI D3cold.  If those power states
-> > were passed to the device suspend(), the disk driver could act
-> > appropriately.  In my observation, D3cold was never passed
-> > down, it was always D3hot.
+> Crowd of "my old crapbox no longer boots with newer kernel, wtf?" people
+> won't be happy at all.
 > 
-> Maybe a better approach would be to describe the required features to
-> the drivers rather than encoding them in a single integer. Rather
-> like passing a request that states "lowest power level with device state
-> retained, must not do DMA, enable remote wake up"
-
-For PCI devices this is mostly defined by the parameter that says
-what PCI power state to enter.  Even still-common "legacy" PCI
-devices can basically fit into those definitions (though they may
-not handle "low power" states other than "off").
-
-Enabling remote wakeup is somewhat orthogonal.  Network
-drivers have separate Wake-On-LAN calls, but that stuff should
-arguably be part of the driver model PM framework.  Much of
-the Linux PM work seems to be limited to "suspend when laptop
-lid shuts, resume when it opens" ... which is a necessary start (one
-that doesn't work universally yet either!) but not sufficient.
-
-
-> [..]
-> > Though the PM core doesn't cooperate at all there.  Neither the
-> > suspend nor the resume codepaths cope well with disconnect
-> > (and hence device removal), the PM core self-deadlocks since
-> > suspend/resume outcalls are done while holding the semaphore
-> > that device_pm_remove() needs, ugh.
+> +               ide_delay = simple_strtoul(s+10,NULL,0);
+> +               printk(" : Delay set to %dms\n", ide_delay);
+> +               return 1;
 > 
-> Shouldn't we deal with this like a failed resume?
 
-That was the first place I kept running into the deadlocks,
-and I had to rewrite chunks of the OHCI driver to avoid
-them.  The problem is that PM core uses a semaphore to
-protect list membership, rather than a spinlock, and
-that the semaphore is also trying to protect against more
-than one thing at a a time.
+I wonder if 83 probes are really necessary.  Maybe this could be
+optimized a bit.
 
-- Dave
+Lee
 

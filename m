@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261173AbTHSTNn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 15:13:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbTHSTKJ
+	id S261162AbTHST1E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 15:27:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbTHST0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 15:10:09 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:23693 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261263AbTHSTJH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 15:09:07 -0400
-Date: Tue, 19 Aug 2003 12:01:31 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: skraw@ithnet.com, willy@w.ods.org, richard@aspectgroup.co.uk,
-       carlosev@newipnet.com, lamont@scriptkiddie.org, davidsen@tmr.com,
-       bloemsaa@xs4all.nl, marcelo@conectiva.com.br, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030819120131.1999b1ec.davem@redhat.com>
-In-Reply-To: <1061319864.30565.52.camel@dhcp23.swansea.linux.org.uk>
-References: <353568DCBAE06148B70767C1B1A93E625EAB58@post.pc.aspectgroup.co.uk>
-	<20030819145403.GA3407@alpha.home.local>
-	<20030819170751.2b92ba2e.skraw@ithnet.com>
-	<20030819085717.56046afd.davem@redhat.com>
-	<20030819185219.116fd259.skraw@ithnet.com>
-	<1061319864.30565.52.camel@dhcp23.swansea.linux.org.uk>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Aug 2003 15:26:48 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2432 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S261317AbTHSTZm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 15:25:42 -0400
+Date: Tue, 19 Aug 2003 20:37:02 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200308191937.h7JJb2M0000234@81-2-122-30.bradfords.org.uk>
+To: aebr@win.tue.nl, macro@ds2.pg.gda.pl
+Subject: Re: Input issues - key down with no key up
+Cc: jamie@shareable.org, linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au,
+       vojtech@suse.cz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 Aug 2003 20:04:25 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> Etc. Set 3 is a pain. Nobody wants it, except the people who have read
+> the spec only and say - look, neat, a single code for a single keystroke.
+> Reality is very different.
 
-> On Maw, 2003-08-19 at 17:52, Stephan von Krawczynski wrote:
-> > <quote RFC-985>
-> 
-> Effectively Obsolete.
+I totally agree that in 99.9% of cases, Set 2 is a more sensible
+choice than Set 3.
 
-Indeed, would people stop quoting from RFC 985 and
-RFC 826.
+On the other hand, a configuration option to only support Set 3, and
+not implement all of the work-arounds would shrink the kernel by a few
+K, which would be nice.
+
+Also, the keyboard I'm using requires Set 3 to operate fully, although
+as it's quite possible that I am the only person on the planet who
+uses this model of keyboard with Linux, that might not be a very valid
+argument :-).
+
+John.

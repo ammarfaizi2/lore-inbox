@@ -1,81 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292840AbSCMJBw>; Wed, 13 Mar 2002 04:01:52 -0500
+	id <S292851AbSCMJCc>; Wed, 13 Mar 2002 04:02:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292847AbSCMJBl>; Wed, 13 Mar 2002 04:01:41 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:47113
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S292840AbSCMJBb>; Wed, 13 Mar 2002 04:01:31 -0500
-Date: Wed, 13 Mar 2002 01:00:25 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Jens Axboe <axboe@suse.de>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, Karsten Weiss <knweiss@gmx.de>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre3
-In-Reply-To: <20020313080946.GC15877@suse.de>
-Message-ID: <Pine.LNX.4.10.10203130056210.18254-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S292848AbSCMJCM>; Wed, 13 Mar 2002 04:02:12 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:22780 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S292847AbSCMJCA> convert rfc822-to-8bit; Wed, 13 Mar 2002 04:02:00 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <ak@suse.de>
+CC: Brad Pepers <brad@linuxcanada.com>, <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.51 (1003) - Registered Version
+Date: Wed, 13 Mar 2002 01:01:34 -0800
+In-Reply-To: <20020313092306.A5570@wotan.suse.de>
+Subject: Re: Multi-threading
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <20020313090150.AAA28331@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Jens,
+On Wed, 13 Mar 2002 09:23:06 +0100, Andi Kleen wrote:
 
-Please try again because that is not the real problem.
-All you have shown is that we disagree on the method of page walking
-between BLOCK v/s IOCTL.  This is very minor and I agreed that it is
-reasonable to map the IOCTL buffer in to BH or BIO so this is a net zero
-of negative point.
 
-How about attempting to describe the differences between the atomic and
-what is violated by who and where.  I will help you later if you get
-stuck.
+>>If it was in public view, whatever held it in public view would be
+>> using it,
+>>and hence its use count could not drop to zero.
 
-Regards,
+>That's not correct at least in the usual linux kernel pattern of using
+>reference counts for objects. Hash tables don't hold reference counts,
+>only users do. If you think about it a hash table or global list holding
+>a reference count doesn't make too much sense.
 
-Andre Hedrick
+	That's the way I've always done it and it has saved me a lot of heartache. A 
+use count of 'zero' means that it's really not used at all, and hence nothing 
+would have any way of finding it. Anything with a future interest in 
+something should 'use' it.
 
-On Wed, 13 Mar 2002, Jens Axboe wrote:
+	In any event, hash tables require locks themselves anyway. So if you find an 
+object in a hash table, you must be holding some lock when you find it, so 
+you can increment the use count under the protection of that lock. The trick 
+becomes the decrement operation, because ideally you'd prefer not to have to 
+lock the hash table again unless you have to remove the object.
 
-> On Tue, Mar 12 2002, Marcelo Tosatti wrote:
-> > So, Jens, could you please explain the problem in the interrupt handlers
-> > in detail ?
-> 
-> Ok... It affects all the pio handlers in ide-taskfile.c,
-> multi-write/read as well. The address for pio transfers is calculated
-> like so:
-> 
-> va = rq->buffer + (rq->nr_sectors - rq->current_nr_sectors) * SECTOR_SIZE;
-> 
-> which is wrong for two reasons. First of all, rq->buffer cannot be
-> indexed for the entire nr_sectors range -- it's per definition only the
-> first segment in the request, and can as such only be indexed within the
-> first current_nr_sectors number of sectors. The above can be grossly out
-> of range... Second, nr_sectors and current_nr_sectors are indexing two
-> different things -- the former indexes the entire request (all segments)
-> while the latter indexes only the first segments. So
-> 
-> 	foo = rq->nr_sectors - rq->current_nr_sectors;
-> 
-> makes no sense _at all_ and can only be wrong.
-> 
-> So why does 2.4.19-pre3 work for pio at all? For the same reason that
-> Andre never found this problem in 2.5 either: the taskfile interrupt
-> handlers are _never_ used in pio mode. In 2.5 it was by accident, and
-> when the merge happened they did indeed get used. It ate disks, very
-> quickly. Take a look at drivers/ide/ide-disk.c, line 64:
-> 
-> #ifdef CONFIG_IDE_TASKFILE_IO
-> #  undef __TASKFILE__IO /* define __TASKFILE__IO */
-> #else /* CONFIG_IDE_TASKFILE_IO */
-> #  undef __TASKFILE__IO
-> #endif /* CONFIG_IDE_TASKFILE_IO */
-> 
-> It's a mess... This really should have been fixed prior to 2.4
-> inclusion. Oh well.
-> 
-> -- 
-> Jens Axboe
-> 
+	I believe, however, that you are completely safe if you decrement the use 
+count atomically, and if it's zero, you grab the hash lock, confirm that the 
+use count is still zero, and then remove the object.
+
+	Since the use count is always locked for the first time in any usage chain 
+with the hash lock held (lock it when you find it), an increment from zero to 
+one can only occur while the lock is held. So if you hold the lock, an 
+increment from zero to one cannot occur. No race.
+
+	DS
+
 

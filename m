@@ -1,85 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261886AbVAYKxy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261887AbVAYKzp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261886AbVAYKxy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 05:53:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbVAYKxx
+	id S261887AbVAYKzp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 05:55:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbVAYKzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 05:53:53 -0500
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:39051 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261886AbVAYKwo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 05:52:44 -0500
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ntfs-dev@lists.sourceforge.net
-Subject: [PATCH 1/1] NTFS: Fix a potential DoS by rate limiting printk().
-Message-Id: <E1CtOJA-0003sV-8D@imp.csi.cam.ac.uk>
-Date: Tue, 25 Jan 2005 10:52:28 +0000
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+	Tue, 25 Jan 2005 05:55:44 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:5022 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261887AbVAYKz2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 05:55:28 -0500
+Message-ID: <41F6348E.A1CB395C@tv-sign.ru>
+Date: Tue, 25 Jan 2005 14:59:10 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: Ram Pai <linuxram@us.ibm.com>, Steven Pratt <slpratt@austin.ibm.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 1/4] page_cache_readahead: unneeded prev_page assignments
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is patch 1/1 in the series.  It contains the following ChangeSet:
+There is no point in setting ra->prev_page before 'goto out',
+it will be overwritten anyway.
 
-<aia21@cantab.net> (05/01/25 1.1983.6.1)
-   NTFS: Add printk rate limiting for ntfs_warning() and ntfs_error() when
-         compiled without debug.  This avoids a possible denial of service
-         attack.  Thanks to Carl-Daniel Hailfinger from SuSE for pointing this
-         out.
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-Best regards,
-
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
-
-===================================================================
-
-diff -Nru a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
---- a/fs/ntfs/ChangeLog	2005-01-25 10:50:37 +00:00
-+++ b/fs/ntfs/ChangeLog	2005-01-25 10:50:37 +00:00
-@@ -25,6 +25,13 @@
- 	- Enable the code for setting the NT4 compatibility flag when we start
- 	  making NTFS 1.2 specific modifications.
+--- 2.6.11-rc2/mm/readahead.c~	Wed Jan 12 11:44:55 2005
++++ 2.6.11-rc2/mm/readahead.c	Mon Jan 24 20:19:38 2005
+@@ -432,7 +432,6 @@ page_cache_readahead(struct address_spac
  
-+2.1.23-WIP
-+
-+	- Add printk rate limiting for ntfs_warning() and ntfs_error() when
-+	  compiled without debug.  This avoids a possible denial of service
-+	  attack.  Thanks to Carl-Daniel Hailfinger from SuSE for pointing this
-+	  out.
-+
- 2.1.22 - Many bug and race fixes and error handling improvements.
+ 	if (newsize == 0 || (ra->flags & RA_FLAG_INCACHE)) {
+ 		newsize = 1;
+-		ra->prev_page = offset;
+ 		goto out;	/* No readahead or file already in cache */
+ 	}
+ 	/*
+@@ -443,7 +442,6 @@ page_cache_readahead(struct address_spac
+ 	if ((ra->size == 0 && offset == 0)	/* first io and start of file */
+ 	    || (ra->size == -1 && ra->prev_page == offset - 1)) {
+ 		/* First sequential */
+-		ra->prev_page  = offset + newsize - 1;
+ 		ra->size = get_init_ra_size(newsize, max);
+ 		ra->start = offset;
+ 		if (!blockable_page_cache_readahead(mapping, filp, offset,
+@@ -475,7 +473,6 @@ page_cache_readahead(struct address_spac
+ 	 */
+ 	if ((offset != (ra->prev_page+1) || (ra->size == 0))) {
+ 		ra_off(ra);
+-		ra->prev_page  = offset + newsize - 1;
+ 		blockable_page_cache_readahead(mapping, filp, offset,
+ 				 newsize, ra, 1);
+ 		goto out;
+@@ -545,7 +542,7 @@ page_cache_readahead(struct address_spac
  
- 	- Improve error handling in fs/ntfs/inode.c::ntfs_truncate().
-diff -Nru a/fs/ntfs/debug.c b/fs/ntfs/debug.c
---- a/fs/ntfs/debug.c	2005-01-25 10:50:37 +00:00
-+++ b/fs/ntfs/debug.c	2005-01-25 10:50:37 +00:00
-@@ -53,6 +53,10 @@
- 	va_list args;
- 	int flen = 0;
+ out:
+ 	ra->prev_page = offset + newsize - 1;
+-	return(newsize);
++	return newsize;
+ }
  
-+#ifndef DEBUG
-+	if (!printk_ratelimit())
-+		return;
-+#endif
- 	if (function)
- 		flen = strlen(function);
- 	spin_lock(&err_buf_lock);
-@@ -93,6 +97,10 @@
- 	va_list args;
- 	int flen = 0;
- 
-+#ifndef DEBUG
-+	if (!printk_ratelimit())
-+		return;
-+#endif
- 	if (function)
- 		flen = strlen(function);
- 	spin_lock(&err_buf_lock);
+ /*

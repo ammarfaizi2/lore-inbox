@@ -1,47 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVARTuT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261464AbVARTvH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261417AbVARTuT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 14:50:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVARTsh
+	id S261464AbVARTvH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 14:51:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVARTri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 14:48:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:21208 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261417AbVARTon (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 14:44:43 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1106014803.30801.22.camel@localhost.localdomain> 
-References: <1106014803.30801.22.camel@localhost.localdomain>  <31453.1105979239@redhat.com> 
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linuxppc64-dev@ozlabs.org
-Subject: Re: [PATCH] Fix kallsyms/insmod/rmmod race 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Tue, 18 Jan 2005 19:44:28 +0000
-Message-ID: <1561.1106077468@redhat.com>
+	Tue, 18 Jan 2005 14:47:38 -0500
+Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:9427 "EHLO
+	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
+	id S261421AbVARTpP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 14:45:15 -0500
+Date: Tue, 18 Jan 2005 14:44:58 -0500
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [RFC] shared subtrees
+In-reply-to: <20050117203926.GU26051@parcelfarce.linux.theplanet.co.uk>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: "J. Bruce Fields" <bfields@fieldses.org>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Message-id: <41ED673A.1010906@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk>
+ <41EC0466.9010509@sun.com> <20050117190028.GF24830@fieldses.org>
+ <41EC1253.8080902@sun.com> <20050117193206.GH24830@fieldses.org>
+ <41EC1BE6.1030506@sun.com>
+ <20050117203926.GU26051@parcelfarce.linux.theplanet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Rusty Russell <rusty@rustcorp.com.au> wrote:
+Al Viro wrote:
+> On Mon, Jan 17, 2005 at 03:11:18PM -0500, Mike Waychison wrote:
+>  
+> 
+>>I don't think that solves the problem.  B should receive copies (with
+>>shared semantics if called for) of all mountpoints C1,..,Cn that are
+>>children of A if A->A.  This is regardless of whether or not propagation
+>>occurs before or after the attach.
+> 
+> 
+> ... when that makes sense.  Do you see any real problems with the proposed
+> behaviour (i.e. propagation happens before attachment)?
+> 
+> BTW, you do realize that rbind also has "copy before attaching" semantics,
+> right?
 
-> 	The more I looked at this, the more I warmed to it.  I've known for a
-> while that people are using kallsyms not for OOPS (eg. /proc/$$/wchan),
-> so we should provide a "grabs locks" version, but this solution gets
-> around that nicely, while making life more certain for the oops case,
-> too.
+Ya, okay, that semantic will work.  Please add it to the RFC though :)
 
+>  
+> 
+>>Allowing this is like allowing directory aliasing in the sense that an
+>>aliased directory that is nested within itself opens us to
+>>badness/headaches 8)
+>>
+>>I still think the only way to handle this is to disallow vfsmounts in a
+>>p-node to have (grand)parent-child relationships.  This may have to be
+>>extended to the 'owned by' case as well.
+> 
+> 
+> Not feasible (and think what _that_ will do to --move, especially since
+> propagation can span namespace boundaries).
 
-Hmmm... though it works on i386 SMP, it doesn't, however, seem to work on
-ppc64 SMP:-/
+Fair enough.
 
-My pSeries box seems to think that it can't find any symbols from previously
-loaded modules, and my Power5 box is quite happy to load modules that depend
-on other modules but panics because it can't mount its root fs.
+Changing the topic slightly: How should we handle propagation events for
+the detach_mnt() case?  Is it fair to say: a detach_mnt of A mounted on
+dentry d on parent B will 'umount -l Ai' all Ai where Ai is mounted on
+dentry d in all peers and private derivatives of the p-node which B
+belong to?
 
-This is very odd, because the patch is simple enough. Is there anything
-obvious I've missed that you can see? Or maybe I'm just misunderstanding how
-stop_machine_run() works... maybe it can't be called during initialisation.
+Steps to above:
+- - Detaching A from parent B (mounted on dentry d)
+  - Let S = set of all peer vfsmounts in B's p-node p (if any)
+    unioned with all vfsmounts owned by p (expanding owned p-nodes
+    recursively):
+  - For each C in S
+    - If (C has a child mountpoint D mounted on dentry d)
+      && (D is equivalent to A)
+      - umount -l D
 
-David
+Thoughts?
+
+Also, brainstorming mountpoint expiry: How about something like this:
+
+- - Each p-node has a recently-touched flag, like how vfsmount currently
+has a mnt_expiry_mark.
+- - A call to umount with MNT_EXPIRE of vfsmount A which is in a non-empty
+p-node will:
+  - Will check to see if *all* Ai in A's p-node (and derivatives) are
+not busy, if not, return -EBUSY
+  - Otherwise:
+    - Will clear the recently-touched flag of the p-node if set
+    - Otherwise it will umount all Ai.
+
+This only works btw for autofs iff we have vfs native traps.  Otherwise
+we'll need to do recursive MNT_EXPIRE (overload MNT_EXPIRE | MNT_DETACH?)
+
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB7Wc6dQs4kOxk3/MRAo9/AJ415IkSmKqT7rpvo7Uwr8HZqI0okwCfXYs+
+iuXoqlEyzGMCnPKwLlSfgvI=
+=OAAC
+-----END PGP SIGNATURE-----

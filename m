@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267962AbTBVXKX>; Sat, 22 Feb 2003 18:10:23 -0500
+	id <S267959AbTBVXGJ>; Sat, 22 Feb 2003 18:06:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267963AbTBVXKX>; Sat, 22 Feb 2003 18:10:23 -0500
-Received: from bitmover.com ([192.132.92.2]:39340 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S267962AbTBVXKW>;
-	Sat, 22 Feb 2003 18:10:22 -0500
-Date: Sat, 22 Feb 2003 15:20:29 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030222232029.GB31268@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0302221648010.2686-100000@coffee.psychology.mcmaster.ca> <1370000.1045955447@[10.10.2.4]>
+	id <S267960AbTBVXGJ>; Sat, 22 Feb 2003 18:06:09 -0500
+Received: from [212.156.4.132] ([212.156.4.132]:37628 "EHLO fep02.ttnet.net.tr")
+	by vger.kernel.org with ESMTP id <S267959AbTBVXGH>;
+	Sat, 22 Feb 2003 18:06:07 -0500
+Date: Sun, 23 Feb 2003 01:16:22 +0200
+From: Faik Uygur <faikuygur@ttnet.net.tr>
+To: andre@linux-ide.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.62: /proc/ide/pdcadma returns incomplete data [10/17]
+Message-ID: <20030222231622.GI2996@ttnet.net.tr>
+Mail-Followup-To: andre@linux-ide.org, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-9
 Content-Disposition: inline
-In-Reply-To: <1370000.1045955447@[10.10.2.4]>
 User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+X-PGP-Fingerprint: 15 C0 AA 31 59 F9 DE 4F 7D A6 C7 D8 A0 D5 67 73
+X-PGP-Key-ID: 0x5C447959
+X-PGP-Key-Size: 2048 bits
+X-Editor: GNU Emacs 21.2.1
+X-Operating-System: Debian GNU/Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We would never try to propose such a change, and never have. 
-> Name a scalability change that's hurt the performance of UP by 5%.
-> There isn't one.
+This patch fixes the incomplete data return problem of /proc/ide/pdcadma.
+When the number of consecutive read bytes are smaller than the total
+data in pdcadma_get_info(), the second read() returns 0.
 
-This is *exactly* the reasoning that every OS marketing weenie has used
-for the last 20 years to justify their "feature" of the week.
+--- linux-2.5.62-vanilla/drivers/ide/pci/pdcadma.c	Sun Feb 23 00:08:33 2003
++++ linux-2.5.62/drivers/ide/pci/pdcadma.c	Sat Feb 22 23:36:32 2003
+@@ -39,7 +39,7 @@
+ static int pdcadma_get_info (char *buffer, char **addr, off_t offset, int count)
+ {
+ 	char *p = buffer;
+-	int i;
++	int i, len;
+ 
+ 	for (i = 0; i < n_pdc_devs; i++) {
+ 		struct pci_dev *dev	= pdc_devs[i];
+@@ -51,7 +51,11 @@
+ 		p += sprintf(p, "PIO\n");
+ 
+ 	}
+-	return p-buffer;	/* => must be less than 4k! */
++	/* p - buffer must be less than 4k! */
++	len = (p - buffer) - offset;
++	*addr = buffer + offset;
++	
++	return len > count ? count : len;
+ }
+ #endif  /* defined(DISPLAY_PDCADMA_TIMINGS) && defined(CONFIG_PROC_FS) */
 
-The road to slow bloated code is paved one cache miss at a time.  You
-may quote me on that.  In fact, print it out and put it above your
-monitor and look at it every day.  One cache miss at a time.  How much
-does one cache miss add to any benchmark?  .001%?  Less.  
-
-But your pet features didn't slow the system down.  Nope, they just made
-the cache smaller, which you didn't notice because whatever artificial
-benchmark you ran didn't happen to need the whole cache.  
-
-You need to understand that system resources belong to the user.  Not the
-kernel.  The goal is to have all of the kernel code running under any 
-load be less than 1% of the CPU.  Your 5% number up there would pretty 
-much double the amount of time we spend in the kernel for most workloads.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

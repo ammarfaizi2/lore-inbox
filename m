@@ -1,76 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVCKStw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVCKTGm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261275AbVCKStw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 13:49:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVCKSjs
+	id S261322AbVCKTGm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 14:06:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVCKTGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 13:39:48 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:24593 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261279AbVCKSQw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 13:16:52 -0500
-Date: Fri, 11 Mar 2005 19:16:45 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] unexport kmap_{pte,port} on !ppc
-Message-ID: <20050311181645.GL3723@stusta.de>
+	Fri, 11 Mar 2005 14:06:13 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:28033
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261322AbVCKSzG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 13:55:06 -0500
+Date: Fri, 11 Mar 2005 10:51:36 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Patrick McHardy <kaber@trash.net>
+Cc: dtor_core@ameritech.net, netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org
+Subject: Re: Last night Linus bk - netfilter busted?
+Message-Id: <20050311105136.2a5e4ddc.davem@davemloft.net>
+In-Reply-To: <4231A498.4020101@trash.net>
+References: <200503110223.34461.dtor_core@ameritech.net>
+	<4231A498.4020101@trash.net>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I haven't found any modular usage of kmap_{pte,port} on !ppc in the 
-kernel.
+On Fri, 11 Mar 2005 15:00:56 +0100
+Patrick McHardy <kaber@trash.net> wrote:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> Works fine here. You could try if reverting one of these two patches
+> helps (second one only if its a SMP box).
+> 
+> ChangeSet@1.2010, 2005-03-09 20:28:17-08:00, bdschuym@pandora.be
+>    [NETFILTER]: Reduce call chain length in netfilter (take 2)
 
----
+It's this change, I know it is, because Linus sees the same problem
+on his workstation.
 
-This patch was already sent on:
-- 21 Jan 2005
+You wouldn't happen to be seeing this problem on a PPC box would
+you?  Since Linus's machine is a PPC machine too, that would support
+my theory that this could be a compiler issue on that platform.
 
- arch/i386/mm/init.c  |    3 ---
- arch/mips/mm/init.c  |    3 ---
- arch/sparc/mm/init.c |    3 ---
- 3 files changed, 9 deletions(-)
-
---- linux-2.6.11-rc1-mm2-full/arch/i386/mm/init.c.old	2005-01-20 23:45:08.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/i386/mm/init.c	2005-01-20 23:45:20.000000000 +0100
-@@ -252,9 +252,6 @@
- pte_t *kmap_pte;
- pgprot_t kmap_prot;
- 
--EXPORT_SYMBOL(kmap_prot);
--EXPORT_SYMBOL(kmap_pte);
--
- #define kmap_get_fixmap_pte(vaddr)					\
- 	pte_offset_kernel(pmd_offset(pud_offset(pgd_offset_k(vaddr), vaddr), (vaddr)), (vaddr))
- 
---- linux-2.6.11-rc1-mm2-full/arch/sparc/mm/init.c.old	2005-01-20 23:45:27.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/sparc/mm/init.c	2005-01-20 23:45:32.000000000 +0100
-@@ -59,9 +59,6 @@
- pte_t *kmap_pte;
- pgprot_t kmap_prot;
- 
--EXPORT_SYMBOL(kmap_prot);
--EXPORT_SYMBOL(kmap_pte);
--
- #define kmap_get_fixmap_pte(vaddr) \
- 	pte_offset_kernel(pmd_offset(pgd_offset_k(vaddr), (vaddr)), (vaddr))
- 
---- linux-2.6.11-rc1-mm2-full/arch/mips/mm/init.c.old	2005-01-20 23:45:39.000000000 +0100
-+++ linux-2.6.11-rc1-mm2-full/arch/mips/mm/init.c	2005-01-20 23:45:46.000000000 +0100
-@@ -83,9 +83,6 @@
- pte_t *kmap_pte;
- pgprot_t kmap_prot;
- 
--EXPORT_SYMBOL(kmap_prot);
--EXPORT_SYMBOL(kmap_pte);
--
- #define kmap_get_fixmap_pte(vaddr)					\
- 	pte_offset_kernel(pmd_offset(pgd_offset_k(vaddr), (vaddr)), (vaddr))
- 
-
+Damn, wait, Patrick, I think I know what's happening.  The iptables
+IPT_* verdicts are dependant upon the NF_* values, and they don't
+cope with Bart's changes I bet.  Can you figure out what the exact
+error would be?  This kind of issue would explain the looping inside
+of ipt_do_table(), wouldn't it?

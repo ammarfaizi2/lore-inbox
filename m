@@ -1,89 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266453AbUG0Q3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266208AbUG0QiV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266453AbUG0Q3j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 12:29:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266476AbUG0Q2s
+	id S266208AbUG0QiV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 12:38:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266311AbUG0QiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 12:28:48 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:16846 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S266453AbUG0QX4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 12:23:56 -0400
-Message-ID: <410681DC.7030706@colorfullife.com>
-Date: Tue, 27 Jul 2004 18:25:00 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Tue, 27 Jul 2004 12:38:20 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:61454 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S266208AbUG0Qh6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 12:37:58 -0400
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Andrew Morton <akpm@osdl.org>, aebr@win.tue.nl, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix NR_KEYS off-by-one error
+References: <87llhjlxjk.fsf@devron.myhome.or.jp>
+	<20040716164435.GA8078@ucw.cz>
+	<20040716201523.GC5518@pclin040.win.tue.nl>
+	<871xjbkv8g.fsf@devron.myhome.or.jp>
+	<20040726154327.107409fc.akpm@osdl.org>
+	<20040727134654.GB17362@ucw.cz>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Wed, 28 Jul 2004 01:37:00 +0900
+In-Reply-To: <20040727134654.GB17362@ucw.cz>
+Message-ID: <878yd5be4z.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][2.6.8-rc1-mm1] perfctr inheritance locking issue
-References: <200407201122.i6KBMbPR021614@harpo.it.uu.se> <20040726165754.1a4eda43.akpm@osdl.org>
-In-Reply-To: <20040726165754.1a4eda43.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Vojtech Pavlik <vojtech@suse.cz> writes:
 
->Mikael Pettersson <mikpe@csd.uu.se> wrote:
->  
->
->>Andrew,
->>
->>There is another locking problem with the per-process
->>performance counter inheritance changes I sent you.
->>
->>I currently use task_lock(tsk) to synchronise accesses
->>to tsk->thread.perfctr, when that pointer could change.
->>
->>The write_lock_irq(&tasklist_lock) in release_task() is
->>needed to prevent ->parent from changing while releasing the
->>child, but the parent's ->thread.perfctr must also be locked.
->>However, sched.h explicitly forbids holding task_lock()
->>simultaneously with write_lock_irq(&tasklist_lock). Ouch.
->>    
->>
->
->That's ghastly.
->
-> * Nests both inside and outside of read_lock(&tasklist_lock).
-> * It must not be nested with write_lock_irq(&tasklist_lock),
-> * neither inside nor outside.
->
->Manfred, where did you discover the offending code?
->
->  
->
-Think about interrupts: they are permitted to acquire the tasklist_lock 
-for read.
+> > This all seems a bit inconclusive.  Do we proceed with the original patch
+> > or not?  If not, how do we fix the overflow which Hirofumi has identified?
+> 
+> I think we should check the value in the ioctl, regardless of what's
+> NR_KEYS defined to.
 
-Someone does
-    read_lock(&tasklist_lock);
-    task_lock(tsk);
-
-One example is __do_SAK in tty_io.c, but I think there are further examples.
-
-Now add a softirq that tries to deliver a signal: kill_something_info() 
-contains a
-    read_lock(&tasklist_lock);
-
-This sequence doesn't deadlock - rw spinlocks starve writers.
-But it means that both
-    task_lock();
-    write_lock_irq(&tasklist_lock);
-and
-    write_lock_irq(&tasklist_lock);
-    task_lock();
-
-can deadlock with the read_lock()/task_lock()/read_lock() sequence.
-
->Would be better to just sort out the locking, then take task_lock() inside
->tasklist_lock.  That was allegedly the rule in 2.4.
->  
->
-It probably works by chance in 2.4.
-
---  
-    Manfred
+However, it breaks the current binary instead. (at least
+console-tools, kbdutils).
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

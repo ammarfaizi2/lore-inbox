@@ -1,76 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262873AbTI2HvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 03:51:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262865AbTI2HvJ
+	id S262865AbTI2HxD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 03:53:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbTI2HxD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 03:51:09 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:59049 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262864AbTI2HvE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 03:51:04 -0400
-Date: Mon, 29 Sep 2003 09:51:05 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Kernel Developer List <linux-kernel@vger.kernel.org>,
-       Linux SCSI list <linux-scsi@vger.kernel.org>
-Subject: Re: error in drivers/block/scsi_ioctl.c and ll_rw_block.c?
-Message-ID: <20030929075105.GO15415@suse.de>
-References: <20030928160238.A18507@one-eyed-alien.net>
+	Mon, 29 Sep 2003 03:53:03 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:1449 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S262865AbTI2Hw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 03:52:59 -0400
+Date: Mon, 29 Sep 2003 00:52:50 -0700
+From: Frank Cusack <fcusack@fcusack.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: torvalds@osld.org, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: effect of nfs blocksize on I/O ?
+Message-ID: <20030929005250.A9110@google.com>
+References: <20030928234236.A16924@google.com> <16247.56578.861224.328086@charged.uio.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030928160238.A18507@one-eyed-alien.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <16247.56578.861224.328086@charged.uio.no>; from trond.myklebust@fys.uio.no on Mon, Sep 29, 2003 at 12:19:30AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 28 2003, Matthew Dharm wrote:
-> While working on usb-storage (a virtual SCSI HBA), I noticed that the
-> command 'eject /dev/scd0' sent a START_STOP command to the device with the
-> data direction set to SCSI_DATA_WRITE but a transfer length of zero.  This
-> causes a problem for some code paths.
+On Mon, Sep 29, 2003 at 12:19:30AM -0700, Trond Myklebust wrote:
+> >>>>> " " == Frank Cusack <fcusack@fcusack.com> writes:
 > 
-> For clarity, the START_STOP command doesn't want to move any data at all.
+>      > 2.6 sets this to nfs_fsinfo.wtmult?nfs_fsinfo.wtmult:512 = 512
+>      >     typically.
 > 
-> It looks to me like the error is a combination of
-> drivers/block/scsi_ioctl.c and ll_rw_block.c
+>      > (My estimation of "typical" may be way off though.)
 > 
-> scsi_ioctl.c calls blk_get_request(q, WRITE, __GFP_WAIT) to allocate the
-> request -- specifying WRITE here is one problem.
+>      > At a 512 byte blocksize, this overflows struct statfs for fs >
+>      > 1TB.  Most of my NFS filesystems (on netapp) are larger than
+>      > that.
 > 
-> In ll_rw_block.c, blk_get_request() calls BUG_ON(rq != READ && rw != WRITE)
-> -- in other words, it can only allocate a request for reading or writing,
-> but not for no data.  I'm not familiar with this code, but it looks like
-> requests are tracked by data direction, so making this accept NONE may be
-> difficult.
-> 
-> One possible solution may be to re-write the CDROMEJECT ioctl into a call
-> to sg_scsi_ioctl(), but that doesn't fix the general problem with
-> ll_rw_block.c -- if, indeed, that is a problem.
+> Then you should use statfs64()/statvfs64(). Nobody is going to
+> guarantee to you that the equivalent 32-bit syscalls will hold for
+> arbitrary disk sizes.
 
-No it's not a problem, clearly the request doesn't want to move any data
-if rq->data_len == 0.
+I see.
 
-===== drivers/scsi/sr.c 1.93 vs edited =====
---- 1.93/drivers/scsi/sr.c	Fri Sep  5 13:31:51 2003
-+++ edited/drivers/scsi/sr.c	Mon Sep 29 09:49:43 2003
-@@ -289,12 +289,12 @@
- 			return 0;
- 
- 		memcpy(SCpnt->cmnd, rq->cmd, sizeof(SCpnt->cmnd));
--		if (rq_data_dir(rq) == WRITE)
-+		if (!rq->data_len)
-+			SCpnt->sc_data_direction = SCSI_DATA_NONE;
-+		else if (rq_data_dir(rq) == WRITE)
- 			SCpnt->sc_data_direction = SCSI_DATA_WRITE;
--		else if (rq->data_len)
-+		else (rq->data_len)
- 			SCpnt->sc_data_direction = SCSI_DATA_READ;
--		else
--			SCpnt->sc_data_direction = SCSI_DATA_NONE;
- 
- 		this_count = rq->data_len;
- 		if (rq->timeout)
+> OTOH, bsize is of informational interest to programs that wish to
+> optimize I/O throughput by grouping their data into appropriately
+> sized records.
 
--- 
-Jens Axboe
+So then isn't the optimal record size 8192 for r/wsize=8192?  Since the
+data is going to be grouped into 8192-byte reads and writes over the wire,
+shouldn't bsize match that?  Why should I make 16x 512-byte write() syscalls
+(if "optimal" I/O size is bsize=512) instead of 1x 8192-byte syscall?
 
+SUSv3 says:
+
+    unsigned long f_bsize    File system block size. 
+    unsigned long f_frsize   Fundamental file system block size.
+
+Solaris statvfs(2) says:
+
+    u_long      f_bsize;             /* preferred file system block size */
+    u_long      f_frsize;            /* fundamental filesystem block
+                                         (size if supported) */
+
+/fc

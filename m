@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279878AbRKBAkj>; Thu, 1 Nov 2001 19:40:39 -0500
+	id <S279891AbRKBA6A>; Thu, 1 Nov 2001 19:58:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279879AbRKBAka>; Thu, 1 Nov 2001 19:40:30 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61196 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S279878AbRKBAkY>; Thu, 1 Nov 2001 19:40:24 -0500
-Date: Thu, 1 Nov 2001 16:37:42 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: Lorenzo Allegrucci <lenstra@tiscalinet.it>, <linux-kernel@vger.kernel.org>,
-        Andrea Arcangeli <andrea@suse.de>
-Subject: Re: new OOM heuristic failure  (was: Re: VM: qsbench)
-In-Reply-To: <200111012335.AAA29493@webserver.ithnet.com>
-Message-ID: <Pine.LNX.4.33.0111011634340.12377-100000@penguin.transmeta.com>
+	id <S279884AbRKBA5l>; Thu, 1 Nov 2001 19:57:41 -0500
+Received: from sitar.i-cable.com ([210.80.60.11]:33993 "HELO sitar.i-cable.com")
+	by vger.kernel.org with SMTP id <S279888AbRKBA5j>;
+	Thu, 1 Nov 2001 19:57:39 -0500
+Message-ID: <3BE298E3.4090905@rcn.com.hk>
+Date: Fri, 02 Nov 2001 21:00:19 +0800
+From: David Chow <davidchow@rcn.com.hk>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-GB; rv:0.9.2) Gecko/20010726 Netscape6/6.1
+X-Accept-Language: en-gb
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Keith Owens <kaos@ocs.com.au>
+CC: FORT David <popo.enlighted@free.fr>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Oops on 2.4.13
+In-Reply-To: <1235.1004655139@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have no output for modinfo even running kernel 2.4.2 .. what's the 
+problem here?
 
-On Fri, 2 Nov 2001, Stephan von Krawczynski wrote:
+Thanks.
+
+DC
+
+Keith Owens wrote:
+
+>On Thu, 01 Nov 2001 16:45:04 -0500, 
+>FORT David <popo.enlighted@free.fr> wrote:
 >
-> To clarify this one a bit:
-> shrink_cache is thought to do what it says, it is given a number of
-> pages it should somehow manage to free by shrinking the cache. What my
-> patch does is go after the _whole_ list to fulfill that.
+>>the kernel is tainted but by a kernel driver which hasn't set
+>>any licence(can't remember which one)
+>>
+>
+>modinfo `modprobe -l` | sed -ne '/^filename/h; /^license.*none/{g;p;}'
+>
+>lists all modules without a license, please report so it can be fixed.
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-I would suggest a slight modification: make "max_mapped" grow as the
-priority goes up.
-
-Right now max_mapped is fixed at "nr_pages*10".
-
-You could have something like
-
-	max_mapped = nr_pages * 60 / priority;
-
-instead, which might also alleviate the problem with not even bothering to
-scan much of the inactive list simply because 99% of all pages are mapped.
-
-That way you don't waste time on looking at the rest of the inactive list
-until you _need_ to.
-
-		Linus
 

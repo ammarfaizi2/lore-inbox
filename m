@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312442AbSDNT23>; Sun, 14 Apr 2002 15:28:29 -0400
+	id <S312444AbSDNTcz>; Sun, 14 Apr 2002 15:32:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312443AbSDNT22>; Sun, 14 Apr 2002 15:28:28 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:26888 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S312442AbSDNT22>; Sun, 14 Apr 2002 15:28:28 -0400
-Date: Sun, 14 Apr 2002 21:28:29 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jerry Sievert <jerry@osdl.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19pre5-ac3 swsusp panic
-Message-ID: <20020414192829.GD2341@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200204060109.g36199g10373@devserv.devel.redhat.com> <1018114652.7477.2.camel@psuedomode> <1018116297.7477.21.camel@psuedomode> <20020407095844.GA216@elf.ucw.cz> <1018546314.32748.9.camel@caffeine.pdx.osdl.net> <20020412074948.GA26389@atrey.karlin.mff.cuni.cz> <1018626124.2078.16.camel@caffeine.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S312446AbSDNTcy>; Sun, 14 Apr 2002 15:32:54 -0400
+Received: from smtp-out-1.wanadoo.fr ([193.252.19.188]:63711 "EHLO
+	mel-rto1.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S312444AbSDNTcy>; Sun, 14 Apr 2002 15:32:54 -0400
+Message-ID: <3CB9D940.8040303@wanadoo.fr>
+Date: Sun, 14 Apr 2002 21:32:16 +0200
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020407
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: spyro@armlinux.org
+CC: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: usb-uhci *BUG*
+In-Reply-To: <20020414004022.6450f038.spyro@armlinux.org>	<20020414150719.GA17826@kroah.com>	<20020414183247.016a2ec3.spyro@armlinux.org>	<20020414164355.GA18040@kroah.com>	<3CB9D20C.30000@wanadoo.fr> <20020414202113.12136578.spyro@armlinux.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Ian Molton wrote:
+> Its a VIA based board, and it /is/ an add-on card. its a 4 port OPTi based
+> card.
 
-> i finally found it, thank you ;-)
-> 
-> suspend worked great, restore had some issues, though ... X didn't come
-> back correctly, and after going to console 7 (X), the machine ended up
-> freezing up ... no OOPS tho, which was odd ... i didn't try to diagnose
-> the problem, just powered off and decided to go back to my
-> non-suspending kernel ...
+ From FAQ on Alcatel site:
 
-Always suspend when normal console (not X) is active. That should work
-better.
-							Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+Q11: My modem often powers down without any reason and I have to reboot 
+to connect again.
+
+A11: This is a known problem with motherboards using the VIA chipset. 
+Always install the latest Via4in1 drivers and USB filter from the Via 
+website. If you have a Motherboard of the KT7 type, one workaround is to 
+change the BIOS settings: set the 'enhanced chipset performance' setting 
+on 'enable'. This should help in most cases. For more information about 
+the KT7 / VIA chipset issues with USB, you may read the the ViaHardware 
+  FAQ pages or the USBman page.
+
+
+Pierre
+------------------------------------------------
+  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------
+

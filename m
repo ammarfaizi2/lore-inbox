@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287368AbSAGXSe>; Mon, 7 Jan 2002 18:18:34 -0500
+	id <S287371AbSAGXUo>; Mon, 7 Jan 2002 18:20:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287355AbSAGXSZ>; Mon, 7 Jan 2002 18:18:25 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:61965 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S287366AbSAGXSG>; Mon, 7 Jan 2002 18:18:06 -0500
-Date: Mon, 7 Jan 2002 15:18:14 -0800 (PST)
-From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Ancient Memories [was: Two hdds on one channel - why so slow?]
-In-Reply-To: <20020107202324.A9953@home.softaplic.com.br>
-Message-ID: <Pine.LNX.4.33.0201071515540.7915-100000@shell1.aracnet.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287372AbSAGXUe>; Mon, 7 Jan 2002 18:20:34 -0500
+Received: from nile.gnat.com ([205.232.38.5]:63178 "HELO nile.gnat.com")
+	by vger.kernel.org with SMTP id <S287371AbSAGXUV>;
+	Mon, 7 Jan 2002 18:20:21 -0500
+From: dewar@gnat.com
+To: Dautrevaux@microprocess.com, dewar@gnat.com, guerby@acm.org,
+        mrs@windriver.com
+Subject: RE: [PATCH] C undefined behavior fix
+Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org, paulus@samba.org,
+        trini@kernel.crashing.org, velco@fadata.bg
+Message-Id: <20020107232020.A3CE3F28F1@nile.gnat.com>
+Date: Mon,  7 Jan 2002 18:20:20 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jan 2002, Edesio Costa e Silva wrote:
+>>That is just broken and wrong
 
-> Since we are back to where I begun maybe you can help me. A friend of mine
-> and I are looking for a PDP-11 DOS/BATCH system image. We have images of
-> RSX-11, RTS, RT-11, etc. But DOS/BATCH is missing. I recall having
-> disassembled some parts of it and it was beautiful!
+According to the gcc docs right? certainly not according to the standard!
 
-Can't help you there, but I do have a fig-Forth listing for the PDP-11
-and an ILLIAC (I) Programmers Manual. :-)
+<<If you want/need the gcc doc to expound on this, write it up, and
+we'll add it.
+>>
 
--- 
-M. Edward "Ancient Stripe" Borasky
-
-znmeb@borasky-research.net
-http://www.borasky-research.net
-
-Give me your brains or I'll blow your money out.
-
+I think we should add this, since this is the source of the rule, not the
+standard (as far as I can  tell)

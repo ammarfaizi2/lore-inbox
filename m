@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267264AbTBQQ7E>; Mon, 17 Feb 2003 11:59:04 -0500
+	id <S267206AbTBQQyz>; Mon, 17 Feb 2003 11:54:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267267AbTBQQ7E>; Mon, 17 Feb 2003 11:59:04 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:53483 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S267264AbTBQQ7D>; Mon, 17 Feb 2003 11:59:03 -0500
-Date: Mon, 17 Feb 2003 18:08:51 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext3 clings to you like flypaper
-Message-ID: <20030217170851.GA18693@wohnheim.fh-wedel.de>
-References: <78320000.1045465489@[10.10.2.4]> <1045482621.29000.40.camel@passion.cambridge.redhat.com> <2460000.1045500532@[10.10.2.4]>
+	id <S267208AbTBQQyz>; Mon, 17 Feb 2003 11:54:55 -0500
+Received: from almesberger.net ([63.105.73.239]:19974 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S267206AbTBQQyq>; Mon, 17 Feb 2003 11:54:46 -0500
+Date: Mon, 17 Feb 2003 14:04:23 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, kuznet@ms2.inr.ac.ru,
+       davem@redhat.com, kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Migrating net/sched to new module interface
+Message-ID: <20030217140423.N2092@almesberger.net>
+References: <20030214120628.208112C464@lists.samba.org> <Pine.LNX.4.44.0302141410540.1336-100000@serv> <20030214105338.E2092@almesberger.net> <Pine.LNX.4.44.0302141500540.1336-100000@serv> <20030214153039.G2092@almesberger.net> <Pine.LNX.4.44.0302142106140.1336-100000@serv> <20030214211226.I2092@almesberger.net> <Pine.LNX.4.44.0302150148010.1336-100000@serv> <20030214232818.J2092@almesberger.net> <Pine.LNX.4.44.0302151816550.1336-100000@serv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <2460000.1045500532@[10.10.2.4]>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <Pine.LNX.4.44.0302151816550.1336-100000@serv>; from zippel@linux-m68k.org on Sun, Feb 16, 2003 at 12:20:24AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 February 2003 08:48:55 -0800, Martin J. Bligh wrote:
-> 
-> The point remains, if I say I want ext2, I should get ext2, not whatever 
-> some random developer decides he thinks I should have. Worst of all,
-> the system then lies to you and says it's mounted ext2 when it's not.
+Roman Zippel wrote:
+> Let's stay at the main problem, we have find out when it's safe to delete 
+> an object. For dynamic objects you have the following options:
+[...]
+> Static objects and functions are freed by the module code and usually we
+[...]
 
-This is, how things worked for me:
-1. Kernel tries to mount rootfs ext3. If this fails, it will continue
-trying ext2. No other fs compiled into kernel.
-2. If there is a journal, it is ext3.
-3. Init scripts read /etc/fstab and read ext2.
-4. root is remounted as ext2.
-5. System allows me to log it, root is ext2, life is good.
+Okay so far.
 
-Where is your behaviour different from this list? Where do you say you
-want ext2 but don't get it?
+> If we exclude the possibly-wait-forever-option, do you see the problem 
+> for dynamic objects which also contain references to static data/
+> functions?
 
-Jörn
+You mean that two locking mechanisms are used, where one of them
+shouldn't be doing all that much ? Well, yes.
+
+Now, is this a problem, or just a symptom ? I'd say it's a symptom:
+we already have a perfectly good locking/synchronization method,
+and that's through the register/unregister interface, so the
+module-specific part is unnecessary.
+
+That much about the theory. Of course, in real life, we have to
+face a few more problems:
+
+ - if callbacks can happen after apparently successful "unregister",
+   we die
+ - if accesses to other static data owned by a module can happen
+   after apparently successful "unregister", we may die
+ - if a module doesn't "unregister" at all, we die too
+
+But all these problems equally affect code that does other things
+that can break a callback/access, e.g. if we destroy *de->data
+immediately after remove_proc_entry returns.
+
+So this is not a module-specific problem.
+
+Agreed ?
+
+- Werner
 
 -- 
-Beware of bugs in the above code; I have only proved it correct, but
-not tried it.
--- Donald Knuth
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263059AbUFFIQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263062AbUFFI14@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263059AbUFFIQY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 04:16:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUFFIQY
+	id S263062AbUFFI14 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 04:27:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUFFI14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 04:16:24 -0400
-Received: from holomorphy.com ([207.189.100.168]:44208 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263059AbUFFIQX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 04:16:23 -0400
-Date: Sun, 6 Jun 2004 01:16:00 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: anton@samba.org, mikpe@csd.uu.se, nickpiggin@yahoo.com.au,
-       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       ak@muc.de, ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-       Simon.Derr@bull.net, miltonm@bga.com
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based implementation
-Message-ID: <20040606081600.GS21007@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Paul Jackson <pj@sgi.com>, anton@samba.org, mikpe@csd.uu.se,
-	nickpiggin@yahoo.com.au, rusty@rustcorp.com.au,
-	linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
-	ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-	joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-	Simon.Derr@bull.net, miltonm@bga.com
-References: <20040603101010.4b15734a.pj@sgi.com> <1086313667.29381.897.camel@bach> <40BFD839.7060101@yahoo.com.au> <20040603221854.25d80f5a.pj@sgi.com> <16576.16748.771295.988065@alkaid.it.uu.se> <20040604090314.56d64f4d.pj@sgi.com> <20040604165601.GC21007@holomorphy.com> <20040604190803.GA6651@krispykreme> <20040605002827.2e539991.pj@sgi.com> <20040606010747.7c0dd03b.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040606010747.7c0dd03b.pj@sgi.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sun, 6 Jun 2004 04:27:56 -0400
+Received: from mail.codeweavers.com ([216.251.189.131]:20643 "EHLO
+	mail.codeweavers.com") by vger.kernel.org with ESMTP
+	id S263062AbUFFI1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 04:27:54 -0400
+Message-ID: <40C2E5DC.8000109@codeweavers.com>
+Date: Sun, 06 Jun 2004 18:37:32 +0900
+From: Mike McCormack <mike@codeweavers.com>
+Organization: Codeweavers
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040514
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
+References: <40C2B51C.9030203@codeweavers.com> <20040606073241.GA6214@infradead.org> <40C2E045.8090708@codeweavers.com> <20040606081021.GA6463@infradead.org>
+In-Reply-To: <20040606081021.GA6463@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pj wrote:
->> but rather the number (possibly an odd number) of u32 dest words,
 
-On Sun, Jun 06, 2004 at 01:07:47AM -0700, Paul Jackson wrote:
-> or the byte size of the destination buffer ...
+Christoph Hellwig wrote:
 
-I posted some code for you to cherrypick and run with here.
-i.e. the copy_cpus_to_user32()/copy_cpus_from_user32() stuff.
-Should be Message-ID: <20040605082647.GQ21007@holomorphy.com>
+> Huh?  binfmts do work on all linux architectures unchanged.  What you do
+> on other operating systems is up to you.  And btw, netbsd already has
+> binfmt_pecoff, you could certainly make use of that, too.
 
-I can resend as a patch if need be.
+Working on only two platforms is not really what I'd call portable.
 
+> _You_ are relying on undocumented assumptions here.   Windows has different
+> address space layouts than ELF ABI systems and I think you're much better
+> off having your own pecoff loader for that.
 
--- wli
+True, we are relying on undocumented assumptions.  On the other hand, 
+there's plenty of programs that rely on undocumented assumptions. 
+Binary compatability to me means that the same binary will work even 
+when the underlying system changes... is there a caveat that I missed?
+
+>>It seems Linus's kernel does that quite well, but some vendors seem not 
+>>to care too much about breaking Wine.
+> 
+> 
+> Why should they?  You need to fix up the broken assumptions in wine.
+
+If you don't care about binary compatability, you can change whatever 
+you like.  At least some people out there seem to care about it.
+
+Mike

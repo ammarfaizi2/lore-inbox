@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbUKCQ6c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbUKCRDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbUKCQ6c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 11:58:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbUKCQ6b
+	id S261729AbUKCRDY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 12:03:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbUKCRDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 11:58:31 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:61323 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261725AbUKCQ62 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 11:58:28 -0500
-Date: Wed, 3 Nov 2004 17:56:46 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: blaisorblade_spam@yahoo.it
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org, julian@sektor37.de,
-       mcr@sandelman.ottawa.on.ca, sam@ravnborg.org
-Subject: Re: [patch 2/2] kbuild: fix crossbuild base config
-In-Reply-To: <20041102232001.370174C0BC@zion.localdomain>
-Message-ID: <Pine.LNX.4.61.0411031747020.17266@scrub.home>
-References: <20041102232001.370174C0BC@zion.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 3 Nov 2004 12:03:24 -0500
+Received: from fmr12.intel.com ([134.134.136.15]:52424 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261729AbUKCRDU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 12:03:20 -0500
+Date: Wed, 3 Nov 2004 09:24:21 -0800
+From: Matt Tolentino <metolent@snoqualmie.dp.intel.com>
+Message-Id: <200411031724.iA3HOLl0017096@snoqualmie.dp.intel.com>
+To: arjan@infradead.org, metolent@snoqualmie.dp.intel.com
+Subject: Re: [patch] remove direct mem_map refs for x86-64
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>From SRS0+fff01e338c482ba0c24b+437+infradead.org+arjan@canuck.srs.infradead.org  Wed Nov  3 08:54:21 2004
+>On Wed, 2004-11-03 at 08:47 -0800, Matt Tolentino wrote:
+>> -                       page = pgdat->node_mem_map + i;
+>> -		total++;
+>> +			page = pfn_to_page(pgdat->node_start_pfn + i);
+>> +			total++;
+>
+>this can't be correct... pfn_to_page starts to count from address 0
+>while the original code starts from the start of the node..
 
-On Wed, 3 Nov 2004 blaisorblade_spam@yahoo.it wrote:
+Yep, you're right.  I've been thinking about single nodes too much
+lately.
 
-> This has actually created not-working UML binaries (since UML is always
-> "cross-compiled" for this purpose), as reported by Julian Scheid.
+matt
 
-This rather suggests, there is a problem with UML. Either fix your Kconfig 
-to prevent nonvalid configurations or detect and report the problem at 
-runtime.
 
-> We all agreed on this kind of general, not UML-only fix, and I (Paolo)
-> implemented it.
-
-I don't like the two separate lists, it would be easier to just skip all 
-absolute path names.
-I would also like to avoid this patch at all. If this really should be a 
-problem, I'd consider to don't run kconfig at all in this case if there 
-is no configuration and instead suggest running defconfig (or one of 
-machine specific config targets) first.
-
-bye, Roman
+diff -urN linux-2.6.10-rc1-mm2-vanilla/arch/x86_64/mm/init.c linux-2.6.10-rc1-mm2/arch/x86_64/mm/init.c
+--- linux-2.6.10-rc1-mm2-vanilla/arch/x86_64/mm/init.c	2004-11-03 06:50:01.939974040 -0500
++++ linux-2.6.10-rc1-mm2/arch/x86_64/mm/init.c	2004-11-03 07:26:15.922478464 -0500
+@@ -466,7 +466,7 @@
+ 		/*
+ 		 * Only count reserved RAM pages
+ 		 */
+-		if (page_is_ram(tmp) && PageReserved(mem_map+tmp))
++		if (page_is_ram(tmp) && PageReserved(pfn_to_page(tmp)))
+ 			reservedpages++;
+ #endif
+ 

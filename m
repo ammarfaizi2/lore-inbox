@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288645AbSANSdw>; Mon, 14 Jan 2002 13:33:52 -0500
+	id <S288658AbSANShW>; Mon, 14 Jan 2002 13:37:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288781AbSANSdm>; Mon, 14 Jan 2002 13:33:42 -0500
-Received: from waste.org ([209.173.204.2]:3466 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S288776AbSANSdg>;
-	Mon, 14 Jan 2002 13:33:36 -0500
-Date: Mon, 14 Jan 2002 12:33:28 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: "Michael Lazarou (ETL)" <Michael.Lazarou@etl.ericsson.se>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S288759AbSANShM>; Mon, 14 Jan 2002 13:37:12 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:25874 "HELO holly.csn.ul.ie")
+	by vger.kernel.org with SMTP id <S288756AbSANShG>;
+	Mon, 14 Jan 2002 13:37:06 -0500
+Date: Mon, 14 Jan 2002 18:36:59 +0000
+To: linux-kernel@vger.kernel.org
 Subject: Re: ISA hardware discovery -- the elegant solution
-In-Reply-To: <20020114111141.A14332@thyrsus.com>
-Message-ID: <Pine.LNX.4.43.0201141231330.31316-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020114183658.GA29032@skynet.ie>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.24i
+From: diamond@csn.ul.ie (Stephen Shirley)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jan 2002, Eric S. Raymond wrote:
+Hi,
+	If, as Alan described, you can depend on the distro's installation
+	program to have automatically identified all the hardware possible,
+	and for the user to have specified and additional (i.e. isa etc) 
+	devices, then could not the autoconfigurator simply see what drivers 
+	are currently in use (via /proc/devices etc), check
+	/etc/modules.conf for any that don't happen to be loaded at the
+	time, and use that info to configure the new kernel. Unless there is
+	some new piece of hardware that the new kernel supports that is
+	present (and isn't supported by the old one), if linux was installed
+	properly, you now have all the info you need, no? This removes the
+	need for the configurator to do any sort of probing, neither are
+	root proviledges required. Anyway, that's all probably blatantly
+	obvious etc, so I'll just be quiet now.
 
-> Michael Lazarou (ETL) <Michael.Lazarou@etl.ericsson.se>:
-> > Doesn't this mean that you would need a fully functional kernel
-> > before you get to run the autoconfigurator?
->
-> Yes, but this was always true.
-
-No it's not. You only need a kernel that can run your compiler.
-
+Steve
 -- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+"My mom had Windows at work and it hurt her eyes real bad"

@@ -1,39 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263918AbTFPOrd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 10:47:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263921AbTFPOrd
+	id S263930AbTFPO5U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 10:57:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263938AbTFPO5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 10:47:33 -0400
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:8381 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S263918AbTFPOrc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 10:47:32 -0400
-Date: Mon, 16 Jun 2003 16:58:34 +0200
-From: Dominik Brodowski <linux@brodo.de>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: mikpe@csd.uu.se, Russell King <rmk@arm.linux.org.uk>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.71 cardbus problem + possible solution
-Message-ID: <20030616145834.GA11097@brodo.de>
-References: <16109.50492.555714.813028@gargle.gargle.HOWL> <20030616153253.A13312@flint.arm.linux.org.uk> <16109.54908.249375.482633@gargle.gargle.HOWL> <1055775186.587.2.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 16 Jun 2003 10:57:20 -0400
+Received: from smtp016.mail.yahoo.com ([216.136.174.113]:18438 "HELO
+	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263930AbTFPO5S convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 10:57:18 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: Stelian Pop <stelian@popies.net>
+Subject: Re: [PATCH 2.4.21] meye driver update
+Date: Mon, 16 Jun 2003 16:54:41 +0200
+User-Agent: KMail/1.5.2
+References: <20030615163138.GD1857@deep-space-9.dsnet> <200306151906.57099.fsdeveloper@yahoo.de> <20030615212935.GA1582@deep-space-9.dsnet>
+In-Reply-To: <20030615212935.GA1582@deep-space-9.dsnet>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <1055775186.587.2.camel@teapot.felipe-alfaro.com>
-User-Agent: Mutt/1.4i
+Message-Id: <200306161654.52825.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 16, 2003 at 04:53:07PM +0200, Felipe Alfaro Solana wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On Sunday 15 June 2003 23:29, Stelian Pop wrote:
+> On Sun, Jun 15, 2003 at 07:06:56PM +0200, Michael Buesch wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> >
+> > On Sunday 15 June 2003 18:31, Stelian Pop wrote:
+> > > Hi,
+> >
+> > Hi Stelian,
+> >
+> > > +void dma_free_coherent(struct pci_dev *dev, size_t size,
+> >
+> >                           ^^^^^^^^^^^^^^^^^^^
+> >
+> > > +                         void *vaddr, dma_addr_t dma_handle)
+> >
+> >                                          ^^^^^^^^^^^^^^^^^^^^^
+> > Why do you define these unused parameters?
 >
-> I must agree with. I think backwards compatibility is important if we
-> want widespread adoption of 2.6 from the beginning. But there's a
-> question I had in mind for long time: is cardmgr really needed? Isn't
-> hotplug more than enough to handle CardBus devices?
+> Because it's backported from 2.5, and I took it as it, without
+> editing.
+>
+> > > +{
+> > > +        free_pages((unsigned long)vaddr, get_order(size));
+> > > +}
+> >
+> > And why are they defined in 2.5, too, althought unused.
+> > Is there some reason?
+>
+> Unused of ix86 because bus addresses are the same as virtual addresses.
+> This is not however the case on other architetures, see
+> Documentation/DMA-mapping.txt.
 
-One aim of my work is to deprecate cardmgr for both CardBus (32-bit) and
-PCMCIA (16-bit) devices. For CardBus, most pieces should be there already,
-for PCMCIA the road is much longer.
+Yes, I now understand, why it is in 2.5, but isn't it better,
+to remove these parameters from your patch, because it is only
+a local copy in your driver and not used by any other drivers.
+And your driver is (if I didn't miss something) for running on
+i386 only; there is no other version of this function for
+other architectures, that need these parameters.
+So wouldn't it be better to simply remove them, because
+they are completely useless. IMHO their
+just confusing.
 
-	Dominik
+>
+> Stelian.
+
+- -- 
+Regards Michael Büsch
+http://www.8ung.at/tuxsoft
+ 16:49:26 up 8 min,  1 user,  load average: 1.07, 0.96, 0.49
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+7do8oxoigfggmSgRAjbxAJsF5CkukHoBH5OEWE3ZRRDtfQKMGQCgjLTK
+LWBs80NR2u/VcXW80FEfXY8=
+=7/iJ
+-----END PGP SIGNATURE-----
+

@@ -1,57 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317165AbSGCSxx>; Wed, 3 Jul 2002 14:53:53 -0400
+	id <S317152AbSGCSxh>; Wed, 3 Jul 2002 14:53:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317169AbSGCSxx>; Wed, 3 Jul 2002 14:53:53 -0400
-Received: from balu.sch.bme.hu ([152.66.208.40]:43710 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S317165AbSGCSxv>;
-	Wed, 3 Jul 2002 14:53:51 -0400
-Date: Wed, 3 Jul 2002 20:56:18 +0200 (MEST)
-From: Pozsar Balazs <pozsy@uhulinux.hu>
-To: Dominik Brodowski <devel@brodo.de>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: HPT370 + ACPI -> freeze (doesn't boot)
-In-Reply-To: <20020703192645.B836@brodo.de>
-Message-ID: <Pine.GSO.4.30.0207032051340.9693-100000@balu>
+	id <S317165AbSGCSxg>; Wed, 3 Jul 2002 14:53:36 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:49933 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S317152AbSGCSxg>; Wed, 3 Jul 2002 14:53:36 -0400
+Date: Wed, 3 Jul 2002 11:55:53 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Dave Jones <davej@suse.de>
+cc: Skip Ford <skip.ford@verizon.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux console project <linuxconsole-dev@lists.sourceforge.net>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] New Console system BK
+In-Reply-To: <20020703173822.C8934@suse.de>
+Message-ID: <Pine.LNX.4.44.0207031155190.16404-100000@www.transvirtual.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
-
-I tried
-  2.4.18 + acpi-20020611
-and
-  2.4.18 + acpi-20020611 + pciirq-27
-
-but both of them freeze the same way :(.
-
-
-I noticed that it is not an immediate freeze though. alt-sysrq-T works for
-about 5 seconds... after that, nothing.
-
-
-If you do think the call traces would do help, I might take time to do
-write them down.
-
-
-On Wed, 3 Jul 2002, Dominik Brodowski wrote:
-
-> Hi,
+>  > Without the patch, I can hold down alt and hit F1, F2, F3, F4, then
+>  > release the alt key and I will have switched to each of the VTs.
+>  > With this patch, I have to press/release alt for each Fx key.
 >
-> On Tue, Jul 02, 2002 at 08:33:32AM +0200, Pozsar Balazs wrote:
-> >
-> > I tried 2.4.18-pre8 + acpi-20020503 + pciirq-18 and the same freeze :(
-> pciirq-18 is buggy, unfortunately. Could you please get the latest
-> acpi-patch from
-> http://www.sourceforge.net/projects/acpi/ ?
-> Thanks.
->
-> Dominik
->
+> Strange, that's a reoccurance of a bug that happened many moons ago
+> circa 2.5.4-dj or so, which James then subsequently fixed. Seems he
+> dropped a bugfix or two..
 
--- 
-pozsy
+Ah. I was using the old patches. I will have to find the fix and put it
+into the keyboard driver.
 

@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263810AbUAMKLi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 05:11:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263898AbUAMKLi
+	id S264129AbUAMKvj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 05:51:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264127AbUAMKvh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 05:11:38 -0500
-Received: from linuxhacker.ru ([217.76.32.60]:12214 "EHLO shrek.linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S263810AbUAMKLe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 05:11:34 -0500
-Date: Tue, 13 Jan 2004 12:10:29 +0200
-From: Oleg Drokin <green@linuxhacker.ru>
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: Dan Egli <dan@eglifamily.dnsalias.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.x breaks some Berkeley/Sleepycat DB functionality
-Message-ID: <20040113101029.GD2224@linuxhacker.ru>
-References: <4002D65C.1010505@eglifamily.dnsalias.net> <16387.49164.269996.500699@laputa.namesys.com>
+	Tue, 13 Jan 2004 05:51:37 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28132 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263946AbUAMKvf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 05:51:35 -0500
+Date: Tue, 13 Jan 2004 10:51:33 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Christoph Hellwig <hch@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Adrian Bunk <bunk@fs.tum.de>, Andreas Haumer <andreas@xss.co.at>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: [2.4 patch] disallow modular CONFIG_COMX
+Message-ID: <20040113105133.GB21151@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.58L.0312311109131.24741@logos.cnet> <3FF2EAB3.1090001@xss.co.at> <20040111013043.GY25089@fs.tum.de> <40031EB1.5030705@pobox.com> <20040113095711.A15396@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16387.49164.269996.500699@laputa.namesys.com>
+In-Reply-To: <20040113095711.A15396@infradead.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tue, Jan 13, 2004 at 09:57:11AM +0000, Christoph Hellwig wrote:
+> On Mon, Jan 12, 2004 at 05:24:49PM -0500, Jeff Garzik wrote:
+> > I agree with the intent...
+> > 
+> > At this point, I am tempted to simply comment it out of the Config.in, 
+> > and let interested parties backport bug fixes and crap from 2.6 if they 
+> > would like.  The driver has had obvious bugs for a while...
+> 
+> In 2.6 it's as buggy as in 2.4..
 
-On Tue, Jan 13, 2004 at 12:53:16PM +0300, Nikita Danilov wrote:
->  > I run a PGP Public key server on this machine and under 2.4.x it's
->  > "smooth as silk". But if I boot under 2.6.x, it's gaurenteed failure. If
->  > I try to build a database using the build command (this is an sks
->  > server, so it's sks build or sks fastbuild) I IMMEDIATELY get  Bdb
->  > error. But the exact same command with the exact same libraries and
->  > input files under 2.4.20 works without a hitch.
->  > Anyone got any ideas? Anything else I can provide to assist in debugging?
-> On top of what file system berkdb is created? I have a reminiscence that
-> Sleepy Cat used to have a problem with reiserfs, due to large
-> stat->st_blksize value. Oleg do you remember this?
+The driver is full of obvious bugs, had been that way for years, has
+userland API broken by design and maintainers who couldn't be arsed
+to fix it.
 
-No, that problem was different. And it was believed that BErkeley DB might just
-be performing a bit slower on reiserfs, though I never was able to reproduce and
-Sleepycat's code contains it own limit on maximal block size (it uses 16k
-blocksize if on suggested by FS is bigger that 16k).
-Definitely there were no crashes.
-
-Bye,
-    Oleg
+By now I don't see how anything short of rm(1) will help that animal.

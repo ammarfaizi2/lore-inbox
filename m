@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262824AbUJ1Gvb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262787AbUJ1G6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262824AbUJ1Gvb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 02:51:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbUJ1GuU
+	id S262787AbUJ1G6K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 02:58:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262818AbUJ1G5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 02:50:20 -0400
-Received: from out012pub.verizon.net ([206.46.170.137]:58087 "EHLO
-	out012.verizon.net") by vger.kernel.org with ESMTP id S262878AbUJ1GqA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 02:46:00 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCHES] ide-2.6 update
-Date: Thu, 28 Oct 2004 02:45:58 -0400
-User-Agent: KMail/1.7
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-ide@vger.kernel.org
-References: <58cb370e04102706074c20d6d7@mail.gmail.com> <200410271305.06265.gene.heskett@verizon.net> <Pine.LNX.4.58.0410271019140.28839@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0410271019140.28839@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Oct 2004 02:57:51 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:14002 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262787AbUJ1G4w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 02:56:52 -0400
+Date: Thu, 28 Oct 2004 08:58:06 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Magnus Naeslund(t)" <mag@fbab.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
+Message-ID: <20041028065806.GB10488@elte.hu>
+References: <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041027130359.GA6203@elte.hu> <41801622.5040207@fbab.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410280245.58167.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [141.153.91.102] at Thu, 28 Oct 2004 01:45:59 -0500
+In-Reply-To: <41801622.5040207@fbab.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 October 2004 13:20, Linus Torvalds wrote:
->On Wed, 27 Oct 2004, Gene Heskett wrote:
->> >current linus' -bk tree, latest -bk snapshot should also be OK
->>
->> Drat.  I can't afford bitkeeper, either the time or the resources.
->> So I assume this will be in 2.6.10-rc2 or 3?
->
->You can also just do the the daily snapshots - in
->/pub/linux/kernel/v2.6/snapshots.
->
->But yes, I'm also pulling Bartlomiej's tree into the next release,
-> so if you can wait..
->
->  Linus
 
-I went after 2.6.10-rc1, and the bk6 patch for it, and its been 
-running here for about 2 hours, no hits, no runs, no errors so far.
-I watched a little tvtime, browsed with FF for an hour or so, and of 
-course kmail runs full time here.  And amanda just finished up.  It 
-feels good, and Just Works(tm).
+* Magnus Naeslund(t) <mag@fbab.net> wrote:
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+> What information do you need to get something useful out of this? I
+> saw that others have this problem, so I've got an serial console to
+> the box, if you want me to do any tests, tell me how.
+
+also, if you hit problems make sure you have the latest patch, i
+sometimes upload a small update with a trivial fix without announcing it
+(or the announcement lags on lkml), and i upload larger changes roughly
+daily. The current latest version is RT-V0.4.3.
+
+	Ingo

@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292466AbSCOOLL>; Fri, 15 Mar 2002 09:11:11 -0500
+	id <S292520AbSCOONL>; Fri, 15 Mar 2002 09:13:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292482AbSCOOLB>; Fri, 15 Mar 2002 09:11:01 -0500
-Received: from mail.emit.pl.108.205.195.in-addr.arpa ([195.205.108.125]:530
-	"EHLO mail.emit.pl") by vger.kernel.org with ESMTP
-	id <S292466AbSCOOKz>; Fri, 15 Mar 2002 09:10:55 -0500
-Date: Fri, 15 Mar 2002 15:11:27 +0100
-From: Ian Carr-de Avelon <avelon@emit.pl>
-Message-Id: <200203151411.PAA04407@mail.emit.pl>
-Subject: Re: 3com switch with 2.4.17
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+	id <S292522AbSCOONC>; Fri, 15 Mar 2002 09:13:02 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30731 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292520AbSCOOMx>; Fri, 15 Mar 2002 09:12:53 -0500
+Subject: Re: 2.4.18 Preempt Freezeups
+To: ian@ianduggan.net (Ian Duggan)
+Date: Fri, 15 Mar 2002 14:28:36 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rml@tech9.net (Robert Love),
+        linux-kernel@vger.kernel.org (linux kernel)
+In-Reply-To: <3C91B30D.A887A033@ianduggan.net> from "Ian Duggan" at Mar 15, 2002 12:38:37 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16lshA-0003lX-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sebastian Heidl <heidl@zib.de> wrote:
->On Fri, Mar 15, 2002 at 11:54:38AM +0100, Ian Carr-de Avelon wrote:
->> I have a 486 which runs as a router, and I want to change to 2.4. After
->> boot and working out which order the ether cards are now found in, everything
->> is OK except I can't ping PCs connected to a 3com switch, which connects
->> to a ne2k-pci RTL-8029 card in the 486 via a hub. PCs directly connected to
->> the hub ping OK. 
->> Does this ring any bells as to why this could be OK with a 2.2.13 kernel
->> but broken with 2.4.17?
->
->might be related to ECN (just a guess). Have a look at this:
->http://www.kernel.org/pub/linux/docs/lkml/#s14-2
-Well that fixed it. Many thanks I'd never have found that.
-Yours
-Ian
+> What is required for preempt beyond "SMP safe" code? I thought the whole
+> idea was to make the preemptions transparent to other code by utilizing
+> the SMP critical regions?
 
+SMP safe code
+Actual source code when recompiling modules
+Reviewing things like driver code use of disable_irq by hand
+Reviewing driver code for situations where it requires a small timing delay
+	and a large one is unacceptable
+Checking anywhere you use the cpu id that you don't do somthing where it
+	might change under you (eg per cpu variables)

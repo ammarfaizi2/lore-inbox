@@ -1,128 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132289AbRAPSVs>; Tue, 16 Jan 2001 13:21:48 -0500
+	id <S131259AbRAPSX2>; Tue, 16 Jan 2001 13:23:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131259AbRAPSV3>; Tue, 16 Jan 2001 13:21:29 -0500
-Received: from shelly.surfsouth.com ([216.128.200.24]:19984 "EHLO
-	shelly.surfsouth.com") by vger.kernel.org with ESMTP
-	id <S129831AbRAPSVN>; Tue, 16 Jan 2001 13:21:13 -0500
-Date: Tue, 16 Jan 2001 13:22:51 -0500
-From: Chad Miller <cmiller@surfsouth.com>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: matroxfb on 2.4.0 / PCI: Failed to allocate...
-Message-ID: <20010116132251.A1021@cahoots.surfsouth.com>
-In-Reply-To: <12C0E7CE41C0@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <12C0E7CE41C0@vcnet.vc.cvut.cz>; from VANDROVE@vc.cvut.cz on Tue, Jan 16, 2001 at 05:56:34PM +0000
-X-mrl-nonsense: It's better to be Pavlov's Dog than Schrodenger's Cat.
-X-key-info: GPG key at http://web.chad.org/home/gpgkey
+	id <S132310AbRAPSXI>; Tue, 16 Jan 2001 13:23:08 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:47599 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S131259AbRAPSXB>; Tue, 16 Jan 2001 13:23:01 -0500
+Date: Tue, 16 Jan 2001 12:22:56 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <200101161724.f0GHOnE01880@aslan.sc.steeleye.com>
+In-Reply-To: Message from Brian Gerst <bgerst@didntduck.org> of "Tue, 16 Jan 2001 12:04:57 EST." <3A647F39.EC62BB81@didntduck.org>
+Subject: Re: Linux not adhering to BIOS Drive boot order?
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-Id: <20010116182307Z131259-403+875@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 16, 2001 at 05:56:34PM +0000, Petr Vandrovec wrote:
-> What does 'lspci -v' say?
-
-Hi, Petr.
-
-I'm sorry for the verbosity, all.  Here it is:
-
-#00:00.0 Host bridge: VIA Technologies, Inc. VT8371 [KX133] (rev 02)
-#        Flags: bus master, medium devsel, latency 0
-#        Memory at d0000000 (32-bit, prefetchable) [size=64M]
-#        Capabilities: <available only to root>
-#
-#00:01.0 PCI bridge: VIA Technologies, Inc. VT8371 [KX133 AGP]  (prog-if 00 \
-#[Normal decode])
-#        Flags: bus master, 66Mhz, medium devsel, latency 0
-#        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-#        Memory behind bridge: d4000000-d6ffffff
-#        Prefetchable memory behind bridge: d7000000-d8ffffff
-#        Capabilities: <available only to root>
-#
-#00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] \
-#(rev 22)
-#        Subsystem: VIA Technologies, Inc. VT82C686/A PCI to ISA Bridge
-#        Flags: bus master, stepping, medium devsel, latency 0
-#
-#00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 10) \
-#(prog-if 8a [Master SecP PriP])
-#        Flags: bus master, medium devsel, latency 32
-#        I/O ports at e000 [size=16]
-#        Capabilities: <available only to root>
-#
-#00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] \
-#(rev 30)
-#        Flags: medium devsel
-#        Capabilities: <available only to root>
-#
-#00:09.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] \
-#(rev 08)
-#        Subsystem: Intel Corporation EtherExpress PRO/100+ Management Adapter
-#        Flags: bus master, medium devsel, latency 32, IRQ 11
-#        Memory at da100000 (32-bit, non-prefetchable) [size=4K]
-#        I/O ports at ec00 [size=64]
-#        Memory at da000000 (32-bit, non-prefetchable) [size=1M]
-#        Expansion ROM at <unassigned> [disabled] [size=1M]
-#        Capabilities: <available only to root>
-#
-#01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP \
-#(rev 05) (prog-if 00 [VGA])
-#        Subsystem: Matrox Graphics, Inc. Millennium G400 MAX/Dual Head 32Mb
-#        Flags: bus master, VGA palette snoop, medium devsel, latency 64, IRQ 10
-#        Memory at d8000000 (32-bit, prefetchable) [size=16M]
-#        Memory at d4000000 (32-bit, non-prefetchable) [size=16K]
-#        Memory at d5000000 (32-bit, non-prefetchable) [size=8M]
-#        Expansion ROM at <unassigned> [disabled] [size=64K]
-#        Capabilities: <available only to root>
-#
+** Reply to message from Eddie Williams <Eddie.Williams@steeleye.com> on Tue,
+16 Jan 2001 12:24:49 -0500
 
 
-> Are you sure that you do not have 'matroxfb: control registers are not
-> available, matroxfb disabled', or 'matroxfb: video RAM is not available
-> in PCI address space, matroxfb disabled' messages?
+> That is not totally true.  There are two problems here, one is where you have 
+> different controllers in your system and the other is where you have multiples 
+> of the same controller.  What you list above solves the different controller 
+> problem.  By loading the drivers in the right order you will get predictable 
+> results.  However when having multiples of the same controller you are only 
+> loading one driver so you are at the mercy of the way that driver was 
+> developed.  Some drivers give you ways to work around this others do not.
+> 
+> For example the aic7xxx.c (current one at least - I have not played with the 
+> Beta one enough to know what it does) lets you play with the order by turning 
+> BIOS off on the cards that you don't want to BOOT from.  So the aic7xxx driver 
+> sorts the controllers with BIOS enabled first.  This solves the problem where 
+> you have multiple adaptec controllers in the same box to make sure you have 
+> the "boot" controller first.  This, however, does not solve a third problem 
+> where you have multiple disks on that controller.  My recommendation is that 
+> you always install on ID 0 since that will be the "first" one found.  If you 
+> install on ID 1 and you add ID 0 then you just broke your boot.  If you 
+> install on ID 1 where there was an ID 0 (so you install to sdb) then if ID 0 
+> dies, get pulled, etc then you can boot because ID 1 is now ID 0.
+> 
+> So though I do agree that making all drivers modules usually simplifies 
+> handling this there are still issues and solving these I do agree today is 
+> beyond the scope for the unexperienced.
 
-$ dmesg |egrep -i '(pci|matrox|mga|fb|registers|video)' | \
- egrep -v '(IDE|passed|Serial)'
-Kernel command line: mem=262080K  root=/dev/hda3 video=matrox
-PCI: PCI BIOS revision 2.10 entry at 0xfb4d0, last bus=1
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-PCI: Using IRQ router VIA [1106/0686] at 00:07.0
-PCI: Cannot allocate resource region 0 of device 01:00.0
-PCI: Failed to allocate resource 0 for Matrox Graphics, Inc. MGA G400 AGP
-matroxfb: Matrox Millennium G400 MAX (AGP) detected
-PCI: Found IRQ 11 for device 00:09.0
-$ 
+And this is a problem that has plagues all PC operating systems, but has never
+been a problem on the Macintosh.  Why?  Because the Mac was designed to handle
+this problem, but the PC never was.
 
-> Also, when request_mem_region(ctrl, 16K, "matroxfb MMIO") or
-> request_mem_region(videoram, 32M, "matroxfb FB") fails (f.e. when
-> both regions are uninitialized they overlaps, so second request_mem_region
-> fails), there is a bug that no error message is printed
-> in such case, as matroxfb assumes that if request_mem_region failed,
-> it was because of some other driver already controls this hardware.
+The Mac never enumerates its devices like the PC does (no C: D: etc, no
+/dev/sda, /dev/sdb, or anything like that).  It also remembers the boot device
+in its EEPROM (the Startup Disk Control Panel handles this).
 
-Is there a patch available, or should I go looking for it?
+The only way to solve this problem is the DESIGN IT INTO THE OS!  Someone needs
+to stand up and say, "This is a problem, and I'm going to fix it."  There needs
+to be a "device mount order database" or some kind, and all the disk drivers
+need to access that database to determine where to put the devices it finds.
 
- 
-> You should make sure that (1) you have only one VGA in machine and
-> (2) your BIOS is not buggy. Changing any of these two conditions should
-> enable matroxfb to run (G400 is not very well supported as second head;
-> you can experiment with 'memtype' matroxfb option, but...)
+The only problem is BIOS boot.  That information is, I believe, stored in the
+ESCD, but I don't know if it's reliable enough and complete enough to be usable
+by Linux.
 
-(1) is true.  (2) is true, AFAICT, but I'm no BIOS expert.  I once success-
-fully used matroxfb on this machine under 2.2.~17, but haven't tried it
-again before 2.4 . 
 
-						- chad
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
 
---
-Chad Miller <cmiller@surfsouth.com>   URL: http://web.chad.org/   (GPG)
-"Any technology distinguishable from magic is insufficiently advanced".
-First corollary to Clarke's Third Law (Jargon File, v4.2.0, 'magic')
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

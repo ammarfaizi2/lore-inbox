@@ -1,71 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269193AbUJQRVr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269210AbUJQRXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269193AbUJQRVr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 13:21:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269206AbUJQRVr
+	id S269210AbUJQRXT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 13:23:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269221AbUJQRXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 13:21:47 -0400
-Received: from smtp3.netcabo.pt ([212.113.174.30]:47812 "EHLO smtp.netcabo.pt")
-	by vger.kernel.org with ESMTP id S269193AbUJQRVp (ORCPT
+	Sun, 17 Oct 2004 13:23:19 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:13770 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S269210AbUJQRW6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 13:21:45 -0400
-Message-ID: <32798.192.168.1.5.1098033608.squirrel@192.168.1.5>
-In-Reply-To: <20041017161228.GB22620@elte.hu>
-References: <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu>
-    <1097888438.6737.63.camel@krustophenia.net>
-    <1097894120.31747.1.camel@krustophenia.net>
-    <20041016064205.GA30371@elte.hu>
-    <1097917325.1424.13.camel@krustophenia.net>
-    <20041016103608.GA3548@elte.hu>
-    <32801.192.168.1.5.1098018846.squirrel@192.168.1.5>
-    <20041017132107.GA18462@elte.hu>
-    <32793.192.168.1.5.1098023139.squirrel@192.168.1.5>
-    <20041017161228.GB22620@elte.hu>
-Date: Sun, 17 Oct 2004 18:20:08 +0100 (WEST)
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: "Lee Revell" <rlrevell@joe-job.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       "Daniel Walker" <dwalker@mvista.com>, "Bill Huey" <bhuey@lnxw.com>,
-       "Andrew Morton" <akpm@osdl.org>, "Adam Heath" <doogie@debian.org>,
-       "Lorenzo Allegrucci" <l_allegrucci@yahoo.it>,
-       "Andrew Rodland" <arodland@entermail.net>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 17 Oct 2004 17:21:43.0760 (UTC) FILETIME=[C5E26500:01C4B46D]
+	Sun, 17 Oct 2004 13:22:58 -0400
+Date: Sun, 17 Oct 2004 19:22:44 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Buddy Lucas <buddy.lucas@gmail.com>
+Cc: David Schwartz <davids@webmaster.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+Message-ID: <20041017172244.GM7468@marowsky-bree.de>
+References: <20041016062512.GA17971@mark.mielke.cc> <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com> <20041017133537.GL7468@marowsky-bree.de> <5d6b657504101707175aab0fcb@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <5d6b657504101707175aab0fcb@mail.gmail.com>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
->
-> Rui Nuno Capela wrote:
->
->> > eth0: 3Com Gigabit LOM (3C940)
->> > eth0: network connection down
->> >       PrefPort:A  RlmtMode:Check Link State
->> >
->> > is this normal? Could the stall simply be a bootup stall due to no
->> > network available?
->> >
->>
->> Yes, I think it's normal. The fact is that on the non-RT kernel, the
->> eth0 device comes up immediately after, as you can see on
->> minicom.cap.{6,7,8} capture files.
->
-> ok, then please try to do a sysrq-T. The bootup is soft-hung for some
-> reason, lets see what tasks are around.
->
+On 2004-10-17T16:17:06, Buddy Lucas <buddy.lucas@gmail.com> wrote:
 
-Hey, all the captured files I've sent, minicom.cap{0,1,2,3,4,5}, includes
-the SysRq-T output, taken right after the hang. Am I missing something?
+> > The SuV spec is actually quite detailed about the options here:
+> > 
+> >         A descriptor shall be considered ready for reading when a call
+> >         to an input function with O_NONBLOCK clear would not block,
+> >         whether or not the function would transfer data successfully.
+> >         (The function might return data, an end-of-file indication, or
+> >         an error other than one indicating that it is blocked, and in
+> >         each of these cases the descriptor shall be considered ready for
+> >         reading.)
+> But it says nowhere that the select()/recvmsg() operation is atomic, right?
+
+See, Buddy, the point here is that Linux _does_ violate the
+specification. You can try weaseling out of it, but it's not going to
+work.
+
+This isn't per se the same as saying that it's not a sensible violation,
+but very clearly the specs disagree with the current Linux behaviour.
+
+It's impossible to claim that you are allowed by the spec to block on a
+recvmsg directly following a successful select. You are not. You could
+claim that, but you'd be wrong.
+
+If the packet has been dropped in between, which _could_ have happened
+because UDP is allowed to be dropped basically anywhere, EIO may be
+returned. But blocking or returning EAGAIN/EWOULDBLOCK is verboten. The
+spec is very clearly on that.
+
+(Now I'd claim that returning EIO after a succesful select is also
+slightly suboptimal - the performance optimizations should be turned off
+for blocking sockets, IMHO, and the data which caused the select() to
+return should be considered comitted - but it would be allowed.)
+
+I'm not so sure what's so hard to accept about that. It may be well that
+Linux is following the de-facto industry standard (or even setting it)
+here, and I'd agree that if you don't want blocking use O_NONBLOCK, but
+in no way can Linux claim POSIX/SuV spec compliance for this behaviour.
+
+I'm not getting why people argue so much to try and weasel the words so
+that it comes out as compliant. It's not. It may make sense due to
+practical reasons, but it's not compliant.
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
 -- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX AG - A Novell company
 

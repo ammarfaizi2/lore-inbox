@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263052AbTJEJfY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 05:35:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263053AbTJEJfY
+	id S263053AbTJEJvE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 05:51:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263055AbTJEJvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 05:35:24 -0400
-Received: from sisko.nodomain.org ([213.208.99.114]:3992 "EHLO
-	mail.nodomain.org") by vger.kernel.org with ESMTP id S263052AbTJEJfS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 05:35:18 -0400
-Message-ID: <3F7FE5CC.8010602@nodomain.org>
-Date: Sun, 05 Oct 2003 10:35:08 +0100
-From: Tony Hoyle <tmh@nodomain.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.4) Gecko/20030930 Debian/1.4-5
-X-Accept-Language: en
+	Sun, 5 Oct 2003 05:51:04 -0400
+Received: from zero.aec.at ([193.170.194.10]:59140 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S263053AbTJEJvD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 05:51:03 -0400
+To: David B Harris <david@eelf.ddts.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test6 scheduler goodness
+From: Andi Kleen <ak@muc.de>
+Date: Sun, 05 Oct 2003 11:50:52 +0200
+In-Reply-To: <D0zL.3Ew.19@gated-at.bofh.it> (David B Harris's message of
+ "Sat, 04 Oct 2003 21:50:10 +0200")
+Message-ID: <m3n0cgau83.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
+References: <D0zL.3Ew.19@gated-at.bofh.it>
 MIME-Version: 1.0
-To: Andi Kleen <ak@colin2.muc.de>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: Oops linux 2.4.23-pre6 on amd64
-References: <CYRo.18k.9@gated-at.bofh.it> <m3smm8q22o.fsf@averell.firstfloor.org> <3F7F1D21.1070503@nodomain.org> <20031004205545.GB71123@colin2.muc.de> <3F7F4AFC.7000700@nodomain.org> <20031005092052.GC12880@colin2.muc.de>
-In-Reply-To: <20031005092052.GC12880@colin2.muc.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+David B Harris <david@eelf.ddts.net> writes:
 
-> That doesn't sound good. Why did you not mention this first, it's unlikely
-> that such a compiler produces a working kernel.  When the segfaults
-> are not deterministic (go away when you try again) then you likely
-> have some hardware problem, like bad DIMMs (run memtest86 for 12+hours to
-> make sure)
+> 4) In either 2.6.0-test5, or 2.6.0-test6 (I'm using 2.6.0-test6, I
+> skipped test5), responsiveness was magically fixed for my workload case.
+> I still have lower throughput, apparently (big compiles and whatnot take
+> about 20% longer), but I recently got a CPU upgrade so I don't
 
-It's had 24 hours under memtest86 (I had to RMA one memory stick when I 
-first got the machine) and as I mentioned handles a make -j255 in 32bit 
-mode without a hitch.  The kernel does work apart from that module (and 
-floppy.o which I discovered later does much the same thing as the 
-ehci-hcd.o).
+Everything CPU bound should run a few percent slower on 2.6 because
+it uses HZ=1000. You could recompile with HZ=100 and see if that fixes
+that (just change HZ to 100 in asm/param.h)
 
-> To rule out the compiler you can use the compiler/binutils from
-> 
-> ftp.suse.com:/pub/suse/x86-64/supplementary/CrossTools/8.1-i386/
-> 
-> That's rpms for SuSE 8.1/i386, but I suspect you install it on Debian with
-> rpm2cpio or somesuch. That's an older gcc 3.2 that is known to work.
-> 
-> Then just put /opt/cross/bin in your $PATH and compile with
-> CROSS_COMPILE=x86_64-linux- ARCH=x86_64
-> 
-OK I'll try that.
+20% sounds a big high just for HZ degradation though.
 
-Tony
+-Andi
 

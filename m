@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267135AbRGPAV3>; Sun, 15 Jul 2001 20:21:29 -0400
+	id <S267140AbRGPAWj>; Sun, 15 Jul 2001 20:22:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267140AbRGPAVT>; Sun, 15 Jul 2001 20:21:19 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:2111 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S267135AbRGPAVI>; Sun, 15 Jul 2001 20:21:08 -0400
-Message-ID: <3B52335C.7040005@blue-labs.org>
-Date: Sun, 15 Jul 2001 20:20:44 -0400
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010713
-X-Accept-Language: en-us
+	id <S266397AbRGPAW3>; Sun, 15 Jul 2001 20:22:29 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:44808 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S267140AbRGPAWR>;
+	Sun, 15 Jul 2001 20:22:17 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200107160022.f6G0MBn310960@saturn.cs.uml.edu>
+Subject: Re: Stability of ReiserFS onj Kernel 2.4.x (sp. 2.4.[56]{-ac*}
+To: phillips@bonn-fries.net (Daniel Phillips)
+Date: Sun, 15 Jul 2001 20:22:11 -0400 (EDT)
+Cc: reiser@namesys.com (Hans Reiser), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        volodya@mindspring.com,
+        ajschrotenboer@lycosmail.com (Adam Schrotenboer),
+        linux-kernel@vger.kernel.org (lkml)
+In-Reply-To: <01071523304400.06482@starship> from "Daniel Phillips" at Jul 15, 2001 11:30:44 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: Alan Cox <laughing@shared-source.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.6-ac4
-In-Reply-To: <20010716004933.A18030@lightning.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
+Daniel Phillips writes:
 
-Have you reviewed the patch I posted yesterday regarding net_dev_init() 
-and double lock in sch_teql.c?
+> Or we could introduce the notion of logical blocksize for each block
+> minor so that we can measure blocks in the same units the filesystem
+> uses.  This would give us 16 TB while being able to stay with 32 bits
+> everywhere outside the block drivers themselves.
+> 
+> We are not that far away from being able to handle 8K blocks, so that
+> would bump it up to 32 TB.
 
-net_dev_init() is originally called in genhd.c, I don't see as it's 
-necessary to call it again.
+This is like what the hard drive and BIOS industry has been doing.
+First we had the 528 MB limit. Then the 2 GB limit. Then the 4 GB limit.
+Then the 8.3 GB limit. Then the 33 GB limit. Then the 127 GB limit.
+All along the way, users are cursing the damn limits.
 
-David
+An extra 4 bits buys us 6 years maybe. Nice, except that we
+already have people complaining. Maybe somebody remembers when
+the complaining started.
 
---- linux-2.4.6.orig/net/core/dev.c     Sat Jul 14 17:48:57 2001
-+++ linux-2.4.6/net/core/dev.c  Wed Jun 20 21:00:55 2001
-@@ -2405,6 +2401,9 @@
- #ifdef CONFIG_NET_FASTROUTE
-        dev->fastpath_lock=RW_LOCK_UNLOCKED;
- #endif
--
--       if (dev_boot_phase)
--               net_dev_init();
- 
- #ifdef CONFIG_NET_DIVERT
-        ret = alloc_divert_blk(dev);
 
 

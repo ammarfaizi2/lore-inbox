@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262145AbTIMNRF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 09:17:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbTIMNRF
+	id S262141AbTIMNJY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 09:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262142AbTIMNJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 09:17:05 -0400
-Received: from fed1mtao02.cox.net ([68.6.19.243]:11759 "EHLO
-	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S262145AbTIMNRD
+	Sat, 13 Sep 2003 09:09:24 -0400
+Received: from mail.telpin.com.ar ([200.43.18.243]:8637 "EHLO
+	mail.telpin.com.ar") by vger.kernel.org with ESMTP id S262141AbTIMNJX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 09:17:03 -0400
-Message-ID: <3F6318CF.9030805@cox.net>
-Date: Sat, 13 Sep 2003 06:17:03 -0700
-From: "Kevin P. Fleming" <kpfleming@cox.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: Andreas Schwab <schwab@suse.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] new ioctl type checking causes gcc warning
-References: <3F621AC4.4070507@cox.net> <200309130222.43612.arnd@arndb.de> <3F626544.40000@cox.net> <200309131305.12161.arnd@arndb.de>
-In-Reply-To: <200309131305.12161.arnd@arndb.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 13 Sep 2003 09:09:23 -0400
+Date: Sat, 13 Sep 2003 10:09:16 -0300
+From: Alberto Bertogli <albertogli@telpin.com.ar>
+To: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: file_lock_cache won't shink down
+Message-ID: <20030913130916.GE22369@telpin.com.ar>
+Mail-Followup-To: Alberto Bertogli <albertogli@telpin.com.ar>,
+	Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+References: <20030913005123.GE21596@parcelfarce.linux.theplanet.co.uk> <20030913065914.GD22369@telpin.com.ar>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030913065914.GD22369@telpin.com.ar>
+User-Agent: Mutt/1.5.4i
+X-RAVMilter-Version: 8.4.2(snapshot 20021217) (mail)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
-> Inside the kernel, the first definition has to be changed to
-> something like:
+On Sat, Sep 13, 2003 at 03:59:14AM -0300, Alberto Bertogli wrote:
+> On Sat, Sep 13, 2003 at 01:51:23AM +0100, Matthew Wilcox wrote:
+> > Hi, Alberto.  Please try
+> > http://ftp.linux.org.uk/pub/linux/willy/patches/flock-memleak.diff
 > 
-> #define BLKGETSIZE64    _IOR(0x12,114,size_t) /* broken: actually __u64 */
-> or
-> #define BLKGETSIZE64    _IOR_BAD(0x12,114,sizeof(__uint64_t)) /* broken */
-> 
-> in order to get a definition that will pass the check and
-> generate the well-known number.
+> I've just put it in, it seems to be working so far but I'll tell you
+> tomorrow for sure after it's been under some pressure.
 
-That's strange. I did some testing with a small application (blockdev) 
-that uses this ioctl yesterday, and strace did not show any difference 
-between the correct and incorrect definitions. I could change the 
-definition back and forth and the application continued to work 
-correctly. I'll have to go back and figure out what I was doing wrong :-)
+It's been tested enough to confirm that it's working great!
+
+Thanks a lot for the patch, I really hope this goes into mainline as it
+fixes a very serious and easily reproduceable bug.
+
+
+Thanks again,
+		Alberto
+
 

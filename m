@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263346AbRGIOf2>; Mon, 9 Jul 2001 10:35:28 -0400
+	id <S264461AbRGIOk5>; Mon, 9 Jul 2001 10:40:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263675AbRGIOfR>; Mon, 9 Jul 2001 10:35:17 -0400
-Received: from [130.236.252.129] ([130.236.252.129]:25615 "HELO
-	hog.ctrl-c.liu.se") by vger.kernel.org with SMTP id <S263346AbRGIOfD>;
-	Mon, 9 Jul 2001 10:35:03 -0400
-To: dwmw2@infradead.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: reading/writing CMOS beyond 256 bytes? 
-Newsgroups: linux.kernel
-In-Reply-To: <19706.994679164@redhat.com>
-In-Reply-To: <Pine.LNX.3.95.1010706094624.519A-100000@chaos.analogic.com> 
-Message-Id: <20010709142456.C756436F9C@hog.ctrl-c.liu.se>
-Date: Mon,  9 Jul 2001 16:24:56 +0200 (CEST)
-From: wingel@hog.ctrl-c.liu.se (Christer Weinigel)
+	id <S264564AbRGIOkr>; Mon, 9 Jul 2001 10:40:47 -0400
+Received: from blacksun.leftmind.net ([204.225.88.62]:41476 "HELO
+	blacksun.leftmind.net") by vger.kernel.org with SMTP
+	id <S264461AbRGIOkn>; Mon, 9 Jul 2001 10:40:43 -0400
+Date: Mon, 9 Jul 2001 10:40:43 -0400
+From: Anthony DeBoer <adb@leftmind.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [Acpi] Re: ACPI fundamental locking problems
+Message-ID: <20010709104043.A17563@leftmind.net>
+In-Reply-To: <Pine.GSO.4.21.0107070727030.24836-100000@weyl.math.psu.edu> <9i73bg$psv$1@pccross.average.org> <3B471399.1D6BBED6@mandrakesoft.com> <01070719241107.22952@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Newsgroups: leftmind.lists.linux-kernel
+In-Reply-To: <20010707233108.B10109@pcep-jamie.cern.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <19706.994679164@redhat.com> you write:
->root@chaos.analogic.com said:
->> Motherboard manufacturers who have rewritable BIOS chips now leave one
->> page (typically 64k) for startup parameters. This is erased and
->> written using the magic provided by the chip vendors.
->
->You often have to do chipset-specific magic to enable the WE and Vpp lines
->to BIOS flash chips. See drivers/mtd/maps/l440gx.c in my working tree for 
->an example.
+Jamie Lokier <lk@tantalophile.demon.co.uk> wrote:
+>(tar has a silly pad-to-multiple-of-512-byte per file rule, which is
+>inappropriate for this).  GNU cpio creates cpio format just fine.
 
-Another way might be to use the PnP BIOS to read and write the 
-ESCD tables.  I wrote some code to do this a few years ago and
-after beating up the code a bit more I can at least read the ESCD 
-tables from the BIOS.  If anyone is interested in doing something 
-with the code it can be found at:
-
-    http://acolyte.hack.org/~wingel/escd/
-
-The advantage of using the PnP BIOS is that the PnP BIOS knows
-about the format of the data in BIOS and how to do all the 
-chipset specific stuff.  The disadantage is as usual that a lot
-of BIOSes are buggy.
-
-    /Christer
+Tarballs are almost universally compressed, and that pad squishes fairly
+well then.  Certainly in kernel-piggyback mode that step wouldn't get
+omitted.
 
 -- 
-"Just how much can I get away with and still go to heaven?"
+Anthony de Boer, curator, Anthony's Home for Aged Computing Machinery
+<adb@leftmind.net>

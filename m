@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbULHR5g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbULHSBZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261302AbULHR5g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 12:57:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbULHR5e
+	id S261301AbULHSBZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 13:01:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbULHR7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 12:57:34 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:20865 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261292AbULHR5S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 12:57:18 -0500
-Date: Wed, 8 Dec 2004 09:57:09 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: "Luck, Tony" <tony.luck@intel.com>
-cc: nickpiggin@yahoo.com.au, Jeff Garzik <jgarzik@pobox.com>,
-       torvalds@osdl.org, hugh@veritas.com, benh@kernel.crashing.org,
-       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: RE: Anticipatory prefaulting in the page fault handler V1
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F02844270@scsmsx401.amr.corp.intel.com>
-Message-ID: <Pine.LNX.4.58.0412080956200.27324@schroedinger.engr.sgi.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F02844270@scsmsx401.amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 8 Dec 2004 12:59:47 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:36832 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261303AbULHR6B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 12:58:01 -0500
+Subject: Re: Figuring out physical memory regions from a kernel module
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "Hanson, Jonathan M" <jonathan.m.hanson@intel.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <C863B68032DED14E8EBA9F71EB8FE4C20596010F@azsmsx406>
+References: <C863B68032DED14E8EBA9F71EB8FE4C20596010F@azsmsx406>
+Content-Type: text/plain
+Message-Id: <1102528665.25546.981.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 08 Dec 2004 09:57:46 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Dec 2004, Luck, Tony wrote:
+On Wed, 2004-12-08 at 09:44, Hanson, Jonathan M wrote:
+> 	Is there a reliable way to tell from a kernel module (currently
+> written for 2.4 but will need to work under 2.6 in the future) which
+> regions of physical memory are actually available for the kernel and
+> processes to use?
 
-> >If a fault occurred for page x and is then followed by page
-> >x+1 then it may be reasonable to expect another page fault
-> >at x+2 in the future.
->
-> What if the application had used "madvise(start, len, MADV_RANDOM)"
-> to tell the kernel that this isn't "reasonable"?
+Is this a rehashing of the "Walking all the physical memory in an x86
+system" thread? :)
 
-We could use that as a way to switch of the preallocation. How expensive
-is that check?
+Why don't you just tell us what you're actually trying to do in your
+module.  There's probably a better way.
+
+-- Dave
+

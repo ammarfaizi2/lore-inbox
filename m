@@ -1,74 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266406AbSKZQK6>; Tue, 26 Nov 2002 11:10:58 -0500
+	id <S266387AbSKZQNN>; Tue, 26 Nov 2002 11:13:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266407AbSKZQK6>; Tue, 26 Nov 2002 11:10:58 -0500
-Received: from fed1mtao03.cox.net ([68.6.19.242]:5326 "EHLO fed1mtao03.cox.net")
-	by vger.kernel.org with ESMTP id <S266406AbSKZQK4>;
-	Tue, 26 Nov 2002 11:10:56 -0500
-Date: Tue, 26 Nov 2002 09:49:08 -0700
-From: Matt Porter <porter@cox.net>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] 64-bit struct resource fields
-Message-ID: <20021126094908.A23772@home.com>
-References: <3DE2AE04.5030209@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3DE2AE04.5030209@us.ibm.com>; from haveblue@us.ibm.com on Mon, Nov 25, 2002 at 03:11:00PM -0800
+	id <S266390AbSKZQNM>; Tue, 26 Nov 2002 11:13:12 -0500
+Received: from h-64-105-35-74.SNVACAID.covad.net ([64.105.35.74]:6866 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S266387AbSKZQNL>; Tue, 26 Nov 2002 11:13:11 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 26 Nov 2002 08:18:34 -0800
+Message-Id: <200211261618.IAA03839@baldur.yggdrasil.com>
+To: ingo.oeser@informatik.tu-chemnitz.de
+Subject: Re: Modules with list
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, vandrove@vc.cvut.cz,
+       zippel@linux-m68k.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 25, 2002 at 03:11:00PM -0800, Dave Hansen wrote:
-> We need some way to replicate the e820 tables for kexec.  This 
-> modifies struct resource to use u64's for its start and end fields. 
-> This way we can export the whole e820 table on PAE machines.
+>>> = Adam Richter
+>>  = Rusty Russell
+>   = Ingo Oeser
+
+>>>     5. At modprobe time, being able to decide to load a module
+>>>        as non-removable to avoid loading .exit{,data} for a smaller
+>>>        kernel footprint.  This might only require insmod changes
+>>>        for the user level insmod.
+>> Hmm, I already discard these if !CONFIG_MODULE_UNLOAD, but it'd be a
+>> cute hack to let the user do this.
 > 
-> resource->flags seems to be used often to mask out things in 
-> resource->start/end, so I think it needs to be u64 too.  But, Is it 
-> all right to let things like pcibios_update_resource() truncate the 
-> resource addresses like they do?
-> 
-> With my config, it has no more warnings than it did before.
+>No. That means dangling pointers everywhere. Remember dev_exit_p() 
+>and why it was introduced.
 
-I could make use of this on my PPC440 systems which have all I/O
-(onboard and PCIX host bridge) above 4GB.  However, the patch
-I have been playing with typedefs a phys_addr_t so that only
-systems which are 32-bit/36-bit+ split like PAE ia32, AUxxxx (MIPS),
-and PPC440 have to do long long manipulation.  If you explicitly
-use u64 everywhere it forces all native 32-bit/32-bit systems to
-do unnecessary long long manipulation.
+	First of all, let's understand how small this problem is.
+dev_exit_p was introduceed to allow a debugging using a feature of
+newer versions of ld.  It was never essential.  devexit_p() is only
+relevant to non-hotplug systems.
 
-In the past there has been quite a bit of resistance to even
-introducing a physical address typedef due to some claims of
-gcc not handling long longs very well [1].  I don't see how
-having _everybody_ that is 32-bit native handle long longs is
-going to be more acceptable but I could be surprised.
+	devexit_p() is currently is used only for static
+initialization of driver->remove(), although I suspect that that ld
+debugging feature has probably exposed some bugs that have been fixed.
+So, in practice, all of the dangling pointers that it currently
+avoids could be avoided by adding a few lines in places like
+driver_register():
 
-That said, I think when we have existence of systems that require
-long long types and gcc is "buggy" in this respect, then using
-a phys_addr_t is the lesser of two evils (even though everybody hates
-typedefs).  We already have this type defined local to PPC because
-it is necessary to cleanly handle ioremap and local page mapping
-functionality.  going to u64 or phys_addr_t resources would be a
-huge improvement on a horribly kludgy hack we use to crate the
-most significant 32-bits for our 64-bit ioremaps.
+#ifndef CONFIG_HOTPLUG
+	if (!driver->module->removable)
+		driver->remove = invoke_bug;
+#endif
 
-BTW, since u64 is long long on 32-bit platforms and long on 64-bit
-platforms, you will get warnings from every printk that dumps
-resource infos.  My thought is to provide some macros to massage
-resource values to strings for display.
+	It's probably overkill, but, in the longer term, we could
+eliminate CONFIG_HOTPLUG, have .devexit{,data} sections, and build yet
+another ELF section listing the devexit_p pointers, by defining
+devexit_p like so.
 
-[1] I get feedback from many people using the PPC440 port and have 
-    yet to find any instances of gcc mishandling long longs. (though
-    this is just anecdotal evidence).
+#define devexit_p(symbol)	( \
+			asm (".pushsection .devexit_p_refs\n"	\
+			     ".long " #symbol "\n"		\
+			     ".popsection\n");			\
+			symbol )
 
-Regards,
--- 
-Matt Porter
-porter@cox.net
-This is Linux Country. On a quiet night, you can hear Windows reboot.
+
+	Then "--permanent --disable-hotplug" could be selected
+at modprobe time and at boot time (the .devexit{,func} sections
+would be loaded just before .init{,func}, and could be dropped or
+kept).  modprobe could then clear all devexit_p references if we
+really wanted to bother. and the kernel could do the same for
+its built-in objects.  We could also have a binary utility to
+scrape out the hotplug support from a .o file based on the
+contents of the .devexit_p_refs section if we wanted to use
+that ld debugging feature or for smaller .o and bzImage file
+sizes.
+
+	If you want to be even fancier, we could have separate
+CONFIG_PCI_HOTPLUG, CONFIG_USB_HOTPLUG, and pci_devexit_p(),
+usb_devexit_p(), a .pci_devexit_p section, a .usb_devexit_p
+section, and so on for each pluggable bus type.
+
+	Would this be overkill?  CONFIG_HOTPLUG currently only
+controls hot plugging for busses where it is wiredly used (USB,
+CardBus, but not ordinary PCI cards).  To my knowledge, nobody has
+complained about the lack of "!CONFIG_HOTPLUG" for pcmcia, for
+example.  An alternative is to drop "!CONFIG_HOTPLUG" support, and
+have CardBus and USB always support hotplug.  Eliminating
+CONFIG_HOTPLUG would simplify a lot of source code at the expense of
+making object files and the kernel footprint slightly larger for users
+that would otherwise want to compile it out.
+
+	Anyhow, eliminating "ifdef MODULE" from <linux/init.h> is
+not immenent, and having driver_register() clobber driver->remove
+for non-removable modules in non-hotplug systems should initially
+address the runtime issues (although not the loss of that ld debugging
+check).
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

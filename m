@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267869AbUJOO2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267901AbUJOOb2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267869AbUJOO2i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 10:28:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267881AbUJOO2i
+	id S267901AbUJOOb2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 10:31:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267881AbUJOOb1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 10:28:38 -0400
-Received: from holomorphy.com ([207.189.100.168]:37770 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267869AbUJOO2e (ORCPT
+	Fri, 15 Oct 2004 10:31:27 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:13575 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S267901AbUJOO3V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 10:28:34 -0400
-Date: Fri, 15 Oct 2004 07:28:25 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrea Arcangeli <andrea@novell.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton OSDL <akpm@osdl.org>,
-       Albert Cahalan <albert@users.sourceforge.net>
-Subject: Re: per-process shared information
-Message-ID: <20041015142825.GI5607@holomorphy.com>
-References: <Pine.LNX.4.44.0410151207140.5682-100000@localhost.localdomain> <1097846353.2674.13298.camel@cube>
+	Fri, 15 Oct 2004 10:29:21 -0400
+Date: Fri, 15 Oct 2004 09:25:35 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Mark Lord <lsml@rtr.ca>, linux-scsi@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: [PATCH] Export ata_scsi_simulate() for use by non-libata drivers
+Message-ID: <20041015092535.C25937@tuxdriver.com>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>, Mark Lord <lsml@rtr.ca>,
+	linux-scsi@vger.kernel.org,
+	Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+References: <416D8A4E.5030106@pobox.com> <416DA951.2090104@rtr.ca> <416DAF1A.2040204@pobox.com> <416DB912.7040805@rtr.ca> <416DBC96.2090602@pobox.com> <416EA996.4040402@rtr.ca> <416EAECC.7070000@rtr.ca> <416EB1B6.5070603@pobox.com> <416EC90A.30607@rtr.ca> <416F5A72.9080602@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1097846353.2674.13298.camel@cube>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <416F5A72.9080602@pobox.com>; from jgarzik@pobox.com on Fri, Oct 15, 2004 at 01:04:50AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 15, 2004 at 09:19:13AM -0400, Albert Cahalan wrote:
-> I display the data as a column in "top". Docomentation is
-> much easier to deal with if it doesn't have lots of special
-> cases for different kernel versions.
-> I guess I'd prefer that the fields of Linux 2.4 be restored,
-> and that any new fields be added on the end. Note that the
-> text and data fields are supposed to be rss-like as well.
-> Except for the size, they're all supposed to be that way.
-> This data was created to match what BSD provides.
-> If adding a new file to /proc, please pick a short name
-> that is friendly toward tab completion. "phymem" is OK.
+On Fri, Oct 15, 2004 at 01:04:50AM -0400, Jeff Garzik wrote:
+> The full body of your email is pasted into the BitKeeper changeset 
+> description.
 
-The overhead is too catastrophic to tolerate. Please work with us
-to find a sufficient approximation to whatever statistics you want
-opposed to reverting to 2.4 algorithms or ones of similar expense.
+Jeff,
 
+Andrews "The perfect patch"
+(http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt) in section
+3.e says: 
 
--- wli
+   Most people's patch receiving scripts will treat a ^--- string
+   as the separator between the changelog and the patch itself.  You can
+   use this to ensure that any diffstat information is discarded when the
+   patch is applied:
+
+Do your scripts act this way as well?
+
+It is nice to be able to send a single e-mail both w/
+changelog-appropriate comments and with "this relates to the last
+message" comments as well...
+
+John
+
+P.S.  Hopefully I didn't misunderstand Andrew...
+-- 
+John W. Linville
+linville@tuxdriver.com

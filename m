@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129387AbQKFRHE>; Mon, 6 Nov 2000 12:07:04 -0500
+	id <S129529AbQKFRIE>; Mon, 6 Nov 2000 12:08:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129493AbQKFRGy>; Mon, 6 Nov 2000 12:06:54 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59474 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129222AbQKFRGp>; Mon, 6 Nov 2000 12:06:45 -0500
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-To: kaos@ocs.com.au (Keith Owens)
-Date: Mon, 6 Nov 2000 17:07:16 +0000 (GMT)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
-In-Reply-To: <2908.973513747@ocs3.ocs-net> from "Keith Owens" at Nov 06, 2000 11:29:07 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129525AbQKFRHy>; Mon, 6 Nov 2000 12:07:54 -0500
+Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:24306 "EHLO
+	passion.cygnus") by vger.kernel.org with ESMTP id <S129523AbQKFRHg>;
+	Mon, 6 Nov 2000 12:07:36 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <200011061631.eA6GVkw07051@pincoya.inf.utfsm.cl> 
+In-Reply-To: <200011061631.eA6GVkw07051@pincoya.inf.utfsm.cl> 
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page] 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13spjq-0006OE-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Mon, 06 Nov 2000 17:06:46 +0000
+Message-ID: <6590.973530406@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Just load the driver at bootup and forget about it.  Problem solved.
-> 
-> I daily curse the name of whoever added autoload and autounload.
-> Autoload maybe useful, autounload is just asking for problems.
 
-Deal with it. Hardware is also now auto load and auto unloading too. For 2.5
-hopefully a lot of this can be tidied up and done better - persistent storage
-in the modules that is written to disk and put back by insmod/rmmod (in 
-userspace) will help a lot.
+vonbrand@inf.utfsm.cl said:
+>  No funny "persistent data" mechanisms or screwups when the worker
+> gets removed and reinserted. In many cases the data module could be
+> shared among several others, in other cases it would have to be able
+> lo load several times or manage several incarnations of its payload. 
 
-The locking issues are not going to go away. Home PC's are going more and
-more USB oriented. Servers are going towards more and more hotswap cards.
+The reason I brought this up now is because Keith's new 
+inter_module_register stuff could easily be used to provide this 
+functionality _without_ the extra module remaining loaded.
 
-Alan
+
+--
+dwmw2
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

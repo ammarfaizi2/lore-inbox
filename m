@@ -1,27 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262083AbSIYTq0>; Wed, 25 Sep 2002 15:46:26 -0400
+	id <S262085AbSIYTky>; Wed, 25 Sep 2002 15:40:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262084AbSIYTq0>; Wed, 25 Sep 2002 15:46:26 -0400
-Received: from hq.fsmlabs.com ([209.155.42.197]:11965 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S262083AbSIYTq0>;
-	Wed, 25 Sep 2002 15:46:26 -0400
-From: Cort Dougan <cort@fsmlabs.com>
-Date: Wed, 25 Sep 2002 13:04:33 -0600
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-       linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
+	id <S262082AbSIYTky>; Wed, 25 Sep 2002 15:40:54 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:52362 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S262076AbSIYTkx>;
+	Wed, 25 Sep 2002 15:40:53 -0400
+Date: Wed, 25 Sep 2002 21:54:51 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+       <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>,
        Arjan van de Ven <arjanv@redhat.com>
 Subject: Re: [ANNOUNCE] [patch] kksymoops, in-kernel symbolic oopser, 2.5.38-B0
-Message-ID: <20020925130433.D929@duath.fsmlabs.com>
-References: <Pine.LNX.4.33.0209251245070.2836-100000@penguin.transmeta.com> <Pine.LNX.4.44.0209252152590.18490-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0209252152590.18490-100000@localhost.localdomain>; from mingo@elte.hu on Wed, Sep 25, 2002 at 09:53:17PM +0200
+In-Reply-To: <Pine.LNX.4.33.0209251246100.2836-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0209252154010.18654-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How does this change differ from the one I sent a month ago?
+
+On Wed, 25 Sep 2002, Linus Torvalds wrote:
+
+> > i'd expect the 'Y' to be picked up from the defconfig - no?
+> 
+> No. defconfig is either used 100% or not at all.
+
+hm, then what is the standard way to make a new kernel option default-Y?  
+At least for the development kernel, a default-enabled kksymoops sounds
+like the right way to go.
+
+	Ingo
+

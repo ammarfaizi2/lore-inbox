@@ -1,56 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267175AbUBMTM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 14:12:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267176AbUBMTM2
+	id S267177AbUBMTOb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 14:14:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267182AbUBMTOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 14:12:28 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55187 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267175AbUBMTM0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 14:12:26 -0500
-Date: Fri, 13 Feb 2004 11:12:42 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: James Morris <jmorris@redhat.com>
-Cc: sds@epoch.ncsc.mil, linux-kernel@vger.kernel.org
-Subject: Re: [SELINUX] mark avc_init with __init
-Message-Id: <20040213111242.0d3e8583.akpm@osdl.org>
-In-Reply-To: <Xine.LNX.4.44.0402130921580.20552-100000@thoron.boston.redhat.com>
-References: <Xine.LNX.4.44.0402130921580.20552-100000@thoron.boston.redhat.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Feb 2004 14:14:31 -0500
+Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:27576 "EHLO
+	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
+	id S267177AbUBMTO0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 14:14:26 -0500
+Message-ID: <7A25937D23A1E64C8E93CB4A50509C2A0310F0BA@stca204a.bus.sc.rolm.com>
+From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
+To: "'Maciej Zenczykowski'" <maze@cela.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: your mail
+Date: Fri, 13 Feb 2004 11:14:19 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris <jmorris@redhat.com> wrote:
->
-> The avc_init function is only called during kernel init, so it can be 
-> marked with __init.
+Yes, your assumtion about the 1GB is correct.
+
+Jack Bloch 
+Siemens ICN
+phone                (561) 923-6550
+e-mail                jack.bloch@icn.siemens.com
+
+
+-----Original Message-----
+From: Maciej Zenczykowski [mailto:maze@cela.pl]
+Sent: Friday, February 13, 2004 1:11 PM
+To: Bloch, Jack
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: your mail
+
+
+The deleted marks in question mean that the file in question has been 
+unlinked (rm'ed), however it is still being used and the inode in question 
+still exists.  This memory is in use and thus validly takes up mapping 
+space.  You'd need to unmap inorder to free that memory.  Deleting a file 
+does not delete that file until _all_ processes close and unmap any 
+references to it.  What's more worrying is the large area of unmapped 
+memory below 1GB (0x40000000), wonder why it doesn't get allocated?  But I 
+think the answer is that the standard allocator only searches 1GB..3GB for 
+free areas...
+
+Cheers,
+MaZe.
+
+On Fri, 13 Feb 2004, Bloch, Jack wrote:
+
+> I am running a 2.4.19 Kernel and have a problem where a process is using
+the
+> up to the 0xC0000000 of space. It is no longer possible for this process
+to
+> get any more memory vi mmap or via shmget. However, when I dump the
+> /procs/#/maps file, I see large chunks of memory deleted. i.e this should
+be
+> freely available to be used by the next call. I do not see these addresses
+> get re-used. The maps file is attached.
 > 
-> ...
-> --- linux-2.6.3-rc2-mm1.o/security/selinux/include/avc.h	2004-02-04 08:39:07.000000000 -0500
-> +++ linux-2.6.3-rc2-mm1.w2/security/selinux/include/avc.h	2004-02-13 09:21:38.704303416 -0500
-> @@ -11,6 +11,7 @@
->  #include <linux/kernel.h>
->  #include <linux/kdev_t.h>
->  #include <linux/spinlock.h>
-> +#include <linux/init.h>
->  #include <asm/system.h>
->  #include "flask.h"
->  #include "av_permissions.h"
-> @@ -121,7 +122,7 @@
->   * AVC operations
->   */
->  
-> -void avc_init(void);
-> +void __init avc_init(void);
->  
-
-The section specifier only needs to be at the definition site, not at the
-declaration site.  I guess it adds a little value for the header fle to say
-"hey, this is __init", but as nothing checks that at runtime or compile
-time it can easily become stale.
-
-
+>  <<9369>> 
+> 
+> Jack Bloch 
+> Siemens ICN
+> phone                (561) 923-6550
+> e-mail                jack.bloch@icn.siemens.com
+> 
+> 

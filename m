@@ -1,76 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311796AbSCTQae>; Wed, 20 Mar 2002 11:30:34 -0500
+	id <S311801AbSCTQce>; Wed, 20 Mar 2002 11:32:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311797AbSCTQaZ>; Wed, 20 Mar 2002 11:30:25 -0500
-Received: from ns01.passionet.de ([62.153.93.33]:47762 "HELO
-	mail.cgn.kopernikus.de") by vger.kernel.org with SMTP
-	id <S311796AbSCTQaK>; Wed, 20 Mar 2002 11:30:10 -0500
-Date: Wed, 20 Mar 2002 17:29:43 +0100
-From: Manon Goo <manon@manon.de>
-Reply-To: Manon Goo <manon@manon.de>
-To: Dave Jones <davej@suse.de>
-Cc: "White, Charles" <Charles.White@COMPAQ.com>, Arrays <Arrays@COMPAQ.com>,
-        linux-kernel@vger.kernel.org,
-        =?ISO-8859-1?Q?Markus_Schr=F6der?= <schroeder.markus@allianz.de>
-Subject: Re: Hooks for random device entropy generation missing in
- cpqarray.c
-Message-ID: <5095533.1016645383@eva.dhcp.gimlab.org>
-In-Reply-To: <20020320171655.F5094@suse.de>
-X-Mailer: Mulberry/2.2.0b3 (Mac OS X)
-X-manon-file: sentbox
+	id <S311803AbSCTQcY>; Wed, 20 Mar 2002 11:32:24 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47115 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S311802AbSCTQcR>; Wed, 20 Mar 2002 11:32:17 -0500
+Subject: Re: Hard hang on 3Ware7850, Dual AthlonMP, Tyan2462
+To: bradlist@bradm.net (Bradley McLean)
+Date: Wed, 20 Mar 2002 16:48:23 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020320111840.A7078@nia.bradm.net> from "Bradley McLean" at Mar 20, 2002 11:18:40 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="==========05120663=========="
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16njGB-0002ku-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Running RH7.2 with kernel.org kernels, versions 2.4.17, 2.4.18,
+> or 2.4.18 plus the IO-APIC patch posted for 2.4.19pre3.
+> Using the latest (release 7.4, driver version 19) 3ware code.
+> 
+> Tyan 2462, 3.5 GB
+> (2) AMD MP1900+
+> (6) WB1200JB
 
---==========05120663==========
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Ok thats the fourth report of this 3ware + 2462 SMP only breakage
 
-Hmmm in cpqarray.c this appers to be called in cpqarray_init() is this only
-called when the driver initalizes or at every access ?
+> Anyone with suggestions, or test cases?
 
+Apparently if you swap the Tyan for something like the ASUS dual athlon
+board it works. Dunno if its hardware, bios or software.
 
---On Mittwoch, 20. M=E4rz 2002 17:16 Uhr +0100 Dave Jones <davej@suse.de>=20
-wrote:
-
-> On Wed, Mar 20, 2002 at 05:06:54PM +0100, Manon Goo wrote:
->  > I have a quick and drity patch for 1 contorlller:
->  > ...
->  >
->  > --On Mittwoch, 20. M=E4rz 2002 8:25 Uhr -0600 "White, Charles"
->  > <Charles.White@COMPAQ.com> wrote:
->  >
->  > >Yes.. I was reported that it some how got dropped from our 2.4
-> version of  > >the driver..  DON'T add add_interrupt_randomness, just add
-> "|  > >SA_SAMPLE_RANDOM" to the call to request_irq.
->  > How would I do this for the cpqarray ?
->
->  Exactly like Charles explained how to. See also...
->  http://www.codemonkey.org.uk/patches/merged/2.5.4/dj2/random-cpqirq.diff
->  if it still isnt' clear.
-> --
->| Dave Jones.        http://www.codemonkey.org.uk
->| SuSE Labs
-
-
---==========05120663==========
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (Darwin)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8mLj3lp/TJR6NORURAoDrAKCQNSVZH5GHV8Sum2ajnOKfXOspOwCfU+qM
-0TOeWbUyz/lsf0No3gnV/bM=
-=CsTc
------END PGP SIGNATURE-----
-
---==========05120663==========--
-
+Alan

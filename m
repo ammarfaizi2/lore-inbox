@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264852AbRFTHE0>; Wed, 20 Jun 2001 03:04:26 -0400
+	id <S264272AbRFTHWi>; Wed, 20 Jun 2001 03:22:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264853AbRFTHEQ>; Wed, 20 Jun 2001 03:04:16 -0400
-Received: from apollo.nbase.co.il ([194.90.137.2]:34311 "EHLO
-	apollo.nbase.co.il") by vger.kernel.org with ESMTP
-	id <S264852AbRFTHEH>; Wed, 20 Jun 2001 03:04:07 -0400
-Message-ID: <3B305A87.E4CAD52@nbase.co.il>
-Date: Wed, 20 Jun 2001 10:10:47 +0200
-From: eran@nbase.co.il (Eran Man)
-X-Mailer: Mozilla 4.77 [en] (Win98; U)
-X-Accept-Language: en
+	id <S264744AbRFTHW3>; Wed, 20 Jun 2001 03:22:29 -0400
+Received: from echo.computel.nl ([195.86.135.229]:12557 "HELO echo.computel.nl")
+	by vger.kernel.org with SMTP id <S264272AbRFTHWN>;
+	Wed, 20 Jun 2001 03:22:13 -0400
+Message-ID: <004b01c0f959$af9d96c0$8e01a8c0@OFFICE>
+From: "Sander Steffann" <steffann@nederland.net>
+To: <vlan@Scry.WANfear.com>, <linux-kernel@vger.kernel.org>
+Cc: "Holger Kiehl" <Holger.Kiehl@dwd.de>, "David S. Miller" <davem@redhat.com>,
+        "VLAN Mailing List" <vlan@Scry.WANfear.com>,
+        "Lennert" <buytenh@gnu.org>, "Gleb Natapov" <gleb@nbase.co.il>
+In-Reply-To: <Pine.LNX.4.30.0106191016200.27487-100000@talentix.dwd.de> <3B2FCE0C.67715139@candelatech.com>
+Subject: Re: [VLAN] Should VLANs be devices or something else?
+Date: Wed, 20 Jun 2001 09:21:55 +0200
+Organization: Computel Standby BV
 MIME-Version: 1.0
-To: vlan@Scry.WANfear.com
-CC: "David S. Miller" <davem@redhat.com>, Dax Kelson <dkelson@gurulabs.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Holger Kiehl <Holger.Kiehl@dwd.de>,
-        "vlan-devel (other)" <vlan-devel@lists.sourceforge.net>,
-        Lennert <buytenh@gnu.org>, Gleb Natapov <gleb@nbase.co.il>
-Subject: Re: [VLAN] Re: Should VLANs be devices or something else?
-In-Reply-To: <3B2FCE0C.67715139@candelatech.com>
-			<Pine.LNX.4.33.0106191641150.17061-100000@duely.gurulabs.com> <15151.55017.371775.585016@pizda.ninka.net> <3B2FDD62.EFC6AEB1@candelatech.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Ben & all,
 
-Ben Greear wrote:
-> 
-> "David S. Miller" wrote:
+> Should VLANs be devices or some other thing?
 
-> > Conceptually, svr4 streams are a beautiful and elegant
-> > mechanism. :-)
-> >
-> > Technical implementation level concerns need to be considered
-> > as well as "does it look nice".
-> 
-> I found it to be the easiest way to implement things.  It allowed
-> me to not have to touch any of layer 3, and I did not have to patch
-> any user-space program like ip or ifconfig.
-> 
-> I'm not even sure if the nay-sayers ever had another idea, they
-> just didn't like having lots of interfaces.  Originally, there
-> were claims of inefficiency, but it seems that other than things
-> like 'ip' and ifconfig, there are no serious performance problems
-> I am aware of.
+VLANs should be devices IMHO. It 'feels' right, and I think it's what most
+(if not all) users expect them to be.
 
-There is the issue with netlink notification of large number of events.
-See the mail thread starting from:
-http://oss.sgi.com/projects/netdev/mail/netdev/msg01879.html
+Bye,
+Sander.
+
+

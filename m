@@ -1,36 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315416AbSH0IyK>; Tue, 27 Aug 2002 04:54:10 -0400
+	id <S315419AbSH0Ix2>; Tue, 27 Aug 2002 04:53:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315427AbSH0IyK>; Tue, 27 Aug 2002 04:54:10 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:5905 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S315416AbSH0IyJ>;
-	Tue, 27 Aug 2002 04:54:09 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200208270858.g7R8wJF15076@oboe.it.uc3m.es>
-Subject: block device/VM question
-To: linux kernel <linux-kernel@vger.kernel.org>
-Date: Tue, 27 Aug 2002 10:58:19 +0200 (MET DST)
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S315427AbSH0Ix2>; Tue, 27 Aug 2002 04:53:28 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:25233 "HELO ulima.unil.ch")
+	by vger.kernel.org with SMTP id <S315419AbSH0Ix1>;
+	Tue, 27 Aug 2002 04:53:27 -0400
+Date: Tue, 27 Aug 2002 10:57:45 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Interdiff of AC series?
+Message-ID: <20020827085745.GF25765@ulima.unil.ch>
+References: <20020826123340.GD25765@ulima.unil.ch> <20020826132511.GA11762@neon.hh59.org> <20020826201142.GA4183@ulima.unil.ch> <20020826220745.GQ959@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="H+4ONPRPur6+Ovig"
+Content-Disposition: inline
+In-Reply-To: <20020826220745.GQ959@redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
 
-Is there any way of turning off VMS caching for a block device?
+--H+4ONPRPur6+Ovig
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I want all reads to come down to the driver, where I decide what to do
-about them.  I don't want reads to read locally cached buffers in VMS
-unless I say so.  The reason is that the device might have a remote
-writer.
+On Mon, Aug 26, 2002 at 11:07:45PM +0100, Tim Waugh wrote:
 
-I'll have a look at the raw character device later (but I recall
-having looked before without it telling me anything - probably
-they make a fake request and transfer it to the device queue
-directly and treat the return with their own substituted end_req).
-I need a block device - I can't mount a character device. Now
-there's an idea! A mouse represented as a file system ..
+> > I know how to make interdiff, what I would like is to fetch less bits
+> > with my modem connection...
+>=20
+> You know that interdiff only needs the two patches, and not the entire
+> trees?
 
-Peter
+Please don't CC to me: I am on the ml...
+Yes I know, but: what does that change if the resaon I would like to
+have interdiff is to avoid dowloading big patches?
+
+Thank you,
+
+	Gr=E9goire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+
+--H+4ONPRPur6+Ovig
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9az8HFDWhsRXSKa0RAqFCAJ9EYq8k21P54jDBtPFCpAFmfpJpjACfVNFa
+ih/+8NyeQIlDproos3PkqYM=
+=dLEz
+-----END PGP SIGNATURE-----
+
+--H+4ONPRPur6+Ovig--

@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313022AbSC0Obj>; Wed, 27 Mar 2002 09:31:39 -0500
+	id <S313023AbSC0OlM>; Wed, 27 Mar 2002 09:41:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313023AbSC0Ob3>; Wed, 27 Mar 2002 09:31:29 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:33807 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S313022AbSC0ObV>; Wed, 27 Mar 2002 09:31:21 -0500
-Date: Wed, 27 Mar 2002 09:29:13 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19pre4-ac1
-In-Reply-To: <15521.15136.643851.483671@notabene.cse.unsw.edu.au>
-Message-ID: <Pine.LNX.3.96.1020327092302.12827B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313025AbSC0OlB>; Wed, 27 Mar 2002 09:41:01 -0500
+Received: from tangens.hometree.net ([212.34.181.34]:5024 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S313023AbSC0Oku>; Wed, 27 Mar 2002 09:40:50 -0500
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Bitkeeper licence issues
+Date: Wed, 27 Mar 2002 14:40:49 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <a7sllh$8m9$1@forge.intermeta.de>
+In-Reply-To: <E16nOzQ-0008U7-00@the-village.bc.nu> <Pine.LNX.4.44L.0203192005350.2181-100000@imladris.surriel.com> <20020319163155.A25986@hq.fsmlabs.com> <20020319154727.O14877@work.bitmover.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1017240049 18977 212.34.181.4 (27 Mar 2002 14:40:49 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Wed, 27 Mar 2002 14:40:49 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Mar 2002, Neil Brown wrote:
+Larry McVoy <lm@bitmover.com> writes:
 
-> I think I felt that macros would be very noisy for relatively little
-> gain.
-> However I guess
-> 
-> #define ST 1  /* status*/
-> #define FH 17 /* filehandle with length */
-> #define AT 22 /* attributes */
-> #define WC 7  /* WCC attribute prefix */
-> 
-> might make things clearer without being too noisy....
+>people within 30 minutes of my house.  What I'd like to see is a migration
+>out of silly valley but to somewhere else.  I.e., pockets of smart people
+>working together.  Face time with smart people is fun, if you get a chance
 
-  A true member of the "never use a long name when a short one will do" 
-school? You really could sacrifice a few more bytes and use more
-descriptive names which mean something without looking at the macro
-definition... 
-
-  Whatever, coding style is personal, I make mine as readable as possible
-because the next person struggling to understand it in a few years is
-likely to still be me.
+Hm. Like, say Redmond, WA?
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

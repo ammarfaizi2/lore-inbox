@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318881AbSG1BxN>; Sat, 27 Jul 2002 21:53:13 -0400
+	id <S318884AbSG1ByA>; Sat, 27 Jul 2002 21:54:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318882AbSG1BxM>; Sat, 27 Jul 2002 21:53:12 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:53259 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S318881AbSG1BxM>; Sat, 27 Jul 2002 21:53:12 -0400
-Date: Sat, 27 Jul 2002 22:56:08 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Robert Love <rml@tech9.net>,
-       Russell Lewis <spamhole-2001-07-16@deming-os.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Looking for links: Why Linux Doesn't Page Kernel Memory?
-In-Reply-To: <20020728014813.GH2907@holomorphy.com>
-Message-ID: <Pine.LNX.4.44L.0207272254090.3086-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318885AbSG1Bx7>; Sat, 27 Jul 2002 21:53:59 -0400
+Received: from salmon.maths.tcd.ie ([134.226.81.11]:45821 "HELO
+	salmon.maths.tcd.ie") by vger.kernel.org with SMTP
+	id <S318884AbSG1Bx5>; Sat, 27 Jul 2002 21:53:57 -0400
+Date: Sun, 28 Jul 2002 02:57:01 +0100
+From: Timothy Murphy <tim@birdsnest.maths.tcd.ie>
+To: linux-kernel@vger.kernel.org
+Subject: kernel-2.5.29
+Message-ID: <20020728025701.A3490@birdsnest.maths.tcd.ie>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 Jul 2002, William Lee Irwin III wrote:
+fs/partitions/Config.in l.28
+Should dep_bool have a third argument?
+As it stands, "make xconfig" fails at this point.
+It works if I add $CONFIG_EXPERIMENTAL as a third argument.
 
-> Feasible database workloads on 32-bit machines running mainline kernels
-> seem to run with between 50% and 90% of physical memory consumed by
-> process pagetables and severe restrictions on the number of clients
-> that attempt to connect. When larger proportions of memory are consumed
-> by process pagetables, kernel deadlock often ensues.
+==========================================
+Script started on Sun Jul 28 00:34:47 2002
+tim@william linux]$ make xconfig
+make[1]: Entering directory `/usr/src/linux-2.5.29/scripts'
+  Generating kconfig.tk
+fs/partitions/Config.in: 28: can't handle dep_bool/dep_mbool/dep_tristate condition
+chmod 755 kconfig.tk
+make[1]: Leaving directory `/usr/src/linux-2.5.29/scripts'
+...
+Script done on Sun Jul 28 00:34:57 2002
+==========================================
 
-Even with 50% of memory in pagetables, I wouldn't be happy.
-
-If I fork out the money for a machine with 16 GB of RAM, I'd
-expect the thing to be able to at least cache 12 GB of my
-database.  Wasting all of memory in page tables just isn't
-allright ;)
-
-Gerrit told me some people within IBM are working on large
-page support for shared memory segments and mmap()d areas,
-I hope it'll be good enough to get accepted into 2.5 soon...
-
-regards,
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Timothy Murphy  
+e-mail: tim@birdsnest.maths.tcd.ie
+tel: 086-233 6090
+s-mail: School of Mathematics, Trinity College, Dublin 2, Ireland

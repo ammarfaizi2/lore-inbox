@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262646AbUKLWgO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262648AbUKLWky@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262646AbUKLWgO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 17:36:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262647AbUKLWgO
+	id S262648AbUKLWky (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 17:40:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262650AbUKLWkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 17:36:14 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:2294 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262646AbUKLWfh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 17:35:37 -0500
-Date: Fri, 12 Nov 2004 14:02:10 -0800
-From: Greg KH <greg@kroah.com>
-To: Tim Hockin <thockin@google.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: small PCI probe patch for odd 64 bit BARs
-Message-ID: <20041112220210.GA5316@kroah.com>
-References: <20041111044809.GE19615@google.com> <20041110215142.3a81b426.akpm@osdl.org> <20041111173901.GH19615@google.com> <20041111175418.GA18811@kroah.com> <20041111205852.GP19615@google.com>
+	Fri, 12 Nov 2004 17:40:53 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:39873
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262648AbUKLWio (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 17:38:44 -0500
+Date: Fri, 12 Nov 2004 14:24:58 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Jay Vosburgh <fubar@us.ibm.com>
+Cc: radheka.godse@intel.com, bonding-devel@lists.sourceforge.net,
+       ctindel@users.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Bonding-devel][PATCH]Zero Copy Transmit Support (Update)
+Message-Id: <20041112142458.51ca5921.davem@davemloft.net>
+In-Reply-To: <200411122220.iACMKpjw014426@death.nxdomain.ibm.com>
+References: <20041112134918.305379c4.davem@davemloft.net>
+	<200411122220.iACMKpjw014426@death.nxdomain.ibm.com>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041111205852.GP19615@google.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 11, 2004 at 12:58:52PM -0800, Tim Hockin wrote:
-> On Thu, Nov 11, 2004 at 09:54:19AM -0800, Greg KH wrote:
-> > I'll wait till you test this on 2.6 before applying it.
-> 
-> OK.  Tested now on real hardware in 32 bit and 64 bit kernels.  32 bit
-> found another dumbness, that we can fix up.
-> 
-> Some PCI bridges default their UPPER prefetch windows to an unused state
-> of base > limit.  We should not use those values if we find that.  It
-> might be nice to reprogram them to 0, in fact.
-> 
-> Yes, BIOS should fix that up, but apparently, some do not.
-> 
-> Tim
-> 
-> Signed-Off-By: Tim Hockin <thockin@google.com>
+On Fri, 12 Nov 2004 14:20:51 -0800
+Jay Vosburgh <fubar@us.ibm.com> wrote:
 
-Applied, thanks.
+> 	Would it be preferrable to duplicate that logic in bonding, or
+> push it out to an inline or some such?
 
-greg k-h
+It's present also in the ethtool methods used to change
+these things, so you might consider making ethtool calls
+to change the bits as well.
+
+It's a pretty bad idea for folks to be changing the ->features
+bits directly in drivers after device registry.

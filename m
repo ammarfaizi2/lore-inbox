@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318455AbSHPOrW>; Fri, 16 Aug 2002 10:47:22 -0400
+	id <S318407AbSHPOuy>; Fri, 16 Aug 2002 10:50:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318468AbSHPOrW>; Fri, 16 Aug 2002 10:47:22 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:33975 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S318455AbSHPOrV>;
-	Fri, 16 Aug 2002 10:47:21 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200208161450.SAA29730@sex.inr.ac.ru>
-Subject: Re: [PATCH][RFC] sigurg/sigio cleanup for 2.5.31
-To: jmorris@intercode.com.au (James Morris)
-Date: Fri, 16 Aug 2002 18:50:28 +0400 (MSD)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Mutt.LNX.4.44.0208162239370.687-100000@blackbird.intercode.com.au> from "James Morris" at Aug 16, 2 11:07:22 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S318426AbSHPOuy>; Fri, 16 Aug 2002 10:50:54 -0400
+Received: from waste.org ([209.173.204.2]:52941 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S318407AbSHPOux>;
+	Fri, 16 Aug 2002 10:50:53 -0400
+Date: Fri, 16 Aug 2002 09:54:34 -0500
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Dax Kelson <dax@gurulabs.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Will NFSv4 be accepted?
+Message-ID: <20020816145434.GD5418@waste.org>
+References: <Pine.LNX.4.44.0208141938350.31203-100000@mooru.gurulabs.com> <Pine.LNX.4.44.0208151027510.3130-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208151027510.3130-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-
-> All existing paths which write to the pid/uid/euid fields are protected by
-> the BKL
-
-euid? Are you about current->xxx? You jest, you read it, not write.
-
-Well, and if you are going to say that reading is racy, then I wonder
-why you started from this place, not from another users current->xxx,
-which are really critical and surely cannot use bkl. :-)
-
-> > But I daresay this is deadlock:
+On Thu, Aug 15, 2002 at 10:35:40AM -0700, Linus Torvalds wrote:
 > 
-> Yep.
+> I personally doubt that NFS would be the thing driving this. Judging by 
+> past performance, NFS security issues don't seem to bother people. I'd 
+> personally assume that the thing that would be important enough to people 
+> for vendors to add it is VPN or encrypted (local) disks.
 
-Ergo, never use BKL. :-)
+I would have thought that there'd be a big push for merging IPSEC in as it
+creates one of those "network effects" but it's still stalled by
+politics. I think they're waiting for a written invitation or something.
 
-Alexey
+Is loopback solid enough currently to make crypto over loopback
+worthwhile? It's occurred to me that it might be better to move the
+translation hooks down to the generic block layer proper so that
+things like LVM and iSCSI and brain-damaged bit-swapped IDE could take
+advantage of them without the deadlock-prone layering issues of
+loopback. Thoughts?
+
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278050AbRJOTbZ>; Mon, 15 Oct 2001 15:31:25 -0400
+	id <S277938AbRJOTiR>; Mon, 15 Oct 2001 15:38:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278052AbRJOTbP>; Mon, 15 Oct 2001 15:31:15 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:41490 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S278050AbRJOTbD>; Mon, 15 Oct 2001 15:31:03 -0400
-Message-ID: <3BCB3984.5030009@zytor.com>
-Date: Mon, 15 Oct 2001 12:31:16 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en, sv
+	id <S278052AbRJOTiG>; Mon, 15 Oct 2001 15:38:06 -0400
+Received: from cs181088.pp.htv.fi ([213.243.181.88]:24960 "EHLO
+	cs181088.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S277938AbRJOThr>; Mon, 15 Oct 2001 15:37:47 -0400
+Message-ID: <3BCB3B1A.B524A605@welho.com>
+Date: Mon, 15 Oct 2001 22:38:02 +0300
+From: Mika Liljeberg <Mika.Liljeberg@welho.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-ac10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Wireless Extension update
-In-Reply-To: <3BC3243A.D3B48880@osdlab.org> <Pine.LNX.4.21.0110142252270.6433-100000@Consulate.UFP.CX> <9qd9cp$977$1@cesium.transmeta.com> <20011015192647.A1769@grobbebol.xs4all.nl>
+To: kuznet@ms2.inr.ac.ru, ak@muc.de, davem@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: TCP acking too fast
+In-Reply-To: <200110151840.WAA24000@ms2.inr.ac.ru> <3BCB35CA.4D9D2952@welho.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roeland Th. Jansen wrote:
+Mika Liljeberg wrote:
+> Anyway, it would be interesting to try a (even more) relaxed version of
+> Nagle that would allow a maximum of two remnants in flight. This would
+> basically cover all TCP request/reply cases (leading AND trailing
+> remnant). Coupled with large initial window to get rid of  small-cwnd
+> interactions, it might be almost be all right.
 
-> On Sun, Oct 14, 2001 at 05:07:53PM -0700, H. Peter Anvin wrote:
-> 
->>YYYY-MM-DD is also unambiguous, and has the nice properties of being
->>(a) sortable and (b) language-independent.
->>
-> 
-> it only is unambiguous if you happen to know the format beforehand.
-> 
+Oops, bad idea. You can quench the objections, I already figured out it
+won't work. :-(
 
+I guess we're stuck with the current status quo: braindead application
+protocols will perform badly no matter what we do. All we can really do
+is prevent them harming the network.
 
-It is, but unlike all other numeric formats there is no conflicting format
-in use.
+Regards,
 
-
-> 20011001 is ?
-> 
-> 10 oct 2001 ?
-> 01 jan 2001 ?
-> 
-
-
-1 Oct 2001, whereas "01/10/2001" would be read as Jan 10, 2001 or Oct 1,
-2001 in differents part of the world.
-
-Using language-specific codes are fine and well only if you know for sure
-which language was used.
-
-	-hpa
-
+	MikaL

@@ -1,77 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316436AbSEOQjg>; Wed, 15 May 2002 12:39:36 -0400
+	id <S316438AbSEOQny>; Wed, 15 May 2002 12:43:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316440AbSEOQjf>; Wed, 15 May 2002 12:39:35 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13575 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316436AbSEOQj3>; Wed, 15 May 2002 12:39:29 -0400
-Date: Wed, 15 May 2002 09:39:30 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Changelogs on kernel.org 
-In-Reply-To: <30386.1021456050@redhat.com>
-Message-ID: <Pine.LNX.4.44.0205150931500.25038-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316439AbSEOQnx>; Wed, 15 May 2002 12:43:53 -0400
+Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:12416 "EHLO
+	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S316438AbSEOQnw>; Wed, 15 May 2002 12:43:52 -0400
+Date: Wed, 15 May 2002 18:43:43 +0200
+From: Edouard Gomez <ed.gomez@wanadoo.fr>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [BUG] Ramdisk is broken with 2.4.19-pre6/8
+Message-ID: <20020515164343.GA412@wanadoo.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
+I've build a 2 disk set following the http://www.tldp.org/HOWTO/Bootdisk-HOWTO/
+instructions. This works well with < 2.4.19-pre6 kernels but 2.4.19-pre6 just
+doesn't read the 2nd floppy disk (the ramdisk).
 
-On Wed, 15 May 2002, David Woodhouse wrote:
->
-> Are you still accepting BK changesets by mail? I heard rumours that you'd
-> said you didn't want them any more -- but couldn't find a message in which
-> you actually said that.
+I noticed that 2.4.19-pre6 try to read from floppy before prompting for the
+ramdisk and <2.4.19-pre6 never did that.
 
-I try to avoid it as much as possible - it's actually more work for me,
-and about 50% of the BK patches I get don't even apply, because the person
-who sent them to me didn't send the whole series (ie left out some patch
-he didn't like or something like that).
+Once i press enter with the 2.4.19-pre6, the kernel seems to do nothing. No
+kernel panic, no oops. It just does nothing. The floppy leds is switched on
+3s or 5s and then is switched off.
 
-> When making changesets to send to you, I usually start with a fresh clone
-> of your latest tree and apply my changes to that -- would you prefer me to
-> make the whole tree available somewhere public (or on master.kernel.org)
-> for a 'bk pull' instead?
+Alt+SysRq+T gives me 5 usual tasks in Sleeping mode :
+[ksoftirqd_CPU0]
+[kswapd]
+[kupdated]
+[keventd]
+[bdflush]
+and one active task called swapper (never heard about that one).
+This last task is still in R state.
 
-I much prefer a bk pull, if the tree I pull from is clean (ie it doesn't
-have random crud in it, and it contains changsets from just one project).
+This bug is still present in 2.4.19-pre8 (tested, same behaviour).
 
-Some people actually use BK but then send me regular patches anyway,
-because they find that easier than setting up an exported BK tree and
-being careful about cleanliness. I don't much care one way or the other:
-regular email patches are easy for me to integrate, so it's really up to
-you.
+Regards
 
-> Having the facility to put per-file changelogs in with BK rather than just
-> sending patches is something I quite like, so I'd rather not just revert to
-> sending patches.
+PS : Can you cc me the answers as i not a lkml subscriber. Thx
 
-[ Personal opinion alert! No impact on patch acceptance, as long as
-  enough changelog information exists _somewhere_ ]
-
-I personally like good changelog comments, and I find per-file comments to
-be a mistake.
-
-I have a few simple reasons for this:
-
- - most changes are related, and per-file comments tend to just repeat.
-
-   In fact, for patches, I just repeat the Subject: line in the per-file
-   comments, so that they have just enough context to get the big picture.
-
- - if your changes _aren't_ related, you should have done multiple
-   changesets in the first place. Rince and repeat as necessary.
-
- - the per-file comments don't show up in many of the standard changelogs
-   (not mine, not in "bk changes" etc), so the per-changeset comment
-   should be "sufficient" in many ways anyway.
-
-But to each his own.
-
-[ End personal opinion ]
-
-		Linus
-
+-- 
+Edouard Gomez

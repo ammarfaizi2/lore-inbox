@@ -1,51 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279556AbRK0Nua>; Tue, 27 Nov 2001 08:50:30 -0500
+	id <S279467AbRK0Nzu>; Tue, 27 Nov 2001 08:55:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279407AbRK0NuV>; Tue, 27 Nov 2001 08:50:21 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:11537 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S279556AbRK0NuK>; Tue, 27 Nov 2001 08:50:10 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] 2.4.16pre1: minix initrd does not work, ext2 does
-Date: Tue, 27 Nov 2001 15:49:19 -0200
-X-Mailer: KMail [version 1.2]
+	id <S279768AbRK0Nzk>; Tue, 27 Nov 2001 08:55:40 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60430 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S279722AbRK0Nzh>; Tue, 27 Nov 2001 08:55:37 -0500
+Subject: Re: "spurious 8259A interrupt: IRQ7"
+To: martin@jtrix.com (Martin A. Brooks)
+Date: Tue, 27 Nov 2001 14:03:42 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3511.10.119.8.1.1006856832.squirrel@extranet.jtrix.com> from "Martin A. Brooks" at Nov 27, 2001 10:27:12 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Message-Id: <01112715491900.00872@manta>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E168ipq-00019Y-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> I get this with 2.4.16 vanilla, though. IRQ 7 appears to be unassigned
+> according to /proc/pci.
+> 
+> Machine is a 1ghz Athlon on a VIA VT82C686 mobo and a DEC 21140 NIC.
+> 
+> Any pointers appreciated.
 
-I have 2 slackware initrds, one with minix fs on it, other with ext2.
-
-I compiled 2.4.13 and it panics (can't mount root fs) (don't remember with 
-both initrds or only with minix one...).
-
-I copied .config to 2.4.10, did make oldconfig and all that other reqd makes, 
-and it boots both initrds.
-
-Finally I tried it with 2.4.16pre1 (came .config again) 
-and it cannot mount minix initrd.
-("FAT: bogus sector size 0","VFS: unable to mount root fs")
-I further tested and that initrd CAN be mounted by 2.4.16pre1 
-over loopback device with
-
-# mount -o loop /tmp/initrd.minix /mnt/mnt
-
-and
-
-# mount -t fat,minix -o loop /tmp/initrd.minix /mnt/mnt
-
-(so we can't blame FAT for first saying "Yes it's fat, don't probe for 
-others" and then "it is corrupted, can't use")
-
-Seems there is some problem with fs detection order during root fs mount.
-(minix isn't tried at all?) However, I failed to grok what affect order of fs
-type guessing at boot... can somebody point me where to look?
---
-vda
+IRQ7 is asserted when the PIC sees an interrupt but nobody appears to be
+generating it when it looks.

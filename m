@@ -1,132 +1,269 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267070AbTBQNlW>; Mon, 17 Feb 2003 08:41:22 -0500
+	id <S267094AbTBQNp7>; Mon, 17 Feb 2003 08:45:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267076AbTBQNlV>; Mon, 17 Feb 2003 08:41:21 -0500
-Received: from chii.cinet.co.jp ([61.197.228.217]:16000 "EHLO
-	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S267070AbTBQNlT>; Mon, 17 Feb 2003 08:41:19 -0500
-Date: Mon, 17 Feb 2003 22:49:55 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCHSET] PC-9800 subarch. support for 2.5.61 (2/26) APM
-Message-ID: <20030217134955.GB4799@yuzuki.cinet.co.jp>
-References: <20030217134333.GA4734@yuzuki.cinet.co.jp>
+	id <S267107AbTBQNp7>; Mon, 17 Feb 2003 08:45:59 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:22476 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S267094AbTBQNpn>; Mon, 17 Feb 2003 08:45:43 -0500
+Date: Mon, 17 Feb 2003 14:55:05 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH *] use 64 bit jiffies
+Message-ID: <20030217135505.GF6282@wohnheim.fh-wedel.de>
+References: <20030204092936.GA14495@wohnheim.fh-wedel.de> <Pine.LNX.4.33.0302041401010.1267-100000@gans.physik3.uni-rostock.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030217134333.GA4734@yuzuki.cinet.co.jp>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.33.0302041401010.1267-100000@gans.physik3.uni-rostock.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is patchset to support NEC PC-9800 subarchitecture
-against 2.5.61 (2/26).
+On Tue, 4 February 2003 14:04:38 +0100, Tim Schmielau wrote:
+> 
+> A patch for 2.4.20-pre7 (and maybe later) is at
+>   http://www.physik3.uni-rostock.de/tim/kernel/2.4/
 
-APM support for PC98. Including PC98's BIOS bug fix.
+Some of the architectures appear to be untested. This fixes arm and
+beautifies m68k.
+( At least, I hope so. I didn't test it either :)
 
-diff -Nru linux-2.5.61/arch/i386/kernel/apm.c linux98-2.5.61/arch/i386/kernel/apm.c
---- linux-2.5.61/arch/i386/kernel/apm.c	2003-02-15 08:51:10.000000000 +0900
-+++ linux98-2.5.61/arch/i386/kernel/apm.c	2003-02-15 13:40:49.000000000 +0900
-@@ -226,6 +226,8 @@
- #include <asm/uaccess.h>
- #include <asm/desc.h>
+Tim, is the inline patch fine with you?
+
+Jörn
+
+-- 
+There's nothing better for promoting creativity in a medium than
+making an audience feel "Hmm ­ I could do better than that!"
+-- Douglas Adams in a slashdot interview
+
+--- linux-2.4.20-pre7-j64/include/linux/timex.h	Thu Nov 22 20:46:18 2001
++++ linux-2.4.20-pre7-j64-dbg/include/linux/timex.h	Wed Sep 25 19:11:51 2002
+@@ -53,6 +53,13 @@
  
-+#include "io_ports.h"
-+
- extern spinlock_t i8253_lock;
- extern unsigned long get_cmos_time(void);
- extern void machine_real_restart(unsigned char *, int);
-@@ -621,6 +623,9 @@
- 	__asm__ __volatile__(APM_DO_ZERO_SEGS
- 		"pushl %%edi\n\t"
- 		"pushl %%ebp\n\t"
-+#ifdef CONFIG_X86_PC9800
-+		"pushfl\n\t"
-+#endif
- 		"lcall *%%cs:apm_bios_entry\n\t"
- 		"setc %%al\n\t"
- 		"popl %%ebp\n\t"
-@@ -682,6 +687,9 @@
- 		__asm__ __volatile__(APM_DO_ZERO_SEGS
- 			"pushl %%edi\n\t"
- 			"pushl %%ebp\n\t"
-+#ifdef CONFIG_X86_PC9800
-+			"pushfl\n\t"
-+#endif
- 			"lcall *%%cs:apm_bios_entry\n\t"
- 			"setc %%bl\n\t"
- 			"popl %%ebp\n\t"
-@@ -722,7 +730,7 @@
+ #include <asm/param.h>
  
- 	if (apm_bios_call_simple(APM_FUNC_VERSION, 0, *val, &eax))
- 		return (eax >> 8) & 0xff;
--	*val = eax;
-+	*val = pc98 ? ((eax & 0xff00) | ((eax & 0x00f0) >> 4)) : eax;
- 	return APM_SUCCESS;
- }
- 
-@@ -1211,11 +1219,11 @@
- {
- #ifdef INIT_TIMER_AFTER_SUSPEND
- 	/* set the clock to 100 Hz */
--	outb_p(0x34,0x43);		/* binary, mode 2, LSB/MSB, ch 0 */
-+	outb_p(0x34, PIT_MODE);		/* binary, mode 2, LSB/MSB, ch 0 */
- 	udelay(10);
--	outb_p(LATCH & 0xff , 0x40);	/* LSB */
-+	outb_p(LATCH & 0xff, PIT_CH0);	/* LSB */
- 	udelay(10);
--	outb(LATCH >> 8 , 0x40);	/* MSB */
-+	outb(LATCH >> 8, PIT_CH0);	/* MSB */
- 	udelay(10);
- #endif
- }
-diff -Nru linux/include/linux/apm_bios.h linux98/include/linux/apm_bios.h
---- linux/include/linux/apm_bios.h	2003-01-02 12:22:18.000000000 +0900
-+++ linux98/include/linux/apm_bios.h	2003-01-04 13:20:28.000000000 +0900
-@@ -20,6 +20,7 @@
- typedef unsigned short	apm_eventinfo_t;
- 
- #ifdef __KERNEL__
-+#include <linux/config.h>
- 
- #define APM_CS		(GDT_ENTRY_APMBIOS_BASE * 8)
- #define APM_CS_16	(APM_CS + 8)
-@@ -60,6 +61,7 @@
- /*
-  * The APM function codes
-  */
-+#ifndef CONFIG_X86_PC9800
- #define	APM_FUNC_INST_CHECK	0x5300
- #define	APM_FUNC_REAL_CONN	0x5301
- #define	APM_FUNC_16BIT_CONN	0x5302
-@@ -80,6 +82,28 @@
- #define	APM_FUNC_RESUME_TIMER	0x5311
- #define	APM_FUNC_RESUME_ON_RING	0x5312
- #define	APM_FUNC_TIMER		0x5313
++#ifdef CONFIG_DEBUG_JIFFIESWRAP
++  /* Make the jiffies counter wrap around sooner. */
++# define INITIAL_JIFFIES ((unsigned long)(-300*HZ))
 +#else
-+#define	APM_FUNC_INST_CHECK	0x9a00
-+#define	APM_FUNC_REAL_CONN	0x9a01
-+#define	APM_FUNC_16BIT_CONN	0x9a02
-+#define	APM_FUNC_32BIT_CONN	0x9a03
-+#define	APM_FUNC_DISCONN	0x9a04
-+#define	APM_FUNC_IDLE		0x9a05
-+#define	APM_FUNC_BUSY		0x9a06
-+#define	APM_FUNC_SET_STATE	0x9a07
-+#define	APM_FUNC_ENABLE_PM	0x9a08
-+#define	APM_FUNC_RESTORE_BIOS	0x9a09
-+#define	APM_FUNC_GET_STATUS	0x9a3a
-+#define	APM_FUNC_GET_EVENT	0x9a0b
-+#define	APM_FUNC_GET_STATE	0x9a0c
-+#define	APM_FUNC_ENABLE_DEV_PM	0x9a0d
-+#define	APM_FUNC_VERSION	0x9a3e
-+#define	APM_FUNC_ENGAGE_PM	0x9a3f
-+#define	APM_FUNC_GET_CAP	0x9a10
-+#define	APM_FUNC_RESUME_TIMER	0x9a11
-+#define	APM_FUNC_RESUME_ON_RING	0x9a12
-+#define	APM_FUNC_TIMER		0x9a13
++# define INITIAL_JIFFIES 0
 +#endif
++
+ /*
+  * The following defines establish the engineering parameters of the PLL
+  * model. The HZ variable establishes the timer interrupt frequency, 100 Hz
+
+--- linux-2.4.20-pre7-j64/kernel/timer.c	Wed Sep 25 18:38:36 2002
++++ linux-2.4.20-pre7-j64-dbg/kernel/timer.c	Wed Sep 25 19:11:51 2002
+@@ -65,9 +65,10 @@
+ 
+ extern int do_setitimer(int, struct itimerval *, struct itimerval *);
+ 
+-unsigned long volatile jiffies;
++unsigned long volatile jiffies = INITIAL_JIFFIES;
+ #ifdef NEEDS_JIFFIES_64
+-static unsigned int volatile jiffies_msb_flips;
++static unsigned int volatile
++	jiffies_msb_flips = INITIAL_JIFFIES>>(BITS_PER_LONG-1);
+ #endif
+ 
+ unsigned int * prof_buffer;
+@@ -123,10 +124,21 @@
+ 	for (i = 0; i < TVR_SIZE; i++)
+ 		INIT_LIST_HEAD(tv1.vec + i);
+ 
++#ifdef CONFIG_DEBUG_JIFFIESWRAP
++	tv1.index = INITIAL_JIFFIES & TVR_MASK;
++	tv2.index = (INITIAL_JIFFIES >> TVR_BITS) & TVN_MASK;
++	tv3.index = (INITIAL_JIFFIES >> (TVR_BITS + TVN_BITS)) & TVN_MASK;
++	tv4.index = (INITIAL_JIFFIES >> (TVR_BITS + 2*TVN_BITS)) & TVN_MASK;
++	tv5.index = (INITIAL_JIFFIES >> (TVR_BITS + 3*TVN_BITS)) & TVN_MASK;
++
++	printk(KERN_NOTICE "Set up jiffies counter to wrap in %ld seconds.\n",
++	       (-(long)jiffies)/HZ);
++#endif
++
+ 	init_jiffieswrap_timer();
+ }
+ 
+-static unsigned long timer_jiffies;
++static unsigned long timer_jiffies = INITIAL_JIFFIES;
+ 
+ static inline void internal_add_timer(struct timer_list *timer)
+ {
+@@ -668,7 +680,7 @@
+ }
+ 
+ /* jiffies at the most recent update of wall time */
+-unsigned long wall_jiffies;
++unsigned long wall_jiffies = INITIAL_JIFFIES;
  
  /*
-  * Function code for APM_FUNC_RESUME_TIMER
+  * This spinlock protect us from races in SMP while playing with xtime. -arca
+
+--- linux-2.4.20-pre7-j64/fs/proc/array.c	Wed Sep 25 18:38:36 2002
++++ linux-2.4.20-pre7-j64-dbg/fs/proc/array.c	Wed Sep 25 19:11:51 2002
+@@ -369,7 +369,7 @@
+ 		nice,
+ 		0UL /* removed */,
+ 		task->it_real_value,
+-		(unsigned long long)(task->start_time),
++		(unsigned long long)(task->start_time) - INITIAL_JIFFIES,
+ 		vsize,
+ 		mm ? mm->rss : 0, /* you might want to shift this left 3 */
+ 		task->rlim[RLIMIT_RSS].rlim_cur,
+
+--- linux-2.4.20-pre7-j64/fs/proc/proc_misc.c	Wed Sep 25 18:53:38 2002
++++ linux-2.4.20-pre7-j64-dbg/fs/proc/proc_misc.c	Wed Sep 25 19:11:51 2002
+@@ -208,7 +208,7 @@
+ 	unsigned long uptime_remainder, idle_remainder;
+ 	int len;
+ 
+-	uptime = get_jiffies_64();
++	uptime = get_jiffies_64() - INITIAL_JIFFIES;
+ 	uptime_remainder = (unsigned long) do_div(uptime, HZ);
+ 	idle = get_sidle_64() + get_uidle_64();
+ 	idle_remainder = (unsigned long) do_div(idle, HZ);
+@@ -386,7 +386,8 @@
+ 	int i, len = 0;
+ 	extern unsigned long total_forks;
+ 	unsigned int sum = 0;
+-	u64 jif = get_jiffies_64(), user = 0, nice = 0, system = 0;
++	u64 jif = get_jiffies_64() - INITIAL_JIFFIES;
++	u64 user = 0, nice = 0, system = 0;
+ 	int major, disk;
+ 
+ 	for (i = 0 ; i < smp_num_cpus; i++) {
+
+--- linux-2.4.20-pre7-j64/kernel/info.c	Wed Sep 25 18:38:36 2002
++++ linux-2.4.20-pre7-j64-dbg/kernel/info.c	Wed Sep 25 19:11:51 2002
+@@ -22,7 +22,7 @@
+ 	memset((char *)&val, 0, sizeof(struct sysinfo));
+ 
+ 	cli();
+-	uptime = get_jiffies_64();
++	uptime = get_jiffies_64() - INITIAL_JIFFIES;
+ 	do_div(uptime, HZ);
+ 	val.uptime = (unsigned long) uptime;
+ 
+
+--- linux-2.4.20-pre7-j64/Documentation/Configure.help	Wed Sep 25 18:33:43 2002
++++ linux-2.4.20-pre7-j64-dbg/Documentation/Configure.help	Wed Sep 25 19:11:51 2002
+@@ -25244,6 +25244,14 @@
+   of the BUG call as well as the EIP and oops trace.  This aids
+   debugging but costs about 70-100K of memory.
+ 
++Debug jiffies counter wraparound (DANGEROUS)
++CONFIG_DEBUG_JIFFIESWRAP
++  Say Y here to initialize the jiffies counter to a value 5 minutes
++  before wraparound. This may make your system UNSTABLE and its
++  only use is to hunt down the causes of this instability.
++  If you don't know what the jiffies counter is or if you want
++  a stable system, say N.
++                                                                            
+ Include kgdb kernel debugger
+ CONFIG_KGDB
+   Include in-kernel hooks for kgdb, the Linux kernel source level
+
+--- linux-2.4.20-pre7-j64/arch/arm/config.in	Wed Sep 25 18:33:43 2002
++++ linux-2.4.20-pre7-j64-dbg/arch/arm/config.in	Wed Sep 25 19:11:51 2002
+@@ -649,6 +649,7 @@
+ dep_bool '  Morse code panics' CONFIG_PANIC_MORSE $CONFIG_DEBUG_KERNEL $CONFIG_PC_KEYB
+ dep_bool '  Spinlock debugging' CONFIG_DEBUG_SPINLOCK $CONFIG_DEBUG_KERNEL
+ dep_bool '  Wait queue debugging' CONFIG_DEBUG_WAITQ $CONFIG_DEBUG_KERNEL
++dep_bool '  Debug jiffies counter wraparound (DANGEROUS)' CONFIG_DEBUG_JIFFIESWRAP $CONFIG_DEBUG_KERNEL
+ dep_bool '  Verbose BUG() reporting (adds 70K)' CONFIG_DEBUG_BUGVERBOSE $CONFIG_DEBUG_KERNEL
+ dep_bool '  Verbose kernel error messages' CONFIG_DEBUG_ERRORS $CONFIG_DEBUG_KERNEL
+ # These options are only for real kernel hackers who want to get their hands dirty. 
+--- linux-2.4.20-pre7-j64/arch/cris/config.in	Wed Sep 25 18:33:43 2002
++++ linux-2.4.20-pre7-j64-dbg/arch/cris/config.in	Wed Sep 25 19:11:51 2002
+@@ -243,6 +243,7 @@
+ if [ "$CONFIG_SOUND" != "n" ]; then
+   source drivers/sound/Config.in
+ fi
++bool 'Debug jiffies counter wraparound (DANGEROUS)' CONFIG_DEBUG_JIFFIESWRAP
+ endmenu
+ 
+ source drivers/usb/Config.in
+
+--- linux-2.4.20-pre7-j64/arch/i386/config.in	Wed Sep 25 18:33:43 2002
++++ linux-2.4.20-pre7-j64-dbg/arch/i386/config.in	Wed Sep 25 19:11:51 2002
+@@ -451,6 +451,7 @@
+    bool '  Magic SysRq key' CONFIG_MAGIC_SYSRQ
+    bool '  Spinlock debugging' CONFIG_DEBUG_SPINLOCK
+    bool '  Compile the kernel with frame pointers' CONFIG_FRAME_POINTER
++   bool '  Debug jiffies counter wraparound (DANGEROUS)' CONFIG_DEBUG_JIFFIESWRAP
+ fi
+ 
+ endmenu
+
+--- linux-2.4.20-pre7-j64/arch/m68k/config.in	Wed Sep 25 18:33:43 2002
++++ linux-2.4.20-pre7-j64-dbg/arch/m68k/config.in	Wed Sep 25 19:11:51 2002
+@@ -552,6 +552,7 @@
+ if [ "$CONFIG_DEBUG_KERNEL" != "n" ]; then
+    bool '  Magic SysRq key' CONFIG_MAGIC_SYSRQ
+    bool '  Debug memory allocations' CONFIG_DEBUG_SLAB
++   bool '  Debug jiffies counter wraparound (DANGEROUS)' CONFIG_DEBUG_JIFFIESWRAP
+    bool '  Verbose BUG() reporting' CONFIG_DEBUG_BUGVERBOSE
+ fi
+ 
+
+--- linux-2.4.20-pre7/arch/mips/config-shared.in	Wed Sep 25 19:27:11 2002
++++ linux-2.4.20-pre7-j64/arch/mips/config-shared.in	Wed Sep 25 19:15:30 2002
+@@ -798,6 +798,7 @@
+ if [ "$CONFIG_SMP" != "y" ]; then
+    bool 'Run uncached' CONFIG_MIPS_UNCACHED
+ fi
++dep_bool 'Debug jiffies counter wraparound (DANGEROUS)' CONFIG_DEBUG_JIFFIESWRAP $CONFIG_MIPS32 
+ endmenu
+ 
+ source lib/Config.in
+
+--- linux-2.4.20-pre7-j64/arch/parisc/config.in	Wed Sep 25 18:33:45 2002
++++ linux-2.4.20-pre7-j64-dbg/arch/parisc/config.in	Wed Sep 25 19:11:51 2002
+@@ -194,6 +194,7 @@
+ 
+ #bool 'Debug kmalloc/kfree' CONFIG_DEBUG_MALLOC
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
++bool 'Debug jiffies counter wraparound (DANGEROUS)' CONFIG_DEBUG_JIFFIESWRAP
+ endmenu
+ 
+ source lib/Config.in
+
+--- linux-2.4.20-pre7-j64/arch/ppc/config.in	Wed Sep 25 18:33:45 2002
++++ linux-2.4.20-pre7-j64-dbg/arch/ppc/config.in	Wed Sep 25 19:17:13 2002
+@@ -423,5 +423,6 @@
+       string '    Additional compile arguments' CONFIG_COMPILE_OPTIONS "-g -ggdb"
+     fi
+   fi
++  bool 'Debug jiffies counter wraparound (DANGEROUS)' CONFIG_DEBUG_JIFFIESWRAP
+ fi
+ endmenu
+
+--- linux-2.4.20-pre7-j64/arch/sh/config.in	Wed Sep 25 18:33:46 2002
++++ linux-2.4.20-pre7-j64-dbg/arch/sh/config.in	Wed Sep 25 19:11:51 2002
+@@ -385,6 +385,7 @@
+ if [ "$CONFIG_SH_STANDARD_BIOS" = "y" ]; then
+    bool 'Early printk support' CONFIG_SH_EARLY_PRINTK
+ fi
++bool 'Debug jiffies counter wraparound (DANGEROUS)' CONFIG_DEBUG_JIFFIESWRAP
+ endmenu
+ 
+ source lib/Config.in
+
+--- linux-2.4.20-pre7-j64/arch/sparc/config.in	Wed Sep 25 18:33:47 2002
++++ linux-2.4.20-pre7-j64-dbg/arch/sparc/config.in	Wed Sep 25 19:11:51 2002
+@@ -265,6 +265,7 @@
+ comment 'Kernel hacking'
+ 
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
++bool 'Debug jiffies counter wraparound (DANGEROUS)' CONFIG_DEBUG_JIFFIESWRAP
+ endmenu
+ 
+ source lib/Config.in

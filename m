@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263658AbUDFL7O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 07:59:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263791AbUDFL7O
+	id S263771AbUDFMCj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 08:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263791AbUDFMCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 07:59:14 -0400
-Received: from host24.tni.fr ([195.25.255.24]:58376 "HELO ender.tni.fr")
-	by vger.kernel.org with SMTP id S263658AbUDFL7L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 07:59:11 -0400
-Subject: Re: {put,get}_user() side effects
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Andi Kleen <ak@muc.de>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <m3fzbhfijh.fsf@averell.firstfloor.org>
-References: <1HVGV-1Wl-21@gated-at.bofh.it>
-	 <m3fzbhfijh.fsf@averell.firstfloor.org>
-Content-Type: text/plain
-Message-Id: <1081252228.8318.1.camel@speedy.priv.grenoble.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.6 
-Date: Tue, 06 Apr 2004 13:50:29 +0200
+	Tue, 6 Apr 2004 08:02:39 -0400
+Received: from tomts20.bellnexxia.net ([209.226.175.74]:53647 "EHLO
+	tomts20-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S263771AbUDFMCh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 08:02:37 -0400
+From: "Kevin B. Hendricks" <kevin.hendricks@sympatico.ca>
+To: Ulrich Drepper <drepper@redhat.com>
+Subject: Re: Catching SIGSEGV with signal() in 2.6
+Date: Tue, 6 Apr 2004 08:02:29 -0400
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200404052040.54301.kevin.hendricks@sympatico.ca> <200404052301.28021.kevin.hendricks@sympatico.ca> <40722D42.90406@redhat.com>
+In-Reply-To: <40722D42.90406@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404060802.29409.kevin.hendricks@sympatico.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-04-06 at 13:32 +0200, Andi Kleen wrote:
-> Geert Uytterhoeven <geert@linux-m68k.org> writes:
-> 
-> > On most (all?) architectures {get,put}_user() has side effects:
-> >
-> > #define put_user(x,ptr)                                                 \
-> >   __put_user_check((__typeof__(*(ptr)))(x),(ptr),sizeof(*(ptr)))
-> 
-> Neither typeof not sizeof are supposed to have side effects. If your
-> compiler generates them that's a compiler bug.
+Hi Ulrich,
 
-Using ptr three times in a define has side effects if ptr is an
-expression with side effects (e.g. "p++").
+> The old code depended on undefined behavior.
 
-	Xav
+Thanks for explanation.  It makes perfect sense.  I appreciate it.
+
+Our bad assumption was that using signal to install a signalhandler on a 
+specific signal unblocked that specific signal, but as you show it does not.
+
+I will try to get a fix using sigsetjmp/siglongjmp or fork/wait into the 
+forthcoming OOo 1.1.2 tree so that no more "problems" are reported.
+
+Kevin
+
 

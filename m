@@ -1,61 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbULKCWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbULKC0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbULKCWz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 21:22:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbULKCWy
+	id S261911AbULKC0e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 21:26:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbULKC0d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 21:22:54 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:5873 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261909AbULKCWw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 21:22:52 -0500
-Message-ID: <41BA59F6.5010309@mvista.com>
-Date: Fri, 10 Dec 2004 18:22:46 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-CC: Lee Revell <rlrevell@joe-job.com>, dipankar@in.ibm.com,
-       ganzinger@mvista.com, Manfred Spraul <manfred@colorfullife.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: RCU question
-References: <41B8E6F1.4070007@mvista.com> <20041210043102.GC4161@in.ibm.com>  <41B9FC3F.50601@mvista.com>  <20041210204003.GC4073@in.ibm.com> <1102711532.29919.35.camel@krustophenia.net> <41BA0ECF.1060203@mvista.com> <Pine.LNX.4.61.0412101558240.24986@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.61.0412101558240.24986@montezuma.fsmlabs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 10 Dec 2004 21:26:33 -0500
+Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:52865 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261911AbULKC03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 21:26:29 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-12
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, LKML <linux-kernel@vger.kernel.org>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
+       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>, emann@mrv.com,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>
+In-Reply-To: <20041210111105.GB6855@elte.hu>
+References: <32950.192.168.1.5.1102529664.squirrel@192.168.1.5>
+	 <1102532625.25841.327.camel@localhost.localdomain>
+	 <32788.192.168.1.5.1102541960.squirrel@192.168.1.5>
+	 <1102543904.25841.356.camel@localhost.localdomain>
+	 <20041209093211.GC14516@elte.hu> <20041209131317.GA31573@elte.hu>
+	 <1102602829.25841.393.camel@localhost.localdomain>
+	 <1102619992.3882.9.camel@localhost.localdomain>
+	 <20041209221021.GF14194@elte.hu>
+	 <1102659089.3236.11.camel@localhost.localdomain>
+	 <20041210111105.GB6855@elte.hu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: Kihon Technologies
+Date: Fri, 10 Dec 2004 21:26:13 -0500
+Message-Id: <1102731973.3228.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-> On Fri, 10 Dec 2004, George Anzinger wrote:
+On Fri, 2004-12-10 at 12:11 +0100, Ingo Molnar wrote:
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
 > 
-> 
->>>Well, softirqs should really be preemptible if you care about RT task
->>>latency.  Ingo's patches have had this for months.  Works great.  Maybe
->>>it's time to push it upstream.
->>
->>Yes, I understand, and soft_irq() does turn on interrupts...
->>I was thinking of something like:
->>
->>	while(softirq_pending()) {
->>		local_irq_enable();
->>		do_softirq();
->>		local_irq_disable();
->>	}
->>		<proceed to idle hlt...>
-> 
-> 
-> But that's a deadlock and if you enable interrupts you race.
+> > Second, my ethernet doesn't work, and it really seems to be some kind
+> > of interrupt trouble.  It sends out ARPs but doesn't see them come
+> > back, and it also doesn't seem to know that it sent them out. I get
+> > the following:
+> > 
 
-Again, I remind you we are in the idle task.  Nothing more important to do.  Or 
-do you mean that softirq_pending() will NEVER return false?
+<snip>
 
-The other question is: "Is useful work being done?"
+> > I'll hack on it some more.
+> 
+> yeah, please check this - you are the first one to report this issue.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Hi Ingo,  I found the problem! and I now know why John Cooper didn't
+have this problem too.  I have CONFIG_PCI_MSI defined. I don't know why,
+I must have seen the option a while ago and said to myself "That looks
+cool, lets try it". Since I started with the config file of the vanilla
+kernel with your rt patches, it was still on. 
+
+Anyways, what is happening is that the io_apic code is mapping irqs to
+vectors, and your code didn't account for it. So here's my patch.
+
+Index: arch/i386/kernel/io_apic.c
+===================================================================
+--- arch/i386/kernel/io_apic.c	(revision 18)
++++ arch/i386/kernel/io_apic.c	(working copy)
+@@ -1942,12 +1942,14 @@
+ 
+ static void end_level_ioapic_irq(unsigned int irq)
+ {
++#ifndef CONFIG_PCI_MSI
+ 	if (!(irq_desc[irq].status & (IRQ_DISABLED | IRQ_INPROGRESS)) &&
+ 							irq_desc[irq].action)
++#endif
+ 		unmask_IO_APIC_irq(irq);
+ }
+ 
+-#else /* !CONFIG_PREEMPT_HARDIRQS || !CONFIG_SMP */
++#else /* !CONFIG_PREEMPT_HARDIRQS */
+ 
+ static void mask_and_ack_level_ioapic_irq(unsigned int irq)
+ {
+@@ -2035,7 +2037,11 @@
+ {
+ 	int irq = vector_to_irq(vector);
+ 
+-	end_level_ioapic_irq(irq);
++#if defined(CONFIG_PREEMPT_HARDIRQS)
++	if (!(irq_desc[vector].status & (IRQ_DISABLED | IRQ_INPROGRESS)) &&
++							irq_desc[vector].action)
++#endif
++		end_level_ioapic_irq(irq);
+ }
+ 
+ static void enable_level_ioapic_vector(unsigned int vector)
+
+
+
+--------------------
+
+I also removed the comment "!CONFIG_SMP" since it really wasn't correct.
+So I can get back to looking at other things.  This also may explain why
+my system would hang with my usb printer attached (the usb interrupts
+were vectored too).  I'll plug my printer back in and see if it works
+now. I'll let you know if I have any more problems.
+
+Thanks,
+
+-- Steve
 

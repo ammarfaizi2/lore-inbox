@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131036AbQKHBBy>; Tue, 7 Nov 2000 20:01:54 -0500
+	id <S129454AbQKHBIp>; Tue, 7 Nov 2000 20:08:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131094AbQKHBBo>; Tue, 7 Nov 2000 20:01:44 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:48903 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S131036AbQKHBBf>; Tue, 7 Nov 2000 20:01:35 -0500
-Message-ID: <3A08A454.A1174EEE@timpanogas.org>
-Date: Tue, 07 Nov 2000 17:54:44 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: kernel@kvack.org, Martin Josefsson <gandalf@wlug.westbo.se>,
-        Tigran Aivazian <tigran@veritas.com>, Anil kumar <anils_r@yahoo.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Installing kernel 2.4
-In-Reply-To: <E13tJY0-00080Y-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129967AbQKHBIg>; Tue, 7 Nov 2000 20:08:36 -0500
+Received: from asbestos.linuxcare.com.au ([203.17.0.30]:40700 "HELO
+	halfway.linuxcare.com.au") by vger.kernel.org with SMTP
+	id <S129454AbQKHBI2>; Tue, 7 Nov 2000 20:08:28 -0500
+From: Rusty Russell <rusty@linuxcare.com.au>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: "'LKML'" <linux-kernel@vger.kernel.org>,
+        "'LNML'" <linux-net@vger.kernel.org>
+Subject: Re: Locking Between User Context and Soft IRQs in 2.4.0 
+In-Reply-To: Your message of "Mon, 06 Nov 2000 20:55:49 +1100."
+             <3A068025.38D62785@uow.edu.au> 
+Date: Tue, 07 Nov 2000 13:23:47 +1100
+Message-Id: <20001107022348.62CD3820D@halfway.linuxcare.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Alan Cox wrote:
+In message <3A068025.38D62785@uow.edu.au> you write:
+> Paul Gortmaker wrote:
+> > - extern void ether_setup(struct net_device *dev);
+> > + extern void __ether_setup(struct net_device *dev);
+> > + static inline void ether_setup(struct net_device *dev){
+> > +       dev->owner = THIS_MODULE;
+> > +       __ether_setup(dev);
+> > + }
+> > 
+> > Ugh. Probably should just add it to each probe and be done with it...
 > 
-> > I'll grab the code in linux and port.
+> mm..  Seeing as failure to set dev->owner is a fatal mistake,
+> it would be good to enforce this via the compiler type system.
 > 
-> You are welcome
-> 
-> Make sure you get a pretty current 2.2.x tree however. The ultra deep magic
-> for detecting NexGen processors is recent. It took a long time before I found
-> someone who knew how it worked 8)
+> How about making THIS_MODULE an argument to register_netdevice()
+> and, hence, register_netdev() and init_etherdev()?
 
-I'll get on it.  Alan, if ELF can do this now, it would be good idea to
-do this with the mutiple images.  Sounds like it's just a link option
-and a few more smarts in the lilo and boot loader to make it work.
+Bear in mind that in 2.5, the THIS_MODULE registration cancer
+infesting the kernel[1] will vanish with two-stage module delete[2].
 
-8)
+	http://www.wcug.wwu.edu/lists/netdev/200006/msg00250.html
 
-Jeff
+Rusty.
+
+[1] And getting worse.
+[2] Which was the correct solution for 2.4, only I was all out of
+    `get out of code freeze free' cards.
+--
+Hacking time.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

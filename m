@@ -1,34 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314686AbSD1JZo>; Sun, 28 Apr 2002 05:25:44 -0400
+	id <S290289AbSD1KAh>; Sun, 28 Apr 2002 06:00:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314687AbSD1JZn>; Sun, 28 Apr 2002 05:25:43 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17416 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314686AbSD1JZn>; Sun, 28 Apr 2002 05:25:43 -0400
-Subject: Re: Why HZ on i386 is 100 ?
-To: george@mvista.com (george anzinger)
-Date: Sun, 28 Apr 2002 10:12:26 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), ak@suse.de (Andi Kleen),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3CCB9080.EA1E0DB0@mvista.com> from "george anzinger" at Apr 27, 2002 11:02:40 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S290593AbSD1KAg>; Sun, 28 Apr 2002 06:00:36 -0400
+Received: from nydalah028.sn.umu.se ([130.239.118.227]:33934 "EHLO
+	x-files.giron.wox.org") by vger.kernel.org with ESMTP
+	id <S290289AbSD1KAg>; Sun, 28 Apr 2002 06:00:36 -0400
+Message-ID: <011e01c1ee9b$9b5f2510$0201a8c0@homer>
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.4.19-pre7 Sparc64 & PPC64 fails to compile due to wrong Bluetooth IOCTLs
+Date: Sun, 28 Apr 2002 12:01:03 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E171kjK-0003oh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> so, what?  We will have a timer interrupt prior to the slice end, and
-> will have to make this decision all over again.  However, the real rub
+Patch against 2.4.19-pre7
 
-Only on unusual occasions.
+--- linux-2.4.19-pre7/arch/sparc64/kernel/ioctl32.c.org Sun Apr 28 02:00:28
+2002
++++ linux-2.4.19-pre7/arch/sparc64/kernel/ioctl32.c     Sun Apr 28 12:04:57
+2002
+@@ -4550,8 +4550,8 @@
+ COMPATIBLE_IOCTL(HCIDEVUP)
+ COMPATIBLE_IOCTL(HCIDEVDOWN)
+ COMPATIBLE_IOCTL(HCIDEVRESET)
+-COMPATIBLE_IOCTL(HCIRESETSTAT)
+-COMPATIBLE_IOCTL(HCIGETINFO)
++COMPATIBLE_IOCTL(HCIDEVRESTAT)
++COMPATIBLE_IOCTL(HCIGETDEVINFO)
+ COMPATIBLE_IOCTL(HCIGETDEVLIST)
+ COMPATIBLE_IOCTL(HCISETRAW)
+ COMPATIBLE_IOCTL(HCISETSCAN)
+--- linux-2.4.19-pre7/arch/ppc64/kernel/ioctl32.c.org   Sun Apr 28 12:02:08
+2002
++++ linux-2.4.19-pre7/arch/ppc64/kernel/ioctl32.c       Sun Apr 28 12:05:23
+2002
+@@ -4159,8 +4159,8 @@
+ COMPATIBLE_IOCTL(HCIDEVUP),
+ COMPATIBLE_IOCTL(HCIDEVDOWN),
+ COMPATIBLE_IOCTL(HCIDEVRESET),
+-COMPATIBLE_IOCTL(HCIRESETSTAT),
+-COMPATIBLE_IOCTL(HCIGETINFO),
++COMPATIBLE_IOCTL(HCIDEVRESTAT),
++COMPATIBLE_IOCTL(HCIGETDEVINFO),
+ COMPATIBLE_IOCTL(HCIGETDEVLIST),
+ COMPATIBLE_IOCTL(HCISETRAW),
+ COMPATIBLE_IOCTL(HCISETSCAN),
 
-> is that we have to keep track of elapsed time and account for that (i.e.
-> shorten the remaining slice) not only in the timer interrupt, but each
 
-We do anyway
-
-Alan

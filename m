@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265245AbTLFU47 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 15:56:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265246AbTLFU47
+	id S263984AbTLFUv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 15:51:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbTLFUv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 15:56:59 -0500
-Received: from burp.tkv.asdf.org ([212.16.99.49]:42122 "EHLO burp.tkv.asdf.org")
-	by vger.kernel.org with ESMTP id S265245AbTLFU45 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 15:56:57 -0500
-Date: Sat, 6 Dec 2003 22:56:43 +0200
-Message-Id: <200312062056.hB6Kuh0D001004@burp.tkv.asdf.org>
-From: Markku Savela <msa@burp.tkv.asdf.org>
-To: zwane@arm.linux.org.uk
-CC: linux-kernel@vger.kernel.org
-In-reply-to: <Pine.LNX.4.58.0312061253010.10548@montezuma.fsmlabs.com>
-	(message from Zwane Mwaikambo on Sat, 6 Dec 2003 12:53:16 -0500 (EST))
-Subject: Re: 2.6.0-test11, TSC cannot be used as a timesource.
-References: <200312061603.hB6G3CrG012634@burp.tkv.asdf.org> <Pine.LNX.4.58.0312061253010.10548@montezuma.fsmlabs.com>
+	Sat, 6 Dec 2003 15:51:27 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:13044 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263984AbTLFUv0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 15:51:26 -0500
+Date: Sat, 6 Dec 2003 21:51:18 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Jens Benecke <jens-usenet@spamfreemail.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Which optimization for different CPUs?
+Message-ID: <20031206205118.GT20739@fs.tum.de>
+References: <bqs8iq$2c3$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bqs8iq$2c3$1@sea.gmane.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Dec 06, 2003 at 10:47:10AM +0100, Jens Benecke wrote:
 
-> From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-> On Sat, 6 Dec 2003, Markku Savela wrote:
+> Hi,
+
+Hi Jens,
+
+> I have several servers and workstations. What optimization level in the
+> kernel configuration is the maximum possible if I want to use the same
+> kernel 
 > 
-> > I've seen some references to above problem, but no clear answer. The
-> > 'ntpd' is complaining a lot...
-> >
-> > I have ASUS P4S800. Here is some extracts from dmesg (I can provide
-> > more complete dump, if anyone wants something specific.)
+> - on a Duron-650, a Celeron-1000, and a Celeron-2600?  (servers)
+> - additionally on a K6-3D 400 and a K6-2 350?
+>   (do I *have* to go down to CONFIG_M586 or does P2 or P-MMX work?)
 > 
-> Does this only happen when running X11?
+> - on a P3-700, an Athon XP 2400, and a P4-1800+? (workstations)
 
-Hmm.. possibly. When I boot single user, it does not appear to happen.
+you must go down to M586TSC .
 
-After "init 2" and X and everything running, the notice appears in
-about 5-10 minutes. All I have in X is couple of XTerms and doing
-occasional "dmesg". I have Gnome2 with Sawfish, and GKrellM running.
+> Thank you!
+> Jens Benecke
 
-Yes, my X is for older kernel
+cu
+Adrian
 
-  XFree86 Version 4.3.0
-  Release Date: 27 February 2003
-  X Protocol Version 11, Revision 0, Release 6.6
-  Build Operating System: Linux 2.4.18-24.8.0smp i686 [ELF]
+-- 
 
-and I had to disable "dri" loading totally. If I enable "dri", and
-start X that uses it, the machines crashes totally, no X logs, no
-syslog or anything comes out. Total death (I just assumes that
-expecting DRI to work was just too much). Maybe I should disable all
-acceleration...
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

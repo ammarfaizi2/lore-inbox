@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272438AbTGaIjS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 04:39:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272440AbTGaIjS
+	id S272807AbTGaIvD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 04:51:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272873AbTGaIvC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 04:39:18 -0400
-Received: from main.gmane.org ([80.91.224.249]:27022 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S272438AbTGaIjR (ORCPT
+	Thu, 31 Jul 2003 04:51:02 -0400
+Received: from main.gmane.org ([80.91.224.249]:41618 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S272807AbTGaIvB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 04:39:17 -0400
+	Thu, 31 Jul 2003 04:51:01 -0400
 X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
 From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Disk performance degradation
-Date: Thu, 31 Jul 2003 10:35:24 +0200
-Message-ID: <yw1xy8yf3xgz.fsf@users.sourceforge.net>
-References: <20030729182138.76ff2d96.lista1@telia.com> <3F26A5E2.4070701@aros.net>
- <Pine.LNX.4.56.0307301658030.30842@router.windsormachine.com>
+Subject: Re: AX8817x (USB ethernet) problem in 2.6.0-test1
+Date: Thu, 31 Jul 2003 10:39:37 +0200
+Message-ID: <yw1xu1933x9y.fsf@users.sourceforge.net>
+References: <yw1x1xwkgm6z.fsf@zaphod.guide> <20030730175706.GB2333@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 X-Complaints-To: usenet@main.gmane.org
 User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:B7jZMe3fKi/pMlt6Tc/uzHb9anQ=
+Cancel-Lock: sha1:y85XeANeQIcdYmd9QxlPGzJ504E=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Dresser <mdresser_l@windsormachine.com> writes:
+Greg KH <greg@kroah.com> writes:
 
-> Probably for reasons like that.  For some reason, I can't set my ICH4
-> based controller(ASUS P4B533) and Quantum Fireball AS40.0 to more than
-> 255.  Kernel is 2.4.21
+>> My Netgear FA120 USB2 ethernet adaptor isn't working properly with
+>> Linux 2.6.0-test1.  First off, I had to modify it slightly (patch
+>> below) to make it work at all with USB2.
+>
+> Applied, thanks.
 
-It appears that in 2.[56] kernels the unit for readahead is bytes,
-rather than sectors, as used in 2.4 kernels.
+Has anyone looked into what might be causing the terrible receive
+performance I'm seeing?  The module author, Dave Hollis, had some
+ideas, but I don't know where he's been lately.  Are you there, Dave?
+
+Are there more values with different meanings for USB2 devices?
 
 -- 
 Måns Rullgård

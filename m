@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266555AbUHTLmv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266565AbUHTLq1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266555AbUHTLmv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 07:42:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266347AbUHTLmv
+	id S266565AbUHTLq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 07:46:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266569AbUHTLq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 07:42:51 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:50885 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S266565AbUHTLmt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 07:42:49 -0400
-Message-ID: <4125E3B6.6090406@grupopie.com>
-Date: Fri, 20 Aug 2004 12:42:46 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Robin Holt <holt@sgi.com>
-Cc: jmerkey@comcast.net, linux-kernel@vger.kernel.org, jmerkey@drdos.com
-Subject: Re: kallsyms 2.6.8 address ordering
-References: <081920041810.18883.4124ED110002BABC000049C32200748184970A059D0A0306@comcast.net> <20040819190029.GC1313@lnx-holt.americas.sgi.com>
-In-Reply-To: <20040819190029.GC1313@lnx-holt.americas.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.6; VDF: 6.27.0.21; host: bipbip)
+	Fri, 20 Aug 2004 07:46:27 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11783 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S266565AbUHTLqX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 07:46:23 -0400
+Date: Fri, 20 Aug 2004 12:46:19 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1-mm3
+Message-ID: <20040820124619.B27849@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040820031919.413d0a95.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040820031919.413d0a95.akpm@osdl.org>; from akpm@osdl.org on Fri, Aug 20, 2004 at 03:19:19AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robin Holt wrote:
->....
+On Fri, Aug 20, 2004 at 03:19:19AM -0700, Andrew Morton wrote:
+> - Added three more bk trees:
 > 
-> It must be useful for people using small memory footprint machines.
-> Check with the folks doing embedded stuff.
-> 
-> I remember a discussion about kallsyms and scaling problems with
-> top reading some /proc/<pid> file.
-> 
-> Look at this:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=108758995727517&w=2
-> 
+> 	bk-fb:		Some ARM framebuffer driver (rmk)
+> 	bk-mmc:		ARM-specific media drivers(?)
 
-I posted recently (exactly one week ago) a different approach to this 
-problem that increased kallsyms_lookup performance about 100 times, 
-without a cache and without locking.
+Not really ARM-specific; it's the Multimedia card subsystem core with
+a multimedia block device driver, and a couple of drivers for ARM
+multimedia card interfaces.
 
-The patch is currently in Ingo Molnar's tree (I think). It works by 
-doing binary search on tha address table and then using pre-calculated 
-markers on the stem stream to search closer to the target. After that it 
-copies only the stems before the searched symbol that actually 
-contribute to the final result.
-
-You can check the thread here:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109245918613781&w=2
-
-(Please note that the original patch broke handling of aliased symbols 
-which was corrected later in the thread)
-
-I'm working on an even better approach right now and I should have a 
-patch ready this weekend.
-
-This however has nothing to do with _module_ symbol names, which is a 
-different problem altogether.
+There has been some interest on this list surrounding the core and
+whether it can be used to drive some of these MMC interfaces found on
+x86.  I guess it's now watch and see what happens in this space.
 
 -- 
-Paulo Marques - www.grupopie.com
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,70 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310686AbSCSX3f>; Tue, 19 Mar 2002 18:29:35 -0500
+	id <S310695AbSCSXbF>; Tue, 19 Mar 2002 18:31:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310695AbSCSX31>; Tue, 19 Mar 2002 18:29:27 -0500
-Received: from ezri.xs4all.nl ([194.109.253.9]:63183 "HELO ezri.xs4all.nl")
-	by vger.kernel.org with SMTP id <S310686AbSCSX3O>;
-	Tue, 19 Mar 2002 18:29:14 -0500
-Date: Wed, 20 Mar 2002 00:29:11 +0100 (CET)
-From: Eric Lammerts <eric@lammerts.org>
-To: rob1@rekl.yi.org
-cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: IP Autoconfig doesn't work for USB network devices
-In-Reply-To: <Pine.LNX.4.40.0203161810290.16559-100000@rekl.dyn.dhs.org>
-Message-ID: <Pine.LNX.4.44.0203200025470.4107-100000@ally.lammerts.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S310740AbSCSXat>; Tue, 19 Mar 2002 18:30:49 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:5507 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S310695AbSCSXaT>;
+	Tue, 19 Mar 2002 18:30:19 -0500
+Date: Wed, 20 Mar 2002 00:28:37 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, Ingo Molnar <mingo@elte.hu>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Severe IRQ problems on Foster (P4 Xeon) system
+Message-ID: <20020319232836.GB1758@elf.ucw.cz>
+In-Reply-To: <Pine.GSO.3.96.1020319145208.12399I-100000@delta.ds2.pg.gda.pl> <Pine.LNX.4.33.0203191711070.9609-100000@biker.pdb.fsc.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Sat, 16 Mar 2002 rob1@rekl.yi.org wrote:
-> I tried the suggestion in this thread:
->    http://marc.theaimsgroup.com/?l=linux-kernel&m=100912381726661&w=2
->
-> It made no difference.  I also looked through the messages on
-> linux-usb-devel, but they seem to be more related to having USB floppies
-> or USB hard drives recognized, instead of network cards, which I believe
-> is my problem.
+> --- ./arch/i386/kernel/time.c.ORIG	Fri Mar 15 14:57:00 2002
+> +++ ./arch/i386/kernel/time.c	Tue Mar 19 17:27:12 2002
+> @@ -384,7 +384,9 @@
+>  /* last time the cmos clock got updated */
+>  static long last_rtc_update;
+> 
+> +#ifndef CONFIG_X86_TSC
+>  int timer_ack;
+> +#endif
+> 
+>  /*
+>   * timer_interrupt() needs to keep up the real-time clock,
+> @@ -392,7 +394,7 @@
+>   */
+>  static inline void do_timer_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+>  {
+> -#ifdef CONFIG_X86_IO_APIC
+> +#if defined (CONFIG_X86_IO_APIC) && ! defined (CONFIG_X86_TSC)
+>  	if (timer_ack) {
+>  		/*
+>  		 * Subtle, when I/O APICs are used we have to ack timer IRQ
+> --- ./arch/i386/kernel/io_apic.c.ORIG	Tue Mar 19 17:31:25 2002
+> +++ ./arch/i386/kernel/io_apic.c	Tue Mar 19 17:30:02 2002
+> @@ -1478,7 +1478,9 @@
+>   */
+>  static inline void check_timer(void)
+>  {
+> +#ifndef CONFIG_X86_TSC
+>  	extern int timer_ack;
+> +#endif
+>  	int pin1, pin2;
+>  	int vector;
+> 
+> @@ -1498,7 +1500,7 @@
+>  	 */
+>  	apic_write_around(APIC_LVT0, APIC_LVT_MASKED | APIC_DM_EXTINT);
+>  	init_8259A(1);
+> -	timer_ack = 1;
+> +	timer_ack = !(cpu_has_tsc);
+>  	enable_8259A_irq(0);
+> 
+>  	pin1 = find_isa_irq_pin(0, mp_INT);
+> 
+> 
+> This would get us rid of our problem (although the BIOS hack may
+> suffice). However, more than that, it also spares ~2 us on each timer
+> interrupt for CPUs which do not need do_slow_gettimeoffset.
+> 
+> What do you think?
 
-That's right. I made a separate patch for USB (or other hotplug)
-network cards (see below).
+Well, you should get your bios fixed.
 
-Eric
+Then... Those ifdefs are not neccessary, right? You only need ...
 
+> @@ -1498,7 +1500,7 @@
+>  	 */
+>  	apic_write_around(APIC_LVT0, APIC_LVT_MASKED | APIC_DM_EXTINT);
+>  	init_8259A(1);
+> -	timer_ack = 1;
+> +	timer_ack = !(cpu_has_tsc);
+>  	enable_8259A_irq(0);
+> 
+>  	pin1 = find_isa_irq_pin(0, mp_INT);
 
---- linux-2.4.9-ac7/net/ipv4/ipconfig.c.orig	Wed May  2 05:59:24 2001
-+++ linux-2.4.9-ac7/net/ipv4/ipconfig.c	Tue Sep 18 17:16:07 2001
-@@ -80,6 +80,8 @@
- #define CONF_PRE_OPEN		(HZ/2)	/* Before opening: 1/2 second */
- #define CONF_POST_OPEN		(1*HZ)	/* After opening: 1 second */
+... these lines.
+									Pavel
 
-+#define CONF_DEV_WAIT		(1*HZ)
-+
- /* Define the timeout for waiting for a DHCP/BOOTP/RARP reply */
- #define CONF_OPEN_RETRIES 	2	/* (Re)open devices twice */
- #define CONF_SEND_RETRIES 	6	/* Send six requests per open */
-@@ -1105,8 +1107,20 @@
- 		;
-
- 	/* Setup all network devices */
--	if (ic_open_devs() < 0)
-+	while (ic_open_devs() < 0) {
-+#ifdef CONFIG_ROOT_NFS
-+		if (ROOT_DEV == MKDEV(UNNAMED_MAJOR, 255)) {
-+			printk(KERN_ERR
-+				"IP-Config: Retrying forever (NFS root)...\n");
-+
-+			// wait a while and try again
-+		        current->state = TASK_INTERRUPTIBLE;
-+                	schedule_timeout(CONF_DEV_WAIT);
-+                	continue;
-+		}
-+#endif
- 		return -1;
-+        }
-
- 	/* Give drivers a chance to settle */
- 	jiff = jiffies + CONF_POST_OPEN;
-
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

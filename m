@@ -1,25 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266627AbSKOUSZ>; Fri, 15 Nov 2002 15:18:25 -0500
+	id <S266650AbSKOUZR>; Fri, 15 Nov 2002 15:25:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266645AbSKOUSZ>; Fri, 15 Nov 2002 15:18:25 -0500
-Received: from mail3.efi.com ([192.68.228.90]:52486 "HELO
-	fcexgw03.efi.internal") by vger.kernel.org with SMTP
-	id <S266627AbSKOUSZ>; Fri, 15 Nov 2002 15:18:25 -0500
-Message-ID: <3DD5591E.A3D0506D@efi.com>
-Date: Fri, 15 Nov 2002 12:29:18 -0800
-From: Kallol Biswas <kallol.biswas@efi.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: lan based kgdb
-Content-Type: text/plain; charset=us-ascii
+	id <S266682AbSKOUZR>; Fri, 15 Nov 2002 15:25:17 -0500
+Received: from tolkor.sgi.com ([198.149.18.6]:20932 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S266650AbSKOUZQ>;
+	Fri, 15 Nov 2002 15:25:16 -0500
+Subject: SCSI I/O performance problems when CONFIG_HIGHIO is off
+From: Steve Lord <lord@sgi.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1037392310.13531.419.camel@jen.americas.sgi.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 15 Nov 2002 14:31:51 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there a source level remote kernel debugger that
-communicates over an ethernet interface? The debugger
-kgdb from kgdb.sourceforge.net works only with serial port.
+Jens,
 
+As you know, for the last week or so I have been battling some
+performance issues in XFS and 2.4.20-rc1. Well, we finally found
+the culprit back in 2.4.20-pre2.
+
+When the block highmem patch was included, it added highmem_io to the
+scsi controller structure. This can only ever be set to one if
+CONFIG_HIGHIO is set. Yet there are several spots in the scsi
+code which test based on its value regardless.
+
+        /*
+         * we really want to use sg even for a single segment request,
+         * however some people just cannot be bothered to write decent
+         * driver code so we can't risk to break somebody making the
+         * assumption that sg requests will always contain at least 2
+         * segments. if the driver is 32-bit dma safe, then use sg for
+         * 1 entry anyways. if not, don't rely on the driver handling this
+         * case.
+         */
+        if (count == 1 && !SCpnt->host->highmem_io) {
+                this_count = req->current_nr_sectors;
+                goto single_segment;
+        }
+
+Running with 128M of memory I usually do not turn highmem on. Well
+finally I did and my performance went from this:
+
+Version 1.02a       ------Sequential Create------ --------Random Create--------
+burst.americas.sgi. -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
+              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
+                  2   156   4 +++++ +++   118   3   149   3 +++++ +++   108   2
+
+which is the worst I ever saw, to this:
+
+Version 1.02a       ------Sequential Create------ --------Random Create--------
+burst.americas.sgi. -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
+              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
+                  2  2732  81 +++++ +++  1771  38  2555  86 +++++ +++  1418  30
+
+Jens, can you do something about this please?
+
+Steve
+
+p.s. You now owe me a week's consulting some time ;-)
+
+
+-- 
+
+Steve Lord                                      voice: +1-651-683-3511
+Principal Engineer, Filesystem Software         email: lord@sgi.com

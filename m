@@ -1,66 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130452AbRCGMtB>; Wed, 7 Mar 2001 07:49:01 -0500
+	id <S131055AbRCGMzW>; Wed, 7 Mar 2001 07:55:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131053AbRCGMsl>; Wed, 7 Mar 2001 07:48:41 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:9735 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S130452AbRCGMse>;
-	Wed, 7 Mar 2001 07:48:34 -0500
-Date: Wed, 07 Mar 2001 13:47:41 +0100
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: scsi vs ide performance on fsync's
-To: andre@linux-ide.org
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-id: <3AA62DED.A4F6A1B6@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S131056AbRCGMzM>; Wed, 7 Mar 2001 07:55:12 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:58629 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131055AbRCGMy6>; Wed, 7 Mar 2001 07:54:58 -0500
+Subject: Re: 2.4.2 ext2 filesystem corruption ? (was 2.4.2: What happened ? (No
+To: greearb@candelatech.com (Ben Greear)
+Date: Wed, 7 Mar 2001 12:57:16 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <3AA5B0F3.143E0528@candelatech.com> from "Ben Greear" at Mar 06, 2001 08:54:27 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14adVH-0000wL-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick (andre@linux-ide.org) wrote on Wed Mar 07 2001 - 01:58:44 EST :
+> I'm not arguing it was a smart thing to do, but I would think that the
+> fs/kernel/driver writers could keep really nasty and un-expected things
+> from happenning.  For instance, the driver could dis-allow any new (non-hdparm)
 
-> On Wed, 7 Mar 2001, Jonathan Morton wrote: 
- 
-[ snip ]
- 
- 
-> > >Since all OSes that enable WC at init will flush 
-> > >it at shutdown and do a periodic purge with in-activity. 
-> > 
-> > But Linux doesn't, as has been pointed out earlier. We need to fix Linux. 
-> 
-> Friend I have fixed this some time ago but it is bundled with TASKFILE 
-> that is not going to arrive until 2.5. Because I need a way to execute 
-> this and hold the driver until it is complete, regardless of the shutdown 
-> method. 
+Like stopping root from using rm -r ? Where is the line drawn
 
-I don't understand 100%.
-Is TASKFILE required to do proper write cache flushing ?
-
-> > >Err, last time I check all good devices flush their write caching on their 
-> > >own to take advantage of having a maximum cache for prefetching. 
-> > 
-> > Which doesn't work if the buffer is filled up by the OS 0.5 seconds before 
-> > the power goes. 
-> 
-> Maybe that is why there is a vender disk-cache dump zone on the edge of 
-> the platters...just maybe you need to buy your drives from somebody that 
-> does this and has a predictive sector stretcher as the energy from the 
-> inertia by the DC three-phase motor executes the dump. 
-
-So where is a list of drives that do this ?
-www.list-of-hardware-that-doesnt-suck.com is not responding ...
- 
-> Ever wondered why modern drives have open collectors on the databuss? 
-
-no :-)
-
-
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -

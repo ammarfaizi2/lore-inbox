@@ -1,95 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136020AbRD0NUZ>; Fri, 27 Apr 2001 09:20:25 -0400
+	id <S136033AbRD0NZ4>; Fri, 27 Apr 2001 09:25:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136033AbRD0NUL>; Fri, 27 Apr 2001 09:20:11 -0400
-Received: from zcamail04.zca.compaq.com ([161.114.32.104]:33540 "HELO
-	zcamail04.zca.compaq.com") by vger.kernel.org with SMTP
-	id <S136025AbRD0NTI>; Fri, 27 Apr 2001 09:19:08 -0400
-Message-ID: <6B180991CB19D31183E40000F86AF80E037EBD0C@broexc2.bro.dec.com>
-From: "Roets, Chris" <Chris.Roets@compaq.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Linux Cluster using shared scsi
-Date: Fri, 27 Apr 2001 14:18:40 +0100
+	id <S136024AbRD0NZq>; Fri, 27 Apr 2001 09:25:46 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:14343 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S136025AbRD0NZh>; Fri, 27 Apr 2001 09:25:37 -0400
+Date: Fri, 27 Apr 2001 08:45:52 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: Rik van Riel <riel@conectiva.com.br>, Ingo Molnar <mingo@elte.hu>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
+In-Reply-To: <Pine.LNX.4.33.0104271500300.243-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.21.0104270844560.2863-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Problem :
-> install two Linux-system with a shared scsi-bus and storage on that shared
-> bus.
-> suppose :
-> system one : SCSI ID 7
-> system two : SCSI ID 6
-> shared disk : SCSI ID 4
+
+
+On Fri, 27 Apr 2001, Mike Galbraith wrote:
+
+> On Thu, 26 Apr 2001, Rik van Riel wrote:
 > 
-> By default, you can mount the disk on both system.  This is normal
-> behavior, but
-> may impose data corruption.
-> To prevent this, you can SCSI-reserve a disk on one system.  If the other
-> system
-> would try to access this device, the system should return an i/o error due
-> to the reservation.
-> This is a common technique used in
-> - Traditional Tru64 Unix ase clustering
-> - Tr64 Unix V5 Clustering to accomplish i/o barriers
-> - Windows-NT Clusters
-> - Steel-eye clustering
-> The reservation can be done using a standard tool like scu
+> > On Thu, 26 Apr 2001, Mike Galbraith wrote:
+> >
+> > > > > > No.  It livelocked on me with almost all active pages exausted.
+> > > > > Misspoke.. I didn't try the two mixed.  Rik's patch livelocked me.
+> > > >
+> > > > Interesting. The semantics of my patch are practically the same as
+> > > > those of the stock kernel ... can you get the stock kernel to
+> > > > livelock on you, too ?
+> > >
+> > > Generally no.  Let kswapd continue to run?  Yes, but not always.
+> >
+> > OK, then I guess we should find out WHY the thing livelocked...
 > 
-> scu -f /dev/sdb
-> scu > reserve device
+> Hi Rik,
 > 
-> On Linux, this works fine under Kernel version 2.2.16.
-> Below is the code that accomplish this
-> /usr/src/linux/drivers/scsi/scsi_obsolete.c in routine scsi_old_done
->             case RESERVATION_CONFLICT:
->                 printk("scsi%d (%d,%d,%d) : RESERVATION CONFLICT\n",
->                        SCpnt->host->host_no, SCpnt->channel,
->                        SCpnt->device->id, SCpnt->device->lun);
->                 status = CMD_FINISHED; /* returns I/O error */
->                 break;
->             default:
-> As of kernel version 2.2.18, this code has changed, If a scsi reserve
-> error
-> occurs, the device driver does a scsi reset.  This way the scsi
-> reservation is
-> gone, and the device can be accessed.
-> /usr/src/linux/drivers/scsi/scsi_obsolete.c in routine scsi_old_done 
->             case RESERVATION_CONFLICT:
->                 printk("scsi%d, channel %d : RESERVATION CONFLICT
-> performing"
->                        " reset.\n", SCpnt->host->host_no, SCpnt->channel);
->                 scsi_reset(SCpnt, SCSI_RESET_SYNCHRONOUS);
->                 status = REDO;
->                 break;
-> 
-> Fix : delete the scsi reset in the kernel code
->             case RESERVATION_CONFLICT:
-> /* Deleted Chris Roets
->                 printk("scsi%d, channel %d : RESERVATION CONFLICT
-> performing"
->                        " reset.\n", SCpnt->host->host_no, SCpnt->channel);
->                 scsi_reset(SCpnt, SCSI_RESET_SYNCHRONOUS);
->                 status = REDO;
-> next four lines added */
->                 printk("scsi%d (%d,%d,%d) : RESERVATION CONFLICT\n",
->                        SCpnt->host->host_no, SCpnt->channel,
->                        SCpnt->device->id, SCpnt->device->lun);
->                 status = CMD_FINISHED; /* returns I/O error */
->                 break;
-> 
-> and rebuild the kernel.
-> 
-> This should get the customer being able to continue
-> 
-	Questions  :
-> - why  is this scsi reset done/added as of kernel version 2.2.18
-> - as we are talking about an obsolete routine, how is this accomplished 
->  in the new code and how is it activated.  
-> 
-> 
-> Chris
+> I decided to take a break from pondering input and see why the thing
+> ran itself into the ground.  Methinks I was sent the wrooong patch :)
+
+Mike,
+
+Please apply this patch on top of Rik's v2 patch otherwise you'll get the
+livelock easily:
+
+--- linux.orig/mm/vmscan.c      Fri Apr 27 04:32:52 2001
++++ linux/mm/vmscan.c   Fri Apr 27 04:32:34 2001
+@@ -644,6 +644,7 @@
+        struct page * page;
+        int maxscan = nr_active_pages >> priority;
+        int page_active = 0;
++       int start_count = count;
+
+        /*
+         * If no count was specified, we do background page aging.
+@@ -725,7 +726,7 @@
+        }
+        spin_unlock(&pagemap_lru_lock);
+
+-       return count;
++       return (start_count - count);
+ }
+
+ /*
+
+
+
+

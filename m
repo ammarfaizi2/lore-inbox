@@ -1,61 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285041AbRLQIUx>; Mon, 17 Dec 2001 03:20:53 -0500
+	id <S285054AbRLQIgc>; Mon, 17 Dec 2001 03:36:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285048AbRLQIUc>; Mon, 17 Dec 2001 03:20:32 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:37292 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S285041AbRLQIUW> convert rfc822-to-8bit; Mon, 17 Dec 2001 03:20:22 -0500
-From: Christoph Rohland <cr@sap.com>
-To: =?iso-8859-1?q?Ra=FAlN=FA=F1ez?= de Arenas Coronado 
-	<raul@viadomus.com>
-Cc: rml@tech9.net, linux-kernel@vger.kernel.org
+	id <S285052AbRLQIgX>; Mon, 17 Dec 2001 03:36:23 -0500
+Received: from mail1-gui.server.ntli.net ([194.168.222.13]:52645 "EHLO
+	mail1-gui.server.ntli.net") by vger.kernel.org with ESMTP
+	id <S285054AbRLQIgN>; Mon, 17 Dec 2001 03:36:13 -0500
+Date: Mon, 17 Dec 2001 08:36:09 GMT
+From: ncw@axis.demon.co.uk
+Message-Id: <200112170836.fBH8a9V14798@irishsea.home.craig-wood.com>
+To: linux-kernel@vger.kernel.org
+Cc: Pierfrancesco Caci <p.caci@tin.it>
 Subject: Re: Is /dev/shm needed?
-In-Reply-To: <E16FkV9-00010E-00@DervishD.viadomus.com>
-Organisation: SAP LinuxLab
-Date: 17 Dec 2001 09:19:01 +0100
-In-Reply-To: <E16FkV9-00010E-00@DervishD.viadomus.com>
-Message-ID: <m3heqqi7ii.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-SAP: out
-X-SAP: out
-X-SAP: out
+In-Reply-To: <877krm68t2.fsf@penny.ik5pvx.ampr.org>
+In-Reply-To: <E16FkV9-00010E-00@DervishD.viadomus.com>  <1008544328.843.0.camel@phantasy> <877krm68t2.fsf@penny.ik5pvx.ampr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi RaúlNúñez,
+In linux-kernel, Pierfrancesco Caci <p.caci@tin.it> wrote:
+> :-> "Robert" == Robert Love <rml@tech9.net> writes:
+> > See Documentation/filesystems/tmpfs.txt for more information.
+>  There's no such file in my tree... what version are you talking about? 
 
-On Mon, 17 Dec 2001, RaúlNúñez de Arenas Coronado wrote:
->     Hello Robert :)
-> 
->>It is not needed.  /dev/shm mounted with tmpfs is only needed for
->>POSIX shared memory, which is still fairly rare.
-> 
->     That this means that I can mount more than one 'tmpfs' just like
-> if it's a *real* filesystem? I wasn't sure, since it's implemented
-> thru the page cache.
+I last saw this file in 2.4-ac - maybe it got lost somewhere....
 
-Yes, every single mount is an independant tree.
+There is quite a bit of help in Documentation/Configure.help though.
 
->>It is dynamic, so you don't need to specify a size.
-> 
->     Yes, I knew, I meant the maximum size. I don't want half of the
-> RAM occupied just by a programming mistake ;)))
-
-What I like most about /tmp in tmpfs is the ability to resize on the
-fly: I have a big swap partition and a reasonable limit for /tmp and
-/var/tmp.
-
-When one of these gets full I can either stop the affending job or
-increase the limit: If there is swap left I can simply increase the
-limit. If swap is full I add a swap file on a real filesystem and
-increase the limit.
-
-Greetings
-		Christoph
-
-P.S: Documentation/filesystems/tmpfs.txt is in the 2.4.17-rc patch.
-
+-- 
+Nick Craig-Wood
+ncw@axis.demon.co.uk

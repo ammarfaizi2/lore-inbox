@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310504AbSCCFhC>; Sun, 3 Mar 2002 00:37:02 -0500
+	id <S310511AbSCCF7h>; Sun, 3 Mar 2002 00:59:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310507AbSCCFgw>; Sun, 3 Mar 2002 00:36:52 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15633 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310504AbSCCFgk>;
-	Sun, 3 Mar 2002 00:36:40 -0500
-Message-ID: <3C81B5FC.CD08979A@zip.com.au>
-Date: Sat, 02 Mar 2002 21:34:52 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
-X-Accept-Language: en
+	id <S310509AbSCCF71>; Sun, 3 Mar 2002 00:59:27 -0500
+Received: from dsl-64-34-35-93.telocity.com ([64.34.35.93]:11538 "EHLO
+	roo.rogueind.com") by vger.kernel.org with ESMTP id <S293443AbSCCF7S>;
+	Sun, 3 Mar 2002 00:59:18 -0500
+Date: Sun, 3 Mar 2002 00:56:43 -0500 (EST)
+From: Tom Diehl <tdiehl@rogueind.com>
+To: Thomas Molina <tmolina@cox.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Invalid @home email addresses
+In-Reply-To: <Pine.LNX.4.44.0203022258360.21225-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0203030052250.12119-100000@tigger.rogueind.com>
 MIME-Version: 1.0
-To: Dan Maas <dmaas@dcine.com>
-CC: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
-Subject: Re: LFS Support for Sendfile
-In-Reply-To: <fa.inaf1vv.one4p5@ifi.uio.no> <fa.esfhmsv.bku814@ifi.uio.no> <02bb01c1c271$7f717700$1a01a8c0@allyourbase>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Maas wrote:
-> 
-> >     [sendfile(2)] as defined does not support LFS.
-> >
-> > I wonder does it really need to?  I mean, a loop calling sendfile for
-> > 2GB (or whatever) at a time is almost as good, if not better in some
-> > ways.
-> 
-> The 'count' parameter is not the problem, it's the 'offset'. You can't send
-> any data beyond 2GB from the beginning of the file...
-> 
-> And in fact just two days ago I was in a situation where this would have
-> been desirable - I was sending parts of a captured DV video stream (the file
-> was 6GB)...
-> 
+On Sat, 2 Mar 2002, Thomas Molina wrote:
 
-We need a sendfile64() system call.  It's really simple,  but
-nobody did it.
+> On 1 March 02 cox@home switched their services from infrastructure hosted 
+> on hardware by Excite to "native" hardware.  All @home.com addresses are 
+> now invalid.  Grepping through the source for these invalid addresses 
+> produced the following:
+> 
+> drivers/net/de4x5.c 	mmporter@home.com
+> drivers/scsi/megaraid.c 	johnsom@home.com
+> drivers/scsi/ppa.h	johncavan@home.com 
+> drivers/scsi/imm.h	johncavan@home.com 
+> drivers/sound/aci.c	pellicci@home.com
+> drivers/media/video/bttv-cards.c	daniel.herrington@home.com
+> 
+> Most addresses for home.com users simply switched to cox.net addresses.  
 
--
+/s/cox.net/your_local_cable_provider.whatever.
+
+> However, email to the above users at cox.net bounced in four out of five 
+> cases.  I am posting here in hopes that theses users are still on the 
+> mailing list and will respond.  If no response is received I would like to 
+> submit a patch adding comments to the source code indicating the addresses 
+> are no longer valid and no new email addresses are known.  
+
+Cox cable switched to cox.net. Comcast switched to comcast.net and so forth.
+Unless you know that persons local cable provider there is no way to know 
+their new address without input from them or someone that knows them.
+
+Excite was responsible for ALL of the @home addresses for the various
+MSO's that had contracts with them.
+
+HTH,
+
+-- 
+......Tom		CLUELESSNESS: There Are No Stupid Questions, But
+tdiehl@rogueind.com	There Are LOTS of Inquisitive Idiots. :-)
+
+

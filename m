@@ -1,44 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262066AbVBJJV3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbVBJJ2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262066AbVBJJV3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 04:21:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVBJJV3
+	id S262070AbVBJJ2v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 04:28:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbVBJJ2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 04:21:29 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:29345 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S262066AbVBJJV0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 04:21:26 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Kim Holviala <kim@holviala.com>
-Date: Thu, 10 Feb 2005 20:21:22 +1100
-MIME-Version: 1.0
+	Thu, 10 Feb 2005 04:28:51 -0500
+Received: from mail.kroah.org ([69.55.234.183]:11183 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262070AbVBJJ2s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 04:28:48 -0500
+Date: Thu, 10 Feb 2005 00:41:13 -0800
+From: Greg KH <greg@kroah.com>
+To: Adam Belay <abelay@novell.com>
+Cc: rml@novell.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] add driver matching priorities
+Message-ID: <20050210084113.GZ32727@kroah.com>
+References: <1106951404.29709.20.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16907.10130.293919.399727@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Spontaneous reboot with 2.6.10 and NFSD
-In-Reply-To: message from Kim Holviala on Thursday February 10
-References: <420B0FCD.4000801@holviala.com>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <1106951404.29709.20.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday February 10, kim@holviala.com wrote:
-> Anyway, I mount the export to a Linux client (tried with a few with 
-> different 2.6 kernels and distros) and then start copying files from 
-> clients CDROM to the server through NFS. After copying a few small 
-> files, the first big one reboots the server.
+On Fri, Jan 28, 2005 at 05:30:04PM -0500, Adam Belay wrote:
+> Hi,
+> 
+> This patch adds initial support for driver matching priorities to the
+> driver model.  It is needed for my work on converting the pci bridge
+> driver to use "struct device_driver".  It may also be helpful for driver
+> with more complex (or long id lists as I've seen in many cases) matching
+> criteria. 
+> 
+> "match" has been added to "struct device_driver".  There are now two
+> steps in the matching process.  The first step is a bus specific filter
+> that determines possible driver candidates.  The second step is a driver
+> specific match function that verifies if the driver will work with the
+> hardware, and returns a priority code (how well it is able to handle the
+> device).  The bus layer could override the driver's match function if
+> necessary (similar to how it passes *probe through it's layer and then
+> on to the actual driver).
+> 
+> The current priorities are as follows:
+> 
+> enum {
+> 	MATCH_PRIORITY_FAILURE = 0,
+> 	MATCH_PRIORITY_GENERIC,
+> 	MATCH_PRIORITY_NORMAL,
+> 	MATCH_PRIORITY_VENDOR,
+> };
+> 
+> let me know if any of this would need to be changed.  For example, the
+> "struct bus_type" match function could return a priority code.
+> 
+> Of course this patch is not going to be effective alone.  We also need
+> to change the init order.  If a driver is registered early but isn't the
+> best available, it will be bound to the device prematurely.  This would
+> be a problem for carbus (yenta) bridges.
+> 
+> I think we may have to load all in kernel drivers first, and then begin
+> matching them to hardware.  Do you agree?  If so, I'd be happy to make a
+> patch for that too.
 
-Can you be specific about the size of the "big" file?
-Also, what filesystem is being used on the server, what mount flags
-(if any) and what export options.
+I think the issue that Al raises about drivers grabbing devices, and
+then trying to unbind them might be a real problem.
 
-Having some sort of console, whether VGA, serial, or network, to view
-the Oops would be invaluable.
+Also, why can't this just be done in the bus specific code, in the match
+function?  I don't see how putting this into the driver core helps out
+any.
 
-Thanks,
-NeilBrown
+thanks,
+
+greg k-h

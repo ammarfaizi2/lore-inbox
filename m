@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265000AbUELQqC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265124AbUELQwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265000AbUELQqC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 12:46:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265098AbUELQqC
+	id S265124AbUELQwN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 12:52:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265100AbUELQwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 12:46:02 -0400
-Received: from [217.73.129.129] ([217.73.129.129]:4563 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S265000AbUELQp7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 12:45:59 -0400
-Date: Wed, 12 May 2004 19:45:07 +0300
-Message-Id: <200405121645.i4CGj7Vh417606@car.linuxhacker.ru>
-From: Oleg Drokin <green@linuxhacker.ru>
-Subject: Re: [CHECKER] 2 warnings in reiserfs linux 2.4.19
-To: linux-kernel@vger.kernel.org, yjf@stanford.edu, mc@cs.Stanford.EDU,
-       madan@cs.Stanford.EDU, reiser@namesys.com, mason@suse.com
-References: <Pine.GSO.4.44.0405111833030.4121-100000@elaine24.Stanford.EDU>
+	Wed, 12 May 2004 12:52:13 -0400
+Received: from smtp4.poczta.onet.pl ([213.180.130.28]:63407 "EHLO
+	smtp4.poczta.onet.pl") by vger.kernel.org with ESMTP
+	id S265124AbUELQwJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 12:52:09 -0400
+From: Marcin Garski <garski@poczta.onet.pl>
+Reply-To: garski@poczta.onet.pl
+To: linux-kernel@vger.kernel.org
+Subject: Re: SiI3112 Serial ATA - no response on boot
+Date: Wed, 12 May 2004 18:51:42 +0200
+User-Agent: KMail/1.6.2
+References: <200405112052.44979.garski@poczta.onet.pl> <40A12409.40808@dotnetitalia.it>
+In-Reply-To: <40A12409.40808@dotnetitalia.it>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405121851.42401.garski@poczta.onet.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+[Please CC me on replies, I am not subscribed to the list, thanks]
 
-Junfeng Yang <yjf@stanford.edu> wrote:
+Marco Adurno wrote:
+> I've got the same problem some time ago.
+> You have just to appen the string
+> hdg=none
+> in your boot loader config file
 
-JY> We recently checked reiserfs on linux 2.4.19 and came across two warnings.
-JY> The first one complained that NULL was dereferenced.  The second one
-JY> complained that an IO failure got ignored (a warning would be printed out
-JY> though).
-JY> As usual, confirmations/clarifications are appreciated.
-JY> -Junfeng
-JY> -------------------------------------------------------------------------
-JY> [BUG] derefence of must-be-NULL pointer
+Thanks, that's working.
+But isn't that a workaround for problem with probe (on NON SATA HDD 
+probe don't generate such errors) that should be fixed somehow?
 
-This one is real. It is only present in 2.4 kernels, 2.6 has a check
-for jb->bitmaps == NULL in jb->bitmaps == NULL and returns if so.
-But while looking for this, I noticed that both 2.6 and 2.4 are not checking for
-the return value of reiserfs_allocate_list_bitmaps(), so even if we manage not
-to crash in cleanup_bitmap_list(), then mount will still succeed and next
-attempt to do something with journal will do NULL defererence.
-I will submit patches for both 2.4 and 2.6 in a moment.
+> Marcin Garski wrote:
+> > 
+> > Hi,
+> >
+> > I have a Abit NF7-S V2.0 mainboard (nForce2 chipset + SiI3112
+> > SATA), with Seagate S-ATA connected to Sil3112.
+> >
+> > During boot i get following messages:
+> > SiI3112 Serial ATA: IDE controller at PCI slot 0000:01:0b.0
+> > SiI3112 Serial ATA: chipset revision 2
+> > SiI3112 Serial ATA: 100% native mode on irq 11
+> >     ide2: MMIO-DMA , BIOS settings: hde:pio, hdf:pio
+> >     ide3: MMIO-DMA , BIOS settings: hdg:pio, hdh:pio
+> > hde: ST380013AS, ATA DISK drive
+> > ide2 at 0xe083c080-0xe083c087,0xe083c08a on irq 11
+> > hdg: no response (status = 0xfe)
+> > hdg: no response (status = 0xfe), resetting drive
+> > hdg: no response (status = 0xfe)
+> >
+> > Each "no response" message delays booting about 20 seconds.
+> > I don't have any device connected to hdg.
+> > I was wondering how to speed up booting, because this "hdg: no
+> > response (status = 0xfe), resetting drive" info is little
+> > irritating? I'm running on 2.6.6 kernel (on 2.6.4 this "no
+> > response" messages also appear).
 
-
-JY> -------------------------------------------------------------------------
-JY> [BUG] reiserfs_create --> reiserfs_add_entry --> reiserfs_update_sd.  reiserfs_update_sd can fail if bread fails (search_item will call bread).  This error is ignored except a warning is printed out.  This causes the stat data for a inode to be out-of-date.
-
-This one is a very often hit with bad disks.
-It manifests itself in users seeing files with ls, but any access to file
-results in permission denied, due to us unable to read inode directory
-entry is pointing to. I believe the inode data cannot be out of date simply
-because in order for updated inode data to get to the disk, it first needs to be
-in memory. So we either have up-to-date inode in memory or we do not have
-anything at all and in this later case any attempt to access such file
-will result in error anyway.
-
-Thank you.
-
-Bye,
-    Oleg
+-- 
+Best Regards
+Marcin Garski

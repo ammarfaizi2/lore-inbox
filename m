@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265087AbSKETVK>; Tue, 5 Nov 2002 14:21:10 -0500
+	id <S265101AbSKETh6>; Tue, 5 Nov 2002 14:37:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265089AbSKETVK>; Tue, 5 Nov 2002 14:21:10 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:11529 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265087AbSKETVI>; Tue, 5 Nov 2002 14:21:08 -0500
-Date: Tue, 5 Nov 2002 14:26:08 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Tom Rini <trini@kernel.crashing.org>
-cc: Rob Landley <landley@trommello.org>,
+	id <S265103AbSKETh6>; Tue, 5 Nov 2002 14:37:58 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:50069 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265101AbSKETh4>; Tue, 5 Nov 2002 14:37:56 -0500
+Subject: Re: [PATCH] Re: time() glitch on 2.4.18: solved
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: root@chaos.analogic.com
+Cc: Jim Paris <jim@jtan.com>, Willy Tarreau <willy@w.ods.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: CONFIG_TINY
-In-Reply-To: <20021104195144.GC27298@opus.bloom.county>
-Message-ID: <Pine.LNX.3.96.1021105141149.17410L-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <Pine.LNX.3.95.1021105134951.410A-100000@chaos.analogic.com>
+References: <Pine.LNX.3.95.1021105134951.410A-100000@chaos.analogic.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 05 Nov 2002 20:06:19 +0000
+Message-Id: <1036526779.6750.10.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Nov 2002, Tom Rini wrote:
+On Tue, 2002-11-05 at 18:57, Richard B. Johnson wrote:
+> No! You will break many machines. You cannot use out_p() when
+> writing the latch it __must__ be out(). the "_p" puts a write
+> to another port between the two writes. That will screw up
+> the internal state-machine of most PITs including AMD-SC520.
 
-> On Mon, Nov 04, 2002 at 02:13:48AM +0000, Rob Landley wrote:
+The delay is required for the PIT. Your AMD-SC520 is simply a bit wacko.
+The right way to fix this is actually to switch inb_p to use udelay(8)
+and to load a conservative bogomip number at boot time (we inb_p before
+we compute udelay values in a few spots)
 
-> > I've used -Os.  I've compiled dozens and dozens of packages with -Os.  It has 
-> > always saved at least a few bytes, I have yet to see it make something 
-> > larger.  And in the benchmarks I've done, the smaller code actually runs 
-> > slightly faster.  More of it fits in cache, you know.
-> 
-> Then we don't we always use -Os?
+BTW if your SC520 is broken that way I just broke 2.5.4x support for it
+fixing some more standards compliant platforms 8)
 
-1 - I'm not sure all versions of gcc support it, as in "it generates
-correct code."
-
-2 - I'm not sure how (if) it works on non-Intel systems.
-
-3 - The performance gain is related to cache size and performance. The
-obvious case is unrolling loops, you win if they fit in cache. If you have
-a Celeron, P-III with 256k, P-4 with HT on, all have different cache
-behaviour. And SMP or memory speed changes the penalty for a cache miss to
-main memory.
-
-4 - inertia, minimal gain and experience. Maybe no one sees enough gain to
-justify the chance that some version of gcc is really broken.
-
-5 - placebo effect. People just think it's faster because it's different.
-
-6 - quantum effects, like Schroedinger's (sp?) cat it's only faster or
-slower if you measure it.
-
-Pick one or more of these as pleases you. My mind say 4, my heart says 
-5+6.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
 

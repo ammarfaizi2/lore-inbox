@@ -1,53 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136139AbRDVOB4>; Sun, 22 Apr 2001 10:01:56 -0400
+	id <S136146AbRDVORa>; Sun, 22 Apr 2001 10:17:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136142AbRDVOBr>; Sun, 22 Apr 2001 10:01:47 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:24753 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S136139AbRDVOB0>; Sun, 22 Apr 2001 10:01:26 -0400
-Subject: Re: [Lse-tech] Re: [PATCH for 2.5] preemptible kernel
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-        lse-tech-admin@lists.sourceforge.net, nigel@nrg.org,
-        rusty@rustcorp.com.au
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF59B5FB6C.92BDC5D6-ON88256A36.004AEFF8@LocalDomain>
-From: "Paul McKenney" <Paul.McKenney@us.ibm.com>
-Date: Sun, 22 Apr 2001 06:38:37 -0700
-X-MIMETrack: Serialize by Router on D03NM045/03/M/IBM(Release 5.0.7 |March 21, 2001) at
- 04/22/2001 08:01:10 AM
+	id <S136148AbRDVORW>; Sun, 22 Apr 2001 10:17:22 -0400
+Received: from node181b.a2000.nl ([62.108.24.27]:63245 "EHLO ddx.a2000.nu")
+	by vger.kernel.org with ESMTP id <S136146AbRDVORI>;
+	Sun, 22 Apr 2001 10:17:08 -0400
+Date: Sun, 22 Apr 2001 16:00:39 +0200 (CEST)
+From: <raid@ddx.a2000.nu>
+To: <linux-raid@vger.kernel.org>
+Subject: Re: Maxtor 80gb slow on asus p2b-d ? (going to use it in raid5
+ config)
+In-Reply-To: <Pine.LNX.4.30.0104221547120.3518-100000@ddx.a2000.nu>
+Message-ID: <Pine.LNX.4.30.0104221559050.3518-100000@ddx.a2000.nu>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+oops :
 
-> > But if you are suppressing preemption in all read-side critical
-sections,
-> > then wouldn't any already-preempted tasks be guaranteed to -not- be in
-> > a read-side critical section, and therefore be guaranteed to be
-unaffected
-> > by the update (in other words, wouldn't such tasks not need to be
-waited
-> > for)?
+both tried kernel 2.4.4-pre5 (with ide patches)
+and kernel 2.2.14pre12 (with ide and raid patches)
+
+On Sun, 22 Apr 2001 raid@ddx.a2000.nu wrote:
+
+> i'm going to build a raid5 config with 6*maxtor 80gb
+> mainbord is an asus p2b-d (with dual 450 and 512mb ram)
+> and 2 addon ultra66 promise controllers
 >
-> Ah, if you want to inc and dec all the time, yes.  But even if the
-> performance isn't hurt, it's unneccessary, and something else people
-> have to remember to do.
+> i did some tests using hdparm (4.1)
+> and i get these result :
+>
+> (hda and hdc are on the onboard controller)
+>
+> /dev/hda:
+>  Timing buffered disk reads:  64 MB in  4.94 seconds = 12.96 MB/sec
+>
+> /dev/hdc:
+>  Timing buffered disk reads:  64 MB in  4.94 seconds = 12.96 MB/sec
+>
+> /dev/hde:
+>  Timing buffered disk reads:  64 MB in  2.26 seconds = 28.32 MB/sec
+>
+> /dev/hdg:
+>  Timing buffered disk reads:  64 MB in  2.25 seconds = 28.44 MB/sec
+>
+> /dev/hdi:
+>  Timing buffered disk reads:  64 MB in  2.25 seconds = 28.44 MB/sec
+>
+> /dev/hdk:
+>  Timing buffered disk reads:  64 MB in  2.25 seconds = 28.44 MB/sec
+>
+> kernel reports :
+> hda: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63,
+> UDMA(33)
+> hdc: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63,
+> UDMA(33)
+> hde: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63,
+> UDMA(66)
+> hdg: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63,
+> UDMA(66)
+> hdi: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63,
+> UDMA(66)
+> hdk: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63,
+> UDMA(66)
+>
+> and i use hdparm -m16 -c1 -d1 -a8  on all hd's
+> so why do i only see 13mb/sec on the ultra33 controller
+> (i thought 28mb/sec would be possible on the ultra33 controller)
+>
+> i also made a raid0 on the 6 disks
+> and this gives me :
+>
+> /dev/md0:
+>  Timing buffered disk reads:  64 MB in  2.13 seconds = 30.05 MB/sec
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
+> the body of a message to majordomo@vger.kernel.org
+>
 
-I must admit that free is a very good price.
-
-> Simplicity is very nice.  And in the case of module unload, gives us
-> the ability to avoid the distinction between "am I calling into a
-> module?" and "is this fixed in the kernel?" at runtime.  A very good
-> thing 8)
-
-Is it also desireable to avoid the distinction between "the currently
-executing code is in a module" and "the currently executing code is
-fixed in the kernel"?
-
-> Rusty.
-
-                              Thanx, Paul
 

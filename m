@@ -1,66 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318065AbSFSXzH>; Wed, 19 Jun 2002 19:55:07 -0400
+	id <S318066AbSFSX5C>; Wed, 19 Jun 2002 19:57:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318066AbSFSXzG>; Wed, 19 Jun 2002 19:55:06 -0400
-Received: from pc-62-31-66-56-ed.blueyonder.co.uk ([62.31.66.56]:35976 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S318065AbSFSXzF>; Wed, 19 Jun 2002 19:55:05 -0400
-Date: Thu, 20 Jun 2002 00:54:52 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Christopher Li <chrisl@gnuchina.org>,
-       "Stephen C. Tweedie" <sct@redhat.com>,
-       Alexander Viro <viro@math.psu.edu>, DervishD <raul@pleyades.net>,
-       Linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: Shrinking ext3 directories
-Message-ID: <20020620005452.M5119@redhat.com>
-References: <20020619113734.D2658@redhat.com> <Pine.LNX.4.44.0206191256550.20859-100000@localhost.localdomain> <3D10E5FE.A3FA3AEF@zip.com.au> <20020619234340.A24016@redhat.com>
+	id <S318067AbSFSX5B>; Wed, 19 Jun 2002 19:57:01 -0400
+Received: from holomorphy.com ([66.224.33.161]:14268 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S318066AbSFSX5B>;
+	Wed, 19 Jun 2002 19:57:01 -0400
+Date: Wed, 19 Jun 2002 16:56:32 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] scheduler bits from 2.5.23-dj1
+Message-ID: <20020619235632.GQ22961@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>, Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	Linus Torvalds <torvalds@transmeta.com>
+References: <20020619112308.GA11631@suse.de> <Pine.LNX.4.44.0206200123470.25434-100000@e2>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020619234340.A24016@redhat.com>; from sct@redhat.com on Wed, Jun 19, 2002 at 11:43:40PM +0100
+In-Reply-To: <Pine.LNX.4.44.0206200123470.25434-100000@e2>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Jun 20, 2002 at 01:36:29AM +0200, Ingo Molnar wrote:
+> another change in 2.5.23-dj1 is the initialization of the pidhash in
+> sched_init(). It does not belong there - please create a new init function
+> within fork.c if needed. The pidhash init used to be in sched_init(), but
+> this doesnt make it right.
 
-On Wed, Jun 19, 2002 at 11:43:40PM +0100, Stephen C. Tweedie wrote:
+On its way shortly.
 
-> Well, it has some interesting properties, such as the hash function
-> being a constant:
-> 
-> +	return 80; /* FIXME: for test only */
-> 
-> which I assume was an artifact of some testing Christopher was doing.
-> :)
-> 
-> I'm checking out a proper hash function at the moment.
 
-Done, checked into ext3 cvs (features-branch again.)
-
-Deleting and recreating 100,000 files with this kernel:
-
-[root@spock test0]# time xargs rm -f < /root/flist.100000 
-
-real    0m14.305s
-user    0m0.750s
-sys     0m5.430s
-[root@spock test0]# time xargs touch < /root/flist.100000 
-
-real    0m16.244s
-user    0m0.530s
-sys     0m6.660s
-
-that's an average of 160usec per create, 140usec per delete elapsed
-time, and 66/54usec respectively system time.  
-
-I assume the elapsed time is greater only because we're starting to
-wrap the journal due to the large amount of metadata being touched
-(we're touching a lot of inodes doing the above, which I could avoid
-by making hard links instead of new files.)  Certainly, limiting the
-test to 10,000 files lets it run at 100% cpu.
-
---Stephen
+Cheers,
+Bill

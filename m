@@ -1,85 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263371AbSJFKZO>; Sun, 6 Oct 2002 06:25:14 -0400
+	id <S263374AbSJFKjH>; Sun, 6 Oct 2002 06:39:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263372AbSJFKZO>; Sun, 6 Oct 2002 06:25:14 -0400
-Received: from web13108.mail.yahoo.com ([216.136.174.153]:14597 "HELO
-	web13108.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S263371AbSJFKZM>; Sun, 6 Oct 2002 06:25:12 -0400
-Message-ID: <20021006103049.7897.qmail@web13108.mail.yahoo.com>
-Date: Sun, 6 Oct 2002 03:30:49 -0700 (PDT)
-From: devnetfs <devnetfs@yahoo.com>
-Subject: [RESEND-2: Pl. Help] questions regarding sending/receiving udp packets in kernel
-To: linux-kernel@vger.kernel.org
+	id <S263375AbSJFKjH>; Sun, 6 Oct 2002 06:39:07 -0400
+Received: from sproxy.gmx.net ([213.165.64.20]:15888 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S263374AbSJFKjG>;
+	Sun, 6 Oct 2002 06:39:06 -0400
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Benjamin Walkenhorst <krylon@gmx.net>
+To: mec@shout.net
+Subject: Error configuring linux-2.5.40
+Date: Sun, 6 Oct 2002 12:43:26 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+Message-Id: <20021006103906Z263374-8740+7447@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resending it again to the Gurus. Can somebody *please* help me with
-these networking+kernel issues?
-
-thanks once again,
-Abhi.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 Hello,
 
-I am trying to write a kernel module, to send and receive udp packets. 
-I have the following questions/problems:
+I recently downloaded the most recent version of the developer's branch of 
+the linux kernel tree (2.5.40). Trying to configure it, I encountered an 
+error:
+In case this matters, the 2.5.40-source-tree was downloaded as .tar.bz2 from 
+the german mirror of kernel.org (ftp.de.kernel.org) and extracted to 
+/usr/local/src/linux-2.5.40 with a symlink at /usr/src/linux
+I tried to configure the source tree as root.
+Now for the error I got:
 
-[1] 
-I wish to receive packets asynchronously (thru a callback), rather 
-than polling [i.e calling udp_recvmsg() periodically to check for
-packtets]. 
+- -------------------------------------------------------------------------------------
+Menuconfig has encountered a possible error in one of the kernel's
+configuration files and is unable to continue.  Here is the error
+report:
 
-To get this done, presently after creating a socket (sock_create), I 
-replace sk->data_ready with my own function, which when called (by the
-kernel) wakes up a kernel thread that does skb_recv_datagram() to get a
-udp sk_buff.
+ Q> ./scripts/Menuconfig: MCmenu74: command not found
 
-Is this the correct approach? or is there a better way to register a
-callback with the core-networking subsystem, which will get called and
-deliver the pkt, when a udp pkt arrives on an ip/port?
+Please report this to the maintainer <mec@shout.net>.  You may also
+send a problem report to <linux-kernel@vger.kernel.org>.
 
+Please indicate the kernel version you are trying to configure and
+which menu you were trying to enter when this error occurred.
 
-[2]
-The memory allocted for the sk_buff (which i get thru
-skb_recv_datagram() is charged to the socket (i created). But I wish to
-use this sk_buff in my module (for processing etc.) so i dont call
-kfree_skb for a long time (hence the rmem_alloc does not get
-decremented). I tried to unlink the sk_buff from the socket list by
-calling skb_unlink() but that does NOT decrease 'rmem_alloc'.
+make: *** [menuconfig] Error 1
+- -------------------------------------------------------------------------------------
 
-How do I cleanly (and truly) unlink a sk_buff from a socket list and
-decrease equivalent memory charged to this socket? I would be calling
-kfree_skb() later though which will eventually decrease rmem_alloc, but
-I wish to do it as part of skb_unlink(). Please advice.
+As the error tells me to report to you, I hereby do so. 
 
+Have a nice day,
 
-[3]
-My kernel module sends/recvs UDP pkts process and store these packets
-internally sk_buffs only. But udp_sendmsg() requires an iovec.
-I can construct an iovec from an sk_buff and give it to udp_sendmsg()
-but that will involve an additional COPYING from one kernel memory 
-space (sk_buff data buffer) to another new buffer (for iovec). I want 
-to avoid this xtra copying.
+Benjamin Walkenhorst
+- -- 
+- -------------------------------------
+Der Hoffnung beraubt sein,         
+heiﬂt noch nicht - Verzweifeln.    
+(Albert Camus)                          
+- -------------------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+Comment: Public Key available at http://www.krylon.de
 
-Am I missing something? 
-And if above approach does involve extra copying is there a way to
-transmit a udp packet if one has the data in form of sk_buff (assuming
-there is head space for ether+ip+udp header)?
-
-
-Thanks in advance,
-
-Regards,
-Abhi.
-
-I am not subscribed to this list. Please Cc: me the replies. -- thanks.
-
-
-
-__________________________________________________
-Do you Yahoo!?
-Faith Hill - Exclusive Performances, Videos & More
-http://faith.yahoo.com
+iD8DBQE9oBPVoYumWdMvhMQRAolCAJ9/XnCLf6lUNmQ6JZoG+7iGNtdUjwCfdkh/
+sMiZS9R6gX4vXYgCl5cwzpU=
+=1Fe8
+-----END PGP SIGNATURE-----

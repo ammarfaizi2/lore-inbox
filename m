@@ -1,55 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVARWhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVARWlF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbVARWhX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 17:37:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVARWhX
+	id S261454AbVARWlF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 17:41:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVARWlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 17:37:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:26013 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261453AbVARWhS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 17:37:18 -0500
-Date: Tue, 18 Jan 2005 14:37:05 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Kylene Hall <kjhall@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, emilyr@us.ibm.com,
-       toml@us.ibm.com, tpmdd-devel@lists.sourceforge.net
-Subject: Re: [PATCH 1/1] tpm: fix cause of SMP stack traces
-Message-ID: <20050118143705.F469@build.pdx.osdl.net>
-References: <Pine.LNX.4.58.0412081546470.24510@jo.austin.ibm.com> <Pine.LNX.4.58.0412161632200.4219@jo.austin.ibm.com> <Pine.LNX.4.58.0412171642570.9229@jo.austin.ibm.com> <Pine.LNX.4.58.0412201146060.10943@jo.austin.ibm.com> <29495f1d041221085144b08901@mail.gmail.com> <Pine.LNX.4.58.0412211209410.14092@jo.austin.ibm.com> <Pine.LNX.4.58.0501121236180.2453@jo.austin.ibm.com> <Pine.LNX.4.58.0501181621200.2473@jo.austin.ibm.com>
+	Tue, 18 Jan 2005 17:41:05 -0500
+Received: from dsl-203-33-161-112.NSW.netspace.net.au ([203.33.161.112]:57007
+	"EHLO localhost") by vger.kernel.org with ESMTP id S261454AbVARWlA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 17:41:00 -0500
+Subject: [PATCH] enable-aver771-ir-remote
+From: Kared <kared@kared.net>
+Reply-To: kared@kared.net
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1106088061.5123.34.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.58.0501181621200.2473@jo.austin.ibm.com>; from kjhall@us.ibm.com on Tue, Jan 18, 2005 at 04:29:23PM -0600
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 19 Jan 2005 09:41:01 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Kylene Hall (kjhall@us.ibm.com) wrote:
-> There were misplaced spinlock acquires and releases in the probe, open, 
-> close and release paths which were causing might_sleep and schedule while 
-> atomic error messages accompanied by stack traces when the kernel was 
-> compiled with SMP support. Bug reported by Reben Jenster 
-> <ruben@hotheads.de>
-> 
-> Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
-> ---
-> diff -uprN linux-2.6.10/drivers/char/tpm/tpm.c linux-2.6.10-tpm/drivers/char/tpm/tpm.c
-> --- linux-2.6.10/drivers/char/tpm/tpm.c	2005-01-18 16:42:17.000000000 -0600
-> +++ linux-2.6.10-tpm/drivers/char/tpm/tpm.c	2005-01-18 12:52:53.000000000 -0600
-> @@ -373,8 +372,9 @@ int tpm_open(struct inode *inode, struct
->  {
->  	int rc = 0, minor = iminor(inode);
->  	struct tpm_chip *chip = NULL, *pos;
-> +	unsigned long flags;
->  
-> -	spin_lock(&driver_lock);
-> +	spin_lock_irqsave(&driver_lock, flags);
+The case statment which describes which mask and set of codes to use for
+the Avermedia 771 digital tuner card ir-remote control are commented
+out. Perhaps it was assumed this would be the same as the 761 but was
+commented out as it was untested? Removing the comment makes my remote
+work perfectly. Not sure who maintains this file, Patch below.
 
-Hmm, unless I'm missing something, this is only worse (for might sleep
-warnings).  Now you've disabled irq's too.
 
-thanks,
--chris
+
+enable-aver771-remote.patch:
+
+
+diff -ur linux-2.6.11-rc1.orig/drivers/media/video/ir-kbd-gpio.c
+linux-2.6.11-rc1/drivers/media/video/ir-kbd-gpio.c
+--- linux-2.6.11-rc1.orig/drivers/media/video/ir-kbd-gpio.c    
+2005-01-12 15:01:29.000000000 +1100
++++ linux-2.6.11-rc1/drivers/media/video/ir-kbd-gpio.c  2005-01-19
+09:30:59.000000000 +1100
+@@ -366,7 +366,7 @@
+                break;
+ 
+        case BTTV_AVDVBT_761:
+-       /* case BTTV_AVDVBT_771: */
++       case BTTV_AVDVBT_771:
+                ir_codes         = ir_codes_avermedia_dvbt;
+                ir->mask_keycode = 0x0f00c0;
+                ir->mask_keydown = 0x000020;
+
+
+
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Jared Kells
+kared@kared.net
+http://www.kared.net

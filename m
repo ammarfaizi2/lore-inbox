@@ -1,88 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266731AbTBCO5d>; Mon, 3 Feb 2003 09:57:33 -0500
+	id <S266540AbTBCOtk>; Mon, 3 Feb 2003 09:49:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266733AbTBCO5d>; Mon, 3 Feb 2003 09:57:33 -0500
-Received: from [205.205.44.10] ([205.205.44.10]:19217 "EHLO
-	sembo111.teknor.com") by vger.kernel.org with ESMTP
-	id <S266731AbTBCO5b> convert rfc822-to-8bit; Mon, 3 Feb 2003 09:57:31 -0500
-Message-ID: <5009AD9521A8D41198EE00805F85F18F219C26@sembo111.teknor.com>
-From: "Isabelle, Francois" <Francois.Isabelle@ca.kontron.com>
-To: "Isabelle, Francois" <Francois.Isabelle@ca.kontron.com>,
-       high-res-timers-discourse@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Errata : Unexpected lock during "Calibrating delay loop" and 
-	failure to co mpile without "HighRes"
-Date: Mon, 3 Feb 2003 10:07:02 -0500 
+	id <S266718AbTBCOou>; Mon, 3 Feb 2003 09:44:50 -0500
+Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:51849 "EHLO
+	d12lmsgate-5.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S266540AbTBCOmB>; Mon, 3 Feb 2003 09:42:01 -0500
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Organization: IBM Deutschland GmbH
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] s390 fixes (4/12).
+Date: Mon, 3 Feb 2003 15:48:30 +0100
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200302031548.30987.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please Read: 
- to build withOUT High-Res, the kernel won't build
+minor changes to s390 documentation
+diff -urN linux-2.5.59/Documentation/s390/driver-model.txt 
+linux-2.5.59-s390/Documentation/s390/driver-model.txt
+--- linux-2.5.59/Documentation/s390/driver-model.txt	Fri Jan 17 03:21:34 2003
++++ linux-2.5.59-s390/Documentation/s390/driver-model.txt	Mon Feb  3 15:02:46 
+2003
+@@ -51,13 +51,10 @@
+ 
+ This is done in several steps.
+ 
+-a. Some drivers need several ccw devices to make up one device. This drivers
+-   provide a 'chaining' interface (driver dependend) which allows to specify
+-   which ccw devices form a device.
+-b. Each driver provides one or more parameter interfaces where parameters can
++a. Each driver can provide one or more parameter interfaces where parameters 
+can
+    be specified. These interfaces are also in the driver's responsibility.
+-c. After a. and b. have been performed, if neccessary, the device is finally
+-   brought up via the 'online' interface.
++b. After a. has been performed, if neccessary, the device is finally brought 
+up
++   via the 'online' interface.
+ 
+ 
+ 1.2 Writing a driver for ccw devices
+@@ -84,7 +81,6 @@
+ 	struct ccw_device_id *ids;	
+ 	int (*probe) (struct ccw_device *); 
+ 	int (*remove) (struct ccw_device *);
+-	void (*release) (struct ccw_driver *); 
+ 	int (*set_online) (struct ccw_device *);
+ 	int (*set_offline) (struct ccw_device *);
+ 	struct device_driver driver;
+@@ -170,6 +166,22 @@
+ information about the interrupt from the irb parameter.
+ 
+ 
++1.3 ccwgroup devices
++--------------------
++
++The ccwgroup mechanism is designed to handle devices consisting of multiple 
+ccw
++devices, like lcs or ctc.
++
++The ccw driver provides a 'group' attribute. Piping bus ids of ccw devices to
++this attributes creates a ccwgroup device consisting of these ccw devices (if
++possible). This ccwgroup device can be set online or offline just like a 
+normal
++ccw device.
++
++To implement a ccwgroup driver, please refer to include/asm/ccwgroup.h. Keep 
+in
++mind that most drivers will need to implement both a ccwgroup and a ccw 
+driver
++(unless you have a meta ccw driver, like cu3088 for lcs and ctc).
++
++
+ 2. System devices
+ -----------------
+ 
+@@ -189,19 +201,19 @@
+ xpram shows up under sys/ as 'xpram'.
+ 
+ 
+-3. 'Legacy' devices
+--------------------
+-
+-The 'legacy' bus is for devices not detected, but specified by the user.
+-
++3. Other devices
++----------------
+ 
+ 3.1 Netiucv
+ -----------
+ 
+-Netiucv connections show up under legacy/ as "netiucv<ifnum>". The interface
+-number is assigned sequentially at module load.
+-
+-user			  - the user the connection goes to.
++The netiucv driver creates an attribute 'connection' under
++bus/iucv/drivers/NETIUCV. Piping to this attibute creates a new netiucv
++connection to the specified host.
++
++Netiucv connections show up under devices/iucv/ as "netiucv<ifnum>". The 
+interface
++number is assigned sequentially to the connections defined via the 
+'connection'
++attribute. 'name' shows the connection partner.
+ 
+ buffer			  - maximum buffer size.
+ 			    Pipe to it to change buffer size.
 
-> -----Original Message-----
-> From: Isabelle, Francois [mailto:Francois.Isabelle@ca.kontron.com]
-> Sent: 3 février, 2003 09:47
-> To: high-res-timers-discourse@lists.sourceforge.net
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Unexpected lock during "Calibrating delay loop" and 
-> failure to
-> co mpile without "HighRes"
-> 
-> 
-> Hi,
->     I'm trying to integrate some tools on a 486-powered cpu 
-> board, I don't
-> really need "High Resolution Timers", but one of the tools 
-> would really make
-> good use of the POSIX API you implemented. I've patch kernel 
-> 2.4.20 with the
-> latest 2.4.20-1.0 hrtimers.
-> 
-> Here comes the trouble.
-> 
-> - Trying to build with High-Res, the kernel won't build
-> 
-> time.c: In function `time_init':
-> time.c:873: `do_fast_gettimeoffset' undeclared (first use in 
-> this function)
-> time.c:873: (Each undeclared identifier is reported only once
-> time.c:873: for each function it appears in.)
-> make[1]: *** [time.o] Error 1
-> make[1]: Leaving directory `/usr/src/linux-2.4.20/arch/i386/kernel'
-> make: *** [_dir_arch/i386/kernel] Error 2
-> 
-> seems like it should try to link "do_slow_gettimeoffset" 
-> instead since 486
-> does not handle TSC, (I'll have to check that..)
-> 
-> 
-> - Trying to boot with "PIT-based" high-res support, the 
-> kernel lock during
-> calibration "Calibrating delay loop".
-> 	Same occurs with IOAPIC and TSC ... 
-> 
-> 
-> If you have any hint, I'll be glad to hear it.
-> 
-> Thanks
-> 
-> 
-> Frank
-> 
-> 
-> 
-> -------------------------------------------------------
-> This SF.NET email is sponsored by:
-> SourceForge Enterprise Edition + IBM + LinuxWorld = Something 2 See!
-> http://www.vasoftware.com
-> to unsubscribe: 
-http://lists.sourceforge.net/lists/listinfo/high-res-timers-discourse
-High-res-timers-discourse mailing list
-High-res-timers-discourse@lists.sourceforge.net
-https://lists.sourceforge.net/lists/listinfo/high-res-timers-discourse

@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbUK3JGT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbUK3JN5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262028AbUK3JGT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 04:06:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbUK3JGM
+	id S261876AbUK3JN5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 04:13:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUK3JN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 04:06:12 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:57618 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262028AbUK3JFa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 04:05:30 -0500
-Subject: Re: [4/7] Xen VMM patch set : /dev/mem io_remap_page_range for
-	CONFIG_XEN
-From: Arjan van de Ven <arjan@infradead.org>
-To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
-       Keir.Fraser@cl.cam.ac.uk, "David S. Miller" <davem@redhat.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-In-Reply-To: <E1CZ3oT-0001tU-00@mta1.cl.cam.ac.uk>
-References: <E1CZ3oT-0001tU-00@mta1.cl.cam.ac.uk>
-Content-Type: text/plain
-Message-Id: <1101805486.2640.37.camel@laptop.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Tue, 30 Nov 2004 10:04:46 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 30 Nov 2004 04:13:56 -0500
+Received: from 4s.enrico.unife.it ([192.167.219.82]:34998 "EHLO
+	quatresse.ferrara.linux.it") by vger.kernel.org with ESMTP
+	id S261876AbUK3JNu convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 04:13:50 -0500
+From: Fabio Coatti <cova@ferrara.linux.it>
+Organization: FerraraLUG
+To: James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: 2.6.10-rc2-mm2 usb storage still oopses
+Date: Tue, 30 Nov 2004 10:13:45 +0100
+User-Agent: KMail/1.7.1
+Cc: Andrew Morton <akpm@osdl.org>, Pete Zaitcev <zaitcev@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+References: <200411182203.02176.cova@ferrara.linux.it> <20041129163231.33affbde.akpm@osdl.org> <1101784930.2022.116.camel@mulgrave>
+In-Reply-To: <1101784930.2022.116.camel@mulgrave>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200411301013.46888.cova@ferrara.linux.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-11-30 at 08:56 +0000, Ian Pratt wrote:
-
-> In the Xen case, we actually need to use io_remap_page_range for
-> all /dev/mem accesses, so as to be able to map the BIOS area, DMI
-> tables etc.
-> 
-
-look at the /dev/mem patches in the -mm tree... there might be
-infrastructure there that is useful to you
+Alle 04:22, martedì 30 novembre 2004, James Bottomley ha scritto:
 
 
-> I wasn't sure how best to handle the fact that /dev/kmem shared
-> its mmap implementation with /dev/mem.  BTW: Does anyone know of
-> any programs that make use of mmap'ing /dev/kmem?
+> > >
+> > > This looks as if SCSI falls victim of the general problem which ub
+> > > addresses with the following fragment:
+> >
+> > Guys, is this problem still present in Linus's tree?  If so, is a fix for
+> > 2.6.10 looking feasible?
+>
+> Al Viro has a tentative one at
+>
+> http://ftp.linux.org.uk/pub/people/viro/register_disk-hack
+>
+> If someone could try it out and verify that it fixes the problem, we
+> could put it in.
 
-effectively nothing uses /dev/kmem; you might as well just remove it
-entirely and/or not provide it in Xen.
+
+Now I'm at work; this evening I'll try and I'll report asap the results. on 
+wich kernel does it apply? last kernels that I've tried are 2.6.10-rcX-mmY 
+series, but I can try the most suitable version for debugging, just let me 
+know.
 
 
+
+-- 
+Fabio "Cova" Coatti    http://members.ferrara.linux.it/cova     
+Ferrara Linux Users Group           http://ferrara.linux.it
+GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
+Old SysOps never die... they simply forget their password.

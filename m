@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265325AbSKWBOV>; Fri, 22 Nov 2002 20:14:21 -0500
+	id <S265305AbSKWBMs>; Fri, 22 Nov 2002 20:12:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265424AbSKWBOV>; Fri, 22 Nov 2002 20:14:21 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:48904
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S265325AbSKWBOS>; Fri, 22 Nov 2002 20:14:18 -0500
-Date: Fri, 22 Nov 2002 17:07:32 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Adam Radford <aradford@3WARE.com>
-cc: "'Manish Lachwani'" <manish@Zambeel.com>,
-       "'Rod.VanMeter@nokia.com'" <Rod.VanMeter@nokia.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'alan@lxorguk.ukuu.org.uk'" <alan@lxorguk.ukuu.org.uk>
+	id <S265325AbSKWBMs>; Fri, 22 Nov 2002 20:12:48 -0500
+Received: from imrelay-2.zambeel.com ([209.240.48.8]:49164 "EHLO
+	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
+	id <S265305AbSKWBMq>; Fri, 22 Nov 2002 20:12:46 -0500
+Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB199F@xch-a.win.zambeel.com>
+From: Manish Lachwani <manish@Zambeel.com>
+To: "'Andre Hedrick'" <andre@linux-ide.org>,
+       Manish Lachwani <manish@Zambeel.com>
+Cc: "'Rod.VanMeter@nokia.com'" <Rod.VanMeter@nokia.com>,
+       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
 Subject: RE: Early determinition of bad sectors and correcting them ...
-In-Reply-To: <A1964EDB64C8094DA12D2271C04B812672C8B1@tabby>
-Message-ID: <Pine.LNX.4.10.10211221701450.13936-100000@master.linux-ide.org>
+Date: Fri, 22 Nov 2002 17:19:07 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Yes, but I am referring to the read of the sectors that result in a 0x40
+(uncorrectable ECC error, based on driver definition). If we use micro
+second timers, we are monitoring the time it takes for a READ to return.
+This is exactly what I suggested in the previous e-mail. Measure the amount
+of time it takes to do a READ.
 
-The allocation is an automatic effect of the drives.
-The only way to not have the event happen automatically is to perform the
-execution of the taskfile command register to be a "do_once_only"
-operation.  Linux like all other operating systems (and smart hba') use
-the "do_with_retry" option of the assocaited opcode list.
+The idea of generating statistics to predict the state of the drive is a
+good idea. However, we will have to maintain the sector information also
+that resulted in long READ times. Rather than doing the remapping after all
+the information is generated, we might as well do the remap on the fly.
 
-There are ways to do this and effectively gauge and do predictive failure
-of the media; however, since there are patent issues on the material in
-question, it is a no go.
+-----Original Message-----
+From: Andre Hedrick [mailto:andre@linux-ide.org]
+Sent: Friday, November 22, 2002 4:57 PM
+To: Manish Lachwani
+Cc: 'Rod.VanMeter@nokia.com'; linux-kernel@vger.kernel.org;
+alan@lxorguk.ukuu.org.uk
+Subject: RE: Early determinition of bad sectors and correcting them ...
 
-Also Adam, please add in the native support for faking a "verify" and
-"mode_sense10" out of SCC3 (scsi common commands).
+
+
+Not all ECC errors are related to the actual sector of data.
+Many are related to the actually ECC ckecksum and provide one does not
+have a failure of more that 3 bits contigious or a max of 15 bits total
+for the data and ECC data for the given sector it should be okay.
+
+The simple fact is all drives have errors and execute ECC recovery.
+
+One of the ways I was looking to determine if this activity was excess
+would be to use micro second timers for transaction returns.  The
+statistics generated would provide a gauge of the state of the drive and
+the quality of the media.
+
+I will consider looking into this later in the future, at this time I have
+over issues to resolve.
 
 Cheers,
 
@@ -41,50 +63,19 @@ Andre Hedrick
 LAD Storage Consulting Group
 
 
-On Fri, 22 Nov 2002, Adam Radford wrote:
+On Fri, 22 Nov 2002, Manish Lachwani wrote:
 
-> Manish,
-> 
-> In the case of 3ware, If you run the 3ware card in raid mode not jbod,
-> sectors causing
-> ECC errors will be automatically remapped on the fly.  There is also a
-> 'Media Scan'
-> feature which will cause bad sectors to be remapped as a background task on
-> the
-> controller while normal IO is running.  
-> 
-> -Adam
-> 
-> -----Original Message-----
-> From: Manish Lachwani [mailto:manish@Zambeel.com]
-> Sent: Friday, November 22, 2002 4:16 PM
-> To: Manish Lachwani; 'Rod.VanMeter@nokia.com';
-> 'linux-kernel@vger.kernel.org'; 'alan@lxorguk.ukuu.org.uk'
-> Subject: RE: Early determinition of bad sectors and correcting them ...
-> 
-> 
-> Btw, I am reffering to IDE drives and IDE controllers (including controllers
-> like 3ware) ...
-> 
-> Thanks
-> -Manish
-> 
-> -----Original Message-----
-> From: Manish Lachwani 
-> Sent: Friday, November 22, 2002 4:15 PM
-> To: 'Rod.VanMeter@nokia.com'; Manish Lachwani;
-> linux-kernel@vger.kernel.org; alan@lxorguk.ukuu.org.uk
-> Subject: RE: Early determinition of bad sectors and correcting them ...
-> 
-> 
 > Yes, you are right abt taking different factors into account especially
-> queuing before making a decision abt the threshold. However, I was actually
+> queuing before making a decision abt the threshold. However, I was
+actually
 > referring to disks only. 
 > 
 > I have actually written a scrubber that traverses the disk and if it
 > encounters a problem with the medium, it tries to get the sector remapped.
-> However, the problem with the scrubber is that it will have to traverse all
-> the disks in a subsystem. The amount of time it takes to traverse each disk
+> However, the problem with the scrubber is that it will have to traverse
+all
+> the disks in a subsystem. The amount of time it takes to traverse each
+disk
 > is long depending on the size of the disk. We also have to make sure that
 > the scrubber process does not take too much CPU when running. 
 > 
@@ -93,7 +84,8 @@ On Fri, 22 Nov 2002, Adam Radford wrote:
 > wait for the scrubber to restart the read. 
 > 
 > Most of the disks support an operating temperature of 60C. However, if we
-> are operating at higher temperatures that result in long reads (due to shaky
+> are operating at higher temperatures that result in long reads (due to
+shaky
 > medium at higher temperatures), this facility is good. 
 > 
 > -----Original Message-----
@@ -210,10 +202,4 @@ On Fri, 22 Nov 2002, Adam Radford wrote:
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-

@@ -1,61 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbUL1XUf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbUL1XV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbUL1XUf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 18:20:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbUL1XUf
+	id S261161AbUL1XV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 18:21:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbUL1XV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 18:20:35 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:29344 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id S261160AbUL1XU2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 18:20:28 -0500
-Message-ID: <41D1FA78.50203@softhome.net>
-Date: Tue, 28 Dec 2004 16:29:44 -0800
-From: Brannon Klopfer <plazmcman@softhome.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Screwy clock after apm suspend
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Dec 2004 18:21:56 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:41500 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261161AbUL1XVd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 18:21:33 -0500
+Date: Wed, 29 Dec 2004 00:23:06 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Georg Prenner <georg.prenner@aon.at>, linux-kernel@vger.kernel.org
+Subject: Re: make errors (make clean, make menuconfig) make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 menuconfig
+Message-ID: <20041228232306.GA29461@mars.ravnborg.org>
+Mail-Followup-To: Georg Prenner <georg.prenner@aon.at>,
+	linux-kernel@vger.kernel.org
+References: <41D08472.6010404@aon.at> <20041227224833.GA8206@mars.ravnborg.org> <20041227231934.GA9251@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041227231934.GA9251@mars.ravnborg.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.10
-Slackware 10/-current
-IBM ThinkPad 600E
-----------------
+On Tue, Dec 28, 2004 at 12:19:34AM +0100, Sam Ravnborg wrote:
+> ...
+> 
+> It is the following code snippet that causes the troubles:
+> ---
+> outputmakefile:
+>         $(Q)if /usr/bin/env test ! $(srctree) -ef $(objtree); then \
+>         $(CONFIG_SHELL) $(srctree)/scripts/mkmakefile
+> ---
 
-2.6.10 screws up my system clock.
-Two kernel/hardware clock readings, before and after suspend.
--------------
-plaz@gonzo:~$ date ;hwclock
-Tue Dec 28 15:52:39 PST 2004
-Tue Dec 28 14:54:07 2004 -0.503621 seconds
-#suspend, resume
-plaz@gonzo:~$ date ;hwclock
-Tue Dec 28 16:11:58 PST 2004
-Tue Dec 28 15:04:06 2004 -0.168262 seconds
----------------------
-These are all when the comp is on without suspend (difference about the 
-same throughout).
-----------------
-plaz@gonzo:~$ date ;hwclock
-Tue Dec 28 16:14:52 PST 2004
-Tue Dec 28 15:07:00 2004 -0.251812 seconds
-plaz@gonzo:~$ date ;hwclock
-Tue Dec 28 16:15:26 PST 2004
-Tue Dec 28 15:07:34 2004 -0.236138 seconds
-plaz@gonzo:~$ date ;hwclock
-Tue Dec 28 16:19:48 PST 2004
-Tue Dec 28 15:11:57 2004 -0.908540 seconds
-plaz@gonzo:~$
-------------
-I did not have this problem with 2.6.9. My machine uses APM, clock 
-stores local time (specified in kernel config). I use PIT for 
-timesource, as others were losing ticks when on battery power (changes 
-CPU clock speed). Again, did _not_ have this problem with 2.6.9.
+env was behaving different in some setups - and located in other places.
+Since I cannot remeber why it is there I the fix was simple - remove it.
 
-Be glad to try out patches,
-Brannon Klopfer
+	Sam
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/12/28 19:12:15+01:00 sam@mars.ravnborg.org 
+#   kbuild: drop use of /usr/bin/env in top-level Makefile
+#   
+#   The use of env is not needed, and caused the output makefile to be
+#   created in some setups where it was not supposed to.
+#   Seems to be an issue with GNU sh-utils version of env.
+#   
+#   One user also reported env to be located in another place (/usr/local/bin/..).
+#   This patch fixes bug: http://bugme.osdl.org/show_bug.cgi?id=3953
+#   
+#   Thanks to "Mark Williams (MWP)" <mwp@internode.on.net> for helping tracking this down.
+#   
+#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+# 
+# Makefile
+#   2004/12/28 19:11:36+01:00 sam@mars.ravnborg.org +1 -1
+#   Drop usage of /usr/bin/env
+# 
+diff -Nru a/Makefile b/Makefile
+--- a/Makefile	2004-12-29 00:20:21 +01:00
++++ b/Makefile	2004-12-29 00:20:21 +01:00
+@@ -389,7 +389,7 @@
+ # using a seperate output directory. This allows convinient use
+ # of make in output directory
+ outputmakefile:
+-	$(Q)if /usr/bin/env test ! $(srctree) -ef $(objtree); then \
++	$(Q)if test ! $(srctree) -ef $(objtree); then \
+ 	$(CONFIG_SHELL) $(srctree)/scripts/mkmakefile              \
+ 	    $(srctree) $(objtree) $(VERSION) $(PATCHLEVEL)         \
+ 	    > $(objtree)/Makefile;                                 \

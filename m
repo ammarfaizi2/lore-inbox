@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318088AbSHDEYR>; Sun, 4 Aug 2002 00:24:17 -0400
+	id <S318097AbSHDFEe>; Sun, 4 Aug 2002 01:04:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318093AbSHDEYR>; Sun, 4 Aug 2002 00:24:17 -0400
-Received: from mk-smarthost-2.mail.uk.tiscali.com ([212.74.114.38]:20235 "EHLO
-	mk-smarthost-2.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
-	id <S318088AbSHDEYR>; Sun, 4 Aug 2002 00:24:17 -0400
-X-Mailer: exmh version 2.5 07/13/2001 (debian 2.5-1) with nmh-1.0.4+dev
-To: Brian Gerst <bgerst@didntduck.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, John Weber <john.weber@linux.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Toshiba Laptop Support and IRQ Locks 
-In-Reply-To: Message from Brian Gerst <bgerst@didntduck.org> 
-   of "Fri, 02 Aug 2002 15:49:06 EDT." <3D4AE232.6010000@didntduck.org> 
-References: <3D4AAD53.7010008@linux.org> <1028310939.18309.93.camel@irongate.swansea.linux.org.uk> <E17aiHh-00034N-00@jelly.buzzard.org.uk>  <3D4AE232.6010000@didntduck.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 04 Aug 2002 05:27:41 +0100
-From: Jonathan Buzzard <jonathan@buzzard.org.uk>
-Message-Id: <E17bCzV-0000Ri-00@jelly.buzzard.org.uk>
+	id <S318100AbSHDFEe>; Sun, 4 Aug 2002 01:04:34 -0400
+Received: from webmail9.rediffmail.com ([202.54.124.178]:18356 "HELO
+	webmail9.rediffmail.com") by vger.kernel.org with SMTP
+	id <S318097AbSHDFEe>; Sun, 4 Aug 2002 01:04:34 -0400
+Date: 4 Aug 2002 05:07:40 -0000
+Message-ID: <20020804050740.5833.qmail@webmail9.rediffmail.com>
+MIME-Version: 1.0
+From: "Enugala Venkata Ramana" <caps_linux@rediffmail.com>
+Reply-To: "Enugala Venkata Ramana" <caps_linux@rediffmail.com>
+To: "Brad Hards" <bhards@bigpond.net.au>
+Cc: linux-kernel@vger.kernel.org, "Greg KH" <greg@kroah.com>
+Subject: Re: Re: installation of latest kernel on compaq notebook
+Content-type: text/plain;
+	format=flowed
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thanx Hards,
+It worked.
+Regards
+Venku.
 
-
-bgerst@didntduck.org said:
-> > Two things to bare in mind, Toshiba have yet to do any sort of
-> > multi processor laptop, are extremely unlikely to ever manufacture
-> > one, and to the best of my knowledge the module only loads on Toshiba
-> > laptops. If it loads on anything else it is broken and needs fixing
-> > so it does not.
+On Sat, 03 Aug 2002 Brad Hards wrote :
+>On Sat, 3 Aug 2002 15:09, Enugala Venkata Ramana wrote:
+> > Hi ,
+> > Using the make xconfig. i cannot even select it.
+>I assume that you can select other options, but not
+>this particular option (Hint: you could have told me that).
 >
-> What about P4 Hyperthreading? 
+>I take it that you didn't look at the options that this
+>option depends on, and you need to turn on the
+>configuration options for CONFIG_EXPERIMENTAL
+>and possibly CONFIG_NET
+>
+>Brad
+>--
+>http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds 
+>in Black.
+>-
+>To unsubscribe from this list: send the line "unsubscribe 
+>linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  
+>http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-The cli() and associated code in the toshiba SMM driver is for laptops
-manufactured prior to 1999. It is not relevant and never will be on
-any laptop with a P4 processor in it. For that matter it is not
-even relevant on a PIII or PII processor. It is strictly Pentiums and
-486's.
-
-JAB.
-
--- 
-Jonathan A. Buzzard                 Email: jonathan@buzzard.org.uk
-Northumberland, United Kingdom.       Tel: +44(0)1661-832195
-
+__________________________________________________________
+Give your Company an email address like
+ravi @ ravi-exports.com.  Sign up for Rediffmail Pro today!
+Know more. http://www.rediffmailpro.com/signup/
 

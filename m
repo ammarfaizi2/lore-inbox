@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263173AbTCWT7a>; Sun, 23 Mar 2003 14:59:30 -0500
+	id <S263168AbTCWT7H>; Sun, 23 Mar 2003 14:59:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263175AbTCWT7a>; Sun, 23 Mar 2003 14:59:30 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:51474
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263173AbTCWT70>; Sun, 23 Mar 2003 14:59:26 -0500
-Subject: Re: Ptrace hole / Linux 2.2.25
-From: Robert Love <rml@tech9.net>
-To: Martin Mares <mj@ucw.cz>
-Cc: Alan Cox <alan@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+	id <S263173AbTCWT7G>; Sun, 23 Mar 2003 14:59:06 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:13534 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S263168AbTCWT7B>; Sun, 23 Mar 2003 14:59:01 -0500
+Date: Sun, 23 Mar 2003 21:09:56 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Robert Love <rml@tech9.net>
+Cc: Martin Mares <mj@ucw.cz>, Alan Cox <alan@redhat.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
        Stephan von Krawczynski <skraw@ithnet.com>, Pavel Machek <pavel@ucw.cz>,
-       szepe@pinerecords.com, arjanv@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20030323195606.GA15904@atrey.karlin.mff.cuni.cz>
-References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz>
-	 <200303231938.h2NJcAq14927@devserv.devel.redhat.com>
-	 <20030323194423.GC14750@atrey.karlin.mff.cuni.cz>
-	 <1048448838.1486.12.camel@phantasy.awol.org>
-	 <20030323195606.GA15904@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048450211.1486.19.camel@phantasy.awol.org>
+       arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: re: Ptrace hole / Linux 2.2.25
+Message-ID: <20030323200956.GJ31079@louise.pinerecords.com>
+References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz> <200303231938.h2NJcAq14927@devserv.devel.redhat.com> <20030323194423.GC14750@atrey.karlin.mff.cuni.cz> <1048448838.1486.12.camel@phantasy.awol.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 23 Mar 2003 15:10:12 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1048448838.1486.12.camel@phantasy.awol.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-03-23 at 14:56, Martin Mares wrote:
+> [rml@tech9.net]
+> 
+> Yes, I suspect he does as do most people here.
 
-> But if you assume this, what are the official releases for anyway?
+This sentence is ambiguous and one of its possible meanings is
+"Most people do and Robert Love suspects Alan Cox does, too," which
+is also probably what you meant.  A bit strong a statement, don't you
+think?  How can you know the opinion of most people here?
 
-Well, official releases have always been sort of arbitrary for the
-kernel... just labeled releases along the course of development. 
-Although with the recent addition of the -rc patches, they tend to
-ensure the latest round of development at least resulted in a stable
-release.  But look at all the major vendors - their 2.4.18 release, for
-example, may include whatever the latest pre-patch was at the time.
+As a sidenote, I consider it important to note that it's obvious
+that if Alan were the 2.4 maintainer, we would likely have a 2.4.21
+with the critical (and possibly other) fixes out and all the fancy
+new stuff rescheduled for 2.4.22.
 
-Anyhow, to answer your question: the official releases are labels along
-the course of development for use by vendors, developers, and users who
-(as Alan described) can manage their own kernels.
-
-Do not get me wrong, I think users can and should compile their own
-kernel if they want.  And as kernel developers, we should facilitate
-that.  But if someone requires handholding and instant or controlled
-releases of bug fixes, they either need to be able to rely on their own
-ability to get them or their vendor.  We have vendors for a reason,
-after all.
-
-	Robert Love
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,84 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262843AbUCRSXb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 13:23:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262771AbUCRSXb
+	id S262844AbUCRSZP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 13:25:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262846AbUCRSZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 13:23:31 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:4544 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262843AbUCRSX3 (ORCPT
+	Thu, 18 Mar 2004 13:25:14 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:8173 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262844AbUCRSYo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 13:23:29 -0500
-Date: Thu, 18 Mar 2004 19:24:07 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: sched_setaffinity usability
-Message-ID: <20040318182407.GA1287@elte.hu>
-References: <40595842.5070708@redhat.com> <20040318112913.GA13981@elte.hu> <20040318120709.A27841@infradead.org> <Pine.LNX.4.58.0403180748070.24088@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0403180748070.24088@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-3.229, required 5.9,
-	BAYES_00 -4.90, NO_COST 1.67
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -3
+	Thu, 18 Mar 2004 13:24:44 -0500
+Date: Thu, 18 Mar 2004 10:24:10 -0800 (PST)
+From: Sridhar Samudrala <sri@us.ibm.com>
+X-X-Sender: sridhar@localhost.localdomain
+To: rusty@rustcorp.com.au
+cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: OOPS when force unloading sctp with CONFIG_DEBUG_SLAB enabled
+In-Reply-To: <Pine.LNX.4.58.0403171008560.2014@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0403181009150.1918@localhost.localdomain>
+References: <Pine.LNX.4.58.0403171008560.2014@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I took a look at the changes to module unload code(sys_delete_module) after
+2.6.3. One difference i noticed was that mod->waiter is being set to the
+kthread that runs __try_stop_module() instead of the thread that calls
+sys_delete_module().
 
-* Linus Torvalds <torvalds@osdl.org> wrote:
+The following patch fixed the oops.
 
-> sysconf() is a user-level implementation issue, and so is something
-> like "number of CPU's". Damn, the simplest way to do it is as a
-> environment variable, for christ sake! Just make a magic environment
-> variable called __SC_ARRAY, and make it be some kind of binary
-> encoding if you worry about performance.
+diff -Nru a/kernel/module.c b/kernel/module.c
+--- a/kernel/module.c   Thu Mar 18 10:17:58 2004
++++ b/kernel/module.c   Thu Mar 18 10:17:58 2004
+@@ -591,6 +591,10 @@
+        /* Stop the machine so refcounts can't move and disable module. */
+        ret = try_stop_module(mod, flags, &forced);
 
-i am not arguing for any sysconf() support at all - it clearly belongs
-into glibc. Just doing 'man sysconf' shows that it should be in
-user-space. No argument about that.
++       /* Mark it as dying. */
++       mod->waiter = current;
++       mod->state = MODULE_STATE_GOING;
++
+        /* Never wait if forced. */
+        if (!forced && module_refcount(mod) != 0)
+                wait_for_zero_refcount(mod);
 
-But how about the original issue Ulrich raised: how does user-space
-figure out the NR_CPUS value supported by the kernel? (not the current #
-of CPUs, that can be figured out using /proc/cpuinfo)
+I am not sure if this is the right or the complete fix, but i think that
+mod->waiter is definitely being set incorrectly in __try_stop_module().
 
-one solution would be what you suggest: to build some sort of /etc/info
-file that glibc can access, which file is build during the kernel build
-and contains the necessary constants. One problem with this approach is
-that a user could boot via any arbitrary kernel, how does glibc (or even
-a supposed early-init info-setup mechanism) know what info belongs to
-which kernel? Kernel version numbers are not required to be unique. A
-single non-modular bzImage can be used to have a fully working
-userspace. Right now the kernel and glibc is isolated pretty much and
-this gives us flexibility.
+Thanks
+Sridhar
 
-an environment variable is a similar solution and has the same problem:
-it has to be generated somehow from the kernel's info, just like the
-info file. As such it breaks the single-image concept, and the kernel
-image and the 'metadata' can get detached.
+On Wed, 17 Mar 2004, Sridhar Samudrala wrote:
 
-but there's a clean solution i believe, a convenient object that we
-already generate during kernel builds: the VDSO. It's mapped by the
-kernel during execve() [or, in current kernels, is inherited via the
-kernel mappings], and thus becomes a pretty fast (zero-copy) method of
-having a kernel-specific user-space dynamic object. It's structured in
-the most convenient (and thus, fastest, and most portable) way for
-glibc's purposes. ld.so recognizes and uses it. It cannot be
-misconfigured by the user, it comes with the kernel. It is included in a
-single bzImage kernel just as much as a kernel rpm.
-
-Right now the VDSO mostly contains code and exception-handling data, but
-it could contain real, userspace-visible data just as much: info that is
-only known during the kernel build. There's basically no cost in adding
-more fields to the VDSO, and it seems to be superior to any of the other
-approaches. Is there any reason not to do it?
-
-	Ingo
+> I am getting the following oops when force unloading sctp (rmmod -f sctp) with
+> 2.6.5-rc1 and 2.6.4.  This happens only when CONFIG_DEBUG_SLAB is enabled.
+>
+> This used to work fine until 2.6.3.
+>
+> looks like somehow a freed task struct is getting dereferenced in
+> try_to_wake_up() and it causes oops when debug memory allocations is enabled.
+> The call sequence seems to be
+> 	sys_delete_module
+> 	cleanup_module
+> 	sock_release
+> 	module_put
+> 	wake_up_process
+> 	try_to_wake_up
+>
+> Thanks
+> Sridhar
+>
+> Mar 17 08:31:40 w-sridhar kernel: Unable to handle kernel paging request at virtual address 6b6b6b7b
+> Mar 17 08:31:40 w-sridhar kernel:  printing eip:
+> Mar 17 08:31:40 w-sridhar kernel: c011ad39
+> Mar 17 08:31:40 w-sridhar kernel: *pde = 00000000
+> Mar 17 08:31:40 w-sridhar kernel: Oops: 0000 [#1]
+> Mar 17 08:31:40 w-sridhar kernel: PREEMPT SMP
+> Mar 17 08:31:40 w-sridhar kernel: CPU:    0
+> Mar 17 08:31:40 w-sridhar kernel: EIP:    0060:[<c011ad39>]    Tainted: GF
+> Mar 17 08:31:40 w-sridhar kernel: EFLAGS: 00010086   (2.6.5-rc1)
+> Mar 17 08:31:40 w-sridhar kernel: EIP is at try_to_wake_up+0x29/0x310
+> Mar 17 08:31:40 w-sridhar kernel: eax: 6b6b6b6b   ebx: c041cc80   ecx: ccc66da4   edx: cdc258a0
+> Mar 17 08:31:40 w-sridhar kernel: esi: cdc7c000   edi: c041cc80   ebp: cdc7df18   esp: cdc7def4
+> Mar 17 08:31:40 w-sridhar kernel: ds: 007b   es: 007b   ss: 0068
+> Mar 17 08:31:40 w-sridhar kernel: Process rmmod (pid: 1636, threadinfo=cdc7c000 task=cde2a140)
+> Mar 17 08:31:40 w-sridhar kernel: Stack: d08e2300 cdc7df14 c02bde4c cfcd9304 00000000 00000282 cdf1e5bc cdc7c000
+> Mar 17 08:31:40 w-sridhar kernel:        d08e2300 cdc7df2c c011b03e cdc258a0 00000007 00000000 cdc7df44 c02bac4a
+> Mar 17 08:31:40 w-sridhar kernel:        cdf1e5bc c03843b8 d08e2300 00000a80 cdc7df54 d08d6f24 cdf1e5bc 00000a80
+> Mar 17 08:31:40 w-sridhar kernel: Call Trace:
+> Mar 17 08:31:40 w-sridhar kernel:  [<c02bde4c>] sk_free+0x6c/0xf0
+> Mar 17 08:31:40 w-sridhar kernel:  [<c011b03e>] wake_up_process+0x1e/0x30
+> Mar 17 08:31:40 w-sridhar kernel:  [<c02bac4a>] sock_release+0xea/0xf0
+> Mar 17 08:31:40 w-sridhar kernel:  [<d08d6f24>] cleanup_module+0x24/0x1d5 [sctp]
+> Mar 17 08:31:40 w-sridhar kernel:  [<c013dbd4>] sys_delete_module+0x174/0x1d0
+> Mar 17 08:31:40 w-sridhar kernel:  [<c0157d18>] sys_munmap+0x58/0x80
+> Mar 17 08:31:40 w-sridhar kernel:  [<c0107adf>] syscall_call+0x7/0xb
+> Mar 17 08:31:40 w-sridhar kernel:
+> Mar 17 08:31:40 w-sridhar kernel: Code: 8b 40 10 8b 14 85 20 f0 41 c0 ff 46 14 01 d7 31 c0 86 07 84
+> Mar 17 08:31:40 w-sridhar kernel:  <6>note: rmmod[1636] exited with preempt_count 1
+> Mar 17 08:31:40 w-sridhar kernel: Debug: sleeping function called from invalid context at include/linux/rwsem.h:43
+> Mar 17 08:31:40 w-sridhar kernel: in_atomic():1, irqs_disabled():0
+> Mar 17 08:31:40 w-sridhar kernel: Call Trace:
+> Mar 17 08:31:40 w-sridhar kernel:  [<c011f46b>] __might_sleep+0xab/0xd0
+> Mar 17 08:31:40 w-sridhar kernel:  [<c0123b02>] profile_exit_task+0x22/0x60
+> Mar 17 08:31:40 w-sridhar kernel:  [<c0125a9a>] do_exit+0x7a/0x610
+> Mar 17 08:31:40 w-sridhar kernel:  [<c0108cd0>] do_divide_error+0x0/0xf0
+> Mar 17 08:31:40 w-sridhar kernel:  [<c0119855>] do_page_fault+0x215/0x58a
+> Mar 17 08:31:40 w-sridhar kernel:  [<c011a934>] recalc_task_prio+0xb4/0x1f0
+> Mar 17 08:31:40 w-sridhar kernel:  [<c011c9f9>] schedule+0x3a9/0x7b0
+> Mar 17 08:31:40 w-sridhar kernel:  [<c011bfe3>] scheduler_tick+0x43/0x6a0
+> Mar 17 08:31:40 w-sridhar kernel:  [<c0119640>] do_page_fault+0x0/0x58a
+> Mar 17 08:31:40 w-sridhar kernel:  [<c0108569>] error_code+0x2d/0x38
+> Mar 17 08:31:40 w-sridhar kernel:  [<c02b007b>] atkbd_connect+0x19b/0x420
+> Mar 17 08:31:40 w-sridhar kernel:  [<c011ad39>] try_to_wake_up+0x29/0x310
+> Mar 17 08:31:40 w-sridhar kernel:  [<c02bde4c>] sk_free+0x6c/0xf0
+> Mar 17 08:31:40 w-sridhar kernel:  [<c011b03e>] wake_up_process+0x1e/0x30
+> Mar 17 08:31:40 w-sridhar kernel:  [<c02bac4a>] sock_release+0xea/0xf0
+> Mar 17 08:31:40 w-sridhar kernel:  [<d08d6f24>] cleanup_module+0x24/0x1d5 [sctp]
+> Mar 17 08:31:40 w-sridhar kernel:  [<c013dbd4>] sys_delete_module+0x174/0x1d0
+> Mar 17 08:31:40 w-sridhar kernel:  [<c0157d18>] sys_munmap+0x58/0x80
+> Mar 17 08:31:40 w-sridhar kernel:  [<c0107adf>] syscall_call+0x7/0xb
+>
+>
+>

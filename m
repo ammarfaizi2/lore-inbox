@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262578AbTFDBzg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 21:55:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262589AbTFDBzg
+	id S262593AbTFDCOl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 22:14:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTFDCOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 21:55:36 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:57002 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262578AbTFDBzf
+	Tue, 3 Jun 2003 22:14:41 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:30735 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S262593AbTFDCOk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 21:55:35 -0400
-Message-ID: <3EDD52F5.8090706@us.ibm.com>
-Date: Tue, 03 Jun 2003 19:01:25 -0700
-From: Nivedita Singhvi <niv@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru
-CC: James Morris <jmorris@intercode.com.au>, davidm@hpl.hp.com,
-       gandalf@wlug.westbo.se, linux-kernel@vger.kernel.org,
-       linux-ia64@linuxia64.org, netdev@oss.sgi.com, davem@redhat.com,
-       akpm@digeo.com
-Subject: Re: fix TCP roundtrip time update code
-References: <200306040043.EAA24505@dub.inr.ac.ru>
-In-Reply-To: <200306040043.EAA24505@dub.inr.ac.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Jun 2003 22:14:40 -0400
+Date: Tue, 3 Jun 2003 19:25:12 -0700
+From: jw schultz <jw@pegasys.ws>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] linux-2.5.70_btime-fix_A0
+Message-ID: <20030604022512.GI12649@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <1054681259.32091.783.camel@w-jstultz2.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1054681259.32091.783.camel@w-jstultz2.beaverton.ibm.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
+On Tue, Jun 03, 2003 at 04:00:59PM -0700, john stultz wrote:
+> All,
+> 
+> 	Since jiffies didn't necessarily start incrementing at a second
+> boundary, jiffies/HZ doesn't increment at the same moment as
+> xtime.tv_sec. This causes one second wobbles in the calculation of btime
+> (xtime.tv_sec - jiffies/HZ).  
+> 
+> This fix increases the precision of the calculation so the usec
+> component of xtime is used as well. Additionally it fixes some of the
+> non-atomic reading of time values. 
+> 
+> 
+> This is a fix for bugme bug #764.
+> http://bugme.osdl.org/show_bug.cgi?id=764
+> 
+> 
+> Let me know if you have any comments
 
-> No doubts. All the symptoms are explained by this. I hope Andrew
-> will confirm that the problem has gone.
+Might it not be cheaper to start jiffies at the 1 second
+boundary or with a value that simulates that?
 
-Yep, great catch! But, FYI, DaveM and Alexey, we tried
-reproducing the stalls we (Dave Hansen, Troy Wilson) had
-seen during SpecWeb99 runs and couldn't reproduce them on
-2.5.69. (Same config, etc). So its possible our hang/stalls
-were some other issue that got silently fixed (or more
-likely, possibly the same thing but other changes minimized
-us running into the problem).
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-thanks,
-Nivedita
-
+		Remember Cernan and Schmitt

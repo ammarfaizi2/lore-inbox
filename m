@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266000AbUAQEKV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 23:10:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266001AbUAQEKU
+	id S265987AbUAQEWN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 23:22:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265992AbUAQEWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 23:10:20 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:25512 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S266000AbUAQEKQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 23:10:16 -0500
-From: Lev Makhlis <mlev@despammed.com>
-To: linux-kernel@vger.kernel.org
-Subject: PROC_BLOCK_SIZE in proc_info_read()
-Date: Fri, 16 Jan 2004 23:10:17 -0500
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Jan 2004 23:22:13 -0500
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:19625 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S265987AbUAQEWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 23:22:11 -0500
+Date: Sat, 17 Jan 2004 05:22:08 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.6.1 and cdrecord on ATAPI bus
+Message-ID: <20040117042208.GA8664@merlin.emma.line.org>
+Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20040117031925.GA26477@widomaker.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401162310.17695.mlev@despammed.com>
+In-Reply-To: <20040117031925.GA26477@widomaker.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-proc_info_read() (in fs/proc/base.c) uses this macro to limit the size
-of a single read:
+On Fri, 16 Jan 2004, Charles Shannon Hendrix wrote:
 
-#define PROC_BLOCK_SIZE (3*1024)                /* 4K page size but our output 
-routines use some slack for overruns */
+> I'm now running kernel 2.6.1, and using cdrecord with ATAPI is
+> problematic.
 
-It seems to me like it's a legacy from array_read() in 2.2.x and can be
-safely removed.  Besides an outdated assumption about the page size,
-the value is not passed down to (*proc_read)(), so it cannot guard
-against any overruns, and serves no useful purpose.
-Am I missing anything?
+I don't find it is. It's rather cdrecord insisting on scanning buses
+itself and bitching about direct device names...
 
-(This is not to be confused with PROC_BLOCK_SIZE in fs/proc/generic.c)
+> First problem is that cdrecord now must reload media often, runs slowly,
+> and burns slowly.  Reading CD/RW disks burned under 2.6.x is much slower
+> than those burned under kernel 2.4 (same version of cdrecord in all
+> cases).
 
-The reason it bothers me is that if you have a process with a really long
-command line, then /proc/<pid>/cmdline "contains" up to PAGE_SIZE bytes,
-but sys_read() only returns 3072, and needs to be called repeatedly.
+Interesting. I use dev=/dev/hdc and it works fine for me (Plextor 48X),
+but then again, I'm also running the latest cdrecord alpha.
 
+-- 
+Matthias Andree
+
+Encrypt your mail: my GnuPG key ID is 0x052E7D95

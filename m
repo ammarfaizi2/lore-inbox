@@ -1,37 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264046AbRFERRR>; Tue, 5 Jun 2001 13:17:17 -0400
+	id <S264047AbRFERSR>; Tue, 5 Jun 2001 13:18:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264047AbRFERRH>; Tue, 5 Jun 2001 13:17:07 -0400
-Received: from mx3out.umbc.edu ([130.85.253.53]:26575 "EHLO mx3out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S264046AbRFERRD>;
-	Tue, 5 Jun 2001 13:17:03 -0400
-Date: Tue, 5 Jun 2001 13:16:58 -0400
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: <slurn@verisign.com>
-cc: Keith Owens <kaos@ocs.com.au>, <linux-kernel@vger.kernel.org>,
-        <kdb@oss.sgi.com>
-Subject: Re: strange network hangs using kdb
-In-Reply-To: <200106051710.KAA03726@slurndal-lnx.verisign.com>
-Message-ID: <Pine.SGI.4.31L.02.0106051315370.11523908-100000@irix2.gl.umbc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264049AbRFERSH>; Tue, 5 Jun 2001 13:18:07 -0400
+Received: from mail-smtp.socket.net ([216.106.1.32]:14608 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S264047AbRFERRx>; Tue, 5 Jun 2001 13:17:53 -0400
+Date: Tue, 5 Jun 2001 12:17:25 -0500
+From: "Gregory T. Norris" <haphazard@socket.net>
+To: "paolo.pedroni@iol.it" <paolo.pedroni@iol.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Agpgart for AMD761
+Message-ID: <20010605121725.A15753@glitch.snoozer.net>
+Mail-Followup-To: "paolo.pedroni@iol.it" <paolo.pedroni@iol.it>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <GEGK5H$IXkNoE_FHJoeiOHXWLjWb2HtA2ZGSm7PCRGtuESl_JfV2caz@iol.it>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
+Content-Disposition: inline
+In-Reply-To: <GEGK5H$IXkNoE_FHJoeiOHXWLjWb2HtA2ZGSm7PCRGtuESl_JfV2caz@iol.it>
+User-Agent: Mutt/1.3.18i
+X-Operating-System: Linux glitch 2.4.5 #1 Thu May 31 18:23:54 CDT 2001 i686 unknown
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Jun 2001 slurn@verisign.com wrote:
 
-> Might the machine running kdb also be acting as a gateway or router
-> for the other boxen?  This would account for the lack of connectivity.
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Nope. No such luck. I _wish_ it was that easy. :)
+It seems to be working just fine here (kernel 2.4.5), provided that the
+"agp_try_unsupported=3D1" option is specified.  This tells the driver to
+assume that it behaves like known chipsets from the same vendor.
 
-As for it being a network problem, it is -- and completely reproducable.
-Fire up kdb, and no-one receives packets. Otherwise, no problems occur --
-even when both systems are under heavy network load.
 
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
+On Tue, Jun 05, 2001 at 03:00:53PM +0200, paolo.pedroni@iol.it wrote:
+> I was wondering what is the state of support for the AMD761 Northbridge=
+=20
+> chip, especially regarding agp operations since I don't see it listed=20
+> in the kernel configuration for the AGPGart device.
+> Please CC any answer to my address, since I'm not subscribed to the=20
+> list.
+> Thanks in advance.
+>=20
+> Paolo Pedroni
 
+--qMm9M+Fa2AknHoGS
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7HRQlgrEMyr8Cx2YRAlEYAKCI+HdOmQfdhhkXcZq2rxxdqoUYDgCeO3Z+
+AOJHGiqbcGWsepTn1sAZq+A=
+=6KDh
+-----END PGP SIGNATURE-----
+
+--qMm9M+Fa2AknHoGS--

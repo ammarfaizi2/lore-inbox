@@ -1,46 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262470AbTCIHsW>; Sun, 9 Mar 2003 02:48:22 -0500
+	id <S262460AbTCIH5m>; Sun, 9 Mar 2003 02:57:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262471AbTCIHsW>; Sun, 9 Mar 2003 02:48:22 -0500
-Received: from a089148.adsl.hansenet.de ([213.191.89.148]:4224 "EHLO
-	ds666.starfleet") by vger.kernel.org with ESMTP id <S262470AbTCIHsV>;
-	Sun, 9 Mar 2003 02:48:21 -0500
-Message-ID: <3E6AF463.4020706@portrix.net>
-Date: Sun, 09 Mar 2003 08:59:31 +0100
-From: Jan Dittmer <j.dittmer@portrix.net>
-Organization: portrix.net GmbH
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030305
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: jsimmons@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: Console weirdness
-References: <3E6A1A7F.8090409@portrix.net> <20030308131721.5254517a.akpm@digeo.com>
-In-Reply-To: <20030308131721.5254517a.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S262472AbTCIH5m>; Sun, 9 Mar 2003 02:57:42 -0500
+Received: from packet.digeo.com ([12.110.80.53]:30649 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262460AbTCIH5l>;
+	Sun, 9 Mar 2003 02:57:41 -0500
+Date: Sun, 9 Mar 2003 00:08:39 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Kevin Brosius <cobra@compuserve.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Runaway cron task on 2.5.63/4 bk?
+Message-Id: <20030309000839.31041e3e.akpm@digeo.com>
+In-Reply-To: <3E6AEDA5.D4C0FC83@compuserve.com>
+References: <3E6AEDA5.D4C0FC83@compuserve.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Mar 2003 08:08:13.0202 (UTC) FILETIME=[07F46720:01C2E613]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Jan Dittmer <j.dittmer@portrix.net> wrote:
+Kevin Brosius <cobra@compuserve.com> wrote:
+>
+> Second attempt to send this after not seeing it post after about a day. 
+> Anyone else have kernel posting problems?
 > 
->>I'm not seeing any boot messages during boot up.
+> I started seeing the cron task runaway, using 100% CPU continuously on a
+> single CPU with
+> 2.5.63+bk and now with 2.5.64 (about two weeks now.)  No other
+> apps/tasks seem to be affected, that I've noticed.  It seems to take
+> upwards of 8 hours running the kernel for this to occur.
 > 
-> Try adding "console=/dev/tty0" to your kernel boot parameters.  Please
-> report on the outcome.
+> top shows:
+> 
+>   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+>   594 root      25   0  1428  620  1364 R    49.9  0.1 195:23 cron
 > 
 
-Okay, all of these fixes it.
-console=ttyS0,38400n8 console=tty0
-console=tty1
-console=tty0
+Yes I've seen this four times over maybe three weeks.  Three times on dual
+CPU, once on a different UP machine.
 
-But still, switching back from X to console corrupts the display. 
-Switching back is fine though using the fbdev.diff patch. Without 
-switching back and force works fine, except that the last line isn't 
-properly redrawn (rivafb).
+In all cases, crond is stuck in a loop calling nanosleep with a tv_sec value
+of a bit over 4,000,000 and a tv_nsec value of zero.  nanosleep keeps
+returning EINVAL immediately.
 
-Thanks, jan
+I'm not sure why crond is trying to sleep for so long.  Maybe it has set an
+alarm.
+
+errr, OK.  This returns -EINVAL:
+
+#include <time.h>
+
+main()
+{
+	struct timespec req;
+	struct timespec rem;
+	int ret;
+
+	req.tv_sec = 5000000;
+	req.tv_nsec = 0;
+
+	ret = nanosleep(&req, &rem);
+	if (ret)
+		perror("nanosleep");
+}
+
+I shall take a look....
 

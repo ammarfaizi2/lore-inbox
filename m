@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263956AbTKSTNe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 14:13:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263957AbTKSTNe
+	id S263957AbTKSTVA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 14:21:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264024AbTKSTVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 14:13:34 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:26631 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S263956AbTKSTNc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 14:13:32 -0500
-Date: Wed, 19 Nov 2003 20:13:27 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Christoph Hellwig <hch@infradead.org>, Matt Domsch <Matt_Domsch@dell.com>,
-       Jeff Garzik <jgarzik@pobox.com>, Jason Holmes <jholmes@psu.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make 2.6 megaraid recognize intel vendor id
-Message-ID: <20031119191327.GA1053@mars.ravnborg.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Matt Domsch <Matt_Domsch@dell.com>, Jeff Garzik <jgarzik@pobox.com>,
-	Jason Holmes <jholmes@psu.edu>, linux-kernel@vger.kernel.org
-References: <3FB3BBE0.D4D0EACC@psu.edu> <3FB3D5B1.5080904@pobox.com> <20031113153552.A20514@lists.us.dell.com> <20031119131627.A12116@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031119131627.A12116@infradead.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 19 Nov 2003 14:21:00 -0500
+Received: from imo-m05.mx.aol.com ([64.12.136.8]:61434 "EHLO
+	imo-m05.mx.aol.com") by vger.kernel.org with ESMTP id S263957AbTKSTU7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 14:20:59 -0500
+Message-ID: <3FBBC28B.2010006@cs.com>
+Date: Wed, 19 Nov 2003 14:20:43 -0500
+From: Paul Nielsen <pnielsenz@cs.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: mec@shout.net, linux-kernel@vger.kernel.org
+Subject: menuconfig Error 1
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AOL-IP: 63.243.31.162
+X-Mailer: Unknown (No Version)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph, nice rewrite.
+When trying to configure the Alsa sound options (select the "Advanced 
+Linux Sound Architecture" and press <enter>,) "make menuconfig" fails 
+with the message
+"Q> scripts/Menuconfig: line 832: MCmenu78: command not found", for both 
+the linux-2.4.22-10mdk and linux-2.4.22-10mdk kernel sources.
 
-Minor comments - which is not not specific for ypur clean-up, but maybe
-worth addressing now?
+Paul Nielsen
 
-> +#ifdef CONFIG_PROC_FS
-> +	if (adapter->controller_proc_dir_entry) {
-> +		remove_proc_entry("stat", adapter->controller_proc_dir_entry);
-> +		remove_proc_entry("config",
-> +				adapter->controller_proc_dir_entry);
-remove_proc_entry is an empty do {} while, so the ifdef is not needed.
 
-> +#if MEGA_HAVE_ENH_PROC
-Looks like a potential CONFIG option?
-
-> +#ifdef CONFIG_PROC_FS
-> +	remove_proc_entry("megaraid", &proc_root);
-> +#endif
-ifdef not needed.
-
-	Sam

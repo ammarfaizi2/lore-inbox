@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261870AbVADVIC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262092AbVADVMf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261870AbVADVIC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 16:08:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbVADVFQ
+	id S262092AbVADVMf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 16:12:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVADVKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 16:05:16 -0500
-Received: from THUNK.ORG ([69.25.196.29]:17575 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261869AbVADVEu (ORCPT
+	Tue, 4 Jan 2005 16:10:16 -0500
+Received: from verein.lst.de ([213.95.11.210]:25016 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S261869AbVADVIY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 16:04:50 -0500
-Date: Tue, 4 Jan 2005 16:01:17 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Diego Calleja <diegocg@teleline.es>, Willy Tarreau <willy@w.ods.org>,
-       davidsen@tmr.com, aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
-       linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-ID: <20050104210117.GA7280@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Adrian Bunk <bunk@stusta.de>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Diego Calleja <diegocg@teleline.es>,
-	Willy Tarreau <willy@w.ods.org>, davidsen@tmr.com, aebr@win.tue.nl,
-	solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
-References: <20050103003011.GP29332@holomorphy.com> <20050103004551.GK4183@stusta.de> <20050103011935.GQ29332@holomorphy.com> <20050103053304.GA7048@alpha.home.local> <20050103142412.490239b8.diegocg@teleline.es> <20050103134727.GA2980@stusta.de> <20050104125738.GC2708@holomorphy.com> <20050104150810.GD3097@stusta.de> <20050104153445.GH2708@holomorphy.com> <20050104165301.GF3097@stusta.de>
+	Tue, 4 Jan 2005 16:08:24 -0500
+Date: Tue, 4 Jan 2005 22:08:12 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] disallow modular capabilities
+Message-ID: <20050104210812.GA16420@lst.de>
+References: <20050102200032.GA8623@lst.de> <1104870292.8346.24.camel@krustophenia.net> <Pine.LNX.4.58.0501041303190.2294@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050104165301.GF3097@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.LNX.4.58.0501041303190.2294@ppc970.osdl.org>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 04, 2005 at 05:53:01PM +0100, Adrian Bunk wrote:
+On Tue, Jan 04, 2005 at 01:05:29PM -0800, Linus Torvalds wrote:
 > 
-> My opinion is to fork 2.7 pretty soon and to allow into 2.6 only the 
-> amount of changes that were allowed into 2.4 after 2.5 forked.
 > 
-> Looking at 2.4, this seems to be a promising model.
+> On Tue, 4 Jan 2005, Lee Revell wrote:
+> > 
+> > And I posted this to LKML almost a week ago, and a real fix was posted
+> > in response.
+> > 
+> > http://lkml.org/lkml/2004/12/28/112
+> 
+> Well, I realize that it has been on bugtraq, but does that make it a real 
+> concern? I'll make the tristate a boolean, but has anybody half-way sane 
+> ever _done_ what is described by the bugtraq posting? IOW, it looks pretty 
+> much like a made-up example, also known as a "don't do that then" kind of 
+> buglet ;)
 
-You have *got* to be kidding.  In my book at least, 2.4 ranks as one
-of the less successful stable kernel series, especially as compared
-against 2.2 and 2.0.  2.4 was far less stable, and a vast number of
-patches that distributions were forced to apply in an (only partially
-successful) attempt to make 2.4 stable meant that there are some
-2.4-based distributions where you can't even run with a stock 2.4
-kernel from kernel.org.  Much of the reputation that Linux had of a
-rock-solid OS that never crashed or locked up that we had gained
-during the 2.2 days was tarnished by 2.4 lockups, especially in high
-memory pressure situations.
+I don't think this particular one is too serious.  But I think we'll see
+more serious issues with other modular security modules.
 
-One of the things which many people have pointed out was that even
-2.6.0 was more stable than 2.4 was for systems under high load.
-
-						- Ted
+The security modules aren't really as isolated as all the driver modules
+we have as they're deeply interwinded with the process/file/etc state.

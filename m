@@ -1,39 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268497AbUHYHXx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264639AbUHYJpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268497AbUHYHXx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 03:23:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268505AbUHYHXw
+	id S264639AbUHYJpX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 05:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbUHYJpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 03:23:52 -0400
-Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:63640 "EHLO
-	avocet.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S268497AbUHYHXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 03:23:50 -0400
-Date: Wed, 25 Aug 2004 03:23:43 -0400
-To: mcetra@navynet.it
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Production comparison between 2.4.27 and 2.6.8.1
-Message-ID: <20040825072343.GA288@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-From: rwhron@earthlink.net
+	Wed, 25 Aug 2004 05:45:23 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:16525 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S264639AbUHYJpS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 05:45:18 -0400
+Date: Wed, 25 Aug 2004 11:44:49 +0200 (MEST)
+Message-Id: <200408250944.i7P9inIo024208@alkaid.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: marcelo.tosatti@cyclades.com
+Subject: Re: [PATCH] Update ftape webpage
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, ramon.rey@hispalinux.es
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What can I try to improve performance ?
+On Tue, 24 Aug 2004 16:39:22 -0300, Marcelo Tosatti wrote:
+> >  > -W:	http://www-math.math.rwth-aachen.de/~LBFM/claus/ftape/
+> >  > +W:	http://www.instmath.rwth-aachen.de/~heine/ftape/
+> >  >  S:	Maintained
+> > 
+> > NAK. If anything it should be marked orphaned or something.
+> > Heine hasn't maintained the in-kernel code for ages, and the
+> > web page you listed gives 403 errors on download attempts.
+> > 
+> > Don't remove it though. It still mostly works.
+> 
+> Mikael,
+> 
+> the URL works just fine. I've applied this to v2.4 mainline.
 
-In benchmarks I've done, XFS was helped significantly
-by the mkfs/mount options in the XFS FAQ.  (look
-for the dbench question).
+The top-level pages work, but the ones for accessing
+actual files don't work due to 403 errors. For instance,
 
-http://oss.sgi.com/projects/xfs/faq.html
+http://zeus.instmath.rwth-aachen.de/~heine/ftape/archives/
 
-mkfs -t xfs -l size=32768b -f /dev/device
-mount -t xfs -o logbufs=8,logbsize=32768 /dev/device /mountpoint
+accessible from Archive -> click on location for HTTP,
+doesn't work. Clicking on the FTP location gets a 530
+(Login Incorrect) error. Several files are announced as
+links into the archives directory, and are not accessible,
+like the ChangeLog and FAQ (in the Development page).
 
--- 
-Randy Hron
-http://home.earthlink.net/~rwhron/kernel/bigbox.html
-
+However, the old web address is even more broken, so I
+guess it's better to list the new one.

@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262727AbREOKYm>; Tue, 15 May 2001 06:24:42 -0400
+	id <S262724AbREOK2w>; Tue, 15 May 2001 06:28:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262724AbREOKYW>; Tue, 15 May 2001 06:24:22 -0400
-Received: from cherry.napri.sk ([194.1.128.4]:11269 "HELO cherry.napri.sk")
-	by vger.kernel.org with SMTP id <S262723AbREOKYQ>;
-	Tue, 15 May 2001 06:24:16 -0400
-Date: Tue, 15 May 2001 12:24:06 +0200
-From: Peter Kundrat <kundrat@kundrat.sk>
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: MS_RDONLY patch (do_remount_sb and cramfs/inode.c)
-Message-ID: <20010515122406.A4564@napri.sk>
-Mail-Followup-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20010515112726.A28961@napri.sk>
+	id <S262728AbREOK2m>; Tue, 15 May 2001 06:28:42 -0400
+Received: from t2.redhat.com ([199.183.24.243]:59631 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S262724AbREOK23>; Tue, 15 May 2001 06:28:29 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.GSO.4.21.0105150424310.19333-100000@weyl.math.psu.edu> 
+In-Reply-To: <Pine.GSO.4.21.0105150424310.19333-100000@weyl.math.psu.edu> 
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Chris Wedgwood <cw@f00f.org>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Getting FS access events 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0i
-In-Reply-To: <20010515112726.A28961@napri.sk>; from kundrat@kundrat.sk on Tue, May 15, 2001 at 11:27:26AM +0200
+Date: Tue, 15 May 2001 11:27:30 +0100
+Message-ID: <17567.989922450@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 15, 2001 at 11:27:26AM +0200, Peter Kundrat wrote:
-> This patch does:
-> - set MS_RDONLY flag in cramfs superblock
-> - doesnt allow -w remount in do_remount_sb 
->   if the filesystem has MS_RDONLY set.
 
-Oh, ignore the second part. Seems i'd have to supply remount_fs super
-op to prevent that.
+viro@math.psu.edu said:
+> JFFS - dunno.
 
-pkx
--- 
-Peter Kundrat
-peter@kundrat.sk
+Bah. JFFS doesn't use any of those horrible block device thingies.
+
+--
+dwmw2
+
+

@@ -1,78 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263519AbTJWJfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 05:35:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263518AbTJWJfQ
+	id S263518AbTJWJfx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 05:35:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbTJWJfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 05:35:16 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:17281 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S263524AbTJWJfG (ORCPT
+	Thu, 23 Oct 2003 05:35:52 -0400
+Received: from main.gmane.org ([80.91.224.249]:1260 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263518AbTJWJfq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 05:35:06 -0400
-Date: Thu, 23 Oct 2003 11:35:05 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+	Thu, 23 Oct 2003 05:35:46 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re: FEATURE REQUEST: Specific Processor Optimizations on x86 Architecture
-Message-ID: <20031023093504.GP20846@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200310221855.15925.theman@josephdwagner.info> <200310221947.45996.theman@josephdwagner.info> <20031023012350.GI26476@redhat.com> <200310222135.22968.theman@josephdwagner.info>
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: FEATURE REQUEST: Specific Processor Optimizations on x86
+ Architecture
+Date: Thu, 23 Oct 2003 11:35:45 +0200
+Message-ID: <yw1xwuawgutq.fsf@kth.se>
+References: <Pine.LNX.4.44.0310222102160.25868-100000@chimarrao.boston.redhat.com> <000801c39903$034d3910$0201a8c0@joe>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eLzyubmMEGL80ZD1"
-Content-Disposition: inline
-In-Reply-To: <200310222135.22968.theman@josephdwagner.info>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:HbbwrpGVuQkC7sp9i/nL6DmiGVw=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Joseph D. Wagner" <theman@josephdwagner.info> writes:
 
---eLzyubmMEGL80ZD1
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>> > Version 2.6 is still in beta.  Besides, this should have been done years
+>> > ago before 2.6 existed.
+>> 
+>> So why haven't you done it?
+>
+> Um... because I don't have cvs WRITE access.
 
-On Wed, 2003-10-22 21:35:22 +0600, Joseph D. Wagner <theman@josephdwagner.i=
-nfo>
-wrote in message <200310222135.22968.theman@josephdwagner.info>:
+Of course not.  The Linux source uses BitKeeper.
 
-> I respectivly disagree with those reasons.  -march is gcc flag.  If it=20
-> creates any instability (doubtful), it's really a gcc problem.  Throwing =
-it=20
-> in will light a fire under their @$$ to get their act together.
+-- 
+Måns Rullgård
+mru@kth.se
 
-It *may* happen that some things work a bit differently. This needn't be
-an exact compiler error. It may be a Linux kernel source error. However,
-these things are quite subtle so it might break things and you only see
-it after a month or two, when you on-HDD data is already gone...
-
-Changes like that need good tests and can't be done in a 2.4.x kernel
-becase it may harm people's data or stability. These changes need to be
-done in development kernels, hopefully when they start off, not when
-they settle down to become the next stable release, though...
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---eLzyubmMEGL80ZD1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/l6DIHb1edYOZ4bsRAgGAAJ0eziFctJ+mPt4WK/YWPS6XftCqYgCfW91v
-mhr7gp2HwFrLpmD5deZ8CDk=
-=Xgf4
------END PGP SIGNATURE-----
-
---eLzyubmMEGL80ZD1--

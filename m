@@ -1,44 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266925AbUG1OJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266921AbUG1OQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266925AbUG1OJk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 10:09:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267164AbUG1OJk
+	id S266921AbUG1OQK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 10:16:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267164AbUG1OQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 10:09:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:34220 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266925AbUG1OJj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 10:09:39 -0400
-Date: Wed, 28 Jul 2004 10:08:46 -0400
-From: Alan Cox <alan@redhat.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Alan Cox <alan@redhat.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: Add support for Innovision DM-8401H
-Message-ID: <20040728140846.GA23938@devserv.devel.redhat.com>
-References: <20040728134910.GA8514@devserv.devel.redhat.com> <200407281610.54961.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200407281610.54961.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.4.1i
+	Wed, 28 Jul 2004 10:16:10 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:46491 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S266921AbUG1OQB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 10:16:01 -0400
+Message-ID: <4107B520.1060506@mvista.com>
+Date: Wed, 28 Jul 2004 09:16:00 -0500
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030428
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH]: convert ipmi_watchdog to also use module option nowayout
+ as it's done in other watchdog drivers
+References: <200407281141.13362.arekm@pld-linux.org>
+In-Reply-To: <200407281141.13362.arekm@pld-linux.org>
+Content-Type: multipart/mixed;
+ boundary="------------000509040804030802020104"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 28, 2004 at 04:10:54PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> On Wednesday 28 of July 2004 15:49, Alan Cox wrote:
-> > This is an SII 680 with strange PCI identifiers it appears
-> No, this is a different chipset (produced by ITE).
+This is a multi-part message in MIME format.
+--------------000509040804030802020104
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Ok then its a different chipset produced by ITE which appears to work
-perfectly with the SII driver, rather like the different chipset produced
-by Adaptec that is bug compatible and register identical with the SI3112
+>
+>
+>Convert ipmi_watchdog to also use module option ,,nowayout'' as it's done in other watchdog drivers.
+>  
+>
+The patch is good (same style as other watchdogs), but needs to have some documentation updated.  I've tacked that on.
 
-> I asked you to compare Sil and ITE datasheets
-> (as I don't have one for Sil0680).
-> 
-> Have you done this?
 
-I don't have the ITE datasheet.
+Signed-off-by: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Signed-off-by: Corey Minyard <minyard@acm.org>
 
-Alan
+
+--------------000509040804030802020104
+Content-Type: text/plain;
+ name="ipmi-wdog-nowayout.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ipmi-wdog-nowayout.diff"
+
+Index: linux-ipmi/Documentation/IPMI.txt
+===================================================================
+--- linux-ipmi.orig/Documentation/IPMI.txt	2004-05-21 11:48:29.000000000 -0500
++++ linux-ipmi/Documentation/IPMI.txt	2004-07-28 09:12:42.000000000 -0500
+@@ -442,6 +442,7 @@
+ 
+   modprobe ipmi_watchdog timeout=<t> pretimeout=<t> action=<action type>
+       preaction=<preaction type> preop=<preop type> start_now=x
++      nowayout=x
+ 
+ The timeout is the number of seconds to the action, and the pretimeout
+ is the amount of seconds before the reset that the pre-timeout panic will
+@@ -472,6 +473,10 @@
+ If start_now is set to 1, the watchdog timer will start running as
+ soon as the driver is loaded.
+ 
++If nowayout is set to 1, the watchdog timer will not stop when the
++watchdog device is closed.  The default value of nowayout is true
++if the CONFIG_WATCHDOG_NOWAYOUT option is enabled, or false if not.
++
+ When compiled into the kernel, the kernel command line is available
+ for configuring the watchdog:
+ 
+@@ -480,6 +485,7 @@
+ 	ipmi_watchdog.preaction=<preaction type>
+ 	ipmi_watchdog.preop=<preop type>
+ 	ipmi_watchdog.start_now=x
++	ipmi_watchdog.nowayout=x
+ 
+ The options are the same as the module parameter options.
+ 
+Index: linux-ipmi/drivers/char/ipmi/ipmi_watchdog.c
+===================================================================
+--- linux-ipmi.orig/drivers/char/ipmi/ipmi_watchdog.c	2004-07-28 09:09:25.000000000 -0500
++++ linux-ipmi/drivers/char/ipmi/ipmi_watchdog.c	2004-07-28 09:10:40.000000000 -0500
+@@ -129,6 +129,12 @@
+ #define	WDIOC_GET_PRETIMEOUT     _IOW(WATCHDOG_IOCTL_BASE, 22, int)
+ #endif
+ 
++#ifdef CONFIG_WATCHDOG_NOWAYOUT
++static int nowayout = 1;
++#else
++static int nowayout = 0;
++#endif
++
+ static ipmi_user_t watchdog_user = NULL;
+ 
+ /* Default the timeout to 10 seconds. */
+@@ -175,6 +181,8 @@
+ module_param(start_now, int, 0);
+ MODULE_PARM_DESC(start_now, "Set to 1 to start the watchdog as"
+ 		 "soon as the driver is loaded.");
++module_param(nowayout, int, 0);
++MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default=CONFIG_WATCHDOG_NOWAYOUT)");
+ 
+ /* Default state of the timer. */
+ static unsigned char ipmi_watchdog_state = WDOG_TIMEOUT_NONE;
+@@ -707,10 +715,10 @@
+ {
+ 	if (iminor(ino)==WATCHDOG_MINOR)
+ 	{
+-#ifndef CONFIG_WATCHDOG_NOWAYOUT	
+-		ipmi_watchdog_state = WDOG_TIMEOUT_NONE;
+-		ipmi_set_timeout(IPMI_SET_TIMEOUT_NO_HB);
+-#endif		
++		if (!nowayout) {
++			ipmi_watchdog_state = WDOG_TIMEOUT_NONE;
++			ipmi_set_timeout(IPMI_SET_TIMEOUT_NO_HB);
++		}
+ 	        ipmi_wdog_open = 0;
+ 	}
+ 
+
+--------------000509040804030802020104--
 

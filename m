@@ -1,82 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262359AbVAZGcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262364AbVAZGdq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262359AbVAZGcS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 01:32:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbVAZGcS
+	id S262364AbVAZGdq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 01:33:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbVAZGdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 01:32:18 -0500
-Received: from fire.osdl.org ([65.172.181.4]:10731 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S262359AbVAZGcL (ORCPT
+	Wed, 26 Jan 2005 01:33:46 -0500
+Received: from mxc.rambler.ru ([81.19.66.31]:13586 "EHLO mxc.rambler.ru")
+	by vger.kernel.org with ESMTP id S262360AbVAZGde (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 01:32:11 -0500
-Message-ID: <41F73773.2020905@osdl.org>
-Date: Tue, 25 Jan 2005 22:23:47 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: mingo@redhat.com, akpm <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] irq_affinity: fix build when CONFIG_PROC_FS=n
-Content-Type: multipart/mixed;
- boundary="------------020700050907010905030008"
+	Wed, 26 Jan 2005 01:33:34 -0500
+Date: Wed, 26 Jan 2005 09:30:36 +0300
+From: Pavel Fedin <sonic_amiga@rambler.ru>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Russian encoding support for MacHFS
+Message-Id: <20050126093036.5aed40bd.sonic_amiga@rambler.ru>
+In-Reply-To: <Pine.LNX.4.61.0501251545540.6118@scrub.home>
+References: <20050124125756.60c5ae01.sonic_amiga@rambler.ru>
+	<81b0412b05012410463c7fd842@mail.gmail.com>
+	<20050125123516.7f40a397.sonic_amiga@rambler.ru>
+	<Pine.LNX.4.61.0501251545540.6118@scrub.home>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Auth-User: sonic_amiga, whoson: (null)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020700050907010905030008
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, 25 Jan 2005 16:34:57 +0100 (CET)
+Roman Zippel <zippel@linux-m68k.org> wrote:
 
+> I'm not quite sure, what problem you're trying to solve here.
 
-Need 'irq_affinity' array when CONFIG_PROC_FS=n.
+ I am trying to implement character sets conversion for MacHFS. I have some CD s with russian file names. Currently they are not displayed properly because Linux uses KOI8-R character set for russian letters and Macintosh uses its own character set called Mac-cyrillic or codepage 10007.
+ Firstly i tried to implement character set conversion using NLS tables. It was done using "iocharset" and "codepage" arguments. "Iocharset" specified Linux's local character set and "codepage" specified HFS's character set. So to convert a character i needed to process it twice: convert from "codepage" to Unicode and then convert from Unicode to "iocharset".
+ The problem with this is that some characters will be lost during this conversion. Not all characters from source ("codepage") charset are present in destination ("iocharset") charset table (for example "Folder" sign). But for proper operation of dir.c/hfs_lookup() function we need to be able to convert the name back from KOI8-R to CP10007 otherwise searching algorythm will fail. This will lead to that we won't be able to operate with any file which contains such a characters.
+ A solution was to use my own conversion table which ensures that no characters will be lost during conversion in both directions. Every unique source character is translated to some unique destination character. Of course Mac-specific characters are not displayed properly but they're not lost either. "codepage" argument was omitted for simplicity because specific "iocharset" implies specific "codepage" (for example if iocharset is koi8-r then we can assume that Macintosh codepage is mac-cyrillic). But some people said that this patch can't be approved because not using NLS is bad solution. So i'd like to talk to you, may be we'll find a better solution (because you know HFS better than me) or we can come to a conclusion that there is really no solution and push the patch upstream.
 
-With CONFIG_PROC_FS=n, the irq_affinity[NR_IRQS] array
-is not available in arch/i386/kernel code:
+> If you want to store unicode characters use HFS+, I plan to implement nls 
+> support real soon for it (especially because to also fix the missing 
+> decomposition support). 
 
-arch/i386/kernel/built-in.o(.text+0x10037): In function `do_irq_balance':
-: undefined reference to `irq_affinity'
-arch/i386/kernel/built-in.o(.text+0x101a9): In function `do_irq_balance':
-: undefined reference to `irq_affinity'
+ Would be nice. I also thought about it but i have no HFS+ disks with russian names so i can't test it. And i decided not to do a "blind" implementation in order not to break the filesystem. Currently my patch adds "iocharset" argumnent to HFS+ also (so that i can specify both filesystems in one /etc/fstab line, this is useful for CD-ROM) but it is ignored there.
 
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
-
-diffstat:=
-  kernel/irq/manage.c |    2 ++
-  kernel/irq/proc.c   |    2 --
-  2 files changed, 2 insertions(+), 2 deletions(-)
-
---------------020700050907010905030008
-Content-Type: text/x-patch;
- name="irq_affinity_data.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="irq_affinity_data.patch"
-
-
-diff -Naurp ./kernel/irq/proc.c~irq_affinity ./kernel/irq/proc.c
---- ./kernel/irq/proc.c~irq_affinity	2004-12-24 13:34:29.000000000 -0800
-+++ ./kernel/irq/proc.c	2005-01-25 20:53:45.581952208 -0800
-@@ -19,8 +19,6 @@ static struct proc_dir_entry *root_irq_d
-  */
- static struct proc_dir_entry *smp_affinity_entry[NR_IRQS];
- 
--cpumask_t irq_affinity[NR_IRQS] = { [0 ... NR_IRQS-1] = CPU_MASK_ALL };
--
- static int irq_affinity_read_proc(char *page, char **start, off_t off,
- 				  int count, int *eof, void *data)
- {
-diff -Naurp ./kernel/irq/manage.c~irq_affinity ./kernel/irq/manage.c
---- ./kernel/irq/manage.c~irq_affinity	2004-12-24 13:35:50.000000000 -0800
-+++ ./kernel/irq/manage.c	2005-01-25 20:54:09.753277608 -0800
-@@ -15,6 +15,8 @@
- 
- #ifdef CONFIG_SMP
- 
-+cpumask_t irq_affinity[NR_IRQS] = { [0 ... NR_IRQS-1] = CPU_MASK_ALL };
-+
- /**
-  *	synchronize_irq - wait for pending IRQ handlers (on other CPUs)
-  *
-
---------------020700050907010905030008--
+-- 
+Best regards,
+Pavel Fedin,									mailto:sonic_amiga@rambler.ru

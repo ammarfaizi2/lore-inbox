@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263149AbUKTSuO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263151AbUKTSwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263149AbUKTSuO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 13:50:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263151AbUKTSuN
+	id S263151AbUKTSwt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 13:52:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263154AbUKTSwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 13:50:13 -0500
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:60773 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S263149AbUKTSsb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 13:48:31 -0500
-Message-ID: <419F916C.5060409@microgate.com>
-Date: Sat, 20 Nov 2004 12:48:12 -0600
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fwd: [Bug 3592] New: pppd "IPCP: timeout sending Config-Requests"
-References: <20041019131240.A20243@flint.arm.linux.org.uk> <20041120131159.C13550@flint.arm.linux.org.uk> <1100954046.11951.0.camel@localhost.localdomain> <20041120142104.D13550@flint.arm.linux.org.uk> <419F5E28.7070606@microgate.com> <20041120165758.F13550@flint.arm.linux.org.uk>
-In-Reply-To: <20041120165758.F13550@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Nov 2004 13:52:49 -0500
+Received: from gprs214-174.eurotel.cz ([160.218.214.174]:55680 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S263151AbUKTSvj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 13:51:39 -0500
+Date: Sat, 20 Nov 2004 19:51:00 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: John Mock <kd6pag@qsl.net>
+Cc: linux-kernel@vger.kernel.org, perex@suse.cz
+Subject: Re: 2.6.10-rc2 on VAIO laptop and PowerMac 8500/G3
+Message-ID: <20041120185100.GA1205@elf.ucw.cz>
+References: <E1CVYZM-0000Fi-00@penngrove.fdns.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1CVYZM-0000Fi-00@penngrove.fdns.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> Right, I've closed the bug then.  It's a shame someone else couldn't
-> have done that when the bug was known to have been fixed.
+Hi!
 
-My bad.
+> The software suspend issue was long and tedious to narrow down.  Yep, as
+> you suspected, it appears to be specific a driver (or group thereof).  It
+> appears to happen when the sound subsystem is included.  Attached below 
+> is the .config and a 'diff' from the losing one to one which works.
 
-I had not previously participated in this particular
-bugzilla database. In the future, if I supply a fix
-I know to be associated with a bug tracker, and
-I am allowed access to change that bug, I will do so.
+Okay, this is for the alsa team then. Somewhere between 2.6.10-rc1 and
+2.6.10-rc2, ALSA started breaking swsusp :-(.
+								Pavel
 
---
-Paul Fulghum
-paulkf@microgate.com
-
-
-
-
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

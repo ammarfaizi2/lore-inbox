@@ -1,46 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266316AbUI1JSn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266195AbUI1Jfa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266316AbUI1JSn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 05:18:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbUI1JSm
+	id S266195AbUI1Jfa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 05:35:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbUI1Jfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 05:18:42 -0400
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:8541 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266316AbUI1JSk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 05:18:40 -0400
-Message-ID: <41592C64.3030409@yahoo.com.au>
-Date: Tue, 28 Sep 2004 19:18:28 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Ed Schouten <edschouten@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch] i386: Xbox support
-References: <65184.217.121.83.210.1096308147.squirrel@217.121.83.210> <4158AA5B.8090601@yahoo.com.au> <dc54396f040927214651393131@mail.gmail.com> <415915F0.2000803@yahoo.com.au> <20040928090641.GC18819@elf.ucw.cz>
-In-Reply-To: <20040928090641.GC18819@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 28 Sep 2004 05:35:30 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:16526 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S266195AbUI1JfT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 05:35:19 -0400
+Date: Tue, 28 Sep 2004 02:33:50 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Jay Lan <jlan@engr.sgi.com>
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+       csa@oss.sgi.com, akpm@osdl.org, guillaume.thouvenin@bull.net,
+       tim@physik3.uni-rostock.de, corliss@digitalmages.com
+Subject: Re: [PATCH 2.6.9-rc2 2/2] enhanced MM accounting data collection
+Message-Id: <20040928023350.611c84d8.pj@sgi.com>
+In-Reply-To: <41589927.5080803@engr.sgi.com>
+References: <4158956F.3030706@engr.sgi.com>
+	<41589927.5080803@engr.sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+nits:
 
->>Well, I ask because there is probably quite a large number of embedded type
->>devices devices that you could "just add a small patch for" to get it 
->>working.
-> 
-> 
-> Yes, and we support most of them :-). This is not really different
-> from all the arm platforms etc.
+1) I'm not sure the "no-op if CONFIG_CSA not set" comments
+   are worthwhile - it does not seem to be a common practice
+   to mark macros that collapse under certain CONFIG's with
+   such comments, and some code, such as in fork.c, would
+   become quite a bit less readable if such comments were
+   widely used.
 
+2) Three of the added csa_update_integrals() lines have
+   leading spaces, instead of a tab char, such as in:
 
-Yeah OK. I don't want to turn this into an argument, but the difference
-is AFAIK, that many of them are made *for* running Linux (or at least as
-a supported configuration). While the xbox requires you to circumvent
-the hardware.
+===================================================================
+--- linux.orig/fs/exec.c	2004-09-27 11:57:40.201435722 -0700
++++ linux/fs/exec.c	2004-09-27 14:05:41.266160725 -0700
+@@ -1163,6 +1164,9 @@
+ 
+ 		/* execve success */
+ 		security_bprm_free(&bprm);
++		/* no-op if CONFIG_CSA not set */
++                csa_update_integrals();		<=========
++                update_mem_hiwater();			<=========
+ 		return retval;
+ 	}
+ 
+3) Is it always the case that csa_update_integrals() and
+   update_mem_hiwater() are used together?  If so, perhaps
+   they could be collapsed into one?  Even the current->mm
+   test inside them could be made one test, perhaps?
 
-But on the other hand, "why not?" :)
+4) What kind of kernel text size expansion does this cause?
+   There seem to be about a dozen of these calls.  What are
+   the pros and cons of inlining csa_update_integrals() and
+   update_mem_hiwater()?  Are these on hot enough kernel code
+   paths that we should benchmark with and without these hooks
+   enabled, both inline and out-of-line?
 
-As I said, so long as Linus or Andrew is happy with it, I don't care.
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136670AbREJOWf>; Thu, 10 May 2001 10:22:35 -0400
+	id <S136676AbREJOc5>; Thu, 10 May 2001 10:32:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136666AbREJOW1>; Thu, 10 May 2001 10:22:27 -0400
-Received: from elektra.higherplane.net ([203.37.52.137]:33941 "EHLO
-	elektra.higherplane.net") by vger.kernel.org with ESMTP
-	id <S136663AbREJOWO>; Thu, 10 May 2001 10:22:14 -0400
-Date: Fri, 11 May 2001 00:32:55 +1000
-From: john slee <indigoid@higherplane.net>
-To: Martin Hamilton <martin@net.lut.ac.uk>
-Cc: Mart?n Marqu?s <martin@bugs.unl.edu.ar>, linux-kernel@vger.kernel.org
-Subject: Re: reiserfs, xfs, ext2, ext3
-Message-ID: <20010511003255.C7653@higherplane.net>
-In-Reply-To: <indigoid@higherplane.net> <E14xqGx-0006Y6-00@gadget.lut.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <E14xqGx-0006Y6-00@gadget.lut.ac.uk>; from martin@net.lut.ac.uk on Thu, May 10, 2001 at 02:14:27PM +0100
+	id <S136683AbREJOcs>; Thu, 10 May 2001 10:32:48 -0400
+Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:35334 "EHLO
+	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S136676AbREJOc3>; Thu, 10 May 2001 10:32:29 -0400
+From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: linux-kernel@vger.kernel.org
+Date: Thu, 10 May 2001 16:32:19 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: RFD(time): squeezing and stretching the tick
+Message-ID: <3AFAC290.22797.1D8AA82@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
+X-Content-Conformance: HerringScan-0.1/SWEEP Version 3.43, March 2001 
+X-Content-Conformance: LittleSister-1.6/0.0.100644.20010509.100028Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> quite a bit of scope for improvement.  Commercial caching systems have
-> demonstrated thoughput of thousands of requests/s with similar
-> hardware, but I suspect Tux-ification of Squid will be necessary to
+For i386 with TSC, the kernel calibrates how much CPU cycles will fit 
+between two timer interrupts. That value corresponds to 10000 
+microseconds. Ideally.
 
-not at all, search for X15 in april/may linux-kernel archives.  most of
-the specific improvements tux made have been reduced to improvements for
-the general case, hence squid (or equivalent) could probably improve a
-fair amount.
+In practice however the timer interrupts do not happen exactly every 
+10000 us (for hardware reasons).  When interpolating time between ticks 
+that calibration value is used.
 
-j.
+When using NTP (or adjusting tick manually) the value added every tick 
+may be different from 10000us.
 
--- 
-"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson
+If that value is larger, the time seems to jump ahead at the beginning 
+of each tick; if the value is smaller, the time may seem to get stuck, 
+get slow, or jump back at the beginning of a new tick.
+
+Therefore I added experimental code to scale the value used for tick 
+interpolation according to these corrections. As it seems to me, the 
+clock quality improves, and the performance penalty only appears when 
+the correction value changes.
+
+I haven't done the non-TSC case or other architectures. For 
+microseconds it may seem neglectible, but not for nanoseconds.
+
+If anybody has an interesting opinion on this, please Mail.
+
+Regards,
+Ulrich
+P.S. Not subscribed here.
+

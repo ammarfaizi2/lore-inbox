@@ -1,42 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264284AbUAMLCE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 06:02:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264285AbUAMLCE
+	id S264283AbUAMLAz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 06:00:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264284AbUAMLAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 06:02:04 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:65459 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264284AbUAMLBU (ORCPT
+	Tue, 13 Jan 2004 06:00:55 -0500
+Received: from 134.gymko.ba.gtsi.sk ([62.168.65.134]:53899 "EHLO eloth.gjh.sk")
+	by vger.kernel.org with ESMTP id S264283AbUAMLAs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 06:01:20 -0500
-Date: Tue, 13 Jan 2004 12:01:10 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jan De Luyck <lkml@kcore.org>
-Cc: Kiko Piris <kernel@pirispons.net>, Bart Samwel <bart@samwel.tk>,
-       linux-kernel@vger.kernel.org, Dax Kelson <dax@gurulabs.com>,
-       Bartek Kania <mrbk@gnarf.org>, Simon Mackinlay <smackinlay@mail.com>
-Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1
-Message-ID: <20040113110110.GA6711@suse.de>
-References: <3FFFD61C.7070706@samwel.tk> <200401121409.44187.lkml@kcore.org> <20040112140238.GG24638@suse.de> <200401131200.16025.lkml@kcore.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401131200.16025.lkml@kcore.org>
+	Tue, 13 Jan 2004 06:00:48 -0500
+Date: Tue, 13 Jan 2004 12:00:15 +0100 (CET)
+From: Jozef Vesely <vesely@gjh.sk>
+X-X-Sender: vesely@eloth
+To: irda-users@lists.sourceforge.net
+cc: linux-kernel@vger.kernel.org
+Subject: [PROBLEM] ircomm ioctls
+Message-ID: <Pine.LNX.4.44.0401131148070.18661-100000@eloth>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 13 2004, Jan De Luyck wrote:
-> On Monday 12 January 2004 15:02, Jens Axboe wrote:
-> > bo is accounted when io is actually put on the pending queue for the
-> > disk, so they really do go hand in hand. So you should use block_dump to
-> > find out why.
-> 
-> It's nearly always reiserfs that causes the disk to spin up. Also, I'm
-> seeting the harddisk led light up every 5-7 seconds :-( weird.
+Hi,
 
-Does 2.6 laptop mode patch even include the necessary reiser changes to
-make this work properly?
+since upgrading to the 2.6.1 (from 2.4.22)
 
--- 
-Jens Axboe
+I am gettig this error (while connecting to my mobile phone):
+------
+# gsmctl -d /dev/ircomm0  ALL
+gsmctl[ERROR]: clearing DTR failed (errno: 22/Invalid argument)
+------
+
+the code in: gsmlib-1.10/gsmlib/gsm_unix_serial.cc
+------
+    // toggle DTR to reset modem
+    int mctl = TIOCM_DTR;
+    if (ioctl(_fd, TIOCMBIC, &mctl) < 0)
+      throwModemException(_("clearing DTR failed"));
+    // the waiting time for DTR toggling is increased with each loop
+    usleep(holdoff[initTries]);
+    if (ioctl(_fd, TIOCMBIS, &mctl) < 0)
+      throwModemException(_("setting DTR failed"));
+------
+
+pointed me to tke kernel:
+the ioctls TIOCMBIC, TIOCMBIS, TIOCMSET and TIOCMGET are handled both in
+
+net/irda/ircomm/ircomm_tty_ioctl.c  function  ircomm_tty_ioctl()
+-----
+       switch (cmd) {
+        case TIOCMGET:
+                ret = ircomm_tty_get_modem_info(self, (unsigned int *) arg);
+                break;
+        case TIOCMBIS:
+        case TIOCMBIC:
+        case TIOCMSET:
+                ret = ircomm_tty_set_modem_info(self, cmd, (unsigned int *) arg);
+                break;
+-----
+
+and in
+drivers/char/tty_io.c function tty_ioctl()
+-----
+      switch (cmd) {
+...
+                case TIOCMGET:
+                        return tty_tiocmget(tty, file, arg);
+
+                case TIOCMSET:
+                case TIOCMBIC:
+                case TIOCMBIS:
+                        return tty_tiocmset(tty, file, cmd, arg);
+        }
+        if (tty->driver->ioctl) {
+                int retval = (tty->driver->ioctl)(tty, file, cmd, arg);
+                if (retval != -ENOIOCTLCMD)
+                        return retval;
+        }
+-----
+
+The tty_tiocmset() checks for driver->tiocmset and calls it. In case
+of ircomm driver->tiocmset is not set since those ioctls are meant
+to be handled by driver->ioctl, however tty_tiocmset returns with -EINVAL
+and driver->ioctl never gets called.
+
+I am beginner in the kernel programing, and therefore I would rather let more
+experienced to create the patch (I don't want to mess up something).
+
+I hope this descrition would be helpful, and somebody fixes the problem.
+
+Thank you in advance
+
+Jozef Vesely
+vesely@gjh.sk
+
+
 

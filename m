@@ -1,81 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278668AbRJXRxZ>; Wed, 24 Oct 2001 13:53:25 -0400
+	id <S278680AbRJXRyF>; Wed, 24 Oct 2001 13:54:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278680AbRJXRxT>; Wed, 24 Oct 2001 13:53:19 -0400
-Received: from tartarus.telenet-ops.be ([195.130.132.34]:22960 "EHLO
-	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S278668AbRJXRxI>; Wed, 24 Oct 2001 13:53:08 -0400
-Date: Wed, 24 Oct 2001 19:53:42 +0200
-From: Sven Vermeulen <sven.vermeulen@rug.ac.be>
-To: Linux-Kernel Development Mailinglist 
-	<linux-kernel@vger.kernel.org>
-Subject: 2.4.13: some compilerwarnings...
-Message-ID: <20011024195342.A464@Zenith.starcenter>
-Mail-Followup-To: Linux-Kernel Development Mailinglist <linux-kernel@vger.kernel.org>
+	id <S278682AbRJXRxq>; Wed, 24 Oct 2001 13:53:46 -0400
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:41393 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S278680AbRJXRxe>; Wed, 24 Oct 2001 13:53:34 -0400
+Date: Wed, 24 Oct 2001 18:55:12 +0100
+From: Dave Jones <davej@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, rgooch@atnf.csiro.au
+Subject: [PATCH] Simplify serverworks workaround.
+Message-ID: <20011024185512.A6207@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, rgooch@atnf.csiro.au
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux 2.4.13
-X-Telephone: +32 486 460306
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No fatal errors or anything, kernel runs fine, but some compilerwarnings...
-they could be in other kernelversions too, I only noticed them this time.
+Linus, Richard,
+ Patch below makes the workaround for Serverworks LE chipsets
+ a little simpler, and also adds a printk to let people know
+ why they can't use Write-combining.
 
-~$ make dep
-[...]
-make -C eicon fastdep
-make[6]: Entering directory `/home/nitro/src/linux/drivers/isdn/eicon'
-/home/nitro/src/linux/scripts/mkdep -D__KERNEL__ -I/home/nitro/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6  -- Divas_mod.c adapter.h bri.c common.c constant.h divalog.h divas.h dsp_defs.h dspdids.h eicon.h eicon_dsp.h eicon_idi.c eicon_idi.h eicon_io.c eicon_isa.c eicon_isa.h eicon_mod.c eicon_pci.c eicon_pci.h fourbri.c fpga.c idi.c idi.h kprintf.c lincfg.c linchr.c linio.c linsys.c log.c pc.h pc_maint.h pr_pc.h pri.c sys.h uxio.h xlog.c > .depend
-make[6]: Leaving directory `/home/nitro/src/linux/drivers/isdn/eicon'
-make -C hisax fastdep
-md5sum: WARNING: 13 of 13 computed checksums did NOT match
-[...]
+regards,
 
-~$ make bzImage
-[...]
-gcc -D__KERNEL__ -I/home/nitro/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -c -o pci-i386.o pci-i386.c
-gcc -D__KERNEL__ -I/home/nitro/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -c -o pci-pc.o pci-pc.c
-{standard input}: Assembler messages:
-{standard input}:1040: Warning: indirect lcall without `*'
-{standard input}:1125: Warning: indirect lcall without `*'
-{standard input}:1208: Warning: indirect lcall without `*'
-{standard input}:1282: Warning: indirect lcall without `*'
-{standard input}:1293: Warning: indirect lcall without `*'
-{standard input}:1304: Warning: indirect lcall without `*'
-{standard input}:1378: Warning: indirect lcall without `*'
-{standard input}:1389: Warning: indirect lcall without `*'
-{standard input}:1400: Warning: indirect lcall without `*'
-{standard input}:1862: Warning: indirect lcall without `*'
-{standard input}:1951: Warning: indirect lcall without `*'
-[...]
-gcc -D__KERNEL__ -I/home/nitro/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -c -o msr.o msr.c
-gcc -D__KERNEL__ -I/home/nitro/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -c -o apm.o apm.c
-{standard input}: Assembler messages:
-{standard input}:187: Warning: indirect lcall without `*'
-{standard input}:282: Warning: indirect lcall without `*'
-[...]
-gcc -E -D__KERNEL__ -I/home/nitro/src/linux/include -D__BIG_KERNEL__ -traditional -DSVGA_MODE=NORMAL_VGA  bootsect.S -o bbootsect.s
-as -o bbootsect.o bbootsect.s
-bbootsect.s: Assembler messages:
-bbootsect.s:256: Warning: indirect lcall without `*'
-[...]
-gcc -E -D__KERNEL__ -I/home/nitro/src/linux/include -D__BIG_KERNEL__ -D__ASSEMBLY__ -traditional -DSVGA_MODE=NORMAL_VGA  setup.S -o bsetup.s
-as -o bsetup.o bsetup.s
-bsetup.s: Assembler messages:
-bsetup.s:1459: Warning: indirect lcall without `*'
-[...]
+Dave.
 
 
-btw: gcc-version is 2.96, as-version is 2.11.90.0.8
+diff -urN --exclude-from=/home/davej/.exclude linux/arch/i386/kernel/mtrr.c ../2.5/linux-dj/arch/i386/kernel/mtrr.c
+--- linux/arch/i386/kernel/mtrr.c	Fri Oct 12 16:29:57 2001
++++ linux-dj/arch/i386/kernel/mtrr.c	Sat Oct 13 12:08:34 2001
+@@ -473,25 +473,16 @@
+     unsigned long config, dummy;
+     struct pci_dev *dev = NULL;
+     
+-   /* ServerWorks LE chipsets have problems with  write-combining 
+-      Don't allow it and  leave room for other chipsets to be tagged */
++   /* ServerWorks LE chipsets have problems with write-combining 
++      Don't allow it and leave room for other chipsets to be tagged */
+ 
+-    if ((dev = pci_find_class(PCI_CLASS_BRIDGE_HOST << 8, NULL)) != NULL) {
+-	switch(dev->vendor) {
+-        case PCI_VENDOR_ID_SERVERWORKS:
+- 	    switch (dev->device) {
+-	    case PCI_DEVICE_ID_SERVERWORKS_LE:
++	if ((dev = pci_find_class(PCI_CLASS_BRIDGE_HOST << 8, NULL)) != NULL) {
++		if ((dev->vendor == PCI_VENDOR_ID_SERVERWORKS) &&
++			(dev->device == PCI_DEVICE_ID_SERVERWORKS_LE)) {
++		printk (KERN_INFO "mtrr: Serverworks LE detected. Write-combining disabled.\n");
+ 		return 0;
+-		break;
+-	    default:
+-		break;
+-	    }
+-	    break;
+-	default:
+-	    break;
++		}
+ 	}
+-    }
+-
+ 
+     switch ( mtrr_if )
+     {
 
-Keep up the good work!
-
-	Sven Vermeulen
 
 -- 
-Unix, MS-DOS and Windows NT (also known as the Good, the Bad and the
-Ugly). ~(Matt Welsh)
+| Dave Jones.                    http://www.codemonkey.org.uk
+| SuSE Labs .

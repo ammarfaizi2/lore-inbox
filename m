@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265247AbSKSANU>; Mon, 18 Nov 2002 19:13:20 -0500
+	id <S265243AbSKSAMv>; Mon, 18 Nov 2002 19:12:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265266AbSKSANU>; Mon, 18 Nov 2002 19:13:20 -0500
-Received: from ns.suse.de ([213.95.15.193]:28178 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S265247AbSKSANT>;
-	Mon, 18 Nov 2002 19:13:19 -0500
-Date: Tue, 19 Nov 2002 01:20:21 +0100
-From: Andi Kleen <ak@suse.de>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: ak@suse.de, gzp@myhost.mynet, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: [PATCH] fix devfs compile problems was Re: Linux v2.5.48
-Message-ID: <20021119012021.A21171@wotan.suse.de>
-References: <200211190007.QAA00499@baldur.yggdrasil.com>
+	id <S265247AbSKSAMv>; Mon, 18 Nov 2002 19:12:51 -0500
+Received: from are.twiddle.net ([64.81.246.98]:53128 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S265243AbSKSAMv>;
+	Mon, 18 Nov 2002 19:12:51 -0500
+Date: Mon, 18 Nov 2002 16:19:47 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] More missing includes [1/4]
+Message-ID: <20021118161947.B16391@twiddle.net>
+Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+References: <Pine.GSO.4.21.0211182314490.16079-100000@vervain.sonytel.be> <20021118231745.D21571@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200211190007.QAA00499@baldur.yggdrasil.com>
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021118231745.D21571@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Mon, Nov 18, 2002 at 11:17:45PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 18, 2002 at 04:07:17PM -0800, Adam J. Richter wrote:
-> Hi Linus,
-> 
-> 	I'd like to recommend that you apply this to fix
-> fs/devfs/base.c compilation problems instead of Andi's patch, as this
-> one ensures that {a,m,c}time will all have the same value even if
-> successive calls to get_seconds() might someday be able to return
-> different values.  Do you concur, Andi?
+On Mon, Nov 18, 2002 at 11:17:45PM +0000, Russell King wrote:
+> The more obvious solution is to remove the __initdata from the
+> declaration on line 545.  Such usage of __initdata (and __init)
+> serves no purpose.
 
-If you want to make it 100% correct change the de->inode.[mac]time to
-struct timespec. If you just want it working the first patch is probably
-fine.
+Yes it does.  If the variable is small, then the compiler may
+expect the variable to be placed in the .sdata section, and so
+be reachable by, say, a 16-bit gp-relative relocation.
 
--Andi
+Now, this variable in particular may not be small enough for
+that, but the fact remains that the general rule should be that
+variables should be declared with their section attributes.
+
+
+r~

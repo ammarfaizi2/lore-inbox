@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280937AbRK1Wlx>; Wed, 28 Nov 2001 17:41:53 -0500
+	id <S280938AbRK1Won>; Wed, 28 Nov 2001 17:44:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280938AbRK1Wln>; Wed, 28 Nov 2001 17:41:43 -0500
-Received: from blackhole.compendium-tech.com ([64.156.208.74]:6880 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S280937AbRK1Wlh>; Wed, 28 Nov 2001 17:41:37 -0500
-Date: Wed, 28 Nov 2001 14:41:23 -0800 (PST)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-X-X-Sender: <kernel@sol.compendium-tech.com>
-To: John Alvord <jalvo@mbay.net>
-cc: Davide Libenzi <davidel@xmailserver.org>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GPLONLY kernel symbols???
-In-Reply-To: <6ja1vt430au190m9e2n07bo35pn2rlms5v@4ax.com>
-Message-ID: <Pine.LNX.4.33.0111281440430.23481-100000@sol.compendium-tech.com>
+	id <S281770AbRK1Wod>; Wed, 28 Nov 2001 17:44:33 -0500
+Received: from postfix1-2.free.fr ([213.228.0.130]:60644 "HELO
+	postfix1-2.free.fr") by vger.kernel.org with SMTP
+	id <S280938AbRK1WoR> convert rfc822-to-8bit; Wed, 28 Nov 2001 17:44:17 -0500
+Date: Wed, 28 Nov 2001 20:51:01 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: "David S. Miller" <davem@redhat.com>
+Cc: <matthias@winterdrache.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: sym53c875: reading /proc causes SCSI parity error
+In-Reply-To: <20011128.131503.22504634.davem@redhat.com>
+Message-ID: <20011128203718.L2777-100000@gerard>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Nov 2001, John Alvord wrote:
 
-> The best programmer I ever knew told me that if you couldn't fake and
-> utilize another programmer's style... you were only an amateur.
 
-I don't see how coding style has anything to do with the abilities of a 
-programmer whatsoever.
+On Wed, 28 Nov 2001, David S. Miller wrote:
 
- Kelsey Hudson                                           khudson@ctica.com 
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------     
+>    From: Gérard Roudier <groudier@free.fr>
+>    Date: Wed, 28 Nov 2001 19:14:52 +0100 (CET)
+>
+>    This is a known issue that had been discussed in time, but no fix had been
+>    considered worth to be applied by PCI et co maintainers.
+>
+> Why not just put some bitmap pointer into the pci device
+> struct.  If it is non-NULL, it specifies PCI config space
+> areas which have side-effects.
+
+Or a simple offset beyond which reading data isn't desirable for whatever
+reasons.
+
+  Gérard.
 

@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284538AbRLXJun>; Mon, 24 Dec 2001 04:50:43 -0500
+	id <S284542AbRLXKGI>; Mon, 24 Dec 2001 05:06:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284540AbRLXJud>; Mon, 24 Dec 2001 04:50:33 -0500
-Received: from www.automatix.de ([212.4.161.35]:37643 "EHLO mail.automatix.de")
-	by vger.kernel.org with ESMTP id <S284538AbRLXJuS>;
-	Mon, 24 Dec 2001 04:50:18 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Juergen Sauer <jojo@automatix.de>
-Organization: AutomatiX GmbH
-To: linux-usb-users@lists.sourceforge.net
-Subject: VIA Chipsets + USB + SMP == UGLY TRASH
-Date: Mon, 24 Dec 2001 10:32:49 +0100
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
+	id <S284545AbRLXKF6>; Mon, 24 Dec 2001 05:05:58 -0500
+Received: from d-dialin-2782.addcom.de ([213.61.81.150]:28144 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S284542AbRLXKFq>; Mon, 24 Dec 2001 05:05:46 -0500
+Date: Mon, 24 Dec 2001 01:44:17 +0100 (CET)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: <kai@vaio>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Keith Owens <kaos@ocs.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: How to fix false positives on references to discarded text/data?
+In-Reply-To: <3C2673B3.78E21527@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0112240142230.1676-100000@vaio>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <E16IRTQ-0003oN-00@s.automatix.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-Merry X-Mas everywhere !
+On Sun, 23 Dec 2001, Andrew Morton wrote:
 
-So, my USB tryout is over. 
-This is the expierience report:
-You should not try to use VIA Chipsets + SMP + USB, that's
-the worst thinkable idea. It's junk (usb-Part).
+> Kai Germaschewski wrote:
+> > 
+> >         asm volatile(LOCK "subl $1,(%0)\n\t" \
+> >                      "js 2f\n" \
+> >                      "1:\n" \
+> > -                    ".section .text.lock,\"ax\"\n" \
+> > +                    ".subsection 1\n" \
+> >                      "2:\tcall " helper "\n\t" \
+> >                      "jmp 1b\n" \
+> >                      ".previous" \
+> 
+> Don't we want `.subsection 0' here, rather than .previous?
 
-That's why:
-1. not solved USB Irq errors in APIC mode, causes:
-	Error -110, device does not accept ID
-	USB Host is recognized fine, no device is attaced
+Either should be fine.
 
-This is an error somewhere in the Kernel APIC Irq routing, which may 
-worked around with "append noapic pirq="your irq" but using such a cutdown
-USB System is not a good idea, no relly working bulk-transfers (forget 
-any devices which depend from it: scanners, camera, sound, isdn, 
-harddisks, zip etc.)
+> Apart from that, it looks like a winner.
 
-State: unusable.
-Timeframe to be fixed: Unkonwn, Error Reports open open since 1 year
+;-)
 
-So now I shutdown an connect the scanner (HP 6350) with a 2nd scsi card.
+--Kai
 
-Ciao
-Jürgen Sauer
-	
--- 
-Jürgen Sauer - AutomatiX GmbH, +49-4209-4699, jojo@automatix.de **
-** Das Linux Systemhaus - Service - Support - Server - Lösungen **
-http://www.automatix.de to Mail me: remove: -not-for-spawm-     **

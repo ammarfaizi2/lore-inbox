@@ -1,108 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264110AbUDGGwj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 02:52:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264106AbUDGGwi
+	id S264112AbUDGGwt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 02:52:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264106AbUDGGwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 02:52:38 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:63358 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S264110AbUDGGvs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 02:51:48 -0400
-Date: Tue, 6 Apr 2004 23:50:00 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: colpatch@us.ibm.com, wli@holomorphy.com, linux-kernel@vger.kernel.org
-Subject: Re: [Patch 17/23] mask v2 = [6/7] nodemask_t_ia64_changes
-Message-Id: <20040406235000.6c06af9a.pj@sgi.com>
-In-Reply-To: <200404070855.03742.vda@port.imtp.ilyichevsk.odessa.ua>
-References: <20040401122802.23521599.pj@sgi.com>
-	<20040401131240.00f7d74d.pj@sgi.com>
-	<20040406043732.6fb2df9f.pj@sgi.com>
-	<200404070855.03742.vda@port.imtp.ilyichevsk.odessa.ua>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 7 Apr 2004 02:52:49 -0400
+Received: from macvin.cri2000.ens-lyon.fr ([140.77.13.138]:37772 "EHLO
+	macvin.cri2000.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S264112AbUDGGv6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 02:51:58 -0400
+Date: Wed, 7 Apr 2004 08:51:55 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-mm2
+Message-ID: <20040407065154.GG1139@ens-lyon.fr>
+References: <20040406223321.704682ed.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040406223321.704682ed.akpm@osdl.org>
+X-Operating-System: Linux 2.6.5 i686
+Organization: Ecole Normale Superieure de Lyon
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis asked:
-> why such a simple thing require 700 bytes of code in the first place? 
+On 07/04/2004-07:40, Andrew Morton wrote:
 
-Well ... it doesn't "require" 700 bytes of code.  But it is currently
-consuming that much in this patch set, each time a for node loop is
-invoked.
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5/2.6.5-mm2/
+> 
+> 
+> - Merged up Ian Kent's autofs4 patches
+> 
+> - Various fixes and speedups.
 
-This is because "for_each_online_node" boils down to two copies of
-"find_next_bit" (to get the first bit and then to get the next bit), and
-in the file include/asm-ia64/bitops.h, find_next_bit() is the following
-hefty chunk of inline code:
 
-/*
- * Find next bit in a bitmap reasonably efficiently..
- */
-static inline int
-find_next_bit(const void *addr, unsigned long size, unsigned long offset)
-{
-        unsigned long *p = ((unsigned long *) addr) + (offset >> 6);
-        unsigned long result = offset & ~63UL;
-        unsigned long tmp;
+Hi Andrew,
 
-        if (offset >= size)
-                return size;
-        size -= result;
-        offset &= 63UL;
-        if (offset) {
-                tmp = *(p++);
-                tmp &= ~0UL << offset;
-                if (size < 64)
-                        goto found_first;
-                if (tmp)
-                        goto found_middle;
-                size -= 64;
-                result += 64;
-        }
-        while (size & ~63UL) {
-                if ((tmp = *(p++)))
-                        goto found_middle;
-                result += 64;
-                size -= 64;
-        }
-        if (!size)
-                return result;
-        tmp = *p;
-  found_first:
-        tmp &= ~0UL >> (64-size);
-        if (tmp == 0UL)         /* Are any bits set? */
-                return result + size; /* Nope. */
-  found_middle:
-        return result + __ffs(tmp);
-}
+When building on my Compaq EvoN600c, I get this compile error :
 
-===
+CC [M]  drivers/scsi/sr.o
+	    drivers/scsi/sr.c: In function scsi_cd_get':
+	    drivers/scsi/sr.c:128: error: structure has no member named kobj'
+	    drivers/scsi/sr.c: In function scsi_cd_put':
+	    drivers/scsi/sr.c:135: error: structure has no member named kobj'
+	    drivers/scsi/sr.c: In function sr_probe':
+	    drivers/scsi/sr.c:554: error: structure has no member named kobj'
+	    drivers/scsi/sr.c:555: error: structure has no member named kobj'
+	    drivers/scsi/sr.c: In function sr_kobject_release':
+	    drivers/scsi/sr.c:904: error: structure has no member named kobj'
+	    drivers/scsi/sr.c:904: warning: type defaults to int' in
+declaration of __mptr'
+drivers/scsi/sr.c:904: warning: initialization from incompatible pointer type
+drivers/scsi/sr.c:904: error: structure has no member named kobj'
+make[2]: *** [drivers/scsi/sr.o] Error 1
+make[1]: *** [drivers/scsi] Error 2
+make: *** [drivers] Error 2
 
-Some things that Matthew might want to try:
- 1) Don't inline ia64 find_next_bit
- 2) Hunt down and minimize uses find_next_bit (benefits more than just numamask)
- 3) Instead of having the loop macro evaluate to:
+2.6.5-mm1 and previous compiled without any problem.
+.config attached.
 
-	for (i = first_node(mask);  i < MAX_NUMNODES;  i = next_node(i, mask))
-
-    rather have it evaluate something like this (node_set is more efficient):
-
-	for (
-	      ({ i = 0; while(!node_set(i, mask) && i < MAX_NUMNODES) i++; i; });
-	      i < MAX_NUMNODES; 
-	      ({ i++; while(!node_set(i, mask) && i < MAX_NUMNODES) i++; i; })
-	)
-
-Hmmm ... (3) looks rather nice (in an ugly sort of way ...).  It might be
-worth moving lower, perhaps into bitmap, for use by both cpumask and
-nodemask.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Best Regards
+--
+Brice Goglin
+================================================
+Ph.D Student
+Laboratoire de l'Informatique et du Parallélisme
+CNRS-ENS Lyon-INRIA-UCB Lyon
+France

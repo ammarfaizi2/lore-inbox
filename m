@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbVCGAYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVCGAev@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261617AbVCGAYT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 19:24:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbVCGAYT
+	id S261509AbVCGAev (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 19:34:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVCGAev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 19:24:19 -0500
-Received: from coderock.org ([193.77.147.115]:52656 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261605AbVCGAVj (ORCPT
+	Sun, 6 Mar 2005 19:34:51 -0500
+Received: from fire.osdl.org ([65.172.181.4]:15064 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261509AbVCGAet (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 19:21:39 -0500
-Date: Mon, 7 Mar 2005 01:21:33 +0100
-From: Domen Puncer <domen@coderock.org>
-To: Ralph Corderoy <ralph@inputplus.co.uk>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       isdn4linux@listserv.isdn4linux.de, jlamanna@gmail.com
-Subject: Re: [patch 1/8] isdn_bsdcomp.c - vfree() checking cleanups
-Message-ID: <20050307002133.GG32564@nd47.coderock.org>
-References: <20050306223800.1BBDC1EC90@trashy.coderock.org> <200503070007.j2707n403396@blake.inputplus.co.uk>
+	Sun, 6 Mar 2005 19:34:49 -0500
+Date: Sun, 6 Mar 2005 16:34:47 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: domen@coderock.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch 04/12] drivers/net/myri_code.h cleanup
+Message-Id: <20050306163447.2f776a0d.akpm@osdl.org>
+In-Reply-To: <20050305153518.9CA5D1F07A@trashy.coderock.org>
+References: <20050305153518.9CA5D1F07A@trashy.coderock.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503070007.j2707n403396@blake.inputplus.co.uk>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 07/03/05 00:07 +0000, Ralph Corderoy wrote:
+domen@coderock.org wrote:
+>
+> Cleanup initialization to 0.
 > 
-> Hi Domen,
-> 
-> > -		if (db->dict) {
-> > -			vfree (db->dict);
-> > -			db->dict = NULL;
-> > -		}
-> > +		vfree (db->dict);
-> > +		db->dict = NULL;
-> 
-> Is it really worth always calling vfree() which calls __vunmap() before
-> db->dict is determined to be NULL in order to turn three lines into two?
+> Basically it does:
+> -static unsigned char lanai4_data[20472] __initdata = {
+> -0x00,0x00,
+> - a bunch of zeroes
+> -0x00,0x00, 0x00,0x00, 0x00,0x00, } ;
+> +static unsigned char lanai4_data[20472] __initdata = { };
 
-Four lines into two :-)
-
-> Plus the write to db->dict which might otherwise not be needed.  The old
-> code was clear, clean, and fast, no?
-
-Shorter and more readable code is always better, right? And speed really
-doesn't seem to be an issue here.
-
-
-	Domen
+Fair enough.  If someone regenerates that header then we'll be back to the
+same silliness.  I guess we just need to keep an eye out for that.

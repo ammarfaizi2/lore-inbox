@@ -1,65 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbUKJEQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUKJESE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261849AbUKJEQK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 23:16:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbUKJEQK
+	id S261875AbUKJESE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 23:18:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbUKJESE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 23:16:10 -0500
-Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:24482 "HELO
-	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261849AbUKJEQC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 23:16:02 -0500
+	Tue, 9 Nov 2004 23:18:04 -0500
+Received: from smtp806.mail.sc5.yahoo.com ([66.163.168.185]:60506 "HELO
+	smtp806.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261875AbUKJERi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 23:17:38 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] Re: 2.6.10-rc1-mm3: ACPI problem due to un-exported hotplug_path
-Date: Tue, 9 Nov 2004 23:15:55 -0500
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 2.6.10-rc1 2/5] driver-model: bus_recan_devices() locking fix
+Date: Tue, 9 Nov 2004 23:17:31 -0500
 User-Agent: KMail/1.6.2
-Cc: Greg KH <greg@kroah.com>,
-       Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
-       Kay Sievers <kay.sievers@vrfy.org>, tokunaga.keiich@jp.fujitsu.com,
-       motoyuki@soft.fujitsu.com, Adrian Bunk <bunk@stusta.de>,
-       Andrew Morton <akpm@osdl.org>, rml@novell.com, len.brown@intel.com,
-       acpi-devel@lists.sourceforge.net
-References: <20041105001328.3ba97e08.akpm@osdl.org> <d120d5000411091548584bf8c5@mail.gmail.com> <20041110000811.GA8543@kroah.com>
-In-Reply-To: <20041110000811.GA8543@kroah.com>
+Cc: Tejun Heo <tj@home-tj.org>, LKML <linux-kernel@vger.kernel.org>
+References: <20041104185826.GA17756@kroah.com> <d120d50004110508333c183cc1@mail.gmail.com> <20041110004052.GB8672@kroah.com>
+In-Reply-To: <20041110004052.GB8672@kroah.com>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200411092315.55187.dtor_core@ameritech.net>
+Message-Id: <200411092317.33300.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 November 2004 07:08 pm, Greg KH wrote:
-> On Tue, Nov 09, 2004 at 06:48:17PM -0500, Dmitry Torokhov wrote:
-> > On Tue, 9 Nov 2004 14:55:02 -0800, Greg KH <greg@kroah.com> wrote:
-> > > On Fri, Nov 05, 2004 at 09:18:48PM -0800, Keshavamurthy Anil S wrote:
-> > > > Also, since you have brought this, I have one another question to you.
-> > > > Now in the new kernel, I see whenever anybody calls sysdev_register(kobj),
-> > > > an "ADD" notification is sent. why is this? I would like to call
-> > > > kobject_hotplug(kobj, ADD) later.
-> > > 
-> > > This happens when kobject_add() is called.  You shouldn't ever need to
-> > > call kobject_hotplug() for an add event yourself.
-> > > 
-> > 
-> > This is not always the case. One might want to postpone ADD event
-> > until all summpelental object attributes are created. This way userspace
-> > is presented with object in consistent state.
+On Tuesday 09 November 2004 07:40 pm, Greg KH wrote:
+> > I think we just have lay down the rules that one needs to get a reference
+> > to an object in the following cases:
+> > - object creation (first reference)
+> > - linking some other object to the object in question. Every link to the
+> > ? object should increase reference count.
+> > - before passing object to another thread of execution to guarantee that
+> > ? the object will live long enough for both threads.
 > 
-> No, that's a mess.  Let userspace wait for those attributes to show up
-> if they need to.  That's what the "wait_for_sysfs" program bundled with
-> udev is for.
->
+> The rules are defined. ?See my OLS 2004 paper on krefs for details.
+> 
 
-I strongly disagree:
-
-- it makes userspace being aware of implementation details (whe exactly it
-  has to wait for, for how long, etc.) which is bad thing;
-- not all the world is udev - needless replication of the code and bugs;
-- not only making visible but announcing an object in non-working state
-  to userspace simply does not feel right.
+So that means you will patches like the one below, right?
 
 -- 
 Dmitry
+
+
+===================================================================
+
+
+ChangeSet@1.1964, 2004-11-09 23:14:31-05:00, dtor_core@ameritech.net
+  Driver core: remove unnecessary get_driver/put_driver from driver.c
+  
+  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+
+
+ driver.c |   13 ++-----------
+ 1 files changed, 2 insertions(+), 11 deletions(-)
+
+
+===================================================================
+
+
+
+diff -Nru a/drivers/base/driver.c b/drivers/base/driver.c
+--- a/drivers/base/driver.c	2004-11-09 23:16:43 -05:00
++++ b/drivers/base/driver.c	2004-11-09 23:16:43 -05:00
+@@ -26,13 +26,7 @@
+ 
+ int driver_create_file(struct device_driver * drv, struct driver_attribute * attr)
+ {
+-	int error;
+-	if (get_driver(drv)) {
+-		error = sysfs_create_file(&drv->kobj, &attr->attr);
+-		put_driver(drv);
+-	} else
+-		error = -EINVAL;
+-	return error;
++	return sysfs_create_file(&drv->kobj, &attr->attr);
+ }
+ 
+ 
+@@ -44,10 +38,7 @@
+ 
+ void driver_remove_file(struct device_driver * drv, struct driver_attribute * attr)
+ {
+-	if (get_driver(drv)) {
+-		sysfs_remove_file(&drv->kobj, &attr->attr);
+-		put_driver(drv);
+-	}
++	sysfs_remove_file(&drv->kobj, &attr->attr);
+ }
+ 
+ 

@@ -1,26 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281319AbRKQU7L>; Sat, 17 Nov 2001 15:59:11 -0500
+	id <S281321AbRKQVBK>; Sat, 17 Nov 2001 16:01:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281321AbRKQU7A>; Sat, 17 Nov 2001 15:59:00 -0500
-Received: from mail126.mail.bellsouth.net ([205.152.58.86]:14004 "EHLO
-	imf26bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S281319AbRKQU6n>; Sat, 17 Nov 2001 15:58:43 -0500
-Message-ID: <3BF6CE2B.857A2AEB@bellsouth.net>
-Date: Sat, 17 Nov 2001 15:52:59 -0500
-From: Steve Martin <ecprod@bellsouth.net>
-Organization: WATE-TV, Knoxville, TN
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S281323AbRKQVBA>; Sat, 17 Nov 2001 16:01:00 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62990 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281321AbRKQVAw>; Sat, 17 Nov 2001 16:00:52 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.4.14 loop.o missing symbol
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: i386 flags register clober in inline assembly
+Date: 17 Nov 2001 13:00:17 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9t6j51$lle$1@cesium.transmeta.com>
+In-Reply-To: <87y9l58pb5.fsf@fadata.bg> <200111171920.fAHJKjJ01550@penguin.transmeta.com> <20011117214041.D3789@atrey.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI: in kernel 2.4.14, symbol "deactivate_page()"
-is not exported from kernel/ksyms.c, causing
-unresolved reference in drivers/block/loop.c
+Followup to:  <20011117214041.D3789@atrey.karlin.mff.cuni.cz>
+By author:    Jan Hubicka <jh@suse.cz>
+In newsgroup: linux.dev.kernel
+> 
+> Actually the main dificulty I see is storing cc0 to variable.  CC0 is hard
+> register and pretty strange one - you can't move it, you can't spill.  Using
+> the syntax above you can easilly make cc0 from asm statement to span another
+> cc0 set resulting in incorrect code or compiler crash.
+> (the code generator may insert any code in between statements as it don't
+> know he can't clobber cc0. In fact this is happening in from of if
+> construct as deffered stack deallocators are flushed).
+> 
 
+Why can't you move or spill it?  There are a whole lot of ways you
+could do either: pushf, sahf, setcc...
+
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

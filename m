@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262156AbTJNCMS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 22:12:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbTJNCMS
+	id S262161AbTJNCXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 22:23:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTJNCXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 22:12:18 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:62436 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S262156AbTJNCMR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 22:12:17 -0400
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: initcall ordering of driver w/respect to tty_init?
-References: <buo65j0f9vi.fsf@mcspd15.ucom.lsi.nec.co.jp>
-	<20031010080212.6ddb02ff.rddunlap@osdl.org>
-	<20031010181251.GA32720@fencepost>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 14 Oct 2003 11:12:01 +0900
-In-Reply-To: <20031010181251.GA32720@fencepost>
-Message-ID: <buohe2ctvny.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	Mon, 13 Oct 2003 22:23:09 -0400
+Received: from smtp13.eresmas.com ([62.81.235.113]:12521 "EHLO
+	smtp13.eresmas.com") by vger.kernel.org with ESMTP id S262161AbTJNCXG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 22:23:06 -0400
+Message-ID: <3F8B5DDB.2050302@wanadoo.es>
+Date: Tue, 14 Oct 2003 04:22:19 +0200
+From: Xose Vazquez Perez <xose@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: gl, es, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][TRIVIAL] triple question marks in ppa.c
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Bader <miles@gnu.org> writes:
-> I think that would solve the problem, but is it the right solution?  How
-> about all those other drivers that call tty_register_driver?  module_init
-> becomes __initcall when driver is statically linked into the kernel...
+Rik van Riel espetou:
 
-I've looked more at <linux/init.h>, and I think for my driver, which is
-always statically linked, I can use `late_initcall' instead of
-`__initcall' (it makes me slightly nervous to use the last init slot,
-but whatever).
+> Don't ask me why???  Triple question marks are a C trigraph in ansi C.
+                       ^^^^^^^^^^^^^^^^^^^^^
 
-But what about all those tty drivers that are suppose to work as
-modules?  They use `module_init' to do their initialization, which will
-work fine when they _are_ a module, but if they get statically linked,
-the module_init will turn into `__initcall', and run into the same
-problem I'm having.  Presumably they _could_ use `late_initcall', since
-<linux/init.h> contains code that makes it work in modules too, but the
-comment in the code says you shouldn't do that.
+[1]'ISO/IEC 9899:1999  Programming languages  --  C' says in §5.2.1.1 that
+C trigraph sequences are:
 
-[To recap: tty drivers that use module_init to initialize themselves,
-which turns into __initcall if statically linked, will only work if they
-happen to be initialized _after_ tty_io.c (because of the kobj stuff) --
-and there seems to be nothing enforcing this ordering.]
+??=     #         ??)     ]         ??!     |
+??(     [         ??'     ^         ??>     }
+??/     \         ??<     {         ??-     ~
 
--Miles
+"No  other  trigraph  sequences exist", I didn't look [2] 'Corrigendum 1,
+ISO/IEC 9899:1999/Cor 1:2001', but I think that they were not modified.
+
+And inside of comments there are not trigraph substitutions, at least
+in theory §6.4.9.
+
+I only found a few in 2.4.22-bk30, aka 2.4.23-pre7:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=106565695609164&w=2
+
+thanks to fix them ;-)
+
+[1]
+  http://www.cl.cam.ac.uk/~mgk25/volatile/ISO-C-FDIS.1999-04.txt
+  http://www.cl.cam.ac.uk/~mgk25/volatile/ISO-C-FDIS.1999-04.pdf
+[2]
+  http://www.iso.org/iso/en/CatalogueDetailPage.CatalogueDetail?CSNUMBER=35952
 -- 
-97% of everything is grunge
+Software is like sex, it's better when it's bug free.
+

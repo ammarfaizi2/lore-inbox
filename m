@@ -1,43 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262312AbVBXMiw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262326AbVBXMqQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262312AbVBXMiw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 07:38:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262326AbVBXMiw
+	id S262326AbVBXMqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 07:46:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbVBXMqQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 07:38:52 -0500
-Received: from alog0252.analogic.com ([208.224.222.28]:2944 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262312AbVBXMiC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 07:38:02 -0500
-Date: Thu, 24 Feb 2005 07:37:03 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Alan Kilian <kilian@bobodyne.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Help enabling PCI interrupts on Dell/SMP and Sun/SMP systems.
-In-Reply-To: <1109197066.9116.319.camel@desk>
-Message-ID: <Pine.LNX.4.61.0502240733080.12742@chaos.analogic.com>
-References: <1109190273.9116.307.camel@desk>  <Pine.LNX.4.61.0502231538230.5623@chaos.analogic.com>
- <1109197066.9116.319.camel@desk>
+	Thu, 24 Feb 2005 07:46:16 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29414 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262326AbVBXMpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 07:45:40 -0500
+Message-ID: <421DCC64.1050407@pobox.com>
+Date: Thu, 24 Feb 2005 07:45:24 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [RFT PATCH] PCI MSI support for AHCI SATA driver
+Content-Type: multipart/mixed;
+ boundary="------------060706000101000906070100"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------060706000101000906070100
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Where are you getting IRQ5 from? You can't "hard-code" interrupts on
-PCI.
+Any testers wanna give this a shot?  Testing should be easy:
 
-> 	kernel: ACPI: PCI interrupt 0000:13:03.0[A] -> GSI 36 (level, low) ->
-> IRQ 217
-^^^^^^^^^___________ This is your IRQ
+(a) make sure it still works.
 
-It should be in dev->irq AFTER it's enabled.
-[SNIPPED...]
+(b) cat /proc/interrupts to make sure that MSI is truly activated.
+
+Patch against 2.6.11-rc5.
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+--------------060706000101000906070100
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+diff -Nru a/drivers/scsi/ahci.c b/drivers/scsi/ahci.c
+--- a/drivers/scsi/ahci.c	2005-02-24 07:00:45 -05:00
++++ b/drivers/scsi/ahci.c	2005-02-24 07:00:45 -05:00
+@@ -152,6 +152,7 @@
+ 
+ struct ahci_host_priv {
+ 	unsigned long		flags;
++	unsigned int		have_msi; /* is PCI MSI enabled? */
+ 	u32			cap;	/* cache of HOST_CAP register */
+ 	u32			port_map; /* cache of HOST_PORTS_IMPL reg */
+ };
+@@ -181,6 +182,7 @@
+ static u8 ahci_check_status(struct ata_port *ap);
+ static u8 ahci_check_err(struct ata_port *ap);
+ static inline int ahci_host_intr(struct ata_port *ap, struct ata_queued_cmd *qc);
++static void ahci_remove_one (struct pci_dev *pdev);
+ 
+ static Scsi_Host_Template ahci_sht = {
+ 	.module			= THIS_MODULE,
+@@ -263,7 +265,7 @@
+ 	.name			= DRV_NAME,
+ 	.id_table		= ahci_pci_tbl,
+ 	.probe			= ahci_init_one,
+-	.remove			= ata_pci_remove_one,
++	.remove			= ahci_remove_one,
+ };
+ 
+ 
+@@ -860,15 +862,19 @@
+ }
+ 
+ /* move to PCI layer, integrate w/ MSI stuff */
+-static void pci_enable_intx(struct pci_dev *pdev)
++static void pci_intx(struct pci_dev *pdev, int enable)
+ {
+-	u16 pci_command;
++	u16 pci_command, new;
+ 
+ 	pci_read_config_word(pdev, PCI_COMMAND, &pci_command);
+-	if (pci_command & PCI_COMMAND_INTX_DISABLE) {
+-		pci_command &= ~PCI_COMMAND_INTX_DISABLE;
++
++	if (enable)
++		new = pci_command & ~PCI_COMMAND_INTX_DISABLE;
++	else
++		new = pci_command | PCI_COMMAND_INTX_DISABLE;
++
++	if (new != pci_command)
+ 		pci_write_config_word(pdev, PCI_COMMAND, pci_command);
+-	}
+ }
+ 
+ static void ahci_print_info(struct ata_probe_ent *probe_ent)
+@@ -950,7 +956,7 @@
+ 	unsigned long base;
+ 	void *mmio_base;
+ 	unsigned int board_idx = (unsigned int) ent->driver_data;
+-	int pci_dev_busy = 0;
++	int have_msi, pci_dev_busy = 0;
+ 	int rc;
+ 
+ 	VPRINTK("ENTER\n");
+@@ -968,12 +974,17 @@
+ 		goto err_out;
+ 	}
+ 
+-	pci_enable_intx(pdev);
++	if (pci_enable_msi(pdev) == 0)
++		have_msi = 1;
++	else {
++		pci_intx(pdev, 1);
++		have_msi = 0;
++	}
+ 
+ 	probe_ent = kmalloc(sizeof(*probe_ent), GFP_KERNEL);
+ 	if (probe_ent == NULL) {
+ 		rc = -ENOMEM;
+-		goto err_out_regions;
++		goto err_out_msi;
+ 	}
+ 
+ 	memset(probe_ent, 0, sizeof(*probe_ent));
+@@ -1006,6 +1017,8 @@
+ 	probe_ent->mmio_base = mmio_base;
+ 	probe_ent->private_data = hpriv;
+ 
++	hpriv->have_msi = have_msi;
++
+ 	/* initialize adapter */
+ 	rc = ahci_host_init(probe_ent);
+ 	if (rc)
+@@ -1025,7 +1038,11 @@
+ 	iounmap(mmio_base);
+ err_out_free_ent:
+ 	kfree(probe_ent);
+-err_out_regions:
++err_out_msi:
++	if (have_msi)
++		pci_disable_msi(pdev);
++	else
++		pci_intx(pdev, 0);
+ 	pci_release_regions(pdev);
+ err_out:
+ 	if (!pci_dev_busy)
+@@ -1033,6 +1050,42 @@
+ 	return rc;
+ }
+ 
++static void ahci_remove_one (struct pci_dev *pdev)
++{
++	struct device *dev = pci_dev_to_dev(pdev);
++	struct ata_host_set *host_set = dev_get_drvdata(dev);
++	struct ahci_host_priv *hpriv = host_set->private_data;
++	struct ata_port *ap;
++	unsigned int i;
++	int have_msi;
++
++	for (i = 0; i < host_set->n_ports; i++) {
++		ap = host_set->ports[i];
++
++		scsi_remove_host(ap->host);
++	}
++
++	have_msi = hpriv->have_msi;
++	free_irq(host_set->irq, host_set);
++	host_set->ops->host_stop(host_set);
++	iounmap(host_set->mmio_base);
++
++	for (i = 0; i < host_set->n_ports; i++) {
++		ap = host_set->ports[i];
++
++		ata_scsi_release(ap->host);
++		scsi_host_put(ap->host);
++	}
++
++	if (have_msi)
++		pci_disable_msi(pdev);
++	else
++		pci_intx(pdev, 0);
++	pci_release_regions(pdev);
++	kfree(host_set);
++	pci_disable_device(pdev);
++	dev_set_drvdata(dev, NULL);
++}
+ 
+ static int __init ahci_init(void)
+ {
+
+--------------060706000101000906070100--

@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268113AbTBRXi0>; Tue, 18 Feb 2003 18:38:26 -0500
+	id <S268114AbTBRXih>; Tue, 18 Feb 2003 18:38:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268114AbTBRXi0>; Tue, 18 Feb 2003 18:38:26 -0500
-Received: from smtp.terra.es ([213.4.129.129]:1174 "EHLO tsmtp8.mail.isp")
-	by vger.kernel.org with ESMTP id <S268113AbTBRXiZ> convert rfc822-to-8bit;
-	Tue, 18 Feb 2003 18:38:25 -0500
-Date: Wed, 19 Feb 2003 00:47:28 +0100
-From: Arador <diegocg@teleline.es>
+	id <S268116AbTBRXih>; Tue, 18 Feb 2003 18:38:37 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:34462 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id <S268114AbTBRXih>; Tue, 18 Feb 2003 18:38:37 -0500
+Message-ID: <3E52C652.7030109@hotmail.com>
+Date: Tue, 18 Feb 2003 15:48:34 -0800
+From: walt <wa1ter@hotmail.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: buggy include path?
-Message-Id: <20030219004728.37c9f3bd.diegocg@teleline.es>
-In-Reply-To: <20030219002938.08b717c7.diegocg@teleline.es>
-References: <20030219002938.08b717c7.diegocg@teleline.es>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Subject: Re: Linux v2.5.62 --- spontaneous reboots
+References: <fa.oa9dc7e.jk65re@ifi.uio.no> <fa.d672u14.1gk8ea4@ifi.uio.no>
+In-Reply-To: <fa.d672u14.1gk8ea4@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El día Wed, 19 Feb 2003 00:29:38 +0100
-Arador <diegocg@teleline.es> escribió...
+Chris Wedgwood wrote:
 
-> Including include/usb.h from a external module source (out of the kernel tree) causes 
-> this:
-> In file included from /home/diego/kernel/unsta/include/linux/irq.h:19,
->                  from /home/diego/kernel/unsta/include/asm/hardirq.h:6,
->                  from /home/diego/kernel/unsta/include/linux/interrupt.h:9,
->                  from /home/diego/kernel/unsta/include/linux/usb.h:15, <- file included
->                  from w9968cf.h:38,
->                  from w9968cf.c:57:
-> /home/diego/kernel/unsta/include/asm/irq.h:16:25: irq_vectors.h: No such file or directory
+> ...I'd suspect it was an Athlon or chipset problem if it weren't for the
+> fact 2.4.x is stable for 8+ hours doing doing the same exact thing[1].
 
-of course, w9968cf.c just includes <include/usb.h>, with -I/home/diego/kernel/unsta/include
+Unfortunately this is not proof  :-(    I can tell you from personal
+experience that the BSD kernels are much more sensitive to overheating
+hardware than linux is, for example -- so one linux kernel could just
+as easily be more sensitive to overheating than another linux kernel.
+
+I've never found out why this is, but I know it's true.  When I try
+to run a BSD kernel on a dust-covered motherboard I'll get random
+crashes all over the place even though a linux kernel will run just
+fine on the same machine.  All I do is blow the dust off the motherboard
+and both kernels run again without problem.  Absolutely for sure.
+
+I'd love to know what makes the difference.
 
 
-Diego Calleja
+

@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268339AbTBSKGB>; Wed, 19 Feb 2003 05:06:01 -0500
+	id <S268337AbTBSKFO>; Wed, 19 Feb 2003 05:05:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268340AbTBSKGA>; Wed, 19 Feb 2003 05:06:00 -0500
-Received: from mail.uptime.at ([62.116.87.11]:17327 "EHLO mail.uptime.at")
-	by vger.kernel.org with ESMTP id <S268339AbTBSKF7> convert rfc822-to-8bit;
-	Wed, 19 Feb 2003 05:05:59 -0500
-Received-Date: Wed, 19 Feb 2003 11:14:38 +0100
-From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
-To: "=?iso-8859-1?Q?'M=E5ns_Rullg=E5rd'?=" <mru@users.sourceforge.net>
-Cc: <axp-kernel-list@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Module problems (WAS: RE: 2.5.62 on Alpha SUCCESS (2.6 release soon!?))
-Date: Wed, 19 Feb 2003 11:14:13 +0100
-Organization: UPtime system solutions
-Message-ID: <008001c2d7ff$aa12b420$020b10ac@pitzeier.priv.at>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-In-Reply-To: <yw1xof59202j.fsf@bamse.e.kth.se>
-Importance: Normal
-X-MailScanner: clean
-X-MailScanner-Information: Please contact UPtime Systemloesungen for more information
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.2, required 5.3,
-	AWL, IN_REP_TO, NOSPAM_INC, PLING_QUERY, SPAM_PHRASE_00_01)
+	id <S268339AbTBSKFO>; Wed, 19 Feb 2003 05:05:14 -0500
+Received: from ns.suse.de ([213.95.15.193]:35849 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S268337AbTBSKFN>;
+	Wed, 19 Feb 2003 05:05:13 -0500
+Date: Wed, 19 Feb 2003 11:15:15 +0100
+From: Dave Jones <davej@suse.de>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       linux@brodo.de
+Subject: Re: Select voltage manually in cpufreq
+Message-ID: <20030219111515.B15407@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Chris Wedgwood <cw@f00f.org>, Pavel Machek <pavel@suse.cz>,
+	kernel list <linux-kernel@vger.kernel.org>, linux@brodo.de
+References: <20030218214220.GA1058@elf.ucw.cz> <20030218214726.GB15007@f00f.org> <20030218215819.GC21974@atrey.karlin.mff.cuni.cz> <20030218220858.GA15273@f00f.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030218220858.GA15273@f00f.org>; from cw@f00f.org on Tue, Feb 18, 2003 at 02:08:58PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård wrote:
-> "Oliver Pitzeier" <o.pitzeier@uptime.at> writes:
-[ ... ]
-> > OK... Make modules_install still has problems:
-[ ... ]
-> Which versions of binutils and gcc do you have?  I get 
-> similar problems with binutils 2.13 and 2.4 kernels.
+On Tue, Feb 18, 2003 at 02:08:58PM -0800, Chris Wedgwood wrote:
+ > On Tue, Feb 18, 2003 at 10:58:19PM +0100, Pavel Machek wrote:
+ > 
+ > > Well, and does slow-low-power mean 300MHz, 1.4V as bios said, or
+ > > 300MHz, 1.2V which is probably also safe?
+ > 
+ > I have no idea... that's the point... the user almost never knows what
+ > *exact* magic values are required, they just want fast-on-power or
+ > slow-on-battery sort of thing.
 
-This is my current env.:
-[root@track /root]# rpm -q modutils binutils gcc
-modutils-2.4.22-8
-binutils-2.12.90.0.7-3
-gcc-3.1-6
+One possibility is a database of known-safe overrides for specific
+models of laptops.  We *could* even do DMI based overrides which make
+cpufreq point at an in-module PST instead of BIOS. That in-module PST
+would be machine-independant, and would need to be derived by someone
+like Pavel using a patch pretty much like the one he proposed to do
+trial and error testing. The only thing I'm concerned about with that
+approach is the risk of possible damage.
 
-Maybe I should upgrade gcc? But I believe 3.1 is working fine... At least for my
-normally...
+longhaul will allow you to overclock/overpower the cpu. I've never
+actually damaged a C3 in this way, just locked it up needing a
+power-cycle.  powernow-k7 clips in hardware to the maximum the cpu
+is capable of.  Specifying too low a voltage also seems to universally
+lock up the box. Those are the implementations I know about, so unless
+any of the other implementations allow dangerous operations, we should
+be 'mostly harmless' right now.
 
-Best regards,
- Oliver
+        Dave
 
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

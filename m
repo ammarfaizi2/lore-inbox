@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266578AbUFWRBI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266580AbUFWRCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266578AbUFWRBI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 13:01:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266580AbUFWRBI
+	id S266580AbUFWRCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 13:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUFWRCZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 13:01:08 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:7907 "EHLO hermes.jf.intel.com")
-	by vger.kernel.org with ESMTP id S266578AbUFWRA4 convert rfc822-to-8bit
+	Wed, 23 Jun 2004 13:02:25 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:24920 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S266585AbUFWRCG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 13:00:56 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH]2.6.7 MSI-X Update
-Date: Wed, 23 Jun 2004 09:58:50 -0700
-Message-ID: <C7AB9DA4D0B1F344BF2489FA165E5024057E5AB3@orsmsx404.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH]2.6.7 MSI-X Update
-Thread-Index: AcRYwmf4u2lU6ZiXSh23inY3QDd0twAf/Kgg
-From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-To: "Roland Dreier" <roland@topspin.com>
-Cc: <ak@muc.de>, <akpm@osdl.org>, <greg@kroah.com>, <jgarzik@pobox.com>,
-       <linux-kernel@vger.kernel.org>, <zwane@linuxpower.ca>,
-       <eli@mellanox.co.il>, "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-X-OriginalArrivalTime: 23 Jun 2004 16:58:51.0617 (UTC) FILETIME=[5C1AFD10:01C45943]
+	Wed, 23 Jun 2004 13:02:06 -0400
+Subject: Re: 2.6.7-bk5 scheduling while atomic
+From: Paul Fulghum <paulkf@microgate.com>
+To: Christian Kujau <evil@g-house.de>
+Cc: Klaus Dittrich <kladit@t-online.de>,
+       linux mailing-list <linux-kernel@vger.kernel.org>
+In-Reply-To: <40D864BF.9000304@g-house.de>
+References: <20040622135529.GA838@xeon2.local.here>
+	 <40D864BF.9000304@g-house.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1088010119.2017.1.camel@deimos.microgate.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 23 Jun 2004 12:01:59 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, June 22, 2004 Roland Dreier wrote: 
->This looks good, a definite improvement over what's currently in the
->kernel.  I do have one question about the whole msi.c file (and this
->applies to the code that's already in the tree, too).  Why is config
->space being accessed via calls like
->
->	dev->bus->ops->read(dev->bus, dev->devfn, ... )
->
->instead of just calling
->
->        pci_read_config_word(dev, ... )
->
->The only difference seems to be that MSI is bypassing the locking in
->access.c.  Is there some reason for this?
+On Tue, 2004-06-22 at 11:56, Christian Kujau wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Klaus Dittrich wrote:
+> > System smp (2 x XEON, I7505) preemptive
+> >
+> > With kernel-2.6.7-bk5 I get a lot of
+> > "kernel: bad: scheduling while atomic!" messages
+> > during startup.
+> >
+> > 2.6.7 runs fine using the basically the same configuration.
+> >
+> > Did anybody else see this ?
 
-I think that the locking in access.c is not necessary. But I agree 
-with you that using pci_read_config_word() would be cleaner. 
+> yes, "me too". but i was not able to get the messages flushed to the
+> disk. this is 2.6.7-BK kernel from 2004-06-21 (around 4p.m., GMT+1).
 
-Thanks,
-Long
+2.6.7-bk6 fixes it for me.
+
+--
+Paul Fulghum
+paulkf@microgate.com
 
 

@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270825AbRIARL6>; Sat, 1 Sep 2001 13:11:58 -0400
+	id <S270818AbRIARMu>; Sat, 1 Sep 2001 13:12:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270827AbRIARLi>; Sat, 1 Sep 2001 13:11:38 -0400
-Received: from femail29.sdc1.sfba.home.com ([24.254.60.19]:7141 "EHLO
-	femail29.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S270825AbRIARLg>; Sat, 1 Sep 2001 13:11:36 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: "Simen Thoresen" <simentt@dolphinics.no>,
-        "alan" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Status of the VIA KT133a and 2.4.x debacle?
-Date: Sat, 1 Sep 2001 10:11:14 -0700
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200109011619480531.23AA844A@scispor.dolphinics.no>
-In-Reply-To: <200109011619480531.23AA844A@scispor.dolphinics.no>
-MIME-Version: 1.0
-Message-Id: <01090110111400.00171@c779218-a>
-Content-Transfer-Encoding: 7BIT
+	id <S270827AbRIARMl>; Sat, 1 Sep 2001 13:12:41 -0400
+Received: from tantalophile.demon.co.uk ([193.237.65.219]:3200 "EHLO
+	kushida.degree2.com") by vger.kernel.org with ESMTP
+	id <S270818AbRIARMc>; Sat, 1 Sep 2001 13:12:32 -0400
+Date: Sat, 1 Sep 2001 16:50:42 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>,
+        "'Russell Coker'" <russell@coker.com.au>,
+        "\"Acpi-linux (E-mail)\"" <acpi@phobos.fachschaften.tu-muenchen.de>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: lilo vs other OS bootloaders was: FreeBSD makes progress
+Message-ID: <20010901165042.B1624@thefinal.cern.ch>
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0DB@orsmsx35.jf.intel.com> <E15cx6w-00049f-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E15cx6w-00049f-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Aug 31, 2001 at 11:50:02PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 01 September 2001 07:19 am, Simen Thoresen wrote:
-> Alan, list, et all,
->
-> I've picked up a KT133a board (EpoX 8KTA/3) and a 1.2GHz Thunderbird
-> processor (133MHz FSB), and have seen the same problems that have been
-> reported previously with the KT133a. Random oops'es, both fatal and non
-> fatal, when running the system on a 2.4 kernel with CONFIG_MK7.
->
-> The bord seems rock solid with 2.2.x kernels, and also with 2.4.x
-> kernels with CONFIG_M686 set for basic i686 + MMX. I've also run the
-> board with a 100MHz FSB, but that has not improved anything. Also
-> turning off /some/ optimizations in bios have not helped.
+Alan Cox wrote:
+> All the discussion we have has been based on seriously enhancing and
+> expanding the use of the initrd/ramfs layer. Remember we can begin running
+> from ramfs without interrupts, pci bus scans or the like. The things it cant
+> do are - pick a kernel by processor type, pick SMP/non SMP.
 
-Just out of curiosity, can you drop that to 100Mhz FSB and a multiplier 
-of 8? I don't know about the manual clocking support on EpoX boards, but 
-if you can, it might be good to give it a shot. Most likely it has 
-nothing to do with clock speed whatsoever, but I'm really beginning to 
-wonder. I don't think I've seen a single reported case under 900-1000Mhz, 
-and thunderbirds were made below 900Mhz.
+The kernel could be chosen by processor type, if you added a "reboot
+into a new kernel" function.
 
-(reason I chose 800MHz is my non-tbird Athlon is 800 and is rock solid)
+It would be rather large for one initramfs, as _all_ of the modules have
+combinations of SMP/non-SMP x i386/486/586/686/athlon/686-PAE versions,
+not just the core kernel.
+
+It may still be a useful function for CDROM or network boots though.
+I.e. initramfs selects an optimised kernel and set of modules to run,
+and replaces the current generic kernel with the optimised one.
+
+-- Jamie

@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267465AbSKQIVj>; Sun, 17 Nov 2002 03:21:39 -0500
+	id <S267467AbSKQIYh>; Sun, 17 Nov 2002 03:24:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267466AbSKQIVj>; Sun, 17 Nov 2002 03:21:39 -0500
-Received: from mail1.csc.albany.edu ([169.226.1.133]:55463 "EHLO
-	smtp.albany.edu") by vger.kernel.org with ESMTP id <S267465AbSKQIVi> convert rfc822-to-8bit;
-	Sun, 17 Nov 2002 03:21:38 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Justin A <ja6447@albany.edu>
-To: ksardem@linux01.gwdg.de
-Subject: Re: bug in via-rhine network-driver (transmit timed out)
-Date: Sun, 17 Nov 2002 03:30:51 -0500
-User-Agent: KMail/1.4.3
+	id <S267468AbSKQIYh>; Sun, 17 Nov 2002 03:24:37 -0500
+Received: from uidc4-171.inav.uiowa.net ([64.6.85.246]:30854 "EHLO localhost")
+	by vger.kernel.org with ESMTP id <S267467AbSKQIYg>;
+	Sun, 17 Nov 2002 03:24:36 -0500
+Date: Sun, 17 Nov 2002 02:30:37 -0600
+From: Joseph Pingenot <trelane@digitasaru.net>
+To: Greg KH <greg@kroah.com>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200211170330.51312.ja6447@albany.edu>
+Subject: Re: 2.5.47 bug - USB usbfs segvs processes
+Message-ID: <20021117083031.GB4280@digitasaru.net>
+Reply-To: trelane@digitasaru.net
+Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <20021115174234.GB2828@digitasaru.net> <20021117004322.GD28824@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021117004322.GD28824@kroah.com>
+User-Agent: Mutt/1.4i
+X-School: University of Iowa
+X-vi-or-emacs: vi *and* emacs!
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had the same problem with the integrated nic on a soyo k7vdragon+
+>From Greg KH on Saturday, 16 November, 2002:
+>On Fri, Nov 15, 2002 at 11:42:34AM -0600, Joseph Pingenot wrote:
+>> /proc/bus/pci:58$ cat devices 
+>> Segmentation fault
+>You are trying to read /proc/bus/pci/* not /proc/bus/usb files.  So why
+>would you think usbfs would have a problem?
+>Also, a decoded oops report would help out a lot.
 
-search google/the archives for "via-rhine timeouts"
+heh.  I *am* an ass.  That is indeed /proc/bus/pci, not /proc/bus/usb.
+  Ewps.  lsusb *does* segv, although the fact that I was in the wrong
+  directory is intriguing.  Maybe I'll get the same problem as I got
+  with lsusb when trying lspci.  Hmm.
 
-Try the linuxfet driver found here:
+To my knowledge, there is no oops data.  I'll send more data when I get a
+  chance to reboot into that kernel.
 
-http://www.viaarena.com/?PageID=87#ethernet
-http://downloads.viaarena.com/LinuxApplicationNotes/RedHat/May02/VIA%20RH7.2-7.1%20Fast%20Ethernet%20Controller%20Driver%20Installation%20ver%200.9.gz
+-Joseph
 
-I've been using it since then without problems.  I had to change malloc.h or 
-whatever it used to be to slab.h a few versions ago to make it compile 
-without whining, but thats all.
 -- 
--Justin
-
+Joseph===============================================trelane@digitasaru.net
+"[The question of] copy protection has long been answered, and it's only
+  a matter of months until more or less all CDs will be published with
+  copy protection."  --"Ihr EMI Team" 
+    http://www.theregister.co.uk/content/54/27960.html

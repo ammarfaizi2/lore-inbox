@@ -1,77 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293615AbSBZWHN>; Tue, 26 Feb 2002 17:07:13 -0500
+	id <S293617AbSBZWGx>; Tue, 26 Feb 2002 17:06:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293618AbSBZWGy>; Tue, 26 Feb 2002 17:06:54 -0500
-Received: from NODE1.HOSTING-NETWORK.COM ([66.186.193.1]:25353 "HELO
-	hosting-network.com") by vger.kernel.org with SMTP
-	id <S293615AbSBZWGr>; Tue, 26 Feb 2002 17:06:47 -0500
-Subject: Natsemi Multicast rx problem, workaround
-From: Torrey Hoffman <thoffman@arnor.net>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	id <S293618AbSBZWGp>; Tue, 26 Feb 2002 17:06:45 -0500
+Received: from mx.nlm.nih.gov ([130.14.22.48]:23287 "EHLO mx.nlm.nih.gov")
+	by vger.kernel.org with ESMTP id <S293615AbSBZWGi>;
+	Tue, 26 Feb 2002 17:06:38 -0500
+Message-ID: <3C7C06E5.907F536E@ncbi.nlm.nih.gov>
+Date: Tue, 26 Feb 2002 17:06:29 -0500
+From: Anton Lavrentiev <lavr@ncbi.nlm.nih.gov>
+Organization: NCBI NIH
+X-Mailer: Mozilla 4.79 [en] (X11; U; SunOS 5.7 sun4u)
+X-Accept-Language: en, ru
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: sys_sysinfo()'s bug in reporting the number of processes
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.21mdk 
-Date: 26 Feb 2002 12:54:27 -0800
-Message-Id: <1014756869.11691.56.camel@shire.arnor.net>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is just a note for the record regarding multicast receive using the
-natsemi driver.  It may be of interest to the driver developers, but I'm
-including lots of detail in hope of helping people who find this message
-through google...
+Dear Linux Developers:
 
-Summary: multicast rx using natsemi hashtable is flaky. Workaround is to
-force all-multicast mode.
+I've noticed discrepancy in the number of processes
+returned by sysinfo() syscall versus the number of processes
+listed by 'ps'. The problem traced down to the following line
+of code in kernel/info.c:
 
-The long version:
+val.proc = nr_task-1;
 
-We use the natsemi driver on TV-attached set top boxes to view UDP
-multicast MPEG video streams.  Channel changing is via IGMP leave and
-join.  Kernel is 2.4.recent + lowlatency patch.
+as if the idle task is taken into account in 'nr_tasks',
+However, since kernel 2.2 the comment to (and the usage of)
+'nr_task' explicitly states that the idle task is not anymore
+counted in this variable. From kernel/fork.c:
 
-The natsemi driver and hardware work together to use a hash table of
-ethernet multicast addresses.  This hash table is rebuilt when the
-kernel multicast code joins and leaves channels.  (Our application only
-"watches" one channel at a time, thus the hash table only ever has two
-entries - one is the broadcast address).
+/* The idle tasks do not count.. */
+int nr_tasks = 0;
 
-We noticed that about one in every five or six times, the hardware would
-fail to "pick up" incoming multicast packets after a channel change. 
-The IGMP join and leave packets were sent correctly, the multicast hash
-table was rebuilt, but packets never showed up at the interface.  The
-packets were definitely on the wire.  
+As a matter of fact, prior to kernel 2.2 the initial value of
+'nr_tasks' was 1, and the idle task 0 was counted, so the
+correction by -1 was really necessary. But it was forgotten
+to undo this subtraction when the 'nr_tasks' had changed its
+meaning since then.
 
-(My theory is that the hardware flakes out if the multicast hash table
-is being rewritten at the same time that the hardware is reading the
-table.)
+Best regards,
 
-When our app notices that it isn't getting video, it retries the IGMP
-join. This causes the hashtable to be rebuilt. This works but resulted
-in inconsistent, slow channel changes.  Our application does a lot of
-rapid joins and leaves (user is channel surfing) and it's annoying when
-this happens.
-
-The fix, at least for us, is to force the driver into "all-multicast
-mode", all the time.  This is very easy - the driver as distributed
-switches from the hashtable to all-multicast mode when more than 100
-multicast channels are being received.  I just comment out that part of
-the code so it is either in promiscuous mode or all-multicast, and never
-uses the hashtable.
-
-And that does it - channel changes are always fast now.  Unfortunately
-this fix is not suitable for everyone. (We don't have lots of unwatched
-multicast channels going by on the wire, so we don't need hardware
-filtering, other users may not be so lucky.)
-
-Hope this helps someone.
-
-Torrey Hoffman
-thoffman@arnor.net
-torrey.hoffman@myrio.com
-
-
-
+Anton Lavrentiev
+NCBI/NLM/NIH

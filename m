@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265287AbSJRQeF>; Fri, 18 Oct 2002 12:34:05 -0400
+	id <S265230AbSJRQoZ>; Fri, 18 Oct 2002 12:44:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265290AbSJRQeE>; Fri, 18 Oct 2002 12:34:04 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:9955 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265287AbSJRQd0>;
-	Fri, 18 Oct 2002 12:33:26 -0400
-Subject: Re: [RFC][PATCH] linux-2.5.34_vsyscall_A0
-From: john stultz <johnstul@us.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Michael Hohnbaum <hbaum@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       george anzinger <george@mvista.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021018111442.GH16501@dualathlon.random>
-References: <1034915132.1681.144.camel@cog> 
-	<20021018111442.GH16501@dualathlon.random>
-Content-Type: text/plain
+	id <S265233AbSJRQoZ>; Fri, 18 Oct 2002 12:44:25 -0400
+Received: from packet.digeo.com ([12.110.80.53]:53959 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265230AbSJRQoX>;
+	Fri, 18 Oct 2002 12:44:23 -0400
+Message-ID: <3DB03BC9.F2986C53@digeo.com>
+Date: Fri, 18 Oct 2002 09:50:17 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: Samium Gromoff <_deepfire@mail.ru>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5 and lowmemory boxens
+References: <E182V29-000Pfa-00@f15.mail.ru> <m37kggyo7r.fsf@averell.firstfloor.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 18 Oct 2002 09:39:15 -0700
-Message-Id: <1034959158.14862.21.camel@laptop.cornchips.homelinux.net>
-Mime-Version: 1.0
+X-OriginalArrivalTime: 18 Oct 2002 16:50:17.0842 (UTC) FILETIME=[703CA520:01C276C6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-10-18 at 04:14, Andrea Arcangeli wrote:
-> the main reason it wasn't backported to i386 is that if glibc start
-> using the vgettimeofday instead of sys_gettimeofday, you won't be able
-> to downgrade kernel anymore to say 2.4 (oh yeah, I would then backport
-> it to my tree or Marcelo could apply the patches too to 2.4 but then 2.2
-> would be left uncovered, new glibc would segfault on the old kernels).
-> Probably the only way to avoid breaking backwards compatibility is that
-> glibc will check the uname at the first invocation and then it will
-> store the information in a global variable in the library. So then for
-> every second invocation it will be only an overhead of a branch. But it
-> would be a slowdown for this sequence
-> fork()exec()gettimeofday()exit()fork()exec()gettimeofday()exit()...
+Andi Kleen wrote:
+> 
+> "Samium Gromoff" <_deepfire@mail.ru> writes:
+> 
+> >    first: i`ve successfully ran 2.5.43 on a 386sx20/4M ram notebook.
+> >
+> >  the one problem was the ppp over serial not working, but i suspect
+> >  that it just needs to be recompiled with 2.5 headers (am i right?).
+> >
+> >  the other was, well, the fact that ultra-stripped 2.5.43
+> >  still used 200k more memory than 2.4.19, and thats despite it was
+> >  compiled with -Os instead of -O2.
+> >  actually it was 2000k free with 2.4 vs 1800k  free with 2.5
+> >
+> >  i know Rik had plans of some ultra bloody embedded/lowmem
+> >  changes for such cases. i`d like to hear about things in the area :)
+> 
+> I would start with clamping down all the hash tables.
 
-Hmmm. Yes, that is a good point. Especially since due to TSC sync
-issues, everyone probably won't want to convert to this right off.
-Probing might do it, but that would require some fancy trapping in
-glibc. Maby users could manually LDPRELOAD a library that would alias
-gettimeofday, rather then changing glibc? That way the user of, as you
-said specialized db apps,etc, who *really* wants this can get it, but
-doesn't affect others. 
+Well here's some low-hanging fruit:
 
-[snip]
-> However this is just a reminder message, I mainly wanted to point out
-> why I didn't spent time in this effort myself, if Linus is excited to
-> include vsyscalls on 32bit too that's fine with me, it would be a
-> definitive improvement at least for the non asymmetric multithreading
-> nor NUMA cases where the TSC loses synchronization (unless something
-> mmapped like cyclone or HPET is available of course). So it's up to you ;).
+mnm:/usr/src/25> size kernel/pid.o
+   text    data     bss     dec     hex filename
+   1677    1088  131104  133869   20aed kernel/pid.o
 
-It seems you been calling the psychic hotline recently! Actually that's
-*exactly* what my plans were for the NUMA case. Very good call!
+(I have a trollpatch to fix this)
 
-You bring up some good points. I'll try to think about it some more and
-see if there isn't a better way. 
+And the radix_tree_node mempool is 140k; I plan to do away with
+that altogether.
 
-thanks
--john
-
+timer.c and sched.c have significant NR_CPUS bloat problems on SMP.
+Working on that.

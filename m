@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274817AbTHIScr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 14:32:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274935AbTHIScr
+	id S275231AbTHISuS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 14:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275249AbTHISuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 14:32:47 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:32006 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id S274817AbTHIScq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 14:32:46 -0400
-Date: Sat, 9 Aug 2003 20:32:27 +0200
-From: Jurriaan <thunder7@xs4all.nl>
-To: Venkat Raghu <venkatraghu2002@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: flat memory in ppc
-Message-ID: <20030809183227.GA25090@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-References: <20030809174659.28581.qmail@web80708.mail.yahoo.com>
+	Sat, 9 Aug 2003 14:50:18 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:55310 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S275231AbTHISuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 14:50:16 -0400
+Date: Sat, 9 Aug 2003 19:50:11 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: Andrew Morton <akpm@digeo.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, hch@infradead.org
+Subject: Re: [RFC][PATCH] Convert do_no_page() to a hook to avoid DFS race
+Message-ID: <20030809195011.A20269@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Paul E. McKenney" <paulmck@us.ibm.com>,
+	Andrew Morton <akpm@digeo.com>, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org
+References: <20030530164150.A26766@us.ibm.com> <20030530180027.75680efd.akpm@digeo.com> <20030531235123.GC1408@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030809174659.28581.qmail@web80708.mail.yahoo.com>
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030531235123.GC1408@us.ibm.com>; from paulmck@us.ibm.com on Sat, May 31, 2003 at 04:51:23PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Venkat Raghu <venkatraghu2002@yahoo.com>
-Date: Sat, Aug 09, 2003 at 10:46:59AM -0700
-> Hi,
+On Sat, May 31, 2003 at 04:51:23PM -0700, Paul E. McKenney wrote:
+> > I don't think there's a lot of point in making changes until the code which
+> > requires those changes is accepted into the tree.  Otherwise it may be
+> > pointless churn, and there's nothing in-tree to exercise the new features.
 > 
-> I am a newbie. Often it is mentioned that ppc
-> based systems are "flat memory". 
-> So Please clarify
-> 1)what exactly flat memory means?
-> 2) Please give comparision of x86 and ppc, showing
-> the places where they are different.
-> 3) So is there any difference in drivers that 
-> work on ppc platforms.
-> 
-Unfortunately, you seem to have mistakenly sent your question to the
-linux-kernel mailinglist, even if it is neither linux nor kernel
-specific. This list has enough on-topic mail as it is.
+> A GPLed use of these DFS features is expected Real Soon Now...
 
-> Any links/pointers will also be helpful.
-> 
-Try http://www.google.com or nntp://comp.sys.mac.hardware or some other
-newsgroup.
+So we get to see all the kernel C++ code from GPRS? [1] Better not, IBM
+might badly scare customers away if it the same quality as the C glue
+code layer..
 
-HTH,
-Jurriaan
--- 
-We are Borg of dyslexia. Resistors are fertile, prepare to have your ass
-laminated.
-        Seen in alt.tv.highlander by Iron Chef Macmoossette
-        (Thank Heavens There's Only One)
-Debian (Unstable) GNU/Linux 2.6.0-test3 4259 bogomips load av: 1.13 1.23 0.84
+[1] http://oss.software.ibm.com/linux/patches/?patch_id=923
+

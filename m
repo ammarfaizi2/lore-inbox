@@ -1,52 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272750AbRILK7k>; Wed, 12 Sep 2001 06:59:40 -0400
+	id <S272746AbRILLKb>; Wed, 12 Sep 2001 07:10:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272749AbRILK73>; Wed, 12 Sep 2001 06:59:29 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:52942 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S272751AbRILK7T>;
-	Wed, 12 Sep 2001 06:59:19 -0400
-Date: Wed, 12 Sep 2001 16:34:26 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: rusty@rustcorp.com.au
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-        Paul Mckenney <paul.mckenney@us.ibm.com>
-Subject: Re: 2.4.10pre7aa1
-Message-ID: <20010912163426.A5979@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
+	id <S272749AbRILLKW>; Wed, 12 Sep 2001 07:10:22 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:50446 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S272746AbRILLKJ>; Wed, 12 Sep 2001 07:10:09 -0400
+Date: Wed, 12 Sep 2001 14:08:53 +0300
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <1715812347.20010912140853@port.imtp.ilyichevsk.odessa.ua>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Duron kernel crash (i686 works)
+In-Reply-To: <3B9F3E4B.AB5E1D12@scali.no>
+In-Reply-To: <E15goos-0002le-00@the-village.bc.nu>
+ <9184118686.20010912095919@port.imtp.ilyichevsk.odessa.ua>
+ <3B9F3E4B.AB5E1D12@scali.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010912182440.3975719b.rusty@rustcorp.com.au> you wrote:
-> On Mon, 10 Sep 2001 17:54:17 +0200
-> Andrea Arcangeli <andrea@suse.de> wrote:
->> Only in 2.4.10pre7aa1: 00_rcu-1
+Hello Steffen,
+Wednesday, September 12, 2001, 1:51:55 PM, you wrote:
+>> >>         ...
+>> >>         kernel_fpu_end();
+>> >> +       from-=4096;
+>> >> +       to-=4096;
+>> >> +       if(memcmp(from,to,4096)!=0) {
+>> >> +               printk("Athlon bug!"); //add printout of from,to,...?
+>> >> +               memcpy(to,from,4096);
+>> >> +       }
+>> >> }
 >> 
->> 	wait_for_rcu and call_rcu implementation (from IBM). I did some
->> 	modifications with respect to the original version from IBM.
->> 	In particular I dropped the vmalloc_rcu/kmalloc_rcu, the
->> 	rcu_head must always be allocated in the data structures, it has
->> 	to be a field of a class, rather than hiding it in the allocation
->> 	and playing dirty and risky with casts on a bigger allocation.
+>> RJD> I then get 'Athlon bug!' Still oopses.
+>> 
+>> Waah! That means movntq's moved data to some other place in memory!
+>> memcmp detected that and memcpy fixed, but that 'other place' was
+>> corrupted and that's the cause of oops.
 
-> Hi Andrea, 
+SP> Well, not necessarily. It might be that data just hasn't "arrived" yet because
+SP> of the movntq instruction.
 
-> 	Like the kernel threads approach, but AFAICT it won't work for the case of two CPUs running wait_for_rcu at the same time (on a 4-way or above).
+So why it is oopses then?
+Also, we don't want this data to arrive late or whatever.
+fast_copy_page must copy page (make it so that memcpy()==0).
+If it does not, it is too much "optimized".
 
-The patch I submitted to Andrea had logic to make sure that
-two CPUs don't execute wait_for_rcu() at the same time.
-Somehow it seems to have got lost in Andrea's modifications.
+SP> One thing that also puzzels me is that my is the fast_copy_page() routine laid
+SP> out like this :
 
-I will look at that and submit a new patch to Andrea, if necessary.
+SP>                 "2: movq (%0), %%mm0\n"
+SP>                 "   movntq %%mm0, (%1)\n"
+SP>                 "   movq 8(%0), %%mm1\n"
+SP>                 "   movntq %%mm1, 8(%1)\n"
+SP>                 "   movq 16(%0), %%mm2\n"
+SP>                 "   movntq %%mm2, 16(%1)\n"
+SP>                 "   movq 24(%0), %%mm3\n"
+SP>                 "   movntq %%mm3, 24(%1)\n"
+SP>                 "   movq 32(%0), %%mm4\n"
+SP>                 "   movntq %%mm4, 32(%1)\n"
+SP>                 "   movq 40(%0), %%mm5\n"
+SP>                 "   movntq %%mm5, 40(%1)\n"
+SP>                 "   movq 48(%0), %%mm6\n"
+SP>                 "   movntq %%mm6, 48(%1)\n"
+SP>                 "   movq 56(%0), %%mm7\n"
+SP>                 "   movntq %%mm7, 56(%1)\n"
 
-As for wrappers, I am agnostic. However, I think sooner or later
-people will start asking for them, if we go by our past experience.
+SP> When it's more intuitively more effective to fill the registers with reads first
+SP> and then write it with "movntq" like this :
 
-Thanks
-Dipankar
+SP>                 "2: movq (%0), %%mm0\n"
+SP>                 "   movq 8(%0), %%mm1\n"
+SP>                 "   movq 16(%0), %%mm2\n"
+SP>                 "   movq 24(%0), %%mm3\n"
+SP>                 "   movq 32(%0), %%mm4\n"
+SP>                 "   movq 40(%0), %%mm5\n"
+SP>                 "   movq 48(%0), %%mm6\n"
+SP>                 "   movq 56(%0), %%mm7\n"
+SP>                 "   movntq %%mm0, (%1)\n"
+SP>                 "   movntq %%mm1, 8(%1)\n"
+SP>                 "   movntq %%mm2, 16(%1)\n"
+SP>                 "   movntq %%mm3, 24(%1)\n"
+SP>                 "   movntq %%mm4, 32(%1)\n"
+SP>                 "   movntq %%mm5, 40(%1)\n"
+SP>                 "   movntq %%mm6, 48(%1)\n"
+SP>                 "   movntq %%mm7, 56(%1)\n"
+
+A better way to do it is to bencmark several routines at
+startup time and pick the best one. It is done now
+for RAID xor'ing routine.
 -- 
-Dipankar Sarma  <dipankar@in.ibm.com> Project: http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+Best regards, VDA
+mailto:VDA@port.imtp.ilyichevsk.odessa.ua
+http://port.imtp.ilyichevsk.odessa.ua/vda/
+
+

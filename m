@@ -1,115 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbVC3Swi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262400AbVC3S5K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262393AbVC3Swi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 13:52:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVC3Swf
+	id S262400AbVC3S5K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 13:57:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVC3S4c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 13:52:35 -0500
+	Wed, 30 Mar 2005 13:56:32 -0500
 Received: from mail-relay-4.tiscali.it ([213.205.33.44]:23475 "EHLO
 	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S262393AbVC3SvX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 13:51:23 -0500
-Subject: [patch 1/8] uml: fix sigio spinlock [for 2.6.12]
+	id S262400AbVC3Svk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 13:51:40 -0500
+Subject: [patch 8/8] Fix the console stuttering [for 2.6.12]
 To: torvalds@osdl.org
 Cc: akpm@osdl.org, jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it,
+       rob@landley.net
 From: blaisorblade@yahoo.it
-Date: Wed, 30 Mar 2005 19:33:41 +0200
-Message-Id: <20050330173341.41F25EFED3@zion>
+Date: Wed, 30 Mar 2005 19:34:06 +0200
+Message-Id: <20050330173407.169FFEFF2A@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I just saw a "take twice spinlock" deadlock with the Spinlock debugging
-enabled on this lock, and static code analysis revealed this is the culprit:
-update_thread can take (in an error path) the sigio_lock, which is already
-held by all its callers (it's a static function, so it's easy to verify).
+From: Rob Landley <rob@landley.net>
 
-Added some comments to mark where this function needs the lock, in case
-someone wants to reduce the locking here.
+I spent far too much of the weekend tracking this sucker down through the guts
+of the tty code.  The problem turns out to be that drivers/char/n_tty.c has a
+write_chan that does buffering and retransmitting data, and
+arch/um/drivers/chan_kern.c ALSO has a write_chan that buffers and retransmits
+data, and the first calls the second but the second doesn't always return
+correct status information for the -EAGAIN case.
 
-Also clean an exitcall to mark the thread as killed (won't hurt, and could
-be useful if things go wrong).
+When they get confused, both of them try to buffer and retransmit data, hence
+the stuttering.
 
-As a bonus, some CodingStyle cleanups.
+The first fix is that if chan_kern's write_chan gets an -EAGAIN, it should NOT
+gratuitously change that to a 0 before returning.  I don't know why that code
+is in there, but deleting those two lines makes 90% the stuttering go away. 
+But not quite all of it.
 
-This should go in 2.6.12 for its simplicity and usefulness.
+The second half of the fix is arch/um/drivers/line.c has a buffer_data()
+function that adds data to the buffer, tries to flush the buffer out to disk,
+gets -EAGAIN, and then returns -EAGAIN even though it successfully buffered
+all the data it was sent.  So the upper layer resubmits the last chunk of data
+it sent when the console unblocks, even though the lower layer buffered it and
+sent it on by that point.
 
+With this patch, I can't get the UML console to stutter anymore by suspending
+the process it's writing to.  (Add tee to the mix and you can still make it
+hang by suspending its xterm for a second or two, but I think that tee
+is hanging, not UML.  Hangs with RHEL4 tee, but not busybox tee...)
+
+Signed-off-by: Rob Landley <rob@landley.net>
+Acked-by: Jeff Dike <jdike@addtoit.com>
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.11-paolo/arch/um/kernel/sigio_user.c |   29 ++++++++++---------------
- 1 files changed, 12 insertions(+), 17 deletions(-)
+ linux-2.6.11-paolo/arch/um/drivers/chan_kern.c |    5 +----
+ linux-2.6.11-paolo/arch/um/drivers/line.c      |    2 +-
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
-diff -puN arch/um/kernel/sigio_user.c~uml-fix-sigio-spinlock arch/um/kernel/sigio_user.c
---- linux-2.6.11/arch/um/kernel/sigio_user.c~uml-fix-sigio-spinlock	2005-03-24 11:37:00.000000000 +0100
-+++ linux-2.6.11-paolo/arch/um/kernel/sigio_user.c	2005-03-24 11:37:00.000000000 +0100
-@@ -108,12 +108,14 @@ static void tty_output(int master, int s
- 		panic("check_sigio : write failed, errno = %d\n", errno);
- 	while(((n = os_read_file(slave, buf, sizeof(buf))) > 0) && !got_sigio) ;
- 
--	if(got_sigio){
-+	if (got_sigio) {
- 		printk("Yes\n");
- 		pty_output_sigio = 1;
-+	} else if (n == -EAGAIN) {
-+		printk("No, enabling workaround\n");
-+	} else {
-+		panic("check_sigio : read failed, err = %d\n", n);
+diff -puN arch/um/drivers/chan_kern.c~uml-fix-console-stuttering arch/um/drivers/chan_kern.c
+--- linux-2.6.11/arch/um/drivers/chan_kern.c~uml-fix-console-stuttering	2005-03-29 17:03:18.000000000 +0200
++++ linux-2.6.11-paolo/arch/um/drivers/chan_kern.c	2005-03-29 17:03:19.000000000 +0200
+@@ -248,11 +248,8 @@ int write_chan(struct list_head *chans, 
+ 		n = chan->ops->write(chan->fd, buf, len, chan->data);
+ 		if (chan->primary) {
+ 			ret = n;
+-			if ((ret == -EAGAIN) || ((ret >= 0) && (ret < len))){
++			if ((ret == -EAGAIN) || ((ret >= 0) && (ret < len)))
+ 				reactivate_fd(chan->fd, write_irq);
+-				if (ret == -EAGAIN)
+-					ret = 0;
+-			}
+ 		}
  	}
--	else if(n == -EAGAIN) printk("No, enabling workaround\n");
--	else panic("check_sigio : read failed, err = %d\n", n);
- }
- 
- static void tty_close(int master, int slave)
-@@ -235,6 +237,8 @@ static int need_poll(int n)
- 	return(0);
- }
- 
-+/* Must be called with sigio_lock held, because it's needed by the marked
-+ * critical section. */
- static void update_thread(void)
- {
- 	unsigned long flags;
-@@ -257,7 +261,7 @@ static void update_thread(void)
- 	set_signals(flags);
- 	return;
-  fail:
--	sigio_lock();
-+	/* Critical section start */
- 	if(write_sigio_pid != -1) 
- 		os_kill_process(write_sigio_pid, 1);
- 	write_sigio_pid = -1;
-@@ -265,7 +269,7 @@ static void update_thread(void)
- 	os_close_file(sigio_private[1]);
- 	os_close_file(write_sigio_fds[0]);
- 	os_close_file(write_sigio_fds[1]);
--	sigio_unlock();
-+	/* Critical section end */
- 	set_signals(flags);
- }
- 
-@@ -418,19 +422,10 @@ int read_sigio_fd(int fd)
- 
- static void sigio_cleanup(void)
- {
--	if(write_sigio_pid != -1)
-+	if (write_sigio_pid != -1) {
- 		os_kill_process(write_sigio_pid, 1);
-+		write_sigio_pid = -1;
-+	}
- }
- 
- __uml_exitcall(sigio_cleanup);
--
--/*
-- * Overrides for Emacs so that we follow Linus's tabbing style.
-- * Emacs will notice this stuff at the end of the file and automatically
-- * adjust the settings for this buffer only.  This must remain at the end
-- * of the file.
-- * ---------------------------------------------------------------------------
-- * Local variables:
-- * c-file-style: "linux"
-- * End:
-- */
+ 	return(ret);
+diff -puN arch/um/drivers/line.c~uml-fix-console-stuttering arch/um/drivers/line.c
+--- linux-2.6.11/arch/um/drivers/line.c~uml-fix-console-stuttering	2005-03-29 17:03:19.000000000 +0200
++++ linux-2.6.11-paolo/arch/um/drivers/line.c	2005-03-29 17:03:19.000000000 +0200
+@@ -128,7 +128,7 @@ int line_write(struct tty_struct *tty, c
+ 		ret = buffer_data(line, buf, len);
+ 		err = flush_buffer(line);
+ 		local_irq_restore(flags);
+-		if(err <= 0)
++		if(err <= 0 && (err != -EAGAIN || !ret))
+ 			ret = err;
+ 	}
+ 	else {
 _

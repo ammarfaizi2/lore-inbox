@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264091AbTDWPtR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 11:49:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbTDWPtR
+	id S264018AbTDWPn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 11:43:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264086AbTDWPn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 11:49:17 -0400
-Received: from h80ad26b0.async.vt.edu ([128.173.38.176]:20610 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S264091AbTDWPsi (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 11:48:38 -0400
-Message-Id: <200304231600.h3NG0aCs019316@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: =?ISO-8859-2?Q?Pawe=B3_Go=B3aszewski?= <blues@ds.pg.gda.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.68 kernel no initrd 
-In-Reply-To: Your message of "Wed, 23 Apr 2003 15:49:54 +0200."
-             <Pine.LNX.4.51L.0304231547460.12634@piorun.ds.pg.gda.pl> 
-From: Valdis.Kletnieks@vt.edu
-References: <000701c306f6$cf100180$0200a8c0@satellite> <1050859494.595.4.camel@teapot.felipe-alfaro.com>
-            <Pine.LNX.4.51L.0304231547460.12634@piorun.ds.pg.gda.pl>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_980076719P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Wed, 23 Apr 2003 11:43:59 -0400
+Received: from dsl-fl-207-34-65-6-cgy.nucleus.com ([207.34.65.6]:23772 "EHLO
+	bluetooth.WNI.AD") by vger.kernel.org with ESMTP id S264018AbTDWPn6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 11:43:58 -0400
+Message-ID: <3EA6B8FA.2020409@WirelessNetworksInc.com>
+Date: Wed, 23 Apr 2003 10:02:02 -0600
+From: Herman Oosthuysen <Herman@WirelessNetworksInc.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030401
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How did the Spelling Police miss this one?
+References: <200304230936_MC3-1-35AA-864B@compuserve.com> <1051109635.29423.20.camel@spc9.esa.lanl.gov>
+In-Reply-To: <1051109635.29423.20.camel@spc9.esa.lanl.gov>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Wed, 23 Apr 2003 12:00:36 -0400
+X-OriginalArrivalTime: 23 Apr 2003 15:56:05.0251 (UTC) FILETIME=[D8C9E530:01C309B0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_980076719P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Uhh, should that not be "canonize"?
+(To conform to the canon)
+You can save four more characters I would think... ;-)
 
-On Wed, 23 Apr 2003 15:49:54 +0200, =3D?ISO-8859-2?Q?Pawe=3DB3_Go=3DB3asz=
-ewski?=3D said:
-> initrd gives much more flexibility.
-> I can make one kernel and use it on _all_ of my mashines, just change =
+Steven Cole wrote:
+> On Wed, 2003-04-23 at 07:33, Chuck Ebbert wrote:
+> 
+>>[me@qq linux-2.5.68-ref]$ grep -R cannonicalize * | wc -l
+>>     65
+>>
+>>
+>>
+>>  Avast there ye swabs, prepare to fire a broadside!
+> 
+> 
+> Almost all of the spelling fixes from the Spelling Police were in
+> comments, not code.  This mistaken spelling of canonicalize is mostly in
+> various parts of the non-comment code. 
 
-> initrd. quick, nice and flexible with proper initrd tools set.
-
-Amen.  initrd isn't just for modules - I'd not need an initrd at all if I=
- could
-figure out how to start up an LVM volume group from kernelspace - I suspe=
-ct
-people with / on a RAID disk have similar issues...
-
-
---==_Exmh_980076719P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+prijcC3lWbTT17ARAtZnAJ4mBqePRtbyQaYhfSEnUUaN7SQq7ACgzun2
-GsPT3ddaRmF2Jh37zqNQ0T8=
-=5Ypq
------END PGP SIGNATURE-----
-
---==_Exmh_980076719P--

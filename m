@@ -1,39 +1,2213 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264321AbTDPMBj (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 08:01:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264323AbTDPMBj 
+	id S264326AbTDPMF4 (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 08:05:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbTDPMF4 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 08:01:39 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:38338
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264321AbTDPMBi (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 16 Apr 2003 08:01:38 -0400
-Subject: Re: PixelView video4linux driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Alexandru Damian <ddalex_krn@easynet.ro>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E9D150E.6000601@easynet.ro>
-References: <Pine.LNX.4.53.0303211420170.13876@chaos>
-	 <1048324118.3306.3.camel@LNX.iNES.RO> <3E7F1B6A.2000103@easynet.ro>
-	 <1048525157.25655.1.camel@irongate.swansea.linux.org.uk>
-	 <3E7F321A.1000809@easynet.ro> <87ptog628m.fsf@bytesex.org>
-	 <3E9C196F.5060205@easynet.ro>  <3E9D150E.6000601@easynet.ro>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Apr 2003 08:05:56 -0400
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:48037 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S264326AbTDPME1 (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 16 Apr 2003 08:04:27 -0400
+Subject: 2.5+ACPI freezes solid when using CardBus NIC
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-c2sGpNNq1OaBpLOfvViN"
 Organization: 
-Message-Id: <1050491720.28727.28.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1050495364.598.7.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 16 Apr 2003 12:15:20 +0100
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 16 Apr 2003 14:16:05 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-04-16 at 09:32, Alexandru Damian wrote:
-> Maybe someone can help me with a hint about what's going on, and how should
-> I handle interlocking between X and clgdtv.
 
-If you don't need things like DMA buffers you could put the code
-entirely in the Xv support for that hardware and not touch the
-kernel. If you need the kernel then it gets rather hairier. DRI 
-keeps fast locks between the DRI clients and the X server.
+--=-c2sGpNNq1OaBpLOfvViN
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
+Hi lklm!
+
+My laptop freezes solid when using my 3CCFE575CT CardBus NIC with a 2.5
+kernel with ACPI support. Since the moment I wake up the network
+interface and try to send some traffic through the NIC, the machine
+freezes solid.
+
+To reproduce the problem:
+
+1. I boot 2.5.67-mm3 (for example, as this occurs with 2.5.66-mm1 too)
+into single user.
+2. do a "modprobe 3c59x".
+3. then "ifconfig eth0 192.168.0.100"
+4. At this point, a simple "ping" freezes the machine solid.
+
+This doesn't happen when I use APM instead of ACPI. Is this a
+kernel-related or ACPI-related bug?
+
+Attached, I have included the "config", "/proc/acpi/dsdt",
+"/proc/acpi/fadt" and "lspci -vvv".
+
+Thanks!
+-- 
+Please AVOID sending me WORD, EXCEL or POWERPOINT attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html
+Linux Registered User #287198
+
+--=-c2sGpNNq1OaBpLOfvViN
+Content-Disposition: attachment; filename=config
+Content-Type: text/plain; name=config; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+
+#
+# Automatically generated make config: don't edit
+#
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+
+#
+# General setup
+#
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+# CONFIG_BSD_PROCESS_ACCT is not set
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=14
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+# CONFIG_MODVERSIONS is not set
+CONFIG_KMOD=y
+
+#
+# Processor type and features
+#
+CONFIG_X86_PC=y
+# CONFIG_X86_VOYAGER is not set
+# CONFIG_X86_NUMAQ is not set
+# CONFIG_X86_SUMMIT is not set
+# CONFIG_X86_BIGSMP is not set
+# CONFIG_X86_VISWS is not set
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+# CONFIG_MPENTIUMII is not set
+CONFIG_MPENTIUMIII=y
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MK8 is not set
+# CONFIG_MELAN is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MCYRIXIII is not set
+# CONFIG_MVIAC3_2 is not set
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_PREFETCH=y
+# CONFIG_HUGETLB_PAGE is not set
+# CONFIG_SMP is not set
+CONFIG_PREEMPT=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+# CONFIG_X86_MCE_NONFATAL is not set
+# CONFIG_X86_MCE_P4THERMAL is not set
+# CONFIG_TOSHIBA is not set
+# CONFIG_I8K is not set
+# CONFIG_MICROCODE is not set
+# CONFIG_X86_MSR is not set
+# CONFIG_X86_CPUID is not set
+# CONFIG_EDD is not set
+CONFIG_NOHIGHMEM=y
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM64G is not set
+# CONFIG_05GB is not set
+CONFIG_1GB=y
+# CONFIG_2GB is not set
+# CONFIG_3GB is not set
+# CONFIG_MATH_EMULATION is not set
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+
+#
+# Power management options (ACPI, APM)
+#
+CONFIG_PM=y
+# CONFIG_SOFTWARE_SUSPEND is not set
+
+#
+# ACPI Support
+#
+CONFIG_ACPI=y
+# CONFIG_ACPI_HT_ONLY is not set
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BATTERY=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+# CONFIG_ACPI_TOSHIBA is not set
+# CONFIG_ACPI_DEBUG is not set
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+# CONFIG_APM is not set
+
+#
+# CPU Frequency scaling
+#
+# CONFIG_CPU_FREQ is not set
+
+#
+# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
+#
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+# CONFIG_SCx200 is not set
+# CONFIG_PCI_LEGACY_PROC is not set
+CONFIG_PCI_NAMES=y
+# CONFIG_ISA is not set
+# CONFIG_MCA is not set
+CONFIG_HOTPLUG=y
+
+#
+# PCMCIA/CardBus support
+#
+CONFIG_PCMCIA=y
+CONFIG_CARDBUS=y
+# CONFIG_I82092 is not set
+# CONFIG_I82365 is not set
+# CONFIG_TCIC is not set
+
+#
+# PCI Hotplug Support
+#
+# CONFIG_HOTPLUG_PCI is not set
+
+#
+# Executable file formats
+#
+CONFIG_KCORE_ELF=y
+# CONFIG_KCORE_AOUT is not set
+# CONFIG_BINFMT_AOUT is not set
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+# CONFIG_PARPORT is not set
+
+#
+# Plug and Play support
+#
+# CONFIG_PNP is not set
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=m
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+# CONFIG_BLK_DEV_UMEM is not set
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_NBD=m
+# CONFIG_BLK_DEV_RAM is not set
+# CONFIG_LBD is not set
+
+#
+# ATA/ATAPI/MFM/RLL device support
+#
+CONFIG_IDE=y
+
+#
+# IDE, ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_IDE=y
+
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+# CONFIG_BLK_DEV_HD_IDE is not set
+# CONFIG_BLK_DEV_HD is not set
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+# CONFIG_IDEDISK_STROKE is not set
+# CONFIG_BLK_DEV_IDECS is not set
+CONFIG_BLK_DEV_IDECD=y
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+# CONFIG_IDE_TASK_IOCTL is not set
+
+#
+# IDE chipset support/bugfixes
+#
+# CONFIG_BLK_DEV_CMD640 is not set
+CONFIG_BLK_DEV_IDEPCI=y
+# CONFIG_BLK_DEV_GENERIC is not set
+# CONFIG_IDEPCI_SHARE_IRQ is not set
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_IDE_TCQ is not set
+# CONFIG_BLK_DEV_OFFBOARD is not set
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_PCI_WIP is not set
+CONFIG_BLK_DEV_ADMA=y
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD74XX is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_TRIFLEX is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5520 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+# CONFIG_BLK_DEV_SC1200 is not set
+CONFIG_BLK_DEV_PIIX=y
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_PDC202XX_OLD is not set
+# CONFIG_BLK_DEV_PDC202XX_NEW is not set
+# CONFIG_BLK_DEV_RZ1000 is not set
+# CONFIG_BLK_DEV_SVWKS is not set
+# CONFIG_BLK_DEV_SIIMAGE is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+# CONFIG_BLK_DEV_VIA82CXXX is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_IDEDMA_IVB is not set
+CONFIG_BLK_DEV_IDE_MODES=y
+
+#
+# SCSI device support
+#
+# CONFIG_SCSI is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+
+#
+# Fusion MPT device support
+#
+
+#
+# IEEE 1394 (FireWire) support (EXPERIMENTAL)
+#
+# CONFIG_IEEE1394 is not set
+
+#
+# I2O device support
+#
+# CONFIG_I2O is not set
+
+#
+# Networking support
+#
+CONFIG_NET=y
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+# CONFIG_NETLINK_DEV is not set
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
+CONFIG_UNIX=y
+# CONFIG_NET_KEY is not set
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+# CONFIG_IP_ADVANCED_ROUTER is not set
+# CONFIG_IP_PNP is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+# CONFIG_IP_MROUTE is not set
+# CONFIG_ARPD is not set
+# CONFIG_INET_ECN is not set
+# CONFIG_SYN_COOKIES is not set
+# CONFIG_INET_AH is not set
+# CONFIG_INET_ESP is not set
+# CONFIG_INET_IPCOMP is not set
+
+#
+# IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_TFTP=m
+CONFIG_IP_NF_AMANDA=m
+# CONFIG_IP_NF_QUEUE is not set
+CONFIG_IP_NF_IPTABLES=m
+# CONFIG_IP_NF_MATCH_LIMIT is not set
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+# CONFIG_IP_NF_MATCH_TOS is not set
+# CONFIG_IP_NF_MATCH_ECN is not set
+# CONFIG_IP_NF_MATCH_DSCP is not set
+# CONFIG_IP_NF_MATCH_AH_ESP is not set
+# CONFIG_IP_NF_MATCH_LENGTH is not set
+# CONFIG_IP_NF_MATCH_TTL is not set
+# CONFIG_IP_NF_MATCH_TCPMSS is not set
+CONFIG_IP_NF_MATCH_HELPER=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+# CONFIG_IP_NF_MATCH_UNCLEAN is not set
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+# CONFIG_IP_NF_TARGET_REJECT is not set
+# CONFIG_IP_NF_TARGET_MIRROR is not set
+# CONFIG_IP_NF_NAT is not set
+# CONFIG_IP_NF_MANGLE is not set
+# CONFIG_IP_NF_TARGET_LOG is not set
+# CONFIG_IP_NF_TARGET_ULOG is not set
+# CONFIG_IP_NF_TARGET_TCPMSS is not set
+# CONFIG_IP_NF_ARPTABLES is not set
+# CONFIG_IP_NF_COMPAT_IPCHAINS is not set
+# CONFIG_IP_NF_COMPAT_IPFWADM is not set
+# CONFIG_IPV6 is not set
+# CONFIG_XFRM_USER is not set
+
+#
+# SCTP Configuration (EXPERIMENTAL)
+#
+CONFIG_IPV6_SCTP__=y
+# CONFIG_IP_SCTP is not set
+# CONFIG_ATM is not set
+# CONFIG_VLAN_8021Q is not set
+# CONFIG_LLC is not set
+# CONFIG_DECNET is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_FASTROUTE is not set
+# CONFIG_NET_HW_FLOWCONTROL is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Network testing
+#
+# CONFIG_NET_PKTGEN is not set
+CONFIG_NETDEVICES=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+# CONFIG_DUMMY is not set
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+CONFIG_TUN=m
+# CONFIG_ETHERTAP is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+# CONFIG_MII is not set
+# CONFIG_HAPPYMEAL is not set
+# CONFIG_SUNGEM is not set
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=m
+# CONFIG_TYPHOON is not set
+
+#
+# Tulip family network device support
+#
+# CONFIG_NET_TULIP is not set
+# CONFIG_HP100 is not set
+# CONFIG_NET_PCI is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_DL2K is not set
+# CONFIG_E1000 is not set
+# CONFIG_NS83820 is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_R8169 is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_TIGON3 is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+CONFIG_PPP=m
+# CONFIG_PPP_MULTILINK is not set
+# CONFIG_PPP_FILTER is not set
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+# CONFIG_PPPOE is not set
+# CONFIG_SLIP is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Token Ring devices (depends on LLC=y)
+#
+# CONFIG_RCPCI is not set
+# CONFIG_SHAPER is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+
+#
+# PCMCIA network device support
+#
+# CONFIG_NET_PCMCIA is not set
+
+#
+# Amateur Radio support
+#
+# CONFIG_HAMRADIO is not set
+
+#
+# IrDA (infrared) support
+#
+# CONFIG_IRDA is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN_BOOL is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+
+#
+# Input device support
+#
+CONFIG_INPUT=y
+
+#
+# Userland interfaces
+#
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_TSDEV is not set
+# CONFIG_INPUT_EVDEV is not set
+# CONFIG_INPUT_EVBUG is not set
+
+#
+# Input I/O drivers
+#
+# CONFIG_GAMEPORT is not set
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+# CONFIG_SERIO_SERPORT is not set
+# CONFIG_SERIO_CT82C710 is not set
+
+#
+# Input Device Drivers
+#
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+# CONFIG_KEYBOARD_SUNKBD is not set
+# CONFIG_KEYBOARD_XTKBD is not set
+# CONFIG_KEYBOARD_NEWTON is not set
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+# CONFIG_MOUSE_SERIAL is not set
+# CONFIG_INPUT_JOYSTICK is not set
+# CONFIG_INPUT_TOUCHSCREEN is not set
+# CONFIG_INPUT_MISC is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+# CONFIG_SERIAL_NONSTANDARD is not set
+
+#
+# Serial drivers
+#
+# CONFIG_SERIAL_8250 is not set
+
+#
+# Non-8250 serial port support
+#
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+
+#
+# I2C support
+#
+# CONFIG_I2C is not set
+
+#
+# I2C Hardware Sensors Mainboard support
+#
+
+#
+# I2C Hardware Sensors Chip support
+#
+# CONFIG_I2C_SENSOR is not set
+
+#
+# Mice
+#
+# CONFIG_BUSMOUSE is not set
+# CONFIG_QIC02_TAPE is not set
+
+#
+# IPMI
+#
+# CONFIG_IPMI_HANDLER is not set
+
+#
+# Watchdog Cards
+#
+# CONFIG_WATCHDOG is not set
+# CONFIG_HW_RANDOM is not set
+# CONFIG_NVRAM is not set
+CONFIG_RTC=y
+# CONFIG_DTLK is not set
+# CONFIG_R3964 is not set
+# CONFIG_APPLICOM is not set
+# CONFIG_SONYPI is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+# CONFIG_AGP_VIA is not set
+# CONFIG_AGP_AMD is not set
+# CONFIG_AGP_SIS is not set
+# CONFIG_AGP_ALI is not set
+# CONFIG_AGP_SWORKS is not set
+# CONFIG_AGP_AMD_8151 is not set
+# CONFIG_DRM is not set
+
+#
+# PCMCIA character devices
+#
+# CONFIG_SYNCLINK_CS is not set
+# CONFIG_MWAVE is not set
+# CONFIG_RAW_DRIVER is not set
+# CONFIG_HANGCHECK_TIMER is not set
+
+#
+# Multimedia devices
+#
+# CONFIG_VIDEO_DEV is not set
+
+#
+# Digital Video Broadcasting Devices
+#
+# CONFIG_DVB is not set
+
+#
+# File systems
+#
+CONFIG_EXT2_FS=y
+# CONFIG_EXT2_FS_XATTR is not set
+# CONFIG_EXT3_FS is not set
+# CONFIG_JBD is not set
+# CONFIG_REISERFS_FS is not set
+# CONFIG_JFS_FS is not set
+# CONFIG_XFS_FS is not set
+# CONFIG_MINIX_FS is not set
+# CONFIG_ROMFS_FS is not set
+# CONFIG_QUOTA is not set
+# CONFIG_AUTOFS_FS is not set
+CONFIG_AUTOFS4_FS=m
+
+#
+# CD-ROM/DVD Filesystems
+#
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=m
+CONFIG_UDF_FS=m
+
+#
+# DOS/FAT/NT Filesystems
+#
+CONFIG_FAT_FS=m
+# CONFIG_MSDOS_FS is not set
+CONFIG_VFAT_FS=m
+# CONFIG_NTFS_FS is not set
+
+#
+# Pseudo filesystems
+#
+CONFIG_PROC_FS=y
+# CONFIG_DEVFS_FS is not set
+CONFIG_DEVPTS_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+
+#
+# Miscellaneous filesystems
+#
+# CONFIG_ADFS_FS is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_HFS_FS is not set
+# CONFIG_BEFS_FS is not set
+# CONFIG_BFS_FS is not set
+# CONFIG_EFS_FS is not set
+# CONFIG_CRAMFS is not set
+# CONFIG_VXFS_FS is not set
+# CONFIG_HPFS_FS is not set
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_SYSV_FS is not set
+# CONFIG_UFS_FS is not set
+
+#
+# Network File Systems
+#
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+# CONFIG_NFS_V4 is not set
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+# CONFIG_NFSD_V4 is not set
+CONFIG_NFSD_TCP=y
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=m
+CONFIG_SUNRPC=m
+# CONFIG_SUNRPC_GSS is not set
+CONFIG_SMB_FS=m
+CONFIG_SMB_NLS_DEFAULT=y
+CONFIG_SMB_NLS_REMOTE="cp437"
+CONFIG_CIFS=m
+# CONFIG_NCP_FS is not set
+# CONFIG_CODA_FS is not set
+# CONFIG_INTERMEZZO_FS is not set
+# CONFIG_AFS_FS is not set
+
+#
+# Partition Types
+#
+# CONFIG_PARTITION_ADVANCED is not set
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+
+#
+# Native Language Support
+#
+CONFIG_NLS_DEFAULT="utf8"
+CONFIG_NLS_CODEPAGE_437=m
+# CONFIG_NLS_CODEPAGE_737 is not set
+# CONFIG_NLS_CODEPAGE_775 is not set
+CONFIG_NLS_CODEPAGE_850=m
+# CONFIG_NLS_CODEPAGE_852 is not set
+# CONFIG_NLS_CODEPAGE_855 is not set
+# CONFIG_NLS_CODEPAGE_857 is not set
+# CONFIG_NLS_CODEPAGE_860 is not set
+# CONFIG_NLS_CODEPAGE_861 is not set
+# CONFIG_NLS_CODEPAGE_862 is not set
+# CONFIG_NLS_CODEPAGE_863 is not set
+# CONFIG_NLS_CODEPAGE_864 is not set
+# CONFIG_NLS_CODEPAGE_865 is not set
+# CONFIG_NLS_CODEPAGE_866 is not set
+# CONFIG_NLS_CODEPAGE_869 is not set
+# CONFIG_NLS_CODEPAGE_936 is not set
+# CONFIG_NLS_CODEPAGE_950 is not set
+# CONFIG_NLS_CODEPAGE_932 is not set
+# CONFIG_NLS_CODEPAGE_949 is not set
+# CONFIG_NLS_CODEPAGE_874 is not set
+# CONFIG_NLS_ISO8859_8 is not set
+# CONFIG_NLS_CODEPAGE_1250 is not set
+# CONFIG_NLS_CODEPAGE_1251 is not set
+CONFIG_NLS_ISO8859_1=m
+# CONFIG_NLS_ISO8859_2 is not set
+# CONFIG_NLS_ISO8859_3 is not set
+# CONFIG_NLS_ISO8859_4 is not set
+# CONFIG_NLS_ISO8859_5 is not set
+# CONFIG_NLS_ISO8859_6 is not set
+# CONFIG_NLS_ISO8859_7 is not set
+# CONFIG_NLS_ISO8859_9 is not set
+# CONFIG_NLS_ISO8859_13 is not set
+# CONFIG_NLS_ISO8859_14 is not set
+CONFIG_NLS_ISO8859_15=m
+# CONFIG_NLS_KOI8_R is not set
+# CONFIG_NLS_KOI8_U is not set
+CONFIG_NLS_UTF8=m
+
+#
+# Graphics support
+#
+# CONFIG_FB is not set
+CONFIG_VIDEO_SELECT=y
+
+#
+# Console display driver support
+#
+CONFIG_VGA_CONSOLE=y
+# CONFIG_MDA_CONSOLE is not set
+CONFIG_DUMMY_CONSOLE=y
+
+#
+# Sound
+#
+CONFIG_SOUND=y
+
+#
+# Advanced Linux Sound Architecture
+#
+CONFIG_SND=y
+# CONFIG_SND_SEQUENCER is not set
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_RTCTIMER=y
+# CONFIG_SND_VERBOSE_PRINTK is not set
+# CONFIG_SND_DEBUG is not set
+
+#
+# Generic devices
+#
+# CONFIG_SND_DUMMY is not set
+# CONFIG_SND_MTPAV is not set
+# CONFIG_SND_SERIAL_U16550 is not set
+# CONFIG_SND_MPU401 is not set
+
+#
+# PCI devices
+#
+# CONFIG_SND_ALI5451 is not set
+# CONFIG_SND_CS46XX is not set
+# CONFIG_SND_CS4281 is not set
+# CONFIG_SND_EMU10K1 is not set
+# CONFIG_SND_KORG1212 is not set
+# CONFIG_SND_NM256 is not set
+# CONFIG_SND_RME32 is not set
+# CONFIG_SND_RME96 is not set
+# CONFIG_SND_RME9652 is not set
+# CONFIG_SND_HDSP is not set
+# CONFIG_SND_TRIDENT is not set
+CONFIG_SND_YMFPCI=y
+# CONFIG_SND_ALS4000 is not set
+# CONFIG_SND_CMIPCI is not set
+# CONFIG_SND_ENS1370 is not set
+# CONFIG_SND_ENS1371 is not set
+# CONFIG_SND_ES1938 is not set
+# CONFIG_SND_ES1968 is not set
+# CONFIG_SND_MAESTRO3 is not set
+# CONFIG_SND_FM801 is not set
+# CONFIG_SND_ICE1712 is not set
+# CONFIG_SND_ICE1724 is not set
+# CONFIG_SND_INTEL8X0 is not set
+# CONFIG_SND_SONICVIBES is not set
+# CONFIG_SND_VIA82XX is not set
+
+#
+# ALSA USB devices
+#
+# CONFIG_SND_USB_AUDIO is not set
+
+#
+# Open Sound System
+#
+# CONFIG_SOUND_PRIME is not set
+
+#
+# USB support
+#
+CONFIG_USB=y
+# CONFIG_USB_DEBUG is not set
+
+#
+# Miscellaneous USB options
+#
+CONFIG_USB_DEVICEFS=y
+# CONFIG_USB_BANDWIDTH is not set
+# CONFIG_USB_DYNAMIC_MINORS is not set
+
+#
+# USB Host Controller Drivers
+#
+# CONFIG_USB_EHCI_HCD is not set
+# CONFIG_USB_OHCI_HCD is not set
+CONFIG_USB_UHCI_HCD=y
+
+#
+# USB Device Class drivers
+#
+# CONFIG_USB_AUDIO is not set
+# CONFIG_USB_BLUETOOTH_TTY is not set
+# CONFIG_USB_MIDI is not set
+# CONFIG_USB_ACM is not set
+CONFIG_USB_PRINTER=m
+
+#
+# SCSI support is needed for USB Storage
+#
+
+#
+# USB Human Interface Devices (HID)
+#
+CONFIG_USB_HID=y
+CONFIG_USB_HIDINPUT=y
+# CONFIG_HID_FF is not set
+CONFIG_USB_HIDDEV=y
+# CONFIG_USB_AIPTEK is not set
+# CONFIG_USB_WACOM is not set
+# CONFIG_USB_KBTAB is not set
+# CONFIG_USB_POWERMATE is not set
+# CONFIG_USB_XPAD is not set
+
+#
+# USB Imaging devices
+#
+# CONFIG_USB_MDC800 is not set
+CONFIG_USB_SCANNER=m
+
+#
+# USB Multimedia devices
+#
+# CONFIG_USB_DABUSB is not set
+
+#
+# Video4Linux support is needed for USB Multimedia device support
+#
+
+#
+# USB Network adaptors
+#
+# CONFIG_USB_CATC is not set
+# CONFIG_USB_CDCETHER is not set
+# CONFIG_USB_KAWETH is not set
+# CONFIG_USB_PEGASUS is not set
+# CONFIG_USB_RTL8150 is not set
+# CONFIG_USB_USBNET is not set
+
+#
+# USB port drivers
+#
+
+#
+# USB Serial Converter support
+#
+CONFIG_USB_SERIAL=m
+CONFIG_USB_SERIAL_GENERIC=y
+# CONFIG_USB_SERIAL_BELKIN is not set
+# CONFIG_USB_SERIAL_WHITEHEAT is not set
+# CONFIG_USB_SERIAL_DIGI_ACCELEPORT is not set
+# CONFIG_USB_SERIAL_EMPEG is not set
+# CONFIG_USB_SERIAL_FTDI_SIO is not set
+# CONFIG_USB_SERIAL_VISOR is not set
+CONFIG_USB_SERIAL_IPAQ=m
+# CONFIG_USB_SERIAL_IR is not set
+# CONFIG_USB_SERIAL_EDGEPORT is not set
+# CONFIG_USB_SERIAL_EDGEPORT_TI is not set
+# CONFIG_USB_SERIAL_KEYSPAN_PDA is not set
+# CONFIG_USB_SERIAL_KEYSPAN is not set
+# CONFIG_USB_SERIAL_KLSI is not set
+# CONFIG_USB_SERIAL_KOBIL_SCT is not set
+# CONFIG_USB_SERIAL_MCT_U232 is not set
+# CONFIG_USB_SERIAL_PL2303 is not set
+# CONFIG_USB_SERIAL_SAFE is not set
+# CONFIG_USB_SERIAL_CYBERJACK is not set
+# CONFIG_USB_SERIAL_XIRCOM is not set
+# CONFIG_USB_SERIAL_OMNINET is not set
+
+#
+# USB Miscellaneous drivers
+#
+# CONFIG_USB_TIGL is not set
+# CONFIG_USB_AUERSWALD is not set
+# CONFIG_USB_RIO500 is not set
+# CONFIG_USB_BRLVGER is not set
+# CONFIG_USB_LCD is not set
+# CONFIG_USB_TEST is not set
+
+#
+# Bluetooth support
+#
+# CONFIG_BT is not set
+
+#
+# Profiling support
+#
+# CONFIG_PROFILING is not set
+
+#
+# Kernel hacking
+#
+# CONFIG_DEBUG_KERNEL is not set
+# CONFIG_KALLSYMS is not set
+# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+CONFIG_DEBUG_INFO=y
+# CONFIG_FRAME_POINTER is not set
+CONFIG_X86_EXTRA_IRQS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+
+#
+# Security options
+#
+# CONFIG_SECURITY is not set
+
+#
+# Cryptographic options
+#
+# CONFIG_CRYPTO is not set
+
+#
+# Library routines
+#
+# CONFIG_CRC32 is not set
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
+CONFIG_X86_BIOS_REBOOT=y
+
+--=-c2sGpNNq1OaBpLOfvViN
+Content-Disposition: attachment; filename=dsdt
+Content-Type: application/octet-stream; name=dsdt
+Content-Transfer-Encoding: quoted-printable
+
+DSDTU3=00=00=01~NEC=00=00=00ND000020=01=00=00=00MSFT
+=00=00=01=10=13\_PR_[=83=0BCPU0=01=10=04=00=00=06=08BDLY
+=01=08ASCC
+=03=08PMBS=0B=00=04[=80PWRG=01=0B=00=04
+@[=81=1CPWRG=01=00 SCIF=01=00G=05=00=01GPIR=01RIEN=01[=81=17PWRG=01=00@=14=
+=00=02TPOL=01=00=16LPOL=01[=81=15PWRG=01=00@=18=00=05GI05=01GI06=01[=81=1AP=
+WRG=01=00H=1A=00=04GO12=01GO13=01GO14=01=08SMBS=0B@=04[=80SMB0=01=0B@=04
+=10[=81.SMB0=01HSTS=08SSTS=08HSTC=08HCMD=08HADR=08HDT0=08HDT1=08BLKD=08[=81=0D=
+SMB0=01=00(HDTW=10=14=1EWTSB=00p
+=FFg=A2=10gvg=A0=0B{HSTS
+=02=00=A4g=A4
+=00=14:SCMD=04p
+=05`=A2/`phHADRpiHCMDpjHDTWp
+=FFHSTSpkHSTC=A0	WTSBp
+=00`=A1=03v`=14=10SBYT=02SCMDhi
+=00
+D=14=0FWBYT=03SCMDhij
+H=14=0FWWRD=03SCMDhij
+L=14A=06WBLK=04p
+=05`=A2E=05`phHADRpiHCMDpHSTC`pj`p
+=00a=A2=10`p=83=88ka=00BLKDv`uapjHDT0pHSTC`p
+=FFHSTSp
+THSTC=A0	WTSBp
+=00`=A1=03v`=14=1ARSBT=02}h
+=01hSCMDhi
+=00
+D=A4HDT0=14=1ARBYT=02}h
+=01hSCMDhi
+=00
+H=A4HDT0=14=1ARWRD=02}h
+=01hSCMDhi
+=00
+L=A4HDTW=14D=07RBLK=03p
+=05`=A2,`}h
+=01HADRpiHCMDp
+=FFHSTSp
+THSTC=A0	WTSBp
+=00`=A1=03v`pHSTC`pHDT0`r`
+=01g=08RBUF=11=02gp
+=00RBUFp
+=00a=A2=12`pBLKD=88RBUFa=00v`ua=A4RBUF=08\_S0_=12
+=04
+=05
+=05
+=00
+=00=08\_S3_=12
+=04
+=01
+=01
+=00
+=00=08\_S4_=12
+=04
+=00
+=00
+=00
+=00=08\_S5_=12
+=04
+=00
+=00
+=00
+=00[=81&PWRG=01=00@=1AHPW1=01=00=02SSGR=01HPW0=01FLPW=01=00=14KBPW=01=08FLP=
+P=01=08VFPP=01=14=07INI_=00=A3=14-MCTH=01p
+=00`=A0
+=93=87h
+=11p
+=01`=A0
+=93=87h
+'p
+=02`=A0
+=93=87h
+=14p
+=03`=A4`=10=8A=A6=02\_SB_[=82=84C=02NRTH=08_HID=0CA=D0
+=03=08_ADR
+=00=08CRS_=11L=08
+=88=88=0D=00=02=0C=00=00=00=00=00=FF=00=00=00=00=01G=01=F8=0C=F8=0C=01=08=
+=88=0D=00=01=0C=03=00=00=00=00=F7=0C=00=00=F8=0C=88=0D=00=01=0C=03=00=00=00=0D=
+=FF=FF=00=00=00=F3=87=17=00=00=0C=03=00=00=00=00=00=00
+=00=FF=FF=0B=00=00=00=00=00=00=00=02=00=87=17=00=00=0C=03=00=00=00=00=00=B0=
+=0C=00=FF=FF=0D=00=00=00=00=00=00P=01=00=87=17=00=00=0C=03=00=00=00=00=00=
+=00=00 =FF=FF=DF=FF=00=00=00=00=00=00=E0=DFy=00[=80TMEM=02
+g
+=01[=81=0BTMEM=01MEMT=08[=80PMCR=02
+z
+=01[=81=0BPMCR=01PCIR=01=14=10MDET=00yMEMT
+=17`=A4`=14=11TFCS=00tMDET=0B=C0=7F`=A4`[=80SPAD=02
+=D0
+=08[=81=0FSPAD=01=008=00=07PS2E=01=08FLAG
+=01=08OSFL
+=02=14@=06_INI=00\INI_=A0=1B=93MCTH\_OS_
+=01p
+=01FLAGp
+=01OSFL=A0=1B=93MCTH\_OS_
+=02p
+=01FLAGp
+=02OSFL=A0=1B=93MCTH\_OS_
+=03p
+=00FLAGp
+=03OSFL=14=12_REG=02=A0=0B=93h
+=02phFLAG=14>_CRS=00=A02FLAG=8ACRS_
+vTMEM=8ACRS_
+=82TLENpMDETTMEMt=0C=00=00=E0=FFTMEMTLEN=A4CRS_=08_PRT=12O
+=12=15=04=0C=FF=FF=07=00
+=03\._SB_LNKD
+=00=12=15=04=0C=FF=FF	=00
+=00\._SB_LNKB
+=00=12=15=04=0C=FF=FF=0B=00
+=00\._SB_LNKC
+=00=12=15=04=0C=FF=FF=0B=00
+=01\._SB_LNKD
+=00=12=15=04=0C=FF=FF=01=00
+=00\._SB_LNKA
+=00=12=15=04=0C=FF=FF=0F=00
+=00\._SB_LNKC
+=00=12=15=04=0C=FF=FF=0F=00
+=01\._SB_LNKD
+=00=12=15=04=0C=FF=FF=0C=00
+=00\._SB_LNKA
+=00=12=15=04=0C=FF=FF=0C=00
+=01\._SB_LNKB
+=00=12=15=04=0C=FF=FF=0C=00
+=02\._SB_LNKC
+=00[=82=0FPMU_=08_ADR=0C=03=00=07=00[=82=80=DE=01SBRG=08_ADR=0C=00=00=07=00=
+[=80PIX0=02
+`
+=04=10D-\_SB_[=81)\/=04_SB_NRTHSBRGPIX0=01PIRA=08PIRB=08PIRC=08PIRD=08=08BU=
+FA=11=09
+=06#=01=00=18y=00[=82B
+LNKA=08_HID=0CA=D0=0C=0F=08_UID
+=01=14=19_STA=00{PIRA
+=80`=A0=05`=A4
+=01=A1=04=A4
+=0B=08_PRS=11=09
+=06#=00=04=18y=00=14=0D_DIS=00p
+=80PIRA=14(_CRS=00=8BBUFA
+=01IRA0{PIRA
+=0F`p=01aya`IRA0=A4BUFA=14=1C_SRS=01=8Bh
+=01IRA_=82IRA_`v`p`PIRA=14=0D_INI=00p
+=00PIRA[=82B
+LNKB=08_HID=0CA=D0=0C=0F=08_UID
+=02=14=19_STA=00{PIRB
+=80`=A0=05`=A4
+=01=A1=04=A4
+=0B=08_PRS=11=09
+=06# =00=18y=00=14=0D_DIS=00p
+=80PIRB=14(_CRS=00=8BBUFA
+=01IRA0{PIRB
+=0F`p=01aya`IRA0=A4BUFA=14=1C_SRS=01=8Bh
+=01IRA_=82IRA_`v`p`PIRB=14=0D_INI=00p
+=00PIRB[=82E
+LNKC=08_HID=0CA=D0=0C=0F=08_UID
+=03=14=19_STA=00{PIRC
+=80`=A0=05`=A4
+=01=A1=04=A4
+=0B=08_PRS=11=0C
+	1=05#=A0=04=188y=00=14=0D_DIS=00p
+=80PIRC=14(_CRS=00=8BBUFA
+=01IRA0{PIRC
+=0F`p=01aya`IRA0=A4BUFA=14=1C_SRS=01=8Bh
+=01IRA_=82IRA_`v`p`PIRC=14=0D_INI=00p
+=00PIRC[=82B
+LNKD=08_HID=0CA=D0=0C=0F=08_UID
+=04=14=19_STA=00{PIRD
+=80`=A0=05`=A4
+=01=A1=04=A4
+=0B=08_PRS=11=09
+=06#=00=02=18y=00=14=0D_DIS=00p
+=80PIRD=14(_CRS=00=8BBUFA
+=01IRA0{PIRD
+=0F`p=01aya`IRA0=A4BUFA=14=1C_SRS=01=8Bh
+=01IRA_=82IRA_`v`p`PIRD=14=0D_INI=00p
+=00PIRD[=82J=16SYSR=08_HID=0CA=D0=0C=02=14!_STA=00=A0=17=92=94\/=03_SB_NRTH=
+OSFL
+=02=A4
+=0F=A4
+=00=08\._SB_MSC1=11N=05
+ZK=10=00=10K"=00=1EKD=00=1CKc=00=01Ke=00=01Kg=00	Kr=00=0EK=80=00=01K=84=00=
+=03K=88=00=01K=8C=00=03K=90=00=10K=A2=00=1EK=E0=00=10G=01=D0=04=D0=04=00=02=
+G=01=00=04=00=04=00@G=01@=04@=04=00=10G=01p=03p=03=00=02y=00=08\._SB_MSC2=
+=11F=04
+BK=10=00=10K"=00=1EKc=00=01Ke=00=01Kg=00	K=E0=00=10G=01=D0=04=D0=04=00=02G=
+=01=00=00=00=00=00=02G=01=00=00=00=00=000G=01@=04@=04=00=10G=01p=03p=03=00=
+=02y=00=14K=07_CRS=00=A0=19=92=94\/=03_SB_NRTHOSFL
+=02=A4MSC1=A1I=05=8BMSC2
+"PM00=8BMSC2
+$PM01=8BMSC2
+*PM10=8BMSC2
+,PM11r=0B=00=04
+=06PM00pPM00PM01r=0B=00=04
+=10PM10pPM10PM11=A4MSC2[=82A=0BMEM_=08_HID=0CA=D0=0C=01=14!_STA=00=A0=17=92=
+=94\/=03_SB_NRTHOSFL
+=02=A4
+=0F=A4
+=00=08MEM1=11N=04
+J=86	=00=01=00=00=00=00=00=00
+=00=86	=00=00=00=00=0E=00=00=00=02=00=86	=00=01=00=00=10=00=00=00=F0=1F=86	=
+=00=00=00=00=C0=FE=00=10=00=00=86	=00=00=00=00=E0=FE=00=10=00=00=86	=00=00=
+=00=00=F8=FF=00=00=08=00y=00=14*_CRS=00=8AMEM1
+ TOP1=A0=13FLAGtMDET=0C=00=00=10=00TOP1=A4MEM1[=82#PIC_=08_HID=0BA=D0=08_CR=
+S=11=10
+=0DK =00=02K=A0=00=02"=04=00y=00[=825DMAD=08_HID=0CA=D0=02=00=08_CRS=11=20
+=1D*=10=04K=00=00=10K=81=00=03K=87=00=01K=89=00=03K=8F=00=01K=C0=00 y=00[=
+=82!TMR_=08_HID=0CA=D0=01=00=08_CRS=11=0C
+	K@=00=04"=01=00y=00[=82!RTC_=08_HID=0CA=D0=0B=00=08_CRS=11=0C
+	Kp=00=02"=00=01y=00[=82=1ESPKR=08_HID=0CA=D0=08=00=08_CRS=11=09
+=06Ka=00=01y=00[=82!COPR=08_HID=0CA=D0=0C=04=08_CRS=11=0C
+	K=F0=00=10"=00 y=00[=82G=06PS2M=08_HID=0C=06=A9=02=00=08_CID=0CA=D0=0F=0E=
+=08_UID
+=00=147_STA=00=A0+\/=03_SB_NRTHPS2E=A0=15=90=93\GI05
+=01=93\GI06
+=01=A4
+=0F=A1=04=A4
+=00=A1=04=A4
+=00=08_CRS=11=08
+=05"=00=10y=00[=82G=06P2MI=08_HID=0C=06=A9=02=00=08_CID=0CA=D0=0F=13=08_UID
+=01=147_STA=00=A0+\/=03_SB_NRTHPS2E=A0=15=90=93\GI05
+=01=93\GI06
+=01=A4
+=00=A1=04=A4
+=0F=A1=04=A4
+=00=08_CRS=11=08
+=05"=00=10y=00[=82H=04PS2K=08_HID=0CA=D0=03 =08_CRS=11=10
+=0DK`=00=01Kd=00=01"=02=00y=00=14!_STA=00=A0=15=90=93\GI05
+=01=93\GI06
+=01=A4
+=0F=A1=04=A4
+=00[=82H=04P2KI=08_HID=0CA=D0=03=03=08_CRS=11=10
+=0DK`=00=01Kd=00=01"=02=00y=00=14!_STA=00=A0=15=90=93\GI05
+=01=93\GI06
+=01=A4
+=00=A1=04=A4
+=0F[=82=8A=12=01EIO_=08_HID=0CA=D0
+=06[=80\/=04_SB_NRTHSBRGPIX2=02
+=90
+=02[=81=1A\/=04_SB_NRTHSBRGPIX2=01TDMA=10[=80\/=04_SB_NRTHSBRGPIX3=02
+=B0
+=01[=81=1A\/=04_SB_NRTHSBRGPIX3=01GCFG=08[=80\/=04_SB_NRTHPMU_PIX4=02
+P
+=04[=81=1A\/=04_SB_NRTHPMU_PIX4=01DACK [=80\/=04_SB_NRTHPMU_PIX5=02
+P
+0[=81H=08\/=04_SB_NRTHPMU_PIX5=01DCK0=08DCK1=08DCK2=08=00H=04RSA0=08RSA1=08=
+RSA2=08RSA3=08RSB0=10RSB2=08RSB3=08RSC0=10RSC2=08RSC3=08GDR2=10GDM2=08=00(G=
+DR3=10GDM3=08=00(GDR4=10GDM4=08=00=08GDR5=10GDM5=08=08STBL=12D=08	=12=02=00=
+=12=02=00=12=02=00=12=02=00=12)=0D=0B =02=0B@=02=0B`=02=0B=80=02=0B=00=03=
+=0B=10=03=0B =03=0B0=03=0B0=05=0B=04=06=0B=80=0E=0B@=0F=0B=00=02=12=08=02=
+=0B=F0=03=0Bp=03=12=1A=08=0B=F8=03=0B=F8=02=0B =02=0B(=02=0B8=02=0B=E8=02=
+=0B8=03=0B=E8=03=12=1A=08=0B=F8=03=0B=F8=02=0B =02=0B(=02=0B8=02=0B=E8=02=
+=0B8=03=0B=E8=03=12=0B=03=0B=BC=03=0Bx=03=0Bx=02=08DEVS=12C&	=12=02=00=12=
+=02=00=12=02=00=12=02=00=12@=0E=0D=12=10=07
+=00
+`
+=00
+=08
+=00
+=02
+=03=12=10=07
+=20
+`
+=00
+=08
+=00
+=02
+=03=12=10=07
+@
+`
+=00
+=08
+=00
+=02
+=03=12=10=07
+`
+`
+=00
+=08
+=00
+=02
+=03=12=10=07
+=00
+=06
+=00
+=01
+=00
+=10
+=05=12=10=07
+=02
+=06
+=00
+=01
+=00
+=10
+=05=12=10=07
+=04
+=06
+=00
+=01
+=00
+=10
+=05=12=10=07
+=06
+=06
+=00
+=01
+=00
+=10
+=05=12=10=07
+=00
+=03
+=01
+=80
+=00
+=01
+=06=12=10=07
+=01
+=03
+=01
+=80
+=00
+=01
+=06=12=10=07
+=02
+=03
+=01
+=80
+=00
+=01
+=06=12=10=07
+=03
+=03
+=01
+=80
+=00
+=01
+=06=12=10=07
+=10
+=10
+=00
+=10
+=00
+=80
+=06=12$=02=12=10=07
+=00
+=10
+=06
+=10
+=0B
+=20
+=06=12=10=07
+=10
+=10
+=06
+=10
+=0B
+=20
+=06=12K=08=08=12=10=07
+=00
+=07
+=09
+@
+=0B
+=08
+	=12=10=07
+=01
+=07
+=09
+@
+=0B
+=08
+	=12=10=07
+=02
+=07
+=09
+@
+=0B
+=08
+	=12=10=07
+=03
+=07
+=09
+@
+=0B
+=08
+	=12=10=07
+=04
+=07
+=09
+@
+=0B
+=08
+	=12=10=07
+=05
+=07
+=09
+@
+=0B
+=08
+	=12=10=07
+=06
+=07
+=09
+@
+=0B
+=08
+	=12=10=07
+=07
+=07
+=09
+@
+=0B
+=08
+	=12K=08=08=12=10=07
+=00
+p
+=09
+=01
+=0C
+=80
+	=12=10=07
+=10
+p
+=09
+=01
+=0C
+=80
+	=12=10=07
+=20
+p
+=09
+=01
+=0C
+=80
+	=12=10=07
+0
+p
+=09
+=01
+=0C
+=80
+	=12=10=07
+@
+p
+=09
+=01
+=0C
+=80
+	=12=10=07
+P
+p
+=09
+=01
+=0C
+=80
+	=12=10=07
+`
+p
+=09
+=01
+=0C
+=80
+	=12=10=07
+p
+p
+=09
+=01
+=0C
+=80
+	=125=03=12=10=07
+=00
+=06
+=06
+=04
+=0C
+=80
+=03=12=10=07
+=02
+=06
+=06
+=04
+=0C
+=80
+=03=12=10=07
+=04
+=06
+=06
+=04
+=0C
+=80
+=03=08ROUT=12"=10
+=00
+=00
+=00
+=00
+=00
+=00
+=00
+=00
+=00
+=00
+=00
+=00
+=00
+=00
+=00
+=00=14L+RRIO=04=A0=08=90GCFG
+=02=A1=04=A4
+=00=08LSTS
+=08=08LSTG
+=0F=A0=1C=94hLSTS=A0	=94hLSTG=A4=00=A1
+=A4RGNRhijkp=89=83=88STBLh=00=01j=00
+=00
+=00f=A0=06=93f=FF=A4=01pRSA0=88ROUT
+=00=00pRSA1=88ROUT
+=01=00pRSA2=88ROUT
+=02=00pRSA3=88ROUT
+=03=00pRSB0=88ROUT
+=04=00pRSB2=88ROUT
+=05=00pRSB3=88ROUT
+=06=00pRSC0=88ROUT
+=07=00pRSC2=88ROUT
+=08=00pRSC3=88ROUT
+	=00pDCK0=88ROUT
+
+=00pDCK1=88ROUT
+=0B=00pDCK2=88ROUT
+=0C=00p=83=88=83=88=83=88DEVSh=00f=00
+=00=00`p=83=88=83=88=83=88DEVSh=00f=00
+=01=00ap=83=88=83=88=83=88DEVSh=00f=00
+=02=00bp=83=88=83=88=83=88DEVSh=00f=00
+=03=00cp=83=88=83=88=83=88DEVSh=00f=00
+=04=00dp=83=88=83=88=83=88DEVSh=00f=00
+=05=00ep=83=88=83=88=83=88DEVSh=00f=00
+=06=00f=A00i=80cc{=83=88ROUTd=00cgpg=88ROUTd=00=80ee{=83=88ROUTf=00egpg=88R=
+OUTf=00=A1M=04=80aa{=83=88ROUTb=00ag}g`=88ROUTb=00}=83=88ROUTd=00cgpg=88ROU=
+Td=00{GCFG
+=02g=A0=16g}=83=88ROUTf=00egpg=88ROUTf=00p=83=88ROUT
+=00=00RSA0p=83=88ROUT
+=01=00RSA1p=83=88ROUT
+=02=00RSA2p=83=88ROUT
+=03=00RSA3p=83=88ROUT
+=04=00RSB0p=83=88ROUT
+=05=00RSB2p=83=88ROUT
+=06=00RSB3p=83=88ROUT
+=07=00RSC0p=83=88ROUT
+=08=00RSC2p=83=88ROUT
+	=00RSC3p=83=88ROUT
+
+=00DCK0p=83=88ROUT
+=0B=00DCK1p=83=88ROUT
+=0C=00DCK2=08GEND=12B=08=07=12=14=09
+=00
+=0F
+=01
+=20
+=01
+@
+=01
+=80
+=01=12=14=09
+=02
+=0F
+=03
+=20
+=03
+@
+=03
+=80
+=03=12=10=07
+=00
+=00
+=00
+=00
+=00
+=00
+=00=12=10=07
+=05
+=0F
+=09
+=10
+=09
+=20
+=04=12=10=07
+=06
+=0F
+
+
+=10
+
+
+@
+=04=12=10=07
+=07
+=0F
+=0B
+=00
+=0B
+=10
+=0B=12=10=07
+=08
+=0F
+=0C
+=00
+=0C
+=10
+=0C=14@/RGNR=04pRSB0=88ROUT
+=00=00pRSB2=88ROUT
+=01=00pRSC0=88ROUT
+=02=00pRSC2=88ROUT
+=03=00pRSA3=88ROUT
+=04=00pGDR2=88ROUT
+=05=00pGDR3=88ROUT
+=06=00pGDR4=88ROUT
+=07=00pGDR5=88ROUT
+=08=00pGDM2=88ROUT
+	=00pGDM3=88ROUT
+
+=00pGDM4=88ROUT
+=0B=00pGDM5=88ROUT
+=0C=00=08CATG
+=00=08MODE
+=00=08PORT
+=00=08SIZE
+=00phCATGpiMODEpjPORTpkSIZEtCATG
+	CATGp=83=88ROUT=83=88=88GENDCATG=00
+=00=00=00bpPORT=88ROUT=83=88=88GENDCATG=00
+=00=00=00{=83=88ROUT=83=88=88GENDCATG=00
+=02=00=00
+=0FcuctSIZE
+=01d=81dez
+=FFefpf=88ROUT=83=88=88GENDCATG=00
+=02=00=00=A0B=06}=93CATG
+=00=93CATG
+=01=00p=88ROUT=83=88=88GENDh=00
+=08=00=00g=A0=16MODE{g=80=83=88=88GENDh=00
+=07=00=00g=A1=10}g=83=88=88GENDh=00
+=07=00gpg=88ROUT=83=88=88GENDh=00
+=08=00=00p=88ROUT=83=88=88GENDh=00
+=06=00=00g=A0=16MODE{g=80=83=88=88GENDh=00
+=05=00=00g=A1=10}g=83=88=88GENDh=00
+=05=00gpg=88ROUT=83=88=88GENDh=00
+=06=00=00p=88ROUT
+=00=00RSB0p=88ROUT
+=01=00RSB2p=88ROUT
+=02=00RSC0p=88ROUT
+=03=00RSC2p=88ROUT
+=04=00RSA3p=88ROUT
+=05=00GDR2p=88ROUT
+=06=00GDR3p=88ROUT
+=07=00GDR4p=88ROUT
+=08=00GDR5p=88ROUT
+	=00GDM2p=88ROUT
+
+=00GDM3p=88ROUT
+=0B=00GDM4p=88ROUT
+=0C=00GDM5ph=88ROUT
+=00=00pMODE=88ROUT
+=01=00pb=88ROUT
+=02=00pc=88ROUT
+=03=00=A4ROUT=08DTBL=12@=05	=12=02=00=12=02=00=12=02=00=12=02=00=12=14=09
+?
+=01
+=02
+=00
+=04
+=00
+=08
+=10
+ =12=0C=04=0B=00=08
+=00
+=00=0B=00=08=12=02=00=12=02=00=12=18=05=0C=00=00=02=00=0C=00=00=02=00=0C=00=
+=00"=00
+=00=0C=00=00B=00=14%RDMA=03vjyj
+=01ay
+=03ab=7Fb=0B=FF=FFbpTDMA`{`bTDMA=08\SPIO=0Bp=03[=80SMC1=01SPIO
+=02[=81=10SMC1=01INDX=08DATA=08[=86N
+INDXDATA=01CR00=08CR01=08CR02=08CR03=08CR04=08CR05=08CR06=08CR07=08CR08=08C=
+R09=08CR0A=08CR0B=08CR0C=08CR0D=08CR0E=08CR0F=08=00@=08CR20=08CR21=08CR22=
+=08CR23=08CR24=08CR25=08CR26=08CR27=08CR28=08CR29=08CR2A=08CR2B=08CR2C=08CR=
+2D=08CR2E=08CR2F=08=14=1EENFG=00p
+UINDX=A3=A3=A3=A3p=0DIO delay=00[1=14=1EEXFG=00p
+=AAINDX=A3=A3=A3=A3p=0DIO delay=00[1[=80\FDCC=01=0Bp=03
+=08[=81=0E\FDCC=01=00 FDC4=08[=82@!FDC0=08_HID=0CA=D0=07=00=14K=04_STA=00EN=
+FGpCR20`{CR27
+=F0a{CR26
+=F0cEXFG=A0=15=94`
+@=A0=0Ca=A0	=92=93c
+=F0=A4
+=0F=A4
+=0D=A1=0F=A0=08=93`
+=00=A4
+=00=A1=04=A4
+=0D=14;_DIS=00ENFGpFDC4`{`
+=1F`=A0=02`=A1=1Ep
+ CR20{CR27
+=0FCR27}CR26
+=F0CR26EXFG=14E=0C_CRS=00=08BUF0=11#
+ G=01=F2=03=F2=03=01=02G=01=F4=03=F4=03=01=02G=01=F7=03=F7=03=01=01"@=00*=
+=04=00y=00=8BBUF0
+=02IOB_=8BBUF0
+=04IOR_=8CBUF0
+=19IRQL=8CBUF0
+=1CDMALENFGpCR20`y`
+=02ara
+=02apaIOB_pIOB_IOR_{CR27
+=F0`=A0=0C=93`
+=00p
+=00IRQL=A1=10z`
+=04ap=01bybaIRQL{CR26
+=F0`z`
+=04ap=01bybaDMALEXFG=A4BUF0=08_PRS=11&
+#1=05G=01=F2=03=F2=03=01=02G=01=F4=03=F4=03=01=02G=01=F7=03=F7=03=01=01"@=
+=00*=04=008y=00=14E=08_SRS=01=8Bh
+=02IOB_=8Bh
+=19IRQL=8Bh
+=1CDMALENFGpIOB_`z`
+=02apaCR20pCR27`{`
+=0F`=82IRQLava=A0	=93a
+=06p
+=06aya
+=04a}`aapaCR27{CR26
+=0F`{DMAL
+=0Fc=82cbvbyb
+=04a}`aCR26EXFG[=82K=1DUAR1=08_HID=0CA=D0=05=01=08_UID
+=01=08_PRW=12=06=02
+
+
+=04=14;_STA=00ENFGpCR24`{CR28
+=F0aEXFG=A0=0E=94`
+@=A0=05a=A4
+=0F=A4
+=0D=A1=0F=A0=08=93`
+=00=A4
+=00=A1=04=A4
+=0D=14 _DIS=00ENFGp
+ CR24{CR28
+=0FCR28EXFG=14A=0B_CRS=00=08BUF1=11=10
+=0DG=01=F8=03=F8=03=08=08"=10=00y=00=8BBUF1
+=02IOB_=8BBUF1
+=04IOR_=8BBUF1
+	IRQLENFGpCR24`=A0F=04=94`
+@pCR24`y`
+=02apaIOB_pIOB_IOR_{CR28
+=F0`=A0=0C=93`
+=00p
+=00IRQL=A1=10z`
+=04ap=01bybaIRQL=A1=18p
+=00IOB_pIOB_IOR_p
+=00IRQLEXFG=A4BUF1=08_PRS=11:
+71=00G=01=F8=03=F8=03=08=08"=10=001=00G=01=F8=02=F8=02=08=08"=08=001=00G=01=
+=E8=03=E8=03=08=08"=10=001=00G=01=E8=02=E8=02=08=08"=08=008y=00=14H=06_SRS=
+=01=8Bh
+=02IOB_=8Bh
+=04IOR_=8Bh
+	IRQLENFGpIOB_`z`
+=02apaCR24{CR28
+=0Fb=A0=0E=93IRQL
+=00pbCR28=A1=18=82IRQL`v`y`
+=04a}abbpbCR28EXFG[=80UPCS=01
+r
+=02[=81=10UPCS=01IND_=08DAT_=08[=86E=0CIND_DAT_=01=00@=08BT10=08BT11=08BT12=
+=08BT13=08=00@=0EBT30=08BT31=08BT32=08BT33=08BT34=08BT35=08BT36=08BT37=08BT=
+38=08BT39=08BT3A=08BT3B=08BT3C=08BT3D=08BT3E=08BT3F=08BT40=08BT41=08BT42=08=
+BT43=08BT44=08BT45=08BT46=08BT47=08BT48=08BT49=08BT4A=08BT4B=08BT4C=08BT4D=
+=08BT4E=08BT4F=08[=02\SMBF=08\FGEC
+=00[=82HTEC0_=08_HID=0CA=D0=0C	=14=0B_INI=00\UDTT=08_CRS=11=15
+=12G=01b=00b=00=00=01G=01f=00f=00=00=01y=00=08_GPE
+	=14=12_REG=02=A0=0B=93h
+=03phFGEC[=80ECRM=03
+=80
+=80[=81C=15ECRM=01NMSG=08SLED=04SLPT=04MODE=01KYIN=01ACMD=01PBNS=01TME0=01T=
+ME1=01=00=02LIDS=01LSW0=01LWKE=01WAKF=01MWKE=01INTM=01EXTM=01PCMM=01ADP_=01=
+AFLT=01BAT0=01BAT1=01BATL=01BATC=01=00=02BPU0=10BPU1=10BDC0=10BDC1=10BFC0=
+=10BFC1=10BTC0=10BTC1=10BDV0=10BDV1=10BST0=10BST1=10BPR0=10BPR1=10BRC0=10BR=
+C1=10BPV0=10BPV1=10BTP0=10BTP1=10BCW0=10BCW1=10BCL0=10BCL1=10BCG0=10BCG1=10=
+BG20=10BG21=10BMO0=10BMO1=10BIF0 BIF1 BSN0 BSN1 BTY0=10BTY1=10AC0_=10PSV_=
+=10CRT_=10TMP_=10NABT=02=00N
+BTST=03=14=13_Q04=00=86\._SB_BAT0
+=80=14=1F_Q05=00p
+=05DBG8=86\/=03_SB_NRTHPRB1
+=80=14@=08_Q06=00=86\._SB_AC__
+=80p
+=00\/=05_SB_NRTHSBRGEIO_BT30p
+=84SWMIp\/=05_SB_NRTHSBRGEIO_BT31`{`
+=01`=A0=04=93`=01=A1"=A0 =93\/=03_SB_NRTHOSFL
+=02=86\._SB_BAT0
+=80uAPMS=14=1F_Q07=00p
+=07DBG8\UDTT=86\._TZ_THRM
+=81=14B$_Q08=00p
+=00\/=05_SB_NRTHSBRGEIO_BT30p
+=84SWMIp\/=05_SB_NRTHSBRGEIO_BT31`{`
+=04`z`
+=02`=A0L=0F=93`=01=A0N=06=93\/=03_SB_NRTHOSFL
+=01\/=03_SB_BAT0_BIF\/=03_SB_BAT0_BSTp
+=01\FAKE=86\._SB_AC__
+=00=86\._SB_BAT0
+=00=86\._SB_BAT0
+=80=86\._SB_BAT0
+=81=A0F=06=93\/=03_SB_NRTHOSFL
+=02\/=03_SB_BAT0_BIF\/=03_SB_BAT0_BST=86\._SB_AC__
+=00=86\._SB_BAT0
+=00=86\._SB_BAT0
+=80=86\._SB_BAT0
+=81=A0 =93\/=03_SB_NRTHOSFL
+=03=86\._SB_BAT0
+=00=A1I=0F=A0N=06=93\/=03_SB_NRTHOSFL
+=01\/=03_SB_BAT0_BIF\/=03_SB_BAT0_BSTp
+=01\FAKE=86\._SB_AC__
+=00=86\._SB_BAT0
+=00=86\._SB_BAT0
+=80=86\._SB_BAT0
+=81=A0F=06=93\/=03_SB_NRTHOSFL
+=02\/=03_SB_BAT0_BIF\/=03_SB_BAT0_BST=86\._SB_AC__
+=00=86\._SB_BAT0
+=01=86\._SB_BAT0
+=80=86\._SB_BAT0
+=81=A0 =93\/=03_SB_NRTHOSFL
+=03=86\._SB_BAT0
+=01=14I=04_Q09=00=A0 =93\/=03_SB_NRTHOSFL
+=02=86\._SB_BAT0
+=80=A0 =93\/=03_SB_NRTHOSFL
+=03=86\._SB_BAT0
+=80=14=1F_Q0A=00p
+
+DBG8=86\/=03_SB_NRTHLID0
+=80=14=06_Q0B=00=14=06_Q0C=00=14=06_Q0D=00[=82=0FIDE0=08_ADR=0C=01=00=07=00=
+[=82K"AGP_=08_ADR=0C=00=00=01=00[=82I!VGA_=08_ADR
+=00=08SWIT
+=01=08CRTA
+=01=08LCDA
+=01=08TVA_
+=01=08TOGF
+=00=14	_STA=00=A4
+=0F=14=1B_DOS=01p=0DVGA --_DOS=00[1phSWIT=14&_DOD=00p=0DVGA --_DOD=00[1=A4=
+=12=0F=03=0C=00=01=01=00=0C=10=01=01=00=0B=00=02[=82B=07CRT_=08_ADR=0B=00=
+=01=14#_DCS=00p=0DCRT --_DCS=00[1=A0=08CRTA=A4
+=1F=A1=04=A4
+=1D=14)_DGS=00p=0DCRT --_DGS=00[1pCRTA`=A0=08CRTA=A4
+=01=A1=04=A4
+=00=14=15_DSS=01p=0DCRT --_DSS=00[1[=82E=0BLCD_=08_ADR=0B=10=01=14#_DCS=00p=0D=
+LCD --_DCS=00[1=A0=08LCDA=A4
+=1F=A1=04=A4
+=1D=14)_DGS=00p=0DLCD --_DGS=00[1pLCDA`=A0=08LCDA=A4
+=01=A1=04=A4
+=00=14=15_DSS=01p=0DLCD --_DSS=00[1=08_BCL=12=16
+
+=06
+=04
+=00
+=01
+=02
+=03
+=04
+=05
+=06
+=07=14&_BCM=01ph\/=05_SB_NRTHSBRGEIO_BT30p
+=87SWMI[=82O=06TV__=08_ADR=0B=00=02=14"_DCS=00p=0DTV --_DCS=00[1=A0=08TVA_=
+=A4
+=1F=A1=04=A4
+=1D=14(_DGS=00p=0DTV --_DGS=00[1pTVA_`=A0=08TVA_=A4
+=01=A1=04=A4
+=00=14=14_DSS=01p=0DTV --_DSS=00[1[=82C=05USB_=08_ADR=0C=02=00=07=00=08_PR0=
+=12=06=01PUSB=08USPW
+=00[=84.PUSB=00=00=00=14=0B_STA=00=A4USPW=14=0C_ON_=00p=01USPW=14=0C_OFF=00=
+p=00USPW[=82=1BMDM0=08_ADR=0C=00=00=0F=00=08_PRW=12=06=02
+=0B
+=03[=82=1BPRB1=08_HID=0CA=D0=0C=0C=08_PRW=12=06=02
+=0B
+=04[=82E=06LID0=08_HID=0CA=D0=0C=0D=08_PRW=12=06=02
+=0B
+=04=14H=04_LID=00p
+=03\/=05_SB_NRTHSBRGEIO_BT30p
+=84SWMIp\/=05_SB_NRTHSBRGEIO_BT32`{`
+=01`=A4`=10M=04\_GPE=14,_L0B=00=A0=1C=90FGECSCIF=86\/=03_SB_NRTHPRB1
+=02=80LPOLLPOL=14=18_L0A=00=86\/=03_SB_NRTHPRB1
+=02[=82IUBAT0=08_HID=0CA=D0=0C
+=08_UID
+=00=08_PCL=12=07=01\_SB_=14=06_INI=00=14H=05_STA=00p
+=00\/=05_SB_NRTHSBRGEIO_BT30p
+=84SWMIp\/=05_SB_NRTHSBRGEIO_BT31`{`
+=04`z`
+=02`=A0=07=93`=01=A4
+=1F=A1=04=A4
+=0F=08BUFF=123
+=01=0B=14=05=0B=14=05
+=01=0B0*=0B8=01
+=9C
+d
+d=0DPC-VP-WP16=00=0D=00=0DLIon=00=0DNEC  =00=14B6_BIF=00p
+=01\/=05_SB_NRTHSBRGEIO_BT30p
+=84SWMIp\/=05_SB_NRTHSBRGEIO_BT31`p\/=05_SB_NRTHSBRGEIO_BT32aya
+=08a}`a`p`=88BUFF
+=00=00p\/=05_SB_NRTHSBRGEIO_BT33`p\/=05_SB_NRTHSBRGEIO_BT34aya
+=08a}`a`p`=88BUFF
+=01=00p\/=05_SB_NRTHSBRGEIO_BT35`p\/=05_SB_NRTHSBRGEIO_BT36aya
+=08a}`a`p`=88BUFF
+=02=00p\/=05_SB_NRTHSBRGEIO_BT37`p\/=05_SB_NRTHSBRGEIO_BT38aya
+=08a}`a`p`=88BUFF
+=03=00p\/=05_SB_NRTHSBRGEIO_BT39`p\/=05_SB_NRTHSBRGEIO_BT3Aaya
+=08a}`a`p`=88BUFF
+=04=00p\/=05_SB_NRTHSBRGEIO_BT3B`p\/=05_SB_NRTHSBRGEIO_BT3Caya
+=08a}`a`p`=88BUFF
+=05=00p\/=05_SB_NRTHSBRGEIO_BT3D`p\/=05_SB_NRTHSBRGEIO_BT3Eaya
+=08a}`a`p`=88BUFF
+=06=00p\/=05_SB_NRTHSBRGEIO_BT40`p\/=05_SB_NRTHSBRGEIO_BT41aya
+=08a}`a`p`=88BUFF
+=07=00p\/=05_SB_NRTHSBRGEIO_BT42`p\/=05_SB_NRTHSBRGEIO_BT43aya
+=08a}`a`p`=88BUFF
+=08=00p\/=05_SB_NRTHSBRGEIO_BT44`p\/=05_SB_NRTHSBRGEIO_BT45aya
+=08a}`a`p=0DPC-VP-WP16=00=88BUFF
+	=00=A0=1A=93`
+=03p=0DPC-VP-WP15=00=88BUFF
+	=00p=0D=00=88BUFF
+
+=00p=0DLIon=00=88BUFF
+=0B=00p\/=05_SB_NRTHSBRGEIO_BT46`{`
+=03`=A0=14=93`
+=01p=0DNiMh=00=88BUFF
+=0B=00p=0DNEC  =00=88BUFF
+=0C=00=A4BUFF=08BFB1=12=13=04
+=00=0C=FF=FF=FF=FF=0C=FF=FF=FF=FF=0C=00=00=01=00=14O=11_BST=00p
+=02\/=05_SB_NRTHSBRGEIO_BT30p
+=84SWMIp\/=05_SB_NRTHSBRGEIO_BT32`p`=88BFB1
+=00=00p\/=05_SB_NRTHSBRGEIO_BT33`p\/=05_SB_NRTHSBRGEIO_BT34aya
+=08a}`a`p`=88BFB1
+=01=00p\/=05_SB_NRTHSBRGEIO_BT35`p\/=05_SB_NRTHSBRGEIO_BT36aya
+=08a}`a`p`=88BFB1
+=02=00p\/=05_SB_NRTHSBRGEIO_BT37`p\/=05_SB_NRTHSBRGEIO_BT38aya
+=08a}`a`p`=88BFB1
+=03=00=A4BFB1[=82O=0CAC__=08_HID=0DACPI0003=00=08_PCL=12=07=01\_SB_=14=06_I=
+NI=00=14E
+_PSR=00p
+=00\/=05_SB_NRTHSBRGEIO_BT30p
+=84SWMIp\/=05_SB_NRTHSBRGEIO_BT31`{`
+=01`=A0"=93\FAKE
+=01p
+=00`p
+=00\FAKE=86\._SB_AC__
+=00=A09=93\/=03_SB_NRTHOSFL
+=01=A0%=90=93\GI05
+=01=93\GI06
+=01=A0=12=92=93\ASCC=00v\ASCC=A4
+=01=A4`=14=16KELV=01phbw
+
+bbrb=0B=AC
+b=A4b=08PLCY
+=00=08\BAC0
+A=08\BPSV
+F=08\BCRT
+i=08\BTMP
+A=14C=0C\UDTT=00p
+=04\/=05_SB_NRTHSBRGEIO_BT30p
+=84SWMIp\/=05_SB_NRTHSBRGEIO_BT10`p`\BAC0p\/=05_SB_NRTHSBRGEIO_BT11`p`\BPSV=
+p\/=05_SB_NRTHSBRGEIO_BT12`p`\BCRTp\/=05_SB_NRTHSBRGEIO_BT13`p`\BTMPt\BAC0
+=01\BAC0t\BPSV
+=01\BPSV=10J=11\_TZ_[=82=0FFANC=08_HID=0CA=D0=0C=0B[=85@=10THRM=08_AL0=12=
+=06=01FANC=14,_AC0=00=A0=0EPLCY{\BPSV
+=FF`=A1
+{\BAC0
+=FF`pKELV`apag=A4g=08_PSL=12=0C=01\._PR_CPU0=14	_TC1=00=A4
+=02=14	_TC2=00=A4
+=03=14,_PSV=00=A0=0EPLCY{\BAC0
+=FF`=A1
+{\BPSV
+=FF`pKELV`apag=A4g=14=1B_CRT=00{\BCRT
+=FF`pKELV`apag=A4g=14=1F_TMP=00{\BTMP
+=FF`p
+@`pKELV`apag=A4g=14
+_TSP=00=A4=0BX=02=14&_SCP=01=A0	hp
+=01PLCY=A1=08p
+=00PLCY=86\._TZ_THRM
+=81[=81=0EPWRG=01=00H=17TP12=01=08DVAD
+=00=08DVMS
+=00=08DVTP
+=00=14C=1B_PTS=01phDBG8p
+=00\/=03_SB_NRTHPCIR=A0=17=93h
+=02p
+=01\/=03_SB_NRTHPCIR=A0E	=92=93h
+=05{h
+=01`=A0H=08=93`
+=01p\/=05_SB_NRTHSBRGEIO_GDR2DVADp\/=05_SB_NRTHSBRGEIO_GDM2DVMSr=0B=00=04
+=04`p`\/=05_SB_NRTHSBRGEIO_GDR2p
+=11\/=05_SB_NRTHSBRGEIO_GDM2pTP12DVTPp
+=01TP12=A0=12}=93h
+=03=93h
+=04=00p
+=85SWMI=A0
+=93h
+=05PWDVh=A0K=04=90FGECSCIF=A0?=95h
+=05p
+=07\/=05_SB_NRTHSBRGEIO_BT30ph\/=05_SB_NRTHSBRGEIO_BT32p
+=84SWMI=A0K=07=90FGEC\SCIFp\/=04_SB_NRTHLID0_LID`=A0.=93`
+=01p
+=05\/=05_SB_NRTHSBRGEIO_BT30p
+=84SWMIp
+=01\RIEN=A1*p
+=06\/=05_SB_NRTHSBRGEIO_BT30p
+=84SWMIp
+=00\RIEN=14I=0E_WAK=01yh
+=04DBG8p
+=00\/=03_SB_NRTHPCIR=A0D=05=92=93h
+=05{h
+=01`=A0G=04=93`
+=01pDVAD\/=05_SB_NRTHSBRGEIO_GDR2pDVMS\/=05_SB_NRTHSBRGEIO_GDM2pDVTPTP12=A0=
+=11=90FGECSCIFp
+=86SWMI=A0&=92=94\/=03_SB_NRTHOSFL
+=02=86\/=03_SB_NRTHPRB1
+=02=A1,=A0*\/=05_SB_NRTHSBRGEC0_BTST=86\/=03_SB_NRTHPRB1
+=02=86\._TZ_THRM
+=81=14=1FPWDV=01p
+=00GO14["
+dp
+=01GO12p
+=01GO13[=80TEMP=01
+=80
+=01[=81=0BTEMP=01DBG8=08[=80DEB0=01
+=90
+=02[=81=0BDEB0=02DBG9=10[=80\PPB2=01
+=B2
+=01[=81=0C\PPB2=01SWMI=08[=80\PPB3=01
+=B3
+=01[=81=0C\PPB3=01APMS=08[=01MUEC=00=08FAKE
+=00
+--=-c2sGpNNq1OaBpLOfvViN
+Content-Disposition: attachment; filename=fadt
+Content-Type: application/octet-stream; name=fadt
+Content-Transfer-Encoding: base64
+
+RkFDUPQAAAAB9E5FQwAAAE5EMDAwMDIwAQAAAE1TRlSXAAAAAID/D+AA/w8AAAkAsgAAAOEeHwAA
+BAAAAAAAAAQEAAAAAAAAIgAAAAgEAAAMBAAAAAAAAAQCAQQEAAAATARMBAAEEAABAA0AAAEAALEA
+AAAAAAAAAAAAAAAAAAAAAAAAAID/DwAAAADgAP8PAAAAAAEgAAAABAAAAAAAAAEgAAAAAAAAAAAA
+AAEQAAAEBAAAAAAAAAEQAAAAAAAAAAAAAAEIAAAiAAAAAAAAAAEgAAAIBAAAAAAAAAEAAAAMBAAA
+AAAAAAEAAAAAAAAAAAAAAA==
+
+--=-c2sGpNNq1OaBpLOfvViN
+Content-Disposition: attachment; filename=lspci
+Content-Type: text/plain; name=lspci; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+
+00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 32
+	Region 0: Memory at e0000000 (32-bit, prefetchable) [size=256M]
+	Capabilities: [a0] AGP version 1.0
+		Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
+		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
+	I/O behind bridge: 0000d000-0000dfff
+	Memory behind bridge: fca00000-feafffff
+	Prefetchable memory behind bridge: dc800000-dc8fffff
+	BridgeCtl: Parity+ SERR- NoISA- VGA+ MAbort- >Reset- FastB2B+
+
+00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+
+00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01) (prog-if 80 [Master])
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32
+	Region 4: I/O ports at ffa0 [size=16]
+
+00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32
+	Interrupt: pin D routed to IRQ 9
+	Region 4: I/O ports at ef80 [size=32]
+
+00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 03)
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin ? routed to IRQ 9
+
+00:09.0 Multimedia audio controller: Yamaha Corporation YMF-754 [DS-1E Audio Controller]
+	Subsystem: NEC Corporation: Unknown device 80b5
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR+
+	Latency: 32 (1250ns min, 6250ns max)
+	Interrupt: pin A routed to IRQ 5
+	Region 0: Memory at febf0000 (32-bit, non-prefetchable) [size=32K]
+	Region 1: I/O ports at ef00 [size=64]
+	Region 2: I/O ports at efe4 [size=4]
+	Capabilities: [50] Power Management version 1
+		Flags: PMEClk- DSI- D1- D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0c.0 CardBus bridge: Texas Instruments PCI4450 PC card Cardbus Controller
+	Subsystem: NEC Corporation: Unknown device 80b6
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 168, cache line size 08
+	Interrupt: pin A routed to IRQ 10
+	Region 0: Memory at 10000000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=00, secondary=02, subordinate=05, sec-latency=176
+	Memory window 0: 10400000-107ff000 (prefetchable)
+	Memory window 1: 10800000-10bff000
+	I/O window 0: 000002c0-000002c3
+	I/O window 1: 00001000-000010ff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+00:0c.1 CardBus bridge: Texas Instruments PCI4450 PC card Cardbus Controller
+	Subsystem: NEC Corporation: Unknown device 80b6
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 168, cache line size 08
+	Interrupt: pin B routed to IRQ 5
+	Region 0: Memory at 10001000 (32-bit, non-prefetchable) [size=4K]
+	Bus: primary=00, secondary=06, subordinate=09, sec-latency=176
+	Memory window 0: 10c00000-10fff000 (prefetchable)
+	Memory window 1: 11000000-113ff000
+	I/O window 0: 00001400-000014ff
+	I/O window 1: 00001800-000018ff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt- PostWrite+
+	16-bit legacy interface ports at 0001
+
+00:0c.2 FireWire (IEEE 1394): Texas Instruments: Unknown device 8011 (prog-if 10 [OHCI])
+	Subsystem: NEC Corporation: Unknown device 80b6
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (750ns min, 1000ns max), cache line size 08
+	Interrupt: pin C routed to IRQ 5
+	Region 0: Memory at febff000 (32-bit, non-prefetchable) [size=2K]
+	Region 1: Memory at febf8000 (32-bit, non-prefetchable) [size=16K]
+	Capabilities: [44] Power Management version 1
+		Flags: PMEClk- DSI- D1- D2+ AuxCurrent=0mA PME(D0-,D1-,D2+,D3hot+,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0f.0 Communication controller: Lucent Microelectronics LT WinModem
+	Subsystem: NEC Corporation: Unknown device 80a8
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (63000ns min, 3500ns max)
+	Interrupt: pin A routed to IRQ 5
+	Region 0: Memory at febfff00 (32-bit, non-prefetchable) [size=256]
+	Region 1: I/O ports at eff0 [size=8]
+	Region 2: I/O ports at e800 [size=256]
+	Capabilities: [f8] Power Management version 2
+		Flags: PMEClk- DSI+ D1- D2- AuxCurrent=160mA PME(D0-,D1-,D2-,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+01:00.0 VGA compatible controller: ATI Technologies Inc Rage Mobility P/M AGP 2x (rev 64) (prog-if 00 [VGA])
+	Subsystem: NEC Corporation: Unknown device 80b7
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (2000ns min), cache line size 08
+	Interrupt: pin A routed to IRQ 10
+	Region 0: Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
+	Region 1: I/O ports at d800 [size=256]
+	Region 2: Memory at feaff000 (32-bit, non-prefetchable) [size=4K]
+	Expansion ROM at feac0000 [disabled] [size=128K]
+	Capabilities: [50] AGP version 1.0
+		Status: RQ=255 SBA+ 64bit- FW- Rate=x1,x2
+		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+	Capabilities: [5c] Power Management version 1
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+06:00.0 Ethernet controller: 3Com Corporation 3CCFE575CT Cyclone CardBus (rev 10)
+	Subsystem: 3Com Corporation FE575C-3Com 10/100 LAN CardBus-Fast Ethernet
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (2500ns min, 1250ns max)
+	Interrupt: pin A routed to IRQ 10
+	Region 0: I/O ports at 1400 [size=256]
+	Region 1: Memory at 11000000 (32-bit, non-prefetchable) [size=128]
+	Region 2: Memory at 11000080 (32-bit, non-prefetchable) [size=128]
+	Expansion ROM at 10c00000 [disabled] [size=128K]
+	Capabilities: [50] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=1 PME-
+
+
+--=-c2sGpNNq1OaBpLOfvViN--
 

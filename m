@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262055AbVAOA3U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262053AbVAOAae@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262055AbVAOA3U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 19:29:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbVAOA3U
+	id S262053AbVAOAae (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 19:30:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbVAOAae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 19:29:20 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:53392 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262055AbVAOA3N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 19:29:13 -0500
-Date: Fri, 14 Jan 2005 19:29:09 -0500
-To: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
-Message-ID: <20050115002908.GA8189@bittwiddlers.com>
-References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org>
-	<200501110239.33260.dtor_core@ameritech.net>
-	<Pine.NEB.4.61.0501130315500.11711@sdf.lonestar.org>
-	<200501122242.51686.dtor_core@ameritech.net>
-	<20050114230637.GA32061@bittwiddlers.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050114230637.GA32061@bittwiddlers.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Matthew Harrell <lists-sender-14a37a@bittwiddlers.com>
-X-Delivery-Agent: TMDA/1.0.3 (Seattle Slew)
-X-Primary-Address: mharrell@bittwiddlers.com
-Reply-To: Matthew Harrell 
-	  <mharrell-dated-1106180950.c1ac66@bittwiddlers.com>
+	Fri, 14 Jan 2005 19:30:34 -0500
+Received: from mailhost.ntl.com ([212.250.162.8]:40855 "EHLO
+	mta13-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
+	id S262053AbVAOAa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 19:30:28 -0500
+Message-ID: <41E882C8.9060208@gentoo.org>
+Date: Sat, 15 Jan 2005 02:41:12 +0000
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andres Salomon <dilinger@voxel.net>
+Cc: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-as1
+References: <1105605448.7316.13.camel@localhost>	 <41E7F44C.5010702@bio.ifi.lmu.de>  <41E8565A.4050707@gentoo.org> <1105737963.7677.6.camel@localhost>
+In-Reply-To: <1105737963.7677.6.camel@localhost>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andres, Frank,
 
-Oh and I think there was a question of whether the mouse worked while the
-keyboard did not.  Well in my case neither work post 2.6.10.  I typically
-work on the system with a USB keyboard and mouse and everything else works
-fine as long as I don't try to use those built into the laptop
+Andres Salomon wrote:
+> 
+> Odd.  I'll have to try Frank's .config and see if I can reproduce it (it
+> doesn't happen w/ mine).
 
--- 
-  Matthew Harrell                          Nondeterminism means never
-  Bit Twiddlers, Inc.                       having to say you are wrong.
-  mharrell@bittwiddlers.com     
+Here is the patch that fixes it for me:
+	http://linux.bkbits.net:8080/linux-2.6/cset@1.2273.1.9
+Needs to be applied alongside the rlimit and stack expansion fixes.
+
+Andres, I have not tried the patch you suggested, since I found that the above 
+one fixes it. However, judging by the description of the one you mailed me, I 
+don't think it will make any difference (I do not use highmem).
+
+Thanks,
+Daniel

@@ -1,56 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263002AbTJUHsq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 03:48:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263009AbTJUHsq
+	id S263010AbTJUIEs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 04:04:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263012AbTJUIEs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 03:48:46 -0400
-Received: from as1-2-5.han.s.bonet.se ([194.236.155.59]:54544 "EHLO
-	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
-	id S263002AbTJUHso (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 03:48:44 -0400
-Message-ID: <3F94E4DB.3080206@2gen.com>
-Date: Tue, 21 Oct 2003 09:48:43 +0200
-From: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031014 Thunderbird/0.3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 21 Oct 2003 04:04:48 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:58050 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S263010AbTJUIEf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 04:04:35 -0400
+Date: Tue, 21 Oct 2003 10:04:33 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Suspend with 2.6.0-test7-mm1
-References: <Pine.LNX.4.44.0310201209300.13116-100000@cherise>
-In-Reply-To: <Pine.LNX.4.44.0310201209300.13116-100000@cherise>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Subject: Re: Unbloating the kernel, action list
+Message-ID: <20031021080433.GZ20846@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <HMQWM7$61FA432C2B793029C11F4F77EEAABD1F@libero.it> <20031014214311.GC933@inwind.it> <16710000.1066170641@flay> <20031014155638.7db76874.cliffw@osdl.org> <20031015124842.GE20846@lug-owl.de> <20031015131015.GR16158@holomorphy.com> <20031015150530.GJ20846@lug-owl.de> <20031019112141.GN12423@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YGtVl4obAH3SMghM"
+Content-Disposition: inline
+In-Reply-To: <20031019112141.GN12423@fs.tum.de>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mochel wrote:
->>Now, I wonder, what is causing the kernel to exit from the suspend 
->>immediately? Is it error in suspend code, drivers that doesn't support 
->>suspend or some program that is interrupting the sleep? How do I debug 
->>this further?
-> 
-> Are you using ACPI? If so, could you please send the output of
-> /proc/acpi/sleep? If not, then standby will not work for you at this time.
-> 
 
-(david@hansolo:~)$ cat /proc/acpi/sleep
-S0 S3 S4 S5
+--YGtVl4obAH3SMghM
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I am using ACPI and it seems to work fine (no error messages on boot, 
-able to read battery status, AC adapter status and shutdown/reboot using 
-it).
+On Sun, 2003-10-19 13:21:41 +0200, Adrian Bunk <bunk@fs.tum.de>
+wrote in message <20031019112141.GN12423@fs.tum.de>:
+> On Wed, Oct 15, 2003 at 05:05:30PM +0200, Jan-Benedict Glaw wrote:
+> >...
+> > locked xchgs. If glibc/libstdc++ would go back, ABI would break and you
+> > couldn't any longer copy programs build within one distribution over to
+> > another.
+> It's only libstdc++, and the libstdc++ ABI will change again in the=20
+> forseeable future.
 
-I seem to recall that "standby" is S1 in ACPI terms. Does the lack of 
-"S1" in the above list mean that my hardware doesn't support standby or 
-that the kernel doesn't?
+I was told by others that exactly this won't happen again in the
+foreseeable future... If it did, I'll *love* so see it change, though:-)
 
-Also, just to make sure, for the "mem" suspend function, it doesn't 
-matter if the kernel is compiled with CONFIG_PM_DISK or 
-CONFIG_SOFTWARE_SUSPEND or none of them, right? Only CONFIG_ACPI_SLEEP 
-matters?
+MfG, JBG
 
-Regards,
-David Härdeman
-david@2gen.com
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
 
+--YGtVl4obAH3SMghM
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/lOiRHb1edYOZ4bsRAjj2AJ9oFQM2J8XTKFZi7sno4sDT5MYU7wCfbJom
+OPRSV9Qocr2m+iakew5RX6o=
+=7quC
+-----END PGP SIGNATURE-----
+
+--YGtVl4obAH3SMghM--

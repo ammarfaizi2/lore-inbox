@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266274AbUHaSJN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266245AbUHaSIk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266274AbUHaSJN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 14:09:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266257AbUHaSJM
+	id S266245AbUHaSIk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 14:08:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUHaSF7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 14:09:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14044 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266274AbUHaSFz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 14:05:55 -0400
-Date: Tue, 31 Aug 2004 14:05:37 -0400
-From: Alan Cox <alan@redhat.com>
-To: Linux and Kernel Video <video4linux-list@redhat.com>
-Cc: Luca Risolia <luca.risolia@studio.unibo.it>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.9-rc1-mm1] Disable colour conversion in the CPiA Video Camera driver
-Message-ID: <20040831180537.GA22376@devserv.devel.redhat.com>
-References: <20040830013201.7d153288.akpm@osdl.org> <20040830133205.GC1727@bytesex> <20040830203117.5acca627.luca.risolia@studio.unibo.it> <20040831175235.GA21130@bytesex>
+	Tue, 31 Aug 2004 14:05:59 -0400
+Received: from smtp-vbr10.xs4all.nl ([194.109.24.30]:51973 "EHLO
+	smtp-vbr10.xs4all.nl") by vger.kernel.org with ESMTP
+	id S266115AbUHaSEq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 14:04:46 -0400
+Date: Tue, 31 Aug 2004 20:04:24 +0200
+From: Jurriaan <thunder7@xs4all.nl>
+To: Michael Thonke <MThonke@wayne-europe.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: ReiserFS v3.6 fails to mount root partiton not usable with 2.6.9- rc1-mm1
+Message-ID: <20040831180424.GA1955@middle.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
+References: <04Aug31.085934cest.332169@gateway.wayne-europe.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040831175235.GA21130@bytesex>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <04Aug31.085934cest.332169@gateway.wayne-europe.com>
+X-Message-Flag: Still using Outlook? As you can see, it has some errors.
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 31, 2004 at 07:52:36PM +0200, Gerd Knorr wrote:
-> the lack of a sane negotiation of the color formats in the v4l1 API
-> you'll get warning printk's even if there is no real problem.  xawtv for
+From: Michael Thonke <MThonke@wayne-europe.com>
+Date: Tue, Aug 31, 2004 at 08:50:53AM +0200
+> Hello,
+> 
+> I tried to boot my root partition (Softwareraid Stripeset) 
+> with 2.6.9-rc1-mm1 kernel but on fsck.reiserfs
+> the system stops working and compain about a unresolveable filesystem error
+> which can't be corrected. I tried to do it manually but no success either.
+> On start the dmesg output is nearly the same as the one from my old kernel.
+> No errors while md0 and md1 initialized also the ReiserFS Superblock was
+> found.
+> So I went back to my 2.6.8.1 kernel and everything works perfectly.
+> Does someone get the same error while using ReiserFS v3.6 with
+> 2.6.9-rc1-mm1?
+> 
+> Please CC me while I'm not registred to the mailing list
+> 
+There is a bug that corrupts data in 2.6.9-rc1-mm1, try 2.6.9-rc1-mm2
+please.
 
-The warning printks are bugs
-
-> example doesn't depend on RGB formats being available, but will try to
-> use them (which then generates a warning printk), and failing that
-
-The printk is the bug here. The v4l1 design isnt very good either on this
-matter but thats a seperate screwup 8)
-
-> That isn't true.  I can remember that at least one usb webcam driver
-> stopped working with xawtv because in-kernel software conversion was
-> dropped and xawtv had no support the specific color format used by
-> that webcam at that time.
-
-Generally neither party will fix such problems until its forced. So a little
-pain ends up neccessary
-
-> In any case the message should make clear the intention of this, i.e.
-> that it is planned to drop in-kernel conversion altogether by -- say --
-> sept 2005 (should be enougth warning time), that is disabled by default
-
-We've been saying its not allowed since 2000 or so, if nobody listens
-whats the point of saying 2005
-
+Jurriaan
+-- 
+When I leave I don't know what I'm hoping to find
+When I leave I don't know what I'm leaving behind...
+   Rush - The analog kid.
+Debian (Unstable) GNU/Linux 2.6.9-rc1-mm1 2x6078 bogomips load 0.03

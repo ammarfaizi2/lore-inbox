@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129208AbQKURnp>; Tue, 21 Nov 2000 12:43:45 -0500
+	id <S129231AbQKUSGu>; Tue, 21 Nov 2000 13:06:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129426AbQKURnf>; Tue, 21 Nov 2000 12:43:35 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:3333 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S129208AbQKURnW>; Tue, 21 Nov 2000 12:43:22 -0500
-Date: Tue, 21 Nov 2000 18:13:31 +0100
-From: Jan Kara <jack@atrey.karlin.mff.cuni.cz>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Umount & quotas
-Message-ID: <20001121181331.D9762@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20001121134459.E2457@atrey.karlin.mff.cuni.cz> <Pine.GSO.4.21.0011210748460.754-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <Pine.GSO.4.21.0011210748460.754-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Tue, Nov 21, 2000 at 08:20:02AM -0500
+	id <S129283AbQKUSGk>; Tue, 21 Nov 2000 13:06:40 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:20629 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129231AbQKUSGb>; Tue, 21 Nov 2000 13:06:31 -0500
+Date: Tue, 21 Nov 2000 18:35:33 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "Benjamin Monate <Benjamin Monate" <Benjamin.Monate@lri.fr>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Strange lockup of the timer with 2.4.0-test10 SMP (and older)
+In-Reply-To: <14874.41589.359267.717984@sun-demons>
+Message-ID: <Pine.GSO.3.96.1001121175618.28403A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello.
+On Tue, 21 Nov 2000, Benjamin Monate <Benjamin Monate wrote:
 
-> --- fs/super.c     Thu Nov  2 22:38:59 2000
-> +++ fs/super.c.new Tue Nov 21 11:36:05 2000
-> @@ -1037,13 +1037,13 @@
->         }
+> About the 8254, the kernel log contains :
 > 
->         spin_lock(&dcache_lock);
-> -       if (atomic_read(&mnt->mnt_count) > 2) {
-> -               spin_unlock(&dcache_lock);
-> -               mntput(mnt);
-> -               return -EBUSY;
-> -       }
+> Nov 20 17:15:15 pc8-118 kernel: MP-BIOS bug: 8254 timer 
+> 				not connected to IO-AP
+> IC
+> Nov 20 17:15:15 pc8-118 kernel: ...trying to set up timer (IRQ0)
+> 						 through the 8259A ...  
+> Nov 20 17:15:15 pc8-118 kernel: ..... (found pin 0) ...works.
 > 
->         if (mnt->mnt_instances.next != mnt->mnt_instances.prev) {
-> +               if (atomic_read(&mnt->mnt_count) > 2) {
-> +                       spin_unlock(&dcache_lock);
-> +                       mntput(mnt);
-> +                       return -EBUSY;
-> +               }
->                 if (sb->s_type->fs_flags & FS_SINGLE)
->                         put_filesystem(sb->s_type);
->                 /* We hold two references, so mntput() is safe */
-> 
-> Not ideal, but not worse than the variant before the fs/super.c rewrite.
-> And yes, that's what was intended to be there. Said that, removing the
-> automagical DQUOT_OFF completely looks like a good idea. If there is no
-> serious reason to keep it in the kernel I would prefer to move it to
-> userland. We already have to do quota-related stuff if umount(2) fails...
-  I think the only problem is that some people may rely on this behaviour.
-There isn't probably any other reason as races with quotaoff before
-someone does write are there even if we do quotaoff in kernel.
-And these races aren't probably worth the work with fixing...
-  But I'm not sure whether we can just now stand up and say 'Umount doesn't
-do quotaoff any more...'
+> But this does not seem to annoy the kernel.
 
-							Honza
+ But this message is printed when a workaround for certain early SMP EISA
+boards gets activated.  You shouldn't normally get it for anything newer
+than P5/66 unless your MP-table is broken.  Can you send me a dump of your
+MP-table (just issue `dmesg -s 32768' after a bootstrap -- the table is at
+the top). 
+
+> Is there anyway to restore the 8254 to a valid state without rebooting ?
+
+ Well, in this specific configuration, it may be either the 8254 timer or
+the 8259 legacy PIC as when the workaround gets activated both timer IRQs
+and NMIs go through the latter.  It is certainly possible to reprogram
+the chips but maybe we can find a way to avoid the lockup.
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

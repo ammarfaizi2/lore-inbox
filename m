@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277942AbRKHUJD>; Thu, 8 Nov 2001 15:09:03 -0500
+	id <S277949AbRKHUJD>; Thu, 8 Nov 2001 15:09:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278038AbRKHUIy>; Thu, 8 Nov 2001 15:08:54 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:54801 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S278046AbRKHUIn>; Thu, 8 Nov 2001 15:08:43 -0500
-Date: Thu, 8 Nov 2001 21:08:40 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Jonas Diemer <diemer@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VIA 686 timer bugfix incomplete
-Message-ID: <20011108210840.A6266@suse.cz>
-In-Reply-To: <20011107211445.A2286@suse.cz> <Pine.LNX.4.05.10111080917140.19515-100000@marina.lowendale.com.au> <20011108090215.G3708@suse.cz> <20011108102124.31ca040f.diemer@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011108102124.31ca040f.diemer@gmx.de>; from diemer@gmx.de on Thu, Nov 08, 2001 at 10:21:24AM +0100
+	id <S277942AbRKHUIx>; Thu, 8 Nov 2001 15:08:53 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:44045 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S278038AbRKHUIh>;
+	Thu, 8 Nov 2001 15:08:37 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Frank de Lange <lkml-frank@unternet.org>
+Date: Thu, 8 Nov 2001 21:08:10 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: hang with 2.4.14 & vmware 3.0.x, anyone else seen this?
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <89EA9194B5B@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 08, 2001 at 10:21:24AM +0100, Jonas Diemer wrote:
+On  8 Nov 01 at 17:39, Frank de Lange wrote:
+> 
+> It seems 2.4.14 and vmware 3.0.x don't like eachother very much on my SMP (yeah
+> Abit, yeah yeah I know) box. I've seen several hangs (nothing logged, no
+> warning, no nothing) using this combination. The same box, running the same
+> vmware but 2.4.13-ac instead does not complain...
 
-> Well, then maybe Vojtech's suggestion is best: use RTC for timing, not the
-> chipset...
-> as to my knowledge, every i38 system has a standard RTC, so why not use this? or
-> even better: make an option in the config to choose whether use RTC or the
-> chipset.
+Yeah. Use Alan's kernels with VMware. These are one which I daily tests
+and for which I can say that they works (== do not use VMware with
+2.4.13-ac8, vmmon will not restore correct %cr2 value under some
+conditions, use -ac7 until it is clear whether non-standard %cr2 usage 
+is going to stay or not).
 
-There is a little problem with RTC, though:
+> Sooooo.... there seems to be something going on there. As vmware loads its own
+> kernel modules (licensed under who knows what? The source is available and
+> hackable), it could be a bug in those modules. Then again, as it does not occur
+> on the -ac series, it could be in the kernel as well. As there's nothing to be
+> seen in the logs (it just freezes solid), there's nothing more to report
+> currently...
 
-While you can set it up to generate interrupts at say 1024 Hz, you can't
-read any value of how much time passed since last interrupt. You can do
-this on the PIT (i8253), and this is the part that is buggy.
-
-TSC is perfect, precise and accurate, but not reliable in long term.
-Some CPUs do thermal throttling, notebooks play with CPU speed, etc,
-etc. And it's not synchronized to any interrupt source.
-
-Ugly, ugly, ugly is the PC architecture.
-
--- 
-Vojtech Pavlik
-SuSE Labs
+Is it really solid freeze (what does alt-sysrq-s,u,s,b)? 
+                                            Thanks,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

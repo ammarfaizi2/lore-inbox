@@ -1,71 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVBSAYZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVBSA1j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbVBSAYZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 19:24:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbVBSAYU
+	id S261589AbVBSA1j (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 19:27:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVBSA0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 19:24:20 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:22796 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261598AbVBSAXR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 19:23:17 -0500
-Message-Id: <200502190023.j1J0NBDi023090@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and give dev=/dev/hdX as device 
-In-Reply-To: Your message of "Fri, 18 Feb 2005 15:23:44 EST."
-             <cv5hv3$ana$1@gatekeeper.tmr.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <cv36kk$54m$1@gatekeeper.tmr.com> <cv36kk$54m$1@gatekeeper.tmr.com> <20050218103107.GA15052@wszip-kinigka.euro.med.ge.com>
-            <cv5hv3$ana$1@gatekeeper.tmr.com>
+	Fri, 18 Feb 2005 19:26:31 -0500
+Received: from rproxy.gmail.com ([64.233.170.195]:44435 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261589AbVBSAYf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 19:24:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=sxq+Dy9aRgzJhbrOD5046vFqZQdqoVCOVVtxgcwOcK/QjOm/lc3WzawxKtZFSRNioksmgf4ng9V3MdBl+hUxOUKUJtPCuyOUHJUphHJtRRcDFljZtqpG41YLBL89IoeLMeP/l9d1ZaX0Cx2mAq+zGTUE0VmV2ovOOMxPAEwLeTw=
+Message-ID: <9e473391050218162438cae108@mail.gmail.com>
+Date: Fri, 18 Feb 2005 19:24:33 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [RFC: 2.6 patch] drivers/pci/: possible cleanups
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+In-Reply-To: <20050218235419.GE4337@stusta.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1108772589_19784P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Fri, 18 Feb 2005 19:23:10 -0500
+References: <20050218235419.GE4337@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1108772589_19784P
-Content-Type: text/plain; charset=us-ascii
+On Sat, 19 Feb 2005 00:54:19 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> This patch contains the following possible cleanups:
+> - pci-acpi.c: make OSC_UUID static
+> - remove the following unused functions:
+>   - pci-acpi.c: acpi_query_osc
+>   - pci-acpi.c: pci_osc_support_set
+>   - pci.c: pci_find_ext_capability
+>   - rom.c: pci_map_rom_copy
+>   - rom.c: pci_remove_rom
+> - remove the following unneeded EXPORT_SYMBOL's:
+>   - pci-acpi.c: pci_osc_support_set
+>   - rom.c: pci_map_rom_copy
+>   - rom.c: pci_remove_rom
 
-On Fri, 18 Feb 2005 15:23:44 EST, Bill Davidsen said:
+pci_map_rom_copy and pci_remove_rom are there to support boards that
+can't access their hardware and their ROM at the same time. These
+boards are known to exist but nobody has updated a driver yet to use
+the new routines. These should be left in place as the PCI spec
+explicitly allows the non-simultaneous access case.
 
-> I'll try to build a truth table for this, I'm now working with some 
-> non-iso data sets, so I'm a bit more interested. I would expect read() 
-> to only try to read one sector, so I'll just do a quick and dirty to get 
-> the size from the command line, seek and read.
-> 
-> I haven't had a problem using dd to date, as long as I know how long the 
-> data set was, but I'll try to have results tonight.
+pci_remove_rom should probably be renamed to pci_remove_rom_copy.
 
-The problem is that often you don't know exactly how long the data set is
-(think "backup burned to CD/RW") - there's a *lot* of code that does stuff
-like
-
-	while (actual=read(fd,buffer,65536) > 0) {
-		...
-	}
-
-with the realistic expectation that the last read might return less than 64k,
-in which case 'actual' will tell us how much was read.  Instead, we just get
-an error on the read.
-
-Note that 'dd' does this - that's why you get messages like '12343+1 blocks read'.
-We *really* want to get to a point where 'dd' will work *without* having to
-tell it a 'bs=' and 'count=' to get the size right....
-
---==_Exmh_1108772589_19784P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCFobtcC3lWbTT17ARAiW1AKDegIyylALvHPOK+HO3KMswZHSdnwCfSPpu
-U1gHNAfQaawyCFEj7uAGSKQ=
-=cFNb
------END PGP SIGNATURE-----
-
---==_Exmh_1108772589_19784P--
+-- 
+Jon Smirl
+jonsmirl@gmail.com

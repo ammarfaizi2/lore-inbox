@@ -1,48 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281173AbRKEPTW>; Mon, 5 Nov 2001 10:19:22 -0500
+	id <S281175AbRKEP0M>; Mon, 5 Nov 2001 10:26:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281174AbRKEPTN>; Mon, 5 Nov 2001 10:19:13 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:28947 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S281173AbRKEPTA>; Mon, 5 Nov 2001 10:19:00 -0500
-Date: Mon, 5 Nov 2001 16:18:30 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] Smbfs + preempt on 2.4.10
-In-Reply-To: <01110517015501.00794@nemo>
-Message-ID: <Pine.LNX.4.30.0111051606590.17419-100000@cola.teststation.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281180AbRKEP0C>; Mon, 5 Nov 2001 10:26:02 -0500
+Received: from netsrvr.ami.com.au ([203.55.31.38]:35588 "EHLO
+	netsrvr.ami.com.au") by vger.kernel.org with ESMTP
+	id <S281175AbRKEPZu>; Mon, 5 Nov 2001 10:25:50 -0500
+Message-Id: <200111051349.fA5DnFD29728@numbat.os2.ami.com.au>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Linux-Kernel@vger.kernel.org
+Subject: DHCP broken in 2.4.x
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 05 Nov 2001 21:49:15 +0800
+From: John Summerfield <summer@os2.ami.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Nov 2001, vda wrote:
+x in this case is 13.
 
-> I have no idea of where I can start planting preempt_disable() and
-> preempt_enable() in the 2.4.13 to narrow bug location.
-> Any suggestions? Samba gurus may be more knowledgeable...
-> --
-> vda
-> 
-> PS. Urban, I dunno samba mailing list addr, feel free to crosspost this msg
-> there and/or tell me appropriate email addr.
+As I type this my DHCP server is saying
 
-samba@samba.org, but if the kernel crashes smbd is probably not the guilty
-party (it does run as root, or start as root, but I don't think it does
-anything clever like write to /dev/kmem ... mmap possibly).
+ov  5 20:58:12 dugite dhcpd: DHCPDISCOVER from 00:c0:26:2d:be:12 via 
+eth0
+Nov  5 20:58:12 dugite dhcpd: DHCPOFFER on 192.168.1.6 to 
+00:c0:26:2d:be:12 via eth0
+Nov  5 20:58:15 dugite dhcpd: DHCPDISCOVER from 00:c0:26:2d:be:12 via 
+eth0
+Nov  5 20:58:15 dugite dhcpd: DHCPOFFER on 192.168.1.6 to 
+00:c0:26:2d:be:12 via eth0
+Nov  5 20:58:19 dugite dhcpd: DHCPDISCOVER from 00:c0:26:2d:be:12 via 
+eth0
+Nov  5 20:58:19 dugite dhcpd: DHCPOFFER on 192.168.1.6 to 
+00:c0:26:2d:be:12 via eth0
+Nov  5 20:58:28 dugite dhcpd: DHCPDISCOVER from 00:c0:26:2d:be:12 via 
+eth0
+Nov  5 20:58:28 dugite dhcpd: DHCPOFFER on 192.168.1.6 to 
+00:c0:26:2d:be:12 via eth0
+Nov  5 20:58:42 dugite dhcpd: DHCPDISCOVER from 00:c0:26:2d:be:12 via 
+eth0
+Nov  5 20:58:42 dugite dhcpd: DHCPOFFER on 192.168.1.6 to 
+00:c0:26:2d:be:12 via eth0
+Nov  5 20:59:06 dugite dhcpd: DHCPDISCOVER from 00:c0:26:2d:be:12 via 
+eth0
+Nov  5 20:59:06 dugite dhcpd: DHCPOFFER on 192.168.1.6 to 
+00:c0:26:2d:be:12 via eth0
 
-Nor do I think the samba developers are interested in crashing linux
-kernels with experimental patches (more or less experimental anyway :)
+
+and the poor sod at the other end is
+setting half-duplex ....
+sending DHCP and RARP requests .... Timed out!
+IPConfig: Retrying forever (NFS root).
 
 
-> # Guess what is this?
->   client code page = 866
->   code page directory = /usr/lib/samba/lib/codepages
+Here's how I'm booting:
+root@numbat /root]# cat /misc/fd1/syslinux.cfg
+default linux
+prompt 1
+display boot.msg
+timeout 100
+label linux
+        kernel vmlinuz
+        append  root=/dev/hda5
+[root@numbat /root]
 
-Normally that requires a 'character set' setting to get it right on the
-linux side as well. But perhaps it guesses the right one ...
+I'm running dhcp-2.0pl5-4 on RHL 7.1.
 
-/Urban
+If I override the boot prompt:
+ip=bootp
+then it works.
+
+
+Now I can see that I misunderstood the documentation (which, btw, could 
+use a minor touch-up to mention DHCP), but
+
+but
+
+According to the source code, ip=dchp is legit. However, it causes lots 
+of messages on the server just like above., and the client's looping 
+just like before.
+
+Two things I'd like to see:
+1) A message to the user if an invalid value's given
+2) DHCP actually work. BOOTP seems fine, as far as BOOTP goes.
+
+I have RARP genned, but there's not actually anything to talk to.
+
+-- 
+Cheers
+John Summerfield
+
+Microsoft's most solid OS: http://www.geocities.com/rcwoolley/
+
+Note: mail delivered to me is deemed to be intended for me, for my 
+disposition.
+
+
 

@@ -1,90 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262254AbTEZU46 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 16:56:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbTEZU46
+	id S262251AbTEZVQN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 17:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbTEZVQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 16:56:58 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:45467 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S262254AbTEZU44 convert rfc822-to-8bit
+	Mon, 26 May 2003 17:16:13 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:52999 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S262251AbTEZVQK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 16:56:56 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Kimmo Sundqvist <rabbit80@mbnet.fi>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.20-ck7] good compressed caching experience
-Date: Tue, 27 May 2003 07:11:34 +1000
-User-Agent: KMail/1.5.1
-References: <200305262150.04552.rabbit80@mbnet.fi>
-In-Reply-To: <200305262150.04552.rabbit80@mbnet.fi>
-Cc: rcastro@users.sourceforge.net
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 26 May 2003 17:16:10 -0400
+Date: Mon, 26 May 2003 23:29:02 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: "David S. Miller" <davem@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
+Message-ID: <20030526212902.GA13550@alpha.home.local>
+References: <1053732598.1951.13.camel@mulgrave> <20030524064340.GA1451@alpha.home.local> <1053923112.14018.16.camel@rth.ninka.net> <Pine.LNX.4.55L.0305261541320.20861@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305270711.34608.kernel@kolivas.org>
+In-Reply-To: <Pine.LNX.4.55L.0305261541320.20861@freak.distro.conectiva>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 May 2003 04:50, Kimmo Sundqvist wrote:
-> Hello
+On Mon, May 26, 2003 at 03:42:42PM -0300, Marcelo Tosatti wrote:
+ 
+> Splitting up the work with someone is senseless, IMO. As I said before,
+> 2.4.22-pre should be better in that aspect. In case it doesnt, I'm giving
+> up 2.4.x maintenance.
 
-Hi Kimmo
+Marcelo,
 
-> I just decided to tell everyone that I've been able to run 2.4.20-ck7 with
-> compressed caching enabled in my little brother's Pentium 133MHz, for
-> hours, doing stress testing, compiling kernels and using the Internet under
-> X.
->
-> I had pre-empt enabled.  Compressed swap worked also.  I used 4kB pages
-> without compressed swap, and 8kB with it.
->
-> This was with Con's ck7pre versions released on 24th and 25th of May.
->
-> Now running 2.4.20-ck7pre with compressed cache in a dual CPU machine with
-> SMP disabled (compressed caching and SMP support are still mutually
-> exclusive), 1GB of RAM but "mem=128M" for testing purposes.  Been stable
-> for 6 hours now, and done even some stress testing.  Try 128 instances of
-> burnBX with 1MB each, like "for ((A=128;A--;A<1)) do burnBX J & done".  A
-> nice brute force or "if you don't behave I'll push all my buttons" method
-> :)
->
-> Wondering if Pentium 133MHz (64MB RAM) is fast enough to benefit from
-> compressed caching.  I know there's a limit, depending on the speed of the
-> CPU and the speed of the swap partition (doing random accesses), which
-> determines if compressed caching is beneficial or not.
->
-> This machine has a Seagate Barracuda V 80GB, which does sequential reads at
-> 40MB/s.  I could drive this into trashing, then type "sar -B 1 1000" and
-> see how the swap is doing.  Now, compressed caching brings me benefit if,
-> and only if, it can compress and decompress pages faster than that in this
-> CPU, which it sure does, since this is a Pentium III 933MHz, but I'm not
-> sure about the little brother's Pentium 133MHz.  It has a 4GB Seagate that
-> does 6MB/s sequentially.  Did I figure it out correctly?  Of course
-> swapping to a partition gets slower as the swap usage increases.  Longer
-> seeks and the like.
+Reading your words, I have the sad feeling that you take no interest in doing
+this job, and that you do it only because people ask you to. What a shame :-(
 
-What you describe has been my experience with cc as well. I haven't had any 
-crashes or unusual problems with it since removing the AA vm changes as well 
-- it seemed to be the combination that caused hiccups on extreme testing. 
->From what I can see, no matter how slow your cpu you will still get benefit 
-from cc as the hard drives on those machines are proportionately slower as 
-well. The one limitation of cc is that it does require _some_ ram to actually 
-store swap pages in, and it seems that you need more than 32Mb ram to start 
-deriving benefit.
+Although it sure can be annoying, aren't you proud of each new release ?
+Usually, kernel integrators are proud of their new kernels when they get
+something rock solid ! People like Con Kolivas, J.A.Magallon, Marc-Christian
+Pettersen are often proud to announce us the few bits they changed in their
+tree and which stabilized it. It seems you only do this as an obligation,
+which is sad, really.
 
-One minor thing, though - my vm hacks make compressed caching work much less 
-than it normally does as they try to avoid swapping quite aggressively. It is 
-when the vm attempts to start swapping that cc looks to see if it should take 
-pages into compressed cache instead.
+I understand that maintaining the stable tree, the one which MUST NOT FAIL,
+may be frustrating, not being as excitant as playing with kernels which try
+to get the most of every piece of hardware, as others do (although nobody
+prevents you from developing your own Wolk). But you don't seem to share much
+about your feelings, ideas or doubts with others. Alan, for example, exchanges
+a lot with people testing his kernels, suggesting a few tweaks to help them
+workaround their problems, and integrating the tweak in the next release if it
+succeeds. This fast feedback allows him to release more often. It also makes
+his work more intersting for others. People often prefer "here is -rcxx-acxx,
+which my EPIA now fully supports" to "here is -rcxx, please test it
+extensively".
 
-I've cc'ed the actual developer of cc as he has indicated that he is actively 
-working on compressed caching again.
+Perhaps you don't feel assurance when you have to blindly integrate hundreds
+of patches from people you don't always trust, and that may explain why you
+suddenly announce a new pre-release and keep silent, hoping for patch authors
+to reply to questions if any ? If this is the case, jump into the train,
+there's no risk, except of being caught by Rik's troll-o-meter, or having Viro
+or hch insult you ! And then ? What's the matter ? Every one has his turn. I
+even risk it with this OT mail. When you started with 2.4.16, you said that you
+were afraid you lacked some skills, but you proved to be very capable, because
+the kernel has moved since, and 2.4.21 should be far more stable than 2.4.16 !
 
-> Just a warning... both systems have only ReiserFS partitions.  Other FSes
-> might still get hurt.
+This mail is not intended to give you any lesson, but to give a feedback from
+a Linux 2.4 user who, as many others, feels more and more forgotten by his
+maintainer. Unfortunately, what David wrote is what many people currently think
+of 2.4 :-( You threatened to give up, but that would be bad for your image
+and for Linux. Giving up means no maintainer for a certain amount of time, then
+a self-proclamed new maintainer (or worse, several ones with a tree fork).
+Being replaced is cleaner, since you do the job until the new maintainer is
+ready to start.
 
-This is definitely the case! If you try out compressed caching with ck7 please 
-do not enable preempt if you are using ext2/3 or vfat.
+If you don't have enough time to do everything, send a source quench, or apply
+one of David's proposed solutions : ask for some help so that only subsystems
+maintainers feed you as some already do (eg: David, Jeff, Greg), or ask for a
+pure replacement. If you're bored, that I could understand, because having to
+deal with arrogant and sometimes even selfish users is not always pleasant,
+ask for a replacement. If you're fed up with patches that you don't understand,
+reject them LOUDLY asking for more documentation. And if you plan to have a
+rest for two weeks, say it, so that people don't send you patches that will be
+lost in a full mailbox at your return. Yes, this may be what Linus did before
+you, when people already complained. But there should be a middle line between
+how he managed his kernel and how you manage it, and BTW, Linus clearly stated
+that maintaining 2.4 bored him.
 
-Cheers,
-Con
+I've just read your mail about -rc[45]. I'm happy we start to see the light at
+the end of the 2.4.21 tunnel. As others people, I'm now impatient to both 2.4.21
+and 2.4.22-pre1. BTW, as discussed perhaps a year or two ago, you could have a
+preview of 2.4.22-pre1 in parallel with 2.4.21-rc, to feed the impatients,
+although that may be double work, which you don't necessarily need at the
+moment.
+
+And remember, please communicate, communicate, communicate. You and only you
+know what problem you have at a given time. If you don't communicate, people
+always imagine the worst.
+
+Regards,
+Willy
+

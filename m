@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287858AbSANSCm>; Mon, 14 Jan 2002 13:02:42 -0500
+	id <S287863AbSANSED>; Mon, 14 Jan 2002 13:04:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287865AbSANSCc>; Mon, 14 Jan 2002 13:02:32 -0500
-Received: from h24-78-175-24.nv.shawcable.net ([24.78.175.24]:23426 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S287858AbSANSCR>;
-	Mon, 14 Jan 2002 13:02:17 -0500
-Date: Mon, 14 Jan 2002 10:02:15 -0800
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org
-Subject: [2.4.16] Clock locking bugs?
-Message-ID: <20020114180215.GA20200@netnation.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+	id <S287866AbSANSDw>; Mon, 14 Jan 2002 13:03:52 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3086 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S287863AbSANSDk>; Mon, 14 Jan 2002 13:03:40 -0500
+Date: Mon, 14 Jan 2002 10:01:25 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: <linux-kernel@vger.kernel.org>, <linux-LVM@sistina.com>
+Subject: Re: [RFLART] kdev_t in ioctls
+In-Reply-To: <Pine.GSO.4.21.0201141227260.224-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0201140957040.15128-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just had a server's clock stop at 9:02:30am.  Very interesting
-results:
 
-[sroot@pro:/]# cat /proc/interrupts
-           CPU0       CPU1       
-  0:  172839353  172896882    IO-APIC-edge  timer
-  1:        578        522    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  4:      22002      21840    IO-APIC-edge  serial
- 10:  581309135  580556518   IO-APIC-level  eth0
- 12:   63077142   63023533   IO-APIC-level  aic7xxx
-NMI:          0          0 
-LOC:  345979794  345980089 
-ERR:          0
-MIS:          0
+On Mon, 14 Jan 2002, Alexander Viro wrote:
+>
+> 	Linus, at least some ioctls (e.g. lvm ones) pass kdev_t from/to
+> userland.  While the common policy with ioctls is "anything goes", this
+> kind of abuse is IMNSHO over the top.
 
-...
+That's completely bogus.
 
-[sroot@pro:/]# cat /proc/interrupts
-           CPU0       CPU1       
-  0:  172839353  172896882    IO-APIC-edge  timer
-  1:        578        522    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  4:      22002      21840    IO-APIC-edge  serial
- 10:  581309219  580556518   IO-APIC-level  eth0
- 12:   63077142   63023533   IO-APIC-level  aic7xxx
-NMI:          0          0 
-LOC:  345979883  345980178 
-ERR:          0
-MIS:          0
+The good news is that the bit-for-bit representation of old kdev_t and
+"dev_t" are obviously 100% the same, so we should just make the damn thing
+be dev_t, and user land will never notice anything.
 
-Alan says this is due to locking problems with the timer I/O code. 
+So we can just change all structures that are exported to user land to use
+"dev_t", and add the required conversion magic. Possibly by duplicating
+the structure, and having "used_lvm_struct_x" and functions to read and
+write them from/to user space.
 
-On the console were a lot of "set_rtc_mmss: can't update from 79 to 32"
-type messages that have always happened on SMP kernels with ntpd.
+> Public statement along the lines "any API that passes kdev_t values
+> across the kernel boundary is unacceptable" would be a nice thing...
 
-Has anybody created any patches for this?
+Consider that done. ANYTHING that exports kdev_t to user space is
+incredibly broken, and will not work in a few months when the actual bit
+representation (and size) will change.
 
-Simon-
+Do we have any lvm people willing to fix this? (linux-lvm cc'd, but I know
+they've been very silent on the 2.5.x changes so far)
 
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+		Linus
+

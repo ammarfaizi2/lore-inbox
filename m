@@ -1,87 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbUBKUEz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 15:04:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265700AbUBKUEz
+	id S266072AbUBKUMI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 15:12:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266099AbUBKUMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 15:04:55 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:64645 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S261262AbUBKUEx (ORCPT
+	Wed, 11 Feb 2004 15:12:08 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:1704 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266072AbUBKUMB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 15:04:53 -0500
-Date: Wed, 11 Feb 2004 21:04:51 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Ping Cheng <pingc@wacom.com>
-Cc: "'Pete Zaitcev'" <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Wacom USB driver patch
-Message-ID: <20040211200451.GA14403@ucw.cz>
-References: <28E6D16EC4CCD71196610060CF213AEB065BC2@wacom-nt2.wacom.com>
+	Wed, 11 Feb 2004 15:12:01 -0500
+Date: Wed, 11 Feb 2004 12:11:20 -0800
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Willem Riede <wrlk@riede.org>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Selective attach for ide-scsi
+Message-ID: <20040211121120.A24289@beaverton.ibm.com>
+References: <20040208224248.GA28026@serve.riede.org> <16423.17315.777835.128816@alkaid.it.uu.se> <20040210000205.GG28026@serve.riede.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <28E6D16EC4CCD71196610060CF213AEB065BC2@wacom-nt2.wacom.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040210000205.GG28026@serve.riede.org>; from wrlk@riede.org on Mon, Feb 09, 2004 at 07:02:05PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 11, 2004 at 11:47:19AM -0800, Ping Cheng wrote:
-> Nice catch, Pete. The Two "return"s should be replaced by "goto exit". 
-> 
-> Vojtech, should I make another patch or you can handle it with my previous
-> one?
+On Mon, Feb 09, 2004 at 07:02:05PM -0500, Willem Riede wrote:
+> On 2004.02.09 03:24, Mikael Pettersson wrote:
+> > Willem Riede writes:
 
-It's okay, you don't need to make another patch.
+> > The patch I posted, which you apparently didn't like, doesn't
+> > require the use of boot-only options: it instead adds a module_param
+> > to ide-scsi which allows for greater flexibility.
+> > 
+> > Personally I never liked that butt-ugly hdX=ide-scsi hack.
+> 
+> I hear you. There are certainly advantages to use a module parameter rather
+> than a boot argument.
 
-> 
-> Thanks, both of you!
-> 
-> Ping
-> 
-> -----Original Message-----
-> From: Pete Zaitcev [mailto:zaitcev@redhat.com] 
-> Sent: Wednesday, February 11, 2004 11:05 AM
-> To: Ping Cheng
-> Cc: linux-kernel@vger.kernel.org; vojtech@suse.cz
-> Subject: Re: Wacom USB driver patch
-> 
-> 
-> On Tue, 10 Feb 2004 17:23:11 -0800
-> Ping Cheng <pingc@wacom.com> wrote:
-> 
-> >  <<linuxwacom.patch>>
-> 
-> This looks much better, it's not line-wrapped.
-> 
-> I have one question though, about this part:
-> 
-> @@ -152,15 +150,103 @@ static void wacom_pl_irq(struct urb *urb
-> 
-> +                       /* was entered with stylus2 pressed */
-> +                       if (wacom->tool[1] == BTN_TOOL_RUBBER && !(data[4] &
-> 0x20) ) {
-> +                               /* report out proximity for previous tool */
-> +                               input_report_key(dev, wacom->tool[1], 0);
-> +                               input_sync(dev);
-> +                               wacom->tool[1] = BTN_TOOL_PEN;
-> +                               return;
-> +                       }
-> 
-> Is it safe to just return without resubmitting the urb here?
-> 
-> @@ -231,8 +317,12 @@ static void wacom_graphire_irq(struct ur
-> +       /* check if we can handle the data */
-> +       if (data[0] == 99)
-> +               return;
-> +
->         if (data[0] != 2)
-> 
-> Same here.
-> 
-> Also, please add the path to the patch, e.g. always use recursive diff.
-> 
-> -- Pete
-> 
+But module_param allows module arguments when built as a module, and boot
+arguments when built into the kernel.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+> However, there should not be two mechanisms to achieve the same goal. For
+> better or for worse, the hdX=<driver> construction exists, and people are
+> using it. Its use is not limited to ide-scsi.
+
+So does module_param not work because the usage is across modules? That
+seems odd.
+
+-- Patrick Mansfield

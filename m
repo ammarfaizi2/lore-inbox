@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314680AbSEXSMK>; Fri, 24 May 2002 14:12:10 -0400
+	id <S314702AbSEXSVW>; Fri, 24 May 2002 14:21:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317235AbSEXSMJ>; Fri, 24 May 2002 14:12:09 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:56231 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S314680AbSEXSMI>;
-	Fri, 24 May 2002 14:12:08 -0400
-Date: Fri, 24 May 2002 11:10:49 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Austin Gonyou <austin@digitalroadkill.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.4 VM sucks. Again
-Message-ID: <435570000.1022263849@flay>
-In-Reply-To: <1022263434.9591.60.camel@UberGeek>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S314707AbSEXSVV>; Fri, 24 May 2002 14:21:21 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38670 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314702AbSEXSVV>; Fri, 24 May 2002 14:21:21 -0400
+Subject: Re: Linux crypto?
+To: dent@cosy.sbg.ac.at (Thomas 'Dent' Mirlacher)
+Date: Fri, 24 May 2002 19:41:31 +0100 (BST)
+Cc: davem@redhat.com (David S. Miller), alan@lxorguk.ukuu.org.uk,
+        tori@ringstrom.mine.nu, imipak@yahoo.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.05.10205241938290.11037-100000@mausmaki.cosy.sbg.ac.at> from "Thomas 'Dent' Mirlacher" at May 24, 2002 07:42:45 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <E17BK0J-00073M-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Also, adjusting the bdflush parms greatly increases stability I've found
-> in this respect.
+> > They won't let me (or any other US citizen) make any edits to any of
+> > the ipsec sources if it were to be added to the main tree.  That's
+> > unacceptable because it means that effectively I cannot maintain the
+> > networking.
+> 
+> well the _big_ thing the freeswan people are afraid of, is exactly the
+> crypto laws in the us.
 
-What exactly did you do to them? Can you specify what you're set to
-at the moment (and anything you found along the way in tuning)?
-
-> Problem is, my tests are *unofficial* but I plan to do something perhaps
-> at OSDL and see what we can show in a max single-box config with real
-> hardware, etc. 
-
-Great stuff, I'm very interested in knowing about any problems you find.
-We're doing very similar things here, anywhere from 8-32 procs, and
-4-32Gb of RAM, both NUMA and SMP.
-
-Thanks,
-
-Martin.
+They refuse to have a US citizen working on it. Which is reasonable given
+the historu of US law, but until the US finishes outlawing computers in 
+a couple of years that is a problem.
 

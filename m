@@ -1,72 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265750AbTL3LOR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 06:14:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265753AbTL3LOR
+	id S265753AbTL3LOk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 06:14:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265754AbTL3LOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 06:14:17 -0500
-Received: from 30.Red-80-36-221.pooles.rima-tde.net ([80.36.221.30]:18564 "EHLO
-	sacarino.pirispons.net") by vger.kernel.org with ESMTP
-	id S265750AbTL3LOL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 06:14:11 -0500
-Date: Tue, 30 Dec 2003 12:14:08 +0100
-From: Kiko Piris <kernel@pirispons.net>
-To: Bart Samwel <bart@samwel.tk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fwd: A couple of questions about laptop-mode for 2.6, version 4
-Message-ID: <20031230111408.GA22920@sacarino.pirispons.net>
-Mail-Followup-To: Bart Samwel <bart@samwel.tk>,
-	linux-kernel@vger.kernel.org
-References: <20031230092831.GA20414@sacarino.pirispons.net> <3FF15849.60005@samwel.tk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FF15849.60005@samwel.tk>
-User-Agent: Mutt
+	Tue, 30 Dec 2003 06:14:40 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:6071 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S265753AbTL3LOb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 06:14:31 -0500
+Date: Tue, 30 Dec 2003 09:10:53 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: PATCH: IDE: no DRQ after issuing WRITE (fwd)
+In-Reply-To: <200312182153.50552.bzolnier@elka.pw.edu.pl>
+Message-ID: <Pine.LNX.4.58L.0312300909230.22101@logos.cnet>
+References: <Pine.LNX.4.44.0312181134050.4547-100000@logos.cnet>
+ <200312182153.50552.bzolnier@elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30/12/2003 at 11:49, Bart Samwel wrote:
 
-> As I'm not subscribed to the mailing list, I have seen the message but I 
-> was unable to reply. AFAICS it's customary to use "reply all" when 
-> replying to LKML messages, because of the high volume of mailing list 
-> traffic.
+Hi Bart, Andrew,
 
-Ah!, no problem at all. I'm used to hit "List Reply" on Mutt (and Mutt
-relies on Mail-Followup-To: header, http://cr.yp.to/proto/replyto.html).
-I will take note on your advice.
+The above patch is required to fix a "race" in ide_wait_stat().
 
-Hope you don't mind I'm sending a copy to the lkml so that it's archived
-in case it could be useful to someone (and hope the list does'nt mind
-too).
+It doesnt seem to be in 2.6 yet.
 
-> 3. Remounting seems the only option to me, because laptop_mode contains 
-> no automatic adjustment. The 2.4 patch used to contain this, but it was 
-> not integrated into 2.4.23, for good reasons -- it took away the user's 
-> choice on which filesystems got a higher commit interval.
+On Thu, 18 Dec 2003, Bartlomiej Zolnierkiewicz wrote:
 
-Oh!, I didn't notice that part wasn't included in 2.4.23. Thanks for the
-info.
-
-> If you use the /proc/mounts option, you can start a "daemon" script to 
-> monitor the /proc/mounts, and to immediately remount any new ext3 
-> filesystems with a higher commit interval depending on the status of 
-> /proc/sys/vm/laptop_mode. This script could then also remount all of 
-> them back to normal whenever laptop_mode switched back to 0.
-
-OK, I see it.
-
-I think I will do things just "by hand". I don't feel like having a
-daemon messing with filesystems (it seems to mee quite far from the KISS
-philosophy).
-
-Btw, have you had reliability reports? Do you know if it's going to be
-included in 2.6 "official" tree shortly?
-
-> Hope this answers your questions.
-
-Sure it does, thanks a lot!
-
--- 
-Kiko
+>
+> Thanks Marcelo.  Patch looks okay.
+>
+> On Thursday 18 of December 2003 14:34, Marcelo Tosatti wrote:
+> > FYI
+> >
+> > ---------- Forwarded message ----------
+> > Date: Mon, 15 Dec 2003 20:02:08 +0100
+> > From: Daniel Tram Lux <daniel@starbattle.com>
+> > To: linux-kernel@vger.kernel.org
+> > Subject: [2.4.23][patch]no DRQ after issuing WRITE
+> >
+> > Hi,
+> >
+> > basically same patch as for 2.6.0-test 11
+> >
+> > against following problem:
+> >
+> > hda: no DRQ after issuing WRITE
+> > ide0: reset: success
+> > hda: status timeout: status=0xd0 { Busy }
+> >
+> > Regards
+> > Daniel Lux
+> >
+> > --- linux-2.4.23.org/drivers/ide/ide-iops.c     2003-12-15
+> > 14:32:39.000000000 +0100 +++ linux-2.4.23/drivers/ide/ide-iops.c 2003-12-15
+> > 19:55:33.000000000 +0100 @@ -664,12 +664,22 @@
+> >         if ((stat = hwif->INB(IDE_STATUS_REG)) & BUSY_STAT) {
+> >                 local_irq_set(flags);
+> >                 timeout += jiffies;
+> > -               while ((stat = hwif->INB(IDE_STATUS_REG)) & BUSY_STAT) {
+> > +               stat = hwif->INB(IDE_STATUS_REG);
+> > +               while (stat & BUSY_STAT) {
+> >                         if (time_after(jiffies, timeout)) {
+> > -                               local_irq_restore(flags);
+> > -                               *startstop = DRIVER(drive)->error(drive,
+> > "status timeout", stat); -                               return 1;
+> > +                               /*
+> > +                                * do one more status read in case we were
+> > interrupted between last +                                * stat =
+> > hwif->INB(IDE_STATUS_REG) and time_after(jiffies, timeout) +
+> >                 * in wich case the timeout might have been shorter than
+> > specified. +                                */
+> > +                               if ((stat = hwif->INB(IDE_STATUS_REG)) &
+> > BUSY_STAT) { +
+> > local_irq_restore(flags);
+> > +                                       *startstop =
+> > DRIVER(drive)->error(drive, "status timeout", stat); +
+> >                  return 1;
+> > +                               }
+> >                         }
+> > +                       else
+> > +                               stat = hwif->INB(IDE_STATUS_REG);
+> >                 }
+> >                 local_irq_restore(flags);
+> >         }
+>

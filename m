@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129065AbRBKSOQ>; Sun, 11 Feb 2001 13:14:16 -0500
+	id <S129110AbRBKSQ4>; Sun, 11 Feb 2001 13:16:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129508AbRBKSOH>; Sun, 11 Feb 2001 13:14:07 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:17607 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S129240AbRBKSNw>;
-	Sun, 11 Feb 2001 13:13:52 -0500
-Date: Sun, 11 Feb 2001 19:13:29 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Andriy Korud <akorud@polynet.lviv.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Where are you going with 2.4.x?
-Message-ID: <20010211191329.C20267@khan.acc.umu.se>
-In-Reply-To: <E14S07t-0004Ty-00@the-village.bc.nu> <14711049588.20010211200148@polynet.lviv.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <14711049588.20010211200148@polynet.lviv.ua>; from akorud@polynet.lviv.ua on Sun, Feb 11, 2001 at 08:01:48PM +0200
+	id <S129160AbRBKSQr>; Sun, 11 Feb 2001 13:16:47 -0500
+Received: from shomer.lee.k12.nc.us ([207.4.71.118]:46599 "EHLO lee.k12.nc.us")
+	by vger.kernel.org with ESMTP id <S129110AbRBKSQk>;
+	Sun, 11 Feb 2001 13:16:40 -0500
+From: "Ryan Hairyes" <rhairyes@lee.k12.nc.us>
+To: <linux-kernel@vger.kernel.org>
+Date: Sun, 11 Feb 2001 19:14:58 +0000 (GMT)
+Organization: Lee County Schools
+X-Mailer: ObsidianSystems-OcsEmail1-0-30 brewed at www.obsidian.co.za
+Reply-to: rhairyes@lee.k12.nc.us
+Message-ID: <98191889817235-11131417235rhairyes@lee.k12.nc.us>
+Subject: linux-logo.h
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 11, 2001 at 08:01:48PM +0200, Andriy Korud wrote:
-> Alan> What is the oops data before the kernel panic. I need that to debug the
-> Alan> driver. Also did you build the DAC960 support with gcc 2.96-x x<74 ?
-> My system compiler is:
->    gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
-> Shoud I upgrade it to gcc 2.95.x or 2.96.x?
-> 
-> And since my last post 2.4.1-ac8 crashed again with:
->     kswapd: Cannot dereference NULL pointer.
-> 
-> On the next crash I'll try write down all traces.
-> BTW, is there some way to log it somewhere to file?
+Hello All,
 
-Considering this is an enterprise-server, you should have a serial-console
-to it; this will allow you to log all error-messages. Alternatively
-(not as nice, though), is to connect a printer to the parallel-port and
-use the parallelconsole option.
+Could anyone tell me about linux_logo.h.  I want to put my
+own picture in there. What format is the picture written in?
+Any any idea on how I could change it?  Also, could the
+picture be any bigger than 80x80,  I would like for it to take
+up the whole screen.
 
-Then there's always the LKCD-patches, by SGI, if I'm not all wrong.
+Thanks in advance.
 
+Ryan
+                                   
 
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

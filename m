@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbVCIRRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVCIRQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262083AbVCIRRM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 12:17:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbVCIRRM
+	id S262087AbVCIRQr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 12:16:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262083AbVCIRQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 12:17:12 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63683 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262083AbVCIRRF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 12:17:05 -0500
-Message-ID: <422F2F7C.3010605@pobox.com>
-Date: Wed, 09 Mar 2005 12:16:44 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: current linus bk, error mounting root
-References: <9e47339105030909031486744f@mail.gmail.com>
-In-Reply-To: <9e47339105030909031486744f@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 9 Mar 2005 12:16:46 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:24705 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262087AbVCIRQ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 12:16:26 -0500
+Subject: RE: [ANNOUNCE][PATCH 2.6.11 2/3] megaraid_sas: Announcing new mod
+	ule  for LSI Logic's SAS based MegaRAID controllers
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
+       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
+       Andrew Morton <akpm@osdl.org>,
+       "'Christoph Hellwig'" <hch@infradead.org>
+In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230CC1E@exa-atlanta>
+References: <0E3FA95632D6D047BA649F95DAB60E570230CC1E@exa-atlanta>
+Content-Type: text/plain
+Date: Wed, 09 Mar 2005 18:16:19 +0100
+Message-Id: <1110388579.6280.134.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> Something in the last 24hrs in linus bk broke my ability to mount root:
+On Wed, 2005-03-09 at 11:01 -0500, Bagalkote, Sreenivas wrote:
+> >
+> >> . And since this is compile time
+> >> system-wide property, I kept it as driver global.
+> >
+> >that step I don't understand... why is it a global *VARIABLE* if it's
+> >compile time system-wide property...
+> >
 > 
-> Creating root device
-> Mounting root filesystem
-> mount: error 6 mounting ext3
-> mount: error 2 mounting none
-> Switching to new root
-> Switchroot: mount failed 22
-> umount /initrd/dev failed: 2
-> 
-> If I back off a day everything works again. 
-> 
-> Root is on Intel ICH5 SATA drive.
+> I see your point! Are you saying I should use if(sizeof(dma_addr_t)==8)
+> instead of the shortcut if(is_dma64)? 
+yep
+well you can use a preprocessor define of something to make it slightly
+more readable (eg shortcut) if you want, but that's what I mean yeah..
 
-dmesg output?
-
-Can you verify that -bk4 works, and -bk5 breaks?
-
-	Jeff
-
-
+gcc will optimize the entire unused code away this way, including the
+actual conditional jump, so for performance and bloat-ness point of view
+it's nice.... and of course generic design beauty ;)
 

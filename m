@@ -1,97 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263182AbUEWRbR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263184AbUEWRdH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263182AbUEWRbR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 13:31:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263184AbUEWRbR
+	id S263184AbUEWRdH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 13:33:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbUEWRdH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 13:31:17 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:39087 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263182AbUEWRbO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 13:31:14 -0400
-Date: Sun, 23 May 2004 19:31:00 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Lorenzo Allegrucci <l_allegrucci@despammed.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm5 oops mounting ext3 or reiserfs with -o barrier
-Message-ID: <20040523173100.GA9914@suse.de>
-References: <200405222107.55505.l_allegrucci@despammed.com> <200405231843.56591.l_allegrucci@despammed.com> <20040523165634.GS1952@suse.de> <200405231917.52517.l_allegrucci@despammed.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405231917.52517.l_allegrucci@despammed.com>
+	Sun, 23 May 2004 13:33:07 -0400
+Received: from smtp-out6.xs4all.nl ([194.109.24.7]:61448 "EHLO
+	smtp-out6.xs4all.nl") by vger.kernel.org with ESMTP id S263184AbUEWRdE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 13:33:04 -0400
+Date: Sun, 23 May 2004 19:32:50 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.local
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFD] Explicitly documenting patch submission 
+In-Reply-To: <Pine.LNX.4.58.0405230955580.25502@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0405231925120.10292@scrub.local>
+References: <200405231633.i4NGXHv18935@pincoya.inf.utfsm.cl>
+ <Pine.LNX.4.58.0405230955580.25502@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 23 2004, Lorenzo Allegrucci wrote:
-> On Sunday 23 May 2004 18:56, Jens Axboe wrote:
-> 
-> > > Untar, read, copy and remove the OpenOffice tarball, each test
-> > > run with cold cache (mount/umount cycle).
-> >
-> > I understand that, I just don't see how you can call it a regression.
-> > It's a given that barrier will be slower.
-> 
-> I'm sorry, I didn't know :)
-> 
-> I read from www.kerneltrap.org:
-> 
-> Request barriers, also known as write barriers, provide a mechanism for 
+Hi,
 
-[snip]
+On Sun, 23 May 2004, Linus Torvalds wrote:
 
-Ah ok, I see the confusion! ext3 does nothing clever with barriers, it
-just uses it for data integrity. A journalled fs is normally not safe to
-run on write back cached drives if they aren't battery backed. You could
-try reiser instead, it's has a more intelligent use of barriers.
+> The path _inside_ BK is different - BK won't update the changelog 
+> comments, so basically once it hits BK (or any other SCM, for that 
+> matter), it's up to the SCM to save off the path details. BK does this by 
+> recording who committed something, and recording merges, so the 
+> information still exists, but it's no longer in the same format.
 
-> > > > but yes of course -o barrier=1 is going to
-> > > > be slower than default + write back caching. What you should compare is
-> > > > without barrier support and hdparm -W0 /dev/hdX, if -o barrier=1 with
-> > > > caching on is slower then that's a regression :-)
-> > >
-> > > hdparm -W0 /dev/hda
-> > >
-> > > ext3 (-o barrier=0)
-> > > untar		read		copy		remove
-> > > 1m55.190s	0m27.633s	2m19.072s	0m21.348s
-> > > 0m7.081s	0m1.189s	0m0.724s	0m0.083s
-> > > 0m6.502s	0m3.244s	0m9.715s	0m1.633s
-> > >
-> > > ext3 (-o barrier=1)
-> > > untar		read		copy		remove
-> > > 1m55.358s	0m23.831s	2m16.674s	0m21.508s
-> > > 0m7.153s	0m1.200s	0m0.748s	0m0.087s
-> > > 0m6.775s	0m3.358s	0m9.985s	0m1.781s
-> > >
-> > >
-> > > haparm -W1 /dev/hda
-> > >
-> > > ext3 (-o barrier=0)
-> > > untar		read		copy		remove
-> > > 0m55.405s	0m26.230s	1m28.765s	0m20.766s
-> > > 0m7.195s	0m1.199s	0m0.773s	0m0.081s
-> > > 0m6.502s	0m3.359s	0m9.672s	0m1.868s
-> > >
-> > > ext3 (-o barrier=1)
-> > > untar		read		copy		remove
-> > > 0m52.117s	0m28.502s	1m51.153s	0m25.561s
-> > > 0m7.231s	0m1.209s	0m0.738s	0m0.071s
-> > > 0m6.117s	0m3.191s	0m9.347s	0m1.635s
-> >
-> > Your results look a bit over the map, how many runs are your averaging
-> > for each one?
-> 
-> Just one run, no averaging.
-> Yes, it's not a scientific approach, but I have not enough time
-> and this is my production machine :)
-> By experience I can say that numbers between each run are quite
-> stable and reproducible.
+Then it's also no longer public information, the information about empty 
+merges is not available via bkweb or the cvs gateway.
 
-It just looks odd that eg reads vary as much as they do, and that -o
-barrier=1 makes -W0 reads faster (and faster then -W1 even). remove
-looks reasonable for -W1, but -W0 is still faster. That is _really_ odd.
-
--- 
-Jens Axboe
-
+bye, Roman

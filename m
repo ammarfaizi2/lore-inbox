@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266316AbUJGPCP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267375AbUJGPGQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266316AbUJGPCP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 11:02:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266273AbUJGPBf
+	id S267375AbUJGPGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 11:06:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266896AbUJGPGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 11:01:35 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32019 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266316AbUJGPBO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 11:01:14 -0400
-Date: Thu, 7 Oct 2004 16:01:08 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Richard Earnshaw <Richard.Earnshaw@arm.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Catalin Marinas <Catalin.Marinas@arm.com>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [RFC] ARM binutils feature churn causing kernel problems
-Message-ID: <20041007160108.B8579@flint.arm.linux.org.uk>
-Mail-Followup-To: Paulo Marques <pmarques@grupopie.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Richard Earnshaw <Richard.Earnshaw@arm.com>,
-	lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Catalin Marinas <Catalin.Marinas@arm.com>,
-	Sam Ravnborg <sam@ravnborg.org>
-References: <20040927210305.A26680@flint.arm.linux.org.uk> <20041001211106.F30122@flint.arm.linux.org.uk> <tnxllemvgi7.fsf@arm.com> <1096931899.32500.37.camel@localhost.localdomain> <loom.20041005T130541-400@post.gmane.org> <20041005125324.A6910@flint.arm.linux.org.uk> <1096981035.14574.20.camel@pc960.cambridge.arm.com> <20041005141452.B6910@flint.arm.linux.org.uk> <1097016532.32500.357.camel@localhost.localdomain> <41653814.1060405@grupopie.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <41653814.1060405@grupopie.com>; from pmarques@grupopie.com on Thu, Oct 07, 2004 at 01:35:32PM +0100
+	Thu, 7 Oct 2004 11:06:14 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:38357 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S267386AbUJGPER (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 11:04:17 -0400
+Message-ID: <41655A91.1010307@sgi.com>
+Date: Thu, 07 Oct 2004 10:02:41 -0500
+From: Patrick Gefre <pfg@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+CC: Grant Grundler <iod00d@hp.com>, Colin Ngam <cngam@sgi.com>,
+       "Luck, Tony" <tony.luck@intel.com>, Matthew Wilcox <matthew@wil.cx>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0221C989@scsmsx401.amr.corp.intel.com> <20041006195424.GF25773@cup.hp.com> <41645150.6020608@sgi.com> <200410061344.38265.jbarnes@engr.sgi.com>
+In-Reply-To: <200410061344.38265.jbarnes@engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 07, 2004 at 01:35:32PM +0100, Paulo Marques wrote:
-> The patch by Russel King seems ok to me, although I prefer Rusty's idea 
-> of not using any symbol that is not in the form "[A-Za-z0-9_]+". We just 
-> need to check if there are any real world users of these "weird" symbols.
+Jesse Barnes wrote:
+> On Wednesday, October 6, 2004 1:10 pm, Patrick Gefre wrote:
+> 
+>>I don't plan on respinning the large patches (unless of course they get out
+>>of date). It would be great to get the kill, add and qla patch in so we can
+>>move forward and address some these other smaller issues - rather than
+>>holding up the larger mods for them.
+> 
+> 
+> I agree, but could you please just 'vi' the 002-add-files patch and remove 
+> these?
+> 
+>  drivers/char/mmtimer.c                          |    1
+>  drivers/char/snsc.c                             |   25
+>  drivers/ide/pci/sgiioc4.c                       |   23
+>  drivers/serial/sn_console.c                     |  214
+> 
+> They should each be separate cleanup patches.  What I've done in the past is 
+> make copies (in this case 5) of the big patch.  Then I edit all of them to 
+> include only the hunks I want there.  Hopefully that'll minimize the pain of 
+> respinning the big patch (i.e. no respin).  Also, Tony doesn't want to deal 
+> with the above files, patches for them should be sent to Andrew as separate 
+> mails with lkml in the cc list.
+> 
 
-This may filter out too much - we have symbols starting with a '.' on
-ARM, particularly used in some of the assembly code, which are useful
-to be decoded back to names, such as ".bug".
+These are not cleanup.
 
-However, including "." means that names like "__func__.0" also get
-included, which is probably a bad thing.  So, maybe it needs to be
+The mmtimer code and sn_console include a file that doesn't exist anymore in the directory included 
+- it's moved to somewhere else in the 002 patch.
 
-[A-Za-z0-9_\.][A-Za-z0-9_]*
+snsc.c, sgiioc4.c have changes for things that won't exist after this patch is applied.
 
-?
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core

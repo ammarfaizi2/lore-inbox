@@ -1,62 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291558AbSBMK4n>; Wed, 13 Feb 2002 05:56:43 -0500
+	id <S291545AbSBMK4x>; Wed, 13 Feb 2002 05:56:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291555AbSBMK4d>; Wed, 13 Feb 2002 05:56:33 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:22790 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S291545AbSBMK4Z>; Wed, 13 Feb 2002 05:56:25 -0500
-Message-ID: <3C6A4649.3000606@evision-ventures.com>
-Date: Wed, 13 Feb 2002 11:56:09 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Roger Larsson <roger.larsson@norran.net>
-CC: Pavel Machek <pavel@suse.cz>, Jens Axboe <axboe@suse.de>,
+	id <S291555AbSBMK4o>; Wed, 13 Feb 2002 05:56:44 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:16138
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S291545AbSBMK4i>; Wed, 13 Feb 2002 05:56:38 -0500
+Date: Wed, 13 Feb 2002 02:46:12 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Pavel Machek <pavel@suse.cz>, Jens Axboe <axboe@suse.de>,
         kernel list <linux-kernel@vger.kernel.org>
 Subject: Re: another IDE cleanup: kill duplicated code
-In-Reply-To: <20020211221102.GA131@elf.ucw.cz> <3C68F3F3.8030709@evision-ventures.com> <200202121922.g1CJMPi23466@mailc.telia.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20020213113928.A31254@suse.cz>
+Message-ID: <Pine.LNX.4.10.10202130240540.1479-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roger Larsson wrote:
+On Wed, 13 Feb 2002, Vojtech Pavlik wrote:
 
->On Tuesday den 12 February 2002 11.52, Martin Dalecki wrote:
->
->>If you are already at it, I would like to ask to you consider seriously
->>the removal of the
->>following entries in the ide drivers /proc control files:
->>
->>[snip]
->>    ide_add_setting(drive,    "file_readahead",   ...
->>&max_readahead[major][minor],    NULL);
->>
->>Those calls can be found in ide-cd.c, ide-disk,c and ide-floppy.c
->>
->>[snip]
->>
->>The second of them is trying to control a file-system level constant
->>inside the actual block device driver.
->>This is a blatant violation of the layering principle in software
->>design, and should go as soon as
->>possible.
->>
->
->It really should go (the only one working is for ide-disk) but
->you need to add another way to tune readahead per disk too...
->
->Tuning this parameter gives quite a bit improved performance
->when reading from several big files at a time! A diff of two big files
->is enough to show it: from 10MB/s to 25MB/s (2.4.17-rc1)
->(due to less time lost seeking)
->
+> On Tue, Feb 12, 2002 at 11:27:42PM -0800, Andre Hedrick wrote:
+> > On Wed, 13 Feb 2002, Vojtech Pavlik wrote:
+> > 
+> > > On Tue, Feb 12, 2002 at 09:52:07PM -0800, Andre Hedrick wrote:
+> > > 
+> > > > HELL NO!
+> > > 
+> > > Hell why?
+> > 
+> > Does Virtual DMA mean anything?
+> 
+> Sure. Virtual-Direct-Marketing-Association, then there is the VDS,
+> Vitrual-DMA-Services, which is a DOS DMA access specification, then
+> there is the VDMA on PCI - this is a term used for normal PCI BM DMA
+> passing through an IOMMU-capable bridge. Then there is Virtual-DMA on
+> floppy controllers and NE*000's - which allows feeding the data to the
+> card via PIO when there is no ISA DMA controller available in the
+> system.
+> 
+> None of this is relevant to IDE on Linux.
 
-We are talking about 2.5.xx. In 2.5.xx the removed parameters just don't 
-change anything and are simple
-code garbage.
+Well not yet but here is a hint, all future hardware will be MMIO.
+Meaning all IO is performed under DMA over the ATA-Bridge.
+Specifically PIO operations are transacted over VDMA to the Bridge and
+executed as PIO by the Bridge.
 
+> Perhaps you mean PIO using SG-lists to put the data into the right
+> places. But I still don't see a problem with this and the proposed patch.
+> 
+> > Does a function struct for handling IO and MMIO help?
+> 
+> Ugh? What is "function struct"?
 
+Since the future will be a mess, and it is possible to have IO/MMIO on the
+same HOST it will be come more fun than you can imagine.
+
+> > All you two are doing is causing more work for me to build a working
+> > model.
+> 
+> It's possible - but then that is because we have different development
+> strategies. Ours is to start with minimum code and if something needs to
+> be made different, then duplicate and edit that. But only when needed.
+> Yours seems to be to duplicate everything first, make the changes and
+> then look at what can be merged.
+
+Mine is knowing the future of hardware and preparing for it to come.
+Why else would I packetize the ATA-Command Block?
+
+> In theory they both give the same results.
+> 
+> I don't think that happen's in reality. Duplicating first never gets
+> merged together later, as many tiny differences emerge. Believe me, I
+> know this - this already happened many times in the kernel and is a huge
+> amount of work to undo - keep shared code shared.
+> 
+> > But it is clear you must poke and screw things up, so I will continue to
+> > undo it in my trees until I have it working.
+> 
+> If you think so, sure, you're free to do that.
+
+Well give you can not have access to hardware which doesn't exist ...
+
+Cheers,
+
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
 

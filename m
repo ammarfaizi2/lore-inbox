@@ -1,74 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132914AbRDJEoW>; Tue, 10 Apr 2001 00:44:22 -0400
+	id <S132921AbRDJF3G>; Tue, 10 Apr 2001 01:29:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132918AbRDJEoM>; Tue, 10 Apr 2001 00:44:12 -0400
-Received: from ike-ext.ab.videon.ca ([206.75.216.35]:29093 "HELO
-	ike-ext.ab.videon.ca") by vger.kernel.org with SMTP
-	id <S132914AbRDJEoE>; Tue, 10 Apr 2001 00:44:04 -0400
-Date: Mon, 9 Apr 2001 22:44:02 -0600 (MDT)
-From: Jason Gunthorpe <jgg@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: Lost O_NONBLOCK (Bug?) 
-Message-ID: <Pine.LNX.3.96.1010409223803.3856M-100000@wakko.deltatee.com>
+	id <S132928AbRDJF24>; Tue, 10 Apr 2001 01:28:56 -0400
+Received: from [202.54.61.36] ([202.54.61.36]:7361 "EHLO gg2ns.delhi.tcs.co.in")
+	by vger.kernel.org with ESMTP id <S132921AbRDJF2n>;
+	Tue, 10 Apr 2001 01:28:43 -0400
+Message-ID: <3AD2D7B0.AA62925E@delhi.tcs.co.in>
+Date: Tue, 10 Apr 2001 10:51:44 +0100
+From: umam@delhi.tcs.co.in
+X-Mailer: Mozilla 4.5 [en] (WinNT; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Ethernet driver
+X-MIMETrack: Itemize by SMTP Server on MAILGG2/TCSDELHI/TCS(Release 5.0.5 |September 22, 2000) at
+ 04/10/2001 10:59:47 AM,
+	Serialize by Router on MAILGG2/TCSDELHI/TCS(Release 5.0.5 |September 22, 2000) at
+ 04/10/2001 10:59:47 AM,
+	Serialize complete at 04/10/2001 10:59:47 AM
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi everybody,
+I want to put some filter condition on ethernet driver in Promiscuous
+mode so as it allow packets to IP stack having Virtual mac address
+existing in  say some Dynamic list.Can anybody help how can I do it.
 
-Hi,
-
-I've run into the following weird behavior on my system with 2.4.0. I have
-the following code:
-
-if (fork() == 0)
-{
-    int Flags,dummy;
-    if ((Flags = fcntl(STDIN_FILENO,F_GETFL,dummy)) < 0)
-        _exit(100);
-    if (fcntl(STDIN_FILENO,F_SETFL,Flags | O_NONBLOCK) < 0)
-         _exit(100);
-    while (read(STDIN_FILENO,&dummy,1) == 1);
-    if (fcntl(STDIN_FILENO,F_SETFL,Flags & (~(long)O_NONBLOCK)) < 0)
-         _exit(100);
- 
-    // exec something
-}
-
-Which works fine, unless the parent process was backgrounded by the shell
-(^Z then bg).  If that is the case then the O_NONBLOCK seems to be lost. I
-straced this: 
-
-fcntl(0, F_GETFL)                       = 0x2 (flags O_RDWR)
-fcntl(0, F_SETFL, O_RDWR|O_NONBLOCK)    = 0
-read(0, 0xbfffea38, 1)                  = ? ERESTARTSYS (To be restarted)
---- SIGTTIN (Stopped (tty input)) ---
---- SIGTTIN (Stopped (tty input)) ---
-read(0, 0xbfffea38, 1)                  = ? ERESTARTSYS (To be restarted)
---- SIGTTIN (Stopped (tty input)) ---
---- SIGTTIN (Stopped (tty input)) ---
-[.. etc, again and again in a tight loop ..]
---- SIGTTIN (Stopped (tty input)) ---
---- SIGTTIN (Stopped (tty input)) ---
-read(0,
-
-The last read was after the process was forgrounded. The read waits
-forever, the non-block flag seems to have gone missing. It is also a
-little odd I think that it repeated to get SIGTTIN which was never
-actually delivered to the program.. Shouldn't SIGTTIN suspend the process?
-
-The signal mask from /proc/xx/status (the child) looks like:
-
-SigPnd: 0000000000000000
-SigBlk: 0000000000000000
-SigIgn: 8000000000000000
-SigCgt: 0000000000000000
-
-Is this the expected behavior of the kernel?
-
-Thanks,
-Jason
-Please CC me, I'm not on l-k today.
-
+I am using eepro100.
 

@@ -1,56 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbTFIVc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 17:32:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262148AbTFIVcI
+	id S262116AbTFIVb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 17:31:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbTFIVb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 17:32:08 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:8644 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262123AbTFIVaq convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 17:30:46 -0400
-Date: Mon, 9 Jun 2003 14:40:35 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Diego Calleja =?ISO-8859-1?Q?Garc=EDa?= <diegocg@teleline.es>
-Cc: solt@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.70-mm6
-Message-Id: <20030609144035.347c2987.akpm@digeo.com>
-In-Reply-To: <20030609232001.3980cb7a.diegocg@teleline.es>
-References: <20030607151440.6982d8c6.akpm@digeo.com>
-	<Pine.LNX.4.51.0306091943580.23392@dns.toxicfilms.tv>
-	<20030609232001.3980cb7a.diegocg@teleline.es>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-OriginalArrivalTime: 09 Jun 2003 21:44:25.0617 (UTC) FILETIME=[4BCAE810:01C32ED0]
+	Mon, 9 Jun 2003 17:31:57 -0400
+Received: from pointblue.com.pl ([62.89.73.6]:8972 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S262148AbTFIVbS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 17:31:18 -0400
+From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+Organization: K4 Labs
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: 2.4.22 timeline was RE: 2.4.21-rc7 ACPI broken
+Date: Mon, 9 Jun 2003 22:24:20 +0100
+User-Agent: KMail/1.5.2
+References: <F760B14C9561B941B89469F59BA3A84725A2DF@orsmsx401.jf.intel.com>
+In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A2DF@orsmsx401.jf.intel.com>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Guy Therien <guy.therien@intel.com>, Len Brown <len.brown@intel.com>,
+       Sunil Saxena <sunil.saxena@intel.com>,
+       Andrew Grover <andrew.grover@intel.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200306092224.32663@gjs>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Calleja García <diegocg@teleline.es> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On Monday 09 of June 2003 22:21, you wrote:
+> > From: Marcelo Tosatti [mailto:marcelo@conectiva.com.br]
+> >
+> > > > Any chance to get patch against latest -rc7 ?
+> > >
+> > > It's big, and deemed too risky. We are shooting for 2.4.22-pre1.
+> >
+> > Just had a few thoughts about that and I want to have a fast 2.4.22
+> > release (maximum two months). 2.4.21's development time was
+> > unnaceptable.
+In this world there should be no rush :-)
+
+> > Lets do the ACPI merge in 2.4.23.
 >
-> On Mon, 9 Jun 2003 19:45:58 +0200 (CEST)
-> Maciej Soltysiak <solt@dns.toxicfilms.tv> wrote:
-> 
-> > The interactivity seems to have dropped. Again, with common desktop
-> > applications: xmms playing with ALSA, when choosing navigating through
-> > evolution options or browsing with opera, music skipps.
-> > X is running with nice -10, but with mm5 it ran smoothly.
-> 
-> Under "heavy" disk usage (when sylpheed finish merging the lkml
-> messages in the 92M lkml mail folder) X pointer stops moving 
-> (say, 1/8 or 1/6 seconds, very noticeable, pointer stops, windows stop
-> redrawing, etc).
+> I wouldn't have a problem with this, except that you've been deferring
+> the ACPI merge for over a year. We've been maintaining this patch
+> outside the mainline tree for EIGHTEEN MONTHS. Please stop leading me
+> along. Will you EVER merge it?
+>
+> I am confident it will merge cleanly.
+> I am confident it will cause no problems when CONFIG_ACPI=off.
+> I am confident the total number of working machines will go up.
+> I am willing to bet $500 of MY OWN MONEY on this.
 
-I've noticed similar.  Just a new vague jerkiness.
+Well, Marcelo - i am happy with new ACPI, Alan does (otherwise it wouldn't be 
+included into ac tree). We will welcome it in 2.4.22-pre1 :]
 
-> System is a dual p3 800; fs is ext3. This odd behaviour
-> seems to happen since the 2.5.69-mm9 ext3 locking changes.
-> (well i started testing 2.5.70-mm3 because i'm timid,
-> but never happened before in mm or mainline)
+Anyway, still ACPI does not work fully in my PCG-C1VE Sony Vaio. I don't know 
+if due to incompatibilities of this equipment ?
+All other servers/desktops works perfectly fine for me :D
 
-Might be.  There were some CPU scheduler changes a week before 2.5.69-mm9. 
-If it's in ext3 then profiling will probably shake it out.  I haven't done
-a lot of profiling yet.
+Thanks guys. 
+- --
+Grzegorz Jaskiewicz
+K4 Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+5PsLqu082fCQYIgRAuaFAJ0RxLG8gj2/Lk2B+bxS7bxwcve4zgCghgzO
+d7hfwJa81RyJ+ltxmBd+KIs=
+=JkND
+-----END PGP SIGNATURE-----
 

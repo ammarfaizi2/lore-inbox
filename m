@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262927AbUCKBLH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 20:11:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbUCKBLH
+	id S262931AbUCKBOa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 20:14:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262933AbUCKBOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 20:11:07 -0500
-Received: from stat1.steeleye.com ([65.114.3.130]:43217 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262922AbUCKBLD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 20:11:03 -0500
-Subject: RE: [Announce] Emulex LightPulse Device Driver
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: "Smart, James" <James.Smart@Emulex.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <3356669BBE90C448AD4645C843E2BF2802C014F1@xbl.ma.emulex.com>
-References: <3356669BBE90C448AD4645C843E2BF2802C014F1@xbl.ma.emulex.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 10 Mar 2004 20:10:54 -0500
-Message-Id: <1078967456.10834.80.camel@mulgrave>
-Mime-Version: 1.0
+	Wed, 10 Mar 2004 20:14:30 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:24068 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262931AbUCKBO2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 20:14:28 -0500
+Date: Thu, 11 Mar 2004 01:14:25 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Giuseppe Bilotta <bilotta78@hotpop.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Framebuffer with nVidia GeForce 2 Go on Dell Inspiron 8200
+In-Reply-To: <c2o8sp$h3j$1@sea.gmane.org>
+Message-ID: <Pine.LNX.4.44.0403110112170.24760-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-03-10 at 17:47, Smart, James wrote:
-> we receive comments. There are constructs in the driver that are likely not
-> going to change, such as the logging facility. How contentious is this ?
-> What about the IP interfaces? and so on.  Anything we receive, especially on
-> the larger concepts in the driver, only helps us understand what's ahead. 
 
-Well, what your logging facility tries to do (discriminated messages to
-the console based on a mask) is extremely standard for drivers.  The way
-you implement it is slightly, erm, less than desirable.  Having your own
-version of sprintf in your driver is a definite no-no (why do you do
-this?  You never seem actually to use the added formatting characters
-like %E?).  But at least it doesn't do anything silly like try to ouput
-to the serial port.
+> 1. The vga framebuffer works. I can even bring the monitor to 800x600 
+> in tweaked VGA mode.
 
-As far as the IP portion goes: layering and separation should really be
-the order of the day---perhaps even to the point where you have a core
-module with a scsi and an IP one that sit on top of it.
+Cool :-) I assume you mean the vga16fb driver.
 
-> Our plans are to complete most of the work list on the FAQ by early April.
-> We'll try to make weekly drops on SourceForge, with each snapshot containing
-> a log of the changes.  Once the code base matures, we will ping the lists
-> again, asking for feedback.
+> 2. The VESA framebuffer does not work. Apparently, the card is not 
+> detected as VESA-compatible. (I'm not 100% sure about this --how can 
+> I check if this is indeed the case?)
 
-OK, I'll look forward to it.
+Are you sure. Take a look at your vga= parmeter. What is its value?
+ 
+> 3. The Riva framebuffer doesn't work either. It detects the video 
+> card all right, understands that I'm running on a laptop and thus 
+> with an LCD monitor, but as soon as I "touch" it (be it even just 
+> with a fbset -i to find the information), the screen goes blank or 
+> has some very funny graphical effects (fade to black in the middle, 
+> etc). The system doesn't lock up (I can still blind-type and reset 
+> it), but I can't use it.
+> 
+> Does anybody know what could be wrong?
 
-James
+That is a bug in fbcon layer. Now that I have my home system back up I 
+plan to test my radeon card to track down the bug that was preventing the 
+layer from properly resizing the screen.
 
 

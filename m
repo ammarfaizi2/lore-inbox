@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275067AbRJUBUk>; Sat, 20 Oct 2001 21:20:40 -0400
+	id <S275126AbRJUBuS>; Sat, 20 Oct 2001 21:50:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275097AbRJUBUa>; Sat, 20 Oct 2001 21:20:30 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:48378 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S275067AbRJUBUR>;
-	Sat, 20 Oct 2001 21:20:17 -0400
-Date: Sun, 21 Oct 2001 03:20:37 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Stuart Luscombe <stuart@ubersecksie.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Compilation of 2.4.0 fails when processing /i386/boot
-Message-ID: <20011021032037.Q25701@khan.acc.umu.se>
-In-Reply-To: <20011020231131.A4560@ubersecksie.co.uk> <4498.1003626939@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <4498.1003626939@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Sun, Oct 21, 2001 at 11:15:39AM +1000
+	id <S275110AbRJUBuI>; Sat, 20 Oct 2001 21:50:08 -0400
+Received: from isis.its.uow.edu.au ([130.130.68.21]:35200 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S275098AbRJUBt4>; Sat, 20 Oct 2001 21:49:56 -0400
+Message-Id: <200110210150.LAA14611@isis.its.uow.edu.au>
+Date: Sun, 21 Oct 2001 11:50:22 +1000
+User-Agent: IMHO/0.97.1 (Webmail for Roxen)
+Content-Transfer-Encoding: 7BIT
+X-Originating-IP: [198.142.194.161]
+From: Sean Van Buggenum <sv24@uow.edu.au>
+Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Subject: kernel or std c++ libraries
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 21, 2001 at 11:15:39AM +1000, Keith Owens wrote:
-> On Sat, 20 Oct 2001 23:11:31 +0000, 
-> Stuart Luscombe <stuart@ubersecksie.co.uk> wrote:
-> >I am compiling kernel 2.4.0, and I am getting the following error
-> >during the 'make install' part of the build:
-> >ld -m elf_i386 -Ttext 0x0 -s -oformat binary bbootsect.o -o bbootsect
-> >make[1]: Leaving directory `/usr/src/linux/arch/i386/boot'
-> >ld: cannot open binary: No such file or directory
-> 
-> New binutils on an old kernel.  Change -oformat to --oformat.
-
-Or even better, change v2.4.0 to v2.4.13pre5 or v2.4.12ac3.
-
-
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+Hi ,                                                                  
+I think there's a bug with .. i guess the linux kernel... or standard 
+c++ libraries included with recent installations of mandrake and      
+redhat.                                                               
+I've come to this conclusion because something i've written in c++,   
+very basic stuff... ( using the function seekg() from the fstream     
+library ) works fine on unix installations that i've used, but not on 
+any of the linux installations i've tried on My computer. All the code
+                                                                      
+does is open a binary file with the file pointer set for however many 
+positions from the END of the file (it works when i use the start of  
+the file ) .. and try to read from there.                             
+i've used kernel 2.2.16.... and it didn't work then.. i've recently   
+installed mandrake 8.1 and thought that with the newer kernel         
+included (hoped) it was just a bug in the redhat installation that i  
+had previously. But it still doesn't work.                            
+Is it a bug in the software ? or something to do with my hardware..is 
+what i'd like to know.. i'm using a intel celeron 600 processor.. if  
+that'd be important.                                                  
+                                                                      
+sean van buggenum                                                     
+sv24@uow.edu.au                                                       
+                                                                      

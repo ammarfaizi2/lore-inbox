@@ -1,36 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317096AbSGCUQP>; Wed, 3 Jul 2002 16:16:15 -0400
+	id <S317006AbSGCUSM>; Wed, 3 Jul 2002 16:18:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317059AbSGCUQO>; Wed, 3 Jul 2002 16:16:14 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:56469 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S317006AbSGCUQN>; Wed, 3 Jul 2002 16:16:13 -0400
-Date: Wed, 3 Jul 2002 16:18:44 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200207032018.g63KIis03950@devserv.devel.redhat.com>
-To: Eduard Bloch <edi@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.22] simple ide-tape.c and ide-floppy.c cleanup
-In-Reply-To: <mailman.1025711581.26152.linux-kernel2news@redhat.com>
-References: <mailman.1025711581.26152.linux-kernel2news@redhat.com>
+	id <S317059AbSGCUSL>; Wed, 3 Jul 2002 16:18:11 -0400
+Received: from mail.cafes.net ([207.65.182.3]:28651 "EHLO mail.cafes.net")
+	by vger.kernel.org with ESMTP id <S317006AbSGCUSK>;
+	Wed, 3 Jul 2002 16:18:10 -0400
+To: linux-kernel@vger.kernel.org
+From: gphat@cafes.net
+Subject: Large numbers of TCP resets
+Date: Wed, 3 Jul 2002 20:15:53 GMT
+X-Originating-IP: 67.105.23.117
+Message-Id: <20020703201553.DE9FD68CB5EA@mail.cafes.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->[...]
-> To be honest - why keep ide-[cd,floppy,tape] when they can be almost
-> completely replaced with ide-scsi?
+Recently, the web-app at the company I work for started having problems load 
+balancing.  This was traced back to a large number of tcp-resets being sent 
+from the web servers to the clients.
 
-James Bottomley was going to take care of this, so I did not
-even bother with ide-tape cleanups in 2.5. Good riddance for
-that crap.
+Here's netstat output for one of the boxen:
+    437761 active connections openings
+    0 passive connection openings
+    21 failed connection attempts
+    0 connection resets received
+    101 connections established
+    140497907 segments received
+    149967684 segments send out
+    116610 segments retransmited
+    111 bad segments received.
+    1003306 resets sent
 
-Note though, ide-tape is not anywhere near semantically
-to the ide-scsi+st, because of its "sophisticated" (e.g. utterly
-broken) internal pipeline. It does a lot of work underneath
-the /dev boundary. Apparently, the author had a bad case of streaming
-stoppages on his 386, so instead of fixing the root cause he
-wrote the monster we have today. Getting rid of ide-tape may
-cause problems on 386's. But then again, perhaps not.
+This box is running an apache/tomcat/jboss setup serving both HTTP and RMI 
+requests.  The reset packets disrupt the load balancing method, as the load 
+balancers think the reset means the connection can now be round-robined to the 
+next machine.  This can be masked by using cookie-based balancing, but I am 
+worried that we would be masking a problem.
 
--- Pete
+Documentation concerning tuning buffers for network purposes say that 2.4 is 
+good at auto-tuning, and that only /proc/sys/net/ipv4/tcp_wmem|tcp_rmem might 
+need tweaking.
+
+The kernel is 2.4.9-31smp from RedHat 7.2.  The cards are Intel 82557's.  There 
+are two interfaces, with 1 for client access and 1 used for communication with 
+the backend database.  (The ->client is the one we are worried about).
+
+Any ideas on why the interfaces would be doing this?  The boxes served 1.6 
+hits/sec average over last month for a total of about 10Gb.  Is there some 
+tuning that needs to take place?
+
+Thanks in advance.
+
+Cory 'G'
+Watson
+
+

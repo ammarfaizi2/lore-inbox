@@ -1,132 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbVBRWVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261539AbVBRWgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261535AbVBRWVX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 17:21:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbVBRWVX
+	id S261539AbVBRWgM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 17:36:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbVBRWgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 17:21:23 -0500
-Received: from mail.gmx.net ([213.165.64.20]:32478 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261535AbVBRWVM (ORCPT
+	Fri, 18 Feb 2005 17:36:12 -0500
+Received: from rproxy.gmail.com ([64.233.170.207]:16073 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261539AbVBRWgK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 17:21:12 -0500
-X-Authenticated: #8956447
-Subject: Re: [Problem] slow write to dvd-ram since 2.6.7-bk8
-From: Droebbel <droebbel.melta@gmx.de>
-To: Tino Keitel <tino.keitel@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050217231048.GA4363@dose.home.local>
-References: <1108301794.9280.18.camel@localhost.localdomain>
-	 <20050213142635.GA2035@animx.eu.org>
-	 <20050214085320.GA4910@dose.home.local>
-	 <1108376734.9495.8.camel@localhost.localdomain>
-	 <20050214105332.GA7163@dose.home.local>
-	 <1108379351.9495.22.camel@localhost.localdomain>
-	 <20050214111819.GA7691@dose.home.local>
-	 <1108590900.7407.11.camel@localhost.localdomain>
-	 <1108592965.7407.17.camel@localhost.localdomain>
-	 <20050217231048.GA4363@dose.home.local>
-Content-Type: text/plain
-Date: Fri, 18 Feb 2005 23:21:10 +0100
-Message-Id: <1108765270.14370.22.camel@localhost.localdomain>
+	Fri, 18 Feb 2005 17:36:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=jvl18IF/WRlPA/EezSGS4yNddIttryU8fcKZF1FDDVSgfS9rw6dVjsKAtdVUIQJXlN3F8mCIxyOlrv+pUKqxb3m307AguYtUqqwal316t4R7pagcWiGjWDqR9rOFW7+eN2NfhjX2PonSpgbFNSiqhjy6sTD8yaZmiDXoSh4th6k=
+Message-ID: <d120d500050218143572af23dd@mail.gmail.com>
+Date: Fri, 18 Feb 2005 17:35:11 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [BK] upgrade will be needed
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>, "d.c" <aradorlinux@yahoo.es>,
+       "David S. Miller" <davem@davemloft.net>, seanlkml@sympatico.ca,
+       tytso@mit.edu, vonbrand@inf.utfsm.cl, cfriesen@nortel.com,
+       cs@tequila.co.jp, galibert@pobox.com, kernel@crazytrain.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050218221819.GA3864@ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.1.5 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+References: <seanlkml@sympatico.ca>
+	 <4912.10.10.10.24.1108675441.squirrel@linux1>
+	 <200502180142.j1I1gJXC007648@laptop11.inf.utfsm.cl>
+	 <1451.10.10.10.24.1108713140.squirrel@linux1>
+	 <20050218162729.GA5839@thunk.org>
+	 <4075.10.10.10.24.1108751663.squirrel@linux1>
+	 <20050218214555.1f71c2e4.aradorlinux@yahoo.es>
+	 <20050218131326.650c77ad.davem@davemloft.net>
+	 <Pine.LNX.4.60.0502182133490.30371@hermes-1.csi.cam.ac.uk>
+	 <20050218221819.GA3864@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fr, 2005-02-18 at 00:10 +0100, Tino Keitel wrote:
->On Wed, Feb 16, 2005 at 23:29:24 +0100, Droebbel wrote:
->> On Mi, 2005-02-16 at 22:55 +0100, Droebbel wrote:
->> 
->> >The vmscan-dont-reclaim-too-many-pages.patch led to the said reduction
->> >of writing speed. I reverse-applied it to 2.6.8.1, where it seems to
->> >solve the problem.
->> 
->> Sorry, have to correct that: it seemed to help at my tests with dd
->> (write 1G of zeroes to a file). Copying a file with mc still shows
->> around 1.4MB/s. Could be worse, but is definitely not ok. It *is* better
->> with 2.6.7.
->
->Here are some numbers with my setup. I always wrote 1 GB of data to the
->same DVD-RAM disc (EMTEC), to the device directly and to a fresh ext2
->on
->the disc.
->
->kernel 2.6.10:
->
->$ time { sudo dd if=/dev/zero of=bigfile bs=64k count=16000 ; sync ; }
->
->real    32m5.025s
->
->$ time {sudo dd if=/dev/zero of=/dev/cdrom bs=64k count=16000 ; sync ;}
->
->real    29m41.980s
->
->kernel 2.6.7:
->
->$ time { sudo dd if=/dev/zero of=bigfile bs=64k count=16000 ; sync ; }
->
->real    13m23.688s
->
->$ time {sudo dd if=/dev/zero of=/dev/cdrom bs=64k count=16000 ; sync ;}
->
->real    13m14.609s
+On Fri, 18 Feb 2005 23:18:19 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> On Fri, Feb 18, 2005 at 09:34:47PM +0000, Anton Altaparmakov wrote:
+> > On Fri, 18 Feb 2005, David S. Miller wrote:
+> > > On Fri, 18 Feb 2005 21:45:55 +0100
+> > > "d.c" <aradorlinux@yahoo.es> wrote:
+> > >
+> > > > 2) And more important, *nobody* works against "linus' bk head".
+> > >
+> > > I do, %100 exclusively, for all the networking and sparc
+> > > development.
+> > >
+> > > I never work against the -mm tree.
+> >
+> > Dito.  All my kernel development happens against Linus' bk head and I
+> > almost never work against -mm tree.
+> 
+> Same here, I work on Linus's bk head and all the changes go to -mm for
+> testing first, then to Linus for inclusion.
+> 
 
-This is what I get:
- 2.6.8 to 2.6.10: about 30 min. I think that's clear now. I did not run
-any mre test with that.
-
-2.6.7 gives less than 10 minutes.
-
-Reverse-Patched 2.6.8.1 and 2.6.10 about 9-11 min.
-
-But what I think is interesting: Other than with 2.6.7, with my 2.6.10
-the result seems to be highly dependent on other io activities. I came
-to test that when I saw that writing to dvd-ram slowed down when reading
-from a cdrom at the same time. System disk, cdrom and dvd-ram are
-connected by buses as independent as possible: hda, hdd and scd0 via
-on-chip ide2. hdc is inactive and spun down at the times of testing.
-
-Some results (same command as yours, but writing to file only):
-
-2.6.8.1 with vmscan-dont-reclaim-too-many-pages.patch
-and vmscan-scan-sanity.patch reversed:
-
-real    9m17.389s
-real    10m11.271s
-(run twice)
-
-2.6.10, both patches reversed:
-
-real    10m26.374s
-
-same kernel, some io and high (but niced) system load by reading from
-hda and gzipping into /dev/null
-
-real    21m46.795s
-
-same kernel, some io and low load by reading from cdrom (raw read with
-dd as well) into /dev/null
-
-real    22m11.639s
-
-2.6.7 vanilla, some io and low load by reading from cdrom (raw read with
-dd as well) into /dev/null
-
-real	5m58.092
-
-That's too fast - impossible on 3x media with verification. I'll check
-that again. But it *really* seemed to be fast.
-
-I also hat the impression that my tests with 2.6.10 and 2.6.8.1 were
-much more promising when run from a rather basic testing system without
-X, a bit closer to the 2.6.7 results. Haven't got time to check that
-till monday. All the above results except the 2.6.7 are from Ubuntu
-(Hoary) Systems with X and Gnome running. 
-
-Regards
-David
-
-
-
+I guess there is a perception that developers/maintainers are working
+against -mm because all maintainers trees are automatically pulled by
+Andrew. And when someone doing stuff on somewhat regular basis he/she
+tends to do it against maintainer's tree thus making patches suitable
+for -mm as well.
+ 
+-- 
+Dmitry

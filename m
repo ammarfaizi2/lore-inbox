@@ -1,74 +1,224 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292850AbSB0Tgd>; Wed, 27 Feb 2002 14:36:33 -0500
+	id <S292116AbSB0Tih>; Wed, 27 Feb 2002 14:38:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292913AbSB0TgN>; Wed, 27 Feb 2002 14:36:13 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:48529 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S292912AbSB0Tfr>; Wed, 27 Feb 2002 14:35:47 -0500
-Date: Wed, 27 Feb 2002 12:49:31 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: linux-kernel@vger.kernel.org, Daniel Phillips <phillips@bonn-fries.net>
-Cc: jmerkey@timpanogas.org
-Subject: Re: 3Ware Hard Bus Hang 2.4.18 > 220 MB/S
-Message-ID: <20020227124931.A32078@vger.timpanogas.org>
-In-Reply-To: <20020227102545.B31524@vger.timpanogas.org> <20020227104825.P12832@lynx.adilger.int>
+	id <S292916AbSB0Tgi>; Wed, 27 Feb 2002 14:36:38 -0500
+Received: from [80.94.224.242] ([80.94.224.242]:24336 "EHLO babbler.csp.org.by")
+	by vger.kernel.org with ESMTP id <S292911AbSB0Tfo>;
+	Wed, 27 Feb 2002 14:35:44 -0500
+Date: Wed, 27 Feb 2002 21:40:56 +0200
+From: Artiom Morozov <artiom@phreaker.net>
+To: linux-kernel@vger.kernel.org
+Cc: Kiretchko Serguei <spk@csp.org.by>
+Subject: select() call corrupts stack
+Message-ID: <20020227214056.A6740@cyan.csp.org.by>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020227104825.P12832@lynx.adilger.int>; from adilger@clusterfs.com on Wed, Feb 27, 2002 at 10:48:25AM -0700
+Content-Type: multipart/mixed; boundary="=_CE+1k2dSO48ffg"
+Content-Transfer-Encoding: 8bit
+X-Mailer: Balsa 1.2.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 27, 2002 at 10:48:25AM -0700, Andreas Dilger wrote:
-> On Feb 27, 2002  10:25 -0700, Jeff V. Merkey wrote:
-> > Running 4 3Ware 7810 Adapters with the updated 48 bit LBA firmware
-> > for the 78110, and attached to 8 Maxtor 160 GB hard disks on each card
-> > (32 drives total) striping Raid 0m across 5.6 terabytes of disk, I am
-> > seeing about 216-224 MB/S total throughput on writes to local 
-> > arrays on 2.4.18.  
-> 
-> Have you done any kind of variations on this configuration to see when
-> or where the maximum throughput happens?  Daniel and I were speculating
-> about where the 3ware limits are.  Specs say 100MB/s per adapter (for
-> both 6000 and 7000 series), you would probably hit max bandwidth with
-> 2 adapters.  The drives themselves are not a limiting factor, unless
-> you are down to striping across only 2 drives instead of all 8.  I take
-> it you are using the hardware RAID instead of software MD RAID?
 
-Single adapter can push 130 MB/S with 8 drives striped at RAID 0 
-(hardware RAID not software).  With 2 adapters with 8 drives, the 
-max rate of 216 MB/S is achieved.  Adding additional adapters 
-on the same PCI bus hits the wall at 238+- MB/S.  I have not tried 
-putting the two other 3Ware's on the 66 Mhz bus, but in theory, this
-would result in 350 MB/S total throughput from what I am seeing
-with the Gigabit ethernet adapter.
+--=_CE+1k2dSO48ffg
+Content-Type: text/plain; format=flowed; charset=KOI8-R
+Content-Transfer-Encoding: 8bit
 
-> 
-> > The system is also running an Intel Gigabit Ethernet Card at 
-> > 116-122 MB/S with full network traffic and writing this traffic to 
-> > the 3Ware arrays.  All this hardware is running on a Serverworks 
-> > HE chipset with a SuperMicro motherboard and dual 933 Mhz PIII
-> > processors.
-> 
-> Does this board have multiple PCI busses?  Is the GigE card on a
-> different bus than the 3ware cards?
+Hello,
 
-The Gigabit adapter is running on the 66 Mhz bus.  When combined with 
-SCI I am able to push 238 MB/S through the SCI to the 3Ware adapters
-and out to disk.  At present, I have modified the SCI drivers and I am 
-DMA'ing directly into Linus buffer cache from the SCI disk data.  
+	Here's a sample program. Try running it and open about 2k of 
+connections to port 5222 (you'll need ulimit -n 10000 or like that). It 
+will segfault. Simple asm like this
+   __asm__(
+	"pushl %eax \n\t" 	"movl  0(%ebp), %eax \n\t"
+	"cmp   $65535, %eax \n\t"
+	"ja isok \n\t"
+	"xor  %eax, %eax \n\t"
+	"movl  %eax, 0(%eax) \n\t"	 
+	"isok: \n\t"
+	"popl  %eax \n\t"
+   );
+after each subroutine call will show you that after select() [ebp] have 
+weird value. While this is unlikely to be a security flaw, i think this 
+is a bug.
 
-Very very fast.  The 3Ware adapters are barfing when the BH count 
-gets too high.  I have no idea why.
+ps: it's okay for 1k of connections or so
+pps: kernel 2.4.17 on i686, gcc 3.0.3, glibc 2.2.3.
 
-Jeff
+--=_CE+1k2dSO48ffg
+Content-Type: text/x-c++; charset=us-ascii
+Content-Disposition: attachment; filename="main.cpp"
 
+#include <deque>
+#include <pthread.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+#include <netinet/in.h>
 
-> 
-> Cheers, Andreas
-> --
-> Andreas Dilger
-> http://sourceforge.net/projects/ext2resize/
-> http://www-mddsp.enel.ucalgary.ca/People/adilger/
+using namespace std;
+
+typedef void* (*DISP_ENTRY_ROUTINE)(void*);
+
+typedef struct
+{
+  pthread_mutex_t sockLock;
+  int sock;
+  DISP_ENTRY_ROUTINE disp;
+} ReqInfo;
+
+pthread_mutex_t reqsLock = PTHREAD_MUTEX_INITIALIZER;
+deque<ReqInfo*> reqs;
+
+void* disp0(void*);
+
+void add_to_queue(int s)
+{
+  pthread_mutex_lock(&reqsLock);
+
+  ReqInfo * nInfo = new ReqInfo[1];
+  nInfo->sock = s;
+  pthread_mutex_init(&nInfo->sockLock, NULL);
+  nInfo->disp = disp0;
+	  
+  reqs.push_back(nInfo);
+	  
+  pthread_mutex_unlock(&reqsLock);
+}
+
+void* disp0(void* param)
+{
+  ReqInfo *p = (ReqInfo *) param;
+  char foo[0x10];
+
+  recv(p->sock, foo, 4, 0);
+  
+  add_to_queue(p->sock);
+  return NULL;
+}
+
+void* proc_acc(void* param)
+{
+  int s = socket(PF_INET, SOCK_STREAM, 0);
+  
+  if (s == -1)
+  {
+	fprintf(stderr, "proc_acc: socket() failed, %s\n", strerror(errno));
+	return NULL;
+  }
+	
+  struct sockaddr_in saL;
+  saL.sin_family = AF_INET;
+  saL.sin_port = htons(5222);
+  saL.sin_addr.s_addr = htonl(INADDR_ANY);
+		
+  if (bind(s, (sockaddr*)&saL, sizeof(saL)) == -1)
+  {
+	fprintf(stderr, "proc_acc: bind() failed, %s\n", strerror(errno));
+	return NULL;
+  }
+  
+  if (listen(s, SOMAXCONN) == -1)
+  {
+	fprintf(stderr, "proc_acc: listen() failed, %s\n", strerror(errno));
+	return NULL;
+  }
+
+  do
+  {
+	int len;
+	struct sockaddr_in addr;
+	int ch = accept(s, (struct sockaddr*) &addr, (socklen_t*) &len);
+	if (ch == -1)
+	{
+	  fprintf(stderr, "proc_acc: accept() failed, %s\n", strerror(errno));
+	}
+	else
+	{
+	  add_to_queue(ch);
+	}
+  } while (1);
+
+  return NULL;
+}
+
+int try_select(ReqInfo *p)
+{
+  fd_set set;
+  struct timeval tv;
+  int out = 0;
+  
+  do
+  {
+	tv.tv_sec = tv.tv_usec = 0;
+	FD_ZERO(&set);
+	FD_SET(p->sock, &set);
+  } while ((out = select(p->sock + 1, &set, NULL, NULL, &tv)) == -1 
+			&& errno == EINTR);
+  
+  return out;
+}
+
+void* proc_sel(void* param)
+{
+  do
+  {
+	ReqInfo *p = NULL;
+	pthread_mutex_lock(&reqsLock);
+	if (reqs.size())
+	{
+	  p = reqs.front();
+	  reqs.pop_front();
+	}
+	pthread_mutex_unlock(&reqsLock);
+	
+	if (p != NULL)
+	{
+	  int r = try_select(p);
+	  switch (r)
+	  {
+		case 0: 
+		{ 
+		  pthread_mutex_lock(&reqsLock); 
+		  reqs.push_back(p);
+		  pthread_mutex_unlock(&reqsLock); 
+		}; break;
+		case -1:
+		{
+		  fprintf(stderr, "select(): %s\n", strerror(errno));
+		}; 
+		default:
+		{
+		  p->disp(p);
+		  delete[] p;
+		}; 
+	  }
+	}
+  } while (1);
+}
+
+int main()
+{
+  pthread_t th_acc, th_sel;
+  
+  pthread_create(&th_acc, NULL, proc_acc, NULL);
+  pthread_create(&th_sel, NULL, proc_sel, NULL);
+
+  // should crash here, so don't care about cleanup
+
+  pthread_join(th_acc, NULL);
+
+  return 0;
+}
+
+--=_CE+1k2dSO48ffg
+Content-Type: text/x-makefile; charset=us-ascii
+Content-Disposition: attachment; filename=Makefile
+
+all:
+	c++ -pthread -g -Wall -o test-acceptor main.cpp
+--=_CE+1k2dSO48ffg--

@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265066AbTLCQT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 11:19:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265071AbTLCQT7
+	id S265071AbTLCQWR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 11:22:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265074AbTLCQWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 11:19:59 -0500
-Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:55954 "EHLO
-	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
-	id S265066AbTLCQT5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 11:19:57 -0500
-Message-ID: <7A25937D23A1E64C8E93CB4A50509C2A0310EFAC@stca204a.bus.sc.rolm.com>
-From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-To: "'Linus Torvalds'" <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: your mail
-Date: Wed, 3 Dec 2003 08:19:51 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Wed, 3 Dec 2003 11:22:16 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:60900 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265071AbTLCQUz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 11:20:55 -0500
+Date: Wed, 3 Dec 2003 17:20:45 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David =?iso-8859-1?Q?Mart=EDnez?= Moreno <ender@debian.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       clubinfo.servers@adi.uam.es, Ingo Molnar <mingo@elte.hu>,
+       Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: Errors and later panics in 2.6.0-test11.
+Message-ID: <20031203162045.GA27964@suse.de>
+References: <200312031417.18462.ender@debian.org> <Pine.LNX.4.58.0312030757120.5258@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0312030757120.5258@home.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks,
+On Wed, Dec 03 2003, Linus Torvalds wrote:
+> 
+> 
+> On Wed, 3 Dec 2003, David [iso-8859-15] Martínez Moreno wrote:
+> >
+> > 	Hello again. I'm testing 2.6.0-test11 in one of my servers. In about a day or
+> > so under a web/FTP server load, the kernel starts to spit messages:
+> >
+> > Dec  2 22:07:25 ulises kernel: Bad page state at prep_new_page
+> > [ ... ]
+> >
+> > 	This machine is Pentium IV with 512 MB of RAM, IDE & SATA disks, RAID 0 over the
+> > 2 SATA disks, vanilla 2.6.0-test11, Debian testing, apache2 and proftpd.
+> 
+> Interesting. Another RAID 0 problem report..
 
-I found the problem. I do have errno.h included. I was doing a read of errno
-after calling perror. If I read it directly after getting the neagtive 0ne
-back, it contains the right value.
+Hmm did _all_ reports include raid-0, or just "some" raid? I'm looking
+at the bio_pair stuff which raid-0 is the only user of, something looks
+fishy there.
 
-Jack Bloch 
-Siemens ICN
-phone                (561) 923-6550
-e-mail                jack.bloch@icn.siemens.com
+-- 
+Jens Axboe
 
-
------Original Message-----
-From: Linus Torvalds [mailto:torvalds@osdl.org]
-Sent: Wednesday, December 03, 2003 11:04 AM
-To: Bloch, Jack
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: your mail
-
-
-
-
-On Wed, 3 Dec 2003, Bloch, Jack wrote:
->
-> I try to open a non-existan device driver node file. The Kernel returns a
-> value of -1 (expected). However, when I read the value of errno it
-contains
-> a value of 29. A call to the perror functrion does print out the correct
-> error message (a value of 2). Why does this happen?
-
-Because you forgot a "#include <errno.h>"? Or you have something else
-wrong in your program that makes "errno" mean the wrong thing?
-
-		Linus

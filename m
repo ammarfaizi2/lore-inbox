@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVDEDPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVDEDOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbVDEDPI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 23:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVDEDPI
+	id S261553AbVDEDOt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 23:14:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVDEDOs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 23:15:08 -0400
-Received: from mail47-s.fg.online.no ([148.122.161.47]:13544 "EHLO
-	mail47-s.fg.online.no") by vger.kernel.org with ESMTP
-	id S261548AbVDEDO4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 23:14:56 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Logitech MX1000 Horizontal Scrolling
-References: <873bxfoq7g.fsf@quasar.esben-stien.name>
-	<87zmylaenr.fsf@quasar.esben-stien.name>
-	<20050204195410.GA5279@ucw.cz>
-	<873bvyfsvs.fsf@quasar.esben-stien.name>
-	<87zmxil0g8.fsf@quasar.esben-stien.name>
-	<1110056942.16541.4.camel@localhost>
-	<87sm37vfre.fsf@quasar.esben-stien.name>
-	<87wtsjtii6.fsf@quasar.esben-stien.name>
-	<20050308205210.GA3986@ucw.cz> <1112083646.12986.3.camel@localhost>
-	<87psxcsq06.fsf@quasar.esben-stien.name> <87u0mn3l4e.fsf@blackdown.de>
-From: Esben Stien <b0ef@esben-stien.name>
-X-Home-Page: http://www.esben-stien.name
-Date: Tue, 05 Apr 2005 05:12:10 +0200
-In-Reply-To: <87u0mn3l4e.fsf@blackdown.de> (Juergen Kreileder's message of
- "Sun, 03 Apr 2005 18:01:21 +0200")
-Message-ID: <87acodvrw5.fsf@quasar.esben-stien.name>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
+	Mon, 4 Apr 2005 23:14:48 -0400
+Received: from orb.pobox.com ([207.8.226.5]:26559 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261553AbVDEDO2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 23:14:28 -0400
+Date: Mon, 4 Apr 2005 20:14:23 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Bob Gill <gillb4@telusplanet.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ... no drivers for IEEE1394 product 0x/0x/0x in kernel 2.6.12-rc1-bk6
+Message-ID: <20050405031423.GA10733@ip68-4-98-123.oc.oc.cox.net>
+References: <1112667776.6675.1.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1112667776.6675.1.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juergen Kreileder <jk@blackdown.de> writes:
+On Mon, Apr 04, 2005 at 08:22:56PM -0600, Bob Gill wrote:
+> Hi.  I recently built 2.6.12-rc1-bk6.  The kernel seems to be tripping
+> over sbp2.  The error messages keep right on rolling till I hit the
+> reboot button (I let it run for more than 90 seconds last time).
+> 2.6.11.6 builds/runs without any problems.
+[snip]
 
-> http://blog.blackdown.de/2005/04/03/logitech-mx1000-configuration/
+I was having the same problem on a system of mine too, but it went away
+after I disabled CONFIG_DEVFS_FS. You didn't include enough of your
+.config for me to be able to tell if that is at all relevant in your
+case however.
 
-This did it. I got it completely working now. Both the horizontal and
-the vertical cruise control is working with no problems. I'm scrolling
-and I can't find a single problem with the device.
-
--- 
-Esben Stien is b0ef@esben-stien.name
-         http://www.
-          irc://irc.                /%23contact
-          [sip|iax]:
-           jid:b0ef@
+-Barry K. Nathan <barryn@pobox.com>

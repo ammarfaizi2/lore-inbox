@@ -1,112 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285183AbRLRV2Q>; Tue, 18 Dec 2001 16:28:16 -0500
+	id <S285179AbRLRVdD>; Tue, 18 Dec 2001 16:33:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285180AbRLRV1F>; Tue, 18 Dec 2001 16:27:05 -0500
-Received: from [213.236.192.200] ([213.236.192.200]:6666 "EHLO
-	mail.circlestorm.org") by vger.kernel.org with ESMTP
-	id <S285184AbRLRV0l>; Tue, 18 Dec 2001 16:26:41 -0500
-Message-ID: <005701c1880a$05175430$6c2876d9@dead2>
-From: "Dead2" <dead2@circlestorm.org>
-To: "Ken Brownfield" <brownfld@irridia.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16GLmv-0007d4-00@the-village.bc.nu> <026701c187d5$ec2472c0$67c0ecd5@dead2> <20011218123724.A32316@asooo.flowerfire.com>
-Subject: Re: The direction linux is taking (CVS)
-Date: Tue, 18 Dec 2001 22:21:55 +0100
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S285203AbRLRVbh>; Tue, 18 Dec 2001 16:31:37 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:2195 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S285195AbRLRVa7>;
+	Tue, 18 Dec 2001 16:30:59 -0500
+Date: Tue, 18 Dec 2001 13:30:13 -0800 (PST)
+Message-Id: <20011218.133013.133912859.davem@redhat.com>
+To: lm@bitmover.com
+Cc: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com, riel@conectiva.com.br,
+        bcrl@redhat.com, davidel@xmailserver.org, linux-kernel@vger.kernel.org
+Subject: Re: Scheduler ( was: Just a second ) ...
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011218131713.O26374@work.bitmover.com>
+In-Reply-To: <20011218130228.N26374@work.bitmover.com>
+	<20011218.131420.67881975.davem@redhat.com>
+	<20011218131713.O26374@work.bitmover.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Ken Brownfield" <brownfld@irridia.com>
+   From: Larry McVoy <lm@bitmover.com>
+   Date: Tue, 18 Dec 2001 13:17:13 -0800
+   
+   Let me introduce you to this neat invention called a telephone.  It's
+   the black thing next to your desk, it rings, has buttons.  If you push
+   the right buttons, well, it's magic...
 
-> The CVS tree availability you mention parallels the FreeBSD tree, I
-> believe.  However, assuming enough brain cycles, one knowledgable
-> maintainer seems to be a better method of maintaining a kernel.
+I'm not calling Holland every time I want to poke Jens about
+something in a patch we're working on :-)
 
-Then positive and negative sides should be gathered from their experiences
-aswell, it can be good for the outcome to follow something that has
-been tested thoroughly by others.
+I hate telephones for technical stuff, because people can call the
+fucking thing when I am not behind my computer or even worse when I AM
+behind my computer and I want to concentrate on the code on my screen
+without being disturbed.  With IRC it is MY CHOICE to get involved in
+the discussion, I can choose to respond or not respond to someone, I
+can choose to be available or not available at any given time.  It's
+just a real-time version of email.  And the "passive, I can ignore
+you" part is what I like about it.
 
-*snip*
+Telephones frankly suck for discussing technical topics.  I can't cut
+and paste pieces of code from my other editor buffer to show you over
+the phone, as another example as to why.
 
-> I've been following lkml for some time now, and I've been using patches
-> that get posted to the list.  But I do so at my own risk, since I do not
-> have comprehensive knowledge of kernel internels.  But even I can tell
-> that many of the patches posted are either bogus, are potentially
-> incorrect in subtle and/or complex ways, or are simply working around
-> user-space issues or other bugs.
+A lot of people like to use telephones specifically because it does
+not give the other party the option of ignoring you once they pick up
+the phone.  I value the ability to make the choice to ignore people
+because a lot of ideas I don't give a crap about come under my nose.
 
-Therfore only trusted maintainers should have access. Normal deadly
-people like me would have to contact the maintainer(s) for that sub-tree.
-
-> What might take out a few birds with one stone is to have someone on
-> lkml become an "LKML MAINTAINER": collect patches and bug reports in a
-> central place.  This would include:
->
-> 1) The patch and/or bug report
-> 2) The entire LKML thread, with "important" messages marked
-> 3) Personal input, prioritization, severity info, etc.
-
-Or even make a kernel-patches@vger.kernel.org address that would be
-parsed manually of automaticly..
-
-*snip-snip*
-> --
-> Ken.
-> brownfld@irridia.com
-
--=Dead2=-
-
-> On Tue, Dec 18, 2001 at 04:09:00PM +0100, Dead2 wrote:
-> | > > > 1. Are we satisfied with the source code control system ?
-> | > >
-> | > > Yes.  Alan (2.2) and Marcelo (2.4) and Linus (2.5) are doing
-> | > > a good job with source control.
-> | >
-> | > Not really. We do a passable job. Stuff gets dropped, lost,
-> | > deferred and forgotten, applied when it conflicts with other work
-> | > - much of this stuff that software wouldnt actually improve on over a
-> | > person
-> |
-> | What about having the Linux source code in a CVS tree where active/trusted
-> | driver-/module-maintainers are granted write access, and everyone else read
-> | access.
-> | After the patches are applied, people will test them out, and bugfixes will
-> | be applied when bugs are detected.
-> | Then, when the kernel-maintainer feels this or that sourcecode is ready for
-a
-> | .pre kernel, he puts it in the main kernel tree.
-> | (This would indeed pose a security risk, but who in their right mind would
-run
-> |  a CVS snapshot on anything important, that's right _noone_ in their _right
-> | mind_)
-> |
-> | Of course this would require much maintenance, and possibly more than
-> | one kernel-maintainer. This because of how much easier it would become
-> | for driver-/module-maintainers to apply patches they believe would make
-> | things better. Cleanups would also be necessary from time to time..
-> | (cleanups = making the CVS identical to the main kernel tree again)
-> |
-> | Just my 2 cents..
-> |
-> | -=Dead2=-
-> |
-> |
-> |
-> |
-> | -
-> | To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> | the body of a message to majordomo@vger.kernel.org
-> | More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> | Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
+In fact that may be one of the best parts about Linux development
+compared to doing stuff at a company, one isn't required to listen to
+someone's idea or to even read it.  If today I don't give a crap about
+Joe's filesystem idea, hey guess what I'm not going to read any of his
+emails about the thing.

@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284867AbRLFAB6>; Wed, 5 Dec 2001 19:01:58 -0500
+	id <S284866AbRLFADs>; Wed, 5 Dec 2001 19:03:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284870AbRLFABs>; Wed, 5 Dec 2001 19:01:48 -0500
-Received: from mailf.telia.com ([194.22.194.25]:11491 "EHLO mailf.telia.com")
-	by vger.kernel.org with ESMTP id <S284867AbRLFABa>;
-	Wed, 5 Dec 2001 19:01:30 -0500
-Date: Thu, 6 Dec 2001 01:11:50 +0100
-From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
+	id <S284870AbRLFADj>; Wed, 5 Dec 2001 19:03:39 -0500
+Received: from cerebus.wirex.com ([65.102.14.138]:23284 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S284866AbRLFADb>; Wed, 5 Dec 2001 19:03:31 -0500
+Date: Wed, 5 Dec 2001 15:55:09 -0800
+From: Chris Wright <chris@wirex.com>
+To: "Garst R. Reese" <reese@isn.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: 2.4.17-pre4 extra-version
-Message-ID: <20011206001150.GA10592@telia.com>
-Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <20011205155509.B9588@figure1.int.wirex.com>
+Mail-Followup-To: "Garst R. Reese" <reese@isn.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>
 In-Reply-To: <3C0EB178.4A599A31@isn.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3C0EB178.4A599A31@isn.net>
-User-Agent: Mutt/1.3.24i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C0EB178.4A599A31@isn.net>; from reese@isn.net on Wed, Dec 05, 2001 at 07:44:56PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 05, 2001 at 07:44:56PM -0400, Garst R. Reese wrote:
-
+* Garst R. Reese (reese@isn.net) wrote:
 > It really does help to keep extra version uptodate ;)
-> Can someone write a perl script to tie a string around Marcelo's finger?
 
-Huh? From -pre4:
+seem fine to me...
 
+<from patch-2.4.17-pre4.bz2>
+
+diff --exclude=CVS -Nur linux-2.4.16/Makefile linux/Makefile
+--- linux-2.4.16/Makefile       Mon Nov 26 08:35:11 2001
++++ linux/Makefile      Wed Dec  5 16:49:45 2001
+@@ -1,7 +1,7 @@
  VERSION = 2
  PATCHLEVEL = 4
- -SUBLEVEL = 16
- -EXTRAVERSION =
- +SUBLEVEL = 17
- +EXTRAVERSION = -pre4
--- 
+-SUBLEVEL = 16
+-EXTRAVERSION =
++SUBLEVEL = 17
++EXTRAVERSION = -pre4
 
-André Dahlqvist <andre.dahlqvist@telia.com>
+cheers,
+-chris

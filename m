@@ -1,69 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272609AbRIFVUm>; Thu, 6 Sep 2001 17:20:42 -0400
+	id <S267196AbRIFVzs>; Thu, 6 Sep 2001 17:55:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272607AbRIFVUd>; Thu, 6 Sep 2001 17:20:33 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:60165 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S272606AbRIFVUP>; Thu, 6 Sep 2001 17:20:15 -0400
-Date: Thu, 6 Sep 2001 23:20:33 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: jamal <hadi@cyberus.ca>
-Cc: Wietse Venema <wietse@porcupine.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        kuznet@ms2.inr.ac.ru, Matthias Andree <matthias.andree@gmx.de>,
-        linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-        netdev@oss.sgi.com
-Subject: Re: [PATCH] ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
-Message-ID: <20010906232033.L13547@emma1.emma.line.org>
-Mail-Followup-To: jamal <hadi@cyberus.ca>,
-	Wietse Venema <wietse@porcupine.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, kuznet@ms2.inr.ac.ru,
-	linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-	netdev@oss.sgi.com
-In-Reply-To: <20010906204104.A3FBDBC06C@spike.porcupine.org> <Pine.GSO.4.30.0109061643030.14727-100000@shell.cyberus.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.30.0109061643030.14727-100000@shell.cyberus.ca>
-User-Agent: Mutt/1.3.22.1i
+	id <S267534AbRIFVzj>; Thu, 6 Sep 2001 17:55:39 -0400
+Received: from amsfep15-int.chello.nl ([213.46.243.27]:31843 "EHLO
+	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id <S267196AbRIFVzS>; Thu, 6 Sep 2001 17:55:18 -0400
+Message-ID: <3B97EFE0.30703@chello.nl>
+Date: Thu, 06 Sep 2001 23:51:28 +0200
+From: Gerbrand van der Zouw <g.vanderzouw@chello.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010628
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: tegeran@home.com, linux-kernel@vger.kernel.org
+Subject: Re: K7/Athlon optimizations again. (The sacrifices worked??) (VIA KT133A chipset)
+In-Reply-To: <01090613553103.00465@c779218-a>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 06 Sep 2001, jamal wrote:
+Nicholas Knight wrote:
 
-> Which part dont you understand?
-> 
-> Youve been told about 1000 times already, but let me shout:
-> 
-> YOU CAN GET THE INFORAMTION YOU WANT IF YOU USE NETLINK.
+> I'd be curious if it's an issue with only one brand or release of BIOS
+> then.
 
-Calm down. Please. This discussion is about portability. I'm not
-striving to turn Linux into FreeBSD, and neither is Wietse.
 
-Not personally addressed to anyone, but for all Linux hackers to
-consider are the following parts:
+Hi,
 
-See it from the user-space programmer's point of view. Imagine you're
-developing your software on FreeBSD or Solaris, or whatever. Now imagine
-a client/user asks you about Linux support. You figure Linux does an
-ioctl differently than BSD - that's all you see in the first place. You
-start wondering, tracking, debugging, end up reading kernel sources, and
-you see the difference. You go for support, and all you hear is "well,
-we want to keep this non-portable for egoistic compatibility reasons,
-use netlink instead". As to netlink, "go get ip of iproute2 and see how
-it does things".
+I am one of the person reporting success with some BIOS version over 
+another. I have been experimenting some more and found the following:
 
-The programmer of a portable application is annoyed and frustrated
-because it's just another fucking subtle API difference, and it
-coincides with a boggled and outdated netdevice(7) man page.
+Sytem:
+Board: MSI K7T Turbo (MS-6330)
+CPU: Athlon 1.2 GHz
+Video: NVidia GF2
+Kernel: 2.4.6ac5 with the patch Kurt Garloff posted here some while ago 
+(can't find the right reference)
 
-It's not a sign of quality if Linux man pages are updated months after
-the code either.
+Ranking from very unstable to stable:
+Very unstable: 2.4.6 plain, Award V2.7 Bios (i.e. without the 
+Southbridge bug solved the official VIA way)
+Unstable: 2.4.6ac5 with or without Kurt's patch, Award V2.7 Bios
+Stable (up to now): 2.4.6ac5 with Kurt's patch and Award V2.8 Bios.
 
-Does anyone think these issues help Linux or get Linux anywhere except
-to bad reputation?
+The key factor seemed to be the BIOS. The MSI website says that the 
+following things changed between release 2.7 and 2.8:
+- Fix STR Fail on MS-6330Lite.
+- Fix 3Dmark 2001 sometimes halt
+- Fix K7T Turbo Limited cannot adjust vcore
 
-There are a lot of competent people with their hands on Linux, and
-generally, Linux works well, and people are helpful, but sometimes,
-developers seem to lose the more global view. Linux is not longer an end
-in itself. Please don't let portability slip from your view.
+Only the second fix seems applicable to my mobo, but the description 
+does not give a clue.
+
+I hope that someone can distill something useful out of this. I am of 
+course willing to try some other combination of parameters if this would 
+help finding the source of the problem.
+
+
+Cheers,
+
+Gerbrand van der Zouw
+
+
+
+

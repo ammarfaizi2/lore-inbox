@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265196AbTAJOR1>; Fri, 10 Jan 2003 09:17:27 -0500
+	id <S265074AbTAJOUd>; Fri, 10 Jan 2003 09:20:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265169AbTAJOR1>; Fri, 10 Jan 2003 09:17:27 -0500
-Received: from angband.namesys.com ([212.16.7.85]:60868 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S265196AbTAJOR0>; Fri, 10 Jan 2003 09:17:26 -0500
-Date: Fri, 10 Jan 2003 17:26:07 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Pascal Junod <pascal.junod@epfl.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: KERNEL BUG: assertion failure in reiserfs code
-Message-ID: <20030110172607.B9028@namesys.com>
-References: <Pine.LNX.4.44.0301101340520.1906-100000@lasecpc10.epfl.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301101340520.1906-100000@lasecpc10.epfl.ch>
-User-Agent: Mutt/1.3.22.1i
+	id <S265039AbTAJOUd>; Fri, 10 Jan 2003 09:20:33 -0500
+Received: from ophelia.ess.nec.de ([193.141.139.8]:65175 "EHLO
+	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
+	id <S265190AbTAJOUS> convert rfc822-to-8bit; Fri, 10 Jan 2003 09:20:18 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Erich Focht <efocht@ess.nec.de>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: small migration thread fix
+Date: Fri, 10 Jan 2003 15:29:33 +0100
+User-Agent: KMail/1.4.3
+Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@tech9.net>
+References: <200301101346.03653.efocht@ess.nec.de> <20030110131100.GS23814@holomorphy.com>
+In-Reply-To: <20030110131100.GS23814@holomorphy.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301101529.33302.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Friday 10 January 2003 14:11, William Lee Irwin III wrote:
+> I'm not mingo, but I can say this looks sane. My only question is
+> whether there are more codepaths that need this kind of check, for
+> instance, what happens if someone does set_cpus_allowed() to a cpumask
+> with !(task->cpumask & cpu_online_map) ?
 
-On Fri, Jan 10, 2003 at 01:49:37PM +0100, Pascal Junod wrote:
+The piece of code below was intended for that. I agree with Rusty's
+comment, BUG() is too strong for that case. 
 
-> My /tmp partition is using reiserfs and I get following message when
-> copying a large file on it (there is enough room, and fsck.reiserfs says
-> everything is ok...). Is this issue known ? My kernel version is the
-> linux-2.4.19-gentoo-r10 one.
+#if 0 /* FIXME: Grab cpu_lock, return error on this case. --RR */
+	new_mask &= cpu_online_map;
+	if (!new_mask)
+		BUG();
+#endif
 
-This is issue is not know, but on the way to 2.4.20 the block allocator in
-reiserfs was replaced with another one.
+Anyhow, changing the new_mask in this way is BAD, because the masks
+are inherited. So when more CPUs come online, they remain excluded
+from the mask of the process and it's children.
 
-> Jan 10 13:38:34 lasecpc29 kernel: vs-4010: is_reusable: block number is out of range 248999 (248999)
+The fix suggested in the comments still has to be done...
 
-Hm... Very strange. I cannot think off hand have that might happen.
-Can you reproduce it somehow?
+Regards,
+Erich
 
-Thanks for the report
-
-Bye,
-    Oleg

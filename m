@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265241AbUD3Tx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265243AbUD3T5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265241AbUD3Tx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 15:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265242AbUD3Tx5
+	id S265243AbUD3T5R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 15:57:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265244AbUD3T5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 15:53:57 -0400
-Received: from piedra.unizar.es ([155.210.11.65]:7324 "EHLO relay.unizar.es")
-	by vger.kernel.org with ESMTP id S265241AbUD3Txz (ORCPT
+	Fri, 30 Apr 2004 15:57:17 -0400
+Received: from vena.lwn.net ([206.168.112.25]:55465 "HELO lwn.net")
+	by vger.kernel.org with SMTP id S265243AbUD3T5N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 15:53:55 -0400
-Date: Fri, 30 Apr 2004 21:53:51 +0200
-From: Jorge Bernal <koke_lkml@amedias.org>
+	Fri, 30 Apr 2004 15:57:13 -0400
+Message-ID: <20040430195711.16275.qmail@lwn.net>
 To: linux-kernel@vger.kernel.org
-Subject: strange delays on console logouts (tty != 1)
-Message-ID: <20040430195351.GA1837@amedias.org>
-Reply-To: koke@amedias.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Subject: [MICROPATCH] Make x86_64 build work without GART_IOMMU
+cc: ak@suse.de
+From: Jonathan Corbet <corbet@lwn.net>
+Date: Fri, 30 Apr 2004 13:57:11 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since some days ago I'm using the console more than X and I have a
-strange problem.
+If you try to build a 2.6.6-rc3 kernel with CONFIG_GART_IOMMU turned off,
+the link fails because bad_dma_address is undefined.  This little hack just
+defines the variable in pci-nommu.c as well.  It may not be an optimal fix,
+but it does make the kernel build.
 
-On tty's != 1 it takes a long time (~20-30 secs) from logout to next
-login but on tty1 it takes a normal time.
+Why do I care?  My Radeon 9200SE goes nuts if I build a GART-enabled
+kernel.  Haven't figured out why...
 
-If I launch getty on tty9 and logout (in tty9) getty ends inmediately
-and I can start it again and get another login.
+jon
 
-I'm not sure if it actually has something to do with the kernel (maybe
-with /sbin/init). dmesg doesn't say anything about that.
-
-Thanks,
-	Koke
-
--- 
-"Sólo el éxito diferencia al genio del loco"
-
-Blog: http://www.amedias.org/koke
-Web Personal: http://sindominio.net/~koke/
-JID: koke@zgzjabber.ath.cx
+--- 2.6.6-rc3-slab/arch/x86_64/kernel/pci-nommu.c.orig	2004-02-06 00:51:20.000000000 -0700
++++ 2.6.6-rc3-slab/arch/x86_64/kernel/pci-nommu.c	2004-04-30 13:40:35.000000000 -0600
+@@ -5,6 +5,7 @@
+ #include <asm/proto.h>
+ 
+ int iommu_merge = 0;
++dma_addr_t bad_dma_address;
+ 
+ /* 
+  * Dummy IO MMU functions

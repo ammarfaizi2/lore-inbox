@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263077AbTJPRqP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 13:46:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbTJPRqP
+	id S263069AbTJPRpn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 13:45:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263077AbTJPRpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 13:46:15 -0400
-Received: from adsl-66-127-195-58.dsl.snfc21.pacbell.net ([66.127.195.58]:47806
-	"EHLO panda.mostang.com") by vger.kernel.org with ESMTP
-	id S263077AbTJPRqL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 13:46:11 -0400
-To: linux-kernel@vger.kernel.org
+	Thu, 16 Oct 2003 13:45:43 -0400
+Received: from waste.org ([209.173.204.2]:11936 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S263069AbTJPRpl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 13:45:41 -0400
+Date: Thu, 16 Oct 2003 12:45:26 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Jeff Garzik <jgarzik@pobox.com>,
+       Eli Billauer <eli_billauer@users.sourceforge.net>,
+       linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>
 Subject: Re: [RFC] frandom - fast random generator module
-References: <HbGf.8rL.1@gated-at.bofh.it> <HbQ5.ep.27@gated-at.bofh.it> <Hdyv.2Vd.13@gated-at.bofh.it> <HeE6.4Cc.1@gated-at.bofh.it> <HjaT.3nN.7@gated-at.bofh.it> <Hjkw.3Al.11@gated-at.bofh.it>
-From: David Mosberger-Tang <David.Mosberger@acm.org>
-Date: 16 Oct 2003 10:46:10 -0700
-In-Reply-To: <Hjkw.3Al.11@gated-at.bofh.it>
-Message-ID: <ugzng1axel.fsf@panda.mostang.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+Message-ID: <20031016174526.GM5725@waste.org>
+References: <3F8E552B.3010507@users.sf.net> <3F8E58A9.20005@cyberone.com.au> <3F8E70E0.7070000@users.sf.net> <3F8E8101.70009@pobox.com> <20031016102020.A7000@schatzie.adilger.int>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031016102020.A7000@schatzie.adilger.int>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 16 Oct 2003 18:40:12 +0200, Jeff Garzik <jgarzik@pobox.com> said:
+On Thu, Oct 16, 2003 at 10:20:20AM -0600, Andreas Dilger wrote:
+> On Oct 16, 2003  07:29 -0400, Jeff Garzik wrote:
+> > Eli Billauer wrote:
+> > > I suppose you're asking why having a /dev/frandom device at all. Why not 
+> > > let everyone write their own little random generator (based upon 
+> > > well-known C functions) whenever random data is needed.
+> > > 
+> > > There are plenty of handy things in the kernel, that could be done in 
+> > > userspace. /dev/zero is my favourite example, but I'm sure there are 
+> > > other cases where things were put in the kernel simply because people 
+> > > found them handy. Which is a good reason, if you ask me.
+> > 
+> > This is completely bogus logic.  I can use this (incorrect) argument to 
+> > similar push for applications doing bsearch(3) or qsort(3) via a system 
+> > call.
+> > 
+> > When the _implementation_ requires that a piece of code be in-kernel 
+> > (for performance or security, usually), it is.
+> 
+> Actually, there are several applications of low-cost RNG inside the kernel.
+> 
+> For Lustre we need a low-cost RNG for generating opaque 64-bit handles in
+> the kernel.  The use of get_random_bytes() showed up near the top of
+> our profiles and we had to invent our own low-cost crappy PRNG instead (it's
+> good enough for the time being, but when we start working on real security
+> it won't be enough).
 
-  Jeff> We don't need "low cost RNG" and "high cost RNG" in the same
-  Jeff> kernel. That just begs a "reduce RNG cost" solution...  I
-  Jeff> think security experts can easily come up with arguments as to
-  Jeff> why creating your own "low-cost crappy PRNG" isn't needed --
-  Jeff> you either need crypto-secure, or you don't.  If you don't,
-  Jeff> then you could just as easily create an ascending 64-bit
-  Jeff> number for your opaque filehandle, or use a hash value, or
-  Jeff> some other solution that doesn't require an additional PRNG in
-  Jeff> the kernel.
+Is this SMP? If so, how many processors? I wonder if you might be
+running into some lock contention in the pool entropy transfer -
+there's a lock held while mixing new samples into a given pool that
+could potentially be a hit.
 
-I don't think that's true.  For example, the perfmon module in ia64
-needs a fast pseudo-random number generator in order to randomize
-sampling intervals.  It doesn't have to be a great RNG (certainly not
-crypto-secure), but it does have to have reasonable properties to
-avoid statistical bias.  We have tried without in-kernel RNG and the
-results were unusable (e.g., resetting the sampling intervals in
-user-space was far too costly and not randomizing the sampling
-intervals caused horrible bias).  The RNG we settled on for now is the
-Carta's (see arch/ia64/lib/carta_random.S), which is quite fast and
-compact (all of 19 machine instructions).
+Beyond that, there are a couple small multiples that can be squeezed
+out of the extraction path for a total of 5-10x.
+ 
+> The tcp sequence numbers probably do not need to be crypto-secure (I could
+> of course be wrong on that ;-)
 
-	--david
---
-David Mosberger; 35706 Runckel Lane; Fremont, CA 94536; David.Mosberger@acm.org
+Indeed you are.
+
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

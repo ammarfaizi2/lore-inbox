@@ -1,88 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262362AbVBQTfc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbVBQTcU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262362AbVBQTfc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 14:35:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262400AbVBQTco
+	id S262373AbVBQTcU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 14:32:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVBQTcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 14:32:44 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26544 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262347AbVBQTWy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 14:22:54 -0500
-Message-ID: <4214EEF6.4030309@pobox.com>
-Date: Thu, 17 Feb 2005 14:22:30 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Thu, 17 Feb 2005 14:32:13 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:57475 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262376AbVBQTZ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 14:25:56 -0500
+From: Pat Gefre <pfg@sgi.com>
+Message-Id: <200502171925.j1HJPmAC107576@fsgi900.americas.sgi.com>
+Subject: [PATCH] 2.6 Altix : Ignore input during early boot
+To: linux-kernel@vger.kernel.org
+Date: Thu, 17 Feb 2005 13:25:47 -0600 (CST)
+Cc: akpm@osdl.org
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: Matthew Wilcox <matthew@wil.cx>
-CC: Christophe Lucas <c.lucas@ifrance.com>, kernel-janitors@lists.osdl.org,
-       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: [KJ] [PATCH] drivers/char/watchdog/* : pci_request_regions
-References: <20050214150111.GH20620@rhum.iomeda.fr> <20050214151244.GF29917@parcelfarce.linux.theplanet.co.uk> <4214E728.3030501@pobox.com> <20050217190408.GW29917@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20050217190408.GW29917@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
-> On Thu, Feb 17, 2005 at 01:49:12PM -0500, Jeff Garzik wrote:
-> 
->>Matthew Wilcox wrote:
->>
->>>On Mon, Feb 14, 2005 at 04:01:11PM +0100, Christophe Lucas wrote:
->>>
->>>
->>>>If PCI request regions fails, then someone else is using the
->>>>hardware we wish to use. For that one case, calling
->>>>pci_disable_device() is rather rude.
->>>>See : http://www.ussg.iu.edu/hypermail/linux/kernel/0502.1/1061.html
->>>
->>>
->>>Actually, that isn't necessarily true.  If the request_regions call fails,
->>>that can mean there's a resource conflict.  If so, leaving the device
->>>enabled is the worst possible thing to do as we'll now have two devices
->>>trying to respond to the same io accesses.
->>
->>Incorrect.  If request_region() fails, drivers are coded to _not_ touch 
->>the hardware.  That's the entire purpose of the whole charade: to avoid 
->>having two devices responding to the same io accesses.
->>
->>If your driver is talking to the hardware after request_region() fails, 
->>it is BROKEN plain and simple.
-> 
-> 
-> I don't think you understood my point.  Assume we really do have two
-> devices in the system with clashing resource settings.  Yes, I really
-> have seen this happen; it's rare.
-> 
-> While the PCI device is disabled, there is no problem.  But then we call
-> pci_enable_device(), so now the device is enabled to respond to IO and
-> memory resources in its BARs.
-> 
-> At the point we discover this, we need to disable the PCI device again
-> -- exactly the opposite behaviour from your case where we need to leave
-> the PCI device enabled when we have resource conflicts.
+2.6 Altix console patch to ignore input during early booting
 
-> I think the only way to fix this is have pci_enable_device claim the
-> resources for the BARs before enabling the PCI device to respond to the
-> resources; that way we leave the enable bits the way they currently are.
-> No, this doesn't cure the world's ills, but it does obey "First, do
-> no harm".  One way it'll fail is if the other driver loads after the PCI
-> driver that claims this resource.
+Signed-off-by: Patrick Gefre <pfg@sgi.com>
 
-Ok, I agree with this, it echoes what I said in another message in this 
-thread ;-)  namely,
-
-* the fact that pci_enable_device() does not claim the resources is a 
-problem.  pci_request_regions() should not be a separate step.
-
-* the fact that pci_disable_device() does not perform the _exact_ 
-opposite of the operations that pci_enable_device() performed is a 
-problem.  pci_disable_device() should not just unconditionally stop the 
-decoder bits, then exit.
-
-	Jeff
+#### diffstat
+ sn_console.c |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
 
 
+
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/02/17 13:15:56-06:00 pfg@sgi.com 
+#   Don't bother checking for input during early printing
+# 
+# drivers/serial/sn_console.c
+#   2005/02/17 13:15:43-06:00 pfg@sgi.com +5 -2
+#   Don't bother checking for input during early printing
+#   Update copyright
+# 
+diff -Nru a/drivers/serial/sn_console.c b/drivers/serial/sn_console.c
+--- a/drivers/serial/sn_console.c	2005-02-17 13:19:01 -06:00
++++ b/drivers/serial/sn_console.c	2005-02-17 13:19:01 -06:00
+@@ -6,7 +6,7 @@
+  * driver for that.
+  *
+  *
+- * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
++ * Copyright (c) 2004-2005 Silicon Graphics, Inc.  All Rights Reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms of version 2 of the GNU General Public License
+@@ -104,6 +104,7 @@
+ };
+ 
+ static struct sn_cons_port sal_console_port;
++static int sn_process_input;
+ 
+ /* Only used if USE_DYNAMIC_MINOR is set to 1 */
+ static struct miscdevice misc;	/* used with misc_register for dynamic */
+@@ -681,7 +682,8 @@
+ 
+ 	if (!port->sc_port.irq) {
+ 		spin_lock_irqsave(&port->sc_port.lock, flags);
+-		sn_receive_chars(port, NULL, flags);
++		if ( sn_process_input )
++			sn_receive_chars(port, NULL, flags);
+ 		sn_transmit_chars(port, TRANSMIT_RAW);
+ 		spin_unlock_irqrestore(&port->sc_port.lock, flags);
+ 		mod_timer(&port->sc_timer,
+@@ -878,6 +880,7 @@
+ 	if (!IS_RUNNING_ON_SIMULATOR()) {
+ 		sn_sal_switch_to_interrupts(&sal_console_port);
+ 	}
++	sn_process_input = 1;
+ 	return 0;
+ }

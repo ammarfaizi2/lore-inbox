@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265060AbUBOPXn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 10:23:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265045AbUBOPW0
+	id S264974AbUBOPsC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 10:48:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265061AbUBOPsC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 10:22:26 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:44767 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264974AbUBOPWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 10:22:21 -0500
-Date: Sat, 14 Feb 2004 00:19:01 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Jens Axboe <axboe@suse.de>
-Cc: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0, cdrom still showing directories after being erased
-Message-ID: <20040213231900.GI6804@openzaurus.ucw.cz>
-References: <20040205203336.GE10547@stud.uni-erlangen.de> <20040205205421.GE11683@suse.de>
+	Sun, 15 Feb 2004 10:48:02 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:5101 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S264974AbUBOPr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 10:47:59 -0500
+Date: Sun, 15 Feb 2004 16:47:56 +0100
+From: Michael Meskes <michael@fam-meskes.de>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Michael Meskes <michael@fam-meskes.de>,
+       Linux-Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: atkbd.c: Unknown key released/psmouse
+Message-ID: <20040215154756.GA5629@trantor.fam-meskes.de>
+References: <20040214143410.GA2334@1> <20040214152127.GA397@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040205205421.GE11683@suse.de>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <20040214152127.GA397@ucw.cz>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:da5cff6069dd6897c77170232368d0ba
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi!
+On Sat, Feb 14, 2004 at 04:21:27PM +0100, Vojtech Pavlik wrote:
+> Please try eith 2.6.3-rc, there was a bug in 2.6.2 in i8042.c that could
+> cause all kinds of errors like this.
 
-> > The linux kernel atapi layer makes a TEST UNIT READY and if the media
-> > has changed the cdrom does return an ERR_STAT with a UNIT_ATTENTION
-> > which means that the medium has changed. IF that this the case the
-> > kernel flushes it's buffers.
-> 
-> So the drive ought to report media changed if it knowingly over wrote
-> the table of contents, for instance.
-> 
+I just tried -rc2 and -rc3 to no avail. The situation remains the same.
+And I do not know enough about the serial input stuff to debug it
+myself. I'm willing to try what you ask me to.
 
-Why? Media did not change.
-
-You would need cdrom to report media change on each write,
-but that would break packet writing. We should fix
-kernel/cdrecord, not break hw.
-
+Michael
 -- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+Michael Meskes
+Email: Michael at Fam-Meskes dot De
+ICQ: 179140304, AIM/Yahoo: michaelmeskes, Jabber: meskes@jabber.org
+Go SF 49ers! Go Rhein Fire! Use Debian GNU/Linux! Use PostgreSQL!

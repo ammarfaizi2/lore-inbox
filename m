@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265117AbUASO1B (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 09:27:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265113AbUASO1A
+	id S265125AbUASOXm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 09:23:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265136AbUASOXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 09:27:00 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:48577 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265140AbUASOZQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 09:25:16 -0500
-Date: Mon, 19 Jan 2004 09:25:13 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Valentijn Sessink <linux-kernel-1074509192@mail.v.sessink.nl>
-cc: linux-kernel@vger.kernel.org
+	Mon, 19 Jan 2004 09:23:41 -0500
+Received: from openoffice.demon.nl ([212.238.150.237]:28947 "EHLO
+	sahara.openoffice.nl") by vger.kernel.org with ESMTP
+	id S265125AbUASOXO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 09:23:14 -0500
+Date: Mon, 19 Jan 2004 15:23:10 +0100
+From: Valentijn Sessink <linux-kernel-1074509192@mail.v.sessink.nl>
+To: James Morris <jmorris@redhat.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: hard crash in IPsec
-In-Reply-To: <20040119142310.GB2991@openoffice.nl>
-Message-ID: <Xine.LNX.4.44.0401190924420.330-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20040119142310.GB2991@openoffice.nl>
+References: <20040119104854.GA2991@openoffice.nl> <Xine.LNX.4.44.0401190835550.32548-100000@thoron.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Xine.LNX.4.44.0401190835550.32548-100000@thoron.boston.redhat.com>
+User-Agent: Mutt/1.3.28i
+X-Message-Flag: Open Office - Linux for the desktop
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jan 2004, Valentijn Sessink wrote:
+Hello James,
 
-> Please note that the config file that causes the crash is wrong, so a
-> documentation item that says "the Linux kernel is programmed to commit
-> suicide on brain dead IPsec configurations" will do ;-)
+At Mon, Jan 19, 2004 at 08:36:57AM -0500, James Morris wrote:
+> > 2.6.0/IPsec crashes, fully reproducable. Verified with 2.6.1.
+> Could you please verify if this still happens with Netfilter and SELinux 
+> disabled at compile time?
 
-No, it still shouldn't crash.
+It crashes as well, same "Fatal exception in interrupt" behaviour.
 
+I disabled NETFILTER and recompiled (the config_security option was off in
+the original setup already):
+# CONFIG_NETFILTER is not set
+# CONFIG_SECURITY is not set
 
-- James
+Crash! I made a picture (sorry, no serial connection here) but unfortunately
+the cable to my camera is at home, so if you need the information, you'll
+have to wait. However, I guess the problem is easily reproducable. I posted
+my .config file at http://valentijn.sessink.nl/temp/config-2.6.1-yangtse-isdn
+(this being the config with netfilter, the one that's normally running).
+
+The other end is running 2.6.1 as well, config is config-2.6.1-router
+
+Please note that the config file that causes the crash is wrong, so a
+documentation item that says "the Linux kernel is programmed to commit
+suicide on brain dead IPsec configurations" will do ;-)
+
+Best regards,
+
+Valentijn
 -- 
-James Morris
-<jmorris@redhat.com>
-
-
+http://www.openoffice.nl/   Open Office - Linux Office Solutions
+Valentijn Sessink  valentyn+sessink@nospam.openoffice.nl

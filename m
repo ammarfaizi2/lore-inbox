@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272460AbRIFMBo>; Thu, 6 Sep 2001 08:01:44 -0400
+	id <S270387AbRIFMKN>; Thu, 6 Sep 2001 08:10:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272462AbRIFMBe>; Thu, 6 Sep 2001 08:01:34 -0400
-Received: from post.rzg.mpg.de ([130.183.9.21]:32667 "EHLO post.rzg.mpg.de")
-	by vger.kernel.org with ESMTP id <S272460AbRIFMB1>;
-	Thu, 6 Sep 2001 08:01:27 -0400
-Date: Thu, 6 Sep 2001 14:01:45 +0200
-From: Karl Lehnberger <kjl@ipp.mpg.de>
-Message-Id: <200109061201.OAA34908@post.rzg.mpg.de>
-To: linux-kernel@vger.kernel.org
-Subject: Drivers for fiber optic NICs
-Cc: kjl@rzg.mpg.de
+	id <S272465AbRIFMKD>; Thu, 6 Sep 2001 08:10:03 -0400
+Received: from mercury.lss.emc.com ([168.159.40.77]:3595 "EHLO
+	mercury.lss.emc.com") by vger.kernel.org with ESMTP
+	id <S272464AbRIFMJx>; Thu, 6 Sep 2001 08:09:53 -0400
+Message-ID: <2CE33F05597DD411AAE800D0B769587C04EA0542@sryoung.lss.emc.com>
+From: "conway, heather" <conway_heather@emc.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: v2.4.9 and sequential scan
+Date: Thu, 6 Sep 2001 08:10:00 -0400 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Are there any intentions to integrate drivers for NICs (10/100 Mbps Ethernet,
-with a fiber optic as well as a copper port) into the kernel by default?
-Which drivers of the present kernel releases (2.4.x) do support
-those NICs and can automatically recognize which port is active?
-
-For kernel releases 2.2.x for instance it was rather time consuming to find 
-appropriate drivers for the NIC SMC 9432FTX-SC. For some versions of
-the 2.2.x kernel line (in particular smp kernels) it was not possible
-to get the fiber optic interface to work. Forgive me if this statement
-is no longer true, I made some tests a year ago.
-For 2.4.x kernels the default driver epic100 for this NIC is also not 
-fiber optic capable.
-
-Perhaps someone can give me some advice, especially which fiber/copper
-NICs can be called "linux compatible", i.e. an appropriate driver is integrated 
-into the kernel 2.4.x by default.
-Thanks for help!
-
-Regards,
--Karl
+Hi Folks,
+Are there any plans to change the sequential SCSI scan to REPORT_LUNS
+anytime soon?  I've installed v2.4.9 on a  system that is attached via
+Adaptec AHA-2944UWs to an external storage box and the host will end up
+panicking because it times out trying to scan for all of the LUNs.  Same
+thing goes for another host using the Qlogic qla2x00 driver.  
+Is there any timeframe for a change from sequential scanning in v2.4.x or is
+there a work around so the hosts don't panic if they're attached to external
+storage?
+Thanks for the help.
+Heather
+-
+To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

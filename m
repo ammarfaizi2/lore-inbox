@@ -1,64 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261668AbSJMWRk>; Sun, 13 Oct 2002 18:17:40 -0400
+	id <S261665AbSJMWZd>; Sun, 13 Oct 2002 18:25:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261686AbSJMWRk>; Sun, 13 Oct 2002 18:17:40 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:10615 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S261668AbSJMWRj>; Sun, 13 Oct 2002 18:17:39 -0400
-To: colpatch@us.ibm.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       LSE <lse-tech@lists.sourceforge.net>, Andrew Morton <akpm@zip.com.au>,
-       Martin Bligh <mjbligh@us.ibm.com>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>
-Subject: Re: [rfc][patch] Memory Binding API v0.3 2.5.41
-References: <3DA4D3E4.6080401@us.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 13 Oct 2002 16:22:02 -0600
-In-Reply-To: <3DA4D3E4.6080401@us.ibm.com>
-Message-ID: <m165w6m12t.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S261711AbSJMWZd>; Sun, 13 Oct 2002 18:25:33 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:61702 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261665AbSJMWZc>; Sun, 13 Oct 2002 18:25:32 -0400
+Date: Sun, 13 Oct 2002 23:31:19 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: ebiederm@xmission.com, eblade@blackmagik.dynup.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: Patch: linux-2.5.42/kernel/sys.c - warm reboot should not suspend devices
+Message-ID: <20021013233119.O23142@flint.arm.linux.org.uk>
+References: <200210132214.PAA00953@adam.yggdrasil.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200210132214.PAA00953@adam.yggdrasil.com>; from adam@yggdrasil.com on Sun, Oct 13, 2002 at 03:14:27PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dobson <colpatch@us.ibm.com> writes:
-
-> Greetings & Salutations,
-> 	Here's a wonderful patch that I know you're all dying for...  Memory
-> Binding!  It works just like CPU Affinity (binding) except that it binds a
-> processes memory allocations (just buddy allocator for now) to specific memory
-> blocks.
-> 	I've sent this out in the past, but haven't touched it in months.  Since
+On Sun, Oct 13, 2002 at 03:14:27PM -0700, Adam J. Richter wrote:
+> >There is a very good reason for calling the driver->remove() function
+> >on a reboot so that we place the devices in a consistent state.  And
+> >stop any on going DMA etc.
 > 
-> the feature freeze is rapidly approaching, I want to get this out there again
-> and see if anyone has any interest in it.
-> 	It's a fairly large patch, mostly because it includes a few odds and
-> ends that are topology related, and don't strictly belong in this patch, but are
-> 
-> pre-requisites for it (ie: the [memblk|node]_online_map stuff, and some of the
-> cleanups to page_alloc).  I'll probably try and break it up into more discrete
-> parts very soon.
+> 	A warm reboot is supposed to do this by the platform dependent
+> machine_restart(), and whatever processes machine_restart sets off
+> (e.g., by making a RESET signal active).  If a device driver needs
+> some special processing prior to that, that is what the reboot
+> notifier chain is for.
 
-Due we want this per numa area or simply per zone?  My suspicion is that
-internally at least we want this per zone.
- 
-> Questions, comments, flames, and indifferent shrugs are all welcome.
-> 
-> btw, It applies (mostly) cleanly to mm1 as well.  The mm/page_alloc.c changes
-> fail, but if anyone is interested, they'll clean up easily, and I'll send you a
-> patch.
+I'd imagine the reboot notifier chain is going away - especially as
+stuff would need to be shut down in the right order, which is one of
+the reasons we have the device model.  It already knows the right
+order.
 
-The API doesn't make much sense at the moment.
+> 	If you have a platform where, for example, somehow PCI devices
+> are able to continue jabbering away after the computer has been reset,
+> then that could probably be done more consistently for most drivers by
+> having machine_restart on that platform walk the PCI bus and shut down
+> everything (drivers that need to do something really special would
+> still use the reboot notifier).
 
-1) You are operating on tasks and not mm's, or preferably vmas.
-2) sys_mem_setbinding does not move the mm to the new binding.
-3) You specify a pid and then change current task instead of
-   the specified one.
+x86, I believe, is one example of such a platform that can leave PCI
+devices jabbering over a warm reboot.
 
-4) An ordered zone list is probably the more natural mapping.
-5) mprotect is the more natural model rather than set_cpu_affinity.
-6) The code belongs in mm/* not kernel/*
+> 	device_shutdown and device_suspend are for power management.
+> It is important to turn the device off as soon as possible if a power
+> management routine has told you that the device is not going to be
+> used any more.
 
-Eric
+I'd think the sane solution would be a device_reboot() call, and kill
+off the reboot notifier.  That's just my opinion though, given that I
+have some devices that definitely need this type of treatment.
+
+I'd rather have one registration system for this type of device
+management, not multiple random lists to register stuff with all over
+the place.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

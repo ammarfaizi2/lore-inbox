@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261426AbTBOLHg>; Sat, 15 Feb 2003 06:07:36 -0500
+	id <S261330AbTBOLGv>; Sat, 15 Feb 2003 06:06:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261456AbTBOLHg>; Sat, 15 Feb 2003 06:07:36 -0500
-Received: from mail3.bluewin.ch ([195.186.1.75]:49843 "EHLO mail3.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S261426AbTBOLHe>;
-	Sat, 15 Feb 2003 06:07:34 -0500
-Date: Sat, 15 Feb 2003 12:17:05 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
-Subject: [0/4][via-rhine] Improvements
-Message-ID: <20030215111705.GA11127@k3.hellgate.ch>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@digeo.com>
+	id <S261426AbTBOLGv>; Sat, 15 Feb 2003 06:06:51 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:21513 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261330AbTBOLGv>; Sat, 15 Feb 2003 06:06:51 -0500
+Date: Sat, 15 Feb 2003 11:16:42 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Bob Miller <rem@osdl.org>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.60 2/9] Update parport class driver to new module loader API.
+Message-ID: <20030215111642.A17769@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Bob Miller <rem@osdl.org>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+References: <20030214234557.GC13336@doc.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.5.60 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030214234557.GC13336@doc.pdx.osdl.net>; from rem@osdl.org on Fri, Feb 14, 2003 at 03:45:57PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here comes a batch of patches for the via-rhine driver. Please apply.
+On Fri, Feb 14, 2003 at 03:45:57PM -0800, Bob Miller wrote:
+> -	void (*inc_use_count)(void);
+> +	int (*inc_use_count)(void);
+>  	void (*dec_use_count)(void);
 
-via-rhine is still hardly usable on the most common Rhine hardware; it
-can't sustain 100Mbps traffic. The changes presented here improve the
-situation considerably; they fix a number of real problems and have been
-tested for regression (alas, by few people).
+This is broken.  You need
 
-Roger
+	struct module *owner;
+
+here and use try_module_et/module_put before calling into the module.
+

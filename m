@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129210AbRBMMaq>; Tue, 13 Feb 2001 07:30:46 -0500
+	id <S129418AbRBMMkv>; Tue, 13 Feb 2001 07:40:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129418AbRBMMag>; Tue, 13 Feb 2001 07:30:36 -0500
-Received: from host217-32-132-155.hg.mdip.bt.net ([217.32.132.155]:2564 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S129210AbRBMMaX>;
-	Tue, 13 Feb 2001 07:30:23 -0500
-Date: Tue, 13 Feb 2001 12:33:01 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: lost charaters -- this is becoming annoying!
-In-Reply-To: <E14SdoB-0001XQ-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0102131230120.726-100000@penguin.homenet>
+	id <S129536AbRBMMkk>; Tue, 13 Feb 2001 07:40:40 -0500
+Received: from srv01s4.cas.org ([134.243.50.9]:30876 "EHLO srv01.cas.org")
+	by vger.kernel.org with ESMTP id <S129418AbRBMMk0>;
+	Tue, 13 Feb 2001 07:40:26 -0500
+From: Mike Harrold <mharrold@cas.org>
+Message-Id: <200102131240.HAA28994@mah21awu.cas.org>
+Subject: Re: [LK] Re: lkml subject line
+To: mharris@opensourceadvocate.org (Mike A. Harris)
+Date: Tue, 13 Feb 2001 07:40:11 -0500 (EST)
+Cc: mharrold@cas.org (Mike Harrold), lmb@suse.de (Lars Marowsky-Bree),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0102130350420.1123-100000@asdf.capslock.lan> from "Mike A. Harris" at Feb 13, 2001 03:53:13 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+> 
+> On Mon, 12 Feb 2001, Mike Harrold wrote:
+> 
+> >> Those would all be your problems and I would suggest using a different account
+> >> for mail then.
+> >
+> >Out of interest, how would that solve anything? So I use an ISP instead.
+> >Then I have to download all my mail to home to read it. Talk about a
+> >total waste of time.
+> >
+> >It's hard enough tracking my mail as it is, let alone having to have another
+> >account just to handle a certain mailing list.
+> 
+> 2 words:  Your problem.  Many have suggested solutions, but
+> you're playing the "I don't care, I want it my way and I don't
+> care what you say" game, of which nobody is going to budge on,
+> especially for one single person who is being unreasonable.
 
-I am now running 2.2.19-pre9 and it is working fine. Also, just in case, I
-retyped this same message in pine in xterm and on the console. No
-character loss whatsoever. Also, licq stopped losing characters as well.
+Errr, you're jumping to a few conclusions here. Thanks to some off-list
+emails I have a solution in place that allows me to filter the list
+quite adequately thank you.
 
-I will continue using 2.2.19-pre9 until the evening and report anything
-suspicious.
+Maybe you should read ALL the mails on a topic before responding (and
+then having to respons 5 times)?
 
 Regards,
-Tigran
 
-
-On Tue, 13 Feb 2001, Alan Cox wrote:
-
-> > > When you say 2.2.x works does that include 2.2.18.
-> > 
-> > no, I meant the plain 2.2.x as of Red Hat 7.0 which is labelled as
-> > "2.2.16-22".
-> 
-> Can you try 2.2.18/2.2.19pre. Those if my first guess is right will behave
-> like 2.4 does to you.
-> 
-> 
-> 
-
+/Mike
 

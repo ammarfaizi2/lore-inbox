@@ -1,99 +1,222 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbULNXR3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261747AbULNXTT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261761AbULNXR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 18:17:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbULNXQ0
+	id S261747AbULNXTT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 18:19:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbULNXSr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 18:16:26 -0500
-Received: from dfw-gate2.raytheon.com ([199.46.199.231]:12085 "EHLO
-	dfw-gate2.raytheon.com") by vger.kernel.org with ESMTP
-	id S261747AbULNXMm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 18:12:42 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc3-mm1-V0.7.33-0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF48DAA6CB.4EA3A6BD-ON86256F6A.007B5393@raytheon.com>
-From: Mark_H_Johnson@Raytheon.com
-Date: Tue, 14 Dec 2004 17:11:44 -0600
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 12/14/2004 05:11:49 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+	Tue, 14 Dec 2004 18:18:47 -0500
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:16359 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S261747AbULNXRD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 18:17:03 -0500
+Date: Wed, 15 Dec 2004 00:16:49 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Con Kolivas <kernel@kolivas.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: USB making time drift [was Re: dynamic-hz]
+Message-ID: <20041214231649.GR16322@dualathlon.random>
+References: <20041213002751.GP16322@dualathlon.random> <Pine.LNX.4.61.0412121817130.16940@montezuma.fsmlabs.com> <20041213112853.GS16322@dualathlon.random> <20041213124313.GB29426@atrey.karlin.mff.cuni.cz> <20041213125844.GY16322@dualathlon.random> <20041213191249.GB1052@elf.ucw.cz> <20041214023651.GT16322@dualathlon.random> <20041214095939.GC1063@elf.ucw.cz> <20041214152558.GB16322@dualathlon.random> <20041214220239.GA19221@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041214220239.GA19221@elf.ucw.cz>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A comparison of PREEMPT_RT (with tracing) to PREEMPT_DESKTOP
-(with tracing). Due to the tracing overheads (and the results
-I measured in the last few days), I'll report on percentages
-within 200 usec for RT and 100 usec on PK to make it "more fair".
+On Tue, Dec 14, 2004 at 11:02:39PM +0100, Pavel Machek wrote:
+> How much drift do you see?
 
-Comparison of .33-00RT and .33-00PK results
-00RT has PREEMPT_RT
-00PK has PREEMPT_DESKTOP and no threaded IRQ's
-2.4 has lowlat + preempt patches applied
+huge drift, minutes per hour or similar.
 
-  within 200/100 usec
-       CPU loop (%)   Elapsed Time (sec)    2.4
-Test   RT     PK        RT      PK   |   CPU  Elapsed
-X     96.78  99.88      90 *    83+* |  97.20   70
-top   93.87 100.00      36 *    31+  |  97.48   29
-neto  99.17 100.00     340 *   193+  |  96.23   36
-neti  99.13  98.39     340 *   280 * |  95.86   41
-diskw 98.04 100.00?    350 *   310+  |  77.64   29
-diskc 95.56  99.94     350 *   310+  |  84.12   77
-diskr 90.77  99.94     220 *   310+  |  90.66   86
-total                 1726    1517   |         368
- [higher is better]  [lower is better]
-* wide variation in audio duration
-+ long stretch of audio duration "too fast"
-? I believe I had non RT starvation & this result is in error
-[chart shows a typical results for about 20 seconds and then
-gets "really smooth" like the top chart for the remainder of
-the measured duration]
+> I have machine with UHCI here, and am using usb most of the time
+> (bluetooth for gprs connection), and did not notice too bad
+> drift. ntpdate does some adjustment each time I connect to the
+> network, but it 
 
-The percentages are all within a handful of a percent so these
-results look pretty comparable.
+Could be it happens only with my usb chipset or only with the adsl modem
+with the usermode driver.
 
-Looking at ping response time:
-  RT 0.226 / 0.486 / 2.475 / 0.083 msec
-  PK 0.102 / 0.174 / 0.813 / 0.054 msec
-for min / average / max / mdev values. Again, tracing penalizes
-RT much more than PK so this is to be expected.
+You can just write the proggy doing iopl cli/sti in a loop (keeping irqs
+off for 3/4msec a few times per second like my usb modem does), you
+should be able to see the drift in any machine without requiring an adsl
+modem.
 
-The maximum duration of the CPU loop (as measured by the
-application) is in the range of 2.05 msec to 3.30 compared
-to the nominal 1.16 msec duration for -00RT. The equivalent
-numbers for -00PK are 1.21 to 2.61 msec. I would expect RT
-to be better than PK on this measure, but it never seems to
-be the result I measure.
+This was the status of my last attempt to fix it a few weeks ago. Patch
+fixes a few unrelated bits. But the core of the below patch is actually
+wrong, previous code did the right thing even if this works better in
+practice. so I had not much motivation to extract the good bits until I
+find the source of the big screwup in system time.
 
-Based on the number of latency_trace files, -00RT still
-is far better than -00PK. In particular, I get some extended
-delays in -00PK from:
- - network (I have an 2000 usec example!)
- - rcu_process_callbacks (around 250 usec)
- - clear_page_range (around 170 usec)
- - free_pages_and_swap_cache (around 140 usec)
- - do_no_page (around 170 usec)
- - ide [IRQ?] (around 200 usec)
- - journal_remove_journal_head (> 1000 usec)
- - do_wait / wait_task_zombie (around 200 usec)
-A fix to the network & journaling latencies would be helpful.
-The others are certainly less important. I'll send the traces
-separately.
+I probably should do any further debugging with an userspace simulation
+(i.e. the iopl + cli/sti in a loop) within qemu.
 
-Also, if you get some odd trace results on an SMP system,
-Ingo already has some fixes applied in response to some buglets
-I found & reported separately.
-
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
-
+--- sp1/arch/i386/kernel/timers/timer_tsc.c.~1~	2004-04-04 08:08:48.000000000 +0200
++++ sp1/arch/i386/kernel/timers/timer_tsc.c	2004-11-22 06:01:21.725371368 +0100
+@@ -39,6 +39,7 @@ static unsigned long last_tsc_low; /* ls
+ static unsigned long last_tsc_high; /* msb 32 bits of Time Stamp Counter */
+ static unsigned long long monotonic_base;
+ static seqlock_t monotonic_lock = SEQLOCK_UNLOCKED;
++static int report_lost_ticks; /* command line option */
+ 
+ /* convert from cycles(64bits) => nanoseconds (64bits)
+  *  basic equation:
+@@ -69,8 +70,6 @@ static inline unsigned long long cycles_
+ }
+ 
+ 
+-static int count2; /* counter for mark_offset_tsc() */
+-
+ /* Cached *multiplier* to convert TSC counts to microseconds.
+  * (see the equation below).
+  * Equal to 2^32 * (1 / (clocks per usec) ).
+@@ -153,11 +152,12 @@ unsigned long long sched_clock(void)
+ 
+ static void mark_offset_tsc(void)
+ {
+-	unsigned long lost,delay;
++	unsigned long ticks;
+ 	unsigned long delta = last_tsc_low;
+-	int count;
+-	int countmp;
+-	static int count1 = 0;
++	unsigned int count;
++	unsigned int countmp;
++	static unsigned int count1 = 0, count2 = LATCH;
++
+ 	unsigned long long this_offset, last_offset;
+ 	static int lost_count = 0;
+ 	
+@@ -175,12 +175,11 @@ static void mark_offset_tsc(void)
+ 	 * has the SA_INTERRUPT flag set. -arca
+ 	 */
+ 	
+-	/* read Pentium cycle counter */
+-
+-	rdtsc(last_tsc_low, last_tsc_high);
+ 
+ 	spin_lock(&i8253_lock);
+-	outb_p(0x00, PIT_MODE);     /* latch the count ASAP */
++
++	/* read Pentium cycle counter and latch the count ASAP */
++	rdtsc(last_tsc_low, last_tsc_high); outb_p(0x00, PIT_MODE);
+ 
+ 	count = inb_p(PIT_CH0);    /* read the latched count */
+ 	count |= inb(PIT_CH0) << 8;
+@@ -198,7 +197,7 @@ static void mark_offset_tsc(void)
+ 
+ 	spin_unlock(&i8253_lock);
+ 
+-	if (pit_latch_buggy) {
++	if (unlikely(pit_latch_buggy)) {
+ 		/* get center value of last 3 time lutch */
+ 		if ((count2 >= count && count >= count1)
+ 		    || (count1 >= count && count >= count2)) {
+@@ -223,11 +222,10 @@ static void mark_offset_tsc(void)
+ 		 "0" (eax));
+ 		delta = edx;
+ 	}
+-	delta += delay_at_last_interrupt;
+-	lost = delta/(1000000/HZ);
+-	delay = delta%(1000000/HZ);
+-	if (lost >= 2) {
+-		jiffies_64 += lost-1;
++	//delta += delay_at_last_interrupt;
++	ticks = delta/(1000000/HZ);
++	if (unlikely(ticks >= 2)) {
++		jiffies_64 += ticks-1;
+ 
+ 		/* sanity check to ensure we're not always losing ticks */
+ 		if (lost_count++ > 100) {
+@@ -241,6 +239,20 @@ static void mark_offset_tsc(void)
+ 
+ 			clock_fallback();
+ 		}
++
++		{
++			static u64 last_lost_tick;
++			if (last_lost_tick <= jiffies_64) {
++				printk(KERN_WARNING "Compensate %ld timer tick(s)\n", ticks-1);
++				dump_stack();
++				if  (report_lost_ticks)
++					/* max 1 per sec */
++					last_lost_tick = jiffies_64 + HZ;
++				else
++					/* force dump of lost ticks information not more than 1 per day */
++					last_lost_tick = jiffies_64 + 60*60*24*HZ;
++			}
++		}
+ 	} else
+ 		lost_count = 0;
+ 	/* update the monotonic base value */
+@@ -248,16 +260,14 @@ static void mark_offset_tsc(void)
+ 	monotonic_base += cycles_2_ns(this_offset - last_offset);
+ 	write_sequnlock(&monotonic_lock);
+ 
++	/* Some i8253 clones hold the LATCH value visible
++	   momentarily as they flip back to zero */
++	if (unlikely(count == LATCH))
++		count--;
++
+ 	/* calculate delay_at_last_interrupt */
+ 	count = ((LATCH-1) - count) * TICK_SIZE;
+ 	delay_at_last_interrupt = (count + LATCH/2) / LATCH;
+-
+-	/* catch corner case where tick rollover occured 
+-	 * between tsc and pit reads (as noted when 
+-	 * usec delta is > 90% # of usecs/tick)
+-	 */
+-	if (lost && abs(delay - delay_at_last_interrupt) > (900000/HZ))
+-		jiffies_64++;
+ }
+ 
+ static void delay_tsc(unsigned long loops)
+@@ -433,8 +443,6 @@ static int __init init_tsc(char* overrid
+  	 *	moaned if you have the only one in the world - you fix it!
+  	 */
+ 
+-	count2 = LATCH; /* initialize counter for mark_offset_tsc() */
+-
+ 	if (cpu_has_tsc) {
+ 		unsigned long tsc_quotient;
+ #ifdef CONFIG_HPET_TIMER
+@@ -502,7 +510,12 @@ static int __init tsc_setup(char *str)
+ #endif
+ __setup("notsc", tsc_setup);
+ 
+-
++static int __init report_lost_ticks_setup(char *str)
++{
++	report_lost_ticks = 1;
++	return 1;
++}
++__setup("report_lost_ticks", report_lost_ticks_setup);
+ 
+ /************************************************************/
+ 
+--- sp1/arch/i386/kernel/irq.c.~1~	2004-11-21 02:37:25.000000000 +0100
++++ sp1/arch/i386/kernel/irq.c	2004-11-22 07:03:15.140846408 +0100
+@@ -217,14 +217,16 @@ inline void synchronize_irq(unsigned int
+ int handle_IRQ_event(unsigned int irq,
+ 		struct pt_regs *regs, struct irqaction *action)
+ {
+-	int status = 1;	/* Force the "do bottom halves" bit */
++	int status = 0;
+ 	int retval = 0;
+ 
+ 	TRIG_EVENT(irq_entry_hook, irq, regs, !(user_mode(regs)));
+-	if (!(action->flags & SA_INTERRUPT))
+-		local_irq_enable();
+-
+ 	do {
++		if (action->flags & SA_INTERRUPT)
++			local_irq_disable();
++		else
++			local_irq_enable();
++
+ 		status |= action->flags;
+ 		retval |= action->handler(irq, action->dev_id, regs);
+ 		action = action->next;

@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262111AbTLJMD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 07:03:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbTLJMD6
+	id S262569AbTLJMAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 07:00:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbTLJMAQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 07:03:58 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:58251 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262111AbTLJMD4
+	Wed, 10 Dec 2003 07:00:16 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:5181 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S262569AbTLJMAN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 07:03:56 -0500
-From: Vitaly Fertman <vitaly@namesys.com>
-Organization: NAMESYS
-To: Jan De Luyck <lkml@kcore.org>, linux-kernel@vger.kernel.org
-Subject: Re: forwarded message from Jan De Luyck
-Date: Wed, 10 Dec 2003 16:04:15 +0300
-User-Agent: KMail/1.5.1
-References: <16343.2023.525418.637117@laputa.namesys.com>
-In-Reply-To: <16343.2023.525418.637117@laputa.namesys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Dec 2003 07:00:13 -0500
+Date: Wed, 10 Dec 2003 13:59:57 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Getting file offsets for open files of a process?
+Message-ID: <20031210115957.GH1524@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200312101604.15299.vitaly@namesys.com>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
+lsof has this option:
 
-> Hello,
->
-> Today I discovered this in my syslogs, after something strange
-> happening to XFree86 (hung at startup, then dumped me back to the console)
->
-> is_leaf: free space seems wrong: level=1, nr_items=41, free_space=65224
-> rdkey vs-5150: search_by_key: invalid format found in block 283191. Fsck?
-> vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find
-> stat data of [11 12795 0x0 SD] is_leaf: free space seems wrong: level=1,
-> nr_items=41, free_space=65224 rdkey vs-5150: search_by_key: invalid format
-> found in block 283191. Fsck? vs-13070: reiserfs_read_locked_inode: i/o
-> failure occurred trying to find stat data of [11 12798 0x0 SD]
+       -o       This option directs lsof to display  file  offset
+                at all times.  It causes the SIZE/OFF output col­
+                umn title to be changed to OFFSET.
 
-this all about fs corruptions. fsck is needed.
+but the source contains
 
-> I've never seen these before, and I've been digging through my syslogs but
-> am unable to find any other references of this.
-> Does this mean the disk is dying? Or just the filesystem is corrupt?
-> Unfortunately, I'm not able to rebuild the tree at this time because I
-> haven't got a 'rescue' disk with me and the errors are on my root
-> partition...
->
-> Any other pointers?
+#define	OFFTST_STAT	0		/* Linux lsof can't report offsets */
 
-reiserfsck from the 3.6.12-pre1 package is able to recover mounted ro 
-partitions.
+That information is not available in /proc either.
 
---
-Thanks,
-Vitaly Fertman
+(I'm not sure if the older, non-/proc based lsof version supported this on
+linux. Newest lsof has the non-/proc linux mode removed, and I can't find
+the old source anymore.)
+
+Is there any way of getting this information in linux?
+
+I suppose Solaris and maybe some others export this information via /proc?
+
+ 
+-- v --
+
+v@iki.fi

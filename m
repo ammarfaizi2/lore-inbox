@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264099AbRFLAa2>; Mon, 11 Jun 2001 20:30:28 -0400
+	id <S264108AbRFLAbs>; Mon, 11 Jun 2001 20:31:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264101AbRFLAaJ>; Mon, 11 Jun 2001 20:30:09 -0400
-Received: from mx01-a.netapp.com ([198.95.226.53]:695 "EHLO mx01-a.netapp.com")
-	by vger.kernel.org with ESMTP id <S264099AbRFLAaH>;
-	Mon, 11 Jun 2001 20:30:07 -0400
-Date: Mon, 11 Jun 2001 17:29:46 -0700 (PDT)
-From: Kip Macy <kmacy@netapp.com>
-To: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 3com Driver and the 3XP Processor
-In-Reply-To: <Pine.LNX.4.30.0106111918550.8612-100000@biglinux.tccw.wku.edu>
-Message-ID: <Pine.GSO.4.10.10106111729110.22254-100000@orbit-fe.eng.netapp.com>
+	id <S264101AbRFLAbi>; Mon, 11 Jun 2001 20:31:38 -0400
+Received: from [216.151.155.121] ([216.151.155.121]:5395 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S264103AbRFLAb3>; Mon, 11 Jun 2001 20:31:29 -0400
+To: Matt Nelson <mnelson@dynatec.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Any limitations on bigmem usage?
+In-Reply-To: <3B255FC1.90501@dynatec.com>
+From: Doug McNaught <doug@wireboard.com>
+Date: 11 Jun 2001 20:31:23 -0400
+In-Reply-To: Matt Nelson's message of "Mon, 11 Jun 2001 17:18:09 -0700"
+Message-ID: <m37kyitu78.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It can't because 3com hasn't implemented in the driver and they won't
-publish the interface.
-		-Kip
+Matt Nelson <mnelson@dynatec.com> writes:
 
-On Mon, 11 Jun 2001, Brent D. Norris wrote:
+> I am about to embark on a data processing software project that will require a
+> LOT of memory (about, ohhh, 6GB or so), and I was wondering if there are any
+> limitations to how one can use very large chunks of memory under
+> Linux. Specifically, is there anything to prevent me from malloc()ing 6GB of
+> memory, then accessing that memory as I would any other buffer?  FYI, the
+> application
+> 
+> will be buffering a stream of data, then performing a variety of calculations
+> on large blocks of data at a time, before writing it out to a socket.
 
-> I just had one of the "3com Etherlink 10/100 PCI NIC with 3XP processor"
-> float accross my desk, I was wondering how much the linux kernel uses the
-> 3xp processor for its encryption offloading and such.  According to the
-> hype it does DES without using the CPU, does linux take advantage of that?
-> 
-> Brent Norris
-> 
-> Executive Advisor -- WKU-Linux
-> 
-> System Administrator -- WKU-Center for Biodiversity
->                         Best Mechanical
-> 
-> W: 270-745-8864
-> H: 270-563-9226
-> 
-> "The problem with the Linux learning curve is that it is _so_ steep once
->  at the top you can't see the people at the bottom"  --Doug Hagan
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Pointers on IA32 are still 32 bits, so (as I understand it) each
+process can address a maximum of 4GB.  You would have to allocate
+multiple chunks (in shared memory or mmap()ed files, so they're
+persistent) and map them in and out as needed (which could get hairy).
 
+> I've been eyeing an 8-way Intel box with gobs of memory, but if there are
+> subtle issues with using that much memory, I need to know now.
+
+Best bet is probably to buy an Alpha machine, if you don't want to
+spend time working around the 4GB limitation.
+
+-Doug
+-- 
+The rain man gave me two cures; he said jump right in,
+The first was Texas medicine--the second was just railroad gin,
+And like a fool I mixed them, and it strangled up my mind,
+Now people just get uglier, and I got no sense of time...          --Dylan

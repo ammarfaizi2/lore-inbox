@@ -1,66 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317316AbSGOEdS>; Mon, 15 Jul 2002 00:33:18 -0400
+	id <S317324AbSGOFHS>; Mon, 15 Jul 2002 01:07:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317318AbSGOEdS>; Mon, 15 Jul 2002 00:33:18 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:18619 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S317316AbSGOEdR>;
-	Mon, 15 Jul 2002 00:33:17 -0400
-Date: Mon, 15 Jul 2002 00:36:10 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Mathieu Chouquet-Stringer <mathieu@newview.com>
-cc: Thunder from the hill <thunder@ngforever.de>, linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-In-Reply-To: <20020714234457.A21658@shookay.newview.com>
-Message-ID: <Pine.GSO.4.21.0207150020540.20168-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=KOI8-R
+	id <S317326AbSGOFHR>; Mon, 15 Jul 2002 01:07:17 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25358 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317324AbSGOFHQ>; Mon, 15 Jul 2002 01:07:16 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: HZ, preferably as small as possible
+Date: Mon, 15 Jul 2002 05:06:45 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <agtl95$ihe$1@penguin.transmeta.com>
+References: <59885C5E3098D511AD690002A5072D3C02AB7F88@orsmsx111.jf.intel.com>
+X-Trace: palladium.transmeta.com 1026709801 25625 127.0.0.1 (15 Jul 2002 05:10:01 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 15 Jul 2002 05:10:01 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <59885C5E3098D511AD690002A5072D3C02AB7F88@orsmsx111.jf.intel.com>,
+Grover, Andrew <andrew.grover@intel.com> wrote:
+>
+>But on the other hand, increasing HZ has perf/latency benefits, yes? Have
+>these been quantified?
 
+I've never had good reason to believe the latency/perf benefits myself,
+but I was approached at OLS about problems with something as simple as
+DVD playing, where a 100Hz timer means that the DVD player ends up
+having to busy-loop on gettimeofday() because it cannot sanely sleep due
+to the lack in sufficient sleeping granularity.
 
-On Sun, 14 Jul 2002, Mathieu Chouquet-Stringer wrote:
+You apparently end up visibly missing frames - a frame is just 3 timer
+ticks at 100 Hz, and considering that the kernel has to round up by one
+due to POSIX requirements _and_ considering that you lose roughly one
+for actually processing the frame itself, that doesn't sound _that_
+outlandish. 
 
-> On Sun, Jul 14, 2002 at 09:38:16PM -0600, Thunder from the hill wrote:
-> > Hi,
-> 
->   Hi,
->  
-> > Please time the erase!
-> 
-> Had the same idea: :-)
-> mchouque - /tmp/joerg %/usr/bin/time rm -rf rock
-> 0.18user 6.10system 0:09.27elapsed 67%CPU (0avgtext+0avgdata 0maxresident)k
-> 0inputs+0outputs (139major+20minor)pagefaults 0swaps
-> /usr/bin/time rm -rf rock  0.18s user 6.10s system 67% cpu 9.277 total
-> 
-> Not too bad if you think it took 1 hour something to create the
-> directory... 
+>		 I'd either like to see a HZ that has balanced
+>power/performance, or could we perhaps detect we are on a system that cares
+>about power (aka a laptop) and tweak its value at runtime?
 
-No wonder - with FFS/ext2/ext3 adding files into directory takes linear
-scan of the entire thing (presuming that directory was originally empty)
-on each file.  Removing them in the order they were added is much faster -
-removed entry is simply merged with the previous one in the same block.
-So you skip the already emptied parts fast - each of these blocks consists
-of a single (empty) entry.  Then you get to the block containing the entry
-you are removing and either mark it unused (if it's the first one in block)
-or make the previous one (first in block) longer.  You do only one name
-comparison (empty entries are recognized by zero inode number).  So rm -rf
-is O(blocks * entries).  Creating all that is O(entries^2) with much worse
-constant.
+Runtime tweaking is not really an option with the current setup. There
+are also divisions etc that really want it to be a compile-time constant
+for efficiency.
 
-FFS never had been intended to handle directories with huge amount of
-entries.  Neiter are most of its derivatives, including ext2 and ext3
-(and realistically it's not worth the extra complexity for most of
-applications).
+As noted, even power/performance-wise a higher Hz can actually _help_. 
+Especially on laptops.  Exactly because you actually sanely _can_ afford
+to sleep, which you cannot with a 100Hz timer. 
 
-All of that is fs-specific and has nothing to the rest of kernel (or
-to the kind of kernel, actually - if you look at *BSD implementations
-of the same thing you'll find the same behaviour).  If you change
-layout (as it had been done for several UFS variants and for htree
-variant of ext3) you can get faster algorithms.  Whether it's practically
-interesting is a separate question, though - even if kernel side is
-fast, you still have userland side to deal with and it tends to behave
-quite badly when confronted with huge directories.
+So you lose some, you win some, depending on your needs.
 
+There is, of course, the option to do variable frequency (and make it
+integer multiples of the exposed "constant HZ" so that kernel code
+doesn't actually need to _care_ about the variability). There are
+patches to play with things like that.
+
+		Linus

@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130420AbRCBM0a>; Fri, 2 Mar 2001 07:26:30 -0500
+	id <S129131AbRCBMak>; Fri, 2 Mar 2001 07:30:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130422AbRCBM0K>; Fri, 2 Mar 2001 07:26:10 -0500
-Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:14350 "EHLO
-	tellus.mine.nu") by vger.kernel.org with ESMTP id <S130420AbRCBMZ4>;
-	Fri, 2 Mar 2001 07:25:56 -0500
-Date: Fri, 2 Mar 2001 13:26:15 +0100 (CET)
-From: Tobias Ringstrom <tori@tellus.mine.nu>
-To: Oystein Viggen <oysteivi@tihlde.org>
-cc: Pavel Machek <pavel@suse.cz>, Alexander Viro <viro@math.psu.edu>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Bill Crawford <billc@netcomuk.co.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Daniel Phillips <phillips@innominate.de>
-Subject: Re: Hashing and directories
-In-Reply-To: <03ofvkcrcq.fsf@colargol.tihlde.hist.no>
-Message-ID: <Pine.LNX.4.30.0103021313430.30991-100000@svea.tellus>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129155AbRCBMaV>; Fri, 2 Mar 2001 07:30:21 -0500
+Received: from rcum.uni-mb.si ([164.8.2.10]:27150 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S129131AbRCBMaS>;
+	Fri, 2 Mar 2001 07:30:18 -0500
+Date: Fri, 02 Mar 2001 13:30:12 +0100
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Re: [2.4.2-ac5] X (4.0.1) crashes
+To: linux-kernel@vger.kernel.org
+Message-id: <3A9F9254.DA04EBD8@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2 Mar 2001, Oystein Viggen wrote:
-> Pavel Machek wrote:
-> > xargs is very ugly. I want to rm 12*. Just plain "rm 12*". *Not* "find
-> These you work around using the smarter, \0 terminated, version:
+Pavel Machek wrote :
 
-Another example demonstrating why xargs is not always good (and why a
-bigger command line is needed) is when you combine it with e.g. wc:
+> Hi!
+> 
+> > > I use XFree86 4.0.1 with nvidia-drivers 0.96. 
+> > 
+> > Take it up with nvidia. Obfuscated effectively binary only code isnt anyone 
+> > elses problem 
 
-	find . -type f -print0 | xargs -0 wc
+It is not only "effectively binary" but "actually binary".
+There are no sources, only a few line of C "glue" code.
 
-You cannot trust the summary line from wc, since xargs may have decided to
-run wc may times, and thus you have may summary lines.  If the kernel
-would allow a larger command line, you could run
+Maybe you are confusing it with the XFree86 nv drivers from xfree86.org ?
+These are the nVidia drivers from nvidia.com
+ 
+> Is it legal, BTW? Obfuscated drivers should _not_ be linked into
+> kernel, because they are not "form preferable for editing".
+> 
+> <GPL>
+> The source code for a work means the preferred form of the work for
+> making modifications to it. For an executable work, complete source
+> </GPL>
+> 
+> So nvidia drivers *are* binary only, as far as GPL is concerned. They
+> should never be linked into kernel.
+> 
+> [Or, someone should get kernel with nvidia drivers compiled in from
+> nvidia, and then ask them for sources :-)]
+>                                                                    Pavel
 
-	wc `find . -type f`
-
-and get exacly what you want.  And if I'm not mistaken, Linux accepts a
-much smaller command line than other "unices" such as Solaris.
-
-...but it's not _that_ important...  obviously there has to be an upper
-limit somewhere...
-
-/Tobias
-
-
+-- 
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -

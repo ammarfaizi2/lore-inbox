@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262029AbUCIQC3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 11:02:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbUCIQC3
+	id S262017AbUCIQEY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 11:04:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbUCIQEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 11:02:29 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:23559
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262017AbUCIQCZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 11:02:25 -0500
-Date: Tue, 9 Mar 2004 17:03:07 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [lockup] Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
-Message-ID: <20040309160307.GI8193@dualathlon.random>
-References: <20040308202433.GA12612@dualathlon.random> <20040309105226.GA2863@elte.hu> <20040309110233.GA3819@elte.hu> <20040309030907.71a53a7c.akpm@osdl.org> <20040309114924.GA4581@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040309114924.GA4581@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Tue, 9 Mar 2004 11:04:23 -0500
+Received: from outbound01.telus.net ([199.185.220.220]:47497 "EHLO
+	priv-edtnes57.telusplanet.net") by vger.kernel.org with ESMTP
+	id S262017AbUCIQEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 11:04:16 -0500
+Message-ID: <404DEAFD.8090802@bcgreen.com>
+Date: Tue, 09 Mar 2004 08:04:13 -0800
+From: Stephen Samuel <samuel@bcgreen.com>
+Organization: Just Another Radical
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
+CC: linux-admin@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Redirection of STDERR
+References: <20040308111349.030feea6.Christoph.Pleger@uni-dortmund.de>
+In-Reply-To: <20040308111349.030feea6.Christoph.Pleger@uni-dortmund.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 09, 2004 at 12:49:24PM +0100, Ingo Molnar wrote:
+Christoph Pleger wrote:
+> Hello,
 > 
-> * Andrew Morton <akpm@osdl.org> wrote:
+> In my initialization scripts for hotplug (written for bash) the
+> following command is used to redirect output which normally goes to
+> stderr to the system logger:
 > 
-> > > or run the attached test-mmap2.c code, which simulates a very small DB
-> > >  app using only 1800 vmas per process: it only maps 8 MB of shm and
-> > >  spawns 32 processes. This has an even more lethal effect than the
-> > >  previous code.
-> > 
-> > Do these tests actually make any forward progress at all, or is it some bug
-> > which has sent the kernel into a loop?
+> "exec 2> >(logger -t $0[$$])"
+I don't remember this syntax as legal.
+what I'd use would be:
+exec some_command 2>&1  | logger -t "$0[$$]"
+
+
+On the other hand, this could replace the script you're
+running with something that may never exit.. (sepending
+on what the command does)
+
 > 
-> i think they make a forward progress so it's more of a DoS - but a very
-> effective one, especially considering that i didnt even try hard ...
-> 
-> what worries me is that there are apps that generate such vma patterns
-> (for various reasons).
+> With kernel 2.4 this command works fine, but with kernel version 2.6.3
+> it leads to a system hang.
 
-those vmas in those apps are forced to be mlocked with the rmap VM, so
-it's hard for me to buy that rmap is any better. You can't even allow
-those vmas to be non-mlocked or you'll finish your zone-normal even with
-4:4.
-
-on 64bit those apps will work _absolutely_best_ with objrmap and they'll
-waste tons of ram (and some amount of cpu too) with rmap. objrmap is the
-absolutely best model for those apps in any 64bit arch.
-
-the argument you're making about those apps are all in favour of objrmap
-IMO.
-
-> I do believe that scanning ->i_mmap & ->i_mmap_shared is fundamentally
-> flawed.
-
-If it's the DoS that you worry about, vmtruncate will do the trick too.
-
-overall machine remains usable for me, despite the increased cpu load.
+-- 
+Stephen Samuel +1(604)876-0426                samuel@bcgreen.com
+		   http://www.bcgreen.com/~samuel/
+    Powerful committed communication. Transformation touching
+      the jewel within each person and bringing it to light.

@@ -1,85 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbVCBBrQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbVCBCDW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262007AbVCBBrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 20:47:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbVCBBrQ
+	id S262138AbVCBCDW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 21:03:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbVCBCDW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 20:47:16 -0500
-Received: from orb.pobox.com ([207.8.226.5]:50320 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262007AbVCBBrI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 20:47:08 -0500
-Date: Tue, 1 Mar 2005 19:47:01 -0600
-From: Nathan Lynch <ntl@pobox.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linuxppc64-dev@ozlabs.org, zwane@arm.linux.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] explicitly bind idle tasks
-Message-ID: <20050302014701.GA5897@otto>
-References: <Pine.LNX.4.61.0502010009010.3010@montezuma.fsmlabs.com> <20050227031655.67233bb5.akpm@osdl.org> <1109542971.14993.217.camel@gaston> <20050227144928.6c71adaf.akpm@osdl.org>
+	Tue, 1 Mar 2005 21:03:22 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:11255 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262138AbVCBCDJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 21:03:09 -0500
+Date: Tue, 1 Mar 2005 18:03:06 -0800
+From: Todd Poynor <tpoynor@mvista.com>
+To: linux-kernel@vger.kernel.org, linux-pm@osdl.org
+Subject: [PATCH] Custom power states for non-ACPI systems
+Message-ID: <20050302020306.GA5724@slurryseal.ddns.mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050227144928.6c71adaf.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 27, 2005 at 02:49:28PM -0800, Andrew Morton wrote:
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> >
-> > > -		if (cpu_is_offline(smp_processor_id()) &&
-> >  > +		if (cpu_is_offline(_smp_processor_id()) &&
-> >  >  		    system_state == SYSTEM_RUNNING)
-> >  >  			cpu_die();
-> >  >  	}
-> >  > _
-> > 
-> >  This is the idle loop. Is that ever supposed to be preempted ?
-> 
-> Nope, it's a false positive.  We had to do the same in x86's idle loop and
-> probably others will hit it.
+Advertise custom sets of system power states for non-ACPI systems.
+Currently, /sys/power/state shows and accepts a static set of choices
+that are not necessarily meaningful on all platforms (for example,
+suspend-to-disk is an option even on diskless embedded systems, and the
+meaning of standby vs. suspend-to-mem is not well-defined on
+non-ACPI-systems).  This patch allows the platform to register power
+states with meaningful names that correspond to the platform's
+conventions (for example, "big sleep" and "deep sleep" on TI OMAP), and
+only those states that make sense for the platform.
 
-Perhaps I'm missing something, but is there any reason we can't do
-the following?  I've tested it on ppc64, doesn't seem to break anything.
+For the time being, the canned set of PM_SUSPEND_STANDBY/MEM/DISK
+etc. symbols are preserved, since knowledge of the meanings of those
+values have crept into drivers.  There is a separate effort underway to
+divorce driver suspend flags from the platform suspend state
+identifiers.  Once that is accomplished, we can then replace the suspend
+states available with an entirely custom set.  For example, various
+embedded platforms have multiple power states that roughly correspond to
+suspend-to-mem, and each could be advertised and requested via the PM
+interfaces, once drivers no longer look for the one and only
+PM_SUSPEND_MEM system suspend state.
 
-With hotplug cpu and preempt, we tend to see smp_processor_id warnings
-from idle loop code because it's always checking whether its cpu has
-gone offline.  Replacing every use of smp_processor_id with
-_smp_processor_id in all idle loop code is one solution; another way
-is explicitly binding idle threads to their cpus (the smp_processor_id
-warning does not fire if the caller is bound only to the calling cpu).
-This has the (admittedly slight) advantage of letting us know if an
-idle thread ever runs on the wrong cpu.
+If the platform does not register a custom set of power states then the
+present-day set remains available as a default.  Will send separately a
+patch for an embedded platform to show usage.  Comments appreciated.
 
-
-Signed-off-by: Nathan Lynch <ntl@pobox.com>
-
-Index: linux-2.6.11-rc5-mm1/init/main.c
+Index: linux-2.6.10/include/linux/pm.h
 ===================================================================
---- linux-2.6.11-rc5-mm1.orig/init/main.c	2005-03-02 00:12:07.000000000 +0000
-+++ linux-2.6.11-rc5-mm1/init/main.c	2005-03-02 00:53:04.000000000 +0000
-@@ -638,6 +638,10 @@
- {
- 	lock_kernel();
- 	/*
-+	 * init can run on any cpu.
-+	 */
-+	set_cpus_allowed(current, CPU_MASK_ALL);
-+	/*
- 	 * Tell the world that we're going to be the grim
- 	 * reaper of innocent orphaned children.
- 	 *
-Index: linux-2.6.11-rc5-mm1/kernel/sched.c
-===================================================================
---- linux-2.6.11-rc5-mm1.orig/kernel/sched.c	2005-03-02 00:12:07.000000000 +0000
-+++ linux-2.6.11-rc5-mm1/kernel/sched.c	2005-03-02 00:47:14.000000000 +0000
-@@ -4092,6 +4092,7 @@
- 	idle->array = NULL;
- 	idle->prio = MAX_PRIO;
- 	idle->state = TASK_RUNNING;
-+	idle->cpus_allowed = cpumask_of_cpu(cpu);
- 	set_task_cpu(idle, cpu);
+--- linux-2.6.10.orig/include/linux/pm.h	2005-03-02 00:41:43.000000000 +0000
++++ linux-2.6.10/include/linux/pm.h	2005-03-02 01:12:14.000000000 +0000
+@@ -216,8 +216,14 @@
+ #define	PM_DISK_REBOOT		((__force suspend_disk_method_t) 4)
+ #define	PM_DISK_MAX		((__force suspend_disk_method_t) 5)
  
- 	spin_lock_irqsave(&rq->lock, flags);
++struct pm_suspend_method {
++	char *name;
++	suspend_state_t state;
++};
++
+ struct pm_ops {
+ 	suspend_disk_method_t pm_disk_mode;
++	struct pm_suspend_method *pm_suspend_methods;
+ 	int (*prepare)(suspend_state_t state);
+ 	int (*enter)(suspend_state_t state);
+ 	int (*finish)(suspend_state_t state);
+Index: linux-2.6.10/kernel/power/main.c
+===================================================================
+--- linux-2.6.10.orig/kernel/power/main.c	2005-03-02 00:41:41.000000000 +0000
++++ linux-2.6.10/kernel/power/main.c	2005-03-02 01:15:21.000000000 +0000
+@@ -228,11 +228,22 @@
+ 
+ 
+ 
+-char * pm_states[] = {
+-	[PM_SUSPEND_STANDBY]	= "standby",
+-	[PM_SUSPEND_MEM]	= "mem",
+-	[PM_SUSPEND_DISK]	= "disk",
+-	NULL,
++struct pm_suspend_method pm_default_suspend_methods[] = {
++	{
++		.name = "standby",
++		.state = PM_SUSPEND_STANDBY,
++	},
++	{
++		.name = "mem",
++		.state = PM_SUSPEND_MEM,
++	},
++	{
++		.name = "disk",
++		.state = PM_SUSPEND_DISK,
++	},
++	{
++		.name = NULL,
++	},
+ };
+ 
+ 
+@@ -324,19 +335,22 @@
+ {
+ 	int i;
+ 	char * s = buf;
++	struct pm_suspend_method *methods = pm_ops->pm_suspend_methods;
++
++	if (! methods)
++		methods = pm_default_suspend_methods;
++
++	for (i=0; methods[i].name; i++)
++		s += sprintf(s,"%s ",methods[i].name);
+ 
+-	for (i = 0; i < PM_SUSPEND_MAX; i++) {
+-		if (pm_states[i])
+-			s += sprintf(s,"%s ",pm_states[i]);
+-	}
+ 	s += sprintf(s,"\n");
+ 	return (s - buf);
+ }
+ 
+ static ssize_t state_store(struct subsystem * subsys, const char * buf, size_t n)
+ {
+-	suspend_state_t state = PM_SUSPEND_STANDBY;
+-	char ** s;
++	struct pm_suspend_method *methods = pm_ops->pm_suspend_methods;
++	int i;
+ 	char *p;
+ 	int error;
+ 	int len;
+@@ -344,12 +358,15 @@
+ 	p = memchr(buf, '\n', n);
+ 	len = p ? p - buf : n;
+ 
+-	for (s = &pm_states[state]; state < PM_SUSPEND_MAX; s++, state++) {
+-		if (*s && !strncmp(buf, *s, len))
++	if (! methods)
++		methods = pm_default_suspend_methods;
++
++	for (i = 0; methods[i].name; i++) {
++		if (!strncmp(buf, methods[i].name, len))
+ 			break;
+ 	}
+-	if (*s)
+-		error = enter_state(state);
++	if (methods[i].name)
++		error = enter_state(methods[i].state);
+ 	else
+ 		error = -EINVAL;
+ 	return error ? error : n;
+

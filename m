@@ -1,76 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270261AbRHHB2i>; Tue, 7 Aug 2001 21:28:38 -0400
+	id <S270266AbRHHB4A>; Tue, 7 Aug 2001 21:56:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270263AbRHHB23>; Tue, 7 Aug 2001 21:28:29 -0400
-Received: from defout.telus.net ([199.185.220.240]:1791 "EHLO
-	priv-edtnes27-hme0.telusplanet.net") by vger.kernel.org with ESMTP
-	id <S270261AbRHHB20>; Tue, 7 Aug 2001 21:28:26 -0400
-Date: Tue, 7 Aug 2001 18:11:59 -0700 (PDT)
-From: winterlion <winterlion@fsj.net>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: AMD Duron + Via motherboard oops - will this help?
-Message-ID: <Pine.LNX.4.30.0108071753040.6705-100000@sigil>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270268AbRHHBzu>; Tue, 7 Aug 2001 21:55:50 -0400
+Received: from [202.81.130.34] ([202.81.130.34]:31496 "EHLO
+	seawall.perth.wni.com") by vger.kernel.org with ESMTP
+	id <S270267AbRHHBzm>; Tue, 7 Aug 2001 21:55:42 -0400
+Message-Id: <5.1.0.14.0.20010808094513.00ab72c8@mailhost>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 08 Aug 2001 09:58:12 +0800
+To: linux-kernel@vger.kernel.org
+From: Stuart Duncan <sety@perth.wni.com>
+Subject: ARP's frustrating behavior 
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-please CC any responses to me - I am not subscribed to linux-kernel
+Hi,
 
-There's an ISP I maintain (long distance) who has had occasional system halts
-due to "interrupt missed, system halted" (IIRC) from the entire 2.4.x kernel
-line.  Now in 2.4.7 the first "oops" has appeared.  I have a whole collection
-of the logs and (afaik) the system is still up - 'sync' repaired the problem
-for now.
+I'm noticing on a machine with dual NICs that they they all seem to answer 
+ARP queries, even if the request is not directed to their IP.  Here's an 
+example:
 
-last was called with no arguments; ran for a while and then segmentation fault
-This is the kernel log from -that- oops:
+---8<---
+10:52:03.177863 eth1 B arp who-has eddy tell soliton
+10:52:03.177895 eth1 > arp reply eddy (0:3:47:8:1a:64) is-at 0:3:47:8:1a:64 
+(0:90:27:41:c9:f4)
+10:52:03.177875 eth0 B arp who-has eddy tell soliton
+10:52:03.177908 eth0 > arp reply eddy (0:b0:d0:78:bc:92) is-at 
+0:b0:d0:78:bc:92 (0:90:27:41:c9:f4)
+--8<--
 
-Aug  7 17:05:12 pd1 kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000004
-Aug  7 17:05:12 pd1 kernel:  printing eip:
-Aug  7 17:05:12 pd1 kernel: c0141010
-Aug  7 17:05:12 pd1 kernel: *pde = 00000000
-Aug  7 17:05:12 pd1 kernel: Oops: 0000
-Aug  7 17:05:12 pd1 kernel: CPU:    0
-Aug  7 17:05:12 pd1 kernel: EIP:    0010:[prune_dcache+16/328]
-Aug  7 17:05:12 pd1 kernel: EFLAGS: 00010213
-Aug  7 17:05:12 pd1 kernel: eax: 00001a38   ebx: 00000000   ecx: 00000006   edx: 00000004
-Aug  7 17:05:12 pd1 kernel: esi: 000007c2   edi: 00000001   ebp: 00001a38   esp: c17e1e90
-Aug  7 17:05:12 pd1 kernel: ds: 0018   es: 0018   ss: 0018
-Aug  7 17:05:12 pd1 kernel: Process last (pid: 19133, stackpage=c17e1000)
-Aug  7 17:05:12 pd1 kernel: Stack: 000000d2 000007c2 00000001 00000010 c01413a1 00001a38 c01296f3 00000006
-Aug  7 17:05:12 pd1 kernel:        000000d2 000000d2 00000001 c17e0000 c02ddac8 00000000 c012984e 000000d2
-Aug  7 17:05:12 pd1 kernel:        00000001 c17e0000 c012a430 000000d2 000000d2 cfb9e124 0000045d cff6bda8
-Aug  7 17:05:12 pd1 kernel: Call Trace: [shrink_dcache_memory+33/48] [do_try_to_free_pages+39/88] [try_to_free_pages+34/44] [__alloc_pages+460/632] [_alloc_pages+22/24] [generic_file_readahead+468/636] [do_generic_file_read+842/1232]
-Aug  7 17:05:12 pd1 kernel:        [generic_file_read+89/116] [file_read_actor+0/224] [sys_read+149/204] [system_call+51/64]
-Aug  7 17:05:12 pd1 kernel:
-Aug  7 17:05:12 pd1 kernel: Code: 8b 53 04 8b 03 89 50 04 89 02 89 1b 89 5b 04 8d 73 e8 8b 46
+This is a problem for me because eth1 is 1000Mb fibre while eth0 is 100Mb, 
+and almost all of the clients are caching the response from eth0 in 
+preference to the response from eth1.
 
-After this I called "sync" and last worked to completion - as did perl (which
-also triggered oopses earlier same day)
+I know this appeared on the list once before (20/08/1999, Chris 
+Leech.  "ARP (mis)behavior") however there was no definite answer.  My 
+questions are:  Is this ARP behavior intentional?  (I can't recreate the 
+fault in other UNIX's) and if it is, is there a way to turn it off?
 
-uname -a:
-Linux pd1.fsj.net 2.4.7 #18 Sun Jul 22 23:19:39 MST 2001 i686 unknown
+Thank you,
+Stuart Duncan
 
-uptime:
-  5:18pm  up 5 days,  2:16, 18 users,  load average: 0.09, 0.07, 0.01
 
-I don't know what else you need - it's an AMD Duron 600 processor on a VIA
-Apollo PRO133x chipset motherboard.  Additional hardware includes a Cyclom Y
-multiport serial, 3c509b 100BaseTX Cyclone (rev36) network card, and an ATI 3D
-Rage Pro videocard.  256MB ram; 384MB swap.
+----
+Stuart Duncan
+Systems Administrator
+WNI Weathernews
+31 Bishop Street
+JOLIMONT WA 6014
 
-I've heard of problems with AMD + Via chipset problems so I posted this.
-I have more log information, more oops references, and several of the
-/proc files recorded from the same time period.  Looks to me like the
-swap memory management system is having some kind of problem.  If this
-system was not an active ISP I'd probably attempt to debug this.  My own
-system (same motherboard chipset but with Celeron 733 processor) has had
-no oopses whatsoever in many months.  I'm an experienced C programmer,
-and fairly familiar with kernel internals.  Been a happy linux user since
-december 1992 :)
-
-G'day, eh? :)
-	- Teunis Peters
 

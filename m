@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292968AbSCSVvI>; Tue, 19 Mar 2002 16:51:08 -0500
+	id <S292888AbSCSV4i>; Tue, 19 Mar 2002 16:56:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292888AbSCSVvD>; Tue, 19 Mar 2002 16:51:03 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:20495 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S292968AbSCSVuq>;
-	Tue, 19 Mar 2002 16:50:46 -0500
-Date: Tue, 19 Mar 2002 13:50:02 -0800
-From: Greg KH <greg@kroah.com>
-To: Felix Seeger <felix.seeger@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: System hanging at boot with ms natural pro keyboard in usb port (2.4.18)
-Message-ID: <20020319215001.GD463@kroah.com>
-In-Reply-To: <200203192204.32846.felix.seeger@gmx.de>
+	id <S292971AbSCSV42>; Tue, 19 Mar 2002 16:56:28 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:59273 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S292888AbSCSV4U>;
+	Tue, 19 Mar 2002 16:56:20 -0500
+Date: Tue, 19 Mar 2002 22:56:09 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Olivier Galibert <galibert@pobox.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] My AMD IDE driver, v2.7
+Message-ID: <20020319225609.A12655@ucw.cz>
+In-Reply-To: <Pine.LNX.4.33.0203111829550.1153-100000@home.transmeta.com> <3C8D69E3.3080908@mandrakesoft.com> <20020311223439.A2434@zalem.nrockv01.md.comcast.net> <3C8D8061.4030503@mandrakesoft.com> <20020314141342.B37@toy.ucw.cz> <3C91D571.5070806@mandrakesoft.com> <20020318192004.GB194@elf.ucw.cz> <20020319102926.B9997@ucw.cz> <20020319212130.GG12260@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Tue, 19 Feb 2002 18:12:36 -0800
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 19, 2002 at 10:04:28PM +0100, Felix Seeger wrote:
-> Hi
-> I tried to connect my MS Natural Pro keyboard and than I get this error.
-> The Logitech mouse works great ;)
+On Tue, Mar 19, 2002 at 10:21:30PM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> Is this solved in 2.4.19-pre3 ?
+> > > > commands.  With the proper sequencing, you can even do power management 
+> > > > of the drives in userspace.  You don't want to do system suspend/resume 
+> > > > that way, but you can certainly have a userspace policy daemon running, 
+> > > > that powers-down and powers-up the drives, etc.
+> > > 
+> > > See noflushd, Hdparm is able to powersave disks well, already, and it
+> > > was in 2.2.X, too.
+> > 
+> > Not all of them safely, though. Many a drive will corrupt data if it
+> > receives a command when not spinned up. You need to issue a wake command
+> > first, which hdparm doesn't, it just leaves it to the kernel to issue a
+> > read command or whatever to wake the drive ...
 > 
-> The error:
-> 
-> hub.c USB new device connect on bus 1/1, assinged device number 2
-> invalid operand: 0000
-> CPU:		0
-> EIP:		0010:[<d98730a0>] Not tainted
-> EELAGS:	0010046
-> ... write me if you need more ...
+> Is this common disk bug, or are they permitted to behave like that?
 
-Yes we need more, after you run the oops through ksymoops too.
+This behavior is permitted by the specification, as far as I know -
+results of commands other than wakeup (and other pm commands) in sleep
+or suspend mode are undefined ...
 
-And what USB host controller driver are you using, and is this a SMP
-kernel?
-
-thanks,
-
-greg k-h
+-- 
+Vojtech Pavlik
+SuSE Labs

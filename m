@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbTH2M5M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 08:57:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbTH2M5M
+	id S261152AbTH2Muz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 08:50:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbTH2Muz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 08:57:12 -0400
-Received: from sv11.nswasp.com ([211.123.197.122]:27405 "EHLO jpnrel2.hp.com")
-	by vger.kernel.org with ESMTP id S261159AbTH2M5J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 08:57:09 -0400
-Message-ID: <66A8482545B4C0419D82AF923264AFB0085E4B6A@xjp02.jpn.hp.com>
-From: "IIDA,MASANARI (HP-Japan,ex2)" <masanari.iida@hp.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "'marcelo@conectiva.com.br'" <marcelo@conectiva.com.br>
-Subject: [patch] scsi_scan.c missing entry for HP Va7140 
-Date: Fri, 29 Aug 2003 21:57:05 +0900
+	Fri, 29 Aug 2003 08:50:55 -0400
+Received: from gw-nl6.philips.com ([212.153.235.103]:42384 "EHLO
+	gw-nl6.philips.com") by vger.kernel.org with ESMTP id S261152AbTH2Mux
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 08:50:53 -0400
+Message-ID: <3F4F4C7B.6060009@basmevissen.nl>
+Date: Fri, 29 Aug 2003 14:52:11 +0200
+From: Bas Mevissen <ml@basmevissen.nl>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain;
-	charset="iso-2022-jp"
+To: Boszormenyi Zoltan <zboszor@freemail.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4-mm3
+References: <3F4F22D3.9080104@freemail.hu>
+In-Reply-To: <3F4F22D3.9080104@freemail.hu>
+X-Enigmail-Version: 0.76.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo
+Boszormenyi Zoltan wrote:
 
-This is a patch for HP Disk Array Va7110 and Va7140.
-As Stefan Schindewolf reported on 25/Aug 2003 on Kernel mailing list,
-scsi_scan.c has missing entory and also typo.
-Apply this patch on 2.4.23-preX.
+> Hi,
+> 
+> I tried to "make modules_install" on the compiled tree.
+> It says:
+> 
+> # make modules_install
+> Install a current version of module-init-tools
+> See http://www.codemonkey.org.uk/post-halloween-2.5.txt
+> make: *** [_modinst_] Error 1
+> 
+> But I have installed it! It's called modutils-2.4.25-8
+> (was -5 previously) from RH rawhide, it works on older
+> (2.6.0-test4-mm1) kernels.
+> This modutils is united with module-init-tools-0.9.12,
+> it reports version 2.4.25 but detects newer kernels and uses
+> the new module interface.
+> 
+> I looked the kernel Makefile and found that it greps the version
+> it gets from depmod -V and wants module-init-tools.
+> My fix against the rawhide modutils is attached.
+> 
+
+Can you do a diff of the Makefile between 2.6.0-test4-mm1 and ...mm3
 
 Regards,
 
-masanari 
+Bas
 
---- linux-2.4.22/drivers/scsi/scsi_scan.c	Mon Aug 25 20:44:42 2003
-+++ linux-2.4.22-fix/drivers/scsi/scsi_scan.c	Tue Aug 26 17:28:41 2003
-@@ -114,7 +114,8 @@
- 	{"HP", "C2500A", "", BLIST_NOLUN},			/* scanjet
-iicx */
- 	{"HP", "A6188A", "*", BLIST_SPARSELUN | BLIST_LARGELUN},/* HP Va7100
-Array */
- 	{"HP", "A6189A", "*", BLIST_SPARSELUN | BLIST_LARGELUN},/* HP Va7400
-Array */
--	{"HP", "A6189B", "*", BLIST_SPARSELUN | BLIST_LARGELUN},/* HP Va7410
-Array */
-+	{"HP", "A6189B", "*", BLIST_SPARSELUN | BLIST_LARGELUN},/* HP Va7110
-Array */
-+	{"HP", "A6218A", "*", BLIST_SPARSELUN | BLIST_LARGELUN},/* HP Va7410
-Array */
- 	{"YAMAHA", "CDR100", "1.00", BLIST_NOLUN},		/* Locks up
-if polled for lun != 0 */
- 	{"YAMAHA", "CDR102", "1.00", BLIST_NOLUN},		/* Locks up
-if polled for lun != 0  
- 								 * extra
-reset */
+
+
+

@@ -1,76 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261707AbSIXQto>; Tue, 24 Sep 2002 12:49:44 -0400
+	id <S261708AbSIXQ6z>; Tue, 24 Sep 2002 12:58:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261708AbSIXQto>; Tue, 24 Sep 2002 12:49:44 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:29970 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261707AbSIXQtn>;
-	Tue, 24 Sep 2002 12:49:43 -0400
-Date: Tue, 24 Sep 2002 09:54:56 -0700
-From: Dave Olien <dmo@osdl.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: phillips@arcor.de, davidm@hpl.hp.com, davidm@napali.hpl.hp.com,
-       axboe@suse.de, _deepfire@mail.ru, linux-kernel@vger.kernel.org
-Subject: Re: DAC960 in 2.5.38, with new changes
-Message-ID: <20020924095456.A17658@acpi.pdx.osdl.net>
-References: <20020923120400.A15452@acpi.pdx.osdl.net> <15759.26918.381273.951266@napali.hpl.hp.com> <E17ta3t-0003bj-00@starship> <20020923.135447.24672280.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020923.135447.24672280.davem@redhat.com>; from davem@redhat.com on Mon, Sep 23, 2002 at 01:54:47PM -0700
+	id <S261710AbSIXQ6z>; Tue, 24 Sep 2002 12:58:55 -0400
+Received: from fwextcnus.controlnet.com ([12.44.181.130]:28627 "HELO
+	vivaldi.controlnet.com") by vger.kernel.org with SMTP
+	id <S261708AbSIXQ6y>; Tue, 24 Sep 2002 12:58:54 -0400
+From: "Mark Knecht" <mknecht@controlnet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: SMP machines - IRQ Priorities
+Date: Tue, 24 Sep 2002 10:00:22 -0700
+Message-ID: <000101c263eb$df8adfc0$b50aa8c0@mknecht>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+   Excuse me for interrupting you guys too much. I hope you can find a
+minute to answer these two questions for me:
 
-I haven't been ignoring the discussion.  Just thinking it over.
-I was going to dig out an old PCI spec last night, but got involved
-with other things.  I wanted to review how 64-bit PCI and 32-bit PCI busses
-handle 32 and 64-bit writes from the processor.
+***  When APIC IRQs are used (IRQs higher than 15) what is the IRQ serviced
+first? ***
 
-I don't have a spec for these controllers.  IBM is selling Mylex
-to LSI logic, so "All contracts, NDA's and agreements are on hold
-until a transition to lsi is complete"  But, I'm guessing this
-controller actually implements a 64-bit register at this location.
-The 32-bit write from ia32 works probably because the controller either
-clears the upper-32 bits when the lower-32 bits are written, or
-those upper-32 bits are zero because we never set them to non-zero.
+(17 before 18 before 19?)
+(19 before 18 before 17?)
 
-According to the Documentation/DMA-mapping.txt file, the new
-DMA mapping interfaces should allow all PCI transfers to use 32-bit DMA
-addresses. Controllers on the PCI bus should never need to use DAC
-PCI transfers.  Based on this, writel() should work even on ia64.
+*** Is the order continuous from 0-23, or are any IRQ numbers handled out of
+order?
 
-It's possible there's something peculiar about the ia64 hardware
-that lead to using writeq().  I might be able to get my hands on
-an ia64 platform that I could try this on.
+   A number of Ardour users (http://ardour.sourceforge.net) are using SMP
+machines. Some are working better than others. On UMP machines I've shown
+that IRQ settings are important for recording audio, both under Linux and
+Windows. I'm doing some legwork to understand their Linux IRQ
+configurations. We're all using 2.4.19 with low latency patches.
 
-OR, the driver COULD always write 64 bits to this register.  ia32 doesn't
-have a writeq() macro.  The only way I know to write 64 bits on ia32
-is with one of the xchg instructions.  But that's mostly used if you
-really want an atomic 64-bit operation.  Probably writeq() implemented as
-two writel()'s would work.  It depends on the behavior of this particular
-register's implementation on the controller.
+   There seem to be two configurations for SMP X86 type machines. The edited
+results for lspci -v and cat /proc/interrupts is shown below:
 
-I'll experiment with this later, after the other changes
-I'm working on.  I'll try to identify a way to write this register
-that is uniform across platforms, and won't require an #ifdef.
+1) Traditional IRQ numbering:
+IRQ Priority
+0, 1, 8, 9, 10, 11, 12, 13, 14, 15, 3, 4, 5, 6, 7
 
-On Mon, Sep 23, 2002 at 01:54:47PM -0700, David S. Miller wrote:
->    From: Daniel Phillips <phillips@arcor.de>
->    Date: Mon, 23 Sep 2002 22:44:08 +0200
-> 
->    On Monday 23 September 2002 21:19, David Mosberger wrote:
->    > This looks like a porting-nightmare in the making.  There's got to be a
->    > better way to determine whether you need a writeq() vs. a writel().
->    
->    Even if an #ifdef is necessary here (and we are in trouble if it is) it
->    should not trigger on __ia64__, it should trigger on the size of (long).
-> 
-> There is nothing preventing a 32-bit long platform from being able
-> to store 64-bits at once to PCI space.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+00:00.0 Host bridge:
+00:01.0 PCI bridge:
+00:07.0 ISA bridge:
+00:07.1 IDE interface:
+00:07.2 USB Controller: IRQ 10
+00:07.3 USB Controller: IRQ 10
+00:07.4 Bridge: IRQ 11
+00:0b.0 Multimedia audio controller: IRQ 11
+00:0c.0 Ethernet controller: IRQ 10
+00:0e.0 Unknown mass storage controller: IRQ 11
+01:00.0 VGA compatible controller: IRQ 9
+
+
+2) APIC IRQ numbering
+IRQ Priority
+
+00:00.0 Host bridge:
+00:01.0 PCI bridge:
+00:07.0 ISA bridge:
+00:07.1 IDE interface:
+00:07.3 Bridge:
+00:09.0 USB Controller: IRQ 17
+00:09.1 USB Controller: IRQ 18
+00:09.2 USB Controller: IRQ 19
+00:10.0 PCI bridge:
+01:05.0 VGA compatible controller: IRQ 16
+02:00.0 USB Controller: IRQ 19
+02:04.0 Multimedia audio: IRQ 17
+02:05.0 Multimedia audio: IRQ 18
+02:06.0 Serial controller: IRQ 17
+02:08.0 Ethernet controller: IRQ 19
+
+   I assume, but am not sure, that the traditional numbering is on machines
+where people either did not compile in APIC support or used the noapic
+option. On the second set of IRQ settings we need to know what numbers to
+get the audio devices on for the best low-latency performance.
+
+Thanks,
+Mark
+

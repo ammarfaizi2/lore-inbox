@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266274AbSKZOCI>; Tue, 26 Nov 2002 09:02:08 -0500
+	id <S266112AbSKZOGy>; Tue, 26 Nov 2002 09:06:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266112AbSKZOCI>; Tue, 26 Nov 2002 09:02:08 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:38545 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266101AbSKZOCH>; Tue, 26 Nov 2002 09:02:07 -0500
-Subject: Re: IO-APIC on SiS P4 messes interrupts
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: devik <devik@cdi.cz>
-Cc: linux-smp@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0211261307200.530-100000@devix>
-References: <Pine.LNX.4.33.0211261307200.530-100000@devix>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 26 Nov 2002 14:40:07 +0000
-Message-Id: <1038321607.2594.5.camel@irongate.swansea.linux.org.uk>
+	id <S266153AbSKZOGy>; Tue, 26 Nov 2002 09:06:54 -0500
+Received: from uni03du.unity.ncsu.edu ([152.1.13.103]:2433 "EHLO
+	uni03du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id <S266112AbSKZOGy>; Tue, 26 Nov 2002 09:06:54 -0500
+From: jlnance@unity.ncsu.edu
+Date: Tue, 26 Nov 2002 09:14:09 -0500
+To: Jeff Dike <jdike@karaya.com>, linux-kernel@vger.kernel.org
+Subject: Re: uml-patch-2.5.49-1
+Message-ID: <20021126141409.GA4589@ncsu.edu>
+References: <200211260517.AAA05038@ccure.karaya.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200211260517.AAA05038@ccure.karaya.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-26 at 12:21, devik wrote: 
-> I used two MSI 8533 mobos for our 1U rack servers.
-> These mobos are for P4 and uses SiS 5513 chipset.
-> They have integrated VGA and NIC (RTL8139).
-> 
-> When I boot 2.4.19 or 2.4.20rc2 with IO-APIC enabled
-> the NIC doesn't work. It get IRQ 18 (instead of
-> IRQ 11 in non-ioapic mode) but IRQ routing is bad
-> because it got no irqs at that line.
+Hi Jeff,
+    Sounds like you are doing some good things with UML.  I particularly
+like the fact that gdb will be easier to use.
 
-SiS IO-APICs are not supported currently. Ollie at SiS kindly provided
-the relevant information to fix that so I hope to have support included
-soon.
+On Tue, Nov 26, 2002 at 12:17:07AM -0500, Jeff Dike wrote:
+> I welcome any comments on it.  The /proc/mm write semantics are less than
+> ideal - I especially would like suggestions for improvements.
 
-For uniprocessors just skip using the apic
+I think /proc/mm would be better implemented as /dev/mm.  It seems to
+have a lot more functionality associated with it than most /proc files.
 
+Thanks,
+
+Jim

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266116AbSL2C5P>; Sat, 28 Dec 2002 21:57:15 -0500
+	id <S266323AbSL2DzX>; Sat, 28 Dec 2002 22:55:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266323AbSL2C5P>; Sat, 28 Dec 2002 21:57:15 -0500
-Received: from w100.z064003144.sjc-ca.dsl.cnc.net ([64.3.144.100]:53948 "EHLO
-	mcncgw.mariani.ws") by vger.kernel.org with ESMTP
-	id <S266116AbSL2C5P>; Sat, 28 Dec 2002 21:57:15 -0500
-Message-ID: <3E0E667C.3060503@mariani.ws>
-Date: Sat, 28 Dec 2002 19:05:32 -0800
-From: Gianni Mariani <gii_anma@mariani.ws>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Newsgroups: comp.os.linux.development
-To: Dan Kegel <dank@kegel.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: sys_epoll homepage down...
-References: <3E0BB075.6070007@ADDED-From-GATEWAY.kegel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S266356AbSL2DzX>; Sat, 28 Dec 2002 22:55:23 -0500
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:64522
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
+	id <S266323AbSL2DzX>; Sat, 28 Dec 2002 22:55:23 -0500
+Subject: Re: [PATCH] Allow UML kernel to run in a separate host address
+	space
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+To: Jeff Dike <jdike@karaya.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Julian Seward <jseward@acm.org>
+In-Reply-To: <200212282024.PAA03372@ccure.karaya.com>
+References: <200212282024.PAA03372@ccure.karaya.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1041134621.17117.3.camel@ixodes.goop.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 28 Dec 2002 20:03:41 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2002-12-28 at 12:24, Jeff Dike wrote:
+> 1 - Multiple address spaces per process
+> 2 - Ability to make a child switch between address spaces
+> 3 - Ability to manipulate a child's address space (i.e. mmap, munmap, mprotect
+> on an address space which is not current->mm)
 
-I've been trying to access it for over a week now.
+I suspect Valgrind could use this too at some point.  There hasn't been
+much discussion about it yet, but I think Valgrind may well move towards
+a more complete virtualization in a later round of development, and
+isolating the virtual virtual address space from the Valgrind's real
+virtual address space would be very useful.  (Jeff suggested the idea of
+merging Valgrind and UML at some level, which does raise some
+interesting possibilities.)
 
-If you get any luck, please let me know !
-
-G
-
-Dan Kegel wrote:
-> http://www.xmailserver.org/linux-patches/nio-improve.html is down,
-> and I sure could use a copy of 
-> http://www.xmailserver.org/linux-patches/epoll-lib-0.1.tar.gz
-> (And archive.org doesn't seem to have it.)
-> 
-> Any chance somebody could mirror that and the other key files to
-> http://lse.sourceforge.net/epoll/ ?
-> 
-> Thanks,
-> Dan
-> 
-
+	J
 

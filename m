@@ -1,76 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262385AbUKQUMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262384AbUKQUOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262385AbUKQUMj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 15:12:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbUKQUKT
+	id S262384AbUKQUOj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 15:14:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbUKQUNB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 15:10:19 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:37643 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262409AbUKQUHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 15:07:00 -0500
-Date: Wed, 17 Nov 2004 20:06:35 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: Andi Kleen <ak@suse.de>, <76306.1226@compuserve.com>,
-       Andrea Arcangeli <andrea@novell.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Dropped patch: mm/mempolicy.c:sp_lookup()
-In-Reply-To: <20041117111336.608409ef.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0411171938210.1809-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Wed, 17 Nov 2004 15:13:01 -0500
+Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:37055 "EHLO
+	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
+	id S262517AbUKQUJa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 15:09:30 -0500
+Date: Wed, 17 Nov 2004 15:09:05 -0500
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [patch] inotify: vfs_permission was replaced
+In-reply-to: <1100719052.4981.4.camel@betsy.boston.ximian.com>
+To: Robert Love <rml@novell.com>
+Cc: Christoph Hellwig <hch@infradead.org>, ttb@tentacle.dhs.org,
+       linux-kernel@vger.kernel.org
+Message-id: <419BAFE1.7030500@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <1100710677.6280.2.camel@betsy.boston.ximian.com>
+ <1100714560.6280.7.camel@betsy.boston.ximian.com>
+ <20041117190850.GA11682@infradead.org>
+ <1100718601.4981.2.camel@betsy.boston.ximian.com>
+ <20041117191803.GA11830@infradead.org>
+ <1100719052.4981.4.camel@betsy.boston.ximian.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Nov 2004, Andrew Morton wrote:
-> Andi Kleen <ak@suse.de> wrote:
-> > On Tue, Nov 16, 2004 at 10:54:09PM -0500, Chuck Ebbert wrote:
-> > > On Wed, 17 Nov 2004 at 02:00:20 +0100, Andi Kleen wrote:
-> > > > On Mon, Nov 15, 2004 at 11:15:51PM -0500, Chuck Ebbert wrote:
-> > > > > Andrea posted this one-liner a while ago as part of a larger patch.  He said
-> > > > > it fixed return of the wrong policy in some conditions.  Was this a valid fix?
-> > > >
-> > > > Yes it was.
-> > > 
-> > >   At least it wasn't dropped -- it's in -mm as part of
-> > > fix-for-mpol-mm-corruption-on-tmpfs, though it's unrelated to tmpfs.
-> > > (That patch contains three separate changes...)
-> > > 
-> > >   Should just this part, which changes '<' to '<=', be pushed upstream?
-> > 
-> > Yes. I'm sure Andrea will take care of that himself. 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Robert Love wrote:
+> On Wed, 2004-11-17 at 19:18 +0000, Christoph Hellwig wrote:
 > 
-> That fix is contained within fix-for-mpol-mm-corruption-on-tmpfs.patch
-> anyway, isn't it?
+> 
+>>No it doesn't.  Please try to understand the APIs before you're using them.
+>>Just looking at the callers should give you an immediate clue.
+> 
+> 
+> Maybe you should look at the code in question.  We actually want to
+> perform the exact same sort of permission checks that, say, read
+> performs.
+> 
+> 	Robert Love
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Yes; and Chuck is right that it's three patches not one.
+use permission()
 
-I think at the least you should split it by file into mm/shmem.c
-and mm/mempolicy.c parts, they're entirely independent.
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
 
-I've seen Andi's ack on the '<=' fix,
-I've not seen his ack on the mempolicy optimizations.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-> And that patch is slated for merging once I work out
-> whether Hugh and Andrea have sorted things out?
-
-Well... it remains the case that Andrea prefers his shmem.c
-patch to mine, and I prefer mine to his, while we both agree
-the other's works.  I'm a lot more anxious to see the fix go
-into 2.6.10 than to lose it amidst debate back and forth; and
-I bet Andrea feels just the same.  Choose whichever you prefer
-or find easier to go with - I expect that'll be Andrea's since
-you have it there in your tree.
-
-I'm rather more relaxed about it since observing that you now have
-Steve Longerbeam's patch, acked by Andi, in your tree.  I presume
-you're intending that to go in 2.6.11 or 12, rather than just putting
-it there to experiment?  It's a bit silly at present since it leaves
-the shmem info->policy in place, while adding a mapping->policy:
-I need to go in to convert over and remove shmem's info->policy.
-Whereupon the whole problem fixed by Andrea, and the area of our
-disagreement, will just vanish.
-
-Hugh
-
+iD8DBQFBm6/hdQs4kOxk3/MRAjFPAJ9tmyglXGvlhP4aYFzbX4uAmXIZkwCgjs86
+mUksZfBEDIdncxVMmutvVGA=
+=ei8c
+-----END PGP SIGNATURE-----

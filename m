@@ -1,94 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265470AbTIJVEw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 17:04:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265626AbTIJVEw
+	id S265759AbTIJVUn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 17:20:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265761AbTIJVUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 17:04:52 -0400
-Received: from fed1mtao06.cox.net ([68.6.19.125]:1410 "EHLO fed1mtao06.cox.net")
-	by vger.kernel.org with ESMTP id S265470AbTIJVEq (ORCPT
+	Wed, 10 Sep 2003 17:20:43 -0400
+Received: from gprs147-211.eurotel.cz ([160.218.147.211]:640 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265759AbTIJVUm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 17:04:46 -0400
-Date: Wed, 10 Sep 2003 14:04:43 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, pavel@suse.cz
-Subject: Re: [patch] 2.6.0-test5: serio config broken?
-Message-ID: <20030910210443.GG4559@ip68-0-152-218.tc.ph.cox.net>
-References: <Pine.LNX.4.44.0309081319380.1666-100000@home.osdl.org> <3F5DBC1F.8DF1F07A@eyal.emu.id.au> <20030910110225.GC27368@fs.tum.de> <20030910155542.GD4559@ip68-0-152-218.tc.ph.cox.net> <20030910170610.GH27368@fs.tum.de> <20030910185902.GE4559@ip68-0-152-218.tc.ph.cox.net> <20030910191038.GK27368@fs.tum.de> <20030910193158.GF4559@ip68-0-152-218.tc.ph.cox.net> <20030910195544.GL27368@fs.tum.de>
+	Wed, 10 Sep 2003 17:20:42 -0400
+Date: Wed, 10 Sep 2003 22:11:26 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: What happened to SUSPEND_SAVE_STATE?
+Message-ID: <20030910201124.GA11449@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030910195544.GL27368@fs.tum.de>
-User-Agent: Mutt/1.5.4i
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 10, 2003 at 09:55:44PM +0200, Adrian Bunk wrote:
-> On Wed, Sep 10, 2003 at 12:31:58PM -0700, Tom Rini wrote:
-> >...
-> > ===== drivers/input/keyboard/Kconfig 1.6 vs edited =====
-> > --- 1.6/drivers/input/keyboard/Kconfig	Wed Jul 16 10:39:32 2003
-> > +++ edited/drivers/input/keyboard/Kconfig	Fri Sep  5 14:45:36 2003
-> > @@ -2,8 +2,9 @@
-> >  # Input core configuration
-> >  #
-> >  config INPUT_KEYBOARD
-> > -	bool "Keyboards" if EMBEDDED || !X86
-> > +	bool "Keyboards"
-> >  	default y
-> > +	select KEYBOARD_ATKBD if STANDARD && X86
-> >  	depends on INPUT
-> >  	help
-> >  	  Say Y here, and a list of supported keyboards will be displayed.
-> > @@ -12,7 +13,7 @@
-> >  	  If unsure, say Y.
-> >  
-> >  config KEYBOARD_ATKBD
-> > -	tristate "AT keyboard support" if EMBEDDED || !X86 
-> > +	tristate "AT keyboard support"
-> >  	default y
-> >  	depends on INPUT && INPUT_KEYBOARD && SERIO
-> >  	help
-> > ===== drivers/input/serio/Kconfig 1.9 vs edited =====
-> > --- 1.9/drivers/input/serio/Kconfig	Wed Jul 16 10:39:32 2003
-> > +++ edited/drivers/input/serio/Kconfig	Fri Sep  5 14:45:36 2003
-> > @@ -2,7 +2,8 @@
-> >  # Input core configuration
-> >  #
-> >  config SERIO
-> > -	tristate "Serial i/o support (needed for keyboard and mouse)"
-> > +	tristate "Serial i/o support (needed for keyboard and mouse)" if !(STANDARD && X86)
-> > +	select SERIO_I8042 if STANDARD && X86
-> >  	default y
-> >  	---help---
-> >  	  Say Yes here if you have any input device that uses serial I/O to
-> 
-> This works but seems fragile since everyone touching the dependencies 
-> must know that the tristate dependencies of SERIO must always match the 
-> select dependencies in INPUT_KEYBOARD.
+Hi!
 
-How so?  SERIO only selects SERIO_* bits, and INPUT only selects INPUT*
-(and, imho, keyboard is input :)) bits.
+What happened to SUSPEND_SAVE_STATE?
 
-> > @@ -19,7 +20,7 @@
-> >  	  as a module, say M here and read <file:Documentation/modules.txt>.
-> >  
-> >  config SERIO_I8042
-> > -	tristate "i8042 PC Keyboard controller" if EMBEDDED || !X86
-> > +	tristate "i8042 PC Keyboard controller"
-> >  	default y
-> >  	depends on SERIO
-> >  	---help---
-> >...
-> 
-> Yes, removing the "if EMBEDDED || !X86" solves the problem...
+pcmcia_socket_dev_suspend() still expects to receive it, but I do not
+see any place where it is generated. Should it be killed from
+device.h? And these 6 places fixed?
 
-Without other changes, it brings back the "user can shoot themselves in
-the foot, easily." problem.  You can only remove the 'if ...' if you
-select it before.
+pavel@amd:/usr/src/linux$ grep SUSPEND_SAVE_STATE `find . -name "*.c"`
+./arch/ppc/ocp/ocp-driver.c:            if (level == SUSPEND_SAVE_STATE && ocp_dev->driver->save_state)
+./arch/arm/mach-sa1100/neponset.c:      if (level == SUSPEND_SAVE_STATE ||
+./drivers/pcmcia/i82092.c:      return pcmcia_socket_dev_suspend(&dev->dev, state, SUSPEND_SAVE_STATE);
+./drivers/pcmcia/sa1111_generic.c:      return pcmcia_socket_dev_suspend(&dev->dev, state, SUSPEND_SAVE_STATE);
+./drivers/serial/8250_pci.c:                    serial8250_suspend_port(priv->line[i], SUSPEND_SAVE_STATE);
+./drivers/serial/core.c:        case SUSPEND_SAVE_STATE:
+pavel@amd:/usr/src/linux$
 
+							Pavel
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315198AbSHaXdf>; Sat, 31 Aug 2002 19:33:35 -0400
+	id <S315709AbSHaXlp>; Sat, 31 Aug 2002 19:41:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315709AbSHaXdf>; Sat, 31 Aug 2002 19:33:35 -0400
-Received: from sullivan.realtime.net ([205.238.132.76]:43538 "EHLO
-	sullivan.realtime.net") by vger.kernel.org with ESMTP
-	id <S315198AbSHaXdf>; Sat, 31 Aug 2002 19:33:35 -0400
-Date: Sat, 31 Aug 2002 18:32:51 -0500 (CDT)
-Message-Id: <200208312332.g7VNWpL37633@sullivan.realtime.net>
-From: Milton Miller <miltonm@bga.com>
-To: Krzysiek.Taraszka@sullivan.realtime.net (dzimi@pld.org.pl)
-In-Reply-To: <Pine.LNX.4.44L.0208301938150.24037-200000@ep09.kernel.pl>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Reply-to: linuxppc-dev@lists.linuxppc.org
+	id <S316204AbSHaXlp>; Sat, 31 Aug 2002 19:41:45 -0400
+Received: from inet-mail4.oracle.com ([148.87.2.204]:33756 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S315709AbSHaXlo>; Sat, 31 Aug 2002 19:41:44 -0400
+Message-ID: <3D7154C6.7090405@oracle.com>
+Date: Sun, 01 Sep 2002 01:44:06 +0200
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+Organization: Oracle Consulting Premium Services
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020606
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.33: LOG macro in cpia.c broken
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At Fri Aug 30 2002 - 12:54:37 EST Krzysiek Taraszka (dzimi@pld.org.pl) wrote:
-> Great work, but in 2.2.22rc2 powerpc's still broken.
-> First of All Sources have got a lot of unsed stuff.
-> For example look like that:
-> 
-> [dzimi@cyborg linux]$ rgrep -n -R '*.*' 'CONFIG_PPC64' . 
-...
+   gcc -Wp,-MD,./.cpia.o.d -D__KERNEL__ 
+-I/usr/local/src/linux-2.5.33/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix 
+include -DMODULE   -DKBUILD_BASENAME=cpia -DEXPORT_SYMTAB  -c -o cpia.o 
+cpia.c
+cpia.c: In function `proc_cpia_create':
+cpia.c:1255: called object is not a function
+cpia.c:1255: parse error before string constant
+cpia.c:1255: warning: left-hand operand of comma expression has no effect
+cpia.c:1255: parse error before ')' token
+cpia.c: In function `set_vw_size':
+cpia.c:1460: called object is not a function
+cpia.c:1460: parse error before string constant
 
-Doesn't sound like -rc (release canidate) changes.
+[etc.]
 
-> Second kernel-2.2.21 still have got time init problems in symbios driver
-> on powerpc platform.
-> I send to you my ugly hack witch work, but IMHO he's ugly ;) I need to do
-> it correct.
+All lines with "called object is not a function" have the LOG
+  macro which is supposed to ultimately call printk().
 
-> Third, kernel for powerpc boot and work on g3-266 but on g3-333 Ops ...
-> (kernel traps, kernel wrote: Caused by SRR1 or somethink like that, in 2.3
-> i saw #define FIX_SRR1 macro ...)
+--alessandro
 
-Well, SRR1 doesn't cause traps, but it does help tell you why they occurred.
-And the FIX_SRR1 stuff isn't the solution either if you look at it closer.
-How about a decoded oops?  Also, you didn't say what platform you were using.
+  "everything dies, baby that's a fact
+    but maybe everything that dies someday comes back"
+        (Bruce Springsteen, "Atlantic City")
 
-As far as the open-pic changes you posted, how about explaining what your
-trying to fix (partly hidden by the rename and move to chrp_setup.c from
-open_pic.c)?
-
-I see you are wrapping the 8259 checks, but it also refers to a few new
-functions/macros I didn't see defined.
-
-How about discussing these problems and patches over at
-linuxppc-dev@lists.linuxppc.org ? (I set the reply-to there).
-
-milton

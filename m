@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131848AbRAERb3>; Fri, 5 Jan 2001 12:31:29 -0500
+	id <S132457AbRAERdT>; Fri, 5 Jan 2001 12:33:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131639AbRAERbT>; Fri, 5 Jan 2001 12:31:19 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:46863 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S132474AbRAERbH>;
-	Fri, 5 Jan 2001 12:31:07 -0500
-Message-ID: <3A56042B.4729E26C@innominate.de>
-Date: Fri, 05 Jan 2001 18:28:12 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Laramie Leavitt <laramieleavitt@onetel.net.uk>,
+	id <S132440AbRAERdK>; Fri, 5 Jan 2001 12:33:10 -0500
+Received: from smtpnotes.altec.com ([209.149.164.10]:43530 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S131639AbRAERc4>; Fri, 5 Jan 2001 12:32:56 -0500
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: phillips@innominate.de (Daniel Phillips),
+        hahn@coffee.psychology.mcmaster.ca (Mark Hahn),
         linux-kernel@vger.kernel.org
-Subject: Re: 2.4 Kernel Lockup
-In-Reply-To: <JKEGJJAJPOLNIFPAEDHLAEJNCCAA.laramieleavitt@onetel.net.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <862569CB.0060544C.00@smtpnotes.altec.com>
+Date: Fri, 5 Jan 2001 11:32:39 -0600
+Subject: Re: Change of policy for future 2.2 driver submissions
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Laramie Leavitt wrote:
-> 
-> I seem to be getting a rather odd kernel lockup on 2.4.
-> I am using XFree 3.3.6 ( I believe ).
-> 
-> Whenever I start X, my session starts up like normal,
-> but soon locks HARD.  Is this a known issue?  I
-> suspected the fb stuff, and so I removed it and the
-> problem remains.
-> 
-> Any ideas?  I can repeat it every single time.
 
-Can you please provide full details of your
-system/configuration/anything else that might be relevant?  (lkml faq)
 
---
-Daniel
+Well, I got off linux-kernel while 2.0.3x was still current, and didn't return
+until a few months ago.  Apparently the definitions have changed over the past
+few years.
+
+On another subject, is all this new "testXX-preYY" stuff over now that 2.4.0 is
+out, and will we be going back to the standard x.y.z numbering scheme?  Or is
+this another thing that's changed for good?  I really miss being able to apply
+all the patches at once with linux/scripts/patchkernel.
+
+Wayne
+
+
+
+
+Alan Cox <alan@lxorguk.ukuu.org.uk> on 01/05/2001 11:15:36 AM
+
+To:   Wayne Brown/Corporate/Altec@Altec
+cc:   phillips@innominate.de (Daniel Phillips),
+      hahn@coffee.psychology.mcmaster.ca (Mark Hahn),
+      linux-kernel@vger.kernel.org
+
+Subject:  Re: Change of policy for future 2.2 driver submissions
+
+
+
+> In other words, there's no longer any such thing as a "stable" branch.  The
+> whole point of having separate production and development branches was to have
+> one in which each succeeding patch could be counted upon to be more reliable
+
+By your personal definition of stable 2.0.3x is the current stable kernel.
+
+Alan
+
+
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

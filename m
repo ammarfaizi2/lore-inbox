@@ -1,318 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264256AbTEOV1q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 17:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264257AbTEOV1q
+	id S264253AbTEOVd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 17:33:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264254AbTEOVd5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 17:27:46 -0400
-Received: from relax.cmf.nrl.navy.mil ([134.207.10.227]:640 "EHLO
-	relax.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id S264256AbTEOV1k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 17:27:40 -0400
-Date: Thu, 15 May 2003 17:40:33 -0400
-From: chas williams <chas@cmf.nrl.navy.mil>
-Message-Id: <200305152140.h4FLeX101951@relax.cmf.nrl.navy.mil>
-To: davem@redhat.com
-Subject: [PATCH][ATM] allow atm to be loaded as a module
-Cc: linux-kernel@vger.kernel.org
+	Thu, 15 May 2003 17:33:57 -0400
+Received: from fkn.j.pl ([80.48.48.38]:6822 "EHLO fkn.net.pl")
+	by vger.kernel.org with ESMTP id S264253AbTEOVdz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 17:33:55 -0400
+Reply-To: <Marcin@MWiacek.com>
+From: "Marcin Wiacek" <Marcin@MWiacek.com>
+To: "'Lionel Bouton'" <Lionel.Bouton@inet6.fr>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [SiS IDE patch] various fixes
+Date: Thu, 15 May 2003 23:43:56 +0200
+Message-ID: <000601c31b2b$77b6acb0$ef0063d9@marcin>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0007_01C31B3C.3B3F7CB0"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+Importance: Normal
+In-Reply-To: <3EC3B7F1.4050105@inet6.fr>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
---- linux-2.5.68/net/Kconfig.002	Thu May 15 14:37:28 2003
-+++ linux-2.5.68/net/Kconfig	Thu May 15 14:37:50 2003
-@@ -213,7 +213,7 @@
- source "net/sctp/Kconfig"
- 
- config ATM
--	bool "Asynchronous Transfer Mode (ATM) (EXPERIMENTAL)"
-+	tristate "Asynchronous Transfer Mode (ATM) (EXPERIMENTAL)"
- 	depends on EXPERIMENTAL
- 	---help---
- 	  ATM is a high-speed networking technology for Local Area Networks
---- linux-2.5.68/net/sched/Kconfig.000	Thu May 15 14:38:02 2003
-+++ linux-2.5.68/net/sched/Kconfig	Thu May 15 14:38:42 2003
-@@ -63,7 +63,7 @@
- #tristate '  H-PFQ packet scheduler' CONFIG_NET_SCH_HPFQ
- #tristate '  H-FSC packet scheduler' CONFIG_NET_SCH_HFCS
- config NET_SCH_ATM
--	bool "ATM pseudo-scheduler"
-+	tristate "ATM pseudo-scheduler"
- 	depends on NET_SCHED && ATM
- 	---help---
- 	  Say Y here if you want to use the ATM pseudo-scheduler.  This
---- linux-2.5.68/net/atm/Makefile.002	Thu May 15 15:12:02 2003
-+++ linux-2.5.68/net/atm/Makefile	Thu May 15 15:12:22 2003
-@@ -11,7 +11,7 @@
- obj-$(CONFIG_ATM_BR2684) += br2684.o
- atm-$(subst m,y,$(CONFIG_ATM_BR2684)) += ipcommon.o
- atm-$(subst m,y,$CONFIG_NET_SCH_ATM)) += ipcommon.o
--obj-$(CONFIG_PROC_FS) += proc.o
-+atm-$(CONFIG_PROC_FS) += proc.o
- 
- obj-$(CONFIG_ATM_LANE) += lec.o
- obj-$(CONFIG_ATM_MPOA) += mpoa.o
---- linux-2.5.68/net/atm/common.c.006	Thu May 15 14:37:03 2003
-+++ linux-2.5.68/net/atm/common.c	Thu May 15 17:36:53 2003
-@@ -1209,3 +1209,42 @@
-         return;
- }        
- #endif
-+
-+static int __init atm_init(void)
-+{
-+	int error;
-+
-+	if ((error = atmpvc_init()) < 0) {
-+		printk(KERN_ERR "atmpvc_init() failed with %d\n", error);
-+		goto done;
-+	}
-+	if ((error = atmsvc_init()) < 0) {
-+		printk(KERN_ERR "atmsvc_init() failed with %d\n", error);
-+		atmpvc_exit();
-+		goto done;
-+	}
-+#ifdef CONFIG_PROC_FS
-+        if ((error = atm_proc_init()) < 0) {
-+		printk(KERN_ERR "atm_proc_init() failed with %d\n",error);
-+		atmpvc_exit();
-+		atmsvc_exit();
-+		goto done;
-+	}
-+#endif
-+done:
-+	return error;
-+}
-+
-+static void __exit atm_exit(void)
-+{
-+#ifdef CONFIG_PROC_FS
-+	atm_proc_exit();
-+#endif
-+	atmsvc_exit();
-+	atmpvc_exit();
-+}
-+
-+module_init(atm_init);
-+module_exit(atm_exit);
-+
-+MODULE_LICENSE("GPL");
---- linux-2.5.68/net/atm/common.h.000	Thu May 15 15:00:31 2003
-+++ linux-2.5.68/net/atm/common.h	Thu May 15 14:53:12 2003
-@@ -28,7 +28,12 @@
- void atm_release_vcc_sk(struct sock *sk,int free_sk);
- void atm_shutdown_dev(struct atm_dev *dev);
- 
-+int atmpvc_init(void);
-+void atmpvc_exit(void);
-+int atmsvc_init(void);
-+void atmsvc_exit(void);
- int atm_proc_init(void);
-+void atm_proc_exit(void);
- 
- /* SVC */
- 
---- linux-2.5.68/net/atm/svc.c.002	Thu May 15 14:39:08 2003
-+++ linux-2.5.68/net/atm/svc.c	Thu May 15 15:06:03 2003
-@@ -439,13 +439,12 @@
-  *	Initialize the ATM SVC protocol family
-  */
- 
--static int __init atmsvc_init(void)
-+int __init atmsvc_init(void)
- {
--	if (sock_register(&svc_family_ops) < 0) {
--		printk(KERN_ERR "ATMSVC: can't register");
--		return -1;
--	}
--	return 0;
-+	return sock_register(&svc_family_ops);
- }
- 
--module_init(atmsvc_init);
-+void __exit atmsvc_exit(void)
-+{
-+	sock_unregister(PF_ATMSVC);
-+}
---- linux-2.5.68/net/atm/pvc.c.001	Thu May 15 14:39:11 2003
-+++ linux-2.5.68/net/atm/pvc.c	Thu May 15 15:05:58 2003
-@@ -116,20 +116,12 @@
-  */
- 
- 
--static int __init atmpvc_init(void)
-+int __init atmpvc_init(void)
- {
--	int error;
--
--	error = sock_register(&pvc_family_ops);
--	if (error < 0) {
--		printk(KERN_ERR "ATMPVC: can't register (%d)",error);
--		return error;
--	}
--#ifdef CONFIG_PROC_FS
--	error = atm_proc_init();
--	if (error) printk("atm_proc_init fails with %d\n",error);
--#endif
--	return 0;
-+	return sock_register(&pvc_family_ops);
- }
- 
--module_init(atmpvc_init);
-+void __exit atmpvc_exit(void)
-+{
-+	sock_unregister(PF_ATMPVC);
-+}
---- linux-2.5.68/net/atm/proc.c.002	Thu May 15 15:00:43 2003
-+++ linux-2.5.68/net/atm/proc.c	Thu May 15 17:18:36 2003
-@@ -630,12 +630,28 @@
-     name->proc_fops = &proc_spec_atm_operations; \
-     name->owner = THIS_MODULE
- 
-+static struct proc_dir_entry *devices = NULL, *pvc = NULL,
-+		*svc = NULL, *arp = NULL, *lec = NULL, *vc = NULL;
- 
--int __init atm_proc_init(void)
-+static void atm_proc_cleanup(void)
- {
--	struct proc_dir_entry *devices = NULL,*pvc = NULL,*svc = NULL;
--	struct proc_dir_entry *arp = NULL,*lec = NULL,*vc = NULL;
-+	if (devices)
-+		remove_proc_entry("devices",atm_proc_root);
-+	if (pvc)
-+		remove_proc_entry("pvc",atm_proc_root);
-+	if (svc)
-+		remove_proc_entry("svc",atm_proc_root);
-+	if (arp)
-+		remove_proc_entry("arp",atm_proc_root);
-+	if (lec)
-+		remove_proc_entry("lec",atm_proc_root);
-+	if (vc)
-+		remove_proc_entry("vc",atm_proc_root);
-+	remove_proc_entry("net/atm",NULL);
-+}
- 
-+int __init atm_proc_init(void)
-+{
- 	atm_proc_root = proc_mkdir("net/atm",NULL);
- 	if (!atm_proc_root)
- 		return -ENOMEM;
-@@ -652,12 +668,11 @@
- 	return 0;
- 
- cleanup:
--	if (devices) remove_proc_entry("devices",atm_proc_root);
--	if (pvc) remove_proc_entry("pvc",atm_proc_root);
--	if (svc) remove_proc_entry("svc",atm_proc_root);
--	if (arp) remove_proc_entry("arp",atm_proc_root);
--	if (lec) remove_proc_entry("lec",atm_proc_root);
--	if (vc) remove_proc_entry("vc",atm_proc_root);
--	remove_proc_entry("net/atm",NULL);
-+	atm_proc_cleanup();
- 	return -ENOMEM;
- }
-+
-+void __exit atm_proc_exit(void)
-+{
-+	atm_proc_cleanup();
-+}
---- linux-2.5.68/drivers/atm/Kconfig.001	Thu May 15 17:29:51 2003
-+++ linux-2.5.68/drivers/atm/Kconfig	Thu May 15 17:32:59 2003
-@@ -7,14 +7,14 @@
- 
- config ATM_TCP
- 	tristate "ATM over TCP"
--	depends on INET
-+	depends on INET && ATM
- 	help
- 	  ATM over TCP driver. Useful mainly for development and for
- 	  experiments. If unsure, say N.
- 
- config ATM_LANAI
- 	tristate "Efficient Networks Speedstream 3010"
--	depends on PCI
-+	depends on PCI && ATM
- 	help
- 	  Supports ATM cards based on the Efficient Networks "Lanai"
- 	  chipset such as the Speedstream 3010 and the ENI-25p.  The
-@@ -23,7 +23,7 @@
- 
- config ATM_ENI
- 	tristate "Efficient Networks ENI155P"
--	depends on PCI
-+	depends on PCI && ATM
- 	---help---
- 	  Driver for the Efficient Networks ENI155p series and SMC ATM
- 	  Power155 155 Mbps ATM adapters. Both, the versions with 512KB and
-@@ -133,7 +133,7 @@
- 
- config ATM_FIRESTREAM
- 	tristate "Fujitsu FireStream (FS50/FS155) "
--	depends on PCI
-+	depends on PCI && ATM
- 	help
- 	  Driver for the Fujitsu FireStream 155 (MB86697) and
- 	  FireStream 50 (MB86695) ATM PCI chips.
-@@ -145,7 +145,7 @@
- 
- config ATM_ZATM
- 	tristate "ZeitNet ZN1221/ZN1225"
--	depends on PCI
-+	depends on PCI && ATM
- 	help
- 	  Driver for the ZeitNet ZN1221 (MMF) and ZN1225 (UTP-5) 155 Mbps ATM
- 	  adapters.
-@@ -182,7 +182,7 @@
- #   fi
- config ATM_NICSTAR
- 	tristate "IDT 77201 (NICStAR) (ForeRunnerLE)"
--	depends on PCI
-+	depends on PCI && ATM
- 	help
- 	  The NICStAR chipset family is used in a large number of ATM NICs for
- 	  25 and for 155 Mbps, including IDT cards and the Fore ForeRunnerLE
-@@ -217,7 +217,7 @@
- 
- config ATM_IDT77252
- 	tristate "IDT 77252 (NICStAR II)"
--	depends on PCI
-+	depends on PCI && ATM
- 	help
- 	  Driver for the IDT 77252 ATM PCI chips.
- 
-@@ -253,7 +253,7 @@
- 
- config ATM_AMBASSADOR
- 	tristate "Madge Ambassador (Collage PCI 155 Server)"
--	depends on PCI
-+	depends on PCI && ATM
- 	help
- 	  This is a driver for ATMizer based ATM card produced by Madge
- 	  Networks Ltd. Say Y (or M to compile as a module named ambassador)
-@@ -277,7 +277,7 @@
- 
- config ATM_HORIZON
- 	tristate "Madge Horizon [Ultra] (Collage PCI 25 and Collage PCI 155 Client)"
--	depends on PCI
-+	depends on PCI && ATM
- 	help
- 	  This is a driver for the Horizon chipset ATM adapter cards once
- 	  produced by Madge Networks Ltd. Say Y (or M to compile as a module
-@@ -301,7 +301,7 @@
- 
- config ATM_IA
- 	tristate "Interphase ATM PCI x575/x525/x531"
--	depends on PCI
-+	depends on PCI && ATM
- 	---help---
- 	  This is a driver for the Interphase (i)ChipSAR adapter cards
- 	  which include a variety of variants in term of the size of the
-@@ -334,7 +334,7 @@
- 
- config ATM_FORE200E_MAYBE
- 	tristate "FORE Systems 200E-series"
--	depends on PCI || SBUS
-+	depends on (PCI || SBUS) && ATM
- 	---help---
- 	  This is a driver for the FORE Systems 200E-series ATM adapter
- 	  cards. It simultaneously supports PCA-200E and SBA-200E models
+------=_NextPart_000_0007_01C31B3C.3B3F7CB0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+
+Hi,
+
+> These errors are normal (the requested info is meaningless on CD/DVD 
+> drives).
+[...]
+>  From the .config you sent, " CONFIG_IDEDMA_ONLYDISK is not set ", so 
+> dma being disabled for your CD/DVD drives may be related to 
+> them having 
+> bugs in DMA mode, the kernel IDE subsystem disables DMA or higher dma 
+> modes with peripherals it knows to be buggy. Please send the 
+> output of 
+> "hdparm -i /dev/<yourdrive>"
+[....]
+> IIRC this message is in fact harmless, do you have any other problem 
+> with the harddrive ?
+
+With all respect. I'm NOT newbie (also in Linux). 2.4.21 is first kernel
+version, where I have problems with IDE subsystem (both on old and new
+PC).
+
+When I enabled both standard IDE and SiS IDE drivers, errors
+("DriveReadySeekCompleteError" and similiar) don't allow system to
+start.
+
+When I use SIS IDE only, DMA is not enabled by default (for UDMA 33
+devices - earlier in 2.4.20 and earlier IT WAS DONE).
+
+Today I bough new IDE card  with Silicon Image and Silicon Image IDE
+driver also shows errors with HDD (which is 100% OK). 
+
+Please treat it seriously. I know, how to configure Linux kernel - I
+make it from few years. In 2.4.21 there is REALLY something wrong.
+Please do not say, that errors are normal - earlier they didn't exist
+and weren't shown anywhere (also in hdparm). I'm here and can give all
+required info for tracking bug. Please treat it seriously. When kernel
+shows errors in some parameters configurations, doesn't allow to use
+some combination of config parameters or when doesn't enable DMA, there
+is something wrong.
+
+In attachment config info from hdparm.
+
+Pozdrowienia/Best Regards
+-- 
+Marcin Wiacek (www.mwiacek.com marcin@mwiacek.com)
+
+------=_NextPart_000_0007_01C31B3C.3B3F7CB0
+Content-Type: application/octet-stream;
+	name="ID.ZIP"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="ID.ZIP"
+
+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
+
+------=_NextPart_000_0007_01C31B3C.3B3F7CB0--
+

@@ -1,101 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263179AbTIVPJT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 11:09:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbTIVPJT
+	id S263177AbTIVPJY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 11:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbTIVPJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 11:09:19 -0400
-Received: from ida.rowland.org ([192.131.102.52]:1028 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S263179AbTIVPJR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 11:09:17 -0400
-Date: Mon, 22 Sep 2003 11:09:16 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: David Brownell <david-b@pacbell.net>
-cc: Greg KH <greg@kroah.com>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: PATCH (as112) Re: USB APM suspend
-In-Reply-To: <3F6E493B.7070901@pacbell.net>
-Message-ID: <Pine.LNX.4.44L0.0309221034230.1884-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 22 Sep 2003 11:09:24 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:3019 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S263177AbTIVPJW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 11:09:22 -0400
+Date: Tue, 23 Sep 2003 01:06:01 +1000
+From: CaT <cat@zip.com.au>
+To: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Kronos <kronos@kronoz.cjb.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix Athlon MCA
+Message-ID: <20030922150601.GD514@zip.com.au>
+References: <20030921143934.GA1867@dreamland.darkstar.lan> <Pine.LNX.4.44.0309211034080.11614-100000@home.osdl.org> <20030921174731.GA891@redhat.com> <20030922142023.GC514@zip.com.au> <20030922144345.GC15344@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030922144345.GC15344@redhat.com>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Sep 2003, David Brownell wrote:
+On Mon, Sep 22, 2003 at 03:43:45PM +0100, Dave Jones wrote:
+> The bank is referring to an MCE bank rather than a memory slot.
+> Each MCE bank checks different things.
 
-> Alan Stern wrote:
-> > Here's a piece from my system log, when I did "apm --suspend".  The 
-> > usb_device_suspend/resume messages are things I added for debugging.
-> 
-> > Why was this routine called twice?  (Don't be fooled by the timestamps; I 
-> > think the "suspend D4 --> D3" message was created during the suspend but 
-> > not read by syslogd until after the resume.)
-> 
-> That's happened for as long as I remember (2.4 also).
-> Still seems buglike to me, maybe 2.6 will finally squish it...
+ahhh. ok. Well... I found your parsemce.c source. got it compiled it. Ran:
 
-Well, the code path is easy enough to find.  If you look at suspend() in
-arch/i386/kernel/apm.c, you'll see calls to pm_send_all() and
-device_suspend().  They both end up filtering down to the USB HC drivers.  
-The bad one is pm_send_all(); it comes too soon.
+./parsemce -b 2 -e 940040000000017a
 
-By the way, David, apparently core/hcd-pci.c wants the HC drivers to set 
-the hcd state to USB_STATE_SUSPENDED, but a simple grep shows that neither 
-the EHCI nor the OHCI driver does so.  That certainly looks like an 
-oversight, though I'm not sure in which source file.
+and got:
 
-Meanwhile, here's a simple patch to improve logging during suspend and
-resume.  Greg, if David approves please apply it.
+Status: (940040000000017a) Error IP valid
+Restart IP invalid.
 
-Alan Stern
+What the snot does that mean? 8)
 
+(if you can help it'd be appreciated :)
 
-===== hcd-pci.c 1.35 vs edited =====
---- 1.35/drivers/usb/core/hcd-pci.c	Wed Sep  3 11:47:17 2003
-+++ edited/drivers/usb/core/hcd-pci.c	Mon Sep 22 11:02:37 2003
-@@ -273,17 +273,17 @@
- 	int			retval = 0;
- 
- 	hcd = pci_get_drvdata(dev);
-+	dev_dbg (hcd->controller, "suspend D%d --> D%d\n",
-+			dev->current_state, state);
-+
- 	switch (hcd->state) {
- 	case USB_STATE_HALT:
- 		dev_dbg (hcd->controller, "halted; hcd not suspended\n");
- 		break;
- 	case USB_STATE_SUSPENDED:
--		dev_dbg (hcd->controller, "suspend D%d --> D%d\n",
--				dev->current_state, state);
-+		dev_dbg (hcd->controller, "hcd already suspended\n");
- 		break;
- 	default:
--		dev_dbg (hcd->controller, "suspend to state %d\n", state);
--
- 		/* remote wakeup needs hub->suspend() cooperation */
- 		// pci_enable_wake (dev, 3, 1);
- 
-@@ -292,6 +292,9 @@
- 		/* driver may want to disable DMA etc */
- 		hcd->state = USB_STATE_QUIESCING;
- 		retval = hcd->driver->suspend (hcd, state);
-+		if (retval)
-+			dev_dbg (hcd->controller, "suspend fail, retval %d\n",
-+					retval);
- 	}
- 
-  	pci_set_power_state (dev, state);
-@@ -311,6 +314,9 @@
- 	int			retval;
- 
- 	hcd = pci_get_drvdata(dev);
-+	dev_dbg (hcd->controller, "resume from state D%d\n",
-+			dev->current_state);
-+
- 	if (hcd->state != USB_STATE_SUSPENDED) {
- 		dev_dbg (hcd->controller, "can't resume, not suspended!\n");
- 		return -EL3HLT;
-
+-- 
+	And so the stripper looks down and asks 'Can you breathe?'
+		- from a friend's bucks night

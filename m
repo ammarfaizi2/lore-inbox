@@ -1,118 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262828AbUCJUW1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 15:22:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262816AbUCJUVc
+	id S262810AbUCJUjF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 15:39:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbUCJUjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 15:21:32 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:42715 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262765AbUCJUTV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 15:19:21 -0500
-Date: Wed, 10 Mar 2004 21:19:05 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, kenneth.w.chen@intel.com,
-       Andrew Morton <akpm@osdl.org>, thornber@redhat.com
-Subject: Re: [PATCH] backing dev unplugging
-Message-ID: <20040310201905.GG15087@suse.de>
-References: <20040310124507.GU4949@suse.de> <404F7727.8080806@pobox.com>
+	Wed, 10 Mar 2004 15:39:05 -0500
+Received: from mail.shareable.org ([81.29.64.88]:63369 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262810AbUCJUjB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 15:39:01 -0500
+Date: Wed, 10 Mar 2004 20:38:57 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] different proposal for mq_notify(SIGEV_THREAD)
+Message-ID: <20040310203857.GA7341@mail.shareable.org>
+References: <404B2C46.90709@colorfullife.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <404F7727.8080806@pobox.com>
+In-Reply-To: <404B2C46.90709@colorfullife.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 10 2004, Jeff Garzik wrote:
-> Jens Axboe wrote:
-> >Hi,
-> >
-> >Here's a first cut at killing global plugging of block devices to reduce
-> >the nasty contention blk_plug_lock caused. This introduceds per-queue
-> >plugging, controlled by the backing_dev_info. Observations:
-> >
-> >- Most uses of blk_run_queues() without a specific context was bogus.
-> >  Usually the act of kicking the targets in question should be (and
-> >  already are) performed by other activities, such as making the vm
-> >  flushing run to free memory.
-> >
-> >- Some use of blk_run_queues() really just want to kick the final queue
-> >  where the bio goes to. I've added bio_sync() (BIO_RW_SYNC) to manage
-> >  those, if the queue needs unplugging we'll do it when holding the lock
-> >  for the queue already.
-> >
-> >- The dm bit needs careful examination and checking of Joe. It could be
-> >  more clever and maintain plug state of each target, I just added a
-> >  dm_table unplug all functionality.
-> >
-> >Patch is against 2.6.4-rc2-mm1.
+Manfred Spraul wrote:
+> Problem:
+> - high resource usage: one fd for each pending notification.
+> - complex user space.
 > 
-> I like it a lot.
-
-Thanks
-
-> Any chance some of these newly-shortened functions can become static 
-> inline as well?
-
-Yeah most likely. Remember this is just a first version, there's room
-for a little cleanup here and there for sure.
-
-> >@@ -1100,13 +1092,11 @@
-> > 	 * don't plug a stopped queue, it must be paired with 
-> > 	 blk_start_queue()
-> > 	 * which will restart the queueing
-> > 	 */
-> >-	if (!blk_queue_plugged(q)
-> >-	    && !test_bit(QUEUE_FLAG_STOPPED, &q->queue_flags)) {
-> >-		spin_lock(&blk_plug_lock);
-> >-		list_add_tail(&q->plug_list, &blk_plug_list);
-> >+	if (test_bit(QUEUE_FLAG_STOPPED, &q->queue_flags))
-> >+		return;
-> >+
-> >+	if (!test_and_set_bit(QUEUE_FLAG_PLUGGED, &q->queue_flags))
-> > 		mod_timer(&q->unplug_timer, jiffies + q->unplug_delay);
-> >-		spin_unlock(&blk_plug_lock);
-> >-	}
-> > }
-> > 
-> > EXPORT_SYMBOL(blk_plug_device);
-> >@@ -1118,15 +1108,12 @@
-> > int blk_remove_plug(request_queue_t *q)
-> > {
-> > 	WARN_ON(!irqs_disabled());
-> >-	if (blk_queue_plugged(q)) {
-> >-		spin_lock(&blk_plug_lock);
-> >-		list_del_init(&q->plug_list);
-> >-		del_timer(&q->unplug_timer);
-> >-		spin_unlock(&blk_plug_lock);
-> >-		return 1;
-> >-	}
-> > 
-> >-	return 0;
-> >+	if (!test_and_clear_bit(QUEUE_FLAG_PLUGGED, &q->queue_flags))
-> >+		return 0;
-> >+
-> >+	del_timer(&q->unplug_timer);
-> >+	return 1;
-> > }
-> > 
-> > EXPORT_SYMBOL(blk_remove_plug);
+> New proposal:
+> mq_notify(SIGEV_THREAD) receives two additional parameters:
+> - a 16-byte cookie.
+> - a file descriptor of a special notify file. The notify file is similar 
+> to a pipe. The main difference is that writing to it mustn't block, 
+> therefore the buffer handling differs.
+> If the event happens, then the kernel "writes" the cookie to the notify 
+> file.
+> User space reads the cookie and calls the notification function.
 > 
-> I tend to like
-> 
-> 	if (test_and_clear_bit())
-> 		call_out_of_line_function()
-> 
-> style for small functions like this, and inline those.
+> Problems:
+> - More complexity in kernel.
+> - How should the notify fd be created? Right now it's mq_notify with 
+> magic parameters, probably a char device in /dev is the better approach.
 
-I like to do
+Wouldn't it make more sense to use epoll for this?
 
-	if (expected condition)
-		do_stuff
+At the moment, async futexes use one fd per futex, and you want to
+wait for multiple ones you have to use select, poll or epoll.
 
-	slow_path
+If you want to collect from multiple event sources through a single
+fd, you can use epoll.  That seems remarkeably similar to what you're
+proposing for mq_notify().
 
--- 
-Jens Axboe
+The difference is that your proposal eliminates those fds.
+But there is no reason that I can see why mq_notify() should be
+optimised in this way and futexes not.
 
+If you have a cookie mechanism especially for mq events, why not for
+futexes, aio completions, timers, signals (especially child
+terminations) and dnotify events as well?
+
+> I think that the added complexity is not worth the effort if the notify 
+> fd is only used for posix message queues. Are there other users that 
+> could use the notify file? How is SIGEV_THREAD implemented for aio and 
+> timers?
+
+Presently, futexes, aio completions, timers, signals and dnotify
+events could all usefully use a notify file.  Not just for
+SIGEV_THREAD, either.
+
+-- Jamie

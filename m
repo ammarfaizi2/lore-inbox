@@ -1,170 +1,223 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263741AbUGACtd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263770AbUGAD0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263741AbUGACtd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 22:49:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263413AbUGACtd
+	id S263770AbUGAD0q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 23:26:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbUGAD0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 22:49:33 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:23685 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263741AbUGACt1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 22:49:27 -0400
-Subject: [PATCH] implement on-chip Coherent memory API for DMA
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Ian Molton <spyro@f2s.com>, tony@atomide.com, jamey.hicks@hp.com,
-       joshua@joshuawise.com, david-b@pacbell.net,
-       Russell King <rmk@arm.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 30 Jun 2004 21:49:22 -0500
-Message-Id: <1088650166.1889.8.camel@mulgrave>
+	Wed, 30 Jun 2004 23:26:46 -0400
+Received: from mail.shareable.org ([81.29.64.88]:43949 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S263770AbUGAD0a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 23:26:30 -0400
+Date: Thu, 1 Jul 2004 04:26:06 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Cc: Michael Kerrisk <michael.kerrisk@gmx.net>
+Subject: Testing PROT_NONE and other protections, and a surprise
+Message-ID: <20040701032606.GA1564@mail.shareable.org>
+References: <20040630024434.GA25064@mail.shareable.org> <20040630033841.GC21066@holomorphy.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040630033841.GC21066@holomorphy.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This just adds the description and the skeleton null implementation
+William Lee Irwin III wrote:
+> It would be a bug if copy_to_user()/copy_from_user() failed to return
+> errors on attempted copies to/from areas with PROT_NONE protection.
+> 
+> I recommend writing a testcase and submitting it to LTP. I'll follow up
+> with an additional suggestion.
 
-James
+I've just written a thorough test.  The attached program tries every
+combination of PROT_* flags, and tells you what protection you really get.
+I don't know how tests get into LTP; perhaps I can leave that to you?
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/06/30 21:02:11-05:00 jejb@mulgrave.(none) 
-#   Add dma_declare_coherent_memory() API
-#   
-#   This adds the description and a null prototype.
-# 
-# include/linux/dma-mapping.h
-#   2004/06/30 21:01:43-05:00 jejb@mulgrave.(none) +26 -0
-#   Add dma_declare_coherent_memory() API
-# 
-# Documentation/DMA-API.txt
-#   2004/06/30 21:01:43-05:00 jejb@mulgrave.(none) +79 -0
-#   Add dma_declare_coherent_memory() API
-# 
-diff -Nru a/Documentation/DMA-API.txt b/Documentation/DMA-API.txt
---- a/Documentation/DMA-API.txt	2004-06-30 21:45:21 -05:00
-+++ b/Documentation/DMA-API.txt	2004-06-30 21:45:21 -05:00
-@@ -444,4 +444,83 @@
- continuing on for size.  Again, you *must* observe the cache line
- boundaries when doing this.
- 
-+int
-+dma_declare_coherent_memory(struct device *dev, dma_addr_t bus_addr,
-+			    dma_addr_t device_addr, size_t size, int
-+			    flags)
-+
-+
-+Declare region of memory to be handed out by dma_alloc_coherent when
-+it's asked for coherent memory for this device.
-+
-+bus_addr is the physical address to which the memory is currently
-+assigned in the bus responding region (this will be used by the
-+platform to perform the mapping)
-+
-+device_addr is the physical address the device needs to be programmed
-+with actually to address this memory (this will be handed out as the
-+dma_addr_t in dma_alloc_coherent())
-+
-+size is the size of the area (must be multiples of PAGE_SIZE).
-+
-+flags can be or'd together and are
-+
-+DMA_MEMORY_MAP - request that the memory returned from
-+dma_alloc_coherent() be directly writeable.
-+
-+DMA_MEMORY_IO - request that the memory returned from
-+dma_alloc_coherent() be addressable using read/write/memcpy_toio etc.
-+
-+One or both of these flags must be present
-+
-+DMA_MEMORY_INCLUDES_CHILDREN - make the declared memory be allocated by
-+dma_alloc_coherent of any child devices of this one (for memory residing
-+on a bridge).
-+
-+DMA_MEMORY_EXCLUSIVE - only allocate memory from the declared regions. 
-+Do not allow dma_alloc_coherent() to fall back to system memory when
-+it's out of memory in the declared region.
-+
-+The return value will be either DMA_MEMORY_MAP or DMA_MEMORY_IO and
-+must correspond to a passed in flag (i.e. no returning DMA_MEMORY_IO
-+if only DMA_MEMORY_MAP were passed in) for success or zero for
-+failure.
-+
-+Note, for DMA_MEMORY_IO returns, all subsequent memory returned by
-+dma_alloc_coherent() may no longer be accessed directly, but instead
-+must be accessed using the correct bus functions.  If your driver
-+isn't prepared to handle this contingency, it should not specify
-+DMA_MEMORY_IO in the input flags.
-+
-+As a simplification for the platforms, only *one* such region of
-+memory may be declared per device.
-+
-+For reasons of efficiency, most platforms choose to track the declared
-+region only at the granularity of a page.  For smaller allocations,
-+you should use the dma_pool() API.
-+
-+void
-+dma_release_declared_memory(struct device *dev)
-+
-+Remove the memory region previously declared from the system.  This
-+API performs *no* in-use checking for this region and will return
-+unconditionally having removed all the required structures.  It is the
-+drivers job to ensure that no parts of this memory region are
-+currently in use.
-+
-+void *
-+dma_mark_declared_memory_occupied(struct device *dev,
-+				  dma_addr_t device_addr, size_t size)
-+
-+This is used to occupy specific regions of the declared space
-+(dma_alloc_coherent() will hand out the first free region it finds).
-+
-+device_addr is the *device* address of the region requested
-+
-+size is the size (and should be a page sized multiple).
-+
-+The return value will be either a pointer to the processor virtual
-+address of the memory, or an error (via PTR_ERR()) if any part of the
-+region is occupied.
-+
- 
-diff -Nru a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
---- a/include/linux/dma-mapping.h	2004-06-30 21:45:21 -05:00
-+++ b/include/linux/dma-mapping.h	2004-06-30 21:45:22 -05:00
-@@ -42,6 +42,32 @@
- }
- #endif
- 
-+/* flags for the coherent memory api */
-+#define	DMA_MEMORY_MAP			0x01
-+#define DMA_MEMORY_IO			0x02
-+#define DMA_MEMORY_INCLUDES_CHILDREN	0x04
-+#define DMA_MEMORY_EXCLUSIVE		0x08
-+
-+#ifndef ARCH_HAS_DMA_DECLARE_COHERENT_MEMORY
-+static inline int
-+dma_declare_coherent_memory(struct device *dev, dma_addr_t bus_addr,
-+			    dma_addr_t device_addr, size_t size, int flags)
-+{
-+	return 0;
-+}
-+
-+static inline void
-+dma_release_declared_memory(struct device *dev)
-+{
-+}
-+
-+void *dma_mark_declared_memory_occupied(struct device *dev,
-+					dma_addr_t device_addr, size_t size)
-+{
-+	return ERR_PTR(-EBUSY);
-+}
-+#endif
-+
- #endif
- 
+When running it on i386, I got a *huge* surprise (to me).  A
+PROT_WRITE-only page can sometimes fault on read or exec.  This is the
+output:
+
+Requested PROT | ---    R--    -W-    RW-    --X    R-X    -WX    RWX
+========================================================================
+MAP_SHARED     | ---    r-x    !w!    rwx    r-x    r-x    rwx    rwx
+MAP_PRIVATE    | ---    r-x    !w!    rwx    r-x    r-x    rwx    rwx
+
+The "!" means that a read or exec *sometimes* raises a signal.
+
+(In general you cannot predict when it will or won't, because that can
+depends on background paging decisions.)
+
+Now, this makes complete sense when you think about how the page fault
+path works.  But it's quite surprising behaviour from an application
+point of view.  It's widely said that "PROT_WRITE implies PROT_READ on
+i386" (and in fact on all architectures except IA64).  This shows that
+it isn't quite true.
+
+This program should hopefully run on all architectures, however it
+does depend on an empty function working when relocated.  That might
+not be the case.  A file is written and then mapped, to ensure that
+i-cache coherency isn't a problem.
+
+It'll be interesting to see the results on other architectures.
+
+-- Jamie
+
+==== test_mmap_prot.c ====
+/* Test actual page permissions for PROT_* combinations with mmap()
+
+   Copyright (C) 2004  Jamie Lokier
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
 
 
+#include <unistd.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <stdio.h>
+#include <setjmp.h>
+#include <sys/signal.h>
+
+static sigjmp_buf buf;
+static int fd;
+static size_t size;
+
+/* Hopefully this function is so simple it executes correctly even
+   when relocated. */
+void void_function (void) {}
+void void_function_end (void) {}
+
+void sigsegv (int sig)
+{
+	siglongjmp (buf, 1);
+}
+
+void setup (void)
+{
+	char * buffer;
+	size = getpagesize ();
+	buffer = calloc (1, size); /* All zeros. */
+	if (!buffer) {
+		perror ("calloc");
+		exit (1);
+	}
+	fd = open ("/tmp/test_mmap_file", O_CREAT | O_TRUNC | O_RDWR, 0666);
+	if (fd == -1) {
+		perror ("open");
+		exit (1);
+	}
+	if (unlink ("/tmp/test_mmap_file") != 0) {
+		perror ("unlink");
+		exit (1);
+	}
+	memcpy (buffer, (const char *) &void_function,
+		((const char *) &void_function_end
+		 - (const char *) &void_function));
+	if (write (fd, buffer, size) != size) {
+		perror ("write");
+		exit (1);
+	}
+	signal (SIGSEGV, sigsegv);
+	signal (SIGBUS, sigsegv); /* For those that don't use SIGSEGV... */
+}
+
+char * map (int private, int r, int w, int x)
+{
+	char * addr = mmap (0, size, ((r ? PROT_READ : 0)
+				      | (w ? PROT_WRITE : 0)
+				      | (x ? PROT_EXEC : 0)),
+			    MAP_FILE | (private ? MAP_PRIVATE : MAP_SHARED),
+			    fd, 0);
+	if (addr == (char *) MAP_FAILED) {
+		perror ("mmap");
+		exit (1);
+	}
+	return addr;
+}
+
+void test (int private, int R, int W, int X)
+{
+	int i, dummy;
+	char * addr = map (private, R, W, X);
+	int r = 0, w = 0, x = 0;
+
+	for (i = 0; i < 10; i++) {
+		/* Test read. */
+		if (!sigsetjmp (buf, 1)) {
+			dummy = *(volatile char *) addr;
+			r++;
+		}
+
+		/* Ensure page is fresh, if necessary. */
+		if (i == 0) {
+			munmap (addr, size);
+			addr = map (private, R, W, X);
+		}
+
+		/* Test write. */
+		if (!sigsetjmp (buf, 1)) {
+			/* Don't clobber the executable code. */
+			*((volatile char *) (addr + size - 1)) = 1;
+			w++;
+		}
+			    
+		/* Ensure page is fresh, if necessary. */
+		if (i == 0) {
+			munmap (addr, size);
+			addr = map (private, R, W, X);
+		}
+
+		/* Test exec. */
+		if (!sigsetjmp (buf, 1)) {
+			((void (*) (void)) addr) ();
+			x++;
+		}
+	}
+	munmap (addr, size);
+
+	printf ("%c%c%c", (r == 10 ? 'r' : r == 0 ? '-' : '!'),
+		(w == 10 ? 'w' : w == 0 ? '-' : '!'),
+		(x == 10 ? 'x' : x == 0 ? '-' : '!'));
+}
+
+int main ()
+{
+	int private, R, W, X;
+
+	setup ();
+	printf ("Requested PROT | ---    R--    -W-    RW-    --X    R-X    -WX    RWX\n"
+		"========================================================================\n");
+
+	for (private = 0; private <= 1; private++) {
+		printf ("%s    | ", private ? "MAP_PRIVATE" : "MAP_SHARED ");
+
+		for (X = 0; X <= 1; X++) {
+			for (W = 0; W <= 1; W++) {
+				for (R = 0; R <= 1; R++) {
+					if (R | W | X)
+						printf ("    ");
+					test (private, R, W, X);
+				}
+			}
+		}
+
+		printf ("\n");
+	}
+	return 0;
+}

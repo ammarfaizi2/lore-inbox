@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262474AbSJWBjl>; Tue, 22 Oct 2002 21:39:41 -0400
+	id <S262662AbSJWBrt>; Tue, 22 Oct 2002 21:47:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262625AbSJWBil>; Tue, 22 Oct 2002 21:38:41 -0400
-Received: from pool-129-44-58-33.ny325.east.verizon.net ([129.44.58.33]:4100
-	"EHLO arizona.localdomain") by vger.kernel.org with ESMTP
-	id <S262602AbSJWBht>; Tue, 22 Oct 2002 21:37:49 -0400
-Date: Tue, 22 Oct 2002 21:43:45 -0400
-From: "Kevin O'Connor" <kevin@koconnor.net>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: Container_of considered harmful - was Re: usb storage sddr09
-Message-ID: <20021022214345.A5642@arizona.localdomain>
-References: <200210172155.49349.tomlins@cam.org> <20021018193523.GA25316@win.tue.nl> <200210200952.23430.tomlins@cam.org> <20021020182436.GA25975@win.tue.nl>
+	id <S262664AbSJWBrt>; Tue, 22 Oct 2002 21:47:49 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:36651 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S262662AbSJWBrs>; Tue, 22 Oct 2002 21:47:48 -0400
+Date: Wed, 23 Oct 2002 03:51:58 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, ak@muc.de,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       george anzinger <george@mvista.com>, Jeff Dike <jdike@karaya.com>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Bill Davidsen <davidsen@tmr.com>
+Subject: Re: [RFC] linux-2.5.44_vsyscall-proc_A0
+Message-ID: <20021023015157.GI11242@dualathlon.random>
+References: <1035336629.954.90.camel@cog> <1035336772.954.95.camel@cog>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021020182436.GA25975@win.tue.nl>; from aebr@win.tue.nl on Sun, Oct 20, 2002 at 08:24:36PM +0200
+In-Reply-To: <1035336772.954.95.camel@cog>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 20, 2002 at 08:24:36PM +0200, Andries Brouwer wrote:
-> The oops is a dereference of fffffff0 in base/bus.c:driver_attach().
-> I have seen several such oopses lately, various places in the kernel.
-> The cause here is a NULL pointer that is turned into fffffff0 by
-> container_of() and then fed to get_device(). And get_device() tests
-> that it gets a non-NULL pointer, but that does not protect against
-> fffffff0.
+On Tue, Oct 22, 2002 at 06:32:51PM -0700, john stultz wrote:
+> All
+> 	Well, just to fan the flames a bit, here is a patch (applies on top of
+> vsyscall_A1)that adds a /proc/vsyscall interface which gives the address
+> of the vsyscall page if its mapped in. This could be then used to help
+> the UML folks virtualize things, as well as give a cross platform
+> interface that could be used. There's probably a better place in /proc
+> for this, but this is just something to start from. 
+> 	
+> Let me know your thoughts.
 
-Just as an anecdote - I built a variant of container_of to protect against
-cases where NULL can creep in:
+there is no point for this last patch. The vsyscall_ptr is the vsyscall
+number.
 
-#define test_container_of(ptr, type, member) ({               \
-        const typeof( ((type *)0)->member ) *__p = (ptr);     \
-        __p ? container_of(__p, type, member) : NULL;})
+This is equivalent to a proc that shows the syscall number of
+sys_gettimeofday, useless, cat on unistd.h and vsyscall.h will avoid a
+waste of kernel mem.
 
-It calls the real container_of only if 'ptr' is not NULL.
+the uml folks need to replace the vsyscalls, they just know their
+address, like they just know the syscall number of sys_gettimeofday.
 
--Kevin
-
--- 
- ------------------------------------------------------------------------
- | Kevin O'Connor                     "BTW, IMHO we need a FAQ for      |
- | kevin@koconnor.net                  'IMHO', 'FAQ', 'BTW', etc. !"    |
- ------------------------------------------------------------------------
+Andrea

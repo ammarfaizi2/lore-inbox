@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbVBWNDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVBWNP0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261481AbVBWNDe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 08:03:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVBWNDe
+	id S261485AbVBWNP0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 08:15:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbVBWNP0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 08:03:34 -0500
-Received: from hermine.aitel.hist.no ([158.38.50.15]:42245 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261481AbVBWNDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 08:03:30 -0500
-Message-ID: <421C7FC2.1090402@aitel.hist.no>
-Date: Wed, 23 Feb 2005 14:06:10 +0100
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+	Wed, 23 Feb 2005 08:15:26 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:15829 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261485AbVBWNPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 08:15:21 -0500
+Message-ID: <421C8193.2050808@grupopie.com>
+Date: Wed, 23 Feb 2005 13:13:55 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc4-mm1 : IDE crazy numbers, hdb renumbered to hdq ?
-References: <20050223014233.6710fd73.akpm@osdl.org>
-In-Reply-To: <20050223014233.6710fd73.akpm@osdl.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Matt Mackall <mpm@selenic.com>
+Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
+Subject: Re: OT: Why is usb data many times the cpu hog that firewire is?
+References: <200502211216.35194.gene.heskett@verizon.net> <200502211325.55013.gene.heskett@verizon.net> <20050221182952.GF6722@wiggy.net> <200502211708.27211.gene.heskett@verizon.net> <20050222231000.GA3163@waste.org>
+In-Reply-To: <20050222231000.GA3163@waste.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This kernel came up, but my boot script complained about no /dev/hdb3
-when trying to mount /var.
-(I have two IDE disks on the same cable, and an IDE cdrom on another.)
-They are usually hda, hdb, and hdc.
+Matt Mackall wrote:
+>[...]
+> JPEG data is DCT of 8x8 pixel chunks. If you can get at that, you can
+> compare the DC terms of each chunk with minimal decoding. Various
+> thumbnailers do this for speed already.
 
-MAKEDEV hdq did not help.  Looking at sysfs, it turns out that
-/dev/hdq1 is at major:3 minor:1025 if I interpret things right. 
-(/dev/hda1 is at 3:1, which is correct.)
-These numbers did not work with my mknod, it created 7:1 instead.
-So I didn't get to test this mysterious device.
+I really doubt that this would work. It seems to me that you can have 
+very different DC terms with very similar results. In other words, even 
+a little noise in the picture might produce very different DC terms.
 
-But I assume this is a mistake of some sort, I haven't heard about any
-change in the IDE numbering coming up?  2.6.1-rc3-mm1 works as expected.
+Instead of comparing the DC terms, you could compare just the luminance. 
+You would have to decompress just half the data for that and you 
+wouldn't need to make the YUV->RGB conversion. That would probably save 
+a few cycles.
 
-It may be interesting to note that my root raid-1 came up fine,
-consisting of hdq1 and hda1 instead of the usual hdb1 and hda1.
+-- 
+Paulo Marques - www.grupopie.com
 
-Helge Hafting
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130026AbQLZIKQ>; Tue, 26 Dec 2000 03:10:16 -0500
+	id <S130063AbQLZIhi>; Tue, 26 Dec 2000 03:37:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130063AbQLZIJz>; Tue, 26 Dec 2000 03:09:55 -0500
-Received: from [24.65.192.120] ([24.65.192.120]:20980 "EHLO webber.adilger.net")
-	by vger.kernel.org with ESMTP id <S130026AbQLZIJq>;
-	Tue, 26 Dec 2000 03:09:46 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200012260739.eBQ7dFH25619@webber.adilger.net>
-Subject: Re: Abysmal RAID 0 performance on 2.4.0-test10 for IDE?
-In-Reply-To: <20001226002944.A6058@convergence.de> "from Felix von Leitner at
- Dec 26, 2000 00:29:44 am"
-To: Felix von Leitner <leitner@convergence.de>
-Date: Tue, 26 Dec 2000 00:39:15 -0700 (MST)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+	id <S131497AbQLZIh3>; Tue, 26 Dec 2000 03:37:29 -0500
+Received: from queen.bee.lk ([203.143.12.182]:15113 "EHLO bee.lk")
+	by vger.kernel.org with ESMTP id <S130063AbQLZIhV>;
+	Tue, 26 Dec 2000 03:37:21 -0500
+Date: Tue, 26 Dec 2000 14:06:18 +0600 (LKT)
+From: Anuradha Ratnaweera <anuradha@gnu.org>
+To: Kai Henningsen <kaih@khms.westfalen.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: recommended gcc compiler version
+In-Reply-To: <7sSHKzAmw-B@khms.westfalen.de>
+Message-ID: <Pine.LNX.4.21.0012261400290.23467-100000@bee.lk>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felix von Leitner writes:
-> I bought 4 ATA-100 Maxtor drives and put them on a Promise Ultra100
-> controller to make a single striping RAID of them to increase
-> throughput.
+
+
+On 24 Dec 2000, Kai Henningsen wrote:
+
+> anuradha@gnu.org (Anuradha Ratnaweera)  wrote on 22.12.00 in <Pine.LNX.4.21.0012221746160.320-100000@bee.lk>:
 > 
-> I wrote a small test program that simply reads stdin linearly and
-> displays the throughput. Here are the results of my test program:
->   # rb < /dev/ide/host2/bus0/target0/lun0/part1
->   27.8 meg/sec
->   # rb < /dev/ide/host2/bus0/target0/lun0/part1
->   26.8 meg/sec
+> > On Fri, 22 Dec 2000, Alan Cox wrote:
+> >
+> > > For i386
+> > >
+> > > 2.2.18
+> > > 	gcc 2.7.2 or egcs-1.1.2
+> >
+> > Just a remainder for debian users. There is a debian package gcc272 which
+> > is said to be the "GNU C compiler's C part", for "backword compatibility
+> > purposes". I recompiled my kernel after an
+> >
+> >   apt-get install gcc272
+> >
+> > and after setting
+> >
+> >   HOSTGCC = gcc272
+> >
+> > in kernel source tree Makerile.
 > 
-> Here is the result of my test program on the strip set:
->   # rb < /dev/md/0
->   30.3 meg/sec
+> I recently compiled 2.2.18 and noticed that make-kpkg (from kernel-package  
+> - don't compile kernels on Debian without it!) did that automatically.
 
->   hde: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63, UDMA(100)
->   hdf: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63, UDMA(100)
->   hdg: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63, UDMA(100)
->   hdh: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63, UDMA(100)
+That is a very good thing. It would have been even better if the
+dependencies of the kernel-package does include gcc272 rather than giving
+a "command not found" error when make-kpkg is run without gcc272
+installed. It might leave a new user clueless.
 
-That's because IDE doesn't allow multiple requests on the same bus, unlike
-SCSI.  That's why IDE disks on the same bus are "master" and "slave".  If
-you look at the 3ware IDE RAID systems, each drive has its own IDE bus.
-Maybe try a stripe set on only two disks, hde and hdg, and see how it works.
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Anuradha
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,69 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262320AbVBQTL7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262191AbVBQTQ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262320AbVBQTL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 14:11:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbVBQTKZ
+	id S262191AbVBQTQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 14:16:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262350AbVBQTM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 14:10:25 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:49344 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S262350AbVBQTIV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 14:08:21 -0500
-Date: Thu, 17 Feb 2005 20:08:15 +0100
-To: Stefan =?iso-8859-15?Q?D=F6singer?= <stefandoesinger@gmx.at>
-Cc: acpi-devel@lists.sourceforge.net,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       Pavel Machek <pavel@suse.cz>,
-       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
-Subject: Re: [ACPI] Call for help: list of machines with working S3
-Message-ID: <20050217190815.GC4925@gamma.logic.tuwien.ac.at>
-References: <20050214211105.GA12808@elf.ucw.cz> <42121EC5.8000004@gmx.net> <20050215170837.GA6336@gamma.logic.tuwien.ac.at> <200502152038.00401.stefandoesinger@gmx.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200502152038.00401.stefandoesinger@gmx.at>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+	Thu, 17 Feb 2005 14:12:58 -0500
+Received: from it4systems-kln-gw.de.clara.net ([212.6.222.118]:42981 "EHLO
+	frankbuss.de") by vger.kernel.org with ESMTP id S262326AbVBQTLb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 14:11:31 -0500
+From: "Frank Buss" <fb@frank-buss.de>
+To: "'David Brownell'" <david-b@pacbell.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: SL811 problem on mach-pxa
+Date: Thu, 17 Feb 2005 20:11:28 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <200502171009.55375.david-b@pacbell.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+Thread-Index: AcUVHI2rRh0F0ZY3SVad0BtukGT/CQAA+TBw
+Message-Id: <20050217191130.B750B5B874@frankbuss.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Die, 15 Feb 2005, Stefan Dˆsinger wrote:
-> > - DRI must be disabled I guess?! Even with newer X server (x.org)?
-> Do you use the fglrx driver? This doesn't work with any type of suspend so 
-> far. If you use the radeon driver try a driver update.
+> Some of that looks reasonable, not all.  In particular, don't
+> change the convention on resources (memory to i/o), or expect
+> that the two regions involve more than one byte each ... the
+> hardware only has two single-byte registers!
 
-Ok, I installed xlibmesa-gl1-dri-trunk, xserver-xfree86-dri-trunk and
-compiled linux-2.6.11-rc4 and drm modules from drm-trunk-module-src, all
-from http://www.nixnuts.net/files/
+ok, perhaps I've misunderstood the meaning of IORESOURCE_IO and
+IORESOURCE_MEM. Is IORESOURCE_IO for "outb" and "inb" (Intel assembler,
+don't know the Arm aquivalent)? Then you are right, it should be
+IORESOURCE_MEM, only, because anything is accessed as like accessing normal
+memory. I didn't found much documention of such low-level kernel
+programming.
 
-But I had no success whatsoever. With this (Xorg server, current dri/drm
-stuff, ..) the laptop not even wakes up from sleep!
+> I'll look at the ep->hep stuff ... I could believe rc1 got a
+> bug added there.  The urb->hcpriv bit looks wrong though.
+> It may take a little time for me to check it out though. 
 
-Now I am back at debian XFree 4.3.0.1 and DRI disabled and suspend works
-again.
+ok, thanks. If you have a new patch, I'll try it on my platform.
 
-I don't know wether this is a problem with the kernel or the drm, so to
-sum up:
+> > There is still an important error: When a device is 
+> > plugged, then opened and
+> > then unplugged while open, it looks like the process 
+> > freezes, which opened the device
+> 
+> That seems pretty odd; I certainly tested that (on 2.6.almost-10)
+> as part of the initial development, and nothing in that area should
+> have changed either in the sl811 driver or usbcore.  I suspect the
+> issue is one of the other changes you made.
 
-- kernel 2.6.11-rc3-mm2, XFree 4.3.0.1 (debian/sid), no dri
-	works
+perhaps you are right, I don't understand the interactions between the
+driver and the USB framework in detail.
 
-- kernel 2.6.11-rc4, Xorg 6.8.1.99 (debian sid + nixnuts), drm cvs, drm 
-  activated
-	no resume (thus also no test for X)
+> Hmm, what platform were you using?  I've had reports that one of the
+> KARO boards has that issue.  
 
+The platform was developed by a company I'm working for as a freelancer for
+a product the company sells.
 
-Best wishes
+> That looks like the sort of thing that
+> should be done in the reset() routine rather than start(); 
+> and it should
+> certainly use a symbolic constant not 0x08.
 
-Norbert
+do you mean sl811->board->reset? I don't know, where I have to setup the
+function pointer, but looks ok for me to reset the controller (and all
+plugged USB devices) in the probe function.
 
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>                 Universit‡ di Siena
-sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-SWANIBOST (adj.)
-Complete shagged out after a hard day having income tax explained to
-you.
-			--- Douglas Adams, The Meaning of Liff
+-- 
+Frank Buﬂ, fb@frank-buss.de
+http://www.frank-buss.de, http://www.it4-systems.de
+

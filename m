@@ -1,64 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270082AbTHFQkh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 12:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270813AbTHFQjF
+	id S270800AbTHFQpL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 12:45:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270767AbTHFQn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 12:39:05 -0400
-Received: from fed1mtao03.cox.net ([68.6.19.242]:26879 "EHLO
-	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S270811AbTHFQhy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 12:37:54 -0400
-Date: Wed, 6 Aug 2003 09:37:53 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Martin Pool <mbp@samba.org>
-Cc: Richard Zidlicky <rz@linux-m68k.org>, geert@linux-m68k.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] [Kconfig] disable GEN_RTC on ia-64
-Message-ID: <20030806163753.GB579@ip68-0-152-218.tc.ph.cox.net>
-References: <20030806074312.GT22302@vexed.ozlabs.hp.com>
+	Wed, 6 Aug 2003 12:43:59 -0400
+Received: from buttons.universal-fasteners.com ([205.138.133.26]:45326 "HELO
+	ykk-ufi.com") by vger.kernel.org with SMTP id S270740AbTHFQnY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 12:43:24 -0400
+Date: Wed, 6 Aug 2003 12:43:23 -0400
+From: Jim Penny <jpenny@universal-fasteners.com>
+To: linux-kernel@vger.kernel.org
+Subject: linux-2.6-test2, ipsec in tunneling mode
+Message-Id: <20030806124323.1ad8f79a.jpenny@universal-fasteners.com>
+X-Mailer: Sylpheed version 0.9.3claws (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
-Content-Disposition: inline
-In-Reply-To: <20030806074312.GT22302@vexed.ozlabs.hp.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Does anyone have a tested example of tunneling mode working on
+linux-2.6-test2?  If so would you please email it to me.  At this point
+I don't care about authentication method, don't care about addresses,
+etc.  I just want to see a real example.
 
---+QahgC5+KEYLbs62
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I have tried the Linux Magazin "Sicherer Transport" examples, and the
+Linux Advanced Routing & Traffic Control HOWTO examples, but cannot get
+them to work.  They fail with a message of 
+"The result of line xxx: Invalid argument. " message.
 
-On Wed, Aug 06, 2003 at 05:43:13PM +1000, Martin Pool wrote:
+Thanks
 
-> IA-64 does not have a directly accessible real-time clock.  As far as
-> I know the only method to access the clock on this platform is to go
-> through EFI (Extensible Firmware Interface, like a BIOS), which is
-> handled by efirtc.c.
-
-I think that this is the wrong approach.  genrtc allows the platform to
-specify how the rtc is to be accessed.  Therefore, efirtc.c could quite
-probably be removed in favor of genrtc.c, if the proper read/write
-functions are provided, and if genrtc gets alarm code, which is
-something others (rmk at least) have asked for.
-
---=20
-Tom Rini
-http://gate.crashing.org/~trini/
-
---+QahgC5+KEYLbs62
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/MS7hdZngf2G4WwMRAk3xAJwIIuAxhlCFxD/v4954DO1LEPvoNwCglil2
-85WLnCoeCLCLdfdIjOPc7fQ=
-=4aLM
------END PGP SIGNATURE-----
-
---+QahgC5+KEYLbs62--
+Jim Penny

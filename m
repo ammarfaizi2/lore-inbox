@@ -1,73 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277541AbRJVFXf>; Mon, 22 Oct 2001 01:23:35 -0400
+	id <S277551AbRJVFm3>; Mon, 22 Oct 2001 01:42:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277551AbRJVFXZ>; Mon, 22 Oct 2001 01:23:25 -0400
-Received: from ns1.uklinux.net ([212.1.130.11]:30726 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S277541AbRJVFXF>;
-	Mon, 22 Oct 2001 01:23:05 -0400
-Envelope-To: linux-kernel@vger.kernel.org
+	id <S277560AbRJVFmT>; Mon, 22 Oct 2001 01:42:19 -0400
+Received: from static24-72-34-179.reverse.accesscomm.ca ([24.72.34.179]:4242
+	"HELO zed.dlitz.net") by vger.kernel.org with SMTP
+	id <S277551AbRJVFmD>; Mon, 22 Oct 2001 01:42:03 -0400
+Date: Sun, 21 Oct 2001 23:42:37 -0600
+From: "Dwayne C. Litzenberger" <dlitz@dlitz.net>
+To: MichaelM <michail@manegakis.freeserve.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The new X-Kernel !
+Message-ID: <20011021234237.B4193@zed.dlitz.net>
+In-Reply-To: <00d401c159ae$6000c7d0$5cbefea9@moya>
 Mime-Version: 1.0
-Message-Id: <a05100301b7f95ccaa13e@[192.168.239.101]>
-In-Reply-To: <20011022045925Z277532-17408+3211@vger.kernel.org>
-In-Reply-To: <20011022045925Z277532-17408+3211@vger.kernel.org>
-Date: Mon, 22 Oct 2001 06:22:28 +0100
-To: safemode <safemode@speakeasy.net>, linux-kernel@vger.kernel.org
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: 2.4.12-ac3 + e2defrag
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="lEGEL1/lMxI0MVQ2"
+Content-Disposition: inline
+In-Reply-To: <00d401c159ae$6000c7d0$5cbefea9@moya>
+User-Agent: Mutt/1.3.22i
+X-Homepage: http://www.dlitz.net/
+X-Spam-Policy-URL: http://www.dlitz.net/go/spamoff.shtml
+X-PGP-Public-Key-URL: http://www.dlitz.net/gpgkey2.asc
+X-PGP-ID: 0xE272C3C3
+X-PGP-Fingerprint: 9413 0BD2 1030 070E 301E  594F F998 B6D8 E272 C3C3
+X-Operating-System: Debian testing/unstable GNU/Linux zed 2.4.12-ac5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->OK, i ran e2defrag -p 16384 on a disk thinking, hey, 128MB of buffer isn't
->anything to me since i have 770MB of ram and 128MB of swap.   Well, according
->to top this is e2defrag a quarter of the way running through my 20GB fs. 
->   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
->12023 root      16   0  125M  76M  9304 R    22.8 10.1   5:50 e2defrag
->
->That seems right.  Yet this is the /proc/meminfo reading
->         total:    used:    free:  shared: buffers:  cached:
->Mem:  790016000 783785984  6230016     4096 632762368 20373504
->Swap: 133885952 101707776 32178176
->MemTotal:       771500 kB
->MemFree:          6084 kB
->MemShared:           4 kB
->Buffers:        617932 kB
->Cached:           6176 kB
->SwapCached:      13720 kB
->Active:         330800 kB
->Inact_dirty:    307032 kB
->Inact_clean:         0 kB
->Inact_target:   157272 kB
->HighTotal:           0 kB
->HighFree:            0 kB
->LowTotal:       771500 kB
->LowFree:          6084 kB
->SwapTotal:      130748 kB
->SwapFree:        31424 kB
->
->So where does this 500+MB of buffer come from?  It grinded the system to a
->swapcrazy like state even though it wasn't swapping like crazy.  From the way
->it was acting i was getting scared that it might oom out and kill e2defrag
->even though top seemed to show that the program was only using about 125M.
->The question is, why did the kernel decide 610MB of buffers was necessary ?
 
-The 128Mb of "buffers" is within e2defrag itself.  The kernel, seeing 
-a HUGE amount of disk activity, allocates as much RAM as possible to 
-aid the cause - this also means it evicts unused applications to 
-swap.  This is *perfectly normal*.  Your machine is not pageing 
-heavily, so overall it's a win.  Once you start using those apps 
-again, they'll come straight back into memory where and when you want 
-them.
+--lEGEL1/lMxI0MVQ2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Come to that, this is the first time I've heard of e2defrag.  I'm 
-gonna take a look.  :)
+On Sat, Oct 20, 2001 at 10:30:00PM +0100, MichaelM wrote:
+[snippage]
 
--- 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-website:  http://www.chromatix.uklinux.net/vnc/
-geekcode: GCS$/E dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$
-           V? PS PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
-tagline:  The key to knowledge is not to rely on people to teach you it.
+Am I the only one who thought this was a smug joke?
+
+--=20
+Dwayne C. Litzenberger - dlitz@dlitz.net
+
+--lEGEL1/lMxI0MVQ2
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjvTsc0ACgkQ+Zi22OJyw8PS7QCgmBCW2CClztMS+LbHY8XnSj/3
+nTMAoN4ibvYa1nup5ZVM3IYidNfRzACI
+=xSPU
+-----END PGP SIGNATURE-----
+
+--lEGEL1/lMxI0MVQ2--

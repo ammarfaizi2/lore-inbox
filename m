@@ -1,65 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276208AbRI1R6Y>; Fri, 28 Sep 2001 13:58:24 -0400
+	id <S276215AbRI1R7f>; Fri, 28 Sep 2001 13:59:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276210AbRI1R6O>; Fri, 28 Sep 2001 13:58:14 -0400
-Received: from rj.sgi.com ([204.94.215.100]:11978 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S276208AbRI1R6B>;
-	Fri, 28 Sep 2001 13:58:01 -0400
-Message-Id: <200109281758.f8SHwCW21849@jen.americas.sgi.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Gerold Jury <gjury@hal.grips.com>
-cc: Andrey Nekrasov <andy@spylog.ru>, linux-kernel@vger.kernel.org
-Subject: Re: [BENCH] Problems with IO throughput and fairness with 2.4.10 and 2.4.9-ac15 
-In-Reply-To: Message from Gerold Jury <gjury@hal.grips.com> 
-   of "Fri, 28 Sep 2001 14:48:36 +0200." <200109281248.f8SCmaT29893@hal.grips.com> 
-Date: Fri, 28 Sep 2001 12:58:12 -0500
-From: Steve Lord <lord@sgi.com>
+	id <S276210AbRI1R7Y>; Fri, 28 Sep 2001 13:59:24 -0400
+Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:9734 "EHLO
+	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S276211AbRI1R7J>; Fri, 28 Sep 2001 13:59:09 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: all files are executable in vfat
+In-Reply-To: <Pine.GSO.4.21.0109251332470.24321-100000@weyl.math.psu.edu>
+From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+Date: 28 Sep 2001 19:58:46 +0200
+In-Reply-To: <Pine.GSO.4.21.0109251332470.24321-100000@weyl.math.psu.edu> (Alexander Viro's message of "Tue, 25 Sep 2001 13:33:15 -0400 (EDT)")
+Message-ID: <tgr8srrycp.fsf@mercury.rus.uni-stuttgart.de>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thanks, nice to hear.
+Alexander Viro <viro@math.psu.edu> writes:
+
+> On Tue, 25 Sep 2001, William Scott Lockwood III wrote:
 > 
-> So it needs to be something stupid on my side or xfs with the new VM.
+> > dmask?
 > 
-> By the way. It is an Atlon 1.1 (kernel compiled with Atlon optimisation)
-> IDE controller ATA66, disk IBM 15 GB ATA33
-> The machine is solid with and without VIA pci bit 7 byte 55 zero/one
-> swapspace 256MB
-> 
-> preempable patch does not help with my D state problem
-> i have not tried 2.4.10.aa1
-> but i will try with ext2 instead of xfs next time
-> 
-> Gerold
-> 
+> Umm... That makes sense.
 
-Hi,
+I wrote a small patch for that over a year ago, but it wasn't
+integrated because it didn't seem necessary because of the noexec
+option, and we didn't know about about the mc problem back then.  The
+patch was for 2.2.13.  It featured a critical defect, though.
 
-Can you try XFS with this change, just to confirm you are seeing the same
-problem I am seeing. I am not proposing this as a permanent fix yet,
-just confirming what the deadlock is.
+If there's need for it, I can make a version for 2.4.10.
 
-Thanks
-
-   Steve
-
-
-
-===========================================================================
-Index: linux/fs/inode.c
-===========================================================================
-
---- /usr/tmp/TmpDir.21835-0/linux/fs/inode.c_1.53	Fri Sep 28 12:57:27 2001
-+++ linux/fs/inode.c	Fri Sep 28 10:17:49 2001
-@@ -76,7 +76,7 @@
- static kmem_cache_t * inode_cachep;
- 
- #define alloc_inode() \
--	 ((struct inode *) kmem_cache_alloc(inode_cachep, SLAB_KERNEL))
-+	 ((struct inode *) kmem_cache_alloc(inode_cachep, SLAB_NOFS))
- static void destroy_inode(struct inode *inode) 
- {
- 	if (inode_has_buffers(inode))
-
-
+-- 
+Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
+University of Stuttgart           http://cert.uni-stuttgart.de/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262142AbVCEPf7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261990AbVCEPrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262142AbVCEPf7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 10:35:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbVCEPf6
+	id S261990AbVCEPrA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 10:47:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbVCEPhf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 10:35:58 -0500
-Received: from coderock.org ([193.77.147.115]:35235 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261911AbVCEPfU (ORCPT
+	Sat, 5 Mar 2005 10:37:35 -0500
+Received: from coderock.org ([193.77.147.115]:40867 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S262002AbVCEPfh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 10:35:20 -0500
-Subject: [patch 01/12] list_for_each_entry: arch-i386-mm-pageattr.c
+	Sat, 5 Mar 2005 10:35:37 -0500
+Subject: [patch 05/12] gus_wave.c - vfree() checking cleanups
 To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org, janitor@sternwelten.at
+Cc: linux-kernel@vger.kernel.org, domen@coderock.org, jlamanna@gmail.com
 From: domen@coderock.org
-Date: Sat, 05 Mar 2005 16:35:07 +0100
-Message-Id: <20050305153508.7CFFD1EE1E@trashy.coderock.org>
+Date: Sat, 05 Mar 2005 16:35:22 +0100
+Message-Id: <20050305153522.C55381F1F0@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
+gus_wave.c vfree() checking cleanups.
 
-Make code more readable with list_for_each_entry*
-Compile tested.
-
-Signed-off-by: Domen Puncer <domen@coderock.org>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+Signed-off by: James Lamanna <jlamanna@gmail.com>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
 
 
- kj-domen/arch/i386/mm/pageattr.c |    8 ++------
- 1 files changed, 2 insertions(+), 6 deletions(-)
+ kj-domen/sound/oss/gus_wave.c |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
 
-diff -puN arch/i386/mm/pageattr.c~list-for-each-entry-safe-arch_i386_mm_pageattr arch/i386/mm/pageattr.c
---- kj/arch/i386/mm/pageattr.c~list-for-each-entry-safe-arch_i386_mm_pageattr	2005-03-05 16:09:04.000000000 +0100
-+++ kj-domen/arch/i386/mm/pageattr.c	2005-03-05 16:09:04.000000000 +0100
-@@ -189,7 +189,7 @@ int change_page_attr(struct page *page, 
- void global_flush_tlb(void)
- { 
- 	LIST_HEAD(l);
--	struct list_head* n;
-+	struct page *pg, *next;
- 
- 	BUG_ON(irqs_disabled());
- 
-@@ -197,12 +197,8 @@ void global_flush_tlb(void)
- 	list_splice_init(&df_list, &l);
- 	spin_unlock_irq(&cpa_lock);
- 	flush_map();
--	n = l.next;
--	while (n != &l) {
--		struct page *pg = list_entry(n, struct page, lru);
--		n = n->next;
-+	list_for_each_entry_safe(pg, next, &l, lru)
- 		__free_page(pg);
--	}
- } 
- 
- #ifdef CONFIG_DEBUG_PAGEALLOC
+diff -puN sound/oss/gus_wave.c~vfree-sound_oss_gus_wave sound/oss/gus_wave.c
+--- kj/sound/oss/gus_wave.c~vfree-sound_oss_gus_wave	2005-03-05 16:10:41.000000000 +0100
++++ kj-domen/sound/oss/gus_wave.c	2005-03-05 16:10:41.000000000 +0100
+@@ -3126,8 +3126,7 @@ void __exit gus_wave_unload(struct addre
+ 	if (hw_config->slots[5] != -1)
+ 		sound_unload_mixerdev(hw_config->slots[5]);
+ 	
+-	if(samples)
+-		vfree(samples);
++	vfree(samples);
+ 	samples=NULL;
+ }
+ /* called in interrupt context */
 _

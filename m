@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268167AbUIWSNC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268207AbUIWSRl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268167AbUIWSNC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 14:13:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268197AbUIWSKs
+	id S268207AbUIWSRl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 14:17:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268251AbUIWSR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 14:10:48 -0400
-Received: from mail2.ywesee.com ([62.12.131.38]:16353 "HELO debian.ywesee.com")
-	by vger.kernel.org with SMTP id S268167AbUIWSKX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 14:10:23 -0400
-Date: Thu, 23 Sep 2004 20:10:19 +0200
-From: "Zeno R.R. Davatz" <zdavatz@ywesee.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Unloading the modules crashes as well
-Message-ID: <20040923201019.346c8ad0@zrr.local>
-Organization: ywesee - intellectual capital connected
-X-Mailer: Sylpheed-Claws 0.9.12a (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+	Thu, 23 Sep 2004 14:17:28 -0400
+Received: from cantor.suse.de ([195.135.220.2]:38879 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268207AbUIWSP4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 14:15:56 -0400
+Date: Thu, 23 Sep 2004 20:15:53 +0200
+From: Andi Kleen <ak@suse.de>
+To: Tigran Aivazian <tigran@veritas.com>
+Cc: Thomas Zehetbauer <thomasz@hostmaster.org>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org
+Subject: Re: [discuss] Re: 2.6.8.1 doesn't boot on x86_64
+Message-ID: <20040923181553.GB14114@wotan.suse.de>
+References: <1095961031.3159.18.camel@hostmaster.org> <Pine.LNX.4.44.0409231843330.2275-100000@einstein.homenet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0409231843330.2275-100000@einstein.homenet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Thu, Sep 23, 2004 at 06:44:46PM +0100, Tigran Aivazian wrote:
+> On Thu, 23 Sep 2004, Thomas Zehetbauer wrote:
+> 
+> > Successfully running 2.6.8.1 on Tyan Thunder K8W/dual Opteron here.
+> > 
+> 
+> Ok, thank you, but what would be even more interesting is if someone
+> running Intel EM64T machine with ICH6 and 2 SATA disks on ata1 and nothing
+> on ata2 also confirmed that 2.6.8.1-smp kernel works for them...
 
-If I do /sbin/rmmod hcfusbhw my system crashes as well.
+2.6.8.1 works fine for me on lots of different boxes.
 
-I got the newest version of module-init-tools installed:
-module-init-tools-3.1-pre5
+Have you tried without the kdb patch? 
 
-Any hints?
+If not I would suggest to enable earlyprintk and see if you can
+get better output.
 
-Thanks
-Zeno
-
--- 
-Mit freundlichen Grüssen / best regards
-
-Zeno Davatz
-Verkauf & Akquisition
-
-+41 1 350 85 86
-
-www.ywesee.com > intellectual capital connected > www.oddb.org
+-Andi

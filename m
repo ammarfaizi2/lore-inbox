@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262693AbRFCVK2>; Sun, 3 Jun 2001 17:10:28 -0400
+	id <S262885AbRFCMJ0>; Sun, 3 Jun 2001 08:09:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263760AbRFCUvs>; Sun, 3 Jun 2001 16:51:48 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:29538 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S263758AbRFCUvn>; Sun, 3 Jun 2001 16:51:43 -0400
-Date: Sun, 3 Jun 2001 16:51:42 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200106032051.f53Kpgg10681@devserv.devel.redhat.com>
-To: green@linuxhacker.ru, laughing@shared-source.org (Alan Cox),
-        linux-kernel@vger.kernel.org
+	id <S262903AbRFCME0>; Sun, 3 Jun 2001 08:04:26 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:9705 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S262868AbRFCMEW>;
+	Sun, 3 Jun 2001 08:04:22 -0400
+Date: Sun, 3 Jun 2001 14:04:16 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200106031204.OAA29677@harpo.it.uu.se>
+To: laughing@shared-source.org
 Subject: Re: Linux 2.4.5-ac7
-In-Reply-To: <mailman.991555081.25242.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.991555081.25242.linux-kernel2news@redhat.com>
+Cc: esr@thyrsus.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> AC> 2.4.5-ac7
-> AC> o       Make USB require PCI                            (me)
+On Sun, 3 Jun 2001 00:23:10 +0100, Alan Cox wrote:
 
-> How about people from StrongArm sa11x0 port, who have USB host controller
-> (in sa1111 companion chip) but do not have PCI?
-> Probably there are more such embedded architectures with USB controllers,
-> but not PCI bus.
+>2.4.5-ac6
+>...
+>o	Resync with Eric's master Configure.help	(Eric Raymond)
 
-There is nothing that would bind USB to PCI architecturally.
-OHCI and UHCI are PCI based, but that's just a matter of
-implementation. I think that Alan was unwise at this point.
+ac5->ac6 accidentally(?) dropped the help text for CONFIG_X86_UP_APIC.
+Patch below (vs -ac7) adds it back. Please apply.
 
-I know that some small Motorola parts (relatives of 860, perhaps)
-do have USB controllers, but I have no idea if PCI is involved.
+/Mikael
 
-> How about ISA USB host controllers?
-
-Those, unfortunately, do not exist. I was shopping for one
-in vain for a long time. One formiddable difficulty is that
-USB bandwidth is larger than ISA, so the only feasible way
-to make a HC is to have all TD's in its onboard memory,
-as in VGA.
-
-In other follow-up Alan argued in favor of CONFIG_PCI for
-a PCI-less machine. It may be a reasonable approach, for
-instance JavaStation-1 has no PCI but requires CONFIG_PCI.
-It adds a little of useless bloat, that I considered a
-necessary evil in the abovementioned case.
-
--- Pete
+--- linux-2.4.5-ac7/Documentation/Configure.help.~1~	Sun Jun  3 12:59:52 2001
++++ linux-2.4.5-ac7/Documentation/Configure.help	Sun Jun  3 13:06:50 2001
+@@ -243,6 +243,18 @@
+   chip, if it's not found then Linux falls back to PC-style interrupt
+   handling.
+ 
++APIC Support on Uniprocessors
++CONFIG_X86_UP_APIC
++  APIC (Advanced Programmable Interrupt Controller) is a scheme for
++  delivering hardware interrupt requests to the CPU. It is commonly
++  used on systems with several CPUs. If you have a single-CPU system
++  which has a processor that has an integrated APIC, you can say Y
++  here to enable and use it. If you say Y here even though your
++  machine doesn't have an APIC, then the kernel will still run with no
++  slowdown at all. The advantage of APIC support is the possibility
++  to use performance counters, and the APIC based NMI watchdog which
++  detects hard lockups.
++
+ Kernel math emulation
+ CONFIG_MATH_EMULATION
+   Linux can emulate a math coprocessor (used for floating point

@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265065AbSLQNxT>; Tue, 17 Dec 2002 08:53:19 -0500
+	id <S265066AbSLQOPC>; Tue, 17 Dec 2002 09:15:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265066AbSLQNxT>; Tue, 17 Dec 2002 08:53:19 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:61921
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265065AbSLQNxS>; Tue, 17 Dec 2002 08:53:18 -0500
-Subject: Re: Via 8233 flooding of errors [2.4-ac]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Nathaniel Russell <reddog83@chartermi.net>
-Cc: alan@redhat.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0212170636420.1698-200000@reddog.example.net>
-References: <Pine.LNX.4.44.0212170636420.1698-200000@reddog.example.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 17 Dec 2002 14:41:07 +0000
-Message-Id: <1040136067.20018.1.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S265074AbSLQOPC>; Tue, 17 Dec 2002 09:15:02 -0500
+Received: from web8206.mail.in.yahoo.com ([203.199.70.75]:32335 "HELO
+	web8206.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id <S265066AbSLQOPB>; Tue, 17 Dec 2002 09:15:01 -0500
+Message-ID: <20021217142247.18564.qmail@web8206.mail.in.yahoo.com>
+Date: Tue, 17 Dec 2002 14:22:47 +0000 (GMT)
+From: =?iso-8859-1?q?Sanjay=20Kumar?= <sanju93csd@yahoo.co.in>
+Subject: How to get the size of the block device ???? (Important)
+To: linux-kernel@vger.kernel.org
+Cc: Matt_Domsch@dell.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-17 at 11:41, Nathaniel Russell wrote:
-> Hello
-> When i play 3 or more songs in a row i get the error message of
-> drained playback and my audio just shuts off until i exit the mp3 program
-> and reload it. Every 3rd song though it stops playing. And plus once in
-> awhile i get a Assertion failed message. Help please....
-> Nathaniel
+Hi,
+  I am Sanjay Kumar and wants to write my own file
+system on Linux. I have almost written the code.
+  But,now i have a problem while writing the code 
+for "mkfs" for my filesystem.
 
-> Assertion failed! chan->is_active == sg_active(chan->iobase),via82cxxx_audio.c,via_chan_maybe_start,line=1347
-> via_audio: ignoring drain playback error -512
-> [SNIPED]
+Problem Summary : I need the size of the block device
+in bytes on which my file system will be created.
+Actually, there is a feild in the super block, needs
+the total no of blocks on the device while while
+creating the filesystem. So, Can you Plz. help me out
+of this problem.
 
-I need to look at the assertion - somehow the chip is being stopped when
-it should not have been. The ignoring drain playback error one is over
-paranoia in the driver and quite legal (you hit ^C is what made that
-second moan appear)
+I got your email id from :
 
+ http://lwn.net/2001/0906/a/last-sector.php3
+
+Sanjay Kumar.
+M.C.A.,
+Univeristy of Pune,
+India.
+
+________________________________________________________________________
+Missed your favourite TV serial last night? Try the new, Yahoo! TV.
+       visit http://in.tv.yahoo.com

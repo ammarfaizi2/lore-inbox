@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264570AbRFTTFt>; Wed, 20 Jun 2001 15:05:49 -0400
+	id <S264572AbRFTTI7>; Wed, 20 Jun 2001 15:08:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264572AbRFTTFk>; Wed, 20 Jun 2001 15:05:40 -0400
-Received: from c266492-a.lakwod1.co.home.com ([24.1.8.253]:3338 "EHLO
-	benatar.snurgle.org") by vger.kernel.org with ESMTP
-	id <S264570AbRFTTFa>; Wed, 20 Jun 2001 15:05:30 -0400
-Date: Wed, 20 Jun 2001 15:05:06 -0400 (EDT)
-From: William T Wilson <fluffy@snurgle.org>
-To: Aaron Lehmann <aaronl@vitelus.com>
-cc: hps@intermeta.de, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Threads, inelegance, and Java
-In-Reply-To: <20010620042544.E24183@vitelus.com>
-Message-ID: <Pine.LNX.4.21.0106201451580.2366-100000@benatar.snurgle.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264573AbRFTTIt>; Wed, 20 Jun 2001 15:08:49 -0400
+Received: from hq2.fsmlabs.com ([209.155.42.199]:14351 "HELO hq2.fsmlabs.com")
+	by vger.kernel.org with SMTP id <S264572AbRFTTIf>;
+	Wed, 20 Jun 2001 15:08:35 -0400
+Date: Wed, 20 Jun 2001 13:05:10 -0600
+From: Victor Yodaiken <yodaiken@fsmlabs.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: bert hubert <ahu@ds9a.nl>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+Message-ID: <20010620130510.A31012@hq2>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E15CR1f-0006Wh-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.18i
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Jun 2001, Aaron Lehmann wrote:
+On Tue, Jun 19, 2001 at 08:18:59PM +0100, Alan Cox wrote:
+> There I disagree. Threads introduce parallelism that the majority of user
+> space programmers have trouble getting right (not that C is helpful here).
 
-> However, the very concept of Java encourages not caring about
-> "performance, system-design or any elegance whatsoever". If you cared
-> about any of those things you would compile to native code (it exists
+I think it depends on the application. In the RT space the concept
+	Do this every millisecond starting now
+	Do this every 500 us starting in 30 microseconds
+is pretty clear and simple.
 
-Native code does not help performance much and it doesn't help elegance or
-system design at all.
+> A threaded program has a set of extremely complex hard to repeat timing based
+> behaviour dependancies. An unthreaded app almost always does the same thing on
+> the same input. From a verification and coverage point of view that is 
+> incredibly important.
 
-Programmers put incredible amounts of effort into design with C-related
-languages because they have to.  If they don't their program will not
-work.  Java makes it easy to write bad code that (mostly) works.  This
-might mean that the average quality of Java code is not as good as it
-might be.  But it's not a good reason not to write in Java.
+Depends on the design. I'm sure you've seen some impressively obscure examples of the
+"do everything in an event loop" style of programming that is common in embedded.
 
-Programmers that put the same amount of effort into their Java code that
-they would have in C/C++ will write better programs faster than they would
-have in C.  The fact that most programmers will not do this is not the
-fault of the language, but the programmers.
+To me this is like the arguments people used to have over recursion and the answer is
+the same:
 
-> for a reason). Need run-anywhere support? Distribute sources instead.
-
-Distributing source gives you run-anywhere support provided that everyone
-you distribute to has the same compiler that you do and that you haven't
-missed any platform specific endianness, word size or type definition
-problems, and that your program doesn't require any I/O that isn't in the
-standard libraries, especially graphics.
+	Bad programmers can make any programming construct worse
 

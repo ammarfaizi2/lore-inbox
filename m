@@ -1,105 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262495AbVAUUDQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262478AbVAUUGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262495AbVAUUDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 15:03:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbVAUUDN
+	id S262478AbVAUUGl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 15:06:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbVAUUGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 15:03:13 -0500
-Received: from wproxy.gmail.com ([64.233.184.207]:50465 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262495AbVAUUCm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 15:02:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding;
-        b=c+9lz3rpI1qoQSIphFLMhIgQZFy2yBmxPScdXKC+KC9EJ2FG//M9jG44ymfAFrE562BgHsUabVaE5J8PyyCo/M24IYCu6K8B+BCHdI0N7QyCLIohhfP1BbWQkDTvjydhkz6kMYQwkloUm9Ih86jPAUjI2YS2uu9XdjALFY/RGD4=
-Message-ID: <58cb370e0501211202372c9b1b@mail.gmail.com>
-Date: Fri, 21 Jan 2005 21:02:39 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: linux-ide <linux-ide@vger.kernel.org>
-Subject: [BK PATCHES] ide-dev-2.6 update
-Cc: lkml <linux-kernel@vger.kernel.org>
+	Fri, 21 Jan 2005 15:06:41 -0500
+Received: from pD9F87519.dip0.t-ipconnect.de ([217.248.117.25]:64641 "EHLO
+	susi.maya.org") by vger.kernel.org with ESMTP id S262478AbVAUUGa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 15:06:30 -0500
+From: Andreas Hartmann <andihartmann@01019freenet.de>
+X-Newsgroups: fa.linux.kernel
+Subject: Re: 2.6.10 dies when X uses PCI radeon 9200 SE, binary search result
+Date: Fri, 21 Jan 2005 21:05:12 +0100
+Organization: privat
+Message-ID: <csrn9o$b83$1@pD9F87519.dip0.t-ipconnect.de>
+References: <fa.jfkohta.1il0fq0@ifi.uio.no> <fa.hh8592m.qji2ie@ifi.uio.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: abuse@fu.berlin.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.4) Gecko/20050112
+X-Accept-Language: de, en-us, en
+In-Reply-To: <fa.hh8592m.qji2ie@ifi.uio.no>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello Helge,
 
-ide-dev-2.6 tree has been resurrected.  It now contains first bunch
-of fixes needed for converting IDE device drivers to driver-model.
+Helge Hafting schrieb:
+> On Sun, Jan 16, 2005 at 10:41:23PM +1100, Dave Airlie wrote:
+>> > 
+>> > I'm fine with adding this code, but we still don't know if this is the
+>> > cause of his problem. The debug output can determine if this really is
+>> > the source of the problem or if it is somewhere else.
+>> > 
+>> 
+>> I actually doubt it is this stuff.. my guess is that it is something
+>> nasty like ACPI breaking int10 for X or something like that... it
+>> seems a lot more subtle than the usually things that break when we
+>> mess with the DRM :-)
 
-NOTE: If you have a local copy of the tree please re-clone it, thanks.
+Which glibc do you use? I have problems with glibc 2.3.4, kernel 2.4.x and
+X / Xorg while executing the int10-code of X. glibc 2.3.3 works fine for
+me. But I could find another posting, which describes, that there are even
+problems with glibc 2.3.3 and kernel 2.4.x.
 
-BK users:
+It's new for me, that there could be problems with kernelversions of 2.6, too.
 
-	bk pull bk://bart.bkbits.net/ide-dev-2.6
+Therefore, it would be really interessting to know, which glibc version
+you are using.
 
-This will update the following files:
 
- drivers/ide/Kconfig            |    8 -
- drivers/ide/ide-cd.c           |   42 --------
- drivers/ide/ide-default.c      |    7 -
- drivers/ide/ide-disk.c         |  194 -----------------------------------------
- drivers/ide/ide-floppy.c       |    1 
- drivers/ide/ide-io.c           |  159 ++++++++++++++++++++++++++++++++-
- drivers/ide/ide-iops.c         |   20 ++++
- drivers/ide/ide-probe.c        |   62 ++++++++++++-
- drivers/ide/ide-tape.c         |   18 +--
- drivers/ide/ide-taskfile.c     |    6 -
- drivers/ide/ide.c              |   26 -----
- drivers/ide/pci/pdc202xx_new.h |    6 -
- drivers/ide/pci/pdc202xx_old.h |   17 ---
- drivers/ide/setup-pci.c        |   15 ---
- drivers/scsi/ide-scsi.c        |    1 
- include/linux/ide.h            |    6 -
- 16 files changed, 243 insertions(+), 345 deletions(-)
-
-through these ChangeSets:
-
-<bzolnier@trik.(none)> (05/01/21 1.2142)
-   [ide] kill ide_driver_t->pre_reset
-   
-   Add ide_drive_t->post_reset flag and use it to signal post reset
-   condition to the ide-tape driver (the only user of ->pre_reset).
-
-<bzolnier@trik.(none)> (05/01/21 1.2141)
-   [ide] fix some rare ide-default vs ide-disk races
-   
-   Some rare races between ide-default and ide-disk are possible, i.e.:
-   * ide-default is used, I/O request is triggered (ie. /proc/ide/hd?/identify),
-     drive->special is cleared silently (so CHS is not initialized properly),
-     ide-disk is loaded and fails if drive uses CHS
-   * ide-disk is used, drive is resetted, ide-disk is unloaded, ide-default
-     takes control over drive and on the first I/O request silently clears
-    drive->special without restoring settings
-   
-   Fix them by moving idedisk_{special,pre_reset}() and company to IDE core.
-
-<bzolnier@trik.(none)> (05/01/21 1.2140)
-   [ide] generic Power Management for IDE devices
-   
-   Move PM code from ide-cd.c and ide-disk.c to IDE core so:
-   * PM is supported for other ATAPI devices (floppy, tape)
-   * PM is supported even if specific driver is not loaded
-
-<bzolnier@trik.(none)> (05/01/21 1.2139)
-   [ide] fix drive->ready_stat for ATAPI
-   
-   ATAPI devices ignore DRDY bit so drive->ready_stat must be set to zero.
-   It is currently done by device drivers (including ide-default fake driver)
-   but for PMAC driver it is too late as wait_for_ready() may be called during
-   probe: probe_hwif()->pmac_ide_dma_check()->pmac_ide_{mdma,udma}_enable()->
-   ->pmac_ide_do_setfeature()->wait_for_ready().
-   
-   Fixup drive->ready_stat just after detecting ATAPI device.
-
-<bzolnier@trik.(none)> (05/01/21 1.2138)
-   [ide] ignore BIOS enable bits for Promise controllers
-   
-   Since there are no Promise binary drivers for 2.6.x kernels:
-   * ignore BIOS enable bits completely
-   * remove CONFIG_PDC202XX_FORCE
-   * kill IDEPCI_FLAG_FORCE_PDC hack
+Kind regards,
+Andreas Hartmann

@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314961AbSEHT3D>; Wed, 8 May 2002 15:29:03 -0400
+	id <S314838AbSEHTdF>; Wed, 8 May 2002 15:33:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314838AbSEHT3C>; Wed, 8 May 2002 15:29:02 -0400
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:54021 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S314957AbSEHT3B>; Wed, 8 May 2002 15:29:01 -0400
-Date: Wed, 8 May 2002 20:28:50 +0100 (BST)
-From: <chris@scary.beasts.org>
-X-X-Sender: <cevans@sphinx.mythic-beasts.com>
-To: Keith Owens <kaos@ocs.com.au>
-cc: Dax Kelson <dax@gurulabs.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Completely honor prctl(PR_SET_KEEPCAPS, 1) 
-In-Reply-To: <9176.1020865349@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.4.33.0205082027360.14553-100000@sphinx.mythic-beasts.com>
+	id <S314957AbSEHTdE>; Wed, 8 May 2002 15:33:04 -0400
+Received: from 60.54.252.64.snet.net ([64.252.54.60]:4444 "EHLO
+	hotmale.boyland.org") by vger.kernel.org with ESMTP
+	id <S314838AbSEHTdE>; Wed, 8 May 2002 15:33:04 -0400
+Message-ID: <3CD97D65.7000405@blue-labs.org>
+Date: Wed, 08 May 2002 15:32:53 -0400
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0+) Gecko/20020501
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: info/patch update needed, Adaptec 2400a, dpt_i20
+In-Reply-To: <E175X8E-0002Cn-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thank you muchly :)
 
-On Wed, 8 May 2002, Keith Owens wrote:
+-d
 
-> On Wed, 8 May 2002 03:40:11 -0600 (MDT),
-> Dax Kelson <dax@gurulabs.com> wrote:
-> >Originally when a process set*uided all capabilities bits were cleared.
-> >Then sometime later (wish BK went back 3 years), the behaviour was
-> >modified according to the comment "A process may, via prctl(), elect to
-> >keep its capabilites when it calls setuid() and switches away from
-> >uid==0. Both permitted and effective sets will be retained."
+Alan Cox wrote:
+
+>>I have a friend who needs driver information.  Is the 2.4.6 driver that 
+>>Adaptec lists at http://linux.adaptec.com/linux_raid_unsupported.html 
+>>the most current version for this controller?
+>>    
+>>
 >
-> FWIW, the change was in 2.2.18-pre18, between October 26 and 29, 2000.
-
-I did the original change in 2.3.x. Since it is so important to get useful
-capability functionality, someone (Chris Wing?) backported the change to
-2.2.x.
-
-I'll reply to the original e-mail shortly..
-
-Cheers
-Chris
+>Adaptec cleaned up the driver code massively and the dpt_i2o driver is now
+>standard in the Linux kernel tree
+>  
+>
 
 

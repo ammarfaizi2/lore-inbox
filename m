@@ -1,72 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVCIBPa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVCIBeu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbVCIBPa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 20:15:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbVCIBPa
+	id S261385AbVCIBeu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 20:34:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbVCIBeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 20:15:30 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:23821 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261360AbVCIBPR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 20:15:17 -0500
-Date: Wed, 9 Mar 2005 02:15:16 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-Cc: "'Arjan van de Ven'" <arjan@infradead.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
-       Andrew Morton <akpm@osdl.org>,
-       "'Christoph Hellwig'" <hch@infradead.org>
-Subject: Re: [ANNOUNCE][PATCH 2.6.11 1/3] megaraid_sas: Announcing new mod ule  for LSI Logic's SAS based MegaRAID controllers
-Message-ID: <20050309011516.GE3146@stusta.de>
-References: <0E3FA95632D6D047BA649F95DAB60E570230CC17@exa-atlanta>
+	Tue, 8 Mar 2005 20:34:50 -0500
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:34469 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S261385AbVCIBep
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 20:34:45 -0500
+Date: Wed, 9 Mar 2005 02:37:33 +0100
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org
+Message-ID: <20050309013733.GA21386@linuxtv.org>
+Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
+	Gerd Knorr <kraxel@bytesex.org>, Andrew Morton <akpm@osdl.org>,
+	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-dvb-maintainer@linuxtv.org
+References: <20050308105726.GA30986@bytesex>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230CC17@exa-atlanta>
+In-Reply-To: <20050308105726.GA30986@bytesex>
 User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Connect-IP: 217.231.61.171
+Subject: Re: [linux-dvb] [patch] dvb: add pll lib
+X-SA-Exim-Version: 4.2 (built Tue, 25 Jan 2005 19:36:50 +0100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 08, 2005 at 06:05:11PM -0500, Bagalkote, Sreenivas wrote:
-> >
-> >>  source "drivers/scsi/megaraid/Kconfig.megaraid"
-> >> +source "drivers/scsi/megaraid/Kconfig.megaraid_sas"
-> >>  
-> >
-> >why a fully separate file and not add your ONE config option to
-> >Kconfig.megaraid instead ??
-> >
+(linux-dvb list removed from Cc: because it is subscribers only)
+
+On Tue, Mar 08, 2005 at 11:57:26AM +0100, Gerd Knorr wrote:
+> This adds some helper code to handle tuning for dvb cards,
+> with a struct describing the pll and a function calculating
+> the command sequence needed to program it.
 > 
-> Arjan, I didn't want to needlessly couple megaraid and megaraid_sas.
-> Since they are in the same directory, I couldn't avoid having single
-> Makefile. I thought at least these two should be separate to be consistent
-> with their independent nature.
-> 
-> If this is not a good enough reason, I will merge these two files.
+> This one was discussed + accepted on the linuxtv list and
+> also is in the linuxtv cvs.  As the the cx88 driver update
+> I want finally get out of the door depends on this one I'll
+> go submit it myself instead of waiting for the dvb guys doing
+> it.
 
-Please merge them.
+Michael Hunold is somewhat busy with his new job at Toshiba, so I want
+to takeover patch submission for now. However, one thing that makes it
+difficult to create kernel patches from linuxtv.org CVS is that there
+are a large number of whitespace differences between the kernel tree and
+CVS. There's also some corrupted indentation in the kernel, e.g.
+drivers/media/dvb/frontends/tda1004x.c:tda1004x_sleep().
+I wanted to get this issue out of the way before I start
+to submit other patches from linuxtv.org CVS.
 
-Whether they are in the same Kconfig file or not does not in any way 
-imply any relation between them.
+I merged some whitespace cleanups from the kernel into CVS,
+and created a patch to clean up whitespace in the kernel,
+removing lots of whitespace at end-of-line in the go.
+The problem with this patch is that it is huge (600K) :-(.
+I was crazy enough to mail it to Linus anyway on Sunday,
+and it looks like it got dropped on the floor :-((
 
-E.g. drivers/scsi/Kconfig contains many drivers that are not in any way 
-coupled to each other.
+It would be nice if I could get some advice how to submit this kind of
+cleanup (i.e. if I should split it up in tiny fragments), or if I
+should ignore the issue for now and concentrate on functional
+improvements.
 
-> Thanks,
-> Sreenivas
+The DVB related patches submitted by Gerd are non-controversial
+and should be applied.
 
-cu
-Adrian
-
-BTW: Why does the text say "(New Driver)"?
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Johannes

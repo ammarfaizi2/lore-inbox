@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267257AbSLKSax>; Wed, 11 Dec 2002 13:30:53 -0500
+	id <S267267AbSLKSnt>; Wed, 11 Dec 2002 13:43:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267264AbSLKSax>; Wed, 11 Dec 2002 13:30:53 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:5894 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S267257AbSLKSaw>;
-	Wed, 11 Dec 2002 13:30:52 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212111850.gBBIoCOL009048@darkstar.example.net>
-Subject: [TRIVIAL][PATCH] fix spelling mistake
-To: linux-kernel@vger.kernel.org
-Date: Wed, 11 Dec 2002 18:50:12 +0000 (GMT)
-X-Mailer: ELM [version 2.5 PL6]
+	id <S267268AbSLKSnt>; Wed, 11 Dec 2002 13:43:49 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27145 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267267AbSLKSns>; Wed, 11 Dec 2002 13:43:48 -0500
+Message-ID: <3DF78911.5090107@zytor.com>
+Date: Wed, 11 Dec 2002 10:50:57 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="%--multipart-mixed-boundary-1.9042.1039632612--%"
+To: Terje Eggestad <terje.eggestad@scali.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: Intel P6 vs P7 system call performance
+References: <1039610907.25187.190.camel@pc-16.office.scali.no>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Terje Eggestad wrote:
+> It get even worse with Hammer. When you run hammer in compatibility mode
+> (32 bit app on a 64 bit OS) the sysenter is an illegal instruction.
+>
+> Since Intel don't implement syscall, there is no portable sys*
+> instruction for 32 bit apps. You could argue that libc hides it for you
+> and you just need libc to test the host at startup (do I get a sigill if
+> I try to do getpid() with sysenter? syscall? if so we uses int80 for
+> syscalls).  But not all programs are linked dyn.
 
---%--multipart-mixed-boundary-1.9042.1039632612--%
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-I posted this an hour or so ago, but it doesn't seem to have appeared
-on the list.
+Linus talked about this once, and it was agreed that the only sane way
+to do this properly was via vsyscalls... have a page mapped somewhere in
+high (kernel-area) memory, say at 0xfffff000, but readable by normal
+processes.  A system call can be invoked via call 0xfffff000, and the
+*kernel* enters whatever code is appropriate to enter itself.
 
-John.
+> Too bad really, I tried the sysenter patch once, and the gain (on PIII
+> and athlon) was significant.
+> 
+> Fortunately the 64bit libc for hammer uses syscall. 
+> 
 
---%--multipart-mixed-boundary-1.9042.1039632612--%
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Description: ASCII English text
-Content-Disposition: attachment; filename="patch"
+Yes.
 
---- linux-2.4.20-pre1-orig/drivers/scsi/README.ncr53c8xx	2002-12-11 17:14:48.000000000 +0000
-+++ linux-2.4.20-pre1/drivers/scsi/README.ncr53c8xx	2002-12-11 17:18:24.000000000 +0000
-@@ -1025,7 +1025,7 @@
- then it will for sure win the next SCSI BUS arbitration.
- 
- Since, there is no way to know what devices are trying to arbitrate for the 
--BUS, using this feature can be extremally unfair. So, you are not advised 
-+BUS, using this feature can be extremely unfair. So, you are not advised 
- to enable it, or at most enable this feature for the case the chip lost 
- the previous arbitration (boot option 'iarb:1').
- 
+> 
+> PS:  rdtsc on P4 is also painfully slow!!!
+> 
 
---%--multipart-mixed-boundary-1.9042.1039632612--%--
+Now that's just braindead...
+
+	-hpa
+
+

@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279891AbRKFRLo>; Tue, 6 Nov 2001 12:11:44 -0500
+	id <S279846AbRKFRKM>; Tue, 6 Nov 2001 12:10:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280210AbRKFRLh>; Tue, 6 Nov 2001 12:11:37 -0500
-Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:14350 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S279917AbRKFRKr>;
-	Tue, 6 Nov 2001 12:10:47 -0500
-Date: Tue, 6 Nov 2001 09:13:17 -0800 (PST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: dalecki@evision.ag, Alexander Viro <viro@math.psu.edu>,
-        Jakob =?iso-8859-1?Q?=D8stergaard?= <jakob@unthought.net>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        John Levon <moz@compsoc.man.ac.uk>, linux-kernel@vger.kernel.org,
-        Daniel Phillips <phillips@bonn-fries.net>, Tim Jansen <tim@tjansen.de>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-In-Reply-To: <200111052300.fA5N0RO341591@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.4.10.10111060909540.22229-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279839AbRKFRKG>; Tue, 6 Nov 2001 12:10:06 -0500
+Received: from babel.spoiled.org ([217.13.197.48]:59796 "HELO a.mx.spoiled.org")
+	by vger.kernel.org with SMTP id <S279832AbRKFRJh>;
+	Tue, 6 Nov 2001 12:09:37 -0500
+From: Juri Haberland <juri@koschikode.com>
+To: dz@cs.unitn.it (Massimo Dal Zotto)
+Cc: linux-kernel@vger.kernel.org, stephane@tuxfinder.org
+Subject: Re: [PATCH] SMM BIOS on Dell i8100
+X-Newsgroups: spoiled.linux.kernel
+In-Reply-To: <200111061645.RAA02115@fandango.cs.unitn.it>
+User-Agent: tin/1.4.5-20010409 ("One More Nightmare") (UNIX) (OpenBSD/2.9 (i386))
+Message-Id: <20011106170934.734231195E@a.mx.spoiled.org>
+Date: Tue,  6 Nov 2001 18:09:34 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Nov 2001, Albert D. Cahalan wrote:
+In article <200111061645.RAA02115@fandango.cs.unitn.it> you wrote:
+>> 
+>> Actually, I just tried plain 2.4.14-pre8 and the i8k-module *didn't*
+>> work with my i8000, but with the patch from Stephane it *does* ;)
+>> 
+>> Happy happy, joy joy...
+>> 
+>> Juri
+>> 
+>> PS: BIOS verion A17 if that matters
 
-> You wrote:
-> > Alexander Viro wrote:
-> >> On Mon, 5 Nov 2001, Martin Dalecki wrote:
-> >>> "Albert D. Cahalan" wrote:
-> >>>
-> >>> Every BASTARD out there telling the world, that parsing ASCII formatted
-> >>> files
-> >>
-> >> What was your username, again?
-> >
-> > root, with uid != 0 and on a masquaraded host, who cares?
+> Hi,
 > 
-> I think the point is that it looks like to attributed your own
-> words to me. Your post didn't quote anything from me, but it
-> started off as follows:
+> I have released version 1.2 of the driver. It contains Stephane's patches
+> for the I8100, a new i8kmon and some documentation. You can download from:
 > 
-> --------------------------------------
-> "Albert D. Cahalan" wrote:
+>     http://www.debian.org/~dz/i8k/
 > 
-> Every BASTARD out there telling the world, that parsing ASCII formatted
-> --------------------------------------
-> 
-> Well, I didn't write that or anything else in your post.
-> 
+> Could you please explain what doesn't work with your I8000? Does the
+> module load? Can you read /proc/i8k?
 
-Actually Al Viro's reply makes a lot more sense if your familiar with:
-http://bofh.ntk.net/bastard.html
+Yes, sure, sorry. The module (from 2.4.14pre8) loaded perfectly and I could
+read /proc/i8k. Also controlling the fans worked. The only thing that didn't
+work was the key-thingy. Pressing any of the five keys (those two near the
+power button and the Fn-keys) didn't do anything with the i8kbuttons script.
 
-	Gerhard
+Btw Thank You Very Much!
 
+Juri
 
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
+-- 
+Juri Haberland  <juri@koschikode.com> 
 

@@ -1,189 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315754AbSEJBsr>; Thu, 9 May 2002 21:48:47 -0400
+	id <S315753AbSEJBpY>; Thu, 9 May 2002 21:45:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315755AbSEJBsq>; Thu, 9 May 2002 21:48:46 -0400
-Received: from mx1.afara.com ([63.113.218.20]:2750 "EHLO afara-gw.afara.com")
-	by vger.kernel.org with ESMTP id <S315754AbSEJBso>;
-	Thu, 9 May 2002 21:48:44 -0400
-Subject: Re: [kbuild-devel] Re: Announce: Kernel Build for 2.5, Release 2.4
-	is available
-From: Thomas Duffy <tduffy@directvinternet.com>
-To: Kbuild Devel <kbuild-devel@lists.sourceforge.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <19760.1020944739@ocs3.intra.ocs.com.au>
-Content-Type: multipart/mixed; boundary="=-rXyg3j6wefMoJ1j5hBdn"
-X-Mailer: Ximian Evolution 1.0.4.99 
-Date: 09 May 2002 18:46:18 -0700
-Message-Id: <1020995179.2911.1.camel@tduffy-lnx.afara.com>
+	id <S315754AbSEJBpX>; Thu, 9 May 2002 21:45:23 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:64753
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S315753AbSEJBpW>; Thu, 9 May 2002 21:45:22 -0400
+Date: Thu, 9 May 2002 18:45:11 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: benh@kernel.crashing.org
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Padraig Brady <padraig@antefacto.com>,
+        Anton Altaparmakov <aia21@cantab.net>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.14 IDE 56
+Message-ID: <20020510014511.GO2392@matchmail.com>
+Mail-Followup-To: benh@kernel.crashing.org,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Padraig Brady <padraig@antefacto.com>,
+	Anton Altaparmakov <aia21@cantab.net>,
+	Martin Dalecki <dalecki@evision-ventures.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0205071021290.2509-100000@home.transmeta.com> <20020507173034.14013@mailhost.mipsys.com>
 Mime-Version: 1.0
-X-OriginalArrivalTime: 10 May 2002 01:48:34.0782 (UTC) FILETIME=[CBCB17E0:01C1F7C4]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-rXyg3j6wefMoJ1j5hBdn
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Thu, 2002-05-09 at 04:45, Keith Owens wrote: 
-> Extra architecture support added to release 2.4:
+On Tue, May 07, 2002 at 07:30:34PM +0200, benh@kernel.crashing.org wrote:
+> >
+> >
+> >On Tue, 7 May 2002 benh@kernel.crashing.org wrote:
+> >>
+> >> One interesting thing here would be to have some optional link between
+> >> the bus-oriented device tree and the function-oriented tree (ie. devfs
+> >> or simply /dev).
+> >
+> >There isn't any 1:1 thing - the device/bus-oriented one should _not_ show
+> >virtual things like partitions etc that have no relevance for a driver,
+> >while /dev (and thus devfs) obviously think that that is the important
+> >part, much more important than how we actually got to the device.
+> >
+> >I think we need to have some way of getting a mapping from /dev ->
+> >devicefs, but I don't think that has to be a filesystem thing (it might
+> >even be as simple as just one ioctl or new system call: 'get the "path" of
+> >this device').
+> >
+> >There aren't that many people who actually care, I suspect.
 > 
->   kbuild-2.5-sparc64-2.5.14-1.bz2 from Tom Duffy
+> Sure, It's obviously not 1:1, what I had in mind was for the controller
+> to show what devices it exports in the sense of raw devices, but I agree
+> the other way makes a lot more sense. My problem was how to be devfs
+> agnostic, but you answered with "ioctl or syscall" and that would indeed
+> be ok. The ioctl things make it appliable to network interfaces as well,
+> which is good.
 
-here is kbuild-2.5-sparc64-2.5.14-2.  you still need to apply the hacks
-patch before using this from
-http://prdownloads.sourceforge.net/kbuild/linux-2.5.14-sparc64-hacks.patch.bz2.  This won't be necessary once 2.5.15 comes out as Dave has already sent these fixes to Linus. 
-
-  Changes from kbuild-2.5-sparc64-2.5.14-1 
-
-    Build against core-12 
-
-    Builds with kbuild 2.4 now as well
-
-    asm-offsets.c now uses the new thread_info offsets 
-
-    Had to use the CFLAG ugliness of ia64 to get asm-offsets.c to
-    work properly as include/asm-sparc64/system.h uses thread_info 
-    offsets.
-
--tduffy
-
---=-rXyg3j6wefMoJ1j5hBdn
-Content-Disposition: attachment; filename=kbuild-2.5-sparc64-2.5.14-2.bz2
-Content-Type: application/x-bzip; name=kbuild-2.5-sparc64-2.5.14-2.bz2
-Content-Transfer-Encoding: base64
-
-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
-QA==
-
---=-rXyg3j6wefMoJ1j5hBdn--
-
+Yes, when will we get something that associates the physical device with
+network ethX name?

@@ -1,116 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264538AbUEXSsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264629AbUEXSwq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264538AbUEXSsn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 14:48:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264629AbUEXSsn
+	id S264629AbUEXSwq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 14:52:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264632AbUEXSwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 14:48:43 -0400
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:1430 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S264538AbUEXSsj convert rfc822-to-8bit (ORCPT
+	Mon, 24 May 2004 14:52:45 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:386 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S264629AbUEXSwo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 14:48:39 -0400
-From: "shanthi kiran pendyala" <skiranp@cisco.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Mmap problem (VM_DENYWRITE)
-Date: Mon, 24 May 2004 11:49:10 -0700
-Message-ID: <000a01c441bf$ccb83600$322147ab@amer.cisco.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.5709
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
-Importance: Normal
-In-Reply-To: <20040519062044.15651.qmail@web90107.mail.scd.yahoo.com>
+	Mon, 24 May 2004 14:52:44 -0400
+Date: Mon, 24 May 2004 22:54:02 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Christian Meder <chris@onestepahead.de>
+Subject: [patch] minor sched.c cleanup, BK-curr
+Message-ID: <20040524205402.GA16710@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9, BAYES_00 -4.90,
+	UPPERCASE_25_50 0.00
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-<<I am not subscribed to this list b'cos of the volume of emails. Please
-include my email in the reply.>>
+Linus, Andrew,
 
-I am writing a device driver for a fpga device. 
-I implemented a dummy char device to gain user space access to the device
-registers thru mmap. 
-The kernel is 2.4.18. 
-The CPU is sibyte (mips64 cpu) with 40 bits of physical addressing and 44
-bits of virtual addressing.
+the following obviously correct patch from Christian Meder simplifies
+the DELTA() define. It's against BK-curr.
 
-After mmaping in userspace any writes to the mmap region is not working. 
-I think it is b'cos of the protection field in the vma is set to
-VM_DENYWRITE. 
-The complete prot flag is (VM_READ | VM_WRITE | VM_EXEC | VM_GROWSUP |
-VM_DENYWRITE)
+Signed-off-by: Christian Meder <chris@onestepahead.de>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-Why is this happening? I need to have both read and write access to region.
-How do I fix this ?
-
-Thanks for you help
-
-Shanthi kiran
-
-
-Output after running test program
-=================================
- building page tables for va 0x2aac5000 phy 0x10940000 
- vsize 0x20000 psize 0x20000 prot 0xa07
-
-
-===================================================================
-My mmap implementation is as follow
-
-#define FPGA_CSR_ADDR_START 0x10940000
-#define FPGA_CSR_ADDR_END   0x1095ffff
-#define MMAP_SIZE (FPGA_CSR_ADDR_END + 1 - FPGA_CSR_ADDR_START)
-
-int
-fpga_mmap(struct file *filp, struct vm_area_struct *vma) {
-
-    unsigned long offset = vma->vm_pgoff << PAGE_SHIFT;
-    unsigned long vsize = vma->vm_end - vma->vm_start;
-    unsigned long phys = FPGA_CSR_ADDR_START + offset;
-    unsigned long psize = MMAP_SIZE - offset;
-
-    if(vsize > psize)
-        return -EINVAL;
-
-    printk("<1> building page tables for va 0x%lx phy 0x%lx \n",
-            vma->vm_start, phys);
-
-    printk("<1> vsize 0x%lx psize 0x%lx prot 0x%lx\n",
-           vsize, psize, vma->vm_page_prot.pgprot);
-
-    /* build new page tables */
-    if (remap_page_range(vma->vm_start, phys, vsize, vma->vm_page_prot))
-            return -EAGAIN;
-
-    return 0;
-}
-================================================================
-I try to access to the device memory region with this user space test
-program
-    ....
-	fpga_fd = open(FPGA_DEV_FILE_NAME, O_RDWR);
-
-    if(cde_fd < 0) {
-        printf("can't open %s err %d\n", FPGA_DEV_FILE_NAME, fpga_fd);
-        goto finish;
-    }
-
-    offset = 0;
-    fpga_csr_start = mmap(0, MMAP_SIZE,
-                PROT_READ|PROT_WRITE, MAP_SHARED,
-                fpga_fd, offset);
-
-    if (fpga_csr_start < 0 ) {
-        printf(" error in mmap errno %d", errno);
-        goto finish;
-    }
-
-...
-============================================================================
-
+--- linux/kernel/sched.c.orig	
++++ linux/kernel/sched.c	
+@@ -141,8 +141,7 @@
+ 	(v1) * (v2_max) / (v1_max)
+ 
+ #define DELTA(p) \
+-	(SCALE(TASK_NICE(p), 40, MAX_USER_PRIO*PRIO_BONUS_RATIO/100) + \
+-		INTERACTIVE_DELTA)
++	(SCALE(TASK_NICE(p), 40, MAX_BONUS) + INTERACTIVE_DELTA)
+ 
+ #define TASK_INTERACTIVE(p) \
+ 	((p)->prio <= (p)->static_prio - DELTA(p))

@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129185AbQKAMrU>; Wed, 1 Nov 2000 07:47:20 -0500
+	id <S129517AbQKAMyK>; Wed, 1 Nov 2000 07:54:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130090AbQKAMrK>; Wed, 1 Nov 2000 07:47:10 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37392 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130616AbQKAMqw>; Wed, 1 Nov 2000 07:46:52 -0500
-Subject: Re: test10-pre7
-To: kaos@ocs.com.au (Keith Owens)
-Date: Wed, 1 Nov 2000 12:46:41 +0000 (GMT)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        rmk@arm.linux.org.uk (Russell King),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <21820.973046146@ocs3.ocs-net> from "Keith Owens" at Nov 01, 2000 01:35:46 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129766AbQKAMyA>; Wed, 1 Nov 2000 07:54:00 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:47689 "EHLO saturn.homenet")
+	by vger.kernel.org with ESMTP id <S129517AbQKAMxq>;
+	Wed, 1 Nov 2000 07:53:46 -0500
+Date: Wed, 1 Nov 2000 12:54:01 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: f5ibh <f5ibh@db0bm.ampr.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: tnt uses obsolete (PF_INET,SOCK_PACKET)
+In-Reply-To: <200011011117.MAA28584@db0bm.ampr.org>
+Message-ID: <Pine.LNX.4.21.0011011251560.3991-100000@saturn.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13qxHu-0000OT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> of SCSI cards is not a good enough reason.  People with multiple SCSI
-> cards already change the order of scsi entries to get the probe order
-> that suits them, LINK_FIRST will make that even easier.
+On Wed, 1 Nov 2000, f5ibh wrote:
 
-Why not solve the generic problem. If you give a list of requirements to
-tsort one per line it will tell you the order. You just need to turn a set
-of ordering needs into a tsort input
+> Hi,
+> 
+> Nov  1 12:09:12 debian-f5ibh kernel: tnt uses obsolete (PF_INET,SOCK_PACKET)
+> 
+> I got often this message, it is harmless (seems to be). What does it means ?
 
-Alan
+it means it uses old support for PACKET sockets in PF_INET protocol
+family, i.e. a call like socket(PF_INET,SOCK_PACKET,0) instead of the
+special protocol family for this purpose called PF_PACKET. If you truss
+tcpdump you will see something like this:
+
+socket(PF_PACKET, SOCK_DGRAM, 0)        = 3
+
+which answers why you no longer get messages like "tcpdump uses
+obsolete..." i.e. new tcpdump (as of a few years ago) does the right thing
+(while your tnt, whatever that might be, doesn't).
+
+Regards,
+Tigran
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262379AbREXWDn>; Thu, 24 May 2001 18:03:43 -0400
+	id <S262384AbREXWGd>; Thu, 24 May 2001 18:06:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262384AbREXWDd>; Thu, 24 May 2001 18:03:33 -0400
-Received: from t2.redhat.com ([199.183.24.243]:43765 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S262379AbREXWDZ>; Thu, 24 May 2001 18:03:25 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200105242107.OAA29730@csl.Stanford.EDU> 
-In-Reply-To: <200105242107.OAA29730@csl.Stanford.EDU> 
+	id <S262393AbREXWGX>; Thu, 24 May 2001 18:06:23 -0400
+Received: from femail8.sdc1.sfba.home.com ([24.0.95.88]:42142 "EHLO
+	femail8.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S262384AbREXWGK>; Thu, 24 May 2001 18:06:10 -0400
+Message-ID: <3B0D85E6.7E509F3E@home.com>
+Date: Thu, 24 May 2001 18:06:30 -0400
+From: Willem Riede <wriede@home.com>
+X-Mailer: Mozilla 4.7 [en] (X11; U; Linux 2.2.15 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Dawson Engler <engler@csl.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU, arjanv@redhat.com
-Subject: Re: [CHECKER] error path memory leaks in 2.4.4 and 2.4.4-ac8 
-Mime-Version: 1.0
+CC: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
+Subject: Re: [CHECKER] null bugs in 2.4.4 and 2.4.4-ac8
+In-Reply-To: <200105242109.OAA29748@csl.Stanford.EDU>
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 24 May 2001 23:02:45 +0100
-Message-ID: <10347.990741765@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dawson Engler wrote:
+> 
+> Hi All,
+> 
+> Enclosed are 103 potential errors where code gets a pointer from a
+> possibly-failing routine (kmalloc, etc) and dereferences it without
+>
+> [BUG] osst_do_scsi will never return NULL if argument SRpnt isn't NULL. But they copy SRpnt back by *aSRpnt, implies it could be NULL
 
-engler@csl.Stanford.EDU said:
-> 1	|	drivers/mtd/mtdchar.c 
-> 1	|	fs/jffs/jffs_fm.c 
-> 2	|	fs/jffs/intrep.c
-> 1	|	drivers/mtd/slram.c
-> 1	|	drivers/mtd/ftl.c
-> 1	|	drivers/mtd/mtdram.c
+No. It implies SRpnt could have changed. The functions flagged
+(osst_read_back_buffer_and_rewrite and osst_reposition_and_retry)
+cannot be reached with SRpnt == NULL. So these are false alarms.
 
-These are all now either fixed or obsoleted in my tree, and I will send a 
-patch to Linus shortly. Thankyou. 
+> /u2/engler/mc/oses/linux/2.4.4/drivers/scsi/osst.c:1163:osst_read_back_buffer_and_rewrite: ERROR:NULL:1111:1163: Using unknown ptr "SRpnt" illegally! set by 'osst_do_scsi':1163 [nbytes = 216]
+> #if DEBUG
+>                 if (debugging)
+>                         printk(OSST_DEB_MSG "osst%d: About to attempt to write to frame %d\n", dev, new_block+i);
+> #endif
+>                 SRpnt = osst_do_scsi(SRpnt, STp, cmd, OS_FRAME_SIZE, SCSI_DATA_WRITE,
+> Start --->
+>                                             STp->timeout, MAX_WRITE_RETRIES, TRUE);
+> 
+>         ... DELETED 46 lines ...
+> 
+>                         }
+>                 }
+>                 if (flag) {
+>                         if ((SRpnt->sr_sense_buffer[ 2] & 0x0f) == 13 &&
+>                              SRpnt->sr_sense_buffer[12]         ==  0 &&
+> Error --->
+>                              SRpnt->sr_sense_buffer[13]         ==  2) {
+>                                 printk(KERN_ERR "osst%d: Volume overflow in write error recovery\n", dev);
+>                                 vfree((void *)buffer);
+>                                 return (-EIO);                  /* hit end of tape = fail */
+> 
 
-Do you find it useful to get a response such as this? Are you keeping track
-of the bugs you find? (Or is it simply reassuring to confirm that someone's
-paying attention? :)
-
-engler@csl.Stanford.EDU said:
-> Here are 37 errors where variables >= 1024 bytes are allocated on a
-> function's stack.
-> 2	|	fs/jffs2/compr_rtime.c
-
-	int positions[256];
-
-I believe we can make that a short. Arjan?
-
---
-dwmw2
-
-
+Regards. Willem Riede.

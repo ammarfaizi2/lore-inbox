@@ -1,62 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264405AbTE0Wpu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 18:45:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264403AbTE0Wpu
+	id S264412AbTE0Wof (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 18:44:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264405AbTE0Wof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 18:45:50 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:15268 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264405AbTE0Wpq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 18:45:46 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 27 May 2003 15:58:48 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Thomas Winischhofer <thomas@winischhofer.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Martin Diehl <lists@mdiehl.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sis650 irq router fix for 2.4.x
-In-Reply-To: <3ED3ECC4.4040407@winischhofer.net>
-Message-ID: <Pine.LNX.4.55.0305271555270.1362@bigblue.dev.mcafeelabs.com>
-References: <3ED21CE3.9060400@winischhofer.net> 
- <Pine.LNX.4.55.0305261431230.3000@bigblue.dev.mcafeelabs.com> 
- <3ED32BA4.4040707@winischhofer.net>  <Pine.LNX.4.55.0305271000550.2340@bigblue.dev.mcafeelabs.com>
- <1054053901.18814.0.camel@dhcp22.swansea.linux.org.uk> <3ED3CDA9.5090605@winischhofer.net>
- <Pine.LNX.4.55.0305271519210.1362@bigblue.dev.mcafeelabs.com>
- <3ED3ECC4.4040407@winischhofer.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 May 2003 18:44:35 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:12162
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S264403AbTE0Wob (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 18:44:31 -0400
+Date: Wed, 28 May 2003 00:58:13 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: marcelo@conectiva.com.br, m.c.p@wolk-project.de,
+       linux-kernel@vger.kernel.org, c-d.hailfinger.kernel.2003@gmx.net,
+       manish@storadinc.com, christian.klose@freenet.de, wli@holomorphy.com
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+Message-ID: <20030527225812.GE1453@dualathlon.random>
+References: <Pine.LNX.4.55L.0305271457090.756@freak.distro.conectiva> <200305272004.02376.m.c.p@wolk-project.de> <20030527182547.GG3767@dualathlon.random> <Pine.LNX.4.55L.0305271530580.2100@freak.distro.conectiva> <20030527200339.GI3767@dualathlon.random> <Pine.LNX.4.55L.0305271707370.9487@freak.distro.conectiva> <20030527202520.GN3767@dualathlon.random> <20030527151830.40b3d281.akpm@digeo.com> <20030527223800.GC1453@dualathlon.random> <20030527154049.22411c59.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030527154049.22411c59.akpm@digeo.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 May 2003, Thomas Winischhofer wrote:
+On Tue, May 27, 2003 at 03:40:49PM -0700, Andrew Morton wrote:
+> Andrea Arcangeli <andrea@suse.de> wrote:
+> >
+> > On Tue, May 27, 2003 at 03:18:30PM -0700, Andrew Morton wrote:
+> > > Andrea Arcangeli <andrea@suse.de> wrote:
+> > > >
+> > > > However the last numbers from Randy showed my tree going faster than 2.5
+> > > > with bonnie and tiotest so I think we don't need to worry and I would
+> > > > probably not fix it in a different way in 2.4 even if it would mean a 1%
+> > > > degradation.
+> > > 
+> > > That could be because -aa quadruples the size of the VM readahead window.
+> > > 
+> > > Changes such as that should be removed when assessing the performance
+> > > impact of this particular patch.
+> > 
+> > I understand that was a generic benchmark against 2.5, not meant to
+> > evaluate the effect of the fixed readahead (see the name of the patch
+> > "readahead-got-broken-somehwere"). I don't see any good reason why
+> > should Randy cripple down my tree before benchmarking against 2.5? if
+> > something it's ok to apply some of my patches to 2.5, that's great, the
+> > other way around not IMHO.
+> > 
+> 
+> No.
+> 
+> What I am saying is that evaluation of the effect of an IO scheduler change
+> cannot be performed when there is a 4:1 change in the readhead window present
+> in the same tree.
+> 
+> ie: we cannot conclude anything about the effect of the IO scheduler change
+> from Randy's numbers.  Too many variables.
 
-> Davide Libenzi wrote:
-> > It does not look right to me either to poke the IDE controller. Another
-> > solution might be to parse the routing table and gather informations from
-> > there. Example, the findings of 0x61,...,0x63 will tell us that we're
-> > dealing with newer chipsets that uses those for values for the 3 OHCI and
-> > the EHCI.
->
-> (The "plain" 650 [with 961] has no EHCI; this was introduced with the 962)
+an accurate evaluation can't be made from such comparison, but I never
+claimed that to be an accurate evaluation, I just said we don't need to
+worry, == "can't be too bad".
 
-It still has 0x60...0x63 values in the routing table (looking at your
-files).
+I just said it can't be too bad. and this is true, you even admit that a
+readahead change for sure has more impact than whatever change the
+fix-pausing generated. That's all I meant. Can't be too bad. the fact
+mainline doesn't do readahead properly is much worse thing than whatever
+slowdown can be generated by the fix pausing.
 
+Furthmore I said we can deduce the accurate numbers from bigbox.html,
+with very minor changes (not 2.4 vs 2.5) that as well shows the fix for
+the deadlock not measurable as far as I can tell.
 
->  > The revision ID trick seems not effective, at least looking at
-> > your machine with rev-id 0 that has 0x61..63. Martin, was the revision id
-> > 0, that you suggested to be handled with the old router, minded ?
->
-> What about gathering all that info from the routing table? Please excuse
-> this perhaps naive assumption, but isn't that what's it's good for?
-
-That's what's I'm telling ;) Now (in my office) I do not have the machine
-to play with (personal laptop) but tonight I'll make a patch that will use
-the routing table info to discover the appropriate router selection.
-
-
-
-- Davide
-
+Andrea

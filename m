@@ -1,48 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262871AbSJGFfc>; Mon, 7 Oct 2002 01:35:32 -0400
+	id <S262881AbSJGFiC>; Mon, 7 Oct 2002 01:38:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262877AbSJGFfc>; Mon, 7 Oct 2002 01:35:32 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:32135 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S262871AbSJGFfa>; Mon, 7 Oct 2002 01:35:30 -0400
-Date: Mon, 7 Oct 2002 02:40:52 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "Joseph D. Wagner" <wagnerjd@prodigy.net>
-cc: Linux Kernel Development List <linux-kernel@vger.kernel.org>
-Subject: Re: Idea: (Category: Memory Management) Increase the Number of Lists
- of Blocks that Contain Groups of Contiguous Page Frames
-In-Reply-To: <000901c26dba$7d4f7860$5f71d73f@joe>
-Message-ID: <Pine.LNX.4.44L.0210070239370.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S262883AbSJGFiC>; Mon, 7 Oct 2002 01:38:02 -0400
+Received: from pimout4-ext.prodigy.net ([207.115.63.103]:5573 "EHLO
+	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S262881AbSJGFhb>; Mon, 7 Oct 2002 01:37:31 -0400
+Message-Id: <200210070542.g975gw1H394440@pimout4-ext.prodigy.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Larry McVoy <lm@bitmover.com>, Skip Ford <skip.ford@verizon.net>
+Subject: Re: New BK License Problem?
+Date: Sun, 6 Oct 2002 20:42:46 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+References: <AD47B5CD-D7DB-11D6-A2D4-0003939E069A@mac.com> <200210061703.g96H3w1I004486@pool-141-150-241-241.delv.east.verizon.net> <20021006160548.A1564@work.bitmover.com>
+In-Reply-To: <20021006160548.A1564@work.bitmover.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Oct 2002, Joseph D. Wagner wrote:
+On Sunday 06 October 2002 07:05 pm, Larry McVoy wrote:
 
-> NOTE: This seems way too easy, IMHO.  I'm not an experienced kernel
-> developer so someone please check me on this.
+> 	) | mail linux-patches@vger.kernel.edu
 
-If it looks way to easy, it usually is.
+.org, actually.
 
-Your idea won't help squat for userland programs like X,
-because those programs still allocate stuff one page at
-a time.
-
-Besides, why would it matter whether these programs get
-physically contiguous memory or not ?
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
-
+Rob

@@ -1,65 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132457AbRAERdT>; Fri, 5 Jan 2001 12:33:19 -0500
+	id <S131639AbRAERdT>; Fri, 5 Jan 2001 12:33:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132440AbRAERdK>; Fri, 5 Jan 2001 12:33:10 -0500
-Received: from smtpnotes.altec.com ([209.149.164.10]:43530 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S131639AbRAERc4>; Fri, 5 Jan 2001 12:32:56 -0500
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: phillips@innominate.de (Daniel Phillips),
-        hahn@coffee.psychology.mcmaster.ca (Mark Hahn),
-        linux-kernel@vger.kernel.org
-Message-ID: <862569CB.0060544C.00@smtpnotes.altec.com>
-Date: Fri, 5 Jan 2001 11:32:39 -0600
+	id <S132457AbRAERdJ>; Fri, 5 Jan 2001 12:33:09 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:36362 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S132440AbRAERdC>; Fri, 5 Jan 2001 12:33:02 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
 Subject: Re: Change of policy for future 2.2 driver submissions
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Date: 5 Jan 2001 09:31:27 -0800
+Organization: Transmeta Corporation
+Message-ID: <9350df$2md$1@penguin.transmeta.com>
+In-Reply-To: <3A55447D.995FB159@goingware.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <3A55447D.995FB159@goingware.com>,
+Michael D. Crawford <crawford@goingware.com> wrote:
+>
+>I understand Linus' desire to have more widespread testing done on the kernel,
+>and certainly he can accomplish that by labeling some random build as the new
+>stable version.  But I think a better choice would have been to advocate testing
+>more widely - don't just announce it to the linux-kernel list, get on National
+>Public Radio, the Linux Journal and Slashdot and stuff.  
 
+You don't understand people, I think. 
 
-Well, I got off linux-kernel while 2.0.3x was still current, and didn't return
-until a few months ago.  Apparently the definitions have changed over the past
-few years.
+No amount of publicity will matter all that much in the end: yes, it
+will result in many people who are not afraid of a compiler to try it
+out. And we've had that for over six months now, realistically.
 
-On another subject, is all this new "testXX-preYY" stuff over now that 2.4.0 is
-out, and will we be going back to the standard x.y.z numbering scheme?  Or is
-this another thing that's changed for good?  I really miss being able to apply
-all the patches at once with linux/scripts/patchkernel.
+But that's very different from having somebody like RedHat, SuSE or
+Debian make such a kernel part of their standard package. No, I don't
+expect that they'll switch over completely immediately: that would show
+a lack of good judgement. The prudent approach has always been to have
+both a 2.2.19 and a 2.4.0 kernel on there, and ask the user if he wants
+to test the new kernel first.
 
-Wayne
+That way you get a completely different kind of user that tests it.
 
+The other thing is that even if something like 2.4.0-test8 gets rave
+reviews, that doesn't _matter_ to people who crave stability. The fact
+is that 2.4.0 has been getting quite a lot of testing: people haven't
+even seen how the big vendors have all done testing in their labs etc.
 
+And to the people who really want to have stability, none of that
+matters.  They will basically "start fresh" at the 2.4.0 release, and
+give it a few months just to follow the kernel list etc to see what the
+problems will be.  They'll have people starting to ramp up 2.4.0 kernels
+in their own internal test environment, moving it first to machines they
+feel more comfortable with etc etc. 
 
+None of which would happen if you just try to make the beta testing
+cycle much bigger. 
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> on 01/05/2001 11:15:36 AM
+Which is why to _me_ the most important thing is that I'm happy with the
+core infrastructure - because once you've tested it to a certain degree,
+it's not going to improve without a real public release.
 
-To:   Wayne Brown/Corporate/Altec@Altec
-cc:   phillips@innominate.de (Daniel Phillips),
-      hahn@coffee.psychology.mcmaster.ca (Mark Hahn),
-      linux-kernel@vger.kernel.org
-
-Subject:  Re: Change of policy for future 2.2 driver submissions
-
-
-
-> In other words, there's no longer any such thing as a "stable" branch.  The
-> whole point of having separate production and development branches was to have
-> one in which each succeeding patch could be counted upon to be more reliable
-
-By your personal definition of stable 2.0.3x is the current stable kernel.
-
-Alan
-
-
-
-
-
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

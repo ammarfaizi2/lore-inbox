@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130312AbRAaRm3>; Wed, 31 Jan 2001 12:42:29 -0500
+	id <S130507AbRAaRqT>; Wed, 31 Jan 2001 12:46:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130507AbRAaRmU>; Wed, 31 Jan 2001 12:42:20 -0500
-Received: from 4dyn210.com21.casema.net ([212.64.95.210]:40974 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S130312AbRAaRmM>;
-	Wed, 31 Jan 2001 12:42:12 -0500
-Date: Wed, 31 Jan 2001 18:41:53 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Vanilla 2.4.0 ext2fs error
-Message-ID: <20010131184152.A3287@home.ds9a.nl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0101311805470.29461-100000@jdi.jdimedia.nl>
-Mime-Version: 1.0
+	id <S130325AbRAaRqK>; Wed, 31 Jan 2001 12:46:10 -0500
+Received: from zurich.ai.mit.edu ([18.43.0.244]:46852 "EHLO zurich.ai.mit.edu")
+	by vger.kernel.org with ESMTP id <S130507AbRAaRp4>;
+	Wed, 31 Jan 2001 12:45:56 -0500
+To: dbr@spoke.nols.com
+CC: linux-kernel@vger.kernel.org
+Subject: 2.4.1-pre10 -> 2.4.1 klogd at 100% CPU ; 2.4.0 OK
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre4i
-In-Reply-To: <Pine.LNX.4.30.0101311805470.29461-100000@jdi.jdimedia.nl>; from i.palsenberg@jdimedia.nl on Wed, Jan 31, 2001 at 06:21:04PM +0100
+Content-Transfer-Encoding: 7bit
+User-Agent: IMAIL/1.9; Edwin/3.105; MIT-Scheme/7.5.13
+Message-Id: <E14O1K7-0006To-00@aarau.ai.mit.edu>
+From: Chris Hanson <cph@zurich.ai.mit.edu>
+Date: Wed, 31 Jan 2001 12:45:39 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 31, 2001 at 06:21:04PM +0100, Igmar Palsenberg wrote:
+   I've been trying different 2.4.1-pre kernels trying to find one
+   that doesn't end up with klogd pegging the CPU. 2.4.0 is OK, but
+   2.4.1-pre10 to 2.4.1 all leave klogd sitting at 100% CPU.
 
-> Jan 31 18:01:57 base kernel: EXT2-fs error (device ide0(3,71)):
-> ext2_new_inode:
-> reserved inode or inode > inodes count - block_group = 0,inode=1
+   The machine in question is a Gateway E-3200, a basic PIII-500
+   running RH 7.0 with all the latest updates as well as the
+   recommended updates documented in the Changes file. The kernel is
+   compiled with kgcc (egcs-1.1.2).
 
-does fsck run on this fs find any errors?
+I'm seeing exactly the same problem with 2.4.1 on a laptop (HP
+OmniBook 6000, 700 MHz PIII) running Debian 2.2, patched to have
+modutils 2.4.1 and linux-utils 2.10q.  The kernel was compiled with
+gcc 2.95.2.  Again, 2.4.0 worked fine.
 
-> Igmar Palsenberg
-> JDI Media Solutions
+BTW, in my case, stopping and restarting klogd makes the problem go
+away.  But every time I suspend/resume the machine, it comes back.
 
-Huge .sig!
-
--- 
-PowerDNS                     Versatile DNS Services  
-Trilab                       The Technology People   
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+On the other hand, a desktop machine (ASUS P2B-LS, 600 MHz PIII)
+running Debian woody and Linux 2.4.1 is _not_ having this problem.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

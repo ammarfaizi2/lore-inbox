@@ -1,95 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269436AbUHZTnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269488AbUHZTnK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269436AbUHZTnR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 15:43:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269433AbUHZTjp
+	id S269488AbUHZTnK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 15:43:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269436AbUHZTjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 15:39:45 -0400
-Received: from ihemail2.lucent.com ([192.11.222.163]:60619 "EHLO
-	ihemail2.lucent.com") by vger.kernel.org with ESMTP id S269410AbUHZTf1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 15:35:27 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16686.15061.549250.611694@gargle.gargle.HOWL>
-Date: Thu, 26 Aug 2004 15:32:37 -0400
-From: "John Stoffel" <stoffel@lucent.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Rik van Riel <riel@redhat.com>, Christophe Saout <christophe@saout.de>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
-       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
-       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
+	Thu, 26 Aug 2004 15:39:17 -0400
+Received: from verein.lst.de ([213.95.11.210]:21214 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S269483AbUHZTfw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 15:35:52 -0400
+Date: Thu, 26 Aug 2004 21:34:36 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@osdl.org>,
+       hch@lst.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel <linux-kernel@vger.kernel.org>, flx@namesys.com,
+       torvalds@osdl.org, reiserfs-list@namesys.com
 Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <20040826165351.GM5733@mail.shareable.org>
-References: <20040826154446.GG5733@mail.shareable.org>
-	<Pine.LNX.4.44.0408261152340.27909-100000@chimarrao.boston.redhat.com>
-	<20040826165351.GM5733@mail.shareable.org>
-X-Mailer: VM 7.14 under Emacs 20.6.1
+Message-ID: <20040826193436.GA8693@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Lee Revell <rlrevell@joe-job.com>, Hans Reiser <reiser@namesys.com>,
+	Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+	linux-kernel <linux-kernel@vger.kernel.org>, flx@namesys.com,
+	torvalds@osdl.org, reiserfs-list@namesys.com
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org> <412D9FE6.9050307@namesys.com> <20040826014542.4bfe7cc3.akpm@osdl.org> <412DAC59.4010508@namesys.com> <1093548414.5678.74.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1093548414.5678.74.camel@krustophenia.net>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 26, 2004 at 03:26:55PM -0400, Lee Revell wrote:
+> OK, real world example.  My roommate has an AKAI MPC-2000, a very
+> popular hardware sampler from the 90's.  The disk format is known,there
+> are a few utilities to edit the disks on a PC and extract the PCM
+> samples, but there are no tools to mount it on a modern PC.  Are you
+> saying that, since I know the MPC disk format, I could write a reiser4
+> plugin to mount an MPC drive?
+> 
+> If so, then Hans has an excellent point.  Users do want this kind of
+> thing, and it is worth having to fix tar et al.
 
-Jamie> Rik van Riel wrote:
->> And if an unaware application reads the compound file
->> and then writes it out again, does the filesystem
->> interpret the contents and create the other streams ?
+You don't need reiser4 for that, writing read-only linux filesystems is
+trivial as soon as you have a specification of the ondisk format.
 
-Jamie> Yes, exactly that.  The streams are created on demand of
-Jamie> course, and by userspace helpers when that's appropriate which
-Jamie> I suspect it almost always is.
-
-So how would a program that converts between a JPEG file (with exif
-data) and a PNG work, such as ImageMagick?  Are we proposing to teach
-the VFS (or worse yet each filesystem) how to do this?  
-
-I've been following this discussion a bit and I'm not sure that I've
-actually seen any concrete examples of where this is a *good* thing to
-have.  People talk about only having to modify 20 bytes at a time
-instead of reading and writing 1mb of data.  Isn't that what mmap()
-does?
-
-Now I can sorta understand the idea that having a directory look like
-a file is neat, and certainly simplifies some aspects, but I think
-that going all the way down to the logical conclusion here is a bit
-silly.
-
-To use the principle of blowing things up to make them very large or
-very small, what happens if I decide that the best idea is to make all
-files just be directories which contain single byte files?  Isn't that
-the logical extreme here?  So my 1mb JPEG file is not just some image
-data and header info in multiple files, but it's really just 1
-million (ok 1024 * 1024) individual files that the VFS knows how to
-put together.  Seems like the logical extreme.  Oh wait, maybe we
-should be exposing a single file per bit instead! 
-
->From my point of view, there lies madness.  As Rik pointed out, how do
-backup and restore tools work with this stuff?  Most people could care
-less about how their data is organized, but they certainly care when
-they can't restore it from backups.  
-
-I'd really like to see a concrete example from Hans or other
-proponents about why this makes things easier/faster/better to do.
-Mostly, I've just seen "proof by vigorous handwaving" that it's a good
-thing.
-
-In alot of ways, I think people are going in the wrong direction, you
-want to excapsulate and hide the details more, not expose them.
-That's what a good API does, it hides the details while giving you a
-rich set of semantics to manage your data.  
-
-God knows I'm not smart enough or driven enough to actually come up
-with my own ideas, but I certainly haven't seen anyone else (even
-Linus) come up with an earth shattering arguement to say why this is
-the right move to make.
-
-As Linus says, most of the OS's job is to mediate access to
-objects/data.  Why do we want to expose such low level data then?
-
-John
-
-   John Stoffel - Senior Unix Systems Administrator - Lucent Technologies
-	 stoffel@lucent.com - http://www.lucent.com - 978-952-7548

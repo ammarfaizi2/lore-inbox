@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279836AbRJ3DPh>; Mon, 29 Oct 2001 22:15:37 -0500
+	id <S279837AbRJ3DNh>; Mon, 29 Oct 2001 22:13:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279834AbRJ3DPR>; Mon, 29 Oct 2001 22:15:17 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25613 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S279833AbRJ3DPK>; Mon, 29 Oct 2001 22:15:10 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Ethernet NIC dual homing
-Date: 29 Oct 2001 19:15:39 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9rl60r$g50$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.30.0110291831160.9540-100000@anime.net> <p05100304b803c6908755@[10.128.7.49]>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S279835AbRJ3DN1>; Mon, 29 Oct 2001 22:13:27 -0500
+Received: from zero.tech9.net ([209.61.188.187]:268 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S279834AbRJ3DNQ>;
+	Mon, 29 Oct 2001 22:13:16 -0500
+Subject: Re: [PATCH] tty race on con_close and con_flush_chars
+From: Robert Love <rml@tech9.net>
+To: Robert Love <rml@tech9.net>
+Cc: linus@transmeta.com, laughing@shared-source.org,
+        linux-kernel@vger.kernel.org, tytso@thunk.org, andrewm@uow.edu.au
+In-Reply-To: <1004403868.809.147.camel@phantasy>
+In-Reply-To: <1004403868.809.147.camel@phantasy>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.99+cvs.2001.10.28.13.59 (Preview Release)
+Date: 29 Oct 2001 22:13:55 -0500
+Message-Id: <1004411636.807.262.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <p05100304b803c6908755@[10.128.7.49]>
-By author:    Jonathan Lundell <jlundell@pobox.com>
-In newsgroup: linux.dev.kernel
-> >
-> >It doesn't work to detect link state through bridging device (say, bridged
-> >ethernet over T3). The T3 might go down, but your MII link to the local
-> >router will remain "up", so you will never know about the loss of link and
-> >your packets will happily go into the void...
-> 
-> ARP isn't going to do much for you once the failure is beyond the 
-> local segment, is it?
-> 
+Someone pointed out (via private email) that a race can still exist
+between checking that vt is non-zero and acquiring the semaphore,
+especially since we can sleep doing that.
 
-ARP is broadcast to the layer 2 local segment; link detection refers
-to the layer 1 local segment, which is not necessarily the same.
+I agree; the following patch should alleviate that race.
 
-On the other hand, doing link detection is extremely useful for a
-portable computer: when I plug in my Ethernet cable in a portable
-system I want it to try to start doing DHCP detection and anything
-else that is normally associated with the interface being "up" at that
-time.
+diff -u linux-2.4.13-ac5/drivers/char/console.c
+linux/drivers/char/console.c
+--- linux-2.4.13-ac5/drivers/char/console.c	Mon Oct 29 17:27:19 2001
++++ linux/drivers/char/console.c	Mon Oct 29 22:11:27 2001
+@@ -2387,8 +2387,14 @@
+ 		return;
+ 
+ 	pm_access(pm_con);
++
++	/*
++	 * If we raced with con_close(), `vt' may be null. 
++	 * Hence this bandaid.   - akpm
++	 */
+ 	acquire_console_sem();
+-	set_cursor(vt->vc_num);
++	if (vt)
++		set_cursor(vt->vc_num);
+ 	release_console_sem();
+ }
+ 
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+	Robert Love
+

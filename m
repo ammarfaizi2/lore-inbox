@@ -1,60 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261286AbSLZL1i>; Thu, 26 Dec 2002 06:27:38 -0500
+	id <S261375AbSLZL63>; Thu, 26 Dec 2002 06:58:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261295AbSLZL1h>; Thu, 26 Dec 2002 06:27:37 -0500
-Received: from smtp006.mail.tpe.yahoo.com ([202.1.238.137]:48877 "HELO
-	smtp006.mail.tpe.yahoo.com") by vger.kernel.org with SMTP
-	id <S261286AbSLZL1h>; Thu, 26 Dec 2002 06:27:37 -0500
-Message-ID: <002801c2acd2$edf6a870$3716a8c0@taipei.via.com.tw>
-From: "Joseph" <jospehchan@yahoo.com.tw>
-To: <linux-kernel@vger.kernel.org>
-Subject: [USB 2.0 problem] ASUS CD-RW cannot be mounted.
-Date: Thu, 26 Dec 2002 19:35:43 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+	id <S261376AbSLZL63>; Thu, 26 Dec 2002 06:58:29 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:26280 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S261375AbSLZL63>; Thu, 26 Dec 2002 06:58:29 -0500
+Date: Thu, 26 Dec 2002 13:06:28 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Nikolai Zhubr <s001@hotbox.ru>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] 2.4.20/drivers/ide/pdc202xx.c
+Message-ID: <20021226120628.GD7348@louise.pinerecords.com>
+References: <1876003973.20021224013519@hotbox.ru> <1040851745.1109.7.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1040851745.1109.7.camel@dhcp22.swansea.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I've tested ASUS USB2.0 CD-RW 40x/12x/48x under 2.5.53.
-  The CD-RW device cannot be mounted.  but it shows in
-/proc/scsi/usb-storage-0/0.
-  Run "cat /proc/scsi/usb-storage-0/0", I got
-***
-  Host scsi0: usb-storage
-  Vendor: ASUSTek ODD
-  Product: USB Storage Device
-  Serial Number: 7438401210600019
-  Protocol: Transparent SCSI
-  Transport: Bulk
-  GUID: 282150017438401210600019
-  Attached: Yes
-***
-  Run "dmesg", I got
-****
-drivers/usb/core/hcd.c: new USB bus registered, assigned bus number 1
-ehci-hcd 00:10.3: USB 2.0 enabled, EHCI 1.00, driver 2002-Nov-29
-hub 1-0:0: USB hub found
-hub 1-0:0: 6 ports detected
-hub 1-0:0: debounce: port 5: delay 100ms stable 4 status 0x501
-hub 1-0:0: new USB device on port 5, assigned address 2
-scsi0 : SCSI emulation for USB Mass Storage devices
-WARNING: USB Mass Storage data integrity not assured
-USB Mass Storage device found at 2
-input: PS/2 Logitech Mouse on isa0060/serio1
-input: PS/2 Logitech Mouse on isa0060/serio1
-****
-Any idea? Thank in advance.
+> On Mon, 2002-12-23 at 22:35, Nikolai Zhubr wrote:
+> > Hi, this patch fixes misdetection of 80-pin vs 40-pin IDE cable
+> > connected to Promise 202xx IDE controller (kernel 2.4.20). The original
+> 
+> 2.4.21pre updates the IDE massively. This should already be fixed
 
-Best Regards,
-             Joseph(@@)
+Well it's fixed but a new bug has been introduced.  2.4.21-pre2 won't
+let you set UDMA3+ on the secondary channel of a PDC20268 no matter what,
+even ide1=ata66 is no use.
 
------------------------------------------------------------------
-< ¨C¤Ñ³£ Yahoo!©_¼¯ >  www.yahoo.com.tw
+-- 
+Tomas Szepe <szepe@pinerecords.com>

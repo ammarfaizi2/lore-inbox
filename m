@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311964AbSCQIUD>; Sun, 17 Mar 2002 03:20:03 -0500
+	id <S311968AbSCQIkE>; Sun, 17 Mar 2002 03:40:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311965AbSCQITx>; Sun, 17 Mar 2002 03:19:53 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:57536 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S311964AbSCQITs>; Sun, 17 Mar 2002 03:19:48 -0500
-Date: Sun, 17 Mar 2002 10:02:57 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Dave Jones <davej@suse.de>
-Subject: [PATCH] Natsemi Geode GXn Extended MMX
-In-Reply-To: <Pine.LNX.4.44.0203170926300.6387-100000@netfinity.realnet.co.sz>
-Message-ID: <Pine.LNX.4.44.0203171001470.6387-100000@netfinity.realnet.co.sz>
+	id <S311967AbSCQIjz>; Sun, 17 Mar 2002 03:39:55 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13586 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311965AbSCQIjq>;
+	Sun, 17 Mar 2002 03:39:46 -0500
+Message-ID: <3C945635.4050101@mandrakesoft.com>
+Date: Sun, 17 Mar 2002 03:39:17 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: linux-fsdevel@vger.kernel.org
+Subject: fadvise syscall?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here it is without the PM stuff, also i seemed to have diffed it wrong 
-last time.
+Has anyone ever done an madvise(2)-type syscall for file descriptors?
+(or does the capability exist and I'm missing it?)
 
-	Zwane
 
---- linux-2.4.19-pre2-ac/arch/i386/kernel/setup.c.orig	Sun Mar 17 10:14:20 2002
-+++ linux-2.4.19-pre2-ac/arch/i386/kernel/setup.c	Sun Mar 17 10:32:52 2002
-@@ -1509,6 +1509,9 @@
- 
- 		/* GXm supports extended cpuid levels 'ala' AMD */
- 		if (c->cpuid_level == 2) {
-+			/* Enable Natsemi MMX extensions */
-+			setCx86(CX86_CCR7, getCx86(CX86_CCR7) | 1);
-+
- 			get_model_name(c);  /* get CPU marketing name */
- 			/*
- 	 		 *	The 5510/5520 companion chips have a funky PIT
+I was thinking, in playing around with stuff like cp(1) I've found that 
+standard read(2) and write(2) of a 4-8K buffer is the fastest solution 
+overall, in addition to providing the useful side effect of better error 
+reporting, such as ENOSPC report.  Better error reporting than the 
+alternative I see anyway, mmap(2).
+
+So... we have madvise, why not fadvise?  I would love the capability for 
+applications to provide hints to the OS like madvise, but for file 
+descriptors...
+
+    Jeff
+
+
 

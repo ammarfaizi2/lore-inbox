@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262518AbVAUV37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262520AbVAUVcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262518AbVAUV37 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 16:29:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262517AbVAUV2M
+	id S262520AbVAUVcT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 16:32:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262511AbVAUVcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 16:28:12 -0500
-Received: from rproxy.gmail.com ([64.233.170.199]:37873 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262511AbVAUV1P (ORCPT
+	Fri, 21 Jan 2005 16:32:18 -0500
+Received: from gprs214-177.eurotel.cz ([160.218.214.177]:47080 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262514AbVAUVas (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 16:27:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=bqNFZ+He41TC1dYkB8hzJJAIhbOCD1WAtZ5PKKbdGSW0gj3PggvDw9UNrdQ7QxDA2IpFFolAC+3mpmHmAPoQ0wITOkL6e5AkDqlubiGT3/vlYzKI/8Kd928YzHoxgmty0elztlWg4LkAfhTjLMIg/U3wBn6+lNVZxxrA9WQw+jk=
-Message-ID: <3f250c71050121132713a145e3@mail.gmail.com>
-Date: Fri, 21 Jan 2005 17:27:11 -0400
-From: Mauricio Lin <mauriciolin@gmail.com>
-Reply-To: Mauricio Lin <mauriciolin@gmail.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: User space out of memory approach
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Edjard Souza Mota <edjard@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050111083837.GE26799@dualathlon.random>
+	Fri, 21 Jan 2005 16:30:48 -0500
+Date: Fri, 21 Jan 2005 22:29:07 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Tony Lindgren <tony@atomide.com>, George Anzinger <george@mvista.com>,
+       john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
+       Con Kolivas <kernel@kolivas.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dynamic tick patch
+Message-ID: <20050121212907.GB8780@elf.ucw.cz>
+References: <20050119000556.GB14749@atomide.com> <Pine.LNX.4.61.0501192100060.3010@montezuma.fsmlabs.com> <20050121174831.GE14554@atomide.com> <Pine.LNX.4.61.0501211123260.18199@montezuma.fsmlabs.com> <20050121185432.GC19551@elf.ucw.cz> <Pine.LNX.4.61.0501211209550.18199@montezuma.fsmlabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <3f250c71050110134337c08ef0@mail.gmail.com>
-	 <20050110192012.GA18531@logos.cnet>
-	 <4d6522b9050110144017d0c075@mail.gmail.com>
-	 <20050110200514.GA18796@logos.cnet>
-	 <1105403747.17853.48.camel@tglx.tec.linutronix.de>
-	 <20050111083837.GE26799@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0501211209550.18199@montezuma.fsmlabs.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrea,
+Hi!
 
-I applied your patch and I am checking your code. It is really a very
-interesting work. I have a question about the function
-__set_current_state(TASK_INTERRUPTIBLE) you put in out_of_memory
-function. Do not you think it would be better put set_current_state
-instead of __set_current_state function? AFAIK the set_current_state
-function is more feasible for SMP systems, right?
+> > > > Sorry for the delay in replaying. Thanks for pointing that out, I
+> > > > don't know yet what to do with the local APIC timer. Have to look at
+> > > > more.
+> > > 
+> > > Pavel does your test system have a Local APIC? If so that may also explain 
+> > > why you didn't see a difference.
+> > 
+> > My systems do have APICs, but I prefer them disabled :-).
+> 
+> May i ask why? ;)
 
-BR,
+Well, BIOSes tend to do strange stuff if you enter sleep state with
+APIC enabled, and APIC is harder to understand than plain old
+PIT. Leave APIC enabled, try to reboot it dies, etc.
 
-Mauricio Lin.
+PIT may be slightly slower, but not having to debug APIC problems
+outweights that.
 
+Anyway I was wrong, I do have it enabled on my main system. Ok, it
+seems to work, so I'll probably leave it alone.
 
-On Tue, 11 Jan 2005 09:38:37 +0100, Andrea Arcangeli <andrea@suse.de> wrote:
-> On Tue, Jan 11, 2005 at 01:35:47AM +0100, Thomas Gleixner wrote:
-> > confirmed fix for this available. It was posted more than once.
-> 
-> I posted 6 patches (1/4,2/4,3/4,4/4,5/4,6/4), they should be all
-> applied to mainline, they're self contained. They add the userspace
-> ratings too.
-> 
-> Those patches fixes a longstanding PF_MEMDIE race too and they optimize
-> used_math as well.
-> 
-> I'm running with all 6 patches applied with an uptime of 6 days on SMP
-> and no problems at all. They're all 6 patches applied to the kotd too
-> (plus the other bits posted on l-k as well for the write throttling,
-> just one bit is still missing but I'll add it soon):
-> 
->         ftp://ftp.suse.com/pub/projects/kernel/kotd/i386/HEAD
-> 
->
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

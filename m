@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262780AbSL0KPA>; Fri, 27 Dec 2002 05:15:00 -0500
+	id <S264867AbSL0KfM>; Fri, 27 Dec 2002 05:35:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263760AbSL0KPA>; Fri, 27 Dec 2002 05:15:00 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:55258 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S262780AbSL0KPA>; Fri, 27 Dec 2002 05:15:00 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15884.10772.44042.51586@laputa.namesys.com>
-Date: Fri, 27 Dec 2002 13:23:16 +0300
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Linus Torvalds <Torvalds@Transmeta.COM>,
-       Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
-Subject: missed inode->i_hash cleanup in prune_icache()
-X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
-X-Zippy-Says: All I can think of is a platter of organic PRUNE CRISPS being
-   trampled by an army of swarthy, Italian LOUNGE SINGERS...
+	id <S264877AbSL0KfM>; Fri, 27 Dec 2002 05:35:12 -0500
+Received: from dp.samba.org ([66.70.73.150]:53135 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S264867AbSL0KfK>;
+	Fri, 27 Dec 2002 05:35:10 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, rth@twiddle.net
+Subject: [PATCH] Trivial patch for param.h: make it const.
+Date: Fri, 27 Dec 2002 21:24:40 +1100
+Message-Id: <20021227104328.0DFEC2C056@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+[ Another trivial RTH patch ]
 
-fs/inode.c:prune_icache() does list_del(&inode->i_hash), and then calls
-destroy_inode(). Inode is returned to the slab with ->i_hash still
-containing dangling pointers. Probably this wasn't observed so far,
-because prune_icache() is called during memory pressure and slab page
-where inode is returned back into, is almost immediately released.
+Name: Param Should be Const
+From: Richard Henderson <rth@twiddle.net>
+Status: Trivial
 
-2.4 explicitly calls INIT_LIST_HEAD(&inode->i_hash) in prune_icache().
+D: Add a const declaration to the __module_param_call so __param section
+D: gets more correct attributes.
 
-Following patch re-initializes ->i_hash.
-
-Nikita.
-===== fs/inode.c 1.84 vs edited =====
---- 1.84/fs/inode.c	Mon Dec 16 09:38:48 2002
-+++ edited/fs/inode.c	Wed Dec 25 16:19:10 2002
-@@ -248,7 +248,7 @@
- 		struct inode *inode;
+===== include/linux/moduleparam.h 1.1 vs edited =====
+--- 1.1/include/linux/moduleparam.h	Mon Dec  2 17:03:16 2002
++++ edited/include/linux/moduleparam.h	Thu Dec 26 12:34:10 2002
+@@ -39,7 +39,7 @@
+    writable. */
+ #define __module_param_call(prefix, name, set, get, arg, perm)		\
+ 	static char __param_str_##name[] __initdata = prefix #name;	\
+-	static struct kernel_param __param_##name			\
++	static struct kernel_param const __param_##name			\
+ 		 __attribute__ ((unused,__section__ ("__param")))	\
+ 	= { __param_str_##name, perm, set, get, arg }
  
- 		inode = list_entry(head->next, struct inode, i_list);
--		list_del(&inode->i_list);
-+		list_del_init(&inode->i_list);
- 
- 		if (inode->i_data.nrpages)
- 			truncate_inode_pages(&inode->i_data, 0);
 
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

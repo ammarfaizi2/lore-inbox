@@ -1,72 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264808AbTFBR2a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 13:28:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264811AbTFBR23
+	id S264810AbTFBR2d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 13:28:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264811AbTFBR2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 13:28:29 -0400
-Received: from [208.177.141.226] ([208.177.141.226]:33260 "HELO ash.lnxi.com")
-	by vger.kernel.org with SMTP id S264808AbTFBR2W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 13:28:22 -0400
-To: "ganesh_borse" <ganesh_borse@indiatimes.com>
-Cc: <ebiederman@lnxi.com>, <agnew@missl.cs.umd.edu>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Request for help
-References: <200305290413.JAA23492@WS0005.indiatimes.com>
-From: ebiederman@lnxi.com (Eric W. Biederman)
-Date: 02 Jun 2003 11:49:01 -0600
-In-Reply-To: <200305290413.JAA23492@WS0005.indiatimes.com>
-Message-ID: <m3fzmsjroy.fsf@maxwell.lnxi.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	Mon, 2 Jun 2003 13:28:33 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:17557 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S264810AbTFBR2Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 13:28:25 -0400
+Date: Mon, 2 Jun 2003 19:43:21 +0200
+From: Kristian Peters <kristian.peters@korseby.net>
+To: "Fryderyk Mazurek" <dedyk@go2.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel(2.4.21-rc6) BUG on slab.c
+Message-Id: <20030602194321.047ac157.kristian.peters@korseby.net>
+In-Reply-To: <MCBBKNJEDBEANFAMJPFPMECGCBAA.dedyk@go2.pl>
+References: <MCBBKNJEDBEANFAMJPFPMECGCBAA.dedyk@go2.pl>
+X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
+X-Operating-System: i686-debian-linux-gnu 2.4.21-rc6
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Importance: high
+X-Priority: 1 (Highest)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am CC'ing linux-kernel as that is the general kernel list.  There
-may be something even more focused on IDE issues but I am
-not aware of it.
+"Fryderyk Mazurek" <dedyk@go2.pl> schrieb:
+> Jun  2 00:32:12 frycek kernel: kernel BUG at slab.c:1439!
+> Jun  2 00:32:13 frycek kernel: invalid operand: 0000
+> Jun  2 00:32:13 frycek kernel: CPU:    0
+> Jun  2 00:32:13 frycek kernel: EIP:    0010:[<c0132390>]    Tainted: PF
+								^^^^^^^^
 
-"ganesh_borse" <ganesh_borse@indiatimes.com> writes:
+That's related to the ati drivers you're using.. You must get in contact with ati. Their drivers are for specific vendor-kernels only and won't work together with other versions. Maybe you can convince them they'd better release them under a free license..
 
-> Hi,
-> 
-> 
-> I would like to request for a little help related to IDE controllers.
-> 
-> 
-> I am trying to develop a device drive code for listing the devices connected to
-> a ide controller at the time of kernel booting.
-> 
-> 
-> 
-> Is there any way to get which channels on ide controller has got devices and
-> which devices? 
-
-Yes.  But it is baroque.
-
-> This I am trying to get even before the normal ide device driver
-> has been setup. Are there ide controller commands to get this info? 
-
-Not exactly.  The method is essentially you ping the drives to see
-if they are there.
-
-> Or is this
-> info stored in registers of ide-controllers? 
-
-Nope this information is not stored in registers.
-
-> For this do we need to write
-> assembly instructions on linux?
-
-No.
-
-But there is also nothing that allows you to force the module
-order within the kernel.  So there are no guarantees you will
-come before a normal IDE driver.  I assume from the questions
-you intend to have this working in the linux kernel.
-
-Eric
-
+*Kristian

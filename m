@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318230AbSG3L07>; Tue, 30 Jul 2002 07:26:59 -0400
+	id <S318256AbSG3LXp>; Tue, 30 Jul 2002 07:23:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318231AbSG3L06>; Tue, 30 Jul 2002 07:26:58 -0400
-Received: from tomts6.bellnexxia.net ([209.226.175.26]:4580 "EHLO
-	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S318230AbSG3L05>; Tue, 30 Jul 2002 07:26:57 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Subject: Re: [patch 2/13] remove pages from the LRU in __free_pages_ok()
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Reply-To: tomlins@cam.org
-Date: Tue, 30 Jul 2002 07:30:03 -0400
-References: <Pine.LNX.4.44.0207282324340.872-100000@home.transmeta.com>
-Organization: me
-User-Agent: KNode/0.7.1
-MIME-Version: 1.0
+	id <S318257AbSG3LXp>; Tue, 30 Jul 2002 07:23:45 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:61908 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id <S318256AbSG3LXo>;
+	Tue, 30 Jul 2002 07:23:44 -0400
+Date: Tue, 30 Jul 2002 11:49:02 +0200
+From: Axel Siebenwirth <axel@hh59.org>
+To: JFS-Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Testing of filesystems
+Message-ID: <20020730094902.GA257@prester.freenet.de>
+Mail-Followup-To: JFS-Discussion <jfs-discussion@www-124.ibm.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20020730113004.5776D117D@oscar.casa.dyndns.org>
+Content-Disposition: inline
+Organization: hh59.org
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Hi,
 
-> On Sun, 28 Jul 2002, David S. Miller wrote:
->>
->> So when the user's reference is dropped, does that operation kill it
->> from the LRU or will the socket's remaining reference to that page
->> defer the LRU removal?
-> 
-> That is indeed the question. Right now it will defer, which looks like a
-> bug. Or at least it is a bug without the interrupt-safe LRU manipulations.
-> 
-> I'm starting to be more convinced about Andrew's alternate patch, the
-> "move LRU lock innermost and make it irq-safe".
-> 
-> Which also would make it saner to do the LRU handling inside
-> __put_pages_ok() (and actually remove the BUG_ON(in_interrupt()) that
-> Andrew had there in the old patch).
+I wonder what a good way is to stress test my JFS filesystem. Is there a tool
+that does something like that maybe? Dont't want performance testing, just
+all kinds of stress testing to see how the filesystem "is" and to check
+integrity and functionality.
+What are you filesystem developers use to do something like that?
 
-This would also make slablru easier.  We could just set the 'release me'
-flag when slabs are chained to the free list.  In vmscan we make sure we
-check if the page is referenced before the release logic.
-
-Ed Tomlinson
+Thanks,
+Axel

@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266091AbUA1Xuq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 18:50:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266106AbUA1Xuq
+	id S266106AbUA1XwS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 18:52:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266166AbUA1XwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 18:50:46 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:62207 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S266091AbUA1Xup (ORCPT
+	Wed, 28 Jan 2004 18:52:18 -0500
+Received: from mail.kroah.org ([65.200.24.183]:455 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266106AbUA1XwP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 18:50:45 -0500
-Date: Thu, 29 Jan 2004 00:50:43 +0100
-From: David Weinehall <david@southpole.se>
-To: Markus =?iso-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [2.0.40-rc8] Works well
-Message-ID: <20040128235043.GF16675@khan.acc.umu.se>
-Mail-Followup-To: Markus =?iso-8859-1?Q?H=E4stbacka?= <midian@ihme.org>,
-	Kernel Mailinglist <linux-kernel@vger.kernel.org>
-References: <20040128151727.GD16675@khan.acc.umu.se> <Pine.LNX.4.44.0401290135070.29405-100000@midi>
+	Wed, 28 Jan 2004 18:52:15 -0500
+Date: Wed, 28 Jan 2004 15:51:12 -0800
+From: Greg KH <greg@kroah.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Hollis Blanchard <hollisb@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       francis.wiran@hp.com
+Subject: Re: [PATCH] cpqarray update
+Message-ID: <20040128235112.GC10906@kroah.com>
+References: <200401262002.i0QK2iAH031857@hera.kernel.org> <40157552.3040405@pobox.com> <15D09760-51A9-11D8-AF96-000A95A0560C@us.ibm.com> <40184845.3030008@pobox.com> <40184960.7030207@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0401290135070.29405-100000@midi>
+In-Reply-To: <40184960.7030207@pobox.com>
 User-Agent: Mutt/1.4.1i
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 29, 2004 at 01:37:37AM +0200, Markus Hästbacka wrote:
-> Btw - Are you going to announce the release of 2.0.40 (whenever it's
-> coming) or just put it on kernel.org?
+On Wed, Jan 28, 2004 at 06:44:32PM -0500, Jeff Garzik wrote:
+> Jeff Garzik wrote:
+> >Actually I disagree with GregKH on this.
+> >
+> >The register/unregister functions need to be returning error codes, 
+> >_not_ the count of interfaces registered.  It is trivial to count the 
+> >registered interfaces in the driver itself, but IMO far more important 
+> >to propagate fatal errors back to the original caller.
+> 
+> Nevermind, this got fixed.  I'm still worried about the '1' return 
+> value, though, for zero controllers found.
 
-I will announce it.  It won't have any differences from 2.0.40-rc8
-though (unless someone uncovers a flaw in -rc8 of course, which would
-cause me to release an -rc9.)
+Yeah, I don't really like it either, but figured it was a 2.7 task to
+clean it up properly.
 
+thanks,
 
-Regards: David Weinehall
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+greg k-h

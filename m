@@ -1,172 +1,341 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261738AbSIXRfo>; Tue, 24 Sep 2002 13:35:44 -0400
+	id <S261764AbSIXRdx>; Tue, 24 Sep 2002 13:33:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261736AbSIXRe3>; Tue, 24 Sep 2002 13:34:29 -0400
-Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:57743 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S261738AbSIXRWs> convert rfc822-to-8bit; Tue, 24 Sep 2002 13:22:48 -0400
+	id <S261723AbSIXRaL>; Tue, 24 Sep 2002 13:30:11 -0400
+Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:55196 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S261732AbSIXRWq> convert rfc822-to-8bit; Tue, 24 Sep 2002 13:22:46 -0400
 Content-Type: text/plain;
   charset="us-ascii"
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Organization: IBM Deutschland GmbH
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] 2.5.38 s390 fixes: 02_syscalls.
-Date: Tue, 24 Sep 2002 19:25:07 +0200
+Subject: [PATCH] 2.5.38 s390 fixes: 21_chpid.
+Date: Tue, 24 Sep 2002 19:23:41 +0200
 X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200209241917.17966.schwidefsky@de.ibm.com>
+Message-Id: <200209241923.41057.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-New system calls: security, async. i/o and sys_exit_group. Add 31 bit emulation
-function for sys_futex.
+Check if defined chpids are available. Some code simplification.
 
-diff -urN linux-2.5.38/arch/s390/kernel/entry.S linux-2.5.38-s390/arch/s390/kernel/entry.S
---- linux-2.5.38/arch/s390/kernel/entry.S	Sun Sep 22 06:25:02 2002
-+++ linux-2.5.38-s390/arch/s390/kernel/entry.S	Tue Sep 24 17:41:38 2002
-@@ -581,7 +581,15 @@
- 	.long  sys_futex
- 	.long  sys_sched_setaffinity
- 	.long  sys_sched_getaffinity	 /* 240 */
--	.rept  255-240
-+	.long  sys_security
-+	.long  sys_ni_syscall		 /* reserved for TUX */
-+	.long  sys_io_setup
-+	.long  sys_io_destroy
-+	.long  sys_io_getevents		 /* 245 */
-+	.long  sys_io_submit
-+	.long  sys_io_cancel
-+	.long  sys_exit_group
-+	.rept  255-248
- 	.long  sys_ni_syscall
- 	.endr
- 
-diff -urN linux-2.5.38/arch/s390x/kernel/entry.S linux-2.5.38-s390/arch/s390x/kernel/entry.S
---- linux-2.5.38/arch/s390x/kernel/entry.S	Tue Sep 24 17:41:38 2002
-+++ linux-2.5.38-s390/arch/s390x/kernel/entry.S	Tue Sep 24 17:41:38 2002
-@@ -606,13 +606,21 @@
- 	.long  SYSCALL(sys_flistxattr,sys32_flistxattr_wrapper)
- 	.long  SYSCALL(sys_removexattr,sys32_removexattr_wrapper)
- 	.long  SYSCALL(sys_lremovexattr,sys32_lremovexattr_wrapper)
--	.long  SYSCALL(sys_fremovexattr,sys32_fremovexattr_wrapper)
-+	.long  SYSCALL(sys_fremovexattr,sys32_fremovexattr_wrapper) /* 235 */
- 	.long  SYSCALL(sys_gettid,sys_gettid)
- 	.long  SYSCALL(sys_tkill,sys_tkill)
- 	.long  SYSCALL(sys_futex,sys32_futex_wrapper)
- 	.long  SYSCALL(sys_sched_setaffinity,sys32_sched_setaffinity_wrapper)
--	.long  SYSCALL(sys_sched_getaffinity,sys32_sched_getaffinity_wrapper)
--        .rept  255-240
-+	.long  SYSCALL(sys_sched_getaffinity,sys32_sched_getaffinity_wrapper) /* 240 */
-+	.long  SYSCALL(sys_security,sys_ni_syscall)
-+	.long  SYSCALL(sys_ni_syscall,sys_ni_syscall) /* reserved for TUX */
-+	.long  SYSCALL(sys_io_setup,sys_ni_syscall)
-+	.long  SYSCALL(sys_io_destroy,sys_ni_syscall)
-+	.long  SYSCALL(sys_io_getevents,sys_ni_syscall)       /* 245 */
-+	.long  SYSCALL(sys_io_submit,sys_ni_syscall)
-+	.long  SYSCALL(sys_io_cancel,sys_ni_syscall)
-+	.long  SYSCALL(sys_exit_group,sys32_exit_group_wrapper)
-+        .rept  255-248
- 	.long  SYSCALL(sys_ni_syscall,sys_ni_syscall)
- 	.endr
- 
-diff -urN linux-2.5.38/arch/s390x/kernel/linux32.c linux-2.5.38-s390/arch/s390x/kernel/linux32.c
---- linux-2.5.38/arch/s390x/kernel/linux32.c	Tue Sep 24 17:41:38 2002
-+++ linux-2.5.38-s390/arch/s390x/kernel/linux32.c	Tue Sep 24 17:41:38 2002
-@@ -4531,3 +4531,34 @@
- 
- 	return ret;
+diff -urN linux-2.5.38/drivers/s390/cio/chsc.c linux-2.5.38-s390/drivers/s390/cio/chsc.c
+--- linux-2.5.38/drivers/s390/cio/chsc.c	Sun Sep 22 06:24:58 2002
++++ linux-2.5.38-s390/drivers/s390/cio/chsc.c	Tue Sep 24 17:43:50 2002
+@@ -1,7 +1,7 @@
+ /*
+  *  drivers/s390/cio/chsc.c
+  *   S/390 common I/O routines -- channel subsystem call
+- *   $Revision: 1.9 $
++ *   $Revision: 1.12 $
+  *
+  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
+  *                            IBM Corporation
+@@ -52,6 +52,49 @@
+ 	return test_bit (ioinfo[irq]->schib.pmcw.chpid[chp], &chpids_logical);
  }
-+
-+asmlinkage int 
-+sys_futex(void *uaddr, int op, int val, struct timespec *utime);
-+
-+asmlinkage int
-+sys32_futex(void *uaddr, int op, int val, 
-+		 struct timespec32 *timeout32)
+ 
++static inline void
++chsc_clear_chpid(int irq, int chp)
 +{
-+	long ret;
-+	struct timespec tmp, *timeout;
-+
-+	ret = -ENOMEM;
-+	timeout = kmalloc(sizeof(*timeout), GFP_USER);
-+	if (!timeout)
-+		goto out;
-+
-+	ret = -EINVAL;
-+	if (get_user (tmp.tv_sec,  &timeout32->tv_sec)  ||
-+	    get_user (tmp.tv_nsec, &timeout32->tv_nsec) ||
-+	    put_user (tmp.tv_sec,  &timeout->tv_sec)    ||
-+	    put_user (tmp.tv_nsec, &timeout->tv_nsec))
-+		goto out_free;
-+
-+	ret = sys_futex(uaddr, op, val, timeout);
-+
-+out_free:
-+	kfree(timeout);
-+out:
-+	return ret;
++	clear_bit(ioinfo[irq]->schib.pmcw.chpid[chp], &chpids);
 +}
 +
-diff -urN linux-2.5.38/arch/s390x/kernel/wrapper32.S linux-2.5.38-s390/arch/s390x/kernel/wrapper32.S
---- linux-2.5.38/arch/s390x/kernel/wrapper32.S	Sun Sep 22 06:25:09 2002
-+++ linux-2.5.38-s390/arch/s390x/kernel/wrapper32.S	Tue Sep 24 17:41:38 2002
-@@ -1114,7 +1114,7 @@
- 	lgfr	%r3,%r3			# int
- 	lgfr	%r4,%r4			# int
- 	llgtr	%r5,%r5			# struct timespec *
--	jg	sys_futex		# branch to system call
-+	jg	sys32_futex		# branch to system call
++void
++chsc_validate_chpids(int irq)
++{
++	int mask, chp;
++
++	if (ioinfo[irq]->opm) {
++		for (chp=0;chp<=7;chp++) {
++			mask = 0x80 >> chp;
++			if (ioinfo[irq]->opm & mask) {
++				if (!chsc_chpid_logical(irq,chp))
++					/* disable using this path */
++					ioinfo[irq]->opm &= ~mask;
++			} else {
++				/* This chpid is not
++				 * available to us */
++				chsc_clear_chpid(irq,chp);
++			}
++		}
++		
++	}
++	
++}
++
++void
++switch_off_chpids(int irq, __u8 mask)
++{
++	int i;
++	pmcw_t *pmcw = &ioinfo[irq]->schib.pmcw;
++
++	for (i=0;i<8;i++)
++		if ((0x80>>i) & mask
++		    & pmcw->pim
++		    & pmcw->pam
++		    & pmcw->pom)
++			clear_bit(pmcw->chpid[i], &chpids);
++}
++
+ /* FIXME: this is _always_ called for every subchannel. shouldn't we
+  * 	  process more than one at a time?*/
+ static int
+@@ -213,11 +256,9 @@
+ {
+ 	int irq;
+ 	int j;
+-	int mask;
+ 	char dbf_txt[15];
+ 	int ccode;
+ 	int was_oper;
+-	int chp = 0;
+ 	int mask2;
  
- 	.globl	sys32_setxattr_wrapper
- sys32_setxattr_wrapper:
-@@ -1220,3 +1220,7 @@
- 	llgtr	%r4,%r4			# unsigned long *
- 	jg	sys32_sched_getaffinity
+ 	sprintf(dbf_txt, "chpr%x", chpid);
+@@ -266,21 +307,7 @@
+ 				ioinfo[irq]->schib.pmcw.pam &
+ 				ioinfo[irq]->schib.pmcw.pom;
  
-+	.globl  sys32_exit_group_wrapper
-+sys32_exit_group_wrapper:
-+	lgfr	%r2,%r2			# int
-+	jg	sys_exit_group		# branch to system call
-diff -urN linux-2.5.38/include/asm-s390/unistd.h linux-2.5.38-s390/include/asm-s390/unistd.h
---- linux-2.5.38/include/asm-s390/unistd.h	Sun Sep 22 06:25:36 2002
-+++ linux-2.5.38-s390/include/asm-s390/unistd.h	Tue Sep 24 17:41:38 2002
-@@ -231,6 +231,16 @@
- #define __NR_futex		238
- #define __NR_sched_setaffinity	239
- #define __NR_sched_getaffinity	240
-+#define __NR_security		241	/* syscall for security modules */
-+/*
-+ * Number 242 is reserved for tux
-+ */
-+#define __NR_io_setup		243
-+#define __NR_io_destroy		244
-+#define __NR_io_getevents	245
-+#define __NR_io_submit		246
-+#define __NR_io_cancel		247
-+#define __NR_exit_group		248
+-			if (ioinfo[irq]->opm) {
+-				for (chp=0;chp<=7;chp++) {
+-					mask2 = 0x80 >> chp;
+-					if (ioinfo[irq]->opm & mask2) {
+-						if (!test_bit
+-						    (ioinfo[irq]->
+-						     schib.pmcw.chpid[chp], 
+-						     &chpids_logical)) {
+-							/* disable using this path */
+-							ioinfo[irq]->opm 
+-								&= ~mask2;
+-						}
+-					}
+-				}
+-			}
++			chsc_validate_chpids(irq);
  
+ 			if (!ioinfo[irq]->opm) {
+ 				/*
+@@ -307,20 +334,7 @@
+ 						nopfunc(irq, DEVSTAT_DEVICE_GONE);
+ 				}
  
- /* user-visible error numbers are in the range -1 - -122: see <asm-s390/errno.h> */
-diff -urN linux-2.5.38/include/asm-s390x/unistd.h linux-2.5.38-s390/include/asm-s390x/unistd.h
---- linux-2.5.38/include/asm-s390x/unistd.h	Sun Sep 22 06:25:16 2002
-+++ linux-2.5.38-s390/include/asm-s390x/unistd.h	Tue Sep 24 17:41:38 2002
-@@ -198,6 +198,16 @@
- #define __NR_futex		238
- #define __NR_sched_setaffinity	239
- #define __NR_sched_getaffinity	240
-+#define __NR_security		241	/* syscall for security modules */
-+/*
-+ * Number 242 is reserved for tux
-+ */
-+#define __NR_io_setup		243
-+#define __NR_io_destroy		244
-+#define __NR_io_getevents	245
-+#define __NR_io_submit		246
-+#define __NR_io_cancel		247
-+#define __NR_exit_group		248
+-			} else if (ioinfo[irq]->ui.flags.ready) {
+-				/* 
+-				 * Re-do path verification for the chpid in question
+-				 * FIXME: is this neccessary?
+-				 */
+-				mask = 0x80 >> j;
+-
+-				if (!s390_DevicePathVerification(irq,mask)) {
+-					CHSC_DEBUG (KERN_DEBUG, CRW, 2,
+-						"DevicePathVerification "
+-						"successful for Subchannel %x, "
+-						"chpid %x\n", irq, chpid);
+-				}
+-			}
++			} 
  
+ 			s390irq_spin_unlock(irq);
+ 			break;
+@@ -432,18 +446,7 @@
+ 				   ioinfo[irq]->schib.pmcw.pam &
+ 				   ioinfo[irq]->schib.pmcw.pom;
  
- /* user-visible error numbers are in the range -1 - -122: see <asm-s390/errno.h> */
+-		if (ioinfo[irq]->opm) {
+-			for (chp=0;chp<=7;chp++) {
+-				mask = 0x80 >> chp;
+-				if ((ioinfo[irq]->opm & mask) &&
+-				    !test_bit (ioinfo[irq]->schib.pmcw.chpid[chp],
+-					       &chpids_logical)) {
+-
+-					/* disable using this path */
+-					ioinfo[irq]->opm &= ~mask;
+-				}
+-			}
+-		}
++		chsc_validate_chpids(irq);
+ 
+ 		if ((ioinfo[irq]->ui.flags.ready) && (chpid & ioinfo[irq]->opm))
+ 			s390_DevicePathVerification(irq, chpid);
+@@ -456,8 +459,7 @@
+ 	char dbf_txt[15];
+ 	int irq = 0;
+ 	int ccode;
+-	int chp;
+-	int mask, mask2;
++	int mask2;
+ 	int ret;
+ 	int j;
+ 
+@@ -517,18 +519,7 @@
+ 						   ioinfo[irq]->schib.pmcw.pam &
+ 						   ioinfo[irq]->schib.pmcw.pom;
+ 
+-				if (ioinfo[irq]->opm) {
+-					for (chp=0;chp<=7;chp++) {
+-						mask = 0x80 >> chp;
+-						if ((ioinfo[irq]->opm & mask)
+-						    && (!test_bit (ioinfo[irq]->
+-							     schib.pmcw.chpid[chp], 
+-							     &chpids_logical))) {
+-							/* disable using this path */
+-							ioinfo[irq]->opm &= ~mask;
+-						}
+-					}
+-				}
++				chsc_validate_chpids(irq);
+ 
+ 				if (ioinfo[irq]->ui.flags.ready)
+ 					s390_DevicePathVerification(irq, chpid);
+@@ -782,11 +773,20 @@
+ 	}
+ 
+ 	while (chp < NR_CHPIDS && len + entry_size < count) {
+-		if ((test_bit( chp, &chpids)) && test_bit(chp, &chpids_logical))
+-			len += sprintf(page+len, "0x%02X online\n", chp);
+-		else if (test_bit(chp, &chpids_known))
+-			len += sprintf(page+len, "0x%02X logically offline\n",
+-					chp);
++		if (test_bit(chp, &chpids_known)) {
++
++			if (!test_bit(chp, &chpids))
++				len += sprintf(page+len,
++					       "0x%02X n/a\n", chp);
++			
++			else if (test_bit(chp, &chpids_logical))
++				len += sprintf(page+len,
++					       "0x%02X online\n", chp);
++			else
++				len += sprintf(page+len,
++					       "0x%02X logically offline\n", 
++					       chp);
++		}
+ 		chp++;
+ 	}
+ 
+diff -urN linux-2.5.38/drivers/s390/cio/chsc.h linux-2.5.38-s390/drivers/s390/cio/chsc.h
+--- linux-2.5.38/drivers/s390/cio/chsc.h	Sun Sep 22 06:25:17 2002
++++ linux-2.5.38-s390/drivers/s390/cio/chsc.h	Tue Sep 24 17:43:50 2002
+@@ -3,4 +3,6 @@
+ 
+ extern void s390_process_css( void );
+ extern int chsc_chpid_logical (int irq, int chp);
++extern void chsc_validate_chpids(int irq);
++extern void switch_off_chpids(int irq, __u8 mask);
+ #endif
+diff -urN linux-2.5.38/drivers/s390/cio/cio.c linux-2.5.38-s390/drivers/s390/cio/cio.c
+--- linux-2.5.38/drivers/s390/cio/cio.c	Tue Sep 24 17:43:50 2002
++++ linux-2.5.38-s390/drivers/s390/cio/cio.c	Tue Sep 24 17:43:50 2002
+@@ -1,7 +1,7 @@
+ /*
+  *  drivers/s390/cio/cio.c
+  *   S/390 common I/O routines -- low level i/o calls
+- *   $Revision: 1.25 $
++ *   $Revision: 1.26 $
+  *
+  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
+  *                            IBM Corporation
+@@ -342,6 +342,7 @@
+ 
+ 	if (valid_lpm) {
+ 		ioinfo[irq]->opm &= ~lpm;
++		switch_off_chpids(irq, lpm);
+ 	} else {
+ 		ioinfo[irq]->opm = 0;
+ 		
+@@ -1386,7 +1387,7 @@
+ 	
+ 	ioinfo[irq]->devstat.intparm = 0;
+ 	
+-	if (!ioinfo[irq]->ui.flags.s_pend) 
++	if (!(ioinfo[irq]->ui.flags.s_pend || ioinfo[irq]->ui.flags.repnone))
+ 		ioinfo[irq]->irq_desc.handler (irq, udp, NULL);
+ 	
+ 	return 1;
+diff -urN linux-2.5.38/drivers/s390/cio/s390io.c linux-2.5.38-s390/drivers/s390/cio/s390io.c
+--- linux-2.5.38/drivers/s390/cio/s390io.c	Tue Sep 24 17:43:15 2002
++++ linux-2.5.38-s390/drivers/s390/cio/s390io.c	Tue Sep 24 17:53:01 2002
+@@ -991,9 +991,6 @@
+ 	int ccode2;		/* condition code for other I/O routines */
+ 	schib_t *p_schib;
+ 	int ret;
+-	int      chp = 0;
+-	int      mask;
+-
+ 	char dbf_txt[15];
+ 
+ 	sprintf (dbf_txt, "valsch%x", irq);
+@@ -1115,17 +1112,7 @@
+ 	ioinfo[irq]->opm = ioinfo[irq]->schib.pmcw.pim
+ 	    & ioinfo[irq]->schib.pmcw.pam & ioinfo[irq]->schib.pmcw.pom;
+ 
+-	if (ioinfo[irq]->opm) {
+-		for (chp=0;chp<=7;chp++) {
+-			mask = 0x80 >> chp;
+-			if (ioinfo[irq]->opm & mask) {
+-				if (!chsc_chpid_logical (irq, chp)) {
+-					/* disable using this path */
+-					ioinfo[irq]->opm &= ~mask;
+-				}
+-			}
+-		}
+-	}
++	chsc_validate_chpids(irq);
+ 
+ 	CIO_DEBUG_IFMSG(KERN_INFO, 0,
+ 			"Detected device %04X "
+@@ -1690,8 +1677,6 @@
+ 	int ccode;
+ 	__u8 pathmask;
+ 	__u8 domask;
+-	int chp;
+-	int mask;
+ 	int old_opm = 0;
+ 
+ 	int ret = 0;
+@@ -1772,18 +1757,8 @@
+ 	ioinfo[irq]->opm = ioinfo[irq]->schib.pmcw.pim
+ 	    & ioinfo[irq]->schib.pmcw.pam & ioinfo[irq]->schib.pmcw.pom;
+ 
+-	if (ioinfo[irq]->opm) {
+-		for (chp=0;chp<=7;chp++) {
+-			mask = 0x80 >> chp;
+-			if (ioinfo[irq]->opm & mask) {
+-				if (!chsc_chpid_logical (irq, chp)) {
+-					/* disable using this path */
+-					ioinfo[irq]->opm &= ~mask;
+-				}
+-			}
+-		}
+-	}
+-	
++	chsc_validate_chpids(irq);
++
+ 	if ((ioinfo[irq]->opm == 0) && (old_opm)) {
+ 		not_oper_handler_func_t nopfunc=ioinfo[irq]->nopfunc;
+ 		int was_oper = ioinfo[irq]->ui.flags.ready;
+@@ -1815,7 +1790,7 @@
+ 	}
+ 
+ 	if ( ioinfo[irq]->ui.flags.pgid_supp == 0 )
+-		return( 0);	/* just exit ... */
++		return 0;	/* just exit ... */
+ 
+ 	if (usermask) {
+ 		dev_path = usermask;
+@@ -2229,8 +2204,8 @@
+ 				 *  Sense Path Group ID command
+ 				 *  further retries wouldn't help ...
+ 				 */
+-				if (pdevstat->ii.sense.
+-				    data[0] & SNS0_CMD_REJECT) {
++				if (pdevstat->ii.sense.data[0] & 
++				    (SNS0_CMD_REJECT | SNS0_INTERVENTION_REQ)) {
+ 					retry = 0;
+ 					irq_ret = -EOPNOTSUPP;
+ 				} else {
 

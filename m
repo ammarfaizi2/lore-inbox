@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315736AbSEJA0H>; Thu, 9 May 2002 20:26:07 -0400
+	id <S315737AbSEJAdi>; Thu, 9 May 2002 20:33:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315737AbSEJA0G>; Thu, 9 May 2002 20:26:06 -0400
-Received: from ns1.system-techniques.com ([199.33.245.254]:44437 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S315736AbSEJA0E> convert rfc822-to-8bit; Thu, 9 May 2002 20:26:04 -0400
-Date: Thu, 9 May 2002 20:25:58 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Re: >12 drives in a RAID?
-In-Reply-To: <20020509175256.A31674@mail.harddata.com>
-Message-ID: <Pine.LNX.4.44.0205092019480.5701-100000@filesrv1.baby-dragons.com>
+	id <S315738AbSEJAdh>; Thu, 9 May 2002 20:33:37 -0400
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:54227 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S315737AbSEJAdh>; Thu, 9 May 2002 20:33:37 -0400
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.14 IDE 56
+In-Reply-To: <3CD9E8A7.D524671D@zip.com.au> <5.1.0.14.2.20020509193347.02ff6dc8@mira-sjcm-3.cisco.com> <3CDAC4EB.FC4FE5CF@zip.com.au>
+From: Andi Kleen <ak@muc.de>
+Date: 10 May 2002 02:33:19 +0200
+Message-ID: <m31yck9700.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.070095 (Pterodactyl Gnus v0.95) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton <akpm@zip.com.au> writes:
 
-	Hello Roy & All ,  Mr. Neil Brown <neilb@cse.unsw.edu.au>
-	Has come up with a (somewhat) complete tool for software raid
-	maintenance .  Also might try raising these questions & concerns
-	on the linux-raid list .  Please see below .  Hth ,  JimL
+> For bulk read() and write() I/O the best sized buffer is 8 kbytes.  4k is
+> pretty good, too.  Anything larger blows the user-side buffer out of L1.
+> This is for x86.
 
-	http://www.cse.unsw.edu.au/~neilb/source/mdadm/
+Modern x86 support prefetch hints for the CPU to tell it to not 
+pollute the caches with "streaming data". I bet using them would
+be a big win. The rep ; movsl loop used in copy*user isn't 
+very good on modern x86 anyways (it is ok on PPro, but loses on Athlon
+and P4) 
 
-On Thu, 9 May 2002, Michal Jaegermann wrote:
-> On Thu, May 09, 2002 at 04:16:56PM +0200, Jakob Østergaard wrote:
-> > On Thu, May 09, 2002 at 04:11:00PM +0200, Roy Sigurd Karlsbakk wrote:
-> > > hi
-> > > How can I use more than 12 drives in a RAID config? I need it!!!
-> > > Please cc: to me as I'm not on the list(s)
-> > Yes.
-> >
-> > Back in the "old days" with the old superblocks you couldn't.
-> Hm, the last time I looked a header used by kernels had space
-> for someting like 27 or 29 drives (I do not remember the exact
-> number) but its variant in 'raidtools' sources allowed indeed
-> only 12.  Synchronizing those headers to kernel values raised
-> a maximum number of disks in an array quite considerably.
->   Michal
+I'm (slowly) working on such functions for x86-64, it should be eventually
+possible to backport them to i386.
 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
-
-
-
+-Andi

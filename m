@@ -1,92 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263877AbTDYUir (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 16:38:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263984AbTDYUir
+	id S263087AbTDYUiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 16:38:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263877AbTDYUiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 16:38:47 -0400
-Received: from quechua.inka.de ([193.197.184.2]:43403 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S263877AbTDYUio (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 16:38:44 -0400
-Subject: Re: Flame Linus to a crisp!
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030425191252.GA1853@mail.jlokier.co.uk>
-References: <170EBA504C3AD511A3FE00508BB89A9201FD91E8@exnanycmbx4.ipc.com>
-	 <20030424212811.GH30082@mail.jlokier.co.uk>
-	 <20030425081358.B750C2128A@dungeon.inka.de>
-	 <20030425191252.GA1853@mail.jlokier.co.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1051304168.15158.29.camel@simulacron>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 25 Apr 2003 22:56:08 +0200
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Apr 2003 16:38:24 -0400
+Received: from smtp-out.comcast.net ([24.153.64.116]:59577 "EHLO
+	smtp-out.comcast.net") by vger.kernel.org with ESMTP
+	id S263087AbTDYUiX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 16:38:23 -0400
+Date: Fri, 25 Apr 2003 16:48:15 -0400
+From: rmoser <mlmoser@comcast.net>
+Subject: Swap Compression
+To: linux-kernel@vger.kernel.org
+Message-id: <200304251648150320.007079A7@smtp.comcast.net>
+MIME-version: 1.0
+X-Mailer: Calypso Version 3.30.00.00 (3)
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+References: <200304251640110420.0069172B@smtp.comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-04-25 at 21:12, Jamie Lokier wrote:
-> Because the only kernels that ISPs accept connections from are signed
-> and encrypted by the computer vendor - which means you _cannot_ trust
-> those kernels to not contain back doors.
+please CC a copy to me personally; I am not subscribed.
 
-ah, you want to put apache with mod_ssl into the kernel (now that we
-have CONFIG_CRYPTO), including the code to check for client certificates
-and the CA certificate itself? You are very welcome to do so, the GPL
-allowes this.
+Sorry if this is HTML mailed.  I don't know how to control those settings
 
-Still as you can see, that can also be done in userspace.
 
-Maybe you forget "and I cannot replace the kernel but I want to"?
-Now this is not very new: I cannot replace my BIOS either.
-Or in fact we could do both, it's merely the same. The hardware
-can make it difficult, but still it is a hardware issue, right?
+COMPRESSED SWAP
 
-Or maybe you have been fooled by those who propagate that a TCPA
-system will on its own create network connections or accept those.
+This is mainly for things like linux on iPaq (handhelds.org) and people who like to play (me :), but how about compressed swap and RAM as swap?  To be plausable, we need a very fast compression algorithm.  I'd say use the following back pointer algorithm (this is headerless and I coded a decompressor in 6502 assembly in about 315 bytes) and 100k block sizes (compress streams of data until they are 100k in size, then stop.  Include the cap at the end in the 100k).
 
-There is no need to: you can do that in userspace a lot easier
-than in a tiny hardware chip on a not bus not connected to the
-network driver.
+Here is how the compression works (use fixed width font):
+;
+; Type Size Description
+; Byte 1 Distance to the next backpointer. 0 means end-of-stream.
+; Stream X Just straight data, no work needbe performed on it.
+; Byte 1 Distance (up to 256, it's base 1) back to seek
+; Byte 1 Number of bytes (Up to 255) to copy. 0 means don't
+; really do anything (for chaining pointers in large
+; areas of nonredundant data)
+;
+; The above repeats until the end of the stream is reached. Teach by example!
+;
+; 04 00 01 02 03 03 03 04 00 01 02 03 05 04 06 01 03 00 00 00
+; ^ & # ^ & # ^ & # ^
+; ^ = Distance to next; & = backseek; # = duplicate length
+;
+; The above stream uncompresses to:
+; 00 01 02 03 00 01 02 00 01 02 03 01 02 00 01 01 03
+;
+; Note how very small datasets do not compress well. Very large would
+; begin to catch up. This is only a 17 byte dataset.
 
-I'm a fool, but as fool I say: nothing bad in the kernel or DRM.
-All the bad stuff is in the applications, so you can show the kernel,
-DRM and TCPA around and claim it is nice and secure and there is
-nothing to worry.
+Also, use a booyer-moore algorithm to do the redundancy searching (modify the one in the fdber project at fdber.sourceforge.net to work on binary data, for instance) to further speed it up.  In the end I'd project about a 2-4k code increase (compiled/assembled) in the kernel size, plus 256 bytes for the compression/decompression buffer, plus the dedicated 100k to load the compressed block into RAM.  So about 2-4k increase in the kernel size and 105k increase in RAM usage.
 
-But putting bad stuff into applications is something like a tradition
-and who would want to break with a tradition like this?
+The feature should be optional, and controlled by swapon options.  For instance:
 
-> The question is, if it is widely implemented in available hardware,
-> _will_ everyone be using it whether they want to or not?
+swapon -o compress /dev/hda5
 
-Maybe it's not such a bad idea to have two computers. One for
-entertainment, online banking and digital video rental and stuff
-like this where you deal with the paranoid and let them waste their
-money on expensive hardware. And one for real work.
+The above could turn a swap partition on under compressed swap mode.  Of course we only would want to use 100k blocks of compressed data, but some extra code can allow the user to configure it:
 
-Nearly everyone will still provide hardware that works for a general
-purpose user that wants to hack, cheat, change hardware, replace cards,
-overclock and all that stuff. Or hack on linux 3.1.*.
-There is soo much money in it, and companies like earning money.
+swapon -o compress=1M /dev/hda5
 
-> Also, what about the law?  Remember, there have been attempts in the
-> last year, in the US, to legislate DRM into all computers.
+1 MB block size for instance if you want.  Don't make this too limited; if such a thing were implimented, with such an option, I'd still expect the following to work:
 
-CDBTPA? I read "Argh Anonymous" detailed analysis on cypherpunks,
-and I recommend it to you, too. 
+swapon -o compress=1247299 /dev/hda5
 
-www.inet-one.com/cypherpunks/dir.2002.07.15-2002.07.21/msg00225.html
+to load a swap partition with 1,247,299 byte blocks.  Of course there'd be a rediculous cap on the high end (500 MB block size?!!!!!!!!!!!!), and an impossible cap on both ends (block size > available RAM; block size < 5 (a valid stream fits in 4 but it can't store any data or be processed)).
 
-Lots of stuff I read is not based on facts or even on reading the laws,
-specs or things like that, but on rumors and nightmares.
+For predicting available swap, just take statistics and do some calculations, figure out what the average ratio is, and give that times real size as the total swap size.  If you really really care that much, discard outliers.
 
-That is one of the few sources of someone who seems to have read the TCPA spec
-and the CBDTPA law. If you have other sources that also know facts,
-please let me know. They seem kind of rare these days.
+SWAP ON RAM
 
-Regards, Andreas
+The other feature, for handheld devices, is for all those iPaqs with 32 or 64 MB RAM:  swap-on-RAM.  This is useless (i.e. swap on a RAMdisk), but with the swap compression it becomes useful.
+
+Swap on RAM allows the swap driver to use RAM directly as swap, i.e. not as a swap file on a ramdisk.  For instance:
+
+swapon -o compress -o swaponram=16M
+
+The above would use 16 MB of my RAM as a compressed swap file, negating the overhead of disk access, filesystem control, ramdisk control, and so on.  On an iPaq with 32 MB RAM, I could access say 16 M RAM (physical) and 32 MB swap now, giving me 1.5x my real ram (predicted).  With 64 MB, it would be 82 MB RAM (1.25x real RAM), or I could just use 32MB (1.5x = 96 MB) or even 48 MB (1.75x = 112 MB).  Can't use all of it of course; and the more I use the more it swaps.
+
+When a real swap and a RAM swap exist, a RAM swap should be the first choice for swapping out (highest precidence).  This would keep performence up the most under these odd conditions.
+
+
+CONCLUSION
+
+I think compressed swap and swap-on-ram with compression would be a great idea, especially for embedded systems.  High-performance systems that can handle the compression/decompression without blinking would especially benefit, as the swap-on-ram feature would give an almost seamless RAM increase.  Low-performance systems would take a performance hit, but embedded devices would still benefit from the swap-on-ram with compression RAM boost, considering they can probably handle the algorithm.  I am looking forward to seeing this implimented in 2.4 and 2.5/2.6 if it is adopted.
+
+-- Bluefox Icy
 

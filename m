@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265359AbUBBLvZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 06:51:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265367AbUBBLvY
+	id S265346AbUBBLmt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 06:42:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265354AbUBBLmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 06:51:24 -0500
-Received: from keskus.netlab.hut.fi ([130.233.154.176]:42656 "EHLO
-	keskus.netlab.hut.fi") by vger.kernel.org with ESMTP
-	id S265359AbUBBLvY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 06:51:24 -0500
-Message-ID: <401E39B8.3080408@netlab.hut.fi>
-Date: Mon, 02 Feb 2004 13:51:20 +0200
-From: Emmanuel Guiton <emmanuel@netlab.hut.fi>
-Reply-To: emmanuel@netlab.hut.fi
-Organization: HUT Networking Laboratory
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-MIME-Version: 1.0
+	Mon, 2 Feb 2004 06:42:49 -0500
+Received: from thor.65535.net ([216.17.104.19]:42504 "EHLO thor.65535.net")
+	by vger.kernel.org with ESMTP id S265346AbUBBLms (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 06:42:48 -0500
+Date: Mon, 2 Feb 2004 11:44:44 +0000 (GMT)
+From: Rus Foster <rghf@fsck.me.uk>
+X-X-Sender: rghf@bitch.localdomain
 To: linux-kernel@vger.kernel.org
-Subject: Handling sk_buff correctly.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Horrible NFS performace on 2.6.1 -> 2.6.2-bk1
+Message-ID: <Pine.LNX.4.58.0402021141360.2684@bitch.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi All,
+ I asked this on the debian-user list but was told to ask here. Now I've
+looked through the archieves and can find a few threads similar but no
+definite answers. My current config is as follows
 
-I'm writing a module where I need to build and send a packet by hand. 
-For this I properly (at least I hope so) fill a sk_buff structure and 
-send it using NF_HOOK (seem to work fine, NF_HOOK returns 0). Sending 
-one packet goes fine, sending several leads to kernel crashes. I think I 
-don't handle correctly the release of the memory, but how should I do? I 
-have no destructor function in my sk_buff, do I have to have one? (here, 
-my attempts also lead to kernel crashes).
+NFS Server Debian Woody Stable + 2.6.2-bk1
+NFS Client Debian Woody Stable + 2.6.1
 
-Bye,
+If I mount the server as udp I get 0 response from the server and if I
+mount as tcp I get about 8kb/s from the server. I've tried tweaking
+rsizw/wsize and have got nothing. Can anyone suggest a fix + more info I
+can provide? (tcpdump?)
 
-         Emmanuel
+Thanks
 
+Rus
+
+-- 
+e: support@vpscolo.com
+t: 1-888-327-6330
+www.jvds.com - Root on your own box
+www.vpscolo.com - Your next hosting company

@@ -1,39 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261221AbTEMNm2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 09:42:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbTEMNm2
+	id S261227AbTEMNnU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 09:43:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbTEMNnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 09:42:28 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:65178
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261221AbTEMNm1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 09:42:27 -0400
-Subject: Re: lse conference switched to IRC to discuss 2.6 must-fix list
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kernel-janitor-discuss@lists.sourceforge.net
-In-Reply-To: <20030513111908.GU17033@suse.de>
-References: <99500000.1052781962@w-hlinder> <20030513111908.GU17033@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052830548.463.4.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 13 May 2003 09:43:20 -0400
+Received: from duteinh.et.tudelft.nl ([130.161.42.1]:12039 "EHLO
+	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id S261227AbTEMNnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 09:43:17 -0400
+Date: Tue, 13 May 2003 15:51:50 +0200
+From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+To: Adrian McMenamin <adrian@mcmen.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: inode values in file system driver
+Message-ID: <20030513135150.GA1049@arthur.home>
+References: <200305102118.20318.adrian@mcmen.demon.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 13 May 2003 13:55:50 +0100
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
+Content-Disposition: inline
+In-Reply-To: <200305102118.20318.adrian@mcmen.demon.co.uk>
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 2:00pm PDT (GMT-0700), 4:00pm CDT, 5:00pm EDT Wednesday May 14, 2003.
-> 
-> How about doing it a bit earlier, for the europeans joining? At least
-> for me, 2 hours earlier looks a lot better.
 
-As I said before I can't do Wednesday. 
+--Q68bSM7Ycu6FN28Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-( Akpm may not have received that mail as his mail host seems to bounce 
-direct mail from me)
+On Sat, May 10, 2003 at 09:18:20PM +0100, Adrian McMenamin wrote:
+> Am I allowed to assign the value 0 to an inode in a file system driver? I=
+ seem=20
+> to be having problems with a file that is being assigned this inode value=
+=20
+> (its a FAT based filesystem so the inode values are totally artificial).
 
+Yes, you are. However, glibc thinks that inode 0 is special and won't
+show it.
+
+Example: mount an NTFS filesystem with -o show_sys_files and do ls on
+the mountpoint. You won't see the file $MFT, but it is there when you
+copy it: cp /mountpoint/\$MFT /tmp .
+
+Yes, this is a bug in glibc.
+
+
+Erik
+
+--=20
+Erik Mouw
+J.A.K.Mouw@its.tudelft.nl  mouw@nl.linux.org
+
+--Q68bSM7Ycu6FN28Q
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+wPh2/PlVHJtIto0RAvGvAJ90nQlorRfZcXTO2Ln0YWuAbwvnzACfdEG1
+2qsGueiHmtzMaUkwqb54LK8=
+=Ajht
+-----END PGP SIGNATURE-----
+
+--Q68bSM7Ycu6FN28Q--

@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292503AbSBUQzL>; Thu, 21 Feb 2002 11:55:11 -0500
+	id <S292648AbSBURBX>; Thu, 21 Feb 2002 12:01:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292645AbSBUQzB>; Thu, 21 Feb 2002 11:55:01 -0500
-Received: from web20503.mail.yahoo.com ([216.136.226.138]:13829 "HELO
-	web20503.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S292503AbSBUQyw>; Thu, 21 Feb 2002 11:54:52 -0500
-Message-ID: <20020221165451.18076.qmail@web20503.mail.yahoo.com>
-Date: Thu, 21 Feb 2002 17:54:51 +0100 (CET)
-From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
-Subject: Re: BK Kernel Hacking HOWTO
-To: jgarzik@mandrakesoft.com
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S292649AbSBURBM>; Thu, 21 Feb 2002 12:01:12 -0500
+Received: from mail.internet-factory.de ([195.122.142.5]:641 "EHLO
+	mail.internet-factory.de") by vger.kernel.org with ESMTP
+	id <S292648AbSBURBC>; Thu, 21 Feb 2002 12:01:02 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Holger Lubitz <h.lubitz@internet-factory.de>
+Newsgroups: lists.linux.kernel
+Subject: Re: secure erasure of files?
+Date: Thu, 21 Feb 2002 18:01:00 +0100
+Organization: Internet Factory AG
+Message-ID: <3C7527CC.FB112BEE@internet-factory.de>
+In-Reply-To: <20020221025631.GA23591@auctionwatch.com> <HBEHIIBBKKNOBLMPKCBBKEGOEIAA.znmeb@aracnet.com>
+NNTP-Posting-Host: bastille.internet-factory.de
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Trace: darkstar.internet-factory.de 1014310861 12532 195.122.142.158 (21 Feb 2002 17:01:01 GMT)
+X-Complaints-To: usenet@internet-factory.de
+NNTP-Posting-Date: 21 Feb 2002 17:01:01 GMT
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre3-ac2 i686)
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Comments welcome...
+"M. Edward Borasky" proclaimed:
+> 
+> Truly secure people dispose of classified hard drives in vats of aqua regia
+> :)
 
-Jeff, this is a kind initiative from you. I've
-downloaded bk but didn't have time nor
-courage to install it and test it yet, but with
-this documentation, I think I soon will.
+One could also use a blast furnace, I'd guess ;)
 
-Thanks
-Willy
-
-
-___________________________________________________________
-Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-Yahoo! Mail : http://fr.mail.yahoo.com
+Holger

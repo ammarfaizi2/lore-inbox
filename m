@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262273AbTGALsk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 07:48:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbTGALsk
+	id S261939AbTGALzL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 07:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbTGALzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 07:48:40 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:37647 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S262273AbTGALsh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 07:48:37 -0400
-Subject: Re: [RFC/PATCH] Touchpads in absolute mode (synaptics) and mousedev
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <200307010303.53405.dtor_core@ameritech.net>
-References: <200307010303.53405.dtor_core@ameritech.net>
-Content-Type: text/plain
-Message-Id: <1057060977.603.10.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 01 Jul 2003 14:02:57 +0200
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Jul 2003 07:55:11 -0400
+Received: from web13310.mail.yahoo.com ([216.136.173.222]:41749 "HELO
+	web13310.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261939AbTGALzJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 07:55:09 -0400
+Message-ID: <20030701120931.95950.qmail@web13310.mail.yahoo.com>
+Date: Tue, 1 Jul 2003 05:09:31 -0700 (PDT)
+From: tu guangxiu <tuguangxiu@yahoo.com>
+Subject: severe problem of linux 2.4.21 usb
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20030701092758.GC3040@dualathlon.random>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-07-01 at 10:03, Dmitry Torokhov wrote:
 
-> - touchpads are not precise; when I take my finger off touchpad and then
->   touch it again somewhere else I do not expect my cursor jump anywhere,
->   I only expect cursor to move when I move my finger while pressing 
->   touchpad.
+lists,
+  kernel: linux 2.4.21
+  I met one severe problem when using usbnet.  I
+unplugged the line made of PL2301, linux got to
+freeze.  I tested it with linux 2.4.20.  There was no
+such problem.  Please help!
 
-Uhmmm... Maybe I'm losing something here, but my NEC Chrom@'s
-ALPS/GlidePoint touchpad doesn't cause the mouse cursor to jump/move
-when I lift off my finger from it and then touch it again elsewhere. The
-mouse cursor moves only when I drag my finger over the touchpad surface.
+   tu
 
+
+__________________________________
+Do you Yahoo!?
+SBC Yahoo! DSL - Now only $29.95 per month!
+http://sbc.yahoo.com

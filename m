@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbUFNOEA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbUFNOFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263085AbUFNOEA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 10:04:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbUFNOEA
+	id S263093AbUFNOFd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 10:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263089AbUFNOFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 10:04:00 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:16856 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263085AbUFNOD5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 10:03:57 -0400
-Date: Mon, 14 Jun 2004 15:03:56 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Cesar Eduardo Barros <cesarb@nitnet.com.br>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       Alexander Viro <viro@math.psu.edu>
-Subject: Re: [PATCH] O_NOATIME support
-Message-ID: <20040614140356.GA21349@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Cesar Eduardo Barros <cesarb@nitnet.com.br>,
-	linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>
-References: <20040612011129.GD1967@flower.home.cesarb.net> <20040614095529.GA11563@infradead.org> <20040614134652.GA1961@flower.home.cesarb.net>
+	Mon, 14 Jun 2004 10:05:33 -0400
+Received: from trantor.org.uk ([213.146.130.142]:19605 "EHLO trantor.org.uk")
+	by vger.kernel.org with ESMTP id S263093AbUFNOFS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 10:05:18 -0400
+Subject: Re: Local DoS attack on i386 (was: new kernel bug)
+From: Gianni Tedesco <gianni@scaramanga.co.uk>
+To: Manuel Arostegui Ramirez <manuel@todo-linux.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1087221517.3375.3.camel@sherbert>
+References: <200406121159.28406.manuel@todo-linux.com>
+	 <1087221517.3375.3.camel@sherbert>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-qtbj0C5I6lc3DfBNUsjH"
+Date: Mon, 14 Jun 2004 15:05:09 +0100
+Message-Id: <1087221909.21569.6.camel@sherbert>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040614134652.GA1961@flower.home.cesarb.net>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 1.5.8 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 14, 2004 at 10:46:52AM -0300, Cesar Eduardo Barros wrote:
-> I don't see why preserving the mtime and ctime would be necessary, since
-> to move a file away you either don't touch it (using rename) or only
-> read and unlink it (to write to a tape or other filesystem, and you can
-> save the atime and mtime while doing it). So O_NOATIME is enough for
-> both behaviours.
 
-Maybe some day the file needs to come back from the tape ;-)  Or rather
-in the HSM scenario a part of the file.
+--=-qtbj0C5I6lc3DfBNUsjH
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, 2004-06-14 at 14:58 +0100, Gianni Tedesco wrote:
+> Seems to be a scheduler race or something?
+
+sysrq+t shows the offending task (freezes here, doesnt even print "Call
+Trace:\n"):
+
+evil    R running   0  1964  1861      (NOTLB)
+
+--=20
+// Gianni Tedesco (gianni at scaramanga dot co dot uk)
+lynx --source www.scaramanga.co.uk/scaramanga.asc | gpg --import
+8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+
+--=-qtbj0C5I6lc3DfBNUsjH
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAzbCVkbV2aYZGvn0RAnraAJwPcQrBniqwZNX6K2h6Hn9hwwWjTQCfaBs5
+19fdUfeUNEJJ9yloo9QrpJE=
+=oJFn
+-----END PGP SIGNATURE-----
+
+--=-qtbj0C5I6lc3DfBNUsjH--
 

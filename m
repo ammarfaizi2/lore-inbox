@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286842AbRL1K5Z>; Fri, 28 Dec 2001 05:57:25 -0500
+	id <S286844AbRL1LPC>; Fri, 28 Dec 2001 06:15:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286836AbRL1K5G>; Fri, 28 Dec 2001 05:57:06 -0500
-Received: from [212.50.10.141] ([212.50.10.141]:60878 "HELO ns.top.bg")
-	by vger.kernel.org with SMTP id <S286843AbRL1K5B>;
-	Fri, 28 Dec 2001 05:57:01 -0500
-Message-ID: <3C2CDCC3.B76C9944@top.bg>
-Date: Fri, 28 Dec 2001 12:57:39 -0800
-From: Anton Tinchev <atl@top.bg>
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S286845AbRL1LOw>; Fri, 28 Dec 2001 06:14:52 -0500
+Received: from ns.suse.de ([213.95.15.193]:47113 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S286844AbRL1LOt>;
+	Fri, 28 Dec 2001 06:14:49 -0500
+Date: Fri, 28 Dec 2001 12:14:48 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: James A Sutherland <james@sutherland.net>
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        Steven Walter <srwalter@yahoo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] unchecked request_region's in drivers/net
+In-Reply-To: <T5819437331ac1785ed279@pcow035o.blueyonder.co.uk>
+Message-ID: <Pine.LNX.4.33.0112281213100.22038-100000@Appserv.suse.de>
 MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: EEPro100 problems in SMP on 2.4.5 ?
-In-Reply-To: <Pine.LNX.4.33.0112281248190.29899-100000@netfinity.realnet.co.sz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, in me this cards lockups between 2-3 days.
+On Fri, 28 Dec 2001, James A Sutherland wrote:
 
-Zwane Mwaikambo wrote:
+> In the way I'm suggesting, it just simplifies matters a little: rather than
+> having to list RG and AV separately for every single file in devfs, just say
+> "this new file is part of devfs" and it "inherits" them that way.
 
-> On Fri, 28 Dec 2001, Anton Tinchev wrote:
->
-> > The problem is with the kernel driver - i locks under heavy load (over 2
-> > 000-3 000 packet/s, may be less).
-> > Change the card if you can, i didn't recommend you this card for production
-> > server.
->
-> Unfortunately it was the onboard one, plus a rather cool dual eepro100
-> card. And yes the server does experience quite a load when everyone is in
-> the office. But not the lockups everyone else seems to be experiencing.
->
-> Cheers,
->         Zwane Mwaikambo
+gotcha, sounds ok to me, still quite a bit of work to build the database
+needed for this, but as several others have pointed out, this would save
+so much time for anyone who sends out lots of patches.
+
+Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

@@ -1,69 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262828AbSKDVh6>; Mon, 4 Nov 2002 16:37:58 -0500
+	id <S262859AbSKDVUF>; Mon, 4 Nov 2002 16:20:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262835AbSKDVh6>; Mon, 4 Nov 2002 16:37:58 -0500
-Received: from mail01.svc.cra.dublin.eircom.net ([159.134.118.17]:17006 "HELO
-	mail01.svc.cra.dublin.eircom.net") by vger.kernel.org with SMTP
-	id <S262828AbSKDVh5>; Mon, 4 Nov 2002 16:37:57 -0500
-From: <louise500@eircom.net>
-To: louise500@eircom.net
-Subject: Assistance....
-Date: Mon, 4 Nov 2002 21:39:10 +0000
+	id <S262876AbSKDVUF>; Mon, 4 Nov 2002 16:20:05 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26125 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262859AbSKDVUE>; Mon, 4 Nov 2002 16:20:04 -0500
+Date: Mon, 4 Nov 2002 21:26:36 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Subject: Re: [PATCH-RFC] ARM Makefile cleanup
+Message-ID: <20021104212636.D18967@flint.arm.linux.org.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+References: <20021102225530.GC15134@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: 80.88.142.27
-X-Mailer: Eircom Net CRC Webmail (http://www.eircom.net/)
-Organization: Eircom Net (http://www.eircom.net/)
-Message-Id: <20021104213757Z262828-32597+15764@vger.kernel.org>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021102225530.GC15134@mars.ravnborg.org>; from sam@ravnborg.org on Sat, Nov 02, 2002 at 11:55:31PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear 
+On Sat, Nov 02, 2002 at 11:55:31PM +0100, Sam Ravnborg wrote:
+> They looked pretty OK before, but I have updated then to use the new
+> make clean infrastructure, and deleted inclusion of Rules.make when I
+> touched a file that included that file.
 
-Listen and read carefully, i have found seriousness in
-you and that is why i have decided to involve you in
-this transaction o.k , i am  a woman of substance and
-of great importance to my nation and the society in
-general. i wll not entertain any act of unseriousness
-from you in this transaction o.k
+Unfortunately it breaks:
 
-you must take instructions from me at all time and for
-security reasons you will only communicate me only by
-my email for now o.k.
+  Generating build number
+  Generating include/linux/compile.h (updated)
+  arm-linux-gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -Os -mapcs -mno-sched-prolog -fno-strict-aliasing -fno-common -mapcs-32 -D__LINUX_ARM_ARCH__=4 -march=armv4 -mtune=strongarm1100 -mshort-load-bytes -msoft-float -Wa,-mno-fpu -nostdinc -iwithprefix include    -DKBUILD_BASENAME=version   -c -o init/version.o init/version.c
+   arm-linux-ld   -r -o init/built-in.o init/main.o init/version.o init/do_mounts.o init/initramfs.o
+  	arm-linux-ld  -p -X -T arch/arm/vmlinux.lds.s arch/arm/kernel/head.o arch/arm/kernel/init_task.o  init/built-in.o --start-group  usr/built-in.o  arch/arm/mach-sa1100/built-in.o  arch/arm/kernel/built-in.o  arch/arm/mm/built-in.o  arch/arm/nwfpe/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/arm/lib/lib.a  drivers/built-in.o  sound/built-in.o  net/built-in.o --end-group  -o vmlinux
+make -f scripts/Makefile.build obj=arch/arm/boot arch/arm/boot/zImage
+make -f scripts/Makefile.build obj=arch/arm/boot/compressed/ arch/arm/boot/compressed/vmlinux
+make[2]: Nothing to be done for `arch/arm/boot/compressed/vmlinux'.
+  arm-linux-objcopy -O binary -R .note -R .comment -S arch/arm/boot/compressed/vmlinux arch/arm/boot/zImage
 
-I,am Mrs LOUISA EJERCITOR ESTRADA , the wife of Mr
-Joseph Estrada the former president of Philippine
-located in the south east Asia. My husband was
-presently impeached from office by a backed uprising
-of mass demonstrators and the senate.                 
-                                        
-During my husband's regime as president of
-Philippine, I realised US$120.5millions of dollars
-from various contract projects I executed
-successfully. I had planed to invest this money in 
-real estate and industral production.                 
-                                                      
-Now i have used an NGO to move the money to a bank
-in overseas, i want you to assist me transfer the
-money to your bank account as the beneficiary because
-i do not want the philippine government to trace  and
-confiscate this one. they have confiscated all our
-asset. This is the only money left for me and my
-family o.k
-Now if you agree, i will offer you 25% of the total
-fund, and you must keep it very secret and
-confidential o.k. There is no risk involved, all i
-want from you is , your complete name, address, bank
-particulars phone and fax numbers, company name if any
-and you must be honest o.k
-this money will be transfered to your account as soon
-as you release this requirements o.k
-i look forward to having a good relationship with
-you o.k
-regards,
+I did a make clean without telling make ARCH=arm just prior, so
+arch/arm/boot/compressed contains some stale files.  It looks like
+there's a missing dependency on the top level vmlinux file:
 
-Mrs Louise Estrade  
+-rwxrwxr-x    1 rmk      rmk       1822788 Nov  4 15:37 arch/arm/boot/compressed/piggy
+-rwxrwxr-x    1 rmk      rmk       2283887 Nov  4 21:18 vmlinux
 
+but oddly, arch/arm/boot/compressed/Makefile contains:
+
+$(obj)/piggy:    vmlinux;       $(call if_changed,objcopy)
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

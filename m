@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136337AbRAZS6R>; Fri, 26 Jan 2001 13:58:17 -0500
+	id <S136472AbRAZS6R>; Fri, 26 Jan 2001 13:58:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136472AbRAZS6H>; Fri, 26 Jan 2001 13:58:07 -0500
+	id <S136473AbRAZS6H>; Fri, 26 Jan 2001 13:58:07 -0500
 Received: from limes.hometree.net ([194.231.17.49]:11268 "EHLO
 	limes.hometree.net") by vger.kernel.org with ESMTP
-	id <S136337AbRAZS54>; Fri, 26 Jan 2001 13:57:56 -0500
+	id <S136472AbRAZS55>; Fri, 26 Jan 2001 13:57:57 -0500
 To: linux-kernel@vger.kernel.org
-Date: Fri, 26 Jan 2001 18:42:22 +0000 (UTC)
+Date: Fri, 26 Jan 2001 18:37:12 +0000 (UTC)
 From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
-Message-ID: <94sgee$1p4$1@forge.intermeta.de>
+Message-ID: <94sg4o$1o4$1@forge.intermeta.de>
 Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-In-Reply-To: <AFE36742FF57D411862500508BDE8DD055F6@mail.herefordshire.gov.uk>, <3A71B14D.267771A@magenta-netlogic.com>
+In-Reply-To: <Pine.SOL.4.21.0101261528190.16539-100000@red.csi.cam.ac.uk>, <Pine.GNU.4.32.0101260850150.23316-100000@hanuman.oobleck.net>
 Reply-To: hps@tanstaafl.de
 Subject: Re: hotmail not dealing with ECN
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tmh@magenta-netlogic.com (Tony Hoyle) writes:
+kaboom@gatech.edu (Chris Ricker) writes:
 
-> These ISPs will *not* change simply because 1% of Linux users
-> complain at them.  They have been contacted about this and they know
-> of the problem.  I doubt they care.
+>> If ECN is so wonderful, why doesn't anybody actually WANT to use it
+>> anyway?
 
-Trust me, they care. Every Admin cares. They have, however, to convice
-their superiors that upgrading two (three, five, twenty?) Firewall
-boxes from a 99% running IOS into a newer, untested [1] version to
-benefit 1% (1%? Oh, come on. 0.1% I would say) of their users from an
-IETF experimental feature.
+>Lots of people do.  Lots of other people (such as, in this case, hotmail)
+>will never upgrade their software until the groundswell of complaints is
+>more expensive than their perception of the cost of upgrading....
 
-I wouldn't boot a box that runs 90 MBit/s traffic for 24/7 on such an
-occasion.
+Well, I guess, this is the price we must pay for having a monoculture
+(a Cisco-powered) internet. If the single source of routers, switches
+and network components (speak: Cisco) makes a single mistake in a
+release version of their software (speak: drop ECN frames), everyone
+suffers.
 
-You want ECN? Get DaveM to join Microsoft and push out MS Whistler
-with ECN enabled and just an obscure Registry Entry to turn it
-off. You will have ECN in a blink implemented everywhere.
+Cisco: If I buy a _new_ PIIX oder LDIR today, do I get an ECN capable
+IOS or not? If not, will my CCNA know about this and upgrade my Box
+before deploying?
+
+Everyone I know and their brothers, that use Cisco Equipment, have a
+support contract with Cisco. Why not push an "mandatory upgrade" along
+this path once the ECN leaves "experimental" status.
+
+But I definitely agree with HPA, that forcing ECN in its current state
+on all users is unacceptable.
+
+Solution that I see: 
+
+DaveM at RedHat ships Kernels with ECN enabled per default.
+RedHat ships Distributions with net.ipv4.ip_ecn = 0 in /etc/sysctl.conf
+
+Ah, the small bliss of diversity... ;-) (And this means not, running
+both flavors of Linux, Debian _and_ RedHat... ;-) )
 
 	Regards
 		Henning
-
-[1] as in "inhouse tested and works". I would not trust Cisco Release
-    Notes on such boxes. ;-)
 
 -- 
 Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer

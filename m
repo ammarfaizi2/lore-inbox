@@ -1,53 +1,213 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274894AbRJALcL>; Mon, 1 Oct 2001 07:32:11 -0400
+	id <S274893AbRJAL3L>; Mon, 1 Oct 2001 07:29:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274890AbRJALcC>; Mon, 1 Oct 2001 07:32:02 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:776 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S274894AbRJALbs>; Mon, 1 Oct 2001 07:31:48 -0400
-Date: Mon, 1 Oct 2001 13:32:15 +0200
-From: Jan Hudec <bulb@ucw.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Suggest TASK_KILLABLE state to overcome most D state trouble
-Message-ID: <20011001133215.A3007@artax.karlin.mff.cuni.cz>
-Mail-Followup-To: Jan Hudec <bulb@ucw.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010927202435.A19466@artax.karlin.mff.cuni.cz> <19318.1001624450@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <19318.1001624450@redhat.com>; from dwmw2@infradead.org on Thu, Sep 27, 2001 at 10:00:50PM +0100
+	id <S274890AbRJAL3C>; Mon, 1 Oct 2001 07:29:02 -0400
+Received: from web10403.mail.yahoo.com ([216.136.130.95]:8977 "HELO
+	web10403.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S274886AbRJAL2x>; Mon, 1 Oct 2001 07:28:53 -0400
+Message-ID: <20011001112921.11746.qmail@web10403.mail.yahoo.com>
+Date: Mon, 1 Oct 2001 21:29:21 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Problem. gcc-3.0.1 kernel 2.4.10-ac1 ; JVM 
+To: kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-239505745-1001935761=:10654"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> bulb@ucw.cz said:
-> >  Does a patch adding a TASK_KILLABLE state have a chance to get in (in
-> > 2.5)? Or can anybody thik of more elegant solution?
-> Often there's kernel state which needs to be kept consistent, and locks
-> which need to be released - just bailing out (as if you got an oops) isn't
-> sufficient.
+--0-239505745-1001935761=:10654
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
 
-No. It's not sufficient. It won't be sufficient even with KILLABLE state.
-But the difference between SIGKILL and other signals is, that when you
-get SIGKILL, you know, what's going to happen. With other signals, you
-don't.
 
-> What's wrong with the plan of just implementing the appropriate cleanup code
-> in each buggy or lazy piece of code which sleeps in state
-> TASK_UNINTERRUPTIBLE, and letting each be interruptible instead?
+Hi,
 
-There are many situations, that could be interupted with
-sigkill (you sent a request, then die from sigkill, so you know the reply
-won't matter), while it's difficult to restart after signal, because you
-already started a request and if you just started it again, the reply won't
-be the same. So it's not about cleanup. But you need to maintain some state
-to pass to the restarted syscall. And it's impossible with current signal
-handling mechanism (the problem is garbage-collecting the state).
+I just want to report this, but I am not sure it is
+because of the kernel or gcc-3.0.1. Anyway it is
+related to the kernel so I think it may be usefull.
 
-Little different problem is the page-fault, that could immediately occur
-again if signal handler was invoked, but on sigkill no handler is run, so
-you may safely abort.
+Compile 2.4.10-ac1 with gcc-3.0.1 if I use
+-fno-strength-reduce -O3 ; the kernel made nerver
+boots (hang just after loading the kernel).
 
---------------------------------------------------------------------------------
-                  				- Jan Hudec `Bulb' <bulb@ucw.cz>
+If change to -O2 it works as normal. ( significant
+faster than the same one made with 2.95.3 ) EXCEPT JVM
+doesn't want to work. I run LimeWire (java program)
+and only one time it gives the error I attached below.
+Thought it might be libc problem, I recompiled libc
+with gcc-3.0.x ; reboot. This time it even does not
+produce error message. The system quickly reboots
+itself. (of course without unmounting all file
+system). Not any informative error message.
+
+So I use floppy set, remove the lib one, install the
+old one. This time, no thing changes.
+
+Finally I use gcc 2.95.3 to make the kernel. It is
+fine.
+
+The kernel I mention here is 2.4.10-ac1 with preempt
+patch, but the symptom persists without the preempt
+patch as well.
+
+
+
+
+
+=====
+S.KIEU
+
+http://travel.yahoo.com.au - Yahoo! Travel
+- Got Itchy feet? Get inspired!
+--0-239505745-1001935761=:10654
+Content-Type: application/octet-stream; name="hs_err_pid2137.log"
+Content-Transfer-Encoding: base64
+Content-Description: hs_err_pid2137.log
+Content-Disposition: attachment; filename="hs_err_pid2137.log"
+
+CkFuIHVuZXhwZWN0ZWQgZXhjZXB0aW9uIGhhcyBiZWVuIGRldGVjdGVkIGlu
+IG5hdGl2ZSBjb2RlIG91dHNpZGUgdGhlIFZNLgpVbmV4cGVjdGVkIFNpZ25h
+bCA6IDExIG9jY3VycmVkIGF0IFBDPTB4NDAzN2IwNjkKRnVuY3Rpb24gbmFt
+ZT1fX3NpZ3N1c3BlbmQKTGlicmFyeT0vbGliL2xpYmMuc28uNgoKQ3VycmVu
+dCBKYXZhIHRocmVhZDoKCWF0IGphdmEubGFuZy5PYmplY3Qud2FpdChOYXRp
+dmUgTWV0aG9kKQoJYXQgamF2YS5sYW5nLk9iamVjdC53YWl0KE9iamVjdC5q
+YXZhOjQyMCkKCWF0IGphdmEubGFuZy5yZWYuUmVmZXJlbmNlJFJlZmVyZW5j
+ZUhhbmRsZXIucnVuKFJlZmVyZW5jZS5qYXZhOjExMCkKCkR5bmFtaWMgbGli
+cmFyaWVzOgowODA0ODAwMC0wODA0YzAwMCByLXhwIDAwMDAwMDAwIDAzOjA2
+IDgyNDU1NiAgICAgL2hvbWUvbG9jYWwvamRrMS4zLjFfMDEvYmluL2kzODYv
+bmF0aXZlX3RocmVhZHMvamF2YQowODA0YzAwMC0wODA0ZDAwMCBydy1wIDAw
+MDAzMDAwIDAzOjA2IDgyNDU1NiAgICAgL2hvbWUvbG9jYWwvamRrMS4zLjFf
+MDEvYmluL2kzODYvbmF0aXZlX3RocmVhZHMvamF2YQo0MDAwMDAwMC00MDAx
+NjAwMCByLXhwIDAwMDAwMDAwIDAzOjAzIDQ5NjYgICAgICAgL2xpYi9sZC0y
+LjIuMy5zbwo0MDAxNjAwMC00MDAxODAwMCBydy1wIDAwMDE1MDAwIDAzOjAz
+IDQ5NjYgICAgICAgL2xpYi9sZC0yLjIuMy5zbwo0MDAxODAwMC00MDAyMTAw
+MCByLXhwIDAwMDAwMDAwIDAzOjA2IDUwMTQxOCAgICAgL2hvbWUvbG9jYWwv
+amRrMS4zLjFfMDEvanJlL2xpYi9pMzg2L2xpYnByZWVtcHRpdmVfY2xvc2Uu
+c28KNDAwMjEwMDAtNDAwMjQwMDAgcnctcCAwMDAwODAwMCAwMzowNiA1MDE0
+MTggICAgIC9ob21lL2xvY2FsL2pkazEuMy4xXzAxL2pyZS9saWIvaTM4Ni9s
+aWJwcmVlbXB0aXZlX2Nsb3NlLnNvCjQwMDI0MDAwLTQwMDJkMDAwIHIteHAg
+MDAwMDAwMDAgMDM6MDYgNTAxNDA2ICAgICAvaG9tZS9sb2NhbC9qZGsxLjMu
+MV8wMS9qcmUvbGliL2kzODYvbGlibmV0LnNvCjQwMDJkMDAwLTQwMDJlMDAw
+IHJ3LXAgMDAwMDgwMDAgMDM6MDYgNTAxNDA2ICAgICAvaG9tZS9sb2NhbC9q
+ZGsxLjMuMV8wMS9qcmUvbGliL2kzODYvbGlibmV0LnNvCjQwMDJmMDAwLTQw
+MDNkMDAwIHIteHAgMDAwMDAwMDAgMDM6MDMgNDk3MiAgICAgICAvbGliL2xp
+YnB0aHJlYWQtMC45LnNvCjQwMDNkMDAwLTQwMDQ1MDAwIHJ3LXAgMDAwMGQw
+MDAgMDM6MDMgNDk3MiAgICAgICAvbGliL2xpYnB0aHJlYWQtMC45LnNvCjQw
+MDQ1MDAwLTQwMDRlMDAwIHIteHAgMDAwMDAwMDAgMDM6MDYgNTAxMzkzICAg
+ICAvaG9tZS9sb2NhbC9qZGsxLjMuMV8wMS9qcmUvbGliL2kzODYvbmF0aXZl
+X3RocmVhZHMvbGliaHBpLnNvCjQwMDRlMDAwLTQwMDRmMDAwIHJ3LXAgMDAw
+MDgwMDAgMDM6MDYgNTAxMzkzICAgICAvaG9tZS9sb2NhbC9qZGsxLjMuMV8w
+MS9qcmUvbGliL2kzODYvbmF0aXZlX3RocmVhZHMvbGliaHBpLnNvCjQwMDRm
+MDAwLTQwMjNjMDAwIHIteHAgMDAwMDAwMDAgMDM6MDYgMTI5NDEzICAgICAv
+aG9tZS9sb2NhbC9qZGsxLjMuMV8wMS9qcmUvbGliL2kzODYvY2xpZW50L2xp
+Ymp2bS5zbwo0MDIzYzAwMC00MDMzMjAwMCBydy1wIDAwMWVjMDAwIDAzOjA2
+IDEyOTQxMyAgICAgL2hvbWUvbG9jYWwvamRrMS4zLjFfMDEvanJlL2xpYi9p
+Mzg2L2NsaWVudC9saWJqdm0uc28KNDAzNDkwMDAtNDAzNGMwMDAgci14cCAw
+MDAwMDAwMCAwMzowMyA0OTY5ICAgICAgIC9saWIvbGliZGwtMi4yLjMuc28K
+NDAzNGMwMDAtNDAzNGQwMDAgcnctcCAwMDAwMjAwMCAwMzowMyA0OTY5ICAg
+ICAgIC9saWIvbGliZGwtMi4yLjMuc28KNDAzNGQwMDAtNDA0NWYwMDAgci14
+cCAwMDAwMDAwMCAwMzowMyA0OTY1ICAgICAgIC9saWIvbGliYy0yLjIuMy5z
+bwo0MDQ1ZjAwMC00MDQ2NjAwMCBydy1wIDAwMTExMDAwIDAzOjAzIDQ5NjUg
+ICAgICAgL2xpYi9saWJjLTIuMi4zLnNvCjQwNDZhMDAwLTQwNDhiMDAwIHIt
+eHAgMDAwMDAwMDAgMDM6MDYgNTAxNDAyICAgICAvaG9tZS9sb2NhbC9qZGsx
+LjMuMV8wMS9qcmUvbGliL2kzODYvbGliamF2YS5zbwo0MDQ4YjAwMC00MDQ4
+ZDAwMCBydy1wIDAwMDIwMDAwIDAzOjA2IDUwMTQwMiAgICAgL2hvbWUvbG9j
+YWwvamRrMS4zLjFfMDEvanJlL2xpYi9pMzg2L2xpYmphdmEuc28KNDA0OGUw
+MDAtNDA0YTAwMDAgci14cCAwMDAwMDAwMCAwMzowMyA0OTgxICAgICAgIC9s
+aWIvbGlibnNsLTIuMi4zLnNvCjQwNGEwMDAwLTQwNGEyMDAwIHJ3LXAgMDAw
+MTEwMDAgMDM6MDMgNDk4MSAgICAgICAvbGliL2xpYm5zbC0yLjIuMy5zbwo0
+MDRhNDAwMC00MDRjNTAwMCByLXhwIDAwMDAwMDAwIDAzOjAzIDQ5NjggICAg
+ICAgL2xpYi9saWJtLTIuMi4zLnNvCjQwNGM1MDAwLTQwNGM2MDAwIHJ3LXAg
+MDAwMjAwMDAgMDM6MDMgNDk2OCAgICAgICAvbGliL2xpYm0tMi4yLjMuc28K
+NDA0YzcwMDAtNDA0ZmIwMDAgci14cCAwMDAwMDAwMCAwMzowMyA1NyAgICAg
+ICAgIC91c3IvaTM4Ni1zbGFja3dhcmUtbGludXgvbGliL2xpYnN0ZGMrKy0y
+LWxpYmM2LjEtMS0yLjkuMC5zbwo0MDRmYjAwMC00MDUwNzAwMCBydy1wIDAw
+MDMzMDAwIDAzOjAzIDU3ICAgICAgICAgL3Vzci9pMzg2LXNsYWNrd2FyZS1s
+aW51eC9saWIvbGlic3RkYysrLTItbGliYzYuMS0xLTIuOS4wLnNvCjQwNTA5
+MDAwLTQwNTFhMDAwIHIteHAgMDAwMDAwMDAgMDM6MDYgNTAxNDAxICAgICAv
+aG9tZS9sb2NhbC9qZGsxLjMuMV8wMS9qcmUvbGliL2kzODYvbGlidmVyaWZ5
+LnNvCjQwNTFhMDAwLTQwNTFjMDAwIHJ3LXAgMDAwMTAwMDAgMDM6MDYgNTAx
+NDAxICAgICAvaG9tZS9sb2NhbC9qZGsxLjMuMV8wMS9qcmUvbGliL2kzODYv
+bGlidmVyaWZ5LnNvCjQwNTFjMDAwLTQwNTMwMDAwIHIteHAgMDAwMDAwMDAg
+MDM6MDYgNTAxNDAzICAgICAvaG9tZS9sb2NhbC9qZGsxLjMuMV8wMS9qcmUv
+bGliL2kzODYvbGliemlwLnNvCjQwNTMwMDAwLTQwNTMzMDAwIHJ3LXAgMDAw
+MTMwMDAgMDM6MDYgNTAxNDAzICAgICAvaG9tZS9sb2NhbC9qZGsxLjMuMV8w
+MS9qcmUvbGliL2kzODYvbGliemlwLnNvCjQwNTMzMDAwLTQxMjYxMDAwIHIt
+LXMgMDAwMDAwMDAgMDM6MDYgNTAxNDMyICAgICAvaG9tZS9sb2NhbC9qZGsx
+LjMuMV8wMS9qcmUvbGliL3J0Lmphcgo0MTI4ZTAwMC00MTUzMzAwMCByLS1z
+IDAwMDAwMDAwIDAzOjA2IDUwMTQzMyAgICAgL2hvbWUvbG9jYWwvamRrMS4z
+LjFfMDEvanJlL2xpYi9pMThuLmphcgo0MTUzMzAwMC00MTU0OTAwMCByLS1z
+IDAwMDAwMDAwIDAzOjA2IDUwMTQyMCAgICAgL2hvbWUvbG9jYWwvamRrMS4z
+LjFfMDEvanJlL2xpYi9zdW5yc2FzaWduLmphcgo0MzVmMTAwMC00MzVmYzAw
+MCByLXhwIDAwMDAwMDAwIDAzOjAzIDQ5ODQgICAgICAgL2xpYi9saWJuc3Nf
+Y29tcGF0LTIuMi4zLnNvCjQzNWZjMDAwLTQzNWZlMDAwIHJ3LXAgMDAwMGEw
+MDAgMDM6MDMgNDk4NCAgICAgICAvbGliL2xpYm5zc19jb21wYXQtMi4yLjMu
+c28KNDk2Y2IwMDAtNDk3NWQwMDAgci0tcyAwMDAwMDAwMCAwMzowNiAyOTEz
+NjcgICAgIC9ob21lL3NrL0xpbWVXaXJlL0xpbWVXaXJlLmphcgo0OTc1ZDAw
+MC00OWIyYTAwMCByLXhwIDAwMDAwMDAwIDAzOjA2IDUwMTQxMCAgICAgL2hv
+bWUvbG9jYWwvamRrMS4zLjFfMDEvanJlL2xpYi9pMzg2L2xpYmF3dC5zbwo0
+OWIyYTAwMC00OWIzYTAwMCBydy1wIDAwM2NjMDAwIDAzOjA2IDUwMTQxMCAg
+ICAgL2hvbWUvbG9jYWwvamRrMS4zLjFfMDEvanJlL2xpYi9pMzg2L2xpYmF3
+dC5zbwo0OWI0ZjAwMC00OWI4MDAwMCByLXhwIDAwMDAwMDAwIDAzOjA2IDUw
+MTQwOSAgICAgL2hvbWUvbG9jYWwvamRrMS4zLjFfMDEvanJlL2xpYi9pMzg2
+L2xpYm1saWJfaW1hZ2Uuc28KNDliODAwMDAtNDliODIwMDAgcnctcCAwMDAz
+MDAwMCAwMzowNiA1MDE0MDkgICAgIC9ob21lL2xvY2FsL2pkazEuMy4xXzAx
+L2pyZS9saWIvaTM4Ni9saWJtbGliX2ltYWdlLnNvCjQ5YjgyMDAwLTQ5Yjg5
+MDAwIHIteHAgMDAwMDAwMDAgMDM6MDMgMTk2OTU2ICAgICAvdXNyL1gxMVI2
+L2xpYi9saWJYcC5zby42LjIKNDliODkwMDAtNDliOGEwMDAgcnctcCAwMDAw
+NjAwMCAwMzowMyAxOTY5NTYgICAgIC91c3IvWDExUjYvbGliL2xpYlhwLnNv
+LjYuMgo0OWI4YTAwMC00OWJkMjAwMCByLXhwIDAwMDAwMDAwIDAzOjAzIDE5
+NzM3MiAgICAgL3Vzci9YMTFSNi9saWIvbGliWHQuc28uNi4wCjQ5YmQyMDAw
+LTQ5YmQ2MDAwIHJ3LXAgMDAwNDcwMDAgMDM6MDMgMTk3MzcyICAgICAvdXNy
+L1gxMVI2L2xpYi9saWJYdC5zby42LjAKNDliZDcwMDAtNDliZTMwMDAgci14
+cCAwMDAwMDAwMCAwMzowMyAxOTczMzkgICAgIC91c3IvWDExUjYvbGliL2xp
+YlhleHQuc28uNi40CjQ5YmUzMDAwLTQ5YmU1MDAwIHJ3LXAgMDAwMGIwMDAg
+MDM6MDMgMTk3MzM5ICAgICAvdXNyL1gxMVI2L2xpYi9saWJYZXh0LnNvLjYu
+NAo0OWJlNTAwMC00OWJlOTAwMCByLXhwIDAwMDAwMDAwIDAzOjAzIDE5Njkz
+NCAgICAgL3Vzci9YMTFSNi9saWIvbGliWHRzdC5zby42LjEKNDliZTkwMDAt
+NDliZWEwMDAgcnctcCAwMDAwMzAwMCAwMzowMyAxOTY5MzQgICAgIC91c3Iv
+WDExUjYvbGliL2xpYlh0c3Quc28uNi4xCjQ5YmVhMDAwLTQ5Y2M0MDAwIHIt
+eHAgMDAwMDAwMDAgMDM6MDMgMTk3MDQ4ICAgICAvdXNyL1gxMVI2L2xpYi9s
+aWJYMTEuc28uNi4yCjQ5Y2M0MDAwLTQ5Y2M4MDAwIHJ3LXAgMDAwZDkwMDAg
+MDM6MDMgMTk3MDQ4ICAgICAvdXNyL1gxMVI2L2xpYi9saWJYMTEuc28uNi4y
+CjQ5Y2M5MDAwLTQ5Y2QxMDAwIHIteHAgMDAwMDAwMDAgMDM6MDMgMTk3MzMz
+ICAgICAvdXNyL1gxMVI2L2xpYi9saWJTTS5zby42LjAKNDljZDEwMDAtNDlj
+ZDIwMDAgcnctcCAwMDAwNzAwMCAwMzowMyAxOTczMzMgICAgIC91c3IvWDEx
+UjYvbGliL2xpYlNNLnNvLjYuMAo0OWNkMjAwMC00OWNlNjAwMCByLXhwIDAw
+MDAwMDAwIDAzOjAzIDE5NzE0MCAgICAgL3Vzci9YMTFSNi9saWIvbGliSUNF
+LnNvLjYuMwo0OWNlNjAwMC00OWNlODAwMCBydy1wIDAwMDEzMDAwIDAzOjAz
+IDE5NzE0MCAgICAgL3Vzci9YMTFSNi9saWIvbGliSUNFLnNvLjYuMwo0OWNl
+YTAwMC00OWQ3NDAwMCByLXhwIDAwMDAwMDAwIDAzOjA2IDUwMTQxMSAgICAg
+L2hvbWUvbG9jYWwvamRrMS4zLjFfMDEvanJlL2xpYi9pMzg2L2xpYmZvbnRt
+YW5hZ2VyLnNvCjQ5ZDc0MDAwLTQ5ZDg0MDAwIHJ3LXAgMDAwODkwMDAgMDM6
+MDYgNTAxNDExICAgICAvaG9tZS9sb2NhbC9qZGsxLjMuMV8wMS9qcmUvbGli
+L2kzODYvbGliZm9udG1hbmFnZXIuc28KNDllOGMwMDAtNDllY2MwMDAgci0t
+cyAwMDAwMDAwMCAwMzowNiAyOTEzNjYgICAgIC9ob21lL3NrL0xpbWVXaXJl
+L2NvbGxlY3Rpb25zLmphcgo0OWVkNjAwMC00OWVkZjAwMCByLXhwIDAwMDAw
+MDAwIDAzOjAzIDQ5NzYgICAgICAgL2xpYi9saWJuc3NfZmlsZXMtMi4yLjMu
+c28KNDllZGYwMDAtNDllZTAwMDAgcnctcCAwMDAwODAwMCAwMzowMyA0OTc2
+ICAgICAgIC9saWIvbGlibnNzX2ZpbGVzLTIuMi4zLnNvCjQ5ZWUwMDAwLTQ5
+ZWUzMDAwIHIteHAgMDAwMDAwMDAgMDM6MDMgNDk3NCAgICAgICAvbGliL2xp
+Ym5zc19kbnMtMi4yLjMuc28KNDllZTMwMDAtNDllZTQwMDAgcnctcCAwMDAw
+MjAwMCAwMzowMyA0OTc0ICAgICAgIC9saWIvbGlibnNzX2Rucy0yLjIuMy5z
+bwo0OWVlNDAwMC00OWVmMjAwMCByLXhwIDAwMDAwMDAwIDAzOjAzIDQ5NzMg
+ICAgICAgL2xpYi9saWJyZXNvbHYtMi4yLjMuc28KNDllZjIwMDAtNDllZjMw
+MDAgcnctcCAwMDAwZDAwMCAwMzowMyA0OTczICAgICAgIC9saWIvbGlicmVz
+b2x2LTIuMi4zLnNvCjQ5ZWY2MDAwLTQ5ZWZiMDAwIHIteHAgMDAwMDAwMDAg
+MDM6MDMgMTI5MDE2ICAgICAvbGliL2xpYm5zc19kYi0yLjIuc28KNDllZmIw
+MDAtNDllZmMwMDAgcnctcCAwMDAwNDAwMCAwMzowMyAxMjkwMTYgICAgIC9s
+aWIvbGlibnNzX2RiLTIuMi5zbwo0OWVmYzAwMC00OWY3MjAwMCByLXhwIDAw
+MDAwMDAwIDAzOjAzIDQ5ODggICAgICAgL2xpYi9saWJkYi0zLjEuc28KNDlm
+NzIwMDAtNDlmNzQwMDAgcnctcCAwMDA3NTAwMCAwMzowMyA0OTg4ICAgICAg
+IC9saWIvbGliZGItMy4xLnNvCjQ5Zjc0MDAwLTQ5ZmFmMDAwIHJ3LXMgMDAw
+MDAwMDAgMDA6MDQgODU4NTIyMyAgICAvU1lTVjAwMDAwMDAwIChkZWxldGVk
+KQoKTG9jYWwgVGltZSA9IE1vbiBPY3QgIDEgMTA6MzM6NDAgMjAwMQpFbGFw
+c2VkIFRpbWUgPSAxNwojCiMgVGhlIGV4Y2VwdGlvbiBhYm92ZSB3YXMgZGV0
+ZWN0ZWQgaW4gbmF0aXZlIGNvZGUgb3V0c2lkZSB0aGUgVk0KIwojIEphdmEg
+Vk06IEphdmEgSG90U3BvdChUTSkgQ2xpZW50IFZNICgxLjMuMV8wMSBtaXhl
+ZCBtb2RlKQojCg==
+
+--0-239505745-1001935761=:10654--

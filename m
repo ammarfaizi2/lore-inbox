@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263848AbTDUMre (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 08:47:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263849AbTDUMre
+	id S261165AbTDUNNo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 09:13:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbTDUNNo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 08:47:34 -0400
-Received: from x101-201-233-dhcp.reshalls.umn.edu ([128.101.201.233]:18859
-	"EHLO minerva") by vger.kernel.org with ESMTP id S263848AbTDUMre
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 08:47:34 -0400
-Date: Mon, 21 Apr 2003 07:59:30 -0500
-From: Matt Reppert <arashi@yomerashi.yi.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: sooner 2.4.21-pre8
-Message-Id: <20030421075930.5b776387.arashi@yomerashi.yi.org>
-In-Reply-To: <200304210724.32437.brian@mdrx.com>
-References: <Pine.LNX.4.55.0304210823230.944@boston.corp.fedex.com>
-	<200304202352.06128.brian@mdrx.com>
-	<20030421010743.5309f585.arashi@yomerashi.yi.org>
-	<200304210724.32437.brian@mdrx.com>
-Organization: Yomerashi
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-message-flag: : This mail sent from host minerva, please respond.
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 21 Apr 2003 09:13:44 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:59309 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261165AbTDUNNn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 09:13:43 -0400
+Message-ID: <3EA3F153.3000106@colorfullife.com>
+Date: Mon, 21 Apr 2003 15:25:39 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Q: nr_threads locking
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Apr 2003 07:24:32 -0500
-Brian Jackson <brian@mdrx.com> wrote:
+Hi Andrew,
 
-> I meant the -bkN snapshots, but I can only seem to find them for Linus' tree. 
+According to the comments, nr_threads is protected by lock_kernel, but 
+do_fork() runs without the bkl for ages.
+Would it be possible to use your percpu_counters for nr_threads? It 
+seems to be used only to guard against fork bombs and for i_nlink of /proc.
 
-Oh, yes. Those are only being generated for 2.5, yes, at least they way you're
-thinking. You may want to look at this though:
+--
+    Manfred
 
-http://www.XX.kernel.org/pub/linux/kernel/v2.4/testing/cset/
-
-(Doing appropriate substitution for XX with country codes of course.) This
-does seem to have a gzipped patch from the latest -pre to the BK tree as of
-some time.
-
-Matt

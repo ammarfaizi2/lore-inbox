@@ -1,63 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262387AbTJGOF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 10:05:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbTJGOF2
+	id S262304AbTJGOCF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 10:02:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbTJGOCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 10:05:28 -0400
-Received: from play.smurf.noris.de ([192.109.102.42]:18562 "EHLO
-	play.smurf.noris.de") by vger.kernel.org with ESMTP id S262387AbTJGOFM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 10:05:12 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Newsgroups: smurf.list.linux.kernel
-Subject: Re: compile error with 2.6.0-test6 on ppc32
-Date: Tue, 07 Oct 2003 16:04:54 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2003.10.07.14.04.52.707400@smurf.noris.de>
-References: <3F7EE203.4030601@g-house.de> <pan.2003.10.04.17.39.19.402587@smurf.noris.de> <3F8071E8.1050303@g-house.de>
-NNTP-Posting-Host: linux.smurf.noris.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: play.smurf.noris.de 1065535494 18550 192.109.102.39 (7 Oct 2003 14:04:54 GMT)
-X-Complaints-To: smurf@noris.de
-NNTP-Posting-Date: Tue, 7 Oct 2003 14:04:54 +0000 (UTC)
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+	Tue, 7 Oct 2003 10:02:05 -0400
+Received: from adsl-68-248-192-57.dsl.klmzmi.ameritech.net ([68.248.192.57]:43015
+	"EHLO mail.domedata.com") by vger.kernel.org with ESMTP
+	id S262304AbTJGOCB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 10:02:01 -0400
+From: tabris <tabris@tabris.net>
+To: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns?=
+	=?iso-8859-1?q?=20Rullg=E5rd?=)
+Subject: Re: devfs vs. udev
+Date: Tue, 7 Oct 2003 10:01:56 -0400
+User-Agent: KMail/1.5.3
+References: <yw1xad8dfcjg.fsf@users.sourceforge.net>
+In-Reply-To: <yw1xad8dfcjg.fsf@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200310071001.56459.tabris@tabris.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Christian wrote:
->> That's a regression in binutils. Debian/unstable fixed it in version
->> 2.14.90.0.6-3.
-> 
-> indeed! i just have to update *even more* often :-)
-> 
-Or less often.  :-/
+On Tuesday 07 October 2003 08:38 am, Måns Rullgård wrote:
+> I noticed this in the help text for devfs in 2.6.0-test6:
+>
+> 	  Note that devfs has been obsoleted by udev,
+> 	  <http://www.kernel.org/pub/linux/utils/kernel/hotplug/>.
+> 	  It has been stripped down to a bare minimum and is only provided for
+> 	  legacy installations that use its naming scheme which is
+> 	  unfortunately different from the names normal Linux installations
+> 	  use.
+>
+> Now, this puzzles me, for a few of reasons.  Firstly, not long ago,
+> devfs was spoken of as the way to go, and all drivers were rewritten
+> to support it.  Why this sudden change?  Secondly, that link only
+> leads me to a package describing itself as an experimental
+> proof-of-concept thing, not to be used for anything serious.  How can
+> something that incomplete obsolete a working system like devfs?
+> Thirdly, udev appears to respond to hotplug events only.  How is it
+> supposed to handle device files not corresponding to any physical
+> device?  Finally, I quite liked the idea of a virtual filesystem for
+> /dev.  It reduced the clutter quite a bit.  As for the naming scheme,
+> it could easily be changed.
+My word is hardly authoritative, but istr hearing that the original 
+devfs-maintainer has abandoned this code (probably after multiple 
+complaints about it being badly implemented, full of bugs, locking 
+issues/races, etc).
 
-> hm, the term "regression" is only known to me from mathematics, but i 
-> don't know how this could be related to compiling issues....
+Not having used it with 2.6 yet, I don't know much about it's status in 
+that tree.
 
-It's a fairly standard term. Basically, it means that some feature
-(interpreted broadly, e.g. "compiles this piece of code correctly")
-worked in version X but fails to do so due to a bug (as opposed to a
-feature change or removal) in version Y, where Y>X. Most often, the first
-step of fixing the problem is increasing X or decreasing Y successively so
-that X==Y-1.
-
-> Thank you, 2.6.0-test6 is compiling now.
-You're welcome.
-
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
- - -
-Virtue is its own punishment.
-		-- Denniston
-
-Righteous people terrify me ... virtue is its own punishment.
-		-- Aneurin Bevan
+So, although devfs may still work, and even be in a better condition than 
+udev (at present); no longer maintained (and little intention of 
+changing) may be considered equivalent to obsolete.
+--
+tabris
+-
+	Max told his friend that he'd just as soon not go hiking in the hills.
+Said he, "I'm an anti-climb Max."
+	[So is that punchline.]
 

@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290421AbSAPLtT>; Wed, 16 Jan 2002 06:49:19 -0500
+	id <S290423AbSAPLz1>; Wed, 16 Jan 2002 06:55:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290422AbSAPLtH>; Wed, 16 Jan 2002 06:49:07 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:54797 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S290421AbSAPLsv>;
-	Wed, 16 Jan 2002 06:48:51 -0500
-Date: Wed, 16 Jan 2002 12:48:42 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Amit Gupta <amit.gupta@amd.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: arpd not working in 2.4.17 or 2.5.1
-In-Reply-To: <E16QZjK-00061Z-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.44.0201161246490.31902-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290425AbSAPLzU>; Wed, 16 Jan 2002 06:55:20 -0500
+Received: from gnu.in-berlin.de ([192.109.42.4]:4868 "EHLO gnu.in-berlin.de")
+	by vger.kernel.org with ESMTP id <S290423AbSAPLzF>;
+	Wed, 16 Jan 2002 06:55:05 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Wed, 16 Jan 2002 10:57:47 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Memory problem with bttv driver
+Message-ID: <20020116105747.B1190@bytesex.org>
+In-Reply-To: <20020114210039.180c0438.skraw@ithnet.com> <E16QETz-0002yD-00@the-village.bc.nu> <20020115004205.A12407@werewolf.able.es> <slrna480cv.68d.kraxel@bytesex.org> <20020115121424.10bb89b2.skraw@ithnet.com> <20020115142017.D8191@bytesex.org> <20020115161653.A9550@bytesex.org> <20020115173551.5a3fc051.skraw@ithnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020115173551.5a3fc051.skraw@ithnet.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > > > Yes.  Instead of remapping vmalloced kernel memory it gives you shared
+> > > > anonymous pages, then does zerocopy DMA using kiobufs.  You may run in
+> > > > trouble with >4GB machines.
+> > > 
+> > > Interesting.
+> > > What's the problem on > 4GB ?
+> > 
+> > The bt878/848 is a 32bit PCI device, it simply can't go DMA to main
+> > memory above 4GB.  At least on ia32, on architecures with a iommu
+> > (sparc, ...) it should work without trouble.
+> 
+> Sorry, maybe I should have clarified: what is the problem with allocating those
+> pages below 4GB in a >4GB box?
 
+do_anonymous_page() may give you pages above 4GB.  Need to write my own
+nopage handler to fix this.
 
-On Tue, 15 Jan 2002, Alan Cox wrote:
+  Gerd
 
-> > But arp>1024 is Very Important, else linux will never be able to talk to more
-> > than 1024 clients !
-> >
-> > Linux is my favourite and I wonder if this limit will kill linux for the race
-> > with Solaris/M$ server market. So pls save me :) and help neighour.c/network
-> > layer in new kernel.
->
-> ARP applies for local links only. So you need a network you are actively
-> talking to 1024 different hosts directly on. Furthermore all the
-> config items should now be soft anyway. Want more, enable more.
-
-To have this kind of network is not impossible at all, I received mail
-from people at intel who are dealing with around 5000 arp (they say).
-In this situation with arpd there was no sensible performance loss, right
-now there is a big slowdown.
-
-
-
+-- 
+#define	ENOCLUE 125 /* userland programmer induced race condition */

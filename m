@@ -1,42 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269614AbUICLFf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269615AbUICLJF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269614AbUICLFf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 07:05:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269622AbUICLFf
+	id S269615AbUICLJF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 07:09:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269621AbUICLJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 07:05:35 -0400
-Received: from castle.nmd.msu.ru ([193.232.112.53]:58381 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id S269614AbUICLFZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 07:05:25 -0400
-Message-ID: <20040903150521.B1834@castle.nmd.msu.ru>
-Date: Fri, 3 Sep 2004 15:05:21 +0400
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: EXT3: problem with copy_from_user inside a transaction
+	Fri, 3 Sep 2004 07:09:04 -0400
+Received: from mail.renesas.com ([202.234.163.13]:21473 "EHLO
+	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S269615AbUICLJB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 07:09:01 -0400
+Date: Fri, 03 Sep 2004 20:08:49 +0900 (JST)
+Message-Id: <20040903.200849.783373656.takata.hirokazu@renesas.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
+Subject: Re: 2.6.9-rc1-mm3
+From: Hirokazu Takata <takata@linux-m32r.org>
+In-Reply-To: <20040903014811.6247d47d.akpm@osdl.org>
+References: <20040903014811.6247d47d.akpm@osdl.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+Hi, Andrew,
 
-filemap_copy_from_user() between prepare_write() and commit_write()
-appears to be a problem for ext3.
+From: Andrew Morton <akpm@osdl.org>
+Date: Fri, 3 Sep 2004 01:48:11 -0700
+> 
+> - Added the m32r architecture.  Haven't looked at it yet.
+> 
 
-prepare_write() starts a transaction, and if filemap_copy_from_user() causes
-a page fault, we'll have
- - order violation with mmap_sem taken inside a transaction (possible
-   deadlocks),
- - __GFP_FS memory allocation with all re-entrancy problems (e.g.,
-   current->journal_info corruption).
-
-Am I missing something?
-
-If this observation is correct, the possible solution is to call
-get_user_pages() or somehow pin the user pages before prepare_write(),
-although it will hurt performance...
-
-	Andrey
+Wonderful!  :-)
+Thank you very much.

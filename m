@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264813AbSJaU6r>; Thu, 31 Oct 2002 15:58:47 -0500
+	id <S263081AbSJaUxU>; Thu, 31 Oct 2002 15:53:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264861AbSJaU6q>; Thu, 31 Oct 2002 15:58:46 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11018 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264813AbSJaU6q>;
-	Thu, 31 Oct 2002 15:58:46 -0500
-Message-ID: <3DC19ACA.9030906@pobox.com>
-Date: Thu, 31 Oct 2002 16:04:10 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S263137AbSJaUxU>; Thu, 31 Oct 2002 15:53:20 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:18127 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S263081AbSJaUxT>; Thu, 31 Oct 2002 15:53:19 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: "David C. Hansen" <haveblue@us.ibm.com>
+Cc: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Date: Thu, 31 Oct 2002 12:49:50 -0800 (PST)
+Subject: Re: Reiser vs EXT3
+In-Reply-To: <1036090969.4272.59.camel@nighthawk>
+Message-ID: <Pine.LNX.4.44.0210311248030.25405-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-To: Stephan von Krawczynski <skraw@ithnet.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM REPORT 2.4.20-rc1: sundance.c
-References: <20021031173834.4514603a.skraw@ithnet.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski wrote:
+note that breaking up this locking bottleneckhas been done in the 2.5
+kernel series so when 2.6 is released this should be much less significant
+(Q2 2003 is the current thought, but don't count on it until it's out)
 
->Hello all,
+David Lang
+
+On 31 Oct 2002, David C. Hansen wrote:
+
+> Date: 31 Oct 2002 11:02:49 -0800
+> From: David C. Hansen <haveblue@us.ibm.com>
+> To: Robert L. Harris <Robert.L.Harris@rdlg.net>
+> Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+> Subject: Re: Reiser vs EXT3
 >
->I'd like to point out that (at least) the network driver sundance.c has weird
->flaws when trying to use more than MAX_UNITS (8) cards at the same time. Since
+> On Thu, 2002-10-31 at 06:19, Robert L. Harris wrote:
+> >
+> >   Still working on that replacement mail server and a new rumor has hit
+> > the mix.  It follows that reiserfs is much faster than ext3 (made ext3,
+> > not converted from ext2 if it matters) and this is causing some
+> > problems.  On a 200Gig filesystem is this truely an issue?
 >
-
-Smileys nonwithstanding, you need to include far more information
-
-Please define "weird flaws"... explicitly.
-
->this driver can be used for DFE-580TX 4 port network card it is really easy to
->get more than 8 ports :-)
->In fact the driver does check against MAX_UNITS, but does _not_ fail if you go
->through the roof. Instead you can expect really interesting ifconfig-outputs
->;-)
->IMHO it should check and fail. I wonder what other card drivers do in such a
->case ...
->  
+> ext3 has some SMP scalability problems.  The BKL is used to protect many
+> journal operations, and we see huge amounts of CPU spent spinning on it
+> on 4/8/16 proc machines.  So much CPU, that it masks anything else we're
+> doing on the system.  But, on a single-proc or just a 2-way, you
+> probably won't see much of this to be significant.
 >
-
-Other card drivers handle this case just fine.  The expected behavior is 
-that module options will only support up to MAX_UNITS of certain 
-arguments, but beyond that nothing is affected at all.
-
-    Jeff
-
-
-
-
+> We haven't tested reiser extensively here, but from what I've seen it
+> scales much, much better than ext3 (as does jfs and probably xfs too).
+> --
+> Dave Hansen
+> haveblue@us.ibm.com
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

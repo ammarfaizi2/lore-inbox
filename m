@@ -1,53 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269125AbUIXUjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269134AbUIXUkQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269125AbUIXUjt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 16:39:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269135AbUIXUjs
+	id S269134AbUIXUkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 16:40:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269121AbUIXUkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 16:39:48 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:5022 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269125AbUIXUjA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 16:39:00 -0400
-Subject: Re: mlock(1)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Neil Horman <nhorman@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <41548493.3000905@pobox.com>
-References: <41547C16.4070301@pobox.com>  <4154805D.8030904@redhat.com>
-	 <1096057867.11589.19.camel@krustophenia.net>  <41548493.3000905@pobox.com>
-Content-Type: text/plain
-Message-Id: <1096058339.11589.27.camel@krustophenia.net>
+	Fri, 24 Sep 2004 16:40:06 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:22485 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S269134AbUIXUj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 16:39:58 -0400
+Date: Fri, 24 Sep 2004 16:37:14 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Kevin Fenzi <kevin-linux-kernel@scrye.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
+Message-ID: <20040924143714.GA826@openzaurus.ucw.cz>
+References: <20040924021956.98FB5A315A@voldemort.scrye.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 24 Sep 2004 16:39:00 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040924021956.98FB5A315A@voldemort.scrye.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-24 at 16:33, Jeff Garzik wrote:
-> Lee Revell wrote:
-> > Is this really a good idea?  I suspect it would be abused.  For example,
-> > people would mlock mozilla or openoffice to keep it from being paged out
-> > overnight when updatedb runs, where the real solution is to fix the
-> > problem with the VM that causes updatedb to force other apps to swap
-> > out. 
-> 
-> Use /proc/swappiness for this
-> 
-> It definitely helped for me.  I set it really low, around '10' or so.
-> 
+Hi!
 
-Yeah, this never bugged me much but some people hate this behavior.  I
-set it to 0, works fine.
-
-My point is that people will abuse mlock(1).  Maybe that is not our
-concern.  But, the current users of mlock have to know what they are
-doing to some extent.  Like the ntpd example, it doesn't mlock ALL it's
-memory, just the portion that can't be swapped out due to realtime
-constraints.
-
-Lee
+> Was trying to swsusp my 2.6.9-rc2-mm1 laptop tonight. It churned for a
+> while, but didn't hibernate. Here are the messages. 
+> 
+> ....................................................................................................
+> .........................swsusp: Need to copy 34850 pages
+> Sep 23 16:53:37 voldemort kernel: hibernate: page allocation failure. order:8, mode:0x120
+> Sep 23 16:53:37 voldemort kernel:  
+Out of memory... Try again with less loaded system.
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269025AbTCAVFQ>; Sat, 1 Mar 2003 16:05:16 -0500
+	id <S269023AbTCAVAO>; Sat, 1 Mar 2003 16:00:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269027AbTCAVFQ>; Sat, 1 Mar 2003 16:05:16 -0500
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:40129 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S269025AbTCAVFP>; Sat, 1 Mar 2003 16:05:15 -0500
-Message-ID: <3E612561.1050002@kegel.com>
-Date: Sat, 01 Mar 2003 13:25:53 -0800
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
-X-Accept-Language: de-de, en
-MIME-Version: 1.0
-To: Matthias Schniedermeyer <ms@citd.de>
-CC: Joe Perches <joe@perches.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mike@aiinc.ca
-Subject: Re: [PATCH] kernel source spellchecker
-References: <Pine.LNX.4.44.0303012026410.31670-101000@korben.citd.de>
-In-Reply-To: <Pine.LNX.4.44.0303012026410.31670-101000@korben.citd.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S269025AbTCAVAJ>; Sat, 1 Mar 2003 16:00:09 -0500
+Received: from mail.gmx.de ([213.165.64.20]:65202 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S269023AbTCAVAE>;
+	Sat, 1 Mar 2003 16:00:04 -0500
+Date: Sat, 1 Mar 2003 22:10:21 +0100
+From: Marc Giger <gigerstyle@gmx.ch>
+To: Brad Laue <brad@brad-x.com>
+Cc: jt@hpl.hp.com, linux-kernel@vger.kernel.org, stewart@snerk.org
+Subject: Re: Cisco Aironet 340 oops with 2.4.20
+Message-Id: <20030301221021.1fc94f0e.gigerstyle@gmx.ch>
+In-Reply-To: <3E5FD8A0.7070601@brad-x.com>
+References: <20030210125342.4462c25b.gigerstyle@gmx.ch>
+	<3E5FD8A0.7070601@brad-x.com>
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Schniedermeyer wrote:
-> This versions defaults to only correct words within a comment. ...
-> // Comments are easy(tm). "Everything after // until line-end".
-> 
-> and /* ... */ are easy(tm) too because gcc doesn't support to nest them.
+Hi All,
 
-I'll be damned.  I'm impressed with how easy that was in perl.
-- Dan
+I've reached Javier! He said that we should try the latest CVS Version of the driver at airo-linux.sf.net.
 
--- 
-Dan Kegel
-http://www.kegel.com
-http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
+greets
+
+Marc
 

@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265322AbRF0MmN>; Wed, 27 Jun 2001 08:42:13 -0400
+	id <S265327AbRF0Mpd>; Wed, 27 Jun 2001 08:45:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265327AbRF0MmD>; Wed, 27 Jun 2001 08:42:03 -0400
-Received: from mean.netppl.fi ([195.242.208.16]:5380 "EHLO mean.netppl.fi")
-	by vger.kernel.org with ESMTP id <S265322AbRF0Mlo>;
-	Wed, 27 Jun 2001 08:41:44 -0400
-Date: Wed, 27 Jun 2001 15:41:40 +0300
-From: Pekka Pietikainen <pp@evil.netppl.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux and system area networks
-Message-ID: <20010627154140.A14908@netppl.fi>
-In-Reply-To: <200106261236.HAA79784@tomcat.admin.navo.hpc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3i
-In-Reply-To: <200106261236.HAA79784@tomcat.admin.navo.hpc.mil>
+	id <S265326AbRF0MpN>; Wed, 27 Jun 2001 08:45:13 -0400
+Received: from Morgoth.esiway.net ([193.194.16.157]:32530 "EHLO
+	Morgoth.esiway.net") by vger.kernel.org with ESMTP
+	id <S265324AbRF0MpK>; Wed, 27 Jun 2001 08:45:10 -0400
+Date: Wed, 27 Jun 2001 14:44:59 +0200 (CEST)
+From: Marco Colombo <marco@esi.it>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Luigi Genoni <kernel@Expansa.sns.it>, <linux-kernel@vger.kernel.org>
+Subject: Re: When the FUD is all around (sniff).
+In-Reply-To: <E15Es2e-0003T1-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0106271420530.6630-100000@Megathlon.ESI>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 26, 2001 at 07:36:30AM -0500, Jesse Pollard wrote:
-> > I think you misunderstood the point.  Microsoft is providing this WSD
-> > DLL as a standard part of W2K now.  This means that hardware vendors
-> > just have to write a SAN service provider, and all Winsock-using
-> > applications benefit transparently.  No matter how good your TCP/IP
-> > implementation is, you still lose (especially in latency) compared to
-> > using reliable hardware transport.  Oracle-with-VI and DAFS-vs-NFS
-> > benchmarks show this quite clearly.
-> 
-> You do loose in security. You can't use IPSec over such a device without
-> some drastic overhaul.
-And the performance gains are not as obvious as one would hope, as
- there is some overhead caused by the WSD switch software
-that transparently maps connections onto standard IP networks and SAN
-boards depending on who you are talking to.
+On Tue, 26 Jun 2001, Alan Cox wrote:
 
-For some performance comparisions comparing WSD/native VI/TCP, there's
-a paper called "WSDLite: a Lightweight Alternative to Windows Sockets Direct
-Path", there's a link to the paper at http://citeseer.nj.nec.com/388853.html
-(seems you have to use the Cached: links)
+> > I suppose they received some pression from M$, but if people read of a FUD
+> > from a M$ employed, then they can guess what is going on, if it is a
+> > newspaper usually telling facts in a correct way...
+>
+> It is common for newspaper staff to be corrupt, same with magazine people.
+> Sometimes because people generally believe in a cause and are not impartial
+> (which I've seen both pro and anti Linux btw) and sometimes because advertising
+> revenue is a good thing.
+>
+> > The situation is going to be sad
+>
+> There is a saying in he UK 'You can fool all of the people some of the time,
+> you can fool some of the people all the time, but you cannot fool all of the
+> people all of the time'. You only have to look at the incredibly dim view
+> technical people take of most printed reviews to see that.
+>
+> Alan
 
-Providing a wrapper library for use with Infiniband and the current
-SAN boards like WSD would probably be a useful exercise, but to really get
-good performance (especially latency-wise) you probably want to use
-something like MPI. For many applications a wrapper will be enough, though.
+The problem here is the audience. That was on a major Italian newspaper,
+and targeted to business people. This is not technical FUD you can find
+on some magazines ("NT is faster" and so on). I personally don't care
+a bit, I've enough arguments to turn it into a holy war, at least.
+But the article summary could be: "Microsoft legal problems are going to
+end, Linus' ones are just starting."  A clear message to IT managers who
+are about to decide how to invest thier IT budget.
+
+As for the saying, see http://finance.yahoo.com/q?s=MSFT, and take 2 seconds
+to realize what that exactly means (both as a fact and as concept)
+and reconsider the part "but you cannot fool all of the people
+all of the time" (just s/people/business people/ and re-read). B-)
+
+.TM.
 -- 
-Pekka Pietikainen
+      ____/  ____/   /
+     /      /       /			Marco Colombo
+    ___/  ___  /   /		      Technical Manager
+   /          /   /			 ESI s.r.l.
+ _____/ _____/  _/		       Colombo@ESI.it
+

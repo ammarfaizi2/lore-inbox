@@ -1,61 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314514AbSHIQ2T>; Fri, 9 Aug 2002 12:28:19 -0400
+	id <S315167AbSHIQf0>; Fri, 9 Aug 2002 12:35:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314546AbSHIQ2T>; Fri, 9 Aug 2002 12:28:19 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:51463 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S314514AbSHIQ2S>; Fri, 9 Aug 2002 12:28:18 -0400
-Date: Fri, 9 Aug 2002 13:31:52 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Daniel Phillips <phillips@arcor.de>
-cc: Linus Torvalds <torvalds@transmeta.com>, <frankeh@watson.ibm.com>,
-       <davidm@hpl.hp.com>, David Mosberger <davidm@napali.hpl.hp.com>,
-       "David S. Miller" <davem@redhat.com>, <gh@us.ibm.com>,
-       <Martin.Bligh@us.ibm.com>, <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: large page patch (fwd) (fwd)
-In-Reply-To: <E17dCQa-0001Nv-00@starship>
-Message-ID: <Pine.LNX.4.44L.0208091328240.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314680AbSHIQeG>; Fri, 9 Aug 2002 12:34:06 -0400
+Received: from bitshadow.namesys.com ([212.16.7.71]:51073 "EHLO namesys.com")
+	by vger.kernel.org with ESMTP id <S314602AbSHIQeB>;
+	Fri, 9 Aug 2002 12:34:01 -0400
+Date: Fri, 9 Aug 2002 20:36:39 +0400
+From: Hans Reiser <reiser@bitshadow.namesys.com>
+Message-Id: <200208091636.g79GadlN007879@bitshadow.namesys.com>
+To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: [BK] [PATCH] reiserfs changeset 2 of 7 to include into 2.4 tree
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Aug 2002, Daniel Phillips wrote:
-> On Friday 09 August 2002 17:56, Linus Torvalds wrote:
+Hello!
 
-> > Also, I think the jury (ie Andrew) is still out on whether rmap is worth
-> > it.
->
-> Tell me about it.  Well, I feel strongly enough about it to spend the
-> next week coding yet another pte chain optimization.
+   This changeset fixes __FUNCTION__ usage as string literals to shut up
+   gcc 3.1+.
+   You can pull it from bk://thebsh.namesys.com/bk/reiser3-linux-2.4
 
-Well yes, we've _seen_ that 2.4 -rmap improves system behaviour,
-but we don't have any tools to _quantify_ that improvement.
+   Diffstat:
 
-As long as the only measurable thing is the overhead (which may
-get close to zero, but will never become zero) the numbers will
-continue being against rmap.  Not because of rmap, but just
-because the overhead is the only thing being measured ;)
+ fs/reiserfs/bitmap.c        |    4 ++--
+ fs/reiserfs/namei.c         |    6 +++---
+ include/linux/reiserfs_fs.h |    6 +++---
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-Personally I'll spend some more time just improving the behaviour
-of the VM, even if we don't have tools to quantify the improvement.
+Plain text patch:
 
-Somehow there seems to be a lack of meaningful "macrobenchmarks" ;)
-
-(as opposed to microbenchmarks, which can don't always have a
-relation to how the performance of the system as a whole will
-be influenced by some code change)
-
-kind regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.682   -> 1.683  
+#	 fs/reiserfs/namei.c	1.20    -> 1.21   
+#	include/linux/reiserfs_fs.h	1.18    -> 1.19   
+#	fs/reiserfs/bitmap.c	1.13    -> 1.14   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/08/06	green@angband.namesys.com	1.683
+# reiserfs_fs.h, namei.c, bitmap.c:
+#   fix __FUNCTION__ usage to prevent gcc 3.1+ warnings
+# --------------------------------------------
+#
+diff -Nru a/fs/reiserfs/bitmap.c b/fs/reiserfs/bitmap.c
+--- a/fs/reiserfs/bitmap.c	Tue Aug  6 10:38:10 2002
++++ b/fs/reiserfs/bitmap.c	Tue Aug  6 10:38:10 2002
+@@ -683,7 +683,7 @@
+ {
+ #ifdef CONFIG_REISERFS_CHECK
+   if (inode->u.reiserfs_i.i_prealloc_count < 0)
+-     reiserfs_warning("zam-4001:" __FUNCTION__ ": inode has negative prealloc blocks count.\n");
++     reiserfs_warning("zam-4001:%s: inode has negative prealloc blocks count.\n", __FUNCTION__);
+ #endif  
+     if (inode->u.reiserfs_i.i_prealloc_count > 0) {
+     __discard_prealloc(th, inode);
+@@ -699,7 +699,7 @@
+     inode = list_entry(plist->next, struct inode, u.reiserfs_i.i_prealloc_list);
+ #ifdef CONFIG_REISERFS_CHECK
+     if (!inode->u.reiserfs_i.i_prealloc_count) {
+-      reiserfs_warning("zam-4001:" __FUNCTION__ ": inode is in prealloc list but has no preallocated blocks.\n");
++      reiserfs_warning("zam-4001:%s: inode is in prealloc list but has no preallocated blocks.\n", __FUNCTION__);
+     }
+ #endif    
+     __discard_prealloc(th, inode);
+diff -Nru a/fs/reiserfs/namei.c b/fs/reiserfs/namei.c
+--- a/fs/reiserfs/namei.c	Tue Aug  6 10:38:10 2002
++++ b/fs/reiserfs/namei.c	Tue Aug  6 10:38:10 2002
+@@ -287,7 +287,7 @@
+     while (1) {
+ 	retval = search_by_entry_key (dir->i_sb, &key_to_search, path_to_entry, de);
+ 	if (retval == IO_ERROR) {
+-	    reiserfs_warning ("zam-7001: io error in " __FUNCTION__ "\n");
++	    reiserfs_warning ("zam-7001: io error in %s\n", __FUNCTION__);
+ 	    return IO_ERROR;
+ 	}
+ 
+@@ -413,8 +413,8 @@
+ 	}
+ 
+         if (retval != NAME_FOUND) {
+-	    reiserfs_warning ("zam-7002:" __FUNCTION__ ": \"reiserfs_find_entry\" has returned"
+-                              " unexpected value (%d)\n", retval);
++	    reiserfs_warning ("zam-7002:%s: \"reiserfs_find_entry\" has returned"
++                              " unexpected value (%d)\n", __FUNCTION__, retval);
+        }
+ 
+ 	return -EEXIST;
+diff -Nru a/include/linux/reiserfs_fs.h b/include/linux/reiserfs_fs.h
+--- a/include/linux/reiserfs_fs.h	Tue Aug  6 10:38:10 2002
++++ b/include/linux/reiserfs_fs.h	Tue Aug  6 10:38:10 2002
+@@ -75,9 +75,9 @@
+ /** always check a condition and panic if it's false. */
+ #define RASSERT( cond, format, args... )					\
+ if( !( cond ) ) 								\
+-  reiserfs_panic( 0, "reiserfs[%i]: assertion " #cond " failed at "		\
+-		  __FILE__ ":%i:" __FUNCTION__ ": " format "\n",		\
+-		  in_interrupt() ? -1 : current -> pid, __LINE__ , ##args )
++  reiserfs_panic( 0, "reiserfs[%i]: assertion " #cond " failed at "	\
++		  __FILE__ ":%i:%s: " format "\n",		\
++		  in_interrupt() ? -1 : current -> pid, __LINE__ , __FUNCTION__ , ##args )
+ 
+ #if defined( CONFIG_REISERFS_CHECK )
+ #define RFALSE( cond, format, args... ) RASSERT( !( cond ), format, ##args )

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287886AbSBDAQo>; Sun, 3 Feb 2002 19:16:44 -0500
+	id <S287919AbSBDATG>; Sun, 3 Feb 2002 19:19:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287919AbSBDAQZ>; Sun, 3 Feb 2002 19:16:25 -0500
-Received: from harddata.com ([216.123.194.198]:50694 "EHLO mail.harddata.com")
-	by vger.kernel.org with ESMTP id <S287279AbSBDAQT>;
-	Sun, 3 Feb 2002 19:16:19 -0500
-Date: Sun, 3 Feb 2002 17:16:15 -0700
+	id <S287924AbSBDAS4>; Sun, 3 Feb 2002 19:18:56 -0500
+Received: from 198.216-123-194-0.interbaun.com ([216.123.194.198]:51462 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP
+	id <S287919AbSBDASp>; Sun, 3 Feb 2002 19:18:45 -0500
+Date: Sun, 3 Feb 2002 17:18:36 -0700
 From: Michal Jaegermann <michal@harddata.com>
 To: linux-kernel@vger.kernel.org
 Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] Symbol troubles in 2.4.18pre... kernels
-Message-ID: <20020203171615.A12981@mail.harddata.com>
+Subject: [PATCH] Warnings in drm modules - 2.4.18pre...
+Message-ID: <20020203171836.B12981@mail.harddata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -20,52 +20,59 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   
-Compiling 2.4.18pre7, and also 2.4.18pre7ac, runs into various troubles
-with symbols.  Here is what I got more or less accidentally. :-)
 
+The following, obvious (DMA_BLOCK_SIZE is of size_t type) and otherwise
+harmless, patch kills literally few hundreds compilation warnings on
+64-bit platforms.
 
-A module drivers/char/drm/sis.o ends up with unresolved symbols
+--- linux-2.4.18p7/drivers/char/drm/mga_drv.h~	Mon Aug 27 08:40:33 2001
++++ linux-2.4.18p7/drivers/char/drm/mga_drv.h	Sun Feb  3 15:46:16 2002
+@@ -247,7 +247,7 @@
+ 	if ( MGA_VERBOSE ) {						\
+ 		DRM_INFO( "BEGIN_DMA( %d ) in %s\n",			\
+ 			  (n), __FUNCTION__ );				\
+-		DRM_INFO( "   space=0x%x req=0x%x\n",			\
++		DRM_INFO( "   space=0x%x req=0x%lx\n",			\
+ 			  dev_priv->prim.space, (n) * DMA_BLOCK_SIZE );	\
+ 	}								\
+ 	prim = dev_priv->prim.start;					\
+@@ -297,7 +297,7 @@
+ #define DMA_WRITE( offset, val )					\
+ do {									\
+ 	if ( MGA_VERBOSE ) {						\
+-		DRM_INFO( "   DMA_WRITE( 0x%08x ) at 0x%04x\n",		\
++		DRM_INFO( "   DMA_WRITE( 0x%08x ) at 0x%04lx\n",	\
+ 			  (u32)(val), write + (offset) * sizeof(u32) );	\
+ 	}								\
+ 	*(volatile u32 *)(prim + write + (offset) * sizeof(u32)) = val;	\
 
-depmod: 	sis_free
-depmod: 	sis_malloc
+Can it be applied, please, if only to reduce noise?
 
-The trouble is that these modules are exported by drivers/video/sis/sis_main.c
-so depmod has valid complaints if the first was configured and the other
-not.  So this is a source error or a configuration error depending if
-these two are supposed to be independent or not.
+Once we are at it here is another patch of a similar character:
 
-
-'isa_eth_io_copy_and_sum' is defined only for some architectures but
-assorted modules, like drivers/net/3c503.o and few others, can be
-configured, say, for Alpha and 'depmod' once again complains about
-unresolved symbols.  I do not think that anybody will really miss that
-on Alpha but maybe configuring them in should be disallowed?
-
-
-Some sound modules are using 'mdelay', defined in linux/delay.h,
-but are not including this header.  Here, at last, the patch is trivial. :-)
-
---- linux-2.4.18p7/drivers/sound/ymfpci.c~	Fri Dec 21 10:41:55 2001
-+++ linux-2.4.18p7/drivers/sound/ymfpci.c	Sun Feb  3 16:39:51 2002
-@@ -46,6 +46,7 @@
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/ioport.h>
-+#include <linux/delay.h>
- #include <linux/pci.h>
- #include <linux/slab.h>
- #include <linux/poll.h>
---- linux-2.4.18p7/drivers/sound/opl3sa2.c~	Thu Jan 31 15:29:51 2002
-+++ linux-2.4.18p7/drivers/sound/opl3sa2.c	Sun Feb  3 16:40:50 2002
-@@ -64,6 +64,7 @@
- #include <linux/module.h>
- #include <linux/isapnp.h>
- #include <linux/pm.h>
-+#include <linux/delay.h>
- #include "sound_config.h"
+--- linux-2.4.18p7/drivers/char/drm/radeon_cp.c~	Fri Sep 14 15:29:41 2001
++++ linux-2.4.18p7/drivers/char/drm/radeon_cp.c	Sun Feb  3 15:30:19 2002
+@@ -623,7 +623,7 @@
  
- #include "ad1848.h"
+ 		RADEON_WRITE( RADEON_CP_RB_RPTR_ADDR,
+ 			     entry->busaddr[page_ofs]);
+-		DRM_DEBUG( "ring rptr: offset=0x%08x handle=0x%08lx\n",
++		DRM_DEBUG( "ring rptr: offset=0x%08lx handle=0x%08lx\n",
+ 			   entry->busaddr[page_ofs],
+ 			   entry->handle + tmp_ofs );
+ 	}
+--- linux-2.4.18p7/drivers/char/drm/r128_cce.c~	Mon Aug 27 08:40:33 2001
++++ linux-2.4.18p7/drivers/char/drm/r128_cce.c	Sun Feb  3 15:30:10 2002
+@@ -352,7 +352,7 @@
+ 
+ 		R128_WRITE( R128_PM4_BUFFER_DL_RPTR_ADDR,
+      			    entry->busaddr[page_ofs]);
+-		DRM_DEBUG( "ring rptr: offset=0x%08x handle=0x%08lx\n",
++		DRM_DEBUG( "ring rptr: offset=0x%08lx handle=0x%08lx\n",
+ 			   entry->busaddr[page_ofs],
+      			   entry->handle + tmp_ofs );
+ 	}
 
-   Michal
-   
+although results are not spectacular. :-)
+
+  Michal

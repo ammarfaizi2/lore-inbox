@@ -1,95 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264325AbUEIQxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264357AbUEIQ5P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264325AbUEIQxu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 May 2004 12:53:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264354AbUEIQxu
+	id S264357AbUEIQ5P (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 May 2004 12:57:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264358AbUEIQ5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 May 2004 12:53:50 -0400
-Received: from mail.tmr.com ([216.238.38.203]:15888 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S264325AbUEIQxr (ORCPT
+	Sun, 9 May 2004 12:57:14 -0400
+Received: from mail.tmr.com ([216.238.38.203]:16912 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S264357AbUEIQ5N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 May 2004 12:53:47 -0400
+	Sun, 9 May 2004 12:57:13 -0400
 To: linux-kernel@vger.kernel.org
 Path: not-for-mail
 From: Bill Davidsen <davidsen@tmr.com>
 Newsgroups: mail.linux-kernel
-Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
-Date: Sun, 09 May 2004 13:00:02 -0400
+Subject: Re: RE : 2.6.6-rc3-mm2 : REGPARAM forced => no external module with
+   some object code only
+Date: Sun, 09 May 2004 13:03:29 -0400
 Organization: TMR Associates, Inc
-Message-ID: <c7lnh2$4fo$1@gatekeeper.tmr.com>
-References: <200405051312.30626.dominik.karall@gmx.net> <20040505043002.2f787285.akpm@osdl.org> <c7bin8$fg7$1@gatekeeper.tmr.com> <200405060104.55340.bzolnier@elka.pw.edu.pl>
+Message-ID: <c7lnng$4fo$2@gatekeeper.tmr.com>
+References: <4098D65D.9010107@free.fr> <20040505131809.10bdcae6.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1084121442 4600 192.168.12.10 (9 May 2004 16:50:42 GMT)
+X-Trace: gatekeeper.tmr.com 1084121648 4600 192.168.12.10 (9 May 2004 16:54:08 GMT)
 X-Complaints-To: abuse@tmr.com
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
 X-Accept-Language: en-us, en
-In-Reply-To: <200405060104.55340.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20040505131809.10bdcae6.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> On Wednesday 05 of May 2004 22:31, Bill Davidsen wrote:
+Andrew Morton wrote:
+> Eric Valette <eric.valette@free.fr> wrote:
 > 
->>Andrew Morton wrote:
->>
->>>Dominik Karall <dominik.karall@gmx.net> wrote:
->>>
->>>>On Wednesday 05 May 2004 10:31, you wrote:
->>>>
->>>>>+make-4k-stacks-permanent.patch
->>>>>
->>>>>Fill my inbox.
->>>>
->>>>Hi Andrew!
->>>>
->>>>Is there any reason why this patch was applied? Because NVidia users
->>>>can't work with the original drivers now without removing this patch
->>>>every time.
->>>
->>>We need to push this issue along quickly.  The single-page stack
->>>generally gives us a better kernel and having the stack size configurable
->>>creates pain.
->>
->>Add my voice to those who don't think 4k stacks are a good idea as a
->>default, they break some things and seem to leave other paths (as others
->>have noted) on the edge. I'm not sure what you have in mind as a "better
->>kernel" but I'd rather have a worse kernel and not have to check 4k
->>stack as a possible problem before looking at other things if I get bad
->>behaviour.
->>
->>Reliability first, performance later. We've lived with the config for a
->>while, pain there is better than pain at runtime.
+>>The Changelog says nothing really important but forcing REGPARAM is 
+>> rather important : it breaks any external module using object only code 
+>> that calls a kernel function.
 > 
 > 
-> Opposite opinion here.
-> 
-> If you want 100% reliability you shouldn't use -mm in the first place.
-> 
-> Making 4kb stacks default in -mm is very good idea so it will get necessary
-> testing and fixing before being integrated into mainline.
-> 
-> Please also note that users of binary only modules always have choice:
-> - new kernels without binary only modules
-> - old kernels with binary only modules
-> 
-> It is really that simple.
+> This is why we should remove the option - to reduce the number of ways in
+> which the kernel might have been built.  Yes, there will be a bit of
+> transition pain while these people catch up.
 
-No it's not that simple, this has nothing to do with binary modules, and 
-everything to do with not making 4k stack the only available 
-configuration in 2.6. Options are fine, but in a stable kernel series I 
-don't think think that the default should change part way into the 
-series, and certainly the availability of the original functionality 
-shouldn't go away, which is what I read AKPMs original post to state as 
-the goal.
+Yes, I think that should go into the 2.7 tree as soon as it opens. Of 
+course it wouldn't go in the 2.6 tree, that's stable, right?
 
-Making changes to the kernel which will break existing applications 
-seems to be the opposite of "stable." People who want a new kernel for 
-fixes don't usually want to have to upgrade and/or rewrite their 
-applications. The "we change the system interface everything we fix a 
-bug" approach comes from a well-known software company, but shouldn't be 
-the way *good* software is done.
 
 -- 
 bill davidsen <davidsen@tmr.com>

@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284669AbSADVtY>; Fri, 4 Jan 2002 16:49:24 -0500
+	id <S284987AbSADVtm>; Fri, 4 Jan 2002 16:49:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284979AbSADVtM>; Fri, 4 Jan 2002 16:49:12 -0500
-Received: from [217.9.226.246] ([217.9.226.246]:13696 "HELO
-	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
-	id <S284669AbSADVtF>; Fri, 4 Jan 2002 16:49:05 -0500
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org, riel@surriel.com, mjc@kernel.org,
-        bcrl@redhat.com
-Subject: Re: hashed waitqueues
-In-Reply-To: <20020104094049.A10326@holomorphy.com>
-From: Momchil Velikov <velco@fadata.bg>
-Date: 04 Jan 2002 23:47:40 +0200
-In-Reply-To: <20020104094049.A10326@holomorphy.com>
-Message-ID: <87sn9lkcub.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S284979AbSADVtd>; Fri, 4 Jan 2002 16:49:33 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:5892 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S284987AbSADVtY>;
+	Fri, 4 Jan 2002 16:49:24 -0500
+Date: Fri, 4 Jan 2002 13:48:00 -0800
+From: Greg KH <greg@kroah.com>
+To: Alan <alan@clueserver.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] USB Storage Config patch for 2.4.17 and 2.5.1
+Message-ID: <20020104214800.GC21034@kroah.com>
+In-Reply-To: <200201041041.g04AfiL05830@clueserver.org> <20020104171758.GA17028@kroah.com> <200201042117.g04LHkL08977@clueserver.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200201042117.g04LHkL08977@clueserver.org>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Fri, 07 Dec 2001 19:03:25 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "WLI" == William Lee Irwin <wli@holomorphy.com> writes:
+On Fri, Jan 04, 2002 at 10:47:57AM -0800, Alan wrote:
+> 
+> Here is the patch attached. Tested on 2.4.17 and 2.5.1. (Needs a version for 
+> the new 2.5.x config structure, but that should be trivial.)
 
-WLI> This is a long-discussed space optimization for the VM system, with
+Thanks, I've applied just a portion of the patch (no need in indenting
+the usb-storage options, see
+http://linuxusb.bitkeeper.com:8088/usb-2.4/patch@1.563?nav=cset@1.563
+and
+http://linuxusb.bitkeeper.com:8088/usb-2.5/patch@1.135?nav=cset@1.135
+for the end result) to my 2.4 and 2.5 trees.  I'll forward them on the
+the proper kernel maintainers.
 
-WLI> Cheers,
+> BTW, this was written during the PLUG meeting last night. (Which you missed.) 
 
-Cheers ;)
+Ah, must have been another boring meeting if you were writing kernel
+config patches during it :)
 
-I couple of places that need fixing:
+thanks,
 
-./drivers/char/agp/agpgart_be.c:833:	wake_up(&page->wait);
-./drivers/char/agp/agpgart_be.c:2760:	wake_up(&page->wait);
-./drivers/char/drm/i810_dma.c:302:	wake_up(&virt_to_page(page)->wait);
-
-Regards,
--velco
+greg k-h

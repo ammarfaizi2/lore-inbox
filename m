@@ -1,33 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271593AbRHPRDG>; Thu, 16 Aug 2001 13:03:06 -0400
+	id <S271597AbRHPRRa>; Thu, 16 Aug 2001 13:17:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271594AbRHPRC4>; Thu, 16 Aug 2001 13:02:56 -0400
-Received: from mail.cogenit.fr ([195.68.53.173]:13973 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S271593AbRHPRCp>;
-	Thu, 16 Aug 2001 13:02:45 -0400
-Date: Thu, 16 Aug 2001 19:02:55 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: rml@tech9.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Optionally let Net Devices feed Entropy
-Message-ID: <20010816190255.A17095@se1.cogenit.fr>
-In-Reply-To: <997936615.921.22.camel@phantasy> <20010816105010.A10595@se1.cogenit.fr> <997973433.684.3.camel@phantasy>
-Mime-Version: 1.0
+	id <S271599AbRHPRRU>; Thu, 16 Aug 2001 13:17:20 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:37637 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271597AbRHPRRB>; Thu, 16 Aug 2001 13:17:01 -0400
+Subject: Re: gcc 3.0 Warnings
+To: srostedt@stny.rr.com
+Date: Thu, 16 Aug 2001 18:19:42 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <Pine.LNX.4.33.0108161147560.12810-100000@localhost.localdomain> from "Steven Rostedt" at Aug 16, 2001 01:05:42 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <997973433.684.3.camel@phantasy>; from rml@tech9.net on Thu, Aug 16, 2001 at 10:50:30AM -0400
-X-Organisation: Marie's fan club - I
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15XQo2-0005fo-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love <rml@tech9.net> :
-[...]
-> What is experimental about it?
+> I don't know if this has been brought up before, but I'm willing to clean
+> up the latest version of the kernel so that these warnings go away. But
 
-The implicit-and-should-be-debated-in-2.5 assumption that the entropy 
-estimate still makes sense ?
+Look in an archive and I think people have posted patches to some 
+of them. They are worth fixing
 
--- 
-Ueimor
+Alan

@@ -1,28 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270480AbRHSOM3>; Sun, 19 Aug 2001 10:12:29 -0400
+	id <S270506AbRHSO1F>; Sun, 19 Aug 2001 10:27:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270473AbRHSOMT>; Sun, 19 Aug 2001 10:12:19 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:57614 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S270472AbRHSOMC>; Sun, 19 Aug 2001 10:12:02 -0400
-Date: Sun, 19 Aug 2001 07:12:09 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: mj@ucw.cz, linux-kernel@vger.kernel.org,
-        linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [Linux-fbdev-devel] Patch, please TEST: linux-2.4.9 console font
- modularization
-In-Reply-To: <20010819015656.A369@baldur.yggdrasil.com>
-Message-ID: <Pine.LNX.4.10.10108190709370.1190-100000@transvirtual.com>
+	id <S270514AbRHSO0z>; Sun, 19 Aug 2001 10:26:55 -0400
+Received: from lambik.cc.kuleuven.ac.be ([134.58.10.1]:49926 "EHLO
+	lambik.cc.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id <S270506AbRHSO0s>; Sun, 19 Aug 2001 10:26:48 -0400
+Message-Id: <200108191427.QAA14159@lambik.cc.kuleuven.ac.be>
+Content-Type: text/plain; charset=US-ASCII
+From: Frank Dekervel <kervel@bakvis.kotnet.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.8-ac7 vm performance
+Date: Sun, 19 Aug 2001 16:27:00 +0200
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+is really good here (compared to 2.4.8/2.4.9). I switched from plain 
+2.4.8/2.4.9 because it seems the new used-once is nonfunctional on my 
+machine. (playing high-quality wav-files for 5 minutes is enough to make my 
+system totally unresponsible for a few 10's of seconds (its swapping my 
+desktop back in then)).
 
-See Geerts email about the proper solution. The only reason we have font
-images in the kernel is because fbdev devices usually don't have hardware
-fonts. Otherwise we wouldn't have them here. Personally I like to seem
-them __initdata so they go away after boot time.
-
+thanks !
+kervel

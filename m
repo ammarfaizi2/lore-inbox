@@ -1,46 +1,184 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263970AbUD0KEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263948AbUD0KRa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263970AbUD0KEF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 06:04:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263971AbUD0KEF
+	id S263948AbUD0KRa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 06:17:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263969AbUD0KRa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 06:04:05 -0400
-Received: from mail1.webmessenger.it ([193.70.193.50]:51413 "EHLO
-	mail1c.webmessenger.it") by vger.kernel.org with ESMTP
-	id S263970AbUD0KED (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 06:04:03 -0400
-From: "Martin Angler" <martin.angler@email.it>
-To: <linux-kernel@vger.kernel.org>
-Subject: Kernel space vs. user space for RS-485
-Date: Tue, 27 Apr 2004 12:04:05 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Thread-Index: AcQsPvkFLo+6wc9pR9GvLJBO68i/AA==
-Message-Id: <S263970AbUD0KED/20040427100403Z+208@vger.kernel.org>
+	Tue, 27 Apr 2004 06:17:30 -0400
+Received: from nobody.lpr.e-technik.tu-muenchen.de ([129.187.151.1]:8636 "EHLO
+	nobody.lpr.e-technik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id S263948AbUD0KRY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 06:17:24 -0400
+Date: Tue, 27 Apr 2004 12:17:20 +0200
+From: Juergen Stohr <juergen.stohr@lpr.e-technik.tu-muenchen.de>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG]linux-2.4.26 Quad-Opteron: panic when init scsi
+Message-ID: <20040427101720.GA27663@rcs.ei.tum.de>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="h31gzZEtNLTqOjlF"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I have to develop a pseudo-device driver that gets data from a RS485
-interface, frames it and gives the framed data to libpcap. This whole thing
-is a university project. Now I know, that writing a kernel module I can't be
-using the standard C library for invocations of read() or ioctl() methods in
-order to get the data from the RS485 interface. 
+--h31gzZEtNLTqOjlF
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-So my plan would be writing a driver xxx which has its file operations
-xxx_read, xxx_open and xxx_release. xxx_read should call then some kind of
-read method in order to get the data from the RS485. Are there any exported
-symbols from the RS485 driver? Or do I have to write the whole driver in
-user space in order to access the RS485 interface?
+Hi,
 
-Thanks in advance,
+I have got a problem similar to the one discussed in the thread
+"[BUG]linux-2.4.24 with k8 numa support panic when init scsi": When 
+booting the 2.4.26 on a quad Opteron box, in most of the cases the 
+kernel crashes when initializing SCSI.
+It seems to me that this bug is caused by a race, as in a few
+cases the machine is able to boot.
 
-Martin Angler
+The machine always boots if I set maxcpus=1.
 
+If I append numa=off to the command line the kernel crashes with a
+"Machine Check Exception" (but is able to initialize SCSI; perhaps
+this is another bug?)
 
+Does anybody know how to solve this problem or is anybody working on it?
+Can someone give me a hint where to start when debugging this race?
 
+I will attach the config of my kernel, the syslogs and the output of
+ksymoops.
+
+Regards,
+Jürgen
+
+--h31gzZEtNLTqOjlF
+Content-Type: application/x-gzip
+Content-Disposition: attachment; filename="config-2.4.26.gz"
+Content-Transfer-Encoding: base64
+
+H4sICBcqjkAAA2NvbmZpZy0yLjQuMjYAhVc91+smDN77M+7ec+I4cewhAwbsUPNVwE5yF+YO
+PR263PvvKyfvjYVtTjNZzyMJISRBqNGd6OOjrmJ1uv78jX7kRXB3z1XsueZO0Oit0NLQIVGO
+VNkHvfULyImTz2id0AGp8ocFJ4rrQOSCKsNGyf0CDIAgeqjTxWQRKaE3HttnALPqtEv6m+jC
+tcJc8DT11BvDIrFiBSvvVtuzo2ApJMyOISSGyBWugkPevLKLcLM8xAD5QAo9cQGcKzUio7sw
+QbbIkEw8Mk5jehLazZH66ychinKU1TrqUZEFYMLDVxC94go5SXQ0D4tgqUgE8OA4TRWiJgqf
+pX/6SViaADSg0x+ocTxy2S1QK3SnQopZFKIg5TFyNUoShNELTqgVsTUGRdTKARI1xY5tMWmM
+3aKOqF0wevGdX0+HplqTQovgkH9L6IDTBjmUQr90F3DU4oF2lORZMH79e7NKBoRTHHYJynbh
+5BB/4V/dvSXmBRRJT37BIhmDyRltcaLY5fR4LGF9eUq9eOp3IvQowZ7BJAmOzARU++EXTm/u
+rdun3iJ8+0B08Fu/5T0+4AcnjDv8ZUUEvQCF6usNwLRjPsIkmx0IaLHjuVyrOO6htxmX5Anj
+5FqcD4fDWofxdoQeJXB+H64bfVLSb3lV1F+gIg/YKkcJgCp6h+ST6os83LjTq5qME9fMuFhS
+gyp+Mi5wtGcYD0aXqWGHCmUK+PuVaSPR1PFQV3jYv+Wt3twPTR1tePo9EAxGHSDTn+5TZvTI
+3voVcCeB3phBpQDlF51GwO0Oxw45wNNvSvrfBbRV0tuXD3wfzaXb+dihoB0XsMkVCPVaJsAf
+LSo3CosC+emLoGzi8cUu/edNU1WH1J2RIhnVztBEAerChk1MxwTQq6BneSoTmaXSho6Bopnq
+R+3w7J+vK7YS44QeHsozA60Fd6BIR7uWPhFgPx0ZZbh+++vff+r63PxefMM0NTDpSM/jqbws
+eU2YS565nDNMfT5kmWOWyXvLRVBX2XWqIstkI6jKLHPKMtmoqyrLNBmmKXM2TTajTZnbT3PK
+rVNfVvuBXpmrI9YZg+KYXR+oYt9ZBj7uw+U+nAn0vA9X+/BlH24ycWdCKTKxFKtgBiPq6Haw
+McXG0KF8Tz3ZjvsJrn4Dl4FM3o8deuOyUann1rBr4d7y5P89RRKexbHGEHxE2rV7WFHtgMfT
+DghVuYDwfI71j3qDYHfva36YL2D8p4f087+pp3d/4oEID5Ox+/rv8rnWv0vRwhOxg/fu/Ab8
+D+f6Tkq1DQAA
+
+--h31gzZEtNLTqOjlF
+Content-Type: application/x-gzip
+Content-Disposition: attachment; filename="syslog.txt.gz"
+Content-Transfer-Encoding: base64
+
+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
+
+--h31gzZEtNLTqOjlF
+Content-Type: application/x-gzip
+Content-Disposition: attachment; filename="ksymoops.txt.gz"
+Content-Transfer-Encoding: base64
+
+H4sICFoWjkAAA2tzeW1vb3BzLnR4dADtVm1vnEYQ/r6/Yio1kq0zvl3ggCOXU51zUkW26hNu
+pEhVhBZYbGrexHLp+Ut/e2fh3tmmqdJv9egEx+zMPDvPzA7ItnpsfiqrTD77f47zrFytDfPS
+vjSdOTzJ56KqagnGF/hSdGtg3IBRwP2zbEVxWfAajFsw7sjOVPlOoSph7TmhY3fPJjOY6xmy
+qC8B7uo2q0oJKykSAkoOop/JWsRZmonkfLN2o9HdanR3Gt3RPg+XSSB4kpUPcKe23Ii6alpI
+m6qA9lFAK5oiK3lO1KoPFIUslh/BJMss8YFdQFwVhQ/yD17XooFfqhZanpUtJhR8WCoPRv3f
+ZulGPMqsNHad+WcS3C/7gL66oBmlVmxNhOsBvHt/e/XzfbeMeuaQ4OpTb3woELzdalnnT+nE
+9iBYDGxNRoJrre39B13ca42WBG+XOlvqabVTXQTk4mgPVqJsGRvYMtSa2gjWSRYdGrN1e2AT
+DQ/vkdaB7Zm6nANSvi+UFaXU3q48lTkuDraz6IMxCtddtZgH77Z/FgHdw3tIN6YbkUVwmhbz
+KNpae62bpiJWCSyC07QcQcmyqWIh5a7lzupNJ8qWx081fxBvtr2ktk7ulXpH2r7JBnwdPgg+
+SYfsQy+bUPsu2pNmpqnFp8MKfTXUTkz2z57DUAue5/Brw2Phw9FJs003Seaf4eT4pZTi8dts
+4HDNtJyUuacONKKRN1Cm08TWR1EOU6pxiGN0IIsqwX0iaWYEWHn8UZW1+qEyZpBiaSywbXCm
+kKKBC9EEnBQmHogI6FTNldOUuomCh3kJs9M6z/UtR9ByfiOaUuRQ8zKLfbhqcT7WOLmgreAp
+Q1KzMmt/+O8n30ep5m0iUr7KW9kP2/37pQWRp45t4EvDwJeGwSGzPMfvH1+mJn2Zml0iL1Nz
+K/+Dqfn9Q5OQ+RzH0usD1vt5BLMwRCqqOFRNIEemMzY5neP2Zm+UENKRdOTYUYSOh352Mp5G
+c41xR51CeRBtmDZCbBwYHTtU49DzCTMZyyxUEzjEL9Cs4HmYFDysqyofTd0xo44OrKMdZspt
+ZHpjZukQ+jrALH7M8iRssnqElnpDVZRNOPqVaHF8GI120bqivYZvJZwMWnYWYsHm/r+Msy+c
+Oig4aPRt04lcRd1xWuM0OXvV8PX5hbruQ+ihkwF00qeAju4GcdeTxyJ5o24/0rXVQekRPHaK
+YLEdQtQh6Dq9k6xY5T3CxHPSaOK5F68EXyMas5O/gfMGcN4WTr1PoD9DoJPfi1rdWNKXa4Rc
+Jqr22m+Ob//oIH8BGHwIp4wOAAA=
+
+--h31gzZEtNLTqOjlF--

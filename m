@@ -1,46 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269963AbRHEOMG>; Sun, 5 Aug 2001 10:12:06 -0400
+	id <S269960AbRHEOO0>; Sun, 5 Aug 2001 10:14:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269960AbRHEOL4>; Sun, 5 Aug 2001 10:11:56 -0400
-Received: from baltazar.tecnoera.com ([200.29.128.1]:3597 "EHLO
-	baltazar.tecnoera.com") by vger.kernel.org with ESMTP
-	id <S269961AbRHEOLh>; Sun, 5 Aug 2001 10:11:37 -0400
-Date: Sun, 5 Aug 2001 10:11:33 -0400 (CLT)
-From: Juan Pablo Abuyeres <jpabuyer@tecnoera.com>
-To: Ivan Lotina <lotke@lotke.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Adaptec 2100S support
-In-Reply-To: <01080501430603.13609@xor>
-Message-ID: <Pine.LNX.4.33.0108051007490.19559-100000@baltazar.tecnoera.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269964AbRHEOOQ>; Sun, 5 Aug 2001 10:14:16 -0400
+Received: from weta.f00f.org ([203.167.249.89]:43664 "EHLO weta.f00f.org")
+	by vger.kernel.org with ESMTP id <S269960AbRHEOOD>;
+	Sun, 5 Aug 2001 10:14:03 -0400
+Date: Mon, 6 Aug 2001 02:14:55 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Nico Schottelius <nicos@pcsystems.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ext3/reiserfs: ext3fine, reiser got OOPS!
+Message-ID: <20010806021455.B21919@weta.f00f.org>
+In-Reply-To: <3B6CAE4E.17850717@pcsystems.de> <20010805172718.B20716@weta.f00f.org> <3B6D4738.6F77A5E0@pcsystems.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3B6D4738.6F77A5E0@pcsystems.de>
+User-Agent: Mutt/1.3.20i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Aug 05, 2001 at 03:16:40PM +0200, Nico Schottelius wrote:
 
-here you have a patch against 2.4.4:
+    Mount and delete.
 
-ftp://ftp.tecnoera.com/Linux/2100S/
+    reiserfs
 
-if you have luck getting newer patches, please send them to me, so I can
-put them at my ftp site.
+    I created 200000 empty files, and then deleted them.
 
-good luck.
+In many cases (ie. lots of files in a small number of directories),
+reiserfs is _much_ faster then ext2 and ext3.
 
-(the ftp site is pretty busy, so maybe you'll have to be patient)
+This is fairly well established.
+
+For example, on a rather humble machine (dual PIII 866) the time to
+extract a while bunch of files, including compression time and delete
+them (whilst the machine was doing other things):
 
 
-On Sun, 5 Aug 2001, Ivan Lotina wrote:
+cw:tty2@tapu(cw)$ /usr/bin/time tx archive/freedb/freedb-complete-20010617.tar.bz2
+128.87user 152.89system 5:33.36elapsed 84%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (2141major+2086minor)pagefaults 0swaps
 
-> Hello,
-> Anyone had success with this scsi raid and linux kernel's > 2.4.3 ?
->
-> Ivan
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+cw:tty2@tapu(cw)$ du -s freedb-complete-20010617/
+1380821 freedb-complete-20010617
 
+cw:tty2@tapu(cw)$ find freedb-complete-20010617/ -type f -print|wc -l
+ 350065
+
+cw:tty2@tapu(cw)$ ls -F freedb-complete-20010617/
+COPYING  blues/      country/  folk/  misc/    reggae/  soundtrack/
+README   classical/  data/     jazz/  newage/  rock/
+
+<stress memory and cause swapping to purge much of page cache>
+
+cw:tty2@tapu(cw)$ /usr/bin/time rm -rf freedb-complete-20010617/
+0.68user 66.48system 3:22.71elapsed 33%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (111major+17minor)pagefaults 0swaps
+
+Hot-cache, the delete time is about 15seconds from memory (I posted
+results to the reiserfs list a few weeks back).
+
+
+
+
+  --cw

@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269572AbTGJUSA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 16:18:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269578AbTGJUR7
+	id S266442AbTGJUbU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 16:31:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266450AbTGJUbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 16:17:59 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:10897 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269572AbTGJUR4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 16:17:56 -0400
-Date: Thu, 10 Jul 2003 13:20:12 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Chuck Luciano <chuck@mrluciano.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: My own 3.5G patch plus question on Ingo's 4G/$G patch
-Message-ID: <810600000.1057868412@flay>
-In-Reply-To: <NFBBKNADOLMJPCENHEALKEAHGBAA.chuck@mrluciano.com>
-References: <NFBBKNADOLMJPCENHEALKEAHGBAA.chuck@mrluciano.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Thu, 10 Jul 2003 16:31:20 -0400
+Received: from fw-az.mvista.com ([65.200.49.158]:51446 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id S266442AbTGJUbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 16:31:18 -0400
+Message-ID: <3F0DD05B.3030607@mvista.com>
+Date: Thu, 10 Jul 2003 13:45:15 -0700
+From: Steven Dake <sdake@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: linux-kernel@vger.kernel.org, andre@linux-ide.org, frankt@promise.com
+Subject: Re: IDE/Promise 20276 FastTrack RAID Doesn't work in 2.4.21, patch
+ attached to fix
+References: <Pine.SOL.4.30.0307102202340.22284-100000@mion.elka.pw.edu.pl>
+In-Reply-To: <Pine.SOL.4.30.0307102202340.22284-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On the subject of the 4G/4G patch, I started with 2.5.74, added 
-> patch-2.5.74-bk1 and http://redhat.com/~mingo/4g-patches/4g-2.5.74-F8
-> and I get a hunk that fails:
-> 
-> patching file include/asm-i386/mmu_context.h
-> Hunk #1 FAILED at 29.
-> Hunk #2 succeeded at 38 (offset -5 lines).
-> Hunk #4 FAILED at 75.
-> 2 out of 4 hunks FAILED -- saving rejects to file include/asm-i386/mmu_context.h.rej
-> 
-> Is/are there a patch(es) that I'm missing?
+I tried the kernel with the special fasttrak feature enabled, and it 
+didn't work.  There are special cases in the pci-setup.c code for other 
+promise adaptors, so adding one more seems to make sense.
 
-Put it on top of the -bk6 snapshot.
+Thanks
+-steve
 
-M.
+Bartlomiej Zolnierkiewicz wrote:
+
+>Hi,
+>
+>Do you have "Special FastTrak Feature" enabled?
+>
+>--
+>Bartlomiej
+>
+>On Thu, 10 Jul 2003, Steven Dake wrote:
+>
+>  
+>
+>>Folks,
+>>
+>>After I upgraded to 2.4.21, I noticed my Gigabyte motherboard with
+>>onboard IDE Promise 20276 FastTrack RAID no longer works.  The following
+>>patch fixes the problem, which appears to be an incomplete list of
+>>devices in the ide setup code.  There are probably other fasttrack RAID
+>>adaptors that should be added to the setup code, but I don't know what
+>>they are.
+>>
+>>Thanks
+>>-steve
+>>    
+>>
+>
+>
+>
+>  
+>
 

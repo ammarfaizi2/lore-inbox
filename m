@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316632AbSEQSAQ>; Fri, 17 May 2002 14:00:16 -0400
+	id <S316609AbSEQSBE>; Fri, 17 May 2002 14:01:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316633AbSEQSAP>; Fri, 17 May 2002 14:00:15 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:61678 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S316632AbSEQSAO>; Fri, 17 May 2002 14:00:14 -0400
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
-From: Robert Love <rml@tech9.net>
-To: Adam Kropelin <akropel1@rochester.rr.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020517173718.GA184@www.kroptech.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 17 May 2002 11:00:09 -0700
-Message-Id: <1021658410.925.113.camel@sinai>
-Mime-Version: 1.0
+	id <S316633AbSEQSBD>; Fri, 17 May 2002 14:01:03 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:53509 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316609AbSEQSBC>; Fri, 17 May 2002 14:01:02 -0400
+Date: Fri, 17 May 2002 13:57:26 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Q: x86 interrupt arrival after cli
+In-Reply-To: <Pine.LNX.3.95.1020516124059.702A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.3.96.1020517135353.15351B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-05-17 at 10:37, Adam Kropelin wrote:
+On Thu, 16 May 2002, Richard B. Johnson wrote:
 
-> On Fri, May 17, 2002 at 09:21:12AM -0500, Wayne.Brown@altec.com wrote:
-> > 
-> > OTOH, those of us who are not looking forward to kbuild 2.5 are grateful
-> > for any delays we can get.
+
+> <--- HIGHEST    -------------------     LOWEST ---->
 > 
-> ...and what would your beefs (beeves?) with kbuild-2.5 be? I searched the
-> archives for the last 12 months and I don't see anythinng from you
-> relevant to kbuild-2.5. Keith has been addressing concerns quite regularly;
-> I should think if you have constructive comments, he'd surely listen. 
+> IRQ0, 1, 8, 9, 10, 11, 12, 13, 14, 15, 3, 4, 5, 6, 7
+>    |  |  |                             |  |  |  |  |_ printer
+>    |  |  |                             |  |  |  |____ Floppy
+>    |  |  |                             |  |  |_______ Fixed disk
+>    |  |  |                             |  |__________ Serial 0
+>    |  |  |                             |_____________ Serial 1
+>    |  |  |
+>    |  |  |___________ IRQ2->IRQ8 cascade  RTC
+>    |  |______________ Keyboard
+>    |_________________ PIT channel 0
+> 
+> IFF the IO-APIC is programmed to emulate the old dual controllers.
 
-I have not seen much complaints over kbuild-2.5, and what I have seen
-(i.e. it was slower) Keith has done a very good job of addressing (i.e.
-now it is faster).  Whatever items come up in the future, I suspect
-Keith is committed to fixing.  Right now, however, it is certainly hard
-for him to maintain kbuild-2.5 against a moving kernel tree and work on
-new features.  Keith knows I will stop sending him Christmas cards if
-kbuild-2.5 was merged and he did not follow up on issues - I suspect
-that will not happen. :)
+Yes, and if anyone missed this subtle point, the priorities are
+programmable! There have been patches, particularly back in 2.1.120+, to
+diddle priority to make marginal system work, or move the failures to
+something with more robust retries.
 
-Fwiw, I like kbuild-2.5 and want it in.
+Nice diagram, I'm taking it to a meeting (credited to you of course) where
+I will be talking about interrupt use on parallel ports.
 
-> You *do* have constructive comments, right?
-
-Probably not.  Like most of the noise on lkml these days, non-developers
-seem to have an opinion on everything yet offer little value.  Code
-talks and ...
-
-	Robert Love
-
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

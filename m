@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271330AbTHHHNs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 03:13:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271331AbTHHHNW
+	id S271283AbTHHHdx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 03:33:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271278AbTHHHdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 03:13:22 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:57292 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S271330AbTHHHNT (ORCPT
+	Fri, 8 Aug 2003 03:33:53 -0400
+Received: from xs4all.vs19.net ([213.84.236.198]:17085 "EHLO spaans.vs19.net")
+	by vger.kernel.org with ESMTP id S271283AbTHHHdw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 03:13:19 -0400
-Date: Fri, 8 Aug 2003 09:13:14 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jasper Spaans <jasper@vs19.net>, torvalds@osdl.org, andries.brouwer@cwi.nl,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Change all occurrences of 'flavour' to 'flavor'
-Message-ID: <20030808071314.GC18823@suse.de>
-References: <20030807180032.GA16957@spaans.vs19.net> <1060295842.3169.83.camel@dhcp22.swansea.linux.org.uk>
+	Fri, 8 Aug 2003 03:33:52 -0400
+Date: Fri, 8 Aug 2003 09:33:44 +0200
+From: Jasper Spaans <jasper@vs19.net>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Message-ID: <20030808073344.GB6637@spaans.vs19.net>
+References: <20030807180032.GA16957@spaans.vs19.net> <Pine.LNX.4.53.0308072139320.12875@montezuma.mastecende.com> <20030808065230.GA5996@spaans.vs19.net> <Pine.LNX.4.53.0308080256340.30770@montezuma.mastecende.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1060295842.3169.83.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.53.0308080256340.30770@montezuma.mastecende.com>
+Attach: /home/spaans/JasperSpaans.vcf
+Organization: http://www.insultant.nl/
+X-Copyright: Copyright 2003 C. Jasper Spaans - All Rights Reserved
+X-message-flag: Warning! The sender of this mail thinks you should use a more secure email client!
+User-Agent: Mutt/1.5.4i
+X-SA-Exim-Mail-From: spaans@spaans.vs19.net
+Subject: Re: [PATCH] Change all occurrences of 'flavour' to 'flavor'
+Content-Type: text/plain; charset=iso-8859-15
+X-SA-Exim-Version: 3.0+cvs (built Mon Jul 28 22:52:54 EDT 2003)
+X-SA-Exim-Scanned: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 07 2003, Alan Cox wrote:
-> On Iau, 2003-08-07 at 19:00, Jasper Spaans wrote:
-> > It changes all occurrences of 'flavour' to 'flavor' in the complete tree;
-> > I've just comiled all affected files (that is, the config resulting from
-> > make allyesconfig minus already broken stuff) succesfully on i386.
-> 
-> The Linux kernel tended to favour european spelling, and favOUr is
-> indeed correct English.
+On Fri, Aug 08, 2003 at 02:57:15AM -0400, Zwane Mwaikambo wrote:
+> > > > It changes all occurrences of 'flavour' to 'flavor' in the complete tree;
+> I know it wasn't purely cosmetic but i just wish we could use the proper 
+> spelling instead of US English. No i'm not trolling.
 
-Eh? Maybe you did (obviously), but I don't see a general trend there. I
-tend to prefer favor/color etc. Oh, and disk obviously.
+I totally agree with you on that and I do have the diff doing lying around
+here. Good fuel for a flamefest. I guess our benevolent dictator needs to
+decide on this issue :)
 
+VrGr,
 -- 
-Jens Axboe
-
+Jasper Spaans                 http://jsp.vs19.net/contact/

@@ -1,166 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266575AbUFVXKp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265780AbUFVXFC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266575AbUFVXKp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 19:10:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266566AbUFVXKn
+	id S265780AbUFVXFC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 19:05:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbUFVXDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 19:10:43 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:45044 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S263778AbUFVXIc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 19:08:32 -0400
-Message-ID: <40D8BBAC.2070503@mvista.com>
-Date: Tue, 22 Jun 2004 16:07:24 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Tue, 22 Jun 2004 19:03:11 -0400
+Received: from [195.251.120.63] ([195.251.120.63]:29312 "EHLO
+	ppp1-100.the.forthnet.gr") by vger.kernel.org with ESMTP
+	id S265100AbUFVR7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 13:59:18 -0400
+From: V13 <v13@priest.com>
+To: Hannu Savolainen <hannu@opensound.com>
+Subject: Re: Stop the Linux kernel madness
+Date: Tue, 22 Jun 2004 20:46:20 +0300
+User-Agent: KMail/1.6.52
+Cc: linux-kernel@vger.kernel.org
+References: <40D232AD.4020708@opensound.com> <20040622020615.GE14478@dualathlon.random> <Pine.LNX.4.58.0406221033350.8222@zeus.compusonic.fi>
+In-Reply-To: <Pine.LNX.4.58.0406221033350.8222@zeus.compusonic.fi>
 MIME-Version: 1.0
-To: Geoff Levand <geoffrey.levand@am.sony.com>
-CC: Mark Gross <mgross@linux.jf.intel.com>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       high-res-timers-discourse@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] high-res-timers patches for 2.6.6
-References: <40C7BE29.9010600@am.sony.com> <20040611062256.GB13100@devserv.devel.redhat.com> <40CA3342.9020105@mvista.com> <200406140828.08924.mgross@linux.intel.com> <40D7662A.2030006@am.sony.com> <40D76C76.7000509@mvista.com> <40D86E51.2080108@am.sony.com>
-In-Reply-To: <40D86E51.2080108@am.sony.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_1BH2AkurQN6a1s1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200406222046.30018.v13@priest.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geoff Levand wrote:
-> George Anzinger wrote:
-> 
->> Geoff Levand wrote:
->>
->>> Mark Gross wrote:
->>>
->>>> On Friday 11 June 2004 15:33, George Anzinger wrote:
->>>>
->>>>> I have been thinking of a major rewrite which would leave this code 
->>>>> alone,
->>>>> but would introduce an additional list and, of course, overhead for
->>>>> high-res timers. This will take some time and be sub optimal, so I 
->>>>> wonder
->>>>> if it is needed.
->>>>
->>>>
->>>>
->>>>
->>>>
->>>> What would your goal for the major rewrite be?
->>>> Redesign the implementation?
->>>> Clean up / re-factor the current design?
->>>> Add features?
->>>>
->>>> I've been wondering lately if a significant restructuring of the 
->>>> implementation could be done.  Something bottom's up that enabled 
->>>> changing / using different time bases without rebooting and 
->>>> coexisted nicely with HPET.
->>>>
->>>> Something along the lines of;
->>>> * abstracting the time base's, calibration and computation of the 
->>>> next interrupt time into a polymorphic interface along with the 
->>>> implementation of a few of your time bases (ACPI, TSC) as a stand 
->>>> allown patch.
->>>> * implement yet another polymorphic interface for the interrupt 
->>>> source used by the patch, along with a few interrupt sources (PIT, 
->>>> APIC, HPET <-- new )
->>>> * Implement a simple RTC-like charactor driver using the above for 
->>>> testing and integration.  * Finally a patch to integrate the first 3 
->>>> with the POSIX timers code.
->>>>
->>>> What do you think?
->>>>
->>>>
->>>> --mgross
->>>>
->>>
->>> Mark,
->>>
->>> Generally I agree with your ideas on what needs fixing up, but I'm 
->>> concerned that the run-time binding of this kind of design would have 
->>> too much overhead for time-critical code paths.  Do you think it is 
->>> useful to have run-time selection of the time base and interrupt 
->>> source?   In my work we have a known fixed hardware configuration 
->>> that has limited timers, so I don't really see a need for runtime 
->>> configuration there.
->>
->>
->>
->> Well, I don't see much added overhead, (save memory).  We already 
->> dispatch interrupts via indirect function calls in irq.c.  And the 
->> core clock functions (used by gettimeofday, for example) are also 
->> indirected today (this to allow pm-timer, TSC, or PIT at boot time).  
->> All we would do is put both of our possibilities in the list.  The 
->> only place we add overhead is in an indirect to the "proper" hardware 
->> timer for the sub-jiffie interrupt.
->>
-> 
-> If that's the case, then Mark's proposal sounds like a good way to 
-> abstract the arch dependent code.  Someone mentioned to me that distro 
-> vendors would like the idea of runtime configuration because they could 
-> use a single kernel binary to support many different hardware 
-> configurations.  I suppose if needed some optimization can be done later.
-> 
-> Mark, do you have time to do a first cut at the interfaces?  It seems 
-> you've been thinking about this, and I'd like to see your ideas.  It 
-> would be great if you could put together a sample hrtime.h.  If you are 
-> short on time, I could put something together, but I think you are the 
-> guy to do this.
-> 
->  From what I've been told, Renesas did an HRT port to the SH arch on a 
-> recent kernel.  I'm trying to get the code so that there will be three 
-> arch's (i386, ppc32 & sh) to work against when doing the arch 
-> independent interface.
+--Boundary-02=_1BH2AkurQN6a1s1
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-MV has ported HRT to PPC, MIPS, and, I think, a couple of ARM processors.
-> 
-> Another thing that seems to be a sore point is the HRT core.  I think 
-> there's a good consensus that the current use of preprocessor 
-> conditionals makes the code pretty hairy, but what alternatives are there?
-> 
-> If the HRT code is always compiled in, that would simplify things alot, 
-> but then there would always be a small performance hit in the compares, 
-> and a slightly bigger code size.  Is this acceptable?  Also, something 
-> would need to be arranged to take care of the non-supported arch's.  Any 
-> ideas here?
+On Tuesday 22 June 2004 10:54, Hannu Savolainen wrote:
+> This kind of "breaks" are not so fatal provided that there is some way to
+> detect them reliably. Usually it's possible to check LINUX_VERSION_CODE
+> and use different approaches depending on the kernel version. However
+> this doesn't always work because distribution vendors often back port
+> features from the newer kernels into their distribution kernels which
+> have older LINUX_VERSION_CODE. A better  approach would be marking them
+> with #define HAVE_NEW_something in the header file that implements this
+> change.
 
-I think the best thing is to include an include/asm/hrtime.h in each arch.  The 
-file could be empty.  (I, at one time, suggested a modification of the build 
-environment such that such a file could be put in the asm-generic/ directory and 
-would be found if no such file was found in the archs asm/ directory, but, alas, 
-the powers that be DID NOT LIKE THAT.)  In any case, this would allow the 
-including file (include/hrtime.h) to determine that the arch was not supported 
-(i.e. it did not define the required functions) and define dummys that would 
-satisfy the externals and also prevent the registration of the HR clocks.
+I believe we are seeing this kind of problems all the time. This is not jus=
+t a=20
+kernel 'problem'. Just take a look at the autoconf info page and the tests=
+=20
+that a portable program has to run.
 
-> 
-> Another way would be to pull out the HRT operations into separate 
-> functions that could be conditionally included or replaced with no-op 
-> versions based on a config option.  I don't know if this would be 
-> do-able, or if the result would be very clean though...
+Of course the makers of (i.e.) glib could just try to find a source tree th=
+at=20
+would compile everywhere but they know that this is impossible so they have=
+=20
+to run tests like :
 
-As it stands "most" timer and clock functions are dispatched through the 
-k_clocks array.  We don't use different functions here at this time except for 
-the monotonic clock_settime(), but, if we wanted to duplicate most of the code, 
-this might be a way to go.  (Note, that the current code has a test for 
-existence of the function address and uses a default if no such exists.  This 
-was to avoid the indirect function call which, I think, is rather expensive.)
-> 
-> George also mentioned an idea of a second 'timer slave list'.   Any 
-> other ideas here?
+(warning: long list)
+checking for special C compiler options needed for large files... no
+checking for _FILE_OFFSET_BITS value needed for large files... 64
+checking for _LARGE_FILES value needed for large files... no
+checking for locale.h... yes
+checking for LC_MESSAGES... yes
+checking libintl.h usability... yes
+checking libintl.h presence... yes
+checking for libintl.h... yes
+checking for dgettext in libc... yes
+checking size of char... 1
+checking for short... yes
+checking size of short... 2
+checking for nl_langinfo... yes
+checking for nl_langinfo and CODESET... yes
+checking whether we are using the GNU C Library 2.1 or newer... yes
+checking for vasprintf... yes
+checking for unsetenv... yes
+checking for getc_unlocked... yes
+checking for C99 vsnprintf... yes
+checking for nl_langinfo (CODESET)... yes
+checking for OpenBSD strlcpy/strlcat... no
+checking for an implementation of va_copy()... yes
+checking for an implementation of __va_copy()... yes
+checking whether va_lists can be copied by value... yes
+checking for RTLD_GLOBAL brokenness... no
+checking for preceeding underscore in symbols... no
+checking for dlerror... yes
+checking size of pthread_t... 4
+checking for pthread_attr_setstacksize... yes
+checking for minimal/maximal thread priority...=20
+sched_get_priority_min(SCHED_OTHER)/sched_get_priority_max(SCHED_OTHER)
+checking for posix yield function... sched_yield
+checking whether to use the PID niceness surrogate for thread priorities...=
+=20
+yes
+checking size of pthread_mutex_t... 24
+checking byte contents of PTHREAD_MUTEX_INITIALIZER...=20
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+checking value of POLLIN... 1
+checking value of POLLOUT... 4
+checking value of POLLPRI... 2
+checking value of POLLERR... 8
+checking value of POLLHUP... 16
+checking value of POLLNVAL... 32
 
-I am tempted to send a message to Linus on this issue.  The problem is that 
-separating the two lists adds overhead and is just not the clean way to do it. 
-The up side is that those who don't want HRT will see less impact on the normal 
-timer code.
+=2E. and many more ..
 
-Oh, and by the way, I welcome all the help you can give on these issues.  Thanks.
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+I don't believe that your source code is more complex than theirs. Maybe th=
+e=20
+solution to your problem is as simple as 'info autoconf'. You know that the=
+re=20
+are more than one ways to compile kernel modules so you just have to test=20
+each one of them and see which one works. We're talking about no more than =
+30=20
+minutes work. After that you may add another distro in the supported=20
+distributions list of your module.
 
+> Hannu
+<<V13>>
+
+--Boundary-02=_1BH2AkurQN6a1s1
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA2HB1VEjwdyuhmSoRAg2VAKCMWWG80B0jiry/P4/wQO9F2CBnUgCghjsL
+rNcPrAcsjmWvGucFKstxK6M=
+=2Byv
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_1BH2AkurQN6a1s1--

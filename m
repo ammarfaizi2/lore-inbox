@@ -1,76 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbULACgs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbULACoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261171AbULACgs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 21:36:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbULACgs
+	id S261158AbULACoO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 21:44:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbULACoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 21:36:48 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:51723 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261171AbULACgp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 21:36:45 -0500
-Date: Wed, 1 Dec 2004 03:36:43 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Manfred Schwarb <manfred99@gmx.ch>, chas@cmf.nrl.navy.mil,
-       linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net
-Subject: Re: [2.6 patch] Build Error 2: build of pca200e.bin fails
-Message-ID: <20041201023643.GB2650@stusta.de>
-References: <20041119100327.32511.6195.54797@tp-meteodat6.cyberlink.ch> <20041128192121.GE4390@stusta.de> <20041130170031.GD5009@dmt.cyclades>
+	Tue, 30 Nov 2004 21:44:14 -0500
+Received: from fw.osdl.org ([65.172.181.6]:29668 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261158AbULACoK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 21:44:10 -0500
+Date: Tue, 30 Nov 2004 18:43:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: Block layer question - indicating EOF on block devices
+Message-Id: <20041130184345.47e80323.akpm@osdl.org>
+In-Reply-To: <1101829852.25628.47.camel@localhost.localdomain>
+References: <1101829852.25628.47.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041130170031.GD5009@dmt.cyclades>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 30, 2004 at 03:00:31PM -0200, Marcelo Tosatti wrote:
-> On Sun, Nov 28, 2004 at 08:21:21PM +0100, Adrian Bunk wrote:
-> > 
-> > I have no problems with this patch, but shouldn't the same be done
-> > in 2.6?
-> > 
-> > 
-> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> > 
-> > --- linux-2.6.10-rc2-mm3-full/drivers/atm/Makefile.old	2004-11-28 20:18:04.000000000 +0100
-> > +++ linux-2.6.10-rc2-mm3-full/drivers/atm/Makefile	2004-11-28 20:18:15.000000000 +0100
-> > @@ -68,4 +68,4 @@
-> >  # deal with the various suffixes of the binary firmware images
-> >  $(obj)/%.bin $(obj)/%.bin1 $(obj)/%.bin2: $(src)/%.data
-> >  	objcopy -Iihex $< -Obinary $@.gz
-> > -	gzip -df $@.gz
-> > +	gzip -n -df $@.gz
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>
+> How is a block device meant to indicate to the block layer that the read
+> issued is beyond EOF. For the case where the true EOF is known the
+> capacity information is propogated into the inode and that is used. For
+> the case where a read exceeds the known EOF the block layer sets BIO_EOF
+> which appears nowhere else I can find.
 > 
-> Isnt it exactly the same of what has been merged in v2.4?
-> 
-> I can't see any difference.
-> 
-> [marcelo@dmt atm]$ bk diffs -u -r1.8 -r1.9 Makefile 
-> ===== Makefile 1.8 vs 1.9 =====
-> --- 1.8/drivers/atm/Makefile    Mon Jul 28 11:35:31 2003
-> +++ 1.9/drivers/atm/Makefile    Mon Nov 22 21:54:09 2004
-> @@ -92,7 +92,7 @@
->  # deal with the various suffixes of the binary firmware images
->  %.bin %.bin1 %.bin2: %.data
->         objcopy -Iihex $< -Obinary $@.gz
-> -       gzip -df $@.gz
-> +       gzip -n -df $@.gz
->  
->  fore_200e.o: $(fore_200e-objs)
->         $(LD) -r -o $@ $(fore_200e-objs)
+> I'm trying to sort out the case where the block device has only an
+> approximate length known in advance. At the low level I've got sense
+> data so I know precisely when I hit the real EOF on read. I can pull
+> that out, I can partially complete the request neatly up to the EOF but
+> I can't find any code anywhere dealing with passing back an EOF.
 
-It is exactly the same except for the patch context (note that in 2.6, 
-the gzip is the last line of the Makefile).
+If the driver simply returns an I/O error, userspace should see a short
+read and be happy?
 
-cu
-Adrian
+> Nor it turns out is it handleable in user space because a read to the
+> true EOF causes readahead into the fuzzy zone between the actual EOF and
+> the end of media.
 
--- 
+Yup.  You can turn the readahead off with posix_fadvise(POSIX_FADV_RANDOM),
+or just read the disk with direct-io.  The latter has the advantage that
+you can freely pluck out single 512-byte sectors without pagecache causing
+any additional reads.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+> Currently I see the error, pull the sense data, extract the block number
+> and complete the request to the point it succeeded then fail the rest,
+> but this doesn't end the I/O if someone is using something like cp,
 
+hm.  Either cp is being silly or we're not propagating the error back
+correctly.  `cp' should see the short read and just handle it.
+
+> and
+> it also fills the log with "I/O error on" spew from the block layer
+> innards even if REQ_QUIET is magically set.
+
+We'd need to propagate that quietness back up to the buffer_head layer, at
+least.

@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264275AbTKKIzh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 03:55:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264276AbTKKIzg
+	id S264278AbTKKI6O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 03:58:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264280AbTKKI6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 03:55:36 -0500
-Received: from mail.enyo.de ([212.9.189.167]:44557 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S264275AbTKKIzd (ORCPT
+	Tue, 11 Nov 2003 03:58:13 -0500
+Received: from mail.enyo.de ([212.9.189.167]:23054 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S264278AbTKKI6M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 03:55:33 -0500
-Date: Tue, 11 Nov 2003 09:55:30 +0100
-To: bill davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and cryptoloop
-Message-ID: <20031111085530.GB11435@deneb.enyo.de>
-References: <bop628$7km$1@gatekeeper.tmr.com>
+	Tue, 11 Nov 2003 03:58:12 -0500
+Date: Tue, 11 Nov 2003 09:58:06 +0100
+To: Valdis.Kletnieks@vt.edu, Daniel Gryniewicz <dang@fprintf.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: OT: why no file copy() libc/syscall ??
+Message-ID: <20031111085806.GC11435@deneb.enyo.de>
+References: <1068512710.722.161.camel@cube> <20031110205011.R10197@schatzie.adilger.int> <1068523406.4156.7.camel@localhost> <200311110414.hAB4EZA8007309@turing-police.cc.vt.edu> <20031110230055.S10197@schatzie.adilger.int>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <bop628$7km$1@gatekeeper.tmr.com>
+In-Reply-To: <20031110230055.S10197@schatzie.adilger.int>
 User-Agent: Mutt/1.5.4i
 From: Florian Weimer <fw@deneb.enyo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bill davidsen wrote:
+Andreas Dilger wrote:
 
-> I see that recent 2.4 has crypto. Is there a version of the tools which
-> will do cryptoloop using the kernel as released? I tried the old 2.4
-> version I had, and the latest version which works with 2.6, neither
-> worked to do an losetup.
+> > This is fast turning into a creeping horror of aggregation.  I defy anybody
+> > to create an API to cover all the options mentioned so far and *not* have it
+> > look like the process_clone horror we so roundly derided a few weeks ago.
+> 
+> 	int sys_copy(int fd_src, int fd_dst)
 
-losetup from util-linux 2.12 should work.
+Doesn't work.  You have to set the security attributes while you open
+fd_dst.

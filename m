@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263709AbUHJJEH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263664AbUHJJEH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263709AbUHJJEH (ORCPT <rfc822;willy@w.ods.org>);
+	id S263664AbUHJJEH (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 10 Aug 2004 05:04:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUHJJCW
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263640AbUHJJCD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 05:02:22 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23315 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263725AbUHJJAh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 05:00:37 -0400
-Date: Tue, 10 Aug 2004 10:00:23 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Patrick Mochel <mochel@digitalimplant.org>, Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       David Brownell <david-b@pacbell.net>
-Subject: Re: [RFC] Fix Device Power Management States
-Message-ID: <20040810100023.A18024@flint.arm.linux.org.uk>
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Patrick Mochel <mochel@digitalimplant.org>,
-	Pavel Machek <pavel@ucw.cz>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>,
-	David Brownell <david-b@pacbell.net>
-References: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net> <20040809113829.GB9793@elf.ucw.cz> <Pine.LNX.4.50.0408090840560.16137-100000@monsoon.he.net> <1092098630.14100.73.camel@gaston>
+	Tue, 10 Aug 2004 05:02:03 -0400
+Received: from holomorphy.com ([207.189.100.168]:18151 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263735AbUHJJA4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 05:00:56 -0400
+Date: Tue, 10 Aug 2004 02:00:51 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: 2.6.8-rc3-mm2
+Message-ID: <20040810090051.GK11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>, Jesse Barnes <jbarnes@engr.sgi.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Nick Piggin <nickpiggin@yahoo.com.au>
+References: <20040808152936.1ce2eab8.akpm@osdl.org> <20040809112550.2ea19dbf.akpm@osdl.org> <200408091132.39752.jbarnes@engr.sgi.com> <200408091217.50786.jbarnes@engr.sgi.com> <20040809195323.GU11200@holomorphy.com> <20040809204357.GX11200@holomorphy.com> <20040809211042.GY11200@holomorphy.com> <20040809224546.GZ11200@holomorphy.com> <20040810063445.GE11200@holomorphy.com> <20040810080430.GA25866@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1092098630.14100.73.camel@gaston>; from benh@kernel.crashing.org on Tue, Aug 10, 2004 at 10:43:50AM +1000
+In-Reply-To: <20040810080430.GA25866@elte.hu>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 10, 2004 at 10:43:50AM +1000, Benjamin Herrenschmidt wrote:
-> > > Aha, so you are saying these do not need to be done in hardware order?
-> > 
-> > AFAICT, no.
-> 
-> As stated in my previous mail, I don't agree here... there are
-> dependencies that cannot be dealt otherwise. USB was an example
-> (ieee1394 is another), IDE is one, SCSI, i2c, whatever ... 
-> 
-> Of course, if we consider those "bus" drivers not to have class
-> and thus not to be stopped and only the "leaf" devices to get stopped,
-> that may work... I'm not sure we are not missing something there
-> though...
+On Mon, Aug 09, 2004 at 03:45:46PM -0700, William Lee Irwin III wrote:
+>> None of the printk()'s in do_boot_cpu() appear essential. The
+>> following also boots:
 
-Would a PCMCIA bridge be a "leaf" device in that definition, despite
-having child devices?
+On Tue, Aug 10, 2004 at 10:04:30AM +0200, Ingo Molnar wrote:
+> the key seems to be not doing fork_idle() call via keventd?
+> i'm wondering about:
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+It deadlocks with or without the fork_idle() call being via keventd;
+the printk change is what makes the difference. =(
+
+
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>>-	if (!keventd_up() || current_is_keventd())
+>>-		work.func(work.data);
+>>-	else {
+>>-		schedule_work(&work);
+>>-		wait_for_completion(&c_idle.done);
+>>-	}
+
+On Tue, Aug 10, 2004 at 10:04:30AM +0200, Ingo Molnar wrote:
+> is keventd_up() true during normal SMP bootup? If not then could you do
+> something like this in do_fork_idle():
+> 	if (keventd_up())
+> 		complete(&c_idle->done);
+> since we are in the idle thread and waking up ourselves could move us
+> back to the runqueue. (bad)
+
+There appear to be some dependencies on idle being able to schedule
+and participate in kernel activity, e.g. kthread_create() does
+something odd like this during migration_init().
+
+
+-- wli

@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319553AbSIHBZy>; Sat, 7 Sep 2002 21:25:54 -0400
+	id <S319550AbSIHBp5>; Sat, 7 Sep 2002 21:45:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319555AbSIHBZx>; Sat, 7 Sep 2002 21:25:53 -0400
-Received: from mail.getnet.net ([216.19.223.10]:51269 "HELO mail.getnet.net")
-	by vger.kernel.org with SMTP id <S319553AbSIHBZw>;
-	Sat, 7 Sep 2002 21:25:52 -0400
-Message-ID: <3D7AA839.8040805@getnet.net>
-Date: Sat, 07 Sep 2002 18:30:33 -0700
-From: Art Wagner <awagner@getnet.net>
-Reply-To: awagner@getnet.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020907
-X-Accept-Language: en-us, en
+	id <S319551AbSIHBp5>; Sat, 7 Sep 2002 21:45:57 -0400
+Received: from CPE00606767ed59.cpe.net.cable.rogers.com ([24.112.38.222]:27400
+	"EHLO cpe00606767ed59.cpe.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id <S319550AbSIHBp4>; Sat, 7 Sep 2002 21:45:56 -0400
+Date: Sat, 7 Sep 2002 21:51:55 -0400 (EDT)
+From: "D. Hugh Redelmeier" <hugh@mimosa.com>
+Reply-To: "D. Hugh Redelmeier" <hugh@mimosa.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       <Martin.Knoblauch@teraport.de>
+Subject: clean before or after dep?
+Message-ID: <Pine.LNX.4.44.0209072139470.21724-100000@redshift.mimosa.com>
 MIME-Version: 1.0
-To: Bob McElrath <mcelrath+kernel@draal.physics.wisc.edu>
-CC: Andre Hedrick <andre@linux-ide.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ide-scsi oops
-References: <20020907183328.GB5985@draal.physics.wisc.edu> <Pine.LNX.4.10.10209071143080.16589-100000@master.linux-ide.org> <20020908005032.GB4828@draal.physics.wisc.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have found most of my problems with ide CD-R and CDRW answered by the
-CD-Writing-HOWTO from;
-http://www.linuxdoc.org/
+I'm having a problem building a Red Hat kernel
+(kernel-source-2.4.18-10).
 
-Bob McElrath wrote:
-> Andre Hedrick [andre@linux-ide.org] wrote:
-> 
->>On Sat, 7 Sep 2002, Bob McElrath wrote:
->>
->>Would you pass hdc=scsi for the next reboot?
-> 
-> 
-> As this is an IDE device I'm not sure what hdc=scsi should do...
-> 
-> However that seems to get rid of the oops.  It appears to operate
-> normally (I can mount CD's, DVD's, play DVD's, and play CD's).
-> cdparanoia even works (with no sg module installed -- which I thought it
-> needed) though while it's running the CPU usage jumps to 100%.  :(
-> 
-> I see that the Configure.help now says to use "hdx=scsi".  I am not sure
-> where I received the information to use "hdx=ide-scsi" but that did work
-> with kernel 2.4.18.
-> 
-> Cheers,
-> -- Bob
-> 
-> Bob McElrath
-> Univ. of Wisconsin at Madison, Department of Physics
-> 
-> "No nation could preserve its freedom in the midst of continual warfare."
->     --James Madison, April 20, 1795
-I have found most of my questions on ide-scsi answered in the
+It looks a lot like:
+	<http://www.van-dijk.net/linuxkernel/200223/0349.html>
+
+The error message is:
+	make[4]: *** No rule to make target `/usr/src/linux-2.4.18-10/drivers/pci/devlist.h', needed by `names.o'.  Stop.
+
+The fix proposed in <http://www.van-dijk.net/linuxkernel/200223/0432.html>
+is to reverse the order of clean and dep:
+
+     a kind soul pointed out that I should do:
+
+    make clean dep
+    make bzimage
+
+    instead. Works. Learned a new trick :-)
+
+Now this seems to contradict
+	<http://www.tldp.org/HOWTO/Kernel-HOWTO-2.html#ss2.3>
+which specifies, in step 5:
+	bash# make dep
+	bash# make clean
+
+Which is the right order for clean and dep?
+
+I've always assumed that they could be combined, as in:
+	bash# make dep clean
+Am I wrong?
+
+Where is this documented?
+
+Hugh Redelmeier
+hugh@mimosa.com  voice: +1 416 482-8253
 

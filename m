@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273071AbTHKVgW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 17:36:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273403AbTHKVgW
+	id S273028AbTHKV3y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 17:29:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273403AbTHKV3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 17:36:22 -0400
-Received: from harlech.math.ucla.edu ([128.97.4.250]:47786 "EHLO
-	harlech.math.ucla.edu") by vger.kernel.org with ESMTP
-	id S273071AbTHKVgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 17:36:21 -0400
-Date: Mon, 11 Aug 2003 14:36:16 -0700 (PDT)
-From: Jim Carter <jimc@math.ucla.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kconfig -- kill "if you want to read about modules, see" crap?
-In-Reply-To: <yw1xekzsqpv3.fsf@users.sourceforge.net>
-Message-ID: <Pine.LNX.4.53.0308111433250.2770@xena.cft.ca.us>
-References: <20030811132127.GA2596@elf.ucw.cz> <yw1xekzsqpv3.fsf@users.sourceforge.net>
+	Mon, 11 Aug 2003 17:29:54 -0400
+Received: from smtp102.mail.sc5.yahoo.com ([216.136.174.140]:18614 "HELO
+	smtp102.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S273028AbTHKV3x convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 17:29:53 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: [2.6 patch] add an -Os config option
+Date: Mon, 11 Aug 2003 23:19:39 +0200
+User-Agent: KMail/1.5.3
+References: <20030811211145.GA569@fs.tum.de>
+In-Reply-To: <20030811211145.GA569@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200308112319.43384.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Aug 2003, Måns Rullgård wrote:
-> Pavel Machek <pavel@ucw.cz> writes:
-> > 	  This driver is also available as a module ( = code which can...
-> > Perhaps having 1000 copies of same help text is bad idea? ...
->
-> I agree, but it would be nice to show the name of the module in the
-> help text.  These are not always obvious.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->From user land, one vote of agreement on both points.
+On Monday 11 August 2003 23:11, Adrian Bunk wrote:
+> +	  The resulting kernel might be significantly slower.
 
-James F. Carter          Voice 310 825 2897    FAX 310 206 6673
-UCLA-Mathnet;  6115 MSA; 405 Hilgard Ave.; Los Angeles, CA, USA 90095-1555
-Email: jimc@math.ucla.edu  http://www.math.ucla.edu/~jimc (q.v. for PGP key)
+With my poor english knowledge I would say it should be "significant".
+Correct?
+
+- -- 
+Regards Michael Buesch  [ http://www.8ung.at/tuxsoft ]
+Animals on this machine: some GNUs and Penguin 2.6.0-test3
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/OAhroxoigfggmSgRAuZhAJ4kRQBY0+ryHIgFDLaRCq/QBJWoiwCfX/HT
+HPIqp2wBp2yXM+mlwGQck+s=
+=ZjQ4
+-----END PGP SIGNATURE-----
+

@@ -1,51 +1,126 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263002AbREaDX3>; Wed, 30 May 2001 23:23:29 -0400
+	id <S263011AbREaDvP>; Wed, 30 May 2001 23:51:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263003AbREaDXT>; Wed, 30 May 2001 23:23:19 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:17419 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S263002AbREaDXJ>;
-	Wed, 30 May 2001 23:23:09 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200105310323.f4V3N5I321727@saturn.cs.uml.edu>
-Subject: Re: How to know HZ from userspace?
-To: jlundell@pobox.com (Jonathan Lundell)
-Date: Wed, 30 May 2001 23:23:05 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <p05100316b73b3f2e80e2@[10.128.7.49]> from "Jonathan Lundell" at May 30, 2001 05:24:37 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S263012AbREaDvF>; Wed, 30 May 2001 23:51:05 -0400
+Received: from [24.6.27.53] ([24.6.27.53]:14214 "EHLO quark.localdomain")
+	by vger.kernel.org with ESMTP id <S263011AbREaDuq>;
+	Wed, 30 May 2001 23:50:46 -0400
+From: Vincent Stemen <linuxkernel@AdvancedResearch.org>
+Date: Wed, 30 May 2001 22:47:29 -0500
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="US-ASCII"
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>
+To: Mike Galbraith <mikeg@wen-online.de>
+In-Reply-To: <Pine.LNX.4.33.0105302205240.418-100000@mikeg.weiden.de>
+In-Reply-To: <Pine.LNX.4.33.0105302205240.418-100000@mikeg.weiden.de>
+Subject: Re: Plain 2.4.5 VM... (and 2.4.5-ac3)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01053022472901.02370@quark>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Lundell writes:
-> At 5:07 PM -0700 2001-05-30, H. Peter Anvin wrote:
+On Wednesday 30 May 2001 15:17, Mike Galbraith wrote:
+> On Wed, 30 May 2001, Vincent Stemen wrote:
+> > On Wednesday 30 May 2001 01:02, Mike Galbraith wrote:
+> > > On Tue, 29 May 2001, Vincent Stemen wrote:
+> > > > On Tuesday 29 May 2001 15:16, Alan Cox wrote:
+> > > > > > a reasonably stable release until 2.2.12.  I do not understand
+> > > > > > why code with such serious reproducible problems is being
+> > > > > > introduced into the even numbered kernels.  What happened to
+> > > > > > the plan to use only the
+> > > > >
+> > > > > Who said it was introduced ?? It was more 'lurking' than
+> > > > > introduced. And unfortunately nobody really pinned it down in
+> > > > > 2.4test.
+> > > >
+> > > > I fail to see the distinction.  First of all, why was it ever
+> > > > released as 2.4-test?  That question should probably be directed at
+> > > > Linus.  If it is not fully tested, then it should be released it as
+> > > > an odd number.  If it already existed in the odd numbered
+> > > > development kernel and was known, then it should have never been
+> > > > released as a production kernel until it was resolved.  Otherwise,
+> > > > it completely defeats the purpose of having the even/odd numbering
+> > > > system.
+> > > >
+> > > > I do not expect bugs to never slip through to production kernels,
+> > > > but known bugs that are not trivial should not, and serious bugs
+> > > > like these VM problems especially should not.
+> > >
+> > > And you can help prevent them from slipping through by signing up as
+> > > a shake and bake tester.  Indeed, you can make your expectations
+> > > reality absolutely free of charge, <microfont> and or compensation
+> > > </microfont> what a bargain!
+> > >
+> > > X ___________________ ;-)
+> > >
+> > > 	-Mike
+> >
+> > The problem is, that's not true.  These problems are not slipping
+> > through because of lack of testers.  As Alan said, the VM problem has
+>
+> Sorry, that's a copout.  You (we) had many chances to notice.  Don't
+> push the problems back onto developers.. it's our problem.
+>
 
->>> If you now want to set those values from a userspace program / script in
->>>  a portable manner, you need to be able to find out of HZ of the currently
->>>  running kernel.
->>
->> Yes, but that's because the interfaces are broken.  The decision has
->> been that these values should be exported using the default HZ for the
->> architecture, and that it is the kernel's responsibility to scale them
->> when HZ != USER_HZ.  I don't know if any work has been done in this
->> area.
+How is that a copout?  The problem was noticed.  I am only suggesting
+that we not be in such a hurry to put code in the production kernels
+until we are pretty sure it works well enough, and that we release
+major production versions more often so that they do not contain 2 or
+3 years worth of new code making it so hard to debug.  We probably
+should have had 2 or 3 code freezes and production releases since
+2.2.x.  As I mentioned in a previous posting, this way we do not have
+to run a 2 or 3 year old kernel in order to have reasonable stability.
 
-Nope.
+> > Here are some of the problems I see:
+> >
+> > There was far to long of a stretch with to much code dumped into both
+> > the 2.2 and 2.4 kernels before release.  There needs to be a smaller
+> > number changes between major releases so that they can be more
+> > thoroughly tested and debugged.  In the race to get it out there they
+> > are making the same mistakes as Microsoft, releasing production
+> > kernels with known serious bugs because it is taking to long and they
+> > want to move on forward.  I enjoy criticizing Microsoft so much for
+> > the same thing that I do not want to have to stop in order to not
+> > sound hypocritical :-).  The Linux community has built a lot of it's
+> > reputation on not making these mistakes.  Please lets try not to
+> > destroy that.
+> >
+> > They are disregarding the even/odd versioning system.
+> > For example:
+> > There was a new 8139too driver added to the the 2.4.5 (I think) kernel
+> > which Alan Cox took back out and reverted to the old one in his
+> > 2.4.5-ac? versions because it is apparently causing lockups.
+> > Shouldn't this new driver have been released in a 2.5.x development
+> > kernel and proven there before replacing the one in the production
+> > kernel?  I haven't even seen a 2.5.x kernel released yet.
+> >
+> > Based on Linus's original very good plan for even/odd numbers, there
+> > should not have been 2.4.0-test? kernels either.  This was another
+> > example of the rush to increment to 2.4 long before it was ready.
+> > There was a long stretch of test kernels and and now we are all the
+> > way to 2.4.5 and it is still not stable.  We are repeating the 2.2.x
+> > process all over again.  It should have been 2.3.x until the
+> > production release was ready.  If they needed to distinguish a code
+> > freeze for final testing, it could be done with a 4th version
+> > component (2.3.xx.xx), where the 4 component is incremented for final
+> > bug fixes.
+>
+> Sorry, I disagree with every last bit.  Either you accept a situation
+> or you try to do something about it.
+>
+> 	-Mike
 
-HZ-derived values are not scaled in the /proc code.
-The real value is not available to apps. (Linus said so)
-People often change the HZ value.
+I am spending a lot of time testing new kernels, reporting bugs and
+offering suggestions that I think may improve on the stability of
+production kernels.  Is this not considered doing something about it?
+It is necessary to point out where one sees a problem in order to
+offer possible solutions for improvement. 
 
-Thus we have problems.
 
-Maybe I'll post my disgusting hack. You _can_ get HZ out
-of /proc if you know where to look. >:-)
 
-> FWIW (perhaps not much in this context), the POSIX way is
-> sysconf(_SC_CLK_TCK) POSIX sysconf is pretty useful for this
-> kind of thing (not just HZ, either).
+- Vincent 
 
-That does not report the real value. It reports the default.

@@ -1,64 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263493AbTENSiP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 14:38:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263507AbTENSiP
+	id S263507AbTENSk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 14:40:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbTENSkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 14:38:15 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:29350 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263493AbTENSiM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 14:38:12 -0400
-Date: Wed, 14 May 2003 20:50:44 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jens Axboe <axboe@suse.de>
-cc: "Mudama, Eric" <eric_mudama@maxtor.com>,
-       "'Rafal Bujnowski'" <bujnor@go2.pl>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Subject: Re: hdb: dma_timer_expiry: dma status == 0x64 [2.5.69]
-In-Reply-To: <20030514174050.GQ15261@suse.de>
-Message-ID: <Pine.SOL.4.30.0305142036310.21741-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 14 May 2003 14:40:06 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:36469 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263507AbTENSjN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 14:39:13 -0400
+Date: Wed, 14 May 2003 11:53:19 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Dave McCracken <dmccr@us.ibm.com>
+Cc: mika.penttila@kolumbus.fi, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Race between vmtruncate and mapped areas?
+Message-Id: <20030514115319.51a54174.akpm@digeo.com>
+In-Reply-To: <108250000.1052936665@baldur.austin.ibm.com>
+References: <154080000.1052858685@baldur.austin.ibm.com>
+	<3EC15C6D.1040403@kolumbus.fi>
+	<199610000.1052864784@baldur.austin.ibm.com>
+	<20030513181018.4cbff906.akpm@digeo.com>
+	<18240000.1052924530@baldur.austin.ibm.com>
+	<20030514103421.197f177a.akpm@digeo.com>
+	<82240000.1052934152@baldur.austin.ibm.com>
+	<20030514105706.628fba15.akpm@digeo.com>
+	<99000000.1052935556@baldur.austin.ibm.com>
+	<20030514111748.57670088.akpm@digeo.com>
+	<108250000.1052936665@baldur.austin.ibm.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 May 2003 18:51:56.0013 (UTC) FILETIME=[E43529D0:01C31A49]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave McCracken <dmccr@us.ibm.com> wrote:
+>
+> 
+> --On Wednesday, May 14, 2003 11:17:48 -0700 Andrew Morton <akpm@digeo.com>
+> wrote:
+> 
+> > I think it might be sufficient to re-check the page against i_size
+> > after IO completion in filemap_nopage().
+> 
+> It would definitely make the window a lot smaller, though it won't quite
+> close it.  To be entirely safe we'd need to recheck after we've retaken
+> page_table_lock.
 
-On Wed, 14 May 2003, Jens Axboe wrote:
+hmm.
 
-> On Wed, May 14 2003, Mudama, Eric wrote:
-> > 0x5104 is a different can of worms from the other stuff you guys were
-> > reporting.
-> >
-> > 5104 (status register = 0x51, error register 0x04) is the all-encompassing
-> > "command abort" which is what the drive does any time you issue a command
-> > with bad parameters, an invalid (immoral?) command, or some of the security
-> > stuff out of sequence.  Most commonly it is seen attempting to enable
-> > features on a drive that doesn't support them.
+One possible timing diagram is
 
-In reality its harmless, only noisy, ide driver tryied to do something
-like checking max native address and drive doesn't support it.
 
-> Which reminds me that it has always annoyed me that Linux doesn't print
-> the failed command. Just leaves a lot of guess work... I'll try and
-> remedy that.
 
-Which reminds me that somebody (me?) should fix hdparm to not use
-WIN_IDENTIFY with HDIO_DRIVE_CMD ioctl but use HDIO_GET_IDENTIFY ioctl.
-This command will be aborted by ATAPI device and hdparm don't know
-if device is ATA or ATAPI, it currently only works because ioctl handler
-reads data from device *before* checking status (or something like that).
+	truncate:				pagefault:
 
-Back on topic: Jens, you can also check current status of per driver
-->abort() introduced by Alan.
 
-btw. I will be quite busy for next 3 weeks (exams), so expect long
-     delays in replies and slower ide progress.
+						check i_size
 
---
-Bartlomiej
+						grab page
+	drop i_size
 
-> --
-> Jens Axboe
+	shoot down pagetables
+
+						install in pagetables
+
+	truncate file
+
+
+converting i_sem to an rwsem and taking it in the pagefault would certainly
+stitch it up.  Unpopular, very messy.
+
+Could "truncate file" return some code to say pages were left behind, so
+truncate re-runs zap_page_range()?  Sounds unpleasant.
+
+
+Yes, re-checking the page against i_size from do_no_page() would fix it up.
+ But damn, that's another indirect call, 64-bit math, etc on _every_
+file-backed pagefault.
+
+
+Remind me again what problem this whole thing is currently causing?
 

@@ -1,90 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266546AbUF0Dat@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266543AbUF0DwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266546AbUF0Dat (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 23:30:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267243AbUF0Dat
+	id S266543AbUF0DwW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 23:52:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267243AbUF0DwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 23:30:49 -0400
-Received: from multivac.one-eyed-alien.net ([64.169.228.101]:62666 "EHLO
-	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S266546AbUF0Dao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 23:30:44 -0400
-Date: Sat, 26 Jun 2004 20:30:34 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: greg@kroah.com, arjanv@redhat.com, jgarzik@redhat.com, tburke@redhat.com,
-       linux-kernel@vger.kernel.org,
-       USB Storage List <usb-storage@lists.one-eyed-alien.net>,
-       stern@rowland.harvard.edu, david-b@pacbell.net, oliver@neukum.org
+	Sat, 26 Jun 2004 23:52:22 -0400
+Received: from netrider.rowland.org ([192.131.102.5]:50694 "HELO
+	netrider.rowland.org") by vger.kernel.org with SMTP id S266543AbUF0DwV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 23:52:21 -0400
+Date: Sat, 26 Jun 2004 23:52:20 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Oliver Neukum <oliver@neukum.org>
+cc: Pete Zaitcev <zaitcev@redhat.com>, <greg@kroah.com>, <arjanv@redhat.com>,
+       <jgarzik@redhat.com>, <tburke@redhat.com>,
+       <linux-kernel@vger.kernel.org>, <mdharm-usb@one-eyed-alien.net>,
+       <david-b@pacbell.net>
 Subject: Re: drivers/block/ub.c
-Message-ID: <20040627033034.GB10113@one-eyed-alien.net>
-Mail-Followup-To: Pete Zaitcev <zaitcev@redhat.com>, greg@kroah.com,
-	arjanv@redhat.com, jgarzik@redhat.com, tburke@redhat.com,
-	linux-kernel@vger.kernel.org,
-	USB Storage List <usb-storage@lists.one-eyed-alien.net>,
-	stern@rowland.harvard.edu, david-b@pacbell.net, oliver@neukum.org
-References: <20040626130645.55be13ce@lembas.zaitcev.lan> <20040626201225.GA2149@one-eyed-alien.net> <20040626190827.7c919940@lembas.zaitcev.lan>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mxv5cy4qt+RJ9ypb"
-Content-Disposition: inline
-In-Reply-To: <20040626190827.7c919940@lembas.zaitcev.lan>
-User-Agent: Mutt/1.4.1i
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2004 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+In-Reply-To: <200406270046.53352.oliver@neukum.org>
+Message-ID: <Pine.LNX.4.44L0.0406262349200.28968-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 27 Jun 2004, Oliver Neukum wrote:
 
---mxv5cy4qt+RJ9ypb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Am Samstag, 26. Juni 2004 22:06 schrieb Pete Zaitcev:
+> > +static int ub_submit_top_sense(struct ub_dev *sc, struct ub_scsi_cmd *cmd)
+> > +{
+> > +       struct ub_scsi_cmd *scmd;
+> > +
+> > +       scmd = &sc->top_rqs_cmd;
+> > +
+> > +       /* XXX Can be done at init */
+> > +       scmd->cdb[0] = REQUEST_SENSE;
+> > +       scmd->cdb_len = 6;
+> > +       scmd->dir = UB_DIR_READ;
+> > +       scmd->state = UB_CMDST_INIT;
+> > +       scmd->data = sc->top_sense;
+> 
+> You must allocate a separate buffer to the sense data.
+> We had similar code in hid which leads to data corruption
+> on some architectures. It's an issue of DMA coherency.
 
-On Sat, Jun 26, 2004 at 07:08:27PM -0700, Pete Zaitcev wrote:
-> On Sat, 26 Jun 2004 13:12:25 -0700
-> Matthew Dharm <mdharm-kernel@one-eyed-alien.net> wrote:
->=20
-> > Would I be correct in the following assessments:
-> > (1) UB only supports direct-access type devices
-> > (2) UB only supports 'transparent scsi' devices
-> > (3) UB only supports 'bulk-only transport' devices
->=20
-> Yes, you would. Someone mentioned on usb-storage list that Windows suppor=
-ts
-> two things only without extra drivers: Transparent SCSI over Bulk, and UF=
-I.
-> IIRC, it was Pat. So, I thought maybe to tackle drivers/block/ufi.c later,
-> to share design concept and some libraries with ub. The rest stays with
-> usb-storage. But the real life always introduces corrections to plans, so
-> let's not get too far ahead.
+I mentioned this some time ago to the SCSI maintainers.  They felt that it 
+wasn't necessary to allocate a separate buffer for the sense data -- I'm 
+not sure why.  Apparently most if not all SCSI drivers fail to do this.  
+Usb-storage doesn't do it either; maybe we should.
 
-Do you have a plan for non "direct-access" devices?
+Alan Stern
 
-CD-ROMs are common, but tapes exist also.
-
-Matt
-
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-Ye gods! I have feet??!
-					-- Dust Puppy
-User Friendly, 12/4/1997
-
---mxv5cy4qt+RJ9ypb
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFA3j9aIjReC7bSPZARAgwvAKCxbytSXfTTUKbqssB2Jn8GYXJPlACeMK9H
-QukosUwVEYntYb5vzBh+ciU=
-=GEav
------END PGP SIGNATURE-----
-
---mxv5cy4qt+RJ9ypb--

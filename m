@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265100AbTL2Wov (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 17:44:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265112AbTL2Wou
+	id S265139AbTL2Ws6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 17:48:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265146AbTL2Ws6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 17:44:50 -0500
-Received: from [24.35.117.106] ([24.35.117.106]:54153 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S265100AbTL2Wot (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 17:44:49 -0500
-Date: Mon, 29 Dec 2003 17:44:46 -0500 (EST)
-From: Thomas Molina <tmolina@cablespeed.com>
-X-X-Sender: tmolina@localhost.localdomain
-To: Norman Diamond <ndiamond@wta.att.ne.jp>
-cc: dan@eglifamily.dnsalias.net, linux-kernel@vger.kernel.org
-Subject: Re: Blank Screen in 2.6.0
-In-Reply-To: <007101c3cdbc$046a58d0$2fee4ca5@DIAMONDLX60>
-Message-ID: <Pine.LNX.4.58.0312291741530.5409@localhost.localdomain>
-References: <007101c3cdbc$046a58d0$2fee4ca5@DIAMONDLX60>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 29 Dec 2003 17:48:58 -0500
+Received: from mtaw6.prodigy.net ([64.164.98.56]:19435 "EHLO mtaw6.prodigy.net")
+	by vger.kernel.org with ESMTP id S265139AbTL2Ws5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 17:48:57 -0500
+Date: Mon, 29 Dec 2003 14:48:46 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Shawn <core@enodev.com>
+Cc: Stef van der Made <svdmade@planet.nl>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-mm2
+Message-ID: <20031229224846.GK1882@matchmail.com>
+Mail-Followup-To: Shawn <core@enodev.com>,
+	Stef van der Made <svdmade@planet.nl>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <20031229013223.75c531ed.akpm@osdl.org> <3FF08057.7010405@planet.nl> <1072729484.8769.1.camel@www.enodev.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1072729484.8769.1.camel@www.enodev.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Dec 2003, Norman Diamond wrote:
+On Mon, Dec 29, 2003 at 02:24:44PM -0600, Shawn wrote:
+> Hello Stef:
+> 
+> Andrew has explained in the past that the -mm branch is not the official
+> kernel branch. I don't know what's happening with what could be called
+> 2.6.0-pre*, and don't know if it exists anywhere but in Andrew's head.
 
-> Dan wrote:
-> 
-> > Upgraded to the lastest module-init-tools, and disabled the
-> > frame buffer support in the kernel. So the only graphic option enabled is
-> > text mode selection. But when I boot I still get a blank screen!
-> > My lilo.conf contains a line: vga=773, which works beautifully under
-> > RedHat's stock 2.4.20-8.
-> 
-> In my experience the vga= option worked with every 2.4 kernel in every
-> distro that I had used, continued working with 2.6 test* and 0 in Red Hat
-> 7.3, but blanked the screen with 2.6 test* and 0 in SuSE 8.1 and SuSE 8.2.
-> Haven't tried other configurations with 2.6.
-> 
-> But now you're getting the same with a Red Hat distro, so it's looking
-> pretty random.
-> 
-> The decision to release 2.6.0 with the same broken vga= option that was
-> reported many times in 2.6.0-test* makes me think that vga= is not intended
-> to work.
+I think Linus will be releasing the 2.6-pre kernels, and things will
+continue like that until 2.7 opens up.
 
-Maybe it has something to do with RedHat 7.3.  I've used RH8, RH9, and 
-Fedora Core 1 and haven't had a problem with vga= in any of them during 
-the 2.5/2.6 series, right up through the current one.  I've got 
-framebuffer support as a module.
+I think Andrew is trying to get all of the after 2.6.0 fixes in -mm and
+tested before syncing up with Linus.
+

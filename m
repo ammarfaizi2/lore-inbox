@@ -1,47 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284942AbRLQASD>; Sun, 16 Dec 2001 19:18:03 -0500
+	id <S284940AbRLQAMm>; Sun, 16 Dec 2001 19:12:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284945AbRLQARx>; Sun, 16 Dec 2001 19:17:53 -0500
-Received: from adsl-67-36-120-14.dsl.klmzmi.ameritech.net ([67.36.120.14]:10427
-	"HELO tabris.net") by vger.kernel.org with SMTP id <S284942AbRLQARl>;
-	Sun, 16 Dec 2001 19:17:41 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Adam Schrotenboer <adam@tabris.net>
-Organization: Dome-S-Isle Data
-To: Ryan Cumming <bodnar42@phalynx.dhs.org>
-Subject: Re: Is /dev/shm needed?
-Date: Sun, 16 Dec 2001 19:17:34 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16Fkqc-0001Z0-00@DervishD.viadomus.com> <20011216234748.3EDE9FB80D@tabris.net> <E16Fl8j-0000nA-00@phalynx>
-In-Reply-To: <E16Fl8j-0000nA-00@phalynx>
+	id <S284942AbRLQAMc>; Sun, 16 Dec 2001 19:12:32 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13832 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S284940AbRLQAMS>; Sun, 16 Dec 2001 19:12:18 -0500
+Date: Sun, 16 Dec 2001 16:11:10 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.5.1 - intermediate bio stuff..
+Message-ID: <Pine.LNX.4.33.0112161604030.11129-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011217001735.D9D6BFB80D@tabris.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 16 December 2001 18:56, Ryan Cumming wrote:
-> On December 16, 2001 15:47, Adam Schrotenboer wrote:
-> > I may be wrong about /tmp as well, but I have come to think that it is
-> > data that ought be discarded after logout, and have sometimes considered
-> > writing a script for it in the login/logout scripts.
->
-> System daemons can legally use /tmp, and they may not apprechiate having
-> their files removed from underneath them everytime someone telnets in. ;)
-Definite pt. So maybe make mortal users use $HOME/tmp. and that could be 
-mounted at login and umounted at logout. Or, rm only the files that the user 
-owns.
->
-> -Ryan
 
--- 
-tabris
+I just made a 2.5.1, but I'm still concentrating on bio stuff, so don't
+bother sending me other patches unless they are serious bug-fixes to
+something else.
 
-   "I wanted to see exotic Vietnam, the jewel of Southeast Asia. I wanted
-   to meet interesting and stimulating people of an ancient culture...
-   and kill them."
+2.5.1 is hopefully a good interim stage - many block drivers should work
+fine, but many more do not.  However, the pre-patches were getting
+largish, so I'd rather do a 2.5.1 than wait for all the details.
 
-                                               Joker, "Full Metal Jacket"
+As to other stuff - note the separation of drivers for new and old tulip
+chips: if you have an old 2104x tulip chip (as opposed to the newer 2114x
+chips) the regular tulip driver doesn't work any more for you. Don't be
+surprised, select CONFIG_DE2104X.
+
+		Linus
+
+-----
+final:
+ - Al Viro: floppy_eject cleanup, mount cleanups
+ - Jens Axboe: bio updates
+ - Ingo Molnar: mempool fixes
+ - GOTO Masanori: Fix O_DIRECT error handling
+
+pre11:
+ - Jeff Garzik: no longer support old cards in tulip driver
+   (see separate driver for old tulip chips)
+ - Pat Mochel: driverfs/device model documentation
+ - Ballabio Dario: update eata driver to new IO locking
+ - Ingo Molnar: raid resync with new bio structures (much more efficient)
+   and mempool_resize()
+ - Jens Axboe: bio queue locking
+
+pre10:
+ - Jens Axboe: more bio stuff
+ - Ingo Molnar: mempool for bio
+ - Niibe Yutaka: Super-H update
+
+pre9:
+ - Jeff Garzik: separate out handling of older tulip chips
+ - Jens Axboe: more bio stuff
+ - Anton Altaparmakov: NTFS 1.1.21 update
+
+pre8:
+ - Greg KH: USB updates
+ - Jens Axboe: more bio updates
+ - Christoph Rohland: fix up proper shmat semantics
+
+pre7:
+ - Jens Axboe: more bio fixes/cleanups/breakage ;)
+ - Al Viro: superblock cleanups, boot/root mounting.
+
+pre6:
+ - Jens Axboe: more bio stuff
+ - Coda compile fixes
+ - Nathan Laredo: stradis driver update
+
+pre5:
+ - Patrick Mochel: driver model infrastructure, part 1
+ - Jens Axboe: more bio fixes, cleanups
+ - Andrew Morton: release locking fixes
+ - Al Viro: superblock/mount handling
+ - Kai Germaschewski: AVM Fritz!Card ISDN driver
+ - Christoph Hellwig: make cramfs SMP-safe.
+
+pre4:
+ - Jens Axboe: fix up bio highmem breakage, more cleanups
+ - Greg KH: USB update
+
+pre3:
+ - Al Viro: more superblock cleanups
+ - Jens Axboe: more patches for new block IO layer
+ - Christoph Hellwig: get rid of the old, long- deprecated SCSI error
+   handling
+
+pre2:
+ - Greg KH: USB update
+ - Richard Gooch: refcounting for devfs
+ - Jens Axboe: start of new block IO layer
+
+pre1:
+ - me: README references to 2.4.x -> 2.5.x
+ - Alexander Viro: fix unmount inode breakage, show_vfsmnt cleanup
+ - Jeff Garzik: fix 8139too initialization
 

@@ -1,89 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262450AbUGXUC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUGXUWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262450AbUGXUC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 16:02:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUGXUC1
+	id S262605AbUGXUWz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 16:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbUGXUWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 16:02:27 -0400
-Received: from ishtar.tlinx.org ([64.81.245.74]:44685 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S262450AbUGXUCY (ORCPT
+	Sat, 24 Jul 2004 16:22:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:51136 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262605AbUGXUWy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 16:02:24 -0400
-Message-ID: <4102BFE9.3070906@tlinx.org>
-Date: Sat, 24 Jul 2004 13:00:41 -0700
-From: L A Walsh <lkml@tlinx.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (Windows/20040626)
-X-Accept-Language: en-us, en
+	Sat, 24 Jul 2004 16:22:54 -0400
+Date: Sat, 24 Jul 2004 16:21:50 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@devserv.devel.redhat.com
+To: Robert Love <rml@ximian.com>
+cc: Andrew Morton <akpm@osdl.org>, kaos@ocs.com.au, da-x@gmx.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] kernel events layer
+In-Reply-To: <1090648973.2296.68.camel@localhost>
+Message-ID: <Pine.LNX.4.58.0407241615590.29625@devserv.devel.redhat.com>
+References: <4956.1090644161@ocs3.ocs.com.au>  <1090645238.2296.37.camel@localhost>
+  <20040724011129.54971669.akpm@osdl.org>  <1090647444.2296.54.camel@localhost>
+ <1090648973.2296.68.camel@localhost>
 MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NFS subnet access problems
-References: <40FF1FE7.4050403@tlinx.org>
-In-Reply-To: <40FF1FE7.4050403@tlinx.org>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem was had SuSE 9.0 manpages for 2.4 kernel loaded but had upgraded 
-to 2.6.
-Getting new manpages from SuSE 9.1 solved my ignorance! :-)
+On Sat, 24 Jul 2004, Robert Love wrote:
 
-Thanks to those who clued me in.
+> +static int kevent_init(void)
+> +{
+> +	kevent_sock = netlink_kernel_create(NETLINK_KEVENT, netlink_receive);
 
-Blessings!
--linda
+Consider a NULL netlink_receive function, as you're dropping any received
+messages.  This will provide better interface semantics e.g.  connection
+refused message on message transmission to kernel.
 
 
-L A Walsh wrote:
-
-> Jul 21 00:15:54 ishtar nfsd[1590]: Unauthorized access by NFS client 
-> 192.168.3.2.
-> Jul 21 00:15:58 ishtar last message repeated 5928 times
->
-> I wanted to give ro access to all clients on a 192.168.3.0/26 network 
-> to a "/Share"
-> directory, and rw to a few, but I've never managed to get the network 
-> access
-> statement to work correctly.  Finally I switched to a /24 network to 
-> make netmasks more cleanI simply removed every thing but the
-> 'ro' export of /Share which I thought should work but does not.  The 
-> above
-> client is an example.
->
-> server:
->    inet addr:192.168.3.1  Bcast:192.168.3.255  Mask:255.255.255.0
-> /etc/exports:
-> /Share          192.168.3.0/24(async,ro,no_subtree_check,nohide)
->
-> > showmount -e
-> Export list for server:
-> /Share   192.168.3.0/24
->
-> client:
->    configed as inet addr:192.168.3.2  Bcast:192.168.3.255  
-> Mask:255.255.255.0
->
-> Client had access when it was specifically given access by hostname, 
-> but doesn't
-> solve access problems for anonymous dhcp hosts that I bring online as 
-> test machines.
->
-> Are there some options needed for anon client access?
->
-> the kernel seems to indicate it is exporting to the subnet, yet it is 
-> denying
-> mount permisson...bug, misconfig?
->
-> -linda
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 

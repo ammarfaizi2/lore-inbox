@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVCaSFP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVCaSIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261603AbVCaSFP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 13:05:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVCaSFP
+	id S261607AbVCaSIl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 13:08:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbVCaSIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 13:05:15 -0500
-Received: from digitalimplant.org ([64.62.235.95]:29062 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S261603AbVCaSFH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 13:05:07 -0500
-Date: Thu, 31 Mar 2005 10:04:55 -0800 (PST)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Greg KH <gregkh@suse.de>
-cc: Andrew Morton <akpm@osdl.org>, "" <linux-kernel@vger.kernel.org>
-Subject: Re: syslog loves the new driver core code
-In-Reply-To: <20050331082814.GA26668@kroah.com>
-Message-ID: <Pine.LNX.4.50.0503311004350.7249-100000@monsoon.he.net>
-References: <20050331082814.GA26668@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 31 Mar 2005 13:08:17 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:13727 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261607AbVCaSIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 13:08:05 -0500
+Subject: Re: [PATCH scsi-misc-2.6 08/13] scsi: move request preps in other
+	places into prep_fn()
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Tejun Heo <htejun@gmail.com>
+Cc: Jens Axboe <axboe@suse.de>, SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050331090647.94FFEC1E@htj.dyndns.org>
+References: <20050331090647.FEDC3964@htj.dyndns.org>
+	 <20050331090647.94FFEC1E@htj.dyndns.org>
+Content-Type: text/plain
+Date: Thu, 31 Mar 2005 12:07:44 -0600
+Message-Id: <1112292464.5619.30.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-03-31 at 18:08 +0900, Tejun Heo wrote:
+> 	Move request preparations scattered in scsi_request_fn() and
+> 	scsi_dispatch_cmd() into scsi_prep_fn().
+> 
+> 	* CDB_SIZE check in scsi_dispatch_cmd()
+> 	* SCSI-2 LUN preparation in scsi_dispatch_cmd()
+> 	* scsi_init_cmd_errh() in scsi_request_fn()
+> 
+> 	No invalid request reaches scsi_request_fn() anymore.
 
-On Thu, 31 Mar 2005, Greg KH wrote:
+This one, I like, there's just one small problem:
 
-> Andrew pointed out to me that the new driver core code spewes a lot of
-> stuff in the syslog for every device it tries to match up with a driver
-> (if you look closely, it seems that the if check in __device_attach()
-> will never not trigger...)
->
-> Everything still seems to work properly, but it's good if we don't alarm
-> people with messages that are incorrect and unneeded. :)
->
-> So, here's a patch that seems to work for me.  It stops trying to loop
-> through drivers or devices once it finds a match, and it only tells the
-> syslog when we have a real error.
->
-> Look acceptable to you?
+You can't move scsi_init_cmd_errh() out of the request function path:
+It's where we set up the sense buffer handling, so it has to be done
+every time the command is prepared for execution (the prep function is
+only called once)---think what happens if we turn a command around for
+retry based on a sense indication.
 
-Yes. Sorry about that.
+So redo the patch and I'll put it in.
+
+James
 
 
-	Pat

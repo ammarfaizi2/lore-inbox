@@ -1,43 +1,138 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293680AbSDDM3G>; Thu, 4 Apr 2002 07:29:06 -0500
+	id <S293722AbSDDMbq>; Thu, 4 Apr 2002 07:31:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293722AbSDDM24>; Thu, 4 Apr 2002 07:28:56 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:63755 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293680AbSDDM2k>; Thu, 4 Apr 2002 07:28:40 -0500
-Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
-To: cw@f00f.org (Chris Wedgwood)
-Date: Thu, 4 Apr 2002 13:06:28 +0100 (BST)
-Cc: riel@conectiva.com.br (Rik van Riel),
-        tigran@aivazian.fsnet.co.uk (Tigran Aivazian),
-        root@chaos.analogic.com (Richard B. Johnson),
-        kraxel@bytesex.org (Gerd Knorr), linux-kernel@vger.kernel.org,
-        hugh@veritas.com (Hugh Dickins)
-In-Reply-To: <20020404055902.GA6889@tapu.f00f.org> from "Chris Wedgwood" at Apr 03, 2002 09:59:02 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16t60a-0005nG-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S312290AbSDDMbh>; Thu, 4 Apr 2002 07:31:37 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:49895 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S293722AbSDDMba>; Thu, 4 Apr 2002 07:31:30 -0500
+Date: Thu, 4 Apr 2002 04:30:12 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Cc: benh@kernel.crashing.org, martin_rogge@ki.maus.de,
+        jgarzik@mandrakesoft.com, dok@convergence.de,
+        kraxel@goldbach.in-berlin.de, langa2@kph.uni-mainz.de
+Subject: Patch: linux-2.5.8-pre1: Complete strtok --> strsep conversion
+Message-ID: <20020404043012.A526@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="2oS5YaxWCcQjTEyO"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think this is a little unfair.  For the vast numbers of nvidia users
-> I don't think there are that many problems reported and I'm not
-> convinced the CURRENT nvidia drivers are necessarily doing anything
-> bad[1].
 
-Its very hard to tell. Most people I ask cannot reproduce their crashes with
-the Nvidia driver unloaded. Equally many of them only got one crash in weeks
-anyway.
+--2oS5YaxWCcQjTEyO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Some of the stuff is more clear - the business about 4Mb pages on Athlon for
-example. That may be a hardware, a driver or even a subtle interaction with
-something elsewhere in the kernel - eg the memcpy prefetching bug I fixed
-in 2.4.19-pre4-ac4
+	linux-2.5.8-pre1 on longer defines strtok.  Instead,
+kernel code is supposed to use strsep.  Seven files still
+referenced strtok.  This patch converts the remaining strtok calls
+to strsep and eliminates the EXPORT_SYMBOL(strtok) from ppc64.
 
-It doesn't alter the fact that its undebuggable by the community, and that is
-the real problem. Fortunately the open source nvidia driver work seems to be
-at the point it can just about play Quake2/3
+	The line numbers in the patches may be skewed a bit because
+there are other differences between my version of some of these
+files and Linus's.
+
+-- 
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
+
+--2oS5YaxWCcQjTEyO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="strtok.diffs"
+
+--- linux-2.5.8-pre1/drivers/video/atafb.c	2002-04-03 23:38:32.000000000 -0800
++++ linux/drivers/video/atafb.c	2002-04-04 03:34:00.000000000 -0800
+@@ -2874,12 +2873,9 @@
+ 	user_mode[0]        =
+ 	fb_info.fontname[0] = '\0';
+ 
+-    if (!options || !*options)
+-		return 0;
+-     
+-    for(this_opt=strtok(options,","); this_opt; this_opt=strtok(NULL,",")) {
++    while ((this_opt = strsep(&options, ",")) != NULL) {
+ 	if (!*this_opt) continue;
+ 	if ((temp=get_video_mode(this_opt)))
+ 		default_par=temp;
+--- linux-2.5.8-pre1/drivers/video/clgenfb.c	2002-03-18 12:37:10.000000000 -0800
++++ linux/drivers/video/clgenfb.c	2002-04-04 03:34:00.000000000 -0800
+@@ -2857,12 +2883,8 @@
+ 
+ 	DPRINTK ("ENTER\n");
+ 
+-	if (!options || !*options)
+-		return 0;
+-
+-	for (this_opt = strtok (options, ","); this_opt != NULL;
+-	     this_opt = strtok (NULL, ",")) {
++	while ((this_opt = strsep(&options, ",")) != NULL) {
+ 		if (!*this_opt) continue;
+ 
+ 		DPRINTK("clgenfb_setup: option '%s'\n", this_opt);
+--- linux-2.5.8-pre1/drivers/video/neofb.c	2002-03-18 12:37:04.000000000 -0800
++++ linux/drivers/video/neofb.c	2002-04-04 03:34:00.000000000 -0800
+@@ -2362,10 +2362,7 @@
+ 
+   DBG("neofb_setup");
+ 
+-  if (!options || !*options)
+-    return 0;
+-
+-  for (this_opt=strtok(options,","); this_opt; this_opt=strtok(NULL,","))
++  while ((this_opt = strsep(&options, ",")) != NULL)
+     {
+       if (!*this_opt) continue;
+ 
+--- linux-2.5.8-pre1/drivers/video/sis/sis_main.c	2002-03-18 12:37:17.000000000 -0800
++++ linux/drivers/video/sis/sis_main.c	2002-04-04 04:01:17.000000000 -0800
+@@ -2254,13 +2254,9 @@
+ 	fb_info.fontname[0] = '\0';
+ 	ivideo.refresh_rate = 0;
+ 
+-	if (!options || !*options)
+-		return 0;
+-
+-	for (this_opt = strtok (options, ","); this_opt;
+-	     this_opt = strtok (NULL, ",")) {
++	while ((this_opt = strsep(&options, ",")) != NULL) {
+ 		if (!*this_opt)
+ 			continue;
+ 
+--- linux-2.5.8-pre1/drivers/scsi/ibmmca.c	2002-03-18 12:37:05.000000000 -0800
++++ linux/drivers/scsi/ibmmca.c	2002-04-04 03:34:00.000000000 -0800
+@@ -1406,9 +1408,8 @@
+    io_base = 0;
+    id_base = 0;
+    if (str) {
+-      token = strtok(str,",");
+       j = 0;
+-      while (token) {
++      while ((token = strsep(&str, ",")) != NULL) {
+ 	 if (!strcmp(token,"activity")) display_mode |= LED_ACTIVITY;
+ 	 if (!strcmp(token,"display")) display_mode |= LED_DISP;
+ 	 if (!strcmp(token,"adisplay")) display_mode |= LED_ADISP;
+@@ -1424,8 +1425,7 @@
+ 	      scsi_id[id_base++] = simple_strtoul(token,NULL,0);
+ 	    j++;
+ 	 }
+-	 token = strtok(NULL,",");
+       }
+    } else if (ints) {
+       for (i = 0; i < IM_MAX_HOSTS && 2*i+2 < ints[0]; i++) {
+--- linux-2.5.8-pre1/arch/ppc64/kernel/ppc_ksyms.c	2002-03-18 12:37:08.000000000 -0800
++++ linux/arch/ppc64/kernel/ppc_ksyms.c	2002-04-04 04:06:05.000000000 -0800
+@@ -109,7 +109,6 @@
+ EXPORT_SYMBOL(strchr);
+ EXPORT_SYMBOL(strrchr);
+ EXPORT_SYMBOL(strpbrk);
+-EXPORT_SYMBOL(strtok);
+ EXPORT_SYMBOL(strstr);
+ EXPORT_SYMBOL(strlen);
+ EXPORT_SYMBOL(strnlen);
+
+--2oS5YaxWCcQjTEyO--

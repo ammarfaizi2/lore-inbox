@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266543AbUH0RV4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266721AbUH0R22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266543AbUH0RV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 13:21:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266617AbUH0RV4
+	id S266721AbUH0R22 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 13:28:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266727AbUH0R22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 13:21:56 -0400
-Received: from dh138.citi.umich.edu ([141.211.133.138]:7814 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S266543AbUH0RVy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 13:21:54 -0400
-Subject: Re: POSIX_FADV_NOREUSE and O_STREAMING behavior in 2.6.7
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: David Greaves <david@dgreaves.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <412EEFF1.9080409@dgreaves.com>
-References: <412E2058.60302@rtlogic.com>  <412E2E0D.8040401@dgreaves.com>
-	 <1093547459.6106.57.camel@lade.trondhjem.org>
-	 <412EEFF1.9080409@dgreaves.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1093627313.5758.5.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 27 Aug 2004 13:21:53 -0400
+	Fri, 27 Aug 2004 13:28:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:31169 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266721AbUH0R21 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 13:28:27 -0400
+Date: Fri, 27 Aug 2004 10:28:13 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Craig Milo Rogers <rogers@isi.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Termination of the Philips Webcam Driver (pwc)
+In-Reply-To: <20040827094346.B29407@infradead.org>
+Message-ID: <Pine.LNX.4.58.0408271027060.14196@ppc970.osdl.org>
+References: <20040826233244.GA1284@isi.edu> <20040827004757.A26095@infradead.org>
+ <Pine.LNX.4.58.0408261700320.2304@ppc970.osdl.org> <20040827094346.B29407@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På fr , 27/08/2004 klokka 04:25, skreiv David Greaves:
 
-> I want my nfs client to communicate this to my nfs server. Thus avoiding 
-> my nfs server having a cache of useless video.
-> I can see this becoming an important benefit for video distribution (an 
-> area linux is likely to see more of)
 
-Then you are probably going to have to invent some out-of-band protocol
-in order to do so. Creating such a protocol shouldn't be a hard task,
-but getting all those server manufacturers to adopt it afterwards
-probably will be be. ;-)
+On Fri, 27 Aug 2004, Christoph Hellwig wrote:
+> 
+> Umm, just because he's piised off we shouldn't removed support for hardware.
+> it's not like the driver suddenly stops from working because it's unmaintained.
 
-Alternatively, if you can make a good case (and write a decent RFC), you
-might be able to persuade the IETF working group to add this feature
-into a future minor version of NFSv4.
+You didn't read what I wrote.
 
-Cheers,
-  Trond
+We don't remove drivers because the maintainers go away. There's tons of 
+drivers that have no maintainer.
+
+We remove drivers because the author _asks_ us to. If the person who wrote 
+the code doesn't want the code in the kernel, that's a pretty big deal.
+
+		Linus

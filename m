@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293596AbSDMT1Q>; Sat, 13 Apr 2002 15:27:16 -0400
+	id <S293603AbSDMT0r>; Sat, 13 Apr 2002 15:26:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293632AbSDMT1N>; Sat, 13 Apr 2002 15:27:13 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8711 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293596AbSDMT1H>; Sat, 13 Apr 2002 15:27:07 -0400
-Subject: Re: linux as a minicomputer ?
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Sat, 13 Apr 2002 19:56:15 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <a94p5a$2sa$1@cesium.transmeta.com> from "H. Peter Anvin" at Apr 11, 2002 12:45:46 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S293680AbSDMT0q>; Sat, 13 Apr 2002 15:26:46 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:28229 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S293603AbSDMT0p>; Sat, 13 Apr 2002 15:26:45 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        "David S. Miller" <davem@redhat.com>, taka@valinux.co.jp,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] zerocopy NFS updated
+In-Reply-To: <20020412.213011.45159995.taka@valinux.co.jp>
+	<20020412143559.A25386@wotan.suse.de>
+	<20020412222252.A25184@kushida.apsleyroad.org>
+	<20020412.143150.74519563.davem@redhat.com>
+	<20020413012142.A25295@kushida.apsleyroad.org>
+	<20020413083952.A32648@wotan.suse.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 13 Apr 2002 13:19:46 -0600
+Message-ID: <m1662vjtil.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16wSh5-0000ue-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> "Benefits all around?"  Such a machine would be slower and more
-> expensive than four single processor boxes, so what's the point?
+Andi Kleen <ak@suse.de> writes:
 
-A lot more manageable and for many setups a lot of terminals in one box
-actually makes a lot of sense
+> > I wonder if it is reasonable to depend on that: -- i.e. I'll only ever
+> > see zeros, not say random bytes, or ones or something.  I'm sure that's
+> > so with the current kernel, and probably all of them ever (except for
+> > bugs) but I wonder whether it's ok to rely on that.
+> 
+> With truncates you should only ever see zeros. If you want this guarantee
+> over system crashes you need to make sure to use the right file system
+> though (e.g. ext2 or reiserfs without the ordered data mode patches or
+> ext3 in writeback mode could give you junk if the system crashes at the
+> wrong time). Still depending on only seeing zeroes would
+> seem to be a bit fragile on me (what happens when the disk dies for 
+> example?), using some other locking protocol is probably more safe.
 
-> This is fundamentally the problem with these kinds of schemes -- they
-> get outcompeted on price and availability by the massmarket items.
-> This is part of the very attraction of Linux -- it's running Unix on
-> stock, cheap, hardware.
+Could the garbage from ext3 in writeback mode be considered an
+information leak?  I know that is why most places in the kernel
+initialize pages to 0.  So you don't accidentally see what another
+user put there.
 
-The hardware is now massmarket - otherwise I'd agree wholeheartedly. Video
-cards are cheap, USB2.0 cards have 4 root bridges per card.
+Eric
+k

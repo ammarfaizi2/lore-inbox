@@ -1,58 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315406AbSFAHe2>; Sat, 1 Jun 2002 03:34:28 -0400
+	id <S315410AbSFAHht>; Sat, 1 Jun 2002 03:37:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315410AbSFAHe1>; Sat, 1 Jun 2002 03:34:27 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:64913 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S315406AbSFAHe0>; Sat, 1 Jun 2002 03:34:26 -0400
-Date: Sat, 1 Jun 2002 02:34:25 -0500 (CDT)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: "Kevin O'Connor" <kevin@koconnor.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel compile quiet mode
-In-Reply-To: <20020531230153.A12477@arizona.localdomain>
-Message-ID: <Pine.LNX.4.44.0206010228460.21152-100000@chaos.physics.uiowa.edu>
+	id <S315411AbSFAHhs>; Sat, 1 Jun 2002 03:37:48 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:13493 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S315410AbSFAHhr>; Sat, 1 Jun 2002 03:37:47 -0400
+Date: Sat, 1 Jun 2002 09:10:12 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Scott McDermott <vaxerdec@frontiernet.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 3c59x driver: card not responding after a while
+In-Reply-To: <20020531180719.A1860@vaxerdec.homeip.net>
+Message-ID: <Pine.LNX.4.44.0206010901560.13503-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hmm i can't say i'm experiencing any problems, perhaps this might help;
 
-[Answered a follow-up mail and didn't realize that l-k was CC'ed in
- the first one, so here's my reply again.]
+On Fri, 31 May 2002, Scott McDermott wrote:
 
->From kai-germaschewski@uiowa.edu Sat Jun  1 02:30:31 2002
-Date: Sat, 1 Jun 2002 02:27:48 -0500 (CDT)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-To: Kevin O'Connor <kevin@koconnor.net>
-Subject: Re: Kernel compile quiet mode
+> Ronny T. Lampert (EED) on Fri 31/05 17:34 +0200:
+> > I'm having (reproducable) problems with the 3c59x driver; after a
+> > while (depends on card/traffic), the card doesn't send nor receive
+> > anymore.
+> 
+> - are you using netfilter?
 
-On Fri, 31 May 2002, Kevin O'Connor wrote:
+Yep
 
-> > gcc $CFLAGS -DKBUILD_BASENAME=raw -c -o raw.o raw.c
-> > gcc $CFLAGS -DKBUILD_BASENAME=pty -DEXPORT_SYMTAB -c -o pty.o pty.c
-> > gcc $CFLAGS -DKBUILD_BASENAME=misc -DEXPORT_SYMTAB -c -o misc.o misc.c
-> > gcc $CFLAGS -DKBUILD_BASENAME=random -DEXPORT_SYMTAB -c -o random.o random.c
-> > gcc $CFLAGS -DKBUILD_BASENAME=vt -c -o vt.o vt.c
-> > gcc $CFLAGS -DKBUILD_BASENAME=vc_screen -c -o vc_screen.o vc_screen.c
+> - it degrades over time and only after quite a bit of data pumped
+>   through it does it hang right? and slowly decreasing throughput right?
 
-Not bad, I suppose different people prefer different approaches, anyway. 
-There is, however, still redundant output there, the "-o vt.o" and 
-"KBUILD_BASENAME=vt" should go away as well too, IMO.
+Stays consistent, 60+ day uptime.
 
-Anyway, I'll be out of town for a couple of days, if you want to see what
-I'm up to, take a look at linux-isdn.bkbits.net, linux-2.5.make and
-linux-2.5.make-new - What I'm doing for the quiet output is pretty
-flexible, it can be easily adapted to things like the above.
+> - I feel much better to know someone else has this bug! I thought sure I
+>   was crazy since I did not hear of this problem from anyone else and
+>   905B is very common card.
 
-I'd surely appreciate if people wanted to test things, if you don't have
-bitkeeper but want to give it a shot, I can mail a patch.
+You might have to plead insanity ;)
 
-(For the visually most prominent change, add "quiet" to your make command
-line, or set KBUILD_QUIET=1 in the environment)
+> > o RH 7.2 stock (2.4.7)
+> 
+> wait this worked or didn't? for me 2.4.7 works fine, 2.4.17 does not.
 
---Kai
+iirc stock RH7.2 and RH7.3 worked fine.
 
+> yep, same thing here...I was to try 2.4.7 3c59x.c with otherwise recent
+> kernel but have not got around to this yet...
+
+I'm running 2.4.18-pre7-ac1, 2.4.19-pre8-ac(can't recall), all the boxes 
+transfer 2G+ of data a day (home network). IIRC i've been using those 
+cards since 2.4.2ish almost without skipping any version updates.
+
+Cards are 3c905B on i440BX, SIS5595 and ServerWorks CNB20LE
+
+I hope this information is of some use to you.
+
+Regards,
+	Zwane
+
+-- 
+http://function.linuxpower.ca
+		
 

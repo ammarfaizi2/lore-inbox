@@ -1,72 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262686AbTJJAm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 20:42:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTJJAm0
+	id S262716AbTJJA4F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 20:56:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbTJJAzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 20:42:26 -0400
-Received: from fep01-svc.mail.telepac.pt ([194.65.5.200]:30931 "EHLO
-	fep01-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
-	id S262686AbTJJAmZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 20:42:25 -0400
-Date: Fri, 10 Oct 2003 01:42:24 +0100
-From: Nuno Monteiro <nmonteiro@uk2.net>
-To: linux-kernel@vger.kernel.org
-Cc: davej@redhat.com, torvalds@osdl.org
-Subject: [PATCH] Re: linking problem with 2.6.0-test6-bk10
-Message-ID: <20031010004224.GH4683@hobbes.itsari.int>
-References: <42450.212.113.164.100.1065637962.squirrel@maxproxy1.uk2net.com> <20031008200420.GA23545@redhat.com> <57145.212.113.164.100.1065647937.squirrel@maxproxy3.uk2net.com> <20031009234000.GC4683@hobbes.itsari.int> <20031010004047.GE4683@hobbes.itsari.int>
+	Thu, 9 Oct 2003 20:55:55 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:14795 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S262703AbTJJAzt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 20:55:49 -0400
+Date: Thu, 9 Oct 2003 17:55:48 -0700
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linux Net mailing list <linux-net@vger.kernel.org>
+Subject: Re: Wireless Network Maintainer?
+Message-ID: <20031010005548.GA3573@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20031010004047.GE4683@hobbes.itsari.int> (from nmonteiro@uk2.net on Fri, Oct 10, 2003 at 01:40:47 +0100)
-X-Mailer: Balsa 2.0.15
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2003.10.08 22:18, Nuno Monteiro wrote:
-> > On Wed, Oct 08, 2003 at 07:32:42PM +0100, Nuno Monteiro wrote:
-> >
-> > Try this.
-> >
-> > 		Dave
+Nico Schottelius wrote :
 > 
-> 
-> Hi Dave,
-> 
-> Thanks for the input, but still no joy. 
+> Is there _anyone_ responsable for the wireless (802.11*) drivers in the
+> Linux kernel?
 
+	Yes, the individual driver authors. Either check the names in
+the source code or check my Howto.
 
-Hi,
+>    - easy interface = support for wireless tools
 
+	Can't agree me, but I'm biased. This is slowly improving.
 
-Got 5 minutes to look at this today, here is the proper fix. This allows 
-to compile for Winchip when CONFIG_MTRR is off. The alternative would be
-to pull in asm/mtrr.h and asm/errno.h, but it seems a bit overkill since
-we only need mtrr_centaur_report_mcr.
+>    - compatibility with 2.5/2.6 modul interface
 
-Booted and working fine here on my small gateway box for the past hour.
-Please apply.
+	Wireless drivers included in kernel 2.6.X are already compatible.
 
-Regards,
+>    - support for AP-Master/AP/Ad-Hoc/Monitor Modus (like HostAP can do)
 
-Nuno
+	There is two aspect there.
+	First, I want the HostAP driver to be included in 2.6.X, and
+I'm trying to make this happen.
+	Second, Master and Monitor mode can be implemented only in
+drivers for which the necessary hardware documentation is available,
+which means only a subset of them.
 
+>   - device naming scheme should be wlanX -> easier to see what it is
 
+	There are pros and cons to that. Personally I prefer the
+approach taken by the aironet driver (ethX + wifiX). The interface the
+driver present to the kernel is *really* an Ethernet interface.
+	If you really want easy identification, we could take the *BSD
+approach where every driver use it's own unique device name.
 
---- linux-2.6.0-test7/arch/i386/kernel/cpu/centaur.c	2003-10-10 00:30:58.000000000 +0100
-+++ linux-2.6.0-test7-fixed/arch/i386/kernel/cpu/centaur.c	2003-10-10 00:30:05.000000000 +0100
-@@ -8,6 +8,10 @@
- 
- #ifdef CONFIG_X86_OOSTORE
- 
-+#ifndef CONFIG_MTRR
-+static __inline__ void mtrr_centaur_report_mcr(int mcr, u32 lo, u32 hi) {;}
-+#endif
-+
- static u32 __init power2(u32 x)
- {
- 	u32 s=1;
+>   - support for external encryption (kernel modules/user space) like WLSec
 
+	Let's not reinvent the wheel again. What's wrong with IPsec ?
+If you want to go that route, at least follow one of the upcomming
+standard (802.1x, WPA, ...).
 
+	Jean

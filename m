@@ -1,66 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268290AbTGOMui (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 08:50:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268276AbTGOMui
+	id S268051AbTGONBr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 09:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268098AbTGONBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 08:50:38 -0400
-Received: from maila.telia.com ([194.22.194.231]:25589 "EHLO maila.telia.com")
-	by vger.kernel.org with ESMTP id S268231AbTGOMuC (ORCPT
+	Tue, 15 Jul 2003 09:01:47 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:46997 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id S268051AbTGONBq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 08:50:02 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-To: Ricardo Galli <gallir@uib.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1: Synaptics driver makes touchpad unusable
-References: <200307151244.53276.gallir@uib.es>
-From: Peter Osterlund <petero2@telia.com>
-Date: 15 Jul 2003 15:04:39 +0200
-In-Reply-To: <200307151244.53276.gallir@uib.es>
-Message-ID: <m2znjgj5zs.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Tue, 15 Jul 2003 09:01:46 -0400
+Date: Tue, 15 Jul 2003 16:16:34 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: VGER ran out of /var/tmp/ space, and lists lost emails.
+Message-ID: <20030715131634.GF6898@mea-ext.zmailer.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ricardo Galli <gallir@uib.es> writes:
+... 15 to 9 hours ago it was all out, and majordomo failed during that
+about 6 hours.  (About 14th Jul 23:00 UTC to 15th Jul 04:00 UTC)
 
-> The new synaptics driver doesn't work with Dell Latitude Touchpad, it doesn't 
-> work any /dev/input/event?|mouse? and /dev/psaux neither (altough the same 
-> configuration worked at least until 2.5.70).
-> 
-> I tried with gpm and the X's synaptics driver from 
-> http://w1.894.telia.com/~u89404340/touchpad/index.html (as indicated in the 
-> kernel documentation) and none worked, although "cat < /dev/input/event0" 
-> showed garbage every time I touched the touchpad (no pun intended) iff evdev 
-> was loaded.
-> 
-> $ dmesg
-> ...
-> mice: PS/2 mouse device common for all mice
-> i8042.c: Detected active multiplexing controller, rev 1.1.
-> serio: i8042 AUX0 port at 0x60,0x64 irq 12
-> serio: i8042 AUX1 port at 0x60,0x64 irq 12
-> serio: i8042 AUX2 port at 0x60,0x64 irq 12
-> synaptics reset failed
-> synaptics reset failed
-> synaptics reset failed
+ http://vger.kernel.org/z/zmailer-rrd-vger_SNMP_SYS_LogFreeSpace-kB-G.html
 
-You probably need this patch.
+Several log files failed to log (or rotate), Majordomo failed to create
+temporary files, and didn't detect it, thus messages got lost...
 
---- linux/drivers/input/mouse.resume/psmouse-base.c	Sat Jul  5 23:39:14 2003
-+++ linux/drivers/input/mouse/psmouse-base.c	Sun Jul  6 00:23:17 2003
-@@ -201,7 +201,7 @@
- 	psmouse->cmdcnt = receive;
- 
- 	if (command == PSMOUSE_CMD_RESET_BAT)
--                timeout = 2000000; /* 2 sec */
-+                timeout = 4000000; /* 4 sec */
- 
- 	if (command & 0xff)
- 		if (psmouse_sendbyte(psmouse, command & 0xff))
+D'uh..  These should never happen, but still they do :-/
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+/Matti Aarnio -- one of VGER's postmasters

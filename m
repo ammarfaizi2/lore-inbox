@@ -1,75 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbUKHJqp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbUKHJqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261838AbUKHJqp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 04:46:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbUKHJcy
+	id S261595AbUKHJqq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 04:46:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbUKHJci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 04:32:54 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:20938 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S261802AbUKHJMh
+	Mon, 8 Nov 2004 04:32:38 -0500
+Received: from smtp-out.hotpop.com ([38.113.3.61]:63720 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S261793AbUKHJHE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 04:12:37 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Grzegorz Kulewski <kangur@polcom.net>
-Subject: Re: Why my computer freeze completely with xawtv ?
-Date: Mon, 8 Nov 2004 10:08:20 +0100
-User-Agent: KMail/1.6.2
-Cc: Con Kolivas <kernel@kolivas.org>,
-       Gregoire Favre <Gregoire.Favre@freesurf.ch>,
-       linux-kernel@vger.kernel.org
-References: <20041107224621.GB5360@magma.epfl.ch> <418EBFE5.5080903@kolivas.org> <Pine.LNX.4.60.0411080919220.32677@alpha.polcom.net>
-In-Reply-To: <Pine.LNX.4.60.0411080919220.32677@alpha.polcom.net>
+	Mon, 8 Nov 2004 04:07:04 -0500
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: linux-fbdev-devel@lists.sourceforge.net,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: Fix IO access in rivafb
+Date: Mon, 8 Nov 2004 17:06:54 +0800
+User-Agent: KMail/1.5.4
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+References: <200411080521.iA85LbG6025914@hera.kernel.org> <1099893447.10262.154.camel@gaston>
+In-Reply-To: <1099893447.10262.154.camel@gaston>
 MIME-Version: 1.0
-Message-Id: <200411081008.20960.arnd@arndb.de>
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_EezjBP7E83qLmQX";
-  charset="iso-8859-15"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200411081706.55261.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 08 November 2004 13:57, Benjamin Herrenschmidt wrote:
+> > diff -Nru a/drivers/video/riva/riva_hw.h b/drivers/video/riva/riva_hw.h
+> > --- a/drivers/video/riva/riva_hw.h	2004-11-07 21:21:47 -08:00
+> > +++ b/drivers/video/riva/riva_hw.h	2004-11-07 21:21:47 -08:00
+> > @@ -78,13 +78,13 @@
+> >  #define NV_WR08(p,i,d)	out_8(p+i, d)
+> >  #define NV_RD08(p,i)	in_8(p+i)
+> >  #else
+> > -#define NV_WR08(p,i,d)  (((U008 *)(p))[i]=(d))
+> > -#define NV_RD08(p,i)    (((U008 *)(p))[i])
+> > +#define NV_WR08(p,i,d)  (writeb((d), (u8 __iomem *)(p) + (i)))
+> > +#define NV_RD08(p,i)    (readb((u8 __iomem *)(p) + (i)))
+> >  #endif
+> > -#define NV_WR16(p,i,d)  (((U016 *)(p))[(i)/2]=(d))
+> > -#define NV_RD16(p,i)    (((U016 *)(p))[(i)/2])
+> > -#define NV_WR32(p,i,d)  (((U032 *)(p))[(i)/4]=(d))
+> > -#define NV_RD32(p,i)    (((U032 *)(p))[(i)/4])
+> > +#define NV_WR16(p,i,d)  (writew((d), (u16 __iomem *)(p) + (i)/2))
+> > +#define NV_RD16(p,i)    (readw((u16 __iomem *)(p) + (i)/2))
+> > +#define NV_WR32(p,i,d)  (writel((d), (u32 __iomem *)(p) + (i)/4))
+> > +#define NV_RD32(p,i)    (readl((u32 __iomem *)(p) + (i)/4))
+> >  #define VGA_WR08(p,i,d) NV_WR08(p,i,d)
+> >  #define VGA_RD08(p,i)   NV_RD08(p,i)
+>
+> You probably broke ppc versions here. The driver enables "big endian"
+> register access, but readw/writew/l functions do byteswap, which will
+> lead to incorrect results.
+>
+> The fix would be to probably just remove the code that puts the chip
+> registers into big endian mode, this isn't necessary nor a very good
+> idea actually.
+>
 
---Boundary-02=_EezjBP7E83qLmQX
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+How about this patch?  This is almost the original macro in riva_hw.h,
+with the __force annotation.
 
-On Maandag 08 November 2004 09:30, Grzegorz Kulewski wrote:
+Signed-off-by: Antonino Daplas <adaplas@pol.net>
+---
 
-> I suspect two things:
-> - there is some bug in bttv and similar drivers (DVB) that corrupts memor=
-y=20
-> related with internal mm and vfs structures or does something equally bad,
-> - or maybe PCI bandwitch is overflowed, but I do not think it should=20
-> happen.
->=20
-> But it is very hard to prove any of these I am afraid.
+diff -Nru a/drivers/video/riva/riva_hw.h b/drivers/video/riva/riva_hw.h
+--- a/drivers/video/riva/riva_hw.h	2004-11-06 12:42:19 +08:00
++++ b/drivers/video/riva/riva_hw.h	2004-11-08 16:59:34 +08:00
+@@ -77,14 +77,18 @@
+ #include <asm/io.h>
+ #define NV_WR08(p,i,d)	out_8(p+i, d)
+ #define NV_RD08(p,i)	in_8(p+i)
++#define NV_WR16(p,i,d)  (((volatile u16 __force *)(p))[(i)/2]=(d))
++#define NV_RD16(p,i)    (((volatile u16 __force *)(p))[(i)/2])
++#define NV_WR32(p,i,d)  (((volatile u32 __force *)(p))[(i)/4]=(d))
++#define NV_RD32(p,i)    (((volatile u32 __force *)(p))[(i)/4])
+ #else
+ #define NV_WR08(p,i,d)  (writeb((d), (u8 __iomem *)(p) + (i)))
+ #define NV_RD08(p,i)    (readb((u8 __iomem *)(p) + (i)))
+-#endif
+ #define NV_WR16(p,i,d)  (writew((d), (u16 __iomem *)(p) + (i)/2))
+ #define NV_RD16(p,i)    (readw((u16 __iomem *)(p) + (i)/2))
+ #define NV_WR32(p,i,d)  (writel((d), (u32 __iomem *)(p) + (i)/4))
+ #define NV_RD32(p,i)    (readl((u32 __iomem *)(p) + (i)/4))
++#endif
+ #define VGA_WR08(p,i,d) NV_WR08(p,i,d)
+ #define VGA_RD08(p,i)   NV_RD08(p,i)
+ 
 
-I have the problem as well since I moved from my K6-II to an Opteron based
-system. As a workaround, I only use the card in grab mode instead of
-overlay, this reduces the frequency of the crashes from once per 30 minutes
-to once per month.
 
-Someone also suggested the problem might be related to the old bt848
-(ca. 1997) chip not behaving well on modern PCI buses.
-
-	Arnd <><
-
-
-
---Boundary-02=_EezjBP7E83qLmQX
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBjzeE5t5GS2LDRf4RAhoZAJ9aJnFGlbw9V/vzMkdfXA/wJ0xLOgCgg+jw
-NJmgei3lLokTjeMCY0Dj5Nc=
-=6A+f
------END PGP SIGNATURE-----
-
---Boundary-02=_EezjBP7E83qLmQX--

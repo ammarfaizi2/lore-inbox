@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270648AbTG3Wpd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 18:45:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272224AbTG3Wpd
+	id S272279AbTG3Wq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 18:46:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272286AbTG3Wq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 18:45:33 -0400
-Received: from smtp.terra.es ([213.4.129.129]:37754 "EHLO tsmtp8.mail.isp")
-	by vger.kernel.org with ESMTP id S270648AbTG3Wpc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 18:45:32 -0400
-Date: Thu, 31 Jul 2003 00:43:34 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: pavel@ucw.cz, alan@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Warn about taskfile?
-Message-Id: <20030731004334.2dd67bb1.diegocg@teleline.es>
-In-Reply-To: <Pine.SOL.4.30.0307302336410.1566-100000@mion.elka.pw.edu.pl>
-References: <20030730205935.GA238@elf.ucw.cz>
-	<Pine.SOL.4.30.0307302336410.1566-100000@mion.elka.pw.edu.pl>
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Wed, 30 Jul 2003 18:46:27 -0400
+Received: from fw.osdl.org ([65.172.181.6]:2498 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272279AbTG3WqW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 18:46:22 -0400
+Date: Wed, 30 Jul 2003 15:34:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mremap sleeping in incorrect context
+Message-Id: <20030730153439.7df44a69.akpm@osdl.org>
+In-Reply-To: <1059586337.2420.44.camel@gaston>
+References: <1059586337.2420.44.camel@gaston>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Wed, 30 Jul 2003 23:45:01 +0200 (MET DST) Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> escribió:
-
-> Did corruption go away after disabling taskfile?
-> Taskfile was by default on for 2.5.72 and 2.5.73 and Andi's unexplained
-> x86-64 + AMD8111 corruption was the only one reported to me / on lkml.
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+>
+> Just had that in my log, running 2.6.0-test2. I'm not familiar
+> with this code, but Arjan says this is an old problem that was
+> fixed ages ago, maybe the fix was lost ?
 > 
-> dmesg and hdparm /dev/scratchdisk for a start, please.
+> Debug: sleeping function called from invalid context at
+> mm/page_alloc.c:545
+> Call trace:
+>  [c000c1a8] dump_stack+0x18/0x28
+>  [c0021044] __might_sleep+0x6c/0x84
+>  [c004e33c] __alloc_pages+0x338/0x33c
+>  [c0014940] pte_alloc_one+0x24/0x160
+>  [c005c224] pte_alloc_map+0x88/0x2a8
+>  [c0065a40] move_one_page+0xd0/0x2a4
+>  [c0065c6c] move_page_tables+0x58/0xb8
+>  [c0065d60] move_vma+0x94/0x824
+>  [c00666f4] do_mremap+0x204/0x468
+>  [c00669d4] sys_mremap+0x7c/0xcc
 
-I must say it works without problems here.
-
-
-Diego Calleja
-
-
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: IDE controller at PCI slot 0000:00:07.1
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci0000:00:07.1
-    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:DMA
-hda: Maxtor 6Y060L0, ATA DISK drive
-Using anticipatory scheduling elevator
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: HL-DT-ST GCE-8520B, ATAPI CD/DVD-ROM drive
-hdd: LG CD-ROM CRD-8522B, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: max request size: 128KiB
-hda: host protected area => 1
-hda: 120103200 sectors (61493 MB) w/2048KiB Cache, CHS=119150/16/63, UDMA(100)
- hda: hda1 < hda5 hda6 hda7 > hda2 hda3
+oops.  What are your CONFIG_HIGHMEM and CONFIG_HIGHPTE settings there?

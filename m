@@ -1,53 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268963AbRIMLfJ>; Thu, 13 Sep 2001 07:35:09 -0400
+	id <S268837AbRIML2t>; Thu, 13 Sep 2001 07:28:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269041AbRIMLeu>; Thu, 13 Sep 2001 07:34:50 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:40719 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S268940AbRIMLem>; Thu, 13 Sep 2001 07:34:42 -0400
-Date: Thu, 13 Sep 2001 13:34:57 +0200
-From: Jan Kara <jack@suse.cz>
-To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
-Cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NTFS fix for bug report
-Message-ID: <20010913133457.M21408@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <E15gxDt-0005ZW-00@virgo.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <E15gxDt-0005ZW-00@virgo.cus.cam.ac.uk>; from aia21@cus.cam.ac.uk on Wed, Sep 12, 2001 at 12:45:45AM +0100
+	id <S268940AbRIML2k>; Thu, 13 Sep 2001 07:28:40 -0400
+Received: from falka.mfa.kfki.hu ([148.6.72.6]:49322 "EHLO falka.mfa.kfki.hu")
+	by vger.kernel.org with ESMTP id <S268837AbRIML2b>;
+	Thu, 13 Sep 2001 07:28:31 -0400
+Date: Thu, 13 Sep 2001 13:27:12 +0200 (CEST)
+From: Gergely Tamas <dice@mfa.kfki.hu>
+To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+cc: <linux-kernel@vger.kernel.org>, <heinz@auto.tuwien.ac.at>,
+        <drebes@inf.ufrgs.br>, <leo@debian.org>
+Subject: Re: Stomping on Athlon bug
+In-Reply-To: <Pine.LNX.4.33.0109131159390.27066-100000@falka.mfa.kfki.hu>
+Message-ID: <Pine.LNX.4.33.0109131325340.31004-100000@falka.mfa.kfki.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
 
-> Please apply below patch. It should fix the reported hang on NTFS in Win2k
-> together with a few more bugs I came across while tracking it down.
-> 
-> Patch is against 2.4.7-pre10 but it should apply cleanly to the latest
-> -ac. (I haven't tested -ac but NTFS should be identical in both trees at
-> the moment so it can#t go wrong... <famous last words>)
-  Actually I've seen the hang in getdir_unsorted() in 2.4.9-ac10 on directories
-larger than 4Kb on NT 4.0 drive. I'll try your patch and tell the result :).
-BTW: when I was looking into the code (if I see some obvious reason for deadlock)
-I found following chunk of code in inode.c in ntfs_readwrite_attr():
-                /* Read uninitialized data. */
-                if (offset >= attr->initialized)
-                        return ntfs_read_zero(dest, l);
-                if (offset + l > attr->initialized) {
-                        dest->size = chunk = offset + l - attr->initialized;
-                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-shouldn't this rather be 'attr->initialized-offset'? It would make more sence
-for me to call ntfs_readwrite_attr() from 'offset' to read initialized data
-and then zero the rest...
-                        error = ntfs_readwrite_attr(ino, attr, offset, dest);
-                        if (error)
-                                return error;
-                        return ntfs_read_zero(dest, l - chunk);
-                }
+ > I've got here an ABIT KT7 (duron, 750MHz) with BIOS 3C
 
-									Bye
-										Honza
+Sorry, I've ment ABIT KT7A (with VIA KT133A) of course.
+
+ >
+ >  > YH 00: 06 11 05 03 06 00 10 22 03 00 00 06 00 00 00 00
+ >    3C 00: 06 11 05 03 06 00 10 22 03 00 00 06 00 00 00 00
+ >  > 3R 00: 06 11 05 03 06 00 10 22 03 00 00 06 00 08 00 00
+ >  >                                               ^^
+ >
+ >  > YH 10: 08 00 00 d0 00 00 00 00 00 00 00 00 00 00 00 00
+ >    3C 10: 08 00 00 d8 00 00 00 00 00 00 00 00 00 00 00 00
+ >  > 3R 10: 08 00 00 e0 00 00 00 00 00 00 00 00 00 00 00 00
+ >  >        ^^^^^^^^^^^
+ >
+ >  > YH 50: 16 f4 eb
+ >    3C 50: 16 f4 eb
+ >  > 3R 50: 16 f4 6b
+ >  >              ^^
+ >
+ >  > YH 50: .. .. .. b4 06
+ >    3C 50: .. .. .. b4 06
+ >  > 3R 50: .. .. .. b4 47
+ >  >                    ^^
+ >
+ >  > YH 50: .. .. .. .. .. 00 04 04 00 00 01 02 03 04 04 04
+ >    3C 50: .. .. .. .. .. 00 08 08 80 00 04 08 08 08 08 08
+ >  > 3R 50: .. .. .. .. .. 89 04 04 00 00 01 02 03 04 04 04
+ >  >                       ^^
+ >
+ >  > YH 60: 0f 0a 00 20 e4 e4 d4 c4 50 28 65 0d 08 5f 00 00
+ >    3C 60: 03 aa 00 20 64 54 54 c4 50 08 65 0d 08 3f 00 00
+ >  > 3R 60: 0f 0a 00 20 e4 e4 d4 00 50 08 65 0d 08 5f 00 00
+ >  >                                   ^^
+ >
+ >  > YH 70: d4 88 cc 0c 0e 81 d2 00 01 b4 19 02 00 00 00 00
+ >    3C 70: d0 88 cc 0c 0e 81 d2 00 01 b4 19 02 00 00 00 00
+ >  > 3R 70: d8 88 cc 0c 0e 81 d2 00 01 b4 19 02 00 00 00 00
+ >  >        ^^
+ >
+ >  > YH a0: 02 c0 20 00 03 02 00 1f 00 00 00 00 2b 12 00 00
+ >    3C a0: 02 c0 20 00 03 02 00 1f 00 00 00 00 2b 12 00 00
+ >  > 3R a0: 02 c0 20 00 03 02 00 1f 00 00 00 00 2f 12 00 00
+ >  >                                            ^^
+ >
+ >  > YH b0: db 63 02
+ >    3C b0: db da 02
+ >  > 3R b0: db 63 1a
+ >  >              ^^
+ >
+ >  > YH b0: .. .. .. 50 31 ff 80 0a 67 00 00 00 00 00 00 00
+ >    3C b0: .. .. .. 48 31 ff 80 0e 67 00 00 00 00 00 00 00
+ >  > 3R b0: .. .. .. 50 31 ff 80 0b 67 00 00 00 00 00 00 00
+ >  >                             ^^
+ >
+ >  > YH f0: 00 00 00 00 00 03 03 00 22 00 00 00 00 00 00 00
+ >    3C f0: 00 00 00 00 00 03 03 00 22 00 00 00 00 00 00 00
+ >  > 3R f0: 00 00 00 00 00 03 03 00 22 00 00 00 00 80 00 00
+ >  >                                               ^^
+ >
+ > Gergely
+

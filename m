@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263972AbUE1Vn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264045AbUE1Vn7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263972AbUE1Vn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 17:43:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264044AbUE1VmB
+	id S264045AbUE1Vn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 17:43:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264012AbUE1Vlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 17:42:01 -0400
-Received: from mail.kroah.org ([65.200.24.183]:38835 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264026AbUE1ViI convert rfc822-to-8bit
+	Fri, 28 May 2004 17:41:51 -0400
+Received: from mail.kroah.org ([65.200.24.183]:38323 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263995AbUE1ViH convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 17:38:08 -0400
+	Fri, 28 May 2004 17:38:07 -0400
 X-Fake: the user-agent is fake
-Subject: [PATCH] PCI fixes for 2.6.7-rc1
+Subject: Re: [PATCH] PCI fixes for 2.6.7-rc1
 User-Agent: Mutt/1.5.6i
-In-Reply-To: <20040528213321.GA12726@kroah.com>
-Date: Fri, 28 May 2004 14:35:11 -0700
-Message-Id: <10857801111252@kroah.com>
+In-Reply-To: <10857801111252@kroah.com>
+Date: Fri, 28 May 2004 14:35:15 -0700
+Message-Id: <10857801151567@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,52 +23,39 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1717.6.23, 2004/05/18 23:56:57-07:00, greg@kroah.com
+ChangeSet 1.1717.6.24, 2004/05/18 23:57:17-07:00, roland@topspin.com
 
-[PATCH] PCI: fix up build warnings in pci.ids file.
+[PATCH] PCI: Add InfiniBand HCA IDs to pci_ids.h
 
-
- drivers/pci/pci.ids |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+Add InfiniBand HCA IDs to pci_ids.h.
 
 
-diff -Nru a/drivers/pci/pci.ids b/drivers/pci/pci.ids
---- a/drivers/pci/pci.ids	Fri May 28 14:29:25 2004
-+++ b/drivers/pci/pci.ids	Fri May 28 14:29:25 2004
-@@ -2331,7 +2331,7 @@
- 	c801  PCI-GPIB
- 	c831  PCI-GPIB bridge
- 1094  First International Computers [FIC]
--1095  Silicon Image, Inc. (formerly CMD Technology Inc)
-+1095  Silicon Image, Inc.
- 	0240  Adaptec AAR-1210SA SATA HostRAID Controller
- 	0640  PCI0640
- 	0643  PCI0643
-@@ -5155,7 +5155,7 @@
- 	9132  Ethernet 100/10 MBit
- 1283  Integrated Technology Express, Inc.
- 	673a  IT8330G
--	8212  IT/ITE8212 Dual channel ATA RAID controller (PCI version seems to be IT8212, embedded seems to be ITE8212)
-+	8212  IT/ITE8212 Dual channel ATA RAID controller
- 	8330  IT8330G
- 	8872  IT8874F PCI Dual Serial Port Controller
- 	8888  IT8888F PCI to ISA Bridge with SMB
-@@ -6098,7 +6098,7 @@
- 	0340  PC4800
- 	0350  PC4800
- 	4500  PC4500
--	4800  Cisco Aironet 340 802.11b Wireless LAN Adapter/Aironet PC4800
-+	4800  Cisco Aironet 340 802.11b Wireless LAN Adapter
- 	a504  Cisco Aironet Wireless 802.11b
- 	a505  Cisco Aironet CB20a 802.11a Wireless LAN Adapter
- 14ba  INTERNIX Inc.
-@@ -6824,7 +6824,7 @@
- 1629  Kongsberg Spacetec AS
- 	1003  Format synchronizer v3.0
- 	2002  Fast Universal Data Output
--1638  Standard Microsystems Corp [SMC]
-+1638  SMC
- 	1100  SMC2602W EZConnect / Addtron AWA-100 / Eumitcom PCI WL11000
- 163c  Smart Link Ltd.
- 	3052  SmartLink SmartPCI562 56K Modem
+ include/linux/pci_ids.h |    7 +++++++
+ 1 files changed, 7 insertions(+)
+
+
+diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+--- a/include/linux/pci_ids.h	Fri May 28 14:29:20 2004
++++ b/include/linux/pci_ids.h	Fri May 28 14:29:20 2004
+@@ -1870,6 +1870,11 @@
+ #define PCI_VENDOR_ID_ZOLTRIX		0x15b0
+ #define PCI_DEVICE_ID_ZOLTRIX_2BD0	0x2bd0 
+ 
++#define PCI_VENDOR_ID_MELLANOX		0x15b3
++#define PCI_DEVICE_ID_MELLANOX_TAVOR	0x5a44
++#define PCI_DEVICE_ID_MELLANOX_ARBEL_COMPAT 0x6278
++#define PCI_DEVICE_ID_MELLANOX_ARBEL	0x6282
++
+ #define PCI_VENDOR_ID_PDC		0x15e9
+ #define PCI_DEVICE_ID_PDC_1841		0x1841
+ 
+@@ -1890,6 +1895,8 @@
+ #define PCI_VENDOR_ID_S2IO		0x17d5
+ #define	PCI_DEVICE_ID_S2IO_WIN		0x5731
+ #define	PCI_DEVICE_ID_S2IO_UNI		0x5831
++
++#define PCI_VENDOR_ID_TOPSPIN		0x1867
+ 
+ #define PCI_VENDOR_ID_ARC               0x192E
+ #define PCI_DEVICE_ID_ARC_EHCI          0x0101
 

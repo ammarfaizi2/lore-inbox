@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbVBCAOA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262765AbVBCAYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262380AbVBCAOA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 19:14:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbVBCAKf
+	id S262765AbVBCAYh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 19:24:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262474AbVBCAWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 19:10:35 -0500
-Received: from kludge.physics.uiowa.edu ([128.255.33.129]:14093 "EHLO
-	kludge.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id S262581AbVBCAJq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 19:09:46 -0500
-Date: Wed, 2 Feb 2005 18:09:17 -0600
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: Pavel Roskin <proski@gnu.org>
-Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <greg@kroah.com>,
-       Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: Please open sysfs symbols to proprietary modules
-Message-ID: <20050203000917.GA12204@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: Pavel Roskin <proski@gnu.org>,
-	linux-kernel@vger.kernel.org, Greg Kroah-Hartman <greg@kroah.com>,
-	Patrick Mochel <mochel@digitalimplant.org>
-References: <Pine.LNX.4.62.0502021723280.5515@localhost.localdomain>
+	Wed, 2 Feb 2005 19:22:31 -0500
+Received: from irulan.endorphin.org ([80.68.90.107]:10259 "EHLO
+	irulan.endorphin.org") by vger.kernel.org with ESMTP
+	id S262328AbVBCAVo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 19:21:44 -0500
+Subject: Re: [PATCH 01/04] Adding cipher mode context information to
+	crypto_tfm
+From: Fruhwirth Clemens <clemens@endorphin.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, michal@logix.cz, dm-crypt@saout.de
+In-Reply-To: <20050202153449.1e92c29a.davem@davemloft.net>
+References: <Xine.LNX.4.44.0502021728140.5000-100000@thoron.boston.redhat.com>
+	 <1107386909.19339.9.camel@ghanima>
+	 <20050202153449.1e92c29a.davem@davemloft.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-cAOulUBUAb9gA8QXvomO"
+Date: Thu, 03 Feb 2005 01:21:35 +0100
+Message-Id: <1107390095.19339.26.camel@ghanima>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0502021723280.5515@localhost.localdomain>
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Pavel Roskin on Wednesday, 02 February, 2005:
->All I want to do is to have a module that would create subdirectories for 
->some network interfaces under /sys/class/net/*/, which would contain 
->additional parameters for those interfaces.  I'm not creating a new 
->subsystem or anything like that.  sysctl is not good because the data is 
->interface specific.  ioctl on a socket would be OK, although it wouldn't 
->be easily scriptable.  The restriction on sysfs symbols would just force 
->me to write a proprietary userspace utility to set those parameters 
->instead of using a shell script.
 
-Please pardon my ignorance, but if the existing network device management
-  framework is insufficient, it seems that the optimal way to deal with
-  this is to work with the community to address the insufficiencies, not
-  hacking in a new interface to the device.
+--=-cAOulUBUAb9gA8QXvomO
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
--Joseph
--- 
-Joseph===============================================trelane@digitasaru.net
-      Graduate Student in Physics, Freelance Free Software Developer
+On Wed, 2005-02-02 at 15:34 -0800, David S. Miller wrote:
+
+> Also, I think there will be objections to that studlyCaps naming you
+> said your other code has.  Keep garbage like that in the x11 sources,
+> if you don't mind :-)
+
+I'm afraid, I'm not going to change it. I already lost too much time
+pushing LRW into the kernel.=20
+
+Coding time: 3 days. Pushing time: 78 days and counting.=20
+
+I'm willing to cancel my work, as I've taken this to matter to an
+extend, where my time sacrifice can hardly be justified. Especially, if
+James ask me to redo Michal's conflicting patches (done btw), which are
+totally off-topic for me. Then, I'm certainly not going to redo all my
+code, just because someone thinks different about the naming of my
+variables.
+--=20
+Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
+
+--=-cAOulUBUAb9gA8QXvomO
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCAW6PW7sr9DEJLk4RAkRRAJ92N/r1UP6qoWKt2Y0c9XixVZOvIgCeMp70
+hljd0Kq6FL1yylP5uzjVnCc=
+=He0A
+-----END PGP SIGNATURE-----
+
+--=-cAOulUBUAb9gA8QXvomO--

@@ -1,178 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264763AbUGESvp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266167AbUGESxK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264763AbUGESvp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 14:51:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266167AbUGESvp
+	id S266167AbUGESxK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 14:53:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266169AbUGESxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 14:51:45 -0400
-Received: from web51808.mail.yahoo.com ([206.190.38.239]:33894 "HELO
-	web51808.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264763AbUGESvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 14:51:39 -0400
-Message-ID: <20040705185138.96848.qmail@web51808.mail.yahoo.com>
-Date: Mon, 5 Jul 2004 11:51:38 -0700 (PDT)
-From: Phy Prabab <phyprabab@yahoo.com>
-Subject: Re: [still problems] Re: Slow internet access for 2.6.7bk15&16
-To: Phy Prabab <phyprabab@yahoo.com>, bert hubert <ahu@ds9a.nl>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-In-Reply-To: <20040705181747.83811.qmail@web51808.mail.yahoo.com>
+	Mon, 5 Jul 2004 14:53:10 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:43745 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266167AbUGESxA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 14:53:00 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+Subject: Re: Restoring HDIO_GETGEO semantics for 2.6 (was: Re: [RFC] Restoring HDIO_GETGEO semantics)
+Date: Mon, 5 Jul 2004 20:58:16 +0200
+User-Agent: KMail/1.5.3
+Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>,
+       "Patrick J. LoPresti" <patl@users.sourceforge.net>, bug-parted@gnu.org,
+       Steffen Winterfeldt <snwint@suse.de>, Thomas Fehr <fehr@suse.de>,
+       linux-kernel@vger.kernel.org, Andrew Clausen <clausen@gnu.org>,
+       buytenh@gnu.org, msw@redhat.com
+References: <Pine.LNX.4.21.0407051733310.14602-100000@mlf.linux.rulez.org>
+In-Reply-To: <Pine.LNX.4.21.0407051733310.14602-100000@mlf.linux.rulez.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200407052058.16478.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-Concerning my issue with ftp'ing from remote sites,
-using these sysctl's I was able to get the performance
-back:
-
-net.ipv4.tcp_default_win_scale=0
-net.ipv4.tcp_moderate_rcvbuf=0
-
-
-
-2.6.7-bk18 w/out sysctls:
-2573621 bytes received in 2e+02 seconds (12 Kbytes/s)
-ftp> by
-
-2.6.7-bk18 w/sysctls:
-2573621 bytes received in 0.69 seconds (3.6e+03
-Kbytes/s)
-ftp> by
-
-
-I am curious why I must set these on the newer kernels
-or is this something that is being addressed?  Is this
-an issue with firewalls?
-
-Thank you for your time.
-Phy
-
-
-
---- Phy Prabab <phyprabab@yahoo.com> wrote:
-> Appreciate the tips and help!
-> Phy
-> 
-> --- bert hubert <ahu@ds9a.nl> wrote:
-> > On Sun, Jul 04, 2004 at 04:28:52PM -0700, Phy
-> Prabab
-> > wrote:
-> > > Okay, so, I checked the latest bk (17) and found
-> > that
-> > > the fix indicated by the below link has already
-> > made
-> > > it in and still I see the slow down in ftp
-> > transfers
-> > > in comparison to 2.6.6 and 2.4.x kernels.  Any
-> > > suggestions?
-> > 
-> > I've forwarded your message to netdev@oss.sgi.com,
-> > but see also
+On Monday 05 of July 2004 20:09, Szakacsits Szabolcs wrote:
+> On Mon, 5 Jul 2004, Bartlomiej Zolnierkiewicz wrote:
+> > On Monday 05 of July 2004 14:14, Szakacsits Szabolcs wrote:
+> > >     - nobody could point out any _technical_ benefit why the new
+> > > HDIO_GETGEO code is better than the old one (the _way_ Andries wanted
+> > > to
 > >
+> > Andries pointed it many times but you seem to completely ignore it
 >
-http://groups.google.com/groups?selm=2emz3-6GV-5%40gated-at.bofh.it&output=gplain
-> > 
-> > Good luck!
-> > 
-> > > 
-> > > Dual Opteron
-> > > Broadcom Ge
-> > > using tg3
-> > > 
-> > > Thanks!
-> > > Phy
-> > > --- bert hubert <ahu@ds9a.nl> wrote:
-> > > > On Sat, Jul 03, 2004 at 07:41:12PM -0700, Phy
-> > Prabab
-> > > > wrote:
-> > > > > Heelo,
-> > > > > 
-> > > > > I have been watching a thread concerning the
-> > slow
-> > > > down
-> > > > > with accessing some websites but have not
-> > found a
-> > > > > resolution to the issue.  
-> > > > 
-> > > > Probably fixed by
-> > > >
-> > >
-> >
+> Hmmm. I'm recovering people's partition tables in my spare time,
+> voluntarily, free of charge when they got trashed due to Andries' and
+> Andrew's bugs over the last two years (gpart, testdisk and parted's
+> rescue mode don't always work),
 >
-http://linus.bkbits.net:8080/linux-2.5/cset@40e47ae2tQ_PIxw_HStw3YgsdJFHow?nav=index.html|ChangeSet@-4d
-> > > > 
-> > > > -- 
-> > > > http://www.PowerDNS.com      Open source,
-> > database
-> > > > driven DNS Software 
-> > > > http://lartc.org           Linux Advanced
-> > Routing &
-> > > > Traffic Control HOWTO
-> > > > -
-> > > > To unsubscribe from this list: send the line
-> > > > "unsubscribe linux-kernel" in
-> > > > the body of a message to
-> > majordomo@vger.kernel.org
-> > > > More majordomo info at 
-> > > > http://vger.kernel.org/majordomo-info.html
-> > > > Please read the FAQ at 
-> http://www.tux.org/lkml/
-> > > > 
-> > > 
-> > > 
-> > > 
-> > > 		
-> > > __________________________________
-> > > Do you Yahoo!?
-> > > New and Improved Yahoo! Mail - Send 10MB
-> messages!
-> > > http://promotions.yahoo.com/new_mail 
-> > > -
-> > > To unsubscribe from this list: send the line
-> > "unsubscribe linux-kernel" in
-> > > the body of a message to
-> majordomo@vger.kernel.org
-> > > More majordomo info at 
-> > http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> > -- 
-> > http://www.PowerDNS.com      Open source, database
-> > driven DNS Software 
-> > http://lartc.org           Linux Advanced Routing
-> &
-> > Traffic Control HOWTO
-> > -
-> > To unsubscribe from this list: send the line
-> > "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at 
-> > http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-> 
-> 
-> 		
-> __________________________________
-> Do you Yahoo!?
-> Yahoo! Mail - 50x more storage than other providers!
-> http://promotions.yahoo.com/new_mail
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+>      http://mlf.linux.rulez.org/mlf/ezaz/ntfsresize.html#troubleshoot
+>
+> I reported them several bugs, hints, reasons, potential reasons, guesses,
+> user feature request both privately and publicly.
+>
+> I do know very well Andries' arguments, I've learnt them the hard way.
+> Actually I responded them several times, even in this thread.
 
+OK
 
+> > I also pointed out that IDE driver _doesn't_ need BIOS geometry et all.
+>
+> Thanks but I thought it was off-topic and think the same now, too. It was
+> explained several times.
 
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail - 50x more storage than other providers!
-http://promotions.yahoo.com/new_mail
+How can this be off-topic?  In case of IDE disks HDIO_GETGEO is handled by
+ide-disk driver.  In 2.4 there was ide-geometry.c file (part of IDE driver)
+which contained code for retrieving BIOS geometry (Andries removed it in 2.5),
+Restoring 2.4 way of handling HDIO_GETGEO requires changes to the IDE driver.
+
+> However none of you who responded seems to understand, still, what I want
+> to say.
+>
+> You can't fix, for example, parted 1.6.11 and all earlier versions when
+> one does a 2.4 -> 2.6 kernel upgrade. If a user uses an old enough tool on
+> the new kernels then it can trash its partition table whatever the OS it
+> is (not only the geometry but the layout in sectors, too).
+>
+> Also, sometimes [even very popular] distros ship one or two old tools, no
+> need for kernel upgrade. Whenever a user use the shipped old tool on 2.6
+> it can trash the partition table, being during install or later.
+
+I understand this perfectly and I'm thinking about the best way to solve it.
+
+> You, Bartlomiej Zolnierkiewicz, Andries Brouwer and Steffen Winterfeldt
+> say don't care about those people. OK, at least now it's documented
+> and this thread can be pointed out as a reference in the future.
+
+Calm down because your false accusations are also documented now. ;-)
+
+> Since there is nothing I could do more if maintainers aren't willing to
+> fix their more destructive 2.6 kernel code, the case is closed from my
+> part by this email.
+
+Bartlomiej
+

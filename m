@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265573AbSKAB3D>; Thu, 31 Oct 2002 20:29:03 -0500
+	id <S265276AbSKABiY>; Thu, 31 Oct 2002 20:38:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265567AbSKAB2V>; Thu, 31 Oct 2002 20:28:21 -0500
-Received: from packet.digeo.com ([12.110.80.53]:35836 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265559AbSKAB0p>;
-	Thu, 31 Oct 2002 20:26:45 -0500
-Message-ID: <3DC1D9D0.684326AC@digeo.com>
-Date: Thu, 31 Oct 2002 17:33:04 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.45 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-CC: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-       Jeff Garzik <jgarzik@pobox.com>,
+	id <S265331AbSKABiX>; Thu, 31 Oct 2002 20:38:23 -0500
+Received: from paloma13.e0k.nbg-hannover.de ([62.181.130.13]:18651 "HELO
+	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S265276AbSKABiX> convert rfc822-to-8bit; Thu, 31 Oct 2002 20:38:23 -0500
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Andrew Morton <akpm@digeo.com>, Hans Reiser <reiser@namesys.com>
+Subject: Re: [BK][PATCH] Reiser4, will double Linux FS performance, pleaseapply
+Date: Fri, 1 Nov 2002 02:44:44 +0100
+User-Agent: KMail/1.4.7
+Cc: Jeff Garzik <jgarzik@pobox.com>,
        Linux Kernel <linux-kernel@vger.kernel.org>,
        Oleg Drokin <green@namesys.com>, zam@namesys.com,
        umka <umka@thebsh.namesys.com>
-Subject: Re: [BK][PATCH] Reiser4, will double Linux FS performance, pleaseapply
-References: <3DC19F61.5040007@namesys.com> <200210312334.18146.Dieter.Nuetzel@hamburg.de> <3DC1B2FA.8010809@namesys.com> <3DC1D63A.CCAD78EF@digeo.com> <3DC1D885.6030902@namesys.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Nov 2002 01:33:05.0052 (UTC) FILETIME=[9FEBCDC0:01C28146]
+References: <3DC19F61.5040007@namesys.com> <3DC1D885.6030902@namesys.com> <3DC1D9D0.684326AC@digeo.com>
+In-Reply-To: <3DC1D9D0.684326AC@digeo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200211010244.44970.Dieter.Nuetzel@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-> 
-> Well, if we are only 2.5 times as fast for writes as ext3 after your
-> patch is applied, I'll still feel good.;-)
-> 
+Am Freitag, 1. November 2002 02:33 schrieb Andrew Morton:
+> Hans Reiser wrote:
+> > Well, if we are only 2.5 times as fast for writes as ext3 after your
+> > patch is applied, I'll still feel good.;-)
+>
+> whupping ext3's butt on write performance isn't very hard, really ;)
+>
+> But it should be done based on "feature equivalency".  By default,
+> ext3 uses ordered data writes.  Data is written to disk before
+> the metadata to which that data refers is committed to journal.
+>
+> It would be questionable to compare a metadata-only journalling
+> approach to ext3 with data=journal or data=ordered.
 
-whupping ext3's butt on write performance isn't very hard, really ;)
+As I understood it Reiser4 would have that from the beginning.
+It is all new and not ReiserFS v3 which get this with Chris's data-logging 
+patches delayed for 2.4.21/2.5.45+.
 
-But it should be done based on "feature equivalency".  By default,
-ext3 uses ordered data writes.  Data is written to disk before
-the metadata to which that data refers is committed to journal.
+Plugins for encryption, ACLs, etc are in the works.
 
-It would be questionable to compare a metadata-only journalling
-approach to ext3 with data=journal or data=ordered.
+-Dieter

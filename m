@@ -1,77 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319112AbSHMTzs>; Tue, 13 Aug 2002 15:55:48 -0400
+	id <S319139AbSHMT4p>; Tue, 13 Aug 2002 15:56:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319128AbSHMTzs>; Tue, 13 Aug 2002 15:55:48 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:33041 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S319112AbSHMTzr>;
-	Tue, 13 Aug 2002 15:55:47 -0400
-Date: Tue, 13 Aug 2002 12:55:40 -0700
-From: Greg KH <greg@kroah.com>
-To: Scott Murray <scottm@somanetworks.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pcihpfs problems in 2.4.19
-Message-ID: <20020813195539.GA22408@kroah.com>
-References: <Pine.LNX.4.33.0208091547280.32159-100000@rancor.yyz.somanetworks.com>
-Mime-Version: 1.0
+	id <S319143AbSHMT4p>; Tue, 13 Aug 2002 15:56:45 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:5049 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S319139AbSHMT4o>;
+	Tue, 13 Aug 2002 15:56:44 -0400
+Date: Tue, 13 Aug 2002 12:57:32 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Matthew Dobson <colpatch@us.ibm.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>, Greg KH <gregkh@us.ibm.com>
+Subject: Re: [patch] PCI Cleanup
+Message-ID: <2011880000.1029268652@flay>
+In-Reply-To: <Pine.LNX.4.44.0208131013060.7411-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0208131013060.7411-100000@home.transmeta.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0208091547280.32159-100000@rancor.yyz.somanetworks.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Tue, 16 Jul 2002 18:49:08 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 09, 2002 at 04:18:02PM -0400, Scott Murray wrote:
-> I just started testing the cPCI hotplug driver I'm working on against
-> 2.4.19 after upgrading the kernel in SOMA's in-house distribution,
-> and I'm now getting the attached oops code when trying to access the
-> pcihpfs (e.g. with ls) after mounting it.  I backed out the couple of
-> changes I made last night that might have been remotely connected
-> (added hardware_test and get_power_status hotplug ops in my driver),
-> and I'm still getting it in the same place, so it looks like maybe a
-> VFS change somewhere in 2.4.19 broke pcihpfs.  Any ideas?
+> Quite frankly, to me it looks like the real issue is that you don't want 
+> to have the byte/word/dword stuff replicated three times.
 
-Ah, looks like a change with readdir.c in 2.4.19-pre2 caused this
-problem.  Please try the attached patch, it fixes the problem for me.
-
-Thanks to Dan Stekloff for helping in finding this fix.
-
-thanks,
-
-greg k-h
-
-
-diff -Nru a/drivers/hotplug/pci_hotplug_core.c b/drivers/hotplug/pci_hotplug_core.c
---- a/drivers/hotplug/pci_hotplug_core.c	Tue Aug 13 12:57:16 2002
-+++ b/drivers/hotplug/pci_hotplug_core.c	Tue Aug 13 12:57:16 2002
-@@ -76,7 +76,6 @@
- };
+Exactly - we can do that, but it just seems messy.
  
- static struct super_operations pcihpfs_ops;
--static struct file_operations pcihpfs_dir_operations;
- static struct file_operations default_file_operations;
- static struct inode_operations pcihpfs_dir_inode_operations;
- static struct vfsmount *pcihpfs_mount;	/* one of the mounts of our fs for reference counting */
-@@ -122,7 +121,7 @@
- 			break;
- 		case S_IFDIR:
- 			inode->i_op = &pcihpfs_dir_inode_operations;
--			inode->i_fop = &pcihpfs_dir_operations;
-+			inode->i_fop = &dcache_dir_ops;
- 			break;
- 		}
- 	}
-@@ -234,11 +233,6 @@
+> And your cleanup avoids the replication, but I think it has other badness 
+> in it: in particular it depends on those two global pointers. Which makes 
+> it really hard to have (for example) per-segment functions, or hard for 
+> drivers to hook into it (there's one IDE driver in particular that wants 
+> to do conf2 accesses, and nothing else. So it duplicates its own conf2 
+> functions right now, because it has no way to hook into the generic ones).
+
+OK, that IDE thing smacks of unmitigated evil to me, but if things are relying 
+on it, we shouldn't change it.
  
- 	return 0;
- }
--
--static struct file_operations pcihpfs_dir_operations = {
--	read:		generic_read_dir,
--	readdir:	dcache_readdir,
--};
- 
- static struct file_operations default_file_operations = {
- 	read:		default_read_file,
+>   And I'd suggest multiplexing them at a higher level. Instead of 
+>   six different pcibios_read_config_byte etc functions, move the 
+>   multiplexing up, make make them just two functions at _that_ level (and 
+>   make siz #defines to make it compatible with existing users).
+
+Yup, that sounds like ultimately the correct thing to do. Will try to get
+that way done instead. Should clean things up nicely ....
+
+M.
+
+
+

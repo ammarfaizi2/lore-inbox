@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263387AbSJFMBr>; Sun, 6 Oct 2002 08:01:47 -0400
+	id <S263385AbSJFMFD>; Sun, 6 Oct 2002 08:05:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263388AbSJFMBr>; Sun, 6 Oct 2002 08:01:47 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:14524 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S263387AbSJFMBq>;
-	Sun, 6 Oct 2002 08:01:46 -0400
-Date: Sun, 6 Oct 2002 14:18:24 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
-       Ulrich Drepper <drepper@redhat.com>, <bcollins@debian.org>,
-       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+	id <S263388AbSJFMFD>; Sun, 6 Oct 2002 08:05:03 -0400
+Received: from 62-190-218-58.pdu.pipex.net ([62.190.218.58]:41734 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S263385AbSJFMFD>; Sun, 6 Oct 2002 08:05:03 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200210061218.g96CIAjY001906@darkstar.example.net>
 Subject: Re: BK MetaData License Problem?
-In-Reply-To: <20021006.045201.26534685.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0210061410540.5162-100000@localhost.localdomain>
+To: davem@redhat.com (David S. Miller)
+Date: Sun, 6 Oct 2002 13:18:10 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk, lm@bitmover.com, drepper@redhat.com,
+       bcollins@debian.org, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, mingo@elte.hu
+In-Reply-To: <20021006.045201.26534685.davem@redhat.com> from "David S. Miller" at Oct 06, 2002 04:52:01 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 6 Oct 2002, David S. Miller wrote:
-
+>    From: Ingo Molnar <mingo@elte.hu>
+>    Date: Sun, 6 Oct 2002 14:04:42 +0200 (CEST)
+>    
+>    It's not a big problem today because if you ask me then i'll tell you that
+>    it's GPL-ed - but what will be the situation be in years? Couldnt
+>    'BitMover or any other operator of an Open Logging server' argue that the
+>    MetaData is owned by whoever created them, and is not covered by the GPL -
+>    and only 'BitMover or any other operator of an Open Logging server' has
+>    'permission to republish the Metadata'.
+>    
 > Anything you write is automatically copyrighted by you, even if you
 > don't specifically state it as such.
->
+
+In most countries nowadays, this is correct.
+
 > That is my basic understanding of copyright law.
 > 
 > BitMover et al. can't take your copyright powers away from you.
 
-yes, this is my understanding as well, but the BK license can require you
-to license your bits in exchange for allowing you to use the BK product.  
-It already does require 'republishing rights' for the metadata bits in
-fact. (which is a perfectly fair requirement - Larry needs this assurance
-to be able to host bkbits in a legally safe way.)
+No, but since you own the copyright, you can give rights to the material to the operator of the Open Logging server.
 
-the issue is that in the BK repository data and metadata is distinctly
-separate. The Linux kernel is fully functional without any of the
-metadata, and the GPL only covers the Linux kernel.
+Why don't we have a system whereby we automatically assign copyright to one person, (I.E. Linus), who can then assign us GPL rights in return, so that by submitting material to any server, we are not able to assign anything other than GPL rights to it's owner.
 
-And i'd like note it that this situation is not "BK's fault" in any way,
-it's simply the thing that copyright law says about not explicitly
-licensed bits. But it's a situation created by BK, and it could be
-eliminated by the BK license requiring the metadata to be licensed under
-the same conditions the data itself is licensed. Or we could put this into
-the Linux kernel license. (which OTOH might violate the GPL.)
+This is, I believe, although I could be wrong, the reason that the Free Software Foundation allows you to assign copyrights to them.
 
-i'm sure this issue was raised before - eg. what is the legal standing of
-the commit messages of the BSD kernels?
-
-	Ingo
-
+John.

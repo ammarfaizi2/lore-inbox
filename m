@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269987AbRHESiG>; Sun, 5 Aug 2001 14:38:06 -0400
+	id <S269989AbRHEShH>; Sun, 5 Aug 2001 14:37:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269986AbRHESh5>; Sun, 5 Aug 2001 14:37:57 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:33142 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S269987AbRHEShl>; Sun, 5 Aug 2001 14:37:41 -0400
-Date: Sun, 5 Aug 2001 20:38:10 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: kuznet@ms2.inr.ac.ru
-Cc: Dave Miller <davem@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: alloc_skb cannot be called with GFP_DMA
-Message-ID: <20010805203810.K21840@athlon.random>
-In-Reply-To: <20010805181606.F21840@athlon.random> <200108051718.VAA17521@ms2.inr.ac.ru>
-Mime-Version: 1.0
+	id <S269987AbRHESg5>; Sun, 5 Aug 2001 14:36:57 -0400
+Received: from cs159246.pp.htv.fi ([213.243.159.246]:3913 "EHLO
+	porkkala.cs159246.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S269986AbRHESgo>; Sun, 5 Aug 2001 14:36:44 -0400
+Message-ID: <3B6D921E.B5EFB98@pp.htv.fi>
+Date: Sun, 05 Aug 2001 21:36:14 +0300
+From: Jussi Laako <jlaako@pp.htv.fi>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: bvermeul@devel.blackstar.nl
+CC: Russell King <rmk@arm.linux.org.uk>, Per Jessen <per.jessen@enidan.com>,
+        linux-kernel@vger.kernel.org, linux-laptop@vger.kernel.org
+Subject: Re: PCMCIA control I82365 stops working with 2.4.4
+In-Reply-To: <Pine.LNX.4.33.0108041122520.15321-100000@devel.blackstar.nl>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200108051718.VAA17521@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Sun, Aug 05, 2001 at 09:18:11PM +0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 05, 2001 at 09:18:11PM +0400, kuznet@ms2.inr.ac.ru wrote:
-> Hello!
+bvermeul@devel.blackstar.nl wrote:
 > 
-> > alloc_isa_skb will avoid to slowdown alloc_skb so I prefer it compared
-> > to hiding the logic inside alloc_skb.
-> 
-> Stop! This is redundant. GFP_DMA is for skb data, not head!
-> 
-> So that, it is enough and right to clear GFP_DMA inside
-> alloc_skb when allocating skb head.
+> > > Try going to your bios and setting the PCMCIA adapter to 
+> > > Cardbus/16bit instead of Auto. The Toshiba Topic chipsets are buggy, 
+> > Dunno how to change those. The machine had just windows based setup 
+> > program.
+> Press Esc when the laptop boots. It'll tell you you did something stupid,
+> and please press F1 to enter setup.
 
-ah it's all metadata, so this should fix it (the bugcheck will still
-trap any skb_clone caller that uses GFP_DMA because it doesn't make
-sense to call skb_clone with GFP_DMA):
+OK, I changed that and now it works fine. :)
 
---- 2.4.8pre4aa1/net/core/skbuff.c.~1~	Sat Jul 21 00:04:34 2001
-+++ 2.4.8pre4aa1/net/core/skbuff.c	Sun Aug  5 20:30:00 2001
-@@ -180,7 +180,7 @@
- 	/* Get the HEAD */
- 	skb = skb_head_from_pool();
- 	if (skb == NULL) {
--		skb = kmem_cache_alloc(skbuff_head_cache, gfp_mask);
-+		skb = kmem_cache_alloc(skbuff_head_cache, gfp_mask & ~__GFP_DMA);
- 		if (skb == NULL)
- 			goto nohead;
- 	}
+> My Dell Inspiron 8000 (Ati video chipset) works flawlessly for me. Got
+> everything working like it should.
 
-Andrea
+IrDA also?
+
+
+ - Jussi Laako
+
+-- 
+PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+Available at PGP keyservers

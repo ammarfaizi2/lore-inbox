@@ -1,84 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272506AbTHKLdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 07:33:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272504AbTHKLdJ
+	id S272500AbTHKL1l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 07:27:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272504AbTHKL1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 07:33:09 -0400
-Received: from duck.doc.ic.ac.uk ([146.169.1.46]:10254 "EHLO duck.doc.ic.ac.uk")
-	by vger.kernel.org with ESMTP id S272528AbTHKLdA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 07:33:00 -0400
-Date: Mon, 11 Aug 2003 12:32:58 +0100
-From: Adam Langley <agl@imperialviolet.org>
-To: linux-kernel@vger.kernel.org
-Subject: net/sunrpc/auth.c bad pointers in credcache
-Message-ID: <20030811113258.GA3627@linuxpower.org>
+	Mon, 11 Aug 2003 07:27:41 -0400
+Received: from pub237.cambridge.redhat.com ([213.86.99.237]:24040 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id S272500AbTHKL1j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 07:27:39 -0400
+Subject: Re: 2.5.x module make questions
+From: David Woodhouse <dwmw2@infradead.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: yiding_wang@agilent.com, linux-kernel@vger.kernel.org,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+In-Reply-To: <20030729210916.GA20154@mars.ravnborg.org>
+References: <334DD5C2ADAB9245B60F213F49C5EBCD05D55239@axcs03.cos.agilent.com>
+	 <20030729210916.GA20154@mars.ravnborg.org>
+Content-Type: text/plain
+Message-Id: <1060601246.8833.9.camel@passion.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Mailer: Why do *you* want to know??
+X-Mailer: Ximian Evolution 1.4.1 (dwmw2) 
+Date: Mon, 11 Aug 2003 12:27:34 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We are seeing a number of kernel oopses (which then lead to the system
-freezing) on 2.4.20 (but the code hasn't been touched in .21 as far as
-we can tell).
+On Tue, 2003-07-29 at 22:09, Sam Ravnborg wrote:
+> What Corbet suggest in the referenced doc is to have the following:
+> 
+> ifndef KERNELRELEASE
+> here goes old style Makefile
+> else
+> here goes Kbuild makefile
+> endif
 
-The fault is at rpcauth_gc_credcache line 155:
-        for (i = 0; i < RPC_CREDCACHE_NR; i++) {
-                q = &auth->au_credcache[i];
-                while ((cred = *q) != NULL) {
-155 ->                    if (!atomic_read(&cred->cr_count) &&
-                              time_before(cred->cr_expire, jiffies)) {
-                                *q = cred->cr_next;
-                                cred->cr_auth = NULL;
-                                cred->cr_next = free;
-                                free = cred;
-                                continue;
-                        }
+This is pointless. The 'make -C $KERNELDIR SUBDIRS=`pwd`' form has been
+working since at least 2.0, and surely nobody's trying to build for 1.3
+kernels any more? Just do it the latter way unconditionally.
 
 
-the cred pointer is in edx and has the value 0x1, which is what's
-causing the fault. The auth structure is being passed from far above and
-comes from the inode structure. (see nfs3_proc_getattr and the 
-NFS_CLIENT macro).
+> > ag.o: ../../../../t/s/ts.o ../../../f/c/fc.o ../../../f/i/fi.o  s/sl.o 
+> > 	ld -r -o ag.o ../../../../t/s/ts.o ../../../f/c/fc.o ../../../f/i/fi.o s/sl.o 
+> 
+> This looks really ugly. I do not expect kbuild to even get close to help
+> you here. kbuild is designed around the idea that objects are built
+> directory-by-directory, and in the upper level directory the are linked.
+> What you have surely does not follow that principle.
 
-We are only seeing this on our primary webserver which does a fair bit
-of NFS client traffic but I'm sure we have other boxes with the same
-kernel that are managing the load.
+In fact, the kbuild system just uses strings for the SUBDIRS variable...
+it doesn't inspect them to check for '..' in them and deliberately barf
+(although perhaps it should :).
 
-We have changed hardware (completely) and are still seeing the exact
-same problem.
+ifndef TOPDIR
+# Invoked from the command line... do it properly
 
-System.map: http://www2.doc.ic.ac.uk/~agl02/System.map-2.4.20-03doc
+# KERNELDIR can be overridden on the command line
+KERNELDIR := /lib/modules/`uname -r`/build
 
-Oops trace:
-Aug  8 04:28:44 heron kernel:  <1>Unable to handle kernel NULL pointer dereference at virtual address 0000000f
-Aug  8 04:28:44 heron kernel:  printing eip:
-Aug  8 04:28:44 heron kernel: c0274730
-Aug  8 04:28:44 heron kernel: *pde = 00000000
-Aug  8 04:28:44 heron kernel: Oops: 0000
-Aug  8 04:28:44 heron kernel: CPU:    2
-Aug  8 04:28:44 heron kernel: EIP:    0010:[rpcauth_gc_credcache+64/200]    Not tainted
-Aug  8 04:28:44 heron kernel: EFLAGS: 00010286
-Aug  8 04:28:44 heron kernel: eax: 00000a96   ebx: 00000001   ecx: d4ad5840   edx: ffffffff
-Aug  8 04:28:44 heron kernel: esi: 00000000   edi: e29cf320   ebp: 00000a96   esp: da4ddda0
-Aug  8 04:28:44 heron kernel: ds: 0018   es: 0018   ss: 0018
-Aug  8 04:28:44 heron kernel: Process automount (pid: 28790, stackpage=da4dd000)
-Aug  8 04:28:44 heron kernel: Stack: 00000000 da4dde28 00000000 e29cf320 c027482c e29cf320 e29cf320 da4dde28
-Aug  8 04:28:44 heron kernel:        da4dde28 f495b5a0 c027494c e29cf320 00000000 da4dde28 00000000 c026f496
-Aug  8 04:28:44 heron kernel:        da4dde28 da4dde20 c026f37e da4dde28 da4ddef0 00000000 da4dde28 f495b5a0
-Aug  8 04:28:44 heron kernel: Call Trace: [rpcauth_lookup_credcache+60/172] [rpcauth_bindcred+60/84] [rpc_call_setup+62/112] [rpc_call_sync+102/156] [rpc_run_timer+0/144]
-Aug  8 04:28:44 heron kernel:    [nfs3_rpc_wrapper+54/124] [nfs3_proc_getattr+100/136] [__nfs_revalidate_inode+238/564] [dput+25/328] [link_path_walk+1808/2008] [__user_walk+67/80]
-Aug  8 04:28:44 heron kernel:    [nfs_revalidate+73/84] [sys_lstat64+58/112] [system_call+51/56]
-Aug  8 04:28:44 heron kernel:
-Aug  8 04:28:44 heron kernel: Code: 8b 42 10 85 c0 75 21 a1 a4 96 36 c0 8b 6a 0c 29 c5 89 e8 85
+default:
+	make -C $(KERNELDIR) SUBDIRS=`pwd` modules
 
-If anyone needs any more information please email me.
+else
+# Invoked from the kernel build...
+
+SUBDIRS := ../../../../t/s../../../f/c ../../../f/i s
+
+ag-objs := ../../../../t/s/ts.o ../../../f/c/fc.o ../../../f/i/fi.o \
+		s/sl.o 
+obj-m := ag.o
+
+endif
+> > Any suggestion is welcomed.  If the kbuild cannot do ascending, I have to change the source tree structure but that is the least I want to do.
+> 
+> This is my best suggestion. Follow the normal way of doing things in the
+> kernel make it easier/possible to use the infrastructure provided
+> by the kernel.
+> 
+> PS. Please also read the paper by Kai Germashewski from OLS -
+> see www.linuxsymposium.org - it provide good background info on kbuild.
+> 
+> 	Sam
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-Adam Langley                                      agl@imperialviolet.org
-http://www.imperialviolet.org                       (+44) (0)7906 332512
-PGP: 9113   256A   CC0F   71A6   4C84   5087   CDA5   52DF   2CB6   3D60
+dwmw2
+

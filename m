@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317878AbSHHTUx>; Thu, 8 Aug 2002 15:20:53 -0400
+	id <S317785AbSHHTTV>; Thu, 8 Aug 2002 15:19:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317879AbSHHTUx>; Thu, 8 Aug 2002 15:20:53 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:30906 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317878AbSHHTUv>; Thu, 8 Aug 2002 15:20:51 -0400
-Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
-From: Paul Larson <plars@austin.ibm.com>
-To: Hubertus Franke <frankeh@us.ibm.com>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Andrew Morton <akpm@zip.com.au>,
-       andrea@suse.de, Dave Jones <davej@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <OF107F9BDE.0B57DFBC-ON85256C0F.00669FD0-85256C0F.00681292@us.ibm.com>
-References: <OF107F9BDE.0B57DFBC-ON85256C0F.00669FD0-85256C0F.00681292@us.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 08 Aug 2002 14:18:55 -0500
-Message-Id: <1028834336.19434.327.camel@plars.austin.ibm.com>
+	id <S317906AbSHHTTV>; Thu, 8 Aug 2002 15:19:21 -0400
+Received: from holomorphy.com ([66.224.33.161]:47770 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S317785AbSHHTTU>;
+	Thu, 8 Aug 2002 15:19:20 -0400
+Date: Thu, 8 Aug 2002 12:22:01 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+       Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+       Andrew Morton <akpm@zip.com.au>, Anton Blanchard <anton@samba.org>,
+       linux-kernel@vger.kernel.org, riel@imladris.surriel.com
+Subject: Re: fix CONFIG_HIGHPTE
+Message-ID: <20020808192201.GF15685@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+	Andrew Morton <akpm@zip.com.au>, Anton Blanchard <anton@samba.org>,
+	linux-kernel@vger.kernel.org, riel@imladris.surriel.com
+References: <Pine.LNX.4.44L.0208081149410.2589-100000@duckman.distro.conectiva> <1028836757.28883.73.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <1028836757.28883.73.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-08 at 13:56, Hubertus Franke wrote:
-> (a) Vanilla version which breaks down after 22K pids and 
-> really sucks above 32.5K
-> (b) Bill Irwin's, which keeps track of which PID is free and 
-> which one is not ?
-> (c) Andrea's patch which searches in the bitmap when we are 
-> running out
-> (d) Paul's patch, which I believe was based on one of my earlier 
-> submission (03/02) that essentially switches between (a)+(c) at 
-> the break even point.
+On Thu, 2002-08-08 at 15:51, Rik van Riel wrote:
+>> Linux isn't yet up to having 500 simultaneous interactive
+>> users, in fact I don't think it has ever been up to this
+>> situation.
 
-> I feel (c) or (d) is a better solution over (a) and (b)...   Open for
-> discussion.
-> I have a test program that does the random pid deletion and pid allocation
-> in user space. All what's required is to copy the get_pid() code from the
-> kernel into there... Can make that available ...
-> 
-> I don't know what Paul has done to the patch since then ....
+On Thu, Aug 08, 2002 at 08:59:17PM +0100, Alan Cox wrote:
+> It works suprisingly well. I know people who are doing it. It does not
+> work when those users are all running arbitarly large jobs. In most
+> conventional (non student compile) type setups 500 is fine. The O(1)
+> scheduler and highio are pretty essential as is a real I/O subsystem.
 
-It's pretty much the same, with a couple of small changes.  After
-forward porting your patch and the one from AA's patches (hch says that
-one was actually done by Ihno Krumreich, thanks for the info), I added
-the fix from (c) for the race, and moved the check for if(flags &
-CLONE_IDLETASK) outside of get_pid into copy_process() since there's no
-need to call get_pid and return just to find out that we need to use 0.
 
--Paul Larson
+Could you put me and/or Rik in contact with them so we can get a better
+grip on their issues and  characteristics of their workload?
 
+
+Thanks,
+Bill

@@ -1,36 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265051AbTBOU2G>; Sat, 15 Feb 2003 15:28:06 -0500
+	id <S265114AbTBOUeZ>; Sat, 15 Feb 2003 15:34:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265065AbTBOU2G>; Sat, 15 Feb 2003 15:28:06 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:61956 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S265051AbTBOU2G>;
-	Sat, 15 Feb 2003 15:28:06 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302152037.h1FKbF6L000732@darkstar.example.net>
-Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Sat, 15 Feb 2003 20:37:15 +0000 (GMT)
-Cc: cort@fsmlabs.com, rusty@linux.co.intel.com, pavel@ucw.cz,
-       linux-kernel@vger.kernel.org, mochel@osdl.org, davej@codemonkey.org.uk,
-       daniel@rimspace.net
-In-Reply-To: <1045342995.5130.8.camel@irongate.swansea.linux.org.uk> from "Alan Cox" at Feb 15, 2003 09:03:16 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S265130AbTBOUeZ>; Sat, 15 Feb 2003 15:34:25 -0500
+Received: from covert.brown-ring.iadfw.net ([209.196.123.142]:38661 "EHLO
+	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
+	id <S265114AbTBOUeV>; Sat, 15 Feb 2003 15:34:21 -0500
+Date: Sat, 15 Feb 2003 14:37:07 -0600
+From: Art Haas <ahaas@airmail.net>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] C99 initializers for drivers/char/rtc.c
+Message-ID: <20030215203707.GB20146@debian>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Magnetic media                       -> disk
-> > Optical media                        -> disc
-> > Combination media, (magneto-optical) -> disk
-> 
-> It varies by place. Optincal media is "disc" primarily because the
-                      ^^^^^^^^
+Hi.
 
-> As everyone knows the proper spelling is "disg" for all three.
+This patch converts the file to use C99 initializers to improve
+readability and remove warnings if '-W' is used.
 
-Ah, but not everyone knows the proper spelling of optical :-).
+Art Haas
 
-John.
+===== drivers/char/rtc.c 1.21 vs edited =====
+--- 1.21/drivers/char/rtc.c	Sun Feb  9 19:29:56 2003
++++ edited/drivers/char/rtc.c	Sat Feb 15 12:17:36 2003
+@@ -211,19 +211,37 @@
+  * sysctl-tuning infrastructure.
+  */
+ static ctl_table rtc_table[] = {
+-    { 1, "max-user-freq", &rtc_max_user_freq, sizeof(int), 0644, NULL,
+-      &proc_dointvec, NULL, },
+-    { 0, }
++	{
++		.ctl_name	= 1,
++		.procname	= "max-user-freq",
++		.data		= &rtc_max_user_freq,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++	},
++	{ .ctl_name = 0 }
+ };
+ 
+ static ctl_table rtc_root[] = {
+-    { 1, "rtc", NULL, 0, 0555, rtc_table, },
+-    { 0, }
++	{
++		.ctl_name	= 1,
++		.procname	= "rtc",
++		.maxlen		= 0,
++		.mode		= 0555,
++		.child		= rtc_table,
++	},
++	{ .ctl_name = 0 }
+ };
+ 
+ static ctl_table dev_root[] = {
+-    { CTL_DEV, "dev", NULL, 0, 0555, rtc_root, },
+-    { 0, }
++	{
++		.ctl_name	= CTL_DEV,
++		.procname	= "dev",
++		.maxlen		= 0,
++		.mode		= 0555,
++		.child		= rtc_root,
++	},
++	{ .ctl_name = 0 }
+ };
+ 
+ static struct ctl_table_header *sysctl_header;
+-- 
+They that can give up essential liberty to obtain a little temporary safety
+deserve neither liberty nor safety.
+ -- Benjamin Franklin, Historical Review of Pennsylvania, 1759

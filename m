@@ -1,298 +1,256 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261434AbUCKP3j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 10:29:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbUCKP3G
+	id S261413AbUCKPik (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 10:38:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbUCKPik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 10:29:06 -0500
-Received: from [220.161.103.89] ([220.161.103.89]:37641 "HELO eyou.com")
-	by vger.kernel.org with SMTP id S261434AbUCKPZb (ORCPT
+	Thu, 11 Mar 2004 10:38:40 -0500
+Received: from dire.bris.ac.uk ([137.222.10.60]:32235 "EHLO dire.bris.ac.uk")
+	by vger.kernel.org with ESMTP id S261413AbUCKPia (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 10:25:31 -0500
-From: "dieselfuelinject@eyou.com" <dieselfuelinject@eyou.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: P/A/I,03/11,Order
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Date: Thu, 11 Mar 2004 23:25:21 +0800
-Reply-To: "dieselfuelinject@eyou.com" <dieselfuelinject@eyou.com>
-X-Priority: 1 (Highest)
-Content-Transfer-Encoding: 7BIT
-Message-Id: <S261434AbUCKPZb/20040311152601Z+16@vger.kernel.org>
+	Thu, 11 Mar 2004 10:38:30 -0500
+Date: Thu, 11 Mar 2004 15:39:25 +0000 (GMT)
+From: Bart Oldeman <bartoldeman@users.sourceforge.net>
+X-X-Sender: enbeo@enm-bo-lt.enm.bris.ac.uk
+To: Andi Kleen <ak@muc.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] introduce a mmap MAP_DONTEXPAND flag (fwd)
+Message-ID: <Pine.LNX.4.44.0403111537170.6011-100000@enm-bo-lt.enm.bris.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir, 
+[please ignore the previous message, some were still missing]
 
- we have been in the field of diesel fuel injection 
-systems for quite a few years.(CHINA)
+On Thu, 18 Mar 2004, Andi Kleen wrote:
 
-Recently we have developed a new kind of h&r,
-"CH-D90101A=AM Bosch number HD90101A"Its unit price is USD150/pc.And 
-we also adjust the unit price of Nozzle , Plunger to USD4~8/pc
-respectively.
+> Bart Oldeman <bartoldeman@users.sourceforge.net> writes:
+>
+> >  			return -EPERM;
+> > --- include/asm-i386/mman.h~	Sat Oct 25 19:42:58 2003
+> > +++ include/asm-i386/mman.h	Thu Mar 11 13:37:33 2004
+> > @@ -22,6 +22,7 @@
+> >  #define MAP_NORESERVE	0x4000		/* don't check for reservations */
+> >  #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
+> >  #define MAP_NONBLOCK	0x10000		/* do not block on IO */
+> > +#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
+>
+> *always* when you change something in asm-i386 check if other architectures
+> need changing too. Your patch would break compilation for everybody !i386
 
-We tell you that we will update our VE h&r
-(hydraulic heads for the VE distributor pump) list in our 
-homepages.Thirty more models will be added.And the minimum
-order will be 10pcs a model.
+that's the reason for my i386 comment and the "RFC". Just asking if people
+do or do not like the idea. Anyway, I've done the whole bunch now.
 
-we give the unity quotation of VE distributor head:
+--- mm/mmap.c~	Wed Feb 25 19:21:10 2004
++++ mm/mmap.c	Thu Mar 11 15:18:37 2004
+@@ -511,6 +511,10 @@
+ 	vm_flags = calc_vm_prot_bits(prot) | calc_vm_flag_bits(flags) |
+ 			mm->def_flags | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC;
 
-3-cyl:USD:55/1pcs
-4-cyl:USD:40~50/1pcs
-5-cyl:USD:60/1pcs
-6-cyl:USD:45~50/1pcs
++	if (flags & MAP_DONTEXPAND) {
++		vm_flags |= VM_DONTEXPAND;
++	}
++
+ 	if (flags & MAP_LOCKED) {
+ 		if (!capable(CAP_IPC_LOCK))
+ 			return -EPERM;
+diff -ur include_old/asm-alpha/mman.h include/asm-alpha/mman.h
+--- include_old/asm-alpha/mman.h	Sat Oct 25 19:42:47 2003
++++ include/asm-alpha/mman.h	Thu Mar 11 15:18:37 2004
+@@ -28,6 +28,7 @@
+ #define MAP_NORESERVE	0x10000		/* don't check for reservations */
+ #define MAP_POPULATE	0x20000		/* populate (prefault) pagetables */
+ #define MAP_NONBLOCK	0x40000		/* do not block on IO */
++#define MAP_DONTEXPAND	0x80000		/* do not allow mremap to expand */
 
-  We can ship the following three models to you within 6~8 weeks. after
- we receive your payment.
-  If you feel interested in our products,please advise the details about
- what you need,such model name,part number,quantity and so on.We are always
- within your touch.
+ #define MS_ASYNC	1		/* sync memory asynchronously */
+ #define MS_SYNC		2		/* synchronous memory sync */
+diff -ur include_old/asm-arm/mman.h include/asm-arm/mman.h
+--- include_old/asm-arm/mman.h	Sat Oct 25 19:43:19 2003
++++ include/asm-arm/mman.h	Thu Mar 11 15:18:37 2004
+@@ -22,6 +22,7 @@
+ #define MAP_NORESERVE	0x4000		/* don't check for reservations */
+ #define MAP_POPULATE	0x8000		/* populate (prefault) page tables */
+ #define MAP_NONBLOCK	0x10000		/* do not block on IO */
++#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
 
-Thanks and best regards
+ #define MS_ASYNC	1		/* sync memory asynchronously */
+ #define MS_INVALIDATE	2		/* invalidate the caches */
+diff -ur include_old/asm-arm26/mman.h include/asm-arm26/mman.h
+--- include_old/asm-arm26/mman.h	Sat Oct 25 19:42:49 2003
++++ include/asm-arm26/mman.h	Thu Mar 11 15:18:37 2004
+@@ -22,6 +22,7 @@
+ #define MAP_NORESERVE	0x4000		/* don't check for reservations */
+ #define MAP_POPULATE    0x8000          /* populate (prefault) page tables */
+ #define MAP_NONBLOCK    0x10000         /* do not block on IO */
++#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
 
-Looking forward to our favorable cooperation.
-Hope to hear from you soon.
-(NIPPON DENSO)
-D00-0143
-D00-0242
-D00-0262
-D00-0371
-D00-0432
-D00-1030
-D00-1060
-D00-1090
-D00-1210
-D00-1220
-D00-1230
-D00-1240
-D00-1250
-D00-1330
-D00-1331
-D00-1600
-D40-0080 
+ #define MS_ASYNC	1		/* sync memory asynchronously */
+ #define MS_INVALIDATE	2		/* invalidate the caches */
+diff -ur include_old/asm-cris/mman.h include/asm-cris/mman.h
+--- include_old/asm-cris/mman.h	Sat Oct 25 19:44:49 2003
++++ include/asm-cris/mman.h	Thu Mar 11 15:18:37 2004
+@@ -24,6 +24,7 @@
+ #define MAP_NORESERVE	0x4000		/* don't check for reservations */
+ #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
+ #define MAP_NONBLOCK	0x10000		/* do not block on IO */
++#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
 
-ZEXEL
-Z00-2220
-Z00-3320
-Z00-4520
-Z00-5521
-Z00-8821
-Z00-9720
-Z01-0520
-Z01-2120
-Z02-0820
-Z02-0920
-Z02-1420
-Z02-4020
-Z02-4320
-Z02-3820
-Z03-2820
-Z03-3120
-Z03-3520
-Z04-1520
-Z04-2200
-Z05-1920
-Z30-1420
+ #define MS_ASYNC	1		/* sync memory asynchronously */
+ #define MS_INVALIDATE	2		/* invalidate the caches */
+diff -ur include_old/asm-h8300/mman.h include/asm-h8300/mman.h
+--- include_old/asm-h8300/mman.h	Sat Oct 25 19:43:51 2003
++++ include/asm-h8300/mman.h	Thu Mar 11 15:18:37 2004
+@@ -19,6 +19,7 @@
+ #define MAP_EXECUTABLE	0x1000		/* mark it as an executable */
+ #define MAP_LOCKED	0x2000		/* pages are locked */
+ #define MAP_NORESERVE	0x4000		/* don't check for reservations */
++#define MAP_DONTEXPAND	0x8000		/* do not allow mremap to expand */
 
-BOSCH
+ #define MS_ASYNC	1		/* sync memory asynchronously */
+ #define MS_INVALIDATE	2		/* invalidate the caches */
+diff -ur include_old/asm-i386/mman.h include/asm-i386/mman.h
+--- include_old/asm-i386/mman.h	Sat Oct 25 19:42:58 2003
++++ include/asm-i386/mman.h	Thu Mar 11 15:25:55 2004
+@@ -22,6 +22,7 @@
+ #define MAP_NORESERVE	0x4000		/* don't check for reservations */
+ #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
+ #define MAP_NONBLOCK	0x10000		/* do not block on IO */
++#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
 
-A 333 320
-A 333 323
-A 334 313
-A 334 327
-A 334 565
-A 334 337
-A 334 378
-A 334 424
-A 334 475
-A 334 485
-A 334 494
-A 334 496
-A 334 580
-A 334 590
-A 334 564
-A 334 565
-A 334 575
-A 334 592
-A 334 595
-A 334 596
-A 334 603
-A 334 604
-A 334 606
-A 334 617
-A 334 675
-A 334 678
-A 334 720
-A 334 780
-A 334 798
-A 334 859
-A 334 874
-A 334 899
-A 334 946
-A 335 345
-B 335 022
-A 336 335
-A 336 352
-A 336 364
-A 336 403
-A 336 423
-A 336 464
-A 336 480
-A 336 528
-A 336 608
-A 336 614
-A 336 626
-A 336 632
-B 334 050
-B 334 021
-B 336 013
+ #define MS_ASYNC	1		/* sync memory asynchronously */
+ #define MS_INVALIDATE	2		/* invalidate the caches */
+diff -ur include_old/asm-ia64/mman.h include/asm-ia64/mman.h
+--- include_old/asm-ia64/mman.h	Wed Feb 25 19:21:01 2004
++++ include/asm-ia64/mman.h	Thu Mar 11 15:18:37 2004
+@@ -30,6 +30,7 @@
+ #define MAP_NORESERVE	0x04000		/* don't check for reservations */
+ #define MAP_POPULATE	0x08000		/* populate (prefault) pagetables */
+ #define MAP_NONBLOCK	0x10000		/* do not block on IO */
++#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
 
-  We have a large number of nozzle, plunger and delivery valve
-in stock.Here is a list of part of them.
-"
-"
-NOZZLE
-093400-1310   DN0SD193
-093400-1710 DLLA160SND171
-093400-2280 DNOSD228
-093400-5210 DNOPD21
-093400-5571 ND-DN4PD57
-093400-5590  ND-DLLA150P59 
-093400-7690 ND-DN10PDN129
-093400-7700 ND-DN10PDN130
- DNOSD261
- DNOSD220
- DNOSD293
- DLLA150P205
- DLLA150S1070
-105000-108 NP-DNOSD211
-105000-1130 NP-DN4SD24
-10500-1650 NP-DNOSD2110
-105000-1080 NP-DNOSD211
-105000-1360 NP-DN4SD24
-105000-1730 NP-DNOSD21
-105000-1740 NP-DNOSD193
-105000-1760 
-105000-2280 NP-DNOSDN228
-105007-1120 NP-DNOPDN112
-105007-1130 NP-DN0PDN113
-105007-1210 NP-DNOPDN121
-105015-2780 NP-DLLA166S374NP6 
-105015-3280 NP-DLLA150S328NP52
-105015-3520 DLLA150S384NP73
-105015-3650 NP-DLLA151S354N86
-105015-3670 NP-DLLA160S354NP88
-105015-3850 NP-DLLA150S334N385
-105015-4130 NP-DLLA154S324N413
-105015-4170 NP-DLLA137S374N417
-105015-4190 DLLA154S334N419
-105015-4220 NP-DLLA160S295N422
-105015-4330 NP-DLLA105S304N433
-105015-4730 NP-DLLA148S324N473
-105015-5070 NP-DLLA160S325N507
-105015-6130 NP-DLLA142SN613
-105015-6380 DLLA158SN638
-105015-8690 DLLA158SN869
-105015-8860 NP-DLLA148SN886
-105017-0070 NP-DLLA154PN007
-105017-0090 NP-DLLA152PN009
-105017-0630 NP-DLLA152PN063
-105017-0670 DLLA154PN067
-105017-0100 DLLA160PN010
-105017-0210 DLLA150PN021
-105017-0211/10 DLLA150PN021
-105017-0900    DLLA152PN009
-105017-1160 NP-DLLA154PN116
-105017-1180 DLLA155PN118
-105007-1210 NP-DNOPDN121
-105017-1780 DLLA153PN178
-0 433 271 740 
-0 433 271 047 DLLA150S187
-0 433 271 045 DLLA150S186
-0 433 171 031 DLLA150P30
-0 433 171 050 DLLA160P50
-0 433 171 059  DLLA150P59
-0 433 171 104 DLLA150P115
-0 433 171 149 DLLA146P166
-0 433 171 137 DLLA146P154
-0 433 171 161 DLLA144P184
-0 433 171 172 DLLA154P206
-0 433 171 231 DLLA150P326
-0 433 171 435 DLLA145P574
-0 433 171 444 DLLA150P585
-0 433 175 048 DSLA145P300
-0 433 271 045 DLLA150S186
-0 433 271 047 DLLA150S187
-0 433 271 361 DLLA150S739
-0 433 271 404 DLLA142S792
-0 433 271 874 DLLA150S739
-0 466 171 003 DLL-A160P3
- NP-DLL154S284N393
- NP-DLL160S 354NP88 
-6801128
-6801118
+ #define MS_ASYNC	1		/* sync memory asynchronously */
+ #define MS_INVALIDATE	2		/* invalidate the caches */
+diff -ur include_old/asm-m68k/mman.h include/asm-m68k/mman.h
+--- include_old/asm-m68k/mman.h	Sat Oct 25 19:43:02 2003
++++ include/asm-m68k/mman.h	Thu Mar 11 15:18:37 2004
+@@ -22,6 +22,7 @@
+ #define MAP_NORESERVE	0x4000		/* don't check for reservations */
+ #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
+ #define MAP_NONBLOCK	0x10000		/* do not block on IO */
++#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
 
+ #define MS_ASYNC	1		/* sync memory asynchronously */
+ #define MS_INVALIDATE	2		/* invalidate the caches */
+diff -ur include_old/asm-mips/mman.h include/asm-mips/mman.h
+--- include_old/asm-mips/mman.h	Sat Oct 25 19:43:18 2003
++++ include/asm-mips/mman.h	Thu Mar 11 15:26:06 2004
+@@ -46,6 +46,7 @@
+ #define MAP_LOCKED	0x8000		/* pages are locked */
+ #define MAP_POPULATE	0x10000		/* populate (prefault) pagetables */
+ #define MAP_NONBLOCK	0x20000		/* do not block on IO */
++#define MAP_DONTEXPAND	0x40000		/* do not allow mremap to expand */
 
+ /*
+  * Flags for msync
+diff -ur include_old/asm-parisc/mman.h include/asm-parisc/mman.h
+--- include_old/asm-parisc/mman.h	Sat Oct 25 19:43:56 2003
++++ include/asm-parisc/mman.h	Thu Mar 11 15:27:05 2004
+@@ -22,6 +22,7 @@
+ #define MAP_GROWSDOWN	0x8000		/* stack-like segment */
+ #define MAP_POPULATE	0x10000		/* populate (prefault) pagetables */
+ #define MAP_NONBLOCK	0x20000		/* do not block on IO */
++#define MAP_DONTEXPAND	0x40000		/* do not allow mremap to expand */
 
-PLUNGER LIST:
-131101-7020 0-4
-131101-7520 0-9
- A17
-131151-2720 A43
-131151-3220 A44
-131151-5820 A74
-131151-7320 A89
-A98
-131152-1420 A138
-A147
-131152-2220 A148
-131152-3120 A158
-131152-3320 A160
-131152-5620 A188
-131153-1220 A196
-131152-8520 A226
-131153-8920 A768
- A722
-134101-1420 P2
-134101-1520 P3
- P4
-134101-1820 P6
-134101-3820 P25
-134101-6320 P48
-134101-6420 P49
+ #define MS_SYNC		1		/* synchronous memory sync */
+ #define MS_ASYNC	2		/* sync memory asynchronously */
+diff -ur include_old/asm-ppc/mman.h include/asm-ppc/mman.h
+--- include_old/asm-ppc/mman.h	Sat Oct 25 19:45:07 2003
++++ include/asm-ppc/mman.h	Thu Mar 11 15:33:58 2004
+@@ -23,6 +23,7 @@
+ #define MAP_EXECUTABLE	0x1000		/* mark it as an executable */
+ #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
+ #define MAP_NONBLOCK	0x10000		/* do not block on IO */
++#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
 
-Delivery valve
+ #define MS_ASYNC	1		/* sync memory asynchronously */
+ #define MS_INVALIDATE	2		/* invalidate the caches */
+diff -ur include_old/asm-ppc64/mman.h include/asm-ppc64/mman.h
+--- include_old/asm-ppc64/mman.h	Sat Oct 25 19:43:30 2003
++++ include/asm-ppc64/mman.h	Thu Mar 11 15:33:31 2004
+@@ -28,6 +28,7 @@
+ #define MAP_GROWSDOWN	0x0100		/* stack-like segment */
+ #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
+ #define MAP_EXECUTABLE	0x1000		/* mark it as an executable */
++#define MAP_DONTEXPAND	0x2000		/* do not allow mremap to expand */
 
+ #define MS_ASYNC	1		/* sync memory asynchronously */
+ #define MS_INVALIDATE	2		/* invalidate the caches */
+diff -ur include_old/asm-s390/mman.h include/asm-s390/mman.h
+--- include_old/asm-s390/mman.h	Sat Oct 25 19:42:53 2003
++++ include/asm-s390/mman.h	Thu Mar 11 15:27:31 2004
+@@ -30,6 +30,7 @@
+ #define MAP_NORESERVE	0x4000		/* don't check for reservations */
+ #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
+ #define MAP_NONBLOCK	0x10000		/* do not block on IO */
++#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
 
-146430-1420  
-131160-1920 02A
-131160-2220 05A
- 131160-2920 12A
-131160-3620 20A
-134110-0120 P1
-134110-0520 P4
-134110-0920 P8
-134110-4520 P44
-131110-0620 161S2
-134110-0920 P8
-134110-4520 P44
-134110-7420 P73
-131110-2920 A9
-131110-3920 A20
-131110-4720 A28
-131110-5120  A32 
-131110-5220 A33
-131110-5920 A40
-13110-6820 A49
-131110-7720 A58
-131110-7820 A59
-131110-9420 A75
-131160-0420 A85
-1 468 532 247 A247
-146430-0020 VE1
-146430-1420 VE15
+ #define MS_ASYNC	1		/* sync memory asynchronously */
+ #define MS_INVALIDATE	2		/* invalidate the caches */
+diff -ur include_old/asm-sh/mman.h include/asm-sh/mman.h
+--- include_old/asm-sh/mman.h	Sat Oct 25 19:44:35 2003
++++ include/asm-sh/mman.h	Thu Mar 11 15:18:37 2004
+@@ -22,6 +22,7 @@
+ #define MAP_NORESERVE	0x4000		/* don't check for reservations */
+ #define MAP_POPULATE	0x8000		/* populate (prefault) page tables */
+ #define MAP_NONBLOCK	0x10000		/* do not block on IO */
++#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
 
-"
-dieselfuelinject@eyou.com
+ #define MS_ASYNC	1		/* sync memory asynchronously */
+ #define MS_INVALIDATE	2		/* invalidate the caches */
+diff -ur include_old/asm-sparc/mman.h include/asm-sparc/mman.h
+--- include_old/asm-sparc/mman.h	Sat Oct 25 19:44:48 2003
++++ include/asm-sparc/mman.h	Thu Mar 11 15:18:37 2004
+@@ -26,6 +26,7 @@
+ #define MAP_GROWSDOWN	0x0200		/* stack-like segment */
+ #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
+ #define MAP_EXECUTABLE	0x1000		/* mark it as an executable */
++#define MAP_DONTEXPAND	0x2000		/* do not allow mremap to expand */
+
+ #define MS_ASYNC	1		/* sync memory asynchronously */
+ #define MS_INVALIDATE	2		/* invalidate the caches */
+diff -ur include_old/asm-sparc64/mman.h include/asm-sparc64/mman.h
+--- include_old/asm-sparc64/mman.h	Sat Oct 25 19:43:36 2003
++++ include/asm-sparc64/mman.h	Thu Mar 11 15:18:37 2004
+@@ -26,6 +26,7 @@
+ #define MAP_GROWSDOWN	0x0200		/* stack-like segment */
+ #define MAP_DENYWRITE	0x0800		/* ETXTBSY */
+ #define MAP_EXECUTABLE	0x1000		/* mark it as an executable */
++#define MAP_DONTEXPAND	0x2000		/* do not allow mremap to expand */
+
+ #define MS_ASYNC	1		/* sync memory asynchronously */
+ #define MS_INVALIDATE	2		/* invalidate the caches */
+diff -ur include_old/asm-v850/mman.h include/asm-v850/mman.h
+--- include_old/asm-v850/mman.h	Sat Oct 25 19:44:34 2003
++++ include/asm-v850/mman.h	Thu Mar 11 15:18:37 2004
+@@ -19,6 +19,7 @@
+ #define MAP_EXECUTABLE	0x1000		/* mark it as an executable */
+ #define MAP_LOCKED	0x2000		/* pages are locked */
+ #define MAP_NORESERVE	0x4000		/* don't check for reservations */
++#define MAP_DONTEXPAND	0x8000		/* do not allow mremap to expand */
+
+ #define MS_ASYNC	1		/* sync memory asynchronously */
+ #define MS_INVALIDATE	2		/* invalidate the caches */
+diff -ur include_old/asm-x86_64/mman.h include/asm-x86_64/mman.h
+--- include_old/asm-x86_64/mman.h	Sat Oct 25 19:44:05 2003
++++ include/asm-x86_64/mman.h	Thu Mar 11 15:18:37 2004
+@@ -23,6 +23,7 @@
+ #define MAP_NORESERVE	0x4000		/* don't check for reservations */
+ #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
+ #define MAP_NONBLOCK	0x10000		/* do not block on IO */
++#define MAP_DONTEXPAND	0x20000		/* do not allow mremap to expand */
+
+ #define MS_ASYNC	1		/* sync memory asynchronously */
+ #define MS_INVALIDATE	2		/* invalidate the caches */
+

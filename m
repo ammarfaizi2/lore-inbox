@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264574AbTCZDUo>; Tue, 25 Mar 2003 22:20:44 -0500
+	id <S264568AbTCZD12>; Tue, 25 Mar 2003 22:27:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264571AbTCZDUo>; Tue, 25 Mar 2003 22:20:44 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:54158 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S264574AbTCZDUl>;
-	Tue, 25 Mar 2003 22:20:41 -0500
-Date: Tue, 25 Mar 2003 22:34:26 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PnP Changes for 2.5.66
-Message-ID: <20030325223426.GE1083@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	linux-kernel@vger.kernel.org
-References: <20030325223319.GC1083@neo.rr.com>
+	id <S264579AbTCZD0a>; Tue, 25 Mar 2003 22:26:30 -0500
+Received: from user-0can0ud.cable.mindspring.com ([24.171.131.205]:33670 "EHLO
+	BL4ST") by vger.kernel.org with ESMTP id <S264590AbTCZDYi>;
+	Tue, 25 Mar 2003 22:24:38 -0500
+Date: Tue, 25 Mar 2003 19:35:52 -0800
+From: Eric Wong <eric@yhbt.net>
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Logitech USB mice/trackball extensions
+Message-ID: <20030326033552.GA13242@BL4ST>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030325223319.GC1083@neo.rr.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030326022938.GA5187@bl4st.yhbt.net>
+Organization: Tire Smokers Anonymous
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.985.1.94 -> 1.985.1.95
-#	  sound/isa/als100.c	1.9     -> 1.10   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/03/24	ambx1@neo.rr.com	1.985.1.95
-# ALS100 Memory Leak Fix
-# 
-# This trivial patch adds a missing kfree, the leak occurs when 
-# pnp_activate_dev fails.
-# --------------------------------------------
-#
-diff -Nru a/sound/isa/als100.c b/sound/isa/als100.c
---- a/sound/isa/als100.c	Tue Mar 25 21:45:03 2003
-+++ b/sound/isa/als100.c	Tue Mar 25 21:45:03 2003
-@@ -151,6 +151,7 @@
- 	err = pnp_activate_dev(pdev);
- 	if (err < 0) {
- 		printk(KERN_ERR PFX "AUDIO pnp configure failure\n");
-+		kfree(cfg);
- 		return err;
- 	}
- 	port[dev] = pnp_port_start(pdev, 0);
+Oops, ignore this part, it's part of a separate patch :)
+
+> +/* Module parameters */
+> +MODULE_PARM(hid_poll_interval, "i");
+> +MODULE_PARM_DESC(hid_poll_interval, "polling interval, millseconds (default=10)");
+> +
+> +#ifndef MODULE
+> +static int __init hid_poll_interval_setup(char *str)
+> +{
+> +	get_option(&str,&hid_poll_interval);
+> +	return 1;
+> +}
+> +
+> +__setup("hid_poll_interval=", hid_poll_interval_setup);
+> +
+> +#endif
+> +
+
+-- 
+Eric Wong

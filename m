@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbTLBG6u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 01:58:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbTLBG6u
+	id S261217AbTLBGuw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 01:50:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbTLBGuw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 01:58:50 -0500
-Received: from dp.samba.org ([66.70.73.150]:22488 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261294AbTLBG6t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 01:58:49 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Patrick McHardy <kaber@trash.net>
-Cc: James Bourne <jbourne@hardrock.org>, linux-kernel@vger.kernel.org,
-       coreteam@netfilter.org
-Subject: Re: [netfilter-core] 2.4.23/others and ip_conntrack causing hangs 
-In-reply-to: Your message of "Tue, 02 Dec 2003 01:20:15 BST."
-             <3FCBDABF.6080804@trash.net> 
-Date: Tue, 02 Dec 2003 17:33:26 +1100
-Message-Id: <20031202065849.779362C085@lists.samba.org>
+	Tue, 2 Dec 2003 01:50:52 -0500
+Received: from defout.telus.net ([199.185.220.240]:18327 "EHLO
+	priv-edtnes51.telusplanet.net") by vger.kernel.org with ESMTP
+	id S261217AbTLBGuv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 01:50:51 -0500
+Subject: Re: [PATCH] fix use-after-free in sbp2.c
+From: Bob Gill <gillb4@telusplanet.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1070348018.2363.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 01 Dec 2003 23:53:39 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3FCBDABF.6080804@trash.net> you write:
-> Rusty Russell wrote:
-> 
-> >Unfortunately, some packets are still referencing connections, so the
-> >module *cannot* go away.  Figuring out exactly where the packets are
-> >referenced from is the fun part.  We explicitly drop the reference in
-> >ip_local_deliver_finish() for exactly this reason.  Perhaps there is
-> >somewhere else we should be doing the same thing.
-> >  
-> >
-> Perhaps in dev_queue_xmit ? Otherwise packets stuck in queues hold
-> references to conntracks. Loopback traffic might cause some trouble
-> because the "previously seen?" expection in ip_conntrack_core wouldn't
-> work anymore.
+Hi! :)
+ I applied your patch (by hand, but the patch is small) to
+2.6.0-test11.  Its working fine here.  The debug/spinlock errors are
+gone and all sbp2 devices show up in /proc/scsi/scsi.  
 
-But I wouldn't expect packets there to be held indefinitely, so I
-never worried about it.
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Cheers,
+-- 
+Bob Gill <gillb4@telusplanet.net>
+

@@ -1,61 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262803AbSKDV1L>; Mon, 4 Nov 2002 16:27:11 -0500
+	id <S262828AbSKDVh6>; Mon, 4 Nov 2002 16:37:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262806AbSKDV1L>; Mon, 4 Nov 2002 16:27:11 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:13 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262803AbSKDV1K>;
-	Mon, 4 Nov 2002 16:27:10 -0500
-Date: Mon, 4 Nov 2002 13:30:02 -0800
-From: Greg KH <greg@kroah.com>
-To: "Lee, Jung-Ik" <jung-ik.lee@intel.com>
-Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: bare pci configuration access functions ?
-Message-ID: <20021104213001.GA8334@kroah.com>
-References: <72B3FD82E303D611BD0100508BB29735046DFF75@orsmsx102.jf.intel.com>
+	id <S262835AbSKDVh6>; Mon, 4 Nov 2002 16:37:58 -0500
+Received: from mail01.svc.cra.dublin.eircom.net ([159.134.118.17]:17006 "HELO
+	mail01.svc.cra.dublin.eircom.net") by vger.kernel.org with SMTP
+	id <S262828AbSKDVh5>; Mon, 4 Nov 2002 16:37:57 -0500
+From: <louise500@eircom.net>
+To: louise500@eircom.net
+Subject: Assistance....
+Date: Mon, 4 Nov 2002 21:39:10 +0000
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <72B3FD82E303D611BD0100508BB29735046DFF75@orsmsx102.jf.intel.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: 80.88.142.27
+X-Mailer: Eircom Net CRC Webmail (http://www.eircom.net/)
+Organization: Eircom Net (http://www.eircom.net/)
+Message-Id: <20021104213757Z262828-32597+15764@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 04, 2002 at 12:17:45PM -0800, Lee, Jung-Ik wrote:
-> Hi Greg,
-> 
-> > What's wrong with the _existing_ pci_config_read() and
-> > pci_config_write() function pointers that ia64 and i386 have? 
-> >  Can't you
-> > just look into if the other archs can set them to the proper 
-> > function in
-> > their pci init functions too?
-> 
-> Other architectures' PCI config access methods vary and require their own
-> address mappings, etc.
+Dear 
 
-Ah, so exporting those types of functions is not pratical?  Oh well...
+Listen and read carefully, i have found seriousness in
+you and that is why i have decided to involve you in
+this transaction o.k , i am  a woman of substance and
+of great importance to my nation and the society in
+general. i wll not entertain any act of unseriousness
+from you in this transaction o.k
 
-> There could be two ways to achieve bare pci config accesses for all
-> architectures.
+you must take instructions from me at all time and for
+security reasons you will only communicate me only by
+my email for now o.k.
 
-<snip>
+I,am Mrs LOUISA EJERCITOR ESTRADA , the wife of Mr
+Joseph Estrada the former president of Philippine
+located in the south east Asia. My husband was
+presently impeached from office by a backed uprising
+of mass demonstrators and the senate.                 
+                                        
+During my husband's regime as president of
+Philippine, I realised US$120.5millions of dollars
+from various contract projects I executed
+successfully. I had planed to invest this money in 
+real estate and industral production.                 
+                                                      
+Now i have used an NGO to move the money to a bank
+in overseas, i want you to assist me transfer the
+money to your bank account as the beneficiary because
+i do not want the philippine government to trace  and
+confiscate this one. they have confiscated all our
+asset. This is the only money left for me and my
+family o.k
+Now if you agree, i will offer you 25% of the total
+fund, and you must keep it very secret and
+confidential o.k. There is no risk involved, all i
+want from you is , your complete name, address, bank
+particulars phone and fax numbers, company name if any
+and you must be honest o.k
+this money will be transfered to your account as soon
+as you release this requirements o.k
+i look forward to having a good relationship with
+you o.k
+regards,
 
-Wait, again I'm confused.  Let's go over the main points here:
+Mrs Louise Estrade  
 
- - for 2.5 everyone uses the pci_bus_read_config* and
-   pci_bus_write_config* functions and is happy.  Well ACPI isn't happy,
-   but the code there currently works, so let's leave it at that.
 
- - for 2.4 we don't have the pci_bus* functions, so we need to do
-   something.  I originally wanted to look into exporting the
-   pci_config_* function pointers, but you said that doesn't look
-   possible based on the different arch specific implementation.
-   
- - Because of this, you just proposed a patch, yet your patch uses the
-   pci_bus_* functions which are not present on 2.4.  If they were,
-   everyone would be happy again, and not need such a patch, right?
-
-Confused,
-
-greg k-h

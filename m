@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272844AbTHEPxP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 11:53:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272843AbTHEPxP
+	id S272836AbTHEPwK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 11:52:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272837AbTHEPwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 11:53:15 -0400
-Received: from www.13thfloor.at ([212.16.59.250]:8858 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S272842AbTHEPxK (ORCPT
+	Tue, 5 Aug 2003 11:52:10 -0400
+Received: from fw.osdl.org ([65.172.181.6]:9148 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272836AbTHEPwH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 11:53:10 -0400
-Date: Tue, 5 Aug 2003 17:53:20 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Jesse Pollard <jesse@cats-chateau.net>, aebr@win.tue.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: FS: hardlinks on directories
-Message-ID: <20030805155320.GA8955@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: Stephan von Krawczynski <skraw@ithnet.com>,
-	Jesse Pollard <jesse@cats-chateau.net>, aebr@win.tue.nl,
-	linux-kernel@vger.kernel.org
-References: <20030804141548.5060b9db.skraw@ithnet.com> <03080416092800.04444@tabby> <20030805003210.2c7f75f6.skraw@ithnet.com> <03080509123100.05972@tabby> <20030805162152.2975dc33.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20030805162152.2975dc33.skraw@ithnet.com>
-User-Agent: Mutt/1.3.28i
+	Tue, 5 Aug 2003 11:52:07 -0400
+Date: Tue, 5 Aug 2003 08:57:01 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Pavel Machek <pavel@ucw.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PM] save/restore screen support for ACPI S3 sleep
+In-Reply-To: <20030805091734.GE388@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0308050856350.23977-100000@cherise>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 05, 2003 at 04:21:52PM +0200, Stephan von Krawczynski wrote:
-> On Tue, 5 Aug 2003 09:12:31 -0500
-> Jesse Pollard <jesse@cats-chateau.net> wrote:
+
+On Tue, 5 Aug 2003, Pavel Machek wrote:
+
+> Hi!
 > 
-> > > If you can do the fs patch, I can do the tar patch.
+> > > This way console should be correctly restored after S3...
+> > > 
+> > > [Prototype should be added to include/linux/suspend.h].
+> > > 
+> > > kernel/suspend.c part only moves code out of "SWSUSP_ONLY"
+> > > section.
 > > 
-> > The patch is FAR too extensive. It would have to be a whole new filesystem
+> > I moved this code to kernel/power/console.c and made it dependent on 
+> > CONFIG_PM only. I also fixed up the breakage Andrew reported earlier and 
+> > added prototypes to include/linux/suspend.h. Patch below for review (not 
+> > directly applicable, as it's relative to the series).
 > 
-> Fine. This is a clear and straight forward word. Can you explain why I don't
-> see the mount -bind/rbind stuff through nfs? Is this a problem with a cheaper
-> solution?
+> Patch looks good, except that you should put some comment at begining
+> of console.c. (GPL+copyrights+one line what this file is about). I
+> guess that's trivial to fix up incrementally.
 
-probably because --bind mounts have a vfsmount of their
-own, and you do not explicitely export this submount?
+Sorry, missed that part. Will fix up. 
 
-just an idea,
-Herbert
 
-> Regards,
-> Stephan
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+	-pat
+

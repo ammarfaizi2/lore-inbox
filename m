@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277261AbRJNSK5>; Sun, 14 Oct 2001 14:10:57 -0400
+	id <S277263AbRJNSUi>; Sun, 14 Oct 2001 14:20:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277263AbRJNSKr>; Sun, 14 Oct 2001 14:10:47 -0400
-Received: from bitmover.com ([192.132.92.2]:32152 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S277261AbRJNSKb>;
-	Sun, 14 Oct 2001 14:10:31 -0400
-From: Larry McVoy <lm@bitmover.com>
-Date: Sun, 14 Oct 2001 11:11:04 -0700
-Message-Id: <200110141811.f9EIB4823631@work.bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: NFS file locking?
+	id <S277264AbRJNSU2>; Sun, 14 Oct 2001 14:20:28 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:43527 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S277263AbRJNSUK>;
+	Sun, 14 Oct 2001 14:20:10 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200110141820.WAA06484@ms2.inr.ac.ru>
+Subject: Re: TCP acking too fast
+To: Mika.Liljeberg@welho.com (Mika Liljeberg)
+Date: Sun, 14 Oct 2001 22:20:24 +0400 (MSK DST)
+Cc: ak@muc.de, davem@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3BC9D1BB.3177FA39@welho.com> from "Mika Liljeberg" at Oct 14, 1 08:56:11 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, the open(2) man page says:
+Hello!
 
-       O_EXCL When  used with O_CREAT, if the file already exists
-              it is an error and the open will fail.   O_EXCL  is
-              broken  on NFS file systems, programs which rely on
-              it for performing locking tasks will contain a race
-              condition.  The solution for performing atomic file
-              locking using a lockfile is to create a unique file
-              on  the  same  fs (e.g., incorporating hostname and
-              pid), use link(2) to make a link to  the  lockfile.
-              If  link() returns 0, the lock is successful.  Oth­
-              erwise, use stat(2) on the unique file to check  if
-              its  link  count  has increased to 2, in which case
-              the lock is also successful.
+> The assumption is that the peer is implemented the way you expect and
+> that the application doesn't toy with TCP_NODELAY.
 
-I coded this up and tried it here on a cluster of different operating
-systems (Linux 2.4.5 server, linux, freebsd, solaris, aix, hpux, irix
-clients) and it doesn't work.
+Sorry??
 
-2 questions:
+It is the most important _exactly_ for TCP_NODELAY, which
+generates lots of remnants.
 
-a) is it the belief of folks here that this should work?
 
-b) if performance isn't a big issue, is there any portable way to do
-   locking over NFS with just files?
+> Not really. You could do one of two things: either ack every second
+> segment 
 
+I do not worry about this _at_ _all_. See?
+"each other", "each two mss" --- all this is red herring.
+
+I do understand your problem, which is not related to rcv_mss.
+When bandwidth in different directions differ more than 20 times,
+stretch ACKs are even preferred. Look into tcplw work, using stretch ACKs
+is even considered as something normal.
+
+I really commiserate and think that removing "final cut" clause
+will help you. But sending ACK on buffer drain at least for short
+packets is real demand, which cannot be relaxed.
+"final cut" is also better not to remove actually, but the case
+when it is required is probabilistically marginal.
+
+Alexey

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267383AbUH1Jgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267388AbUH1JlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267383AbUH1Jgu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 05:36:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267388AbUH1Jgu
+	id S267388AbUH1JlH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 05:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267391AbUH1JlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 05:36:50 -0400
-Received: from fw.osdl.org ([65.172.181.6]:8580 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267383AbUH1Jgc (ORCPT
+	Sat, 28 Aug 2004 05:41:07 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40327 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267388AbUH1Jk6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 05:36:32 -0400
-Date: Sat, 28 Aug 2004 02:34:36 -0700
+	Sat, 28 Aug 2004 05:40:58 -0400
+Date: Sat, 28 Aug 2004 02:39:09 -0700
 From: Andrew Morton <akpm@osdl.org>
 To: William Lee Irwin III <wli@holomorphy.com>
 Cc: oleg@tv-sign.ru, linux-kernel@vger.kernel.org
 Subject: Re: [2/4] consolidate bit waiting code patterns
-Message-Id: <20040828023436.4879983a.akpm@osdl.org>
+Message-Id: <20040828023909.5eac6b2d.akpm@osdl.org>
 In-Reply-To: <20040828092210.GJ5492@holomorphy.com>
 References: <20040826014745.225d7a2c.akpm@osdl.org>
 	<20040828052627.GA2793@holomorphy.com>
@@ -34,30 +34,12 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 William Lee Irwin III <wli@holomorphy.com> wrote:
 >
-> +int __sched __wait_on_bit_lock(wait_queue_head_t *wq, struct wait_bit_queue *q,
->  +			void *word, int bit,
->  +			int (*wait)(void *), unsigned mode)
->  +{
->  +	int ret;
->  +
->  +	while (test_and_set_bit(bit, word)) {
->  +		prepare_to_wait_exclusive(wq, &q->wait, mode);
->  +		if (test_bit(bit, word)) {
->  +			if ((ret = (*wait)(word)))
->  +				return ret;
->  +		}
->  +	}
->  +	finish_wait(wq, &q->wait);
->  +	return 0;
->  +}
+> --- mm1-2.6.9-rc1.orig/kernel/fork.c	2004-08-28 01:20:04.105925320 -0700
+>  +++ mm1-2.6.9-rc1/kernel/fork.c	2004-08-28 01:23:00.542102944 -0700
 
-Some comments over this thing would be nice.
+Sorry, but I think we might as well dtrt here and move all this waity code
+into kernel/wait.c - it's silly keeping it in fork.c.
 
-The `wait' argument seems to be misnamed.  It typically points at
-sync_page(), yes?   Maybe it should be called `action' or `kick' or
-something.
+And logically, that should be patch #1 of N.
 
-If (*wait)() returns non-zero then it looks to me like the callers will get
-confused, thinking that the page did come unlocked?
 
-If (*wait)() returns non-zero then we need to run finish_wait(), no?

@@ -1,62 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269877AbTGOXun (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 19:50:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269886AbTGOXun
+	id S269903AbTGOXxe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 19:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269906AbTGOXxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 19:50:43 -0400
-Received: from aneto.able.es ([212.97.163.22]:34273 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S269877AbTGOXum (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 19:50:42 -0400
-Date: Wed, 16 Jul 2003 02:05:32 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: gcc-3.3.1-hammer breaks mm/memory.c
-Message-ID: <20030716000532.GC2447@werewolf.able.es>
-References: <20030715222701.GC3823@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.12
+	Tue, 15 Jul 2003 19:53:34 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:40954 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S269903AbTGOXxd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 19:53:33 -0400
+Message-ID: <3F149747.3090107@mvista.com>
+Date: Tue, 15 Jul 2003 17:07:35 -0700
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: bernie@develer.com, linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk,
+       torvalds@osdl.org
+Subject: Re: do_div64 generic
+References: <3F1360F4.2040602@mvista.com>	<200307150717.54981.bernie@develer.com>	<20030714223805.4e5bee3f.akpm@osdl.org>	<200307150823.01602.bernie@develer.com>	<3F1477B2.6090106@mvista.com> <20030715150645.4fa11de7.akpm@osdl.org>
+In-Reply-To: <20030715150645.4fa11de7.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 07.16, J.A. Magallon wrote:
-> Hi all...
+Andrew Morton wrote:
+> george anzinger <george@mvista.com> wrote:
 > 
-> After some binary search and a 'couple' kernel builds, I narrowed the
-> problem to mm/memory.c. With that file built at -O1:
+>>>George, do you agree? May I go on and post a patch killing
+>>>div_long_long_rem() everywhere?
+>>
+>>The issue is that div is a very long instruction and the do_div() 
+>>thing uses 2 or three of them, while the div_long_long_rem() is just 
+>>1.  Also, a lot of archs already have the required div by a different 
+>>name.  It all boils down to a performance thing.
 > 
-> CFLAGS_memory.o = -O1
 > 
-> The kernel boots, starts /sbin/init and looks like working normally
-> (2.4.22-pre5).
+> It is only used in nanosleep(), and then only in the case where the sleep
+> terminated early.
 > 
-> Anybody can see what is miscompiled with an assembler listing ?
-> Any #pragma to switch optmizations on the half of a file or for
-> a function ?
+> If someone is calling nanosleep() so frequently for this to matter, the
+> time spent in divide is the least of their problems.  Unless you have some
+> real-worldish benchmarks to demonstrate otherwise?
+
+It is also used in the jiffies to timespec and jiffies to timeval code 
+in timer.h, if memory serves.
 > 
+> You know what they say about premtur optmstns, and having to propagate
+> funky new divide primitives across N architectures is indeed evil.
 
-I finally got this: -O2 fails but
-
-CFLAGS_memory.o = -Os -falign-functions -falign-jumps -falign-loops -falign-labels -fprefetch-loop-arrays -freorder-blocks
-
-works.
-
-Those are specific options disabled by -Os, but -Os does more things...
-(assembler output is very different)
-
-Any SuSE site (hammer comes from SuSE, isn't it ?) to submit a decent
-bug report ?
-
-TIA
+Hm.  I only want the simple div.  64-bit/32-bit in two 32-bit results. 
+  Is this funky?  And the "evil" #ifdef allows archs to not do it.
+> 
+> Bernardo, can you do the patch please?
+> 
+> 
 
 -- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.22-pre5-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-0.2mdk))
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

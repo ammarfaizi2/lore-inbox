@@ -1,48 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270433AbTGWQdB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 12:33:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270444AbTGWQdA
+	id S270391AbTGWQlW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 12:41:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270438AbTGWQlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 12:33:00 -0400
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:59619 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S270443AbTGWQc4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 12:32:56 -0400
-Date: Wed, 23 Jul 2003 18:36:20 +0200
-From: Dominik Brodowski <linux@brodo.de>
-To: textshell@neutronstar.dyndns.org
-Cc: davej@suse.de, linux-kernel@vger.kernel.org,
-       Henrik Persson <nix@syndicalist.net>
-Subject: Re: 2.6.0-test1: CPUFreq not working, can't find sysfs interface
-Message-ID: <20030723163620.GC1870@brodo.de>
-References: <20030720150243.GJ2331@neutronstar.dyndns.org> <200307201745.h6KHjcHt095999@sirius.nix.badanka.com> <20030720211246.GK2331@neutronstar.dyndns.org> <20030722120811.GD1160@brodo.de> <20030722141839.GD7517@neutronstar.dyndns.org> <20030722142353.GA1301@brodo.de> <20030722145352.GE7517@neutronstar.dyndns.org>
+	Wed, 23 Jul 2003 12:41:22 -0400
+Received: from H-135-207-24-16.research.att.com ([135.207.24.16]:38283 "EHLO
+	linux.research.att.com") by vger.kernel.org with ESMTP
+	id S270391AbTGWQlU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 12:41:20 -0400
+Date: Wed, 23 Jul 2003 12:56:12 -0400 (EDT)
+From: Glenn Fowler <gsf@research.att.com>
+Message-Id: <200307231656.MAA69129@raptor.research.att.com>
+Organization: AT&T Labs Research
+X-Mailer: mailx (AT&T/BSD) 9.9 2003-01-17
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030722145352.GE7517@neutronstar.dyndns.org>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+References: <200307231428.KAA15254@raptor.research.att.com> <20030723074615.25eea776.davem@redhat.com>
+To: davem@redhat.com, dgk@research.att.com
+Subject: Re: kernel bug in socketpair()
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 22, 2003 at 04:53:52PM +0200, textshell@neutronstar.dyndns.org wrote:
-> > Well, you could try using the PST which mostly matches your system except
-> > the CPUID [PST #12, see below] -- if the values used are similar to the ones
-> > Windows XP uses. But this might be risky!!!
-> > 
-> 
-> I think you know a bit more about these matters than me, so please allow me this
-> question:
-> How much risk do you think that would be (with the usual 'you are not responible
-> for any damages' stuff as usual) to just use that entry? At with the performance
-> governour it is exactly the same as displayed as currently by x86info so that
-> shouldn't be a problem. Do you think that lower frequencies and voltages can
-> kill the processor? [I can cope with instabilities]
 
-I really can't answer on that as I do neither know the hardware nor the BIOS
-implementation well enough. Sorry.
-BTW, it's no surprise that the x86info and cpufreq output are the same --
-they use the same code. It'd be more interesting if Window$ uses the same
-values [just mentioning it as you said PowerNow works on it, so....]
+you can eliminate the security implications for all fd types by
+simply translating
+	open("/dev/fd/N",...)
+to
+	dup(atoi(N))
+w.r.t. fd N in the current process
 
-	Dominik
+the problem is that linux took an implementation shortcut by symlinking
+	/dev/fd/N -> /proc/self/fd/N
+and by the time the kernel sees /proc/self/fd/N the "self"-ness is apparently
+lost, and it is forced to do the security checks
+
+if the /proc fd open code has access to the original /proc/PID/fd/N path
+then it can do dup(atoi(N)) when the PID is the current process without
+affecting security
+
+otherwise there is a bug in the /dev/fd/N -> /proc/self/fd/N implementation
+and /dev/fd/N should be separated out to its (original) dup(atoi(N))
+semantics
+
+see http://mail-index.netbsd.org/current-users/1994/03/29/0027.html for
+an early (bsd) discussion of /dev/fd/N vs. /proc/self/fd/N
+
+-- Glenn Fowler <gsf@research.att.com> AT&T Labs Research, Florham Park NJ --
+
+On Wed, 23 Jul 2003 07:46:15 -0700 David S. Miller wrote:
+> On Wed, 23 Jul 2003 10:28:22 -0400 (EDT)
+> David Korn <dgk@research.att.com> wrote:
+
+> > This make sense for INET sockets, but I don't understand the security
+> > considerations for UNIX domain sockets.  Could you please elaborate?
+> > Moreover, /dev/fd/n, (as opposed to /proc/$$/n) is restricted to
+> > the current process and its decendents if close-on-exec is not specified.
+> > Again, I don't understand why this would create a security problem
+> > either since the socket is already accesible via the original
+> > descriptor.
+
+> Someone else would have to comment, but I do know we've had
+> this behavior since day one.
+
+> And therefore I wouldn't be doing many people much of a favor
+> by changing the behavior today, what will people do who need
+> their things to work on the bazillion existing linux kernels
+> running out there? :-)
+
+> Also, see below for another reason why this behavior is unlikely
+> to change.
+
+> > Finally if this is a security problem, why is the errno is set to ENXIO 
+> > rather than EACCESS?
+
+> Look at the /proc file we put there for socket FD's.  It's a symbolic
+> link with a readable string of the form ("socket:[%d]", inode_nr)
+
+> So your program ends up doing a follow of a symbolic link with that
+> string name, which does not exist.
+
+> Thinking more about this, changing this behavior would probably break
+> more programs than it would help begin to function, so this is unlikely
+> to ever change.
+

@@ -1,101 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269439AbTGJQfU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 12:35:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269455AbTGJQfU
+	id S266372AbTGJQrP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 12:47:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbTGJQrP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 12:35:20 -0400
-Received: from station.mywwwserver.com ([66.78.4.160]:25282 "EHLO
-	station.mywwwserver.com") by vger.kernel.org with ESMTP
-	id S269439AbTGJQfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 12:35:07 -0400
-Message-ID: <3F0D99A9.5010800@colenielsen.com>
-Date: Thu, 10 Jul 2003 10:51:53 -0600
-From: Cole Nielsen <cole@colenielsen.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030425
-X-Accept-Language: en-us, en
+	Thu, 10 Jul 2003 12:47:15 -0400
+Received: from imo-r01.mx.aol.com ([152.163.225.97]:25037 "EHLO
+	imo-r01.mx.aol.com") by vger.kernel.org with ESMTP id S266372AbTGJQqe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 12:46:34 -0400
+Date: Thu, 10 Jul 2003 13:01:01 -0400
+From: ngozibrax@netscape.net
+To: ngozibrax@netscape.net
+Subject: Business Inquire.
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Intel-based motherboard
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - station.mywwwserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
-X-AntiAbuse: Sender Address Domain - colenielsen.com
+Message-ID: <52BE7392.5AC23E4B.032BF5A4@netscape.net>
+X-Mailer: Atlas Mailer 2.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello -=-
-   I know it's considered poor practice to just post to a list but I 
-have a question which I and others have been unable to solve relating to 
-the chipset on my motherboard.
-   I have an Intel 845PE-based motherboard in my Dell 4550 purchased 
-last May. I've been running LINUX on it for about 2 months now and I 
-like it a lot. Interestingly enough, even with DMA enabled, performance 
-from the HD, CD-ROM, and CD-RW sucks! For example... writing a 650M CD 
-takes nearly 45 minutes on my 40x burner. Copying a few hundred meg of 
-data from one partition to another on the HD took nearly an hour and a 
-half. When I try to watch a DivX movie or one of the movies for q3 or 
-Diablo 2, they skip and get out of synch. I've included some information 
-about my system which may be of help.
+Mr. Obichukwu Donald
+Internal Auditor, 
+Office of The Accountant,
+Eco Bank Nig. PLC. (EB)
+16 Marina Street.
+Lagos. 
 
-==== /sbin/lspci ====
-00:00.0 Host bridge: Intel Corp. 82845 845 (Brookdale) Chipset Host 
-Bridge (rev 11)
-00:01.0 PCI bridge: Intel Corp. 82845 845 (Brookdale) Chipset AGP Bridge 
-(rev 11)
-00:1d.0 USB Controller: Intel Corp. 82801DB USB (Hub #1) (rev 01)
-00:1d.1 USB Controller: Intel Corp. 82801DB USB (Hub #2) (rev 01)
-00:1d.2 USB Controller: Intel Corp. 82801DB USB (Hub #3) (rev 01)
-00:1d.7 USB Controller: Intel Corp. 82801DB USB EHCI Controller (rev 01)
-00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 81)
-00:1f.0 ISA bridge: Intel Corp. 82801DB ISA Bridge (LPC) (rev 01)
+Re: Transfer of $32M 
 
-00:1f.1 IDE interface: Intel Corp. 82801DB ICH4 IDE (rev 01)
+Introduction
+ I am pleased to send this letter of inquiry/request to you from Eco Bank PLC (EB). As a banking institution with 27 branches in 16 countries, provides full spectrum of banking services to clients round the Globe, internationally engaging in e-business and e-commerce, including competition, e-contracting, intellectual property, corporate, securities, finance and venture capital, tax, banking, employee benefits and stock options.
 
-00:1f.3 SMBus: Intel Corp. 82801DB SMBus (rev 01)
-01:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 
-MX420] (rev a3)
-02:00.0 Multimedia video controller: Brooktree Corporation Bt878 Video 
-Capture (rev 11)
-02:00.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture 
-(rev 11)
-02:01.0 Communication controller: Conexant HSF 56k Data/Fax/Voice/Spkp 
-Modem (rev 01)
-02:02.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 0a)
-02:02.1 Input device controller: Creative Labs SB Live! MIDI/Game Port 
-(rev 0a)
-02:0c.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
-RTL-8139/8139C/8139C+ (rev 10)
+Accordingly, we are seeing a broad, international diversity with the hundreds, if not thousands, of exchanges that have been recently established within our sector. This is by virtue of the business and geographic diversity of Eco Bank exchanges that presumably have some affect on worldwide commerce. 
+Hence; the purpose of this letter of request is to seek your concept/soliciting for your gesture to stand and receive the said sum in the honor of (late) Bopp Grimm an Albanian farmer/contractor who died in accident through plane crash, leaving his funds with Eco Bank. 
+Miraculously I discovered Account statement of the said sum during my last audit for the bank. However, there are no documents that specifically state the next of kin to the beneficiary. In the course of my further search, I also learnt that the victim neither had no WILL attached to this account as whom should inherit this funds known to the bank prior to his death which I supposed is a contract payment.  
+I am now contacting you based on my personal interest for the funds. But the possibility of some one from the black race to claim the fund without the assistance of a foreigner is not ascertained/guaranteed. Because I know of a truth that as soon as any white man tenders genuine information of the account which I am ready to give to you upon my receipt of your acknowledgement in acceptance to assist me, the bank will not hesitate to wire the sum to you immediately as the beneficiary's next of kin. 
+Please sir, I want both of us to collaborate and have this sum divert from the bank to our own favor. For clarifications; get back to me with your phone number via any of these email addresses: chukwury@netscape.net) or (donaldaka@mail.com) to enable us make look into this divine opportunity.
+Thanks and please forgive my corrections.
 
-==== dmesg | grep ide ====
-ide-floppy driver 0.99.newide
-reiserfs: checking transaction log (ide0(3,1)) for (ide0(3,1))
-ide-scsi: hdd: unsupported command in request queue (0)
-ide-scsi: hdd: unsupported command in request queue (0)
-ide-scsi: hdd: unsupported command in request queue (0)
-ide-scsi: hdd: unsupported command in request queue (0)
-ide-scsi: hdd: unsupported command in request queue (0)
-ide-scsi: hdd: unsupported command in request queue (0)
-ide-scsi: hdd: unsupported command in request queue (0)
-ide-scsi: hdd: unsupported command in request queue (0)
-Linux video capture interface: v1.00
-bttv0: registered device video0
+Very truly yours,
 
-Dell Dimension 4550
-512M RAM
-3.06Ghz
-80G HD
-SuSE 8.1
-50x CD-ROM
-40x52x40 burner
+Mr. Obichukwu Donald. 
 
 
-again, I post to the list as a last resort because if I can't get this 
-working, I'll have to return to using m$ software. Thanks in advance for 
-any help!
+__________________________________________________________________
+McAfee VirusScan Online from the Netscape Network.
+Comprehensive protection for your entire computer. Get your free trial today!
+http://channels.netscape.com/ns/computing/mcafee/index.jsp?promo=393397
 
-Cole Nielsen
-
+Get AOL Instant Messenger 5.1 free of charge.  Download Now!
+http://aim.aol.com/aimnew/Aim/register.adp?promo=380455

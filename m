@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312476AbSDCXju>; Wed, 3 Apr 2002 18:39:50 -0500
+	id <S312488AbSDCXlu>; Wed, 3 Apr 2002 18:41:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312488AbSDCXjk>; Wed, 3 Apr 2002 18:39:40 -0500
-Received: from ecs.fullerton.edu ([137.151.27.1]:9399 "EHLO
-	titan.ecs.fullerton.edu") by vger.kernel.org with ESMTP
-	id <S312476AbSDCXje>; Wed, 3 Apr 2002 18:39:34 -0500
-Date: Wed, 3 Apr 2002 15:39:27 -0800 (PST)
-From: Denny Gudea <ekay@ecs.fullerton.edu>
-To: <andrewm@uow.edu.au>, <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>
-Subject: 3c59x.c - kernel message explosion (fwd)
-Message-ID: <Pine.GSO.4.33.0204031538340.19587-100000@titan.ecs.fullerton.edu>
+	id <S312491AbSDCXlk>; Wed, 3 Apr 2002 18:41:40 -0500
+Received: from tomts11.bellnexxia.net ([209.226.175.55]:64724 "EHLO
+	tomts11-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S312488AbSDCXld>; Wed, 3 Apr 2002 18:41:33 -0500
+Date: Wed, 3 Apr 2002 18:41:32 -0500 (EST)
+From: Craig <penguin@wombat.ca>
+X-X-Sender: carsnau@wombat
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org, <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] 2.4: BOOTPC /proc info.
+In-Reply-To: <p73vgb8s6e1.fsf@oldwotan.suse.de>
+Message-ID: <Pine.LNX.4.42.0204031837450.711-100000@wombat>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 4 Apr 2002, Andi Kleen wrote:
 
-Hi,
+> Craig <penguin@wombat.ca> writes:
+>
+> > Marcelo,
+> >   This patch is against 2.4.19-pre5, please apply.
+>
+> This is unbelievable ugly. Can't you just save the packet as a binary
+> buffer, output it as binary in /proc and parse and format it in user space ?
+>
 
-id like to thank you for maintaining this driver..
+Sure, we *could* have done that.  We chose not to because some of the user space
+programs were having problems during bootup times.  Instead, we did it in the
+kernel for our specific application as that was the better place where we had
+more control (for *our* application).
 
-i have a 3com 3c905 and im using 3c59x.c driver to run it in my linux
-machine. it is connected to a hub on a network with 7 nodes. it seems like
-one of the hosts on my network has a duplex problem (as is described in
-vortex.txt). the problem i'm having is that the driver does a lot of
-kernel messages for this error even though my debug is set to the default.
+> Better would be to not use bootpc at all in kernel, but run it in initrd
+> (that is the long term plan anyways, removing dhcp/bootp completely
+> and only supporting them from initrd)
+>
 
-i've looked at the code and the problem seems to be due to a small typo:
-this code segment begins at line 1826:
-------------------------------------------------
-       if (status & TxComplete) {                      /* Really "TxError" for us. */
-                tx_status = inb(ioaddr + TxStatus);
-                /* Presumably a tx-timeout. We must merely re-enable. */
-                if (vortex_debug > 2
-                        || (tx_status != 0x88 && vortex_debug > 0)) {
-                        printk(KERN_ERR "%s: Transmit error, Tx status register %2.2x.\n",
-                                   dev->name, tx_status);
-                        if (tx_status == 0x82) {
-                                printk(KERN_ERR "Probably a duplex mismatch.  See "
-                                                "Documentation/networking/vortex.txt\n");
-                        }
-                        dump_tx_ring(dev);
--------------------------------------------------
-i believe the problem resides when it tests for the debug level:
+Yes, Alan mentions the same thing.
+We didn't realize that was the long term plan.  Is that documented anywhere, or
+was it discussed on this list eons ago and 'decided'? ;)
 
-	          if (vortex_debug > 2
-                        || (tx_status != 0x88 && vortex_debug > 0)) {
+--
+Craig.
++------------------------------------------------------+
+http://www.wombat.ca               Why? Why not.
+http://www.washington.edu/pine/    Pine @ the U of Wash.
++-------------=*sent via Pine4.42*=--------------------+
 
-the || operator should be a && because we only want to print the error
-message if debug is greater than 2 and the transmit status is not what it
-should be.
-
-
-
-thanks a lot
-
-denny gudea
-ekay@ecs.fullerton.edu
 
 

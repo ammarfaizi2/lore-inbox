@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbTEMUS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 16:18:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263161AbTEMUS4
+	id S262313AbTEMUK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 16:10:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbTEMUK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 16:18:56 -0400
-Received: from mcomail02.maxtor.com ([134.6.76.16]:43014 "EHLO
-	mcomail02.maxtor.com") by vger.kernel.org with ESMTP
-	id S262482AbTEMUSy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 16:18:54 -0400
-Message-ID: <785F348679A4D5119A0C009027DE33C102E0D346@mcoexc04.mlm.maxtor.com>
-From: "Mudama, Eric" <eric_mudama@maxtor.com>
-To: "'Andre Hedrick'" <andre@linux-ide.org>
-Cc: Jens Axboe <axboe@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
-       Dave Jones <davej@codemonkey.org.uk>, Oleg Drokin <green@namesys.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Oliver Neukum <oliver@neukum.org>,
-       lkhelp@rekl.yi.org, linux-kernel@vger.kernel.org
-Subject: RE: 2.5.69, IDE TCQ can't be enabled
-Date: Tue, 13 May 2003 14:31:41 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Tue, 13 May 2003 16:10:57 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:37131 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262310AbTEMUKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 16:10:52 -0400
+Date: Tue, 13 May 2003 21:23:35 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: David Howells <dhowells@warthog.cambridge.redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>, David Howells <dhowells@redhat.com>,
+       torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
+Subject: Re: [PATCH] in-core AFS multiplexor and PAG support
+Message-ID: <20030513212335.A9213@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Howells <dhowells@warthog.cambridge.redhat.com>,
+	David Howells <dhowells@redhat.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	openafs-devel@openafs.org
+References: <20030513170317.A29503@infradead.org> <8848.1052842356@warthog.warthog>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <8848.1052842356@warthog.warthog>; from dhowells@warthog.cambridge.redhat.com on Tue, May 13, 2003 at 05:12:36PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 13, 2003 at 05:12:36PM +0100, David Howells wrote:
+> At what level? There're two levels of mux...
+> 
+>  (1) four syscalls
+> 
+>  (2) 30-ish pioctls, 40-ish control functions and 20-ish ICL functions.
+> 
+> If I go for (2) as I think you're suggesting, that's on the order of at least
+> 90 new syscalls, probably more when Arla's additions are included...
+
+As a first patch two pag syscalls.  After that please post an implementation
+for every additional syscall you need to this list (or groups thereof) after
+you moved most to an afsctl fs.
 
 
------Original Message-----
->From: Andre Hedrick [mailto:andre@linux-ide.org]
->Sent: Tuesday, May 13, 2003 2:04 PM
->To: Jens Axboe
->Cc: Jeff Garzik; Dave Jones; Mudama, Eric; Oleg Drokin; Bartlomiej
->Zolnierkiewicz; Alan Cox; Oliver Neukum; lkhelp@rekl.yi.org;
->linux-kernel@vger.kernel.org
->Subject: Re: 2.5.69, IDE TCQ can't be enabled
->
->Why are we still dorking around with device TCQ.
->There are three holes in the state machine.
->IBM's design (goat-screw) is lamer than a duck.
->Maxtor thought about redoing TCQ, to not leave the host in a daze but
->dropped the ball.
+> > and do you really think this is a 2.6 thing?
+> 
+> Yes.
 
-What ball, exactly, did we drop?  We have yet to ship a TCQ drive because we
-think we can get it "right" but it is taking us time, in our view, to do
-properly.
+Care to explain why?  
 
---eric

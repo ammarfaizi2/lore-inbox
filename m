@@ -1,182 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264940AbTLKNDS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 08:03:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264941AbTLKNDS
+	id S264957AbTLKNJO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 08:09:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264958AbTLKNJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 08:03:18 -0500
-Received: from secure.comcen.com.au ([203.23.236.73]:24850 "EHLO
-	xavier.etalk.net.au") by vger.kernel.org with ESMTP id S264940AbTLKNDD convert rfc822-to-8bit
+	Thu, 11 Dec 2003 08:09:13 -0500
+Received: from mail-09.iinet.net.au ([203.59.3.41]:27030 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S264957AbTLKNJK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 08:03:03 -0500
-From: Ross Dickson <ross@datscreative.com.au>
-Reply-To: ross@datscreative.com.au
-Organization: Dat's Creative Pty Ltd
-To: Ian Kumlien <pomac@vapor.com>
-Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
-Date: Thu, 11 Dec 2003 19:12:27 +1000
-User-Agent: KMail/1.5.1
-Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, linux-kernel@vger.kernel.org,
-       AMartin@nvidia.com, kernel@kolivas.org
-References: <200312072312.01013.ross@datscreative.com.au> <200312111655.25456.ross@datscreative.com.au> <1071143274.2272.4.camel@big.pomac.com>
-In-Reply-To: <1071143274.2272.4.camel@big.pomac.com>
+	Thu, 11 Dec 2003 08:09:10 -0500
+Message-ID: <3FD86C70.5000408@cyberone.com.au>
+Date: Fri, 12 Dec 2003 00:09:04 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200312111912.27811.ross@datscreative.com.au>
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>,
+       Anton Blanchard <anton@samba.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>
+Subject: Re: [CFT][RFC] HT scheduler
+References: <3FD3FD52.7020001@cyberone.com.au> <20031208155904.GF19412@krispykreme> <3FD50456.3050003@cyberone.com.au> <20031209001412.GG19412@krispykreme> <3FD7F1B9.5080100@cyberone.com.au> <3FD81BA4.8070602@cyberone.com.au> <3FD8317B.4060207@cyberone.com.au> <20031211115222.GC8039@holomorphy.com>
+In-Reply-To: <20031211115222.GC8039@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 December 2003 21:47, Ian Kumlien wrote:
-> On Thu, 2003-12-11 at 07:55, Ross Dickson wrote:
-> > albatron:/usr/src/mptable-2.0.15a # ./mptable -verbose
-> > 
-> > ===============================================================================
-> > 
-> > MPTable, version 2.0.15 Linux
-> > 
-> >  looking for EBDA pointer @ 0x040e, found, searching EBDA @ 0x0009fc00
-> >  searching CMOS 'top of mem' @ 0x0009f800 (638K)
-> >  searching default 'top of mem' @ 0x0009fc00 (639K)
-> >  searching BIOS @ 0x000f0000
-> > 
-> >  MP FPS found in BIOS @ physical addr: 0x000f50b0
-> > 
-> > -------------------------------------------------------------------------------
-> > 
-> > MP Floating Pointer Structure:
-> > 
-> >   location:                     BIOS
-> >   physical address:             0x000f50b0
-> >   signature:                    '_MP_'
-> >   length:                       16 bytes
-> >   version:                      1.1
-> >   checksum:                     0x00
-> >   mode:                         Virtual Wire
-> > 
-> > -------------------------------------------------------------------------------
-> > 
-> > MP Config Table Header:
-> > 
-> >   physical address:             0x0xf0c00
-> >   signature:                    '$ml$'
-> >   base table length:            0
-> >   version:                      1.6
-> >   checksum:                     0x00
-> >   OEM ID:                       'Ä
-> >                                   ¸§'
-> > °öProduct ID:                   '(
-> > m'P
-> >   OEM table pointer:            0x12d90e22
-> >   OEM table size:               7964
-> >   entry count:                  7964
-> >   local APIC address:           0x1f1c1f1c
-> >   extended table length:        65284
-> >   extended table checksum:      255
-> > 
-> > -------------------------------------------------------------------------------
-> > 
-> > MP Config Base Table Entries:
-> > 
-> > --
-> > MPTABLE HOSED! record type = 55
-> > albatron:/usr/src/mptable-2.0.15a #
-> > 
-> 
-> > Perhaps someone else could get mptable to run on their machine and send you
-> > the result.
-> 
-> mptable dosn't seem to accept it's own options, anyways, heres the
-> output.
-> 
-> mptable -extra -verbose -pirq
->  
-> ===============================================================================
->  
-> MPTable, version 2.0.15 Linux
->  
->  looking for EBDA pointer @ 0x040e, found, searching EBDA @ 0x0009fc00
->  searching CMOS 'top of mem' @ 0x0009f800 (638K)
->  searching default 'top of mem' @ 0x0009fc00 (639K)
->  searching BIOS @ 0x000f0000
->  
->  MP FPS found in BIOS @ physical addr: 0x000f5ce0
->  
-> -------------------------------------------------------------------------------
->  
-> MP Floating Pointer Structure:
->  
->   location:                     BIOS
->   physical address:             0x000f5ce0
->   signature:                    '_MP_'
->   length:                       16 bytes
->   version:                      1.1
->   checksum:                     0x00
->   mode:                         Virtual Wire
->  
-> -------------------------------------------------------------------------------
->  
-> MP Config Table Header:
->  
->   physical address:             0x0xf0c00
->   signature:                    ''
->   base table length:            1280
->   version:                      1.7
->   checksum:                     0x00
->   OEM ID:                       ''
->   Product ID:                   ''
->   OEM table pointer:            0x0000ffff
->   OEM table size:               0
->   entry count:                  65535
->   local APIC address:           0x000000c4
->   extended table length:        1
->   extended table checksum:      0
->  
-> -------------------------------------------------------------------------------
->  
-> MP Config Base Table Entries:
->  
-> --
-> Processors:     APIC ID Version State           Family  Model   Step    Flags
->                  0       0x 7    BSP, usable     15      15      15      0x1a00c035
->                  0       0x 0    AP, unusable    0       0       10      0x78ffff0a
-> --
-> MPTABLE HOSED! record type = 15
-> 
-> I couldn't find the source so i used a old RedHat rpm...
-> (Asus A7N8X-X bios 1007)
->  
-> -- 
-> Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
-> 
 
-Thanks Ian
 
-Also many thanks for pointing out the relevant section to look in with the AMD
-cpu link that you sent - Credit where credit is due (assuming we are both on the
-right track).
+William Lee Irwin III wrote:
 
-I had a read and refined your surmisings. I think the 
-problem appears synchronous with the apic timer because of two reasons.
-1) any apic irq can cause re-connection of the system bus after disconnect.
-2) the apic timer irq in my examinations has the shortest path to an ack.
+>On Thu, Dec 11, 2003 at 07:57:31PM +1100, Nick Piggin wrote:
+>
+>>OK, it is spinning on .text.lock.futex. The following results are
+>>top 10 profiles from a 120 rooms run and a 150 rooms run. The 150
+>>room run managed only 24.8% the throughput of the 120 room run.
+>>Might this be a JVM problem?
+>>I'm using Sun Java HotSpot(TM) Server VM (build 1.4.2_01-b06, mixed mode)
+>>           ROOMS          120             150
+>>PROFILES
+>>total                   100.0%          100.0%
+>>default_idle             81.0%           66.8%
+>>.text.lock.rwsem          4.6%            1.3%
+>>schedule                  1.9%            1.4%
+>>.text.lock.futex          1.5%           19.1%
+>>__wake_up                 1.1%            1.3%
+>>futex_wait                0.7%            2.8%
+>>futex_wake                0.7%            0.5%
+>>.text.lock.dev            0.6%            0.2%
+>>rwsem_down_read_failed    0.5%
+>>unqueue_me                                3.2%
+>>
+>
+>If this thing is heavily threaded, it could be mm->page_table_lock.
+>
 
-I also had a look back through the athlon cooler and power management 
-postings and web site articles. I was blissfully ignorant of these issues when I
-started and now I wonder what I have stepped into... Yuk
+I'm not sure how threaded it is, probably very. Would inline spinlocks
+help show up mm->page_table_lock?
 
-I submitted a support request to AMD, apologies for not cc'ing you, I kept
-the cc's down to just nvidia and the mailing list. If you have not seen it yet
-then it is here
+It really looks like .text.lock.futex though, doesn't it? Would that be
+the hashed futex locks? I wonder why it suddenly goes downhill past about
+140 rooms though.
 
-http://lkml.org/lkml/2003/12/11/17
 
-We hope....
-
-Regards
-Ross
 

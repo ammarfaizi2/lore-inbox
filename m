@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265124AbRFUTIa>; Thu, 21 Jun 2001 15:08:30 -0400
+	id <S265128AbRFUTMu>; Thu, 21 Jun 2001 15:12:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265125AbRFUTIU>; Thu, 21 Jun 2001 15:08:20 -0400
-Received: from isimail.interactivesi.com ([207.8.4.3]:30986 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S265124AbRFUTIJ>; Thu, 21 Jun 2001 15:08:09 -0400
-Date: Thu, 21 Jun 2001 14:08:02 -0500
-From: Timur Tabi <ttabi@interactivesi.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200106211904.PAA10433@mah21awu.cas.org>
-In-Reply-To: <qi1bhC.A.lfF.ZEkM7@dinero.interactivesi.com> from "Timur Tabi" at Jun 21, 2001 01:46:48 PM
-Subject: Re: Controversy over dynamic linking -- how to end the panic
-X-Mailer: The Polarbar Mailer; version=1.19a; build=73
-Message-ID: <sxMyWB.A.NBB.TYkM7@dinero.interactivesi.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S265127AbRFUTMl>; Thu, 21 Jun 2001 15:12:41 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:52416 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S265128AbRFUTM2>;
+	Thu, 21 Jun 2001 15:12:28 -0400
+Date: Thu, 21 Jun 2001 15:12:26 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: abc abc <netlogin_99@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: rename problem on vfat file systems
+In-Reply-To: <20010621190434.82955.qmail@web9604.mail.yahoo.com>
+Message-ID: <Pine.GSO.4.21.0106211510400.209-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-** Reply to message from Mike Harrold <mharrold@cas.org> on Thu, 21 Jun 2001
-15:04:21 -0400 (EDT)
 
 
-> Not to mention utterly unenforceable. Consider:
+On Thu, 21 Jun 2001, abc abc wrote:
+
+> If I reboot the machine just after the rename() call
+> is completed, when the machine comes up the file
+> /mnt/sns-c/segments/segfile has zero bytes and there
+> is no file in the tmp directory. Effectively the file
+> is lost some where. Running fsck recovers the file,
+> but it doesn't help me much because I would be copying
+> hundreds of files and its difficult to match the
+> files.
 > 
-> 1) Oracle Corp. builds their database for Linux on a Linux system.
-> 2) Said system comes with standard header files, which happen in this case to
->    be GPL'd header files.
-> 3) Oracle Corp.'s database becomes GPL.
-> 
-> There's not a court in the civilised world that would uphold the GPL in that
-> scenario.
+> Can you think of any thing that might be causing this.
 
-I do believe, however, that in these cases the header files in question are
-under the LGPL, which does specifically allow linking and #including in non-GPL
-and non-LGPL code.
-
-In my opinion, this whole thing would just go away (including some of
-Microsoft's anti-GPL rants), if the FSF officially declared that under the GPL,
-#including a GPL header file does NOT force your code to be also GPL.
-
-
--- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
+Crappy filesystem layout. If you want to do something a-la journalling
+for VFAT - seek professional help.
 

@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272320AbRIKHl2>; Tue, 11 Sep 2001 03:41:28 -0400
+	id <S272315AbRIKHra>; Tue, 11 Sep 2001 03:47:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272317AbRIKHlS>; Tue, 11 Sep 2001 03:41:18 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:40456 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S272315AbRIKHlH>;
-	Tue, 11 Sep 2001 03:41:07 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200109110741.f8B7f64192493@saturn.cs.uml.edu>
-Subject: Re: FW: OT: Integrating Directory Services for Linux
-To: SPATZ1@t-online.de (Frank Schneider)
-Date: Tue, 11 Sep 2001 03:41:05 -0400 (EDT)
-Cc: rvandam@liwave.com,
-        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
-In-Reply-To: <3B9BCF6C.3BFC9466@t-online.de> from "Frank Schneider" at Sep 09, 2001 10:22:04 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S272316AbRIKHrU>; Tue, 11 Sep 2001 03:47:20 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:28427 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S272315AbRIKHrM>; Tue, 11 Sep 2001 03:47:12 -0400
+Message-ID: <3B9DC12C.9C9C31D2@idb.hist.no>
+Date: Tue, 11 Sep 2001 09:45:48 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.10-pre7 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.10-pre5
+In-Reply-To: <Pine.LNX.4.33.0109101909010.1290-100000@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 3.) To the idea of a "linux-registry":
-> I do not like this, UNIX lives now 30 years with /etc and human-readable
-> configfiles and without a "database", and i think its a good compromise
+Linus Torvalds wrote:
 
-1. NeXT, nextstep, openstep, Darwin, MacOS X   (netinfo)
-2. AIX
-3. SuSE (YaST junk, etc.)
+> > An observation: logical readahead can *never* read a block before it knows
+> > what the physical mapping is, whereas physical readahead can.
+> 
+> Sure. But the meta-data is usually on the order of 1% or less of the data,
+> which means that you tend to need to read a meta-data block only 1% of the
+> time you need to read a real data block.
 
-Note: not saying if it is good or bad, just that it is.
+Seems to me a readahead without metadata don't buy very much.  Sure,
+you get the file page early without looking up metadata on disk.  But
+oops - it cannot be used yet as we don't yet know the fact that it _is_
+part of the file!  When the process gets to ask for that part of the
+file
+we still have to wait for metadata.
 
-Reiserfs seems to be headed toward handling this sort of thing.
-Head over to www.namesys.com sometime and check out the weird ideas.
+Physical readahead may or may not help - but I cannot see that this
+particular aspect helps anything.
 
+Helge Hafting

@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317040AbSFWPbb>; Sun, 23 Jun 2002 11:31:31 -0400
+	id <S317045AbSFWPjr>; Sun, 23 Jun 2002 11:39:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317045AbSFWPbb>; Sun, 23 Jun 2002 11:31:31 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:63364 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S317040AbSFWPb2>;
-	Sun, 23 Jun 2002 11:31:28 -0400
-X-Originating-IP: [62.179.172.225]
-From: "Roy Sigurd Karlsbakk" <roy@pronto.tv>
-To: linux-kernel@vger.kernel.org
-Subject: Large block device support?
-Date: Sun, 23 Jun 2002 15:31:33 +0000
-Message-ID: <20020623.mko.16936000@mail.pronto.tv>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-X-Mailer: phpGroupWare (http://www.phpgroupware.org) v 0.9.13.018
+	id <S317047AbSFWPjq>; Sun, 23 Jun 2002 11:39:46 -0400
+Received: from trained-monkey.org ([209.217.122.11]:16401 "EHLO
+	trained-monkey.org") by vger.kernel.org with ESMTP
+	id <S317045AbSFWPjp>; Sun, 23 Jun 2002 11:39:45 -0400
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, torvalds@transmeta.com
+Subject: Re: highmem pci dma mapping does not work, missing cast in asm-i386/pci.h
+References: <20020610195644.C13225@redhat.com>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 23 Jun 2002 11:39:43 -0400
+In-Reply-To: Benjamin LaHaise's message of "Mon, 10 Jun 2002 19:56:44 -0400"
+Message-ID: <m37kkqngw0.fsf@trained-monkey.org>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all
+>>>>> "Ben" == Benjamin LaHaise <bcrl@redhat.com> writes:
 
-I just installed a new server running linux (rh73) with 16 IBM 120GB drives
-with a 116MB partition per drive - these in RAID-5 + a spare. The result -
-1,63TB and then JFS on top on it. It works perfectly.
+Ben> Hello all, There's a missing cast in pci_map_page that causes 64
+Ben> bit capable drivers to access the wrong memory for highmem pages.
+Ben> Please include the patch below to fix it.
 
-But - soon, I need to setup a new box where I guess I'll be going for 160gig
-drives, due to higher needs, giving me a theoretical total of 2,24TB.
+Looking at this one, I believe we need to do the same for
+page_to_phys() - either by using dma_addr_t as the type or explicitly
+going u64 #ifdef CONFIG_HIGHMEM.
 
-Will it soon be possible to create >2TB block devices on Linux, or is this a
-low-priority concern?
+Patch using dma_addr_t included relative to 2.4.18.
 
-thanks
+Btw. I noticed that in 2.5.24/ia32 we use CONFIG_HIGHMEM to declare
+dma_addr_t as 64 bit but CONFIG_HIGHMEM64G to handle page_to_phys. Is
+this just an oversight or on purpose?
 
-roy
---
-Roy Sigurd Karlsbakk, Datavaktmester
+Comments?
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+Jes
 
 
+--- include/asm-i386/io.h~	Sun Jun 23 11:29:26 2002
++++ include/asm-i386/io.h	Sun Jun 23 11:30:17 2002
+@@ -2,6 +2,7 @@
+ #define _ASM_IO_H
+ 
+ #include <linux/config.h>
++#include <asm/types.h>
+ 
+ /*
+  * This file contains the definitions for the x86 IO instructions
+@@ -76,7 +77,7 @@
+ /*
+  * Change "struct page" to physical address.
+  */
+-#define page_to_phys(page)	((page - mem_map) << PAGE_SHIFT)
++#define page_to_phys(page)	((dma_addr_t)(page - mem_map) << PAGE_SHIFT)
+ 
+ extern void * __ioremap(unsigned long offset, unsigned long size, unsigned long flags);
+ 

@@ -1,65 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317945AbSHBCa7>; Thu, 1 Aug 2002 22:30:59 -0400
+	id <S317893AbSHBClz>; Thu, 1 Aug 2002 22:41:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317946AbSHBCa7>; Thu, 1 Aug 2002 22:30:59 -0400
-Received: from mta1.srv.hcvlny.cv.net ([167.206.5.4]:4032 "EHLO
-	mta1.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S317945AbSHBCa6>; Thu, 1 Aug 2002 22:30:58 -0400
-Date: Thu, 01 Aug 2002 22:29:33 -0400
-From: Nick Orlov <nick.orlov@mail.ru>
-Subject: Re: [PATCH] pdc20265 problem.
-In-reply-to: <20020802014728.GA796@nikolas.hn.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Mail-followup-to: lkml <linux-kernel@vger.kernel.org>
-Message-id: <20020802022933.GA1242@nikolas.hn.org>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_s4tXb6iuHF57NJdU+vQjzA)"
-User-Agent: Mutt/1.4i
-References: <Pine.LNX.4.44.0208010336330.1728-100000@freak.distro.conectiva>
- <20020802014728.GA796@nikolas.hn.org>
+	id <S317906AbSHBClz>; Thu, 1 Aug 2002 22:41:55 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:53211 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S317893AbSHBCly>;
+	Thu, 1 Aug 2002 22:41:54 -0400
+Date: Thu, 1 Aug 2002 21:39:26 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: linux-kernel@vger.kernel.org
+Subject: 2.5 Problem Status report
+Message-ID: <Pine.LNX.4.44.0208012031220.27455-100000@dad.molina>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus has issued 2.5.30 so here is an updated status report.  The most 
+current version is at 
 
---Boundary_(ID_s4tXb6iuHF57NJdU+vQjzA)
-Content-type: text/plain; charset=koi8-r
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
+http://members.cox.net/kernprobs/status.html
 
-On Thu, Aug 01, 2002 at 09:47:28PM -0400, Nick Orlov wrote:
-> 
-> > <marcelo@plucky.distro.conectiva> (02/07/19 1.646)
-> > 	Fix wrong #ifdef in ide-pci.c: Was causing problems with FastTrak
-> 
-> Because of this fix my Promise 20265 became ide0 instead of ide2.
-> Is there any reason to mark pdc20265 as ON_BOARD controller?
-> 
-> Anyway, attached patch fix it for me :)
-> 
+I've discovered I don't see everything (duh!) and I also may miss the 
+significance of a message.  Several times I've been told a particular 
+problem has been fixed by a bk patch which I've not seen.  Sure enough, 
+someone either reports that the problem no longer manifests itself, or 
+discussion ceases.  I can't document what I can't see, so if it isn't 
+discussed, it won't be reported here.
 
-Sorry, wrong diff format. Rediffed and attached.
+The sigmask problem is being carried as open.  However, the latest series 
+of messages has seemingly transitioned into a policy discussion.  
 
--- 
-With best wishes,
-	Nick Orlov.
+There doesn't appear to be agreement whether a generic ide problem exists.  
+Even if one does exist, Linus has four patchsets (108-111) in 2.5.30, 
+making it difficult to track individual problems.  I do have a couple 
+in the current list, and there are specific comments on each.  I'll track 
+those as best I can, but I'm not going to carry the "generic" ide 
+discussion.
 
 
---Boundary_(ID_s4tXb6iuHF57NJdU+vQjzA)
-Content-type: text/plain; charset=koi8-r; NAME=pdc20265.patch
-Content-transfer-encoding: 7BIT
-Content-disposition: attachment; filename=pdc20265.patch
+I hope this is proving useful.  Feedback is welcome.
 
---- linux/drivers/ide/ide-pci.c.orig	2002-08-01 21:41:29.000000000 -0400
-+++ linux/drivers/ide/ide-pci.c	2002-08-01 21:10:27.000000000 -0400
-@@ -405,7 +405,7 @@
- #ifndef CONFIG_PDC202XX_FORCE
-         {DEVID_PDC20246,"PDC20246",	PCI_PDC202XX,	NULL,		INIT_PDC202XX,	NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	OFF_BOARD,	16 },
-         {DEVID_PDC20262,"PDC20262",	PCI_PDC202XX,	ATA66_PDC202XX,	INIT_PDC202XX,	NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	OFF_BOARD,	48 },
--        {DEVID_PDC20265,"PDC20265",	PCI_PDC202XX,	ATA66_PDC202XX,	INIT_PDC202XX,	NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	ON_BOARD,	48 },
-+        {DEVID_PDC20265,"PDC20265",	PCI_PDC202XX,	ATA66_PDC202XX,	INIT_PDC202XX,	NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	OFF_BOARD,	48 },
-         {DEVID_PDC20267,"PDC20267",	PCI_PDC202XX,	ATA66_PDC202XX,	INIT_PDC202XX,	NULL,		{{0x00,0x00,0x00}, {0x00,0x00,0x00}},	OFF_BOARD,	48 },
- #else /* !CONFIG_PDC202XX_FORCE */
- 	{DEVID_PDC20246,"PDC20246",	PCI_PDC202XX,	NULL,		INIT_PDC202XX,	NULL,		{{0x50,0x02,0x02}, {0x50,0x04,0x04}}, 	OFF_BOARD,	16 },
 
---Boundary_(ID_s4tXb6iuHF57NJdU+vQjzA)--
+            Kernel Problem Reports as of 01 Aug
+   Problem Title                     Status       Discussion
+   IDE problem                       closed       2.5.29
+   RAID                              closed       2.5.28
+   OOPS with date                    closed       2.5.28
+   cpqarray broken since 2.5.19      closed       2.5.28
+   schedule() with irqs disabled!    proposed fix 2.5.29
+   ISDN broken?                      closed       2.5.28
+   bonding driver failure in 2.5     open         2.5.29
+   serial oops                       proposed fix 2.5.29
+   NUMA-Q minimal workaround updates open         2.5.29
+   PnP BIOS problem                  open         2.5.29
+   New connections stall             open         2.5.29
+   JFS oops                          open         2.5.29
+   ide option problem                open         2.5.29
+   ide cli/sti removal               open         2.5.29
+   serial core on embedded PPC       open         2.5.29
+   handle_scancode oops              open         2.5.29
+   spinlock deadlock                 open         2.5.29
+   smp cpu problem                   open         2.5.29
+   sigmask problem                   open         2.5.29
+
+
+

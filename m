@@ -1,87 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263445AbTEVXeI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 19:34:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263441AbTEVXeI
+	id S263424AbTEVXdM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 19:33:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbTEVXdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 19:34:08 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:34950 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S263445AbTEVXeF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 19:34:05 -0400
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: "David S. Miller" <davem@redhat.com>
-Subject: Re: Error during compile of 2.5.69-mm8
-Date: Fri, 23 May 2003 01:47:00 +0200
-User-Agent: KMail/1.5.9
-Cc: akpm@digeo.com, mfc@krycek.org, linux-kernel@vger.kernel.org
-References: <20030522160218.57b828db.akpm@digeo.com> <200305230128.06412.schlicht@uni-mannheim.de> <20030522.162913.115921853.davem@redhat.com>
-In-Reply-To: <20030522.162913.115921853.davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_0FWz+mBJwbePR88";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200305230147.00730.schlicht@uni-mannheim.de>
+	Thu, 22 May 2003 19:33:12 -0400
+Received: from aneto.able.es ([212.97.163.22]:56472 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S263424AbTEVXdL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 19:33:11 -0400
+Date: Fri, 23 May 2003 01:46:13 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21-rc3
+Message-ID: <20030522234613.GA2473@werewolf.able.es>
+References: <Pine.LNX.4.55L.0305221915450.1975@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.55L.0305221915450.1975@freak.distro.conectiva>; from marcelo@conectiva.com.br on Fri, May 23, 2003 at 00:19:38 +0200
+X-Mailer: Balsa 2.0.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-02=_0FWz+mBJwbePR88
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
+On 05.23, Marcelo Tosatti wrote:
+> 
+> Hi,
+> 
+> Here goes the third release candidate of 2.4.21.
+> 
+> 
 
-On May 23, David S. Miller wrote:
->    From: Thomas Schlichter <schlicht@uni-mannheim.de>
->    Date: Fri, 23 May 2003 01:28:06 +0200
->
->    On May 23, David S. Miller wrote:
->    > Yoshfuji posted a patch on linux-kernel to fix this already.
->
->    Sorry, I must have missed this patch - that would have made my work
->    obsolete -
->    but I'd like to see how that supports all the other
->    SET_MODULE_OWNER calls from all the other places...
->
-> They also should be converted to explicit ->owner references.
+--- linux/drivers/ide/Config.in.orig	2003-05-23 01:42:20.000000000 +0200
++++ linux/drivers/ide/Config.in	2003-05-23 01:42:37.000000000 +0200
+@@ -66,7 +66,7 @@
+ 	    dep_bool     '      Special UDMA Feature' CONFIG_PDC202XX_BURST $CONFIG_BLK_DEV_PDC202XX_OLD $CONFI_BLK_DEV_IDEDMA_PCI
+ 	    dep_tristate '    PROMISE PDC202{68|69|70|71|75|76|77} support' CONFIG_BLK_DEV_PDC202XX_NEW $CONFIG_BLK_DEV_IDEDMA_PCI
+ 		# FIXME - probably wants to be one for old and for new
+-	    dep_bool     '    Special FastTrak Feature' CONFIG_PDC202XX_FORCE
++	    dep_bool     '    Special FastTrak Feature' CONFIG_PDC202XX_FORCE $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	    dep_tristate '    RZ1000 chipset bugfix/support' CONFIG_BLK_DEV_RZ1000 $CONFIG_X86
+ 	    dep_tristate '    SCx200 chipset support' CONFIG_BLK_DEV_SC1200 $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	    dep_tristate '    ServerWorks OSB4/CSB5/CSB6 chipsets support' CONFIG_BLK_DEV_SVWKS $CONFIG_BLK_DEV_IDEDMA_PCI
 
-Well, I don't think so...
-I don't like it if there is a possibility doing it with an initializer, but=
- in=20
-other cases it may increase readability, too...
 
-There was a discussion about SET_MODULE_OWNER here on the list, once.
-You can find it here:
+Plz, could you run make xconfig sometime ? I know it is too friendly for
+kernel hackers...
 
-     http://marc.theaimsgroup.com/?t=3D104969843600002&r=3D1&w=3D2
-
-At the end Rusty made a small patch that never made it into the mainline tr=
-ee=20
-(even if I think it should have...) His mail with the patch can be found at:
-
-     http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D105065084724249&w=
-=3D2
-
-(I like the analogy to a mainframe ;-)
-
-Best regards
-   Thomas Schlichter
-
---Boundary-02=_0FWz+mBJwbePR88
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+zWF0YAiN+WRIZzQRAsnFAKCpDdOf+OLn0C71C7K3YKowLRu2KQCgjjcl
-CI18IGLjYdN8VDxbf8s/uvM=
-=sbHo
------END PGP SIGNATURE-----
-
---Boundary-02=_0FWz+mBJwbePR88--
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.21-rc2-jam2 (gcc 3.2.3 (Mandrake Linux 9.2 3.2.3-1mdk))

@@ -1,44 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265865AbUAMWcT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 17:32:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265873AbUAMWcS
+	id S265929AbUAMWi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 17:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266149AbUAMWi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 17:32:18 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:45705
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S265865AbUAMWcO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 17:32:14 -0500
-Date: Tue, 13 Jan 2004 17:44:22 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Scott Long <scott_long@adaptec.com>, linux-kernel@vger.kernel.org
-Subject: Re: Proposed enhancements to MD
-Message-ID: <20040113174422.B16728@animx.eu.org>
-References: <40033D02.8000207@adaptec.com> <1074031592.4981.1.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <1074031592.4981.1.camel@laptop.fenrus.com>; from Arjan van de Ven on Tue, Jan 13, 2004 at 11:06:32PM +0100
+	Tue, 13 Jan 2004 17:38:26 -0500
+Received: from amdext2.amd.com ([163.181.251.1]:47264 "EHLO amdext2.amd.com")
+	by vger.kernel.org with ESMTP id S266136AbUAMWhy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 17:37:54 -0500
+Message-ID: <99F2150714F93F448942F9A9F112634C080EF392@txexmtae.amd.com>
+From: paul.devriendt@amd.com
+To: davej@redhat.com, pavel@ucw.cz
+cc: cpufreq@www.linux.org.uk, linux@brodo.de, linux-kernel@vger.kernel.org
+Subject: RE: Cleanups for powernow-k8
+Date: Tue, 13 Jan 2004 16:37:13 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 6C1AAC9713165158-01-01
+Content-Type: text/plain;
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Adaptec has been looking at the MD driver for a foundation for their
-> > Open-Source software RAID stack.
+> On Tue, Jan 13, 2004 at 10:51:49PM +0100, Pavel Machek wrote:
 > 
-> Hi,
+>  > powernow-k8 uses strange kind of comments
 > 
-> Is there a (good) reason you didn't use Device Mapper for this? It
-> really sounds like Device Mapper is the way to go to parse and use
-> raid-like formats to the kernel, since it's designed to be independent
-> of on disk formats, unlike MD.
+> comments part I kinda agree with, though its not critical..
 
-As I've understood it, the configuration for DM is userspace and the kernel
-can't do any auto detection.  This would be a "put off" for me to use as a
-root filesystem.  Configurations like this (and lvm too last I looked at it)
-require an initrd or some other way of setting up the device.  Unfortunately
-this means that there's configs in 2 locations (one not easily available,  if
-using initrd.  easily != mounting via loop!)
+Ok, point taken.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+>  > and is way too verbose.
+> 
+> I agree that something like that output belongs more in x86info,
+> or a standalone tool, but I think Paul wanted to keep debugging stuff
+> there for the time being. Maybe silence it, and have it enabled
+> with a 'debug' module param ? Paul ?
+
+In the early days of frequency management and K8, I really wanted the
+debug stuff there to help with problems in the field - the debug spew
+really did help out with all of the buggy BIOSs that reported bogus
+data. Things are more stable now, and it has outlived its usefulness,
+it will be majorly cleaned up in the new driver (see below).
+
+Perhaps I will put out a separate debug utility or something like that.
+
+>  >  
+>  >  		if ((numps <= 1) || (batps <= 1)) {
+>  > +			/* FIXME: Is this right? I can see one 
+> state on battery, two states total as an usefull config */
+>  >  			printk(KERN_ERR PFX "only 1 p-state to 
+> transition\n");
+>  >  			return -ENODEV;
+>  >  		}
+>  > the test probably should be numps <= 1 only, but it does 
+> not matter as
+>  > we force numps = batps]
+> 
+> 1 state on battery sounds odd. Buggy BIOS ?
+
+No, it can be valid. The capability was put into the spec to allow
+a platform manufacturer to have a system where the battery pack
+could not power the system at full speed. It is legit (only the
+platform manufacturer can say whether it is correct or not) to 
+say that operation must be restricted to the lowest frequency when 
+mains power is not available. Add up the current draw from all the
+devices including the processor, and look at the current that the
+battery is capable of supplying ...
+
+I have a totally new driver, that I am hoping to release within about
+a month. (I did target the end of the year, but I got distracted on
+some other stuff). The new driver :
+  - uses ACPI to figure out the available p-states. I have seen a *lot*
+    of buggy BIOSs where the PSB/PST info is wrong or missing,
+  - uses ACPI to handle battery / mains power transitions,
+and some other clean ups.
+
+I would appreciate some advice on a question ... should I leave the old
+non-ACPI capability there for those people who do not want to enable ACPI
+in the kernel ? If so, is this a big ifdef, or is there a better way to do
+it ? Or should I just say that it is dependent on ACPI, got to have ACPI ?
+
+Paul.
+
+

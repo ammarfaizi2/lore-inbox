@@ -1,43 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313694AbSDFDm0>; Fri, 5 Apr 2002 22:42:26 -0500
+	id <S313928AbSDFC4K>; Fri, 5 Apr 2002 21:56:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313695AbSDFDmH>; Fri, 5 Apr 2002 22:42:07 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:59909 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S313694AbSDFDl4>;
-	Fri, 5 Apr 2002 22:41:56 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cleanup KERNEL_VERSION definition and linux/version.h 
-In-Reply-To: Your message of "Fri, 05 Apr 2002 09:55:27 PST."
-             <20020405175527.GK961@matchmail.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 06 Apr 2002 13:41:46 +1000
-Message-ID: <14688.1018064506@ocs3.intra.ocs.com.au>
+	id <S313931AbSDFC4B>; Fri, 5 Apr 2002 21:56:01 -0500
+Received: from ip68-7-112-74.sd.sd.cox.net ([68.7.112.74]:22799 "EHLO
+	clpanic.kennet.coplanar.net") by vger.kernel.org with ESMTP
+	id <S313928AbSDFCzm>; Fri, 5 Apr 2002 21:55:42 -0500
+Message-ID: <003301c1dd16$855df1b0$7e0aa8c0@bridge>
+From: "Jeremy Jackson" <jerj@coplanar.net>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <00c501c1dce3$0ed806d0$7e0aa8c0@bridge> <1674141067.1018028922@[10.10.2.3]>
+Subject: Re: Faster reboots (and a better way of taking crashdumps?)
+Date: Fri, 5 Apr 2002 18:55:33 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Apr 2002 09:55:27 -0800, 
-Mike Fedyk <mfedyk@matchmail.com> wrote:
->> >On Thu, Apr 04, 2002 at 11:36:06AM +1000, Keith Owens wrote:
->> Breaking that chain _might_ cause problems in 2.4 because it does not
->> have a complete dependency chain to pick up changes to the top level
->> Makefile, it only works at the moment due to the extra recompiles.  I
->> am not willing to change this in 2.4 until I have got it stable in 2.5.
+----- Original Message -----
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Sent: Friday, April 05, 2002 5:48 PM
+
+> I need to avoid going through the BIOS ... this is a
+> multiquad NUMA machine, and it doesn't take kindly
+> to the reboot through the BIOS for various reasons.
+> It also takes about 4 minutes, which is a pain ;-)
 >
->Hmm.  It looks like kbuild 2.5 might be able to be split up into a few
->separate parts.  Do you think so too?
+> I have source code access to our BIOS if I really wanted,
+> I just want to avoid modifying it if possible.
 
-There are some bug fixes to existing makefiles and CML1 that can safely
-be fed back to 2.4, I will do them next week.  Apart from that, the
-design philosophies for kbuild 2.4 and 2.5 are completely different,
-there is little from kbuild 2.5 that can safely be extracted and back
-ported to kbuild 2.4.
+well keep in mind that the fastest LinuxBIOS boot is 3 seconds...
+a large part of the boot time on most PCs is the BIOS setting up
+DOS support and painting silly logos on the screen, all of which
+can go away.  I'm guessing your NUMA system has a bit more
+to do at this stage due to the hardware, but still...
 
->Do you know where I could find some good documentation on Makefiles?
->Especially on dependencies and etc?
+>
+> > there are patches where a kernel can load another
+> > kernel, also.
+>
+> Hmmm ... sounds interesting ... any pointers?
 
-info make.
+LOBOS,
+
+http://www.acl.lanl.gov/linuxbios/papers/index.html
+http://www.usenix.org/publications/library/proceedings/als2000/minnichLOBOS.
+html
+
+two kernel monte,
+
+http://www.scyld.com/products/beowulf/software/monte.html
+
+There's also suspend to disk support, which is closely related.
+Kind of a restartable crash dump, without the crash:
+
+http://falcon.sch.bme.hu/~seasons/linux/swsusp.html
+
+>
+> > As for taking crashdumps on the way up, I believe
+> > (SGI's ?) linux kernel crash dumps does *exactly*
+> > this.
+>
+> I was under the impression that most BIOSes reset
+> memory on reboot, so this was impossible during a
+> BIOS reboot?
+
+oss.sgi.com seems to be down today... but iirc,
+it doesn't boot through bios, but stashes some critical state
+in a buffer previously reserverd, uses one of the above methods
+to boot a new kernel, lets this kernel do the dump, then boots
+through the bios to make sure hardware is completely restored
+after the crash.  I'm sure it could be tailored to suit though.
+
+I'm currently researching combining the two, to create a LinuxBIOS
+firmware debug console, which will allow complete crash dump to
+be taken after a hardware reset, with the smallest possible Heisenburg
+effect, aside from a hardware debugger.
+
+Basically when the kernel panics, it dumps the CPU registers and
+resets the CPU.  The firmware console makes no alterations to
+the state of the hardware, instead running a modified kgdb stub
+like routine, possibly without even touching RAM.  Also, if an SMI
+button is available, this can be used as a hardware break switch,
+allowing panics to use an even less invasive HLT instruction.
+
+Jeremy
 

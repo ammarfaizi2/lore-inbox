@@ -1,26 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262772AbTKEKAP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 05:00:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbTKEKAP
+	id S262770AbTKEJ6p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 04:58:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbTKEJ6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 05:00:15 -0500
-Received: from mail.gmx.net ([213.165.64.20]:25837 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262772AbTKEKAH (ORCPT
+	Wed, 5 Nov 2003 04:58:45 -0500
+Received: from imap.gmx.net ([213.165.64.20]:13526 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262770AbTKEJ6m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 05:00:07 -0500
+	Wed, 5 Nov 2003 04:58:42 -0500
 X-Authenticated: #4512188
-Message-ID: <3FA8CA87.2070201@gmx.de>
-Date: Wed, 05 Nov 2003 11:01:43 +0100
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+Message-ID: <3FA8CA32.80105@gmx.de>
+Date: Wed, 05 Nov 2003 11:00:18 +0100
+From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031102
 X-Accept-Language: de-de, de, en-us, en
 MIME-Version: 1.0
 To: Jens Axboe <axboe@suse.de>
 CC: linux-kernel@vger.kernel.org
 Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-References: <3FA69CDF.5070908@gmx.de> <20031105084007.GZ1477@suse.de> <3FA8C916.3060702@gmx.de> <20031105095457.GG1477@suse.de>
-In-Reply-To: <20031105095457.GG1477@suse.de>
+References: <3FA69CDF.5070908@gmx.de> <20031105084007.GZ1477@suse.de> <3FA8C8E5.10903@gmx.de> <20031105095350.GF1477@suse.de>
+In-Reply-To: <20031105095350.GF1477@suse.de>
 X-Enigmail-Version: 0.76.7.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii; format=flowed
@@ -33,18 +33,16 @@ Jens Axboe wrote:
 > 
 >>Jens Axboe wrote:
 >>
->>
 >>>On Mon, Nov 03 2003, Prakash K. Cheemplavam wrote:
 >>>
 >>>
 >>>>Hi,
 >>>>
->>>>well I am using k3b0.10.1 and either choosing cdrdao or cdrecord in 
->>
->>DAO mode to burn the cd ends up in non-bit identical copies, wheres ion 
->>TAO (atleast with my 10x CD-RW I tested) the copy succeded. I tried 
->>several times, and always got this issue.
->>
+>>>>well I am using k3b0.10.1 and either choosing cdrdao or cdrecord in DAO 
+>>>>mode to burn the cd ends up in non-bit identical copies, wheres ion TAO 
+>>>>(atleast with my 10x CD-RW I tested) the copy succeded. I tried several 
+>>>>times, and always got this issue.
+>>>>
 >>>>bash-2.05b$ md5sum livecd-2.6_10-23-2003.iso
 >>>>f73f3a74239dfe94b322b85fd14a306e livecd-2.6_10-23-2003.iso
 >>>>
@@ -57,10 +55,8 @@ Jens Axboe wrote:
 >>>>09e7e2a51af4c64685831513fbac18c2 /dev/cdroms/cdrom1
 >>>
 >>>
->>>
 >>>Could you please try and cmp the two images, finding out how big the
 >>>corrupted chunks are and what kind of data they contain?
->>
 >>
 >>After some further investigation I found out, that the data is NOT 
 >>corrupted, but in a way truncated in DAO mode: When I read out the image 
@@ -71,18 +67,15 @@ Jens Axboe wrote:
 >>problem of my burner, but rather of the atapi driver?
 > 
 > 
-> Is actual data missing at the end? If yes, I'd say this looks a lot more
-> like a cdrecord problem.
+> This is not a problem per-se (you can read the files, right?), it's just
+> an artifact of burning the images differently. When you say truncated,
+> do you mean that actual data is missing?
 
-Sorry, I wasn't precise: The data is on the disc, as my DVD-ROM restores 
-the full image (md5sum matches), but the CD-RW does not.
+I am not an expert of iso image structure, but I would say yes. The 
+original iso is about 5kb bigger than the image read after DAO burning. 
+So when you imagine this truncated image would be burn, read, burnt etc, 
+nothing of the original image would be left.
 
 Prakash
 
-
-
--- 
-=-----=
-|=-P-=|
-=-----=
 

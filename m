@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264488AbUEVBgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264443AbUEUXCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264488AbUEVBgW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 21:36:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264843AbUEVBfO
+	id S264443AbUEUXCh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 19:02:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265234AbUEUWlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 21:35:14 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:28100 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265168AbUEUX5B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 19:57:01 -0400
-Date: Thu, 20 May 2004 00:56:45 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Martin Knoblauch <knobi@knobisoft.de>, "Theodore Ts'o" <tytso@mit.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm4: missing symbol __log_start_commit in ext3.o
-Message-ID: <20040519225644.GG24287@fs.tum.de>
-References: <20040519151913.47070.qmail@web13906.mail.yahoo.com>
-Mime-Version: 1.0
+	Fri, 21 May 2004 18:41:35 -0400
+Received: from zero.aec.at ([193.170.194.10]:5 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S266083AbUEUWdB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 18:33:01 -0400
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: linux-kernel@vger.kernel.org, brettspamacct@fastclick.com
+Subject: Re: How can I optimize a process on a NUMA architecture(x86-64
+ specifically)?
+References: <1Y6yr-eM-11@gated-at.bofh.it> <1YbRm-4iF-11@gated-at.bofh.it>
+	<1Yma3-4cF-3@gated-at.bofh.it> <1YmjP-4jX-37@gated-at.bofh.it>
+	<1YmMN-4Kh-17@gated-at.bofh.it> <1Yn67-50q-7@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Fri, 21 May 2004 21:19:46 +0200
+In-Reply-To: <1Yn67-50q-7@gated-at.bofh.it> (Martin J. Bligh's message of
+ "Fri, 21 May 2004 20:40:07 +0200")
+Message-ID: <m3lljld1v1.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040519151913.47070.qmail@web13906.mail.yahoo.com>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 19, 2004 at 08:19:13AM -0700, Martin Knoblauch wrote:
-> Hi,
-> 
->  ext3 complains about a missing symbol in 2.6.6.-mm4:
-> 
->   SPLIT   include/linux/autoconf.h -> include/config/*
-> make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
->   CC [M]  fs/ext3/balloc.o
->   LD [M]  fs/ext3/ext3.o
->   Building modules, stage 2.
->   MODPOST
-> *** Warning: "__log_start_commit" [fs/ext3/ext3.ko] undefined!
-> 
->  .config attached.
+"Martin J. Bligh" <mbligh@aracnet.com> writes:
 
-Thanks for this report.
+> For any given situation, you can come up with a scheduler mod that improves
+> things. The problem is making something generic that works well in most
+> cases. 
 
-@Ted:
-Your "Retry allocation after transaction commit" patch broke modular 
-ext3.
+The point behind numa api/numactl is that if the defaults
+don't work well enough you can tune it by hand to be better.
 
-> Cheers
-> Martin
+There are some setups which can be significantly improved with some
+hand tuning, although in many cases the default behaviour is good enough
+too.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+-Andi
 

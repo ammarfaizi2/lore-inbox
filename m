@@ -1,59 +1,77 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316444AbSETXvQ>; Mon, 20 May 2002 19:51:16 -0400
+	id <S316446AbSETX44>; Mon, 20 May 2002 19:56:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316445AbSETXvP>; Mon, 20 May 2002 19:51:15 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:4035 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316444AbSETXvO>;
-	Mon, 20 May 2002 19:51:14 -0400
-Date: Mon, 20 May 2002 16:37:24 -0700 (PDT)
-Message-Id: <20020520.163724.40381283.davem@redhat.com>
-To: torvalds@transmeta.com
-Cc: paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.5.16
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020520.163026.81812639.davem@redhat.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S316447AbSETX4z>; Mon, 20 May 2002 19:56:55 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:49558 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S316446AbSETX4y>;
+	Mon, 20 May 2002 19:56:54 -0400
+From: Paul Mackerras <paulus@samba.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15593.36080.660343.246677@argo.ozlabs.ibm.com>
+Date: Tue, 21 May 2002 09:55:28 +1000 (EST)
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.5.16
+In-Reply-To: <Pine.LNX.4.44.0205200904461.23874-100000@home.transmeta.com>
+X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "David S. Miller" <davem@redhat.com>
-   Date: Mon, 20 May 2002 16:30:26 -0700 (PDT)
-   
-   Architectures define tlb_flush_mm() as appropriate, on x86 it would
-   be just flush_tlb_mm(mm), on Sparc/PPC/etc. which uses the VMA
-   flushing it would just be a NOP.
+Linus Torvalds writes:
 
-Actually, there are some issues with my suggestion.
+> Hmm.. The PPC <asm/tlb.h> seems to be largely a simplified version of
+> the asm-generic one, with no support for the UP optimization, for example.
+> 
+> And that UP optimization should be perfectly correct even on PPC, so you
+> apparently lost something in the translation.
 
-We are trying to do two things:
+The UP optimization would be slower on "classic" PPCs because you end
+up doing a flush_tlb_mm rather than flushing the ranges of addresses
+where there are actually PTEs present.
 
-1) Flush all VMAs
+By "classic" PPCs I mean those that use a hashed page table, as
+distinct from the embedded PPCs that have software-loaded TLBs.
+Certainly for the embedded PPCs the UP optimization is useful and
+desirable.  More ifdefs... :(
 
-2) Flush some unmapped area (1 or a few VMAs)
+Anyway, on classic PPCs, the cost of TLB flushes goes up with the
+amount of address space being flushed, and flush_tlb_mm is essentially
+a flush of the whole space from 0 to TASK_SIZE.  As an optimization,
+I currently have flush_tlb_mm look at the list of vma's and flush the
+address range for each vma.  That works because flush_tlb_mm currently
+only gets called from dup_mmap() and the list of vma's is valid in
+that case.  If we were calling flush_tlb_mm from tlb_flush_mmu, we
+could not use that optimization (since all the vma's have been removed
+from the mm->mmap list at that point) so we would have to flush the
+entire 0 .. TASK_SIZE range.
 
-In the #1 case we'd like that to turn into something like:
+There is a further optimization that we do that we would not be able
+to use if flush_tlb_mm were called from tlb_flush_mmu.  We have a bit
+in each PTE, the _PAGE_HASHPTE bit, that tells us if a hardware PTE
+for that virtual address has been put into the hash table.  (This bit
+is present even when the PTE is a swap entry, and set_pte et al. don't
+modify this bit.)  Then, when we are flushing a range of addresses, we
+look at the linux PTE for each page and only do the hash table search
+if the bit is set.  However, by the time tlb_flush_mmu is called, the
+page tables have been freed, so we would have to do the hash table
+search for every page from 0 to TASK_SIZE.  (This is why I call
+tlb_flush_mmu from tlb_end_vma rather than tlb_finish_mmu.)
 
-	flush_cache_mm()
-	for each vma {
-		unmap_page_range();
-	}
-	tlb_finish_mmu();
-	flush_tlb_mm();
+Therefore I concluded that the UP optimization was actually a
+pessimization for classic PPC.
 
-Whereas in the #2 case it should look like:
+The fact that flushes cost in proportion to the size of the range
+being flushed is the reason behind the code that flushes and starts a
+new range if address - tlb->end > 32 * PAGE_SIZE.  The 32 is a number
+that could use some tuning; we get some advantage from batching up the
+flushes but that advantage will be lost if we have to look through
+large ranges of addresses where there were no valid PTEs.
 
-	for each vma {
-		tlb_start_vma(vma...);
-		tlb_end_vma(vma...);
-	}
-	tlb_finish_mmu();
+> I'd actually rather try to share more of the code, if possible.
 
-We have to reposition that tlb.h:flush_tlb_mm() call somehow to
-make this a reality.
+I'll see what I can do along those lines...
 
-The next issue is how to make it so that this infrstructure
-can allow us to kill off the buggy flush_tlb_pgtables() thing.
+Paul.

@@ -1,67 +1,171 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318148AbSIEV0p>; Thu, 5 Sep 2002 17:26:45 -0400
+	id <S318133AbSIEVcQ>; Thu, 5 Sep 2002 17:32:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318152AbSIEV0p>; Thu, 5 Sep 2002 17:26:45 -0400
-Received: from pat.uio.no ([129.240.130.16]:58304 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S318148AbSIEV0o>;
-	Thu, 5 Sep 2002 17:26:44 -0400
-MIME-Version: 1.0
+	id <S318138AbSIEVcP>; Thu, 5 Sep 2002 17:32:15 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:17639 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S318133AbSIEVcM>; Thu, 5 Sep 2002 17:32:12 -0400
+Date: Thu, 5 Sep 2002 17:36:45 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: Patch for ide-tape
+Message-ID: <20020905173645.A29647@devserv.devel.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15735.52512.886434.46650@charged.uio.no>
-Date: Thu, 5 Sep 2002 23:31:12 +0200
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Chuck Lever <cel@citi.umich.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: invalidate_inode_pages in 2.5.32/3
-In-Reply-To: <3D77C8B7.1534A2DB@zip.com.au>
-References: <3D77C0A7.F74A89D0@zip.com.au>
-	<15735.50124.304510.10612@charged.uio.no>
-	<3D77C8B7.1534A2DB@zip.com.au>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Andrew Morton <akpm@zip.com.au> writes:
+Hi, Marcelo -
 
-    >> 'rpciod' process by means of a callback. Since 'rpciod' is
-    >> responsible for completing all asynchronous I/O, then
-    >> truncate_inode_pages() would deadlock.
+here's what I've got in our tree.
 
-     > But if there are such pages, invalidate_inode_pages() would not
-     > have removed them anyway?
+-- Pete
 
-It should not have to. If the page is locked because it is being paged
-in, then we're guaranteed that the data is fresh from the server. If
-it is locked because we are writing, then ditto.
+-------- linux-2.4.19-ide-tape.diff ------------
+36628 I/O error reading HP Colorado 5GB tape drive
+62267 Segfault when insmod'in the ide-tape driver
+nobug change printouts in idetape_reinit
+I6809 Milan B5: divide error: 0000
 
-     > Trond, there are very good reasons why it broke.  Those pages
-     > are visible to the whole world via global data structures -
-     > both the page LRUs and via the superblocks->inodes walk.  Those
-     > things exist for legitimate purposes, and it is legitimate for
-     > async threads of control to take a reference on those pages
-     > while playing with them.
+36628:
+Removes extra buffer flush from read_position(), which confuses
+all versions of the HP Colorado.
+Also touches up on insane logging.
 
-I don't buy that explanation w.r.t. readdir: those pages should always
-be clean. The global data structures might walk them in order to throw
-them out, but that should be a bonus here.
-In any case it seems a bit far fetched that they should be pinning
-*all* the readdir pages...
+62267:
+ide-tape: Model: Seagate STT3401A
+ide-tape: Firmware Revision: 308A
+....
+ide-tape: Maximum supported speed in KBps - 4000
+ide-tape: Continuous transfer limits in blocks - 0     <===== HUH?!
+ide-tape: Current speed in KBps - 755
 
-     > I suspect we can just remove the page_count() test from
-     > invalidate and that will fix everything up.  That will give
-     > stronger invalidate and anything which doesn't like that is
-     > probably buggy wrt truncate anyway.
+I6809:
+ide-tape: Model: Seagate STT3401A
+ide-tape: Firmware Revision: 309C
+....
+ide-tape: Adjusted block size - 0		<===== Seagate strikes back
+divide error: 0000
 
-I never liked the page_count() test, but Linus overruled me because of
-the concern for consistency w.r.t. shared mmap(). Is the latter case
-resolved now?
-
-I notice for instance that you've added mapping->releasepage().
-What should we be doing for that?
-
-Cheers,
-  Trond
+--- linux-2.4.19/drivers/ide/ide-tape.c	Fri Aug  2 17:39:44 2002
++++ linux-2.4.19-p3/drivers/ide/ide-tape.c	Thu Sep  5 13:14:01 2002
+@@ -429,8 +429,6 @@
+ #include <asm/bitops.h>
+ 
+ 
+-#define NO_LONGER_REQUIRED	(1)
+-
+ /*
+  *	OnStream support
+  */
+@@ -2101,10 +2099,6 @@
+ 		if (status.b.check && pc->c[0] == IDETAPE_REQUEST_SENSE_CMD)
+ 			status.b.check = 0;
+ 		if (status.b.check || test_bit (PC_DMA_ERROR, &pc->flags)) {	/* Error detected */
+-#if IDETAPE_DEBUG_LOG
+-			if (tape->debug_level >= 1)
+-				printk (KERN_INFO "ide-tape: %s: I/O error, ",tape->name);
+-#endif /* IDETAPE_DEBUG_LOG */
+ 			if (pc->c[0] == IDETAPE_REQUEST_SENSE_CMD) {
+ 				printk (KERN_ERR "ide-tape: I/O error in request sense command\n");
+ 				return ide_do_reset (drive);
+@@ -2178,7 +2172,7 @@
+ 	pc->current_position+=bcount.all;
+ #if IDETAPE_DEBUG_LOG
+ 	if (tape->debug_level >= 2)
+-		printk(KERN_INFO "ide-tape: [cmd %x] transferred %d bytes on that interrupt\n", pc->c[0], bcount.all);
++		printk(KERN_INFO "ide-tape: [cmd %x] done %d\n", pc->c[0], bcount.all);
+ #endif
+ 	ide_set_handler (drive, &idetape_pc_intr, IDETAPE_WAIT_CMD, NULL);	/* And set the interrupt handler again */
+ 	return ide_started;
+@@ -2297,7 +2291,7 @@
+ 	}
+ #if IDETAPE_DEBUG_LOG
+ 	if (tape->debug_level >= 2)
+-		printk (KERN_INFO "ide-tape: Retry number - %d\n", pc->retries);
++		printk (KERN_INFO "ide-tape: Retry number - %d, [cmd %x]\n", pc->retries, pc->c[0]);
+ #endif /* IDETAPE_DEBUG_LOG */
+ 
+ 	pc->retries++;
+@@ -2472,7 +2466,8 @@
+ 	status.all = GET_STAT();
+ 	if (status.b.dsc) {
+ 		if (status.b.check) {					/* Error detected */
+-			printk (KERN_ERR "ide-tape: %s: I/O error, ",tape->name);
++			printk (KERN_ERR "ide-tape: %s: I/O error: pc = %2x, key = %2x, asc = %2x, ascq = %2x\n",
++					tape->name, pc->c[0], tape->sense_key, tape->asc, tape->ascq);
+ 			return idetape_retry_pc (drive);			/* Retry operation */
+ 		}
+ 		pc->error = 0;
+@@ -3275,28 +3270,13 @@
+ 
+ #if IDETAPE_DEBUG_LOG
+         if (tape->debug_level >= 4)
+-	printk (KERN_INFO "ide-tape: Reached idetape_read_position\n");
++		printk (KERN_INFO "ide-tape: Reached idetape_read_position\n");
+ #endif /* IDETAPE_DEBUG_LOG */
+ 
+-#ifdef NO_LONGER_REQUIRED
+-	idetape_flush_tape_buffers(drive);
+-#endif
+ 	idetape_create_read_position_cmd(&pc);
+ 	if (idetape_queue_pc_tail (drive, &pc))
+ 		return -1;
+ 	position = tape->first_frame_position;
+-#ifdef NO_LONGER_REQUIRED
+-	if (tape->onstream) {
+-		if ((position != tape->last_frame_position - tape->blocks_in_buffer) &&
+-		    (position != tape->last_frame_position + tape->blocks_in_buffer)) {
+-			if (tape->blocks_in_buffer == 0) {
+-				printk("ide-tape: %s: correcting read position %d, %d, %d\n", tape->name, position, tape->last_frame_position, tape->blocks_in_buffer);
+-				position = tape->last_frame_position;
+-				tape->first_frame_position = position;
+-			}
+-		}
+-	}
+-#endif
+ 	return position;
+ }
+ 
+@@ -5861,6 +5841,10 @@
+ 		printk(KERN_INFO "ide-tape: %s: overriding capabilities->max_speed (assuming 650KB/sec)\n", drive->name);
+ 		capabilities->max_speed = 650;
+ 	}
++	if (!capabilities->ctl) {
++		printk(KERN_INFO "ide-tape: %s: overriding capabilities->ctl (assuming 26KB)\n", drive->name);
++		capabilities->ctl = 52;
++	}
+ 
+ 	tape->capabilities = *capabilities;		/* Save us a copy */
+ 	if (capabilities->blk512)
+@@ -6200,7 +6184,7 @@
+ 		ide_register_module (&idetape_module);
+ 		MOD_DEC_USE_COUNT;
+ #if ONSTREAM_DEBUG
+-		printk(KERN_INFO "ide-tape: MOD_DEC_USE_COUNT in idetape_init\n");
++		printk(KERN_INFO "ide-tape: MOD_DEC_USE_COUNT in idetape_reinit\n");
+ #endif
+ 		return 0;
+ 	}
+@@ -6209,7 +6193,7 @@
+ 		printk (KERN_ERR "ide-tape: Failed to register character device interface\n");
+ 		MOD_DEC_USE_COUNT;
+ #if ONSTREAM_DEBUG
+-		printk(KERN_INFO "ide-tape: MOD_DEC_USE_COUNT in idetape_init\n");
++		printk(KERN_INFO "ide-tape: MOD_DEC_USE_COUNT in idetape_reinit\n");
+ #endif
+ 		return -EBUSY;
+ 	}
+@@ -6259,7 +6243,7 @@
+ 	ide_register_module (&idetape_module);
+ 	MOD_DEC_USE_COUNT;
+ #if ONSTREAM_DEBUG
+-	printk(KERN_INFO "ide-tape: MOD_DEC_USE_COUNT in idetape_init\n");
++	printk(KERN_INFO "ide-tape: MOD_DEC_USE_COUNT in idetape_reinit\n");
+ #endif
+ 
+ 	return 0;

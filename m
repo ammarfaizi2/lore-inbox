@@ -1,81 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129480AbRBERX2>; Mon, 5 Feb 2001 12:23:28 -0500
+	id <S135469AbRBERZS>; Mon, 5 Feb 2001 12:25:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129539AbRBERXT>; Mon, 5 Feb 2001 12:23:19 -0500
-Received: from host217-32-121-81.hg.mdip.bt.net ([217.32.121.81]:60934 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S129480AbRBERXE>;
-	Mon, 5 Feb 2001 12:23:04 -0500
-Date: Mon, 5 Feb 2001 17:25:33 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Re: Linux2.4.1-pre1, Kernel is too big for standalone boot from
- floppy
-In-Reply-To: <Pine.LNX.4.32.0102050908380.8640-100000@filesrv1.baby-dragons.com>
-Message-ID: <Pine.LNX.4.21.0102051720090.1716-100000@penguin.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135470AbRBERZI>; Mon, 5 Feb 2001 12:25:08 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:1514 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S135469AbRBERYu>;
+	Mon, 5 Feb 2001 12:24:50 -0500
+Date: Mon, 5 Feb 2001 17:20:42 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Christoph Hellwig <hch@caldera.de>, Steve Lord <lord@sgi.com>,
+        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
+Message-ID: <20010205172042.O1167@redhat.com>
+In-Reply-To: <20010205150354.E1167@redhat.com> <E14PnQ8-0003WC-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <E14PnQ8-0003WC-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Feb 05, 2001 at 03:19:09PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Feb 2001, Mr. James W. Laferriere wrote:
+Hi,
 
+On Mon, Feb 05, 2001 at 03:19:09PM +0000, Alan Cox wrote:
+> > Yes, it's the sort of thing that you would hope should work, but in
+> > practice it's not reliable.
 > 
-> 	Hello All ,  I like the warning Ladies & Gents .  But when did it
-> 	first appear ?  I seem to have missed the announcement in the
-> 	change logs .  Tia ,  JimL
-
-you mean when did Werner Almesberger add the check and a printf of the
-warning you see below? I can't remember the date exactly but I remember it
-very clearly (i.e. everything except the date :)
-
-Basically, I badly needed to be able to build kernels of arbitrary size
-and I asked someone who I was sure would know (Werner) how to fix it --
-and I was right -- he did know and he fixed it so now one could build very
-large kernels and have them booted via LILO. But, the old plain bootsect.S
-was still left as is, i.e. unable to boot very large kernels (for exact
-size limits see the source, arch/i386/boot/tools/build.c) and so it was
-only natural that one should printf a warning.
-
-So, in short, such kernels are okay to boot with LILO (and most other
-bootloaders) but not if you just dd if=bzImage of=/dev/fd0, i.e. not by
-bootsect.S
-
-
-If you want the date... it was approximately the beginning of 2000, I
-think.
-
-Regards,
-Tigran
-
-
+> So the less smart devices need to call something like
 > 
-> make[2]: Leaving directory
-> `/usr/src/linux-2.4.2-pre1/arch/i386/boot/compressed'
-> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o tools/build
-> tools/build.c -I/usr/src/linux/include
-> objcopy -O binary -R .note -R .comment -S compressed/bvmlinux
-> compressed/bvmlinux.out
-> tools/build -b bbootsect bsetup compressed/bvmlinux.out CURRENT > bzImage
-> Root device is (8, 1)
-> Boot sector 512 bytes.
-> Setup is 4512 bytes.
-> System is 1418 kB
-> warning: kernel is too big for standalone boot from floppy
+> 	kiovec_align(kiovec, 512);
 > 
->        +----------------------------------------------------------------+
->        | James   W.   Laferriere | System  Techniques | Give me VMS     |
->        | Network        Engineer | 25416      22nd So |  Give me Linux  |
->        | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
->        +----------------------------------------------------------------+
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+> and have it do the bounce buffers ?
 
+_All_ drivers would have to do that in the degenerate case, because
+none of our drivers can deal with a dma boundary in the middle of a
+sector, and even in those places where the hardware supports it in
+theory, you are still often limited to word-alignment.
+
+--Stephen
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

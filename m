@@ -1,69 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUEFSr6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbUEFSrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbUEFSr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 14:47:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbUEFSr6
+	id S261244AbUEFSrU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 14:47:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbUEFSrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 14:47:58 -0400
-Received: from fmr11.intel.com ([192.55.52.31]:62596 "EHLO
-	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261865AbUEFSrx convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 14:47:53 -0400
-content-class: urn:content-classes:message
+	Thu, 6 May 2004 14:47:20 -0400
+Received: from host199.200-117-131.telecom.net.ar ([200.117.131.199]:8936 "EHLO
+	smtp.bensa.ar") by vger.kernel.org with ESMTP id S261244AbUEFSrT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 14:47:19 -0400
+From: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+Date: Thu, 6 May 2004 15:47:17 -0300
+User-Agent: KMail/1.6.2
+Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+References: <200405051312.30626.dominik.karall@gmx.net> <200405060955.57856.norberto+linux-kernel@bensa.ath.cx> <200405061533.59295.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200405061533.59295.bzolnier@elka.pw.edu.pl>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [2.6.6 PATCH] Exposing EFI memory map
-Date: Thu, 6 May 2004 11:47:38 -0700
-Message-ID: <D36CE1FCEFD3524B81CA12C6FE5BCAB002FFEB1B@fmsmsx406.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [2.6.6 PATCH] Exposing EFI memory map
-Thread-Index: AcQzjL5FavTXh6V4T3OG07SHslVr6gADPtKQ
-From: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
-To: "Dave Hansen" <haveblue@us.ibm.com>, "Sourav Sen" <souravs@india.hp.com>
-Cc: "HELGAAS,BJORN (HP-Ft. Collins)" <bjorn_helgaas@am.exch.hp.com>,
-       "Matt Domsch" <Matt_Domsch@dell.com>, <linux-ia64@vger.kernel.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Luck, Tony" <tony.luck@intel.com>
-X-OriginalArrivalTime: 06 May 2004 18:47:39.0441 (UTC) FILETIME=[9B29E210:01C4339A]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405061547.17544.norberto+linux-kernel@bensa.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, 2004-05-06 at 09:25, Sourav Sen wrote:
-> > From: Bjorn Helgaas [mailto:bjorn.helgaas@hp.com]
-> > + For this application, the EFI memory map isn't what you want.
-> > + It's a pretty good approximation today, but the day when we'll
-> > + be able to hot-add memory is fast approaching, and the EFI map
-> > + won't mention anything added after boot.  We'll discover all
-> > + that via ACPI (on ia64).
-> >
-> > 	Why not also update the efi memory table on a hotplug :-)
-> 
-> That's actually what ppc64 does.  But, they do it via /proc (not even
-> from inside the kernel).  I'm not very fond of that solution :)
+Bartlomiej Zolnierkiewicz wrote:
+> > Then let us test with _AND_ without 4KSTACKS.
+>
+> You are free to remove this patch from your kernel. 8)
 
-Interesting. What does ppc64 do with the memmap after that?  
+I already do ;-)
 
-> >  and there may be some truncation (just as efi_memmap_walk()
-> > does today). And it isn't help us if we get to know about those
-> > extents. Additionally we get to know about various mmio ranges and
-> > other ranges thru that table -- may be useful opportunistically.
-> 
-> There can be some pretty generic (although asynchronous) events given
-> via /sbin/hotplug.  I'm currently planning on having the 
-> memory hotplug
-> "drivers" get the hot-added memory ready, but keep it 
-> offline.  It then
-> creates some kobjects, which generate hotplug events, and *then* the
-> decision can be made in the hotplug scripts about what to do with it.
+That was not my point.
 
-So, allocate the page structs which constitute the new memmap, set up
-the nonlinear sections, and then wait for hotplug events in order to 
-clear the appropriate bits in the pages for a given range?  Is that 
-what you're thinking?
-
-matt
+Thanks anyway,
+Norberto

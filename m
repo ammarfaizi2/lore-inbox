@@ -1,93 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290017AbSBFEkc>; Tue, 5 Feb 2002 23:40:32 -0500
+	id <S290047AbSBFE5w>; Tue, 5 Feb 2002 23:57:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290020AbSBFEkW>; Tue, 5 Feb 2002 23:40:22 -0500
-Received: from alcove.wittsend.com ([130.205.0.10]:50115 "EHLO
-	alcove.wittsend.com") by vger.kernel.org with ESMTP
-	id <S290017AbSBFEkL>; Tue, 5 Feb 2002 23:40:11 -0500
-Date: Tue, 5 Feb 2002 23:40:09 -0500
-From: "Michael H. Warfield" <mhw@wittsend.com>
+	id <S290059AbSBFE5n>; Tue, 5 Feb 2002 23:57:43 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44806 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S290047AbSBFE5b>; Tue, 5 Feb 2002 23:57:31 -0500
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.18-pre8 - Good news and bad news...
-Message-ID: <20020205234009.A6268@alcove.wittsend.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: 2.4.17: kswap crash in prune_dcache()
+Date: 5 Feb 2002 20:57:16 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a3qd3c$2jk$1@cesium.transmeta.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+Additional information at:
 
-	I've been trying to work around a problem since 2.4.16 where
-the kernel would Oops on my gateway system with the EIP = 0010:5a5a5a5a.
+	http://userweb.kernel.org/~hpa/kswap/
 
-	Several people had excellent suggestions, most of which had
-no effect beyond eliminating the innocent (which is what I would hope
-for anyways).  My thanks to all.
+After this event the machine was dead to userland, but still answered
+pings.
 
-	One person asked if I was using DevFS.  I was, since I also work
-on and test the Computone Multiport drivers and need to have that working
-with DevFS.  They suggested disabling DevFS which I did and which had
-absolutely no effect on the 5a5a5a5a problem.
+2.4.17 SMP PAE kernel, modules disabled.
 
-	After seeing a post from Alan Cox about 2.4.18-pre7, I compiled
-that up and started the gateway on it.  After it ran for a day (which
-previous versions had NOT done) I left it to run for the week I was
-in New York for LinuxWorld Expo.  OK, So I'm a DAMN IDIOT who likes to
-live dangerously.  My SO knew how to reboot the gateway in case it went
-tits up, which it did almost a week later.  It was set up to reboot to
-a safe kernel (2.2.20) till I could get back and autopsy the corpse.
-No problem...  :-)
+	-hpa
 
-	The good news...  The 5a5a5a5a Oops seems to be gone.  The Oops
-in 2.4.18-pre7 was different and took a LOT longer to blow.  I didn't
-try to reproduce it, since 2.4.18-pre8 was out.
 
-	Now for the bad news...
 
-	I build a new kernel with 2.4.18-pre8 and the latest FreeS/WAN
-(1.95).  The only reason I mention FreeS/WAN is that this is the only
-kernel mod from the stock tree and patches.  I also turned DevFS back
-on, so I could test that.  I discovered that 2.4.18-pre8 would only
-come up about (actually exactly) 50% of the time.  If it was a clean
-reboot, I would get an Oops in the scheduler pretty early during
-initialization.  The EIP in the Oops seemed different every time.
-If it had to fsck the file systems, it wouldn't generate an Oops and
-would boot, but I had trouble with a site which was logging into my
-gateway over PPP and the Computone board.  There seem to be no traffic
-after the initial "CONNECT" (which occurs with CF unaccerted).  Problems
-just seemed to be bizzare and unpredicatable beyond the "every other boot"
-weirdness.
+ksymoops 2.4.1 on i686 2.4.17.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.17/ (default)
+     -m /boot/System.map-2.4.17 (default)
 
-	A little more investigation indicated that the every-other boot
-Oops was occuring EXACTLY when the system was mounting "other filesystems"
-which, in this case, meant DevFS and usbdevfs.  That's when I remembered
-re-enabling DevFS in the build.  I re-disabled DevFS, rebuilt the kernel,
-and then the system booted and my remote site managed to log in successfully,
-first time, no problem.  This was after MULTIPLE failures with DevFS enabled.
-(Hours of time shot.)
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-	Sooo...
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c014773c>]  Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010282
+eax: 0000001c   ebx: c8b58a98     ecx: c035ba00       edx: 0000c87a
+esi: c8b58a80   edi: c703737c     ebp: 0000d1a2       esp: c7059f28
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 5, stackpage=c7059000)
+Stack: c03137a3 00000159 00000006 00000020 c02fee6c 00000020 00000006 d14846d0
+       000001d0 00000006 00000007 000001d0 00000006 0000000d c0147b20 0001a1f6
+       c012e027 00000006 000001d0 c035caa8 00000006 000001d0 c035caa8 00000000
+Call Trace: [<c0147b20>] [<c012e027>] [<c012e07c>] [<c012e121>] [<c012e196>]
+   [<c012e2d1>] [<c012e230>] [<c0105000>] [<c0105866>] [<c012e230>]
+Code: 0f 0b 5f 58 8d 56 10 8b 4a 04 8b 46 10 89 48 04 89 01 89 56
 
-	Good news...  My reported 5a5a5a5a Oops appears to have evaporated
-with the changes that went in around 2.4.18-pre7.  Congrats and thanks!
+>>EIP; c014773c <prune_dcache+7c/170>   <=====
+Trace; c0147b20 <shrink_dcache_memory+20/30>
+Trace; c012e027 <shrink_caches+67/80>
+Trace; c012e07c <try_to_free_pages+3c/60>
+Trace; c012e121 <kswapd_balance_pgdat+51/a0>
+Trace; c012e196 <kswapd_balance+26/40>
+Trace; c012e2d1 <kswapd+a1/c0>
+Trace; c012e230 <kswapd+0/c0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105866 <kernel_thread+26/30>
+Trace; c012e230 <kswapd+0/c0>
+Code;  c014773c <prune_dcache+7c/170>
+00000000 <_EIP>:
+Code;  c014773c <prune_dcache+7c/170>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c014773e <prune_dcache+7e/170>
+   2:   5f                        pop    %edi
+Code;  c014773f <prune_dcache+7f/170>
+   3:   58                        pop    %eax
+Code;  c0147740 <prune_dcache+80/170>
+   4:   8d 56 10                  lea    0x10(%esi),%edx
+Code;  c0147743 <prune_dcache+83/170>
+   7:   8b 4a 04                  mov    0x4(%edx),%ecx
+Code;  c0147746 <prune_dcache+86/170>
+   a:   8b 46 10                  mov    0x10(%esi),%eax
+Code;  c0147749 <prune_dcache+89/170>
+   d:   89 48 04                  mov    %ecx,0x4(%eax)
+Code;  c014774c <prune_dcache+8c/170>
+  10:   89 01                     mov    %eax,(%ecx)
+Code;  c014774e <prune_dcache+8e/170>
+  12:   89 56 00                  mov    %edx,0x0(%esi)
 
-	Bad news...  DevFS SEEMS to have problems.  Since I disabled it
-early in the 2.4.18-pre series and could never get 2.4.17 stable, I have
-no idea where the problem was introduced.  I did NOT see this in 2.4.16.
 
-	I'm not looking for suggestions this time around, just reporting
-observations.  My gateway is now running 2.4.18-pre8 and I'll report any
-Oops if and when it occurs and deal with that then.  I may see if the
-DevFS problem exists on my other systems, but my high traffic gateway
-has been the only system to exhibit some of these problems to date.
-
-	Mike
+1 warning and 1 error issued.  Results may not be reliable.
 -- 
- Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
-  /\/\|=mhw=|\/\/       |  (678) 463-0932   |  http://www.wittsend.com/mhw/
-  NIC whois:  MHW9      |  An optimist believes we live in the best of all
- PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

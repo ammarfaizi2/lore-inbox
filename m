@@ -1,73 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263203AbTJERSv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 13:18:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263179AbTJERSv
+	id S263175AbTJERRL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 13:17:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263178AbTJERRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 13:18:51 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:32646 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S263203AbTJERSs
+	Sun, 5 Oct 2003 13:17:11 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:62990 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263175AbTJERRI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 13:18:48 -0400
-Date: Sun, 5 Oct 2003 14:21:51 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Andi Kleen <ak@colin2.muc.de>
-Cc: Tony Hoyle <tmh@nodomain.org>, Andi Kleen <ak@muc.de>,
-       <linux-kernel@vger.kernel.org>, <marcelo.tosatti@cyclades.com.br>
-Subject: Re: Oops linux 2.4.23-pre6 on amd64
-In-Reply-To: <20031005153707.GB30792@colin2.muc.de>
-Message-ID: <Pine.LNX.4.44.0310051420110.1408-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 5 Oct 2003 13:17:08 -0400
+Date: Sun, 5 Oct 2003 19:26:12 +0200
+To: Rik van Riel <riel@redhat.com>, David Ashley <dash@xdr.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Idea for improving linux buffer cache behaviour
+Message-ID: <20031005172612.GA8432@hh.idb.hist.no>
+References: <200310041534.h94FYv0X007015@xdr.com> <Pine.LNX.4.44.0310041513150.14750-100000@chimarrao.boston.redhat.com> <20031005053458.GC1205@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031005053458.GC1205@matchmail.com>
+User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On 5 Oct 2003, Andi Kleen wrote:
-
-> On Sun, Oct 05, 2003 at 03:29:38PM +0100, Tony Hoyle wrote:
-> > Andi Kleen wrote:
+On Sat, Oct 04, 2003 at 10:34:58PM -0700, Mike Fedyk wrote:
+> On Sat, Oct 04, 2003 at 03:14:14PM -0400, Rik van Riel wrote:
+> > On Sat, 4 Oct 2003, David Ashley wrote:
 > > 
-> > >To rule out the compiler you can use the compiler/binutils from
-> > >
-> > >ftp.suse.com:/pub/suse/x86-64/supplementary/CrossTools/8.1-i386/
-> > >
-> > OK I built with that and here are the results:
+> > > Forgive me if this has already been thought of, or is obsolete, or is
+> > > just plain a bad idea, but here it is:
 > > 
-> > 1. The ehci-hcd driver fails in exactly the same place.
-> > 2. It was still v. unstable, which led me to investigate why (since I'm 
-> > pretty sure the hardware is good & the suse compiler is supposed to be a 
-> > good one).  I started stripping out options until eventually I found 
-> > that it's devfs that's the culprit - with that enabled I get random 
-> > compile errors every few seconds.  With it disabled the compile works 
-> > perfectly, even with the debian compiler (tried -j20 and -j255 and both 
-> > passed).
+> > Do you also want an answer if the kernel already does
+> > exactly what you are suggesting ? ;)
+> > 
 > 
-> Thanks for tracking this down. I would have never noticed
-> because I don't use devfs.
+> Then why doesn't it work better?
 > 
-> Marcelo, any ideas? Do you get broken devfs reports for other
-> 64bit architectures too?
-
-Nope, never got such reports. 
-
-What problem are you seeing Tony? Oopsing right? Where is the oops output?
-
-> AFAIK devfs is unmaintained and I don't really plan to maintain
-> it myself. My proposal is to just disable it in the configuration
-> for x86-64 for now.
-
-Nod
-
+> > > 1) Lowest access count looked at first to toss
+> > > 2) If access counts equal, throw out oldest first
+> > 
+> > > The net result is commonly used items you very much want to remain in
+> > > cache always quickly get rated very highly as the system is used.
+> > 
+> > Which results in exactly the behaviour you're complaining
+> > about ;))
 > 
-> > My first guess was you can't use a 32bit devfsd with a 64bit kernel, but 
-> > stopping devfsd didn't seem to make a whole lot of difference to the 
-> > stability... only compiling out the entire devfs system solved it.
+> So, you use the system, have glibc loaded, and then play a dvd, and now
+> glibc needs to be re-read because it's not in cache.
 > 
-> Very likely the devfs code in the kernel is buggy. It is known
-> to be race hell, I wouldn't be surprised if it has 64bit bugs too.
+> Why wasn't glibc (one example) kept in cache with the streaming read from
+> the dvd?
 
-Yes.
+There may be many reasons here, take a look at how many times the
+dvd contents were used.  You may get a surprise there.  
+The number ought to be 1, right?  But the burner program may read
+smaller chunks or something, causing many references to the same block.
 
+Also, the number-of-references approach has its own problems.
+Something that is used a lot for a while will stay in cache for
+a long while when no longer used, taking up space.  That can be
+a problem too - i.e. run some large simulation which fill up
+memory for a while, and nothing else stays in cache afterwards.
+
+Helge Hafting

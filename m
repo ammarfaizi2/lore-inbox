@@ -1,115 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269543AbTGJRiE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 13:38:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269541AbTGJRiE
+	id S266392AbTGJR1O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 13:27:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265525AbTGJR1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 13:38:04 -0400
-Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:64303 "EHLO
-	mx.rackable.com") by vger.kernel.org with ESMTP id S269543AbTGJRhv
+	Thu, 10 Jul 2003 13:27:13 -0400
+Received: from sea2-f40.sea2.hotmail.com ([207.68.165.40]:55820 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S269433AbTGJRZ2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 13:37:51 -0400
-Message-ID: <3F0DA6BF.1060709@rackable.com>
-Date: Thu, 10 Jul 2003 10:47:43 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Cole Nielsen <cole@colenielsen.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Intel-based motherboard
-References: <3F0D99A9.5010800@colenielsen.com>
-In-Reply-To: <3F0D99A9.5010800@colenielsen.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Jul 2003 17:52:29.0919 (UTC) FILETIME=[083226F0:01C3470C]
+	Thu, 10 Jul 2003 13:25:28 -0400
+X-Originating-IP: [63.173.114.243]
+X-Originating-Email: [kambo77@hotmail.com]
+From: "Kambo Lohan" <kambo77@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: robert.olsson@its.uu.se
+Subject: [PATCH] [UPDATED] pktgen fixes ....
+Date: Thu, 10 Jul 2003 13:40:04 -0400
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <Sea2-F408r8e4DjaQhm0000e1a4@hotmail.com>
+X-OriginalArrivalTime: 10 Jul 2003 17:40:05.0049 (UTC) FILETIME=[4C380290:01C3470A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cole Nielsen wrote:
+That last fix was bad... the skb->users refcount change made it possible for 
+the skb to get double freed as skb->users  was only incremented from one 
+immediately after calling dev_hard_xmit, this should address that I hope.  I 
+now see thats what the old code was trying to avoid, but  the old way fails 
+if the first packet attempted failed dev_hard_xmit.  So it needs a fix 
+somehow.  I am testing this by looping a script that starts pktgen with 
+count=10000 and clone_skb=100.  Making sure it does not soft hang (requiring 
+a control c)  or cause mem leaks.
 
-> Hello -=-
->   I know it's considered poor practice to just post to a list but I 
-> have a question which I and others have been unable to solve relating 
-> to the chipset on my motherboard.
->   I have an Intel 845PE-based motherboard in my Dell 4550 purchased 
-> last May. I've been running LINUX on it for about 2 months now and I 
-> like it a lot. Interestingly enough, even with DMA enabled, 
-> performance from the HD, CD-ROM, and CD-RW sucks! For example... 
-> writing a 650M CD takes nearly 45 minutes on my 40x burner. Copying a 
-> few hundred meg of data from one partition to another on the HD took 
-> nearly an hour and a half. When I try to watch a DivX movie or one of 
-> the movies for q3 or Diablo 2, they skip and get out of synch. I've 
-> included some information about my system which may be of help.
->
-> ==== /sbin/lspci ====
-> 00:00.0 Host bridge: Intel Corp. 82845 845 (Brookdale) Chipset Host 
-> Bridge (rev 11)
-> 00:01.0 PCI bridge: Intel Corp. 82845 845 (Brookdale) Chipset AGP 
-> Bridge (rev 11)
-> 00:1d.0 USB Controller: Intel Corp. 82801DB USB (Hub #1) (rev 01)
-> 00:1d.1 USB Controller: Intel Corp. 82801DB USB (Hub #2) (rev 01)
-> 00:1d.2 USB Controller: Intel Corp. 82801DB USB (Hub #3) (rev 01)
-> 00:1d.7 USB Controller: Intel Corp. 82801DB USB EHCI Controller (rev 01)
-> 00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 81)
-> 00:1f.0 ISA bridge: Intel Corp. 82801DB ISA Bridge (LPC) (rev 01)
->
-> 00:1f.1 IDE interface: Intel Corp. 82801DB ICH4 IDE (rev 01)
->
-> 00:1f.3 SMBus: Intel Corp. 82801DB SMBus (rev 01)
-> 01:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 
-> MX420] (rev a3)
-> 02:00.0 Multimedia video controller: Brooktree Corporation Bt878 Video 
-> Capture (rev 11)
-> 02:00.1 Multimedia controller: Brooktree Corporation Bt878 Audio 
-> Capture (rev 11)
-> 02:01.0 Communication controller: Conexant HSF 56k Data/Fax/Voice/Spkp 
-> Modem (rev 01)
-> 02:02.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 
-> (rev 0a)
-> 02:02.1 Input device controller: Creative Labs SB Live! MIDI/Game Port 
-> (rev 0a)
-> 02:0c.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
-> RTL-8139/8139C/8139C+ (rev 10)
->
-> ==== dmesg | grep ide ====
-> ide-floppy driver 0.99.newide
-> reiserfs: checking transaction log (ide0(3,1)) for (ide0(3,1))
-> ide-scsi: hdd: unsupported command in request queue (0)
-> ide-scsi: hdd: unsupported command in request queue (0)
-> ide-scsi: hdd: unsupported command in request queue (0)
-> ide-scsi: hdd: unsupported command in request queue (0)
-> ide-scsi: hdd: unsupported command in request queue (0)
-> ide-scsi: hdd: unsupported command in request queue (0)
-> ide-scsi: hdd: unsupported command in request queue (0)
-> ide-scsi: hdd: unsupported command in request queue (0)
-> Linux video capture interface: v1.00
-> bttv0: registered device video0
->
-> Dell Dimension 4550
-> 512M RAM
-> 3.06Ghz
-> 80G HD
-> SuSE 8.1
-> 50x CD-ROM
-> 40x52x40 burner
->
->
-> again, I post to the list as a last resort because if I can't get this 
-> working, I'll have to return to using m$ software. Thanks in advance 
-> for any help!
->
-> Cole Nielsen
->
+Here is the updated patch.
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-  What are the ide settings on the various devices?  Can we have the 
-output of hdparm -vi, hdparm -d, and hdparm -t on each device?  What 
-kernel are you using?  My guess is you are are not using dma.  Try the 
-latest 2.4.22pre kernel.
+--- linux-2.4.21/net/core/pktgen.c	2002-11-28 18:53:15.000000000 -0500
++++ linux-2.4-kjp/net/core/pktgen.c	2003-07-10 13:22:17.000000000 -0400
+@@ -34,6 +34,7 @@
+  *   *  The new changes seem to have a performance impact of around 1%,
+  *       as far as I can tell.
+  *   --Ben Greear <greearb@candelatech.com>
++ * Fix refcount off by one if first packet fails, potential null deref, 
+memleak 030710- KJP
+  *
+  * Renamed multiskb to clone_skb and cleaned up sending core for two 
+distinct
+  * skb modes. A clone_skb=0 mode for Ben "ranges" work and a clone_skb != 0
+@@ -84,9 +85,9 @@
+#define cycles()	((u32)get_cycles())
 
--- 
-Once you have their hardware. Never give it back.
-(The First Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
 
+-#define VERSION "pktgen version 1.2"
++#define VERSION "pktgen version 1.2.1"
+static char version[] __initdata =
+-  "pktgen.c: v1.2: Packet Generator for packet performance testing.\n";
++  "pktgen.c: v1.2.1: Packet Generator for packet performance testing.\n";
+
+/* Used to help with determining the pkts on receive */
+
+@@ -613,12 +614,11 @@
+                                 kfree_skb(skb);
+                                 skb = fill_packet(odev, info);
+                                 if (skb == NULL) {
+-                                        break;
++					goto out_reldev;
+                                 }
+                                 fp++;
+                                 fp_tmp = 0; /* reset counter */
+                         }
+-                        atomic_inc(&skb->users);
+                 }
+
+                 nr_frags = skb_shinfo(skb)->nr_frags;
+@@ -626,7 +626,9 @@
+		spin_lock_bh(&odev->xmit_lock);
+		if (!netif_queue_stopped(odev)) {
+
++			atomic_inc(&skb->users);
+			if (odev->hard_start_xmit(skb, odev)) {
++				atomic_dec(&skb->users);
+				if (net_ratelimit()) {
+                                    printk(KERN_INFO "Hard xmit error\n");
+                                 }
+@@ -634,9 +636,9 @@
+				last_ok = 0;
+			}
+                         else {
+-		           last_ok = 1;
+-                           info->sofar++;
+-                           info->seq_num++;
++				last_ok = 1;
++				info->sofar++;
++				info->seq_num++;
+                         }
+		}
+		else {
+@@ -731,6 +733,8 @@
+			     (unsigned long long) info->errors
+			     );
+	}
++
++	kfree_skb(skb);
+
+out_reldev:
+         if (odev) {
+
+_________________________________________________________________
+MSN 8 with e-mail virus protection service: 2 months FREE*  
+http://join.msn.com/?page=features/virus
 

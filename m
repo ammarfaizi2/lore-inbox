@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263760AbTDHBVp (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 21:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263761AbTDHBVo (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 21:21:44 -0400
-Received: from isis.telemach.net ([213.143.65.10]:60165 "HELO
-	isis.telemach.net") by vger.kernel.org with SMTP id S263760AbTDHBVo (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 21:21:44 -0400
-Date: Tue, 8 Apr 2003 03:33:15 +0200
-From: Jure Pecar <pegasus@nerv.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: some new remote kernel exploit?
-Message-Id: <20030408033315.42f407ec.pegasus@nerv.eu.org>
-Organization: Select Technology
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S263723AbTDHBhE (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 21:37:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263761AbTDHBhE (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 21:37:04 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:19915 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S263723AbTDHBhD (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 21:37:03 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: David Ford <david+powerix@blue-labs.org>
+Date: Tue, 8 Apr 2003 09:17:25 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16018.1797.59286.752771@notabene.cse.unsw.edu.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Oleg Drokin <green@namesys.com>, Hans Reiser <reiser@namesys.com>
+Subject: Re: [OOPS] 100% repeatable OOPS, 2.5.61-66, NFS and reiserfs
+In-Reply-To: message from David Ford on Tuesday April 8
+References: <3E92F953.8080401@blue-labs.org>
+X-Mailer: VM 7.13 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday April 8, david+powerix@blue-labs.org wrote:
+> 1. Power loss this morning
+> 2. Fixed filesystems (reiserfstools is fscking useless on root filesystems)
+> 3. Now server OOPSes when nfs client tries to stat/read files/dirs
+> 
+> Unable to handle kernel NULL pointer dereference at virtual address 00000000
+>  printing eip:
+> 00000000
+> *pde = 00000000
+> Oops: 0000
+> CPU:    0
+> EIP:    0060:[<00000000>]    Not tainted
 
-Hi all,
+Development kernels are like that....
 
+ This is a bug in the kernel which is triggered by using nfs-utils
+ 1.0.3
 
-Please see my post to the redhat list at
+ Either upgrade to the latest 2.5 kernel, or downgrade nfs-utils until
+ you can upgrade the kernel.
 
-https://listman.redhat.com/pipermail/valhalla-list/2003-April/025830.html
-
-
-I'm getting more and more affraid ... since now the the third box was
-targeted and there were more attempts at 22:00-22:47 localtime (gmt+1).
-
-rpm -Va shows nothing suspicious, so i hope these are still only attempts. 
-
-I have put the ksymoops from the logs at http://nerv.eu.org/oopsen/ if you
-want to see them all.
-
-I'm pretty much without ideas how to track this down ... expect to sit at
-the computer for the next 24h and be ready to start dumping traffic at the
-moment it starts again.
-
-
-Please cc me on replies. Thanks.
-
--- 
-
-Jure Pecar
+NeilBrown

@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268330AbUJQTVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269266AbUJQTYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268330AbUJQTVp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 15:21:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269260AbUJQTVp
+	id S269266AbUJQTYn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 15:24:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268447AbUJQTYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 15:21:45 -0400
-Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:29724 "EHLO
-	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
-	id S268330AbUJQTVn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 15:21:43 -0400
-X-BrightmailFiltered: true
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "'Buddy Lucas'" <buddy.lucas@gmail.com>,
-       "'Lars Marowsky-Bree'" <lmb@suse.de>,
-       "'David Schwartz'" <davids@webmaster.com>,
-       "'Linux-Kernel@Vger. Kernel. Org'" <linux-kernel@vger.kernel.org>
-Subject: RE: UDP recvmsg blocks after select(), 2.6 bug?
-Date: Sun, 17 Oct 2004 12:21:38 -0700
-Organization: Cisco Systems
-Message-ID: <012901c4b47e$865c9570$b83147ab@amer.cisco.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <5d6b65750410170840c80c314@mail.gmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4939.300
-Importance: Normal
+	Sun, 17 Oct 2004 15:24:43 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:22741 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269272AbUJQTYT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 15:24:19 -0400
+Date: Sun, 17 Oct 2004 21:24:45 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Daniel Walker <dwalker@mvista.com>, Bill Huey <bhuey@lnxw.com>,
+       Andrew Morton <akpm@osdl.org>, Adam Heath <doogie@debian.org>,
+       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
+       Andrew Rodland <arodland@entermail.net>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
+Message-ID: <20041017192445.GA32443@elte.hu>
+References: <1097888438.6737.63.camel@krustophenia.net> <1097894120.31747.1.camel@krustophenia.net> <20041016064205.GA30371@elte.hu> <1097917325.1424.13.camel@krustophenia.net> <20041016103608.GA3548@elte.hu> <32801.192.168.1.5.1098018846.squirrel@192.168.1.5> <20041017132107.GA18462@elte.hu> <32793.192.168.1.5.1098023139.squirrel@192.168.1.5> <20041017164743.GA26350@elte.hu> <32792.192.168.1.5.1098039918.squirrel@192.168.1.5>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <32792.192.168.1.5.1098039918.squirrel@192.168.1.5>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > This is a distraction. If the call to select() had been substituted
-> > with a call to recvmsg(), it would have blocked. Instead, 
-> select() is
-> > returning 'yes, you can read', and then recvmsg() is blocking. The
-> > select() lied. The information is all sitting in the kernel packet
-> 
-> No. A million things might happen between select() and recvmsg(), both
-> in kernel and application. For a consistent behaviour throughout all
-> possibilities, you *have* to assume that any read on a blocking fd may
-> block.
 
-Care to provide a real example?
+* Rui Nuno Capela <rncbc@rncbc.org> wrote:
 
-UDP isn't one. It was done for performance reasons as David admitted and it
-could very well be done otherwise: do the checksum before select returns.
+> BTW, stack overflows wasn't supposed to be pin-pointed when one has
+> CONFIG_DEBUG_STACKOVERFLOW=y ???
 
-David has admitted the only reason Linux chose to do so is performance.
+there were some signs of it:
 
-It might be the case that a million things might happen between select and
-recvmsg, but none of them, as I can see, *have* to force Linux to work this
-way. The only reason as I can see is performance and imlementation
-convenience.
+  minicom.cap.5:do_IRQ: stack overflow: 504
 
-Hua
-
+	Ingo

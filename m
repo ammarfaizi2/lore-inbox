@@ -1,49 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUHGKgA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUHGKie@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbUHGKgA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 06:36:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbUHGKgA
+	id S261375AbUHGKie (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 06:38:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUHGKie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 06:36:00 -0400
-Received: from [80.190.193.18] ([80.190.193.18]:33989 "EHLO mx.vsadmin.de")
-	by vger.kernel.org with ESMTP id S261239AbUHGKf6 (ORCPT
+	Sat, 7 Aug 2004 06:38:34 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:42389 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261375AbUHGKia (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 06:35:58 -0400
-From: Stefan Meyknecht <sm0407@nurfuerspam.de>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] cdrom: MO-drive open write fix (trivial)
-Date: Sat, 7 Aug 2004 12:35:56 +0200
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200408061833.30751.sm0407@nurfuerspam.de> <20040806220654.5e857bed.akpm@osdl.org> <20040807083835.GA24860@suse.de>
-In-Reply-To: <20040807083835.GA24860@suse.de>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 7 Aug 2004 06:38:30 -0400
+Message-ID: <d577e56904080703386134963a@mail.gmail.com>
+Date: Sat, 7 Aug 2004 06:38:24 -0400
+From: Patrick McFarland <diablod3@gmail.com>
+To: Jari Ruusu <jariruusu@users.sourceforge.net>
+Subject: Re: Linux 2.6.8-rc3 - BSD licensing
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Fruhwirth Clemens <clemens@endorphin.org>,
+       James Morris <jmorris@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@redhat.com>
+In-Reply-To: <4114AC9D.B63C00C0@users.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408071235.56546.sm0407@nurfuerspam.de>
+References: <Xine.LNX.4.44.0408041156310.9291-100000@dhcp83-76.boston.redhat.com>
+		     <1091644663.21675.51.camel@ghanima> <Pine.LNX.4.58.0408041146070.24588@ppc970.osdl.org>
+		     <1091647612.24215.12.camel@ghanima> <Pine.LNX.4.58.0408041251060.24588@ppc970.osdl.org>
+		   <411228FF.485E4D07@users.sourceforge.net> <Pine.LNX.4.58.0408050941590.24588@ppc970.osdl.org>
+		 <411353B3.B8748556@users.sourceforge.net> <Pine.LNX.4.58.0408060918320.24588@ppc970.osdl.org> <4114AC9D.B63C00C0@users.sourceforge.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ouch. I knew Linus was right all along. ;)
+However, Jari, you can still request people not use your code in a not
+legally enforcable way; and I'm sure Linus would have followed that
+request. But thankfully, we can use your code, and it's just a moot
+point.
 
-thanks for your feedback.
+On Sat, 07 Aug 2004 13:19:09 +0300, Jari Ruusu
+<jariruusu@users.sourceforge.net> wrote:
+> Linus Torvalds wrote:
+> > On Fri, 6 Aug 2004, Jari Ruusu wrote:
+> > > Linus, you are mixing two completely different rights here;
+> > > re-distribution right and re-licensing right.
+> >
+> > Ehh.. You're wrong.
+> 
+> Yep. I goofed.
+> 
+> > You haven't even read the GPL, have you?
+> 
+> I read it in 1995. Obviously too many years have passed since then.
+> 
+> > So when you claim that the code isn't GPL-compatible, and at the same time
+> > claim that we can't re-license it under the GPL, you are very very
+> > confused indeed. Either it is GPL-compatible, or it is not. And if it is
+> > GPL-compatible, that ABSOLUTELY means that it can be relicensed under the
+> > GPL.
+> 
+> Yep. I don't have any other choice here than to permit re-licencing the
+> code. My 04-Aug-2004 18:04:46 +0300 posting where I denied re-licencing
+> right was completely wrong. I'm sorry about that.
+> 
+> For loop-AES users I uploaded a patch here that updates licenses to be
+> GPL-compatible:  http://loop-aes.sourceforge.net/updates/aes-GPL.diff
+> 
+> 
+> 
+> --
+> Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Jens Axboe <axboe@suse.de> wrote:
-> Sorry, guess I forgot to reply on linux-kernel. What I mean is that
-> MO drives should just have CDC_RAM set - it doesn't denote a
-> specific device type, rather just the ability to work like a hard
-> drive. If you could look into why that isn't set for your mo device
-> and send a patch for that, it would be much better.
-
-You are right. After inserting some debug messages I found out that in 
-function cdrom_open_write CDC_RAM is initially set. The function 
-cdrom_is_random_writable sets ram_write to 0 and therefore CDC_RAM 
-gets masked out later. cdrom_is_random_writable calls 
-cdrom_get_random_writable and there cdi->ops->generic_packet returns 
--5 (-EIO?). But I have no idea what to do in this case.
 
 -- 
-Stefan Meyknecht
-stefan at meyknecht dot org
+Patrick "Diablo-D3" McFarland || diablod3@gmail.com
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, we'd 
+all be running around in darkened rooms, munching magic pills and listening to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989

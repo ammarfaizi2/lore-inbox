@@ -1,54 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268185AbUHQL0l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268187AbUHQL1w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268185AbUHQL0l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 07:26:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268184AbUHQL0l
+	id S268187AbUHQL1w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 07:27:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268184AbUHQL1w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 07:26:41 -0400
-Received: from pop.gmx.net ([213.165.64.20]:37330 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S268185AbUHQL0i (ORCPT
+	Tue, 17 Aug 2004 07:27:52 -0400
+Received: from pD9EB1C8C.dip.t-dialin.net ([217.235.28.140]:8073 "EHLO
+	undata.org") by vger.kernel.org with ESMTP id S268188AbUHQL1d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 07:26:38 -0400
-X-Authenticated: #1725425
-Date: Tue, 17 Aug 2004 13:41:33 +0200
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-Cc: alan@lxorguk.ukuu.org.uk, jwendel10@comcast.net,
-       linux-kernel@vger.kernel.org, Kai.Makisara@kolumbus.fi
-Subject: Re: 2.6.8.1 Mis-detect CRDW as CDROM
-Message-Id: <20040817134133.56614674.Ballarin.Marc@gmx.de>
-In-Reply-To: <4121A689.8030708@bio.ifi.lmu.de>
-References: <411FD919.9030702@comcast.net>
-	<20040816143817.0de30197.Ballarin.Marc@gmx.de>
-	<1092661385.20528.25.camel@localhost.localdomain>
-	<20040816231211.76360eaa.Ballarin.Marc@gmx.de>
-	<4121A689.8030708@bio.ifi.lmu.de>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 17 Aug 2004 07:27:33 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P2
+From: Thomas Charbonnel <thomas@undata.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>, Florian Schmidt <mista.tapas@gmx.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+In-Reply-To: <20040816120933.GA4211@elte.hu>
+References: <20040816023655.GA8746@elte.hu>
+	 <1092624221.867.118.camel@krustophenia.net>
+	 <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu>
+	 <1092627691.867.150.camel@krustophenia.net>
+	 <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net>
+	 <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>
+	 <20040816113131.GA30527@elte.hu>  <20040816120933.GA4211@elte.hu>
+Content-Type: text/plain
+Message-Id: <1092741974.14015.17.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 17 Aug 2004 13:26:14 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Aug 2004 08:32:41 +0200
-Frank Steiner <fsteiner-mail@bio.ifi.lmu.de> wrote:
-
-> So what's the target in this process? Should users finally be able to
-> write cds again without or only with suid bit set? It would be good to
-> know if I should try to set all cd writing applications suid or just
-> have to wait for some patches coming up that would allow users to
-> write cds without suid again...
+Ingo Molnar wrote :
+> here's -P2:
 > 
-> If the programs must be set suid, is that safe? In the past I was
-> always told that setting e.g. cdrecord suid was a possible security
-> issue.
+>  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P2
+> 
+> Changes since -P1:
+> 
+>  - trace interrupted kernel code (via hardirqs, NMIs and pagefaults)
+> 
+>  - yet another shot at trying to fix the IO-APIC/USB issues.
+> 
+>  - mcount speedups - tracing should be faster
+> 
+> 	Ingo
 
-An unpatched cdrecord does not use root privileges to access devices. It
-increases its priority, locks memory and drops privileges before doing
-anything else. According to its author, cdrecord is designed for this mode
-of operation. I don't know if the same is true for growisofs and other
-tools.
-suid has no effect on the issue at hand (provided cdrecord has not
-been modified), it only serves to increase burning reliability.
+I think I stumbled across some bugs/false positives.
+Those tests were run with acpi=off, so that this specific issue doesn't
+interfere. voluntary_preemption is set to 3 throughout.
 
-Regards
+The first problem was already reported by Lee Revell. Creating a new tab
+in gnome-terminal gives :
+
+[...]
+ 0.064ms (+0.000ms): preempt_schedule (try_to_wake_up)
+ 0.065ms (+0.000ms): preempt_schedule (copy_page_range)
+ 0.065ms (+0.000ms): preempt_schedule (copy_page_range)
+[... plenty of preempt_schedule (copy_page_range) skipped ...]
+ 0.202ms (+0.000ms): preempt_schedule (copy_page_range)
+ 0.202ms (+0.000ms): preempt_schedule (copy_page_range)
+ 0.202ms (+0.000ms): check_preempt_timing (touch_preempt_timing)
+
+This is induced by kernel_preemption=0 and disappears with
+kernel_preemption=1. It seems to be a side-effect of the current design.
+Is there a way to avoid this ?
+
+The second one still involves creating a new tab in gnome-terminal, but
+with kernel_preemption=1 :
+
+preemption latency trace v1.0
+-----------------------------
+ latency: 130 us, entries: 6 (6)
+ process: gnome-terminal/14381, uid: 1000
+ nice: 0, policy: 0, rt_priority: 0
+=======>
+ 0.000ms (+0.000ms): __vma_link_rb (copy_mm)
+ 0.000ms (+0.000ms): rb_insert_color (copy_mm)
+ 0.000ms (+0.000ms): __rb_rotate_left (rb_insert_color)
+ 0.000ms (+0.000ms): copy_page_range (copy_mm)
+ 0.000ms (+0.000ms): pte_alloc_map (copy_page_range)
+ 0.127ms (+0.126ms): check_preempt_timing (touch_preempt_timing)
+
+When entering check_preempt_timing, preempt_thresh was 0, and
+preempt_max_latency had been freshly reset to 100. It should have
+triggered this code :
+		if (latency < preempt_max_latency)
+			goto out;
+but for some reason it didn't (or there is a problem in the tracing
+code, not showing events that would have increased 'latency').
+
+Thomas
+
+

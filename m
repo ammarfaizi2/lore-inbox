@@ -1,74 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264339AbTLBTj5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 14:39:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264340AbTLBTj5
+	id S264330AbTLBTn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 14:43:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264327AbTLBTn1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 14:39:57 -0500
-Received: from out005pub.verizon.net ([206.46.170.143]:46535 "EHLO
-	out005.verizon.net") by vger.kernel.org with ESMTP id S264339AbTLBTjz
+	Tue, 2 Dec 2003 14:43:27 -0500
+Received: from out011pub.verizon.net ([206.46.170.135]:57765 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S264330AbTLBTnY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 14:39:55 -0500
+	Tue, 2 Dec 2003 14:43:24 -0500
 From: Gene Heskett <gene.heskett@verizon.net>
 Reply-To: gene.heskett@verizon.net
-To: Linus Torvalds <torvalds@osdl.org>, Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Subject: Re: Linux 2.4 future
-Date: Tue, 2 Dec 2003 14:39:52 -0500
+To: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
+Subject: Re: Buslogic driver warnings
+Date: Tue, 2 Dec 2003 14:43:23 -0500
 User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <20031202184513.GU16507@lug-owl.de> <Pine.LNX.4.58.0312021101440.1519@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0312021101440.1519@home.osdl.org>
+References: <20031202191632.GY11972@vnl.com>
+In-Reply-To: <20031202191632.GY11972@vnl.com>
 Organization: None that appears to be detectable by casual observers
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200312021439.52933.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [151.205.54.127] at Tue, 2 Dec 2003 13:39:53 -0600
+Message-Id: <200312021443.23234.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [151.205.54.127] at Tue, 2 Dec 2003 13:43:23 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 02 December 2003 14:09, Linus Torvalds wrote:
->On Tue, 2 Dec 2003, Jan-Benedict Glaw wrote:
->> Whenever The ABI Question (TM) comes up, it seems to be about
->> claiming a (binary compatible) interface - mostly for modules. But
->> I think it's widely accepted that there isn't much work done to
->> have these truly (sp?) binary compatible (eg. UP/SMP spinlocks et
->> al.).
+On Tuesday 02 December 2003 14:16, Dale Amon wrote:
+>I noticed this when I started a test build for my workstation
+>with hopes of moving it over to 2.6.0-test11:
 >
->Absolutely. It's not going to happen. I am _totally_ uninterested in
-> a stable ABI for kernel modules, and in fact I'm actively against
-> even _trying_. I want people to be very much aware of the fact that
-> kernel internals do change, and that this will continue.
+>drivers/scsi/BusLogic.c: In function
+> `BusLogic_InitializeProbeInfoListISA': drivers/scsi/BusLogic.c:700:
+> warning: `check_region' is deprecated (declared at
+> include/linux/ioport.h:119) drivers/scsi/BusLogic.c:704: warning:
+> `check_region' is deprecated (declared at
+> include/linux/ioport.h:119) drivers/scsi/BusLogic.c:708: warning:
+> `check_region' is deprecated (declared at
+> include/linux/ioport.h:119) drivers/scsi/BusLogic.c:712: warning:
+> `check_region' is deprecated (declared at
+> include/linux/ioport.h:119) drivers/scsi/BusLogic.c:716: warning:
+> `check_region' is deprecated (declared at
+> include/linux/ioport.h:119) drivers/scsi/BusLogic.c:720: warning:
+> `check_region' is deprecated (declared at
+> include/linux/ioport.h:119) drivers/scsi/BusLogic.c: In function
+> `BusLogic_InitializeMultiMasterProbeInfo':
+> drivers/scsi/BusLogic.c:973: warning: `check_region' is deprecated
+> (declared at include/linux/ioport.h:119)
+> drivers/scsi/BusLogic.c:988: warning: `check_region' is deprecated
+> (declared at include/linux/ioport.h:119)
+> drivers/scsi/BusLogic.c:993: warning: `check_region' is deprecated
+> (declared at include/linux/ioport.h:119)
+> drivers/scsi/BusLogic.c:998: warning: `check_region' is deprecated
+> (declared at include/linux/ioport.h:119)
+> drivers/scsi/BusLogic.c:1003: warning: `check_region' is deprecated
+> (declared at include/linux/ioport.h:119)
+> drivers/scsi/BusLogic.c:1008: warning: `check_region' is deprecated
+> (declared at include/linux/ioport.h:119)
 >
->There are no good excuses for binary modules. Some of them may be
->technically legal (by virtue of not being derived works) and
-> allowed, but even when they are legal they are a major pain in the
-> ass, and always horribly buggy.
+>Presumably someone is going to soon obsolete check_region,
+>which will then break the Buslogic driver and most of
+>my machines.
 >
->I occasionally get a few complaints from vendors over my
-> non-interest in even _trying_ to help binary modules. Tough. It's a
-> two-way street: if you don't help me, I don't help you. Binary-only
-> modules do not help Linux, quite the reverse. As such, we should
-> have no incentives to help make them any more common than they
-> already are. Adn we do have a lot of dis-incentives.
->
->			Linus
+>Is anyone working on this driver these days?
 
-Very well said Linus.  And of course I have no problem understanding 
-the reasons behind the reasoning.  However, that doesn't help us pour 
-schmucks out here in la-la land trying to make the most recent nvidia 
-module work with the latest kernel on our now elderly gforce2's.  I'd 
-like to have some OpenGL support for instance, but for everything 
-else, nv is probably 100x more stable than the nvidia binary.  So we 
-run nv.  Maybe someday nvidia will get baptised, but *I'm* not 
-counting on it.
-
-Its not your emails (as Linus) to nvidia that will fix that, but a 
-concerted effort, emailing them for a resolution from everyone who 
-owns one of their products _might_ eventually make a difference.
-OTOH, they're going to listen to their IP lawyers & not us. so...
+Apparently not.  The driveres/scsi/Advansys.c driver suffers similarly 
+from the "check_region" thingy, but only twice.  For the present, the 
+effect is apparently a warning only.
 
 -- 
 Cheers, Gene

@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbUECLn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbUECLr0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbUECLn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 07:43:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbUECLn0
+	id S262328AbUECLr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 07:47:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUECLr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 07:43:26 -0400
-Received: from firewall.conet.cz ([213.175.54.250]:14799 "EHLO conet.cz")
-	by vger.kernel.org with ESMTP id S261606AbUECLnY (ORCPT
+	Mon, 3 May 2004 07:47:26 -0400
+Received: from se2.ruf.uni-freiburg.de ([132.230.2.222]:21222 "EHLO
+	se2.ruf.uni-freiburg.de") by vger.kernel.org with ESMTP
+	id S262328AbUECLrY convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 07:43:24 -0400
-Date: Mon, 3 May 2004 13:43:16 +0200
-From: Libor Vanek <libor@conet.cz>
-To: Erik Mouw <erik@harddisk-recovery.com>
+	Mon, 3 May 2004 07:47:24 -0400
+X-Scanned: Mon, 3 May 2004 13:46:58 +0200 Nokia Message Protector V1.3.21 2004031416 - RELEASE
+To: Tuukka Toivonen <tuukkat@ee.oulu.fi>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Reading from file in module fails
-Message-ID: <20040503114316.GA22732@Loki>
-References: <20040503105041.GA12023@Loki> <20040503113500.GB31513@harddisk-recovery.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040503113500.GB31513@harddisk-recovery.com>
-User-Agent: Mutt/1.4.1i
+Subject: [PATCH] modused: mark some modules as in use (Re: [PATCH] (fix:oops with rmmod i8042))
+References: <Pine.GSO.4.58.0405030953100.11293@stekt37>
+From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+Date: 03 May 2004 13:46:57 +0200
+In-Reply-To: <Pine.GSO.4.58.0405030953100.11293@stekt37>
+Message-ID: <xb7ad0pu40e.fsf@savona.informatik.uni-freiburg.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I need to copy files (yes - I know that kernel shouldn't do this but
-> > I REALLY need).
-> 
-> This is ugly, but it should do the trick:
-> 
-> int rv;
-> char *argv[4] = {"/bin/cp", "/tmp/foo", "/tmp/bar", NULL};
-> char *envp[3] = {"HOME=/", "PATH=/sbin:/bin:/usr/sbin:/usr/bin", NULL};
-> 
-> rv = call_usermodehelper(argv[0], argv, envp, 1);
-> 
-> if(rv < 0) {
-> 	/* error handling */
-> }
-> 
-> Called from kernel, done in userspace. And if you want to access an SQL
-> database from kernel tomorrow, it's just a matter of changing the
-> usermode helper.
-> 
-> (BTW, if you need to copy files from kernel, it's usually a sign of bad
-> design)
+>>>>> "Tuukka" == Tuukka Toivonen <tuukkat@ee.oulu.fi> writes:
 
-Geez - that's REALLY ugly :-) But for testing I can use it.
+    Tuukka> Compiling i8042 as module, then loading it with atkbd and
+    Tuukka> serio, and then unloading i8042 causes a kernel Oops
+    Tuukka> (shown below).
 
-It's not bad design - what I'm doing is writing snapshots for VFS as my diploma thesis. And I need to create copy of file before it's changed (copy-on-write). There is no other way how to do it in kernel-space (and user-space solutions like using LUFS are really slow)
+I have  developed an independent  tool that can  be used to  (sort of)
+work  around  this  problem.  The  tool  can  be  used to  prevent  an
+accidental 'rmmod i8042'.  Here it is:
 
-Thx,
-Libor
+        http://www.informatik.uni-freiburg.de/~danlee/fun/modused/
 
+
+
+-- 
+Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
+
+E-mail: danlee@informatik.uni-freiburg.de
+Home page: http://www.informatik.uni-freiburg.de/~danlee
 

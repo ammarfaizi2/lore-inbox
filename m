@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267311AbTABXgq>; Thu, 2 Jan 2003 18:36:46 -0500
+	id <S267315AbTABXlj>; Thu, 2 Jan 2003 18:41:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267312AbTABXgq>; Thu, 2 Jan 2003 18:36:46 -0500
-Received: from vger.timpanogas.org ([216.250.140.154]:42466 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S267311AbTABXgp>; Thu, 2 Jan 2003 18:36:45 -0500
-Date: Thu, 2 Jan 2003 17:55:17 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: linux-kernel@vger.kernel.org
-Cc: jmerkey@timpanogas.org
-Subject: Questton about Zone Allocation 2.4.X
-Message-ID: <20030102175517.A21471@vger.timpanogas.org>
+	id <S267317AbTABXlj>; Thu, 2 Jan 2003 18:41:39 -0500
+Received: from h24-80-147-251.no.shawcable.net ([24.80.147.251]:33542 "EHLO
+	antichrist") by vger.kernel.org with ESMTP id <S267315AbTABXli>;
+	Thu, 2 Jan 2003 18:41:38 -0500
+Date: Thu, 2 Jan 2003 15:45:41 -0800
+From: carbonated beverage <ramune@net-ronin.org>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] modutils update
+Message-ID: <20030102234541.GA19053@net-ronin.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
+	Update of Documentation/Changes and scripts/ver_linux to use
+depmod instead of rmmod as per Rusty's suggestions.
 
-LKML,
+	Would have sent this out sooner, but 'net access died...
 
-I have a system in the lab with 4GB of physical and the system can see all 
-the memory, however, calls to get_free_pages() will only allocate up to 1GB
-of this memory before returning an out of memory condition.  I have reviewed
-Ingo's changes and enhancements with the zone allocator and it certainly 
-looks like this code has the smarts to balance the contiguous free pages
-on the zone allocation lists.  I need to be able to get more than 1GB to 
-pin for a particular application.  Where do I need to adjust the tuning
-to allow 2.4.X kernels to allocate mote than 1GB from the physical pages
-list?
+-- DN
+Daniel
 
-Any help would be appreciated.
-
-Thanks
-
-Jeff Merkey
-Network Associates
-
-
+diff -ur ../linux-2.5/Documentation/Changes linux-2.5/Documentation/Changes
+--- ../linux-2.5/Documentation/Changes	Thu Jan  2 15:43:50 2003
++++ linux-2.5/Documentation/Changes	Thu Jan  2 15:46:37 2003
+@@ -52,7 +52,7 @@
+ o  Gnu make               3.78                    # make --version
+ o  binutils               2.9.5.0.25              # ld -v
+ o  util-linux             2.10o                   # fdformat --version
+-o  module-init-tools      0.9                     # rmmod -V
++o  module-init-tools      0.9                     # depmod -V
+ o  e2fsprogs              1.29                    # tune2fs
+ o  jfsutils               1.0.14                  # fsck.jfs -V
+ o  reiserfsprogs          3.6.3                   # reiserfsck -V 2>&1|grep reiserfsprogs
+diff -ur ../linux-2.5/scripts/ver_linux linux-2.5/scripts/ver_linux
+--- ../linux-2.5/scripts/ver_linux	Thu Jan  2 15:44:23 2003
++++ linux-2.5/scripts/ver_linux	Thu Jan  2 15:46:42 2003
+@@ -28,7 +28,7 @@
+ 
+ mount --version | awk -F\- '{print "mount                 ", $NF}'
+ 
+-rmmod -V  2>&1 | awk 'NR==1 {print "module-init-tools     ",$NF}'
++depmod -V  2>&1 | awk 'NR==1 {print "module-init-tools     ",$NF}'
+ 
+ tune2fs 2>&1 | grep "^tune2fs" | sed 's/,//' |  awk \
+ 'NR==1 {print "e2fsprogs             ", $2}'

@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbUL2BgS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbUL2Bkt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261277AbUL2BgS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 20:36:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbUL2BgR
+	id S261278AbUL2Bkt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 20:40:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261279AbUL2Bkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 20:36:17 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:15615 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261277AbUL2BgO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 20:36:14 -0500
-To: Karen Shaeffer <shaeffer@neuralscape.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       openib-general@openib.org
-X-Message-Flag: Warning: May contain useful information
-References: <200412272150.IBRnA4AvjendsF8x@topspin.com>
-	<20041227225417.3ac7a0a6.davem@davemloft.net>
-	<52pt0unr0i.fsf@topspin.com>
-	<20041228141710.4daebcfb.davem@davemloft.net>
-	<52pt0uhupw.fsf@topspin.com>
-	<20041229012817.GA18863@synapse.neuralscape.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 28 Dec 2004 17:36:12 -0800
-In-Reply-To: <20041229012817.GA18863@synapse.neuralscape.com> (Karen
- Shaeffer's message of "Tue, 28 Dec 2004 17:28:17 -0800")
-Message-ID: <52hdm5j377.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Tue, 28 Dec 2004 20:40:49 -0500
+Received: from mail.dif.dk ([193.138.115.101]:41921 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261278AbUL2Bkn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 20:40:43 -0500
+Date: Wed, 29 Dec 2004 02:51:46 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: [patch] missing printk loglevel and tiny tiny whitespace change in
+ binfmt_elf()
+Message-ID: <Pine.LNX.4.61.0412290248170.3528@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [PATCH][v5][0/24] Latest IB patch queue
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 29 Dec 2004 01:36:13.0192 (UTC) FILETIME=[C7FC7080:01C4ED46]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Roland> I think sparc64 is the only such platform where InfiniBand
-    Roland> is likely to be of much interest.  However I'll check out
-    Roland> all of arch/ and send patches to hook up
-    Roland> drivers/infiniband/ to the relevant maintainers once IB
-    Roland> makes it upstream.
 
-    Karen> I am interested in Infiniband with x86_64 Opterons.
+Patch adds a mising printk loglevel (I think KERN_WARNING is appropriate 
+here) in fs/binfmt_elf.c, and while I was there I made some tiny tiny tiny 
+adjustments to whitespacing in the neighborhood.
 
-OK, the current code should work well for you -- x86_64 is probably
-the most-tested architecture.
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-"such platform[s]" in my comment above referred to architectures where
-arch/xxx/Kconfig does _not_ include drivers/Kconfig;
-arch/x86_64/Kconfig does include that file.  So no change is required
-to use the current IB patches on x86_64.  I believe the only
-architectures that both support PCI and do not include drivers/Kconfig
-in their arch Kconfig are arm, sparc, sparc64 and v850.  Perhaps I'm
-wrong, but of those four architectures, sparc64 seems to be the only
-one where there would be any interest in using IB.
+diff -up linux-2.6.10-orig/fs/binfmt_elf.c linux-2.6.10/fs/binfmt_elf.c
+--- linux-2.6.10-orig/fs/binfmt_elf.c	2004-12-24 22:34:33.000000000 +0100
++++ linux-2.6.10/fs/binfmt_elf.c	2004-12-29 02:46:39.000000000 +0100
+@@ -1556,17 +1556,17 @@ static int elf_core_dump(long signr, str
+ 	ELF_CORE_WRITE_EXTRA_DATA;
+ #endif
+ 
+-	if ((off_t) file->f_pos != offset) {
++	if ((off_t)file->f_pos != offset) {
+ 		/* Sanity check */
+-		printk("elf_core_dump: file->f_pos (%ld) != offset (%ld)\n",
+-		       (off_t) file->f_pos, offset);
++		printk(KERN_WARNING "elf_core_dump: file->f_pos (%ld) != offset (%ld)\n",
++		       (off_t)file->f_pos, offset);
+ 	}
+ 
+ end_coredump:
+ 	set_fs(fs);
+ 
+ cleanup:
+-	while(!list_empty(&thread_list)) {
++	while (!list_empty(&thread_list)) {
+ 		struct list_head *tmp = thread_list.next;
+ 		list_del(tmp);
+ 		kfree(list_entry(tmp, struct elf_thread_status, list));
 
- - Roland
+
+

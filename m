@@ -1,67 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271003AbTG1CZO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 22:25:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271002AbTG1AAr
+	id S271006AbTG1CZN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 22:25:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271003AbTG1AAv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:00:47 -0400
+	Sun, 27 Jul 2003 20:00:51 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:14071 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S272951AbTG0XCU (ORCPT
+	by vger.kernel.org with ESMTP id S272950AbTG0XCT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 19:02:20 -0400
-Date: Sun, 27 Jul 2003 21:01:36 +0100
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200307272001.h6RK1aNo029580@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: PATCH: re-enable SiS direct render
+	Sun, 27 Jul 2003 19:02:19 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: davem@redhat.com, arjanv@redhat.com,
+       Linus Torvalds <torvalds@transmeta.com>, greg@kroah.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove module reference counting. 
+In-reply-to: Your message of "26 Jul 2003 00:24:49 +0100."
+             <1059175489.1206.11.camel@dhcp22.swansea.linux.org.uk> 
+Date: Mon, 28 Jul 2003 04:48:35 +1000
+Message-Id: <20030727193919.6C7452C315@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-((Gaël Le Mignot)
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/drivers/char/drm/Kconfig linux-2.6.0-test2-ac1/drivers/char/drm/Kconfig
---- linux-2.6.0-test2/drivers/char/drm/Kconfig	2003-07-10 21:13:38.000000000 +0100
-+++ linux-2.6.0-test2-ac1/drivers/char/drm/Kconfig	2003-07-23 18:48:09.000000000 +0100
-@@ -72,3 +72,12 @@
- 	  Choose this option if you have a Matrox G200, G400 or G450 graphics
- 	  card.  If M is selected, the module will be called mga.  AGP
- 	  support is required for this driver to work.
-+
-+config DRM_SIS
-+	tristate "SiS video cards"
-+	depends on DRM && AGP
-+	help
-+	  Choose this option if you have a SiS 630 or compatibel video 
-+          chipset. If M is selected the module will be called sis. AGP
-+          support is required for this driver to work.
-+
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/drivers/char/drm/Makefile linux-2.6.0-test2-ac1/drivers/char/drm/Makefile
---- linux-2.6.0-test2/drivers/char/drm/Makefile	2003-07-10 21:14:54.000000000 +0100
-+++ linux-2.6.0-test2-ac1/drivers/char/drm/Makefile	2003-07-23 18:48:09.000000000 +0100
-@@ -10,6 +10,7 @@
- i830-objs   := i830_drv.o i830_dma.o i830_irq.o
- radeon-objs := radeon_drv.o radeon_cp.o radeon_state.o radeon_mem.o radeon_irq.o
- ffb-objs    := ffb_drv.o ffb_context.o
-+sis-objs    := sis_drv.o sis_ds.o sis_mm.o
- 
- obj-$(CONFIG_DRM_GAMMA) += gamma.o
- obj-$(CONFIG_DRM_TDFX)	+= tdfx.o
-@@ -19,3 +20,5 @@
- obj-$(CONFIG_DRM_I810)	+= i810.o
- obj-$(CONFIG_DRM_I830)	+= i830.o
- obj-$(CONFIG_DRM_FFB)   += ffb.o
-+obj-$(CONFIG_DRM_SIS)   += sis.o
-+
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/drivers/char/drm/sis_mm.c linux-2.6.0-test2-ac1/drivers/char/drm/sis_mm.c
---- linux-2.6.0-test2/drivers/char/drm/sis_mm.c	2003-07-10 21:12:16.000000000 +0100
-+++ linux-2.6.0-test2-ac1/drivers/char/drm/sis_mm.c	2003-07-23 18:48:09.000000000 +0100
-@@ -28,8 +28,9 @@
-  * 
-  */
- 
-+#include <linux/config.h>
- #include "sis.h"
--#include <linux/sisfb.h>
-+#include "video/sisfb.h"
- #include "drmP.h"
- #include "sis_drm.h"
- #include "sis_drv.h"
+In message <1059175489.1206.11.camel@dhcp22.swansea.linux.org.uk> you write:
+> On Gwe, 2003-07-25 at 20:26, Stephen Hemminger wrote:
+> > > 	If module removal is to be a rare and unusual event, it
+> > > doesn't seem so sensible to go to great lengths in the code to handle
+> > > just that case.  In fact, it's easier to leave the module memory in
+> > > place, and not have the concept of parts of the kernel text (and some
+> > > types of kernel data) vanishing.
+> 
+> Uggh. There is a difference between taking the approach that some stuff
+> is hard to handle and gets into trouble for using MOD_INC/DEC so is
+> unsafe, and doing the locking from the caller, or arranging that you
+> know the device is quiescent in the unload path and not allowing
+> unloading to work properly.
+
+We can do this everywhere: we have the technology.  But as I pointed
+out, at least some hackers who know what they are doing have balked at
+what that involves.  This is apart from the subsystems which are still
+not safe as it stands.
+
+> I've got drivers that use MOD_INC/DEC and are technically unsafe, they
+> by default now don't unload and its an incentive to fix them. I'd hate
+> to have my box cluttering up and have to keep rebooting to test drivers
+> because of inept implementations however.
+
+But OTOH, this patch would make those modules perfectly safe: no
+fixing needed.
+
+One modification is to tally up the deleted modules in /proc/modules
+under a "[deleted]" entry or somesuch, but allow you to "rmmod
+[deleted]" and actually free that memory (and taint your kernel). eg:
+
+	# lsmod
+	Module                  Size  Used by
+	loop                    8144   0
+	[deleted]	       12345
+	# rmmod '[deleted]'
+
+Thoughts?
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

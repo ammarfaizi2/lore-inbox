@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261529AbSKYQdd>; Mon, 25 Nov 2002 11:33:33 -0500
+	id <S261541AbSKYQtM>; Mon, 25 Nov 2002 11:49:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261541AbSKYQdd>; Mon, 25 Nov 2002 11:33:33 -0500
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:61920 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261529AbSKYQdd> convert rfc822-to-8bit; Mon, 25 Nov 2002 11:33:33 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: [QUESTION] 2.4.20/2.4.21 ext2|ext3 updates / Orlov Block Allocator
-Date: Mon, 25 Nov 2002 17:40:19 +0100
-User-Agent: KMail/1.4.3
-Organization: WOLK - Working Overloaded Linux Kernel
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+	id <S261573AbSKYQtM>; Mon, 25 Nov 2002 11:49:12 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:2835 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261541AbSKYQtL>; Mon, 25 Nov 2002 11:49:11 -0500
+Date: Mon, 25 Nov 2002 16:56:24 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>,
        "Theodore Ts'o" <tytso@mit.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200211251739.34629.m.c.p@wolk-project.de>
+Subject: Re: [QUESTION] 2.4.20/2.4.21 ext2|ext3 updates / Orlov Block Allocator
+Message-ID: <20021125165623.A21978@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Marc-Christian Petersen <m.c.p@wolk-project.de>,
+	linux-kernel@vger.kernel.org,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Theodore Ts'o <tytso@mit.edu>
+References: <200211251739.34629.m.c.p@wolk-project.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200211251739.34629.m.c.p@wolk-project.de>; from m.c.p@wolk-project.de on Mon, Nov 25, 2002 at 05:40:19PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcello,
+On Mon, Nov 25, 2002 at 05:40:19PM +0100, Marc-Christian Petersen wrote:
+> Hi Marcello,
+> 
+> any chance we can _please_ see this in 2.4.21-pre1?
+> 
+> http://thunk.org/tytso/linux/extfs-2.4-update/broken-out-2.4.20rc1/
+> 
+> I am using those patches from Theodore and all is working pretty fine.
+> The Orlov Block Allocator speed things up alot. I love it.
 
-any chance we can _please_ see this in 2.4.21-pre1?
+You're kidding, right?
 
-http://thunk.org/tytso/linux/extfs-2.4-update/broken-out-2.4.20rc1/
-
-I am using those patches from Theodore and all is working pretty fine.
-The Orlov Block Allocator speed things up alot. I love it.
-
-ciao, Marc

@@ -1,256 +1,184 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262386AbVC3Sii@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbVC3SkN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262386AbVC3Sii (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 13:38:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbVC3ShK
+	id S262406AbVC3SkN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 13:40:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262400AbVC3SkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 13:37:10 -0500
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:85 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262386AbVC3Sfq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 13:35:46 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Alexey Dobriyan <adobriyan@mail.ru>
-Subject: Re: 2.6.12-rc1-bk2+PREEMPT_BKL: Oops at serio_interrupt
-Date: Wed, 30 Mar 2005 13:35:43 -0500
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-References: <200503282126.55366.adobriyan@mail.ru> <200503300130.12736.dtor_core@ameritech.net> <200503301314.39575.adobriyan@mail.ru>
-In-Reply-To: <200503301314.39575.adobriyan@mail.ru>
+	Wed, 30 Mar 2005 13:40:11 -0500
+Received: from pin.if.uz.zgora.pl ([212.109.128.251]:11502 "EHLO
+	pin.if.uz.zgora.pl") by vger.kernel.org with ESMTP id S262399AbVC3SjT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 13:39:19 -0500
+Message-ID: <424AE48C.8000805@pin.if.uz.zgora.pl>
+Date: Wed, 30 Mar 2005 19:40:28 +0200
+From: =?ISO-8859-2?Q?Jacek_=A3uczak?= <difrost@pin.if.uz.zgora.pl>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: pl, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503301335.43648.dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: forkbombing Linux distributions
+Content-Type: multipart/mixed;
+ boundary="------------040408050305080008070506"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 30 March 2005 04:14, Alexey Dobriyan wrote:
-> On Wednesday 30 March 2005 10:30, Dmitry Torokhov wrote:
-> > On Tuesday 29 March 2005 14:49, Alexey Dobriyan wrote:
-> > > According to vmlinux, c0202947 is at:
-> > > 
-> > > c020293e <serport_ldisc_write_wakeup>:
-> > 
-> > Could you please try this one instead? Thanks!
-> 
-> Still dies in serport_ldisc_write_wakeup (doesn't matter how to trigger)
-> via:
-> 
-> Unable to handle kernel NULL pointer dereference at virtual address 00000068
-> EIP: c020294f
-> 	tty_wakeup
-> 	uart_close
-> 	wait_for_completion
-> 	release_dev
->
+This is a multi-part message in MIME format.
+--------------040408050305080008070506
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Doh! What a silly typo:
+Hi
 
-> +       if (!test_bit(SERPORT_ACTIVE, &serport->flags))
-> +               serio_drv_write_wakeup(serport->serio);
+I made some tests and almost all Linux distros brings down while freebsd 
+survive!Forkbombing is a big problem but i don't think that something like
 
-should be "if (test_bit(...))". Oh well, 3rd time is a charm.
+max_threads = mempages / (16 * THREAD_SIZE / PAGE_SIZE);
+
+is good solution!!!
+How about add max_user_threads to the kernel? It could be tunable via 
+proc filesystem. Limit is set only for users.
+I made a fast:) patch - see below - and test it on 2.6.11, 
+2.6.11ac4,2.6.12rc1...works great!!!New forks are stoped in 
+copy_process() before dup_task_struct() and EAGAIN is returned. System 
+works without any problems and root can killall -9 forkbomb.
+
+Regards,
+	Jacek Luczak
+
+--------------040408050305080008070506
+Content-Type: text/plain;
+ name="user_threads_limit.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="user_threads_limit.patch"
+
+--- linux-2.6.12-rc1/kernel/fork.c	2005-03-29 00:53:37.000000000 +0200
++++ linux/kernel/fork.c	2005-03-29 00:54:19.000000000 +0200
+@@ -57,6 +57,8 @@
  
--- 
-Dmitry
-
- serport.c |   98 +++++++++++++++++++++++++++++++++++++++++++-------------------
- 1 files changed, 68 insertions(+), 30 deletions(-)
-
-Index: dtor/drivers/input/serio/serport.c
-===================================================================
---- dtor.orig/drivers/input/serio/serport.c
-+++ dtor/drivers/input/serio/serport.c
-@@ -27,11 +27,15 @@ MODULE_LICENSE("GPL");
- MODULE_ALIAS_LDISC(N_MOUSE);
+ int max_threads;		/* tunable limit on nr_threads */
  
- #define SERPORT_BUSY	1
-+#define SERPORT_ACTIVE	2
-+#define SERPORT_DEAD	3
++int max_user_threads;		/* tunable limit on nr_threads per user */
++
+ DEFINE_PER_CPU(unsigned long, process_counts) = 0;
  
- struct serport {
- 	struct tty_struct *tty;
- 	wait_queue_head_t wait;
- 	struct serio *serio;
-+	struct serio_device_id id;
-+	spinlock_t lock;
- 	unsigned long flags;
+  __cacheline_aligned DEFINE_RWLOCK(tasklist_lock);  /* outer */
+@@ -146,6 +148,21 @@
+ 	if(max_threads < 20)
+ 		max_threads = 20;
+ 
++	/*
++	 * The default maximum number of threads per user.
++	 * 
++	 * FIXME: this value is based on my experiments and is 
++	 * rather good on desktop system; it should be fixed to
++	 * the more universal value.
++	 */
++	max_user_threads = 300;
++	
++	/*
++	 * default value is too high - set to max_threads 
++	 */
++	if (max_threads < max_user_threads)
++		max_user_threads = max_threads;
++	
+ 	init_task.signal->rlim[RLIMIT_NPROC].rlim_cur = max_threads/2;
+ 	init_task.signal->rlim[RLIMIT_NPROC].rlim_max = max_threads/2;
+ 	init_task.signal->rlim[RLIMIT_SIGPENDING] =
+@@ -179,6 +196,16 @@
+ 	return tsk;
+ }
+ 
++/*
++ * This is used to get number of user processes
++ * from current running task.
++ */
++static inline int get_user_processes(void)
++{
++	return atomic_read(&current->user->processes);
++}
++#define user_nr_processes get_user_processes()
++
+ #ifdef CONFIG_MMU
+ static inline int dup_mmap(struct mm_struct * mm, struct mm_struct * oldmm)
+ {
+@@ -869,6 +896,13 @@
+ 		goto fork_out;
+ 
+ 	retval = -ENOMEM;
++	
++	/*
++	 * Stop creation of new user process if limit is reached.
++	 */
++	if ( (current->user != &root_user) && (user_nr_processes >= max_user_threads) )
++		goto max_user_fork;
++	
+ 	p = dup_task_struct(current);
+ 	if (!p)
+ 		goto fork_out;
+@@ -1109,6 +1143,9 @@
+ 		return ERR_PTR(retval);
+ 	return p;
+ 
++max_user_fork:
++	retval = -EAGAIN;
++	return ERR_PTR(retval);
+ bad_fork_cleanup_namespace:
+ 	exit_namespace(p);
+ bad_fork_cleanup_keys:
+--- linux-2.6.12-rc1/kernel/sysctl.c	2005-03-29 00:53:38.000000000 +0200
++++ linux/kernel/sysctl.c	2005-03-29 00:54:19.000000000 +0200
+@@ -56,6 +56,7 @@
+ extern int sysctl_overcommit_memory;
+ extern int sysctl_overcommit_ratio;
+ extern int max_threads;
++extern int max_user_threads;
+ extern int sysrq_enabled;
+ extern int core_uses_pid;
+ extern char core_pattern[];
+@@ -642,6 +643,14 @@
+ 		.mode		= 0644,
+ 		.proc_handler	= &proc_dointvec,
+ 	},
++	{
++		.ctl_name	= KERN_MAX_USER_THREADS,
++		.procname	= "user_threads_max",
++		.data		= &max_user_threads,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++	},
+ 
+ 	{ .ctl_name = 0 }
+ };
+--- linux-2.6.12-rc1/include/linux/sysctl.h	2005-03-29 00:54:06.000000000 +0200
++++ linux/include/linux/sysctl.h	2005-03-29 00:54:36.000000000 +0200
+@@ -136,6 +136,7 @@
+ 	KERN_UNKNOWN_NMI_PANIC=66, /* int: unknown nmi panic flag */
+ 	KERN_BOOTLOADER_TYPE=67, /* int: boot loader type */
+ 	KERN_RANDOMIZE=68, /* int: randomize virtual address space */
++	KERN_MAX_USER_THREADS=69,	/* int: Maximum nr of threads per user in the system */
  };
  
-@@ -45,11 +49,29 @@ static int serport_serio_write(struct se
- 	return -(serport->tty->driver->write(serport->tty, &data, 1) != 1);
- }
  
-+static int serport_serio_open(struct serio *serio)
-+{
-+	struct serport *serport = serio->port_data;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&serport->lock, flags);
-+	set_bit(SERPORT_ACTIVE, &serport->flags);
-+	spin_unlock_irqrestore(&serport->lock, flags);
-+
-+	return 0;
-+}
-+
-+
- static void serport_serio_close(struct serio *serio)
- {
- 	struct serport *serport = serio->port_data;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&serport->lock, flags);
-+	clear_bit(SERPORT_ACTIVE, &serport->flags);
-+	set_bit(SERPORT_DEAD, &serport->flags);
-+	spin_unlock_irqrestore(&serport->lock, flags);
- 
--	serport->serio->id.type = 0;
- 	wake_up_interruptible(&serport->wait);
- }
- 
-@@ -61,36 +83,21 @@ static void serport_serio_close(struct s
- static int serport_ldisc_open(struct tty_struct *tty)
- {
- 	struct serport *serport;
--	struct serio *serio;
--	char name[64];
- 
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EPERM;
- 
--	serport = kmalloc(sizeof(struct serport), GFP_KERNEL);
--	serio = kmalloc(sizeof(struct serio), GFP_KERNEL);
--	if (unlikely(!serport || !serio)) {
--		kfree(serport);
--		kfree(serio);
-+	serport = kcalloc(1, sizeof(struct serport), GFP_KERNEL);
-+	if (!serport)
- 		return -ENOMEM;
--	}
- 
--	memset(serport, 0, sizeof(struct serport));
--	serport->serio = serio;
--	set_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
- 	serport->tty = tty;
--	tty->disc_data = serport;
--
--	memset(serio, 0, sizeof(struct serio));
--	strlcpy(serio->name, "Serial port", sizeof(serio->name));
--	snprintf(serio->phys, sizeof(serio->phys), "%s/serio0", tty_name(tty, name));
--	serio->id.type = SERIO_RS232;
--	serio->write = serport_serio_write;
--	serio->close = serport_serio_close;
--	serio->port_data = serport;
--
-+	spin_lock_init(&serport->lock);
- 	init_waitqueue_head(&serport->wait);
- 
-+	tty->disc_data = serport;
-+	set_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
-+
- 	return 0;
- }
- 
-@@ -100,7 +107,8 @@ static int serport_ldisc_open(struct tty
- 
- static void serport_ldisc_close(struct tty_struct *tty)
- {
--	struct serport *serport = (struct serport*) tty->disc_data;
-+	struct serport *serport = (struct serport *) tty->disc_data;
-+
- 	kfree(serport);
- }
- 
-@@ -116,9 +124,19 @@ static void serport_ldisc_close(struct t
- static void serport_ldisc_receive(struct tty_struct *tty, const unsigned char *cp, char *fp, int count)
- {
- 	struct serport *serport = (struct serport*) tty->disc_data;
-+	unsigned long flags;
- 	int i;
-+
-+	spin_lock_irqsave(&serport->lock, flags);
-+
-+	if (!test_bit(SERPORT_ACTIVE, &serport->flags))
-+		goto out;
-+
- 	for (i = 0; i < count; i++)
- 		serio_interrupt(serport->serio, cp[i], 0, NULL);
-+
-+out:
-+	spin_unlock_irqrestore(&serport->lock, flags);
- }
- 
- /*
-@@ -141,16 +159,33 @@ static int serport_ldisc_room(struct tty
- static ssize_t serport_ldisc_read(struct tty_struct * tty, struct file * file, unsigned char __user * buf, size_t nr)
- {
- 	struct serport *serport = (struct serport*) tty->disc_data;
-+	struct serio *serio;
- 	char name[64];
- 
- 	if (test_and_set_bit(SERPORT_BUSY, &serport->flags))
- 		return -EBUSY;
- 
-+	serport->serio = serio = kcalloc(1, sizeof(struct serio), GFP_KERNEL);
-+	if (!serio)
-+		return -ENOMEM;
-+
-+	strlcpy(serio->name, "Serial port", sizeof(serio->name));
-+	snprintf(serio->phys, sizeof(serio->phys), "%s/serio0", tty_name(tty, name));
-+	serio->id = serport->id;
-+	serio->id.type = SERIO_RS232;
-+	serio->write = serport_serio_write;
-+	serio->open = serport_serio_open;
-+	serio->close = serport_serio_close;
-+	serio->port_data = serport;
-+
- 	serio_register_port(serport->serio);
- 	printk(KERN_INFO "serio: Serial port %s\n", tty_name(tty, name));
--	wait_event_interruptible(serport->wait, !serport->serio->id.type);
-+
-+	wait_event_interruptible(serport->wait, test_bit(SERPORT_DEAD, &serport->flags));
- 	serio_unregister_port(serport->serio);
-+	serport->serio = NULL;
- 
-+	clear_bit(SERPORT_DEAD, &serport->flags);
- 	clear_bit(SERPORT_BUSY, &serport->flags);
- 
- 	return 0;
-@@ -163,16 +198,15 @@ static ssize_t serport_ldisc_read(struct
- static int serport_ldisc_ioctl(struct tty_struct * tty, struct file * file, unsigned int cmd, unsigned long arg)
- {
- 	struct serport *serport = (struct serport*) tty->disc_data;
--	struct serio *serio = serport->serio;
- 	unsigned long type;
- 
- 	if (cmd == SPIOCSTYPE) {
- 		if (get_user(type, (unsigned long __user *) arg))
- 			return -EFAULT;
- 
--		serio->id.proto	= type & 0x000000ff;
--		serio->id.id	= (type & 0x0000ff00) >> 8;
--		serio->id.extra	= (type & 0x00ff0000) >> 16;
-+		serport->id.proto = type & 0x000000ff;
-+		serport->id.id	  = (type & 0x0000ff00) >> 8;
-+		serport->id.extra = (type & 0x00ff0000) >> 16;
- 
- 		return 0;
- 	}
-@@ -182,9 +216,13 @@ static int serport_ldisc_ioctl(struct tt
- 
- static void serport_ldisc_write_wakeup(struct tty_struct * tty)
- {
--	struct serport *sp = (struct serport *) tty->disc_data;
-+	struct serport *serport = (struct serport *) tty->disc_data;
-+	unsigned long flags;
- 
--	serio_drv_write_wakeup(sp->serio);
-+	spin_lock_irqsave(&serport->lock, flags);
-+	if (test_bit(SERPORT_ACTIVE, &serport->flags))
-+		serio_drv_write_wakeup(serport->serio);
-+	spin_unlock_irqrestore(&serport->lock, flags);
- }
- 
- /*
+
+--------------040408050305080008070506
+Content-Type: text/x-vcard; charset=utf-8;
+ name="difrost.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="difrost.vcf"
+
+begin:vcard
+fn;quoted-printable:Jacek =C5=81uczak
+n;quoted-printable:=C5=81uczak;Jacek
+adr:;;Prof. Z. Szafrana 4a;Zielona Gora;;65-516;Poland
+email;internet:difrost@pin.if.uz.zgora.pl
+title:Linux Registered User # 337142
+x-mozilla-html:FALSE
+url:http://pin.if.uz.zgora.pl/~difrost
+version:2.1
+end:vcard
+
+
+--------------040408050305080008070506--

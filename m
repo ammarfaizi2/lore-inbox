@@ -1,59 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262136AbUJZHCU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbUJZHWH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262136AbUJZHCU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 03:02:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbUJZHCT
+	id S262130AbUJZHWH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 03:22:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbUJZHWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 03:02:19 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:3284 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262137AbUJZHAb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 03:00:31 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Tue, 26 Oct 2004 08:37:36 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Roland McGrath <roland@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ptrace bug in -rc2+
-Message-ID: <20041026063735.GG3127@bytesex>
-References: <20041014174952.GA29335@bytesex> <200410260504.i9Q54Es8010423@magilla.sf.frob.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 26 Oct 2004 03:22:07 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:50187 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262130AbUJZHV7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 03:21:59 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.9-mm1: make error when using separate build dir
+Date: Tue, 26 Oct 2004 10:21:40 +0300
+User-Agent: KMail/1.5.4
+Cc: Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200410260504.i9Q54Es8010423@magilla.sf.frob.com>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200410261021.40353.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 10:04:14PM -0700, Roland McGrath wrote:
-> Sorry it took a while for me to get back to you on this problem.
-> 
-> > The introduction of the new TASK_TRACED state in 2.6.9-rc2 changed the
-> > behavior of the kernel in a IMHO buggy way.  Sending a SIGKILL to a
-> > process which is traced _and_ stopped doesn't work any more.  user mode
-> > linux kernels do that on shutdown, thats why I ran into this.
-> 
-> This is a change that I explained when I posted the ptrace cleanup patches.
-> In general it is not safe to do any non-ptrace wakeup of a thread in
-> TASK_TRACED, because the waking thread could race with a ptrace call that
-> could be doing things like mucking directly with its kernel stack.  AFAIK
-> noone has established that whatever clobberation ptrace can do to a running
-> thread is safe even if it will never return to user mode, so we can't allow
-> this even for SIGKILL.
+Seems like gen_init_cpio does not work with
+separate build dir.
 
-Yes, some days later after studing the source code for some time (and
-learing alot about ptrace) I figured that myself as well ;)
+Copying initramfs_list into $objdir/usr/
+by hand worked around this.
 
-> Your particular test program is the one special case where we could make
-> the SIGKILL work immediately: the caller of kill is the ptracer, so we know
-> noone else can be using ptrace at the same time.  But I am not in favor of
-> adding this special case.  If you use ptrace yourself, you should cope.
 
-I agree, that can easily fixed in the app, either first SIGKILL then
-PTRACE_CONT, or just PTRACE_KILL directly ...
+Date: Tue Oct 26 10:17:34 EEST 2004
+Directory: 
+Command: make V=1 bzImage modules
+=============
+make -C /.1/usr/srcdevel/kernel/linux-2.6.9-mm1		\
+KBUILD_SRC=/.1/usr/srcdevel/kernel/linux-2.6.9-mm1.src	     KBUILD_VERBOSE=1	\
+KBUILD_CHECK= KBUILD_EXTMOD=""	\
+        -f /.1/usr/srcdevel/kernel/linux-2.6.9-mm1.src/Makefile bzImage
+  Using /.1/usr/srcdevel/kernel/linux-2.6.9-mm1.src as source for kernel
+if [ -h /.1/usr/srcdevel/kernel/linux-2.6.9-mm1.src/include/asm -o -f /.1/usr/srcdevel/kernel/linux-2.6.9-mm1.src/.config ]; then \
+	echo "  /.1/usr/srcdevel/kernel/linux-2.6.9-mm1.src is not clean, please run 'make mrproper'";\
+	echo "  in the '/.1/usr/srcdevel/kernel/linux-2.6.9-mm1.src' directory.";\
+	/bin/false; \
+fi;
+if [ ! -d include2 ]; then mkdir -p include2; fi;
+ln -fsn /.1/usr/srcdevel/kernel/linux-2.6.9-mm1.src/include/asm-i386 include2/asm
+if /usr/bin/env test ! /.1/usr/srcdevel/kernel/linux-2.6.9-mm1.src -ef /.1/usr/srcdevel/kernel/linux-2.6.9-mm1; then \
+/bin/sh /.1/usr/srcdevel/kernel/linux-2.6.9-mm1.src/scripts/mkmakefile              \
+    /.1/usr/srcdevel/kernel/linux-2.6.9-mm1.src /.1/usr/srcdevel/kernel/linux-2.6.9-mm1 2 6         \
+    > /.1/usr/srcdevel/kernel/linux-2.6.9-mm1/Makefile;                                 \
+    echo '  GEN    /.1/usr/srcdevel/kernel/linux-2.6.9-mm1/Makefile';                   \
+fi
+  GEN    /.1/usr/srcdevel/kernel/linux-2.6.9-mm1/Makefile
+  CHK     include/linux/version.h
+make -f /.1/usr/srcdevel/kernel/linux-2.6.9-mm1.src/scripts/Makefile.build obj=scripts/basic
+make -f /.1/usr/srcdevel/kernel/linux-2.6.9-mm1.src/scripts/Makefile.build obj=scripts
+make -f /.1/usr/srcdevel/kernel/linux-2.6.9-mm1.src/scripts/Makefile.build obj=scripts/genksyms
+make -f /.1/usr/srcdevel/kernel/linux-2.6.9-mm1.src/scripts/Makefile.build obj=scripts/mod
+make -f /.1/usr/srcdevel/kernel/linux-2.6.9-mm1.src/scripts/Makefile.build obj=arch/i386/kernel arch/i386/kernel/asm-offsets.s
+make[2]: `arch/i386/kernel/asm-offsets.s' is up to date.
+make -f /.1/usr/srcdevel/kernel/linux-2.6.9-mm1.src/scripts/Makefile.build obj=init
+  CHK     include/linux/compile.h
+dnsdomainname: Unknown host
+make -f /.1/usr/srcdevel/kernel/linux-2.6.9-mm1.src/scripts/Makefile.build obj=usr
+  echo Using shipped usr/initramfs_list
+Using shipped usr/initramfs_list
+  ./usr/gen_init_cpio usr/initramfs_list > usr/initramfs_data.cpio
+ERROR: unable to open 'usr/initramfs_list': No such file or directory
 
-  Gerd
+Usage:
+	./usr/gen_init_cpio <cpio_list>
 
--- 
-#define printk(args...) fprintf(stderr, ## args)
+<cpio_list> is a file containing newline separated entries that
+describe the files to be included in the initramfs archive:
+
+# a comment
+file <name> <location> <mode> <uid> <gid> 
+dir <name> <mode> <uid> <gid>
+nod <name> <mode> <uid> <gid> <dev_type> <maj> <min>
+
+<name>      name of the file/dir/nod in the archive
+<location>  location of the file in the current filesystem
+<mode>      mode/permissions of the file
+<uid>       user id (0=root)
+<gid>       group id (0=root)
+<dev_type>  device type (b=block, c=character)
+<maj>       major number of nod
+<min>       minor number of nod
+
+example:
+# A simple initramfs
+dir /dev 0755 0 0
+nod /dev/console 0600 0 0 c 5 1
+dir /root 0700 0 0
+dir /sbin 0755 0 0
+file /sbin/kinit /usr/src/klibc/kinit/kinit 0755 0 0
+make[2]: *** [usr/initramfs_data.cpio] Error 1
+make[1]: *** [usr] Error 2
+make: *** [bzImage] Error 2
+--
+vda
+

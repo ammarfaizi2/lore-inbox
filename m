@@ -1,47 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267137AbSLKNXc>; Wed, 11 Dec 2002 08:23:32 -0500
+	id <S267134AbSLKNXX>; Wed, 11 Dec 2002 08:23:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267139AbSLKNXc>; Wed, 11 Dec 2002 08:23:32 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:4875 "EHLO
+	id <S267137AbSLKNXX>; Wed, 11 Dec 2002 08:23:23 -0500
+Received: from [66.70.28.20] ([66.70.28.20]:3339 "EHLO
 	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S267137AbSLKNXa>; Wed, 11 Dec 2002 08:23:30 -0500
-Date: Wed, 11 Dec 2002 13:32:51 +0100
+	id <S267134AbSLKNXW>; Wed, 11 Dec 2002 08:23:22 -0500
+Date: Wed, 11 Dec 2002 14:32:46 +0100
 From: DervishD <raul@pleyades.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: [BK-2.4] [PATCH] Small do_mmap_pgoff correction
-Message-ID: <20021211123251.GA48@DervishD>
-References: <20021210221357.GA46@DervishD> <20021210.141451.66294590.davem@redhat.com> <20021210222842.GA64@DervishD> <20021210.170644.97772177.davem@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>, davem@redhat.com
+Subject: [PATCH] mmap.c - do_mmap_pgoff() small correction
+Message-ID: <20021211133246.GE48@DervishD>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/mixed; boundary="6zdv2QT/q3FMhpsV"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20021210.170644.97772177.davem@redhat.com>
 User-Agent: Mutt/1.4i
 Organization: Pleyades
 User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi David :)
 
->        Perfect :) If you want, I can make the patch and tell to Alan and
->    Linus. Anyway, I think you will better heared than me O:))
-> If you could take care of this, I would really be happy.
+--6zdv2QT/q3FMhpsV
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-    OK, then, I'll prepare the patch.
+    Hi Linus :)
 
->        Anyway, I'll take a look at a new macro (lets say PAGE_ALIGN_SIZE
->    or something as ugly as this ;)))
-> How many places do we try to apply PAGE_ALIGN to a length?
-> If it's just one or two spots, perhaps the special macro
-> isn't worthwhile.
+    This is a correction for a patch I sent you that you included in
+the 2.5.x tree. The patch I sent you fixed a corner case for the
+mmap() syscall, where the requested size was too big (namely, bigger
+than SIZE_MAX-PAGE_SIZE). Unfortunately, the patch did a wrong
+assumption that is not true in some archs where TASK_SIZE is the full
+address space available, as sparc64. So, the patch didn't fix
+anything on those archs :((
 
-    I've seen four or five, without a detailed examination. Anyway,
-since it would be a dangerous change (being in the MM code), I'll
-count ocurrences and problems. There is no intrinsic problem in using
-PAGE_ALIGN on a size if we know that size is small enough.
+    David S. Miller <davem@redhat.com> pointed this and made this new
+patch that fixes the spot. Now it should work in all archs.
 
-    Thanks for all, Dave :)
+    If you have any doubt, just tell.
+
     Raúl
+
+--6zdv2QT/q3FMhpsV
+Content-Type: text/plain; charset=iso-8859-1
+Content-Description: mmap.c.diff
+Content-Disposition: attachment; filename="mmap.c.2.5.51.diff"
+
+--- linux/mm/mmap.c.orig	2002-12-11 14:27:04.000000000 +0100
++++ linux/mm/mmap.c	2002-12-11 14:28:09.000000000 +0100
+@@ -421,14 +421,14 @@
+ 	if (file && (!file->f_op || !file->f_op->mmap))
+ 		return -ENODEV;
+ 
+-	if (!len)
++	if (len == 0)
+ 		return addr;
+ 
+-	if (len > TASK_SIZE)
+-		return -EINVAL;
+-
+ 	len = PAGE_ALIGN(len);
+ 
++	if (len > TASK_SIZE || len == 0)
++		return -EINVAL;
++
+ 	/* offset overflow? */
+ 	if ((pgoff + (len >> PAGE_SHIFT)) < pgoff)
+ 		return -EINVAL;
+
+--6zdv2QT/q3FMhpsV--

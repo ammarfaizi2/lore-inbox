@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262379AbTJYE3T (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 00:29:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbTJYE3T
+	id S262404AbTJYE47 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 00:56:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbTJYE47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 00:29:19 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:61573 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S262379AbTJYE3J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 00:29:09 -0400
-Date: Sat, 25 Oct 2003 14:28:41 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Jirka Kosina <jikos@jikos.cz>
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: 2.6.0-test8 XFS bug
-Message-ID: <20031025142841.A833021@wobbly.melbourne.sgi.com>
-References: <Pine.LNX.4.58.0310232336180.6971@twin.jikos.cz> <20031024000951.GH858@frodo> <Pine.LNX.4.58.0310240853500.30731@twin.jikos.cz>
+	Sat, 25 Oct 2003 00:56:59 -0400
+Received: from h80ad2674.async.vt.edu ([128.173.38.116]:24969 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262404AbTJYE46 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Oct 2003 00:56:58 -0400
+Message-Id: <200310250456.h9P4ufdp009300@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: Matt Domsch <Matt_Domsch@dell.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 2.4] EDD 4-byte MBR disk signature for the boot disk 
+In-Reply-To: Your message of "Sat, 25 Oct 2003 04:28:03 +0200."
+             <20031025022803.GA18168@DUK2.13thfloor.at> 
+From: Valdis.Kletnieks@vt.edu
+References: <20031014104508.GA5820@win.tue.nl> <20031014133804.GC15295@iguana.domsch.com>
+            <20031025022803.GA18168@DUK2.13thfloor.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.58.0310240853500.30731@twin.jikos.cz>; from jikos@jikos.cz on Fri, Oct 24, 2003 at 09:03:01AM +0200
+Content-Type: multipart/signed; boundary="==_Exmh_93061032P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 25 Oct 2003 00:56:41 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 24, 2003 at 09:03:01AM +0200, Jirka Kosina wrote:
-> On Fri, 24 Oct 2003, Nathan Scott wrote:
-> > > Oct 22 13:12:56 storage2 kernel: Filesystem "dm-0": XFS internal error xfs_alloc_read_agf at line 2208 of file fs/xfs/xfs_alloc.c.  Caller 0xc01e8f5c
-> > You're allocating real disk space for delayed allocate file data
-> > down this path, and the read of the allocation group header found
-> > something that didn't look at all like metadata on disk.
-> > So, you definately have corruption and will need to xfs_repair.
-> > Any ideas as to what operations triggered the initial problem?
-> > (is it reproducible for you?)
-> 
-> I can simply reproduce it - the only thing needed is to nfsmount this
-> partition from clients and start writing a file to it, as I've written
-> before. The crash occurs immediately after the transfer begins.
+--==_Exmh_93061032P
+Content-Type: text/plain; charset=us-ascii
 
-OK, I missed that information in your last mail then, I thought
-you had done successful NFS tests and then failed on a local cp.
-Looks like we need to focus on more XFS/NFS testing in 2.6; will
-do.
+On Sat, 25 Oct 2003 04:28:03 +0200, Herbert Poetzl said:
 
-> As I've said, I wouldn't blame HW failure or things like this, because 
-> ext3 does the job flawlessly, as far as I can see.
+> hmm, IIRC devfs makes a /dev/root symlink pointing
+> to the root device ... is this not what you want?
 
-Understood -- its good to have it narrowed down to XFS.  Was that
-ext3 test on the same DM device, also at 5.5 Tb with LBD, and NFS
-involved too?  Could you send me your xfs_repair output and also
-your filesystem geometry (xfs_info).
+No, he wants a pointer to the disk that has the boot block and
+all that - the disk that grub/lilo and /boot are on (which could be
+two separate disks I suppose) may not be the disk that / lives on....
 
-thanks.
+--==_Exmh_93061032P
+Content-Type: application/pgp-signature
 
--- 
-Nathan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/mgKIcC3lWbTT17ARAr4CAKD0cO8wZ2O22Dao0cj1gKzGumTaKwCaA9OM
+BjDdA90uzZWSpZ5/FK5h6BI=
+=UDLX
+-----END PGP SIGNATURE-----
+
+--==_Exmh_93061032P--

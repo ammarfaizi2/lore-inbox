@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263571AbVBCTEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262512AbVBCS7W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263571AbVBCTEo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 14:04:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbVBCTEm
+	id S262512AbVBCS7W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 13:59:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263069AbVBCRwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 14:04:42 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:14979 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S263014AbVBCTES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 14:04:18 -0500
-Message-ID: <42027594.9090402@grupopie.com>
-Date: Thu, 03 Feb 2005 19:03:48 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ian Godin <Ian.Godin@lowrydigital.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Drive performance bottleneck
-References: <c4fc982390674caa2eae4f252bf4fc78@lowrydigital.com> <42026207.4090007@vgertech.com> <ef0635f8b4257d18fad10882a2c79f64@lowrydigital.com>
-In-Reply-To: <ef0635f8b4257d18fad10882a2c79f64@lowrydigital.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Feb 2005 12:52:50 -0500
+Received: from mail.kroah.org ([69.55.234.183]:19112 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262650AbVBCRlZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 12:41:25 -0500
+Cc: brking@us.ibm.com
+Subject: [PATCH] pci: Add Citrine quirk
+In-Reply-To: <11074524201252@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Thu, 3 Feb 2005 09:40:21 -0800
+Message-Id: <11074524211780@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Godin wrote:
-> [...]
->   Definitely have been able to repeat that here, so the SG driver 
-> definitely appears to be broken.  At least I'm glad I am not going 
-> insane, I was starting to wonder :)
-> 
->   I'll run some more tests with O_DIRECT and such things, see if I can 
-> figure out what the REAL max speed is.
+ChangeSet 1.2042, 2005/02/03 00:40:09-08:00, brking@us.ibm.com
 
-FYI there was a patch running around last April that made a new option 
-for "dd" to make it use O_DIRECT. You can get it here:
+[PATCH] pci: Add Citrine quirk
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=108135935629589&w=2
+The IBM Citrine chipset has a feature that if PCI config register
+0xA0 is read while DMAs are being performed to it, there is the possiblity
+that the parity will be wrong on the PCI bus, causing a parity error and
+a master abort. On this chipset, this register is simply a debug register
+for the chip developers and the registers after it are not defined.
+Patch sets cfg_size to 0xA0 to prevent this problem from being seen.
 
-Unfortunately this hasn't made it into coreutils. IIRC there were issues 
-about dd being multi-platform and the way O_DIRECT was done in other 
-systems.
+Signed-off-by: Brian King <brking@us.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-Anyway, you can patch dd yourself and have a tool for debugging with 
-O_DIRECT. I hope this helps,
 
--- 
-Paulo Marques - www.grupopie.com
+ drivers/pci/quirks.c |   10 ++++++++++
+ 1 files changed, 10 insertions(+)
 
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)
+
+diff -Nru a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+--- a/drivers/pci/quirks.c	2005-02-03 09:28:53 -08:00
++++ b/drivers/pci/quirks.c	2005-02-03 09:28:53 -08:00
+@@ -216,6 +216,16 @@
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 	PCI_DEVICE_ID_INTEL_82443BX_2, 	quirk_natoma );
+ 
+ /*
++ *  This chip can cause PCI parity errors if config register 0xA0 is read
++ *  while DMAs are occurring.
++ */
++static void __devinit quirk_citrine(struct pci_dev *dev)
++{
++	dev->cfg_size = 0xA0;
++}
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_IBM,	PCI_DEVICE_ID_IBM_CITRINE,	quirk_citrine );
++
++/*
+  *  S3 868 and 968 chips report region size equal to 32M, but they decode 64M.
+  *  If it's needed, re-allocate the region.
+  */
+

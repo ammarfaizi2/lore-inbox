@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268370AbUJTPyb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268515AbUJTP6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268370AbUJTPyb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 11:54:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266663AbUJTPx7
+	id S268515AbUJTP6s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 11:58:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268511AbUJTP6h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 11:53:59 -0400
-Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:26015 "HELO
-	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267866AbUJTPZY convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 11:25:24 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove MODULE_PARM from arch/i386
-Date: Wed, 20 Oct 2004 10:25:18 -0500
-User-Agent: KMail/1.6.2
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>
-References: <1098259264.10571.147.camel@localhost.localdomain>
-In-Reply-To: <1098259264.10571.147.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200410201025.18345.dtor_core@ameritech.net>
+	Wed, 20 Oct 2004 11:58:37 -0400
+Received: from mxsf10.cluster1.charter.net ([209.225.28.210]:44722 "EHLO
+	mxsf10.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S268404AbUJTPzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 11:55:05 -0400
+X-Ironport-AV: i="3.85,155,1094443200"; 
+   d="scan'208"; a="359964271:sNHT13319820"
+Subject: Re: [PATCH] Make kbtab play nice with wacom_drv in Xorg/XFree86
+From: Dave Ahlswede <mightyquinn@charter.net>
+Reply-To: mightyquinn@letterboxes.org
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041020130447.GA8086@ucw.cz>
+References: <1098271641.26932.12.camel@sayuki>
+	 <20041020130447.GA8086@ucw.cz>
+Content-Type: text/plain
+Date: Wed, 20 Oct 2004 11:55:02 -0400
+Message-Id: <1098287702.28045.9.camel@sayuki>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 October 2004 03:01 am, Rusty Russell wrote:
-> Name: Remove MODULE_PARM from i386 arch
-> Status: Compiled on 2.6-bk
-> Depends: Module/MODULE_PARM-defconfig.patch.gz
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+On Wed, 2004-10-20 at 15:04 +0200, Vojtech Pavlik wrote:
+> On Wed, Oct 20, 2004 at 07:27:21AM -0400, Dave Ahlswede wrote:
 > 
-> This patch removes MODULE_PARM for everything under arch/i386.
-> Currently only APM.
+> > In its current state, the kbtab driver can be made to work with the
+> > XF86/Xorg Wacom driver, but only once per modprobe. If X is restarted,
+> > the driver won't report any input events. This is because the driver
+> > always reports the pen tool as being in use, and the information doesn't
+> > seem to be passed after the first time the device is opened.
+> > 
+> > This patch fixes the issue by causing the driver to briefly report the
+> > pen not in use each time the device is opened. 
 > 
-> diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .3678-linux-2.6-bk/arch/i386/kernel/apm.c .3678-linux-2.6-bk.updated/arch/i386/kernel/apm.c
-> --- .3678-linux-2.6-bk/arch/i386/kernel/apm.c   2004-10-19 14:33:50.000000000 +1000
-> +++ .3678-linux-2.6-bk.updated/arch/i386/kernel/apm.c   2004-10-20 17:56:12.000000000 +1000
-> @@ -2393,27 +2393,27 @@ module_exit(apm_exit);
->  MODULE_AUTHOR("Stephen Rothwell");
->  MODULE_DESCRIPTION("Advanced Power Management");
->  MODULE_LICENSE("GPL");
-> -MODULE_PARM(debug, "i");
-> +module_param(debug, bool, 0644);
->  MODULE_PARM_DESC(debug, "Enable debug mode");
-> -MODULE_PARM(power_off, "i");
-> +module_param(power_off, bool, 0444);
-                                 ^^^^^
-I am wondering if we need to waste kernel resources by creating sysfs
-attributes for parameters that can not be changed at runtime (by user
-or kernel)...
+> It's a bug in the X Wacom driver that it doesn't check the initial state
+> of the tool. It should use EVIOCGKEY() to do that.
 
--- 
-Dmitry
+I'll talk to the developer about that, thanks.
+
+> A good way to get this working in the driver would be report the PEN
+> tool as not in use when the position is invalid (the pen is not within
+> reach), if that is possible with the hardware. It's what the bit should
+> signify.
+
+Unfortunately, when the pen is out of bounds, the hardware simply stops
+sending packets. I experimented with a change that would report no tool
+in use when pressure was zero, but that made the tablet unusable. (It
+would only track movement when the pen was being pressed to the tablet)
+
+
+

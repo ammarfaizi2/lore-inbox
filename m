@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265149AbUBEMfb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 07:35:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265177AbUBEMfb
+	id S265152AbUBEMbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 07:31:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265178AbUBEMbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 07:35:31 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:58381 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265149AbUBEMf2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 07:35:28 -0500
-Date: Thu, 5 Feb 2004 12:35:25 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.2 and INI9100U
-Message-ID: <20040205123525.A31968@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Wojciech 'Sas' Cieciwa <cieciwa@alpha.zarz.agh.edu.pl>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58L.0402051400320.18104@alpha.zarz.agh.edu.pl>
+	Thu, 5 Feb 2004 07:31:25 -0500
+Received: from mail1.upco.es ([130.206.70.227]:28291 "EHLO mail1.upco.es")
+	by vger.kernel.org with ESMTP id S265152AbUBEMbX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 07:31:23 -0500
+Date: Thu, 5 Feb 2004 13:31:21 +0100
+From: Romano Giannetti <romano@dea.icai.upco.es>
+To: linux-kernel@vger.kernel.org
+Subject: PMDISK wins other suspends on my VAIO PGC-FX701
+Message-ID: <20040205123121.GD5716@pern.dea.icai.upco.es>
+Reply-To: romano@dea.icai.upco.es
+Mail-Followup-To: Romano Giannetti <romano@dea.icai.upco.es>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58L.0402051400320.18104@alpha.zarz.agh.edu.pl>; from cieciwa@alpha.zarz.agh.edu.pl on Thu, Feb 05, 2004 at 02:01:46PM +0100
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 05, 2004 at 02:01:46PM +0100, Wojciech 'Sas' Cieciwa wrote:
-> 
-> Can anyone tell me why this driver is marked as broken ?
-> I build this, and this works fine.
+I do not know if that could be of interest, but...
 
-There's no error handling, so as soon as you hit some kind of bus
-error you're screwed.
+I tried (with kernel 2.6.1) the three flavors of suspend-to-disk available
+around on my sony vaio PGCFX701 (athlon PowerNow, VIA chipset). The only one
+that works(*) is PMDISK from standard kernel; nor swsusp (standard) neither
+swsusp2 (I tried with 2.0rc7 release) could suspend my box. 
 
+If anyone is interested in more data and/or test, tell me, I can try things
+for you. I never used a serial console, but I have a little psion thing that
+I think I can use for it... 
+
+Romano 
+
+(*) well, unloading usb and alsa modules before suspend and reloading them
+afterward. I read in l-k that module unloading shouldn't be needed... I will
+try 2.6.2-mm1 which has alsa and usb updates, to see if I can avoid it. 
+
+PD S3 suspend does not work... 
+
+
+-- 
+Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
+Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569

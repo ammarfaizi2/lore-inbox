@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281559AbRKPVrW>; Fri, 16 Nov 2001 16:47:22 -0500
+	id <S281565AbRKPVym>; Fri, 16 Nov 2001 16:54:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281566AbRKPVrS>; Fri, 16 Nov 2001 16:47:18 -0500
-Received: from mail207.mail.bellsouth.net ([205.152.58.147]:6350 "EHLO
-	imf07bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S281568AbRKPVqt>; Fri, 16 Nov 2001 16:46:49 -0500
-Message-ID: <3BF5892C.171CF4DD@mandrakesoft.com>
-Date: Fri, 16 Nov 2001 16:46:20 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] AMD SMP capability sanity checking.
-In-Reply-To: <Pine.LNX.4.30.0111162219170.22827-100000@Appserv.suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S281561AbRKPVyc>; Fri, 16 Nov 2001 16:54:32 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:29058 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S281565AbRKPVyW> convert rfc822-to-8bit;
+	Fri, 16 Nov 2001 16:54:22 -0500
+Date: Fri, 16 Nov 2001 13:54:09 -0800 (PST)
+Message-Id: <20011116.135409.118971851.davem@redhat.com>
+To: groudier@free.fr
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [patch] block-highmem-all-18
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011116193057.O1825-100000@gerard>
+In-Reply-To: <20011116093927.E27010@suse.de>
+	<20011116193057.O1825-100000@gerard>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> +               /* If we get here, it's not a certified SMP capable AMD system. */
-> +               printk (KERN_INFO "WARNING: This combination of AMD processors is not suitable for SMP.\n");
-> +               tainted |= (1<<2);
-> +
+   From: Gérard Roudier <groudier@free.fr>
+   Date: Fri, 16 Nov 2001 19:59:02 +0100 (CET)
+   
+   On Fri, 16 Nov 2001, Jens Axboe wrote:
+   
+   > - Add sym2 can_dma_32 flag (me)
+                ^^^^^^^^^^ Pooaaahhh!:) What's this utter oddity ?
+   Only dma 32 ? :-)
 
-having a constant instead of setting magic bit 2 would be nice
+It is workaround for buggy drivers, when set it means that single SG
+list entry request will be handled correctly.  When clear it means
+that single entry SG lists are to be avoided by the block layer.
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+Many devices would explode when given single entry scatterlist. :(
 
+It's naming is questionable... that I agree with.  The name should be
+more suggestive to what it really means.
+
+Franks a lot,
+David S. Miller
+davem@redhat.com

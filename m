@@ -1,186 +1,177 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261553AbSJ2Qfi>; Tue, 29 Oct 2002 11:35:38 -0500
+	id <S261665AbSJ2Qh3>; Tue, 29 Oct 2002 11:37:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261558AbSJ2Qfi>; Tue, 29 Oct 2002 11:35:38 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:3794 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S261553AbSJ2Qfg>; Tue, 29 Oct 2002 11:35:36 -0500
-Date: Tue, 29 Oct 2002 14:05:16 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.20-rc1
-Message-ID: <Pine.LNX.4.44L.0210291358010.16425-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261611AbSJ2Qh2>; Tue, 29 Oct 2002 11:37:28 -0500
+Received: from SNAP.THUNK.ORG ([216.175.175.173]:38880 "EHLO snap.thunk.org")
+	by vger.kernel.org with ESMTP id <S261665AbSJ2Qfr>;
+	Tue, 29 Oct 2002 11:35:47 -0500
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: [PATCH] 2/11  Ext2/3 Updates: Extended attributes, ACL, etc.
+From: tytso@mit.edu
+Message-Id: <E186ZRR-0006tS-00@snap.thunk.org>
+Date: Tue, 29 Oct 2002 11:42:09 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
+Ext2/3 forward compatibility: on-line resizing
 
-Finally, rc1.
+This patch allows forward compatibility with future filesystems which
+are dynamically grown by using an alternate algorithm for storing the
+block group descriptors.  It's also a bit more efficient, in that it
+uses just a little bit less disk space.  Currently, the ext2 filesystem
+format requires either relocating the inode table, or reserving space in
+before doing the on-line resize.  The new scheme, which is documented in
+"Planned Extensions to the Ext2/3 Filesystem", by Stephen Tweedie and I (see:
+http://www.usenix.org/publications/library/proceedings/usenix02/tech/freenix/tso.html)
 
-Several networking fixes, net drivers fixes, devfs root boot option fixed,
-and more.
+fs/ext2/super.c         |   22 ++++++++++++++++++++--
+fs/ext3/super.c         |   22 ++++++++++++++++++++--
+include/linux/ext2_fs.h |    7 +++++--
+include/linux/ext3_fs.h |    6 +++++-
+4 files changed, 50 insertions(+), 7 deletions(-)
 
-Please stress test it.
-
-
-Summary of changes from v2.4.20-pre11 to v2.4.20-rc1
-============================================
-
-<adam@nmt.edu>:
-  o 3ware driver update
-
-<akropel1@rochester.rr.com>:
-  o The following patch adds support for ethtool to the ewrk3 driver. It is against 2.5-BK but should apply to any recent 2.5 and 2.4 as well. In addition to adding ethtool support, it also removes the cli/sti fixup attribution from the changelog since that didn't actually go in yet and fixes a small style issue I introduced in the multi-card support patch.
-  o This patch adds some locking fixups to the ewrk3 ioctl routine. None of these are critical since the ioctls AFAIK are used only by the EEPROM config utility.
-  o Last ewrk3 for now. Updates the changelog to cover previous patches, bumps the revision number, and replaces the horrific EthwrkSignature function with something (slightly) less horrific.
-
-<bheilbrun@paypal.com>:
-  o Add missing part of DMI update
-
-<dhinds@sonic.net>:
-  o Change David Hinds email address
-  o axnet_cs update
-  o nmclan_cs update: fixed cut-and-paste bug in ethtool ioctl handler
-  o pcnet_cs update
-
-<fw@deneb.enyo.de>:
-  o [TCP]: In TCP_LISTEN state, ignore SYNs with RST set
-
-<jeb.j.cramer@intel.com>:
-  o e1000 1/11
-  o e1000 2/11
-  o e1000 3/11
-  o e1000 4/11
-  o e1000 5/11
-  o e1000 6/11
-  o e1000 7/11
-  o e1000 8/11
-  o e1000 9/11
-  o e1000 10/11
-  o e1000 11/11
-
-<jgarzik@redhat.com>:
-  o Remove cli/sti from ewrk3 net driver
-  o Fix tulip net driver multi-port board irq assignment
-
-<johnstul@us.ibm.com>:
-  o Fix compile problems with local APIC enabled
-
-<komujun@nifty.com>:
-  o Add PCI id to tulip net driver
-
-<leigh@solinno.co.uk>:
-  o PPC32: Minor fix in parsing the BI_CMD_LINE bi_record
-
-<marcelo@freak.distro.conectiva>:
-  o Add [davem]checkout:none
-  o Fix pSeries Hypervisor console Config.in entry
-  o Remove debugging printk in ide code
-  o Changed EXTRAVERSION to -rc1
-
-<mashirle@us.ibm.com>:
-  o [IPV6]: Fix bugs in PMTU handling
-
-<mgreer@mvista.com>:
-  o PPC32: Allow the IBM Spruce board to be compiled with gcc-3.x
-
-<okir@suse.de>:
-  o Fix NFS IRIX compatibility braindamage
-
-<shaggy@shaggy.austin.ibm.com>:
-  o JFS: Add missing byte-swapping macros in xattr.c
-
-<sparker@sun.com>:
-  o drivers/net/eepro100.c: simplify wait_for_cmd_done(), better errors
-  o drivers/net/eepro100.c: only set priv->last_rx_time if we did work
-  o drivers/net/eepro100.c: mask the interrupt and do a small delay on close()
-
-<thockin@freakshow.cobalt.com>:
-  o drivers/net/eepro100.c
-  o drivers/net/mii.c: only call netif_carrier_{on,off} if there is a state change
-  o drivers/net/eepro100.c
-  o drivers/net/natsemi.c: init msg_enable in proper way
-  o drivers/net/eepro100.c: compile bugs
-  o drivers/net/eepro100.c: eliminate speedo_intrmask
-  o drivers/net/eepro100.c: cleanup messages that pop up since netif_msg_xxx change
-  o drivers/net/eepro100.c: set the PHY ID correctly
-  o drivers/net/mii.c: fix flipped logic
-  o drivers/net/eepro100.c: set phy_id_mask and reg_num_mask in mii_if
-
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-  o dmi fixes from -ac
-  o Update sisfb headers
-  o del_timer_sync fixes for fmvj18x_cs net driver
-
-Alexander Viro <viro@math.psu.edu>:
-  o Fix devfs root boot option problem
-
-Christoph Hellwig <hch@infradead.org>:
-  o Fix bug in /proc/partitions handling code
-
-David S. Miller <davem@nuts.ninka.net>:
-  o arch/sparc64/kernel/pci_schizo.c: Enable error interrupts in correct PBM
-  o [SPARC]: Set highmem_io in ESP and QLOGICPTI scsi drivers
-  o arch/sparc64/defconfig: Update
-  o [SPARC]: Fix typo in EBUS/QLOGICPTI highmem_io changes
-  o arch/sparc64/mm/init.c: Initialize {min,max}_low_pfn properly
-  o arch/sparc64/mm/init.c: Set max_pfn too
-  o [ESP/QLOGICPTI]: Only set highmem_io on sparc64
-  o arch/sparc64/kernel/ioctl32.c: Block ioctl handling fix
-  o [SPARC64]: On broken cheetah, enable p-cache around large copies
-  o [sparc64/ppc64/x86_64]: Fix socket fd leak in route ioctl32 translation
-  o [SPARC64]: Disable old cheetah pcache optimization
-  o arch/sparc64/kernel/ioctl32.c: Handle HDIO_GETGEO_BIG{,_RAW}
-  o [IPV4]: When advmss of route is zero, report it as zero not 40
-
-David Woodhouse <dwmw2@infradead.org>:
-  o JFFS2 / shared-zlib cleanup
-
-Geert Uytterhoeven <geert@linux-m68k.org>:
-  o Zorro ID update
-
-Hugh Dickins <hugh@veritas.com>:
-  o shmem missing cache flush
-
-Ivan Kokshaysky <ink@jurassic.park.msu.ru>:
-  o alpha compile fix
-
-Jens Axboe <axboe@suse.de>:
-  o sr wrong return value
-
-Kent Yoder <key@austin.ibm.com>:
-  o Add link status checking to pcnet32 net driver
-
-lowekamp@cs.wm.edu <lowekamp@CS.WM.EDU>:
-  o Fix reordering of onboard PDC20265
-
-Paul Mackerras <paulus@samba.org>:
-  o PPC32: Fix the compile for POWER3, we had an undefined variable
-
-Scott Feldman <scott.feldman@intel.com>:
-  o e100 1/5
-  o e100 2/5
-  o e100 3/5
-  o e100 4/5
-  o e100 5/5
-
-Tom Callaway <tcallawa@redhat.com>:
-  o arch/sparc64/solaris/misc.c: Add MODULE_LICENSE
-
-Tom Rini <trini@kernel.crashing.org>:
-  o PPC32: Compile ppc_generic_ide_fix_driveid if CONFIG_USB_STORAGE is not disabled.  This allows the USB Storage drivers which call ide_fix_driveid to be compiled on PPC32.
-  o PPC32: On CONFIG_ALL_PPC, always have pmac_nvram around, as this cleans up the code nicely in some places and allows the PPC-specific nvram driver to be a module.
-
-Tomas Szepe <szepe@pinerecords.com>:
-  o [SPARC]: Move BTFIXUP-able code from inlined routines to the main kernel image
-
-Trond Myklebust <trond.myklebust@fys.uio.no>:
-  o Remove unbalanced kunmap() in NFS readdir code
-
-
-
+diff -Nru a/fs/ext2/super.c b/fs/ext2/super.c
+--- a/fs/ext2/super.c	Tue Oct 29 09:54:31 2002
++++ b/fs/ext2/super.c	Tue Oct 29 09:54:31 2002
+@@ -476,12 +476,29 @@
+ 	return res;
+ }
+ 
++static unsigned long descriptor_loc(struct super_block *sb,
++				    unsigned long logic_sb_block,
++				    int nr)
++{
++	struct ext2_sb_info *sbi = EXT2_SB(sb);
++	unsigned long bg, first_data_block, first_meta_bg;
++	
++	first_data_block = le32_to_cpu(sbi->s_es->s_first_data_block);
++	first_meta_bg = le32_to_cpu(sbi->s_es->s_first_meta_bg);
++
++	if (!EXT2_HAS_INCOMPAT_FEATURE(sb, EXT2_FEATURE_INCOMPAT_META_BG) ||
++	    nr < first_meta_bg)
++		return (logic_sb_block + nr + 1);
++	bg = sbi->s_desc_per_block * nr;
++	return (first_data_block + 1 + (bg * sbi->s_blocks_per_group));
++}
++
+ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
+ {
+ 	struct buffer_head * bh;
+ 	struct ext2_sb_info * sbi;
+ 	struct ext2_super_block * es;
+-	unsigned long sb_block = 1;
++	unsigned long block, sb_block = 1;
+ 	unsigned long logic_sb_block = get_sb_block(&data);
+ 	unsigned long offset = 0;
+ 	unsigned long def_mount_opts;
+@@ -689,7 +706,8 @@
+ 		goto failed_mount;
+ 	}
+ 	for (i = 0; i < db_count; i++) {
+-		sbi->s_group_desc[i] = sb_bread(sb, logic_sb_block + i + 1);
++		block = descriptor_loc(sb, logic_sb_block, i);
++		sbi->s_group_desc[i] = sb_bread(sb, block);
+ 		if (!sbi->s_group_desc[i]) {
+ 			for (j = 0; j < i; j++)
+ 				brelse (sbi->s_group_desc[j]);
+diff -Nru a/fs/ext3/super.c b/fs/ext3/super.c
+--- a/fs/ext3/super.c	Tue Oct 29 09:54:31 2002
++++ b/fs/ext3/super.c	Tue Oct 29 09:54:31 2002
+@@ -929,6 +929,23 @@
+ 	return res;
+ }
+ 
++static unsigned long descriptor_loc(struct super_block *sb,
++				    unsigned long logic_sb_block,
++				    int nr)
++{
++	struct ext3_sb_info *sbi = EXT3_SB(sb);
++	unsigned long bg, first_data_block, first_meta_bg;
++	
++	first_data_block = le32_to_cpu(sbi->s_es->s_first_data_block);
++	first_meta_bg = le32_to_cpu(sbi->s_es->s_first_meta_bg);
++
++	if (!EXT3_HAS_INCOMPAT_FEATURE(sb, EXT3_FEATURE_INCOMPAT_META_BG) ||
++	    nr < first_meta_bg)
++		return (logic_sb_block + nr + 1);
++	bg = sbi->s_desc_per_block * nr;
++	return (first_data_block + 1 + (bg * sbi->s_blocks_per_group));
++}
++
+ 
+ static int ext3_fill_super (struct super_block *sb, void *data, int silent)
+ {
+@@ -936,7 +953,7 @@
+ 	struct ext3_super_block *es = 0;
+ 	struct ext3_sb_info *sbi;
+ 	unsigned long sb_block = get_sb_block(&data);
+-	unsigned long logic_sb_block = 1;
++	unsigned long block, logic_sb_block = 1;
+ 	unsigned long offset = 0;
+ 	unsigned long journal_inum = 0;
+ 	unsigned long def_mount_opts;
+@@ -1161,7 +1178,8 @@
+ 		goto failed_mount;
+ 	}
+ 	for (i = 0; i < db_count; i++) {
+-		sbi->s_group_desc[i] = sb_bread(sb, logic_sb_block + i + 1);
++		block = descriptor_loc(sb, logic_sb_block, i);
++		sbi->s_group_desc[i] = sb_bread(sb, block);
+ 		if (!sbi->s_group_desc[i]) {
+ 			printk (KERN_ERR "EXT3-fs: "
+ 				"can't read group descriptor %d\n", i);
+diff -Nru a/include/linux/ext2_fs.h b/include/linux/ext2_fs.h
+--- a/include/linux/ext2_fs.h	Tue Oct 29 09:54:31 2002
++++ b/include/linux/ext2_fs.h	Tue Oct 29 09:54:31 2002
+@@ -422,7 +422,8 @@
+ 	__u8	s_reserved_char_pad;
+ 	__u16	s_reserved_word_pad;
+ 	__u32	s_default_mount_opts;
+-	__u32	s_reserved[191];	/* Padding to the end of the block */
++ 	__u32	s_first_meta_bg; 	/* First metablock block group */
++	__u32	s_reserved[190];	/* Padding to the end of the block */
+ };
+ 
+ /*
+@@ -485,10 +486,12 @@
+ #define EXT2_FEATURE_INCOMPAT_FILETYPE		0x0002
+ #define EXT3_FEATURE_INCOMPAT_RECOVER		0x0004
+ #define EXT3_FEATURE_INCOMPAT_JOURNAL_DEV	0x0008
++#define EXT2_FEATURE_INCOMPAT_META_BG		0x0010
+ #define EXT2_FEATURE_INCOMPAT_ANY		0xffffffff
+ 
+ #define EXT2_FEATURE_COMPAT_SUPP	0
+-#define EXT2_FEATURE_INCOMPAT_SUPP	EXT2_FEATURE_INCOMPAT_FILETYPE
++#define EXT2_FEATURE_INCOMPAT_SUPP	(EXT2_FEATURE_INCOMPAT_FILETYPE| \
++					 EXT2_FEATURE_INCOMPAT_META_BG)
+ #define EXT2_FEATURE_RO_COMPAT_SUPP	(EXT2_FEATURE_RO_COMPAT_SPARSE_SUPER| \
+ 					 EXT2_FEATURE_RO_COMPAT_LARGE_FILE| \
+ 					 EXT2_FEATURE_RO_COMPAT_BTREE_DIR)
+diff -Nru a/include/linux/ext3_fs.h b/include/linux/ext3_fs.h
+--- a/include/linux/ext3_fs.h	Tue Oct 29 09:54:31 2002
++++ b/include/linux/ext3_fs.h	Tue Oct 29 09:54:31 2002
+@@ -450,7 +450,8 @@
+ 	__u8	s_reserved_char_pad;
+ 	__u16	s_reserved_word_pad;
+ 	__u32	s_default_mount_opts;
+-	__u32	s_reserved[191];	/* Padding to the end of the block */
++	__u32	s_first_meta_bg; 	/* First metablock block group */
++	__u32	s_reserved[190];	/* Padding to the end of the block */
+ };
+ 
+ #ifdef __KERNEL__
+@@ -529,8 +530,11 @@
+ #define EXT3_FEATURE_INCOMPAT_FILETYPE		0x0002
+ #define EXT3_FEATURE_INCOMPAT_RECOVER		0x0004 /* Needs recovery */
+ #define EXT3_FEATURE_INCOMPAT_JOURNAL_DEV	0x0008 /* Journal device */
++#define EXT3_FEATURE_INCOMPAT_META_BG		0x0010
+ 
+ #define EXT3_FEATURE_COMPAT_SUPP	0
++#define EXT2_FEATURE_INCOMPAT_SUPP	(EXT2_FEATURE_INCOMPAT_FILETYPE| \
++					 EXT2_FEATURE_INCOMPAT_META_BG)
+ #define EXT3_FEATURE_INCOMPAT_SUPP	(EXT3_FEATURE_INCOMPAT_FILETYPE| \
+ 					 EXT3_FEATURE_INCOMPAT_RECOVER)
+ #define EXT3_FEATURE_RO_COMPAT_SUPP	(EXT3_FEATURE_RO_COMPAT_SPARSE_SUPER| \

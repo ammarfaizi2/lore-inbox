@@ -1,84 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281416AbRLOBjc>; Fri, 14 Dec 2001 20:39:32 -0500
+	id <S281707AbRLOCLR>; Fri, 14 Dec 2001 21:11:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281504AbRLOBjW>; Fri, 14 Dec 2001 20:39:22 -0500
-Received: from chmls20.mediaone.net ([24.147.1.156]:32953 "EHLO
-	chmls20.mediaone.net") by vger.kernel.org with ESMTP
-	id <S281416AbRLOBjJ>; Fri, 14 Dec 2001 20:39:09 -0500
-Subject: Re: Problems downgrading from Kernel 2.4.8 to 2.2.20
-From: jlm <jsado@mediaone.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011214235044.GB29591@emma1.emma.line.org>
-In-Reply-To: <1008372849.273.8.camel@PC2> 
-	<20011214235044.GB29591@emma1.emma.line.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 14 Dec 2001 20:42:26 -0500
-Message-Id: <1008380546.176.0.camel@PC2>
-Mime-Version: 1.0
+	id <S281717AbRLOCLI>; Fri, 14 Dec 2001 21:11:08 -0500
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:28867 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S281707AbRLOCK6>; Fri, 14 Dec 2001 21:10:58 -0500
+Message-ID: <C8C7DD4157F2D411AC7000A0C96B1522016C37D8@fmsmsx58.fm.intel.com>
+From: "Sottek, Matthew J" <matthew.j.sottek@intel.com>
+To: "'Benjamin LaHaise'" <bcrl@redhat.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: zap_page_range in a module
+Date: Fri, 14 Dec 2001 18:10:52 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-12-14 at 18:50, Matthias Andree wrote:
-> On Fri, 14 Dec 2001, jlm wrote:
-> 
-> > I am trying to downgrade, to see if an issue with the 2.4.x series
-> > kernel is also present in the 2.2.x series. I have successfully
-> > downloaded, compiled and installed a 2.2.20 kernel and added the
-> > necessary lines to lilo in order to have it as an option and to boot
-> > into the same root partition as the 2.4.8 uses.
-> > 
-> > I am getting an error when I boot up 2.2.20. Right after the partition
-> > check it says this:
-> > Invalid session number or type of track
-> 
-> Now that looks strange. Show some context around this line.
-I've copied pretty much every thing that I could:
+>On Fri, Dec 14, 2001 at 01:26:29PM -0800, Sottek, Matthew J wrote:
+>> currently can only work when compiled into the kernel because I need 
+>> zap_page_rage(). Is there an acceptable way for me to get equivalent
+>> functionality in a module so that this will be more useful to the
+>> general public?
 
-hda: Maxtor 5T030h3, ATA DISK drive
-hdb: ST320413A, ATA DISK drive
-hdc: QUANTUM FIREBALL SE2.1A, ATA DISK drive
-hdd: FX240S, ATAPI CDROM drive
-ide0 at 0x1f0-0x1f7, 0x3f6 on irq 14
-ide1 at 0x170-px177, 0x376 on irq 15
-hda: Maxtor 5T030h3, 29311MB w/2048kB Cache, CHS=59554/16/63
-hdb: ST320413A, 19092MB w/512kB Cache, CHS=38792/16/63, (U)DMA
-hdc: QUANTUM FIREBALL SE2.1A, 2014MB w/80kB Cache, CHS=4092/16/63,
-(U)DMA
-hdd: ATAPI 24x CD-ROM drive, 256kB Cache
-Uniform CD-ROM driver Revision: 3.11
-Floppy drive(s): fd0 is 1.44M
-FDC0 is a post-1991 82077
-tulip.c:v0.91g-ppc 7/16/99 becker@cesdis.gsfc.nasa.gov
-eth0: ADMtek Centaur-P rev17 at 0xe400, 00:60:08:ED:34:1A, IRQ 5.
-partitoin check:
-hda: hda1 hda2 hda3 hda4 < hda5 hda6 hda7 >
-hdb: hdb1 hdb2 hdb3
-hdc: [PTBL] [1023/64/63] hdc1 hdc2
-Invalid session # or type of track
-hda: lost interrupt
-hda: lost interrupt
-hda: lost interrupt
-...
+>The vm does zap_page_range for you if you're implementing an
+>mmap operation, 
 
-Compairing with dmesg from the current 2.4.16 kernel (I was using 2.4.8)
-shows most lines to be nearly identical to what I've got written above.
-Particularly, the partition check is exact, and so are the CHS values
-for each of the drives. Possibly of note is that the eth0 address listed
-in dmesg is 0xf0800000, not the 0xe400 shown above. The rest of the
-differences are mostly driver revision numbers and reformatting of
-lines.
-> 
-> > hda: lost interrupt
-> 
-> That looks stranger. I'd suggest to try Andre's IDE patch from any
-> kernel.org mirror, /pub/linux/kernel/people/hedrick, but it seems
-> there's no 2.2.20 ide patch yet.
+It only does zap_page_range() when the memory map is being
+removed right?
 
--- 
-MACINTOSH = Machine Always Crashes If Not The Operating System Hangs
-"Life would be so much easier if we could just look at the source code."
-- Dave Olson
+>otherwise vmalloc/vfree/vremap will take care of the details for
+>you.  How is your code using zap_page_range?  It really shouldn't be.
+
+I will try to explain in it again in another way.
+
+I have a 64k sliding "window" into a 1MB region. You can only access
+64k at a time then you have to switch the "bank" to access the next
+64k. Address 0xa0000-0xaffff is the 64k window. The actual 1MB of
+memory is above the top of memory and not directly addressable by the
+CPU, you have to go through the banks.
+
+My driver implements the mmap file operation and does NOT do a
+remap_page_range(). I also install a zero_page fault handler.
+
+The client application then memory maps a 1MB region on the device
+file. When the client tries to access the first page, my fault
+handler is called and I remap_page_range() the 64k window
+and set the hardware such that the first 64k of memory is what
+can be viewed through the window.
+
+When the client gets to 64k + 1 my fault handler is triggered again.
+At this time I change the window to view the second 64k and do
+another remap_page_range() of the window to the second 64k in the
+vma.  HERE is the problem. I need to get rid of the area so that
+when the client reads from the first page my fault handler is
+triggered again. zap_page_range() works, but only from within the
+kernel.
+
+This seems like something that would have lots of uses, so I assume
+there is a way to do it that I just haven't discovered.
+Is there no driver doing something like this to give mutual exclusion
+to a memory mapped resource?
+
+-Matt
 

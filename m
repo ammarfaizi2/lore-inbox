@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129610AbRAAW7Y>; Mon, 1 Jan 2001 17:59:24 -0500
+	id <S129913AbRAAW7p>; Mon, 1 Jan 2001 17:59:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129913AbRAAW7O>; Mon, 1 Jan 2001 17:59:14 -0500
-Received: from online.indstate.edu ([139.102.15.42]:44715 "EHLO
-	online.indstate.edu") by vger.kernel.org with ESMTP
-	id <S129610AbRAAW7C>; Mon, 1 Jan 2001 17:59:02 -0500
-From: "Rich Baum" <baumr1@coral.indstate.edu>
-To: Andreas Franck <afranck@gmx.de>, Linus Torvalds <torvalds@transmeta.com>,
-        Mike Galbraith <mikeg@wen-online.de>, linux-kernel@vger.kernel.org
-Date: Mon, 1 Jan 2001 17:28:11 -0500
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [revisited] Oops on boot with 2.4.0testX and GCC snapshots
-Reply-to: richbaum@acm.org
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Mike Galbraith <mikeg@wen-online.de>
-Message-ID: <3A50BE2B.11580.104406@localhost>
-In-Reply-To: <01010119004100.01545@dg1kfa.ampr.org>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+	id <S131358AbRAAW7Z>; Mon, 1 Jan 2001 17:59:25 -0500
+Received: from db0bm.automation.fh-aachen.de ([193.175.144.197]:40709 "EHLO
+	db0bm.ampr.org") by vger.kernel.org with ESMTP id <S129853AbRAAW7P>;
+	Mon, 1 Jan 2001 17:59:15 -0500
+Date: Mon, 1 Jan 2001 23:28:38 +0100
+From: f5ibh <f5ibh@db0bm.ampr.org>
+Message-Id: <200101012228.XAA03423@db0bm.ampr.org>
+To: grobh@sun.ac.za
+Subject: Re: 2.4.0-prerelease, AX25 problems
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1 Jan 2001, at 19:00, Andreas Franck wrote:
 
-> Hello together,
-> 
-> after all the new year's celebrations, I have today taken the time to create 
-> a small patch, based on Linus' idea, that will fix this problem in the 
-> kernel, _without_ pessimizing any code or breaking with earlier compilers.
-> 
-> 2.4.0-prerelease is now running here for an hour compiled completely with 
-> gcc-snapshot-2.97-20001222, without any noticed problems (so far).
-> 
-> Perhaps this could be included in the kernel to enable people to look for the 
-> real caveats when compiling everything on the bleeding edge, or should we 
-> wait for the GCC maintainers' call - I haven't had any reaction on my bug 
-> report yet.
-> 
-> Along with it is a small fix for a typo in fs/umsdos/mangle.c, which was 
-> detected by GCC's new preprocessor (#elseif instead of #else).
-> 
-> Greetings and a happy new year to everyone,
-> Andreas
-> 
-> -- 
-> ->>>----------------------- Andreas Franck --------<<<-
-> ---<<<---- Andreas.Franck@post.rwth-aachen.de --->>>---
-> ->>>---- Keep smiling! ----------------------------<<<-
-> 
+Hi Hans,
 
-Thanks, this patch works for me.  I'm using gcc-2.97-20001225.
+You wrote :
+> Is the "previous test version" you talk about 2.4.0-test13-pre7?  There
+> weren't any changes since then that could explain this, except maybe:
+Yes, I mean test13-pre[12134567] and other older versions too.
+I've already had the problem some time ago with an older 2.4.0-testxx kernel.
+I don't think it is directly related to the ax25 stuff but maybe (?) a timer
+modified elsewhere ?
+
+> Gnu C                  2.95.2
+Possible too. These compilers problems (which one for which kernel) are a bit
+boring...  Anyway, I've downloaded the correct version of the compiler and
+retried the operation.
+
+[root@debian-f5ibh] ~ # gcc -v
+Reading specs from /usr/lib/gcc-lib/i586-pc-linux-gnu/egcs-2.91.66/specs
+gcc version egcs-2.91.66 19990314 (egcs-1.1.2 release)
+
+The result is the same than with the other compiler.
+
+-----
+Best wishes for 2001 for you and your family
+
+		Jean-Luc
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

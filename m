@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262414AbSLOTuv>; Sun, 15 Dec 2002 14:50:51 -0500
+	id <S262415AbSLOT4G>; Sun, 15 Dec 2002 14:56:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262415AbSLOTuv>; Sun, 15 Dec 2002 14:50:51 -0500
-Received: from ping.ovh.net ([213.186.33.13]:29709 "EHLO ping.ovh.net")
-	by vger.kernel.org with ESMTP id <S262414AbSLOTuv>;
-	Sun, 15 Dec 2002 14:50:51 -0500
-Date: Sun, 15 Dec 2002 20:59:05 +0100
-From: Octave <oles@ovh.net>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, ext3-users@redhat.com
-Subject: Re: problem with Andrew's patch ext3
-Message-ID: <20021215195905.GD7127@ovh.net>
-References: <20021215144050.GY12395@ovh.net> <3DFCC815.3C0010F2@digeo.com> <20021215182645.GS23211@ovh.net> <3DFCCB1D.53D841B@digeo.com>
-Mime-Version: 1.0
+	id <S262418AbSLOT4G>; Sun, 15 Dec 2002 14:56:06 -0500
+Received: from magic.adaptec.com ([208.236.45.80]:26857 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP
+	id <S262415AbSLOT4F>; Sun, 15 Dec 2002 14:56:05 -0500
+Date: Sun, 15 Dec 2002 13:01:45 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Keith Owens <kaos@ocs.com.au>, Kevin Easton <kevin@sylandro.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20 st + aic7xxx (Adaptec 19160B) + VIA KT333 repeatable
+ freeze 
+Message-ID: <17460000.1039982505@aslan.btc.adaptec.com>
+In-Reply-To: <1047.1039952560@ocs3.intra.ocs.com.au>
+References: <1047.1039952560@ocs3.intra.ocs.com.au>
+X-Mailer: Mulberry/3.0.0b9 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3DFCCB1D.53D841B@digeo.com>
-User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The patch is at
-> http://www.zip.com.au/~akpm/linux/patches/2.4/2.4.20/sync_fs.patch
-> could you ensure that it was applied successfully?
+> On Fri, 13 Dec 2002 11:51:27 +1100, 
+> Kevin Easton <kevin@sylandro.com> wrote:
+>> I'm not sure exactly where this problem fits in, but I'm getting a 
+>> completely repeatable freeze (100% lockup, no response to keyboard)
+>> triggered by writing to /dev/st0 (dd if=/dev/urandom of=/dev/st0 bs=512
+>> count=163840 will reproduce it).
+>> So... does anyone have any ideas how I should start trying to track this
+>> down?
 
-it works with this patch. I think it is on my side (since I did not
-find out the patch, I patched "handly" from lwn.net).
+You might also look into your BIOS to ensure that the option "PCI Byte
+Merging" is disabled.  This option allows the chipset to perform illegal
+byte merging on the PCI bus that will upset the Adaptec.  Since the byte
+merging will only occur in certain scenarios (heavily dependent on what
+is going on with the SCSI bus), you may only see the lockup when accessing
+a particular device or running a certain program.
 
-sorry for this noise
+The latest versions of the aic7xxx and aic79xx drivers will automatically
+detect this broken VIA behavior and will fall back to using PIO for register
+access.  Although I haven't generated patches against 2.4.20, you can pull
+down a src tarball for 2.4.X that should just drop in:
 
-regards
-Octave
+http://~people.FreeBSD.org/~gibbs/linux/SRC/
+
+--
+Justin
 

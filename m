@@ -1,64 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312331AbSDSOgC>; Fri, 19 Apr 2002 10:36:02 -0400
+	id <S312444AbSDSOhA>; Fri, 19 Apr 2002 10:37:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312497AbSDSOgB>; Fri, 19 Apr 2002 10:36:01 -0400
-Received: from ns.suse.de ([213.95.15.193]:19469 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S312331AbSDSOgA>;
-	Fri, 19 Apr 2002 10:36:00 -0400
-Date: Fri, 19 Apr 2002 16:35:59 +0200
-From: Dave Jones <davej@suse.de>
-To: Anton Altaparmakov <aia21@cantab.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.9 patch] Fix bluesmoke/mce compiler warnings.
-Message-ID: <20020419163558.G15517@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Anton Altaparmakov <aia21@cantab.net>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16yVSw-0001Iv-00@storm.christs.cam.ac.uk> <E16yVSw-0001Iv-00@storm.christs.cam.ac.uk> <20020419150048.E15517@suse.de> <5.1.0.14.2.20020419150509.00a8c580@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S312453AbSDSOg7>; Fri, 19 Apr 2002 10:36:59 -0400
+Received: from firewall.unidec.co.uk ([195.166.19.2]:29751 "EHLO
+	firewall.unidec.co.uk") by vger.kernel.org with ESMTP
+	id <S312444AbSDSOg5>; Fri, 19 Apr 2002 10:36:57 -0400
+Message-Id: <200204191436.g3JEatQ15117@frumious.unidec.co.uk>
+Content-Type: text/plain; charset=US-ASCII
+From: dr john halewood <john@frumious.unidec.co.uk>
+Organization: unidentified sloths
+To: root@chaos.analogic.com, "Dr. Death" <drd@homeworld.ath.cx>
+Subject: Re: A CD with errors (scratches etc.) blocks the whole system while reading damadged files
+Date: Fri, 19 Apr 2002 15:36:55 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.95.1020419100917.724A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 19, 2002 at 03:16:32PM +0100, Anton Altaparmakov wrote:
+On Friday 19 April 2002 3:14 pm, Richard B. Johnson wrote:
+> So what do you suggest? You can see from the logs that the device
+> is having difficulty  reading your damaged CD. You can do what
+> Windows-95 does (ignore the errors and pretend everything is fine),
+> or what Windows-98 and Windows-2000/Prof does (blue-screen, and re-boot),
+> or you can try like hell to read the files like Linux does. What do you
+> suggest?
+>
+Don't put them in an Xbox in the first place? (see 
+http://www.newscientist.com/news/news.jsp?id=ns99992000)
 
- > If gcc optimizes the "cpu" into a register then fine but if not, it would 
- > be IMHO preferable to use this instead:
- > 
- >          BUG_ON(*(unsigned int *)info != smp_processor_id());
-
-I favoured simplicity over optimisation here, as it's not a speed critical path.
-
- > >(This contains some other bits too that I intend to push to Linus after
- > >  a pre1 appears)
- > Why not push now considering 2.5.9 isn't out yet?
-
-I've not pulled Linus' bk tree, but have noticed from the changelogs
-that some changes went in already touching this file.
-
- > Considering the current bitkeeper tree on bkbits does not compile on ia32 
- > UP at all by any close margin, the more fixes that go in now the better...
-
-Erk.
-
- > Releasing 2.5.9 in current state would not be too useful for people like me 
- > who experience the ide problems...
-
-Agreed. I assumed the Linus just didn't add the "pre1" part to EXTRAVERSION
-yet but, given that 2.5.8 doesn't compile for a lot of people, I can see
-why pushing 2.5.9 out sooner would be a good thing.
-
-I've been busy with x86-64 bits and other projects the last few days, I'll
-continue pushing more bits from my tree (including the bluesmoke bits) to
-Linus over the weekend.
-
-    Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+cheers
+john

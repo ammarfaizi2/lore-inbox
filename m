@@ -1,79 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313887AbSDQUC2>; Wed, 17 Apr 2002 16:02:28 -0400
+	id <S313384AbSDQUFd>; Wed, 17 Apr 2002 16:05:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314108AbSDQUC1>; Wed, 17 Apr 2002 16:02:27 -0400
-Received: from mail.mtroyal.ab.ca ([142.109.10.24]:22801 "EHLO
-	mail.mtroyal.ab.ca") by vger.kernel.org with ESMTP
-	id <S313887AbSDQUCZ>; Wed, 17 Apr 2002 16:02:25 -0400
-Date: Wed, 17 Apr 2002 14:02:05 -0600 (MDT)
-From: James Bourne <jbourne@MtRoyal.AB.CA>
-Subject: Re: SMP P4 APIC/interrupt balancing
-In-Reply-To: <Pine.LNX.4.44.0204171907180.5540-100000@elte.hu>
-To: Ingo Molnar <mingo@elte.hu>
+	id <S313668AbSDQUFc>; Wed, 17 Apr 2002 16:05:32 -0400
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:47129 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S313384AbSDQUFb>; Wed, 17 Apr 2002 16:05:31 -0400
+Message-Id: <5.1.0.14.2.20020417210154.00adde30@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 17 Apr 2002 21:05:21 +0100
+To: John Covici <covici@ccs.covici.com>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: 2.5.8 nbd.c doesn't compile
 Cc: linux-kernel@vger.kernel.org
-Message-id: <Pine.LNX.4.44.0204171358380.21779-100000@skuld.mtroyal.ab.ca>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+In-Reply-To: <m33cxuw23g.fsf@ccs.covici.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Apr 2002, Ingo Molnar wrote:
+Compilation is already fixed in the current bitkeeper tree 
+(linux.bkbits.net/linux-2.5). so you can either get that or you can apply 
+the patch I posted this morning fixing this problem.
 
-> 
-> On Wed, 17 Apr 2002, James Bourne wrote:
-> 
-> > Where would I find this separate patch?  Is there something I could do
-> > some testing on?
-> 
-> the timer irq inbalance problem should be solved by the attached patch.
+You can find the patch in the archives:
 
-Thanks Ingo,
-That has balanced the timer irqs.  I've also enabled hyper threading
-(append="acpismp=force").
+http://marc.theaimsgroup.com/?l=linux-kernel&m=101897350106638&w=2
 
-Here's the output from /proc/interrupts:
-brynhild:bash$ cat /proc/interrupts 
-           CPU0       CPU1       CPU2       CPU3       
-  0:       3033       2911       2871       2880    IO-APIC-edge  timer
-  1:          1          0          2          0    IO-APIC-edge  keyboard
-  2:          0          0          0          0          XT-PIC  cascade
-  8:          1          0          0          0    IO-APIC-edge  rtc
- 18:          5          3          3          4   IO-APIC-level  aic7xxx
- 19:        480        421        412        529   IO-APIC-level  eth0
- 20:          5          3          4          4   IO-APIC-level  aic7xxx
- 21:          5          3          4          4   IO-APIC-level  aic7xxx
- 27:        588       1010        654        943   IO-APIC-level  megaraid
-NMI:          0          0          0          0 
-LOC:      11530      11528      11528      11466 
-ERR:          0
-MIS:          0
+Note patch compiles but is otherwise untested.
 
-And, you've gotta like this line:
-Total of 4 processors activated (14299.95 BogoMIPS).
+Best regards,
 
-I'm going to do some testing on it to check it's stability.
-I'll let you know the results.
+Anton
 
-Thanks again and regards,
-James
-
-> 
-> 	Ingo
-> 
+At 20:34 17/04/02, John Covici wrote:
+>When I try to compile 2.5.8 with nbd as a module, I get lots of error
+>saying structure has no member queue_lock .
+>
+>Any assistance would be appreciated.
+>
+>--
+>          John Covici
+>          covici@ccs.covici.com
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-James Bourne, Supervisor Data Centre Operations
-Mount Royal College, Calgary, AB, CA
-www.mtroyal.ab.ca
-
-******************************************************************************
-This communication is intended for the use of the recipient to which it is
-addressed, and may contain confidential, personal, and or privileged
-information. Please contact the sender immediately if you are not the
-intended recipient of this communication, and do not copy, distribute, or
-take action relying on it. Any communication received in error, or
-subsequent reply, should be deleted or destroyed.
-******************************************************************************
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

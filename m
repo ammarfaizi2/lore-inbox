@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262246AbVAIEIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262243AbVAIELM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262246AbVAIEIr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 23:08:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262243AbVAIEIr
+	id S262243AbVAIELM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 23:11:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbVAIELL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 23:08:47 -0500
-Received: from pat.uio.no ([129.240.130.16]:57293 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262246AbVAIEIk (ORCPT
+	Sat, 8 Jan 2005 23:11:11 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:46983 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262243AbVAIEKv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 23:08:40 -0500
-Subject: Re: [RFC] 2.4 and stack reduction patches
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1105145706.4000.123.camel@dyn318077bld.beaverton.ibm.com>
-References: <1105112886.4000.87.camel@dyn318077bld.beaverton.ibm.com>
-	 <20050107141224.GF29176@logos.cnet>
-	 <1105134173.4000.105.camel@dyn318077bld.beaverton.ibm.com>
-	 <1105137646.10979.155.camel@lade.trondhjem.org>
-	 <1105145706.4000.123.camel@dyn318077bld.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Sat, 08 Jan 2005 23:08:15 -0500
-Message-Id: <1105243695.17456.0.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
+	Sat, 8 Jan 2005 23:10:51 -0500
+Message-Id: <200501090344.j093irLf027560@laptop11.inf.utfsm.cl>
+To: Jon Smirl <jonsmirl@gmail.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: kernel versions on Linus bk tree 
+In-Reply-To: Message from Jon Smirl <jonsmirl@gmail.com> 
+   of "Sat, 08 Jan 2005 13:23:20 CDT." <9e473391050108102355c9a714@mail.gmail.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Sun, 09 Jan 2005 00:44:52 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.4 (inti.inf.utfsm.cl [200.1.21.155]); Sun, 09 Jan 2005 01:10:46 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fr den 07.01.2005 Klokka 16:55 (-0800) skreiv Badari Pulavarty:
-> On Fri, 2005-01-07 at 14:40, Trond Myklebust wrote:
-> 
-> > 
-> > You're better off using rpc_new_task() in rpc_call_sync(): no kfree()
-> > required, and no rpc_init_task() required.
-> > 
-> 
-> Hmm.. I am trying to do this. Just wanted to double check.
-> 
-> If I don't do kfree(), its gets automatically freed up thro
-> rpc_release_task() correct ?
+Jon Smirl <jonsmirl@gmail.com> said:
+> I just came across a problem with the way the kernel is being
+> versioned. The DRM driver needs an IFDEF for the four level page table
+> change depending on kernel version built against. I used this:
+> #if LINUX_VERSION_CODE < 0x02060a
 
-Yes.
+Wait for 2.6.11 then. It is the price you pay for fooling around with
+kernels in between versions.
 
+If you are experimenting, you know what you are working with, so what is
+the problem?
 -- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
-
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

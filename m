@@ -1,63 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262544AbSJBSkh>; Wed, 2 Oct 2002 14:40:37 -0400
+	id <S262670AbSJBSzH>; Wed, 2 Oct 2002 14:55:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262554AbSJBSkh>; Wed, 2 Oct 2002 14:40:37 -0400
-Received: from inje.iskon.hr ([213.191.128.16]:48614 "EHLO inje.iskon.hr")
-	by vger.kernel.org with ESMTP id <S262544AbSJBSkf>;
-	Wed, 2 Oct 2002 14:40:35 -0400
-To: Alessandro Suardi <alessandro.suardi@oracle.com>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: Shared memory shmat/dt not working well in 2.5.x
-References: <Pine.LNX.4.44.0210011401360.991-100000@localhost.localdomain>
-	<3D99A2F2.70102@oracle.com> <dnelbaclvo.fsf@magla.zg.iskon.hr>
-	<3D99B672.2090805@oracle.com>
-Reply-To: zlatko.calusic@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Date: Wed, 02 Oct 2002 20:45:54 +0200
-In-Reply-To: <3D99B672.2090805@oracle.com> (Alessandro Suardi's message of
- "Tue, 01 Oct 2002 16:51:30 +0200")
-Message-ID: <874rc4fzml.fsf@atlas.iskon.hr>
-User-Agent: Gnus/5.090007 (Oort Gnus v0.07) XEmacs/21.4 (Honest Recruiter,
- i386-debian-linux)
-MIME-Version: 1.0
+	id <S262669AbSJBSzH>; Wed, 2 Oct 2002 14:55:07 -0400
+Received: from adsl-157-199-164.dab.bellsouth.net ([66.157.199.164]:22708 "EHLO
+	midgaard.us") by vger.kernel.org with ESMTP id <S262668AbSJBSzE>;
+	Wed, 2 Oct 2002 14:55:04 -0400
+Date: Wed, 2 Oct 2002 14:44:37 -0400
+From: Andreas Boman <aboman@nerdfest.org>
+To: Mike Anderson <andmike@us.ibm.com>
+Cc: akpm@digeo.com, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       dougg@gear.torque.net
+Subject: Re: 2.4.39 "Sleeping function called from illegal context at slab.c:1374"
+Message-ID: <20021002184437.GA17474@midgaard.us>
+Mail-Followup-To: Mike Anderson <andmike@us.ibm.com>, akpm@digeo.com,
+	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+	dougg@gear.torque.net
+References: <3D99885B.533C320D@aitel.hist.no> <3D99EF62.3A3E6932@digeo.com> <20021001215907.GA8273@midgaard.us> <3D9A207A.14BFF440@digeo.com> <20021002162443.GA1317@beaverton.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021002162443.GA1317@beaverton.ibm.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alessandro Suardi <alessandro.suardi@oracle.com> writes:
-> The more complicated bug you're talking about is the exec_mmap
->   change introduced in 2.5.19 and fixed a handful of versions
->   later, possibly .28, where PMON wouldn't start after 120"...
->   I guess :)
+* Mike Anderson (andmike@us.ibm.com) wrote:
+> Andrew Morton [akpm@digeo.com] wrote:
+> > That is known - sg_init() is blatantly calling vmalloc under
+> > write_lock_irqsave().
+> 
+> I had not already seen a patch for this.
+> 
+> During Douglas Gilbert's time-off he connects when he can so it maybe a
+> bit until he can address this. 
+> 
+> In the interim a quick patch below should fix the problem, and still
+> provide for safe additions.
+> 
+> I have done just minor testing on 2.5.40 using the sg_utils.
 
-Oh, well, if that one is really fixed, then I have another one. ;)
+This seems to have fixed that particular warning, and got me a new one:
 
-After some time up, few select & few inserts, Oracle decided to die
-(2.5.40 + Hugh's patch, SMP, Oracle 9.0.1.4 - works flawlessly on
-2.4.19). I have a full coredump, but I don't know what to do with it
-(if somebody wants it, just say). It seems benchmarking will
-wait... :(
+ Debug: sleeping function called from illegal context at /usr/src/linux-2.5.40/include/asm/semaphore.h:119
+ debb7e38 debb7e5c c016f69b c0356860 00000077 df354680 e0907020 e0907028 
+        e0907020 debb7e78 c0241e06 e09070bc dfd563c8 e0907020 e0907028 debb6000 
+        debb7e94 c0240348 e0907020 c01f483f e0907020 00000000 00000000 debb7ee4 
+ Call Trace:
+  [driverfs_create_dir+75/240]driverfs_create_dir+0x4b/0xf0
+  [device_make_dir+70/144]device_make_dir+0x46/0x90
+  [device_register+184/368]device_register+0xb8/0x170
+  [sprintf+31/48]sprintf+0x1f/0x30
+  [<e08fe86a>]sg_attach+0x23a/0x450 [sg]
+  [<e09023ce>].rodata.str1.1+0x6a/0x2b0 [sg]
+  [<e0902387>].rodata.str1.1+0x23/0x2b0 [sg]
+  [<e0903ca0>]sg_fops+0x0/0x58 [sg]
+  [<e0903be0>]sg_template+0x0/0x94 [sg]
+  [scsi_register_device+269/336]scsi_register_device+0x10d/0x150
+  [<e08fecd3>]init_sg+0x23/0x60 [sg]
+  [<e0903be0>]sg_template+0x0/0x94 [sg]
+  [sys_init_module+1311/1648]sys_init_module+0x51f/0x670
+  [<e08fc060>]E __insmod_sg_O/lib/modules/2.5.40anb4/kernel/drivers/scsi/sg.o_M3D9B4C96_V132392+0x60/0x80 [sg]
+  [<e0902614>]__ksymtab+0x0/0x28 [sg]
+  [<e08fc060>]E __insmod_sg_O/lib/modules/2.5.40anb4/kernel/drivers/scsi/sg.o_M3D9B4C96_V132392+0x60/0x80 [sg]
+  [syscall_call+7/11]syscall_call+0x7/0xb
 
+modprobe cdrom and sr_mod follow without problems, but  then when i modprobe
+ide-scsi:
 
-*** 2002-10-02 20:15:27.634
-*** SESSION ID:(4.1) 2002-10-02 20:15:27.583
-BH (0x0x60fee288) file#: 1 rdba: 0x004000c7 (1/199) class 1 ba: 0x0x60c9a000
-  set: 3, dbwrid: 0
-  hash: [53509d88,53509d88], lru: [60fee370,60fee220]
-  LRU flags: 
-  ckptq: [NULL] fileq: [NULL]
-  st: XCURRENT, md: NULL, rsop: 0x(nil), tch: 1
-  L:[0x0.0.0] H:[0x0.0.0] R:[0x0.0.0]
-*** 2002-10-02 20:15:27.634
-ksedmp: internal or fatal error
-ORA-00600: Message 600 not found; No message file for product=RDBMS, facility=ORA; arguments: [kcbkllrba_2]
+ scsi1 : SCSI host adapter emulation for IDE ATAPI devices
+ scsi_eh_offline_sdevs: Device set offline - notready or command retry failedafter error recovery: host1 channel 0 id 0 lun 0
+   Vendor:           Model:                   Rev:     
+   Type:   Direct-Access                      ANSI SCSI revision: 00
+ hda: lost interrupt
+ ide-scsi: (IO,CoD) != (0,1) while issuing a packet command
+ hda: DMA disabled
+ hda: ATAPI reset complete
 
-...
+and the box is dead again.
 
--- 
-Zlatko

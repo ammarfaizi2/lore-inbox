@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281808AbRK0XJy>; Tue, 27 Nov 2001 18:09:54 -0500
+	id <S281810AbRK0XNE>; Tue, 27 Nov 2001 18:13:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282984AbRK0XJo>; Tue, 27 Nov 2001 18:09:44 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:42475 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S281808AbRK0XJ3>;
-	Tue, 27 Nov 2001 18:09:29 -0500
-Date: Wed, 28 Nov 2001 02:07:08 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Mike Kravetz <kravetz@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler Cleanup
-In-Reply-To: <20011126114610.B1141@w-mikek2.des.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.33.0111280145300.3429-100000@localhost.localdomain>
+	id <S282984AbRK0XMy>; Tue, 27 Nov 2001 18:12:54 -0500
+Received: from inet-mail4.oracle.com ([148.87.2.204]:8423 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S281810AbRK0XMh>; Tue, 27 Nov 2001 18:12:37 -0500
+Message-ID: <3C041E4B.CA4D7A8A@oracle.com>
+Date: Wed, 28 Nov 2001 00:14:19 +0100
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+Organization: Oracle Support Services
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.1-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Massimo Dal Zotto <dz@cs.unitn.it>
+CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org, alan@redhat.com,
+        marcelo@conectiva.com.br
+Subject: Re: [PATCH] latest version of i8k driver
+In-Reply-To: <200111261111.fAQBBUpG011037@dizzy.dz.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Massimo Dal Zotto wrote:
+> 
+> Hi,
+> 
+> here is the latest version of the i8k driver. I have changed the i8k_probe
+> again and now it loads cleanly on most Dell Inspiron and Latitude laptops.
+> I have also disabled by default the power status since this information is
+> already available from apm. The patch is against linux-2.4.15.
 
-On Mon, 26 Nov 2001, Mike Kravetz wrote:
+[snipped patch]
 
-> I'm happy to see the cleanup of scheduler code that went into
-> 2.4.15/16.  One small difference in behavior (I think) is that the
-> currently running task is not given preference over other tasks on the
-> runqueue with the same 'goodness' value.  I would think giving the
-> current task preference is a good thing (especially in light of recent
-> discussions about too frequent moving/rescheduling of tasks).  Can
-> someone provide the rational for this change?  Was it just the result
-> of making the code cleaner?  Is it believed that this won't really
-> make a difference?
+Confirmed that it loads cleanly on my Latitude CPx J750GT (no more need
+ to "force=1") and it still works. I actually tested it on 2.5.1-pre2.
 
-i've done this change as part of the sched_yield() fixes/cleanups, and the
-main reason for it is that the current process is preferred *anyway*, due
-to getting the +1 boost via current->mm == this_mm in goodness().
+--alessandro
 
-(and besides, the percentage/probability of cases where we'd fail reselect
-a runnable process where the previous scheduler would reselect it is very
-very low. It does not justify adding a branch to the scheduler hotpath
-IMO. In 99.9% of the cases if a runnable process is executing schedule()
-then there is a higher priority process around that will win the next
-selection. Or if there is a wakeup race, then the process will win the
-selection very likely because it won the previous selection.)
-
-	Ingo
-
+ "we live as we dream alone / to break the spell we mix with the others
+  we were not born in isolation / but sometimes it seems that way"
+     (R.E.M., live intro to 'World Leader Pretend')

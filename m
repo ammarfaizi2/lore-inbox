@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268049AbTAIXbp>; Thu, 9 Jan 2003 18:31:45 -0500
+	id <S268090AbTAIXRF>; Thu, 9 Jan 2003 18:17:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268055AbTAIXbp>; Thu, 9 Jan 2003 18:31:45 -0500
-Received: from oak.sktc.net ([208.46.69.4]:39841 "EHLO oak.sktc.net")
-	by vger.kernel.org with ESMTP id <S268049AbTAIXbn>;
-	Thu, 9 Jan 2003 18:31:43 -0500
-Message-ID: <3E1E0864.9020402@sktc.net>
-Date: Thu, 09 Jan 2003 17:40:20 -0600
-From: "David D. Hagood" <wowbagger@sktc.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021201
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: rms@gnu.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-References: <20030103040612.GA10651@work.bitmover.com> <20030104220651.GA30907@merlin.emma.line.org> <20030104222330.GA1386@work.bitmover.com> <E18VFaz-0008S0-00@fencepost.gnu.org> <20030105221345.GA31840@mark.mielke.cc> <E18Vao9-0002JZ-00@fencepost.gnu.org> <20030106173949.GA1712@gnuppy.monkey.org> <E18Vtxz-0002cB-00@fencepost.gnu.org> <20030107141758.GA10770@gnuppy.monkey.org> <E18WB8O-0004jy-00@fencepost.gnu.org> <20030108082615.A2271@hq.fsmlabs.com> <E18Wlrd-0000Po-00@fencepost.gnu.org>
-In-Reply-To: <E18Wlrd-0000Po-00@fencepost.gnu.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S268080AbTAIXQS>; Thu, 9 Jan 2003 18:16:18 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:7121 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S268065AbTAIXOe>;
+	Thu, 9 Jan 2003 18:14:34 -0500
+Date: Thu, 9 Jan 2003 18:23:11 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: UnitedLinux violating GPL?
+Message-ID: <20030109232311.GB6784@gtf.org>
+References: <20030109222748.GA3993@gtf.org> <20030109231959.GP2437@marowsky-bree.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030109231959.GP2437@marowsky-bree.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Stallman wrote:
-
-> If you use some other term instead of "operating system" for the
-> larger collection of software, it might remove one cause of confusion.
-
-Might I suggest the term "operation environment" - thus things like the 
-kernel, and "got-to-have-it-or-we-no-go" bits like libc and the dynamic 
-loader system are "the operating system", and 
-"we-can-live-without-it-but-who-wants-to" bits like the browser, editor, 
-HTTP/FTP/etc. libraries are part of the "operating environment".
-
-> That won't eliminate the question of what this collection's name
-> should properly be, or correct the misinformation about how it was
-> developed and by whom.
+On Fri, Jan 10, 2003 at 12:19:59AM +0100, Lars Marowsky-Bree wrote:
+> On 2003-01-09T17:27:48,
+>    Jeff Garzik <jgarzik@pobox.com> said:
 > 
+> > Anybody know where the source rpm for UnitedLinux kernel is?
+> > [to be distinguished from kernel-source rpm]
+> 
+> The complaint is valid, it should be advertised better, I had to look myself,
+> but I believe that
+> ftp://ftp.suse.com/pub/unitedlinux/1.0/src/kernel-source-2.4.19.SuSE-82.nosrc.rpm 
+> is what you are looking for.
+> 
+> I've forwarded the request because I believe we can and should do better, but
+> I hope the complaint of a GPL violation has been settled ;-)
 
-OT: Thank you, Richard, for what you've done for the industry. My first 
-exposure to Gnu was on the Atari ST, where an individual sent me GCC on 
-about 20 floppy disks. Been hooked ever since - I've often thought the 
-GPL would make a great "Wonder of the World" in FreeCiv...
+
+Yes, thanks much.
+
+	Jeff
+
 
 

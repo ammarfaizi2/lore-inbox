@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265485AbSJaXeM>; Thu, 31 Oct 2002 18:34:12 -0500
+	id <S265444AbSJaXay>; Thu, 31 Oct 2002 18:30:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265486AbSJaXeM>; Thu, 31 Oct 2002 18:34:12 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:44515 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S265485AbSJaXeK>; Thu, 31 Oct 2002 18:34:10 -0500
-Date: Thu, 31 Oct 2002 17:40:34 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: "Grover, Andrew" <andrew.grover@intel.com>
-cc: "Lee, Jung-Ik" <jung-ik.lee@intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "'Greg@kroah.com'" <Greg@kroah.com>
-Subject: RE: bare pci configuration access functions ?
-In-Reply-To: <EDC461A30AC4D511ADE10002A5072CAD04C7A492@orsmsx119.jf.intel.com>
-Message-ID: <Pine.LNX.4.44.0210311729290.27728-100000@chaos.physics.uiowa.edu>
+	id <S265459AbSJaXay>; Thu, 31 Oct 2002 18:30:54 -0500
+Received: from rcpt-expgw.biglobe.ne.jp ([202.225.89.149]:23518 "EHLO
+	rcpt-expgw.biglobe.ne.jp") by vger.kernel.org with ESMTP
+	id <S265444AbSJaXax>; Thu, 31 Oct 2002 18:30:53 -0500
+X-Biglobe-Sender: <t-kouchi@mvf.biglobe.ne.jp>
+Date: Thu, 31 Oct 2002 15:37:16 -0800
+From: "KOCHI, Takayoshi" <t-kouchi@mvf.biglobe.ne.jp>
+To: greg@kroah.com, andrew.grover@intel.com
+Subject: Re: bare pci configuration access functions ?
+Cc: jung-ik.lee@intel.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20021031221136.GC10689@kroah.com>
+References: <EDC461A30AC4D511ADE10002A5072CAD04C7A493@orsmsx119.jf.intel.com> <20021031221136.GC10689@kroah.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.05.04
+Message-Id: <20021101083717.IAAOC0A82650.6C9EC293@mvf.biglobe.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Oct 2002, Grover, Andrew wrote:
 
-> > From: Lee, Jung-Ik [mailto:jung-ik.lee@intel.com] 
-> > 	Some kernel drivers/components such as hotplug 
-> > pci/io-node drivers,
-> > ACPI driver, some console drivers, etc **need bare pci 
-> > configuration space
-> > access** before either pci driver is initialized or struct pci_dev is
-> > constructed.
-> > 
-> > ACPI needs this for ACPI/PCI population, hotplug pci driver 
-> > for populating
-> > hot-added pci hierarchy. As more drivers are cross ported 
-> > over to wider
-> > architectures, this would become wider need. Help me if 
-> > others need this
-> > too.
-> 
-> When the PCI Config stuff got revamped a few months ago, Greg KH, myself,
-> and some other people discussed this, and the conclusion seemed to be that
-> it was less ugly to make the code that needs bare PCI config access use fake
-> structs, than to have the bare functions exposed. Greg, am I remembering
-> correctly?
+On Thu, 31 Oct 2002 14:11:36 -0800
+Greg KH <greg@kroah.com> wrote:
 
-As one of the other people involved, I think the solution which was agreed
-on was to have the lower level functions provided with (struct pci_bus *,
-u8 dev, u8 fn) since that is what's really needed to implement the config
-accesses. The standard PCI config functions, taking struct pci_dev * are
-merely a wrapper around these. Greg did a patch to implement it, and it
-looks like it got merged.
+> But even then, you are building up a few pci structures yourself to talk
+> to the pci device.  In looking at the few places you call this function,
+> is there any reason that acpi_ex_pci_config_space_handler() can't just
+> call pci_bus_* itself, instead of having to go through
+> acpi_os_read_pci_configuration()?  If so, the one other usage of the
+> acpi_os_read_pci_configuration() can cause that function to be
+> simplified a lot.
 
-pci_bus_{read,write}_config_{byte,word,dword}()
+That's because of Linux port of ACPI CA structure.
+ACPI CA divides the acpi driver into OS independent part and os dependent
+part.  acpi_ex_pci_config_space_handler exists in OS-independent
+part and acpi_os_read_pci_configuration exists in OS-dependent
+part.  The OS independent part is shared with other OSes, while
+OS dependent part (acpi_os_xxx functions) are Linux specific.
 
---Kai
+That's the way ACPI driver designers took and Linux can benefit
+from other OS's feedback in OS-independent part.
 
+> Anyway, this is a nice diversion from the real problem here, for 2.4,
+> should I just backport the pci_ops changes which will allow pci
+> hotplugging to work again on ia64, or do we want to do something else?
 
+It would be great if we had the same 2.5 functions in 2.4.
 
+Thanks,
+-- 
+KOCHI, Takayoshi <t-kouchi@cq.jp.nec.com/t-kouchi@mvf.biglobe.ne.jp>
 

@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135318AbQLOAo6>; Thu, 14 Dec 2000 19:44:58 -0500
+	id <S135386AbQLOAqI>; Thu, 14 Dec 2000 19:46:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135386AbQLOAok>; Thu, 14 Dec 2000 19:44:40 -0500
-Received: from enterprise.cistron.net ([195.64.68.33]:9992 "EHLO
-	enterprise.cistron.net") by vger.kernel.org with ESMTP
-	id <S135428AbQLOAo1>; Thu, 14 Dec 2000 19:44:27 -0500
-From: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
+	id <S135439AbQLOAp6>; Thu, 14 Dec 2000 19:45:58 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:29643 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S135386AbQLOApv>;
+	Thu, 14 Dec 2000 19:45:51 -0500
+Date: Thu, 14 Dec 2000 19:15:23 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: LA Walsh <law@sgi.com>
+cc: lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Linus's include file strategy redux
-Date: 15 Dec 2000 00:14:04 GMT
-Organization: Cistron Internet Services B.V.
-Message-ID: <91bnoc$vij$2@enterprise.cistron.net>
 In-Reply-To: <NBBBJGOOMDFADJDGDCPHIENJCJAA.law@sgi.com>
-X-Trace: enterprise.cistron.net 976839244 32339 195.64.65.67 (15 Dec 2000 00:14:04 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Message-ID: <Pine.GSO.4.21.0012141900140.10441-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <NBBBJGOOMDFADJDGDCPHIENJCJAA.law@sgi.com>,
-LA Walsh <law@sgi.com> wrote:
->Which works because in a normal compile environment they have /usr/include
->in their include path and /usr/include/linux points to the directory
->under /usr/src/linux/include.
 
-No, that a redhat-ism.
 
-Sane distributions simply include a known good copy of
-/usr/src/linux/include/{asm,linux} verbatim in their libc6-dev package.
+On Thu, 14 Dec 2000, LA Walsh wrote:
 
-Debian has done that for a long, long time.
+> So I ran into a snag with that scenario.  Let's suppose we have
+> a module developer or a company developing a driver in their own
+> /home/nvidia/video/drivers/newcard directory.  Now they need to include
+> kernel
+> development files and are used to just doing the:
+> #include <linux/blahblah.h>
+> 
+> Which works because in a normal compile environment they have /usr/include
+> in their include path and /usr/include/linux points to the directory
+> under /usr/src/linux/include.
 
-Several core glibc developers use Debian, are even Debian developers...
+Huh?
+% ls -ld /usr/include/linux
+drwxr-xr-x    6 root     root        18432 Sep  2 22:35 /usr/include/linux/
 
-Mike.
+> So if we create a separate /usr/src/linux/include/kernel dir, does that
+> imply that we'll have a 2nd link:
+
+What 2nd link? There should be _no_ links from /usr/include to the
+kernel tree. Period. Case closed.
+
+Stuff in /usr/include is private libc copy extracted from some kernel
+version. Which may have _nothing_ to the kernel you are developing for.
+
+In the situation above they should have -I<wherever_the_tree_lives>/include
+in CFLAGS. Always had to. No links, no pain in ass, no interference with
+userland compiles.
+
+IOW, let them fix their Makefiles.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

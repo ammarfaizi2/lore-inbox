@@ -1,74 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271808AbRH1Qhe>; Tue, 28 Aug 2001 12:37:34 -0400
+	id <S271820AbRH1QkE>; Tue, 28 Aug 2001 12:40:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271817AbRH1QhY>; Tue, 28 Aug 2001 12:37:24 -0400
-Received: from draal.physics.wisc.edu ([128.104.137.82]:23978 "EHLO
-	draal.physics.wisc.edu") by vger.kernel.org with ESMTP
-	id <S271808AbRH1QhO>; Tue, 28 Aug 2001 12:37:14 -0400
-Date: Tue, 28 Aug 2001 11:36:55 -0500
-From: Bob McElrath <mcelrath+linux@draal.physics.wisc.edu>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB UHCI broken again w/ visor
-Message-ID: <20010828113655.U16752@draal.physics.wisc.edu>
-In-Reply-To: <20010828013239.N16752@draal.physics.wisc.edu> <20010828083537.B7376@kroah.com> <20010828105330.S16752@draal.physics.wisc.edu> <20010828090126.A7544@kroah.com> <20010828110846.T16752@draal.physics.wisc.edu> <20010828091808.A7679@kroah.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4nn+A2p41ba1mxGd"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010828091808.A7679@kroah.com>; from greg@kroah.com on Tue, Aug 28, 2001 at 09:18:08AM -0700
+	id <S271818AbRH1Qjy>; Tue, 28 Aug 2001 12:39:54 -0400
+Received: from relay1.zonnet.nl ([62.58.50.37]:54187 "EHLO relay1.zonnet.nl")
+	by vger.kernel.org with ESMTP id <S271817AbRH1Qjl>;
+	Tue, 28 Aug 2001 12:39:41 -0400
+Message-ID: <3B8BC94F.207E86EA@linux-m68k.org>
+Date: Tue, 28 Aug 2001 18:39:43 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <Pine.LNX.4.33.0108280732560.8585-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---4nn+A2p41ba1mxGd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Linus Torvalds wrote:
 
-Greg KH [greg@kroah.com] wrote:
-> On Tue, Aug 28, 2001 at 11:08:46AM -0500, Bob McElrath wrote:
-> >=20
-> > I tried the visor first, and saw this behavior.  (without even insmoding
-> > the usb-storage driver)  I tried it several times, with the same
-> > results.  Only this morning before sending my message did I try the
-> > usb-storage to see if it was broken too.
->=20
-> And usb-storage worked?
-> Maybe it's a problem in your visor.  Does a soft reset of it fix it?
+> I'll show you a real example from drivers/acorn/scsi/acornscsi.c:
+> 
+>         min(host->scsi.SCp.this_residual, DMAC_BUFFER_SIZE / 2);
+> 
+> this_residual is "int", and "DMAC_BUFFER_SIZE" is just a #define for
+> an integer constant. So the above is actually a signed comparison, and
+> I'll bet you that was not what the author intended.
+> 
+> Now, this_residual is hopefully never negative, so it doesn't matter.
 
-Yes.  *sigh*  Never again will I buy this palm/visor volatile RAM
-non-rechargable B&W no memory protection piece of crap.  I wonder how
-well those Agendas work...
+Let's assume it does. Joe Hacker uses the new min macro and uses int
+because this_residual is an int. Later he realizes that this_residual
+must be an unsigned int. Will he now also automatically change the type
+in the min macro?
 
-Thanks.  Sorry for bothering you.
+> But how many security bugs have you seen where people just didn't even
+> _think_ of the user giving invalid values?
+> 
+> Think of code like
+> 
+>         #define BUFFER_SIZE (10)
+> 
+>         char buf[BUFFER_SIZE];
+> 
+>         len = min(user_len, BUFFER_SIZE);
+>         if (copy_from_user(buf, user, len))
+>                 return -EFAULT;
+> 
+> which is not all that broken. Sure, maybe you _should_ have marked
+> BUFFER_SIZE explicitly unsigned, but face it, how many people actually do
+> that?
 
-> > Maybe related:
-> > Why would /proc/bus/usb be always empty?
->=20
-> Did you mount usbdevfs there?  See http://www.linux-usb.org/FAQ.html#gs3
+How does the new macro help here? A negative value is invalid and so
+should be tested _explicitly_.
 
-No.  I thought that was no longer necessary?  Anyway it works now.
+What about code like this:
 
-Cheers,
--- Bob
+	if (len > BUFFER_SIZE)
+		return -EINVAL;
 
-Bob McElrath (rsmcelrath@students.wisc.edu)=20
-Univ. of Wisconsin at Madison, Department of Physics
+This is not automagically fixed by this macro. So your new macro fixes a
+few problems and hides other problems. I can't call this a solution.
 
---4nn+A2p41ba1mxGd
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> And did you realize, for example, that of the existing "min()"
+> implementations, some were inline functions that implicitly cast their
+> arguments to "int" (and one to "unsigned int")? This way we could also
+> maintain those kinds of local conventions - where the programmer had
+> originally (at least in the case of the unsigned int) on purpose made all
+> "min()" functions unsigned.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+I'm not arguing against a single (and correct) definition of min/max.
+This had to be fixed of course.
 
-iEYEARECAAYFAjuLyKYACgkQjwioWRGe9K3mlACgh3k7esjfNJ0m8mxw1JNaEAWA
-GF8AoNfahjY+Huyro7CvVMn2rj4581cV
-=SZp0
------END PGP SIGNATURE-----
+> Now isn't it better to have a nice macro that _can_ be used for all of
+> this, and that _does_ explicitly handle the issue of signedness that
+> different parts of the code has very different opinions on, and that
+> clearly encodes the assumptions that you have at the exact point of use?
 
---4nn+A2p41ba1mxGd--
+But this assumption is only encoded once. Are you going to change the
+min interface every second release, just to keep people thinking about
+the types they're using? Breaking interfaces is fine, but it only works
+_once_ and is simply forgotten afterwards. To quote my other argument,
+that is still unanswered:
+
+You maybe fixed a few bugs, but this new macro will only cause new
+problems in the future. If we change only a single type, you have to
+scan all min/max users if they possibly need to be changed too. Thanks
+to the cast, the compiler won't even remotely help you finding them.
+
+bye, Roman

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268139AbTBYTH0>; Tue, 25 Feb 2003 14:07:26 -0500
+	id <S267726AbTBYTEN>; Tue, 25 Feb 2003 14:04:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268161AbTBYTH0>; Tue, 25 Feb 2003 14:07:26 -0500
-Received: from crack.them.org ([65.125.64.184]:54942 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S268139AbTBYTHZ>;
-	Tue, 25 Feb 2003 14:07:25 -0500
-Date: Tue, 25 Feb 2003 14:17:11 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: atomic_t (24 bits???)
-Message-ID: <20030225191711.GA25331@nevyn.them.org>
-Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
-	Linux kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.3.95.1030225140554.20186A-100000@chaos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1030225140554.20186A-100000@chaos>
-User-Agent: Mutt/1.5.1i
+	id <S267826AbTBYTEN>; Tue, 25 Feb 2003 14:04:13 -0500
+Received: from phage.cshl.org ([143.48.1.1]:11139 "EHLO cshl.org")
+	by vger.kernel.org with ESMTP id <S267726AbTBYTEM>;
+	Tue, 25 Feb 2003 14:04:12 -0500
+Message-ID: <3E5BC15D.7080603@cshl.edu>
+Date: Tue, 25 Feb 2003 14:17:49 -0500
+From: "Vsevolod (Simon) Ilyushchenko" <simonf@cshl.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Per-process disk statistics? (a la top)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 25, 2003 at 02:11:11PM -0500, Richard B. Johnson wrote:
-> 
-> In ../linux/include/asm/atomic.h, for versions 2.4.18 and
-> above as far as I've checked, there are repeated warnings
-> "Note that the guaranteed useful range of an atomic_t is
-> only 24 bits."
-> 
-> I fail to see any reason why as atomic_t is typdefed to a
-> volatile int which, on ix86 seems to be 32 bits.
-> 
-> Does anybody know if this is just some old comments from a
-> previous atomic_t type of, perhaps, char[3]?  
+Hi,
 
-There are other platforms where you can't reliably use the whole word. 
-Some ARM atomic_t implementations are like this, although I don't know
-if the one in the kernel is.
+I am looking for a way to find out which processes contribute the most 
+to disk I/O (something like top, but for disk activity). There seems to 
+be no way of doing this (sar, iostat and lsof are no good here), so I 
+was wondering whether kernel provides this information at all.
 
+I hope this is not considered offtopic - I don't know of any other forum 
+pertinent to the question.
+
+Thank you in advance for any pointers,
+Simon
 -- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+
+Simon (Vsevolod ILyushchenko)   simonf@cshl.edu
+				http://www.simonf.com
+
+"Large software projects are like werewolves because
+they transform unexpectedly from the familiar into horrors."
+                     Fred Brooks
+
+
+

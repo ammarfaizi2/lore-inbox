@@ -1,63 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286231AbRLJLYf>; Mon, 10 Dec 2001 06:24:35 -0500
+	id <S286237AbRLJMKV>; Mon, 10 Dec 2001 07:10:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286229AbRLJLYZ>; Mon, 10 Dec 2001 06:24:25 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:14976 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S286231AbRLJLYJ>;
-	Mon, 10 Dec 2001 06:24:09 -0500
-Date: Mon, 10 Dec 2001 11:14:34 -0800 (PST)
-Message-Id: <20011210.111434.41640378.davem@redhat.com>
-To: ido@the.linux-dude.net
+	id <S286240AbRLJMKB>; Mon, 10 Dec 2001 07:10:01 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:42758 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S286237AbRLJMKA>; Mon, 10 Dec 2001 07:10:00 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Robert Love <rml@tech9.net>
+Subject: Re: [PATCH] fully preemptible kernel
+Date: Mon, 10 Dec 2001 14:08:03 -0200
+X-Mailer: KMail [version 1.2]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: ip_nat_irc bug?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0112101251010.4615-100000@the.linux-dude.net>
-In-Reply-To: <Pine.LNX.4.33.0112101251010.4615-100000@the.linux-dude.net>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <1007930466.11789.2.camel@phantasy> <1007967834.878.30.camel@phantasy> <01121010295102.01013@manta>
+In-Reply-To: <01121010295102.01013@manta>
+MIME-Version: 1.0
+Message-Id: <01121014080300.09281@manta>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ido Diamant <ido@the.linux-dude.net>
-   Date: Mon, 10 Dec 2001 12:52:11 +0200 (IST)
+Hi Robert,
 
-    After compiling kernel 2.4.16, I'v seen that I can't dcc chat bots
-   running on my local computer. I tried to see why its happening, and
-   couldn't get into any reasonable idea.
-   Yesterday I remembered that I compiled the 2.4.16 with the ip_nat_irc
-   module, and loaded it by default with my firewall. I rmmod ip_nat_irc and
-   suddenly I could dcc chat my local bots.
-   Q. Why is it happening?
-   Q. Am I using this module correctly? as far as I know, I just need to load
-   the module, and thats it, am I wrong? should I create some kind of rule
-   for it?
-   Q. Is it bug?
+I just installed 2.4.17pre7+preempt and it still shows the bug.
+No oops yet (oops doesn't show up frequently).
+2.4.17pre7 without preempt is being compiled right now.
 
-This patch fixes the bug:
+> > > I reported a problem with preemptible 2.4.13 and Samba server (oops,
+> > > problems with creation of files from win clients).
+> > > Is this issue addressed?
+> >
+> > No, because I could not reproduce it.  Could you see if it occurs on the
+> > current kernel with the current patch?  If so, send me the relevant
+> > information.
+...
+...
+> I have ksymoops compiled from sources and it does not work right
+> ("Error (Oops_bfd_perror): set_section_contents Section has no contents").
+> Can you enlighten me why I'm getting ths message?
+> Or just send me working ksymoops binary, we can sort out this later.
 
-diff -u --recursive --new-file --exclude=CVS --exclude=.cvsignore ../vanilla/2.4/linux/net/ipv4/netfilter/ip_nat_irc.c linux/net/ipv4/netfilter/ip_nat_irc.c
---- ../vanilla/2.4/linux/net/ipv4/netfilter/ip_nat_irc.c	Tue Oct 30 15:08:12 2001
-+++ linux/net/ipv4/netfilter/ip_nat_irc.c	Sat Dec  8 19:23:27 2001
-@@ -1,8 +1,8 @@
- /* IRC extension for TCP NAT alteration.
-- * (C) 2000 by Harald Welte <laforge@gnumonks.org>
-+ * (C) 2000-2001 by Harald Welte <laforge@gnumonks.org>
-  * based on a copy of RR's ip_nat_ftp.c
-  *
-- * ip_nat_irc.c,v 1.15 2001/10/22 10:43:53 laforge Exp
-+ * ip_nat_irc.c,v 1.16 2001/12/06 07:42:10 laforge Exp
-  *
-  *      This program is free software; you can redistribute it and/or
-  *      modify it under the terms of the GNU General Public License
-@@ -81,7 +81,7 @@
- 	}
- 
- 	newdstip = master->tuplehash[IP_CT_DIR_ORIGINAL].tuple.src.ip;
--	newsrcip = master->tuplehash[IP_CT_DIR_ORIGINAL].tuple.dst.ip;
-+	newsrcip = ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple.src.ip;
- 	DEBUGP("nat_expected: DCC cmd. %u.%u.%u.%u->%u.%u.%u.%u\n",
- 	       NIPQUAD(newsrcip), NIPQUAD(newdstip));
- 
+In preparation for oops I need ksymoops binary. Mine is not ok:
+
+> Unable to handle kernel paging request at virtual address 4008e6ed
+> *pde = 01100067
+> Oops: 0003
+> CPU:    0
+> EIP:    0010:[<c010655b>]
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010246
+> eax: 00000000   ebx: 4008e76d   ecx: 4008e6cd   edx: 0000e865
+> esi: 00000000   edi: 00000128   ebp: 4008e6c9   esp: c1c5bf74
+> ds: 0018   es: 0018   ss: 0018
+> Process smbd (pid: 213, stackpage=c1c5b000)
+> Stack: 5650faf0 c1c5a000 c029afd0 00000128 c01068d0 4008e6cd 4008e76d
+> c1c5bf94 c02a23b2 55c3c85e ec83e589 4000bcd9 40015f67 4000bcd9 40015f67
+> c1c5a000 00000000 00000000 bfffea74 c0107603 00000000 bfffe6a3 00000001
+> 00000000 Call Trace: [<c01068d0>] [<c0107603>]
+> Code: 89 51 20 31 c0 66 8b 53 0c 81 e2 ff ff 00 00 09 c6 89 51 1c
+> Error (Oops_bfd_perror): set_section_contents Section has no contents
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Dunno is it a result of miscompiled ksymoops or what...
+--
+vda

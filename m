@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263485AbRFKWLT>; Mon, 11 Jun 2001 18:11:19 -0400
+	id <S264066AbRFKWr6>; Mon, 11 Jun 2001 18:47:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264064AbRFKWLJ>; Mon, 11 Jun 2001 18:11:09 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50181 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263997AbRFKWK4>; Mon, 11 Jun 2001 18:10:56 -0400
-Subject: Re: BCM5700, 1000 Mbps driver
-To: tlan@stud.ntnu.no
-Date: Mon, 11 Jun 2001 23:09:39 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20010611233530.B10927@flodhest.stud.ntnu.no> from "=?iso-8859-1?Q?Thomas_Lang=E5s?=" at Jun 11, 2001 11:35:30 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S264072AbRFKWrs>; Mon, 11 Jun 2001 18:47:48 -0400
+Received: from mailgw.prontomail.com ([216.163.180.10]:45446 "EHLO
+	c0mailgw02.prontomail.com") by vger.kernel.org with ESMTP
+	id <S264066AbRFKWrn>; Mon, 11 Jun 2001 18:47:43 -0400
+Message-ID: <3B254A0E.F08CDB6E@mvista.com>
+Date: Mon, 11 Jun 2001 15:45:34 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Jaswinder Singh <jaswinder.singh@3disystems.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Task Switching in Linux
+In-Reply-To: <011701c0f2b5$4d2d7140$50a6b3d0@Toshiba>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E159ZsR-0000Sn-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Are there any places (besides other drivers in the kernel) to look for
-> documents on how to write module-drivers/in-kernel drivers? 
+Jaswinder Singh wrote:
+> 
+> In Linux , If we assume that there are only 2 tasks A and B and both are
+> equal , this is correct or not :-
+> 
+> TASK A -> schedule -> switch_to -> TASK B -> schedule -> switch_to ->
+> schedule -> switch_to -> TASK A.
+> 
+Heck no.  TASK A will be run until it either blocks or its time quantum
+drops below TASK B's.  It does not matter how many times it calls
+schedule(), 'cept its a darn waste of time.
 
-I'd actually suggest
+Now, it you call sched_yield() your chances are higher, but still no
+guarantee.  If you get the tasks out of SCHED_OTHER sched_yield() will
+do the above (if they have the same priority).
 
-	Documentation/CodingStyle
-
-as a good starting point. Its probably worth making the code clean and easy
-to read before trying to do other stuff to it. Its a lot easier to prove
-your own changes are correct if you do that after you've proved a reformat and
-tidy didnt break it
-
-> Should I start by giving people a link to the source code? ;)  We need this
-
-Sure
-
+George

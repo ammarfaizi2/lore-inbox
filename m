@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261525AbSIXAXo>; Mon, 23 Sep 2002 20:23:44 -0400
+	id <S261496AbSIXAn1>; Mon, 23 Sep 2002 20:43:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261526AbSIXAXo>; Mon, 23 Sep 2002 20:23:44 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:54532
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S261525AbSIXAXn>; Mon, 23 Sep 2002 20:23:43 -0400
-Date: Mon, 23 Sep 2002 17:28:03 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Richard Zidlicky <rz@linux-m68k.org>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: IDE janitoring comments
-In-Reply-To: <20020924000134.A210@linux-m68k.org>
-Message-ID: <Pine.LNX.4.10.10209231726580.2072-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261497AbSIXAn1>; Mon, 23 Sep 2002 20:43:27 -0400
+Received: from dp.samba.org ([66.70.73.150]:33492 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261496AbSIXAn0>;
+	Mon, 23 Sep 2002 20:43:26 -0400
+Date: Tue, 24 Sep 2002 10:40:30 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: jlnance@intrex.net, linux-kernel@vger.kernel.org,
+       Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+Message-Id: <20020924104030.0e53b95e.rusty@rustcorp.com.au>
+In-Reply-To: <Pine.LNX.4.44.0209201842200.8689-100000@localhost.localdomain>
+References: <20020920083736.B1280@tricia.dyndns.org>
+	<Pine.LNX.4.44.0209201842200.8689-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Poke in your own special ide-ops function pointers.
-This should have been allowed on a per chipset/channel bases.
-
-Did I miss something?
-
-On Tue, 24 Sep 2002, Richard Zidlicky wrote:
-
-> On Sat, Aug 24, 2002 at 05:09:16PM +0200, Benjamin Herrenschmidt wrote:
+On Fri, 20 Sep 2002 18:42:48 +0200 (CEST)
+Ingo Molnar <mingo@elte.hu> wrote:
 > 
-> >  - In ide-iops, the insw, insl, outsw, outsl functions are
-> > broken for big endian. They should not do byteswap on these,
-> > however, implemeting them with a loop of IN/OUT_BYTE/WORD
-> > will cause byteswapped access on archs like PPC.
-> > The problem is that the macros IN/OUT_BYTE/WORD don't define
-> > non-swapping equivalents that would allow us to correctly
-> > implement the "s" versions. 
+> On Fri, 20 Sep 2002 jlnance@intrex.net wrote:
+> > Is this related to the thread library work that IBM was doing or was
+> > this independently developed?
 > 
-> we have one special problem on m68k, on some machines the IDE
-> bus is byteswapped (unrelated to cpu endianness). For historical 
-> and performance reasons data to the HD is by default read and 
-> written in this "wrong" order (thus the bswap/swapdata option)
-> and special fixup code is used in ide_fix_driveid (see 
-> M68K_IDE_SWAPW). However data returned by IDE_DRIVE_CMD is not 
-> treated in any way, so that eg WIN_SMART data end up in the 
-> wrong order on those machines and this is something I would 
-> like to fix properly.
-> I figure I would define ata_*_{control,data} to handle special
-> data resp raw HD data and modify ide_handler_parser to return
-> specialised interrupt handlers or set some additional flag.
-> 
-> Any thoughts?
-> 
-> Richard
-> 
+> independently developed.
 
-Andre Hedrick
-LAD Storage Consulting Group
+And, ironically, using the futex implementation developed on IBM time 8).
 
+Of course, the time I spent on futexes would have been completely wasted
+without the 95% done by Ingo and Uli to reach normal user programs and
+address the other scalability problems.
+
+Thanks guys!  IOU each a beer or local equiv...
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271568AbRHUF7A>; Tue, 21 Aug 2001 01:59:00 -0400
+	id <S270090AbRHUGMl>; Tue, 21 Aug 2001 02:12:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271569AbRHUF6v>; Tue, 21 Aug 2001 01:58:51 -0400
-Received: from mail.erste.de ([195.243.98.251]:13920 "EHLO RalfBurger.com")
-	by vger.kernel.org with ESMTP id <S271568AbRHUF6l>;
-	Tue, 21 Aug 2001 01:58:41 -0400
-Date: Tue, 21 Aug 2001 07:59:43 +0200 (CEST)
-From: "Victoria W." <wicki@terror.de>
+	id <S270958AbRHUGMb>; Tue, 21 Aug 2001 02:12:31 -0400
+Received: from rumpleteazer.ucsc.edu ([128.114.129.45]:46864 "EHLO
+	cats.ucsc.edu") by vger.kernel.org with ESMTP id <S270090AbRHUGMQ>;
+	Tue, 21 Aug 2001 02:12:16 -0400
+From: Jim McCloskey <mcclosk@ling.ucsc.edu>
 To: linux-kernel@vger.kernel.org
-Subject: agpgart.o and intel i810-chipset
-Message-ID: <Pine.LNX.4.10.10108210734370.27906-100000@csb.terror.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: PCI resource allocation
+Message-Id: <E15Z4kz-0000Uo-00@toraigh>
+Date: Mon, 20 Aug 2001 23:11:21 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all,
 
-since 2 weeks I can't get the agpgrat-module working on my
-intel-i810-chipset:
+I'm running 2.4.9 (patched from 2.4.7). The hardware is this:
 
-00:00.0 Host bridge: Intel Corporation: Unknown device 7124 (rev 03)
-00:01.0 VGA compatible controller: Intel Corporation: Unknown device 7125
-(rev 03)
+Mainboard:      Tyan Trinity K7 S238
+CPU:            AMD Athlon K7 750MHz
+Memory:         PC-133 128MB
+Boot HD:        Seagate 9.1GB LVD
+SCSI HBA:	Tekram DC390U2W PCI
 
-I can't find the reason of the initial-error while loading agpgart.
-("no supported devices found"). I made some tests and changes to
-the module-source but I need some background-information and don't know
-where to find them.
+I continue to get these warnings at boot-time:
 
-In the driver, there is no case-statement for 
-"PCI_DEVICE_ID_INTEL_810_E_1" like the
-one for "PCI_DEVICE_ID_INTEL_810_E_0" but the one for "810_E_0" searches
-for "PCI_DEVICE_ID_INTEL_810_E_1".
+Jul 31 09:14:58 kernel: PCI: Cannot allocate resource region 0 of device 01:00.0
+Jul 31 09:14:58 kernel: PCI: Failed to allocate resource 0(d8000000-d8ffffff) for 01:00.0
 
-                case PCI_DEVICE_ID_INTEL_810_E_0:
-                        i810_dev = pci_find_device(PCI_VENDOR_ID_INTEL,
-                                             PCI_DEVICE_ID_INTEL_810_E_1,
-                                                   NULL);
+Device 1 is the video card, which is a Matrox G400 AGP.
 
-I copied this to a new case-statement:
+lspci reports:
 
-        case PCI_DEVICE_ID_INTEL_810_E_1:
-        .....   
-        return intel_i810_setup(i810_dev);
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 04) (prog-if 00 [VGA])
+        Subsystem: Matrox Graphics, Inc. Millennium G400 16Mb SGRAM
+        Flags: bus master, medium devsel, latency 32, IRQ 15
+        Memory at d8000000 (32-bit, prefetchable) [size=16M]
+        Memory at d4000000 (32-bit, non-prefetchable) [size=16K]
+        Memory at d5000000 (32-bit, non-prefetchable) [size=8M]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+        Capabilities: [dc] Power Management version 2
+        Capabilities: [f0] AGP version 2.0
 
-but on loading of the module I get a kernel-oops in
+The card basically works, but I get problems under applications that
+make heavy demands (programs hang or produce seg-faults). I've had the
+warnings ever since upgrading from the 2.2.x series to the 2.4.x
+series.
 
-      if ((INREG32(intel_i810_private.registers, I810_DRAM_CTL)
-           & I810_DRAM_ROW_0) == I810_DRAM_ROW_0_SDRAM) {
-        ....
+I gather from the archives that this is a known problem, and that it
+has been discussed quite a bit. Is there a way I can help track down
+the problem, or a proposed solution that I could try?
+
+Thanks a lot,
+
+Jim McCloskey
 
 
-Do you have any hints for me?
-I have no experience in kernel-driver development but I'll try to get the
-driver working. 
-Can you tell me, where to find some other usefull information? (I have the
-intel-datasheets, but I'm not shure, if it is a chipset-problem, a bug
-or just a typo in the driver).
-Is here anybody who has an i810-chipset with a working agpgart-driver?
-Please send me an "lspci-listing" an the messages while loading the
-driver. I want to find out the difference to my chipset.
 
-Thank you in advance
 
-best regards
-wicki
 

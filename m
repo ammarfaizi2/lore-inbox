@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132056AbRDWVQv>; Mon, 23 Apr 2001 17:16:51 -0400
+	id <S132140AbRDWVUL>; Mon, 23 Apr 2001 17:20:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132072AbRDWVQm>; Mon, 23 Apr 2001 17:16:42 -0400
-Received: from t2.redhat.com ([199.183.24.243]:26360 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S132056AbRDWVQY>; Mon, 23 Apr 2001 17:16:24 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.21_heb2.09.0104232359390.2200-100000@matan.home> 
-In-Reply-To: <Pine.LNX.4.21_heb2.09.0104232359390.2200-100000@matan.home> 
-To: Matan Ziv-Av <matan@svgalib.org>
-Cc: Russell King <rmk@arm.linux.org.uk>, mythos <papadako@csd.uoc.gr>,
+	id <S132121AbRDWVUB>; Mon, 23 Apr 2001 17:20:01 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:65244 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S132042AbRDWVTn>; Mon, 23 Apr 2001 17:19:43 -0400
+Date: Mon, 23 Apr 2001 15:19:35 -0600
+Message-Id: <200104232119.f3NLJZT24922@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: Alexander Viro <viro@math.psu.edu>, Christoph Rohland <cr@sap.com>,
+        "David L. Parsley" <parsley@linuxjedi.org>,
         linux-kernel@vger.kernel.org
-Subject: Re: Can't compile 2.4.3 with agcc 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 23 Apr 2001 22:16:05 +0100
-Message-ID: <2835.988060565@redhat.com>
+Subject: Re: hundreds of mount --bind mountpoints?
+In-Reply-To: <20010423224505.H719@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <20010423172335.G719@nightmaster.csn.tu-chemnitz.de>
+	<Pine.GSO.4.21.0104231133120.3617-100000@weyl.math.psu.edu>
+	<20010423224505.H719@nightmaster.csn.tu-chemnitz.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Oeser writes:
+> On Mon, Apr 23, 2001 at 11:36:24AM -0400, Alexander Viro wrote:
+> > > Great idea. We allocate this space anyway. And we don't have to
+> > > care about the internals of this union, because never have to use
+> > > it outside the kernel ;-)
+> > > 
+> > > I like it. ext2fs does the same, so there should be no VFS
+> > > hassles involved. Al?
+> > 
+> > We should get ext2 and friends to move the sucker _out_ of struct inode.
+> > As it is, sizeof(struct inode) is way too large. This is 2.5 stuff, but
+> > it really has to be done. More filesystems adding stuff into the union
+> > is a Bad Thing(tm). If you want to allocates space - allocate if yourself;
+> > ->clear_inode() is the right place for freeing it.
+> 
+> You need an inode anyway. So why not using the space in it? tmpfs
+> would only use sizeof(*inode.u)-sizeof(struct shmem_inode_info) for
+> this kind of symlinks.
+> 
+> Last time we suggested this, people ended up with some OS trying
+> it and getting worse performance. 
+> 
+> Why? You need to allocate the VFS-inode (vnode in other OSs) and
+> the on-disk-inode anyway at the same time. You get better
+> performance and less fragmentation, if you allocate them both
+> together[1].
 
-matan@svgalib.org said:
->  This is known at compile time, right? Would it not be better to
-> replace the printk with #error ? Why do I need to boot the bad kernel
-> to find out that it does not work, when it is known when compiling? 
+We want to take out that union because it sucks for virtual
+filesystems. Besides, it's ugly.
 
-It's known at compile time, but not at preprocessing time, so it can't be 
-done with #error. If you can come up with a way of doing it at compile time 
-such that:
+				Regards,
 
- 1. It's _guaranteed_ to work when the compiler does align the members 
-	of the structure as we desire.
- 2. It gives a message sufficiently informative that it prevents further
-	such reports getting to l-k.
-
-... then I agree, it would be better to do it at compile time. If not, the 
-runtime check is the best we can do.
-
-We really ought to have learned by now that we shouldn't be relying on the 
-observed behaviour of this week's compiler in this particular phase of the 
-moon.
-
---
-dwmw2
-
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129272AbQKPVoj>; Thu, 16 Nov 2000 16:44:39 -0500
+	id <S129076AbQKPVo7>; Thu, 16 Nov 2000 16:44:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129076AbQKPVo2>; Thu, 16 Nov 2000 16:44:28 -0500
-Received: from vega.services.brown.edu ([128.148.19.202]:1695 "EHLO
-	vega.brown.edu") by vger.kernel.org with ESMTP id <S129069AbQKPVoN>;
-	Thu, 16 Nov 2000 16:44:13 -0500
-Message-Id: <4.3.2.7.2.20001116161327.00b2f810@postoffice.brown.edu>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Thu, 16 Nov 2000 16:17:31 -0500
-To: linux-kernel@vger.kernel.org
-From: David Feuer <David_Feuer@brown.edu>
-Subject: Re: [BUG] Inconsistent behaviour of rmdir
-In-Reply-To: <Pine.LNX.4.21.0011161934370.30811-100000@sisley.ri.silicom
- p.fr>
-In-Reply-To: <Pine.GSO.4.21.0011161317120.13047-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S129591AbQKPVoj>; Thu, 16 Nov 2000 16:44:39 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:49928 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129069AbQKPVod>; Thu, 16 Nov 2000 16:44:33 -0500
+Date: Thu, 16 Nov 2000 13:14:10 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dan Aloni <karrde@callisto.yi.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH (2.4)] atomic use count for proc_dir_entry
+In-Reply-To: <Pine.LNX.4.21.0011162237040.16415-100000@callisto.yi.org>
+Message-ID: <Pine.LNX.4.10.10011161313060.2661-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 07:51 PM 11/16/2000 +0100, you wrote:
->Now I see your point : by "." or "foo/." you mean the directory itself,
->while "foo" or "foo/" refer to the link to the directory, and they are
->obviously different objects... at least since hard links on directories
->were introduced. Fine.
-
-. and foo/. are also links, not directories... the directories themselves 
-are filesystem internal objects, and not discussed by the standard.  I 
-didn't know that linux supported hard links to directories... Isn't that 
-just asking for trouble?
 
 
-> > Besides, we clearly violated
-> > all relevant standards - rmdir() and rename() are required to fail
-> > if the last component of name happens to "." or "..".
->
->By standard, do you imply 'de facto' ? Or does any source clearly state
->this ?
+On Thu, 16 Nov 2000, Dan Aloni wrote:
+> 
+> Makes procfs use an atomic use count for dir entries, to avoid using 
+> the Big kernel lock. Axboe says it looks ok.
 
-It rarely hurts to violate even a written standard when it says something 
-like this...  If it says something like this (which can only happen 
-intentionally, afaict) should fail, but you can do something intelligent 
-instead, you probably should.
+There's a race there. Look at what happens if de_put() races with
+remove_proc_entry(): we'd do free_proc_entry() twice. Not good.
 
+Leave the kernel lock for now.
 
---
-This message has been brought to you by the letter alpha and the number pi.
-Open Source: Think locally, act globally.
-David Feuer
-David_Feuer@brown.edu
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

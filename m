@@ -1,32 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129384AbRBPMfs>; Fri, 16 Feb 2001 07:35:48 -0500
+	id <S130007AbRBPMkI>; Fri, 16 Feb 2001 07:40:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130073AbRBPMfi>; Fri, 16 Feb 2001 07:35:38 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:40207 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129384AbRBPMf1>; Fri, 16 Feb 2001 07:35:27 -0500
-Subject: Re: isapnp , 2.2.14 vs. 2.4.1 and awe_wave
-To: mikes1987@yahoo.com (Mike S.)
-Date: Fri, 16 Feb 2001 12:34:03 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, isapnp@roestock.demon.co.uk, tiwai@suse.de,
-        mr.shonk@dial.pipex.com
-In-Reply-To: <20010216121255.22971.qmail@web3802.mail.yahoo.com> from "Mike S." at Feb 16, 2001 04:12:55 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130031AbRBPMj6>; Fri, 16 Feb 2001 07:39:58 -0500
+Received: from [212.209.126.34] ([212.209.126.34]:56069 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S130007AbRBPMjo>; Fri, 16 Feb 2001 07:39:44 -0500
+Date: Fri, 16 Feb 2001 13:41:06 +0100 (CET)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@localhost.localdomain>
+To: Yuri Niyazov <yuricake@yahoo.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: What does the linux kernel need?
+In-Reply-To: <20010215171245.21445.qmail@web2301.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.31.0102161338590.28870-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Tk5N-000320-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Probing around with test code in awe_wave.c, it become clear to me
-> that the card was not being initialized properly by my isapnptools. 
-> Even more alarming was the fact that pnpdump would not see the SB card 
-> at all under 2.4.1, unless I used the -r option, but would show it 
-> just fine under 2.2.14.
+On Thu, 15 Feb 2001, Yuri Niyazov wrote:
 
-Dont mix isapnp tools with a 2.4 kernel unless you disable ISA PnP support
-in the kernel. It needs to have one or the other do it, not both
+>     I am currently a university student taking a "Advanced
+> design of Operating Systems" class at New York University. We
+
+> please. The requirement of the class is a final project proposal
+> and implementation of a student's own choosing - I would really
+> like to do something useful for the linux kernel,
+
+Cool ... I've been meaning to put together a "student's projects"
+page for http://kernelnewbies.org/ for a while now, but haven't
+gotten around to it. ;(
+
+But feel free to drop by on #kernelnewbies any time you want, I'm
+sure we'll be able to find a few projects to work on.
+
+Btw ... any volunteers to help document a number of student projects
+for the Linux kernel so we can put a page up with a bunch of
+possible kernel projects ?
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 

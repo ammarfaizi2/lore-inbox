@@ -1,52 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315358AbSHIRnC>; Fri, 9 Aug 2002 13:43:02 -0400
+	id <S315372AbSHIRlY>; Fri, 9 Aug 2002 13:41:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315265AbSHIRnC>; Fri, 9 Aug 2002 13:43:02 -0400
-Received: from hq.fsmlabs.com ([209.155.42.197]:45480 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S315358AbSHIRnB>;
-	Fri, 9 Aug 2002 13:43:01 -0400
-Date: Fri, 9 Aug 2002 11:40:50 -0600
-From: yodaiken@fsmlabs.com
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Daniel Phillips <phillips@arcor.de>, frankeh@watson.ibm.com,
-       davidm@hpl.hp.com, David Mosberger <davidm@napali.hpl.hp.com>,
-       "David S. Miller" <davem@redhat.com>, gh@us.ibm.com,
-       Martin.Bligh@us.ibm.com, William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: large page patch (fwd) (fwd)
-Message-ID: <20020809114050.A23656@hq.fsmlabs.com>
-References: <Pine.LNX.4.44L.0208091317220.23404-100000@imladris.surriel.com> <Pine.LNX.4.44.0208090951570.1436-100000@home.transmeta.com>
-Mime-Version: 1.0
+	id <S315374AbSHIRlY>; Fri, 9 Aug 2002 13:41:24 -0400
+Received: from 62-190-217-11.pdu.pipex.net ([62.190.217.11]:32772 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S315372AbSHIRlX>; Fri, 9 Aug 2002 13:41:23 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200208091751.g79HpYZr000357@darkstar.example.net>
+Subject: Re: No reset of IDE disk
+To: diegocg@teleline.es (Arador)
+Date: Fri, 9 Aug 2002 18:51:34 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020809193933.275df7a5.diegocg@teleline.es> from "Arador" at Aug 09, 2002 07:39:33 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0208090951570.1436-100000@home.transmeta.com>; from torvalds@transmeta.com on Fri, Aug 09, 2002 at 09:52:53AM -0700
-Organization: FSM Labs
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, 9 Aug 2002, Rik van Riel wrote:
-> One problem we're running into here is that there are absolutely
-> no tools to measure some of the things rmap is supposed to fix,
-> like page replacement.
+> This is because you *have* to use -w after -Y. The "sleep" method you're
+> searching is -y, not -Y (dont ask me why.... ;)
 
-But page replacement is a means to an end. One thing tht would be
-very interesting to know is how well the basic VM assumptions about
-locality work in a Linux server, desktop, and embedded environment.
+Are you absolutely sure?  My laptop, (same software versions), wakes up the hard disk successfully after a -Y sleep, (although on 2.2.13 it used to generate a spurious interupt message first).
 
-You have a LRU approximation that is supposed to approximate working
-sets that were originally understood and measured on < 1Meg machines
-with static libraries, tiny cache,  no GUI and no mmap.
+Also, from the hdparm MAN page, it says "A hard or soft reset is  required before  the  drive can be accessed again (the Linux IDE driver will automatically handle issuing a reset if/when needed).
 
-L.T. writes:
-
-> Read up on positivism.
-
-It's been discredited as recursively unsound reasoning.
-
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
-
+A -y standby achieves the expected behaviour, (I.E. automatic spin up), with no errors.

@@ -1,66 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130389AbQKBHTd>; Thu, 2 Nov 2000 02:19:33 -0500
+	id <S130704AbQKBHVW>; Thu, 2 Nov 2000 02:21:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130704AbQKBHTW>; Thu, 2 Nov 2000 02:19:22 -0500
-Received: from www.wen-online.de ([212.223.88.39]:36615 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S130389AbQKBHTM>;
-	Thu, 2 Nov 2000 02:19:12 -0500
-Date: Thu, 2 Nov 2000 08:19:06 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: David Mansfield <lkml@dm.ultramaster.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] /proc/<pid>/stat access stalls badly for swapping process,
-  2.4.0-test10
-In-Reply-To: <Pine.LNX.4.21.0011011643050.6740-100000@duckman.distro.conectiva>
-Message-ID: <Pine.Linu.4.10.10011020800010.1299-100000@mikeg.weiden.de>
+	id <S130785AbQKBHVM>; Thu, 2 Nov 2000 02:21:12 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:52476 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S130704AbQKBHU5>; Thu, 2 Nov 2000 02:20:57 -0500
+Message-ID: <3A0115CD.5C1083FF@uow.edu.au>
+Date: Thu, 02 Nov 2000 18:20:45 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pasi Kärkkäinen <pk@edu.joroinen.fi>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 3-order allocation failed
+In-Reply-To: <Pine.LNX.4.21.0010261508530.15696-100000@duckman.distro.conectiva> <Pine.LNX.4.21.0011011306480.10457-100000@edu.joroinen.fi>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Nov 2000, Rik van Riel wrote:
+"Pasi Kärkkäinen" wrote:
+> 
+> I added show_stack(0); to the mm/page_alloc.c :
+> 
+>         /* No luck.. */
+>         printk(KERN_ERR "__alloc_pages: %lu-order allocation failed.\n", order)
+>         show_stack(0);
+>         return NULL;
+> 
+> Then, when the first stack-dump came to kern.log, I gave it to
+> ksymoops. The result can be seen on
+> 
+> http://edu.joroinen.fi/~pk/ksymoops-output.
+> 
 
-> On Wed, 1 Nov 2000, David Mansfield wrote:
-> 
-> > I'd like to report what seems like a performance problem in the latest
-> > kernels.  Actually, all recent kernels have exhibited this problem, but
-> > I was waiting for the new VM stuff to stabilize before reporting it. 
-> > 
-> > My test is: run 7 processes that each allocate and randomly
-> > access 32mb of ram (on a 256mb machine).  Even though 7*32MB =
-> > 224MB, this still sends the machine lightly into swap.  The
-> > machine continues to function fairly smoothly for the most part.  
-> > I can do filesystem operations, run new programs, move desktops
-> > in X etc.
-> > 
-> > Except: programs which access /proc/<pid>/stat stall for an
-> > inderminate amount of time.  For example, 'ps' and 'vmstat'
-> > stall BADLY in these scenarios.  I have had the stalls last over
-> > a minute in higher VM pressure situations.
-> 
-> I have one possible reason for this ....
-> 
-> 1) the procfs process does (in fs/proc/array.c::proc_pid_stat)
-> 	down(&mm->mmap_sem);
-> 
-> 2) but, in order to do that, it has to wait until the process
->    it is trying to stat has /finished/ its page fault, and is
->    not into its next one ...
-> 
-> 3) combine this with the elevator starvation stuff (ask Jens
->    Axboe for blk-7 to alleviate this issue) and you have a
->    scenario where processes using /proc/<pid>/stat have the
->    possibility to block on multiple processes that are in the
->    process of handling a page fault (but are being starved)
+Alas:
 
-I'm experimenting with blk.[67] in test10 right now.  The stalls
-are not helped at all.  It doesn't seem to become request bound
-(haven't instrumented that yet to be sure) but the stalls persist.
+Nov  1 12:48:34 mansion kernel: c3543e80 c01e5be0 00000002 00000000 00000007 c12277c8 00000007 00000007
+Nov  1 12:48:34 mansion kernel:        00000000 c02200d4 c012bb44 c01288ad c12277c8 00000246 00000007 00000000
+Nov  1 12:48:34 mansion kernel:        00000001 c0128ab9 c12277c8 00000007 c6529e60 00000000 c885ed60 c886e222
+Nov  1 12:48:34 mansion kernel: Call Trace: [inet_check_attr+49792/72172] [<c012bb44>] [<c01288ad>] [<c0128ab9>] [<c885ed60>] [<c886e222>] [<c885ed60>]
+Nov  1 12:48:39 mansion kernel:        [<c886911c>] [<c885e185>] [<c013866d>] [<c012f782>] [<c012e9b1>] [<c012e8ea>] [<c012ebdc>] [<c010a31f>] <3>__alloc_pages: 2-order
+allocation failed.
 
-	-Mike
+...
 
+Trace; c886911c <[cpia]cpia_open+88/160>
+Trace; c885e185 <[videodev]video_open+79/94>
+Trace; c013866d <permission+95/f4>
+Trace; c012f782 <chrdev_open+3e/4c>
+Trace; c012e9b1 <dentry_open+bd/148>
+Trace; c012e8ea <filp_open+52/5c>
+Trace; c012ebdc <sys_open+38/b4>
+Trace; c010a31f <system_call+33/38>
+Trace; c886911c <[cpia]cpia_open+88/160>        
+
+So your klogd tried to interpret the trace and screwed it up.  Then
+ksymoops tried to interpret klogd's output and screwed it up.
+
+Could you please change you init scripts so `klogd' is 
+started with the `-x' option and then restart your logging
+daemons?  There's a reasonable chance that if you do this
+your klogd will segfault and stop working when it sees the
+trace - I'm not sure if Debian have fixed this one.
+
+Alternatively, if you still have that kernel,
+
+cd /usr/src/linux
+gdb vmlinux
+x/10i 0xc01e5be0
+x/10i 0xc02200d4
+x/10i 0xc012bb44
+x/10i 0xc01288ad
+[etc]
+
+That should (finally) tell us where the allocations are occurring.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

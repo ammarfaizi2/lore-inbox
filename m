@@ -1,508 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318805AbSHRC0F>; Sat, 17 Aug 2002 22:26:05 -0400
+	id <S318804AbSHRCZm>; Sat, 17 Aug 2002 22:25:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318806AbSHRC0F>; Sat, 17 Aug 2002 22:26:05 -0400
-Received: from waste.org ([209.173.204.2]:44757 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S318805AbSHRCZv>;
-	Sat, 17 Aug 2002 22:25:51 -0400
-Date: Sat, 17 Aug 2002 21:29:49 -0500
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] (3/4) SA_RANDOM user fixup
-Message-ID: <20020818022949.GD21643@waste.org>
-References: <20020818021522.GA21643@waste.org> <20020818022308.GB21643@waste.org> <20020818022657.GC21643@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020818022657.GC21643@waste.org>
-User-Agent: Mutt/1.3.28i
+	id <S318805AbSHRCZm>; Sat, 17 Aug 2002 22:25:42 -0400
+Received: from imo-m02.mx.aol.com ([64.12.136.5]:5628 "EHLO imo-m02.mx.aol.com")
+	by vger.kernel.org with ESMTP id <S318804AbSHRCZk>;
+	Sat, 17 Aug 2002 22:25:40 -0400
+Message-ID: <3D5ECEFE.4020404@netscape.net>
+Date: Sat, 17 Aug 2002 22:32:30 +0000
+From: Adam Belay <ambx1@netscape.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: greg@kroah.com
+CC: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.31 driverfs: patch for your consideration
+References: <3D5D7E50.4030307@netscape.net> <20020817030604.GB7029@kroah.com> <3D5E595A.7090106@netscape.net> <20020817190324.GA9320@kroah.com>
+Content-Type: multipart/mixed;
+ boundary="------------020804080905060905080208"
+X-Mailer: Unknown (No Version)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Users of the SA_RANDOM irq flag are moved to the new untrusted entropy
-interface. It is now possible to safely add timing samples from
-network devices.
 
-diff -ur a/arch/alpha/kernel/irq.c b/arch/alpha/kernel/irq.c
---- a/arch/alpha/kernel/irq.c	2002-08-17 00:30:02.000000000 -0500
-+++ b/arch/alpha/kernel/irq.c	2002-08-17 02:07:10.000000000 -0500
-@@ -88,7 +88,7 @@
- 		action = action->next;
- 	} while (action);
- 	if (status & SA_SAMPLE_RANDOM)
--		add_interrupt_randomness(irq);
-+		add_timing_entropy(0, irq);
- 	local_irq_disable();
- 
- 	return status;
-@@ -166,17 +166,6 @@
- 	 * so we have to be careful not to interfere with a
- 	 * running system.
- 	 */
--	if (new->flags & SA_SAMPLE_RANDOM) {
--		/*
--		 * This function might sleep, we want to call it first,
--		 * outside of the atomic block.
--		 * Yes, this might clear the entropy pool if the wrong
--		 * driver is attempted to be loaded, without actually
--		 * installing a new handler, but is this really a problem,
--		 * only the sysadmin is able to do this.
--		 */
--		rand_initialize_irq(irq);
--	}
- 
- 	/*
- 	 * The following block of code has to be executed atomically
-diff -ur a/arch/arm/kernel/irq.c b/arch/arm/kernel/irq.c
---- a/arch/arm/kernel/irq.c	2002-08-17 00:30:02.000000000 -0500
-+++ b/arch/arm/kernel/irq.c	2002-08-17 02:06:30.000000000 -0500
-@@ -200,7 +200,7 @@
- 	} while (action);
- 
- 	if (status & SA_SAMPLE_RANDOM)
--		add_interrupt_randomness(irq);
-+		add_timing_entropy(0, irq);
- 
- 	spin_lock_irq(&irq_controller_lock);
- }
-@@ -458,17 +458,6 @@
- 	 * so we have to be careful not to interfere with a
- 	 * running system.
- 	 */
--	if (new->flags & SA_SAMPLE_RANDOM) {
--		/*
--		 * This function might sleep, we want to call it first,
--		 * outside of the atomic block.
--		 * Yes, this might clear the entropy pool if the wrong
--		 * driver is attempted to be loaded, without actually
--		 * installing a new handler, but is this really a problem,
--		 * only the sysadmin is able to do this.
--		 */
--	        rand_initialize_irq(irq);
--	}
- 
- 	/*
- 	 * The following block of code has to be executed atomically
-diff -ur a/arch/cris/kernel/irq.c b/arch/cris/kernel/irq.c
---- a/arch/cris/kernel/irq.c	2002-08-17 00:29:50.000000000 -0500
-+++ b/arch/cris/kernel/irq.c	2002-08-17 02:07:42.000000000 -0500
-@@ -275,7 +275,7 @@
-                         action = action->next;
-                 } while (action);
-                 if (do_random & SA_SAMPLE_RANDOM)
--                        add_interrupt_randomness(irq);
-+                        add_timing_entropy(0, irq);
-                 local_irq_disable();
-         }
-         irq_exit(cpu);
-@@ -315,9 +315,6 @@
- 		shared = 1;
- 	}
- 
--	if (new->flags & SA_SAMPLE_RANDOM)
--		rand_initialize_irq(irq);
--
- 	save_flags(flags);
- 	cli();
- 	*p = new;
-diff -ur a/arch/i386/kernel/irq.c b/arch/i386/kernel/irq.c
---- a/arch/i386/kernel/irq.c	2002-08-17 00:29:58.000000000 -0500
-+++ b/arch/i386/kernel/irq.c	2002-08-17 02:07:50.000000000 -0500
-@@ -212,7 +212,7 @@
- 		action = action->next;
- 	} while (action);
- 	if (status & SA_SAMPLE_RANDOM)
--		add_interrupt_randomness(irq);
-+		add_timing_entropy(0, irq);
- 	local_irq_disable();
- 
- 	return status;
-@@ -733,17 +733,6 @@
- 	 * so we have to be careful not to interfere with a
- 	 * running system.
- 	 */
--	if (new->flags & SA_SAMPLE_RANDOM) {
--		/*
--		 * This function might sleep, we want to call it first,
--		 * outside of the atomic block.
--		 * Yes, this might clear the entropy pool if the wrong
--		 * driver is attempted to be loaded, without actually
--		 * installing a new handler, but is this really a problem,
--		 * only the sysadmin is able to do this.
--		 */
--		rand_initialize_irq(irq);
--	}
- 
- 	/*
- 	 * The following block of code has to be executed atomically
-diff -ur a/arch/ia64/kernel/irq.c b/arch/ia64/kernel/irq.c
---- a/arch/ia64/kernel/irq.c	2002-08-17 00:29:50.000000000 -0500
-+++ b/arch/ia64/kernel/irq.c	2002-08-17 02:07:04.000000000 -0500
-@@ -497,7 +497,7 @@
- 		action = action->next;
- 	} while (action);
- 	if (status & SA_SAMPLE_RANDOM)
--		add_interrupt_randomness(irq);
-+		add_timing_entropy(0, irq);
- 	local_irq_disable();
- 
- 	local_irq_exit(irq);
-@@ -1016,17 +1016,6 @@
- 	 * so we have to be careful not to interfere with a
- 	 * running system.
- 	 */
--	if (new->flags & SA_SAMPLE_RANDOM) {
--		/*
--		 * This function might sleep, we want to call it first,
--		 * outside of the atomic block.
--		 * Yes, this might clear the entropy pool if the wrong
--		 * driver is attempted to be loaded, without actually
--		 * installing a new handler, but is this really a problem,
--		 * only the sysadmin is able to do this.
--		 */
--		rand_initialize_irq(irq);
--	}
- 
- 	if (new->flags & SA_PERCPU_IRQ) {
- 		desc->status |= IRQ_PER_CPU;
-diff -ur a/arch/ia64/kernel/irq_ia64.c b/arch/ia64/kernel/irq_ia64.c
---- a/arch/ia64/kernel/irq_ia64.c	2002-07-20 14:11:14.000000000 -0500
-+++ b/arch/ia64/kernel/irq_ia64.c	2002-08-17 02:08:50.000000000 -0500
-@@ -22,7 +22,6 @@
- #include <linux/kernel_stat.h>
- #include <linux/slab.h>
- #include <linux/ptrace.h>
--#include <linux/random.h>	/* for rand_initialize_irq() */
- #include <linux/signal.h>
- #include <linux/smp.h>
- #include <linux/smp_lock.h>
-diff -ur a/arch/mips/baget/irq.c b/arch/mips/baget/irq.c
---- a/arch/mips/baget/irq.c	2002-08-17 00:29:50.000000000 -0500
-+++ b/arch/mips/baget/irq.c	2002-08-17 02:07:15.000000000 -0500
-@@ -195,7 +195,7 @@
- 			action = action->next;
-         	} while (action);
- 		if (do_random & SA_SAMPLE_RANDOM)
--			add_interrupt_randomness(irq);
-+			add_timing_entropy(0, irq);
- 		local_irq_disable();
- 	} else {
- 		printk("do_IRQ: Unregistered IRQ (0x%X) occurred\n", irq);
-@@ -284,9 +284,6 @@
- 		shared = 1;
- 	}
- 
--	if (new->flags & SA_SAMPLE_RANDOM)
--		rand_initialize_irq(irq);
--
- 	save_and_cli(flags);
- 	*p = new;
- 	restore_flags(flags);
-diff -ur a/arch/mips/dec/irq.c b/arch/mips/dec/irq.c
---- a/arch/mips/dec/irq.c	2002-08-17 00:29:50.000000000 -0500
-+++ b/arch/mips/dec/irq.c	2002-08-17 02:07:38.000000000 -0500
-@@ -145,7 +145,7 @@
- 	    action = action->next;
- 	} while (action);
- 	if (do_random & SA_SAMPLE_RANDOM)
--	    add_interrupt_randomness(irq);
-+	    add_timing_entropy(0, irq);
- 	local_irq_disable();
- 	unmask_irq(irq);
-     }
-@@ -181,8 +181,6 @@
- 	} while (old);
- 	shared = 1;
-     }
--    if (new->flags & SA_SAMPLE_RANDOM)
--	rand_initialize_irq(irq);
- 
-     save_and_cli(flags);
-     *p = new;
-diff -ur a/arch/mips/kernel/irq.c b/arch/mips/kernel/irq.c
---- a/arch/mips/kernel/irq.c	2002-08-17 00:29:50.000000000 -0500
-+++ b/arch/mips/kernel/irq.c	2002-08-17 02:07:34.000000000 -0500
-@@ -122,7 +122,7 @@
- 		action = action->next;
- 	} while (action);
- 	if (status & SA_SAMPLE_RANDOM)
--		add_interrupt_randomness(irq);
-+		add_timing_entropy(0, irq);
- 	local_irq_disable();
- 
- 	irq_exit(cpu, irq);
-@@ -649,17 +649,6 @@
- 	 * so we have to be careful not to interfere with a
- 	 * running system.
- 	 */
--	if (new->flags & SA_SAMPLE_RANDOM) {
--		/*
--		 * This function might sleep, we want to call it first,
--		 * outside of the atomic block.
--		 * Yes, this might clear the entropy pool if the wrong
--		 * driver is attempted to be loaded, without actually
--		 * installing a new handler, but is this really a problem,
--		 * only the sysadmin is able to do this.
--		 */
--		rand_initialize_irq(irq);
--	}
- 
- 	/*
- 	 * The following block of code has to be executed atomically
-diff -ur a/arch/mips/kernel/old-irq.c b/arch/mips/kernel/old-irq.c
---- a/arch/mips/kernel/old-irq.c	2002-08-17 00:29:50.000000000 -0500
-+++ b/arch/mips/kernel/old-irq.c	2002-08-17 02:07:28.000000000 -0500
-@@ -192,7 +192,7 @@
- 		action = action->next;
-        	} while (action);
- 	if (do_random & SA_SAMPLE_RANDOM)
--		add_interrupt_randomness(irq);
-+		add_timing_entropy(0, irq);
- 	local_irq_disable();
- 	unmask_irq (irq);
- 
-@@ -228,7 +228,7 @@
- 			action = action->next;
-         	} while (action);
- 		if (do_random & SA_SAMPLE_RANDOM)
--			add_interrupt_randomness(irq);
-+			add_timing_entropy(0, irq);
- 		local_irq_disable();
- 	}
- 	irq_exit(cpu, irq);
-@@ -263,9 +263,6 @@
- 		shared = 1;
- 	}
- 
--	if (new->flags & SA_SAMPLE_RANDOM)
--		rand_initialize_irq(irq);
--
- 	save_and_cli(flags);
- 	*p = new;
- 
-diff -ur a/arch/mips/philips/nino/irq.c b/arch/mips/philips/nino/irq.c
---- a/arch/mips/philips/nino/irq.c	2002-08-17 00:29:50.000000000 -0500
-+++ b/arch/mips/philips/nino/irq.c	2002-08-17 02:07:20.000000000 -0500
-@@ -185,7 +185,7 @@
- 	    action = action->next;
- 	} while (action);
- 	if (do_random & SA_SAMPLE_RANDOM)
--	    add_interrupt_randomness(irq);
-+	    add_timing_entropy(0, irq);
- 	unmask_irq(irq);
- 	local_irq_disable();
-     } else {
-@@ -227,8 +227,6 @@
- 	} while (old);
- 	shared = 1;
-     }
--    if (new->flags & SA_SAMPLE_RANDOM)
--	rand_initialize_irq(irq);
- 
-     save_and_cli(flags);
-     *p = new;
-diff -ur a/arch/mips64/mips-boards/malta/malta_int.c b/arch/mips64/mips-boards/malta/malta_int.c
---- a/arch/mips64/mips-boards/malta/malta_int.c	2002-07-20 14:11:29.000000000 -0500
-+++ b/arch/mips64/mips-boards/malta/malta_int.c	2002-08-17 02:06:12.000000000 -0500
-@@ -247,9 +247,6 @@
- 		shared = 1;
- 	}
- 
--	if (new->flags & SA_SAMPLE_RANDOM)
--		rand_initialize_irq(irq);
--
- 	*p = new;
- 	if (!shared)
- 		enable_irq(irq);
-diff -ur a/arch/mips64/sgi-ip22/ip22-int.c b/arch/mips64/sgi-ip22/ip22-int.c
---- a/arch/mips64/sgi-ip22/ip22-int.c	2002-08-17 00:29:50.000000000 -0500
-+++ b/arch/mips64/sgi-ip22/ip22-int.c	2002-08-17 02:05:16.000000000 -0500
-@@ -315,7 +315,7 @@
- 			action = action->next;
- 		} while (action);
- 		if (do_random & SA_SAMPLE_RANDOM)
--			add_interrupt_randomness(irq);
-+			add_timing_entropy(0, irq);
- 		local_irq_disable();
- 	}
- 	irq_exit(cpu, irq);
-diff -ur a/arch/mips64/sgi-ip27/ip27-irq.c b/arch/mips64/sgi-ip27/ip27-irq.c
---- a/arch/mips64/sgi-ip27/ip27-irq.c	2002-08-17 00:29:50.000000000 -0500
-+++ b/arch/mips64/sgi-ip27/ip27-irq.c	2002-08-17 02:06:17.000000000 -0500
-@@ -183,7 +183,7 @@
- 			action = action->next;
-         	} while (action);
- 		if (do_random & SA_SAMPLE_RANDOM)
--			add_interrupt_randomness(irq);
-+			add_timing_entropy(0, irq);
- 		local_irq_disable();
- 	}
- 	irq_exit(thiscpu, irq);
-@@ -339,8 +339,6 @@
- 		printk("IRQ array overflow %d\n", irq);
- 		while(1);
- 	}
--	if (new->flags & SA_SAMPLE_RANDOM)
--		rand_initialize_irq(irq);
- 
- 	save_and_cli(flags);
- 	p = irq_action + irq;
-diff -ur a/arch/ppc/kernel/irq.c b/arch/ppc/kernel/irq.c
---- a/arch/ppc/kernel/irq.c	2002-08-17 00:30:02.000000000 -0500
-+++ b/arch/ppc/kernel/irq.c	2002-08-17 02:08:08.000000000 -0500
-@@ -133,17 +133,6 @@
- 	 * so we have to be careful not to interfere with a
- 	 * running system.
- 	 */
--	if (new->flags & SA_SAMPLE_RANDOM) {
--		/*
--		 * This function might sleep, we want to call it first,
--		 * outside of the atomic block.
--		 * Yes, this might clear the entropy pool if the wrong
--		 * driver is attempted to be loaded, without actually
--		 * installing a new handler, but is this really a problem,
--		 * only the sysadmin is able to do this.
--		 */
--		rand_initialize_irq(irq);
--	}
- 
- 	/*
- 	 * The following block of code has to be executed atomically
-@@ -412,7 +401,7 @@
- 		action = action->next;
- 	} while (action);
- 	if (status & SA_SAMPLE_RANDOM)
--		add_interrupt_randomness(irq);
-+		add_timing_entropy(0, irq);
- 	local_irq_disable();
- }
- 
-diff -ur a/arch/ppc64/kernel/irq.c b/arch/ppc64/kernel/irq.c
---- a/arch/ppc64/kernel/irq.c	2002-08-17 00:29:50.000000000 -0500
-+++ b/arch/ppc64/kernel/irq.c	2002-08-17 02:06:37.000000000 -0500
-@@ -120,17 +120,6 @@
- 	 * so we have to be careful not to interfere with a
- 	 * running system.
- 	 */
--	if (new->flags & SA_SAMPLE_RANDOM) {
--		/*
--		 * This function might sleep, we want to call it first,
--		 * outside of the atomic block.
--		 * Yes, this might clear the entropy pool if the wrong
--		 * driver is attempted to be loaded, without actually
--		 * installing a new handler, but is this really a problem,
--		 * only the sysadmin is able to do this.
--		 */
--		rand_initialize_irq(irq);
--	}
- 
- 	/*
- 	 * The following block of code has to be executed atomically
-@@ -396,7 +385,7 @@
- 		action = action->next;
- 	} while (action);
- 	if (status & SA_SAMPLE_RANDOM)
--		add_interrupt_randomness(irq);
-+		add_timing_entropy(0, irq);
- 	local_irq_disable();
- }
- 
-diff -ur a/arch/sh/kernel/irq.c b/arch/sh/kernel/irq.c
---- a/arch/sh/kernel/irq.c	2002-08-17 00:29:50.000000000 -0500
-+++ b/arch/sh/kernel/irq.c	2002-08-17 02:06:04.000000000 -0500
-@@ -138,7 +138,7 @@
- 		action = action->next;
- 	} while (action);
- 	if (status & SA_SAMPLE_RANDOM)
--		add_interrupt_randomness(irq);
-+		add_timing_entropy(0, irq);
- 	local_irq_disable();
- 
- 	irq_exit(cpu, irq);
-@@ -499,17 +499,6 @@
- 	 * so we have to be careful not to interfere with a
- 	 * running system.
- 	 */
--	if (new->flags & SA_SAMPLE_RANDOM) {
--		/*
--		 * This function might sleep, we want to call it first,
--		 * outside of the atomic block.
--		 * Yes, this might clear the entropy pool if the wrong
--		 * driver is attempted to be loaded, without actually
--		 * installing a new handler, but is this really a problem,
--		 * only the sysadmin is able to do this.
--		 */
--		rand_initialize_irq(irq);
--	}
- 
- 	/*
- 	 * The following block of code has to be executed atomically
-diff -ur a/arch/sparc64/kernel/irq.c b/arch/sparc64/kernel/irq.c
---- a/arch/sparc64/kernel/irq.c	2002-08-17 00:30:02.000000000 -0500
-+++ b/arch/sparc64/kernel/irq.c	2002-08-17 02:08:01.000000000 -0500
-@@ -316,20 +316,6 @@
- 	if (!handler)
- 	    return -EINVAL;
- 
--	if ((bucket != &pil0_dummy_bucket) && (irqflags & SA_SAMPLE_RANDOM)) {
--		/*
--	 	 * This function might sleep, we want to call it first,
--	 	 * outside of the atomic block. In SA_STATIC_ALLOC case,
--		 * random driver's kmalloc will fail, but it is safe.
--		 * If already initialized, random driver will not reinit.
--	 	 * Yes, this might clear the entropy pool if the wrong
--	 	 * driver is attempted to be loaded, without actually
--	 	 * installing a new handler, but is this really a problem,
--	 	 * only the sysadmin is able to do this.
--	 	 */
--		rand_initialize_irq(irq);
--	}
--
- 	spin_lock_irqsave(&irq_action_lock, flags);
- 
- 	action = *(bucket->pil + irq_action);
-@@ -793,7 +779,7 @@
- 				upa_writel(ICLR_IDLE, bp->iclr);
- 				/* Test and add entropy */
- 				if (random)
--					add_interrupt_randomness(irq);
-+					add_timing_entropy(0, irq);
- 			}
- 		} else
- 			bp->pending = 1;
-diff -ur a/arch/x86_64/kernel/irq.c b/arch/x86_64/kernel/irq.c
---- a/arch/x86_64/kernel/irq.c	2002-08-17 00:29:50.000000000 -0500
-+++ b/arch/x86_64/kernel/irq.c	2002-08-17 02:06:24.000000000 -0500
-@@ -450,7 +450,7 @@
- 		action = action->next;
- 	} while (action);
- 	if (status & SA_SAMPLE_RANDOM)
--		add_interrupt_randomness(irq);
-+		add_timing_entropy(0, irq);
- 	local_irq_disable();
- 
- 	irq_exit(0, irq);
-@@ -986,17 +986,6 @@
- 	 * so we have to be careful not to interfere with a
- 	 * running system.
- 	 */
--	if (new->flags & SA_SAMPLE_RANDOM) {
--		/*
--		 * This function might sleep, we want to call it first,
--		 * outside of the atomic block.
--		 * Yes, this might clear the entropy pool if the wrong
--		 * driver is attempted to be loaded, without actually
--		 * installing a new handler, but is this really a problem,
--		 * only the sysadmin is able to do this.
--		 */
--		rand_initialize_irq(irq);
--	}
- 
- 	/*
- 	 * The following block of code has to be executed atomically
+--------------020804080905060905080208
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
+
+greg@kroah.com wrote:
+
+>On Sat, Aug 17, 2002 at 02:10:34PM +0000, Adam Belay wrote:
+>
+>>
+>>greg@kroah.com wrote:
+>>
+>>>Um, your email client mangled the patch, dropping tabs and wrapped
+>>>lines.
+>>>
+>>Thanks for pointing this out.  I'll send it as an attachment this time.
+>> My current client has been causing me a lot of trouble, is there one
+>>you would suggest I use?
+>>
+>
+>I like mutt, but that's just my opinion :)
+>
+>Hm, in looking at your attachments, they will not apply either.  All the
+>tabs are gone, something's wrong with your originals.  Did you cut and
+>paste to generate them?
+>
+I downloaded my patches through the mailing list and applied them:
+
+bash-2.05a$ cat ./driver.patch | patch -p1 -l -d linux
+patching file drivers/base/interface.c
+bash-2.05a$ cat ./driver2.patch | patch -p1 -l -d linux
+patching file drivers/base/base.h
+patching file drivers/base/core.c
+patching file drivers/base/interface.c
+
+It applies cleanly but . . .
+
+You're right the tabs are gone although when I applied my originals they 
+weren't.  I hate netscape navigator.  I gzipped them so netscape can't 
+mess them up.  In the meantime I'm going to download mutt.  Thanks for 
+your help.  Let me know if the patch works this time.  Also after 
+looking at the interface code I realized that not just my code used 
+sprintf.  Do you think they should all use snprintf instead or is the 
+probability of a driver attribute exceeding the one page buffer size so 
+low that it doesn't matter?
+
+Also I was wondering if you think resource management variables (irq, 
+io, dma, etc) should live in the device structure like power management 
+variables do?  Global resource management seams interesting to me, 
+although there already is a proc interface that does list resources, I'm 
+wondering if the driver model is a good place to put such an interface?
+
+Thanks,
+-Adam
+
+
+
+--------------020804080905060905080208
+Content-Type: application/octet-stream;
+ name="driver.tar.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="driver.tar.gz"
+
+H4sICHnLXj0AA3RlbXBfdGFyODNxR0ZiLnRhcgDtV21z2kYQ5qv0K7Z0moFIsiUBAkPsONMm
+ncxk2hknbj60HY0Qp6IplpiThO2k/u/dexEIEDghsdPO3H7Qwd7t3r7cPbc7ofGC0KN5kIfT
+xgOR7di21+02bNt2+j2HjYzK0XH7XsPu99y+2+902TrHdTy7AfZDGVSlIssDCtAIrsY3zp51
+NE3zx7DnkWkSRxFYBQXLSsi1FcUzAsHxhJ+K7HgcZOQ4TnJCoyAkRyGMd07plmXtkdTekwm8
+KP4CpwtOf2ifDN0BuLbt6oZh7FGrvaKxkPPAdYd2Z+hIufNzsAYDcwAGfl0bzs91wFzmcQg/
+vfzt9Y8v/Rfv3l205uk1oWaTD03zrf/6/eXbC/gH8NfF5c+/mjpoGgBMyCIOiU9JMPGFiORc
+0zgngtUe6aAbuiF3ybL4A/HzNVHhRivLaRGWM/CU/TAhnOJBewrjIjJBioZpkeQmzNIown/4
+bevGR93Q4ghaKGOdCX3I1TRK8oImbBE8BxuGkM0pBipqMYXNH7I/kqZZkbHOkuCKoMmGRmYZ
+qWiwkXdX8aMaLSFrNsXI48WjtO2j+cvlmzdMPYt6xVs/yHMaj4tc+s1YExIFxSz32enKfv8T
+TuEjhv0JzvLVPrPUXOOIFKDRK5bcFpexnXG8G+nf+vb8/0lE1X3QB+Ae/O913E6J/z3HtRn+
+ux2F/49Cn4D/7HM03cRowa1DfTFTBW7HHbr2ErhrAH9bBLEenwnXW2G965kdMPDb41CvA7nB
+VyIBxEAQyhhOBOF0HX0lbjAwoguG4FJskcaTUm5C7pczqtul/h7JEu8PUFfnQKmOG4y/gzxA
++U/IW5jSmidbcOvyJmY+66GWIht584Yde5W3k4HZB4N/Rd7ksyMSUD4Qu/xu6/hWWNruWI7w
+Sd43zXbcek/5+6PN0vBvX8iwWYwqs9dx+sxgMTCLtTt8a1CNJQ0/LGW6caAct3W3g/iY7ji4
+bSY/Yt7jxoTSlOJaWzrZ6XIn+cCdlMXBuMj8KKU+QeNYbLAiwLAh18Qf5qb57D7tDs2Bl2Mz
+Uoeq4YHbzvHWaYDTUy6A6x+tGt6oar1h1zmgGnZ6Q/ekUg2bHhbDMqHfx0k4KyYEns3ipLg5
+FjE4mp5tT+HZqOWzpLIJYznRFEDdrFzjuiqY1XNfUgNjJjhy9CVydLvijFYq2LVj94UV7I5D
+FMVJudQf3645xW5Jfjsn3JVs6RavuEUFLxfO4iz3p7gnzs7TbHQPVhkaFygvIGD3gtqf4B7l
+Yc1YL8A20MTd5+tJktNbsbZOu8ntZSt5O8DP/3e4MAmv5uJ+8wKcf5A9I0mLewIWOG3ee5SB
+F0YiB/uHkseiyJl3u3sj0UR9peZoLxZKazYxT7RUQsdaIySCwdEAg1Sd5duvr1h1Y5UM1B2T
+Uh+LfLQKukA3DGdp2dZzwGIhCwQWZWCtGyzzFbOE8XaPkqt0QZqm115as61TAiePb9X+0XoC
+heAz7Cmfy9/DpfOf0Sdu9tXGVl8thWrOBO+sv1Yf+a1LakWKFClSpEiRIkWKFClSpEiRIkWK
+FCn6T9C/eX2jxwAoAAA=
+--------------020804080905060905080208--

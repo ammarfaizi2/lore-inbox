@@ -1,43 +1,353 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVBGUHc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVBGUF3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbVBGUHc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 15:07:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbVBGUFi
+	id S261316AbVBGUF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 15:05:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261310AbVBGUDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 15:05:38 -0500
-Received: from fw.osdl.org ([65.172.181.6]:28862 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261309AbVBGUFU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 15:05:20 -0500
-Date: Mon, 7 Feb 2005 12:05:16 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: Chris Wright <chrisw@osdl.org>,
-       =?iso-8859-1?Q?Lorenzo_Hern=E1ndez_Garc=EDa-Hierro?= 
-	<lorenzo@gnu.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Filesystem linking protections
-Message-ID: <20050207120516.A24171@build.pdx.osdl.net>
-References: <1107802626.3754.224.camel@localhost.localdomain> <20050207111235.Y24171@build.pdx.osdl.net> <4207C4C7.8080704@comcast.net>
+	Mon, 7 Feb 2005 15:03:39 -0500
+Received: from kludge.physics.uiowa.edu ([128.255.33.129]:773 "EHLO
+	kludge.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id S261314AbVBGT7t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 14:59:49 -0500
+Date: Mon, 7 Feb 2005 13:59:19 -0600
+From: Joseph Pingenot <trelane@digitasaru.net>
+To: dtor_core@ameritech.net
+Cc: linux-kernel@vger.kernel.org, petero2@telia.com
+Subject: Re: [ATTN: Dmitry Torokhov] About the trackpad and 2.6.11-rc[23] but not -rc1
+Message-ID: <20050207195918.GD12024@digitasaru.net>
+Reply-To: trelane@digitasaru.net
+Mail-Followup-To: dtor_core@ameritech.net, linux-kernel@vger.kernel.org,
+	petero2@telia.com
+References: <20050207154326.GA13539@digitasaru.net> <d120d50005020708512bb09e0@mail.gmail.com> <20050207180950.GA12024@digitasaru.net> <d120d50005020710591181fe69@mail.gmail.com> <20050207190541.GB12024@digitasaru.net> <d120d5000502071112599fa61c@mail.gmail.com> <20050207191615.GC12024@digitasaru.net> <d120d500050207114959466682@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <4207C4C7.8080704@comcast.net>; from nigelenki@comcast.net on Mon, Feb 07, 2005 at 02:43:03PM -0500
+In-Reply-To: <d120d500050207114959466682@mail.gmail.com>
+X-School: University of Iowa
+X-vi-or-emacs: vi *and* emacs!
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* John Richard Moser (nigelenki@comcast.net) wrote:
-> I've yet to see this break anything on Ubuntu or Gentoo; Brad Spengler
-> claims this breaks nothing on Debian.  On the other hand, this could
-> potentially squash the second most prevalent security bug.
+>From Dmitry Torokhov on Monday, 07 February, 2005:
+>Ah, I see. Well, the data in foo.gz file looks like standard PS/2
+>protocol, it would be interesting to see the beginning of the dmesg
+>(where we do all the detection). It looks like something has reset the
+>absolute mode back to standard relative one.
 
-Yes I know, I've worked on distro with it as well in the past.  And it
-has broken atd and courier in the past.  This is something that also
-can be done in userspace using sane subdirs in +t world writable dirs,
-or O_EXCL so there's work to be done in userspace.
+Feb  7 11:49:18 petrus mice: PS/2 mouse device common for all mice
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 60 -> i8042 (command) [7497]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 46 -> i8042 (parameter) [7497]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7497]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [7497]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7500]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12) [7501]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 60 -> i8042 (command) [7501]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 44 -> i8042 (parameter) [7501]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 60 -> i8042 (command) [7501]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 45 -> i8042 (parameter) [7501]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f2 -> i8042 (kbd-data) [7502]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [7502]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: ab <- i8042 (interrupt, kbd, 1) [7503]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 41 <- i8042 (interrupt, kbd, 1) [7504]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: ed -> i8042 (kbd-data) [7504]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [7505]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [7505]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [7505]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f3 -> i8042 (kbd-data) [7505]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [7505]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [7505]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [7506]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f4 -> i8042 (kbd-data) [7506]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [7506]
+Feb  7 11:49:18 petrus input: AT Translated Set 2 keyboard on isa0060/serio0
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 60 -> i8042 (command) [7512]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 47 -> i8042 (parameter) [7512]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7512]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [7512]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7516]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12) [7517]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7517]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f6 -> i8042 (parameter) [7517]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7521]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7521]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [7521]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7522]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7522]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 0a -> i8042 (parameter) [7522]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7530]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7530]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [7530]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7530]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7530]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [7530]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7538]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7538]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [7538]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7539]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7539]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 14 -> i8042 (parameter) [7539]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7547]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7547]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [7547]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7547]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7547]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 3c -> i8042 (parameter) [7547]
+Feb  7 11:49:18 petrus usb 2-2: new full speed USB device using uhci_hcd and address 2
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7557]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7557]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [7557]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7557]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7557]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 28 -> i8042 (parameter) [7557]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7565]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7565]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [7565]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7566]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7566]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 14 -> i8042 (parameter) [7566]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7574]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7574]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [7574]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7574]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7574]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 14 -> i8042 (parameter) [7574]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7582]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7582]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [7582]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7583]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7583]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 3c -> i8042 (parameter) [7583]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7590]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7590]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [7590]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7591]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7591]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 28 -> i8042 (parameter) [7591]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7599]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7599]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [7599]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7599]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7599]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 14 -> i8042 (parameter) [7599]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7607]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7611]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [7611]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7611]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7621]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 14 -> i8042 (parameter) [7621]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7629]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7631]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [7631]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7634]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12) [7635]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7641]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [7641]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7641]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7651]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [7651]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7658]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7658]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [7658]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7659]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7662]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [7662]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7669]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7669]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [7669]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7670]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7670]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [7670]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7678]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7678]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [7678]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7678]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7678]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [7678]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7686]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7686]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e9 -> i8042 (parameter) [7686]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7691]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12) [7694]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12) [7695]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 14 <- i8042 (interrupt, aux, 12) [7696]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7696]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f6 -> i8042 (parameter) [7696]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7701]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7701]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [7701]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7701]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7701]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [7701]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7709]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7709]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [7709]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7714]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7714]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [7714]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7718]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7718]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [7718]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7722]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7722]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e9 -> i8042 (parameter) [7722]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7727]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12) [7730]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12) [7731]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 64 <- i8042 (interrupt, aux, 12) [7732]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7732]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [7732]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7733]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7733]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [7733]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7740]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7740]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e7 -> i8042 (parameter) [7740]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7745]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7745]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e7 -> i8042 (parameter) [7745]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7749]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7749]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e7 -> i8042 (parameter) [7749]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7754]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7754]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e9 -> i8042 (parameter) [7754]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7758]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 63 <- i8042 (interrupt, aux, 12) [7761]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 03 <- i8042 (interrupt, aux, 12) [7763]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: c8 <- i8042 (interrupt, aux, 12) [7764]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7764]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [7764]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7764]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7764]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [7764]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7772]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7772]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [7772]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7776]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7776]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [7776]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7781]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7781]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [7781]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7785]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7785]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e9 -> i8042 (parameter) [7785]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7789]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12) [7793]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12) [7794]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 64 <- i8042 (interrupt, aux, 12) [7795]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7795]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [7795]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7795]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7795]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 -> i8042 (parameter) [7795]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7803]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7803]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e7 -> i8042 (parameter) [7803]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7808]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7808]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e7 -> i8042 (parameter) [7808]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7812]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7812]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e7 -> i8042 (parameter) [7812]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7816]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7816]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e9 -> i8042 (parameter) [7816]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7821]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 63 <- i8042 (interrupt, aux, 12) [7824]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 03 <- i8042 (interrupt, aux, 12) [7825]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: c8 <- i8042 (interrupt, aux, 12) [7826]
+Feb  7 11:49:18 petrus ALPS Touchpad (Dualpoint) detected
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7832]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e7 -> i8042 (parameter) [7832]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7837]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7837]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e7 -> i8042 (parameter) [7837]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7841]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7841]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e7 -> i8042 (parameter) [7841]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7845]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7845]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f5 -> i8042 (parameter) [7845]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7850]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7850]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f5 -> i8042 (parameter) [7850]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7854]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7854]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f5 -> i8042 (parameter) [7854]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7859]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7859]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f5 -> i8042 (parameter) [7859]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7863]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7863]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e9 -> i8042 (parameter) [7863]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7868]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 10 <- i8042 (interrupt, aux, 12) [7871]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 00 <- i8042 (interrupt, aux, 12) [7872]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 64 <- i8042 (interrupt, aux, 12) [7873]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7873]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f5 -> i8042 (parameter) [7873]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7877]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7877]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f5 -> i8042 (parameter) [7877]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7882]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7882]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f5 -> i8042 (parameter) [7882]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7886]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7886]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f5 -> i8042 (parameter) [7886]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7891]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7891]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [7891]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7895]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7895]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f0 -> i8042 (parameter) [7895]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7900]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7900]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [7900]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7904]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7904]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [7904]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7908]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7908]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [7908]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7913]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7913]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f5 -> i8042 (parameter) [7913]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7917]
+Feb  7 11:49:18 petrus input: AlpsPS/2 ALPS TouchPad on isa0060/serio1
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7923]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: ea -> i8042 (parameter) [7923]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7928]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7928]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f3 -> i8042 (parameter) [7928]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7928]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7928]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 64 -> i8042 (parameter) [7928]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7936]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7936]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e8 -> i8042 (parameter) [7936]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7937]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7937]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: 03 -> i8042 (parameter) [7937]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7944]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7944]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: e6 -> i8042 (parameter) [7944]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7949]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: d4 -> i8042 (command) [7949]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: f4 -> i8042 (parameter) [7949]
+Feb  7 11:49:18 petrus drivers/input/serio/i8042.c: fa <- i8042 (interrupt, aux, 12) [7953]
+Feb  7 11:49:18 petrus i2c /dev entries driver
+Feb  7 11:49:18 petrus pc87360: PC8736x not detected, module not inserted.
+Feb  7 11:49:18 petrus EISA: Probing bus 0 at eisa0
 
-thanks,
--chris
+Hope that helps.
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Joseph===============================================trelane@digitasaru.net
+      Graduate Student in Physics, Freelance Free Software Developer

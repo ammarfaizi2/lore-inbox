@@ -1,66 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131314AbQKAFCB>; Wed, 1 Nov 2000 00:02:01 -0500
+	id <S129130AbQKAFDa>; Wed, 1 Nov 2000 00:03:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129781AbQKAFBu>; Wed, 1 Nov 2000 00:01:50 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:37645 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S131314AbQKAFBg>; Wed, 1 Nov 2000 00:01:36 -0500
-Date: Tue, 31 Oct 2000 23:01:20 -0600
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Cc: mingo@elte.hu, Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-Message-ID: <20001031230120.G1041@wire.cadcamlab.org>
-In-Reply-To: <Pine.LNX.4.21.0011010010380.16674-100000@elte.hu> <39FF4773.CA06CB60@timpanogas.org>
-Mime-Version: 1.0
+	id <S129118AbQKAFDU>; Wed, 1 Nov 2000 00:03:20 -0500
+Received: from mx2.core.com ([208.40.40.41]:57029 "EHLO smtp-2.core.com")
+	by vger.kernel.org with ESMTP id <S129168AbQKAFDK>;
+	Wed, 1 Nov 2000 00:03:10 -0500
+Message-ID: <39FFB221.D6A1B5FF@megsinet.net>
+Date: Wed, 01 Nov 2000 00:03:13 -0600
+From: "M.H.VanLeeuwen" <vanl@megsinet.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: torvalds@transmeta.com
+Subject: Re: Linux-2.4.0-test10
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <39FF4773.CA06CB60@timpanogas.org>; from jmerkey@timpanogas.org on Tue, Oct 31, 2000 at 03:28:03PM -0700
-From: Peter Samuelson <peter@cadcamlab.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+FYI,
 
-    [Jeff Merkey]
-> > > The numbers don't lie. [...]
-> > 
-  [Ingo Molnar]
-> > sure ;) I can do infinite context switches! You dont believe? See:
-> > 
-> >         #define schedule() do { } while (0)
+My list of 2.4.0-testX problems
 
-[Jeff]
-> Actually, I think the compiler would optimize this statement
-> completely out of the code.
+Further details, .config, etc...available if needed
 
-That was Ingo's point.  He is doing infinite context switches per
-second, where a context switch is defined as "schedule()", because he
-turned it into a noop.
+Martin
 
-I.e. the numbers can easily be made to lie, by playing with the rules
-of the game.
+2.4.0-test10 and earlier problem list:
+ 
+Problem |       UP              UP-APIC         SMP
+--------|------------------------------------------------
+1       |       OK              OK              HARDLOCK
+2       |       OK              FAILS           OK
+3       |       HARDLOCK        HARDLOCK        HARDLOCK
+4       |       BROKEN          BROKEN          BROKEN
 
-The point of confusion, Jeff, is that to *you* a context switch means
-stack switch, with no baggage like scheduling or reloading registers.
-Everyone else here thinks of a context switch as meaning a pre-emptive
-switch between two unrelated processes -- which as you know involves
-not only the stack, but MM adjustments, registers, floating point
-registers (expensive on pre-P6), IP, and some form of scheduling.
-
-Obviously some of these can be optimized out if you can make
-assumptions about the processes: you might drop memory protection if
-you like the stability of Windows 95, floating point if you can get
-away with telling people they can't use it, maybe use FIFO scheduling
-if you don't care about fairness and you know the processes are more or
-less uniform.  Linux cannot make any of these assumptions -- it is far
-too general-purpose.
-
-In Linux, in fact, jumping from ring 3 to ring 0 (ie system call) is
-not considered a context switch.  I suppose you would consider it one.
-So the real question is, how many gettimeofday() per sec can Linux do?
-
-Peter
+Problem description:
+ 
+1.  kernel compiled w/o FB support.  When attempting to switch
+    back to X from VC1-6 system locks hard for SMP.  Nada thing
+    fixes this except hard reset... no Alt-SysRq-B, nothing
+    DRI not enabled.  Video card has r128 chipset.
+ 
+2.  System is a NFS root machine, after a period of heavy ntwk
+    activity, eg. "make clean" in /usr/src/linux ETH0 no longer
+    works or sometimes just ntwk activity during system boot is
+    enough to cause the ETH activity to cease.
+    The only recourse is to Alt-SysRq-B the system.
+    NIC = NE2K ISA
+ 
+3. Enabling PIIX4, kernel locks hard when printing the partition
+   tables for hdc.   hdc has no partitions.
+   I think this problem is on Ted's problem list???
+ 
+4. ISAPNP assigns an invalid/unusable IRQ to NE2K NIC card.
+   Previously reported to Linux & Ingo, they asked for an MPTABLE
+   dump, haven't heard back since providing said data.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,396 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264442AbUD2NDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264355AbUD2NQJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264442AbUD2NDY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 09:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbUD2NDY
+	id S264355AbUD2NQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 09:16:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264527AbUD2NQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 09:03:24 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:10654 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264442AbUD2NBG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 09:01:06 -0400
-Date: Thu, 29 Apr 2004 18:33:53 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Greg KH <greg@kroah.com>, Jeff Garzik <jgarzik@pobox.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] fix sysfs symlinks
-Message-ID: <20040429130353.GC11624@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <20040416223732.GC21701@kroah.com> <20040416234601.GL24997@parcelfarce.linux.theplanet.co.uk> <40807466.1020701@pobox.com> <20040417090712.B11481@flint.arm.linux.org.uk> <20040417082206.GM24997@parcelfarce.linux.theplanet.co.uk> <20040420161602.GB9603@kroah.com> <20040421101104.GA7921@in.ibm.com> <20040422213736.GL17014@parcelfarce.linux.theplanet.co.uk> <20040423085218.GB27638@in.ibm.com> <20040423092641.GM17014@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040423092641.GM17014@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+	Thu, 29 Apr 2004 09:16:08 -0400
+Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:34897 "HELO
+	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264355AbUD2NQC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 09:16:02 -0400
+Date: Thu, 29 Apr 2004 08:19:42 -0500 (CDT)
+From: Brent Cook <busterbcook@yahoo.com>
+X-X-Sender: busterb@ozma.hauschen
+Reply-To: busterbcook@yahoo.com
+To: Andrew Morton <akpm@osdl.org>
+cc: busterbcook@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: pdflush eating a lot of CPU on heavy NFS I/O
+In-Reply-To: <20040428214741.7d5b3ae1.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0404290758300.24731@ozma.hauschen>
+References: <Pine.LNX.4.58.0404280009300.28371@ozma.hauschen>
+ <20040427230203.1e4693ac.akpm@osdl.org> <Pine.LNX.4.58.0404280826070.31093@ozma.hauschen>
+ <20040428124809.418e005d.akpm@osdl.org> <Pine.LNX.4.58.0404281534110.3044@ozma.hauschen>
+ <20040428182443.6747e34b.akpm@osdl.org> <Pine.LNX.4.58.0404282244280.13311@ozma.hauschen>
+ <20040428210214.31efe911.akpm@osdl.org> <Pine.LNX.4.58.0404282330390.13783@ozma.hauschen>
+ <20040428214741.7d5b3ae1.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 23, 2004 at 10:26:41AM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Fri, Apr 23, 2004 at 02:22:18PM +0530, Maneesh Soni wrote:
-> > @@ -136,6 +138,12 @@ restart:
-> >  			 */
-> >  			spin_unlock(&dcache_lock);
-> >  			d_delete(d);
-> 
-> ITYM "d_drop(d)" here.  Right now these are equivalent (and d_drop() is
-> less work) since we are holding at least two references to d; if/when
-> we stop pinning leaves of the tree in core, the check below will become
-> unsafe with d_delete().
+On Wed, 28 Apr 2004, Andrew Morton wrote:
 
-You are right again, I do use d_drop() for sysfs backing store. Here also
-we can use d_drop(). I have corrected at both the places you pointed.
+> Brent Cook <busterbcook@yahoo.com> wrote:
+> >
+> > On Wed, 28 Apr 2004, Andrew Morton wrote:
+> >
+> >  > Brent Cook <busterbcook@yahoo.com> wrote:
+> >  > >
+> >  > > sync_sb_inodes: write inode c55d25bc
+> >  > >  __sync_single_inode: writepages in nr_pages:25 nr_to_write:949
+> >  > >  pages_skipped:0 en:0
+> >  > >  __sync_single_inode: writepages in nr_pages:25 nr_to_write:949
+> >  > >  pages_skipped:0 en:0
+> >  >
+> >  > uh-huh.
+> >  >
+> >  > Does this fix it?
+> >
+> >  I'm going to run a compile/load test overnight, but the test that
+> >  triggered it every time previously failed to do so with this patch.
+>
+> OK, thanks.  A better patch would be:
 
-> 
-> >  	new_dentry = sysfs_get_dentry(parent, new_name);
-> > -	d_move(kobj->dentry, new_dentry);
-> > -	kobject_set_name(kobj,new_name);
-> > +	if (!IS_ERR(new_dentry)) {
-> > +		down_write(&sysfs_rename_sem);
-> > +		d_move(kobj->dentry, new_dentry);
-> > +		kobject_set_name(kobj,new_name);
-> > +		up_write(&sysfs_rename_sem);
-> > +	}
-> >  	up(&parent->d_inode->i_sem);	
-> >  }
-> 
-> BTW, the above leaks because of unbalanced sysfs_get_dentry().  You need
-> a dput() in there.
+No, thank you! The overnight test was successful. I have been running this
+better patch for a little while, and it is no worse. I think you have
+solved the bigger problem, which was the runaway process, at least for me.
 
-If I am not wrong I should add dput(new_dentry) after d_move() to avoid leak.
+So, moving it to the tail of the s_dirty list now puts that page in a
+higher-priority to be written back next time? That sounds better than just
+redirtying it; the poor inode has been through enough as it is without
+having to wait even longer.
 
-[..]
-
-> 
-> > @@ -70,11 +70,13 @@ void sysfs_remove_group(struct kobject *
-> >  	else
-> >  		dir = dget(kobj->dentry);
-> >  
-> > -	remove_files(dir,grp);
-> > -	if (grp->name)
-> > -		sysfs_remove_subdir(dir);
-> > -	/* release the ref. taken in this routine */
-> > -	dput(dir);
-> > +	if (dir && !IS_ERR(dir)) {
-> > +		remove_files(dir,grp);
-> > +		if (grp->name)
-> > +			sysfs_remove_subdir(dir);
-> > +		/* release the ref. taken in this routine */
-> > +		dput(dir);
-> > +	}
-> >  }
-> 
-> Hmm...  I thought that's what
-> 		if (error)
-> 			return error;
-> several lines above had been about.  Can we get there with NULL or ERR_PTR()
-> in dir?
-
-No.. if sysfs_create_group() is successful, we will never get error in 
-dir. And no one will be allowed to call sysfs_remove_group() if 
-sysfs_create_group() has failed.
-
-Patch appended with corrections.
+If you want to think about it a little more, pdflush on 2.6.6-rc3 with
+this patch still seems to use more resources than it did on 2.6.5. With
+heavy NFS traffic, it still uses about 2-3% CPU on 2.6.6-rc3, but on 2.6.5
+it averages about 0.1%. Maybe it just wasn't being used to its full
+potential in 2.6.5?
 
 Thanks
-Maneesh
+ - Brent
 
-
-
-o The symlinks code in sysfs doesnot point to the correct target kobject
-  whenever target kobject is renamed and suffers from dangling symlinks
-  if target kobject is removed.
-
-o The following patch implements ->readlink and ->follow_link operations 
-  for sysfs instead of using the page_symlink_inode_operations. 
-  The pointer to target kobject is saved in the link dentry's d_fsdata field. 
-  The target path is generated everytime we do ->readlink and ->follow_link. 
-  This results in generating the correct target path during readlink and 
-  follow_link operations inspite of renamed target kobject. 
-
-o This also pins the target kobject during link creation and the ref. is
-  released when the link is removed. 
-
-o Apart from being correct this patch also saves some memory by not pinning
-  a whole page for saving the target information.
-
-o Used a rw_semaphor sysfs_rename_sem to avoid clashing with renaming of 
-  ancestors while the target path is generated. 
-
-o Used dcache_lock in fs/sysfs/sysfs.h:sysfs_get_kobject() because of using
-  d_drop() while removing dentries.
-
-
- fs/sysfs/dir.c     |   20 ++++++-
- fs/sysfs/inode.c   |    7 ++
- fs/sysfs/symlink.c |  135 ++++++++++++++++++++++++++++++++++++-----------------
- fs/sysfs/sysfs.h   |    7 +-
- 4 files changed, 121 insertions(+), 48 deletions(-)
-
-diff -puN fs/sysfs/sysfs.h~sysfs-symlinks-fix fs/sysfs/sysfs.h
---- linux-2.6.6-rc2-mm2/fs/sysfs/sysfs.h~sysfs-symlinks-fix	2004-04-29 16:15:13.000000000 +0530
-+++ linux-2.6.6-rc2-mm2-maneesh/fs/sysfs/sysfs.h	2004-04-29 18:03:58.000000000 +0530
-@@ -12,15 +12,18 @@ extern void sysfs_hash_and_remove(struct
- extern int sysfs_create_subdir(struct kobject *, const char *, struct dentry **);
- extern void sysfs_remove_subdir(struct dentry *);
- 
-+extern int sysfs_readlink(struct dentry *, char __user *, int );
-+extern int sysfs_follow_link(struct dentry *, struct nameidata *);
-+extern struct rw_semaphore sysfs_rename_sem;
- 
- static inline struct kobject *sysfs_get_kobject(struct dentry *dentry)
- {
- 	struct kobject * kobj = NULL;
- 
--	spin_lock(&dentry->d_lock);
-+	spin_lock(&dcache_lock);
- 	if (!d_unhashed(dentry))
- 		kobj = kobject_get(dentry->d_fsdata);
--	spin_unlock(&dentry->d_lock);
-+	spin_unlock(&dcache_lock);
- 
- 	return kobj;
- }
-diff -puN fs/sysfs/dir.c~sysfs-symlinks-fix fs/sysfs/dir.c
---- linux-2.6.6-rc2-mm2/fs/sysfs/dir.c~sysfs-symlinks-fix	2004-04-29 16:15:13.000000000 +0530
-+++ linux-2.6.6-rc2-mm2-maneesh/fs/sysfs/dir.c	2004-04-29 18:31:53.000000000 +0530
-@@ -10,6 +10,8 @@
- #include <linux/kobject.h>
- #include "sysfs.h"
- 
-+DECLARE_RWSEM(sysfs_rename_sem);
-+
- static int init_dir(struct inode * inode)
- {
- 	inode->i_op = &simple_dir_inode_operations;
-@@ -134,8 +136,14 @@ restart:
- 			/**
- 			 * Unlink and unhash.
- 			 */
-+			__d_drop(d);
- 			spin_unlock(&dcache_lock);
--			d_delete(d);
-+			/* release the target kobject in case of 
-+			 * a symlink
-+			 */
-+			if (S_ISLNK(d->d_inode->i_mode))
-+				kobject_put(d->d_fsdata);
-+			
- 			simple_unlink(dentry->d_inode,d);
- 			dput(d);
- 			pr_debug(" done\n");
-@@ -167,10 +175,14 @@ void sysfs_rename_dir(struct kobject * k
- 	parent = kobj->parent->dentry;
- 
- 	down(&parent->d_inode->i_sem);
--
- 	new_dentry = sysfs_get_dentry(parent, new_name);
--	d_move(kobj->dentry, new_dentry);
--	kobject_set_name(kobj,new_name);
-+	if (!IS_ERR(new_dentry)) {
-+		down_write(&sysfs_rename_sem);
-+		d_move(kobj->dentry, new_dentry);
-+		kobject_set_name(kobj,new_name);
-+		up_write(&sysfs_rename_sem);
-+		dput(new_dentry);
-+	}
- 	up(&parent->d_inode->i_sem);	
- }
- 
-diff -puN fs/sysfs/inode.c~sysfs-symlinks-fix fs/sysfs/inode.c
---- linux-2.6.6-rc2-mm2/fs/sysfs/inode.c~sysfs-symlinks-fix	2004-04-29 16:15:13.000000000 +0530
-+++ linux-2.6.6-rc2-mm2-maneesh/fs/sysfs/inode.c	2004-04-29 16:15:13.000000000 +0530
-@@ -96,7 +96,12 @@ void sysfs_hash_and_remove(struct dentry
- 			pr_debug("sysfs: Removing %s (%d)\n", victim->d_name.name,
- 				 atomic_read(&victim->d_count));
- 
--			d_delete(victim);
-+			d_drop(victim);
-+			/* release the target kobject in case of 
-+			 * a symlink
-+			 */
-+			if (S_ISLNK(victim->d_inode->i_mode))
-+				kobject_put(victim->d_fsdata);
- 			simple_unlink(dir->d_inode,victim);
- 		}
- 		/*
-diff -puN fs/sysfs/symlink.c~sysfs-symlinks-fix fs/sysfs/symlink.c
---- linux-2.6.6-rc2-mm2/fs/sysfs/symlink.c~sysfs-symlinks-fix	2004-04-29 16:15:13.000000000 +0530
-+++ linux-2.6.6-rc2-mm2-maneesh/fs/sysfs/symlink.c	2004-04-29 18:04:07.000000000 +0530
-@@ -8,27 +8,17 @@
- 
- #include "sysfs.h"
- 
-+static struct inode_operations sysfs_symlink_inode_operations = {
-+	.readlink = sysfs_readlink,
-+	.follow_link = sysfs_follow_link,
-+};
- 
- static int init_symlink(struct inode * inode)
- {
--	inode->i_op = &page_symlink_inode_operations;
-+	inode->i_op = &sysfs_symlink_inode_operations;
- 	return 0;
- }
- 
--static int sysfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
--{
--	int error;
--
--	error = sysfs_create(dentry, S_IFLNK|S_IRWXUGO, init_symlink);
--	if (!error) {
--		int l = strlen(symname)+1;
--		error = page_symlink(dentry->d_inode, symname, l);
--		if (error)
--			iput(dentry->d_inode);
--	}
--	return error;
--}
--
- static int object_depth(struct kobject * kobj)
- {
- 	struct kobject * p = kobj;
-@@ -74,37 +64,20 @@ int sysfs_create_link(struct kobject * k
- 	struct dentry * dentry = kobj->dentry;
- 	struct dentry * d;
- 	int error = 0;
--	int size;
--	int depth;
--	char * path;
--	char * s;
--
--	depth = object_depth(kobj);
--	size = object_path_length(target) + depth * 3 - 1;
--	if (size > PATH_MAX)
--		return -ENAMETOOLONG;
--	pr_debug("%s: depth = %d, size = %d\n",__FUNCTION__,depth,size);
--
--	path = kmalloc(size,GFP_KERNEL);
--	if (!path)
--		return -ENOMEM;
--	memset(path,0,size);
--
--	for (s = path; depth--; s += 3)
--		strcpy(s,"../");
--
--	fill_object_path(target,path,size);
--	pr_debug("%s: path = '%s'\n",__FUNCTION__,path);
- 
- 	down(&dentry->d_inode->i_sem);
- 	d = sysfs_get_dentry(dentry,name);
--	if (!IS_ERR(d))
--		error = sysfs_symlink(dentry->d_inode,d,path);
--	else
-+	if (!IS_ERR(d)) {
-+		error = sysfs_create(d, S_IFLNK|S_IRWXUGO, init_symlink);
-+		if (!error)
-+			/* 
-+			 * associate the link dentry with the target kobject 
-+			 */
-+			d->d_fsdata = kobject_get(target);
-+		dput(d);
-+	} else 
- 		error = PTR_ERR(d);
--	dput(d);
- 	up(&dentry->d_inode->i_sem);
--	kfree(path);
- 	return error;
- }
- 
-@@ -120,6 +93,86 @@ void sysfs_remove_link(struct kobject * 
- 	sysfs_hash_and_remove(kobj->dentry,name);
- }
- 
-+static int sysfs_get_target_path(struct kobject * kobj, struct kobject * target,
-+				   char *path)
-+{
-+	char * s;
-+	int depth, size;
-+
-+	depth = object_depth(kobj);
-+	size = object_path_length(target) + depth * 3 - 1;
-+	if (size > PATH_MAX)
-+		return -ENAMETOOLONG;
-+
-+	pr_debug("%s: depth = %d, size = %d\n", __FUNCTION__, depth, size);
-+
-+	for (s = path; depth--; s += 3)
-+		strcpy(s,"../");
-+
-+	fill_object_path(target, path, size);
-+	pr_debug("%s: path = '%s'\n", __FUNCTION__, path);
-+
-+	return 0;
-+}
-+
-+static int sysfs_getlink(struct dentry *dentry, char * path)
-+{
-+	struct kobject *kobj, *target_kobj;
-+	int error = 0;
-+
-+	kobj = sysfs_get_kobject(dentry->d_parent);
-+	if (!kobj)
-+		return -EINVAL;
-+
-+	target_kobj = sysfs_get_kobject(dentry);
-+	if (!target_kobj) {
-+		kobject_put(kobj);
-+		return -EINVAL;
-+	}
-+
-+	down_read(&sysfs_rename_sem);
-+	error = sysfs_get_target_path(kobj, target_kobj, path);
-+	up_read(&sysfs_rename_sem);
-+	
-+	kobject_put(kobj);
-+	kobject_put(target_kobj);
-+	return error;
-+
-+}
-+
-+int sysfs_readlink(struct dentry *dentry, char __user *buffer, int buflen)
-+{
-+	int error = 0;
-+	unsigned long page = get_zeroed_page(GFP_KERNEL);
-+
-+	if (!page)
-+		return -ENOMEM;
-+
-+	error = sysfs_getlink(dentry, (char *) page);
-+	if (!error)
-+	        error = vfs_readlink(dentry, buffer, buflen, (char *) page);
-+
-+	free_page(page);
-+
-+	return error;
-+}
-+
-+int sysfs_follow_link(struct dentry *dentry, struct nameidata *nd)
-+{
-+	int error = 0;
-+	unsigned long page = get_zeroed_page(GFP_KERNEL);
-+
-+	if (!page)
-+		return -ENOMEM;
-+
-+	error = sysfs_getlink(dentry, (char *) page); 
-+	if (!error)
-+	        error = vfs_follow_link(nd, (char *) page);
-+
-+	free_page(page);
-+
-+	return error;
-+}
- 
- EXPORT_SYMBOL(sysfs_create_link);
- EXPORT_SYMBOL(sysfs_remove_link);
-
-_
-
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-25044999 Fax: 91-80-25268553
-T/L : 9243696
+>
+> diff -puN fs/fs-writeback.c~writeback-livelock-fix-2 fs/fs-writeback.c
+> --- 25/fs/fs-writeback.c~writeback-livelock-fix-2	2004-04-28 21:19:32.779061976 -0700
+> +++ 25-akpm/fs/fs-writeback.c	2004-04-28 21:20:11.080239312 -0700
+> @@ -176,11 +176,12 @@ __sync_single_inode(struct inode *inode,
+>  			if (wbc->for_kupdate) {
+>  				/*
+>  				 * For the kupdate function we leave the inode
+> -				 * where it is on sb_dirty so it will get more
+> +				 * at the head of sb_dirty so it will get more
+>  				 * writeout as soon as the queue becomes
+>  				 * uncongested.
+>  				 */
+>  				inode->i_state |= I_DIRTY_PAGES;
+> +				list_move_tail(&inode->i_list, &sb->s_dirty);
+>  			} else {
+>  				/*
+>  				 * Otherwise fully redirty the inode so that
+>
+> _
+>
+> >  pdflush is behaving so far, and I'll say you've figured it out for now,
+> >  with the final verdict in about 8 hours.
+> >
+> >  Does this mean that, if there were too many dirty pages and not enough
+> >  time to write them all back, that the dirty page list just stopped being
+> >  traversed, stuck on a single page?
+>
+> No..  There's all sorts of livelock avoidance code in there and I keep on
+> forgetting that sometimes writepage won't write the dang page at all -
+> instead it just redirties the page (and hence the inode).
+>
+> Now, that redirtying of the inode _should_ have moved the inode off the
+> s_io list and onto the s_dirty list.  But for some reason it looks like it
+> didn't, so we get stuck in a loop.  I need to think about it a bit more.

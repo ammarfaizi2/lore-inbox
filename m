@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316981AbSEaT4s>; Fri, 31 May 2002 15:56:48 -0400
+	id <S316746AbSEaURM>; Fri, 31 May 2002 16:17:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316982AbSEaT4r>; Fri, 31 May 2002 15:56:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43532 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316981AbSEaT4q>;
-	Fri, 31 May 2002 15:56:46 -0400
-Message-ID: <3CF7D52C.A8E98B81@zip.com.au>
-Date: Fri, 31 May 2002 12:55:24 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: linux-kernel@vger.kernel.org, Andrey Nekrasov <andy@spylog.ru>
-Subject: Re: 2.4.19pre9aa2
-In-Reply-To: <20020531051841.GA1172@dualathlon.random> <20020531131306.GA29960@spylog.ru> <20020531184014.GJ1172@dualathlon.random>
+	id <S316757AbSEaURL>; Fri, 31 May 2002 16:17:11 -0400
+Received: from sutr.cynic.org ([64.174.133.194]:12685 "EHLO sutr.cynic.org")
+	by vger.kernel.org with ESMTP id <S316746AbSEaURK>;
+	Fri, 31 May 2002 16:17:10 -0400
+Date: Fri, 31 May 2002 13:17:09 -0700
+From: Perry The Cynic <perry@cynic.org>
+To: Nicholas Knight <nknight@pocketinet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: business models [was patent stuff]
+Message-ID: <20020531131709.A26493@sutr.cynic.org>
+In-Reply-To: <1022678126.9255.182.camel@irongate.swansea.linux.org.uk> <20020529141300.30309.qmail@eklektix.com> <20020529171524.A5554@kushida.apsleyroad.org> <00a501c20736$6a3e6e60$6407070a@blue>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Cynics at Large
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
+On Wed, May 29, 2002 at 10:29:40AM -0700, Nicholas Knight wrote:
+> The definition of "defensive patent" could do with some reassesment.
 > 
-> ...
-> if it's a userspace-cpu intensive background load, most probably because
-> of o1. The dyn-sched (before I integraed o1 that obsoleted it) was very
-> good at detecting cpu hogs and to avoid them to disturb interactive
-> tasks like ssh-shell, of course o1 also has a sleep_time/sleep_avg
-> derived from the dyn-sched idea from Davide, but maybe the constants are
-> tuned in a different manner.
-> 
+> The only way I can see a software patent as truely defensive, is if it's
+> explicitly
+> licensed for use by anyone, anywhere, for anything, under any software
+> license.
+> The only thing it should be used to defend against is someone else patenting
+> it
+> and denying Red Hat the right to use it, it shouldn't be used to prevent
+> others,
+> no matter who they are, from using it.
 
-I've been running 2.5.16+akpmhacks on my desktop (10 days uptime!).
-Two impressions:  It's a bit swappy (it's basically the 2.4.15 VM,
-so no surprises there).
+There is a much more aggressive use that arguably is still defensive. It's
+a formal codification of the way patents are often used by corporations
+these days. It goes like this:
 
-But it's also quite markedly sluggish in the user interface when the
-machine is compiling stuff.
+"You have a license to use this patent, without fees or restrictions, in
+any of your products as long as you do not raise any claims from any of
+*your* patents, of any form, against any of our products, except when
+such patent includes license terms that are no worse than this license."
 
-While running a kernel build (-j0) and leaning on the spacebar in 
-an X application I see occasional pauses of tens of keystrokes at
-the autorepeat rate.  There was no swapin or out according to vmstat
-at the time.   So I'd be suspecting that the interactivity heuristics
-in the scheduler aren't working.  Renicing ksoftirqd to -19 doesn't
-make any difference.
+In real life, this is hellaciously hard to express in such a way that it
+can't be worked around. (One obvious attack is to fork off an "independent"
+subsidiary that raises patent claims on your behalf.) Which is why this kind
+of strategy is usually implemented by staff lawyers playing "tit for tat"
+with the other guy's staff lawyers.
 
--
+Cheers
+  -- perry
+---------------------------------------------------------------------------
+Perry The Cynic                                             perry@cynic.org
+To a blind optimist, an optimistic realist must seem like an Accursed Cynic.
+---------------------------------------------------------------------------

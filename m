@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbVBKSEM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbVBKSKY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261390AbVBKSEM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 13:04:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbVBKSEM
+	id S262076AbVBKSKY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 13:10:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbVBKSKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 13:04:12 -0500
-Received: from mail.linicks.net ([217.204.244.146]:53132 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S261390AbVBKSEI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 13:04:08 -0500
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: How to disable slow agpgart in kernel config?
-Date: Fri, 11 Feb 2005 18:04:06 +0000
-User-Agent: KMail/1.7.2
+	Fri, 11 Feb 2005 13:10:24 -0500
+Received: from moutng.kundenserver.de ([212.227.126.184]:42466 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262076AbVBKSKS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 13:10:18 -0500
+From: Hans-Peter Jansen <hpj@urpla.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] ppc64: Implement a vDSO and use it for signal trampoline #3
+Date: Fri, 11 Feb 2005 19:10:00 +0100
+User-Agent: KMail/1.5.4
+Cc: linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <1108002773.7733.196.camel@gaston>
+In-Reply-To: <1108002773.7733.196.camel@gaston>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200502111804.06899.nick@linicks.net>
+Message-Id: <200502111910.00725.hpj@urpla.net>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:18d01dd0a2a377f0376b761557b5e99a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Ben,
 
-> > This surprises me, especially considering the in-kernel nvidia-agp driver
-> > was actually written by NVidia. Are there any agp error messages in
-> > your dmesg / X log ?
+are you copyrighting under a new pseudonym? E.g.:
 
-> With the nVidia own nv_agp it appears directly in all apps, very fast 
-> under GNOME 2.8.1. Why, I do not know. Also game (opengl) performance is 
-> faster with the nv_agp, that I haven't used the kernel agp for months, now.
+On Thursday 10 February 2005 03:32, Benjamin Herrenschmidt wrote:
+> ===================================================================
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ linux-work/arch/ppc64/kernel/vdso32/sigtramp.S	2005-02-02
+> 13:28:01.000000000 +1100 @@ -0,0 +1,300 @@
+> +/*
+> + * Signal trampolines for 32 bits processes in a ppc64 kernel for
+> + * use in the vDSO
+> + *
+> + * Copyright (C) 2004 Benjamin Herrenschmuidt
+                                            ^
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ linux-work/arch/ppc64/kernel/vdso32/datapage.S	2005-02-02
+> 13:28:01.000000000 +1100 @@ -0,0 +1,68 @@
+> +/*
+> + * Access to the shared data page by the vDSO & syscall map
+> + *
+> + * Copyright (C) 2004 Benjamin Herrenschmuidt
 
-This is interesting.  I always used agpgart without a second thought (2.4.29, 
-GeForce4 MX with Via KT133 chipset).
+Who's that guy?
 
-I just read through the nVidia readme file, and there is a comprehensive 
-section on what module to use for what chipset (and card).  It recommends 
-using the nVagp for my setup, so I just rebuilt excluding agpgart so I can 
-use the nVdia module.
+Pete
 
-I never had slowness as such in KDE or X apps, but playing quake2 openGL I 
-used to get a 'wave' type effect rippling down the screen occasionally.  A 
-quick test using the nVagp module to have fixed that...
-
-I will test for a few weeks.
-
-Nick
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."

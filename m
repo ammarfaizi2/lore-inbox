@@ -1,120 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264617AbTA0W7k>; Mon, 27 Jan 2003 17:59:40 -0500
+	id <S264686AbTA0XJ3>; Mon, 27 Jan 2003 18:09:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264681AbTA0W7k>; Mon, 27 Jan 2003 17:59:40 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:207 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S264617AbTA0W7i>; Mon, 27 Jan 2003 17:59:38 -0500
-Date: Mon, 27 Jan 2003 17:08:50 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Joel Becker <Joel.Becker@oracle.com>
-cc: Christian Zander <zander@minion.de>, Mark Fasheh <mark.fasheh@oracle.com>,
-       Thomas Schlichter <schlicht@uni-mannheim.de>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: no version magic, tainting kernel.
-In-Reply-To: <20030127221523.GP20972@ca-server1.us.oracle.com>
-Message-ID: <Pine.LNX.4.44.0301271648360.18686-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264688AbTA0XJ3>; Mon, 27 Jan 2003 18:09:29 -0500
+Received: from smtp08.iddeo.es ([62.81.186.18]:28806 "EHLO smtp08.retemail.es")
+	by vger.kernel.org with ESMTP id <S264686AbTA0XJ2>;
+	Mon, 27 Jan 2003 18:09:28 -0500
+Date: Tue, 28 Jan 2003 00:18:19 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-pre3 kernel crash
+Message-ID: <20030127231819.GA1651@werewolf.able.es>
+References: <Pine.OSF.4.51.0301271632230.49659@tao.natur.cuni.cz> <3E356403.9010805@google.com> <Pine.OSF.4.51.0301271813230.57372@tao.natur.cuni.cz> <20030127192327.GD889@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20030127192327.GD889@suse.de>; from axboe@suse.de on Mon, Jan 27, 2003 at 20:23:27 +0100
+X-Mailer: Balsa 2.0.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Jan 2003, Joel Becker wrote:
 
-> On Mon, Jan 27, 2003 at 12:31:07PM -0600, Kai Germaschewski wrote:
-> > Well, if you're doing things in your module which break with the command 
-> > line options the rest of the kernel is using, I'd claim you're playing 
-> > tricks in your module which you shouldn't. The only place I'm aware of 
+On 2003.01.27 Jens Axboe wrote:
+> On Mon, Jan 27 2003, Martin MOKREJ? wrote:
+> > On Mon, 27 Jan 2003, Ross Biro wrote:
+> > 
+> > > This looks like the same problem I ran into with IDE and highmem not
+> > > getting along.  Try compiling your kernel with out highmem enabled and
+> > > see what happenes.
+> > 
+> > Yes, that "fixes" it. Any "better solution"? ;-)
+> > 
+> > > >Trace; c024dfc1 <ide_build_sglist+181/1a0>
+> > > >Trace; c024e1b4 <ide_build_dmatable+54/1a0>
+> > > >Trace; c024e6df <__ide_dma_read+3f/150>
 > 
-> 	I'm not so sure about that.  Some gcc things tweak us, and the
-> some code has had to deal with it.  This isn't something that happens
-> often, but it still can.  In addition, CFLAGS_filename.o does not allow
-> removal of options, merely the addition if I am not mistaken.
-
-Well, I suppose arguing about that without a concrete example is kinda 
-pointless.
-
-> > Basically, yes. The build process needs to be able to write, e.g. to 
-> > compile its helper code in scripts/, so init/vermagic.o is just another
-> > file being written.
+> Someone completely lost the highmem capable scatterlist setup, *boggle*.
+> This should fix it.
 > 
-> 	If my distribution has installed /usr/src/linux-x.y, I can't
-> compile against it.  Even though the 200MB of a kernel tree is already
-> taking up space on my system, I have to download *another* 30MB and
-> install it as *another* 200MB and build it to an eventual *another*
-> 260MB of kernel tree.  So, for every kernel I want to support, I have to
-> have 260MB of built tree.  And that's just for my userid.  Anyone else
-> on the box has to have their own n_kernels * 260MB of space waste.
 
-You ignored the fact that I said you will be able to use separate
-src/objdir, which means you can have your source read-only.
+Applied on top of 2.4.21-pre3-aa (no highmem), it makes my box hang on drive
+detection:
 
-> > fact, these checksums are generated as part of the compiled objects, so
-> > recording checksums needs all other compiled objects to be around. If you 
-> 
-> 	But, once the checksums are recorded, the compiled objects are
-> no longer needed, no?  It still remains that a kernel header package
-> with associated correct autoconf.h and checksums is at least an order of
-> magnitude smaller than a built kernel tree.
+PIIX4: IDE controller at PCI slot 00:07.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
+hda: 
 
-Yes, all you really need is the checksums. Then again, you also want a way 
-to verify a way that the checksums match the ABI as determined by the 
-current .config. I mean, just using the previously recorded checksums 
-without verifying is kinda pointless, they'll just always match and not 
-fulfill their function.
+<hangs here>
 
-> > As I said, I am sure interested in working with people and distros to get 
-> > something which everybody can live with. I'm wondering how RedHat manages 
-> > to have one tree for different configurations, since in that case, at 
-> > least .config/autoconf.h, EXTRAVERSION and the module version files 
-> > (*.ver) need to differ, so that kinda seems not possible in one 
-> > (read-only) tree.
-> 
-> 	Red Hat plays tricks.  They add a <rhconfig.h> to the top of
-> autoconf.h and have some extra defines so that chunks of autoconf.h look
-> like:
-> 
-> #ifdef UP_FLAG
-> ... some UP CONFIG_* options
-> #else
-> #ifdef SMP_FLAG
-> ... some SMP CONFIG_* options
-> 
-> and so on.
-> 
-> 	This does indeed track modversions as well (I don't recall which
-> files do the switching).  This actually works pretty well, but it depends
-> on the fact that their kernel flavours (up, smp, large ram) are known
-> at the time they build this setup.  This isn't necessarily the proper
-> solution for the generic kernel.  
-> 	It still remains that in 2.4 you need the headers for the kernel
-> plus the proper bits created by config/modversions.  You don't need
-> anything else, and you don't need any writability after the initial
-> generation.  This takes significantly less space than an entire built
-> tree, and is usable from /usr/src as a readonly entity.  Requiring that
-> *each user* have the kernels they wish to build installed and fully
-> built is a step back, IMHO.
+normal startup says:
 
-Yup, I now looked into what Redhat does. It's an obvious sign that there
-is work to be done, in particular making the build system work in a way
-that vendors don't need to kludge around it would definitely be nice.
+hda: Conner Peripherals 1080MB - CFS1081A, ATA DISK drive
+hdb: TOSHIBA DVD-ROM SD-M1712, ATAPI CD/DVD-ROM drive
+blk: queue 403386e0, I/O limit 4095Mb (mask 0xffffffff)
+hdc: YAMAHA CRW8424E, ATAPI CD/DVD-ROM drive
+hdd: IOMEGA ZIP 250 ATAPI, ATAPI FLOPPY drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+hda: task_no_data_intr: error=0x04 { DriveStatusError }
+hda: 2114180 sectors (1082 MB), CHS=524/64/63, DMA
 
-I have to admit that I did not think about the needs of distro vendors
-when implementing the new module version code (the other small issues I
-think can be worked around easily enough), and it's definitely an area
-which needs serious thinking and improvement. However, I think I need to
-finish the current work first, i.e. make sure the module versions actually
-work and then the separate obj / src dir stuff.
-
-Afterwards I think it's a really good idea to come up with a way to
-sensibly handle external modules, and it'd be much appreciated when all of
-the affected people (i.e. distro and external module guys) would provide
-input for that.
-
---Kai
-
-
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.21-pre3-jam4 (gcc 3.2.1 (Mandrake Linux 9.1 3.2.1-4mdk))

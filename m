@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263582AbTCUKKJ>; Fri, 21 Mar 2003 05:10:09 -0500
+	id <S263581AbTCUKIK>; Fri, 21 Mar 2003 05:08:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263585AbTCUKKJ>; Fri, 21 Mar 2003 05:10:09 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:30733 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S263582AbTCUKKI>; Fri, 21 Mar 2003 05:10:08 -0500
-Date: Fri, 21 Mar 2003 11:21:08 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Andi Kleen <ak@suse.de>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: share COMPATIBLE_IOCTL()s across architectures
-Message-ID: <20030321102108.GA2458@atrey.karlin.mff.cuni.cz>
-References: <20030319232157.GA13415@elf.ucw.cz> <20030319.160130.112180221.davem@redhat.com> <20030320193212.GA312@elf.ucw.cz> <1048191889.15338.189.camel@averell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1048191889.15338.189.camel@averell>
-User-Agent: Mutt/1.3.28i
+	id <S263582AbTCUKIK>; Fri, 21 Mar 2003 05:08:10 -0500
+Received: from imap.gmx.net ([213.165.64.20]:16084 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S263581AbTCUKIJ> convert rfc822-to-8bit;
+	Fri, 21 Mar 2003 05:08:09 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Torsten Foertsch <torsten.foertsch@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: current->fs->root vs. current->fs->altroot
+Date: Fri, 21 Mar 2003 11:16:41 +0100
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200303211116.44735.torsten.foertsch@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > >    This patche moves common COMPATIBLE_IOCTLs to
-> > >    include/linux/compat_ioctl.h, enabling pretty nice cleanups:
-> > > 
-> > > Please be careful.  For anything non-trivial there can be major
-> > > differences between compat layers.
-> > 
-> > I'm trying to be carefull. How common are ioctls that are
-> > COMPATIBLE_IOCTL(foo) on one arch, but not on another? So far I tried
-> > to decide, and mostly decided that one architecture was simply
-> > missing...
-> 
-> The only issue I'm aware of are structures with long long. IA64 and
-> x86-64 are special in that long long has a different alignmnet in 32bit
-> and 64bit (4 bytes in 32bit, 8 bytes in 64bit). All the other archs with
-> compat code have always 8 byte alignment. This means if sparc64 doesn't
-> do a conversion, but x86-64 does you cannot put it into the COMPAT_IOCTL
-> list. Make sure you only use the common set.
-> 
-> Fortunately long long is not that common and many uses of it are already
-> 8 byte aligned, but not all are.
+Hi,
 
-Okay, I was carefull this time to only include common set. (I still
-think that most differences are simple bugs).
+can someone please explain the difference between a task's root and altroot.
 
-									Pavel
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+Thanks,
+Torsten
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE+euaMwicyCTir8T4RAjaeAJ43cQV+a0RGLXZXQ70W2F7nzPomCACgozD0
++fsb6V7+DFxmTTox2Wxqqus=
+=4nR8
+-----END PGP SIGNATURE-----

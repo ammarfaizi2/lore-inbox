@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262783AbSLMNMK>; Fri, 13 Dec 2002 08:12:10 -0500
+	id <S262804AbSLMNPr>; Fri, 13 Dec 2002 08:15:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262796AbSLMNMJ>; Fri, 13 Dec 2002 08:12:09 -0500
-Received: from dc-mx15.cluster0.charter.net ([209.225.8.25]:43990 "EHLO
-	dc-mx15.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id <S262783AbSLMNMJ>; Fri, 13 Dec 2002 08:12:09 -0500
-Subject: Re: Re:OT Is this going to be true ?
-From: Billy Harvey <Billy.Harvey@thrillseeker.net>
-To: szonyi calin <caszonyi@yahoo.com>
-Cc: hps@intermeta.de, lk <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021213105625.53692.qmail@web40601.mail.yahoo.com>
-References: <20021213105625.53692.qmail@web40601.mail.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Organization: 
-Message-Id: <1039785592.9444.0.camel@rhino>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 13 Dec 2002 08:19:52 -0500
-Content-Transfer-Encoding: 8bit
+	id <S262821AbSLMNPr>; Fri, 13 Dec 2002 08:15:47 -0500
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:44756 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262804AbSLMNPq>; Fri, 13 Dec 2002 08:15:46 -0500
+X-Face: "iUeUu$b*W_"w?tV83Y3*r:`rh&dRv}$YnZ3,LVeCZSYVuf[Gpo*5%_=/\_!gc_,SS}[~xZ
+ wY77I-M)xHIx:2f56g%/`SOw"Dx%4Xq0&f\Tj~>|QR|vGlU}TBYhiG(K:2<T^
+To: "Stephen Williams" <zhig9f05jg02@sneakemail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux/alpha vs. 2.4.20 and ISO9660 vs long file names
+References: <5095-51149@sneakemail.com>
+From: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+Date: 13 Dec 2002 14:22:57 +0100
+In-Reply-To: <5095-51149@sneakemail.com>
+Message-ID: <87vg1yjbny.fsf@student.uni-tuebingen.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.5 (broccoli)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-12-13 at 05:56, szonyi calin wrote:
->  --- "Henning P. Schmiedehausen" <hps@intermeta.de> a écrit : >
-> Billy Harvey <Billy.Harvey@thrillseeker.net> writes:
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> Please ...
+"Stephen Williams" <zhig9f05jg02@sneakemail.com> writes:
 
-WTF?  Does humor have to be kept at the level of the three stooges to be
-understood these days?
+> For some reason, ls is having trouble with long file names on the
+> disk. I follow with strace, and getdents64 is returning the right
+> number of entries, but then ls tries to lstat a truncated name.  I
+> can't say of the getdirent64 is trundating the name, but it seems
+> likely.
 
-Billy
+This might be caused by a bug in stxcpy. Please try 2.4.210-pre1,
+which contains a patch by Ivan Kokshaysky for this.
 
+-- 
+	Falk

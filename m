@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136714AbREIQ4c>; Wed, 9 May 2001 12:56:32 -0400
+	id <S136665AbREIQyd>; Wed, 9 May 2001 12:54:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136679AbREIQ4W>; Wed, 9 May 2001 12:56:22 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15883 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136714AbREIQ4M>; Wed, 9 May 2001 12:56:12 -0400
-Subject: Re: 2.4.4-ac5 aic7xxx causes hang on my machine
-To: dledford@redhat.com (Doug Ledford)
-Date: Wed, 9 May 2001 17:59:53 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        bennyb@ntplx.net (Benedict Bridgwater),
-        linux-kernel@vger.kernel.org (Linux-Kernel)
-In-Reply-To: <3AF96E87.98357637@redhat.com> from "Doug Ledford" at May 09, 2001 12:21:27 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14xXJc-0002mc-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S136679AbREIQyN>; Wed, 9 May 2001 12:54:13 -0400
+Received: from srvr20.engin.umich.edu ([141.213.75.22]:48565 "EHLO
+	srvr20.engin.umich.edu") by vger.kernel.org with ESMTP
+	id <S136665AbREIQyD>; Wed, 9 May 2001 12:54:03 -0400
+Message-Id: <200105091654.MAA18672@xor.engin.umich.edu>
+From: marius@umich.edu (marius aamodt eriksen)
+To: linux-kernel@vger.kernel.org
+Subject: odd insmod problem
+X-um-uniqname: beriksen
+X-Mailer: mh 6.8
+Date: Wed, 09 May 2001 12:54:00 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Which is what I said also in my last email.  I'm more than happy to write this
-> off as a BIOS bug, and it is highly likely that the fact that Windows doesn't
-> see a problem is because of the exact test I mentioned above.  The BIOS has to
 
-I very much doubt windows is using that test.
+hi -
 
-> setup all possible boot devices, only devices non-essential to the boot
-> process (sound cards, modems, crap like that) get left unconfigured.  Not
+when i insmod the openafs module
 
-It only has to do minimal setup on them. If the BIOS calls are polled then
-assigning an IRQ is quite optional
+   insmod /usr/vice/etc/modload/libafs-2.4.4.o
 
+i get a whole bunch (50 in fact) unresolved symbols.  going through
+some of them, i can see that they do in fact exist.  for example:
+
+   root@gone:~ > grep inode_change_ok /proc/ksyms 
+   c013ff20 inode_change_ok_R66fc5011
+   root@gone:~ > grep inode_change_ok /boot/System.map
+   c013ff20 T inode_change_ok
+   c028f399 ? __kstrtab_inode_change_ok
+   c0298d40 ? __ksymtab_inode_change_ok
+
+so everything is in fact looking good.  any ideas?
+
+marius.
+
+--
+marius@{umich.edu,crockster.net,linux.com}, http://www.citi.umich.edu/u/marius

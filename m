@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129315AbRBLQs6>; Mon, 12 Feb 2001 11:48:58 -0500
+	id <S129181AbRBLQus>; Mon, 12 Feb 2001 11:50:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129299AbRBLQss>; Mon, 12 Feb 2001 11:48:48 -0500
-Received: from kashiwa8-53.ppp-1.dion.ne.jp ([210.157.148.53]:61444 "EHLO
-	ask.ne.jp") by vger.kernel.org with ESMTP id <S129117AbRBLQsd>;
-	Mon, 12 Feb 2001 11:48:33 -0500
-Date: Tue, 13 Feb 2001 01:48:14 +0900
-From: Bruce Harada <bruce@ask.ne.jp>
-To: Mike Harrold <mharrold@cas.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: lkml subject line
-Message-Id: <20010213014814.7d7f7d33.bruce@ask.ne.jp>
-In-Reply-To: <200102121525.KAA16906@mah21awu.cas.org>
-In-Reply-To: <6195.981991148@redhat.com>
-	<200102121525.KAA16906@mah21awu.cas.org>
-X-Mailer: Sylpheed version 0.4.9 (GTK+ 1.2.6; Linux 2.2.18; i686)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S129299AbRBLQui>; Mon, 12 Feb 2001 11:50:38 -0500
+Received: from [64.64.109.142] ([64.64.109.142]:6151 "EHLO quark.didntduck.org")
+	by vger.kernel.org with ESMTP id <S129181AbRBLQud>;
+	Mon, 12 Feb 2001 11:50:33 -0500
+Message-ID: <3A881438.99746625@didntduck.org>
+Date: Mon, 12 Feb 2001 11:50:00 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.73 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Paul Powell <moloch16@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Programmatically probe video chipset
+In-Reply-To: <20010212164358.2762.qmail@web119.yahoomail.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Feb 2001 10:25:47 -0500 (EST)
-Mike Harrold <mharrold@cas.org> wrote:
-> > dwguest@win.tue.nl said:
-> > The advantages can all be gained without that disadvantage by just
-> learning 
-> > to filter mail on other headers instead of the subject line.
+Paul Powell wrote:
 > 
-> Assuming your mail reader can do that (and no, I can't change my mail
-> reader).
+> Is there an API or other means to determine what video
+> card, namely the chipset, that the user has installed
+> on his machine?
+> 
+> Thanks,
+> Paul
 
-Use procmail, that's what it's there for (and it won't affect your mail
-reader, as long as you're using something reasonably sensible). I filter
-on Sender.
+The only real way is to correlate the PCI id with a chipset.  This is
+what XFree86 does.
 
 --
-Bruce Harada
-bruce@ask.ne.jp
+
+				Brian Gerst
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,119 +1,118 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317115AbSFFTpO>; Thu, 6 Jun 2002 15:45:14 -0400
+	id <S317135AbSFFTsm>; Thu, 6 Jun 2002 15:48:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317135AbSFFTpN>; Thu, 6 Jun 2002 15:45:13 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:27566
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S317115AbSFFTpM>; Thu, 6 Jun 2002 15:45:12 -0400
-Date: Thu, 6 Jun 2002 12:44:54 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Remove <linux/mm.h> from <linux/vmalloc.h>
-Message-ID: <20020606194454.GE14252@opus.bloom.county>
-In-Reply-To: <Pine.LNX.4.33.0206021853030.1383-100000@penguin.transmeta.com>
+	id <S317137AbSFFTsl>; Thu, 6 Jun 2002 15:48:41 -0400
+Received: from internal-bristol34.naxs.com ([216.98.66.34]:26664 "EHLO
+	coredump.electro-mechanical.com") by vger.kernel.org with ESMTP
+	id <S317135AbSFFTsk>; Thu, 6 Jun 2002 15:48:40 -0400
+Date: Thu, 6 Jun 2002 15:44:05 -0400
+From: William Thompson <wt@electro-mechanical.com>
+To: Samuel Flory <sflory@rackable.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PDC20267 + RAID can't find raid device
+Message-ID: <20020606154405.I7291@coredump.electro-mechanical.com>
+In-Reply-To: <20020606111918.F7291@coredump.electro-mechanical.com> <1023391095.3423.112.camel@flory.corp.rackablelabs.com> <20020606152051.H7291@coredump.electro-mechanical.com> <1023391925.3700.142.camel@flory.corp.rackablelabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+X-Mailer: Mutt 0.95.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This removes <linux/mm.h> from <linux/vmalloc.h>.
+>   Are you sure you have the raid array configured in the fasttrak bios? 
+> I don't think enabling brust should matter.  It's working for me:
 
-This then goes and fixes all of the files (x86 and PPC) which relied on
-implicit includes which don't happen anymore.  This also takes
-<linux/kdev_t.h> out of fs/mpage.c and puts it into include/linux/bio.h
-where it belongs since <linux/bio.h> references 'kdev_t' directly.
+Actually, I don't know, but it says it's there according to it's bios.
 
-A quick summary of the of the added includes:
-arch/i386/kernel/microcode.c: needs extern for num_physpages, in linux/mm.h
-include/linux/spinlock.h: local_irq* is defined in <asm/system.h> but
-this was never directly included.
-
-This depends on the patch to move the vmalloc wrappers out of
-<linux/vmalloc.h>
-
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
-
-===== arch/i386/kernel/microcode.c 1.10 vs edited =====
---- 1.10/arch/i386/kernel/microcode.c	Thu May 23 09:06:16 2002
-+++ edited/arch/i386/kernel/microcode.c	Thu Jun  6 11:01:38 2002
-@@ -67,6 +67,7 @@
- #include <linux/miscdevice.h>
- #include <linux/devfs_fs_kernel.h>
- #include <linux/spinlock.h>
-+#include <linux/mm.h>
- 
- #include <asm/msr.h>
- #include <asm/uaccess.h>
-===== fs/mpage.c 1.4 vs edited =====
---- 1.4/fs/mpage.c	Wed May 29 17:34:44 2002
-+++ edited/fs/mpage.c	Thu Jun  6 10:45:42 2002
-@@ -12,7 +12,6 @@
- 
- #include <linux/kernel.h>
- #include <linux/module.h>
--#include <linux/kdev_t.h>
- #include <linux/bio.h>
- #include <linux/fs.h>
- #include <linux/buffer_head.h>
-===== include/asm-i386/pci.h 1.13 vs edited =====
---- 1.13/include/asm-i386/pci.h	Thu Mar 14 03:11:25 2002
-+++ edited/include/asm-i386/pci.h	Thu Jun  6 10:23:38 2002
-@@ -4,6 +4,7 @@
- #include <linux/config.h>
- 
- #ifdef __KERNEL__
-+#include <linux/mm.h>		/* for struct page */
- 
- /* Can be used to override the logic in pci_scan_bus for skipping
-    already-configured bus numbers - to be used for buggy BIOSes
-===== include/asm-i386/pgalloc.h 1.15 vs edited =====
---- 1.15/include/asm-i386/pgalloc.h	Wed May 15 23:17:13 2002
-+++ edited/include/asm-i386/pgalloc.h	Thu Jun  6 10:19:21 2002
-@@ -5,6 +5,7 @@
- #include <asm/processor.h>
- #include <asm/fixmap.h>
- #include <linux/threads.h>
-+#include <linux/mm.h>		/* for struct page */
- 
- #define pmd_populate_kernel(mm, pmd, pte) \
- 		set_pmd(pmd, __pmd(_PAGE_TABLE + __pa(pte)))
-===== include/linux/bio.h 1.13 vs edited =====
---- 1.13/include/linux/bio.h	Wed Apr 24 13:00:40 2002
-+++ edited/include/linux/bio.h	Thu Jun  6 11:23:50 2002
-@@ -20,6 +20,7 @@
- #ifndef __LINUX_BIO_H
- #define __LINUX_BIO_H
- 
-+#include <linux/kdev_t.h>
- /* Platforms may set this to teach the BIO layer about IOMMU hardware. */
- #include <asm/io.h>
- #ifndef BIO_VMERGE_BOUNDARY
-===== include/linux/spinlock.h 1.9 vs edited =====
---- 1.9/include/linux/spinlock.h	Wed Apr  3 11:46:00 2002
-+++ edited/include/linux/spinlock.h	Thu Jun  6 11:23:50 2002
-@@ -7,6 +7,8 @@
- #include <linux/thread_info.h>
- #include <linux/kernel.h>
- 
-+#include <asm/system.h>
-+
- /*
-  * These are the generic versions of the spinlocks and read-write
-  * locks..
-===== include/linux/vmalloc.h 1.3 vs edited =====
---- 1.3/include/linux/vmalloc.h	Thu Jun  6 10:15:09 2002
-+++ edited/include/linux/vmalloc.h	Thu Jun  6 10:19:16 2002
-@@ -1,7 +1,6 @@
- #ifndef __LINUX_VMALLOC_H
- #define __LINUX_VMALLOC_H
- 
--#include <linux/mm.h>
- #include <linux/spinlock.h>
- 
- #include <asm/pgtable.h>
+> Uniform Multi-Platform E-IDE driver Revision: 6.31
+> ide: Assuming 33MHz system bus speed for PIO modes; override with
+> idebus=xx
+> PDC20267: IDE controller on PCI bus 00 dev 18
+> PDC20267: chipset revision 2
+> PDC20267: not 100% native mode: will probe irqs later
+> PDC20267: ROM enabled at 0xfeae0000
+> PDC20267: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER
+> Mode.
+>     ide2: BM-DMA at 0xdf00-0xdf07, BIOS settings: hde:pio, hdf:pio
+>     ide3: BM-DMA at 0xdf08-0xdf0f, BIOS settings: hdg:pio, hdh:pio
+> SvrWks OSB4: IDE controller on PCI bus 00 dev 79
+> SvrWks OSB4: chipset revision 0
+> SvrWks OSB4: not 100% native mode: will probe irqs later
+>     ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:pio, hdb:pio
+>     ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:pio, hdd:pio
+> hde: ST320410A, ATA DISK drive
+> hdg: ST320410A, ATA DISK drive
+> ide2 at 0xdfe0-0xdfe7,0xdfae on irq 31
+> ide3 at 0xdfa0-0xdfa7,0xdfaa on irq 31
+> hde: host protected area => 1
+> hde: 39102336 sectors (20020 MB) w/2048KiB Cache, CHS=38792/16/63,
+> UDMA(100)
+> hdg: host protected area => 1
+> hdg: 39102336 sectors (20020 MB) w/2048KiB Cache, CHS=38792/16/63,
+> UDMA(100)
+> ide-floppy driver 0.99.newide
+> Partition check:
+>  hde: [PTBL] [2434/255/63] hde1 hde2 hde3
+>  hdg: [PTBL] [2434/255/63] hdg1 hdg2 hdg3
+> Floppy drive(s): fd0 is 1.44M
+> Partition check:
+>  hde: [PTBL] [2434/255/63] hde1 hde2 hde3
+>  hdg: [PTBL] [2434/255/63] hdg1 hdg2 hdg3
+> ...
+>  ataraid/d0: ataraid/d0p1 ataraid/d0p2 ataraid/d0p3
+> Drive 0 is 19092 Mb (33 / 0)
+> Drive 1 is 19092 Mb (34 / 0)
+> Raid1 array consists of 2 drives.
+> Promise Fasttrak(tm) Softwareraid driver for linux version 0.03beta
+> Highpoint HPT370 Softwareraid driver for linux version 0.01
+> No raid array found
+> 
+> On Thu, 2002-06-06 at 12:20, William Thompson wrote:
+> > >   It works for me once I got the right options.  Did you enable the
+> > > "fasttrak feature"
+> > > 
+> > > I'm using the following options in my .config:
+> > > CONFIG_BLK_DEV_PDC202XX=y
+> > > CONFIG_PDC202XX_BURST=y
+> > > CONFIG_PDC202XX_FORCE=y
+> > > CONFIG_BLK_DEV_ATARAID_PDC=y
+> > 
+> > Only difference is the fact I didn't enable BURST.  your other 3 options are
+> > the same as mine.
+> > 
+> > The thing says:
+> > Promise Fasttrak(tm) Softwareraid driver 0.03beta: No raid array found
+> > 
+> > > /dev/ataraid/d0 devices, and the /dev/hd devices.  This makes for lots
+> > > of fun in the Red Hat installer, and Cerberus.   
+> > 
+> > I'm using debian, but I'm not actually installing the system, I'm copying
+> > from another.
+> > 
+> > > > After trying 2.4.19-pre10-ac2 I can finally use the PDC20267 controller,
+> > > > however, it doesn't find any raid devices.
+> > > > 
+> > > > I have 2 quantum fireballlct10 05 on the controller (hde and hdg) and
+> > > > created a stripe between these 2 disks in the controller's bios.
+> > > > 
+> > > > I can see both disks w/o problems.
+> > > > 
+> > > > I'd rather not use the linux software raid since you can't partition it.
+> > > > 
+> > > > IDE, PDC20267, FastTrak, and the raid driver are all compiled into the
+> > > > kernel.
+> > > > 
+> > > > More info is available at request.
+> > > > -
+> > > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > > > the body of a message to majordomo@vger.kernel.org
+> > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > > Please read the FAQ at  http://www.tux.org/lkml/
+> > > > 
+> > > 
+> > > 
+> > > 
+> > 
+> 
+> 
+> 

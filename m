@@ -1,42 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263827AbUF0V1n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264430AbUF0Ve3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263827AbUF0V1n (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 17:27:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264412AbUF0V1m
+	id S264430AbUF0Ve3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 17:34:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264444AbUF0Ve3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 17:27:42 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:38870 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263827AbUF0V1l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 17:27:41 -0400
-Date: Sun, 27 Jun 2004 14:26:28 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: zaitcev@redhat.com, greg@kroah.com, arjanv@redhat.com, jgarzik@redhat.com,
-       tburke@redhat.com, linux-kernel@vger.kernel.org,
-       stern@rowland.harvard.edu, mdharm-usb@one-eyed-alien.net,
-       david-b@pacbell.net
-Subject: Re: drivers/block/ub.c
-Message-Id: <20040627142628.34b60c82.davem@redhat.com>
-In-Reply-To: <200406271242.22490.oliver@neukum.org>
-References: <20040626130645.55be13ce@lembas.zaitcev.lan>
-	<200406270631.41102.oliver@neukum.org>
-	<20040626233423.7d4c1189.davem@redhat.com>
-	<200406271242.22490.oliver@neukum.org>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 27 Jun 2004 17:34:29 -0400
+Received: from mail002.syd.optusnet.com.au ([211.29.132.32]:55488 "EHLO
+	mail002.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264430AbUF0VeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 17:34:23 -0400
+Message-ID: <40DF3D5B.20208@kolivas.org>
+Date: Mon, 28 Jun 2004 07:34:19 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.6.7-ck3
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Jun 2004 12:42:21 +0200
-Oliver Neukum <oliver@neukum.org> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> OK, then it shouldn't be used in this case. However, shouldn't we have
-> an attribute like __nopadding__ which does exactly that?
+Updated patchset.
+These are patches designed to improve system responsiveness with
+specific emphasis on the desktop, but has scheduler changes
+suitable/configurable to any workload
 
-It would have the same effect.  CPU structure layout rules don't pack
-(or using other words, add padding) exactly in cases where it is
-needed to obtain the necessary alignment.
+http://kernel.kolivas.org
+
+
+Summary of features:
+- - staircase7.7 scheduler
+
+- - batch scheduling
+
+- - isochronous scheduling
+
+- - autoregulated swappiness
+
+- - autotuned vm page inactivation
+
+- - supermount-ng
+
+- - default cfq I/O scheduler
+
+- - config hz
+
+- - bootsplash v3.14
+
+
+Changes:
+- - Some unhappy bugs made it into staircase7.4 so I've updated this to
+staircase7.7 with the bugfixes without any other changes.
+
+
+Comments, questions, suggestions welcome.
+
+Thanks to those who sent feedback making it possible to find these bugs
+quickly.
+
+Cheers,
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFA3z1bZUg7+tp6mRURAnE/AKCGNY83aKUm40EAnlXU2mJdfzaO4ACbBVXA
+2JuyUneNAPND1sTk95fc5NA=
+=7t+U
+-----END PGP SIGNATURE-----

@@ -1,37 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289182AbSA3NAa>; Wed, 30 Jan 2002 08:00:30 -0500
+	id <S289185AbSA3NCV>; Wed, 30 Jan 2002 08:02:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289179AbSA3NAU>; Wed, 30 Jan 2002 08:00:20 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:9990 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S289175AbSA3NAP>; Wed, 30 Jan 2002 08:00:15 -0500
-Date: Wed, 30 Jan 2002 13:59:56 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: <roman@serv>
-To: Jeff Garzik <garzik@havoc.gtf.org>
-cc: Rob Landley <landley@trommello.org>, Miles Lane <miles@megapathdsl.net>,
-        Chris Ricker <kaboom@gatech.edu>,
-        World Domination Now! <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <20020130034746.K32317@havoc.gtf.org>
-Message-ID: <Pine.LNX.4.33.0201301350020.7674-100000@serv>
+	id <S289190AbSA3NCL>; Wed, 30 Jan 2002 08:02:11 -0500
+Received: from ligsg2.epfl.ch ([128.178.78.4]:16503 "HELO ligsg2.epfl.ch")
+	by vger.kernel.org with SMTP id <S289183AbSA3NCE>;
+	Wed, 30 Jan 2002 08:02:04 -0500
+Message-Id: <m16VuNG-0210zpC@ligsg2.epfl.ch>
+Content-Type: text/plain; charset=US-ASCII
+From: Jan Ciger <jan.ciger@epfl.ch>
+Reply-To: jan.ciger@epfl.ch
+Organization: EPFL
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.18-pre7 + O(1) scheduler hangs
+Date: Wed, 30 Jan 2002 14:02:01 +0100
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I experience strange problem with 2.4.18-pre7 and latest version (-J9) of the 
+O(1) scheduler. After one or two days of uptime, I get hanged shells, when 
+trying to execute ps, top and similar things. I saw some mention from Ingo 
+about 'frozen shells' before, but I didn't find anything more detailed about 
+that. Is this problem a known "feature" already ? I had this problem with 
+prior versions of O(1) patches too. 
 
-On Wed, 30 Jan 2002, Jeff Garzik wrote:
-
-> Instead of doing this stuff half-assed, just convince Linus to use BK :)
-
-I don't care what Linus uses, but Linus decision should not lock other
-developers into using the same tools, e.g. it should not become
-inconvenient to send simple patches. The basic communication tools should
-still be mail and patches. What we IMO need is a patch management system
-not a source management system.
-
-bye, Roman
+Jan
 

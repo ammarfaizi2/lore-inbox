@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267198AbUBSMBI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 07:01:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267204AbUBSMBI
+	id S267214AbUBSMM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 07:12:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267215AbUBSMM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 07:01:08 -0500
-Received: from pr-117-210.ains.net.au ([202.147.117.210]:28613 "EHLO
-	mail.ocs.com.au") by vger.kernel.org with ESMTP id S267198AbUBSMBG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 07:01:06 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: kjo <kernel-janitors@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: reference_init.pl for Linux 2.6 
-In-reply-to: Your message of "Wed, 18 Feb 2004 18:23:13 -0800."
-             <20040218182313.7b7b915e.rddunlap@osdl.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 19 Feb 2004 23:00:48 +1100
-Message-ID: <2263.1077192048@ocs3.ocs.com.au>
+	Thu, 19 Feb 2004 07:12:56 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:58003 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S267214AbUBSMMz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 07:12:55 -0500
+Message-ID: <4034A7F4.6000402@grupopie.com>
+Date: Thu, 19 Feb 2004 12:11:32 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: GrupoPIE
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: tridge@samba.org
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Pascal Schmidt <der.eremit@email.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: UTF-8 and case-insensitivity
+References: <1qqzv-2tr-3@gated-at.bofh.it>	<1qqJc-2A2-5@gated-at.bofh.it>	<1qHAR-2Wm-49@gated-at.bofh.it>	<1qIwr-5GB-11@gated-at.bofh.it>	<1qIwr-5GB-9@gated-at.bofh.it>	<1qIQ1-5WR-27@gated-at.bofh.it>	<1qIZt-6b9-11@gated-at.bofh.it>	<1qJsF-6Be-45@gated-at.bofh.it>	<E1Atbi7-0004tf-O7@localhost>	<16436.2817.900018.285167@samba.org>	<20040219024426.GA3901@thunk.org> <16436.11148.231014.822067@samba.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Feb 2004 18:23:13 -0800, 
-"Randy.Dunlap" <rddunlap@osdl.org> wrote:
->I have updated Keith Owens "reference_init.pl" script for
->Linux 2.6.  It searches for code that refers to other code
->sections that they should not reference, such as init code
->calling exit code or v.v.
->script for Linux 2.6 is at:
->http://developer.osdl.org/rddunlap/scripts/reference_init26.pl
+tridge@samba.org wrote:
 
-You added '$from !~ /\.data/'.  Any references from the .data section
-to .init or .exit text should be checked.  It is usually a struct
-containing a pointer to code that will be discarded, and is dangerous.
+> Currently dnotify doesn't give you the filename that is being
+> added/deleted/renamed. It just tells you that something has happened,
+> but not enough to actually maintain a name cache in user space.
 
-There is also a spurious comment line,
-#                   $from !~ $line && $line !~ $from &&
+This might be a crazy / stupid idea, so flame at will :)
+
+Wouldn't it be possible to do a samba "super-server" mode, in which samba would 
+assume that it controlled the directories it is exporting?
+
+In this mode a "corporate" Samba server, serving Windows clients, could improve 
+performance by assuming that its cache was always up-to-date.
+
+If if we wanted to access the directory locally we could always mount locally 
+using samba, and access the files anyway, albeit a lot slower and without linux 
+permissions, etc.
+
+What we would gain was the ability to say "I want to give priority to my samba 
+server" (and set it to "super-server" mode) or "my priority is to the linux 
+native filesystem, and just want to share my files with windows users anyway" 
+(and keep using samba as always).
+
+-- 
+Paulo Marques - www.grupopie.com
+
+"In a world without walls and fences who needs windows and gates?"
 

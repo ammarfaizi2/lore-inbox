@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262794AbVAQNQu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262791AbVAQNL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262794AbVAQNQu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 08:16:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262795AbVAQNQu
+	id S262791AbVAQNL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 08:11:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262795AbVAQNL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 08:16:50 -0500
-Received: from galaxy.systems.pipex.net ([62.241.162.31]:8650 "EHLO
-	galaxy.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S262794AbVAQNQs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 08:16:48 -0500
-Date: Mon, 17 Jan 2005 13:17:51 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-X-X-Sender: tigran@ezer.homenet
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [discuss] booting a kernel compiled with -mregparm=0
-In-Reply-To: <m11xckwcci.fsf@muc.de>
-Message-ID: <Pine.LNX.4.61.0501171315460.4644@ezer.homenet>
-References: <Pine.LNX.4.61.0501141623530.3526@ezer.homenet>
- <20050114205651.GE17263@kam.mff.cuni.cz> <Pine.LNX.4.61.0501141613500.6747@chaos.analogic.com>
- <cs9v6f$3tj$1@terminus.zytor.com> <Pine.LNX.4.61.0501170909040.4593@ezer.homenet>
- <m11xckwcci.fsf@muc.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 17 Jan 2005 08:11:58 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:7458 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262791AbVAQNL5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 08:11:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=pKmdTungq0XHu1yJsTJQEXY2vb+t38X83GMi5OOVnBZA7Mdf6yX+fFmXeUj74eO2e+M/PUIBdjkrb3tTpy2eciDXqrurOvQlrSaaAkLM1ShObJ5dqt3W1+JklCDoNSLxjdu9o+1YnPk6+pZL2vfdzznzFxoWDctnGMTEww3+NdM=
+Date: Mon, 17 Jan 2005 14:11:50 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: nigelenki@comcast.net, linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Audit Project?
+Message-Id: <20050117141150.7cce80c1.diegocg@gmail.com>
+In-Reply-To: <41EB6BD6.5070702@comcast.net>
+References: <41EB6691.10905@comcast.net>
+	<41EB6BD6.5070702@comcast.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi,
+El Mon, 17 Jan 2005 02:40:06 -0500 John Richard Moser <nigelenki@comcast.net> escribió:
 
-On Mon, 17 Jan 2005, Andi Kleen wrote:
-> The ABI supported way is to read the DWARF2 unwind tables. For that
-> you would a dwarf2 reader.  gdb does that in user space, and libgcc2
-> also does it for exception unwinding. IA64 has an in kernel dwarf2
-> reader library (and ia64 kdb uses it), although it would probably need
-> some work to make it work on x86-64.
->
-> So far nobody wanted it enough to do the porting work though.
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> On the same line, I've been graphing Ubuntu Linux Security Notices for a
+> while.  I've noticed that in the last 5, the number of kernel-related
+> vulnerabilities has doubled (3 more).  This disturbs me.
 
-Thank you for the pointer. I will look at it and see if I can try to port 
-it to x86_64, since that is the standard and official way. I admit that I 
-didn't realize that the "magic stuff" which gdb does is in fact a dwarf2 
-implementation (and this is what's missing in kdb on x86_64).
 
-Kind regards
-Tigran
+Most of the latest (ie: 2004) serious kernel holes (if not all) have been
+found by the isec.pl guys (http://www.isec.pl/vulnerabilities.html), specially
+Paul Starzetz. While they're not a "auditing project", the effect they're
+having is the same.
+
+
+(By the way, secunia reports that 48% of the vulnerabilities reported for
+the linux kernel are not patched http://secunia.com/product/2719/ . I guess
+they can't notice when bugs are fixed but I hope there's not any open hole
+left)

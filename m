@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129379AbQKMJUb>; Mon, 13 Nov 2000 04:20:31 -0500
+	id <S129163AbQKMJbd>; Mon, 13 Nov 2000 04:31:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129410AbQKMJUW>; Mon, 13 Nov 2000 04:20:22 -0500
-Received: from zirkon.biophys.uni-duesseldorf.de ([134.99.176.3]:53262 "EHLO
-	zirkon.biophys.uni-duesseldorf.de") by vger.kernel.org with ESMTP
-	id <S129379AbQKMJUG>; Mon, 13 Nov 2000 04:20:06 -0500
-Date: Mon, 13 Nov 2000 10:19:42 +0100 (CET)
-From: Michael Schmitz <schmitz@zirkon.biophys.uni-duesseldorf.de>
-To: Karim Yaghmour <karym@opersys.com>
-cc: Michael Schmitz <schmitz@opal.biophys.uni-duesseldorf.de>,
-        Eric Reischer <emr@engr.de.psu.edu>, linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.linuxppc.org, debian-powerpc@lists.debian.org
-Subject: Re: Issue compiling 2.4test10
-In-Reply-To: <3A0FB18A.534F2F21@opersys.com>
-Message-ID: <Pine.LNX.4.10.10011131013380.5201-100000@zirkon.biophys.uni-duesseldorf.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129171AbQKMJbY>; Mon, 13 Nov 2000 04:31:24 -0500
+Received: from saw.sw.com.sg ([203.120.9.98]:37504 "HELO saw.sw.com.sg")
+	by vger.kernel.org with SMTP id <S129163AbQKMJbI>;
+	Mon, 13 Nov 2000 04:31:08 -0500
+Message-ID: <20001113173105.A7086@saw.sw.com.sg>
+Date: Mon, 13 Nov 2000 17:31:05 +0800
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: "Allen, David B" <David.B.Allen@chase.com>, michael@pmcl.ph.utexas.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: intel etherpro100 on 2.2.18p21 vs 2.2.18p17
+In-Reply-To: <93BA6BFC5E48D4118A8200508B6BBC4924AB7A@sf1-mail01.hamquist.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <93BA6BFC5E48D4118A8200508B6BBC4924AB7A@sf1-mail01.hamquist.com>; from "Allen, David B" on Fri, Nov 10, 2000 at 04:24:12PM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Would this patch help?
-> > 
-> > --- drivers/input/keybdev.c.org Thu Nov  2 10:13:39 2000
-> > +++ drivers/input/keybdev.c     Thu Nov  2 10:19:43 2000
-> > @@ -36,7 +36,7 @@
-> >  #include <linux/module.h>
-> >  #include <linux/kbd_kern.h>
-> > 
-> > -#if defined(CONFIG_X86) || defined(CONFIG_IA64) || defined(__alpha__) || defined(__mips__)
-> > +#if defined(CONFIG_X86) || defined(CONFIG_IA64) || defined(__alpha__) || defined(__mips__) || defined(CONFIG_MAC_HID)
-> > 
+Hello,
+
+On Fri, Nov 10, 2000 at 04:24:12PM -0800, Allen, David B wrote:
+> FWIW, I have a dual-proc SuperMicro motherboard P3DM3 with integrated
+> Adaptec SCSI and Intel 8255x built-in NIC.
 > 
-> I've tried this on my PowerBook and it doesn't work. The keymap is broken and
-> pressing anything on the keyboard will output something completely different.
-> This is fixed if the "defined(CONFIG_MAC_HID)" gets move the "#elif" part of
-> the "#if" mentionned above.
+> Sometimes on a cold boot I get the "kernel: eth0: card reports no RX
+> buffers" that repeats, but if I follow it with a warm boot the message
+> doesn't appear (even on subsequent warm boots).  So this is definitely
+> reproducible, but it doesn't happen every time.
 
-Fine, my patch made it compile, yours even makes it work. Please post a
-diff or send it to Paul Mackerras. 
- 
-> That said, 2 and 3 button emulation is broken for (at least) the PowerBook on test-10.
-> I've tried the 
-> echo "1" > /proc/sys/dev/mac_hid/mouse_button_emulation
-> and there's no effect. Anyone know what this is about?
+Yes, it's a problem, and it indeed happens not every time.
+Dragan Stancevic has promised to check it against Intel's errata.
 
-Works for me, you just need to use PC keycodes instead of ADB keycodes if
-you want to remap the keys. The default emulation codes are for fn-opt and
-fn-cmd. 
-
-	Michael
-
+Best regards
+					Andrey V.
+					Savochkin
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

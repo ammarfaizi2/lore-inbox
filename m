@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281851AbRKRELB>; Sat, 17 Nov 2001 23:11:01 -0500
+	id <S281850AbRKREKJ>; Sat, 17 Nov 2001 23:10:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281852AbRKREKu>; Sat, 17 Nov 2001 23:10:50 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:62578 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S281851AbRKREKe>; Sat, 17 Nov 2001 23:10:34 -0500
-Date: Sun, 18 Nov 2001 05:10:23 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: ehrhardt@mathematik.uni-ulm.de, linux-kernel@vger.kernel.org
-Subject: Re: VM-related Oops: 2.4.15pre1
-Message-ID: <20011118051023.A25232@athlon.random>
-In-Reply-To: <20011116142344.A7316@netnation.com> <20011117225327.5368.qmail@thales.mathematik.uni-ulm.de> <200111180312.fAI3CpG01076@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <200111180312.fAI3CpG01076@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Nov 17, 2001 at 07:12:51PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S281851AbRKREKA>; Sat, 17 Nov 2001 23:10:00 -0500
+Received: from cpe.atm0-0-0-122182.0x3ef30264.bynxx2.customer.tele.dk ([62.243.2.100]:43892
+	"HELO fugmann.dhs.org") by vger.kernel.org with SMTP
+	id <S281850AbRKREJz>; Sat, 17 Nov 2001 23:09:55 -0500
+Message-ID: <3BF73491.2040903@fugmann.dhs.org>
+Date: Sun, 18 Nov 2001 05:09:53 +0100
+From: Anders Peter Fugmann <afu@fugmann.dhs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: John Jasen <jjasen1@umbc.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SiS630 chipsets && linux 2.4.x kernel == snails pace?
+In-Reply-To: <Pine.SGI.4.31L.02.0111171716420.12044432-100000@irix2.gl.umbc.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 17, 2001 at 07:12:51PM -0800, Linus Torvalds wrote:
-> In article <20011117225327.5368.qmail@thales.mathematik.uni-ulm.de> you write:
-> >
-> >I think this one liner (diffed against 2.4.14) could fix this Oops:
+On 11/17/2001 11:22 PM, John Jasen wrote:
+
 > 
-> It really shouldn't matter - at that point we have the page locked, and
+> Anyway, various configs, system information, dmesg, and so forth can be
+> found at http://www.realityfailure.org/~jjasen/SiS630, as I'm gonna be
+> here for a while. :(
+> 
 
-I also agree the patch shouldn't matter, but one suspect thing is the
-fact add_to_swap_cache goes to clobber in a non atomic manner the page
-lock. so yes, we hold the page lock both in swap_out and in
-shrink_cache, but swap_out can drop it for a moment and then later
-pretend to be the onwer again without a real trylock.
 
-Andrea
+dmesg for the "failing" 2.4.X kernel would be nice.
+(the ones on the site is from version 2.2.19)
+Also output from 'hdparm /dev/hda' is needed in order to sort out the 
+problem.
+
+Regards
+Anders Fugmann
+
+
+

@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272244AbRIKB0r>; Mon, 10 Sep 2001 21:26:47 -0400
+	id <S272247AbRIKBd1>; Mon, 10 Sep 2001 21:33:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272247AbRIKB0h>; Mon, 10 Sep 2001 21:26:37 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:17674 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S272244AbRIKB0d>;
-	Mon, 10 Sep 2001 21:26:33 -0400
-Message-ID: <XFMail.20010911032626.ast@domdv.de>
-X-Mailer: XFMail 1.4.6-3 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S272253AbRIKBdR>; Mon, 10 Sep 2001 21:33:17 -0400
+Received: from [209.247.180.230] ([209.247.180.230]:63240 "HELO RAS-SERVER")
+	by vger.kernel.org with SMTP id <S272247AbRIKBdE>;
+	Mon, 10 Sep 2001 21:33:04 -0400
+From: "Bao C. Ha" <baoha@sensoria.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Different old_mmap behavior between  2.4.5 and 2.4.8
+Date: Mon, 10 Sep 2001 18:30:55 -0700
+Message-ID: <028701c13a61$67bf17e0$456c020a@SENSORIA>
 MIME-Version: 1.0
-In-Reply-To: <15261.26206.601070.598763@notabene.cse.unsw.edu.au>
-Date: Tue, 11 Sep 2001 03:26:26 +0200 (CEST)
-Organization: D.O.M. Datenverarbeitung GmbH
-From: Andreas Steinmetz <ast@domdv.de>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: reboot notifier priority definitions
-Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+Importance: Normal
+X-GCMulti: 1
+X-SMTP-Server: PostCast Server 1.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> I think this misses the point of reboot notifiers (as I understand
-> it).
-> 
-> There are *only* meant for "physical" sorts of things.
-> The comment in the code says:
->  *    Notifier list for kernel code which wants to be called
->  *    at shutdown. This is used to stop any idling DMA operations
->  *    and the like. 
-> 
-> md, lvm, knfsd and tux have no business registering a reboot notifier.
-> If they have something to shut down, it should be shut down in a
-> higher-level way, such as when a process gets a signal. 
-> 
-Even then: My servers do have watchdog cards. Unfortunately without the
-priority definitions the watchdog card was shut down prior to the oops. Thus,
-due to missing priority, the system did require hitting the reboot button.
-So some well defined priorization is still required.
 
+We are moving from kernel 2.4.5 to kernel 2.4.8 and above.
+One of our applications broke due to different behaviors
+of the system call old_mmap.
 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+In kernel 2.4.5:
+307   old_mmap(0x7b7f7000, 36864, PROT_READ|PROT_WRITE|PROT_EXEC,
+MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7b7f7000
+
+In kernel 2.4.8:
+[pid   313] old_mmap(0x7b7f7000, 36864, PROT_READ|PROT_WRITE|PROT_EXEC,
+MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7b7f8000
+
+In 2.4.5, we request 0x7b7f7000 and get the same area back.
+In 2.4.8, we also request 0x7b7f7000, but we are getting a
+different area pointed by 0x7b7f8000.
+
+Is this supposed to be the correct behavior?  What changes 
+make the newer kernels to return different pointers?  We
+are running on the sh4 architecture but I think these calls
+come from malloc() which should be arch-independent.
+
+Appreciate any pointers/suggestions.
+
+Thanks.
+Bao
+

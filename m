@@ -1,35 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVAPQCQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbVAPQDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261546AbVAPQCQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 11:02:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbVAPQCQ
+	id S262527AbVAPQDV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 11:03:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbVAPQDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 11:02:16 -0500
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:38022 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP id S261546AbVAPQCO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 11:02:14 -0500
-Date: Sun, 16 Jan 2005 11:02:13 -0500
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] shared subtrees
-Message-ID: <20050116160213.GB13624@fieldses.org>
-References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 16 Jan 2005 11:03:21 -0500
+Received: from smtp.golden.net ([199.166.210.31]:16913 "EHLO smtp.golden.net")
+	by vger.kernel.org with ESMTP id S261691AbVAPQDS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 11:03:18 -0500
+From: Chris Bruner <cryst@golden.net>
+To: linux-kernel@vger.kernel.org
+Subject: Die after BIOS Data Check Successful
+Date: Sun, 16 Jan 2005 11:03:14 -0500
+User-Agent: KMail/1.7.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.5.6+20040907i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+Message-Id: <200501161103.14706.cryst@golden.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 13, 2005 at 10:18:51PM +0000, Al Viro wrote:
-> 	6. mount --move
-> prohibited if what we are moving is in some p-node, otherwise we move
-> as usual to intended mountpoint and create copies for everything that
-> gets propagation from there (as we would do for rbind).
 
-Why this prohibition?
+linux-2.6.11-rc1-mm1
+dual athlon, with smp enabled
 
---Bruce Fields
+After booting I get the message that "BIOS Data Check Successful" and then it 
+just sits there. 
+
+Has anyone seen this before? Or does anyone have an idea of how to find out 
+where it's heading south?
+
+Chris Bruner
+
+
+-- 
+   I have plenty of common sense, I just choose to ignore it.
+              --- Calvin

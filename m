@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131657AbRC0WFR>; Tue, 27 Mar 2001 17:05:17 -0500
+	id <S131672AbRC0WS1>; Tue, 27 Mar 2001 17:18:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131673AbRC0WFK>; Tue, 27 Mar 2001 17:05:10 -0500
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:6924 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S131657AbRC0WEv>; Tue, 27 Mar 2001 17:04:51 -0500
-Date: Tue, 27 Mar 2001 23:04:03 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: [take 2] [patch] 2.4.3-pre8: another parport bug
-Message-ID: <20010327230403.Q21068@redhat.com>
-Mime-Version: 1.0
+	id <S131690AbRC0WSS>; Tue, 27 Mar 2001 17:18:18 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:52742 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131672AbRC0WSN>; Tue, 27 Mar 2001 17:18:13 -0500
+Message-ID: <3AC11145.58FDCFBB@transmeta.com>
+Date: Tue, 27 Mar 2001 14:16:37 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>, Andries.Brouwer@cwi.nl,
+        linux-kernel@vger.kernel.org, tytso@MIT.EDU
+Subject: Re: Larger dev_t
+In-Reply-To: <E14i1ln-0004Tn-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops, the last patch isn't the one I meant to send.  Here is the right
-one.
+Alan Cox wrote:
+> 
+> > high-end-disks. Rather the reverse. I'm advocating the SCSI layer not
+> > hogging a major number, but letting low-level drivers get at _their_
+> > requests directly.
+> 
+> A major for 'disk' generically makes total sense. Classing raid controllers
+> as 'scsi' isnt neccessarily accurate. A major for 'serial ports' would also
+> solve a lot of misery
+> 
 
-Tim.
-*/
+But it might also cause just as much misery, specifically because things
+move around too much.
 
-2001-03-27  Tim Waugh  <twaugh@redhat.com>
+	-hpa
 
-	* parport_pc: Fix save/restore_state to take account of the soft
-	control port.
-	* ChangeLog: Updated.
-
---- linux/drivers/parport/parport_pc.c.restorestate	Tue Mar 27 23:00:18 2001
-+++ linux/drivers/parport/parport_pc.c	Tue Mar 27 23:00:50 2001
-@@ -347,15 +347,16 @@
- void parport_pc_save_state(struct parport *p, struct parport_state *s)
- {
- 	const struct parport_pc_private *priv = p->physport->private_data;
--	s->u.pc.ctr = inb (CONTROL (p));
-+	s->u.pc.ctr = priv->ctr;
- 	if (priv->ecr)
- 		s->u.pc.ecr = inb (ECONTROL (p));
- }
- 
- void parport_pc_restore_state(struct parport *p, struct parport_state *s)
- {
--	const struct parport_pc_private *priv = p->physport->private_data;
-+	struct parport_pc_private *priv = p->physport->private_data;
- 	outb (s->u.pc.ctr, CONTROL (p));
-+	priv->ctr = s->u.pc.ctr;
- 	if (priv->ecr)
- 		outb (s->u.pc.ecr, ECONTROL (p));
- }
-*** linux/drivers/parport/ChangeLog.restorestate	Tue Mar 27 23:00:18 2001
---- linux/drivers/parport/ChangeLog	Tue Mar 27 23:00:38 2001
-***************
-*** 0 ****
---- 1,7 ----
-+ 2001-03-27  Tim Waugh  <twaugh@redhat.com>
-+ 
-+       * parport_pc.c (parport_pc_save_state): Read from the soft copy of
-+       the control port.
-+       (parport_pc_restore_state): Update the soft copy of the control
-+       port.
-+ 
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

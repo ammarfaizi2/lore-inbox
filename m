@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264742AbSJ3Qwk>; Wed, 30 Oct 2002 11:52:40 -0500
+	id <S264739AbSJ3QwX>; Wed, 30 Oct 2002 11:52:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264740AbSJ3Qwk>; Wed, 30 Oct 2002 11:52:40 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:21131 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264741AbSJ3Qwh>;
-	Wed, 30 Oct 2002 11:52:37 -0500
-Date: Wed, 30 Oct 2002 08:58:44 -0800
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: [PATCH] 2.5 current bk fix setting scsi queue depths
-Message-ID: <20021030085844.A11040@eng2.beaverton.ibm.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S264740AbSJ3QwX>; Wed, 30 Oct 2002 11:52:23 -0500
+Received: from earth.colorado-research.com ([65.171.192.8]:8715 "EHLO
+	earth.colorado-research.com") by vger.kernel.org with ESMTP
+	id <S264739AbSJ3QwW>; Wed, 30 Oct 2002 11:52:22 -0500
+Message-Id: <200210301658.g9UGwi509311@earth.colorado-research.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Orion Poplawski <orion@colorado-research.com>
+Organization: CoRA
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Running linux-2.4.20-rc1 on Dell Dimension 4550
+Date: Wed, 30 Oct 2002 09:58:44 -0700
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       req@earth.colorado-research.com
+References: <200210292353.g9TNrq514597@earth.colorado-research.com> <1035991410.5140.76.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1035991410.5140.76.camel@irongate.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi -
+On Wednesday 30 October 2002 08:23 am, Alan Cox wrote:
+> The -ac tree may get your sound working. Please let me know either way
+> (you can just pull the i810_audio and ac97 patches from the tree). The
+> onboard video probably needs the 4.2 Xservers from 8.0 and may even need
+> the upcoming 4.3 XFree86 release (or try CVS XFree86 if you are bold)
 
-This patch fixes a problem with the current linus bk tree setting
-scsi queue depths to 1. Please apply.
+I applied i810_audio patch from the patch-2.4.20-pre10-ac2 patch bundle.  
+Didn't see an ac97 patch.  Modules loads okay with the following output.  
+Sound appears to work fine.  I'll probably hold off on the X for a little 
+while...
 
-Without the patch:
+Thanks for the help!
 
-[patman@elm3a50 patman]$ cat /proc/scsi/sg/device_hdr /proc/scsi/sg/devices
-host    chan    id      lun     type    opens   qdepth  busy    online
-0       0       0       0       0       2       1       0       1
-0       0       1       0       0       1       1       0       1
-0       0       15      0       3       0       1       0       1
-
-With the patch:
-
-[patman@elm3a50 patman]$ cat /proc/scsi/sg/device_hdr /proc/scsi/sg/devices
-host    chan    id      lun     type    opens   qdepth  busy    online
-0       0       0       0       0       2       253     0       1
-0       0       1       0       0       1       253     0       1
-0       0       15      0       3       0       2       0       1
-
-
---- 1.51/drivers/scsi/scsi.c	Tue Oct 29 01:03:27 2002
-+++ edited/drivers/scsi/scsi.c	Wed Oct 30 08:36:23 2002
-@@ -1511,7 +1511,6 @@
- 		kfree((char *) SCpnt);
- 	}
- 	SDpnt->current_queue_depth = 0;
--	SDpnt->new_queue_depth = 0;
- 	spin_unlock_irqrestore(&device_request_lock, flags);
- }
- 
--- Patrick Mansfield
+Intel 810 + AC97 Audio, version 0.24, 09:29:28 Oct 30 2002
+PCI: Found IRQ 11 for device 00:1f.5
+PCI: Sharing IRQ 11 with 00:1f.3
+PCI: Setting latency timer of device 00:1f.5 to 64
+i810: Intel ICH4 found at IO 0xcc40 and 0xc800, MEM 0xffa04400 and 
+0xffa04000, IRQ 11
+i810: Intel ICH4 mmio at 0xd2dc5400 and 0xd2dc7000
+i810_audio: Primary codec has ID 2
+i810_audio: Audio Controller supports 6 channels.
+i810_audio: Defaulting to base 2 channel mode.
+i810_audio: Resetting connection 0
+i810_audio: Connection 0 with codec id 2
+ac97_codec: AC97 Audio codec, id: ADS114(Unknown)
+i810_audio: AC'97 codec 2 supports AMAP, total channels = 2

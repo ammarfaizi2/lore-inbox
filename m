@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264342AbRFHUUU>; Fri, 8 Jun 2001 16:20:20 -0400
+	id <S264321AbRFHUev>; Fri, 8 Jun 2001 16:34:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264330AbRFHUUK>; Fri, 8 Jun 2001 16:20:10 -0400
-Received: from fe3.rdc-kc.rr.com ([24.94.163.50]:12 "EHLO mail3.kc.rr.com")
-	by vger.kernel.org with ESMTP id <S264339AbRFHUT6>;
-	Fri, 8 Jun 2001 16:19:58 -0400
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [driver] New life for Serial mice
-In-Reply-To: <20010606125556.A1766@suse.cz> <20010606232133.E38@toy.ucw.cz>
-	<20010608181521.A1998@suse.cz>
-	<20010608182046.H13825@atrey.karlin.mff.cuni.cz>
-	<20010608182807.B2083@suse.cz>
-From: Mike Coleman <mkc@mathdogs.com>
-Date: 08 Jun 2001 15:19:46 -0500
-In-Reply-To: <20010608182807.B2083@suse.cz>
-Message-ID: <87wv6mn2ql.fsf@mathdogs.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S264322AbRFHUel>; Fri, 8 Jun 2001 16:34:41 -0400
+Received: from age.cs.columbia.edu ([128.59.22.100]:12048 "EHLO
+	age.cs.columbia.edu") by vger.kernel.org with ESMTP
+	id <S264321AbRFHUe0>; Fri, 8 Jun 2001 16:34:26 -0400
+Date: Fri, 8 Jun 2001 13:34:15 -0700 (PDT)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Tom Sightler <ttsig@tuxyturvy.com>
+cc: <linux-kernel@vger.kernel.org>, <arjan@fenrus.demon.nl>
+Subject: Re: xircom_cb problems
+In-Reply-To: <992009463.3b20dcf7467ab@eargle.com>
+Message-ID: <Pine.LNX.4.33.0106081333090.1029-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik <vojtech@suse.cz> writes:
-> > Can't it make mouse jump forward and back when user suddenly stops?
-> 
-> In theory - yes. It doesn't seem to be a problem in practice, though.
-> It'll happen when a user slows down the mouse pointer motion faster than
-> exponentially (base 2). I haven't been able to stop that fast.
+On Fri, 8 Jun 2001, Tom Sightler wrote:
 
-Put a big brick on your desktop and *ram* it with your mouse.  :-)
+> OK, I tried your patch, it did fix the problem where pump wouldn't
+> pull an IP address, but I'm still having the problem where my ping
+> times go nuts.  I've attached an example, it's 100% repeatable on my
+> network at work.  It was so bad I couldn't get any benchmark numbers.
+
+Just one more question: do you see the same bad ping times if you
+completely comment out the call to set_half_duplex?
+
+Thanks,
+Ion
 
 -- 
-Mike Coleman, mkc@mathdogs.com
-  http://www.mathdogs.com -- problem solving, expert software development
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+

@@ -1,55 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286871AbSABJvN>; Wed, 2 Jan 2002 04:51:13 -0500
+	id <S286895AbSABJ5x>; Wed, 2 Jan 2002 04:57:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286895AbSABJvC>; Wed, 2 Jan 2002 04:51:02 -0500
-Received: from sun.fadata.bg ([80.72.64.67]:32529 "HELO fadata.bg")
-	by vger.kernel.org with SMTP id <S286871AbSABJup>;
-	Wed, 2 Jan 2002 04:50:45 -0500
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Tom Rini <trini@kernel.crashing.org>, <linux-kernel@vger.kernel.org>,
-        <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: [PATCH] mesh: target 0 aborted
-In-Reply-To: <20020101234546.GO28513@cpe-24-221-152-185.az.sprintbbd.net>
-	<20020102091710.14178@smtp.noos.fr>
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <20020102091710.14178@smtp.noos.fr>
-Date: 02 Jan 2002 11:49:56 +0200
-Message-ID: <87g05pytdn.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S286898AbSABJ5n>; Wed, 2 Jan 2002 04:57:43 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13065 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286895AbSABJ5a>; Wed, 2 Jan 2002 04:57:30 -0500
+Subject: Re: Linux 2.4.17 vs 2.2.19 vs rml new VM
+To: brian@worldcontrol.com
+Date: Wed, 2 Jan 2002 10:07:59 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020102013305.A5272@top.worldcontrol.com> from "brian@worldcontrol.com" at Jan 02, 2002 01:33:05 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16LiJT-0003Yg-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Benjamin" == Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+> I tried rmap-10 new VM and under my typical load my desktop machine
+> froze repeatedly.  Seemed the memory pool was going down the drain
+> before the freeze. Meaning apps were failing and getting stuck in
+> various odd states.
+> 
+> No doubt, preempt and rmap-10 are incompatible, but I'm not going to
+> give up the preempt patch any time soon.
 
->>> This patch makes mesh.c compile, by adapting it to the new
->>> pmac_feature API (ported from the ppc tree).
->>> 
->>> In addition it contains the fix from Thomas Capricelli for the
->>> infamous "mesh: target 0 aborted" error, which I've been personally
->>> observing since 2.1.13x.
->> 
->> Er, what exactly is this against?  If this is just what's in the
->> linuxppc_2_4 tree against current 2.4.18pre, this is either (or will be
->> now :)) on BenH's list of things to resend to Marcelo, or there's a
->> problem with it still.  If you added in another patch, please re-send
->> this vs the linuxppc_2_4 tree.
+I suspect its rmap-10 not the pre-empt patch. If you have the
+time/inclination then testing just that load with rmap10a (the fixed rmap10)
+would be interesting just to know which bit is the buggy half.
 
-Benjamin> The up to date mesh driver didn't get into 2.4.18pre1, either I forgot
-Benjamin> to send it to Marcelo along with the other PPC patches, or he missed it.
-
-Benjamin> I'll take care of this.
-
-Benjamin> The other patch for getting rid of "target 0 aborted" need some more
-Benjamin> review. You seem to just remove the bus reset. That could be made a
-Benjamin> driver option in case it really cause trouble, but I suppose the bug
-Benjamin> is elsewhere (while beeing triggered by the bus reset).
-
-Benjamin> I'll look into this around next week.
-
-Thanks a lot.
-
-Regards,
--velco
+Similarly the low latency patch which on the whole seems to give better
+results than the preempt patches is much less likely to cause problems as it
+doesn't really change the system semantics in the same kind of way

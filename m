@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289170AbSA1ItJ>; Mon, 28 Jan 2002 03:49:09 -0500
+	id <S288374AbSA1JIu>; Mon, 28 Jan 2002 04:08:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289171AbSA1Is7>; Mon, 28 Jan 2002 03:48:59 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:43787 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S289170AbSA1Iso>; Mon, 28 Jan 2002 03:48:44 -0500
-Message-Id: <200201280846.g0S8k1E22015@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Alex Davis <alex14641@yahoo.com>
-Subject: Re: I've stopped the 'Spurious interrupts on IRQ7'
-Date: Mon, 28 Jan 2002 10:46:02 -0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020128083726.83324.qmail@web9205.mail.yahoo.com>
-In-Reply-To: <20020128083726.83324.qmail@web9205.mail.yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S288485AbSA1JIi>; Mon, 28 Jan 2002 04:08:38 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:28171 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S288374AbSA1JIX>;
+	Mon, 28 Jan 2002 04:08:23 -0500
+Date: Mon, 28 Jan 2002 10:08:04 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] scsi uodate to remove io_request_lock
+Message-ID: <20020128100804.A8894@suse.de>
+In-Reply-To: <20020128073357.53c9569f.johnpol@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020128073357.53c9569f.johnpol@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 January 2002 06:37, Alex Davis wrote:
-> I added the following line to /etc/lilo.conf
->
-> append = "parport=0x378,7"
->
-> and re-ran lilo. I also noticed that the 'ERR' field in
-> /proc/interrupts stays at 0, whereas before the mod it
-> was increasing.
+On Mon, Jan 28 2002, Evgeniy Polyakov wrote:
+> Hello, Jens Axboe, Linus Torvalds and other linux kernel hackers.
+> 
+> Here is patch against 2.5.3-pre5 which removes io_request_lock.
 
-Do you have a printer? Try to boot while it is powered off.
-WHAT is generating irq 7 now?
+You seem to be using &host->host_lock, which isn't quite right. SCSI
+adapters pass down a preferred lock with scsi_assign_lock, and host_lock
+_points_ to that lock. So you need to be using host->host_lock. A
+compile should have caught this error (build SMP, of course).
 
-It is documented that interrupt controller will report irq 7 if it sees irq 
-but cannot determine what device sends it. That's exactly what's happening 
-when you see "spurious int" message.
+> But unfortunnually here is 1 file (drivers/scsi/3w-xxxx.c), 
+> which still use spinning locks with io_request_lock because of detect()
+> method, in which we cann't send Scsi_Host pointer. So this file must be
+> corrected in some other way.
 
-You made kernel believe it's from printer. That does not cure the real 
-problem. BTW, there's not much of a problem, kernel just ignores spurious 
-interrupts. It _is_ a problem if you see 'ERR' number rapidly increasing.
---
-vda
+->detect() is not called with the lock held anymore...
+
+> So, please check and apply.
+
+You still have a bit of work to do :-)
+
+-- 
+Jens Axboe
+

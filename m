@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291132AbSAaQMy>; Thu, 31 Jan 2002 11:12:54 -0500
+	id <S291134AbSAaQa5>; Thu, 31 Jan 2002 11:30:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291128AbSAaQMo>; Thu, 31 Jan 2002 11:12:44 -0500
-Received: from ns1.intercarve.net ([216.254.127.221]:51460 "HELO
-	ceramicfrog.intercarve.net") by vger.kernel.org with SMTP
-	id <S291127AbSAaQM3>; Thu, 31 Jan 2002 11:12:29 -0500
-Date: Thu, 31 Jan 2002 11:09:41 -0500 (EST)
-From: "Drew P. Vogel" <dvogel@intercarve.net>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Dave Jones <davej@suse.de>, <linux-kernel@vger.kernel.org>,
-        <patchbot-devel@killeri.net>
-Subject: Re: Public patch penguin
-In-Reply-To: <E16W7xt-0000KX-00@starship.berlin>
-Message-ID: <Pine.LNX.4.33.0201311103450.15627-100000@northface.intercarve.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291135AbSAaQas>; Thu, 31 Jan 2002 11:30:48 -0500
+Received: from ASYNC14-7.NET.CS.CMU.EDU ([128.2.188.46]:62471 "EHLO
+	mentor.odyssey.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S291134AbSAaQa3>; Thu, 31 Jan 2002 11:30:29 -0500
+Date: Thu, 31 Jan 2002 11:31:10 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Wanted: Volunteer to code a Patchbot
+Message-ID: <20020131163110.GB17060@mentor.odyssey.cs.cmu.edu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.0.20020131114402.02653b10@mail.amc.localnet> <Pine.LNX.4.33L.0201311150030.32634-100000@imladris.surriel.com> <20020131152920.GA2004@hydra>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020131152920.GA2004@hydra>
+User-Agent: Mutt/1.3.26i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Agreed.  Please have a look at what we're doing here:
->
->   http://killeri.net/cgi-bin/alias/ezmlm-cgi
->
->It's too early to try the code, currently at version 0.0 (thanks to Rasmus
->Andersen for that, Kalle Kivimaa for the mail list).  The guilding design
->rule is to do everything with MTAs that submitters and maintainers _are
->already using_, and to do it _just as they do it now_, using a normal mail
->archive as the data base.  The only thing that changes is: you mail the
->patchbot instead of the maintainer.
->
->Submitters will need to put some minimal number of additional lines in the
->body of the email, and it's possible we'll get the 'minimal number' down to
->zero for common cases (one line description comes from subject, long
->description comes from mail, purpose is implied by [BUGFIX] in subject line,
->etc).
->
->Do you see anything to object to so far?
+On Thu, Jan 31, 2002 at 04:29:20PM +0100, Patrick Mauritz wrote:
+> On Thu, Jan 31, 2002 at 11:51:53AM -0200, Rik van Riel wrote:
+> > --------------------------------------------------------------
+> > This is the patchbot auto-reply.
+> > 
+> > You tried to send me a patch (attached below) but I don't
+> > know you.  To confirm that you exist (and aren't a spammer)
+> > please reply to this message.
+> > 
+> > After receiving your reply your queued patches will be
+> > published.
+> > --------------------------------------------------------------
+> 
+> ok, so then I look for some open relay and the email address of my
+> neighbour I dislike and send some hundred mails with his address in the 
+> From: field - lotsa fun...
 
-Well, I don't have any objections, per se. What I did notice immediately
-though is that the web browser is still involved. My *ideal*
-implementation would be very similar. The only significant difference
-would be that the patches would be sorted into directories, in a public
-ftp archive. The special comments would be display while changing
-directories in the archive. This way I can at least just type 'lynx
-ftp://kernel.patches.archive/patch_name/' and the first entry is the most
-current patch, and the special comments from the author would be displayed
-at the top.
+Drop anything that is not text/plain and doesn't contain
 
---Drew Vogel
+diff -urN [--exclude-from=dontdiff]
+--- yyy
++++ zzz
 
+Maybe bounce when the diff includes any files that shouldn't be part of
+the diff (http://www.moses.uklinux.net/patches/dontdiff) with a nice
+message to get that file and add --exclude-from=dontdiff or explain that
+patches can get dropped silently when they are not in unidiff format,
+include generated files, or have any type of non text/plain attachment.
+
+And whenever spam starts 'adhering' to the suggested format of linux
+kernel patches we'll get an interesting kernel indeed. Where are the
+many (human) eyes in this picture anyways. Do people get to vote
+for/veto patches in the patchbot queue?
+
+Evil thought, patchbot would turn into some form of a 'slashdot' with
+karma whores and petrified goats and such. Hmm, maybe we should keep
+things the way they are right now.
+
+Jan
 

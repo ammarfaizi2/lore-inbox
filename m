@@ -1,73 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261589AbTEUH7G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 03:59:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbTEUH4K
+	id S262034AbTEUIwV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 04:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbTEUIwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 03:56:10 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:37591 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261747AbTEUHnM (ORCPT
+	Wed, 21 May 2003 04:52:21 -0400
+Received: from pop.gmx.net ([213.165.65.60]:13044 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262034AbTEUIwT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 03:43:12 -0400
-Subject: Re: Recent changes to sysctl.h breaks glibc
-From: Martin Schlemmer <azarah@gentoo.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Riley Williams <Riley@Williams.Name>,
-       David Woodhouse <dwmw2@infradead.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       KML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3ECA60B0.6040402@zytor.com>
-References: <BKEGKPICNAKILKJKMHCAGECEDBAA.Riley@Williams.Name>
-	 <3ECA3535.7090608@nortelnetworks.com>  <3ECA60B0.6040402@zytor.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1053491987.9142.1474.camel@workshop.saharact.lan>
+	Wed, 21 May 2003 04:52:19 -0400
+Message-Id: <5.2.0.9.2.20030521074611.00cbe3c0@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Wed, 21 May 2003 11:08:34 +0200
+To: Ingo Molnar <mingo@elte.hu>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch] sched-sync-2.5.69-A0
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0305191027420.4382-100000@localhost.localdom
+ ain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 21 May 2003 06:39:47 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="=====================_58098875==_"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-05-20 at 19:06, H. Peter Anvin wrote:
+--=====================_58098875==_
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 
-> > What if the include/linux files themselves make use of the asm files?
-> > 
-> 
-> No, not acceptable.
-> 
-> The thing is, trying to redefine the old namespaces is hopeless at this 
-> point.  Hence the proposed new namespace <linux/abi/*.h> ... 
-> <linux/abi/arch/*.h> would be my preference for an arch-specific 
-> subnamespace.
-> 
-> Thus the rule is:
-> 
-> a) <linux/abi/*> files MUST NOT include files outside <linux/abi/*>
-> 
-> b) <linux/*.h> and <asm/*.h> are legacy namespaces.  They should be 
-> considered to be completely different in kernel and userspace -- in 
-> effect, glibc will eventually ship with its own set of these headers.
-> 
-> c) <linux/abi/*> files should be clean for inclusion from either kernel 
-> or userspace.
-> 
+At 10:35 AM 5/19/2003 +0200, Ingo Molnar wrote:
 
-The only issue that we might have, is that <linux/abi/*> will once
-again break many things.  Sure, if we have to fix them once to get
-this fixed for good, why not.
+>the attached patch fixes the scheduler's sync-wakeup code to be consistent
+>on UP as well.
+>
+>Right now there's a behavioral difference between an UP kernel and an SMP
+>kernel running on a UP box: sync wakeups (which are only activated on SMP)
+>can cause a wakeup of a higher prio task, without preemption. On UP
+>kernels this does not happen. This difference in wakeup behavior is bad.
 
-On the other hand, why not leave it at <linux/*.h> and <asm/*.h>
-as the location of the ABI, and then move all kernel only
-related stuff to <kernel/*.h> (or whatever, just the concept which
-count ...) which can then include whatever it needs form the other
-places (linux/asm)?
+Cool.  That was the cause of some of the radical differences in behavior 
+between smp and up kernels.  The sync wakeup in pipe wait for example was 
+the irman process load climbs through the roof problem, and it also affects 
+the ext3 concurrency problem if you have gcc using -pipe.  See attached log.
 
+         -Mike 
+--=====================_58098875==_
+Content-Type: text/plain; name="log.txt";
+ x-mac-type="42494E41"; x-mac-creator="74747874"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="log.txt"
 
-Regards,
-
--- 
-Martin Schlemmer
-
+W2JlZm9yZV06IyB0aW1lIC4vaXJtYW4KUmVzcG9uc2UgdGltZSBtZWFzdXJlbWVudHMgKG1pbGxp
+c2Vjb25kcykgZm9yOiAyLjUuNjkKICAgTG9hZCAgICAgICBNYXggICAgICAgTWluICAgICAgIEF2
+ZyBTdGQuIERldi4KICAgTlVMTCAgICAgMC4xNDIgICAgIDAuMDA5ICAgICAwLjAxMSAgICAgMC4w
+MDIKIE1FTU9SWSAgIDEwNy4wNDAgICAgIDAuMDEwICAgICAwLjAyMSAgICAgMC45OTYKRklMRV9J
+TyAgIDMxMC45OTEgICAgIDAuMDEwICAgICAwLjAzMyAgICAgMi41OTgKUFJPQ0VTUyAgMTAyMS44
+NzMgICAgIDAuMDEwICAgICAwLjA1MyAgICAgNS42MjUKCnJlYWwgICAgM20zMi41ODhzCnVzZXIg
+ICAgMG0yOC4zNTBzCnN5cyAgICAgMG0yMS4zNTNzCgpbYmVmb3JlXTojIHRpbWUgbWFrZSAtajMw
+IGJ6SW1hZ2UgKGV4dDMsIGdjYyB1c2luZyAtcGlwZSkKcmVhbCAgICAybTMyLjE0MnMKdXNlciAg
+ICAybTE0LjUwNXMKc3lzICAgICAwbTEwLjY4NXMKCltiZWZvcmVdOiMgZ3JlcCBwc3dwIC9wcm9j
+L3Ztc3RhdApwc3dwaW4gMTQ0OApwc3dwb3V0IDI0MzYKClthZnRlcl06IyB0aW1lIC4vaXJtYW4K
+UmVzcG9uc2UgdGltZSBtZWFzdXJlbWVudHMgKG1pbGxpc2Vjb25kcykgZm9yOiAyLjUuNjkKICAg
+TG9hZCAgICAgICBNYXggICAgICAgTWluICAgICAgIEF2ZyBTdGQuIERldi4KICAgTlVMTCAgICAg
+MC4yODYgICAgIDAuMDEwICAgICAwLjAxMSAgICAgMC4wMDIKIE1FTU9SWSAgIDEwMy4xMTEgICAg
+IDAuMDEwICAgICAwLjAyMSAgICAgMC45OTAKRklMRV9JTyAgIDMwNi4xNTEgICAgIDAuMDEwICAg
+ICAwLjAzMyAgICAgMi41NzgKUFJPQ0VTUyAgIDM1OS4wNzIgICAgIDAuMDEwICAgICAwLjAzMyAg
+ICAgMC42ODcKCnJlYWwgICAgMm0yMy41NDhzCnVzZXIgICAgMG0yNi4xNjBzCnN5cyAgICAgMG0y
+Mi45NDBzCgpbYWZ0ZXJdOiMgdGltZSBtYWtlIC1qMzAgYnpJbWFnZSAoZXh0MywgZ2NjIHVzaW5n
+IC1waXBlKQpyZWFsICAgIDJtMzUuMDE4cwp1c2VyICAgIDJtMTYuMDc1cwpzeXMgICAgIDBtMTEu
+ODk5cwoKW2FmdGVyXTojIGdyZXAgcHN3cCAvcHJvYy92bXN0YXQKcHN3cGluIDE5MjIwCnBzd3Bv
+dXQgMzMwMTkK
+--=====================_58098875==_--
 

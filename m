@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317010AbSFAMVb>; Sat, 1 Jun 2002 08:21:31 -0400
+	id <S317002AbSFAMhE>; Sat, 1 Jun 2002 08:37:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317011AbSFAMVa>; Sat, 1 Jun 2002 08:21:30 -0400
-Received: from mta07-svc.ntlworld.com ([62.253.162.47]:56502 "EHLO
-	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S317010AbSFAMVa>; Sat, 1 Jun 2002 08:21:30 -0400
-From: Chris Rankin <cj.rankin@ntlworld.com>
-Message-Id: <200206011221.g51CLULu000691@twopit.underworld>
-Subject: Crazy nosmp IRQ assignments in 2.4.19-pre9-ac3??
-To: linux-kernel@vger.kernel.org
-Date: Sat, 1 Jun 2002 13:21:30 +0100 (BST)
-X-Mailer: ELM [version 2.5 PL6]
+	id <S317011AbSFAMhD>; Sat, 1 Jun 2002 08:37:03 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:60296 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S317002AbSFAMhD> convert rfc822-to-8bit;
+	Sat, 1 Jun 2002 08:37:03 -0400
+Message-Id: <200206011236.g51CauY15367@mail.pronto.tv>
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: Pronto TV AS
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [BUG] 2.4 VM sucks. Again
+Date: Sat, 1 Jun 2002 14:36:56 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: jlnance@intrex.net, linux-kernel@vger.kernel.org
+In-Reply-To: <200205231311.g4NDBO613726@mail.pronto.tv> <200205241036.g4OAaXR28572@mail.pronto.tv> <20020531212133.GA1172@dualathlon.random>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > I guess it'd work fine with only one machine, as IMO, the problem must be
+> > the kernel not releasing buffers
+>
+> too much variable.
+>
+> Also keep in mind if you grow the socket buffer to hundred mbyte on an
+> highmem machine the zone-normal will finish too fast and you may run out
+> of memory. 2.4.19pre9aa2 in such case should at least return -ENOMEM and
+> not deadlock.
 
-I just tried booting 2.4.19-pre9-ac3 (SMP, 1.25 GB, devfs) with the
-"nosmp single" flags to try and debug a Firewire problem, and I found
-this oddity in /proc/interrupts:
+it's not a highmem machine. And. It's not user space processes using the 
+memory
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
 
-           CPU0       
-  0:      28797          XT-PIC  timer
-  1:        629          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  8:          0          XT-PIC  rtc
-  9:          0          XT-PIC  acpi
- 14:      10299          XT-PIC  ide0
- 15:         26          XT-PIC  ide1
- 16:          0            none  usb-ohci
- 17:          0            none  ehci-hcd
- 18:          0            none  ohci1394
- 19:          0            none  usb-ohci, usb-uhci
-NMI:          0 
-LOC:          0 
-ERR:          0
-MIS:          0
-
-Last time I booted an SMP kernel with "nosmp", there were no IRQs > 15
-and all the PCI devices were remapped to 5,7,9,10,11 etc.
-
-This doesn't look good...
-
-Chris
+Computers are like air conditioners.
+They stop working when you open Windows.

@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263854AbTJEUAh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 16:00:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263847AbTJEUAG
+	id S263861AbTJEUFn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 16:05:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263866AbTJEUFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 16:00:06 -0400
-Received: from codepoet.org ([166.70.99.138]:25218 "EHLO mail.codepoet.org")
-	by vger.kernel.org with ESMTP id S263854AbTJET70 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 15:59:26 -0400
-Date: Sun, 5 Oct 2003 13:59:25 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: iproute2 not compiling anymore
-Message-ID: <20031005195925.GA4259@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	linux-kernel@vger.kernel.org, davem@redhat.com
-References: <Pine.LNX.4.44.0310050940160.27815-100000@logos.cnet>
+	Sun, 5 Oct 2003 16:05:43 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:18048 "EHLO
+	lapdancer.baythorne.internal") by vger.kernel.org with ESMTP
+	id S263861AbTJEUDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 16:03:30 -0400
+Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
+From: David Woodhouse <dwmw2@infradead.org>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Rob Landley <rob@landley.net>,
+       "Henning P. Schmiedehausen" <hps@intermeta.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10310051211520.21746-100000@master.linux-ide.org>
+References: <Pine.LNX.4.10.10310051211520.21746-100000@master.linux-ide.org>
+Content-Type: text/plain
+Message-Id: <1065384197.3129.4.camel@lapdancer.baythorne.internal>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310050940160.27815-100000@logos.cnet>
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.2) 
+Date: Sun, 05 Oct 2003 21:03:17 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun Oct 05, 2003 at 09:42:30AM -0300, Marcelo Tosatti wrote:
+On Sun, 2003-10-05 at 12:21 -0700, Andre Hedrick wrote:
+> David,
 > 
-> Hi Erik, 
-> 
-> In previous messages you said iproute used to compile on "olders" 2.4.x 
-> kernel but doesnt compile anymore on recent 2.4. Is that information 
-> correct ? 
-> 
-> Can you tell me in more detail what is failing?
-> 
-> Interfaces should not change in a stable kernel. 
+> It is about the fact that Linus on his own set a position that modules are
+> permitted. 
 
-What Willy said covers it....
+It is indeed. And about that fact that by the time he made that
+declaration, he was not in a position to make it unilaterally.
 
- -Erik
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+>  Now if you want to take the position that one can not modify
+> and redistribute the modified kernel in source, you are imposing a
+> restriction.
+
+A restriction in this case which I assert was present in the original
+licence; not an 'additional restriction'.
+
+If I wanted to distribute my code without restrictions, I'd have
+contributed to a BSD kernel, or released my code under the terms 
+"GPL but not if you really really don't fancy it".
+
+I don't. I didn't.
+
+> If I wanted to be rude, I could take the changes I made and copyright the
+> combined work and make it so others could not use that version without
+> permission. 
+
+Not without being in violation of the original licence. This isn't about
+the resulting combined work, but about your permission to use the
+_original_.
+
+> Neither you or I can do anything, provide the vendor who is using Linux
+> publishes their source fork.  I also dare you to stop them, because you
+> can't.
+
+Believe me, there are ways this can be achieved.
+ 
+-- 
+dwmw2
+

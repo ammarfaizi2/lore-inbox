@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266715AbRHALPS>; Wed, 1 Aug 2001 07:15:18 -0400
+	id <S266797AbRHALQi>; Wed, 1 Aug 2001 07:16:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266736AbRHALO6>; Wed, 1 Aug 2001 07:14:58 -0400
-Received: from speech.braille.uwo.ca ([129.100.109.30]:38921 "EHLO
-	speech.braille.uwo.ca") by vger.kernel.org with ESMTP
-	id <S266715AbRHALOs>; Wed, 1 Aug 2001 07:14:48 -0400
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: my patches won't compile under 2.4.7
-In-Reply-To: <x7itgglrmd.fsf@speech.braille.uwo.ca>
-	<E15PUnL-0002bA-00@the-village.bc.nu>
-	<200107312154.f6VLsLl00530@mobilix.ras.ucalgary.ca>
-From: Kirk Reiser <kirk@braille.uwo.ca>
-Date: 01 Aug 2001 07:14:29 -0400
-In-Reply-To: <200107312154.f6VLsLl00530@mobilix.ras.ucalgary.ca>
-Message-ID: <x7u1zsav6y.fsf@speech.braille.uwo.ca>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S266746AbRHALQ2>; Wed, 1 Aug 2001 07:16:28 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:6625 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S266736AbRHALQW>; Wed, 1 Aug 2001 07:16:22 -0400
+Date: Wed, 1 Aug 2001 12:16:29 +0100 (BST)
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+To: Helge Hafting <helgehaf@idb.hist.no>
+cc: James Simmons <jsimmons@transvirtual.com>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] DMCA loop hole
+In-Reply-To: <3B67DE37.CA865F44@idb.hist.no>
+Message-ID: <Pine.SOL.3.96.1010801120427.25852A-100000@libra.cus.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually it wasn't Alan pointing the finger it was me.  I was only
-trying to figure out what the errors meant and they pointed to
-devfs_fs_kernel.h.  The problem as I suspected at eh time was entirely
-unrelated.  I moved my #include of misc_devices.h up and removed a
-duplicate #include for linux/init.h and poof she compiled.  I am
-starting to become a believer in voodoo computing again I guess.
+On Wed, 1 Aug 2001, Helge Hafting wrote:
+> James Simmons wrote:
+> > Sorry this is off topic but this was way to good :-)
+> > 
+> >           Virus writers can use the DMCA in a perverse way. Because
+> >    computer viruses are programs, they can be copyrighted just like a
+> >    book, song, or movie. If a virus writer were to use encryption to hide
+> >    the code of a virus, an anti-virus company could be forbidden by the
+> >    DMCA to see how the virus works without first getting the permission
+> >    of the virus writer. If they didn't, a virus writer could sue the
+> >    anti-virus company under the DMCA!
+> 
+> They'd still be able to scan for it though - detecting the encrypted
+> string or the decryption algorithm.
 
-On another note related to devfs though when I compile devfs in the
-system just hangs.  I am wondering if I am registering my synth device
-before devfs has memory allocated.  I register very early in the boot
-process in console_init() and experienced similar problems before because I
-don't think  kmalloc() may be available that early in the sequence.
+You just add a polymorphic decryption / encryption engine where you change
+the encryption key every time you encrypt it. Also, morph the decription
+code itself and you can't scan for it that easily without reverse
+engineering it... For an added twist, encrypt it twice and put only a
+minimal part of the first decryption algorithm in the unencrypted part of
+the virus. Add to that some disassembler breaking code and you are off... 
+Good that most viruses these days are written in Visual Basic rather than
+assembler so they can't do any of that... (-: 
 
-The question then is, do you think that could be why the system is
-hanging with devfs configured in?
+> What if I copyright & encrypt a DeCSS program?  Nobody can sue
+> because they don't have permission to decrypt, and therefore
+> cannot prove that it actually _is_ a decss algorithm? :-)
 
-  Kirk
+True, but if the program is actually useful in that people can use it to
+do DeCSS like things then they would know it's a DeCSS like program
+without seing the code and such a program would fall under DMCA. An
+encrypted program which doesn't do anything unless you decrypt it by some
+other program would not be very useful (ZIP/RAR/whatever can encrypt,
+too...) but nobody could sue you for writing it either. (-; 
+
+IANAL, etc,
+
+	Anton (-:
 
 -- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
-Kirk Reiser				The Computer Braille Facility
-e-mail: kirk@braille.uwo.ca		University of Western Ontario
-phone: (519) 661-3061

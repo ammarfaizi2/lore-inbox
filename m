@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262083AbTCVKNj>; Sat, 22 Mar 2003 05:13:39 -0500
+	id <S262085AbTCVKUU>; Sat, 22 Mar 2003 05:20:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262085AbTCVKNj>; Sat, 22 Mar 2003 05:13:39 -0500
-Received: from [65.171.77.208] ([65.171.77.208]:40205 "EHLO
-	mx.digitalmortgage.cc") by vger.kernel.org with ESMTP
-	id <S262083AbTCVKNi>; Sat, 22 Mar 2003 05:13:38 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Perchine <dyp@perchine.com>
-Organization: AcademSoft Ltd.
-To: linux-kernel@vger.kernel.org
-Subject: Re: VIA Rhine timeouts
-Date: Sat, 22 Mar 2003 16:24:38 +0600
-User-Agent: KMail/1.4.3
-References: <20030321232047.D7D771800D2@smtp-2.hotpop.com> <20030322101720.GA18378@k3.hellgate.ch>
-In-Reply-To: <20030322101720.GA18378@k3.hellgate.ch>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200303221624.38768.dyp@perchine.com>
+	id <S262092AbTCVKUU>; Sat, 22 Mar 2003 05:20:20 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38660 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262085AbTCVKUT>; Sat, 22 Mar 2003 05:20:19 -0500
+Date: Sat, 22 Mar 2003 10:31:21 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: 2.4+ptrace exploit fix breaks root's ability to strace
+Message-ID: <20030322103121.A16994@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 22 March 2003 16:17, Roger Luethi wrote:
-> > (in fact, an onboard chip in the ECS L7VTA-L motherboard)
-> > completely refuses to make a connection under 2.4.x kernels.
-> > I tried all releases between 2.4.18 and current 2.4.21-pre5
-> > to no avail. The driver provided by VIA at their site
-> > fared no better.
-> > [...]
-> > The weird thing is, it seems to work perfectly with
-> > Debian Woody's stock 2.2.20 idepci kernel. I'd be glad
->
-> If you have APIC support on, try turning it off.
+Hi,
 
-Is someone working on fixing APIC for VIA motherboards?
+Are the authors of the ptrace patch aware that, in addition to closing the
+hole, the "fix" also prevents a ptrace-capable task (eg, strace started by
+root) from ptracing user threads?
 
---
-Denis
+For example, you can't strace vsftpd processes started from xinetd.
+
+Is this intended behaviour?
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

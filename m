@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288821AbSANGfT>; Mon, 14 Jan 2002 01:35:19 -0500
+	id <S288833AbSANGnK>; Mon, 14 Jan 2002 01:43:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288835AbSANGfL>; Mon, 14 Jan 2002 01:35:11 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:64184 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S288821AbSANGfC>; Mon, 14 Jan 2002 01:35:02 -0500
-Date: Sun, 13 Jan 2002 23:36:04 -0700
-Message-Id: <200201140636.g0E6a4b16527@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: nahshon@actcom.co.il
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: SCSI host numbers?
-In-Reply-To: <200201132041.g0DKfeg30866@lmail.actcom.co.il>
-In-Reply-To: <E16LjdE-0003m4-00@the-village.bc.nu>
-	<200201022335.g02NZaj10253@lmail.actcom.co.il>
-	<200201060144.g061i9E09115@vindaloo.ras.ucalgary.ca>
-	<200201132041.g0DKfeg30866@lmail.actcom.co.il>
+	id <S288835AbSANGnA>; Mon, 14 Jan 2002 01:43:00 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:35337 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S288833AbSANGmz>;
+	Mon, 14 Jan 2002 01:42:55 -0500
+Date: Mon, 14 Jan 2002 07:42:45 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andre Hedrick <andre@linuxdiskcert.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BIO Usage Error or Conflicting Designs
+Message-ID: <20020114074245.B13929@suse.de>
+In-Reply-To: <20020113135927.A11793@suse.de> <Pine.LNX.4.10.10201131157590.15103-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10201131157590.15103-100000@master.linux-ide.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Itai Nahshon writes:
-> On Sunday 06 January 2002 03:44 am, Richard Gooch wrote:
-> > Where exactly is the host_id for an unregistered host being
-> > remembered?
+On Sun, Jan 13 2002, Andre Hedrick wrote:
+> On Sun, 13 Jan 2002, Jens Axboe wrote:
 > 
-> Sorry for the late reply. I was away from Email for the whole week.
+> > On Sat, Jan 12 2002, Andre Hedrick wrote:
+> > > 
+> > > Jens,
+> > > 
+> > > Here is back at you sir.
+> > 
+> > Without highmem debug enabled?? I already knew this was the bug
+> > triggered, nothing new here.
+> > 
+> > Please print the two pfn values triggering the BUG_ON, I'll take a look
+> > at this tomorrow.
 > 
-> Scsi host numbers (for both regstered and unregistered hosts)
-> are preserved in scsi_host_no_list.
-> 
-> The list is used in the function scsi_register (in drivers/scsi/hosts.c).
-> Same function also adds new hosts to the list.
-> 
-> The list can be initialized (from boot parameters ?) by 
-> the function scsi_host_no_init (drivers/scsi/scsi.c).
+> That is with highmem debug on, the stuff at the end of the config file.
+> Nothing more is generated, if there are more flags to set please tell me
+> where.
 
-Ah, yes. That was a patch someone sent to me years ago, and got
-included in the jumbo devfs patch. There's a boot parameter which
-allows you to control the allocation of host numbers.
+Sorry if I wasn't clear, I mean the emulate highmem debug patch I
+forwarded to you. I'll look into Manfred's post right now, you can
+simply remove the
 
-So how about in scsi_host_no_init() we call alloc_unique_number() N
-times until we've allocated the required number of host numbers for
-manual control. These will never be freed. Then all other host
-allocations can be done dynamically. We would just need a flag in the
-host structure to disable deallocation of the number if it's one of
-the reserved numbers.
+#ifndef CONFIG_HIGHMEM
+	BUG();
+#endif
 
-				Regards,
+test for now, for testing.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+-- 
+Jens Axboe
+

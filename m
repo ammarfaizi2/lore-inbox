@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262699AbSI1EZK>; Sat, 28 Sep 2002 00:25:10 -0400
+	id <S262700AbSI1E02>; Sat, 28 Sep 2002 00:26:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262700AbSI1EZK>; Sat, 28 Sep 2002 00:25:10 -0400
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:51213 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id <S262699AbSI1EZJ>; Sat, 28 Sep 2002 00:25:09 -0400
-Date: Sat, 28 Sep 2002 13:30:19 +0900 (JST)
-Message-Id: <20020928.133019.38287529.yoshfuji@linux-ipv6.org>
-To: kuznet@ms2.inr.ac.ru
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Improvement of Source Address Selection
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <200209280419.IAA02894@sex.inr.ac.ru>
-References: <20020927.203606.32735488.davem@redhat.com>
-	<200209280419.IAA02894@sex.inr.ac.ru>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262701AbSI1E02>; Sat, 28 Sep 2002 00:26:28 -0400
+Received: from ns.commfireservices.com ([216.6.9.162]:44558 "HELO
+	hemi.commfireservices.com") by vger.kernel.org with SMTP
+	id <S262700AbSI1E01>; Sat, 28 Sep 2002 00:26:27 -0400
+Date: Sat, 28 Sep 2002 00:30:42 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.38-mm3
+In-Reply-To: <20020927092020.GS3530@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0209280026100.32347-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200209280419.IAA02894@sex.inr.ac.ru> (at Sat, 28 Sep 2002 08:19:29 +0400 (MSD)), kuznet@ms2.inr.ac.ru says:
+On Fri, 27 Sep 2002, William Lee Irwin III wrote:
 
-> This is just extending ipv6 routing entry with a field to hold
-> source address and, generally, making the same work as IPv4 does,
-> with all the advantages, particularily capability to select preferred
-> source address via routes set up by admin (RTA_PREFSRC attribute,
-> "src" in "ip route add").
+> On Fri, Sep 27, 2002 at 01:57:43PM +0530, Dipankar Sarma wrote:
+> > What application were you all running ?
+> > Thanks
+> 
+> Basically, the workload on my "desktop" system consists of numerous ssh
+> sessions in and out of the machine, half a dozen IRC clients, xmms,
+> Mozilla, and X overhead.
 
-we need per socket preference.
-can we do that with this?
+That box is my development/main box, i run a lot of xterms, xmms, network 
+applications (ssh, browsers, irc etc...). Heavy simulator usage (i believe 
+thats where the poll stuff comes from, due to its virtual ethernet 
+interface) all done in X and the box is also local NFS server for the 
+various testboxes i have (heavy I/O, disk load) as well as kernel 
+compiles.
 
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+	Zwane
+
+--
+function.linuxpower.ca
+

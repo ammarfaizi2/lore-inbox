@@ -1,152 +1,150 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265477AbRFVRoT>; Fri, 22 Jun 2001 13:44:19 -0400
+	id <S265480AbRFVRqj>; Fri, 22 Jun 2001 13:46:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265475AbRFVRoK>; Fri, 22 Jun 2001 13:44:10 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:9353 "HELO
-	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S265477AbRFVRnz>; Fri, 22 Jun 2001 13:43:55 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@webofficenow.com>
-Reply-To: landley@webofficenow.com
-To: Craig Milo Rogers <rogers@ISI.EDU>,
-        "Eric S. Raymond" <esr@snark.thyrsus.com>
-Subject: Fair Use (Was Re: Controversy over dynamic linking -- how to end the panic)
-Date: Fri, 22 Jun 2001 08:32:44 -0400
-X-Mailer: KMail [version 1.2]
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1110.993155660@ISI.EDU>
-In-Reply-To: <1110.993155660@ISI.EDU>
+	id <S265475AbRFVRq3>; Fri, 22 Jun 2001 13:46:29 -0400
+Received: from jffdns01.or.intel.com ([134.134.248.3]:27870 "EHLO
+	ganymede.or.intel.com") by vger.kernel.org with ESMTP
+	id <S265484AbRFVRqR>; Fri, 22 Jun 2001 13:46:17 -0400
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE38E@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: RE: For comment: draft BIOS use document for the kernel
+Date: Fri, 22 Jun 2001 10:44:34 -0700
 MIME-Version: 1.0
-Message-Id: <01062208324405.00692@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 21 June 2001 16:34, Craig Milo Rogers wrote:
+Looks somewhat familiar.  8;)
+(compare http://rddunlap.home.att.net/linit/lin240_init_x86.html) (blatant
+plug)
 
-> 	The in-core kernel image, including a dynamically-loaded
-> driver, is clearly a derived work per copyright law.  As above, the
-> portion consisting only of the dynamically-loaded driver's binary code
-> may or may not be a derived work per the GPL.  It doesn't much matter
-> under the GPL, anyway, so long as the in-code kernel image isn't
-> "copied or distributed".
+Some comments below.
 
-It would  be entirely legal to generate a patch against the copyrighted work 
-which contains no code from the copyrighted work, and which is seperately 
-distributed.
 
-This falls under fair use.  The "fortify" folks did it for netscape 
-navigator.  Your instructions for a set of changes to someone else's work are 
-a unique creation as long as they don't actually include any portion of the 
-other person's work.  (And things like book reviews or parody may contains 
-small sections of the work being referred to, exactly how much is nebulous 
-and generally decided on a case by case basis if it ever gets to court.)
+> -----Original Message-----
+> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
 
-A tarball containing a set of source code for a new, independent module, 
-which does not include any GPLed code, is obviously not a "derivative work" 
-in legal terms.  (It may be inspired by, but ideas aren't copyrighted, only 
-the specific expression/implementation.  You can paraphrase an encyclopedia 
-article for a school report, etc.  Just don't quote verbatim.)
+> Linux 2.4 BIOS usage reference
+> 
+> 
+> Boot Sequence
+> -------------
+> 
+...
+> 
+> int 0x10 service 3 is used during the boot loading sequence 
+> to obtain the
+> cursor position. int 0x10 service 13 is used to display 
+s/13/0x13/                         0x13
 
-Now the COMPILED version is where the fun begins.  Distributing a precompiled 
-binary of this module means that GPL code was used during the compilation (at 
-the very least header files), and that an argument could be made that 
-technically this binary is a derivative work, and distribution of it might 
-trigger licensing terms of the GPL.
+> loading messages
+> as the loading procedure continues. int 0x10 AH=0xE is used 
+> to display a
+> progress bar of '=' characters during the bootstrap
+s/=/./            '.'
 
-Considering that the implied use of headers (I.E. .h files) is to allow their 
-inclusion in other programs and therefore the creation of other programs, 
-it's possible that an argument could be made that header files (originally 
-distributed with a .h extension by the person who issued the license in the 
-first place) are intended to be used to create other programs, and therefore 
-this is fair use and not the creation of a derived work.  After all, the 
-copyright holder of the code made a distinction between .c and .h files, when 
-the functional aspects of the language dont' demand it.  And normally, .h 
-files do not directly result in code in the output (inline macros being an 
-exception that doesn't change the overall nature and intent of the file).  
-But it'd be a coin flip whether the judge would buy that argument.
 
-Now what LINUS seems to have done is offer an nebulous and imprecisely worded 
-second license on at least the header files of Linux, which allows the 
-creation of precompiled binaries as seperate items, as long as none of the 
-existing Linux code has to be modified in any way to create these modules.  
-(Allowing this sort of thing while still being GPL compatable with a larger 
-work is, incidentally, the intent of the LGPL.  But he didn't use it.)
+> Memory Sizing
+> -------------
+> 
+> Firstly a call is made to BIOS INT 15  AX=0xE820 in order to read the
+s/15/0x15/
 
-Binary modules created under this second license (and a verbal permission can 
-be a legal license, as much as any oral agreement is ever likely to stand up 
-in court), can therefore be distributed on a Linux compilation CD readily as 
-any other piece of non-GPL code can (such as the binary-only version of 
-netscape on the Red Hat CD's).  Nobody's claiming that such an anthology is 
-creating a derived work, merely a collective distribution mechanism for the 
-seperately licensed entities.  (Like an FTP site you can take with you.)
+> E820 map. A maximum of 32 blocks are supported by current kernels. The
+> 'SMAP' signature is required and tested. In addition the SMAP 
+> signature
+> is restored each call, although not required by the 
+> specification in order to handle some know BIOS bugs.
+> 
+> If the E820 call fails then the INT 15 AX=0xE801 service is 
+s/15/0x15/
 
-Run-time linking of the modules with the Linux code is a seperate issue, 
-almost certainly falling under fair use.  You are not distributing the 
-result, and you have a license for both components saying that they are in 
-fact legal copies, therefore what you do with them is your business.  (What 
-use a legal copy is put to is NOT subject to copyright law.  Contract law as 
-part of the license terms maybe, but that's a can of worms we won't open just 
-now, especially such fun aspects as "standing" and "informed consent"...)
+> called and the
+> results are sanity checked. In particular the code zeroes the 
+> CX/DX return 
+> values in order to detect BIOS implementations that do not set them 
+> usable memory data. It also handles older BIOSes that return 
+> AX/BX but not AX/BX data.
+???             CX/DX instead?
 
-The only real legal question is whether Linus has the authority to offer the 
-second license allowing the creation of non-GPL binary modules.  A case could 
-be made that he does, and not just due to the anthology copyright, but 
-because posession really is 9/10 of the law.
 
-The "binary modules" clause has been out there for years now without being 
-challeneged.  Everybody's known about it, the statute of limitations for 
-objecting to it has probably gone by.  Everyone submitting code to Linus for 
-a long time has been implying acceptance of his license terms for 
-distribution of that code.
+> Peripherals
+> -----------
+> 
+...
+> 
+> Having completed video set up the hard disk data for hda and 
+> hdb is copied
+> from the low memory BIOS area into the kernel tables. INT 
+> 0x13 AH-0x15 is
+s/-/=/
 
-A paralell could also be dawn between intellectual property law and regular 
-property law, along the lines of homesteading.  If you find an abandoned 
-house and live in it long enough, especially if you make significant changes 
-like fixing it up, it's considered to have been abandoned to you, and you 
-gain ownership of it.  If the original owner comes back after long enough and 
-complains, the court basically decides which gets to keep it and it may very 
-well go to the current occupant.  (I'm trying to remember the name of this 
-legal principle, strangely enough they teach it in courses on real estate as 
-"something to watch out about if you're a landlord".)
 
-Linus has been maintainer of Linux since day 1.  There are other active 
-copyright holders on portions of the code (alan, ingo, andrea, rik, stephen, 
-etc.) but they've all pretty much gone along with Linus's license terms.  The 
-only potential problem would be long-inactive participants, or contributors 
-of very small patches, who might raise a stink.  The question of whether 
-they'd have significant standing is something a judge honestly might throw 
-out (for the same reason linking oracle against the linux headers ain't gonna 
-make oracle GPL no matter what the license may say.)
+> 32bit Bootstrap
+> ---------------
+> 
+...
+> 
+> In the majority of systems the kernel will directly invoke 
+> type 1 or type 2
+> configuration. In this situation the kernel will search for a $PIR PCI
+> IRQ routing table in the BIOS area (0xF0000->0xFFFFF) with a 
+> revision of 0x100 (1.0). 
 
-Remember, we're talking civil court here, not criminal.  This is an offense 
-against copyrights and contracts, not breaking laws passed by legislatures 
-and committing a misdemeanor or a felony.  What you can really sue for in 
-civil court (other than monetary damages, where you have to either prove 
-financial harm or convince a judge/jury to punish the other guy with punitive 
-damage awards) is injunctive relief in terms of a restraining order.  You can 
-get them to stop distributing your code, either to stop offering it or to 
-take your contribution out of what they offer. 
+However, the $PIR table is a Windows 98 requirement.  Hence it
+is not required for newer versions of Windows and also does not
+apply to MP systems (unless the MP BIOS table is not being used).
+(http://www.microsoft.com/HWDEV/busbios/PCIIRQ.htm)
 
-So the only practical recourse the minor copyright holder on a Linux snippet 
-might have is to request the removal of their contribution from the whole.  
-That probably WOULD be within their rights to do.  (In the oracle clase, we 
-could say "you can't distribute the version linked against our headers!  Stop 
-that!" and probably win in court.  But we couldn't get ownership of the rest 
-of their source code because the magnitude of the "offense" wouldn't fit the 
-scale of the "punishment", and because the scope of the case doesn't really 
-extend to the rest of oracle's code.  Civil courts are big on that sort of 
-thing.)
+$PIR *is* still used in Windows 2000 if available:
+http://www.microsoft.com/HWDEV/cardbus/Spir.htm
 
-So the real-world danger is that somebody we haven't heard from since 1993 
-objects to the concept of binary modules and requests we remove 10 lines from 
-the serial driver.  Which we could do, and patch our way around, in about 15 
-minutes, end of problem.
 
-Of course, I'm not a lawyer either.  (And I have no trainign in stock market 
-investing either, but I wrote a column on it for three years.  I'm 
-self-taught in Java and taught a course on it at the local community college. 
- My respect for "credentials" is just amazing, as you can tell...)
+> Power Management and BIOS Bugs
+> ------------------------------
+> 
+...
 
-Rob
+> Finally the battery status querying can be disabled to work 
+> around a small
+> number of BIOSes which crash when this function is used from 
+> 32bit space.
+> These options can be keyed from the DMI table scanner, so 
+> that, if we are
+> made aware of BIOSes requiring options set specific ways we can
+> automatically set the options correctly for that BIOS without user
+> intervention.
+
+Didn't you disable DMI scan recently, in favor of userspace
+DMI tools?
+
+
+> Future Paths
+> ------------
+> 
+> Intel are currently working on ACPI support for Linux. While 
+> much of this is
+> functional it is not yet stable enough that vendors enable 
+> it. Linux does
+> not require APM services to do minimal power management, nor 
+> does it require
+> PnPBIOS services to function happily. It does however need to 
+> know about 
+> interrupt routing. For minimal Linux compatibility a 'legacy 
+> free' BIOS
+> should probably provide the $PIR table, even if it does not 
+> provide non ACPI versions of other services.
+
+Sorry, legacy-free => ACPI, certainly not a $PIR table IMO.
+
+Personally I'd like to explore adding support to Linux for
+the Simple Boot Flag spec.
+(http://www.microsoft.com/HWDEV/desinit/simp_bios.htm
+
+~Randy
+(not speaking for Intel)
+

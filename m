@@ -1,58 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279842AbRJ3Dwv>; Mon, 29 Oct 2001 22:52:51 -0500
+	id <S279834AbRJ3EBN>; Mon, 29 Oct 2001 23:01:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279844AbRJ3Dwl>; Mon, 29 Oct 2001 22:52:41 -0500
-Received: from pacujo.datastreet.com ([208.179.44.95]:2578 "EHLO
-	lumo.pacujo.nu") by vger.kernel.org with ESMTP id <S279842AbRJ3Dwb>;
-	Mon, 29 Oct 2001 22:52:31 -0500
-To: alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15yJtV-00044i-00@the-village.bc.nu> (message from Alan Cox on
-	Mon, 29 Oct 2001 21:24:29 +0000 (GMT))
-Subject: Re: Need blocking /dev/null
-In-Reply-To: <E15yJtV-00044i-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S279841AbRJ3EBE>; Mon, 29 Oct 2001 23:01:04 -0500
+Received: from cx147940-a.chnd1.az.home.com ([24.1.238.119]:50825 "EHLO
+	newton.cevio.com") by vger.kernel.org with ESMTP id <S279834AbRJ3EA4>;
+	Mon, 29 Oct 2001 23:00:56 -0500
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20011030035221.6E5611FE7D@varmo.pacujo.nu>
-Date: Mon, 29 Oct 2001 19:52:21 -0800 (PST)
-From: marko@pacujo.nu (Marko Rauhamaa)
+From: "Kevin D. Wooten" <kwooten@home.com>
+To: linux-kernel@vger.kernel.org
+Subject: Module Licensing?
+Date: Mon, 29 Oct 2001 20:46:35 -0700
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <01102920463500.03524@newton.cevio.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I noticed that I need a pseudodevice that opens normally but blocks all
-> > reads (and writes). The only way out would be through a signal. Neither
-> 
-> Try using a pipe
+After reading the posts about the MODULE_LICENSE macro, I am in disbelief. I 
+was under the impression that one could write a "closed-source" module and 
+distribute it in binary form, and be in compliance. Please tell me I am 
+wrong? We use Linux as a platform for some data acquisition, and we are 
+currently distributing ( in very limited quantity to people who would already 
+have signed an NDA ) modules that currently have no official license as yet.
+We are researching which license to use, but according to these post's we 
+have almost no choice, Open Source or not at all!
 
-You're right. This is what I wanted to do:
-
-   while true
-   do
-       ssh -R a:b:c host
-       sleep 10
-   done </dev/never >/dev/null
-
-But I could do it like this:
-
-   while true
-   do
-       sleep 100000
-   done |
-   while true
-   do
-       ssh -R a:b:c host
-       sleep 10
-   done >/dev/null
-
-
-Thank you.
-
-
-Marko
-
-PS Are /dev/null and /dev/zero also redundant?
-
--- 
-Marko Rauhamaa    mailto:marko@pacujo.nu     http://www.pacujo.nu/marko/
+-kw

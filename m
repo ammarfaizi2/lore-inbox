@@ -1,86 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265290AbUBFNKl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 08:10:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265270AbUBFNKl
+	id S265420AbUBFNRN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 08:17:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265442AbUBFNRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 08:10:41 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:24534 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id S265290AbUBFNKj convert rfc822-to-8bit (ORCPT
+	Fri, 6 Feb 2004 08:17:13 -0500
+Received: from ns.suse.de ([195.135.220.2]:53918 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265420AbUBFNRM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 08:10:39 -0500
-Date: Fri, 6 Feb 2004 14:10:33 +0100 (MET)
-From: Arjen Verweij <A.Verweij2@ewi.tudelft.nl>
-Reply-To: a.verweij@student.tudelft.nl
-To: Craig Bradney <cbradney@zip.com.au>
-cc: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
-       Daniel Drake <dan@reactivated.net>,
-       Luis Miguel =?ISO-8859-1?Q?Garc=EDa?= <ktech@wanadoo.es>,
-       <david+challenge-response@blue-labs.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] acpi problem with nforce motherboards and ethernet
-In-Reply-To: <1076071864.1036.3.camel@athlonxp.bradney.info>
-Message-ID: <Pine.GHP.4.44.0402061404510.4608-100000@elektron.its.tudelft.nl>
+	Fri, 6 Feb 2004 08:17:12 -0500
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, Dylan Griffiths <dylang+kernel@thock.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: HFSPLus driver for Linux 2.6.
+References: <402304F0.1070008@thock.com>
+	<20040205191527.4c7a488e.akpm@osdl.org> <40231076.7040307@thock.com>
+	<20040205200217.360c51ab.akpm@osdl.org>
+	<1076051611.885.25.camel@gaston>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: HUMAN REPLICAS are inserted into VATS of NUTRITIONAL YEAST...
+Date: Fri, 06 Feb 2004 14:15:26 +0100
+In-Reply-To: <1076051611.885.25.camel@gaston> (Benjamin Herrenschmidt's
+ message of "Fri, 06 Feb 2004 18:13:32 +1100")
+Message-ID: <jeptcsxsb5.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a preliminary webpage documenting some stuff, it will mature later
-on (probably this weekend), but it would be nice to include success
-stories of people that have a setup that works for them. If you have one
-that you wish to share, please email me.
+Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
-Typically, tell me about brand, make and bios revision of your board, the
-kernel tree you used, patches applied and URLs to those patches so I can
-mirror them locally. If you have the patch locally you could just send it,
-but my mbox is only 8MB so I would really prefer an URL.
+> One thing we absolutely need too is a port of Apple's fsck for HFS+,
+> currently, the driver will refuse to mount read/write a "dirty"
+> HFS+ filesystem to avoid corruption, but that means we have to reboot
+> MacOS to fsck it then... 
 
-Maybe it is a good idea to include the kernel configs as well, so that we
-can get "monkey proof" solutions.
+Not reboot, but boot. MOL is your friend. :-)
 
-Let me know what you think.
+Andreas.
 
-Regards,
-
-Arjen
-
-On Fri, 6 Feb 2004, Craig Bradney wrote:
-
-> On Fri, 2004-02-06 at 12:15, Prakash K. Cheemplavam wrote:
-> > Prakash K. Cheemplavam wrote:
-> > > Daniel Drake wrote:
-> > >
-> > >> Prakash K. Cheemplavam wrote:
-> > >>
-> > >>> Ok, then it makes sense, so you are using APIc with CPU Disconnect
-> > >>> and Ross' patch. This explains your low idle temps. As I said this
-> > >>> config doesn't work for me.
-> > >>
-> > >>
-> > >>
-> > >> Have you experimented with the new apic_tack boot options in Ross's
-> > >> latest patches?
-> > >> apic_tack=2 seems to work best for me.
-> > >
-> > >
-> > > Stupid me. I haven't thoruoughly read the text. I have not activated the
-> > > patch, so I'll try this. thx for pointing out..
-> >
-> > OK, I appended apic_tack=2 and yes, it survives several hdparms! Great,
-> > so gonna try if it is really stable.Then I can try =1. CPU cooling down.
-> > Already at 46°C. :-)
-> >
-> > Not bad,not bad, though I saw a small performace degration: hdparm gives
-> > me 60-61mb/s instead of >62mb/s, but I won't complain. :-)
-> >
->
-> Ahh yes.. missing the kernel line argument will make a difference. I'm
-> running apic_tack=2 as well. From what I remember =2 was the "better"
-> patch option if it made your system stable.
->
-> Craig
->
-
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

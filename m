@@ -1,48 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271731AbTGXUxn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 16:53:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271732AbTGXUxn
+	id S271733AbTGXU4e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 16:56:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271736AbTGXU4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 16:53:43 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:32018 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S271731AbTGXUxl (ORCPT
+	Thu, 24 Jul 2003 16:56:34 -0400
+Received: from main.gmane.org ([80.91.224.249]:46978 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S271733AbTGXU4a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 16:53:41 -0400
-Date: Thu, 24 Jul 2003 23:08:48 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: yiding_wang@agilent.com
-Cc: rddunlap@osdl.org, sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.72 module loading issue
-Message-ID: <20030724210848.GB1176@mars.ravnborg.org>
-Mail-Followup-To: yiding_wang@agilent.com, rddunlap@osdl.org,
-	sam@ravnborg.org, linux-kernel@vger.kernel.org
-References: <334DD5C2ADAB9245B60F213F49C5EBCD05D55226@axcs03.cos.agilent.com>
+	Thu, 24 Jul 2003 16:56:30 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?Leandro_Guimar=E3es_Faria_Corsetti_Dutra?= 
+	<lgcdutra@terra.com.br>
+Subject: Re: Switching to the OSL License, in a dual way.
+Date: Thu, 24 Jul 2003 23:05:40 +0200
+Organization: =?ISO-8859-1?Q?=20Fam=C3=ADlia?= Dutra
+Message-ID: <pan.2003.07.24.21.05.40.969654@terra.com.br>
+References: <pan.2003.07.24.18.06.06.546220@terra.com.br> <Pine.LNX.4.10.10307241256360.16098-100000@master.linux-ide.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <334DD5C2ADAB9245B60F213F49C5EBCD05D55226@axcs03.cos.agilent.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 24, 2003 at 11:11:24AM -0600, yiding_wang@agilent.com wrote:
-> Hello Randy,
-> 
-> Thanks for the response.  I did not get time to look into this till now.  The way you suggested is to add module build process into kernel build.  This requires a user to build a loadable module with kernel together.  What I really want to is to have module build alone but include kernel symbols and variables so it will not have problem when loading.  The benefit of doing it is to make user and developer easy to change the code and rebuild without experiencing the kernel rebuild process every time.  I read those two documents and they mainly talking about how to build module with kernel together.
+On Thu, 24 Jul 2003 13:02:48 -0700, Andre Hedrick wrote:
 
-Please break your lines - they are very long..
+> List:     linux-kernel
+> Subject:  Bitkeeper
+> From:     Richard Stallman <rms () gnu ! org>
+> Date:     2003-07-18 19:51:36
 
-It is well known that building drivers outside the kernel tree is not
-supported in 2.6.0-test yet. This is one of the two issues remaining before
-kbuild is ready. You will see them present on Andrew Morton's must-fix
-list.
+	You didn't need to copy all that, this is well known.  But you
+were talking a quite different story, about invalidating licenses and
+such.  I fail to see the relation, as the original message from
+Stallman was about a proprietary lock-in game threat.
 
-> In2.4.x, there is a "Rules.make" which has all needed symbols and variables defined.  I just includes that file for my module build and everything works perfectly.  Now in 2.5.x, those structure has been changed and the "rule" files seem to be relocated under "scripts" and being changed too.  I am trying to make use of those "rules" to make module build and load simpler compare with build module with kernel each time.
-> 
-> Any ideas?
 
-Wait a little more, and it will be possible to build modules in a clean
-way outside the kernel tree.
+> For those who can not (will not) read, clearly the suggestion for somebody
+> to take up the cause to develop a "Bitkeeper" clone.  Know the details of
+> the license it was issued to the community to use.
 
-	Sam
+	I can't quite see your point... what's the problem with a
+clone?  It certainly isn't immoral or illegal.  An EULA tastes no
+better comming from McVoy than coming from Gates.  Cloning of Unix,
+BTW, was performed by a young Finnish student some years ago, and now
+there's a nasty US company going after people who helped
+him... certainly this is proof cloning is bad?
+
+
+> All know the response and the history of not threats but action by the FSF
+> to defend their license and works.
+
+	So what's the problem exactly?
+
+
+> I am tired of this game.
+
+	Which game?
+
+	BTW, can you answer what's so fantastic about the OSL apart
+from allying with ESR instead of RMS?  Are you trying to take sides in
+an ego clash, or do you have arguments supporting one or another in a
+rational conversation?
+
+
+-- 
+ _   Leandro Guimarães Faria Corsetti Dutra     +41 (21) 648 11 34
+/ \  http://br.geocities.com./lgcdutra/         +41 (78) 778 11 34
+\ /  Answer to the list, not to me directly!    +55 (11) 5686 2219
+/ \  Rate this if helpful: http://svcs.affero.net/rm.php?r=leandro
+
+

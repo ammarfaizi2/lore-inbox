@@ -1,79 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129383AbQLOV3V>; Fri, 15 Dec 2000 16:29:21 -0500
+	id <S129183AbQLOVdC>; Fri, 15 Dec 2000 16:33:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129183AbQLOV3L>; Fri, 15 Dec 2000 16:29:11 -0500
-Received: from portraits.wsisiz.edu.pl ([195.205.208.34]:18516 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id <S129383AbQLOV3D>; Fri, 15 Dec 2000 16:29:03 -0500
-Date: Fri, 15 Dec 2000 21:57:42 +0100 (CET)
-From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
-To: <linux-kernel@vger.kernel.org>
-cc: <alan@lxorguk.ukuu.org.uk>, <tytso@valinux.com>
-Subject: [patch] 2.2.18 PCI_DEVICE_ID_OXSEMI_16PCI954
-Message-ID: <Pine.LNX.4.30.0012152140350.3740-100000@lt.wsisiz.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+	id <S129319AbQLOVcy>; Fri, 15 Dec 2000 16:32:54 -0500
+Received: from enterprise.cistron.net ([195.64.68.33]:3593 "EHLO
+	enterprise.cistron.net") by vger.kernel.org with ESMTP
+	id <S129183AbQLOVcq>; Fri, 15 Dec 2000 16:32:46 -0500
+From: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: Linus's include file strategy redux
+Date: 15 Dec 2000 21:02:16 GMT
+Organization: Cistron Internet Services B.V.
+Message-ID: <91e0so$9bn$1@enterprise.cistron.net>
+In-Reply-To: <20001215152137.K599@almesberger.net> <NBBBJGOOMDFADJDGDCPHAENMCJAA.law@sgi.com>
+X-Trace: enterprise.cistron.net 976914136 9591 195.64.65.67 (15 Dec 2000 21:02:16 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+In article <NBBBJGOOMDFADJDGDCPHAENMCJAA.law@sgi.com>,
+LA Walsh <law@sgi.com> wrote:
+>It was at that
+>point, the externally compiled module "barfed", because like many modules,
+>it expected, like many externally compiled modules, that it could simply
+>access all of it's needed files through /usr/include/linux which it gets
+>by putting /usr/include in it's path.  I've seen commercial modules like
+>vmware's kernel modules use a similar system where they expect
+>/usr/include/linux to contain or point to headers for the currently running
+>kernel.
 
-I'm tring to use serial driver 5.05 with kernel in version
-2.2.18. There is a little problem with vendor definition in kernel source.
+vmware asks you nicely
 
-In serial dirver from Theodore Ts'o we have:
+where are the running kernels include files [/usr/src/linux/include" >
 
-        {       PCI_VENDOR_ID_SPECIALIX, PCI_DEVICE_ID_OXSEMI_16PCI954,
-                PCI_VENDOR_ID_SPECIALIX,
-PCI_SUBDEVICE_ID_SPECIALIX_SPEED4,
-                SPCI_FL_BASE0 , 4, 921600 },
-        {       PCI_VENDOR_ID_OXSEMI, PCI_DEVICE_ID_OXSEMI_16PCI954,
-                PCI_ANY_ID, PCI_ANY_ID,
-                SPCI_FL_BASE0 , 4, 115200 },
+And then compiles the modules with -I/path/to/include/files
 
+In fact, the 2.2.18 kernel already puts a 'build' symlink in
+/lib/modules/`uname -r` that points to the kernel source,
+which should be sufficient to solve this problem.. almost.
 
-In kernel 2.4.0-test11 we have:
+It doesn't tell you the specific flags used to compile the kernel,
+such as -m486 -DCPU=686
 
-[lukasz@lt linux]$ grep PCI_DEVICE_ID_OXSEMI_16PCI954  * -r
-drivers/char/serial.c:  {       PCI_VENDOR_ID_SPECIALIX,
-PCI_DEVICE_ID_OXSEMI_16PCI954,
-drivers/char/serial.c:  {       PCI_VENDOR_ID_OXSEMI,
-PCI_DEVICE_ID_OXSEMI_16PCI954,
-include/linux/pci_ids.h:#define PCI_DEVICE_ID_OXSEMI_16PCI954   0x9501
+>	So at that point it becomes what we should name it under
+>/usr/include/linux.  Should it be:
+>1) "/usr/include/linux/sys" (my preference)
 
-(IMHO that is correct), but in kernel 2.2.18 we have:
-(include/kernel/pci.h)
-#define PCI_DEVICE_ID_OXSEMI_16PCI954PP        0x9513
-                                     ^^
+/usr should be static. It could be a read-only NFS mount.
+Putting system dependant configuration info here (which a
+/usr/include/linux/sys symlink *is*) is wrong.
 
-Please correct, if I'm wrong, but IMHO it shuld be:
-(include/kernel/pci.h)
-#define PCI_DEVICE_ID_OXSEMI_16PCI954  0x9513
+I think /lib/modules/`uname -r`/ should contain a script that
+reproduces the CFLAGS used to compile the kernel. That way,
+you not only get the correct -I/path/to/kernel/include but
+the other compile-time flags (like -m486 etc) as well.
 
-There is a simple patch to fix that:
+# sh /lib/modules/`uname -r`/kconfig --cflags
+-D__KERNEL__ -I/usr/src/linux-2.2.18pre24/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -fno-strength-reduce -m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2 -DCPU=686
 
-diff -r -u linux.org/include/linux/pci.h linux/include/linux/pci.h
---- linux.org/include/linux/pci.h       Mon Dec 11 01:49:44 2000
-+++ linux/include/linux/pci.h   Fri Dec 15 21:38:14 2000
-@@ -1097,7 +1097,7 @@
+Standard module Makefile that will _always_ work:
 
- #define PCI_VENDOR_ID_OXSEMI           0x1415
- #define PCI_DEVICE_ID_OXSEMI_12PCI840  0x8403
--#define PCI_DEVICE_ID_OXSEMI_16PCI954PP        0x9513
-+#define PCI_DEVICE_ID_OXSEMI_16PCI954  0x9513
+#! /usr/bin/make -f
 
- #define PCI_VENDOR_ID_AFAVLAB          0x14db
- #define PCI_DEVICE_ID_AFAVLAB_TK9902   0x2120
+CC = $(shell /lib/modules/`uname -r`/kconfig --cc)
+CFLAGS = $(shell /lib/modules/`uname -r`/kconfig --cflags)
 
+module.o:
+	$(CC) $(CFLAGS) -c module.c
 
+Flags could be:
 
+--check		Consistency check - are the header files there and
+		does include/linux/version.h match
+--cc		Outputs the CC variable used to compile the kernel
+		(important now that we have gcc, kgcc, gcc272)
+--arch		Outputs the ARCH variable
+--cflags	Outputs the CFLAGS
+--include-path	Outputs just the path to the include files
 
+Generating and installing this 'kconfig' script as part of
+"make modules_install" is trivial, and would solve all problems.
+Well as far as I can see, ofcourse, I might have missed something..
+
+Mike.
 -- 
-*[ £ukasz Tr±biñski ]*
-SysAdmin @wsisiz.edu.pl
-
+RAND USR 16514
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

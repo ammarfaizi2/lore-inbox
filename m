@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290210AbSAORqH>; Tue, 15 Jan 2002 12:46:07 -0500
+	id <S290209AbSAORr1>; Tue, 15 Jan 2002 12:47:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290209AbSAORp7>; Tue, 15 Jan 2002 12:45:59 -0500
-Received: from [66.89.142.2] ([66.89.142.2]:28218 "EHLO starship.berlin")
-	by vger.kernel.org with ESMTP id <S290211AbSAORpv>;
-	Tue, 15 Jan 2002 12:45:51 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Tue, 15 Jan 2002 18:49:09 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0201150023040.21289-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.33.0201150023040.21289-100000@coffee.psychology.mcmaster.ca>
+	id <S290212AbSAORrU>; Tue, 15 Jan 2002 12:47:20 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:32231 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S290209AbSAORrK>;
+	Tue, 15 Jan 2002 12:47:10 -0500
+Date: Tue, 15 Jan 2002 12:47:09 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Aaron Lehmann <aaronl@vitelus.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Mr. James W. Laferriere" <babydr@baby-dragons.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Hardwired drivers are going away?
+In-Reply-To: <20020115172729.GE7030@vitelus.com>
+Message-ID: <Pine.GSO.4.21.0201151233120.4339-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16QXhu-0000wl-00@starship.berlin>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 15, 2002 06:26 am, Mark Hahn wrote:
-> > than the task's float, the completion time of the schedule as a whole will be 
-> > delayed.  This is no different for a computer than it is for a group of 
-> > people, it is still a scheduling problem.  Delaying any random task risks 
+
+
+On Tue, 15 Jan 2002, Aaron Lehmann wrote:
+
+> On Mon, Jan 14, 2002 at 07:17:46PM +0000, Alan Cox wrote:
+> > Not generally found in your grandmothers PC
 > 
-> it is quite different.  with computers, there are often STRONG benefits
-> to clustering, batching, chunking, piggybacking, whatever you want to call it.
+> What kind of an argument is this?!? Linux developers used to care
+> about portability to and performance on non-x86 platforms.
 
-It's no different.
+<rant>
 
-> it's simply not the case that eager scheduling is always optimal.
+Guys, could you lay off whatever the fuck you are smoking?  And
+I mean everybody involved.
 
-Correct, however as far as simple, useful heuristics goes, it's not so easy
-to beat.  Note that I did mention resource limitations.
+*	autoconfig is part of ESR's wet dream.  Ignore him and he'll go away.
+*	Aunt Tillie and her magical mistery whorehouse <<--->>
+*	performance problems with modules are real, need to be solved and
+	can be solved.
+*	disabling module loading doesn't buy any security.
+*	it's easy to make irrevertible disabling modules _after_ boot.
+*	initramfs is independent from modules
+*	it is _not_ initrd or an analog
+*	it doesn't involve a shitload of extra files
+*	it removes tons of crap from kernel
+*	it allows to simplify build process and get rid of quite a few sources
+	of bugs, _if_ performance problems with modules are solved
 
-   "For project schedules 'earlist completion' is the name of the 
-   game, within bounds of available resources."
+Now could we fscking drop these threads?  Or at least take care to separate
+myths from reality before posting more crap.
 
---
-Daniel
+</rant>
+

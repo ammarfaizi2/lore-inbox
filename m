@@ -1,48 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263166AbTLPWS3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 17:18:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263178AbTLPWS3
+	id S262882AbTLPWOo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 17:14:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263102AbTLPWOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 17:18:29 -0500
-Received: from zero.aec.at ([193.170.194.10]:56847 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S263166AbTLPWS2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 17:18:28 -0500
-To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI Express support for 2.4 kernel
-From: Andi Kleen <ak@muc.de>
-Date: Tue, 16 Dec 2003 23:18:06 +0100
-In-Reply-To: <13vyg-43O-7@gated-at.bofh.it> (Vladimir Kondratiev's message
- of "Tue, 16 Dec 2003 23:10:08 +0100")
-Message-ID: <m3ekv4mmox.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <12KJ6-4F2-13@gated-at.bofh.it> <12Lvu-5X5-5@gated-at.bofh.it>
-	<12XQ2-7Vs-9@gated-at.bofh.it> <12YsA-nt-1@gated-at.bofh.it>
-	<130kQ-3A0-13@gated-at.bofh.it> <130Xy-4Ia-3@gated-at.bofh.it>
-	<131Ac-5Qy-3@gated-at.bofh.it> <137cD-8eg-9@gated-at.bofh.it>
-	<13kD2-1kF-11@gated-at.bofh.it> <13r1S-3FB-11@gated-at.bofh.it>
-	<13vyg-43O-7@gated-at.bofh.it>
+	Tue, 16 Dec 2003 17:14:44 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:37848 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262882AbTLPWOk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 17:14:40 -0500
+Message-ID: <3FDF83CA.10000@intel.com>
+Date: Wed, 17 Dec 2003 00:14:34 +0200
+From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PCI Express support for 2.4 kernel
+References: <3FDCC171.9070902@intel.com> <3FDCCC12.20808@pobox.com> <3FDD8691.80206@intel.com> <20031215103142.GA8735@iram.es> <3FDDACA9.1050600@intel.com> <1071494155.5223.3.camel@laptop.fenrus.com> <3FDDBDFE.5020707@intel.com> <Pine.LNX.4.58.0312151154480.1631@home.osdl.org> <3FDEDC77.9010203@intel.com> <20031216174505.GC2716@kroah.com>
+In-Reply-To: <20031216174505.GC2716@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladimir Kondratiev <vladimir.kondratiev@intel.com> writes:
->>
-> Yes, separation into generic and platform specific part seems nice,
-> but besides memory mapping and locking, all you have is
-> very simple arithmetic. Does it worth the work for separation?
+Greg KH wrote:
+
+>Minor code comments below:
 >
-> For 64-bit world, agree, it could and should be done uniform.
+>On Tue, Dec 16, 2003 at 12:20:39PM +0200, Vladimir Kondratiev wrote:
+>  
+>
+>>+
+>>+#ifdef CONFIG_PCI_EXPRESS
+>>+#define PCI_PROBE_EXP		0x0008
+>>+#endif
+>>+
+>>    
+>>
+>
+>If you change this to:
+>#ifdef CONFIG_PCI_EXPRESS
+>#define PCI_PROBE_EXP		0x0008
+>#else
+>#define PCI_PROBE_EXP		0x0000
+>#endif
+>
+>You can get rid of a number of "#ifdef CONFIG_PCI_EXPRESS" statements
+>later on in the .c files by just always using the PCI_PROBE_EXP value.
+>That cleans up the patch a bit.
+>  
+>
+Good point. Agree.
 
-Could you put the relevant code into an asm/ file for 2.6 then please?
+>>+/**
+>>+ * RRBAR (memory base for PCI-E config space) resides here.
+>>+ * Initialized to default address. Actually, it is platform specific, and
+>>+ * value may vary.
+>>+ * I don't know how to detect it properly, it is chipset specific.
+>>+ */
+>>+static u32 rrbar_phys = CONFIG_PCI_EXPRESS_BASE * 0x10000000UL;
+>>    
+>>
+>
+><snip>
+>
+>  
+>
+>>+/**
+>>+ * I don't know how to detect it properly.
+>>+ * assume it is PCI-E, sanity_check will
+>>+ * stop me if it is not.
+>>+ * 
+>>+ * Also, this function supposed to set rrbar_phys
+>>+ */
+>>+static int is_pcie_platform(void)
+>>+{ return 1; }
+>>    
+>>
+>
+>Shouldn't your comments at least match your code for the rrbar_phys
+>statement for your first release?  :)
+>  
+>
+Default moved to CONFIG_PCI_EXPRESS_BASE.
+Idea is some time later we fill replace is_pcie_platform with real auto 
+detection...
 
-Background: x86-64 shares the PCI code with i386 which just works
-for both 32bit and 64bit currently. If it is all changeable in the asm/ 
-file then I won't need to change it later again. Of course the fixmap
-would work for x86-64 too, but just mapping the 256MB is much nicer
-and preferable.
+>>+static int pci_express_init(void)
+>>+{
+>>+	rrbar_window_virt = (void*)fix_to_virt(FIX_PCIE_CONFIG);
+>>+	if (!is_pcie_platform())
+>>+		return 0;
+>>    
+>>
+>
+>Call fix_to_virt() after you do the check and not before?
+>
+>  
+>
+... and I assume virtual address may be used by auto detection code.
 
--Andi
+>  
+>
+>>+/**
+>>+ * Shuts down PCI-E resources.
+>>+ */
+>>+static inline void pci_express_fini(void)
+>>+{}
+>>    
+>>
+>
+>If this isn't needed, why have it anymore?
+>  
+>
+Placeholder, to not forget. It is called in case auto detection says it 
+is not PCI-E.
+
+>  
+>
+>>+static struct pci_ops pci_express_conf = {
+>>+	pci_exp_read_config_byte,
+>>+	pci_exp_read_config_word,
+>>+	pci_exp_read_config_dword,
+>>+	pci_exp_write_config_byte,
+>>+	pci_exp_write_config_word,
+>>+	pci_exp_write_config_dword
+>>+};
+>>    
+>>
+>
+>C99 initializers here?
+>  
+>
+cut'n'paste from other methods, to keep style. If change, let's change all.
+
+>  
+>
+>>+			printk(KERN_INFO "PCI-Express config at 0x%08x\n", rrbar_phys);
+>>    
+>>
+>
+>"%p" to show the address might be nicer.
+>
+>  
+>
+I print phys. address, it is u32. Do you mean (void*)rrbar_phys? Don't 
+see why not to change,
+I have no strong opinion for which format is better.
+

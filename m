@@ -1,94 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263234AbUB1BXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 20:23:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263238AbUB1BXJ
+	id S263238AbUB1B0e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 20:26:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263240AbUB1B0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 20:23:09 -0500
-Received: from mail.kroah.org ([65.200.24.183]:16577 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263234AbUB1BXE (ORCPT
+	Fri, 27 Feb 2004 20:26:34 -0500
+Received: from codepoet.org ([166.70.99.138]:58016 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S263238AbUB1B0c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 20:23:04 -0500
-Date: Fri, 27 Feb 2004 17:22:27 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] udev 019 release
-Message-ID: <20040228012227.GA14082@kroah.com>
+	Fri, 27 Feb 2004 20:26:32 -0500
+Date: Fri, 27 Feb 2004 18:26:31 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       John Bradford <john@grabjohn.com>, Erik van Engelen <Info@vanE.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Errors on 2th ide channel of promise ultra100 tx2
+Message-ID: <20040228012630.GA3074@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: andersen@codepoet.org,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	John Bradford <john@grabjohn.com>, Erik van Engelen <Info@vanE.nl>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <403F2178.70806@vanE.nl> <200402272114.23108.bzolnier@elka.pw.edu.pl> <20040227224431.GB984@codepoet.org> <200402280220.22324.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200402280220.22324.bzolnier@elka.pw.edu.pl>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've released the 019 version of udev.  It can be found at:
- 	kernel.org/pub/linux/utils/kernel/hotplug/udev-019.tar.gz
+On Sat Feb 28, 2004 at 02:20:22AM +0100, Bartlomiej Zolnierkiewicz wrote:
+> > Dunno if I qualify as sufficiently 'really smart' enough but the
+> > last time I put in the considerable effort needed to re-sync the
+> > 2.4 and 2.6 IDE layers, and merge in the useful -ac bits that
+> > never made it into mainstream, nothing whatsoever came of my
+> > efforts...
+> 
+> Did you actually split and send out your patches? :)
 
-rpms built against Red Hat FC2-test1 are available at:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-019-1.i386.rpm
-with the source rpm at:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-019-1.src.rpm
+Yes....
+http://www.ussg.iu.edu/hypermail/linux/kernel/0308.2/0175.html
 
-udev allows users to have a dynamic /dev and provides the ability to
-have persistent device names.  It uses sysfs and /sbin/hotplug and runs
-entirely in userspace.  It requires a 2.6 kernel with CONFIG_HOTPLUG
-enabled to run.  Please see the udev FAQ for any questions about it:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-FAQ
+> > My 2.4.x patches are in daily use by a large group of people
+> > and they work fine, for what it is worth.  My IDE merging
+> > patches are the following:
+> >
+> >     http://codepoet.org/kernel/
+> >
+> >     020_ide_layer_2.4.22-ac4.bz2
+> 
+> Needs splitting and most of this stuff needs new re-sync with 2.6. :-(
 
-For any udev vs devfs questions anyone might have, please see:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev_vs_devfs
+Yup.  After splitting and submitting to no effect it was
+less effort to maintain the lot as one big patch...
 
+> >     021_ide_geom_hpa_capacity64.bz2
+> 
+> Now I remember why this wasn't applied.
+> It breaks braindamaged HDIO_GETGEO_BIG_RAW ioctl
+> (because changes way drive->cyls is calculated).
+> We workaround-ed it in 2.6 by removing this ioctl. :)
+> I think we really should do the same for 2.4.
 
-Major changes from the 018 version:
-	- hopefully all string handling is now correct, and audited for
-	  any possible overflows.
-	- user and group names now work properly if you build with klibc
-	- initial SELinux support.
-	- lots of small fixes (including build fixes)
-	- update to scsi_id program
+I did just that but it was rejected by Alan Cox...
+http://www.ussg.iu.edu/hypermail/linux/kernel/0308.2/0193.html
 
-Thanks to everyone who has send me patches for this release, a full list
-of everyone, and their changes is below.
+ -Erik
 
-udev development is done in a BitKeeper repository located at:
-	bk://linuxusb.bkbits.net/udev
-
-Daily snapshots of udev from the BitKeeper tree can be found at:
-	http://www.codemonkey.org.uk/projects/bitkeeper/udev/
-If anyone ever wants a tarball of the current bk tree, just email me.
-
-thanks,
-
-greg k-h
-
-Summary of changes from v018 to v019
-============================================
-
-Kay Sievers:
-  o TODO update
-  o udev - correct relative symlink
-  o udev - safer string handling - part four
-  o udev - safer string handling - part three
-  o udev - safer string handling - part two
-  o udev - man page update
-  o udev - safer string handling all over the place
-  o manpage update
-  o udev - allow all files in a directory as the config
-  o udev - simple klibc textual uid/gid handling
-
-Andrey Borzenkov:
-  o do not remove real .udev.tdb during RPM build
-
-Greg Kroah-Hartman:
-  o add new TODO item about local user permissions
-  o Add initial SELinux support for udev
-  o fix build for very old versions of make
-  o remove limit of the number of args passed to PROGRAM
-  o force udev to include the internal version of libsysfs and never the external one
-  o fix up libsysfs header file usage to fix bug reports from users that have sysfsutils installed already
-  o remove udevtest on 'make clean'
-  o remove udevd priority TODO item, as it's not needed at all
-
-Patrick Mansfield:
-  o update udev scsi_id to scsi_id 0.4
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

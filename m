@@ -1,37 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262766AbVBYSbD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262774AbVBYSdp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbVBYSbD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 13:31:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262774AbVBYSbD
+	id S262774AbVBYSdp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 13:33:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262775AbVBYSdp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 13:31:03 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:60127 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262766AbVBYSbC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 13:31:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:organization:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=GGm2/x0pOo5wCEUgNTBXoUP2ApdWZJzmgFDF/vpEd/jVzvq9D/BwH/rLdj8NbviFR0yAOu17v07bgutOUX2idwbe4A8s0SdaOhnwmQesMLjExmvRiKJKxeEep+0KZCSRQ3f84KMy4l2dn1dB70Ki/G2ImsD1q8DdFydkRtLlFSs=
-From: Vicente Feito <vicente.feito@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: oom_killer.c - oom_kill_task and __oom_kill_task question
-Date: Fri, 25 Feb 2005 15:32:42 +0000
-User-Agent: KMail/1.7.1
-Organization: none
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Fri, 25 Feb 2005 13:33:45 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:25103 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262774AbVBYSdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 13:33:14 -0500
+Message-Id: <200502251833.j1PIX8Fi018921@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: shabanip <shabanip@avapajoohesh.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: UDP optimization 
+In-Reply-To: Your message of "Fri, 25 Feb 2005 14:21:22 +0330."
+             <46548.69.93.110.242.1109328682.squirrel@69.93.110.242> 
+From: Valdis.Kletnieks@vt.edu
+References: <46548.69.93.110.242.1109328682.squirrel@69.93.110.242>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1109356387_6281P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502251532.42819.vicente.feito@gmail.com>
+Date: Fri, 25 Feb 2005 13:33:07 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why is it that p->mm it's checked inside oom_kill_task and again in 
-__oom_kill_task? Cause __oom_kill_task it's called in case p->mm not null and 
-not &init_mm, otherwise it just returns NULL, this has been bothering me, 
-I've patched with the last rc5 and it's still there, why?
-Is there a chance a process can grow an mm area between one call and another?
+--==_Exmh_1109356387_6281P
+Content-Type: text/plain; charset=us-ascii
 
-Vicente.
+On Fri, 25 Feb 2005 14:21:22 +0330, shabanip said:
+
+> as i know there are many ways to optimize and tune TCP parameters in kernel
+> but how can i tune and optimize UDp performance?
+
+Step 1: Identify what aspect of UDP performance you find insufficient, and
+under what conditions, what kernel release, and similar information.
+
+Step 2: Re-ask your question.  "tune and optimize UDP performance" is as
+impossible to answer as "how do I improve the performance of my car", without
+telling us important details like what model/year car, or whether you want
+better acceleration, better cornering ability, or better gas mileage.  The
+best answer for myself (a middle-aged male driving a several-year-old sedan
+as inconspicuously as possible) will be quite different than the answer
+for the guy half my age with a sports car half my car's age (I'm *positive*
+I have him beat on gas mileage however. ;)
+
+And it's exactly the same for tuning UDP performance...
+
+--==_Exmh_1109356387_6281P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCH29jcC3lWbTT17ARAhVzAKCagBgPCM4UQmJ9zglcTLEgAgQj2gCgx/hO
+w0yZM7RrXILvsZIk3avtYIY=
+=E03I
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1109356387_6281P--

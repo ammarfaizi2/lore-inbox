@@ -1,87 +1,159 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277598AbRJRNPR>; Thu, 18 Oct 2001 09:15:17 -0400
+	id <S277626AbRJRNRR>; Thu, 18 Oct 2001 09:17:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277626AbRJRNPH>; Thu, 18 Oct 2001 09:15:07 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:39553 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S277598AbRJRNO4>; Thu, 18 Oct 2001 09:14:56 -0400
-Date: Thu, 18 Oct 2001 09:15:27 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Non-GPL modules
-Message-ID: <Pine.LNX.3.95.1011018091343.32746A-100000@chaos.analogic.com>
+	id <S277703AbRJRNRJ>; Thu, 18 Oct 2001 09:17:09 -0400
+Received: from maila.telia.com ([194.22.194.231]:3564 "EHLO maila.telia.com")
+	by vger.kernel.org with ESMTP id <S277700AbRJRNQ7>;
+	Thu, 18 Oct 2001 09:16:59 -0400
+From: "Per Persson" <per.persson@gnosjo.pp.se>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] triple_down in fs.h
+Date: Thu, 18 Oct 2001 15:10:34 +0200
+Message-ID: <NDBBJMOHILCIIKFHCBHAAELPCAAA.per.persson@gnosjo.pp.se>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0002_01C157E7.0923FD60"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
->From time-to-time, I've asked that certain things be allowed
-within the kernel such as, most recently, denying a raw write
-to a mounted file-system. Such things have been opposed because,
-as I have been told, "Policy is not allowed within the kernel...".
+------=_NextPart_000_0002_01C157E7.0923FD60
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-Well, with the current GPL code-only fiasco, this is Policy being
-enforced by the kernel.
-
-It won't be long before we get:
-
-Script started on Thu Oct 18 08:44:44 2001
-# gcc -o applic xxx.c
-# ./applic
-Kernel panic
-Non GPL application pollution of the Linux environment
-Application name = ./applic
- Virtual address = 0x8048528
-   Stack address = 0xbffff72c
-             PID = 32636
-System halted
-
-I can understand not wanting to take any responsibility for
-some binary-only module when attempting to find a kernel
-problem. However, denying the use of non GPL modules is
-not the way. As a developer of many modules, I can certainly
-add the required object(s) during development and bypass the
-current policy. In fact, since the source code of `insmod`
-is available, it won't be long before any checks put there
-are eliminated. 
-
-No publicly-traded commercial hardware company is going to
-disclose the inner workings of proprietary hardware without
-risking a stockholder's lawsuit. For this reason, there will
-always be proprietary hardware and proprietary software to
-interface with it. If Linux doesn't allow for such a proprietary
-interface then Linux will not be used. It's just that simple.
-
-Even publicly-traded commercial software companies face the
-same challenge from their stockholders. The intellectual
-property that they have developed must be kept secret from
-their competition. Otherwise, one company spends millions
-to develop a product only to have another start-up deliver
-the same product at a cheaper price with no up-front development
-cost because they would use the intellectual property of the
-developer.
-
-In the business world, something as simple as puts("Hello World!");
-MUST be kept a trade secret. If it was written by an employee
-in the context of his or her job, the company's stockholders owns
-that line of code so no employee, even the President, is allowed
-to give it away.
-
-If Linux intends to become the mainstay for commercial enterprise
-then the developers have to accommodate the "impure" commercial
-practices that exist in this little cruel world.
+First, I'd like to send a thank to the Linux community from my father who
+passed away this morning. He was very impressed by Linux and other free or
+semi-free software like Samba, MySQL, GIMP and StarOffice.
 
 
-Cheers,
-Dick Johnson
+Now to the patch:
+I've made a couple of minor (but important?) changes in my patch of
+{double,triple}_down in include/linux/fs.h.
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+Changes:
 
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+1) Added #undef's of my macros.
+   Thanks to Mitchell Blank Jr who proposed this change.
+   Also thanks to Yaroslav Popovitch who told me he had got an error caused
+by the lack of #undef's.
 
+2) Changed the names of the macros to further minimize the risk for name
+collision; exch -> exch_vars,  sort -> sort_vars.
+
+
+Per Persson
+per.persson@gnosjo.pp.se
+
+------=_NextPart_000_0002_01C157E7.0923FD60
+Content-Type: application/octet-stream;
+	name="fs.h.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="fs.h.patch"
+
+--- include/linux/fs.h.orig	Sat Sep 29 22:10:21 2001=0A=
++++ include/linux/fs.h	Mon Oct  8 13:03:24 2001=0A=
+@@ -1476,14 +1476,27 @@=0A=
+ /*=0A=
+  * Whee.. Deadlock country. Happily there are only two VFS=0A=
+  * operations that does this..=0A=
++ *=0A=
++ * {double,triple}_down modified by Per Persson in September, 2001=0A=
+  */=0A=
++=0A=
++#define exch_vars(x,y)				\=0A=
++do {						\=0A=
++	typeof(x) __tmp__ =3D (x);		\=0A=
++	(x) =3D (y);				\=0A=
++	(y) =3D __tmp__;				\=0A=
++						\=0A=
++	(void)(&(x) =3D=3D &(y))  /* typecheck */	\=0A=
++} while(0)=0A=
++=0A=
++#define sort_vars(x,y)			\=0A=
++if((x) > (y))				\=0A=
++	exch_vars((x), (y))=0A=
++=0A=
+ static inline void double_down(struct semaphore *s1, struct semaphore =
+*s2)=0A=
+ {=0A=
+ 	if (s1 !=3D s2) {=0A=
+-		if ((unsigned long) s1 < (unsigned long) s2) {=0A=
+-			struct semaphore *tmp =3D s2;=0A=
+-			s2 =3D s1; s1 =3D tmp;=0A=
+-		}=0A=
++		sort_vars((ulong) s2, (ulong) s1);	// s2 < s1=0A=
+ 		down(s1);=0A=
+ 	}=0A=
+ 	down(s2);=0A=
+@@ -1493,9 +1506,11 @@=0A=
+  * Ewwwwwwww... _triple_ lock. We are guaranteed that the 3rd argument =
+is=0A=
+  * not equal to 1st and not equal to 2nd - the first case (target is =
+parent of=0A=
+  * source) would be already caught, the second is plain impossible =
+(target is=0A=
+- * its own parent and that case would be caught even earlier). Very =
+messy.=0A=
+- * I _think_ that it works, but no warranties - please, look it through.=0A=
+- * Pox on bloody lusers who mandated overwriting rename() for =
+directories...=0A=
++ * its own parent and that case would be caught even earlier).=0A=
++ *=0A=
++ * Hopefully it does the same thing as the old code,=0A=
++ * but in a cleaner and more efficient way.=0A=
++ *     /Per=0A=
+  */=0A=
+ =0A=
+ static inline void triple_down(struct semaphore *s1,=0A=
+@@ -1503,33 +1518,17 @@=0A=
+ 			       struct semaphore *s3)=0A=
+ {=0A=
+ 	if (s1 !=3D s2) {=0A=
+-		if ((unsigned long) s1 < (unsigned long) s2) {=0A=
+-			if ((unsigned long) s1 < (unsigned long) s3) {=0A=
+-				struct semaphore *tmp =3D s3;=0A=
+-				s3 =3D s1; s1 =3D tmp;=0A=
+-			}=0A=
+-			if ((unsigned long) s1 < (unsigned long) s2) {=0A=
+-				struct semaphore *tmp =3D s2;=0A=
+-				s2 =3D s1; s1 =3D tmp;=0A=
+-			}=0A=
+-		} else {=0A=
+-			if ((unsigned long) s1 < (unsigned long) s3) {=0A=
+-				struct semaphore *tmp =3D s3;=0A=
+-				s3 =3D s1; s1 =3D tmp;=0A=
+-			}=0A=
+-			if ((unsigned long) s2 < (unsigned long) s3) {=0A=
+-				struct semaphore *tmp =3D s3;=0A=
+-				s3 =3D s2; s2 =3D tmp;=0A=
+-			}=0A=
+-		}=0A=
++		sort_vars((ulong) s2, (ulong) s1);	// s2 < s1=0A=
++		sort_vars((ulong) s3, (ulong) s1);	// s3 < s1=0A=
+ 		down(s1);=0A=
+-	} else if ((unsigned long) s2 < (unsigned long) s3) {=0A=
+-		struct semaphore *tmp =3D s3;=0A=
+-		s3 =3D s2; s2 =3D tmp;=0A=
+ 	}=0A=
++	sort_vars((ulong) s3, (ulong) s2);		// s2 > s3=0A=
+ 	down(s2);=0A=
+ 	down(s3);=0A=
+ }=0A=
++=0A=
++#undef exch_vars=0A=
++#undef sort_vars=0A=
+ =0A=
+ static inline void double_up(struct semaphore *s1, struct semaphore *s2)=0A=
+ {=0A=
+
+------=_NextPart_000_0002_01C157E7.0923FD60--
 

@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132767AbRBEETL>; Sun, 4 Feb 2001 23:19:11 -0500
+	id <S132680AbRBEEeQ>; Sun, 4 Feb 2001 23:34:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132749AbRBEETB>; Sun, 4 Feb 2001 23:19:01 -0500
-Received: from www.llamacom.com ([209.152.94.130]:61957 "HELO www.llamacom.com")
-	by vger.kernel.org with SMTP id <S132767AbRBEESp>;
-	Sun, 4 Feb 2001 23:18:45 -0500
-Date: Sun, 4 Feb 2001 22:18:42 -0600 (CST)
-From: Eric Molitor <emolitor@molitor.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Wavelan IEEE driver 
-In-Reply-To: <200101302222.OAA04184@nova.botz.org>
-Message-ID: <Pine.LNX.4.10.10102042217210.27031-100000@www.llamacom.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132695AbRBEEeG>; Sun, 4 Feb 2001 23:34:06 -0500
+Received: from nwcst276.netaddress.usa.net ([204.68.23.21]:59097 "HELO
+	nwcst276.netaddress.usa.net") by vger.kernel.org with SMTP
+	id <S132680AbRBEEd4> convert rfc822-to-8bit; Sun, 4 Feb 2001 23:33:56 -0500
+Message-ID: <20010205043355.12353.qmail@nwcst276.netaddress.usa.net>
+Date: 4 Feb 2001 21:33:55 MST
+From: Robert Guerra <rob_guerra@usa.net>
+To: davids@webmaster.com
+Subject: RE: system call sched_yield() doesn't work on Linux 2.2
+CC: linux-kernel@vger.kernel.org
+X-Mailer: USANET web-mailer (34FM.0700.15B.01)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David,
+    please try to reply courteously to queries by other people. And specially
+when you're the one who's wrong. Mohit is right - Linux had a 
+long standing problem where sched_yield() system call didn't work. It 
+was only fixed in Linux 2.4. 
 
-I dropped a patch to 2.4.1 with the updated wavelan driver at the
-following locations. It should work with the new firmware. (Its the 1.06
-wavelan driver)
+> > Also, it is NOT unrealistic to expect perfect alternation.
+>
+>	Find one pthreads expert who agrees with this claim. Post it to
+> comp.programming.threads and let the guys who created the standard 
+> laugh at you. Scheduling is not a substitute for synchronization, ever.
 
-http://www.molitor.org/wavelan/
-http://omega.uta.edu/~emm7993/wavelan/
+I don't claim mastery over threads. But I have been programming with threads
+for a very long time and am well aware of the way OS schedulers
+work. In the example that Mohit posted, it is reasonable to expect 
+perfect alternation once both threads have started. And it certainly isn't
+something to laugh at (even if it were wrong).
 
-- Eric Molitor
-  Please CC me on the reply as I'm not on the kernel mailing list...
 
-On Wed, 31 Jan 2001, Tobias Ringstrom wrote:
-
-> On Tue, 30 Jan 2001, Jurgen Botz wrote:
-> > and appears to work.  I did observe a problem with iwconfig dumping
-> > core, but it seems to do its job before it dies, so this may be non-
-> > critical.
-> 
-> Make sure you compile wireless-tools using the right headers.  You must
-> manually insert -I/path/to/running-linux-version/include in the Makefile.
-> 
-> This is due to a bad (non-existing) ioctl backward and forward
-> compatibility, and is being worked on.  Basically, you cannot use the
-> tools compiled with one version of the wireless extension headers on a
-> kernel with another version of the wireless extensions.  The symptom is at
-> best a SEGV, but you may also get strange values.
-> 
-> /Tobias
-> 
-> 
-> 
-> 
+- Robert Guerra
 
 
 
+
+____________________________________________________________________
+Get free email and a permanent address at http://www.netaddress.com/?N=1
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272157AbTG2XF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 19:05:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272163AbTG2XF5
+	id S272167AbTG2XBK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 19:01:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272168AbTG2XBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 19:05:57 -0400
-Received: from mgr6.xmission.com ([198.60.22.206]:15508 "EHLO
-	mgr6.xmission.com") by vger.kernel.org with ESMTP id S272157AbTG2XFV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 19:05:21 -0400
-Date: Tue, 29 Jul 2003 17:04:50 -0600
-From: "S. Anderson" <sa@xmission.com>
+	Tue, 29 Jul 2003 19:01:10 -0400
+Received: from dp.samba.org ([66.70.73.150]:51874 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S272167AbTG2XBI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 19:01:08 -0400
+Date: Wed, 30 Jul 2003 06:33:10 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, "S. Anderson" <sa@xmission.com>,
-       pavel@xal.co.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       adaplas@pol.net
-Subject: Re: OOPS 2.6.0-test2, modprobe i810fb
-Message-ID: <20030729170450.A27489@xmission.xmission.com>
-References: <20030728171806.GA1860@xal.co.uk> <20030728201954.A16103@xmission.xmission.com> <20030728202600.18338fa9.akpm@osdl.org> <20030728231812.A20738@xmission.xmission.com> <20030728225914.4f299586.akpm@osdl.org> <20030729012417.A18449@xmission.xmission.com> <20030729005456.495c89c4.akpm@osdl.org> <1059479872.2921.7.camel@dhcp22.swansea.linux.org.uk>
+Cc: notting@redhat.com, arjanv@redhat.com, torvalds@osdl.org,
+       shemminger@osdl.org, davem@redhat.com, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove module reference counting.
+Message-Id: <20030730063310.70b5c794.rusty@rustcorp.com.au>
+In-Reply-To: <1059392321.15458.23.camel@dhcp22.swansea.linux.org.uk>
+References: <Pine.LNX.4.44.0307261230110.1841-100000@home.osdl.org>
+	<20030727193919.832302C450@lists.samba.org>
+	<20030727214701.A23137@devserv.devel.redhat.com>
+	<20030727201242.A29448@devserv.devel.redhat.com>
+	<1059392321.15458.23.camel@dhcp22.swansea.linux.org.uk>
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1059479872.2921.7.camel@dhcp22.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Tue, Jul 29, 2003 at 01:00:40PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 29, 2003 at 01:00:40PM +0100, Alan Cox wrote:
-> On Maw, 2003-07-29 at 08:54, Andrew Morton wrote:
-> > wtf?  So the memory at d094ee7c (which contains i810fb's pci table) became
-> > unmapped from kernel virtual address space as a result of you inserting
-> > your carbus card.
-> > 
-> > I am impressed.
-> 
-> This makes complete sense actually - its marked __initdata. Remove the
-> __initdata and try again or mark it __devinitdata ?
-> 
+On 28 Jul 2003 12:38:41 +0100
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-Just to confirm your findings:
-Changing __initdata to __devinitdata fixes the oops for me.
+> On Llu, 2003-07-28 at 01:12, Bill Nottingham wrote:
+> > It loads/unloads things like scsi modules and firewire controller
+> > modules, but only for hardware actually present in the system (i.e.,
+> > you'd probably be loading it again anyway, if you haven't already
+> > loaded it.)
+> 
+> It loads things like floppy anyway, and it loads lots of things like the
+> firewire stuff that nobody ever uses because it has to see if anything
+> is plugged into them.
 
-Thanks!
-sa
+And it has to leave them in memory anyway, in case someone plugs stuff in
+later.  Oh well.
+
+> I guess kudzu could simply do lots of I/O ops directly on the floppy 
+> hardware to detect it without loading drivers but thats pretty fugly.
+
+Agreed that'd be kinda silly.  But I was "educated" earlier that driver
+loading shouldn't fail just because hardware is missing, due to hotplug.
+
+Is this wrong?
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

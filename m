@@ -1,77 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266646AbUGPWnu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264430AbUGPW7N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266646AbUGPWnu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 18:43:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266648AbUGPWnu
+	id S264430AbUGPW7N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 18:59:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266596AbUGPW7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 18:43:50 -0400
-Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:8824 "HELO
-	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266646AbUGPWnk convert rfc822-to-8bit (ORCPT
+	Fri, 16 Jul 2004 18:59:13 -0400
+Received: from main.gmane.org ([80.91.224.249]:21962 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264430AbUGPW7M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 18:43:40 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Kevin Fenzi <kevin-kernel@scrye.com>
-Subject: Re: psmouse as module with suspend/resume
-Date: Fri, 16 Jul 2004 17:43:37 -0500
-User-Agent: KMail/1.6.2
-Cc: Brouard Nicolas <brouard@ined.fr>, linux-kernel@vger.kernel.org,
-       Nigel Cunningham <ncunningham@linuxmail.org>
-References: <20040715205459.197177253D@voldemort.scrye.com> <200407160058.57824.dtor_core@ameritech.net> <20040716164704.CFC1A43FF@voldemort.scrye.com>
-In-Reply-To: <20040716164704.CFC1A43FF@voldemort.scrye.com>
-MIME-Version: 1.0
-Content-Disposition: inline
+	Fri, 16 Jul 2004 18:59:12 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Volker Braun <volker.braun@physik.hu-berlin.de>
+Subject: Re: ACPI Hibernate and Suspend Strange behavior 2.6.7/-mm1
+Date: Fri, 16 Jul 2004 18:59:08 -0400
+Message-ID: <pan.2004.07.16.22.59.06.759930@physik.hu-berlin.de>
+References: <A6974D8E5F98D511BB910002A50A6647615FEF48@hdsmsx403.hd.intel.com> <1089054013.15671.48.camel@dhcppc4> <pan.2004.07.06.14.14.47.995955@physik.hu-berlin.de> <slrncfb55n.dkv.jgoerzen@christoph.complete.org> <pan.2004.07.14.23.28.53.135582@physik.hu-berlin.de> <20040716170052.GC8264@openzaurus.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200407161743.37577.dtor_core@ameritech.net>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: carrot.hep.upenn.edu
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+Cc: linux-thinkpad@linux-thinkpad.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 16 July 2004 11:46 am, Kevin Fenzi wrote:
-> >>>>> "Dmitry" == Dmitry Torokhov <dtor_core@ameritech.net> writes:
+On Fri, 16 Jul 2004 19:00:52 +0200, Pavel Machek wrote:
+>> > And, if I would shine
+>> > a bright light on the screen, I could make out text on it.  In other
+>> > words, the backlight was off but it was still displaying stuff.
 > 
-> Dmitry> On Thursday 15 July 2004 03:54 pm, Kevin Fenzi wrote:
-> >> Greetings.
-> >>
-> >> I am having a bit of an issue with psmouse and suspend/resume.  I
-> >> am using the swsusp2, which is working great... (Thanks Nigel!)
-> >>
-> >> However:
-> >>
-> >> If I compile psmouse as a module and leave it in and suspend/resume
-> >> when the laptop comes back the mouse doesn't work at all.
-> >>
-> >> If I compile psmouse as a module and unload before suspend, and
-> >> reload after resume, the mouse works for simple movement, but all
-> >> the advanced synaptics features no longer work. No tap for mouse
-> >> button, no scolling, etc.
-> >>
-> >> If I compile psmouse in everything works after a suspend/resume
-> >> cycle.
-> 
-> Dmitry> There should not be any differences between module and
-> Dmitry> compiled version.  Could you please change #undef DEBUG to
-> Dmitry> #define DEBUG in drivers/input/serio/i8042.c module and post
-> Dmitry> the full dmesg (you may have to use log_buf_size=131072 and
-> Dmitry> 'dmesg -s 131072' to get the full dmesg).
-> 
-> ok. I did that...
-> 
-> Here is a boot up with psmouse as a module.
-> Then a suspend.
-> Then a rmmod psmouse; modprobe psmouse.
->
+> If it is still there after half an hour, its certainly part of the problem.
 
->From what I see there was no attempts to reconnect any of the devices
-connected to PS/2 ports.
+I agree in principle, but I'm also open to the possibility of a very
+faint afterimage.
 
-I am inclined to say that it's swsusp2 problem. I briefly looked over
-the code and I could not find a place where device_power_up would be
-called; swsusp2 goes straight to device_resume. This causes system
-devices (and i8042 is currently a system device) not be resumed and
-thus your touchpad is left id default PS/2 hardware emulation mode.
+I see two possibilities to "turn off the back light":
 
-Have you tried swsusp1? It seems to have the proper hooks in place.
- 
--- 
-Dmitry
+1) Push the tiny sensor next to the hinge over the "access ibm" button
+manually. This cuts power to the backlight (assuming you did not associate
+suspend or anything to the ensuing "LID" acpi event). I can still see the
+screen rather clearly, just without the backlight. Its easy to read text
+even in a moderately lit room.
+
+2) use "radeontool light off". This cuts power to the backlight
+and the lcd. I cannot see the slightest thing on the display, it goes
+completely black as if the computer were switched off.
+
+John, could you please comment on what you see during ACPI S3?
+
+Best,
+Volker
+
+

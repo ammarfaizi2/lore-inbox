@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVBRVOZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVBRVQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261501AbVBRVOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 16:14:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbVBRVOY
+	id S261452AbVBRVQN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 16:16:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261520AbVBRVQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 16:14:24 -0500
-Received: from rproxy.gmail.com ([64.233.170.194]:32366 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261452AbVBRVOW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 16:14:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Kl+hK3VxakWprLSR3eQQVbvIqCYmd+Q2QHEnVODKj0qulqvoyuWbSDPgPR8OZTiqipvIk/Hc7UQlMd5HbtKjlecgOBiztFw7/xmq8kqAlWZTJ6sP+ri1RohadrKeVmkepfLEQY0w22GsT2e6xfgf5L0DKpOJqxd0gCXM0w3LEL4=
-Message-ID: <9e47339105021813146cf69759@mail.gmail.com>
-Date: Fri, 18 Feb 2005 16:14:16 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Jon Smirl <jonsmirl@gmail.com>, lkml <linux-kernel@vger.kernel.org>,
-       fbdev <linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: Hotplug blacklist and video devices
-In-Reply-To: <20050218210822.GB8588@nostromo.devel.redhat.com>
+	Fri, 18 Feb 2005 16:16:13 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:39316
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261452AbVBRVQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 16:16:03 -0500
+Date: Fri, 18 Feb 2005 13:13:26 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: "d.c" <aradorlinux@yahoo.es>
+Cc: seanlkml@sympatico.ca, tytso@mit.edu, vonbrand@inf.utfsm.cl,
+       cfriesen@nortel.com, aradorlinux@yahoo.es, cs@tequila.co.jp,
+       galibert@pobox.com, kernel@crazytrain.com, linux-kernel@vger.kernel.org
+Subject: Re: [BK] upgrade will be needed
+Message-Id: <20050218131326.650c77ad.davem@davemloft.net>
+In-Reply-To: <20050218214555.1f71c2e4.aradorlinux@yahoo.es>
+References: <seanlkml@sympatico.ca>
+	<4912.10.10.10.24.1108675441.squirrel@linux1>
+	<200502180142.j1I1gJXC007648@laptop11.inf.utfsm.cl>
+	<1451.10.10.10.24.1108713140.squirrel@linux1>
+	<20050218162729.GA5839@thunk.org>
+	<4075.10.10.10.24.1108751663.squirrel@linux1>
+	<20050218214555.1f71c2e4.aradorlinux@yahoo.es>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <9e4733910502181251ea2b95e@mail.gmail.com>
-	 <20050218210822.GB8588@nostromo.devel.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Feb 2005 16:08:22 -0500, Bill Nottingham <notting@redhat.com> wrote:
-> Under Fedora (and RHEL), they're there because we generally
-> don't want to load them unless the user asked for them.
+On Fri, 18 Feb 2005 21:45:55 +0100
+"d.c" <aradorlinux@yahoo.es> wrote:
 
-Is there a specific reason why they are blocked? 
+> 2) And more important, *nobody* works against "linus' bk head".
 
-For example I'm looking at making changes to DRM such that DRM will
-require the corresponding framebuffer driver to be loaded. If you back
-up further this is part of fixing X so that it won't mess with the
-hardware from user space. Mode setting would come from the framebuffer
-driver instead of the X 2D XAA driver.
+I do, %100 exclusively, for all the networking and sparc
+development.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+I never work against the -mm tree.

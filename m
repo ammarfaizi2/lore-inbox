@@ -1,42 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283870AbRLEJYT>; Wed, 5 Dec 2001 04:24:19 -0500
+	id <S283871AbRLEJ37>; Wed, 5 Dec 2001 04:29:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283871AbRLEJYJ>; Wed, 5 Dec 2001 04:24:09 -0500
-Received: from [62.245.135.174] ([62.245.135.174]:42122 "EHLO mail.teraport.de")
-	by vger.kernel.org with ESMTP id <S283870AbRLEJX7>;
-	Wed, 5 Dec 2001 04:23:59 -0500
-Message-ID: <3C0DE7A9.801635B0@TeraPort.de>
-Date: Wed, 05 Dec 2001 10:23:53 +0100
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-greased-turkey i686)
-X-Accept-Language: en, de
+	id <S283880AbRLEJ3u>; Wed, 5 Dec 2001 04:29:50 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:21943 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S283871AbRLEJ3g>; Wed, 5 Dec 2001 04:29:36 -0500
+Date: Wed, 5 Dec 2001 11:33:21 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: APIC Error when doing apic_pm_suspend
+Message-ID: <Pine.LNX.4.33.0112051123500.18928-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: LKML archive defunct?
-X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 12/05/2001 10:23:53 AM,
-	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 12/05/2001 10:23:59 AM,
-	Serialize complete at 12/05/2001 10:23:59 AM
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I get an APIC error 0x40 when resuming from an apm -s. If i'm correct
+that would be an illegal register access wouldn't it? I tried putting
+enter/exit printks in the apic_pm_resume/suspend functions and it showed
+that both returned before the APIC error printk. Is there anyway of finding out
+which register access it was? I "thought" it would be one of the
+apic_writes in the pm functions but looks like i might be wrong.
 
- bad style, I know... The last message on the LKML archive seems to be
-from Dec-03 04:11, with the last archiving done on Dec-04 21:00. Somehow
-I do not believe that suddenly there is so much silence on this list :-)
+The kernel is compiled with local APIC and gets detected and enabled on
+boot (UP machine).
 
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0112.0/index.html
+Thanks,
+	Zwane Mwaikambo
 
-Martin
--- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
+

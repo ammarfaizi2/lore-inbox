@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135463AbRASAoV>; Thu, 18 Jan 2001 19:44:21 -0500
+	id <S135892AbRASAwy>; Thu, 18 Jan 2001 19:52:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136466AbRASAoN>; Thu, 18 Jan 2001 19:44:13 -0500
-Received: from [200.43.20.94] ([200.43.20.94]:16136 "EHLO albinux.ddts.net")
-	by vger.kernel.org with ESMTP id <S135463AbRASAoA>;
-	Thu, 18 Jan 2001 19:44:00 -0500
-Date: Thu, 18 Jan 2001 21:41:43 -0300
-From: Alberto Bertogli <albertogli@altavista.net>
-To: Venkatesh Ramamurthy <Venkateshr@ami.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux MegaRAID Driver Version 1.14b Release
-Message-ID: <20010118214143.A518@altavista.net>
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E951B6@ATL_MS1>
+	id <S136133AbRASAwo>; Thu, 18 Jan 2001 19:52:44 -0500
+Received: from gateway.sequent.com ([192.148.1.10]:61350 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S135892AbRASAwe>; Thu, 18 Jan 2001 19:52:34 -0500
+Date: Thu, 18 Jan 2001 16:52:25 -0800
+From: Mike Kravetz <mkravetz@sequent.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: multi-queue scheduler update
+Message-ID: <20010118165225.E8637@w-mikek.des.sequent.com>
+In-Reply-To: <20010118155311.B8637@w-mikek.des.sequent.com> <20010119012616.D32087@athlon.random>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E951B6@ATL_MS1>; from Venkateshr@ami.com on Thu, Jan 18, 2001 at 06:58:22PM -0500
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010119012616.D32087@athlon.random>; from andrea@suse.de on Fri, Jan 19, 2001 at 01:26:16AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 19, 2001 at 01:26:16AM +0100, Andrea Arcangeli wrote:
+> On Thu, Jan 18, 2001 at 03:53:11PM -0800, Mike Kravetz wrote:
+> > Here are some very preliminary numbers from sched_test_yield
+> > (which was previously posted to this (lse-tech) list by Bill
+> > Hartner).  Tests were run on a system with 8 700 MHz Pentium
+> > III processors.
+> > 
+> >                            microseconds/yield
+> > # threads      2.2.16-22           2.4        2.4-multi-queue
+> > ------------   ---------         --------     ---------------
+> > 16               18.740            4.603         1.455
+> 
+> I remeber the O(1) scheduler from Davide Libenzi was beating the mainline O(N)
+> scheduler with over 7 tasks in the runqueue (actually I'm not sure if the
+> number was 7 but certainly it was under 10). So if you also use a O(1)
+> scheduler too as I guess (since you have a chance to run fast on the lots of
+> tasks running case) the most interesting thing is how you score with 2/4/8
+> tasks in the runqueue (I think the tests on the O(1) scheduler patch was done
+> at max on a 2-way SMP btw). (the argument for which Davide's patch wasn't
+> included is that most machines have less than 4/5 tasks in the runqueue at the
+> same time)
+> 
+> Andrea
 
---d6Gm4EdcadzBjdND
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks for the suggestion.  The only reason I hesitated to test with
+a small number of threads is because I was under the assumption that
+this particular benchmark may have problems if the number of threads
+was less than the number of processors.  I'll give the tests a try
+with a smaller number of threads.  I'm also open to suggestions for
+what benchmarks/test methods I could use for scheduler testing.  If
+you remember what people have used in the past, please let me know.
 
-On Thu, Jan 18, 2001 at 06:58:22PM -0500, Venkatesh Ramamurthy wrote:
-> This driver replaces version 1.07b present in the standard 2.4.0 kernel. =
-The
-> driver features are
-> 1. Supports more than 4 GB Addressing (full 64 bit addressing)
-> 2. IA32 / IA64 platform support
-> 3. Supports 2.2.XX & 2.4.XX kernels=20
->  <<m114b.tar.gz>>=20
->=20
-
-Does it fix the loading bug present in 2.4.0?
-
---=20
-	Alberto
-
-albertogli@altavista.net
-
-
---d6Gm4EdcadzBjdND
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.2 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6Z41GtRVPVxHTdS4RAg7iAJ9X9g8C3fqrAJ9x5NI/JmQdHHQYbQCeN2uc
-Tdz9A0iyGWCzNpJ8pUpB948=
-=Ya1W
------END PGP SIGNATURE-----
-
---d6Gm4EdcadzBjdND--
+-- 
+Mike Kravetz                                 mkravetz@sequent.com
+IBM Linux Technology Center
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

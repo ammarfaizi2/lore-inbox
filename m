@@ -1,68 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273883AbRIXMQm>; Mon, 24 Sep 2001 08:16:42 -0400
+	id <S273855AbRIXMPC>; Mon, 24 Sep 2001 08:15:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273881AbRIXMQc>; Mon, 24 Sep 2001 08:16:32 -0400
-Received: from [213.96.224.204] ([213.96.224.204]:12555 "EHLO manty.net")
-	by vger.kernel.org with ESMTP id <S273867AbRIXMQP>;
-	Mon, 24 Sep 2001 08:16:15 -0400
-Date: Mon, 24 Sep 2001 14:16:38 +0200
-From: Santiago Garcia Mantinan <manty@manty.net>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: ext3-2.4-0.9.10
-Message-ID: <20010924141638.A2275@man.beta.es>
-In-Reply-To: <3BAECC4F.EF25393@zip.com.au>
-Mime-Version: 1.0
+	id <S273877AbRIXMOx>; Mon, 24 Sep 2001 08:14:53 -0400
+Received: from web11904.mail.yahoo.com ([216.136.172.188]:4360 "HELO
+	web11904.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S273867AbRIXMOl>; Mon, 24 Sep 2001 08:14:41 -0400
+Message-ID: <20010924121507.62087.qmail@web11904.mail.yahoo.com>
+Date: Mon, 24 Sep 2001 05:15:07 -0700 (PDT)
+From: Kirill Ratkin <kratkin@yahoo.com>
+Subject: Re: Linux VM design
+To: Dave Jones <davej@suse.de>, VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.30.0109241304130.20453-100000@Appserv.suse.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BAECC4F.EF25393@zip.com.au>
-User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-After testing this new patch on 2.4.10 I have detected a problem when trying
-to convert mounted partitions to ext3.
+--- Dave Jones <davej@suse.de> wrote:
+> On Mon, 24 Sep 2001, VDA wrote:
+> 
+> > I'd like to understand Linux VM but there's not
+> much in
+> > Documentation/vm/* on the subject. I understand
+> that with current
+> > frantic development pace it is hard to maintain
+> such docs.
+> 
+> In case you're not aware of it,
+> http://linux-mm.org/wiki/moin.cgi
+> is starting to fill out with documentation/ideas/etc
+> on VM strategies
+> past, present and future.
+> 
+> regards,
+> 
+> Dave.
+> 
+> -- 
+> | Dave Jones.        http://www.suse.de/~davej
+> | SuSE Labs
+> 
 
-The problem is that on umounting the partition, with 2.4.10 kernel, the
-has_journal feature mark is removed, so the device is not detected as having
-journal on next mount.
+And here:
+http://home.earthlink.net/~jknapka/linux-mm/vmoutline.html
 
-Creating journals (converting to ext3) on partitions that are not mounted
-works ok.
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Following is a practical demonstration of this in case I didn't explain
-myself well...
 
-pul:/# grep var /etc/fstab
-/dev/hda7 /var auto rw 0 2
-pul:/# mount|grep var
-/dev/hda7 on /var type ext2 (rw)
-pul:~# tune2fs -l /dev/hda7|grep -i journal
-pul:~# ls -l /var/.journal
-ls: /var/.journal: No such file or directory
-pul:~# tune2fs -j /dev/hda7
-tune2fs 1.24a (02-Sep-2001)
-Creating journal inode: done
-This filesystem will be automatically checked every 20 mounts or
-180 days, whichever comes first.  Use tune2fs -c or -i to override.
-pul:~# tune2fs -l /dev/hda7|grep -i journal
-Filesystem features:      has_journal filetype sparse_super
-Journal UUID:             <none>
-Journal inode:            12
-Journal device:           0x0000
-pul:~# ls -l /var/.journal
--rw-------    1 root     root      8388608 sep 24 13:39 /var/.journal
-pul:/# umount /var
-pul:/# tune2fs -l /dev/hda7|grep -i journal
-pul:/# mount /var
-pul:/# mount|grep var
-/dev/hda7 on /var type ext2 (rw)
-pul:/# ls -l /var/.journal
--rw-------    1 root     root      8388608 Sep 24 13:39 /var/.journal
-
-Regards...
--- 
-Manty/BestiaTester -> http://manty.net
+__________________________________________________
+Do You Yahoo!?
+Get email alerts & NEW webcam video instant messaging with Yahoo! Messenger. http://im.yahoo.com

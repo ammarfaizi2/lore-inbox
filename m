@@ -1,70 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262082AbTHYRXY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 13:23:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbTHYRXY
+	id S262069AbTHYReJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 13:34:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbTHYReJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 13:23:24 -0400
-Received: from mail.gmx.net ([213.165.64.20]:389 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262082AbTHYRXS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 13:23:18 -0400
-Date: Mon, 25 Aug 2003 20:23:14 +0300
-From: Dan Aloni <da-x@gmx.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Jakub Jelinek <jakub@redhat.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] One strdup() to rule them all
-Message-ID: <20030825172314.GA10606@callisto.yi.org>
-References: <20030825161435.GB8961@callisto.yi.org> <20030825122532.J10720@devserv.devel.redhat.com> <20030825170530.GB7097@gtf.org>
+	Mon, 25 Aug 2003 13:34:09 -0400
+Received: from fed1mtao07.cox.net ([68.6.19.124]:22999 "EHLO
+	fed1mtao07.cox.net") by vger.kernel.org with ESMTP id S262069AbTHYReF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 13:34:05 -0400
+Date: Mon, 25 Aug 2003 10:34:04 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: Patrick Mochel <mochel@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       torvalds@osdl.org, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PM] Patrick: which part of "maintainer" and "peer review" needs explaining to you?
+Message-ID: <20030825103404.D28149@home.com>
+References: <20030823114738.B25729@flint.arm.linux.org.uk> <Pine.LNX.4.44.0308250840360.1157-100000@cherise> <20030825172737.E16790@flint.arm.linux.org.uk> <20030825095720.B28149@home.com> <20030825181415.F16790@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030825170530.GB7097@gtf.org>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030825181415.F16790@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Mon, Aug 25, 2003 at 06:14:15PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 25, 2003 at 01:05:30PM -0400, Jeff Garzik wrote:
-> On Mon, Aug 25, 2003 at 12:25:32PM -0400, Jakub Jelinek wrote:
-> > On Mon, Aug 25, 2003 at 07:14:35PM +0300, Dan Aloni wrote:
-> > > diff -Nru a/lib/string.c b/lib/string.c
-> > > --- a/lib/string.c	Mon Aug 25 19:03:26 2003
-> > > +++ b/lib/string.c	Mon Aug 25 19:03:26 2003
-> > > @@ -582,3 +582,19 @@
-> > >  }
-> > >  
-> > >  #endif
-> > > +
-> > > +/**
-> > > + * strdup - Allocate a copy of a string.
-> > > + * @s: The string to copy. Must not be NULL.
-> > > + *
-> > > + * returns the address of the allocation, or NULL on
-> > > + * error. 
-> > > + */
-> > > +char *strdup(const char *s)
-> > > +{
-> > > +	char *rv = kmalloc(strlen(s)+1, GFP_KERNEL);
-> > > +	if (rv)
-> > > +		strcpy(rv, s);
-> > > +	return rv;
-> > > +}
-> > > +EXPORT_SYMBOL(strdup);
-> > 
-> > Better save strlen(s)+1 in a local size_t variable and use memcpy instead
-> > of strcpy.
+On Mon, Aug 25, 2003 at 06:14:15PM +0100, Russell King wrote:
+> On Mon, Aug 25, 2003 at 09:57:20AM -0700, Matt Porter wrote:
+> > Alternatively, you could leave the platform model as is (it's only
+> > for really dumb devices).
 > 
-> Yep.  When Rusty did his strdup cleanup, he followed my suggestion and
-> did just that.
+> Thing is that we use the platform model for off chip devices as well.
+> On ARM, its gets used for any device which the platform code knows
+> where it is located.  ie, a platform device.
 > 
-> Unfortunately Linus doesn't like the strdup cleanup, so I don't see this
-> patch going in either :)
+> > On PPC, we have an OCP (on chip peripheral)
+> > model that is mostly integrated into the device model now.  OCP is
+> > just another bus/driver type and so PM works in the normal fashion.
+> 
+> Ah, but OCP can't be used to describe a platform dependent SMC91x
+> network interface that some random designer decided to drop into
+> their design - it isn't part of the SoC.
 
-Perhaps Linus would like to keep strdup()'s scattered across the kernel, 
-so their combined power would not be exploited by evil <insert silly LotR 
-humor here>. :) I'll end this thread here.
+There's nothing inherent in OCP (except the name) that prevents this.
+In fact, that's one of the directions we wanted to go with it because
+of PPC4xx external bus controller devices that are board specific.
+ 
+> > There's a driver API around it as well so we can cleanly share drivers
+> > across various SoC implementations with different base address,
+> > IRQ mappings, etc.  It might be more useful to extende this across
+> > the architectures that need it.
+> 
+> Note that we've already done some public work on providing flexible
+> platform device support to satisfy the needs of platform people -
+> by adding the variable number of resources to the platform device.
 
--- 
-Dan Aloni
-da-x@gmx.net
+Yes, I recall asking for more interrupt resources when I thought it
+might be useful.  However, the PPC4xx stuff is requiring a move
+to a finer grained specification of internal bus types to properly
+implement PM.  It's necessary to know if a device is a child of
+the PLB, OPB, EBC, etc. to know when to power down various internal
+bus drivers as well.  I don't see that happening with platform
+devices even with the addition of PM ops.  Perhaps this isn't
+applicable to more than PPC, though.
+
+> Also note that most of the x86 ISA PCMCIA devices _are_ platform
+> devices today.  As of this new power management model, they're
+> broken due to the fact that they no longer receive power management
+> events.
+
+I see.
+
+-Matt

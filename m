@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264706AbUE0Rik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264914AbUE0RkM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264706AbUE0Rik (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 13:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbUE0Rik
+	id S264914AbUE0RkM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 13:40:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264913AbUE0RkM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 13:38:40 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:54925 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264706AbUE0Rii
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 13:38:38 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Thomas Zehetbauer <thomasz@hostmaster.org>
-Subject: Re: AMD64: IDE performance woes
-Date: Thu, 27 May 2004 19:40:27 +0200
-User-Agent: KMail/1.5.3
-References: <1085678259.3374.7.camel@hostmaster.org>
-In-Reply-To: <1085678259.3374.7.camel@hostmaster.org>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405271940.27702.bzolnier@elka.pw.edu.pl>
+	Thu, 27 May 2004 13:40:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2749 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264902AbUE0Rj6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 13:39:58 -0400
+Subject: Re: [2.6.7-rc1-mm1] lp int copy_to_user replaced
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: FabF <fabian.frederick@skynet.be>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1085679127.2070.21.camel@localhost.localdomain>
+References: <1085679127.2070.21.camel@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-AG0XfFGcDRx7mygzyzQZ"
+Organization: Red Hat UK
+Message-Id: <1085679588.7179.9.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 27 May 2004 19:39:48 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 of May 2004 19:17, Thomas Zehetbauer wrote:
-> It seems that IDE performance is severely degraded on AMD64:
->
-> hdparm -t timings
-> 2.4.25/i386:  54.13MB/s
-> 2.6.6/x86_64: 31.4MB/s
->
-> Board is a Tyan Thunder K8W s2885 with an AMD8111 controller
-> IDE device parameters are the same (hdparm -a8 -c1 -d1 -m16 -u1)
 
-Can you try with -a8 removed?
+--=-AG0XfFGcDRx7mygzyzQZ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> Tom
+On Thu, 2004-05-27 at 19:32, FabF wrote:
+> Andrew,
+>=20
+> 	Here's a patch to have standard __put_user for integer transfers in lp
+> driver.Is it correct ?
+
+no it's not. You need to use put_user() not __put_user() at least, to
+make sure the destination address is checked to not be in kernel
+space...
+
+
+--=-AG0XfFGcDRx7mygzyzQZ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAtifkxULwo51rQBIRAibNAJ9wMWIdshwThB+Fbd5D4r4XiKpCSwCgoFB8
+utrT1/fBwaXpX2oSrNHWPK0=
+=hbIS
+-----END PGP SIGNATURE-----
+
+--=-AG0XfFGcDRx7mygzyzQZ--
 

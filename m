@@ -1,44 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268597AbUHLQQ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268603AbUHLQah@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268597AbUHLQQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 12:16:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268600AbUHLQQZ
+	id S268603AbUHLQah (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 12:30:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268605AbUHLQah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 12:16:25 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:9709 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S268597AbUHLQPu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 12:15:50 -0400
-Subject: Re: [PATCH] Remove whitespace from ALI15x3 IDE driver name
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org
-In-Reply-To: <20040812170400.A2448@infradead.org>
-References: <1092336877.7433.1.camel@localhost>
-	 <20040812170400.A2448@infradead.org>
-Message-Id: <1092338360.7433.5.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Thu, 12 Aug 2004 12:30:37 -0400
+Received: from pop.gmx.de ([213.165.64.20]:3477 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268603AbUHLQaf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 12:30:35 -0400
+X-Authenticated: #14776911
+From: Stefan =?iso-8859-1?q?D=F6singer?= <stefandoesinger@gmx.at>
+Reply-To: stefandoesinger@gmx.at
+To: acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: Allow userspace do something special on overtemp
+Date: Thu, 12 Aug 2004 19:27:10 +0200
+User-Agent: KMail/1.6.2
+Cc: Len Brown <len.brown@intel.com>, Pavel Machek <pavel@suse.cz>,
+       trenn@suse.de, seife@suse.de,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040811085326.GA11765@elf.ucw.cz> <1092323945.5028.177.camel@dhcppc4>
+In-Reply-To: <1092323945.5028.177.camel@dhcppc4>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 12 Aug 2004 19:19:20 +0000
+Message-Id: <200408121927.11277.stefandoesinger@gmx.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph,
-
-On Thu, Aug 12, 2004 at 06:54:38PM +0000, Pekka Enberg wrote:
-> > This patch removes whitespace from ALI15x3 IDE driver name that appears in the
-> > sysfs directory. It is against 2.6.7.
-
-On Thu, 2004-08-12 at 16:04, Christoph Hellwig wrote:
-> You jnow that this breaks every tool that knew of the names so far?  E.g.
-> Debian mkinitrd (now has a patch to deal with both the whitespace and
-> non-whitespace variants) and probably quite a few installers out there.
-
-Sorry, I did not know that. I only booted to my Gentoo box with it. I
-saw similar patches go into other PCI drivers which is why I thought it
-was appropriate.
-
-		Pekka
-
+Hi,
+Isn't this a little bit dangerous? What if acpid is not set up to handle this?

@@ -1,101 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131714AbQKDIpH>; Sat, 4 Nov 2000 03:45:07 -0500
+	id <S130266AbQKDIwV>; Sat, 4 Nov 2000 03:52:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132402AbQKDIo6>; Sat, 4 Nov 2000 03:44:58 -0500
-Received: from windlord.Stanford.EDU ([171.64.13.23]:23751 "HELO
-	windlord.stanford.edu") by vger.kernel.org with SMTP
-	id <S132363AbQKDIor>; Sat, 4 Nov 2000 03:44:47 -0500
-To: Michael Meissner <meissner@spectacle-pond.org>
-Cc: Tim Riker <Tim@Rikers.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?)
-In-Reply-To: <fa.g3i0smv.15loso7@ifi.uio.no> <fa.cjn9ksv.1a0m82t@ifi.uio.no>
-	<ylbsvww97j.fsf@windlord.stanford.edu>
-	<20001104034002.A26612@munchkin.spectacle-pond.org>
-In-Reply-To: Michael Meissner's message of "Sat, 4 Nov 2000 03:40:02 -0500"
-From: Russ Allbery <rra@stanford.edu>
-Organization: The Eyrie
-Date: 04 Nov 2000 00:44:39 -0800
-Message-ID: <ylu29ounwo.fsf@windlord.stanford.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
+	id <S132215AbQKDIwL>; Sat, 4 Nov 2000 03:52:11 -0500
+Received: from jake.canberra.net.au ([203.29.91.119]:40466 "EHLO
+	smtp.canberra.net.au") by vger.kernel.org with ESMTP
+	id <S130266AbQKDIv4>; Sat, 4 Nov 2000 03:51:56 -0500
+Message-ID: <03de01c0463b$fbcb66c0$0200a8c0@W2K>
+From: "Nick Piggin" <piggin@cyberone.com.au>
+To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Subject: 2.4.0-test10 oopses (bug in devfs)
+Date: Sat, 4 Nov 2000 19:42:53 +1100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Meissner <meissner@spectacle-pond.org> writes:
-> On Fri, Nov 03, 2000 at 10:19:12PM -0800, Russ Allbery wrote:
+Maybe this got ignored because the subject was test9 oops when test 10 had
+been released, or people tend to ignore .edu addresses...
 
->> May I tentatively suggest that one point at which your resources could
->> productively be applied is towards improving the C99 compliance in gcc?
->> Clearly for the near to medium future the compiler that everyone will
->> use to build the Linux kernel will be gcc, which means that in order to
->> use any C99 syntax, it first has to be solid in gcc.  That means the
->> best way of introducing such things into the Linux kernel is to *first*
->> get the C99 support solid, reliable, and efficient in gcc, then once a
->> version of gcc is released with that support, help get Linux compiling
->> with that version of gcc.
+> Just  a note that this oops still occurs in test10. The problem occurs
+> because get_devfs_entry_from_vfs_inode in devfs_follow_link (and/or
+> devfs_read_link), seems to return invalid or incorrect devfs entries whose
+> .u.symlink.linkname is null which causes the line:
+>         if (*link == '/') {
+> in fs/namei.c: __vfs_follow_link to oops.
+>
+> The oops is due to trying to follow an sg? link in /dev.
+>
+> Nick.
+>
+> ----- Original Message -----
+> From: "Nick Piggin" <s3293115@student.anu.edu.au>
+> To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+> Sent: Wednesday, October 25, 2000 9:16 PM
+> Subject: 2.4.0-test9 Oopses
+>
+>
+> > Did the following with 2.4.0-test9 + reiserfs 3.6.18 (all ext2
+filesystem,
+> > however) and all ide block devices.
+> >
+> > scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+> > Vendor: RICOH     Model: CD-R/RW MP7060A   Rev: 1.50
+> > Type:   CD-ROM                             ANSI SCSI revision: 02
+> > Vendor: ATAPI     Model: CD-ROM DRIVE-24X  Rev: U40M
+> > Type:   CD-ROM                             ANSI SCSI revision: 02
+> > Detected scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
+> > Detected scsi CD-ROM sr1 at scsi0, channel 0, id 1, lun 0
+> > sr0: scsi3-mmc drive: 24x/24x writer cd/rw xa/form2 cdda tray
+> > sr1: scsi3-mmc drive: 20x/20x xa/form2 cdda tray
+> > scsi : 0 hosts left.
+> >
+> > (loaded ide-scsi modules as you can see)
+> [snip]
+> > Doing cdrecord -scanbus I
+> > got these two oopses
+> >
+> > Unable to handle kernel NULL pointer dereference at virtual address
+> 00000000
+> >  printing eip:
+> > c013a551
+> > Oops: 0000
+> > CPU:    0
+> > EIP:    0010:[vfs_follow_link+33/368]
+> > EFLAGS: 00010217
+> > eax: 00000000   ebx: c3c5bf90   ecx: 00000341   edx: c02b6040
+> > esi: 00000000   edi: 00000000   ebp: 00000000   esp: c3c5befc
+> > ds: 0018   es: 0018   ss: 0018
+> > Process devfsd (pid: 12, stackpage=c3c5b000)
+> > Stack: c3c5bf90 00000000 c0a01e20 c3c5bf90 00000000 c01547cf c3c5bf90
+> > 00000000
+> >        c3c5a000 c0138143 c0a01e20 c3c5bf90 c09c0b40 c3d69000 00000000
+> > c3c5bf90
+> >        bfffecdc 00000001 bfffecdc c3c5bf94 00000009 c0a01e20 c3d69005
+> > 00000003
+> > Call Trace: [devfs_follow_link+31/48] [path_walk+1683/1952]
+> > [__user_walk+60/96] [sys_chown+22/80] [sys_chown16+48/64]
+> > [system_call+51/56]
+> > Code: 80 3f 2f 0f 85 c6 00 00 00 53 e8 90 d2 ff ff ba 00 e0 ff ff
+> >
+> > Unable to handle kernel NULL pointer dereference at virtual address
+> 00000000
+> >  printing eip:
+> > c013a551
+> > Oops: 0000
+> > CPU:    0
+> > EIP:    0010:[vfs_follow_link+33/368]
+> > EFLAGS: 00010217
+> > eax: 00000000   ebx: c081df80   ecx: 00000341   edx: c02b6040
+> > esi: c0a01b20   edi: 00000000   ebp: 00000000   esp: c081ded0
+> > ds: 0018   es: 0018   ss: 0018
+> > Process cdrecord (pid: 758, stackpage=c081d000)
+> > Stack: c081df80 c0a01b20 c0a01b20 c081df80 00000000 c01547cf c081df80
+> > 00000000
+> >        c081c000 c0138143 c0a01b20 c081df80 c09c0b40 c117d000 00000000
+> > 00000002
+> >        00000003 00000001 08074094 c081df84 00000001 c0a01b20 c117d005
+> > 00000003
+> > Call Trace: [devfs_follow_link+31/48] [path_walk+1683/1952]
+> > [open_namei+128/1504] [filp_open+59/96] [sys_open+67/208]
+> > [system_call+51/56]
+> > Code: 80 3f 2f 0f 85 c6 00 00 00 53 e8 90 d2 ff ff ba 00 e0 ff ff
 
->> *Then*, when that version of gcc can be made a prerequisite for the
->> kernel, you can start switching constructs over to the C99 syntax that
->> gcc supports.
-
-> Hmmmmm.  Last month the compiler related thread on the kernel list was
-> the kernel couldn't move to newer versions of the compiler because the
-> compiler had changed things (where newer might mean either the latest
-> snapshot de jour, or a tested/appropriately patched version based off of
-> the snapshots, or even 2.95).
-
-That's why I have the bit above about "help get Linux compiling with that
-version of gcc."  My understanding is that the Linux core developers want
-to support newer versions of gcc as they come out, but that it's a slow
-process and relies on volunteers tracking down what's changed in gcc and
-updating the kernel to either use coding constructs that work better with
-a newer gcc or to use appropriate flags to turn off new gcc features that
-don't work well with the kernel (like strict-aliasing).
-
-Clearly people who have a strong interest in being able to use newer
-versions of gcc for kernel compiles (such as people who want to
-*eventually* be able to use some C99 features) are the best people to help
-do this work since they'll be scratching their own itch, so to speak.
-
-> Now people seem to be advocating moving the kernel to use features from
-> C99 that haven't even been coded yet (which mean when coded using the
-> latest codegen as well).
-
-People may be advocating that, but I think that in my message above, I'm
-pretty clearly *not* advocating this.  I'm saying that if the goal is to
-eventually be able to use C99 syntax in the Linux kernel, the obvious
-first step that has to be accomplished before that goal is even remotely
-possible is to make sure that the compiler that the kernel uses has good
-C99 support.  And that achieving this goal has many benefits for the
-community as a whole at the same time.
-
-We have to get to point A before we can get to point H.  That doesn't mean
-that point A leads directly to point H without the intervening B-G.  :)
-
-> Note, I seriously doubt Linus will want a flag day (ie, after a given
-> kernel release, you must use revision n of the compiler, but before that
-> release, you must use revision n-1 of the compiler), so you still have
-> to maintain support for the old GCC way of doing things, in addition to
-> the C99 way of doing things probably for a year or so.
-
-It depends on the time scale.  I don't believe compilers older than 2.7.2
-are really supported any more, are they?  And I would expect that before
-*too* much longer, compilers older than egcs 1.1 won't be supported any
-more, since some of the bugs in 2.7.2 are already raising their heads.
-
-With time, the kernel does eventually change its minimum supported gcc
-version number.  As soon as that minimum supported version number reaches
-a version of gcc that supports a C99 feature, that feature can then
-reasonably be used in the kernel.  It's quite possible, even likely, that
-having the C99 feature isn't enough reason to move the minimum supported
-version number by itself, but with enough patience it will creep forward
-anyway.
-
--- 
-Russ Allbery (rra@stanford.edu)             <http://www.eyrie.org/~eagle/>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,79 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280073AbRJaFIe>; Wed, 31 Oct 2001 00:08:34 -0500
+	id <S280082AbRJaF3a>; Wed, 31 Oct 2001 00:29:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280074AbRJaFIY>; Wed, 31 Oct 2001 00:08:24 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:18921 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id <S280073AbRJaFIT>; Wed, 31 Oct 2001 00:08:19 -0500
-Date: Wed, 31 Oct 2001 14:08:44 +0900
-Message-ID: <y9ls8kgz.wl@nisaaru.dvs.cs.fujitsu.co.jp>
-From: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
-To: Robert Love <rml@tech9.net>
-Cc: linus@transmeta.com, laughing@shared-source.org,
-        linux-kernel@vger.kernel.org, tytso@thunk.org, andrewm@uow.edu.au
-Subject: Re: [PATCH] tty race on con_close and con_flush_chars
-In-Reply-To: <1004411636.807.262.camel@phantasy>
-In-Reply-To: <1004403868.809.147.camel@phantasy>
-	<1004411636.807.262.camel@phantasy>
-User-Agent: Wanderlust/2.7.5 (Too Funky) EMY/1.13.9 (Art is long, life is short) SLIM/1.14.7 () APEL/10.3 MULE XEmacs/21.1 (patch 14) (Cuyahoga Valley) (i586-kondara-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S280077AbRJaF3V>; Wed, 31 Oct 2001 00:29:21 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:24050
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S280080AbRJaF3K>; Wed, 31 Oct 2001 00:29:10 -0500
+Date: Tue, 30 Oct 2001 21:29:42 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Tom Vier <tmv5@home.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.13-ac2 weird vm stats
+Message-ID: <20011030212942.J490@mikef-linux.matchmail.com>
+Mail-Followup-To: Tom Vier <tmv5@home.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011030224011.A32651@zero>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011030224011.A32651@zero>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hello,
-
-At 29 Oct 2001 22:13:55 -0500,
-Robert Love wrote:
+On Tue, Oct 30, 2001 at 10:40:11PM -0500, Tom Vier wrote:
+> noticed this while in x. shortly afterwards (less than a minute), the stats
+> returned to normal, except it was reporting little to no, or possible still
+> negative cache (couldn't tell at the time, was reading from xosview). the
+> vmstat output below may have been generated just after it returned to
+> normal.
 > 
-> Someone pointed out (via private email) that a race can still exist
-> between checking that vt is non-zero and acquiring the semaphore,
-> especially since we can sleep doing that.
+>  10:20pm  up 4 days, 35 min,  1 user,  load average: 2.47, 2.18, 2.06
+> 51 processes: 49 sleeping, 2 running, 0 zombie, 0 stopped
+> CPU states:  0.6% user,  0.2% system, 99.0% nice,  0.0% idle
+> Mem:  510296K av, 506208K used,   4088K free,      0K shrd, 139728K buff
+> Swap:  98272K av,      0K used,  98272K free                 -9552K cached
 > 
-> I agree; the following patch should alleviate that race.
+>    procs                      memory    swap          io     system         cpu
+>  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+>  1  0  1      0 127368 131792   3248   0   0     1     6   11     8   3   0   0
+> 
+> 
+> Linux zero 2.4.13-ac2 #1 Fri Oct 26 22:24:29 EDT 2001 alpha unknown
 
-Your patch only fixes con_flush_chars(), but the same races exists in
-do_con_write() and maybe con_unthrottle(). I think the patch below is
-better because the oops would never happen with this patch.
+I'm seeing this on 2.4.13-ac5 too.
 
-
-diff -r -u -N linux.org/drivers/char/console.c linux/drivers/char/console.c
---- linux.org/drivers/char/console.c	Tue Oct 30 18:55:17 2001
-+++ linux/drivers/char/console.c	Tue Oct 30 19:07:08 2001
-@@ -2424,7 +2424,6 @@
- 		return;
- 	if (tty->count != 1) return;
- 	vcs_make_devfs (MINOR (tty->device) - tty->driver.minor_start, 1);
--	tty->driver_data = 0;
- }
+Check out the thread started as "funny free output with all mem for buffers"
+ then changed to "Cached accounting problem" by me...
  
- static void vc_init(unsigned int currcons, unsigned int rows, unsigned int cols, int do_clear)
+This seems to be happening on 2.4.13, and -ac kernels.
 
-
-
-> 
-> diff -u linux-2.4.13-ac5/drivers/char/console.c
-> linux/drivers/char/console.c
-> --- linux-2.4.13-ac5/drivers/char/console.c	Mon Oct 29 17:27:19 2001
-> +++ linux/drivers/char/console.c	Mon Oct 29 22:11:27 2001
-> @@ -2387,8 +2387,14 @@
->  		return;
->  
->  	pm_access(pm_con);
-> +
-> +	/*
-> +	 * If we raced with con_close(), `vt' may be null. 
-> +	 * Hence this bandaid.   - akpm
-> +	 */
->  	acquire_console_sem();
-> -	set_cursor(vt->vc_num);
-> +	if (vt)
-> +		set_cursor(vt->vc_num);
->  	release_console_sem();
->  }
->  
-> 
-> 	Robert Love
-> 
+Mike

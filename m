@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbULTPlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbULTPp3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261570AbULTPlr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 10:41:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbULTPhk
+	id S261543AbULTPp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 10:45:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbULTPmC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 10:37:40 -0500
-Received: from mail.kroah.org ([69.55.234.183]:35508 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261571AbULTPhQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 10:37:16 -0500
-Date: Mon, 20 Dec 2004 07:35:08 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Ed Tomlinson <edt@aei.ca>, Pete Zaitcev <zaitcev@redhat.com>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: RFC: [2.6 patch] let BLK_DEV_UB depend on EMBEDDED
-Message-ID: <20041220153508.GB17121@kroah.com>
-References: <200412200702.50071.edt@aei.ca> <Pine.LNX.4.44L0.0412201026390.1358-100000@ida.rowland.org>
+	Mon, 20 Dec 2004 10:42:02 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:24557 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261543AbULTPkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 10:40:24 -0500
+Subject: Re: [2.6 patch] ieee1394_core.c: remove unneeded EXPORT_SYMBOL's
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Arne Caspari <arnem@informatik.uni-bremen.de>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       linux1394-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041220132012.GA6046@localhost>
+References: <20041220015320.GO21288@stusta.de>
+	 <41C694E0.8010609@informatik.uni-bremen.de>
+	 <1103544944.4133.7.camel@laptopd505.fenrus.org>
+	 <20041220132012.GA6046@localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1103553354.30268.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0412201026390.1358-100000@ida.rowland.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 20 Dec 2004 14:35:58 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 20, 2004 at 10:28:05AM -0500, Alan Stern wrote:
-> On Mon, 20 Dec 2004, Ed Tomlinson wrote:
+On Llu, 2004-12-20 at 13:20, Arne Caspari wrote:
+> > are you going to submit that driver for inclusion any time soon ?
 > 
-> > Its not that they just enable it.  Its that it has side effects.  I enable it to support
-> > one device - it then 'devnaps' other devices that usbstorage supports _much_
-> > better.  Is there some way it could work in reverse.  eg. let ub bind only if 
-> > usbstorage does not, possibly making usbstorage a _little_ more conservative
-> > if ub is present?
-> 
-> Unfortunately there isn't any way to define which driver should bind to a 
-> device, if they are both capable of controlling it.  Maybe there should 
-> be.  It might not be too hard to add a sysfs interface for that sort of 
-> thing.
+> What would be the benefit if I do so? I have no access to linux1394 SVN or kernel repositories so I can only support the version on sourceforge. 
 
-We are working on it...
+Everyone can submit patches to the kernel tree. If your driver is open
+source and you and your customers would benefit from having it just work
+out of the box with distributions please consider submitting it. It also
+helps maintainability because it becomes obvious when something will
+break your driver and people can code accordingly (or submit fixes that
+also fix up your driver code).
 
-thanks,
+Alan
 
-greg k-h

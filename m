@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315788AbSEJDs6>; Thu, 9 May 2002 23:48:58 -0400
+	id <S315790AbSEJDyW>; Thu, 9 May 2002 23:54:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315789AbSEJDs5>; Thu, 9 May 2002 23:48:57 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:33295 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S315788AbSEJDs4>;
-	Thu, 9 May 2002 23:48:56 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200205100348.g4A3mtE119099@saturn.cs.uml.edu>
-Subject: Re: sb16 isa non-pnp problems
-To: sandos@home.se (=?iso-8859-1?Q?John_B=E4ckstrand?=)
-Date: Thu, 9 May 2002 23:48:55 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <001101c1f7c1$c233fba0$0319450a@sandos> from "=?iso-8859-1?Q?John_B=E4ckstrand?=" at May 10, 2002 03:26:49 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S315791AbSEJDyV>; Thu, 9 May 2002 23:54:21 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:34754 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S315790AbSEJDyU>; Thu, 9 May 2002 23:54:20 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Peter Chubb <peter@chubb.wattle.id.au>
+Date: Fri, 10 May 2002 13:53:45 +1000 (EST)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15579.17481.944696.129323@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au, martin@dalecki.de
+Subject: Re: [PATCH] remove 2TB block device limit
+In-Reply-To: message from Peter Chubb on Friday May 10
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ive been trying to get my sb16 isa non-pnp working on a
-> old 486, it has got two isa slots.
-...
-> The problems Im seeing is for the pnp card that it isnt
-> detected at all, even if I do modprobe sb io=0x220
-> dma=1 irq=5, I guess that is because I cant seem to be
-> able to configure it using pnp, isapnp didnt print
-> anything and the conf-files seemed very long-winded.
-
-Ditch isapnp and those config files. If using Red Hat,
-add "nopnp" to the kernel command line. Configure your
-kernel (2.4.xx or 2.5.xx) to handle ISA PnP by itself.
-
-> The non-pnp card is atleast detected, and I can even
-> get sound from it. The sb16 DOS-util diagnose.exe from
-> creative plays fine on this card, but it doesnt even
-> detect the newer pnp card. Anyway, in linux I can cat
-> /dev/urandom > /dev/dsp on my non-pnp, and will get
-> noise. But my system will hang after about 10-20
-> seconds with this. Playing a mp3 using mpg123 gets me a
-> seg fault, or unable to handle paging request, aiiie:
-> killing interrupt handler or some other oops.
+On Friday May 10, peter@chubb.wattle.id.au wrote:
 > 
-> Any ideas? I have looked into /proc/interrupts,
-> /proc/ioports, /proc/dma, and there are no conflicts
-> afaics. Its an oldish 486, 20mb ram, running a
-> overdrive 80mhz right now.
+> Hi,
+> 	At present, linux is limited to 2TB filesystems even on 64-bit
+> systems, because there are various places where the block offset on
+> disc are assigned to unsigned or int 32-bit variables.
+> 
+> There's a type, sector_t, that's meant to hold offsets in sectors and
+> blocks.  It's not used consistently (yet).
+> 
+> The patch at
+>     http://www.gelato.unsw.edu.au/patches/2.5.14-largefile-patch
 
-Blame your motherboard. Many 486 motherboards have
-trouble with DMA. I've had similar problems with a
-real SoundBlaster16 and a "486". (IBM BlueLightning
-486SLC2-66, Intel 486SX-25, and Intel DX4-75 OverDrive)
+> 
+> As this touches lots of places -- the generic block layer (Andrew?)
+> the IDE code (Martin?) and RAID (Neil?) and minor changes to the scsi
+> I've CCd a few people directly.
+> 
 
-DOS DOOM played in DOS     --> crash
-DOS DOOM in an OS/2 window --> OK
-Linux with 8-bit sounds    --> OK
-Linux with 16-bit sounds   --> crash
+Thanks.
+MD part looks sane to me. However I would rather the
+ 
++#ifdef CONFIG_LFS
++#include <asm/div64.h>
++#else
++#undef do_div
++#define do_div(n, b)({ int _res; _res = (n) % (b); (n) /= (b); _res;})
++#endif
++
 
-Forget about sound, junk the box, or use OS/2.
+part went in linux/raid/md_k.h and defined "sector_div" (or similar)
+as either do_div or ({ int _res; _res = (n) % (b); (n) /= (b); _res;})
+as appropriate.
+
+NeilBrown

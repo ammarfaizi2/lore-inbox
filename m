@@ -1,60 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130742AbRCIXCY>; Fri, 9 Mar 2001 18:02:24 -0500
+	id <S130761AbRCIXXZ>; Fri, 9 Mar 2001 18:23:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130745AbRCIXCO>; Fri, 9 Mar 2001 18:02:14 -0500
-Received: from hall.mail.mindspring.net ([207.69.200.60]:25148 "EHLO
-	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S130742AbRCIXBy>; Fri, 9 Mar 2001 18:01:54 -0500
-Message-ID: <002101c0a8ec$af793b80$305079a5@zeusinc.com>
-From: "Tom Sightler" <ttsig@tuxyturvy.com>
-To: "Dennis Noordsij" <dennis.noordsij@wiral.com>,
-        "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E14bUio-0005ls-00@the-village.bc.nu>
-Subject: Re: APM battery status reporting
-Date: Fri, 9 Mar 2001 18:00:05 -0500
+	id <S130757AbRCIXXP>; Fri, 9 Mar 2001 18:23:15 -0500
+Received: from sgi.SGI.COM ([192.48.153.1]:9770 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S130756AbRCIXXD>;
+	Fri, 9 Mar 2001 18:23:03 -0500
+Message-ID: <3AA9653B.B691C8F2@sgi.com>
+Date: Fri, 09 Mar 2001 15:20:27 -0800
+From: LA Walsh <law@sgi.com>
+Organization: Trust Technology, SGI
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en, fr
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: (struct dentry *)->vfsmnt;
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > tested in previous kernels. Then again my dmesg says the BIOS is
-probably
-> > buggy (same BIOS though as mentioned in those posts). Apmd does notice
-the
-> > change from mains to battery and vice versa (I have disabled Speedstep
-so now
-> > everything actually survives this transition :-).
-> > So to end all the confusion, is there a patch out there that enables
-battery
-> > status reporting for me (and other Dell owners :-) ?
->
-> Yes but the update you need is a new BIOS revision. Ask Dell
->
+Could someone enlighten me as to the purpose of this field in the
+dentry struct?  There is no elucidating comment in the header for this
+particular field and the name/type only indicate it is pointing to
+a list of vfsmounts.  Can a dentry belong to more than one vfsmount?
 
-The BIOS update has been around forever from Compal (the people who actually
-OEM the unit for Dell), you can get their generic BIOS at
-http://software.tuxtops.com. This probably violates your Dell warranty but I
-know many who use it and we've now installed it on all the 5000e systems we
-own, without any problem.
+If I have a 'dentry' and simply want to determine what the absolute
+path from root is, in the 'd_path' macro, would I use 'rootmnt' of my
+current->fs as the 'vfsmount' as well?
 
-I'm not sure why Dell is taking so long to get an update to it consumers,
-but it probably has something to do with the fact that Linux isn't a
-supported platform on this machine.  Their official stance appears to be
-"APM isn't supported on this laptop, only ACPI."  That's pretty bogus since
-everything but this one system call works, and even that works with the
-Compal generic BIOS, so I'd more likely guess it's just not high on the
-priority list because it's not important enough for their largest user base
-which is of course Windows.
-
-Later,
-Tom
+Thanks, in advance...
+-linda
 
 
+-- 
+L A Walsh                        | Trust Technology, Core Linux, SGI
+law@sgi.com                      | Voice: (650) 933-53

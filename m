@@ -1,59 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261928AbUKUMFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263222AbUKUMFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbUKUMFU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 07:05:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbUKUMDI
+	id S263222AbUKUMFT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 07:05:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263257AbUKUMCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 07:03:08 -0500
-Received: from mail.euroweb.hu ([193.226.220.4]:50378 "HELO mail.euroweb.hu")
-	by vger.kernel.org with SMTP id S261928AbUKUMCA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 07:02:00 -0500
-To: aia21@cam.ac.uk
-CC: bulb@ucw.cz, pavel@ucw.cz, akpm@osdl.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <Pine.LNX.4.60.0411211143340.19278@hermes-1.csi.cam.ac.uk>
-	(message from Anton Altaparmakov on Sun, 21 Nov 2004 11:53:04 +0000
-	(GMT))
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu>
- <20041117190055.GC6952@openzaurus.ucw.cz> <E1CUVkG-0005sV-00@dorka.pomaz.szeredi.hu>
- <20041117204424.GC11439@elf.ucw.cz> <E1CUhTd-0006c8-00@dorka.pomaz.szeredi.hu>
- <20041118144634.GA7922@openzaurus.ucw.cz> <E1CVmN5-0007qq-00@dorka.pomaz.szeredi.hu>
- <20041121095038.GV2870@vagabond> <E1CVp0g-0008Cw-00@dorka.pomaz.szeredi.hu>
- <20041121103956.GW2870@vagabond> <E1CVpuQ-0008Fl-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.60.0411211143340.19278@hermes-1.csi.cam.ac.uk>
-Message-Id: <E1CVqPf-0008Jt-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sun, 21 Nov 2004 13:01:51 +0100
+	Sun, 21 Nov 2004 07:02:53 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:54187
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S261951AbUKUMCC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 07:02:02 -0500
+Subject: Re: [PATCH] fix spurious OOM kills
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Martin =?iso-8859-2?Q?MOKREJ=A9?= 
+	<mmokrejs@ribosome.natur.cuni.cz>
+Cc: Andrew Morton <akpm@osdl.org>, piggin@cyberone.com.au, chris@tebibyte.org,
+       marcelo.tosatti@cyclades.com, andrea@novell.com,
+       LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       Rik van Riel <riel@redhat.com>
+In-Reply-To: <419FB4CD.7090601@ribosome.natur.cuni.cz>
+References: <20041111112922.GA15948@logos.cnet>
+	 <4193E056.6070100@tebibyte.org>	<4194EA45.90800@tebibyte.org>
+	 <20041113233740.GA4121@x30.random>	<20041114094417.GC29267@logos.cnet>
+	 <20041114170339.GB13733@dualathlon.random>
+	 <20041114202155.GB2764@logos.cnet>	<419A2B3A.80702@tebibyte.org>
+	 <419B14F9.7080204@tebibyte.org>	<20041117012346.5bfdf7bc.akpm@osdl.org>
+	 <419CD8C1.4030506@ribosome.natur.cuni.cz>
+	 <20041118131655.6782108e.akpm@osdl.org>
+	 <419D25B5.1060504@ribosome.natur.cuni.cz>
+	 <419D2987.8010305@cyberone.com.au>
+	 <419D383D.4000901@ribosome.natur.cuni.cz>
+	 <20041118160824.3bfc961c.akpm@osdl.org>
+	 <419E821F.7010601@ribosome.natur.cuni.cz>
+	 <1100946207.2635.202.camel@thomas> <419F2AB4.30401@ribosome.natur.cuni.cz>
+	 <1100957349.2635.213.camel@thomas>
+	 <419FB4CD.7090601@ribosome.natur.cuni.cz>
+Content-Type: text/plain; charset=iso-8859-2
+Organization: linutronix
+Date: Sun, 21 Nov 2004 12:53:19 +0100
+Message-Id: <1101037999.23692.5.camel@thomas>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> It already is.  Your address space ->writepage can do 
+On Sat, 2004-11-20 at 22:19 +0100, Martin MOKREJ© wrote:
+> > It should only kill RNAsubopt and bash and touch nothing else.
 > 
-> redirty_page_for_writepage(wbc, page);
-> unlock_page(page);
-> return 0;
-> 
-> And that is fine.  NTFS does this.  As does Reiserfs I believe.
+> Yes, that's true, this patch has helped. Actually the other xterm got
+> closed, but that's because bash is the controlling application of it.
+> I believe that's expected.
+>
+> I'd prefer to get only RNAsubopt killed. ;) 
 
-As does fuse.  Actually there might be a very limited number of pages
-in transit (10 per mount currently), but above that writepage will not
-attempt to send any more requests.  I don't see what are the effects
-of these in-transit pages on the OOM killer triggering.
+Ok. To kill only RNAsubopt it might be neccecary to refine the criteria
+in the whom to kill selection.
 
-> For NTFS I do it exactly when I get to -ENOMEM so that I don't have enough 
-> memory to coplete the writepage so I abort the write and redirty the page 
-> so it gets tried again at a later time when more memory is freed.  The 
-> writeback control (wbc) ensures the VM doesn't just keep calling us trying 
-> to clean the page to free it.  It knows it is pointless so it gives up.  
-> The OOM killer can then kill some other app which will free memory, and 
-> then the writepage will be retried and it will succeed.  Now I know 
-> the fuse fs can be swapped out but why that would lead to a deadlock I 
-> can't see.  There always is something else to kill to free memory so the 
-> fs can be swapped back in.  And if the fs is killed surely all its pages 
-> will be invalidated and thrown away by fuse, no?
+> And still, there weren't
+> that many changes to memory management between 2.6.9-rc1 and 2.6.9-rc2. ;)
+> I can test those VM changes separately, if someone would provide me with
+> those changes split into 2 or 3 patchsets.
 
-They will.
+The oom trouble was definitly not invented there. The change between
+2.6.9-rc1 and rc2 is justs triggering your special testcase. 
 
-Miklos
+Other testcases show the problems with earlier 2.6 kernels too. 
+
+tglx
+
+
+

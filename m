@@ -1,49 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbUFXBoF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263714AbUFXBvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262103AbUFXBoF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 21:44:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263687AbUFXBoE
+	id S263714AbUFXBvX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 21:51:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263731AbUFXBvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 21:44:04 -0400
-Received: from smtp-out2.blueyonder.co.uk ([195.188.213.5]:52599 "EHLO
-	smtp-out2.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S262103AbUFXBoC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 21:44:02 -0400
-Message-ID: <40DA31E0.6010807@blueyonder.co.uk>
-Date: Thu, 24 Jun 2004 02:44:00 +0100
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-Reply-To: sboyce@blueyonder.co.uk
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en-us, en
+	Wed, 23 Jun 2004 21:51:22 -0400
+Received: from nacho.alt.net ([207.14.113.18]:64422 "HELO nacho.alt.net")
+	by vger.kernel.org with SMTP id S263714AbUFXBvP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 21:51:15 -0400
+Date: Wed, 23 Jun 2004 18:51:10 -0700 (PDT)
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       <linux-kernel@vger.kernel.org>, David Woodhouse <dwmw2@infradead.org>,
+       <riel@redhat.com>
+Subject: Re: inode_unused list corruption in 2.4.26 - spin_lock problem?
+In-Reply-To: <1087837820.3926.57.camel@lade.trondhjem.org>
+Message-ID: <Pine.LNX.4.44.0406231824350.13351-100000@nacho.alt.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: RE: what is up with lib64?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Jun 2004 01:44:15.0939 (UTC) FILETIME=[C210C930:01C4598C]
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Delivery-Agent: TMDA/1.0.2 (Bold Forbes)
+From: Chris Caputo <ccaputo@alt.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cyrus Adkisson wrote:
- > Can someone explain to me why x86_64 has lib64 directories and how 
-lib64 is supposed to work with the lib directories that are   > already 
-there? I'm having a very difficult time getting anything to compile from 
-source.
- >
- > FC2, dual x86_64
-lib is for 32-bit and lib64 is for 64-bit obviously. Build success here 
-is about 50%, a few build but won't run, segfaults etc.
-The configure script in some apps needs the option --libdir=/usr/lib64 
-e.g. there is also a /lib64 and /usr/X11R6/lib64. Some apps will 
-configure and build without the need to adjust options. Some others will 
-not build as distributed, e.g kmymoney which keeps looking in /usr/lib 
-instead of /usr/lib64. There are yet others like slmodem that contain a 
-32-bit proprietary module for 2.4.x that will not be compatible with  
-2.6.x kernel sources.
-Regards
-Sid.
+On Mon, 21 Jun 2004, Trond Myklebust wrote:
+> På su , 20/06/2004 klokka 20:45, skreiv Marcelo Tosatti:
+> > Lets see if I get this right, while we drop the lock in iput to call 
+> > write_inode_now() an iget happens, possibly from write_inode_now itself 
+> > (sync_one->__iget) causing the inode->i_list to be added to to inode_in_use. 
+> > But then the call returns, locks inode_lock, decreases inodes_stat.nr_unused--
+> > and deletes the inode from the inode_in_use and adds to inode_unused. 
+> > 
+> > AFAICS its an inode with i_count==1 in the unused list, which does not
+> > mean "list corruption", right? Am I missing something here?
+> 
+> Yes. Please don't forget that the inode is still hashed and is not yet
+> marked as FREEING: find_inode() can grab it on behalf of some other
+> process as soon as we drop that spinlock inside iput(). Then we have the
+> calls to clear_inode() + destroy_inode() just a few lines further down.
+> ;-)
+> 
+> If the above scenario ever does occur, it will cause random Oopses for
+> third party processes. Since we do not see this too often, my guess is
+> that the write_inode_now() path must be very rarely (or never?) called.
+> 
+> > If you are indeed right all 2.4.x versions contain this bug.
+> 
+> ...and all 2.6.x versions...
+> 
+> I'm not saying this is the same problem that Chris is seeing, but I am
+> failing to see how iput() is safe as it stands right now. Please
+> enlighten me if I'm missing something.
 
--- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-===== LINUX ONLY USED HERE =====
+I think this is a different (albeit apparently valid) problem.  In my case
+MS_ACTIVE (in iput() below) will be set since I am not unmounting a volume
+and so I believe iput() will return immediately after adding the inode to
+the unused list.
+
+That said, I have added your patch to my test setup in case it helps.
+
+Thanks,
+Chris
+
+----
+
+                        if (!list_empty(&inode->i_hash)) {
+                                if (!(inode->i_state & (I_DIRTY|I_LOCK)))
+                                        __refile_inode(inode);
+                                inodes_stat.nr_unused++;
+                                spin_unlock(&inode_lock);
+                                if (!sb || (sb->s_flags & MS_ACTIVE))
+                                        return;
+                                write_inode_now(inode, 1);
+                                spin_lock(&inode_lock);
+                                inodes_stat.nr_unused--;
+                                list_del_init(&inode->i_hash);
+                        }
 

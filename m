@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261868AbREQTsu>; Thu, 17 May 2001 15:48:50 -0400
+	id <S261857AbREQTpk>; Thu, 17 May 2001 15:45:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261866AbREQTsk>; Thu, 17 May 2001 15:48:40 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:55021 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S261868AbREQTs1>;
-	Thu, 17 May 2001 15:48:27 -0400
-Message-ID: <3B042B07.25F65905@mandrakesoft.com>
-Date: Thu, 17 May 2001 15:48:23 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre3 i686)
-X-Accept-Language: en
+	id <S261859AbREQTpa>; Thu, 17 May 2001 15:45:30 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:8205 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261857AbREQTpK>; Thu, 17 May 2001 15:45:10 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nils Holland <nils@nightcastleproductions.org>
+Organization: NightCastle Productions
+To: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
+Subject: Re: CPU overheat with 2.2
+Date: Thu, 17 May 2001 21:43:54 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <Pine.LNX.4.31.0105171641540.19696-100000@phobos.fachschaften.tu-muenchen.de>
+In-Reply-To: <Pine.LNX.4.31.0105171641540.19696-100000@phobos.fachschaften.tu-muenchen.de>
+Cc: linux-kernel@vger.kernel.org
+NCP-Opt: Powered by Linux
 MIME-Version: 1.0
-To: Rich Baum <richbaum@acm.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] 2.4.5pre3 warning fixes
-In-Reply-To: <7C4D2505D3F@coral.indstate.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01051721435401.07165@thunderbird>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rich Baum wrote:
-> @@ -1543,6 +1543,7 @@
->           EXCEPTION(EX_INTERNAL | 0x116);
->           return;
->  #endif /* PARANOID */
-> +         ;
->         }
->      }
->    else if ( (st0_tag == TAG_Valid) || (st0_tag == TW_Denormal) )
-> @@ -437,7 +437,7 @@
->         /* XXX shouldn't we *start* by deregistering the device? */
->         atm_dev_deregister(fore200e->atm_dev);
-> 
-> -    case FORE200E_STATE_BLANK:
-> +    case FORE200E_STATE_BLANK:;
->         /* nothing to do for that state */
->      }
->  }
-> @@ -556,7 +556,7 @@
->                 }
->                 break;
->  #endif
-> -       default:
-> +       default:;
->                 /* nothing */
->         }
-> 
+On Thursday 17 May 2001 16:45, Simon Richter wrote:
+> On Thu, 17 May 2001, Jussi Hamalainen wrote:
+> > > CPU is a Pentium 166 MMX on an Asus TX97 mainboard, ISA cards are a
+> > > 3c509 and a Soundblaster.
+> >
+> > The Asus TX97 is known to be a CPU toaster. I've replaced dozens of
+> > them because of overheating problems. I don't know why the problem
+> > seems to come up with Linux though.
+>
+> Hrm, it has worked with 2.0 for two years now, with CPU temperature never
+> exceeding 40 degrees Celsius... :-/
 
-IMHO the ":;" form is really easy to miss or mistake.
+Yes, this problem is indeed strange. I once had it happening here, and I 
+tried several things (playing around with kernel config options, etc) but 
+nothing would help. However, by now that board has been replaced so I can 
+offer no more advice.
 
-Can't you put a "break;" after the "nothing" comment instead?  The
-compiled code is not bigger, and while the source gets a bit bigger, I
-think the extra "break;" helps maintenance in the long term.
-
-	Jeff
-
+Greetings
+Nils
 
 -- 
-Jeff Garzik      | Game called on account of naked chick
-Building 1024    |
-MandrakeSoft     |
+----------------------------------------------------------
+Nils Holland - nils@nightcastleproductions.org
+NightCastle Productions - Linux in Tiddische, Germany
+http://www.nightcastleproductions.org
+"They asked me where this earthquake would begin,
+ I offered to let them feel my pulse."
+----------------------------------------------------------

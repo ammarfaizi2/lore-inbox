@@ -1,49 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264894AbUBDXix (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 18:38:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264365AbUBDXeh
+	id S264905AbUBDXe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 18:34:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbUBDXe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 18:34:37 -0500
-Received: from gate.crashing.org ([63.228.1.57]:56708 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S264566AbUBDXcv (ORCPT
+	Wed, 4 Feb 2004 18:34:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:39611 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264365AbUBDXbq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 18:32:51 -0500
-Subject: Re: fb.h header fix.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@transmeta.com,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.44.0402041857210.20659-100000@phoenix.infradead.org>
-References: <Pine.LNX.4.44.0402041857210.20659-100000@phoenix.infradead.org>
+	Wed, 4 Feb 2004 18:31:46 -0500
+Subject: Re: Linux 2.6.2 aka "Feisty Dunnart" (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0402032001040.2131@home.osdl.org>
+References: <Pine.LNX.4.58.0402032001040.2131@home.osdl.org>
 Content-Type: text/plain
-Message-Id: <1075937512.4029.47.camel@gaston>
+Message-Id: <1075937804.8286.22.camel@cherrytest.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 05 Feb 2004 10:31:53 +1100
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 04 Feb 2004 15:36:44 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Compile statistics for the last few kernel releases (including the mm
+patches)....
 
-> > Not yet, it's a ppc64 bug, I haven't had time to fix it, for some
-> > reason, ppc64 doesn't have readq/writeq nor __raw_ IO accessors.
-> 
-> This means more than the fbdev layer will break on the ppc64.
-> Ben you you post a patch for the ppc64 so the fbdev patch can go in?
+Linux 2.6 Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
 
-Yes, but I think Andrew should still merge your patch at this point,
-I'll send the ppc64 fix today hopefully along with other ppc64 io.h
-fixes.
+Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
+             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
+-----------  -----------  -------- -------- -------- -------- ---------
+2.6.2          0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
+2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
+2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
+2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
 
-Then we need the rest of the core & driver bits in. I'd really like
-2.6.3 to be "complete" for PowerMacs (both ppc32 and ppc64) which
-means including the fbdev updates. I think the fbdev core changes are
-now good enough to get in. I'm fairly sure there are still fbcon bugs
-but I'm also sure those are already upstream so they aren't worth
-postponing the merge.
- 
-Ben.
+Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
+
+Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
+                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
+--------------- ---------- -------- -------- -------- -------- --------
+2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
+2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
+2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
+2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
+2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
+2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
+2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
+2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
+2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
+2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
+2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
+2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
+2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
+2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
+2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
+2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
+
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
+Daily compiles (ia32): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
+Daily compiles (ia64): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
+Latest changes in Linus' bitkeeper tree:
+   http://linux.bkbits.net:8080/linux-2.5
+
+John
+
 

@@ -1,68 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285309AbRLFXgI>; Thu, 6 Dec 2001 18:36:08 -0500
+	id <S285317AbRLFXh0>; Thu, 6 Dec 2001 18:37:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285310AbRLFXft>; Thu, 6 Dec 2001 18:35:49 -0500
-Received: from sproxy.gmx.net ([213.165.64.20]:18859 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S285309AbRLFXff>;
-	Thu, 6 Dec 2001 18:35:35 -0500
-Date: Fri, 7 Dec 2001 00:35:28 +0100
-From: Rene Rebe <rene.rebe@gmx.net>
-To: linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
-Subject: devfs unable to handle permission: 2.4.17-pre[4,5] / ALSA-0.9.0beta[9,10]
-Message-Id: <20011207003528.1448673e.rene.rebe@gmx.net>
-Organization: FreeSourceCommunity ;-)
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S285315AbRLFXhI>; Thu, 6 Dec 2001 18:37:08 -0500
+Received: from mail209.mail.bellsouth.net ([205.152.58.149]:31493 "EHLO
+	imf09bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S285311AbRLFXhE>; Thu, 6 Dec 2001 18:37:04 -0500
+Message-ID: <3C10011A.A16E5287@mandrakesoft.com>
+Date: Thu, 06 Dec 2001 18:36:58 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.13-12mdksmp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Tim Hockin <thockin@sun.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        arjanv@redhat.com, saw@sw-soft.com, sparker@sparker.net
+Subject: Re: [PATCH] eepro100 - need testers
+In-Reply-To: <E16C81m-0003Zm-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Alan Cox wrote:
+> 
+> > This patch was developed here to resolve a number of eepro100 issues we
+> > were seeing. I'd like to get people to try this on their eepro100 chips and
+> > beat on it for a while.
+> 
+> Works for me. Its the first eepro100 driver that wont choke eventually on
+> my i810 board and its also the only one that will recover the board after
+> a soft boot when it had previously started spewing errors
 
-At least since 2.4.17-pre4 and -pre5 devfs is not handling permissions in the
-right way with ALSA:
-
-rene@jackson:/dev > l dsp sound/dsp 
-ls: sound/dsp: Permission denied
-lr-xr-xr-x   1 root     root            9 Dec  7 00:14 dsp -> sound/dsp
-rene@jackson:/dev > cd sound/
-bash: cd: sound/: Permission denied
-rene@jackson:/dev > 
-
-rene@jackson:/dev > l snd
-ls: snd/..: Permission denied
-ls: snd/.: Permission denied
-ls: snd/controlC0: Permission denied
-ls: snd/controlC1: Permission denied
-ls: snd/timer: Permission denied
-ls: snd/midiC0D0: Permission denied
-ls: snd/pcmC0D2p: Permission denied
-ls: snd/pcmC0D1c: Permission denied
-ls: snd/pcmC0D0p: Permission denied
-ls: snd/pcmC0D0c: Permission denied
-ls: snd/midiC1D0: Permission denied
-ls: snd/pcmC1D0p: Permission denied
-ls: snd/pcmC1D0c: Permission denied
-total 0
-
-They all have 666 (or 777 for dirs)! It is possible to this as root.
-
-Also loading the modules gives me:
-Dec  7 00:31:58 jackson kernel: devfs: devfs_register(unknown): could not append to parent, err: -17
-
-k33p h4ck1n6
-  René
+This patch got me thinking about net driver ring sizes in general.  When
+you are talking thousands of packets per second at 100 mbit, a larger
+ring size than the average 32-64 seems to make sense too.
 
 -- 
-René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 
-eMail:    rene.rebe@gmx.net
-          rene@rocklinux.org
-
-Homepage: http://www.tfh-berlin.de/~s712059/index.html
-
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.

@@ -1,72 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264382AbUADA4j (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 19:56:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264384AbUADA4j
+	id S264434AbUADA7C (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 19:59:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264441AbUADA7C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 19:56:39 -0500
-Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:63655 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S264382AbUADA4h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 19:56:37 -0500
-Subject: Re: Technical udev question for Greg
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: walt <wa1ter@myrealbox.com>
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <3FF75D26.5070009@myrealbox.com>
-References: <3FF72A4C.2040404@myrealbox.com>
-	 <20040103214750.GB11061@kroah.com>  <3FF75D26.5070009@myrealbox.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6VDaMKJoELvTsr7fm3u7"
-Message-Id: <1073177960.6075.246.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 04 Jan 2004 02:59:20 +0200
+	Sat, 3 Jan 2004 19:59:02 -0500
+Received: from main.gmane.org ([80.91.224.249]:5581 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264434AbUADA7A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 19:59:00 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andreas Schwarz <usenet@andreas-s.net>
+Subject: Re: Badness in local_bh_enable at kernel/softirq.c:121
+Date: Sun, 4 Jan 2004 00:58:55 +0000 (UTC)
+Message-ID: <slrnbvepa8.4go.usenet@213-203-244-47.kunde.vdserver.de>
+References: <slrnbvdjfj.6ip.usenet@213-203-244-47.kunde.vdserver.de>
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: slrn/0.9.7.4 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andreas Schwarz wrote:
+> Hello,
+> 
+> I'm not sure if this is a bug in the kernel (2.6.0-gentoo) or in hostap:
+> 
+> Jan  3 15:06:33 d700 kernel: Badness in local_bh_enable at kernel/softirq.c:121
 
---=-6VDaMKJoELvTsr7fm3u7
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Sun, 2004-01-04 at 02:24, walt wrote:
-
->=20
-> > 	rm -rf /dev/*
-> > 	rm -f /dev/.udev.tdb
-> > 	/etc/init.d/udev start
->=20
-> However, after doing the above and recreating a few missing devices
-> the behavior of the machine seems back to normal, so clearly I did
-> something that mattered.  I don't pretend to understand how or why,
-> but thanks.
-
-Forgot to say in other mail to you - I had weird issues with nodes
-that was not yet sysfs'ified in the past due to strange permissions
-(this is now aside those on ptmx).   Try rc1-mm1 for misc/vc sysfs
-support (might be a fluke, but I have not yet had strange going on's
-since Greg posted them, so maybe it might be /dev/null, etc that
-caused issues for me, that did it for you as well), or if you roll
-your own kernels, I will be glad to post you the patches off list if
-you cannot find them here.
-
-
---=20
-Martin Schlemmer
-
---=-6VDaMKJoELvTsr7fm3u7
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQA/92VoqburzKaJYLYRArjPAKCHF858ScADvvms6FfTlu68/vuh8QCeN/Pt
-JpnJbExaJKcvjSpiLzYcej8=
-=GP8j
------END PGP SIGNATURE-----
-
---=-6VDaMKJoELvTsr7fm3u7--
+Disappeared with "noapic". Apic seems broken on K7S5A Pro.
 

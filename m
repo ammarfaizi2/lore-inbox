@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274875AbRKSIqj>; Mon, 19 Nov 2001 03:46:39 -0500
+	id <S275224AbRKSItS>; Mon, 19 Nov 2001 03:49:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275265AbRKSIq3>; Mon, 19 Nov 2001 03:46:29 -0500
-Received: from t2.redhat.com ([199.183.24.243]:9462 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S274875AbRKSIqP>; Mon, 19 Nov 2001 03:46:15 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20011118202252.A8708@vger.timpanogas.org> 
-In-Reply-To: <20011118202252.A8708@vger.timpanogas.org>  <200111181710.fAIHAlCF011794@sleipnir.valparaiso.cl> <Pine.LNX.4.33.0111181803040.7482-100000@penguin.transmeta.com> 
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-        Andrea Arcangeli <andrea@suse.de>, ehrhardt@mathematik.uni-ulm.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: VM-related Oops: 2.4.15pre1 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 19 Nov 2001 08:44:28 +0000
-Message-ID: <588.1006159468@redhat.com>
+	id <S275843AbRKSIs7>; Mon, 19 Nov 2001 03:48:59 -0500
+Received: from penguin-ext.wise.edt.ericsson.se ([194.237.142.110]:942 "EHLO
+	penguin-ext.wise.edt.ericsson.se") by vger.kernel.org with ESMTP
+	id <S275224AbRKSIst>; Mon, 19 Nov 2001 03:48:49 -0500
+From: Miklos.Szeredi@eth.ericsson.se (Miklos Szeredi)
+Date: Mon, 19 Nov 2001 09:48:01 +0100 (MET)
+Message-Id: <200111190848.JAA23707@duna207.danubius>
+To: Jamie Lokier <lfs@tantalophile.demon.co.uk>
+CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        avfs@fazekas.hu
+In-Reply-To: <20011117175253.A5003@kushida.jlokier.co.uk> (message from Jamie
+	Lokier on Sat, 17 Nov 2001 17:52:53 +0000)
+Subject: Re: Introducing FUSE: Filesystem in USErspace
+In-Reply-To: <200111121128.MAA15119@duna207.danubius> <20011117175253.A5003@kushida.jlokier.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-jmerkey@vger.timpanogas.org said:
->  This is true.  They Generate what's called a "split lock" bus
-> transaction where the bus will hold LOCK# low across the several clock
-> cycles to  complete the write.  They are **VERY** heavy, BTW, and
-> really cause  nasty performance hits. 
+> Minimal caching?  I would hope for maximal caching, for when userspace
+> is able to say "yes the page you have is still valid".  Preferably
+> without a round trip to userspace for every page.
 
-Is it worth making put_unaligned and get_unaligned on x86 avoid this by 
-loading/storing the two halves of the required datum separately, then? 
+I made some performance tests with FUSE, and the raw throughput is
+about 60MBytes/s on a Celeron/360 for both reads and writes.  And yes,
+that includes two context switches and a copy_to_user/copy_from_user
+pair for each page.
 
---
-dwmw2
+I think that at such speed it's not really such a grave problem if
+caching is not done in kernel, and it simplifies things a _lot_.
+
+Miklos
 
 

@@ -1,67 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266302AbUFPNEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266297AbUFPNBH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266302AbUFPNEL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 09:04:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266274AbUFPNBa
+	id S266297AbUFPNBH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 09:01:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266290AbUFPNAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 09:01:30 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:12260 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266287AbUFPM6D (ORCPT
+	Wed, 16 Jun 2004 09:00:34 -0400
+Received: from mail.gmx.de ([213.165.64.20]:46208 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266292AbUFPM7q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 08:58:03 -0400
-Date: Wed, 16 Jun 2004 13:57:54 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: foo@porto.bmb.uga.edu
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: processes hung in D (raid5/dm/ext3)
-Message-ID: <20040616125754.GF6627@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>, foo@porto.bmb.uga.edu,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040615062236.GA12818@porto.bmb.uga.edu> <20040615030932.3ff1be80.akpm@osdl.org> <20040615150036.GB12818@porto.bmb.uga.edu> <20040615162607.5805a97e.akpm@osdl.org> <20040616021633.GB13672@porto.bmb.uga.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040616021633.GB13672@porto.bmb.uga.edu>
-User-Agent: Mutt/1.4.1i
+	Wed, 16 Jun 2004 08:59:46 -0400
+X-Authenticated: #4512188
+Message-ID: <40D04439.5080100@gmx.de>
+Date: Wed, 16 Jun 2004 14:59:37 +0200
+From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040604)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Stairacse scheduler v6.E for 2.6.7-rc3
+References: <1087333441.40cf6441277b5@vds.kolivas.org>
+In-Reply-To: <1087333441.40cf6441277b5@vds.kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 10:16:33PM -0400, foo@porto.bmb.uga.edu wrote:
-> # pvdisplay /dev/md0
-> # vgdisplay vg0
-> # lvdisplay 
+Con Kolivas wrote:
+> Here is an updated version of the staircase scheduler. I've been trying to hold
+> off for 2.6.7 final but this has not been announced yet. Here is a brief update
+> summary.
 
-LVM2/device-mapper diagnostics
-==============================
+Hi, does this resolve the issue with ut2004? (Or is another setting for 
+it needed?) I haven't tried myself, but others reported that setting 
+interactive to 0 didn't help, nor giving ut2004 more priority via (re)nice.
 
-If you use the 'lvs' reporting tool, we'll get fuller information more 
-concisely, so we can check for any anomalies. 
-[Unlikely to be any based on what you've posted so far, but worth
-eliminating the possibility.]
+Thanx,
 
-Run:
-  vgs -v
-  lvs -v
-  pvs -v
-
-Can you confirm that you're not running *any* LVM or device-mapper
-commands during your backup sequence?
-
-Confirm the versions by running:
-  lvm version
-  dmsetup targets
-
-And dump the static device-mapper state, by running:
-  dmsetup -v table
-  dmsetup status
-
-[I'll get that fixed to provide a column-based output too.]
-
-And finally mount sysfs and run
-  ls -ld .../block/dm-*
-
-[This lot ought to get scripted.]
-
-Alasdair
--- 
-agk@redhat.com
+Prakash

@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261254AbRERR1S>; Fri, 18 May 2001 13:27:18 -0400
+	id <S261255AbRERRdS>; Fri, 18 May 2001 13:33:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261246AbRERR07>; Fri, 18 May 2001 13:26:59 -0400
-Received: from kivc.vstu.vinnica.ua ([62.244.53.242]:49671 "EHLO
-	kivc.vstu.vinnica.ua") by vger.kernel.org with ESMTP
-	id <S261255AbRERR0z>; Fri, 18 May 2001 13:26:55 -0400
-Date: Fri, 18 May 2001 20:21:11 +0300
-From: Bohdan Vlasyuk <bohdan@kivc.vstu.vinnica.ua>
-To: linux-kernel@vger.kernel.org
-Subject: Q: missing or broken mmap().
-Message-ID: <20010518202111.A12397@kivc.vstu.vinnica.ua>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S261274AbRERRdI>; Fri, 18 May 2001 13:33:08 -0400
+Received: from quattro.sventech.com ([205.252.248.110]:9993 "HELO
+	quattro.sventech.com") by vger.kernel.org with SMTP
+	id <S261255AbRERRcw>; Fri, 18 May 2001 13:32:52 -0400
+Date: Fri, 18 May 2001 13:32:51 -0400
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: LANANA: To Pending Device Number Registrants
+Message-ID: <20010518133250.O32405@sventech.com>
+In-Reply-To: <20010515145830.Y5599@sventech.com> <Pine.LNX.4.21.0105151208540.2339-100000@penguin.transmeta.com> <20010515154325.Z5599@sventech.com> <20010517102029.A44@toy.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+X-Mailer: Mutt 0.95.4i
+In-Reply-To: <20010517102029.A44@toy.ucw.cz>; from Pavel Machek on Thu, May 17, 2001 at 10:20:30AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !!
+On Thu, May 17, 2001, Pavel Machek <pavel@suse.cz> wrote:
+> > > But no, I don't actually like sockets all that much myself. They are hard
+> > > to use from scripts, and many more people are familiar with open/close and
+> > > read/write.
+> > 
+> > Agreed.
+> > 
+> > It would be nice to use open/close/read/write for control and bulk and
+> > sockets for interrupt and isochronous.
+> 
+> What makes interrupt so different? Last time I checked int pipes were very
+> similar to bulk pipes... Do you care about "packet boundaries"? You can
+> somehow emulate with read, too...
 
-I'm wondering what it may mean - something to be implemented in linux,
-of poorly configured system:
+We probably could. It would have interesting semantics however. We would
+have to have an ioctl or something else to specify period, and if it's
+one shot, etc.
 
----
-$ gdb -m dummy -q --batch
+We could probably shoehorn isochronous semantics onto read/write as
+well, but I don't want to begin to think how ugly that'll be.
 
-warning: mapped symbol tables are not supported on this machine;
-missing or broken mmap().
----
+The reason I don't favor the read/write idea for interrupt and
+isochronous are the fact that they are so different. We could shoehorn
+the semantics onto it, but we'd just be moving the problem from one
+place to somewhere else.
 
-When I was reading info, I've seen that "this feature is supported on
-chosen platforms", however, I was thinking Linux is the Chosen one
-:-)).
+A completely ioctl solution would work better in that case since it's
+cleaner. The only problem would be the fact it's called ioctl.
 
-Can anyone explain it ??
+JE
 
--- 
-Thanks!

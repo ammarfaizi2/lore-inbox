@@ -1,69 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266478AbUAVXsx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 18:48:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266481AbUAVXsw
+	id S266483AbUAWASM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 19:18:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266482AbUAWASM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 18:48:52 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:57094 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S266478AbUAVXsv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 18:48:51 -0500
-Date: Fri, 23 Jan 2004 00:48:33 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Eduard Roccatello <lilo@roccatello.it>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] net/ipv4/tcp.c little cleanup
-Message-ID: <20040122234833.GL545@alpha.home.local>
-References: <200401222253.37426.lilo@roccatello.it>
+	Thu, 22 Jan 2004 19:18:12 -0500
+Received: from [211.167.76.68] ([211.167.76.68]:63444 "HELO soulinfo.com")
+	by vger.kernel.org with SMTP id S266483AbUAWASD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 19:18:03 -0500
+Date: Fri, 23 Jan 2004 08:15:23 +0800
+From: Hugang <hugang@soulinfo.com>
+To: ncunningham@users.sourceforge.net
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       debian-powerpc@lists.debian.org
+Subject: Re: Help port swsusp to ppc.
+Message-Id: <20040123081523.19803294@localhost>
+In-Reply-To: <1074794005.12773.54.camel@laptop-linux>
+References: <20040119105237.62a43f65@localhost>
+	<1074483354.10595.5.camel@gaston>
+	<1074489645.2111.8.camel@laptop-linux>
+	<1074490463.10595.16.camel@gaston>
+	<1074534964.2505.6.camel@laptop-linux>
+	<1074549790.10595.55.camel@gaston>
+	<20040122211746.3ec1018c@localhost>
+	<1074794005.12773.54.camel@laptop-linux>
+Organization: Beijing Soul
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401222253.37426.lilo@roccatello.it>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Fri, 23 Jan 2004 06:53:26 +1300
+Nigel Cunningham <ncunningham@users.sourceforge.net> wrote:
 
-On Thu, Jan 22, 2004 at 10:53:37PM +0100, Eduard Roccatello wrote:
-> Hello,
-> i've done a little cleanup to net/ipv4/tcp.c
+> I know nothing about the PPC. Is it a uniprocessor?
 > 
-> I hope it is ok :-)
-
-I haven't looked at sysctl_max_syn_backlog type, but if it's unsigned, there's
-a risk of infinite loop for values above 2^31 on 32 bits machines, or 2^63 on
-64 bits machine. This is because many processors leave the result undefined
-when you shift more bits that the word size. Often, only the lowest bits are
-used for the shift count, resulting in a modulo.
-
-Eg, on ia32, if sysctl_max_syn_backlog is >2^31, the test will never work, and
-when max_qlen_log becomes 32, it will give the same result as if it were 0.
-Another case is if sysctl_max_syn_backlog is above 2^30, and the shift returns
-a signed result, because 1<<31 will be negative, thus validating the test and
-maintain the loop.
-
-Note that this potential problem is also present in the code you replaced.
-
-Cheers,
-Willy
-
-> --- net/ipv4/tcp.c.orig	2004-01-22 22:49:38.000000000 +0100
-> +++ net/ipv4/tcp.c	2004-01-22 22:42:38.000000000 +0100
-> @@ -549,9 +549,9 @@ int tcp_listen_start(struct sock *sk)
->  	 	return -ENOMEM;
->  
-> 	memset(lopt, 0, sizeof(struct tcp_listen_opt));
-> -	for (lopt->max_qlen_log = 6; ; lopt->max_qlen_log++)
-> -		if ((1 << lopt->max_qlen_log) >= sysctl_max_syn_backlog)
-> -			break;
-> +	lopt->max_qlen_log = 6;
-> +	while (sysctl_max_syn_backlog > (1 << lopt->max_qlen_log))
-> +		lopt->max_qlen_log++;
->  	get_random_bytes(&lopt->hash_rnd, 4);
->  
->  	write_lock_bh(&tp->syn_wait_lock);
+> Regards,
 > 
+> Nigel
+There is a document abourt ppc, that can download from Moto, 
+It help me to understand what is ppc, cool.
 
+http://soulinfo.com/~hugang/tmp/MPCFPE_AD_R1.pdf
+
+-- 
+Hu Gang / Steve
+Linux Registered User 204016
+GPG Public Key: http://soulinfo.com/~hugang/HuGang.asc

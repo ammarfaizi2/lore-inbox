@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264812AbTIJFmQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 01:42:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264845AbTIJFmQ
+	id S264549AbTIJFfc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 01:35:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264565AbTIJFfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 01:42:16 -0400
-Received: from law10-oe41.law10.hotmail.com ([64.4.14.98]:39694 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S264812AbTIJFmP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 01:42:15 -0400
-X-Originating-IP: [208.48.228.132]
-X-Originating-Email: [jyau_kernel_dev@hotmail.com]
-From: "John Yau" <jyau_kernel_dev@hotmail.com>
-To: "Nick Piggin" <piggin@cyberone.com.au>
-Cc: <linux-kernel@vger.kernel.org>
-References: <Law10-OE471DczmBlrP0000b07a@hotmail.com> <3F5E8CF7.5020603@cyberone.com.au>
+	Wed, 10 Sep 2003 01:35:32 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:6929
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S264549AbTIJFfb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 01:35:31 -0400
+Date: Tue, 9 Sep 2003 22:35:49 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Nick Piggin <piggin@cyberone.com.au>,
+       John Yau <jyau_kernel_dev@hotmail.com>, linux-kernel@vger.kernel.org
 Subject: Re: Priority Inversion in Scheduling
-Date: Wed, 10 Sep 2003 01:41:33 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Message-ID: <OE41az7EjQxzmWecm9t0003cc0d@hotmail.com>
-X-OriginalArrivalTime: 10 Sep 2003 05:41:42.0014 (UTC) FILETIME=[366B51E0:01C3775E]
+Message-ID: <20030910053549.GE28279@matchmail.com>
+Mail-Followup-To: Mike Galbraith <efault@gmx.de>,
+	Nick Piggin <piggin@cyberone.com.au>,
+	John Yau <jyau_kernel_dev@hotmail.com>,
+	linux-kernel@vger.kernel.org
+References: <LAW10-OE63Zc1WPsAVe0000ab93@hotmail.com> <3F5E6F15.6040507@cyberone.com.au> <6.0.0.22.0.20030910062610.01cfacd8@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6.0.0.22.0.20030910062610.01cfacd8@pop.gmx.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> Well I haven't read the paper, but I'm guessing this is semaphore
-> priority inheritance.
->
+On Wed, Sep 10, 2003 at 06:42:10AM +0200, Mike Galbraith wrote:
+> At 02:23 AM 9/10/2003, Nick Piggin wrote:
+> >Hi John,
+> >Your mechanism is basically "backboost". Its how you get X to keep a
+> >high piroirity, but quite unpredictable. Giving a boost to a process
+> >holding a semaphore is an interesting idea, but it doesn't address the
+> >X problem.
+> 
+> FWIW, I tried the hardware usage bonus thing, and it does cure the X 
+> inversion problem (yeah,  it's a pretty cheezy way to do it).  It also 
+> cures xmms skips if you can't get to the top without hw usage.  I also 
+> tried a cpu limited backboost from/to tasks associated with hardware, and 
+> it hasn't run amok... yet ;-)
 
-Yip...it outlines the basic idea of the priority inheritance where semphores
-are the locking mechanism.  However, though it buys you better prioritized
-scheduling in certain situation, things can get rather hairy when you have
-lots of semaphores nested inside each other.  If you have a cyclic
-dependency somewhere in those nested semaphores, you're headed for deadlock
-or worse livelock.  The Mars Rover had a classic case of priority inversion
-in it's software that was later solved through this approach via an update
-after it landed on Mars a while back.
-
->
-> I _think_ communication with X will mostly be done with waitqueues.
-> Someone has a priority inheritance futex patch around. I'm not sure
-> that it is such an open and shut case as you think though. Even if you
-> could use futexes in communication with X.
->
-
-It's not an open and shut case...actually it'd be quite an undertaking I
-suspect.  Because a poorly designed and/or poorly implemented scheme can
-easily lead to deadlocks and what not, any implementation would need massive
-peer review.
+Against which scheduler, and when are you going to post the patch?

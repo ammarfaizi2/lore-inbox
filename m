@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262324AbVAJQtU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262340AbVAJQyF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262324AbVAJQtU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 11:49:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbVAJQsq
+	id S262340AbVAJQyF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 11:54:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbVAJQw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 11:48:46 -0500
-Received: from mx1.mail.ru ([194.67.23.121]:30804 "EHLO mx1.mail.ru")
-	by vger.kernel.org with ESMTP id S262324AbVAJQsb (ORCPT
+	Mon, 10 Jan 2005 11:52:28 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:19176 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262335AbVAJQvn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 11:48:31 -0500
-From: Alexey Dobriyan <adobriyan@mail.ru>
-To: Adam Anthony <aanthony@sbs.com>
-Subject: Re: [PATCH] /driver/net/wan/sbs520
-Date: Mon, 10 Jan 2005 19:47:33 +0200
-User-Agent: KMail/1.6.2
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200501101947.33917.adobriyan@mail.ru>
-X-Spam: Not detected
+	Mon, 10 Jan 2005 11:51:43 -0500
+Message-Id: <200501101650.j0AGoP5t030855@laptop11.inf.utfsm.cl>
+To: Adam Sampson <azz@us-lot.org>
+cc: L A Walsh <lkml@tlinx.org>, linux-kernel@vger.kernel.org
+Subject: Re: Reviving the concept of a stable series 
+In-Reply-To: Message from Adam Sampson <azz@us-lot.org> 
+   of "Mon, 10 Jan 2005 13:44:08 -0000." <y2ais65z9ef.fsf@cartman.at.fivegeeks.net> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Mon, 10 Jan 2005 13:50:25 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.4 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 10 Jan 2005 13:50:29 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Jan 2005 07:46:52 -0700, Adam Anthony wrote:
+Adam Sampson <azz@us-lot.org> said:
+> L A Walsh <lkml@tlinx.org> writes:
+> > If you have a better way of creating a stable series of kernels
+> > coming off kernel.org, I'm not attached to any specific method of
+> > "how".
 
-> With the permission of my employer, SBS Technologies, Inc., I have
-> released a patch for 2.4 kernels that supports the 520 Series of WAN
-> adapters.
+> One option would be a "Linux Legacy" project, similar to the Fedora
+> Legacy project that backports updates to old Red Hat/Fedora Core
+> releases: a central service that'd collect bug fixes for released
+> kernels that distributors could then base their kernels on. That way,
+> we'd get the stability advantages of vendor kernels without needing to
+> repeat the effort for each distribution.
 
-My editor shows ^M at the end of every line of new Documentation/Configure.help,
-MAINTAINERS (add ~63400 bogus lines!). Please, look at the patch _after_
-generating it.
+Didn't happen with 2.0, 2.2, or 2.4. I'd guess it won't happen for 2.6
+either.
 
-> +obj-$(CONFIG_LANMEDIA)		+=		syncppp.o^M
+> Maybe some of the distribution vendors might be interested in setting
+> up something like this?
 
-> +subdir-$(CONFIG_LANMEDIA) += lmc^M
-
-Also random ^M's.
- 
---- linux-2.4.28-virgin/drivers/net/wan/sbs520/lnxosl.c
-+++ /usr/src/linux-2.4.28/drivers/net/wan/sbs520/lnxosl.c
-
-> +// Programming Language:	C^M
-> +// Target Processor:		Any^M
-> +// Target Operating System: Linux^M
-
-Well, this is pretty obvious to everyone here. :-)
-
-> +// This software may be used and distributed according to the terms^M
-> +// of the GNU General Public License, incorporated herein by reference.^M
-
-Stupid question: do you mean GPL version 2 or something else?
-
-	Alexey
+I have seen absolutely no interest from distributions in leaving the
+current 2.6 development model.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

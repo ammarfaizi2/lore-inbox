@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277533AbRJESIM>; Fri, 5 Oct 2001 14:08:12 -0400
+	id <S277532AbRJESHm>; Fri, 5 Oct 2001 14:07:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277534AbRJESID>; Fri, 5 Oct 2001 14:08:03 -0400
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:40975 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S277533AbRJESHs>; Fri, 5 Oct 2001 14:07:48 -0400
-Message-ID: <3BBDF6BC.5000300@zk3.dec.com>
-Date: Fri, 05 Oct 2001 14:06:52 -0400
-From: Peter Rival <frival@zk3.dec.com>
-Organization: Tru64 QMG Performance Engineering
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: paulus@samba.org, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        trini@kernel.crashing.org, benh@kernel.crashing.org
-Subject: Re: [PATCH] change name of rep_nop
-In-Reply-To: <E15pW6U-0006Xx-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S277534AbRJESHW>; Fri, 5 Oct 2001 14:07:22 -0400
+Received: from ns.caldera.de ([212.34.180.1]:32142 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S277532AbRJESHO>;
+	Fri, 5 Oct 2001 14:07:14 -0400
+Date: Fri, 5 Oct 2001 20:07:35 +0200
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: John Byrne <john.l.byrne@compaq.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Change in add_gendisk() in 2.4.11-preXXX
+Message-ID: <20011005200735.A22840@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch>,
+	John Byrne <john.l.byrne@compaq.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3BBDF5B8.A6B649A3@compaq.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BBDF5B8.A6B649A3@compaq.com>; from john.l.byrne@compaq.com on Fri, Oct 05, 2001 at 11:02:32AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-
->>Here is a patch that addresses those three issues.  It adds an empty
->>definition of cpu_relax for all architectures except x86 (for x86 it
->>is defined to be rep_nop), and it changes smp_init to use a barrier
->>instead of making wait_init_idle be volatile.
->>
->>
+On Fri, Oct 05, 2001 at 11:02:32AM -0700, John Byrne wrote:
 > 
-> Looks good to me
+> Cristoph,
+> 
+> Looking in the Changelog for 2.4.11-pre, I find that you are given
+> credit for the change to add_gendisk() which should prevent the
+> /proc/paritions loop; which is good.
 
+In fact it was Alan's fix, I just sent it to Linus 8)
 
-You also need to move the call to smp_boot_cpus() below the 
-clear_bit(...) line in smp_init().  Without it, my Wildfire doesn't get 
-past the while(wait_init_idle) loop - seems all of the CPUs have already 
-done their work before the mask is set.  Besides, it's the right place 
-for it anyway.  I'd generate a patch, but my system is bogged down in a 
-benchmark for the next couple of hours.  If someone says so, I'll 
-generate the patch after that...
+> However, I was tracing the bug
+> myself and come to the conclusion the culprit in my case was the "sd"
+> driver. One of our systems has two different SCSI HBAs and this resulted
+> in two calls to sd_finish() which results in the sd_gendisk structures
+> being added twice and, hence, the loop. So, I am a little concerned that
+> your change is covering up the problem so well, that the actual issue
+> may not be addressed. Unfortunately, I don't understand the ins and outs
+> of the SCSI and blkdev layers to suggest a fix for "sd".
 
-  - Pete
+If you look at the new add_gendisk structure it is clearly marked that
+the new bahaviour is a workaround.
 
+It will be fixed in 2.5, but the scsi layer is too fragile to do such
+changes in 2.4.
 
+	Christoph
+
+-- 
+Of course it doesn't work. We've performed a software upgrade.

@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129739AbQKARAN>; Wed, 1 Nov 2000 12:00:13 -0500
+	id <S131425AbQKARAn>; Wed, 1 Nov 2000 12:00:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131425AbQKARAE>; Wed, 1 Nov 2000 12:00:04 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:10227 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129739AbQKAQ7x>; Wed, 1 Nov 2000 11:59:53 -0500
-Date: Wed, 1 Nov 2000 14:59:01 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Yann Dirson <ydirson@altern.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org, andrea@e-mind.com
-Subject: Re: Looking for better 2.2-based VM (do_try_to_free_pages fails,
- machine hangs)
-In-Reply-To: <20001101174816.A18510@athlon.random>
-Message-ID: <Pine.LNX.4.21.0011011456430.11112-100000@duckman.distro.conectiva>
+	id <S131536AbQKARAZ>; Wed, 1 Nov 2000 12:00:25 -0500
+Received: from c90610-a.alton1.il.home.com ([24.11.42.157]:22035 "EHLO
+	www.linuxnet") by vger.kernel.org with ESMTP id <S131425AbQKARAS>;
+	Wed, 1 Nov 2000 12:00:18 -0500
+Date: Wed, 1 Nov 2000 10:59:47 -0600 (CST)
+From: matthew <matthew@mattshouse.com>
+To: Jonathan George <Jonathan.George@trcinc.com>
+cc: "'Rik van Riel'" <riel@conectiva.com.br>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: 2.4.0-test10 Sluggish After Load
+In-Reply-To: <790BC7A85246D41195770000D11C56F21C847C@trc-tpaexc01.trcinc.com>
+Message-ID: <Pine.LNX.4.21.0011011054150.7127-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Nov 2000, Andrea Arcangeli wrote:
-> On Wed, Nov 01, 2000 at 05:43:39PM +0100, Yann Dirson wrote:
-> > However, the OOM killer behaves in strange ways, it seems.  In the 2 "make
-> 
-> Fair enough as there isn't an oom killer in the kernel you're
-> running :). So it can kill unlucky tasks as well.
 
-There's a (slightly outdated?) patch available on my home
-page, though...
+>>Rik van Riel said:
+>> The problem may well be that Oracle wants to clean up
+>> all memory at once, accessing much more memory than
+>> it did while under stress with more tricky access
+>> patterns.
+>> <SNIP>
+>> If this looks bad to you, compare the points where 2.2
+>> starts thrashing and where 2.4 starts thrashing. You'll
+>> most likely (there must be a few corner cases where 2.2
+>> does better ;)) see that 2.4 still runs fine where 2.2
+>> performance has already "degraded heavily" and that 2.2
+>> has "hit the wall" before 2.4 does so ... the difference
+>> just is that 2.4 hits the wall more suddenly ;)
+>>
+>Jonathan George said: 
+> It sounded to me as if his machine never actually recovered from thrashing.
+> Futhermore, even a thrashing case on a machine like that shouldn't last for
+> more than about 10 minutes.  It would be interesting to contrast FreeBSD's
+> behavior if "simple" cleanup was the problem.  BTW, I think that everyone is
+> happy with the direction of the new VM.  I'm looking forward to your
+> upcoming enhancements which I hope will make it in to a later 2.4 release.
 
-> Since nobody cares to implement it, for 2.4.x on my TODO list
-> there's an alternative oom killer based on the task fault rate.
 
-Cool. It will be interesting to see how this compares to my
-OOM killer (and to the other approaches that will undoubtedly
-surface over the next few months).
+The "thrashing" has been going on for roughly 10 hours now.  Is there a
+point at which I can expect it to stop?  The load average is at 441 (down 
+from > 700 last night), and the stress program was killed at 1:00AM CST
+last night.  This (obviously) isn't an important machine so if you want me
+to ride it out I will.
 
-I'm definately looking forward to an "OOM killer showdown"
-where we can compare how the different OOM tactics work.
-Not because I think it matters all that much on most systems
-(good admins put in enough memory&swap), but simply because
-it appears there has been amazingly little research on this
-subject and it's completely unknown which approach will work
-"best" ... or even, what kind of behaviour is considered to
-be best by the users...
+Matthew
 
-regards,
-
-Rik
---
-"What you're running that piece of shit Gnome?!?!"
-       -- Miguel de Icaza, UKUUG 2000
-
-http://www.conectiva.com/		http://www.surriel.com/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

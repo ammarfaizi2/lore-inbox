@@ -1,94 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267939AbUH1Aab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267943AbUH1AjM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267939AbUH1Aab (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 20:30:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267867AbUH1AaG
+	id S267943AbUH1AjM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 20:39:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267926AbUH1AjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 20:30:06 -0400
-Received: from jib.isi.edu ([128.9.128.193]:4232 "EHLO jib.isi.edu")
-	by vger.kernel.org with ESMTP id S267939AbUH1A2L (ORCPT
+	Fri, 27 Aug 2004 20:39:11 -0400
+Received: from fw.osdl.org ([65.172.181.6]:48823 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267867AbUH1AjC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 20:28:11 -0400
-Date: Fri, 27 Aug 2004 17:28:06 -0700
-From: Craig Milo Rogers <rogers@isi.edu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>, greg@kroah.com,
-       nemosoft@smcc.demon.nl, linux-usb-devel@lists.sourceforge.net
-Subject: PWC: A Plea for Grace
-Message-ID: <20040828002806.GH24018@isi.edu>
+	Fri, 27 Aug 2004 20:39:02 -0400
+Date: Fri, 27 Aug 2004 17:36:41 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: clameter@sgi.com, ak@suse.de, wli@holomorphy.com, davem@redhat.com,
+       raybry@sgi.com, ak@muc.de, benh@kernel.crashing.org,
+       manfred@colorfullife.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, vrajesh@umich.edu, hugh@veritas.com
+Subject: Re: page fault scalability patch final : i386 tested, x86_64
+ support added
+Message-Id: <20040827173641.5cfb79f6.akpm@osdl.org>
+In-Reply-To: <20040827172337.638275c3.davem@davemloft.net>
+References: <Pine.LNX.4.58.0408151552280.3370@schroedinger.engr.sgi.com>
+	<20040815165827.0c0c8844.davem@redhat.com>
+	<Pine.LNX.4.58.0408151703580.3751@schroedinger.engr.sgi.com>
+	<20040815185644.24ecb247.davem@redhat.com>
+	<Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com>
+	<20040816143903.GY11200@holomorphy.com>
+	<B6E8046E1E28D34EB815A11AC8CA3129027B679F@mtv-atc-605e--n.corp.sgi.com>
+	<B6E8046E1E28D34EB815A11AC8CA3129027B67A9@mtv-atc-605e--n.corp.sgi.com>
+	<B6E8046E1E28D34EB815A11AC8CA3129027B67B4@mtv-atc-605e--n.corp.sgi.com>
+	<Pine.LNX.4.58.0408271616001.14712@schroedinger.engr.sgi.com>
+	<20040827233602.GB1024@wotan.suse.de>
+	<Pine.LNX.4.58.0408271717400.15597@schroedinger.engr.sgi.com>
+	<20040827172337.638275c3.davem@davemloft.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, Greg, Nemosoft, and esteemed members of the mailing lists:
+"David S. Miller" <davem@davemloft.net> wrote:
+>
+> On Fri, 27 Aug 2004 17:19:11 -0700 (PDT)
+> Christoph Lameter <clameter@sgi.com> wrote:
+> 
+> > That is still 2^(32+12) = 2^44 = 16TB.
+> 
+> It's actually:
+> 
+> 	2 ^ (31 + PAGE_SHIFT)
+> 
+> '31' because atomic_t is 'signed' and PAGE_SHIFT should
+> be obvious.
+> 
+> Christoph definitely has a point, this is even more virtual space
+> than most of the 64-bit platforms even support.  (Sparc64 is
+> 2^43 and I believe ia64 is similar)
 
-	I plea for a graceful transition.
+When can we reasonably expect someone to blow this out of the water? 
+Within the next couple of years, I suspect?
 
-	Rather than immediately removing the codec registration hook
-from the pwc driver, and instantly degrading an up-to-then stable
-driver in a now-stable kernel release series, I ask that all concerned
-parties consider the following plan:
+It does look like we need a new type which is atomic64 on 64-bit and
+atomic32 on 32-bit.  That could be used to fix the
+mmaping-the-same-page-4G-times-kills-the-kernel bug too.
 
-1)	The pwc codec registration hook will be reinstated in the
-	pwc driver, but the driver will be marked "deprecated"
-	in appropriate comments, documentation, and perhaps build files.
+> and this limit actually
+> mostly comes from the 3-level page table limits.
 
-2)	The deprecated driver will be scheduled to be removed from
-	the next Linux kernel major release series (2.7, 2.8, 3.0,
-	whatever is next).
-
-	1) This will be a firm deadline, and all involved parties,
-	   whether developers or users, will have the opportunity
-	   to be cognizant of it, and prepare for its eventual
-	   arrival.
-
-3)	A new driver, say pwc2, will be created that will pass the raw
-	data stream to user-mode application programs.
-
-	1) Nemosoft's present implementation of raw streams can serve
-	   as a baseline implementation.
-
-	2) The final raw stream API will be coordinated with l4v2.
-
-4)	An API and framework will be constructed to allow user-mode
-	stream decoding (decompression), with minimum impact on
-	application programs, as described in my previous message.
-
-	1) This design should be coordinated with the v4l2 project,
-	   and adopted as a standard for v4l2, if there are no serious
-	   technical objections to this approach.
-
-5)	A team will be assembled to implement this design.
-
-	1) The team will need to coordinate with, or be a subset of, the
-	   v4l2 team.
-
-6)	Coordinating with this, an effort will be made to talk to
-	Philips, Logitech, and other concerned manufacturers, and present
-	them with a rational business case for allowing the open-source
-	implementation of the currently proprietary codecs.
-
-7)	Finally, and admittedly the most fragile link in my proposal,
-	the current out-of-the-kernel pwcx (closed-source codec) module
-	will continue to be maintained and offered until the transition to
-	pwc2 is complete.  Please remember, everyone, that without access
-	to the codecs presently embodied in pwcx, the in-kernel pwc driver
-	or a reimplemtation of it is of little real interest to most users
-	of the hardware supported by the pwc driver.
-
-
-	I realize that I'm asking for forebearance, and
-let-bygones-be-bygones, from a number of people.  In particular, this
-plan won't work without Nemosoft's active involvement, as his approval
-is needed to properly resurrect the present pwc driver, and he's the
-only person at present who can maintain the pwcx module.
-
-	Please consider this proposal of graceful transition as a
-positive policy evolution for the Linux kernel, and for the Linux
-community at large.
-
-					Craig Milo Rogers
-
+This reminds me - where's that 4-level pagetable patch got to?

@@ -1,107 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263612AbUDMPyl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 11:54:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263613AbUDMPyl
+	id S263561AbUDMQCV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 12:02:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263617AbUDMQCV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 11:54:41 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:16287 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263612AbUDMPy0 (ORCPT
+	Tue, 13 Apr 2004 12:02:21 -0400
+Received: from fire.osdl.org ([65.172.181.4]:31143 "EHLO fire-2.osdl.org")
+	by vger.kernel.org with ESMTP id S263561AbUDMQCS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 11:54:26 -0400
-Message-ID: <20040413155317.61413.qmail@web41203.mail.yahoo.com>
-Date: Tue, 13 Apr 2004 08:53:17 -0700 (PDT)
-From: Jin Suh <jinssuh@yahoo.com>
-Subject: [PATCH 2.4] fix IRQ routing on Acer TravelMate 360
-To: daniel.ritz@qmx.ch, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Apr 2004 12:02:18 -0400
+Subject: Re: 2.6.5-mm5 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040412221717.782a4b97.akpm@osdl.org>
+References: <20040412221717.782a4b97.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1081872124.2425.0.camel@cherrybomb.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 13 Apr 2004 09:02:05 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Daniel,
 
-Could you take a look at my pcmcia problems?
-I have a very similar problem enabling a pcmcia firewire card on my Gateway
-600YG2 laptop. I am using a Gateway 600YG2 laptop (Intel P4-M, PCMCIA TI
-PCI1520 controller)
-on 2.4.25. I have 3 different pcmcia firewire cards. When I insert module
-yenta_socket with any of those cards, I get "Yenta ISA IRQ mask 0x0a98, PCI irq
-0" and "PCI: No IRQ for interrupt pin A of device 03:00.0 please try using
-pci=biosirq". After this error, when I run the modprobe ieee1394 and ohci1394,
-I get "ohci1394: failed to allocate shared interrupt 10". The same pcmcia
-firewire cards work on old Gateway 9300, 9500 laptop and IBM T22 laptop. 
-BTW, my Netgear pcmcia 10/100mb ethernet card works on the Gateway 600YG2
-laptop. Also my USB pen drives are not working too. The bootparameter
-pci=biosirq doesn't seem to work. 
-It worked fine with 2.4.20 without any problems. Could someone help me to fix
-this problem on 2.4.25? I have buillt both of 2.4.20 and 2.4.25 without ACPI.
+Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
 
-Thanks,
-Jin
+Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
+                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
+--------------- ---------- -------- -------- -------- -------- --------
+2.6.5-mm5         0w/0e     0w/0e   119w/ 0e   7w/0e   4w/0e    120w/0e
+2.6.5-mm4         0w/0e     0w/0e   120w/ 0e   7w/0e   4w/0e    121w/0e
+2.6.5-mm3         0w/0e     1w/0e   121w/12e   7w/0e   3w/0e    123w/0e
+2.6.5-mm2         0w/0e     0w/0e   128w/12e   7w/0e   3w/0e    134w/0e
+2.6.5-mm1         0w/0e     5w/0e   122w/ 0e   7w/0e   3w/0e    124w/0e
+2.6.5-rc3-mm4     0w/0e     0w/0e   124w/ 0e   8w/0e   4w/0e    126w/0e
+2.6.5-rc3-mm3     0w/0e     5w/0e   129w/14e   8w/0e   4w/0e    129w/6e
+2.6.5-rc3-mm2     0w/0e     5w/0e   130w/14e   8w/0e   4w/0e    129w/6e
+2.6.5-rc3-mm1     0w/0e     5w/0e   129w/ 0e   8w/0e   4w/0e    129w/0e
+2.6.5-rc2-mm5     0w/0e     5w/0e   130w/ 0e   8w/0e   4w/0e    129w/0e
+2.6.5-rc2-mm4     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
+2.6.5-rc2-mm3     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
+2.6.5-rc2-mm2     0w/0e     5w/0e   137w/ 0e   8w/0e   3w/0e    134w/0e
+2.6.5-rc2-mm1     0w/0e     5w/0e   136w/ 0e   8w/0e   3w/0e    134w/0e
+2.6.5-rc1-mm2     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
+2.6.5-rc1-mm1     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
+2.6.4-mm2         1w/2e     5w/2e   144w/10e   8w/0e   3w/2e    144w/0e
+2.6.4-mm1         1w/0e     5w/0e   146w/ 5e   8w/0e   3w/0e    144w/0e
+2.6.4-rc2-mm1     1w/0e     5w/0e   146w/12e  11w/0e   3w/0e    147w/2e
+2.6.4-rc1-mm2     1w/0e     5w/0e   144w/ 0e  11w/0e   3w/0e    145w/0e
+2.6.4-rc1-mm1     1w/0e     5w/0e   147w/ 5e  11w/0e   3w/0e    147w/0e
+2.6.3-mm4         1w/0e     5w/0e   146w/ 0e   7w/0e   3w/0e    142w/0e
+2.6.3-mm3         1w/2e     5w/2e   146w/15e   7w/0e   3w/2e    144w/5e
+2.6.3-mm2         1w/8e     5w/0e   140w/ 0e   7w/0e   3w/0e    138w/0e
+2.6.3-mm1         1w/0e     5w/0e   143w/ 5e   7w/0e   3w/0e    141w/0e
+2.6.3-rc3-mm1     1w/0e     0w/0e   144w/13e   7w/0e   3w/0e    142w/3e
+2.6.3-rc2-mm1     1w/0e     0w/265e 144w/ 5e   7w/0e   3w/0e    145w/0e
+2.6.3-rc1-mm1     1w/0e     0w/265e 141w/ 5e   7w/0e   3w/0e    143w/0e
+2.6.2-mm1         2w/0e     0w/264e 147w/ 5e   7w/0e   3w/0e    173w/0e
+2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
+2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
+2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
+2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
+2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
+2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
+2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
+2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
+2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
+2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
+2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
+2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
+2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
+2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
+2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
+2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
 
-DMESG output
--------------------------------------------------------------------------
-ACPI: RSDP (v000 PTLTD                                     ) @ 0x000f6620
-ACPI: RSDT (v001 GATEWA 602      0x20021104  LTP 0x00000000) @ 0x1fef8313
-ACPI: FADT (v001 GATEWA 602      0x20021104 PTL  0x0000001e) @ 0x1fefef64
-ACPI: BOOT (v001 GATEWA 602      0x20021104  LTP 0x00000001) @ 0x1fefefd8
-ACPI: DSDT (v001 GATEWA 602      0x20021104 MSFT 0x0100000e) @ 0x00000000
-Kernel command line: initrd=ramdisk.img root=/dev/ram0 bickrootfs=tmpfs vga=791
-BOOT_IMAGE=linux 
-No local APIC present or hardware disabled
-.........
-Linux Kernel Card Services 3.1.22
-  options:  [pci] [cardbus] [pm]
-PCI: Found IRQ 10 for device 02:02.0
-PCI: Sharing IRQ 10 with 00:1f.1
-PCI: Sharing IRQ 10 with 02:02.1
-PCI: Found IRQ 10 for device 02:02.1
-PCI: Sharing IRQ 10 with 00:1f.1
-PCI: Sharing IRQ 10 with 02:02.0
-Yenta ISA IRQ mask 0x0a98, PCI irq 0
-Socket status: 30000011
-Yenta ISA IRQ mask 0x0a98, PCI irq 0
-Socket status: 30000020
-cs: cb_alloc(bus 7): vendor 0x104c, device 0x8024
-PCI: Enabling device 07:00.0 (0000 -> 0002)
-PCI: No IRQ known for interrupt pin A of device 07:00.0. Please try using
-pci=biosirq.
-ohci1394: $Rev: 1045 $ Ben Collins <bcollins@debian.org>
-PCI: Found IRQ 10 for device 02:05.0
-PCI: Sharing IRQ 10 with 00:1f.3
-PCI: Sharing IRQ 10 with 00:1f.6
-ohci1394: Failed to allocate shared interrupt 10
-PCI: No IRQ known for interrupt pin A of device 07:00.0. Please try using
-pci=biosirq.
-ohci1394: Failed to allocate shared interrupt 0
-sbp2: $Rev: 1074 $ Ben Collins <bcollins@debian.org>
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
 
-==============================================================
-
-hi marcelo
-
-the same thing as been included in 2.6.5-mm4. here's the 2.4 version.
-
-rgds
--daniel
+John
 
 
----snip---
-
-acer travelmate 360 has a broken interrupt routing. there's an interrupt storm
-on irq 10 w/o this patch  as soon as yenta_socket is loaded. the problem
-has been seen on different machines (reported on l-k and on pcmcia-cs
-list). there's also an USB controller on the same interrupt line as the CB
-which also works fine after the patch. and routing via ACPI fails too.
-
-
-
-
-
-	
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Small Business $15K Web Design Giveaway 
-http://promotions.yahoo.com/design_giveaway/

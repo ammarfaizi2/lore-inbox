@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292780AbSCOPQN>; Fri, 15 Mar 2002 10:16:13 -0500
+	id <S292792AbSCOPTN>; Fri, 15 Mar 2002 10:19:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292733AbSCOPPy>; Fri, 15 Mar 2002 10:15:54 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:63872 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S292730AbSCOPPs>;
-	Fri, 15 Mar 2002 10:15:48 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hubertus Franke <frankeh@watson.ibm.com>
-Reply-To: frankeh@watson.ibm.com
-Organization: IBM Research
-To: Joel Becker <jlbec@evilplan.org>, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Re: futex and timeouts
-Date: Fri, 15 Mar 2002 10:16:02 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: matthew@hairy.beasts.org, linux-kernel@vger.kernel.org,
-        lse-tech@lists.sourceforge.net
-In-Reply-To: <20020314151846.EDCBF3FE07@smtp.linux.ibm.com> <E16lkRS-0001HN-00@wagner.rustcorp.com.au> <20020315060829.L4836@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20020315060829.L4836@parcelfarce.linux.theplanet.co.uk>
+	id <S292817AbSCOPTG>; Fri, 15 Mar 2002 10:19:06 -0500
+Received: from mgw-x2.nokia.com ([131.228.20.22]:33670 "EHLO mgw-x2.nokia.com")
+	by vger.kernel.org with ESMTP id <S292733AbSCOPSt>;
+	Fri, 15 Mar 2002 10:18:49 -0500
+Message-ID: <3C92111C.1070107@nokia.com>
+Date: Fri, 15 Mar 2002 17:19:56 +0200
+From: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011023
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020315151507.2370C3FE0C@smtp.linux.ibm.com>
+Newsgroups: comp.os.linux.networking
+To: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
+CC: affix-devel@lists.sourceforge.net,
+        Affix support <affix-support@lists.sourceforge.net>,
+        linux-net <linux-net@vger.kernel.org>, linux-kernel@vger.kernel.org
+Subject: New Affix Release: Affix-0_96  --- Bluetooth Protocol Stack. GUI available now.
+In-Reply-To: <3C500D09.4080206@nokia.com> <3C5AB093.5050405@nokia.com> <3C5E4991.6010707@nokia.com> <3C628D6A.2050900@nokia.com> <3C628DCF.40700@nokia.com> <3C6D25F6.4010905@nokia.com> <3C766511.5050808@nokia.com> <3C7F6C0C.6030204@nokia.com> <3C877AC7.8090008@nokia.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Mar 2002 15:18:47.0280 (UTC) FILETIME=[B3F79F00:01C1CC34]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 15 March 2002 01:08 am, Joel Becker wrote:
-> On Fri, Mar 15, 2002 at 04:39:50PM +1100, Rusty Russell wrote:
-> > Yep, sorry, my mistake.  I suggest make it a relative "struct timespec
-> > *" (more futureproof that timeval).  It would make sense to split the
-> > interface into futex_down and futex_up syuscalls, since futex_up
-> > doesn't need a timeout arg, but I haven't for the moment.
->
-> 	Why waste a syscall?  The user is going to be using a library
-> wrapper.  They don't have to know that futex_up() calls sys_futex(futex,
-> FUTEX_UP, NULL);
->
-> Joel
+Hi All.
 
-I agree with that, only for the reason that we are getting scarce on 
-syscall nubmers. Is 256-delta the max ?
-On the other hand, it requires to always push 2 more arguments
-(operand and useless parameter).
+Find new affix release Affix-0_96 on http://affix.sourceforge.net
+This version has stability improvement.
 
-One thing to consider is that many don't want to use libraries.
-They want to inline, which would result only in a few instruction.
+GUI environment A.F.E - Affix Frontend Environment available for use.
+http://affix.sourceforge.net/afe
 
-What I would like to see is an interface that lets me pass optional 
-parameters to the syscall interface, so I can call with different number
-of parameters.
+Link can be found on Affix WEB site in *Links* section.
+
+
+Version 0.96 [15.03.2002]
+- [new] added field *local* to sockaddr_rfcomm to connect through
+	certain Bluetooth adapter
+	sockaddr_rfcomm {
+	... old fields..
+	BD_ADDR		local;
+	}
+	set *local* to Bluetooth address of the adapter to connect through.
+	or BDADDR_ANY
+- [new] SDP server works based on MTU
+- [fix] SDP Continuation mecahnism - problems on client side.
+	Did not work at all. (e.g. with Ericsson phone)
+- [new] btctl prints Affix version
+
+
+
+br, Dmitry
 
 -- 
--- Hubertus Franke  (frankeh@watson.ibm.com)
+ Dmitry Kasatkin
+ Nokia Research Center / Helsinki
+ Mobile: +358 50 4836365
+ E-Mail: dmitry.kasatkin@nokia.com
+
+
+

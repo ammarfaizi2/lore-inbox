@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261228AbTILHsX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 03:48:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbTILHsX
+	id S261244AbTILHxg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 03:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbTILHxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 03:48:23 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37391 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261228AbTILHsW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 03:48:22 -0400
-Date: Fri, 12 Sep 2003 08:48:18 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Jamie Lokier <jamie@shareable.org>
+	Fri, 12 Sep 2003 03:53:36 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:4102
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S261244AbTILHxf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 03:53:35 -0400
+Date: Fri, 12 Sep 2003 00:53:39 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Virtual alias cache coherency results (was: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this)
-Message-ID: <20030912084818.A19967@flint.arm.linux.org.uk>
-Mail-Followup-To: Jamie Lokier <jamie@shareable.org>,
+Subject: Re: experiences beyond 4 GB RAM with 2.4.22
+Message-ID: <20030912075339.GH26618@matchmail.com>
+Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
 	linux-kernel@vger.kernel.org
-References: <20030910210416.GA24258@mail.jlokier.co.uk> <20030910233951.Q30046@flint.arm.linux.org.uk> <20030910233720.GA25756@mail.jlokier.co.uk> <20030911010702.W30046@flint.arm.linux.org.uk> <20030911123535.GB28180@mail.jlokier.co.uk> <20030911160929.A19449@flint.arm.linux.org.uk> <20030911162510.GA29532@mail.jlokier.co.uk> <20030911175224.A20308@flint.arm.linux.org.uk> <20030912004546.GB31860@mail.jlokier.co.uk>
+References: <20030909110112.4d634896.skraw@ithnet.com> <16225.13206.910616.386713@notabene.cse.unsw.edu.au> <20030912085435.6a26fec4.skraw@ithnet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030912004546.GB31860@mail.jlokier.co.uk>; from jamie@shareable.org on Fri, Sep 12, 2003 at 01:45:46AM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <20030912085435.6a26fec4.skraw@ithnet.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 12, 2003 at 01:45:46AM +0100, Jamie Lokier wrote:
-> > ...until we learn what kernel versions the Netwinder folks are
-> > running, or they kindly run the test on a new kernel.
+> On Fri, 12 Sep 2003 12:46:46 +1000
+> Neil Brown <neilb@cse.unsw.edu.au> wrote:
 > 
-> Two of the Netwinders are running 2.4.19-rmk7-nw1, and one is running
-> 2.2.12-19991020.
-> 
-> Are both of these prior to when alias pages were made uncacheable?
+> > > Both are 2.4.22. 192.168.1.1 is the testbox. I saw those with 2GB, but
+> > > could fix it through more nfs-daemons and
+> > > 
+> > >         echo 2097152 >/proc/sys/net/core/rmem_max
+> > >         echo 2097152 >/proc/sys/net/core/wmem_max
+> > > 
+> > > Are these values too small for 6 GB?
+> > 
+> > No.  The values are proportional to the number of server threads, not
+> > the amount of RAM... and they should be un-necessary after 2.4.20
+> > anyway as nfsd in the kernel makes the appropriate settings.
 
-2.2.12 is certainly too old for the fixup.  2.4.19-rmk7 -based kernels
-have the fixup.
-
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-Linux kernel maintainer of:
-  2.6 ARM Linux   - http://www.arm.linux.org.uk/
-  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-  2.6 Serial core
+So then what do I need to to get those error messages off of my nfs clients?
+I have seen this with for a long time through 2.4 and 2.5 (didn't use nfs
+with 2.2...).

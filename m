@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263473AbREYA4u>; Thu, 24 May 2001 20:56:50 -0400
+	id <S263475AbREYBHW>; Thu, 24 May 2001 21:07:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263474AbREYA4k>; Thu, 24 May 2001 20:56:40 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:64271 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S263473AbREYA4Z>;
-	Thu, 24 May 2001 20:56:25 -0400
-From: Paul Mackerras <paulus@samba.org>
+	id <S263477AbREYBHN>; Thu, 24 May 2001 21:07:13 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:34568 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263475AbREYBHD>; Thu, 24 May 2001 21:07:03 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Ramdisk Initialization Problem
+Date: 24 May 2001 18:06:48 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9ekb78$u2a$1@cesium.transmeta.com>
+In-Reply-To: <l03130306b7332a134958@[209.239.217.188]>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15117.44426.899390.29151@tango.paulus.ozlabs.org>
-Date: Fri, 25 May 2001 10:55:38 +1000 (EST)
-To: Jeff Mcadams <jeffm@iglou.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SyncPPP Generic PPP merge
-In-Reply-To: <20010524185333.B7667@iglou.com>
-In-Reply-To: <002501c0e48f$ffed1e40$0c00a8c0@diemos>
-	<E1533Ra-0005hC-00@the-village.bc.nu>
-	<20010524185333.B7667@iglou.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Mcadams writes:
+Followup to:  <l03130306b7332a134958@[209.239.217.188]>
+By author:    "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+In newsgroup: linux.dev.kernel
+>
+>     I am using kernel 2.4.1 with compressed Ramdisk on  Hitachi SH board ,
+> with no battery.   When i run kernel first time , it works fine , it
+> uncompress Ramdisk and i get my shell prompt .    But when i restart it
+> second time (with out  removing power cable ) kernel dies when
+> uncompressing Ramdisk.   But , if i remove my power supply for more than 5
+> minutes , and then i start again , it works again.   It seems that in 2.4.1
+> and/or later versions has  Ramdisk Initailization or uninitialised memory
+> problem. But i faced no problem  with 2.2.12 kernel.   Thank you,  
+> 
+> Best Regards,   Jaswinder (and his wonder machine).
+> 
 
-> Indeed.  And let me just throw out another thought.  A clean abstraction
-> of the various portions of the PPP functionality is beneficial in other
-> ways.  My personal pet project being to add L2TP support to the kernel
-> eventually.  A good abstraction of the framing capabilities and basic
-> PPP processing would be rather useful in that project.
+First of all, try the latest kernel if you are going to report a bug.
 
-That is exactly what ppp_generic.c is intended to do - it abstracts
-out the framing and encapsulation and low-level transport of PPP
-frames into ppp "channels" (see for example ppp_async.c,
-ppp_synctty.c) while ppp_generic.c does the basic PPP processing
-(compression, multilink, handling the network interface device etc.).
+For the kernel people, this is classic evidence of relying on
+uninitialized memory; the "few minutes" is roughly how long it takes
+modern SDRAM to *reliably* discharge.
 
-You should be able to write an L2TP channel to work with ppp_generic -
-all your code would need to know about is how to take a PPP frame and
-encapsulate and send it, and how to receive and decapsulate PPP
-frames.
-
-[Note to myself: send in a Documentation/ppp_generic.txt which
-describes the interface between ppp_generic.c and the channels.]
-
-> I would agree that such a project would be 2.5 material.
-
-Do it today if you like, I can't see that adding a new PPP channel
-could break anything else, it would be like adding a new driver.
-
-Paul.
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

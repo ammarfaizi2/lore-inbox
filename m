@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268364AbSIRUmd>; Wed, 18 Sep 2002 16:42:33 -0400
+	id <S268335AbSIRUqv>; Wed, 18 Sep 2002 16:46:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268361AbSIRUmd>; Wed, 18 Sep 2002 16:42:33 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:33507 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S268364AbSIRUmc>; Wed, 18 Sep 2002 16:42:32 -0400
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200209182047.g8IKl6T27992@eng2.beaverton.ibm.com>
-Subject: Re: [RFC] [PATCH] 2.5.35 patch for making DIO async
-To: pbadari@us.ibm.com (Badari Pulavarty)
-Date: Wed, 18 Sep 2002 13:47:06 -0700 (PDT)
-Cc: bcrl@redhat.com (Benjamin LaHaise), pbadari@us.ibm.com (Badari Pulavarty),
-       linux-kernel@vger.kernel.org, linux-aio@kvack.org
-In-Reply-To: <200209181630.g8IGUGe15097@eng2.beaverton.ibm.com> from "Badari Pulavarty" at Sep 18, 2002 08:30:16 AM PST
-X-Mailer: ELM [version 2.5 PL3]
+	id <S268344AbSIRUqu>; Wed, 18 Sep 2002 16:46:50 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:53963 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S268335AbSIRUqu> convert rfc822-to-8bit; Wed, 18 Sep 2002 16:46:50 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: WOLK - Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.36 - "Dead loop on virtual device lo, fix it urgently!"
+Date: Wed, 18 Sep 2002 22:51:34 +0200
+X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209182237.35054.m.c.p@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben,
+Hi there,
 
-aio_read/aio_write() are now working with a minor fix to fs/aio.c
+from: net/core/dev.c
 
-io_submit_one():
-	
-	if (likely(EIOCBQUEUED == ret))
+....
+} else {
+       /* Recursion is detected! It is possible,
+        * unfortunately */
+       if (net_ratelimit())
+               printk(KERN_DEBUG "Dead loop on virtual device "
+                      "%s, fix it urgently!\n", dev->name);
+       }
+....
 
-		needs to be changed to
+hehe, "It is possible, unfortunately" and I hit it :)
 
-	if (likely(-EIOCBQUEUED == ret))
-		  ^^^
+just having lo, eth0 and eth0:2, nothing special, no tunnels etc. :)
+
+appears, reproducable, with "apt-get update" or any other kind of some
+high network load. NIC is an Intel EtherExpress PRO/100 card using the
+"original Becker driver".
+
+-- 
+Kind regards
+        Marc-Christian Petersen
+
+http://sourceforge.net/projects/wolk
+
+PGP/GnuPG Key: 1024D/569DE2E3DB441A16
+Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
+Key available at www.keyserver.net. Encrypted e-mail preferred.
 
 
-I was wondering what happens to following case (I think this
-happend in my test program).
-
-Lets say, I did an sys_io_submit() and my test program did exit().
-When the IO complete happend, it tried to do following and got
-an OOPS in aio_complete().
-
-	if (ctx == &ctx->mm->default_kioctx) { 
-
-I think "mm" is freed up, when process exited. Do you think this is
-possible ?  How do we handle this ?
-
-- Badari

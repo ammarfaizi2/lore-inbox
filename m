@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVASGBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVASGOn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbVASGBW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 01:01:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVASGBW
+	id S261598AbVASGOn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 01:14:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbVASGOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 01:01:22 -0500
-Received: from ozlabs.org ([203.10.76.45]:1965 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261595AbVASGBU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 01:01:20 -0500
+	Wed, 19 Jan 2005 01:14:42 -0500
+Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:14220 "EHLO
+	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S261598AbVASGOl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 01:14:41 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: usbmon, usb core, ARM
+Date: Tue, 18 Jan 2005 22:14:24 -0800
+User-Agent: KMail/1.7.1
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org, greg@kroah.com
+References: <20050118212033.26e1b6f0@localhost.localdomain>
+In-Reply-To: <20050118212033.26e1b6f0@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16877.63693.915740.385920@cargo.ozlabs.ibm.com>
-Date: Wed, 19 Jan 2005 17:06:05 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: anton@samba.org, akpm@osdl.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PPC64: EEH Recovery
-In-Reply-To: <20050117201415.GA11505@austin.ibm.com>
-References: <20050106192413.GK22274@austin.ibm.com>
-	<20050117201415.GA11505@austin.ibm.com>
-X-Mailer: VM 7.19 under Emacs 21.3.1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200501182214.25273.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linas Vepstas writes:
+On Tuesday 18 January 2005 9:20 pm, Pete Zaitcev wrote:
+> 
+> However, David objects to the patch on the grounds that it can damage ARM.
 
-> p.s.  It was not clear to me if the EEH patch previously sent 
-> (6 January 2005, same subject line) will be wending its way into 
-> the main Torvalds kernel tree, or not.  I hadn't really gotten
-> confirmation one way or another.
+Actually what I said was:
 
-I'm not really totally happy with it yet, on a number of fronts:
+> > Those patches were added for important reasons.  (Or did you add some
+> > other solution to the issue described in that comment?)
 
-1. You're adding more PCI-specific stuff to the device_node struct,
-   which I don't like.  I would prefer that the device_node tree
-   contains basically just what we get from OF, and that we have a
-   separate struct for storing ppc64-specific information for each PCI
-   device.  Fixing that is outside the scope of your patch, though.
+which on closer examination (of just this patch, split out from all
+the usbmon stuff) may well have been your cue to say something like
+"my solution was to add a special case for root hubs into every urb's
+giveback() path ... even though I left in the comment specifying that
+this must be handled in the original way".
 
-2. I don't see why the device nodes for the PCI subtree being reset
-   would go away, and thus I don't see the need for your eeh_cfg_tree
-   struct.
+As well as:
 
-3. Is there a good reason why we can't use the assigned-addresses
-   property on the relevant device tree nodes to tell us what to set
-   the BARs to?
+> > Also, I don't like the idea of scattering knowledge all over the place
+> > that the root hub is always given address 1 ... 
 
-4. I think the 5 second sleep is quite bogus, and shows that we have
-   the flow of control wrong.  In particular I think it should be a
-   userland write to a sysfs file that kicks off the restart process
-   rather than it just happening after 5 seconds.  Anyway, what
-   process or thread is executing that 5 second sleep?  Is it keventd
-   or something?
+which you didn't address yet.
 
-5. AFAICS userland will get an unplug notification for the device, but
-   nothing to indicate that is due to an EEH slot isolation event.  I
-   think userland should be told about EEH events.
-
-Regards,
-Paul.
+- Dave
 

@@ -1,65 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263081AbUCMMKg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 07:10:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263082AbUCMMKd
+	id S263084AbUCMMfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 07:35:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbUCMMfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 07:10:33 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:31444 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263081AbUCMMKb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 07:10:31 -0500
-Date: Sat, 13 Mar 2004 13:10:28 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Soeren Sonnenburg <kernel@nn7.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.4 - powerbook 15" - usb oops+backtrace
-Message-ID: <20040313121027.GA7434@ucw.cz>
-References: <1079097936.1837.102.camel@localhost>
+	Sat, 13 Mar 2004 07:35:16 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:51083 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S263084AbUCMMfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 07:35:11 -0500
+Date: Fri, 12 Mar 2004 22:46:22 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Matthias Urlichs <smurf@smurf.noris.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.4-rc2-mm1: vm-split-active-lists
+Message-ID: <20040312214621.GE1236@openzaurus.ucw.cz>
+References: <404FACF4.3030601@cyberone.com.au> <200403111825.22674@WOLK> <40517E47.3010909@cyberone.com.au> <20040312012703.69f2bb9b.akpm@osdl.org> <pan.2004.03.12.11.08.02.700169@smurf.noris.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1079097936.1837.102.camel@localhost>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <pan.2004.03.12.11.08.02.700169@smurf.noris.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 12, 2004 at 02:25:36PM +0100, Soeren Sonnenburg wrote:
-> Hi!
+Hi!
+> > That effect is to cause the whole world to be swapped out when people
+> > return to their machines in the morning.
 > 
-> I got this oops when inserting mouse/keyboard (both usb).
-> 
-> usb 1-1: new low speed USB device using address 4
-> input: USB HID v1.00 Mouse [Cypress Sem USB Mouse] on usb-0001:01:18.0-1
-> Oops: kernel access of bad area, sig: 11 [#1]
-> NIP: 5A5A5A58 LR: C026D8B0 SP: ED6B1E10 REGS: ed6b1d60 TRAP: 0401    Not
-> tainted
-> MSR: 40009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
-> TASK = edb87320[1332] 'pbbuttonsd' Last syscall: 5 
-> GPR00: 5A5A5A5A ED6B1E10 EDB87320 C1991894 E2DB789C 00000000 E7909300
-> ED6B1DC0 
-> GPR08: 00000000 00000000 C03DA5A0 00000005 84000428 
-> Call trace:
->  [c02704ac] evdev_open+0x64/0x104
->  [c026e814] input_open_file+0x98/0x1cc
->  [c00675a8] chrdev_open+0xe0/0x16c
->  [c005c0b4] dentry_open+0x15c/0x230
->  [c005bf54] filp_open+0x64/0x68
->  [c005c43c] sys_open+0x68/0xa0
->  [c0005d3c] ret_from_syscall+0x0/0x44
-> usb 2-1: new low speed USB device using address 4
-> input: USB HID v1.00 Keyboard [PTC HID PS/2 Keyboard - PS/2 Mouse] on
-> usb-0001:01:19.0-1
-> input: USB HID v1.00 Mouse [PTC HID PS/2 Keyboard - PS/2 Mouse] on
-> usb-0001:01:19.0-1
-> 
-> Thanks for any suggestions...
-> 
-> I can probably give more infos as xmon is compiled in the kernel here.
- 
-Is this reproducible, or does it happen only rarely? I suspect it could
-be a race somewhere ...
+> The correct solution to this problem is "suspend-to-disk" --
+> if the machine isn't doing anything anyway, TURN IT OFF.
 
+Try it.
+
+With current design, machine swaps *a lot* after resume.
+
+Suspend-to-ram is probably better.
+
+But if you don't run your updatedb overnight, you are going to
+run it while you are logged in, and that is going to suck.
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

@@ -1,53 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267079AbTBHTWR>; Sat, 8 Feb 2003 14:22:17 -0500
+	id <S267068AbTBHT0z>; Sat, 8 Feb 2003 14:26:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267083AbTBHTWR>; Sat, 8 Feb 2003 14:22:17 -0500
-Received: from bjl1.jlokier.co.uk ([81.29.64.88]:22225 "EHLO
-	bjl1.jlokier.co.uk") by vger.kernel.org with ESMTP
-	id <S267079AbTBHTWQ>; Sat, 8 Feb 2003 14:22:16 -0500
-Date: Sat, 8 Feb 2003 19:31:49 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Pavel Machek <pavel@suse.cz>, Kevin Lawton <kevinlawton2001@yahoo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Possible bug in arch/i386/kernel/process.c for reloading of debug registers (DRx)?
-Message-ID: <20030208193149.GA9720@bjl1.jlokier.co.uk>
-References: <20030203235140.10443.qmail@web80304.mail.yahoo.com.suse.lists.linux.kernel> <p7365s0ri9c.fsf@oldwotan.suse.de> <20030207163301.GH345@elf.ucw.cz> <20030208172204.GA24577@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030208172204.GA24577@wotan.suse.de>
-User-Agent: Mutt/1.4i
+	id <S267072AbTBHT0z>; Sat, 8 Feb 2003 14:26:55 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:62871 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S267068AbTBHT0y>; Sat, 8 Feb 2003 14:26:54 -0500
+Date: Sat, 8 Feb 2003 13:36:27 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Thomas Molina <tmolina@cox.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: compile error with 2.5.59-bk latest
+In-Reply-To: <Pine.LNX.4.44.0302081017260.3031-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0302081332120.25000-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> > What if DRx contains sensitive data? ...Its probably pretty
-> > unlikely. Still it allows for example easy communication between tasks
-> > that should not be able to communicate.
+On Sat, 8 Feb 2003, Thomas Molina wrote:
+
+> ld:arch/i386/kernel/.tmp_i386_ksyms.ver:7: ignoring invalid character `#' in expression
+> ld:arch/i386/kernel/.tmp_i386_ksyms.ver:7: parse error
+> make[1]: *** [arch/i386/kernel/i386_ksyms.o] Error 1
+> make: *** [arch/i386/kernel] Error 2
+
+> arch/i386/kernel/.tmp_i386_ksyms.ver shows:
 > 
-> The user never sees the stale value, it is eaten by the kernel's do_debug
-> handler.
+> __crc_cpu_gdt_table = 0x08a58dfb ;
+> __crc_drive_info = 0x744aa133 ;
+> __crc_boot_cpu_data = 0xd1395717 ;
+> __crc_EISA_bus = 0x7413793a ;
+> __crc_MCA_bus = 0xf48a2c4c ;
+> __crc___verify_write = 0x203afbeb ;
+> #define __verify_write	_set_ver(__verify_write)
+> __crc_dump_thread = 0xae90b20c ;
+> __crc_dump_fpu = 0xc708c72b ;
 
-DR6 isn't cleared.  Here is a nice security exploit for you:
+Whoops, the grep to filter out the _set_ver lines wasn't quite right.
+This patch fixes it.
 
-	- Task A sets DR0 and DR7 to enable a watchpoint (or breakpoint).
-	- It also clears DR6.
-	- Task A wakes up task B, which has DR7 clear.
-	- Task A then communicates with "sshd" or some other sensitive task.
+Thanks for the report,
 
-	- Because of lazy DR7 clearing, sshd inherits the watchpoints.
-	- If sshd reads the memory address mentioned in DR0, it will
-	  call do_debug in the kernel, which clears DR7 and continues.
-	- However, DR6 bit B0 is now set.
+--Kai
 
-	- Eventually task B is scheduled.  It inherits the value of DR6
-	  from sshd, and therefore knows if sshd read from a particular
-	  memory location.
 
-	- Task A and task B cooperate to analyse what values sshd is
-	  examining in its lookup tables, and therefore retrieve the
-	  server key or something.  (Hand waving at this point).
+===== scripts/Makefile.build 1.27 vs edited =====
+--- 1.27/scripts/Makefile.build	Fri Feb  7 21:27:28 2003
++++ edited/scripts/Makefile.build	Sat Feb  8 13:30:23 2003
+@@ -91,7 +91,7 @@
+ 	else								      \
+ 		$(CPP) -D__GENKSYMS__ $(c_flags) $<			      \
+ 		| $(GENKSYMS) -k $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)	      \
+-		| grep __ver						      \
++		| grep -v _set_ver					      \
+ 		| sed 's/\#define __ver_\([^ 	]*\)[ 	]*\([^ 	]*\)/__crc_\1 = 0x\2 ;/g' \
+ 		> $(@D)/.tmp_$(@F:.o=.ver);				      \
+ 									      \
 
--- Jamie
+

@@ -1,252 +1,273 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268662AbUJDW4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268702AbUJDW6a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268662AbUJDW4X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 18:56:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268688AbUJDW4X
+	id S268702AbUJDW6a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 18:58:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268700AbUJDW6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 18:56:23 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:43158 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S268662AbUJDWz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 18:55:29 -0400
-Mime-Version: 1.0 (Apple Message framework v619)
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Message-Id: <772AB4BB-1658-11D9-8836-000D9352858E@linuxmail.org>
-Content-Type: multipart/mixed; boundary=Apple-Mail-2-511719107
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Badness in remove_proc_entry at fs/proc/generic.c:688
-Date: Tue, 5 Oct 2004 00:55:19 +0200
-X-Mailer: Apple Mail (2.619)
+	Mon, 4 Oct 2004 18:58:11 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:40968 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S268683AbUJDWze
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 18:55:34 -0400
+Date: Mon, 4 Oct 2004 23:55:33 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: netdev@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4.27: Fix struct fddi_statistics for 64-bit
+Message-ID: <Pine.LNX.4.58L.0410032238410.22545@blysk.ds.pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---Apple-Mail-2-511719107
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=US-ASCII;
-	format=flowed
+ There is a problem with "struct fddi_statistics" for 64-bit systems.  
+The starting members of the struct are expected to correspond to the
+respective members of "struct net_device_stats" (drivers for FDDI devices
+return "struct fddi_statistics" in the response to the get_stats() call of
+"struct net_device").  Unfortunately, due to using different types (u32 vs
+ulong) they do not.  "struct net_device_stats" is a public interface and
+as a result, bogus results are retrieved, e.g. for /proc/net/dev.
 
-I get the following oops when booting 2.6.9-rc3-mm2:
+ Here is my proposal to address the problem.  I think there is no point in
+duplicating the layout of "struct net_device_stats" in "struct
+fddi_statistics" as the former can simply be included as a member avoiding
+this problem and actually any possible discrepancy in the future.  This 
+also preserves the layout of the structure for 32-bit systems.
 
-Badness in remove_proc_entry at fs/proc/generic.c:688
-  [<c01755de>] remove_proc_entry+0x12c/0x13e
-  [<e08120e4>] uhci_hcd_init+0xe4/0xf6 [uhci_hcd]
-  [<c012f540>] sys_init_module+0x119/0x1a3
-  [<c0105b95>] sysenter_past_esp+0x52/0x71
+ This was run-time tested with 2.4.26 using the defxx driver in a 64-bit 
+MIPSel system.  All affected drivers were compiled successfully with 
+2.4.27 and 2.6.8.1.
 
-Attached are the output of the "dmesg" command and the "config" file 
-used to build the kernel.
+ The patch applies both to 2.4 and 2.6, but one of the affected drivers
+has been removed from 2.6 leading to a reject.  Therefore I'll send an 
+updated patch for 2.6 separately.
 
---Apple-Mail-2-511719107
-Content-Transfer-Encoding: base64
-Content-Type: application/octet-stream;
-	x-unix-mode=0644;
-	name="config-2.6.9-rc3-mm2.bz2"
-Content-Disposition: attachment;
-	filename=config-2.6.9-rc3-mm2.bz2
+  Maciej
 
-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
+Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
 
---Apple-Mail-2-511719107
-Content-Transfer-Encoding: base64
-Content-Type: application/octet-stream;
-	x-unix-mode=0644;
-	name="dmesg.bz2"
-Content-Disposition: attachment;
-	filename=dmesg.bz2
-
-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
-aBIp08Q72jJHgt6EG0P/i7kinChIVxTv1AA=
-
---Apple-Mail-2-511719107--
-
+patch-2.4.27-fddi-stats-1
+diff -up --recursive --new-file linux-2.4.27.macro/drivers/message/i2o/i2o_lan.c linux-2.4.27/drivers/message/i2o/i2o_lan.c
+--- linux-2.4.27.macro/drivers/message/i2o/i2o_lan.c	2002-08-12 18:55:51.000000000 +0000
++++ linux-2.4.27/drivers/message/i2o/i2o_lan.c	2004-10-03 21:12:32.000000000 +0000
+@@ -1043,13 +1043,13 @@ static struct net_device_stats *i2o_lan_
+ 		printk(KERN_INFO "%s: Unable to query LAN_HISTORICAL_STATS.\n", dev->name);
+ 	else {
+ 		dprintk(KERN_DEBUG "%s: LAN_HISTORICAL_STATS queried.\n", dev->name);
+-		priv->stats.tx_packets = val64[0];
+-		priv->stats.tx_bytes   = val64[1];
+-		priv->stats.rx_packets = val64[2];
+-		priv->stats.rx_bytes   = val64[3];
+-		priv->stats.tx_errors  = val64[4];
+-		priv->stats.rx_errors  = val64[5];
+-		priv->stats.rx_dropped = val64[6];
++		priv->stats.gen.tx_packets = val64[0];
++		priv->stats.gen.tx_bytes   = val64[1];
++		priv->stats.gen.rx_packets = val64[2];
++		priv->stats.gen.rx_bytes   = val64[3];
++		priv->stats.gen.tx_errors  = val64[4];
++		priv->stats.gen.rx_errors  = val64[5];
++		priv->stats.gen.rx_dropped = val64[6];
+ 	}
+ 
+ 	if (i2o_query_scalar(iop, i2o_dev->lct_data.tid, 0x0180, -1,
+@@ -1062,9 +1062,9 @@ static struct net_device_stats *i2o_lan_
+ 			printk(KERN_INFO "%s: Unable to query LAN_OPTIONAL_RX_HISTORICAL_STATS.\n", dev->name);
+ 		else {
+ 			dprintk(KERN_DEBUG "%s: LAN_OPTIONAL_RX_HISTORICAL_STATS queried.\n", dev->name);
+-			priv->stats.multicast	     = val64[4];
+-			priv->stats.rx_length_errors = val64[10];
+-			priv->stats.rx_crc_errors    = val64[0];
++			priv->stats.gen.multicast        = val64[4];
++			priv->stats.gen.rx_length_errors = val64[10];
++			priv->stats.gen.rx_crc_errors    = val64[0];
+ 		}
+ 	}
+ 
+@@ -1075,9 +1075,9 @@ static struct net_device_stats *i2o_lan_
+ 			printk(KERN_INFO "%s: Unable to query LAN_802_3_HISTORICAL_STATS.\n", dev->name);
+ 		else {
+ 			dprintk(KERN_DEBUG "%s: LAN_802_3_HISTORICAL_STATS queried.\n", dev->name);
+-	 		priv->stats.transmit_collision = val64[1] + val64[2];
+-			priv->stats.rx_frame_errors    = val64[0];
+-			priv->stats.tx_carrier_errors  = val64[6];
++	 		priv->stats.gen.collisions        = val64[1] + val64[2];
++			priv->stats.gen.rx_frame_errors   = val64[0];
++			priv->stats.gen.tx_carrier_errors = val64[6];
+ 		}
+ 
+ 		if (i2o_query_scalar(iop, i2o_dev->lct_data.tid, 0x0280, -1,
+@@ -1091,9 +1091,11 @@ static struct net_device_stats *i2o_lan_
+ 			else {
+ 				dprintk(KERN_DEBUG "%s: LAN_OPTIONAL_802_3_HISTORICAL_STATS queried.\n", dev->name);
+ 				if (supported_stats & 0x1)
+-					priv->stats.rx_over_errors = val64[0];
++					priv->stats.gen.rx_over_errors =
++								val64[0];
+ 				if (supported_stats & 0x4)
+-					priv->stats.tx_heartbeat_errors = val64[2];
++					priv->stats.gen.tx_heartbeat_errors =
++								val64[2];
+ 			}
+ 		}
+ 	}
+diff -up --recursive --new-file linux-2.4.27.macro/drivers/net/defxx.c linux-2.4.27/drivers/net/defxx.c
+--- linux-2.4.27.macro/drivers/net/defxx.c	2004-09-29 00:03:33.000000000 +0000
++++ linux-2.4.27/drivers/net/defxx.c	2004-10-03 21:31:16.000000000 +0000
+@@ -1809,16 +1809,18 @@ static struct net_device_stats *dfx_ctl_
+ 
+ 	/* Fill the bp->stats structure with driver-maintained counters */
+ 
+-	bp->stats.rx_packets			= bp->rcv_total_frames;
+-	bp->stats.tx_packets			= bp->xmt_total_frames;
+-	bp->stats.rx_bytes			= bp->rcv_total_bytes;
+-	bp->stats.tx_bytes			= bp->xmt_total_bytes;
+-	bp->stats.rx_errors				= (u32)(bp->rcv_crc_errors + bp->rcv_frame_status_errors + bp->rcv_length_errors);
+-	bp->stats.tx_errors				= bp->xmt_length_errors;
+-	bp->stats.rx_dropped			= bp->rcv_discards;
+-	bp->stats.tx_dropped			= bp->xmt_discards;
+-	bp->stats.multicast				= bp->rcv_multicast_frames;
+-	bp->stats.transmit_collision	= 0;	/* always zero (0) for FDDI */
++	bp->stats.gen.rx_packets = bp->rcv_total_frames;
++	bp->stats.gen.tx_packets = bp->xmt_total_frames;
++	bp->stats.gen.rx_bytes   = bp->rcv_total_bytes;
++	bp->stats.gen.tx_bytes   = bp->xmt_total_bytes;
++	bp->stats.gen.rx_errors  = bp->rcv_crc_errors +
++				   bp->rcv_frame_status_errors +
++				   bp->rcv_length_errors;
++	bp->stats.gen.tx_errors  = bp->xmt_length_errors;
++	bp->stats.gen.rx_dropped = bp->rcv_discards;
++	bp->stats.gen.tx_dropped = bp->xmt_discards;
++	bp->stats.gen.multicast  = bp->rcv_multicast_frames;
++	bp->stats.gen.collisions = 0;		/* always zero (0) for FDDI */
+ 
+ 	/* Get FDDI SMT MIB objects */
+ 
+diff -up --recursive --new-file linux-2.4.27.macro/drivers/net/skfp/skfddi.c linux-2.4.27/drivers/net/skfp/skfddi.c
+--- linux-2.4.27.macro/drivers/net/skfp/skfddi.c	2002-08-12 18:55:55.000000000 +0000
++++ linux-2.4.27/drivers/net/skfp/skfddi.c	2004-10-03 21:04:51.000000000 +0000
+@@ -1363,7 +1363,7 @@ static int skfp_send_pkt(struct sk_buff 
+ 	 */
+ 
+ 	if (!(skb->len >= FDDI_K_LLC_ZLEN && skb->len <= FDDI_K_LLC_LEN)) {
+-		bp->MacStat.tx_errors++;	/* bump error counter */
++		bp->MacStat.gen.tx_errors++;	/* bump error counter */
+ 		// dequeue packets from xmt queue and send them
+ 		netif_start_queue(dev);
+ 		dev_kfree_skb(skb);
+@@ -1814,8 +1814,8 @@ void mac_drv_tx_complete(struct s_smc *s
+ 			 skb->len, PCI_DMA_TODEVICE);
+ 	txd->txd_os.dma_addr = 0;
+ 
+-	smc->os.MacStat.tx_packets++;	// Count transmitted packets.
+-	smc->os.MacStat.tx_bytes+=skb->len;	// Count bytes
++	smc->os.MacStat.gen.tx_packets++;	// Count transmitted packets.
++	smc->os.MacStat.gen.tx_bytes+=skb->len;	// Count bytes
+ 
+ 	// free the skb
+ 	dev_kfree_skb_irq(skb);
+@@ -1897,7 +1897,7 @@ void mac_drv_rx_complete(struct s_smc *s
+ 	skb = rxd->rxd_os.skb;
+ 	if (!skb) {
+ 		PRINTK(KERN_INFO "No skb in rxd\n");
+-		smc->os.MacStat.rx_errors++;
++		smc->os.MacStat.gen.rx_errors++;
+ 		goto RequeueRxd;
+ 	}
+ 	virt = skb->data;
+@@ -1950,13 +1950,14 @@ void mac_drv_rx_complete(struct s_smc *s
+ 	}
+ 
+ 	// Count statistics.
+-	smc->os.MacStat.rx_packets++;	// Count indicated receive packets.
+-	smc->os.MacStat.rx_bytes+=len;	// Count bytes
++	smc->os.MacStat.gen.rx_packets++;	// Count indicated receive
++						// packets.
++	smc->os.MacStat.gen.rx_bytes+=len;	// Count bytes.
+ 
+ 	// virt points to header again
+ 	if (virt[1] & 0x01) {	// Check group (multicast) bit.
+ 
+-		smc->os.MacStat.multicast++;
++		smc->os.MacStat.gen.multicast++;
+ 	}
+ 
+ 	// deliver frame to system
+@@ -1974,7 +1975,8 @@ void mac_drv_rx_complete(struct s_smc *s
+       RequeueRxd:
+ 	PRINTK(KERN_INFO "Rx: re-queue RXD.\n");
+ 	mac_drv_requeue_rxd(smc, rxd, frag_count);
+-	smc->os.MacStat.rx_errors++;	// Count receive packets not indicated.
++	smc->os.MacStat.gen.rx_errors++;	// Count receive packets
++						// not indicated.
+ 
+ }				// mac_drv_rx_complete
+ 
+@@ -2349,7 +2351,7 @@ void smt_stat_counter(struct s_smc *smc,
+ 		break;
+ 	case 1:
+ 		PRINTK(KERN_INFO "Receive fifo overflow.\n");
+-		smc->os.MacStat.rx_errors++;
++		smc->os.MacStat.gen.rx_errors++;
+ 		break;
+ 	default:
+ 		PRINTK(KERN_INFO "Unknown status (%d).\n", stat);
+diff -up --recursive --new-file linux-2.4.27.macro/include/linux/if_fddi.h linux-2.4.27/include/linux/if_fddi.h
+--- linux-2.4.27.macro/include/linux/if_fddi.h	1999-06-02 19:29:13.000000000 +0000
++++ linux-2.4.27/include/linux/if_fddi.h	2004-10-03 21:01:28.000000000 +0000
+@@ -5,7 +5,7 @@
+  *
+  *		Global definitions for the ANSI FDDI interface.
+  *
+- * Version:	@(#)if_fddi.h	1.0.1	09/16/96
++ * Version:	@(#)if_fddi.h	1.0.2	Sep 29 2004
+  *
+  * Author:	Lawrence V. Stefani, <stefani@lkg.dec.com>
+  *
+@@ -103,38 +103,12 @@ struct fddihdr
+ 	} __attribute__ ((packed));
+ 
+ /* Define FDDI statistics structure */
+-struct fddi_statistics
+-	{
+-	__u32	rx_packets;				/* total packets received */
+-	__u32	tx_packets;				/* total packets transmitted */
+-	__u32	rx_bytes;				/* total bytes received	*/
+-	__u32	tx_bytes;				/* total bytes transmitted */
+-	__u32	rx_errors;				/* bad packets received	*/
+-	__u32	tx_errors;				/* packet transmit problems	*/
+-	__u32	rx_dropped;				/* no space in linux buffers */
+-	__u32	tx_dropped;				/* no space available in linux */
+-	__u32	multicast;				/* multicast packets received */
+-	__u32	transmit_collision;		/* always 0 for FDDI */
+-
+-	/* detailed rx_errors */
+-	__u32	rx_length_errors;
+-	__u32	rx_over_errors;		/* receiver ring buff overflow	*/
+-	__u32	rx_crc_errors;		/* recved pkt with crc error	*/
+-	__u32	rx_frame_errors;	/* recv'd frame alignment error */
+-	__u32	rx_fifo_errors;		/* recv'r fifo overrun		*/
+-	__u32	rx_missed_errors;	/* receiver missed packet	*/
+-
+-	/* detailed tx_errors */
+-	__u32	tx_aborted_errors;
+-	__u32	tx_carrier_errors;
+-	__u32	tx_fifo_errors;
+-	__u32	tx_heartbeat_errors;
+-	__u32	tx_window_errors;
+-	
+-	/* for cslip etc */
+-	__u32	rx_compressed;
+-	__u32	tx_compressed;
+-   
++struct fddi_statistics {
++
++	/* Generic statistics. */
++
++	struct net_device_stats gen;
++
+ 	/* Detailed FDDI statistics.  Adopted from RFC 1512 */
+ 
+ 	__u8	smt_station_id[8];

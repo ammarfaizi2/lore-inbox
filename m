@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261985AbTFINzz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 09:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264328AbTFINzy
+	id S264328AbTFIOGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 10:06:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264334AbTFIOGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 09:55:54 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:6158 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id S261985AbTFINzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 09:55:53 -0400
-Message-Id: <200306091409.h59E9BT08473@pincoya.inf.utfsm.cl>
-To: Frank Cusack <fcusack@fcusack.com>
-cc: Andrew Miklas <public@mikl.as>, linux-kernel@vger.kernel.org
-Subject: Re: Linksys WRT54G and the GPL 
-In-reply-to: Your message of "Sun, 08 Jun 2003 22:22:13 MST."
-             <20030608222213.C9097@google.com> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Mon, 09 Jun 2003 10:09:11 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Mon, 9 Jun 2003 10:06:09 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:16395 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264328AbTFIOGH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 10:06:07 -0400
+Date: Mon, 9 Jun 2003 15:19:45 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       ALSA development <alsa-devel@alsa-project.org>,
+       "kbuild-devel@lists.sourceforge.net" 
+	<kbuild-devel@lists.sourceforge.net>
+Subject: Re: 2.5 kbuild: use of '-z muldefs' for LD?
+Message-ID: <20030609151945.A10352@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jaroslav Kysela <perex@suse.cz>,
+	LKML <linux-kernel@vger.kernel.org>,
+	ALSA development <alsa-devel@alsa-project.org>,
+	"kbuild-devel@lists.sourceforge.net" <kbuild-devel@lists.sourceforge.net>
+References: <20030609130438.A6417@infradead.org> <Pine.LNX.4.44.0306091550000.1323-100000@pnote.perex-int.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0306091550000.1323-100000@pnote.perex-int.cz>; from perex@suse.cz on Mon, Jun 09, 2003 at 04:01:41PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank Cusack <fcusack@fcusack.com> said:
+On Mon, Jun 09, 2003 at 04:01:41PM +0200, Jaroslav Kysela wrote:
+> But this solution will create a new kernel module. The shared code is 
+> really small and having small codes in separated modules is waste of 
+> memory in my eyes.
 
-[...]
+Well, if you want separate copies of it you have to make sure the
+symbols won't clash, e.g. calling all functions in it
 
-> Note that including the source with the physical package is not enough
-> to meet the GPL requirements.  The source must be available to any third
-> party, not just purchasers of the product.
+MYPREFIX_foo
 
-Nope. The product (binary) has to be freely redistributable, and everybody
-who gets the binary has the right to get the source.
+and then do #define MYPREFIX	KBUILD_MODNAME
 
-IANAL, and no GPL-expert either, but...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+or something like that

@@ -1,58 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319622AbSH3RHn>; Fri, 30 Aug 2002 13:07:43 -0400
+	id <S319623AbSH3RJj>; Fri, 30 Aug 2002 13:09:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319623AbSH3RHn>; Fri, 30 Aug 2002 13:07:43 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44548 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S319622AbSH3RHm>; Fri, 30 Aug 2002 13:07:42 -0400
-Date: Fri, 30 Aug 2002 10:19:02 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
+	id <S319624AbSH3RJj>; Fri, 30 Aug 2002 13:09:39 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:33482 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S319623AbSH3RJi>;
+	Fri, 30 Aug 2002 13:09:38 -0400
+Date: Fri, 30 Aug 2002 19:16:27 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
 Subject: Re: [patch] scheduler fixes, 2.5.32-BK
 In-Reply-To: <Pine.LNX.4.44.0208301902570.527-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0208301012480.2163-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0208301910430.821-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 30 Aug 2002, Ingo Molnar wrote:
-> 
-> it touches the waitqueue spinlock - and the __down() path [ie. the process
-> that gets woken up, which has the semaphore on the stack] takes the
-> spinlock after waking up. Ie. there's guaranteed synchronization, the
-> semaphore will not be 'unused' before the __down() path takes the spinlock
-> - ie. after the __up() path releases the spinlock. What am i missing?
+we used to have the global semaphore_lock - which, if used separately from
+the waitqueue lock, indeed can cause the unuse of the semaphore structure
+before the spin_unlock in wakeup() completes.
 
-So why couldn't this happen? This is what used to happen before, I don't 
-see that consolidating the spinlock had any impact at all.
+but since 2.5.25 or so we use the semaphore waitqueue's spinlock for
+semaphore locking - this also neatly solves the semaphore-unuse problem.  
+Four architectures, sparc, ia64, arm and x86-64 still use the global
+semaphore_lock, but the other 13 architectures use the waitqueue spinlock
+already.
 
-	CPU #0						CPU #1
+(unless there's something else i missed.)
 
-	down()						up()
+	Ingo
 
-		lock decl (negative)
-		__down()				lock incl
-			spinlock()			__up()
-			atomic_add_negative()
-				success - break
-			spinunlock();
-		}					wake_up()
-	return - semaphore is now invalid		spin_lock()
-
-							BOOM!
-
-
-The fact is, that as long as down() and up() avoid taking the spinlock 
-_before_ they touch "count", they aren't synchronized. 
-
-And we definitely do _not_ want to take the spinlock before we touch 
-count, since that would make the fast path a lot slower.
-
-What?
-
-		Linus
 

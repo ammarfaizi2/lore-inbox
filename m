@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265154AbUFVS2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265371AbUFVTIz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265154AbUFVS2S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 14:28:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265228AbUFVSUA
+	id S265371AbUFVTIz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 15:08:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265267AbUFVST2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 14:20:00 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:15689 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S265045AbUFVRxr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 13:53:47 -0400
-To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Question on using MSI in PCI driver
-X-Message-Flag: Warning: May contain useful information
-References: <C7AB9DA4D0B1F344BF2489FA165E5024057E4E7B@orsmsx404.amr.corp.intel.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Tue, 22 Jun 2004 10:49:32 -0700
-In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E5024057E4E7B@orsmsx404.amr.corp.intel.com> (Tom
- L. Nguyen's message of "Tue, 22 Jun 2004 08:24:02 -0700")
-Message-ID: <52llifo53n.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Tue, 22 Jun 2004 14:19:28 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:41029 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S264278AbUFVRnA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 13:43:00 -0400
+Date: Tue, 22 Jun 2004 18:42:47 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] zap anonymous unremarkable
+Message-ID: <Pine.LNX.4.44.0406221836570.7866-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 22 Jun 2004 17:49:32.0694 (UTC) FILETIME=[4650C360:01C45881]
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Tom> The PCI 3.0 specification has implementation notes that MMIO
-    Tom> address space for a device's MSI-X structure should be
-    Tom> isolated so that the software system can set different page
-    Tom> for controlling accesses to the MSI-X structure. The
-    Tom> implementation of MSI patch requires the PCI subsystem, not a
-    Tom> device driver, to maintain full control of the MSI-X
-    Tom> table/MSI-X PBA and MMIO address space of the MSI-X
-    Tom> table/MSI-X PBA. A device driver is prohibited from
-    Tom> requesting the MMIO address space of the MSI-X table/MSI-X
-    Tom> PBA. Otherwise, the PCI subsystem will fail enabling MSI-X on
-    Tom> its hardware device when it calls the function
-    Tom> pci_enable_msi().
+zap_pte_range is wasting time marking anon pages accessed: its original
+!PageSwapCache test should have been reinstated when page_mapping was
+changed to return swapper_space; or more simply, just check !PageAnon.
 
-Thanks.  I guess for the time being I will have to split up my request
-region calls.
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
 
-Do you think the msi subsystem should use a different name for the
-MSI-X memory region ("MSI-X iomap Failure" seems very strange to me).
+--- 2.6.7/mm/memory.c	2004-06-16 06:20:40.000000000 +0100
++++ linux/mm/memory.c	2004-06-22 13:17:24.445430864 +0100
+@@ -407,7 +407,7 @@ static void zap_pte_range(struct mmu_gat
+ 				set_pte(ptep, pgoff_to_pte(page->index));
+ 			if (pte_dirty(pte))
+ 				set_page_dirty(page);
+-			if (pte_young(pte) && page_mapping(page))
++			if (pte_young(pte) && !PageAnon(page))
+ 				mark_page_accessed(page);
+ 			tlb->freed++;
+ 			page_remove_rmap(page);
 
- - Roland

@@ -1,82 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261705AbUB0G0l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 01:26:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbUB0G0l
+	id S261718AbUB0Gvc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 01:51:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbUB0Gvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 01:26:41 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:30627 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S261707AbUB0G0j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 01:26:39 -0500
-Date: Fri, 27 Feb 2004 14:26:31 +0800
-From: "Michael Frank" <mhf@linuxmail.org>
-To: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-       "Grover, Andrew" <andrew.grover@intel.com>
-Subject: Re: Why no interrupt priorities?
-Cc: "Mark Gross" <mgross@linux.co.intel.com>, arjanv@redhat.com,
-       "Tim Bird" <tim.bird@am.sony.com>, root@chaos.analogic.com,
-       "Linux Kernel list" <linux-kernel@vger.kernel.org>
-References: <F760B14C9561B941B89469F59BA3A84702C932F2@orsmsx401.jf.intel.com> <1077859968.22213.163.camel@gaston>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <opr30muhyf4evsfm@smtp.pacific.net.th>
-In-Reply-To: <1077859968.22213.163.camel@gaston>
-User-Agent: Opera M2/7.50 (Linux, build 600)
+	Fri, 27 Feb 2004 01:51:32 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:13783 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261718AbUB0Gva (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 01:51:30 -0500
+Date: Thu, 26 Feb 2004 22:49:58 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Sridhar Samudrala <sri@us.ibm.com>
+Cc: bunk@fs.tum.de, marcelo.tosatti@cyclades.com, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.26-pre1: SCTP compile error
+Message-Id: <20040226224958.24eb29fb.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.58.0402261533500.19577@localhost.localdomain>
+References: <Pine.LNX.4.58L.0402251605360.5003@logos.cnet>
+	<20040226212759.GV5499@fs.tum.de>
+	<Pine.LNX.4.58.0402261533500.19577@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Feb 2004 16:32:48 +1100, Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+On Thu, 26 Feb 2004 15:53:58 -0800 (PST)
+Sridhar Samudrala <sri@us.ibm.com> wrote:
 
->
->> Is the assumption that hardirq handlers are superfast also the reason
->> why Linux calls all handlers on a shared interrupt, even if the first
->> handler reports it was for its device?
->
-> With level irqs only, it would be possible to return at this
-> point. But with edge irqs, we could miss it completely if another
-> device had an irq at the same time
+> I missed this warning as i don't have irda enabled in my config.
+> A simple fix would be to rename the macro in sctp.h to
+> SCTP_MSECS_TO_JIFFIES.
 
-Is this to imply that edge triggered shared interrupts are used anywhere?
+I've fixed this in my tree.
 
-Never occured to me to use shared IRQ's edge triggered as this mode
-_cannot_ work reliably for HW limitations.
+> > ipv6.c: In function `sctp_v6_xmit':
+> > ipv6.c:189: request for member `in6_u' in something not a structure or union
+> > ipv6.c:189: request for member `in6_u' in something not a structure or union
+> 
+> I am not seeing these errors with either gcc3.2.2 or gcc2.96. But, looking at the
+> code, this definitely seems to be a problem. Not sure why the newer versions of
+> gcc didn't catch them.
 
-Consider this scenario:
-
-Two devices A) having it's IRQa and B) with it's IRQB.
-Both devices "ored" on IRQBUS.
-
-For simplicity lets assume these timings:
-	IRQa,IRQB > IRQBUS: 		10ns
-	IRQx transition time 		10ns
-	PIC IRQ latch recovery time	10ns
-	  This is the time IRQBUS input must be passive
-	  for another edge on it to be detected
-
-Here, by murphy IRQb arrives at the same time IRQa is reset.
-
-Lets say one step (hyphen) is 5 ns
-~ is a break in time
-^ is a instable state glitch
-
-           /-------~--------\	
-IRQa  ---/                  \-------~------
-
-                             /-------~------
-IRQb  ------------~--------/
-
-             /-----~--------^^-------~------
-IRQBUS-----/
-
-
-So, as you can see, IRQb gets lost as the PIC IRQ latch recovery
-time is violated.
-
-A work around would be to poll the _entire_ chain once more before
-exiting the ISR - this would be rather clumsy though.
-
-Regards
-Michael
+It's trying to use NIP6() on an object that is not a struct in6_addr.
+I'll just comment this thing out for now.

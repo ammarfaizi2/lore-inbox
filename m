@@ -1,67 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265055AbTFUA1c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 20:27:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265059AbTFUA1c
+	id S265059AbTFUAcS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 20:32:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbTFUAcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 20:27:32 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:53759 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265055AbTFUA1b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 20:27:31 -0400
-Subject: Re: [Bug 764] New: btime in /proc/stat wobbles (even over 30
-	seconds)
-From: john stultz <johnstul@us.ibm.com>
-To: Kingsley Cheung <kingsley@aurema.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030612112011.C29095@aurema.com>
-References: <205830000.1054566142@[10.10.2.4]>
-	 <20030612112011.C29095@aurema.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056155679.1028.22.camel@w-jstultz2.beaverton.ibm.com>
+	Fri, 20 Jun 2003 20:32:18 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:58349 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S265059AbTFUAcR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 20:32:17 -0400
+Date: Fri, 20 Jun 2003 17:46:17 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Frank Cusack <fcusack@fcusack.com>
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Message-ID: <20030621004617.GD14404@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Frank Cusack <fcusack@fcusack.com>, Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+References: <063301c32c47$ddc792d0$3f00a8c0@witbe> <1056027789.3ef1b48d3ea2e@support.tuxbox.dk> <03061908145500.25179@tabby> <20030619141443.GR29247@fs.tum.de> <bcsolt$37m$2@news.cistron.nl> <20030619165916.GA14404@work.bitmover.com> <20030620001217.G6248@almesberger.net> <20030620120910.3f2cb001.skraw@ithnet.com> <20030620142436.GB14404@work.bitmover.com> <20030620170446.C28636@google.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 20 Jun 2003 17:34:39 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030620170446.C28636@google.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-06-11 at 18:20, Kingsley Cheung wrote:
+On Fri, Jun 20, 2003 at 05:04:46PM -0700, Frank Cusack wrote:
+> Isn't bk simply a reimplementation of p4 by your argument?
 
-> I see that there has been a fix made for this since 2.5.70-bk13 or
-> 2.5.70-bk14 that solves this problem by using the seqlock to ensure
-> that the jiffies and time of day are atomically read.
-
-And further then that, we loose less precision in some of the math so we
-don't have the single second wobbles that were initially seen. 
-
-
-> However, wouldn't it be better to have the boottime calculated only
-> once so that it is independent of changes in the system time that may
-> occur later?  Even with the fix with seqlock, the boottime can still
-> change back or forwards whenever the system time is set back or
-> forwards.  IMHO an unchanging boottime that is independent of the time
-> of day is the best approach.  Maybe something like the patch against
-> 2.5.70-bk14 that I've attached.
-> 
-> What do people think?
-
-Really, I'm fine with the current semantics. At boot time the system
-clock may not have been correct, and was corrected only after NTP
-started up later in the boot sequence. So you could have some very funky
-btimes. 
-
-Even the current definition of btime = now - uptime has its own quirks
-(when systems are suspended uptime doesn't increment, etc) but I think
-its more likely to be correct then any other method (assuming the time
-now is more accurate then time at boot thanks to ntp or whatnot). 
-
-I'm curious, how are people using the btime value? I'd think uptime and
-gettimeofday would be more useful bits of info, so I'd like to hear
-more.
-
-thanks
--john
-
-
+If that were true then CVS would have been good enough for Linus.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

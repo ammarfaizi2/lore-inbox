@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267988AbRG3Vch>; Mon, 30 Jul 2001 17:32:37 -0400
+	id <S268086AbRG3Vhr>; Mon, 30 Jul 2001 17:37:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268086AbRG3Vc1>; Mon, 30 Jul 2001 17:32:27 -0400
-Received: from anime.net ([63.172.78.150]:14608 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S267988AbRG3VcW>;
-	Mon, 30 Jul 2001 17:32:22 -0400
-Date: Mon, 30 Jul 2001 14:31:49 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: "Manuel A. McLure" <mmt@unify.com>
-cc: Kurt Garloff <garloff@suse.de>, "James A. Treacy" <treacy@home.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: PROBLEM: Random (hard) lockups
-In-Reply-To: <419E5D46960FD211A2D5006008CAC79902E5C3ED@pcmailsrv1.sac.unify.com>
-Message-ID: <Pine.LNX.4.30.0107301424580.21409-100000@anime.net>
+	id <S268304AbRG3Vhh>; Mon, 30 Jul 2001 17:37:37 -0400
+Received: from hilbert.umkc.edu ([134.193.4.60]:27667 "HELO tesla.umkc.edu")
+	by vger.kernel.org with SMTP id <S268086AbRG3VhX>;
+	Mon, 30 Jul 2001 17:37:23 -0400
+Message-ID: <3B65D190.BBF4C79A@kasey.umkc.edu>
+Date: Mon, 30 Jul 2001 16:28:48 -0500
+From: "David L. Nicol" <david@kasey.umkc.edu>
+Organization: UMKC Information Services Central Systems
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: When will ETCP be in linux kernels? Is there a patch?
+In-Reply-To: <Pine.LNX.4.10.10107300127170.13088-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, 30 Jul 2001, Manuel A. McLure wrote:
-> I am seeing something very similar on my K7T Turbo/Athlon 900/256M PC133
-> SDRAM (note to Dan, the K7T Turbo is an SDRAM mobo, not DDR)
+Mark Hahn wrote:
+> 
+> > > > Will ETCP
+> > > > http://www.chem.ucla.edu/~beichuan/etcp/
+> > > > be appearing in linux kernels any time soon?  We have ECN...
+> > >
+> > > isn't it just a draft?  I though ECN was considerably further along...
+> >
+> > No, it works -- if you set up a BSD system and apply their patch,
+> > the second image loads fully too -- I did it once, and it worked
+> > just like it is supposed to.
+> 
+> that wasn't the question: is it just a draft, or a standard like ECN?
+> whether there's working code is orthogonal to it's standardization...
 
-Hmm. I have an MSI pro2-A which works fine with K7 optimizations...
-tbird900, 256mb sdram...
+A working implementation (blessed by Christian Huitama) is IMO a defacto
+standard.
 
-May very well be a hardware design flaw. The pro2-a appears very carefully
-engineered to keep most traces short and they went through a lot of effort
-to keep traces the same length.
+I inquired of the TCP-IMPL working group about setting something like
+ETCP up, to the point of submitting an independent proposal pretty much
+describing it, and was referred to the ETCP demonstration.
 
-The only stability problems I've had were overloading the 300W PS with a
-geforce2, all 6 PCI slots filled, 3 HD, 1 CDRW, and one DVDrom. Removing
-one of the drives (CDRW or DVDrom) lowers the power consumption back into
-the realm of 100% stability.
 
-Next on my shopping list is a 450W PS :-)
-
-Has anyone tried swapping buffered/unbuffered DIMMs to see if it made a
-difference?
-
--Dan
 
 -- 
-[-] Omae no subete no kichi wa ore no mono da. [-]
+                                           David Nicol 816.235.1187
+    Cell phones are pretty much what Marconi had in mind, you know?
 

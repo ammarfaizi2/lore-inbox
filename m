@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312619AbSCZS5W>; Tue, 26 Mar 2002 13:57:22 -0500
+	id <S312443AbSCZTEX>; Tue, 26 Mar 2002 14:04:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312587AbSCZS5M>; Tue, 26 Mar 2002 13:57:12 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:41259 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S312443AbSCZS5H>; Tue, 26 Mar 2002 13:57:07 -0500
-Date: Tue, 26 Mar 2002 13:57:03 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] mmap bug with drivers that adjust vm_start
-Message-ID: <20020326135703.B25375@redhat.com>
-In-Reply-To: <20020325230046.A14421@redhat.com> <20020326174236.B13052@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S312587AbSCZTEN>; Tue, 26 Mar 2002 14:04:13 -0500
+Received: from correo.e-technik.uni-ulm.de ([134.60.21.81]:55301 "EHLO
+	correo.e-technik.uni-ulm.de") by vger.kernel.org with ESMTP
+	id <S312443AbSCZTEF>; Tue, 26 Mar 2002 14:04:05 -0500
+Message-Id: <200203261904.UAA08226@correo.e-technik.uni-ulm.de>
+Content-Type: text/plain; charset=US-ASCII
+From: Kai-Boris Schad <kschad@correo.e-technik.uni-ulm.de>
+Reply-To: kschad@correo.e-technik.uni-ulm.de
+Organization: =?iso8859-15?q?Universit=E4t?= Ulm
+To: linux-kernel@vger.kernel.org
+Subject: Update: Kernel 2.4.17/19-pre4  with VT8367 [KT266] crashes on heavy ide load togeter with heavy network load
+Date: Tue, 26 Mar 2002 20:04:01 +0100
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 26, 2002 at 05:42:36PM +0100, Andrea Arcangeli wrote:
-> However if the patch is needed it means the ->mmap also must do the
-> do_munmap stuff by hand internally, which is very ugly given we also did
-> our own do_munmap in a completly different region (the one requested by
-> the user).
+Hi !
 
-At least my own code checks for that and fails if there is a mapping 
-already placed at the fixed address it needs to use.  If we're paranoid, 
-we could BUG() on getting a vma back from the new find_vma_prepare call.
+First thanks a lot for the good ideas and comments on my previous posting. I 
+updated the kernel to 2.4.19-pre4 and it seem's to improve the situation. 
+There  was no crash with the RTL Network Card but the system response boged 
+down sometimes for a few (up to 10) seconds. Then I tried the same togeter 
+with the "3com 3c905C" networkcard and the system hung a few seconds after 
+starting the copy-commands "dd count=16M if=/dev/zero of=/home/test0&" and
+ "cp /home/zero /dev/null&" and "ico" on an remote terminal for network load. 
+Thus my personal work arround would be to use the rtl network card - but 
+there remains this problem.
 
-> Our do_munmap should not happen if we place the mapping
-> elsewhere. If possible I would prefer to change those drivers to
-> advertise their enforced vm_start with a proper callback, the current
-> way is halfway broken still. BTW, which are those drivers, and why they
-> needs to enforce a certain vm_start (also despite MAP_FIXED that they
-> cannot check within the ->mmap callback)?
-
-Video drivers, others that require specific alignment (4MB pages for 
-example).  Historically, the mmap call has been the hook for doing this, 
-hence the comment in do_mmap from davem.  Unless there's a really good 
-reason for changing the hook, I don't see doing so as providing much 
-benefit other than making source compatibility hard.
-
-		-ben
--- 
-"A man with a bass just walked in,
- and he's putting it down
- on the floor."
+Kai

@@ -1,86 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264866AbSKEPnh>; Tue, 5 Nov 2002 10:43:37 -0500
+	id <S262291AbSKEPfo>; Tue, 5 Nov 2002 10:35:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264875AbSKEPnh>; Tue, 5 Nov 2002 10:43:37 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:2765 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264866AbSKEPnf>;
-	Tue, 5 Nov 2002 10:43:35 -0500
-Subject: Re: [ANNOUNCE] Open POSIX Test Suite
-To: "Geoff Gustafson" <geoff@linux.co.intel.com>
-Cc: "Dan Kegel" <dkegel@ixiacom.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF1545C7D1.9A1FE355-ON86256C68.00565997@pok.ibm.com>
-From: "Stephanie Glass" <sglass@us.ibm.com>
-Date: Tue, 5 Nov 2002 09:49:39 -0600
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
- and RM_DEBUG |October 24, 2002) at 11/05/2002 10:49:51 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S263986AbSKEPfo>; Tue, 5 Nov 2002 10:35:44 -0500
+Received: from mhost.enel.ucalgary.ca ([136.159.102.8]:52148 "EHLO
+	mhost.enel.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S262291AbSKEPfn>; Tue, 5 Nov 2002 10:35:43 -0500
+Date: Tue, 5 Nov 2002 08:42:18 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Jim Lawson <jim+linux-kernel@jimlawson.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Q] How to flush disk cache w/read-only filesystem w/o unmount&remount? (shared SAN filesystem)
+Message-ID: <20021105084218.A15258@munet-d.enel.ucalgary.ca>
+Mail-Followup-To: Jim Lawson <jim+linux-kernel@jimlawson.org>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0211051014110.24422-100000@infocalypse.jimlawson.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0211051014110.24422-100000@infocalypse.jimlawson.org>; from jim+linux-kernel@jimlawson.org on Tue, Nov 05, 2002 at 10:18:11AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Nov 05, 2002  10:18 -0500, Jim Lawson wrote:
+> I'm looking for a way to flush or invalidate the cache on the block
+> device/filesystem, so that the system is forced to go all the way to the
+> disk.  Unmounting and remounting would accomplish this, of course, but
+> that's tough to do in production.
+> 
+> I've tried blockdev --flushbufs, which appears to do a BLKFLSBUF, but that
+> seems to be equivalent to "sync" - just pushes the dirty buffers to disk,
+> which doesn't help me.
+> 
+> Looking in fs/dcache.c, I see shrink_dcache_sb(struct super_block *),
+> which *might* do what I want, but there doesn't seem to be any way to call
+> that from user-land.  And that probably just updates the dentries - I
+> don't know if that has any effect on the file data.
 
-Geoff,
-The LTP would be happy to have anyone in the Linux community donate test
-cases.  This includes any POSIX tests.
-The LTP would not be advertised as a POSIX compliance test, that would be
-up to LSB to handle.  These tests
-would only increase the overall LTP api coverages.
+You may be in luck - we likely need to have an ioctl to do this from
+e2fsck because the ext3 htree repacking of bad directories is causing
+a bunch of problems.  In theory, the startup scripts should reboot the
+system in this case, but there have also been cases reported where
+people ran "e2fsck -D" on an ro-mounted root and then read-write mounted
+it again.
 
-Does your group own these tests?  Do you want to donate them to the LTP?
-
-Stephanie
-
-Linux Technology Center
- IBM, 11400 Burnet Road, Austin, TX  78758
- Phone: (512) 838-9284   T/L: 678-9284  Fax: (512) 838-3882
- E-Mail: sglass@us.ibm.com
-
-
-                                                                                                                             
-                      "Geoff Gustafson"                                                                                      
-                      <geoff@linux.co.i        To:       "Dan Kegel" <dkegel@ixiacom.com>, "Linux Kernel Mailing List"       
-                      ntel.com>                 <linux-kernel@vger.kernel.org>                                               
-                                               cc:       Stephanie Glass/Austin/IBM@IBMUS                                    
-                      11/04/2002 06:04         Subject:  Re: [ANNOUNCE] Open POSIX Test Suite                                
-                      PM                                                                                                     
-                                                                                                                             
-                                                                                                                             
-
-
-
-> You are about to duplicate http://ltp.sf.net
-
-My understanding is that LTP is focused on current mainline kernel testing,
-while this project's initial concern is areas that are not currently in
-Linux
-like POSIX message queues, semaphores, and full support for POSIX threads.
-I see
-this as being used to evaluate different implementations that are being
-considered for inclusion in the kernel, glibc, etc.
-
-This project is concerned with the POSIX APIs regardless of where they are
-implemented (kernel, glibc, etc.). Thus it can focus on POSIX, independent
-of
-implementation. This project will be more concerned with traceability back
-to
-the POSIX specification, and completeness of coverage, than I would expect
-from
-LTP.
-
-That said, there is some overlap, and an exchange of test cases between the
-projects may be very useful.
-
-I've copied Stephanie from LTP to get her reaction.
-
--- Geoff Gustafson
-
-These are my views and not necessarily those of my employer.
-
-
-
-
-
-
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

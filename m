@@ -1,35 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292017AbSBYRRR>; Mon, 25 Feb 2002 12:17:17 -0500
+	id <S292400AbSBYRO1>; Mon, 25 Feb 2002 12:14:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292000AbSBYRRH>; Mon, 25 Feb 2002 12:17:07 -0500
-Received: from eos.telenet-ops.be ([195.130.132.40]:17558 "EHLO
-	eos.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S290109AbSBYRQw>; Mon, 25 Feb 2002 12:16:52 -0500
-Date: Mon, 25 Feb 2002 18:15:31 +0100
-To: Hans-Christian Armingeon <linux.johnny@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: knfsd not working in 2.4.18-rc4
-Message-ID: <20020225181531.A2069@abulafia>
-In-Reply-To: <16fLiV-0OqAvgC@fmrl03.sul.t-online.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16fLiV-0OqAvgC@fmrl03.sul.t-online.com>
-User-Agent: Mutt/1.3.23i
-From: jan <jan.van.nunen@pandora.be>
+	id <S291989AbSBYROR>; Mon, 25 Feb 2002 12:14:17 -0500
+Received: from dsl081-242-114.sfo1.dsl.speakeasy.net ([64.81.242.114]:14220
+	"EHLO drscience.sciencething.org") by vger.kernel.org with ESMTP
+	id <S291809AbSBYROH>; Mon, 25 Feb 2002 12:14:07 -0500
+User-Agent: Microsoft-Entourage/10.0.0.1309
+Date: Mon, 25 Feb 2002 09:09:10 -0800
+Subject: UVFS 0.5
+From: Britt Park <britt@drscience.sciencething.org>
+To: <linux-kernel@vger.kernel.org>
+Message-ID: <B89FAFB6.812C%britt@sciencething.org>
+Mime-version: 1.0
+Content-type: text/plain; charset="US-ASCII"
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 25, 2002 at 04:05:26PM +0100, Hans-Christian Armingeon wrote:
-> Hi folks,
-> kernel nfsd in 2.4.18-rc4 isn't working when started via the distribution's boot scripts, and I don't know, how to set it up manually. I don't blame the distro's script, but it is a SuSE 7.3.
-> I think, it is a kernel issue.
-> 2.4.17 worked, 2.4.18-rc4 was the first, who showed this misbehaviour.
-> Maybe, it is final relevant?
+UVFS 0.5 has been released.  It can be found at
+http://www.sciencething.org/geekthings/index.html.  UVFS is a user space
+filesystem kit.
 
-Hi, well at my place the kernel nfsd is fine (2.4.18-rc4) and has been
-for years now actually. I haven't heard of any of such problems with it,
-so if I was you I would have a look at your init.d script.
+Enjoy,
 
-Jan
+Britt
+

@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319050AbSIDEsc>; Wed, 4 Sep 2002 00:48:32 -0400
+	id <S319051AbSIDFBS>; Wed, 4 Sep 2002 01:01:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319051AbSIDEsc>; Wed, 4 Sep 2002 00:48:32 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12550 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S319050AbSIDEsb>; Wed, 4 Sep 2002 00:48:31 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] Important per-cpu fix.
-Date: 3 Sep 2002 21:52:45 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <al43it$mel$1@cesium.transmeta.com>
-References: <20020903.195455.117344683.davem@redhat.com> <20020904042036.816A62C1B6@lists.samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S319053AbSIDFBS>; Wed, 4 Sep 2002 01:01:18 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:33037 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S319051AbSIDFBR>;
+	Wed, 4 Sep 2002 01:01:17 -0400
+Date: Tue, 3 Sep 2002 22:04:01 -0700
+From: Greg KH <greg@kroah.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       colpatch@us.ibm.com
+Subject: Re: [BUG] 2.5.33 PCI and/or starfire.c broken
+Message-ID: <20020904050401.GA4019@kroah.com>
+References: <20020904035649.GC18800@holomorphy.com> <99179272.1031089797@[10.10.2.3]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <99179272.1031089797@[10.10.2.3]>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020904042036.816A62C1B6@lists.samba.org>
-By author:    Rusty Russell <rusty@rustcorp.com.au>
-In newsgroup: linux.dev.kernel
->
-> In message <20020903.195455.117344683.davem@redhat.com> you write:
-> >    From: Rusty Russell <rusty@rustcorp.com.au>
-> >    Date: Wed, 04 Sep 2002 12:35:41 +1000
+On Tue, Sep 03, 2002 at 09:49:58PM -0700, Martin J. Bligh wrote:
+> > Well, something ugly has happened no 2.5.33's PCI:
 > > 
-> >    This might explain the wierd per-cpu problem reports from Andrew and
-> >    Dave, and also that nagging feeling that I'm an idiot...
-> > 
-> > Verifying...  no without the explicit initializers the per-cpu stuff
-> > still ends up in the BSS with egcs-2.9X, even with your fix applied.
+> > Somehow SCSI works, but starfire.c doesn't.
 > 
-> OK.  I really hate working around wierd toolchain bugs (I use 2.95.4
-> here and it's fine), and adding an initializer to the macro is ugly.
-> 
-> If you're not going to upgrade your compiler, will you accept a gcc
-> patch to fix this?  If so, where can I get the source to your exact
-> version?
-> 
+> It's confused by having a PCI-PCI bridge on a quad other than 0,
+> where the global and local PCI bus numbers don't line up. Rip
+> the card out, or get the horrible kludge I did for 2.4, and use 
+> that.
 
-gcc puts all uninitialized variables in .bss, and it apparently can't
-be overridden.  This seems to be a side effect of the way gcc handles
-common variables.
+Might I suggest you port that "kludge" to the new 2.5 pci code, as the
+whole goal of those large PCI changes was due to some NUMA changes that
+you and Matt wanted to get into the main kernel.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Remember, you have your own file to play with now, so put all the
+brain-damaged NUMA crap into it :)
+
+thanks,
+
+greg k-h

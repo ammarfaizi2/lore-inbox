@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269042AbUJERcA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269129AbUJERe4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269042AbUJERcA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 13:32:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269107AbUJERb7
+	id S269129AbUJERe4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 13:34:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269113AbUJERcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 13:31:59 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:60649 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S269042AbUJERb2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 13:31:28 -0400
-Date: Tue, 5 Oct 2004 10:29:20 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Roland McGrath <roland@redhat.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ulrich Drepper <drepper@redhat.com>, johnstul@ibm.com,
-       george@mvista.com
-Subject: Re: [PATCH] CPU time clock support in clock_* syscalls
-In-Reply-To: <200410050515.i955Fa15004063@magilla.sf.frob.com>
-Message-ID: <Pine.LNX.4.58.0410051018470.27140@schroedinger.engr.sgi.com>
-References: <200410050515.i955Fa15004063@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 5 Oct 2004 13:32:19 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:51145 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S269104AbUJERbX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 13:31:23 -0400
+Message-Id: <200410051730.i95HUf627852@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Ingo Molnar'" <mingo@redhat.com>, "Con Kolivas" <kernel@kolivas.org>
+Cc: <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
+       "Nick Piggin" <nickpiggin@yahoo.com.au>
+Subject: RE: bug in sched.c:activate_task()
+Date: Tue, 5 Oct 2004 10:30:48 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcSqqlUPkAET7YFcTcq+xCQd+9VXJwAVfgPw
+In-Reply-To: <Pine.LNX.4.58.0410050303280.7299@devserv.devel.redhat.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just reviewed the code and to my surprise the simple things like
+On Tue, 5 Oct 2004, Con Kolivas wrote:
+> We used to compare jiffy difference in can_migrate_task by comparing it
+> to cache_decay_ticks. Somewhere in the merging of sched_domains it was
+> changed to task_hot which uses timestamp.
 
-clock_gettime(CLOCK_PROCESS_CPUTIME_ID) and
-clock_gettime(CLOCK_THREAD_CPUTIME_ID) are not supported. I guess glibc
-would have to do multiple calls to add up all the threads in order to get
-these values. This also leaves glibc in control of clocks and does not
-allow the kernel to define its own clocks.
 
-The code is pretty invasive and I am not sure that this brings us much
-nor that it is done the right way.
+On Tuesday, October 05, 2004 12:10 AM, Ingo Molnar wrote:
+> yep, that's fishy. Kenneth, could you try the simple patch below? It gets
+> rid of task_hot() in essence. If this works out we could try it - it gets
+> rid of some more code from sched.c too. Perhaps SD_WAKE_AFFINE is enough
+> control.
+>
+> --- kernel/sched.c.orig	2004-10-05 08:28:42.295395160 +0200
+> +++ kernel/sched.c	2004-10-05 09:07:44.081389576 +0200
+> @@ -180,7 +180,7 @@ static unsigned int task_timeslice(task_
+>  	else
+>  		return SCALE_PRIO(DEF_TIMESLICE, p->static_prio);
+>  }
+> -#define task_hot(p, now, sd) ((now) - (p)->timestamp < (sd)->cache_hot_time)
+> +#define task_hot(p, now, sd) 0
+>
+>  enum idle_type
+>  {
 
-The kernel interface is rather strange with the bits that may be set for
-each special clock which is then combined with the pid. It may be
-advisable to have a separate function call to do this like
+We have experimented with similar thing, via bumping up sd->cache_hot_time to
+a very large number, like 1 sec.  What we measured was a equally low throughput.
+But that was because of not enough load balancing, we are seeing is large amount
+of idle time.
 
-get_process_clock(pid,type,&timespec)
+- Ken
 
-instead of using the posix calls. The thread specific time
-measurements have nothing to do with the posix standard and may best
-be kept separate.
 
-The benefit of the patches that I proposed is that it is a clean
-implementation of the posix interface, the kernel has full
-control over posix clocks and that driver specific clocks as well as other
-time sources can be defined that may also utilize the timed interrupt
-features of those clock chips. Rolands patch does not allow that and
-instead will lead to more complex logic in glibc and a rather strange
-kernel interface.

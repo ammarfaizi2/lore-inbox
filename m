@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264688AbTCDWth>; Tue, 4 Mar 2003 17:49:37 -0500
+	id <S262420AbTCDWs7>; Tue, 4 Mar 2003 17:48:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264748AbTCDWth>; Tue, 4 Mar 2003 17:49:37 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32528 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264688AbTCDWtf>; Tue, 4 Mar 2003 17:49:35 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Loading and executing kernel from a non-standard address using
- SY SLINUX
-Date: 4 Mar 2003 14:59:39 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b43b4r$i3t$1@cesium.transmeta.com>
-References: <99F2150714F93F448942F9A9F112634CA54B07@txexmtae.amd.com>
+	id <S262425AbTCDWs7>; Tue, 4 Mar 2003 17:48:59 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55057 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S262420AbTCDWs5>; Tue, 4 Mar 2003 17:48:57 -0500
+Date: Tue, 4 Mar 2003 17:43:58 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+cc: Sam Ravnborg <sam@ravnborg.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.63] aha152x, module issues
+In-Reply-To: <Pine.LNX.4.44.0303041527020.23375-100000@chaos.physics.uiowa.edu>
+Message-ID: <Pine.LNX.3.96.1030304173612.14884B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <99F2150714F93F448942F9A9F112634CA54B07@txexmtae.amd.com>
-By author:    ravikumar.chakaravarthy@amd.com
-In newsgroup: linux.dev.kernel
->
-> I am trying to load and boot the kernel from a non-standard address
-> (0x200000). I am using the SYSLINUX boot loader, which loads the
-> kernel at that address. I have also made changes to the kernel to
-> setup code and startup_32() function to effect the same. When I boot
-> the system It says
+On Tue, 4 Mar 2003, Kai Germaschewski wrote:
+
+> On Tue, 4 Mar 2003, Sam Ravnborg wrote:
 > 
+> > On Mon, Mar 03, 2003 at 05:11:10PM -0500, Bill Davidsen wrote:
+> > > scripts/Makefile.modinst:16: *** Uh-oh, you have stale module entries. You messed with SUBDIRS, do not complain if something goes wrong.
+> > 
+> > This happens if you have encountered a compile error in a module.
+> > In this case you did not succeed the compilation of fs/binfmt_aout,
+> > and therefore no .o file can be located.
+> > kbuild assumes this is because you have messed with SUBDIRS, which is wrong.
+> > 
+> > Kai - the following patch fixes this for me.
+> 
+> Hmmh, interesting. The patch looks good to me, but there's still one thing 
+> I don't understand: When compiling a module errors out, we should never 
+> even go into the module postprocessing stage. Or were you running with -k?
 
-Modified, perhaps.  Stock SYSLINUX loads at the standard address
-(0x100000).
+Yes, this is a s-l-o-w machine, I try to build as much as possible while
+I'm at lunch, in meetings, etc. So the fail to find the modules was mine,
+the bad error message was a result. And of course it would be nice if all
+the modules which compiled in 2.5.59 would still compile in 2.5.63, so I
+could spend time trying to debug why the aha152x doesn't actually *work*
+if it has to share an interrupt. Since I can't change the IRQ of this old
+stuff short of ripping the boards out and readdressing with a soldering
+iron, I was hoping to take another path.
 
-	-hpa
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

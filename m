@@ -1,41 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264445AbUAOBjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 20:39:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264547AbUAOBho
+	id S266404AbUAOBxV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 20:53:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266382AbUAOBt3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 20:37:44 -0500
-Received: from dp.samba.org ([66.70.73.150]:24455 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264575AbUAOBh1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 20:37:27 -0500
-Date: Thu, 15 Jan 2004 11:40:11 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andi Kleen <ak@muc.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, jh@suse.cz
-Subject: Re: [PATCH] Add CONFIG for -mregparm=3
-Message-Id: <20040115114011.204da83f.rusty@rustcorp.com.au>
-In-Reply-To: <20040114090603.GA1935@averell>
-References: <20040114090603.GA1935@averell>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Jan 2004 20:49:29 -0500
+Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:46186 "HELO
+	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266355AbUAOBre (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 20:47:34 -0500
+Message-ID: <4005F128.3080208@yahoo.es>
+Date: Wed, 14 Jan 2004 20:47:20 -0500
+From: Roberto Sanchez <rcsanchez97@yahoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.1-mm3
+References: <20040114014846.78e1a31b.akpm@osdl.org>
+In-Reply-To: <20040114014846.78e1a31b.akpm@osdl.org>
+X-Enigmail-Version: 0.82.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig23B9F10AC9EE145ADAB3AB39"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Jan 2004 10:06:03 +0100
-Andi Kleen <ak@muc.de> wrote:
-> I didn't make it the default because it will break all binary only
-> modules (although they can be fixed by adding a wrapper that 
-> calls them with "asmlinkage"). Actually it may be a good idea to 
-> make this default with 2.7.1 or somesuch.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig23B9F10AC9EE145ADAB3AB39
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Who cares.  Anyway, if kept as a config option, this should probably be
-added to MODULE_ARCH_VERMAGIC in include/asm-i386/module.h.
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1/2.6.1-mm3/
+> 
+> 
+> - A big ppc64 update from Anton
+> 
+> - Added Nick's CPU scheduler patches for hyperthreaded/SMT CPUs.  This work
+>   needs lots of testing and review from those who care about and work upon
+>   this feature, please.
+> 
+> - An I/O scheduler tuning patch.  This is the 114th patch against the
+>   anticipatory scheduler and we're nearly finished, honest.  Now would be a
+>   good time for people to run the appropriate benchmarks.
+> 
+>   We're still not as good as deadline on some seeky loads, and deep SCSI
+>   TCQ still hurts a lot.  But it is looking good on average.
+> 
+> - Plenty of other random stuff
 
-Thanks,
-Rusty.
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+I am still getting lock-ups on my system (nForce2 w/ Athlon XP 2500+).
+I am currently stuck at 2.6.1-rc1-mm1.  If there is anything I can do
+to help track down the problem I would be happy to help, I just need
+some  pointers on where to start.
+
+-Roberto Sanchez
+
+--------------enig23B9F10AC9EE145ADAB3AB39
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFABfEyTfhoonTOp2oRAjTuAKDdE100uhKV8y8kJ1jyZycvJJ8FpACgr0PA
+KCghWM/n97DA5cEpJWXhZfU=
+=xSiP
+-----END PGP SIGNATURE-----
+
+--------------enig23B9F10AC9EE145ADAB3AB39--

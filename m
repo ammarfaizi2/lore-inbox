@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268737AbUHaQJh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUHaQQB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268737AbUHaQJh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 12:09:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268754AbUHaQJh
+	id S261239AbUHaQQB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 12:16:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUHaQQB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 12:09:37 -0400
-Received: from dev.tequila.jp ([128.121.50.153]:61190 "EHLO dev.tequila.jp")
-	by vger.kernel.org with ESMTP id S268737AbUHaQJc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 12:09:32 -0400
-Message-ID: <4134A2B3.1010008@tequila.co.jp>
-Date: Wed, 01 Sep 2004 01:09:23 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-User-Agent: Mozilla Thunderbird 0.7 (Windows/20040616)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: oops in 2.6.8.1-mm4 and usb
-References: <4134445B.3040400@tequila.co.jp>
-In-Reply-To: <4134445B.3040400@tequila.co.jp>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 31 Aug 2004 12:16:01 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:52616 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261239AbUHaQP6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 12:15:58 -0400
+Subject: Re: Driver retries disk errors.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: Rogier Wolff <R.E.Wolff@harddisk-recovery.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+In-Reply-To: <20040831155653.GD17261@harddisk-recovery.com>
+References: <20040830163931.GA4295@bitwizard.nl>
+	 <1093952715.32684.12.camel@localhost.localdomain>
+	 <20040831135403.GB2854@bitwizard.nl>
+	 <1093961570.597.2.camel@localhost.localdomain>
+	 <20040831155653.GD17261@harddisk-recovery.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1093965233.599.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 31 Aug 2004 16:13:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clemens Schwaighofer wrote:
-> Hi,
+On Maw, 2004-08-31 at 16:56, Erik Mouw wrote:
+> The SCSI disk driver has been doing a single retry for quite some time
+> and it hasn't really bitten people. Why would the IDE disk driver be
+> different? The only case I can imagine a retry would be OK, is when we
+> get an UDMA CRC error (caused by bad cables).
 
-> So I could mount it and then copied some files there. But when I tried
-> to unmount the disk light on the iriver never went of. So after ~1 hour
-> I just pulled the usb cable. I got the oops (see below). The files where
-> never copied to the device at the end.
-> 
-> System is a debian unstable. Kernel 2.6.8.1-mm4, config file attached.
+Retries also pop up in other less obvious cases and conveniently paper
+over a wide variety of timeouts, power management quirks and drives just
+having a random fit. Eight is probably excessive in all cases.
 
-One more thing: this oops *always* happens on unmount or usb shutdown. 
-eg when I shutdown the system and the iRiver is still connected. That 
-oops gets thrown and the system doesn't shutdown anymore.
+For non hard disk cases many devices do want and need retry.
 
-lg, clemens
+Alan
+

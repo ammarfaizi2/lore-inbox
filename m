@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288737AbSADTzC>; Fri, 4 Jan 2002 14:55:02 -0500
+	id <S288740AbSADT4m>; Fri, 4 Jan 2002 14:56:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288735AbSADTyz>; Fri, 4 Jan 2002 14:54:55 -0500
-Received: from ns.suse.de ([213.95.15.193]:8718 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S288741AbSADTym>;
-	Fri, 4 Jan 2002 14:54:42 -0500
-Date: Fri, 4 Jan 2002 20:54:41 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: "Eric S. Raymond" <esr@thyrsus.com>, Vojtech Pavlik <vojtech@suse.cz>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Lionel Bouton <Lionel.Bouton@free.fr>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-In-Reply-To: <Pine.GSO.3.96.1020104203829.829I-100000@delta.ds2.pg.gda.pl>
-Message-ID: <Pine.LNX.4.33.0201042054080.20620-100000@Appserv.suse.de>
+	id <S288738AbSADT4c>; Fri, 4 Jan 2002 14:56:32 -0500
+Received: from basket.ball.reliam.net ([213.91.6.7]:18185 "HELO
+	basket.ball.reliam.net") by vger.kernel.org with SMTP
+	id <S288735AbSADT41>; Fri, 4 Jan 2002 14:56:27 -0500
+Message-ID: <3C3608FD.1010509@michael-klose.de>
+Date: Fri, 04 Jan 2002 20:56:45 +0100
+From: Michael Klose <mail@michael-klose.de>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:0.9.7+) Gecko/20020103
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: eepro100 kernel freeze / ISDN
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jan 2002, Maciej W. Rozycki wrote:
+Correction:
 
->  What about CONFIG_BLK_DEV_FD, CONFIG_SERIAL and CONFIG_PARPORT_PC?  ISA
-> devices of this kind are still often present in systems even if no ISA
-> slots exist.  Actually CONFIG_BLK_DEV_FD is purely ISA and it uses ISA DMA
-> (so it requires kernel/dma.c, which is ISA-only).
+> In 2.4.15pre5 (in my opinion one of the most stable 2.4 kernels I have tested) it "only" crashed after transferring about 2-3 GB of data via 
+> my laptop SMB share over the 100MBit switch to the linux server. 2.4.17 crashes after 100-200 GB of data transfer.
 
-At the beginning of this thread I believe it was discussed splitting
-the config option into CONFIG_ISA and CONFIG_ISASLOTS
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+That should read: 2.4.17 crashes after about 100-200 MB - megabytes or 
+mibibytes or whatever you call them now whereas 2.4.15pre5 only crashed 
+after half a handful of gigabytes.
+
+
+
 

@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266493AbUA3Akx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 19:40:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266497AbUA3Akx
+	id S266263AbUA3AwR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 19:52:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266270AbUA3AwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 19:40:53 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:51920
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S266493AbUA3Akv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 19:40:51 -0500
-Message-ID: <4019A7EE.301@redhat.com>
-Date: Thu, 29 Jan 2004 16:40:14 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040118
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: Jamie Lokier <jamie@shareable.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
-References: <1075344395.1592.87.camel@cog.beaverton.ibm.com>	 <401894DA.7000609@redhat.com> <20040129132623.GB13225@mail.shareable.org>	 <40194B6D.6060906@redhat.com>  <20040129191500.GA1027@mail.shareable.org> <1075420794.1592.162.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1075420794.1592.162.camel@cog.beaverton.ibm.com>
-X-Enigmail-Version: 0.83.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Thu, 29 Jan 2004 19:52:17 -0500
+Received: from netmail8.mail.umd.edu ([128.8.30.201]:28879 "EHLO mail.umd.edu")
+	by vger.kernel.org with ESMTP id S266263AbUA3AwQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 19:52:16 -0500
+Subject: orinoco_cs IRQ problem with 2.6.0
+From: Dan Lenski <lenski@umd.edu>
+To: linux-kernel@vger.kernel.org
+X-Auth-OK: lenski@mail.umd.edu
+X-NIMS-Flags: 513
+Content-Type: text/plain
+Message-Id: <1075423670.1212.12.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 29 Jan 2004 19:50:13 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
+I'm new to the list.  My D-Link cardbus wireless card worked fine under
+2.4.22 using the orinoco_cs drivers, and the pcmcia-cs-3.2.5 package.
 
-> Another issue with having a separate entry point for vgettimeofday is
-> that I don't quite understand how glibc detects if vsyscall is
-> available, and how deals with the vsyscall page moving around.
+Under 2.6.0, with the orinoco_cs driver, I get the following errors in
+my syslog:
 
-Well, this is indeed a problem which needs an addition solution.  If
-we'd look for the symbol, it's automatically handled.  Likewise if the
-normal syscall handler does it magically.
+Jan 29 19:29:07 localhost cardmgr[684]: initializing socket 0
+Jan 29 19:29:07 localhost cardmgr[684]: socket 0: D-Link DWL-650
+Jan 29 19:29:07 localhost cardmgr[684]:   product info: "D", "Link DWL-650 11Mbps WLAN Card", "Version 01.02", ""
+Jan 29 19:29:07 localhost cardmgr[684]:   manfid: 0x0156, 0x0002  function: 6 (network)
+Jan 29 19:29:07 localhost cardmgr[684]: executing: 'modprobe orinoco_cs'
+Jan 29 19:29:07 localhost kernel: orinoco.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)
+Jan 29 19:29:07 localhost kernel: orinoco_cs.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)
+Jan 29 19:29:07 localhost kernel: orinoco_cs: RequestIRQ: Unsupported mode
+Jan 29 19:29:08 localhost cardmgr[684]: get dev info on socket 0 failed: Resource temporarily unavailable
 
-If a call to the magic address is needed we'd need from kind of version
-information in the vDSO to check for the existence of the extension.
-This check needs to be done for every call unless a new-enough kernel is
-assumed outright.  One could add a functions to the vDSO which is called
-via the symbol table and which returns the necessary information to make
-the decision.  The result would have to be stored in a local variable to
-avoid making that call over and over again.  This all requires the PIC
-setup which makes the whole thing once again more expensive than the
-simple implicit table lookup.
+With 2.4.22, the card was assigned irq 3.  With 2.6.0, that irq is not
+listed in my /proc/interrupts.
 
+Dan Lenski
+lenski@physics.umd.edu
 
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

@@ -1,185 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261930AbSIYHRs>; Wed, 25 Sep 2002 03:17:48 -0400
+	id <S261934AbSIYH3f>; Wed, 25 Sep 2002 03:29:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261931AbSIYHRs>; Wed, 25 Sep 2002 03:17:48 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:19145 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S261930AbSIYHRp>;
-	Wed, 25 Sep 2002 03:17:45 -0400
-Date: Wed, 25 Sep 2002 17:22:50 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus <torvalds@transmeta.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Consolidate asm/ucontext.h
-Message-Id: <20020925172250.21d8d17b.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.8.3 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S261935AbSIYH3f>; Wed, 25 Sep 2002 03:29:35 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:62637 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261934AbSIYH3e>;
+	Wed, 25 Sep 2002 03:29:34 -0400
+Date: Wed, 25 Sep 2002 09:34:30 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Luben Tuikov <luben@splentec.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: struct page question
+Message-ID: <20020925073430.GG15479@suse.de>
+References: <3D90D4AB.B0BDF702@splentec.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D90D4AB.B0BDF702@splentec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Tue, Sep 24 2002, Luben Tuikov wrote:
+> Is it possible to build a struct page *page, where
+> page_address(page) == some virtual address (not high mem of course)?
+> 
+> The reason I want to do this is so that I can pass it to
+> generic_make_request(), having only a pointer to a buffer
+> and size to a buffer, and the fact that not all devices
+> have request_fn() exposed (e.g. md).
+> 
+> Apparently I cannot just set b_data and b_size, b_page
+> also has to be set and it also seems that it will
+> not work if page_address(b_page) != b_data...
 
-8 of our architectures use the same struct ucontext.  This patch
-creates asm-generic/ucontext.h and changes the 8 architectures to use it.
-When the sigcontext_struct -> sigcontext patch goes in, PPC and PPC64
-will also be able to use asm-generic/ucontext.h.
+bh->b_page = virt_to_page(va);
+bh->b_data = va;
 
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Jens Axboe
 
-diff -ruN 2.5.38/include/asm-arm/ucontext.h 2.5.38-ucontext/include/asm-arm/ucontext.h
---- 2.5.38/include/asm-arm/ucontext.h	1998-01-21 11:39:43.000000000 +1100
-+++ 2.5.38-ucontext/include/asm-arm/ucontext.h	2002-09-25 16:14:17.000000000 +1000
-@@ -1,12 +1,6 @@
- #ifndef _ASMARM_UCONTEXT_H
- #define _ASMARM_UCONTEXT_H
- 
--struct ucontext {
--	unsigned long	  uc_flags;
--	struct ucontext  *uc_link;
--	stack_t		  uc_stack;
--	struct sigcontext uc_mcontext;
--	sigset_t	  uc_sigmask;	/* mask last for extensibility */
--};
-+#include <asm-generic/ucontext.h>
- 
- #endif /* !_ASMARM_UCONTEXT_H */
-diff -ruN 2.5.38/include/asm-cris/ucontext.h 2.5.38-ucontext/include/asm-cris/ucontext.h
---- 2.5.38/include/asm-cris/ucontext.h	2001-02-09 11:32:44.000000000 +1100
-+++ 2.5.38-ucontext/include/asm-cris/ucontext.h	2002-09-25 16:15:08.000000000 +1000
-@@ -1,12 +1,6 @@
- #ifndef _ASM_CRIS_UCONTEXT_H
- #define _ASM_CRIS_UCONTEXT_H
- 
--struct ucontext {
--	unsigned long	  uc_flags;
--	struct ucontext  *uc_link;
--	stack_t		  uc_stack;
--	struct sigcontext uc_mcontext;
--	sigset_t	  uc_sigmask;	/* mask last for extensibility */
--};
-+#include <asm-generic/ucontext.h>
- 
- #endif /* !_ASM_CRIS_UCONTEXT_H */
-diff -ruN 2.5.38/include/asm-generic/ucontext.h 2.5.38-ucontext/include/asm-generic/ucontext.h
---- 2.5.38/include/asm-generic/ucontext.h	1970-01-01 10:00:00.000000000 +1000
-+++ 2.5.38-ucontext/include/asm-generic/ucontext.h	2002-09-25 16:11:13.000000000 +1000
-@@ -0,0 +1,12 @@
-+#ifndef _ASM_GENERIC_UCONTEXT_H
-+#define _ASM_GENERIC_UCONTEXT_H
-+
-+struct ucontext {
-+	unsigned long	  uc_flags;
-+	struct ucontext  *uc_link;
-+	stack_t		  uc_stack;
-+	struct sigcontext uc_mcontext;
-+	sigset_t	  uc_sigmask;	/* mask last for extensibility */
-+};
-+
-+#endif /* !_ASM_GENERIC_UCONTEXT_H */
-diff -ruN 2.5.38/include/asm-i386/ucontext.h 2.5.38-ucontext/include/asm-i386/ucontext.h
---- 2.5.38/include/asm-i386/ucontext.h	1997-12-02 05:45:24.000000000 +1100
-+++ 2.5.38-ucontext/include/asm-i386/ucontext.h	2002-09-25 16:15:37.000000000 +1000
-@@ -1,12 +1,6 @@
- #ifndef _ASMi386_UCONTEXT_H
- #define _ASMi386_UCONTEXT_H
- 
--struct ucontext {
--	unsigned long	  uc_flags;
--	struct ucontext  *uc_link;
--	stack_t		  uc_stack;
--	struct sigcontext uc_mcontext;
--	sigset_t	  uc_sigmask;	/* mask last for extensibility */
--};
-+#include <asm-generic/ucontext.h>
- 
- #endif /* !_ASMi386_UCONTEXT_H */
-diff -ruN 2.5.38/include/asm-mips/ucontext.h 2.5.38-ucontext/include/asm-mips/ucontext.h
---- 2.5.38/include/asm-mips/ucontext.h	2000-05-14 01:31:25.000000000 +1000
-+++ 2.5.38-ucontext/include/asm-mips/ucontext.h	2002-09-25 16:17:30.000000000 +1000
-@@ -11,12 +11,6 @@
- #ifndef _ASM_UCONTEXT_H
- #define _ASM_UCONTEXT_H
- 
--struct ucontext {
--	unsigned long	  uc_flags;
--	struct ucontext  *uc_link;
--	stack_t		  uc_stack;
--	struct sigcontext uc_mcontext;
--	sigset_t	  uc_sigmask;	/* mask last for extensibility */
--};
-+#include <asm-generic/ucontext.h>
- 
- #endif /* _ASM_UCONTEXT_H */
-diff -ruN 2.5.38/include/asm-mips64/ucontext.h 2.5.38-ucontext/include/asm-mips64/ucontext.h
---- 2.5.38/include/asm-mips64/ucontext.h	2001-09-10 03:43:02.000000000 +1000
-+++ 2.5.38-ucontext/include/asm-mips64/ucontext.h	2002-09-25 16:18:14.000000000 +1000
-@@ -10,12 +10,6 @@
- #ifndef _ASM_UCONTEXT_H
- #define _ASM_UCONTEXT_H
- 
--struct ucontext {
--	unsigned long	  uc_flags;
--	struct ucontext  *uc_link;
--	stack_t		  uc_stack;
--	struct sigcontext uc_mcontext;
--	sigset_t	  uc_sigmask;	/* mask last for extensibility */
--};
-+#include <asm-generic/ucontext.h>
- 
- #endif /* _ASM_UCONTEXT_H */
-diff -ruN 2.5.38/include/asm-parisc/ucontext.h 2.5.38-ucontext/include/asm-parisc/ucontext.h
---- 2.5.38/include/asm-parisc/ucontext.h	2000-12-06 07:29:39.000000000 +1100
-+++ 2.5.38-ucontext/include/asm-parisc/ucontext.h	2002-09-25 16:18:54.000000000 +1000
-@@ -1,12 +1,6 @@
- #ifndef _ASMPARISC_UCONTEXT_H
- #define _ASMPARISC_UCONTEXT_H
- 
--struct ucontext {
--	unsigned long	  uc_flags;
--	struct ucontext  *uc_link;
--	stack_t		  uc_stack;
--	struct sigcontext uc_mcontext;
--	sigset_t	  uc_sigmask;	/* mask last for extensibility */
--};
-+#include <asm-generic/ucontext.h>
- 
- #endif /* !_ASMPARISC_UCONTEXT_H */
-diff -ruN 2.5.38/include/asm-sh/ucontext.h 2.5.38-ucontext/include/asm-sh/ucontext.h
---- 2.5.38/include/asm-sh/ucontext.h	1999-08-31 11:12:59.000000000 +1000
-+++ 2.5.38-ucontext/include/asm-sh/ucontext.h	2002-09-25 16:20:40.000000000 +1000
-@@ -1,12 +1,6 @@
- #ifndef __ASM_SH_UCONTEXT_H
- #define __ASM_SH_UCONTEXT_H
- 
--struct ucontext {
--	unsigned long	  uc_flags;
--	struct ucontext  *uc_link;
--	stack_t		  uc_stack;
--	struct sigcontext uc_mcontext;
--	sigset_t	  uc_sigmask;	/* mask last for extensibility */
--};
-+#include <asm-generic/ucontext.h>
- 
- #endif /* __ASM_SH_UCONTEXT_H */
-diff -ruN 2.5.38/include/asm-x86_64/ucontext.h 2.5.38-ucontext/include/asm-x86_64/ucontext.h
---- 2.5.38/include/asm-x86_64/ucontext.h	2002-02-20 14:13:21.000000000 +1100
-+++ 2.5.38-ucontext/include/asm-x86_64/ucontext.h	2002-09-25 16:22:36.000000000 +1000
-@@ -1,12 +1,6 @@
- #ifndef _ASMX8664_UCONTEXT_H
- #define _ASMX8664_UCONTEXT_H
- 
--struct ucontext {
--	unsigned long	  uc_flags;
--	struct ucontext  *uc_link;
--	stack_t		  uc_stack;
--	struct sigcontext uc_mcontext;
--	sigset_t	  uc_sigmask;	/* mask last for extensibility */
--};
-+#include <asm-generic/ucontext.h>
- 
- #endif

@@ -1,44 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273565AbRJ0ReB>; Sat, 27 Oct 2001 13:34:01 -0400
+	id <S273691AbRJ0Rmd>; Sat, 27 Oct 2001 13:42:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273796AbRJ0Rdv>; Sat, 27 Oct 2001 13:33:51 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:58382 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S273565AbRJ0Rdk>;
-	Sat, 27 Oct 2001 13:33:40 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200110271726.VAA04919@ms2.inr.ac.ru>
-Subject: Re: issue: deleting one IP alias deletes all
-To: thockin@sun.com (Tim Hockin)
-Date: Sat, 27 Oct 2001 21:26:53 +0400 (MSK DST)
-Cc: david@blue-labs.org, cfriesen@nortelnetworks.com, ja@ssi.bg,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3BD72A8A.F4EB4188@sun.com> from "Tim Hockin" at Oct 24, 1 01:54:34 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S273796AbRJ0RmN>; Sat, 27 Oct 2001 13:42:13 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:27543 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S273691AbRJ0Rl4>;
+	Sat, 27 Oct 2001 13:41:56 -0400
+Date: Sat, 27 Oct 2001 13:42:32 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: alain@linux.lu
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>, linux-kernel@vger.kernel.org
+Subject: Re: Poor floppy performance in kernel 2.4.10 
+In-Reply-To: <200110271712.f9RHCgf02886@hitchhiker.org.lu>
+Message-ID: <Pine.GSO.4.21.0110271320540.21545-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-> It has done this since 2.2.x, when we first filed and fixed this bug.  I've
-> pinged Alexey, and haven't heard back yet.  Maybe you'll have better
-> response time.
 
-People frequently do not understand that when creating two aliases
-with completely coinciding prefixes, they must do an administrative decision:
-what address they suppose to use as source address when communicating
-to this network. In other words, what address is primary and what addresses
-are just some unused dummies.
+On Sat, 27 Oct 2001, Alain Knaff wrote:
 
-Well, and as soon as admin created configuration with some unused dummies,
-kernel cannot promote slave to state of a citizen with full rights.
+> Cursory examination of floppy.c (as an example of a block device
+> driver) showed that bdops are also registered using devfs_register and
+> register_disk (what's THAT for?!? Floppies don't have partitions...)
 
-So, if you do not want an address was slave, just make it master of itself,
-setting prefix length to 32.
+Actually, _that_ is Right Thing(tm) - it should allocate a structure that
+would contain pointer to methods table and would be controlled by
+driver.  devfs_register() would get that + prefered name, etc. so that
+we had a common object.  Then driver would have a point where it could
+tell the rest of kernel that disk is gone.
+ 
+> Apparently, devfs_register allows a direct mapping from the device's
+> name to its driver, without going through its major/minor number.
+> 
+> Thus, a possible solution would be to equip all possible paths leading
+> to the driver's block_device_operations with correct "teardown"
+> function. Thus, not only unregister_blkdev would dump the cache, but
+> also devfs_unregister (maybe near the place in unregister() where
+> de->u.fcb.ops = NULL is done?). Best make this call generic, such as
 
-What's about responce time... Well, I bring apologies, seeing you did not
-append the patch to the note, this happened to fit to class of RTFMs
-with answer which can be easily found in dejanews.
+No go.  We can have situations where some of uses come from devfs and
+some - from normal device nodes.  struct block_device will be the same.
 
-Alexey
+> All this begs of course the following question: what kind of
+> idnetifier does the buffer cache code actually use to refer to the
+> block device, if there is no longer a major?
+
+Right now - major:minor, in 2.5 - struct block_device *.
+ 
+> We could either use bdev->bd_sem (awkward, as many drivers implement
+> multiple bdev's), or a new per-major device lock to protect that
+> section.
+
+I'd rather have refcount raised by get_blkfops().  Again, that code path
+is not a problem.  devfs_get_ops() is.
+ 
+> unregister_blkdev would need to acquire the same lock while zero-ing
+> blkdevs[major].bdops.
+
+We could put bdev on per-major cyclic list and have it killed on
+unregister_blkdev().  _That_ is easy.  The trouble being, with devfs
+we don't have a single removal point.  Sometimes it's still
+unregister_blkdev(), sometimes - crapload of devfs_unregister() for
+each minor, sometimes - both.  Worse yet, we have one more place that
+holds pointer to block_device_operations - gendisk.  Also used by
+devfs (and nothing else) and logics is, to put it mildly, fuzzy.
+
+Frankly, at that point I would prefer to remove the code in devfs that
+tries to provide bdev methods by devfs entry.  Rationale:
+	a) it's fucked up beyond any repair
+	b) it will be useless until we switch buffer cache to block_device *
+	c) we will need to change that logics anyway - as it is the thing is
+inherently racy
+	d) right now it stands in the way of long-living cache stuff _and_
+introduces an oopsable race between mount and rmmod.
+
+

@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261768AbTCLQUQ>; Wed, 12 Mar 2003 11:20:16 -0500
+	id <S261772AbTCLQ3t>; Wed, 12 Mar 2003 11:29:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261773AbTCLQUQ>; Wed, 12 Mar 2003 11:20:16 -0500
-Received: from sprocket.loran.com ([209.167.240.9]:13557 "EHLO
-	ottonexc1.peregrine.com") by vger.kernel.org with ESMTP
-	id <S261768AbTCLQUP>; Wed, 12 Mar 2003 11:20:15 -0500
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-From: Dana Lacoste <dana.lacoste@peregrine.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <b4nmau$3d0$1@cesium.transmeta.com>
-References: <20030312034330.GA9324@work.bitmover.com>
-	<20030312041621.GE563@phunnypharm.org> <20030312085517.GK811@suse.de>
-	<20030312032614.G12806@schatzie.adilger.int> 
-	<b4nmau$3d0$1@cesium.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 12 Mar 2003 11:30:59 -0500
-Message-Id: <1047486659.16704.161.camel@dlacoste.ottawa.loran.com>
+	id <S261803AbTCLQ3t>; Wed, 12 Mar 2003 11:29:49 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:2517 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261772AbTCLQ3s>;
+	Wed, 12 Mar 2003 11:29:48 -0500
+Date: Wed, 12 Mar 2003 08:38:09 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: arjanv@redhat.com, szaka@sienet.hu, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63))
+Message-Id: <20030312083809.0688151b.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0303120744160.13807-100000@home.transmeta.com>
+References: <20030312154311.H32093@devserv.devel.redhat.com>
+	<Pine.LNX.4.44.0303120744160.13807-100000@home.transmeta.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-03-12 at 11:13, H. Peter Anvin wrote:
-> "Can we get our data out of BK into some kind of open format?"
+On Wed, 12 Mar 2003 07:47:08 -0800 (PST) Linus Torvalds <torvalds@transmeta.com> wrote:
 
-> It's an important question.  If the answer is "yes, but only the stuff
-> that can be mapped onto CVS" then that's a significant data loss, and
-> if BitMover changes the data format without documentation, then there
-> is no longer a way to get all the data out.
+| 
+| On Wed, 12 Mar 2003, Arjan van de Ven wrote:
+| >
+| > On Wed, Mar 12, 2003 at 04:35:10PM +0100, Szakacsits Szabolcs wrote:
+| > > If all vendors is Red Hat then I believe you. 
+| > 
+| > I say All Vendors simply because no vendor ships 2.5 kernels yet which
+| > have the CONFIG option to NOT use -fomit-frame-pointer
+| 
+| Actually, that config option came from the 2.4.x gdb tree, since gdb users 
+| want to be able to see "where". So any vendor that included the remote gdb 
+| patch would have gotten it too.. (except in that kernel it's called 
+| CONFIG_REMOTE_DEBUG and brings in a lot more).
+| 
+| I don't know if any vendor kernels come with the kgdb patch..
 
-This sounds like the old GPL argument.
+The kdb patch also adds the CONFIG_FRAME_POINTER option (2.4 and 2.5)
+IIRC -- haven't looked lately.
 
-The GPL'd redistributor has to supply the source, they don't have to
-supply it in the format that's best for you, being an 80mm tape drive
-cuz you're stuck in the punch card age.
-
-Seriously, if CVS loses all that data, is that BK's fault?  BK's so
-powerful because it has more information than anyone else, but it's
-not their fault (and it's not proprietary data) that no-one else can
-deal with the data when it's exported, now is it????
-
-It's not a significant data loss when you try to view a 24bpp image
-on an 8bpp display, so it's not a significant data loss that CVS can't
-handle the BK.  If it could, Linus would've switched to CVS instead....
-
-I'm not saying Larry's a God or anything, I'm just hoping you guys can
-give it up already.  Linus uses BK, nobody else needs to, so move on!
-
-Dana Lacoste
-Ottawa, Canada
-
+--
+~Randy

@@ -1,54 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288077AbSACAfp>; Wed, 2 Jan 2002 19:35:45 -0500
+	id <S288086AbSACAhQ>; Wed, 2 Jan 2002 19:37:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288038AbSACAe2>; Wed, 2 Jan 2002 19:34:28 -0500
-Received: from mxzilla2.xs4all.nl ([194.109.6.50]:64005 "EHLO
-	mxzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S288067AbSACAcn>; Wed, 2 Jan 2002 19:32:43 -0500
-Date: Thu, 3 Jan 2002 01:32:40 +0100
-From: jtv <jtv@xs4all.nl>
-To: dewar@gnat.com
-Cc: jbuck@synopsys.COM, gcc@gcc.gnu.org, linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.linuxppc.org, paulus@samba.org,
-        trini@kernel.crashing.org, velco@fadata.bg
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020103013240.F19933@xs4all.nl>
-In-Reply-To: <20020103001241.E37DFF2EC6@nile.gnat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020103001241.E37DFF2EC6@nile.gnat.com>; from dewar@gnat.com on Wed, Jan 02, 2002 at 07:12:41PM -0500
+	id <S287992AbSACAfw>; Wed, 2 Jan 2002 19:35:52 -0500
+Received: from monster.nni.com ([216.107.0.51]:23049 "EHLO admin.nni.com")
+	by vger.kernel.org with ESMTP id <S288039AbSACAec>;
+	Wed, 2 Jan 2002 19:34:32 -0500
+From: "Andrew Rodland" <arodland@noln.com>
+Subject: Re: CML2 funkiness
+To: "Eric S. Raymond" <esr@thyrsus.com>
+Cc: David Relson <relson@osagesoftware.com>, linux-kernel@vger.kernel.org
+X-Mailer: CommuniGate Pro Web Mailer v.3.5
+Date: Wed, 02 Jan 2002 19:34:32 -0500
+Message-ID: <web-54763960@admin.nni.com>
+In-Reply-To: <4.3.2.7.2.20020102100856.00e78f00@mail.osagesoftware.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 02, 2002 at 07:12:41PM -0500, dewar@gnat.com wrote:
->
-> Note incidentally that the C rules that allow referencing the address just
-> past the end of an array (an irregularity that recognizes the infeasibility
-> of declaring the common idiom for (a=b;a<&b[10];a++)) has an interesting
-> consequence on a segmented machine, namely that you cannot allocate an
-> array too near the end of the segment.
+Actually, it turns out I had CML2-1.9.16, but:
+It looks like I'm definitely seeing the same thing as
+ David, except in my case the symbols are:
 
-At the risk of going off topic, you can take the non-element's address but
-you can't actually touch it.  So provided your architecture supports 
-pointer arithmetic beyond the end of the segment, your only remaining
-worries are (1) that you don't stumble into the NULL address (which need
-not be zero), and (2) that the address isn't reused as a valid element of
-something else.  I'm not so sure the latter is even a requirement.
+DANGEROUS DEVELOPMENT ISA_CARDS CD_NO_IDESCSI
+ SERIAL_NONSTANDARD SCSI_PCMCIA IP_ADVANCED_ROUTER
+ NET_VENDOR_3COM NET_VENDOR_SMC NET_VENDOR_RACAL NET_POCKET
+ HAMRADIO FBCON_FONTS DONGLE
+.
+Not sure if it's a cause or an effect, but all of these
+ symbols get marked as (NEW).
+Looks like it's certain fixed symbols, as most/all of
+ David's are in mine too.
 
-Which does tie in to what we were discussing: in "foo"+LARGE_CONSTANT,
-the problem is that C makes no promises on where "foo" ends up in memory,
-or if it's even a single place, or what is located at any given offset
-from it, or that the sum is even something that can be considered an 
-address in any way.  Nor does the compiler need to assume that the 
-programmer knows better--bar some compiler-specific support for this 
-trick.
+Sorry for the lame web-mailer, and thanks
+--Andrew Rodland
 
-
-Jeroen
-
-(Yes, I'm a pedant.  I'm pining for the day when gcc will support the
-options "-ffascist -Wanal")
-
+On Wed, 02 Jan 2002 10:10:42 -0500
+ David Relson <relson@osagesoftware.com> wrote:
+> At 09:03 AM 1/2/02, Andrew Rodland wrote:
+> >First off, I'd like to apologize for lack of all the
+> > information I'd like to have, I'm at school, and
+> > temporarily semidisconnected at home.
+> >
+> >CML2 is definitely still not quite right for me
+> >(2.4.17 + kpreempt-rml, latest CML2 as of 3ish days
+>  ago).
+> >
+> >Menuconfig and friends seem okay, as far as I can tell
+>  (and
+> > they've apparently been tested pretty well), but
+>  oldconfig
+> > is wacky...
+> >
+> >So, "mv config .config ; make mrproper ; mv config
+>  .config
+> > ; make oldconfig" does odd things to my config, but
+>  more
+> > in-your-face, on "make oldconfig ; make oldconfig" (ad
+> > inifinitum if you want), it will continue asking the
+>  same
+> > questions, and never remember the answer.
+> 
+> Andrew,
+> 
+> I have just tested this, and have reproduced your
+>  problem.  Using kernel-2.4.16 and cml2-1.2.20, i.e. my
+>  current kernel and the latest CML2, I ran "make
+>  oldconfig" three times.  The first time I answered "n"
+>  to 21 queries.  The second and third times, I had to
+>  answer "n" to 9 queries.  The 9 all appeared in the
+>  first run and were exactly the same in the second and
+>  third runs.
+> 
+> Here're the 9 queries from runs 2 and 3:
+> EXPERT: Prompt for expert choices (those with no help
+>  attached) (EXPERIMENTAL) [ ] (NEW)?:
+> DEVELOPMENT: Configure a development or 2.5 kernel?
+>  (EXPERIMENTAL) [ ] (NEW)?:
+> CD_NO_IDESCSI: Support CD-ROM drives that are not SCSI or
+>  IDE/ATAPI [ ] (NEW)?:
+> IP_ADVANCED_ROUTER: Advanced router [ ] (NEW)?:
+> NET_VENDOR_SMC: Western Digital/SMC cards [ ] (NEW)?:
+> NET_VENDOR_RACAL: Racal-Interlan (Micom) NI cards [ ]
+>  (NEW)?:
+> NET_POCKET: Pocket and portable adapters [ ] (NEW)?:
+> HAMRADIO: Amateur Radio support [ ] (NEW)?:
+> FBCON_FONTS: Select other compiled-in fonts [ ] (NEW)?:
+> 
+> From past testing of CML2 I know it uses file config.out
+>  as its 
+> "memory".  Looking in it, I didn't see any CONFIG symbols
+>  for these symbols.
+> 
+> There's definitely something here for Eric to fix!
+> 
+> David
+> 
+> 

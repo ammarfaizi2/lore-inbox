@@ -1,85 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130266AbRCCEUK>; Fri, 2 Mar 2001 23:20:10 -0500
+	id <S130270AbRCCEWu>; Fri, 2 Mar 2001 23:22:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130270AbRCCEUA>; Fri, 2 Mar 2001 23:20:00 -0500
-Received: from tomts5.bellnexxia.net ([209.226.175.25]:37832 "EHLO
-	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S130266AbRCCETr>; Fri, 2 Mar 2001 23:19:47 -0500
-Message-ID: <3AA06FCE.C47C194A@coplanar.net>
-Date: Fri, 02 Mar 2001 23:15:10 -0500
-From: Jeremy Jackson <jerj@coplanar.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: en
+	id <S130271AbRCCEWb>; Fri, 2 Mar 2001 23:22:31 -0500
+Received: from server.divms.uiowa.edu ([128.255.28.165]:28179 "EHLO
+	server.divms.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S130270AbRCCEWX>; Fri, 2 Mar 2001 23:22:23 -0500
+From: Doug Siebert <dsiebert@divms.uiowa.edu>
+Message-Id: <200103030422.WAA27608@server.divms.uiowa.edu>
+Subject: Re: strange nonmonotonic behavior of gettimeoftheday -- seen similar problem on PPC
+To: linux-kernel@vger.kernel.org
+Date: Fri, 2 Mar 2001 22:22:19 -0600 (CST)
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: Linux Advanced Routing and Trafic Control <lartc@mailman.ds9a.nl>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [Fwd: [LARTC] 1 adsl + 1 sdsl + masq + simultaneous incomming 
- routes]
-In-Reply-To: <3AA06720.77D94BFE@matchmail.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
-
-> phil@optimumdata.com wrote:
-> >
-> > On Fri, 2 Mar 2001, Mike Fedyk wrote:
-> >
-> > > I have two dsl links, each with one ip, and a single gateway is assigned the ip
-> > > for each.
-> > >
-> > >  ______    ______
-> > > | ADSL |  | SDSL |
-> > > |______|  |______|
-> > >        \  /
-> > >         \/
-> > >      ___||____
-> > >     | gateway |
-> > >     |_________|
-> > >         ||
-> > >         ||
-> > >         ||
-> > >        _||__
-> > >       | web |
-> > >       |_____|
-> > >
-> > > OK.
-> > >
-> > > The problem: I am able to have the web server use one or the other dsl, but not
-> > > both at the same time.
-> > >
-> > > If I have web set to sdsl, replies to queries that came from adsl go out on the
-> > > sdsl link. Also since masq is involved, it also responds with the sdsl ip.
-> > >
-> > > How can I have replies go back on the correct internet link?  OH, btw, the web
-> > > server is NT, so I won't be able to modify any packets there...
-> >
-> > What I've done is to put two IPs on the server (your web server, in this
-> > case). You would then have the gateway send one IP out via ADSL, and the
-> > out via SDSL.
-> >
-> > There is no way I know of to make that work.
-> >
-> > --
-> > -----------------------------------------------------------------------
-> > Phil Brutsche                                      phil@optimumdata.com
+"Richard B. Johnson" wrote:
 >
-> There has to be a better way.  I'm forwarding this to LKML.  Maybe they have a
-> better idea...
+>I think it's a math problem in the test code. Try this:
 >
-> I know the kernel keeps a route cache, is there something like a reverse MASQ
-> feature somewhere.  Storing which incoming route + port number and keeping a
-> dynamic list...
+[code deleted]
+>
+>Note that two subsequent calls to gettimeofday() must not return the 
+>same time even if your CPU runs infinitely fast. I haven't seen any 
+>kernel in the past few years that fails this test.
 
-try www.liuxdoc.org search for iproute2 and netfilter.
 
-with 2.4. kernel, you can mark packets *before* they go through routing table,
-and the routing tablecan use mark value to choose which route to use,
-so if you use set up the NT box with two IP's, your firewall can
-mark packets based on destination (on webserver) IP.
-think of it like having two default routes...
+I find that claim to be pretty ridiculous, I have never seen such a
+thing in any standard.  I was writing code allowing the for '='
+condition five years ago, because I was assuming that it might live
+long enough for this sort of thing to start happening.  Simple defensive
+programming (probably smart even if POSIX was to declare this to be
+the case)
 
+So then I was I was curious if I could find any systems fast enough to
+violate this.  I didn't have to look far, my new laptop with a 600MHz
+Pentium III (running kernel 2.2.16, not that it matters) hits the "break"
+in your program (i.e., same time from the two gettimeofday() calls) every
+single time I run it.  If I add another identical call to gettimeofday()
+immediately after the second one, that makes the result of the (now)
+third call 1us greater so the code loops as you intended.
+
+What you claim may have been true due to the inability of CPUs to execute
+two system calls within a microsecond, but that horse has now left the
+barn.  You will need to request a getnanotimeofday() be created if you
+want to allow two consecutive calls to always return different values
+(modulo SMP systems and ~13 more years of Moore's Law)
+
+-- 
+Douglas Siebert
+douglas-siebert@uiowa.edu
+
+A computer without Microsoft software is like chocolate cake without ketchup.

@@ -1,87 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263184AbTCNA4S>; Thu, 13 Mar 2003 19:56:18 -0500
+	id <S263162AbTCNAzv>; Thu, 13 Mar 2003 19:55:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263210AbTCNA4R>; Thu, 13 Mar 2003 19:56:17 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:54027 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S263184AbTCNAzn>;
-	Thu, 13 Mar 2003 19:55:43 -0500
-Subject: Re: [PATCH] i2c driver changes for 2.5.64
-In-reply-to: <1047603318248@kroah.com>
+	id <S263207AbTCNAzv>; Thu, 13 Mar 2003 19:55:51 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:51979 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S263162AbTCNAzj>;
+	Thu, 13 Mar 2003 19:55:39 -0500
+Subject: [PATCH] i2c driver changes for 2.5.64
+In-reply-to: <20030314005027.GA1923@kroah.com>
 Content-Transfer-Encoding: 7BIT
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
 From: Greg KH <greg@kroah.com>
 Content-Type: text/plain; charset=US-ASCII
 Mime-version: 1.0
 Date: Thu, 13 Mar 2003 16:55 -0800
-Message-id: <10476033191486@kroah.com>
 X-mailer: gregkh_patchbomb
+Message-id: <10476033153504@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1107, 2003/03/13 11:15:15-08:00, greg@kroah.com
+ChangeSet 1.1105, 2003/03/13 10:31:07-08:00, greg@kroah.com
 
-i2c: add bus driver for Intel 801 devices
+i2c: add bus driver for ALI15x3 devices
 
 This is from the i2c CVS tree.
 
 
- drivers/i2c/busses/Kconfig    |   23 +
- drivers/i2c/busses/Makefile   |    1 
- drivers/i2c/busses/i2c-i801.c |  710 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 734 insertions(+)
+ drivers/i2c/busses/Kconfig       |   14 
+ drivers/i2c/busses/Makefile      |    1 
+ drivers/i2c/busses/i2c-ali15x3.c |  587 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 602 insertions(+)
 
 
 diff -Nru a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
---- a/drivers/i2c/busses/Kconfig	Thu Mar 13 16:57:50 2003
-+++ b/drivers/i2c/busses/Kconfig	Thu Mar 13 16:57:50 2003
-@@ -53,5 +53,28 @@
- 	  in the lm_sensors package, which you can download at 
- 	  http://www.lm-sensors.nu
+--- a/drivers/i2c/busses/Kconfig	Thu Mar 13 16:58:06 2003
++++ b/drivers/i2c/busses/Kconfig	Thu Mar 13 16:58:06 2003
+@@ -5,6 +5,20 @@
  
-+config I2C_I801
-+	tristate "  Intel 801"
-+	depends on I2C && I2C_PROC
+ menu "I2C Hardware Sensors Mainboard support"
+ 
++config I2C_ALI15X3
++	tristate "  ALI 15x3"
++	depends on I2C && I2C_PROC && PCI && EXPERIMENTAL
 +	help
-+	  If you say yes to this option, support will be included for the Intel
-+	  801 family of mainboard I2C interfaces.  Specifically, the following
-+	  versions of the chipset is supported:
-+	    82801AA
-+	    82801AB
-+	    82801BA
-+	    82801CA/CAM
-+	    82801DB
++	  If you say yes to this option, support will be included for the
++	  Acer Labs Inc. (ALI) M1514 and M1543 motherboard I2C interfaces.
 +
-+	  This can also be built as a module which can be inserted and removed 
-+	  while the kernel is running.  If you want to compile it as a module,
-+	  say M here and read <file:Documentation/modules.txt>.
-+
-+	  The module will be called i2c-i801.
++	  This can also be built as a module.  If so, the module will be
++	  called i2c-ali15x3.
 +
 +	  You will also need the latest user-space utilties: you can find them
-+	  in the lm_sensors package, which you can download at 
++	  in the lm_sensors package, which you can download at
 +	  http://www.lm-sensors.nu
 +
- endmenu
- 
+ config I2C_AMD756
+ 	tristate "  AMD 756/766"
+ 	depends on I2C && I2C_PROC
 diff -Nru a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
---- a/drivers/i2c/busses/Makefile	Thu Mar 13 16:57:50 2003
-+++ b/drivers/i2c/busses/Makefile	Thu Mar 13 16:57:50 2003
-@@ -5,3 +5,4 @@
- obj-$(CONFIG_I2C_ALI15X3)	+= i2c-ali15x3.o
+--- a/drivers/i2c/busses/Makefile	Thu Mar 13 16:58:06 2003
++++ b/drivers/i2c/busses/Makefile	Thu Mar 13 16:58:06 2003
+@@ -2,5 +2,6 @@
+ # Makefile for the kernel hardware sensors bus drivers.
+ #
+ 
++obj-$(CONFIG_I2C_ALI15X3)	+= i2c-ali15x3.o
  obj-$(CONFIG_I2C_AMD756)	+= i2c-amd756.o
  obj-$(CONFIG_I2C_AMD8111)	+= i2c-amd8111.o
-+obj-$(CONFIG_I2C_I801)		+= i2c-i801.o
-diff -Nru a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+diff -Nru a/drivers/i2c/busses/i2c-ali15x3.c b/drivers/i2c/busses/i2c-ali15x3.c
 --- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/i2c/busses/i2c-i801.c	Thu Mar 13 16:57:50 2003
-@@ -0,0 +1,710 @@
++++ b/drivers/i2c/busses/i2c-ali15x3.c	Thu Mar 13 16:58:06 2003
+@@ -0,0 +1,587 @@
 +/*
-+    i801.c - Part of lm_sensors, Linux kernel modules for hardware
++    ali15x3.c - Part of lm_sensors, Linux kernel modules for hardware
 +              monitoring
-+    Copyright (c) 1998 - 2002  Frodo Looijaard <frodol@dds.nl>,
-+    Philip Edelbrock <phil@netroedge.com>, and Mark D. Studebaker
-+    <mdsxyz123@yahoo.com>
++    Copyright (c) 1999  Frodo Looijaard <frodol@dds.nl> and
++    Philip Edelbrock <phil@netroedge.com> and
++    Mark D. Studebaker <mdsxyz123@yahoo.com>
 +
 +    This program is free software; you can redistribute it and/or modify
 +    it under the terms of the GNU General Public License as published by
@@ -99,23 +93,44 @@ diff -Nru a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
 +*/
 +
 +/*
-+    SUPPORTED DEVICES	PCI ID
-+    82801AA		2413           
-+    82801AB		2423           
-+    82801BA		2443           
-+    82801CA/CAM		2483           
-+    82801DB		24C3   (HW PEC supported, 32 byte buffer not supported)
++    This is the driver for the SMB Host controller on
++    Acer Labs Inc. (ALI) M1541 and M1543C South Bridges.
 +
-+    This driver supports several versions of Intel's I/O Controller Hubs (ICH).
-+    For SMBus support, they are similar to the PIIX4 and are part
-+    of Intel's '810' and other chipsets.
-+    See the doc/busses/i2c-i801 file for details.
-+    I2C Block Read and Process Call are not supported.
++    The M1543C is a South bridge for desktop systems.
++    The M1533 is a South bridge for portable systems.
++    They are part of the following ALI chipsets:
++       "Aladdin Pro 2": Includes the M1621 Slot 1 North bridge
++       with AGP and 100MHz CPU Front Side bus
++       "Aladdin V": Includes the M1541 Socket 7 North bridge
++       with AGP and 100MHz CPU Front Side bus
++       "Aladdin IV": Includes the M1541 Socket 7 North bridge
++       with host bus up to 83.3 MHz.
++    For an overview of these chips see http://www.acerlabs.com
++
++    The M1533/M1543C devices appear as FOUR separate devices
++    on the PCI bus. An output of lspci will show something similar
++    to the following:
++
++	00:02.0 USB Controller: Acer Laboratories Inc. M5237
++	00:03.0 Bridge: Acer Laboratories Inc. M7101
++	00:07.0 ISA bridge: Acer Laboratories Inc. M1533
++	00:0f.0 IDE interface: Acer Laboratories Inc. M5229
++
++    The SMB controller is part of the 7101 device, which is an
++    ACPI-compliant Power Management Unit (PMU).
++
++    The whole 7101 device has to be enabled for the SMB to work.
++    You can't just enable the SMB alone.
++    The SMB and the ACPI have separate I/O spaces.
++    We make sure that the SMB is enabled. We leave the ACPI alone.
++
++    This driver controls the SMB Host only.
++    The SMB Slave controller on the M15X3 is not enabled.
++
++    This driver does not use interrupts.
 +*/
 +
-+/* Note: we assume there can only be one I801, with one SMBus interface */
-+
-+/* #define DEBUG 1 */
++/* Note: we assume there can only be one ALI15X3, with one SMBus interface */
 +
 +#include <linux/module.h>
 +#include <linux/pci.h>
@@ -123,198 +138,197 @@ diff -Nru a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
 +#include <linux/stddef.h>
 +#include <linux/sched.h>
 +#include <linux/ioport.h>
-+#include <linux/init.h>
 +#include <linux/i2c.h>
++#include <linux/init.h>
 +#include <asm/io.h>
 +
-+MODULE_LICENSE("GPL");
-+
-+#ifdef I2C_FUNC_SMBUS_BLOCK_DATA_PEC
-+#define HAVE_PEC
-+#endif
-+
-+#ifndef PCI_DEVICE_ID_INTEL_82801CA_SMBUS
-+#define PCI_DEVICE_ID_INTEL_82801CA_SMBUS	0x2483
-+#endif
-+
-+#ifndef PCI_DEVICE_ID_INTEL_82801DB_SMBUS
-+#define PCI_DEVICE_ID_INTEL_82801DB_SMBUS	0x24C3
-+#endif
-+
-+static int supported[] = {PCI_DEVICE_ID_INTEL_82801AA_3,
-+                          PCI_DEVICE_ID_INTEL_82801AB_3,
-+                          PCI_DEVICE_ID_INTEL_82801BA_2,
-+			  PCI_DEVICE_ID_INTEL_82801CA_SMBUS,
-+			  PCI_DEVICE_ID_INTEL_82801DB_SMBUS,
-+                          0 };
-+
-+/* I801 SMBus address offsets */
-+#define SMBHSTSTS (0 + i801_smba)
-+#define SMBHSTCNT (2 + i801_smba)
-+#define SMBHSTCMD (3 + i801_smba)
-+#define SMBHSTADD (4 + i801_smba)
-+#define SMBHSTDAT0 (5 + i801_smba)
-+#define SMBHSTDAT1 (6 + i801_smba)
-+#define SMBBLKDAT (7 + i801_smba)
-+#define SMBPEC    (8 + i801_smba)	/* ICH4 only */
-+#define SMBAUXSTS (12 + i801_smba)	/* ICH4 only */
-+#define SMBAUXCTL (13 + i801_smba)	/* ICH4 only */
++/* ALI15X3 SMBus address offsets */
++#define SMBHSTSTS (0 + ali15x3_smba)
++#define SMBHSTCNT (1 + ali15x3_smba)
++#define SMBHSTSTART (2 + ali15x3_smba)
++#define SMBHSTCMD (7 + ali15x3_smba)
++#define SMBHSTADD (3 + ali15x3_smba)
++#define SMBHSTDAT0 (4 + ali15x3_smba)
++#define SMBHSTDAT1 (5 + ali15x3_smba)
++#define SMBBLKDAT (6 + ali15x3_smba)
 +
 +/* PCI Address Constants */
-+#define SMBBA     0x020
-+#define SMBHSTCFG 0x040
++#define SMBCOM    0x004
++#define SMBBA     0x014
++#define SMBATPC   0x05B		/* used to unlock xxxBA registers */
++#define SMBHSTCFG 0x0E0
++#define SMBSLVC   0x0E1
++#define SMBCLK    0x0E2
 +#define SMBREV    0x008
 +
-+/* Host configuration bits for SMBHSTCFG */
-+#define SMBHSTCFG_HST_EN      1
-+#define SMBHSTCFG_SMB_SMI_EN  2
-+#define SMBHSTCFG_I2C_EN      4
-+
 +/* Other settings */
-+#define MAX_TIMEOUT 100
-+#define ENABLE_INT9 0	/* set to 0x01 to enable - untested */
++#define MAX_TIMEOUT 200		/* times 1/100 sec */
++#define ALI15X3_SMB_IOSIZE 32
 +
-+/* I801 command constants */
-+#define I801_QUICK          0x00
-+#define I801_BYTE           0x04
-+#define I801_BYTE_DATA      0x08
-+#define I801_WORD_DATA      0x0C
-+#define I801_PROC_CALL      0x10	/* later chips only, unimplemented */
-+#define I801_BLOCK_DATA     0x14
-+#define I801_I2C_BLOCK_DATA 0x18	/* unimplemented */
-+#define I801_BLOCK_LAST     0x34
-+#define I801_I2C_BLOCK_LAST 0x38	/* unimplemented */
-+#define I801_START          0x40
-+#define I801_PEC_EN         0x80	/* ICH4 only */
++/* this is what the Award 1004 BIOS sets them to on a ASUS P5A MB.
++   We don't use these here. If the bases aren't set to some value we
++   tell user to upgrade BIOS and we fail.
++*/
++#define ALI15X3_SMB_DEFAULTBASE 0xE800
 +
-+/* insmod parameters */
++/* ALI15X3 address lock bits */
++#define ALI15X3_LOCK	0x06
++
++/* ALI15X3 command constants */
++#define ALI15X3_ABORT      0x02
++#define ALI15X3_T_OUT      0x04
++#define ALI15X3_QUICK      0x00
++#define ALI15X3_BYTE       0x10
++#define ALI15X3_BYTE_DATA  0x20
++#define ALI15X3_WORD_DATA  0x30
++#define ALI15X3_BLOCK_DATA 0x40
++#define ALI15X3_BLOCK_CLR  0x80
++
++/* ALI15X3 status register bits */
++#define ALI15X3_STS_IDLE	0x04
++#define ALI15X3_STS_BUSY	0x08
++#define ALI15X3_STS_DONE	0x10
++#define ALI15X3_STS_DEV		0x20	/* device error */
++#define ALI15X3_STS_COLL	0x40	/* collision or no response */
++#define ALI15X3_STS_TERM	0x80	/* terminated by abort */
++#define ALI15X3_STS_ERR		0xE0	/* all the bad error bits */
++
 +
 +/* If force_addr is set to anything different from 0, we forcibly enable
-+   the I801 at the given address. VERY DANGEROUS! */
++   the device at the given address. */
 +static int force_addr = 0;
 +MODULE_PARM(force_addr, "i");
 +MODULE_PARM_DESC(force_addr,
-+		 "Forcibly enable the I801 at the given address. "
-+		 "EXTREMELY DANGEROUS!");
++		 "Initialize the base address of the i2c controller");
 +
 +
++static void ali15x3_do_pause(unsigned int amount);
++static int ali15x3_transaction(void);
 +
++static unsigned short ali15x3_smba = 0;
 +
-+
-+static void i801_do_pause(unsigned int amount);
-+static int i801_transaction(void);
-+static int i801_block_transaction(union i2c_smbus_data *data,
-+				  char read_write, int command);
-+
-+
-+
-+
-+static unsigned short i801_smba = 0;
-+static struct pci_dev *I801_dev = NULL;
-+static int isich4 = 0;
-+
-+/* Detect whether a I801 can be found, and initialize it, where necessary.
++/* Detect whether a ALI15X3 can be found, and initialize it, where necessary.
 +   Note the differences between kernels with the old PCI BIOS interface and
 +   newer kernels with the real PCI interface. In compat.h some things are
 +   defined to make the transition easier. */
-+int i801_setup(void)
++int ali15x3_setup(void)
 +{
-+	int error_return = 0;
-+	int *num = supported;
++	u16 a;
 +	unsigned char temp;
++
++	struct pci_dev *ALI15X3_dev;
 +
 +	/* First check whether we can access PCI at all */
 +	if (pci_present() == 0) {
-+		printk(KERN_WARNING "i2c-i801.o: Error: No PCI-bus found!\n");
-+		error_return = -ENODEV;
-+		goto END;
++		printk("i2c-ali15x3.o: Error: No PCI-bus found!\n");
++		return -ENODEV;
 +	}
 +
-+	/* Look for each chip */
-+	/* Note: we keep on searching until we have found 'function 3' */
-+	I801_dev = NULL;
-+	do {
-+		if((I801_dev = pci_find_device(PCI_VENDOR_ID_INTEL,
-+					      *num, I801_dev))) {
-+			if(PCI_FUNC(I801_dev->devfn) != 3)
-+				continue;
-+			break;
-+		}
-+		num++;
-+	} while (*num != 0);
++	/* Look for the ALI15X3, M7101 device */
++	ALI15X3_dev = NULL;
++	ALI15X3_dev = pci_find_device(PCI_VENDOR_ID_AL,
++				      PCI_DEVICE_ID_AL_M7101, ALI15X3_dev);
++	if (ALI15X3_dev == NULL) {
++		printk("i2c-ali15x3.o: Error: Can't detect ali15x3!\n");
++		return -ENODEV;
++	}
 +
-+	if (I801_dev == NULL) {
++/* Check the following things:
++	- SMB I/O address is initialized
++	- Device is enabled
++	- We can use the addresses
++*/
++
++/* Unlock the register.
++   The data sheet says that the address registers are read-only
++   if the lock bits are 1, but in fact the address registers
++   are zero unless you clear the lock bits.
++*/
++	pci_read_config_byte(ALI15X3_dev, SMBATPC, &temp);
++	if (temp & ALI15X3_LOCK) {
++		temp &= ~ALI15X3_LOCK;
++		pci_write_config_byte(ALI15X3_dev, SMBATPC, temp);
++	}
++
++/* Determine the address of the SMBus area */
++	pci_read_config_word(ALI15X3_dev, SMBBA, &ali15x3_smba);
++	ali15x3_smba &= (0xffff & ~(ALI15X3_SMB_IOSIZE - 1));
++	if (ali15x3_smba == 0 && force_addr == 0) {
 +		printk
-+		    (KERN_WARNING "i2c-i801.o: Error: Can't detect I801, function 3!\n");
-+		error_return = -ENODEV;
-+		goto END;
++		    ("i2c-ali15x3.o: ALI15X3_smb region uninitialized - upgrade BIOS or use force_addr=0xaddr\n");
++		return -ENODEV;
 +	}
-+	isich4 = *num == PCI_DEVICE_ID_INTEL_82801DB_SMBUS;
 +
-+/* Determine the address of the SMBus areas */
-+	if (force_addr) {
-+		i801_smba = force_addr & 0xfff0;
-+	} else {
-+		pci_read_config_word(I801_dev, SMBBA, &i801_smba);
-+		i801_smba &= 0xfff0;
-+		if(i801_smba == 0) {
-+			printk(KERN_ERR "i2c-i801.o: SMB base address uninitialized - upgrade BIOS or use force_addr=0xaddr\n");
++	if(force_addr)
++		ali15x3_smba = force_addr & ~(ALI15X3_SMB_IOSIZE - 1);
++
++	if (check_region(ali15x3_smba, ALI15X3_SMB_IOSIZE)) {
++		printk
++		    ("i2c-ali15x3.o: ALI15X3_smb region 0x%x already in use!\n",
++		     ali15x3_smba);
++		return -ENODEV;
++	}
++
++	if(force_addr) {
++		printk("i2c-ali15x3.o: forcing ISA address 0x%04X\n", ali15x3_smba);
++		if (PCIBIOS_SUCCESSFUL !=
++		    pci_write_config_word(ALI15X3_dev, SMBBA, ali15x3_smba))
++			return -ENODEV;
++		if (PCIBIOS_SUCCESSFUL !=
++		    pci_read_config_word(ALI15X3_dev, SMBBA, &a))
++			return -ENODEV;
++		if ((a & ~(ALI15X3_SMB_IOSIZE - 1)) != ali15x3_smba) {
++			/* make sure it works */
++			printk("i2c-ali15x3.o: force address failed - not supported?\n");
 +			return -ENODEV;
 +		}
 +	}
-+
-+	if (check_region(i801_smba, (isich4 ? 16 : 8))) {
-+		printk
-+		    (KERN_ERR "i2c-i801.o: I801_smb region 0x%x already in use!\n",
-+		     i801_smba);
-+		error_return = -ENODEV;
-+		goto END;
++/* check if whole device is enabled */
++	pci_read_config_byte(ALI15X3_dev, SMBCOM, &temp);
++	if ((temp & 1) == 0) {
++		printk("i2c-ali15x3: enabling SMBus device\n");
++		pci_write_config_byte(ALI15X3_dev, SMBCOM, temp | 0x01);
 +	}
 +
-+	pci_read_config_byte(I801_dev, SMBHSTCFG, &temp);
-+	temp &= ~SMBHSTCFG_I2C_EN;	/* SMBus timing */
-+	pci_write_config_byte(I801_dev, SMBHSTCFG, temp);
-+/* If force_addr is set, we program the new address here. Just to make
-+   sure, we disable the device first. */
-+	if (force_addr) {
-+		pci_write_config_byte(I801_dev, SMBHSTCFG, temp & 0xfe);
-+		pci_write_config_word(I801_dev, SMBBA, i801_smba);
-+		pci_write_config_byte(I801_dev, SMBHSTCFG, temp | 0x01);
-+		printk
-+		    (KERN_WARNING "i2c-i801.o: WARNING: I801 SMBus interface set to new "
-+		     "address %04x!\n", i801_smba);
-+	} else if ((temp & 1) == 0) {
-+		pci_write_config_byte(I801_dev, SMBHSTCFG, temp | 1);
-+		printk(KERN_WARNING "i2c-i801.o: enabling SMBus device\n");
++/* Is SMB Host controller enabled? */
++	pci_read_config_byte(ALI15X3_dev, SMBHSTCFG, &temp);
++	if ((temp & 1) == 0) {
++		printk("i2c-ali15x3: enabling SMBus controller\n");
++		pci_write_config_byte(ALI15X3_dev, SMBHSTCFG, temp | 0x01);
 +	}
 +
-+	request_region(i801_smba, (isich4 ? 16 : 8), "i801-smbus");
++/* set SMB clock to 74KHz as recommended in data sheet */
++	pci_write_config_byte(ALI15X3_dev, SMBCLK, 0x20);
++
++	/* Everything is happy, let's grab the memory and set things up. */
++	request_region(ali15x3_smba, ALI15X3_SMB_IOSIZE, "ali15x3-smb");
 +
 +#ifdef DEBUG
-+	if (temp & 0x02)
-+		printk
-+		    (KERN_DEBUG "i2c-i801.o: I801 using Interrupt SMI# for SMBus.\n");
-+	else
-+		printk
-+		    (KERN_DEBUG "i2c-i801.o: I801 using PCI Interrupt for SMBus.\n");
-+
-+	pci_read_config_byte(I801_dev, SMBREV, &temp);
-+	printk(KERN_DEBUG "i2c-i801.o: SMBREV = 0x%X\n", temp);
-+	printk(KERN_DEBUG "i2c-i801.o: I801_smba = 0x%X\n", i801_smba);
++/*
++  The interrupt routing for SMB is set up in register 0x77 in the
++  1533 ISA Bridge device, NOT in the 7101 device.
++  Don't bother with finding the 1533 device and reading the register.
++  if ((....... & 0x0F) == 1)
++     printk("i2c-ali15x3.o: ALI15X3 using Interrupt 9 for SMBus.\n");
++*/
++	pci_read_config_byte(ALI15X3_dev, SMBREV, &temp);
++	printk("i2c-ali15x3.o: SMBREV = 0x%X\n", temp);
++	printk("i2c-ali15x3.o: ALI15X3_smba = 0x%X\n", ali15x3_smba);
 +#endif				/* DEBUG */
 +
-+      END:
-+	return error_return;
++	return 0;
 +}
 +
 +
-+void i801_do_pause(unsigned int amount)
++/* Internally used pause function */
++void ali15x3_do_pause(unsigned int amount)
 +{
 +	current->state = TASK_INTERRUPTIBLE;
 +	schedule_timeout(amount);
 +}
 +
-+int i801_transaction(void)
++/* Another internally used function */
++int ali15x3_transaction(void)
 +{
 +	int temp;
 +	int result = 0;
@@ -322,311 +336,171 @@ diff -Nru a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
 +
 +#ifdef DEBUG
 +	printk
-+	    (KERN_DEBUG "i2c-i801.o: Transaction (pre): CNT=%02x, CMD=%02x, ADD=%02x, DAT0=%02x, "
-+	     "DAT1=%02x\n", inb_p(SMBHSTCNT), inb_p(SMBHSTCMD),
-+	     inb_p(SMBHSTADD), inb_p(SMBHSTDAT0), inb_p(SMBHSTDAT1));
++	    ("i2c-ali15x3.o: Transaction (pre): STS=%02x, CNT=%02x, CMD=%02x, ADD=%02x, DAT0=%02x, "
++	     "DAT1=%02x\n", inb_p(SMBHSTSTS), inb_p(SMBHSTCNT),
++	     inb_p(SMBHSTCMD), inb_p(SMBHSTADD), inb_p(SMBHSTDAT0),
++	     inb_p(SMBHSTDAT1));
 +#endif
 +
++	/* get status */
++	temp = inb_p(SMBHSTSTS);
++
 +	/* Make sure the SMBus host is ready to start transmitting */
-+	/* 0x1f = Failed, Bus_Err, Dev_Err, Intr, Host_Busy */
-+	if ((temp = (0x1f & inb_p(SMBHSTSTS))) != 0x00) {
++	/* Check the busy bit first */
++	if (temp & ALI15X3_STS_BUSY) {
++/*
++   If the host controller is still busy, it may have timed out in the previous transaction,
++   resulting in a "SMBus Timeout" printk.
++   I've tried the following to reset a stuck busy bit.
++	1. Reset the controller with an ABORT command.
++	   (this doesn't seem to clear the controller if an external device is hung)
++	2. Reset the controller and the other SMBus devices with a T_OUT command.
++	   (this clears the host busy bit if an external device is hung,
++	   but it comes back upon a new access to a device)
++	3. Disable and reenable the controller in SMBHSTCFG
++   Worst case, nothing seems to work except power reset.
++*/
++/* Abort - reset the host controller */
++/*
 +#ifdef DEBUG
-+		printk(KERN_DEBUG "i2c-i801.o: SMBus busy (%02x). Resetting... \n",
-+		       temp);
++    printk("i2c-ali15x3.o: Resetting host controller to clear busy condition\n",temp);
 +#endif
-+		outb_p(temp, SMBHSTSTS);
-+		if ((temp = (0x1f & inb_p(SMBHSTSTS))) != 0x00) {
-+#ifdef DEBUG
-+			printk(KERN_DEBUG "i2c-i801.o: Failed! (%02x)\n", temp);
-+#endif
++    outb_p(ALI15X3_ABORT, SMBHSTCNT);
++    temp = inb_p(SMBHSTSTS);
++    if (temp & ALI15X3_STS_BUSY) {
++*/
++
++/*
++   Try resetting entire SMB bus, including other devices -
++   This may not work either - it clears the BUSY bit but
++   then the BUSY bit may come back on when you try and use the chip again.
++   If that's the case you are stuck.
++*/
++		printk
++		    ("i2c-ali15x3.o: Resetting entire SMB Bus to clear busy condition (%02x)\n",
++		     temp);
++		outb_p(ALI15X3_T_OUT, SMBHSTCNT);
++		temp = inb_p(SMBHSTSTS);
++	}
++/*
++  }
++*/
++
++	/* now check the error bits and the busy bit */
++	if (temp & (ALI15X3_STS_ERR | ALI15X3_STS_BUSY)) {
++		/* do a clear-on-write */
++		outb_p(0xFF, SMBHSTSTS);
++		if ((temp = inb_p(SMBHSTSTS)) &
++		    (ALI15X3_STS_ERR | ALI15X3_STS_BUSY)) {
++			/* this is probably going to be correctable only by a power reset
++			   as one of the bits now appears to be stuck */
++			/* This may be a bus or device with electrical problems. */
++			printk
++			    ("i2c-ali15x3.o: SMBus reset failed! (0x%02x) - controller or device on bus is probably hung\n",
++			     temp);
 +			return -1;
-+		} else {
-+#ifdef DEBUG
-+			printk(KERN_DEBUG "i2c-i801.o: Successfull!\n");
-+#endif
++		}
++	} else {
++		/* check and clear done bit */
++		if (temp & ALI15X3_STS_DONE) {
++			outb_p(temp, SMBHSTSTS);
 +		}
 +	}
 +
-+	outb_p(inb(SMBHSTCNT) | I801_START, SMBHSTCNT);
++	/* start the transaction by writing anything to the start register */
++	outb_p(0xFF, SMBHSTSTART);
 +
 +	/* We will always wait for a fraction of a second! */
++	timeout = 0;
 +	do {
-+		i801_do_pause(1);
++		ali15x3_do_pause(1);
 +		temp = inb_p(SMBHSTSTS);
-+	} while ((temp & 0x01) && (timeout++ < MAX_TIMEOUT));
++	} while ((!(temp & (ALI15X3_STS_ERR | ALI15X3_STS_DONE)))
++		 && (timeout++ < MAX_TIMEOUT));
 +
 +	/* If the SMBus is still busy, we give up */
 +	if (timeout >= MAX_TIMEOUT) {
-+#ifdef DEBUG
-+		printk(KERN_DEBUG "i2c-i801.o: SMBus Timeout!\n");
 +		result = -1;
++		printk("i2c-ali15x3.o: SMBus Timeout!\n");
++	}
++
++	if (temp & ALI15X3_STS_TERM) {
++		result = -1;
++#ifdef DEBUG
++		printk("i2c-ali15x3.o: Error: Failed bus transaction\n");
 +#endif
 +	}
 +
-+	if (temp & 0x10) {
++/*
++  Unfortunately the ALI SMB controller maps "no response" and "bus collision"
++  into a single bit. No reponse is the usual case so don't
++  do a printk.
++  This means that bus collisions go unreported.
++*/
++	if (temp & ALI15X3_STS_COLL) {
 +		result = -1;
-+#ifdef DEBUG
-+		printk(KERN_DEBUG "i2c-i801.o: Error: Failed bus transaction\n");
-+#endif
-+	}
-+
-+	if (temp & 0x08) {
-+		result = -1;
-+		printk
-+		    (KERN_ERR "i2c-i801.o: Bus collision! SMBus may be locked until next hard\n"
-+		     "reset. (sorry!)\n");
-+		/* Clock stops and slave is stuck in mid-transmission */
-+	}
-+
-+	if (temp & 0x04) {
-+		result = -1;
-+#ifdef DEBUG
-+		printk(KERN_DEBUG "i2c-i801.o: Error: no response!\n");
-+#endif
-+	}
-+
-+	if ((inb_p(SMBHSTSTS) & 0x1f) != 0x00)
-+		outb_p(inb(SMBHSTSTS), SMBHSTSTS);
-+
-+	if ((temp = (0x1f & inb_p(SMBHSTSTS))) != 0x00) {
 +#ifdef DEBUG
 +		printk
-+		    (KERN_DEBUG "i2c-i801.o: Failed reset at end of transaction (%02x)\n",
-+		     temp);
++		    ("i2c-ali15x3.o: Error: no response or bus collision ADD=%02x\n",
++		     inb_p(SMBHSTADD));
 +#endif
++	}
++
++/* haven't ever seen this */
++	if (temp & ALI15X3_STS_DEV) {
++		result = -1;
++		printk("i2c-ali15x3.o: Error: device error\n");
 +	}
 +#ifdef DEBUG
 +	printk
-+	    (KERN_DEBUG "i2c-i801.o: Transaction (post): CNT=%02x, CMD=%02x, ADD=%02x, "
-+	     "DAT0=%02x, DAT1=%02x\n", inb_p(SMBHSTCNT), inb_p(SMBHSTCMD),
-+	     inb_p(SMBHSTADD), inb_p(SMBHSTDAT0), inb_p(SMBHSTDAT1));
++	    ("i2c-ali15x3.o: Transaction (post): STS=%02x, CNT=%02x, CMD=%02x, ADD=%02x, "
++	     "DAT0=%02x, DAT1=%02x\n", inb_p(SMBHSTSTS), inb_p(SMBHSTCNT),
++	     inb_p(SMBHSTCMD), inb_p(SMBHSTADD), inb_p(SMBHSTDAT0),
++	     inb_p(SMBHSTDAT1));
 +#endif
-+	return result;
-+}
-+
-+/* All-inclusive block transaction function */
-+int i801_block_transaction(union i2c_smbus_data *data, char read_write, 
-+                           int command)
-+{
-+	int i, len;
-+	int smbcmd;
-+	int temp;
-+	int result = 0;
-+	int timeout;
-+        unsigned char hostc, errmask;
-+
-+        if (command == I2C_SMBUS_I2C_BLOCK_DATA) {
-+                if (read_write == I2C_SMBUS_WRITE) {
-+                        /* set I2C_EN bit in configuration register */
-+                        pci_read_config_byte(I801_dev, SMBHSTCFG, &hostc);
-+                        pci_write_config_byte(I801_dev, SMBHSTCFG, 
-+                                              hostc | SMBHSTCFG_I2C_EN);
-+                } else {
-+                        printk("i2c-i801.o: "
-+                               "I2C_SMBUS_I2C_BLOCK_READ not supported!\n");
-+                        return -1;
-+                }
-+        }
-+
-+	if (read_write == I2C_SMBUS_WRITE) {
-+		len = data->block[0];
-+		if (len < 1)
-+			len = 1;
-+		if (len > 32)
-+			len = 32;
-+		outb_p(len, SMBHSTDAT0);
-+		outb_p(data->block[1], SMBBLKDAT);
-+	} else {
-+		len = 32;	/* max for reads */
-+	}
-+
-+	if(isich4 && command != I2C_SMBUS_I2C_BLOCK_DATA) {
-+		/* set 32 byte buffer */
-+	}
-+
-+	for (i = 1; i <= len; i++) {
-+		if (i == len && read_write == I2C_SMBUS_READ)
-+			smbcmd = I801_BLOCK_LAST;
-+		else
-+			smbcmd = I801_BLOCK_DATA;
-+#if 0 /* now using HW PEC */
-+		if(isich4 && command == I2C_SMBUS_BLOCK_DATA_PEC)
-+			smbcmd |= I801_PEC_EN;
-+#endif
-+		outb_p(smbcmd | ENABLE_INT9, SMBHSTCNT);
-+
-+#ifdef DEBUG
-+		printk
-+		    (KERN_DEBUG "i2c-i801.o: Block (pre %d): CNT=%02x, CMD=%02x, ADD=%02x, "
-+		     "DAT0=%02x, BLKDAT=%02x\n", i, inb_p(SMBHSTCNT),
-+		     inb_p(SMBHSTCMD), inb_p(SMBHSTADD), inb_p(SMBHSTDAT0),
-+		     inb_p(SMBBLKDAT));
-+#endif
-+
-+		/* Make sure the SMBus host is ready to start transmitting */
-+		temp = inb_p(SMBHSTSTS);
-+                if (i == 1) {
-+                    /* Erronenous conditions before transaction: 
-+                     * Byte_Done, Failed, Bus_Err, Dev_Err, Intr, Host_Busy */
-+                    errmask=0x9f; 
-+                } else {
-+                    /* Erronenous conditions during transaction: 
-+                     * Failed, Bus_Err, Dev_Err, Intr */
-+                    errmask=0x1e; 
-+                }
-+		if (temp & errmask) {
-+#ifdef DEBUG
-+			printk
-+			    (KERN_DEBUG "i2c-i801.o: SMBus busy (%02x). Resetting... \n",
-+			     temp);
-+#endif
-+			outb_p(temp, SMBHSTSTS);
-+			if (((temp = inb_p(SMBHSTSTS)) & errmask) != 0x00) {
-+				printk
-+				    (KERN_ERR "i2c-i801.o: Reset failed! (%02x)\n",
-+				     temp);
-+				result = -1;
-+                                goto END;
-+			}
-+			if (i != 1) {
-+                                result = -1;  /* if die in middle of block transaction, fail */
-+                                goto END;
-+                        }
-+		}
-+
-+		if (i == 1) {
-+#if 0 /* #ifdef HAVE_PEC (now using HW PEC) */
-+			if(isich4 && command == I2C_SMBUS_BLOCK_DATA_PEC) {
-+				if(read_write == I2C_SMBUS_WRITE)
-+					outb_p(data->block[len + 1], SMBPEC);
-+			}
-+#endif
-+			outb_p(inb(SMBHSTCNT) | I801_START, SMBHSTCNT);
-+		}
-+
-+		/* We will always wait for a fraction of a second! */
-+		timeout = 0;
-+		do {
-+			temp = inb_p(SMBHSTSTS);
-+			i801_do_pause(1);
-+		}
-+		    while ((!(temp & 0x80))
-+			   && (timeout++ < MAX_TIMEOUT));
-+
-+		/* If the SMBus is still busy, we give up */
-+		if (timeout >= MAX_TIMEOUT) {
-+			result = -1;
-+#ifdef DEBUG
-+			printk(KERN_DEBUG "i2c-i801.o: SMBus Timeout!\n");
-+#endif
-+		}
-+
-+		if (temp & 0x10) {
-+			result = -1;
-+#ifdef DEBUG
-+			printk
-+			    (KERN_DEBUG "i2c-i801.o: Error: Failed bus transaction\n");
-+#endif
-+		} else if (temp & 0x08) {
-+			result = -1;
-+			printk(KERN_ERR "i2c-i801.o: Bus collision!\n");
-+		} else if (temp & 0x04) {
-+			result = -1;
-+#ifdef DEBUG
-+			printk(KERN_DEBUG "i2c-i801.o: Error: no response!\n");
-+#endif
-+		}
-+
-+		if (i == 1 && read_write == I2C_SMBUS_READ) {
-+			len = inb_p(SMBHSTDAT0);
-+			if (len < 1)
-+				len = 1;
-+			if (len > 32)
-+				len = 32;
-+			data->block[0] = len;
-+		}
-+
-+                /* Retrieve/store value in SMBBLKDAT */
-+		if (read_write == I2C_SMBUS_READ)
-+			data->block[i] = inb_p(SMBBLKDAT);
-+		if (read_write == I2C_SMBUS_WRITE && i+1 <= len)
-+			outb_p(data->block[i+1], SMBBLKDAT);
-+		if ((temp & 0x9e) != 0x00)
-+			outb_p(temp, SMBHSTSTS);  /* signals SMBBLKDAT ready */
-+
-+#ifdef DEBUG
-+		if ((temp = (0x1e & inb_p(SMBHSTSTS))) != 0x00) {
-+			printk
-+			    (KERN_DEBUG "i2c-i801.o: Bad status (%02x) at end of transaction\n",
-+			     temp);
-+		}
-+		printk
-+		    (KERN_DEBUG "i2c-i801.o: Block (post %d): CNT=%02x, CMD=%02x, ADD=%02x, "
-+		     "DAT0=%02x, BLKDAT=%02x\n", i, inb_p(SMBHSTCNT),
-+		     inb_p(SMBHSTCMD), inb_p(SMBHSTADD), inb_p(SMBHSTDAT0),
-+		     inb_p(SMBBLKDAT));
-+#endif
-+
-+		if (result < 0)
-+			goto END;
-+	}
-+
-+#ifdef HAVE_PEC
-+	if(isich4 && command == I2C_SMBUS_BLOCK_DATA_PEC) {
-+		/* wait for INTR bit as advised by Intel */
-+		timeout = 0;
-+		do {
-+			temp = inb_p(SMBHSTSTS);
-+			i801_do_pause(1);
-+		} while ((!(temp & 0x02))
-+			   && (timeout++ < MAX_TIMEOUT));
-+
-+		if (timeout >= MAX_TIMEOUT) {
-+			printk(KERN_DEBUG "i2c-i801.o: PEC Timeout!\n");
-+		}
-+#if 0 /* now using HW PEC */
-+		if(read_write == I2C_SMBUS_READ) {
-+			data->block[len + 1] = inb_p(SMBPEC);
-+		}
-+#endif
-+		outb_p(temp, SMBHSTSTS); 
-+	}
-+#endif
-+        result = 0;
-+END:
-+        if (command == I2C_SMBUS_I2C_BLOCK_DATA) {
-+                /* restore saved configuration register value */
-+		pci_write_config_byte(I801_dev, SMBHSTCFG, hostc);
-+        }
 +	return result;
 +}
 +
 +/* Return -1 on error. */
-+s32 i801_access(struct i2c_adapter * adap, u16 addr, unsigned short flags,
-+		char read_write, u8 command, int size,
-+		union i2c_smbus_data * data)
++s32 ali15x3_access(struct i2c_adapter * adap, u16 addr,
++		   unsigned short flags, char read_write, u8 command,
++		   int size, union i2c_smbus_data * data)
 +{
-+	int hwpec = 0;
-+	int block = 0;
-+	int ret, xact = 0;
++	int i, len;
++	int temp;
++	int timeout;
 +
-+#ifdef HAVE_PEC
-+	if(isich4)
-+		hwpec = (flags & I2C_CLIENT_PEC) != 0;
-+#endif
++/* clear all the bits (clear-on-write) */
++	outb_p(0xFF, SMBHSTSTS);
++/* make sure SMBus is idle */
++	temp = inb_p(SMBHSTSTS);
++	for (timeout = 0;
++	     (timeout < MAX_TIMEOUT) && !(temp & ALI15X3_STS_IDLE);
++	     timeout++) {
++		ali15x3_do_pause(1);
++		temp = inb_p(SMBHSTSTS);
++	}
++	if (timeout >= MAX_TIMEOUT) {
++		printk("i2c-ali15x3.o: Idle wait Timeout! STS=0x%02x\n",
++		       temp);
++	}
 +
 +	switch (size) {
++	case I2C_SMBUS_PROC_CALL:
++		printk
++		    ("i2c-ali15x3.o: I2C_SMBUS_PROC_CALL not supported!\n");
++		return -1;
 +	case I2C_SMBUS_QUICK:
 +		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
 +		       SMBHSTADD);
-+		xact = I801_QUICK;
++		size = ALI15X3_QUICK;
 +		break;
 +	case I2C_SMBUS_BYTE:
 +		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
 +		       SMBHSTADD);
 +		if (read_write == I2C_SMBUS_WRITE)
 +			outb_p(command, SMBHSTCMD);
-+		xact = I801_BYTE;
++		size = ALI15X3_BYTE;
 +		break;
 +	case I2C_SMBUS_BYTE_DATA:
 +		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
@@ -634,7 +508,7 @@ diff -Nru a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
 +		outb_p(command, SMBHSTCMD);
 +		if (read_write == I2C_SMBUS_WRITE)
 +			outb_p(data->byte, SMBHSTDAT0);
-+		xact = I801_BYTE_DATA;
++		size = ALI15X3_BYTE_DATA;
 +		break;
 +	case I2C_SMBUS_WORD_DATA:
 +		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
@@ -644,146 +518,143 @@ diff -Nru a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
 +			outb_p(data->word & 0xff, SMBHSTDAT0);
 +			outb_p((data->word & 0xff00) >> 8, SMBHSTDAT1);
 +		}
-+		xact = I801_WORD_DATA;
++		size = ALI15X3_WORD_DATA;
 +		break;
 +	case I2C_SMBUS_BLOCK_DATA:
-+	case I2C_SMBUS_I2C_BLOCK_DATA:
-+#ifdef HAVE_PEC
-+	case I2C_SMBUS_BLOCK_DATA_PEC:
-+		if(hwpec && size == I2C_SMBUS_BLOCK_DATA)
-+			size = I2C_SMBUS_BLOCK_DATA_PEC;
-+#endif
 +		outb_p(((addr & 0x7f) << 1) | (read_write & 0x01),
 +		       SMBHSTADD);
 +		outb_p(command, SMBHSTCMD);
-+		block = 1;
++		if (read_write == I2C_SMBUS_WRITE) {
++			len = data->block[0];
++			if (len < 0) {
++				len = 0;
++				data->block[0] = len;
++			}
++			if (len > 32) {
++				len = 32;
++				data->block[0] = len;
++			}
++			outb_p(len, SMBHSTDAT0);
++			outb_p(inb_p(SMBHSTCNT) | ALI15X3_BLOCK_CLR, SMBHSTCNT);	/* Reset SMBBLKDAT */
++			for (i = 1; i <= len; i++)
++				outb_p(data->block[i], SMBBLKDAT);
++		}
++		size = ALI15X3_BLOCK_DATA;
 +		break;
-+	case I2C_SMBUS_PROC_CALL:
-+	default:
-+		printk(KERN_ERR "i2c-i801.o: Unsupported transaction %d\n", size);
++	}
++
++	outb_p(size, SMBHSTCNT);	/* output command */
++
++	if (ali15x3_transaction())	/* Error in transaction */
 +		return -1;
-+	}
 +
-+#ifdef HAVE_PEC
-+	if(isich4 && hwpec) {
-+		if(size != I2C_SMBUS_QUICK &&
-+		   size != I2C_SMBUS_I2C_BLOCK_DATA)
-+			outb_p(1, SMBAUXCTL);	/* enable HW PEC */
-+	}
-+#endif
-+	if(block)
-+		ret = i801_block_transaction(data, read_write, size);
-+	else {
-+		outb_p(xact | ENABLE_INT9, SMBHSTCNT);
-+		ret = i801_transaction();
-+	}
-+
-+#ifdef HAVE_PEC
-+	if(isich4 && hwpec) {
-+		if(size != I2C_SMBUS_QUICK &&
-+		   size != I2C_SMBUS_I2C_BLOCK_DATA)
-+			outb_p(0, SMBAUXCTL);
-+	}
-+#endif
-+
-+	if(block)
-+		return ret;
-+	if(ret)
-+		return -1;
-+	if ((read_write == I2C_SMBUS_WRITE) || (xact == I801_QUICK))
++	if ((read_write == I2C_SMBUS_WRITE) || (size == ALI15X3_QUICK))
 +		return 0;
 +
-+	switch (xact & 0x7f) {
-+	case I801_BYTE:	/* Result put in SMBHSTDAT0 */
-+	case I801_BYTE_DATA:
++
++	switch (size) {
++	case ALI15X3_BYTE:	/* Result put in SMBHSTDAT0 */
 +		data->byte = inb_p(SMBHSTDAT0);
 +		break;
-+	case I801_WORD_DATA:
++	case ALI15X3_BYTE_DATA:
++		data->byte = inb_p(SMBHSTDAT0);
++		break;
++	case ALI15X3_WORD_DATA:
 +		data->word = inb_p(SMBHSTDAT0) + (inb_p(SMBHSTDAT1) << 8);
++		break;
++	case ALI15X3_BLOCK_DATA:
++		len = inb_p(SMBHSTDAT0);
++		if (len > 32)
++			len = 32;
++		data->block[0] = len;
++		outb_p(inb_p(SMBHSTCNT) | ALI15X3_BLOCK_CLR, SMBHSTCNT);	/* Reset SMBBLKDAT */
++		for (i = 1; i <= data->block[0]; i++) {
++			data->block[i] = inb_p(SMBBLKDAT);
++#ifdef DEBUG
++			printk
++			    ("i2c-ali15x3.o: Blk: len=%d, i=%d, data=%02x\n",
++			     len, i, data->block[i]);
++#endif	/* DEBUG */
++		}
 +		break;
 +	}
 +	return 0;
 +}
 +
 +
-+u32 i801_func(struct i2c_adapter *adapter)
++u32 ali15x3_func(struct i2c_adapter *adapter)
 +{
 +	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
 +	    I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
-+	    I2C_FUNC_SMBUS_BLOCK_DATA | I2C_FUNC_SMBUS_WRITE_I2C_BLOCK
-+#ifdef HAVE_PEC
-+	     | (isich4 ? I2C_FUNC_SMBUS_BLOCK_DATA_PEC |
-+	                 I2C_FUNC_SMBUS_HWPEC_CALC
-+	               : 0)
-+#endif
-+	    ;
++	    I2C_FUNC_SMBUS_BLOCK_DATA;
 +}
 +
 +static struct i2c_algorithm smbus_algorithm = {
 +	.name		= "Non-I2C SMBus adapter",
 +	.id		= I2C_ALGO_SMBUS,
-+	.smbus_xfer	= i801_access,
-+	.functionality	= i801_func,
++	.smbus_xfer	= ali15x3_access,
++	.functionality	= ali15x3_func,
 +};
 +
-+static struct i2c_adapter i801_adapter = {
++static struct i2c_adapter ali15x3_adapter = {
 +	.owner		= THIS_MODULE,
 +	.name		= "unset",
-+	.id		= I2C_ALGO_SMBUS | I2C_HW_SMBUS_I801,
++	.id		= I2C_ALGO_SMBUS | I2C_HW_SMBUS_ALI15X3,
 +	.algo		= &smbus_algorithm,
 +};
 +
 +
 +
-+static struct pci_device_id i801_ids[] __devinitdata = {
++static struct pci_device_id ali15x3_ids[] __devinitdata = {
 +	{ 0, }
 +};
 +
-+static int __devinit i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
++static int __devinit ali15x3_probe(struct pci_dev *dev, const struct pci_device_id *id)
 +{
-+
-+	if (i801_setup()) {
++	if (ali15x3_setup()) {
 +		printk
-+		    (KERN_WARNING "i2c-i801.o: I801 not detected, module not inserted.\n");
++		    ("i2c-ali15x3.o: ALI15X3 not detected, module not inserted.\n");
++
 +		return -ENODEV;
 +	}
 +
-+	sprintf(i801_adapter.name, "SMBus I801 adapter at %04x",
-+		i801_smba);
-+	i2c_add_adapter(&i801_adapter);
++	sprintf(ali15x3_adapter.name, "SMBus ALI15X3 adapter at %04x",
++		ali15x3_smba);
++	i2c_add_adapter(&ali15x3_adapter);
 +}
 +
-+static void __devexit i801_remove(struct pci_dev *dev)
++static void __devexit ali15x3_remove(struct pci_dev *dev)
 +{
-+	i2c_del_adapter(&i801_adapter);
++	i2c_del_adapter(&ali15x3_adapter);
 +}
 +
-+static struct pci_driver i801_driver = {
-+	.name		= "i801 smbus",
-+	.id_table	= i801_ids,
-+	.probe		= i801_probe,
-+	.remove		= __devexit_p(i801_remove),
++static struct pci_driver ali15x3_driver = {
++	.name		= "ali15x3 smbus",
++	.id_table	= ali15x3_ids,
++	.probe		= ali15x3_probe,
++	.remove		= __devexit_p(ali15x3_remove),
 +};
 +
-+static int __init i2c_i801_init(void)
++static int __init i2c_ali15x3_init(void)
 +{
-+	printk(KERN_INFO "i2c-i801.o version %s (%s)\n", I2C_VERSION, I2C_DATE);
-+	return pci_module_init(&i801_driver);
++	printk("i2c-ali15x3.o version %s (%s)\n", I2C_VERSION, I2C_DATE);
++	return pci_module_init(&ali15x3_driver);
 +}
 +
 +
-+static void __exit i2c_i801_exit(void)
++static void __exit i2c_ali15x3_exit(void)
 +{
-+	pci_unregister_driver(&i801_driver);
-+	release_region(i801_smba, (isich4 ? 16 : 8));
++	pci_unregister_driver(&ali15x3_driver);
++	release_region(ali15x3_smba, ALI15X3_SMB_IOSIZE);
 +}
 +
 +
 +
 +MODULE_AUTHOR
 +    ("Frodo Looijaard <frodol@dds.nl>, Philip Edelbrock <phil@netroedge.com>, and Mark D. Studebaker <mdsxyz123@yahoo.com>");
-+MODULE_DESCRIPTION("I801 SMBus driver");
++MODULE_DESCRIPTION("ALI15X3 SMBus driver");
++MODULE_LICENSE("GPL");
 +
-+module_init(i2c_i801_init);
-+module_exit(i2c_i801_exit);
++module_init(i2c_ali15x3_init);
++module_exit(i2c_ali15x3_exit);
 

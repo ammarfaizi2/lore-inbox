@@ -1,119 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVAMVDH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbVAMVDD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261683AbVAMVDH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 16:03:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbVAMVAD
+	id S261701AbVAMVDD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 16:03:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVAMU6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 16:00:03 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:13242 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261438AbVAMUz6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 15:55:58 -0500
-Subject: Re: [PATCH] release_pcibus_dev() crash
-From: John Rose <johnrose@austin.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050113202532.GA30780@kroah.com>
-References: <1105576756.8062.17.camel@sinatra.austin.ibm.com>
-	 <1105638551.30960.16.camel@sinatra.austin.ibm.com>
-	 <20050113181850.GA24952@kroah.com>
-	 <200501131021.19434.jbarnes@engr.sgi.com>
-	 <20050113183729.GA25049@kroah.com>
-	 <1105647135.30960.22.camel@sinatra.austin.ibm.com>
-	 <20050113202532.GA30780@kroah.com>
+	Thu, 13 Jan 2005 15:58:55 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:37892 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261688AbVAMU5s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 15:57:48 -0500
+Subject: Re: thoughts on kernel security issues
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: grendel@caudium.net, Chris Wright <chrisw@osdl.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
+       akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1105645267.4644.112.camel@localhost.localdomain>
+References: <20050112094807.K24171@build.pdx.osdl.net>
+	 <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>
+	 <20050112185133.GA10687@kroah.com>
+	 <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
+	 <20050112161227.GF32024@logos.cnet>
+	 <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
+	 <20050112174203.GA691@logos.cnet>
+	 <1105627541.4624.24.camel@localhost.localdomain>
+	 <20050113194246.GC24970@beowulf.thanes.org>
+	 <20050113115004.Z24171@build.pdx.osdl.net>
+	 <20050113202905.GD24970@beowulf.thanes.org>
+	 <1105645267.4644.112.camel@localhost.localdomain>
 Content-Type: text/plain
-Message-Id: <1105649679.30960.27.camel@sinatra.austin.ibm.com>
+Date: Thu, 13 Jan 2005 21:57:17 +0100
+Message-Id: <1105649837.6031.54.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 13 Jan 2005 14:54:39 -0600
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Care to redo this?
+On Thu, 2005-01-13 at 19:41 +0000, Alan Cox wrote:
 
-Good points.  How's this:
+> So the non-disclosure argument is perhaps put as "equality of access at
+> the point of discovery means everyone gets rooted.". And if you want a
+> lot more detail on this read papers on the models of security economics
+> - its a well studied field.
 
-Signed-off-by: John Rose <johnrose@austin.ibm.com>
-
-diff -puN drivers/pci/probe.c~01_release_pcibus_dev drivers/pci/probe.c
---- 2_6_linus_2/drivers/pci/probe.c~01_release_pcibus_dev	2005-01-13 14:49:21.000000000 -0600
-+++ 2_6_linus_2-johnrose/drivers/pci/probe.c	2005-01-13 14:49:21.000000000 -0600
-@@ -70,7 +70,7 @@ static void pci_remove_legacy_files(stru
- }
- #else /* !HAVE_PCI_LEGACY */
- static inline void pci_create_legacy_files(struct pci_bus *bus) { return; }
--static inline void pci_remove_legacy_files(struct pci_bus *bus) { return; }
-+void pci_remove_legacy_files(struct pci_bus *bus) { return; }
- #endif /* HAVE_PCI_LEGACY */
- 
- /*
-@@ -86,7 +86,7 @@ static ssize_t pci_bus_show_cpuaffinity(
- 		buf[ret++] = '\n';
- 	return ret;
- }
--static CLASS_DEVICE_ATTR(cpuaffinity, S_IRUGO, pci_bus_show_cpuaffinity, NULL);
-+CLASS_DEVICE_ATTR(cpuaffinity, S_IRUGO, pci_bus_show_cpuaffinity, NULL);
- 
- /*
-  * PCI Bus Class
-@@ -95,10 +95,6 @@ static void release_pcibus_dev(struct cl
- {
- 	struct pci_bus *pci_bus = to_pci_bus(class_dev);
- 
--	pci_remove_legacy_files(pci_bus);
--	class_device_remove_file(&pci_bus->class_dev,
--				 &class_device_attr_cpuaffinity);
--	sysfs_remove_link(&pci_bus->class_dev.kobj, "bridge");
- 	if (pci_bus->bridge)
- 		put_device(pci_bus->bridge);
- 	kfree(pci_bus);
-diff -puN drivers/pci/remove.c~01_release_pcibus_dev drivers/pci/remove.c
---- 2_6_linus_2/drivers/pci/remove.c~01_release_pcibus_dev	2005-01-13 14:49:21.000000000 -0600
-+++ 2_6_linus_2-johnrose/drivers/pci/remove.c	2005-01-13 14:49:21.000000000 -0600
-@@ -61,15 +61,18 @@ int pci_remove_device_safe(struct pci_de
- }
- EXPORT_SYMBOL(pci_remove_device_safe);
- 
--void pci_remove_bus(struct pci_bus *b)
-+void pci_remove_bus(struct pci_bus *pci_bus)
- {
--	pci_proc_detach_bus(b);
-+	pci_proc_detach_bus(pci_bus);
- 
- 	spin_lock(&pci_bus_lock);
--	list_del(&b->node);
-+	list_del(&pci_bus->node);
- 	spin_unlock(&pci_bus_lock);
--
--	class_device_unregister(&b->class_dev);
-+	pci_remove_legacy_files(pci_bus);
-+	class_device_remove_file(&pci_bus->class_dev,
-+		&class_device_attr_cpuaffinity);
-+	sysfs_remove_link(&pci_bus->class_dev.kobj, "bridge");
-+	class_device_unregister(&pci_bus->class_dev);
- }
- EXPORT_SYMBOL(pci_remove_bus);
- 
-diff -puN drivers/pci/pci.h~01_release_pcibus_dev drivers/pci/pci.h
---- 2_6_linus_2/drivers/pci/pci.h~01_release_pcibus_dev	2005-01-13 14:49:21.000000000 -0600
-+++ 2_6_linus_2-johnrose/drivers/pci/pci.h	2005-01-13 14:50:06.000000000 -0600
-@@ -59,12 +59,14 @@ struct pci_visit {
- extern int pci_visit_dev(struct pci_visit *fn,
- 			 struct pci_dev_wrapped *wrapped_dev,
- 			 struct pci_bus_wrapped *wrapped_parent);
-+extern void pci_remove_legacy_files(struct pci_bus *bus);
- 
- /* Lock for read/write access to pci device and bus lists */
- extern spinlock_t pci_bus_lock;
- 
- extern int pcie_mch_quirk;
- extern struct device_attribute pci_dev_attrs[];
-+extern struct class_device_attribute class_device_attr_cpuaffinity;
- 
- /**
-  * pci_match_one_device - Tell if a PCI device structure has a matching
-
-_
+or in other words: you can write an exploit faster than y ou can write
+the fix, so the thing needs delaying until a fix is available to make it
+more equal.
 
 

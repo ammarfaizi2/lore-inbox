@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289772AbSAOXuj>; Tue, 15 Jan 2002 18:50:39 -0500
+	id <S289770AbSAOXur>; Tue, 15 Jan 2002 18:50:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289769AbSAOXti>; Tue, 15 Jan 2002 18:49:38 -0500
-Received: from aldebaran.sra.com ([163.252.31.31]:6017 "EHLO aldebaran.sra.com")
-	by vger.kernel.org with ESMTP id <S289768AbSAOXtC>;
-	Tue, 15 Jan 2002 18:49:02 -0500
-From: David Garfield <garfield@irving.iisd.sra.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15428.49056.652466.414438@irving.iisd.sra.com>
-Date: Tue, 15 Jan 2002 18:47:44 -0500
-To: Greg KH <greg@kroah.com>
-Cc: David Garfield <garfield@irving.iisd.sra.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Query about initramfs and modules
-In-Reply-To: <20020115233437.GC29020@kroah.com>
-In-Reply-To: <15428.47094.435181.278715@irving.iisd.sra.com>
-	<20020115233437.GC29020@kroah.com>
-X-Mailer: VM 6.96 under Emacs 20.7.1
+	id <S289769AbSAOXum>; Tue, 15 Jan 2002 18:50:42 -0500
+Received: from jalon.able.es ([212.97.163.2]:41978 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S289768AbSAOXtq>;
+	Tue, 15 Jan 2002 18:49:46 -0500
+Date: Wed, 16 Jan 2002 00:55:41 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Unable to compile 2.4.14 on alpha
+Message-ID: <20020116005541.C1838@werewolf.able.es>
+In-Reply-To: <20020114212550.A17323@animx.eu.org> <20020115113213.A1539@werewolf.able.es> <20020115115530.A19073@animx.eu.org> <20020116002642.A1838@werewolf.able.es> <20020115185245.A20198@animx.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: =?iso-8859-1?Q?=3C20020115185245=2EA20198?=
+	=?iso-8859-1?B?QGFuaW14LmV1Lm9yZz47IGZyb20gd2Fra29AYW5pbXguZXUub3JnIG9u?=
+	=?iso-8859-1?B?IG1p6Sw=?= ene 16, 2002 at 00:52:45 +0100
+X-Mailer: Balsa 1.3.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH writes:
- > On Tue, Jan 15, 2002 at 06:15:02PM -0500, David Garfield wrote:
- > > 
- > > Can/will the initramfs mechanism be made to implicitly load into the
- > > kernel the modules (or some of the modules) in the image?
- > 
- > Most of the mechanism for loading modules for physical devices will be
- > the /sbin/hotplug interface:
- > 	- when the pci core code scans the pci bus, and finds a new
- > 	  device, it calls out to /sbin/hotplug the pci device
- > 	  information.
- > 	- /sbin/hotplug looks up the pci device info and tries to match
- > 	  it up with a driver that will work for this device (see the
- > 	  linux-hotplug.sf.net site for more info on how this works.)
- > 	- if it finds a module for the device, it calls modprobe on the
- > 	  module, and now that pci device has a module loaded.
- > 
- > Repeat this process for the USB, IEEE1394, and other busses that support
- > MODULE_DEVICE_TABLE in the kernel tree.
 
-Seems like a great idea *after* the system is fully running (or the
-root partition is at least mounted).
+On 20020116 Wakko Warner wrote:
+>Ok, 2.4.17:
+>gcc -D__KERNEL__ -I/usr/src/2.4.17/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mno-fp-regs -ffixed-8 -mcpu=ev4 -Wa,-mev6 -DMODULE   -DEXPORT_SYMTAB -c DAC960.c
+>DAC960.c: In function `DAC960_V2_EnableMemoryMailboxInterface':
+>DAC960.c:1054: internal error--unrecognizable insn:
+>(insn 949 477 474 (set (reg:DI 2 $2)
+>        (plus:DI (reg:DI 30 $30)
+>            (const_int 4398046511104 [0x40000000000]))) -1 (nil)
+>    (nil))
 
-Seems like overkill to boot most systems.
+ev5 ? No idea about alphas. gcc version ?
 
-As I understand it, all that should need to go into the initramfs is
-enough to mount the root partition.  Normally, this would probably be
-a handful of drivers that are unconditionally known to be needed.  So
-why go through several user-mode programs to make a decision that can
-be made once and built in?
-
---David Garfield
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.18-pre3-beo #5 SMP Sun Jan 13 02:14:04 CET 2002 i686

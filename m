@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263768AbTCUV3V>; Fri, 21 Mar 2003 16:29:21 -0500
+	id <S262748AbTCUUsP>; Fri, 21 Mar 2003 15:48:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263762AbTCUV21>; Fri, 21 Mar 2003 16:28:27 -0500
-Received: from main.gmane.org ([80.91.224.249]:22500 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S262900AbTCUV1y>;
-	Fri, 21 Mar 2003 16:27:54 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jason Lunz <lunz@falooley.org>
-Subject: Re: [BK PATCH] net driver merges
-Date: Fri, 21 Mar 2003 21:38:45 +0000 (UTC)
-Organization: PBR Streetgang
-Message-ID: <slrnb7n1jd.inc.lunz@stoli.localnet>
-References: <3E7AA337.5000402@pobox.com>
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: slrn/0.9.7.4 (Linux)
+	id <S263812AbTCUUrG>; Fri, 21 Mar 2003 15:47:06 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:32388
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263799AbTCUSxk>; Fri, 21 Mar 2003 13:53:40 -0500
+Date: Fri, 21 Mar 2003 20:08:56 GMT
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200303212008.h2LK8uKf026278@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: PATCH: fix i810 ifs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jgarzik@pobox.com said:
-> Linus, please do a
-> 	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.5
-> This will update the following files:
-
-2.5 still has an uninitialized spinlock in the eepro100 driver. Marcelo
-already merged the fix in 2.4 bk:
-
-http://www.kernel.org/pub/linux/kernel/v2.4/testing/cset/cset-1.1073.txt
-
-Jason
-
+[There are a ton of updates to pull from 2.4, but not yet merged]
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/sound/oss/i810_audio.c linux-2.5.65-ac2/sound/oss/i810_audio.c
+--- linux-2.5.65/sound/oss/i810_audio.c	2003-02-10 18:38:49.000000000 +0000
++++ linux-2.5.65-ac2/sound/oss/i810_audio.c	2003-03-06 23:20:44.000000000 +0000
+@@ -2406,9 +2406,9 @@
+ 				i810_set_dac_channels ( state, channels );
+ 
+ 				/* check that they really got turned on */
+-				if ( !state->card->ac97_status & SURR_ON )
++				if (!(state->card->ac97_status & SURR_ON))
+ 					val &= ~DSP_BIND_SURR;
+-				if ( !state->card->ac97_status & CENTER_LFE_ON )
++				if (!(state->card->ac97_status & CENTER_LFE_ON))
+ 					val &= ~DSP_BIND_CENTER_LFE;
+ 			}
+ 		}

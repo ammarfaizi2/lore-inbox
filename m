@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVCMEKf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262797AbVCMEKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbVCMEKf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 23:10:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262759AbVCMEIO
+	id S262797AbVCMEKU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 23:10:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262755AbVCMEHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 23:08:14 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16390 "HELO
+	Sat, 12 Mar 2005 23:07:51 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:14854 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262707AbVCMDyi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 22:54:38 -0500
-Date: Sun, 13 Mar 2005 04:54:36 +0100
+	id S262699AbVCMDyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 22:54:33 -0500
+Date: Sun, 13 Mar 2005 04:54:30 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Carsten Paeth <calle@calle.de>, kkeil@suse.de, kai.germaschewski@gmx.de,
+Cc: werner@isdn4linux.de, kkeil@suse.de, kai.germaschewski@gmx.de,
        isdn4linux@listserv.isdn4linux.de, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/isdn/capi/: make some code static
-Message-ID: <20050313035436.GX3814@stusta.de>
+Subject: [2.6 patch] drivers/isdn/divert/isdn_divert.c: make 5 functions static
+Message-ID: <20050313035430.GW3814@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,7 +23,7 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes some needlessly global code static.
+This patch makes five needlessly global functions static.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
@@ -32,89 +32,54 @@ Signed-off-by: Adrian Bunk <bunk@stusta.de>
 This patch was already sent on:
 - 6 Feb 2005
 
- drivers/isdn/capi/capi.c       |   10 +++++-----
- drivers/isdn/capi/kcapi_proc.c |   10 +++++-----
- 2 files changed, 10 insertions(+), 10 deletions(-)
+ drivers/isdn/divert/isdn_divert.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
---- linux-2.6.11-rc3-mm1-full/drivers/isdn/capi/capi.c.old	2005-02-05 15:34:35.000000000 +0100
-+++ linux-2.6.11-rc3-mm1-full/drivers/isdn/capi/capi.c	2005-02-05 15:35:37.000000000 +0100
-@@ -60,12 +60,12 @@
+--- linux-2.6.11-rc3-mm1-full/drivers/isdn/divert/isdn_divert.c.old	2005-02-05 15:39:15.000000000 +0100
++++ linux-2.6.11-rc3-mm1-full/drivers/isdn/divert/isdn_divert.c	2005-02-05 15:39:52.000000000 +0100
+@@ -383,7 +383,7 @@
+ /*************************************************/
+ /* called from common module on an incoming call */
+ /*************************************************/
+-int isdn_divert_icall(isdn_ctrl *ic)
++static int isdn_divert_icall(isdn_ctrl *ic)
+ { int retval = 0;
+   unsigned long flags;
+   struct call_struc *cs = NULL; 
+@@ -552,7 +552,7 @@
+ /****************************************************/
+ /* put a address including address type into buffer */
+ /****************************************************/
+-int put_address(char *st, u_char *p, int len)
++static int put_address(char *st, u_char *p, int len)
+ { u_char retval = 0;
+   u_char adr_typ = 0; /* network standard */
  
- static struct class_simple *capi_class;
- 
--int capi_major = 68;		/* allocated */
-+static int capi_major = 68;		/* allocated */
- #ifdef CONFIG_ISDN_CAPI_MIDDLEWARE
- #define CAPINC_NR_PORTS	32
- #define CAPINC_MAX_PORTS	256
--int capi_ttymajor = 191;
--int capi_ttyminors = CAPINC_NR_PORTS;
-+static int capi_ttymajor = 191;
-+static int capi_ttyminors = CAPINC_NR_PORTS;
- #endif /* CONFIG_ISDN_CAPI_MIDDLEWARE */
- 
- module_param_named(major, capi_major, uint, 0);
-@@ -268,7 +268,7 @@
- 	kfree(mp);
- }
- 
--struct capiminor *capiminor_find(unsigned int minor)
-+static struct capiminor *capiminor_find(unsigned int minor)
- {
- 	struct list_head *l;
- 	struct capiminor *p = NULL;
-@@ -1166,7 +1166,7 @@
- 	return room;
- }
- 
--int capinc_tty_chars_in_buffer(struct tty_struct *tty)
-+static int capinc_tty_chars_in_buffer(struct tty_struct *tty)
- {
- 	struct capiminor *mp = (struct capiminor *)tty->driver_data;
- 	if (!mp || !mp->nccip) {
---- linux-2.6.11-rc3-mm1-full/drivers/isdn/capi/kcapi_proc.c.old	2005-02-05 15:36:10.000000000 +0100
-+++ linux-2.6.11-rc3-mm1-full/drivers/isdn/capi/kcapi_proc.c	2005-02-05 15:36:43.000000000 +0100
-@@ -89,14 +89,14 @@
- 	return 0;
- }
- 
--struct seq_operations seq_controller_ops = {
-+static struct seq_operations seq_controller_ops = {
- 	.start	= controller_start,
- 	.next	= controller_next,
- 	.stop	= controller_stop,
- 	.show	= controller_show,
- };
- 
--struct seq_operations seq_contrstats_ops = {
-+static struct seq_operations seq_contrstats_ops = {
- 	.start	= controller_start,
- 	.next	= controller_next,
- 	.stop	= controller_stop,
-@@ -192,14 +192,14 @@
- 	return 0;
- }
- 
--struct seq_operations seq_applications_ops = {
-+static struct seq_operations seq_applications_ops = {
- 	.start	= applications_start,
- 	.next	= applications_next,
- 	.stop	= applications_stop,
- 	.show	= applications_show,
- };
- 
--struct seq_operations seq_applstats_ops = {
-+static struct seq_operations seq_applstats_ops = {
- 	.start	= applications_start,
- 	.next	= applications_next,
- 	.stop	= applications_stop,
-@@ -287,7 +287,7 @@
- 	return 0;
- }
- 
--struct seq_operations seq_capi_driver_ops = {
-+static struct seq_operations seq_capi_driver_ops = {
- 	.start	= capi_driver_start,
- 	.next	= capi_driver_next,
- 	.stop	= capi_driver_stop,
+@@ -595,7 +595,7 @@
+ /*************************************/
+ /* report a succesfull interrogation */
+ /*************************************/
+-int interrogate_success(isdn_ctrl *ic, struct call_struc *cs)
++static int interrogate_success(isdn_ctrl *ic, struct call_struc *cs)
+ { char *src = ic->parm.dss1_io.data;
+   int restlen = ic->parm.dss1_io.datalen;
+   int cnt = 1;
+@@ -689,7 +689,7 @@
+ /*********************************************/
+ /* callback for protocol specific extensions */
+ /*********************************************/
+-int prot_stat_callback(isdn_ctrl *ic)
++static int prot_stat_callback(isdn_ctrl *ic)
+ { struct call_struc *cs, *cs1;
+   int i;
+   unsigned long flags;
+@@ -781,7 +781,7 @@
+ /***************************/
+ /* status callback from HL */
+ /***************************/
+-int isdn_divert_stat_callback(isdn_ctrl *ic)
++static int isdn_divert_stat_callback(isdn_ctrl *ic)
+ { struct call_struc *cs, *cs1;
+   unsigned long flags;
+   int retval;
 

@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261483AbTCaIll>; Mon, 31 Mar 2003 03:41:41 -0500
+	id <S261485AbTCaIoR>; Mon, 31 Mar 2003 03:44:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261480AbTCaIll>; Mon, 31 Mar 2003 03:41:41 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:4369 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261483AbTCaIlk>; Mon, 31 Mar 2003 03:41:40 -0500
-Date: Mon, 31 Mar 2003 10:52:53 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: bert hubert <ahu@ds9a.nl>
-cc: Joel Becker <Joel.Becker@oracle.com>, Greg KH <greg@kroah.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, <Andries.Brouwer@cwi.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 64-bit kdev_t - just for playing
-In-Reply-To: <20030331083157.GA29029@outpost.ds9a.nl>
-Message-ID: <Pine.LNX.4.44.0303311039190.5042-100000@serv>
-References: <UTC200303272027.h2RKRbf27546.aeb@smtp.cwi.nl>
- <Pine.LNX.4.44.0303272245490.5042-100000@serv> <1048805732.3953.1.camel@dhcp22.swansea.linux.org.uk>
- <Pine.LNX.4.44.0303280008530.5042-100000@serv> <20030327234820.GE1687@kroah.com>
- <Pine.LNX.4.44.0303281031120.5042-100000@serv> <20030328180545.GG32000@ca-server1.us.oracle.com>
- <Pine.LNX.4.44.0303281924530.5042-100000@serv> <20030331083157.GA29029@outpost.ds9a.nl>
+	id <S261495AbTCaIoR>; Mon, 31 Mar 2003 03:44:17 -0500
+Received: from dial-ctb0158.webone.com.au ([210.9.241.58]:29711 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id <S261485AbTCaIoQ>;
+	Mon, 31 Mar 2003 03:44:16 -0500
+Message-ID: <3E88024D.5000604@cyberone.com.au>
+Date: Mon, 31 Mar 2003 18:54:37 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mike Galbraith <efault@gmx.de>
+CC: Jens Axboe <axboe@suse.de>, Con Kolivas <kernel@kolivas.org>,
+       Robert Love <rml@tech9.net>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Peter Lundkvist <p.lundkvist@telia.com>, akpm@digeo.com, mingo@elte.hu,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Bad interactive behaviour in 2.5.65-66 (sched.c)
+References: <5.2.0.9.2.20030331033120.00cf0d08@pop.gmx.net> <20030330141404.GG917@suse.de> <3E8610EA.8080309@telia.com> <1048992365.13757.23.camel@localhost> <20030330141404.GG917@suse.de> <5.2.0.9.2.20030331033120.00cf0d08@pop.gmx.net> <5.2.0.9.2.20030331085710.01aa6d30@pop.gmx.net>
+In-Reply-To: <5.2.0.9.2.20030331085710.01aa6d30@pop.gmx.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Mon, 31 Mar 2003, bert hubert wrote:
 
-> > If Andries would actually explain, what he wants to do with the larger 
-> > dev_t, it would be a lot easier to help him, so that we can at least avoid 
-> > the biggest mistakes.
-> 
-> Can you envision solutions based on 16 bit kdev_t infrastructure? 
+Mike Galbraith wrote:
 
-I know that 16bit is getting small (but with dynamic assignment even 
-that is still enough for most people), but OTOH I don't understand the 
-obsession for 64bit. 32bit is more than enough on a 32bit system.
-Somehow it sounds that we just have to introduce a huge dev_t and all our 
-problems are magically solved and I doubt that. If people want to encode 
-random information into dev_t, then even 64bit will be soon not enough 
-anymore, so I want to know how people actually want to use that large 
-dev_t number. Is that really too much to ask?
-(Slowly I'm getting the feeling that there is some sort of 64bit dev_t 
-conspiracy going on here, with the amount of answers I'm (not) getting 
-here.)
+> At 08:35 AM 3/31/2003 +0200, Jens Axboe wrote:
+>
+>> What drugs are you on? 2.5.65/66 is the worst interactive kernel I've
+>> ever used, it would be _embarassing_ to release a 2.6-test with such a
+>> rudimentary flaw in it. IOW, a big show stopper.
+>
+>
+> It's only horrible when you trigger the problems, otherwise it's 
+> wonderful. 
 
-bye, Roman
+Heh heh, yeah the anticipatory io scheduler is like that too ;)
 

@@ -1,93 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbUDOUTr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 16:19:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbUDOUTr
+	id S262442AbUDOUWL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 16:22:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbUDOUWL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 16:19:47 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:28054 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S262106AbUDOUTo (ORCPT
+	Thu, 15 Apr 2004 16:22:11 -0400
+Received: from fire.osdl.org ([65.172.181.4]:15286 "EHLO fire-2.osdl.org")
+	by vger.kernel.org with ESMTP id S262442AbUDOUWE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 16:19:44 -0400
-Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
-	for idle=C1halt, 2.6.5
-From: Len Brown <len.brown@intel.com>
-To: ross@datscreative.com.au
-Cc: christian.kroener@tu-harburg.de, linux-kernel@vger.kernel.org,
-       "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-       Jamie Lokier <jamie@shareable.org>,
-       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
-       Craig Bradney <cbradney@zip.com.au>, Daniel Drake <dan@reactivated.net>,
-       Ian Kumlien <pomac@vapor.com>, Jesse Allen <the3dfxdude@hotmail.com>,
-       a.verweij@student.tudelft.nl, Allen Martin <AMartin@nvidia.com>
-In-Reply-To: <200404160110.37573.ross@datscreative.com.au>
-References: <200404131117.31306.ross@datscreative.com.au>
-	 <200404131703.09572.ross@datscreative.com.au>
-	 <1081893978.2251.653.camel@dhcppc4>
-	 <200404160110.37573.ross@datscreative.com.au>
+	Thu, 15 Apr 2004 16:22:04 -0400
+Subject: 2.6.6-rc1 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1082060255.24425.180.camel@dhcppc4>
+Message-Id: <1082060521.9481.44.camel@cherrybomb.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 15 Apr 2004 16:17:35 -0400
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 15 Apr 2004 13:22:01 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-15 at 11:10, Ross Dickson wrote:
-> On Wednesday 14 April 2004 11:02, Len Brown wrote:
-> > Re: IRQ0 XT-PIC timer issue
-> > 
-> > Since the hardware is connected to APIC pin0, it is a BIOS bug
-> > that an ACPI interrupt source override from pin2 to IRQ0 exists.
-> > 
-> > With this simple 2.6.5 patch you can specify "acpi_skip_timer_override"
-> > to ignore that bogus BIOS directive.  The result is with your
-> > ACPI-enabled APIC-enabled kernel, you'll get IRQ0 IO-APIC-edge timer.
-> > 
-> > Probably there is a more clever way to trigger this workaround
-> > automatcially instead of via boot parameter.
+Linux 2.6 Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
 
-> Hi Len, I have updated my nforce2 patches for 2.6.5 to work with your patch.
-> I have tested them only on one nforce2 board Epox 8Rga+ but as little has
-> changed in core functionality from past releases I think all will be OK....
-> Hopefully no clock skew. I saw none on my system but thats no guarantee.
+Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
+             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
+-----------  -----------  -------- -------- -------- -------- ---------
+2.6.6-rc1      0w/0e       0w/0e   125w/ 0e   7w/0e   4w/0e    123w/0e
+2.6.5          0w/0e       0w/0e   134w/ 0e   8w/0e   4w/0e    132w/0e
+2.6.5-rc3      0w/0e       0w/0e   135w/ 0e   8w/0e   4w/0e    132w/0e
+2.6.5-rc2      0w/0e       0w/0e   135w/ 0e   8w/0e   3w/0e    132w/0e
+2.6.5-rc1      0w/0e       0w/0e   138w/ 0e   8w/0e   3w/0e    135w/0e
+2.6.4          1w/0e       0w/0e   145w/ 0e   7w/0e   3w/0e    142w/0e
+2.6.4-rc2      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
+2.6.4-rc1      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
+2.6.3          1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
+2.6.3-rc4      1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
+2.6.3-rc3      1w/0e       0w/0e   145w/ 7e   9w/0e   3w/0e    148w/0e
+2.6.3-rc2      1w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
+2.6.3-rc1      1w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
+2.6.2          1w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
+2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
+2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
+2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
 
-While I don't want to get into the business of maintaining
-a dmi_scan entry for every system with this issue, I think
-it might be a good idea to add a couple of example entries
-for high volume systems for which there is no BIOS fix available.
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
+Daily compiles (ia32): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
+Daily compiles (ia64): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
+Latest changes in Linus' bitkeeper tree:
+   http://linux.bkbits.net:8080/linux-2.5
 
-Got any opinions on which system to use as the example?
-I'll need the output from dmidecode for them.
- 
-> I tried your above patch with the timer_ack on as is default in 2.6.5 and
-> nmi_watchdog=1 failed as expected. I still think Maciej's 8259 ack patch 
-> is more complete solution to the ack issue but this one gets watchdog going for
-> nforce2. I cannot see anyone using your above patch without an integrated
-> apic and tsc so I cannot see a problem triggering it off your kern arg.
-
-"acpi_skip_timer_override" is specific to IOAPIC mode,
-since that is the only place that the bogus interrupt
-source override is used.
-
-I'm not clued-in on the nmi_watchdog and 8259 ack issues.
-My focus is primarily the ACPI issues involved in getting
-these systems up and running in IOAPIC mode.
-
-> The second patch is the C1halt update I suggested in another posting.
-> http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-04/1707.html
-
-Clearly this hang issue is more important than the timer issue.
-I'm impressed that you built such a sophisticated patch without
-any support from the vendors.  But it would be a "really good thing"
-if we got some input from the vendors before considering putting
-a workaround into the upstream kernel -- for they may have
-guidance which would either simplify it, or make it unnecessary.
-Perhaps Allen Martin at nVidia can comment?
-
--Len
+John
 
 
 

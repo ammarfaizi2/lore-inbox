@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269229AbRHRWzl>; Sat, 18 Aug 2001 18:55:41 -0400
+	id <S269119AbRHRXAB>; Sat, 18 Aug 2001 19:00:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269119AbRHRWzc>; Sat, 18 Aug 2001 18:55:32 -0400
-Received: from mail.fbab.net ([212.75.83.8]:30468 "HELO mail.fbab.net")
-	by vger.kernel.org with SMTP id <S269229AbRHRWzU>;
-	Sat, 18 Aug 2001 18:55:20 -0400
-X-Qmail-Scanner-Mail-From: mag@fbab.net via mail.fbab.net
-X-Qmail-Scanner-Rcpt-To: fred@arkansaswebs.com tmh@nothing-on.tv linux-kernel@vger.kernel.org
-X-Qmail-Scanner: 0.94 (No viruses found. Processed in 7.742893 secs)
-Message-ID: <010d01c12839$29751370$020a0a0a@totalmef>
-From: "Magnus Naeslund\(f\)" <mag@fbab.net>
-To: "Fred Jackson" <fred@arkansaswebs.com>, "Tony Hoyle" <tmh@nothing-on.tv>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <01081812570001.09229@bits.linuxball> <001901c12810$97ef3a70$020a0a0a@totalmef> <3B7EB162.5070207@nothing-on.tv> <01081817401000.01028@bits.linuxball>
-Subject: Re: 2.4.xx won't recompile.
-Date: Sun, 19 Aug 2001 00:57:31 +0200
+	id <S269326AbRHRW7v>; Sat, 18 Aug 2001 18:59:51 -0400
+Received: from web10402.mail.yahoo.com ([216.136.130.94]:49927 "HELO
+	web10402.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S269318AbRHRW7g>; Sat, 18 Aug 2001 18:59:36 -0400
+Message-ID: <20010818225951.37294.qmail@web10402.mail.yahoo.com>
+Date: Sun, 19 Aug 2001 08:59:51 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Performance and VM improved in 2.4.8-ac7
+To: kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Fred Jackson" <fred@arkansaswebs.com>
-> OK, tried it, twice, still doesn't wan't to compile the second time.
-> Followed your instructions, twice. Then I deleted the directory, 
-> untarred again, reconfigured the kernel from scratch, made it the 
-> first pass. then it would not recompile after I ran 'make xconfig', 
-> saved, and tried to recompile with 'make install'. then I ran 'make 
-> mrproper', 'make xconfig', 'make dep', make install ----- broke again 
-> with the following perplexing errors.
-> 
-> all I can tell for sure is that the compiler doewn't seem to have a 
-> definition for FASTCALL.
-> 
-> thank you for your input.
-> 
-> Fred
-> 
+Yes, it is in my machine 400Mhz Celeron Medocino 128Mb
+RAM and only 72Mb swap.
 
-What version gcc is that?
-I think gcc 2.95.[23] or the superpatched 2.96.x is nice.
-Maybe youre using egcs ?
-I think that compiler is "old" from a 2.4.x (x>=6) point of view?
+Lastime I try running several big apps 
 
-Magnus
+- compiling Mozilla 
+- Star Office with several swd document opened
+- Netscape comunicator 477
+- 3 rxvt and mc running ; several windows of xpdf to
+view some document
+-after finisshing compling mozilla, start it 
+use mozilla to browse
 
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
- Programmer/Networker [|] Magnus Naeslund
- PGP Key: http://www.genline.nu/mag_pgp.txt
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+No slow down at all
+swap usages: around 56Mb
+
+And it does free swap properly
+
+Good job
+
+Cheers,
 
 
+
+
+
+
+=====
+S.KIEU
+
+_____________________________________________________________________________
+http://shopping.yahoo.com.au - Father's Day Shopping
+- Find the perfect gift for your Dad for Father's Day

@@ -1,32 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262686AbREOI4B>; Tue, 15 May 2001 04:56:01 -0400
+	id <S262684AbREOIwu>; Tue, 15 May 2001 04:52:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262687AbREOIzv>; Tue, 15 May 2001 04:55:51 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:26637 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S262686AbREOIzk>;
-	Tue, 15 May 2001 04:55:40 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.2.19 + VIA chipset + strange behaviour 
-In-Reply-To: Your message of "Tue, 15 May 2001 18:04:35 +0930."
-             <200105150834.SAA08720@mercury.physics.adelaide.edu.au> 
-Mime-Version: 1.0
+	id <S262685AbREOIwk>; Tue, 15 May 2001 04:52:40 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22798 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262684AbREOIwg>; Tue, 15 May 2001 04:52:36 -0400
+Subject: Re: LANANA: Getting out of hand?
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Tue, 15 May 2001 09:48:05 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), viro@math.psu.edu (Alexander Viro),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        hpa@transmeta.com (H. Peter Anvin),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <Pine.LNX.4.21.0105142114310.23663-100000@penguin.transmeta.com> from "Linus Torvalds" at May 14, 2001 09:30:33 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 15 May 2001 18:55:32 +1000
-Message-ID: <32518.989916932@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14zaUv-0002Cj-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 May 2001 18:04:35 +0930 (CST), 
-Jonathan Woithe <jwoithe@physics.adelaide.edu.au> wrote:
->ksymoops 2.4.1 on i686 2.2.19.  Options used
->Warning (compare_maps): ksyms_base symbol module_list_R__ver_module_list not found in System.map.  Ignoring ksyms_base entry
+> How hard is it to generate a new "disk driver framework", and let people
+> register themselves, kind of like the "misc" drivers do. Except we'd only
+> allow DISKS. You could add something like
+> 
+> 	register_disk_driver("compaq-ciss", nr_disks, &my_queue);
 
-module_list was added to the export list in 2.2.17 so the message above
-implies that you are using kernel build information from 2.2.17 in your
-2.2.19 build.  I suggest you follow http://www.tux.org/lkml/#s8-8 and
-see if your problems recur after a completely clean kernel build.
+Why bother. Devfs does that already. Thats the enumeration problem 
+
+> and then the disk driver framework will select a range of minor numbers
+> for the disks, and forward all requests that come to those minor numbers
+> to "my_queue". No major numbers. No fixed minors. And the user sees _one_
+> disk major, and doesn't care _what_ the hell is behind it.
+
+The user running devfs sees /dev/disc or /devices/disc and doesnt care
+whats behind it already. They also see what is scsi and the like providing
+they care to ask. The latter is essential to make ioctl work.
+
+Doing a grep across about a large amount of source code I found several very
+definite uses the device type:
+
+1	Is file A the same as file B	
+
+	This continues to work fine
+
+2	Is file A on mountpoint B
+
+	This continues to work fine
+
+3	Are you running this on a sane device
+
+	Joystick, hdparm, ...
+
+4	Which ioctl set can I use of device A
+
+	This breaks. Examples of this include tools like mt-st which has to
+	use different ioctls according to the tape class. Our ioctls overlap
+	so it isnt safe to issue them and pray
+
+5	Deep nasty lowlevel grungy knowledge
+
+	Things like lilo that knows and to an extent has to know more about
+	the universe than is nice.
+
+3 and 4 are variants of the same thing really. The lack of any way other than
+the major number to say 'What ioctl classes does this device support'. IMHO
+thats a thing you have to fix first - a way to query the device and get back
+{"disk", "scsi-disk", "scsi-lowlevel"} or {"disk", "cpqarray"}
+
+The underlying name/number thing is a red herring. You don't need that to
+do /dev/disc nicely. devfs rather proved it. 
+
+Alan
 

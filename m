@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274426AbRIZRH6>; Wed, 26 Sep 2001 13:07:58 -0400
+	id <S275346AbRIZRJS>; Wed, 26 Sep 2001 13:09:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275344AbRIZRHs>; Wed, 26 Sep 2001 13:07:48 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:4364 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S274426AbRIZRHh>;
-	Wed, 26 Sep 2001 13:07:37 -0400
-Date: Wed, 26 Sep 2001 19:05:42 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Norbert Roos <n.roos@berlin.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: System hangs during interruptible_sleep_on_timeout() under 2.4.9
-In-Reply-To: <3BB20949.19469C6F@berlin.de>
-Message-ID: <Pine.LNX.4.33.0109261902350.6377-100000@localhost.localdomain>
+	id <S275344AbRIZRJI>; Wed, 26 Sep 2001 13:09:08 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32261 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S275345AbRIZRI5>; Wed, 26 Sep 2001 13:08:57 -0400
+Subject: Re: Kernel 2.4.10 - problems with X
+To: wizard@eznet.net
+Date: Wed, 26 Sep 2001 18:13:32 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BB0998C.A3E41B7A@eznet.net> from "David A. Frantz" at Sep 25, 2001 10:49:48 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15mIFY-00015j-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Obviously this has not been the case.   It would be unfortunate if I had to
+> upgrade X just to get the kernel (2.4.10) to work.   Right now I'm going to
+> see if I can find a set of upgrade RPMS for X.   For a RedHat 6.2 this may
+> take a bit of work.
 
-On Wed, 26 Sep 2001, Norbert Roos wrote:
+2.4.9-ac has both the old and new DRI available so you dont need to update
+X11 and potentially also gtk. The dri changes should trivially transport
+to the Linus tree
 
-> When I call interruptible_sleep_on_timeout(), the complete systems
-> stops/hangs, even with small timeout values. This happens only on an
-> Abit KT7A (VIA chip set) motherboard with an Athlon processor, other
-> motherboards (different manufactors) behave normally. I call the
-> function during the initialization of a PCI device, but during the
-> sleep the device is not generating traffic on the PCI bus.
 
-are you sure timer interrupts are processed while you are waiting for the
-timeout to expire? I'd suggest to put a:
-
-	printk("<%d>", irq);
-
-into arch/i386/kernel/irq.c:do_IRQ(). So you can see what kind of
-interrupt traffic there is while the device initializes and you are
-waiting for it to generate an interrupt.
-
-If you see lots of "<0>"  messages and the sleep_on() is not returning
-nevertheless, then something serious is going on - almost nothing can
-prevent timers from expiring.
-
-	Ingo
-
+Alan

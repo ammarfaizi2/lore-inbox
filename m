@@ -1,74 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267327AbRGTUfl>; Fri, 20 Jul 2001 16:35:41 -0400
+	id <S267338AbRGTUil>; Fri, 20 Jul 2001 16:38:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267321AbRGTUfb>; Fri, 20 Jul 2001 16:35:31 -0400
-Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:7335 "EHLO
-	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S267327AbRGTUfQ>;
-	Fri, 20 Jul 2001 16:35:16 -0400
-Message-Id: <200107202034.f6KKYHb14563@www.2ka.mipt.ru>
-Date: Sat, 21 Jul 2001 00:59:29 +0400
-From: John Polyakov <johnpol@2ka.mipt.ru>
-To: "David CM Weber" <dweber@backbonesecurity.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Simple LKM & copy_from_user question (followup)
+	id <S267339AbRGTUiV>; Fri, 20 Jul 2001 16:38:21 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:10624 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S267338AbRGTUiQ>; Fri, 20 Jul 2001 16:38:16 -0400
+Date: Fri, 20 Jul 2001 16:38:07 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: David CM Weber <dweber@backbonesecurity.com>
+cc: linux-kernel@vger.kernel.org
+Subject: RE: Simple LKM & copy_from_user question (followup)
 In-Reply-To: <94FD5825A793194CBF039E6673E9AFE00B64A0@bbserver1.backbonesecurity.com>
-In-Reply-To: <94FD5825A793194CBF039E6673E9AFE00B64A0@bbserver1.backbonesecurity.com>
-Reply-To: johnpol@2ka.mipt.ru
-X-Mailer: stuphead ver. 0.5.3 (Wiskas) (GTK+ 1.2.7; Linux 2.4.6-ac2; i686)
-Organization: MIPT
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Sat__21_Jul_2001_00:59:29_+0400_08202050"
+Message-ID: <Pine.LNX.3.95.1010720163705.7295A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-This is a multi-part message in MIME format.
+On Fri, 20 Jul 2001, David CM Weber wrote:
 
---Multipart_Sat__21_Jul_2001_00:59:29_+0400_08202050
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+> Attached is the file I"m having problems with.  I'm compiling it w/ 
+> 
+> gcc -O3 -c main.c
+> 
+> Thanks in advance,
+> 
+> 
+> Dave Weber
+> Backbone Security, Inc.
+> 570-422-7900
+> 
 
-On Fri, 20 Jul 2001 16:26:43 -0400
-"David CM Weber" <dweber@backbonesecurity.com> wrote:
+Top line:
 
-DCW> Attached is the file I"m having problems with.  I'm compiling it w/ 
+#define __KERNEL__
 
-DCW> gcc -O3 -c main.c
+... compiles without any errors, one warning about an unused variable.
 
-DCW> Thanks in advance,
+Cheers,
+Dick Johnson
 
-There is a Makefile for you in attachment.
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-Here is lsmod output:
-It's work :)
-
-[root@Sombre lkm]# lsmod
-Module                  Size  Used by
-main                     836   0  (unused)
-NVdriver              660144  15  (autoclean)
-[root@Sombre lkm]#
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
 
-DCW> Dave Weber
-DCW> Backbone Security, Inc.
-DCW> 570-422-7900
-
----
-WBR. //s0mbre
-
---Multipart_Sat__21_Jul_2001_00:59:29_+0400_08202050
-Content-Type: text/plain;
- name="Makefile"
-Content-Disposition: attachment;
- filename="Makefile"
-Content-Transfer-Encoding: base64
-
-Q0M9Z2NjCk1PRENGTEFHUyA6PSAtV2FsbCAtV3dyaXRlLXN0cmluZ3MgLVdyZWR1bmRhbnQtZGVj
-bHMgLU8yIC1ETU9EVUxFIC1EX19LRVJORUxfXyAtRExJTlVYIC1JL3Vzci9zcmMvbGludXgvaW5j
-bHVkZQpNT0RDRkxBR1MxOj0gLU8xIC1EX19LRVJORUxfXyAtRE1PRFVMRSAtV2FsbCAtRExJTlVY
-IC1JL3Vzci9zcmMvbGludXgvaW5jbHVkZQptYWluLm86ICAgICAgbWFpbi5jCgkgICAgICAgICQo
-Q0MpICQoTU9EQ0ZMQUdTMSkgLWMgbWFpbi5jCgo=
-
---Multipart_Sat__21_Jul_2001_00:59:29_+0400_08202050--

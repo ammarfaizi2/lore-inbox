@@ -1,123 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267683AbUJLTqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267649AbUJLTuz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267683AbUJLTqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 15:46:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267649AbUJLTqJ
+	id S267649AbUJLTuz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 15:50:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267662AbUJLTuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 15:46:09 -0400
-Received: from elektron.ikp.physik.tu-darmstadt.de ([130.83.24.72]:36881 "EHLO
-	elektron.ikp.physik.tu-darmstadt.de") by vger.kernel.org with ESMTP
-	id S267702AbUJLTor (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 15:44:47 -0400
-From: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>
-MIME-Version: 1.0
+	Tue, 12 Oct 2004 15:50:55 -0400
+Received: from gprs212-24.eurotel.cz ([160.218.212.24]:1152 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S267649AbUJLTux (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 15:50:53 -0400
+Date: Tue, 12 Oct 2004 21:50:39 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: David Brownell <david-b@pacbell.net>
+Cc: ncunningham@linuxmail.org, Paul Mackerras <paulus@samba.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Totally broken PCI PM calls
+Message-ID: <20041012195039.GA1070@elf.ucw.cz>
+References: <1097455528.25489.9.camel@gaston> <200410111437.17898.david-b@pacbell.net> <20041012085349.GA2292@elf.ucw.cz> <200410121152.53140.david-b@pacbell.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16748.13357.614402.682513@hertz.ikp.physik.tu-darmstadt.de>
-Date: Tue, 12 Oct 2004 21:44:45 +0200
-To: linux-kernel@vger.kernel.org
-Subject: FIONREAD on  SOCK_STREAM socketpairs 
-X-Mailer: VM 7.18 under Emacs 21.3.1
+Content-Disposition: inline
+In-Reply-To: <200410121152.53140.david-b@pacbell.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi!
 
-a small test program (appended) shows that Linux returns only the number of
-Bytes written with the first write call (here 11 bytes ) to the queue of a
-socketpair, opened with SOCK_STREAM.  Other systems (tested on AIX, FreeBSD,
-HPUX, Solaris) return the number of all byte (here 32) written by the repeated
-calls to write().
+> > If you are entering S4 or S5 at the end of swsusp basically should not
+> > matter to anyone. What we tell the drivers is same in both cases.
+> 
+> The problem cases are on resume, where drivers
+> can see different controller state.  Both S4 and S5
+> resume can leave it in reset; fine.  But from S4
+> the other option is the controller being in the state
+> set up previously by the driver ... yet from S5 the
+> other option is boot firmware (BIOS etc) mucking
+> with it, leaving it in any of several states that are
+> not otherwise documented for resume() paths.
 
-The latter result is also consistant with the explanation for FIONREAD,
-e.g. given on
-http://docsun.cites.uiuc.edu/sun_docs/C/solaris_9/SUNWdev/STREAMS/p39.html:
+I do not think that S4 ad S5 differ in this regard. During resume, you
+go through normal boot in both cases, bootloader, linux-kernel boot.
 
-> FIONREAD
->
-> The FIONREAD ioctl returns the number of data bytes (in all data messages
-> queued) in the location pointed to by the arg parameter.
-
-
-For 2.4, I applied following patch:
-====
---- linux/net/unix/af_unix.c.org	2004-08-12 16:47:00.000000000 +0200
-+++ linux/net/unix/af_unix.c	2004-10-12 12:19:44.000000000 +0200
-@@ -1692,8 +1692,12 @@
- 				err = -EINVAL;
- 				break;
- 			}
--
- 			spin_lock(&sk->receive_queue.lock);
-+			if (sk->type == SOCK_STREAM)
-+			  skb_queue_walk(&sk->receive_queue, skb) {
-+			  amount+=skb->len;
-+			}
-+			else
- 			if((skb=skb_peek(&sk->receive_queue))!=NULL)
- 				amount=skb->len;
- 			spin_unlock(&sk->receive_queue.lock);
-========
-and for 2.6:
-========
---- linux-2.6.9-rc4/net/unix/af_unix.c.org	2004-10-11 04:58:07.000000000 +0200
-+++ linux-2.6.9-rc4/net/unix/af_unix.c	2004-10-12 19:33:38.000000000 +0200
-@@ -1840,9 +1840,16 @@
- 			}
- 
- 			spin_lock(&sk->sk_receive_queue.lock);
-+			if (sk->sk_type == SOCK_STREAM)
-+			  skb_queue_walk(&sk->sk_receive_queue, skb) {
-+			  amount+=skb->len;
-+			}
-+			else
-+			  {
- 			skb = skb_peek(&sk->sk_receive_queue);
- 			if (skb)
- 				amount=skb->len;
-+			  }
- 			spin_unlock(&sk->sk_receive_queue.lock);
- 			err = put_user(amount, (int __user *)arg);
- 			break;
-=====
-
-Any comments on this behaviour and patch?
-
-Thanks
-
+								Pavel
 -- 
-Uwe Bonnes                bon@elektron.ikp.physik.tu-darmstadt.de
-
-Institut fuer Kernphysik  Schlossgartenstrasse 9  64289 Darmstadt
---------- Tel. 06151 162516 -------- Fax. 06151 164321 ----------
-#include <stdio.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <unistd.h>
-
-int main()
-{
-    int fds[2];
-    const char obuf[] =  "Bit Bucket";
-    const char obuf2[] = "More bits";
-    char ibuf[34];
-    int i, avail;
-
-    if( !socketpair( PF_UNIX, SOCK_STREAM, 0, fds ) ) {
-        printf("Success\n");
-        
-        write(fds[0], obuf, sizeof(obuf));
-        write(fds[0], obuf2, sizeof(obuf2));
-        write(fds[0], obuf, sizeof(obuf));
-        i = ioctl(fds[1], FIONREAD, &avail);
-        printf("FIONREAD: %d bytes avail\n", avail);
-        i = read(fds[1], ibuf, sizeof(ibuf));
-        printf("Read: %d bytes - %s\n", i, ibuf);
-        
-        close(fds[0]);
-        close(fds[1]);
-    }
-    else
-        printf("Fail\n");
-    return 0;
-}
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

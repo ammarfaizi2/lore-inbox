@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263999AbTDWLhC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 07:37:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264000AbTDWLhC
+	id S263997AbTDWL2F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 07:28:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263999AbTDWL2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 07:37:02 -0400
-Received: from mail.set-software.de ([193.218.212.121]:58525 "EHLO
-	gateway.local.net") by vger.kernel.org with ESMTP id S263999AbTDWLhB convert rfc822-to-8bit
+	Wed, 23 Apr 2003 07:28:05 -0400
+Received: from bamb-d9b9753e.pool.mediaWays.net ([217.185.117.62]:10244 "EHLO
+	rz.zidlicky.org") by vger.kernel.org with ESMTP id S263997AbTDWL2E
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 07:37:01 -0400
-From: Michael Knigge <Michael.Knigge@set-software.de>
-Date: Wed, 23 Apr 2003 11:47:39 GMT
-Message-ID: <20030423.11473966@knigge.local.net>
-Subject: Re: FileSystem Filter Driver
-To: Abhishek Agrawal <abhishek@abhishek.agrawal.name>
-CC: Nir Livni <nir_l3@netvision.net.il>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1051092516.1896.7.camel@abhilinux.cygnet.co.in>
-References: <000501c30983$1ffb8950$ade1db3e@pinguin> <1051092516.1896.7.camel@abhilinux.cygnet.co.in>
-X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.1; Win32)
-X-Priority: 3 (Normal)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 23 Apr 2003 07:28:04 -0400
+Date: Wed, 23 Apr 2003 13:27:00 +0200
+From: Richard Zidlicky <rz@linux-m68k.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: alan@lxorguk.ukuu.org.uk, geert@linux-m68k.org, torvalds@transmeta.com,
+       paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] M68k IDE updates
+Message-ID: <20030423112700.GA973@linux-m68k.org>
+References: <Pine.GSO.4.21.0304221802570.16017-100000@vervain.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.GSO.4.21.0304221802570.16017-100000@vervain.sonytel.be>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Date: 22 Apr 2003 15:49:15 +0100
+> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> To: Geert Uytterhoeven <geert@linux-m68k.org>
+> Cc: Linus Torvalds <torvalds@transmeta.com>, Paul Mackerras <paulus@samba.org>,
+>      Linux Kernel Development <linux-kernel@vger.kernel.org>
+> Subject: Re: [PATCH] M68k IDE updates
+> 
+> On Llu, 2003-04-21 at 17:55, Geert Uytterhoeven wrote:
+> > However, there's also a routine that involves more magic:
+> > taskfile_lib_get_identify(). While trying to understand that one, I found more
+> > commands that should call the (possible byteswapping) hwif->ata_input_id()
+> > operations, like SMART commands. So first we need a clearer differentiation
+> > between commands that transfer on-platter data, or other drive data.
+> > 
+> > Any comments from the IDE experts?
+> 
+> Only one, stop abusing the IDE layer and do your byte swapping via a loopback/md 
+> or similar piece of code.
 
-> What's a FileSystem Filter Driver?
+It seems that Geert´ idea would fit neatly into the current IDE 
+system. Endianness of on disk data and drive control data are
+clearly different things. A while ago Andre suggested to switch
+the transport based on opcode to make it work, it might be even
+more straightforward to set some flag when the handler is selected
+or take a distinct handler altogether (ide_cmd_type_parser or
+ide_handler_parser).
 
-This is a driver that intercepts calls to the filesystem - for example 
-for monitoring or to do additional access checks. Such a filter driver 
-can then pass the call down to the filesystem or just cancel the call 
-and (for example) return "access denied".
+Otoh trying to solve that with loopback would mean new kernels 
+wouldn´t even see the partition table of old installed harddisks
+on some machines. Fixing that would require an initial ramdisk
+that does setup the loopback device according to kernel version,
+reading the partition table from a loop device and magically make
+it appear compatible to the old devices.
 
-
-Under Windows a pretty well-known filter driver is FileMon at 
-www.sysinternals.com. Thex also have a Linux version but (ahhh) 
-without Source (the source for the Windows-Version is available). The 
-Linux-Version can be found at 
-http://www.sysinternals.com/linux/utilities/filemon.shtml
-
-I guess what they are doing is similar to the way strace works - but 
-I'm not sure. Hmmm, let us strace this thing ;-))))
-
-
-Here are two Links that might help to implement such a thing under 
-Linux (the most interesting is DaZuKo):
-
-http://www.dazuko.org/
-http://oss.sgi.com/projects/fam/
-
-
-
-Bye
-  Michael
-
-
-
-
+Richard
 

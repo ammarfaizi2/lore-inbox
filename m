@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264683AbSKNAfi>; Wed, 13 Nov 2002 19:35:38 -0500
+	id <S264697AbSKNAlT>; Wed, 13 Nov 2002 19:41:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264697AbSKNAfi>; Wed, 13 Nov 2002 19:35:38 -0500
-Received: from 1-064.ctame701-1.telepar.net.br ([200.181.137.64]:39589 "EHLO
-	1-064.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S264683AbSKNAfh>; Wed, 13 Nov 2002 19:35:37 -0500
-Date: Wed, 13 Nov 2002 22:42:11 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: Andrew Morton <akpm@digeo.com>, <linux-mm@kvack.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] remove hugetlb syscalls
-In-Reply-To: <20021113184555.B10889@redhat.com>
-Message-ID: <Pine.LNX.4.44L.0211132239370.3817-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S264724AbSKNAlT>; Wed, 13 Nov 2002 19:41:19 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2067 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264697AbSKNAlS>; Wed, 13 Nov 2002 19:41:18 -0500
+Date: Wed, 13 Nov 2002 16:48:00 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+cc: linux-kernel@vger.kernel.org
+Subject: RE: local APIC may cause XFree86 hang
+In-Reply-To: <F2DBA543B89AD51184B600508B68D4000F866009@fmsmsx103.fm.intel.com>
+Message-ID: <Pine.LNX.4.44.0211131645540.6810-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Nov 2002, Benjamin LaHaise wrote:
 
-> Since the functionality of the hugetlb syscalls is now available via
-> hugetlbfs with better control over permissions, could you apply the
-> following patch that gets rid of a lot of duplicate and unnescessary
-> code by removing the two hugetlb syscalls?
+On Wed, 13 Nov 2002, Nakajima, Jun wrote:
+> 
+> Are we disabling vm86 code to access to PIT or PIC? I saw some video ROM
+> code (either BIOS call or far call) did access PIT, confusing the OS.
 
-#include <massive_applause.h>
+Well, the kernel itself doesn't actually disable/enable anything, it 
+leaves that decision to the caller. 
 
-Yes, lets get rid of this ugliness before somebody actually
-finds a way to use these syscalls...
+XFree86 obviously does have IO rights, and I suspect it may allow the 
+video BIOS to do just about anything, simply because it doesn't have much 
+choise (the video bios clearly needs a lot of IO privileges too). So yes, 
+that could easily confuse the OS if it happens, but it should be 
+independent of IO-APIC vs not.
 
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+		Linus
 

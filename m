@@ -1,82 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265161AbUIEBiv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265900AbUIEBkH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265161AbUIEBiv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 21:38:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265808AbUIEBiv
+	id S265900AbUIEBkH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 21:40:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265909AbUIEBkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 21:38:51 -0400
-Received: from fw.osdl.org ([65.172.181.6]:27840 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265161AbUIEBis (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 21:38:48 -0400
-Date: Sat, 4 Sep 2004 18:38:28 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-cc: ak@muc.de, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix argument checking in sched_setaffinity
-In-Reply-To: <20040904180548.2dcdd488.pj@sgi.com>
-Message-ID: <Pine.LNX.4.58.0409041827280.2331@ppc970.osdl.org>
-References: <m3zn4bidlx.fsf@averell.firstfloor.org> <20040831183655.58d784a3.pj@sgi.com>
- <20040904133701.GE33964@muc.de> <20040904171417.67649169.pj@sgi.com>
- <Pine.LNX.4.58.0409041717230.4735@ppc970.osdl.org> <20040904180548.2dcdd488.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 4 Sep 2004 21:40:06 -0400
+Received: from pat.uio.no ([129.240.130.16]:12704 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S265900AbUIEBjw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 21:39:52 -0400
+Subject: Re: why do i get "Stale NFS file handle" for hours?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Sven =?ISO-8859-1?Q?K=F6hler?= <skoehler@upb.de>
+Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+In-Reply-To: <chdp06$e56$1@sea.gmane.org>
+References: <chdp06$e56$1@sea.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1094348385.13791.119.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 04 Sep 2004 21:39:45 -0400
+Content-Transfer-Encoding: 8BIT
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 4 Sep 2004, Paul Jackson wrote:
+På lau , 04/09/2004 klokka 21:06, skreiv Sven Köhler:
+> Hi,
 > 
-> My understanding of "asking for it" requires at present a user code
-> loop, to probe for the size that works.
+> i think i know what's going an, and why i get the "stale nfs handle" 
+> error-message when the NFS server is restartet (real reboot, or a simply 
+> /etc/init.d/nfs restart) but what i don't understand is, why the NFS 
+> client doesn't "remount" the filesystem autmatically. In case of NFS 
+> over tcp, the NFS client could easily detect a restart of the NFS server 
+> (the tcp-connection was aborted) or are there other factors that keep 
+> the NFS client from recognizing such stuff?
 
-Yeah, or just make a frigging big area, and asking the kernel for it ;)
+Sigh. This question keeps coming up again and again and again. Why can't
+you people search the archives?
 
-Something like
+Of course we could "fix" things for the user so that we just look up all
+those filehandles again transparently.
 
-	/* We just assume that 8k CPU's aren't going to happen */
-	#define MAX_CPUMASK_BYTES (1024)
+  The real question is: how do we know that is the right thing to do?
 
-	void *cpumask = malloc(MAX_CPUMASK_BYTES);
-	int real_size = sched_getaffinity(0, cpumask, MAX_CPUMASK_BYTES);
+The NFS client wouldn't know the difference between your /etc/passwd
+file and a javascript pop-up ad. If it gets an ESTALE error, then that
+tells it that the original filehandle is invalid, but it does not know
+WHY that is the case. The file may have been deleted and replaced by a
+new one. It may be that your server is broken, and is actually losing
+filehandles on reboot (as appears to be the case in your setup),...
 
-and no loop needed.
+Reopening the file, and then continuing to write from the same position
+may be the right thing to do, but then again it may cause you to
+overwrite a bunch of freshly written password entries.
 
->				  But my user code already does
-> that, and the first thing for which I audit any changes to this kernel
-> code is not breaking my sizing loop code in user space.
+So we bounce the error up to userland where these issues can actually be
+resolved.
 
-I don't think you can reasonably use the "setaffinity()" call for sizing, 
-since that historically just refused to use anything but the exact size. 
-Sure, you could loop over every byte value known to man, but it's just a 
-lot easier to do the "getaffinity" thing - if it fails, you can double the 
-size of your buffer and try again. O(log(n)) rather than O(n) ;)
+Cheers,
+  Trond
 
-(And the "just start high enough" approach means that you can basically 
-make it O(1) if you don't care about the theoretical possibility of a 
-8k-CPU monster machine).
-
-> I'd mildly prefer adding a kernel/user API for explicitly providing the
-> two values:
-> 
-> 	sizeof(cpumask_t)
-> 	sizeof(nodemask_t)
-> 
-> This might help reduce the unending confusions in the user and library
-> code sitting on top of us.
-
-I don't know how to sanely expose the damn things. Maybe in the vsyscall 
-page or something. Adding YAEAE (yet another ELF aux entry) could be done, 
-of course.
-
-> We could two phase this:
->  1) add an obvious way to size these masks, and then
->  2) six months later, require sizes to match in all these calls.
-
-Well, historically we _have_ required sizes to match. You can pass in 
-larger sizes to the "get" functions (and they'll tell you how much you 
-got), but the "set" functions required the user to know exactly what the 
-size was. Which is easy, see above.
-
-		Linus

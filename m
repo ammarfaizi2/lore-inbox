@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132416AbRCaPIf>; Sat, 31 Mar 2001 10:08:35 -0500
+	id <S132428AbRCaPwv>; Sat, 31 Mar 2001 10:52:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132421AbRCaPI0>; Sat, 31 Mar 2001 10:08:26 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:54541 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S132416AbRCaPIO>; Sat, 31 Mar 2001 10:08:14 -0500
-Message-Id: <200103311507.f2VF7Ns50937@aslan.scsiguy.com>
-To: Armin Obersteiner <armin@xos.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: add-single-device won't work in 2.4.3 
-In-Reply-To: Your message of "Sat, 31 Mar 2001 15:52:40 +0200."
-             <20010331155240.A888@elch.elche> 
-Date: Sat, 31 Mar 2001 08:07:23 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S132429AbRCaPwm>; Sat, 31 Mar 2001 10:52:42 -0500
+Received: from barry.mail.mindspring.net ([207.69.200.25]:38927 "EHLO
+	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S132428AbRCaPwW>; Sat, 31 Mar 2001 10:52:22 -0500
+From: "Delbert Matlock" <Delbert@Matlock.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.3 compile fail (conflicting types) - Alpha processor - init/main.c
+Date: Sat, 31 Mar 2001 10:49:48 -0500
+Message-ID: <MPBBLFNMFLHJNJCJDPMCOEIBDJAA.Delbert@Matlock.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->hi!
->
->as in the subject, yesterday i upgraded to 2.4.3 (plain, no patches).
->add-single-device/del-single-device did not work anymore.
->
->tried with:
->
->controller: adaptec-19160
->device: yamaha-4260
+I didn't turn up a previous reference to this with a quick search in the
+mailing list archive, so here it goes.
 
-Do you get any error messages?  Does the problem persist with
-the latest driver?
+Compiling 2.4.3 on an Alpha processor system failed on 'init/main.c' with
+'conflicting types' errors for 'pte_alloc' and 'pmd_alloc'.  If I'm reading
+things right, it's a discrepency between 'include/asm/pgalloc.h' and
+'include/linux/mm.h'.
 
-http://people.FreeBSD.org/~gibbs/linux
-
-Use the 2.4.3-pre6 patch.
-
---
-Justin

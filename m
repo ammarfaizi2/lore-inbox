@@ -1,78 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288748AbSDQP0W>; Wed, 17 Apr 2002 11:26:22 -0400
+	id <S289272AbSDQP2b>; Wed, 17 Apr 2002 11:28:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290593AbSDQP0V>; Wed, 17 Apr 2002 11:26:21 -0400
-Received: from synapse.t30.physik.tu-muenchen.de ([129.187.186.221]:1475 "EHLO
-	synapse.t30.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id <S288748AbSDQP0U>; Wed, 17 Apr 2002 11:26:20 -0400
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: IO performance problems in 2.4.19-pre5 when writing to DVD-RAM/ZIP/MO
-In-Reply-To: <rxxadshj1rh.fsf@synapse.t30.physik.tu-muenchen.de>
-	<20020416165358.E29747@dualathlon.random>
-Content-Type: text/plain; charset=US-ASCII
-From: Moritz Franosch <jfranosc@physik.tu-muenchen.de>
-Date: 17 Apr 2002 17:26:13 +0200
-Message-ID: <rxxk7r6tkh6.fsf@synapse.t30.physik.tu-muenchen.de>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
+	id <S290593AbSDQP2a>; Wed, 17 Apr 2002 11:28:30 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:55183 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S289272AbSDQP23>; Wed, 17 Apr 2002 11:28:29 -0400
+Date: Wed, 17 Apr 2002 08:28:19 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Adam Kropelin <akropel1@rochester.rr.com>
+cc: Frank Davis <fdavis@si.rr.com>, linux-kernel@vger.kernel.org,
+        davej@suse.de, Brian Gerst <bgerst@didntduck.org>
+Subject: Re: 2.5.8-dj1 : arch/i386/kernel/smpboot.c error
+Message-ID: <2673595977.1019032098@[10.10.2.3]>
+In-Reply-To: <20020417123044.GA8833@www.kroptech.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+cc'ed Brian - this is your io.h cleanup patch
 
-
-> > The problem is that writing to a DVD-RAM, ZIP or MO device almost
-> > totally blocks reading from a _different_ device. Here is some data.
-> > 
-> > nr bench read       write      2.4.18  2.4.19-rc5  expected factor
-> > 1  dd    30GB HDD   DVD-RAM    278     490         60       8.2
-> > 2  dd    120GB HDD  DVD-RAM    197     438         32       14
-> > 3  dd    30GB HDD   ZIP        158     239         60       4.0
-> > 4  dd    120GB HDD  ZIP        142     249         32       7.8
-> > 5  dd    30GB HDD   120GB HDD   87      89         60       1.5
-> > 6  dd    120GB HDD  30GB HDD    66      69         32       2.2
-> > 7  cp    30GB HDD   120GB HDD   97      77         60       1.3
-> > 8  cp    120GB HDD  30GB HDD    78      65         50       1.3
-
-Should be -pre5, sorry.
-
-> The reason hd is faster is because new algorithm is much better than the
-> previous mainline code. Now the reason the DVDRAM hangs the machine
-> more, that's probably because more ram can be marked dirty with those
-> new changes (beneficial for some workload, but it stalls much more the
-> fast hd, if there's one very slow blkdev in the system). You can try
-> decrasing the percent of vm dirty in the system with:
+> As I said, -dj has an optimization in asm-i386/io.o:
 > 
-> 	echo 2 500 0 0 500 3000 3 1 0 >/proc/sys/vm/bdflush
+>> # ifdef CONFIG_MULTIQUAD
+>> extern void *xquad_portio;    /* Where the IO area was mapped */
+>> # else
+>> # define xquad_portio (0)
+>> # endif
 
-With the bdflush-parameters above, I get
+Ah, OK, I missed that - makes more sense now ;-). 
 
-nr bench read       write      2.4.19-pre5  expected factor
-9  dd    30GB HDD   DVD-RAM    208/0/6      60       3.5
-10 dd    120GB HDD  DVD-RAM    39/0/6       32       1.2
-11 dd    30GB HDD   ZIP        66/0/10      60       1.1
-12 dd    120GB HDD  ZIP        85/0/7       32       2.7
+> Even though clustered_apic_mode is 0, the compiler still complains
+> about the second one and the first one doesn't depend on
+> clustered_apic_mode at all.
 
-Numbers in the column 2.4.19-pre5 are total time / user time / system
-time in seconds.
+Hmmm ... not sure why the compiler complains about the second one,
+that's very strange ;-)
+ 
+> I don't like spreading around more #ifdef's, but the spirit of the
+> changes seemed to be to get rid of the declaration of xquad_portio
+> when !CONFIG_MULTIQUAD. Suggestions for improvement welcome.
 
-Performance is much better with the new parameters. Also, with the new
-parameters, the system can read from HDD almost steadily while writing
-to DVD. This should much increase responsiveness.
+The cleanups we gained in io.h by Brian's patch more than compensate
+for this, but it's still a shame to have to do.
 
-In cases 9 and 12 where performance is bad, both tested drives are on
-the same IDE controller. Should that matter?
+I wonder if we can play the same trick we've played before ....
+haven't tested the appended, but maybe it, or something like it
+will work without the ifdef's?
 
-> Right fix is different but not suitable for 2.4.
+M.
 
-I'm looking forward to the definitive solution.
+--- linux-2.5.8-dj1/include/asm-i386/io.h	Wed Apr 17 05:06:20 2002
++++ linux-2.5.8-dj1/include/asm-i386/io.h.new	Wed Apr 17 15:07:11 2002
+@@ -330,7 +330,8 @@
+ }
+ 
+ #ifdef CONFIG_MULTIQUAD
+-extern void *xquad_portio;    /* Where the IO area was mapped */
++#define xquad_portio real_xquad_portio
++extern void *real_xquad_portio;    /* Where the IO area was mapped */
+ #else
+ #define xquad_portio (0)
+ #endif
+--- linux-2.5.8-dj1/arch/i386/kernel/smpboot.c	Sun Apr 14 12:18:52 2002
++++ linux-2.5.8-dj1/arch/i386/kernel/smpboot.c.new	Wed Apr 17 15:08:25 2002
+@@ -1005,7 +1005,7 @@
+ 
+ static int boot_cpu_logical_apicid;
+ /* Where the IO area was mapped on multiquad, always 0 otherwise */
+-void *xquad_portio = NULL;
++void *real_xquad_portio = NULL;
+ 
+ int cpu_sibling_map[NR_CPUS] __cacheline_aligned;
+ 
 
-Thank you very much,
-
-Moritz
-
-
--- 
-Dipl.-Phys. Moritz Franosch
-http://Franosch.org

@@ -1,72 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbULLVNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262127AbULLVRY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262130AbULLVNf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 16:13:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbULLVNe
+	id S262127AbULLVRY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 16:17:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbULLVQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 16:13:34 -0500
-Received: from smtp.andrew.cmu.edu ([128.2.10.83]:11149 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S262130AbULLVNQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 16:13:16 -0500
-Message-ID: <41BCB420.1080307@hackish.org>
-Date: Sun, 12 Dec 2004 16:12:00 -0500
-From: Peter Nelson <rufus-kernel@hackish.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041120)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Eric Piel <Eric.Piel@tremplin-utc.net>
-CC: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-       decklin@red-bean.com
-Subject: Re: [PATCH] Hotplug support for several PSX controlers
-References: <41BCA915.3030407@tremplin-utc.net>
-In-Reply-To: <41BCA915.3030407@tremplin-utc.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Sun, 12 Dec 2004 16:16:51 -0500
+Received: from wproxy.gmail.com ([64.233.184.196]:56303 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262129AbULLVO4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 16:14:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=N1a1IuR07PI+eNoSs2raZHf/ZZp1svg6yD6hlsQCYZy/jhZ6/ysy5emh8JIl1V/6frGy0n7IKGrTkiTQ7k7eDNAPEIfXGTmUF4k+4c1rKbPTIrzbt28hgKtFwyTKtFQHdsDofD2KsRSGKVOuNkcmXZEoRUsnyZiR/4hYON2XTMg=
+Message-ID: <3fff1a7104121213141303e0bb@mail.gmail.com>
+Date: Sun, 12 Dec 2004 23:14:55 +0200
+From: Patrick <nawtyness@gmail.com>
+Reply-To: Patrick <nawtyness@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Unknown Issue.
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Piel wrote:
+Hi, 
 
-> Since 2.6.9, several PSX controlers in the same time can be supported. 
-> However, because of a bug, if not all the PSX controlers are pluged in 
-> then nothing works. Typically, you load gamecon with options saying 
-> that you have two PSX adapter ports and then you plug and unplug has 
-> many controllers has you want. There is a bug which prevent keypress 
-> to be detected when not all the controllers connected.
+I've got a computer running gentoo, on a clean install where i've got
+an odd problem :
 
-As I added to the documentation "hot swapping should work (but is not 
-recomended)."  This might make it a bit more likely to work, but still 
-"not recomended."
+after a while, the computer refuses to spawn processes anymore : 
 
-> The problem was that when a port didn't have a controler pluged the 
-> packet length to receive was read as very big, leading to a kind of 
-> buffer overflow. This patch checks the packet length and if it is 
-> bigger than the theoritical possible it considers that there is no 
-> controller pluged on this port.
+-/bin/bash: /bin/ps: Input/output error
+-/bin/bash: /usr/bin/w: Input/output error
+-/bin/bash: /bin/df: Input/output error
+-/bin/bash: /bin/mount: Input/output error
 
-This seems like a reasonable explination when ports float if 
-unconnected.  Your patch does almost the right thing.  First 
-gc_psx_command should take a data[5] argument, that was a logic error on 
-my part.  Second, you compare the calculated length to PSX_LENGTH, which 
-is just saying we read in bytes.  It should check <= 6, which is the 
-longest string of packets possible (buttons, buttons, right, right, 
-left, left, see 
-<http://www.gamesx.com/controldata/psxcont/psxcont.htm>).  Changing to 
-compare to 6 makes the patch look good to me.
+It happen's randomly, i've tried everything from changing the computer
+from running software raid ( scsi ) to running a hardware solution and
+reinstalling, I've run the memory through memtest as well as i've
+remounted the drives and i've tested the ram to make sure it was
+properly mounted.
 
-> It probably works on a vanilla 2.6.10-rc3 but I highly recommand to 
-> use the Vojtech's tree which contains an important fix about PSX DDR 
-> (cf http://marc.theaimsgroup.com/?l=linux-kernel&m=110118014804716&w=2).
+The only thing running on this box is mysql, which runs perfectly at
+7500 q/s ( running super smack ) now, i'm not sure if this is a linux
+kernel thing, or a gentoo thing, or a hardware thing.
 
-Vojtech already accepted my almost-identical patch when I noticed this 
-in September.  See
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109571247127456&w=4
+I've checked and i'm not running out of file descriptors ( by looking
+in /proc/sys/fs/file-nr ) and i've increased the ammount in (
+/proc/sys/fs/file-max ( if i member correctly ) ) by adding a 0 after
+the end of the value thus increasing it alot.
 
-> I've heard that Linus wants 2.6.10 ready for Christmas, this patch 
-> should definitetly helps ;-)
+It's running XFS on the root partition with a single partition, dual
+xeon 2.66 with hyperthreading enabled, dual intel gbe and a adaptec
+2120S AACraid card. Dual 36gb 10krpm scsi drives in raid1.
 
-I'm all for both my previous patch and this one making it into 2.6.10 =)
+Does anyone have any ideas on what i can do, what i can test, if it's
+hardware ? software ?
 
--Peter
+guys ? 
 
+P
+
+-- 
+</N>
+
+------
+In the beginning, there was nothing. And God said, 'Let there be
+Light.' And there was still nothing, but you could see a bit better.

@@ -1,59 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267890AbUIPJdb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267923AbUIPJec@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267890AbUIPJdb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 05:33:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267974AbUIPJc2
+	id S267923AbUIPJec (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 05:34:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267936AbUIPJeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 05:32:28 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57351 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S267893AbUIPJax (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 05:30:53 -0400
-Date: Thu, 16 Sep 2004 10:30:45 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Albert Cahalan <albert@users.sf.net>, Jakub Jelinek <jakub@redhat.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: get_current is __pure__, maybe __const__ even
-Message-ID: <20040916103045.B31029@flint.arm.linux.org.uk>
-Mail-Followup-To: Andi Kleen <ak@muc.de>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Albert Cahalan <albert@users.sf.net>,
-	Jakub Jelinek <jakub@redhat.com>,
-	Albert Cahalan <albert@users.sourceforge.net>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1095288600.1174.5968.camel@cube> <20040915231518.GB31909@devserv.devel.redhat.com> <20040915232956.GE9106@holomorphy.com> <1095300619.2191.6392.camel@cube> <20040916023604.GH9106@holomorphy.com> <20040916100419.A31029@flint.arm.linux.org.uk> <20040916091128.GA55409@muc.de>
+	Thu, 16 Sep 2004 05:34:25 -0400
+Received: from ender.smtp.cz ([81.95.97.119]:42880 "EHLO out.smtp.cz")
+	by vger.kernel.org with ESMTP id S267918AbUIPJdx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 05:33:53 -0400
+Subject: Minor IPSec bug + solution
+From: Martin Bouzek <martin.bouzek@radas-atc.cz>
+Reply-To: martin.bouzek@radas-atc.cz
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Radas, s.r.o.
+Message-Id: <1095327372.4466.87.camel@mabouzek>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040916091128.GA55409@muc.de>; from ak@muc.de on Thu, Sep 16, 2004 at 11:11:28AM +0200
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 16 Sep 2004 11:36:12 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16, 2004 at 11:11:28AM +0200, Andi Kleen wrote:
-> > IOW, think from a tasks point of view.  It gets into the scheduler,
-> > and switch_to() is just a normal function which just happens to sleep
-> > for some time.
-> 
-> On x86/x86-64 the stack switch is inlined into schedule() 
+Hi,
 
-Yes, and does it not save the whole CPU context and restore it, or tell
-the compiler that certain registers which you don't preserve are
-clobbered?  If it didn't, I think you'd find that you have a bug
-there.
+I was setting up an VPN via IPSec in kernel 2.6.x on IPv4 and found the
+following bug. It is not possible to set up an IPComp/ESP tunnel with
+IPComp set as mandatory. The following setup works fine for me:
 
-The scheduler quite rightly expects, for any thread, that any variable
-which may be stored in a CPU register before the context switch has the
-same value as after the context switch.
+spdadd 192.168.1.0/24 192.168.2.0/24 any -P out ipsec
+           ipcomp/tunnel/192.168.1.100-192.168.2.212/use
+           esp/tunnel/192.168.1.100-82.99.145.1/require;
 
-(note - "preserve" above - I don't mean from one thread to another,
-I mean preserved within the context of one thread.)
+(IPs are little bit confusing, because computers are behing NAT and the
+pair SP is not shown, because it is not important)
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+But the following one is not working:
+
+spdadd 192.168.1.0/24 192.168.2.0/24 any -P out ipsec
+           ipcomp/tunnel/192.168.1.100-192.168.2.212/require
+           esp/tunnel/192.168.1.100-82.99.145.1/require;
+
+
+
+Of course it is possible to use the first setup, but I found that
+problem was in "require" for IPComp only after quite a while of
+debugging. :-) 
+
+The later setup is not working, because all IP-IP packets are droped by 
+__xfrm_policy_check function, because of error in xfrm_state_ok
+function. For tunnels it returns 
+
+tmpl->optional && !xfrm_state_addr_cmp(tmpl, x, family);
+
+but it should return 
+
+tmpl->optional || !xfrm_state_addr_cmp(tmpl, x, family);
+
+The packet should pass policy check if either the policy is optional OR
+the source address match. The code says that check pass if policy is
+optional AND the address match, which is obviously wrong. IMHO it is the
+reason, why I have to set this "use" for IPComp tunnel.
+
+So the problem is in file "net/xfrm/xfrm_policy.c" in function
+"xfrm_state_ok" - on line 868 in 2.6.8.1 kernel. It seems to me to
+trivial change to create a patch.
+
+
+I am not sure where I shall send this mail. As I said, it is a minnor
+bug, and it is possible to set up things working even with it.
+Nevertheless it would be nice to have it fixed. Can somebody help me,
+where I shall send it?
+
+Thanks.
+- Martin Bouzek
+- martin.bouzek@radas-atc.cz
+
+

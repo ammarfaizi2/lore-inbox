@@ -1,70 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265777AbTAYIYO>; Sat, 25 Jan 2003 03:24:14 -0500
+	id <S265894AbTAYInm>; Sat, 25 Jan 2003 03:43:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265894AbTAYIYO>; Sat, 25 Jan 2003 03:24:14 -0500
-Received: from main.gmane.org ([80.91.224.249]:31705 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S265777AbTAYIYN>;
-	Sat, 25 Jan 2003 03:24:13 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Andres Salomon" <dilinger@voxel.net>
-Subject: Re: 2.5.59-mm5
-Date: Sat, 25 Jan 2003 03:33:24 -0500
-Message-ID: <pan.2003.01.25.08.33.21.351761@voxel.net>
-References: <20030123195044.47c51d39.akpm@digeo.com>
+	id <S266218AbTAYInl>; Sat, 25 Jan 2003 03:43:41 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23568 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265894AbTAYInl>;
+	Sat, 25 Jan 2003 03:43:41 -0500
+Date: Sat, 25 Jan 2003 08:52:48 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@redhat.com>,
+       willy@debian.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.5] pci_{save,restore}_extended_state
+Message-ID: <20030125085248.A4882@parcelfarce.linux.theplanet.co.uk>
+References: <20030124212403.A25285@jurassic.park.msu.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Pan/0.13.3 (That cat's something I can't explain)
-Cc: linux-mm@kvack.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030124212403.A25285@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Fri, Jan 24, 2003 at 09:24:03PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My atyfb_base.c compile fix (from 2.5.54) still hasn't found its way into
-any of the main kernel trees.  The original patch generates a reject
-against 2.5.59-mm5, so here's an updated patch.
+On Fri, Jan 24, 2003 at 09:24:03PM +0300, Ivan Kokshaysky wrote:
+> pci.h: added missing SIZEOFs for each capability as per PCI specs.
+> I'm not 100% sure about PCI_CHSWP_SIZEOF and PCI_X_SIZEOF - somebody
+> with respective specs in hands (Matthew?) ought to verify this...
 
+PCI-X is 8 bytes -- ID, Next capability, 2-byte `Command', 4-byte `Status'
 
-On Thu, 23 Jan 2003 19:50:44 -0800, Andrew Morton wrote:
+Except PCI-X bridges, which are 16-bytes long.  And I didn't write down the
+definition for those.
 
-> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-mm5/
-> 
-> .  -mm3 and -mm4 were not announced - they were sync-up patches as we
->   worked on the I/O scheduler.
-> 
-> .  -mm5 has the first cut of Nick Piggin's anticipatory I/O scheduler.
->   Here's the scoop:
-> 
-[...]
-> 
-> anticipatory_io_scheduling-2_5_59-mm3.patch
->   Subject: [PATCH] 2.5.59-mm3 antic io sched
-> 
-> 
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-mm' in
-> the body to majordomo@kvack.org.  For more info on Linux MM,
-> see: http://www.linux-mm.org/
+Hotswap uses only 3 bytes, but the 4th byte is `reserved' so better save
+4 bytes rather than 3.
 
+>  #define  PCI_CHSWP_PI		0x30	/* Programming Interface */
+>  #define  PCI_CHSWP_EXT		0x40	/* ENUM# status - extraction */
+>  #define  PCI_CHSWP_INS		0x80	/* ENUM# status - insertion */
+> +#define PCI_CHSWP_SIZEOF	4
+>  
+>  /* PCI-X registers */
+>  
+> @@ -309,6 +314,7 @@
+>  #define  PCI_X_STATUS_MAX_SPLIT	0x0380	/* Design Max Outstanding Split Trans */
+>  #define  PCI_X_STATUS_MAX_CUM	0x1c00	/* Designed Max Cumulative Read Size */
+>  #define  PCI_X_STATUS_SPL_ERR	0x2000	/* Rcvd Split Completion Error Msg */
+> +#define PCI_X_SIZEOF		9
+>  
+>  /* Include the ID list */
+>  
 
---- a/drivers/video/aty/atyfb_base.c    2003-01-25 03:02:35.000000000 -0500
-+++ b/drivers/video/aty/atyfb_base.c    2003-01-25 03:21:48.000000000 -0500
-@@ -2587,12 +2587,12 @@
-	if (info->screen_base)
-		iounmap((void *) info->screen_base);
- #ifdef __BIG_ENDIAN
--	if (info->cursor && par->cursor->ram)
-+	if (par->cursor && par->cursor->ram)
-		iounmap(par->cursor->ram);
- #endif
- #endif
--	if (info->cursor)
--		kfree(info->cursor);
-+	if (par->cursor)
-+		kfree(par->cursor);
- #ifdef __sparc__
-	if (par->mmap_map)
-		kfree(par->mmap_map);
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

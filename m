@@ -1,70 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262265AbUCIXHW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 18:07:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbUCIXHW
+	id S262304AbUCIXOE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 18:14:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbUCIXOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 18:07:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:39367 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262265AbUCIXHO (ORCPT
+	Tue, 9 Mar 2004 18:14:04 -0500
+Received: from alt.aurema.com ([203.217.18.57]:16008 "EHLO smtp.sw.oz.au")
+	by vger.kernel.org with ESMTP id S262304AbUCIXN6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 18:07:14 -0500
-Date: Tue, 9 Mar 2004 15:09:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Print function names during do_initcall debugging
-Message-Id: <20040309150913.16d4d628.akpm@osdl.org>
-In-Reply-To: <20040309222559.GX17857@lug-owl.de>
-References: <20040309222559.GX17857@lug-owl.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 9 Mar 2004 18:13:58 -0500
+Date: Wed, 10 Mar 2004 10:13:47 +1100
+From: Kingsley Cheung <kingsley@aurema.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] For preventing kstat overflow
+Message-ID: <20040310101347.B30341@aurema.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040309132338.A30341@aurema.com> <20040308185354.70040c8b.akpm@osdl.org> <20040309165704.L29788@aurema.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040309165704.L29788@aurema.com>; from kingsley@aurema.com on Tue, Mar 09, 2004 at 04:57:04PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Benedict Glaw <jbglaw@lug-owl.de> wrote:
->
-> Please merge the following patch. It prints __init function names while
-> all calls are executed at do_initcalls().
+On Tue, Mar 09, 2004 at 04:57:04PM +1100, Kingsley Cheung wrote:
+> On Mon, Mar 08, 2004 at 06:53:54PM -0800, Andrew Morton wrote:
+> > Kingsley Cheung <kingsley@aurema.com> wrote:
+> > >
+> > > Hi All,
+> > > 
+> > > What do people think of a patch to change the fields in cpu_usage_stat
+> > > from unsigned ints to unsigned long longs?  And the same change for
+> > > nr_switches in the runqueue structure too?
+> > 
+> > Sounds unavoidable.
+> > 
+> > > Its actually worse for context
+> > > switches on a busy system, for we've been seeing an average of ten
+> > > switches a tick for some of the statistics we have.
+> > 
+> > Sounds broken.  What CPU scheduler are you using?
+> 
+> Um, what do you mean by broken?
+> 
+> Well, as for the scheduler, its the Entitlement Based Scheduler, but
+> it doesn't look like its got anything to do with the scheduler.  Some
+> work loads we have been testing just have processes that come and go
+> so frequently that the context switch rate is high.  Even when Ingo
+> posted his original O(1) patch (see
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=101010394225604&w=2) he
+> claimed high context switch rates.
 
-Nice, thanks.  I tried to do this in the original patch but the kallsyms
-stuff wasn't set up at that stage.  Someone must have moved something.
+Oh, just in case there's some confusion... even though we've been
+seeing it for EBS, the patch is for 2.6.3.
 
-However I suspect you didn't test it with CONFIG_KALLSYMS=n: it will be
-missing newlines in the output.
-
-
-
- 25-akpm/init/main.c |    8 ++++++--
- 1 files changed, 6 insertions(+), 2 deletions(-)
-
-diff -puN init/main.c~initcall_debug-print_symbol init/main.c
---- 25/init/main.c~initcall_debug-print_symbol	Tue Mar  9 15:07:16 2004
-+++ 25-akpm/init/main.c	Tue Mar  9 15:07:59 2004
-@@ -37,6 +37,7 @@
- #include <linux/profile.h>
- #include <linux/rcupdate.h>
- #include <linux/moduleparam.h>
-+#include <linux/kallsyms.h>
- #include <linux/writeback.h>
- #include <linux/cpu.h>
- #include <linux/efi.h>
-@@ -513,8 +514,11 @@ static void __init do_initcalls(void)
- 	for (call = &__initcall_start; call < &__initcall_end; call++) {
- 		char *msg;
- 
--		if (initcall_debug)
--			printk("calling initcall 0x%p\n", *call);
-+		if (initcall_debug) {
-+			printk(KERN_DEBUG "Calling initcall 0x%p", *call);
-+			print_symbol(": %s()", (unsigned long) *call);
-+			printk("\n");
-+		}
- 
- 		(*call)();
- 
-
-_
-
+-- 
+		Kingsley

@@ -1,84 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbTI3QAi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 12:00:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbTI3QAi
+	id S261696AbTI3QKb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 12:10:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbTI3QKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 12:00:38 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:28129 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S261193AbTI3QAf (ORCPT
+	Tue, 30 Sep 2003 12:10:31 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:64775 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S261696AbTI3QK0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 12:00:35 -0400
-Date: Tue, 30 Sep 2003 18:00:33 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pau Aliagas <linuxnow@newtral.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Andries Brouwer <aebr@win.tue.nl>
-Subject: Re: multimedia keys not working in 2.6.0-test6
-Message-ID: <20030930160033.GC27118@ucw.cz>
-References: <20030930154640.GA27057@ucw.cz> <Pine.LNX.4.44.0309301750400.2486-100000@pau.intranet.ct>
+	Tue, 30 Sep 2003 12:10:26 -0400
+Date: Tue, 30 Sep 2003 18:10:18 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Andreas Steinmetz <ast@domdv.de>, axboe@suse.de,
+       schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org
+Subject: Re: Kernel includefile bug not fixed after a year :-(
+Message-ID: <20030930161018.GA900@mars.ravnborg.org>
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
+	Andreas Steinmetz <ast@domdv.de>, axboe@suse.de,
+	schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org
+References: <200309301144.h8UBiUUF004315@burner.fokus.fraunhofer.de> <20030930115411.GL2908@suse.de> <3F797316.2010401@domdv.de> <20030930052337.444fdac4.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309301750400.2486-100000@pau.intranet.ct>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030930052337.444fdac4.davem@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 30, 2003 at 05:52:03PM +0200, Pau Aliagas wrote:
-> On Tue, 30 Sep 2003, Vojtech Pavlik wrote:
+On Tue, Sep 30, 2003 at 05:23:37AM -0700, David S. Miller wrote:
 > 
-> > On Tue, Sep 30, 2003 at 04:56:21PM +0200, Andries Brouwer wrote:
-> > 
-> > > On Tue, Sep 30, 2003 at 01:54:59PM +0200, Pau Aliagas wrote:
-> > > 
-> > > > These are the messages I get when pressing P1 and P2 in my laptop.
-> > > > 
-> > > > kernel: atkbd.c: Unknown key pressed (translated set 2, code 0x153, data 0x74, on isa0060/serio0).
-> > > > kernel: atkbd.c: Unknown key released (translated set 2, code 0x153, data 0xf4, on isa0060/serio0).
-> > > > 
-> > > > Email and browser keys report a correct code and I can bind thm to any app 
-> > > > using xbindkeys, but with thes two there's no way.
-> > > 
-> > > These keys produce scancode e0 74. Untranslated e0 53.
-> > > Entry 0x153 of atkbd_set2_keycode[] is 0, that is why
-> > > the key is called unknown.
-> > > 
-> > > The normal way of assigning a keycode is by using setkeycodes.
-> > > This uses the KDSETKEYCODE ioctl, but it is broken at present.
-> > > 
-> > > The reason is that it is written to use 0-127 for scancode xx
-> > > and 128-255 for scancode pair e0 xx. (Translated set2, of course.)
-> > > However, the current kernel untranslates what the keyboard sends
-> > > and then uses a scancode-to-keycode mapping for untranslated set 2.
-> > > That breaks this ioctl.
-> > > Moreover, it uses a shift of 256 instead of 128 for e0.
-> > > That also breaks this ioctl.
-> > 
-> > It actually works pretty well on 2.6. You jsut have to pass a different
-> > number on 2.6 than you do on 2.4 - that is:
-> > 
-> > 	setkeycodes 153 148
-> > 
-> > 153 is the reported scancode (e0 53 untranslated, e0 74 translated),
-> > 148 is the keycode for KEY_PROG1
-> > 
-> > (There is still a small bug in the bitmap setting, and I'll be fixing
-> > that tonight, but unless you have more than one scancode generating the
-> > same keycode, it won't bite you.)
-> 
-> # setkeycodes 153 148
-> setkeycode: code outside bounds
-> usage: setkeycode scancode keycode ...
->  (where scancode is either xx or e0xx, given in hexadecimal,
->   and keycode is given in decimal)
-> 
-> I tried xx153, 0e153, 0exx153 and no way.
- 
-Too bad. Your setkeycodes seems to do too clever input data checking. 
-Although the ioctl data type for scancode is an int, it insists on the
-value fitting into a byte.
+> Suggest changes to fix the problems, but just saying "don't include
+> kernel header in your user apps, NYAH NYAH NYAH!" does not help
+> anyone at all.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+I really liked the proposal that Matthew Wilcox came up with:
+
+Todays hirachi:
+include/linux		=>	Kernel wide internal
+include/sub-system	=>	sub-system internal
+include/asm-$(ARCH)	=>	arch specific
+include/asm		=>	symlink to include/asm-$(ARCH)
+include/asm-generic	=>	default arch implementations
+
+Additional hirachy:
+usr/include/linux-abi	=>	kernel wide ABI
+usr/include/abi-$(ARCH)	=>	arch specifics ABI
+usr/include/arch-abi	=>	symlink to above
+
+I've lost the original email, so the names differ, but the
+principle is the same.
+
+Then we could slowly migrate the user level stuff to usr/include.
+Do you see this as a sensible solution also for ipv6?
+
+	Sam

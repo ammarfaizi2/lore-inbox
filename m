@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267625AbUHPNyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267626AbUHPOFn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267625AbUHPNyL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 09:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267626AbUHPNyK
+	id S267626AbUHPOFn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 10:05:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267630AbUHPOFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 09:54:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:45491 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267625AbUHPNyF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 09:54:05 -0400
-Date: Mon, 16 Aug 2004 09:53:04 -0400
-From: Alan Cox <alan@redhat.com>
-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: PATCH: fix 32bit compile problem with IDE changes
-Message-ID: <20040816135304.GA26511@devserv.devel.redhat.com>
+	Mon, 16 Aug 2004 10:05:43 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:65507 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267626AbUHPOFm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 10:05:42 -0400
+Subject: Re: 2.6.8.1 Mis-detect CRDW as CDROM
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marc Ballarin <Ballarin.Marc@gmx.de>
+Cc: John Wendel <jwendel10@comcast.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040816143817.0de30197.Ballarin.Marc@gmx.de>
+References: <411FD919.9030702@comcast.net>
+	 <20040816143817.0de30197.Ballarin.Marc@gmx.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1092661385.20528.25.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 16 Aug 2004 14:03:06 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes the 32bit compile problem some people had. Since we fixed the
-underlying issue now we can lose the geometry hack
+On Llu, 2004-08-16 at 13:38, Marc Ballarin wrote:
+> Due to the newly added command filtering, you now need to run cdrecord as
+> root. Since cdrecord will drop root privileges before accessing the drive,
+> setuid root won't help
 
+cdrecord should be fine. k3b is issuing something not on the filter
+list.
 
---- drivers/ide/ide-probe.c~	2004-08-16 14:51:06.071010312 +0100
-+++ drivers/ide/ide-probe.c	2004-08-16 14:51:06.071010312 +0100
-@@ -557,17 +557,6 @@
- 	if(strstr(id->model, "Integrated Technology Express"))
- 	{
- 		/* IT821x raid volume with bogus ident block */
--		if(id->lba_capacity >= 0x200000)
--		{
--			id->sectors = 63;
--			id->heads = 255;
--		}
--		else
--		{
--			id->sectors = 32;
--			id->heads = 64;
--		}
--		id->cyls = id->lba_capacity_2 / (id->heads * id->sectors);
- 		/* LBA28 is ok, DMA is ok, UDMA data is valid */
- 		id->capability |= 3;
- 		id->field_valid |= 7;
+> This patch restores the behaviour of previous kernels, security issues included:
 
-Signed-off-by: Alan Cox
+Like allowing any user to erase your drive firmware. What you could do
+which is much more useful is printk the command byte that gets refused
+and see if you can pin down what commands are being blocked that
+are needed by K3B 
+
+Alan
 

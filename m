@@ -1,37 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274206AbRISWIT>; Wed, 19 Sep 2001 18:08:19 -0400
+	id <S274219AbRISWJK>; Wed, 19 Sep 2001 18:09:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274214AbRISWIM>; Wed, 19 Sep 2001 18:08:12 -0400
-Received: from anime.net ([63.172.78.150]:3333 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S274206AbRISWH7>;
-	Wed, 19 Sep 2001 18:07:59 -0400
-Date: Wed, 19 Sep 2001 15:08:19 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: <brian@worldcontrol.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Athlon bug stomper: perf. results
-In-Reply-To: <20010919151413.A11415@top.worldcontrol.com>
-Message-ID: <Pine.LNX.4.30.0109191508060.29421-100000@anime.net>
+	id <S274214AbRISWJE>; Wed, 19 Sep 2001 18:09:04 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:54795 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S274215AbRISWIw>;
+	Wed, 19 Sep 2001 18:08:52 -0400
+Message-ID: <XFMail.20010919151147.davidel@xmailserver.org>
+X-Mailer: XFMail 1.5.0 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <3BA912EA.F29B5AD9@distributopia.com>
+Date: Wed, 19 Sep 2001 15:11:47 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: "Christopher K. St. John" <cks@distributopia.com>
+Subject: Re: [PATCH] /dev/epoll update ...
+Cc: Dan Kegel <dank@kegel.com>, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Sep 2001 brian@worldcontrol.com wrote:
-> On Wed, Sep 19, 2001 at 01:30:36PM -0700, Dan Hollis wrote:
-> > On Wed, 19 Sep 2001 brian@worldcontrol.com wrote:
-> > > Linux 2.4.9ac5 *without* althon bug stomper patch:
-> > >     oopes to death on boot.
-> > And without kernel athlon optimization, please.
-> > It should be clear: run the athlon.c on a kernel WITHOUT athlon kernel
-> > optimization, but with the 'athlon bug stomper patch' on and off.
-> Did I miss a simple program for turning the bit on and off?
 
-"setpci"
+On 19-Sep-2001 Christopher K. St. John wrote:
+> Davide Libenzi wrote:
+>> 
+>> >     - check new_socket_fd for readable, writable, and
+>> >       error. if any true, then add new event to
+>> >       event queue, as if the state had changed.
+>> 
+>> No it does't check. It's not needed for how it works.
+>> 
+> 
+>  Yes, I see that it currently works that way. I'm
+> suggesting that it's a needlessly awkward way to work.
+> It also results in thousands of spurious syscalls a
+> second as servers are forced to double check there
+> isn't i/o to be done.
 
--Dan
+Again :
 
--- 
-[-] Omae no subete no kichi wa ore no mono da. [-]
+1)      select()/poll();
+2)      recv()/send();
+
+vs :
+
+1)      if (recv()/send() == FAIL)
+2)              ioctl(EP_POLL);
+
+
+When there's no data/tx buffer full these will result in 2 syscalls while
+if data is available/tx buffer ok the first method will result in 2 syscalls
+while the second will never call the ioctl(). 
+It looks very linear to me, with select()/poll() you're asking for a state while
+with /dev/epoll you're asking for a state change.
+
+
+
+
+- Davide
 

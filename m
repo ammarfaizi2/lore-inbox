@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263123AbUJ1W1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263114AbUJ1W1q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263123AbUJ1W1q (ORCPT <rfc822;willy@w.ods.org>);
+	id S263114AbUJ1W1q (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 28 Oct 2004 18:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263110AbUJ1WUs
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263123AbUJ1WTC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 18:20:48 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:62734 "HELO
+	Thu, 28 Oct 2004 18:19:02 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:3343 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263058AbUJ1WQH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 18:16:07 -0400
-Date: Fri, 29 Oct 2004 00:15:35 +0200
+	id S263100AbUJ1WR7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 18:17:59 -0400
+Date: Fri, 29 Oct 2004 00:17:27 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: dri-devel@lists.sourceforge.net
+To: linux-dvb-maintainer@linuxtv.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] DRM: remove unused functions
-Message-ID: <20041028221535.GL3207@stusta.de>
+Subject: [2.6 patch] DVB av7110_hw.c: remove unused functions
+Message-ID: <20041028221727.GM3207@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
 Content-Disposition: inline
@@ -25,75 +25,58 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-The patch below removes two unused functions from DRM.
+The patch below removes three unused functions from 
+drivers/media/dvb/ttpci/av7110_hw.c
 
 
 diffstat output:
- drivers/char/drm/i810_dma.c |   18 ------------------
- drivers/char/drm/i915_dma.c |   18 ------------------
- 2 files changed, 36 deletions(-)
+ drivers/media/dvb/ttpci/av7110_hw.c |   15 ---------------
+ 1 files changed, 15 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-- --- linux-2.6.10-rc1-mm1-full/drivers/char/drm/i810_dma.c.old	2004-10-28 22:55:34.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/char/drm/i810_dma.c	2004-10-28 22:55:45.000000000 +0200
-@@ -51,24 +51,6 @@
- #define up_write up
- #endif
+- --- linux-2.6.10-rc1-mm1-full/drivers/media/dvb/ttpci/av7110_hw.c.old	2004-10-28 23:04:59.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/drivers/media/dvb/ttpci/av7110_hw.c	2004-10-28 23:05:26.000000000 +0200
+@@ -577,21 +577,11 @@
  
-- -static inline void i810_print_status_page(drm_device_t *dev)
+ #ifdef CONFIG_DVB_AV7110_OSD
+ 
+- -static inline int ResetBlend(struct av7110 *av7110, u8 windownr)
 - -{
-- -   	drm_device_dma_t *dma = dev->dma;
-- -      	drm_i810_private_t *dev_priv = dev->dev_private;
-- -	u32 *temp = dev_priv->hw_status_page;
-- -   	int i;
-- -
-- -   	DRM_DEBUG(  "hw_status: Interrupt Status : %x\n", temp[0]);
-- -   	DRM_DEBUG(  "hw_status: LpRing Head ptr : %x\n", temp[1]);
-- -   	DRM_DEBUG(  "hw_status: IRing Head ptr : %x\n", temp[2]);
-- -      	DRM_DEBUG(  "hw_status: Reserved : %x\n", temp[3]);
-- -	DRM_DEBUG(  "hw_status: Last Render: %x\n", temp[4]);
-- -   	DRM_DEBUG(  "hw_status: Driver Counter : %d\n", temp[5]);
-- -   	for(i = 6; i < dma->buf_count + 6; i++) {
-- -	   	DRM_DEBUG( "buffer status idx : %d used: %d\n", i - 6, temp[i]);
-- -	}
+- -	return av7110_fw_cmd(av7110, COMTYPE_OSD, SetNonBlend, 1, windownr);
 - -}
 - -
- static drm_buf_t *i810_freelist_get(drm_device_t *dev)
+ static inline int SetColorBlend(struct av7110 *av7110, u8 windownr)
  {
-    	drm_device_dma_t *dma = dev->dma;
-- --- linux-2.6.10-rc1-mm1-full/drivers/char/drm/i915_dma.c.old	2004-10-28 22:56:35.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/char/drm/i915_dma.c	2004-10-28 22:56:47.000000000 +0200
-@@ -13,24 +13,6 @@
- #include "i915_drm.h"
- #include "i915_drv.h"
+ 	return av7110_fw_cmd(av7110, COMTYPE_OSD, SetCBlend, 1, windownr);
+ }
  
-- -static inline void i915_print_status_page(drm_device_t * dev)
+- -static inline int SetWindowBlend(struct av7110 *av7110, u8 windownr, u8 blending)
 - -{
-- -	drm_i915_private_t *dev_priv = dev->dev_private;
-- -	u32 *temp = dev_priv->hw_status_page;
-- -
-- -	if (!temp) {
-- -		DRM_DEBUG("no status page\n");
-- -		return;
-- -	}
-- -
-- -	DRM_DEBUG("hw_status: Interrupt Status : %x\n", temp[0]);
-- -	DRM_DEBUG("hw_status: LpRing Head ptr : %x\n", temp[1]);
-- -	DRM_DEBUG("hw_status: IRing Head ptr : %x\n", temp[2]);
-- -	DRM_DEBUG("hw_status: Reserved : %x\n", temp[3]);
-- -	DRM_DEBUG("hw_status: Driver Counter : %d\n", temp[5]);
-- -
+- -	return av7110_fw_cmd(av7110, COMTYPE_OSD, SetWBlend, 2, windownr, blending);
 - -}
 - -
- /* Really want an OS-independent resettable timer.  Would like to have
-  * this loop run for (eg) 3 sec, but have the timer reset every time
-  * the head pointer changes, so that EBUSY only happens if the ring
+ static inline int SetBlend_(struct av7110 *av7110, u8 windownr,
+ 		     enum av7110_osd_palette_type colordepth, u16 index, u8 blending)
+ {
+@@ -606,11 +596,6 @@
+ 			     windownr, colordepth, index, colorhi, colorlo);
+ }
+ 
+- -static inline int BringToTop(struct av7110 *av7110, u8 windownr)
+- -{
+- -	return av7110_fw_cmd(av7110, COMTYPE_OSD, WTop, 1, windownr);
+- -}
+- -
+ static inline int SetFont(struct av7110 *av7110, u8 windownr, u8 fontsize,
+ 			  u16 colorfg, u16 colorbg)
+ {
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.6 (GNU/Linux)
 
-iD8DBQFBgW+HmfzqmE8StAARAttqAJ4h16xPCGoaSdpSQISliKrGQ4U6xwCgqOwN
-uU4Jwi0yuUSGoB4AbZHHN1U=
-=Oppa
+iD8DBQFBgW/3mfzqmE8StAARAnceAJ9rnRwLZOg3tqGApjFlHYj72FyoTgCgg6xW
+Yb196gzbnH23HC8AJJM03r8=
+=CYK5
 -----END PGP SIGNATURE-----

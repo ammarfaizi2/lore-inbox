@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312533AbSCVGxi>; Fri, 22 Mar 2002 01:53:38 -0500
+	id <S312702AbSCVG6s>; Fri, 22 Mar 2002 01:58:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312701AbSCVGx2>; Fri, 22 Mar 2002 01:53:28 -0500
-Received: from pec-92-174.tnt5.f.uunet.de ([149.225.92.174]:59652 "EHLO
-	dd8ne.ofr.de.ampr.org") by vger.kernel.org with ESMTP
-	id <S312533AbSCVGxT> convert rfc822-to-8bit; Fri, 22 Mar 2002 01:53:19 -0500
-From: Hans-Joachim Hetscher <hans-joachim@hetscher.bnv-bamberg.de>
-Date: Fri, 22 Mar 2002 06:53:48 GMT
-Message-ID: <20020322.6534800@dd8ne.ofr.de.ampr.org>
-Subject: Re: 2.5.7 does not compile
-To: davej@suse.de (Dave Jones), linux-kernel@vger.kernel.org
-Reply-To: dd8ne@bnv-bamberg.de
-In-Reply-To: <20020321173953.F22861@suse.de>
-X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.2;Linux)
-X-Priority: 3 (Normal)
+	id <S312703AbSCVG6i>; Fri, 22 Mar 2002 01:58:38 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:43781 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S312702AbSCVG6V>; Fri, 22 Mar 2002 01:58:21 -0500
+Message-ID: <3C9AD531.C2C8C178@zip.com.au>
+Date: Thu, 21 Mar 2002 22:54:41 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO_8859-15
-Content-Transfer-Encoding: 8BIT
+To: "Amit S. Kale" <akale@veritas.com>
+CC: William Lee Irwin III <wli@holomorphy.com>, Hari Gadi <HGadi@ecutel.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: module (kernel) debugging
+In-Reply-To: <AF2378CBE7016247BC0FD5261F1EEB210B6A93@EXCHANGE01.domain.ecutel.com> <20020322000823.GD785@holomorphy.com> <3C9AD0EB.C56CE9B7@veritas.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
+"Amit S. Kale" wrote:
+> 
+> William Lee Irwin III wrote:
+> >
+> > On Thu, Mar 21, 2002 at 05:15:48PM -0500, Hari Gadi wrote:
+> > > Hi,
+> > > I am new to kernel level development. What are the best ways to debug
+> > > runtime kernel (module). Are there any third party tools for debugging
+> > > the kernel.
+> >
+> > http://www.arium.com
+> > http://oss.sgi.com/projects/kdb
+> > http://oss.sgi.com/projects/kgdb
+> 
+> SGI's kgdb is for 2.2 kernels only.
+> kgdb for 2.4 kernels resides at http://kgdb.sourceforge.net/
+> You'll find there scripts for debugging modules with kgdb.
+> 
 
-It seeems to be the same bug in 6pack.c
+I have 2.5 kgdb stub patches too.  Various versions can be discovered
+by poking around in http://www.zip.com.au/~akpm/linux/patches/
 
-So, I solved the problem in line 259 of 6pack.c by changing
+The version I use is a bit thinner than Amit's - I took out the
+assertion checks from various places because they cause patching pain.
+The assertion mechanism is still there, but the *uses* of it I took
+out.
 
-dev->last_rx = jiffies;
+Of course, I may not be feature- or bugfix-current against Amit's
+version.
 
-into 
-
-sp->dev->last_rx = jiffies; 
-
-
-
->>>>>>>>>>>>>>>>>> Ursprüngliche Nachricht <<<<<<<<<<<<<<<<<<
-
-Am 21.03.02, 17:45:01, schrieb davej@suse.de (Dave Jones) zum Thema Re: 
-2.5.7 does not compile:
-
-
-> On Thu, Mar 21, 2002 at 05:15:49PM +0100, Jean-Luc Coulon wrote:
->  > -DKBUILD_BASENAME=scc  -c -o scc.o scc.c
->  > scc.c: In function `scc_net_rx':
->  > scc.c:1664: `dev' undeclared (first use in this function)
-
-> Line should read..
-
-> scc->dev->last_rx = jiffies;
-
-vy 73 de Hans-Joachim
-
--- 
-
- DD8NE   : Hans-Joachim Hetscher    IP-Adr. : [44.130.62.1] 
- amprNet : dd8ne@db0lj.ampr.org     AX25    :DD8NE@DB0LJ.#RPL.DEU.EU 
- Internet: dd8ne@bnv-bamberg.de     hans-joachim.hetscher@de.michelin.com
+-

@@ -1,57 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131220AbQLMPHy>; Wed, 13 Dec 2000 10:07:54 -0500
+	id <S131564AbQLMPMP>; Wed, 13 Dec 2000 10:12:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131448AbQLMPHo>; Wed, 13 Dec 2000 10:07:44 -0500
-Received: from main.cornernet.com ([209.98.65.1]:60420 "EHLO
-	main.cornernet.com") by vger.kernel.org with ESMTP
-	id <S131220AbQLMPHd>; Wed, 13 Dec 2000 10:07:33 -0500
-Date: Wed, 13 Dec 2000 08:37:11 -0600 (CST)
-From: Chad Schwartz <cwslist@main.cornernet.com>
-To: Igmar Palsenberg <maillist@chello.nl>
-cc: Mark Orr <markorr@intersurf.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Dropping chars on 16550
-In-Reply-To: <Pine.LNX.4.21.0012130211450.31563-100000@server.serve.me.nl>
-Message-ID: <Pine.LNX.4.30.0012130827380.21891-100000@main.cornernet.com>
+	id <S131544AbQLMPMG>; Wed, 13 Dec 2000 10:12:06 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31499 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131448AbQLMPLv>; Wed, 13 Dec 2000 10:11:51 -0500
+Subject: Re: USB mass storage backport status?
+To: mdharm-kernel@one-eyed-alien.net (Matthew Dharm)
+Date: Wed, 13 Dec 2000 14:42:52 +0000 (GMT)
+Cc: 0@pervalidus.net (Frédéric L . W . Meunier),
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <20001212215058.A3681@one-eyed-alien.net> from "Matthew Dharm" at Dec 12, 2000 09:50:58 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E146D7P-0002q8-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Heh...do what I did.  Go on eBay and pick up a Hayes ESP card.
->
-> Hmm.. High speed comm is fine here, as long is I use handshaking. If I
-> don't, I'll loose chars.
+> Okay, this must have changed somewhat recently.  When last I spoke to Alan
+> Cox (the maintainer of the 2.2.x code), I told him (and he agreed) that
+> this code should be marked EXPERIMENTAL.  If it's not marked thus in
+> 2.2.18pre21, then it's an error and should be corrected ASAP.
 
-there are many situations in which a 16550 is KNOWN to be overrunable, all
-of which can occur in your common PPP connection.
-
-More importantly - if you have 2 16550's talking together (Which is
-EXACTLY what you have, when you hook it to a modem) there are even MORE
-overrun possibilities. (For instance, when you fill the transmitter up to
-16 bytes - on a uart, and then the receiving side suddenly drops RTS,
-there is *NO* way for that 16550 to stop its transmitter. Once the bytes
-are in its fifo, it HAS TO SEND THEM.)
-
-This is where a 654 or an 854 (I'm only listing startech design chips.
-there are others that would do the job.)  come in handy. They can pause
-their transmitter WITH bytes in their fifo. (Automated hardware/software
-flow control.)
-
-I have no idea why the 16550 caught on as the "De facto standard" like it
-did. there are UARTS out there that are more efficient, yet cost only a
-few dollars more to manufacture.
-
-(Your common QUAD 16654 chip costs $20 to an end user, nowadays. Your
-common QUAD 16554 costs about $15.)
-
-Imagine what the 2-UART chips would cost. (or, mass-produced all-in-1
-sets even.)
-
-Really makes you think.
-
-Chad
-
+It is marked experimental, but the help text is from 2.4test and doesnt
+say that. The experimental option is needed and the question asked does
+say (EXPERIMENTAL)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

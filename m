@@ -1,131 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319508AbSIGSFD>; Sat, 7 Sep 2002 14:05:03 -0400
+	id <S319499AbSIGSX2>; Sat, 7 Sep 2002 14:23:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319509AbSIGSFD>; Sat, 7 Sep 2002 14:05:03 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:52394 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S319508AbSIGSFB>; Sat, 7 Sep 2002 14:05:01 -0400
-Message-ID: <20020907180937.16081.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S319441AbSIGSX2>; Sat, 7 Sep 2002 14:23:28 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:35337
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S319499AbSIGSX1>; Sat, 7 Sep 2002 14:23:27 -0400
+Date: Sat, 7 Sep 2002 11:26:17 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Bob McElrath <mcelrath+kernel@draal.physics.wisc.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ide-scsi oops
+In-Reply-To: <1031421665.14390.2.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10209071125500.16589-100000@master.linux-ide.org>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Date: Sun, 08 Sep 2002 02:09:37 +0800
-Subject: Re: LMbench2.0 results
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws4-4.us4.outblaze.com
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@digeo.com>
 
-> Paolo Ciarrocchi wrote:
+It looks like he has both modules loaded and not as built-ins.
+
+On 7 Sep 2002, Alan Cox wrote:
+
+> On Sat, 2002-09-07 at 17:37, Bob McElrath wrote:
+> > Kernel 2.4.20-pre5-ac4 with the latest ACPI patches gives me an oops any
+> > time I try to access the CD-ROM:
 > > 
-> > Hi all,
-> > I've just ran lmbench2.0 on my laptop.
-> > Here the results (again, 2.5.33 seems to be "slow", I don't know why...)
-> > 
+> > Note this also happened with pre4-ac1 so I don't think it's due to the
+> > latest IDE merge in pre5-ac4.
 > 
-> The fork/exec/mmap slowdown is the rmap overhead.  I have some stuff
-> which partialy improves it.
+> Yes. What were you doing to trigger it. Also do you have highio/highmem
+> stuff enabled and is taskfile on or off ?
 > 
-> The many-small-file-create slowdown is known but its cause is not.
-> I need to get oprofile onto it.
-Let me know if do something usefull for you.
-Now I compiled the 2.5.33 with _NO_ preemption (the x tagged kernel).
-Performance are better, but it still "slow".
+> I'm having real trouble reproducing this problem although enough people
+> see it thats its clearly quite real
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-cd results && make summary percent 2>/dev/null | more
-make[1]: Entering directory `/usr/src/LMbench/results'
+Andre Hedrick
+LAD Storage Consulting Group
 
-                 L M B E N C H  2 . 0   S U M M A R Y
-                 ------------------------------------
-
-
-Basic system parameters
-----------------------------------------------------
-Host                 OS Description              Mhz
-                                                    
---------- ------------- ----------------------- ----
-frodo      Linux 2.4.18       i686-pc-linux-gnu  797
-frodo      Linux 2.4.19       i686-pc-linux-gnu  797
-frodo      Linux 2.5.33       i686-pc-linux-gnu  797
-frodo     Linux 2.5.33x       i686-pc-linux-gnu  797
-
-Processor, Processes - times in microseconds - smaller is better
-----------------------------------------------------------------
-Host                 OS  Mhz null null      open selct sig  sig  fork exec sh  
-                             call  I/O stat clos TCP   inst hndl proc proc proc
---------- ------------- ---- ---- ---- ---- ---- ----- ---- ---- ---- ---- ----
-frodo      Linux 2.4.18  797 0.40 0.56 3.18 3.97       1.00 3.18 115. 1231 13.K
-frodo      Linux 2.4.19  797 0.40 0.56 3.07 3.88       1.00 3.19 129. 1113 13.K
-frodo      Linux 2.5.33  797 0.40 0.61 3.78 4.76       1.02 3.37 201. 1458 13.K
-frodo     Linux 2.5.33x  797 0.40 0.60 3.51 4.38       1.02 3.27 159. 1430 13.K
-
-Context switching - times in microseconds - smaller is better
--------------------------------------------------------------
-Host                 OS 2p/0K 2p/16K 2p/64K 8p/16K 8p/64K 16p/16K 16p/64K
-                        ctxsw  ctxsw  ctxsw ctxsw  ctxsw   ctxsw   ctxsw
---------- ------------- ----- ------ ------ ------ ------ ------- -------
-frodo      Linux 2.4.18 0.990 4.4200   13.8 6.2700  309.8    58.6   310.5
-frodo      Linux 2.4.19 0.900 4.2900   15.3 5.9100  309.6    57.7   309.9
-frodo      Linux 2.5.33 1.620 5.2800   15.3 9.3500  312.7    54.9   312.7
-frodo     Linux 2.5.33x 1.040 4.3200   17.8 7.6200  312.5    49.9   312.5
-
-*Local* Communication latencies in microseconds - smaller is better
--------------------------------------------------------------------
-Host                 OS 2p/0K  Pipe AF     UDP  RPC/   TCP  RPC/ TCP
-                        ctxsw       UNIX         UDP         TCP conn
---------- ------------- ----- ----- ---- ----- ----- ----- ----- ----
-frodo      Linux 2.4.18 0.990 4.437 8.66                             
-frodo      Linux 2.4.19 0.900 4.561 7.76                             
-frodo      Linux 2.5.33 1.620 6.497 9.11                             
-frodo     Linux 2.5.33x 1.040 4.888 8.70                             
-
-File & VM system latencies in microseconds - smaller is better
---------------------------------------------------------------
-Host                 OS   0K File      10K File      Mmap    Prot    Page	
-                        Create Delete Create Delete  Latency Fault   Fault 
---------- ------------- ------ ------ ------ ------  ------- -----   ----- 
-frodo      Linux 2.4.18   68.9   16.0  185.8   31.6    425.0 0.789 2.00000
-frodo      Linux 2.4.19   68.9   14.9  186.5   29.8    416.0 0.798 2.00000
-frodo      Linux 2.5.33   77.8   19.1  211.6   38.3    774.0 0.832 3.00000
-frodo     Linux 2.5.33x   77.2   18.8  206.7   37.0    769.0 0.823 3.00000
-
-*Local* Communication bandwidths in MB/s - bigger is better
------------------------------------------------------------
-Host                OS  Pipe AF    TCP  File   Mmap  Bcopy  Bcopy  Mem   Mem
-                             UNIX      reread reread (libc) (hand) read write
---------- ------------- ---- ---- ---- ------ ------ ------ ------ ---- -----
-frodo      Linux 2.4.18 810. 650.       181.7  203.7  101.5  101.4 203. 195.3
-frodo      Linux 2.4.19 808. 680.       187.2  203.8  101.5  101.4 203. 190.1
-frodo      Linux 2.5.33 571. 636.       185.6  202.5  100.5  100.4 202. 190.3
-frodo     Linux 2.5.33x 768. 710.       185.4  202.5  100.5  100.4 202. 189.5
-
-Memory latencies in nanoseconds - smaller is better
-    (WARNING - may not be correct, check graphs)
----------------------------------------------------
-Host                 OS   Mhz  L1 $   L2 $    Main mem    Guesses
---------- -------------  ---- ----- ------    --------    -------
-frodo      Linux 2.4.18   797 3.767 8.7890  158.9
-frodo      Linux 2.4.19   797 3.767 8.7980  158.9
-frodo      Linux 2.5.33   797 3.798 8.8660  160.1
-frodo     Linux 2.5.33x   797 3.796   45.5  160.2
-make[1]: Leaving directory `/usr/src/LMbench/results'
-
-Hope it helps.
-
-Ciao,
-        Paolo
-
-
--- 
-Get your free email from www.linuxmail.org 
-
-
-Powered by Outblaze

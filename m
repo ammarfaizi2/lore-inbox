@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263214AbTJQAmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 20:42:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263211AbTJQAmJ
+	id S263201AbTJQAqK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 20:46:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263211AbTJQAqK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 20:42:09 -0400
-Received: from imo-d01.mx.aol.com ([205.188.157.33]:10985 "EHLO
-	imo-d01.mx.aol.com") by vger.kernel.org with ESMTP id S263201AbTJQAmG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 20:42:06 -0400
-Date: Thu, 16 Oct 2003 20:42:04 -0400
-From: aquamodem1@netscape.net
-To: owner-linux-kernel@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: The linux-kernel list has disappeared for me.
-MIME-Version: 1.0
-Message-ID: <7AB48D44.1642A7DE.0E957423@netscape.net>
-X-Mailer: Atlas Mailer 2.0
-X-AOL-IP: 68.78.133.213
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 16 Oct 2003 20:46:10 -0400
+Received: from 12-235-58-121.client.attbi.com ([12.235.58.121]:22034 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S263201AbTJQAqJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 20:46:09 -0400
+Date: Thu, 16 Oct 2003 17:45:14 -0700
+From: Christopher Li <lkml@chrisli.org>
+To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
+Subject: Re: Transparent compression in the FS
+Message-ID: <20031017004514.GA6279@64m.dyndns.org>
+References: <1066163449.4286.4.camel@Borogove> <20031015133305.GF24799@bitwizard.nl> <3F8D6417.8050409@pobox.com> <20031016162926.GF1663@velociraptor.random> <20031016172930.GA5653@work.bitmover.com> <20031016174927.GB25836@speare5-1-14> <20031016230448.GA29279@pegasys.ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031016230448.GA29279@pegasys.ws>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been unsuccessful contacting the List Admin with this request.
-Please accept my apology for posting this to the list. Please, somebody, make the mail list admin aware of this request.  Given the possiblilty of a two way filter to kernel.org I am posting this via Netscape mail.  
+> The idea of this sort of block level hashing to allow
+> sharing of identical blocks seems attractive but i wouldn't
+> trust any design that did not accept as given that there
+> would be false positives.  This means that a write would
+> have to not only hash the block but then if there is a
+> collision do a compare of the raw data.  Then you have to
+> add the overhead of having lists of blocks that match a hash
+> value and reference counts for each block itself.  Further,
 
-List Admin,
+Then write every data block will need to dirty at least 2 blocks.
+And it also need to read back the original block if hash exist.
+There must be some performance hit. 
 
-Help.
-
-I have subscribed to the linux-kernel mailing list for years with my SBC-ameritech account.  This turns out to run through prodigy.net. Anyway this is my problem.   I no longer receive the kernel mailing list.
-
-The e-mail address it is sent to is aquamodem@ameritech.net
-
-I have contacted the SBC administrator and they tell me that unless I can prove that they are blocking the linux-kernel list, they are not at fault.  The only proof that they will accept is a bounce message from:  prodigy.net
-with a possible source of abuse@prodigy.net.  They want to see that bounce message returned to abuse@prodigy.net with the title and first line of Request Removal from Relay.   If they don't see this bounce message then they won't do anything and I am no longer a participant in the list.
-
-I obviously don't want this mail list terminated.
-
-Please look for this bounce and help me, also, cc me on whatever you do.  If possible, also, cc receipt of this message from another domain in-case kernel.org is blocked.
-
-
-Thanks
-
-walter lundby 
-
-__________________________________________________________________
-McAfee VirusScan Online from the Netscape Network.
-Comprehensive protection for your entire computer. Get your free trial today!
-http://channels.netscape.com/ns/computing/mcafee/index.jsp?promo=393397
-
-Get AOL Instant Messenger 5.1 free of charge.  Download Now!
-http://aim.aol.com/aimnew/Aim/register.adp?promo=380455
+Chris

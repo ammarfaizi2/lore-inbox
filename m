@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129753AbRB0K7F>; Tue, 27 Feb 2001 05:59:05 -0500
+	id <S129826AbRB0LVc>; Tue, 27 Feb 2001 06:21:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129766AbRB0K6z>; Tue, 27 Feb 2001 05:58:55 -0500
-Received: from 25dyn119.com21.casema.net ([213.17.95.119]:12306 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S129753AbRB0K6l>;
-	Tue, 27 Feb 2001 05:58:41 -0500
-Date: Tue, 27 Feb 2001 11:58:29 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: rsync over ssh on 2.4.2 to 2.2.18
-Message-ID: <20010227115829.A6166@home.ds9a.nl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200102271002.f1RA2B408058@brick.arm.linux.org.uk> <20010227111839.F2736@jaquet.dk>
+	id <S129792AbRB0LVX>; Tue, 27 Feb 2001 06:21:23 -0500
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:40970 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S129791AbRB0LVQ>; Tue, 27 Feb 2001 06:21:16 -0500
+From: mshiju@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
+To: linux-kernel@vger.kernel.org, linux-mca@vger.kernel.org
+Message-ID: <CA256A00.003E4A04.00@d73mta05.au.ibm.com>
+Date: Tue, 27 Feb 2001 16:41:32 +0530
+Subject: difficulty installing linux on ps/2 - 9595 server  having 
+	 pentium-90
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre4i
-In-Reply-To: <20010227111839.F2736@jaquet.dk>; from rasmus@jaquet.dk on Tue, Feb 27, 2001 at 11:18:39AM +0100
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 27, 2001 at 11:18:39AM +0100, Rasmus Andersen wrote:
 
-> terminate, apparently because the child does not receive the KILLUSR1
-> (wild speculation)? Anyways, the parent process waits in wait4 and
-> the child loops, waiting for the signal. This is not reproducable
-> in 2.2.X (for me).
 
-rsync problems of this type abound across several UNIX platforms - I had
-problems like this on FreeBSD, but never under Linux. I suspect that rsync
-bends or at least stretches certain limits.
+Hello,
+           Initially I had difficulty in booting linux on ps/2 server -9595
+for installation. I overcame that problem by replacing the installation
+boot image with a 2.4.0 custom build image . I am booting from the floppy
+disk since the system (old system) does not support booting from the cd
+rom.  Booting was successful. The problem is that after booting up the cd
+drive is not been recognized for installation .Currently os/2 is installed
+in the server and it displays CD-ROM device as IBM CD-ROM II ,Enhanced
+CD-ROM II .I had compiled the kernel with SCSI support  . I used redhat 7
+for installation . Have any one faced the similar difficulty .Can anyone
+help me to resolve the problem
 
-Regards,
 
-bert
+Thanks & Regards
+Shiju
 
--- 
-http://www.PowerDNS.com      Versatile DNS Services  
-Trilab                       The Technology People   
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+
+

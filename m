@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278275AbRKSLdV>; Mon, 19 Nov 2001 06:33:21 -0500
+	id <S278081AbRKSLbb>; Mon, 19 Nov 2001 06:31:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278085AbRKSLdN>; Mon, 19 Nov 2001 06:33:13 -0500
-Received: from red.csi.cam.ac.uk ([131.111.8.70]:44766 "EHLO red.csi.cam.ac.uk")
-	by vger.kernel.org with ESMTP id <S278364AbRKSLdB>;
-	Mon, 19 Nov 2001 06:33:01 -0500
-Message-Id: <5.1.0.14.2.20011119112724.0508e6b0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 19 Nov 2001 11:32:38 +0000
-To: David Chow <davidchow@rcn.com.hk>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Important, Memory padding in kernel using 1byte
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1006160395.1198.0.camel@star9.planet.rcn.com.hk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S278085AbRKSLbV>; Mon, 19 Nov 2001 06:31:21 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:10250 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S278081AbRKSLbO>;
+	Mon, 19 Nov 2001 06:31:14 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200111191131.fAJBVC058828@saturn.cs.uml.edu>
+Subject: Re: Bug or feature? Priority in /proc/<pid>/stat for RT processes
+To: mlev@despammed.com (Lev Makhlis)
+Date: Mon, 19 Nov 2001 06:31:12 -0500 (EST)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), linux-kernel@vger.kernel.org
+In-Reply-To: <200111190731.fAJ7VUs21238@portent.dyndns.org> from "Lev Makhlis" at Nov 19, 2001 02:31:30 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:59 19/11/01, David Chow wrote:
->I notice using gcc compiling the kernel has the padding default set to
->32-bit (4 bytes) on IA32's. This cause lots of trouble when doing file
->system developments where a couple of data structures are not multiple
->of 4 bytes. This cause lots of errors, I think this should be notified
->to all developers when trying to deal with data structures not are
->multiple of 4 bytes. Is it worth while to compile the kernel with the
->padding set to 1 byte or will it cause any trouble? I know most of the
->compiled programs or even modules are default to use the 32bit padding.
->Please give advice.
+Anton Altaparmakov writes:
+> On Monday 19 November 2001 01:01 am, Albert D. Cahalan wrote:
 
-That's what __attribute__ ((__packed__)) is for. All places in the kernel 
-requiring that specific structure/union members are not padded should use 
-this to tell gcc so.
+>> Do not do this. Just supply the raw value for ps(1) and top(1) to use.
+>> Also supply the scheduling policy type. You can tack this on the end
+>> of /proc/<pid>/stat and tell me when Linus accepts it so that I can
+>> make ps(1) and top(1) support the new info.
+>
+> I agree scaling from 1.99 to 20..-20 wasn't a good idea, but I don't think
+> supplying the raw (1..99) value without any transformation at all would be
+> right either -- I think we need to reverse its sign, for the following
+> reason: 
+> 
+> If you look at what happens on other Unix platforms, the "direction"
+> of priority values can vary: usually, higher values mean lower priority,
+> but, for example, on Solaris, higher values mean higher priority.
+> But on any specific platform, the "direction" is consistent across
+> the different scheduling policies.  On Linux, it's "higher value = lower
+> priority" for the default timesharing policy, and therefore I think it should
+> be the same for the RT priorities.
+> 
+> I think the Right Thing would be to use a f(x) = c - x transormation,
+> where c could be 100, or 0, or -20, or -100, or something else.
+> -20 or -100 have the advantage of preserving the order relationship
+> between priorities across the scheduling policies.
+> 
+> The patch below uses c=-100 -- as an example.
 
-And there is __attribute__ ((aligned (size))); where size is the minimum 
-alignment.
-
-Have a look at "info gcc" sometime under C extensions , "Type attributes"...
-
-Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+I can tell you what procps will do. The very first thing is
+to undo your transformation. Don't bother having the kernel
+muck with the numbers. The procps code will transform the
+numbers as needed to match UNIX convention and/or the tools
+which users run to set these values.

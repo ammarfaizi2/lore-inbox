@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265462AbUHSLZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265499AbUHSLb1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265462AbUHSLZM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 07:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265288AbUHSLYv
+	id S265499AbUHSLb1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 07:31:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265510AbUHSLb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 07:24:51 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13959 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265668AbUHSLY2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 07:24:28 -0400
-Date: Thu, 19 Aug 2004 04:22:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, olof@austin.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Alignment of bitmaps for ext2_set_bit et al.
-Message-Id: <20040819042234.75020cbc.akpm@osdl.org>
-In-Reply-To: <16676.35837.215958.814591@cargo.ozlabs.ibm.com>
-References: <16676.35837.215958.814591@cargo.ozlabs.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 19 Aug 2004 07:31:26 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:41863 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S265499AbUHSLbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 07:31:24 -0400
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+From: Lee Revell <rlrevell@joe-job.com>
+To: Patrick McFarland <diablod3@gmail.com>
+Cc: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.enemy.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       schilling@fokus.fraunhofer.de
+In-Reply-To: <d577e5690408190004368536e9@mail.gmail.com>
+References: <200408041233.i74CX93f009939@wildsau.enemy.org>
+	 <d577e5690408190004368536e9@mail.gmail.com>
+Content-Type: text/plain
+Message-Id: <1092915160.830.9.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 19 Aug 2004 07:32:40 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mackerras <paulus@samba.org> wrote:
->
-> What can we assume about the alignment of the bitmap pointer passed to
-> the ext2_{set,clear}_bit_atomic functions?  Can we assume that they
-> will be aligned to an long boundary (8 bytes on 64-bit)?
+On Thu, 2004-08-19 at 03:04, Patrick McFarland wrote:
+> On Wed, 4 Aug 2004 14:33:09 +0200 (MET DST), H.Rosmanith (Kernel
+> Mailing List) <kernel@wildsau.enemy.org> wrote:
+> > Some stuff that started a flamewar.
+> 
+> If no one has noticed yet, thanks to the additional license
+> restrictions Joerg Schilling has added to cdrecord (due to this
+> thread), it may be now moved to non-free in Debian in the near future.
 
-For ext2 and ext3 it's safe to assume that they are 1024-byte aligned.
+What restrictions?  Do you have a link?
 
-But it's possible that other filesystems are using these (awfully named)
-functions.
+Lee
 
-Well.  I doubt if anyone is using the _atomic versions yet.
-
-> Olof has made a patch that uses atomics for these on ppc64 rather than
-> locking and unlocking a lock, but it will only work correctly if the
-> bitmap is always 8-byte aligned.
-
-Sounds sane, as long as you get firmly notified when a poorly-aligned
-address is fed in.

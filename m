@@ -1,100 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbVCZLgA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262043AbVCZLiE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262039AbVCZLgA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 06:36:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVCZLgA
+	id S262043AbVCZLiE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 06:38:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVCZLiE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 06:36:00 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:13833 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262039AbVCZLfo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 06:35:44 -0500
-Date: Sat, 26 Mar 2005 11:35:30 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Hugh Dickins <hugh@veritas.com>, akpm@osdl.org, davem@davemloft.net,
-       tony.luck@intel.com, benh@kernel.crashing.org, ak@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/6] freepgt: free_pgtables shakeup
-Message-ID: <20050326113530.A12809@flint.arm.linux.org.uk>
-Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
-	Hugh Dickins <hugh@veritas.com>, akpm@osdl.org, davem@davemloft.net,
-	tony.luck@intel.com, benh@kernel.crashing.org, ak@suse.de,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com> <20050325212234.F12715@flint.arm.linux.org.uk> <4244C3B7.4020409@yahoo.com.au>
+	Sat, 26 Mar 2005 06:38:04 -0500
+Received: from zahadum.xs4all.nl ([194.109.0.112]:31369 "EHLO
+	zahadum.xs4all.nl") by vger.kernel.org with ESMTP id S262043AbVCZLhq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 06:37:46 -0500
+Date: Sat, 26 Mar 2005 12:37:39 +0100
+From: Miquel van Smoorenburg <miquels@cistron.nl>
+To: Chris Stromsoe <cbs@cts.ucla.edu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Erik Horn <eHorn@aad.org>, Erik Horn <Erik_Horn@beavton.k12.or.us>
+Subject: syslogd hang / livelock (was: 2.6.10-rc3, syslogd hangs then processes get stuck in schedule_timeout)
+Message-ID: <20050326113738.GA6599@xs4all.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4244C3B7.4020409@yahoo.com.au>; from nickpiggin@yahoo.com.au on Sat, Mar 26, 2005 at 01:06:47PM +1100
+X-NCC-RegID: nl.xs4all
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 26, 2005 at 01:06:47PM +1100, Nick Piggin wrote:
-> The reject should be confined to include/asm-ia64, so it will still
-> work for you.
+References:
+  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=103392
+  http://lkml.org/lkml/2004/12/21/208
+  http://lkml.org/lkml/2004/11/2/17
 
-I guess I should've tried a little harder last night then.  Sorry.
-
-> But I've put a clean rollup of all Hugh's patches here in case you'd
-> like to try it.
+At Tue, 21 Dec 2004 16:39:43 -0800 (PST) Chris Stromsoe wrote:
+> I'm still seeing this problem.  It repeats every week or week and a half, 
+> usually after logs have been rotated and a dvd has been written.  syslogd 
+> stops writing output, then everything that does schedule_timeout() hangs, 
+> the process table fills, and everything grinds to a halt.
 > 
-> http://www.kerneltrap.org/~npiggin/freepgt-2.6.12-rc1.patch
+> If the problem is detected early enough, syslogd can be manually killed 
+> and restarted, unwedging everything and returning everything to normal 
+> operation.
 
-This works fine on ARM with high vectors.  With low vectors (located in
-the 1st page of virtual memory space) I get:
+I'm seeing the same problem here, and it is not a kernel bug. I'm only
+Cc'ing this to linux-kernel so that it shows up in the archives, since
+there have been postings about the same thing in the past.
 
-kernel BUG at mm/mmap.c:1934!
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-pgd = c1e88000
-[00000000] *pgd=c1e86031, *pte=c04440cf, *ppte=c044400e
-Internal error: Oops: c1e8981f [#1]
-Modules linked in:
-CPU: 0
-PC is at __bug+0x40/0x54
-LR is at 0x1
-pc : [<c0223870>]    lr : [<00000001>]    Not tainted
-sp : c1e7bd18  ip : 60000093  fp : c1e7bd28
-r10: c1f4b040  r9 : 00000006  r8 : c1f02ca0
-r7 : 00000000  r6 : 00000000  r5 : c015b8c0  r4 : 00000000
-r3 : 00000000  r2 : 00000000  r1 : 00000d4e  r0 : 00000001
-Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  Segment user
-Control: C1E8917F  Table: C1E8917F  DAC: 00000015
-Process init (pid: 235, stack limit = 0xc1e7a194)
-Stack: (0xc1e7bd18 to 0xc1e7c000)
-...
-Backtrace:
-[<c0223830>] (__bug+0x0/0x54) from [<c02691d8>] (exit_mmap+0x154/0x168)
- r4 = C1E7BD3C
-[<c0269084>] (exit_mmap+0x0/0x168) from [<c02358c8>] (mmput+0x40/0xc0)
- r7 = C015B8C0  r6 = C015B8C0  r5 = 00000000  r4 = C015B8C0
-[<c0235888>] (mmput+0x0/0xc0) from [<c027ecec>] (exec_mmap+0xec/0x134)
- r4 = C015B6A0
-[<c027ec00>] (exec_mmap+0x0/0x134) from [<c027f234>] (flush_old_exec+0x4c8/0x6e4)
- r7 = C012B940  r6 = C1E7A000  r5 = C0498A00  r4 = 00000000
-[<c027ed6c>] (flush_old_exec+0x0/0x6e4) from [<c029d53c>] (load_elf_binary+0x5c0/0xdc0)
-[<c029cf7c>] (load_elf_binary+0x0/0xdc0) from [<c027f6e0>] (search_binary_handler+0xa0/0x244)
-[<c027f640>] (search_binary_handler+0x0/0x244) from [<c029c4e8>] (load_script+0x224/0x22c)
-[<c029c2c4>] (load_script+0x0/0x22c) from [<c027f6e0>] (search_binary_handler+0xa0/0x244)
- r6 = C1E7A000  r5 = C015E400  r4 = C03EC2B4
-[<c027f640>] (search_binary_handler+0x0/0x244) from [<c027f9b8>] (do_execve+0x134/0x1f8)
-[<c027f884>] (do_execve+0x0/0x1f8) from [<c02223f8>] (sys_execve+0x3c/0x5c)
-[<c02223bc>] (sys_execve+0x0/0x5c) from [<c021dca0>] (ret_fast_syscall+0x0/0x2c)
- r7 = 0000000B  r6 = BED6AA74  r5 = BED6AB00  r4 = 0200F008
-Code: 1b0051b8 e59f0014 eb0051b6 e3a03000 (e5833000)
+There are 2 issues here:
 
-In this case, we have a page which must be kept mapped at virtual address
-0, which means the first entry in the L1 page table must always exist.
-However, user threads start from 0x8000, which is also mapped via the
-first entry in the L1 page table.
+1. syslogd hangs sometimes when running under a 2.6 kernel.
 
-At a guess, I'd imagine that we're freeing the first L1 page table entry,
-thereby causing mm->nr_ptes to become -1.
+   This is because syslogd set up a timer, called by alarm() every
+   20 minutes by default, which writes a "MARK" entry in one of
+   the logfiles to show that syslogd is still alive.
 
-I'll do some debugging and try to work out if that (or exactly what's)
-going on.
+   That code calls ctime(), which is not re-entrant - and recent
+   glibcs __libc_lock() around ctime() calls, which doesn't do anything
+   on a 2.4 kernel, but uses a futex on a 2.6 kernel.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+   So if syslogd happens to be inside ctime() in the main routine,
+   SIGALRM hits, and ctime() is called again, syslogd locks up.
+   A sysrq-T trace will show it hanging in futex_wait.
+
+2. syslog() uses blocking AF_UNIX SOCK_DGRAM sockets.
+
+   When an application calls syslog(), and syslogd is not responding
+   and the socket buffers get full, the app will hang in connect()
+   or send(). This is different from BSD, where send() will return
+   ENOBUFS in this case.
+
+   Try killall -STOP syslogd, then generate some syslog traffic
+   (say with while :; do logger hello; done) and try to ssh into
+   the system - no go. Everything that uses syslog() hangs.
+
+Solutions:
+
+1. syslogd
+
+    Run syslogd with the -m0 option so that it won't do MARKing.
+    The real solution is to fix syslogd to use ctime_r, or better,
+    to just let the ALRM handler set a flag and do the MARK
+    logging in the main loop.
+
+2. syslog()
+
+    Arguably syslog() shouldn't hang like it does now. But making it
+    non-blocking could lead to information loss - a hacker generating
+    lots of bogus syslog messages so that real messages get lost.
+    On the other hand, she can do that anyway and fill up the disk
+    which gives a similar (although more noticable) effect. I'm not
+    sure how or if this should be fixed.
+
+Mike.

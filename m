@@ -1,43 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbTEAKCS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 06:02:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbTEAKCS
+	id S261192AbTEAKFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 06:05:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbTEAKFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 06:02:18 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:3858 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261190AbTEAKCR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 06:02:17 -0400
-Date: Thu, 1 May 2003 11:14:30 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Shawn <core@enodev.com>
-Cc: Andrew Morton <akpm@digeo.com>, viro@parcelfarce.linux.theplanet.co.uk,
-       ricklind@us.ibm.com, solt@dns.toxicfilms.tv,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       frankeh@us.ibm.com
-Subject: Re: must-fix list for 2.6.0
-Message-ID: <20030501111430.A9214@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Shawn <core@enodev.com>, Andrew Morton <akpm@digeo.com>,
-	viro@parcelfarce.linux.theplanet.co.uk, ricklind@us.ibm.com,
-	solt@dns.toxicfilms.tv,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	frankeh@us.ibm.com
-References: <20030430121105.454daee1.akpm@digeo.com> <200304302311.h3UNB2H27134@owlet.beaverton.ibm.com> <20030430162108.09dbd019.akpm@digeo.com> <20030430234746.GW10374@parcelfarce.linux.theplanet.co.uk> <20030430165914.2facc464.akpm@digeo.com> <20030501072703.A3705@infradead.org> <1051768196.5573.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1051768196.5573.2.camel@localhost.localdomain>; from core@enodev.com on Thu, May 01, 2003 at 01:49:56AM -0400
+	Thu, 1 May 2003 06:05:16 -0400
+Received: from smtp-out.comcast.net ([24.153.64.113]:11155 "EHLO
+	smtp-out.comcast.net") by vger.kernel.org with ESMTP
+	id S261192AbTEAKFL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 06:05:11 -0400
+Date: Thu, 01 May 2003 06:13:57 -0400
+From: rmoser <mlmoser@comcast.net>
+Subject: Re: Kernel source tree splitting
+In-reply-to: <32822.4.64.196.31.1051757471.squirrel@www.osdl.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <200305010613570940.000BF85B@smtp.comcast.net>
+MIME-version: 1.0
+X-Mailer: Calypso Version 3.30.00.00 (3)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+References: <200304301946130000.01139CC8@smtp.comcast.net>
+ <20030430172102.69e13ce9.rddunlap@osdl.org>
+ <200304302044410090.01492640@smtp.comcast.net>
+ <32822.4.64.196.31.1051757471.squirrel@www.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 01, 2003 at 01:49:56AM -0400, Shawn wrote:
-> This is a very useful conversation for the OO guys themselves to hear
-> about. Anyone care to make them aware of the will of the kernel gods?
 
-If redhat fixed it I assume they sent it upstream.  OTOH if you read
-the RH bashing on the OO lists it's another question whether it was
-applied.. :)
+
+*********** REPLY SEPARATOR  ***********
+
+On 4/30/2003 at 7:51 PM Randy.Dunlap wrote:
+
+>> On 4/30/2003 at 5:21 PM Randy.Dunlap wrote:
+>>
+>>>Hi,
+>>>
+>>>I'm probably misreading this...but,
+>>>
+>>>Have you tried this yet?  Does it modify/customize all Kconfig
+>>>and Makefiles for the selected tree splits?
+>>>
+>>
+>> I didn't try it.  It would require knowledge of all interdependencies
+>> between modules (i.e. ide-scsi is part of ide.  ide-scsi depends
+>> on scsi), also all source files that belong to each config option
+>> would likely need to be understood by the persons working to
+>> do this, and also the entire build system semantics would need
+>> to be designed to work in pieces.  Assuming this is ever done.
+>>
+>> It goes like this:
+>>
+>> make *config reads kernel-tree/options/foo.lod
+>> make *config gets to configuration baz in bar.lod
+>> make *config sees baz needs foo
+>> make *config lists baz.
+>> make *config sees biz needs data
+>> make *config refuses to show biz
+>> make missing-depends shows a list of unselectable options and
+>> -----------selecting one tells which kernel option is needed.
+>> make bzImage reads through kernel-tree/options/ and finds which
+>> -----------makefiles to call (current makes have these embedded)
+>> make bzImage builds a kernel.
+>> make modules reads through kernel-tree/options/ and finds which
+>> -----------makefiles to call.
+>> make modules builds a kernel.
+>>
+>>>A few days ago, in one tree, I rm-ed arch/{all that I don't need} and
+>>> drivers/{all that I don't need}.
+>>>After that I couldn't run "make *config" because it wants all of
+>>>those files, even if I don't want them.
+>>>
+>>
+>> That WILL break something.
+>
+>or "That does break something"  (when I tried it).
+>
+>>>So there are many edits that needed to be done in lots of
+>>>Kconfig and Makefiles if one selectively pulls or omits certain
+>>>sub-directories.
+>>>
+>>
+>> The main Makefile will have to be redone.  So would the kconfig
+>> things (make config/menuconfig/xconfig).
+>>
+>> The extra plus to this is that other people can steal the build
+>> system for other projects lol.
+>
+>I seem to try for simple solutions when possible and feasible.
+>
+>In this case, if I were doing it, I would try changing (e.g.) in
+>arch/i386/kernel/Kconfig, this line:
+>source "drivers/eisa/Kconfig"
+>to
+>optsource "drivers/eisa/Kconfig"
+>where optsource means that the file is optional -- if not found,
+>ignore it.  And then see what happens, how far it can go,
+>what the next problem is....
+>
+>If this could be made to work, then entire subdirectories/subsystems
+>could be optional.
+>
+
+Yeah but hat about things that came out of nowhere, i.e. a piece of
+hardware compes with a linux driver source?
+
+>~Randy
+>
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+
+
 

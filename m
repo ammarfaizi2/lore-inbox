@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265808AbUGHGLN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265809AbUGHGP4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265808AbUGHGLN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 02:11:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265809AbUGHGLN
+	id S265809AbUGHGP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 02:15:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265810AbUGHGP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 02:11:13 -0400
-Received: from mail.kroah.org ([69.55.234.183]:22410 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265808AbUGHGLL (ORCPT
+	Thu, 8 Jul 2004 02:15:56 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:21652 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S265809AbUGHGPy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 02:11:11 -0400
-Date: Wed, 7 Jul 2004 23:09:33 -0700
-From: Greg KH <greg@kroah.com>
-To: linas@austin.ibm.com
-Cc: Linda Xie <lxiep@us.ibm.com>, linuxppc64-dev@lists.linuxppc.org,
-       linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [PATCH] 2.6 PCI Hotplug: receive PPC64 EEH events
-Message-ID: <20040708060933.GE548@kroah.com>
-References: <20040707155907.G21634@forte.austin.ibm.com> <40EC9A02.1000507@us.ibm.com> <20040707190642.J21634@forte.austin.ibm.com>
+	Thu, 8 Jul 2004 02:15:54 -0400
+Date: Thu, 8 Jul 2004 08:15:51 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: tom st denis <tomstdenis@yahoo.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Gabriel Paubert <paubert@iram.es>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 0xdeadbeef vs 0xdeadbeefL
+Message-ID: <20040708061551.GB10540@khan.acc.umu.se>
+Mail-Followup-To: tom st denis <tomstdenis@yahoo.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	Gabriel Paubert <paubert@iram.es>, linux-kernel@vger.kernel.org
+References: <20040707184737.GA25357@infradead.org> <20040707185340.42091.qmail@web41112.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040707190642.J21634@forte.austin.ibm.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040707185340.42091.qmail@web41112.mail.yahoo.com>
+User-Agent: Mutt/1.4.1i
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 07, 2004 at 07:06:42PM -0500, linas@austin.ibm.com wrote:
-> On Wed, Jul 07, 2004 at 07:49:06PM -0500, Linda Xie wrote:
-> > linas@austin.ibm.com wrote:
-> > 
-> > > 	}
-> > > 	sprintf(child_bus->name, "PCI Bus #%02x", child_bus->number);
-> > > 	/* do pci_scan_child_bus */
-> > >-	pci_scan_child_bus(child_bus);
-> > >+	// pci_scan_child_bus(child_bus);
-> > > 
-> > Why remove pci_scan_child_bus call?
-> 
-> Because it won't compile otherwise.  
-> (Actually, I didn't mean to leave that in the patch, 
-> it was a work-around to get my tree to compile).
-> 
-> pci_scan_child_bus() is currently defined only as a static fuction
-> in drivers/pci/probe.c and thus cannot be called outside of that 
-> file.  Maybe there's a patch to drivers/pci/probe.c that hasn't 
-> been applied yet?
+On Wed, Jul 07, 2004 at 11:53:40AM -0700, tom st denis wrote:
+[snip]
+> And I don't need mr. Viro coming down off his mountain saying "oh you
+> fail it" because I don't know some obscure typing rule that I wouldn't
+> come accross because *** I AM NOT LAZY ***.  Hey mr. Viro what have you
+> contributed to the public domain lately?  Anything I can harp on in
+> public and abuse?  
 
-It's in the latest -bk tree, right?
+Well, look at it this way...  Alexander Viro is one of very few persons
+in the world that I'd trust enough to take unaudited code from and apply
+to my own projects.
 
-greg k-h
+Oh, and you're using his works every day I suppose; he's behind most of
+the VFS of the kernel.  Read the bloody changelogs for the kernel
+instead of whining.
+
+
+Regards: David Weinehall
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

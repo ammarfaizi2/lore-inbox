@@ -1,57 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261693AbSJQRQJ>; Thu, 17 Oct 2002 13:16:09 -0400
+	id <S261831AbSJQRXX>; Thu, 17 Oct 2002 13:23:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261688AbSJQRPT>; Thu, 17 Oct 2002 13:15:19 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:6670 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261536AbSJQROY>;
-	Thu, 17 Oct 2002 13:14:24 -0400
-Date: Thu, 17 Oct 2002 10:20:05 -0700
-From: Greg KH <greg@kroah.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Crispin Cowan <crispin@wirex.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make LSM register functions GPLonly exports
-Message-ID: <20021017172005.GE31464@kroah.com>
-References: <20021017175403.A32516@infradead.org> <Pine.LNX.4.44.0210170958340.6739-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210170958340.6739-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
+	id <S261761AbSJQRVs>; Thu, 17 Oct 2002 13:21:48 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:27526 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261753AbSJQRTB>;
+	Thu, 17 Oct 2002 13:19:01 -0400
+Subject: Re: [PATCHSET] Mobile IPv6 for 2.5.43
+To: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+Cc: ajtuomin@morphine.tml.hut.fi, davem@redhat.com, kuznet@ms2.inr.ac.ru,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       netdev-bounce@oss.sgi.com, pekkas@netcore.fi, torvalds@transmeta.com,
+       "Venkata Jagana" <jagana@us.ibm.com>, yoshfuji@linux-ipv6.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF817FBE23.BF8717DA-ON88256C55.005F5EFB@boulder.ibm.com>
+From: "Krishna Kumar" <kumarkr@us.ibm.com>
+Date: Thu, 17 Oct 2002 10:22:21 -0700
+X-MIMETrack: Serialize by Router on D03NM801/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 10/17/2002 11:23:55 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=iso-2022-jp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 17, 2002 at 10:08:19AM -0700, Linus Torvalds wrote:
-> 
-> Note that if this fight ends up being a major issue, I'm just going to 
-> remove LSM and let the security vendors do their own thing. So far
-> 
->  - I have not seen a lot of actual usage of the hooks
 
-The SELinux module uses almost every hook so far.  A number of companies
-and distros are currently auditing this module, and it will probably be
-submitted for inclusion into the main kernel tree after they are
-finished.
+> > http://www.mipl.mediapoli.com/patches/mipv6_cn_support.patch
+> > http://www.mipl.mediapoli.com/patches/mipv6_mn_support.patch
+> > http://www.mipl.mediapoli.com/patches/mipv6_ha_support.patch
+>
+> Well, I can't find them. I hope they'll be available when I wake up
+> tomorrow...
 
->  - seen a number of people who still worry that the hooks degrade 
->    performance in critical areas
+Just replace "_" with "-".
 
-I have a set of patches to send you today that will solve that problem,
-by allowing people who do not want the hook to compile them away into
-nothingness.  DaveM agrees with the proposed way of doing this.
+- KK
 
->  - the worry that people use it for non-GPL'd modules is apparently real, 
->    considering Crispin's reply.
 
-I agree with this, and argue to mark the functions as
-EXPORT_SYMBOL_GPL() to make some people feel a bit more warm and fuzzy
-that these hooks will not be co-oped for non-GPL use (this includes me.)
 
-In short, I like Christoph's patch.
 
-> I will re-iterate my stance on the GPL and kernel modules:
+                                                                                                                                          
+                      YOSHIFUJI Hideaki                                                                                                   
+                      / 吉藤英明               To:       ajtuomin@morphine.tml.hut.fi                                                     
+                      <yoshfuji@linux-i        cc:       davem@redhat.com, kuznet@ms2.inr.ac.ru, netdev@oss.sgi.com,                      
+                      pv6.org>                  linux-kernel@vger.kernel.org, pekkas@netcore.fi, torvalds@transmeta.com, Venkata          
+                      Sent by:                  Jagana/Beaverton/IBM@IBMUS, yoshfuji@linux-ipv6.org                                       
+                      netdev-bounce@oss        Subject:  Re: [PATCHSET] Mobile IPv6 for 2.5.43                                            
+                      .sgi.com                                                                                                            
+                                                                                                                                          
+                                                                                                                                          
+                      10/17/2002 10:18                                                                                                    
+                      AM                                                                                                                  
+                                                                                                                                          
+                                                                                                                                          
 
-Thank you for posting this.  I know a lot of people appreciate it.
 
-greg k-h
+
+In article <20021017162624.GC16370@morphine.tml.hut.fi> (at Thu, 17 Oct
+2002 19:26:25 +0300), Antti Tuominen <ajtuomin@morphine.tml.hut.fi> says:
+
+> The patch has been split for easier reading as follows:
+>
+> ipv6_tunnel.patch            6over6 tunneling
+> network_mods.patch           Modifications to network code and hooks
+
+Several comments.
+
+[ipv6_tunnel]
+
+I think this is almost ok.
+
+  1. I believe s/ARPHRD_IPV6_IPV6_TUNNEL/ARPHRD_TUNNEL6/.
+  2. Please put outer address to hardware address in dev.
+     Note: you need to modify SIOxxx ioctls too not to overrun!
+
+[network_mods etc.]
+
+  1. Too many hooks,
+     and many duplicate codes in ipv6 stack and mipv6 stack.
+     (prefix handler, header parser, ndisc handler etc...)
+
+more comment will come later...
+
+
+> http://www.mipl.mediapoli.com/patches/mipv6_cn_support.patch
+> http://www.mipl.mediapoli.com/patches/mipv6_mn_support.patch
+> http://www.mipl.mediapoli.com/patches/mipv6_ha_support.patch
+
+Well, I can't find them. I hope they'll be available when I wake up
+tomorrow...
+
+--
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+
+
+
+
+
+
+

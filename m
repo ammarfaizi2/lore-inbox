@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272415AbRIOUJj>; Sat, 15 Sep 2001 16:09:39 -0400
+	id <S273013AbRIOUMj>; Sat, 15 Sep 2001 16:12:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273013AbRIOUJ3>; Sat, 15 Sep 2001 16:09:29 -0400
-Received: from fe000.worldonline.dk ([212.54.64.194]:28943 "HELO
+	id <S273023AbRIOUMT>; Sat, 15 Sep 2001 16:12:19 -0400
+Received: from fe000.worldonline.dk ([212.54.64.194]:49680 "HELO
 	fe000.worldonline.dk") by vger.kernel.org with SMTP
-	id <S272415AbRIOUJL>; Sat, 15 Sep 2001 16:09:11 -0400
-Message-ID: <3BA23224.C105A0A6@eisenstein.dk>
-Date: Fri, 14 Sep 2001 18:36:52 +0200
+	id <S273013AbRIOUMP>; Sat, 15 Sep 2001 16:12:15 -0400
+Message-ID: <3BA232DB.79510CDC@eisenstein.dk>
+Date: Fri, 14 Sep 2001 18:39:55 +0200
 From: Jesper Juhl <juhl@eisenstein.dk>
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-pre9 i686)
 X-Accept-Language: en
@@ -33,17 +33,13 @@ Robert Love wrote:
 > try_unsupported if it can't find the 761.  Please send the relevant
 > dmesg in reply.  Thank you.
 
-Seems to work much better :
+Some aditional detail; it seems the NVidia driver agrees that the AGPGART is working since I get
+this at the end of dmesg:
 
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 439M
-agpgart: Detected AMD 761 chipset
-agpgart: AGP aperture is 64M @ 0xf8000000
+NVRM: loading NVIDIA kernel module version 1.0-1251
+NVRM: not using NVAGP, AGPGART is loaded!!
 
-Actually the previous patch may have worked as well, while trying to figure out why I couldn't
-get it to apply I was playing around with the configuration and various other stuff and I may
-accidentaly have disabled Irongate support in the kernel that I ended up building. I can retry
-the original patch to verify that if you like.
+And since my X is working perfectly I'd say it's looking good :)
 
 
 Best regards,

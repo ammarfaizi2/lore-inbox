@@ -1,83 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265501AbUFOOlb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265633AbUFOO47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265501AbUFOOlb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 10:41:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265541AbUFOOlb
+	id S265633AbUFOO47 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 10:56:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265541AbUFOO47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 10:41:31 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:6876 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S265501AbUFOOl2 (ORCPT
+	Tue, 15 Jun 2004 10:56:59 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:21701 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S265676AbUFOO4s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 10:41:28 -0400
-Date: Tue, 15 Jun 2004 16:41:27 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Helge Hafting vs. make menuconfig help
-Message-ID: <20040615144127.GG20632@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040615140206.A6153@beton.cybernet.src> <20040615141039.GF20632@lug-owl.de> <20040615142040.B6241@beton.cybernet.src>
+	Tue, 15 Jun 2004 10:56:48 -0400
+Date: Tue, 15 Jun 2004 16:56:25 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH] stat nlink resolution fix
+Message-ID: <20040615145624.GC20432@wohnheim.fh-wedel.de>
+References: <20040615055507.GA9847@taniwha.stupidest.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Chc1+IABo9omxMFx"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040615142040.B6241@beton.cybernet.src>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040615055507.GA9847@taniwha.stupidest.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 14 June 2004 22:55:07 -0700, Chris Wedgwood wrote:
+> 
+> Some filesystems can get overflows when their link-count exceeds
+> 65534.  This patch increases the kernels internal resolution for this
+> and also has a check for the old-system call paths to return and error
+> (-EOVERFLOW) as required (as suggested by Al Viro).
+> 
+> Signed-off-by: Chris Wedgwood <cw@f00f.org>
+> 
+> diff -Nru a/include/linux/stat.h b/include/linux/stat.h
+> --- a/include/linux/stat.h	2004-06-14 17:40:21 -07:00
+> +++ b/include/linux/stat.h	2004-06-14 17:40:21 -07:00
+> @@ -60,7 +60,7 @@
+>  	unsigned long	ino;
+>  	dev_t		dev;
+>  	umode_t		mode;
+> -	nlink_t		nlink;
+> +	unsigned int	nlink;
+>  	uid_t		uid;
+>  	gid_t		gid;
+>  	dev_t		rdev;
 
---Chc1+IABo9omxMFx
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Just for me to get a clue, what would break if the definition of
+nlink_t changed?
 
-On Tue, 2004-06-15 14:20:40 +0000, Karel Kulhav=FD <clock@twibright.com>
-wrote in message <20040615142040.B6241@beton.cybernet.src>:
-> On Tue, Jun 15, 2004 at 04:10:39PM +0200, Jan-Benedict Glaw wrote:
-> > On Tue, 2004-06-15 14:02:06 +0000, Karel Kulhav=FD <clock@twibright.com>
-> > wrote in message <20040615140206.A6153@beton.cybernet.src>:
+Jörn
 
-> > CONFIG_INPUT only gives you an API where you can process input events
-> > with. For instance, look at the atkbd.c, sunkbd.c or lkkbd.c drivers.
-> > They all send key strokes into the Input API (activated by
-> > CONFIG_INPUT), but none of them actually uses USB (but the PS/2 keyboard
-> > port or normal serial ports with non-standard plugs).
->=20
-> Is it correct what <Help> for CONFIG_INPUT in 2.4.25 says or no?
-
-At least, it's not really wrong. You need CONFIG_INPUT to be able to do
-something with the HID stuff. However, to have an uniform interface, you
-may also use the CONFIG_INPUT stuff to access your "normal" (AT / PS/2
-style) keyboard.
-
-In 2.6.x, that's cleaned up a bit. (Nearly?) all keyboards now push
-their key strokes into the CONFIG_INPUT API, so you really want to have
-CONFIG_INPUT (as long as this isn't some kind of embedded system).
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---Chc1+IABo9omxMFx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAzwqXHb1edYOZ4bsRAhPVAKCKjgkVmz16YIDgcOkUXMvp0B6EOwCghWP7
-IEbl2iNg0zvpZQT2rmEnJT4=
-=eDGg
------END PGP SIGNATURE-----
-
---Chc1+IABo9omxMFx--
+-- 
+Fancy algorithms are buggier than simple ones, and they're much harder
+to implement. Use simple algorithms as well as simple data structures.
+-- Rob Pike

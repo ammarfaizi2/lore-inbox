@@ -1,70 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266496AbUBQTRo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 14:17:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266468AbUBQTRo
+	id S266468AbUBQT1U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 14:27:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266516AbUBQT1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 14:17:44 -0500
-Received: from mail.gmx.de ([213.165.64.20]:16787 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266464AbUBQTRl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 14:17:41 -0500
-X-Authenticated: #20450766
-Date: Tue, 17 Feb 2004 20:17:01 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Brad Cramer <bcramer@callahanfuneralhome.com>
-cc: linux-kernel@vger.kernel.org
-Subject: RE: sym53c8xx_2 driver and tekram dc-390u2w kernel-2.6.x
-In-Reply-To: <008401c3f572$6b72d330$6501a8c0@office>
-Message-ID: <Pine.LNX.4.44.0402171937490.4978-100000@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 17 Feb 2004 14:27:20 -0500
+Received: from stewie.egr.unlv.edu ([131.216.22.9]:18406 "EHLO
+	mail.egr.unlv.edu") by vger.kernel.org with ESMTP id S266468AbUBQT1T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 14:27:19 -0500
+Subject: Re: fh_verify: no root_squashed access hundreds of times a second
+	again
+From: Andrew Gray <grayaw@Egr.UNLV.EDU>
+To: linux-kernel@vger.kernel.org
+Organization: University of Nevada Las Vegas
+Message-Id: <1077046038.20175.13.camel@blargh.egr.unlv.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.5.3 (1.5.3-1) 
+Date: Tue, 17 Feb 2004 11:27:18 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Feb 2004, Brad Cramer wrote:
+> How about tracking down whoever is trying to do all these illegal
+> accesses and stop them?  6000 attempts per minute seems a
+> waste of resources, whether malicious or ill-configured. 
 
-> Linux version 2.6.2 (root@bigdaddy) (gcc version 3.3.3 20040125 (prerelease)
-> (Debian)) #1 Thu Feb 12 08:33:42 EST 2004
-
-...
-
-> 383MB HIGHMEM available.
-> 896MB LOWMEM available.
-
-...
-
-> Local APIC disabled by BIOS -- reenabling.
-> Found and enabled local APIC!
-
-...
-
-> Detected 1402.432 MHz processor.
-> Using tsc for high-res timesource
-
-...
-
-> Memory: 1293316k/1310656k available (1941k kernel code, 16200k reserved,
-> 831k data, 164k init, 393152k highmem)
-
-...
-
-> Intel machine check architecture supported.
-> Intel machine check reporting enabled on CPU#0.
-> CPU: AMD Athlon(tm) processor stepping 04
-
-Is this the complete log? Why did you decide that the problem is with SCSI
-then? There should be some more stuff between this point and SCSI init. If
-you really suspect SCSI, you could try disabling your controller-driver
-and enable another one, then it should boot further and panic nixely
-"unable to mount root-fs".
-
-> 1,1           Top
-
-This didn't belong to the log, did it?
-
-Guennadi
----
-Guennadi Liakhovetski
+I am, of course, working this angle as well.  However, I was hoping to
+find out what, specifically, is causing these messages.  Preferably, how
+to stop them or mute them for the short-term.  Having the log server
+rotate 4GB log files every 24 hours because the kernel is almost DOSing
+itself is counterproductive.
 
 

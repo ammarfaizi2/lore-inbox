@@ -1,45 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264108AbTIINin (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 09:38:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264115AbTIINin
+	id S264114AbTIINn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 09:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264116AbTIINn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 09:38:43 -0400
-Received: from bilbo.math.uni-mannheim.de ([134.155.88.153]:32919 "EHLO
-	bilbo.math.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S264108AbTIINil (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 09:38:41 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [2.4.23-pre3] Possible bug in fs/buffer.c
-Date: Tue, 9 Sep 2003 15:39:49 +0200
-User-Agent: KMail/1.5.3
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andreas Schwab <schwab@suse.de>
-References: <200309081715.09657@bilbo.math.uni-mannheim.de> <jellsztgf6.fsf@sykes.suse.de> <1063068835.28622.48.camel@dhcp23.swansea.linux.org.uk>
-In-Reply-To: <1063068835.28622.48.camel@dhcp23.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Sep 2003 09:43:26 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:45769 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id S264114AbTIINnW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 09:43:22 -0400
+Date: Tue, 9 Sep 2003 16:43:20 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Majordomo results
+Message-ID: <20030909134320.GH16395@mea-ext.zmailer.org>
+References: <S264091AbTIINYd/20030909132434Z+3723@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309091539.49579@bilbo.math.uni-mannheim.de>
+In-Reply-To: <S264091AbTIINYd/20030909132434Z+3723@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 9. September 2003 02:53 schrieb Alan Cox:
-> On Llu, 2003-09-08 at 17:04, Andreas Schwab wrote:
-> > > Its not 100% reliable either 8).
-> >
-> > Could you please elaborate?  Casting -1 to an unsigned type is guaranteed
-> > to yield the maximum value for that type, at least since C89, but I think
-> > even K&R C did get it right.
->
-> My error - its ~0 that is unreliable.
+This is in the series of "don't do that" ...
 
-Uh-oh:
+Request originator had edited "From:" address to list address,
+and there was no "To:" or "Cc:" header at all.
 
-eike@bilbo:/mnt/kernel/linux-2.4.23-pre3> grep -r "~0[^xX]" *| wc -l
-    713
+Overall, any request needing approval from listowner is likely to be
+_ignored_.   You do see the amount of traffic in these lists.
+>From that you can have a vague idea of how much admin junk listowners 
+get...
 
-Eike
+See  http://vger.kernel.org/majordomo-info.html   for futher guidance.
+
+
+On Tue, Sep 09, 2003 at 09:24:33AM -0400, Majordomo@vger.kernel.org wrote:
+> To:	linux-kernel@vger.kernel.org
+> From:	Majordomo@vger.kernel.org
+> Subject: Majordomo results
+> Date:	Tue, 9 Sep 2003 09:24:33 -0400
+> 
+> --
+> 
+> >>>> auth ffd69ec2 subscribe linux-kernel linux-kernel@mailinglist.gnuher.de
+> Your request to Majordomo@vger.kernel.org:
+> 
+> 	subscribe linux-kernel linux-kernel@mailinglist.gnuher.de
+> 
+> has been forwarded to the owner of the "linux-kernel" list for approval. 
+> This could be for any of several reasons:
+> 
+>     You might have asked to subscribe to a "closed" list, where all new
+> 	additions must be approved by the list owner. 
+> 
+>     You might have asked to subscribe or unsubscribe an address other than
+> 	the one that appears in the headers of your mail message.
+> 
+> When the list owner approves your request, you will be notified.
+> 
+> If you have any questions about the policy of the list owner, please
+> contact "linux-kernel-approval@vger.kernel.org".
+> 
+> Thanks!
+> 
+> Majordomo@vger.kernel.org
+> >>>> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267543AbUJIXVH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267549AbUJIXWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267543AbUJIXVH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 19:21:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267553AbUJIXVG
+	id S267549AbUJIXWm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 19:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267553AbUJIXWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 19:21:06 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:24987 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267543AbUJIXVE (ORCPT
+	Sat, 9 Oct 2004 19:22:42 -0400
+Received: from rproxy.gmail.com ([64.233.170.203]:55312 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267549AbUJIXWb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 19:21:04 -0400
-Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-From: Dave Hansen <haveblue@us.ibm.com>
-To: dwalker@mvista.com
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>,
-       "Amakarov@Ru. Mvista. Com" <amakarov@ru.mvista.com>,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       "Ext-Rt-Dev@Mvista. Com" <ext-rt-dev@mvista.com>,
-       New Zhang Haitao <hzhang@ch.mvista.com>,
-       "Yyang@Ch. Mvista. Com" <yyang@ch.mvista.com>
-In-Reply-To: <1097307234.13748.1.camel@dhcp153.mvista.com>
-References: <41677E4D.1030403@mvista.com>
-	 <1097304045.1442.166.camel@krustophenia.net>
-	 <1097307234.13748.1.camel@dhcp153.mvista.com>
-Content-Type: text/plain
-Message-Id: <1097364034.8085.1.camel@localhost>
+	Sat, 9 Oct 2004 19:22:31 -0400
+Message-ID: <58cb370e0410091622423bded0@mail.gmail.com>
+Date: Sun, 10 Oct 2004 01:22:30 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [Announce] "iswraid" (ICH5R/ICH6R ataraid sub-driver) for 2.4.28-pre3
+Cc: Martins Krikis <mkrikis@yahoo.com>, linux-kernel@vger.kernel.org,
+       marcelo.tosatti@cyclades.com
+In-Reply-To: <41686121.7060607@pobox.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 09 Oct 2004 16:20:34 -0700
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20041009204425.49483.qmail@web13725.mail.yahoo.com>
+	 <200410092337.36488.bzolnier@elka.pw.edu.pl>
+	 <41686121.7060607@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-09 at 00:33, Daniel Walker wrote:
-> Do you have 4k stacks turned off? The docs make note of this.
+On Sat, 09 Oct 2004 18:07:29 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
+> Bartlomiej Zolnierkiewicz wrote:
+> > I may sound like an ignorant but...
+> >
+> > Why can't device mapper be merged into 2.4 instead?
+> > Is there something wrong with 2.4 device mapper patch?
+> >
+> > It would more convenient (same driver for 2.4 and 2.6)
+> > and would benefit users of other software RAIDs
+> > (easier transition to 2.6).
+> 
+> OTOH, that would be introducing a brand new RAID/LVM subsystem in the
+> middle of a stable series...
 
-Isn't this a better thing to spell out in a Kconfig file than some
-documentation?
+Quoting Marcelo:
 
--- Dave
+> New drivers are OK, as long as they dont break existing setups,
+> and if substantial amount of users will benefit from it.
 
+IMHO both conditions are fulfilled.

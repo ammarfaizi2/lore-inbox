@@ -1,80 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262875AbUKTFa4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263105AbUKTFfh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262875AbUKTFa4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 00:30:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbUKTAHG
+	id S263105AbUKTFfh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 00:35:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbUKTFbA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 19:07:06 -0500
-Received: from motgate4.mot.com ([144.189.100.102]:63635 "EHLO
-	motgate4.mot.com") by vger.kernel.org with ESMTP id S261721AbUKTAEZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 19:04:25 -0500
-In-Reply-To: <1100904184.3856.46.camel@gaston>
-References: <069B6F33-341C-11D9-9652-000393DBC2E8@freescale.com> <9B0D9272-398A-11D9-96F6-000393C30512@freescale.com> <1100820391.25521.14.camel@gaston> <97DA0EF0-3A70-11D9-B023-000393C30512@freescale.com> <1100904184.3856.46.camel@gaston>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <B2AF8092-3A87-11D9-B023-000393C30512@freescale.com>
-Content-Transfer-Encoding: 7bit
-Cc: Jason McMullan <jason.mcmullan@timesys.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Netdev <netdev@oss.sgi.com>
-From: Andy Fleming <afleming@freescale.com>
-Subject: Re: [PATCH] MII bus API for PHY devices
-Date: Fri, 19 Nov 2004 18:04:07 -0600
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-X-Mailer: Apple Mail (2.619)
+	Sat, 20 Nov 2004 00:31:00 -0500
+Received: from gprs214-103.eurotel.cz ([160.218.214.103]:64641 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262993AbUKTAPk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 19:15:40 -0500
+Date: Sat, 20 Nov 2004 01:15:25 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: hugang@soulinfo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Software Suspend split to two stage V2.
+Message-ID: <20041120001525.GF1594@elf.ucw.cz>
+References: <20041119194007.GA1650@hugang.soulinfo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041119194007.GA1650@hugang.soulinfo.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Nov 19, 2004, at 16:43, Benjamin Herrenschmidt wrote:
+>   This patch using pagemap for PageSet2 bitmap, It increase suspend
+>   speed, In my PowerPC suspend only need 5 secs, cool. 
 
-> On Fri, 2004-11-19 at 15:18 -0600, Andy Fleming wrote:
->
->> So when you say instantiated, would you consider calling an "attach"
->> function with the phy_id and bus_id of the desired PHY instantiation?
->> I'm fine with that.  The PHY would need to be able to send
->> notifications to the enet controller (currently done through a
->> callback).  I'm interested in ideas on how the notifier could be used
->> (I have a distaste for callbacks).
->
-> Look at the notifier lists in include/linux/notifier.h
+Well, speed is nice but... I have O(n^2) => O(n) patch in my tree that
+provides some nice speedup too, and is less invasive. They are
+probably orthogonal.
 
-Ok, will do.
+* you'll have to explain (in Documentation/power/swsusp.txt) why this
+is safe. Normal swsusp is safe because interrupts&DMAs are
+disabled. You are doing writes but data in page-cache may not be
+modified, right? What are exact requirements for this and how it is
+guaranteed that data are indeed not modified?
 
->
->> Autopoll features sound pretty neat.  I think the system should 
->> support
->> that.
->
-> But that becomes MAC-dependant again... That means you'd need 1) a way
-> for the MAC driver to ask the PHY driver what register it wants
-> autopolled, and a function in the PHY driver for the MAC to call when 
-> it
-> detects a change. Also, autopoll is broken in some MACs...
+* what is pcs_ prefix? Page Cache Suspend?
 
-What I'm envisioning here is that the driver would be able to tell the 
-PHY infrastructure that it's going to do its own thing, and then make 
-use of the reading/configuring part of the infrastructure, similar to 
-how sungem and gianfar are currently set up.  But they would have the 
-option of letting the infrastructure also handle the status updates.  
-And, of course, the driver would not go through the effort to use 
-autopoll if it were broken.
+(ouch and be warned that this will take quite long to get
+in. There are patches in my queue I'd like to get in first, like
+O(n^2) => O(n) page marking).
 
->
->>   PHY interrupts are supported (they work quite well on my 85xx
->> system), as is timer-based polling.  Do you really think that there 
->> are
->> special cases which can't be handled using a library similar to the
->> sungem_phy one?
->
-> Nope. I think timer based polling with a sungem-like fallback mecanism
-> to forced speeds would be nice.
+> +static void calc_order(int *po, int *nr)
+> +{
 
-Yes, I agree.  The system I currently have does fallback to forced, 
-though it doesn't yet support the "magic aneg" feature you mentioned.  
-But that should be easy to add, and so it shall be.
+"po" is bad name even for local variable.
 
+> +static unsigned long *pageset2map = NULL;
+> +
+> +#define PAGENUMBER(page) (page-mem_map)
+> +#define PAGEINDEX(page) ((PAGENUMBER(page))/(8*sizeof(unsigned long)))
+> +#define PAGEBIT(page) ((int) ((PAGENUMBER(page))%(8 * sizeof(unsigned long))))
+> +
+> +#define BITS_PER_PAGE (PAGE_SIZE * 8)
+> +#define PAGES_PER_BITMAP ((max_mapnr + BITS_PER_PAGE - 1) / BITS_PER_PAGE)
+> +#define BITMAP_ORDER (get_bitmask_order((PAGES_PER_BITMAP) - 1))
 
-Andy Fleming
+> +#define PagePageset2(page) \
+> +	test_bit(PAGEBIT(page), &pageset2map[PAGEINDEX(page)])
+> +#define SetPagePageset2(page) \
+> +	set_bit(PAGEBIT(page), &pageset2map[PAGEINDEX(page)])
 
+Can't you just get another bit in page.h to avoid these arrays?
+
+> +static int pcs_write(void)
+> +{
+> +	int error = 0;
+> +	int i;
+> +
+> +	printk( "Writing PageCaches to swap (%d pages): ", nr_copy_pcs);
+> +	for (i = 0; i < nr_copy_pcs && !error; i++) {
+> +		if (!(i%100))
+> +			printk( "." );
+
+Please take % progress from newer swsusp.
+
+> +static void count_data_pages(void);
+> +static int swsusp_alloc(void);
+> +
+> +int pcs_suspend(int resume)
+> +{
+> +	struct zone *zone;
+> +	suspend_pagedir_t *pe = NULL;
+> +	int error;
+> +
+> +	if (resume == 1) {
+> +		return (0);
+> +	}
+> +	if (resume == 2) {
+> +		pcs_read();
+> +		pcs_free_pagemap();
+> +		return (0);
+> +	}
+
+I'd understand int resume taking 0 and 1, but what does 2 mean? Also
+use return 0; not return (0);
+
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,61 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129089AbQJ3SIo>; Mon, 30 Oct 2000 13:08:44 -0500
+	id <S129536AbQJ3SIo>; Mon, 30 Oct 2000 13:08:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129516AbQJ3SIe>; Mon, 30 Oct 2000 13:08:34 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:18439 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129089AbQJ3SIT>; Mon, 30 Oct 2000 13:08:19 -0500
-Message-ID: <39FDB824.EEDF9631@timpanogas.org>
-Date: Mon, 30 Oct 2000 11:04:20 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
+	id <S129089AbQJ3SIe>; Mon, 30 Oct 2000 13:08:34 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:13316 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129440AbQJ3SI1>; Mon, 30 Oct 2000 13:08:27 -0500
+Date: Mon, 30 Oct 2000 13:08:01 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Tigran Aivazian <tigran@veritas.com>, John Levon <moz@compsoc.man.ac.uk>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kmalloc() allocation.
+In-Reply-To: <39FDAB1E.89BA3CC1@mandrakesoft.com>
+Message-ID: <Pine.LNX.3.95.1001030130654.2540D-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: john slee <indigoid@higherplane.net>
-CC: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-In-Reply-To: <20001030025424.A20271@vger.timpanogas.org> <Pine.LNX.4.21.0010301208230.3186-100000@elte.hu> <20001030030625.C20271@vger.timpanogas.org> <20001030215655.B655@higherplane.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 30 Oct 2000, Jeff Garzik wrote:
 
-
-john slee wrote:
+> Tigran Aivazian wrote:
+> > 
+> > On Mon, 30 Oct 2000, Jeff Garzik wrote:
+> > 
+> > > "Richard B. Johnson" wrote:
+> > > > Now, I could set up a linked-list of buffers and use vmalloc()
+> > > > if the buffers were allocated from non-paged RAM. I don't think
+> > > > they are. These buffers must be present during an interrupt.
+> > >
+> > > Non-paged RAM?  I'm not sure what you mean by that.
+> > >
+> > > Both kmalloc and vmalloc allocate pages, but neither will allocate pages
+> > > that the system will swap out (page out).  [vk]malloc pages are always
+> > > around during an interrupt.
 > 
-> On Mon, Oct 30, 2000 at 03:06:25AM -0700, Jeff V. Merkey wrote:
-> > Ingo,  This original thread was regarding Linux vs. NetWare 5.x performance
-> > metrics and responses from Linux folks about how to affect and
-> > improve them, not a diatribe on the features of TUX.
+> > Jeff, I was going to tell him that but in the previous sentence he was
+> > talking about userspace supplied buffers and those are certainly not
+> > pinned.
 > 
-> while beating netware in certain areas is certainly a noble goal,
-> it is far from the only one.
-
-You're up on that higher plane again.  Send me some 'shrooms, please. 
-
+> Well the problem sounds really strange then.  Why are kmalloc/vmalloc
+> being talked about at all, if we are dealing with userspace-supplied
+> buffers?
 > 
-> [snip]
-> 
-> > If you have some ideas on how to improve file and print or help me
-> > get a linux incarnation that can stomp NetWare, I'd love to hear
-> > your ideas.  I think TUX is great, BTW.  Otherwise, end-of-line...
-> 
-> if netware users are happy with netware, i can't see why they'd want to
-> switch to linux or a linux-netware-ish equivalent while netware are
-> still around to provide support.  "ain't broke, don't fix," etc.
 
-Linux has great internet connectivity, and a real application layer with
-lots of 
-apps.  NetWare customers would love it.  I am one and I love it already.
+No, not user-supplied buffers. Just a fixed kernel allocation large
+enough to take an entire image which can be up to and including 2
+megabytes.
 
-Jeff
 
-> 
-> j.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.2.17 on an i686 machine (801.18 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

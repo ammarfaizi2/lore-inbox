@@ -1,68 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbULAPyO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbULAPzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261283AbULAPyO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 10:54:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbULAPyO
+	id S261284AbULAPzq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 10:55:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbULAPzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 10:54:14 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:21936 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261283AbULAPyK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 10:54:10 -0500
-Date: Wed, 1 Dec 2004 16:53:53 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Paul Davis <paul@linuxaudiosystems.com>
-Cc: Florian Schmidt <mista.tapas@gmx.net>, Rui Nuno Capela <rncbc@rncbc.org>,
-       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
-Message-ID: <20041201155353.GA30193@elte.hu>
-References: <20041201143738.GA12563@elte.hu> <200412011456.iB1EubBI004051@localhost.localdomain>
+	Wed, 1 Dec 2004 10:55:46 -0500
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:41408 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S261284AbULAPzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 10:55:20 -0500
+Date: Wed, 1 Dec 2004 16:55:24 +0100
+From: Kronos <kronos@people.it>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.4.29-pre1] Add new PCI id to radeonfb
+Message-ID: <20041201155524.GA14588@dreamland.darkstar.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200412011456.iB1EubBI004051@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Marcelo,
+this is a trivial patch for 2.4.29-pre1.
 
-* Paul Davis <paul@linuxaudiosystems.com> wrote:
+Add support for the following radeon board (thanks to Jurriaan):
 
-> >also, the problem is that jackd uses _named_ fifos, which are tied to
-> >the raw FS and might trigger journalling activities. Normal pipes
-> >(unnamed fifos) would not cause such problems. Would it be possible to
-> >change jackd to use a pair of pipes, instead of a fifo?
-> 
-> i.e. pipe(2) rather than mkfifo(2) ?
-> 
-> it would be a complete pain because the pipes have to be
-> "discoverable" across processes. we would have to do fd passing, which
-> is still really quite ugly in linux (and other *nix systems). it would
-> quite difficult, though not impossible.
+lspci:
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc RV350 AQ [Radeon 9600]
+0000:01:00.1 Display controller: ATI Technologies Inc RV350 AQ [Radeon 9600] (Secondary)
 
-yeah. And i think mkfifo(2) objects ought to behave atomically as well,
-it's an unfortunate side-effect of atime/mtime inode semantics that they
-can block.
+lspci -n:
+0000:01:00.0 Class 0300: 1002:4151
+0000:01:00.1 Class 0380: 1002:4171
 
-your point is correct, the best way to have a system-wide namespace for
-synchronization objects is ... the filesystem hierarchy. If you create a
-unix domain socket then you can distribute your pipe fds, but that's
-indeed somewhat painful.
+Signed-off-by: Luca Tettamanti <kronos@people.it>
 
-	Ingo
+--- a/drivers/video/radeonfb.c	2004-11-30 20:53:05.000000000 +0100
++++ b/drivers/video/radeonfb.c	2004-11-30 20:37:33.000000000 +0100
+@@ -218,6 +218,7 @@
+ 	RADEON_NH,
+ 	RADEON_NI,
+ 	RADEON_AP,
++	RADEON_AQ,
+ 	RADEON_AR,
+ };
+ 
+@@ -279,6 +280,7 @@
+ 	{ "9800 NH", RADEON_R350 },
+ 	{ "9800 NI", RADEON_R350 },
+ 	{ "9600 AP", RADEON_RV350 },
++	{ "9600 AQ", RADEON_RV350 },
+ 	{ "9600 AR", RADEON_RV350 },
+ };
+ 
+@@ -334,6 +336,7 @@
+ 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_Yd, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_Yd},
+ 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AD, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_AD},
+ 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AP, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_AP},
++	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AQ, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_AQ},
+ 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AR, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_AR},
+ 	{ 0, }
+ };
+--- a/include/linux/pci_ids.h	2004-11-30 20:52:58.000000000 +0100
++++ b/include/linux/pci_ids.h	2004-11-30 20:37:58.000000000 +0100
+@@ -303,6 +303,7 @@
+ #define PCI_DEVICE_ID_ATI_RADEON_NI	0x4e49
+ /* Radeon RV350 (9600) */
+ #define PCI_DEVICE_ID_ATI_RADEON_AP	0x4150
++#define PCI_DEVICE_ID_ATI_RADEON_AQ	0x4151
+ #define PCI_DEVICE_ID_ATI_RADEON_AR	0x4152
+ /* Radeon M6 */
+ #define PCI_DEVICE_ID_ATI_RADEON_LY	0x4c59
+
+
+Luca
+-- 
+Home: http://kronoz.cjb.net
+Sono un mirabile incrocio tra Tarzan e Giacomo Leopardi.
+In me convivono tutte le doti intelluttuali di Tarzan e
+tutta la prestanza fisica di Giacomo Leopardi.
+A. Borsani

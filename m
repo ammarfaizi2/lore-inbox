@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286193AbRLTHdK>; Thu, 20 Dec 2001 02:33:10 -0500
+	id <S286190AbRLTH0U>; Thu, 20 Dec 2001 02:26:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286195AbRLTHdB>; Thu, 20 Dec 2001 02:33:01 -0500
-Received: from white.pocketinet.com ([12.17.167.5]:15585 "EHLO
-	white.pocketinet.com") by vger.kernel.org with ESMTP
-	id <S286193AbRLTHct>; Thu, 20 Dec 2001 02:32:49 -0500
+	id <S286192AbRLTH0J>; Thu, 20 Dec 2001 02:26:09 -0500
+Received: from dsl-213-023-043-155.arcor-ip.net ([213.23.43.155]:55569 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S286190AbRLTH0F>;
+	Thu, 20 Dec 2001 02:26:05 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <nknight@pocketinet.com>
-Reply-To: nknight@pocketinet.com
-To: Willem Riede <wriede@home.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Tape driver rationalization for Linux 2.5?
-Date: Wed, 19 Dec 2001 23:24:05 -0800
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <20011219172929.A23227@linnie.riede.org>
-In-Reply-To: <20011219172929.A23227@linnie.riede.org>
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "David S. Miller" <davem@redhat.com>, bcrl@redhat.com
+Subject: Re: aio
+Date: Thu, 20 Dec 2001 08:27:45 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: billh@tierra.ucsd.edu, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, linux-aio@kvack.org
+In-Reply-To: <20011219190716.A26007@burn.ucsd.edu> <20011219224717.A3682@redhat.com> <20011219.213910.15269313.davem@redhat.com>
+In-Reply-To: <20011219.213910.15269313.davem@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-ID: <WHITEnRMWuLn5U9T3TG00000294@white.pocketinet.com>
-X-OriginalArrivalTime: 20 Dec 2001 07:31:09.0032 (UTC) FILETIME=[4AD5FE80:01C18928]
+Message-Id: <E16GxcH-0001bB-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 19 December 2001 02:29 pm, Willem Riede wrote:
-> Folks,
->
-> Being the maintainer of the driver for Onstream tape drives (osst)
-> and wanting to stay abreast with the kernel evolution, I've been
-> reading up on some of the changes that are being made to the scsi
-> sub-system in the 2.5.x kernel series, and that has got me
-> thinking...
->
-> I've never really understood why there are separate high level
-> drivers for tape drives -- or cdroms for that matter (other than "it
-> just happened that way").
->
-> Also, I find the fact that the user needs to tell the kernel at boot
-> time whether (s)he is going to use ide-scsi or not awkward. You
-> should be able to point any appropriate driver to a device by loading
-> the corresponding module (and maybe tell the module specifically not
-> to touch some compatible device, but preferably just gracefully
-> shared and locked (think sg)).
->
-> I'm not alone here, quoting Linus from the Scheduler thread:
->    'And even more important than performance is being able to read
-> and write to CD-RW disks without having to know about things like
-> "ide-scsi" etc, and do it sanely over different bus architectures
-> etc.'
+On December 20, 2001 06:39 am, David S. Miller wrote:
+>    From: Benjamin LaHaise <bcrl@redhat.com>
+>    Date: Wed, 19 Dec 2001 22:47:17 -0500
+>    An X server that doesn't have to make a syscall to find out that
+>    more data has arrived?
+> 
+> Who really needs this kind of performance improvement?  Like anyone
+> really cares if their window gets the keyboard focus or a pixel over a
+> AF_UNIX socket a few nanoseconds faster.  How many people do you think
+> believe they have unacceptable X performance right now and that
+> select()/poll() syscalls overhead is the cause?  Please get real.
 
+I care, I always like faster graphics.
 
-Am I alone in knowing that, at least as of 2.4.9 (the earliest I'm 
-really sure I used it on) through 2.4.16, you DON'T need any weird 
-boot-time switches?
-Simply DO NOT compile in the IDE CD-ROM drive, compile in SCSI CD-ROM 
-and SCSI Generic support, and voila, fully functional ATAPI CD writer
-this even works on my IDE DVD drive
-to read from em, I just use /dev/scd#
-I am using NO boot time flags, including ide-scsi
+> People who want graphics performance are not pushing their data
+> through X over a filedescriptor, they are either using direct
+> rendering in the app itself (ala OpenGL) or they are using shared
+> memory for the bulk of the data (ala Xshm or Xv extensions).
+
+You're probably overgeneralizing.  Actually, I run games on my server and 
+display the graphics on my laptop.  It works.  I'd be happy if it was faster.
+
+I don't see right off how AIO would make that happen though.  Ben, could you 
+please enlighten me, what would be the mechanism?  Are other OSes doing X 
+with AIO?
+
+--
+Daniel
+

@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbUL0PXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261901AbUL0P03@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261906AbUL0PXn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 10:23:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbUL0PXn
+	id S261901AbUL0P03 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 10:26:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbUL0P03
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 10:23:43 -0500
-Received: from sonolo.xs4all.nl ([80.126.206.91]:54028 "EHLO sendmail.metro.cx")
-	by vger.kernel.org with ESMTP id S261906AbUL0PXU (ORCPT
+	Mon, 27 Dec 2004 10:26:29 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:52952 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S261901AbUL0PZe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 10:23:20 -0500
-Date: Mon, 27 Dec 2004 16:20:54 +0100
-From: "K.F.J. Martens" <kmartens@sonologic.nl>
-To: linux-mtd@lists.infradead.org
-Cc: dwmw2@redhat.com, trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: [PATCH] Bug in 2.6.10 mtd driver for physmem mapped flash chips
-Message-ID: <20041227152054.GA14835@metro.cx>
+	Mon, 27 Dec 2004 10:25:34 -0500
+Date: Mon, 27 Dec 2004 16:25:34 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Chen Bin <binch@mobilesoft.com.cn>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 802.11 in kernel
+Message-ID: <20041227152534.GA17564@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Chen Bin <binch@mobilesoft.com.cn>, linux-kernel@vger.kernel.org
+References: <20041227043341.385331A61C@mail.mobilesoft.com.cn> <20041227121021.GB17127@outpost.ds9a.nl> <000901c4ec1c$036ab220$6464a8c0@ccnuc772f52584>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-PGP-Key: http://www.metro.cx/pubkey-gmc.asc
-X-Helo-Milter-Helo: dave.dh.sono
-X-Helo-Milter-Hostname: dave.dh.sono
-X-Helo-Milter-Ip: 10.1.2.5
+In-Reply-To: <000901c4ec1c$036ab220$6464a8c0@ccnuc772f52584>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+http://oss.sgi.com/projects/netdev/archive/
 
-The patch below fixes a small but fatal bug in the code that handles
-non-buswidth-aligned writes. The problem is that the code used the same
-index in both map_word and buf, therefore putting the wrong words in the
-map_word that partially contains old data and partially contains new
-data. The result: corrupt data is being written.
-
-Signed-off-by: Koen Martens <kmartens@sonologic.nl>
-
---- linux-2.6.10/include/linux/mtd/map.h        2004-12-24 22:34:31.000000000 +0100
-+++ linux-2.6.10-gmc/include/linux/mtd/map.h    2004-12-27 15:59:02.631211329 +0100
-@@ -322,7 +322,7 @@ static inline map_word map_word_load_par
-                        bitpos = (map_bankwidth(map)-1-i)*8;
- #endif
-                        orig.x[0] &= ~(0xff << bitpos);
--                       orig.x[0] |= buf[i] << bitpos;
-+                       orig.x[0] |= buf[i-start] << bitpos;
-                }
-        }
-        return orig;
-
+On Mon, Dec 27, 2004 at 09:57:33PM +0800, Chen Bin wrote:
+> Can you tell me how to get the archive of netdev@oss.sgi.com ?
+> 
+> Thank you very much!
+> 
+> Chen
+> ----- Original Message ----- 
+> From: "bert hubert" <ahu@ds9a.nl>
+> To: "Binary Chen" <binch@mobilesoft.com.cn>
+> Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+> Sent: Monday, December 27, 2004 8:10 PM
+> Subject: Re: 802.11 in kernel
+> 
+> 
+> > On Mon, Dec 27, 2004 at 12:19:17PM +0800, Binary Chen wrote:
+> > > Is 802.11 protocol stack available in current Linux kernel? Or any free stack for Linux?
+> > 
+> > Work is being done, you can read about this on the archive of
+> > netdev@oss.sgi.com
+> > 
+> > -- 
+> > http://www.PowerDNS.com      Open source, database driven DNS Software 
+> > http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
 -- 
-K.F.J. Martens, Sonologic, http://www.sonologic.nl/
-Networking, embedded systems, unix expertise, artificial intelligence.
-Public PGP key: http://www.metro.cx/pubkey-gmc.asc
-Wondering about the funny attachment your mail program
-can't read? Visit http://www.openpgp.org/
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

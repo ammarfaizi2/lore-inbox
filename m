@@ -1,65 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265898AbTAJSjd>; Fri, 10 Jan 2003 13:39:33 -0500
+	id <S265998AbTAJSek>; Fri, 10 Jan 2003 13:34:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265895AbTAJSaS>; Fri, 10 Jan 2003 13:30:18 -0500
-Received: from [193.158.237.250] ([193.158.237.250]:17801 "EHLO
-	mail.intergenia.de") by vger.kernel.org with ESMTP
-	id <S265736AbTAJS31>; Fri, 10 Jan 2003 13:29:27 -0500
-Date: Fri, 10 Jan 2003 19:38:09 +0100
-Message-Id: <200301101838.h0AIc9M05678@mail.intergenia.de>
-To: <1042192419.1415.49.camel@cast2.alcatel.ch>
-From: Hugh Dickins <hugh@veritas.com>
-Subject: Re: [PATCH 2.5] speedup kallsyms_lookup [rescued]
-CC: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+	id <S266043AbTAJSd0>; Fri, 10 Jan 2003 13:33:26 -0500
+Received: from users.linvision.com ([62.58.92.114]:33160 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S265998AbTAJSdK>; Fri, 10 Jan 2003 13:33:10 -0500
+Date: Fri, 10 Jan 2003 19:41:45 +0100
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Richard Stallman <rms@gnu.org>
+Cc: jalvo@mbay.net, linux-kernel@vger.kernel.org
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+Message-ID: <20030110194145.A16712@bitwizard.nl>
+References: <E18WB8R-0004k9-00@fencepost.gnu.org> <010101c2b786$794d87a0$0200a8c0@wsl3> <nbdq1vo9enjh9c6gnh68mpg0ebt7n22fhi@4ax.com> <E18WvqM-0000U7-00@fencepost.gnu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E18WvqM-0000U7-00@fencepost.gnu.org>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [please cc...you know why]
+On Fri, Jan 10, 2003 at 04:52:50AM -0500, Richard Stallman wrote:
+>      If there was an ATT/Linux and an Intel/Linux,
+>     having a GNU/Linux would make some sense... but that is not the way it
+>     is. GNU/Linux is singular, so Linux makes a reasonable contraction.
 > 
-> a patch to speed up the kallsyms_lookup() function while still doing
-> compression. 
-> - make 4 sections: addresses, lens, stem, strings
-> - only strncpy() when needed
-> - no strlen() at all (only in the script)
-> - save space we lose for len table by not making strings zero terminated
+> It would be reasonable, if not for the fact that it gives the wrong
+> idea of who developed the system and--above all--why.
 
-First impression is that it has good ideas, but seems inelegant
-(always easy to make that judgment on others' code! ignore me)
-and misses the main point.
+Then -==YOU==- are completely mistaken about why -==I==- contributed
+to Linux (the kernel & the system). 
 
-In earlier mail, Andi highlighted the performance criticality of top
-reading /proc/<pid>/wchan.  I think we have to decide which way to
-jump on that: either withdraw that functionality as too expensive,
-and minimize the table size and code stupidity (all those strncpy's of
-nearly 127! include/asm-i386/string.h strncpy seems in the wrong there);
-or speed kallsyms_lookup as much as possible (binary chop or whatever
-algorithm to locate symbol from address).  The current linear search
-through 6000(?) addresses is not nice, but of course the strncpy is
-making it much worse.
+			Roger. 
 
-I didn't reply to that part of Andi's mail, not because I thought it
-irrelevant, quite the reverse; but because I didn't have an opinion
-which way to go, and hoped someone else would chime in.  I don't
-see how to proceed without deciding that.  CC'd rml since I believe
-he fathered /proc/<pid>/wchan.  Now, I'm inclined to say that anyone
-worried about memory occupancy just shouldn't switch CONFIG_KALLSYMS
-on, so it's speed we should aim for here.
-
-If maximizing speed, then obviously the values should be sorted by
-value (as now, unlike in my patch), and maybe we forget all about
-stem compression?  If minimizing memory, then a combination of your
-patch and mine?
-
-I hope I can leave this discussion to others: I just wanted to get
-my symbols printing out right, and noticed the current stem compression
-unnecessarily weak there; but I'm no expert on suitable algorithms.
-
-Hugh
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* The Worlds Ecosystem is a stable system. Stable systems may experience *
+* excursions from the stable situation. We are currently in such an      * 
+* excursion: The stable situation does not include humans. ***************

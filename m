@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273115AbRIRRxm>; Tue, 18 Sep 2001 13:53:42 -0400
+	id <S272449AbRIRSPf>; Tue, 18 Sep 2001 14:15:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273121AbRIRRxc>; Tue, 18 Sep 2001 13:53:32 -0400
-Received: from gte1-22.ce.ftel.net ([206.24.95.226]:6030 "EHLO spinics.net")
-	by vger.kernel.org with ESMTP id <S273115AbRIRRxR>;
-	Tue, 18 Sep 2001 13:53:17 -0400
-Date: Tue, 18 Sep 2001 10:53:27 -0700
-Message-Id: <200109181753.f8IHrRG22899@spinics.net>
-From: spamtrap@spinics.net
-Subject: Re: 2.4.9-ac10 hangs on CDROM read error
-In-Reply-To: <1000833035.29346.11.camel@nomade>
-Organization: S.P.C.A.A.
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+	id <S273131AbRIRSPZ>; Tue, 18 Sep 2001 14:15:25 -0400
+Received: from 63-151-64-156.hsacorp.net ([63.151.64.156]:50701 "EHLO
+	boojiboy.eorbit.net") by vger.kernel.org with ESMTP
+	id <S272449AbRIRSPT>; Tue, 18 Sep 2001 14:15:19 -0400
+From: chris@boojiboy.eorbit.net
+Message-Id: <200109181912.MAA11723@boojiboy.eorbit.net>
+Subject: pci-pc.c build compiler warnings
+To: linux-kernel@vger.kernel.org
+Date: Tue, 18 Sep 2001 12:12:40 -0700 (PDT)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xavier Bestel  <xavier.bestel@free.fr> wrote:
+Hello,
 
->I have an ABit VP6, CDRW as hdc and DVD as hdd (VIA vt82c686b IDE
->driver), with SCSI emulation on top, and when I read either:
->
->- a DVD with a read error in the DVD drive (UDF mounted, ripping)
->
->- a CDR with a read error in the CDRW drive (ISO mounted)
->
->the system hangs - no ping, no sysrq, nothing. no log.
->
->I haven't tried all combinations (I don't like that). It seems like a
->generic IDE CDROM driver bug, and there since several versions.
+building 2.4.9-ac10 (it happened in earlier builds too)
+I get these messages at the pci-pc.c step:
 
-I had a freeze when I tried to mount a music CD.  Different chipset
-though.
+{standard input}: Assembler messages:
+{standard input}: 1062: Warning: indirect lcall without '*'
+{standard input}: 1147: Warning: indirect lcall without '*'
+{standard input}: 1232: Warning: indirect lcall without '*'
+{standard input}: 1306: Warning: indirect lcall without '*'
+{standard input}: 1317: Warning: indirect lcall without '*'
+{standard input}: 1328: Warning: indirect lcall without '*'
+{standard input}: 1405: Warning: indirect lcall without '*'
+{standard input}: 1417: Warning: indirect lcall without '*'
+{standard input}: 1429: Warning: indirect lcall without '*'
+{standard input}: 1898: Warning: indirect lcall without '*'
+{standard input}: 1991: Warning: indirect lcall without '*'
 
 
+--Chris

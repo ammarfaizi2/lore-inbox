@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262323AbTKNJ4O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 04:56:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbTKNJ4O
+	id S262331AbTKNKQp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 05:16:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbTKNKQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 04:56:14 -0500
-Received: from mail-05.iinet.net.au ([203.59.3.37]:41359 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262323AbTKNJ4M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 04:56:12 -0500
-Message-ID: <3FB4A6B7.5040306@cyberone.com.au>
-Date: Fri, 14 Nov 2003 20:56:07 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Egger <degger@fhm.edu>
-CC: Larry McVoy <lm@bitmover.com>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: kernel.bkbits.net off the air
-References: <fa.eto0cvm.1v20528@ifi.uio.no>	 <200311112021.34631.andrew@walrond.org>	 <20031111235215.GA22314@work.bitmover.com>	 <200311131010.27315.andrew@walrond.org>	 <20031113162712.GA2462@work.bitmover.com> <1068766365.15965.228.camel@sonja>
-In-Reply-To: <1068766365.15965.228.camel@sonja>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 14 Nov 2003 05:16:45 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:9104 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S262319AbTKNKQn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 05:16:43 -0500
+Date: Fri, 14 Nov 2003 11:16:47 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Neil Brown <neilb@cse.unsw.edu.au>, Daniel Gryniewicz <dang@fprintf.net>
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: [RFCI] How best to partition MD/raid devices in 2.6
+Message-ID: <20031114101647.GJ32211@marowsky-bree.de>
+References: <16308.18387.142415.469027@notabene.cse.unsw.edu.au> <1068787304.4157.8.camel@localhost> <16308.26754.867801.131463@notabene.cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <16308.26754.867801.131463@notabene.cse.unsw.edu.au>
+User-Agent: Mutt/1.4.1i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2003-11-14T16:30:42,
+   Neil Brown <neilb@cse.unsw.edu.au> said:
+
+> There are issues with the raid superblock but assuming they can be
+> solved, I want partitioning to work easily.
+> 
+> Can LVM work happily with 'legacy' partitioning information?
+
+I'd really suggest to run DM (either LVM2 or EVMS2) on top of md
+instead. It's much more flexible; I don't see any benefit in 'old style'
+partition information, which has all sorts of problems - ie,
+non-transactional updates (_why_ were you running raid again? ;), static
+as they can't be modified during runtime etc.
 
 
-Daniel Egger wrote:
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
->Am Don, den 13.11.2003 schrieb Larry McVoy um 17:27:
->
->
->>I suppose it sounds like we don't want to give out more free engineering
->>but let's put things into perspective.  The CVS server has about 6 users.
->>
->
->I really do believe you about the amount of users. That's probably
->because CVS sucks rocks and everyone complaining about it doesn't make
->it better. Shut it down and we'll all have a merrier live.
->
->What really makes me mad though is that there's no permanent way to
->retrieve and update current kernels at the moment for those who don't
->want or cannot use BK.
->
-
-Actually, at http://www.kernel.org/ there is a link to daily snapshots.
-There are also changesets generated every couple of hours at the "C" link
-at the right of the page.
-
-Even if Linus doesn't release as often (doesn't he? I don't know), this
-is surely much better than pre BK. Maybe I didn't understand you right?
-
-Best regards,
-Nick
-
+-- 
+High Availability & Clustering	      \ ever tried. ever failed. no matter.
+SUSE Labs			      | try again. fail again. fail better.
+Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
 

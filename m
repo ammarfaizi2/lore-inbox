@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269239AbUIYE55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269240AbUIYF0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269239AbUIYE55 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 00:57:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269240AbUIYE55
+	id S269240AbUIYF0H (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 01:26:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269242AbUIYF0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 00:57:57 -0400
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:12477 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269239AbUIYE5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 00:57:55 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: [BK] Changing driver core/sysfs/kobject symbol exports to GPL only
-Date: Fri, 24 Sep 2004 23:57:50 -0500
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, "" <greg@kroah.com>
-References: <Pine.LNX.4.50.0409241202110.30766-200000@monsoon.he.net> <200409242324.38923.dtor_core@ameritech.net> <Pine.LNX.4.50.0409242133480.19236-100000@monsoon.he.net>
-In-Reply-To: <Pine.LNX.4.50.0409242133480.19236-100000@monsoon.he.net>
+	Sat, 25 Sep 2004 01:26:07 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:60844 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S269240AbUIYF0D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 01:26:03 -0400
+Date: Fri, 24 Sep 2004 22:25:35 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Ulrich Drepper <drepper@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [time] add support for CLOCK_THREAD_CPUTIME_ID and
+ CLOCK_PROCESS_CPUTIME_ID
+In-Reply-To: <4154F349.1090408@redhat.com>
+Message-ID: <Pine.LNX.4.58.0409242214140.12816@schroedinger.engr.sgi.com>
+References: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com>
+ <Pine.LNX.4.58.0409240508560.5706@schroedinger.engr.sgi.com>
+ <4154F349.1090408@redhat.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409242357.50977.dtor_core@ameritech.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 September 2004 11:36 pm, Patrick Mochel wrote:
-> 
-> On Fri, 24 Sep 2004, Dmitry Torokhov wrote:
-> 
-> > On Friday 24 September 2004 10:42 pm, Patrick Mochel wrote:
-> > > What's life without a little controversey once in a while?
-> > >
-> > > The attached patch and referenced BK tree changes all the symbol exports
-> > > in the driver core, sysfs, and the kobject core to EXPORT_SYMBOL_GPL [1].
-> >
-> > May I ask to keep class_simple and maybe platform_device_register_simple
-> > available to non-GPL modules. These functions offer limited and documented
-> > semantic and while it is impossible to build entire new subsystem around
-> > them it will allow non-GPL stuff still be somewhat integrated - standard
-> > hotplug mostly I think...
-> 
-> I didn't touch class_simple.
+On Fri, 24 Sep 2004, Ulrich Drepper wrote:
 
-OOps, my bad. I thought I've seen it there... Must be my tired eyes playing
-tricks on me.
+> This is pretty useless.  Why would you need kernel support for this, it
+> just measures realtime.
 
->                              Are there really external modules that use 
-> platform_device_register_simple(), or you speaking hypothetically?
+Glibc cannot do that reliably on an SMP system with its HP_TIMING
+technique. Even systems with "synchronized" CPU timers typically have an
+offset between the timers of different CPUs.
 
-Since I just recently added it (for serio sysfs benefits mostly) I highly
-doubt that anyone else uses it. On the other hand it is very very limited
-and may be suited for "wierd" cases that do not use existing subsystems.
-But then I doubt that any non-GPL would do anything besides PCI/USB/1394
-Now that I gave it some more thought I am sure that
-platform_device_register_simple can be safely switched to EXPORT_SYMBOL_GPL
+> We have an implementation of the CPU time in glibc which can easily be
+> changed to support clocks of this precision if there are no usable
+> timestamp counters (which is what is currently used).
 
-Sorry for the noise.
- 
--- 
-Dmitry
+Sorry it cannot be easily changed as I have repeatedly experienced.
+I have posted lots of patches to address that issue for SMP systems which
+were all rejected and you got insulted by my attempt to discuss the
+problem and insisted that it was "solved".
+
+> And all this is not really what was really meant by "CPU time" in the
+> POSIX spec.  We hijacked this symbol, maybe incorrectly so.  What is
+> really meant is how much time a process/thread actually _uses_ the CPU
+> (hence the name).  I.e., the information contained in struct rusage.
+>
+> For this I would love to get kernel support and we hopefully have soon a
+> patch for this.
+
+Yes this may be easily addressed in the kernel. clock_gettime belongs
+completely into the kernel. Could we get glibc to no longer handle clocks
+on its own? The glibc code has always been horribly broken on SMP systems
+and I fear that lots of software now assumes that CLOCK_PROCESS_CPUTIME_ID
+gets you the runtime of the current process. The patch would allow this
+software to run reliably on an SMP system.

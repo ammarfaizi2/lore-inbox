@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268680AbUGXPkg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268682AbUGXPon@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268680AbUGXPkg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 11:40:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268681AbUGXPkf
+	id S268682AbUGXPon (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 11:44:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268683AbUGXPon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 11:40:35 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:37004 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268680AbUGXPke (ORCPT
+	Sat, 24 Jul 2004 11:44:43 -0400
+Received: from ozlabs.org ([203.10.76.45]:30411 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268682AbUGXPol (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 11:40:34 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [RFC] Patch for isolated scheduler domains
-Date: Sat, 24 Jul 2004 11:40:28 -0400
-User-Agent: KMail/1.6.2
-Cc: Dimitri Sivanich <sivanich@sgi.com>, linux-kernel@vger.kernel.org,
-       John Hawkes <hawkes@sgi.com>
-References: <20040722164126.GB13189@sgi.com> <200407231603.09055.jbarnes@engr.sgi.com> <4101F2ED.3050208@yahoo.com.au>
-In-Reply-To: <4101F2ED.3050208@yahoo.com.au>
-MIME-Version: 1.0
+	Sat, 24 Jul 2004 11:44:41 -0400
+Date: Sun, 25 Jul 2004 01:39:57 +1000
+From: Anton Blanchard <anton@samba.org>
+To: akpm@osdl.org
+Cc: paulus@samba.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix ppc64 max_pfn issue
+Message-ID: <20040724153957.GK4556@krispykreme>
+References: <20040724044720.GF4556@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407241140.29453.jbarnes@engr.sgi.com>
+In-Reply-To: <20040724044720.GF4556@krispykreme>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, July 24, 2004 1:26 am, Nick Piggin wrote:
-> You might have the theoretical problem of ending up with more than
-> one disjoint top level domain (ie. no overlap, basically partitioning
-> the CPUs).
+ 
+> I noticed excessive time in the pid hash functions on a ppc64 box. It
+> turns out the pid hash is being sized way too small, eg on a 16GB box:
 
-Yes, we'll have several disjoint per-node cpu spans for a large system, but 
-nearby nodes *will* overlap with more distant nodes than any given node, so I 
-think we're covered, unless I'm misunderstanding something.
+It turns out in the non NUMA case, max_low_pfn doesnt get initialised
+until init_bootmem so we need to move initialisation of max_pfn below
+it.
 
-> No doubt you could come up with something provably correct, however
-> it might just be good enough to examine the end result and check that
-> it is good. At least while you test different configurations.
+Signed-off-by: Anton Blanchard <anton@samba.org>
 
-Right.  And ultimately, I think we'll want the hierarchy I mentioned in the 
-comments, that'll cover us a little better I think.
-
-Jesse
+diff -u linux-2.5/arch/ppc64/mm/init.c foobar2/arch/ppc64/mm/init.c
+--- linux-2.5/arch/ppc64/mm/init.c	2004-07-25 00:40:04.263577944 +1000
++++ foobar2/arch/ppc64/mm/init.c	2004-07-25 01:32:48.030807187 +1000
+@@ -533,8 +533,6 @@
+ 	unsigned long total_pages = lmb_end_of_DRAM() >> PAGE_SHIFT;
+ 	int boot_mapsize;
+ 
+-        max_pfn = max_low_pfn;
+-
+ 	/*
+ 	 * Find an area to use for the bootmem bitmap.  Calculate the size of
+ 	 * bitmap required as (Total Memory) / PAGE_SIZE / BITS_PER_BYTE.
+@@ -547,6 +545,8 @@
+ 
+ 	boot_mapsize = init_bootmem(start >> PAGE_SHIFT, total_pages);
+ 
++        max_pfn = max_low_pfn;
++
+ 	/* add all physical memory to the bootmem map. Also find the first */
+ 	for (i=0; i < lmb.memory.cnt; i++) {
+ 		unsigned long physbase, size;

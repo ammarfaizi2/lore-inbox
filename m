@@ -1,78 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136602AbRAHKNR>; Mon, 8 Jan 2001 05:13:17 -0500
+	id <S135433AbRAHKUr>; Mon, 8 Jan 2001 05:20:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136540AbRAHKNH>; Mon, 8 Jan 2001 05:13:07 -0500
-Received: from smtp1.mail.yahoo.com ([128.11.69.60]:45319 "HELO
-	smtp1.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S136602AbRAHKMt>; Mon, 8 Jan 2001 05:12:49 -0500
-X-Apparently-From: <p?gortmaker@yahoo.com>
-Message-ID: <3A598F88.17EB535@yahoo.com>
-Date: Mon, 08 Jan 2001 04:59:36 -0500
-From: Paul Gortmaker <p_gortmaker@yahoo.com>
-X-Mailer: Mozilla 3.04 (X11; I; Linux 2.4.0 i486)
+	id <S136540AbRAHKUh>; Mon, 8 Jan 2001 05:20:37 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:31973 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S135433AbRAHKUX>; Mon, 8 Jan 2001 05:20:23 -0500
+Message-ID: <3A5995CF.7AEFFBBD@uow.edu.au>
+Date: Mon, 08 Jan 2001 21:26:23 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: BJerrick@easystreet.com, linux-kernel@vger.kernel.org
-Subject: Re: 500 ms offset in i386 Real Time Clock setting
-In-Reply-To: <UTC200101071759.SAA146769.aeb@texel.cwi.nl>
+To: Tim Sailer <sailer@bnl.gov>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Network Performance?
+In-Reply-To: <20010104013340.A20552@bnl.gov>, <20010104013340.A20552@bnl.gov>; <20010105140021.A2016@bnl.gov> <3A56FD6C.93D09ABB@uow.edu.au>,
+		<3A56FD6C.93D09ABB@uow.edu.au>; from andrewm@uow.edu.au on Sat, Jan 06, 2001 at 10:11:40PM +1100 <20010107235123.B6028@bnl.gov>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
+Tim Sailer wrote:
 > 
-> I still haven't looked at things, but two points:
-> (i) is the behaviour constant on all architectures?
+> On Sat, Jan 06, 2001 at 10:11:40PM +1100, Andrew Morton wrote:
+> > this issue was discussed on the netdev mailing list a few weeks
+> > back.
+> >
+> > It's very unfortunate that the web archives of netdev
+> > stopped working several months ago and there now appears
+> > to be no web archive of netdev@oss.sgi.com.
+> >
+> > Go to http://oss.sgi.com/projects/netdev/archive/ and
+> > pull down the November and December archives.
+> >
+> > The subject was "linux to solaris tcp issues on WAN".
+> >
+> > The conclusion was "The problem is also fixed with
+> > 2.4.0-test12pre3". Dunno about kernel 2.2 though.
+> 
+> Well, on Friday, we pulled down the 'official' 2.4.0, and had the
+> same experience... nothing better. Should I get the -test12-pre3 kernel
+> and try that one specifically?
 
-As it is a property of the mc146818, it should be constant across all 
-arch that use drivers/char/rtc.c
+I doubt if that would help.
 
-Sparc uses drivers/sbus/char/rtc.c which is for Mostek 4802.  No comment
-mentions a 500ms delay there - or in the file arch/sparc/kernel/time.c 
-*However* the test for the 500ms is still in the latter (in set_rtc_mmss).
+I claim no expertise in this area, but perhaps we can
+get some protocol gurus interested.
 
-> (ii) instead of waiting, isn't it much easier to redefine
-> what it means to access rtc?
+To recap:
 
-Yes, and possibly what I had in mind some 5 years ago (as I'm sure I would
-have looked at set_rtc_mmss at the time...)
+You're sending and receiving FTP/TCP/IP4 to Solaris and AIX hosts
+You have a 1000kbyte window size
+You have an 80 megabit/sec pipe.
+You're getting 1.8 megabits/sec.
 
-> (If you read a certain value then on average you are halfway
-> that second; if you write a certain value you are precisely
-> halfway that second. Maybe no delays are needed or desired.)
+What is the round-trip time on the WAN?
 
-Calling it a "feature" is clearly easier - no code patched, no flag day
-for new behaviour, and no need for user space utils to have to do a 
-uname() to see if a 500ms delay is implemented.  The more I think about
-it, the better I like this option.
+Packet loss?
 
-Paul.
+Does the problem occur in both directions?
 
---- drivers/char/rtc.c~	Sat Jan  6 05:40:24 2001
-+++ drivers/char/rtc.c	Mon Jan  8 04:57:59 2001
-@@ -20,6 +20,14 @@
-  *	interrupts since the last read in the remaining high bytes. The 
-  *	/dev/rtc interface can also be used with the select(2) call.
-  *
-+ *	The driver also supports ioctls for reading and setting the
-+ *	date/time stored in the RTC in a SMP safe fashion (used by
-+ *	the [hw]clock program).  Note that for the mc146818 RTC, the
-+ *	second for which the RTC is set is half over, by definition.
-+ *	Thus your application may require a 0.5 second delay before
-+ *	calling this driver to set the RTC time if exact synchronization
-+ *	is desired.
-+ *
-  *	This program is free software; you can redistribute it and/or
-  *	modify it under the terms of the GNU General Public License
-  *	as published by the Free Software Foundation; either version
+Are you _sure_ the window size is being set correctly? How
+is it being set?
 
+Are you able to generate TCP dumps when the problem is happening?
 
-
-
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
-
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,88 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263711AbUCVWea (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 17:34:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbUCVWe3
+	id S263724AbUCVWgS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 17:36:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263726AbUCVWgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 17:34:29 -0500
-Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:32649 "EHLO
-	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S263711AbUCVWe1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 17:34:27 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Thinkpad 560X w/ 160MB memory (2.4.24 kernel): many segfaults
-Date: Mon, 22 Mar 2004 22:34:24 +0000
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Message-Id: <E1B5Y00-0006HW-00@coll.ra.phy.cam.ac.uk>
+	Mon, 22 Mar 2004 17:36:18 -0500
+Received: from napo.bezeqint.net ([192.115.104.9]:7319 "EHLO napo.bezeqint.net")
+	by vger.kernel.org with ESMTP id S263724AbUCVWgL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 17:36:11 -0500
+Date: Tue, 23 Mar 2004 00:34:56 +0200
+From: Micha Feigin <michf@post.tau.ac.il>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: finding out the value of HZ from userspace
+Message-ID: <20040322223456.GB2549@luna.mooo.com>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+References: <20040311141703.GE3053@luna.mooo.com> <1079198671.4446.3.camel@laptop.fenrus.com> <4053624D.6080806@BitWagon.com>
+ <20040313193852.GC12292@devserv.devel.redhat.com> <40564A22.5000504@aurema.com> <20040316063331.GB23988@devserv.devel.redhat.com>
+	 <40578FDB.9060000@aurema.com> <20040320102241.GK2803@devserv.devel.redhat.com> <405C2AC0.70605@stesmi.com>
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <405C2AC0.70605@stesmi.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I 'upgraded' my IBM Thinkpad 560X laptop to 160MB of RAM: 32MB on the
-motherboard plus a 128MB EDO SODIMM.  Even though IBM says that the
-motherboard is certified only up to 96MB, it recognized the memory
-fine on boot.  Linux booted and noticed the 160MB without needing any
-kernel command line options.
+On Sat, Mar 20, 2004 at 12:28:00PM +0100, Stefan Smietanowski wrote:
+> >>>there is one. Nothing uses it
+> >>>(sysconf() provides this info)
+> >>
+> >>Seems to me that it would be fairly trivial to modify those programs 
+> >>(that should use this mechanism but don't) to use it?  So why should 
+> >>they be allowed to dictate kernel behaviour?
+> >
+> >
+> >quality of implementation; for example shell scripts that want to do
+> >echo 500 > /proc/sys/foo/bar/something_in_HZ
+> >...
+> >or /etc/sysctl.conf or ...
+> >
+> 
+> Then write a simple program already. How hard is it to write a program
+> that does a sysconf() and returns (as ascii of course) just the
+> value of HZ? Then do some trivial calculation off of that.
+> 
+> HZ=$(gethz)
+> 
+> If your 500 was 5 seconds, do
+> 
+> TIME=$[HZ*5]
+> echo $TIME > /proc/sys/foo/bar/something_in_HZ
+> 
 
-On the thinkpad mailing list (where I got the idea to upgrade) people
-mentioned that Win2K on a 560X can deal with the extra memory, but for
-Win9x one needs to change the video driver memory ranges (adding
-0xF0000000 to the standard values).  So I worried that X windows might
-have a similar problem.
+Will this be USER_HZ or kernel HZ?
+Someone earlier suggested it would be USER_HZ which would make it
+pointless.
 
-But everything worked fine at first, even X (I'm using XFree86 4.1.0).
-
-However, I soon found that many programs would segfault for no obvious
-reason.  For example, the galeon browser and emacs (in X windows) died
-on their own, whereas they almost never did before.  That seemed
-consistent with the worry about X.
-
-To check that it wasn't the memory module itself, I ran the BIOS
-memory test (which passed) and also memtest86+ (no errors on 4 passes,
-which was more than 2 hours of testing).
-
-For other reasons I was recompiling the kernel (2.4.24).  Various
-steps, all unrelated to X, failed as well: e.g. 'make menuconfig'.  To
-be sure that it wasn't due to X windows interacting badly with
-something else, I switched to single user and reran the compile.  Here
-are the last few lines of a resulting logfile for 'make menuconfig':
-
-  make -C scripts/lxdialog all
-  make[1]: Entering directory `/usr/src/linux-2.4.24/scripts/lxdialog'
-  gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -DLOCALE
-  -DCURSES_LOC="<ncurses.h>" -c -o checklist.o checklist.c
-  gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -DLOCALE
-  -DCURSES_LOC="<ncurses.h>" -c -o menubox.o menubox.c
-  gcc: Internal compiler error: program cc1 got fatal signal 11
-  make[1]: *** [menubox.o] Error 1
-  make[1]: Leaving directory `/usr/src/linux-2.4.24/scripts/lxdialog'
-  make: *** [menuconfig] Error 2
-
-I have the core file if it would be useful.  It doesn't help much
-because cc1 is compiled with optimization.  Here is what gdb says upon
-starting up with that core file:
-
-  Core was generated by `/usr/lib/gcc-lib/i386-linux/2.95.4/cc1
-  /tmp/ccoqJbGF.i -quiet -dumpbase menubox'.
-  Program terminated with signal 11, Segmentation fault.
-
-Once, make-kpkg (a Perl script) segfaulted; another time, 'sh'
-segfaulted.
-
-As a final control, I took out the 128MB module and replaced it with
-the original 64MB module.  The whole kernel compile worked fine and
-the machine is working perfectly, as it did before the upgrade.
-
-Could this issue be due to the kernel?  Perhaps the VM system is not
-adjusting everything it needs to for the new memory?  Any tests I can
-run to narrow it down?
-
-Perhaps useful specs on the machine:
-
-Model: 2640-70U
-CPU: Pentium-MMX 233MHz
-L1 : 16KB
-L2 : 256KB (although memtest86+ said unknown)
-Chipset: 430TX (I think)
-Kernel: 2.4.24
-
--Sanjoy
+> I mean, come on.
+> 
+> Then you include it in the default distro of choice so that
+> everybody can use it and there you are.
+> 
+> If someone doesn't have "gethz" then they can download it.
+> 
+> // Stefan
+> 

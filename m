@@ -1,80 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263943AbUGYMSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263893AbUGYNYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263943AbUGYMSO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 08:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263962AbUGYMSO
+	id S263893AbUGYNYj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 09:24:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263962AbUGYNYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 08:18:14 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:49068 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S263943AbUGYMSI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 08:18:08 -0400
-Date: Sun, 25 Jul 2004 14:18:05 +0200
-From: maximilian attems <janitor@sternwelten.at>
-To: support@comtrol.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch-kj] MIN/MAX removal drivers/char/rocket.c
-Message-ID: <20040725121805.GB1756@stro.at>
+	Sun, 25 Jul 2004 09:24:38 -0400
+Received: from irulan.endorphin.org ([212.13.208.107]:58884 "EHLO
+	irulan.endorphin.org") by vger.kernel.org with ESMTP
+	id S263893AbUGYNYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 09:24:35 -0400
+Subject: Re: [PATCH] Delete cryptoloop
+To: Jari Ruusu <jariruusu@users.sourceforge.net>
+Cc: James Morris <jmorris@redhat.com>, Christophe Saout <christophe@saout.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <41039CAC.965AB0AA@users.sourceforge.net>
+References: <Pine.LNX.4.58.0407211609230.19655@devserv.devel.redhat.com>
+	<1090672906.8587.66.camel@ghanima>
+	<41039CAC.965AB0AA@users.sourceforge.net>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature";
+	boundary="=-SkjHW6ZRuZx3FD4glJhG"
+Message-Id: <1090761870.10988.71.camel@ghanima>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040523i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 25 Jul 2004 15:24:30 +0200
+From: Fruhwirth Clemens <clemens-dated-1091625872.c783@endorphin.org>
+X-Delivery-Agent: TMDA/0.92 (Kauai King)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-SkjHW6ZRuZx3FD4glJhG
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Patch (against 2.6.7) removes unnecessary min/max macros and changes
-calls to use kernel.h macros instead.
+On Sun, 2004-07-25 at 13:42, Jari Ruusu wrote:
+> Fruhwirth Clemens wrote:
+> > Second, modern ciphers like Twofish || AES are designed to resist
+> > known-plaintext attacks. This is basically the FUD spread by Jari Rusuu=
+.
+>=20
+> Ciphers are good, but both cryptoloop and dm-crypt use ciphers in insecur=
+e
+> and exploitable way.
+>=20
+> This is not FUD. Fruhwirth, did you even try run the exploit code?
+>=20
+> http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D107719798631935&w=3D2
 
-patch applies cleanly to 2.6.8-rc2
+There is no use in running your code. It does not decipher any block
+without the proper key. Where is the exploit?=20
 
-From: michael.veeck at gmx.net (Michael Veeck)
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+Further the link you provide in the posting above is broken (as you
+already noticed). I tried at google cache, citeseer and the rest of
+Saarien's homepage. No success.=20
 
+If you have any idea where I can obtain the paper, I'd be interested in
+seeing the references for your claims.. But guessing from the apparent
+logic of your code, it seems to be identical to the weakness brought
+forward in the following paragraph of my original posting, which you've
+cut out of the quoting.
 
----
+> > - There is no suitable user space tool ready to use it. util-linux has
+> > been broken ever since. My patch key-trunc-fix patch has to be applied
+> > to make any use of losetup.
+>=20
+> Can you name implementation that your "key-truncated" version is compatib=
+le
+> with that existed _before_ your version appeared?. To my knowledge, that
+> key-truncated version is only compatible with itself, and there is no oth=
+er
+> version that does the same.
 
- linux-2.6.7-bk20-max/drivers/char/rocket.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+Actually there is a version: util-linux 2.12 official. But
+unfortunately, the official version truncates binary keys (at 0x00, 0x0a
+values), that's what my patch is for. cryptsetup handles keys the same
+way. So migration is easy, something which does not hold true for your
+strange util-linux patches. But you already know my critiques..
 
-diff -puN drivers/char/rocket.c~min-max-char_rocket drivers/char/rocket.c
---- linux-2.6.7-bk20/drivers/char/rocket.c~min-max-char_rocket	2004-07-11 14:58:48.000000000 +0200
-+++ linux-2.6.7-bk20-max/drivers/char/rocket.c	2004-07-11 14:58:48.000000000 +0200
-@@ -389,7 +389,7 @@ static void rp_do_transmit(struct r_port
- 	while (1) {
- 		if (tty->stopped || tty->hw_stopped)
- 			break;
--		c = MIN(info->xmit_fifo_room, MIN(info->xmit_cnt, XMIT_BUF_SIZE - info->xmit_tail));
-+		c = min(info->xmit_fifo_room, min(info->xmit_cnt, XMIT_BUF_SIZE - info->xmit_tail));
- 		if (c <= 0 || info->xmit_fifo_room <= 0)
- 			break;
- 		sOutStrW(sGetTxRxDataIO(cp), (unsigned short *) (info->xmit_buf + info->xmit_tail), c / 2);
-@@ -1662,7 +1662,7 @@ static int rp_write(struct tty_struct *t
- 	 *  into FIFO.  Use the write queue for temp storage.
-          */
- 	if (!tty->stopped && !tty->hw_stopped && info->xmit_cnt == 0 && info->xmit_fifo_room > 0) {
--		c = MIN(count, info->xmit_fifo_room);
-+		c = min(count, info->xmit_fifo_room);
- 		b = buf;
- 		if (from_user) {
- 			if (copy_from_user(info->xmit_buf, buf, c)) {
-@@ -1672,7 +1672,7 @@ static int rp_write(struct tty_struct *t
- 			if (info->tty == 0)
- 				goto end;
- 			b = info->xmit_buf;
--			c = MIN(c, info->xmit_fifo_room);
-+			c = min(c, info->xmit_fifo_room);
- 		}
- 
- 		/*  Push data into FIFO, 2 bytes at a time */
-@@ -1700,7 +1700,7 @@ static int rp_write(struct tty_struct *t
- 		if (info->tty == 0)	/*   Seemingly obligatory check... */
- 			goto end;
- 
--		c = MIN(count, MIN(XMIT_BUF_SIZE - info->xmit_cnt - 1, XMIT_BUF_SIZE - info->xmit_head));
-+		c = min(count, min(XMIT_BUF_SIZE - info->xmit_cnt - 1, XMIT_BUF_SIZE - info->xmit_head));
- 		if (c <= 0)
- 			break;
- 
+--=20
+Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
 
+--=-SkjHW6ZRuZx3FD4glJhG
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBA7SNW7sr9DEJLk4RAhQSAJ0ZvPPt+Q/o4hYJg7W6LmTZyvawXgCgheQd
+ixEKFpxhYFVgvt0A3oRtpG4=
+=Uw5v
+-----END PGP SIGNATURE-----
+
+--=-SkjHW6ZRuZx3FD4glJhG--

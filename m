@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266805AbUI0MZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266810AbUI0Maa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266805AbUI0MZT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 08:25:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266810AbUI0MZT
+	id S266810AbUI0Maa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 08:30:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266813AbUI0Maa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 08:25:19 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23786 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266805AbUI0MZJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 08:25:09 -0400
-Date: Mon, 27 Sep 2004 07:41:20 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Thomas Habets <thomas@habets.pp.se>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] oom_pardon, aka don't kill my xlock
-Message-ID: <20040927104120.GA30364@logos.cnet>
-References: <200409230123.30858.thomas@habets.pp.se> <20040923234520.GA7303@pclin040.win.tue.nl> <1096031971.9791.26.camel@localhost.localdomain> <200409242158.40054.thomas@habets.pp.se> <1096060549.10797.10.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1096060549.10797.10.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.5.1i
+	Mon, 27 Sep 2004 08:30:30 -0400
+Received: from mail.dif.dk ([193.138.115.101]:42962 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S266810AbUI0Ma1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 08:30:27 -0400
+Date: Mon, 27 Sep 2004 14:27:58 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Matthew Wilcox <willy@debian.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make make install install modules too
+In-Reply-To: <20040927113727.GQ16153@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.61.0409271413350.20693@jjulnx.backbone.dif.dk>
+References: <20040917170051.GU642@parcelfarce.linux.theplanet.co.uk>
+ <20040927072246.GA8613@mars.ravnborg.org> <20040927113727.GQ16153@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 24, 2004 at 10:15:51PM +0100, Alan Cox wrote:
-> On Gwe, 2004-09-24 at 20:58, Thomas Habets wrote:
-> > And also, I'd like to see how a misbehaving airline passenger could start to 
-> > gain weight not originally on the plane, causing the flight attendants to 
-> > start executing people because of OOF. And IIRC most airlines don't like 
-> > having women onboard who are way too pregnant, so no forking either.
+On Mon, 27 Sep 2004, Matthew Wilcox wrote:
+
+> Date: Mon, 27 Sep 2004 12:37:27 +0100
+> From: Matthew Wilcox <matthew@wil.cx>
+> To: Matthew Wilcox <willy@debian.org>, Linus Torvalds <torvalds@osdl.org>,
+>     Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+> Subject: Re: [PATCH] make make install install modules too
 > 
-> The zero over commit code makes sure that we have enough swap/memory for
-> fillable address space. It means the application will always be told
-> when it takes an action that it cannot do it, rather than finding out
-> later and being killed.
+> On Mon, Sep 27, 2004 at 09:22:46AM +0200, Sam Ravnborg wrote:
+> > On Fri, Sep 17, 2004 at 06:00:51PM +0100, Matthew Wilcox wrote:
+> > > 
+> > > I keep forgetting to run 'make modules_install' after make install.  Since
+> > > make now compiles modules too and there's no separate make modules step,
+> > > it seems to make sense that make install should also install modules.
+> > 
+> > No, we do not want to change such basic behaviour.
+> > So many poeple are used to current scheme with:
+> > make modules_install && make install
+> > 
+> > that it would't be worth breaking their ways of working.
+> 
+> Ehm, this wouldn't _break_ them.  They'd just end up installing modules
+> twice.
+> 
 
-BTW,I think a lot of applications do not gracefully handle -ENOMEM?
+And how about people who, for some reason, don't want the modules 
+installed?
+Sure, you can just copy the files you want by hand, which is what I do 
+personally, but I find it nice that installing the kernel image and 
+modules are two sepperate steps. If a user wants both done automagically, 
+then that user could just create a 2 line shell script.
 
-I suppose most of them just fail and bailout with -ENOMEM.
+Or how about leaving "make install" and "make modules_install" as is and 
+add a new target, say, "make install_all" or similar?
 
-No?
 
+--
+Jesper Juhl <juhl-lkml@dif.dk>

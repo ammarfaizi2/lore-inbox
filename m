@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263786AbUDVCzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUDVDIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263786AbUDVCzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 22:55:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263792AbUDVCzP
+	id S261724AbUDVDIK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 23:08:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263291AbUDVDIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 22:55:15 -0400
-Received: from hera.kernel.org ([63.209.29.2]:5592 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S263786AbUDVCzH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 22:55:07 -0400
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: The missing RAID level
-Date: Thu, 22 Apr 2004 02:54:51 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c67c5r$c0u$1@terminus.zytor.com>
-References: <045P8FJ12@server5.heliogroup.fr>
+	Wed, 21 Apr 2004 23:08:10 -0400
+Received: from fmr11.intel.com ([192.55.52.31]:41619 "EHLO
+	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261724AbUDVDIG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 23:08:06 -0400
+Subject: Re: Two problems after upgrade tto 2.4.26
+From: Len Brown <len.brown@intel.com>
+To: knobi@knobisoft.de
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F936B@hdsmsx403.hd.intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615F936B@hdsmsx403.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1082603280.16336.152.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1082602491 12319 63.209.29.3 (22 Apr 2004 02:54:51 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Thu, 22 Apr 2004 02:54:51 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 21 Apr 2004 23:08:00 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <045P8FJ12@server5.heliogroup.fr>
-By author:    Hubert Tonneau <hubert.tonneau@fullpliant.org>
-In newsgroup: linux.dev.kernel
+On Tue, 2004-04-20 at 07:09, Martin Knoblauch wrote:
+> >Hi,
+> >
+> >
+> >after upgrading 2.4.23->2.4.26 I am seeing/heariing two problems on
+> >my "HP Omnibookk 6100"":
+> >
+> >a) I am getting a lot of double hits when typing (juust see this
+> mmail.
+> >I am not correecting the errors on purpose :-) While I have some
+> >sttupid mistyping habits, double hits all over thhe place did not
+> >belong to them up to now.
+> >
 > 
-> So, one very interesting possibility would be to have an extra RAID level that
-> would do the following:
-> assuming that you connect 5+1 partitions, then you get 5 md partitions, not a
-> single one, with the following properties:
-> . any read to mdX goes straight forward to reading the underlying partition.
-> . any write goes staight forward to writting the underlying partition, but also
->   updates the parity on the extra partition.
+>  Short update. Problem a) seems to be acpi-related. When booting with
+> "acpi=off", the keyboard behaves OK. 
 > 
+>  Not only the keyboard is affected, but also the mouse. I just did not
+> see it immediatelly, but with acpi enabled I am loosing pointer
+> events.
+> 
+> >b)) Before the upgrade the notebook fan was rarely running at full
+> >speed. AAnd if, only forr short ttimes. Now it kicks in frequeently
+> and
+> >for up to 15 minutes.
+> >
 
-You have just described RAID 4.
+Does /proc/interrupts show any acpi events?
+Did it in 2.4.23?
 
-	-hpa
+

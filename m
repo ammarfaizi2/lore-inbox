@@ -1,18 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137190AbRATJio>; Sat, 20 Jan 2001 04:38:44 -0500
+	id <S143363AbRATJs6>; Sat, 20 Jan 2001 04:48:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137212AbRATJie>; Sat, 20 Jan 2001 04:38:34 -0500
-Received: from mailout3-1.nyroc.rr.com ([24.92.226.168]:24569 "EHLO
-	mailout3-0.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S137190AbRATJiY>; Sat, 20 Jan 2001 04:38:24 -0500
-Message-ID: <01da01c082c5$2c155e60$0701a8c0@morph>
-From: "Dan Maas" <dmaas@dcine.com>
-To: "Michael Lindner" <mikel@att.net>, "Chris Wedgwood" <cw@f00f.org>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <fa.nc2eokv.1dj8r80@ifi.uio.no> <fa.dcei62v.1s5scos@ifi.uio.no> <015e01c082ac$4bf9c5e0$0701a8c0@morph> <3A69361F.EBBE76AA@att.net> <20010120200727.A1069@metastasis.f00f.org> <3A694357.1A7C6AAC@att.net>
-Subject: Re: PROBLEM: select() on TCP socket sleeps for 1 tick even if data  available
-Date: Sat, 20 Jan 2001 04:41:32 -0500
+	id <S143399AbRATJst>; Sat, 20 Jan 2001 04:48:49 -0500
+Received: from mail.touchofmadness.com ([208.248.233.6]:270 "EHLO
+	touchofmadness.com") by vger.kernel.org with ESMTP
+	id <S143363AbRATJsq>; Sat, 20 Jan 2001 04:48:46 -0500
+Message-ID: <00e901c082c6$1bb276b0$0500a8c0@nyx>
+From: "Aaron Tiensivu" <mojomofo@touchofmadness.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <linux-ppp@vger.kernel.org>, <paulus@linuxcare.com>
+Subject: [2.4.1-p8 More MPPP oops]
+Date: Sat, 20 Jan 2001 04:48:09 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -24,37 +23,159 @@ X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What kernel have you been using? I have reproduced your problem on a
-standard 2.2.18 kernel (elapsed time ~10sec). However, using a 2.4.0 kernel
-with HZ=1000, I see a 100x improvement (elapsed time ~0.1 sec; note that
-increasing HZ alone should only give a 10x improvement). Perhaps the
-scheduler was fixed in 2.4.0?
+Always the glutton for punishment, I did it again tonite. A different oops
+now.
+See my last message for prior info.
 
-2.2.18 very definitely has some scheduling anomalies. In your benchmark,
-select() or poll() takes 10ms, as can be observed with strace -T. Skipping
-the select() and blocking in read() gives the same behavior. This leads me
-to believe the scheduler is at fault, and not select(), poll(), or read().
+ksymoops 2.3.7 on i586 2.4.1-pre8.  Options used
+     -v /usr/src/linux/vmlinux (specified)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.1-pre8/ (default)
+     -m /usr/src/linux/System.map (default)
 
-When run without strace, 2.4.0 appears to have no problems with your
-benchmark. Elapsed time is 0.1 sec -- this may be the full potential of my
-machine (PII/450). Removing select() and blocking in read() results in a
-further improvement, to 0.07 sec.
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+c49c957d
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c49c957d>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010297
+eax: c20200b4   ebx: 00000000   ecx: c20200b4   edx: c0632460
+esi: 000240cb   edi: c023b6ec   ebp: c1902dc0   esp: c2a65e5c
+ds: 0018   es: 0018   ss: 0018
+Process dnetc (pid: 705, stackpage=c2a65000)
+Stack: 000240ca c18a6c60 fffffffe c2020044 0000000c 00000000 c1902960
+c1902960
+       c20200b4 000240ca c49c9270 c2020000 c2020000 00000010 c28b8920
+00000002
+       c20200b4 c49c8b04 c2020000 c18a6c60 c28b8920 c18a6c60 c49c8a1b
+c2020000
+Call Trace: [<c49c9270>] [<c49c8b04>] [<c49c8a1b>] [<c49ccf86>] [<c49cc383>]
+[<c01726e5>] [<c0172774>]
+       [<c0181487>] [<c0181766>] [<c0109f3c>] [<c010a09e>] [<c0108e00>]
+Code: 8b 13 8b 43 04 c7 03 00 00 00 00 c7 43 04 00 00 00 00 c7 43
 
-Strace disturbs the behavior of 2.4.0 in strange ways. Running the benchmark
-under strace with 2.4.0 causes the scheduler delays to return -- ~1ms delays
-appear in select() or write(). This is confusing - it appears that context
-switches can happen inside write() as well as select(), a result I don't
-understand at all (the socket buffers never completely fill since you only
-write 1000 bytes to each one).
+>>EIP; c49c957d <[ppp_generic]ppp_mp_reconstruct+289/2d8>   <=====
+Trace; c49c9270 <[ppp_generic]ppp_receive_mp_frame+1cc/20c>
+Trace; c49c8b04 <[ppp_generic]ppp_receive_frame+30/7c>
+Trace; c49c8a1b <[ppp_generic]ppp_input+12f/164>
+Trace; c49ccf86 <[ppp_async]ppp_async_input+3ae/458>
+Trace; c49cc383 <[ppp_async]ppp_asynctty_receive+27/58>
+Trace; c01726e5 <flush_to_ldisc+dd/e4>
+Trace; c0172774 <tty_flip_buffer_push+14/5c>
+Trace; c0181487 <receive_chars+1f3/200>
+Trace; c0181766 <rs_interrupt_single+42/88>
+Trace; c0109f3c <handle_IRQ_event+30/5c>
+Trace; c010a09e <do_IRQ+6e/b0>
+Trace; c0108e00 <ret_from_intr+0/20>
+Code;  c49c957d <[ppp_generic]ppp_mp_reconstruct+289/2d8>
+00000000 <_EIP>:
+Code;  c49c957d <[ppp_generic]ppp_mp_reconstruct+289/2d8>   <=====
+   0:   8b 13                     mov    (%ebx),%edx   <=====
+Code;  c49c957f <[ppp_generic]ppp_mp_reconstruct+28b/2d8>
+   2:   8b 43 04                  mov    0x4(%ebx),%eax
+Code;  c49c9582 <[ppp_generic]ppp_mp_reconstruct+28e/2d8>
+   5:   c7 03 00 00 00 00         movl   $0x0,(%ebx)
+Code;  c49c9588 <[ppp_generic]ppp_mp_reconstruct+294/2d8>
+   b:   c7 43 04 00 00 00 00      movl   $0x0,0x4(%ebx)
+Code;  c49c958f <[ppp_generic]ppp_mp_reconstruct+29b/2d8>
+  12:   c7 43 00 00 00 00 00      movl   $0x0,0x0(%ebx)
 
-Other notes: poll() behaves same as select(). Using the SCHED_FIFO class and
-mlockall() has no effect on this benchmark. Setting the sockets non-blocking
-also has no effect.
+Kernel panic: Aiee, killing interrupt handler!
 
-I wish I had the Linux Trace Toolkit handy; it would give a much better idea
-of what's going on than strace...
+Unable to handle kernel NULL pointer dereference at virtual address 00000068
+c49c92d8
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c49c92d8>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010213
+eax: 000240dd   ebx: 000240dd   ecx: c20200b4   edx: 00000000
+esi: c18c8ac0   edi: 00000000   ebp: c2020044   esp: c2a65bd4
+ds: 0018   es: 0018   ss: 0018
+Process dnetc (pid: 705, stackpage=c2a65000)
+Stack: 000240ca c18c8ac0 c49c922c c2020000 c18c8ac0 c2020000 0000025d
+c293ed40
+       00000005 c20200b4 c49c8b04 c2020000 c18c8ac0 c293ed40 c18c8ac0
+c49c8a1b
+       c2020000 c18c8ac0 c293ed40 c18c8ac0 0000025d 00000000 00000005
+c49cc383
+Call Trace: [<c49c922c>] [<c49c8b04>] [<c49c8a1b>] [<c49cc383>] [<c49ccf86>]
+[<c49cc383>] [<c01726e5>]
+       [<c0172774>] [<c0181487>] [<df000000>] [<c0181766>] [<c0109f3c>]
+[<c010a09e>] [<c0108e00>] [<c0113900>
+       [<c01162bf>] [<c010928c>] [<c0111165>] [<c0110e44>] [<c0172774>]
+[<c0181487>] [<c0181563>] [<c0181796>
+       [<c0109f3c>] [<c010a0d2>] [<c0108e84>] [<c49c957d>] [<c49c9270>]
+[<c49c8b04>] [<c49c8a1b>] [<c49ccf86>
+       [<c49cc383>] [<c01726e5>] [<c0172774>] [<c0181487>] [<c0181766>]
+[<c0109f3c>] [<c010a09e>] [<c0108e00>
+Code: 2b 42 68 79 f3 8b 42 04 89 56 00 89 46 04 89 72 04 89 30 89
 
-Dan
+>>EIP; c49c92d8 <[ppp_generic]ppp_mp_insert+28/44>   <=====
+Trace; c49c922c <[ppp_generic]ppp_receive_mp_frame+188/20c>
+Trace; c49c8b04 <[ppp_generic]ppp_receive_frame+30/7c>
+Trace; c49c8a1b <[ppp_generic]ppp_input+12f/164>
+Trace; c49cc383 <[ppp_async]ppp_asynctty_receive+27/58>
+Trace; c49ccf86 <[ppp_async]ppp_async_input+3ae/458>
+Trace; c49cc383 <[ppp_async]ppp_asynctty_receive+27/58>
+Trace; c01726e5 <flush_to_ldisc+dd/e4>
+Trace; c0172774 <tty_flip_buffer_push+14/5c>
+Trace; c0181487 <receive_chars+1f3/200>
+Trace; df000000 <END_OF_CODE+1a5d75e5/????>
+Trace; c0181766 <rs_interrupt_single+42/88>
+Trace; c0109f3c <handle_IRQ_event+30/5c>
+Trace; c010a09e <do_IRQ+6e/b0>
+Trace; c0108e00 <ret_from_intr+0/20>
+Trace; c0113900 <panic+c0/d0>
+Trace; c01162bf <do_exit+27/230>
+Trace; c010928c <do_divide_error+0/ac>
+Trace; c0111165 <do_page_fault+321/40c>
+Trace; c0110e44 <do_page_fault+0/40c>
+Trace; c0172774 <tty_flip_buffer_push+14/5c>
+Trace; c0181487 <receive_chars+1f3/200>
+Trace; c0181563 <transmit_chars+cf/d8>
+Trace; c0181796 <rs_interrupt_single+72/88>
+Trace; c0109f3c <handle_IRQ_event+30/5c>
+Trace; c010a0d2 <do_IRQ+a2/b0>
+Trace; c0108e84 <error_code+34/40>
+Trace; c49c957d <[ppp_generic]ppp_mp_reconstruct+289/2d8>
+Trace; c49c9270 <[ppp_generic]ppp_receive_mp_frame+1cc/20c>
+Trace; c49c8b04 <[ppp_generic]ppp_receive_frame+30/7c>
+Trace; c49c8a1b <[ppp_generic]ppp_input+12f/164>
+Trace; c49ccf86 <[ppp_async]ppp_async_input+3ae/458>
+Trace; c49cc383 <[ppp_async]ppp_asynctty_receive+27/58>
+Trace; c01726e5 <flush_to_ldisc+dd/e4>
+Trace; c0172774 <tty_flip_buffer_push+14/5c>
+Trace; c0181487 <receive_chars+1f3/200>
+Trace; c0181766 <rs_interrupt_single+42/88>
+Trace; c0109f3c <handle_IRQ_event+30/5c>
+Trace; c010a09e <do_IRQ+6e/b0>
+Trace; c0108e00 <ret_from_intr+0/20>
+Code;  c49c92d8 <[ppp_generic]ppp_mp_insert+28/44>
+00000000 <_EIP>:
+Code;  c49c92d8 <[ppp_generic]ppp_mp_insert+28/44>   <=====
+   0:   2b 42 68                  sub    0x68(%edx),%eax   <=====
+Code;  c49c92db <[ppp_generic]ppp_mp_insert+2b/44>
+   3:   79 f3                     jns    fffffff8 <_EIP+0xfffffff8> c49c92d0
+<[ppp_generic]ppp_mp_insert+20/4>
+Code;  c49c92dd <[ppp_generic]ppp_mp_insert+2d/44>
+   5:   8b 42 04                  mov    0x4(%edx),%eax
+Code;  c49c92e0 <[ppp_generic]ppp_mp_insert+30/44>
+   8:   89 56 00                  mov    %edx,0x0(%esi)
+Code;  c49c92e3 <[ppp_generic]ppp_mp_insert+33/44>
+   b:   89 46 04                  mov    %eax,0x4(%esi)
+Code;  c49c92e6 <[ppp_generic]ppp_mp_insert+36/44>
+   e:   89 72 04                  mov    %esi,0x4(%edx)
+Code;  c49c92e9 <[ppp_generic]ppp_mp_insert+39/44>
+  11:   89 30                     mov    %esi,(%eax)
+Code;  c49c92eb <[ppp_generic]ppp_mp_insert+3b/44>
+  13:   89 00                     mov    %eax,(%eax)
+
+Kernel panic: Aiee, killing interrupt handler!
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

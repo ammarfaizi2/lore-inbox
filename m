@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284393AbRLRSAB>; Tue, 18 Dec 2001 13:00:01 -0500
+	id <S284361AbRLRR7L>; Tue, 18 Dec 2001 12:59:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284386AbRLRR7w>; Tue, 18 Dec 2001 12:59:52 -0500
-Received: from waste.org ([209.173.204.2]:52205 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S284436AbRLRR7g>;
-	Tue, 18 Dec 2001 12:59:36 -0500
-Date: Tue, 18 Dec 2001 11:59:21 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: "Ahmed, Zameer" <Zameer.Ahmed@gs.com>
-cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: RE: Turning off nagle algorithm in 2.2.x and 2.4.x kernels?
-In-Reply-To: <FBC7494738B7D411BD7F00902798761908BFF19B@gsny49e.ny.fw.gs.com>
-Message-ID: <Pine.LNX.4.40.0112181157480.13118-100000@waste.org>
+	id <S284393AbRLRR7B>; Tue, 18 Dec 2001 12:59:01 -0500
+Received: from w226.z065104013.sjc-ca.dsl.cnc.net ([65.104.13.226]:48370 "EHLO
+	nile.platodesign.com") by vger.kernel.org with ESMTP
+	id <S284386AbRLRR65>; Tue, 18 Dec 2001 12:58:57 -0500
+From: "Wenyong Deng" <wydeng@platodesign.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: How to use >3G memory per process
+Date: Tue, 18 Dec 2001 09:48:44 -0800
+Message-ID: <OHEPLPGMMIEGHANJIEBAIEPKCEAA.wydeng@platodesign.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Dec 2001, Ahmed, Zameer wrote:
+Hi,
 
-> The finicky nature of closed sourced sybase libraries that we are using in
-> the custom apps make me ask this question. Will turning off the Nagle
-> algorithm in the kernel on the fly, impact performance in any way? or Can we
-> have this feature in the kernel in some way?
+I read about 3.5G-per_process (or 3.5G/0.5G user/kernel space) in this
+mailing list, but I don't find the details of how to do it. I have installed
+Redhat7.2 (kernel 2.4.10enterprise) on a dual CPU 4G memory PC. I wrote a
+simple program to use malloc to allocate memory, and it can never exceeds
+3G. libhoard didn't help either. My question is:
 
-Nagle isn't there for looks, of course it will affect performance.
+[1] What need to be done for the kernel to support 3.5G or more user address
+space per process?
 
-Considered LD_PRELOAD?
+[2] What need to be done at compilation time? Any option for
+compiler/linker?
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+Thanks,
+
+--Wenyong
 

@@ -1,103 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261851AbTEFACx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 20:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbTEFACx
+	id S261887AbTEFAJN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 20:09:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbTEFAJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 20:02:53 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:4231 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261851AbTEFACv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 20:02:51 -0400
-Date: Mon, 5 May 2003 17:15:28 -0700
-From: Greg KH <greg@kroah.com>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: alan@redhat.com, linux-kernel@vger.kernel.org, jgarzik@redhat.com
-Subject: Re: [RFC][PATCH] Dynamic PCI Device IDs
-Message-ID: <20030506001528.GA3945@kroah.com>
-References: <20030502231558.GA16209@kroah.com> <Pine.LNX.4.44.0305051734050.25115-100000@humbolt.us.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 5 May 2003 20:09:13 -0400
+Received: from mbox1.netikka.net ([213.250.81.202]:42917 "EHLO
+	mbox1.netikka.net") by vger.kernel.org with ESMTP id S261887AbTEFAJF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 20:09:05 -0400
+From: Thomas Backlund <tmb@iki.fi>
+To: Willy TARREAU <willy@w.ods.org>
+Subject: Re: [PATCH 2.4.21-rc1] vesafb with large memory
+Date: Tue, 6 May 2003 03:21:23 +0300
+User-Agent: KMail/1.5.1
+Cc: Willy Tarreau <willy@w.ods.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3EB0413D.2050200@superonline.com> <200305031546.57631.tmb@iki.fi> <20030504094900.GA342@pcw.home.local>
+In-Reply-To: <20030504094900.GA342@pcw.home.local>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0305051734050.25115-100000@humbolt.us.dell.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200305060321.23459.tmb@iki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 05, 2003 at 05:51:35PM -0500, Matt Domsch wrote:
-> > Ah, can't you just not worry about that driver_data field somehow?  
-> 
-> How about this?  I've added a 'uses_driver_data' bit to the struct that
-> holds the dynids list, and the store_new_id() function always allows
-> driver_data to be passed in from userspace, but unless the driver sets
-> 'uses_driver_data' (and therefore should check that the values are
-> reasonable), it only ever gets passed a 0 there.
+Viestissä Sunnuntai 4. Toukokuuta 2003 12:49, Willy TARREAU kirjoitti:
+> Hi Thomas,
+>
+> > the correct line should AFAIK be:
+> > video_size = screen_info.lfb_width * screen_info.lfb_height *
+> > video_bpp;
+> >
+> > (AFAIK we are calculating bits here, not bytes so the '/8' you used is
+> > wrong... could you try without it, and let me know...)
+>
+> No, after verification, I insist, we're really calculating BYTES here.
+> Please take a look :
 
-I like this patch a _lot_ better, nice job.  Only one comment:
+Yes, 
+you are right...
 
-> +/**
-> + * store_new_id
-> + * @ pdrv
-> + * @ buf
-> + * @ count
-> + *
-> + * Adds a new dynamic pci device ID to this driver,
-> + * and causes the driver to probe for all devices again.
-> + */
-> +static inline ssize_t
-> +store_new_id(struct device_driver * driver, const char * buf, size_t count)
-> +{
-> +	struct dynid *dynid;
-> +	struct pci_driver *pdrv = to_pci_driver(driver);
-> +	__u32 vendor=PCI_ANY_ID, device=PCI_ANY_ID, subvendor=PCI_ANY_ID,
-> +		subdevice=PCI_ANY_ID, class=0, class_mask=0;
-> +	unsigned long driver_data=0;
-> +	int fields=0, error=0;
-> +
-> +	fields = sscanf(buf, "%x %x %x %x %x %x %lux",
-> +			&vendor, &device, &subvendor, &subdevice,
-> +			&class, &class_mask, &driver_data);
-> +	if (fields < 0) return -EINVAL;
-> +
-> +	dynid = kmalloc(sizeof(*dynid), GFP_KERNEL);
-> +	if (!dynid) return -ENOMEM;
-> +	dynid_init(dynid);
-> +
-> +	dynid->id.vendor = vendor;
-> +	dynid->id.device = device;
-> +	dynid->id.subvendor = subvendor;
-> +	dynid->id.subdevice = subdevice;
-> +	dynid->id.class = class;
-> +	dynid->id.class_mask = class_mask;
-> +	dynid->id.driver_data = pdrv->dynids.use_driver_data ? driver_data : 0UL;
-> +
-> +	spin_lock(&pdrv->dynids.lock);
-> +	list_add(&pdrv->dynids.list, &dynid->node);
-> +	spin_unlock(&pdrv->dynids.lock);
-> +
-> +        if (get_driver(&pdrv->driver)) {
-> +                error = probe_each_pci_dev(pdrv);
-> +                put_driver(&pdrv->driver);
-> +        }
-> +        if (error < 0)
-> +                return error;
-> +        return count;
-> +
-> +
-> +	return count;
-> +}
+[...]
+>
+> So I think that the correct line really is :
+>   video_size = screen_info.lfb_width * screen_info.lfb_height *
+> video_bpp / 8;
 
-Oops, lost the tabs at the end of the function :)
+There is a problem with this, ...
+If we calculate the exact memory like this, there wont be any
+memory remapped to do double/tripple buffering...
+So the question is: shoud one take the formula and add ' * 2' to 
+atleast get the double buffering supported...
+(in the patch I made for mdk, I kept a modified override part so that
+the user can change this, if he needs it....)
 
-This function will not link up a device to a driver properly within the
-driver core, only with the pci code.  So if you do this, the driver core
-still thinks you have a device that is unbound, right?  Also, the
-symlinks don't get created from the bus to the device I think, correct?
+Alan,
+any comments on this?
 
-Unfortunatly, looking at the driver core real quickly, I don't see a
-simple way to kick the probe cycle off again for all pci devices, but
-I'm probably just missing something somewhere...
+> (Which also handles line widths which are not multiple of 8).
 
-thanks,
+Well actually, in that formula it does not matter where you put the '/8',
+the result is always the same...
 
-greg k-h
+> BTW, I wonder why we truncate the mtrr size to the highest lower power
+> of 2. Shouldn't we round it up to the next one ?
+>
+
+Isn't it a hardware requirement?
+I think I read it in a nvidia document once... 
+(of course they may be wrong...)
+
+-- 
+Thomas Backlund
+
+tmb@iki.fi
+www.iki.fi/tmb
+

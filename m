@@ -1,74 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265788AbUBGFzt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 00:55:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266650AbUBGFzt
+	id S266381AbUBGGEU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 01:04:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266469AbUBGGET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 00:55:49 -0500
-Received: from ruby.getonit.net.au ([210.8.120.221]:24713 "EHLO
-	ruby.getonit.net.au") by vger.kernel.org with ESMTP id S265788AbUBGFzs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 00:55:48 -0500
-Message-ID: <01cf01c3ed3f$069c1240$8c02a8c0@timtopxp>
-From: "Tim Warnock" <timoid@getonit.net.au>
-To: <linux-kernel@vger.kernel.org>
-Subject: p4ht time accelleration
-Date: Sat, 7 Feb 2004 15:55:44 +1000
+	Sat, 7 Feb 2004 01:04:19 -0500
+Received: from data.idl.com.au ([203.32.82.9]:9924 "EHLO smtp.idl.net.au")
+	by vger.kernel.org with ESMTP id S266381AbUBGGER (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 01:04:17 -0500
+From: Athol Mullen <athol_SPIT_SPAM@idl.net.au>
+Organization: Mullen Automotive Engineering
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [RFC] IDE 80-core cable detect - chipset-specific code to over-ride eighty_ninty_three()
+Date: Sat, 7 Feb 2004 17:00:18 +1100
+User-Agent: KMail/1.5
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200402071658.43992.athol_SPIT_SPAM@OUTidl.net.au>
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi list,
+(Don't CC.  I read lkml via linux.kernel newsgroup.)
 
-i have a box running 2.4.24 (its been doing this since the box was put into
-place on 2.4.21)
+Specific to parallel IDE with UDMA.  Relates to code that is the same from 
+2.4.22 to 2.6.1.
 
-basically:
+After looking through the Intel specs for the ICH5, I discovered that they 
+specify that the BIOS is supposed to initialise bit flags for the presence of 
+80-core ribbon for each drive.  According to Intel, the OS is supposed to 
+rely upon those flags in preference to the word-93 bit.  This appears to 
+cover all ICH chipsets capable of UDMA modes that require 80-core cabling, 
+and works on both the ICH4 and ICH5 I have here.
 
-cat /proc/driver/rtc ; sleep 10; cat /proc/driver/rtc
-rtc_time        : 20:13:50
-rtc_date        : 2004-02-07
-rtc_epoch       : 1900
-alarm           : 00:00:00
-DST_enable      : no
-BCD             : yes
-24hr            : yes
-square_wave     : no
-alarm_IRQ       : no
-update_IRQ      : no
-periodic_IRQ    : no
-periodic_freq   : 1024
-batt_status     : okay
+I have a drive that fails the word93 bit test with a known 80-core cable. The 
+piix driver sets the drive up to UDMA5, but dmesg reports UDMA(33) because 
+eighty_ninty_three() returns 0.  If this had really been a 40-core cable, I'm 
+not sure what would happen.
 
+Proposal:
 
-rtc_time        : 20:13:53
-rtc_date        : 2004-02-07
-rtc_epoch       : 1900
-alarm           : 00:00:00
-DST_enable      : no
-BCD             : yes
-24hr            : yes
-square_wave     : no
-alarm_IRQ       : no
-update_IRQ      : no
-periodic_IRQ    : no
-periodic_freq   : 1024
-batt_status     : okay
+I'm not certain exactly how this would be implemented, but I'd like to see 
+eighty_ninty_three() check for chipset-specific detection code, and use the 
+existing word93 validation otherwise.
 
-the os time accellerates into the future but the rtc time stays normal...
+I have written and tested code for the intel ICH chipsets, but can't post a 
+patch until I know where to stick it.  :-)
 
-is it software, hardware or what? i dont know. i dunno who to ask for
-help hence the post...
+Related:
 
-the box is a p4ht 2.6 ibm think center
+eighty_ninty_three() should only be called if there is a possibility of using 
+a mode where it matters.  I intend to submit some patches that rearrange the 
+logic to avoid calling it if the best mode doesn't need it.
 
-tia
+-- 
+Athol
+<http://cust.idl.com.au/athol>
+Linux Registered User # 254000
+I'm a Libran Engineer. I don't argue, I discuss.
 
-tim
+-- 
+Regards,
+
+Athol
+-- 
+Athol Mullen
+Mullen Automotive Engineering
+athol@idl.net.au
+24 Newcastle St CARDIFF  NSW 2285
+Ph/Fax (02) 4956 8030, Mob. 0414 685537
+---
+Confidentiality Statement:
+Information in this message is provided to the intended recipient in 
+confidence and is provided conditional upon its not being made available to 
+any other party without the express permission of the author.  Release of any 
+part of this message under freedom of information or similar legislation is 
+specifically not permitted and if such release is a condition of acceptance, 
+the recipient must not accept this message.
+

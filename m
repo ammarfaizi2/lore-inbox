@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314065AbSDZPZC>; Fri, 26 Apr 2002 11:25:02 -0400
+	id <S314069AbSDZPbF>; Fri, 26 Apr 2002 11:31:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314068AbSDZPZB>; Fri, 26 Apr 2002 11:25:01 -0400
-Received: from h24-68-93-250.vc.shawcable.net ([24.68.93.250]:20625 "EHLO
-	me.bcgreen.com") by vger.kernel.org with ESMTP id <S314065AbSDZPZB>;
-	Fri, 26 Apr 2002 11:25:01 -0400
-Message-ID: <3CC970E2.2030407@bcgreen.com>
-Date: Fri, 26 Apr 2002 08:23:14 -0700
-From: Stephen Samuel <samuel@bcgreen.com>
-Organization: Just Another Radical
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
+	id <S314070AbSDZPbE>; Fri, 26 Apr 2002 11:31:04 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:56589 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S314069AbSDZPbD>;
+	Fri, 26 Apr 2002 11:31:03 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: hgchewml@optusnet.com.au
+Date: Fri, 26 Apr 2002 17:30:37 +0200
 MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org,
-        Andre Hedrick <andre@linux-ide.org>
-Subject: Re: A CD with errors (scratches etc.) blocks the whole system while
- reading damadged files
-In-Reply-To: <3CC738AD.50905@bcgreen.com> <Pine.LNX.3.96.1020424232237.4586B-100000@gatekeeper.tmr.com> <20020426040457.GO574@matchmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: File corruption when running VMware.
+CC: "'Linux kernel mailing list'" <linux-kernel@vger.kernel.org>,
+        riel@conectiva.com.br
+X-mailer: Pegasus Mail v3.50
+Message-ID: <37A7BD60863@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't think it has to do with the IRQs, but it sounds like the entire ide
-> chipset (think two cables one one chipset...) has stopped responding when
-> ONE device (out of a possible four (with two cables)) has failed media.
+On 24 Apr 02 at 2:01, Rik van Riel wrote:
+> On Wed, 24 Apr 2002, Hong-Gunn Chew wrote:
+> 
+> > I have a repeatable problem when running VMware workstation 3.00 and
+> > 3.01.  The cause is still unknown, and could be VMware itself, the
+> > hardware or the kernel.
+> 
+> If you can reproduce it without VMware or with only the
+> open source part of VMware (ie without any of the binary
+> only parts) we might have a chance of debugging it.
 
-In my case, I was able to read data from hda while the cdrom
-on hdd was trying to recover data from a scratched disk.
-Reading data from hdc (shared cable with the CDROM), on the
-other hand, was VERY slow.
+Hi again,
+  one of 2.4.x kernel images available in SuSE's 8.0 has patched&enabled 
+support for page tables in high memory, and this quickly revealed
+incompatibility between VMware's vmmon page table handling and
+ptes above directly mapped range.
 
-I have an 82371AB PIIX4 ide interface (dual IDE chipset),
-It's part of a 440BX chipset board.
+  So if you have >890MB of RAM and your kernel is compiled with support
+for pte in high memory, please stop using VMware, or reconfigure your 
+kernel to not use pte in high memory (4GB config without pte-in-highmem
+is OK). Using pte-in-highmem with vmmon will cause kernel oopses and/or 
+memory corruption :-(
 
-If accessing on one IDE interface (C/D) causes the other (A/B) to lockup,
-I'd guess you've got especially cheap hardware on your box.
-
--- 
-Stephen Samuel +1(604)876-0426                samuel@bcgreen.com
-		   http://www.bcgreen.com/~samuel/
-Powerful committed communication, reaching through fear, uncertainty and
-doubt to touch the jewel within each person and bring it to life.
-
+  If you do not have >890MB of memory, then reason for your memory corruption
+is still unknown to me.
+                                          Best regards,
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
+                                                    

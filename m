@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbVAaWR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVAaWS1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261403AbVAaWR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 17:17:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbVAaWOW
+	id S261405AbVAaWS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 17:18:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbVAaWSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 17:14:22 -0500
-Received: from rproxy.gmail.com ([64.233.170.195]:14776 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261405AbVAaWNW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 17:13:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=YE0PXQlQs8sRG4oz9Ila+nfRHLQURd7Z4d/Yof8Rw5RhxiNhu31D6TtUofz7Ig/vbAgKLL47/j+FRXELtZoZqdxztt/7UFbkst6sZNWvWZPIHEu826cM1etKW7e3JKMaWTxr0h08A7Zy8DMzDzyc/EU4SivfMy49aOXrGfF7IgM=
-Message-ID: <d120d500050131141358ff63c9@mail.gmail.com>
-Date: Mon, 31 Jan 2005 17:13:22 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Stelian Pop <stelian@popies.net>, Adrian Bunk <bunk@stusta.de>,
+	Mon, 31 Jan 2005 17:18:20 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3856 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261405AbVAaWRa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 17:17:30 -0500
+Date: Mon, 31 Jan 2005 23:17:28 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Andrew Morton <akpm@osdl.org>, jonathan@buzzard.org.uk,
        linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/char/sonypi.c: make 3 structs static
-In-Reply-To: <20050131214905.GF28886@deep-space-9.dsnet>
+Subject: Re: [2.6 patch] remove subscribers-only tlinux-users address
+Message-ID: <20050131221728.GH21437@stusta.de>
+References: <20050131214503.GE21437@stusta.de> <20050131220707.GA13210@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050131173508.GS18316@stusta.de>
-	 <20050131214905.GF28886@deep-space-9.dsnet>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050131220707.GA13210@electric-eye.fr.zoreil.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jan 2005 22:49:05 +0100, Stelian Pop <stelian@popies.net> wrote:
+On Mon, Jan 31, 2005 at 11:07:07PM +0100, Francois Romieu wrote:
+> Adrian Bunk <bunk@stusta.de> :
+> > It's generally agreed that subscribers-only mailing lists shouldn't be 
+> > listed in MAINTAINERS (since it's impossible to send a simple Cc to such 
+> > a list).
 > 
-> sonypi.h is a "local" header file used only by sonypi.c.
-> 
-> I would like to keep those tables in sonypi.h rather than putting
-> all into sonypi.c (or we could as well remove sonypi.h and put all the
-> contents into the .c).
-> 
+> What about marking the mailing-list as subscriber-only instead of
+> removing information ?
 
-Hi,
+This MAINTAINERS entry still contain the link to the web page - and from 
+there the information about the mailing list is easily available.
 
-What is the point of having an .h file if it is not used by anyone?
-Judging by the fact that it completely protected by #ifdef __KERNEL__
-there should be no userspace clients either.
+> Ueimor
 
-I always thought that the only time .h is needed is when you define
-interface to your code. I'd fold it to sonpypi.c.
+cu
+Adrian
 
 -- 
-Dmitry
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbQLOF3G>; Fri, 15 Dec 2000 00:29:06 -0500
+	id <S129257AbQLOFc2>; Fri, 15 Dec 2000 00:32:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129421AbQLOF25>; Fri, 15 Dec 2000 00:28:57 -0500
-Received: from waste.org ([209.173.204.2]:23651 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S129267AbQLOF2p>;
-	Fri, 15 Dec 2000 00:28:45 -0500
-Date: Thu, 14 Dec 2000 22:58:05 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Stephen Frost <sfrost@snowman.net>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Netfilter <netfilter@us5.samba.org>
-Subject: Re: test13-pre1 changelog
-In-Reply-To: <Pine.LNX.4.10.10012141552180.12695-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.30.0012142244200.27741-100000@waste.org>
+	id <S129421AbQLOFcR>; Fri, 15 Dec 2000 00:32:17 -0500
+Received: from mail.bendnet.com ([199.2.205.68]:28933 "EHLO mail.bendnet.com")
+	by vger.kernel.org with ESMTP id <S129257AbQLOFcE>;
+	Fri, 15 Dec 2000 00:32:04 -0500
+Message-ID: <02ea01c06654$57437aa0$7830a3ce@g1e7m6>
+From: "Miles Lane" <miles@megapathdsl.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Will the large corporate contributors to Linux like IBM help us get more device specifications?
+Date: Thu, 14 Dec 2000 21:02:20 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Dec 2000, Linus Torvalds wrote:
+Hi,
 
-> On Thu, 14 Dec 2000, Stephen Frost wrote:
-> >
-> > 	Any idea if these issues would cause a general slow-down of a
-> > machine?  For no apparent reason after 5 days running 2.4.0test12
-> > everything going through my firewall (set up using iptables) I got about
-> > 100ms time added on to pings and traceroutes.
->
-> Probably not related to that particular bug - the netfilter issue has
-> apparently been around forever, and it was just some changes in IP
-> fragmentation that just made it show up as an oops.
->
-> A 100ms delay sounds like some interrupt shut up or similar (and then
-> timer handling makes it limp along).
+There seems to be an ongoing need for a stronger relationship between
+the kernel development community and the various hardware vendors.
+Specifically, the current situation seems to often be that individuals from
+the community are banging on random doors and sending e-mail to
+support staff asking whether they can be given access to device specs
+under NDA or, preferably, with no restrictions for the purposes of 
+driver development.
 
-Possibly related datapoint: after several days of uptime, my
-2.4.0-test10pre? machine went into some sort of slow mode after coming
-back from suspend (and doing an /etc/init.d/networking restart). Symptoms
-seemed to be extra second or so setting up a TCP connection. Ping, etc.,
-appeared to work just fine, no packet loss apparent, bandwidth looked good
-too. Sadly I had to do actual work that required zippy web access, so I
-rebooted rather than doing a thorough diagnostic. This is a VAIO with
-compiled in eepro100, no special networking options.
+It seems to me that IBM's commitment to spend $1B this coming year
+on Linux development, combined with IBM's considerable influence
+in the general computing space might enable them to help the Linux 
+kernel community forge new and much closer relationships with IHVs.
 
-Oh, and btw, test12-pre7 seems to have broken my USB camera, which worked
-with the aforementioned kernel. My build of gphoto2 downloads images via
-usbdevfs (ugh) and quietly created a bunch of .jpgs that were almost
-entirely 0s..
+Ideally, these new relationships would involve more information being
+pushed to us rather than pulled by us.
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+An area in of great need of access to specifications is USB development.
+Things are going well with reverse engingeering for many devices, but this
+is slow, prone to error and probably misses taking advantage of 
+proprietary speedups available from intimate specification knowledge.
+This is particularly true when we come up against vendor-specific USB 
+protocol implementations.
+
+Would it make any sense to ask these large corporate participants
+whether they would be willing to put together some sort of device
+specification collection group along with members of the Linux 
+kernel community?  A group including representatives of these 
+many groups might have more leverage with IHVs than the Linux
+kernel community has now.
+
+I hope this helps,
+
+    Miles
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

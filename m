@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVB0S15@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVB0Snx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261462AbVB0S15 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 13:27:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVB0S15
+	id S261251AbVB0Snx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 13:43:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVB0Snx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 13:27:57 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:40375 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261465AbVB0S1m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 13:27:42 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: swsusp logic error?
-Date: Sun, 27 Feb 2005 19:27:39 +0100
-User-Agent: KMail/1.7.1
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20050208203950.GA21623@cirrus.madduck.net> <20050227174309.GA27265@piper.madduck.net> <20050227175039.GL1441@elf.ucw.cz>
-In-Reply-To: <20050227175039.GL1441@elf.ucw.cz>
+	Sun, 27 Feb 2005 13:43:53 -0500
+Received: from smtp06.web.de ([217.72.192.224]:65191 "EHLO smtp06.web.de")
+	by vger.kernel.org with ESMTP id S261251AbVB0Snv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 13:43:51 -0500
+Message-ID: <422214D6.2000206@web.de>
+Date: Sun, 27 Feb 2005 19:43:34 +0100
+From: Torben Viets <Viets@web.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: linux-kernel@vger.kernel.org
+Subject: XFS dm_crypt BUG?
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502271927.39982.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday, 27 of February 2005 18:50, Pavel Machek wrote:
-> Hi!
-> 
-> > > Ugh, too late, I already forgot what went wrong for you. Anyway
-> > > try reading Documentation/power/swsusp.txt and/or going to
-> > > 2.6.11-rc4. If that does not help, debug with printk :-).
-> > 
-> > I already did the first two. I will try 2.6.11-rc4 now.
-> > 
-> > Please check my first post, if you have the time:
-> > 
-> >   http://marc.theaimsgroup.com/?l=linux-kernel&m=110789536921510&w=2
-> 
-> Ok, this one.
-> 
-> I do not know what is going wrong. swsusp seems to work for
-> people... or at least it works for me. Here's my .config, perhaps you
-> have something unusual?
-> 
-> I do have CONFIG_PM_STD_PARTITION="/dev/hda1", perhaps that's
-> neccessary?
+Hello,
 
-I don't set CONFIG_PM_STD_PARTITION, but I pass the "resume" parameter
-to the kernel and it works (no fuss, on x86-64 and i386).
+I have a problem with the XFS-filesystem, I use the Kernel 2.6.10 and 
+2.6.11-rc4 and rc5 everytime the same behavior.
 
-Greets,
-Rafael
+I have a RAID 5(md0) with 3 disks on md0 (chunk-size 128) there is a 
+logical volume (/dev/data/mp3-crypt) which is crypted with AES and the 
+encrypted version ist under /dev/mapper/mp3, if the filestem on it is 
+xfs and then copie some files on it then I get a kernel panic, mostly on 
+greater files (>200MB), if I make the same thing with ext3 there is no 
+problem. My first thougt was that the problem is that I make a snapshot 
+of the device, but if i remove this it won't work anyway.
 
+My sytem is a Pentium4 1800Mhz
+512 MB SDRAM
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+I can't show you the kernel panic message, because I didn't found it in 
+the syslog, it is only on the screen,
+
+I'm not sure what infos you need too.
+
+greetings
+Torben Viets
+

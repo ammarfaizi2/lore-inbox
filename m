@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316683AbSIALdV>; Sun, 1 Sep 2002 07:33:21 -0400
+	id <S316684AbSIALeR>; Sun, 1 Sep 2002 07:34:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316684AbSIALdV>; Sun, 1 Sep 2002 07:33:21 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:49929 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S316683AbSIALdU>; Sun, 1 Sep 2002 07:33:20 -0400
-Date: Sun, 1 Sep 2002 13:37:42 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] warnkill trivia 2/2
-Message-ID: <20020901113741.GM32122@louise.pinerecords.com>
-References: <20020901105643.GH32122@louise.pinerecords.com> <20020901.035749.37156689.davem@redhat.com> <20020901112856.GL32122@louise.pinerecords.com> <20020901.042539.63049493.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020901.042539.63049493.davem@redhat.com>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
-X-Uptime: 5 days, 8:49
+	id <S316695AbSIALeR>; Sun, 1 Sep 2002 07:34:17 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:40198 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316684AbSIALeP>; Sun, 1 Sep 2002 07:34:15 -0400
+Date: Sun, 1 Sep 2002 07:32:00 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: conman@kolivas.net
+cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: VM changes added to performance patches for 2.4.19
+In-Reply-To: <1030170794.3d6728aa24046@kolivas.net>
+Message-ID: <Pine.LNX.3.96.1020901072631.337B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    From: Tomas Szepe <szepe@pinerecords.com>
->    Date: Sun, 1 Sep 2002 13:28:56 +0200
+On Sat, 24 Aug 2002 conman@kolivas.net wrote:
+
 > 
->    > I think you mean something like "atomic_t const * v" which means the
->    > pointer is constant, not the value.
->    
->    Precisely.
+> With the patch against 2.4.19:
 > 
-> BTW who even passes around const atomic_t's?  Ie. what
-> genrated the warning and made you even edit this to begin with?
+> Scheduler O(1), Preemptible, Low Latency
+> 
+> I have now added two extra alternative patches that include 
+> either Rik's rmap (thanks Rik) or AA's vm changes (thanks to Nuno Monteiro for
+> merging this)
+> 
+> For the record, with the (very) brief usage of these two patches I found the
+> rmap patch a little faster. This is very subjective and completely untested.
+> 
+> Check them out here and tell me what you think(please read the FAQ):
+> http://kernel.kolivas.net
 
-fs/reiserfs/buffer2.c, line ~28:
-atomic_t gets the const quality on account of being a member
-of a const struct buffer_head instance.
+The ck3-aa patch has worked perfectly for me until I try to shut down. At
+that point I get to "turning off swap" and the system hangs with the disk
+light on. Can't get a dump, and it doesn't happen every time, but enough
+that I am very cautious in what I do at shutdown. Total hang ignoring
+sysreq.
 
-void wait_buffer_until_released (const struct buffer_head * bh)
-{
-  int repeat_counter = 0;
+Athlon 1.4GHz, 1GB RAM, hda:30GB, hdc:40GB, 20x CD-R, multiple NICs, two
+local networks, one PPP over high speed serial.
 
-  while (atomic_read (&(bh->b_count)) > 1) {
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-    if ( !(++repeat_counter % 30000000) ) {
-      reiserfs_warning ("vs-3050: wait_buffer_until_released: nobody releases buffer (%b). Still waiting (%d) %cJDIRTY %cJWAIT\n",
-			bh, repeat_counter, buffer_journaled(bh) ? ' ' : '!',
-			buffer_journal_dirty(bh) ? ' ' : '!');
-    }
-    run_task_queue(&tq_disk);
-    yield();
-  }
-  if (repeat_counter > 30000000) {
-    reiserfs_warning("vs-3051: done waiting, ignore vs-3050 messages for (%b)\n", bh) ;
-  }
-}

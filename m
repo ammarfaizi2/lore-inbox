@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132338AbRDPWIc>; Mon, 16 Apr 2001 18:08:32 -0400
+	id <S131483AbRDPWUq>; Mon, 16 Apr 2001 18:20:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132352AbRDPWIW>; Mon, 16 Apr 2001 18:08:22 -0400
-Received: from p198.as-l002.contactel.cz ([212.65.195.198]:37877 "HELO
-	SnowWhite.SuSE.cz") by vger.kernel.org with SMTP id <S132338AbRDPWIF>;
-	Mon, 16 Apr 2001 18:08:05 -0400
-To: Rajeev Nigam <rajeev.nigam@dcmtech.co.in>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Serial Port Communication
-In-Reply-To: <7FADCB99FC82D41199F9000629A85D1A017AEBD7@dcmtechdom.dcmtech.co.in>
-From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
-X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
- ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
- iHiAs(t(~b#1.{w.d[=Z
-In-Reply-To: <7FADCB99FC82D41199F9000629A85D1A017AEBD7@dcmtechdom.dcmtech.co.in> (Rajeev Nigam's message of "Mon, 16 Apr 2001 18:35:54 +0530")
-Message-ID: <m3y9t0lgoq.fsf@SnowWhite.Janik.cz>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.103
+	id <S131625AbRDPWUg>; Mon, 16 Apr 2001 18:20:36 -0400
+Received: from spc2.esa.lanl.gov ([128.165.67.191]:5504 "HELO
+	spc2.esa.lanl.gov") by vger.kernel.org with SMTP id <S131483AbRDPWU2>;
+	Mon, 16 Apr 2001 18:20:28 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <scole@lanl.gov>
+Reply-To: scole@lanl.gov
+To: "Eric S. Raymond" <esr@thyrsus.com>
+Subject: Re: [kbuild-devel] CML2 1.1.3 is available
+Date: Mon, 16 Apr 2001 16:26:29 -0600
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net,
+        elenstev@mesatop.com
+In-Reply-To: <20010416174223.A21689@thyrsus.com> <01041616003800.01249@spc2.esa.lanl.gov> <20010416180628.A21941@thyrsus.com>
+In-Reply-To: <20010416180628.A21941@thyrsus.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: 17 Apr 2001 00:09:11 +0200
+Message-Id: <01041616262902.01249@spc2.esa.lanl.gov>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: quoted-printable
+On Monday 16 April 2001 16:06, Eric S. Raymond wrote:
+> Steven Cole <scole@lanl.gov>:
+> > Whoops, I just tried out 1.1.3 using make xconfig, and now all the
+> > option labels are dark green, not just the ones set to y.
+>
+> That's because they're set in your .config, dude!
 
-   From: Rajeev Nigam <rajeev.nigam@dcmtech.co.in>
-   Date: 	Mon, 16 Apr 2001 18:35:54 +0530
+Well, lets look at a snippet of the .config:
 
-Hi,
+# CONFIG_BINFMT_SOM is not set
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+# CONFIG_SMP is not set
 
-   > How can I write to, read from the com port. I have linux 6.2 and kernel
-   > 2.2.14 version.
+I just re-installed CML2 1.1.2, and it shows those options as you would expect,
+that is the ones set to y are green, and the "not set" ones are black.  Well, except
+CONFIG_BINFMT_ELF which is black.  Toggling it to n and then to y makes it green.
 
-there is no Linux with that version number. Upgrade your kernel.
+Re-installing CML2 1.1.3, I see all those options as green.
 
-   > Is anybody having a sample code which is performing these operation
-   > including Open and Close com port, Pls send me.
+I can send you my whole .config if that would be useful.
 
-See Serial-Programming HOWTO or any other *user*space program. Do not do
-serial stuff in the kernel itself.
-=2D-=20
-Pavel Jan=EDk
-
-You should stop smoking that stuff, really.
-                  -- Robin S. Socha to Lars Magne Ingebrigtsen (of Gnus fam=
-e)
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP MESSAGE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Public key is available on http://www.janik.cz/pgp/
-
-iD8DBQE621lIl/ao7ZNClncRAnXKAKCvCNssjmfoJ/9jPCz0Fm3u0eeH7QCdGmao
-zHrbbrGrbb21dboeIX7cV48=
-=HkqI
------END PGP MESSAGE-----
---=-=-=--
+Steven

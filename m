@@ -1,74 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263963AbUE1Tn5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263879AbUE1TqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263963AbUE1Tn5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 15:43:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263995AbUE1TnI
+	id S263879AbUE1TqS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 15:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263842AbUE1TqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 15:43:08 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:6155 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S263834AbUE1Tll (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 15:41:41 -0400
-Date: Fri, 28 May 2004 21:41:36 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Chris Osicki <osk@osk.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: keyboard problem with 2.6.6
-Message-ID: <20040528194136.GA5175@pclin040.win.tue.nl>
-References: <20040525201616.GE6512@gucio>
-Mime-Version: 1.0
+	Fri, 28 May 2004 15:46:18 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:41680 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S264026AbUE1Tpg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 15:45:36 -0400
+To: linux-kernel@vger.kernel.org, rddunlap@osdl.org
+Subject: [Proposal] DEBUG_SLAB should select DEBUG_SPINLOCK
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <roland@topspin.com>
+Date: 28 May 2004 12:45:35 -0700
+Message-ID: <528yfc72u8.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040525201616.GE6512@gucio>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: dmv.com: mailhost.tue.nl 1181; Body=1 Fuz1=1 Fuz2=1
+X-OriginalArrivalTime: 28 May 2004 19:45:35.0759 (UTC) FILETIME=[584C69F0:01C444EC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 25, 2004 at 10:16:16PM +0200, Chris Osicki wrote:
+I recently had a rather amusing debugging session.  I developed some
+code that worked fine on my test kernel, which had CONFIG_DEBUG_SLAB
+turned on.  However, as soon as I moved to a kernel without slab
+debugging to do some benchmarks, I started getting lockups.  It turns
+out that I had a spinlock in my data structure that I forgot to
+initialize but the poisoning from slab debugging had taken care of
+initializing it for me.  I didn't catch this during development
+because I had left CONFIG_DEBUG_SPINLOCK off.
 
-> I recently moved to kernel 2.6.6 from 2.4.26 and noticed that four keys
-> on my keyboard stopped working.
-> The kernel reports:
-> 
-> 	keyboard: unrecognized scancode (XX) - ignored
-> 
-> Where XX is 71, 72, 74, 75.
+Fortunately (for my sanity) I was able to diagnose this pretty quickly
+with the help of the NMI oopser.  However, for other developers' sake,
+I think it might make sense to add
 
-Hmm. This message seems to be from arch/arm26/lib/kbd.c
-Is this message from 2.6.6? Is this an ARM?
+	select DEBUG_SPINLOCK
 
-> My setup is quite unusual as I'm using Sun type 5 keyboard on my
-> PC with a self-made adapter. However, this setup has worked for at 
-> least six years with different kernel versions.
-> The four keys which don't work anymore are from the function-key-set
-> on the left hand side of the keyboard, if you know what a Sun
-> keyboard looks like.
-> 
-> I tried to solve my problem using setkeycodes and tried:
-> 
-> setkeycodes 71 101
-> 
-> as 101 was unused keycode (according to getkeycodes)
-> 
-> getkeycodes reported after that:
-> 
-> # getkeycodes | grep 0x70
->  0x70:   93 101   0  89   0   0  85  91
+to the DEBUG_SLAB stanza of Kconfig.
 
-Your report is a bit messy. You change things for scancode 0x71 and then
-expect the keycode for 0x70 to be changed?
+I'm not posting a patch because I wanted to find out the status of
+Randy Dunlap's patch that consolidates the debugging options.  Is that
+patch going to be merged, in someone's tree somewhere, dropped, or what?
 
-> But showkeys -s shows 0x5b when the key in question is pressed
-> (and no release event!!??)
+If the consensus is that we don't want to do this anyway, that's
+fine.  I mostly wanted to share this bug, which amused me.
 
-Given a careful and precise report, no doubt it will be clear
-what your situation is. Mention architecture, scancodes under 2.4,
-scancodes under 2.6.
-
-Andries
-
-
-[The situation with arch/arm26/lib/kbd.c is funny.
-That is the old keyboard code that was removed from
-the general kernel code. No doubt it should be updated.]
+Thanks,
+  Roland

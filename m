@@ -1,33 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271071AbRHOHPI>; Wed, 15 Aug 2001 03:15:08 -0400
+	id <S271074AbRHOHW2>; Wed, 15 Aug 2001 03:22:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271072AbRHOHO6>; Wed, 15 Aug 2001 03:14:58 -0400
-Received: from member.michigannet.com ([207.158.188.18]:22034 "EHLO
-	member.michigannet.com") by vger.kernel.org with ESMTP
-	id <S271071AbRHOHOq>; Wed, 15 Aug 2001 03:14:46 -0400
-Date: Wed, 15 Aug 2001 03:13:57 -0400
-From: Paul <set@pobox.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.8-ac5
-Message-ID: <20010815031357.O25788@squish.home.loc>
-Mail-Followup-To: Paul <set@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010814221556.A7704@lightning.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010814221556.A7704@lightning.swansea.linux.org.uk>; from laughing@shared-source.org on Tue, Aug 14, 2001 at 10:15:56PM +0100
+	id <S271075AbRHOHWU>; Wed, 15 Aug 2001 03:22:20 -0400
+Received: from mail.fbab.net ([212.75.83.8]:55824 "HELO mail.fbab.net")
+	by vger.kernel.org with SMTP id <S271074AbRHOHWC>;
+	Wed, 15 Aug 2001 03:22:02 -0400
+X-Qmail-Scanner-Mail-From: mag@fbab.net via mail.fbab.net
+X-Qmail-Scanner-Rcpt-To: viro@math.psu.edu torvalds@transmeta.com linux-kernel@vger.kernel.org
+X-Qmail-Scanner: 0.94 (No viruses found. Processed in 7.581759 secs)
+Message-ID: <3e9f01c1255b$45cf7500$020a0a0a@totalmef>
+From: "Magnus Naeslund\(f\)" <mag@fbab.net>
+To: "Alexander Viro" <viro@math.psu.edu>
+Cc: "Linus Torvalds" <torvalds@transmeta.com>,
+        "linux-kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0108150225120.13928-100000@weyl.math.psu.edu>
+Subject: Re: 2.4.8 Resource leaks + limits
+Date: Wed, 15 Aug 2001 09:24:08 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: "Alexander Viro" <viro@math.psu.edu>
+>
+[snap[crackle[pop]]]
+>
+> May be memory fragmentation. You need an order 1 allocation for fork(),
+just
+> to allocate task_struct...
+>
+>
 
-	Dear Alan;
+1) Does that mean i'm screwed (then why, i got about 80 MB free here + 1gb
+swap, howto defrag?)
 
-	Does this include all the 2.4.8 vm mods except
-'use once' ?  Could you make a brief comment on anything
-signifigant that exists in Linus' tree but not yours?
+2) I can ssh in as root, why does that still work?
 
-Thanks;
-Paul
-set@pobox.com
+:-)
+
+Magnus
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+ Programmer/Networker [|] Magnus Naeslund
+ PGP Key: http://www.genline.nu/mag_pgp.txt
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+

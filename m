@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264269AbUDNPa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 11:30:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbUDNPaw
+	id S264277AbUDNPej (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 11:34:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264255AbUDNPej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 11:30:52 -0400
-Received: from obsidian.spiritone.com ([216.99.193.137]:16620 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S264257AbUDNP3A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 11:29:00 -0400
-Date: Wed, 14 Apr 2004 08:23:45 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: arjanv@redhat.com, "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       lse-tech@lists.sourceforge.net, raybry@sgi.com,
-       "'Andy Whitcroft'" <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [Lse-tech] Re: hugetlb demand paging patch part [0/3]
-Message-ID: <17980000.1081956225@[10.10.2.4]>
-In-Reply-To: <17200000.1081956095@[10.10.2.4]>
-References: <200404132317.i3DNH4F21162@unix-os.sc.intel.com> <1081933442.4688.6.camel@laptop.fenrus.com> <17200000.1081956095@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Wed, 14 Apr 2004 11:34:39 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:15299 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S264268AbUDNPdf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 11:33:35 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Duncan Sands <baldrick@free.fr>, Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] [PATCH 7/9] USB usbfs: destroy submitted urbs only on the disconnected interface
+Date: Wed, 14 Apr 2004 17:33:11 +0200
+User-Agent: KMail/1.5.1
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Frederic Detienne <fd@cisco.com>
+References: <200404141245.37101.baldrick@free.fr> <200404141530.54093.oliver@neukum.org> <200404141700.43087.baldrick@free.fr>
+In-Reply-To: <200404141700.43087.baldrick@free.fr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200404141733.11599.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> In addition to the hugetlb commit handling that we've been working on
->>> off the list, Ray Bryant of SGI and I are also working on demand paging
->>> for hugetlb page.  Here are our final version that has been heavily
->>> tested on ia64 and x86.  I've broken the patch into 3 pieces so it's
->>> easier to read/review, etc.
->> 
->> Ok I think it's time to say "HO STOP" here.
->> 
->> If you're going to make the kernel deal with different, concurrent page
->> sizes then please do it for real. Or alternatively leave hugetlb to be
->> the kludge/hack it is right now. Anything inbetween is the road to
->> madness...
-> 
-> I'd prefer to see it walk step by step to "doing it for real" than have
-> a huge cataclysmic patch that breaks everything ....
 
-Hmm - maybe that could be misinterpreted ;-) I meant that this the patches
-discussed here are the steps (ie good ;-)), not the cataclysmic event.
+> > Well, I don't. If you care about it, add a WARN_ON().
+> > Checking without consequences is bad.
+>
+> Hi Oliver, how about this instead?
+>
+[..]
+> -	clear_bit(intf->cur_altsetting->desc.bInterfaceNumber, &ps->ifclaimed);
+> +	if (ifnum < 8*sizeof(ps->ifclaimed))
+> +		clear_bit(ifnum, &ps->ifclaimed);
+> +	else
+> +		warn("interface number %u out of range", ifnum);
+> +
 
-M.
+I would prefer a real WARN_ON() so that the imbedded people compiling
+for size are not affected.
+
+	Regards
+		Oliver
 

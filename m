@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264117AbRFFTkP>; Wed, 6 Jun 2001 15:40:15 -0400
+	id <S264119AbRFFToz>; Wed, 6 Jun 2001 15:44:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264118AbRFFTkG>; Wed, 6 Jun 2001 15:40:06 -0400
-Received: from cloven-ext.nks.net ([216.139.204.130]:27396 "EHLO
-	homer.mkintl.com") by vger.kernel.org with ESMTP id <S264117AbRFFTjz>;
-	Wed, 6 Jun 2001 15:39:55 -0400
-Message-ID: <3B1E8703.9D5A8EC2@illusionary.com>
-Date: Wed, 06 Jun 2001 15:39:47 -0400
-From: Derek Glidden <dglidden@illusionary.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
+	id <S261392AbRFFTop>; Wed, 6 Jun 2001 15:44:45 -0400
+Received: from chia.umiacs.umd.edu ([128.8.120.111]:49379 "EHLO
+	chia.umiacs.umd.edu") by vger.kernel.org with ESMTP
+	id <S264119AbRFFTog>; Wed, 6 Jun 2001 15:44:36 -0400
+Date: Wed, 6 Jun 2001 15:44:22 -0400 (EDT)
+From: Adam <adam@cfar.umd.edu>
+X-X-Sender: <adam@chia.umiacs.umd.edu>
+To: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: RE: ethernet and pointopoint
+In-Reply-To: <6B1DF6EEBA51D31182F200902740436802678F26@mail-in.comverse-in.com>
+Message-ID: <Pine.GSO.4.33.0106061539061.18152-100000@chia.umiacs.umd.edu>
+X-WEB: http://www.eax.com
+Content-Type-X: multipart/mixed; boundary="------------3897B7E0F65FF08A89ED6C92"
 MIME-Version: 1.0
-To: Mike Galbraith <mikeg@wen-online.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Break 2.4 VM in five easy steps
-In-Reply-To: <Pine.LNX.4.33.0106062048130.366-100000@mikeg.weiden.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> 
-> Can you try the patch below to see if it helps?  If you watch
-> with vmstat, you should see swap shrinking after your test.
-> Let is shrink a while and then see how long swapoff takes.
-> Under a normal load, it'll munch a handfull of them at least
-> once a second and keep them from getting annoying. (theory;)
+> > From: Adam [mailto:adam@cfar.umd.edu]
+> > 	Is there reason why I can't set pointopoint for ethernet? I have
+>
+> If your network cards & their drivers (both hosts) support full duplex
+> operation, just enable it, and you're done.
 
-Hi Mike,
-I'll give that patch a spin this evening after work when I have time to
-patch and recompile the kernel.
+did you read my email? The patch below has detailed description of the
+problem and suggested solution. Still I'm not quite sure if that's the
+"the way it should be"(tm), so I'm hoping on more feedback on the issue
+itself.
+
+http://www.eax.com/patches/linux-kernel-dev2-diff
 
 -- 
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+Adam
+http://www.eax.com	The Supreme Headquarters of the 32 bit registers
+

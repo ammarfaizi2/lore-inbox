@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264560AbSIREjx>; Wed, 18 Sep 2002 00:39:53 -0400
+	id <S265211AbSIRElq>; Wed, 18 Sep 2002 00:41:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265211AbSIREjx>; Wed, 18 Sep 2002 00:39:53 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:64261
+	id <S265217AbSIRElq>; Wed, 18 Sep 2002 00:41:46 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:4102
 	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S264560AbSIREjw>; Wed, 18 Sep 2002 00:39:52 -0400
-Subject: Re: [PATCH] BUG(): sched.c: Line 944
+	with ESMTP id <S265211AbSIRElp>; Wed, 18 Sep 2002 00:41:45 -0400
+Subject: [PATCH] schedule() in_atomic() fix
 From: Robert Love <rml@tech9.net>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1032296284.12257.66.camel@spc9.esa.lanl.gov>
-References: <Pine.LNX.4.44.0209172055550.13829-100000@localhost.localdomain> 
-	<1032290611.4592.206.camel@phantasy> 
-	<1032292468.11907.44.camel@spc9.esa.lanl.gov> 
-	<1032293199.4588.235.camel@phantasy> 
-	<1032296284.12257.66.camel@spc9.esa.lanl.gov>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 
-Date: 18 Sep 2002 00:44:51 -0400
-Message-Id: <1032324294.4588.758.camel@phantasy>
+Date: 18 Sep 2002 00:46:43 -0400
+Message-Id: <1032324404.4593.764.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-09-17 at 16:58, Steven Cole wrote:
+Linus,
 
-> Sorry, it hung so badly that it didn't respond to that.
+Attached patch fixes the scheduler in_atomic() problem with kernel
+preemption enabled (and is also working - when kernel preemption is on,
+it finds a couple issues during boot).
 
-I fixed the hang.  If you notice the problem, please do not laugh.
+I hope this approach is to your liking.
 
-The attached patch, against 2.5.36, should work fine...
+Patch is against current BK, please apply.
 
 	Robert Love
 
@@ -70,4 +66,6 @@ diff -urN linux-2.5.36/kernel/sched.c linux/kernel/sched.c
  	prev->sleep_timestamp = jiffies;
  	spin_lock_irq(&rq->lock);
  
+
+
 

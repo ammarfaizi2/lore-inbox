@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261686AbSKSNVT>; Tue, 19 Nov 2002 08:21:19 -0500
+	id <S261861AbSKSN2S>; Tue, 19 Nov 2002 08:28:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261861AbSKSNVT>; Tue, 19 Nov 2002 08:21:19 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:49825 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id <S261686AbSKSNVS>;
-	Tue, 19 Nov 2002 08:21:18 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Javier Marcet <jmarcet@pobox.com>
-Date: Tue, 19 Nov 2002 14:28:01 +0100
+	id <S264644AbSKSN2S>; Tue, 19 Nov 2002 08:28:18 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:39101 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S261861AbSKSN2R>; Tue, 19 Nov 2002 08:28:17 -0500
+Date: Tue, 19 Nov 2002 11:32:45 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Andi Kleen <ak@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
+       <margit@margit.com>
+Subject: Re: Linux 2.4.19 patch for Suse compatibility
+In-Reply-To: <p73d6p1vi7c.fsf@oldwotan.suse.de>
+Message-ID: <Pine.LNX.4.44L.0211191132280.1571-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [PATCH] bttv & 2.5.48
-Cc: kraxel@bytesex.org, linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <7F54A233BE1@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 Nov 02 at 14:21, Javier Marcet wrote:
-> drivers/media/video/bttv-cards.c: In function AUDC_CONFIG_PINNACLE' undeclared (first use in this function)
-> drivers/media/video/bttv-cards.c:1742: (Each undeclared identifier is reported only once
-> drivers/media/video/bttv-cards.c:1742: for each function it appears in.)
-> drivers/media/video/bttv-cards.c: In function name'
-> make[4]: *** [drivers/media/video/bttv-cards.o] Error 1
-> make[3]: *** [drivers/media/video] Error 2
-> make[2]: *** [drivers/media] Error 2
-> make[1]: *** [drivers] Error 2
-> make: *** [modules] Error 2
-> 
-> I know this has not changed since 2.5.47, nor couldn't spot any
-> difference within the /media tree, yet it fails on 2.5.48 while it
-> compiled fine on 2.5.47
-> 
-> Any idea where the error might be?
+On 19 Nov 2002, Andi Kleen wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-I just commented out that offending line, as I do not have Pinnacle,
-so it should be never executed ;-)
+> > This was discussed on the kernel list about four to six weeks ago and
+> > rejected then as well. See the previous discussion
+>
+> Actually I don't remember it being rejected, just the discussion dropped
+> off and there was no suggestion on how to solve the problem this ioctl
+> solves in a better way.
 
-If you have Pinnacle, then you'll have to get tda9887 driver somewhere.
-This driver defines AUD_CONFIG_PINNACLE (as far as I can tell from
-missing pieces...).
+So, what problem does it try to solve ?
 
-AFAIK bttv driver at http://bytesex.org/bttv has this fixed.
-                                                Best regards,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                    
+Rik
+-- 
+A: No.
+Q: Should I include quotations after my reply?
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

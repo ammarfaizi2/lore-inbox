@@ -1,67 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270391AbTGMUqf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 16:46:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270395AbTGMUqf
+	id S270384AbTGMUog (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 16:44:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270385AbTGMUof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 16:46:35 -0400
-Received: from mail-infomine.ucr.edu ([138.23.89.48]:58857 "EHLO
-	mail-infomine.ucr.edu") by vger.kernel.org with ESMTP
-	id S270391AbTGMUqb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 16:46:31 -0400
-Date: Sun, 13 Jul 2003 14:01:16 -0700
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: update the i810 audio driver
-Message-ID: <20030713210116.GA738@mail-infomine.ucr.edu>
-References: <Pine.LNX.4.44.0307112041060.4337-100000@home.osdl.org> <1058083711.31919.15.camel@dhcp22.swansea.linux.org.uk>
+	Sun, 13 Jul 2003 16:44:35 -0400
+Received: from maild.telia.com ([194.22.190.101]:35326 "EHLO maild.telia.com")
+	by vger.kernel.org with ESMTP id S270384AbTGMUoe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 16:44:34 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+Subject: Re: NTFS RW enabled
+From: Christian Axelsson <smiler@lanil.mine.nu>
+Reply-To: smiler@lanil.mine.nu
+To: Niklaus <niklaus@gamebox.net>
+Cc: aia21@cantab.net, ntfs@flatcap.org, linux-ntfs-dev@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030714014702.4725a50c.niklaus@gamebox.net>
+References: <20030714014702.4725a50c.niklaus@gamebox.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-9d2kwrSMbNM2RhGC08sP"
+Organization: LANIL
+Message-Id: <1058129917.12249.53.camel@sm-wks1.lan.irkk.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1058083711.31919.15.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
-X-Fnord: +++ath
-X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
-X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
-X-BeenThere: crackmonkey@crackmonkey.org
-From: ruschein@mail-infomine.ucr.edu (Johannes Ruscheinski)
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 13 Jul 2003 22:58:37 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also sprach Alan Cox:
-> On Sad, 2003-07-12 at 04:44, Linus Torvalds (compiled with -pedantic)
-> wrote:
-> > On Fri, 11 Jul 2003, Alan Cox wrote:
-> > > -	   separately as nocache. Must be 8 byte aligned */
-> > > +	   seperately as nocache. Must be 8 byte aligned */
-> > 
-> > Ok, Alan, spot the problem.
-> 
-> Ok so I can't spell, I never claimed to be able to. The rest should
-> be fine however.
-> 
-> Alan
-> --
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
-As a -pedantic German I'd just like to point out that both the Oxford English
-Dictionary and Webster's dictionary agree that "separately" is the correct
-spelling.  The OED further lists "seperately" as an obsolete form!
--- 
-Johannes
---
-Dr. Johannes Ruscheinski
-EMail:    ruschein_AT_infomine.ucr.edu ***          Linux                  ***
-Location: science library, room G40    *** The Choice Of A GNU Generation! ***
-Phone:    (909) 787-2279
+--=-9d2kwrSMbNM2RhGC08sP
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-"There are already a million monkeys on a million typewriters, and Usenet is
- NOTHING like Shakespeare."
-                                                           -- Blair Houghton
+On Sun, 2003-07-13 at 22:17, Niklaus wrote:,
+> 	I have enabled NTFS RW
+You  are aware of the risks with rw ntfs right? It can (read will)
+eventually corrupt you filesystem (read
+http://linux-ntfs.sourceforge.net/info/ntfs.html#3.2 if you havent).
+
+About the error I aint sure, are you sure you added rw as mount option?
+Also check permissions.
+
+--=20
+Christian Axelsson
+smiler@lanil.mine.nu
+
+--=-9d2kwrSMbNM2RhGC08sP
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/Ecf9yqbmAWw8VdkRAtRmAJ0fC58Ooik/AVo1txS7cRSb6T9FkACg3bRd
+ygWlqB8sV29lcoPhhgMAZ80=
+=SUmA
+-----END PGP SIGNATURE-----
+
+--=-9d2kwrSMbNM2RhGC08sP--
+

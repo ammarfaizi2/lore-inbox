@@ -1,61 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263671AbTEEQbz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 12:31:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbTEEQbo
+	id S263728AbTEEQif (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 12:38:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263722AbTEEQgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 12:31:44 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:53963 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263671AbTEEQ25
+	Mon, 5 May 2003 12:36:52 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:18682 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263728AbTEEQgj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 12:28:57 -0400
-Date: Mon, 05 May 2003 09:40:53 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 656] New: Uninitialized timer on module mga
-Message-ID: <11400000.1052152853@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Mon, 5 May 2003 12:36:39 -0400
+Date: Mon, 5 May 2003 09:51:00 -0700
+From: Greg KH <greg@kroah.com>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.69-mm1 OOPS: modprobe usbcore
+Message-ID: <20030505165059.GA1199@kroah.com>
+References: <1052151088.1052.0.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <1052151088.1052.0.camel@teapot.felipe-alfaro.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=656
+On Mon, May 05, 2003 at 06:11:28PM +0200, Felipe Alfaro Solana wrote:
+> 
+> This error is reproducble 100% of the time when trying to boot Red Hat
+> Linux 9 with a 2.5.69-mm1 kernel. Config attached.
 
-           Summary: Uninitialized timer on module mga
-    Kernel Version: 2.5.68
-            Status: NEW
-          Severity: normal
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: s.rivoir@gts.it
+Same thing happen on 2.5.69 (no mm)?
 
+thanks,
 
-Distribution: debian unstable 
-Hardware Environment: 
-Software Environment: 
-Problem Description: Uninitialized timer in module mga 
- 
-Steps to reproduce: 
-just insert the module 
- 
-Call trace: 
-[drm:drm_init] *ERROR* Cannot initialize the agpgart module.  
-Uninitialised timer!  
-This is just a warning.  Your computer is OK  
-function=0x00000000, data=0x0  
-Call Trace:  
-[check_timer_failed+97/112] check_timer_failed+0x61/0x70  
-[del_timer+26/128] del_timer+0x1a/0x80  
-[<d09a4270>] mga_takedown+0x50/0x380 [mga]  
-[<d09a90ef>] mga_stub_unregister+0x2f/0x4b [mga]  
-[<d08d1235>] +0x235/0x25d [mga]  
-[<d09adc6c>] __func__.31+0x0/0x9 [mga]  
-[<d09baa00>] +0x0/0x140 [mga]  
-[sys_init_module+303/480] sys_init_module+0x12f/0x1e0  
-[<d09baa00>] +0x0/0x140 [mga]  
-[syscall_call+7/11] syscall_call+0x7/0xb
-
-
+greg k-h

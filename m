@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265479AbUBIXob (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 18:44:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265378AbUBIX1p
+	id S265477AbUBIX06 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 18:26:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265465AbUBIX0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 18:27:45 -0500
-Received: from mail.kroah.org ([65.200.24.183]:1981 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265445AbUBIXWp convert rfc822-to-8bit
+	Mon, 9 Feb 2004 18:26:19 -0500
+Received: from mail.kroah.org ([65.200.24.183]:4541 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265464AbUBIXWu convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 18:22:45 -0500
+	Mon, 9 Feb 2004 18:22:50 -0500
 Subject: Re: [PATCH] PCI Update for 2.6.3-rc1
-In-Reply-To: <10763689413661@kroah.com>
+In-Reply-To: <10763689421189@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 9 Feb 2004 15:22:21 -0800
-Message-Id: <10763689413014@kroah.com>
+Date: Mon, 9 Feb 2004 15:22:23 -0800
+Message-Id: <1076368943895@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -22,55 +22,75 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1500.11.17, 2004/02/04 10:03:35-08:00, colpatch@us.ibm.com
+ChangeSet 1.1500.11.21, 2004/02/09 11:03:22-08:00, greg@kroah.com
 
-[PATCH] PCI: fix "pcibus_class" Device Class, release function
-
-John Rose wrote:
-> The function release_pcibus_dev() in probe.c defines the release procedure for
-> device class pcibus_class.  I want to suggest that this function be scrapped :)
->
-> This release function is called in the code path of class_device_unregister().
-> The pcibus_class devices aren't currently unregistered anywhere, from what I
-> can tell, so this release function is currently unused.  The runtime removal of
-> PCI buses from logical partitions on PPC64 requires the unregistration of these
-> class devices.  The natural place to do this IMHO is in pci_remove_bus_device()
-> in remove.c.
-
-You're right that the class device isn't currently unregistered, and
-that was an oversight in the patch I originally sent.  Attatched is a
-patch that remedies that situation.  pci_remove_bus_device() *is* the
-natural place to unregister the class_dev, and that's just what the
-patch does.
+PCI: remove stupid MSI debugging code that was never used.
 
 
-> The problem is that this calls pci_destroy_dev(), which calls put() on the same
-> "bridge" device that the release function does.  This should only be done once
-> in the course of removing a pci_bus, and I doubt that we want to change
-> pci_destroy_dev().   The kfree() of the pci_bus struct is also done in both
-> pci_remove_bus_device() and release_pcibus_dev().
-
-Yep.  The patch pulls the kfree() out of pci_remove_bus_device() and
-calls class_device_unregister() in it's place.  This will put() the
-bridge device and free the pci_bus as needed.  put() does need to be
-called twice because the bridge device is get()'d twice: once when the
-device is registered and once when it's bus device grabs a reference to it.
+ drivers/pci/msi.c       |    1 -
+ include/linux/pci_msi.h |   29 +++--------------------------
+ 2 files changed, 3 insertions(+), 27 deletions(-)
 
 
- drivers/pci/remove.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
-diff -Nru a/drivers/pci/remove.c b/drivers/pci/remove.c
---- a/drivers/pci/remove.c	Mon Feb  9 14:58:38 2004
-+++ b/drivers/pci/remove.c	Mon Feb  9 14:58:38 2004
-@@ -83,7 +83,7 @@
- 		list_del(&b->node);
- 		spin_unlock(&pci_bus_lock);
+diff -Nru a/drivers/pci/msi.c b/drivers/pci/msi.c
+--- a/drivers/pci/msi.c	Mon Feb  9 14:58:21 2004
++++ b/drivers/pci/msi.c	Mon Feb  9 14:58:21 2004
+@@ -21,7 +21,6 @@
  
--		kfree(b);
-+		class_device_unregister(&b->class_dev);
- 		dev->subordinate = NULL;
- 	}
+ #include <linux/pci_msi.h>
  
+-_DEFINE_DBG_BUFFER
+ 
+ static spinlock_t msi_lock = SPIN_LOCK_UNLOCKED;
+ static struct msi_desc* msi_desc[NR_IRQS] = { [0 ... NR_IRQS-1] = NULL };
+diff -Nru a/include/linux/pci_msi.h b/include/linux/pci_msi.h
+--- a/include/linux/pci_msi.h	Mon Feb  9 14:58:21 2004
++++ b/include/linux/pci_msi.h	Mon Feb  9 14:58:21 2004
+@@ -3,8 +3,8 @@
+  *
+  */
+ 
+-#ifndef _ASM_PCI_MSI_H
+-#define _ASM_PCI_MSI_H
++#ifndef PCI_MSI_H
++#define PCI_MSI_H
+ 
+ #include <linux/pci.h>
+ 
+@@ -82,29 +82,6 @@
+ #define msix_mask(address)		(address | PCI_MSIX_FLAGS_BITMASK)
+ #define msix_is_pending(address) 	(address & PCI_MSIX_FLAGS_PENDMASK)
+ 
+-extern char __dbg_str_buf[256];
+-#define _DEFINE_DBG_BUFFER	char __dbg_str_buf[256];
+-#define _DBG_K_TRACE_ENTRY	((unsigned int)0x00000001)
+-#define _DBG_K_TRACE_EXIT	((unsigned int)0x00000002)
+-#define _DBG_K_INFO		((unsigned int)0x00000004)
+-#define _DBG_K_ERROR		((unsigned int)0x00000008)
+-#define _DBG_K_TRACE	(_DBG_K_TRACE_ENTRY | _DBG_K_TRACE_EXIT)
+-
+-#define _DEBUG_LEVEL	(_DBG_K_INFO | _DBG_K_ERROR | _DBG_K_TRACE)
+-#define _DBG_PRINT( dbg_flags, args... )		\
+-if ( _DEBUG_LEVEL & (dbg_flags) )			\
+-{							\
+-	int len;					\
+-	len = sprintf(__dbg_str_buf, "%s:%d: %s ", 	\
+-		__FILE__, __LINE__, __FUNCTION__ ); 	\
+-	sprintf(__dbg_str_buf + len, args);		\
+-	printk(KERN_INFO "%s\n", __dbg_str_buf);	\
+-}
+-
+-#define MSI_FUNCTION_TRACE_ENTER	\
+-	_DBG_PRINT (_DBG_K_TRACE_ENTRY, "%s", "[Entry]");
+-#define MSI_FUNCTION_TRACE_EXIT		\
+-	_DBG_PRINT (_DBG_K_TRACE_EXIT, "%s", "[Entry]");
+ 
+ /*
+  * MSI Defined Data Structures
+@@ -190,4 +167,4 @@
+ 	struct pci_dev *dev;
+ };
+ 
+-#endif /* _ASM_PCI_MSI_H */
++#endif /* PCI_MSI_H */
 

@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbTDKF3t (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 01:29:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264262AbTDKF3t (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 01:29:49 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:1164 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S264261AbTDKF3s (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 01:29:48 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id S264248AbTDKF21 (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 01:28:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264254AbTDKF20 (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 01:28:26 -0400
+Received: from [195.95.38.160] ([195.95.38.160]:48376 "HELO mail.vt4.net")
+	by vger.kernel.org with SMTP id S264248AbTDKF2Z convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 01:28:25 -0400
+From: DevilKin <devilkin-lkml@blindguardian.org>
+To: Jon Portnoy <portnoy@tellink.net>,
+       "Richard B. Johnson" <root@chaos.analogic.com>
+Subject: Re: kernel support for non-english user messages
+Date: Fri, 11 Apr 2003 07:39:35 +0200
+User-Agent: KMail/1.5.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       devilkin-lkml@blindguardian.org
+References: <3E93A958.80107@si.rr.com> <Pine.LNX.4.53.0304101638010.4978@chaos> <Pine.LNX.4.53.0304101903280.19136@cerberus.oppresses.us>
+In-Reply-To: <Pine.LNX.4.53.0304101903280.19136@cerberus.oppresses.us>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16022.21891.554860.506152@napali.hpl.hp.com>
-Date: Thu, 10 Apr 2003 22:41:23 -0700
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: <alan@lxorguk.ukuu.org.uk>, <davidm@hpl.hp.com>, <akpm@zip.com.au>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: proc_misc.c bug
-In-Reply-To: <32880.4.64.197.106.1050037303.squirrel@webmail.osdl.org>
-References: <200304102202.h3AM2YH3021747@napali.hpl.hp.com>
-	<1050011057.12930.134.camel@dhcp22.swansea.linux.org.uk>
-	<20030410154902.32f48f9c.rddunlap@osdl.org>
-	<32880.4.64.197.106.1050037303.squirrel@webmail.osdl.org>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200304110739.41947.devilkin-lkml@blindguardian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 10 Apr 2003 22:01:43 -0700 (PDT), "Randy.Dunlap" <rddunlap@osdl.org> said:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-  Randy> OK, I've looked at it and concluded that it's not bad the way
-  Randy> it is (after David's patch is applied).  However, that really
-  Randy> depends on whether the static NR_CPUS is well-tuned or not.
-  Randy> If it's not tuned, then modifying the output to use the
-  Randy> iterative seq_file methods would make sense.  But if it's not
-  Randy> tuned, someone is (usually) wasting lots of memory anyway.
+On Friday 11 April 2003 01:05, Jon Portnoy wrote:
+> A whole lot of users use dmesg output to figure out if their kernel is
+> detecting a piece of hardware. That's a very useful thing to have handy
+> and definitely not something that should be yanked out for the sake of
+> making it look pretty for people who don't know what they're doing with
+> their computer.
 
-  Randy> [snip...]
+True. 
 
-  Randy> Does someone want to disagree now?  go ahead...i'm listening.
-  Randy> Maybe the reason to modify it is that NR_CPUS is not a good
-  Randy> approximation/hint/clue.
+Why not turn it into a kernel flag that you can set at bootup through LILO or 
+some other obscure boot manager? Then you could boot linux like this:
 
-Wouldn't the kmalloc() likely fail in fragmented conditions?  Also,
-I'm wondering whether there is such a thing as "well-tuned" in this
-case.  For example, in the extreme case of the SGI SN2 machine, each
-CPU could in theory have up to 256 interrupt sources (OK, perhaps it's
-only 256 interrupts per 2 CPUs, but it's still a lot of interrupts to
-go around ;-).  OTOH, most ia64 machines out there have less than 256
-interrupt per _system_.  That's a large variation.
+linux dmesg=verbose
 
-	--david
+and
+
+linux dmesg=quiet
+
+with any of the two being the default setting. This way you can have the cake 
+and eat it too: the verbose setting for those that want it, and the quiet 
+setting for the users that don't want to get scared sh*tless everytime their 
+system boots. I know I got scared first time I booted a Linux box :P
+
+Jan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+llUapuyeqyCEh60RAoQiAJ482mlR4GYiagB3r05dDRaYtJfWJACfSow4
+qO0z3Q68S5TRoUqENlB/Asc=
+=tMBA
+-----END PGP SIGNATURE-----
+

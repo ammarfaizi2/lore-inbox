@@ -1,76 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313711AbSDHReH>; Mon, 8 Apr 2002 13:34:07 -0400
+	id <S313714AbSDHRtz>; Mon, 8 Apr 2002 13:49:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313712AbSDHReG>; Mon, 8 Apr 2002 13:34:06 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:9743 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S313711AbSDHReG>;
-	Mon, 8 Apr 2002 13:34:06 -0400
-Date: Mon, 8 Apr 2002 13:08:49 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>, nahshon@actcom.co.il,
-        Pavel Machek <pavel@suse.cz>, Benjamin LaHaise <bcrl@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, joeja@mindspring.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: faster boots?
-Message-ID: <20020408130849.A30751@mark.mielke.cc>
-In-Reply-To: <200204080048.g380mt514749@lmail.actcom.co.il> <200204080057.g380vbO00868@vindaloo.ras.ucalgary.ca> <3CB0EF0B.14D48619@zip.com.au>
-Mime-Version: 1.0
+	id <S313715AbSDHRty>; Mon, 8 Apr 2002 13:49:54 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:10814 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S313714AbSDHRty>; Mon, 8 Apr 2002 13:49:54 -0400
+To: Pavel Machek <pavel@suse.cz>
+Cc: Brian Litzinger <brian@top.worldcontrol.com>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Make swsusp actually work better
+In-Reply-To: <20020407233725.GA15559@elf.ucw.cz>
+	<20020408074729.GA1634@top.worldcontrol.com>
+	<20020408101256.GE27999@atrey.karlin.mff.cuni.cz>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 08 Apr 2002 11:43:11 -0600
+Message-ID: <m1k7rim6hc.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not really thinking about how hard it would be to implement, I suggest
-that the appropriate place for this to be, would be a mount option.
+Pavel Machek <pavel@suse.cz> writes:
 
-Just as 'noatime', or 'sync', perhaps a 'delaywrite' option would be a
-good choice. An advantage of this approach, is that I could make /tmp
-be 'delaywrite+journal' in an effort to improve the efficiency of
-/tmp, as I could care less what I lost in /tmp between reboots under
-extreme situations.
-
-mark
-
-
-On Sun, Apr 07, 2002 at 06:14:51PM -0700, Andrew Morton wrote:
-> Richard Gooch wrote:
+> Hi!
+> 
+> > > There were two bugs, and linux/mm.h one took me *very* long to
+> > > find... Well, those bits used for zone should have been marked. Plus I
+> > > hack ide_..._suspend code not to panic, and it now seems to
+> > > work. [Sorry, 2pm, have to get some sleep.]
 > > 
-> > But I *want* to write while the drive is spun down. And leave it spun
-> > down until the system is RAM starved (or some threshold is reached).
+> > I can suspend without oopses.  Yeh!
 > > 
+> > However, during the boot '2419p5a3 resume=/dev/hda6'  it oopses right
+> > after saying a couple of things about not being able to determine
+> > blocksize.  I'll photograph the repeatable oops and get it to you
+> > when I have access to my camera again.  Probably in the next
+> > 24 hours. 
 > 
-> Yes.  The desirable behaviour for laptops is to defer writes
-> for a very long time, or until the user says "sync".
+> I mailed two patches to the list in last two days. The first one
+> should fix this.
 > 
-> Mechanisms need to be put in place so that if there are pending
-> writes and the disk happens to be spun up for a read, we take
-> advantage of that spinup to push out the pending writes at
-> the same time.
+> > > (about SSSCA) "I don't say this lightly.  However, I really think that
+> > > the U.S. no longer is classifiable as a democracy, but rather as a
+> > > plutocracy." --hpa
+> > 
+> > The US was never a democracy.  It was a constitutional republic.
 > 
-> This behaviour should be all be enabled by a special "laptop mode"
-> switch.
-> 
-> There's nothing particularly hard in all this...  I'll do a 2.5
-> version at some stage.
-> 
-> -
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> I think you can have democracy and constitutional republic at same
+> time, no?
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+In a technical sense the difference is when a vote is taken to
+pass/not pass a law.   In a republic your representative votes for
+you.  In a democracy every citizen in the whole nation votes.
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
+Eric
 

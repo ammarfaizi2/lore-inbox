@@ -1,131 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVCFWIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbVCFWNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261371AbVCFWIG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 17:08:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbVCFWIG
+	id S261474AbVCFWNw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 17:13:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbVCFWNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 17:08:06 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:25606 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261371AbVCFWHt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 17:07:49 -0500
-Date: Sun, 6 Mar 2005 23:07:47 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] sound/oss/: cleanups
-Message-ID: <20050306220747.GP5070@stusta.de>
+	Sun, 6 Mar 2005 17:13:52 -0500
+Received: from nevyn.them.org ([66.93.172.17]:39395 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S261474AbVCFWNu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 17:13:50 -0500
+Date: Sun, 6 Mar 2005 17:13:47 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Roland McGrath <roland@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Cagney <cagney@redhat.com>
+Subject: Re: More trouble with i386 EFLAGS and ptrace
+Message-ID: <20050306221347.GA14194@nevyn.them.org>
+Mail-Followup-To: Roland McGrath <roland@redhat.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Cagney <cagney@redhat.com>
+References: <Pine.LNX.4.58.0503061155280.2304@ppc970.osdl.org> <200503062122.j26LMP5F021846@magilla.sf.frob.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200503062122.j26LMP5F021846@magilla.sf.frob.com>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains cleanups including the following:
-- make needlessly global code static
+On Sun, Mar 06, 2005 at 01:22:25PM -0800, Roland McGrath wrote:
+> > I _think_ your test-case would work right if you just moved that code from
+> > the special-case in do_debug(), and moved it to the top of
+> > setup_sigcontext() instead. I've not tested it, though, and haven't really 
+> > given it any "deep thought". Maybe somebody smarter can say "yeah, that's 
+> > obviously the right thing to do" or "no, that won't work because.."
+> 
+> Indeed, this is what my original changes for this did, before you started
+> cleaning things up to be nice to TF users other than PTRACE_SINGLESTEP. 
+> 
+> I note, btw, that the x86_64 code is still at that prior stage.  So I think
+> it doesn't have this new wrinkle, but it also doesn't have the advantages
+> of the more recent i386 changes.  Once we're sure about the i386 state, we
+> should update the x86_64 code to match.
+> 
+> I'm not sure what kind of smart this makes me, but I'll say that your plan
+> would work and no, it's obviously not the right thing to do. ;-) I haven't
+> tested the following, not having tracked down the specific problem case you
+> folks are talking about.  But I think this is the right solution.  The
+> difference is that when we stop for some signal and report to the debugger,
+> the debugger looking at our registers will see TF clear instead of set,
+> before it decides whether to continue us with the signal or what to do.
+> With the change yo suggested, (I think) if the debugger decides to eat the
+> signal and resume, we would get a spurious single-step trap after executing
+> the next instruction, instead of resuming normally as requested.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Roland, the sigstep.exp test in the GDB testsuite will show this
+problem; if your patch monotonically improves GDB HEAD testsuite
+results and removes all the FAILs for sigstep.exp, then it's probably
+equivalent to the one I just posted for this testcase.
 
----
+I think mine is more correct; the problem doesn't occur because the
+debugger cancelled a signal, it occurs because a bogus TF bit was saved
+to the signal context.  I like keeping solutions close to their
+problems.  But that's just aesthetic.
 
- sound/oss/ad1816.c      |    2 +-
- sound/oss/nm256.h       |    2 +-
- sound/oss/nm256_audio.c |    4 ++--
- sound/oss/nm256_coeff.h |    2 +-
- sound/oss/v_midi.c      |    2 --
- sound/oss/wavfront.c    |   12 ++++++------
- 6 files changed, 11 insertions(+), 13 deletions(-)
-
---- linux-2.6.11-mm1-full/sound/oss/ad1816.c.old	2005-03-06 22:13:46.000000000 +0100
-+++ linux-2.6.11-mm1-full/sound/oss/ad1816.c	2005-03-06 22:22:52.000000000 +0100
-@@ -592,7 +592,7 @@
-   {{reg_l, pola_l, pos_l, len_l}, {reg_r, pola_r, pos_r, len_r}}
- 
- 
--mixer_ent mix_devices[SOUND_MIXER_NRDEVICES][2] = {
-+static mixer_ent mix_devices[SOUND_MIXER_NRDEVICES][2] = {
- MIX_ENT(SOUND_MIXER_VOLUME,	14, 1, 8, 5,	14, 1, 0, 5),
- MIX_ENT(SOUND_MIXER_BASS,	 0, 0, 0, 0,	 0, 0, 0, 0),
- MIX_ENT(SOUND_MIXER_TREBLE,	 0, 0, 0, 0,	 0, 0, 0, 0),
---- linux-2.6.11-mm1-full/sound/oss/nm256.h.old	2005-03-06 22:14:23.000000000 +0100
-+++ linux-2.6.11-mm1-full/sound/oss/nm256.h	2005-03-06 22:24:47.000000000 +0100
-@@ -284,7 +284,7 @@
- }
- 
- /* Returns a non-zero value if we should use the coefficient cache. */
--extern int nm256_cachedCoefficients (struct nm256_info *card);
-+static int nm256_cachedCoefficients (struct nm256_info *card);
- 
- #endif
- 
---- linux-2.6.11-mm1-full/sound/oss/nm256_coeff.h.old	2005-03-06 22:16:18.000000000 +0100
-+++ linux-2.6.11-mm1-full/sound/oss/nm256_coeff.h	2005-03-06 22:22:52.000000000 +0100
-@@ -4650,7 +4650,7 @@
-     card->coeffsCurrent = 1;
- }
- 
--void
-+static void
- nm256_loadCoefficient (struct nm256_info *card, int which, int number)
- {
-     static u16 addrs[3] = { 0x1c, 0x21c, 0x408 };
---- linux-2.6.11-mm1-full/sound/oss/nm256_audio.c.old	2005-03-06 22:14:42.000000000 +0100
-+++ linux-2.6.11-mm1-full/sound/oss/nm256_audio.c	2005-03-06 22:22:52.000000000 +0100
-@@ -31,7 +31,7 @@
- #include "nm256.h"
- #include "nm256_coeff.h"
- 
--int nm256_debug;
-+static int nm256_debug;
- static int force_load;
- 
- /* 
-@@ -138,7 +138,7 @@
- static int buffertop;
- 
- /* Check to see if we're using the bank of cached coefficients. */
--int
-+static int
- nm256_cachedCoefficients (struct nm256_info *card)
- {
-     return usecache;
---- linux-2.6.11-mm1-full/sound/oss/v_midi.c.old	2005-03-06 22:17:55.000000000 +0100
-+++ linux-2.6.11-mm1-full/sound/oss/v_midi.c	2005-03-06 22:22:52.000000000 +0100
-@@ -39,8 +39,6 @@
-  */
- 
- 
--void            (*midi_input_intr) (int dev, unsigned char data);
--
- static int v_midi_open (int dev, int mode,
- 	      void            (*input) (int dev, unsigned char data),
- 	      void            (*output) (int dev)
---- linux-2.6.11-mm1-full/sound/oss/wavfront.c.old	2005-03-06 22:18:52.000000000 +0100
-+++ linux-2.6.11-mm1-full/sound/oss/wavfront.c	2005-03-06 22:22:52.000000000 +0100
-@@ -151,11 +151,11 @@
- 
- /*** Module-accessible parameters ***************************************/
- 
--int wf_raw;     /* we normally check for "raw state" to firmware
--		   loading. if set, then during driver loading, the
--		   state of the board is ignored, and we reset the
--		   board and load the firmware anyway.
--		*/
-+static int wf_raw;     /* we normally check for "raw state" to firmware
-+			   loading. if set, then during driver loading, the
-+			   state of the board is ignored, and we reset the
-+			   board and load the firmware anyway.
-+			*/
- 		   
- static int fx_raw = 1; /* if this is zero, we'll leave the FX processor in
- 		          whatever state it is when the driver is loaded.
-@@ -2911,7 +2911,7 @@
- 	return 0;
- }	
- 
--void
-+static void
- wffx_mute (int onoff)
-     
- {
-
+-- 
+Daniel Jacobowitz
+CodeSourcery, LLC

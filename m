@@ -1,67 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263152AbTDVNZN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 09:25:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263146AbTDVNZN
+	id S263144AbTDVNbi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 09:31:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263146AbTDVNbi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 09:25:13 -0400
-Received: from mx1.technologica.biz ([217.75.131.34]:62137 "EHLO
-	mx1.technologica.biz") by vger.kernel.org with ESMTP
-	id S263140AbTDVNZK convert rfc822-to-8bit (ORCPT
+	Tue, 22 Apr 2003 09:31:38 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:5070 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id S263144AbTDVNbh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 09:25:10 -0400
-content-class: urn:content-classes:message
+	Tue, 22 Apr 2003 09:31:37 -0400
+Date: Tue, 22 Apr 2003 15:42:29 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Andreas Dilger <adilger@clusterfs.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-rc1
+In-Reply-To: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva>
+Message-ID: <Pine.GSO.4.21.0304221539260.16017-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: unable to stop /dev/md1 where root is mounted on 2.4.19.SuSE-246
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Date: Tue, 22 Apr 2003 16:38:35 +0300
-Message-ID: <15F26D0D9E18E24583D912511D668FF8027230@exchange.ad.tlogica.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-topic: unable to stop /dev/md1 where root is mounted on 2.4.19.SuSE-246
-Thread-Index: AcMI1HkTU5kdhHb4S/CsJF8dcRGbzQ==
-From: "Michael Daskalov" <MDaskalov@technologica.biz>
-To: <linux-raid@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all, 
-I have the following situation. I have my root partition on RAID1 (/dev/hda5 and /dev/sda5) - /dev/md1. 
+On Mon, 21 Apr 2003, Marcelo Tosatti wrote:
+> Andreas Dilger <adilger@clusterfs.com>:
+>   o don't allocate/free blocks in system areas
 
-I have two partitions for boot, which are also in raid1 configuration. 
-/dev/md0 (/dev/hda1, /dev/sda1). 
+This change causes a compile warning, cfr. the fix below.
 
-On system reboot or shutdown the md device is not stopped (a clean record is not written on it), 
-And after system reboot it always starts reconstructing. 
+BTW, perhaps `tmp' should be `unsigned int', instead of `int', cfr. the `%u'?
 
-Which is the correct way to setup the situation? 
+--- linux-2.4.21-rc1/fs/ext2/balloc.c.orig	Tue Apr 22 11:54:53 2003
++++ linux-2.4.21-rc1/fs/ext2/balloc.c	Tue Apr 22 15:39:59 2003
+@@ -520,7 +520,7 @@
+ 	    in_range (tmp, le32_to_cpu(gdp->bg_inode_table),
+ 		      EXT2_SB(sb)->s_itb_per_group)) {
+ 		ext2_error (sb, "ext2_new_block",
+-			    "Allocating block in system zone - block = %lu",
++			    "Allocating block in system zone - block = %u",
+ 			    tmp);
+ 		ext2_set_bit(j, bh->b_data);
+ 		DQUOT_FREE_BLOCK(inode, 1);
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
 
-
-I'm activating the raid devices through initrd's linuxrc, where I'm loading a 
-1) hpt302.o driver, 
-2) raid1.o, raid5.o - The raid personality modules, and then I run 
-3)raidstart --all. 
-
-
-
-On shutdown I see messages that 
-/dev/md2, /dev/md3, /dev/md4 are also stopped. 
-
-I see a message saying /dev/md0 is put in read-only mode. 
-
-Only /dev/md1 where is my rootfs is not stopped. 
-I see the following message: 
-md: md1 is still active 
-
-The problem occurs on SuSE 7.2 with kernel 2.4.19.
-
-I didn't have this problem with 2.4.4 kernel on SuSE 7.1
-
-For me this looks like a bug in the kernel shutdown (reboot) functionality, but I know too little to say.
-
-Best regards and 10x for any help, 
-Mihail Daskalov 

@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131937AbRCVDMZ>; Wed, 21 Mar 2001 22:12:25 -0500
+	id <S131893AbRCVDJz>; Wed, 21 Mar 2001 22:09:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131938AbRCVDMP>; Wed, 21 Mar 2001 22:12:15 -0500
-Received: from nrg.org ([216.101.165.106]:10596 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S131937AbRCVDMA>;
-	Wed, 21 Mar 2001 22:12:00 -0500
-Date: Wed, 21 Mar 2001 19:11:19 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: linux-kernel@vger.kernel.org
-Subject: lock_kernel() usage and sync_*() functions
-Message-ID: <Pine.LNX.4.05.10103211901070.705-100000@cosmic.nrg.org>
+	id <S131914AbRCVDJq>; Wed, 21 Mar 2001 22:09:46 -0500
+Received: from biglinux.tccw.wku.edu ([161.6.10.206]:20886 "EHLO
+	biglinux.tccw.wku.edu") by vger.kernel.org with ESMTP
+	id <S131893AbRCVDJ2>; Wed, 21 Mar 2001 22:09:28 -0500
+Date: Wed, 21 Mar 2001 21:08:34 -0600 (CST)
+From: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
+To: Kernel-mailing list <linux-kernel@vger.kernel.org>
+Subject: Sound issues with m805lr motheboard
+Message-ID: <Pine.LNX.4.30.0103212050580.3677-100000@biglinux.tccw.wku.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why is the kernel lock held around sync_supers() and sync_inodes() in
-sync_old_buffers() and fsync_dev(), but not in sync_dev()?  Is it just
-to serialize calls to these functions, or is there some other reason?
+My LUG has had a machine donated with a PC Chips M805LR Motherboard (info
+here http://www.eurocomla.com/m805lr.htm)  I have to get it working to
+stream our meetings with realserver.  as such I cannot use the new 2.4
+kernels with it since Realserver won't work with them.  I am having
+trouble with the kernel drivers for its onboard sound card.  I have
+compiled the driver for the VIA 82C686 and I can get sound, but it will
+not recognize the line-in port.  If I use a 2.4 kernel on the machine then
+it works fine, but I can't run the realserver with it.  Is this a known
+issue with the VIA drivers in the 2.2.xx (i am using 2.2.18)? if so is
+there a work around for it?  Any info would be helpful.
+thanks,
+Brent Norris
 
-Since this use of the BKL is one of the causes of high preemption
-latency in a preemptible kernel, I'm hoping it would be OK to replace
-them with a semaphore.  Please let me know if this is not the case.
+System Admin - 	WKU-Center for BioDiversity (4)
+		WKU-Linux (3)
+		Best Mechanical (3)
 
-Thanks!
-
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
-
-MontaVista Software                             nigel@mvista.com
 

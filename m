@@ -1,371 +1,202 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280357AbRKNIVv>; Wed, 14 Nov 2001 03:21:51 -0500
+	id <S280361AbRKNIlm>; Wed, 14 Nov 2001 03:41:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280351AbRKNIVo>; Wed, 14 Nov 2001 03:21:44 -0500
-Received: from gate.mesa.nl ([194.151.5.70]:22796 "EHLO joshua.mesa.nl")
-	by vger.kernel.org with ESMTP id <S280357AbRKNIV1>;
-	Wed, 14 Nov 2001 03:21:27 -0500
-Date: Wed, 14 Nov 2001 09:20:22 +0100
-From: "Marcel J.E. Mol" <marcel@mesa.nl>
-To: Mingming cao <cmm@us.ibm.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        lse-tech@lists.sourceforge.net
-Subject: Re: [PATCH]Disk IO statistics for all disks (request queue)
-Message-ID: <20011114092022.A23345@joshua.mesa.nl>
-Reply-To: marcel@mesa.nl
-In-Reply-To: <Pine.LNX.4.33.0111121401070.7555-100000@penguin.transmeta.com> <3BF1D45E.9ECE1A12@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BF1D45E.9ECE1A12@us.ibm.com>; from cmm@us.ibm.com on Tue, Nov 13, 2001 at 06:18:06PM -0800
+	id <S280351AbRKNIld>; Wed, 14 Nov 2001 03:41:33 -0500
+Received: from [212.65.238.182] ([212.65.238.182]:5127 "EHLO
+	trebo3.chemoprojekt.cz") by vger.kernel.org with ESMTP
+	id <S280368AbRKNIlX>; Wed, 14 Nov 2001 03:41:23 -0500
+Message-ID: <35E64A70B5ACD511BCB0000000004CA109593B@NT_CHEMO>
+From: PVotruba@Chemoprojekt.cz
+To: mcintosh@research.telcordia.com
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Promise PDC20262 in kernel 2.4.x
+Date: Wed, 14 Nov 2001 09:41:24 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
+and how about IRQ sharing? I wonder that Promise cards are little bit
+selfish about their resources, because I spent a lot of time setting them up
+to cooperate with rest of hardware (scsi controller, ide onboard
+controllers, NIC etc.). Finally I discovered, that my Promise controller had
+to have polished setup in BIOS to init&boot correctly:
+1) PCI-IDE map to <PCI slot # of Promise card>
+2) PCI-IRQ on <PCI slot # of Promise card> setup to some certain value, as
+high as possible (not AUTO)
+3)in PCI/PnP section of BIOS set this value as USED BY ISA (if I remember
+well :)
+4) of course setup your BIOS to "Not PnP OS (even if linux is PnP)"
 
-What is wrong with tha sar patches from Stephan Tweedie.
-They also include data to caclculate disk responsetime, busy%
-and queue lengths.
-Would be nice to have this in the mainstream kernel.
+I hope this can help.
 
--Marcel
+Regards,
+Petr
 
-On Tue, Nov 13, 2001 at 06:18:06PM -0800, Mingming cao wrote:
-> Hi Linus, Alan, All,
+> ----- Original message follows -----
+> Setup: Dell Dimension XPS T-700r
+> 	Onboard PCI Controller:
+> 		Primary IDE: empty
+> 		Secondary IDE: CD, CD-RW
+> 	Promise PDC 20262 IDE card
+> 		Primary: Quantum Fireball 30Gb
+> 		Secondary: Seagate ST330630A
 > 
-> Here is a try in the direction of moving disk statistics into the
-> request queue.  The main idea is: For each request queue,there is a
-> pointer to a statistics structure. The statistics structure is
-> dynamically allocated in blk_init_queue() and freed in
-> blk_cleanup_queue(). Disk statistics gathering is easier and faster now,
-> since less lookup is needed. In this way we extend the disk io gathering
-> ability, dynamically allocate statistics memory for registered device
-> only, and faster disk statistics gathering in the kernel side.
+> Symptoms: No recent stock distribution install disk I have will boot. (RH
+> 7.x,
+> MDK 8.x)  The boot sequence gets all the addresses right, but dies after
+> printing
+> 	ide2 at 0x10f8-0x10ff,0x10f2 on irq 10
+> I haven't found kernel options that will cure this.  The addresses printed
+> by the kernel are all correct, and
+> 	ide0=noautotune,ide2=noautotune
+> has no effect.  (This has all been reported before.  If someone can point
+> me to a FM to R, I would be eternally grateful :-)
 > 
-> However, by moving statistics into the request queue, it makes
-> kstat_read_proc() hard (maybe slower?) to show those statistics.  It is
-> not straightforward to find out all request queues since drivers could
-> have their own request queues.  The method used in this patch is,for
-> each major, calculates the max number of disks(by the
-> gendisk.minor_shift), and loop around to call blk_get_queue() to lookup
-> the request queue associated with every disk. Any suggestions on how to
-> find out all request queues in kstat_read_proc()?   
+> BUT
 > 
-> The fact is, the value of max number of disks calculated through
-> gendisk.minor_shift, may be greater than the actual max number disks
-> defined in the driver. For example,  MAX_DRIVES defined in ide.h is 2,
-> but ide could have up to 4 disks in theory.  ide_get_queue() returns 
-> one of the first two request queues when the disk index is greater than
-> MAX_DRIVES.  Thus, kstat_read_proc() will print the the statistics for
-> ide disk2 and disk3, since to kstat_read_proc(), there are request
-> queues associated with those disks(even if those disks are not exist). 
-> I don't know whether changing the ide_get_queue() (ide_get_queue()
-> returns NULL if disk index is out of range) is a right way to fix this. 
-> Could break anything?  Also,  any other drivers have similar issues?
+> I discovered by accident that a kernel with NO Promise support compiled
+> in boots just fine!  The resulting system is slow - I suspect it's not
+> using DMA - but the system does run.
+> This statement applies to kernels 2.4.5, 2.4.10 and 2.4.14.
+> (For anyone with a similar problem who might be reading this, the
+> implication is that a disk built on another machine with a custom
+> kernel will boot when installed.)
 > 
-> One more thing I am not sure is, for the device which has multiple disks
-> but only use one default request queue, there is no way to differentiate
-> the statistics between disks;  Also, gathering statistics at the
-> partition level seems impossible, although I am not sure how important
-> it is.
+> So... anyone have any insight?  I'm willing to change configuration,
+> test patches, provide more information, etc.
+> 
+> Gory details:
+> 
+> Kernel configuration that works (IDE stuff only):
+> 
+> CONFIG_IDE=y
+> CONFIG_BLK_DEV_IDE=y
+> CONFIG_BLK_DEV_IDEDISK=y
+> CONFIG_BLK_DEV_IDEFLOPPY=y
+> CONFIG_BLK_DEV_IDESCSI=y
+> CONFIG_BLK_DEV_CMD640=y
+> CONFIG_BLK_DEV_CMD640_ENHANCED=y
+> CONFIG_BLK_DEV_IDEPCI=y
+> CONFIG_IDEPCI_SHARE_IRQ=y
+> CONFIG_BLK_DEV_IDEDMA_PCI=y
+> CONFIG_BLK_DEV_ADMA=y
+> CONFIG_BLK_DEV_OFFBOARD=y
+> CONFIG_IDEDMA_PCI_AUTO=y
+> CONFIG_BLK_DEV_IDEDMA=y
+> CONFIG_BLK_DEV_PIIX=y
+> # CONFIG_PIIX_TUNING is not set
+> # CONFIG_BLK_DEV_PDC202XX is not set
+> # CONFIG_PDC202XX_BURST is not set
+> # CONFIG_PDC202XX_FORCE is not set
 > 
 > 
-> Attached patch is against 2.4.14.  Thanks in advance for your inputs and
-> comments.
+> Diffs with kernel configuration that doesn't work:
+> 
+> < # CONFIG_BLK_DEV_PDC202XX is not set
+> ---
+> > CONFIG_BLK_DEV_PDC202XX=y
 > 
 > 
-> -- 
-> Mingming Cao
-> IBM Linux Technology Center
-> 503-578-5024  IBM T/L: 775-5024
-> cmm@us.ibm.com
-> http://www.ibm.com/linux/ltc
-> diff -urN -X dontdiff linux-2.4.14/drivers/block/ll_rw_blk.c linux-test/drivers/block/ll_rw_blk.c
-> --- linux-2.4.14/drivers/block/ll_rw_blk.c	Mon Oct 29 12:11:17 2001
-> +++ linux-test/drivers/block/ll_rw_blk.c	Tue Nov 13 12:18:20 2001
-> @@ -183,7 +183,12 @@
->  
->  	if (count)
->  		printk("blk_cleanup_queue: leaked requests (%d)\n", count);
+> (Turning on CONFIG_PDC202XX_BURST made no difference.)
+> 
+> IDE related messages from successful boot (kernel with no Promise
+> support):
+> 
+> 
+> Uniform Multi-Platform E-IDE driver Revision: 6.31
+> ide: Assuming 33MHz system bus speed for PIO modes; override with
+> idebus=xx
+> PIIX4: IDE controller on PCI bus 00 dev 39
+> PIIX4: chipset revision 1
+> PIIX4: not 100% native mode: will probe irqs later
+>     ide1: BM-DMA at 0x10e8-0x10ef, BIOS settings: hdc:pio, hdd:DMA
+> PDC20262: IDE controller on PCI bus 00 dev 70
+> PCI: Found IRQ 10 for device 00:0e.0
+> PDC20262: chipset revision 1
+> PDC20262: not 100% native mode: will probe irqs later
+>     ide0: BM-DMA at 0x1080-0x1087, BIOS settings: hda:pio, hdb:pio
+>     ide2: BM-DMA at 0x1088-0x108f, BIOS settings: hde:pio, hdf:pio
+> hda: QUANTUM FIREBALLP LM30.0, ATA DISK drive
+> hdc: _NEC DV-5700A, ATAPI CD/DVD-ROM drive
+> hdd: SONY CD-RW CRX140E, ATAPI CD/DVD-ROM drive
+> hde: ST330630A, ATA DISK drive
+> ide0 at 0x1400-0x1407,0x10f6 on irq 10
+> ide1 at 0x170-0x177,0x376 on irq 15
+> ide2 at 0x10f8-0x10ff,0x10f2 on irq 10
+> hda: 58633344 sectors (30020 MB) w/1900KiB Cache, CHS=58168/16/63
+> hde: 59777640 sectors (30606 MB) w/2048KiB Cache, CHS=59303/16/63
+> ide-floppy driver 0.97.sv
+> Partition check:
+>  hda: [PTBL] [3649/255/63] hda1
+>  hde: [PTBL] [3720/255/63] hde1 hde2 hde3 hde4 < hde5 hde6 hde7 hde8 hde9
+> hde10 >
+> ide-floppy driver 0.97.sv
+> SCSI subsystem driver Revision: 1.00
+> scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+>   Vendor: _NEC      Model: DV-5700A          Rev: 1.05
+>   Type:   CD-ROM                             ANSI SCSI revision: 02
+>   Vendor: SONY      Model: CD-RW  CRX140E    Rev: 1.0n
+>   Type:   CD-ROM                             ANSI SCSI revision: 02
+> Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
+> Attached scsi CD-ROM sr1 at scsi0, channel 0, id 1, lun 0
+> sr0: scsi3-mmc drive: 17x/40x cd/rw xa/form2 cdda tray
+> Uniform CD-ROM driver Revision: 3.12
+> sr1: scsi3-mmc drive: 32x/32x writer cd/rw xa/form2 cdda tray
+> usb.c: registered new driver usbdevfs
+> 
+> 
+> IDE related messages from failed boot:
+> 
+> PDC20262: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode
+> 
+> appears before
+> 	ide0: BM-DMA at 0x1080-0x1087, BIOS settings: hda:pio, hdb:pio
+> and the system dies after
+> 	ide2 at 0x10f8-0x10ff,0x10f2 on irq 10
+> 
+> 
+> hdparm -i /dev/hda
+> 
+> /dev/hda:
+> 
+>  Model=QUANTUM FIREBALLP LM30.0, FwRev=A35.0700, SerialNo=186011032806
+>  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+>  RawCHS=16383/16/63, TrkSize=32256, SectSize=21298, ECCbytes=4
+>  BuffType=DualPortCache, BuffSize=1900kB, MaxMultSect=16, MultSect=off
+>  CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=58633344
+>  IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+>  PIO modes: pio0 pio1 pio2 pio3 pio4 
+>  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4 
+>  AdvancedPM=no
+>  Drive Supports : ATA/ATAPI-5 T13 1321D revision 1 : ATA-1 ATA-2 ATA-3
+> ATA-4 ATA-5 
+> 
+> hdparm -i /dev/hde
+> 
+> /dev/hde:
+> 
+>  Model=ST330630A, FwRev=3.21, SerialNo=3CK04SY4
+>  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs RotSpdTol>.5% }
+>  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=0
+>  BuffType=unknown, BuffSize=2048kB, MaxMultSect=16, MultSect=off
+>  CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=59777640
+>  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+>  PIO modes: pio0 pio1 pio2 pio3 pio4 
+>  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4 
+>  AdvancedPM=no
+>  Drive Supports : Reserved : ATA-1 ATA-2 ATA-3 ATA-4 
+> 
+> One final note: The RH 7.2 kernel (and maybe earlier ones, I can't
+> remember)
+> puts the Promise controller at hde/f and hdg/h instead, but the net result
+> is the same.
 > -
-> +	/*
-> +	 * free statistics structure
-> +	 */
-> +	if (q->dk_stat)
-> +		kfree(q->dk_stat);
-> +	
->  	memset(q, 0, sizeof(*q));
->  }
->  
-> @@ -393,6 +398,8 @@
->   **/
->  void blk_init_queue(request_queue_t * q, request_fn_proc * rfn)
->  {
-> +	disk_stat * new;	
-> +
->  	INIT_LIST_HEAD(&q->queue_head);
->  	elevator_init(&q->elevator, ELEVATOR_LINUS);
->  	blk_init_free_list(q);
-> @@ -413,6 +420,15 @@
->  	 */
->  	q->plug_device_fn 	= generic_plug_device;
->  	q->head_active    	= 1;
-> +	/* 
-> +	 * At last, allocate and initialize the statistics 
-> +	 */
-> +	new = (disk_stat * )kmalloc(sizeof(disk_stat), GFP_KERNEL);
-> +	if (new == NULL) {
-> +		printk(KERN_ERR "blk_init_queue:error allocating statisitcs\n");
-> +	}
-> +	memset(new, 0, sizeof(disk_stat));
-> +	q->dk_stat = new;
->  }
->  
->  #define blkdev_free_rq(list) list_entry((list)->next, struct request, queue);
-> @@ -497,23 +513,18 @@
->  	else ro_bits[major][minor >> 5] &= ~(1 << (minor & 31));
->  }
->  
-> -inline void drive_stat_acct (kdev_t dev, int rw,
-> +inline void drive_stat_acct (disk_stat * ds, int rw,
->  				unsigned long nr_sectors, int new_io)
->  {
-> -	unsigned int major = MAJOR(dev);
-> -	unsigned int index;
-> -
-> -	index = disk_index(dev);
-> -	if ((index >= DK_MAX_DISK) || (major >= DK_MAX_MAJOR))
-> +	if (ds == NULL)
->  		return;
->  
-> -	kstat.dk_drive[major][index] += new_io;
->  	if (rw == READ) {
-> -		kstat.dk_drive_rio[major][index] += new_io;
-> -		kstat.dk_drive_rblk[major][index] += nr_sectors;
-> +		ds->dk_drive_rio += new_io;
-> +		ds->dk_drive_rblk += nr_sectors;
->  	} else if (rw == WRITE) {
-> -		kstat.dk_drive_wio[major][index] += new_io;
-> -		kstat.dk_drive_wblk[major][index] += nr_sectors;
-> +		ds->dk_drive_wio += new_io;
-> +		ds->dk_drive_wblk += nr_sectors;
->  	} else
->  		printk(KERN_ERR "drive_stat_acct: cmd not R/W?\n");
->  }
-> @@ -529,7 +540,7 @@
->  static inline void add_request(request_queue_t * q, struct request * req,
->  			       struct list_head *insert_here)
->  {
-> -	drive_stat_acct(req->rq_dev, req->cmd, req->nr_sectors, 1);
-> +	drive_stat_acct(q->dk_stat, req->cmd, req->nr_sectors, 1);
->  
->  	if (!q->plugged && q->head_active && insert_here == &q->queue_head) {
->  		spin_unlock_irq(&io_request_lock);
-> @@ -701,7 +712,7 @@
->  			req->bhtail = bh;
->  			req->nr_sectors = req->hard_nr_sectors += count;
->  			blk_started_io(count);
-> -			drive_stat_acct(req->rq_dev, req->cmd, count, 0);
-> +			drive_stat_acct(q->dk_stat, req->cmd, count, 0);
->  			attempt_back_merge(q, req, max_sectors, max_segments);
->  			goto out;
->  
-> @@ -716,7 +727,7 @@
->  			req->sector = req->hard_sector = sector;
->  			req->nr_sectors = req->hard_nr_sectors += count;
->  			blk_started_io(count);
-> -			drive_stat_acct(req->rq_dev, req->cmd, count, 0);
-> +			drive_stat_acct(q->dk_stat, req->cmd, count, 0);
->  			attempt_front_merge(q, head, req, max_sectors, max_segments);
->  			goto out;
->  
-> diff -urN -X dontdiff linux-2.4.14/drivers/ide/ide.c linux-test/drivers/ide/ide.c
-> --- linux-2.4.14/drivers/ide/ide.c	Thu Oct 25 13:58:35 2001
-> +++ linux-test/drivers/ide/ide.c	Tue Nov 13 17:47:42 2001
-> @@ -1451,8 +1451,10 @@
->  request_queue_t *ide_get_queue (kdev_t dev)
->  {
->  	ide_hwif_t *hwif = (ide_hwif_t *)blk_dev[MAJOR(dev)].data;
-> -
-> -	return &hwif->drives[DEVICE_NR(dev) & 1].queue;
-> +	if (DEVICE_NR(dev) >= MAX_DRIVES)
-> +		 return NULL;
-> +	else 
-> +		return &hwif->drives[DEVICE_NR(dev)].queue;
->  }
->  
->  /*
-> diff -urN -X dontdiff linux-2.4.14/drivers/md/md.c linux-test/drivers/md/md.c
-> --- linux-2.4.14/drivers/md/md.c	Thu Oct 25 13:58:34 2001
-> +++ linux-test/drivers/md/md.c	Tue Nov 13 17:49:31 2001
-> @@ -3302,12 +3302,15 @@
->  	ITERATE_RDEV(mddev,rdev,tmp) {
->  		int major = MAJOR(rdev->dev);
->  		int idx = disk_index(rdev->dev);
-> -
-> +		request_queue_t * rq = blk_get_queue(rdev->dev);
-> +		
->  		if ((idx >= DK_MAX_DISK) || (major >= DK_MAX_MAJOR))
->  			continue;
-> -
-> -		curr_events = kstat.dk_drive_rblk[major][idx] +
-> -						kstat.dk_drive_wblk[major][idx] ;
-> +		
-> +		if (rq == NULL || (rq->dk_stat == NULL))
-> +			continue;
-> +		curr_events = rq->dk_stat->dk_drive_rblk + 
-> +			rq->dk_stat->dk_drive_wblk ;
->  		curr_events -= sync_io[major][idx];
->  		if ((curr_events - rdev->last_events) > 32) {
->  			rdev->last_events = curr_events;
-> diff -urN -X dontdiff linux-2.4.14/fs/proc/proc_misc.c linux-test/fs/proc/proc_misc.c
-> --- linux-2.4.14/fs/proc/proc_misc.c	Thu Oct 11 10:46:57 2001
-> +++ linux-test/fs/proc/proc_misc.c	Tue Nov 13 16:11:33 2001
-> @@ -35,12 +35,12 @@
->  #include <linux/module.h>
->  #include <linux/init.h>
->  #include <linux/smp_lock.h>
-> +#include <linux/blkdev.h>
->  
->  #include <asm/uaccess.h>
->  #include <asm/pgtable.h>
->  #include <asm/io.h>
->  
-> -
->  #define LOAD_INT(x) ((x) >> FSHIFT)
->  #define LOAD_FRAC(x) LOAD_INT(((x) & (FIXED_1-1)) * 100)
->  /*
-> @@ -259,7 +259,23 @@
->  	return len;
->  }
->  #endif
-> -
-> +static inline int show_disk_stat(char * page, int len, disk_stat * ds,
-> +					int major, int disk)
-> +{
-> +	int active = ds->dk_drive_rio + ds->dk_drive_wio +
-> +		 ds->dk_drive_rblk + ds->dk_drive_wblk;
-> +	if (active)
-> +		len += sprintf(page + len,
-> +			"(%u,%u):(%u,%u,%u,%u,%u) ",
-> +			major, disk,
-> +			ds->dk_drive_rio + ds->dk_drive_wio,
-> +			ds->dk_drive_rio,
-> +			ds->dk_drive_rblk,
-> +			ds->dk_drive_wio,
-> +			ds->dk_drive_wblk
-> +		);
-> +	return len;
-> +}
->  static int kstat_read_proc(char *page, char **start, off_t off,
->  				 int count, int *eof, void *data)
->  {
-> @@ -309,21 +325,27 @@
->  
->  	len += sprintf(page + len, "\ndisk_io: ");
->  
-> -	for (major = 0; major < DK_MAX_MAJOR; major++) {
-> -		for (disk = 0; disk < DK_MAX_DISK; disk++) {
-> -			int active = kstat.dk_drive[major][disk] +
-> -				kstat.dk_drive_rblk[major][disk] +
-> -				kstat.dk_drive_wblk[major][disk];
-> -			if (active)
-> -				len += sprintf(page + len,
-> -					"(%u,%u):(%u,%u,%u,%u,%u) ",
-> -					major, disk,
-> -					kstat.dk_drive[major][disk],
-> -					kstat.dk_drive_rio[major][disk],
-> -					kstat.dk_drive_rblk[major][disk],
-> -					kstat.dk_drive_wio[major][disk],
-> -					kstat.dk_drive_wblk[major][disk]
-> -			);
-> +	for (major = 0; major < MAX_BLKDEV; major++) {
-> +		disk_stat * ds;
-> +
-> +		if (!(blk_dev[major].queue)){
-> +			ds = (BLK_DEFAULT_QUEUE(major))->dk_stat;
-> +			if (ds)
-> +				len = show_disk_stat(page, len, ds, major, 0);
-> +		}else {
-> +			request_queue_t * q;
-> +			struct gendisk * hd = get_gendisk(MKDEV(major,0));
-> +			int max_disk = MINORMASK>>hd->minor_shift;
-> +
-> +			for (disk = 0; disk <= max_disk; disk++) {
-> +				q = blk_get_queue(MKDEV(major,disk<<hd->minor_shift));
-> +				if (!q)
-> +					continue;
-> +				ds = q->dk_stat;
-> +				if (!ds)
-> +					continue;
-> +				len = show_disk_stat(page, len, ds, major,disk);
-> +			}
->  		}
->  	}
->  
-> diff -urN -X dontdiff linux-2.4.14/include/linux/blkdev.h linux-test/include/linux/blkdev.h
-> --- linux-2.4.14/include/linux/blkdev.h	Mon Nov  5 12:42:57 2001
-> +++ linux-test/include/linux/blkdev.h	Tue Nov 13 11:42:47 2001
-> @@ -71,6 +71,13 @@
->  	struct list_head free;
->  };
->  
-> +typedef struct disk_stat{
-> +	unsigned int dk_drive_rio;
-> +	unsigned int dk_drive_wio;
-> +	unsigned int dk_drive_rblk;
-> +	unsigned int dk_drive_wblk;
-> +} disk_stat;
-> +
->  struct request_queue
->  {
->  	/*
-> @@ -122,6 +129,10 @@
->  	 * Tasks wait here for free request
->  	 */
->  	wait_queue_head_t	wait_for_request;
-> +	/*
-> +	 * statistics
-> +	 */
-> +	disk_stat * dk_stat;
->  };
->  
->  struct blk_dev_struct {
-> @@ -190,7 +201,7 @@
->  #define blkdev_next_request(req) blkdev_entry_to_request((req)->queue.next)
->  #define blkdev_prev_request(req) blkdev_entry_to_request((req)->queue.prev)
->  
-> -extern void drive_stat_acct (kdev_t dev, int rw,
-> +extern void drive_stat_acct (disk_stat *, int rw,
->  					unsigned long nr_sectors, int new_io);
->  
->  static inline int get_hardsect_size(kdev_t dev)
-> diff -urN -X dontdiff linux-2.4.14/include/linux/kernel_stat.h linux-test/include/linux/kernel_stat.h
-> --- linux-2.4.14/include/linux/kernel_stat.h	Mon Nov  5 12:42:14 2001
-> +++ linux-test/include/linux/kernel_stat.h	Tue Nov 13 18:09:44 2001
-> @@ -19,11 +19,6 @@
->  	unsigned int per_cpu_user[NR_CPUS],
->  	             per_cpu_nice[NR_CPUS],
->  	             per_cpu_system[NR_CPUS];
-> -	unsigned int dk_drive[DK_MAX_MAJOR][DK_MAX_DISK];
-> -	unsigned int dk_drive_rio[DK_MAX_MAJOR][DK_MAX_DISK];
-> -	unsigned int dk_drive_wio[DK_MAX_MAJOR][DK_MAX_DISK];
-> -	unsigned int dk_drive_rblk[DK_MAX_MAJOR][DK_MAX_DISK];
-> -	unsigned int dk_drive_wblk[DK_MAX_MAJOR][DK_MAX_DISK];
->  	unsigned int pgpgin, pgpgout;
->  	unsigned int pswpin, pswpout;
->  #if !defined(CONFIG_ARCH_S390)
-> 
-
-
--- 
-     ======--------         Marcel J.E. Mol                MESA Consulting B.V.
-    =======---------        ph. +31-(0)6-54724868          P.O. Box 112
-    =======---------        marcel@mesa.nl                 2630 AC  Nootdorp
-__==== www.mesa.nl ---____U_n_i_x______I_n_t_e_r_n_e_t____ The Netherlands ____
- They couldn't think of a number,           Linux user 1148  --  counter.li.org
-    so they gave me a name!  -- Rupert Hine  --  www.ruperthine.com
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

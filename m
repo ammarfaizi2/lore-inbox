@@ -1,47 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263240AbVCKJ7S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263253AbVCKKJA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263240AbVCKJ7S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 04:59:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263256AbVCKJ7R
+	id S263253AbVCKKJA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 05:09:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263244AbVCKKJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 04:59:17 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:31958 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263244AbVCKJ6D (ORCPT
+	Fri, 11 Mar 2005 05:09:00 -0500
+Received: from fire.osdl.org ([65.172.181.4]:22987 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263253AbVCKKIe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 04:58:03 -0500
-Date: Fri, 11 Mar 2005 10:57:47 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
-Message-ID: <20050311095747.GA21820@elte.hu>
-References: <20050204100347.GA13186@elte.hu> <1108789704.8411.9.camel@krustophenia.net> <Pine.LNX.4.58.0503100323370.14016@localhost.localdomain> <Pine.LNX.4.58.0503100447150.14016@localhost.localdomain>
+	Fri, 11 Mar 2005 05:08:34 -0500
+Date: Fri, 11 Mar 2005 02:07:17 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: arjan@infradead.org, pbadari@us.ibm.com, dhowells@redhat.com,
+       torvalds@osdl.org, suparna@in.ibm.com, linux-aio@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rwsem: Make rwsems use interrupt disabling spinlocks
+Message-Id: <20050311020717.46794d94.akpm@osdl.org>
+In-Reply-To: <20050311094024.GC19954@elte.hu>
+References: <20050309032832.159e58a4.akpm@osdl.org>
+	<20050308170107.231a145c.akpm@osdl.org>
+	<1110327267.24286.139.camel@dyn318077bld.beaverton.ibm.com>
+	<18744.1110364438@redhat.com>
+	<20050309110404.GA4088@in.ibm.com>
+	<1110366469.6280.84.camel@laptopd505.fenrus.org>
+	<4175.1110370343@redhat.com>
+	<1110395783.24286.207.camel@dyn318077bld.beaverton.ibm.com>
+	<20050309114234.6598f486.akpm@osdl.org>
+	<1110399036.6280.151.camel@laptopd505.fenrus.org>
+	<20050311094024.GC19954@elte.hu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503100447150.14016@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Steven Rostedt <rostedt@goodmis.org> wrote:
-
-> > The short term fix is probably to put back the preempt_disables, the long
-> > term is to get rid of these stupid bit_spin_lock busy loops.
+Ingo Molnar <mingo@elte.hu> wrote:
+>
 > 
-> Doing a quick search on the kernel, it looks like only kjournald uses
-> the bit_spin_locks. I'll start converting them to spinlocks. The use
-> seems to be more of a hack, since it is using bits in the state field
-> for locking, and these bits aren't used for anything else.
+> * Arjan van de Ven <arjan@infradead.org> wrote:
+> 
+> > > Ingo, we already have a touch_nmi_watchdog() in the sysrq code.  It might be
+> > > worth adding a touch_softlockup_watchdog() wherever we have a
+> > > touch_nmi_watchdog().
+> > 
+> > ....or add touch_softlockup_watchdog to touch_nmi_watchdog() instead
+> > and rename it tickle_watchdog() overtime.
+> 
+> you mean like:
+> 
+> +extern void touch_softlockup_watchdog(void);
+> 
+> in:
+> 
+>  http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm2/broken-out/detect-soft-lockups.patch
+> 
+> ?
+> 
 
-yeah. bit-spinlocks are really a hack.
+Nope.
 
-	Ingo
+This particular lockup happened because a huge stream of stuff was sent to
+the serial console.
+
+We already have a touch_nmi_watchdog() in that code.
+
+We should arrange for touch_softlockup_watchdog() to be called whenever
+touch_nmi_watchdog() is called.
+

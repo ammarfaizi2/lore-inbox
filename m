@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269238AbRH3BSz>; Wed, 29 Aug 2001 21:18:55 -0400
+	id <S271186AbRH3BYQ>; Wed, 29 Aug 2001 21:24:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271135AbRH3BSq>; Wed, 29 Aug 2001 21:18:46 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:35978 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S269238AbRH3BSg>;
-	Wed, 29 Aug 2001 21:18:36 -0400
-Date: Wed, 29 Aug 2001 18:18:52 -0700 (PDT)
-Message-Id: <20010829.181852.98555095.davem@redhat.com>
-To: linux-kernel@vger.kernel.org
-CC: axboe@suse.de, rth@redhat.com, davidm@hpl.hp.com
-Subject: [UPDATE] 2.4.10-pre2 PCI64, API changes README
-From: "David S. Miller" <davem@redhat.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S271187AbRH3BYG>; Wed, 29 Aug 2001 21:24:06 -0400
+Received: from [208.48.139.185] ([208.48.139.185]:11141 "HELO
+	forty.greenhydrant.com") by vger.kernel.org with SMTP
+	id <S271186AbRH3BXy>; Wed, 29 Aug 2001 21:23:54 -0400
+Date: Wed, 29 Aug 2001 18:24:06 -0700
+From: David Rees <dbr@greenhydrant.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: kupdated, bdflush and kjournald stuck in D state on RAID1 device (deadlock?)
+Message-ID: <20010829182406.A23371@greenhydrant.com>
+Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
+	Neil Brown <neilb@cse.unsw.edu.au>, linux-raid@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010829141451.A20968@greenhydrant.com> <3B8D60CF.A1400171@zip.com.au> <20010829144016.C20968@greenhydrant.com> <3B8D6BF9.BFFC4505@zip.com.au> <20010829153818.B21590@greenhydrant.com> <3B8D712C.1441BC5A@zip.com.au> <20010829155633.D21590@greenhydrant.com> <15245.35636.82680.966567@notabene.cse.unsw.edu.au> <20010829175541.E21590@greenhydrant.com> <15245.37937.625032.867615@notabene.cse.unsw.edu.au>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15245.37937.625032.867615@notabene.cse.unsw.edu.au>; from neilb@cse.unsw.edu.au on Thu, Aug 30, 2001 at 11:17:37AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(took ext3-users out of CC, not relevant to them anymore)
 
-Ok, new patch up on kernel.org against 2.4.10-pre2:
+On Thu, Aug 30, 2001 at 11:17:37AM +1000, Neil Brown wrote:
+> On Wednesday August 29, dbr@greenhydrant.com wrote:
+> > 
+> > I'm curious, why hasn't this bug shown up before?  Did I just get unlucky? 
+> > Or is everyone else using software raid1 without problems lucky?  8)
+> 
+> You just got lucky.....
+> This could affect anyone who ran out of free memory while doing IO to
+> a RAID1 array.
+> A recent change, which was intended to make this stuff more robust,
+> probably had the side effect of making the bug more fatal.  So it
+> probably only affects people running 2.4.9.
+> It could affect earlier kernels, but they would have to sustain an
+> out-of-memory condition for longer.
 
-ftp.kernel.org:/pub/linux/kernel/davem/PCI64/pci64-2.4.10p2-1.patch.gz
+Now, when you say out-of-memory, do you mean out of memory plus swap?  Or
+just out of memory?
 
-The major change in this release is that the API has been redone.
-After considering feedback on this list, and in particular feedback
-from David Mosberger in private emails, I redid things to match the
-simplifications suggested without losing sight of the goals I had.
+Running out of memory is quite common with the kernel always filling up
+buffers and cache, but running out of memory+swap is not common (and I know
+I didn't hit that in my setup!)
 
-Basically, what has changed is that nothing changes :-)  There are no
-longer pci64_foo() interfaces, a normal drivers use dma_addr_t and
-pci_foo() for 32-bit and 64-bit drivers.
+Thanks for your help,
 
-If you have a "weird device" which requires a large DMA address space,
-the solution is provided in a set of pci_dac_*() interfaces.  These
-are like "virt_to_bus()" for PCI DAC but with cache coherency,
-HIGHMEM, and other portability issues kept in mind.
-
-I could just regurgitate the DMA-mapping.txt changes, but I think it's
-better for folks to just go look at what is written there.
-
-Also, I integrated the Alpha bits from Richard.  He wrote his stuff
-against the old API, so I had to whack it into the new stuff.  So if
-there are any build problems or bugs, they are mine and mine alone.
-
-If you look at the driver changes now, they are more about
-initialization changes and using dma_addr_t more consistently.
-But that's about it.
-
-Jens should be making a nobounce patch relative to this some time
-soon.
-
-Enjoy, and please send feedback and success/failure reports.  Thanks.
-
-Later,
-David S. Miller
-davem@redhat.com
-
+-Dave

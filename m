@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262052AbREXOi1>; Thu, 24 May 2001 10:38:27 -0400
+	id <S262067AbREXO7q>; Thu, 24 May 2001 10:59:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262061AbREXOiR>; Thu, 24 May 2001 10:38:17 -0400
-Received: from waste.org ([209.173.204.2]:34111 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S262052AbREXOiD>;
-	Thu, 24 May 2001 10:38:03 -0400
-Date: Thu, 24 May 2001 09:39:35 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Marko Kreen <marko@l-t.ee>
-cc: Edgar Toernig <froese@gmx.de>, Daniel Phillips <phillips@bonn-fries.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        <linux-fsdevel@vger.kernel.org>
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]device
- arguments from lookup)
-In-Reply-To: <20010524094717.A23722@l-t.ee>
-Message-ID: <Pine.LNX.4.30.0105240937490.16271-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262077AbREXO7g>; Thu, 24 May 2001 10:59:36 -0400
+Received: from 3-020.ctame701-2.telepar.net.br ([200.181.171.20]:52487 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S262067AbREXO7T>; Thu, 24 May 2001 10:59:19 -0400
+Date: Thu, 24 May 2001 11:59:20 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: praveens@stanford.edu (Praveen Srinivasan), torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, dhinds@zen.stanford.edu
+Subject: Re: [PATCH] bulkmem.c - null ptr fixes for 2.4.4
+Message-ID: <20010524115920.D3068@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	praveens@stanford.edu (Praveen Srinivasan), torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, dhinds@zen.stanford.edu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 May 2001, Marko Kreen wrote:
+Em Thu, May 24, 2001 at 03:26:20PM +0100, Alan Cox escreveu:
+> > kernel code. This patch fixes numerous unchecked pointers in the PCMCIA 
+> > bulkmem driver. 
+> 
+> Since when has two been numerous - also I dont thin the fix is right - you need
+> to undo what has already been done
 
-> On Thu, May 24, 2001 at 02:23:27AM +0200, Edgar Toernig wrote:
-> > Daniel Phillips wrote:
-> > > > > It's going to be marked 'd', it's a directory, not a file.
-> > > >
-> > > > Aha.  So you lose the S_ISCHR/BLK attribute.
-> > >
-> > > Readdir fills in a directory type, so ls sees it as a directory and does
-> > > the right thing.  On the other hand, we know we're on a device
-> > > filesystem so we will next open the name as a regular file, and find
-> > > ISCHR or ISBLK: good.
-> >
-> > ??? The kernel may know it, but the app?  Or do you really want to
-> > give different stat data on stat(2) and fstat(2)?  These flags are
-> > currently used by archive/backup prgs.  It's a hint that these files
-> > are not regular files and shouldn't be opened for reading.
-> > Having a 'd' would mean that they would really try to enter the
-> > directory and save it's contents.  Don't know what happens in this
-> > case to your "special" files ;-)
->
-> IMHO the CHR/BLK is not needed.  Think of /proc.  In the future,
-> the backup tools will be told to ignore /dev, that's all.
+and anyway, 2.4.4-ac15 already has the checks, it just doesnt deallocates
+what's have already been inserted in the list in setup_regions, the memory
+doesn't seem to get lost, but I think its better deallocate whats been
+done if it fails halfway in setup_regions.
 
-The /dev dir should not be special. At least not to the kernel. I have
-device files in places other than /dev, and you probably do too (hint:
-anonymous FTP).
-
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+- Arnaldo

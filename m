@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286145AbRLZET7>; Tue, 25 Dec 2001 23:19:59 -0500
+	id <S286154AbRLZETk>; Tue, 25 Dec 2001 23:19:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286150AbRLZETt>; Tue, 25 Dec 2001 23:19:49 -0500
-Received: from nlaknet.slt.lk ([203.115.0.2]:7363 "EHLO laknet.slt.lk")
-	by vger.kernel.org with ESMTP id <S286148AbRLZETj>;
-	Tue, 25 Dec 2001 23:19:39 -0500
-Message-ID: <3C29FA05.6C1BED5A@sltnet.lk>
-Date: Wed, 26 Dec 2001 10:25:41 -0600
-From: Alvin of Diaspar <ioshadi@sltnet.lk>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] A slightly smarter dmi_scan.c
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S286150AbRLZET3>; Tue, 25 Dec 2001 23:19:29 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3850 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S286148AbRLZETU>; Tue, 25 Dec 2001 23:19:20 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: 2.5.2-pre2 forces ramfs on
+Date: Wed, 26 Dec 2001 04:17:11 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <a0bj07$18l$1@penguin.transmeta.com>
+In-Reply-To: <2452.1009338062@ocs3.intra.ocs.com.au>
+X-Trace: palladium.transmeta.com 1009340342 20846 127.0.0.1 (26 Dec 2001 04:19:02 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 26 Dec 2001 04:19:02 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > APM can also be compiled as a module.
-> >
-> > Right. Thanks. I blatantly ignored that APM can be built as modules ;(
-> > The fixed patch is here.
-  
-> I think I prefer it without all the ifdefs being in the code like that. It is
-> cleaner to read before the change. I agree the messages being printed might
-> be confusing in some cases but I don't like the cure.
+In article <2452.1009338062@ocs3.intra.ocs.com.au>,
+Keith Owens  <kaos@ocs.com.au> wrote:
+>
+>Why is ramfs forced on?
 
-	I agree. The code in dmi_scan.c runs very elegantly now, and changing
-that flow, although might be more efficient by something like 0.001%,
-isn't worth the touble.
-	Sorry about adding to the ambient background radiation :)
+Because it's small, and if it wasn't there, we'd have to have the small
+"rootfs" anyway (which basically duplicated ramfs functionality).
 
-	- ioj
+>And why is Al Viro's email address not in CREDITS or MAINTAINERS?  We
+>should have somewhere to complain to ;).
 
-~~~~
-    Ask not of race, but ask of conduct: 
-    From the stick is born the sacred fire:
-    The wise ascetic, though lowly born,
-    Is noble in his modest self-control.
-                - Gotama Buddha
-.
+He didn't want to be in either file at some point (yes, I asked him),
+some day I'll put him in anyway (he's been the effective maintainer of
+the VFS interface for the last year or so, regardless of whether he
+wants to be in the MAINTAINTERS file or not).
+
+		Linus

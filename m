@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291298AbSBGVBY>; Thu, 7 Feb 2002 16:01:24 -0500
+	id <S291301AbSBGVEE>; Thu, 7 Feb 2002 16:04:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291305AbSBGVBH>; Thu, 7 Feb 2002 16:01:07 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:36533 "EHLO segfault.osdlab.org")
-	by vger.kernel.org with ESMTP id <S291308AbSBGU7w>;
-	Thu, 7 Feb 2002 15:59:52 -0500
-Date: Thu, 7 Feb 2002 12:59:50 -0800 (PST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@segfault.osdlab.org>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] read() from driverfs files can read more bytes 
-In-Reply-To: <Pine.GSO.4.21.0202071526080.25715-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33.0202071252010.25114-100000@segfault.osdlab.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291307AbSBGVEA>; Thu, 7 Feb 2002 16:04:00 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:18951 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S291301AbSBGVDC>;
+	Thu, 7 Feb 2002 16:03:02 -0500
+Date: Thu, 7 Feb 2002 14:02:19 -0700
+From: yodaiken@fsmlabs.com
+To: Andrew Morton <akpm@zip.com.au>
+Cc: yodaiken@fsmlabs.com, Ingo Molnar <mingo@elte.hu>,
+        Martin Wirth <Martin.Wirth@dlr.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>, rml <rml@tech9.net>,
+        nigel <nigel@nrg.org>
+Subject: Re: [RFC] New locking primitive for 2.5
+Message-ID: <20020207140219.B23179@hq.fsmlabs.com>
+In-Reply-To: <20020207125601.A21354@hq.fsmlabs.com> <Pine.LNX.4.33.0202072305480.2976-100000@localhost.localdomain>, <Pine.LNX.4.33.0202072305480.2976-100000@localhost.localdomain>; <20020207133109.B21935@hq.fsmlabs.com> <3C62EA2F.FDA9E241@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3C62EA2F.FDA9E241@zip.com.au>; from akpm@zip.com.au on Thu, Feb 07, 2002 at 12:57:19PM -0800
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Feb 07, 2002 at 12:57:19PM -0800, Andrew Morton wrote:
+> yodaiken@fsmlabs.com wrote:
+> > 
+> >         llseek:
+> >                 atomic_enquee request
+> >                 if no room gotta sleep
+> >                 else if trylock mutex
+> >                         return
+> >                      else
+> >                         do work
+> >                         loop:
+> >                              process any pending requests
+> >                              release lock;
+> >                              if pending_requests && !(trylock mutex) goto loop
+> 
+> This is how printk() works.  It was a very powerful and satisfactory
+> solution to a nasty locking/atomicity problem.  It'd be nice to have
+> a more generic way of expressing that solution.
 
-On Thu, 7 Feb 2002, Alexander Viro wrote:
+note how I put in the goto so Ingo would be more happy with it -)
 
 > 
-> 
-> On Thu, 7 Feb 2002, Patrick Mochel wrote:
-> 
-> > It is really nice, but it's too much for the common case. The goal is to 
-> > have each file export one and only one value. Setting up an iterator is 
-> > overkill for one value.
-> 
-> You don't have to use the iterator side of that.
+> -
 
-Well, I'll be...
-
-I like the seq_ stuff, and the ->read() side of things take care of the 
-issues discussed in this thread. What's even nicer is that if I convert to 
-that, driver callbacks become something like either:
-
-int driver_show(struct device * dev, struct seq_file * m)
-
-or 
-
-int driver_show(struct device * dev, char * buf)
-
-
-Have you considered doing write()?
-
-	-pat
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 

@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272215AbTGYQOC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 12:14:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272216AbTGYQOC
+	id S272216AbTGYQOK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 12:14:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272217AbTGYQOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 12:14:02 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:27808 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S272215AbTGYQOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 12:14:00 -0400
-Date: Fri, 25 Jul 2003 12:18:04 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Sam Bromley <sbromley@cogeco.ca>, Torrey Hoffman <thoffman@arnor.net>,
-       gaxt <gaxt@rogers.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux firewire devel <linux1394-devel@lists.sourceforge.net>
-Subject: Re: Firewire
-Message-ID: <20030725161803.GJ1512@phunnypharm.org>
-References: <20030725012723.GF23196@ruvolo.net> <20030725012908.GT1512@phunnypharm.org> <1059103424.24427.108.camel@daedalus.samhome.net> <20030725041234.GX1512@phunnypharm.org> <20030725053920.GH23196@ruvolo.net> <20030725133438.GZ1512@phunnypharm.org> <20030725142907.GI23196@ruvolo.net> <20030725142926.GD1512@phunnypharm.org> <20030725154009.GF1512@phunnypharm.org> <20030725160706.GK23196@ruvolo.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030725160706.GK23196@ruvolo.net>
-User-Agent: Mutt/1.5.4i
+	Fri, 25 Jul 2003 12:14:10 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:35970 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S272216AbTGYQOG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 12:14:06 -0400
+Date: Fri, 25 Jul 2003 17:39:11 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200307251639.h6PGdBfv001556@81-2-122-30.bradfords.org.uk>
+To: aebr@win.tue.nl, john@grabjohn.com
+Subject: Re: Japanese keyboards broken in 2.6
+Cc: cs@tequila.co.jp, linux-kernel@vger.kernel.org, ndiamond@wta.att.ne.jp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 25, 2003 at 09:07:06AM -0700, Chris Ruvolo wrote:
-> On Fri, Jul 25, 2003 at 11:40:09AM -0400, Ben Collins wrote:
-> > Ok, so revert everything and try this patch.
-> 
-> FYI, I got this compile warning (but I don't think its relevant).  Full
-> output from module load follows.
+> > > One aspect of the matter is that raw mode no longer is raw.
+> > > The keyboard sends codes and the input layer translates that into
+> > > the codes the input layer thinks the keyboard should have sent.
+> > > Then, when one wants the raw codes, a reverse translation is used,
+> > > but since the mapping is not one-to-one the reverse translation
+> > > does not produce what the keyboard sent to start with.
+> > 
+> > Doesn't AT-set3 usually have a closer one to one mapping of keys?
+>
+> Sorry - I am unable to make sense of your question.
 
-Ok, in ieee1394_core.c, when it does the "packet removed in
-abort_timedouts" could you make it print the value of jiffies, expire
-and packet->sendtime?
+The reason I mentioned it is because I've got a keyboard which
+physically has a Japanese layout, but emulates a US keyboard in set 2.
 
-Thanks.
+Some keys which are shifted on a US keyboard, are not shifted on a
+Japanese keyboard, for example, the colon key.  Presing colon on my
+keyboard in set 2, causes it to send shift-; on the wire.  In set 3,
+it sends the single code for the colon key.
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
+I wondered whether some users in this thread had keyboards like mine,
+which seem to produce unusual results when you analyse the scancodes
+coming from them.  It looks like mine is rarer than I thought :-).
+
+> Below some remarks, maybe related.
+>
+> Some remarks on scancode sets live on
+> http://www.win.tue.nl/~aeb/linux/kbd/scancodes-7.html
+>
+> Not all keyboards support all scancode sets. For example,
+> my MyCom laptop only supports scancode Set 2, and its keyboard
+> does not react at all when in mode 1 or 3. 
+>
+> The normal, default mode is translated scancode set 2.
+> Putting keyboards in other modes is asking for trouble.
+
+Agreed.  Unfortunately, it's impossible to use some of the keys in set
+2 on mine :-).
+
+John.

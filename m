@@ -1,83 +1,61 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154372-8316>; Wed, 9 Sep 1998 11:00:45 -0400
-Received: from warden.diginsite.com ([208.29.163.2]:61610 "EHLO mail.diginsite.com" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154531-8316>; Wed, 9 Sep 1998 10:06:36 -0400
-Date: Wed, 9 Sep 1998 09:35:59 -0700 (PDT)
-From: David Lang <dlang@diginsite.com>
-To: Andrej Presern <andrejp@luz.fe.uni-lj.si>
-cc: majordomo@vger.rutgers.edu, Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>, linux-kernel@vger.rutgers.edu
+Received: by vger.rutgers.edu id <153945-8316>; Wed, 9 Sep 1998 13:30:44 -0400
+Received: from SOUTH-STATION-ANNEX.MIT.EDU ([18.72.1.2]:1544 "HELO MIT.EDU" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with SMTP id <154683-8316>; Wed, 9 Sep 1998 12:32:41 -0400
+Date: Wed, 9 Sep 1998 15:08:33 -0400
+Message-Id: <199809091908.PAA23948@dcl.MIT.EDU>
+From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+To: Colin Plumb <colin@nyx.net>
+Cc: andrejp@luz.fe.uni-lj.si, linux-kernel@vger.rutgers.edu
+In-Reply-To: Colin Plumb's message of Tue, 8 Sep 1998 22:46:25 -0600 (MDT), <199809090446.WAA25923@nyx10.nyx.net>
 Subject: Re: GPS Leap Second Scheduled!
-In-Reply-To: <98090822315400.00819@soda>
-Message-ID: <Pine.LNX.4.03.9809090934220.7567-100000@dlang>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Address: 1 Amherst St., Cambridge, MA 02139
+Phone: (617) 253-8091
 Sender: owner-linux-kernel@vger.rutgers.edu
 
------BEGIN PGP SIGNED MESSAGE-----
+   Date: 	Tue, 8 Sep 1998 22:46:25 -0600 (MDT)
+   From: Colin Plumb <colin@nyx.net>
 
-I am probably missing something, but can't you just ignore the leap second
-until you discover that the time is 1 sec off and then use the normal NTP
-procedure to get back to the exact time
+   The problem is that POSIX is schizophrenic on the subject of leap seconds.
+   On the one hand, time() returns UTC time.  
 
-David Lang
+Yep.  See POSIX 4.5.1.2, 2.2.2.77, 2.2.2.24, and the rationale for
+Epoch, found in B.2.2.2).
 
-On Tue, 8 Sep 1998, Andrej Presern wrote:
+    On the other,
 
-> Date: Tue, 8 Sep 1998 22:27:28 +0200
-> From: Andrej Presern <andrejp@luz.fe.uni-lj.si>
-> To: majordomo@vger.rutgers.edu,
-     Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-> Cc: linux-kernel@vger.rutgers.edu
-> Subject: Re: GPS Leap Second Scheduled!
-> 
-> On Mon, 07 Sep 1998, Ulrich Windl wrote:
-> >(...About leap second handling in the Linux kernel...)
-> >On 1 Sep 98, at 11:16, Sven Dietrich wrote:
-> >> The GPS control segment has posted a leap second warning for week number
-> >> 990, Day number 5, and thus it's official in GPS world,
-> >> that the leap second will take place 12/31/98... 
-> >> 
-> >> I am going to run simulations on NTP 3 & 4 and Linux with that GPS almanac. 
-> >> Will send bug fixes and patches as needed for the Trimble refclocks and
-> >> NTP...
-> >> 
-> >> Linux currently inserts a 2nd 59th second, instead of the UTC model of ...
-> >> 58, 59, 60...
-> >
-> >The time in the kernel is seconds since the epoch. To insert a second 
-> >means that we'll have to delay the next second for another second. 
-> >The other solution seems to be a clib -> kernel interface that knows 
-> >that a leap second is active now. Then the clib could possibly 
-> >convert the seconds to xx:yy:60. (I hope I did not overlook something 
-> >obvious).
-> 
-> Have you considered simply not scheduling any processes for one second and
-> adjusting the time accordingly? (if one second chunk is too big, you can do it
-> in several steps)
-> 
-> Andrej
-> 
-> --
-> Andrej Presern, andrejp@luz.fe.uni-lj.si
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.rutgers.edu
-> Please read the FAQ at http://www.tux.org/lkml/faq.html
-> 
+	   t = time();
+	   sec = t % 60;
+	   t /= 60;
+	   min = t % 60;
+	   t /= 60;
+	   hr = t % 24;
+	   t /= 24;
+	   printf("UTC time is %lu days, %02u:%02u:%02u\n", (unsigned long)t, gr, min, sec);
 
------BEGIN PGP SIGNATURE-----
-Version: PGP for Personal Privacy 5.0
-Charset: noconv
+   is required to work (since so much code does it.)
 
-iQEVAwUBNfaucj7msCGEppcbAQGFkQf/WSuUbkLPd2sfQ99FgjoOcRox47ZUV6rr
-c6Yj6rfIhMXpCqzRcqyNa7JS3mTK+8Z3/9Pu1WbEU/MdZrgvvorCyq9k795V8tr6
-GX2EqEoVt87uhAiBRdzMi9XREsWi8hTK/yr0RRAQKhP/bLcGvjcrmDvlUR6fEBic
-jo026QXPYN4mIhyf6kIyXBmrh9dOr9EFvYYz7Lr13nwa9NjA5tlOOoSDDmG8tobz
-hmgRcSE93OJgoVDwOwUcgC2thH6x0MBMYCfp/c2TWQ9cYaI4dVTlEeJWKjQTTp2I
-hDsW/RjLWycR5k7PnRV002Lm6+Dxxl/ajwINgpm0S52qDJleAo+eUw==
-=pxxv
------END PGP SIGNATURE-----
+In fact, POSIX requires this (see 2.2.2.77).
 
+   Actually, I think Ulrich was present when I proposed a similar solution:
+   gettimeofday() will not return during 23:59:60.  If a process calls
+   gettimeofday() during a leap second, then the call will sleep until 0:00:00
+   when it can return the correct result.
+
+The other possibility is for gettimeofday() to return the same value for
+23:59:60 and 00:00:00.  This would also strictly speaking be correct.
+time() is specified as returning "seconds since the Epoch", which is
+defined as:
+
+	tm_sec + tm_min*60 + tm_hour*3600 + tm_yday*86400 +
+		(tm_year-70)*31536000 + ((tm_year-64)/4*86400)
+
+where tm_sec, tm_min, tm_hour, etc. together form a Curridnated
+Universal Time name.
+
+Hence, the above equation would have the same value for 23:59:60 and
+00:00:00 on the next day.  Hence, time() should return the same value.
+
+						- Ted
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

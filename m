@@ -1,151 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316827AbSGLTDR>; Fri, 12 Jul 2002 15:03:17 -0400
+	id <S316397AbSGLTKC>; Fri, 12 Jul 2002 15:10:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316832AbSGLTDQ>; Fri, 12 Jul 2002 15:03:16 -0400
-Received: from adsl-65-43-15-209.dsl.clevoh.ameritech.net ([65.43.15.209]:20494
-	"EHLO bugs.home.shadowstar.net") by vger.kernel.org with ESMTP
-	id <S316827AbSGLTDO>; Fri, 12 Jul 2002 15:03:14 -0400
-Date: Fri, 12 Jul 2002 15:05:00 -0400 (EDT)
-From: Alec Smith <alec@shadowstar.net>
-X-X-Sender: alec@bugs.home.shadowstar.net
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-cc: ext3-users@redhat.com, <linux-kernel@vger.kernel.org>
-Subject: Re: ext3 corruption
-In-Reply-To: <Pine.LNX.4.33.0207121337500.8654-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.4.44.0207121503030.9318-100000@bugs.home.shadowstar.net>
+	id <S316774AbSGLTKB>; Fri, 12 Jul 2002 15:10:01 -0400
+Received: from grunt.ksu.ksu.edu ([129.130.12.17]:8424 "EHLO
+	mailhub.cns.ksu.edu") by vger.kernel.org with ESMTP
+	id <S316397AbSGLTJ7>; Fri, 12 Jul 2002 15:09:59 -0400
+Date: Fri, 12 Jul 2002 14:12:47 -0500 (CDT)
+From: Matt Stegman <matts@ksu.edu>
+X-X-Sender: <matts@unix2.cc.ksu.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: 64 bit netdev stats counter
+Message-ID: <Pine.GSO.4.33L.0207101323220.19313-100000@unix2.cc.ksu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's the ksymoops output. Note that the kernel is entirely static --
-I'm not using anything as a module. Ksymoops is complaining about the
-symbol locations, however the defaults are in fact correct for the system.
+Hello,
 
-[root@host155]~$ ksymoops < oops.txt
-ksymoops 2.4.1 on i686 2.4.19-rc1.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.19-rc1/ (default)
-     -m /boot/System.map-2.4.19-rc1 (default)
+I have a linux fileserver that wraps around the 'RX bytes' and 'TX bytes'
+counters once every couple of days.  Since these variables are "unsigned
+long" in the kernel (32 bits on x86) it wraps at four gigabytes.  I
+patched a kernel (2.4.19-pre10-ac2) to make these two variables, along
+with RX and TX packet counters, "unsigned long long"  which is 64 bits on
+x86.
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+This seems to work OK.  The "ifconfig" command (from RedHat net-tools-1.60
+RPM) already defines these values as "unsigned long long", so I don't have
+any problems with ifconfig reporting weird numbers.
 
-No modules in ksyms, skipping objects
-Warning (read_lsmod): no symbols in lsmod, is /proc/modules a valid lsmod
-file?
-kernel BUG at transaction.c:611!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c015b12e>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010282
-eax: 00000078   ebx: ddadd294   ecx: 00000004   edx: ddb0ff64
-esi: ddadd200   edi: dec5d920   ebp: ddadd200   esp: d28dfe70
-ds: 0018   es: 0018   ss: 0018
-Process sendmail (pid: 21193, stackpage=d28df000)
-Stack: c01f7460 c01f5969 c01f58d7 00000263 c01f94a0 00000000 00000000
-cbf3b3c0
-       ddadd294 ddadd200 dec5d920 d4a82730 c015b506 dec5d920 d4a82730
-00000000
-       ddd9acc0 ddadd000 dec5d920 c4cbdc20 c015744d dec5d920 ddd9acc0
-00000000
-Call Trace: [<c015b506>] [<c015744d>] [<c0155b04>] [<c0155b15>]
-[<c0155c07>]
-   [<c0157a95>] [<c013b5c6>] [<c013b6a9>] [<c0111bc0>] [<c01087eb>]
-Code: 0f 0b 63 02 d7 58 1f c0 83 c4 14 8b 4c 24 20 bb e2 ff ff ff
+I did notice that different classes of network devices seem to use
+different structs, so I guess this would only work for ethernet devices.
 
->>EIP; c015b12e <do_get_write_access+1ce/570>   <=====
-Trace; c015b506 <journal_get_write_access+36/60>
-Trace; c015744d <ext3_orphan_add+8d/1c0>
-Trace; c0155b04 <ext3_mark_iloc_dirty+24/50>
-Trace; c0155b15 <ext3_mark_iloc_dirty+35/50>
-Trace; c0155c07 <ext3_mark_inode_dirty+27/40>
-Trace; c0157a95 <ext3_unlink+135/190>
-Trace; c013b5c6 <vfs_unlink+106/150>
-Trace; c013b6a9 <sys_unlink+99/100>
-Trace; c0111bc0 <do_page_fault+0/4cb>
-Trace; c01087eb <system_call+33/38>
-Code;  c015b12e <do_get_write_access+1ce/570>
-00000000 <_EIP>:
-Code;  c015b12e <do_get_write_access+1ce/570>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c015b130 <do_get_write_access+1d0/570>
-   2:   63 02                     arpl   %ax,(%edx)
-Code;  c015b132 <do_get_write_access+1d2/570>
-   4:   d7                        xlat   %ds:(%ebx)
-Code;  c015b133 <do_get_write_access+1d3/570>
-   5:   58                        pop    %eax
-Code;  c015b134 <do_get_write_access+1d4/570>
-   6:   1f                        pop    %ds
-Code;  c015b135 <do_get_write_access+1d5/570>
-   7:   c0 83 c4 14 8b 4c 24      rolb   $0x24,0x4c8b14c4(%ebx)
-Code;  c015b13c <do_get_write_access+1dc/570>
-   e:   20 bb e2 ff ff ff         and    %bh,0xffffffe2(%ebx)
+This is the first hacking of any kind I've done on the kernel.  Any
+comments would be appreciated.
 
 
-On Fri, 12 Jul 2002, Mark Hahn wrote:
 
-> > Over the last month or so, I've noticed the following error showing up
-> > repeatedly in my system logs under kernel 2.4.18-ac3 and more recently
-> > under 2.4.19-rc1:
->
-> even though you have a nice assertion failure,
-> you probably still need to follow the faq on decoding the oops.
->
->
-> >
-> > EXT3-fs error (device ide0(3,3)) in ext3_new_inode: error 28
-> >
-> > I've now been able to capture the following Oops before the system went
-> > down entirely:
-> >
-> > Assertion failure in do_get_write_access() at transaction.c:611:
-> > "!(((jh2bh(jh))->b_state & (1UL << BH_Lock)) != 0)"
-> > kernel BUG at transaction.c:611!
-> > invalid operand: 0000
-> > CPU:    0
-> > EIP:    0010:[<c015b12e>]    Not tainted
-> > EFLAGS: 00010282
-> > eax: 00000078   ebx: ddadd294   ecx: 00000004   edx: ddb0ff64
-> > esi: ddadd200   edi: dec5d920   ebp: ddadd200   esp: d28dfe70
-> > ds: 0018   es: 0018   ss: 0018
-> > Process sendmail (pid: 21193, stackpage=d28df000)
-> > Stack: c01f7460 c01f5969 c01f58d7 00000263 c01f94a0 00000000 00000000
-> > cbf3b3c0
-> >        ddadd294 ddadd200 dec5d920 d4a82730 c015b506 dec5d920 d4a82730
-> > 00000000
-> >        ddd9acc0 ddadd000 dec5d920 c4cbdc20 c015744d dec5d920 ddd9acc0
-> > 00000000
-> > Call Trace: [<c015b506>] [<c015744d>] [<c0155b04>] [<c0155b15>]
-> > [<c0155c07>]
-> >    [<c0157a95>] [<c013b5c6>] [<c013b6a9>] [<c0111bc0>] [<c01087eb>]
-> >
-> > Code: 0f 0b 63 02 d7 58 1f c0 83 c4 14 8b 4c 24 20 bb e2 ff ff ff
-> >
-> >
-> > Any help or patches would be greatly appreciated. I'd be glad to provide
-> > more information if needed.
-> >
-> >
-> > Alec
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
->
-> --
-> operator may differ from spokesperson.	            hahn@mcmaster.ca
->                                               http://hahn.mcmaster.ca/~hahn
->
+The patch I used:
+diff -urN linux-orig/include/linux/netdevice.h linux/include/linux/netdevice.h
+--- linux-orig/include/linux/netdevice.h	Tue Jul  9 13:28:43 2002
++++ linux/include/linux/netdevice.h	Tue Jul  9 13:48:05 2002
+@@ -96,10 +96,10 @@
+
+ struct net_device_stats
+ {
+-	unsigned long	rx_packets;		/* total packets received	*/
+-	unsigned long	tx_packets;		/* total packets transmitted	*/
+-	unsigned long	rx_bytes;		/* total bytes received 	*/
+-	unsigned long	tx_bytes;		/* total bytes transmitted	*/
++	unsigned long long rx_packets;		/* total packets received	*/
++	unsigned long long tx_packets;		/* total packets transmitted	*/
++	unsigned long long rx_bytes;		/* total bytes received 	*/
++	unsigned long long tx_bytes;		/* total bytes transmitted	*/
+ 	unsigned long	rx_errors;		/* bad packets received		*/
+ 	unsigned long	tx_errors;		/* packet transmit problems	*/
+ 	unsigned long	rx_dropped;		/* no space in linux buffers	*/
+diff -urN linux-orig/net/core/dev.c linux/net/core/dev.c
+--- linux-orig/net/core/dev.c	Tue Jul  9 13:28:44 2002
++++ linux/net/core/dev.c	Tue Jul  9 13:45:03 2002
+@@ -1689,7 +1689,7 @@
+ 	int size;
+
+ 	if (stats)
+-		size = sprintf(buffer, "%6s:%8lu %7lu %4lu %4lu %4lu %5lu %10lu %9lu %8lu %7lu %4lu %4lu %4lu %5lu %7lu %10lu\n",
++		size = sprintf(buffer, "%6s:%8llu %7llu %4lu %4lu %4lu %5lu %10lu %9lu %8llu %7llu %4lu %4lu %4lu %5lu %7lu %10lu\n",
+  		   dev->name,
+ 		   stats->rx_bytes,
+ 		   stats->rx_packets, stats->rx_errors,
+
+$ cat /proc/net/dev
+Inter-|   Receive                                                |  Transmit
+ face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
+    lo:   25660      71    0    0    0     0          0         0    25660      71    0    0    0     0       0          0
+  eth0:7208362840 12115561    0    0    0     0          0         0 3171323568 5493455    0    0    0     0       0          0
+$ ifconfig eth0
+eth0      Link encap:Ethernet  HWaddr 00:00:00:00:00:00
+          inet addr:a.b.c.d  Bcast:a.b.e.f  Mask:255.255.248.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:12115561 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:5493455 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:100
+          RX bytes:7208362840 (6874.4 Mb)  TX bytes:3171323568 (3024.4 Mb)
+          Interrupt:5 Base address:0x2000
+
+
+-- 
+      -Matt Stegman
+
 

@@ -1,79 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbTKCJ3M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 04:29:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbTKCJ3M
+	id S261943AbTKCJkc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 04:40:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbTKCJkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 04:29:12 -0500
-Received: from web40907.mail.yahoo.com ([66.218.78.204]:44102 "HELO
-	web40907.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261827AbTKCJ3K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 04:29:10 -0500
-Message-ID: <20031103092909.4955.qmail@web40907.mail.yahoo.com>
-Date: Mon, 3 Nov 2003 01:29:09 -0800 (PST)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: Re: What do frame pointers do?
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20031102204556.0c5b377a.rddunlap@osdl.org>
+	Mon, 3 Nov 2003 04:40:31 -0500
+Received: from gw-ca43-e0.camline.com ([193.149.60.13]:41737 "EHLO
+	imap.camline.com") by vger.kernel.org with ESMTP id S261943AbTKCJka
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 04:40:30 -0500
+Date: Mon, 3 Nov 2003 10:40:21 +0100 (MET)
+From: <matze@camline.com>
+To: Andi Kleen <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: Oops in __is_prefetch with 2.6.0-test9-bk4 at boot time
+ with Athlon XP 1800+
+In-Reply-To: <20031102143535.0b9b39f2.ak@suse.de>
+Message-ID: <Pine.LNX.4.33.0311031032250.31704-100000@homer2.camline.com>
+Organization: camLine Datensysteme fuer die Mikroelektronik
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. Dunlap,
+On Sun, 2 Nov 2003, Andi Kleen wrote:
 
---- "Randy.Dunlap" <rddunlap@osdl.org> wrote:
-> On Sun, 2 Nov 2003 09:00:29 -0800 (PST) Bradley Chapman <kakadu_croc@yahoo.com>
-> wrote:
-> 
-> | What exactly is the purpose of a frame pointer? As far back as I can remember,
-> 2.4
-> | and 2.6 kernels have supported something called a frame pointer, which slows
-> down
-> | the kernel slightly but supposedly outputs 'very useful debugging information.'
-> | Unfortunately, it doesn't really explain what they are, and for the past few
-> months,
-> | I haven't seen any hacker gods asking for CONFIG_FRAME_POINTER=y, except for
-> Russell
-> | King, who wants them compiled for ARM processors for some reason (I grepped the
-> | kernel source looking for answers and found a comment which implied this).
-> | 
-> | Does anyone know where I can find a good explanation of what they are and what
-> they
-> | do?
-> 
-> Frame pointers enable more deterministic back tracing of the stack,
-> which can be helpful for tracking down bugs.  I build with
-> CONFIG_FRAME_POINTER enabled all of the time.
-> 
-> Note, however, that current 2.6.x Makefile does not allow frame pointers
-> to be used with gcc 2.96 since it has some known problems with code generation
-> when using frame pointers.
-> 
-> There is a little discussion of frame pointers in the Intel
-> IA-32 Intel® Architecture Software Developer;s Manual Volume 1:
-> Basic Architecture
-> and
-> IA-32 Intel® Architecture Software Developer's Manual Volume 2:
-> Instruction Set Reference,
-> which are downloadable as .pdf files from developer.intel.com.
+> Maybe you just have a miscompilation of some sort. Do a make mrproper and try
+> again. You can also try if it happens with a smaller configuration.
 
-OK, thanks for explaining it to me.
+I thought more about this... and looked into Documentation/Changes again
+for the compiler version. All the reports at linux-kernel about timings
+and kernel image size made me think, that gcc 3.x is no problem anymore.
 
-> 
-> --
-> ~Randy
+And it seems that gcc 3.3.2 miscompiles something with my configuration. I
+did a quick test using 2.95.3 today in the morning and the bootup seemed
+to work.
 
-Brad
+I'm at work now, but I'll do some more tests tonight.
+
+Sorry, that I've wasted your time, I should have known this.
+
+If anybody is interested to track down the miscompilings, I can provide
+any info needed. The least what I can do...
+
+Thanks,
+	Matze
 
 
-=====
-Brad Chapman
+-- 
+Matthias Hanisch    mailto:matze@camline.com    phone: +49 8137 935-219
 
-Permanent e-mail: kakadu_croc@yahoo.com
-
-__________________________________
-Do you Yahoo!?
-Exclusive Video Premiere - Britney Spears
-http://launch.yahoo.com/promos/britneyspears/

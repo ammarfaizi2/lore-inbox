@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265152AbTL3Tno (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 14:43:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265306AbTL3Tnn
+	id S263370AbTL3TkK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 14:40:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264271AbTL3TkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 14:43:43 -0500
-Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:24456 "EHLO
-	mx.rackable.com") by vger.kernel.org with ESMTP id S265152AbTL3Tnm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 14:43:42 -0500
-Message-ID: <3FF1D567.4040205@rackable.com>
-Date: Tue, 30 Dec 2003 11:43:35 -0800
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Brad House <brad_mssw@gentoo.org>
-CC: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       Atul.Mukker@lsil.com
-Subject: Re: [PATCH 2.6.0] megaraid 64bit fix/cleanup (AMD64)
-References: <65095.68.105.173.45.1072761027.squirrel@mail.mainstreetsoftworks.com>        <20031230052041.GA7007@gtf.org> <65025.68.105.173.45.1072765590.squirrel@mail.mainstreetsoftworks.com> <3FF11CC2.7040209@pobox.com>
-In-Reply-To: <3FF11CC2.7040209@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Dec 2003 19:43:35.0676 (UTC) FILETIME=[36C2B3C0:01C3CF0D]
+	Tue, 30 Dec 2003 14:40:10 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:21007 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263370AbTL3TkH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 14:40:07 -0500
+Date: Tue, 30 Dec 2003 19:40:03 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: 2.6.0-test6: APM unable to suspend (the 2.6.0-test2 saga continues)
+Message-ID: <20031230194003.E13556@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Vojtech Pavlik <vojtech@suse.cz>
+References: <20031005171055.A21478@flint.arm.linux.org.uk> <20031228174622.A20278@flint.arm.linux.org.uk> <20031228182545.B20278@flint.arm.linux.org.uk> <Pine.LNX.4.58.0312281248190.11299@home.osdl.org> <20031230114324.A1632@flint.arm.linux.org.uk> <20031230165042.B13556@flint.arm.linux.org.uk> <20031230181741.D13556@flint.arm.linux.org.uk> <Pine.LNX.4.58.0312301045170.2065@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0312301045170.2065@home.osdl.org>; from torvalds@osdl.org on Tue, Dec 30, 2003 at 10:47:10AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Wouldn't it be more useful to port megaraid2 from 2.4?
+On Tue, Dec 30, 2003 at 10:47:10AM -0800, Linus Torvalds wrote:
+> On Tue, 30 Dec 2003, Russell King wrote:
+> > 
+> > - i8042_noaux=1 - this doesn't seem to make any difference, although
+> >   this does appear to leave the CTR set as 0x65, which appears to be
+> >   the BIOS-set value.
+> 
+> Doesn't that leave the kbd mask the same? In particular, it still sets the 
+> "disable" bit, aka I8042_CTR_KBDDIS later on..
+
+Seems to.  With noaux unset, CTR is set to 0x47.
+
+> What happens if you just define I8042_CTR_KBDDIS to zero?
+
+That still causes suspend to fail.  I've separately tested I8042_CTR_KBDINT
+set to zero as well, and that still causes failure.
 
 -- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,65 +1,130 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132570AbRAPT24>; Tue, 16 Jan 2001 14:28:56 -0500
+	id <S132422AbRAPTdQ>; Tue, 16 Jan 2001 14:33:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132442AbRAPT2r>; Tue, 16 Jan 2001 14:28:47 -0500
-Received: from cx879306-a.pv1.ca.home.com ([24.5.157.48]:31214 "EHLO
-	siamese.dhis.twinsun.com") by vger.kernel.org with ESMTP
-	id <S132570AbRAPT2e>; Tue, 16 Jan 2001 14:28:34 -0500
-From: junio@siamese.dhis.twinsun.com
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.1-pre7 raid5syncd oops
-Date: 16 Jan 2001 11:28:28 -0800
-Message-ID: <7vzogr47qb.fsf@siamese.dhis.twinsun.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
+	id <S132497AbRAPTdH>; Tue, 16 Jan 2001 14:33:07 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:35152 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S132422AbRAPTdE>; Tue, 16 Jan 2001 14:33:04 -0500
+Date: Tue, 16 Jan 2001 20:33:34 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: tytso@valinux.com
+Cc: linux-kernel@vger.kernel.org, alan@redhat.com, aviro@redhat.com
+Subject: Re: Locking problem in 2.2.18/19-pre7? (fs/inode.c and fs/dcache.c)
+Message-ID: <20010116203334.C19265@athlon.random>
+In-Reply-To: <E14IbPR-0007Ye-00@beefcake.hdqt.valinux.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E14IbPR-0007Ye-00@beefcake.hdqt.valinux.com>; from tytso@valinux.com on Tue, Jan 16, 2001 at 11:04:45AM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 16, 2001 at 11:04:45AM -0800, Theodore Y. Ts'o wrote:
+> 
+> HJ Lu recently pointed me at a potential locking problem
+> try_to_free_inodes(), and when I started proding at it, I found what
+> appears to be another set of SMP locking issues in the dcache code.
+> (But if that were the case, why aren't we seeing huge numbers of
+> complaints?  So I'm wondering if I'm missing something.)
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000003
-c01ccf91
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<c01ccf91>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010086
-eax: ffffffff   ebx: c1490400   ecx: cfdeb000   edx: cfeed13c
-esi: cfdeb000   edi: 00001e29   ebp: 00000013   esp: cfba7e80
-ds: 0018   es: 0018   ss: 0018
-Process raid5syncd (pid: 9, stackpage=cfba7000)
-Stack: c01ccfe0 cfdeb000 c1490400 00000000 c01cd430 c1490400 c1490400 0003c53c 
-       00001e29 00000013 00000000 00000000 cfba6000 00001000 00000000 00000000 
-       00000000 c1490400 c01cf2a8 c1490400 00078a78 00000000 00000000 cfba6000 
-Call Trace: [<c01ccfe0>] [<c01cd430>] [<c01cf2a8>] [<c01d708b>] [<c01cf40f>] [<c01d63cd>] [<c01074b8>] 
-Code: 89 50 04 8b 51 04 8b 01 89 02 c7 41 04 00 00 00 00 c3 8d b6 
+Because the code is correct ;). It is infact a fix and it took some time to fix
+such bug in mid 2.2.x.
 
->>EIP; c01ccf91 <remove_hash+11/30>   <=====
-Trace; c01ccfe0 <get_free_stripe+30/50>
-Trace; c01cd430 <get_active_stripe+260/520>
-Trace; c01cf2a8 <raid5_sync_request+48/e0>
-Trace; c01d708b <md_do_sync+1fb/470>
-Trace; c01cf40f <raid5syncd+2f/70>
-Trace; c01d63cd <md_thread+fd/170>
-Trace; c01074b8 <kernel_thread+28/40>
-Code;  c01ccf91 <remove_hash+11/30>
-00000000 <_EIP>:
-Code;  c01ccf91 <remove_hash+11/30>   <=====
-   0:   89 50 04                  mov    %edx,0x4(%eax)   <=====
-Code;  c01ccf94 <remove_hash+14/30>
-   3:   8b 51 04                  mov    0x4(%ecx),%edx
-Code;  c01ccf97 <remove_hash+17/30>
-   6:   8b 01                     mov    (%ecx),%eax
-Code;  c01ccf99 <remove_hash+19/30>
-   8:   89 02                     mov    %eax,(%edx)
-Code;  c01ccf9b <remove_hash+1b/30>
-   a:   c7 41 04 00 00 00 00      movl   $0x0,0x4(%ecx)
-Code;  c01ccfa2 <remove_hash+22/30>
-  11:   c3                        ret    
-Code;  c01ccfa3 <remove_hash+23/30>
-  12:   8d b6 00 00 00 00         lea    0x0(%esi),%esi
+> 
+> Anyway, the first problem which HJ pointed out is in
+> try_to_free_inodes() which attempts to implement a mutual exclusion with
+> respect to itself as follows....
+> 
+> 	if (block)
+> 	{
+> 		struct wait_queue __wait;
+> 
+> 		__wait.task = current;
+> 		add_wait_queue(&wait_inode_freeing, &__wait);
+> 		for (;;)
+> 		{
+> 			/* NOTE: we rely only on the inode_lock to be sure
+> 			   to not miss the unblock event */
+> 			current->state = TASK_UNINTERRUPTIBLE;
+> 			spin_unlock(&inode_lock);
+			^^^^^^^^^^^^^^^^^^^^^^^^
+> 			schedule();
+> 			spin_lock(&inode_lock);
+			^^^^^^^^^^^^^^^^^^^^^^^^
+> 			if (!block)
+> 				break;
+> 		}
+> 		remove_wait_queue(&wait_inode_freeing, &__wait);
+> 		current->state = TASK_RUNNING;
+> 	}
+> 	block = 1;
+> 
+> Of course, this is utterly unsafe on an SMP machines, since access to
+> the "block" variable isn't protected at all.  So the first question is
+
+Wrong, it's obviously protected by the inode_lock. And even if it wasn't
+protected by the inode_lock in 2.2.x inode.c and dcache.c runs globally
+serialized by the BKL (but it is obviously protected regardless of the BKL).
+
+> why did whoever implemented this do it in this horribly complicated way
+> above, instead of something simple, say like this:
+> 
+> 	static struct semaphore block = MUTEX;
+> 	if (down_trylock(&block)) {
+> 		spin_unlock(&inode_lock);
+> 		down(&block);
+> 		spin_lock(&inode_lock);
+> 	}
+
+The above is overkill (there's no need to use further atomic API, when we can
+rely on the inode_lock for the locking. It's overcomplex and slower.
+
+> (with the appropriate unlocking code at the end of the function).
+> 
+> 
+> Next question.... why was this there in the first place?  After all,
+
+To fix the "inode-max limit reached" faliures that you could reproduce on
+earlier 2.2.x. (the freed inodes was re-used before the task that freed them
+had a chance to allocate them for itself)
+
+> most of the time try_to_free_inodes() is called with the inode_lock
+> spinlock held, which would act as a automatic mutual exclusion anyway.
+
+> The only time this doesn't happen is when we call prune_dcache(), where
+> inode_lock is temporarily dropped.
+
+Wrong:
+
+		spin_unlock(&inode_lock);
+		prune_dcache(0, goal);
+		spin_lock(&inode_lock);
+		sync_all_inodes();
+		__free_inodes(&throw_away);
+
+the above code obviously drops the spinlock for doing things like flushing the
+dirty inodes to the buffer cache that can block in balance_dirty() etc...
+(and that's the real problem because it sleeps so also the BKL gets released
+while prune_dcache in practice could not race because of the BKL)
+
+> So I took a look at prune_dcache(), and discovered that (a) it's called
+> from multiple places, and (b) it and shrink_dcache_sb() both iterate over
+> dentry_unused and among other things, tried to free dcache structures
+> without any kind of locking to prevent two kernel threads to
+> from mucking with the contents of dentry_unused at the same time, and
+> possibly having prune_one_dentry() being called by two processes on the
+> same dentry structure.  This should almost certainly cause problems.
+
+we're running under the BKL all over the place in 2.2.x so they can't race.
+
+> So the following patch I think is definitely necessary, assuming that
+
+The patch is definitely not necessary.
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

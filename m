@@ -1,12 +1,12 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130190AbQK1CfY>; Mon, 27 Nov 2000 21:35:24 -0500
+        id <S130146AbQK1CfY>; Mon, 27 Nov 2000 21:35:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130374AbQK1CfO>; Mon, 27 Nov 2000 21:35:14 -0500
-Received: from web511.mail.yahoo.com ([216.115.104.226]:12043 "HELO
-        web511.mail.yahoo.com") by vger.kernel.org with SMTP
-        id <S130190AbQK1CfI>; Mon, 27 Nov 2000 21:35:08 -0500
-Message-ID: <20001128020502.16003.qmail@web511.mail.yahoo.com>
+        id <S130190AbQK1CfP>; Mon, 27 Nov 2000 21:35:15 -0500
+Received: from web512.mail.yahoo.com ([216.115.104.227]:40464 "HELO
+        web512.mail.yahoo.com") by vger.kernel.org with SMTP
+        id <S130146AbQK1CfH>; Mon, 27 Nov 2000 21:35:07 -0500
+Message-ID: <20001128020501.27708.qmail@web512.mail.yahoo.com>
 Date: Mon, 27 Nov 2000 18:05:01 -0800 (PST)
 From: Joe <josepha48@yahoo.com>
 Reply-To: joeja@mindspring.com

@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281923AbRKUQvk>; Wed, 21 Nov 2001 11:51:40 -0500
+	id <S281924AbRKUQwA>; Wed, 21 Nov 2001 11:52:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281904AbRKUQvb>; Wed, 21 Nov 2001 11:51:31 -0500
-Received: from mx2out.umbc.edu ([130.85.253.52]:54450 "EHLO mx2out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S281922AbRKUQv1>;
-	Wed, 21 Nov 2001 11:51:27 -0500
-Date: Wed, 21 Nov 2001 11:51:26 -0500
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: SiS630 chipsets && linux 2.4.x kernel == snails pace?
-In-Reply-To: <Pine.SGI.4.31L.02.0111191247050.12469772-100000@irix2.gl.umbc.edu>
-Message-ID: <Pine.SGI.4.31L.02.0111211146500.12827068-100000@irix2.gl.umbc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281904AbRKUQvl>; Wed, 21 Nov 2001 11:51:41 -0500
+Received: from ns01.netrox.net ([64.118.231.130]:20430 "EHLO smtp01.netrox.net")
+	by vger.kernel.org with ESMTP id <S281917AbRKUQvg>;
+	Wed, 21 Nov 2001 11:51:36 -0500
+Subject: Re: [PATCH] Documentation/Changes
+From: Robert Love <rml@tech9.net>
+To: Dmitri Popov <popov@krista.ru>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.31.0111211210040.5542-100000@popov.krista.ru>
+In-Reply-To: <Pine.LNX.4.31.0111211210040.5542-100000@popov.krista.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
+Date: 21 Nov 2001 11:50:12 -0500
+Message-Id: <1006361415.1307.3.camel@icbm>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Nov 2001, John Jasen wrote:
+On Wed, 2001-11-21 at 04:32, Dmitri Popov wrote: 
+> I'd like to note that there is nothing abount quota tools in
+> Documentation/Changes. I tried to use one of Alan Cox kernels some weeks
+> ago, and was very surprised, when quota utilities 2.00 stopped working.
+> And I didn't find any information about correct quota tools in all the
+> source tree! At last I searched for the latest quota-tools in the Internet
+> (ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/utils/)
+> and installed it. Now it works. As I can understand, the current 2.4.*
+> will also need new utilities.
 
-> Making a more stripped 2.4.14 now, and will post results and .config in
-> the same directory as everything else.
+I believe Alan's tree had 32-bit quota support, which requires a
+different version of quota-tools. If you return to Linus's tree, your
+original version will work. 
 
-ehhh ... same results.
+For what its worth, Linus has finally merged much of Alan's tree into
+his own, and is pretty much done as of 2.4.15-pre.  32-bit quotas were
+_not_ merged. 
 
-Interestingly enough, a few people posted and emailed that they hade no
-problems with their SiS630E chipsets, and offering various theories
-therein.
-
-My vendor had a SiS630E board that was going to be RMA'd (broken ps/2 port
-for mouse of all damned things), so he quickly built a system around it, I
-ssh'ed in, copied over 2.4.14, and make dep took a whopping 37 seconds or
-so, with make (on a .config with everything either added in or as a
-module) about 6.5 minutes.
-
-So, no, whatever magic molassas infects my SiS630 boards does not seem to
-extend to the SiS630E.
-
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
+	Robert Love
 

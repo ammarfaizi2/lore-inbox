@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264604AbTLEXeX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 18:34:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264830AbTLEXeW
+	id S264884AbTLEXil (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 18:38:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbTLEXil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 18:34:22 -0500
-Received: from fep01-0.kolumbus.fi ([193.229.0.41]:15966 "EHLO
-	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S264604AbTLEXeV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 18:34:21 -0500
-Date: Sat, 6 Dec 2003 01:33:29 +0200 (MET DST)
-From: Szakacsits Szabolcs <szaka@sienet.hu>
-X-X-Sender: szaka@ua178d119.elisa.omakaista.fi
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: M?ns Rullg?rd <mru@kth.se>, linux-kernel@vger.kernel.org
-Subject: Re: Is there a "make hole" (truncate in middle) syscall?
-In-Reply-To: <20031205224142.GR29119@mis-mike-wstn.matchmail.com>
-Message-ID: <Pine.LNX.4.58.0312060126510.9180@ua178d119.elisa.omakaista.fi>
-References: <200312041432.23907.rob@landley.net>
- <Pine.LNX.4.58.0312042300550.2330@ua178d119.elisa.omakaista.fi>
- <yw1xllprihwo.fsf@kth.se> <20031205224142.GR29119@mis-mike-wstn.matchmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 5 Dec 2003 18:38:41 -0500
+Received: from holomorphy.com ([199.26.172.102]:18133 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264877AbTLEXiY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 18:38:24 -0500
+Date: Fri, 5 Dec 2003 15:38:16 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Russell Elik Rademacher <elik@webspires.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HT apparently not detected properly on 2.4.23
+Message-ID: <20031205233816.GF8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Russell Elik Rademacher <elik@webspires.com>,
+	linux-kernel@vger.kernel.org
+References: <20031203235837.GW8039@holomorphy.com> <Pine.LNX.4.44.0312051511440.5412-100000@logos.cnet> <20031205174850.GE8039@holomorphy.com> <17783749062.20031205110751@webspires.com> <3FD0CD65.5080307@stinkfoot.org> <86101410218.20031205160213@webspires.com> <3FD114A5.5070100@stinkfoot.org> <141103166375.20031205163129@webspires.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <141103166375.20031205163129@webspires.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 05, 2003 at 04:31:29PM -0700, Russell Elik Rademacher wrote:
+>    So noted.  Thanks William for this.  Now I have to resume patching
+> the rest of 284 servers from various clients this weekend and have it
+> all brought up to speed.
 
-On Fri, 5 Dec 2003, Mike Fedyk wrote:
+Good to hear it's resolved the issue.
 
-> So with this, you can create sparse files for an entire set of files by just
-> cping them? :)
+Thanks for testing.
 
-You can create sparse file even from stdin with cp. I wrote about here
-(handling sparse files section), 
-http://linux-ntfs.sourceforge.net/man/ntfsclone.html
 
-	Szaka
+-- wli

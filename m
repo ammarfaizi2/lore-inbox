@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265908AbUBJOsK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 09:48:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265912AbUBJOsK
+	id S265925AbUBJO4G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 09:56:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265931AbUBJO4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 09:48:10 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:19075 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S265908AbUBJOrx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 09:47:53 -0500
-Subject: Re: Kernel Fault 2.4.20
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Ananda Bhattacharya <anandab@cabm.rutgers.edu>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0402100936050.16491@puma.cabm.rutgers.edu>
-References: <Pine.LNX.4.58.0402091914040.2128@home.osdl.org>
-	 <Pine.GSO.4.58.0402101424250.2261@waterleaf.sonytel.be>
-	 <Pine.GSO.4.58.0402101531240.2261@waterleaf.sonytel.be>
-	 <Pine.LNX.4.58.0402100936050.16491@puma.cabm.rutgers.edu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-rYZjWQXySvC/+KId8sEA"
-Organization: Red Hat, Inc.
-Message-Id: <1076424458.4442.5.camel@laptop.fenrus.com>
+	Tue, 10 Feb 2004 09:56:06 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:56075 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265925AbUBJO4C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 09:56:02 -0500
+Date: Tue, 10 Feb 2004 14:55:58 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Greg Kroah-Hartman <greg@kroah.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: dmapool (was: Re: Linux 2.6.3-rc2)
+Message-ID: <20040210145558.A4684@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Greg Kroah-Hartman <greg@kroah.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0402091914040.2128@home.osdl.org> <Pine.GSO.4.58.0402101424250.2261@waterleaf.sonytel.be> <Pine.GSO.4.58.0402101531240.2261@waterleaf.sonytel.be>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 10 Feb 2004 15:47:38 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.58.0402101531240.2261@waterleaf.sonytel.be>; from geert@linux-m68k.org on Tue, Feb 10, 2004 at 03:32:47PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 10, 2004 at 03:32:47PM +0100, Geert Uytterhoeven wrote:
+> This patch seems to fix the problem (all offending platforms include
+> <asm/generic.h> if CONFIG_PCI only):
 
---=-rYZjWQXySvC/+KId8sEA
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Umm, no the whole point of the dmapool is that it's not pci-dependent.
+Just fix your arch to have proper stub dma_ routines.  There were at
+least two headsups during 2.5 and 2.6-test that this will be required.
 
-On Tue, 2004-02-10 at 15:41, Ananda Bhattacharya wrote:
-> There was a kernel fault today, I am not quite sure what=20
-> just happened, if anyone has any ideas and can point me in=20
-> the right direction.
-> Thanks a lot=20
-
-try using tg3 instead of bcm5700... something in networking oopsed
-
-
-
---=-rYZjWQXySvC/+KId8sEA
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAKO8KxULwo51rQBIRAkcDAJ9UnlhfkeDtrCRbJdhr309ZP0+j4QCgqX2r
-nIVjevAafqMz2dXb4sGFbnQ=
-=lKZJ
------END PGP SIGNATURE-----
-
---=-rYZjWQXySvC/+KId8sEA--

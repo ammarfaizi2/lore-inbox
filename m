@@ -1,168 +1,182 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135817AbRAJPP7>; Wed, 10 Jan 2001 10:15:59 -0500
+	id <S135839AbRAJPSs>; Wed, 10 Jan 2001 10:18:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135312AbRAJPPu>; Wed, 10 Jan 2001 10:15:50 -0500
-Received: from elektroni.ee.tut.fi ([130.230.131.11]:6916 "HELO
-	elektroni.ee.tut.fi") by vger.kernel.org with SMTP
-	id <S135801AbRAJPPh>; Wed, 10 Jan 2001 10:15:37 -0500
-Date: Wed, 10 Jan 2001 17:15:35 +0200
-From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
-To: linux-kernel@vger.kernel.org
-Subject: EXT2-fs error in 2.4.0
-Message-ID: <20010110171535.A206@elektroni.ee.tut.fi>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S135829AbRAJPSj>; Wed, 10 Jan 2001 10:18:39 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:25280 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S135833AbRAJPSg>; Wed, 10 Jan 2001 10:18:36 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [Patch] shmem truncate optimizations and cleanup
+From: Christoph Rohland <cr@sap.com>
+Date: 10 Jan 2001 16:22:13 +0100
+Message-ID: <m3g0iro2je.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got these in 2.4.0. Sorry if it's a known problem: I haven't been following
-the list very closely. This is a 100 MHz pentium and the kernel was compiled
-with gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release). After
-booting to 2.2.latest.latest fsck did its fscking without telling anything.
+Hi Alan,
 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 779318387, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600484464, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1852403827, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1801678700, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1680017961, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1852401253, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1735401573, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1818386804, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1633902437, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600481379, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1702521203, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 538976288, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1881677856, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1902081127, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1801677173, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1953720684, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1735405171, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1818386804, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1633902437, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600481379, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 170490483, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1717920803, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 543518313, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600415600, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1751343459, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1769168741, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 151610746, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1952935976, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1769304415, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1768713059, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 779318387, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600415600, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1751343459, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 2054381413, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1107954217, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1481197140, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1162104917, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1094934342, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1881689164, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1952408948, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 539765280, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1601463655, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600484464, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1953718630, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1870012460, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 170484841, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1229345858, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1146115416, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1130317381, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 676088897, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600415600, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 740958324, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1952802592, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1684500575, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1935763039, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1981820020, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 694446447, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1179927050, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1347770441, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1598440772, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1280065859, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1768912424, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 538979428, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1919295520, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1885300069, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1935631732, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 746024812, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1702129696, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 706770015, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1413614121, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1431849286, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1178944592, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1279345503, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1870014540, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 539780201, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1713381408, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600480626, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600415600, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 2003790963, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1735401516, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 544497508, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1107962154, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1481197140, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1162104917, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1094934342, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1764248652, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 153908334, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1601135648, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1667590243, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1735417707, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1633902452, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 744843363, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1953392928, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1852383276, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 168438132, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1717920803, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 543518313, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1601463655, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600484464, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1953718630, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1109403944, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1481197140, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1130319957, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 676088897, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1601463655, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600484464, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1953718630, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 170469417, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1702131813, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1595960946, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1819175263, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600482921, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1836064863, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 544497508, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1952802602, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1684893791, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1935763039, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1870014580, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 170484841, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1913195131, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1920300133, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1881677934, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1952408685, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 808004128, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 175966779, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1717920803, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 543518313, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1601463655, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600415600, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1953718630, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1109403944, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1481197140, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1130319957, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 676088897, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1601463655, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1600415600, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1953718630, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 170469417, count = 1 
-Jan 10 16:28:22 elektroni kernel: EXT2-fs error (device ide0(3,3)): ext2_free_blocks: Freeing blocks not in datazone - block = 1717920803, count = 1 
+The appended patch speeds up the truncate logic of shmem.c
+considerably and makes it more readable. 
+
+Would you apply it to your -ac series?
+
+I will go on with some cache lookup optimizations and probably
+read/write support.
+
+Greetings
+                Christoph
+
+diff -uNr 4-13-5/include/linux/shmem_fs.h c/include/linux/shmem_fs.h
+--- 4-13-5/include/linux/shmem_fs.h	Thu Dec 28 23:19:27 2000
++++ c/include/linux/shmem_fs.h	Thu Dec 28 23:22:58 2000
+@@ -19,6 +19,7 @@
+ 
+ struct shmem_inode_info {
+ 	spinlock_t	lock;
++	unsigned long	max_index;
+ 	swp_entry_t	i_direct[SHMEM_NR_DIRECT]; /* for the first blocks */
+ 	swp_entry_t   **i_indirect; /* doubly indirect blocks */
+ 	unsigned long	swapped;
+diff -uNr 4-13-5/mm/shmem.c c/mm/shmem.c
+--- 4-13-5/mm/shmem.c	Thu Dec 28 23:19:27 2000
++++ c/mm/shmem.c	Thu Dec 28 23:31:20 2000
+@@ -51,11 +51,16 @@
+ 
+ static swp_entry_t * shmem_swp_entry (struct shmem_inode_info *info, unsigned long index) 
+ {
++	unsigned long offset;
++
+ 	if (index < SHMEM_NR_DIRECT)
+ 		return info->i_direct+index;
+ 
+ 	index -= SHMEM_NR_DIRECT;
+-	if (index >= ENTRIES_PER_PAGE*ENTRIES_PER_PAGE)
++	offset = index % ENTRIES_PER_PAGE;
++	index /= ENTRIES_PER_PAGE;
++
++	if (index >= ENTRIES_PER_PAGE)
+ 		return NULL;
+ 
+ 	if (!info->i_indirect) {
+@@ -63,13 +68,13 @@
+ 		if (!info->i_indirect)
+ 			return NULL;
+ 	}
+-	if(!(info->i_indirect[index/ENTRIES_PER_PAGE])) {
+-		info->i_indirect[index/ENTRIES_PER_PAGE] = (swp_entry_t *) get_zeroed_page(GFP_USER);
+-		if (!info->i_indirect[index/ENTRIES_PER_PAGE])
++	if(!(info->i_indirect[index])) {
++		info->i_indirect[index] = (swp_entry_t *) get_zeroed_page(GFP_USER);
++		if (!info->i_indirect[index])
+ 			return NULL;
+ 	}
+ 	
+-	return info->i_indirect[index/ENTRIES_PER_PAGE]+index%ENTRIES_PER_PAGE;
++	return info->i_indirect[index]+offset;
+ }
+ 
+ static int shmem_free_swp(swp_entry_t *dir, unsigned int count)
+@@ -99,7 +104,6 @@
+  * @dir:	pointer to swp_entries 
+  * @size:	number of entries in dir
+  * @start:	offset to start from
+- * @inode:	inode for statistics
+  * @freed:	counter for freed pages
+  *
+  * It frees the swap entries from dir+start til dir+size
+@@ -109,7 +113,7 @@
+ 
+ static unsigned long 
+ shmem_truncate_part (swp_entry_t * dir, unsigned long size, 
+-		     unsigned long start, struct inode * inode, unsigned long *freed) {
++		     unsigned long start, unsigned long *freed) {
+ 	if (start > size)
+ 		return start - size;
+ 	if (dir)
+@@ -121,21 +125,27 @@
+ static void shmem_truncate (struct inode * inode)
+ {
+ 	int clear_base;
+-	unsigned long start;
++	unsigned long index, start;
+ 	unsigned long mmfreed, freed = 0;
+-	swp_entry_t **base, **ptr;
++	swp_entry_t **base, **ptr, **last;
+ 	struct shmem_inode_info * info = &inode->u.shmem_i;
+ 
+ 	spin_lock (&info->lock);
+-	start = (inode->i_size + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
++	index = (inode->i_size + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
++	if (index >= info->max_index) {
++		info->max_index = index;
++		spin_unlock (&info->lock);
++		return;
++	}
+ 
+-	start = shmem_truncate_part (info->i_direct, SHMEM_NR_DIRECT, start, inode, &freed);
++	start = shmem_truncate_part (info->i_direct, SHMEM_NR_DIRECT, index, &freed);
+ 
+ 	if (!(base = info->i_indirect))
+-		goto out;;
++		goto out;
+ 
+ 	clear_base = 1;
+-	for (ptr = base; ptr < base + ENTRIES_PER_PAGE; ptr++) {
++	last = base + ((info->max_index - SHMEM_NR_DIRECT + ENTRIES_PER_PAGE - 1) / ENTRIES_PER_PAGE);
++	for (ptr = base; ptr < last; ptr++) {
+ 		if (!start) {
+ 			if (!*ptr)
+ 				continue;
+@@ -145,16 +155,16 @@
+ 			continue;
+ 		}
+ 		clear_base = 0;
+-		start = shmem_truncate_part (*ptr, ENTRIES_PER_PAGE, start, inode, &freed);
++		start = shmem_truncate_part (*ptr, ENTRIES_PER_PAGE, start, &freed);
+ 	}
+ 
+-	if (!clear_base) 
+-		goto out;
+-
+-	free_page ((unsigned long)base);
+-	info->i_indirect = 0;
++	if (clear_base) {
++		free_page ((unsigned long)base);
++		info->i_indirect = 0;
++	}
+ 
+ out:
++	info->max_index = index;
+ 
+ 	/*
+ 	 * We have to calculate the free blocks since we do not know
+@@ -209,16 +219,16 @@
+ 		return 1;
+ 
+ 	spin_lock(&info->lock);
+-	entry = shmem_swp_entry (info, page->index);
++	entry = shmem_swp_entry(info, page->index);
+ 	if (!entry)	/* this had been allocted on page allocation */
+ 		BUG();
+ 	error = -EAGAIN;
+ 	if (entry->val) {
+-                __swap_free(swap, 2);
++		__swap_free(swap, 2);
+ 		goto out;
+-        }
++	}
+ 
+-        *entry = swap;
++	*entry = swap;
+ 	error = 0;
+ 	/* Remove the from the page cache */
+ 	lru_cache_del(page);
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313946AbSDZM5m>; Fri, 26 Apr 2002 08:57:42 -0400
+	id <S313938AbSDZM5z>; Fri, 26 Apr 2002 08:57:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313938AbSDZM5m>; Fri, 26 Apr 2002 08:57:42 -0400
-Received: from grobbebol.xs4all.nl ([194.109.248.218]:56647 "EHLO
-	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S313930AbSDZM5l>; Fri, 26 Apr 2002 08:57:41 -0400
-Date: Fri, 26 Apr 2002 12:56:55 +0000
-From: "Roeland Th. Jansen" <scsi@grobbebol.xs4all.nl>
-To: linux-scsi@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: BT930 + old scsi disk
-Message-ID: <20020426125655.A1961@grobbebol.xs4all.nl>
+	id <S313943AbSDZM5y>; Fri, 26 Apr 2002 08:57:54 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:50447 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S313938AbSDZM5w>; Fri, 26 Apr 2002 08:57:52 -0400
+Date: Fri, 26 Apr 2002 14:57:36 +0200
+From: Jurriaan on Alpha <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: gdb stopped working in 2.5.10 - works fine in 2.4.x
+Message-ID: <20020426125736.GA6775@alpha.of.nowhere>
+Reply-To: thunder7@xs4all.nl
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.3.28i
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi *
+ALPHA :gdb ./angband
+GNU gdb 5.1.1
+Copyright 2002 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "alpha-linux"...
+(gdb) run
+Starting program: /usr/local/games/angband-2.9.7-alpha1/./angband
+warning: Cannot insert breakpoint -2:
+Cannot access memory at address 0xcc1088a823d9d62c
+(gdb) q
+The program is running.  Exit anyway? (y or n) y
+ALPHA :
 
+the breakpoint with a negative number, followed by the message 'Cannot
+access memory at ...' happens on any executable I try with gdb.
 
-I have a BT930 controller; works fine for all scsi disks I have ..
-except one..
+This didn't happen with the 2.4.x kernels, so I suspect something in
+2.5.x. Any ideas?
 
-
-there is one disk that for the second time has killed the system.
-
-
-First time I was not at the system when it happened. This time I was.
-
-I heard the following sound (yep, technical ahum) :
-
-click
-downspin....
-click
-upspin......
-
-it was maybe only 3 seconds. but the system froze completely; numlock
-leds etc were ok, but magic sysrq didn't work (??)
-
-also, no way I could remotely log onto the system anymore.
-
-At this point, as it's a datadisk, I have taken it off the scsi bus to
-prevent further bad things to happen.
-
-unfortunately, there was nothing regarding the scsi controller or disk
-in the log.
-
-
-any ideas what I could do to help preventing this ? (seems somewhere a
-bug in the kernel/bt930 ?)
-
-
-
-Roeland
-
+Thanks,
+Jurriaan
+-- 
+After penetrating your skull the decibel storm of raucous riffs and
+blistering glissandos starts rearranging the synapses in your brain.
+You have arrived on the territory of Tribe Apocalyptica.
+	Apocalyptica, liner notes to 'Cult'
+GNU/Linux 2.5.10 on Debian/Alpha 990 bogomips load:0.15 0.53 0.66

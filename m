@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268538AbTCAJel>; Sat, 1 Mar 2003 04:34:41 -0500
+	id <S266994AbTCAKLw>; Sat, 1 Mar 2003 05:11:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268539AbTCAJel>; Sat, 1 Mar 2003 04:34:41 -0500
-Received: from c17997.eburwd3.vic.optusnet.com.au ([210.49.198.98]:50429 "EHLO
-	satisfactory.karma") by vger.kernel.org with ESMTP
-	id <S268538AbTCAJel>; Sat, 1 Mar 2003 04:34:41 -0500
-Date: Sat, 1 Mar 2003 20:44:55 +1100
-From: Andrew Clausen <clausen@gnu.org>
-To: "Randy.Dunlap" <randy.dunlap@verizon.net>
-Cc: aia21@cantab.net, linux-kernel@vger.kernel.org,
-       linux-ntfs-dev@lists.sourceforge.net
-Subject: Re: [Linux-NTFS-Dev] [PATCH] reduce large stack usage
-Message-ID: <20030301094454.GA1058@gnu.org>
-References: <3E605BEF.89DB801F@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E605BEF.89DB801F@verizon.net>
-User-Agent: Mutt/1.4i
-X-Accept-Language: en,pt
+	id <S268539AbTCAKLw>; Sat, 1 Mar 2003 05:11:52 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:15710
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S266994AbTCAKLw>; Sat, 1 Mar 2003 05:11:52 -0500
+Date: Sat, 1 Mar 2003 05:20:06 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Willy Tarreau <willy@w.ods.org>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, "" <jgarzik@pobox.com>,
+       "" <macro@ds2.pg.gda.pl>, "" <marcelo@conectiva.com.br>
+Subject: Re: [PATCH][2.4] APIC irq balance
+In-Reply-To: <20030301084204.GF5411@alpha.home.local>
+Message-ID: <Pine.LNX.4.50.0303010445580.2365-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0303010109360.1132-100000@montezuma.mastecende.com>
+ <20030301084204.GF5411@alpha.home.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Randy,
+On Sat, 1 Mar 2003, Willy Tarreau wrote:
 
-On Fri, Feb 28, 2003 at 11:06:23PM -0800, Randy.Dunlap wrote:
-> This patch to 2.5.63 reduces stack usage in generate_default_upcase()
-> from 0x3d4 bytes to just noise (on x86).
+> Hi Zwane !
 > 
-> The arrays are static so they are still private (hidden), but
-> now they aren't allocated on the stack and copied there for
-> temp use.
+> I've had the same problem on 2.4 since 2.4.21-pre1, but I couldn't find the
+> culprit. I've ported your patch to 2.4.21-pre5 and guess what ? it works, as
+> shown below. I'd like Maciej to review it quickly (if he has time), so that
+> Marcelo could include it in 2.4.21. Patch at the end.
 
-BTW, you can declare "local" variables inside a function as static,
-which makes them "global", but locally scoped.  The code should be
-basically equivalent, but perhaps more elegant...
+Well that's interesting, i couldn't find a suspicious hunk, but that could 
+be because of peripheral noise in the patch.
 
-i.e.:
+> Oh, I forgot to say : it's on an Asus A7M266-D, dual XP1800.
+> 
+> Anyway, congratulations for this finding !
 
- uchar_t *generate_default_upcase(void)
- {
--	const int uc_run_table[][3] = { /* Start, End, Add */
-+static const int uc_run_table[][3] = { /* Start, End, Add */
- 	{0x0061, 0x007B,  -32}, {0x0451, 0x045D, -80}, {0x1F70, 0x1F72,  74},
- 	{0x00E0, 0x00F7,  -32}, {0x045E, 0x0460, -80}, {0x1F72, 0x1F76,  86},
- 	{0x00F8, 0x00FF,  -32}, {0x0561, 0x0587, -48}, {0x1F76, 0x1F78, 100},
+Thanks =) I'll wait on Maciej especially for 2.4
 
-Cheers,
-Andrew
-
+	Zwane
+-- 
+function.linuxpower.ca

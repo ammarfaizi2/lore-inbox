@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271747AbRIVQBd>; Sat, 22 Sep 2001 12:01:33 -0400
+	id <S271800AbRIVQAX>; Sat, 22 Sep 2001 12:00:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271719AbRIVQBP>; Sat, 22 Sep 2001 12:01:15 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39948 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271712AbRIVQBB>; Sat, 22 Sep 2001 12:01:01 -0400
+	id <S271809AbRIVQAN>; Sat, 22 Sep 2001 12:00:13 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:53668
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S271800AbRIVP7y>; Sat, 22 Sep 2001 11:59:54 -0400
+Date: Sat, 22 Sep 2001 09:00:13 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Tainting kernels for non-GPL or forced modules
-To: kaos@ocs.com.au (Keith Owens)
-Date: Sat, 22 Sep 2001 17:05:52 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <27975.1001164529@ocs3.intra.ocs.com.au> from "Keith Owens" at Sep 22, 2001 11:15:29 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Message-ID: <20010922090013.O17555@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <27975.1001164529@ocs3.intra.ocs.com.au> <20010922153344.A25557@telia.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15kpHs-0003a7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <20010922153344.A25557@telia.com>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What to do about modules with no license?  Complain and taint or
-> silently ignore?  A lot of modules in -ac14 have no MODULE_LICENSE,
-> probably because they have no MODULE_AUTHOR.  IMHO the default should
-> be complain and taint, even though it will generate lots of newbie
-> questions to l-k.
+On Sat, Sep 22, 2001 at 03:33:44PM +0200, Andr? Dahlqvist wrote:
+> Keith Owens <kaos@ocs.com.au> wrote:
+> 
+> > IMHO the default should be complain and taint, even though it will
+> > generate lots of newbie questions to l-k.
+> 
+> Wasn't it those questions that this feature was meant to prevent in the
+> first place?
 
-I still have many to do. What would help me no end would be a version of
-depmod or similar which warned about modules with 
+Er, I thought the whole point of this was so that we would know if the
+kernel had been 'tainted' by a non-free module that we can't debug.
 
-o	No description
-o	No author
-o	No license tag
-
-Then we can stage a concerted clean up run
-
-Alan
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,67 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131256AbQKTGIQ>; Mon, 20 Nov 2000 01:08:16 -0500
+	id <S131129AbQKTGMI>; Mon, 20 Nov 2000 01:12:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131268AbQKTGIH>; Mon, 20 Nov 2000 01:08:07 -0500
-Received: from mnh-1-12.mv.com ([207.22.10.44]:24591 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S131256AbQKTGID>;
-	Mon, 20 Nov 2000 01:08:03 -0500
-Message-Id: <200011200646.BAA17412@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: user-mode port 0.34-2.4.0-test11
+	id <S131268AbQKTGL6>; Mon, 20 Nov 2000 01:11:58 -0500
+Received: from alanke.lnk.telstra.net ([139.130.140.14]:20036 "EHLO
+	dog.topology.org") by vger.kernel.org with ESMTP id <S131129AbQKTGLy>;
+	Mon, 20 Nov 2000 01:11:54 -0500
+Date: Mon, 20 Nov 2000 16:06:38 +1030
+From: Alan Kennington <akenning@dog.topology.org>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Cc: Alan Kennington <akenning@dog.topology.org>
+Subject: easy-to-fix bug in /dev/null driver
+Message-ID: <20001120160638.A14325@dog.topology.org>
+Reply-To: akenning@dog.topology.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 20 Nov 2000 01:46:27 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+X-Homepage: http://www.topology.org
+X-PGP-Key: http://www.topology.org/key_ak2.asc
+X-PGP-Key-Fingerprint: 8A7B 7A8E 1C02 8298 579F 1860 7D56 121B D363 329E
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The user-mode port of 2.4.0-test11 is available.
+It seems to me that this code in linux/drivers/char/mem.c
+is a bug:
 
-UML is now able to run as a daemon, i.e. with no stdin/stdout/stderr.
+===================================================
+static ssize_t write_null(struct file * file, const char * buf,
+                          size_t count, loff_t *ppos)
+{
+        return count;
+}
+===================================================
 
-The hostfs filesystem now works as a readonly filesystem.  It's now 
-configurable.  I'm using it as a module.  It ought to work compiled into the 
-kernel, but I haven't checked this.
+To activate the bug try this little program:
 
-I fixed a number of bugs.
+---------------------------------------------------
+#include <stdio.h>
+#include <errno.h>
+#include <sys/fcntl.h>
 
-NOTE:  If you compile from source, you must put 'ARCH=um' on the make command 
-line or in the environment, like:
-	make linux ARCH=um
-or
-	ARCH=um make linux
-or
-	export ARCH=um
-	make linux
+main() {
+    char buf[1];
+    int fd = open("/dev/null", O_RDWR);
+    int i;
+    printf("fd = %d\n", fd);
+    for (i = 1; i <= 10; ++i) {
+        int ret = write(fd, buf, -i);
+        if (ret < 0) {
+            fprintf(stderr, "i = %d, errno = %d\n", i, errno);
+            perror("write");
+            }
+        }
+    } 
+---------------------------------------------------
 
-This is because I've changed the top-level Makefile to build either a native 
-kernel or a usermode kernel, with the default being native.  This is in 
-preparation for submitting this port to the main pool.  The ARCH calculation 
-is now this:
+On my legacy 2.4.0-test1-ac21 system, I get this:
 
-# SUBARCH tells the usermode build what the underlying arch is.  That is set
-# first, and if a usermode build is happening, the "ARCH=um" on the command
-# line overrides the setting of ARCH below.  If a native build is happening,
-# then ARCH is assigned, getting whatever value it gets normally, and 
-# SUBARCH is subsequently ignored.
+---------------------------------------------------
+fd = 3
+i = 1, errno = 1
+write: Operation not permitted
+i = 2, errno = 2
+write: No such file or directory
+i = 3, errno = 3
+write: No such process
+i = 4, errno = 4
+write: Interrupted system call
+i = 5, errno = 5
+write: Input/output error
+i = 6, errno = 6
+write: Device not configured
+i = 7, errno = 7
+write: Argument list too long
+i = 8, errno = 8
+write: Exec format error
+i = 9, errno = 9
+write: Bad file descriptor
+i = 10, errno = 10
+write: No child processes
+---------------------------------------------------
 
-SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e 
-s/arm.*/arm/ -e s/sa110/arm/)
-ARCH := $(SUBARCH)
+You could argue that user-space users shouldn't do such stupid
+things, but in some contexts, the bug might be hard to find,
+and having wrong error messages just makes such bugs hard to find.
+Arguably, write() should not be defined to return the count of
+written bytes when this is impossible for very large writes.
+I.e. it is the definition of the user-space write() function which
+is meaningless for large counts - so why bother to permit this
+if a negative error code is returned when this is attempted?
 
-If anyone has any objections to this going in the main pool, let me know, and 
-also let me know what you would suggest as a fix.
+Perhaps more correct code for the write_null function would be:
 
-The project's home page is http://user-mode-linux.sourceforge.net
+===================================================
+static ssize_t write_null(struct file * file, const char * buf,
+                          size_t count, loff_t *ppos)
+{
+	if ((ssize_t)count >= 0)
+		return (ssize_t)count;
+	else
+        	return 0x7fffffff;
+}
+===================================================
 
-The project's download page is http://sourceforge.net/project/filelist.php?grou
-p_id=429
+....with preferably a symbol instead of 0x7fffffff.
 
-				Jeff
+Cheers,
+Alan Kennington.
 
-
+--------------------------------------------------------------------
+    name: Dr. Alan Kennington
+  e-mail: akenning@dog.topology.org
+ website: http://topology.org/
+    city: Adelaide, South Australia
+  coords: 34.88051 S, 138.59334 E
+timezone: UTC+1030 http://topology.org/timezone.html
+ pgp-key: http://topology.org/key_ak2.asc
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

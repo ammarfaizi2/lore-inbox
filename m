@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130208AbRCCBKR>; Fri, 2 Mar 2001 20:10:17 -0500
+	id <S130206AbRCCBJR>; Fri, 2 Mar 2001 20:09:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130209AbRCCBKI>; Fri, 2 Mar 2001 20:10:08 -0500
-Received: from web4203.mail.yahoo.com ([216.115.104.136]:13575 "HELO
-	web4203.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S130208AbRCCBKC>; Fri, 2 Mar 2001 20:10:02 -0500
-Message-ID: <20010303011000.1832.qmail@web4203.mail.yahoo.com>
-Date: Fri, 2 Mar 2001 17:10:00 -0800 (PST)
-From: Jeremy <prrthd25@yahoo.com>
-Subject: VFS: Cannot open root device
-To: linux-kernel@vger.kernel.org
+	id <S130208AbRCCBJH>; Fri, 2 Mar 2001 20:09:07 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:55941 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130206AbRCCBIw>;
+	Fri, 2 Mar 2001 20:08:52 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15008.17440.670230.389557@pizda.ninka.net>
+Date: Fri, 2 Mar 2001 17:08:48 -0800 (PST)
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: <linux-kernel@vger.kernel.org>, <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: The IO problem on multiple PCI busses
+In-Reply-To: <19350125045659.29820@mailhost.mipsys.com>
+In-Reply-To: <15006.45225.631466.969004@pizda.ninka.net>
+	<19350125045659.29820@mailhost.mipsys.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
- HELP, I have a new server that I am trying to put
-Redhat 7.0 on. It is a Compaq Proliant ML530 Dual PIII
-1Ghz with a Gig of RAM. It has a Compaq smart array
-5300 in it also. It boots just fine with the default
-Redhat 7 kernel 2.2.16smp but when I compiled my own
-2.4.2 kernel I get the following message.
 
-request_module[scsi_host_adapter]: Root FS not mounted
-request_module[scsi_host_adapter]: Root FS not mounted
+Benjamin Herrenschmidt writes:
+ > There is still the need, in the ioctl we use the "select" what need to be
+ > mapped by the next mmap, to ask for the "legacy IO range of the bus where
+ > the card reside" (if it exist of course). That would be the 0-64k (or less,
+ > actually a couple of pages would probably be enough) that generates IO cycles
+ > in the "low" addresses used for VGA registers on the card.
 
-Then some standard lines Then:
+As I've stated in another email, this is perfectly fine and is
+precisely the kind of thing implied by my original proposal
+in this thread.
 
-NET 4: Unix domain sockets 1.0/SMP for Linux NET 4.0
-request_module[block-major-104]: Root FS not mounted
-VFS: Cannot open root device "6802" or 68:02
-Please append a correct "root=" boot option
-Kernel Panic: VFS: Unable to mount root FS on 68:02
+You can even have arch-specific "next mmap is" ioctl values to do
+"special things".
 
- When I boot 2.2.16 the only modules that are loaded
-are cciss, NCR53C8XX, eepro100 and tlan. I have triple
-checked and I have built cciss and NCR53C8XX into the
-kernel, I even tried them as modules. It almost looks
-like it just isn't loading the NCR53C8XX and then it
-cant mount the File system.
- If you need any more info please let me know.
+The generic part of the ioctl()/mmap() bits the PCI driver will have
+added won't care about these ioctl's all that much, the
+include/asm/pcimmap.h header will deal with all such details.  This
+header is also where the physical address and the actual creation of
+the page table mappings will occur.  The generic PCI code will only
+provide the skeletal parts of the mmap() method and call into the
+arch-specific hooks coded in asm/pcimmap.h
 
-Please CC anything to me directly since I am not on
-the mailing list.
-
-Thanks,
-   Jeremy
-
-__________________________________________________
-Do You Yahoo!?
-Get email at your own domain with Yahoo! Mail. 
-http://personal.mail.yahoo.com/
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,62 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263626AbTCURca>; Fri, 21 Mar 2003 12:32:30 -0500
+	id <S261857AbTCURlL>; Fri, 21 Mar 2003 12:41:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263669AbTCURca>; Fri, 21 Mar 2003 12:32:30 -0500
-Received: from mail-5.tiscali.it ([195.130.225.151]:44676 "EHLO
-	mail.tiscali.it") by vger.kernel.org with ESMTP id <S263626AbTCURc2>;
-	Fri, 21 Mar 2003 12:32:28 -0500
-Date: Fri, 21 Mar 2003 18:42:47 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Larry McVoy <lm@work.bitmover.com>, Pavel Machek <pavel@suse.cz>,
-       Roman Zippel <zippel@linux-m68k.org>, Nicolas Pitre <nico@cam.org>,
-       Ben Collins <bcollins@debian.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Message-ID: <20030321174247.GD3517@dualathlon.random>
-References: <Pine.LNX.4.44.0303161341520.5348-100000@xanadu.home> <Pine.LNX.4.44.0303162014090.12110-100000@serv> <20030316215219.GX1252@dualathlon.random> <20030317215639.GG15658@atrey.karlin.mff.cuni.cz> <20030317220830.GM1324@dualathlon.random> <20030321141620.GA25142@work.bitmover.com>
+	id <S262578AbTCURlL>; Fri, 21 Mar 2003 12:41:11 -0500
+Received: from ns2.uk.superh.com ([193.128.105.170]:42123 "EHLO
+	ns2.uk.superh.com") by vger.kernel.org with ESMTP
+	id <S261857AbTCURlJ>; Fri, 21 Mar 2003 12:41:09 -0500
+Date: Fri, 21 Mar 2003 17:52:06 +0000
+From: Richard Curnow <Richard.Curnow@superh.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: struct nfs_fattr alignment problem in nfs3proc.c
+Message-ID: <20030321175206.GA17163@malvern.uk.w2k.superh.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030321141620.GA25142@work.bitmover.com>
 User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+X-OS: Linux 2.4.19 i686
+X-OriginalArrivalTime: 21 Mar 2003 17:52:11.0320 (UTC) FILETIME=[9941EB80:01C2EFD2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 21, 2003 at 06:16:20AM -0800, Larry McVoy wrote:
-> On Mon, Mar 17, 2003 at 11:08:30PM +0100, Andrea Arcangeli wrote:
-> > > Actually, fact that "longest path" algorithm may well choose
-> > > non-mainline branch because it likes it more worries me a bit.
-> > 
-> > AFIK it's supposed to be the "longest path" of Linus's and Marcelo's
-> > branches which means it'll reproduce all the modifcations of the
-> > mainline trees only.
-> 
-> By the way, we've been incrementally updating both trees and while in 
-> theory the incremental could result in shorter paths with less detail,
-> so far the incremental export and the one pass export result in exactly
-> the same path:
-> 
->     slovax $ bk _eventpath 1.0 + | wc -l
->        8498
->     slovax $ cd ../linux-2.5-cvs/linux-2.5
->     slovax $ rlog -r -N ChangeSet | grep revision
->     revision 1.8498
-> 
-> I've actually reimported the data in one pass and diffed the RCS files,
-> it's the same.
-> 
-> HPA, should we be mirroring the CVS tarballs to kernel.org?
+In the nfs3_proc_unlink_setup function, there appears to be a bug with
+the way kmalloc is used to allocate storage for two structs grouped
+together.  The second struct ends up with a non 8-byte aligned pointer,
+which can cause trouble later (in xdr_decode_fattr) when stores occur to
+the u64 fields inside it.  The following patch (on 2.4.19) fixes this
+problem, though I'm not sure if it's the cleanest fix.  (I hit this when
+working on the port to SH-5, which is currently baselined on 2.4.19).
 
-fine thanks!
+--- ../linux-2.4/fs/nfs/nfs3proc.c	Fri Jan  3 15:01:17 2003
++++ fs/nfs/nfs3proc.c	Fri Mar 21 17:42:38 2003
+@@ -294,25 +294,28 @@
+ 	nfs_refresh_inode(dir, &dir_attr);
+ 	dprintk("NFS reply remove: %d\n", status);
+ 	return status;
+ }
+ 
+ static int
+ nfs3_proc_unlink_setup(struct rpc_message *msg, struct dentry *dir, struct qstr *name)
+ {
+ 	struct nfs3_diropargs	*arg;
+ 	struct nfs_fattr	*res;
++	int arg_size_8, res_size_8;
+ 
+-	arg = (struct nfs3_diropargs *)kmalloc(sizeof(*arg)+sizeof(*res), GFP_KERNEL);
++	arg_size_8 = (sizeof(*arg) + 7) & ~7;
++	res_size_8 = (sizeof(*res) + 7) & ~7;
++	arg = (struct nfs3_diropargs *)kmalloc(arg_size_8 + res_size_8, GFP_KERNEL);
+ 	if (!arg)
+ 		return -ENOMEM;
+-	res = (struct nfs_fattr*)(arg + 1);
++	res = (struct nfs_fattr*)((char *)arg + arg_size_8);
+ 	arg->fh = NFS_FH(dir->d_inode);
+ 	arg->name = name->name;
+ 	arg->len = name->len;
+ 	res->valid = 0;
+ 	msg->rpc_proc = NFS3PROC_REMOVE;
+ 	msg->rpc_argp = arg;
+ 	msg->rpc_resp = res;
+ 	return 0;
+ }
+ 
 
-BTW, CVS kernel + cvsps is just been extremely useful to me so far.
-
-I also run into some huge patches like PatchSet 4711 in the 2.5 tree
-that I would love if it could be splitted properly but I understand it's
-impossible, right?
-
-Thank you very much again for this great open service!
-
-Andrea
+-- 
+Richard \\\ SuperH Core+Debug Architect /// .. At home ..
+  P.    /// richard.curnow@superh.com  ///  rc@rc0.org.uk
+Curnow  \\\ http://www.superh.com/    ///  www.rc0.org.uk

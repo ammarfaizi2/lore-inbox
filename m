@@ -1,75 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268944AbUJTW36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270166AbUJTW37@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268944AbUJTW36 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 18:29:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270566AbUJTWTX
+	id S270166AbUJTW37 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 18:29:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270338AbUJTWI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 18:19:23 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:49214 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S269040AbUJTWQE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 18:16:04 -0400
-Message-ID: <4176E381.70008@microgate.com>
-Date: Wed, 20 Oct 2004 17:15:29 -0500
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird M6a (Windows/20040209)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Thomas Stewart <thomas@stewarts.org.uk>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: belkin usb serial converter (mct_u232), break not working
-References: <200410201946.35514.thomas@stewarts.org.uk> <1098307331.2818.15.camel@deimos.microgate.com> <200410202308.02624.thomas@stewarts.org.uk>
-In-Reply-To: <200410202308.02624.thomas@stewarts.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 20 Oct 2004 18:08:26 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:39327
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S269013AbUJTWHe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 18:07:34 -0400
+Date: Wed, 20 Oct 2004 15:01:49 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org, sparclinux@vger.kernel.org,
+       linuxppc64-dev@ozlabs.org, linux-m68k@vger.kernel.org,
+       linux-sh@m17n.org, linux-arm-kernel@lists.arm.linux.org.uk,
+       parisc-linux@parisc-linux.org, linux-ia64@vger.kernel.org,
+       linux-390@vm.marist.edu, linux-mips@linux-mips.org
+Subject: Re: [PATCH] Add key management syscalls to non-i386 archs
+Message-Id: <20041020150149.7be06d6d.davem@davemloft.net>
+In-Reply-To: <3506.1098283455@redhat.com>
+References: <3506.1098283455@redhat.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Stewart wrote:
 
->I've tyred various combinations of ioctl(fd, TCSBRKP, x) and tcsendbreak(fd, 
->x), where x is 2, 5, 10, 20 and 200.
->
->One thing I did notice is that no mater what the value I use, it always 
->finishes very quickly, there does not appear to be any duration.
->
->take porttest.c:
->#include <sys/fcntl.h>
->#include <sys/ioctl.h>
->main(int argc, char ** argv) {
->        int fd = open(argv[1], O_RDWR|O_NOCTTY);
->        ioctl(fd, TCSBRKP, 20);
->        close(fd);
->}
->
->$ time ./porttest /dev/ttyS0
->real    0m2.001s
->user    0m0.001s
->sys     0m0.000s
->
->A standard serial port with a 2 second break (20*100ms), takes as expected 
->just over 2 seconds.
->
->$ time ./porttest /dev/ttyUSB1
->real    0m0.004s
->user    0m0.000s
->sys     0m0.001s
->
->However with the USB converter instead, it takes 5 ms to complete. Much 
->shorter than expected.
->
->Is it a driver issue?
->  
->
-Could be.
-That test gives me more information.
-I will look closer at the code and see if anything pops out.
+David, I applaud your effort to take care of this.
+However, this patch will conflict with what I've
+sent into Linus already for Sparc.  I also had to
+add the sys_altroot syscall entry as well.
 
-Thanks,
-Paul
+I've mentioned several times that perhaps the best
+way to deal with this problem is to purposefully
+break the build of platforms when new system calls
+are added.
 
---
-Paul Fulghum
-paulkf@microgate.com
+Simply adding a:
 
+#error new syscall entries for X and Y needed
 
+to include/asm-*/unistd.h would handle this just
+fine I think.
+
+That way it won't be missed, and if the platform
+maintainer wants to just ignore the new syscall
+they can choose to do that as well.

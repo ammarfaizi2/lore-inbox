@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266387AbSKOQKo>; Fri, 15 Nov 2002 11:10:44 -0500
+	id <S266386AbSKOQJf>; Fri, 15 Nov 2002 11:09:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266390AbSKOQKo>; Fri, 15 Nov 2002 11:10:44 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:27317 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S266387AbSKOQKm>; Fri, 15 Nov 2002 11:10:42 -0500
-Date: Fri, 15 Nov 2002 17:17:37 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>
-cc: <linux-kernel@vger.kernel.org>, <Elrond@Wunder-Nett.org>
-Subject: Re: /proc/stat interface and 32bit jiffies / kernel_stat
-In-Reply-To: <20021115142244.GG5957@darkside.ddts.net>
-Message-ID: <Pine.LNX.4.33.0211151709260.29719-100000@gans.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266387AbSKOQJf>; Fri, 15 Nov 2002 11:09:35 -0500
+Received: from cmailm3.svr.pol.co.uk ([195.92.193.19]:13582 "EHLO
+	cmailm3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S266386AbSKOQJe>; Fri, 15 Nov 2002 11:09:34 -0500
+Date: Fri, 15 Nov 2002 16:15:36 +0000
+To: "chandrasekhar.nagaraj" <chandrasekhar.nagaraj@patni.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Path Name to kdev_t
+Message-ID: <20021115161536.GA6654@reti>
+References: <000101c28be4$9ff1bf20$e9bba5cc@patni.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000101c28be4$9ff1bf20$e9bba5cc@patni.com>
+User-Agent: Mutt/1.4i
+From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Nov 2002, Mario 'BitKoenig' Holbe wrote:
-
-[system idle time will overflow after about 497/NR_CPUS days]
+On Thu, Nov 14, 2002 at 07:19:16PM +0530, chandrasekhar.nagaraj wrote:
+> Hi,
 > 
-> Since it should not be a big problem to fix this, to
-> at least reduce the problem back to the 500 days
-> jiffies-overflow problem, I'd suggest to do so.
-> 
-> No need to mention, that 64bit jiffies and statistics on
-> all platforms at all would be great :)
+> In one of the part of my driver module , I have a path name to a device file
+> (for eg:- /dev/hda1) .Now if I want to obtain the associated major number
+> and minor number i.e. device ID(kdev_t) of this file what would be the
+> procedure?
 
-2.5 has 64 bit jiffies (but not (yet?) 64 bit statistics).
+I think this should be standard function, I'm sure lots of people are
+duplicating this code.  For 2.4 kernels:
 
-A patch for 2.4 that fixes the overflow in proc_stat as well as 
-introducing 63 bit jiffies is at
-  http://www.physik3.uni-rostock.de/tim/kernel/2.4/jiffies64-20.patch.gz
+/*
+ * Convert a device path to a kdev_t.
+ */
+static int lookup_device(const char *path, kdev_t *dev)
+{
+	int r;
+	struct nameidata nd;
+	struct inode *inode;
 
-> 
-> Btw... Could anybody please explain me the problems to
-> expect while a jiffies overflow? Would a kernel possibly
-> survive this at all and if, what's the chance to? :)
+	if (!path_init(path, LOOKUP_FOLLOW, &nd))
+		return 0;
 
-"ps" will report processes started before the jiffies wrap as being 
-started in the future, but this won't do any harm.
+	if ((r = path_walk(path, &nd)))
+		goto out;
 
-Tim
+	inode = nd.dentry->d_inode;
+	if (!inode) {
+		r = -ENOENT;
+		goto out;
+	}
 
+	if (!S_ISBLK(inode->i_mode)) {
+		r = -EINVAL;
+		goto out;
+	}
+
+	*dev = inode->i_rdev;
+
+ out:
+	path_release(&nd);
+	return r;
+}

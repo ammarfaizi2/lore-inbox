@@ -1,43 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262023AbTFFQtI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 12:49:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTFFQtI
+	id S262018AbTFFQrL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 12:47:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbTFFQrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 12:49:08 -0400
-Received: from fubar.phlinux.com ([216.254.54.154]:23488 "EHLO
-	fubar.phlinux.com") by vger.kernel.org with ESMTP id S262023AbTFFQtH
+	Fri, 6 Jun 2003 12:47:11 -0400
+Received: from maser.urz.unibas.ch ([131.152.1.5]:24338 "EHLO
+	maser.urz.unibas.ch") by vger.kernel.org with ESMTP id S262018AbTFFQrK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 12:49:07 -0400
-Date: Fri, 6 Jun 2003 10:02:41 -0700 (PDT)
-From: Matt C <wago@phlinux.com>
-To: The Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Matt C <wago@phlinux.com>
-Subject: 2.4 Kernel problems when using redhat's gcc-2.96-112
-Message-ID: <Pine.LNX.4.44.0306060956230.28649-100000@fubar.phlinux.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 6 Jun 2003 12:47:10 -0400
+Date: Fri, 06 Jun 2003 19:03:40 +0200
+From: Arsene Gschwind <arsene.gschwind@unibas.ch>
+Subject: Re: PERC4-DI?
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Message-id: <3EE0C96C.6070302@unibas.ch>
+Organization: Universitaet Basel
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-15; format=flowed
+Content-transfer-encoding: 8BIT
+X-Accept-Language: en, de-ch, fr-fr, en-us
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+References: <20030606163717.GK8594@rdlg.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey All-
+It seems that you're talking about a Dell server. So far I know PERC 
+means PowerEdge Enhanced Raid Controller or something similar.
+Under the PERC you will find diff. Raid ctrl (Adaptec maybe Mylex) you 
+may need to check wich kind of Raid Ctrl it is.
+One for sure PERC isn't a RAID Ctrl supplier.
 
-I don't know if this issue is really worth digging into, but it's an odd 
-one, so I figured I'd post it:
+Arsène
 
-I've been using RedHat's gcc-2.96-112 compiler, which is the most recent 
-errata for RH7.2, to build my kernels. With all the recent kernels that 
-I've built (every release from 2.4.20 to 2.4.21-rc7), the NFS client stack 
-has been unstable. This comes in the form of either a hardlock or an oops 
-under a specific load. Unfortunately, this load involves proprietary data, 
-so we can't give it to the community to use. I haven't been able to crash 
-the kernel using any synthetic load (fsx, bonnie++) so far.
+Robert L. Harris wrote:
 
-I was able to fix this problem by reverting to redhat's gcc-2.96-98 
-compiler, which I believe is the version that ships with RH7.2.
+>My company is looking at buying some machines with "PERC4-DI" SCSI RAID
+>controllers.  Poking around the .config file I'm not finding anything
+>related to this.  Anyone know off the top of their heads what driver
+>would be used for this controller, any known catastrophic bugs, etc?
+>
+>Thanks,
+>  Robert
+>
+>
+>:wq!
+>---------------------------------------------------------------------------
+>Robert L. Harris                     | GPG Key ID: E344DA3B
+>                                         @ x-hkp://pgp.mit.edu 
+>DISCLAIMER:
+>      These are MY OPINIONS ALONE.  I speak for no-one else.
+>
+>Diagnosis: witzelsucht  	
+>
+>IPv6 = robert@ipv6.rdlg.net	http://ipv6.rdlg.net
+>IPv4 = robert@mail.rdlg.net	http://www.rdlg.net
+>  
+>
 
-Hope this helps someone. I'm happy to answer any more questions pertaining 
-to this.
+-- 
+***********************************************************
+Gschwind Arsene			
+Universitaet Rechenzentrum (URZ)
+Klingelbergstrasse 70
+CH-4056 Basel
+SWITZERLAND
 
--Matt
+Languages : F/E/D
+WWW:  <http://www.unibas.ch/urz>
+Mail: <Arsene.Gschwind@unibas.ch>
+************************************************************
+*********
+
+
 

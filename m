@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265114AbTBTKCf>; Thu, 20 Feb 2003 05:02:35 -0500
+	id <S265096AbTBTKAX>; Thu, 20 Feb 2003 05:00:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265098AbTBTKCf>; Thu, 20 Feb 2003 05:02:35 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:4536 "EHLO gw1.cosmosbay.com")
-	by vger.kernel.org with ESMTP id <S265097AbTBTKCd>;
-	Thu, 20 Feb 2003 05:02:33 -0500
-Message-ID: <006301c2d8c8$921c1d10$760010ac@edumazet>
-From: "dada1" <dada1@cosmosbay.com>
-To: "Andi Kleen" <ak@suse.de>, "Simon Kirby" <sim@netnation.com>
-Cc: "Andi Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>,
-       <linux-net@vger.kernel.org>, <davem@redhat.com>
-References: <20030219174757.GA5373@netnation.com.suse.lists.linux.kernel> <p73r8a3xub5.fsf@amdsimf.suse.de> <20030220092043.GA25527@netnation.com> <20030220093422.GA16369@wotan.suse.de>
-Subject: Re: Longstanding networking / SMP issue? (duplextest)
-Date: Thu, 20 Feb 2003 11:12:26 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S265097AbTBTKAW>; Thu, 20 Feb 2003 05:00:22 -0500
+Received: from meryl.it.uu.se ([130.238.12.42]:50421 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id <S265096AbTBTKAW>;
+	Thu, 20 Feb 2003 05:00:22 -0500
+Date: Thu, 20 Feb 2003 11:10:04 +0100 (MET)
+From: Mikael Pettersson <mikpe@user.it.uu.se>
+Message-Id: <200302201010.h1KAA4dW023443@harpo.it.uu.se>
+To: perfctr-devel@lists.sourceforge.net
+Subject: perfctr-2.5.0-pre1 released
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Version 2.5.0-pre1 of perfctr, the Linux/x86 performance
+monitoring counters driver, is now available at the usual
+place: http://www.csd.uu.se/~mikpe/linux/perfctr/
 
-> On Thu, Feb 20, 2003 at 01:20:43AM -0800, Simon Kirby wrote:
-> > On Thu, Feb 20, 2003 at 08:52:46AM +0100, Andi Kleen wrote:
-> >
-> > > That's probably because of the lazy ICMP socket locking used for the
-> > > ICMP socket. When an ICMP is already in process the next ICMP
-triggered
-> > > from a softirq (e.g. ECHO-REQUEST) is dropped
-> > > (see net/ipv4/icmp_xmit_lock_bh())
-> >
-> > Hmm...and this is considered desired behavior?  It seems like an odd way
-> > of handling packets intended to test latency and reliability. :)
->
-> IP is best-effort. Dropping packets in odd cases to make locking simpler
-> is not unreasonable. Would you prefer an slower kernel?
+This is a development snapshot. Although it should work well,
+it is not binary or API compatible with the current stable
+version (2.4.5).
 
-Yes IP is best-effort. But this argument cant explain why IP on linux works
-better if we disable SMP on linux...
+Version 2.5.0-pre1, 2003-02-19
+- Fixed the driver's API to support global-mode perfctrs on 2.5
+  SMP kernels and asymmetric hyper-threaded P4 multiprocessors.
+  Updated examples/global/global.c for the new API.
+- Minor library cleanups. Updated example programs accordingly.
+- API cleanup: Removed obsolete STOP command from the driver
+  for virtual perfctrs. The library now uses CONTROL instead.
+- Proper detection and support for AMD K8 processors. They are
+  similar to the K7s, but the event sets are not identical.
+- The library's event set descriptions have been redesigned and
+  expanded to include unit mask descriptions and descriptions of
+  Intel P4 and AMD K8 events. The etc/perfctr-events.tab text file
+  has been removed since event_codes.h now is generated from the
+  library's data structures.
 
-I'm sorry Andy but "IP is best effort" sounds very lazy in this case.
-
-SMP should give more power to the machine, not drop some frames because
-'another CPU' is busy and has a lock we *need*.
-
-Eric
-
+/ Mikael Pettersson

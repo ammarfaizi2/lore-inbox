@@ -1,76 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVCXUkx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVCXUoj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbVCXUkx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 15:40:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbVCXUkw
+	id S261211AbVCXUoj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 15:44:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVCXUnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 15:40:52 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:39438 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261165AbVCXUhr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 15:37:47 -0500
-Date: Thu, 24 Mar 2005 21:37:44 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: len.brown@intel.com
-Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: drivers/acpi/video.c: null pointer dereference
-Message-ID: <20050324203744.GB3966@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 24 Mar 2005 15:43:43 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53736 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261194AbVCXUlX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 15:41:23 -0500
+Message-ID: <424325E5.6010106@pobox.com>
+Date: Thu, 24 Mar 2005 15:41:09 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Asfand Yar Qazi <ay1204@qazi.f2s.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How's the nforce4 support in Linux?
+References: <3LwFC-4Ko-15@gated-at.bofh.it> <3LwYW-4Xx-11@gated-at.bofh.it> <3LwYZ-4Xx-25@gated-at.bofh.it> <42428FCE.7070901@qazi.f2s.com>
+In-Reply-To: <42428FCE.7070901@qazi.f2s.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker found the following null pointer dereference in 
-drivers/acpi/video.c:
+Asfand Yar Qazi wrote:
+> However, this doesn't answer my original question (which I suppose I 
+> should have made clearer): can I get SATA II NCQ support in Linux with 
+> an nForce 4 chipset?
 
-<--  snip  -->
+I answered this question already.  The answer is no.
 
-...
-static int
-acpi_video_switch_output(
-...
-{
-...
-        struct acpi_video_device *dev=NULL;
-...
-        list_for_each_safe(node, next, &video->video_device_list) {
-                struct acpi_video_device * dev = container_of(node, struct acpi_video_device, entry);
-...
-        }
-...
-        switch (event) {
-        case ACPI_VIDEO_NOTIFY_CYCLE:
-        case ACPI_VIDEO_NOTIFY_NEXT_OUTPUT:
-                acpi_video_device_set_state(dev, 0);
-                acpi_video_device_set_state(dev_next, 0x80000001);
-                break;
-        case ACPI_VIDEO_NOTIFY_PREV_OUTPUT:
-                acpi_video_device_set_state(dev, 0);
-                acpi_video_device_set_state(dev_prev, 0x80000001);
-...
+	Jeff
 
-<--  snip  -->
-
-
-Two different variables of the same name within 40 lines of code are a 
-good indication that something's wrong...
-
-
-The outer "dev" variable is never assigned any value different from 
-NULL.
-
-acpi_video_device_set_state dereferences this variable.
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

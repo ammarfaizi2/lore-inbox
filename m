@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpKgTbUNoB/XQROqesYyWoYYa6g==
+thread-index: AcQVpKgrfyUJrZzIQKmWEnABh/67lA==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Mon, 05 Jan 2004 06:08:59 +0000
-Message-ID: <02c301c415a4$a815b030$d100000a@sbs2003.local>
+Delivery-date: Mon, 05 Jan 2004 06:08:58 +0000
+Message-ID: <02cf01c415a4$a82b0cf0$d100000a@sbs2003.local>
 X-Mailer: Microsoft CDO for Exchange 2000
 Content-Class: urn:content-classes:message
 From: "Dmitry Torokhov" <dtor_core@ameritech.net>
@@ -10,37 +10,64 @@ Importance: normal
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
 To: <Administrator@osdl.org>
-Subject: Re: New set of input patches
+Subject: [PATCH 1/3] Fix compile error in 98busmouse.c module
 Date: Mon, 29 Mar 2004 16:44:01 +0100
 User-Agent: KMail/1.5.4
 Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-References: <200401030350.43437.dtor_core@ameritech.net>
-In-Reply-To: <200401030350.43437.dtor_core@ameritech.net>
+References: <200401030350.43437.dtor_core@ameritech.net> <200401050059.25031.dtor_core@ameritech.net>
+In-Reply-To: <200401050059.25031.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:44:01.0218 (UTC) FILETIME=[A817FA20:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:44:03.0359 (UTC) FILETIME=[A95EAAF0:01C415A4]
 
-I made 3 more input patches:
+===================================================================
 
-- compile fix in 98busmose driver (it still had its interrupt routine
-  returning voooid instead of irqreturn_t)
-- the rest of mouse devices converted to the new way of handling kernel
-  parameters and document them in kernel-parametes.txt
-- convert tsdev module to the new way of handling kernel parameters and
-  document them in kernle-parameters.txt.
 
-The patches can be found at the following addresses:
-http://www.geocities.com/dt_or/input/2_6_1-rc1/
-http://www.geocities.com/dt_or/input/2_6_1-rc1-mm1/
+ChangeSet@1.1580, 2004-01-04 23:57:27-05:00, dtor_core@ameritech.net
+  Input: Fix 98busmouse compile error -
+         have interrupt routine return IRQ_HANDLED
 
-Vojtech, Andrew,
 
-are you interested in these kind of patches and should I take a stab at
-converting joysticks diectory as well?
+ 98busmouse.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
-Dmitry
+
+===================================================================
+
+
+
+diff -Nru a/drivers/input/mouse/98busmouse.c b/drivers/input/mouse/98busmouse.c
+--- a/drivers/input/mouse/98busmouse.c	Mon Jan  5 00:45:57 2004
++++ b/drivers/input/mouse/98busmouse.c	Mon Jan  5 00:45:57 2004
+@@ -74,7 +74,7 @@
+ static int pc98bm_irq = PC98BM_IRQ;
+ static int pc98bm_used = 0;
+ 
+-static void pc98bm_interrupt(int irq, void *dev_id, struct pt_regs *regs);
++static irqreturn_t pc98bm_interrupt(int irq, void *dev_id, struct pt_regs *regs);
+ 
+ static int pc98bm_open(struct input_dev *dev)
+ {
+@@ -113,7 +113,7 @@
+ 	},
+ };
+ 
+-static void pc98bm_interrupt(int irq, void *dev_id, struct pt_regs *regs)
++static irqreturn_t pc98bm_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+ {
+ 	char dx, dy;
+ 	unsigned char buttons;
+@@ -137,6 +137,8 @@
+ 	input_sync(&pc98bm_dev);
+ 
+ 	outb(PC98BM_ENABLE_IRQ, PC98BM_CONTROL_PORT);
++
++	return IRQ_HANDLED;
+ }
+ 
+ #ifndef MODULE

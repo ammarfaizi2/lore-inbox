@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267621AbTAHBmh>; Tue, 7 Jan 2003 20:42:37 -0500
+	id <S267656AbTAHBvC>; Tue, 7 Jan 2003 20:51:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267625AbTAHBmh>; Tue, 7 Jan 2003 20:42:37 -0500
-Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:14250 "EHLO
-	gagarin.0x63.nu") by vger.kernel.org with ESMTP id <S267621AbTAHBmg> convert rfc822-to-8bit;
-	Tue, 7 Jan 2003 20:42:36 -0500
-Date: Wed, 8 Jan 2003 02:51:07 +0100
+	id <S267653AbTAHBuP>; Tue, 7 Jan 2003 20:50:15 -0500
+Received: from b.smtp-out.sonic.net ([208.201.224.39]:60568 "HELO
+	b.smtp-out.sonic.net") by vger.kernel.org with SMTP
+	id <S267651AbTAHBtW>; Tue, 7 Jan 2003 20:49:22 -0500
+X-envelope-info: <dhinds@sonic.net>
+Date: Tue, 7 Jan 2003 17:58:01 -0800
+From: dhinds <dhinds@sonic.net>
 To: Joshua Kwan <joshk@ludicrus.ath.cx>
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [2.5.54-dj1-bk] Some interesting experiences...
-Message-ID: <20030108015107.GA2170@gagarin>
+Message-ID: <20030107175801.A23794@sonic.net>
 References: <20030107172147.3c53efa8.joshk@ludicrus.ath.cx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
 In-Reply-To: <20030107172147.3c53efa8.joshk@ludicrus.ath.cx>
-User-Agent: Mutt/1.4i
-From: Anders Gustafsson <andersg@0x63.nu>
-X-Scanner: exiscan *18W5N5-00086H-00*Ssh41eSC.Qw* (0x63.nu)
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, Jan 07, 2003 at 05:21:46PM -0800, Joshua Kwan wrote:
+
+> 2. [linux-2.5] pcmcia-cs 3.2.3 will no longer build: here is the build
+> log, pertinent details only.
 > 
-> 3. [linux-2.5] PS/2 mouse goes haywire every 30 seconds or so of use.
-> dmesg sayeth:
-> mice: PS/2 mouse device common for all mice
-> input: PS/2 Synaptics TouchPad on isa0060/serio4
-> 
-> but more importantly this is the cause:
-> 
-> psmouse.c: Lost synchronization, throwing 2 bytes away.
-> psmouse.c: Lost synchronization, throwing 2 bytes away.
+> cc  -MD -O3 -Wall -Wstrict-prototypes -pipe -Wa,--no-warn
+> -I../include/static -I/usr/src/linux-2.5/include -I../include
+> -I../modules -c cardmgr.c
+> In file included from cardmgr.c:200:
+> /usr/src/linux-2.5/include/scsi/scsi.h:185: parse error before "u8"
 
-This happens here too. But not that frequent at all, more like once every
-hour. And has happend on all kernels since at least 2.5.46 [1].
+This should be fixed in the current beta for 3.2.4 available from
+http://pcmcia-cs.sourceforge.net/ftp/NEW.
 
-However 5 hours ago I changed the timeout in psmouse.c from 50ms to 100ms.
-And now it haven't misbehaved yet, but that might be just some nightly luck. 
-Is there something that turns off interupts or something and hinders the
-mouse driver from processing the data for such long time? Or is my hardware
-just buggy?
-
-[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=103688231622278&w=2
-
--- 
-Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/
+-- Dave

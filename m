@@ -1,58 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264827AbUFLOu4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264836AbUFLPBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264827AbUFLOu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 10:50:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264836AbUFLOu4
+	id S264836AbUFLPBD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 11:01:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264843AbUFLPBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 10:50:56 -0400
-Received: from mail.aei.ca ([206.123.6.14]:57042 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S264827AbUFLOuz (ORCPT
+	Sat, 12 Jun 2004 11:01:03 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:32705 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264836AbUFLPBB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 10:50:55 -0400
-Subject: Re: [PATCH][2.6.7-rc3] Single Priority Array CPU Scheduler
-From: Shane Shrybman <shrybman@aei.ca>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <40CA49DD.5040500@bigpond.net.au>
-References: <1086961198.2787.19.camel@mars>
-	 <40CA49DD.5040500@bigpond.net.au>
-Content-Type: text/plain
-Message-Id: <1087051846.2444.4.camel@mars>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 12 Jun 2004 10:50:46 -0400
+	Sat, 12 Jun 2004 11:01:01 -0400
+Date: Sat, 12 Jun 2004 08:00:53 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andi Kleen <ak@muc.de>, Dave Hansen <haveblue@us.ibm.com>
+cc: torvalds@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Permit inode & dentry hash tables to be allocated > MAX_ORDER size
+Message-ID: <113620000.1087052452@[10.10.2.4]>
+In-Reply-To: <20040612131149.GA28870@colin2.muc.de>
+References: <263jX-5RZ-19@gated-at.bofh.it> <262nZ-56Z-5@gated-at.bofh.it> <263jX-5RZ-17@gated-at.bofh.it> <m3d645fwxj.fsf@averell.firstfloor.org> <1087025760.18615.3.camel@nighthawk> <20040612131149.GA28870@colin2.muc.de>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-06-11 at 20:10, Peter Williams wrote:
-> Shane Shrybman wrote:
-> > Hi Peter,
-> > 
-> > I just started to try out your SPA scheduler patch and found that it is
-> > noticeably sluggish when resizing a mozilla window on the desktop. I
-> > have a profile of 2.6.7-rc3-spa and 2.6.7-rc2-mm2 and put them up at:
-> > http://zeke.yi.org/linux/spa/ . There is also vmstat output there but it
-> > doesn't look too helpful to me.
-> > 
-[..snip..]
+>> Since vmalloc() maps the pages with small pagetable entries (unlike most
+>> of the rest of the kernel address space), do you think the interleaving
+>> will outweigh any negative TLB effects?  
 > 
-> Thanks for the feedback, I'll add your test to those I perform myself.
-> 
+> I think so, yes (assuming you run the benchmark on all CPUs)
 
-Sure, no problem. Hope it helps.
+On the other hand, there's no reason we can't hack up a version of vmalloc
+to use large pages, and interleave only based on that. 
 
-> Some of the control variables for this scheduler have rather arbitrary 
-> values at the moment and are likely to be non optimal.  I'm in the 
-> process of making some of these variables modifiable at run time via 
-> /proc/sys to enable experimentation with different settings.  Hopefully, 
-> this will enable settings that improve interactive performance to be 
-> established.
-> 
-> Once again, thanks for the feedback
-> Peter
-
-Regards,
-
-Shane
+M.
 

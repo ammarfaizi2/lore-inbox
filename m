@@ -1,52 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265094AbTBLCja>; Tue, 11 Feb 2003 21:39:30 -0500
+	id <S265457AbTBLCxX>; Tue, 11 Feb 2003 21:53:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265457AbTBLCj3>; Tue, 11 Feb 2003 21:39:29 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40200 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265094AbTBLCj3>; Tue, 11 Feb 2003 21:39:29 -0500
-Date: Tue, 11 Feb 2003 18:45:19 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Roland McGrath <roland@redhat.com>
-cc: Ingo Molnar <mingo@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: another subtle signals issue
-In-Reply-To: <200302120206.h1C26sI19476@magilla.sf.frob.com>
-Message-ID: <Pine.LNX.4.44.0302111833120.2667-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265523AbTBLCxX>; Tue, 11 Feb 2003 21:53:23 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:57223 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265457AbTBLCxW>;
+	Tue, 11 Feb 2003 21:53:22 -0500
+Date: Wed, 12 Feb 2003 02:59:02 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "Martin J. Bligh" <mbligh@aracnet.com>, ak@suse.de
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4 due to wrmsr (performance)
+Message-ID: <20030212025902.GA14092@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"Martin J. Bligh" <mbligh@aracnet.com>, ak@suse.de,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <629040000.1045013743@flay>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <629040000.1045013743@flay>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 11, 2003 at 05:35:43PM -0800, Martin J. Bligh wrote:
 
-On Tue, 11 Feb 2003, Roland McGrath wrote:
-> 
-> I think sys_semop would be closer to right if it used ERESTARTSYS instead
-> of EINTR.
+ > The reason it rewrites SYSENTER_CS is non obviously vm86 which
+ > doesn't guarantee the MSR stays constant (sigh). I think this would 
+ > be better handled by having a global flag or process flag when any process
+ > uses vm86 and not do it when this flag is not set (as in 99% of all 
+ > normal use cases)
 
-You probably mean ERESTARTSYSNOHAND.
+I feel I'm missing something obvious here, but is this part the
+low-hanging fruit that it seems ?
 
-There are lots of system calls that simply are not restartable. So 
-TIF_SIGPENDING in general should be set only if required, and not "because 
-it's easier".
+		Dave
 
-> The reason I am concerned about this is that I think any case that is
-> broken by the lack of the optimization in the patch below must also be
-> broken vis a vis the semantics of stop signals and SIGCONT (when SIG_DFL,
-> SIG_IGN, or blocked).  POSIX says that when a process is stopped by
-> e.g. SIGSTOP, and then continued by SIGCONT, any functions that were in
-> progress at the time of stop are unaffected unless SIGCONT runs a handler.
-> That is, nobody returns EINTR because of the stop/continue.
+--- bk-linus/arch/i386/kernel/sysenter.c	2003-02-12 00:10:15.000000000 -0100
++++ linux-2.5/arch/i386/kernel/sysenter.c	2003-02-12 01:53:58.000000000 -0100
+@@ -20,6 +20,8 @@
+ 
+ extern asmlinkage void sysenter_entry(void);
+ 
++int trashed_sysenter_cs;
++
+ /*
+  * Create a per-cpu fake "SEP thread" stack, so that we can
+  * enter the kernel without having to worry about things like
+--- bk-linus/include/asm-i386/processor.h	2003-02-12 00:15:23.000000000 -0100
++++ linux-2.5/include/asm-i386/processor.h	2003-02-12 01:53:43.000000000 -0100
+@@ -408,19 +408,26 @@ struct thread_struct {
+ 	.io_bitmap	= { [ 0 ... IO_BITMAP_SIZE ] = ~0 },		\
+ }
+ 
++extern int trashed_sysenter_cs;
++
+ static inline void load_esp0(struct tss_struct *tss, unsigned long esp0)
+ {
+ 	tss->esp0 = esp0;
+ 	if (cpu_has_sep) {
+-		wrmsr(MSR_IA32_SYSENTER_CS, __KERNEL_CS, 0);
++		if (trashed_sysenter_cs==1) {
++			wrmsr(MSR_IA32_SYSENTER_CS, __KERNEL_CS, 0);
++			trashed_sysenter_cs = 0;
++		}
+ 		wrmsr(MSR_IA32_SYSENTER_ESP, esp0, 0);
+ 	}
+ }
+ 
+ static inline void disable_sysenter(void)
+ {
+-	if (cpu_has_sep)  
++	if (cpu_has_sep) {
+ 		wrmsr(MSR_IA32_SYSENTER_CS, 0, 0);
++		trashed_sysenter_cs = 1;
++	}
+ }
+ 
+ #define start_thread(regs, new_eip, new_esp) do {		\
 
-This is what ERESTARTNOHAND does, but quite often if you get interrupted
-you have to return _partial_ results, which is quite inefficient and
-sometimes breaks programs (ie you get things like a read() from a pipe
-that returns a partial result because you resized the window, and a 
-SIGWINCH happened - and that is _bad_).
 
-The old code tried rather hard to make signals that were truly ignored 
-(SIGSTOP/SIGCONT is not of that kind) be total non-events because of 
-things like this. 
-
-		Linus
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

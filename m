@@ -1,56 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268523AbTBWSjn>; Sun, 23 Feb 2003 13:39:43 -0500
+	id <S268518AbTBWSgP>; Sun, 23 Feb 2003 13:36:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268524AbTBWSjn>; Sun, 23 Feb 2003 13:39:43 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:6851 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S268523AbTBWSjm>;
-	Sun, 23 Feb 2003 13:39:42 -0500
-Date: Sun, 23 Feb 2003 19:49:41 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: procps-list@redhat.com
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       Alex Larsson <alexl@redhat.com>, Alexander Viro <viro@math.psu.edu>
-Subject: Re: [patch] procfs/procps threading performance speedup, 2.5.62
-In-Reply-To: <1045947170.19445.57.camel@cube>
-Message-ID: <Pine.LNX.4.44.0302231935350.6674-100000@localhost.localdomain>
+	id <S268523AbTBWSgP>; Sun, 23 Feb 2003 13:36:15 -0500
+Received: from mx2.it.wmich.edu ([141.218.1.94]:760 "EHLO mx2.it.wmich.edu")
+	by vger.kernel.org with ESMTP id <S268518AbTBWSgN> convert rfc822-to-8bit;
+	Sun, 23 Feb 2003 13:36:13 -0500
+Reply-To: <camber@yakko.cs.wmich.edu>
+From: "Edward Killips" <camber@yakko.cs.wmich.edu>
+To: "Toplica Tanaskovic" <toptan@EUnet.yu>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: AGP backport from 2.5 to 2.4.21-pre4
+Date: Sun, 23 Feb 2003 13:46:24 -0500
+Message-ID: <JJEJKAPBMJAOOFPKFDFKEELJCEAA.camber@yakko.cs.wmich.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-Reply-To: <200302231450.47506.toptan@EUnet.yu>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On 22 Feb 2003, Albert Cahalan wrote:
+I tried. fglrx.o loads without errors, but when X starts I get a blank screen. The last thing that appears in the logs for XFree86 (version 4.2.99) is the drm initialization. The card and the XF86Config file both work fine under Linux if I use them with a machine that only supports 4x AGP and does not support AGP 3.0.
+ 
+- -Edward Killips
 
-> > architecture-wise there is a difference, and i'd be
-> > the last one arguing against a tree-based approach to
-> > thread groups. It's much easier to find threads belonging
-> > to a single 'process' via /proc this way - although no
-> > functionality in procps has or requires such a feature currently.
-> 
-> Nope, the /proc/123/threads/246/stat approach is required. Without this,
-> procps is forced to read _all_ tasks to group threads together. This is
-> slow, prone to race conditions, more vulnerable to kernel bugs, and a
-> memory hog.
+- -----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Toplica
+Tanaskovic
+Sent: Sunday, February 23, 2003 8:51 AM
+To: camber@yakko.cs.wmich.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AGP backport from 2.5 to 2.4.21-pre4
 
-actually, what you mention does not happen in practice. We coded it up and
-it works, and with tons of threads around it performs a few orders of
-magnitudes faster than any other stuff available so far. So the question
-here is 'only' interface/approach cleanliness, not actual performance
-difference. Sure, we could shave off another millisec or two, but the
-performance problems are off the radar already.
 
-> Note that the recent /proc/*/wchan addition was botched.
+Dana nedelja 23. februar 2003. 00:07 napisali ste:
+> The apeture is now set correctly. The ATI 4.2.0-2.5.1 drivers don't work
+> but I think that is a dri problem. Everything works fine with the vesa
+> drivers using XFree86 4.2.99.
+>
 
-(fyi, i have nothing to do with that change, so spare your insults for
-someone else.)
+	That's good, but ATI 4.2.0-2.5.1. should work, try loading fglrx.o manualy:
 
-> (next time, discuss such changes with an experienced procps developer
-> first)
+telinit 3
+insmod /path/fglrx.o
+telinit 5
 
-(given that this whole area was left alone in a state like this for years
-i'm not quite sure how you can still sit so high on your horse.)
+Then go and check ATI control panel, and please send me results, on my R9000 
+it reports AGP4x which is OK, I hope it will be 8x for you.
+- -- 
+Pozdrav,
+Tanaskovic Toplica
 
-	Ingo
+
+- -
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 8.0
+
+iQA/AwUBPlkW/3g7wzlNS3haEQLBzgCfUN9Vm64w4nij+JUZ47x7GOjYvy4An3LA
+9w0w/sWkxyUJuzfG+w4P0j93
+=3sfk
+-----END PGP SIGNATURE-----
 

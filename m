@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276591AbRKFFgj>; Tue, 6 Nov 2001 00:36:39 -0500
+	id <S277382AbRKFFjT>; Tue, 6 Nov 2001 00:39:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277012AbRKFFga>; Tue, 6 Nov 2001 00:36:30 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:27408 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S276591AbRKFFgX>; Tue, 6 Nov 2001 00:36:23 -0500
-Message-ID: <3BE77599.9CFB5CA9@zip.com.au>
-Date: Mon, 05 Nov 2001 21:31:05 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] disk throughput
-In-Reply-To: <Pine.GSO.4.21.0111052306150.27713-100000@weyl.math.psu.edu> <Pine.LNX.4.33.0111052037240.1061-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S277094AbRKFFi7>; Tue, 6 Nov 2001 00:38:59 -0500
+Received: from 160-VALL-X5.libre.retevision.es ([62.83.215.160]:4870 "EHLO
+	ragnar-hojland.com") by vger.kernel.org with ESMTP
+	id <S277188AbRKFFiz>; Tue, 6 Nov 2001 00:38:55 -0500
+Date: Tue, 6 Nov 2001 06:22:21 +0100
+From: Ragnar Hojland Espinosa <ragnar@ragnar-hojland.com>
+To: Stephen Satchell <satch@concentric.net>
+Cc: Jonathan Lundell <jlundell@pobox.com>, dalecki@evision.ag,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        Alexander Viro <viro@math.psu.edu>, John Levon <moz@compsoc.man.ac.uk>,
+        linux-kernel@vger.kernel.org,
+        Daniel Phillips <phillips@bonn-fries.net>, Tim Jansen <tim@tjansen.de>
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+Message-ID: <20011106062221.B182@ragnar-hojland.com>
+In-Reply-To: <4.3.2.7.2.20011105080435.00bc7620@10.1.1.42> <200111042213.fA4MDoI229389@saturn.cs.uml.edu> <4.3.2.7.2.20011105080435.00bc7620@10.1.1.42> <p05100302b80c9aab7f40@[10.128.7.49]> <4.3.2.7.2.20011105133211.00bbfed0@10.1.1.42>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <4.3.2.7.2.20011105133211.00bbfed0@10.1.1.42>; from satch@concentric.net on Mon, Nov 05, 2001 at 01:43:11PM -0800
+Organization: Mediocrity Naysayers Ltd
+X-Homepage: http://lightside.eresmas.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> I do believe that there are probably more "high-level" heuristics that can
-> be useful, though. Looking at man common big trees, the ownership issue is
-> one obvious clue. Sadly the trees obviously end up being _created_ without
-> owner information, and the chown/chgrp happens later, but it might still
-> be useable for some clues.
-> 
+On Mon, Nov 05, 2001 at 01:43:11PM -0800, Stephen Satchell wrote:
+> At 11:58 AM 11/5/01 -0800, Jonathan Lundell wrote:
+> >use of a version field. Rather than try to support all versions, use it to 
+> >determine whether the two ends of the communication channel are 
+> >compatible, and fail gracefully because of the incompatible version. Tell 
+> >the user to update the app, or whatever.
 
-I didn't understand your objection to the heuristic "was the
-parent directory created within the past 30 seconds?". If the
-parent and child were created at the same time, chances are that
-they'll be accessed at the same time?
+[snip]
 
-And there's always the `chattr' cop-out, to alter the allocation
-policy at a chosen point in the tree by administrative act.
+> And then there is the problem of who pays for my time to make the app 
+> update.  I don't charge people for updates as a rule -- that rule may have 
+> to change for my Linux apps if this ill-thought-out idea goes into the 
+> kernel.  I expend enough effort trying to keep up with the crap coming out 
 
-Any change in ext2 allocation policy at this point in time really,
-really worries me.  If it screws up we'll have 10,000,000 linux
-boxes running like dead dogs in a year. So if we _do_ make a change, I'd
-suggest that it be opt-in.  Call me a wimp.
+I hope you just don't mean the version number idea.  Because I don't see
+reason for not, instead of adding a version number to every /proc file and
+breaknig everything, adding all them to a /proc/proc-version file which 
+would still let clients make some sanity checks.
 
--
+-- 
+____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
+\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
+ =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
+   U     chaos and madness await thee at its end."

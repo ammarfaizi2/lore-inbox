@@ -1,76 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261755AbTCZQIa>; Wed, 26 Mar 2003 11:08:30 -0500
+	id <S261757AbTCZQJA>; Wed, 26 Mar 2003 11:09:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261756AbTCZQIa>; Wed, 26 Mar 2003 11:08:30 -0500
-Received: from netmail02.services.quay.plus.net ([212.159.14.221]:58561 "HELO
-	netmail02.services.quay.plus.net") by vger.kernel.org with SMTP
-	id <S261755AbTCZQI1>; Wed, 26 Mar 2003 11:08:27 -0500
-Date: Wed, 26 Mar 2003 16:19:31 +0000
-From: Chris Sykes <chris@sigsegv.plus.com>
-To: linux-kernel@vger.kernel.org
-Subject: kernel BUG at sched.c:564! (2.4.20, 2.4.21-pre5-ac3)
-Message-ID: <20030326161931.GF2695@spackhandychoptubes.co.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="w3uUfsyyY1Pqa/ej"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-x-gpg-fingerprint: 1D0A 139D DDA3 F02F 6FC0  B2CA CBC6 5EC0 540A F377
-x-gpg-key: wwwkeys.pgp.net
+	id <S261758AbTCZQJA>; Wed, 26 Mar 2003 11:09:00 -0500
+Received: from uranus.lan-ks.de ([194.45.71.1]:49415 "EHLO uranus.lan-ks.de")
+	by vger.kernel.org with ESMTP id <S261757AbTCZQI4>;
+	Wed, 26 Mar 2003 11:08:56 -0500
+To: James Simmons <jsimmons@infradead.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 500] New: fbcon sleeping function call from illegal
+ context
+X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
+X-Message-Flag: This space is intentionally left blank
+X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
+X-Note: sending SPAM is a violation of both german and US law and will
+	at least trigger a complaint at your provider's postmaster.
+X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
+     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
+X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
+X-No-Archive: yes
+From: Jochen Hein <jochen@jochen.org>
+Date: Wed, 26 Mar 2003 17:09:01 +0100
+In-Reply-To: <Pine.LNX.4.44.0303252114470.6228-100000@phoenix.infradead.org> (James
+ Simmons's message of "Tue, 25 Mar 2003 21:16:21 +0000 (GMT)")
+Message-ID: <87wuimds9u.fsf@echidna.jochen.org>
+User-Agent: Gnus/5.090015 (Oort Gnus v0.15) Emacs/21.2
+References: <Pine.LNX.4.44.0303252114470.6228-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+James Simmons <jsimmons@infradead.org> writes:
 
---w3uUfsyyY1Pqa/ej
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Please try my patch I sent to Ben. I attached it to this email for people 
+> to try it.
 
-LKML Subscribers.
+This is not against stock (can't remember applying a patch) 2.5.66; I
+get Rejects:
 
-I'm getting a repeatable BUG in sched.c:564 when accessing
-/dev/ttyUSB[01] which are provided by ftdi_sio.o.
-I've tried both 2.4.21-pre5-ac3 as well as vanilla 2.4.20 and the
-results are the same.
+root@gswi1164:/usr/src/linux-2.5.66# patch -p1 <
+~jochen/tmp/fbcon-illegal-context.diff
+patching file drivers/video/console/fbcon.c
+Hunk #3 FAILED at 232.
+Hunk #8 succeeded at 588 with fuzz 2.
+Hunk #10 FAILED at 1024.
+Hunk #11 FAILED at 1147.
+3 out of 11 hunks FAILED -- saving rejects to file
+drivers/video/console/fbcon.c.rej
+patching file drivers/video/softcursor.c
+patching file include/linux/fb.h
+Hunk #2 FAILED at 407.
+1 out of 2 hunks FAILED -- saving rejects to file
+include/linux/fb.h.rej
 
-The USB hardware in question is an EasySync dual port RS485 to USB
-converter (USB-2COMi).
-
-I understand that ftdi_sio.o was intended for single port converters,
-and wonder whether the fact that this hardware is dual port is causing
-the problem, however both ports appear to be detected and set up OK
-(/dev/ttyUSB0 and /dev/ttyUSB1) and we've had minicom sessions on two
-boxes talking to each other.
-
-However it is easy to cause the BUG by simply:
-
-bash # echo "Some string" >/dev/ttyUSB0
-
-The decoded Oops, output from dmesg and my .config are all attached.
-
-Any help in this matter would be much appreciated,
-
-Thankyou.
-
---=20
-
-(o-  Chris Sykes  -- GPG Key: http://www.sigsegv.plus.com/key.txt
-//\       "Don't worry. Everything is getting nicely out of control ..."
-V_/_                          Douglas Adams - The Salmon of Doubt
-
-
---w3uUfsyyY1Pqa/ej
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+gdMTy8ZewFQK83cRAkL3AJ0Xj4IrtWzXQdNyG3z0aiNBOxLoLQCeKT+7
-YIwZb6OKrXOhd35kaCoL9f4=
-=F66z
------END PGP SIGNATURE-----
-
---w3uUfsyyY1Pqa/ej--
+-- 
+#include <~/.signature>: permission denied

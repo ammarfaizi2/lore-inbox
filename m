@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263101AbTJUOJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 10:09:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263114AbTJUOJ1
+	id S263106AbTJUOYa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 10:24:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263109AbTJUOY3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 10:09:27 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:3570 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263101AbTJUOJE
+	Tue, 21 Oct 2003 10:24:29 -0400
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:37798 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S263106AbTJUOY2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 10:09:04 -0400
-Subject: Re: [patch] updated exec-shield patch, 2.4/2.6 -G4
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.56.0310211330290.6034@earth>
-References: <Pine.LNX.4.56.0310211330290.6034@earth>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ISqd3sHb+hJiJeYQXRET"
-Organization: Red Hat, Inc.
-Message-Id: <1066745341.5237.10.camel@laptop.fenrus.com>
+	Tue, 21 Oct 2003 10:24:28 -0400
+Subject: Re: bkcvs2svn rebuilt
+From: =?ISO-8859-1?Q?Ram=F3n?= Rey Vicente <rrey@ranty.pantax.net>
+Reply-To: ramon.rey@hispalinux.es
+To: Ben Collins <bcollins@debian.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031020160152.GM866@phunnypharm.org>
+References: <20031020160152.GM866@phunnypharm.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-DsvJ3pP1M1j9WZt0MXY4"
+Message-Id: <1066746221.1160.10.camel@debian>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-5) 
-Date: Tue, 21 Oct 2003 16:09:01 +0200
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 21 Oct 2003 16:23:43 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-ISqd3sHb+hJiJeYQXRET
-Content-Type: text/plain
+--=-DsvJ3pP1M1j9WZt0MXY4
+Content-Type: text/plain; charset=iso-8859-15
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, 2003-10-21 at 13:37, Ingo Molnar wrote:
-> Here's the latest, -G4 update of the exec-shield patches, against various
-> kernels:
->=20
-> 	redhat.com/~mingo/exec-shield/exec-shield-2.6.0-test8-G4
-> 	redhat.com/~mingo/exec-shield/exec-shield-2.6.0-test8-mm1-G4
-> 	redhat.com/~mingo/exec-shield/exec-shield-2.4.22-G4
-> 	redhat.com/~mingo/exec-shield/exec-shield-2.4.22-ac1-nptl-G4
+El lun, 20-10-2003 a las 18:01, Ben Collins escribi=F3:
 
-2.6 rpms for RHL with this patch are available at
+> After a few people pointed out an inconsistency in the bksvn gateway, I
+> rebuilt the 2.4 and 2.5/2.6 repo's. Anyone with those trees checked out
+> will need to kill them and do a fresh checkout. If you have changes
+> local in your repo, you can still do a diff to bring them over to the
+> new checkout, since diff uses local copies, and doesn't contact the
+> remote repo.
 
-http://people.redhat.com/arjanv/2.5
+Thank you!!
+--=20
+Ram=F3n Rey Vicente       <ramon dot rey at hispalinux dot es>
+        jabber ID       <rreylinux at jabber dot org>
+GPG public key ID 	0xBEBD71D5 -> http://pgp.escomposlinux.org/
 
-
---=-ISqd3sHb+hJiJeYQXRET
+--=-DsvJ3pP1M1j9WZt0MXY4
 Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQA/lT38xULwo51rQBIRAsu1AKCXiQc93R3V9rjNicUPDW8ypw9cXwCeP70T
-1XNK6owG4HMa7Xk5oxtgLE0=
-=jq/y
+iD8DBQA/lUFtRGk68b69cdURAg3MAJsEca4sPhBjM5+fz3zMOq2z6Gfw6QCfduvr
+3uqogrb/ihbZhnYC0XJoKPU=
+=Uuh7
 -----END PGP SIGNATURE-----
 
---=-ISqd3sHb+hJiJeYQXRET--
+--=-DsvJ3pP1M1j9WZt0MXY4--
+

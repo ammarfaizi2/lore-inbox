@@ -1,97 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132426AbRAVSB0>; Mon, 22 Jan 2001 13:01:26 -0500
+	id <S132800AbRAVSIr>; Mon, 22 Jan 2001 13:08:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132868AbRAVSBQ>; Mon, 22 Jan 2001 13:01:16 -0500
-Received: from h56s242a129n47.user.nortelnetworks.com ([47.129.242.56]:1483
-	"EHLO zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S132426AbRAVSBD>; Mon, 22 Jan 2001 13:01:03 -0500
-Message-ID: <28560036253BD41191A10000F8BCBD116BDCC6@zcard00g.ca.nortel.com>
-From: "Jonathan Earle" <jearle@nortelnetworks.com>
-To: "'Linux Kernel List'" <linux-kernel@vger.kernel.org>
-Subject: RE: [OT?] Coding Style
-Date: Mon, 22 Jan 2001 12:53:48 -0500
-X-Mailer: Internet Mail Service (5.5.2652.35)
-X-Orig: <jearle@americasm01.nt.com>
+	id <S132560AbRAVSIh>; Mon, 22 Jan 2001 13:08:37 -0500
+Received: from mail.t-intra.de ([62.156.146.210]:53384 "EHLO mail.t-intra.de")
+	by vger.kernel.org with ESMTP id <S132379AbRAVSIY>;
+	Mon, 22 Jan 2001 13:08:24 -0500
+Message-Id: <200101221808.f0MI8UW03617@gate2.private.net>
+From: "Otto Meier" <gf435@gmx.net>
+To: "linux-raid@vger.kernel.org" <linux-raid@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Mon, 22 Jan 2001 19:09:37 +0100
+Reply-To: "otto meier" <gf435@gmx.net>
+X-Mailer: PMMail 2000 Professional (2.10.2010) For Windows 98 (4.10.2222)
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] - filesystem corruption on soft RAID5 in 2.4.0+
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+With this patch I did rebuilt my raid5 from scratch. So far it still runs in degraded mode
+to honor the father of invention. 
+System is a SMP Dual Celeron with kernel 2.4.0. I copied 18 Gbyte of data from my 
+backup  to it. So far i have not seen any corroption messages. 
+Last time I did that I got a lot of them. Seams that the fix has improved things for me.
+ 
+Otto
 
-> -----Original Message-----
-> From: Larry McVoy [mailto:lm@bitmover.com]
-> 
-> On Mon, Jan 22, 2001 at 11:04:50AM -0500, Jonathan Earle wrote:
-> > > -----Original Message-----
-> > > From: profmakx.fmp [mailto:profmakx.fmp@gmx.de]
-> > > 
-> > > So, every good programmer
-> > > should know where to put comments. And it is unnecessary to 
-> > > put comments to
-> > > explain what code does. One should see this as stated in the 
-> > > CodingStyle doc.
-> > > Ok, there are points where a comment is good, but for example 
-> > > at university
-> > > we are to comment on every single line of code ...
-> > 
-> > WRONG!!!
-> > 
-> > Not documenting your code is not a sign of good coding, but 
-> rather shows
-> > arrogance, laziness and contempt for "those who would dare 
-> tamper with your
-> > code after you've written it".  Document and comment your 
-> code thoroughly.
-> > Do it as you go along.  I was also taught to comment nearly 
-> every line - as
-> > part of the coding style used by a large, international 
-> company I worked for
-> > several years ago.  It brings the logic of the programmer 
-> into focus and
-> > makes code maintenance a whole lot easier.  It also helps 
-> one to remember
-> > the logic of your own code when you revisit it a year or more hence.
-> 
-> Please don't listen to this.  The only place you really want 
-> comments is
-> 
->     a) at the top of files, describing the point of the file;
->     b) at the top of functions, if the purpose of the 
-> function is not obvious;
->     c) in line, when the code is not obvious.
-> 
-> If you are writing code that requires a comment for every 
-> line, you are 
-> writing bad, obscure, unobvious code and no amount of 
-> commenting will fix
-> it.
+On Mon, 22 Jan 2001 07:47:42 +1100 (EST), Neil Brown wrote:
 
-The point of comments is not to "fix" bad code, it's to provide
-understanding.  As the original poster said, _you_ may understand your code,
-but that in no way implies that _I_ will, or your co-worker down the hall
-will, etc.  I'm not suggesting that a statement like "counter=0;" at the
-start of a function be commented, but other operations should be.  "Why do
-we want this file written in /proc - wouldn't syslog have worked better?"
-"Why is this loop skipping the first seven elements?"  "Why is this
-structure used here instead of a simple array?"  "What on earth does
-m->n->o->num represent?"
+>
+>There have been assorted reports of filesystem corruption on raid5 in
+>2.4.0, and I have finally got a patch - see below.
+>I don't know if it addresses everybody's problems, but it fixed a very
+>really problem that is very reproducable.
+>
+>The problem is that parity can be calculated wrongly when doing a
+>read-modify-write update cycle.  If you have a fully functional, you
+>wont notice this problem as the parity block is never used to return
+>data.  But if you have a degraded array, you will get corruption very
+>quickly.
+>So I think this will solve the reported corruption with ext2fs, as I
+>think they were mostly on degradred arrays.  I have no idea whether it
+>will address the reiserfs problems as I don't think anybody reporting
+>those problems described their array.
+>
+>In any case, please apply, and let me know of any further problems.
+>
+>
+>--- ./drivers/md/raid5.c	2001/01/21 04:01:57	1.1
+>+++ ./drivers/md/raid5.c	2001/01/21 20:36:05	1.2
+>@@ -714,6 +714,11 @@
+> 		break;
+> 	}
+> 	spin_unlock_irq(&conf->device_lock);
+>+	if (count>1) {
+>+		xor_block(count, bh_ptr);
+>+		count = 1;
+>+	}
+>+	
+> 	for (i = disks; i--;)
+> 		if (chosen[i]) {
+> 			struct buffer_head *bh = sh->bh_cache[i];
+>
+>
+> From my notes for this patch:
+>
+>   For the read-modify-write cycle, we need to calculate the xor of a
+>   bunch of old blocks and bunch of new versions of those blocks.  The
+>   old and new blocks occupy the same buffer space, and because xoring
+>   is delayed until we have lots of buffers, it could get delayed too
+>   much and parity doesn't get calculated until after data had been
+>   over-written.
+>
+>   This patch flushes any pending xor's before copying over old buffers.
+>
+>
+>Everybody running raid5 on 2.4.0 or 2.4.1-pre really should apply this
+>patch, and then arrange the get parity checked and corrected on their
+>array.
+>There currently isn't a clean way to correct parity.
+>One way would be to shut down to single user, remount all filesystems
+>readonly, or un mount them, and the pull the plug.
+>On reboot, raid will rebuild parity, but the filesystems should be
+>clean.
+>An alternate it so rerun mkraid giving exactly the write configuration.
+>This doesn't require pulling the plug, but if you get the config file
+>wrong, you could loose your data.
+>
+>NeilBrown
+>
 
-> The real reason to sparing in your comments is that code and 
-> comments are
-> not semantically bound to each other: the program doesn't 
-> stop working when
-> the comment becomes incorrect.  It's incredibly frustrating 
-> to read a comment,
-> believe you understand what is going on, only to find out 
-> that the comment
-> and the code no longer match.   
 
-Comments should be updated when code is updated.  I believe that
-documentation is of far greater value than code itself.  Code can be
-changed, however, logic drives the code.  Without a good understanding of
-the latter, the former is of little value, IMHO.
 
-Cheers!
-Jon
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,67 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266348AbUFZTDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266360AbUFZTFQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266348AbUFZTDj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 15:03:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266360AbUFZTDj
+	id S266360AbUFZTFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 15:05:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266380AbUFZTFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 15:03:39 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:5305 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S266348AbUFZTDf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 15:03:35 -0400
-Subject: Re: [PATCH] Fix the cpumask rewrite
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       Paul Jackson <pj@sgi.com>,
-       PARISC list <parisc-linux@lists.parisc-linux.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0406261140360.16079@ppc970.osdl.org>
-References: <1088266111.1943.15.camel@mulgrave>
-	<Pine.LNX.4.58.0406260924570.14449@ppc970.osdl.org>
-	<1088268405.1942.25.camel@mulgrave>
-	<Pine.LNX.4.58.0406260948070.14449@ppc970.osdl.org>
-	<1088270298.1942.40.camel@mulgrave>
-	<Pine.LNX.4.58.0406261044580.16079@ppc970.osdl.org>
-	<20040626182820.GA3723@ucw.cz> 
-	<Pine.LNX.4.58.0406261140360.16079@ppc970.osdl.org>
-Content-Type: text/plain
+	Sat, 26 Jun 2004 15:05:15 -0400
+Received: from mxsf24.cluster1.charter.net ([209.225.28.224]:26373 "EHLO
+	mxsf24.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S266360AbUFZTFI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 15:05:08 -0400
+Message-ID: <40DDC641.1070403@hbahr.org>
+Date: Sat, 26 Jun 2004 13:53:53 -0500
+From: hab <hab@hbahr.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Sata-Sil bk6-bk8 hangs Maxtor with S-P bridge
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 26 Jun 2004 14:02:10 -0500
-Message-Id: <1088276531.1750.113.camel@mulgrave>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-06-26 at 13:54, Linus Torvalds wrote:
-> On Sat, 26 Jun 2004, Vojtech Pavlik wrote:
-> > At least input pretty much relies on the fact that bitops don't need
-> > locking and act as memory barriers.
-> 
-> Well, plain test_bit() has always been more relaxed than the others, and
-> has never implied a memory barrier. Only the "test_and_set/clear()" things
-> imply memory barriers.
-> 
-> What we _could_ do (without changing any existing rules) is to add a
-> "__test_bit()" that is the relaxed version that doesn't do any of the
-> volatile etc. That would match the "__"  versions of the other bit
-> operations.
-> 
-> Then people who know that they use the bits without any volatility issues 
-> can use that one, and let the compiler optimize more. 
+With Bk6 and beyond I recieve a
+command 0x25 Timeout Stat 0x50 host-stat 0x4  and then a hang in init.
+I can cntl alt del to reboot.
+This is with a Maxtor 6y160po  YAR4,  I also have a Maxtor 6y250P0
 
-Well, we can do this, yes.
+Earlier in the boot sequence I recieve a screaming interupt message and
+interupt turned off message for the interupt used by the controller.
 
-Our test bit implementation would then become:
+These work for 2.6.7 and 2.6.7 bk5.
+It works for the ide implementation with the thousands of
 
-static __inline__ int test_bit(int nr, const volatile void *address)
-{
-	return __test_bit(nr, (const void *)address);
-}
+sata_error = 0x00000000, watchdog = 0, siimage_mmio_ide_dma_test_irq
 
-That would keep our implementation happy.
+messages.
 
-James
-
-
+thanks  Hubert

@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265102AbTANTtU>; Tue, 14 Jan 2003 14:49:20 -0500
+	id <S265097AbTANTrr>; Tue, 14 Jan 2003 14:47:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265130AbTANTtU>; Tue, 14 Jan 2003 14:49:20 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:53162 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
-	id <S265102AbTANTtT>; Tue, 14 Jan 2003 14:49:19 -0500
-Date: Tue, 14 Jan 2003 20:58:16 +0100 (CET)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: linux-kernel@vger.kernel.org
-Subject: timing an application
-Message-ID: <Pine.LNX.4.51.0301142044400.6432@dns.toxicfilms.tv>
+	id <S265114AbTANTrr>; Tue, 14 Jan 2003 14:47:47 -0500
+Received: from [66.62.77.7] ([66.62.77.7]:52626 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id <S265097AbTANTrq>;
+	Tue, 14 Jan 2003 14:47:46 -0500
+Date: Tue, 14 Jan 2003 12:56:39 -0700 (MST)
+From: Dax Kelson <dax@gurulabs.com>
+X-X-Sender: dkelson@mooru.gurulabs.com
+To: Richard Stallman <rms@gnu.org>, Larry McVoy <lm@bitmover.com>
+Cc: root@chaos.analogic.com, <pollard@admin.navo.hpc.mil>,
+       <R.E.Wolff@BitWizard.nl>, <jalvo@mbay.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: [OFFTOPIC] RMS and reactions to him
+In-Reply-To: <20030114190600.GC19154@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0301141233020.23531-100000@mooru.gurulabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+For nearly 10 years I've read many posts by RMS and the replies that
+follow. RMS's posts seem calm, rational and clearly presented. For the
+most part, the replies are emotional, high strung, and mean spirited
+personal attacks.
 
-being inspired by some book about optimizing c++ code i decided to do
-timing of functions i wrote. I am using gettimeofday to set
-two timeval structs and calculate the time between them.
-But the results depend heavily on the load, also i reckon that this
-is an innacurate timing.
+Note that I'm not a card carrying member of the RMS fan club, nor do I
+agree with everything he says.  I'm just an observer noting the striking 
+difference in the tone between RMS's posts and the responses.
 
-Any ideas on timing a function, or a block of code? Maybe some kernel
-timers or something.
+Dax Kelson
 
-Regards,
-Maciej Soltysiak
-
------BEGIN GEEK CODE BLOCK-----
-VERSION: 3.1
-GIT/MU d-- s:- a-- C++ UL++++$ P L++++ E- W- N- K- w--- O! M- V- PS+ PE++
-Y+ PGP- t+ 5-- X+ R tv- b DI+ D---- G e++>+++ h! y?
------END GEEK CODE BLOCK-----

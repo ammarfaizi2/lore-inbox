@@ -1,60 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263277AbTEGOcW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 10:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263385AbTEGOcW
+	id S263393AbTEGOgI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 10:36:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbTEGOgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 10:32:22 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:42002 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S263277AbTEGOcU (ORCPT
+	Wed, 7 May 2003 10:36:08 -0400
+Received: from holomorphy.com ([66.224.33.161]:46479 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263393AbTEGOfR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 10:32:20 -0400
-Date: Wed, 7 May 2003 16:44:34 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: hps@intermeta.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-Message-Id: <20030507164434.6b891b14.skraw@ithnet.com>
-In-Reply-To: <b98m2a$bih$1@tangens.hometree.net>
-References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com>
-	<20030428115740.3a6c2a97.skraw@ithnet.com>
-	<b98m2a$bih$1@tangens.hometree.net>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 7 May 2003 10:35:17 -0400
+Date: Wed, 7 May 2003 07:47:36 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Torsten Landschoff <torsten@debian.org>
+Cc: J?rn Engel <joern@wohnheim.fh-wedel.de>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: top stack (l)users for 2.5.69
+Message-ID: <20030507144736.GE8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Torsten Landschoff <torsten@debian.org>,
+	J?rn Engel <joern@wohnheim.fh-wedel.de>,
+	Linux kernel <linux-kernel@vger.kernel.org>
+References: <20030507132024.GB18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305070933450.11740@chaos> <20030507135657.GC18177@wohnheim.fh-wedel.de> <20030507143315.GA6879@stargate.galaxy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030507143315.GA6879@stargate.galaxy>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 May 2003 15:58:02 +0000 (UTC)
-"Henning P. Schmiedehausen" <hps@intermeta.de> wrote:
+On Wed, May 07, 2003 at 03:56:57PM +0200, J?rn Engel wrote:
+>> Agreed, partially. There is the current issue of the kernel stack
+>> being just 8k in size and no decent mechanism in place to detect a
+>> stack overflow. And there is (arguably) the future issue of the kernel
+>> stack shrinking to 4k.
 
-> Stephan von Krawczynski <skraw@ithnet.com> writes:
-> 
-> >copy-protected I cannot do that _legally_, because breaking the protection
-> >is against DMCA. Now you just created the case where _buying_ something does
-> >not
-> 
-> You live in which country? So why do you care about archaic law in
-> foreign countries? The DMCA doesn't apply (yet) to the E.U.
+On Wed, May 07, 2003 at 04:33:15PM +0200, Torsten Landschoff wrote:
+> Pardon my ignorance, but why is the kernel stack shrinked to just a few
+> kilobytes? With 256MB of RAM in a typical desktop system it shouldn't
+> be a problem to use 256KB from that as the stack, but I am sure there
+> are good reasons to shrink it. 
+> Just curious, thanks for any info
 
-This is not completely true. You can be imprisoned (and "handed over") even as
-E.U. citizen to US for violation of US laws. E.U. signed a respective
-agreement. As far as I know no case was filed up to now, but that does not mean
-it weren't possible.
-It was obviously a complete brain-damage of the officials to pass something
-like that, it looked a lot like the ongoing case of giving away all E.U.
-customer flight data to the US, not only those flighing to the US.
-And additionally look at the currently ongoing discussion about the second part
-of the new german Urheberrecht which is said to come somewhen this autumn.
-There is a clear statement that private copies are illegal after that passed
-parliament.
+The kernel stack is (in Linux) unswappable memory that persists
+throughout the lifetime of a thread. It's basically how many threads
+you want to be able to cram into a system, and it matters a lot for
+32-bit.
 
-> Copying a CD for private use is perfectly legal here in Germany. 
 
-Just wait 6 month and see...
-
--- 
-Regards,
-Stephan
+-- wli

@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267148AbRGPAha>; Sun, 15 Jul 2001 20:37:30 -0400
+	id <S267160AbRGPAsx>; Sun, 15 Jul 2001 20:48:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267151AbRGPAhU>; Sun, 15 Jul 2001 20:37:20 -0400
-Received: from flodhest.stud.ntnu.no ([129.241.56.24]:45507 "EHLO
-	flodhest.stud.ntnu.no") by vger.kernel.org with ESMTP
-	id <S267148AbRGPAhE>; Sun, 15 Jul 2001 20:37:04 -0400
-Date: Mon, 16 Jul 2001 02:37:03 +0200
-From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: tlan@stud.ntnu.no, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make SCSI-system aware of type 12-devices
-Message-ID: <20010716023703.A27290@flodhest.stud.ntnu.no>
-Reply-To: tlan@stud.ntnu.no
-In-Reply-To: <mailman.995240941.28583.linux-kernel2news@redhat.com> <200107160015.f6G0F9W01045@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200107160015.f6G0F9W01045@devserv.devel.redhat.com>; from zaitcev@redhat.com on Sun, Jul 15, 2001 at 08:15:09PM -0400
+	id <S267163AbRGPAso>; Sun, 15 Jul 2001 20:48:44 -0400
+Received: from mail315.mail.bellsouth.net ([205.152.58.175]:39724 "EHLO
+	imf15bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S267160AbRGPAsc>; Sun, 15 Jul 2001 20:48:32 -0400
+Date: Sun, 15 Jul 2001 20:50:03 -0400 (EDT)
+From: volodya@mindspring.com
+Reply-To: volodya@mindspring.com
+To: Alexander Viro <viro@math.psu.edu>
+cc: Adam Schrotenboer <ajschrotenboer@lycosmail.com>,
+        lkml <linux-kernel@vger.kernel.org>, reiser@namesys.com
+Subject: Re: Stability of ReiserFS onj Kernel 2.4.x (sp. 2.4.[56]{-ac*}
+In-Reply-To: <Pine.GSO.4.21.0107151204060.24930-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.20.0107152032440.1154-100000@node2.localnet.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev:
-> Yeah, however nobody tried to implement SCC command class before.
-> It is much easier for a controller vendor to provide REPORT_LUNS
-> (which is enough to find volumes), and have some out-of-band
-> management interface - front panel, telnet, or a web form.
 
-This controller has a consolle which you can hook up to, to do management.
 
-> Out of curiousity, what is your hardware?
+On Sun, 15 Jul 2001, Alexander Viro wrote:
 
-Compaq StorageWorks (announced vendor is DEC, tho) HSG80.
+> 
+> 
+> On Sun, 15 Jul 2001 volodya@mindspring.com wrote:
+> 
+> > Which is a good point - can ext2 handle more than 4gig partitions ? I have
+> 
+> It can.
+> 
+> > some vague ideas that it doesn't (and that it does not handle files more
+> > than 2gig long).
+> 
+> It does.
+> 
 
--- 
--Thomas
+
+Umm that is very interesting - I was rather sure there were some problems
+a while ago (2.2.x ?). Is there anything special necessary to use large
+files ? Because I tried to create a 3+gig file and now I cannot ls or rm
+it. (More details: the file was created using dd from block device (tried
+to backup a smaller ext2 partition), ls and rm say  "Value too large for
+defined data type" and I upgraded everything mentioned in Documentation/Changes).
+
+                         Vladimir Dergachev
+
+PS Yep, the new limits are clearly documented in
+Documentation/filesystems/ext2.txt - sorry for bothering anyone..
+
+

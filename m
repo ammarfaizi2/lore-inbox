@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265909AbTA2NJ6>; Wed, 29 Jan 2003 08:09:58 -0500
+	id <S265898AbTA2NJu>; Wed, 29 Jan 2003 08:09:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265936AbTA2NJ6>; Wed, 29 Jan 2003 08:09:58 -0500
-Received: from 213-187-164-4.dd.nextgentel.com ([213.187.164.4]:2709 "EHLO
-	mail.pronto.tv") by vger.kernel.org with ESMTP id <S265909AbTA2NJ4> convert rfc822-to-8bit;
-	Wed, 29 Jan 2003 08:09:56 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
-Subject: Re: Bootscreen
-Date: Wed, 29 Jan 2003 14:19:05 +0100
-User-Agent: KMail/1.4.1
-Cc: Robert Morris <rob@r-morris.co.uk>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200301290913.h0T9Dnp2008484@eeyore.valparaiso.cl>
-In-Reply-To: <200301290913.h0T9Dnp2008484@eeyore.valparaiso.cl>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301291419.05096.roy@karlsbakk.net>
+	id <S265909AbTA2NJu>; Wed, 29 Jan 2003 08:09:50 -0500
+Received: from lennier.cc.vt.edu ([198.82.162.213]:42254 "EHLO
+	lennier.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S265898AbTA2NJt>; Wed, 29 Jan 2003 08:09:49 -0500
+Subject: Re: Scaring the non-geeks (was Bootscreen)
+From: "Richard B. Tilley " "(Brad)" <rtilley@vt.edu>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: John Bradford <john@grabjohn.com>, jeff millar <wa1hco@adelphia.net>,
+       Raphael_Schmid@CUBUS.COM, rob@r-morris.co.uk,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <200301291409.57213.roy@karlsbakk.net>
+References: <200301281440.h0SEeBS8001126@darkstar.example.net> 
+	<200301291409.57213.roy@karlsbakk.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 29 Jan 2003 08:19:08 -0500
+Message-Id: <1043846348.11513.2.camel@oubop4.bursar.vt.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Right. And this is a very specialized application, where the vendor will
-> install a heavily hacked system anyway, as they won't have standard VGA or
-> keyboard or...
+On Wed, 2003-01-29 at 08:09, Roy Sigurd Karlsbakk wrote:
+> > Hmmm, I think the traditional text diagnostic messages are best kept
+> > as they are, otherwise we'll end up with bug reports like this:
+> >
+> > Date: Jan 28 14:39:29 2006
+> > Subject: Kernel 3.6.2 boot failiure
+> > To: linux-kernel@vger.kernel.org
+> >
+> > Hi,
+> >
+> > I just upgraded from 3.6.1, which booted fine, to 3.6.2, which stops
+> > after Tux has waved twice, and winked his left eye.
+> 
+> The point is that Linux should allow for a user-friendly image (yes! possibly 
+> with Tux winking with the eyes or something - in a Mac sorta way). This will 
+> allow for higher user-friendlyness, but should be turned off by default. That 
+> way, SuSE, RedHat and the rest can turn it on if they want to do support 
+> without the verbose messaging. Perhaps do it like 'if splash screen's active, 
+> one can disable it by holding SHIFT or something pressed down'.
+> 
+> I don't know about you, but most non-technical people DO NOT LIKE verbose 
+> messages they can't understand. My father was scared by the linux bootup when 
+> I installed Linux on their PC.
 
-It's a standard system. The keyboard and remote control are just hacked into 
-the PS/2 input. It _does_ have standard VGA etc. This is the normal way of 
-doing set-top-boxes today.
-
-> It has no relevance whatsoever to the standard, for-your-typical-box
-
-yes, it does.
-
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
-
-Computers are like air conditioners.
-They stop working when you open Windows.
+How do positive terms such as OK or YES scare people? 
 

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262193AbSJARuK>; Tue, 1 Oct 2002 13:50:10 -0400
+	id <S262502AbSJAR3r>; Tue, 1 Oct 2002 13:29:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262195AbSJARuK>; Tue, 1 Oct 2002 13:50:10 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:22411 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S262193AbSJARuJ>; Tue, 1 Oct 2002 13:50:09 -0400
-Date: Tue, 1 Oct 2002 12:55:25 -0500 (CDT)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Ingo Molnar <mingo@elte.hu>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Workqueue Abstraction, 2.5.40-H7
-In-Reply-To: <Pine.LNX.4.44.0210011653370.28821-102000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0210011251050.10307-100000@chaos.physics.uiowa.edu>
+	id <S262509AbSJAR2y>; Tue, 1 Oct 2002 13:28:54 -0400
+Received: from mg03.austin.ibm.com ([192.35.232.20]:39850 "EHLO
+	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S262502AbSJAR1f>; Tue, 1 Oct 2002 13:27:35 -0400
+Date: Tue, 1 Oct 2002 12:30:38 -0500 (CDT)
+From: Kent Yoder <key@austin.ibm.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: linux-kernel@vger.kernel.org, <tsbogend@alpha.franken.de>
+Subject: Re: [PATCH] pcnet32 cable status check
+In-Reply-To: <3D99D923.5080200@pobox.com>
+Message-ID: <Pine.LNX.4.44.0210011222520.14661-100000@ennui.austin.ibm.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Oct 2002, Ingo Molnar wrote:
+Thus Spake Jeff Garzik:
+>
+>Looks good ;-)
 
-> 2) driver fixes.
-> 
-> i have converted almost every affected driver to the new framework. This
-> cleaned up tons of code. I also fixed a number of drivers that were still
-> using BHs (these drivers did not compile in 2.5.40).
+ Thanks,
 
-I'm possibly messing things up here, but doesn't it generally make more 
-sense to convert tq_immediate users to tasklets instead of work queues?
+>
+>One small thing -- since you appear to test all cases for (lp->mii) 
+>before calling mod_timer, I don't think you need to test lp->mii inside 
+>the timer...
 
-tq_immediate users do not need process context, and one use I'm familiar 
-with is basically doing bottom half interrupt processing, e.g. in lots of 
-places in the ISDN code. Introducing a context switch for no obvious gain 
-there seems rather pointless to me?
+  Well, the reason I left that in there was so that another person could add 
+functionality to the watchdog if they wanted on a non-mii enabled card 
+without having to know that the check would need to be added. If that's not 
+that big a deal, I can remove it...
 
-The same may be true for the tq_timer users as well?
-
---Kai
-
+>As Felipe mentioned, using the link interrupt instead of a timer is 
+>preferred -- but my own preference would be to apply your patch with the 
+>small remove-lp->mii-check fixup, and then investigate the support of 
+>link interrupts.  The reasoning is that, pcnet32 covers a ton of chips, 
+>and not all may support a link interrupt.
+>
+>	Jeff
+>
+>
+>
 

@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264952AbTFYTUr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 15:20:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264965AbTFYTUr
+	id S264965AbTFYT0w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 15:26:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264968AbTFYT0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 15:20:47 -0400
-Received: from relay.pair.com ([209.68.1.20]:62992 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S264952AbTFYTUq (ORCPT
+	Wed, 25 Jun 2003 15:26:52 -0400
+Received: from dm2-55.slc.aros.net ([66.219.220.55]:29371 "EHLO cyprus")
+	by vger.kernel.org with ESMTP id S264965AbTFYT0v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 15:20:46 -0400
-X-pair-Authenticated: 65.247.36.27
-Subject: Re: patch O1int for 2.5.73 - interactivity work
-From: Daniel Gryniewicz <dang@fprintf.net>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-In-Reply-To: <5.2.0.9.2.20030625204242.00ceda90@pop.gmx.net>
-References: <5.2.0.9.2.20030625204242.00ceda90@pop.gmx.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056569692.1594.30.camel@athena.fprintf.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4- 
-Date: 25 Jun 2003 15:34:53 -0400
+	Wed, 25 Jun 2003 15:26:51 -0400
+Message-ID: <3EF9FACC.80503@aros.net>
+Date: Wed, 25 Jun 2003 13:41:00 -0600
+From: Lou Langholtz <ldl@aros.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paul.Clements@steeleye.com
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [RFC][PATCH] nbd driver for 2.5+: fix locking issues with ioctl
+ UI
+References: <Pine.LNX.4.10.10306251251410.11076-100000@clements.sc.steeleye.com> <3EF9F094.3030506@aros.net>
+In-Reply-To: <3EF9F094.3030506@aros.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-06-25 at 15:00, Mike Galbraith wrote:
-> At 02:09 AM 6/26/2003 +1000, Con Kolivas wrote:
-> 
-> >I'm still working on something for the "xmms stalls if started during very
-> >heavy load" as a different corner case.
-> 
-<snip scheduler suggestion>
-> Just a couple random thoughts, both of which I can see problems with ;-)
-> 
+Lou Langholtz wrote:
 
-At least on 2.4 (I use 21-ck3), it appears to be I/O starvation that
-gets xmms, not scheduler starvation.  When xmms skips for me, there's
-load, but there's also usually some idle time.  The common thread seems
-to be heavy I/O on the drive xmms is using, possibly combined with a
-(formerly?) interactive process (evolution rebuilding my LKML index, for
-example) doing the disk I/O.  Because of the assorted I/O scheduler
-changes in 2.5, this is unlikley to be the problem there.
+> . . . On the other hand I've been thinking that I might be able to 
+> take advantage of the irq locked condition imposed by the 
+> q->queue_lock and just use nbd_lock to replace q->queue_lock then. Al 
+> and Andrew seem to have a much deeper understanding though for 
+> spinlocking though so I'll defer to there comments on this idea (of 
+> replacing lo->queue_lock by use of nbd_lock). This has the added 
+> attraction of already having nbd_lock locked when in do_nbd_request.. . .
 
-Daniel
--- 
-Daniel Gryniewicz <dang@fprintf.net>
+Typo! Above should have read "just use nbd_lock to replace 
+lo->queue_lock" (another spinlock_t per nbd_device). Anyways... would 
+using the one nbd_lock to also protect the lo->queue_list work better 
+than using the queue_lock per nbd_device I'm wondering. According to the 
+prior discusions about spinlocks this should be better. I don't have a 
+picture right now of wether that even works or not. Gotta run though, 
+thanks!
+
 

@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263937AbTLJUCS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 15:02:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263942AbTLJUCR
+	id S263913AbTLJUGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 15:06:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263914AbTLJUGZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 15:02:17 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:33696 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S263937AbTLJUCQ
+	Wed, 10 Dec 2003 15:06:25 -0500
+Received: from dyn-213-36-224-2.ppp.tiscali.fr ([213.36.224.2]:9476 "EHLO
+	nsbm.kicks-ass.org") by vger.kernel.org with ESMTP id S263913AbTLJUGX convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 15:02:16 -0500
-From: Vitaly Fertman <vitaly@namesys.com>
-Organization: NAMESYS
-To: Hans Reiser <reiser@namesys.com>
-Subject: Re: forwarded message from Jan De Luyck
-Date: Thu, 11 Dec 2003 00:02:29 +0300
-User-Agent: KMail/1.5.1
-Cc: Jan De Luyck <lkml@kcore.org>, linux-kernel@vger.kernel.org
-References: <16343.2023.525418.637117@laputa.namesys.com> <200312101604.15299.vitaly@namesys.com> <3FD77A0E.7000909@namesys.com>
-In-Reply-To: <3FD77A0E.7000909@namesys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312110002.29307.vitaly@namesys.com>
+	Wed, 10 Dec 2003 15:06:23 -0500
+Date: Wed, 10 Dec 2003 21:06:14 +0100
+From: Witukind <witukind@nsbm.kicks-ass.org>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: mru@kth.se, linux-kernel@vger.kernel.org
+Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
+Message-Id: <20031210210614.625ccfcc.witukind@nsbm.kicks-ass.org>
+In-Reply-To: <1071039765.1790.94.camel@nomade>
+References: <1070963757.869.86.camel@nomade>
+	<Pine.LNX.4.44.0312091358210.21314-100000@gaia.cela.pl>
+	<20031209183001.GA9496@kroah.com>
+	<yw1xvfop257d.fsf@kth.se>
+	<1071039765.1790.94.camel@nomade>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 December 2003 22:54, Hans Reiser wrote:
-> Vitaly Fertman wrote:
-> >Hello,
-> >
-> >>Hello,
-> >>
-> >>Today I discovered this in my syslogs, after something strange
-> >>happening to XFree86 (hung at startup, then dumped me back to the
-> >> console)
-> >>
-> >>is_leaf: free space seems wrong: level=1, nr_items=41, free_space=65224
-> >>rdkey vs-5150: search_by_key: invalid format found in block 283191. Fsck?
-> >>vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find
-> >>stat data of [11 12795 0x0 SD] is_leaf: free space seems wrong: level=1,
-> >>nr_items=41, free_space=65224 rdkey vs-5150: search_by_key: invalid
-> >> format found in block 283191. Fsck? vs-13070:
-> >> reiserfs_read_locked_inode: i/o failure occurred trying to find stat
-> >> data of [11 12798 0x0 SD]
-> >
-> >this all about fs corruptions. fsck is needed.
->
-> is this a failure due to bad sector on the drive?
+On Wed, 10 Dec 2003 08:02:46 +0100
+Xavier Bestel <xavier.bestel@free.fr> wrote:
 
-No, we return EIO in many places if some data corruption is found 
-even if the hardware has worked ok. A stat data has not been found
-here and EIO is returned.
+> Le mar 09/12/2003 à 19:53, Måns Rullgård a écrit :
+> > >> - for example my floppy is always present in the system, but I
+> > >access> it like once a month or so
+> > >
+> > > Then, when you want to access it, a simple 'modprobe floppy' would
+> > > work for you, right?
+> > 
+> > Only if you are root.
+> 
+> Come on ... the stock kernel from your distribution will do the
+> modprobe for you when you access the floppy, I'm sure you're skilled
+> enough to configure your own kernel to do the same.
+> And if you don't want to recompile, just chmod +s modprobe - on your
+> small machine which needs to save 60k, I bet you're the only user. Or
+> use sudo.
+> 
+> 	Xav
 
---
-Thanks,
-Vitaly Fertman
+I was expecting this kind of reply. Like "if you have an older hardware you
+can fuck off".
+
+-- 
+Jabber: heimdal@jabber.org

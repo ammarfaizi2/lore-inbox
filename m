@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263990AbTGMUHm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 16:07:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270389AbTGMUHm
+	id S270365AbTGMTgL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 15:36:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270366AbTGMTgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 16:07:42 -0400
-Received: from galaxy.lunarpages.com ([64.235.234.165]:8926 "EHLO
-	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
-	id S263990AbTGMUHk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 16:07:40 -0400
-Message-ID: <3F11C278.3040407@genebrew.com>
-Date: Sun, 13 Jul 2003 16:35:04 -0400
-From: Rahul Karnik <rahul@genebrew.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030706
-X-Accept-Language: en-us, en
+	Sun, 13 Jul 2003 15:36:11 -0400
+Received: from ip-86-245.evc.net ([212.95.86.245]:8832 "EHLO hal9003.1g6.biz")
+	by vger.kernel.org with ESMTP id S270365AbTGMTgK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 15:36:10 -0400
+From: Nicolas <linux@1g6.biz>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: memory shown with free
+Date: Sun, 13 Jul 2003 21:50:56 +0200
+User-Agent: KMail/1.5
+Organization: 1G6
 MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: agpgart, nforce2, radeon and agp fastwrite
-References: <3F102E8E.4030507@portrix.net> <20030712202622.GB7741@suse.de> <3F10793E.5080202@portrix.net> <20030712211721.GA10207@suse.de> <20030713133720.GE19132@mail.jlokier.co.uk>
-In-Reply-To: <20030713133720.GE19132@mail.jlokier.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - genebrew.com
+Content-Disposition: inline
+Message-Id: <200307132150.56661.linux@1g6.biz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
-> Dave Jones wrote:
-> 
->>Girr. I'm not entirely happy about exporting that if I can help it.
->>It's annoying that the nvidia_insert_memory() routine is 99% the same
->>as the generic routine. If it could use that, we'd not have to worry
->>about the export.
-> 
-> 
-> Is it time to teach the module loader how to patch certain binaries? :)
 
-No, this is the NForce AGP module Dave is talking about that NVidia 
-contributed.
+Hello,
 
-- Rahul
---
-Rahul Karnik
-rahul@genebrew.com
+Can somebody explain me this numbers ?
+The cache number seems false isn't it ?
+
+Nicolas.
+
+(kernel 2.5.75)
+[root@hal9003 npa]# free
+             total       used       free     shared    buffers     cached
+Mem:       1034372     336472     697900          0      27272      98820
+-/+ buffers/cache:     210380     823992
+Swap:            0          0          0
+[root@hal9003 npa]# find / > /dev/null
+[root@hal9003 npa]# free
+             total       used       free     shared    buffers     cached
+Mem:       1034372     909520     124852          0      84464      98820
+-/+ buffers/cache:     726236     308136
+Swap:            0          0          0
 

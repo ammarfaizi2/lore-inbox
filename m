@@ -1,82 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269802AbUJGNAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269654AbUJGNFE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269802AbUJGNAr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 09:00:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269815AbUJGM43
+	id S269654AbUJGNFE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 09:05:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbUJGNCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 08:56:29 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:41373 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S269714AbUJGMxe
+	Thu, 7 Oct 2004 09:02:33 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:65414 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S269822AbUJGM6T
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 08:53:34 -0400
-Date: Thu, 7 Oct 2004 13:53:14 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@hibernia.jakma.org
-To: Martijn Sipkema <martijn@entmoot.nl>
-cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       "Richard B. Johnson" <root@chaos.analogic.com>,
-       "David S. Miller" <davem@davemloft.net>, joris@eljakim.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-In-Reply-To: <001601c4ac72$19932760$161b14ac@boromir>
-Message-ID: <Pine.LNX.4.61.0410071346040.304@hibernia.jakma.org>
-References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl>
- <20041006080104.76f862e6.davem@davemloft.net> <Pine.LNX.4.61.0410061110260.6661@chaos.analogic.com>
- <20041006082145.7b765385.davem@davemloft.net> <Pine.LNX.4.61.0410061124110.31091@chaos.analogic.com>
- <Pine.LNX.4.61.0410070212340.5739@hibernia.jakma.org> <4164EBF1.3000802@nortelnetworks.com>
- <Pine.LNX.4.61.0410071244150.304@hibernia.jakma.org> <001601c4ac72$19932760$161b14ac@boromir>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+	Thu, 7 Oct 2004 08:58:19 -0400
+Date: Thu, 7 Oct 2004 08:57:48 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Probable module bug in linux-2.6.5-1.358
+In-Reply-To: <Pine.LNX.4.61.0410070830140.10213@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.61.0410070850480.10751@chaos.analogic.com>
+References: <Pine.LNX.4.61.0410061807030.4586@chaos.analogic.com>
+ <1097143144.2789.19.camel@laptop.fenrus.com> <Pine.LNX.4.61.0410070753060.9988@chaos.analogic.com>
+ <20041007121741.GB23612@devserv.devel.redhat.com>
+ <Pine.LNX.4.61.0410070823300.10118@chaos.analogic.com>
+ <20041007122815.GC23612@devserv.devel.redhat.com>
+ <Pine.LNX.4.61.0410070830140.10213@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Oct 2004, Martijn Sipkema wrote:
+On Thu, 7 Oct 2004, Richard B. Johnson wrote:
 
-> That there is time between the select() and recvmsg() calls is not 
-> the issue; the data is only checked in the call to recvmsg(). 
-> Actually the longer the time between select() and recvmsg(), the 
-> larger the probability that valid data has been received.
+> On Thu, 7 Oct 2004, Arjan van de Ven wrote:
+>
+>> On Thu, Oct 07, 2004 at 08:26:22AM -0400, Richard B. Johnson wrote:
+>>> On Thu, 7 Oct 2004, Arjan van de Ven wrote:
+>>> 
+>>>> On Thu, Oct 07, 2004 at 08:01:47AM -0400, Richard B. Johnson wrote:
+>>>>> Also, when this driver is running, transferring large volumes
+>>>>> of data, the kernel decides that there have been too many interrupts, 
+>>>>> and
+>>>>> does:
+>>>>> 
+>>>>> Message from syslogd@chaos at Wed Oct  6 21:22:57 2004 ...
+>>>>> chaos kernel: Disabling IRQ #18
+>>>>> 
+>>>>> This, in spite of the fact that interrupts occur only when
+>>>>> DMA completion happens and new data are available, i.e.,
+>>>>> one interrupt every 16 megabytes of data transferred.
+>>>>> 
+>>>>> Who decided that it had a right to disable my interrupt????
+>>>> 
+>>>> the kernel did because you don't return the proper value for "I handled 
+>>>> the
+>>>> IRQ" from your ISR.
+>>> 
+>>> Do you know what that value is? I can't find it. I just returned 0
+>>> and it worked for awhile.
+>> 
+>> IRQ_HANDLED is you handled the irq, IRQ_NONE if you didn't
+>>
 
-But it is the issue.
 
-Much can change between the select() and recvmsg - things outside of 
-kernel control too, and it's long been known.
+Okay. I'll fix that.
 
-> But the standard clearly says otherwise.
 
-Standards can have bugs too.
+>> 
+>>> The kernel calls cleanup_module() and the printk() shows that it
+>>> was truly called.
+>> 
+>> I fail to find where you declare module_exit() in your sources
+>> 
+>
+> Well I don't. Is it now required?  What does it do? If I put
+> in module_exit() and have it execute cleanup_module(), it
 
-It's not healthy to take a corner-case situation from the standard on 
-select() and apply it globally to all IO. (not in my mind anyway, 
-whatever the standard says).
+I found it..........
 
-> Perhaps select()'s perception of state should be made to take possible
-> corruption into account.
+module_exit() is just a wrapper around cleanup_module().
 
-You'll /still/ run into problems, on other platforms too. Set socket 
-to O_NONBLOCK and deal with it ;)
+cleanup_module() gets called. I could rename cleanup_module to
+foo() and then  use module_exit(foo);, which seems obtuse
+since this has to compile on 2.4.x also, clearly not the
+right thing to do.
 
-> Why would the POSIX standard say recvmsg() should not block if
-> it did not intend it to be used in that way?
+`dmesg` clearly shown that the exit routine was called....
 
-POSIX_ME_HARDER? ;)
+PCI: Enabling device 0000:02:04.0 (0106 -> 0107)
+Analogic Corp Datalink Driver : Installed 12d6:8004 IRQ18 slot:0204 DMA:1f401000
+Analogic Corp Datalink Driver : Initialization complete
+Analogic Corp Datalink Driver : Module removed
 
-> Wrong. IMHO it is not exactly a good thing to not be compliant on 
-> such basic functionality.
 
-Like I said, to my mind, any sane app should try avoiding assumption 
-that kernel state remains same between select() and read/write - and 
-O_NONBLOCK exists to deal nicely with the situation.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.5-1.358-noreg on an i686 machine (5537.79 BogoMips).
+             Note 96.31% of all statistics are fiction.
 
-You really shouldnt assume select state is guaranteed not to change 
-by time you get round to doing IO. It's not safe, and not just on 
-Linux - whatever POSIX says.
-
-> --ms
-
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-"An ounce of prevention is worth a pound of purge."

@@ -1,31 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265978AbUJLPan@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265943AbUJLPeC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265978AbUJLPan (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 11:30:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265971AbUJLPam
+	id S265943AbUJLPeC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 11:34:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265800AbUJLPeB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 11:30:42 -0400
-Received: from gate.corvil.net ([213.94.219.177]:13070 "EHLO corvil.com")
-	by vger.kernel.org with ESMTP id S265978AbUJLPab (ORCPT
+	Tue, 12 Oct 2004 11:34:01 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:60587 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265943AbUJLPdN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 11:30:31 -0400
-Message-ID: <416BF891.9080806@draigBrady.com>
-Date: Tue, 12 Oct 2004 16:30:25 +0100
-From: P@draigBrady.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
-X-Accept-Language: en-us, en
+	Tue, 12 Oct 2004 11:33:13 -0400
+Date: Tue, 12 Oct 2004 11:32:57 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrea Arcangeli <andrea@cpushare.com>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: secure computing for 2.6.7
+In-Reply-To: <20041012142417.GD17372@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0410121130400.13693-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: No mtime updates for loopback mounted filesystems
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've noticed recently that files mounted loopback
-do not have their mtimes updated if any writes are
-done to the filesystem. In addition, files within
-the loopback mounted filesystem do not have their
-mtime updated if changed.
+On Tue, 12 Oct 2004, Andrea Arcangeli wrote:
 
-Pádraig.
+> here a new patch, possibly candidate for merging in 2.6.10pre?
+> 
+> 	http://www.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.9-rc4/seccomp
+
+How do you start a seccomp process in a secure way ?
+
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

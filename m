@@ -1,95 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261534AbRERUUp>; Fri, 18 May 2001 16:20:45 -0400
+	id <S261548AbRERUVP>; Fri, 18 May 2001 16:21:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261543AbRERUUf>; Fri, 18 May 2001 16:20:35 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:3474 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S261534AbRERUUU>;
-	Fri, 18 May 2001 16:20:20 -0400
-Message-ID: <3B0583FF.D25F4379@mandrakesoft.com>
-Date: Fri, 18 May 2001 16:20:15 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre3 i686)
-X-Accept-Language: en
+	id <S261547AbRERUVF>; Fri, 18 May 2001 16:21:05 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:7384 "EHLO e21.nc.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261543AbRERUUx>;
+	Fri, 18 May 2001 16:20:53 -0400
+Subject: Announcing Journaled File System (JFS)  release 0.3.2 available
+To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF9D3FDE7F.051A36C9-ON85256A50.006F769B@raleigh.ibm.com>
+From: "Steve Best" <sbest@us.ibm.com>
+Date: Fri, 18 May 2001 15:20:44 -0500
+X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 05/18/2001 04:20:46 PM
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: viro@math.psu.edu, rddunlap@att.net, jack@suse.cz,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: PATCH 2.4.5.3 (try 2): quota initcall
-In-Reply-To: <3B058003.81A01B77@mandrakesoft.com>
-Content-Type: multipart/mixed;
- boundary="------------CCC3A2DEAFE25A301B9883A1"
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------CCC3A2DEAFE25A301B9883A1
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Release 0.3.2 of JFS was made available today.
 
-Doh!  I should really turn on that quota compile options... <brown ppr
-bag>
+Drop 32 on May 18, 2001 (jfs-0.3.2-patch.tar.gz) includes fixes to the
+file system and utilities.
 
-Much better patch attached.
+Function and Fixes in release 0.3.2
 
--- 
-Jeff Garzik      | "Do you have to make light of everything?!"
-Building 1024    | "I'm extremely serious about nailing your
-MandrakeSoft     |  step-daughter, but other than that, yes."
---------------CCC3A2DEAFE25A301B9883A1
-Content-Type: text/plain; charset=us-ascii;
- name="quota-initcall-2.4.5.3.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="quota-initcall-2.4.5.3.patch"
+- Remove the warning message from fsck when partition is mounted read-only
+- Fix for assert(mp->count) jfs_metapage.c 675! report as hardlink problem
+  in drop 31 (dtDeleteUp was discarding the wrong metapage_t.)
+- Fix seg fault problem while creating hard links.
+- Fixed dbench hang, do to transaction locks not being freed.
+- Added support to correctly handle read-only and remounting the file
+system.
 
-Index: linux_2_4/fs/dquot.c
-diff -u linux_2_4/fs/dquot.c:1.1.1.50 linux_2_4/fs/dquot.c:1.1.1.50.4.2
---- linux_2_4/fs/dquot.c:1.1.1.50	Tue May 15 04:36:48 2001
-+++ linux_2_4/fs/dquot.c	Fri May 18 13:18:36 2001
-@@ -1343,13 +1343,12 @@
- }
- 
- 
--void __init dquot_init_hash(void)
-+static int __init dquot_init(void)
- {
- 	printk(KERN_NOTICE "VFS: Diskquotas version %s initialized\n", __DQUOT_VERSION__);
--
--	memset(dquot_hash, 0, sizeof(dquot_hash));
--	memset((caddr_t)&dqstats, 0, sizeof(dqstats));
-+	return 0;
- }
-+__initcall(dquot_init);
- 
- /*
-  * Definitions of diskquota operations.
-Index: linux_2_4/init/main.c
-diff -u linux_2_4/init/main.c:1.1.1.62 linux_2_4/init/main.c:1.1.1.62.4.2
---- linux_2_4/init/main.c:1.1.1.62	Tue May 15 04:37:56 2001
-+++ linux_2_4/init/main.c	Fri May 18 13:18:36 2001
-@@ -108,9 +108,6 @@
- #if defined(CONFIG_SYSVIPC)
- extern void ipc_init(void);
- #endif
--#if defined(CONFIG_QUOTA)
--extern void dquot_init_hash(void);
--#endif
- 
- /*
-  * Boot command-line arguments
-@@ -579,9 +576,6 @@
- #endif
- #if defined(CONFIG_SYSVIPC)
- 	ipc_init();
--#endif
--#if defined(CONFIG_QUOTA)
--	dquot_init_hash();
- #endif
- 	check_bugs();
- 	printk("POSIX conformance testing by UNIFIX\n");
+For more details about the problems fixed, please see the README.
 
---------------CCC3A2DEAFE25A301B9883A1--
+Steve
+JFS for Linux http://oss.software.ibm.com/developerworks/opensource/jfs
 

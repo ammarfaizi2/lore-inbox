@@ -1,42 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262478AbUBXVjM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 16:39:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262481AbUBXVjM
+	id S262476AbUBXVlL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 16:41:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262480AbUBXVlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 16:39:12 -0500
-Received: from fed1mtao06.cox.net ([68.6.19.125]:32467 "EHLO
-	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S262478AbUBXVjJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 16:39:09 -0500
-Date: Tue, 24 Feb 2004 14:39:08 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Split kgdb into "lite" and "normal" parts
-Message-ID: <20040224213908.GD1052@smtp.west.cox.net>
-References: <20040218225010.GH321@elf.ucw.cz> <200402191322.52499.amitkale@emsyssoft.com>
+	Tue, 24 Feb 2004 16:41:11 -0500
+Received: from guug.org ([168.234.203.30]:34438 "EHLO guug.galileo.edu")
+	by vger.kernel.org with ESMTP id S262476AbUBXVlF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 16:41:05 -0500
+Date: Tue, 24 Feb 2004 15:41:06 -0600
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       James Simmons <jsimmons@infradead.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] fbdv/fbcon pending problems
+Message-ID: <20040224214106.GA17390@guug.org>
+References: <1077497593.5960.28.camel@gaston> <20040224023759.GA16499@guug.org> <Pine.GSO.4.58.0402240935090.3187@waterleaf.sonytel.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200402191322.52499.amitkale@emsyssoft.com>
+In-Reply-To: <Pine.GSO.4.58.0402240935090.3187@waterleaf.sonytel.be>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Otto Solares <solca@guug.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 19, 2004 at 01:22:52PM +0530, Amit S. Kale wrote:
-
-> Hi,
+On Tue, Feb 24, 2004 at 09:35:35AM +0100, Geert Uytterhoeven wrote:
+> On Mon, 23 Feb 2004, Otto Solares wrote:
+> > On Mon, Feb 23, 2004 at 11:53:14AM +1100, Benjamin Herrenschmidt wrote:
+> > - bus_id for each fbdev, so from userland became posible to identify
+> >   to which card we are controlling.  I know it should be exported via
+> >   sysfs but an ioctl should be really handy as when you program for
+> >   fbdev anyway you have to use ioctl's, just to get the bus_is will
+> >   be a pain use sysfs.
 > 
-> Tested (core-lite.patch + i386-lite.patch + 8250.patch) combination.
-> Looks good.
-> 
-> Let's first check this in and then do more cleanups.
-> Tom, does it sound ok?
+> But the goal is to replace these ioctl()s by sysfs, too, isn't it?
 
-This sounds fine to me.  Pavel, I'm guessing you did this with quilt,
-could you provide some pointers on how to replicate this in the future?
+Sure, hopefully fbdev drivers became more 'intelligent', with just a
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+echo "1024x768x16-75" > /sys/class/fbdev/0/geometry
+
+they will compute internally the timings or get it from EDID and
+glad the user with something correct for the hardware.
+
+cat /sys/class/fbdev/0/modes
+
+will give you the modes supported by the card.
+
+On the other side i see a lot of effort in the fbdev acceleration,
+it is nice but that effort should be better spent on fixing the layer,
+imo, the only user for acceleration is fbcon, any userland app that
+use fbdev disables that acceleration so it can map the vmem and ioregs,
+and do it's own voodoo if it wants acceleration.  That acceleration
+is not "exported" to user space.  I am working in a open source project
+that uses mesa-solo with fbdev and many limitations from the layer
+itself have been seen.
+
+By 'fixing the layer' i mean some simple things that could make fbdev
+a real graphics solution for linux in the long term:
+
+- fbdev_core (will handle the fbdev/sysfs registration, shared by all
+              drivers, most important is the modes handling interface).
+- fbdev_xxx  (driver for specific hw, it will only export the interesting
+              bits like vmem, ioregs, will handle mmap stuff and ioctl's,
+              video modes, no accel of any kind).
+- fbdev_xxx_accel (acceleration hooks if any for xxx driver, optional module)
+- fbdev_con  (handle console -- already modular in 2.6, will use accel hooks
+              if not NULL, optional).
+- fbdev_xxx_drm (will handle the DRM for xxx using hooks from fbdev, so we
+              could have just a single entity inside the kernel handling a
+              specific device, and not the current mess within fbdev and
+              drm, optional).
+
+We have now with 2.6 a good input and sound layers.  Just by fixing
+the graphics layer many interesting userland projects could be born.
+
+-otto
+

@@ -1,48 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275284AbTHMRmu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 13:42:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275285AbTHMRmu
+	id S275311AbTHMR55 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 13:57:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275303AbTHMR55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 13:42:50 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:1479 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S275284AbTHMRmt (ORCPT
+	Wed, 13 Aug 2003 13:57:57 -0400
+Received: from fw1.masirv.com ([65.205.206.2]:58218 "EHLO NEWMAN.masirv.com")
+	by vger.kernel.org with ESMTP id S275311AbTHMR5h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 13:42:49 -0400
-Date: Wed, 13 Aug 2003 10:36:44 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Greg KH <greg@kroah.com>
-Cc: jgarzik@pobox.com, rddunlap@osdl.org, davej@redhat.com, willy@debian.org,
-       linux-kernel@vger.kernel.org,
-       kernel-janitor-discuss@lists.sourceforge.net
-Subject: Re: C99 Initialisers
-Message-Id: <20030813103644.3bf9de67.davem@redhat.com>
-In-Reply-To: <20030813173150.GA3317@kroah.com>
-References: <20030812112729.GF3169@parcelfarce.linux.theplanet.co.uk>
-	<20030812180158.GA1416@kroah.com>
-	<3F397FFB.9090601@pobox.com>
-	<20030812171407.09f31455.rddunlap@osdl.org>
-	<3F3986ED.1050206@pobox.com>
-	<20030812173742.6e17f7d7.rddunlap@osdl.org>
-	<20030813004941.GD2184@redhat.com>
-	<32835.4.4.25.4.1060743746.squirrel@www.osdl.org>
-	<3F39AFDF.1020905@pobox.com>
-	<20030813031432.22b6a0d6.davem@redhat.com>
-	<20030813173150.GA3317@kroah.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Aug 2003 13:57:37 -0400
+Message-ID: <1060744140.15792.17.camel@huykhoi>
+From: Anthony Truong <Anthony.Truong@mascorp.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Albert Cahalan <albert@users.sourceforge.net>, andersen@codepoet.org,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       bernd@firmix.at, alan@lxorguk.ukuu.org.uk, schwab@suse.de,
+       ysato@users.sourceforge.jp, Valdis.Kletnieks@vt.edu,
+       william.gallafent@virgin.net
+Subject: Re: generic strncpy - off-by-one error
+Date: Tue, 12 Aug 2003 20:09:00 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Aug 2003 10:31:51 -0700
-Greg KH <greg@kroah.com> wrote:
+On Wed, 2003-08-13 at 13:18, Willy Tarreau wrote:
 
-> How about this patch?
-...
-> +#define PCI_DEVICE(vend,dev) \
-> +	.vendor = (vend), .device = (dev), \
-> +	.subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID
+On Tue, Aug 12, 2003 at 11:38:31PM -0400, Albert Cahalan wrote:
+> That's excellent. On ppc I count 12 instructions,
+> 4 of which would go away for typical usage if inlined.
+> Annoyingly, gcc doesn't get the same assembly from my
+> attempt at that general idea:
+> 
+> char * strncpy_5(char *dest, const char *src, size_t count){
+>   char *tmp = dest;
+>   while (count--){
+>     if(( *tmp++ = *src )) src++;
+>   }
+>   return dest;
+> }
+> 
+> I suppose that gcc could use a bug report.
 
-Looks fine to me.
+I often noticed that using '++' and '--' within or just before
+assignments
+and/or comparisons often break the code and make it suboptimal. C
+provides
+enough flexibility to code what you think nearly at the instruction
+level.
+Since 'while' loops often start with a jump to the end, you can
+sometimes help
+the compiler by enclosing them within an 'if' statement such as below.
+BTW, in
+your case, count ends with -1.
+
+I've absolutely not tried this one, but it could produce different code
+on your
+PPC, and can trivially be derived to cleaner constructs. I proceeded the
+same
+way when I wrote my own optimized strlcpy() implementation which is 45
+bytes
+long and copies 1 char per CPU cycle on i686.
+
+char *strncpy(char *dest, const char *src, size_t count)
+{
+   if (count) {
+      char *tmp = dest;
+      while (1) {
+         *tmp = *src;
+         if (*src) src++;
+         tmp++;
+         if (!count--) break;
+      }
+   }
+   return dest;
+}
+
+Cheers,
+Willy
+
+
+Hello,
+This reminds me of my days in school learning how to program in C/C++. 
+I first learnt that in
+  while (count-- && (*dest++ = *src++));
+  the first operand of && will be evaluated first, and then the second
+  iff the first is evaluated to TRUE.
+  count-- : count will be checked to see if it is not 0 first, and if it
+  is not, it will get decremented.  If it is, the while loop is ended.
+  Therefore, how could count go to -1?
+If there is a bug in the gcc, then should we fix it rather than messing 
+with our coding trying to please it?
+We don't have to do if (count) before the loop because a count of 0 is 
+already caught in while (count-- ......).
+
+Again, maybe what I learnt in school about C/C++ programming is all
+wrong.:-)
+
+:-)
+Anthony Dominic Truong.
+
+
+
+
+Disclaimer: The information contained in this transmission, including any
+attachments, may contain confidential information of Matsushita Avionics
+Systems Corporation.  This transmission is intended only for the use of the
+addressee(s) listed above.  Unauthorized review, dissemination or other use
+of the information contained in this transmission is strictly prohibited.
+If you have received this transmission in error or have reason to believe
+you are not authorized to receive it, please notify the sender by return
+email and promptly delete the transmission.
+
+

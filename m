@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129460AbQLXI7X>; Sun, 24 Dec 2000 03:59:23 -0500
+	id <S129431AbQLXJaK>; Sun, 24 Dec 2000 04:30:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129627AbQLXI7N>; Sun, 24 Dec 2000 03:59:13 -0500
-Received: from attila.bofh.it ([213.92.8.2]:49104 "HELO attila.bofh.it")
-	by vger.kernel.org with SMTP id <S129460AbQLXI64>;
-	Sun, 24 Dec 2000 03:58:56 -0500
-Date: Sun, 24 Dec 2000 09:28:35 +0100
-From: "Marco d'Itri" <md@Linux.IT>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com, viro@math.psu.edu
-Subject: innd mmap bug in 2.4.0-test12
-Message-ID: <20001224092835.B649@wonderland.linux.it>
-Mime-Version: 1.0
+	id <S129543AbQLXJaB>; Sun, 24 Dec 2000 04:30:01 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:7693 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S129431AbQLXJ3x>;
+	Sun, 24 Dec 2000 04:29:53 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200012240859.eBO8xNU506215@saturn.cs.uml.edu>
+Subject: Re: bigphysarea support in 2.2.19 and 2.4.0 kernels
+To: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sun, 24 Dec 2000 03:59:23 -0500 (EST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m1g0jfr0ms.fsf@frodo.biederman.org> from "Eric W. Biederman" at Dec 23, 2000 01:40:43 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can confirm the bug which loses updates to the inn active file when
-it's unmapped is present again in 2.4.0-test12.
+Eric W. Biederman writes:
 
-I put "cp active active.ok" in the rc file before shutting down the
-daemon and at the next boot the files are different, every time.
+> If you are doing a real time task you don't want to very close
+> to your performance envelope.  If you are hitting the performance
+> envelope any small hiccup will cause you to miss your deadline,
+> and close to your performance envelope hiccups are virtually certain.
+>
+> Pushing the machine just 5% slower should get everything going
+> with multiple pages, and you wouldn't be pushing the performance
+> envelope so your machine can compensate for the occasional hiccup.
+>
+>> The data stream is fat and relentless.
+>
+> So you add another node if your current nodes can't handle the load
+> without using giant physical areas of memory.  Attempt to redesign
+> the operating system.  Much more cost effective.
 
-Alexander Viro posted this test case:
+Nodes can be wicked expensive. :-)
 
-#include <unistd.h>
-main(argc,argv)
-int argc;
-char **argv;
-{
-        int fd;
-        char c=0;
-        truncate(argv[1], 10);
-        fd = open(argv[1], 1);
-        lseek(fd, 16384, 0);
-        write(fd, &c, 1);
-        close(fd);
-}
+Pushing the performance envelope is important when you want to
+sell lots of systems. Radar is a similar computational task,
+with the added need to reduce space and weight requirements.
+It's not OK to be 5% more expensive, bulky, and heavy.
 
-but I tried it and it gives the correct result (a 16384 bytes long file
-with only the first few bytes non-zeroed).
+Also the Airplane Principal: more nodes means more big failures.
 
-Linux wonderland 2.4.0-test12 #15 Thu Dec 21 16:40:16 CET 2000 i586 unknown
-
--- 
-ciao,
-Marco
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,54 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262258AbTAYVfb>; Sat, 25 Jan 2003 16:35:31 -0500
+	id <S262384AbTAYVte>; Sat, 25 Jan 2003 16:49:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262289AbTAYVfb>; Sat, 25 Jan 2003 16:35:31 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:13064
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262258AbTAYVfa>; Sat, 25 Jan 2003 16:35:30 -0500
-Date: Sat, 25 Jan 2003 16:44:04 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Shawn Starr <spstarr@sh0n.net>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: [PROBLEM[2.5.59][-mm4] - DMA Disabled & UDMA wrong mode
-In-Reply-To: <200301251328.24971.spstarr@sh0n.net>
-Message-ID: <Pine.LNX.4.44.0301251623380.10776-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262392AbTAYVte>; Sat, 25 Jan 2003 16:49:34 -0500
+Received: from smtp06.iddeo.es ([62.81.186.16]:9702 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id <S262384AbTAYVtc>;
+	Sat, 25 Jan 2003 16:49:32 -0500
+Date: Sat, 25 Jan 2003 22:58:44 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Janet Morgan <janetmor@us.ibm.com>
+Subject: Re: [patch] epoll for 2.4.20 updated ...
+Message-ID: <20030125215844.GA3750@werewolf.able.es>
+References: <Pine.LNX.4.50.0301242004010.2858-100000@blue1.dev.mcafeelabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.50.0301242004010.2858-100000@blue1.dev.mcafeelabs.com>; from davidel@xmailserver.org on Sat, Jan 25, 2003 at 05:06:30 +0100
+X-Mailer: Balsa 2.0.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Jan 2003, Shawn Starr wrote:
 
-> With 2.5.59-mm4 I've seen DMA being disabled. I don't know if this is occuring 
-> in vanilla 2.5.59.
-> Also, the UDMA33 is wrong, this A7M266-D supports UDMA100 and the drive itself 
-> is a UDMA(133) but since ive not heard of any UDMA133 controllers it's using 
-> 100.
+On 2003.01.25 Davide Libenzi wrote:
+> 
+> I updated the 2.4.20 patch with the changes posted today and I fixed a
+> little error about the wait queue function prototype :
+> 
+> http://www.xmailserver.org/linux-patches/sys_epoll-2.4.20-0.61.diff
+> 
 
-You can't have DMA disabled and still be doing UDMA33
+Mixing epoll ontop of current aa, I found this:
 
-> Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> AMD7441: IDE controller at PCI slot 00:07.1
-> AMD7441: chipset revision 4
-> AMD7441: not 100%% native mode: will probe irqs later
-> ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> AMD_IDE: Advanced Micro Devic AMD-768 [Opus] IDE (rev04) UDMA100 controller on 
-> pci00:07.1
->      ide0: BM-DMA at 0xb800-0xb807, BIOS settings: hda:DMA, hdb:pio
->      ide1: BM-DMA at 0xb808-0xb80f, BIOS settings: hdc:DMA, hdd:DMA
-> hda: MAXTOR 6L060J3, ATA DISK drive
-> hda: DMA disabled
+#define add_wait_queue_cond(q, wait, cond) \
+    ({                          \
+        unsigned long flags;                \
+        int _raced = 0;                 \
+        wq_write_lock_irqsave(&(q)->lock, flags);   \
+        (wait)->flags = 0;              \
+        __add_wait_queue((q), (wait));          \
+        mb();                       \
+        if (!(cond)) {                  \
+            _raced = 1;             \
+            __remove_wait_queue((q), (wait));   \
+        }                       \
+        wq_write_unlock_irqrestore(&(q)->lock, flags);  \
+        _raced;                     \
+    })
 
-That driver is just a bit noisy i believe, kind of like the VIA one. 
-Have you tried latest 2.4-ac's IDE code? It looks like a fair chunk of 
-amd74xx came into 2.5 from somewhere, possibly -ac
+this is the -aa version. Version from epoll uses just a rmb() barrier
+(afaik, just a _read_ barrier). In -aa they are just the same, but I also
+use a patch that does this:
 
-	Zwane
+
++#ifdef CONFIG_X86_MFENCE
++#define mb()   __asm__ __volatile__ ("mfence": : :"memory")
++#else
+ #define mb()   __asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
++#endif
++
++#ifdef CONFIG_X86_LFENCE
++#define rmb()  __asm__ __volatile__ ("lfence": : :"memory")
++#else
+ #define rmb()  mb()
++#endif
+
+so for modern processors they are different, and can affect performance and
+correctness. So  which one it the correct one for the above code snipet ?
+
+TIA
+
 -- 
-function.linuxpower.ca
-
-
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.21-pre3-jam3 (gcc 3.2.1 (Mandrake Linux 9.1 3.2.1-3mdk))

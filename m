@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268084AbTBMQvY>; Thu, 13 Feb 2003 11:51:24 -0500
+	id <S267534AbTBMQ4i>; Thu, 13 Feb 2003 11:56:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268086AbTBMQvY>; Thu, 13 Feb 2003 11:51:24 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:52657 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S268084AbTBMQvX>; Thu, 13 Feb 2003 11:51:23 -0500
-Subject: Re: 2.5.60 cheerleading...
-From: Paul Larson <plars@linuxtestproject.org>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Edesio Costa e Silva <edesio@ieee.org>,
+	id <S268086AbTBMQ4i>; Thu, 13 Feb 2003 11:56:38 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:58823 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S267534AbTBMQ4h>;
+	Thu, 13 Feb 2003 11:56:37 -0500
+Date: Thu, 13 Feb 2003 12:06:23 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Paul Larson <plars@linuxtestproject.org>,
+       Edesio Costa e Silva <edesio@ieee.org>,
        lkml <linux-kernel@vger.kernel.org>,
        Linus Torvalds <torvalds@transmeta.com>,
        Edesio Costa e Silva <edesio@task.com.br>
-In-Reply-To: <20030213160300.GB2070@codemonkey.org.uk>
-References: <3E4A6DBD.8050004@pobox.com> <1045075415.22295.46.camel@plars>
-	<20030212173300.A31055@master.softaplic.com.br>
-	<1045150153.28493.10.camel@plars>  <20030213160300.GB2070@codemonkey.org.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-9dWlZjR/4Cr5ko6Mj1w5"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 13 Feb 2003 10:55:34 -0600
-Message-Id: <1045155336.28494.14.camel@plars>
+Subject: Re: 2.5.60 cheerleading...
+Message-ID: <20030213170623.GA26822@gtf.org>
+References: <3E4A6DBD.8050004@pobox.com> <1045075415.22295.46.camel@plars> <20030212173300.A31055@master.softaplic.com.br> <1045150153.28493.10.camel@plars> <20030213160300.GB2070@codemonkey.org.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030213160300.GB2070@codemonkey.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-9dWlZjR/4Cr5ko6Mj1w5
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, 2003-02-13 at 10:03, Dave Jones wrote:
+On Thu, Feb 13, 2003 at 04:03:00PM +0000, Dave Jones wrote:
+> On Thu, Feb 13, 2003 at 09:29:12AM -0600, Paul Larson wrote:
+>  > It would be nice if that were true, but back here in reality things are
+>  > rarely if ever even stable enough for testing if they merely build and
+>  > boot.
+>  > 
+>  > If Linus really is building and booting every kernel prior to release,
+>  > it would be quick and simple to add a fast subset of LTP to the mix and
+>  > do a quick regression run.  It's convenient, fast and could save a lot
+>  > of headaches for a lot of people later on.
+> 
 > Nothing stops people from LTPtesting the -bk nightlies.
 > Sure, they won't catch the last-minute-torvalds-breaks-the-compile
 > type bugs, but for the most part it should be useful enough info.
-Already been doing that for a long time now.  How about a quick note out
-to lkml that says "The current bk is what I'm going to release at <NN
-Time> today unless someone gives me a good reason not to."?
 
--Paul Larson
+Agreed... at least the past few releases, the just-after-the-release BK
+snapshot often compiles and boots more reliably than the release <g>
 
---=-9dWlZjR/4Cr5ko6Mj1w5
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Current 2.5.60-BK is looking _really_ nice, LTP-wise.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+	Jeff
 
-iEYEABECAAYFAj5LzgYACgkQbkpggQiFDqe14gCgh0mHq92uhZwsKRlPnWMRIBhG
-7PwAmwRjJGiUjQT2H0GzyAYmDXWlrMew
-=a+ua
------END PGP SIGNATURE-----
 
---=-9dWlZjR/4Cr5ko6Mj1w5--
 

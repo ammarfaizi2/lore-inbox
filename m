@@ -1,81 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbTDUSup (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 14:50:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbTDUSt5
+	id S261968AbTDUSwU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 14:52:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbTDUSwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 14:49:57 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:26271 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261896AbTDUSs6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 14:48:58 -0400
-Date: Mon, 21 Apr 2003 12:01:11 -0700
-From: Dave Olien <dmo@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>, marcelo@conectiva.com.br,
-       alan@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] DAC960 open with O_NONBLOCK
-Message-ID: <20030421190111.GA27126@osdl.org>
-References: <20030421172402.GA26863@osdl.org> <20030421183752.A8782@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030421183752.A8782@infradead.org>
-User-Agent: Mutt/1.4i
+	Mon, 21 Apr 2003 14:52:20 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19729 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S261968AbTDUSvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 14:51:41 -0400
+Date: Mon, 21 Apr 2003 12:04:00 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Roman Zippel <zippel@linux-m68k.org>, "David S. Miller" <davem@redhat.com>,
+       <Andries.Brouwer@cwi.nl>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] new system call mknod64
+In-Reply-To: <20030421194749.A10963@infradead.org>
+Message-ID: <Pine.LNX.4.44.0304211153270.9109-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 21, 2003 at 06:37:52PM +0100, Christoph Hellwig wrote:
-> 
-> I just went over the same code in 2.5 - the reference counts are
-> entirely superflous, you can just nuke them.
 
-Yup, that was the plan.
+On Mon, 21 Apr 2003, Christoph Hellwig wrote:
+>
+> Why do we need to do a mapping?  Old applications just won't see the
+> high bits (they're mapped to whatever overflow value) - values that
+> fit into the old 16bit range should never be remapped.
 
-> 
-> > I don't like this "special file descriptor" method.  I would have much
-> > rather created an entry in /proc or something to support these pass through
-> > commands.  But I imagine there are applications out there that expect
-> > these special file descriptors.  On the other hand, this HAS been
-> > broken throught the life on linux 2.4.
-> 
-> What applications?
+Ehh.. Old and new drivers alike will use the MAJOR() macro, and that macro
+had better work with old and new kernels. Agreed? (And if you don't agree,
+don't even bother to answer, I'm not really interested in even discussing
+something so fundamental).
 
-John Kamp has run across a libhd applcation from Suse that hit this bug.
-It's some kind of hardware detection application.  It opens devices with
-O_NONBLOCK.  But, it doesn't in fact use the DAC960 pass-through commands.
+And regardless of whether a person uses an old or a new library, they had
+better see the same MAJOR() and MINOR() values for a legacy device, like
+/dev/hda1. In other words, the library version of MAJOR(),MINOR() _has_ to
+return the value 3,1, or it can break perfectly valid programs.
 
-The Mylex web page has a RAID management application for DAC960 on Linux that
-is available only in BINARY form.  Unfortunately, it requires
-a Windows front-end to provide a GUI.  So, I haven't actually experimented
-with it. If any application uses the pass-through commands, this would likely
-be it.  But since no one has complained about this being broken, it may
-indicate no one is using this application.
+Again, if you don't agree, don't even bother sending me email any more
+about this issue. This is not negotiable. We _will_ have backwards and
+forwards compatibility, and that's final.
 
-Or, maybe the application is just not being used in a way that triggers
-this bug.
+This means that MAJOR() has to look at bits 8..15 if the value is small. 
+No ifs, buts and maybes about it.
 
-I'm reluctant to just eliminate the behavior because of that.
+HOWEVER, clearly MAJOR() has to look at other bits too, otherwise it 
+wouldn't make any sense to make a bigger dev_t in the first place. The 
+current MAJOR() is the logical extension.
 
-> 
-> > I'll be submitting a similar patch to linux 2.5 shortly.
-> 
-> Don't even bother.  Linux 2.5 is the place to fix this issue
-> correctly.
+But that _will_ force aliasing, unless you start doing some really funky 
+things (make the dev_t look more like a UTF-8 unicode-like extension, 
+which is obviously possible). In other words, there will be OTHER values 
+for "dev_t" that will _also_ look like the tuple <3,1>.
 
-It would be nice to just eliminate the O_NONBLOCK sillines from the
-open(), ioctl(), and release() methods.
+And my requirements are that
 
-The pass-through behavior could be made available either through
-a /proc or a sysfs file.
+ - other values of dev_t that also look like <3,1> had better act 
+   _identically_ to the legacy values. It _has_ to work this way, since 
+   otherwise you'd have a total maintenance nightmare, with "ls -l"  
+   showing two device files as being identical, yet having different
+   behaviour.
 
-The difficulty is that the Mylex application is available only in binary
-form.  Mylex is very secretive about its controller commands.
-It would be nice to be able to create a library that an application
-could call to perform high-level operations, and the library would
-construct the pass-through commands and pass them to the driver.
-Then, anyone could write their own GUI.
+ - Device drivers that ask for "major 3, minors 0-0xfff" _have_ to do the 
+   sane thing. In particular, in the presense of aliases (see above), it 
+   has to match _both_ aliases (see above).
 
-A related question, why does linux 2.5 continue to have a "struct file *"
-argument to driver release methods? As far as I can tell, that argument
-is always NULL?
+These are not things open for discussion. We know what the behaviour MUST 
+BE. Aliases _have_ to behave identically, anything else is _indisputably_ 
+crap.
+
+And I claim that this means that you have to have a mapping somewhere. 
+You're free to come up with new ideas, but I don't think it will work. 
+Keep the above rules in mind: backwards compatibility and aliases that 
+work identically. That's all it really boils down to.
+
+		Linus
 

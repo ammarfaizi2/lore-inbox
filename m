@@ -1,132 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbUKPVPe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbUKPVRh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261815AbUKPVPe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 16:15:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbUKPVPe
+	id S261814AbUKPVRh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 16:17:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbUKPVRg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 16:15:34 -0500
-Received: from alog0072.analogic.com ([208.224.220.87]:18048 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261815AbUKPVOv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 16:14:51 -0500
-Date: Tue, 16 Nov 2004 16:14:39 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Work around a lockup?
-In-Reply-To: <Pine.LNX.4.53.0411162145240.20538@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.61.0411161556420.1963@chaos.analogic.com>
-References: <Pine.LNX.4.53.0411162038490.8374@yvahk01.tjqt.qr>
- <Pine.LNX.4.61.0411161456030.983@chaos.analogic.com>
- <Pine.LNX.4.53.0411162111440.32739@yvahk01.tjqt.qr>
- <Pine.LNX.4.61.0411161524450.1562@chaos.analogic.com>
- <Pine.LNX.4.53.0411162145240.20538@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1678434306-1992984896-1100639679=:1963"
+	Tue, 16 Nov 2004 16:17:36 -0500
+Received: from rproxy.gmail.com ([64.233.170.192]:31076 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261814AbUKPVQL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 16:16:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=CseuZp3yUUf208yQpRmt3ki41i138rjTwB426yQKqxf2R4p5Vq3DtTbm+JNXJD80G5YgFsbu1Ai0No6prfXPrx+609cRv5kfIetXcbsz/5a3SJCaAcZm+ya5kxPlSP+57KSdLFcJcBMcV2ysduo7qg8NJkt+sfalkLq1QxWCdwM=
+Message-ID: <d120d5000411161309100a0d4e@mail.gmail.com>
+Date: Tue, 16 Nov 2004 16:09:31 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: ambx1@neo.rr.com, Dmitry Torokhov <dtor_core@ameritech.net>,
+       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+       Tejun Heo <tj@home-tj.org>, Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: [RFC] [PATCH] driver core: allow userspace to unbind drivers from devices.
+In-Reply-To: <20041116070413.GJ29574@neo.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20041109223729.GB7416@kroah.com>
+	 <200411092249.44561.dtor_core@ameritech.net>
+	 <20041116061315.GG29574@neo.rr.com>
+	 <200411160137.57402.dtor_core@ameritech.net>
+	 <20041116070413.GJ29574@neo.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Tue, 16 Nov 2004 02:04:13 -0500, Adam Belay <ambx1@neo.rr.com> wrote:
+> 
+> "*stop"
+> - safely stop the upper class layer
+> - free resources, and reset device specific data
+> 
+> And we're ready for the next step. (which may even include another *start)
+> 
+> This would easily allow for things like "reconnect", which would simply be a
+> "*stop" follow by a "*start".
+> 
+> Comments?
+> 
 
---1678434306-1992984896-1100639679=:1963
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Sounds interesting, although I do not think that freeing resources should be
+done at stop time, it is task for remove() IMHO. Do you have an idea how
+setting up process (between probe and start) will work? Will start called
+automatically or by request from userspace?
 
-On Tue, 16 Nov 2004, Jan Engelhardt wrote:
+> 
+> > My bind mode patch is somewhat independent of "drvctl" as it just adds a new
+> > attribute - "bind_mode" to all devices and drivers. It can be either "auto"
+> > or "manual" and device/drivers that are set as manual mode will be ignored
+> > by driver core and will only be bound when user explicitely asks to do that.
+> > This is useful when you want "penalize" one driver over another, like
+> > psmouse/serio_raw.
+> 
+> That's actually a really interesting idea.  In some cases we may not want the
+> kernel automatically binding drivers.  A question would be should this feature
+> be disabled on a per device basis or globally?  If it's globally then should
+> it occur after init is done.  And if that's the case, couldn't we free the
+> device ID tables and handle everything from userspace.  I'm sure there are
+> some problems with this but I figured I'd mention it as well.
+> 
 
->> If there is a continuous loop inside the kernel, something outside
->> the kernel (you) are never going to get control except from an
->> interrupt. The keyboard interrupt is going to let you see what
->> is happening, but you won't get any real control because the
->> kernel is not a task. If the kernel were a task (like VMS),
->
-> (Surprise.) Yes, I can still ping it and initiate a connection (i.e. the =
-queue
-> accepts it, because someone did listen() on the socket), but that's all. =
-I bet
-> that's due to the network card generating an interrupt.
->
->> you could (maybe) context-switch out of the kernel. But,
->> the kernel is some common code that executes on behalf of
->> all the tasks in the context of "current". If the current
->> task is stuck inside the kernel code, it has nowhere to go.
->
-> Wait, an interrupt can ... well interrupt a task, /even/ if it is in kern=
-el
-> mode, otherwise jiffies would not get incremented. So, would not it be
-> possible
-> to call some sort of schedule() when do_timer() (or similar) is run?
-> Like:
->  foreach p in runqueue {
->    if(p->location=3D=3DKERNELSPACE && exceeded-kernelspace-timeslic) {
->      switch_to(rq->next); // "never returns"
->    }
->  }
->
+Well, it sure needs to be available on per-device/per-driver basis as while
+I am generally enjoying automatic binding without userspace involvement.
+For example I sometimes want to be able to disable my touchpad and not
+let it spring back to life (normally serio core will try to find
+proper driver for
+an unbound port whenever there is a data coming from it).
 
-You can't schedule from an interrupt because, if (when) the
-scheduled task calls the kernel to do something, the return
-address, context info, etc., of the previously-interrupted
-task will be overwritten and lost forever.
+Whether it should also be controlled on per bus/per system basis is
+another question. I am not quite ready to drop all device tables and rely
+solely on userspace handling, altthough if all tables are marked as __init
+and and the end of the boot process we walk all buses and set their
+->match() methods to NULL we effectively switch to manual binding
+mode and can discard ID tables.
 
-Now, VMS (solved) this non-problem, at great performance penalty,
-by having a context-switch for everything. A hardware interrupt
-generated a context-switch so the hardware interrupt could
-certainly directly context-switch to a user-mode task. The
-kernel was, itself, a task (called SWAPPER). When you called
-the kernel (trapped to), a context-switch occurred and the
-kernel did whatever in whatever order it wanted because it
-didn't have to return to the caller right away (if ever).
-In fact, it didn't even have to return to whatever got
-interrupted. That task was just put into the queue of
-runnable tasks.
-
-The performance was nice for a single task that used, for
-instance, a DR11 parallel-port board. An interrupt occurred
-and the task got control right away after the data was
-DMAed. Add more tasks and the system bogged down.
-If you had 20 people compiling FORTRAN of a 11/780, it
-took MINUTES to log in.
-
-However, with such a system a high-priority task could
-take the CPU away from anything. That meant that SYSTEM
-could usually get control, assuming it was already logged
-in. A dead driver was just marked unusable and everything
-continued. Even dead RAM was able to marked unusable.
-
-Unix was invented to bypass all this stuff. The kernel
-is not a task. It is just some privileged shared code.
-Therefore, it can execute quickly. The trade-off is
-that you need to fix bad drivers.
-
-
->> When some user task executes outside the kernel, it doesn't
->> have the priviliges to loop forever. A context switch will
->> occur and the CPU will be shared with others. However, when
->> that user task calls some kernel function, perhaps from
->> a driver interface, that function has the priviliges to
->> keep the CPU forever. If the driver is improperly written,
->> it will.
->
-> So to summarize what I need: disprivilege a process to keep the CPU forev=
-er
-> when it is in kernel mode.
->
-
-You can't. Once the kernel code starts executing, it must behave.
-
->
-> Jan Engelhardt
-> --=20
-> Gesellschaft f=FF=FFr Wissenschaftliche Datenverarbeitung
-> Am Fassberg, 37077 G=FF=FFttingen, www.gwdg.de
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
---1678434306-1992984896-1100639679=:1963--
+-- 
+Dmitry

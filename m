@@ -1,115 +1,136 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289117AbSAGFA2>; Mon, 7 Jan 2002 00:00:28 -0500
+	id <S289118AbSAGFI6>; Mon, 7 Jan 2002 00:08:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289118AbSAGFAS>; Mon, 7 Jan 2002 00:00:18 -0500
-Received: from [202.135.142.194] ([202.135.142.194]:49167 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S289117AbSAGFAG>; Mon, 7 Jan 2002 00:00:06 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler 
-In-Reply-To: Your message of "Fri, 04 Jan 2002 03:19:10 BST."
-             <Pine.LNX.4.33.0201040050440.1363-100000@localhost.localdomain> 
-Date: Mon, 07 Jan 2002 13:58:02 +1100
-Message-Id: <E16NPz8-0001t1-00@wagner.rustcorp.com.au>
+	id <S289121AbSAGFIs>; Mon, 7 Jan 2002 00:08:48 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:14692 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S289118AbSAGFIg>; Mon, 7 Jan 2002 00:08:36 -0500
+Date: Mon, 7 Jan 2002 06:09:00 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Alexander Viro <viro@math.psu.edu>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] truncate fixes
+Message-ID: <20020107060900.A2481@athlon.random>
+In-Reply-To: <3C36DEA9.AEA2A402@zip.com.au>, <3C36DEA9.AEA2A402@zip.com.au>; <20020107043236.J1561@athlon.random> <3C391A96.63FDBA8@zip.com.au>, <3C391A96.63FDBA8@zip.com.au>; <20020107051259.L1561@athlon.random> <3C3923F5.485668AA@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3C3923F5.485668AA@zip.com.au>; from akpm@zip.com.au on Sun, Jan 06, 2002 at 08:28:37PM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.33.0201040050440.1363-100000@localhost.localdomain> you 
-write:
+On Sun, Jan 06, 2002 at 08:28:37PM -0800, Andrew Morton wrote:
+> Andrea Arcangeli wrote:
+> > 
+> > > (I think I'll add a buffer_mapped() test to this code as well.  It's
+> > > a bit redundant because the fs shouldn't go setting BH_New and not
+> > > BH_Mapped, but this code is _very_ rarely executed, and I haven't
+> > > tested all filesystems...)
+> > 
+> > correct, it shouldn't be necessary. I wouldn't add it. if a fs breaks the
+> > buffer_new semantics it's the one that should be fixed methinks.
 > 
-> now that new-year's parties are over things are getting boring again. For
-> those who want to see and perhaps even try something more complex, i'm
-> announcing this patch that is a pretty radical rewrite of the Linux
-> scheduler for 2.5.2-pre6:
+> You mean "don't be lazy.  Audit all the filesystems"?  Sigh.  OK.
 
-Hi Ingo...
+actually I meant more "don't care about filesystems that are broken
+anwways" :) but since we're changing the semantincs ourself below in the
+mainstream we'll have to check for the other internal usages of
+buffer_new, should be very easy though.
 
-	Reading through 2.5.2-C1, couple of comments/questions:
+>  
+> > >
+> > > @@ -1633,12 +1660,22 @@ static int __block_prepare_write(struct
+> > >          */
+> > >         while(wait_bh > wait) {
+> > >                 wait_on_buffer(*--wait_bh);
+> > > -               err = -EIO;
+> > >                 if (!buffer_uptodate(*wait_bh))
+> > > -                       goto out;
+> > > +                       return -EIO;
+> > >         }
+> > >         return 0;
+> > >  out:
+> > > +       bh = head;
+> > > +       block_start = 0;
+> > > +       do {
+> > > +               if (buffer_new(bh) && buffer_mapped(bh) && !buffer_uptodate(bh)) {
+> > > +                       memset(kaddr+block_start, 0, bh->b_size);
+> > > +                       set_bit(BH_Uptodate, &bh->b_state);
+> > > +                       mark_buffer_dirty(bh);
+> > > +               }
+> > > +               block_start += bh->b_size;
+> > > +               bh = bh->b_this_page;
+> > > +       } while (bh != head);
+> > 
+> > I found another problem,  we really need to keep track of which bh are
+> > been created by us during the failing prepare_write (buffer_new right
+> > now, not a long time ago), or we risk to corrupt data with a write
+> > passing over many bh, where the first bh of the page contained vaild
+> > data since a long time ago.  To do this: 1) we either keep track of it
+> > on the kernel stack with some local variable or 2) we change
+> > the buffer_new semantics so that they indicate an "instant buffer_new"
+> > to clear just after checking it
+> 
+> Fair enough.  How does this (untested) approach look?
+> 
+> 
+> @@ -1600,6 +1627,7 @@ static int __block_prepare_write(struct 
+>                 if (block_start >= to)
+>                         break;
+>                 if (!buffer_mapped(bh)) {
+> +                       clear_bit(BH_New, &bh->b_state);
+>                         err = get_block(inode, block, bh, 1);
+>                         if (err)
+>                                 goto out;
+> @@ -1633,12 +1661,30 @@ static int __block_prepare_write(struct 
+>          */
+>         while(wait_bh > wait) {
+>                 wait_on_buffer(*--wait_bh);
+> -               err = -EIO;
+>                 if (!buffer_uptodate(*wait_bh))
+> -                       goto out;
+> +                       return -EIO;
+>         }
+>         return 0;
+>  out:
+> +       /*
+> +        * Zero out any newly allocated blocks to avoid exposing stale
+> +        * data.  If BH_New is set, we know that the block was newly
+> +        * allocated in the above loop.
+> +        */
+> +       bh = head;
+> +       block_start = 0;
+> +       do {
+> +               if (buffer_new(bh)) {
+> +                       if (buffer_uptodate(bh))
+> +                               printk(KERN_ERR __FUNCTION__
+> +                                       ": zeroing uptodate buffer!\n");
+> +                       memset(kaddr+block_start, 0, bh->b_size);
+> +                       set_bit(BH_Uptodate, &bh->b_state);
+> +                       mark_buffer_dirty(bh);
+> +               }
+> +               block_start += bh->b_size;
+> +               bh = bh->b_this_page;
+> +       } while (bh != head);
+>         return err;
 
-sched.c line 402:
-	/*
-	 * Current runqueue is empty, try to find work on
-	 * other runqueues.
-	 *
-	 * We call this with the current runqueue locked,
-	 * irqs disabled.
-	 */
-	static void load_balance(runqueue_t *this_rq)
+this is 2) and it looks fine, but we need to update write_full_page too
+to clear the bit (that's pagecache). Anybody else checking for
+buffer_new on visible pagecache bhs should be updated as well.
 
-This first comment doesn't seem to be true: it also seems to be called
-from idle_tick and expire task.  Perhaps it'd be nicer too, to split
-load_balance into "if (is_unbalanced(cpu())) pull_task(cpu())".  (I
-like "pull_" and "push_" nomenclature for the scheduler).
+And also generic_direct_IO needs somehow to write something if get_block
+fails during a write. But I guess there it is simpler to let brw_kiovec
+to go ahead before the get_block failure, otherwise we've nothing to
+write (patching the iobuf->length for the duration of the brw_kiovec
+should be enough, so we do a short write and we notify about the error
+only if we couldn't write anything, of course it would be better to
+restore the length later even if probably not needed). This will also
+allow to use all the blocks of the fs and it's what the userspace expects.
+For the o_direct writes in my tree the ->truncate is just in place
+(truncate_inode_pages isn't needed there).
 
-sched.c load_balance() line 435:
-
-		if ((load > max_load) && (load < prev_max_load) &&
-						(rq_tmp != this_rq)) {
-
-Why are you ignoring a CPU with more than the previous maximum load
-(prev_max_load is incremented earlier)?
-
-sched.c expire_task line 552:
-
-	if (p->array != rq->active) {
-		p->need_resched = 1;
-		return;
-	}
-
-I'm not clear how this can happen??
-
-Finally, I gather you want to change smp_processor_id() to cpu()?
-That's fine (smp_num_cpus => num_cpus() too please), but it'd be nice
-to have that as a separate patch, rather than getting stuck with BOTH
-cpu() and smp_processor_id().
-
-Patch below (untested) corrects SMP_CACHE_BYTES alignment, minor
-comment, and rebalance tick for HZ < 100 (ie. User Mode Linux).
-
-Rusty.
-PS. Awesome work.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
-
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal working-2.5.2-pre9-mingosched/kernel/sched.c working-2.5.2-pre9-mingoschedfix/kernel/sched.c
---- working-2.5.2-pre9-mingosched/kernel/sched.c	Mon Jan  7 12:39:10 2002
-+++ working-2.5.2-pre9-mingoschedfix/kernel/sched.c	Mon Jan  7 13:51:39 2002
-@@ -43,14 +43,14 @@
-  * if there is a RT task active in an SMP system but there is no
-  * RT scheduling activity otherwise.
-  */
--static struct runqueue {
-+struct runqueue {
- 	int cpu;
- 	spinlock_t lock;
- 	unsigned long nr_running, nr_switches, last_rt_event;
- 	task_t *curr, *idle;
- 	prio_array_t *active, *expired, arrays[2];
--	char __pad [SMP_CACHE_BYTES];
--} runqueues [NR_CPUS] __cacheline_aligned;
-+} ____cacheline_aligned;
-+static struct runqueue runqueues[NR_CPUS] __cacheline_aligned;
- 
- #define this_rq()		(runqueues + cpu())
- #define task_rq(p)		(runqueues + (p)->cpu)
-@@ -102,7 +102,7 @@
-  * This is the per-process load estimator. Processes that generate
-  * more load than the system can handle get a priority penalty.
-  *
-- * The estimator uses a 4-entry load-history ringbuffer which is
-+ * The estimator uses a SLEEP_HIST_SIZE-entry load-history ringbuffer which is
-  * updated whenever a task is moved to/from the runqueue. The load
-  * estimate is also updated from the timer tick to get an accurate
-  * estimation of currently executing tasks as well.
-@@ -511,7 +511,7 @@
- 	spin_unlock(&busiest->lock);
- }
- 
--#define REBALANCE_TICK (HZ/100)
-+#define REBALANCE_TICK ((HZ/100) ?: 1)
- 
- void idle_tick(void)
- {
+Andrea

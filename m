@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129290AbRB1Vi5>; Wed, 28 Feb 2001 16:38:57 -0500
+	id <S129283AbRB1VuF>; Wed, 28 Feb 2001 16:50:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129284AbRB1Vis>; Wed, 28 Feb 2001 16:38:48 -0500
-Received: from md.aacisd.com ([64.23.207.34]:37904 "HELO md.aacisd.com")
-	by vger.kernel.org with SMTP id <S129283AbRB1Vik>;
-	Wed, 28 Feb 2001 16:38:40 -0500
-Message-ID: <8FED3D71D1D2D411992A009027711D6718A0@md>
-From: Nathan Black <NBlack@md.aacisd.com>
-To: "'Cappellini, Tony'" <Tony_Cappellini@maxtor.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: PROBLEM- Segmentation fault occurs when dd'ing entire drive (
-	9.x  GB) to a vfat partition.
-Date: Wed, 28 Feb 2001 16:33:46 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S129307AbRB1Vtz>; Wed, 28 Feb 2001 16:49:55 -0500
+Received: from WARSL401PIP5.highway.telekom.at ([195.3.96.112]:48656 "HELO
+	email03.aon.at") by vger.kernel.org with SMTP id <S129283AbRB1Vto>;
+	Wed, 28 Feb 2001 16:49:44 -0500
+Date: Wed, 28 Feb 2001 22:48:50 +0100
+From: Eduard Hasenleithner <eduardh@aon.at>
+To: linux-kernel@vger.kernel.org
+Subject: How to set hdparms for ide-scsi devices on devfs?
+Message-ID: <20010228224850.A10608@moserv.hasi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is NOT a dd problem. I have been trying to write large files to a vfat
-filesystem. This is definitely a bug with the kernel. I have had the seg
-fault. Try running the program again, but look at your console. It think
-that it will result in a kernel bug statement.I think that mine said it was
-in File.c:89 .
+Sorry, if this issue was already discussed in lkml. I didn't find
+a reference to this at www.geocrawler.com
 
-Nathan
+My Problem:
+I want to set the unmaskirq and dma -flag for my ide cd-recorder.
+The Problem is, that devfs creates no ide device, but only
+the /dev/scsi/../{cd,general} devices are created. And hdparm
+don't accepts this devices for setting the ide-parameters.
 
-P.S. I was trying to capture atm data on the partition. The code I am using
-works great with an ext2fs partition, but the vfat dies at exactly the same
-place.
+My current workaround is to create a /dev/hd? device "by hand"
+at system startup. This is not very beautiful. Furthermore, if
+the device numbers in devfs are deactivated, this won't work
+anymore.
 
+I can live with my current solution. But i would be very happy
+if someone can present a clean solution.
 
------Original Message-----
-From: Cappellini, Tony [mailto:Tony_Cappellini@maxtor.com]
-Sent: Wednesday, February 28, 2001 4:09 PM
-To: 'linux-kernel@vger.kernel.org'
-Subject: PROBLEM- Segmentation fault occurs when dd'ing entire drive
-(9.x GB) to a vfat partition.
-Importance: High
+I posted this message intentionally not on the devfs mailing list
+as i think this problem is related to accessing the same device
+through different /dev entries. Under devfs, the /dev/ide/...
+device node gets allocated after the corresponding ide-xx.o has
+been loaded. But this is not possible with ide-scsi claiming
+the device :(
 
+Thanks in advance
 
-
-Hello
-
-
-I am submitting this bug report. I've attached a file which I hope contains
-all of the approppriate information.
-
-Is it possible for someone to let me know if/when this problem is fixed ?
-
-Thanks
-
-
-
-
-Tony Cappellini
-
-Maxtor Corporation
-
-
+-- 
+Eduard Hasenleithner
+student of
+Salzburg University of Applied Sciences and Technologies

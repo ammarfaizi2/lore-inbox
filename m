@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264900AbUFXTC5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264771AbUFXTHr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264900AbUFXTC5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 15:02:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264788AbUFXTCf
+	id S264771AbUFXTHr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 15:07:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264819AbUFXTHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 15:02:35 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:237 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264808AbUFXTCJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 15:02:09 -0400
-Date: Thu, 24 Jun 2004 12:01:44 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.7-mm2 oopses and badness
-Message-ID: <27420000.1088103704@flay>
-In-Reply-To: <1968860000.1088089370@[10.10.2.4]>
-References: <1968860000.1088089370@[10.10.2.4]>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Thu, 24 Jun 2004 15:07:47 -0400
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:36108 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S264771AbUFXTEL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 15:04:11 -0400
+From: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+Subject: Re: [PATCH] fs/isofs/inode.c, 2-4GB files rejected on DVDs
+Date: Thu, 24 Jun 2004 20:58:56 +0200
+User-Agent: KMail/1.6.2
+Cc: Jason Mancini <xorbe@sbcglobal.net>, linux-kernel@vger.kernel.org
+References: <1088073870.17691.8.camel@xorbe.dyndns.org> <20040624150122.GB5068@apps.cwi.nl>
+In-Reply-To: <20040624150122.GB5068@apps.cwi.nl>
+X-Operating-System: Linux 2.6.5-wolk3.0 i686 GNU/Linux
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Organization: Linux-Systeme GmbH
+Message-Id: <200406242058.56469@WOLK>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> During bootup, shortly after CPU init (mm1 was fine):
-> 
-> Only candidate I can see is 
-> +reduce-tlb-flushing-during-process-migration-2.patch
-> Will try backing that out unless you want something else ...
+On Thursday 24 June 2004 17:01, Andries Brouwer wrote:
 
-Looks like that's ia64 only ;-(
+> Config item? No. There are far too many.
+> Automatically enabling? No - that code must be deleted, like you did.
+> Anyone with such a CDROM can give the "cruft" mount option herself.
+> Testing for negative i_size? But it only becomes negative when
+> some earlier code is broken, so probably we should fix that
+> earlier code instead.
+> More in particular, I read ISO 9660 section 7.3.3 as talking about
+> unsigned integers. Only in 7.1.2 do signed integers occur.
+> So, I suppose changing isonum_733 to return unsigned should suffice.
+> Could you test the below?
 
-But the oops seems like we're just calling flush_tlb_mm with a NULL mm.
- 
-> Jun 24 06:54:24 larry kernel: c010e98b
-> Jun 24 06:54:24 larry kernel: SMP 
-> Jun 24 06:54:24 larry kernel: c010e98b
-> Jun 24 06:54:24 larry kernel: Modules linked in:
-> Jun 24 06:54:24 larry kernel: CPU:    12
-> Jun 24 06:54:24 larry kernel: EIP:    0060:[flush_tlb_mm+7/120]    Not tainted VLI
-> Jun 24 06:54:24 larry kernel: EFLAGS: 00010292   (2.6.7-mm2) 
-> Jun 24 06:54:24 larry kernel: EIP is at flush_tlb_mm+0x7/0x78
-> Jun 24 06:54:24 larry kernel: eax: 00000000   ebx: f124bfa8   ecx: 00000000   ed
-> x: f124bf94
-> Jun 24 06:54:24 larry kernel: esi: c30d3be0   edi: 00000000   ebp: f124bf9c   esp: f124bf4c
-> Jun 24 06:54:24 larry kernel: ds: 007b   es: 007b   ss: 0068
-> Jun 24 06:54:24 larry kernel: Process kswapd3 (pid: 72, threadinfo=f124a000 task=f1247390)
-> Jun 24 06:54:24 larry kernel: Stack: 00200200 c01159e1 00000000 f1247390 f124bfdc f124bff0 f124bfa8 c02bcc40 
-> Jun 24 06:54:24 larry kernel:        00000000 00000282 f124bf74 f124bf74 00000000 f1247390 0000000c f124a000 
-> Jun 24 06:54:24 larry kernel:        00000000 00000001 f124bf94 f124bf94 f1a00000 c0138bca f1247390 0000f000 
-> Jun 24 06:54:24 larry kernel: Call Trace:
-> Jun 24 06:54:24 larry kernel:  [set_cpus_allowed+225/252] set_cpus_allowed+0xe1/0xfc
-> Jun 24 06:54:24 larry kernel:  [kswapd+142/224] kswapd+0x8e/0xe0
-> Jun 24 06:54:24 larry kernel:  [kswapd+0/224] kswapd+0x0/0xe0
-> Jun 24 06:54:24 larry kernel:  [autoremove_wake_function+0/64] autoremove_wake_function+0x0/0x40
-> Jun 24 06:54:24 larry kernel:  [autoremove_wake_function+0/64] autoremove_wake_function+0x0/0x40
-> Jun 24 06:54:24 larry kernel:  [kernel_thread_helper+5/12] kernel_thread_helper+0x5/0xc
-> Jun 24 06:54:24 larry kernel: Code: 0f 20 d8 0f 22 d8 8b 04 24 85 c0 74 13 6a ff 51 50 e8 0a ff ff ff 83 c4 0c 8d b4 26 00 00 00 00 59 c3 89 f6 83 ec
->  04 8b 4c 24 08 <8b> 81 24 01 00 00 ba 00 e0 ff ff 21 e2 89 04 24 8b 42 10 f0 0f 
+prolly ;) totally unrelated to this, but what about this:
+
+Jun 24 20:46:01 codeman kernel: ISO 9660 Extensions: Microsoft Joliet Level 1
+Jun 24 20:46:01 codeman kernel: Interleaved files not (yet) supported.
+Jun 24 20:46:01 codeman kernel: File unit size != 0 for ISO file (60133376).
+Jun 24 20:46:01 codeman kernel: ISOFS: changing to secondary root
+Jun 24 20:46:01 codeman kernel: Interleaved files not (yet) supported.
+Jun 24 20:46:01 codeman kernel: File unit size != 0 for ISO file (60135424).
+
+It's a 4,5GB ISO, edited with Magic ISO Maker under Windows, saved it, burned 
+it. Windows can handle the DVD very well. Linux just says the above and do not 
+give me any listing of the DVD.
+
+Do we ever get interleaved files support with linux?
+
+ciao, Marc
 

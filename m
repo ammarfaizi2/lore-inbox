@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268115AbUHFImx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268108AbUHFIl6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268115AbUHFImx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 04:42:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268110AbUHFImX
+	id S268108AbUHFIl6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 04:41:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268103AbUHFIl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 04:42:23 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:32935 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S268106AbUHFIjq (ORCPT
+	Fri, 6 Aug 2004 04:41:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:10469 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268115AbUHFIlh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 04:39:46 -0400
-Date: Fri, 6 Aug 2004 10:39:44 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Mike <turbanator1@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB2 DVD+R/RW Writer issues
-Message-ID: <20040806083944.GA27990@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Mike <turbanator1@verizon.net>, linux-kernel@vger.kernel.org
-References: <004101c47b73$4280a880$0300a8c0@r000000>
+	Fri, 6 Aug 2004 04:41:37 -0400
+Date: Fri, 6 Aug 2004 01:41:18 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: James Morris <jmorris@redhat.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, clemens@endorphin.org
+Subject: Re: [PATCH] Re-implemented i586 asm AES
+Message-Id: <20040806014118.095308e7.davem@redhat.com>
+In-Reply-To: <Xine.LNX.4.44.0408060411340.21666-100000@dhcp83-76.boston.redhat.com>
+References: <Xine.LNX.4.44.0408060411340.21666-100000@dhcp83-76.boston.redhat.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <004101c47b73$4280a880$0300a8c0@r000000>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06, 2004 at 01:07:23AM -0400, Mike wrote:
-> I have an external USB 2.0/Firewire HP DVD200E DVD+R/RW drive, connected to
-> my system through an after-market USB 2.0 card. My USB 2.0 card has a VIA
-> VT6212 chipset. I cannot use this drive when it is connected to the card.
-> DVDs will not read or write and CDs will not read or write. Attempting to
-> mount a DVD or a CD results in various errors being spit out. I have EHCI
+On Fri, 6 Aug 2004 04:24:08 -0400 (EDT)
+James Morris <jmorris@redhat.com> wrote:
 
-Please list those errors, please tell us how you try to mount the disk,
-please confirm that the drive IS working on other systems, please tell us
-which version of the kernel you are using. A configuration very much like
-the above works fine for me.
+> This code is a rework of the original Gladman AES code, and does not
+> include any supposed BSD licensed work by Jari Ruusu.
+> 
+> Linus converted the Intel asm to Gas format, and made some minor 
+> alterations.
+> 
+> Fruhwirth's glue module has also been retained, although I rebased the
+> table generation and key scheduling back to Gladman's code.  I've tested
+> this code with some standard FIPS test vectors, and large FTP transfers
+> over IPSec (both locally and over the wire to a system running the generic
+> AES implementation).
+> 
+> Please review.
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Looks good.  Linus, please apply unless you see some
+problem with it.
+
+Thanks James.

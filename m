@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316869AbSFBSXp>; Sun, 2 Jun 2002 14:23:45 -0400
+	id <S317214AbSFBS3V>; Sun, 2 Jun 2002 14:29:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317214AbSFBSXo>; Sun, 2 Jun 2002 14:23:44 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:61705 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S316869AbSFBSXn>;
-	Sun, 2 Jun 2002 14:23:43 -0400
-Date: Sun, 2 Jun 2002 20:26:33 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Sam Ravnborg <sam@ravnborg.org>,
-        Thunder from the hill <thunder@ngforever.de>,
-        Ion Badulescu <ionut@cs.columbia.edu>, linux-kernel@vger.kernel.org
-Subject: Re: KBuild 2.5 Impressions
-Message-ID: <20020602202633.A2396@mars.ravnborg.org>
-In-Reply-To: <Pine.LNX.4.44.0206012349360.671-100000@age.cs.columbia.edu> <E17EWV7-0000Pv-00@starship> <20020602165643.A1940@mars.ravnborg.org> <E17EX5v-0000Qd-00@starship>
+	id <S317215AbSFBS3U>; Sun, 2 Jun 2002 14:29:20 -0400
+Received: from adsl-66-136-199-111.dsl.austtx.swbell.net ([66.136.199.111]:28803
+	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
+	id <S317214AbSFBS3T>; Sun, 2 Jun 2002 14:29:19 -0400
+Subject: Re: Very big shm area
+From: Austin Gonyou <austin@digitalroadkill.net>
+To: Kilobug <kilobug@freesurf.fr>
+Cc: lkm <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CFA5411.3030600@freesurf.fr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: http://www.digitalroadkill.net
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 02 Jun 2002 13:28:48 -0500
+Message-Id: <1023042528.3021.1.camel@UberGeek>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 02, 2002 at 05:16:34PM +0200, Daniel Phillips wrote:
-> > Can we agree that it makes sense to add features one-by-one when
-> > they are independent?
-> 
-> Oh absolutely, and have you looked at the current factoring?
-> 
->    http://marc.theaimsgroup.com/?a=102296100300003&r=1&w=2
-> 
-> This is still being improved, of course.
-I have looked at the above factoring, which was only a file factoring,
-neither bug-fix factoring, nor feature factoring.
-IMHO this is not the way kbuild-2.5 ever get included in the kernel.
+I run a Dell 6450 with 8GB ram and a 4GB SHMMAX. You can set the
+parameter any time through sysctl if you have it enabled, or you can
+hardcode it per the Oracle/DB2 Docs if you wish. 
 
-> What I'd suggest is: import
-> enough of kbuild 2.5 to support the feature (in some case nothing
-> needs to be imported), then make it work also for old kbuild (in
-> some cases that will require no work.  This I'd call cooperation,
-> which would look good on everybody involved.
-Again wrong approah. Extend kbuild-2.4 with the features, tweak them until
-they actually meet the requirements and then on to the next step.
-Obviously the dependency step is huge, but the point is that there is
-steps before and after this.
+Austin
 
-	Sam
+
+On Sun, 2002-06-02 at 12:21, Kilobug wrote:
+> Hello,
+> 	I wanted to know if it is possible to have a very big system V shared 
+> memory segment (say about 1Gb) ?
+> 
+> 	I've quickly looked into the source code of shm.c and shm.h in ipc/ and 
+> I've read the following:
+> /*
+>   * SHMMAX, SHMMNI and SHMALL are upper limits are defaults which can
+>   * be increased by sysctl
+>   */
+> 
+> But how far is it possible to increase them ? And which sysctl must be 
+> done ?
+> 
+> Thank you for answering,
+

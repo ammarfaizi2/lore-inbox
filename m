@@ -1,71 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261292AbTAVOVC>; Wed, 22 Jan 2003 09:21:02 -0500
+	id <S261353AbTAVOgI>; Wed, 22 Jan 2003 09:36:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261333AbTAVOVC>; Wed, 22 Jan 2003 09:21:02 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:60074 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S261292AbTAVOVB>; Wed, 22 Jan 2003 09:21:01 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Wed, 22 Jan 2003 15:38:58 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Kernel List <linux-kernel@vger.kernel.org>
-Subject: 2.5.59 oops for sale
-Message-ID: <20030122143858.GB6352@bytesex.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
+	id <S261354AbTAVOgI>; Wed, 22 Jan 2003 09:36:08 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:65522 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261353AbTAVOgH>;
+	Wed, 22 Jan 2003 09:36:07 -0500
+Message-ID: <003301c2c235$2f3123c0$29060e09@andrewhcsltgw8>
+From: "Andrew Theurer" <habanero@us.ibm.com>
+To: "Michael Hohnbaum" <hohnbaum@us.ibm.com>, "Ingo Molnar" <mingo@elte.hu>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, "Erich Focht" <efocht@ess.nec.de>,
+       "Matthew Dobson" <colpatch@us.ibm.com>,
+       "Christoph Hellwig" <hch@infradead.org>, "Robert Love" <rml@tech9.net>,
+       "Linus Torvalds" <torvalds@transmeta.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "lse-tech" <lse-tech@lists.sourceforge.net>,
+       "Anton Blanchard" <anton@samba.org>,
+       "Andrea Arcangeli" <andrea@suse.de>
+References: <Pine.LNX.4.44.0301202204210.18235-100000@localhost.localdomain> <1043205347.5161.42.camel@kenai>
+Subject: Re: [patch] HT scheduler, sched-2.5.59-D7
+Date: Wed, 22 Jan 2003 08:41:55 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+> On Mon, 2003-01-20 at 13:18, Ingo Molnar wrote:
+> >
+> > the attached patch (against 2.5.59) is my current scheduler tree, it
+> > includes two main areas of changes:
+> >
+> >  - interactivity improvements, mostly reworked bits from Andrea's tree
+and
+> >    various tunings.
+> >
+> >  - HT scheduler: 'shared runqueue' concept plus related logic: HT-aware
+> >    passive load balancing, active-balancing, HT-aware task pickup,
+> >    HT-aware affinity and HT-aware wakeup.
+>
+> I ran Erich's numatest on a system with this patch, plus the
+> cputime_stats patch (so that we would get meaningful numbers),
+> and found a problem.  It appears that on the lightly loaded system
+> sched_best_cpu is now loading up one node before moving on to the
+> next.  Once the system is loaded (i.e., a process per cpu) things
+> even out.  Before applying the D7 patch, processes were distributed
+> evenly across nodes, even in low load situations.
 
-Triggered by trying to boot a (i386) user mode linux system on a x86-64
-host, perfectly reproducable.  Log attached below, more info available
-on request.
+Michael,  my experience has been that 2.5.59 loaded up the first node before
+distributing out tasks (at least on kernbench).  The first check in
+sched_best_cpu would almost always place the new task on the same cpu, and
+intra node balance on an idle cpu in the same node would almost always steal
+it before a inter node balance could steal it.  Also, sched_best_cpu does
+not appear to be changed in D7.  Actually, I expected D7 to have the
+opposite effect you describe (although I have not tried it yet), since
+load_balance will now steal a running task if called by an idle cpu.
 
-  Gerd
+I'll try to get some of these tests on x440 asap to compare.
 
------------ [cut here ] --------- [please bite here ] ---------
-Kernel BUG at buffer:1255
-invalid operand: 0000
-CPU 0 
-Pid: 1259, comm: linux-2.4.19-47 Not tainted
-RIP: 0010:[<ffffffff80160c1e>] <ffffffff80160c1e>{__find_get_block+30}
-RSP: 0000:0000010017947868  EFLAGS: 00010002
-RAX: 0000000000000001 RBX: 000001001fcfe980 RCX: 0000010017947948
-RDX: 0000000000001000 RSI: 000000000027f806 RDI: 000001001fcfe980
-RBP: 000000000027f806 R08: 0000010017947940 R09: 0000000000000014
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000001000
-R13: 0000010017947940 R14: 000001001f5e6e00 R15: 0000010017947948
-FS:  0000000000000000(0000) GS:ffffffff803afd00(0000) knlGS:000000006f6e6962
-CS:  0010 DS: 002b ES: 002b CR0: 000000008005003b
-CR2: 00000000a09ff000 CR3: 0000000000101000 CR4: 00000000000006a0
-Process linux-2.4.19-47 (pid: 1259, stackpage=10017b7f500)
-Stack: 0000000000000000 0000000000000002 000001001fcfe980 ffffffff80160cf0 
-       0000010017947948 0000000000000002 00000100179479a8 ffffffff80160d29 
-       0000000000000000 ffffffff8018e2d4 
-Call Trace:<ffffffff80160cf0>{__getblk+32} <ffffffff80160d29>{__bread+9} 
-       <ffffffff8018e2d4>{ext3_get_branch+100} <ffffffff8018ea01>{ext3_get_block_handle+209} 
-       <ffffffff8017a9b3>{do_mpage_readpage+211} <ffffffff8018ec10>{ext3_get_block+0} 
-       <ffffffff801b22c3>{radix_tree_node_alloc+19} <ffffffff801b2499>{radix_tree_insert+121} 
-       <ffffffff8017ac7f>{mpage_readpages+159} <ffffffff8018ec10>{ext3_get_block+0} 
-       <ffffffff8014af14>{read_pages+68} <ffffffff80149337>{buffered_rmqueue+231} 
-       <ffffffff801493df>{__alloc_pages+143} <ffffffff8014b126>{do_page_cache_readahead+294} 
-       <ffffffff8014b286>{page_cache_readahead+278} <ffffffff8014701f>{filemap_nopage+223} 
-       <ffffffff80151f71>{do_no_page+113} <ffffffff801522b0>{handle_mm_fault+208} 
-       <ffffffff8011a8f3>{do_page_fault+387} <ffffffff8011048a>{do_signal+170} 
-       <ffffffff8013c721>{sys_rt_sigprocmask+193} <ffffffff80110ffd>{error_exit+0} 
-       
+-Andrew Theurer
 
-Code: 0f 0b f3 18 2b 80 ff ff ff ff e7 04 66 66 90 66 66 90 49 c7 
- 
-
-
------ End forwarded message -----
-
--- 
-Weil die späten Diskussionen nicht mal mehr den Rotwein lohnen.
-				-- Wacholder in "Melanie"

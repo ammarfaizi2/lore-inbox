@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261669AbREOWcI>; Tue, 15 May 2001 18:32:08 -0400
+	id <S261665AbREOWe2>; Tue, 15 May 2001 18:34:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261664AbREOWbs>; Tue, 15 May 2001 18:31:48 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:12816 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S261665AbREOWbg>;
-	Tue, 15 May 2001 18:31:36 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200105152231.f4FMVSC246046@saturn.cs.uml.edu>
-Subject: Re: Getting FS access events
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Tue, 15 May 2001 18:31:28 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9ds01m$7q9$1@cesium.transmeta.com> from "H. Peter Anvin" at May 15, 2001 12:28:54 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S261663AbREOWeS>; Tue, 15 May 2001 18:34:18 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:49165 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261665AbREOWd7>; Tue, 15 May 2001 18:33:59 -0400
+Message-ID: <3B01AE8B.7789F2A0@transmeta.com>
+Date: Tue, 15 May 2001 15:32:43 -0700
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre1-zisofs i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        viro@math.psu.edu
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <200105152141.f4FLff300686@vindaloo.ras.ucalgary.ca>
+		<E14zn4x-0003CZ-00@the-village.bc.nu> <200105152228.f4FMSQw02343@vindaloo.ras.ucalgary.ca>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin writes:
+Richard Gooch wrote:
+> 
+> Even if we have per-device filesystems, we are going to have the same
+> issue, in one form or another. If we have a "/devicetype" trailing
+> component added on, then somewhere it has to report "CD-ROM" or "cd"
+> or "Compact Disc".
+> 
 
-> This would leave no way (without introducing new interfaces) to write,
-> for example, the boot block on an ext2 filesystem.  Note that the
-> bootblock (defined as the first 1024 bytes) is not actually used by
-> the filesystem, although depending on the block size it may share a
-> block with the superblock (if blocksize > 1024).
+Again, many device types aren't mutually exclusive.  It's a set, not an
+enum.
 
-The lack of coherency would screw this up anyway, doesn't it?
-You have a block device, soon to be in the page cache, and
-a superblock, also soon to be in the page cache. LILO writes to
-the block device, while the ext2 driver updates the superblock.
-Whatever gets written out last wins, and the other is lost.
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

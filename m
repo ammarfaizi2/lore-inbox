@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315599AbSECIUA>; Fri, 3 May 2002 04:20:00 -0400
+	id <S315602AbSECIVB>; Fri, 3 May 2002 04:21:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315600AbSECITv>; Fri, 3 May 2002 04:19:51 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:24723 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S315599AbSECITm>;
-	Fri, 3 May 2002 04:19:42 -0400
-Date: Fri, 3 May 2002 09:56:34 +0200
+	id <S315601AbSECIUB>; Fri, 3 May 2002 04:20:01 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:23955 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S315598AbSECITX>;
+	Fri, 3 May 2002 04:19:23 -0400
+Date: Fri, 3 May 2002 10:03:58 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [prepatch] address_space-based writeback
-Message-ID: <20020503075634.GA232@elf.ucw.cz>
-In-Reply-To: <9595.1020174038@ocs3.intra.ocs.com.au> <200205011416.g41EFnX04718@Port.imtp.ilyichevsk.odessa.ua>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] missing checks in exec_permission_light()
+Message-ID: <20020503080356.GB232@elf.ucw.cz>
+In-Reply-To: <Pine.GSO.4.21.0204302340340.10523-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,27 +23,11 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> I'll repeat myself. What if some advanced fs has no sensible way of 
-> generating inode? Does it have to 'fake' it, just like [v]fat does it now?
-> (Yes, vfat is not 'advanced' fs, let's not discuss it...)
-> 
-> The fact that minix,ext[23],etc has inode #s is an *implementation detail*.
-> Historically entrenched in Unix.
-> 
-> Bad:
-> inum_a = inode_num(file1);
-> inum_b = inode_num(file2);
-> if(inum_a == inum_b) { same_file(); }
-> 
-> Better:
-> if(is_hardlinked(file1,file2) { same_file(); }
-> 
-> Yes, new syscal, blah, blah, blah... Not worth the effort, etc...
-> lets start a flamewar...
+> +	if (S_ISDIR(inode->i_mode) && capable(CAP_DAC_READ_SEARCH))
+> +		return 0;
 
-Its worse: You have 1000 files with same size, how do you find which
-are hardlinked? With inode_num() it is hashtable, doable with
-O(n). With syscall we are talking O(n^2).
+Is this right? This means that root can do cat /, no? That does not
+seem like expected behaviour.
 									Pavel
 -- 
 (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.

@@ -1,46 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288308AbSACVbZ>; Thu, 3 Jan 2002 16:31:25 -0500
+	id <S288322AbSACVdf>; Thu, 3 Jan 2002 16:33:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288320AbSACVbP>; Thu, 3 Jan 2002 16:31:15 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:30620 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S288308AbSACVbA>;
-	Thu, 3 Jan 2002 16:31:00 -0500
-Date: Thu, 3 Jan 2002 16:30:55 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Keith Owens <kaos@ocs.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: State of the new config & build system 
-In-Reply-To: <20733.1010090809@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.GSO.4.21.0201031623580.23693-100000@weyl.math.psu.edu>
+	id <S288326AbSACVdZ>; Thu, 3 Jan 2002 16:33:25 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:63494 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S288322AbSACVdQ>; Thu, 3 Jan 2002 16:33:16 -0500
+Message-ID: <3C34CD08.FC7BEBEF@zip.com.au>
+Date: Thu, 03 Jan 2002 13:28:40 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.4.17 crashes on SCSI-errors
+In-Reply-To: <XFMail.20020103130541.R.Oehler@GDImbH.com> from "R.Oehler@GDImbH.com" at Jan 03, 2002 01:05:41 PM <E16M7De-0008Dx-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 4 Jan 2002, Keith Owens wrote:
-
-> On Thu, 3 Jan 2002 15:35:19 -0500 (EST), 
-> Alexander Viro <viro@math.psu.edu> wrote:
-> >On Thu, 3 Jan 2002, Dave Jones wrote:
-> >> And being able to NFS share 1 kernel tree, and be able to do parallel
-> >> builds on multiple boxes without having to wait until 1 is finished.
-> >
-> >	Sigh...  As soon as we get to prototype change in
-> >getattr()/setattr()/permission() - we get CoW fs.  I.e. equivalent of
-> >*BSD unionfs.  I hope to get around to that stuff around 2.5.4 or so.
+Alan Cox wrote:
 > 
-> Unionfs and cow fs will be nice but kernel build will not use it.
-> Users can build a Linux kernel on other operating systems, including
-> Solaris, Irix, Cygwin etc.  kbuild requires a Posix compliant fs and
-> GNU tools, but it must not use additional fs features that only exist
-> on Linux or only on specific versions of Linux.
+> 
+> BUG trap. Turn on verbose bug reporting,
 
-<shrug> kernel build doesn't have to use it - if I mount a writable layer
-atop of the clean tree and build in the resulting tree, build system
-doesn't need to have any idea of that fact.  That's the point - you are
-emulating the thing that is generally useful and belongs to different
-layer - namely, the kernel.
+Boy, was that ever a dumb idea.  Rod.  Back.  Pain.
 
+-

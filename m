@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135491AbRDZOdR>; Thu, 26 Apr 2001 10:33:17 -0400
+	id <S135498AbRDZOii>; Thu, 26 Apr 2001 10:38:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135497AbRDZOdH>; Thu, 26 Apr 2001 10:33:07 -0400
-Received: from www.wen-online.de ([212.223.88.39]:5127 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S135491AbRDZOc6>;
-	Thu, 26 Apr 2001 10:32:58 -0400
-Date: Thu, 26 Apr 2001 16:32:26 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Ingo Molnar <mingo@elte.hu>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
-In-Reply-To: <Pine.LNX.4.21.0104261125150.19012-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.33.0104261630240.403-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135504AbRDZOi2>; Thu, 26 Apr 2001 10:38:28 -0400
+Received: from oxmail3.ox.ac.uk ([129.67.1.180]:25340 "EHLO oxmail.ox.ac.uk")
+	by vger.kernel.org with ESMTP id <S135498AbRDZOiR>;
+	Thu, 26 Apr 2001 10:38:17 -0400
+Date: Thu, 26 Apr 2001 15:38:15 +0100
+From: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Block device strategy and requests
+Message-ID: <20010426153815.B2101@sable.ox.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Apr 2001, Rik van Riel wrote:
+I'm designing a block device driver for a high performance disk
+subsystem with unusual characteristics. To what extent is the
+limited number of "struct request"s (128 by default) necessary for
+back-pressure? With this I/O subsystem it would be possible for the
+strategy function to rip the requests from the request list straight
+away, arrange for the I/Os to be done to/from the buffer_heads (with
+no additional state required) with no memory "leak". This would
+effectively mean that the only limit on the number of I/Os queued
+would be the number of buffer_heads allocated; not a fixed number of
+"struct request"s in flight. Is this reasonable or does any memory or
+resource balancing depend on the number of I/Os outstanding being
+bounded?
 
-> On Thu, 26 Apr 2001, Mike Galbraith wrote:
-> > On Thu, 26 Apr 2001, Mike Galbraith wrote:
-> >
-> > > > limit the runtime of refill_inactive_scan(). This is similar to Rik's
-> > > > reclaim-limit+aging-tuning patch to linux-mm yesterday. could you try
-> > > > Rik's patch with your patch except this jiffies hack, does it still
-> > > > achieve the same improvement?
-> > >
-> > > No.  It livelocked on me with almost all active pages exausted.
-> >
-> > Misspoke.. I didn't try the two mixed.  Rik's patch livelocked me.
->
-> Interesting. The semantics of my patch are practically the same as
-> those of the stock kernel ... can you get the stock kernel to
-> livelock on you, too ?
+Also, there is a lot of flexibility in how often interrupts are sent
+to mark the buffer_heads up-to-date. (With the requests pulled
+straight off the queue, the job of end_that_request_first() in doing
+the linked list updates and bh->b_end_io() callbacks would be done by
+the interrupt routine directly.) At one extreme, I could take an
+interrupt for each 4K block issued and mark it up-to-date very
+quickly making for very low-latency I/O but a very large interrupt
+rate when I/O throughput is high. The alternative would be to arrange
+for an interrupt every n buffer_heads (or based on some other
+criterion) and only take an interrupt and mark buffers up-to-date on
+each of those). Are there any rules of thumb on which is best or
+doesn't it matter too much?
 
-Generally no.  Let kswapd continue to run?  Yes, but not always.
+--Malcolm
 
-	-Mike
-
+-- 
+Malcolm Beattie <mbeattie@sable.ox.ac.uk>
+Unix Systems Programmer
+Oxford University Computing Services

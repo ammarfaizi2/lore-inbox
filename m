@@ -1,95 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262210AbUJ1Rtm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263031AbUJ1RyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262210AbUJ1Rtm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 13:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbUJ1Rtm
+	id S263031AbUJ1RyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 13:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263029AbUJ1RyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 13:49:42 -0400
-Received: from mail.skule.net ([216.235.14.165]:36030 "EHLO mail.skule.net")
-	by vger.kernel.org with ESMTP id S263015AbUJ1RtG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 13:49:06 -0400
-Date: Thu, 28 Oct 2004 13:48:38 -0400
-From: Mark Frazer <mark@mjfrazer.org>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: bkbits - "@" question
-Message-ID: <20041028174838.GA794@mjfrazer.org>
-References: <200410230426.i9N4Qd9k004757@work.bitmover.com>
+	Thu, 28 Oct 2004 13:54:15 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:44011 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S262248AbUJ1Rwm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 13:52:42 -0400
+Date: Thu, 28 Oct 2004 19:52:29 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [patch] cputime: missing pieces.
+Message-ID: <20041028175229.GA5477@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="UugvWAfsgieZRqgk"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200410230426.i9N4Qd9k004757@work.bitmover.com>
-X-Message-Flag: Outlook not so good.
-Organization: Detectable, well, not really
-X-Fry: They're great! They're like sex except I'm having them.
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrew,
+I missed two places where cputime_t needs to be used. This goes
+on top of the first patch and your fixup.
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+blue skies,
+  Martin.
 
-Larry McVoy <lm@bitmover.com> [04/10/23 01:31]:
-> The web pages on bkbits.net contain email addresses.  This is probably
-> about a 4 year too late question but would it help reduce spam if we
-> did something like  s/@/ (at) / for all those addresses?
+---
 
-Hi Larry:  I've used this for a while to add email addresses to my web
-pages and I get almost no spam any more, < 10 per month!
+[patch] cputime: missing pieces.
 
-[mjfrazer@pacific depictII]$ html-encode mark@mjfrazer.rog
-&#109;&#97;&#114;&#107;&#64;&#109;&#106;&#102;&#114;&#97;&#122;&#101;&#114;&#46;&#114;&#111;&#103;
-[mjfrazer@pacific depictII]$ 
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-I've attached the source.
+Use cputime type and operations in do_task_stat, process_ticks and
+thread_ticks as well.
 
-> What are all of you doing to filter spam?
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-I use bogofilter, but only get about 10 per month anyways.
+diffstat:
+ fs/proc/array.c       |   22 ++++++++++++----------
+ kernel/posix-timers.c |   11 ++++++-----
+ 2 files changed, 18 insertions(+), 15 deletions(-)
 
-cheers
--mark
--- 
-People said I was dumb but I proved them! - Fry
-
---UugvWAfsgieZRqgk
-Content-Type: text/x-csrc; charset=us-ascii
-Content-Disposition: attachment; filename="html-encode.c"
-
-#include <stdio.h>
-#include <unistd.h>
-
-int usage (char *err) {
-	if (err) printf ("%s\n", err);
-	printf ("Usage: html-encode [-v] <string> <string> <string>\n");
-	return 1;
-}
-
-int main (int argc, char **argv)
-{
-	int i, j, verbose = 0;
-
-	while ((i = getopt (argc, argv, "v")) > -1) {
-		switch (i) {
-			case 'v': verbose = 1; break;
-			default: return usage (0);
-		}
-	}
-	if (argc - optind < 1)
-		usage ("Nothing to do");
-
-	for (i = optind; i < argc; i++) {
-		if (verbose) printf ("%s: ", argv[i]);
-		for (j = 0; j < strlen (argv[i]); j++) {
-			printf ("&#%d;", argv[i][j]);
-		}
-		printf ("\n");
-	}
-
-	return 0;
-}
-
---UugvWAfsgieZRqgk--
+diff -urN linux-2.6/fs/proc/array.c linux-2.6-cputime/fs/proc/array.c
+--- linux-2.6/fs/proc/array.c	2004-10-28 19:31:13.000000000 +0200
++++ linux-2.6-cputime/fs/proc/array.c	2004-10-28 19:32:50.000000000 +0200
+@@ -314,8 +314,9 @@
+ 	int num_threads = 0;
+ 	struct mm_struct *mm;
+ 	unsigned long long start_time;
+-	unsigned long cmin_flt = 0, cmaj_flt = 0, cutime = 0, cstime = 0;
+-	unsigned long  min_flt = 0,  maj_flt = 0,  utime = 0,  stime = 0;
++	unsigned long cmin_flt = 0, cmaj_flt = 0;
++	unsigned long  min_flt = 0,  maj_flt = 0;
++	cputime_t cutime, cstime, utime, stime;
+ 	unsigned long rsslim = 0;
+ 	struct task_struct *t;
+ 	char tcomm[sizeof(task->comm)];
+@@ -333,6 +334,7 @@
+ 
+ 	sigemptyset(&sigign);
+ 	sigemptyset(&sigcatch);
++	cutime = cstime = utime = stime = cputime_zero;
+ 	read_lock(&tasklist_lock);
+ 	if (task->sighand) {
+ 		spin_lock_irq(&task->sighand->siglock);
+@@ -345,8 +347,8 @@
+ 			do {
+ 				min_flt += t->min_flt;
+ 				maj_flt += t->maj_flt;
+-				utime += t->utime;
+-				stime += t->stime;
++				utime = cputime_add(utime, t->utime);
++				stime = cputime_add(stime, t->stime);
+ 				t = next_thread(t);
+ 			} while (t != task);
+ 		}
+@@ -368,8 +370,8 @@
+ 		if (whole) {
+ 			min_flt += task->signal->min_flt;
+ 			maj_flt += task->signal->maj_flt;
+-			utime += task->signal->utime;
+-			stime += task->signal->stime;
++			utime = cputime_add(utime, task->signal->utime);
++			stime = cputime_add(stime, task->signal->stime);
+ 		}
+ 	}
+ 	ppid = task->pid ? task->group_leader->real_parent->tgid : 0;
+@@ -412,10 +414,10 @@
+ 		cmin_flt,
+ 		maj_flt,
+ 		cmaj_flt,
+-		jiffies_to_clock_t(utime),
+-		jiffies_to_clock_t(stime),
+-		jiffies_to_clock_t(cutime),
+-		jiffies_to_clock_t(cstime),
++		cputime_to_clock_t(utime),
++		cputime_to_clock_t(stime),
++		cputime_to_clock_t(cutime),
++		cputime_to_clock_t(cstime),
+ 		priority,
+ 		nice,
+ 		num_threads,
+diff -urN linux-2.6/kernel/posix-timers.c linux-2.6-cputime/kernel/posix-timers.c
+--- linux-2.6/kernel/posix-timers.c	2004-10-28 19:31:13.000000000 +0200
++++ linux-2.6-cputime/kernel/posix-timers.c	2004-10-28 19:32:50.000000000 +0200
+@@ -1230,26 +1230,27 @@
+ }
+ 
+ static unsigned long process_ticks(task_t *p) {
+-	unsigned long ticks;
++	cputime_t cputime;
+ 	task_t *t;
+ 
+ 	spin_lock(&p->sighand->siglock);
+ 	/* The signal structure is shared between all threads */
+-	ticks = p->signal->utime + p->signal->stime;
++	cputime = cputime_add(p->signal->utime, p->signal->stime);
+ 
+ 	/* Add up the cpu time for all the still running threads of this process */
+ 	t = p;
+ 	do {
+-		ticks += t->utime + t->stime;
++		cputime = cputime_add(cputime, t->utime);
++		cputime = cputime_add(cputime, t->stime);
+ 		t = next_thread(t);
+ 	} while (t != p);
+ 
+ 	spin_unlock(&p->sighand->siglock);
+-	return ticks;
++	return cputime_to_jiffies(cputime);
+ }
+ 
+ static inline unsigned long thread_ticks(task_t *p) {
+-	return p->utime + current->stime;
++	return cputime_to_jiffies(cputime_add(p->utime, current->stime));
+ }
+ 
+ /*

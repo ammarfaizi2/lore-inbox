@@ -1,65 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262705AbUJ0Uc6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262923AbUJ0V6H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262705AbUJ0Uc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 16:32:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262628AbUJ0Uct
+	id S262923AbUJ0V6H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 17:58:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262928AbUJ0Vs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 16:32:49 -0400
-Received: from fw.osdl.org ([65.172.181.6]:36319 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262619AbUJ0U3V convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 16:29:21 -0400
-Date: Wed, 27 Oct 2004 13:24:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mathieu Segaud <matt@minas-morgul.org>
-Cc: axboe@suse.de, jfannin1@columbus.rr.com, agk@redhat.com,
-       christophe@saout.de, linux-kernel@vger.kernel.org, bzolnier@gmail.com
-Subject: Re: 2.6.9-mm1: LVM stopped working (dio-handle-eof.patch)
-Message-Id: <20041027132422.760d5f5e.akpm@osdl.org>
-In-Reply-To: <877jpcgolt.fsf@barad-dur.crans.org>
-References: <87oeitdogw.fsf@barad-dur.crans.org>
-	<1098731002.14877.3.camel@leto.cs.pocnet.net>
-	<20041026123651.GA2987@zion.rivenstone.net>
-	<20041026135955.GA9937@agk.surrey.redhat.com>
-	<20041026213703.GA6174@rivenstone.net>
-	<20041026151559.041088f1.akpm@osdl.org>
-	<87hdogvku7.fsf@barad-dur.crans.org>
-	<20041026222650.596eddd8.akpm@osdl.org>
-	<20041027054741.GB15910@suse.de>
-	<20041027064146.GG15910@suse.de>
-	<877jpcgolt.fsf@barad-dur.crans.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 27 Oct 2004 17:48:26 -0400
+Received: from wingding.demon.nl ([82.161.27.36]:3713 "EHLO wingding.demon.nl")
+	by vger.kernel.org with ESMTP id S262720AbUJ0VhW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 17:37:22 -0400
+Date: Wed, 27 Oct 2004 23:38:07 +0200
+From: Rutger Nijlunsing <rutger@nospam.com>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add p4-clockmod driver in x86-64
+Message-ID: <20041027213807.GA9334@nospam.com>
+Reply-To: linux-kernel@tux.tmfweb.nl
+References: <88056F38E9E48644A0F562A38C64FB600333A69D@scsmsx403.amr.corp.intel.com> <417FB7BA.9050005@grupopie.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <417FB7BA.9050005@grupopie.com>
+Organization: M38c
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mathieu Segaud <matt@minas-morgul.org> wrote:
->
-> Jens Axboe <axboe@suse.de> disait dernièrement que :
+On Wed, Oct 27, 2004 at 03:59:06PM +0100, Paulo Marques wrote:
+> Pallipadi, Venkatesh wrote:
+> >>....
+> >Yes. Clock modulation is not as useful compared to enhanced speedstep.
+> >But, 
+> >I feel, it should be OK to have the driver, though it is not really
+> >useful 
+> >in common case. It may be useful in some exceptional cases. 
 > 
+> I think I have one of such cases.
 > 
-> > This feels pretty icky, but should suffice for testing. Does it make a
-> > difference?
-> >
-> > --- /opt/kernel/linux-2.6.10-rc1-mm1/fs/direct-io.c	2004-10-27 08:29:51.866931262 +0200
-> > +++ linux-2.6.10-rc1-mm1/fs/direct-io.c	2004-10-27 08:41:20.292172299 +0200
-> > @@ -987,8 +987,8 @@
-> >  	isize = i_size_read(inode);
-> >  	if (bytes_todo > (isize - offset))
-> >  		bytes_todo = isize - offset;
-> > -	if (!bytes_todo)
-> > -		return 0;
-> > +	if (bytes_todo < PAGE_SIZE)
-> > +		bytes_todo = PAGE_SIZE;
-> >  
-> >  	for (seg = 0; seg < nr_segs && bytes_todo; seg++) {
-> >  		user_addr = (unsigned long)iov[seg].iov_base;
+> I am one of the members of the robotic soccer team from the University 
+> of Oporto, and a couple of months ago we were looking for new 
+> motherboards for our robots, because we are starting to need new 
+> hardware (on-board lan, usb2.0, etc.).
 > 
-> As 2.6.10-rc1-mm1 failed (as expected), I tried tour fix applied upon
-> 2.6.10-rc1-mm1. This did not make any difference.
-> The only workaround for now is backing out dio-handle-eof-fix.patch and
-> dio-handle-eof.patch
+> We really don't need excepcional performance, but we really, really need 
+> low power consumption, so lowering the clock on a standard mainboard 
+> seemed to be the best cost/performance scenario.
+> 
+> Could this driver be used to keep a standard p4 processor at say 25% 
+> clock speed at all times?
 
-Could someone pleeeeze send out a simple recipe for repeating this problem?
+Nope, p4-clockmod is completely useles. It doesn't slow down the CPU
+frequency, it only executes 7000 tick some kind of 'hlt' / 'halt'
+instruction out of 8000 ticks (for example, to get 12.5%) just like
+Linux's idle routine.
+
+So you've got the _disadvantages_ of a slow clock (programs run
+slower), and not the _advantages_ (power consumption is same as idle
+CPU and not lower, temperature is same as idle CPU and not lower).
+
+But why does the P4 have such a mode? It uses this mode during thermal
+throttling to get to the 'idle' temperature.
+
+Therefore, p4-clockmod is completely misnamed: it's _not_ a cpufreq
+driver in the sense that it does not change the frequency. The
+documentation should be updated to reflect this (eventually).
+
+In short: p4-clockmod can be emulated in software.
+
+-- 
+Rutger Nijlunsing ---------------------------- rutger ed tux tmfweb nl
+never attribute to a conspiracy which can be explained by incompetence
+----------------------------------------------------------------------

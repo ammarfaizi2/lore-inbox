@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263888AbTH1KH0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 06:07:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263883AbTH1KH0
+	id S263915AbTH1K1S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 06:27:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263896AbTH1K1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 06:07:26 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:42690 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S263908AbTH1JSD
+	Thu, 28 Aug 2003 06:27:10 -0400
+Received: from ip213-185-36-189.laajakaista.mtv3.fi ([213.185.36.189]:52875
+	"EHLO oma.irssi.org") by vger.kernel.org with ESMTP id S262288AbTH1K0z
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 05:18:03 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Timo Sirainen" <tss@iki.fi>, <nagendra_tomar@adaptec.com>
-Cc: "Jamie Lokier" <jamie@shareable.org>, <root@chaos.analogic.com>,
-       "Martin Konold" <martin.konold@erfrakon.de>,
-       <linux-kernel@vger.kernel.org>
+	Thu, 28 Aug 2003 06:26:55 -0400
 Subject: RE: Lockless file reading
-Date: Thu, 28 Aug 2003 02:17:55 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKIEIHFLAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+From: Timo Sirainen <tss@iki.fi>
+To: David Schwartz <davids@webmaster.com>
+Cc: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEEJEFLAA.davids@webmaster.com>
+References: <MDEHLPKNGKAHNMBLJOLKEEJEFLAA.davids@webmaster.com>
+Content-Type: text/plain
+Message-Id: <1062066411.1451.319.camel@hurina>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 28 Aug 2003 13:26:52 +0300
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
-In-Reply-To: <1062060035.1456.222.camel@hurina>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-08-28 at 12:56, David Schwartz wrote:
+> > > You said that MD5 wasn't strong enough, and you would like a guarantee.
+> 
+> > Yes. I don't really like it if my program heavily relies on something
+> > that can go wrong in some situations.
+> 
+> 	Okay, this is too much. Your alternative, assuming the kernel won't
+> re-order writes, is clearly relying on something that can go wrong.
 
-> That was my original plan, to just rely on such kernel behaviour. I just
-> don't know if it's such a good idea to rely on that, especially if I
-> want to keep my program portable. I'll probably fallback to that anyway
-> if my checksumming ideas won't work.
+Reorder on per-byte basis? Per-page/block would still be acceptable.
 
-	If you only have one writer, why not have the writer update an MD5 checksum
-in the file along with the datawrite? If the reader sees an invalid
-checksum, it repeats the read. This is simple, elegant, and foolproof. The
-only possible flaw would be if you found two data sets with the same MD5
-checksum. The instant fame would be well worth the inconvenience. ;)
+Anyway, the alternative would be shared mmap()ed file. You can trust
+32bit memory updates to be atomic, right?
 
-	DS
+Or what about: write("12"), fsync(), write("12")? Is it still possible
+for read() to return "1x1x"?
 
 

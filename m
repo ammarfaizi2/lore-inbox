@@ -1,79 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261979AbUCaOZp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 09:25:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbUCaOZp
+	id S261980AbUCaOW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 09:22:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbUCaOW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 09:25:45 -0500
-Received: from ns.suse.de ([195.135.220.2]:7853 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261979AbUCaOZn (ORCPT
+	Wed, 31 Mar 2004 09:22:27 -0500
+Received: from ns.suse.de ([195.135.220.2]:2473 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261950AbUCaOW0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 09:25:43 -0500
+	Wed, 31 Mar 2004 09:22:26 -0500
 Subject: Re: [PATCH] barrier patch set
 From: Chris Mason <mason@suse.com>
 To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Jens Axboe <axboe@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1080741817.1991.34.camel@sisko.scot.redhat.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1080742105.1991.40.camel@sisko.scot.redhat.com>
 References: <20040319153554.GC2933@suse.de>
 	 <200403201723.11906.bzolnier@elka.pw.edu.pl>
 	 <1079800362.11062.280.camel@watt.suse.com>
 	 <200403201805.26211.bzolnier@elka.pw.edu.pl>
 	 <1080662685.1978.25.camel@sisko.scot.redhat.com>
 	 <1080674384.3548.36.camel@watt.suse.com>
-	 <1080683417.1978.53.camel@sisko.scot.redhat.com>
-	 <1080684797.3546.85.camel@watt.suse.com>
-	 <1080741817.1991.34.camel@sisko.scot.redhat.com>
+	 <1080683417.1978.53.camel@sisko.scot.redhat.com> <4069F2FC.90003@pobox.com>
+	 <1080742105.1991.40.camel@sisko.scot.redhat.com>
 Content-Type: text/plain
-Message-Id: <1080743276.3547.146.camel@watt.suse.com>
+Message-Id: <1080742895.3547.139.camel@watt.suse.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 31 Mar 2004 09:27:57 -0500
+Date: Wed, 31 Mar 2004 09:21:35 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-03-31 at 09:03, Stephen C. Tweedie wrote:
+On Wed, 2004-03-31 at 09:08, Stephen C. Tweedie wrote:
 > Hi,
 > 
-> On Tue, 2004-03-30 at 23:13, Chris Mason wrote:
+> On Tue, 2004-03-30 at 23:21, Jeff Garzik wrote:
 > 
-> > Most database benchmarks are done on scsi, and the blkdev_flush should
-> > be a noop there.  For IDE based database and mail server benchmarks, the
-> > results won't be pretty.  
+> > For IDE, O_DIRECT and O_SYNC can use special "FUA" commands, which don't 
+> > return until the data is on the platter.
 > 
-> Yep.  I'm really not too worried about big database benchmarks -- those
-> are very much special cases, using rather specialised storage setup
-> (SCSI or FC, striped over lots of small disks rather than fewer large
-> ones.)  I'm much more concerned about your average LAMP user's mysql
-> database, and how to keep performance sane on that.
-> 
-In some cases, it's going to be so much slower that it will look like
-the old code wasn't writing the data at all.  I don't think there's much
-we can do about that.
+> fsync() is still really nasty, because that can require that we wait on
+> IO that was submitted by the VM before we knew that there was a
+> synchronous IO wait coming.  
 
-> > The reiserfs fsync code tries hard to only flush once, so if a commit is
-> > done then blkdev_flush isn't called.  We might have to do a few other
-> > tricks to queue up multiple synchronous ios and only flush once.
-> 
-> Batching is really helpful when you've got lots of threads that can be
-> coalesced, yes.  ext3 does that for things like mail servers.  I'm not
-> sure whether the same tricks will apply to the various databases out
-> there, though.
+Yes, it gets ugly in a hurry.  Jeff, look at the whole thread about the
+O_DIRECT read vs buffered write races.  I don't think we can use FUA for
+fsync or O_SYNC without using it for every write.
 
-We can do better in general when there's more then one process doing an
-fsync.  reiserfs and ext3 both try to be smart about batching log
-commits, but I think we could do more to streamline the data writes.
-
-I'm playing with a few ideas, I'll post more when I've got real code to
-back things up.
-
-If there's only one process doing fsyncs, there's not much the kernel
-can do except provide an aio fsync call.
+We might be able to get away with using it on O_DIRECT.
 
 -chris
-
-
 
 

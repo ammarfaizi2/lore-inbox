@@ -1,81 +1,183 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261750AbVDCOIL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbVDCONM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261750AbVDCOIL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 10:08:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVDCOIL
+	id S261764AbVDCONM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 10:13:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVDCONM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 10:08:11 -0400
-Received: from mail.pixelwings.com ([194.152.163.212]:13248 "EHLO
-	pixelwings.com") by vger.kernel.org with ESMTP id S261750AbVDCOIF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 10:08:05 -0400
-In-Reply-To: <20050330233029.GA28879@sa.pracom.com.au>
-References: <Pine.LNX.4.61.0503290659360.10929@chaos.analogic.com> <20050330233029.GA28879@sa.pracom.com.au>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-1--1061393109"
-Message-Id: <4948d7062bd65ca91f84daa114b9adcb@tequila.co.jp>
+	Sun, 3 Apr 2005 10:13:12 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:33444 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261764AbVDCOM6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 10:12:58 -0400
+Date: Sun, 3 Apr 2005 07:12:27 -0700
+From: Paul Jackson <pj@engr.sgi.com>
+To: mingo@elte.hu
+Cc: kenneth.w.chen@intel.com, torvalds@osdl.org, nickpiggin@yahoo.com.au,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db
+ benchmark result on recent 2.6 kernels]
+Message-Id: <20050403071227.666ac33d.pj@engr.sgi.com>
+In-Reply-To: <20050403043420.212290a8.pj@engr.sgi.com>
+References: <200504020100.j3210fg04870@unix-os.sc.intel.com>
+	<20050402145351.GA11601@elte.hu>
+	<20050402215332.79ff56cc.pj@engr.sgi.com>
+	<20050403070415.GA18893@elte.hu>
+	<20050403043420.212290a8.pj@engr.sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-Date: Sun, 3 Apr 2005 23:07:56 +0900
-To: John Pearson <jpearson@oasissystems.com.au>
-X-Pgp-Agent: GPGMail 1.0.2
-X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Three more observations.
 
---Apple-Mail-1--1061393109
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+ 1) The slowest measure_one() calls are, not surprisingly, those for the
+    largest sizes.  At least on my test system of the moment, the plot
+    of cost versus size has one major maximum (a one hump camel, not two).
+    
+    Seems like if we computed from smallest size upward, instead of largest
+    downward, and stopped whenever two consecutive measurements were less
+    than say 70% of the max seen so far, then we could save a nice chunk
+    of the time.
+
+    Of course, if two hump systems exist, this is not reliable on them.
+
+ 2) Trivial warning fix for printf format mismatch:
+
+=================================== begin ===================================
+--- 2.6.12-rc1-mm4.orig/kernel/sched.c  2005-04-03 06:32:34.000000000 -0700
++++ 2.6.12-rc1-mm4/kernel/sched.c       2005-04-03 06:34:07.000000000 -0700
+@@ -5211,7 +5211,7 @@ void __devinit calibrate_migration_costs
+ #ifdef CONFIG_X86
+                        cpu_khz/1000
+ #else
+-                       -1
++                       -1L
+ #endif
+                );
+        printk("---------------------\n");
+==================================== end ====================================
 
 
-On 31/3/2005, at 08:30, John Pearson wrote:
->
-> E.g.: suppose there are 2 snack bars within 100 yards of a school; one
-> is out of sight, across an intersection and down a side street, and one
-> is clearly visible across an empty lot.  For years the lot has been
-> unfenced and, human nature being what it is, kids just walk across the
-> open lot.  The owner of the lot then decides to put up a high fence
-> around it with a combination lock on the gate (now he's raising 
-> chinchillas,
-> or peaches; he won't say) so all the kids start going to the other 
-> snackbar,
-> except for a few that he trusts with the combination.  It seems to me
-> you're suggesting that the snackbar owner who's lost out would have
-> an action for restraint of trade; I can't see it myself.
+ 3) I was noticing that my test system was only showing a couple of distinct
+    values for cpu_distance, even though it has 4 distinct distances for
+    values of node_distance.  So I coded up a variant of cpu_distance that
+    converts the problem to a node_distance problem, and got the following
+    cost matrix:
 
-Well in Austria there is a law: if you walk through an area that is not 
-public and do this for a very long time years and suddenly the owner 
-stops you from doing this, you could sue him for stopping you doing a 
-usual thing.
+=================================== begin ===================================
+Total of 8 processors activated (15515.64 BogoMIPS).
+---------------------
+migration cost matrix (max_cache_size: 0, cpu: -1 MHz):
+---------------------
+          [00]    [01]    [02]    [03]    [04]    [05]    [06]    [07]
+[00]:     -     4.0(0) 21.7(1) 21.7(1) 25.2(2) 25.2(2) 25.3(3) 25.3(3)
+[01]:   4.0(0)    -    21.7(1) 21.7(1) 25.2(2) 25.2(2) 25.3(3) 25.3(3)
+[02]:  21.7(1) 21.7(1)    -     4.0(0) 25.3(3) 25.3(3) 25.2(2) 25.2(2)
+[03]:  21.7(1) 21.7(1)  4.0(0)    -    25.3(3) 25.3(3) 25.2(2) 25.2(2)
+[04]:  25.2(2) 25.2(2) 25.3(3) 25.3(3)    -     4.0(0) 21.7(1) 21.7(1)
+[05]:  25.2(2) 25.2(2) 25.3(3) 25.3(3)  4.0(0)    -    21.7(1) 21.7(1)
+[06]:  25.3(3) 25.3(3) 25.2(2) 25.2(2) 21.7(1) 21.7(1)    -     4.0(0)
+[07]:  25.3(3) 25.3(3) 25.2(2) 25.2(2) 21.7(1) 21.7(1)  4.0(0)    -
+---------------------
+cacheflush times [4]: 4.0 (4080540) 21.7 (21781380) 25.2 (25259428) 25.3 (25372682)
+---------------------
+==================================== end ====================================
 
-But real life issues and software laws are more than two kind of shoes. 
-They are two kind of universes.
 
-Right and Code changes always happens, some approve i some not. And 
-there will be always people not like it.
+    The code (below) is twice as complicated, the runtime twice as long,
+    and it's less intuitive - sched_domains seems more appropriate as
+    the basis for migration costs than the node distances in SLIT tables.
+    Finally, I don't know if distinguishing between costs of 21.7 and
+    25.3 is worth much.
 
-Fact is the kernel is a GPL thing so logically the coders want to keep 
-it GPL,
+    So the case for switching to this node_distance base is less than
+    persuasive, to put it politely.
 
-lg, clemens
+    Perhaps it's only real value is in highlighting that perhaps the
+    code to setup the sched_domain topology on our ia64 SN2 Altix systems
+    is too coarse, given that it only found two distance values, not four.
 
---Apple-Mail-1--1061393109
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
+    If that's the case, I will have to call in someone else to examine
+    whether it's appropriate to refine the sched_domains setup for this
+    kind of system.  I'm not competent to determine that, nor to code it.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (Darwin)
+    Here's the code that bases cpu_distance on node_distance:
 
-iD8DBQFCT/i/jBz/yQjBxz8RAjVoAKDqfu9vPUnLHJsPmVeqWiW6i4C7dgCgr2Ly
-33Wzb2kxBsRn7ESWZ9p6xWs=
-=wz4c
------END PGP SIGNATURE-----
+=================================== begin ===================================
+__init static int cmpint(const void *a, const void *b)
+{
+        return *(int *)a - *(int *)b;
+}
 
---Apple-Mail-1--1061393109--
+/*
+ * Estimate distance of two CPUs based on their node_distance,
+ * mapping to sequential integers 0, 1, ... N-1, for the N
+ * distinct values of distances (closest CPUs are distance 0,
+ * farthest CPUs are distance N-1).  If there are more than
+ * MAX_DOMAIN_DISTANCE distinct different distance values,
+ * collapse the larger distances to one value.
+ */
 
+__init static unsigned long cpu_distance(int cpu1, int cpu2)
+{
+	static int num_dist_vals;
+	static int node_distances[MAX_DOMAIN_DISTANCE];
+	int dist = node_distance(cpu_to_node(cpu1), cpu_to_node(cpu2));
+	int v;
+
+	if (num_dist_vals == 0) {
+		int i, j, k;
+
+		/*
+		 * For each dist not already in node_distances[], if there's
+		 * room or it's less than an existing 'luser' entry, add it.
+		 */
+		for_each_online_node(i) {
+			for_each_online_node(j) {
+				int dist = node_distance(i, j);
+				int luser = -1;
+
+				for (k = 0; k < num_dist_vals; k++) {
+					if (node_distances[k] == dist)
+						break;
+					if (dist < node_distances[k])
+						luser = k;
+				}
+				if (node_distances[k] == dist)
+					continue;
+				else if (num_dist_vals < MAX_DOMAIN_DISTANCE)
+					node_distances[num_dist_vals++] = dist;
+				else if (luser >= 0)
+					node_distances[luser] = dist;
+			}
+		}
+		/*
+		 * Now node_distances[] has the smallest num_dist_vals
+		 * distinct node distance values.  Lets sort them.
+		 */
+		sort(node_distances, num_dist_vals, sizeof(int), cmpint, NULL);
+
+		if (migration_debug) {
+			printk("Sorted node_distances used for cpu distances\n");
+			for(v = 0; v < num_dist_vals; v++)
+				printk("  node_distances[%d] = %d\n",
+						v, node_distances[v]);
+		}
+	}
+
+	/* The "- 1" maps all larger sizes onto one */
+	for (v = 0; v < num_dist_vals - 1; v++)
+		if (dist == node_distances[v])
+			break;
+	return v;
+}
+==================================== end ====================================
+
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

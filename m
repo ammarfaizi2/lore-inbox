@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132215AbRCVWK3>; Thu, 22 Mar 2001 17:10:29 -0500
+	id <S132214AbRCVWJt>; Thu, 22 Mar 2001 17:09:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132216AbRCVWKU>; Thu, 22 Mar 2001 17:10:20 -0500
-Received: from mons.uio.no ([129.240.130.14]:24309 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S132215AbRCVWKE>;
-	Thu, 22 Mar 2001 17:10:04 -0500
-To: Camm Maguire <camm@enhanced.com>
-Cc: linux-kernel@vger.kernel.org, nfs-devel@linux.kernel.org
-Subject: Re: PROBLEM: 2.2.18 oops leaves umount hung in disk sleep
-In-Reply-To: <E14g8eP-0006k5-00@intech19.enhanced.com>
-	<shs1yrpabky.fsf@charged.uio.no>
-	<54hf0l8ug1.fsf@intech19.enhanced.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 22 Mar 2001 23:09:13 +0100
-In-Reply-To: Camm Maguire's message of "22 Mar 2001 14:39:10 -0500"
-Message-ID: <shspuf98nhy.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+	id <S132216AbRCVWJa>; Thu, 22 Mar 2001 17:09:30 -0500
+Received: from mg03.austin.ibm.com ([192.35.232.20]:27520 "EHLO
+	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S132214AbRCVWJX>; Thu, 22 Mar 2001 17:09:23 -0500
+Message-ID: <3ABA7777.E2198DE9@austin.ibm.com>
+Date: Thu, 22 Mar 2001 16:06:47 -0600
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Documentation/ioctl-number.txt
+In-Reply-To: <Pine.GSO.4.21.0103221648380.5619-100000@weyl.math.psu.edu>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Camm Maguire <camm@enhanced.com> writes:
+Alexander Viro wrote:
+> 
+> On Thu, 22 Mar 2001, Dave Kleikamp wrote:
+> 
+> > Linus,
+> > I would like to reserve a block of 32 ioctl's for the JFS filesystem.
+> 
+> Details, please? More specifically, what kind of objects are these ioctls
+> applied to?
 
-     > I'd be happy to generate one if I could.  I've got the system
-     > map.  The defaults reported by ksymoops are all correct.  Don't
-     > know why it didn't give me more info.  Normally, the info is
-     > reported by klogd anyway, but not here.  I've sent you all I
-     > currently have.  If you can suggest how I can get more, would
-     > be glad to do so.
+I don't have all the details worked out yet, but the utilities to extend
+and defragment the filesystem will operate on a live volume, so the
+utilities will need to talk to the filesystem to move blocks, extend the
+block map, etc.
 
+The utilities will probably open the root directory and apply the ioctls
+to it, unless there is a better way to do it.
 
-Unless you happen to have a dump from 'dmesg', there's probably not
-much you can do to recover the rest of the Oops...
-
-We need at least the line 'EIP:' if we're to find out where the fault
-occurred. Are you certain that it can't be found in the syslog?
-
-     > I thought I was running v3.  Can't seem to find anything now
-     > which indicates the protocol version in use, but was under the
-     > impression that v4 was only an option in 2.4.x, no?
-
-
-Mar 21 01:14:49 intech9 automount[305]: using kernel protocol version 3 on reawaken
-
-Sorry, the above message fooled me.
-
-
-Cheers,
-  Trond
+-- 
+David Kleikamp
+IBM Linux Technology Center

@@ -1,76 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263648AbUJ2XNK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263536AbUJ2XSi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263648AbUJ2XNK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 19:13:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263603AbUJ2XII
+	id S263536AbUJ2XSi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 19:18:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263657AbUJ2XOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 19:08:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:39849 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262045AbUJ2XEW (ORCPT
+	Fri, 29 Oct 2004 19:14:49 -0400
+Received: from fire.osdl.org ([65.172.181.4]:24249 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S263606AbUJ2XIk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 19:04:22 -0400
-Date: Fri, 29 Oct 2004 16:08:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Buffered I/O slowness
-Message-Id: <20041029160827.4dc29c3f.akpm@osdl.org>
-In-Reply-To: <200410291046.48469.jbarnes@engr.sgi.com>
-References: <200410251814.23273.jbarnes@engr.sgi.com>
-	<200410291046.48469.jbarnes@engr.sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 29 Oct 2004 19:08:40 -0400
+Subject: Re: 2.6.9 kernel oops with openais
+From: Mark Haverkamp <markh@osdl.org>
+To: Steven Dake <sdake@mvista.com>
+Cc: Openais List <openais@lists.osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1099090282.14581.19.camel@persist.az.mvista.com>
+References: <1099090282.14581.19.camel@persist.az.mvista.com>
+Content-Type: text/plain
+Date: Fri, 29 Oct 2004 16:08:22 -0700
+Message-Id: <1099091302.13961.42.camel@markh1.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes <jbarnes@engr.sgi.com> wrote:
->
-> ...
-> o one thread on one large volume using buffered I/O + filesystem
->   read (1 thread, one volume, 131072 blocks/request) avg: ~931 MB/s
->   write (1 thread, one volume, 131072 blocks/request) avg: ~908 MB/s
+On Fri, 2004-10-29 at 15:51 -0700, Steven Dake wrote:
+> Mark,
 > 
-> I'm intentionally issuing very large reads and writes here to take advantage 
-> of the striping, but it looks like both the readahead and regular buffered 
-> I/O code will split the I/O into page sized chunks?
-
-No, the readahead code will assemble single BIOs up to the size of the
-readahead window.  So the single-page-reads in do_generic_mapping_read()
-should never happen, because the pages are in cache from the readahead.
-
->  The call chain is pretty 
-> long, but it looks to me like do_generic_mapping_read() will split the reads 
-> up by page and issue them independently to the lower levels.  In the direct 
-> I/O case, up to 64 pages are issued at a time, which seems like it would help 
-> throughput quite a bit.  The profile seems to confirm this.  Unfortunately I 
-> didn't save the vmstat output for this run (and now the fc switch is 
-> misbehaving so I have to fix that before I run again), but iirc the system 
-> time was pretty high given that only one thread was issuing I/O.
+> Have you seen the following oops in 2.6.x?  I can generate it easily
+> with two nodes by letting openais run for 15-20 seconds on 2.6.9.
 > 
-> So maybe a few things need to be done:
->   o set readahead to larger values by default for dm volumes at setup time
->     (the default was very small)
+> I had to turn mlockall off in order to get openais to run in the first
+> place, otherwise openais runs out of ram which causes a memset to a null
+> address in parse.c (we should fix that:).  Have you had problems with
+> mlock when working with a 2.6 kernel?
 
-Well possibly.  dm has control of queue->backing_dev_info and is free to
-tune the queue's default readahead.
+Funny that you should ask.  Just this afternoon I updated one of my
+machines from 2.6.8-rc4 to 2.6.10-rc1 and saw the memset problem.  (I
+got around it by commenting out the group.conf file). And then got a
+segfault later.  I didn't see a kernel panic though since I couldn't get
+it to run that long.  I don't know about any mlock problems.  Maybe the
+kernel mailing list archives has something.
 
->   o maybe bypass readahead for very large requests?
->     if the process is doing a huge request, chances are that readahead won't
->     benefit it as much as a process doing small requests
 
-Maybe - but bear in mind that this is all pinned memory when the I/O is in
-flight, so some upper bound has to remain.
+Mark.
 
->   o not sure about writes yet, I haven't looked at that call chain much yet
 > 
-> Does any of this sound reasonable at all?  What else could be done to make the 
-> buffered I/O layer friendlier to large requests?
+>  <1>Unable to handle kernel NULL pointer dereference at virtual address
+> 0000000c
+>  printing eip:
+> c016dd7b
+> *pde = 00000000
+> Oops: 0000 [#2]
+> PREEMPT SMP
+> Modules linked in:
+> CPU:    2
+> EIP:    0060:[<c016dd7b>]    Not tainted VLI
+> EFLAGS: 00010286   (2.6.9)
+> EIP is at dnotify_flush+0x1e/0xad
+> eax: 00000000   ebx: f6cdfb80   ecx: 00000000   edx: f6cdfb80
+> esi: 00000000   edi: f7baf880   ebp: f6cdfb80   esp: f6cefd50
+> ds: 007b   es: 007b   ss: 0068
+> Process aisexec (pid: 929, threadinfo=f6cee000 task=f7cc2810)
+> Stack: c0154240 f7224a70 f7cdea80 f6cdfb80 00000000 f7baf880 f7baf880
+> c0152a6f
+>        f6cdfb80 f7baf880 00000005 00000007 0000000f c011e344 f6cdfb80
+> f7baf880
+>        00000020 00000001 f7baf880 f7cc2d38 f7cc2810 f7a9a0ac c011f11e
+> f7cc2810
+> Call Trace:
+>  [<c0154240>] __fput+0x86/0xd4
+>  [<c0152a6f>] filp_close+0x46/0x86
+>  [<c011e344>] put_files_struct+0x87/0xec
+>  [<c011f11e>] do_exit+0x1a8/0x360
+>  [<c01070fd>] do_divide_error+0x0/0x13e
+>  [<c0116640>] do_page_fault+0x251/0x5af
+>  [<c0108aa3>] do_IRQ+0xd2/0x139
+>  [<c033b760>] move_addr_to_user+0x5c/0x67
+>  [<c033d815>] sys_recvmsg+0x21d/0x226
+>  [<c033f3ec>] release_sock+0x1b/0x71
+>  [<c033f3a7>] lock_sock+0x17/0x41
+>  [<c01555d7>] invalidate_inode_buffers+0x1b/0x7e
+>  [<c01163ef>] do_page_fault+0x0/0x5af
+>  [<c01068e5>] error_code+0x2d/0x38
+>  [<c033c550>] sock_poll+0xe/0x31
+>  [<c01664c1>] do_pollfd+0x8c/0x90
+>  [<c016652b>] do_poll+0x66/0xc6
+>  [<c01666cb>] sys_poll+0x140/0x1fd
+>  [<c0165a45>] __pollwait+0x0/0xc5
+>  [<c0105e7b>] syscall_call+0x7/0xb
+> 
+-- 
+Mark Haverkamp <markh@osdl.org>
 
-I'm not sure that we know what's going on yet.  I certainly don't.  The
-above numbers look good, so what's the problem???
-
-Suggest you get geared up to monitor the BIOs going into submit_bio(). 
-Look at their bi_sector and bi_size.  Make sure that buffered I/O is doing
-the right thing.

@@ -1,43 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272717AbRI0MtY>; Thu, 27 Sep 2001 08:49:24 -0400
+	id <S272822AbRI0MvY>; Thu, 27 Sep 2001 08:51:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272764AbRI0MtO>; Thu, 27 Sep 2001 08:49:14 -0400
-Received: from curlew.cs.man.ac.uk ([130.88.13.7]:37382 "EHLO
-	curlew.cs.man.ac.uk") by vger.kernel.org with ESMTP
-	id <S272736AbRI0MtE>; Thu, 27 Sep 2001 08:49:04 -0400
-Date: Thu, 27 Sep 2001 13:49:29 +0100
-From: John Levon <moz@compsoc.man.ac.uk>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: version.h
-Message-ID: <20010927134929.D18860@compsoc.man.ac.uk>
-In-Reply-To: <Pine.LNX.4.33.0109271032320.4588-100000@fargo>
+	id <S272818AbRI0MvO>; Thu, 27 Sep 2001 08:51:14 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:24339 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S272817AbRI0MvD>; Thu, 27 Sep 2001 08:51:03 -0400
+Date: Thu, 27 Sep 2001 15:48:29 +0300
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <1024452310.20010927154829@port.imtp.ilyichevsk.odessa.ua>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Automount expiration bug: it does not like symlinks
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109271032320.4588-100000@fargo>
-User-Agent: Mutt/1.3.19i
-X-Url: http://www.movement.uklinux.net/
-X-Record: Truant - Neither Work Nor Leisure
-X-Toppers: N/A
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 27, 2001 at 10:36:47AM +0200, David =?ISO-8859-1?Q?G=F3mez ?= wrote:
+Hi,
 
-> It seems that in 2.4.10 include/linux/version.h has not updated the macro
-> UTS_VERSION to the new kernel version. I found this error when trying to
-> compile alsa-drivers and the configure script couldn't find the right
-> modules directory.
+I just discovered that automount misbehaves when its mount points are
+syumlinks. It repeatedly reports expiration but fails to actually
+unmount automounted dir.
 
-that file is auto-generated. Read the kernel howto and make sure to go through
-all the necessary build steps first.
+See attached logs. My /mnt is a symlink to /.share/.local/mnt
+If you plan to reproduce please note that my /etc/mtab is symlinked to
+/proc/mounts which may contribute to this behavior.
 
-regards
-john
+# automount --timeout 5 /mnt/auto file /etc/autofs.conf
+# cd /mnt/auto/hda2
+# cd /
+ -- in syslog: --
+Sep 27 09:47:05 pegasus automount[179]: attempting to mount entry /mnt/auto/hda2
+Sep 27 09:47:05 pegasus automount[3539]: lookup(file): looking up hda2
+Sep 27 09:47:05 pegasus automount[3539]: lookup(file): hda2 -> -fstype=auto,noexec^I:/dev/hda2
+Sep 27 09:47:05 pegasus automount[3539]: parse(sun): expanded entry: -fstype=auto,noexec^I:/dev/hda2
+Sep 27 09:47:05 pegasus automount[3539]: parse(sun): dequote("fstype=auto,noexec") -> fstype=auto,noexec
+Sep 27 09:47:05 pegasus automount[3539]: parse(sun): gathered options: fstype=auto,noexec
+Sep 27 09:47:05 pegasus automount[3539]: parse(sun): dequote("/dev/hda2") -> /dev/hda2
+Sep 27 09:47:05 pegasus automount[3539]: parse(sun): core of entry: options=fstype=auto,noexec, loc=/dev/hda2
+Sep 27 09:47:05 pegasus automount[3539]: parse(sun): mounting root /mnt/auto, mountpoint hda2/, what /dev/hda2, fstype auto, options noexec
+Sep 27 09:47:05 pegasus automount[3539]: do_mount /dev/hda2 /mnt/auto/hda2/ type auto options noexec using module generic
+Sep 27 09:47:05 pegasus automount[3539]: mount(generic): calling mkdir_path /mnt/auto/hda2/
+Sep 27 09:47:05 pegasus automount[3539]: mount(generic): calling mount -t auto -s -o noexec /dev/hda2 /mnt/auto/hda2/
+Sep 27 09:47:06 pegasus automount[3539]: mount(generic): mounted /dev/hda2 type auto on /mnt/auto/hda2/
+Sep 27 09:47:13 pegasus automount[3545]: running expiration on path /mnt/auto/hda2
+Sep 27 09:47:13 pegasus automount[3545]: expired /mnt/auto/hda2
+Sep 27 09:47:19 pegasus automount[3549]: running expiration on path /mnt/auto/hda2
+Sep 27 09:47:19 pegasus automount[3549]: expired /mnt/auto/hda2
+Sep 27 09:47:25 pegasus automount[3553]: running expiration on path /mnt/auto/hda2
+Sep 27 09:47:25 pegasus automount[3553]: expired /mnt/auto/hda2
+Sep 27 09:47:31 pegasus automount[3557]: running expiration on path /mnt/auto/hda2
+Sep 27 09:47:31 pegasus automount[3557]: expired /mnt/auto/hda2
+ -- here I do manual "umount /mnt/auto/hda2" --
+Sep 27 09:47:39 pegasus automount[3563]: running expiration on path /mnt/auto/hda2
+Sep 27 09:47:39 pegasus automount[3563]: expired /mnt/auto/hda2
+ -- end of log --
+
+# killall automount
+# automount --timeout 5 /.share/.local/mnt/auto file /etc/autofs.conf
+# cd /.share/.local/mnt/auto/hda2
+# cd /
+ -- in syslog: --
+Sep 27 14:33:09 pegasus automount[9726]: attempting to mount entry /.share/.local/mnt/auto/hda2
+Sep 27 14:33:09 pegasus automount[9763]: lookup(file): looking up hda2
+Sep 27 14:33:09 pegasus automount[9763]: lookup(file): hda2 -> -fstype=auto,noexec^I:/dev/hda2
+Sep 27 14:33:09 pegasus automount[9763]: parse(sun): expanded entry: -fstype=auto,noexec^I:/dev/hda2
+Sep 27 14:33:09 pegasus automount[9763]: parse(sun): dequote("fstype=auto,noexec") -> fstype=auto,noexec
+Sep 27 14:33:09 pegasus automount[9763]: parse(sun): gathered options: fstype=auto,noexec
+Sep 27 14:33:09 pegasus automount[9763]: parse(sun): dequote("/dev/hda2") -> /dev/hda2
+Sep 27 14:33:09 pegasus automount[9763]: parse(sun): core of entry: options=fstype=auto,noexec, loc=/dev/hda2
+Sep 27 14:33:09 pegasus automount[9763]: parse(sun): mounting root /.share/.local/mnt/auto, mountpoint hda2/, what /dev/hda2, fstype auto, options noexec
+Sep 27 14:33:09 pegasus automount[9763]: do_mount /dev/hda2 /.share/.local/mnt/auto/hda2/ type auto options noexec using module generic
+Sep 27 14:33:09 pegasus automount[9763]: mount(generic): calling mkdir_path /.share/.local/mnt/auto/hda2/
+Sep 27 14:33:09 pegasus automount[9763]: mount(generic): calling mount -t auto -s -o noexec /dev/hda2 /.share/.local/mnt/auto/hda2/
+Sep 27 14:33:09 pegasus automount[9763]: mount(generic): mounted /dev/hda2 type auto on /.share/.local/mnt/auto/hda2/
+Sep 27 14:33:18 pegasus automount[9790]: running expiration on path /.share/.local/mnt/auto/hda2
+Sep 27 14:33:18 pegasus automount[9790]: expired /.share/.local/mnt/auto/hda2
+ -- end of log --
 
 -- 
-" It is quite humbling to realize that the storage occupied by the longest line
-from a typical Usenet posting is sufficient to provide a state space so vast
-that all the computation power in the world can not conquer it."
-	- Dave Wallace
+Best regards, VDA
+mailto:VDA@port.imtp.ilyichevsk.odessa.ua
+
+

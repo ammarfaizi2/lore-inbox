@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263794AbTARJ3C>; Sat, 18 Jan 2003 04:29:02 -0500
+	id <S263977AbTARJ3f>; Sat, 18 Jan 2003 04:29:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263977AbTARJ3C>; Sat, 18 Jan 2003 04:29:02 -0500
-Received: from pop.gmx.de ([213.165.65.60]:15283 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S263794AbTARJ3B>;
-	Sat, 18 Jan 2003 04:29:01 -0500
-Message-Id: <5.1.1.6.2.20030118103233.00cb4ff0@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Sat, 18 Jan 2003 10:34:41 +0100
-To: Sam Ravnborg <sam@ravnborg.org>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: 2.5.59 vmlinux.lds.S change broke modules
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, kai@tp1.ruhr-uni-bochum.de,
-       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-In-Reply-To: <20030118092331.GA1483@mars.ravnborg.org>
-References: <5.1.1.6.2.20030118085515.00c99e40@pop.gmx.net>
- <15911.64825.624251.707026@harpo.it.uu.se>
- <5.1.1.6.2.20030118085515.00c99e40@pop.gmx.net>
+	id <S264001AbTARJ3f>; Sat, 18 Jan 2003 04:29:35 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:27655 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S263977AbTARJ3e>;
+	Sat, 18 Jan 2003 04:29:34 -0500
+Date: Sat, 18 Jan 2003 10:37:43 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jurriaan <thunder7@xs4all.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.59 doesn't boot - hangs after 'Uncompressing the kernel'
+Message-ID: <20030118093743.GB1483@mars.ravnborg.org>
+Mail-Followup-To: Jurriaan <thunder7@xs4all.nl>,
+	linux-kernel@vger.kernel.org
+References: <20030118081408.GA1163@middle.of.nowhere>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030118081408.GA1163@middle.of.nowhere>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:23 AM 1/18/2003 +0100, Sam Ravnborg wrote:
->On Sat, Jan 18, 2003 at 09:00:51AM +0100, Mike Galbraith wrote:
-> > At 01:55 PM 1/17/2003 +0100, Mikael Pettersson wrote:
-> >
-> > >Reverting 2.5.59's patch to arch/i386/vmlinux.lds.S cured the
-> > >problem and modules now load correctly for me.
-> >
-> > Hi,
-> >
-> > Putting . = ALIGN(64) back in front of __start___ksymtab = .
-> > (vmlinux.lds.h) fixed it here.
->
->But that is just a way to hide the real problem.
+On Sat, Jan 18, 2003 at 09:14:08AM +0100, Jurriaan wrote:
+> I can't get 2.5.59 to boot on my dual tualatin/via PRO266T system.
+> It hangs early in the boot-process, I don't see anything after the
+> 'Uncompressing the kernel' line. The keyboard led's stuck then as well,
+> and waiting doesn't help.
 
-Yup.  I was only checking to see if that change was why it was 
-croaking.  Kai's patch works a treat here.
+People have problems after recent changes in vmlinux.lds.
 
-         -Mike
+Try apply the vmlinux patch from Andrew's set of patches:
+http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-mm2/
 
+Usually report is an oops, but that may be UP only.
+
+	Sam

@@ -1,41 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262385AbUKVUu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262383AbUKVUxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262385AbUKVUu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 15:50:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbUKVUui
+	id S262383AbUKVUxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 15:53:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262366AbUKVUvb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 15:50:38 -0500
-Received: from postfix4-2.free.fr ([213.228.0.176]:61876 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S262384AbUKVUay
+	Mon, 22 Nov 2004 15:51:31 -0500
+Received: from jade.aracnet.com ([216.99.193.136]:7865 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S262384AbUKVUuo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 15:30:54 -0500
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: sparse segfaults
-Date: Mon, 22 Nov 2004 21:30:45 +0100
-User-Agent: KMail/1.6.2
-Cc: Linus Torvalds <torvalds@osdl.org>, Mitchell Blank Jr <mitch@sfgoth.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>
-References: <20041120143755.E13550@flint.arm.linux.org.uk> <20041122183956.GA50325@gaz.sfgoth.com> <Pine.LNX.4.58.0411221047140.20993@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0411221047140.20993@ppc970.osdl.org>
+	Mon, 22 Nov 2004 15:50:44 -0500
+Date: Mon, 22 Nov 2004 12:50:22 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>, pbadari@us.ibm.com
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm mailing list <linux-mm@kvack.org>
+Subject: [PATCH] Assign PKMAP_BASE dynamically
+Message-ID: <73380000.1101156622@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200411222130.46247.duncan.sands@math.u-psud.fr>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I suspect (but don't have any real argument to back that up) is that the
-> gcc "extended lvalues" fell out as a side effect from how gcc ended up
-> doing some random semantic tree parsing, and it wasn't really "designed"
-> per se, as much as just a random implementation detail. Then somebody 
-> noticed it, and said "cool" and documented it.
+Badari hit a problem when configuring PAE off (ie CONFIG_4G) where
+the pkmap area could end up overlapping the fixmap area. For some
+reason, PKMAP_BASE was defined statically, which seems rather pointless,
+and asking for trouble. Patch below definines it dynamically, under the
+fixmap area. The ordering of the VMALLOC_RESERVE space is:
 
-Generalized lvalues have been removed.  Check out
-http://gcc.gnu.org/ml/gcc/2004-11/msg00604.html
+FIXADDR_TOP
+			fixed_addresses
+FIXADDR_START
+			temp fixed addresses
+FIXADDR_BOOT_START
+			Persistent kmap area
+PKMAP_BASE
+VMALLOC_END
+			Vmalloc area
+VMALLOC_START
+high_memory
 
-All the best,
+Could you give this a spin in -mm? I've tested it on the afflicted box,
+and confirmed it fixes the problem.
 
-Duncan.
+M.
+
+diff -purN -X /home/mbligh/.diff.exclude /home/linux/views/linux-2.6.10-rc1-mm2/include/asm-i386/fixmap.h 2.6.10-rc1-mm2-badari/include/asm-i386/fixmap.h
+--- /home/linux/views/linux-2.6.10-rc1-mm2/include/asm-i386/fixmap.h	2004-10-18 15:51:09.000000000 -0700
++++ 2.6.10-rc1-mm2-badari/include/asm-i386/fixmap.h	2004-11-22 10:24:27.000000000 -0800
+@@ -109,7 +109,9 @@ extern void __set_fixmap (enum fixed_add
+ #define FIXADDR_TOP	((unsigned long)__FIXADDR_TOP)
+ 
+ #define __FIXADDR_SIZE	(__end_of_permanent_fixed_addresses << PAGE_SHIFT)
+-#define FIXADDR_START	(FIXADDR_TOP - __FIXADDR_SIZE)
++#define __FIXADDR_BOOT_SIZE	(__end_of_fixed_addresses << PAGE_SHIFT)
++#define FIXADDR_START		(FIXADDR_TOP - __FIXADDR_SIZE)
++#define FIXADDR_BOOT_START	(FIXADDR_TOP - __FIXADDR_BOOT_SIZE)
+ 
+ #define __fix_to_virt(x)	(FIXADDR_TOP - ((x) << PAGE_SHIFT))
+ #define __virt_to_fix(x)	((FIXADDR_TOP - ((x)&PAGE_MASK)) >> PAGE_SHIFT)
+diff -purN -X /home/mbligh/.diff.exclude /home/linux/views/linux-2.6.10-rc1-mm2/include/asm-i386/highmem.h 2.6.10-rc1-mm2-badari/include/asm-i386/highmem.h
+--- /home/linux/views/linux-2.6.10-rc1-mm2/include/asm-i386/highmem.h	2004-10-29 01:52:51.000000000 -0700
++++ 2.6.10-rc1-mm2-badari/include/asm-i386/highmem.h	2004-11-22 10:28:17.000000000 -0800
+@@ -40,16 +40,27 @@ extern void kmap_init(void);
+  * easily, subsequent pte tables have to be allocated in one physical
+  * chunk of RAM.
+  */
+-#if NR_CPUS <= 32
+-#define PKMAP_BASE (0xff800000UL)
+-#else
+-#define PKMAP_BASE (0xff600000UL)
+-#endif
+ #ifdef CONFIG_X86_PAE
+ #define LAST_PKMAP 512
+ #else
+ #define LAST_PKMAP 1024
+ #endif
++/*
++ * Ordering is:
++ *
++ * FIXADDR_TOP
++ * 			fixed_addresses
++ * FIXADDR_START
++ * 			temp fixed addresses
++ * FIXADDR_BOOT_START
++ * 			Persistent kmap area
++ * PKMAP_BASE
++ * VMALLOC_END
++ * 			Vmalloc area
++ * VMALLOC_START
++ * high_memory
++ */
++#define PKMAP_BASE ( (FIXADDR_BOOT_START - PAGE_SIZE*(LAST_PKMAP + 1)) & PMD_MASK )
+ #define LAST_PKMAP_MASK (LAST_PKMAP-1)
+ #define PKMAP_NR(virt)  ((virt-PKMAP_BASE) >> PAGE_SHIFT)
+ #define PKMAP_ADDR(nr)  (PKMAP_BASE + ((nr) << PAGE_SHIFT))
+

@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265355AbTBYCAj>; Mon, 24 Feb 2003 21:00:39 -0500
+	id <S266932AbTBYBua>; Mon, 24 Feb 2003 20:50:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265369AbTBYCAj>; Mon, 24 Feb 2003 21:00:39 -0500
-Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:7810 "EHLO
-	gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id <S265355AbTBYCAi>; Mon, 24 Feb 2003 21:00:38 -0500
-Date: Mon, 24 Feb 2003 18:07:30 -0800
-To: yodaiken@fsmlabs.com
-Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
-       lm@work.bitmover.com, mbligh@aracnet.com, davidsen@tmr.com,
-       greearb@candelatech.com, linux-kernel@vger.kernel.org,
-       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030225020730.GA4507@gnuppy.monkey.org>
-References: <Pine.LNX.3.96.1030223182350.999E-100000@gatekeeper.tmr.com> <33350000.1046043468@[10.10.2.4]> <20030224045717.GC4215@work.bitmover.com> <20030224074447.GA4664@gnuppy.monkey.org> <20030224075430.GN10411@holomorphy.com> <20030224080052.GA4764@gnuppy.monkey.org> <20030224004005.5e46758d.akpm@digeo.com> <20030224085031.GP10411@holomorphy.com> <20030224091758.A11805@hq.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030224091758.A11805@hq.fsmlabs.com>
-User-Agent: Mutt/1.5.3i
-From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
+	id <S266933AbTBYBua>; Mon, 24 Feb 2003 20:50:30 -0500
+Received: from adsl-67-114-19-186.dsl.pltn13.pacbell.net ([67.114.19.186]:31906
+	"HELO adsl-63-202-77-221.dsl.snfc21.pacbell.net") by vger.kernel.org
+	with SMTP id <S266932AbTBYBu2>; Mon, 24 Feb 2003 20:50:28 -0500
+Message-ID: <3E5ACE4C.5080908@tupshin.com>
+Date: Mon, 24 Feb 2003 18:00:44 -0800
+From: Tupshin Harper <tupshin@tupshin.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Server shipments [was Re: Minutes from Feb 21 LSE Call]
+References: <20030222231552.GA31268@work.bitmover.com> <3610000.1045957443@[10.10.2.4]> <20030224045616.GB4215@work.bitmover.com> <48940000.1046063797@[10.10.2.4]> <20030224065826.GA5665@work.bitmover.com> <1630000.1046072374@[10.10.2.4]> <20030224161716.GC5665@work.bitmover.com> <12680000.1046105345@[10.10.2.4]> <20030225004113.GB12146@work.bitmover.com> <351250000.1046133664@flay> <20030225005451.GC12146@work.bitmover.com>
+In-Reply-To: <20030225005451.GC12146@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 24, 2003 at 09:17:58AM -0700, yodaiken@fsmlabs.com wrote:
-> On Mon, Feb 24, 2003 at 12:50:31AM -0800, William Lee Irwin III wrote:
-> > There's a vague notion in my head that it should decrease scheduling
-> 
-> Vague notions seems to be the level of data on this topic.
+This conversation has not only gotten out of hand, it's gotten quite
+silly. People are arguing semantics and relative economic value where a
+few simple assertions should do:
 
-Ok, replace "vague notion" with latency and scheduling concepts that
-everybody else except you understands and you'll be a bit more relevant.
+1) There is a significant interest from developers and users in having
+Linux run efficiently on *small* platforms.
+2) There is a significant interest from developers and users in having
+Linux run efficiently on *large* platforms.
+3) There is disagreement on whether it is possible to accomplish 1 and 2
+simultaneously.
+4) There is disagreement on whether adequate testing is taking place to
+make sure 2 doesn't degrade 1(or vice versa).
 
-It's not even about IO system, it's about a consumer-producer relationships
-between threads and some kind of IPC generic mechanism. You'd run into
-the same problems by having two threads communicating in a priorty capable
-scheduler, since the temporal granualarity of "things that the scheduler
-manages" gets clobbered but inheritently brain damaged locking.
+This leads to two choices:
+a) Fork. Obviously to be avoided at all reasonable costs.
+b) Identify reasonable improvements to the testing methodology so that
+any design conflicts are identified immediately instead of gradually
+accumulating and degrading performance over time.
 
-Say, how would the scheduler properly order the priority relationships for
-non-preemptable thread that holds that critical section for 100ms under
-an extreme (or normal) case ?
+I vote b(surprise surprise), however, this just changes the debate to
+"what is reasonable testing methodology?" This, however is a debate much
+more worth having than "who ships more of what" and "who said what when".
 
-The effectiveness of the scheduler in these cases would be meaningless.
-Shit, just replace that SOB with a stocastic-insert-round-robin system and
-it'll be just as effective if this current state of Linux locking stays
-in place. There's probably more truth than exaggeration from what I've
-seen both in the code and running Linux as a desktop OS.
+Given that a fairly thorough performance testing suite is already in
+place, it would seem to be up to the advocates for the "threatened"
+computing environment (large or small) to convince the "testers that be"
+that certain tests should be added. It is inherently unreasonable to
+expect the developer of a feature/change to be unbiased and neutral with
+respect to that feature, therefore it is unreasonable to expect them to
+prove beyond a reasonable doubt that their feature has no negative
+impact. The best that they can do is convince themselves that the
+feature passes the really deep sniff test. The rest is up to the
+community. The ability of a third party to critique code changes is a
+large part of why the bazaar nature of linux development is so valuable.
 
-> Victor Yodaiken 
-
-bill
+-Tupshin
 
 

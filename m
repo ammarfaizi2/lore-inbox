@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264455AbSIQSfc>; Tue, 17 Sep 2002 14:35:32 -0400
+	id <S264471AbSIQSi6>; Tue, 17 Sep 2002 14:38:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264479AbSIQSfc>; Tue, 17 Sep 2002 14:35:32 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38155 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264455AbSIQSfb>;
-	Tue, 17 Sep 2002 14:35:31 -0400
-Message-ID: <3D8776FF.3050504@mandrakesoft.com>
-Date: Tue, 17 Sep 2002 14:39:59 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+	id <S264472AbSIQSi6>; Tue, 17 Sep 2002 14:38:58 -0400
+Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:2540 "HELO
+	mailphish.drugphish.ch") by vger.kernel.org with SMTP
+	id <S264471AbSIQSi4>; Tue, 17 Sep 2002 14:38:56 -0400
+Message-ID: <3D87785B.1080809@drugphish.ch>
+Date: Tue, 17 Sep 2002 20:45:47 +0200
+From: Roberto Nibali <ratz@drugphish.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Tom Rini <trini@kernel.crashing.org>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RESEND] Cleanup (BIN|BCD)_TO_(BCD|BIN) usage/macros
-References: <20020917182950.GA726@opus.bloom.county>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: TLB flush counters gone in 2.5.35-bk?
+References: <3D874DA1.20803@drugphish.ch.suse.lists.linux.kernel> <p73znugtuw4.fsf@oldwotan.suse.de>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini wrote:
-> Right now there's a bit of a mess with all of the BIN_TO_BCD/BCD_TO_BIN
-> macros in the kernel.  It's defined in a half dozen places, and worse
-> yet, not all places use them the same way.  Most users do something
-> like:
-> if ( ... )
->    BIN_TO_BCD(x);
-> 
-> But in a few places, it's used as:
-> if ( ... )
->    y = BIN_TO_BCD(x);
-> 
-> The following creates include/linux/bcd.h which has the 'normal'
-> BIN_TO_BCD macros, as well as CONVERT_{BIN,BCD}_TO_{BCD,BIN},
-> which are for the second case.
+> You can easily get the same information from the CPU performance counters
+> (e.g. via oprofile) 
 
+Thanks for the pointer Andi, I should have thought of oprofile before.
 
-hmmm... removing all the private definitions certainly makes good sense, 
-but having both CONVERT_foo and foo seems a bit wonky...
+You wouldn't happen to know the equivalent counter event to a 
+tlb_flush_mmu() for a PIII by any chance, would you? :). I've checked 
+op_help and only found the ITLB_MISS. I look at the L2_* related cpu 
+counters but can't find a TLB flush counter.
 
-IMO it would be better to have BIN_TO_BCD which returns a value, and 
-__BIN_TO_BCD which has side effects but returns no value...
+I'm reading through Appendix A of the IA-32 Architecture Vol 3 manual 
+(it's actually very interesting), but I haven't found it either so far. 
+Do I have to check for the INVLPG instructions?
 
-	Jeff
-
-
+Best regards,
+Roberto Nibali, ratz
+-- 
+echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
 

@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268142AbUHYRVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268176AbUHYRZP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268142AbUHYRVw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 13:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268153AbUHYRVw
+	id S268176AbUHYRZP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 13:25:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268174AbUHYRZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 13:21:52 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:4589 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S268142AbUHYRVq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 13:21:46 -0400
-Date: Wed, 25 Aug 2004 10:21:44 -0700 (PDT)
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
-Message-Id: <20040825172147.28782.29339.20446@sam.engr.sgi.com>
-Subject: [PATCH] Cpusets - CONFIG_CPUSETS depends on SMP
+	Wed, 25 Aug 2004 13:25:15 -0400
+Received: from S010600105aa6e9d5.gv.shawcable.net ([24.68.24.66]:10881 "EHLO
+	spitfire.gotdns.org") by vger.kernel.org with ESMTP id S268169AbUHYRXi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 13:23:38 -0400
+From: Ryan Cumming <ryan@spitfire.gotdns.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: Possible dcache BUG
+Date: Wed, 25 Aug 2004 10:23:29 -0700
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408242233.55583.gene.heskett@verizon.net> <150920000.1093445730@[10.10.2.4]>
+In-Reply-To: <150920000.1093445730@[10.10.2.4]>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1405242.WGXb78emFP";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408251023.32434.ryan@spitfire.gotdns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's silly, pointless, and untested to offer CONFIG_CPUSETS for
-non-SMP configurations.  Make CPUSETS depend on SMP (even though
-it doesn't really).
+--nextPart1405242.WGXb78emFP
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Applies to 2.6.8.1-mm4.  Builds, boots and unit tests on ia64 sn2_defconfig.
+On Wednesday 25 August 2004 07:55, Martin J. Bligh wrote:
+> This whole thread makes me think ... if we oops, shouldn't we check if
+> we're holding any spinlocks or semaphores, and just panic the whole
+> machine if so? Not sure how expensive it would be to hold that state,
+> but ...
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+On preempt, wouldn't it just be a matter of checking preempt_count?
 
-Index: 2.6.8.1-mm4/init/Kconfig
-===================================================================
---- 2.6.8.1-mm4.orig/init/Kconfig	2004-08-25 02:44:08.000000000 -0700
-+++ 2.6.8.1-mm4/init/Kconfig	2004-08-25 02:44:21.000000000 -0700
-@@ -270,6 +270,7 @@ config EPOLL
- 
- config CPUSETS
- 	bool "Cpuset support"
-+	depends on SMP
- 	help
- 	  This options will let you create and manage CPUSET's which
- 	  allow dynamically partitioning a system into sets of CPUs and
+-Ryan
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+--nextPart1405242.WGXb78emFP
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBLMsUW4yVCW5p+qYRAnAFAJ4x6noJHenEX9RbQwhNMbyx6HYv+wCffn5D
+krKZNyUpJbeVwtNgxxuV05A=
+=Tzrz
+-----END PGP SIGNATURE-----
+
+--nextPart1405242.WGXb78emFP--

@@ -1,454 +1,179 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263591AbTDNRqr (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 13:46:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263616AbTDNRqU (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 13:46:20 -0400
-Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:63902 "EHLO
+	id S263617AbTDNRtS (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 13:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263618AbTDNRsY (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 13:48:24 -0400
+Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:671 "EHLO
 	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S263591AbTDNRp2 (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 13:45:28 -0400
+	id S263595AbTDNRpa (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 13:45:30 -0400
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Organization: IBM Deutschland GmbH
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] s390 (2/16): syscall numbers > 255.
-Date: Mon, 14 Apr 2003 19:47:50 +0200
+Subject: [PATCH] s390 (6/16): uni-processor builds.
+Date: Mon, 14 Apr 2003 19:49:48 +0200
 User-Agent: KMail/1.5.1
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200304141947.50729.schwidefsky@de.ibm.com>
+Message-Id: <200304141949.48296.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add support for system calls with numbers > 255.
+Fixes for s390 kernel configured with CONFIG_SMP=n.
 
 diffstat:
- arch/s390/kernel/entry.S  |   70 ++++++++----
- include/asm-s390/unistd.h |  252 ++++++++++++++++++++++++++--------------------
- 2 files changed, 194 insertions(+), 128 deletions(-)
+ arch/s390/kernel/entry.S       |    6 ------
+ arch/s390/kernel/setup.c       |    5 +++++
+ arch/s390/kernel/signal.c      |    1 +
+ arch/s390/kernel/traps.c       |    1 +
+ arch/s390/math-emu/math.c      |    1 +
+ drivers/s390/char/sclp.c       |    4 ++--
+ drivers/s390/cio/device_id.c   |    1 +
+ drivers/s390/cio/device_pgid.c |    1 +
+ drivers/s390/cio/requestirq.c  |    3 ++-
+ 9 files changed, 14 insertions(+), 9 deletions(-)
 
 diff -urN linux-2.5.67/arch/s390/kernel/entry.S linux-2.5.67-s390/arch/s390/kernel/entry.S
---- linux-2.5.67/arch/s390/kernel/entry.S	Mon Apr 14 19:11:45 2003
-+++ linux-2.5.67-s390/arch/s390/kernel/entry.S	Mon Apr 14 19:11:49 2003
-@@ -18,6 +18,7 @@
- #include <asm/ptrace.h>
- #include <asm/thread_info.h>
- #include <asm/offsets.h>
-+#include <asm/unistd.h>
+--- linux-2.5.67/arch/s390/kernel/entry.S	Mon Apr 14 19:11:50 2003
++++ linux-2.5.67-s390/arch/s390/kernel/entry.S	Mon Apr 14 19:11:52 2003
+@@ -290,13 +290,9 @@
+         basr    %r13,0
+         l       %r13,.Lentry_base-.(%r13)  # setup base pointer to &entry_base
+         GET_THREAD_INFO           # load pointer to task_struct to R9
+-#if CONFIG_SMP || CONFIG_PREEMPT
+         l       %r1,BASED(.Lschedtail)
+ 	la      %r14,BASED(sysc_return)
+         br      %r1               # call schedule_tail, return to sysc_return
+-#else
+-	b	BASED(sysc_return)
+-#endif
  
- /*
-  * Stack layout for the system_call stack entry.
-@@ -97,8 +98,7 @@
-         stam    %a0,%a15,SP_AREGS(%r15)   # store access registers to kst.
-         mvc     SP_AREGS+8(12,%r15),__LC_SAVE_AREA+12 # store ac. regs
-         mvc     SP_PSW(8,%r15),\psworg    # move user PSW to stack
--        la      %r0,\psworg               # store trap indication
--        st      %r0,SP_TRAP(%r15)
-+	mvc	SP_TRAP(4,%r15),BASED(.L\psworg) # store trap indication
-         xc      0(4,%r15),0(%r15)         # clear back chain
-         .endm
- 
-@@ -179,12 +179,18 @@
- 	SAVE_ALL_BASE
-         SAVE_ALL __LC_SVC_OLD_PSW,1
- 	lh	%r7,0x8a	  # get svc number from lowcore
--        GET_THREAD_INFO           # load pointer to task_struct to R9
--	sll	%r7,2
-         stosm   24(%r15),0x03     # reenable interrupts
-+        GET_THREAD_INFO           # load pointer to task_struct to R9
-+	sla	%r7,2             # *4 and test for svc 0
-+	bnz	BASED(sysc_do_restart)  # svc number > 0
-+	# svc 0: system call number in %r1
-+	cl	%r1,BASED(.Lnr_syscalls)
-+	bnl	BASED(sysc_do_restart)
-+	lr	%r7,%r1           # copy svc number to %r7
-+	sla	%r7,2             # *4
- sysc_do_restart:
--        l       %r8,sys_call_table-entry_base(%r7,%r13) # get system call addr.
- 	tm	__TI_flags+3(%r9),_TIF_SYSCALL_TRACE
-+        l       %r8,sys_call_table-entry_base(%r7,%r13) # get system call addr.
-         bo      BASED(sysc_tracesys)
-         basr    %r14,%r8          # call sys_xxxx
-         st      %r2,SP_R2(%r15)   # store return value (change R2 on stack)
-@@ -247,7 +253,7 @@
- 	ni	__TI_flags+3(%r9),255-_TIF_RESTART_SVC # clear TIF_RESTART_SVC
- 	stosm	24(%r15),0x03          # reenable interrupts
- 	l	%r7,SP_R2(%r15)        # load new svc number
--	sll	%r7,2
-+	sla	%r2,2
- 	mvc	SP_R2(4,%r15),SP_ORIG_R2(%r15) # restore first argument
- 	lm	%r2,%r6,SP_R2(%r15)    # load svc arguments
- 	b	BASED(sysc_do_restart) # restart svc
-@@ -260,9 +266,10 @@
- 	srl	%r7,2
- 	st	%r7,SP_R2(%r15)
- 	basr	%r14,%r1
-+	clc	SP_R2(4,%r15),BASED(.Lnr_syscalls)
-+	bl	BASED(sysc_tracego)
- 	l	%r7,SP_R2(%r15)        # strace might have changed the 
--	n	%r7,BASED(.Lc256)      #  system call
--	sll	%r7,2
-+	sll	%r7,2                  #  system call
- 	l	%r8,sys_call_table-entry_base(%r7,%r13)
- sysc_tracego:
- 	lm	%r3,%r6,SP_R3(%r15)
-@@ -617,9 +624,15 @@
- 	.long  sys_epoll_wait
- 	.long  sys_set_tid_address
- 	.long  sys_fadvise64
--	.rept  255-253
--	.long  sys_ni_syscall
--	.endr
-+	.long  sys_timer_create
-+	.long  sys_timer_settime	 /* 255 */
-+	.long  sys_timer_gettime
-+	.long  sys_timer_getoverrun
-+	.long  sys_timer_delete
-+	.long  sys_clock_settime
-+	.long  sys_clock_gettime
-+	.long  sys_clock_getres
-+	.long  sys_clock_nanosleep
- 
- /*
-  * Program check handler routine
-@@ -694,12 +707,19 @@
  #
- pgm_svcper:
- 	SAVE_ALL __LC_SVC_OLD_PSW,1
--        GET_THREAD_INFO           # load pointer to task_struct to R9
-+	lh	%r7,0x8a	  # get svc number from lowcore
-         stosm   24(%r15),0x03     # reenable interrupts
--	lh	%r8,0x8a	  # get svc number from lowcore
--        sll     %r8,2
--        l       %r8,sys_call_table-entry_base(%r8,%r13) # get system call addr.
-+        GET_THREAD_INFO           # load pointer to task_struct to R9
-+        sla     %r7,2             # *4 and test for svc 0
-+	bnz	BASED(pgm_svcstd) # svc number > 0 ?
-+	# svc 0: system call number in %r1
-+	cl	%r1,BASED(.Lnr_syscalls)
-+	bnl	BASED(pgm_svcstd)
-+	lr	%r7,%r1           # copy svc number to %r7
-+	sla	%r7,2             # *4
-+pgm_svcstd:
- 	tm	__TI_flags+3(%r9),_TIF_SYSCALL_TRACE
-+        l       %r8,sys_call_table-entry_base(%r7,%r13) # get system call addr.
-         bo      BASED(pgm_tracesys)
-         basr    %r14,%r8          # call sys_xxxx
-         st      %r2,SP_R2(%r15)   # store return value (change R2 on stack)
-@@ -725,13 +745,14 @@
- #
- pgm_tracesys:
-         l       %r1,BASED(.Ltrace)
--	mvc	SP_R2(%r15),BASED(.Lc_ENOSYS)
-+	srl	%r7,2
-+	st	%r7,SP_R2(%r15)
-         basr    %r14,%r1
--	clc	SP_R2(4,%r15),BASED(.Lc256)
--	bnl	BASED(pgm_svc_go)
--	l	%r8,SP_R2(%r15)   # strace changed the syscall
--	sll     %r8,2
--	l	%r8,sys_call_table-entry_base(%r8,%r13)
-+	clc	SP_R2(4,%r15),BASED(.Lnr_syscalls)
-+	bl	BASED(pgm_svc_go)
-+	l	%r7,SP_R2(%r15)   # strace changed the syscall
-+	sll     %r7,2
-+	l	%r8,sys_call_table-entry_base(%r7,%r13)
- pgm_svc_go:
- 	lm      %r3,%r6,SP_R3(%r15)
- 	l       %r2,SP_ORIG_R2(%r15)
-@@ -922,7 +943,12 @@
- .Lc_ENOSYS:    .long  -ENOSYS
- .Lc_pactive:   .long  PREEMPT_ACTIVE
- .Lc0xff:       .long  0xff
--.Lc256:        .long  256
-+.Lnr_syscalls: .long  NR_syscalls
-+.L0x018:       .long  0x018
-+.L0x020:       .long  0x020
-+.L0x028:       .long  0x028
-+.L0x030:       .long  0x030
-+.L0x038:       .long  0x038
+ # clone, fork, vfork, exec and sigreturn need glue,
+@@ -973,8 +969,6 @@
+ .Lsigaltstack: .long  sys_sigaltstack
+ .Ltrace:       .long  syscall_trace
+ .Lvfork:       .long  sys_vfork
+-#if CONFIG_SMP || CONFIG_PREEMPT
+ .Lschedtail:   .long  schedule_tail
+-#endif
+ 
+ 
+diff -urN linux-2.5.67/arch/s390/kernel/setup.c linux-2.5.67-s390/arch/s390/kernel/setup.c
+--- linux-2.5.67/arch/s390/kernel/setup.c	Mon Apr  7 19:30:41 2003
++++ linux-2.5.67-s390/arch/s390/kernel/setup.c	Mon Apr 14 19:11:52 2003
+@@ -41,6 +41,7 @@
+ #include <asm/smp.h>
+ #include <asm/mmu_context.h>
+ #include <asm/cpcmd.h>
++#include <asm/lowcore.h>
  
  /*
-  * Symbol constants
-diff -urN linux-2.5.67/include/asm-s390/unistd.h linux-2.5.67-s390/include/asm-s390/unistd.h
---- linux-2.5.67/include/asm-s390/unistd.h	Mon Apr  7 19:33:03 2003
-+++ linux-2.5.67-s390/include/asm-s390/unistd.h	Mon Apr 14 19:11:49 2003
-@@ -249,130 +249,170 @@
- #define __NR_epoll_wait		251
- #define __NR_set_tid_address	252
- #define __NR_fadvise64		253
-+#define __NR_timer_create	254
-+#define __NR_timer_settime	(__NR_timer_create+1)
-+#define __NR_timer_gettime	(__NR_timer_create+2)
-+#define __NR_timer_getoverrun	(__NR_timer_create+3)
-+#define __NR_timer_delete	(__NR_timer_create+4)
-+#define __NR_clock_settime	(__NR_timer_create+5)
-+#define __NR_clock_gettime	(__NR_timer_create+6)
-+#define __NR_clock_getres	(__NR_timer_create+7)
-+#define __NR_clock_nanosleep	(__NR_timer_create+8)
+  * Machine setup..
+@@ -534,10 +535,14 @@
+ 			       (loops_per_jiffy/(5000/HZ))%100);
+ 	}
+ 	if (cpu_online_map & (1 << n)) {
++#ifdef CONFIG_SMP
+ 		if (smp_processor_id() == n)
+ 			cpuinfo = &S390_lowcore.cpu_data;
+ 		else
+ 			cpuinfo = &lowcore_ptr[n]->cpu_data;
++#else
++		cpuinfo = &S390_lowcore.cpu_data;
++#endif
+ 		seq_printf(m, "processor %li: "
+ 			       "version = %02X,  "
+ 			       "identification = %06X,  "
+diff -urN linux-2.5.67/arch/s390/kernel/signal.c linux-2.5.67-s390/arch/s390/kernel/signal.c
+--- linux-2.5.67/arch/s390/kernel/signal.c	Mon Apr  7 19:32:21 2003
++++ linux-2.5.67-s390/arch/s390/kernel/signal.c	Mon Apr 14 19:11:52 2003
+@@ -29,6 +29,7 @@
+ #include <linux/binfmts.h>
+ #include <asm/ucontext.h>
+ #include <asm/uaccess.h>
++#include <asm/lowcore.h>
  
-+#define NR_syscalls 263
+ #define _BLOCKABLE (~(sigmask(SIGKILL) | sigmask(SIGSTOP)))
  
- /* user-visible error numbers are in the range -1 - -122: see <asm-s390/errno.h> */
+diff -urN linux-2.5.67/arch/s390/kernel/traps.c linux-2.5.67-s390/arch/s390/kernel/traps.c
+--- linux-2.5.67/arch/s390/kernel/traps.c	Mon Apr  7 19:31:02 2003
++++ linux-2.5.67-s390/arch/s390/kernel/traps.c	Mon Apr 14 19:11:52 2003
+@@ -35,6 +35,7 @@
+ #include <asm/mathemu.h>
+ #include <asm/cpcmd.h>
+ #include <asm/s390_ext.h>
++#include <asm/lowcore.h>
  
--#define __syscall_return(type, res)                          \
--do {                                                         \
--        if ((unsigned long)(res) >= (unsigned long)(-125)) { \
--                errno = -(res);                              \
--                res = -1;                                    \
--        }                                                    \
--        return (type) (res);                                 \
-+#define __syscall_return(type, res)			     \
-+do {							     \
-+	if ((unsigned long)(res) >= (unsigned long)(-125)) { \
-+		errno = -(res);				     \
-+		res = -1;				     \
-+	}						     \
-+	return (type) (res);				     \
- } while (0)
+ /* Called from entry.S only */
+ extern void handle_per_exception(struct pt_regs *regs);
+diff -urN linux-2.5.67/arch/s390/math-emu/math.c linux-2.5.67-s390/arch/s390/math-emu/math.c
+--- linux-2.5.67/arch/s390/math-emu/math.c	Mon Apr  7 19:31:03 2003
++++ linux-2.5.67-s390/arch/s390/math-emu/math.c	Mon Apr 14 19:11:52 2003
+@@ -14,6 +14,7 @@
+ #include <linux/sched.h>
+ #include <linux/mm.h>
+ #include <asm/uaccess.h>
++#include <asm/lowcore.h>
  
--#define _svc_clobber "cc", "memory"
-+#define _svc_clobber "1", "cc", "memory"
+ #include "sfp-util.h"
+ #include <math-emu/soft-fp.h>
+diff -urN linux-2.5.67/drivers/s390/char/sclp.c linux-2.5.67-s390/drivers/s390/char/sclp.c
+--- linux-2.5.67/drivers/s390/char/sclp.c	Mon Apr 14 19:11:51 2003
++++ linux-2.5.67-s390/drivers/s390/char/sclp.c	Mon Apr 14 19:11:52 2003
+@@ -489,8 +489,8 @@
+ {
+ 	psw_t quiesce_psw;
  
--#define _syscall0(type,name)                                 \
--type name(void) {                                            \
--        register long __svcres asm("2");                     \
--        long __res;                                          \
--        __asm__ __volatile__ (                               \
--                "    svc %b1\n"                              \
--                : "=d" (__svcres)                            \
--                : "i" (__NR_##name)                          \
--                : _svc_clobber );                            \
--	__res = __svcres;                                    \
--        __syscall_return(type,__res);                        \
--}
--
--#define _syscall1(type,name,type1,arg1)                      \
--type name(type1 arg1) {                                      \
--        register type1 __arg1 asm("2") = arg1;               \
--        register long __svcres asm("2");                     \
--        long __res;                                          \
--        __asm__ __volatile__ (                               \
--                "    svc %b1\n"                              \
--                : "=d" (__svcres)                            \
--                : "i" (__NR_##name),                         \
--                  "0" (__arg1)                               \
--                : _svc_clobber );                            \
--	__res = __svcres;                                    \
--        __syscall_return(type,__res);                        \
--}
--
--#define _syscall2(type,name,type1,arg1,type2,arg2)           \
--type name(type1 arg1, type2 arg2) {                          \
--        register type1 __arg1 asm("2") = arg1;               \
--        register type2 __arg2 asm("3") = arg2;               \
--        register long __svcres asm("2");                     \
--        long __res;                                          \
--        __asm__ __volatile__ (                               \
--                "    svc %b1\n"                              \
--                : "=d" (__svcres)                            \
--                : "i" (__NR_##name),                         \
--                  "0" (__arg1),                              \
--                  "d" (__arg2)                               \
--                : _svc_clobber );                            \
--	__res = __svcres;                                    \
--        __syscall_return(type,__res);                        \
-+#define _syscall0(type,name)				     \
-+type name(void) {					     \
-+	register long __svcres asm("2");		     \
-+	long __res;					     \
-+	__asm__ __volatile__ (				     \
-+		"    .if %b1 < 256\n"			     \
-+		"    svc %b1\n"				     \
-+		"    .else\n"				     \
-+		"    lhi %%r1,%b1\n"			     \
-+		"    svc 0\n"				     \
-+		"    .endif"				     \
-+		: "=d" (__svcres)			     \
-+		: "i" (__NR_##name)			     \
-+		: _svc_clobber );			     \
-+	__res = __svcres;				     \
-+	__syscall_return(type,__res);			     \
-+}
-+
-+#define _syscall1(type,name,type1,arg1)			     \
-+type name(type1 arg1) {					     \
-+	register type1 __arg1 asm("2") = arg1;		     \
-+	register long __svcres asm("2");		     \
-+	long __res;					     \
-+	__asm__ __volatile__ (				     \
-+		"    .if %b1 < 256\n"			     \
-+		"    svc %b1\n"				     \
-+		"    .else\n"				     \
-+		"    lhi %%r1,%b1\n"			     \
-+		"    svc 0\n"				     \
-+		"    .endif"				     \
-+		: "=d" (__svcres)			     \
-+		: "i" (__NR_##name),			     \
-+		  "0" (__arg1)				     \
-+		: _svc_clobber );			     \
-+	__res = __svcres;				     \
-+	__syscall_return(type,__res);			     \
-+}
-+
-+#define _syscall2(type,name,type1,arg1,type2,arg2)	     \
-+type name(type1 arg1, type2 arg2) {			     \
-+	register type1 __arg1 asm("2") = arg1;		     \
-+	register type2 __arg2 asm("3") = arg2;		     \
-+	register long __svcres asm("2");		     \
-+	long __res;					     \
-+	__asm__ __volatile__ (				     \
-+		"    .if %b1 < 256\n"			     \
-+		"    svc %b1\n"				     \
-+		"    .else\n"				     \
-+		"    lhi %%r1,%b1\n"			     \
-+		"    svc 0\n"				     \
-+		"    .endif"				     \
-+		: "=d" (__svcres)			     \
-+		: "i" (__NR_##name),			     \
-+		  "0" (__arg1),				     \
-+		  "d" (__arg2)				     \
-+		: _svc_clobber );			     \
-+	__res = __svcres;				     \
-+	__syscall_return(type,__res);			     \
+-	quiesce_psw.mask = _DW_PSW_MASK;
+-	queisce_psw.addr = 0xfff;
++	quiesce_psw.mask = PSW_BASE_BITS | PSW_MASK_WAIT;
++	quiesce_psw.addr = 0xfff;
+ 	__load_psw(quiesce_psw);
  }
+ #endif
+diff -urN linux-2.5.67/drivers/s390/cio/device_id.c linux-2.5.67-s390/drivers/s390/cio/device_id.c
+--- linux-2.5.67/drivers/s390/cio/device_id.c	Mon Apr 14 19:11:51 2003
++++ linux-2.5.67-s390/drivers/s390/cio/device_id.c	Mon Apr 14 19:11:52 2003
+@@ -16,6 +16,7 @@
+ #include <asm/ccwdev.h>
+ #include <asm/delay.h>
+ #include <asm/cio.h>
++#include <asm/lowcore.h>
  
- #define _syscall3(type,name,type1,arg1,type2,arg2,type3,arg3)\
--type name(type1 arg1, type2 arg2, type3 arg3) {              \
--        register type1 __arg1 asm("2") = arg1;               \
--        register type2 __arg2 asm("3") = arg2;               \
--        register type3 __arg3 asm("4") = arg3;               \
--        register long __svcres asm("2");                     \
--        long __res;                                          \
--        __asm__ __volatile__ (                               \
--                "    svc %b1\n"                              \
--                : "=d" (__svcres)                            \
--                : "i" (__NR_##name),                         \
--                  "0" (__arg1),                              \
--                  "d" (__arg2),                              \
--                  "d" (__arg3)                               \
--                : _svc_clobber );                            \
--	__res = __svcres;                                    \
--        __syscall_return(type,__res);                        \
-+type name(type1 arg1, type2 arg2, type3 arg3) {		     \
-+	register type1 __arg1 asm("2") = arg1;		     \
-+	register type2 __arg2 asm("3") = arg2;		     \
-+	register type3 __arg3 asm("4") = arg3;		     \
-+	register long __svcres asm("2");		     \
-+	long __res;					     \
-+	__asm__ __volatile__ (				     \
-+		"    .if %b1 < 256\n"			     \
-+		"    svc %b1\n"				     \
-+		"    .else\n"				     \
-+		"    lhi %%r1,%b1\n"			     \
-+		"    svc 0\n"				     \
-+		"    .endif"				     \
-+		: "=d" (__svcres)			     \
-+		: "i" (__NR_##name),			     \
-+		  "0" (__arg1),				     \
-+		  "d" (__arg2),				     \
-+		  "d" (__arg3)				     \
-+		: _svc_clobber );			     \
-+	__res = __svcres;				     \
-+	__syscall_return(type,__res);			     \
- }
+ #include "cio.h"
+ #include "cio_debug.h"
+diff -urN linux-2.5.67/drivers/s390/cio/device_pgid.c linux-2.5.67-s390/drivers/s390/cio/device_pgid.c
+--- linux-2.5.67/drivers/s390/cio/device_pgid.c	Mon Apr 14 19:11:51 2003
++++ linux-2.5.67-s390/drivers/s390/cio/device_pgid.c	Mon Apr 14 19:11:52 2003
+@@ -16,6 +16,7 @@
+ #include <asm/ccwdev.h>
+ #include <asm/cio.h>
+ #include <asm/delay.h>
++#include <asm/lowcore.h>
  
- #define _syscall4(type,name,type1,arg1,type2,arg2,type3,arg3,\
--                  type4,name4)                               \
-+		  type4,name4)				     \
- type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4) {  \
--        register type1 __arg1 asm("2") = arg1;               \
--        register type2 __arg2 asm("3") = arg2;               \
--        register type3 __arg3 asm("4") = arg3;               \
--        register type4 __arg4 asm("5") = arg4;               \
--        register long __svcres asm("2");                     \
--        long __res;                                          \
--        __asm__ __volatile__ (                               \
--                "    svc %b1\n"                              \
--                : "=d" (__svcres)                            \
--                : "i" (__NR_##name),                         \
--                  "0" (__arg1),                              \
--                  "d" (__arg2),                              \
--                  "d" (__arg3),                              \
--                  "d" (__arg4)                               \
--                : _svc_clobber );                            \
--	__res = __svcres;                                    \
--        __syscall_return(type,__res);                        \
-+	register type1 __arg1 asm("2") = arg1;		     \
-+	register type2 __arg2 asm("3") = arg2;		     \
-+	register type3 __arg3 asm("4") = arg3;		     \
-+	register type4 __arg4 asm("5") = arg4;		     \
-+	register long __svcres asm("2");		     \
-+	long __res;					     \
-+	__asm__ __volatile__ (				     \
-+		"    .if %b1 < 256\n"			     \
-+		"    svc %b1\n"				     \
-+		"    .else\n"				     \
-+		"    lhi %%r1,%b1\n"			     \
-+		"    svc 0\n"				     \
-+		"    .endif"				     \
-+		: "=d" (__svcres)			     \
-+		: "i" (__NR_##name),			     \
-+		  "0" (__arg1),				     \
-+		  "d" (__arg2),				     \
-+		  "d" (__arg3),				     \
-+		  "d" (__arg4)				     \
-+		: _svc_clobber );			     \
-+	__res = __svcres;				     \
-+	__syscall_return(type,__res);			     \
- }
+ #include "cio.h"
+ #include "cio_debug.h"
+diff -urN linux-2.5.67/drivers/s390/cio/requestirq.c linux-2.5.67-s390/drivers/s390/cio/requestirq.c
+--- linux-2.5.67/drivers/s390/cio/requestirq.c	Mon Apr 14 19:11:51 2003
++++ linux-2.5.67-s390/drivers/s390/cio/requestirq.c	Mon Apr 14 19:11:52 2003
+@@ -1,7 +1,7 @@
+ /*
+  *  drivers/s390/cio/requestirq.c
+  *   S/390 common I/O routines -- enabling and disabling of devices
+- *   $Revision: 1.42 $
++ *   $Revision: 1.44 $
+  *
+  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
+  *			      IBM Corporation
+@@ -14,6 +14,7 @@
+ #include <linux/config.h>
+ #include <linux/device.h>
+ #include <linux/init.h>
++#include <asm/lowcore.h>
  
- #define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,\
--                  type4,name4,type5,name5)                   \
-+		  type4,name4,type5,name5)		     \
- type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4,    \
--          type5 arg5) {                                      \
--        register type1 __arg1 asm("2") = arg1;               \
--        register type2 __arg2 asm("3") = arg2;               \
--        register type3 __arg3 asm("4") = arg3;               \
--        register type4 __arg4 asm("5") = arg4;               \
--        register type5 __arg5 asm("6") = arg5;               \
--        register long __svcres asm("2");                     \
--        long __res;                                          \
--        __asm__ __volatile__ (                               \
--                "    svc %b1\n"                              \
--                : "=d" (__svcres)                            \
--                : "i" (__NR_##name),                         \
--                  "0" (__arg1),                              \
--                  "d" (__arg2),                              \
--                  "d" (__arg3),                              \
--                  "d" (__arg4),                              \
--                  "d" (__arg5)                               \
--                : _svc_clobber );                            \
--	__res = __svcres;                                    \
--        __syscall_return(type,__res);                        \
-+	  type5 arg5) {					     \
-+	register type1 __arg1 asm("2") = arg1;		     \
-+	register type2 __arg2 asm("3") = arg2;		     \
-+	register type3 __arg3 asm("4") = arg3;		     \
-+	register type4 __arg4 asm("5") = arg4;		     \
-+	register type5 __arg5 asm("6") = arg5;		     \
-+	register long __svcres asm("2");		     \
-+	long __res;					     \
-+	__asm__ __volatile__ (				     \
-+		"    .if %b1 < 256\n"			     \
-+		"    svc %b1\n"				     \
-+		"    .else\n"				     \
-+		"    lhi %%r1,%b1\n"			     \
-+		"    svc 0\n"				     \
-+		"    .endif"				     \
-+		: "=d" (__svcres)			     \
-+		: "i" (__NR_##name),			     \
-+		  "0" (__arg1),				     \
-+		  "d" (__arg2),				     \
-+		  "d" (__arg3),				     \
-+		  "d" (__arg4),				     \
-+		  "d" (__arg5)				     \
-+		: _svc_clobber );			     \
-+	__res = __svcres;				     \
-+	__syscall_return(type,__res);			     \
- }
+ #include "css.h"
  
- #ifdef __KERNEL_SYSCALLS__
 

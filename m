@@ -1,78 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264441AbTL3EqN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 23:46:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264445AbTL3EqN
+	id S264451AbTL3Ete (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 23:49:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264463AbTL3Ete
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 23:46:13 -0500
-Received: from mail006.syd.optusnet.com.au ([211.29.132.63]:5815 "EHLO
-	mail006.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S264441AbTL3EqJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 23:46:09 -0500
-Message-Id: <6.0.1.1.2.20031230082335.022d26b0@mail.optusnet.com.au>
-X-Nil: 
-Date: Tue, 30 Dec 2003 15:46:00 +1100
-To: sflory@rackable.com
-From: Leon Toh <tltoh@attglobal.net>
-Subject: Re: Adaptec/DPT I2O Option Omitted From Linux 2.6.0 Kernel
-  Configuration Tool
-Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3FF071B1.6010202@rackable.com>
-References: <6.0.1.1.2.20031227093632.0229afe8@wheresmymailserver.com>
- <3FEF721D.7020405@rackable.com>
- <6.0.1.1.2.20031229201602.021feec0@mail.optusnet.com.au>
- <3FF071B1.6010202@rackable.com>
+	Mon, 29 Dec 2003 23:49:34 -0500
+Received: from dp.samba.org ([66.70.73.150]:25262 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264451AbTL3Et3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 23:49:29 -0500
+Date: Tue, 30 Dec 2003 13:28:40 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 modules, hotplug, PCMCIA
+Message-Id: <20031230132840.4a8d88b4.rusty@rustcorp.com.au>
+In-Reply-To: <173b01c3cceb$05ade850$43ee4ca5@DIAMONDLX60>
+References: <173b01c3cceb$05ade850$43ee4ca5@DIAMONDLX60>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 05:25 AM 30/12/2003, Samuel Flory wrote:
->Leon Toh wrote:
->>  At 11:15 AM 29/12/2003, Samuel Flory wrote:
->>
->>How broken is the driver than ? What are the implication's if the driver 
->>is left as it is for now ?
->
->   It doesn't compile at all.  If it's not fixed your only other option is 
-> the generic i2o driver.
+On Sun, 28 Dec 2003 11:33:04 +0900
+"Norman Diamond" <ndiamond@wta.att.ne.jp> wrote:
 
-Using generic I2O driver is definitely an option for now especially for 
-those who wants to immediately jump onto the 2.6 bandwagon. However the 
-down site with this is we can't use an of the available Management 
-utilities for the card.
+> Sorry I am not copying the dozens of error messages from
+> ./generate-modprobe.conf, but anyone with SuSE 8.2 can reproduce them.
 
-Now which is better is not for me to comment on. I shall leave it to others 
-to decide for their own as to which is suitable for their environment.
+Yes, it's kind of noisy.  I've put some silencers on it for the next release.
 
->>>It doesn't even compile in 2.4 for a number of archs like amd64.
->>
->>This driver was initially intended only for i386 arch. Furthermore at 
->>that time when this driver was finalized amd64 wasn't available.
->
->   My point is that the driver isn't very portable.
+> When
+> there was no improvement, I looked at the instructions in the FAQ.  I'm not
+> running RedHat and I did upgrade to later than 0.9.9.  But things still
+> don't load properly, for which the second answer in the FAQ recommends using
+> non-existent file "generate-module.conf".  Presumably if that command
+> existed then it would overwrite the existing /etc/module.conf file.  So I
+> only obeyed the README not the FAQ.
 
-Oh.... I see.
+I've fixed this too.  You've already done it as part of the README.
 
->>>   A while back  a bunch of people (including myself) raised the concern 
->>> through various channels with adaptec.  In theroy someone at adaptec is 
->>> working on it, but there was not an ETA.
->>
->>If you have happen to have a list of issues with this current driver 
->>together with supporting information to back up those claims, please 
->>forward them to so that I can escalate those issues into Adaptec via the 
->>appropriate communication channel. I happen to have a number of contact's 
->>within Adaptec myself.
->>By the way I've hack the script file to make Adaptec I2O Option to appear 
->>in Linux 2.6.0 Kernel Configuration tool. Currently I'm now in the middle 
->>of recompiling the kernel using current dpti2o driver support but haven't 
->>got to the dpti2o driver yet.
->
->   You might want to hold off on doing a lot of work for a bit.  I think 
-> there was a beta driver that was being passed around.
-
-I can now officially report that the dpt_i2o driver embedded in kernel 
-2.6.0 is broken. I'll highlight and bring this up through my contacts back 
-at Adaptec. And hopefully we than can get some kind of official resolution 
-soon.
-
+Good luck...
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

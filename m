@@ -1,123 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262389AbVBLEI4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262396AbVBLFtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262389AbVBLEI4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 23:08:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVBLEI4
+	id S262396AbVBLFtm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 00:49:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVBLFtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 23:08:56 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:48322 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S262389AbVBLEID (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 23:08:03 -0500
-Date: Sat, 12 Feb 2005 05:07:24 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Christoph Hellwig <hch@infradead.org>, Alasdair G Kergon <agk@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] device-mapper: multipath hardware handler for EMC
-Message-ID: <20050212040724.GA3872@marowsky-bree.de>
-References: <20050211172211.GA10195@agk.surrey.redhat.com> <20050211195841.GA13925@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050211195841.GA13925@infradead.org>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+	Sat, 12 Feb 2005 00:49:42 -0500
+Received: from gizmo03ps.bigpond.com ([144.140.71.13]:63372 "HELO
+	gizmo03ps.bigpond.com") by vger.kernel.org with SMTP
+	id S262410AbVBLFs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 00:48:26 -0500
+Message-ID: <420D98A3.3060508@bigpond.net.au>
+Date: Sat, 12 Feb 2005 16:48:19 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: nagar@watson.ibm.com
+CC: ckrm-tech <ckrm-tech@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ckrm-e17
+References: <41F92A48.2010100@watson.ibm.com>
+In-Reply-To: <41F92A48.2010100@watson.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-02-11T19:58:41, Christoph Hellwig <hch@infradead.org> wrote:
-
-> > +/* Code borrowed from dm-lsi-rdac by Mike Christie */
+Shailabh Nagar wrote:
+> Version e17 of the Class-based Kernel Resource Management
+> is now available for download from
 > 
-> Any reason that module isn't submitted?
-
-No idea why.
-
-> > +	bio->bi_bdev = path->dev->bdev;
-> > +	bio->bi_sector = 0;
-> > +	bio->bi_private = path;
-> > +	bio->bi_end_io = emc_endio;
-> > +
-> > +	page = alloc_page(GFP_ATOMIC);
-> > +	if (!page) {
-> > +		DMERR("dm-emc: get_failover_bio: alloc_page() failed.");
-> > +		bio_put(bio);
-> > +		return NULL;
-> > +	}
-> > +
-> > +	if (bio_add_page(bio, page, data_size, 0) != data_size) {
-> > +		DMERR("dm-emc: get_failover_bio: alloc_page() failed.");
-> > +		__free_page(page);
-> > +		bio_put(bio);
-> > +		return NULL;
-> > +	}
-> > +
-> > +	return bio;
+> http://sourceforge.net/project/showfiles.php?group_id=85838&package_id=94608 
 > 
-> this would benefit from goto unwinding.
-
-OK.
-
-> > +	if (h->short_trespass) {
-> > +		memcpy(page22, short_trespass_pg, data_size);
-> > +	} else {
-> > +		memcpy(page22, long_trespass_pg, data_size);
-> > +	}
-> 	 memcpy(page22, h->short_trespass ?
-> 	 	short_trespass_pg : long_trespass_pg, data_size);
+>     
+> The major updates since the previous version include:
+> 1. Numerous bugfixes
+> 2. Control over rate of process forks through the numtasks controller.
+> The rate of forking is a single systemwide parameter affecting all 
+> classes. Existing share-based control over total number of forks allowed 
+> per class remains the same.
+> 3. Interface change: The "target" file has been removed from the RCFS 
+> interface. The same functionality can now be obtained by writing to the 
+> "members" file of any class.
 > 
-> ?
-
-Yes, I first did some other things there than just copying the commands
-around, it can surely benefit from cleanup.
-
-> > +static struct emc_handler *alloc_emc_handler(void)
-> > +{
-> > +	struct emc_handler *h = kmalloc(sizeof(*h), GFP_KERNEL);
-> > +
-> > +	if (h) {
-> > +		h->lock = SPIN_LOCK_UNLOCKED;
-> > +	}
+> Files released:
 > 
-> 	if (h)
-> 		spin_lock_init(&h->lock);
-
-Came in via the copy, good catch.
-
-> > +static unsigned emc_err(struct hw_handler *hwh, struct bio *bio)
-> > +{
-> > +	/* FIXME: Patch from axboe still missing */
+> ckrm-e17.2610.patch
+>     Combined patch against 2.6.10. Includes the numtasks and          
+> listenaq controllers.
+> e17-incr.tar.bz2
+>     Tarball of broken down patches. First 10 patches constitute
+>     the e16 release and subsequent ones contain the updates since
+>     then.
+> cpu.ckrm-e17.v10.patch
+>     CPU controller.
 > 
-> it's in -mm now afaik??
-
-No, it's not. That's the request sense keys, but here we're dealing with
-the bio.
-
-> > +#if 0
-> > +	int sense;
-> > +
-> > +	if (bio->bi_error & BIO_SENSE) {
-> > +		sense = bio->bi_error & 0xffffff; /* sense key / asc / ascq */
-> > +
-> > +		if (sense == 0x020403) {
 > 
-> please use the sense handling helpers from Doug Gilbert so you can handle
-> the descriptor sense format aswell.  (And make the code a lot clear).
+> Still to come:
+> 
+> memory controller
+> I/O controller
+> test packages
+> 
+> 
+> Please note that updates to CKRM based on the feedback from lkml on
+> the previous release (http://lkml.org/lkml/2004/11/29/152) are in 
+> progress and will be included in the next release.
+> 
+> Testing and feedback welcome.
 
-I'll go look them up.
+At line 3887 of cpu.ckrm-e17.v10.patch you add the line:
 
-> Also please try to use constants instead of magic numbers.
+		set_task_cpu(p,this_cpu);
 
-Noted. I'll clean this part up when I actually have sense keys to try,
-so far this was mostly about getting that tiny bit of logic in.
+to the middle of the function wake_up_new_task() resulting in the 
+following code:
 
+	} else {
+		this_rq = cpu_rq(this_cpu);
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+		/*
+		 * Not the local CPU - must adjust timestamp. This should
+		 * get optimised away in the !CONFIG_SMP case.
+		 */
+		p->sdu.ingosched.timestamp = (p->sdu.ingosched.timestamp - 
+this_rq->timestamp_last_tick)
+					+ rq->timestamp_last_tick;
+		set_task_cpu(p,this_cpu);
+		__activate_task(p, rq);
+		if (TASK_PREEMPTS_CURR(p, rq))
+			resched_task(rq->curr);
 
+		schedstat_inc(rq, wunt_moved);
+		/*
+		 * Parent and child are on different CPUs, now get the
+		 * parent runqueue to update the parent's ->sdu.ingosched.sleep_avg:
+		 */
+		task_rq_unlock(rq, &flags);
+		this_rq = task_rq_lock(current, &flags);
+	}
+
+where "rq" has been set by the return value of "task_rq_lock(p, 
+&flags)", and the test "(cpu == this_cpu)" has failed with "cpu" set to 
+"task_cpu(p)".  The result of this when the CKRM CPU code is not 
+configured into the build is that "p" will be queued on a runqueue that 
+is not in agreement with "p->thread_info->cpu" which in turn will lead 
+to future use of "task_rq_lock()" locking the wrong run queue and 
+eventually triggering some form of race condition.
+
+If CKRM CPU is configured into the build the results are less drastic as 
+they only result in "nr_running" being incremented for the wrong run 
+queue.  However, even this will have adverse scheduling effects as it 
+will probably confuse the load balancing code.  Another potentially 
+confusing thing with this code (when CKRM CPU is configured in) is that 
+__activate_task() does NOT queue "p" on "rq" but on the queue found by 
+the call "get_task_lrq(p)".
+
+The recommended fix for this problem would be to withdraw the:
+
+		set_task_cpu(p,this_cpu);
+
+Peter
+PS I reported this to the ckrm-tech list 5 days ago but it was ignored.
 -- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business
+Peter Williams                                   pwil3058@bigpond.net.au
 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310835AbSD1O6Q>; Sun, 28 Apr 2002 10:58:16 -0400
+	id <S310917AbSD1PBJ>; Sun, 28 Apr 2002 11:01:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310917AbSD1O6P>; Sun, 28 Apr 2002 10:58:15 -0400
-Received: from nextgeneration.speedroad.net ([195.139.232.50]:44430 "HELO
-	nextgeneration.speedroad.net") by vger.kernel.org with SMTP
-	id <S310835AbSD1O6P>; Sun, 28 Apr 2002 10:58:15 -0400
-Date: Sun, 28 Apr 2002 16:58:13 +0200
-From: Arnvid Karstad <arnvid@karstad.org>
+	id <S310979AbSD1PBI>; Sun, 28 Apr 2002 11:01:08 -0400
+Received: from sproxy.gmx.net ([213.165.64.20]:39263 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S310917AbSD1PBH>;
+	Sun, 28 Apr 2002 11:01:07 -0400
+Date: Sun, 28 Apr 2002 16:59:38 +0200
+From: Sebastian Droege <sebastian.droege@gmx.de>
 To: linux-kernel@vger.kernel.org
-Subject: Problems with HTP 370 and Linux 2.4.18?
-Organization: Int
-Message-Id: <20020428164005.01F4.ARNVID@karstad.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.00.08
+Cc: torvalds@transmeta.com
+Subject: [2.5.10] BTTV .text.exit link fix with newer binutils
+Message-Id: <20020428165938.302e62fd.sebastian.droege@gmx.de>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="e(AGpp4J:=.BtE'm"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hiya, 
+--e(AGpp4J:=.BtE'm
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-I tried to install Linux on one of my desktop's and got into a small
-icky situation..
+Hi,
+here's a simple patch to allow the bttv driver to be build with newer binutils...
 
-The harddrives on this machine are all attached to the HPT370 ata-100
-controller.. The internal controller has an cd-r only.
+Bye
 
-After installing and rebooting with ata100 kernel was shipped with
-slackware 8 it worked fine, but after I tried to upgrade the kernel to
-2.4.18 it seems not to enjoy my configuration
+--- linux-2.5.10/drivers/media/video/bttv-driver.c~     Sun Apr 28 16:57:00 2002
++++ linux-2.5.10/drivers/media/video/bttv-driver.c      Sun Apr 28 16:57:15 2002
+@@ -3394,7 +3394,7 @@
+         name:     "bttv",
+         id_table: bttv_pci_tbl,
+         probe:    bttv_probe,
+-        remove:   bttv_remove,
++        remove:   __devexit_p(bttv_remove),
+ };
+ 
+ static int bttv_init_module(void)
 
-I'm getting these alot.:
-EXT2-fs error (device ide2(33,3)): ext2_write_inode: unable to read inode block - inode=65549, block=131077
+--e(AGpp4J:=.BtE'm
+Content-Type: application/pgp-signature
 
-and when I do the only cure is to power cycle :(
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
 
-The Motherboard is an Abit VP6 with VIA chipset... and dual cpu's.
+iD8DBQE8zA5de9FFpVVDScsRAvQ6AJ9gisXcRBc6/XcFbt9Uid1rIvZ1DgCgzAck
+dRpOgfhTGDp0eH6HNlHa0HM=
+=N2+q
+-----END PGP SIGNATURE-----
 
-I tested the configuration in win2k and the drive seems fine there.
-Reinstalled linux again and voila.. a few of these again :(
-
-Is there some magical kernel parameter that can be set to help out here?
-;-) since and older kernel did work.. or is there any patches worth
-testing? ;)
-
-
-Mvh/Best regards,
-
-Arnvid L. Karstad
-
+--e(AGpp4J:=.BtE'm--
 

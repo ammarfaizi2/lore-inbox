@@ -1,73 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261994AbTFOHon (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 03:44:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbTFOHon
+	id S261989AbTFOHlI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 03:41:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261994AbTFOHlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 03:44:43 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:41738 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S261994AbTFOHom (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 03:44:42 -0400
-Subject: Re: 2.5.70-mm9
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Diego Calleja =?ISO-8859-1?Q?Garc=EDa?= <diegocg@teleline.es>
-Cc: Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030615031421.1ed6640a.diegocg@teleline.es>
-References: <20030613013337.1a6789d9.akpm@digeo.com>
-	 <20030615031421.1ed6640a.diegocg@teleline.es>
-Content-Type: text/plain; charset=ISO-8859-15
-Message-Id: <1055663908.631.0.camel@teapot.felipe-alfaro.com>
+	Sun, 15 Jun 2003 03:41:08 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:21700 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S261989AbTFOHlG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 03:41:06 -0400
+Date: Sun, 15 Jun 2003 00:50:55 -0700 (PDT)
+Message-Id: <20030615.005055.55726223.davem@redhat.com>
+To: shemminger@osdl.org
+Cc: greg@kroah.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] network hotplug via class_device/kobject
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030613164119.15209934.shemminger@osdl.org>
+References: <20030613164119.15209934.shemminger@osdl.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 15 Jun 2003 09:58:29 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-06-15 at 03:14, Diego Calleja García wrote:
-> On Fri, 13 Jun 2003 01:33:37 -0700
-> Andrew Morton <akpm@digeo.com> wrote:
-> 
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.70/2.5.70-mm9/
-> 
-> 
-> I had the following messages: (ide, ext3 without any option, SMP, AS, JBD
-> debugging enabled):
-> 
-> VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
->     ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
->     ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:DMA
-> hda: Maxtor 6Y060L0, ATA DISK drive
-> anticipatory scheduling elevator
-> [...]
-> kjournald starting.  Commit interval 5 seconds
-> EXT3-fs: mounted filesystem with ordered data mode.
-> VFS: Mounted root (ext3 filesystem) readonly.
-> [...]
-> EXT3 FS 2.4-0.9.16, 02 Dec 2001 on hda5, internal journal
-> [...]
-> 
-> __mark_inode_dirty: this cannot happen
-> __mark_inode_dirty: this cannot happen
-> __mark_inode_dirty: this cannot happen
-> __mark_inode_dirty: this cannot happen
-> PPP: VJ decompression error
-> PPP: VJ decompression error
-> PPP: VJ decompression error
-> __mark_inode_dirty: this cannot happen
-> __mark_inode_dirty: this cannot happen
-> __mark_inode_dirty: this cannot happen
-> __mark_inode_dirty: this cannot happen
-> __mark_inode_dirty: this cannot happen
-> __mark_inode_dirty: this cannot happen
-> invalid via82xx_cur_ptr, using last valid pointer
-> invalid via82xx_cur_ptr, using last valid pointer
-> invalid via82xx_cur_ptr, using last valid pointer
-> PPP: VJ decompression error
+   From: Stephen Hemminger <shemminger@osdl.org>
+   Date: Fri, 13 Jun 2003 16:41:19 -0700
 
-The "__mark_inode_dirty" message is a deugging leftofer from Andrew that
-is spit out the first time the machine starts swapping out. You can
-safely ignore it.
+   This patch changes network devices to run hotplug out of the
+   kobject/class_device infrastructure rather than calling it from the
+   network core. The code gets simpler and there is only one place for
+   Greg to fix when he changes the API ;-)
 
+I'll apply this patch, looks fine.
+   
+   Paranoid about some driver doing something like:
+   	rtnl_lock(); register_netdevice(); unregister_netdevice(); rtnl_unlock() BOOM
+
+These sorts of turds exist at least in two places:
+
+1) drivers/net/wan/comx.c
+2) drivers/net/wan/hdlc_fr.c
+
+But it is pretty clear that these two drivers have been
+tried by nobody in recent years.  They both call into
+{un,}register_netdevice without the RTNL semaphore held.

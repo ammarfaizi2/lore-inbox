@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318858AbSG0XrM>; Sat, 27 Jul 2002 19:47:12 -0400
+	id <S318861AbSG0XyK>; Sat, 27 Jul 2002 19:54:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318861AbSG0XrM>; Sat, 27 Jul 2002 19:47:12 -0400
-Received: from dsl-213-023-021-146.arcor-ip.net ([213.23.21.146]:64384 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318858AbSG0XrL>;
-	Sat, 27 Jul 2002 19:47:11 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Russell King <rmk@arm.linux.org.uk>, jbradford@dial.pipex.com
-Subject: Re: Linux Weekly News dying - any help?
-Date: Sun, 28 Jul 2002 01:51:27 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
-References: <20020726092846.GA3542@outpost.ds9a.nl> <200207261007.g6QA7U8A001655@darkstar.example.net> <20020726112209.C19802@flint.arm.linux.org.uk>
-In-Reply-To: <20020726112209.C19802@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17YbLM-0001ac-00@starship>
+	id <S318863AbSG0XyK>; Sat, 27 Jul 2002 19:54:10 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:58532 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S318861AbSG0XyK>;
+	Sat, 27 Jul 2002 19:54:10 -0400
+Date: Sun, 28 Jul 2002 01:57:26 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Daniel Egger <degger@fhm.edu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: Linux-2.5.28
+Message-ID: <20020727235726.GB26742@win.tue.nl>
+References: <1027553482.11881.5.camel@sonja.de.interearth.com> <Pine.LNX.4.44.0207241803410.4293-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207241803410.4293-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 26 July 2002 12:22, Russell King wrote:
-> On Fri, Jul 26, 2002 at 11:07:30AM +0100, jbradford@dial.pipex.com wrote:
-> > If somebody buys up the domain, I'll hapily spare some time to contribute
-> > to it. Just drop me an E-Mail.
-> 
-> I'm sure someone has a server with some space available to host the site.
+On Wed, Jul 24, 2002 at 06:08:48PM -0700, Linus Torvalds wrote:
 
-Jon points out that salaries are the problem.  There seems to be a shortfall
-of $150,000, or perhaps a little more, in that department.
+> Most of the IDE stuff is FUD and misinformation. I've run every single
+> 2.5.x kernel on an IDE system ("penguin.transmeta.com" has everything on
+> IDE), and the main reported 2.5.27 corruption was actually from my BK tree
+> apparently due to the IRQ handling changes.
 
--- 
-Daniel
+Linus, Linus, how can you say something so naive?
+I need not tell you that one user without problems does not imply
+that nobody will have problems.
+
+A few people reported lost filesystems. Many more reported mild
+filesystem damage. And now you also report mild filesystem damage.
+
+FUD? Fear? Yes, the fear is justified for whoever does not have backups.
+Uncertainty? Yes, when the filesystem is damaged again, it is not quite
+clear what causes it. Doubt? Yes, many people doubt whether they can
+afford to run 2.5.recent.
+
+This evening I ran vanilla 2.5.29 and was rewarded with mild filesystem damage.
+91 files in /lost+found. Nothing. A few kernel versions ago it was three
+orders of magnitude worse.
+
+IDE? 2.4.17 and 2.5.27+Jens are stable for me in ordinary use.
+IRQ? Quite possible.
+My third candidate is USB. Systems without USB are clearly more stable.
+
+Andries

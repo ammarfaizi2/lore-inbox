@@ -1,72 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbULJVfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbULJVkR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbULJVfA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 16:35:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbULJVea
+	id S261823AbULJVkR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 16:40:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbULJVkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 16:34:30 -0500
-Received: from lax-gate3.raytheon.com ([199.46.200.232]:17725 "EHLO
-	lax-gate3.raytheon.com") by vger.kernel.org with ESMTP
-	id S261817AbULJVeK convert rfc822-to-8bit (ORCPT
+	Fri, 10 Dec 2004 16:40:06 -0500
+Received: from fw.osdl.org ([65.172.181.6]:23481 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261816AbULJVjw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 16:34:10 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF3220A1AC.7E7F07CF-ON86256F66.00749EC3@raytheon.com>
-From: Mark_H_Johnson@Raytheon.com
-Date: Fri, 10 Dec 2004 15:31:50 -0600
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 12/10/2004 03:31:56 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
-X-SPAM: 0.00
+	Fri, 10 Dec 2004 16:39:52 -0500
+Date: Fri, 10 Dec 2004 13:38:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: clameter@sgi.com, torvalds@osdl.org, benh@kernel.crashing.org,
+       nickpiggin@yahoo.com.au, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: pfault V12 : correction to tasklist rss
+Message-Id: <20041210133859.2443a856.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0412102054190.32422-100000@localhost.localdomain>
+References: <Pine.LNX.4.58.0412101150490.9169@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.44.0412102054190.32422-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+Hugh Dickins <hugh@veritas.com> wrote:
 >
->> [1] I still do not get traces where cpu_delay switches CPU's. I only
->> get trace output if it starts and ends on a single CPU. [...]
->
->lt001.18RT/lt.02 is such a trace. It starts on CPU#1:
->
-> <unknown-3556  1...1    0µs : find_next_bit (user_trace_start)
->
->and ends on CPU#0:
->
-> <unknown-3556  1...1  247µs : _raw_spin_lock_irqsave (user_trace_stop)
->
->the trace shows a typical migration of an RT task.
+> > We have no  real way of establishing the ownership of shared pages
+>  > anyways. Its counted when allocated. But the page may live on afterwards
+>  > in another process and then not be accounted for although its only user is
+>  > the new process.
+> 
+>  I didn't understand that bit.
 
-Hmm. Now I look at it more clearly like...
- # grep '^<unknown-3556' lt001.18RT/lt.02
-I can see what you mean. Though this time it moved from one [22 usec]
-to zero [189 usec] and back to one [238 usec] before it finally stopped
-the trace at 248 usec. [the attempt to reschedule on CPU zero was
-clearly ineffective]
-
-This trace is also odd in that the duration of the trace in the header is
-listed as 99 usec (and the application confirmed that) but the trace
-ends at 248 usec.
-
-Hmm. Now that I look at it, the duration in the header (99 usec) is the
-duration of lt.01 (as reported by the script) but the total duration
-of the trace (248 usec) is the duration from the script for lt.02.
-
-
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
-
+We did lose some accounting accuracy when the pagetable walk and the big
+tasklist walks were removed.  Bill would probably have more details.  Given
+that the code as it stood was a complete showstopper, the tradeoff seemed
+reasonable.

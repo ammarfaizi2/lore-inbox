@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261659AbTL3AeU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 19:34:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbTL3AeU
+	id S261753AbTL3AhX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 19:37:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbTL3AhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 19:34:20 -0500
-Received: from mail.kroah.org ([65.200.24.183]:36331 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261659AbTL3AeT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 19:34:19 -0500
-Date: Mon, 29 Dec 2003 16:32:47 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: Andrew Morton <akpm@osdl.org>, maneesh@in.ibm.com, mgorse@mgorse.dhs.org,
-       linux-kernel@vger.kernel.org,
-       Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: oopses in kobjects in 2.6.0-test11 (was Re: kobject patch)
-Message-ID: <20031230003246.GB16187@kroah.com>
-References: <20031009014837.4ff71634.akpm@osdl.org> <20031208222526.GA31134@kroah.com> <20031208224810.GB31134@kroah.com> <200312281538.42309.arvidjaar@mail.ru>
-Mime-Version: 1.0
+	Mon, 29 Dec 2003 19:37:23 -0500
+Received: from smtp1.fre.skanova.net ([195.67.227.94]:14067 "EHLO
+	smtp1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S261753AbTL3AhW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 19:37:22 -0500
+To: Lukas Hejtmanek <xhejtman@hell.sks3.muni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ACPI problems (was: Re: Synaptics PS/2 driver and 2.6.0-test11)
+References: <20031229215913.GH916@mail.muni.cz>
+From: Peter Osterlund <petero2@telia.com>
+Date: 30 Dec 2003 01:37:11 +0100
+In-Reply-To: <20031229215913.GH916@mail.muni.cz>
+Message-ID: <m21xqngmyw.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200312281538.42309.arvidjaar@mail.ru>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 28, 2003 at 03:38:42PM +0300, Andrey Borzenkov wrote:
-> On Tuesday 09 December 2003 01:48, Greg KH wrote:
-> > Ok, I'm ccing lkml and everyone else who has been in on this thread at
-> > different times.  This is based on a patch from Andrey that was/is in
-> > the -mm tree for a while.
-> >
+Lukas Hejtmanek <xhejtman@hell.sks3.muni.cz> writes:
+
+> Hello,
 > 
-> what about second part in sysfs/dir.c? How relevant is it?
+> I've found that problem with synaptics is really related to some ACPI troubles.
+> I've suspected synaptics touchpad to do some interrupt bursts and it does.
+> Just single button press and relelase generates about 500 interrupts!!! I wonder
+> if it is driver related or really hardware related...
 
-Very relevant, that's why it's in the -mm tree right now :)
+That's normal. The hardware generates 80 packets/second and it keeps
+generating packets 1 second after you stop using the touchpad. Each
+packet is 6 bytes and the i8042 controller generates one
+interrupt/byte.
 
-thanks,
+500 interrupts/s shouldn't be any problem to handle though.
 
-greg k-h
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

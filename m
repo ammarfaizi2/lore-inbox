@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262108AbUCEAoM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 19:44:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbUCEAoM
+	id S262131AbUCEBAf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 20:00:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262141AbUCEBAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 19:44:12 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:62353 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S262108AbUCEAoK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 19:44:10 -0500
-Message-ID: <4047CD56.5000700@nortelnetworks.com>
-Date: Thu, 04 Mar 2004 19:44:06 -0500
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	Thu, 4 Mar 2004 20:00:35 -0500
+Received: from fe5-cox.cox-internet.com ([66.76.2.50]:37761 "EHLO
+	fe5.cox-internet.com") by vger.kernel.org with ESMTP
+	id S262131AbUCEBAd convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Mar 2004 20:00:33 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Billy Rose <billyrose@cox-internet.com>
+To: krishnakumar@naturesoft.net, Tim Bird <tim.bird@am.sony.com>
+Subject: Re: kernel mode console
+Date: Thu, 4 Mar 2004 18:58:45 -0600
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
+References: <200403022152.06950.billyrose@cox-internet.com> <40460C8E.4010100@am.sony.com> <200403040942.23176.krishnakumar@naturesoft.net>
+In-Reply-To: <200403040942.23176.krishnakumar@naturesoft.net>
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Tom Rini <trini@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: problem with cache flush routine for G5?
-References: <40479A50.9090605@nortelnetworks.com>	 <1078444268.5698.27.camel@gaston>	 <20040304235754.GK26065@smtp.west.cox.net> <1078445065.5703.37.camel@gaston>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200403041858.45617.billyrose@cox-internet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
->>... unless this is a 'G5' that's not in a pmac, it's not my code, and
->>the openfirmware bootloaders don't, IIRC, do any cache stuff.
->>
-> 
-> Heh, well, they should. 
+On Wednesday 03 March 2004 10:12 pm, Krishnakumar. R wrote:
+> Hi,
+>
+> > set up a remote debug session just to poke around in the kernel.
+> > Remote debug setup is complex and often fragile.
+>
+> There is framework called "Kprobes" available, which may
+> be of use in the cases were remote debugging is a no-no.
+>
+> After you have applied the kprobes patch, you can put probes
+> at different portions of the kernel and can dump registers
+> variables etc.
+>
+> More details can be found at
+> http://www-124.ibm.com/linux/projects/kprobes.
+>
+>
+> Regards,
+> KK.
 
-Actually I think they do.  chrpmain.c and coffmain.c both reference 
-flush_cache() in misc.S in arch/ppc/boot/pmac.
-
-Chris
-
+i think perhaps i need to expound upon what i have a vision of. a kernel mode 
+console is just that: a console designed to run in kernel mode. it could have 
+built in commands to allow for quick and dirty examination of stuff (anything 
+really, like memory dumps) and a command processor for scripted stuff, but 
+the true power of it comes in when you issue a command that is not internal 
+to the console. it could run a special debugger, an application that installs 
+a probe, a memory monitor, etc., etc. in short it is not a debugger per-say, 
+but a "god mode" console for the linux kernel. that is what i had a vision 
+of. the executables it would run would necessarily be compiled for that. 
+again, i ask is that worth the time coding it?
 -- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
+. ~billyrose/make

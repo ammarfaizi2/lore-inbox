@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264238AbUFFX5g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264251AbUFGAFY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264238AbUFFX5g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 19:57:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264244AbUFFX5g
+	id S264251AbUFGAFY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 20:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264253AbUFGAFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 19:57:36 -0400
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:64901 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S264238AbUFFX5f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 19:57:35 -0400
-Date: Mon, 7 Jun 2004 01:57:31 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: linux crashing on amd athlons?
-Message-ID: <20040606235730.GA10458@merlin.emma.line.org>
-Mail-Followup-To: linux kernel <linux-kernel@vger.kernel.org>
-References: <001701c44bf7$c8991f20$0200a8c0@laptop>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <001701c44bf7$c8991f20$0200a8c0@laptop>
-User-Agent: Mutt/1.5.5.1i
+	Sun, 6 Jun 2004 20:05:24 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:4809 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S264251AbUFGAFS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 20:05:18 -0400
+Message-ID: <40C3B22D.8080308@elegant-software.com>
+Date: Sun, 06 Jun 2004 20:09:17 -0400
+From: Russell Leighton <russ@elegant-software.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: arjanv@redhat.com
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Using getpid() often, another way? [was Re: clone() <->	getpid()
+ bug in 2.6?]
+References: <40C1E6A9.3010307@elegant-software.com>	 <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org>	 <40C32A44.6050101@elegant-software.com>	 <40C33A84.4060405@elegant-software.com> <1086537490.3041.2.camel@laptop.fenrus.com>
+In-Reply-To: <1086537490.3041.2.camel@laptop.fenrus.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 06 Jun 2004, Ameer Armaly wrote:
+Arjan van de Ven wrote:
 
-> While installing linux on an amd athlon, the kernel is oopsing and shuting
-> down the computer at random places  within the install.  This is a custom
-> built kernel off of kernel.org I built, which I optimized for athlon then
-> i386 afterwards, but with no luck.
-
-I have several Athlons (from the venerable 500 to the new XP 2600+) in
-use at various sites, no problems. Among them an XP 1700+ in server use
-with vanilla 2.4.26, rock solid.
-
-Check you've used a supported compiler and binutils, then check the
-hardware. Cooling (heat sink), RAM (try memtest86), power supply, proper
-clock speed and core voltage, proper RAM timing -- these are all
-contributing factors to instability if not carefully chosen and
-installed.
-
--- 
-Matthias Andree
-
-Encrypted mail welcome: my GnuPG key ID is 0x052E7D95
+>On Sun, 2004-06-06 at 17:38, Russell Leighton wrote:
+>  
+>
+>>I have a library that creates 2 threads using clone().
+>>[NOTE: I can't use pthreads for a variety of reasons, mostly due
+>>to the wacky signal handling rules...it turns out that using clone() is 
+>>cleaner for me anyway.]
+>>    
+>>
+>
+>a library using clone sounds suspect to me, I can't imagine an app using
+>pthreads being able to just use your library as a result.
+>
+Why? In  what way would a program that uses pthreads interfere with 
+threads created using clone()?

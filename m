@@ -1,29 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132539AbRDHLdj>; Sun, 8 Apr 2001 07:33:39 -0400
+	id <S132536AbRDHLcj>; Sun, 8 Apr 2001 07:32:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132540AbRDHLda>; Sun, 8 Apr 2001 07:33:30 -0400
-Received: from quechua.inka.de ([212.227.14.2]:16508 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S132539AbRDHLdR>;
-	Sun, 8 Apr 2001 07:33:17 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: goodbye
-In-Reply-To: <Pine.LNX.4.21.0104031800030.14090-100000@imladris.rielhome.conectiva> <20010404012102Z131724-406+7418@vger.kernel.org> <20010408023228.L805@mea-ext.zmailer.org> <20010407231956.A344@vitelus.com>
-Date: Sun, 08 Apr 2001 12:58:22 +0200
-From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E14mCtj-0000YC-00@hunte.bigred.inka.de>
+	id <S132539AbRDHLca>; Sun, 8 Apr 2001 07:32:30 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:20663 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S132536AbRDHLcV>; Sun, 8 Apr 2001 07:32:21 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Miles Lane <miles@megapathdsl.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.3-ac2 -- How do I determine if shm is being used?
+In-Reply-To: <3ACF5C31.B3B0594F@megapathdsl.net>
+Organisation: SAP LinuxLab
+In-Reply-To: <3ACF5C31.B3B0594F@megapathdsl.net>
+Message-ID: <m3hezzr35y.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: 08 Apr 2001 14:31:47 +0200
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It scares me that peoples' messages would be denied based on what
-> degree of connection they choose to mail via. I sincerely hope that
-> the DUL lists only list netblocks that are actively being used for
-> spam. This would be sort of like the Usenet Death Penalty, instating
-> bans on providers who refuse to deal with spamming. I think that's a
+Hi Miles,
 
-There's another list to do that: the original RBL. The DUL is only and
-explicitly for the purpose of denying access based on the degree of
-connection the users can afford.
+On Sat, 07 Apr 2001, Miles Lane wrote:
+> I have mounted:
+> 
+> 	none on /var/shm type shm (rw)
 
-Olaf
+Not necessary any more.
+
+> 	tmpfs on /dev/shm type tmpfs (rw)
+
+Also not necessary, but recommended for POSIX shm. BTW it will not
+work with Linus' kernel. Type "shm" is supported by both versions.
+
+> X Error of failed request: BadValue (integer parameter out of range
+> for operation)
+>   Major opcode of failed request:  146 (MIT-SHM)
+>   Minor opcode of failed request:  3 (X_ShmPutImage)
+>   Value in failed request:  0x1600001
+>   Serial number of failed request:  35107
+>   Current serial number in output stream:  35111
+
+Ubfortunately this does not tell what it wanted to do.
+
+> I'd like to check to make sure that shm is actually accessible
+> to my programs.  Is there any easy way to do this?
+
+ipcs should be your friend. Especially 'ipcs -lm'.
+
+Greetings
+		Christoph
+
 

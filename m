@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265261AbUGCVXj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265266AbUGCVhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265261AbUGCVXj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 17:23:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265266AbUGCVXj
+	id S265266AbUGCVhF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 17:37:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265267AbUGCVhE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 17:23:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57758 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265261AbUGCVXi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 17:23:38 -0400
-Date: Sat, 3 Jul 2004 18:04:27 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: "Marcelo W. Tosatti" <marcelo.tosatti@cyclades.com.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] building linux-2.4 with gcc 3.3.3
-Message-ID: <20040703210427.GC13076@logos.cnet>
-References: <20040629153452.5a03ab5e@dell_ss3.pdx.osdl.net>
+	Sat, 3 Jul 2004 17:37:04 -0400
+Received: from fw.osdl.org ([65.172.181.6]:34196 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265266AbUGCVhC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jul 2004 17:37:02 -0400
+Date: Sat, 3 Jul 2004 14:35:58 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, olaf+list.linux-kernel@olafdietsche.de
+Subject: Re: procfs permissions on 2.6.x
+Message-Id: <20040703143558.5f2c06d6.akpm@osdl.org>
+In-Reply-To: <20040703210407.GA11773@infradead.org>
+References: <20040703202242.GA31656@MAIL.13thfloor.at>
+	<20040703202541.GA11398@infradead.org>
+	<20040703133556.44b70d60.akpm@osdl.org>
+	<20040703210407.GA11773@infradead.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040629153452.5a03ab5e@dell_ss3.pdx.osdl.net>
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 29, 2004 at 03:34:52PM -0700, Stephen Hemminger wrote:
-> It appears linux-2.4 won't build with gcc 3.3.3 (SuSe) because it is picky about
-> the attributes matching the prototype which shows up on the FASTCALL() usage.
+Christoph Hellwig <hch@infradead.org> wrote:
+>
+> > > Actually the patch you reference above looks extremly bogus and should just
+> > > be reverted instead.
+> > 
+> > Why is it "extremely bogus"?  I assume Olaf had a reason for wanting chmod
+> > on procfs files?
+> 
+> Because it turns the question what permissions a procfs file has into
+> a lottery game.  He only changes the incore inode owner and as soon as
+> the inode is reclaimed the old ones return.
 
-Right, I think its OK to incorporate Mikael's gcc-3.4.0 fixes in 2.4.28-pre1, 
-which already include the fastcall fixes:
+procfs inodes aren't reclaimable.
 
-http://user.it.uu.se/~mikpe/linux/patches/2.4/patch-gcc340-fixes-2.4.27-rc2
-
-I had a couple of doubts about it and asked Mikael privately, but no big deal.
+chrisw fixed this bug a couple of days ago.

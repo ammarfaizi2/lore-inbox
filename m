@@ -1,91 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265275AbUH3X05@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265331AbUH3Xjp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265275AbUH3X05 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 19:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265287AbUH3X05
+	id S265331AbUH3Xjp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 19:39:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUH3Xjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 19:26:57 -0400
-Received: from hostmaster.org ([212.186.110.32]:40333 "HELO hostmaster.org")
-	by vger.kernel.org with SMTP id S265275AbUH3X0x (ORCPT
+	Mon, 30 Aug 2004 19:39:45 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:2041 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265331AbUH3Xjn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 19:26:53 -0400
-Subject: hald hangs on 2.6.8.1/SMP with 6in1 CardReader
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-P2Cm5XtWnSGSqOmuwKzL"
-Date: Tue, 31 Aug 2004 01:26:51 +0200
-Message-Id: <1093908411.3669.26.camel@hostmaster.org>
+	Mon, 30 Aug 2004 19:39:43 -0400
+Subject: Re: [PATCH] Re: boot time, process start time, and NOW time
+From: john stultz <johnstul@us.ibm.com>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: george anzinger <george@mvista.com>, Andrew Morton <akpm@osdl.org>,
+       Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>,
+       albert@users.sourceforge.net, hirofumi@mail.parknet.co.jp,
+       lkml <linux-kernel@vger.kernel.org>, voland@dmz.com.pl,
+       nicolas.george@ens.fr, david+powerix@blue-labs.org
+In-Reply-To: <Pine.LNX.4.53.0408310037280.5596@gockel.physik3.uni-rostock.de>
+References: <87smcf5zx7.fsf@devron.myhome.or.jp>
+	 <20040816124136.27646d14.akpm@osdl.org>
+	 <Pine.LNX.4.53.0408172207520.24814@gockel.physik3.uni-rostock.de>
+	 <412285A5.9080003@mvista.com>
+	 <1092782243.2429.254.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.53.0408180051540.25366@gockel.physik3.uni-rostock.de>
+	 <1092787863.2429.311.camel@cog.beaverton.ibm.com>
+	 <1092781172.2301.1654.camel@cube>
+	 <1092791363.2429.319.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.53.0408180927450.14935@gockel.physik3.uni-rostock.de>
+	 <20040819191537.GA24060@elektroni.ee.tut.fi>
+	 <20040826040436.360f05f7.akpm@osdl.org>
+	 <Pine.LNX.4.53.0408261311040.21236@gockel.physik3.uni-rostock.de>
+	 <Pine.LNX.4.53.0408310037280.5596@gockel.physik3.uni-rostock.de>
+Content-Type: text/plain
+Message-Id: <1093909116.14662.105.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.93 (1.5.93-2) 
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 30 Aug 2004 16:38:38 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2004-08-30 at 16:00, Tim Schmielau wrote:
+> So I think we should not apply the patch, but rather back out the patch 
+> that rebased uptime on a ntp-corrected timesource.
+> There are too many statistics that are still based on jiffies or clock 
+> ticks, and we cannot immediately change that without a large rework
+> (although this might eventually happen according to John's proposal).
+> And mixing two different timesources just won't work, regardles where we 
+> draw the borderline between them.
+> 
+> George, please excuse my lack of understanding. What again where the
+> precise reasons to have an ntp-corrected uptime?
 
---=-P2Cm5XtWnSGSqOmuwKzL
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+If I remember correctly, folks were complaining that boot time was
+drifting due to the same issue. 
 
-Hi,
+So yes, a full rework of the time subsystem is needed, but it alone
+won't fix all of these problems, its just the first step. Once we have a
+sane time base that isn't dependent on regular timer ticks, we then need
+to make the timer subsystem and every other subsystem to use that time
+base instead of Jiffies/HZ. 
 
-after a while running my system load goes up by 3 apparently caused by
-hald (http://www.freedesktop.org/software/hal/) locking up together with
-[scsi_eh_1] and [usb-storage].
+This isn't going to happen instantly by any means. I'm trying to get the
+time of day rework finished as soon as I can, but I've got the day job
+to do as well. In the mean time, we can staple gun any user visible
+exported HZ/jiffies values so they are accurate (using ACTHZ or
+gettimeofday), and also look into changing HZ to a less error-ful
+value.  HZ=1001 has been suggested and looks quite promising (although
+/net/schec/estimator.c wants a power of 4).
 
-The activity LED of my USB 6in1 card reader flashes nervously and I
-obtained the following task state using magic SysRQ:
-
-hald          D 0000268216b1cdba     0  7996   3415                     (NO=
-TLB)
-000001002a31fc78 0000000000000006 0000007300000000 000001000509c4f0
-       000000000000244d 000001003fe402b0 000001000509c808 ffffffff80279860
-       000001003ffdcd90 ffffffff802d7d6d
-Call Trace:<ffffffff80279860>{scsi_done+0} <ffffffff802d7d6d>{.text.lock.sc=
-siglue+5}
-       <ffffffff8038f74a>{wait_for_completion+154} <ffffffff8012e370>{defau=
-lt_wake_function+0}
-       <ffffffff8012e370>{default_wake_function+0} <ffffffff8027d8e3>{scsi_=
-wait_req+99}
-       <ffffffff8026d979>{ide_diag_taskfile+201} <ffffffff80170c50>{invalid=
-ate_bh_lru+0}
-       <ffffffff8027aa50>{ioctl_internal_command+112} <ffffffff8027b1ef>{sc=
-si_ioctl+751}
-       <ffffffff8028e8d5>{sd_media_changed+69} <ffffffff80176459>{check_dis=
-k_change+41}
-       <ffffffff8028e527>{sd_open+215} <ffffffff80176839>{do_open+281}
-       <ffffffff801761c7>{bdget+263} <ffffffff80176cdf>{blkdev_open+47}
-       <ffffffff8016dac6>{dentry_open+246} <ffffffff8016dc1e>{filp_open+62}
-       <ffffffff80182c86>{sys_poll+806} <ffffffff8017bb55>{getname+149}
-       <ffffffff80181f30>{__pollwait+0} <ffffffff8016de7c>{sys_open+76}
-       <ffffffff8010e562>{system_call+126}
-
-Anyone else seeing this problem?
-
-Tom
-
---=20
-  T h o m a s   Z e h e t b a u e r   ( TZ251 )
-  PGP encrypted mail preferred - KeyID 96FFCB89
-      finger thomasz@hostmaster.org for key
-
-To vote in an election does not mean to have a choice!
-
-
-
---=-P2Cm5XtWnSGSqOmuwKzL
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iQEVAwUAQTO3u2D1OYqW/8uJAQJqVgf/cecSJBc2Y6BUE6jlG82tGxstVKL80oRV
-G6EPrf/gwxcnUOQhPwxY5hiThPaGWg8PY5OeglhFpl9bNXDPWyIViGUKYtk1K84Z
-fT5xIwdW90uoqjhCJTYYvqmCjn1PcpVsktbNWsKQur/346WTMXMB/Ln87YvFNHaA
-GVu++MkK5AyVe7C04NMPu4yrPxlUBUkGfRA4ieFEMa3a/x0rogB2piHRRqRjpqAY
-X4m8Acp9vRVFEAl8pviWz3JKY+2RL9TApMMVHOeEBIlEx/NzottDzYPZd9QUSghj
-5qvcgYPrm2hXIBkZwzJ1jMgKNtKDKOxVU15DDlA6iamZ50vdHsKmjw==
-=uUYg
------END PGP SIGNATURE-----
-
---=-P2Cm5XtWnSGSqOmuwKzL--
+thanks
+-john
 

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264594AbTLEX0D (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 18:26:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264595AbTLEX0D
+	id S264581AbTLEXZs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 18:25:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264594AbTLEXZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 18:26:03 -0500
-Received: from main.gmane.org ([80.91.224.249]:38598 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264594AbTLEX0A (ORCPT
+	Fri, 5 Dec 2003 18:25:48 -0500
+Received: from stinkfoot.org ([65.75.25.34]:53386 "EHLO stinkfoot.org")
+	by vger.kernel.org with ESMTP id S264581AbTLEXZr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 18:26:00 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Is there a "make hole" (truncate in middle) syscall?
-Date: Sat, 06 Dec 2003 00:25:56 +0100
-Message-ID: <yw1xad663kzf.fsf@kth.se>
-References: <200312041432.23907.rob@landley.net> <Pine.LNX.4.58.0312042300550.2330@ua178d119.elisa.omakaista.fi>
- <yw1xllprihwo.fsf@kth.se>
- <20031205224142.GR29119@mis-mike-wstn.matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:hIYHlUhCDT7xoe10YisU5lxJhB4=
+	Fri, 5 Dec 2003 18:25:47 -0500
+Message-ID: <3FD114A5.5070100@stinkfoot.org>
+Date: Fri, 05 Dec 2003 18:28:37 -0500
+From: Ethan Weinstein <lists@stinkfoot.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031103
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Rusell \"Elik\" Rademacher" <elik@webspires.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HT apparently not detected properly on 2.4.23
+References: <20031203235837.GW8039@holomorphy.com> <Pine.LNX.4.44.0312051511440.5412-100000@logos.cnet> <20031205174850.GE8039@holomorphy.com> <17783749062.20031205110751@webspires.com> <3FD0CD65.5080307@stinkfoot.org> <86101410218.20031205160213@webspires.com>
+In-Reply-To: <86101410218.20031205160213@webspires.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk <mfedyk@matchmail.com> writes:
+Russell "Elik" Rademacher wrote:
+> Hello Ethan,
+> 
+>    Seems that patch of yours finally did the job of reporting it right this time around.  I had to gank a few servers of different versions and giving the webhosting customers some little inconvience of downtime of 3 to 10 minutes for the linux recompile and reboot.  And they all finally reports the number of processors correctly as it should be.
+> 
+>    Thanks Ethan.  I going to put it on more servers that got those and see how they all go as well.  As for the servers, they are all usually ServerWorks, Intel Chipsets of various types with Intel E1000, E100, Realtek network ports and with 3Ware or SCSI Adaptec adapters.  Got about 80 of them in various types to go though, but 5 of them I that tested it on, it all reports correctly.
+> 
+>    Let see if the Dell servers also report the same as well when I get though with them tonight.
+> 
 
->> I found this paragraph in the man page of GNU cp:
->> 
->>        --sparse=WHEN
->>               always Always make the output file sparse.  This is
->>                      useful when the  input  file  resides  on  a
->>                      filesystem  that  does  not  support  sparse
->>                      files, but the output file is on a  filesys-
->>                      tem that does.
->
-> So with this, you can create sparse files for an entire set of files
-> by just cping them? :)
+Glad to help, but don't credit me with that patch, it was courtesy of 
+William Irwin.
 
-Yes.  It won't query the system for where any potential holes in the
-source files might be, though, so if there are large holes, cp will
-spend unnecessary time crunching through them.
 
--- 
-Måns Rullgård
-mru@kth.se
-
+-E

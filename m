@@ -1,84 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbULIIaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbULIIww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbULIIaG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 03:30:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbULIIaF
+	id S261450AbULIIww (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 03:52:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbULIIwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 03:30:05 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:56221 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261426AbULII37
+	Thu, 9 Dec 2004 03:52:44 -0500
+Received: from mail-02.iinet.net.au ([203.59.3.34]:13214 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261450AbULIIwl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 03:29:59 -0500
-Subject: Re: [RFC] New timeofday proposal (v.A1)
-From: john stultz <johnstul@us.ibm.com>
-To: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Len Brown <len.brown@intel.com>, linux@dominikbrodowski.de,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
-       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <amax@us.ibm.com>, mahuja@us.ibm.com
-In-Reply-To: <41B81364.5446.EEE6E75@rkdvmks1.ngate.uni-regensburg.de>
-References: <Pine.LNX.4.58.0412081207010.28001@schroedinger.engr.sgi.com>
-	 <41B81364.5446.EEE6E75@rkdvmks1.ngate.uni-regensburg.de>
-Content-Type: text/plain
-Date: Thu, 09 Dec 2004 00:29:52 -0800
-Message-Id: <1102580992.7511.10.camel@leatherman>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Thu, 9 Dec 2004 03:52:41 -0500
+Message-ID: <41B81254.4040107@cyberone.com.au>
+Date: Thu, 09 Dec 2004 19:52:36 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Lukas Hejtmanek <xhejtman@hell.sks3.muni.cz>
+CC: Andrew Morton <akpm@osdl.org>, zaphodb@zaphods.net,
+       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.9 Multiple Page Allocation Failures
+References: <20041202223146.GA31508@zaphods.net> <20041202145610.49e27b49.akpm@osdl.org> <20041202231837.GB15185@mail.muni.cz> <20041202161839.736352c2.akpm@osdl.org> <20041203121129.GC27716@mail.muni.cz> <41B6343A.9060601@cyberone.com.au> <20041207225932.GB12030@mail.muni.cz> <41B63738.2010305@cyberone.com.au> <20041208111832.GA13592@mail.muni.cz> <41B6E415.4000602@cyberone.com.au> <20041208131442.GF13592@mail.muni.cz>
+In-Reply-To: <20041208131442.GF13592@mail.muni.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-12-09 at 08:57 +0100, Ulrich Windl wrote:
-> On 8 Dec 2004 at 15:36, john stultz wrote:
-> 
-> [...]
-> > Take a look at the adjtimex man page as well as the ntp.c file from the
-> > timeofday core patch. There are number of different types of adjustments
-> > that are made, possibly at the same time. Briefly, they are (to my
-> > understanding - I'm going off my notes from awhile ago): 
-> > o tick adjustments
-> > 	how much time should pass in a _user_ tick
-> 
-> tick adjustments are considered obsolete, because if a lcok implementation (or 
-> hardware) is severly broken, users should reject using that stuff. Meaning: tick 
-> adjustments are ment to be set once in the life of a computer system. No 
-> continuous tuning.
-> 
-> > o frequency adjustments
-> > 	long term adjustment to correct for constant drift), 
-> 
-> Actually, you are compensating for a "tick problem" on a smaller scale (constant 
-> part), and variations caused by temperature, voltage, and others (variable part).
-> 
-> > o offset adjustments
-> > 	additional ppm adjustment to correct for current offset from the ntp
-> > server
-> > o single shot offset adjustments 
-> > 	old style adjtime functionality
-> > 
-> > Tick, frequency and offset adjustments can be precalculated and summed
-> > to a single ppm adjustment. This is similar to the style of adjustment
-> > you propose directly onto the time source frequency values. 
-> > 
-> > However, there is also this short term single shot adjustments. These
-> > adjustments are made by applying the MAX_SINGLESHOT_ADJ (500ppm) scaling
-> > for an amount of time (offset_len) which would compensate for the
-> > offset. This style is difficult because we cannot precompute it and
-> > apply it to an entire tick. Instead it needs to be applied for just a
-> > specific amount of time which may be only a fraction of a tick. When we
-> 
-> Yes, that's the "precise" variant of implementing it. Poor implementations are 
-> just accurate to one tick.
 
-Thanks for your knowledgeable clarifications. Its good to know someone
-out there deeply understands this stuff more then at a "this is what the
-code is doing, and I have my own interpretation as to why" level. :)
 
-thanks again,
--john
+Lukas Hejtmanek wrote:
 
+>On Wed, Dec 08, 2004 at 10:23:01PM +1100, Nick Piggin wrote:
+>
+>>>No better. min_free_kb is set by default to 3831 but I can still reproduce 
+>>>this:
+>>>
+>>>swapper: page allocation failure. order:0, mode:0x20
+>>>
+>>>
+>>What value do you have to raise min_free_kb to in order to be unable to
+>>reproduce the warnings?
+>>
+>
+>32MB seems to be ok but it will require further testing to be sure.
+>
+>
+
+Seems pretty excessive - although maybe your increased socket buffers and
+txqueuelen are contributing?
 

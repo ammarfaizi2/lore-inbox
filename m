@@ -1,71 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135183AbRAHXWc>; Mon, 8 Jan 2001 18:22:32 -0500
+	id <S129752AbRAHX2D>; Mon, 8 Jan 2001 18:28:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133051AbRAHXWW>; Mon, 8 Jan 2001 18:22:22 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:59178 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S131901AbRAHXWU>; Mon, 8 Jan 2001 18:22:20 -0500
-Date: Tue, 9 Jan 2001 00:22:36 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
+	id <S130330AbRAHX1x>; Mon, 8 Jan 2001 18:27:53 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:34569 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129752AbRAHX1r>; Mon, 8 Jan 2001 18:27:47 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
 Subject: Re: `rmdir .` doesn't work in 2.4
-Message-ID: <20010109002236.K27646@athlon.random>
-In-Reply-To: <UTC200101082250.XAA147777.aeb@texel.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <UTC200101082250.XAA147777.aeb@texel.cwi.nl>; from Andries.Brouwer@cwi.nl on Mon, Jan 08, 2001 at 11:50:44PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Date: 8 Jan 2001 15:27:21 -0800
+Organization: Transmeta Corporation
+Message-ID: <93dicp$ano$1@penguin.transmeta.com>
+In-Reply-To: <20010108185518.G27646@athlon.random> <Pine.GSO.4.21.0101081259230.4061-100000@weyl.math.psu.edu> <20010108213036.T27646@athlon.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2001 at 11:50:44PM +0100, Andries.Brouwer@cwi.nl wrote:
->     From: Andrea Arcangeli <andrea@suse.de>
-> 
->     > But in fact it fails with EINVAL, and
->     > 
->     > [EINVAL]: The path argument contains a last component that is dot.
-> 
->     I can't confirm. The specs I'm checking are here:
-> 
->         http://www.opengroup.org/onlinepubs/007908799/xsh/rmdir.html
-> 
-> That is the SUSv2 text, one of the ingredients for the new
-> POSIX standard. I quoted the current Austin draft, the current
-> draft for the next version of the POSIX standard.
-> 
-> Quoting a text fragment:
-> 
->         The rmdir( ) function shall remove a directory whose name is given by
->         path. The directory is removed only if it is an empty directory.
->         If the directory is the root directory or the current working
->         directory of any process, it is unspecified whether the function
->         succeeds, or whether it shall fail and set errno to [EBUSY].
->         If path names a symbolic link, then rmdir( ) shall fail and
->         set errno to [ENOTDIR]. If the path argument refers to a path
->         whose final component is either dot or dot-dot, rmdir( ) shall
->         fail. ...
+In article <20010108213036.T27646@athlon.random>,
+Andrea Arcangeli  <andrea@suse.de> wrote:
+>On Mon, Jan 08, 2001 at 01:04:24PM -0500, Alexander Viro wrote:
+>> Racy. Nonportable. Has portable and simple equivalent. Again, don't
+>> bother with chdir at all - if you know the name of directory even
+>> ../name will work. It's not about the current directory. It's about
+>> the invalid last component of the name.
+>
+>The last component of the name isn't invalid, it's a plain valid directory. If
+>according to you `rmdir ../name` and rmdir `pwd` makes sense  then according to
+>me `rmdir .` makes perfect sense too.
 
-I trust your specs said so, however I'm not sure which are the specs
-we should follow for Linux.
+It makes perfect sense, and Linux used to accept it during the 2.3.x
+timeframe.
 
-At least for LFS 2.2.x fixage I always followed the SuSv2 specs and they
-doesn't even say that rmdir can return -EINVAL. So returning -EINVAL is wrong
-in first place according to SuSv2.
+However, it is against all UNIX standards, and Linux-2.4 will explicitly
+not allow it (there's also some parent locking issues there).
 
-> from the directory "foo", but rmdir("foo/.") does not finish
-> by removing the name "." from the directory "foo".
-
-Sure. Also `rmdir .` doesn't mean remove "." from current directory but it
-means "remove the directory pointed out by path `.'". The kernel/We definitely
-knows which is such directory. That is in sync with the specs: "The rmdir()
-function removes a directory whose name is given by path". You agree that the
-path "." identifys one directory.
-
-Andrea
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

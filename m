@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270240AbRH1EXC>; Tue, 28 Aug 2001 00:23:02 -0400
+	id <S270229AbRH1EVV>; Tue, 28 Aug 2001 00:21:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270253AbRH1EWw>; Tue, 28 Aug 2001 00:22:52 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:21769 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S270240AbRH1EWf>; Tue, 28 Aug 2001 00:22:35 -0400
-Date: Mon, 27 Aug 2001 23:54:54 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: linux-mm@kvack.org
-Subject: Testers needed for 2.4 highmem IO
-Message-ID: <Pine.LNX.4.21.0108272344140.7602-100000@freak.distro.conectiva>
+	id <S270240AbRH1EVL>; Tue, 28 Aug 2001 00:21:11 -0400
+Received: from [213.97.184.209] ([213.97.184.209]:12416 "HELO piraos.com")
+	by vger.kernel.org with SMTP id <S270229AbRH1EVE>;
+	Tue, 28 Aug 2001 00:21:04 -0400
+Date: Tue, 28 Aug 2001 06:21:17 +0200 (CEST)
+From: German Gomez Garcia <german@piraos.com>
+To: Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SCSI Error?
+In-Reply-To: <Pine.LNX.4.33.0108280509500.236-200000@hal9000.piraos.com>
+Message-ID: <Pine.LNX.4.33.0108280613280.220-100000@hal9000.piraos.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 28 Aug 2001, German Gomez Garcia wrote:
 
-Hi, 
+> 	Hello,
+>
+> 	I would like to know what the attached error mean, I'm using
+> 2.4.9-ac3, and I don't know if one of my disk has died, it's currently
+> working, but I would like to know if that is a hardware error or just a
+> kernel problem.
 
-I need people with access to highmem machines (8GB or more) to test a
-patch which should fix the current allocation failure problems under IO
-stress with 2.4.10pre1.
+	Well, it seems to be a kernel problem, as it happens almost
+inmediately after reboot with 2.4.9-ac3 (also with 2.4.9-ac1) It doesn't
+happens with 2.4.7-ac9 and I'm currently going down to 2.4.8-ac11 (before
+2.4.9 merge in -ac tree?) I'll report later.
 
-Just stress the IO subsystem with huge amounts of data ( > 2x amount of
-memory). Several threads doing the IO is preferred.
+	Regards,
 
-Patch at
-http://bazar.conectiva.com.br/~marcelo/patches/v2.4/2.4.10pre1/highio.patch
+	- german
 
-Thanks!
+-------------------------------------------------------------------------
+German Gomez Garcia          | Send email with "SEND GPG KEY" as subject
+<german@piraos.com>          | to receive my GnuPG public key.
 

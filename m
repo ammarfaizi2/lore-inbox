@@ -1,57 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbULFXYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbULFX2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261705AbULFXYl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 18:24:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbULFXWk
+	id S261704AbULFX2j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 18:28:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbULFX1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 18:22:40 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:54964 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261703AbULFXVR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 18:21:17 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc2-mm4 panic on AMD64
-Date: Tue, 7 Dec 2004 00:22:23 +0100
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, Badari Pulavarty <pbadari@us.ibm.com>,
-       ak@suse.de
-References: <1102369238.2826.8.camel@dyn318077bld.beaverton.ibm.com> <20041206141515.7f4bd45f.akpm@osdl.org>
-In-Reply-To: <20041206141515.7f4bd45f.akpm@osdl.org>
+	Mon, 6 Dec 2004 18:27:08 -0500
+Received: from mail.dif.dk ([193.138.115.101]:25550 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261703AbULFXZU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 18:25:20 -0500
+Date: Tue, 7 Dec 2004 00:35:25 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Neil Brown <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Olaf Kirch <okir@monad.swb.de>
+Subject: [PATCH] fix placement of static inline in nfsd.h
+Message-ID: <Pine.LNX.4.61.0412070024580.3390@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200412070022.23645.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 of December 2004 23:15, Andrew Morton wrote:
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> >
-> > Hi Andrew,
-> > 
-> > I get following panic while booting 2.6.10-rc2-mm4 on my
-> > 4-way AMD64 box. Is this known or fixed ?
-> 
-> Well it is known now, but not fixed, afaik.
 
-Well, I reported exactly the same thing some time ago (on a dual-Opteron). :-)  
-It is NUMA-related, or at least SMP-related, apparently, as it does not occur 
-on a UP box ...
+The patch fixes a bunch of warnings like these 
 
-> > Unable to handle kernel paging request at ffffffffd5a4a4fb RIP:
-> > <ffffffff80657607>{numa_add_cpu+7}
-> 
-> Looks like cpu_to_node(cpu) returned garbage, perhaps.
+include/linux/nfsd/nfsd.h:137: warning: `inline' is not at beginning of declaration
+include/linux/nfsd/nfsd.h:138: warning: `inline' is not at beginning of declaration
+include/linux/nfsd/nfsd.h:139: warning: `inline' is not at beginning of declaration
+include/linux/nfsd/nfsd.h:140: warning: `inline' is not at beginning of declaration
 
-... so I guess you are right.
+and these
 
-Greets,
-RJW
+include/linux/nfsd/nfsd.h:137: warning: `static' is not at beginning of declaration
+include/linux/nfsd/nfsd.h:138: warning: `static' is not at beginning of declaration
+include/linux/nfsd/nfsd.h:139: warning: `static' is not at beginning of declaration
+include/linux/nfsd/nfsd.h:140: warning: `static' is not at beginning of declaration
+
+when building with gcc -W
+
+True, that's not how most people build, but some of us do in order to try 
+and find potential trouble spots, and the less warnings we have to go 
+through the better - especially when they can be cleaned up nice and safe 
+with no real impact to the code like these ones.
+Please apply.
+
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+diff -up linux-2.6.10-rc3-bk2-orig/include/linux/nfsd/nfsd.h linux-2.6.10-rc3-bk2/include/linux/nfsd/nfsd.h
+--- linux-2.6.10-rc3-bk2-orig/include/linux/nfsd/nfsd.h	2004-10-18 23:55:28.000000000 +0200
++++ linux-2.6.10-rc3-bk2/include/linux/nfsd/nfsd.h	2004-12-07 00:23:16.000000000 +0100
+@@ -134,10 +134,10 @@ void nfs4_state_shutdown(void);
+ time_t nfs4_lease_time(void);
+ void nfs4_reset_lease(time_t leasetime);
+ #else
+-void static inline nfs4_state_init(void){}
+-void static inline nfs4_state_shutdown(void){}
+-time_t static inline nfs4_lease_time(void){return 0;}
+-void static inline nfs4_reset_lease(time_t leasetime){}
++static inline void nfs4_state_init(void){}
++static inline void nfs4_state_shutdown(void){}
++static inline time_t nfs4_lease_time(void){return 0;}
++static inline void nfs4_reset_lease(time_t leasetime){}
+ #endif
+ 
+ /*
+
+
+
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Jesper Juhl
+
+
+PS. I'm only subscribed to linux-kernel, not the nfs list, so please keep 
+me on CC.
+
+

@@ -1,168 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265764AbTGDEop (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 00:44:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265767AbTGDEop
+	id S265772AbTGDFNw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 01:13:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265778AbTGDFNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 00:44:45 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:7627 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S265764AbTGDEom
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 00:44:42 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] O2int 0307041440 for 2.5.74-mm1
-Date: Fri, 4 Jul 2003 14:59:08 +1000
+	Fri, 4 Jul 2003 01:13:52 -0400
+Received: from mta2.srv.hcvlny.cv.net ([167.206.5.5]:25077 "EHLO
+	mta2.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S265772AbTGDFNu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 01:13:50 -0400
+Date: Fri, 04 Jul 2003 01:27:56 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: Re: [PATCH - RFC] [1/5] 64-bit network statistics - generic net
+In-reply-to: <Pine.LNX.4.44.0307032005340.8468-100000@home.osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>, Dave Jones <davej@codemonkey.org.uk>,
+       Jeff Garzik <jgarzik@pobox.com>, netdev@oss.sgi.com
+Message-id: <200307040128.11894.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: Text/Plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+Content-description: clearsigned data
 User-Agent: KMail/1.5.2
-Cc: Andrew Morton <akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_cmQB//nWK+3AkA7"
-Message-Id: <200307041459.33326.kernel@kolivas.org>
+References: <Pine.LNX.4.44.0307032005340.8468-100000@home.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Boundary-00=_cmQB//nWK+3AkA7
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: clearsigned data
-Content-Disposition: inline
-
-=2D----BEGIN PGP SIGNED MESSAGE-----
+-----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Here is a patch against the current O1int patch in 2.5.74-mm1.
-Since the O1int didn't mean anything I thought I'd call this O2int.
+On Thursday 03 July 2003 23:08, Linus Torvalds wrote:
+> Please do this in user space. The "overflow every 2^32 packets" thing is
+> _not_ a problem, if you just gather the statistics at any kind of
+> reasonable interval.
 
-This one wont blow you away but tames those corner cases.
+The packet counters are fine (for now, that is), but the tx_bytes and rx_bytes 
+counters need those 64-bits. 4GB (= 2^32 bytes) is not enough. For example:
 
-Changes:
-The child penalty is set on 80% which means that tasks that wait on their=20
-children have children forking just on the edge of the interactive delta so=
-=20
-they shouldn't starve their own children.
+- - gigabit ethernet will cause 32-bit counters to overflow about every 34 
+seconds (at full speed.)
+- - 10Gb/s ethernet will only take about 3.4 seconds
+- - a user like me, who has 5Mbit/s connection to the net can cause the counter 
+to overflow in 1 hour 54 minutes
 
-The non linear sleep avg boost is scaled down slightly to prevent this=20
-particular boost from being capable of making a task highly interactive. Th=
-is=20
-makes very new tasks less likely to have a little spurt of too high priorit=
-y.
+(Most of the time, the devices are not maxed out, but we have to check the 
+worst case scenario.) Now, how often should the user space 
+statistics-gathering program should run? Well, at least every 30 seconds, for 
+now that should be good, but the rein of 10Gb/s is approaching...
 
-Idle tasks now get their static priority over the full time they've been=20
-running rather than starting again at 1 second. This makes it harder for id=
-le=20
-tasks to suddenly become highly interactive and _then_ fork an interactive=
-=20
-bomb. Not sure on this one yet.
+> I'd hate to penalise performance for something like this. We have
+> generally avoided locking _entirely_ for statistics, exactly because
+> people felt that there are major performance issues wrt network packet
+> handling, and that "perfect statistics" aren't important enough to
+> penalize performance over.
 
-The sched_exit penalty to parents of cpu hungry children is scaled accordin=
-gly=20
-(was missed on the original conversion so works better now).
+I agree with you, that is why I made it optional so the user may choose to 
+sacrifice performace for statistics when needed.
 
-Hysteresis on interactive buffer removed (was unecessary).
+Additionally, I am sure there is a way of optimizing the patch I wrote (i.e. 
+actual transmition is locked with a lock from struct net_device.) I am aware 
+that this patch is a major undertaking, but it is only a matter of time 
+before someone will have to do it anyway.
 
-Minor cleanup.
+> Remember: "perfect is the enemy of good".
 
-Known issue remaining:
-Mozilla acts just like X in that it is mostly interactive but has bursts of=
-=20
-heavy cpu activity so it gets the same bonus as X. However it makes X jerky=
-=20
-during it's heavy cpu activity, and might in some circumstances make audio=
-=20
-skip. Fixing this kills X smoothness as they seem very similar to the=20
-estimator. Still haven't sorted a workaround for this one but I'm working o=
-n=20
-it. Ingo's original timeslice granularity patch helps a little and may be=20
-worth resuscitating (and the desktop only people can change the granularity=
-=20
-down to 10ms to satisfy their needs).
+Very true.
 
-Con
-=2D----BEGIN PGP SIGNATURE-----
+
+Jeff.
+
+- -- 
+Only two things are infinite, the universe and human stupidity, and I'm 
+not sure about the former.
+		- Albert Einstein
+-----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE/BQmjF6dfvkL3i1gRAiYhAKCnpZN//FkD1iO5b2SZ6HTURMUULwCfS43B
-Pn/1kRndvUz/lnjFI+lUpEc=3D
-=3DO+VS
-=2D----END PGP SIGNATURE-----
-
---Boundary-00=_cmQB//nWK+3AkA7
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="patch-O2int-0307041440"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch-O2int-0307041440"
-
---- linux-2.5.74/kernel/sched.c	2003-07-04 14:30:11.000000000 +1000
-+++ linux-2.5.74-test/kernel/sched.c	2003-07-04 14:41:22.000000000 +1000
-@@ -68,7 +68,7 @@
-  */
- #define MIN_TIMESLICE		( 10 * HZ / 1000)
- #define MAX_TIMESLICE		(200 * HZ / 1000)
--#define CHILD_PENALTY		50
-+#define CHILD_PENALTY		80
- #define PARENT_PENALTY		100
- #define EXIT_WEIGHT		3
- #define PRIO_BONUS_RATIO	25
-@@ -405,30 +405,30 @@ static inline void activate_task(task_t 
- 		 * from continually getting larger.
- 		 */
- 		if (runtime < MAX_SLEEP_AVG)
--			p->sleep_avg += (runtime - p->sleep_avg) * (MAX_SLEEP_AVG - runtime) / MAX_SLEEP_AVG;
-+			p->sleep_avg += (runtime - p->sleep_avg) * (MAX_SLEEP_AVG - runtime) *
-+				(10 - INTERACTIVE_DELTA) / 10 / MAX_SLEEP_AVG;
- 
- 		/*
--		 * Keep a buffer of 10-20% bonus sleep_avg with hysteresis
-+		 * Keep a buffer of 10% sleep_avg
- 		 * to prevent short bursts of cpu activity from making
- 		 * interactive tasks lose their bonus
- 		 */
--		if (p->sleep_avg > MAX_SLEEP_AVG * 12/10)
-+		if (p->sleep_avg > MAX_SLEEP_AVG * 11/10)
- 			p->sleep_avg = MAX_SLEEP_AVG * 11/10;
- 
- 		/*
- 		 * Tasks that sleep a long time are categorised as idle and
- 		 * get their static priority only
- 		 */
--		if (sleep_time > MIN_SLEEP_AVG){
--			p->avg_start = jiffies - MIN_SLEEP_AVG;
--			p->sleep_avg = MIN_SLEEP_AVG / 2;
--		}
-+		if (sleep_time > MIN_SLEEP_AVG)
-+			p->sleep_avg = runtime / 2;
-+
- 		if (unlikely(p->avg_start > jiffies)){
- 			p->avg_start = jiffies;
- 			p->sleep_avg = 0;
- 		}
--		p->prio = effective_prio(p);
- 	}
-+	p->prio = effective_prio(p);
- 	__activate_task(p, rq);
- }
- 
-@@ -605,7 +605,6 @@ void wake_up_forked_process(task_t * p)
- 	 * from forking tasks that are max-interactive.
- 	 */
- 	current->sleep_avg = current->sleep_avg * PARENT_PENALTY / 100;
--	p->avg_start = current->avg_start;
- 	normalise_sleep(p);
- 	p->sleep_avg = p->sleep_avg * CHILD_PENALTY / 100;
- 	p->prio = effective_prio(p);
-@@ -647,6 +646,8 @@ void sched_exit(task_t * p)
- 	 * If the child was a (relative-) CPU hog then decrease
- 	 * the sleep_avg of the parent as well.
- 	 */
-+	normalise_sleep(p);
-+	normalise_sleep(p->parent);
- 	if (p->sleep_avg < p->parent->sleep_avg)
- 		p->parent->sleep_avg = (p->parent->sleep_avg * EXIT_WEIGHT +
- 			p->sleep_avg) / (EXIT_WEIGHT + 1);
-
---Boundary-00=_cmQB//nWK+3AkA7--
+iD8DBQE/BRBjwFP0+seVj/4RAnDSAJ90uOIpgtk0O7YLSsdj97kNbhr/jgCgrmlS
+GYbA4luLnY7bli1jYVuZD3s=
+=7zXz
+-----END PGP SIGNATURE-----
 

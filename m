@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265718AbUFDKlQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265725AbUFDKo2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265718AbUFDKlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 06:41:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265719AbUFDKlP
+	id S265725AbUFDKo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 06:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265722AbUFDKo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 06:41:15 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:42657 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265718AbUFDKlM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 06:41:12 -0400
-Date: Fri, 4 Jun 2004 11:41:08 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Brian Gerst <bgerst@didntduck.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, Arjan van de Ven <arjanv@redhat.com>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: [announce] [patch] NX (No eXecute) support for x86, 2.6.7-rc2-bk2
-Message-ID: <20040604104108.GA30228@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ingo Molnar <mingo@elte.hu>, Brian Gerst <bgerst@didntduck.org>,
-	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-	Arjan van de Ven <arjanv@redhat.com>,
-	"Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-	"Nakajima, Jun" <jun.nakajima@intel.com>
-References: <20040602205025.GA21555@elte.hu> <Pine.LNX.4.58.0406021411030.3403@ppc970.osdl.org> <20040603072146.GA14441@elte.hu> <40BF201F.2020701@quark.didntduck.org> <20040604093958.GE11034@elte.hu>
+	Fri, 4 Jun 2004 06:44:28 -0400
+Received: from hauptpostamt.charite.de ([193.175.66.220]:46284 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id S265736AbUFDKoN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 06:44:13 -0400
+Date: Fri, 4 Jun 2004 12:40:35 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc2-mm2
+Message-ID: <20040604104033.GG19521@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040603015356.709813e9.akpm@osdl.org> <200406031703.38722.dominik.karall@gmx.net> <20040603161813.32ea0b84.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <20040604093958.GE11034@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040603161813.32ea0b84.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 04, 2004 at 11:39:58AM +0200, Ingo Molnar wrote:
-> I think Wine could get around this by creating a dummy ELF section in
-> the Wine binary that covers the first 1GB or so. Wine could still use
-> ordinary dynamic libraries - those would go above that 1GB. Then once
-> Wine has loaded up it can munmap() that first 1GB.
-> 
-> (this would not work if Wine has to dlopen() new libraries after this
-> phase - does that happen?)
+2.6.7-rc2-mm2 works fine, except for one thing: When my
+init.d/setserial tries to set the saved state of the serial devices
+using:
 
-Why can't wine just implement it's own binfmt_pecoff?  Sounds like the
-much simpler solutuion.
+/bin/setserial -z /dev/ttyS0 uart 16550A port 0x03f8 irq 4 baud_base 115200 spd_normal skip_test
 
+then the machine freezes. The magic sysrq keys don't work; I have to
+cycle the power...
+
+This happened with 2.6.7-rc2-mm2 and 2.6.7-rc2-mm1, it does work with
+2.6.7-rc2-bk2.
+
+-- 
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-916
+IT-Zentrum Standort Campus Mitte                          AIM.  ralfpostfix

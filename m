@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293126AbSBWMO4>; Sat, 23 Feb 2002 07:14:56 -0500
+	id <S293129AbSBWM1X>; Sat, 23 Feb 2002 07:27:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293127AbSBWMOq>; Sat, 23 Feb 2002 07:14:46 -0500
-Received: from sproxy.gmx.net ([213.165.64.20]:42763 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S293126AbSBWMOe>;
-	Sat, 23 Feb 2002 07:14:34 -0500
-Message-ID: <3C778797.3BC039A@gmx.net>
-Date: Sat, 23 Feb 2002 13:14:15 +0100
-From: Gunther Mayer <gunther.mayer@gmx.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andre Hedrick <andre@linuxdiskcert.org>
-CC: Adam Huffman <bloch@verdurin.com>, linux-kernel@vger.kernel.org
-Subject: Re: Boot problem with PDC20269
-In-Reply-To: <Pine.LNX.4.10.10202221953470.3281-100000@master.linux-ide.org>
+	id <S293130AbSBWM1N>; Sat, 23 Feb 2002 07:27:13 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:22791 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S293129AbSBWM1E>;
+	Sat, 23 Feb 2002 07:27:04 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] C exceptions in kernel 
+In-Reply-To: Your message of "Sat, 23 Feb 2002 05:11:36 CDT."
+             <200202231011.g1NABaU10984@devserv.devel.redhat.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sat, 23 Feb 2002 23:26:52 +1100
+Message-ID: <25097.1014467212@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
+On Sat, 23 Feb 2002 05:11:36 -0500, 
+Pete Zaitcev <zaitcev@redhat.com> wrote:
+>>> The attached patch implements C exceptions in the kernel,
 
-> Hi Adam,
->
-> http://www.tecchannel.de/hardware/817/index.html
->
-> We do not put ATAPI devices on such HOSTS.
+Kernel code already has exception tables to handle invalid addresses,
+invalid opcodes etc.  See copy_to_user and wrmsr_eio for examples.
+Apart from that, the kernel code assumes that it knows what it is doing
+and does not need exceptions, any unexpected exceptions quite correctly
+fall into the oops handler.
 
-put == support ?
+The kernel model is "get it right the first time, so we don't need
+exception handlers".  You have not given any reason why the existing
+mechanisms are failing.
 
->
-> The driver will not work w/ ATAPI there because it uses a different DMA
-> engine location and is not supported in Linux.
+>do we support setjump/longjump
+>in kernel? The patch as I saw it does reimplement a similar thing
+>(check out its assembler fragments).
 
-It is a serious bug in the IDE driver to hang the system (and not the user's
-fault).
-
-A fix would be to printk("The linux IDE driver does not (yet?)support ATAPI
-devices on PDC20269. Ignoring the device.\n");
-and continue running.
-
--
-Gunther
-
-
-
+Standard kernel code does not support setjmp/longjmp.  AFAIK the only
+code that does is the kdb patch where I need the extra protection, when
+kdb is entered it is a fair bet that something has already gone wrong.
 

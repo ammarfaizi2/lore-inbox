@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270762AbTHDLzV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 07:55:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270766AbTHDLzV
+	id S270766AbTHDL4S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 07:56:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271707AbTHDL4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 07:55:21 -0400
-Received: from smtp.mailbox.net.uk ([195.82.125.32]:61370 "EHLO
-	smtp.mailbox.co.uk") by vger.kernel.org with ESMTP id S270762AbTHDLzU
+	Mon, 4 Aug 2003 07:56:18 -0400
+Received: from mail-8.tiscali.it ([195.130.225.154]:60349 "EHLO
+	mail-8.tiscali.it") by vger.kernel.org with ESMTP id S270766AbTHDL4P convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 07:55:20 -0400
-Message-ID: <3F2E498D.3020109@printk.net>
-Date: Mon, 04 Aug 2003 12:54:53 +0100
-From: Jon Masters <jcm@printk.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
-X-Accept-Language: en
+	Mon, 4 Aug 2003 07:56:15 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniele Bellucci <bellucda@tiscali.it>
+Reply-To: bellucda@tiscali.it
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.0-test2-mm4
+Date: Mon, 4 Aug 2003 13:56:03 +0200
+User-Agent: KMail/1.4.3
+References: <20030804013036.16d9fa3a.akpm@osdl.org>
+In-Reply-To: <20030804013036.16d9fa3a.akpm@osdl.org>
 MIME-Version: 1.0
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: OpenPIC Specifications
-References: <Pine.GSO.4.21.0308022023360.595-100000@vervain.sonytel.be>
-In-Reply-To: <Pine.GSO.4.21.0308022023360.595-100000@vervain.sonytel.be>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200308041356.03739.bellucda@tiscali.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven wrote:
 
-jcm>>Anyone got a link to some datasheets/specification?
-> 
-> I've sent you a copy by private email.
+make all:
 
-I had a read over the weekend and it was exactly what I was looking for.
+mm/usercopy.c: In function `pin_page':
+mm/usercopy.c:55: warning: implicit declaration of function `in_atomic'
+mm/built-in.o: In function `rw_vm':
+/usr/src/linux-2.6.0-test2-mm4/mm/usercopy.c:55: undefined reference to `in_atomic'
+make: *** [.tmp_vmlinux1] Error 1
 
-Jon.
+seems like #include <linux/interrupt.h> is missing.
+
+
+diff -urN 1.0/mm/usercopy.c 1.1/mm/usercopy.c
+--- 1.0/mm/usercopy.c	2003-08-04 13:46:22.000000000 +0200
++++ 1.1/mm/usercopy.c	2003-08-04 13:46:39.000000000 +0200
+@@ -15,6 +15,7 @@
+ #include <linux/pagemap.h>
+ #include <linux/smp_lock.h>
+ #include <linux/ptrace.h>
++#include <linux/interrupt.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/uaccess.h>
+
 

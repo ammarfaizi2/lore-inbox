@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311121AbSEEMJF>; Sun, 5 May 2002 08:09:05 -0400
+	id <S311710AbSEEMoj>; Sun, 5 May 2002 08:44:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311180AbSEEMJE>; Sun, 5 May 2002 08:09:04 -0400
-Received: from vivi.uptime.at ([62.116.87.11]:65487 "EHLO vivi.uptime.at")
-	by vger.kernel.org with ESMTP id <S311121AbSEEMJD>;
-	Sun, 5 May 2002 08:09:03 -0400
-From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
-To: <thunder7@xs4all.nl>
-Cc: "'Linux Kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: 2.5.13 on alpha - undefined symbol local_irq_save in snd-seq-midi-event.o
-Date: Sun, 5 May 2002 14:06:23 +0200
-Organization: =?us-ascii?Q?UPtime_Systemlosungen?=
-Message-ID: <000001c1f42d$49e73780$1201a8c0@pitzeier.priv.at>
+	id <S311829AbSEEMoi>; Sun, 5 May 2002 08:44:38 -0400
+Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:39457 "EHLO
+	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
+	id <S311710AbSEEMoi>; Sun, 5 May 2002 08:44:38 -0400
+Message-ID: <61DB42B180EAB34E9D28346C11535A783A7586@nocmail101.ma.tmpw.net>
+From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+To: "'David S. Miller'" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org,
+        "'zippel@linux-m68k.org'" <zippel@linux-m68k.org>
+Subject: RE: my slab cache broken on sparc64
+Date: Sun, 5 May 2002 07:44:24 -0500 
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-In-Reply-To: <20020504183127.GA8700@alpha.of.nowhere>
-X-MailScanner: Found to be clean
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jurriaan wrote:
-> cd /lib/modules/2.5.13; \
-> mkdir -p pcmcia; \
-> find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln 
-> -sf ../{} pcmcia if [ -r System.map ]; then /sbin/depmod -ae 
-> -F System.map  2.5.13; fi
-> depmod: *** Unresolved symbols in 
-> /lib/modules/2.5.13/kernel/sound/core/seq/snd-seq-midi-event.o
-> depmod:         local_irq_save
-> depmod:         local_irq_restore
-> make: *** [_modinst_post] Error 1
-> 
-> alpha:/usr/src/linux-2.5.13-jwk#
+>Do it like this instead.
+>
+>	int fault;
+>	mm_segment_t old_fs;
+>
+>	...
+>
+>	old_fs = get_fs();
+>	set_fs(KERNEL_DS);
+>	fault = __get_user(tmp, pc->name);
+>	set_fs(old_fs);
+>
+>	if (fault) {
+>	...
 
-I guess sound is not jet implemented in 2.5!?
+Hmm.  Just got back to this, and I thought I had taken that into account and
+left all the important parts out of a loop, or if, context.  I'll look at
+what I DID do, though, and maybe I'll file that last patch under my things
+you shouldn't do while half asleep folder...
 
-But do you really need 2.5? Is it not enough to you to use
-2.4? 2.4.18 works great on my system!
-
--Oliver
-
-
+Thanks
+Bruce H.

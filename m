@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVAATYd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVAATjv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbVAATYd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 14:24:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbVAATYd
+	id S261167AbVAATjv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 14:39:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbVAATjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 14:24:33 -0500
-Received: from gprs214-85.eurotel.cz ([160.218.214.85]:61824 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261165AbVAATYb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 14:24:31 -0500
-Date: Sat, 1 Jan 2005 18:59:34 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: mingo@redhat.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: 2.6.10 - Misrouted IRQ recovery for review
-Message-ID: <20050101175934.GB1345@elf.ucw.cz>
-References: <1104249508.22366.101.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1104249508.22366.101.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 1 Jan 2005 14:39:51 -0500
+Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:18602 "EHLO
+	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S261167AbVAATjt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jan 2005 14:39:49 -0500
+Message-ID: <41D6FCB2.5070507@myrealbox.com>
+Date: Sat, 01 Jan 2005 11:40:34 -0800
+From: Andy Lutomirski <luto@myrealbox.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andries Brouwer <aebr@win.tue.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: the umount() saga for regular linux desktop users
+References: <200412311741.02864.wh@designed4u.net> <20041231175051.GD2818@pclin040.win.tue.nl>
+In-Reply-To: <20041231175051.GD2818@pclin040.win.tue.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Ported to the new kernel/irq code.
-
-Perhaps some Documentation/ patch would be nice?
-
-I always thought manually polling interrupt handlers might be usefull,
-and it indeed was very usefull on philips velo 1...
-								Pavel
-
-> +static int __init irqfixup_setup(char *str)
-> +{
-> +	irqfixup = 1;
-> +	printk(KERN_WARNING "Misrouted IRQ fixup support enabled.\n");
-> +	printk(KERN_WARNING "This may impact system performance.\n");
-> +	return 1;
-> +}
-> +
-> +__setup("irqfixup", irqfixup_setup);
-> +
-> +static int __init irqpoll_setup(char *str)
-> +{
-> +	irqfixup = 2;
-> +	printk(KERN_WARNING "Misrouted IRQ fixup and polling support enabled.\n");
-> +	printk(KERN_WARNING "This may significantly impact system performance.\n");
-> +	return 1;
-> +}
-> +
-> +__setup("irqpoll", irqpoll_setup);
+Andries Brouwer wrote:
+> On Fri, Dec 31, 2004 at 05:41:02PM +0000, William wrote:
 > 
+> 
+>>Regularly, when attempting to umount() a filesystem I receive 'device is busy' 
+>>errors. The only way (that I have found) to solve these problems is to go on 
+>>a journey into processland and kill all the guilty ones that have tied 
+>>themselves to the filesystem concerned.
+> 
+> 
+> Do you know about the existence of the MNT_DETACH flag of umount(2),
+> or the -l option of umount(8)?
+> 
+> It seems that does at least some of the things you are asking for.
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+
+I have this complaint too, and MNT_DETACH doesn't really do it. 
+Sometimes I want to "unmount cleanly, damnit, and I don't care if 
+applications that are currently accessing it lose data."  Windows can do 
+this, and it's _useful_.
+
+<rant>
+I think part of the nastiness is that mount now means too things:
+1) Read the superblock, fire up the fs, etc.
+2) Shove the thing into the namespace.
+
+The fact that the current mount/umount interface papers over the 
+distinction is at least confusing.  It made sense before there were bind 
+mounts.  Now, for example, mount /dev/hda2 /mnt/whatever does something 
+_different_ depending on whether hda2 is already mounted.  And the mount 
+options will be silently ignored sometimes.  Then, I can MNT_DETACH 
+something to separate it from the namespace, but I can't force it to 
+actually shut down the fs.  There is no interface for it.
+
+Shouldn't these be separate syscalls with separate parameters?  For 
+example, ro applied to the fs should mean "don't touch the device" and 
+ro applied to the view in the namespace should mean "don't write to this 
+view."
+</rant>

@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262001AbULPU5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbULPU62@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbULPU5j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 15:57:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbULPU5i
+	id S262016AbULPU62 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 15:58:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbULPU61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 15:57:38 -0500
-Received: from terminus.zytor.com ([209.128.68.124]:25224 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S262001AbULPU5f
+	Thu, 16 Dec 2004 15:58:27 -0500
+Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:36514 "EHLO
+	cenedra.walrond.org") by vger.kernel.org with ESMTP id S262016AbULPU5o
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 15:57:35 -0500
-Message-ID: <41C1F689.3090702@zytor.com>
-Date: Thu, 16 Dec 2004 20:56:41 +0000
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7) Gecko/20040608
-X-Accept-Language: en-us, en, sv
+	Thu, 16 Dec 2004 15:57:44 -0500
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.10-rc2 start_udev very slow
+Date: Thu, 16 Dec 2004 20:57:25 +0000
+User-Agent: KMail/1.7.1
+Cc: Greg KH <greg@kroah.com>
+References: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org> <200411171932.47163.andrew@walrond.org> <20041216155643.GB27421@kroah.com>
+In-Reply-To: <20041216155643.GB27421@kroah.com>
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, "J.A. Magallon" <jamagallon@able.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What if?
-References: <41AE5BF8.3040100@gmail.com> <20041202044034.GA8602@thunk.org>  <1101976424l.5095l.0l@werewolf.able.es>  <1101984361.28965.10.camel@tara.firmix.at>  <cpkc5i$84f$1@terminus.zytor.com>  <1102972125l.7475l.0l@werewolf.able.es>  <1103158646.3585.35.camel@localhost.localdomain>  <41C0F67D.4000506@zytor.com> <1103203426.3804.16.camel@localhost.localdomain> <41C1F20E.2030903@zytor.com> <Pine.LNX.4.61.0412162151500.18903@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0412162151500.18903@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412162057.25244.andrew@walrond.org>
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>>g++ is still much slower. We don't know how many bugs it would show up
->>>in the compiler and tools either, especially on embedded platforms.
->>>Finally the current kernel won't go through a C++ compiler because we
->>>use variables like "new" quite often.
->>
->>-Dnew=_New, problem solved.
-> 
-> 
-> It's not that easy. Just when you expect it least, a few tiny sourcecode bits 
-> already use new (in the C++ sense) and whoops:
-> 	int *b = _New int[4];
-> (self-explanatory)
-> 
+On Thursday 16 Dec 2004 15:56, Greg KH wrote:
+> On Wed, Nov 17, 2004 at 07:32:47PM +0000, Andrew Walrond wrote:
+> > I noticed that when upgrading from 2.6.8.1 to rc2, start_udev now takes
+> > 10-15s after printing
+> >
+> > "Creating initial udev device nodes:"
+>
+> udevstart should be used instead of start_udev.  It goes a lot faster
+> and fixes odd startup dependancies that are needed.
 
-Unlikely, since we'd already have caught it, but either way -- hat's a 
-bug too.  There shouldn't be any C++ code in the kernel, period.
+I'm using 048 at the moment. Works great, but if I replace start_udev with 
+udevstart in my init scripts as you suggest, it all goes horribly wrong...
 
-	-hpa
+udevstart is just a symlink to udev, but start_udev is a script which:
+ - mounts ramfs
+ - runs udevstart
+ - makes some extra nodes not exported by sysfs (stdin/out/err)
 
+So I guess I need to migrate this functionality to my init system before I can 
+call udevstart directly.
+
+Is that list of  'extra nodes not exported by sysfs likely to change?'
+
+Andrew Walrond

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313720AbSDPPsp>; Tue, 16 Apr 2002 11:48:45 -0400
+	id <S313717AbSDPPrt>; Tue, 16 Apr 2002 11:47:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313719AbSDPPsk>; Tue, 16 Apr 2002 11:48:40 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32773 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S313722AbSDPPsR>; Tue, 16 Apr 2002 11:48:17 -0400
+	id <S313716AbSDPPrr>; Tue, 16 Apr 2002 11:47:47 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61711 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S313717AbSDPPqs>; Tue, 16 Apr 2002 11:46:48 -0400
+Date: Tue, 16 Apr 2002 08:43:35 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        David Lang <david.lang@digitalinsight.com>,
+        Vojtech Pavlik <vojtech@suse.cz>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.5.8 IDE 36
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Tue, 16 Apr 2002 17:05:44 +0100 (BST)
-Cc: david.lang@digitalinsight.com (David Lang),
-        dalecki@evision-ventures.com (Martin Dalecki),
-        vojtech@suse.cz (Vojtech Pavlik),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <Pine.LNX.4.33.0204160825160.1167-100000@penguin.transmeta.com> from "Linus Torvalds" at Apr 16, 2002 08:30:12 AM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <200204161414.g3GEE5808527@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.33.0204160837530.1167-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16xVSi-0000FN-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Doing it with a loopback like interface at a higher level is the much 
-> saner operation - I understand why Martin removed the byteswap support, 
-> and agree with it 100%. It just didn't make any sense from a driver 
-> standpoint.
 
-We need to support partitioning on loopback devices in that case.
+On Tue, 16 Apr 2002, Richard Gooch wrote:
+> 
+> This gratuitous removal of features in the guise of "cleanups" is why
+> you got flamed earlier this year. I thought you'd learned :-/
 
-> The only reason byteswapping exists is a rather historical one: Linux did 
-> the wrong thing for "insw/outsw" on big-endian architectures at one point 
-> (it byteswapped the data).
+Richard, have you looked at the IDE mess? That "feature" is a bug, the way 
+it was implemented - and considering that it's implementable at a 
+different level much more cleanly for the (few) people who actually need 
+it...
 
-A small number of other setups people wired the IDE the quick and easy
-way and their native format is indeed ass backwards - some M68K disks and
-the Tivo are examples of that. Interworking requires byteswapping and the
-ability to handle byteswapped partition tables.
+Also note that performance is likely to _increase_ by removing that stupid
+feature - using DMA to do the actual IO and them byteswapping in some
+higher level than the driver is likely to be a _lot_ faster than doing PIO
+(and byteswap in-place, resulting in random mmap corruption).
 
-Given the ability to see partitions on loop devices all works out I think
+Do you realize that because the current bswap writeback reverses the bytes 
+in place, you can actually seriously corrupt your filesystem by just being 
+unlucky in timing (ie a bswap on a dirty metadata block at the same time 
+another process accesses it)?
 
-Alan
+It's a BUG guys, not a feature.
+
+		Linus
+

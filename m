@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318045AbSHZLHN>; Mon, 26 Aug 2002 07:07:13 -0400
+	id <S318040AbSHZLRk>; Mon, 26 Aug 2002 07:17:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318047AbSHZLHN>; Mon, 26 Aug 2002 07:07:13 -0400
-Received: from relay.muni.cz ([147.251.4.35]:11724 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id <S318045AbSHZLHN>;
-	Mon, 26 Aug 2002 07:07:13 -0400
-To: alan@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Compilation error in 2.4.20-pre4-ac2
-X-URL: http://www.fi.muni.cz/~pekon/
-From: Petr Konecny <pekon@informatics.muni.cz>
-Date: 26 Aug 2002 13:11:26 +0200
-Message-ID: <qwwr8glzxgh.fsf@decibel.fi.muni.cz>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
-MIME-Version: 1.0
+	id <S318047AbSHZLRk>; Mon, 26 Aug 2002 07:17:40 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:1550 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S318040AbSHZLRk>; Mon, 26 Aug 2002 07:17:40 -0400
+Date: Mon, 26 Aug 2002 12:21:55 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: dank@kegel.com
+Cc: linux-kernel@vger.kernel.org, dank@alumni.caltech.edu
+Subject: Re: [PATCH] khttpd crash fix, take 3
+Message-ID: <20020826122155.A25069@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, dank@kegel.com,
+	linux-kernel@vger.kernel.org, dank@alumni.caltech.edu
+References: <200208260329.g7Q3T8h16233@kegel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Muni-Virus-Test: Clean
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200208260329.g7Q3T8h16233@kegel.com>; from dank@kegel.com on Sun, Aug 25, 2002 at 08:29:08PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+On Sun, Aug 25, 2002 at 08:29:08PM -0700, dank@kegel.com wrote:
+> 1. An oops in DecodeHeader where Buffer[CPUNR] is NULL, happened 
+>    whenever a worker thread was restarted after being stopped.
+>    (The worker thread frees its buffer on exit, but the manager thread
+>     neglected to allocate a buffer for the worker thread when restarting it.)
+> 2. A bug that caused worker threads to be spuriously restarted once
+>    on startup (this made the previous bug much worse).
+> 3. The end-user had to do a "sleep 1" after stopping the daemon
+>    before restarting it.  This was not documented, and was rather confusing.
+> 4. There was no entry in /usr/src/linux/Documentation for khttpd,
+>    and beginning users sometimes could not find the documentation.
 
-I got an error when compiling 2.4.20-pre4-ac2. Compiled on debian
-unstable with gcc-3.2.
-
-                                                Petr
-
-gcc-3.2 -D__KERNEL__ -I/home/pekon/linux/linux-2.4.19/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -iwithprefix include -DKBUILD_BASENAME=setup_pci  -DEXPORT_SYMTAB -c setup-pci.c
-rm -f idedriver.o
-ld -m elf_i386  -r -o idedriver.o ide-probe.o ide-geometry.o ide-iops.o ide-taskfile.o ide.o ide-lib.o ide-disk.o ide-cd.o ide-dma.o ide-proc.o setup-pci.o pci/idedriver-pci.o legacy/idedriver-legacy.o ppc/idedriver-ppc.o arm/idedriver-arm.o raid/idedriver-raid.o
-ld: cannot open pci/idedriver-pci.o: No such file or directory
-make[4]: *** [idedriver.o] Error 1
-make[4]: Leaving directory `/home/pekon/linux/linux-2.4.19/drivers/ide'
-make[3]: *** [first_rule] Error 2
-make[3]: Leaving directory `/home/pekon/linux/linux-2.4.19/drivers/ide'
-make[2]: *** [_subdir_ide] Error 2
-make[2]: Leaving directory `/home/pekon/linux/linux-2.4.19/drivers'
-make[1]: *** [_dir_drivers] Error 2
-make[1]: Leaving directory `/home/pekon/linux/linux-2.4.19'
-make: *** [stamp-build] Error 2
-
+BTW: would you step up as khttpd maintainer? It seems no ones else cares for
+it and it's always good to have someone to drop patches/complaints at..
 

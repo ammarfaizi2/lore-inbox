@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261325AbTHXWDb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 18:03:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbTHXWDb
+	id S261322AbTHXV5R (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 17:57:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbTHXV5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 18:03:31 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:38795
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261325AbTHXWDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 18:03:30 -0400
-Date: Mon, 25 Aug 2003 00:03:57 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: TeJun Huh <tejun@aratech.co.kr>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>, manfred@colorfullife.com,
-       linux-kernel@vger.kernel.org, zwane@linuxpower.ca
-Subject: Re: Possible race condition in i386 global_irq_lock handling.
-Message-ID: <20030824220357.GF1460@dualathlon.random>
-References: <3F44FAF3.8020707@colorfullife.com> <20030821172721.GI29612@dualathlon.random> <20030821234824.37497c08.skraw@ithnet.com> <20030822011840.GA14540@atj.dyndns.org> <20030822162546.GQ29612@dualathlon.random> <20030824030651.GA13292@atj.dyndns.org>
-Mime-Version: 1.0
+	Sun, 24 Aug 2003 17:57:17 -0400
+Received: from zero.aec.at ([193.170.194.10]:13073 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S261322AbTHXV5Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Aug 2003 17:57:16 -0400
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: send_sig_info() in __switch_to() Ok or not?
+From: Andi Kleen <ak@muc.de>
+Date: Sun, 24 Aug 2003 23:57:05 +0200
+In-Reply-To: <o9Yo.6Zf.7@gated-at.bofh.it> (Mikael Pettersson's message of
+ "Sun, 24 Aug 2003 22:50:12 +0200")
+Message-ID: <m3d6euk9ce.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
+References: <o9Yo.6Zf.7@gated-at.bofh.it>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030824030651.GA13292@atj.dyndns.org>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 24, 2003 at 12:06:51PM +0900, TeJun Huh wrote:
->  As now I know that test_and_set_bit() implies memory barrier,
-> smb_mb__after_clear_bit() can be removed.  I'll make and post a patch
+Mikael Pettersson <mikpe@csd.uu.se> writes:
 
-;) right
+> I have a kernel extension (the x86 perfctr driver) that needs,
+> in a specific but unlikely case(*), to send a SIGILL to current
+> (next) in __switch_to(). Is this permitted or not?
+>
+> I suspect it might not be because send_sig_info() eventually does
+> wake_up_process_kick(), and there's this warning in __switch_to()
+> not to call printk() since it calls wake_up()...
 
-> which fixes this race and the bh race of the other thread.
+> If I can't call send_sig_info() in __switch_to(), is there
+> another way to post a SIGILL to current from __switch_to()?
 
-thanks,
+You can just do it manually. Fill in the signal in the signal
+mask of the process. The next time the process checks for signals it will 
+kill itself. As it is already running or going to run it doesn't need
+a wake up.
 
-Andrea
+You could also forcibly call do_exit with the right signal, but
+that cannot be blocked.
+
+-Andi

@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132567AbRDKMkk>; Wed, 11 Apr 2001 08:40:40 -0400
+	id <S132570AbRDKMrU>; Wed, 11 Apr 2001 08:47:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132569AbRDKMkb>; Wed, 11 Apr 2001 08:40:31 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:30891 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S132567AbRDKMkR>; Wed, 11 Apr 2001 08:40:17 -0400
-Date: Wed, 11 Apr 2001 14:24:44 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: David Howells <dhowells@cambridge.redhat.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Andrew Morton <andrewm@uow.edu.au>, Ben LaHaise <bcrl@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386 rw_semaphores fix 
-In-Reply-To: <13054.986974737@warthog.cambridge.redhat.com>
-Message-ID: <Pine.GSO.3.96.1010411142138.2984E-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132569AbRDKMrL>; Wed, 11 Apr 2001 08:47:11 -0400
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:32431 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S132570AbRDKMq6>; Wed, 11 Apr 2001 08:46:58 -0400
+Date: Wed, 11 Apr 2001 08:46:53 -0400
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kswapd, kupdated, and bdflush at 99% under intense IO
+Message-ID: <20010411084653.B26480@cs.cmu.edu>
+Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E14n6G4-0005JO-00@the-village.bc.nu> <Pine.LNX.4.21.0104101906211.25737-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <Pine.LNX.4.21.0104101906211.25737-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Tue, Apr 10, 2001 at 07:16:06PM -0300
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Apr 2001, David Howells wrote:
+On Tue, Apr 10, 2001 at 07:16:06PM -0300, Rik van Riel wrote:
+> I've seen it too.  It could be some interaction between kswapd
+> and bdflush ... but I'm not sure what the exact cause would be.
 
-> Can CONFIG_X86_XADD be equated to CONFIG_X86_CMPXCHG?
+Syncing dirty inodes requires in some cases page allocations. The
+existing code in try_to_free_pages calls shrink_icache_memory during
+free_shortage. So we are probably stealing the few pages that we managed
+to free up a bit earlier, exactly around the time that we're already
+critically low on memory.
 
- Yes.  Modulo very early i486s which used incorrect opcodes for cmpxchg. 
-They can probably be safely ignored. 
+The patch I sent you a while ago actually avoids this by triggering an
+extra run of kupdated but doesn't sync the dirty inodes in the more
+critical try_to_free_pages path.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+I've been running it on machines with 24MB, 64MB and 512MB, haven't had
+any problems. It is noticeable that the nightly updatedb run flushes the
+dentry/inode cache. In the morning my email reader has to pull the email
+related inodes back into memory (maildir format). It doesn't have to do
+this the rest of the day. As far as I am concerned, this actually shows
+that the system is now adapting to the kind of usage that occurs.
+
+Jan
 

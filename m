@@ -1,99 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274545AbRITPxS>; Thu, 20 Sep 2001 11:53:18 -0400
+	id <S274549AbRITQAS>; Thu, 20 Sep 2001 12:00:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274547AbRITPxI>; Thu, 20 Sep 2001 11:53:08 -0400
-Received: from air-1.osdlab.org ([65.201.151.5]:62469 "EHLO
-	osdlab.pdx.osdl.net") by vger.kernel.org with ESMTP
-	id <S274545AbRITPw6>; Thu, 20 Sep 2001 11:52:58 -0400
-Message-ID: <3BAA107E.4F2FDEE2@osdlab.org>
-Date: Thu, 20 Sep 2001 08:51:26 -0700
-From: "Randy.Dunlap" <rddunlap@osdlab.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
+	id <S274550AbRITQAI>; Thu, 20 Sep 2001 12:00:08 -0400
+Received: from smtp.guardiandigital.com ([209.11.107.5]:37897 "HELO
+	juggernaut.guardiandigital.com") by vger.kernel.org with SMTP
+	id <S274549AbRITQAB>; Thu, 20 Sep 2001 12:00:01 -0400
+Date: Thu, 20 Sep 2001 12:00:24 -0400 (EDT)
+From: "Ryan W. Maple" <ryan@guardiandigital.com>
+To: Richard Mueller <mueller@teamix.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Strange SGID-Bit behavior with 2.2. and 2.4
+In-Reply-To: <8414177426.20010920142457@teamix.net>
+X-Base: ALL YOUR BASE ARE BELONG TO US. (http://www.scene.org/redhound/AYB.swf)
 MIME-Version: 1.0
-To: Alan <alan@lxorguk.ukuu.org.uk>, Linus <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>, sfr@canb.auug.org.au,
-        crutcher+kernel@datastacks.com
-Subject: [PATCH] fix register_sysrq() in 2.4.9++
-Content-Type: multipart/mixed;
- boundary="------------E72DB4ADC1844C52CDF40932"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <20010920160025.9184611D304@juggernaut.guardiandigital.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------E72DB4ADC1844C52CDF40932
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-Linus, Alan-
+Did you upgrade/patch your fileutils anytime in between?  Check this URL
+out:
 
-register_sysrq_key() is typed #ifdef CONFIG_MAGIC_SYSRQ,
-but untyped if it's not defined, causing problems for callers
-when CONFIG_MAGIC_SYSRQ is not defined.
-This patch fixes that problem.
+  http://www.mail-archive.com/bug-fileutils@gnu.org/msg00934.html
 
-arch/i386/kernel/apm.c calls [un]register_sysrq_key() with
-a pointer to a sysrq_poweroff_op data structure that is
-only declared #ifdef CONFIG_MAGIC_SYSRQ.
-This patch also wraps the register/unregister calls with
-#ifdef CONFIG_MAGIC_SYSRQ.
+cp was not clearing the SUID and SGID bits in the absense of -p.
 
-~Randy
---------------E72DB4ADC1844C52CDF40932
-Content-Type: text/plain; charset=us-ascii;
- name="sysrq-if.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sysrq-if.patch"
+Cheers,
+Ryan
 
---- linux/include/linux/sysrq.h.org	Mon Sep 17 10:21:07 2001
-+++ linux/include/linux/sysrq.h	Thu Sep 20 08:29:15 2001
-@@ -87,8 +87,17 @@
- }
- 
- #else
--#define register_sysrq_key(a,b)		do {} while(0)
--#define unregister_sysrq_key(a,b)	do {} while(0)
-+
-+static inline int register_sysrq_key(int key, struct sysrq_key_op *op_p)
-+{
-+	return -1;
-+}
-+
-+static inline int unregister_sysrq_key(int key, struct sysrq_key_op *op_p)
-+{
-+	return 0;
-+}
-+
- #endif
- 
- /* Deferred actions */
---- linux/arch/i386/kernel/apm.c.org	Mon Sep 17 10:15:45 2001
-+++ linux/arch/i386/kernel/apm.c	Thu Sep 20 08:34:44 2001
-@@ -1564,7 +1564,10 @@
- 	/* Install our power off handler.. */
- 	if (power_off)
- 		pm_power_off = apm_power_off;
--	register_sysrq_key('o',&sysrq_poweroff_op);
-+#ifdef CONFIG_MAGIC_SYSRQ
-+	if (register_sysrq_key('o',&sysrq_poweroff_op))
-+		printk (KERN_ERR "Error: cannot register APM PowerOff SysRq key\n");
-+#endif
- 
- 	if (smp_num_cpus == 1) {
- #if defined(CONFIG_APM_DISPLAY_BLANK) && defined(CONFIG_VT)
-@@ -1780,7 +1783,9 @@
- 	}
- 	misc_deregister(&apm_device);
- 	remove_proc_entry("apm", NULL);
-+#ifdef CONFIG_MAGIC_SYSRQ
- 	unregister_sysrq_key('o',&sysrq_poweroff_op);
-+#endif
- 	if (power_off)
- 		pm_power_off = NULL;
- 	exit_kapmd = 1;
+ +-- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --+
+   Ryan W. Maple          "I dunno, I dream in Perl sometimes..."  -LW
+   Guardian Digital, Inc.                     ryan@guardiandigital.com
+ +-- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --+
 
---------------E72DB4ADC1844C52CDF40932--
+
+On Thu, 20 Sep 2001, Richard Mueller wrote:
+
+> Hello almighty kernelgods...
+> 
+> a friend and I discovered some strange diffrence in the beahavior
+> of the 2.4, 2.2 Kernels.
+> 
+> Following Commands were done on both kernels:
+> ---------------------------------------------
+> su -
+> cd /
+> mkdir test
+> chmod 2755 test
+> chown rdd test
+> su rdd
+> cd /test
+> touch a
+> chgrp users a
+> chmod 7777 a
+> cp a b
+> cp /bin/ls d
+> chgrp users d
+> chmod 7777 d
+> cp d e
+> 
+> These results are on 2.4.6
+> --------------------------
+> drwxr-sr-x    2 rdd      root          190 Sep 14 15:17 .
+> drwxr-xr-x   22 root     root          455 Sep 14 14:59 ..
+> -rwsrwsrwt    1 rdd      users           0 Sep 14 15:00 a
+> -rwsr-sr-t    1 rdd      root            0 Sep 14 15:02 b
+>    -->^<-- What's that?
+> -rwsrwsrwt    1 rdd      users       46568 Sep 14 15:07 d
+> -rwxr-xr-t    1 rdd      root        46568 Sep 14 15:08 e
+> 
+> 
+> And these on 2.2.16
+> -------------------
+> drwxr-sr-x   2 rdd      root          103 Sep 14 15:13 .
+> drwxr-xr-x  20 root     root          369 Sep 14 15:10 ..
+> -rwsrwsrwt   1 rdd      users           0 Sep 14 15:12 a
+> -rwsr-xr-t   1 rdd      root            0 Sep 14 15:12 b
+> -rwsrwsrwt   1 rdd      users       41552 Sep 14 15:12 d
+> -rwsr-xr-t   1 rdd      root        41552 Sep 14 15:13 e
+> 
+> It happens both with ext2 and reiserfs.
+> 
+> 
+> Can anyone explain this behavior? Would be great.
+> 
+> If this is a damn stupid question, please drop it and kill me. :|
+> 
+> 
+> Richard Mueller
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

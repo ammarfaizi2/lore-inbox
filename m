@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263990AbTFJV0y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 17:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbTFJVZK
+	id S262426AbTFJVca (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 17:32:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbTFJVcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 17:25:10 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:47527
+	Tue, 10 Jun 2003 17:32:23 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:50855
 	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262269AbTFJVYs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 17:24:48 -0400
-Subject: Re: Wrong number of cpus detected/reported
+	id S262426AbTFJVcD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 17:32:03 -0400
+Subject: Re: Is there a maintainer for serverworks.c
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Samuel Flory <sflory@rackable.com>, John Appleby <john@dnsworld.co.uk>,
-       xyko_ig@ig.com.br,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1055279041.2270.42.camel@spc9.esa.lanl.gov>
-References: <434747C01D5AC443809D5FC540501131569E@bobcat.unickz.com>
-	 <3EE64161.5010102@rackable.com>
-	 <1055279041.2270.42.camel@spc9.esa.lanl.gov>
+To: James Washer <washer@us.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <OFAC2B627A.47E6B5B2-ON88256D41.0069C908-88256D41.0069E577@us.ibm.com>
+References: <OFAC2B627A.47E6B5B2-ON88256D41.0069C908-88256D41.0069E577@us.ibm.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1055280955.32661.35.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1055281381.32662.42.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 10 Jun 2003 22:35:55 +0100
+Date: 10 Jun 2003 22:43:02 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> wp		: yes
-> flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
-> bogomips	: 2798.38
+On Maw, 2003-06-10 at 20:18, James Washer wrote:
 > 
-> See that ht flag near the end?
+> 
+> I see the 2.4.20 kernel ships with serverworks.c version 0.3, which
+> is GPL'd,  RH9.0 ships with version 0.7 ( with no mention of GPL)
+> 
+> Does anyone know the story on this?  Who authored 0.7? Is it GPL'd??
 
-The ht flag means the ht facilities (mtrr etc) are present, doesnt mean
-HT necessarily is
+0.7 is based on 0.3. Its by Michel Aubry, Andrzey, Sun and Red Hat. Not
+sure where the usual 4 line GPL blurb went. 2.4.21rc has 0.8 btw.
+
+Alan
 

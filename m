@@ -1,121 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263270AbSJOHiO>; Tue, 15 Oct 2002 03:38:14 -0400
+	id <S263283AbSJOHkZ>; Tue, 15 Oct 2002 03:40:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263279AbSJOHiO>; Tue, 15 Oct 2002 03:38:14 -0400
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:64912 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S263270AbSJOHiM>; Tue, 15 Oct 2002 03:38:12 -0400
-Date: Tue, 15 Oct 2002 09:42:19 +0200
-From: Heinz.Mauelshagen@t-online.de (Heinz J . Mauelshagen)
-To: Shawn <core@enodev.com>
+	id <S263289AbSJOHkZ>; Tue, 15 Oct 2002 03:40:25 -0400
+Received: from mail6.home.nl ([213.51.128.22]:15027 "EHLO mail6-sh.home.nl")
+	by vger.kernel.org with ESMTP id <S263283AbSJOHkW>;
+	Tue, 15 Oct 2002 03:40:22 -0400
+Content-Type: text/plain;
+  charset="Big5"
+From: Jogchem de Groot <bighawk@kryptology.org>
+To: Geoffrey Lee <glee@gnupilgrims.org>
+Subject: Re: poll() incompatability with POSIX.1-2001
+Date: Tue, 15 Oct 2002 09:47:00 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <20021014145726.DFKF19708.mail8-sh.home.nl@there> <Pine.LNX.3.95.1021014110505.12302A-100000@chaos.analogic.com> <20021015033640.GA15553@anakin.wychk.org>
+In-Reply-To: <20021015033640.GA15553@anakin.wychk.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Evms-devel] Re: Linux v2.5.42
-Message-ID: <20021015094219.A10151@sistina.com>
-Reply-To: mauelshagen@sistina.com
-References: <F87rkrlMjzmfv2NkkSD000144a9@hotmail.com> <3DA969F0.1060109@metaparadigm.com> <20021013144926.B16668@infradead.org> <3DA98E48.9000001@metaparadigm.com> <20021013163551.A18184@infradead.org> <20021014092048.A27417@q.mn.rr.com> <20021014172137.D19897@infradead.org> <20021014164730.B28737@q.mn.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20021014164730.B28737@q.mn.rr.com>; from core@enodev.com on Mon, Oct 14, 2002 at 04:47:30PM -0500
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20021015074616.SQGS394.mail6-sh.home.nl@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 14, 2002 at 04:47:30PM -0500, Shawn wrote:
-> On 10/14, Christoph Hellwig said something like:
-> > On Mon, Oct 14, 2002 at 09:20:48AM -0500, Shawn wrote:
-> > > Having said all that, given that your premises are true regarding the
-> > > code design problems you have with EVMS, you have a valid point about
-> > > including it in mainline. The question is, is this good enough to ignore
-> > > having a logical device management system?!?
-> > 
-> > It is not good enough to ignore it.  It is good enough to postpone
-> > integration for 2.7.
-> 
-> I just wish logical volume management in general had not been so
-> abandoned in mainline in the first place. I'm not saying Linus unfairly
-> excluded patches, and I'm not saying patches weren't available. I'm just
-> saying the dynamics of Linus and the maintainers did not allow for a
-> healthy LVM in mainline, resulting in decay.
-> 
-> If LVM1's destiny was to die during 2.5, then I wish there would have
-> been a replacement ready during 2.5's lifecycle. Otherwise, keep
-> creaking along with what's there, and fix it.
+On Tuesday 15 October 2002 05:36, you wrote:
 
-True, we aim to replace the LVM1 driver with device-mapper in 2.5, which we
-strongly believe to be a first step to generic volume management in the kernel.
+> This is the result on a return from poll().
+>
+> glee@orion ~/tmp $ ./poll-new -h xx.xx.xx.xx -p 80
+> connect
+> connect: INPROGRESS
+> poll: POLLOUT is set
+> terminating
+> glee@orion ~/tmp $
+>
+>
+> So, POLLOUT is set.
+>
+>
+> Now, we try to connect to an invalid port.
+>
+> n ~/tmp $ ./poll-new -h xx.xx.xx.xx -p 4
+> connect
+> connect: INPROGRESS
+> poll: POLLERR set
+> poll: POLLHUP set
+> poll: POLLOUT is set
+> terminating
+> glee@orion ~/tmp $
+>
+>
+> So, POLLOUT is set.
 
-Feel free to blame us that we didn't have more capacity to
-make it happen earlier ;-)
+Hello, on what version did you try this? I've tried this now on 
+Linux-2.4.18 and Linux-2.4.19 and both give the behaviour i described 
+previously (No POLLOUT set).
 
-device-mapper is in the -ac kernel since last week. Thanks Alan.
+The simple test program i used is as follows:
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/poll.h>
+#include <sys/select.h>
+#include <errno.h>
 
-Please have a look at the rather small amount of clean code.
+main(int argc, char **argv) {
+    int sd,flags,stat,len=sizeof(int);
+    struct sockaddr_in sin;
+    struct pollfd pfd;
 
-> 
-> The larger question of volume management should have been addressed
-> before this whole mess happened. It really was, but LVM1 maintenance was
-> somewhat abandoned in favor of device mapper, and now it's broken, and
-> the holy wars are upon us again because many are in fear of losing
-> functionality important to them (at least the ubiquitous nature of the
-> functonality), and there is panic.
+    memset(&sin, 0, sizeof(sin));
 
-There's no need to be afraid because device-mapper and the LVM2 tools offer
-a compatible path _now_ supporting all given LVM1 configurations.
+    sd = socket(AF_INET, SOCK_STREAM, 0);
+    fcntl(sd, F_SETFL, fcntl(sd, F_GETFL, 0) | O_NONBLOCK);
 
-The device-mapper code has already been merged by Alan (which is a very good
-approval IMNSHO) and is rather easy to overlook.
+    sin.sin_addr.s_addr = htonl(0x7f000001);
+    sin.sin_port = htons(atoi(argv[1]));
+    sin.sin_family = AF_INET;
 
-Please help us and have a look...
+    if(connect(sd, (struct sockaddr *)&sin, sizeof(sin)) == -1 && errno == 
+EINPROGRESS)
+        printf("connect returned EINPROGRESS\n");
 
-> 
-> > Now that Al has sorted out lots of the block device mess in 2.5
-> > I will work together with whoever is interested in it (i.e. the EVMS
-> > folks) to integrate proper higher-level volume-management into
-> > the kernel once the next unstable series opens.
-> 
-> I look forward to it. In spite of my personal goals on this, I do
-> appreciate your pickiness.
-> 
-> > Coing up with lots of code just before feature freeze is just not the way
-> > infrastructure work is done Linux.
-> 
-> I just wish there were less veto-esque ways to handle EVMS in *-stable.
-> 
-> --
-> Shawn Leas
-> core@enodev.com
-> 
-> I put my air conditioner in backwards.  It got cold outside.
-> The weatherman on TV was confused.  "It was supposed to be hot
-> today."
-> 						-- Stephen Wright
-> 
-> 
-> -------------------------------------------------------
-> This sf.net email is sponsored by:ThinkGeek
-> Welcome to geek heaven.
-> http://thinkgeek.com/sf
-> _______________________________________________
-> Evms-devel mailing list
-> Evms-devel@lists.sourceforge.net
-> To subscribe/unsubscribe, please visit:
-> https://lists.sourceforge.net/lists/listinfo/evms-devel
+    pfd.fd = sd;
+    pfd.events = POLLIN | POLLOUT;
+    pfd.revents = 0;
 
--- 
+    poll(&pfd, 1, -1);
+    getsockopt(sd, SOL_SOCKET, SO_ERROR, &stat, &len);
+    printf("%s\n", stat ? "failed" : "succeeded");
+    printf("returned events: %hd\n", pfd.revents);
+}
 
-Regards,
-Heinz    -- The LVM Guy --
+    bighawk
 
-*** Software bugs are stupid.
-    Nevertheless it needs not so stupid people to solve them ***
-
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-Heinz Mauelshagen                                 Sistina Software Inc.
-Senior Consultant/Developer                       Am Sonnenhang 11
-                                                  56242 Marienrachdorf
-                                                  Germany
-Mauelshagen@Sistina.com                           +49 2626 141200
-                                                       FAX 924446
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

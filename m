@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265457AbTAEWyl>; Sun, 5 Jan 2003 17:54:41 -0500
+	id <S265513AbTAEWtw>; Sun, 5 Jan 2003 17:49:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265469AbTAEWyk>; Sun, 5 Jan 2003 17:54:40 -0500
-Received: from AGrenoble-101-1-4-111.abo.wanadoo.fr ([217.128.202.111]:35744
-	"EHLO awak") by vger.kernel.org with ESMTP id <S265457AbTAEWyk>;
-	Sun, 5 Jan 2003 17:54:40 -0500
-Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: hps@intermeta.de
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <avachu$gnf$1@forge.intermeta.de>
-References: <20030102013736.GA2708@gnuppy.monkey.org>
-	 <1041806677.15071.8.camel@irongate.swansea.linux.org.uk>
-	 <avachu$gnf$1@forge.intermeta.de>
-Content-Type: text/plain; charset=ISO-8859-15
-Organization: 
-Message-Id: <1041807783.8520.5.camel@bip.localdomain.fake>
+	id <S265517AbTAEWtw>; Sun, 5 Jan 2003 17:49:52 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:53453 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S265513AbTAEWtv>; Sun, 5 Jan 2003 17:49:51 -0500
+Date: Sun, 5 Jan 2003 23:58:16 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+Message-ID: <20030105225816.GK5984@louise.pinerecords.com>
+References: <20030102013736.GA2708@gnuppy.monkey.org> <1041802518.15071.0.camel@irongate.swansea.linux.org.uk> <avaavp$gjb$1@forge.intermeta.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 06 Jan 2003 00:03:03 +0100
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <avaavp$gjb$1@forge.intermeta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le dim 05/01/2003 à 23:45, Henning P. Schmiedehausen a écrit :
-> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> [hps@intermeta.de]
 > 
-> >WLAN yes - openap is superb stuff
+> The original statement was 
 > 
-> I didn't mention an open source access point. I already have a tried
-> and true one in hardware from Lucent. I meant a "driver which doesn't
-> lock up if it meets the WLAN card in an unusual configuration like
-> say, on an PCI/PCMCIA bridge in a desktop computer (yes, Windows 2000
-> screwed this one up, too. But they managed to fix it in SP1).
+> --- cut ---
+> "Microsoft making 370 times more than RedHat says _nothing_ about
+> their actual achievement in terms of software development."
+> --- cut ---
 
-My router has an Orinoco on a PCMCIA/ISA bridge (and I suppose the ISA
-bus is itself bridged to the PCI bus) running with a stock 2.4.something
-kernel. Never had a problem. But then, an example isn't a proof.
+And it holds true, because
 
-	Xav
+1) A huge part of RedHat's work in software development goes into free
+(as in beer) software, which skews the better_product<->higher_revenue
+correlation vigorously.
 
+2) better_product<->higher_revenue doesn't work terribly well when the
+market is dominated by a monopoly, does it?
+
+3) Microsoft doesn't only sell software.
+
+...
+
+Don't make me come up with more.  Larry's comparison is totally laughable
+if it is to support the thesis "Microsoft has achieved much more in software
+development than RedHat."
+
+-- 
+Tomas Szepe <szepe@pinerecords.com>

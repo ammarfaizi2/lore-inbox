@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287038AbRL2Bjy>; Fri, 28 Dec 2001 20:39:54 -0500
+	id <S287055AbRL2BoF>; Fri, 28 Dec 2001 20:44:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287043AbRL2Bjo>; Fri, 28 Dec 2001 20:39:44 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:31748 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287038AbRL2Bjh>;
-	Fri, 28 Dec 2001 20:39:37 -0500
-Date: Fri, 28 Dec 2001 23:40:14 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "Glover George" <dime@gulfsales.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel/Hardware hacking start?
-Message-ID: <20011228234014.B1296@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"Glover George" <dime@gulfsales.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <007501c18fe6$d3a39e10$0300a8c0@yellow>
-Mime-Version: 1.0
+	id <S287054AbRL2Bnq>; Fri, 28 Dec 2001 20:43:46 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36622 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S287053AbRL2Bni>; Fri, 28 Dec 2001 20:43:38 -0500
+Subject: Re: State of the new config & build system
+To: kaos@ocs.com.au (Keith Owens)
+Date: Sat, 29 Dec 2001 01:53:17 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        garzik@havoc.gtf.org (Legacy Fishtank), linux-kernel@vger.kernel.org,
+        lm@bitmover.com (Larry McVoy), esr@thyrsus.com (Eric S. Raymond),
+        davej@suse.de (Dave Jones), marcelo@conectiva.com.br (Marcelo Tosatti),
+        kbuild-devel@lists.sourceforge.net
+In-Reply-To: <7861.1009589244@ocs3.intra.ocs.com.au> from "Keith Owens" at Dec 29, 2001 12:27:24 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <007501c18fe6$d3a39e10$0300a8c0@yellow>
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16K8gY-0002fQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, Dec 28, 2001 at 03:30:09PM -0600, Glover George escreveu:
-> As Eliezer dos Santos Magalhaes was wondering, I too am wanting to learn
-> about hacking the linux kernel as well as device drivers.  I actually own
-> Linux Device Drivers (1st edition), but was wondering if someone could
-> direct me towards a source that explained how operating systems deal with
-> boot up, initialization of hardware, and the like.  In other words, I want
-> to learn the kernel from boot up to shutdown.  Is there a comprehensive
-> guide out there for this?
+> dependency problem, any solution that does not fix _all_ 9 problems in
+> http://prdownloads.sourceforge.net/kbuild/kbuild-2.5-history.tar.bz2,
+> makefile-2.5_make_dep.html is not a complete fix.
 
-Have you looked at Documentation at all? :) Ok, I'll do that for you, this
-time:
+All well and good but "takes 100% longer" is number 10 on that list which
+you missed off, and the same argument holds for that.
 
-Documentation/kernel-docs.txt
+> but there is one problem that is inherently unfixable.  make dep is a
+> manual process so it relies on users knowing when they have to rerun
+> make dep AND THEY DON'T DO IT!  Please do not say "I always run make
 
-http://www.moses.uklinux.net/patches/lki.html
+So automate running make dep.
 
-- Arnaldo
+> Linus, you have a choice between a known broken build system and a
+
+So broken its worked for say 5 years without major problem
+
+> ps. I don't want mail discussing individual bug fixes to mkdep.  Code
+>     that does not fix _all_ 9 bugs listed in makefile-2.5_make_dep.html
+>     is pointless.
+
+And bug number 10 you didnt mention

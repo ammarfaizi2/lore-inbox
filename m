@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261842AbVANBEf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVANBJF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261842AbVANBEf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 20:04:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVANAxm
+	id S261754AbVANBJF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 20:09:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbVANBIX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 19:53:42 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:54187 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261751AbVANAvy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 19:51:54 -0500
-Date: Thu, 13 Jan 2005 16:51:52 -0800
-To: linux-kernel@vger.kernel.org, rml@novell.com
-Subject: 2.6.10-mm3 scaling problem with inotify
-Message-ID: <41E717A8.Mail7BE150TM8@jackhammer.engr.sgi.com>
-User-Agent: nail 10.6 11/15/03
-MIME-Version: 1.0
+	Thu, 13 Jan 2005 20:08:23 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11789 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261754AbVANAxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 19:53:02 -0500
+Date: Fri, 14 Jan 2005 00:52:53 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dave <dave.jiang@gmail.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, smaurer@teja.com, linux@arm.linux.org.uk,
+       dsaxena@plexity.net, drew.moseley@intel.com,
+       mporter@kernel.crashing.org
+Subject: Re: [PATCH 1/5] Convert resource to u64 from unsigned long
+Message-ID: <20050114005253.A22530@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Dave <dave.jiang@gmail.com>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org, smaurer@teja.com,
+	linux@arm.linux.org.uk, dsaxena@plexity.net, drew.moseley@intel.com,
+	mporter@kernel.crashing.org
+References: <8746466a050113152636f49d18@mail.gmail.com> <20050113162309.2a125eb1.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: hawkes@sgi.com (John Hawkes)
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050113162309.2a125eb1.akpm@osdl.org>; from akpm@osdl.org on Thu, Jan 13, 2005 at 04:23:09PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I believe I've encountered a scaling problem with the inotify code in
-2.6.10-mm3.
+On Thu, Jan 13, 2005 at 04:23:09PM -0800, Andrew Morton wrote:
+> Also, the patches introduce tons of ifdefs such as:
+> 
+> +#if BITS_PER_LONG == 64			
+> 	return (void __iomem *)pci_resource_start(pdev, PCI_ROM_RESOURCE);
+> +#else
+> +	return (void __iomem *)(u32)pci_resource_start(pdev, PCI_ROM_RESOURCE);
+> +#endif
 
-vfs_read() and vfs_write() (for example) do:
-    dnotify_parent(dentry, DN_ACCESS);
-    inotify_dentry_parent_queue_event(dentry,
-                           IN_ACCESS, 0, dentry->d_name.name);
-    inotify_inode_queue_event(inode, IN_ACCESS, 0, NULL);
-for the optional "notify" functionality.
+That looks rather illegal to me.  What says that ROM resources are
+in a different memory space to MMIO resources?  PCI internally treats
+them the same as MMIO, and as such they certainly require ioremapping
+on ARM.
 
-dnotify_parent() knows how to exit quickly:
-       if (!dir_notify_enable)
-                return;
-looking at a global flag, and inotify_inode_queue_event() also knows a quick
-exit:
-        if (!inode->inotify_data)
-                return;
-However, inotify_dentry_parent_queue_event() first has to get the parent 
-dentry:
-        parent = dget_parent(dentry);
-        inotify_inode_queue_event(parent->d_inode, mask, cookie, filename);
-        dput(parent);
-and, sadly, dget_parent(dentry) grabs a spinlock (dentry->d_lock) and dirties a cacheline (dentry->dcount).  I have an AIM7-like workload that does numerous
-concurrent reads and suffers a 40% drop in performance because of this.
+Just because x86 has a broken architecture with respect to having
+holes in its memory map does not mean that's suitable for the rest
+of the world.
 
-Is it possible for a parent's inode->inotify_data to be enabled when none of 
-its children's inotify_data are enabled?  That would make it easy - just look 
-at the current inode's inotify_data before walking back to the parent.
+ISTR x86 ioremap knows about this, so maybe the solution to the above
+is to do it the Right Way(tm) and use ioremap() ?
 
-John Hawkes
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,78 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265331AbUIMDwX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265222AbUIMDxw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265331AbUIMDwX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 23:52:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265264AbUIMDwX
+	id S265222AbUIMDxw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 23:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265264AbUIMDxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 23:52:23 -0400
-Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:7594 "EHLO
-	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265331AbUIMDwT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 23:52:19 -0400
-Message-ID: <41451957.7000101@kolivas.org>
-Date: Mon, 13 Sep 2004 13:51:51 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joshua Schmidlkofer <kernel@pacrimopen.com>
-Cc: jch@imr-net.com, ck kernel mailing list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Cliff Wells <clifford.wells@comcast.net>
-Subject: Re: [ck] Re: 2.6.8.1-ck7, Two Badnessess, one dump.
-References: <41412765.4010005@kolivas.org> <4144F691.6040405@pacrimopen.com>
-In-Reply-To: <4144F691.6040405@pacrimopen.com>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig1155DA152F95788093AE7F9D"
+	Sun, 12 Sep 2004 23:53:50 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:23213 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S265222AbUIMDxZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 23:53:25 -0400
+Date: Mon, 13 Sep 2004 12:55:18 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Subject: Re: [PATCH] missing pci_disable_device()
+In-reply-to: <20040909173349.GA14633@kroah.com>
+To: Greg KH <greg@kroah.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org, bjorn.helgaas@hp.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <41451A26.40405@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: ja
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4)
+ Gecko/20030624 Netscape/7.1 (ax)
+References: <413D0E4E.1000200@jp.fujitsu.com>
+ <1094550581.9150.8.camel@localhost.localdomain>
+ <413E7925.1010801@jp.fujitsu.com>
+ <1094647195.11723.5.camel@localhost.localdomain>
+ <413FF05B.8090505@jp.fujitsu.com> <20040909062009.GD10428@kroah.com>
+ <41403075.1010103@jp.fujitsu.com> <20040909173349.GA14633@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig1155DA152F95788093AE7F9D
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Here is an updated patch for missing pci_disable_device().
+Greg, please apply.
 
-Joshua Schmidlkofer wrote:
-> I upgraded from 2.6.8.1-ck5.
-> 
-> First off - this has been a landmark improvement for me.   Running an 
-> "emerge -a world" on my system has gone from a matter of minutes to a 
-> matter of seconds.
-> 
-> The performance has been !outstanding!. [Disclosure:  Using NVIDIA 
-> Binary Drivers]
+Thanks,
+Kenji Kaneshige
 
-Great to hear. Thanks for feedback.
 
-Not sure about the xfs one... perhaps it's related to the cfq one.
+As mentioned in Documentaion/pci.txt, pci device driver should call
+pci_disable_device() when it decides to stop using the device. But
+there are some drivers that don't use pci_disable_device() so far.
 
-> Badness in cfq_sort_rr_list at drivers/block/cfq-iosched.c:428
+This patch adds warning messages that are displayed if the device is
+removed without properly calling pci_disable_device().
 
-Known issue. There is a fix posted already in my ckdev directory (as 
-posted by Jens Axboe). The stack dump, while annoying and causes a stall 
-for a couple of seconds I believe, is harmless. Please apply the cfq2 
-fix in my ckdev directory for this to go away.
+'WARN_ON(1)' is commented out for now because I guess many people
+(including some distros) enables 'CONFIG_DEBUG_KERNEL'. People might
+be surprised if many stack dumps are displayed on their console.
 
-http://ck.kolivas.org/patches/2.6/2.6.8.1/2.6.8.1-ckdev/
+Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
 
-Cheers,
-Con
 
---------------enig1155DA152F95788093AE7F9D
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+---
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+ linux-2.6.9-rc1-kanesige/drivers/pci/pci-driver.c |   13 +++++++++++++
+ 1 files changed, 13 insertions(+)
 
-iD8DBQFBRRlbZUg7+tp6mRURAjsJAKCBp7UjKh2cydz3MBu0cpdI2jH9OwCeMQxU
-Ql985wY9G+4Of+DkOWE7/5w=
-=kvdk
------END PGP SIGNATURE-----
+diff -puN drivers/pci/pci-driver.c~force_pci_disable_device drivers/pci/pci-driver.c
+--- linux-2.6.9-rc1/drivers/pci/pci-driver.c~force_pci_disable_device	2004-09-13 12:41:23.588330045 +0900
++++ linux-2.6.9-rc1-kanesige/drivers/pci/pci-driver.c	2004-09-13 12:41:23.591259749 +0900
+@@ -291,6 +291,19 @@ static int pci_device_remove(struct devi
+ 			drv->remove(pci_dev);
+ 		pci_dev->driver = NULL;
+ 	}
++
++#ifdef CONFIG_DEBUG_KERNEL
++	/*
++	 * If the driver decides to stop using the device, it should
++	 * call pci_disable_device().
++	 */
++	if (pci_dev->is_enabled) {
++		dev_warn(&pci_dev->dev, "Device was removed without properly "
++			 "calling pci_disable_device(). This may need fixing.\n");
++		/* WARN_ON(1); */
++	}
++#endif /* CONFIG_DEBUG_KERNEL */
++
+ 	pci_dev_put(pci_dev);
+ 	return 0;
+ }
 
---------------enig1155DA152F95788093AE7F9D--
+_
+
+

@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265246AbTAWOMa>; Thu, 23 Jan 2003 09:12:30 -0500
+	id <S265250AbTAWORa>; Thu, 23 Jan 2003 09:17:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265247AbTAWOMa>; Thu, 23 Jan 2003 09:12:30 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:34316 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S265246AbTAWOM3>; Thu, 23 Jan 2003 09:12:29 -0500
-Date: Thu, 23 Jan 2003 15:21:38 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, trivial@rustcorp.com.au,
-       Neil Brown <neilb@cse.unsw.edu.au>, dwmw2@redhat.com
-Subject: Re: [PATCH] [TRIVIAL] kstrdup
-Message-ID: <20030123142138.GA2031@atrey.karlin.mff.cuni.cz>
-References: <20030119233750.GA674@elf.ucw.cz> <20030123063701.1F7172C2E0@lists.samba.org> <20030123140215.GA1229@atrey.karlin.mff.cuni.cz>
+	id <S265270AbTAWOR3>; Thu, 23 Jan 2003 09:17:29 -0500
+Received: from angband.namesys.com ([212.16.7.85]:1152 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S265250AbTAWOR3>; Thu, 23 Jan 2003 09:17:29 -0500
+Date: Thu, 23 Jan 2003 17:26:38 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: Re: ext2 FS corruption with 2.5.59.
+Message-ID: <20030123172638.A821@namesys.com>
+References: <20030123153832.A860@namesys.com> <Pine.LNX.4.44.0301231402290.1589-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <20030123140215.GA1229@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <Pine.LNX.4.44.0301231402290.1589-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello!
 
-> Ehm?! What's confusing on strdup? Or you want to also introduce
-> kmemcpy, kmemcmp, ksprintf etc?
+On Thu, Jan 23, 2003 at 02:09:12PM +0000, Hugh Dickins wrote:
+> >     My test consists of running "fsx -c 1234 testfile", "iozone -a",
+> >     "dbench 60", "fsstress -p10 -n1000000 -d ." at the same time on the
+> >     tested FS.
+> >     fsx usually breaks just when dbench is finished.
+> It was "dbench 100" which led me to investigate and post patch below
+> a couple of days ago: worth trying again with this patch applied.
 
-No, as long as they don't allocate any memory.
+I thought your patch only fixes stuff with insufficient space and/or IO
+errors.
+Anyway I applied the patch and still can reproduce the problem.
 
-"kstrdup" makes it clear that the string is allocated by kmalloc()
-and should be freed by kfree().
+Also I decided to run same test with ext3 and it deadlocked.
+This time it was not absolutely vanilla kernel, so I am going to try it on
+vanilla kernel and report back if it will be reproducable there.
+(with stacktraces)
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-"In theory, practice and theory are the same, but in practice they are different." -- Larry McVoy
+Bye,
+    Oleg

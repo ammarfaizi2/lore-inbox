@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272006AbRHVNqf>; Wed, 22 Aug 2001 09:46:35 -0400
+	id <S272010AbRHVNqZ>; Wed, 22 Aug 2001 09:46:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271638AbRHVNqZ>; Wed, 22 Aug 2001 09:46:25 -0400
-Received: from h131s117a129n47.user.nortelnetworks.com ([47.129.117.131]:39329
-	"HELO pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
-	id <S272009AbRHVNqU>; Wed, 22 Aug 2001 09:46:20 -0400
-Message-ID: <3B83B80C.140A5146@nortelnetworks.com>
-Date: Wed, 22 Aug 2001 09:47:56 -0400
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
+	id <S272006AbRHVNqP>; Wed, 22 Aug 2001 09:46:15 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14861 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271638AbRHVNqC>; Wed, 22 Aug 2001 09:46:02 -0400
+Subject: Re: Qlogic/FC firmware
+To: jfbeam@bluetopia.net (Ricky Beam)
+Date: Wed, 22 Aug 2001 14:49:09 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.33.0108220844500.6389-100000@sweetums.bluetronic.net> from "Ricky Beam" at Aug 22, 2001 09:29:38 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-To: Mike Touloumtzis <miket@bluemug.com>
-Cc: Robert Love <rml@tech9.net>, Oliver Xymoron <oxymoron@waste.org>,
-        linux-kernel@vger.kernel.org, riel@conectiva.com.br
-Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
-In-Reply-To: <Pine.LNX.4.30.0108182234250.31188-100000@waste.org> <998193404.653.12.camel@phantasy> <20010821231002.C27313@bluemug.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15ZYNZ-0001Yc-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Touloumtzis wrote:
- 
-> You have been repeating that there is no difference in security
-> between /dev/random and /dev/urandom, but consider this: you install
-> a kernel/hardware combination without any registered SA_SAMPLE_RANDOM
-> IRQs (i.e. headless, no IDE, no NICs with SA_SAMPLE_RANDOM IRQs).
-> This configuration is not hard to imagine for, say, a dedicated
-> server appliance or embedded device.
+> Amazing *and* unnecessarily complex.  What a bargin!  And it's still going
+> to consume that precious 128K even when loaded from usersapce as the driver
+> will still need to keep it.  And aren't you one of the Preists of Text in
 
-So we then have two options, one of which is required if we are going to be able
-to get any random numbers from this box:
+No. We can jettison it and you know that in fact you commented on using 
+__initdata in the non modular case, so stop trolling and if you are going to
+be a pain, at least be consistant in your arguments. 
 
-1) if we contact some server to boot or to mount filesystems, we can also slurp
-up some seed values from that server.
-2) we enable all NIC drivers to collect entropy
+> /proc -- those of the belief in managing everything with 'cat' and 'vi'.
 
-In the case you describe, I don't see any other options.  Without one of these
-paths, /dev/random will block, and /dev/urandom will be predictable.
+No. That would be Al Viro. 
 
-Chris
+> >sloppy "who cares about 128K" thinking that leads to several megs
+> >disappearing and your OS turning into sludge.
+> 
+> Way too damn late make that argument.  That snowball has been gaining mass
+> and speed for years now.  I would not recommend standing in front of it.
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+If I was working on Irix maybe, but I'm not. I've got another .5Mb on my
+256Mb box I want back in 2.5 as well 8)
+
+> "little problem".  I'm guessing this is a problem for Alphas as well.  Altho'
+
+Alpha's have x86 emulation in the boot loaders. Thats a not-nice solution to
+most of the PC worlds evils but works out.
+
+> >Take that one up with Linus. I didn't merge it originally
+> 
+> No, you take it up with Linus (and the Qlogic maintainer) as you are the nut
+> removing it ... and introducing a great big question mark around the stability
+> of the Qlogic FC driver.
+
+See previous four conversations on this. Licensing matters. 
+
+Case closed
+
+Alan

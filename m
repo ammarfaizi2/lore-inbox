@@ -1,88 +1,134 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRBMU6Y>; Tue, 13 Feb 2001 15:58:24 -0500
+	id <S129193AbRBMVBz>; Tue, 13 Feb 2001 16:01:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129215AbRBMU6P>; Tue, 13 Feb 2001 15:58:15 -0500
-Received: from limes.hometree.net ([194.231.17.49]:16198 "EHLO
-	limes.hometree.net") by vger.kernel.org with ESMTP
-	id <S129183AbRBMU6C>; Tue, 13 Feb 2001 15:58:02 -0500
+	id <S129211AbRBMVBo>; Tue, 13 Feb 2001 16:01:44 -0500
+Received: from smtp.bellnexxia.net ([209.226.175.26]:63481 "EHLO
+	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S129193AbRBMVBb>; Tue, 13 Feb 2001 16:01:31 -0500
+Message-ID: <3A899FEB.D54ABBC7@sympatico.ca>
+Date: Tue, 13 Feb 2001 15:58:19 -0500
+From: Jeremy Jackson <jeremy.jackson@sympatico.ca>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Date: Tue, 13 Feb 2001 20:39:52 +0000 (UTC)
-From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
-Message-ID: <96c62o$o69$1@forge.intermeta.de>
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-In-Reply-To: <968mjv$l9t$1@forge.intermeta.de>, <7vh2HM81w-B@khms.westfalen.de>
-Reply-To: hps@tanstaafl.de
-Subject: Re: DNS goofups galore...
+Subject: Is this the ultimate stack-smash fix?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kaih@khms.westfalen.de (Kai Henningsen) writes:
+Greetings.  This is my first post on linux-kernel, I hope this is
+appropriate.
 
->hps@tanstaafl.de (Henning P. Schmiedehausen)  wrote on 12.02.01 in <968mjv$l9t$1@forge.intermeta.de>:
+The recent CERT IN-2001-01 's massive repercussions and CA-2001-02's
+re-releasing
+old material in an attempt to coerce admins to update their OS, has led
+me to think about
+buffer overrun exploits.   I have gained a new appreciation after being
+rooted twice this month.
 
->> jan.gyselinck@be.uu.net (Jan Gyselinck) writes:
->>
->> >There's not really something wrong with MX's pointing to CNAME's.  It's
->> >just that some mailservers could (can?) not handle this.  So if you want to
->> >be able to receive mail from all kinds of mailservers, don't use CNAME's
->> >for MX's.
->>
->> No. It breaks a basic assumption set in stone in RFC821. It has
->> nothing to do with mailer software.
+I believe there is a solution that can be implemented in the kernel
+(Linux and probably most Unix)
+that can prevent this type of exploit, has no effect on userspace code,
+and is minimally obtrusive
+for the kernel.
 
->May I point out that RFC 821 does not mention either CNAME or MX anywhere.
+Making a few assumptions here - I'm writing to confirm or deny this
+idea.
 
-RFC 974 is about the "DOMAIN NAME SYSTEM". RFC 821 mentions DOMAINS:
+Background:
 
-3.7.  DOMAINS
+The virtual address space of a Linux process starts at a low address
+(0?) with a block
+containing
 
->So don't tell us about stuff set in stone in RFC XYZ, when it's plain  
->you've never looked at that RFC.
+-the executable's code & constant data mmaped read-only from the
+executable.
+-the executable's static initialized data mmapped copy-on-write from
+same file.
+-more of each of the above, but for shared libraries.
 
-Says who? RFC974 is a clarification of how to interpret Domain Name
-System contents in a mail context. RFC821 makes a clear statement about
-Domains in section 3.7:
+each continuous address range from the above is described in a kernel
+vm_area_struct,
+and is mapped on demand and placed into hardware page-protection perms
+(rwx) by the CPU's
+PMMU hardware and the kernel's fault-handler's.
 
-[...]
-      Whenever domain names are used in SMTP only the official names are
-      used, the use of nicknames or aliases is not allowed.
-[...]
+Next, there is a variable ammount of un mapped memory, Followed by the
+Stack.
 
-and in RFC974 it is stated:
+The stack's vm_area grows downward, unlike the others ( brk() call) and
+begins at the high
+address at the top of user space, which varies but is 3GB for a 1GB max
+mem kernel.
 
-[...]
-   In addition to mail information, the servers store certain other
-   types of RR's which mailers may encounter or choose to use.  These
-   are: the canonical name (CNAME) RR, which simply states that the
-   domain name queried for is actually an alias for another domain name,
-   which is the proper, or canonical, name; [...]
-[...]
+beyond this there is no vm_area's, and the page tables contain mappings
+which are marked
+supervisor-only (is this right?), and definitely don't contain user
+code.
 
-In my understanding (and I assume that you're familiar with both as
-you've chosen to insult me by suggesting that I've not read this
-stuff), this means clearly:
 
-"YOU MUST NOT USE AN ALIAS WHENEVER DOMAINS ARE USED IN SMTP". (RFC821)
+Next, gcc doesn't generate any code which would be placed in the stack,
+nor does it
+generate any calls/jumps to the stack area.
 
-and
+Next, buffer overruns are the only source of code whch would execute
+from the stack, and
+from what I understand, remote (if not all)  buffer overruns depend on
+this to "work".
 
-"THIS NAME IS AN ALIAS FOR ANOTHER DOMAIN NAME, WHICH IS THE PROPER,
-CANONICAL NAME".
+Solution: if the kernel sets up the CPU's memory management unit (PMMU)
+so that it won't
+execute code in the stack address space, the exploits are foiled.
 
-This boils down for me to 
+Problem: on intel, the page tables page permissions are not flexible
+enough, so when a page
+is marked (for userspace) read-write permissions, execute permission is
+implied.
 
-"YOU MUST NOT USE A CNAME ANYWHERE IN SMTP".
+But, intel also has segment descriptors held in the GDT/LDTs, which
+configure a base address
+and range, and a different one can be selected for each segment register
+of a process.   Under the current
+Linux the code segment (CS) has a descriptor from the GDT which allows
+code to be executed read-only from
+base address 0 with a range of 4G (i.e. the entire linear address
+space), and the data segment
+allows read-write but not execute (can't be loaded into CS register).
 
-and "ANYWHERE" also states for me "in the 220 greeting".
+SO, if the CS descriptor were changed by the kernel to track the bottom
+of the stack (lower in memory),
+then any attempt to execute code on the stack would segfault (or another
+signal to help track exploit
+attempts)  It could get the bottom page address from the vm_area_struct
+for the stack (are there more than one GROWS_DOWN
+vm areas in a process?)
 
-Any further questions?
+Currently the CS for all linux programs gets it's descriptor from GDT,
+so it would have to be manually
+changed at each task-swap, and perhaps there are segment descriptor and
+other cache flushing issues,
+(maybe just store CS limit in the per-task data structure, and update
+GDT then reload CS at each
+context change)
 
-	Regards
-		Henning
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+I realize that the GDT/LDT must be accessible, and that they are in
+kernel space (above 3GB), but I don't
+think these go through CS register access controls.  The DS segment can
+be left alone.
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+For other arch's, maybe they have separate read/write/execute perms per
+page, or something similar
+to segment descriptors.
+
+I would appreciate thoughful comments; anybody who knows why it won't
+work, tell me,
+I haven't got my hopes up for the Nobel prize yet :)
+
+Cheers,
+
+Jeremy
+
+

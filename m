@@ -1,81 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263295AbUCXLgO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Mar 2004 06:36:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263302AbUCXLgO
+	id S263315AbUCXLmf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Mar 2004 06:42:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263324AbUCXLmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Mar 2004 06:36:14 -0500
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:17932 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S263295AbUCXLgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Mar 2004 06:36:11 -0500
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc2-mm2
-Date: Wed, 24 Mar 2004 12:35:51 +0100
-User-Agent: KMail/1.6.1
-Cc: Martin Zwickel <martin.zwickel@technotrend.de>,
-       Andrew Morton <akpm@osdl.org>, support@nvidia.com
-References: <20040323232511.1346842a.akpm@osdl.org> <20040324110014.4cdb7597@phoebee>
-In-Reply-To: <20040324110014.4cdb7597@phoebee>
-X-Operating-System: Linux 2.6.4-wolk2.1 i686 GNU/Linux
+	Wed, 24 Mar 2004 06:42:35 -0500
+Received: from mail.dsa-ac.de ([62.112.80.99]:54800 "EHLO k2.dsa-ac.de")
+	by vger.kernel.org with ESMTP id S263315AbUCXLmc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Mar 2004 06:42:32 -0500
+Date: Wed, 24 Mar 2004 12:42:25 +0100 (CET)
+From: Guennadi Liakhovetski <gl@dsa-ac.de>
+To: <linux-kernel@vger.kernel.org>
+Cc: <dahinds@users.sourceforge.net>
+Subject: Re: [PATCH] cs.c: release_cis_mem() missing?
+In-Reply-To: <Pine.LNX.4.33.0403240934200.1869-100000@pcgl.dsa-ac.de>
+Message-ID: <Pine.LNX.4.33.0403241235520.1869-100000@pcgl.dsa-ac.de>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_XKXYAykqmr8sozY"
-Message-Id: <200403241235.51786@WOLK>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+...and one more
 
---Boundary-00=_XKXYAykqmr8sozY
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+diff -u -r1.1.1.8.6.1.2.1 cs.c
+--- drivers/pcmcia/cs.c	2003/10/24 15:15:12	1.1.1.8.6.1.2.1
++++ drivers/pcmcia/cs.c	2004/03/24 11:20:44
+@@ -674,6 +674,7 @@
+     cs_sleep(shutdown_delay);
+     s->state &= ~SOCKET_PRESENT;
+     shutdown_socket(s);
++    release_cis_mem(s);
+ }
 
-On Wednesday 24 March 2004 11:00, Martin Zwickel wrote:
+ static void parse_events(void *info, u_int events)
 
-Hi Martin,
+- also with a question mark? Without this patch the mappping stays after
+card removal and the resource doesn't get freed. Maybe, holds for 2.6
+too. The function to be patched seems to be socket_shutdown.
 
-> I'm unable to start my X server with this patch.
-> I have the nvidia 5336 module loaded and if I start the X server, the
-> machine completely freezes. With 2.6.5-rc2 everything works ok...
-> If anyone wants my config, ask me.
+Guennadi
+---------------------------------
+Guennadi Liakhovetski, Ph.D.
+DSA Daten- und Systemtechnik GmbH
+Pascalstr. 28
+D-52076 Aachen
+Germany
 
-apply this patch ontop of 2.6.5-rc2-mm2 tree to get nvidia working again.
-
-nvidia inc: *hint hint* ;)
-
-ciao, Marc
-
---Boundary-00=_XKXYAykqmr8sozY
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="4k-reenable.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="4k-reenable.patch"
-
-diff -Naurp linux-2.6.5-rc1-mm1/arch/i386/Kconfig linux-2.6.5-rc1-mm1-removed/arch/i386/Kconfig
---- linux-2.6.5-rc1-mm1/arch/i386/Kconfig	2004-03-16 21:28:03.000000000 +0100
-+++ linux-2.6.5-rc1-mm1-removed/arch/i386/Kconfig	2004-03-16 21:32:08.000000000 +0100
-@@ -1555,7 +1555,14 @@ config MAGIC_SYSRQ
- 	default y
- 
- config 4KSTACKS
--	def_bool y
-+	bool "Use 4Kb for kernel stacks instead of 8Kb"
-+	default n
-+	help
-+	  If you say Y here the kernel will use a 4Kb stacksize for the
-+	  kernel stack attached to each process/thread. This facilitates
-+	  running more threads on a system and also reduces the pressure
-+	  on the VM subsystem for higher order allocations. This option
-+	  will also use IRQ stacks to compensate for the reduced stackspace.
- 
- config X86_FIND_SMP_CONFIG
- 	bool
-
---Boundary-00=_XKXYAykqmr8sozY--

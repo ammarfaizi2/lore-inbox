@@ -1,94 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129992AbRAMAzA>; Fri, 12 Jan 2001 19:55:00 -0500
+	id <S135575AbRAMA5u>; Fri, 12 Jan 2001 19:57:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136071AbRAMAyu>; Fri, 12 Jan 2001 19:54:50 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:45199 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S136012AbRAMAyk>; Fri, 12 Jan 2001 19:54:40 -0500
-Message-ID: <3A5FA8D0.A88BD7CA@uow.edu.au>
-Date: Sat, 13 Jan 2001 12:01:04 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0 i586)
-X-Accept-Language: en
+	id <S136000AbRAMA5k>; Fri, 12 Jan 2001 19:57:40 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:3345 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135575AbRAMA5W>; Fri, 12 Jan 2001 19:57:22 -0500
+Date: Fri, 12 Jan 2001 16:56:24 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Frank de Lange <frank@unternet.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>, dwmw2@infradead.org,
+        linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware
+In-Reply-To: <20010113014807.B29757@unternet.org>
+Message-ID: <Pine.LNX.4.10.10101121652160.8097-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: timw@splhi.com
-CC: nigel@nrg.org, "David S. Miller" <davem@redhat.com>,
-        linux-kernel@vger.kernel.org,
-        linux-audio-dev@ginette.musique.umontreal.ca
-Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
-In-Reply-To: <200101110519.VAA02784@pizda.ninka.net> <Pine.LNX.4.05.10101111233241.5936-100000@cosmic.nrg.org> <3A5F0706.6A8A8141@uow.edu.au>,
-		<3A5F0706.6A8A8141@uow.edu.au>; from andrewm@uow.edu.au on Sat, Jan 13, 2001 at 12:30:46AM +1100 <20010112071150.A1653@scutter.internal.splhi.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Wright wrote:
-> 
-> Hmmm...
-> if <stuff> is very quick, and is guaranteed not to sleep, then a semaphore
-> is the wrong way to protect it. A spinlock is the correct choice. If it's
-> always slow, and can sleep, then a semaphore makes more sense, although if
-> it's highly contented, you're going to serialize and throughput will die.
-> At that point, you need to redesign :-)
-> If it's mostly quick but occasionally needs to sleep, I don't know what the
-> correct idiom would be in Linux. DYNIX/ptx has the concept of atomically
-> releasing a spinlock and going to sleep on a semaphore, and that would be
-> the solution there e.g.
-> 
-> p_lock(lock);
-> retry:
-> ...
-> if (condition where we need to sleep) {
->     p_sema_v_lock(sema, lock);
->     /* we got woken up */
->     p_lock(lock);
->     goto retry;
-> }
-> ...
-
-That's an interesting concept.  How could this actually be used
-to protect a particular resource?  Do all users of that
-resource have to claim both the lock and the semaphore before
-they may access it?
 
 
-There are a number of locks (such as pagecache_lock) which in the
-great majority of cases are held for a short period, but are 
-occasionally held for a long period.  So these locks are not
-a performance problem, they are not a scalability problem but
-they *are* a worst-case-latency problem.
+On Sat, 13 Jan 2001, Frank de Lange wrote:
 
+> On Fri, Jan 12, 2001 at 04:36:33PM -0800, Linus Torvalds wrote:
+> > It may well not be disable_irq() that is buggy. In fact, there's good
+> > reason to believe that it's a hardware problem.
 > 
-> I'm stating the obvious here, and re-iterating what you said, and that is that
-> we need to carefully pick the correct primitive for the job. Unless there's
-> something very unusual in the Linux implementation that I've missed, a
-> spinlock is a "cheaper" method of protecting a short critical section, and
-> should be chosen.
-> 
-> I know the BKL is a semantically a little unusual (the automatic release on
-> sleep stuff), but even so, isn't
-> 
->         lock_kernel()
->         down(sem)
->         <stuff>
->         up(sem)
->         unlock_kernel()
-> 
-> actually equivalent to
-> 
->         lock_kernel()
->         <stuff>
->         unlock_kernel()
-> 
-> If so, it's no great surprise that performance dropped given that we replaced
-> a spinlock (albeit one guarding somewhat more than the critical section) with
-> a semaphore.
+> I am inclined to believe it IS a hardware problem... If disable_irq were buggy,
+> wouldn't the problem occur more frequently in other irq-heavy areas? A quick
+> count shows that disable_irq* is used in 84 sourcefiles in the driver/*
+> directory. This includes drivers which generate many interrupts in a short
+> timeframe (like ide).
 
-Yes.
+IDE is not my favourite example of a "known stable driver". Also, in many
+cases IDE is for historical reasons connected to an EDGE io-apic pin (ie
+it's still considered an ISA interrupt). Which probably wouldn't show this
+problem anyway.
 
--
+Also, IDE doesn't generate all that many interrupts. You can make a
+network driver do a _lot_ more interrupts than just about any disk driver
+by simply sending/receiving a lot of packets. With disks it is very hard
+to get the same kind of irq load - Linux will merge the requests and do at
+least 1kB worth of transfer per interrupt etc. On a ne2k 100Mbps PCI card,
+you can probably _easily_ generate a much higher stream of interrupts.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274505AbRIXTLO>; Mon, 24 Sep 2001 15:11:14 -0400
+	id <S274900AbRIXTUe>; Mon, 24 Sep 2001 15:20:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274660AbRIXTLF>; Mon, 24 Sep 2001 15:11:05 -0400
-Received: from oe53.pav1.hotmail.com ([64.4.30.46]:5135 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S274505AbRIXTKs>;
-	Mon, 24 Sep 2001 15:10:48 -0400
-X-Originating-IP: [12.19.166.64]
-From: "Dan Mann" <daniel_b_mann1@hotmail.com>
-To: "VDA" <VDA@port.imtp.ilyichevsk.odessa.ua>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010916204528.6fd48f5b.skraw@ithnet.com> <Pine.LNX.3.96.1010920231251.26679B-100000@gatekeeper.tmr.com> <20010921124338.4e31a635.skraw@ithnet.com> <20010922105332Z16449-2757+1233@humbolt.nl.linux.org> <6514162334.20010924123631@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: Linux VM design
-Date: Mon, 24 Sep 2001 15:11:08 -0400
+	id <S274901AbRIXTUY>; Mon, 24 Sep 2001 15:20:24 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:64100 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S274900AbRIXTUI>; Mon, 24 Sep 2001 15:20:08 -0400
+To: Dan Kegel <dank@kegel.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Gordon Oliver <gordo@pincoya.com>
+Subject: Re: [PATCH] /dev/epoll update ...
+In-Reply-To: <3BAEB39B.DE7932CF@kegel.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 24 Sep 2001 13:11:25 -0600
+In-Reply-To: <3BAEB39B.DE7932CF@kegel.com>
+Message-ID: <m1g09c76aq.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Message-ID: <OE53f3LSW50Pfs56PHo00002624@hotmail.com>
-X-OriginalArrivalTime: 24 Sep 2001 19:11:09.0556 (UTC) FILETIME=[AB291B40:01C1452C]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I hope this isn't the wrong place to ask this but,  wouldn't it be better to
-increase ram size and decrease swap size as memory requirements grow?  For
-instance, say I have a lightly loaded machine, that has 192MB of ram.  From
-everything I've heard in the past, I'd use roughly 192MB of swap with this
-machine.  The problem I would imagine is that if all 192MB got used wouldn't
-it be terribly slow to read/write that much data back in?  Would less swap,
-say 32 MB make the kernel more restrictive with it's available memory and
-make the box more responsive when it's heavily using swap?
+Dan Kegel <dank@kegel.com> writes:
 
-Or am I way off and just smoking crack?  (which I may very well be)
+> As Davide points out in his reply, /dev/epoll is an exact clone of
+> the O_SETSIG/O_SETOWN/O_ASYNC realtime signal way of getting readiness
+> change events, but using a memory-mapped buffer instead of signal delivery
+> (and obeying an interest mask).  Unlike /dev/poll, it only provides
+> information about *changes* in readiness.
 
-This damn mailing list is addictive.  Now I read it at work.
+Right.  But it does one additional thing that the rtsig method doesn't
+it collapses multiple readiness *changes* into a single readiness change.
+This allows the kernel to keep a fixed size buffer so you never need
+to fallback to poll as you need to with the rtsig approach.
 
-Dan
+> I think there is still some confusion out there because of the name
+> Davide chose; /dev/epoll is so close to /dev/poll that it lulls many
+> people (myself included) into thinking it's a very similar thing.  It ain't.
+> (I really have to fix my c10k page to reflect that correctly...)
+
+Hmm.  /dev/epoll could and possibly should remove the readiness event 
+if the fd becomes unready before someone gets to reading the
+/dev/epoll buffer.  This is a natural extension of collapsing events.
+
+But even with that it would still only give you the state as of the
+last state change.  And it you have the state already it expects user
+space to remember the state and not the kernel.  Which is both
+different from /dev/poll and more efficient.
+
+If the goal is to minimize system calls letting user space assume the
+state is initially not ready.  And forcing a state query when
+the fd is added should help.   I cannot think of a case where having
+the kernel do the query would be necessary though.
+
+If the goal is simply to provide a highly scalable event interface.
+The current /dev/epoll sounds very good.  Though I'm not at all
+thrilled with the user space interface.  As far as I can tell the case
+of a fd becoming not ready is unlikely enough that it probably doesn't
+need to be handled.
+
+Eric
+

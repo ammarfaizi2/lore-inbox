@@ -1,41 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293101AbSCFDjJ>; Tue, 5 Mar 2002 22:39:09 -0500
+	id <S293105AbSCFDkv>; Tue, 5 Mar 2002 22:40:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293105AbSCFDi7>; Tue, 5 Mar 2002 22:38:59 -0500
-Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:39414 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S293101AbSCFDiu>;
-	Tue, 5 Mar 2002 22:38:50 -0500
-Date: Tue, 5 Mar 2002 20:38:37 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: pelletierma@netscape.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ACL support.
-Message-ID: <20020305203837.H6845@lynx.cfs>
-Mail-Followup-To: pelletierma@netscape.net, linux-kernel@vger.kernel.org
-In-Reply-To: <1E348DA0.50E5770A.5016AB90@netscape.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1E348DA0.50E5770A.5016AB90@netscape.net>; from pelletierma@netscape.net on Tue, Mar 05, 2002 at 03:32:52PM -0500
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S293111AbSCFDko>; Tue, 5 Mar 2002 22:40:44 -0500
+Received: from clmboh1-smtp3.columbus.rr.com ([65.24.0.112]:28042 "EHLO
+	clmboh1-smtp3.columbus.rr.com") by vger.kernel.org with ESMTP
+	id <S293105AbSCFDk2>; Tue, 5 Mar 2002 22:40:28 -0500
+Date: Tue, 5 Mar 2002 22:40:31 -0500
+Subject: Re: [opensource] Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v481)
+Cc: Karl <ktatgenhorst@earthlink.net>,
+        The Open Source Club at The Ohio State University 
+	<opensource-admin@cis.ohio-state.edu>,
+        linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+From: michael bernstein <bernstein.46@osu.edu>
+In-Reply-To: <20020305204702.B7870@vger.timpanogas.org>
+Message-Id: <E8BE46FE-30B3-11D6-B682-003065C60BC2@osu.edu>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.481)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 05, 2002  15:32 -0500, pelletierma@netscape.net wrote:
-> I've given a swing at ACL support for the linux kernel.  Kernel patches
-> and userland support is avaliable for review at
-> 
-> http://sourceforge.net/projects/linux-acl/
+Do you have any clue as to what you can and cannot goto court for?  I 
+have no idea where you or from or what kind of education you have, but 
+in the "free" world, you can't take someone to court for picketing or 
+protesting or petitioning.  It is built into the American system.  We 
+are bullies?  I'd rather be a bully then someone who slanders others 
+with references to those who chose to commit genocide.  If you are 
+American and you don't realize how free speech works, then I strongly 
+urge you to find out.  <FLAME>Then maybe you can speak about things in a 
+more educated way, rather than coming off like a retarded 
+gorilla.</FLAME>
 
-Please see http://acl.bestbits.at/ - this has been added to the 2.5 kernel
-already, and has existed for a long time now...
+cheers and much hope in your quest to find free speech,
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Michael Bernstein
+bernstein.46@osu.edu
+
+
+On Tuesday, March 5, 2002, at 10:47 PM, Jeff V. Merkey wrote:
+>
+> Yeah, I saw that part Karl, but the bottom line in their position
+> was to limit our choices and choose for us their oppresive views.  It's
+> also tortorious to post such a petition as a mean to attack a for
+> profit endeavor, whether the profit is kudos or consideration.  Try
+> pulling this on Novell or Microsoft, and watch how fast you go to court.
+>
+> These people are bullies.
+>
+> :-)
+>
+> Jeff
+>
+>>
+> _______________________________________________
+> Opensource mailing list
+> Opensource@mail.cis.ohio-state.edu
+> http://mail.cis.ohio-state.edu/mailman/listinfo/opensource
+>
 

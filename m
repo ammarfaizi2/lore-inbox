@@ -1,106 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131204AbRCGUkx>; Wed, 7 Mar 2001 15:40:53 -0500
+	id <S131182AbRCGVAg>; Wed, 7 Mar 2001 16:00:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131202AbRCGUkn>; Wed, 7 Mar 2001 15:40:43 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:49677 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S131200AbRCGUk3>;
-	Wed, 7 Mar 2001 15:40:29 -0500
-Date: Wed, 7 Mar 2001 21:36:32 +0100
+	id <S131185AbRCGVA1>; Wed, 7 Mar 2001 16:00:27 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:56845 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S131182AbRCGVAI>;
+	Wed, 7 Mar 2001 16:00:08 -0500
+Date: Wed, 7 Mar 2001 21:59:31 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Pozsar Balazs <pozsy@sch.bme.hu>
-Subject: Re: can't read DVD (under 2.4.[12] & 2.2.17)
-Message-ID: <20010307213632.H4653@suse.de>
-In-Reply-To: <20010307210848.E4653@suse.de> <Pine.GSO.4.30.0103072128180.6575-100000@balu>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: David Balazic <david.balazic@uni-mb.si>, torvalds@transmeta.com,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: scsi vs ide performance on fsync's
+Message-ID: <20010307215931.J4653@suse.de>
+In-Reply-To: <3AA53DC0.C6E2F308@uni-mb.si> <20010306213720.U2803@suse.de> <20010307135135.B3715@redhat.com> <20010307151241.E526@suse.de> <20010307150556.L7453@redhat.com> <20010307195152.C4653@suse.de> <20010307191044.M7453@redhat.com> <20010307211536.G4653@suse.de> <20010307205659.E9080@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.30.0103072128180.6575-100000@balu>; from pozsy@sch.bme.hu on Wed, Mar 07, 2001 at 09:32:23PM +0100
+In-Reply-To: <20010307205659.E9080@redhat.com>; from sct@redhat.com on Wed, Mar 07, 2001 at 08:56:59PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 07 2001, Pozsar Balazs wrote:
-> Details: (dmesg)
+On Wed, Mar 07 2001, Stephen C. Tweedie wrote:
+> On Wed, Mar 07, 2001 at 09:15:36PM +0100, Jens Axboe wrote:
+> > On Wed, Mar 07 2001, Stephen C. Tweedie wrote:
+> > > 
+> > > For most fs'es, that's not an issue.  The fs won't start writeback on
+> > > the primary disk at all until the journal commit has been acknowledged
+> > > as firm on disk.
+> > 
+> > But do you then force wait on that journal commit?
 > 
-> Linux version 2.4.2-3mdk (jgarzik@no.mandrakesoft.com) (gcc version
-> egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #1 Tue Feb 27 02:14:17
-> CET 2001
-> ...
-> Uniform Multi-Platform E-IDE driver Revision: 6.31
-> ide: Assuming 33MHz system bus speed for PIO modes; override with
-> idebus=xx
-> VP_IDE: IDE controller on PCI bus 00 dev 39
-> VP_IDE: chipset revision 6
-> VP_IDE: not 100% native mode: will probe irqs later
-> ide: Assuming 33MHz system bus speed for PIO modes; override with
-> idebus=xx
-> VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
->     ide0: BM-DMA at 0xc000-0xc007, BIOS settings: hda:pio, hdb:pio
->     ide1: BM-DMA at 0xc008-0xc00f, BIOS settings: hdc:pio, hdd:DMA
-> HPT370: IDE controller on PCI bus 00 dev 70
-> PCI: Found IRQ 11 for device 00:0e.0
-> HPT370: chipset revision 3
-> HPT370: not 100% native mode: will probe irqs later
->     ide2: BM-DMA at 0xec00-0xec07, BIOS settings: hde:pio, hdf:pio
->     ide3: BM-DMA at 0xec08-0xec0f, BIOS settings: hdg:DMA, hdh:pio
-> hdd: Pioneer DVD-ROM ATAPIModel DVD-105S 012, ATAPI CD/DVD-ROM drive
-> hdg: QUANTUM FIREBALLlct20 20, ATA DISK drive
-> ide1 at 0x170-0x177,0x376 on irq 15
-> ide3 at 0xe400-0xe407,0xe802 on irq 11
-> hdg: 39876480 sectors (20417 MB) w/418KiB Cache, CHS=39560/16/63,
-> UDMA(100)
-> hdd: ATAPI 40X DVD-ROM drive, 512kB Cache, UDMA(33)
-> Uniform CD-ROM driver Revision: 3.12
-> Partition check:
->  hdg: hdg1 hdg2 hdg3 hdg4
-> ...
-> 
-> 
-> 
-> When I run "dvdinfo /dev/hdd" I get:
-> Disc is encrypted.
-> Layer 0[3]
->  Book Version:   0
->  Book Type:      13
->  Min Rate:       0
->  Disc Size:      0
->  Layer Type:     0
->  Track Path:     1
->  Num Layers:     2
->  Track Density:  0
->  Linear Density: 0
->  BCA:            1
->  Start Sector    0xd000
->  End Sector      0xd000
->  End Sector L0   0xd000
-> Layer 1[3]
->  Book Version:   0
->  Book Type:      13
->  Min Rate:       0
->  Disc Size:      0
->  Layer Type:     0
->  Track Path:     1
->  Num Layers:     2
->  Track Density:  0
->  Linear Density: 0
->  BCA:            1
->  Start Sector    0xd000
->  End Sector      0x1d000
->  End Sector L0   0xd000
-> hdd: packet command error: status=0x51 { DriveReady SeekComplete Error }
-> hdd: packet command error: error=0x50
-> ATAPI device hdd:
->   Error: Illegal request -- (Sense key=0x05)
->   Invalid field in command packet -- (asc=0x24, ascq=0x00)
->   The failed "Send DVD Structure" packet command was:
->   "ad 00 00 00 00 00 02 00 00 54 00 00 "
-> Could not read Physical layer 2
-> Copyright: CPST=1, RMI=0xfd
+> It doesn't matter too much --- it's only the writeback which is doing
+> this (ext3 uses a separate journal thread for it), so any sleep is
+> only there to wait for the moment when writeback can safely begin:
+> users of the filesystem won't see any stalls.
 
-I don't know the program you mention, but it's definitely buggy. It
-sets byte 6 to 0x02 which is not valid at all. Byte 7 is the format
-code, but 0x02 is reserved there too. Who wrote this program? Tell
-him it's buggy, it's not the driver.
+Ok, but even if this is true for ext3 it may not be true for other
+journalled fs. AFAIR, reiser is doing an explicit wait_on_buffer
+which would then amount to quite a performance hit (speculation,
+haven't measured).
+
+> > A barrier operation is sufficient then. So you're saying don't
+> > over design, a simple barrier is all you need?
+> 
+> Pretty much so.  The simple barrier is the only thing which can be
+> effectively optimised at the hardware level with SCSI anyway.
+
+True
 
 -- 
 Jens Axboe

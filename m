@@ -1,87 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265077AbUE0Taz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265093AbUE0TdC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265077AbUE0Taz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 15:30:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265088AbUE0Taz
+	id S265093AbUE0TdC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 15:33:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265089AbUE0TdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 15:30:55 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:24020 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S265077AbUE0Tan (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 15:30:43 -0400
-Date: Thu, 27 May 2004 21:25:37 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] SMP support for drain local pages.
-Message-ID: <20040527192537.GC509@openzaurus.ucw.cz>
-References: <40B473F7.4000100@linuxmail.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40B473F7.4000100@linuxmail.org>
-User-Agent: Mutt/1.3.27i
+	Thu, 27 May 2004 15:33:01 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34276 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265093AbUE0Tcq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 15:32:46 -0400
+Message-ID: <40B6424D.7030203@pobox.com>
+Date: Thu, 27 May 2004 15:32:29 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, prism54-devel@prism54.org
+Subject: Re: [PATCH 0/14] prism54: bring up to sync with prism54.org cvs rep
+References: <20040524083003.GA3330@ruslug.rutgers.edu> <20040524085727.GR3330@ruslug.rutgers.edu> <40B62F29.6090101@pobox.com> <20040527192733.GB14186@logos.cnet>
+In-Reply-To: <20040527192733.GB14186@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> This patch adds SMP support for drain_local_pages, so that suspend
-> implementations can drain pcp structures on all CPUs and thus 
-> accurately
-> determine which pages are free.
-
-Why do you need it, btw?
-
-1st it might be easier to just on_each_cpu(drain_local_pages)
-in suspend2
-
-2nd all but one cpus are stopped, right? That mrans that their local pages can't
-mess up suspnd's accounting => no need to drain them.
-				Pavel
-
-2.6.6-current-bk/mm/page_alloc.c 
-> smp-drain-local-pages/mm/page_alloc.c
-> --- 2.6.6-current-bk/mm/page_alloc.c    2004-05-26 19:47:15.000000000 
-> +1000
-> +++ smp-drain-local-pages/mm/page_alloc.c       2004-05-26 
-> 19:56:19.000000000 +1000
-> @@ -459,6 +459,24 @@
->         __drain_pages(smp_processor_id());
->         local_irq_restore(flags);
->  }
-> +
-> +#ifdef CONFIG_SMP
-> +static void __smp_drain_local_pages(void * data)
-> +{
-> +       drain_local_pages();
-> +}
-> +
-> +void smp_drain_local_pages(void)
-> +{
-> +       smp_call_function(__smp_drain_local_pages, NULL, 0, 1);
-> +       drain_local_pages();
-> +}
-> +#else
-> +void smp_drain_local_pages(void)
-> +{
-> +       drain_local_pages();
-> +}
-> +#endif
->  #endif /* CONFIG_PM */
+Marcelo Tosatti wrote:
+> IMO support for new hardware (new drivers) which dont break existing setups are fine.
 > 
->  static void zone_statistics(struct zonelist *zonelist, struct zone 
->  *z)
+> Jeff, you are actively maintaining most of the network drivers in v2.4, if you are OK with the 
+> inclusion of this, I'm OK.
 > 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Does this make sense?
 
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+
+Yup, makes sense and sounds good to me.
+
+Luis, feel free to send me the 2.4.x version of the prism54 driver -- 
+after addressing my comments, of course ;-)
+
+	Jeff
+
 

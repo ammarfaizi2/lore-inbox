@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129524AbQLRNEs>; Mon, 18 Dec 2000 08:04:48 -0500
+	id <S132069AbQLRNQE>; Mon, 18 Dec 2000 08:16:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130247AbQLRNEi>; Mon, 18 Dec 2000 08:04:38 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:17566 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S129524AbQLRNEd>;
-	Mon, 18 Dec 2000 08:04:33 -0500
-Date: Mon, 18 Dec 2000 13:33:53 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200012181233.NAA176015.aeb@aak.cwi.nl>
-To: koenig@tat.physik.uni-tuebingen.de, torvalds@transmeta.com
-Subject: Re: BUG: isofs broken (2.2 and 2.4)
-Cc: Andries.Brouwer@cwi.nl, aeb@veritas.com, emoenke@gwdg.de, eric@andante.org,
-        kobras@tat.physik.uni-tuebingen.de, linux-kernel@vger.kernel.org
+	id <S130247AbQLRNPy>; Mon, 18 Dec 2000 08:15:54 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:34564 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S132069AbQLRNPo>; Mon, 18 Dec 2000 08:15:44 -0500
+Date: Mon, 18 Dec 2000 06:45:13 -0600
+To: Tigran Aivazian <tigran@veritas.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch-2.4.0-test13-pre3] rootfs boot param. support
+Message-ID: <20001218064513.G3199@cadcamlab.org>
+In-Reply-To: <Pine.LNX.4.21.0012111102480.801-100000@penguin.homenet> <Pine.LNX.4.21.0012181150060.840-100000@penguin.homenet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0012181150060.840-100000@penguin.homenet>; from tigran@veritas.com on Mon, Dec 18, 2000 at 11:56:47AM +0000
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From koenig@orion.tat.physik.uni-tuebingen.de Mon Dec 18 11:34:14 2000
 
-    On Nov 17, Linus Torvalds wrote:
+[Tigran Aivazian]
+> +/* this can be set at boot time, e.g. rootfs=ext2 
+> + * if set to invalid value or if read_super() fails on the specified
+> + * filesystem type then mount_root() will go through all registered filesystems.
+> + */
+> +static char rootfs[128] __initdata = "ext2";
 
-    > ...
+Better that we not hard-code anything here.  If we want ext2 to be
+tried first, we should link it first, which we already do.
 
-    better you'd have tested it;)  while Andries' patch works fine (2 CDs of
-    data copied and checked a bit, seems to work ok with no obvious problems)
-    your new patch still shows a number of problems:
+Peter
 
-    I've got a SIGSEGV in "find" and ...
+[hand-edited patch, may not be right!]
 
-Ah yes, but Nov 17 and 2.4.0test10 is ancient history.
-You do not mention a kernel version, but if it is older
-than 2.4.0test12, upgrade.
-
-(Before 2.4.0test11: a few complaints. On 2.4.0test11: a deluge
-of complaints. On later kernels: one or two complaints. Must still
-look at the case where someone has problems with isofs over nfs -
-maybe this is nfs-related, not isofs-related.)
-
-(The story here was interesting: Linus' patch did part of the
-work required, good enough for most people. Nevertheless there were
-many complaints, and it turned out that gcc 2.95.2 mistranslated
-the code. Removing a superfluous line made things work again,
-leaving us worried how many other problems in kernel and user
-software are caused by this compiler bug. Then I added the part of
-my patch that Linus hadnt done yet, so now all should be well again.)
-
-Andries
-
+--- linux/fs/super.c	Tue Dec 12 09:25:22 2000
++++ rootfs/fs/super.c	Mon Dec 18 10:03:31 2000
+@@ -63,7 +63,7 @@
+  * if set to invalid value or if read_super() fails on the specified
+  * filesystem type then mount_root() will go through all registered filesystems.
+  */
+-static char rootfs[128] __initdata = "ext2";
++static char rootfs[32] __initdata = "";
+ 
+ int nr_super_blocks;
+ int max_super_blocks = NR_SUPER;
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

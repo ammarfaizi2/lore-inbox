@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261644AbTCQIVr>; Mon, 17 Mar 2003 03:21:47 -0500
+	id <S262409AbTCQI0Y>; Mon, 17 Mar 2003 03:26:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262598AbTCQIVr>; Mon, 17 Mar 2003 03:21:47 -0500
-Received: from quechua.inka.de ([193.197.184.2]:28864 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S261644AbTCQIVq>;
-	Mon, 17 Mar 2003 03:21:46 -0500
-From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: FileSystem XFS vs RiserFS vs ext3
-In-Reply-To: <3E7556C2.7030000@thizgroup.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.14-20020917 ("Chop Suey!") (UNIX) (Linux/2.4.18-xfs (i686))
-Message-Id: <E18uq2v-0004P7-00@calista.inka.de>
-Date: Mon, 17 Mar 2003 09:32:37 +0100
+	id <S262598AbTCQI0Y>; Mon, 17 Mar 2003 03:26:24 -0500
+Received: from krynn.axis.se ([193.13.178.10]:1945 "EHLO krynn.axis.se")
+	by vger.kernel.org with ESMTP id <S262409AbTCQI0X>;
+	Mon, 17 Mar 2003 03:26:23 -0500
+Message-ID: <3C6BEE8B5E1BAC42905A93F13004E8AB01CAF576@mailse01.se.axis.com>
+From: Jonas Holmberg <jonas.holmberg@axis.com>
+To: "'Joern Engel'" <joern@wohnheim.fh-wedel.de>,
+       David Woodhouse <dwmw2@infradead.org>
+Cc: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: RE: [PATCH] Fix stack usage for amd_flash.c
+Date: Mon, 17 Mar 2003 09:36:38 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3E7556C2.7030000@thizgroup.com> you wrote:
-> Hi all I get basic understanding of the functions and different between
-> XFS, RiserFS and ext3. But in high volumn read write enviornment (database,
-> NFS email server etc), which will provide better preformance?
+> On Fri, 14 March 2003 16:05:10 +0000, David Woodhouse wrote:
+> > On Fri, 2003-03-14 at 15:46, Joern Engel wrote:
+> > 
+> > Urgh. That should never have been on the stack in the first 
+> place. Make
+> > it static. The comment about being deallocated when the 
+> probe is done is
+> > bogus -- where do we think we get the contents of the table 
+> from when
+> > _entering_ the probe function anyway? It's elsewhere in the kernel
+> > image.
 
-NFS is a bit tricky. Reiser used to be broken on it, and at least from large
-XFS NFS Servers I know that they tend to be unstable, still.
+My bad, sorry.
 
-For the Database Servers, I am not sure how well they operate with
-journaling filesystems. I think Linux Journal had an article on performance
-on that.
+> > Also note that all but the CFI-based drivers are deprecated. We have
+> > old-style probes which allow us to use the CFI back-end drivers with
+> > non-CFI chips anyway.
+> 
+> Right. But since 2.[567] is going towards 4k kernel stack, those
+> drivers should be fixed or revomed. If you don't remove it, I'll try
+> to fix it. :)
 
-Reiser might be your bet, depending on the usage pattern of the filename
-space, with Ext3 catching up. Personally I love the XFS features for
-resizing in connection with LVMs, but i guess you can have that with Ext3
-and Reiser, too.
+We're still using the amd_flash-driver a lot because I haven't got time
+to try out the jedec_probe since the toggle-bit stuff was added in the
+CFI driver. I made some rough tests just before that, and jedec_probe +
+CFI driver turned out to be much slower than amd_flash. But then the CFI
+driver was modified... I'll try to get some time to test them again soon
+and maybe even do something about it.
 
-Greetings
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+/Jonas

@@ -1,52 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262768AbTJTTKb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 15:10:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbTJTTKb
+	id S262732AbTJTTPO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 15:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262748AbTJTTPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 15:10:31 -0400
-Received: from main.gmane.org ([80.91.224.249]:23989 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262768AbTJTTKa (ORCPT
+	Mon, 20 Oct 2003 15:15:13 -0400
+Received: from pop.gmx.net ([213.165.64.20]:45734 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262732AbTJTTO5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 15:10:30 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: [PM][ACPI] No ACPI interrupts after resume from S1
-Date: Mon, 20 Oct 2003 21:08:16 +0200
-Message-ID: <yw1xekx7afrz.fsf@kth.se>
-References: <20031020141512.GA30157@hell.org.pl> <yw1x8yngj7xg.fsf@users.sourceforge.net>
- <20031020184750.GA26154@hell.org.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 20 Oct 2003 15:14:57 -0400
+Date: Mon, 20 Oct 2003 21:14:53 +0200 (MEST)
+From: "Svetoslav Slavtchev" <svetljo@gmx.de>
+To: "Carlos Fernandez Sanz" <cfs-lk@nisupu.com>
+Cc: Tomi.Orava@ncircle.nullnet.fi, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+References: <001901c39734$8a2c2bb0$0514a8c0@HUSH>
+Subject: Re: HighPoint 374
+X-Priority: 3 (Normal)
+X-Authenticated: #20183004
+Message-ID: <5465.1066677293@www22.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:dvEtAah0xPU7x84DCY9vmDWI0EE=
-Cc: acpi-devel@lists.sourceforge.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karol Kozimor <sziwan@hell.org.pl> writes:
+> BTW, isn't m0 supposed to reduce perfomance?
 
->> suspend, the extra buttons (I use them to fire up programs) stop
->> working.  Normally, they will generate an ACPI event, that is
->> processed by acpid etc.  After a suspend, each button will work once.
->> If I then close and open the lid, they will work one more time, and so
->> on.  Any way I can help?
->
-> Please specify the type of suspend. The situation I described only occurs
-> for S1 (or, echo -n standby, more specifically), and only in certain kernel
-> versions.
+have to retest probably
 
-standby, at least.
+how much RAM do you have,
+isn't your test file to small
 
-After echo -n mem > /sys/power/state, the display light won't turn on,
-so I don't know what's going on.  I've never managed to resume from a
-suspend to disk.  It just boots normally and makes a fuss about the
-filesystems.
+svetljo
+
+
+> [root@fulanito wd1200jb]# time dd if=/dev/zero of=filling count=20000
+> bs=65536
+> 20000+0 records in
+> 20000+0 records out
+> 
+> real    0m33.763s
+> user    0m0.200s
+> sys     0m10.920s
+> [root@fulanito wd1200jb]# hdparm -m4 /dev/hdk
+> 
+> /dev/hdk:
+>  setting multcount to 4
+>  multcount    =  4 (on)
+> [root@fulanito wd1200jb]# time dd if=/dev/zero of=filling count=20000
+> bs=65536
+> 20000+0 records in
+> 20000+0 records out
+> 
+> real    0m30.321s
+> user    0m0.150s
+> sys     0m10.630s
+> [root@fulanito wd1200jb]# hdparm -m0 /dev/hdk
+> 
+> /dev/hdk:
+>  setting multcount to 0
+>  multcount    =  0 (off)
+> [root@fulanito wd1200jb]# time dd if=/dev/zero of=filling count=20000
+> bs=65536
+> 20000+0 records in
+> 20000+0 records out
+> 
+> real    0m30.749s
+> user    0m0.130s
+> sys     0m10.900s
+> [root@fulanito wd1200jb]#
+> 
+> ----- Original Message ----- 
+> From: "Svetoslav Slavtchev" <svetljo@gmx.de>
+> To: "Tomi Orava" <Tomi.Orava@ncircle.nullnet.fi>
+> Cc: <linux-kernel@vger.kernel.org>
+> Sent: Monday, October 20, 2003 11:03
+> Subject: Re: HighPoint 374
+> 
+> 
+> > >
+> > >
+> > > >> Are you capable of trying if the hdparm -m0 trick
+> > > >> works for you ?
+> > > >
+> > > > you mean the fs corruption on soft raid or the interupts problem ?
+> > > > i dumped the raid setup as i couldn't find a way to debug it
+> > > > and my drives are pretty full again, but i'll try to free some space
+> > >
+> > > I meant the interrupt problem, because if that problem exists
+> > > there doesn't seem to be a reasonable way to figure out what
+> > > is the reason for the filesystem corruption.
+> > >
+> > > > for the interupts
+> > > > with test7-bk8  , acpi=off pci=noacpi &
+> > > > hdparm  -m0 -d1 -X69  /dev/hd[a,e,g]
+> > > > hdparm  -m16 -d1 -X69  /dev/hd[a,e,g]
+> > > > i don't see timeouts
+> > > > if i omit -m i do see them sometimes
+> > >
+> > > Ok, so if I understood you correctly, the interrupt problem
+> > > persists _only_ if you leave the multiple sector setting on
+> > > its default setting ? If you explicitly disable it, or set
+> > > it to maximum it works fine ? Does it work with any value ?
+> >
+> > -m4 & -m8 seems to work OK
+> > each time 3 runs of the dd test
+> > 1 to hda
+> > 2 to hde
+> >
+> > TCQ  not activated
+> >
+> >
+> > -- 
+> > NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
+> > Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
+> >
+> > Jetzt kostenlos anmelden unter http://www.gmx.net
+> >
+> > +++ GMX - die erste Adresse für Mail, Message, More! +++
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> 
 
 -- 
-Måns Rullgård
-mru@kth.se
+NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
+Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
+
+Jetzt kostenlos anmelden unter http://www.gmx.net
+
++++ GMX - die erste Adresse für Mail, Message, More! +++
 

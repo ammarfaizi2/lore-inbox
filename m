@@ -1,45 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269018AbUHMHn3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269019AbUHMHnl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269018AbUHMHn3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 03:43:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269019AbUHMHn2
+	id S269019AbUHMHnl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 03:43:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269020AbUHMHnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 03:43:28 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:17025 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S269018AbUHMHn1 (ORCPT
+	Fri, 13 Aug 2004 03:43:41 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41619 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269019AbUHMHni (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 03:43:27 -0400
-Date: Fri, 13 Aug 2004 09:44:57 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Jakub Vana <gugux@centrum.cz>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: x86 - Realmode BIOS and Code calling module
-Message-ID: <20040813074457.GA503@ucw.cz>
-References: <20040812133854Z2097966-29039+40063@mail.centrum.cz>
+	Fri, 13 Aug 2004 03:43:38 -0400
+Subject: Re: SG_IO and security
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Jens Axboe <axboe@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@www.pagan.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040813065902.GB2321@suse.de>
+References: <1092313030.21978.34.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0408120929360.1839@ppc970.osdl.org>
+	 <Pine.LNX.4.58.0408120943210.1839@ppc970.osdl.org>
+	 <1092341803.22458.37.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0408121705050.1839@ppc970.osdl.org>
+	 <20040813065902.GB2321@suse.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dwJ8T2pE/L+sxvZ0c0mw"
+Organization: Red Hat UK
+Message-Id: <1092383006.2813.0.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040812133854Z2097966-29039+40063@mail.centrum.cz>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 13 Aug 2004 09:43:27 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 12, 2004 at 03:38:45PM +0200, Jakub Vana wrote:
 
-> > Why is this better than LRMI in user mode.
-> 
-> I was now looking on LRMI. It must be a nice code, but It is still
-> only V86 emulation. I have listen that some BIOSes use something
-> called Unreal mode, that is realmode with segment registers used like
-> in protected mode. There is only one way, how to set this segregs -
-> switch to prot. mode, but if the BIOS try to switch when is running in
-> V86 CPU generates #GP (Global Protection fault). Not if it is running
-> in real Real Mode.
+--=-dwJ8T2pE/L+sxvZ0c0mw
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Well, if it's running an emulated CPU (x86emu), there are no problems
-with that. Even the unreal mode could be emulated, although I have yet
-to see a BIOS which uses that to handle an INT call.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+> While that does make sense, it would be more code to fold them together
+> than what is currently there. SCSI_IOCTL_SEND_COMMAND is really
+> horrible, the person inventing that API should be subject to daily
+> public ridicule.
+
+sounds like deprecation of this interface should start (I suspect this
+one will need ample notice of that so the sooner we do .... )
+
+--=-dwJ8T2pE/L+sxvZ0c0mw
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBHHEexULwo51rQBIRAkfyAKCqPlRIlOflMmJrhfq7CMOWQbgh8gCeKsRs
+pNWaVqBQwcN1QhBOZfwewdk=
+=1b1d
+-----END PGP SIGNATURE-----
+
+--=-dwJ8T2pE/L+sxvZ0c0mw--
+

@@ -1,71 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130373AbRAEI3J>; Fri, 5 Jan 2001 03:29:09 -0500
+	id <S130067AbRAEIat>; Fri, 5 Jan 2001 03:30:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129777AbRAEI27>; Fri, 5 Jan 2001 03:28:59 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:61707 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S129610AbRAEI2q>;
-	Fri, 5 Jan 2001 03:28:46 -0500
-Date: Fri, 5 Jan 2001 10:28:37 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Greg KH <greg@kroah.com>
-Cc: Miles Lane <miles@megapathdsl.net>, linux-usb-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: Announce: modutils 2.4.0 is available
-Message-ID: <20010105102837.M12545@mea-ext.zmailer.org>
-In-Reply-To: <14993.978663552@kao2.melbourne.sgi.com> <16062.978666989@kao2.melbourne.sgi.com> <20010104200333.A20175@one-eyed-alien.net> <066101c076d3$9938fe00$6600000a@brownell.org> <20010104230759.A16213@wirex.com> <3A55751D.4020800@megapathdsl.net> <20010104233057.C1375@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010104233057.C1375@kroah.com>; from greg@kroah.com on Thu, Jan 04, 2001 at 11:30:57PM -0800
+	id <S130643AbRAEIaj>; Fri, 5 Jan 2001 03:30:39 -0500
+Received: from ns1.megapath.net ([216.200.176.4]:37898 "EHLO megapathdsl.net")
+	by vger.kernel.org with ESMTP id <S130067AbRAEIac>;
+	Fri, 5 Jan 2001 03:30:32 -0500
+Message-ID: <3A5585D1.5090903@megapathdsl.net>
+Date: Fri, 05 Jan 2001 00:29:05 -0800
+From: Miles Lane <miles@megapathdsl.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test12-pre8 i686; en-US; m18) Gecko/20001231
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Michael D. Crawford" <crawford@goingware.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Change of policy for future 2.2 driver submissions
+In-Reply-To: <3A55447D.995FB159@goingware.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 04, 2001 at 11:30:57PM -0800, Greg KH wrote:
-> > Greg KH wrote:
-> > <snip>
-> > 
-> > > I agree.  I can set up a "linux-hotplug" group using SourceForge if
-...
-> I'm only proposing SourceForge as I can set up a list easily there
-> easily, and I don't know the right people to ask to get it done on
-> vger.kernel.org :)
+Michael D. Crawford wrote:
 
-	The right one to ask is  <postmaster@vger.kernel.org>,  and
-	somebody has already made that question there.
+<snip>
 
-	Powers that be (DaveM) need to decide on it.
 
-	I am also one of those postmaster persons, but DaveM decides
-	things at the Majordomo subsystem.  (And thus lists.)
+> You might think this is great because of all the extra testing the new users
+> will do but I assert that it isn't.  The environment for Linux is quite
+> different these days than when 2.2 or 2.0 were released.
+> 
+> A lot of the people who will be using it are not technically savvy people, and
+> many of those who do know technology depend on its reliability for the
+> profitability of large businesses but may not read Linus' message that indicates
+> this is really just for testing.
 
-> Unless anyone objects in the next 10 hours, I'll try to create it, and
-> let everyone know about it.
+Alan's comments were addressed to driver developers, not users.
+It's driver developers who need to work with Alan to make sure
+he doesn't have to now do twice as much work as he used to
+(BTW:  I think this is a mental and physical impossibility).
 
-	As you wish, I don't have ambitions either way.
+The distros will ship 2.4.0 kernels whenever they want to, which
+will probably be when they think there are no major gotchas in it.
 
-	One thing though, NEVER configure list to modify through
-	going message subjects any way what so ever.  Doing that
-	is just a sign of giving up on people who don't know how
-	else they can recognize traffic thru given lists.
-	(I leave it as an excercise to the reader to review full
-	 headers of this message in their mailbox, and see which
-	 RFC 822 defined headers they could use to recognize which
-	 list this message has gone thru.  Some of you will receive
-	 this in several copies via different paths!)
+If I remember correctly, when 2.2.0 was released, a similar process
+took place.  Alan helped get patches into the 2.0 kernel tree for
+a while.  When the 2.3.0 tree was opened up, Linus' attention
+shifted completely to that new development tree.  That left Alan
+to take up the slack by becoming the maintainer of the 2.2 tree.
+Very shortly after Alan moved onto the 2.2 tree, he announced that
+the vast amount of his work would be focussed there and not on the
+2.0 tree.
 
-	Such subject modifications lead to abominations like:
+As far as I know, 2.0 to 2.2 transition went really quite smoothly,
+so this process must be working.
 
-		[linux-usb-devel] Re: [linux-usb-devel] Re: [linux-usb-devel] ...
+I would suggest that if you are writing drivers for the 2.2 tree,
+that you just work with Alan and make sure your code is also in
+the 2.4 tree.  Alan's doing you a favor by clearly spelling out
+what he can reasonably be expected to accomplish.  If he over-
+estimated his ability to process code changes, we'd all be in
+a world of hurt and disappointment.
 
-	People don't clean their outgoing Subject: headers anyway.
+As for users, their fate is in the hands of the distribution
+developers.  It's the distribution developers' responsibility
+to ship good, solid code.  If you are scared that they won't
+do a good job of that, I guess you'll want to wait for one
+of their later releases.
 
-> thanks,
-> greg k-h
-> -- 
-> greg@(kroah|wirex).com
+Best wishes,
 
-/Matti Aarnio
+	Miles
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

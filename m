@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281915AbRLFSXo>; Thu, 6 Dec 2001 13:23:44 -0500
+	id <S281923AbRLFSZz>; Thu, 6 Dec 2001 13:25:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281926AbRLFSXe>; Thu, 6 Dec 2001 13:23:34 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:24252 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S281915AbRLFSXP>;
-	Thu, 6 Dec 2001 13:23:15 -0500
-Date: Thu, 6 Dec 2001 19:22:23 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: dalecki@evision.ag
-Cc: John Stoffel <stoffel@casc.com>, Rik van Riel <riel@conectiva.com.br>,
-        Rob Landley <landley@trommello.org>,
-        "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011206192223.A360@khan.acc.umu.se>
-In-Reply-To: <20011206001558.OQCD485.femail3.sdc1.sfba.home.com@there> <Pine.LNX.4.33L.0112061447560.1282-100000@duckman.distro.conectiva> <15375.41990.439405.8024@gargle.gargle.HOWL> <3C0FB3D2.A2007377@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <3C0FB3D2.A2007377@evision-ventures.com>; from dalecki@evision-ventures.com on Thu, Dec 06, 2001 at 07:07:14PM +0100
+	id <S282042AbRLFSZk>; Thu, 6 Dec 2001 13:25:40 -0500
+Received: from quechua.inka.de ([212.227.14.2]:28704 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S281923AbRLFSZU>;
+	Thu, 6 Dec 2001 13:25:20 -0500
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: transparent firewall??
+In-Reply-To: <5.0.2.1.0.20011205114948.01a65410@pop.mail.yahoo.fr>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.16-xfs (i686))
+Message-Id: <E16C3Cp-0007jf-00@calista.inka.de>
+Date: Thu, 06 Dec 2001 19:25:11 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 06, 2001 at 07:07:14PM +0100, Martin Dalecki wrote:
-> John Stoffel wrote:
-> 
-> > The requirement for python2 is a bit of a pain, but hey, for 2.5, it's
-> > not a problem.
-> 
-> It is just a BIT OF PAIN. It gives me more trouble than the trouble
-> I have even with the insufficiencies of the current make system.
-> Basta.
+In article <5.0.2.1.0.20011205114948.01a65410@pop.mail.yahoo.fr> you wrote:
+> I'd like to know if anyone has a transparent firewall that is one that 
+> doesn't make any rules on the traffic but only always pass it without this 
+> beeing notified by the rest of the network system...
 
-Does the fact that there's a simple patch fixing the requirement down
-to Python 1.5 alleviate your troubles?
+There are 2 ways to add a computer into the stream (besides sniffing), you
+can set up a bridge, it is forwarding packets without having to have a own
+ip address and without the need of reconfiguration. Of course you can use a
+router to do the same, it just needs routing table modifications.
 
+If you want to look at the data stream on an application on a (TCP) socket
+level, you can use the transproxy function of linux kernel. It will redirect
+a connection which is done through a router to any local process. Those
+local process then can contact the original destination, having effectively
+beeing a man in the middle. There are a lot of tools out there to do this.
 
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+You may want to tell us, what you are trying to do.
+
+Greetings
+Bernd

@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263140AbTDFWEY (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 18:04:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263143AbTDFWEX (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 18:04:23 -0400
-Received: from mail-1.tiscali.it ([195.130.225.147]:24356 "EHLO
-	mail.tiscali.it") by vger.kernel.org with ESMTP id S263140AbTDFWEU (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 18:04:20 -0400
-Date: Mon, 7 Apr 2003 00:15:48 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Rik van Riel <riel@surriel.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@digeo.com>, mingo@elte.hu, hugh@veritas.com,
-       dmccr@us.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, Bill Irwin <wli@holomorphy.com>
-Subject: Re: subobj-rmap
-Message-ID: <20030406221547.GP1326@dualathlon.random>
-References: <Pine.LNX.4.44.0304061737510.2296-100000@chimarrao.boston.redhat.com> <1600000.1049666582@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1600000.1049666582@[10.10.2.4]>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+	id S263163AbTDFWM6 (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 18:12:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263164AbTDFWM6 (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 18:12:58 -0400
+Received: from modemcable169.130-200-24.mtl.mc.videotron.ca ([24.200.130.169]:44037
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S263163AbTDFWM4 (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 18:12:56 -0400
+Date: Sun, 6 Apr 2003 18:19:52 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Jeff Garzik <jgarzik@pobox.com>
+Subject: [PATCH][2.5] SET_MODULE_OWNER for tulip_core
+Message-ID: <Pine.LNX.4.50.0304061814110.2268-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 06, 2003 at 03:03:03PM -0700, Martin J. Bligh wrote:
-> We can always leave the sys_remap_file_pages stuff using pte_chains,
+Tested with a pcmcia tulip
 
-not sure why you want still to have the vm to know about the
-mmap(VM_NONLINEAR) hack at all.
+Index: linux-2.5.66/drivers/net/tulip/tulip_core.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.66/drivers/net/tulip/tulip_core.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 tulip_core.c
+--- linux-2.5.66/drivers/net/tulip/tulip_core.c	24 Mar 2003 23:39:20 -0000	1.1.1.1
++++ linux-2.5.66/drivers/net/tulip/tulip_core.c	6 Apr 2003 21:00:36 -0000
+@@ -485,12 +485,9 @@ tulip_open(struct net_device *dev)
+         struct tulip_private *tp = (struct tulip_private *)dev->priv;
+ #endif
+ 	int retval;
+-	MOD_INC_USE_COUNT;
+ 
+-	if ((retval = request_irq(dev->irq, &tulip_interrupt, SA_SHIRQ, dev->name, dev))) {
+-		MOD_DEC_USE_COUNT;
++	if ((retval = request_irq(dev->irq, &tulip_interrupt, SA_SHIRQ, dev->name, dev)))
+ 		return retval;
+-	}
+ 
+ 	tulip_init_ring (dev);
+ 
+@@ -823,8 +820,6 @@ static int tulip_close (struct net_devic
+ 		tp->tx_buffers[i].mapping = 0;
+ 	}
+ 
+-	MOD_DEC_USE_COUNT;
+-
+ 	return 0;
+ }
+ 
+@@ -1361,6 +1356,7 @@ static int __devinit tulip_init_one (str
+ 		return -ENOMEM;
+ 	}
+ 
++	SET_MODULE_OWNER(dev);
+ 	if (pci_resource_len (pdev, 0) < tulip_tbl[chip_idx].io_size) {
+ 		printk (KERN_ERR PFX "%s: I/O region (0x%lx@0x%lx) too small, "
+ 			"aborting\n", pdev->slot_name,
 
-that's a vm bypass. I can bet the people who wants to use it for running
-faster on the the 32bit archs will definitely prefer zero overhead and
-full hardware speed with only the pagetable and tlb flushing trash, and
-zero additional kernel internal overhead. that's just a vm bypass that
-could otherwise sit in kernel module, not a real kernel API.
-
-Andrea
+-- 
+function.linuxpower.ca

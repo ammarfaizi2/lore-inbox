@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267579AbSKQUKd>; Sun, 17 Nov 2002 15:10:33 -0500
+	id <S267575AbSKQUJ2>; Sun, 17 Nov 2002 15:09:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267583AbSKQUKd>; Sun, 17 Nov 2002 15:10:33 -0500
-Received: from ppp-217-133-221-200.dialup.tiscali.it ([217.133.221.200]:64395
-	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
-	id <S267579AbSKQUJd>; Sun, 17 Nov 2002 15:09:33 -0500
-Subject: Re: [patch] threading fix, tid-2.5.47-A3
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0211172212001.18431-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0211172212001.18431-100000@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-FJOfvXEdLOrHMod3mN4X"
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 17 Nov 2002 21:16:06 +0100
-Message-Id: <1037564166.1597.119.camel@ldb>
-Mime-Version: 1.0
+	id <S267579AbSKQUJ2>; Sun, 17 Nov 2002 15:09:28 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55817 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267575AbSKQUJ0>; Sun, 17 Nov 2002 15:09:26 -0500
+Date: Sun, 17 Nov 2002 12:16:28 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Matthew Wilcox <willy@debian.org>
+cc: Christoph Hellwig <hch@lst.de>, <linux-kernel@vger.kernel.org>,
+       <kernel-janitor-discuss@lists.sourceforge.net>
+Subject: Re: [PATCH] change allow_write_access/deny_write_access prototype
+In-Reply-To: <20021117194742.D7530@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.44.0211171212360.1370-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-FJOfvXEdLOrHMod3mN4X
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Sun, 17 Nov 2002, Matthew Wilcox wrote:
+> 
+> I'm quite happy to test that my header cleanups don't break things --
+> but there are many things which don't currently compile anyway.  I try
+> to enable the things I think my changes will break, but I didn't spot
+> the isapnp one my pci_dev changes broke.  Could I ask that you update
+> defconfig with your .config again so we can be sure things don't break
+> _your_ build?
 
-> we broke binary compatibility several times, for the benefit of having a
-> cleaner interface. Ulrich has no problems with this approach and NPTL is
-> the only user of these interfaces currently. But i think you are one of
-> the few peoples who are running an NPTL system (ie. with the new
-> NPTL-glibc actually installed as the default system glibc) - is binary
-> compatibility important to you for this specific case?
-No, but since I don't see any advantage in breaking it (other than a
-more aesthetically pleasing header), why break it?
-The problem is just the numbering of the flags, not the new
-functionality.
+Breaking my build is ok, I can trivially fix those. Usually it's a 
+one-liner, and that's not the thing I worry about.
 
+I worry about the fact that I'm aboud to releaser 2.5.48, and then it
+doesn't compile for some silly reason, even though I've obviously tested 
+it on my configurations and fixed the problems _I_ saw.
 
---=-FJOfvXEdLOrHMod3mN4X
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Cleaning up header files is fine, but the trivial part is to remove the 
+line that includes another header file. The _real_ work is trying to 
+figure out that nothing else broke as a result, and I think that's what a 
+janitor who does these things should really care about.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+The whole "janitor" name to me implies somebody who does the hand and ugly 
+and mostly boring thing that needs to be done to clean stuff up and make 
+sure things work smoothly. A "janitorial" patch that leaves broken pieces 
+in random places of the tree doesn't sound very janitorial to me, if you 
+see what I mean..
 
-iD8DBQA91/kGdjkty3ft5+cRAgSUAKDDXjn9zfIAQn0GadrbHYfBogfuCACgkvb2
-BIdtmLVlnKWagI/ypiIR2y0=
-=93Sj
------END PGP SIGNATURE-----
+			Linus
 
---=-FJOfvXEdLOrHMod3mN4X--

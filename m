@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265402AbSJXMGU>; Thu, 24 Oct 2002 08:06:20 -0400
+	id <S265411AbSJXMGz>; Thu, 24 Oct 2002 08:06:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265409AbSJXMGT>; Thu, 24 Oct 2002 08:06:19 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:34951 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265402AbSJXMGT>; Thu, 24 Oct 2002 08:06:19 -0400
-Date: Thu, 24 Oct 2002 08:13:42 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: yf <fyou@dsguardian.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: pls help me
-In-Reply-To: <1035441048.727.3.camel@yf.dsguardian.com>
-Message-ID: <Pine.LNX.3.95.1021024080900.18436A-100000@chaos.analogic.com>
+	id <S265414AbSJXMGz>; Thu, 24 Oct 2002 08:06:55 -0400
+Received: from trappist.elis.rug.ac.be ([157.193.67.1]:31650 "EHLO
+	trappist.elis.rug.ac.be") by vger.kernel.org with ESMTP
+	id <S265411AbSJXMGy>; Thu, 24 Oct 2002 08:06:54 -0400
+Date: Thu, 24 Oct 2002 14:13:01 +0200 (CEST)
+From: Frank Cornelis <fcorneli@elis.rug.ac.be>
+To: linux-kernel@vger.kernel.org
+cc: Frank.Cornelis@elis.rug.ac.be
+Subject: Resource limits
+Message-ID: <Pine.LNX.4.44.0210241357350.14267-100000@trappist.elis.rug.ac.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Oct 2002, yf wrote:
+Hi,
 
-> Hi, all, 
-> 
-> Recently I wrote a file-system under Linux. When mounting, it prints 
-> these messages. I use iget(sb, ino) to get the root inode. 
-> 
-> But when run into get_new_inode():wake_up(), it hangs there. Who could 
-> give me some hints? 
-> 
-> what the dmesg output: 
-> ************************************************************************
-> 
-> ==> vvfs_init() 
-> ==> vvfs_read_super(<NULL>) 
-> ==> vvfs_connect(192.168.1.57, 52886) 
-> 2, 38606, 956410048 
-> <== vvfs_connect()OK 
-> superblock ordinary filling ok 
-> ==> vvfs_alloc_inode() 
-> <== vvfs_alloc_inode() 
-> ==> vvfs_read_inode(c67fb000) 
-> get sb sock 
-> get inode fid 
-> root inode 
-> fetch inode OK 
-> set server info OK 
-> <== vvfs_read_inode()c67fb000 
-> Unable to handle kernel paging request at virtual address fffffffc 
+Wouldn't it make sense that somewhere in kernel/fork.c:dup_task_struct we 
+copy the resource limits as follows.
+	int i;
+	for (i = 0; i < RLIM_NLIMITS; i++)
+		tsk->rlim[i].rlim_cur =
+			tsk->rlim[i].rlim_max =
+			orig->rlim[i].rlim_cur;
+This way a parent process is able to temporary drop some of its limits in 
+order to make a restricted child process and restore its resource limits 
+afterwards. Currenly it is not possible to make a child process with 
+smaller resource limits than the parent process without the parent process 
+losing its (hard) max limits (As far as I know, correct me if I'm wrong). 
+I could very much use this to control core dumping of child processes in 
+a better way. Of course I don't know to what extent this will break 
+things. POSIX???...couldn't find anything on it.
 
-There is no way somebody can help you with "Recently I wrote a file-
-system...." We don't have your source-code and we don't even know if
-you know how to write a file-system. However, the -
-  Unable to handle kernel paging request at virtual address fffffffc 
-- is a good hint that some pointer isn't initialized correctly under
-all the conditions occurring during the mount.
+Please CC me.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-   Bush : The Fourth Reich of America
-
+Frank.
 

@@ -1,939 +1,331 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVAXUSg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVAXUT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbVAXUSg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 15:18:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbVAXUSg
+	id S261614AbVAXUT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 15:19:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVAXUT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 15:18:36 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:41686 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261613AbVAXUOj (ORCPT
+	Mon, 24 Jan 2005 15:19:28 -0500
+Received: from waste.org ([216.27.176.166]:21154 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261614AbVAXUPw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 15:14:39 -0500
-Date: Mon, 24 Jan 2005 23:37:20 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+	Mon, 24 Jan 2005 15:15:52 -0500
+Date: Mon, 24 Jan 2005 12:15:27 -0800
+From: Matt Mackall <mpm@selenic.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Greg Kroah-Hartman <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: [1/1] superio: change scx200 module name to scx.
-Message-ID: <20050124233720.484c7ad0@zanzibar.2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>, Olaf Kirch <okir@suse.de>,
+       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
+       Andreas Gruenbacher <agruen@suse.de>
+Subject: [PATCH] lib/qsort
+Message-ID: <20050124201527.GZ12076@waste.org>
+References: <20050122203326.402087000@blunzn.suse.de> <20050122203618.962749000@blunzn.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050122203618.962749000@blunzn.suse.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change scx200 module name to scx.
+This patch introduces an implementation of qsort to lib/.
 
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+I've benchmarked many variants of quicksort implementations on array sizes
+from 100 elements to >1M elements with an eye to reducing instruction
+and branch count to bring out performance on modern processors. The
+version below was the clear winner in both size and performance. 
 
---- linux-2.6/drivers/superio/scx.c	1970-01-01 03:00:00.000000000 +0300
-+++ linux-2.6/drivers/superio/scx.c	2005-01-24 22:06:15.000000000 +0300
-@@ -0,0 +1,413 @@
+Here are some benchmarks of cycle count averages for 10 runs on the
+same random datasets, interrupts disabled. Percentages are performance
+relative to the glibc algorithm. A bunch of other variants dropped for
+brevity.
+
+name      size  description
+qsort:     916  glibc algorithm
+qsort2:    613  glibc algorithm without insertion sort pass
+qsort_s:   324  simple version with variable-sized automatic stack
+qsort_sf2: 247  simple version with pluggable swap routine (this patch)
+qsort_c3:  573  simple version with median of 3 and "collapse the walls"
+
+P4M 1.8GHz -O2 -march=i686 (cycles counts almost identical to P4 Xeon 3.2GHz):
+
+100:
+           qsort: 11568 100.00%
+          qsort2: 11822 97.85%
+         qsort_s: 8356 138.43%
+       qsort_sf2: 4542 254.70%
+        qsort_c3: 11248 102.84%
+200:
+           qsort: 27005 100.00%
+          qsort2: 28337 95.30%
+         qsort_s: 24672 109.46%
+       qsort_sf2: 13387 201.72%
+        qsort_c3: 28776 93.85%
+400:
+           qsort: 60464 100.00%
+          qsort2: 63134 95.77%
+         qsort_s: 54791 110.35%
+       qsort_sf2: 31677 190.88%
+        qsort_c3: 68228 88.62%
+800:
+           qsort: 144190 100.00%
+          qsort2: 149240 96.62%
+         qsort_s: 137439 104.91%
+       qsort_sf2: 82340 175.12%
+        qsort_c3: 151487 95.18%
+1600:
+           qsort: 315813 100.00%
+          qsort2: 329444 95.86%
+         qsort_s: 356588 88.57%
+       qsort_sf2: 195203 161.79%
+        qsort_c3: 360908 87.51%
+3200:
+           qsort: 725993 100.00%
+          qsort2: 738060 98.37%
+         qsort_s: 752978 96.42%
+       qsort_sf2: 444705 163.25%
+        qsort_c3: 814500 89.13%
+6400:
+           qsort: 1564310 100.00%
+          qsort2: 1603845 97.53%
+         qsort_s: 1746958 89.54%
+       qsort_sf2: 1011510 154.65%
+        qsort_c3: 1800720 86.87%
+12800:
+           qsort: 3502147 100.00%
+          qsort2: 3507643 99.84%
+         qsort_s: 4078681 85.86%
+       qsort_sf2: 2397432 146.08%
+        qsort_c3: 3976366 88.07%
+25600:
+           qsort: 7618627 100.00%
+          qsort2: 7661898 99.44%
+         qsort_s: 8708923 87.48%
+       qsort_sf2: 5288890 144.05%
+        qsort_c3: 8637922 88.20%
+51200:
+           qsort: 16009766 100.00%
+          qsort2: 16339192 97.98%
+         qsort_s: 18949571 84.49%
+       qsort_sf2: 11511438 139.08%
+        qsort_c3: 18578005 86.18%
+102400:
+           qsort: 34594524 100.00%
+          qsort2: 35163198 98.38%
+         qsort_s: 42052914 82.26%
+       qsort_sf2: 25638424 134.93%
+        qsort_c3: 40474691 85.47%
+
+Opteron 1.4GHz 32-bit -O2 -march=athlon:
+
+100:
+           qsort: 8125 100.00%
+          qsort2: 5531 146.90%
+         qsort_s: 4534 179.18%
+       qsort_sf2: 1714 474.06%
+        qsort_c3: 5841 139.09%
+200:
+           qsort: 16019 100.00%
+          qsort2: 12259 130.67%
+         qsort_s: 12540 127.75%
+       qsort_sf2: 4432 361.42%
+        qsort_c3: 14156 113.16%
+400:
+           qsort: 34523 100.00%
+          qsort2: 26789 128.87%
+         qsort_s: 27058 127.59%
+       qsort_sf2: 10152 340.05%
+        qsort_c3: 33008 104.59%
+800:
+           qsort: 78279 100.00%
+          qsort2: 61667 126.94%
+         qsort_s: 65749 119.06%
+       qsort_sf2: 25454 307.53%
+        qsort_c3: 72988 107.25%
+1600:
+           qsort: 166172 100.00%
+          qsort2: 135495 122.64%
+         qsort_s: 169073 98.28%
+       qsort_sf2: 60248 275.81%
+        qsort_c3: 173264 95.91%
+3200:
+           qsort: 362308 100.00%
+          qsort2: 302439 119.80%
+         qsort_s: 361346 100.27%
+       qsort_sf2: 134529 269.31%
+        qsort_c3: 387407 93.52%
+6400:
+           qsort: 780260 100.00%
+          qsort2: 651574 119.75%
+         qsort_s: 855666 91.19%
+       qsort_sf2: 306348 254.70%
+        qsort_c3: 852795 91.49%
+12800:
+           qsort: 1686017 100.00%
+          qsort2: 1420488 118.69%
+         qsort_s: 1992462 84.62%
+       qsort_sf2: 726466 232.08%
+        qsort_c3: 1898620 88.80%
+25600:
+           qsort: 3642061 100.00%
+          qsort2: 3093633 117.73%
+         qsort_s: 4161486 87.52%
+       qsort_sf2: 1653795 220.22%
+        qsort_c3: 4120878 88.38%
+51200:
+           qsort: 7724747 100.00%
+          qsort2: 6649277 116.17%
+         qsort_s: 9248117 83.53%
+       qsort_sf2: 3653293 211.45%
+        qsort_c3: 8917153 86.63%
+102400:
+           qsort: 16478170 100.00%
+          qsort2: 14305384 115.19%
+         qsort_s: 20574011 80.09%
+       qsort_sf2: 8322403 198.00%
+        qsort_c3: 19511628 84.45%
+
+Signed-off-by: Matt Mackall <mpm@selenic.com>
+
+Index: mm2qs/lib/Makefile
+===================================================================
+--- mm2qs.orig/lib/Makefile	2005-01-20 22:11:01.000000000 -0800
++++ mm2qs/lib/Makefile	2005-01-24 01:24:17.000000000 -0800
+@@ -21,6 +21,7 @@
+   lib-y += dec_and_lock.o
+ endif
+ 
++obj-$(CONFIG_QSORT) += qsort.o
+ obj-$(CONFIG_CRC_CCITT)	+= crc-ccitt.o
+ obj-$(CONFIG_CRC32)	+= crc32.o
+ obj-$(CONFIG_LIBCRC32C)	+= libcrc32c.o
+Index: mm2qs/lib/qsort.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ mm2qs/lib/qsort.c	2005-01-24 10:41:57.000000000 -0800
+@@ -0,0 +1,94 @@
 +/*
-+ * 	scx.c
-+ * 
-+ * 2004 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-+ * All rights reserved.
-+ * 
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
++ * A fast, small, non-recursive quicksort for the Linux kernel
 + *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
++ * Jan 23 2005  Matt Mackall <mpm@selenic.com>
 + *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
++ * Inspired by quicksort code from glibc and K&R
 + */
 +
-+#include <asm/atomic.h>
-+#include <asm/types.h>
-+#include <asm/io.h>
-+
-+#include <linux/delay.h>
 +#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/list.h>
-+#include <linux/interrupt.h>
-+#include <linux/spinlock.h>
-+#include <linux/timer.h>
 +#include <linux/slab.h>
-+#include <linux/timer.h>
-+#include <linux/mod_devicetable.h>
-+#include <linux/pci.h>
-+#include <linux/suspend.h>
++#include <linux/errno.h>
++#include <linux/module.h>
 +
-+#include "sc.h"
-+#include "scx.h"
++/*
++ * qsort - sort an array of elements with quicksort
++ * @base: pointer to data to sort
++ * @num: number of elements
++ * @size: size of each element
++ * @cmp: pointer to comparison function
++ * @swap: pointer to swap function
++ * @flags: allocation type for kmalloc
++ *
++ * This function does a quicksort on the given array. It is primarily
++ * tuned for small arrays, trading optimal compare and swap count for
++ * code simplicity and instruction/branch count. You can either use
++ * the generic_swap function or, where appropriate, provide a routine
++ * optimized for your element size.
++ *
++ * This function allocates an internal stack of 256 or 1024 bytes to
++ * avoid recursion overhead and may return -ENOMEM if allocation
++ * fails.
++ */
++
++int qsort(void *base, size_t num, size_t size,
++	  int (*cmp)(const void *, const void *),
++	  void (*swap)(const void *, const void *, int), int flags)
++{
++	void *i, *p, *l = base, *r = base + num * size;
++	struct stack {
++		void *l, *r;
++	} *stack, *top;
++
++	stack = top = kmalloc(8 * sizeof(int) * sizeof(struct stack), flags);
++	if (!stack)
++		return -ENOMEM;
++
++	do {
++		if (l + size >= r) {
++			/* empty sub-array, pop */
++			l = top->l;
++			r = top->r;
++			--top;
++		} else {
++			/* position the pivot element */
++			for(i = l + size, p = l; i != r; i += size)
++				if (cmp(i, l) < 0) {
++					p += size;
++					swap(i, p, size);
++				}
++			swap(l, p, size);
++
++			/* save the bigger half on the stack */
++			top++;
++			if (p - l < r - p) {
++				top->l = p + size;
++				top->r = r;
++				r = p;
++			} else {
++				top->l = l;
++				top->r = p;
++				l = p + size;
++			}
++		}
++	} while (top >= stack);
++
++	kfree(stack);
++	return 0;
++}
++
++void qsort_swap(void *a, void *b, int size)
++{
++	char t;
++
++	do {
++		t = *(char *)a;
++		*(char *)b++ = *(char *)a;
++		*(char *)a++ = t;
++	} while (--size > 0);
++}
++
++EXPORT_SYMBOL_GPL(qsort);
++EXPORT_SYMBOL_GPL(qsort_swap);
 +
 +MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Evgeniy Polyakov <johnpol@2ka.mipt.ru>");
-+MODULE_DESCRIPTION("Driver for SCx200/SC1100 SuperIO chips.");
-+
-+static int scx200_probe(void *, unsigned long base);
-+static int scx200_activate_one_logical(struct logical_dev *ldev);
-+static int scx200_deactivate_one_logical(struct logical_dev *ldev);
-+
-+static struct sc_chip_id scx200_logical_devs[] = {
-+	{"RTC", 0x00},
-+	{"SWC", 0x01},
-+	{"IRCP", 0x02},
-+	{"ACB", 0x05},
-+	{"ACB", 0x06},
-+	{"SPORT", 0x08},
-+	{"GPIO", LDEV_PRIVATE},
-+	{}
-+};
-+
-+static struct sc_dev scx200_dev = {
-+	.name =			"SCx200",
-+	.probe =		scx200_probe,
-+	.ldevs = 		scx200_logical_devs,
-+	.activate_one = 	scx200_activate_one_logical,
-+	.deactivate_one =	scx200_deactivate_one_logical,
-+};
-+
-+static struct sc_chip_id scx200_sio_ids[] = {
-+	{"SCx200/SC1100", 0xF5},
-+};
-+
-+static unsigned long private_base;
-+
-+static struct pci_device_id scx200_tbl[] = {
-+	{PCI_DEVICE(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_SCx200_BRIDGE)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_SC1100_BRIDGE)},
-+	{},
-+};
-+
-+MODULE_DEVICE_TABLE(pci, scx200_tbl);
-+
-+static int scx200_pci_probe(struct pci_dev *, const struct pci_device_id *);
-+
-+static struct pci_driver scx200_pci_driver = {
-+	.name = "scx200",
-+	.id_table = scx200_tbl,
-+	.probe = scx200_pci_probe,
-+};
-+
-+void scx200_write_reg(struct sc_dev *dev, u8 reg, u8 val)
-+{
-+	outb(reg, dev->base_index);
-+	outb(val, dev->base_data);
-+}
-+
-+u8 scx200_read_reg(struct sc_dev *dev, u8 reg)
-+{
-+	u8 val;
-+
-+	outb(reg, dev->base_index);
-+	val = inb(dev->base_data);
-+
-+	return val;
-+}
-+
-+static u8 scx200_gpio_read(void *data, int pin_number)
-+{
-+	u32 val;
-+	int bank;
-+	unsigned long base;
-+	struct logical_dev *ldev = (struct logical_dev *)data;
-+
-+	if (pin_number > 63 || pin_number < 0)
-+		return 0;
-+
-+	bank = 0;
-+	base = ldev->base_addr;
-+
-+	if (pin_number > 31) {
-+		bank = 1;
-+		base = ldev->base_addr + 0x10;
-+		pin_number -= 32;
-+	}
-+
-+	val = inl(base + 0x04);
-+
-+	return ((val >> pin_number) & 0x01);
-+}
-+
-+static void scx200_gpio_write(void *data, int pin_number, u8 byte)
-+{
-+	u32 val;
-+	int bank;
-+	unsigned long base;
-+	struct logical_dev *ldev = (struct logical_dev *)data;
-+
-+	if (pin_number > 63 || pin_number < 0)
-+		return;
-+
-+	bank = 0;
-+	base = ldev->base_addr;
-+
-+	if (pin_number > 31) {
-+		bank = 1;
-+		base = ldev->base_addr + 0x10;
-+		pin_number -= 32;
-+	}
-+
-+	val = inl(base);
-+
-+	if (byte)
-+		val |= (1 << pin_number);
-+	else
-+		val &= ~(1 << pin_number);
-+
-+	outl(val, base);
-+}
-+
-+void scx200_gpio_control(void *data, int pin_number, u8 mask, u8 ctl)
-+{
-+	u32 val;
-+	int bank;
-+	unsigned long base;
-+	struct logical_dev *ldev = (struct logical_dev *)data;
-+
-+	if (pin_number > 63 || pin_number < 0)
-+		return;
-+
-+	bank = 0;
-+	base = ldev->base_addr;
-+
-+	if (pin_number > 31) {
-+		bank = 1;
-+		base = ldev->base_addr + 0x10;
-+		pin_number -= 32;
-+	}
-+
-+	/*
-+	 * Pin selection.
-+	 */
-+
-+	val = 0;
-+	val = ((bank & 0x01) << 5) | pin_number;
-+	outl(val, ldev->base_addr + 0x20);
-+
-+	val = inl(ldev->base_addr + 0x24);
-+
-+	val &= 0x7f;
-+	val &= mask;
-+	val |= ctl;
-+
-+	outl(val, ldev->base_addr + 0x24);
-+}
-+
-+int scx200_gpio_activate(void *data)
-+{
-+	return 0;
-+}
-+
-+static int scx200_ldev_index_by_name(char *name)
-+{
-+	int i;
-+
-+	for (i = 0;
-+	     i < sizeof(scx200_logical_devs) / sizeof(scx200_logical_devs[0]); ++i)
-+		if (!strncmp(scx200_logical_devs[i].name, name, SC_NAME_LEN))
-+			return i;
-+
-+	return -ENODEV;
-+}
-+
-+static int scx200_chip_index(u8 id)
-+{
-+	int i;
-+
-+	for (i = 0; i < sizeof(scx200_sio_ids) / sizeof(scx200_sio_ids[0]); ++i)
-+		if (scx200_sio_ids[i].id == id)
-+			return i;
-+
-+	return -ENODEV;
-+}
-+
-+static int scx200_probe(void *data, unsigned long base)
-+{
-+	unsigned long size = 2;
-+	u8 id;
-+	int chip_num;
-+	struct sc_dev *dev = (struct sc_dev *)data;
-+
-+	/*
-+	 * Special address to handle.
-+	 */
-+	if (base == 0) {
-+		return scx200_probe(data, 0x015C);
-+	}
-+
-+	dev->base_index = base;
-+	dev->base_data = base + 1;
-+
-+	id = scx200_read_reg(dev, SIO_REG_SID);
-+	chip_num = scx200_chip_index(id);
-+
-+	if (chip_num >= 0) {
-+		printk(KERN_INFO "Found %s [0x%x] at 0x%04lx-0x%04lx.\n",
-+		       scx200_sio_ids[chip_num].name,
-+		       scx200_sio_ids[chip_num].id, base, base + size - 1);
-+		return 0;
-+	}
-+
-+	printk(KERN_INFO "Found nothing at 0x%04lx-0x%04lx.\n", 
-+			base, base + size - 1);
-+
-+	return -ENODEV;
-+}
-+
-+static int scx200_pci_probe(struct pci_dev *pdev,
-+			    const struct pci_device_id *ent)
-+{
-+	private_base = pci_resource_start(pdev, 0);
-+	printk(KERN_INFO "%s: GPIO base 0x%lx.\n", pci_name(pdev), private_base);
-+
-+	if (!request_region
-+	    (private_base, SCx200_GPIO_SIZE, "NatSemi SCx200 GPIO")) {
-+		printk(KERN_ERR "%s: failed to request %d bytes I/O region for GPIOs.\n",
-+		       pci_name(pdev), SCx200_GPIO_SIZE);
-+		return -EBUSY;
-+	}
-+
-+	pci_set_drvdata(pdev, &private_base);
-+	pci_enable_device(pdev);
-+
-+	return 0;
-+}
-+
-+static int scx200_deactivate_one_logical(struct logical_dev *ldev)
-+{
-+	if (ldev->index != LDEV_PRIVATE)
-+		return -ENODEV;
-+
-+	private_base -= 0x10;
-+
-+	return 0;
-+}
-+
-+static int scx200_find_private_device(struct logical_dev *ldev)
-+{
-+	struct sc_dev *dev = (struct sc_dev *)ldev->pdev;
-+
-+	/*
-+	 * SCx200/SC1100 has only GPIO in it's private space.
-+	 */
-+
-+	if (strncmp(ldev->name, "GPIO", SC_NAME_LEN)) {
-+		printk(KERN_ERR "Logical device %s at private space is not supported in chip %s.\n",
-+		       ldev->name, dev->name);
-+		return -ENODEV;
-+	}
-+
-+	ldev->base_addr = private_base;
-+	private_base += 0x10;
-+
-+	ldev->read = scx200_gpio_read;
-+	ldev->write = scx200_gpio_write;
-+	ldev->control = scx200_gpio_control;
-+	ldev->activate = scx200_gpio_activate;
-+
-+	return 0;
-+}
-+
-+static int scx200_activate_one_logical(struct logical_dev *ldev)
-+{
-+	int err, idx;
-+	struct sc_dev *dev = ldev->pdev;
-+	u8 active;
-+
-+	idx = scx200_ldev_index_by_name(ldev->name);
-+	if (idx < 0) {
-+		printk(KERN_INFO "Chip %s does not have logical device %s at %x.\n",
-+		       dev->name, ldev->name, ldev->index);
-+		return -ENODEV;
-+	}
-+
-+	if (scx200_logical_devs[idx].id == LDEV_PRIVATE) {
-+		err = scx200_find_private_device(ldev);
-+		if (err)
-+			return err;
-+
-+		printk(KERN_INFO "\t%16s - found at 0x%lx.\n", 
-+				ldev->name, ldev->base_addr);
-+	} else {
-+		scx200_write_reg(dev, SIO_REG_LDN, ldev->index);
-+		active = scx200_read_reg(dev, SIO_REG_ACTIVE);
-+		if ((active & SIO_ACTIVE_EN) == 0) {
-+			printk(KERN_INFO "\t%16s - not activated at %x: activating... ",
-+			       ldev->name, ldev->index);
-+
-+			scx200_write_reg(dev, SIO_REG_ACTIVE,
-+					 active | SIO_ACTIVE_EN);
-+			active = scx200_read_reg(dev, SIO_REG_ACTIVE);
-+			if ((active & SIO_ACTIVE_EN) == 0) {
-+				printk("failed.\n");
-+				return -ENODEV;
-+			}
-+			printk("done.\n");
-+		}
-+
-+		ldev->base_addr = scx200_read_reg(dev, SIO_REG_IO_LSB);
-+		ldev->base_addr |= (scx200_read_reg(dev, SIO_REG_IO_MSB) << 8);
-+	}
-+
-+	err = ldev->activate(ldev);
-+	if (err < 0) {
-+		printk(KERN_INFO "\t%16s - not activated: ->activate() failed with error code %d.\n",
-+				ldev->name, err);
-+		return -ENODEV;
-+	}
-+
-+	printk(KERN_INFO "\t%16s - activated at %x: 0x%04lx-0x%04lx\n",
-+	       ldev->name, ldev->index, ldev->base_addr,
-+	       ldev->base_addr + ldev->range);
-+
-+	return 0;
-+}
-+
-+static int scx200_init(void)
-+{
-+	int err;
-+
-+	err = pci_module_init(&scx200_pci_driver);
-+	if (err) {
-+		printk(KERN_ERR "Failed to register PCI driver for device %s : err=%d.\n",
-+		       scx200_pci_driver.name, err);
-+		return err;
-+	}
-+
-+	err = sc_add_sc_dev(&scx200_dev);
-+	if (err)
-+		return err;
-+
-+	printk(KERN_INFO "Driver for %s SuperIO chip.\n", scx200_dev.name);
-+	return 0;
-+}
-+
-+static void scx200_fini(void)
-+{
-+	sc_del_sc_dev(&scx200_dev);
-+
-+	while (atomic_read(&scx200_dev.refcnt))
-+	{
-+		printk(KERN_INFO "Waiting for %s to became free: refcnt=%d.\n",
-+				scx200_dev.name, atomic_read(&scx200_dev.refcnt));
-+		set_current_state(TASK_INTERRUPTIBLE);
-+		schedule_timeout(HZ);
-+			
-+		if (current->flags & PF_FREEZE)
-+			refrigerator(PF_FREEZE);
-+
-+		if (signal_pending(current))
-+			flush_signals(current);
-+	}
-+
-+	pci_unregister_driver(&scx200_pci_driver);
-+	if (private_base)
-+		release_region(private_base, SCx200_GPIO_SIZE);
-+}
-+
-+module_init(scx200_init);
-+module_exit(scx200_fini);
-+
-+EXPORT_SYMBOL(scx200_write_reg);
-+EXPORT_SYMBOL(scx200_read_reg);
---- linux-2.6/drivers/superio/scx200.c	2005-01-24 22:06:15.000000000 +0300
-+++ /dev/null	2004-09-17 14:58:06.000000000 +0400
-@@ -1,413 +0,0 @@
--/*
-- * 	scx200.c
-- * 
-- * 2004 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-- * All rights reserved.
-- * 
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-- *
-- */
--
--#include <asm/atomic.h>
--#include <asm/types.h>
--#include <asm/io.h>
--
--#include <linux/delay.h>
--#include <linux/kernel.h>
--#include <linux/module.h>
--#include <linux/list.h>
--#include <linux/interrupt.h>
--#include <linux/spinlock.h>
--#include <linux/timer.h>
--#include <linux/slab.h>
--#include <linux/timer.h>
--#include <linux/mod_devicetable.h>
--#include <linux/pci.h>
--#include <linux/suspend.h>
--
--#include "sc.h"
--#include "scx200.h"
--
--MODULE_LICENSE("GPL");
--MODULE_AUTHOR("Evgeniy Polyakov <johnpol@2ka.mipt.ru>");
--MODULE_DESCRIPTION("Driver for SCx200/SC1100 SuperIO chips.");
--
--static int scx200_probe(void *, unsigned long base);
--static int scx200_activate_one_logical(struct logical_dev *ldev);
--static int scx200_deactivate_one_logical(struct logical_dev *ldev);
--
--static struct sc_chip_id scx200_logical_devs[] = {
--	{"RTC", 0x00},
--	{"SWC", 0x01},
--	{"IRCP", 0x02},
--	{"ACB", 0x05},
--	{"ACB", 0x06},
--	{"SPORT", 0x08},
--	{"GPIO", LDEV_PRIVATE},
--	{}
--};
--
--static struct sc_dev scx200_dev = {
--	.name =			"SCx200",
--	.probe =		scx200_probe,
--	.ldevs = 		scx200_logical_devs,
--	.activate_one = 	scx200_activate_one_logical,
--	.deactivate_one =	scx200_deactivate_one_logical,
--};
--
--static struct sc_chip_id scx200_sio_ids[] = {
--	{"SCx200/SC1100", 0xF5},
--};
--
--static unsigned long private_base;
--
--static struct pci_device_id scx200_tbl[] = {
--	{PCI_DEVICE(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_SCx200_BRIDGE)},
--	{PCI_DEVICE(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_SC1100_BRIDGE)},
--	{},
--};
--
--MODULE_DEVICE_TABLE(pci, scx200_tbl);
--
--static int scx200_pci_probe(struct pci_dev *, const struct pci_device_id *);
--
--static struct pci_driver scx200_pci_driver = {
--	.name = "scx200",
--	.id_table = scx200_tbl,
--	.probe = scx200_pci_probe,
--};
--
--void scx200_write_reg(struct sc_dev *dev, u8 reg, u8 val)
--{
--	outb(reg, dev->base_index);
--	outb(val, dev->base_data);
--}
--
--u8 scx200_read_reg(struct sc_dev *dev, u8 reg)
--{
--	u8 val;
--
--	outb(reg, dev->base_index);
--	val = inb(dev->base_data);
--
--	return val;
--}
--
--static u8 scx200_gpio_read(void *data, int pin_number)
--{
--	u32 val;
--	int bank;
--	unsigned long base;
--	struct logical_dev *ldev = (struct logical_dev *)data;
--
--	if (pin_number > 63 || pin_number < 0)
--		return 0;
--
--	bank = 0;
--	base = ldev->base_addr;
--
--	if (pin_number > 31) {
--		bank = 1;
--		base = ldev->base_addr + 0x10;
--		pin_number -= 32;
--	}
--
--	val = inl(base + 0x04);
--
--	return ((val >> pin_number) & 0x01);
--}
--
--static void scx200_gpio_write(void *data, int pin_number, u8 byte)
--{
--	u32 val;
--	int bank;
--	unsigned long base;
--	struct logical_dev *ldev = (struct logical_dev *)data;
--
--	if (pin_number > 63 || pin_number < 0)
--		return;
--
--	bank = 0;
--	base = ldev->base_addr;
--
--	if (pin_number > 31) {
--		bank = 1;
--		base = ldev->base_addr + 0x10;
--		pin_number -= 32;
--	}
--
--	val = inl(base);
--
--	if (byte)
--		val |= (1 << pin_number);
--	else
--		val &= ~(1 << pin_number);
--
--	outl(val, base);
--}
--
--void scx200_gpio_control(void *data, int pin_number, u8 mask, u8 ctl)
--{
--	u32 val;
--	int bank;
--	unsigned long base;
--	struct logical_dev *ldev = (struct logical_dev *)data;
--
--	if (pin_number > 63 || pin_number < 0)
--		return;
--
--	bank = 0;
--	base = ldev->base_addr;
--
--	if (pin_number > 31) {
--		bank = 1;
--		base = ldev->base_addr + 0x10;
--		pin_number -= 32;
--	}
--
--	/*
--	 * Pin selection.
--	 */
--
--	val = 0;
--	val = ((bank & 0x01) << 5) | pin_number;
--	outl(val, ldev->base_addr + 0x20);
--
--	val = inl(ldev->base_addr + 0x24);
--
--	val &= 0x7f;
--	val &= mask;
--	val |= ctl;
--
--	outl(val, ldev->base_addr + 0x24);
--}
--
--int scx200_gpio_activate(void *data)
--{
--	return 0;
--}
--
--static int scx200_ldev_index_by_name(char *name)
--{
--	int i;
--
--	for (i = 0;
--	     i < sizeof(scx200_logical_devs) / sizeof(scx200_logical_devs[0]); ++i)
--		if (!strncmp(scx200_logical_devs[i].name, name, SC_NAME_LEN))
--			return i;
--
--	return -ENODEV;
--}
--
--static int scx200_chip_index(u8 id)
--{
--	int i;
--
--	for (i = 0; i < sizeof(scx200_sio_ids) / sizeof(scx200_sio_ids[0]); ++i)
--		if (scx200_sio_ids[i].id == id)
--			return i;
--
--	return -ENODEV;
--}
--
--static int scx200_probe(void *data, unsigned long base)
--{
--	unsigned long size = 2;
--	u8 id;
--	int chip_num;
--	struct sc_dev *dev = (struct sc_dev *)data;
--
--	/*
--	 * Special address to handle.
--	 */
--	if (base == 0) {
--		return scx200_probe(data, 0x015C);
--	}
--
--	dev->base_index = base;
--	dev->base_data = base + 1;
--
--	id = scx200_read_reg(dev, SIO_REG_SID);
--	chip_num = scx200_chip_index(id);
--
--	if (chip_num >= 0) {
--		printk(KERN_INFO "Found %s [0x%x] at 0x%04lx-0x%04lx.\n",
--		       scx200_sio_ids[chip_num].name,
--		       scx200_sio_ids[chip_num].id, base, base + size - 1);
--		return 0;
--	}
--
--	printk(KERN_INFO "Found nothing at 0x%04lx-0x%04lx.\n", 
--			base, base + size - 1);
--
--	return -ENODEV;
--}
--
--static int scx200_pci_probe(struct pci_dev *pdev,
--			    const struct pci_device_id *ent)
--{
--	private_base = pci_resource_start(pdev, 0);
--	printk(KERN_INFO "%s: GPIO base 0x%lx.\n", pci_name(pdev), private_base);
--
--	if (!request_region
--	    (private_base, SCx200_GPIO_SIZE, "NatSemi SCx200 GPIO")) {
--		printk(KERN_ERR "%s: failed to request %d bytes I/O region for GPIOs.\n",
--		       pci_name(pdev), SCx200_GPIO_SIZE);
--		return -EBUSY;
--	}
--
--	pci_set_drvdata(pdev, &private_base);
--	pci_enable_device(pdev);
--
--	return 0;
--}
--
--static int scx200_deactivate_one_logical(struct logical_dev *ldev)
--{
--	if (ldev->index != LDEV_PRIVATE)
--		return -ENODEV;
--
--	private_base -= 0x10;
--
--	return 0;
--}
--
--static int scx200_find_private_device(struct logical_dev *ldev)
--{
--	struct sc_dev *dev = (struct sc_dev *)ldev->pdev;
--
--	/*
--	 * SCx200/SC1100 has only GPIO in it's private space.
--	 */
--
--	if (strncmp(ldev->name, "GPIO", SC_NAME_LEN)) {
--		printk(KERN_ERR "Logical device %s at private space is not supported in chip %s.\n",
--		       ldev->name, dev->name);
--		return -ENODEV;
--	}
--
--	ldev->base_addr = private_base;
--	private_base += 0x10;
--
--	ldev->read = scx200_gpio_read;
--	ldev->write = scx200_gpio_write;
--	ldev->control = scx200_gpio_control;
--	ldev->activate = scx200_gpio_activate;
--
--	return 0;
--}
--
--static int scx200_activate_one_logical(struct logical_dev *ldev)
--{
--	int err, idx;
--	struct sc_dev *dev = ldev->pdev;
--	u8 active;
--
--	idx = scx200_ldev_index_by_name(ldev->name);
--	if (idx < 0) {
--		printk(KERN_INFO "Chip %s does not have logical device %s at %x.\n",
--		       dev->name, ldev->name, ldev->index);
--		return -ENODEV;
--	}
--
--	if (scx200_logical_devs[idx].id == LDEV_PRIVATE) {
--		err = scx200_find_private_device(ldev);
--		if (err)
--			return err;
--
--		printk(KERN_INFO "\t%16s - found at 0x%lx.\n", 
--				ldev->name, ldev->base_addr);
--	} else {
--		scx200_write_reg(dev, SIO_REG_LDN, ldev->index);
--		active = scx200_read_reg(dev, SIO_REG_ACTIVE);
--		if ((active & SIO_ACTIVE_EN) == 0) {
--			printk(KERN_INFO "\t%16s - not activated at %x: activating... ",
--			       ldev->name, ldev->index);
--
--			scx200_write_reg(dev, SIO_REG_ACTIVE,
--					 active | SIO_ACTIVE_EN);
--			active = scx200_read_reg(dev, SIO_REG_ACTIVE);
--			if ((active & SIO_ACTIVE_EN) == 0) {
--				printk("failed.\n");
--				return -ENODEV;
--			}
--			printk("done.\n");
--		}
--
--		ldev->base_addr = scx200_read_reg(dev, SIO_REG_IO_LSB);
--		ldev->base_addr |= (scx200_read_reg(dev, SIO_REG_IO_MSB) << 8);
--	}
--
--	err = ldev->activate(ldev);
--	if (err < 0) {
--		printk(KERN_INFO "\t%16s - not activated: ->activate() failed with error code %d.\n",
--				ldev->name, err);
--		return -ENODEV;
--	}
--
--	printk(KERN_INFO "\t%16s - activated at %x: 0x%04lx-0x%04lx\n",
--	       ldev->name, ldev->index, ldev->base_addr,
--	       ldev->base_addr + ldev->range);
--
--	return 0;
--}
--
--static int scx200_init(void)
--{
--	int err;
--
--	err = pci_module_init(&scx200_pci_driver);
--	if (err) {
--		printk(KERN_ERR "Failed to register PCI driver for device %s : err=%d.\n",
--		       scx200_pci_driver.name, err);
--		return err;
--	}
--
--	err = sc_add_sc_dev(&scx200_dev);
--	if (err)
--		return err;
--
--	printk(KERN_INFO "Driver for %s SuperIO chip.\n", scx200_dev.name);
--	return 0;
--}
--
--static void scx200_fini(void)
--{
--	sc_del_sc_dev(&scx200_dev);
--
--	while (atomic_read(&scx200_dev.refcnt))
--	{
--		printk(KERN_INFO "Waiting for %s to became free: refcnt=%d.\n",
--				scx200_dev.name, atomic_read(&scx200_dev.refcnt));
--		set_current_state(TASK_INTERRUPTIBLE);
--		schedule_timeout(HZ);
--			
--		if (current->flags & PF_FREEZE)
--			refrigerator(PF_FREEZE);
--
--		if (signal_pending(current))
--			flush_signals(current);
--	}
--
--	pci_unregister_driver(&scx200_pci_driver);
--	if (private_base)
--		release_region(private_base, SCx200_GPIO_SIZE);
--}
--
--module_init(scx200_init);
--module_exit(scx200_fini);
--
--EXPORT_SYMBOL(scx200_write_reg);
--EXPORT_SYMBOL(scx200_read_reg);
---- linux-2.6/drivers/superio/Makefile~	2005-01-24 22:06:15.000000000 +0300
-+++ linux-2.6/drivers/superio/Makefile	2005-01-24 22:58:30.000000000 +0300
-@@ -6,6 +6,6 @@
- obj-$(CONFIG_SC_GPIO)		+= sc_gpio.o
- obj-$(CONFIG_SC_ACB)		+= sc_acb.o
- obj-$(CONFIG_SC_PC8736X)	+= pc8736x.o
--obj-$(CONFIG_SC_SCX200)		+= scx200.o
-+obj-$(CONFIG_SC_SCX200)		+= scx.o
+Index: mm2qs/include/linux/qsort.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ mm2qs/include/linux/qsort.h	2005-01-24 10:43:46.000000000 -0800
+@@ -0,0 +1,10 @@
++#ifndef _LINUX_QSORT_H
++#define _LINUX_QSORT_H
++
++int qsort(void *base, size_t num, size_t size,
++	  int (*cmp)(const void *, const void *),
++	  void (*swap)(const void *, const void *, int), int flags);
++
++void qsort_swap(void *a, void *b, int size);
++
++#endif
+Index: mm2qs/lib/Kconfig
+===================================================================
+--- mm2qs.orig/lib/Kconfig	2005-01-19 22:53:44.000000000 -0800
++++ mm2qs/lib/Kconfig	2005-01-24 10:33:20.000000000 -0800
+@@ -57,5 +57,8 @@
+ config REED_SOLOMON_DEC16
+ 	boolean
  
- superio-objs		:= sc.o chain.o sc_conn.o
---- linux-2.6/drivers/superio/scx200.h	2005-01-24 22:06:15.000000000 +0300
-+++ /dev/null	2004-09-17 14:58:06.000000000 +0400
-@@ -1,28 +0,0 @@
--/*
-- * 	scx200.h
-- * 
-- * 2004 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-- * All rights reserved.
-- * 
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-- *
-- */
--
--#ifndef __SCX200_H
--#define __SCX200_H
--
--#define SCx200_GPIO_SIZE 	0x2c
--
--#endif /* __SCX200_H */
---- /dev/null	2004-09-17 14:58:06.000000000 +0400
-+++ linux-2.6/drivers/superio/scx.h	2005-01-24 22:06:15.000000000 +0300
-@@ -0,0 +1,28 @@
-+/*
-+ * 	scx.h
-+ * 
-+ * 2004 Copyright (c) Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-+ * All rights reserved.
-+ * 
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
++config QSORT
++	tristate
 +
-+#ifndef __SCX200_H
-+#define __SCX200_H
-+
-+#define SCx200_GPIO_SIZE 	0x2c
-+
-+#endif /* __SCX200_H */
+ endmenu
+ 
 
 
-	Evgeniy Polyakov
-
-Only failure makes us experts. -- Theo de Raadt
+-- 
+Mathematics is the supreme nostalgia of our time.

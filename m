@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266846AbSKOWha>; Fri, 15 Nov 2002 17:37:30 -0500
+	id <S266851AbSKOWYr>; Fri, 15 Nov 2002 17:24:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266859AbSKOWh3>; Fri, 15 Nov 2002 17:37:29 -0500
-Received: from pc3-stoc3-4-cust114.midd.cable.ntl.com ([80.6.255.114]:40205
-	"EHLO buzz.ichilton.co.uk") by vger.kernel.org with ESMTP
-	id <S266846AbSKOWh0>; Fri, 15 Nov 2002 17:37:26 -0500
-Date: Fri, 15 Nov 2002 22:44:15 +0000
-From: Ian Chilton <mailinglist@ichilton.co.uk>
-To: Samuel Flory <sflory@rackable.com>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: Anyone use HPT366 + UDMA in Linux?
-Message-ID: <20021115224415.GA6625@buzz.ichilton.co.uk>
-Reply-To: Ian Chilton <ian@ichilton.co.uk>
-References: <20021115123541.GA1889@buzz.ichilton.co.uk> <1037371184.19971.0.camel@irongate.swansea.linux.org.uk> <20021115184202.GB32543@buzz.ichilton.co.uk> <3DD546B9.3040000@rackable.com>
+	id <S266852AbSKOWY3>; Fri, 15 Nov 2002 17:24:29 -0500
+Received: from are.twiddle.net ([64.81.246.98]:7814 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S266851AbSKOWXv>;
+	Fri, 15 Nov 2002 17:23:51 -0500
+Date: Fri, 15 Nov 2002 14:30:45 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: in-kernel linking issues
+Message-ID: <20021115143045.C25624@twiddle.net>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	linux-kernel@vger.kernel.org
+References: <p73wunfv5b0.fsf@oldwotan.suse.de> <20021115084757.A640A2C145@lists.samba.org> <20021115045146.A23944@twiddle.net> <20021115131645.A2168@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3DD546B9.3040000@rackable.com>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021115131645.A2168@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Fri, Nov 15, 2002 at 01:16:45PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, Nov 15, 2002 at 01:16:45PM +0000, Russell King wrote:
+> I'm slightly worried about this.  For things like shared libraries to be
+> relocatable on ARM on current toolchains, you need to build with -fPIC.
 
->  What is means is Alan is doing a thankless job fixing the current ide 
-> mess.  The ac 2.4/2.5 trees are being used to test a number of updates. 
-> If you can provide Alan good bug report on the issue in 2.4.20-rc1-ac2. 
-> He will take a look at fixing the code.
+Err, no you don't.  You only need that if you want to share pages,
+which is clearly not an issue with kernel modules.  There are no
+restrictions of which I am aware that require ARM to build with -fpic.
+
+My test case,
+
+	int i;
+	int foo() { return bar() + i; }
+	int j __attribute__((section(".init.data")));
+	int __attribute__((section(".init.text")))
+	baz() { return i + j; }
+
+works exactly as desired on ARM:
+
+Disassembly of section .text:
+
+00000000 <foo>:
+   0:   e52de004        str     lr, [sp, -#4]!
+   4:   ebfffffe        bl      4 <foo+0x4>
+   8:   e59f3008        ldr     r3, [pc, #8]    ; 18 <foo+0x18>
+   c:   e5933000        ldr     r3, [r3]
+  10:   e0800003        add     r0, r0, r3
+  14:   e49df004        ldr     pc, [sp], #4
+
+Disassembly of section .init.text:
+
+00001000 <baz>:
+    1000:       e59f3010        ldr     r3, [pc, #16]   ; 1018 <baz+0x18>
+    1004:       e5930000        ldr     r0, [r3]
+    1008:       e59f300c        ldr     r3, [pc, #12]   ; 101c <baz+0x1c>
+    100c:       e5933000        ldr     r3, [r3]
+    1010:       e0800003        add     r0, r0, r3
+    1014:       e1a0f00e        mov     pc, lr
+
+Relocation section '.rel.dyn' at offset 0x11258 contains 4 entries:
+ Offset     Info    Type            Sym.Value  Sym. Name
+00000004  00001501 R_ARM_PC24        00000000   bar
+00000018  00001202 R_ARM_ABS32       00000040   i
+00001018  00001202 R_ARM_ABS32       00000040   i
+0000101c  00000f02 R_ARM_ABS32       00001020   j
 
 
-OK, great - i'll try to get 2.4.10-rc1-ac2-fairsched on asap!
 
-
-Thanks!
-
-
-Bye for Now,
-
-Ian
-
-
-                                \|||/ 
-                                (o o)
- /---------------------------ooO-(_)-Ooo---------------------------\
- |  Ian Chilton                  Web: http://www.ichilton.co.uk    |
- |  E-Mail: ian@ichilton.co.uk   Backup: ian@linuxfromscratch.org  | 
- |-----------------------------------------------------------------|
- |            There are 10 types of people in the world:           |
- |        Those who understand binary, and those who don't.        |
- \-----------------------------------------------------------------/
-
+r~

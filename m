@@ -1,92 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbTKCJEq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 04:04:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbTKCJEq
+	id S261827AbTKCJ3M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 04:29:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbTKCJ3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 04:04:46 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:53919 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261731AbTKCJEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 04:04:44 -0500
-Subject: Re: Re:No backlight control on PowerBook G4
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Dustin Lang <dalang@cs.ubc.ca>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.53.0311021647410.17357@columbia.cs.ubc.ca>
-References: <Pine.GSO.4.53.0311021038450.3818@columbia.cs.ubc.ca>
-	 <1067820334.692.38.camel@gaston>
-	 <Pine.GSO.4.53.0311021647410.17357@columbia.cs.ubc.ca>
-Content-Type: text/plain
-Message-Id: <1067850243.680.17.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 03 Nov 2003 20:04:04 +1100
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
+	Mon, 3 Nov 2003 04:29:12 -0500
+Received: from web40907.mail.yahoo.com ([66.218.78.204]:44102 "HELO
+	web40907.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261827AbTKCJ3K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 04:29:10 -0500
+Message-ID: <20031103092909.4955.qmail@web40907.mail.yahoo.com>
+Date: Mon, 3 Nov 2003 01:29:09 -0800 (PST)
+From: Bradley Chapman <kakadu_croc@yahoo.com>
+Subject: Re: What do frame pointers do?
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20031102204556.0c5b377a.rddunlap@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mr. Dunlap,
 
-> Actually, it's got a GeForce FX Go 5200.
-
-Ouch !
-
-Well... This will be a bigger problem then. For some reason, nVidia
-can't (or don't want) to tell us how to do fine backlight control. We
-know how to switch the backlight on/off though since recently and Mark
-just pushed a patch doing that for DPMS in XFree CVS "nv" driver.
-
-Another bad new with nVidia based laptops is that there is little chance
-we ever support sleep mode on these as so far, it doesn't seem nVidia
-would be willing to give us the necessary informations to reboot the
-chip on wakeup.
-
-> Cool.  I think backlight control, drive spindown, and CPU frequency
-> scaling should go a fairly long way on the battery life front.  Speaking
-> of CPU scaling, do you know if it should work on this machine?  I selected
-> it in the kernel config, but /sys/devices/system/cpu/cpu0 is empty.
-
-For finer backlight control, it may be possible to figure it out by
-either tapping registers, looking at the nVidia OF driver, or examining
-register contents in MacOS X (or tracing through MacOS X drivers).
-
-> cpu             : 7457, altivec supported
-> clock           : 999MHz
-> revision        : 1.1 (pvr 8002 0101)
-> bogomips        : 761.85
-> machine         : PowerBook6,2
-> motherboard     : PowerBook6,2 MacRISC3 Power Macintosh
-> board revision  : 00000002
-> detected as     : 287 (Unknown Intrepid-based)
-> pmac flags      : 00000008
-> L2 cache        : 512K unified
-> memory          : 256MB
-> pmac-generation : NewWorld
-
-Hrm... Bogompips is a bit low for a G4... I suspect it may be running at
-the lower speed. I don't know for sure how speed control work on these
-new models based on the 7457...
-
-> Oh, I just noticed something else in dmesg:
->     PMU driver 2 initialized for Core99, firmware: 0c
+--- "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+> On Sun, 2 Nov 2003 09:00:29 -0800 (PST) Bradley Chapman <kakadu_croc@yahoo.com>
+> wrote:
 > 
-> *shrug*
-
-What's wrong ?
-
-> I grabbed the newest Darwin/xnu source I could find from Apple, and I can
-> no longer find where they do the backlight control - it used to be in
-> iokit/Drivers/platform/drvApplePMU .  I'll have to look more closely
-> tomorrow...
+> | What exactly is the purpose of a frame pointer? As far back as I can remember,
+> 2.4
+> | and 2.6 kernels have supported something called a frame pointer, which slows
+> down
+> | the kernel slightly but supposedly outputs 'very useful debugging information.'
+> | Unfortunately, it doesn't really explain what they are, and for the past few
+> months,
+> | I haven't seen any hacker gods asking for CONFIG_FRAME_POINTER=y, except for
+> Russell
+> | King, who wants them compiled for ARM processors for some reason (I grepped the
+> | kernel source looking for answers and found a comment which implied this).
+> | 
+> | Does anyone know where I can find a good explanation of what they are and what
+> they
+> | do?
 > 
-> Again, many thanks for your work on this platform.
+> Frame pointers enable more deterministic back tracing of the stack,
+> which can be helpful for tracking down bugs.  I build with
+> CONFIG_FRAME_POINTER enabled all of the time.
+> 
+> Note, however, that current 2.6.x Makefile does not allow frame pointers
+> to be used with gcc 2.96 since it has some known problems with code generation
+> when using frame pointers.
+> 
+> There is a little discussion of frame pointers in the Intel
+> IA-32 Intel® Architecture Software Developer;s Manual Volume 1:
+> Basic Architecture
+> and
+> IA-32 Intel® Architecture Software Developer's Manual Volume 2:
+> Instruction Set Reference,
+> which are downloadable as .pdf files from developer.intel.com.
 
-It's scattered. For recent machines, it's done by the video driver itself
-(the video chip controls the backlight on the LVDS lines afaik)
+OK, thanks for explaining it to me.
 
-Ben.
+> 
+> --
+> ~Randy
+
+Brad
 
 
+=====
+Brad Chapman
+
+Permanent e-mail: kakadu_croc@yahoo.com
+
+__________________________________
+Do you Yahoo!?
+Exclusive Video Premiere - Britney Spears
+http://launch.yahoo.com/promos/britneyspears/

@@ -1,31 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272218AbRIEQTK>; Wed, 5 Sep 2001 12:19:10 -0400
+	id <S272223AbRIEQTK>; Wed, 5 Sep 2001 12:19:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272223AbRIEQTB>; Wed, 5 Sep 2001 12:19:01 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:10551 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S272220AbRIEQSx>; Wed, 5 Sep 2001 12:18:53 -0400
-Date: Wed, 5 Sep 2001 12:19:14 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200109051619.f85GJEo07592@devserv.devel.redhat.com>
-To: reality@delusion.de, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: USB device not accepting new address
-In-Reply-To: <mailman.999666181.21742.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.999666181.21742.linux-kernel2news@redhat.com>
+	id <S272220AbRIEQTB>; Wed, 5 Sep 2001 12:19:01 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:46932 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S272218AbRIEQSw>; Wed, 5 Sep 2001 12:18:52 -0400
+Date: Wed, 5 Sep 2001 11:19:07 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200109051619.LAA58471@tomcat.admin.navo.hpc.mil>
+To: Florian.Weimer@RUS.Uni-Stuttgart.DE,
+        Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Subject: Re: getpeereid() for Linux
+Cc: Michael Bacarella <mbac@nyct.net>, linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have just come across another USB address problem, which happens
-> sporadically and is not easy to reproduce.
+Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>:
+> 
+> Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil> writes:
+> 
+> > It is not possible to get a creditential from TCP connections yet. That
+> > requires an extension to IPSec to even be able to carry credentials. There
+> > is no reliable communication path (even for identd) to be able to pass
+> > credentials.
+> 
+> I need the credentials only for local connections, though.  This is
+> technically possible.  A userspace implementation partially cloning
+> ident seems to be a possible approach.
 
->   1: [cfefa240] link (00000001) e0 IOC Stalled CRC/Timeo Length=7ff MaxLen=7ff
->   DT1 EndPt=0 Dev=0, PID=69(IN) (buf=00000000)
+It won't be reliable. Even the documentation for ident (at least the version
+I looked at a while ago, might be different now, but I don't think so) says
+that the data returned is not reliable. (even fuser doesn't always get this
+right when trying to identify processes with open sockets).
 
-If usb_set_address() ends in timeouts, something is bad with the
-hadrware, most likely. Microcode crash in the device, perhaps.
-Someone, I think it was Oliver, posted a patch that retries
-usb_set_address(). It may help you, look in linux-usb-devel
-archives.
+Part of the problem is that TCP sockets don't carry the same information
+that domain sockets have (could be partially wrong here, it just may not
+be filled in since the source of the data can't supply it). The other
+part is that it depends on what allocated the socket. Ownership is established
+at socket allocation time, and the socket can be passed to a totally different
+user. Identity of the user of the socket is therefore lost.
 
--- Pete
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

@@ -1,171 +1,248 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266284AbSKGChO>; Wed, 6 Nov 2002 21:37:14 -0500
+	id <S266282AbSKGChJ>; Wed, 6 Nov 2002 21:37:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266295AbSKGChN>; Wed, 6 Nov 2002 21:37:13 -0500
-Received: from dp.samba.org ([66.70.73.150]:57517 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266284AbSKGChG>;
+	id <S266295AbSKGChJ>; Wed, 6 Nov 2002 21:37:09 -0500
+Received: from dp.samba.org ([66.70.73.150]:57261 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266282AbSKGChG>;
 	Wed, 6 Nov 2002 21:37:06 -0500
 From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15817.53202.453163.576501@argo.ozlabs.ibm.com>
-Date: Thu, 7 Nov 2002 13:28:34 +1100
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: [PATCH] Update macserial driver
+Message-ID: <15817.54051.309679.395892@argo.ozlabs.ibm.com>
+Date: Thu, 7 Nov 2002 13:42:43 +1100
+To: Jens Axboe <axboe@suse.de>, torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+Subject: [PATCH] Update powermac IDE driver
 X-Mailer: VM 7.07 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates the macserial driver in 2.5 so it compiles and
-works.  The main changes are to use schedule_work instead of task
-queues and BHs.  The patch also removes the wait_key method.
+This patch updates the powermac IDE driver in 2.5 so it uses the 2.5
+kernel interfaces and types rather than the 2.4 ones.  It also makes
+it use blk_rq_map_sg rather than its own code to set up scatter/gather
+lists in pmac_ide_build_sglist, and makes it use ide_lock instead of
+io_request_lock.
 
-I know we need to change macserial to use the new serial
-infrastructure.  I'm posting this patch in case it is useful to anyone
-trying to compile up a kernel for a powermac at the moment.  Linus, if
-you were willing to apply this so that the macserial driver is useful
-in the time until we get it converted, that would be good.
+Jens/Linus, please apply.
 
 Paul.
 
-diff -urN linux-2.5/drivers/macintosh/macserial.c pmac-2.5/drivers/macintosh/macserial.c
---- linux-2.5/drivers/macintosh/macserial.c	2002-10-09 08:15:21.000000000 +1000
-+++ pmac-2.5/drivers/macintosh/macserial.c	2002-10-15 07:36:53.000000000 +1000
-@@ -18,6 +18,7 @@
- #include <linux/sched.h>
- #include <linux/timer.h>
- #include <linux/interrupt.h>
-+#include <linux/workqueue.h>
- #include <linux/tty.h>
- #include <linux/tty_flip.h>
- #include <linux/major.h>
-@@ -104,8 +105,6 @@
- #endif
- #define ZS_CLOCK         3686400 	/* Z8530 RTxC input clock rate */
+diff -urN linux-2.5/drivers/ide/ppc/pmac.c pmac-2.5/drivers/ide/ppc/pmac.c
+--- linux-2.5/drivers/ide/ppc/pmac.c	2002-10-30 01:37:31.000000000 +1100
++++ pmac-2.5/drivers/ide/ppc/pmac.c	2002-11-02 07:27:28.000000000 +1100
+@@ -717,11 +717,11 @@
+ 		name = pmac_ide[i].node->full_name;
+ 		if (memcmp(name, bootdevice, n) == 0 && name[n] == 0) {
+ 			/* XXX should cope with the 2nd drive as well... */
+-			return MKDEV(ide_majors[i], 0);
++			return mk_kdev(ide_majors[i], 0);
+ 		}
+ 	}
  
--static DECLARE_TASK_QUEUE(tq_serial);
--
- static struct tty_driver serial_driver, callout_driver;
- static int serial_refcount;
+-	return 0;
++	return NODEV;
+ }
  
-@@ -372,8 +371,7 @@
- 				  int event)
+ void __init
+@@ -932,47 +932,32 @@
+ #ifdef CONFIG_BLK_DEV_IDEDMA_PMAC
+ 
+ static int
+-pmac_ide_build_sglist(ide_hwif_t *hwif, struct request *rq)
++pmac_ide_build_sglist(ide_drive_t *drive, struct request *rq)
  {
- 	info->event |= 1 << event;
--	queue_task(&info->tqueue, &tq_serial);
--	mark_bh(MACSERIAL_BH);
-+	schedule_work(&info->tqueue);
- }
++	ide_hwif_t *hwif = HWIF(drive);
+ 	pmac_ide_hwif_t *pmif = (pmac_ide_hwif_t *)hwif->hwif_data;
+-	struct buffer_head *bh;
+ 	struct scatterlist *sg = pmif->sg_table;
+-	int nents = 0;
++	int nents;
  
- /* Work out the flag value for a z8530 status value. */
-@@ -712,20 +710,6 @@
- 	restore_flags(flags);
- }
- 
--/*
-- * This routine is used to handle the "bottom half" processing for the
-- * serial driver, known also the "software interrupt" processing.
-- * This processing is done at the kernel interrupt level, after the
-- * rs_interrupt() has returned, BUT WITH INTERRUPTS TURNED ON.  This
-- * is where time-consuming activities which can not be done in the
-- * interrupt driver proper are done; the interrupt driver schedules
-- * them using rs_sched_event(), and they get done here.
-- */
--static void do_serial_bh(void)
--{
--	run_task_queue(&tq_serial);
--}
+ 	if (hwif->sg_dma_active)
+ 		BUG();
+ 		
+-	if (rq->cmd == READ)
++	nents = blk_rq_map_sg(&drive->queue, rq, sg);
++		
++	if (rq_data_dir(rq) == READ)
+ 		pmif->sg_dma_direction = PCI_DMA_FROMDEVICE;
+ 	else
+ 		pmif->sg_dma_direction = PCI_DMA_TODEVICE;
+-	bh = rq->bh;
+-	do {
+-		unsigned char *virt_addr = bh->b_data;
+-		unsigned int size = bh->b_size;
 -
- static void do_softint(void *private_)
+-		if (nents >= MAX_DCMDS)
+-			return 0;
+-
+-		while ((bh = bh->b_reqnext) != NULL) {
+-			if ((virt_addr + size) != (unsigned char *) bh->b_data)
+-				break;
+-			size += bh->b_size;
+-		}
+-		memset(&sg[nents], 0, sizeof(*sg));
+-		sg[nents].address = virt_addr;
+-		sg[nents].length = size;
+-		nents++;
+-	} while (bh != NULL);
+ 
+ 	return pci_map_sg(hwif->pci_dev, sg, nents, pmif->sg_dma_direction);
+ }
+ 
+ static int
+-pmac_ide_raw_build_sglist(ide_hwif_t *hwif, struct request *rq)
++pmac_ide_raw_build_sglist(ide_drive_t *drive, struct request *rq)
  {
- 	struct mac_serial	*info = (struct mac_serial *) private_;
-@@ -876,7 +860,7 @@
- out:
- 	spin_unlock_irqrestore(&info->rx_dma_lock, flags);
- 	if (do_queue)
--		queue_task(&tty->flip.tqueue, &tq_timer);
-+		tty_flip_buffer_push(tty);
++	ide_hwif_t *hwif = HWIF(drive);
+ 	pmac_ide_hwif_t *pmif = (pmac_ide_hwif_t *)hwif->hwif_data;
+-	struct scatterlist *sg = hwif->sg_table;
++	struct scatterlist *sg = pmif->sg_table;
+ 	int nents = 0;
+ 	ide_task_t *args = rq->special;
+ 	unsigned char *virt_addr = rq->buffer;
+@@ -983,16 +968,18 @@
+ 	else
+ 		pmif->sg_dma_direction = PCI_DMA_FROMDEVICE;
+ 	
+-	if (sector_count > 128) {
++	if (sector_count > 127) {
+ 		memset(&sg[nents], 0, sizeof(*sg));
+-		sg[nents].address = virt_addr;
+-		sg[nents].length = 128  * SECTOR_SIZE;
++		sg[nents].page = virt_to_page(virt_addr);
++		sg[nents].offset = (unsigned long) virt_addr & ~PAGE_MASK;
++		sg[nents].length = 127  * SECTOR_SIZE;
+ 		nents++;
+-		virt_addr = virt_addr + (128 * SECTOR_SIZE);
+-		sector_count -= 128;
++		virt_addr = virt_addr + (127 * SECTOR_SIZE);
++		sector_count -= 127;
+ 	}
+ 	memset(&sg[nents], 0, sizeof(*sg));
+-	sg[nents].address = virt_addr;
++	sg[nents].page = virt_to_page(virt_addr);
++	sg[nents].offset = (unsigned long) virt_addr & ~PAGE_MASK;
+ 	sg[nents].length =  sector_count  * SECTOR_SIZE;
+ 	nents++;
+    
+@@ -1023,10 +1010,10 @@
+ 		udelay(1);
+ 
+ 	/* Build sglist */
+-	if (rq->cmd == IDE_DRIVE_TASKFILE)
+-		pmif->sg_nents = i = pmac_ide_raw_build_sglist(hwif, rq);
++	if (HWGROUP(drive)->rq->flags & REQ_DRIVE_TASKFILE)
++		pmif->sg_nents = i = pmac_ide_raw_build_sglist(drive, rq);
+ 	else
+-		pmif->sg_nents = i = pmac_ide_build_sglist(hwif, rq);
++		pmif->sg_nents = i = pmac_ide_build_sglist(drive, rq);
+ 	if (!i)
+ 		return 0;
+ 
+@@ -1045,7 +1032,7 @@
+ 			if (++count >= MAX_DCMDS) {
+ 				printk(KERN_WARNING "%s: DMA table too small\n",
+ 				       drive->name);
+-				return 0; /* revert to PIO for this request */
++				goto use_pio_instead;
+ 			}
+ 			st_le16(&table->command, wr? OUTPUT_MORE: INPUT_MORE);
+ 			st_le16(&table->req_count, tc);
+@@ -1062,17 +1049,24 @@
+ 	}
+ 
+ 	/* convert the last command to an input/output last command */
+-	if (count)
++	if (count) {
+ 		st_le16(&table[-1].command, wr? OUTPUT_LAST: INPUT_LAST);
+-	else
+-		printk(KERN_DEBUG "%s: empty DMA table?\n", drive->name);
++		/* add the stop command to the end of the list */
++		memset(table, 0, sizeof(struct dbdma_cmd));
++		st_le16(&table->command, DBDMA_STOP);
++		mb();
++		writel(pmif->dma_table_dma, &dma->cmdptr);
++		return 1;
++	}
+ 
+-	/* add the stop command to the end of the list */
+-	memset(table, 0, sizeof(struct dbdma_cmd));
+-	st_le16(&table->command, DBDMA_STOP);
+-	mb();
+-	writel(pmif->dma_table_dma, &dma->cmdptr);
+-	return 1;
++	printk(KERN_DEBUG "%s: empty DMA table?\n", drive->name);
++ use_pio_instead:
++	pci_unmap_sg(hwif->pci_dev,
++		     pmif->sg_table,
++		     pmif->sg_nents,
++		     pmif->sg_dma_direction);
++	hwif->sg_dma_active = 0;
++	return 0; /* revert to PIO for this request */
  }
  
- static void poll_rxdma(unsigned long private_)
-@@ -2572,9 +2556,6 @@
- 	unsigned long flags;
- 	struct mac_serial *info;
- 
--	/* Setup base handler, and timer table. */
--	init_bh(MACSERIAL_BH, do_serial_bh);
--
- 	/* Find out how many Z8530 SCCs we have */
- 	if (zs_chain == 0)
- 		probe_sccs();
-@@ -2741,9 +2722,8 @@
- 		info->event = 0;
- 		info->count = 0;
- 		info->blocked_open = 0;
--		info->tqueue.routine = do_softint;
--		info->tqueue.data = info;
--		info->callout_termios =callout_driver.init_termios;
-+		INIT_WORK(&info->tqueue, do_softint, info);
-+		info->callout_termios = callout_driver.init_termios;
- 		info->normal_termios = serial_driver.init_termios;
- 		init_waitqueue_head(&info->open_wait);
- 		init_waitqueue_head(&info->close_wait);
-@@ -2865,33 +2845,9 @@
- 	/* Don't disable the transmitter. */
+ /* Teardown mappings after DMA has completed.  */
+@@ -1279,7 +1273,7 @@
+ 	}
+ #else
+ 	command = (lba48) ? WIN_READDMA_EXT : WIN_READDMA;
+-	if (rq->cmd == IDE_DRIVE_TASKFILE) {
++	if (rq->flags & REQ_DRIVE_TASKFILE) {
+ 		ide_task_t *args = rq->special;
+ 		command = args->tfRegister[IDE_COMMAND_OFFSET];
+ 	}
+@@ -1332,7 +1326,7 @@
+ 	}
+ #else
+ 	command = (lba48) ? WIN_WRITEDMA_EXT : WIN_WRITEDMA;
+-	if (rq->cmd == IDE_DRIVE_TASKFILE) {
++	if (rq->flags & REQ_DRIVE_TASKFILE) {
+ 		ide_task_t *args = rq->special;
+ 		command = args->tfRegister[IDE_COMMAND_OFFSET];
+ 	}
+@@ -1579,8 +1573,8 @@
+ 	 * Problem: This can schedule. I moved the block device
+ 	 * wakeup almost late by priority because of that.
+ 	 */
+-	if (DRIVER(drive))
+-		check_disk_change(MKDEV(drive->disk->major, drive->disk->first_minor));
++	//if (DRIVER(drive))
++	//	check_disk_change(MKDEV(drive->disk->major, drive->disk->first_minor));
+ 	
+ #ifdef CONFIG_BLK_DEV_IDEDMA_PMAC
+ 	/* We re-enable DMA on the drive if it was active. */
+@@ -1595,7 +1589,7 @@
+ 		HWGROUP(drive)->busy = 0;
+ 		if (!list_empty(&drive->queue.queue_head))
+ 			ide_do_request(HWGROUP(drive), 0);
+-		spin_unlock_irq(&io_request_lock);
++		spin_unlock_irq(&ide_lock);
+ 	}
+ #endif /* CONFIG_BLK_DEV_IDEDMA_PMAC */
+ }
+@@ -1648,7 +1642,7 @@
+ 		idepmac_sleep_device(drive, base);
+ 	}
+ 	if (unlock)
+-		spin_unlock_irq(&io_request_lock);
++		spin_unlock_irq(&ide_lock);
  }
  
--/*
-- *	Receive character from the serial port
-- */
--static int serial_console_wait_key(struct console *co)
--{
--	struct mac_serial *info = zs_soft + co->index;
--	int           val;
--
--	/* Turn of interrupts and enable the transmitter. */
--	write_zsreg(info->zs_channel, R1, info->curregs[1] & ~INT_ALL_Rx);
--	write_zsreg(info->zs_channel, R3, info->curregs[3] | RxENABLE);
--
--	/* Wait for something in the receive buffer. */
--	while((read_zsreg(info->zs_channel, 0) & Rx_CH_AV) == 0)
--		eieio();
--	val = read_zsdata(info->zs_channel);
--
--	/* Restore the values in the registers. */
--	write_zsreg(info->zs_channel, R1, info->curregs[1]);
--	write_zsreg(info->zs_channel, R3, info->curregs[3]);
--
--	return val;
--}
--
- static kdev_t serial_console_device(struct console *c)
- {
--	return MKDEV(TTY_MAJOR, 64 + c->index);
-+	return mk_kdev(TTY_MAJOR, 64 + c->index);
+ static void
+@@ -1675,11 +1669,11 @@
+ 	}
+ 
+ 	/* We resume processing on the HW group */
+-	spin_lock_irqsave(&io_request_lock, flags);
++	spin_lock_irqsave(&ide_lock, flags);
+ 	HWGROUP(drive)->busy = 0;
+ 	if (!list_empty(&drive->queue.queue_head))
+ 		ide_do_request(HWGROUP(drive), 0);
+-	spin_unlock_irqrestore(&io_request_lock, flags);			
++	spin_unlock_irqrestore(&ide_lock, flags);
  }
  
- /*
-@@ -3079,7 +3035,6 @@
- 	name:		"ttyS",
- 	write:		serial_console_write,
- 	device:		serial_console_device,
--	wait_key:	serial_console_wait_key,
- 	setup:		serial_console_setup,
- 	flags:		CON_PRINTBUFFER,
- 	index:		-1,
-diff -urN linux-2.5/drivers/macintosh/macserial.h pmac-2.5/drivers/macintosh/macserial.h
---- linux-2.5/drivers/macintosh/macserial.h	2002-05-13 08:52:55.000000000 +1000
-+++ pmac-2.5/drivers/macintosh/macserial.h	2002-10-02 15:24:47.000000000 +1000
-@@ -159,8 +159,7 @@
- 	int			xmit_head;
- 	int			xmit_tail;
- 	int			xmit_cnt;
--	struct tq_struct	tqueue;
--	struct tq_struct	tqueue_hangup;
-+	struct work_struct	tqueue;
- 	struct termios		normal_termios;
- 	struct termios		callout_termios;
- 	wait_queue_head_t	open_wait;
+ /* Note: We support only master drives for now. This will have to be

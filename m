@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262414AbSLJQJl>; Tue, 10 Dec 2002 11:09:41 -0500
+	id <S262394AbSLJQHW>; Tue, 10 Dec 2002 11:07:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262415AbSLJQJl>; Tue, 10 Dec 2002 11:09:41 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:20946 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S262414AbSLJQJk>; Tue, 10 Dec 2002 11:09:40 -0500
-Date: Tue, 10 Dec 2002 16:17:25 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Antonino Daplas <adaplas@pol.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S262395AbSLJQHW>; Tue, 10 Dec 2002 11:07:22 -0500
+Received: from willow.compass.com.ph ([202.70.96.38]:41478 "EHLO
+	willow.compass.com.ph") by vger.kernel.org with ESMTP
+	id <S262394AbSLJQGw>; Tue, 10 Dec 2002 11:06:52 -0500
 Subject: Re: [BUG]: agpgart for i810 chipsets broken in 2.5.51
-Message-ID: <20021210161725.GA577@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Antonino Daplas <adaplas@pol.net>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1039522886.1041.17.camel@localhost.localdomain> <20021210131143.GA26361@suse.de> <1039538881.2025.2.camel@localhost.localdomain> <20021210144852.GD26361@suse.de> <1039547205.1086.25.camel@localhost.localdomain>
+From: Antonino Daplas <adaplas@pol.net>
+To: Dave Jones <davej@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021210140301.GC26361@suse.de>
+References: <1039522886.1041.17.camel@localhost.localdomain>
+	<20021210131143.GA26361@suse.de>
+	<1039538881.2025.2.camel@localhost.localdomain> 
+	<20021210140301.GC26361@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1039547210.1071.26.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1039547205.1086.25.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 11 Dec 2002 00:08:22 +0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 11, 2002 at 12:07:45AM +0500, Antonino Daplas wrote:
- > > That chunk of X code is crap. So much so, that someone even put a
- > > comment there (not that what they suggested was much better).
- > > 
- > > See line 122 of http://www.atomised.org/docs/XFree86-4.2.1/agp_8c-source.html
- > > 
- > Ouch.  That's a sh??ty version check.  And it has to be present from
- > 4.0.0 to 4.2.1, and if they don't correct it, 4.3.0.
+On Tue, 2002-12-10 at 19:03, Dave Jones wrote:
+> On Tue, Dec 10, 2002 at 09:47:24PM +0500, Antonino Daplas wrote:
 
-Andreas Schwab pointed out to me, that due to the broken boolean check,
-I can bump the version to 0.100 and it'll work. At least until the
-X folks change/remove that code.
+> 
+> btw, iirc you were the guy who wanted agpgart initialised sooner
+> due to the way the i810 framebuffer worked ?
+> How much sooner are we talking ? What puzzles me, is looking
+> at the link order in the makefiles, agpgart should already be
+> getting initialised before the framebuffer code, but doesn't
+> seem to be for reasons unknown..
 
-        Dave
+Tried it with framebuffer console off, same results. Moved agp before vt
+in char/Makefile, same. Even manually calling agp_init() doesn't work
+because what's really needed is agp_intel_init(). 
+
+Anyway, I guess I'll stick to what I'm doing right now, periodically do
+an inter_module_get("drm_agp") until it becomes available.
+
+Tony
 

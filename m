@@ -1,62 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbVAMWxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbVAMXEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261809AbVAMWxL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 17:53:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbVAMWuk
+	id S261787AbVAMXEr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 18:04:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbVAMXB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 17:50:40 -0500
-Received: from fw.osdl.org ([65.172.181.6]:49612 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261810AbVAMWrS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 17:47:18 -0500
-Date: Thu, 13 Jan 2005 14:47:04 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Dave Jones <davej@redhat.com>, Marek Habersack <grendel@caudium.net>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-In-Reply-To: <1105651504.4624.150.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0501131442550.2310@ppc970.osdl.org>
-References: <20050112094807.K24171@build.pdx.osdl.net> 
- <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>  <20050112185133.GA10687@kroah.com>
-  <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>  <20050112161227.GF32024@logos.cnet>
-  <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>  <20050112174203.GA691@logos.cnet>
-  <1105627541.4624.24.camel@localhost.localdomain>  <20050113194246.GC24970@beowulf.thanes.org>
-  <20050113200308.GC3555@redhat.com>  <Pine.LNX.4.58.0501131206340.2310@ppc970.osdl.org>
-  <1105644461.4644.102.camel@localhost.localdomain> 
- <Pine.LNX.4.58.0501131255590.2310@ppc970.osdl.org>
- <1105651504.4624.150.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 13 Jan 2005 18:01:59 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54243 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261779AbVAMW5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 17:57:39 -0500
+Date: Thu, 13 Jan 2005 17:28:14 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wright <chrisw@osdl.org>,
+       akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: security contact draft
+Message-ID: <20050113192814.GA8176@logos.cnet>
+References: <20050113125503.C469@build.pdx.osdl.net> <1105647058.4624.134.camel@localhost.localdomain> <Pine.LNX.4.58.0501131325560.2310@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0501131325560.2310@ppc970.osdl.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 13 Jan 2005, Alan Cox wrote:
->
-> >  - _short_ embargo, for kernel-only. I obviously believe that vendor-sec 
-> >    is whoring itself for security firms and vendors. I believe there would 
-> >    be a place for something with stricter rules on disclosure.
+On Thu, Jan 13, 2005 at 01:31:19PM -0800, Linus Torvalds wrote:
 > 
-> Seems these two could be the same list with a bit of respect for users
-> wishes and common sense.
+> 
+> On Thu, 13 Jan 2005, Alan Cox wrote:
+> > 
+> > It's not documenting the stuff Linus seems to be talking about which is
+> > a public list ? Or does Linus want both ?
+> 
+> I see myself as pretty extreme when it comes to my approach to security.
+> 
+> And I actually distrust extremes. I'm at one end of the spectrum, and
+> vendor-sec is at the other (I'm not even counting the head-in-the-sand
+> approach as part of the spectrum ;). Knowing that, I'd expect that most
+> people are somewhere in between.
+> 
+> Which to me implies that while what I personally _want_ is total openness, 
+> that's not necessarily what makes the most sense in real life.
 
-Possibly. On the other hand, I can well imagine that the list of
-subscribers is different for the two cases. The same way I refuse to have
-anything to do with vendor-sec, maybe somebody else refuses to honor even
-a five-day rule, but would want to be on the "no rules, but let's be clear
-that we're all good guys, not gray or black-hats.
+Gooood :) 
 
-Also, especially with a hard rule, there's just less confusion, I think, 
-if the two are separate. Otherwise you'd have to have strict Subject: line 
-rules or something - which basically means that they are separate lists 
-anyway.
+> So I want to give people choice. I want to encourage openness. But hell, 
+> if we have a closed list with a declared short embargo that is known to 
+> not play games (ie clock starts ticking from original discovery, not from 
+> somebody elses embargo), that's good too.
+> 
+> Let people vote with their feet. If vendor-sec ends up being where all the
+> "important" things are discussed - so be it. We've not lost anything, and
+> at worst a "kernel-security" list would be a way to discuss stuff that was
+> already released by vendor-sec.
 
-But hey, it's not even clear that both are needed. With a short enough 
-disclosure requirement, maybe people feel like the "five-day rule, 
-possible explicitly _relaxed_ by the original submitter" is sufficient.
+On my understanding we are about to win several things.
 
-			Linus
+I rather prefer having vendorsec NOT deal with these issues because 
+it gives autonomy to the kernel team. It wont depend on "suspicious" criteria
+of embargo's - but instead have a clear written policy for embargo's.
+
+And the timeframe, as Alan says, has to be acceptable for the vendors to 
+generate their updates and run the QA process, otherwise things will 
+continue to be discussed at vendorsec.
+
+Other than that, by not "wrapping" the fixes with non descritive changelogs,
+we will have an official list of security problems. Hey, this is a serious 
+operating system.
+
+Wrapping up fixes means "disclosure" for the better informed people 
+(the bad guys) who read the changesets, and means "lack of knowledge" 
+for the less informed - users who dont run the latest kernel and only 
+upgrade in case of public security issues (the majority of them?).
+
+So the argument of "wrapping" up fixes for "better and safer code" is actually
+very bad if you think about it. 
+
+Once we have that, there will be a "official" list of known issues.
+
+Those MANY who ask
+"I'm using v2.6.12 on my customized kernel and I can't upgrade to the latest
+v2.6.20 kernel, which security bugs exist that I need fixed?"
+
+Will have an easy answer.
+
+This is better for the Linux kernel developers, better for vendors and better
+for users.
+
+

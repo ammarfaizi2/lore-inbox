@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268480AbTBOAmb>; Fri, 14 Feb 2003 19:42:31 -0500
+	id <S268364AbTBOAkb>; Fri, 14 Feb 2003 19:40:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268481AbTBOAmb>; Fri, 14 Feb 2003 19:42:31 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:16910 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S268480AbTBOAma>; Fri, 14 Feb 2003 19:42:30 -0500
-Date: Sat, 15 Feb 2003 01:51:52 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Werner Almesberger <wa@almesberger.net>
-cc: Rusty Russell <rusty@rustcorp.com.au>, <kuznet@ms2.inr.ac.ru>,
-       <davem@redhat.com>, <kronos@kronoz.cjb.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Migrating net/sched to new module interface
-In-Reply-To: <20030214211226.I2092@almesberger.net>
-Message-ID: <Pine.LNX.4.44.0302150148010.1336-100000@serv>
-References: <20030214120628.208112C464@lists.samba.org>
- <Pine.LNX.4.44.0302141410540.1336-100000@serv> <20030214105338.E2092@almesberger.net>
- <Pine.LNX.4.44.0302141500540.1336-100000@serv> <20030214153039.G2092@almesberger.net>
- <Pine.LNX.4.44.0302142106140.1336-100000@serv> <20030214211226.I2092@almesberger.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268464AbTBOAkb>; Fri, 14 Feb 2003 19:40:31 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:19841
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268364AbTBOAka>; Fri, 14 Feb 2003 19:40:30 -0500
+Subject: RE: openbkweb-0.0
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Reply-To: root@localhost.localdomain
+To: vlad@geekizoid.com
+Cc: "'Larry McVoy'" <lm@bitmover.com>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <008501c2d486$cbf51d20$0200a8c0@wsl3>
+References: <008501c2d486$cbf51d20$0200a8c0@wsl3>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045273835.2961.0.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 15 Feb 2003 01:50:36 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 2003-02-15 at 00:11, Vlad@geekizoid.com wrote:
+> s/"All I want is to be able to review the 3c990 patch. Right now I
+> can't"/"All I want is to be able to review the 3c990 patch. Right now I
+> can't be bothered to use software that is being offered to me for free
+> because it's far more important to get into mindless flamewars over tools
+> that make life easier for everyone.  Oh, and Stallman is god."
 
-On Fri, 14 Feb 2003, Werner Almesberger wrote:
+I think you are confused, and probably clueless. I'm not permitted to
+use bitkeeper for free.
 
-> I though we were talking about
-> 
-> 	static data_used_by_callbacks;
-> 	...
-> 	register_foo(&stuff_with_callbacks);
-> 	...
-> 	unregister_foo(&stuff_with_callbacks);
-> 	make_unusable(&data_used_by_callbacks)
-> 	...
-> 	/* oops, we just got a callback */
-> 
-> ("data_used_by_callbacks" could be a pointer to kmalloc'ed
-> memory, etc.)
-> 
-> This kind of problem seems to be understood well enough.
-
-Yes, and now compare how the solutions differ when the data is static and 
-when it's allocated.
-
-bye, Roman
+Follow ups to trolls@under.the.bridge
 

@@ -1,95 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265619AbTFSIoc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 04:44:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265632AbTFSIoc
+	id S265632AbTFSIon (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 04:44:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265735AbTFSIon
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 04:44:32 -0400
-Received: from dialup-221.157.221.203.acc50-nort-cbr.comindico.com.au ([203.221.157.221]:24324
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S265619AbTFSIob (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 04:44:31 -0400
-Message-ID: <3EF17B11.1080002@cyberone.com.au>
-Date: Thu, 19 Jun 2003 18:57:53 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: Con Kolivas <kernel@kolivas.org>, Andreas Boman <aboman@midgaard.us>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.72 O(1) interactivity bugfix
-References: <5.2.0.9.2.20030619071327.00ce7ee8@pop.gmx.net> <1055983621.1753.23.camel@asgaard.midgaard.us> <200306190043.14291.kernel@kolivas.org> <200306190938.04430.kernel@kolivas.org> <1055983621.1753.23.camel@asgaard.midgaard.us> <5.2.0.9.2.20030619071327.00ce7ee8@pop.gmx.net> <5.2.0.9.2.20030619103935.023f5648@pop.gmx.net>
-In-Reply-To: <5.2.0.9.2.20030619103935.023f5648@pop.gmx.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Jun 2003 04:44:43 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:17169 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S265632AbTFSIol
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 04:44:41 -0400
+Date: Thu, 19 Jun 2003 01:55:07 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: DVB updates, 3rd try
+Message-ID: <20030619085507.GD20116@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <3EF051AF.1060006@convergence.de> <Pine.LNX.4.44.0306180849150.9782-100000@home.transmeta.com> <20030618161253.GA53261@compsoc.man.ac.uk> <20030619014509.GC20116@pegasys.ws> <20030619021318.GA53393@compsoc.man.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030619021318.GA53393@compsoc.man.ac.uk>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 19, 2003 at 03:13:19AM +0100, John Levon wrote:
+> On Wed, Jun 18, 2003 at 06:45:09PM -0700, jw schultz wrote:
+> 
+> > [over-quoting snipped]
+> 
+> > Please don't do this.  $reply_to ||= $message_id is OK but
+> > having each patch as a reply to the previous one is
+> > annoying.  I think it was Greg who recently posted one set
+> > of patches that was so large the indentation for the thread
+> > went off the screen.
+> > 
+> >        [PATCH 0/n] frob the niggle
+> >        |-> [PATCH 1/n] frob the niggle
+> >        |-> [PATCH 2/n] frob the niggle
+> >        |-> [PATCH 3/n] frob the niggle
+> 
+> Then the patches don't appear in order in people's mail readers.
 
+So what?  The only time display order matters if one is
+dependant on another.  Most of the patch sets i've seen
+don't have such dependencies.  Otherwise the enumeration is
+just so you know if you have all the patches in a set.  
 
-Mike Galbraith wrote:
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-> At 05:33 PM 6/19/2003 +1000, Nick Piggin wrote:
->
->> Mike Galbraith wrote:
->>
->>>
->>> However, that will also send X and friends go off to the expired 
->>> array _very_ quickly.  This will certainly destroy interactive feel 
->>> under load because your desktop can/will go away for seconds at a 
->>> time.  Try to drag a window while a make -j10 is running, and it'll 
->>> get choppy as heck.  AFAIKT, anything that you do to increase 
->>> concurrency in a global manner is _going_ to have the side effect of 
->>> damaging interactive feel to some extent.  The one and only source 
->>> of desktop responsiveness is the large repository of cpu ticks a 
->>> task is allowed to save up for a rainy day.
->>>
->>> What I would love to figure out is a way to reintroduce back-boost 
->>> without it having global impact.  I think hogging the cpu is 
->>> absolutely _wonderful_ when the hogs are the tasks I'm interacting 
->>> with.  Unfortunately, there seems to be no way to determine whether 
->>> a human is intimately involved or not other than to specifically 
->>> tell the scheduler this via renice.
->>
->>
->>
->> Could certian drivers or subsystems say they are interactive and
->> provide some input to the scheduler that way? Reads from input
->> devices for example could increase a processes "interactivity" a
->> lot, while writes to console or ... no, everything gets multiplexed
->> through X, doesn't it...
->
->
-> The mouse and keyboard are wonderful candidates for this... there's 
-> always a human connected.  It's too bad there's no way to tell if a 
-> human is staring at the display.  If I'm mesmerized by xmms gl 
-> eye-candy, it's a highly interactive cpu hog.
-
-
-Thats right, but console / DRI / whatever could probably provide a small
-interactivity boost.
-
->
->> The backboost was quite a good idea. I didn't follow it closely
->> but what if you impemented the above idea, which increased
->> an "interactiveness" number, then X clients could simply have
->> their interactiveness value boosted by X?
->
->
-> Sounds good.  What I'm trying within the current framework is to let 
-> tasks which are extremely light weight (and not kernel threads) do 
-> backboost.  Dunno if anything good will come out of it.
-
-
-OK, the backboost is what? A dynamic priority boost? This is so
-X for example can be made interactive through its clients even
-if its hogging a lot of CPU, right?
-
-I think it might be a good idea to introduce an "interactiveness"
-measurement which could be boosted by interactive devices, and a
-forwardboost would be able to increase an X client's interactivenss
-through X.
-
-in
-
+		Remember Cernan and Schmitt

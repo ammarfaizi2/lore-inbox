@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265776AbUFXWCy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265808AbUFXWH7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265776AbUFXWCy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 18:02:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265793AbUFXVrs
+	id S265808AbUFXWH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 18:07:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265817AbUFXWFA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 17:47:48 -0400
-Received: from cdc868fe.powerlandcomputers.com ([205.200.104.254]:13030 "EHLO
-	pl6w2kex.lan.powerlandcomputers.com") by vger.kernel.org with ESMTP
-	id S265772AbUFXVos convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 17:44:48 -0400
-content-class: urn:content-classes:message
-Subject: RE: alienware hardware
-Date: Thu, 24 Jun 2004 16:42:33 -0500
-MIME-Version: 1.0
+	Thu, 24 Jun 2004 18:05:00 -0400
+Received: from mail.kroah.org ([65.200.24.183]:39606 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265760AbUFXVra convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 17:47:30 -0400
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI fixes for 2.6.7
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <1088113567381@kroah.com>
+Date: Thu, 24 Jun 2004 14:46:08 -0700
+Message-Id: <10881135683007@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7BIT
-Message-ID: <18DFD6B776308241A200853F3F83D5072817@pl6w2kex.lan.powerlandcomputers.com>
-X-MS-Has-Attach: 
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-X-MS-TNEF-Correlator: 
-Thread-Topic: alienware hardware
-Thread-Index: AcRaMGsoDIcwraznR62p33NdcpPGowAAPMDA
-From: "Chad Kitching" <CKitching@powerlandcomputers.com>
-To: "Yaroslav Halchenko" <yoh@psychology.rutgers.edu>,
-       "Denis Vlasenko" <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: "linux kernel mailing list" <linux-kernel@vger.kernel.org>
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Have you tried booting with noapic, nolapic, noioapic and/or acpi=off? 
-Unfortunately since you compiled all your drivers into the kernel, 
-asking you to try without loading any of them won't work without a 
-recompile.
+ChangeSet 1.1722.103.5, 2004/06/14 11:08:54-07:00, rl@hellgate.ch
 
-> -----Original Message-----
-> From: Yaroslav Halchenko [mailto:yoh@psychology.rutgers.edu]
-> Sent: June 24, 2004 4:10 PM
-> Subject: Re: alienware hardware
-> 
-> 
-> it is seems to be more general problem, because it slows down not only
-> dpkg process - booting on 2.4.26 kernel takes about 5 minutes to
-> complete and of cause no dpkg is involved in that process.
-> 
-> I took dpkg as just single example, I don't what to try else on...
-> bogomips reports about 50% of what is in /proc/cpuinfo, so it looks
-> normal... I'm suspecting IDE, so it looks like when app has 
-> to work with
-> HDD then it slows down although HDD bulb doesn't report an 
-> activity....
-> but I might be wrong. btw - I will put hdparm as well on the
-> webpage
-> 
-> We are about to setup X on that beast and I will try may be some other
-> programs... suggestions?
-> 
+[PATCH] PCI: Fix PME bits in pci.txt
+
+Signed-off-by: Roger Luethi <rl@hellgate.ch>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+
+
+ Documentation/power/pci.txt |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+
+diff -Nru a/Documentation/power/pci.txt b/Documentation/power/pci.txt
+--- a/Documentation/power/pci.txt	2004-06-24 13:51:03 -07:00
++++ b/Documentation/power/pci.txt	2004-06-24 13:51:03 -07:00
+@@ -286,11 +286,11 @@
+ +------------------+
+ |  Bit  |  State   |
+ +------------------+
+-|  15   |   D0     |
+-|  14   |   D1     |
++|  11   |   D0     |
++|  12   |   D1     |
+ |  13   |   D2     |
+-|  12   |   D3hot  |
+-|  11   |   D3cold |
++|  14   |   D3hot  |
++|  15   |   D3cold |
+ +------------------+
+ 
+ A device can use this to enable wake events:
+

@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263133AbTDBUgM>; Wed, 2 Apr 2003 15:36:12 -0500
+	id <S262649AbTDBUhW>; Wed, 2 Apr 2003 15:37:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263135AbTDBUgM>; Wed, 2 Apr 2003 15:36:12 -0500
-Received: from main.gmane.org ([80.91.224.249]:48773 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S263133AbTDBUgL>;
-	Wed, 2 Apr 2003 15:36:11 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Dennis Cook" <cook@sandgate.com>
-Subject: Re: Deactivating TCP checksumming
-Date: Wed, 2 Apr 2003 15:47:35 -0500
-Organization: Sandgate Technologies
-Message-ID: <b6fi8m$j4g$1@main.gmane.org>
-References: <F91mkXMUIhAumscmKC00000f517@hotmail.com> <20030401122824.GY29167@mea-ext.zmailer.org> <b6fda2$oec$1@main.gmane.org> <20030402203653.GA2503@gtf.org>
-X-Complaints-To: usenet@main.gmane.org
-X-MSMail-Priority: Normal
-X-Newsreader: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Cc: kernelnewbies@nl.linux.org
+	id <S262678AbTDBUhW>; Wed, 2 Apr 2003 15:37:22 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:2434 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S262649AbTDBUhV>;
+	Wed, 2 Apr 2003 15:37:21 -0500
+Date: Wed, 2 Apr 2003 15:52:31 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: Daniel Ritz <daniel.ritz@gmx.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5] OSS opl3sa2: bring in sync with 2.4
+Message-ID: <20030402155231.GC14946@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Daniel Ritz <daniel.ritz@gmx.ch>, linux-kernel@vger.kernel.org
+References: <200303292040.15091.daniel.ritz@gmx.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200303292040.15091.daniel.ritz@gmx.ch>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What I was looking for is a general capability to keep the SW transport
-stack from
-computing outgoing TCP/UDP/IP checksums so that the HW can be allowed to do
-it,
-similar to Windows checksum offload capability.
+On Sat, Mar 29, 2003 at 08:40:15PM +0100, Daniel Ritz wrote:
+> hi adam
+> 
+> for your oss-2.5 tree. this patch brings sound/oss/opl3sa2.c in sync with 2.4.
+> compiles and works (testes on my toshiba tecra 8000). against 2.5.66-bk
+>
+> rgds
+> -daniel
 
-"Jeff Garzik" <jgarzik@pobox.com> wrote in message
-news:20030402203653.GA2503@gtf.org...
-> On Wed, Apr 02, 2003 at 02:22:59PM -0500, Dennis Cook wrote:
-> > Using RH Linux kernel 2.4.18, setting "features" bit NETIF_F_IP_CSUM
-does
-> > not appear
-> > to keep a valid IP checksum from being computed in packets presented to
-my
-> > driver
-> > for transmission. So having HW compute outgoing checksum buys nothing.
->
-> You are not using sendfile(2), which is required to activate h/w csum.
->
-> Jeff
->
->
->
+Thanks.  I'll add it to my tree.
 
-
-
+-Adam

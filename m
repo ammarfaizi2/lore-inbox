@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261315AbTEKM4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 08:56:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbTEKM4Y
+	id S261350AbTEKM56 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 08:57:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbTEKM55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 08:56:24 -0400
-Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:15232
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S261315AbTEKM4W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 08:56:22 -0400
-Date: Sun, 11 May 2003 08:58:57 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Jos Hulzink <josh@stack.nl>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: irq balancing: performance disaster
-In-Reply-To: <20030511125438.GJ8978@holomorphy.com>
-Message-ID: <Pine.LNX.4.50.0305110855120.15337-100000@montezuma.mastecende.com>
-References: <200305110118.10136.josh@stack.nl> <7750000.1052619248@[10.10.2.4]>
- <200305111200.31242.josh@stack.nl> <Pine.LNX.4.50.0305110813140.15337-100000@montezuma.mastecende.com>
- <20030511125438.GJ8978@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 11 May 2003 08:57:57 -0400
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:29424 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S261350AbTEKM5a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 08:57:30 -0400
+Date: Sun, 11 May 2003 15:05:50 +0200
+From: Kristian Peters <kristian.peters@korseby.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: linux-2.4.21-rc2: unresolved symbols in atyfb
+Message-Id: <20030511150550.6e8a1576.kristian.peters@korseby.net>
+X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
+X-Operating-System: i686-debian-linux-gnu 2.4.21-rc2
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 May 2003, William Lee Irwin III wrote:
+Hi.
 
-> On Sun, May 11, 2003 at 08:17:53AM -0400, Zwane Mwaikambo wrote:
-> > It was a bug in 2.4, fixed in Alan's tree by setting target_cpus to 0xff 
-> > (previously cpu_online_map). There is no noirqbalance option in 2.4 
-> > because there is no in kernel irq balancer.
-> 
-> I vaguely like this notion because it removes a #ifdef and cleans up
-> a tiny bit of its surroundings. But it's not quite a one-liner.
+Under powerpc I've got unresolved symbols in atyfb.o:
 
-Nice, it's during init too so there really is no need for any sort of 
-optimisation, the inline can also go and make it __init.
+depmod: *** Unresolved symbols in /lib/modules/2.4.21-rc2/kernel/drivers/video/aty/atyfb.o
+depmod:         display_info
+depmod:         mac_var_to_vmode
+depmod:         console_fb_info
+depmod: *** Unresolved symbols in /lib/modules/2.4.21-rc2/kernel/drivers/video/aty128fb.o
+depmod:         display_info
+depmod:         mac_vmode_to_var
+depmod:         get_backlight_enable
+depmod:         mac_var_to_vmode
+depmod:         mac_find_mode
+depmod:         console_fb_info
 
-	Zwane
+atyfb is been compiled as module.
+
+My config on request. I don't wanna spam the list.
+
+*Kristian
 
 -- 
-function.linuxpower.ca
+
+  :... [snd.science] ...:
+ ::                             _o)
+ :: http://www.korseby.net      /\\
+ ::                            _\_V
+  :.........................:

@@ -1,121 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262733AbTCUUwM>; Fri, 21 Mar 2003 15:52:12 -0500
+	id <S263785AbTCUSq2>; Fri, 21 Mar 2003 13:46:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263819AbTCUUvW>; Fri, 21 Mar 2003 15:51:22 -0500
-Received: from vbws78.voicebs.com ([66.238.160.78]:59909 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S263812AbTCUUtw>; Fri, 21 Mar 2003 15:49:52 -0500
-Message-ID: <3E7B7D84.7000108@didntduck.org>
-Date: Fri, 21 Mar 2003 16:00:52 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.3) Gecko/20030312
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: PATCH: Make pci-bios function ids per machine type
-References: <200303212030.h2LKUApv026359@hraefn.swansea.linux.org.uk>
-In-Reply-To: <200303212030.h2LKUApv026359@hraefn.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S263780AbTCUSpG>; Fri, 21 Mar 2003 13:45:06 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:18820
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263779AbTCUSo3>; Fri, 21 Mar 2003 13:44:29 -0500
+Date: Fri, 21 Mar 2003 19:59:44 GMT
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200303211959.h2LJxiJp026163@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: PATCH: update i2o build rules for change
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wouldn't this be better?
 
-#ifdef CONFIG_PC9800
-#define PCIBIOS_PCI_FUNCTION_ID 0xcc80
-#else
-#define PCIBIOS_PCI_FUNCTION_ID 0xb100
-#endif
-
-#define PCIBIOS_PCI_BIOS_PRESENT	PCIBIOS_PCI_FUNCTION_ID+1
-#define PCIBIOS_FIND_PCI_DEVICE		PCIBIOS_PCI_FUNCTION_ID+2
-...
-
-Alan Cox wrote:
-> Yes NEC use *different* function numbers!!
-> 
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/arch/i386/pci/pcbios.c linux-2.5.65-ac2/arch/i386/pci/pcbios.c
-> --- linux-2.5.65/arch/i386/pci/pcbios.c	2003-02-10 18:37:58.000000000 +0000
-> +++ linux-2.5.65-ac2/arch/i386/pci/pcbios.c	2003-02-14 23:04:05.000000000 +0000
-> @@ -5,22 +5,9 @@
->  #include <linux/pci.h>
->  #include <linux/init.h>
->  #include "pci.h"
-> +#include "pci-functions.h"
->  
->  
-> -#define PCIBIOS_PCI_FUNCTION_ID 	0xb1XX
-> -#define PCIBIOS_PCI_BIOS_PRESENT 	0xb101
-> -#define PCIBIOS_FIND_PCI_DEVICE		0xb102
-> -#define PCIBIOS_FIND_PCI_CLASS_CODE	0xb103
-> -#define PCIBIOS_GENERATE_SPECIAL_CYCLE	0xb106
-> -#define PCIBIOS_READ_CONFIG_BYTE	0xb108
-> -#define PCIBIOS_READ_CONFIG_WORD	0xb109
-> -#define PCIBIOS_READ_CONFIG_DWORD	0xb10a
-> -#define PCIBIOS_WRITE_CONFIG_BYTE	0xb10b
-> -#define PCIBIOS_WRITE_CONFIG_WORD	0xb10c
-> -#define PCIBIOS_WRITE_CONFIG_DWORD	0xb10d
-> -#define PCIBIOS_GET_ROUTING_OPTIONS	0xb10e
-> -#define PCIBIOS_SET_PCI_HW_INT		0xb10f
-> -
->  /* BIOS32 signature: "_32_" */
->  #define BIOS32_SIGNATURE	(('_' << 0) + ('3' << 8) + ('2' << 16) + ('_' << 24))
->  
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/include/asm-i386/mach-default/pci-functions.h linux-2.5.65-ac2/include/asm-i386/mach-default/pci-functions.h
-> --- linux-2.5.65/include/asm-i386/mach-default/pci-functions.h	1970-01-01 01:00:00.000000000 +0100
-> +++ linux-2.5.65-ac2/include/asm-i386/mach-default/pci-functions.h	2003-02-14 22:54:22.000000000 +0000
-> @@ -0,0 +1,19 @@
-> +/*
-> + *	PCI BIOS function numbering for conventional PCI BIOS 
-> + *	systems
-> + */
-> +
-> +#define PCIBIOS_PCI_FUNCTION_ID 	0xb1XX
-> +#define PCIBIOS_PCI_BIOS_PRESENT 	0xb101
-> +#define PCIBIOS_FIND_PCI_DEVICE		0xb102
-> +#define PCIBIOS_FIND_PCI_CLASS_CODE	0xb103
-> +#define PCIBIOS_GENERATE_SPECIAL_CYCLE	0xb106
-> +#define PCIBIOS_READ_CONFIG_BYTE	0xb108
-> +#define PCIBIOS_READ_CONFIG_WORD	0xb109
-> +#define PCIBIOS_READ_CONFIG_DWORD	0xb10a
-> +#define PCIBIOS_WRITE_CONFIG_BYTE	0xb10b
-> +#define PCIBIOS_WRITE_CONFIG_WORD	0xb10c
-> +#define PCIBIOS_WRITE_CONFIG_DWORD	0xb10d
-> +#define PCIBIOS_GET_ROUTING_OPTIONS	0xb10e
-> +#define PCIBIOS_SET_PCI_HW_INT		0xb10f
-> +
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/include/asm-i386/mach-pc9800/pci-functions.h linux-2.5.65-ac2/include/asm-i386/mach-pc9800/pci-functions.h
-> --- linux-2.5.65/include/asm-i386/mach-pc9800/pci-functions.h	1970-01-01 01:00:00.000000000 +0100
-> +++ linux-2.5.65-ac2/include/asm-i386/mach-pc9800/pci-functions.h	2003-02-14 23:00:56.000000000 +0000
-> @@ -0,0 +1,20 @@
-> +/*
-> + *	PCI BIOS function codes for the PC9800. Different to
-> + *	standard PC systems
-> + */
-> +
-> +/* Note: PC-9800 confirms PCI 2.1 on only few models */
-> +
-> +#define PCIBIOS_PCI_FUNCTION_ID 	0xccXX
-> +#define PCIBIOS_PCI_BIOS_PRESENT 	0xcc81
-> +#define PCIBIOS_FIND_PCI_DEVICE		0xcc82
-> +#define PCIBIOS_FIND_PCI_CLASS_CODE	0xcc83
-> +/*      PCIBIOS_GENERATE_SPECIAL_CYCLE	0xcc86	(not supported by bios) */
-> +#define PCIBIOS_READ_CONFIG_BYTE	0xcc88
-> +#define PCIBIOS_READ_CONFIG_WORD	0xcc89
-> +#define PCIBIOS_READ_CONFIG_DWORD	0xcc8a
-> +#define PCIBIOS_WRITE_CONFIG_BYTE	0xcc8b
-> +#define PCIBIOS_WRITE_CONFIG_WORD	0xcc8c
-> +#define PCIBIOS_WRITE_CONFIG_DWORD	0xcc8d
-> +#define PCIBIOS_GET_ROUTING_OPTIONS	0xcc8e	/* PCI 2.1 only */
-> +#define PCIBIOS_SET_PCI_HW_INT		0xcc8f	/* PCI 2.1 only */
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
+[Please also rm i2o_pci.c]
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/message/i2o/Kconfig linux-2.5.65-ac2/drivers/message/i2o/Kconfig
+--- linux-2.5.65/drivers/message/i2o/Kconfig	2003-02-15 03:39:30.000000000 +0000
++++ linux-2.5.65-ac2/drivers/message/i2o/Kconfig	2003-03-20 18:44:46.000000000 +0000
+@@ -3,6 +3,7 @@
+ 
+ config I2O
+ 	tristate "I2O support"
++	depends on PCI
+ 	---help---
+ 	  The Intelligent Input/Output (I2O) architecture allows hardware
+ 	  drivers to be split into two parts: an operating system specific
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/message/i2o/Makefile linux-2.5.65-ac2/drivers/message/i2o/Makefile
+--- linux-2.5.65/drivers/message/i2o/Makefile	2003-02-15 03:39:30.000000000 +0000
++++ linux-2.5.65-ac2/drivers/message/i2o/Makefile	2003-03-13 20:40:07.000000000 +0000
+@@ -5,7 +5,6 @@
+ # In the future, some of these should be built conditionally.
+ #
+ 
+-obj-$(CONFIG_I2O_PCI)	+= i2o_pci.o
+ obj-$(CONFIG_I2O)	+= i2o_core.o i2o_config.o
+ obj-$(CONFIG_I2O_BLOCK)	+= i2o_block.o
+ obj-$(CONFIG_I2O_SCSI)	+= i2o_scsi.o

@@ -1,58 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVAMThV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbVANBxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261413AbVAMThV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 14:37:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVAMTfv
+	id S261703AbVANBxL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 20:53:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbVANBuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 14:35:51 -0500
-Received: from cc15144-a.groni1.gr.home.nl ([217.120.147.78]:51113 "HELO
-	boetes.org") by vger.kernel.org with SMTP id S261328AbVAMTbt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 14:31:49 -0500
-Date: Thu, 13 Jan 2005 20:31:43 +0059
-From: Han Boetes <han@mijncomputer.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: propolice support for linux
-Message-ID: <20050113193205.GE14127@boetes.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20050113134620.GA14127@boetes.org> <20050113140446.GA22381@infradead.org> <20050113163733.GB14127@boetes.org> <1105635755.6031.37.camel@laptopd505.fenrus.org>
+	Thu, 13 Jan 2005 20:50:22 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:58382
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261382AbVANBtN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 20:49:13 -0500
+Date: Fri, 14 Jan 2005 02:49:20 +0100
+From: Andrea Arcangeli <andrea@cpushare.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+Subject: Re: lcall disappeared? kernel CVS destabilized?
+Message-ID: <20050114014920.GK5949@dualathlon.random>
+References: <20050114010132.GJ5949@dualathlon.random> <20050113172651.70b4fcd5.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1105635755.6031.37.camel@laptopd505.fenrus.org>
+In-Reply-To: <20050113172651.70b4fcd5.akpm@osdl.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> you haven't commented on the "why is this useful for the kernel"
-> question I asked,
+On Thu, Jan 13, 2005 at 05:26:51PM -0800, Andrew Morton wrote:
+> Andrea Arcangeli <andrea@cpushare.com> wrote:
+> >
+> > I'm porting the seccomp patch to 2.6.10, do you have an idea where lcall
+> >  (i.e. call gates for binary compatibility with other OS) went? 
+> 
+> Was removed on October 18.
+> 
+> http://linux.bkbits.net:8080/linux-2.5/diffs/arch/i386/kernel/entry.S@1.83?nav=index.html|src/|src/arch|src/arch/i386|src/arch/i386/kernel|hist/arch/i386/kernel/entry.S
 
-You didn't ask this question, and I did comment.
-
-
-> can you point out a single kernel buffer overflow ??
-
-Let's ask Edsger Dijkstra :-)
-
-  ``Program testing can be used to show the presence of bugs, but
-    never to show their absence! -- Edsger Dijkstra, [1972]''
-
-I get your point though, but since it can't do any harm let us
-paranoid freaks have a proper patch at the least.
-
-
-> (I know userspace has them; I'm asking you specifically about
-> kernel space since you provide a patch useful for kernel space
-> only)
-
-
-Well I suggest it here as well:
-  http://forums.mozillazine.org/viewtopic.php?t=199891
-
-But got zero replies. Could you be so kind to point out to these
-people it's a good idea?
-
-
-
-# Han
+Ok, thanks to both for the confirmation ;).

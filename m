@@ -1,97 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317834AbSFMVPC>; Thu, 13 Jun 2002 17:15:02 -0400
+	id <S317835AbSFMV0v>; Thu, 13 Jun 2002 17:26:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317833AbSFMVPB>; Thu, 13 Jun 2002 17:15:01 -0400
-Received: from ierw.net.avaya.com ([198.152.13.101]:5544 "EHLO
-	ierw.net.avaya.com") by vger.kernel.org with ESMTP
-	id <S317843AbSFMVPA>; Thu, 13 Jun 2002 17:15:00 -0400
-Message-ID: <3D090B4D.4060104@avaya.com>
-Date: Thu, 13 Jun 2002 15:14:53 -0600
-From: "Bhavesh P. Davda" <bhavesh@avaya.com>
-Organization: Avaya, Inc.
-User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.0rc2) Gecko/20020512 Netscape/7.0b1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: mingo@elte.hu
-CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] SCHED_FIFO and SCHED_RR scheduler fix, kernel 2.4.18
-In-Reply-To: <Pine.LNX.4.44.0206132007010.8525-100000@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Jun 2002 21:15:10.0531 (UTC) FILETIME=[668E4930:01C2131F]
+	id <S317839AbSFMV0u>; Thu, 13 Jun 2002 17:26:50 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:58642 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S317837AbSFMV0r>; Thu, 13 Jun 2002 17:26:47 -0400
+Message-Id: <200206132126.g5DLQiQ24889@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: James Bottomley <James.Bottomley@SteelEye.com>, axboe@suse.de,
+        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Proposed changes to generic blk tag for use in SCSI (1/3) 
+In-Reply-To: Message from Doug Ledford <dledford@redhat.com> 
+   of "Thu, 13 Jun 2002 17:01:41 EDT." <20020613170141.B4609@redhat.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 13 Jun 2002 17:26:44 -0400
+From: James Bottomley <James.Bottomley@SteelEye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo,
+On Mon, Jun 10, 2002 at 10:46:44PM -0400, James Bottomley wrote:
+> 2) The SCSI queue will stall if it gets an untagged request in the stream, so 
+> once tagged queueing is enabled, all commands (including SPECIALS) must be 
+> tagged.  I altered the check in blk_queue_start_tag to permit this.
 
-Ingo Molnar wrote:
-> good catch, your observations are correct.
+dledford@redhat.com said:
+> Hmmm...this seems broken to me.  Switching from tagged to untagged
+> momentarily and then back is perfectly valid.  Can the bio layer
+> handle this and not the scsi layer, or are both layers unable to
+> handle  this sort of tag manipulation?  
 
-Thank you.
+The layers can cope with the switch easily enough.  The problem is that to 
+send an untagged command to a SCSI device you have to wait for the outstanding 
+tags to clear which is what causes the stall.  The scsi mid-layer queue push 
+back system pushes all commands back to the BIO layer marked as REQ_SPECIAL 
+(because the upper layer drivers generate the commands and it has no idea what 
+they are supposed to be doing) if the driver cannot handle them.  This means 
+for those drivers (like the new adaptec) which load up the device until it 
+returns a queue full (thus causing push back into the bio layer) we'd get 
+stutter in the command pipeline.  The cleanest solution is to allow (but not 
+require) tagging of every request type.
 
-> btw., have you checked the 2.5 kernel's scheduler? It does all these
-> things correctly: it queues freshly woken up tasks to the tail of the
-> queue, it does not reschedule SCHED_FIFO tasks every timer tick and does
-> not move RT tasks to the head of the queue in sys_setscheduler().
+On Mon, Jun 10, 2002 at 10:46:44PM -0400, James Bottomley wrote:
+> There are several shortcomings of the prototype, most notably it doesn't have 
+> tag starvation detection and processing.  However, I think I can re-introduce 
+> this as part of the error handler functions.
 
-No I haven't. What prompted me to go with the kernel.org 2.4.18 kernel 
-is the fact that the RedHat 7.3 2.4.18-3 kernel, with your O(1) 
-scheduler patches besides hundreds of other patches any of which might 
-also have changed the scheduler, doesn't honour SCHED_FIFO or SCHED_RR 
-real-time priorities at all.
+dledford@redhat.com said:
+> If you are using the bio layer tag processing, then it should be
+> doing this part I would think.  If it isn't, then it sounds like
+> either  it's design is missing some key elements required to be fully
+> functional  or the integration between the scsi layer and the bio
+> layer needs some  additional work. 
 
-> in terms of 2.4.18, the timer and the setscheduler() change is OK, but i
-> dont think we want the add_to_runqueue() change. It changes wakeup
-> characteristics for non-RT tasks, it could affect any many-threads or
-> many-processes application adversely. And we've been doing FIFO wakeups
+I thought about doing this.  The problem is that the blk layer doesn't have 
+very good instrumentation for detecting the condition.  The SCSI layer is the 
+one that has per command timers and all the other necessaries so it can detect 
+when a command should have returned and take corrective action.
 
-I would think that the logical place to add any process to the runqueue 
-would be the back of the runqueue. If all processes are ALWAYS added to 
-the back of the runqueue, then every process is GUARANTEED to eventually 
-be scheduled. No process will be starved indefinitely.
+James
 
-> like this for ages and nobody complained, so it's not that we are in a big
-> hurry. Fundamental changes like this are fair game for the 2.5 kernel.
-> [and we dont even know the full performance impact of this change even in
-> 2.5, although it's been in since 2.5.3 or so. The full effect of things
-> like this will show up during beta-testing of 2.6 i suspect.] Plus this
-> change does not make *that* much of a difference - not many people use
-> SCHED_FIFO tasks with the same priority, the typical usage is to sort the
-> tasks by priority - this is one reason why there's a push to increase the
-> number of RT priority levels to something like 1000 in the 2.5 kernel.  
-> And if multiple SCHED_FIFO tasks have the same priority then exact
-> scheduling is more like the matter of luck anyway.
-
-The application that I am dealing with is a communications application 
-with 86 SCHED_FIFO processes, crammed between priority levels 7-23, that 
-depend on priority preemption using System V semaphores. The 2.2 kernel 
-SCHED_FIFO behaviour was correct as far as a preempted SCHED_FIFO 
-process being put in the back of the runqueue is concerned. But the 2.4 
-kernel SCHED_FIFO behaviour was broken because of the add_to_runqueue() 
-bug. That lead to our application grossly misbehaving under the 2.4.18 
-scheduler.
-
-As far as performance is concerned, putting the "if" test in 
-update_process_times for SCHED_FIFO actually improved the performance of 
-our application by 15%, as it would for any SCHED_FIFO centric 
-application that relies on priority preemption where the average 
-preemption time is > a timer tick.
-
-Therefore, since my guess is that several applications out there depend 
-on correct SCHED_FIFO and SCHED_RR behaviour as per the POSIX 
-definition, I would like to request that my patch be applied to the 
-2.4.19 kernel for people and companies who are reluctant to move to the 
-2.5 series kernel for stability reasons.
-
-Thank you.
-
-- Bhavesh
-
--- 
-Bhavesh P. Davda
-Avaya Inc
-Room B3-B03                     E-mail : bhavesh@avaya.com
-1300 West 120th Avenue          Phone  : (303) 538-4438
-Westminster, CO 80234           Fax    : (303) 538-3155
 

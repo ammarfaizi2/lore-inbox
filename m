@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265622AbSJSQhS>; Sat, 19 Oct 2002 12:37:18 -0400
+	id <S265625AbSJSQpE>; Sat, 19 Oct 2002 12:45:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265620AbSJSQhS>; Sat, 19 Oct 2002 12:37:18 -0400
-Received: from port.lamport.ru ([193.111.92.50]:46302 "HELO port.lamport.ru")
-	by vger.kernel.org with SMTP id <S265618AbSJSQhQ> convert rfc822-to-8bit;
-	Sat, 19 Oct 2002 12:37:16 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-To: Will Dyson <will_dyson@pobox.com>, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] 2.5: Be Filesystem driver
-Date: Sat, 19 Oct 2002 20:43:16 +0400
-User-Agent: KMail/1.4.1
+	id <S265628AbSJSQpE>; Sat, 19 Oct 2002 12:45:04 -0400
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:32976 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
+	id <S265625AbSJSQpD>; Sat, 19 Oct 2002 12:45:03 -0400
+Date: Sat, 19 Oct 2002 09:52:49 -0700
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: Zaurus support for usbnet.c
+To: Nicolas Pitre <nico@cam.org>
 Cc: linux-kernel@vger.kernel.org
-References: <3DB11BBC.9030803@pobox.com>
-In-Reply-To: <3DB11BBC.9030803@pobox.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210192043.16335.rathamahata@php4.ru>
+Message-id: <3DB18DE1.3060003@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+The linux-usb-devel list has a slightly cleaned up version of Pavel's
+Zaurus patch, which I've asked him to retest before this support
+gets integrated.
 
-On Saturday 19 October 2002 12:45, Will Dyson wrote:
-> Hi all,
->
-> I'm finaly getting off my ass and making available a forward port of the
-> Be filesystem driver from 2.4. There is a combined bk/gnu patch (output of
-> Documentation/BK-usage/bksend) here:
-> http://www.cs.earlham.edu/~will/befs-2.5
+These patches will apply to recent 2.4.20pre kernels too, if anyone
+is sufficiently impatient to try... :)
 
-Sorry but I've got 403 Forbidden :(.
 
--- 
-                   Best regards,
-                   Sergey S. Kostyliov <rathamahata@php4.ru>
-                   Public PGP key: http://sysadminday.org.ru/rathamahata.asc
+> If both clients i.e. the iPAQ and the Zaurus are actually a SA1110, and if 
+> the iPAQ is already supported on both sides, then the Zaurus should work out 
+> of the box.
+
+Yes, but out of the www.handhelds.org box, not Sharp's box.
+
+Zaurus doesn't have a stock www.handhelds.org kernel; there's a
+different usb slave/target device driver, which uses different
+framing for the Ethernet packets.  Pavel's patch teaches "usbnet"
+about one of those protocols.  (The other is MSFT-friendly.)
+
+It's worth mentioning the Yopy here too:  Zaurus isn't the only
+SA-1110 based Linux PDA, and its distro is evidently closer to
+the iPAQ distros (but you won't need a WinCE-ectomy).  Current
+versions of "usbnet" have support for a recent YOPY version; they
+use different USB vendor and product IDs "out of the box".
+
+- Dave
+
+
+

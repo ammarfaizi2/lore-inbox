@@ -1,12 +1,12 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271464AbRHPEng>; Thu, 16 Aug 2001 00:43:36 -0400
+	id <S271467AbRHPEo0>; Thu, 16 Aug 2001 00:44:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271465AbRHPEn2>; Thu, 16 Aug 2001 00:43:28 -0400
-Received: from zero.tech9.net ([209.61.188.187]:5131 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S271464AbRHPEnM>;
-	Thu, 16 Aug 2001 00:43:12 -0400
-Subject: [PATCH] 2.4.8-ac5: let Net Devices feed Entropy (1/2)
+	id <S271471AbRHPEoW>; Thu, 16 Aug 2001 00:44:22 -0400
+Received: from zero.tech9.net ([209.61.188.187]:5387 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S271467AbRHPEoJ>;
+	Thu, 16 Aug 2001 00:44:09 -0400
+Subject: [PATCH] 2.4.8-ac5: let Net Devices feed Entropy (2/2)
 From: Robert Love <rml@tech9.net>
 To: linux-kernel@vger.kernel.org
 In-Reply-To: <997936615.921.22.camel@phantasy>
@@ -14,422 +14,245 @@ In-Reply-To: <997936615.921.22.camel@phantasy>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 16 Aug 2001 00:43:44 -0400
-Message-Id: <997937035.658.33.camel@phantasy>
+Date: 16 Aug 2001 00:44:41 -0400
+Message-Id: <997937093.662.36.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-against 2.4.8-ac5.  patch #1 of 2 (required: adds the new define
-for all architectures, configure support, etc.) see previous email.
+against 2.4.8-ac5. patch #2 of 2 (updates some drivers to use new
+optional random support). see previous email
 
 
-diff -urN linux-2.4.8-ac5/Documentation/Configure.help linux/Documentation/Configure.help
---- linux-2.4.8-ac5/Documentation/Configure.help	Wed Aug 15 19:05:29 2001
-+++ linux/Documentation/Configure.help	Wed Aug 15 19:10:01 2001
-@@ -8594,6 +8594,19 @@
+diff -urN linux-2.4.9-pre4/drivers/net/3c501.c linux/drivers/net/3c501.c
+--- linux-2.4.9-pre4/drivers/net/3c501.c	Wed Aug 15 23:09:39 2001
++++ linux/drivers/net/3c501.c	Wed Aug 15 23:20:07 2001
+@@ -410,7 +410,8 @@
+ 	if (el_debug > 2)
+ 		printk("%s: Doing el_open()...", dev->name);
  
-   If you don't know what to use this for, you don't need it.
+-	if ((retval = request_irq(dev->irq, &el_interrupt, 0, dev->name, dev)))
++	if ((retval = request_irq(dev->irq, &el_interrupt,
++				SA_SAMPLE_NET_RANDOM, dev->name, dev)))
+ 		return retval;
  
-+Allow Net Devices to contribute to /dev/random
-+CONFIG_NET_RANDOM
-+  If you say Y here, network device interrupts will contribute to the
-+  kernel entropy pool at /dev/random. Normally, block devices and
-+  some other devices (keyboard, mouse) add to the pool. Some people,
-+  however, feel that network devices should not contribute to /dev/random
-+  because an external attacker could manipulate incoming packets in a
-+  manner to force the pool into a determinable state. Note this is
-+  completely theoretical.
-+
-+  If you don't mind the risk or are using a headless system and are in
-+  need of more entropy, say Y.
-+
- Ethertap network tap (OBSOLETE)
- CONFIG_ETHERTAP
-   If you say Y here (and have said Y to "Kernel/User network link
-diff -urN linux-2.4.8-ac5/drivers/net/Config.in linux/drivers/net/Config.in
---- linux-2.4.8-ac5/drivers/net/Config.in	Wed Aug 15 19:05:34 2001
-+++ linux/drivers/net/Config.in	Wed Aug 15 18:49:50 2001
-@@ -9,6 +9,7 @@
- tristate 'Bonding driver support' CONFIG_BONDING
- tristate 'EQL (serial line load balancing) support' CONFIG_EQUALIZER
- tristate 'Universal TUN/TAP device driver support' CONFIG_TUN
-+bool 'Allow Net Devices to contribute to /dev/random' CONFIG_NET_RANDOM
- if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
-    if [ "$CONFIG_NETLINK" = "y" ]; then
-       tristate 'Ethertap network tap (OBSOLETE)' CONFIG_ETHERTAP
-diff -urN linux-2.4.8-ac5/include/asm-alpha/signal.h linux/include/asm-alpha/signal.h
---- linux-2.4.8-ac5/include/asm-alpha/signal.h	Wed Jun 24 17:30:11 1998
-+++ linux/include/asm-alpha/signal.h	Wed Aug 15 18:12:10 2001
-@@ -121,8 +121,20 @@
- #define SA_PROBE		SA_ONESHOT
- #define SA_SAMPLE_RANDOM	SA_RESTART
- #define SA_SHIRQ		0x40000000
-+
-+/*
-+ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
-+ * contribute to the kernel entropy pool if users want that
-+ * at compile time.
-+ */
-+#ifdef CONFIG_NET_RANDOM
-+#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
-+#else
-+#define SA_SAMPLE_NET_RANDOM	0
- #endif
+ 	spin_lock_irqsave(&lp->lock, flags);
+diff -urN linux-2.4.9-pre4/drivers/net/3c505.c linux/drivers/net/3c505.c
+--- linux-2.4.9-pre4/drivers/net/3c505.c	Wed Aug 15 23:09:39 2001
++++ linux/drivers/net/3c505.c	Wed Aug 15 23:20:07 2001
+@@ -897,7 +897,8 @@
+ 	/*
+ 	 * install our interrupt service routine
+ 	 */
+-	if ((retval = request_irq(dev->irq, &elp_interrupt, 0, dev->name, dev))) {
++	if ((retval = request_irq(dev->irq, &elp_interrupt,
++					SA_SAMPLE_NET_RANDOM, dev->name, dev))) {
+ 		printk(KERN_ERR "%s: could not allocate IRQ%d\n", dev->name, dev->irq);
+ 		return retval;
+ 	}
+diff -urN linux-2.4.9-pre4/drivers/net/3c509.c linux/drivers/net/3c509.c
+--- linux-2.4.9-pre4/drivers/net/3c509.c	Wed Aug 15 23:09:39 2001
++++ linux/drivers/net/3c509.c	Wed Aug 15 23:20:08 2001
+@@ -560,7 +560,8 @@
+ 	outw(RxReset, ioaddr + EL3_CMD);
+ 	outw(SetStatusEnb | 0x00, ioaddr + EL3_CMD);
  
-+#endif /* __KERNEL__ */
-+
- #define SIG_BLOCK          1	/* for blocking signals */
- #define SIG_UNBLOCK        2	/* for unblocking signals */
- #define SIG_SETMASK        3	/* for setting the signal mask */
-diff -urN linux-2.4.8-ac5/include/asm-arm/signal.h linux/include/asm-arm/signal.h
---- linux-2.4.8-ac5/include/asm-arm/signal.h	Thu Nov 18 22:37:03 1999
-+++ linux/include/asm-arm/signal.h	Wed Aug 15 18:12:29 2001
-@@ -124,8 +124,20 @@
- #define SA_SAMPLE_RANDOM	0x10000000
- #define SA_IRQNOMASK		0x08000000
- #define SA_SHIRQ		0x04000000
-+
-+/*
-+ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
-+ * contribute to the kernel entropy pool if users want that
-+ * at compile time.
-+ */
-+#ifdef CONFIG_NET_RANDOM
-+#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
-+#else
-+#define SA_SAMPLE_NET_RANDOM	0
- #endif
+-	i = request_irq(dev->irq, &el3_interrupt, 0, dev->name, dev);
++	i = request_irq(dev->irq, &el3_interrupt,
++			SA_SAMPLE_NET_RANDOM, dev->name, dev);
+ 	if (i) return i;
  
-+#endif /* __KERNEL__ */
-+
- #define SIG_BLOCK          0	/* for blocking signals */
- #define SIG_UNBLOCK        1	/* for unblocking signals */
- #define SIG_SETMASK        2	/* for setting the signal mask */
-diff -urN linux-2.4.8-ac5/include/asm-cris/signal.h linux/include/asm-cris/signal.h
---- linux-2.4.8-ac5/include/asm-cris/signal.h	Thu Feb  8 19:32:44 2001
-+++ linux/include/asm-cris/signal.h	Wed Aug 15 18:12:40 2001
-@@ -120,8 +120,20 @@
- #define SA_PROBE		SA_ONESHOT
- #define SA_SAMPLE_RANDOM	SA_RESTART
- #define SA_SHIRQ		0x04000000
-+
-+/*
-+ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
-+ * contribute to the kernel entropy pool if users want that
-+ * at compile time.
-+ */
-+#ifdef CONFIG_NET_RANDOM
-+#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
-+#else
-+#define SA_SAMPLE_NET_RANDOM	0
- #endif
+ 	EL3WINDOW(0);
+diff -urN linux-2.4.9-pre4/drivers/net/3c523.c linux/drivers/net/3c523.c
+--- linux-2.4.9-pre4/drivers/net/3c523.c	Wed Aug 15 23:09:39 2001
++++ linux/drivers/net/3c523.c	Wed Aug 15 23:20:08 2001
+@@ -280,7 +280,7 @@
  
-+#endif /* __KERNEL__ */
-+
- #define SIG_BLOCK          0	/* for blocking signals */
- #define SIG_UNBLOCK        1	/* for unblocking signals */
- #define SIG_SETMASK        2	/* for setting the signal mask */
-diff -urN linux-2.4.8-ac5/include/asm-i386/signal.h linux/include/asm-i386/signal.h
---- linux-2.4.8-ac5/include/asm-i386/signal.h	Fri Aug 10 21:13:47 2001
-+++ linux/include/asm-i386/signal.h	Wed Aug 15 19:02:11 2001
-@@ -119,8 +119,20 @@
- #define SA_PROBE		SA_ONESHOT
- #define SA_SAMPLE_RANDOM	SA_RESTART
- #define SA_SHIRQ		0x04000000
-+
-+/*
-+ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
-+ * contribute to the kernel entropy pool if users want that
-+ * at compile time.
-+ */
-+#ifdef CONFIG_NET_RANDOM
-+#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
-+#else
-+#define SA_SAMPLE_NET_RANDOM	0
- #endif
+ 	elmc_id_attn586();	/* disable interrupts */
  
-+#endif /* __KERNEL__ */
-+
- #define SIG_BLOCK          0	/* for blocking signals */
- #define SIG_UNBLOCK        1	/* for unblocking signals */
- #define SIG_SETMASK        2	/* for setting the signal mask */
-diff -urN linux-2.4.8-ac5/include/asm-ia64/signal.h linux/include/asm-ia64/signal.h
---- linux-2.4.8-ac5/include/asm-ia64/signal.h	Tue Jul 31 13:30:09 2001
-+++ linux/include/asm-ia64/signal.h	Wed Aug 15 18:13:06 2001
-@@ -106,6 +106,17 @@
- #define SA_SAMPLE_RANDOM	SA_RESTART
- #define SA_SHIRQ		0x04000000
+-	ret = request_irq(dev->irq, &elmc_interrupt, SA_SHIRQ | SA_SAMPLE_RANDOM,
++	ret = request_irq(dev->irq, &elmc_interrupt, SA_SHIRQ | SA_SAMPLE_NET_RANDOM,
+ 			  dev->name, dev);
+ 	if (ret) {
+ 		printk(KERN_ERR "%s: couldn't get irq %d\n", dev->name, dev->irq);
+diff -urN linux-2.4.9-pre4/drivers/net/3c59x.c linux/drivers/net/3c59x.c
+--- linux-2.4.9-pre4/drivers/net/3c59x.c	Wed Aug 15 23:09:39 2001
++++ linux/drivers/net/3c59x.c	Wed Aug 15 23:20:08 2001
+@@ -1581,7 +1581,7 @@
  
-+/*
-+ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
-+ * contribute to the kernel entropy pool if users want that
-+ * at compile time.
-+ */
-+#ifdef CONFIG_NET_RANDOM
-+#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
-+#else
-+#define SA_SAMPLE_NET_RANDOM	0
-+#endif
-+
- #endif /* __KERNEL__ */
+ 	/* Use the now-standard shared IRQ implementation. */
+ 	if ((retval = request_irq(dev->irq, vp->full_bus_master_rx ?
+-				&boomerang_interrupt : &vortex_interrupt, SA_SHIRQ, dev->name, dev))) {
++				&boomerang_interrupt : &vortex_interrupt, SA_SHIRQ | SA_SAMPLE_NET_RANDOM, dev->name, dev))) {
+ 		printk(KERN_ERR "%s: Could not reserve IRQ %d\n", dev->name, dev->irq);
+ 		goto out;
+ 	}
+diff -urN linux-2.4.9-pre4/drivers/net/8139too.c linux/drivers/net/8139too.c
+--- linux-2.4.9-pre4/drivers/net/8139too.c	Wed Aug 15 23:09:40 2001
++++ linux/drivers/net/8139too.c	Wed Aug 15 23:20:08 2001
+@@ -1289,7 +1289,8 @@
  
- #define SIG_BLOCK          0	/* for blocking signals */
-diff -urN linux-2.4.8-ac5/include/asm-m68k/signal.h linux/include/asm-m68k/signal.h
---- linux-2.4.8-ac5/include/asm-m68k/signal.h	Thu Nov 18 22:37:03 1999
-+++ linux/include/asm-m68k/signal.h	Wed Aug 15 18:13:16 2001
-@@ -116,8 +116,20 @@
- #define SA_PROBE		SA_ONESHOT
- #define SA_SAMPLE_RANDOM	SA_RESTART
- #define SA_SHIRQ		0x04000000
-+
-+/*
-+ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
-+ * contribute to the kernel entropy pool if users want that
-+ * at compile time.
-+ */
-+#ifdef CONFIG_NET_RANDOM
-+#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
-+#else
-+#define SA_SAMPLE_NET_RANDOM	0
- #endif
+ 	DPRINTK ("ENTER\n");
  
-+#endif /* __KERNEL__ */
-+
- #define SIG_BLOCK          0	/* for blocking signals */
- #define SIG_UNBLOCK        1	/* for unblocking signals */
- #define SIG_SETMASK        2	/* for setting the signal mask */
-diff -urN linux-2.4.8-ac5/include/asm-mips/signal.h linux/include/asm-mips/signal.h
---- linux-2.4.8-ac5/include/asm-mips/signal.h	Mon Jul 10 01:18:15 2000
-+++ linux/include/asm-mips/signal.h	Wed Aug 15 18:13:28 2001
-@@ -111,6 +111,17 @@
- #define SA_SAMPLE_RANDOM	SA_RESTART
- #define SA_SHIRQ		0x02000000
+-	retval = request_irq (dev->irq, rtl8139_interrupt, SA_SHIRQ, dev->name, dev);
++	retval = request_irq (dev->irq, rtl8139_interrupt,
++			SA_SHIRQ | SA_SAMPLE_NET_RANDOM, dev->name, dev);
+ 	if (retval) {
+ 		DPRINTK ("EXIT, returning %d\n", retval);
+ 		return retval;
+diff -urN linux-2.4.9-pre4/drivers/net/cs89x0.c linux/drivers/net/cs89x0.c
+--- linux-2.4.9-pre4/drivers/net/cs89x0.c	Wed Aug 15 23:09:39 2001
++++ linux/drivers/net/cs89x0.c	Wed Aug 15 23:20:08 2001
+@@ -1057,7 +1057,7 @@
  
-+/*
-+ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
-+ * contribute to the kernel entropy pool if users want that
-+ * at compile time.
-+ */
-+#ifdef CONFIG_NET_RANDOM
-+#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
-+#else
-+#define SA_SAMPLE_NET_RANDOM	0
-+#endif
-+
- #endif /* __KERNEL__ */
+ 		for (i = 2; i < CS8920_NO_INTS; i++) {
+ 			if ((1 << dev->irq) & lp->irq_map) {
+-				if (request_irq(i, net_interrupt, 0, dev->name, dev) == 0) {
++				if (request_irq(i, net_interrupt, SA_SAMPLE_NET_RANDOM, dev->name, dev) == 0) {
+ 					dev->irq = i;
+ 					write_irq(dev, lp->chip_type, i);
+ 					/* writereg(dev, PP_BufCFG, GENERATE_SW_INTERRUPT); */
+diff -urN linux-2.4.9-pre4/drivers/net/eepro.c linux/drivers/net/eepro.c
+--- linux-2.4.9-pre4/drivers/net/eepro.c	Wed Aug 15 23:09:39 2001
++++ linux/drivers/net/eepro.c	Wed Aug 15 23:20:08 2001
+@@ -944,7 +944,8 @@
+ 		return -EAGAIN;
+ 	}
+ 		
+-	if (request_irq(dev->irq , &eepro_interrupt, 0, dev->name, dev)) {
++	if (request_irq(dev->irq , &eepro_interrupt, SA_SAMPLE_NET_RANDOM,
++				dev->name, dev)) {
+ 		printk("%s: unable to get IRQ %d.\n", dev->name, dev->irq);
+ 		return -EAGAIN;
+ 	}
+diff -urN linux-2.4.9-pre4/drivers/net/eepro100.c linux/drivers/net/eepro100.c
+--- linux-2.4.9-pre4/drivers/net/eepro100.c	Wed Aug 15 23:09:40 2001
++++ linux/drivers/net/eepro100.c	Wed Aug 15 23:20:08 2001
+@@ -932,7 +932,8 @@
+ 	sp->in_interrupt = 0;
  
- #define SIG_BLOCK	1	/* for blocking signals */
-diff -urN linux-2.4.8-ac5/include/asm-mips64/signal.h linux/include/asm-mips64/signal.h
---- linux-2.4.8-ac5/include/asm-mips64/signal.h	Sat May 13 11:31:25 2000
-+++ linux/include/asm-mips64/signal.h	Wed Aug 15 18:13:43 2001
-@@ -112,6 +112,17 @@
- #define SA_SAMPLE_RANDOM	SA_RESTART
- #define SA_SHIRQ		0x02000000
+ 	/* .. we can safely take handler calls during init. */
+-	retval = request_irq(dev->irq, &speedo_interrupt, SA_SHIRQ, dev->name, dev);
++	retval = request_irq(dev->irq, &speedo_interrupt,
++			SA_SHIRQ | SA_SAMPLE_NET_RANDOM, dev->name, dev);
+ 	if (retval) {
+ 		MOD_DEC_USE_COUNT;
+ 		return retval;
+diff -urN linux-2.4.9-pre4/drivers/net/eexpress.c linux/drivers/net/eexpress.c
+--- linux-2.4.9-pre4/drivers/net/eexpress.c	Wed Aug 15 23:09:39 2001
++++ linux/drivers/net/eexpress.c	Wed Aug 15 23:20:08 2001
+@@ -433,7 +433,8 @@
+ 	if (!dev->irq || !irqrmap[dev->irq])
+ 		return -ENXIO;
  
-+/*
-+ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
-+ * contribute to the kernel entropy pool if users want that
-+ * at compile time.
-+ */
-+#ifdef CONFIG_NET_RANDOM
-+#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
-+#else
-+#define SA_SAMPLE_NET_RANDOM	0
-+#endif
-+
- #endif /* __KERNEL__ */
+-	ret = request_irq(dev->irq,&eexp_irq,0,dev->name,dev);
++	ret = request_irq(dev->irq,&eexp_irq,SA_SAMPLE_NET_RANDOM,
++			dev->name,dev);
+ 	if (ret) return ret;
  
- #define SIG_BLOCK	1	/* for blocking signals */
-diff -urN linux-2.4.8-ac5/include/asm-parisc/signal.h linux/include/asm-parisc/signal.h
---- linux-2.4.8-ac5/include/asm-parisc/signal.h	Tue Dec  5 15:29:39 2000
-+++ linux/include/asm-parisc/signal.h	Wed Aug 15 18:13:53 2001
-@@ -100,6 +100,17 @@
- #define SA_SAMPLE_RANDOM	SA_RESTART
- #define SA_SHIRQ		0x04000000
+ 	request_region(ioaddr, EEXP_IO_EXTENT, "EtherExpress");
+diff -urN linux-2.4.9-pre4/drivers/net/ibmlana.c linux/drivers/net/ibmlana.c
+--- linux-2.4.9-pre4/drivers/net/ibmlana.c	Wed Aug 15 23:09:40 2001
++++ linux/drivers/net/ibmlana.c	Wed Aug 15 23:20:08 2001
+@@ -856,7 +856,7 @@
  
-+/*
-+ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
-+ * contribute to the kernel entropy pool if users want that
-+ * at compile time.
-+ */
-+#ifdef CONFIG_NET_RANDOM
-+#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
-+#else
-+#define SA_SAMPLE_NET_RANDOM	0
-+#endif
-+
- #endif /* __KERNEL__ */
+ 	result =
+ 	    request_irq(priv->realirq, irq_handler,
+-			SA_SHIRQ | SA_SAMPLE_RANDOM, dev->name, dev);
++			SA_SHIRQ | SA_SAMPLE_NET_RANDOM, dev->name, dev);
+ 	if (result != 0) {
+ 		printk("%s: failed to register irq %d\n", dev->name,
+ 		       dev->irq);
+diff -urN linux-2.4.9-pre4/drivers/net/ne2k-pci.c linux/drivers/net/ne2k-pci.c
+--- linux-2.4.9-pre4/drivers/net/ne2k-pci.c	Wed Aug 15 23:09:40 2001
++++ linux/drivers/net/ne2k-pci.c	Wed Aug 15 23:20:08 2001
+@@ -387,7 +387,8 @@
  
- #define SIG_BLOCK          0	/* for blocking signals */
-diff -urN linux-2.4.8-ac5/include/asm-ppc/signal.h linux/include/asm-ppc/signal.h
---- linux-2.4.8-ac5/include/asm-ppc/signal.h	Mon May 21 18:02:06 2001
-+++ linux/include/asm-ppc/signal.h	Wed Aug 15 18:14:02 2001
-@@ -114,8 +114,20 @@
- #define SA_PROBE		SA_ONESHOT
- #define SA_SAMPLE_RANDOM	SA_RESTART
- #define SA_SHIRQ		0x04000000
-+
-+/*
-+ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
-+ * contribute to the kernel entropy pool if users want that
-+ * at compile time.
-+ */
-+#ifdef CONFIG_NET_RANDOM
-+#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
-+#else
-+#define SA_SAMPLE_NET_RANDOM	0
- #endif
+ static int ne2k_pci_open(struct net_device *dev)
+ {
+-	int ret = request_irq(dev->irq, ei_interrupt, SA_SHIRQ, dev->name, dev);
++	int ret = request_irq(dev->irq, ei_interrupt,
++			SA_SHIRQ | SA_SAMPLE_NET_RANDOM, dev->name, dev);
+ 	if (ret)
+ 		return ret;
  
-+#endif /* __KERNEL__ */
-+
- #define SIG_BLOCK          0	/* for blocking signals */
- #define SIG_UNBLOCK        1	/* for unblocking signals */
- #define SIG_SETMASK        2	/* for setting the signal mask */
-diff -urN linux-2.4.8-ac5/include/asm-ppc64/signal.h linux/include/asm-ppc64/signal.h
---- linux-2.4.8-ac5/include/asm-ppc64/signal.h	Wed Aug 15 19:05:43 2001
-+++ linux/include/asm-ppc64/signal.h	Wed Aug 15 18:14:14 2001
-@@ -117,8 +117,20 @@
- #define SA_PROBE		SA_ONESHOT
- #define SA_SAMPLE_RANDOM	SA_RESTART
- #define SA_SHIRQ		0x04000000
-+
-+/*
-+ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
-+ * contribute to the kernel entropy pool if users want that
-+ * at compile time.
-+ */
-+#ifdef CONFIG_NET_RANDOM
-+#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
-+#else
-+#define SA_SAMPLE_NET_RANDOM	0
- #endif
+diff -urN linux-2.4.9-pre4/drivers/net/pcmcia/pcnet_cs.c linux/drivers/net/pcmcia/pcnet_cs.c
+--- linux-2.4.9-pre4/drivers/net/pcmcia/pcnet_cs.c	Wed Aug 15 23:09:40 2001
++++ linux/drivers/net/pcmcia/pcnet_cs.c	Wed Aug 15 23:20:08 2001
+@@ -977,7 +977,7 @@
+     MOD_INC_USE_COUNT;
  
-+#endif /* __KERNEL__ */
-+
- #define SIG_BLOCK          0	/* for blocking signals */
- #define SIG_UNBLOCK        1	/* for unblocking signals */
- #define SIG_SETMASK        2	/* for setting the signal mask */
-diff -urN linux-2.4.8-ac5/include/asm-s390/signal.h linux/include/asm-s390/signal.h
---- linux-2.4.8-ac5/include/asm-s390/signal.h	Wed Apr 11 22:02:28 2001
-+++ linux/include/asm-s390/signal.h	Wed Aug 15 18:14:25 2001
-@@ -127,8 +127,20 @@
- #define SA_PROBE                SA_ONESHOT
- #define SA_SAMPLE_RANDOM        SA_RESTART
- #define SA_SHIRQ                0x04000000
-+
-+/*
-+ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
-+ * contribute to the kernel entropy pool if users want that
-+ * at compile time.
-+ */
-+#ifdef CONFIG_NET_RANDOM
-+#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
-+#else
-+#define SA_SAMPLE_NET_RANDOM	0
- #endif
+     set_misc_reg(dev);
+-    request_irq(dev->irq, ei_irq_wrapper, SA_SHIRQ, dev_info, dev);
++    request_irq(dev->irq, ei_irq_wrapper, SA_SHIRQ | SA_SAMPLE_NET_RANDOM, dev_info, dev);
  
-+#endif /* __KERNEL__ */
-+
- #define SIG_BLOCK          0    /* for blocking signals */
- #define SIG_UNBLOCK        1    /* for unblocking signals */
- #define SIG_SETMASK        2    /* for setting the signal mask */
-diff -urN linux-2.4.8-ac5/include/asm-s390x/signal.h linux/include/asm-s390x/signal.h
---- linux-2.4.8-ac5/include/asm-s390x/signal.h	Wed Jul 25 17:12:02 2001
-+++ linux/include/asm-s390x/signal.h	Wed Aug 15 18:14:32 2001
-@@ -127,8 +127,20 @@
- #define SA_PROBE                SA_ONESHOT
- #define SA_SAMPLE_RANDOM        SA_RESTART
- #define SA_SHIRQ                0x04000000
-+
-+/*
-+ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
-+ * contribute to the kernel entropy pool if users want that
-+ * at compile time.
-+ */
-+#ifdef CONFIG_NET_RANDOM
-+#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
-+#else
-+#define SA_SAMPLE_NET_RANDOM	0
- #endif
+     info->link_status = 0x00;
+     info->watchdog.function = &ei_watchdog;
+diff -urN linux-2.4.9-pre4/drivers/net/pcmcia/xircom_tulip_cb.c linux/drivers/net/pcmcia/xircom_tulip_cb.c
+--- linux-2.4.9-pre4/drivers/net/pcmcia/xircom_tulip_cb.c	Wed Aug 15 23:09:40 2001
++++ linux/drivers/net/pcmcia/xircom_tulip_cb.c	Wed Aug 15 23:20:25 2001
+@@ -768,7 +768,8 @@
+ {
+ 	struct tulip_private *tp = (struct tulip_private *)dev->priv;
  
-+#endif /* __KERNEL__ */
-+
- #define SIG_BLOCK          0    /* for blocking signals */
- #define SIG_UNBLOCK        1    /* for unblocking signals */
- #define SIG_SETMASK        2    /* for setting the signal mask */
-diff -urN linux-2.4.8-ac5/include/asm-sh/signal.h linux/include/asm-sh/signal.h
---- linux-2.4.8-ac5/include/asm-sh/signal.h	Thu Nov 18 22:37:03 1999
-+++ linux/include/asm-sh/signal.h	Wed Aug 15 18:14:43 2001
-@@ -107,8 +107,20 @@
- #define SA_PROBE		SA_ONESHOT
- #define SA_SAMPLE_RANDOM	SA_RESTART
- #define SA_SHIRQ		0x04000000
-+
-+/*
-+ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
-+ * contribute to the kernel entropy pool if users want that
-+ * at compile time.
-+ */
-+#ifdef CONFIG_NET_RANDOM
-+#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
-+#else
-+#define SA_SAMPLE_NET_RANDOM	0
- #endif
+-	if (request_irq(dev->irq, &tulip_interrupt, SA_SHIRQ, dev->name, dev))
++	if (request_irq(dev->irq, &tulip_interrupt,
++			SA_SHIRQ | SA_SAMPLE_NET_RANDOM, dev->name, dev))
+ 		return -EAGAIN;
  
-+#endif /* __KERNEL__ */
-+
- #define SIG_BLOCK          0	/* for blocking signals */
- #define SIG_UNBLOCK        1	/* for unblocking signals */
- #define SIG_SETMASK        2	/* for setting the signal mask */
-diff -urN linux-2.4.8-ac5/include/asm-sparc/signal.h linux/include/asm-sparc/signal.h
---- linux-2.4.8-ac5/include/asm-sparc/signal.h	Wed Sep  8 14:14:32 1999
-+++ linux/include/asm-sparc/signal.h	Wed Aug 15 18:14:52 2001
-@@ -176,8 +176,20 @@
- #define SA_PROBE SA_ONESHOT
- #define SA_SAMPLE_RANDOM SA_RESTART
- #define SA_STATIC_ALLOC		0x80
-+
-+/*
-+ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
-+ * contribute to the kernel entropy pool if users want that
-+ * at compile time.
-+ */
-+#ifdef CONFIG_NET_RANDOM
-+#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
-+#else
-+#define SA_SAMPLE_NET_RANDOM	0
- #endif
+ 	tulip_init_ring(dev);
+diff -urN linux-2.4.9-pre4/drivers/net/sk_mca.c linux/drivers/net/sk_mca.c
+--- linux-2.4.9-pre4/drivers/net/sk_mca.c	Wed Aug 15 23:09:39 2001
++++ linux/drivers/net/sk_mca.c	Wed Aug 15 23:20:25 2001
+@@ -861,7 +861,7 @@
+ 	/* register resources - only necessary for IRQ */
+ 	result =
+ 	    request_irq(priv->realirq, irq_handler,
+-			SA_SHIRQ | SA_SAMPLE_RANDOM, "sk_mca", dev);
++			SA_SHIRQ | SA_SAMPLE_NET_RANDOM, "sk_mca", dev);
+ 	if (result != 0) {
+ 		printk("%s: failed to register irq %d\n", dev->name,
+ 		       dev->irq);
+diff -urN linux-2.4.9-pre4/drivers/net/smc9194.c linux/drivers/net/smc9194.c
+--- linux-2.4.9-pre4/drivers/net/smc9194.c	Wed Aug 15 23:09:39 2001
++++ linux/drivers/net/smc9194.c	Wed Aug 15 23:20:25 2001
+@@ -1019,7 +1019,7 @@
+ 	ether_setup(dev);
  
-+#endif /* __KERNEL__ */
-+
- /* Type of a signal handler.  */
- #ifdef __KERNEL__
- typedef void (*__sighandler_t)(int, int, struct sigcontext *, char *);
-diff -urN linux-2.4.8-ac5/include/asm-sparc64/signal.h linux/include/asm-sparc64/signal.h
---- linux-2.4.8-ac5/include/asm-sparc64/signal.h	Wed Sep  8 14:14:32 1999
-+++ linux/include/asm-sparc64/signal.h	Wed Aug 15 18:15:02 2001
-@@ -192,8 +192,20 @@
- #define SA_PROBE SA_ONESHOT
- #define SA_SAMPLE_RANDOM SA_RESTART
- #define SA_STATIC_ALLOC		0x80
-+
-+/*
-+ * Net Devices can use SA_SAMPLE_NET_RANDOM and thus only
-+ * contribute to the kernel entropy pool if users want that
-+ * at compile time.
-+ */
-+#ifdef CONFIG_NET_RANDOM
-+#define SA_SAMPLE_NET_RANDOM	SA_SAMPLE_RANDOM
-+#else
-+#define SA_SAMPLE_NET_RANDOM	0
- #endif
+ 	/* Grab the IRQ */
+-      	retval = request_irq(dev->irq, &smc_interrupt, 0, dev->name, dev);
++      	retval = request_irq(dev->irq, &smc_interrupt, SA_SAMPLE_NET_RANDOM, dev->name, dev);
+       	if (retval) {
+ 		printk("%s: unable to get IRQ %d (irqval=%d).\n", dev->name,
+ 			dev->irq, retval);
+diff -urN linux-2.4.9-pre4/drivers/net/tulip/tulip_core.c linux/drivers/net/tulip/tulip_core.c
+--- linux-2.4.9-pre4/drivers/net/tulip/tulip_core.c	Wed Aug 15 23:09:40 2001
++++ linux/drivers/net/tulip/tulip_core.c	Wed Aug 15 23:20:25 2001
+@@ -504,7 +504,9 @@
+ 	int retval;
+ 	MOD_INC_USE_COUNT;
  
-+#endif /* __KERNEL__ */
-+
- /* Type of a signal handler.  */
- #ifdef __KERNEL__
- typedef void (*__sighandler_t)(int, struct sigcontext *);
+-	if ((retval = request_irq(dev->irq, &tulip_interrupt, SA_SHIRQ, dev->name, dev))) {
++	if ((retval = request_irq(dev->irq, &tulip_interrupt,
++					SA_SHIRQ | SA_SAMPLE_NET_RANDOM,
++					dev->name, dev))) {
+ 		MOD_DEC_USE_COUNT;
+ 		return retval;
+ 	}
+diff -urN linux-2.4.9-pre4/drivers/net/wavelan.c linux/drivers/net/wavelan.c
+--- linux-2.4.9-pre4/drivers/net/wavelan.c	Wed Aug 15 23:09:39 2001
++++ linux/drivers/net/wavelan.c	Wed Aug 15 23:20:25 2001
+@@ -3897,7 +3897,8 @@
+ 		return -ENXIO;
+ 	}
+ 
+-	if (request_irq(dev->irq, &wavelan_interrupt, 0, "WaveLAN", dev) != 0) 
++	if (request_irq(dev->irq, &wavelan_interrupt, SA_SAMPLE_NET_RANDOM,
++				"WaveLAN", dev) != 0) 
+ 	{
+ #ifdef DEBUG_CONFIG_ERROR
+ 		printk(KERN_WARNING "%s: wavelan_open(): invalid IRQ\n",
+
 
 
 -- 

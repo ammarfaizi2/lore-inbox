@@ -1,183 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267409AbTBDV1b>; Tue, 4 Feb 2003 16:27:31 -0500
+	id <S267408AbTBDV1X>; Tue, 4 Feb 2003 16:27:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267411AbTBDV1b>; Tue, 4 Feb 2003 16:27:31 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:59038 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267409AbTBDV1Y>;
-	Tue, 4 Feb 2003 16:27:24 -0500
-Message-ID: <3E403240.2060105@us.ibm.com>
-Date: Tue, 04 Feb 2003 13:36:00 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: john stultz <johnstul@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] make lost-tick detection more informative
-Content-Type: multipart/mixed;
- boundary="------------080202040400020409040902"
+	id <S267409AbTBDV1X>; Tue, 4 Feb 2003 16:27:23 -0500
+Received: from master.debian.org ([65.125.64.135]:6158 "EHLO master.debian.org")
+	by vger.kernel.org with ESMTP id <S267408AbTBDV1U>;
+	Tue, 4 Feb 2003 16:27:20 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Document describes how to install and use
+References: <200302042135.h14LZXPQ014787@marte.cts-design.com>
+In-Reply-To: <200302042135.h14LZXPQ014787@marte.cts-design.com>
+X-Visited: debian@debian.org
+From: Debian Press Team <press@debian.org>
+Message-Id: <E18gAkR-0005Hz-00@master.debian.org>
+Date: Tue, 04 Feb 2003 15:36:55 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080202040400020409040902
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Thank you for your interest in Debian GNU/Linux!
 
-Linus,
-Andrew Morton mentioned this when he sent you the lost tick detection
-patch.
+Due to the fact that we receive a lot of similar requests, we were
+forced to set up an automatic reply mechanism to reduce our workload
+and to actually be able to answer real requests again.  It would
+simply cost us too much time to answer each mail manually - and this
+would keep us from important tasks.  This means that we won't reply to
+each mail manually but believe in the autoreply answering it properly.
+We will, however, take a short glance at every mail and will answer as
+soon as possible if we recognize unanswered questions.  
 
-The new lost-tick detection code can be relatively uninformative when
-something using the common_interrupt->do_IRQ path keeps interrupts
-disabled for a long time. This patch will record the last interrupt on
-the current CPU, and spit it out along with the stack trace.  I ignore
-the timer interrupt, because it is always running when this detection
-occurs, and would overwrite the previous interrupt that took a long time.
 
-You can now turn this on with a boot-time option with the same name as
-x86-64: "report_lost_ticks".  I don't like the default of 5, so I let it
-take a plain report_lost_ticks, or report_lost_ticks=100, if you want.
+If you feel that the automatic reply does not answer all of your
+questions properly and you haven't received a manual reply from us
+WITHIN FOUR WORKDAYS, you may request manual attention.  Be warned,
+requesting manual attention too early may decrease the priority of your
+mail automatically.  If you are requesting manual attention, remove
+all questions that were answered by this auto-reply and add "Manual
+attention requested" to the top of your letter.
 
-Warning! Detected 4094446 micro-second gap between interrupts.
-  Compensating for 4093 lost ticks.
-Call Trace:
- [<c010ab60>] handle_IRQ_event+0x28/0x50
- [<c010ad44>] do_IRQ+0xa0/0x10c
- [<c01097b3>] common_interrupt+0x43/0x58
-  Last run common irq: 24: eth2
+Please do not send such a mail right after you have received this
+automatic reply.  Think about why you have received it and if it
+answers your questions already.  If you send such a mail right after
+you sent the original mail, chances are good to get ignored.
 
- irq.c  |    6 ++++++
- time.c |   41 ++++++++++++++++++++++++++++++++---------
- 2 files changed, 38 insertions(+), 9 deletions(-)
+Please use English language in your mail.  Other languages will result
+in confusion and delays since we would have to seek for translators
+first.
 
+The Debian Project
+
+  The Debian Project is a worldwide association that produces Debian,
+  the free operating system (OS) for your computer.  Debian is kernel
+  independent.  It currently uses the Linux kernel but work is in
+  progress to provide Debian for other kernels, using the Hurd and
+  BSD.  A detailed explanation is found on <http://www.debian.org/>.
+
+The new Release
+
+  The current stable release of Debian GNU/Linux is version 3.0.  It
+  was released in July 2002.  Since beginning of 2002 development
+  has been going on on the next version of the entire distribution,
+  codenamed `sarge', which will be released as Debian 3.1.
+
+Requests for freebies
+
+  The Debian Project is not a company nor does it produce any CD sets
+  or hardware.  Contrary to that we produce a software distribution.
+  We also help people distributing Debian GNU/Linux by providing
+  properly created CD images at <http://www.debian.org/CD/>.
+
+  As a result of this, we are unable to provide you with freebies for
+  shows or free CD boxes for reviewing.  Please check out the vendors
+  page at <http://www.debian.org/CD/vendors> and ask a vendor
+  that is near to you.  There are good chances they can help.  You're
+  also invited to fetch the CD images and start your own burn cycle.
+
+  What we can do is provide you with links to public stuff other than
+  the best and most free distribution Debian GNU/Linux:
+
+    <http://www.debian.org/logos/>
+    <http://www.debian.org/banners/>
+    <http://www.debian.org/misc/>
+    <http://www.cs.mu.oz.au/~rgmerk/prespage.html>
+    <http://www.debian.org/events/material>
+    <http://www.infodrom.north.de/Debian/demo/>
+
+Questions regarding packages or the distribution as a whole
+
+  We receive a whole bunch of general questions with regard to the
+  distribution.  Most of them are answered on the projects homepage at
+  <http://www.debian.org/>.  Please check out if your questions are
+  answered there before contacting us again.
+
+  More information:
+
+  Packages at <http://packages.debian.org/>
+
+  Individual packages at http://packages.debian.org/<name>
+
+  Bugs in a given package at http://bugs.debian.org/<name>
+
+News Articles and Press Releases
+
+  Press releases and news articles are sent to the following lists:
+
+  debian-announce@lists.debian.org
+  debian-news@lists.debian.org
+  debian-devel-announce@lists.debian.org
+
+  These and other Debian mailing lists are archived at
+  <http://lists.debian.org/> with a delay of less than one day.
+
+  To receive these articles please subscribe yourself to the list
+  which content you want to read.  You'll find information about
+  subscription to our lists at <http://www.debian.org/MailingLists/>
+
+  Recent news articles are collected at <http://www.debian.org/News/>
+
+  Press coverage is archived at <http://www.debian.org/News/press/>
+
+
+Thank you for you attention,
+
+
+The Debian Press Team
+   press@debian.org
+
+$Id: autoreply-press,v 1.7 2003/01/08 20:13:27 joey Exp $
 
 -- 
-Dave Hansen
-haveblue@us.ibm.com
-
-
---------------080202040400020409040902
-Content-Type: text/plain;
- name="lost-tick-culprit-2.5.59-bk.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="lost-tick-culprit-2.5.59-bk.patch"
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.981   -> 1.983  
-#	arch/i386/kernel/irq.c	1.25    -> 1.26   
-#	arch/i386/kernel/time.c	1.25    -> 1.27   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/02/04	haveblue@elm3b96.(none)	1.982
-# report better lock-tick information
-# --------------------------------------------
-# 03/02/04	haveblue@elm3b96.(none)	1.983
-# irq.c:
-#   add better last irq description
-# time.c:
-#   add missing variable
-# --------------------------------------------
-#
-diff -Nru a/arch/i386/kernel/irq.c b/arch/i386/kernel/irq.c
---- a/arch/i386/kernel/irq.c	Tue Feb  4 13:30:21 2003
-+++ b/arch/i386/kernel/irq.c	Tue Feb  4 13:30:21 2003
-@@ -68,6 +68,9 @@
- irq_desc_t irq_desc[NR_IRQS] __cacheline_aligned =
- 	{ [0 ... NR_IRQS-1] = { 0, &no_irq_type, NULL, 0, SPIN_LOCK_UNLOCKED}};
- 
-+/* used to determine the culprits who disabled interrupts for a long time */
-+int last_do_IRQ_interrupt[NR_CPUS] = { [0 ... NR_CPUS-1] = -1 };
-+
- static void register_irq_proc (unsigned int irq);
- 
- /*
-@@ -328,6 +331,9 @@
- 	irq_desc_t *desc = irq_desc + irq;
- 	struct irqaction * action;
- 	unsigned int status;
-+
-+	if(irq) /* don't count the timer */
-+		last_do_IRQ_interrupt[cpu] = irq;
- 
- 	irq_enter();
- 
-diff -Nru a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
---- a/arch/i386/kernel/time.c	Tue Feb  4 13:30:21 2003
-+++ b/arch/i386/kernel/time.c	Tue Feb  4 13:30:21 2003
-@@ -265,25 +265,39 @@
- #endif
- }
- 
-+static int report_lost_ticks;
-+int __init report_lost_ticks_setup(char *str)
-+{
-+	char* numstr;
-+	
-+	if (str[0] == '=') {
-+		numstr = &str[1];
-+		return get_option(&numstr,&report_lost_ticks) ? 1 : 0;
-+	} else if (str[0] == '\0') {
-+		report_lost_ticks = 5;
-+		return 1;
-+	}
-+
-+	return 0;
-+}
-+
-+__setup("report_lost_ticks", report_lost_ticks_setup);
-+
- /*
-  * Lost tick detection and compensation
-  */
-+extern int last_do_IRQ_interrupt[];
- static inline void detect_lost_tick(void)
- {
- 	/* read time since last interrupt */
- 	unsigned long delta = timer->get_offset();
--	static unsigned long dbg_print;
- 	
- 	/* check if delta is greater then two ticks */
- 	if(delta >= 2*(1000000/HZ)){
- 
--		/*
--		 * only print debug info first 5 times
--		 */
--		/*
--		 * AKPM: disable this for now; it's nice, but irritating.
--		 */
--		if (0 && dbg_print < 5) {
-+		if(report_lost_ticks > 0){
-+			int last_irq = last_do_IRQ_interrupt[smp_processor_id()];
-+			struct irqaction * action;
- 			printk(KERN_WARNING "\nWarning! Detected %lu "
- 				"micro-second gap between interrupts.\n",
- 				delta);
-@@ -291,7 +305,16 @@
- 				"ticks.\n",
- 				delta/(1000000/HZ)-1);
- 			dump_stack();
--			dbg_print++;
-+
-+			if(last_irq >= 0 && (action = irq_desc[last_irq].action)) {
-+				printk(KERN_WARNING "  Last run common irq: %d: %s", 
-+					last_irq, action->name);
-+				for (action=action->next; action; action = action->next)
-+					printk(", %s", action->name);
-+				printk("\n");	
-+			}
-+
-+			report_lost_ticks--;
- 		}
- 		/* calculate number of missed ticks */
- 		delta = delta/(1000000/HZ)-1;
-
---------------080202040400020409040902--
-
+Debian GNU/Linux                          The Universal Operating System

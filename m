@@ -1,42 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273012AbRIISie>; Sun, 9 Sep 2001 14:38:34 -0400
+	id <S273013AbRIISoe>; Sun, 9 Sep 2001 14:44:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273013AbRIISiP>; Sun, 9 Sep 2001 14:38:15 -0400
-Received: from smtp1.xs4all.nl ([194.109.127.131]:24333 "EHLO smtp1.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S273012AbRIISiJ>;
-	Sun, 9 Sep 2001 14:38:09 -0400
-Date: Sun, 9 Sep 2001 20:38:09 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: <roman@serv>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Patch: typo in fs/super.c
-Message-ID: <Pine.LNX.4.33.0109092033070.3840-100000@serv>
+	id <S273014AbRIISoY>; Sun, 9 Sep 2001 14:44:24 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17926 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S273013AbRIISoH>; Sun, 9 Sep 2001 14:44:07 -0400
+Subject: Re: 2.4.9 modules + unresovled symbols
+To: davidtl@rcn.com.hk (David Chow)
+Date: Sun, 9 Sep 2001 19:48:17 +0100 (BST)
+Cc: faybaby@enter.net (faybaby), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0109100055370.11973-100000@uranus.planet.rcn.com.hk> from "David Chow" at Sep 10, 2001 01:11:19 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15g9cv-0007fW-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> of the kernel modules (drivers) are not compatible to the kernel API. Such
+> as a SCSI controller driver PCI2000 PCI2220i and one of the V4L driver
+> modules, these modules not even get through the compiler, and how come no
+> one reporting this and fix them up from version to version? Since we are
 
-There is a small typo in fs/super.c which makes the mount hash quite
-ineffective.
-
-bye, Roman
-
-diff -u -r1.1.1.15 super.c
---- fs/super.c	11 Aug 2001 14:14:59 -0000	1.1.1.15
-+++ fs/super.c	9 Sep 2001 18:36:48 -0000
-@@ -288,8 +288,8 @@
- {
- 	unsigned long tmp = ((unsigned long) mnt / L1_CACHE_BYTES);
- 	tmp += ((unsigned long) dentry / L1_CACHE_BYTES);
--	tmp = tmp + (tmp >> hash_mask);
--	return tmp & hash_bits;
-+	tmp = tmp + (tmp >> hash_bits);
-+	return tmp & hash_mask;
- }
-
- struct vfsmount *alloc_vfsmnt(void)
+Because they work for us ? I build the pci2000, pci2220i in all my
+builds
 

@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268993AbTBWVXr>; Sun, 23 Feb 2003 16:23:47 -0500
+	id <S268564AbTBWVaA>; Sun, 23 Feb 2003 16:30:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268998AbTBWVXr>; Sun, 23 Feb 2003 16:23:47 -0500
-Received: from pine.compass.com.ph ([202.70.96.37]:63017 "HELO
-	pine.compass.com.ph") by vger.kernel.org with SMTP
-	id <S268993AbTBWVXp>; Sun, 23 Feb 2003 16:23:45 -0500
-Subject: Re: [Linux-fbdev-devel] cat /dev/fb1 produces kernel bug
-From: Antonino Daplas <adaplas@pol.net>
-To: Siim Vahtre <siim@pld.ttu.ee>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOL.4.31.0302231958260.28624-100000@pitsa.pld.ttu.ee>
-References: <Pine.SOL.4.31.0302231958260.28624-100000@pitsa.pld.ttu.ee>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1046035982.1308.74.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 24 Feb 2003 05:34:24 +0800
+	id <S268934AbTBWVaA>; Sun, 23 Feb 2003 16:30:00 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47880 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268564AbTBWV37>; Sun, 23 Feb 2003 16:29:59 -0500
+Date: Sun, 23 Feb 2003 13:37:33 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: object-based rmap and pte-highmem
+In-Reply-To: <9540000.1046031384@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.44.0302231335090.1534-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-02-24 at 02:07, Siim Vahtre wrote:
 
-> Call Trace:
->  [<c020e678>] kobject_register+0x58/0x70
->  [<c021a58b>] bus_add_driver+0x5b/0xe0
->  [<c021a9df>] driver_register+0x2f/0x40
->  [<c017a8e3>] create_proc_entry+0x83/0xd0
->  [<c021170b>] pci_register_driver+0x4b/0x60
->  [<c010507f>] init+0x3f/0x160
->  [<c0105040>] init+0x0/0x160
->  [<c010726d>] kernel_thread_helper+0x5/0x18
+On Sun, 23 Feb 2003, Martin J. Bligh wrote:
+> > 
+> > The thing is, you _cannot_ have a per-thread area, since all threads
+> > share the same TLB.  And if it isn't per-thread, you still need all the
+> > locking and all the scalability stuff that the _current_ pte_highmem
+> > code needs, since there are people with thousands of threads in the same
+> > process. 
 > 
+> I don't see why that's an issue - the pagetables are per-process, not
+> per-thread.
 
-For a quick fix, try this:
+Exactly. Which means that UKVA has all the same problems as the current 
+global map.
 
-diff -Naur linux-2.5.61/drivers/video/riva/fbdev.c linux/drivers/video/riva/fbdev.c
---- linux-2.5.61/drivers/video/riva/fbdev.c	2003-02-16 00:49:23.000000000 +0000
-+++ linux/drivers/video/riva/fbdev.c	2003-02-23 21:30:50.000000000 +0000
-@@ -1961,12 +1961,10 @@
- 
- int __init rivafb_init(void)
- {
--	int err;
--	err = pci_module_init(&rivafb_driver);
--	if (err)
--		return err;
--	pci_register_driver(&rivafb_driver);
--	return 0;
-+	if (pci_register_driver(&rivafb_driver) > 0) 
-+		return 0;
-+	pci_unregister_driver(&rivafb_driver);
-+	return -ENODEV;
- }
- 
+There are _NO_ differences. Any problems you have with the current global 
+map you would have with UKVA in threads. So I don't see what you expect to 
+win from UKVA.
 
-Or Try James' patch...
-http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+> Yes, that was a stalling point for sticking kmap in there, which was
+> amongst my original plotting for it, but the stuff that's per-process
+> still works. 
 
-...and Geert's "Logo Updates" which he just sent recently.
+Exactly what _is_ "per-process"? The only thing that is per-process is 
+stuff that is totally local to the VM, by the linux definition.
 
-Tony
+And the rmap stuff certainly isn't "local to the VM". Yes, it is torn down 
+and built up by the VM, but it needs to be traversed by global code.
+
+		Linus
 

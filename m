@@ -1,38 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263722AbUDMUJX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 16:09:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263727AbUDMUJX
+	id S263728AbUDMUNa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 16:13:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263725AbUDMUNa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 16:09:23 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:28901 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S263722AbUDMUJU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 16:09:20 -0400
-Date: Tue, 13 Apr 2004 13:09:08 -0700
-From: Grant Grundler <iod00d@hp.com>
-To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] PCI MSI Kconfig consolidation
-Message-ID: <20040413200908.GF6559@cup.hp.com>
-References: <C7AB9DA4D0B1F344BF2489FA165E502404058232@orsmsx404.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Apr 2004 16:13:30 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:47769 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263730AbUDMUNY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 16:13:24 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Adrian Bunk <bunk@fs.tum.de>, Meelis Roos <mroos@linux.ee>
+Subject: Re: [2.4 IDE PATCH] SanDisk is flash (fwd)
+Date: Tue, 13 Apr 2004 22:12:11 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+References: <20040413195344.GA523@fs.tum.de>
+In-Reply-To: <20040413195344.GA523@fs.tum.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E502404058232@orsmsx404.jf.intel.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200404132212.11481.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 13, 2004 at 12:16:10PM -0700, Nguyen, Tom L wrote:
-> It looks good; however, it may create a confusion on ia64 because ia64 
-> is already vector-based indexing. 
+On Tuesday 13 of April 2004 21:53, Adrian Bunk wrote:
+> The patch forwarded below by Meelis Roos was already included in
+> 2.4.26-rc. It does apply against 2.6, too, so I assume it should also be
+> added there?
 
-Ok. Can you submit another patch to cleanup the wording so it's clear
-this option only changes ia32 IRQ support?
+Some time ago I sent mail to Meelis asking if this patch is really necessary.
+No answer yet.
 
-The key feature is MSI support (which I think depends on vector-based
-indexing) which is arch independent.
+> cu
+> Adrian
+>
+>
+> ----- Forwarded message from Meelis Roos <mroos@linux.ee> -----
+>
+> Date:	Thu, 1 Apr 2004 21:26:13 +0300 (EEST)
+> From: Meelis Roos <mroos@linux.ee>
+> To: Linux Kernel list <linux-kernel@vger.kernel.org>
+> Subject: [2.4 IDE PATCH] SanDisk is flash
+>
+> This is self-explanatory - former SunDisk renamed itself to SanDisk and
+> now there are flash disks with both names.
 
-grant
+Please excuse me but I am dumb... ;-)
+
+Does this mean that CF test fail or that SunDisk is SanDisk now?
+
+id->config == 0x848a test was introduced in kernel 2.3.27 _after_
+SunDisk model name test and if id->config == 0x848a test fails
+comment to drive_is_flashcard() needs fixing.
+
+> ===== drivers/ide/ide-probe.c 1.21 vs edited =====
+> --- 1.21/drivers/ide/ide-probe.c	Mon Nov 24 00:05:18 2003
+> +++ edited/drivers/ide/ide-probe.c	Thu Apr  1 21:15:22 2004
+> @@ -102,7 +102,8 @@
+>  		if (id->config == 0x848a) return 1;	/* CompactFlash */
+>  		if (!strncmp(id->model, "KODAK ATA_FLASH", 15)	/* Kodak */
+>
+>  		 || !strncmp(id->model, "Hitachi CV", 10)	/* Hitachi */
+>
+> -		 || !strncmp(id->model, "SunDisk SDCFB", 13)	/* SunDisk */
+> +		 || !strncmp(id->model, "SunDisk SDCFB", 13)	/* old SanDisk */
+> +		 || !strncmp(id->model, "SanDisk SDCFB", 13)	/* SanDisk */
+>
+>  		 || !strncmp(id->model, "HAGIWARA HPC", 12)	/* Hagiwara */
+>  		 || !strncmp(id->model, "LEXAR ATA_FLASH", 15)	/* Lexar */
+>  		 || !strncmp(id->model, "ATA_FLASH", 9))	/* Simple Tech */
+

@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277094AbRJKX4V>; Thu, 11 Oct 2001 19:56:21 -0400
+	id <S277092AbRJKX6I>; Thu, 11 Oct 2001 19:58:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277093AbRJKX4K>; Thu, 11 Oct 2001 19:56:10 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:25354 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S277089AbRJKXzx>;
-	Thu, 11 Oct 2001 19:55:53 -0400
-Date: Thu, 11 Oct 2001 20:56:01 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Oden Eriksson <oden.eriksson@kvikkjokk.net>
-Cc: Tim Moore <timothymoore@bigfoot.com>, linux-kernel@vger.kernel.org
-Subject: Re: Which kernel (Linus or ac)?
-Message-ID: <20011011205601.C7285@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Oden Eriksson <oden.eriksson@kvikkjokk.net>,
-	Tim Moore <timothymoore@bigfoot.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org> <3BC5E3AF.588D0A55@lexus.com> <3BC5EB56.21B4EF88@bigfoot.com> <20011011235033Z277082-760+24288@vger.kernel.org>
+	id <S277093AbRJKX6C>; Thu, 11 Oct 2001 19:58:02 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:3247 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S277092AbRJKX5u>; Thu, 11 Oct 2001 19:57:50 -0400
+Date: Thu, 11 Oct 2001 16:57:34 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Export objs from an external Makefile?
+Message-ID: <20011011165734.C21564@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <20011011093532.K12016@cpe-24-221-152-185.az.sprintbbd.net> <32224.1002843725@ocs3.intra.ocs.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011011235033Z277082-760+24288@vger.kernel.org>
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+In-Reply-To: <32224.1002843725@ocs3.intra.ocs.com.au>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, Oct 12, 2001 at 01:50:58AM +0200, Oden Eriksson escreveu:
-> On Thursdayen den 11 October 2001 20.56, Tim Moore wrote:
-> > Observations based on Roswell 2 and identical Abit BP6's: faster disk
-> > I/O and kernel builds (same options), smoother X11 performance (SVGA),
-> > higher LAN network I/O (switched LNE100TX) under heavy loads, and, none
-> > of the recent latency or VM issues.  As for features, I don't need any
-> > new feature specific to 2.4.
+On Fri, Oct 12, 2001 at 09:42:05AM +1000, Keith Owens wrote:
+> On Thu, 11 Oct 2001 09:35:32 -0700, 
+> Tom Rini <trini@kernel.crashing.org> wrote:
+> >Hey all.  How do you do the 'export-objs' bits in a kernel module that's
+> >outside of the kernel?  Thanks..
 > 
-> Hi, sorry for intruding, but what is Roswell2?
+> Compile with -DMODULE -DEXPORT_SYMTAB.  If the kernel has modversions,
+> add -DMODVERSIONS -include $(HPATH)/linux/modversions.h.  The safest
+> way is to compile a module in the kernel that exports the objects then
+> copy the command, substituting the file names.
 
-The code name of a Red Hat devel distro, IIRC
+I think I managed to get things right.  I added -DEXPORT_SYMTAB to the
+default flags and added:
+CFLAGS_EXTRA	+= $(shell if [ -f $(KERNEL_HEADERS)/linux/modversions.h ]; \
+			then echo -include \
+			$(KERNEL_HEADERS)/linux/modversions.h; fi)
+ 
+Thanks!
 
-- Arnaldo
-
-``"90% of everything is crap", Its called Sturgeon's law 8)
-One of the problems is indeed finding the good bits''
-    - Alan Cox
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,44 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285165AbRL2Rwi>; Sat, 29 Dec 2001 12:52:38 -0500
+	id <S285166AbRL2SC7>; Sat, 29 Dec 2001 13:02:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285161AbRL2Rw3>; Sat, 29 Dec 2001 12:52:29 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60433 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285150AbRL2RwQ>; Sat, 29 Dec 2001 12:52:16 -0500
-Subject: Re: AX25/socket kernel PATCHes
-To: henk.de.groot@hetnet.nl (Henk de Groot)
-Date: Sat, 29 Dec 2001 18:02:53 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-hams@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20011229174504.00a291b0@pop.hetnet.nl> from "Henk de Groot" at Dec 29, 2001 06:27:32 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S285161AbRL2SCs>; Sat, 29 Dec 2001 13:02:48 -0500
+Received: from waste.org ([209.173.204.2]:24783 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S285114AbRL2SCf>;
+	Sat, 29 Dec 2001 13:02:35 -0500
+Date: Sat, 29 Dec 2001 12:02:00 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Russell King <rmk@arm.linux.org.uk>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Dana Lacoste <dana.lacoste@peregrine.com>,
+        "'Eyal Sohya'" <linuz_kernel_q@hotmail.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The direction linux is taking
+In-Reply-To: <E16JoEp-000088-00@starship.berlin>
+Message-ID: <Pine.LNX.4.43.0112291136350.18183-100000@waste.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16KNor-00059i-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The message doesn't seem to matter but I frequently get messages about this since using the DIGI_NED digipeater provokes a lot of these messages. I attached the code segment I use to interface below (the complete code is available through http://www.qsl.net/digi_ned/).
-> My proposal is either to fix the drivers to set skb->nh correctly (no idea where and how this should be done, otherwise I would have supplied a patch) or to remove the message (at least for AX.25 use). There must be a reason why this printk is done so the first would be preferred. If there is something I could do at application level than that would be okay to, but I don't see how I could set skb->nh from the application.
+On Fri, 28 Dec 2001, Daniel Phillips wrote:
 
-On the receive path skb->nh.raw is set by the kernel core in 2.2 so that
-should be ok providing skb->mac.raw is sane. It looks like the ax25 transmit
-code isnt setting skb->nh.raw somewhere, or we have an off by one error
-handling control messages (which looking at the code seems to be the case)
+> Hi Richard,
+>
+> On December 27, 2001 06:59 pm, Richard Gooch wrote:
+> > But years of observations tells me that Linus likes the way he does
+> > things and doesn't care if others don't like it. I don't expect to see
+> > much change there.
+>
+> Except that, at the kernel summit this year, Linus *did* give the nod to a
+> patchbot, in principle.  I could have sworn.
+>
+> It seems clear that the challenge is to come up with something that really is
+> so lightweight and useful that Linus will use it.  That's the 'Linus test'.
+> If somebody hands him a piece of crap to use then why would we expect him to
+> deviate from his normal behaviour ;-)
 
-If you change
+If my understanding of the new kbuild and configure system is correct,
+make clean and dep should be largely unnecessary and it should be possible
+to build a patchbot that checks for incremental compilability:
 
-                        if (skb2->nh.raw < skb2->data || skb2->nh.raw >= skb2->...
-                                if (net_ratelimit())
+for the current kernel release:
+  unpack tree
+  build the tree with default options (unprivileged user, obviously)
 
-So that it checks
-			< skb2->data || nh.raw > ..
+  for each patch in queue:
+    copy tree (-a)
+    apply patch
+    if rejects:
+      bounce("doesn't cleanly apply to kernel x")
+    if not includes linux/patch.changelog:
+      bounce("doesn't include changelog entry")
+    if not includes linux/patch.config:
+      bounce("doesn't include possibly empty config options")
+    for each option in patch.config:
+      if not (cml2 --new-enable-option-from-command-line-feature option)
+        bounce("config option x couldn't be enabled")
+    if not (make): bounce("couldn't build patch: <diags>")
+    remove copied tree
 
-Let me know if that fixes it. It shouldn't but it would be good to know if
-we are picking up header only frames somewhere, or nh.raw has accidentally
-been pushed on one header too far.
+Optimize above to deal with dependencies in the patch queue.
 
-		
+Then we need a web interface that allows rejects with various canned
+messages:
+
+  applied, thanks
+  redundant
+  obviously incorrect
+  doesn't meet coding style (partially automatable with lindent)
+  too ugly to live
+  breaks code freeze, resubmit later
+  submit to appropriate maintainer
+  missing MAINTAINER entry
+  insufficient documentation
+  insufficient rationale
+  forgot configure.help text (automatable)
+  (custom message, of course)
+  (drop silently)
+
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

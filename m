@@ -1,43 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293469AbSCASTo>; Fri, 1 Mar 2002 13:19:44 -0500
+	id <S293478AbSCASWC>; Fri, 1 Mar 2002 13:22:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293478AbSCASTd>; Fri, 1 Mar 2002 13:19:33 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:19632 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S293469AbSCASTX>; Fri, 1 Mar 2002 13:19:23 -0500
-Date: Fri, 01 Mar 2002 12:19:21 -0600
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.19-pre2] Make max_threads be based on normal zone
- size
-Message-ID: <86950000.1015006761@baldur>
-In-Reply-To: <p73vgcgjgtq.fsf@oldwotan.suse.de>
-In-Reply-To: <71650000.1015004327@baldur.suse.lists.linux.kernel>
- <p73vgcgjgtq.fsf@oldwotan.suse.de>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S293479AbSCASVy>; Fri, 1 Mar 2002 13:21:54 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:5139 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S293478AbSCASVt>; Fri, 1 Mar 2002 13:21:49 -0500
+Date: Fri, 1 Mar 2002 19:21:45 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Andreas Dilger <adilger@clusterfs.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] enable uptime display > 497 days on 32 bit (1/2)
+In-Reply-To: <20020301105753.O22608@lynx.adilger.int>
+Message-ID: <Pine.LNX.4.33.0203011903110.9974-100000@gans.physik3.uni-rostock.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 1 Mar 2002, Andreas Dilger wrote:
 
---On Friday, March 01, 2002 19:14:41 +0100 Andi Kleen <ak@suse.de> wrote:
+> On Mar 01, 2002  03:55 +0100, Tim Schmielau wrote:
+[...]
+> > As no other comments turned up, this will go to Marcelo RSN.
+> > (wondered why noone vetoed this as overkill...)
+> 
+> Minor nit - the indenting of #ifdefs is not really used in the kernel.
+> 
+> > +u64 get_jiffies64(void)
+> > +{
+> > +	unsigned long jiffies_tmp, jiffies_hi_tmp;
+> > +
+> > +	spin_lock(&jiffies64_lock);
+> > +	jiffies_tmp = jiffies;   /* avoid races */
+> > +	jiffies_hi_tmp = jiffies_hi;
+> > +	if (unlikely(jiffies_tmp < jiffies_last))   /* We have a wrap */
+> > +		jiffies_hi++;
+> > +	jiffies_last = jiffies_tmp;
+> > +	spin_unlock(&jiffies64_lock);
+> > +
+> > +	return (jiffies_tmp | ((u64)jiffies_hi_tmp) << BITS_PER_LONG);
+> > +}
+> 
+> If jiffies_hi is incremented, then jiffies_hi_tmp will be wrong on return.
 
-> There are lots of other functions with the same problem (like all the 
-> hash table sizing and others). Perhaps these should be fixed too? 
+Thanks!
+I thought I had corrected this but somehow must have posted a previous
+version. I will probably soon be known as a sloppy coder :-(
 
-I coded the patch in a fashion that makes both total physical memory and
-mapped physical memory size available, specifically so other people could
-change places that might also have the same problem.  I guessed there might
-be some.
+> note:----------------------------------------------------------------------^
+> 
+> Since check_jiffieswrap() and get_jiffies64() are substantially the same,
+> you may want to define a function _inc_jiffies64() which does:
+> 
+> +#ifdef NEEDS_JIFFIES64
+> +/* jiffies_hi and jiffies_last are protected by jiffies64_lock */
+> +static unsigned long jiffies_hi, jiffies_last;
+> +static spinlock_t jiffies64_lock = SPIN_LOCK_UNLOCKED;
+> +#endif
+> 
+> static inline void _inc_jiffies64(unsigned long jiffies_tmp)
+> {
+> 	jiffies_tmp = jiffies;   /* avoid races */
+> 	if (jiffies_tmp < jiffies_last)   /* We have a wrap */
+> 		jiffies_hi++;
+> 	jiffies_last = jiffies_tmp;
+> }
 
-Dave McCracken
+Shouldn't this be 
 
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
+static inline void _inc_jiffies64(unsigned long *jiffies_tmp)
+{
+	*jiffies_tmp = jiffies;   /* avoid races */
+	if (*jiffies_tmp < jiffies_last)   /* We have a wrap */
+		jiffies_hi++;
+	jiffies_last = *jiffies_tmp;
+}
+
+?
+So that we'd then need
+
+static u64 get_jiffies64(void)
+{
+	unsigned long jiffies_tmp, jiffies_hi_tmp;
+
+	spin_lock(&jiffies64_lock);
+	_inc_jiffies64(&jiffies_tmp);
+	jiffies_hi_tmp = jiffies_hi;
+	spin_unlock(&jiffies64_lock);
+
+	return (jiffies_tmp | ((u64)jiffies_hi_tmp) << BITS_PER_LONG);
+}
+...
+
+And I'm still thinking of a better name that _inc_jiffies64(), since
+we most of the time don't increment anything.
+
+Tim
 

@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265541AbTABFES>; Thu, 2 Jan 2003 00:04:18 -0500
+	id <S265670AbTABFOp>; Thu, 2 Jan 2003 00:14:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265564AbTABFES>; Thu, 2 Jan 2003 00:04:18 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:44013 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S265541AbTABFER>; Thu, 2 Jan 2003 00:04:17 -0500
-Date: Wed, 01 Jan 2003 21:12:31 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@zip.com.au>,
-       Dave Jones <davej@codemonkey.org.uk>,
-       "Timothy D. Witham" <wookie@osdl.org>,
-       "Randy.Dunlap" <rddunlap@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Raw data from dedicated kernel bug database
-Message-ID: <47690000.1041484350@titus>
-In-Reply-To: <20030102025605.GE23419@work.bitmover.com>
-References: <20030101194019.GZ5607@work.bitmover.com>
- <12310000.1041456646@titus> <20030101221510.GG5607@work.bitmover.com>
- <1041473017.22606.8.camel@irongate.swansea.linux.org.uk>
- <45160000.1041475166@titus> <20030102025605.GE23419@work.bitmover.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S265677AbTABFOp>; Thu, 2 Jan 2003 00:14:45 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:38586 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265670AbTABFOo>;
+	Thu, 2 Jan 2003 00:14:44 -0500
+Date: Wed, 01 Jan 2003 21:15:36 -0800 (PST)
+Message-Id: <20030101.211536.121172392.davem@redhat.com>
+To: rth@twiddle.net
+Cc: rusty@rustcorp.com.au, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com, ak@suse.de,
+       paulus@samba.org, rmk@arm.linux.org.uk
+Subject: Re: [PATCH] Modules 3/3: Sort sections
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030101205836.A30574@twiddle.net>
+References: <20030101205404.B30272@twiddle.net>
+	<20030101.205003.37279830.davem@redhat.com>
+	<20030101205836.A30574@twiddle.net>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yup.  A BK database is actually a BK repostory with an SQL layer on
-> top of it.  So all of the stuff you can do with BK you can do with
-> BK/Database.  We can export changes as patches, as flat files, as
-> associative arrays in perl, take your pick.
+   From: Richard Henderson <rth@twiddle.net>
+   Date: Wed, 1 Jan 2003 20:58:36 -0800
 
-OK, something like that sounds good to me.
+   On Wed, Jan 01, 2003 at 08:50:03PM -0800, David S. Miller wrote:
+   > I think this is to get .foo.init sections.
+   
+   Obviously.  Perhaps the question was worded badly.  Instead read
+   it as "Why don't we force this to be called .init.foo instead?"
 
-> Cool.  I've already tracked down an SQL hacker who is willing to contract
-> with us to write the scripts to get the data out of your Bugzilla
-> database. He said that I need to ask you to do this:
->
-> 	shut down the mysql database
-> 	grab all the MySQL files and stuff them in a tarball
-> 	turn on the mysql database again
->
-> Then he can set up a mysql instance here and start hacking on the scripts.
-> How's that sound?
-
-I'll leave the details to the database guys at OSDL, but I presume they
-do backups in a similar fashion already, so ...
-
-M.
-
+This new naming order was created recently, but I forget the reason.
+It used to be .init.foo

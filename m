@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271759AbRIJV0G>; Mon, 10 Sep 2001 17:26:06 -0400
+	id <S271814AbRIJV14>; Mon, 10 Sep 2001 17:27:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271757AbRIJVZr>; Mon, 10 Sep 2001 17:25:47 -0400
-Received: from johnson.mail.mindspring.net ([207.69.200.177]:43806 "EHLO
-	johnson.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S271747AbRIJVZa>; Mon, 10 Sep 2001 17:25:30 -0400
-Subject: Re: Preemption patch, some more feedback
-From: Robert Love <rml@tech9.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0109101132410.4681-100000@toy.mandrakesoft.com>
-In-Reply-To: <Pine.LNX.4.30.0109101132410.4681-100000@toy.mandrakesoft.com>
-X-Mailer: Evolution/0.13.99+cvs.2001.09.08.07.08 (Preview Release)
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13.99+cvs.2001.09.08.07.08 (Preview Release)
-Date: 10 Sep 2001 17:26:08 -0400
-Message-Id: <1000157173.18895.24.camel@phantasy>
-Mime-Version: 1.0
+	id <S271757AbRIJV1i>; Mon, 10 Sep 2001 17:27:38 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:37393 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S271789AbRIJV10>; Mon, 10 Sep 2001 17:27:26 -0400
+Message-Id: <200109102127.f8ALRKTH027110@pincoya.inf.utfsm.cl>
+To: SPATZ1@t-online.de (Frank Schneider)
+cc: rvandam@liwave.com, linux-kernel@vger.kernel.org
+Subject: Re: FW: OT: Integrating Directory Services for Linux 
+In-Reply-To: Message from SPATZ1@t-online.de (Frank Schneider) 
+   of "Mon, 10 Sep 2001 11:35:19 +0200." <3B9C8957.A01DDFD9@t-online.de> 
+Date: Mon, 10 Sep 2001 17:27:20 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-09-10 at 11:41, Francis Galiegue wrote:
-> Machine is Athlon 650, AMD Viper chipset, 256 MB RAM. Kernel is
-> 2.4.9-ac10 + preempt patch + irc_conntrack patch from iptables.
-> 
-> The preempt patch largely improves multimedia latency (no surprise on
-> that), I can watch a DivX smoothly (with mplayer, gfx being Matrox G400)
-> and compile various stuff behind.
-> 
-> However, a very simple command destroys this completely:
-> 
-> cat /dev/zero >/dev/null
-> 
-> DivX playback then becomes sluggish, no visible difference in this case
-> between stock kernel and "preempt" kernel.
+SPATZ1@t-online.de (Frank Schneider) said:
 
-A long-term lock must be held for the duration of `cat /dev/zero >
-/dev/null' -- i dont know if it is in the access to /dev/null or
-/dev/zero or in the basic file operation itself.
+[...]
 
-as long as a lock is held, preemption can not occur.
+> The problem is at the moment, that every DS-structure wants to gain
+> access of the "core-tasks" like AAA (Authentication, Authoriasation,
+> Accounting), MS is pushing this because they think when their OS sits in
+> the middle, all the other servers have to move to W2k too.
+> Novell and OpenLDAP are likely doing the same, without the marketing
+> perhaps (OpenLDAP), but the target is also clear.
 
-what do we do? for the short term, and the benefit of everyone (UP, SMP,
-and preemption users) we need to eliminate long-held locks with a better
-solution.
+LDAP is an _open_ standard by the IETF, OpenLDAP is an _open source_
+implementation of the above.
 
-in the long term, we can look at having the preemption patch use various
-different types of locks (priority locks, spin then sleep locks, etc.)
-
+Sure, it would be nice if Linux runs every DS under the sun, but AFAICS it
+should concentrate on open standards.
 -- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+Dr. Horst H. von Brand                Usuario #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
 

@@ -1,67 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266533AbUBLStz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 13:49:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266536AbUBLStz
+	id S266534AbUBLS6R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 13:58:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266546AbUBLS6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 13:49:55 -0500
-Received: from smtp02.web.de ([217.72.192.151]:45855 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S266533AbUBLStx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 13:49:53 -0500
-Message-ID: <402BCABE.6050609@web.de>
-Date: Thu, 12 Feb 2004 19:49:34 +0100
-From: Nils Rennebarth <Nils.Rennebarth@web.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stephen Hemminger <schemminger@comcast.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Fwd: [Swsusp-devel] Kernel 2.6 pm_send_all() issues.
-References: <200402102343.06896.mhf@linuxmail.org> <4029CFAD.9090400@comcast.net>
-In-Reply-To: <4029CFAD.9090400@comcast.net>
-X-Enigmail-Version: 0.83.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigA1671610B1DA58D10B54DFEF"
-Content-Transfer-Encoding: 8bit
+	Thu, 12 Feb 2004 13:58:17 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:1920 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S266534AbUBLS6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 13:58:15 -0500
+Date: Thu, 12 Feb 2004 19:08:06 GMT
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200402121908.i1CJ86NC000167@81-2-122-30.bradfords.org.uk>
+To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200402121906.54699.robin.rosenberg.lists@dewire.com>
+References: <20040209115852.GB877@schottelius.org>
+ <200402121740.03974.robin.rosenberg.lists@dewire.com>
+ <200402121716.i1CHGXLv000188@81-2-122-30.bradfords.org.uk>
+ <200402121906.54699.robin.rosenberg.lists@dewire.com>
+Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigA1671610B1DA58D10B54DFEF
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+> > I'm not sure whether it's valid UTF-8 or not, but it's certainly
+> > possible to code, for example, an 'A', (decimal 65), via an escape to
+> > a 31-bit character representation.  Presumably the majority of UTF-8
+> > parsers would decode the sequence as 65, rather than emit an error.
+> 
+> There are many ways of getting things wrong. The algorithm for encoding 
+> UTF-8 doesn't give you the option of encoding 65 as two bytes; any UCS-4 
+> character with code 0-0x7F must result in a onand the same principle goes 
+> for every other character and the unicdeo standard forbids the use of anything
+> but the shortest possible sequence.
 
-Stephen Hemminger wrote:
-> I sent them a patch that converts the PCI device to the device model and
-> uses suspend/resume hooks.  But they didn't seem to put it in the 
-> current version
-Could you make the patch publicly available somewhere?
+The recommended encoding algorithm forbids anything but the shortest
+sequence, yes, but what will the majority of decoders do?  I suspect
+that at least some will follow the usual networking rule of be liberal
+in what you accept, which for filenames may well cause all sorts of
+security holes.
 
-I'm currently using swsusp on 2.6.2 with the XFree86 4.3.0 nv driver
-which sort of works, but it lacks 3D of course.
+> > Also, even ignoring that, how do you handle things like accented
+> > characters which can be represented as single characters, or as
+> > sequences containing combining characters?  Some applications might
+> > convert the sequence containing combining characters in to the single
+> > character, and others might not.
+> 
+> In UTF-8 you cannot represent à as `a. I can have both in a file name and they
+> are different. An application that assumes `a is the same a à (in UTF-8) is broken
+> and should be fixed. 
 
+Well, as long as every userspace implementation gets it correct, we'll
+be OK.  Personally, I doubt they all will, especially those that
+convert from legacy encodings to Unicode, although quite possibly the
+above scenario with combining characters is not likely to happen for
+filenames.  Or is it?  What about copying a file from a filesystem
+with a UTF-8 encoding to a filesystem with a legacy encoding, and then
+back again?
 
--- 
-                                      ______
-                                     (Muuuhh)
-Global Village Sau  ==>        ^..^ |/¯¯¯¯¯
-(Kann Fremdsprache) ==>        (oo)
+However, I am less concerned about this second scenario than the first.
 
---------------enigA1671610B1DA58D10B54DFEF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFAK8rMqgAZ+sZlgs4RAlo4AKCwoD1fOF3iif/Jb2f26vm3PRQgBQCguWpS
-AusMEB6atE/RfjwImzXl4Ag=
-=M0sB
------END PGP SIGNATURE-----
-
---------------enigA1671610B1DA58D10B54DFEF--
+John.

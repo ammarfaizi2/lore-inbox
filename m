@@ -1,109 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313860AbSDFBW6>; Fri, 5 Apr 2002 20:22:58 -0500
+	id <S314015AbSDFGSc>; Sat, 6 Apr 2002 01:18:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313861AbSDFBWt>; Fri, 5 Apr 2002 20:22:49 -0500
-Received: from [151.200.199.53] ([151.200.199.53]:64266 "EHLO fc.Capaccess.org")
-	by vger.kernel.org with ESMTP id <S313860AbSDFBWk>;
-	Fri, 5 Apr 2002 20:22:40 -0500
-Message-id: <fc.00858412003a290a00858412003a290a.3a291d@Capaccess.org>
-Date: Fri, 05 Apr 2002 20:22:10 -0500
-Subject: Forth interpreter as kernel module
-To: linux-kernel@vger.kernel.org
-From: "Rick A. Hohensee" <rickh@Capaccess.org>
+	id <S314016AbSDFGSW>; Sat, 6 Apr 2002 01:18:22 -0500
+Received: from [218.2.178.4] ([218.2.178.4]:787 "HELO ZXB&YWX")
+	by vger.kernel.org with SMTP id <S314015AbSDFGSE>;
+	Sat, 6 Apr 2002 01:18:04 -0500
+From: Su Xiao <info@dadao-group.com>
+Reply-To: info@dadao-group.com
+Subject: To:Manager: Your Components supply partners from China
+Date: Sat, 06 Apr 2002 14:17:31 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: multipart/mixed; boundary="35063eb4-4968-11d6-9917-00d0f83129a6"
+Message-Id: <20020406061813Z314015-616+6168@vger.kernel.org>
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Two Forths in Linuxspace now? That's 3 stack machines. Heheheheh,
 
+This is a multi-part message in MIME format
+--35063eb4-4968-11d6-9917-00d0f83129a6
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
+Note: Could you please forward this important information to your Manager =
+responsible for Purchasing. Thank you !
 
+Dear Manager,
 
-        MAKE YOUR TIME. ALL YOUR BASE ARE BELONG TO KSPAMD.
+   Very glad to get contact with you.
+   We are a professional industrial components supplier from China. Our =
+products include Aluminum Diecasting, Magnets, Plastic Injection and other =
+iron and steel components.
+.
+   1. All our plants are ISO9002 certified with excellent quality;
 
+   2. Our price are around 50-80% of the international market prices by using =
+the low costs manpower in China. This will improve your profit level and =
+market competitiveness significantly;
 
+   3. Our strong production facilities will ensure you timely delivery.
 
+   For detailed information, please visit our website:
+   http://www.dadao-group.com
 
+   We wish to establish partner business relationship with your esteemed =
+company and help to offer you the best resources from China.
 
-Does the pforth version run as a kernel daemon like H3rL does?
+   We are looking forward to receiving your inquiries.
 
-Phil Burk is I believe still affiliated with Mills College. He'd love to
-hear about this. Mike Haas too, probably. Mike Haas wrote the kernel of
-Amiga JForth and Phil wrote all the music stuff. I added all the Linux
-syscalls to the PForth in cLIeNUX mostly out of nostalgia for JForth, a
-"...once in a paradigm thing." Jack "jax" Woehr (sp?). Phil was quite
-pleased to hear there's a PForth out there with 160 Linux syscalls as
-primitives.
+   Thank you and best regards!
 
-That PForth is in ftp://linux01.gwdg.de/pub/cLIeNUX/interim along with
-H3rL, Hohensee's 3-ring Linux, which is a Linux kernel with a 3-stack
-machine in 0wnerland. Read ./ABOUT .
-
-Alan,
- an Open Firmware IN kernelspace has the potential to have the
-functionality of Open Firmware, AND serve as something like an Open Driver
-Initiative, with a performance hit perhaps, depending on how the Forth is
-implemented. There are native compiling Forths, but they're not nice tiny
-little things.
-
-Ed,
- As far as security is concerned, a Forth on say vt1 (it's on vt1 here,
-er, it's H3sm, a 3-stack machine, but anyway...) is no worse really than
-root. As far as how a Forth compares to a kdb, it doesn't. Forth is a
-debugger, a compiler, an interpreter, AND a desert topping. A forth won't
-have the niceties of an evolved unix tool, but you can write them
-interactively. And write things you can't imagine until the problem pops
-up, like that thing Torvalds did recently for sniffing at some
-Torvaldsianly obscure cache tree buffer tree page cache buffer thing. You
-can write stuff like that with the same interactivity you associate with
-shell scripting.
-
-More to the point, Forth can be a great personalizer of unix/Linux. Sure,
-you don't want a Forth in your DNS box. (I do, but...) You do want a Forth
-in your multimedia box. Bigtime. Which is why the "forth" command in
-cLIeNUX is upforth, PForth with a unix Jones.
-
-If Forth in Linux is going to go somewhere, Mitch Bradley might want to
-comment. He's the author of OpenBoot, and I find that some of my best
-Forth-on-unix ideas, he had 15 years ago. He left Sun and does Bradley
-Forthworks or Forthware, last I heard. Post to comp.lang.forth too.
-
-Rick Hohensee
-
-Birth Of Kspamd reenactment...
-imagine each space as *exactly* one second elapsed between string
-outputs...
-
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM SPAM
-SPAM SPAM SPAM SPAM SPAM SPAM SPAM<cursor>
-
-
+   Su Xiao
+   International Marketing Manager
+   China Jiangsu Complete Machinery Equipment Co.
+   Room 2006, 120 Shanxi Road,
+   Nanjing, China 210009
+   Tel:+86-25-3325825, 3307888-7521
+   Fax:+86-25-6630354
+   info@dadao-group.com
+--35063eb4-4968-11d6-9917-00d0f83129a6--
 

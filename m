@@ -1,94 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262349AbUCLSAm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 13:00:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbUCLSAm
+	id S262377AbUCLSQC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 13:16:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262508AbUCLSQC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 13:00:42 -0500
-Received: from stine.vestdata.no ([195.204.68.10]:35017 "EHLO
-	stine.vestdata.no") by vger.kernel.org with ESMTP id S262349AbUCLSAi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 13:00:38 -0500
-Date: Fri, 12 Mar 2004 18:59:59 +0100
-From: Ragnar =?iso-8859-15?Q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Arthur Corliss <corliss@digitalmages.com>, watters@sgi.com, law@sgi.com,
-       te@scali.com
-Subject: Re: [PATCH][RFC] fix BSD accounting (w/ long-term perspective ;-)
-Message-ID: <20040312175959.GN1066@vestdata.no>
-References: <Pine.LNX.4.53.0403082241200.16420@gockel.physik3.uni-rostock.de>
+	Fri, 12 Mar 2004 13:16:02 -0500
+Received: from fire.osdl.org ([65.172.181.4]:37057 "EHLO fire-2.osdl.org")
+	by vger.kernel.org with ESMTP id S262377AbUCLSP4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 13:15:56 -0500
+Subject: Re: Linux 2.6.4 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0403101924510.3693@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0403101924510.3693@ppc970.osdl.org>
+Content-Type: text/plain
+Message-Id: <1079115208.5483.10.camel@cherrybomb.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.53.0403082241200.16420@gockel.physik3.uni-rostock.de>
-User-Agent: Mutt/1.5.2i
-X-Zet.no-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 12 Mar 2004 10:13:29 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ CCing Sam Watters and Linda Walsh at SGI for feedback about using
-pid/ppid/pgid/sid/paggid/whatever to track jobs in accounting-logs ]
+Compile statistics for 2.6.4 and 2.6.4-mm1 are now available.
 
-On Tue, Mar 09, 2004 at 12:03:27AM +0100, Tim Schmielau wrote:
-> BSD accounting currently reports only the lower 16 bits of 32 bit uids,
-> reports times in units of 1/HZ seconds while it announces a unit of
-> 1/100 seconds in the header file (which hurts especially on i386 where
-> HZ changed since 2.4) and cannot report times longer that 49 days.
+Linux 2.6 Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
 
-Red Hat uses a patch that adds 32 bit uids and 32 bit gids at the end of
-struct acct, reducing the size of the padding to 2 bytes. If a simular
-extension is added to the official kernel it would be nice if they were
-compatible.
-
-
-There is also a few other problems with the current implementation that
-we would like to see fixed if there is going to be a format-change
-anyway:
-- Architecture indepencence. It would be nice if the binary format was
-  independent of the architecture so files can be processed on other
-  hosts. This would involve defining padding and byte-ordering, as well
-  as either stop using 1/HZ units in the file or add AHZ to the record.
-
-- Better accuracy. Specificly the records don't include an exact
-  termination-time for the process. One can estimate termination-time
-  based on creation time and elapsed time but since elapsed time is
-  truncated into comp_t it is not accurate for long-lived processes.
-
-- More information. Accounting is typically used to keep track of
-  what resources different jobs have used, where the definition of
-  "job" may differ from site to site. Quite often "job" is a group
-  of related processes, so including pid/ppid would allow
-  post-processing to rebuild the process-hierarchy and deduce what
-  processes were part of the same job. Even better, if usespace
-  could notify the kernel what job a process belongs to, it would be
-  easier to track jobs across multiple nodes in a cluster and so on.
-  Maybe adding pid, ppid and jobid to the format and then use the sid
-  as the jobid for now? And then it can be replaced by a proper jobid
-  from e.g. PAGG later?
-
->    My proposed solution: keep backwards compatibility with 2.4 by using
->    a unit of 1/USER_HZ, announce that correctly in the header file,
->    and simply admit that BSD accounting on i386 is broken in 2.6.0-2.6.4.
-
-Sounds good.
-
->  - store a version number in the last byte of struct acct, which allows
->    for a smooth transition to a new binary format when 2.7 comes out.
->    For 2.7, extend uid/gid fields to 32 bit, report times in terms
->    of AHZ=100 on all platforms (thus allowing to report times up to 1988 
->    days), and remove the compatibility stuff from the kernel.
-
-It may be useful to have the version-information in the beginning of the
-struct to allow future versions to use a struct of a different size.
-There should be some bits available in the flag-field, maybe that's
-enough?
+Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
+             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
+-----------  -----------  -------- -------- -------- -------- ---------
+2.6.4          1w/0e       0w/0e   145w/ 0e   7w/0e   3w/0e    142w/0e
+2.6.4-rc2      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
+2.6.4-rc1      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
+2.6.3          1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
+2.6.3-rc4      1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
+2.6.3-rc3      1w/0e       0w/0e   145w/ 7e   9w/0e   3w/0e    148w/0e
+2.6.3-rc2      1w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
+2.6.3-rc1      1w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
+2.6.2          1w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
+2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
+2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
+2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
 
 
--- 
-Ragnar Kjørstad
-Software Engineer
-Scali - http://www.scali.com
-High Performance Clustering
+Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
+
+Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
+                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
+--------------- ---------- -------- -------- -------- -------- --------
+2.6.4-mm1         1w/0e     5w/0e   146w/ 5e   8w/0e   3w/0e    144w/0e
+2.6.3-rc2-mm1     1w/0e     5w/0e   146w/12e  11w/0e   3w/0e    147w/2e
+2.6.3-rc1-mm2     1w/0e     5w/0e   144w/ 0e  11w/0e   3w/0e    145w/0e
+2.6.3-rc1-mm1     1w/0e     5w/0e   147w/ 5e  11w/0e   3w/0e    147w/0e
+2.6.3-mm4         1w/0e     5w/0e   146w/ 0e   7w/0e   3w/0e    142w/0e
+2.6.3-mm3         1w/2e     5w/2e   146w/15e   7w/0e   3w/2e    144w/5e
+2.6.3-mm2         1w/8e     5w/0e   140w/ 0e   7w/0e   3w/0e    138w/0e
+2.6.3-mm1         1w/0e     5w/0e   143w/ 5e   7w/0e   3w/0e    141w/0e
+2.6.3-rc3-mm1     1w/0e     0w/0e   144w/13e   7w/0e   3w/0e    142w/3e
+2.6.3-rc2-mm1     1w/0e     0w/265e 144w/ 5e   7w/0e   3w/0e    145w/0e
+2.6.3-rc1-mm1     1w/0e     0w/265e 141w/ 5e   7w/0e   3w/0e    143w/0e
+2.6.2-mm1         2w/0e     0w/264e 147w/ 5e   7w/0e   3w/0e    173w/0e
+2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
+2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
+2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
+2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
+2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
+2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
+2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
+2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
+2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
+2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
+2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
+2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
+2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
+2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
+2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
+2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
+
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
+Daily compiles (ia32): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
+Daily compiles (ia64): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
+Latest changes in Linus' bitkeeper tree:
+   http://linux.bkbits.net:8080/linux-2.5
+
+John
+
+

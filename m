@@ -1,64 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264981AbTL1IXX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 03:23:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264987AbTL1IXW
+	id S264953AbTL1JMD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 04:12:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264987AbTL1JMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 03:23:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55227 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264981AbTL1IXV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 03:23:21 -0500
-Date: Sun, 28 Dec 2003 00:23:07 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-cc: Matt Mackall <mpm@selenic.com>,
-       Linux Networking Development Mailing List 
-	<netdev@oss.sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH-2.6.0-tiny] "uninline" {lock,release}_sock
-In-Reply-To: <20031228075426.GB24351@conectiva.com.br>
-Message-ID: <Pine.LNX.4.58.0312280017060.2274@home.osdl.org>
-References: <20031228075426.GB24351@conectiva.com.br>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 28 Dec 2003 04:12:03 -0500
+Received: from populous.netsplit.com ([62.49.129.34]:678 "EHLO
+	mailgate.netsplit.com") by vger.kernel.org with ESMTP
+	id S264953AbTL1JMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 04:12:00 -0500
+Subject: Re: udev LABEL not working: sysfs_path_is_file: stat() failed
+From: Scott James Remnant <scott@netsplit.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
+In-Reply-To: <20031223221341.GF15946@kroah.com>
+References: <1072054829.1225.11.camel@descent.netsplit.com>
+	 <20031222092329.GA30235@kroah.com>
+	 <1072090725.1225.19.camel@descent.netsplit.com>
+	 <20031222204024.GF3195@kroah.com>
+	 <1072164547.1225.25.camel@descent.netsplit.com>
+	 <20031223221341.GF15946@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-xdRL0aq7UbkUwGiDTyxz"
+Message-Id: <1072602718.1044.2.camel@descent.netsplit.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 28 Dec 2003 09:11:58 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-xdRL0aq7UbkUwGiDTyxz
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, 28 Dec 2003, Arnaldo Carvalho de Melo wrote:
-> 
-> 	Please apply on top of your 2.6.0-tiny1 tree, CC to netdev for
-> eventual comments.
+On Tue, 2003-12-23 at 22:13, Greg KH wrote:
 
-Please don't do it this way.
+> On Tue, Dec 23, 2003 at 07:29:07AM +0000, Scott James Remnant wrote:
+> > On Mon, 2003-12-22 at 20:40, Greg KH wrote:
+> >=20
+> > > On Mon, Dec 22, 2003 at 10:58:45AM +0000, Scott James Remnant wrote:
+> > > > One question though, it only ever seems to create a device for the
+> > > > actual usb-storage disk and not the partition.  Is there some magic=
+ to
+> > > > create the partition device instead?
+> > >=20
+> > > Do you have a partition show up in /sys/block?  If not, then udev wil=
+l
+> > > not create it.  It works here for my usb-storage devices that have
+> > > partitions on them.
+> > >=20
+> > Yes, /dev/block/sdb/sdb1 certainly does appear, as does /udev/sdb1 --
+> > the LABEL rule only seems to match "sdb" though.
+>=20
+> That's odd, what is the rule?  They should both match.
+>=20
+Had omitted the %n in the NAME, so only the disk was showing up.=20
+udev-011 fixes the original problem too, thanks.
 
-This is quite possibly faster even _normally_, so it might make more sense 
-to just do it globally instead of having a CONFIG_NEX_SMALL.
+Scott
+--=20
+Have you ever, ever felt like this?
+Had strange things happen?  Are you going round the twist?
 
-Basically, inline functions tend to win only when inlining them is smaller
-and simpler than actually calling a function. The most common cause of
-that is that some argument is commonly constant (and thus gets simplified
-away by inlining), or the function itself literally expands to just a few 
-instructions (the list functions, the inline asms for things like "cli" 
-etc).
 
-We use a lot too many inline functions for other reasons: one reason to 
-use them is that they are sometimes more convenient than it is to find a 
-good place for the non-inline version. Another common reason is that the 
-thing started out smaller than it eventually became - and the inline just 
-stuck around.
+--=-xdRL0aq7UbkUwGiDTyxz
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-But if you do things like this for a CONFIG_SMALL, then the convenience 
-argument obviously isn't true any more, and you'd be a lot better off just 
-unconditionally making it a real function call.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-Function calls aren't all that expensive, especially with FASTCALL() etc 
-to show that you don't have to follow the common calling conventions. 
-Right now I think FASTCALL() only matters on x86, but some other 
-architectures could make it mean "smaller call clobbered list" or similar.
+iD8DBQA/7p5dIexP3IStZ2wRArZuAJ40fcV2DafdVyIk7zJlcVIGgI+HcQCguDdB
+DI1ztrhGMYIoz+WY8IbEttk=
+=XoEa
+-----END PGP SIGNATURE-----
 
-Have you benchmarked with the smaller kernel? 
+--=-xdRL0aq7UbkUwGiDTyxz--
 
-		Linus

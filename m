@@ -1,73 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266576AbUBLUmO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 15:42:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbUBLUmO
+	id S266574AbUBLUl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 15:41:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266576AbUBLUl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 15:42:14 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:11012 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S266576AbUBLUmJ
+	Thu, 12 Feb 2004 15:41:56 -0500
+Received: from ncc1701.cistron.net ([62.216.30.38]:47266 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S266574AbUBLUly
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 15:42:09 -0500
-Date: Thu, 12 Feb 2004 21:55:03 +0100
-To: Valdis.Kletnieks@vt.edu
-Cc: Michael Frank <mhf@linuxmail.org>, Nick Piggin <piggin@cyberone.com.au>,
-       Giuliano Pochini <pochini@shiny.it>, Andrea Arcangeli <andrea@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ext2/3 performance regression in 2.6 vs 2.4 for small interl
-Message-ID: <20040212205503.GA13934@hh.idb.hist.no>
-References: <XFMail.20040212104215.pochini@shiny.it> <402B5502.2010207@cyberone.com.au> <200402130105.22554.mhf@linuxmail.org> <200402121718.i1CHITFf018390@turing-police.cc.vt.edu>
+	Thu, 12 Feb 2004 15:41:54 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: (was Re: [RFC] IDE 80-core cable detect - chipset-specific code to over-ride eighty_ninty_three())
+Date: Thu, 12 Feb 2004 20:41:53 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <c0goeh$hs4$1@news.cistron.nl>
+References: <200402122106.41947.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200402121718.i1CHITFf018390@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1076618513 18308 62.216.29.200 (12 Feb 2004 20:41:53 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 12, 2004 at 12:18:29PM -0500, Valdis.Kletnieks@vt.edu wrote:
-> On Fri, 13 Feb 2004 01:05:20 +0800, Michael Frank said:
-> 
-> > What I am getting at is being annoyed with updatedb ___saturating___ 
-> > the the disk so easily as the "ancient" method of renicing does not 
-> > consider the fact that the CPU pwrformance has increased 20-50 fold 
-> > over disk performace.
-> > 
-> > Bottom line: what about assigning "io niceness" to processes, which
-> > would also help with actively scheduling io toward processes 
-> > needing it.
-> 
-> The problem is that unlike CPU niceness, where you can literally rip the
-> CPU away from a hog and give it to some more deserving process, it's not
-> as easy to rip an active disk I/O away so somebody else can have it.
-> 
-You can't take the disk away, but you can be careful with it.
-The anticipatory scheduler already does that - avoids seeking
-away from a read for a while just in case the reader will submit
-an adjacent read in short order. (Wonder if it ought to read ahead
-a little instead of just waiting?)
+In article <200402122106.41947.bzolnier@elka.pw.edu.pl>,
+Bartlomiej Zolnierkiewicz  <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
+>
+>Hi,
+>
+>word93 of drive identify is:
+>
+>0x603b for IC35L120AVV207-0
+>0x3469 for QUANTUM FIREBALLlct20 30
+>
+>and eighty_ninty_three() checks for bit 0x4000, so...
+>
+>Willy, it seems you are hitting some other problem.
+>Have you already tried booting with "ide0=ata66"?
 
-Something similiar could be done for io niceness.  If we run out of
-normal priority io, how about not issuing the low priority io
-right away.  Anticipate there will be more high-priority io
-and wait for some idle time before letting low-priority
-requests through.  And of course some maximum wait to prevent
-total starvation.
+That reminds me, there is currenly no way to boot with
+ide0=ata33, right ?
 
-> If the updatedb issues a seek/read combo to the disk, and your process gets
-> into the I/O queue even 200 nanoseconds later, it *still* has to wait for that
-> I/O to finish before it can start its seeks and reads.
-> 
-Anticipatory io niceness might solve that.
+I have a tyan motherboard with a serverworks chipset, and the
+(2.5" system-) disk is connected with a 40 pins cable. However
+the serverworks chipset doesn't detect this, and tries to run
+it in UDMA<lots> mode. That results in lots of nasty messages
+before it falls back to UDMA33 mode.
 
-> For an extreme example, consider those IDE interfaces where fixating or
-> blanking a CD/RW will cause *all* the disks to lock up for the duration.
-> No matter how high your priority is, you *cant* get that I/O out the door
-> for the next 60-70 seconds unless you're willing to create a coaster.
+Could you put a way to force it into UDMA33 (UDMA2) mode on the
+wishlist, please ?
 
-There's no cure for truely stupid hw.  Sometimes I forget why I buy
-these expensive scsi drives . . .  
+Mike.
 
-
-Helge Hafting

@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130239AbRBZOek>; Mon, 26 Feb 2001 09:34:40 -0500
+	id <S130301AbRBZOei>; Mon, 26 Feb 2001 09:34:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130288AbRBZOby>; Mon, 26 Feb 2001 09:31:54 -0500
+	id <S130239AbRBZObs>; Mon, 26 Feb 2001 09:31:48 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:53191 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130300AbRBZOaI>;
-	Mon, 26 Feb 2001 09:30:08 -0500
-Message-ID: <3A9A1F5B.AF529C8F@bigfoot.com>
-Date: Mon, 26 Feb 2001 01:18:19 -0800
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.19pre8+IDE i686)
-X-Accept-Language: en
+	by vger.kernel.org with ESMTP id <S130294AbRBZO35>;
+	Mon, 26 Feb 2001 09:29:57 -0500
+Date: Mon, 26 Feb 2001 11:26:00 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Marc Lehmann <pcg@goof.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: linux swap freeze STILL in 2.4.x
+In-Reply-To: <20010226094000.A4228@fuji.laendle>
+Message-ID: <Pine.LNX.4.33.0102261110001.1917-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-To: kernel <linux-kernel@vger.kernel.org>
-Subject: "clock timer configuration lost" error?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For no apparent reason:
+On Mon, 26 Feb 2001, Marc Lehmann wrote:
 
-...
-Feb 26 00:15:50 abit xntpd[886]: synchronized to 192.6.38.127, stratum=1
-Feb 26 00:19:52 abit kernel: probable hardware bug: clock timer
-configuration lost - probably a VIA686a. 
-Feb 26 00:19:52 abit kernel: probable hardware bug: restoring chip
-configuration. 
-Feb 26 00:26:53 abit xntpd[886]: synchronized to 132.239.254.5,
-stratum=2
-...
+> On Mon, Feb 26, 2001 at 08:11:55AM +0100, Mike Galbraith <mikeg@wen-online.de> wrote:
+>
+> > Anyway, it works fine here with virgin 2.4.2, so it seems unlikely it's
+> > a kernel problem.
+>
+> > 259   execve("/sbin/losetup", ["losetup", "/dev/loop0", "/dev/hda5"], [/* 47 vars */]) = 0
+>
+> The -e switch is causing the memory fault and subsequent breakage:
 
-Anyone have a clue about the 'probable hdw bug' messages?  No disk
-activity to speak of, no other symptoms and/or messages.
+No problem here using -e xor. (have no real crypto to try)
 
-rgds,
-tim.
+> However, I just need to wait until there is a new crypto patch (and, if
+> not, I'll eventually have to hack it myself to gte my data. After all it's
+> source... ...)
 
-# cat proc/version; lspci
-Linux version 2.2.19pre8+IDE (root@abit) (gcc version egcs-2.91.66
-19990314/Linux (egcs-1.1.2 release)) #8 Thu Feb 22 18:12:29 PST 2001
+Probably.
 
-00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0391 (rev
-02)
-00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device 8391
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev
-22)
-00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev
-10)
-00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-(rev 30)
-00:08.0 FireWire (IEEE 1394): Texas Instruments TSB12LV23 OHCI Compliant
-IEEE-1394 Controller
-00:09.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI]
-00:0b.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev
-20)
-01:00.0 VGA compatible controller: nVidia Corporation Riva TNT2 Model 64
-(rev 11)
+	-Mike
 
---

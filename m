@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264058AbUEDAJA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264026AbUEDAIm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264058AbUEDAJA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 20:09:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264061AbUEDAJA
+	id S264026AbUEDAIm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 20:08:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264058AbUEDAIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 20:09:00 -0400
-Received: from fw.osdl.org ([65.172.181.6]:33517 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264058AbUEDAIz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 20:08:55 -0400
-Date: Mon, 3 May 2004 17:10:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: peter@mysql.com, linuxram@us.ibm.com, alexeyk@mysql.com,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: Random file I/O regressions in 2.6
-Message-Id: <20040503171005.1e63a745.akpm@osdl.org>
-In-Reply-To: <4096DC89.5020300@yahoo.com.au>
-References: <200405022357.59415.alexeyk@mysql.com>
-	<409629A5.8070201@yahoo.com.au>
-	<20040503110854.5abcdc7e.akpm@osdl.org>
-	<1083615727.7949.40.camel@localhost.localdomain>
-	<20040503135719.423ded06.akpm@osdl.org>
-	<1083620245.23042.107.camel@abyss.local>
-	<20040503145922.5a7dee73.akpm@osdl.org>
-	<4096DC89.5020300@yahoo.com.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 3 May 2004 20:08:42 -0400
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:16579 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S264026AbUEDAIj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 May 2004 20:08:39 -0400
+Message-ID: <4096E173.2070305@am.sony.com>
+Date: Mon, 03 May 2004 17:18:59 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: Re: [PATCH] delete "POSIX conformance testing by UNIFIX" message
+References: <20040503160347.088af84e.rddunlap@osdl.org>
+In-Reply-To: <20040503160347.088af84e.rddunlap@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
-> > That's one of its usage patterns.  It's also supposed to detect the
-> > fixed-sized-reads-seeking-all-over-the-place situation.  In which case it's
-> > supposed to submit correctly-sized multi-page BIOs.  But it's not working
-> > right for this workload.
-> > 
-> > A naive solution would be to add special-case code which always does the
-> > fixed-size readahead after a seek.  Basically that's
-> > 
-> > 	if (ra->next_size == -1UL)
-> > 		force_page_cache_readahead(...)
-> > 
-> 
-> I think a better solution to this case would be to ensure the
-> readahead window is always min(size of read, some large number);
-> 
+Randy.Dunlap wrote:
 
-That would cause the kernel to perform lots of pointless pagecache lookups
-when the file is already 100% cached.
+> // linux-266-rc3
+> // delete the POSIX UNIFIX conformance testing message;
+> 
+> There is a general desire to reduce the quantity of noisy and/or
+> outdated kernel boot-time messages...
+ >
+> Other comments?
+
+I've always been bothered by this message.  It's meaningless
+at best, incorrect at worst, and wasteful of screen
+real-estate and output time on bootup.
+
+It's a small fix, but very welcome.
+
+=============================
+Tim Bird
+Architecture Group Co-Chair
+CE Linux Forum
+Senior Staff Engineer
+Sony Electronics
+E-mail: Tim.Bird@am.sony.com
+=============================
+

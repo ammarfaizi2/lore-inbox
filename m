@@ -1,70 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262185AbTEENXA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 09:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbTEENXA
+	id S262189AbTEEN1m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 09:27:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbTEEN1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 09:23:00 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:65518 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S262185AbTEENW7
+	Mon, 5 May 2003 09:27:42 -0400
+Received: from inpbox.inp.nsk.su ([193.124.167.24]:46828 "EHLO
+	inpbox.inp.nsk.su") by vger.kernel.org with ESMTP id S262189AbTEEN1k
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 09:22:59 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: "Calin A. Culianu" <calin@ajvar.org>, <Valdis.Kletnieks@vt.edu>
-Subject: Re: [Announcement] "Exec Shield", new Linux security feature
-Date: Mon, 5 May 2003 08:35:02 -0500
-X-Mailer: KMail [version 1.2]
-Cc: <linux@horizon.com>, <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.33L2.0305040301001.6490-100000@rtlab.med.cornell.edu>
-In-Reply-To: <Pine.LNX.4.33L2.0305040301001.6490-100000@rtlab.med.cornell.edu>
+	Mon, 5 May 2003 09:27:40 -0400
+Date: Mon, 5 May 2003 20:30:38 +0700
+From: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
+Reply-To: D.A.Fedorov@inp.nsk.su
+To: Arjan van de Ven <arjanv@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: The disappearing sys_call_table export.
+Message-ID: <Pine.SGI.4.10.10305051745290.8200163-100000@Sky.inp.nsk.su>
 MIME-Version: 1.0
-Message-Id: <03050508350200.01029@tabby>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 04 May 2003 02:03, Calin A. Culianu wrote:
-> On Sat, 3 May 2003 Valdis.Kletnieks@vt.edu wrote:
-> > On Sat, 03 May 2003 13:19:52 -0000, linux@horizon.com  said:
-> > > An interesting question arises: is the number of useful interpreter
-> > > functions (system, popen, exec*) sufficiently low that they could be
-> > > removed from libc.so entirely and only staticly linked, so processes
-> > > that didn't use them wouldn't even have them in their address space,
-> > > and ones that did would have them at less predictible addresses?
-> > >
-> > > Right now, I'm thinking only of functions that end up calling execve();
-> > > are there any other sufficiently powerful interpreters hiding in common
-> > > system libraries?  regexec()?
-> >
-> > This does absolutely nothing to stop an exploit from providing its own
-> > inline version of execve().  There's nothing in libc that a process can't
-> > do itself, inline.
-> >
-> > A better bet is using an LSM module that prohibits exec() calls from any
-> > unauthorized combinations of running program/user/etc.
->
-> Is that practical?  I can see how with some daemons it would definitely be
-> useful to prohibit exec calls (maybe things like BIND don't need to exec
-> anything).. but some daemons do need to exec.  An SMTPD may need to exec()
-> some helper processes (postfix for instance has a whole slew of helper
-> programs it uses).. and things like sshd need to exec a shell, etc..
 
-What you actually would do is have the LSM module turn exec into MAY_EXEC_IF
-where the IF is done to match security context information to the binary being
-execed. ssh shouldn't exec (well most of the time anyway) a root shell. 
-Instead it should switch security context, (including a security id and 
-uid's/gids) first, then exec if the new security context is valid for what is 
-being execed. (and the new securid is not necessarily selected from kernel 
-mode - it may depend on network connection + user id/gids requested + 
-security level permitted)
+On Mon, May 05, 2003 at 04:01:25PM +0700, Dmitry A. Fedorov wrote:
+>> But why module should not have ability to call any function which is
+>> available from user space?
 
-More complicated, but the full security context being switched to cannot be
-selected by the application itself.
+>> Almost all of my third-party drivers are broken by this.
+>> What is worse, redhat "backported" this "feature" to their 2.4
+>> patched kernels and now I should distinguish 2.4 and "redhat 2.4"
+>> in my compatibility headers.
 
-> It's still a good idea though, since some daemons don't need to exec,
-> ever.  I guess this is one extra layer of protection.  As Ingo said in his
-> announcement, the more layers of protection you have, the better.. and the
-> more difficult a cracker's job is.
+From: Arjan van de Ven <arjanv@redhat.com>
+> that's you you can just call sys_read() and co directly.
 
-true.
+Yes, for redhat kernels - almost all of sys_* functions are exported.
+And there is kernel.org's one with only few sys_* exported.
+And how I will distinguish redhat's kernel from other ones? - there is
+no something like #define REDHAT_PATCHED in headers.
+I don't want to have separate driver source version
+for each of incompatible kernel variant, I prefer to have single
+driver source which is adapted to user's environment at compilation
+time.
+
+From: Christoph Hellwig <hch@infradead.org>
+> What about just fixing your drivers instead of moaning?  If you
+> submit a pointer to your driver source and explain what you want to
+> do someone might even help you..
+
+Of course, I will fix my drivers (permanent kernel changes
+provides us maintainence job forever :).
+
+For example:
+
+http://www.rtdusa.com/software/RTDFinland/ECAN_Linux.zip
+http://www.rtdusa.com/software/RTDFinland/UPS25_Linux.ZIP
+
+I use the following calls:
+
+sys_mknod
+sys_chown
+sys_umask
+sys_unlink
+
+for creating/deleting /dev entries dynamically on driver
+loading/unloading. It allows me to acquire dynamic major
+number without devfs and external utility of any kind.
+And there is no risk of intersection with statically assigned major
+numbers, as it is for many others third-party sources.
+
+It works long time for any kernels from 2.0 to 2.4 (except the last
+redhat's 2.4) and it should works with 2.6, I hope.
+
+
+I use sys_write to output loading/device detection/diagnostic
+messages to process's stderr when appropriate. Yes, it may look as
+"wrong thing" but it uses only legal kernel mechanisms and it saves
+lots of time with e-mail support:
+/sbin/insmod driver verbose=1 2>&1 | mail -s 'it does not works' me@
+
+
+It would be nice if either sys_call_table left exported and placed in
+read-only data section to prevent modification (do you want just that?)
+or _all_ of sys_* function would be exported in original kernel.
+

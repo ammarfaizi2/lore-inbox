@@ -1,64 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269965AbUJHNWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269968AbUJHNWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269965AbUJHNWo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 09:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269957AbUJHNU6
+	id S269968AbUJHNWm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 09:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269967AbUJHNVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 09:20:58 -0400
-Received: from [203.124.158.219] ([203.124.158.219]:26253 "EHLO
-	ganesha.intranet.calsoftinc.com") by vger.kernel.org with ESMTP
-	id S269967AbUJHNS0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 09:18:26 -0400
-Subject: Re: [RFC] [PATCH] Performance of del_single_shot_timer_sync
-From: shobhit dayal <shobhit@calsoftinc.com>
-Reply-To: shobhit@calsoftinc.com
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
+	Fri, 8 Oct 2004 09:21:09 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:26035 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S269970AbUJHNT5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 09:19:57 -0400
+Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: "Jeff V. Merkey" <jmerkey@drdos.com>,
+       "jmerkey@comcast.net" <jmerkey@comcast.net>, jonathan@jonmasters.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <8550FDB8-18AC-11D9-ABEB-000393ACC76E@mac.com>
+References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net>
+	 <35fb2e590410011509712b7d1@mail.gmail.com> <415DD1ED.6030101@drdos.com>
+	 <1096738439.25290.13.camel@localhost.localdomain>
+	 <41659748.9090906@drdos.com> <8B592DC4-18A9-11D9-ABEB-000393ACC76E@mac.com>
+	 <4165B265.2050506@drdos.com> <8550FDB8-18AC-11D9-ABEB-000393ACC76E@mac.com>
 Content-Type: text/plain
-Message-Id: <1097242659.11717.483.camel@kuber>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 08 Oct 2004 19:07:39 +0530
 Content-Transfer-Encoding: 7bit
+Message-Id: <1097237805.2297.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 08 Oct 2004 13:16:49 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> By how much?  (CPU load, overall runtime, etc)
-> 
-> It's a bit odd to have an expired-timer-intensive workload.  Presumably
-> postgres has some short-lived nanosleep or select-based polling loop in
-> there which isn't doing much.
+On Iau, 2004-10-07 at 23:02, Kyle Moffett wrote:
+> In any case, Alan Cox's "offer" was for $100,000 per copy, not $50,000 
+> for an eternal
+> license.  :-D
 
-I am running this load on a numa hardware so I profile the kernel by logging
-functions that cause remote node memory access. I generate a final log
-that shows functions that cause remote memory accesses greater that 0.5%
-of all remote memory access on the system.
-
-del_timer_sync was responsible for about 2% of all remote memory
-accesses on the system and came up as part of the top 10 functions who
-were doing this. On top was schedule(7.52%) followed by
-default_wake_function(2.79%). Rest every one in the top 10 were
-around the range of 2%.
-
-After the patch it never came up in the logs again( so less than 0.5% of
-all faulting eip's).
-
-
-regards
-shobhit
-
-
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-> 
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+And for a specific piece of code not the entire system. It was
+speculation on ways to assist the legal system in identifying
+crystalised (ie cash value) damages for violations
 

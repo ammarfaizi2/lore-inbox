@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261962AbTIMAq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 20:46:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbTIMAq4
+	id S261979AbTIMA6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 20:58:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbTIMA6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 20:46:56 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:9179 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id S261962AbTIMAqy (ORCPT
+	Fri, 12 Sep 2003 20:58:24 -0400
+Received: from mrout3.yahoo.com ([216.145.54.173]:15377 "EHLO mrout3.yahoo.com")
+	by vger.kernel.org with ESMTP id S261979AbTIMA6W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 20:46:54 -0400
-Message-ID: <3F6268FD.6070104@namesys.com>
-Date: Sat, 13 Sep 2003 04:46:53 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+	Fri, 12 Sep 2003 20:58:22 -0400
+Message-ID: <3F626BA9.7040604@bigfoot.com>
+Date: Fri, 12 Sep 2003 17:58:17 -0700
+From: Erik Steffl <steffl@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i386; en-US; rv:1.3) Gecko/20030312
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: Kyle Rose <krose+linux-kernel@krose.org>, Oleg Drokin <green@namesys.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Large-file corruption. ReiserFS? VFS?
-References: <87r82noyr9.fsf@nausicaa.krose.org> <20030912153935.GA2693@namesys.com> <20030912175917.GB30584@matchmail.com> <20030912184001.GA9245@namesys.com> <20030912205446.GD30584@matchmail.com> <87ekylg1kb.fsf@nausicaa.krose.org> <20030912215631.GH30584@matchmail.com>
-In-Reply-To: <20030912215631.GH30584@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: intel D865PERL and DMA for disks (IDE)?
+References: <3F62628B.5060805@bigfoot.com> <200309130236.14814.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200309130236.14814.bzolnier@elka.pw.edu.pl>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
+Bartlomiej Zolnierkiewicz wrote:
+> On Saturday 13 of September 2003 02:19, Erik Steffl wrote:
+... Intel D965PERL and hdparm -d 1 ...
+>>CONFIG_BLK_DEV_PIIX=m
+>>CONFIG_SCSI_ATA_PIIX=y
+> 
+> 
+> You should use CONFIG_BLK_DEV_PIIX=y
+> or load piix module (may not be reliable).
 
->On Fri, Sep 12, 2003 at 05:05:24PM -0400, Kyle Rose wrote:
->  
->
->>>Does this affect 2.4 also?
->>>      
->>>
->>As I said, this did not affect 2.4, at least not uniformly: I
->>regularly created DVD ISO images larger than 4GB under 2.4.2{0,1,2}
->>without problems.
->>    
->>
->
->Ok, thanks.  I'm glad it wasn't in 2.4
->
->EOST
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
-It was a bug in Oleg's large write patch, which it seems was truly for 
-2.5 only.....
+   wow:
 
--- 
-Hans
+jojda:/home/erik# modprobe piix
+Segmentation fault
 
+   lsmod | grep piix
+
+piix                    7976   1  (initializing)
+
+   rmmod piix
+
+piix: Device or resource busy
+
+   I guess I'll try to compile it in. thanks,
+
+	erik
 

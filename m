@@ -1,58 +1,162 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262277AbSI1RTh>; Sat, 28 Sep 2002 13:19:37 -0400
+	id <S262276AbSI1RSi>; Sat, 28 Sep 2002 13:18:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262278AbSI1RTh>; Sat, 28 Sep 2002 13:19:37 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:32260 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S262277AbSI1RTf>; Sat, 28 Sep 2002 13:19:35 -0400
-Date: Sat, 28 Sep 2002 18:24:50 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
+	id <S262278AbSI1RSh>; Sat, 28 Sep 2002 13:18:37 -0400
+Received: from h005018136633.ne.client2.attbi.com ([24.60.20.142]:18429 "EHLO
+	Notebook") by vger.kernel.org with ESMTP id <S262276AbSI1RSc>;
+	Sat, 28 Sep 2002 13:18:32 -0400
+From: carolh@service.com
+Subject: $3.50 to join Before Launch!!!!!!!!!!! Will Make $1,000's later!!!!!!!
 To: linux-kernel@vger.kernel.org
-Subject: Re: Sleeping function called from illegal context...
-Message-ID: <20020928172449.GA54680@compsoc.man.ac.uk>
-References: <20020927233044.GA14234@kroah.com> <1033174290.23958.17.camel@phantasy> <20020928145418.GB50842@compsoc.man.ac.uk> <3D95E14D.9134405C@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D95E14D.9134405C@digeo.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *17vLKk-000L9u-00*AiG8mP0y6e6* (Manchester Computing, University of Manchester)
+Content-Type: text/plain;
+	charset="US-ASCII";
+	charset="US-ASCII";
+Message-Id: <20020928171833Z262276-8740+2753@vger.kernel.org>
+Date: Sat, 28 Sep 2002 13:18:32 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 28, 2002 at 10:05:17AM -0700, Andrew Morton wrote:
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
 
-> We need a standalone CONFIG_MIGHT_SLEEP.  I sinfully hooked it
-> to CONFIG_DEBUG_KERNEL (it's not obvious why CONFIG_DEBUG_KERNEL
-> exists actually).
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
 
-Ah, OK.
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
 
-> > I have a bit of a problem with __might_sleep because I call sleepable
-> > stuff holding a spinlock (yes, it is justified, and yes, it is safe
-> > afaics, at least with PREEMPT=n)
-> 
-> I'm looking at you suspiciously.  How come?
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
 
-NMI interrupt handler cannot block so it trylocks against a spinlock
-instead. Buffer processing code needs to block against concurrent NMI
-interrupts so takes the spinlock for them. All actual blocks on the
-spinlock are beneath a down() on another semaphore, so a sleep whilst
-holding the spinlock won't actually cause deadlock.
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
 
-I don't know a way out of this that can safely ensure we've finished
-processing an NMI on the remote CPU the buffer processing code is about
-to look at.
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
 
-[I'll post a new patch against 2.5.39 in a bit so you can see in
-context]
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
 
-regards
-john
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
 
--- 
-"When your name is Winner, that's it. You don't need a nickname."
-	- Loser Lane
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
+
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
+
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
+
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
+
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
+
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
+
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
+
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
+
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
+
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
+
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
+
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
+
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
+
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII";
+
+ charset="US-ASCII";
+	charset="US-ASCII";
+	charset="US-ASCII"
+Reply-To: carolh@service.com
+Date: Sat, 28 Sep 2002 13:23:56 -0400
+X-Priority: 3
+X-Library: Indy 9.00.10
+X-Mailer: Foxmail
+
+Hello Friends!!!!!!
+
+Why will it only take 28 minutes a month for Guerrilla Marketing
+Bombshells to increase your profits?
+
+http://www.gmktgb.com/page/soundp/
+
+You'll have to click on the link to find out why the select few
+who have seen the product plan are begging to get early access
+to the product (sorry, no one can get access until the launch
+date - click on the link below to find out when).
+
+
+http://www.gmktgb.com/page/soundp/
+
+But, here are the top 3 reasons why it's vital that you sign up
+now during the pre-launch phase:
+
+1.  Secure your position in the highest paying 2x15 forced matrix
+in the industry.  A full matrix pays (click below for answer) per
+month.
+
+2.  This is a unique high-demand product that will be physically
+impossible for anyone to duplicate.  Brought to you by two names
+that are legends in the industry (click below to find out who).
+
+3.  You'll be given an opportunity to promote GMB before the
+launch and pre-build your matrix.  Pre-launch and launch dates
+are: (click below for answer).
+
+http://www.gmktgb.com/page/soundp/
+
+The product will be in high demand by anyone who wants to
+generate more profit from their business.  In fact, it will only
+take 28 minutes a month.  (That's less than a minute a day.)
+
+Sign up here now:
+
+http://www.gmktgb.com/page/soundp/
+
+All the best,
+
+Mark
+
+Mark Joyner
+CEO, Aesop.com

@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262699AbUKRQ7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262778AbUKRRCM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262699AbUKRQ7q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 11:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262767AbUKRQ7q
+	id S262778AbUKRRCM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 12:02:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262780AbUKRRCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 11:59:46 -0500
-Received: from www.ssc.unict.it ([151.97.230.9]:2054 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S262699AbUKRQ7O (ORCPT
+	Thu, 18 Nov 2004 12:02:12 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:51883 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262778AbUKRRCB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 11:59:14 -0500
-Subject: [patch 1/1] Uml - update some copyright
-To: akpm@osdl.org
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
-From: blaisorblade_spam@yahoo.it
-Date: Thu, 18 Nov 2004 18:01:14 +0100
-Message-Id: <20041118170115.9195255C98@zion.localdomain>
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.18; VDF: 6.28.0.80; host: ssc.unict.it)
+	Thu, 18 Nov 2004 12:02:01 -0500
+Date: Thu, 18 Nov 2004 12:01:34 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Chris Wright <chrisw@osdl.org>
+cc: Ross Kendall Axe <ross.axe@blueyonder.co.uk>, <netdev@oss.sgi.com>,
+       Stephen Smalley <sds@epoch.ncsc.mil>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] linux 2.9.10-rc1: Fix oops in unix_dgram_sendmsg when
+ using SELinux and SOCK_SEQPACKET
+In-Reply-To: <20041118084449.Z14339@build.pdx.osdl.net>
+Message-ID: <Xine.LNX.4.44.0411181158110.5096-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 18 Nov 2004, Chris Wright wrote:
 
-Update/add some copyright notices.
+> Why not make a unix_seq_sendmsg, which is a very small wrapper?
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
+Good idea, patch forthcoming.
 
- linux-2.6.10-rc-paolo/arch/um/kernel/sigio_kern.c |    2 +-
- linux-2.6.10-rc-paolo/arch/um/sys-i386/sysrq.c    |    5 +++++
- 2 files changed, 6 insertions(+), 1 deletion(-)
+> Does the above stop the other issue?  My laptop died, so I'm not able to
+> test ATM.
 
-diff -puN arch/um/kernel/sigio_kern.c~uml-comments arch/um/kernel/sigio_kern.c
---- linux-2.6.10-rc/arch/um/kernel/sigio_kern.c~uml-comments	2004-11-18 17:44:54.030790640 +0100
-+++ linux-2.6.10-rc-paolo/arch/um/kernel/sigio_kern.c	2004-11-18 17:44:54.051787448 +0100
-@@ -1,5 +1,5 @@
- /* 
-- * Copyright (C) 2002 Jeff Dike (jdike@karaya.com)
-+ * Copyright (C) 2002 - 2003 Jeff Dike (jdike@addtoit.com)
-  * Licensed under the GPL
-  */
- 
-diff -puN arch/um/sys-i386/sysrq.c~uml-comments arch/um/sys-i386/sysrq.c
---- linux-2.6.10-rc/arch/um/sys-i386/sysrq.c~uml-comments	2004-11-18 17:44:54.047788056 +0100
-+++ linux-2.6.10-rc-paolo/arch/um/sys-i386/sysrq.c	2004-11-18 17:44:54.051787448 +0100
-@@ -1,3 +1,8 @@
-+/*
-+ * Copyright (C) 2001 - 2003 Jeff Dike (jdike@addtoit.com)
-+ * Licensed under the GPL
-+ */
-+
- #include "linux/kernel.h"
- #include "linux/smp.h"
- #include "linux/sched.h"
-_
+No, it seems to be caused when addrlen in sendto() is non-zero, causing 
+unix_find_other() to be called instead of unix_peer_get(), which is 
+screwing up reference counts.
+
+As for MSG_EOR, apart from the generic socket code, nothing is being done.  
+This would be a separate issue.
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+

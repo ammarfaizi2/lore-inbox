@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262196AbSJQVnK>; Thu, 17 Oct 2002 17:43:10 -0400
+	id <S262212AbSJQVoJ>; Thu, 17 Oct 2002 17:44:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262209AbSJQVnJ>; Thu, 17 Oct 2002 17:43:09 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:65213 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262196AbSJQVnI>;
-	Thu, 17 Oct 2002 17:43:08 -0400
-Date: Thu, 17 Oct 2002 17:49:05 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Russell Coker <russell@coker.com.au>
-cc: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-Subject: Re: [PATCH] remove sys_security
-In-Reply-To: <200210172337.49463.russell@coker.com.au>
-Message-ID: <Pine.GSO.4.21.0210171742050.18575-100000@weyl.math.psu.edu>
+	id <S262213AbSJQVoH>; Thu, 17 Oct 2002 17:44:07 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:47096 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S262212AbSJQVoC>; Thu, 17 Oct 2002 17:44:02 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CAC7F0@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'justin T. Gibbs'" <gibbs@scsiguy.com>,
+       "lkml (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix Linux 2.5.43 build of aic7xxx
+Date: Thu, 17 Oct 2002 14:49:47 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi there
 
-On Thu, 17 Oct 2002, Russell Coker wrote:
+Pretty simple patch, fixes [at least for me] the building of aic7xxx on
+2.5.43
 
-> > What specific information differs per-operation, such that security
-> > identifiers cannot be stored internally inside a file handle?
-> 
-> My previous message obviously wasn't clear enough.
-> 
-> When you want to read or set the SID of a file handle then you need to pass in 
-> a SID pointer or a SID.
+diff -u -r1.1.1.1 linux/drivers/scsi/aic7xxx/Makefile
+--- linux/drivers/scsi/aic7xxx/Makefile	9 Oct 2002 02:47:02 -0000
++++ linux/drivers/scsi/aic7xxx/Makefile	17 Oct 2002 21:40:03 -0000
+@@ -33,7 +33,7 @@
+ $(obj)/aic7xxx_seq.h $(obj)/aic7xxx_reg.h: $(src)/aic7xxx.seq \
+ 					   $(src)/aic7xxx.reg \
+ 					   $(obj)/aicasm/aicasm
+-	$(obj)/aicasm/aicasm -I. -r $(obj)/aic7xxx_reg.h \
++	$(obj)/aicasm/aicasm -I$(obj) -r $(obj)/aic7xxx_reg.h \
+ 				 -o $(obj)/aic7xxx_seq.h $(src)/aic7xxx.seq
+ 
+ $(obj)/aicasm/aicasm: $(src)/aicasm/*.[chyl]
 
-So fscking what?  _Nothing_ of the above warrants a new syscall.  There
-are struct file * attributes and there are descriptor attributes.
-Rather than excreting a new syscall you could look what already exists
-in the API.
+Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
+fault]
 
-Frankly, SELinux has some interesting ideas, but interfaces are appalling.
-Either they've never cared about it, or they have no taste (or have, er,
-overriding manag^Wissues actively hostile to any taste).  Take your pick.
-
-And don't get me started on access to file by inumber and other beauties
-in that excuse of an API.  It wasn't designed.  It happened.  As in, "it
-happens".
 

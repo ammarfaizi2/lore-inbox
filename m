@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317778AbSGPH7E>; Tue, 16 Jul 2002 03:59:04 -0400
+	id <S317779AbSGPH7j>; Tue, 16 Jul 2002 03:59:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317779AbSGPH7D>; Tue, 16 Jul 2002 03:59:03 -0400
-Received: from mtiwmhc23.worldnet.att.net ([204.127.131.48]:13477 "EHLO
-	mtiwmhc23.worldnet.att.net") by vger.kernel.org with ESMTP
-	id <S317778AbSGPH7C>; Tue, 16 Jul 2002 03:59:02 -0400
-Date: Tue, 16 Jul 2002 04:07:22 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-rc1-ac5 -- Build error in mpparse.c (possible fix)
-Message-ID: <20020716080722.GA9375@lnuxlab.ath.cx>
-References: <200207152148.g6FLm7Q24750@devserv.devel.redhat.com> <1026792066.1417.19.camel@localhost.localdomain> <20020716075437.GA9226@lnuxlab.ath.cx>
+	id <S317781AbSGPH7f>; Tue, 16 Jul 2002 03:59:35 -0400
+Received: from mail.eskimo.com ([204.122.16.4]:46353 "EHLO mail.eskimo.com")
+	by vger.kernel.org with ESMTP id <S317779AbSGPH7d>;
+	Tue, 16 Jul 2002 03:59:33 -0400
+Date: Tue, 16 Jul 2002 01:02:19 -0700
+To: Hell.Surfers@cwctv.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: wine emulation integration.
+Message-ID: <20020716080219.GA26331@eskimo.com>
+References: <004540925061072DTVMAIL7@smtp.cwctv.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020716075437.GA9226@lnuxlab.ath.cx>
+In-Reply-To: <004540925061072DTVMAIL7@smtp.cwctv.net>
 User-Agent: Mutt/1.3.28i
-From: khromy@lnuxlab.ath.cx (khromy)
+From: Elladan <elladan@eskimo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nevermind, this is broken.  pci-pc.c fails to compile.
+Wine is collection of application-level libraries and a special runtime
+execution system.  Integrating it into the kernel isn't sensible, since
+applications do not run in the kernel.
 
-On Tue, Jul 16, 2002 at 03:54:37AM -0400, khromy wrote:
-> --- include/asm-i386/smp.h.old	Tue Jul 16 03:21:52 2002
-> +++ include/asm-i386/smp.h	Tue Jul 16 03:39:00 2002
-> @@ -34,11 +34,6 @@
->  #define		INT_DEST_ADDR_MODE		1     /* logical delivery */
->  # endif
->  #else
-> -#define		clustered_apic_mode		(0)
-> -#define		clustered_apic_logical		(0)
-> -#define		clustered_apic_physical		(0)
-> -#define		apic_broadcast_id		(APIC_BROADCAST_ID_APIC)
-> -#define		esr_disable			(0)
->  #define		INT_DELIVERY_MODE		1     /* logical delivery */
->  #define		TARGET_CPUS			0x01
->  #define		INT_DEST_ADDR_MODE		1     /* logical delivery */
-> 
+However, it is possible for Linux to support special system calls to aid
+the implementation of Wine (chiefly for performance reasons).  This was
+proposed at some point in the past, but I'm not sure what ever became of
+it.  The basic idea was to provide some special locking primitives for
+Win32 applications, as I recall...
 
--- 
-L1:	khromy		;khromy(at)lnuxlab.ath.cx
+
+What I think you're actually trying to propose is adding an
+abstraction/support layer for windows driver binaries in the Linux
+kernel.  This is actually an interesting idea in some respects, but it's
+not really all that closely related to Wine.  Kernel development is
+at a different level.
+
+It's also probably not worth the trouble at all.  Implementing it would
+be very difficult, and the number of devices it would enable would be
+very small.  It would also be very unstable, since besides the bugs in
+the windows drivers themselves, debugging the support layer around them
+would be really hard.  Generally speaking, it would almost always be
+easier to just write a native Linux driver for the hardware.
+
+-J
+
+
+On Tue, Jul 16, 2002 at 07:25:25AM +0100, Hell.Surfers@cwctv.net wrote:
+> Could the integration of wine into the kernel, be a good idea to take?
+> Its adding could be added to create a hybrid system that with extra
+> dev could allow modem cards to work under Linux that wouldnt otherwise
+> saving time and effort.
+

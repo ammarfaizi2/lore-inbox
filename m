@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270263AbSISHnp>; Thu, 19 Sep 2002 03:43:45 -0400
+	id <S270273AbSISHpu>; Thu, 19 Sep 2002 03:45:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270273AbSISHnp>; Thu, 19 Sep 2002 03:43:45 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:62728 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S270263AbSISHnp>;
-	Thu, 19 Sep 2002 03:43:45 -0400
-Date: Thu, 19 Sep 2002 00:48:44 -0700
-From: Greg KH <greg@kroah.com>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Brad Hards <bhards@bigpond.net.au>, Duncan Sands <duncan.sands@wanadoo.fr>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: 2.5.26 hotplug failure
-Message-ID: <20020919074844.GC13487@kroah.com>
-References: <200207180950.42312.duncan.sands@wanadoo.fr> <200209181715.51314.bhards@bigpond.net.au> <20020918165532.GA9654@kroah.com> <E17rvs3-0000uN-00@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E17rvs3-0000uN-00@starship>
-User-Agent: Mutt/1.4i
+	id <S270274AbSISHpu>; Thu, 19 Sep 2002 03:45:50 -0400
+Received: from dsl-213-023-020-102.arcor-ip.net ([213.23.20.102]:10383 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S270273AbSISHpt>;
+	Thu, 19 Sep 2002 03:45:49 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>,
+       "lse-tech@lists.sourceforge.net" <lse-tech@lists.sourceforge.net>
+Subject: Re: 2.5.35-mm1
+Date: Thu, 19 Sep 2002 09:51:02 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <3D858515.ED128C76@digeo.com>
+In-Reply-To: <3D858515.ED128C76@digeo.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17rw5X-0000vG-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 19, 2002 at 09:37:07AM +0200, Daniel Phillips wrote:
-> On Wednesday 18 September 2002 18:55, Greg KH wrote:
-> > Sorry, but I'm not going to put the file back.  I understand your
-> > concerns.  We should have some kind of program (lsdev like) that shows
-> > the system information present at that moment in time.  It will be able
-> > to provide what the /proc/bus/usb/drivers file showed in the past.
-> 
-> How about calling it /proc/bus/usb/drivers?
+On Monday 16 September 2002 09:15, Andrew Morton wrote:
+> A 4x performance regression in heavy dbench testing has been fixed. The
+> VM was accidentally being fair to the dbench instances in page reclaim.
+> It's better to be unfair so just a few instances can get ahead and submit
+> more contiguous IO.  It's a silly thing, but it's what I meant to do anyway.
 
-Please go back and read what I wrote above what you snipped out and then
-explain how this would be possible.
+Curious... did the performance hit show anywhere other than dbench?
 
-greg k-h
+-- 
+Daniel

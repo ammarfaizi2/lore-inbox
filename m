@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270072AbTGNK7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 06:59:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270073AbTGNK7Y
+	id S270073AbTGNLAf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 07:00:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270077AbTGNLAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 06:59:24 -0400
-Received: from smtp017.mail.yahoo.com ([216.136.174.114]:51218 "HELO
-	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S270072AbTGNK7X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 06:59:23 -0400
+	Mon, 14 Jul 2003 07:00:35 -0400
+Received: from raq465.uk2net.com ([213.239.56.46]:37125 "EHLO
+	mail.truemesh.com") by vger.kernel.org with ESMTP id S270073AbTGNLAa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 07:00:30 -0400
+Date: Mon, 14 Jul 2003 12:09:09 +0100
+From: Paul Nasrat <pauln@truemesh.com>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       linux-kernel@vger.kernel.org
 Subject: Re: 2.6.0-test1: Hang during boot on Intel D865PERL motherboard
-From: =?ISO-8859-1?Q?Ram=F3n?= Rey =?UTF-8?Q?Vicente?=
-	 =?UTF-8?Q?=F3=AE=A0=92?= <retes_simbad@yahoo.es>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030714110311.6059.qmail@linuxmail.org>
-References: <20030714110311.6059.qmail@linuxmail.org>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1058181246.856.7.camel@debian>
+Message-ID: <20030714110909.GR28359@raq465.uk2net.com>
+Mail-Followup-To: Paul Nasrat <pauln@truemesh.com>,
+	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+	linux-kernel@vger.kernel.org
+References: <20030714110311.6059.qmail@linuxmail.org> <20030714110335.GQ28359@raq465.uk2net.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 14 Jul 2003 13:14:08 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030714110335.GQ28359@raq465.uk2net.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El lun, 14-07-2003 a las 13:03, Felipe Alfaro Solana escribió:
-> Hi,
+On Mon, Jul 14, 2003 at 12:03:35PM +0100, Paul Nasrat wrote:
+> On Mon, Jul 14, 2003 at 12:03:11PM +0100, Felipe Alfaro Solana wrote:
+> > Hi,
+> > 
+> > I've compiled linux-2.6.0-test1 kernel with the attached "config" file. When trying to boot the kernel, it hangs on "Uncompress Linux kernel...OK". The system is:
 > 
-> I've compiled linux-2.6.0-test1 kernel with the attached "config" file. When trying to boot the kernel, it hangs on "Uncompress Linux kernel...OK". The system is:
+> You only have the dummy console selected ensuring you have:
+> 
+> CONFIG_CONSOLE_VGA=y
 
-Hang or blank screen?
+I should add please read:
 
-Known gotchas.
-~~~~~~~~~~~~~~
-Certain known bugs are being reported over and over. Here are the
-workarounds.
-- Blank screen after decompressing kernel?
-  Make sure your .config has
-  CONFIG_INPUT=y, CONFIG_VT=y, CONFIG_VGA_CONSOLE=y and CONFIG_VT_CONSOLE=y
-  A lot of people have discovered that taking their .config from 2.4 and
-  running make oldconfig to pick up new options leads to problems, notably
-  with CONFIG_VT not being set. 
--- 
-/================================================\
-| Ramón Rey Vicente <ramon.rey at hispalinux.es> |
-|                                                |
-| Jabber ID <rreylinux at jabber.org>            |
-|                                                |
-| Public GPG Key http://pgp.escomposlinux.org    |
-|                                                |
-| GLiSa http://glisa.hispalinux.es               |
-\================================================/
+http://codemonkey.org.uk/post-halloween-2.5.txt
 
+Which documents this and other things to expect.
+
+Paul

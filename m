@@ -1,81 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271810AbRHRLJs>; Sat, 18 Aug 2001 07:09:48 -0400
+	id <S271808AbRHRLHs>; Sat, 18 Aug 2001 07:07:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271811AbRHRLJk>; Sat, 18 Aug 2001 07:09:40 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57723 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S271810AbRHRLJa>; Sat, 18 Aug 2001 07:09:30 -0400
-To: Adrian Cox <adrian@humboldt.co.uk>
-Cc: root@chaos.analogic.com, Nicholas Knight <tegeran@home.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Encrypted Swap
-In-Reply-To: <Pine.LNX.3.95.1010817152158.4584B-100000@chaos.analogic.com>
-	<3B7E2CA5.50904@humboldt.co.uk>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 18 Aug 2001 05:02:28 -0600
-In-Reply-To: <3B7E2CA5.50904@humboldt.co.uk>
-Message-ID: <m1itflocl7.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S271809AbRHRLHk>; Sat, 18 Aug 2001 07:07:40 -0400
+Received: from smtp-server1.tampabay.rr.com ([65.32.1.34]:49840 "EHLO
+	smtp-server1.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id <S271808AbRHRLHU>; Sat, 18 Aug 2001 07:07:20 -0400
+Message-ID: <018901c127d5$fadba320$b6562341@cfl.rr.com>
+From: "Mike Black" <mblack@csihq.com>
+To: "Dewet Diener" <linux-kernel@dewet.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010818030321.A11649@darkwing.flatlit.net>
+Subject: Re: ext3 partition unmountable
+Date: Sat, 18 Aug 2001 07:07:32 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Cox <adrian@humboldt.co.uk> writes:
+If I'm reading the files right it looks like:
+#define EXT3_FEATURE_INCOMPAT_COMPRESSION  0x0001
 
-> Richard B. Johnson wrote:
-> > We've established no such thing. In fact, you can't properly initialize
-> > SDRAM memory without writing something to it.
-> 
-> After all of this theory it was time to do some experiments. I modified the BIOS
-> 
-> on my current PowerPC system to compare memory against a test pattern (I chose
-> 0x31415926 incrementing by 0x27182817) over the address range 0x0 to
-> 0x100000. This pattern has approximately 50% 1s and 50% 0s.
+Did you compress the file system?
 
-I'm curious was this embedded system or was it a stock PowerPC.  I
-don't know of any off the shelf machines that come with BIOS source code.
- 
-> On pressing the reset button, I got 100% of bits holding the same value. If I
-> turn the power off for 20s, I get approximately 90% of bits holding the same
-> value. After a minute, it's dropped to the 50% level, which I take as random.
+Do a "tune2fs -l /dev/hdc" and see what features are set.
 
-As another data point, I earlier tried a similiar experiment by
-accident.  In that case I forgot to enable ram refresh.   And then
-read and wrote patterns to the SDRAM.  In that case I could find one
-or two bits wrong (but 99.99% of them correct), after only a second or
-two.
+----- Original Message -----
+From: "Dewet Diener" <linux-kernel@dewet.org>
+To: <linux-kernel@vger.kernel.org>
+Sent: Friday, August 17, 2001 9:03 PM
+Subject: ext3 partition unmountable
 
-> For added fun, I then tried turning off, pulling out the DIMM, plugging it into
-> the other slot, and turning back on. 97% of the bits had the original value. So
-> one attack we must consider is the attacker removing power, ripping the DIMM
-> out, and plugging it into a special DIMM reading device.
-> 
-> Your descriptions on how memory is started look very machine specific. On mine
-> (Motorola MPC107) I write the number of row bits, column bits, and internal
-> banks to the memory controller, along with the CAS latency. I then set MEMGO,
-> and the memory controller precharges each bank.
 
-Ah you have one of the nice memory controllers.  On some you have
-to do the prefreshs & co manually on others the memory controller will
-do it for you.
+> Hi all
+>
+> After umounting a removable ext3 partition from my work PC, and
+> trying to remount it at home, I've run into the following error
+> trying to mount it as both ext2 and ext3:
+>
+> EXT2-fs: ide1(22,65): couldn't mount because of unsupported optional
+features (10000).
+> EXT3-fs: ide1(22,65): couldn't mount because of unsupported optional
+features (10000).
+>
+> e2fsck is similarly unhelpful:
+> e2fsck: Filesystem has unsupported feature(s) while trying to open
+/dev/hdd1
+>
+> The kernels on both machines have the same ext3 options enabled, and
+> they're both 2.4.8-ac6.
+>
+> This is the first time I've tried moving the drive like this - I
+> assumed it would work flawlessly.  However, ext3 doco seems a bit
+> sparse under Documentation/, so I'm not quite sure about the recovery
+> steps needed.
+>
+> I'd appreciate your help on this one :)  Please CC me in...
+>
+> Regards,
+> Dewet
+>
+> --
+> Dewet Diener     dewet@itouchlabs.com     -o)
+> Systems Administrator     iTouch Labs     / \
+> Self-confessed geek and Linux fanatic    _\_v
+>
+> SYN! ..... SYN! ACK! ..... ACK!
+> The mating call of the internet
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-The result here is interesting.  So while you don't loose everything
-on powerdown.  About a minute after power down you do.  Not perfect
-but it should be good enough to consider RAM self deleting in most
-cases.  Except for the reset case which could prove very dangerous.  
-
-For any of these attacks to prove workable you need to get a hold of
-the machine while the power is still on.
-
-So the attacker has two way to attack your machine.  Attempt to break
-in while it is still running.  Put in a minimal boot cd and press
-reset and see how much is recovered.  Generally breaking should prove
-the more fruitful course, but the fact that reset preseves all of the
-memory, means it simply is not safe for someone to have physical
-access to your machine while the power is on.
-
-Or do you read this differently?
-
-Eric

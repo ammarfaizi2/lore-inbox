@@ -1,82 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263945AbTLPWq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 17:46:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263946AbTLPWq0
+	id S264277AbTLPW4n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 17:56:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264342AbTLPW4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 17:46:26 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:33547 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263945AbTLPWqY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 17:46:24 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: 'bad: scheduling while atomic!', preempt kernel, 2.6.1-test11,
- reading an apparently duff DVD-R
-Date: 16 Dec 2003 22:34:54 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bro1ae$1v5$1@gatekeeper.tmr.com>
-References: <3FDDD923.30509@pobox.com> <Pine.LNX.4.58.0312151019160.1488@home.osdl.org>
-X-Trace: gatekeeper.tmr.com 1071614094 2021 192.168.12.62 (16 Dec 2003 22:34:54 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Tue, 16 Dec 2003 17:56:43 -0500
+Received: from b1.ovh.net ([213.186.33.51]:27590 "EHLO mail8.ha.ovh.net")
+	by vger.kernel.org with ESMTP id S264277AbTLPWzT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 17:55:19 -0500
+Message-ID: <1071615336.3fdf8d6840208@ssl0.ovh.net>
+Date: Tue, 16 Dec 2003 23:55:36 +0100
+From: Miroslaw KLABA <totoro@totoro.be>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Double Interrupt with HT
+References: <20031215155843.210107b6.totoro@totoro.be> <1071603069.991.194.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1071603069.991.194.camel@cog.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
+X-Originating-IP: 81.250.170.171
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.58.0312151019160.1488@home.osdl.org>,
-Linus Torvalds  <torvalds@osdl.org> wrote:
-| 
-| 
-| On Mon, 15 Dec 2003, Jeff Garzik wrote:
-| >
-| > Pardon me for asking a dumb and possibly impertinent question, but why
-| > keep it around at all?
-| 
-| Hey, I've tried to kill it off, but people keep on wanting it. Either
-| because they are lazy and can't upgrade the tools to write CD's with the
-| regular ide-cd interfaces, or because they have IDE tapes and want to use
-| st.c to drive them.
+Hello,
 
-And MO drives. There was something funky with LS-120 and ZIP drives that
-ide-scsi did right and ide-floppy didn't, but I haven't tried it since
-about 2.5.4x, and at that time ide-scsi worked, other than logging some
-status messages.
+I had the problem with 2.4.22, 2.4.22-ac4, 2.4.23 and 2.4.24-pre1.
+The problem is that all the kernel is working "twice the speed".
+The command "while true; do date; sleep 1; done;" shows that the date is growing
+2 seconds per second... :/
+I found a patch for irqbalance for 2.4.23, and now I don't have the problem 
+anymore with the clock.
+http://www.hardrock.org/kernel/2.4.23/irqbalance-2.4.23-jb.patch
 
-There is some MS backup software which wants SCSI tapes to run. I don't
-know if that's under wine or vmware, it's on my list of things to check
-and report, but down the list. One more reason for ide-scsi, though.
-| 
-| ide-cd.c obviously does _not_ handle tapes. We could make the generic IDE
-| layer open them and let people do SCSI commands on them (and that probably
-| wouldn't be too hard), but somebody needs to _care_.
+With 2.6.0-test11, I didn't have any problem, but we can't switch to 2.6.0 yet
+production.
+I think it is a bug with the via chipset, but I'm not able to get deeper in the
+kernel code.
 
-I think there are a fair number of people who care, they just don't
-happen to have the combination of skills, hardware, and time to go play.
-Don't take it out, let people grouse and eventually fixes will come,
-if only from vendors.
-| 
-| Right now ide-scsi (and the alternatives, like doing SCSI commands onto
-| any ATAPI device just using the regular IDE layer) are mostly hampered by
-| people complaining about them but not actually _doing_ anything.
+Thanks
+Miro
 
-1 - testing and reporting problems IS doing something.
-2 - you supplied a patch which did fix some of the problems.
-3 - I got another tape drive so I could test on non-production hardware
-    and it died, haven't tried the replacement because we have had
-    blizzards two bleeping weekends in a row. And this weekend is
-    Christmas prep weekend, so don't expect nice test results this year.
-4 - We now have three rescued kittens in the house, they are LOTS more
-    fun to play with than ide-scsi ;-)
-| 
-| I'll try something that rips out the reset handling altogether from
-| ide-scsi, let's see how that works (should be easy enough to test with a
-| black marker and an old CD-ROM).
 
-And hopefully the person who reported MO problems will test, because I
-believe that was one of his major problems.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+
+
+
+
+Quoting john stultz <johnstul@us.ibm.com>:
+
+> On Mon, 2003-12-15 at 06:58, Miroslaw KLABA wrote:
+> > I've got a problem while using Hyper-Threading on a motherboard with Via
+> P4M266A
+> > chipset with 2.4.23 kernel.
+> 
+> Could you try to narrow down when the problem first appeared? Was it not
+> seen in 2.4.23-pre3 but showed up in 2.4.23-rc1? The narrower the
+> better. 
+> 
+> thanks
+> -john
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+

@@ -1,69 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129130AbQKDIf4>; Sat, 4 Nov 2000 03:35:56 -0500
+	id <S129809AbQKDIir>; Sat, 4 Nov 2000 03:38:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129809AbQKDIfq>; Sat, 4 Nov 2000 03:35:46 -0500
-Received: from munchkin.spectacle-pond.org ([209.192.197.45]:43270 "EHLO
-	munchkin.spectacle-pond.org") by vger.kernel.org with ESMTP
-	id <S129130AbQKDIfj>; Sat, 4 Nov 2000 03:35:39 -0500
-Date: Sat, 4 Nov 2000 03:40:02 -0500
-From: Michael Meissner <meissner@spectacle-pond.org>
-To: Russ Allbery <rra@stanford.edu>
-Cc: Tim Riker <Tim@Rikers.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?)
-Message-ID: <20001104034002.A26612@munchkin.spectacle-pond.org>
-In-Reply-To: <fa.g3i0smv.15loso7@ifi.uio.no> <fa.cjn9ksv.1a0m82t@ifi.uio.no> <ylbsvww97j.fsf@windlord.stanford.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <ylbsvww97j.fsf@windlord.stanford.edu>; from rra@stanford.edu on Fri, Nov 03, 2000 at 10:19:12PM -0800
+	id <S131714AbQKDIii>; Sat, 4 Nov 2000 03:38:38 -0500
+Received: from ares.ssi.bg ([195.138.149.70]:6916 "EHLO u.domain.uli")
+	by vger.kernel.org with ESMTP id <S131653AbQKDIiU>;
+	Sat, 4 Nov 2000 03:38:20 -0500
+Date: Sat, 4 Nov 2000 10:37:54 +0000 (GMT)
+From: Julian Anastasov <ja@ssi.bg>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Josue Emmanuel Amaro <Josue.Amaro@oracle.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Value of TASK_UNMAPPED_SIZE on 2.4
+In-Reply-To: <20001104015110.A32767@athlon.random>
+Message-ID: <Pine.LNX.4.04.10011040953230.511-100000@u>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 03, 2000 at 10:19:12PM -0800, Russ Allbery wrote:
-> Tim Riker <Tim@Rikers.org> writes:
-> 
-> > Agreed. C99 does not replace all the needed gcc features. We should
-> > start using the ones that make sense, and push for
-> > standardization/documentation on the rest.
-> 
-> > I'm perfectly happy with this as a long term goal. I'll put what effort
-> > I can into moving that direction without breaking the existing world as
-> > we know it.
-> 
-> May I tentatively suggest that one point at which your resources could
-> productively be applied is towards improving the C99 compliance in gcc?
-> Clearly for the near to medium future the compiler that everyone will use
-> to build the Linux kernel will be gcc, which means that in order to use
-> any C99 syntax, it first has to be solid in gcc.  That means the best way
-> of introducing such things into the Linux kernel is to *first* get the C99
-> support solid, reliable, and efficient in gcc, then once a version of gcc
-> is released with that support, help get Linux compiling with that version
-> of gcc.
-> 
-> *Then*, when that version of gcc can be made a prerequisite for the
-> kernel, you can start switching constructs over to the C99 syntax that gcc
-> supports.
 
-Hmmmmm.  Last month the compiler related thread on the kernel list was the
-kernel couldn't move to newer versions of the compiler because the compiler had
-changed things (where newer might mean either the latest snapshot de jour, or a
-tested/appropriately patched version based off of the snapshots, or even 2.95).
-Now people seem to be advocating moving the kernel to use features from C99
-that haven't even been coded yet (which mean when coded using the latest
-codegen as well).  Note, I seriously doubt Linus will want a flag day (ie,
-after a given kernel release, you must use revision n of the compiler, but
-before that release, you must use revision n-1 of the compiler), so you still
-have to maintain support for the old GCC way of doing things, in addition to
-the C99 way of doing things probably for a year or so.
+	Hello,
 
--- 
-Michael Meissner, Red Hat, Inc.
-PMB 198, 174 Littleton Road #3, Westford, Massachusetts 01886, USA
-Work:	  meissner@redhat.com		phone: +1 978-486-9304
-Non-work: meissner@spectacle-pond.org	fax:   +1 978-692-4482
+On Sat, 4 Nov 2000, Andrea Arcangeli wrote:
+
+> On Sat, Nov 04, 2000 at 01:09:42AM +0000, Julian Anastasov wrote:
+> > 	Something like the attached old patch for 2.2. It is very
+>
+> It's not ok for 64bit archs.
+
+	Agreed. I see very different definitions for TASK_UNMAPPED_BASE
+and ELF_ET_DYN_BASE in all archs and I'm not a guru to make this patch
+for all archs but everyone can see the idea. May be the signed int max
+value is not suitable for users that need large brk allocations with
+more than 2GB on 32bit, i.e. cur_task_unmapped_base is enough. Using
+machines with this RAM size and more are already a common practice but
+I'm not sure if this feature is so useful compared to the difficulties
+to implement it for all archs.
+
+> Andrea
+
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266597AbSKGV7x>; Thu, 7 Nov 2002 16:59:53 -0500
+	id <S266603AbSKGWHI>; Thu, 7 Nov 2002 17:07:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266598AbSKGV7x>; Thu, 7 Nov 2002 16:59:53 -0500
-Received: from ip68-105-128-224.tc.ph.cox.net ([68.105.128.224]:11453 "EHLO
-	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
-	id <S266597AbSKGV7v>; Thu, 7 Nov 2002 16:59:51 -0500
-Date: Thu, 7 Nov 2002 15:06:29 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Templates and tweaks (for size performance and more)
-Message-ID: <20021107220628.GA12151@opus.bloom.county>
-References: <20021107190910.GC6164@opus.bloom.county> <20021107210304.C11437@flint.arm.linux.org.uk>
+	id <S266604AbSKGWHI>; Thu, 7 Nov 2002 17:07:08 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:15807 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S266603AbSKGWHH>;
+	Thu, 7 Nov 2002 17:07:07 -0500
+Subject: Re: kexec (was: [lkcd-devel] Re: What's left over.)
+From: Andy Pfiffer <andyp@osdl.org>
+To: Andy Pfiffer <andyp@osdl.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Werner Almesberger <wa@almesberger.net>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+In-Reply-To: <1036697556.10457.254.camel@andyp>
+References: <Pine.LNX.4.44.0211052203150.1416-100000@home.transmeta.com> 
+	<m14ratepbf.fsf@frodo.biederman.org>  <1036697556.10457.254.camel@andyp>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 07 Nov 2002 14:13:52 -0800
+Message-Id: <1036707232.10457.275.camel@andyp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021107210304.C11437@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 07, 2002 at 09:03:04PM +0000, Russell King wrote:
-> On Thu, Nov 07, 2002 at 12:09:10PM -0700, Tom Rini wrote:
-> > The following is vs current 2.5 BK and has been lightly tested on PPC
-> > (and compiled on i386).  This creates the default files for all current
-> > arches, and adapts ARM and ia64 as well to show how to override a
-> > generic param with an arch-specific one (and removes
-> > CONFIG_FORCE_MAX_ZONEORDER).
+On Thu, 2002-11-07 at 11:32, Andy Pfiffer wrote:
+> On Thu, 2002-11-07 at 00:50, Eric W. Biederman wrote:
 > 
-> This isn't a "tweak" on ARM as in a user-adjustable value.  It needs to
-> specifically be reduced to prevent things from blowing up.
+> > In staging the image we allocate a whole pile of pages, and keep them
+> > locked in place.
 
-It is however, a "tweak" of the default value of 11.  I'll add a comment
-about this for the next version.  And if it can be less than 9, it is
-user-adjustable, it just has to be adjusted between 1 and 9.
-
-> > +/* This is the number of free areas per zone to manage, but the max
-> > + * number determines the maximum order of a page allocation request
-> > + * as well. */
-> > +/* Default: 11 */
-> > +#if defined(ASSABET_NEPONSET0) || defined(SA1100_ADSBITSY) || 		\
-> > +	defined(SA1100_BADGE4) || defined(SA1100_CONSUS) || 		\
-> > +	defined(SA1100_GRAPHICSMASTER) || defined(SA1100_JORNADA720) ||	\
-> > +	defined(ARCH_LUBBOCK) || defined(SA1100_PFS168) ||		\
-> > +	defined(SA1100_PT_SYSTEM3) || defined(SA1100_XP860)
-> > +#undef TWEAK_MAX_ORDER
-> > +#define TWEAK_MAX_ORDER		9
-> > +#endif
+> Just an idea:
 > 
-> And the reason we have it in the configuration rather than the code is
-> to get rid of crap like the above.
+> Could a new, unrunnable process be created to "hold" the image?
+> 
+> <hand-wave>
+> Use a hypothetical sys_kexec() to:
+> 1. create an empty process.
+> 2. copy the kernel image and parameters into the processes' address
+> space.
+> 3. put the process to sleep.
+> </hand-wave>
 
-But having that as one line in arch/arm/Kconfig looks any better?
+A further refinement to the above:
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+1. make sys_kexec() a blocking call.  The caller reads the image into
+their address space prior to making the call, and passes the same kind
+of information (number of segments, segment pointer, etc.) to the
+syscall in the same manner.  Then, it sets a well-known global variable
+that means "there is a kexec image available", and then blocks.
+
+2. add code to sys_reboot() under a CONFIG_KEXEC to check the global
+variable in [1) above], and if a kexec image is available, wake the
+process in [1) above].
+
+3. the reawakened sys_kexec() then proceeds to copy-in and lay down the
+new image in memory, shutdown the devices, and go.
+
+I'm still pondering the kexec-ish reboot after panic() with this kind of
+mechanism.  Ah well, it's just an idea.
+
+Andy
+
+

@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVDFDHY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262088AbVDFDHc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262087AbVDFDHY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 23:07:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbVDFDHX
+	id S262088AbVDFDHc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 23:07:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbVDFDHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 5 Apr 2005 23:07:32 -0400
+Received: from [202.61.17.241] ([202.61.17.241]:9997 "EHLO hot-spam")
+	by vger.kernel.org with ESMTP id S262088AbVDFDHX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 5 Apr 2005 23:07:23 -0400
-Received: from mail43-s.fg.online.no ([148.122.161.43]:63121 "EHLO
-	mail43-s.fg.online.no") by vger.kernel.org with ESMTP
-	id S262087AbVDFDHS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 23:07:18 -0400
-From: Kenneth =?iso-8859-1?q?Aafl=F8y?= <lists@kenneth.aafloy.net>
-To: arun.prabha@wipro.com
-Subject: Re: Scheduling tasklets from process context...
-Date: Wed, 6 Apr 2005 05:07:15 +0200
-User-Agent: KMail/1.8
-References: <8F94FD7C111E3D43BA3C7CF89CB50E92012AA7B5@BLR-EC-2K3MSG.wipro.com>
-In-Reply-To: <8F94FD7C111E3D43BA3C7CF89CB50E92012AA7B5@BLR-EC-2K3MSG.wipro.com>
-Cc: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Message-ID: <20050406.1207270765.babaq@husiyev-yahoo.com>
+Date: Wed, 06 Apr 2005 12:07:27 +0900
+From: husiyev@yahoo.com
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504060507.15560.lists@kenneth.aafloy.net>
+X-Mail-Agent: BSMTP DLL  Feb 11 2003  by Tatsuo Baba
+Content-Type: text/plain; charset="ISO-2022-JP"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 06 April 2005 04:50, you wrote:
-> Since tasklets are typically used for bottom half processing, is it
-> acceptable/recommended that they be scheduled from a process context
-> (say an ioctl handler)? 
-> 
-> Should one try to minimize such scheduling and try to do things in process
-> context if possible, as tasklets run in interrupt context? Or is the driver
-> writer free to use the tasklets at will? What is recommended here?
+■□■━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 　　　　　　　　　　　結婚・恋人・友達
+ 　　　　　　　　理想の相手探し　Angel.net
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━■□■
+ 最近満足してますか？ピュアで「楽しみ」「喜び」を感じて下さい!!
+ 簡単なプロフィール登録で、すぐにメールが届いて出会えちゃいます！
+ もちろん無料で登録！月会費も一切かかりませんのでご安心ください。
+ 
+ 
+ ↓↓無料体験↓↓
+ 
+ http://www.deai2005.com/user.app?cmd=entry&mailAddr=linux-kernel@vger.kernel.org&ad=sp
+ 
+ ◆◆暇な人、恋人・結婚を考えているなら◆◆
+ 　簡単操作でストレスなく希望の相手と出会えます!!
+   年齢層は２０代〜６０代以上!!
+ 　好みの相手を簡単に探せます!!
+ 
+ ↓↓無料体験↓↓
+ http://www.deai2005.com/user.app?cmd=entry&mailAddr=linux-kernel@vger.kernel.org&ad=sp
+ 
+ ■■■■■■■　1日のアクセス人数『12万人突破!!』 ■■■■■■■
+ 　☆もえ　女性　29歳　☆ふみや　男性　31歳　☆浩二　男性　51歳
+ 　☆ななえ　女性　27歳　☆みか　女性　39歳　☆さりな　女性　42歳
+ 　☆ともや　男性　39歳　☆ゆり　女性　21歳　☆まき　女性　22歳
+ 　☆丈治　男性　61歳　☆はな　女性　29歳　☆ひで　男性　21歳
+ 　　他、多数！ギャル・OL・セレブ・サラリーマン・医師etc
+ 
+ ↓↓無料体験↓↓
+ http://www.deai2005.com/user.app?cmd=entry&mailAddr=linux-kernel@vger.kernel.org&ad=sp
+ 
+ ★人生の負け組みにならない為にも!!
+ 完全無料でお相手検索★友達、恋人が無料で探せる。貴方の出会い応援します。
+ http://www.deai2005.com/user.app?cmd=entry&mailAddr=linux-kernel@vger.kernel.org&ad=sp
+ 
+ ※18歳未満の方のご利用を固くお断りしております。
+ 
+ 
+ 
 
-A tasklet does not run in interrupt context, it runs as a high priority thread,
-that is scheduled from either user or interrupt context. The purpose is mostly
-to defer workloads from interrupt context, to reduce the time spent with
-interrupts disabled.
-
-It would make sense to defer work from userspace to a tasklet if the hardware
-takes an unusual amount of time to process the userspace data.
-
-Correct me if I'm wrong :)
-
-Kenneth

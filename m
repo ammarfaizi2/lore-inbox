@@ -1,107 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268281AbUHFU3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268278AbUHFUGv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268281AbUHFU3J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 16:29:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268264AbUHFU2J
+	id S268278AbUHFUGv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 16:06:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268275AbUHFUEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 16:28:09 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:27266 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S268283AbUHFU1A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 16:27:00 -0400
-Subject: [patch] export, rename fill_kobj_path and get_kobj_path_length
-From: Robert Love <rml@ximian.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Fri, 06 Aug 2004 16:26:53 -0400
-Message-Id: <1091824013.7939.66.camel@betsy>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.8 
+	Fri, 6 Aug 2004 16:04:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13962 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268273AbUHFUD5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 16:03:57 -0400
+From: Jeff Moyer <jmoyer@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16659.58271.979999.616045@segfault.boston.redhat.com>
+Date: Fri, 6 Aug 2004 16:01:35 -0400
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel@vger.kernel.org, Stelian Pop <stelian@popies.net>
+Subject: Re: [patch] fix netconsole hang with alt-sysrq-t
+In-Reply-To: <20040806195237.GC16310@waste.org>
+References: <16659.56343.686372.724218@segfault.boston.redhat.com>
+	<20040806195237.GC16310@waste.org>
+X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Reply-To: jmoyer@redhat.com
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg,
+==> Regarding Re: [patch] fix netconsole hang with alt-sysrq-t; Matt Mackall <mpm@selenic.com> adds:
 
-Per our discussion, the following patch exports fill_kobj_path and
-get_kobj_path_length and adds them to kobject.h.
+mpm> On Fri, Aug 06, 2004 at 03:29:27PM -0400, Jeff Moyer wrote:
+>> Hi, Matt,
+>> 
+>> Here's the patch.  Sorry it took me so long, been busy with other work.
+>> Two things which need perhaps more thinking, can netpoll_poll be called
+>> recursively (it didn't look like it to me)
 
-I also renamed them to kobject_get_path_len and kobject_fill_path,
-respectively, to match the name space.
+mpm> It can if the poll function does a printk or the like and wants to
+mpm> recurse via netconsole. We could short-circuit that with an in_netpoll
+mpm> flag, but let's worry about that separately.
 
-I need these for a kobject-based kevent.  Others may find them
-fascinating as well.
+Hmm, ok.
 
-	Robert Love
+>> and do we care about the racy
+>> nature of the netpoll_set_trap interface?
 
-
-Export some internal kobject helpers.
-Signed-Off-By: Robert Love <rml@ximian.com>
-
- include/linux/kobject.h |    3 +++
- lib/kobject.c           |   12 +++++++-----
- 2 files changed, 10 insertions(+), 5 deletions(-)
-
-diff -urN linux-2.6.8-rc3-mm1/include/linux/kobject.h linux-rml/include/linux/kobject.h
---- linux-2.6.8-rc3-mm1/include/linux/kobject.h	2004-08-06 14:03:04.882742673 -0400
-+++ linux-rml/include/linux/kobject.h	2004-08-06 15:50:32.518075100 -0400
-@@ -58,6 +58,9 @@
+mpm> That should probably become an atomic now.
  
- extern void kobject_hotplug(const char *action, struct kobject *);
- 
-+extern int kobject_get_path_len(struct kset *, struct kobject *);
-+extern void kobject_fill_path(struct kset *, struct kobject *, char *, int);
-+
- struct kobj_type {
- 	void (*release)(struct kobject *);
- 	struct sysfs_ops	* sysfs_ops;
-diff -urN linux-2.6.8-rc3-mm1/lib/kobject.c linux-rml/lib/kobject.c
---- linux-2.6.8-rc3-mm1/lib/kobject.c	2004-08-06 14:03:06.229569894 -0400
-+++ linux-rml/lib/kobject.c	2004-08-06 16:11:14.450737875 -0400
-@@ -66,7 +66,7 @@
- 
- 
- #ifdef CONFIG_HOTPLUG
--static int get_kobj_path_length(struct kset *kset, struct kobject *kobj)
-+int kobject_get_path_len(struct kset *kset, struct kobject *kobj)
- {
- 	int length = 1;
- 	struct kobject * parent = kobj;
-@@ -82,7 +82,8 @@
- 	return length;
- }
- 
--static void fill_kobj_path(struct kset *kset, struct kobject *kobj, char *path, int length)
-+void kobject_fill_path(struct kset *kset, struct kobject *kobj, char *path,
-+		       int length)
- {
- 	struct kobject * parent;
- 
-@@ -163,12 +164,12 @@
- 	envp [i++] = scratch;
- 	scratch += sprintf(scratch, "SEQNUM=%ld", seq) + 1;
- 
--	kobj_path_length = get_kobj_path_length (kset, kobj);
-+	kobj_path_length = kobject_get_path_len (kset, kobj);
- 	kobj_path = kmalloc (kobj_path_length, GFP_KERNEL);
- 	if (!kobj_path)
- 		goto exit;
- 	memset (kobj_path, 0x00, kobj_path_length);
--	fill_kobj_path (kset, kobj, kobj_path, kobj_path_length);
-+	kobject_fill_path (kset, kobj, kobj_path, kobj_path_length);
- 
- 	envp [i++] = scratch;
- 	scratch += sprintf (scratch, "DEVPATH=%s", kobj_path) + 1;
-@@ -626,7 +627,8 @@
- 	}
- }
- 
--
-+EXPORT_SYMBOL(kobject_get_path_len);
-+EXPORT_SYMBOL(kobject_fill_path);
- EXPORT_SYMBOL(kobject_init);
- EXPORT_SYMBOL(kobject_register);
- EXPORT_SYMBOL(kobject_unregister);
+Ouch.  I wanted to avoid that, but if we can't, we can't.  Will
+netpoll_set_trap then to an atomic_inc or an atomic_add?  I've only seen it
+called with 1 and 0, is that all that was intended?
 
+>> You'll notice that I reverted part of an earlier changeset which caused us
+>> to call the hard_start_xmit function even if netif_queue_stopped returned
+>> true.  This is a bug.  I preserved the second part of that patch, which was
+>> correct.
 
+mpm> Ok, jgarzik pointed that out to me just a bit ago. I'm not sure if
+mpm> we're dealing with the behavior that was intended to address yet
+mpm> though. Stelian, can you try giving this a spin?
+
+Well, we kept the second part of the patch, which deals with the
+hard_start_xmit routine returning 1.  That was a valid bug, I believe.
+
+>> I've also bumped the budget from 1 to 16.  As I mentioned, this was a
+>> required change for netdump.
+
+mpm> Should be fine.
+
+>> This patch was tested on my dual hammer test system.
+
+mpm> I'll have to re-rig my kgdb-over-ethernet test setup to test this, but
+mpm> it looks good for now.
+
+Yah, and I just noticed we don't want the poll_lock to be per struct
+netpoll.  It should be a static lock in the netpoll.c file.  The problem is
+that more than one netpoll object can reference the same ethernet device.
+
+Thanks,
+
+Jeff

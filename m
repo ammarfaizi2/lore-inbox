@@ -1,27 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129813AbRCCWSH>; Sat, 3 Mar 2001 17:18:07 -0500
+	id <S129816AbRCCWYI>; Sat, 3 Mar 2001 17:24:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129814AbRCCWR6>; Sat, 3 Mar 2001 17:17:58 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12812 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129813AbRCCWRl>; Sat, 3 Mar 2001 17:17:41 -0500
-Subject: Re: [BUG] 2.4.x system Freezes
-To: tomlins@cam.org (Ed Tomlinson)
-Date: Sat, 3 Mar 2001 22:20:42 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <01030316312900.00689@oscar> from "Ed Tomlinson" at Mar 03, 2001 04:31:29 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129819AbRCCWX5>; Sat, 3 Mar 2001 17:23:57 -0500
+Received: from 25dyn104.com21.casema.net ([213.17.95.104]:11271 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S129816AbRCCWXw>;
+	Sat, 3 Mar 2001 17:23:52 -0500
+Date: Sat, 3 Mar 2001 23:23:28 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: my first post to the list - newbie alert
+Message-ID: <20010303232328.A1891@home.ds9a.nl>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010303220639.E1591@home.ds9a.nl> <E14ZKNh-0004DB-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14ZKOK-0004DI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0pre4i
+In-Reply-To: <E14ZKNh-0004DB-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Mar 03, 2001 at 10:20:02PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> able to get into kdb from a serial console (an then lost the log - murphy can 
-> be a real PITA).   I figure a ps, bt and bta should be enough to point out 
-> the problem task?  Its there anything else I should do (sr t maybe?)?
+On Sat, Mar 03, 2001 at 10:20:02PM +0000, Alan Cox wrote:
+> > > Also try the techtalk mailing list on linuxchix - www.linuxchix.org, IIRC.
+> > > A good place to ask "newbie" questions without being told to RTFM!
+> > 
+> > <beavis>You might even score!</beavis>
+> 
+> Of course its attitudes like that which leads them to have to set up their
+> own mailing lists, and contribute to the rather low count of women on the
+> kernel credits
 
-That should give you most of the info
+Alan,
+
+I think highly of women and even employ one in a programming position -
+there is no bias on my part. In fact, she is even ON the linuxchix
+mailinglist, and I suspect that she would've appreciated my joke.
+
+If people feel put of by me making a joke, well, I apologise for that.
+
+In my not so humble opinion however, I didn't insult anybody above, but then
+again, I've been known to be wrong.
+
+Regards,
+
+bert
+
+-- 
+http://www.PowerDNS.com      Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet

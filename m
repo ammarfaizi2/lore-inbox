@@ -1,84 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143598AbRAHNRu>; Mon, 8 Jan 2001 08:17:50 -0500
+	id <S143720AbRAHNSu>; Mon, 8 Jan 2001 08:18:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143720AbRAHNRl>; Mon, 8 Jan 2001 08:17:41 -0500
-Received: from monsoon.mail.pipex.net ([158.43.128.69]:48564 "HELO
-	monsoon.mail.pipex.net") by vger.kernel.org with SMTP
-	id <S143637AbRAHNRb>; Mon, 8 Jan 2001 08:17:31 -0500
-From: Chris Rankin <rankinc@zip.com.au>
-Message-Id: <200101081308.f08D8iv01511@wittsend.ukgateway.net>
-Subject: PATCH for 2.4.0: assign ad1848 mixer operations to correct module
-To: linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org
-Date: Mon, 8 Jan 2001 13:08:44 +0000 (GMT)
-Reply-To: rankinc@zip.com.au
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S143736AbRAHNSk>; Mon, 8 Jan 2001 08:18:40 -0500
+Received: from c-025.static.AT.KPNQwest.net ([193.154.188.25]:33779 "EHLO
+	stefan.sime.com") by vger.kernel.org with ESMTP id <S143720AbRAHNS1>;
+	Mon, 8 Jan 2001 08:18:27 -0500
+Date: Mon, 8 Jan 2001 14:17:21 +0100
+From: Stefan Traby <stefan@hello-penguin.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Alexander Viro <viro@math.psu.edu>,
+        Stefan Traby <stefan@hello-penguin.com>, linux-kernel@vger.kernel.org
+Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
+Message-ID: <20010108141721.C13072@stefan.sime.com>
+Reply-To: Stefan Traby <stefan@hello-penguin.com>
+In-Reply-To: <Pine.GSO.4.21.0101080711470.4061-100000@weyl.math.psu.edu> <E14FbNU-0004SI-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14FbNU-0004SI-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Jan 08, 2001 at 12:26:17PM +0000
+Organization: Stefan Traby Services && Consulting
+X-Operating-System: Linux 2.4.0-fijiji0 (i686)
+X-APM: 100% 400 min
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Jan 08, 2001 at 12:26:17PM +0000, Alan Cox wrote:
 
-This patch fixes a problem that I was having with the ENSONIQ
-SoundScape mixer: basically, the mixer device was owned by the ad1848
-module but was being deallocated when the sscape module was
-unloaded. This patch hands the mixer device to the sscape module
-instead so that the sscape module -cannot- be unloaded while the mixer
-is in use.
+> I can put all that in the VFS so I did (right now the ext2 size calculator is
+> wrong but thats proof of concept detail). Just need to shift if over from
+> ext2/file.c
 
---- linux-vanilla/drivers/sound/ad1848.c  Fri Aug 11 16:26:43 2000
-+++ linux-2.4.0-ac3/drivers/sound/ad1848.c  Mon Jan  8 12:36:30 2001
-@@ -1986,6 +1986,10 @@
-      if (sound_alloc_dma(dma_capture, devc->name))
-        printk(KERN_WARNING "ad1848.c: Can't allocate DMA%d\n", dma_capture);
-  }
-+
-+ if (owner)
-+   ad1848_mixer_operations.owner = owner;
-+
-  if ((e = sound_install_mixer(MIXER_DRIVER_VERSION,
-             dev_name,
-             &ad1848_mixer_operations,
+Try 'getconf LINK_MAX /ramfs'.
+While the result (127) is in some way SuS/POSIXLY_CORRECT,
+it's not the truth.
 
-BTW Isn't it ever-so-slightly dodgy modifying the static
-ad1848_mixer_operations structure like this? I have modified the mixer
-operations in exactly the same way as the ad1848_audio_driver
-structure, but doesn't this mean that the ad1848_init() function now
-"remembers" the owner from the previous call?
+Why not start to fix this problem outside the funny switch/case in glibc ?
+The filesystem itself should able to handle this.
 
-Maybe a better patch would be:
+-- 
 
---- linux-vanilla/drivers/sound/ad1848.c	Fri Aug 11 16:26:43 2000
-+++ linux-2.4.0-ac3/drivers/sound/ad1848.c	Mon Jan  8 13:01:54 2001
-@@ -1900,8 +1900,7 @@
- 	if(portc==NULL)
- 		return -1;
- 
--	if (owner)
--		ad1848_audio_driver.owner = owner;
-+	ad1848_audio_driver.owner = (owner ? owner : THIS_MODULE);
- 	
- 	if ((my_dev = sound_install_audiodrv(AUDIO_DRIVER_VERSION,
- 					     dev_name,
-@@ -1986,6 +1985,9 @@
- 			if (sound_alloc_dma(dma_capture, devc->name))
- 				printk(KERN_WARNING "ad1848.c: Can't allocate DMA%d\n", dma_capture);
- 	}
-+
-+	ad1848_mixer_operations.owner = (owner ? owner : THIS_MODULE);
-+
- 	if ((e = sound_install_mixer(MIXER_DRIVER_VERSION,
- 				     dev_name,
- 				     &ad1848_mixer_operations,
+  ciao - 
+    Stefan
 
-Or maybe the sound_install_XXXX() functions should accept "owner"
-parameters, so that the static structs could become "const"?
-
-Cheers,
-Chris
-
+"     ( cd /lib ; ln -s libBrokenLocale-2.2.so libNiedersachsen.so )     "
+    
+Stefan Traby                Linux/ia32               fax:  +43-3133-6107-9
+Mitterlasznitzstr. 13       Linux/alpha            phone:  +43-3133-6107-2
+8302 Nestelbach             Linux/sparc       http://www.hello-penguin.com
+Austria                                    mailto://st.traby@opengroup.org
+Europe                                   mailto://stefan@hello-penguin.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

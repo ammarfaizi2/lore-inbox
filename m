@@ -1,60 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319008AbSHFHti>; Tue, 6 Aug 2002 03:49:38 -0400
+	id <S319013AbSHFHvy>; Tue, 6 Aug 2002 03:51:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319010AbSHFHth>; Tue, 6 Aug 2002 03:49:37 -0400
-Received: from mail.hometree.net ([212.34.181.120]:17083 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S319008AbSHFHth>; Tue, 6 Aug 2002 03:49:37 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Fragment flooding in 2.4.x/2.5.x
-Date: Tue, 6 Aug 2002 07:53:13 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <ainv99$nj1$1@forge.intermeta.de>
-References: <15694.33047.965504.346909@charged.uio.no> <15695.3634.832970.240016@charged.uio.no>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1028620393 20538 212.34.181.4 (6 Aug 2002 07:53:13 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 6 Aug 2002 07:53:13 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S319014AbSHFHvy>; Tue, 6 Aug 2002 03:51:54 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:45038 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S319013AbSHFHvx>; Tue, 6 Aug 2002 03:51:53 -0400
+Date: Tue, 6 Aug 2002 01:52:36 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       "Peter J. Braam" <braam@clusterfs.com>, linux-kernel@vger.kernel.org
+Subject: Re: BIG files & file systems
+Message-ID: <20020806075236.GA23923@clusterfs.com>
+Mail-Followup-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+	"Randy.Dunlap" <rddunlap@osdl.org>,
+	Matti Aarnio <matti.aarnio@zmailer.org>,
+	Christoph Hellwig <hch@infradead.org>,
+	"Peter J. Braam" <braam@clusterfs.com>,
+	linux-kernel@vger.kernel.org
+References: <20020806051950.GD22933@clusterfs.com> <200208060724.g767Om3178569@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200208060724.g767Om3178569@saturn.cs.uml.edu>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> writes:
+On Aug 06, 2002  03:24 -0400, Albert D. Cahalan wrote:
+> Andreas Dilger writes:
+> > Having 16kB block size would allow a maximum of 64TB for a single
+> > filesystem.  The per-file limit would be over 256TB.
+> 
+> Um, yeah, 64 TB of data with 192 TB of holes!
+> I really don't think you should count a file
+> that won't fit on your filesystem.
 
->>>>>> " " == kuznet  <kuznet@ms2.inr.ac.ru> writes:
+Well, no worse than the original posting which had reiserfs supporting
+something-EB files and 16TB filesystems.  Don't think I didn't consider
+this at the time of posting.
 
->     > Hello!
->    >> the bug has already been known to crash a few servers...
+> > In reality, we will probably implement extent-based allocation for
+> > ext3 when we start getting into filesystems that large, which has been
+> > discussed among the ext2/ext3 developers already.
+> 
+> It's nice to have a simple filesystem. If you turn ext2/ext3
+> into an XFS/JFS competitor, then what is left? Just minix fs?
 
->     > Sorry? What crash do you speak about?
+Note that I said ext3 in the above sentence, and not ext2.  I'm not in
+favour of adding all of the high-end features (htree, extents, etc) into
+ext2 at all.  It makes absolutely no sense to have a multi-TB filesystem
+running ext2, and then the fsck time takes a day.  It is desirable to
+put some minimum support into ext2 for newer features when it makes
+sense and does not complicate the code, but not for everything.
 
->You'll find it documented on RedHat's Bugzilla (can't remember the
->exact reference - sorry). Basically the first RH-7.3 kernels were
->causing a DOS on a couple of Netapps w/ Gigabit connections.
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 
-You didn't exactly need a NetApp for this. A RH 7.3 NFS client with a
-Solaris 2.6 NFSv3 server box and a switched, trunked 100 MBit network
-was very very sufficient. I have the mrtg printouts still on the wall
-in my office. 46 hours of solid 93 Mbits/sec of fragmented NFS packets
-chewing off traffic on its VLAN and dropping everything else out of
-the backbone trunks. Every service and their grandmothers died around
-here. :-)
-
-Ah, the joys of NFS.
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

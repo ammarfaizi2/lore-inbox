@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261998AbUBWTX6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 14:23:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbUBWTX6
+	id S262005AbUBWTYY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 14:24:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbUBWTYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 14:23:58 -0500
-Received: from bristol.phunnypharm.org ([65.207.35.130]:49838 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S261998AbUBWTX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 14:23:57 -0500
-Date: Mon, 23 Feb 2004 14:04:32 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Tillmann Steinbrecher <t-st@t-st.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.6.3 + external firewire dvd writer - frequent freezes
-Message-ID: <20040223190432.GD388@phunnypharm.org>
-References: <4038B244.2020209@t-st.org>
+	Mon, 23 Feb 2004 14:24:24 -0500
+Received: from smtp-101-monday.nerim.net ([62.4.16.101]:58118 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S262005AbUBWTYV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 14:24:21 -0500
+Date: Mon, 23 Feb 2004 20:24:20 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Manish Lachwani <Manish_Lachwani@pmc-sierra.com>
+Cc: sensors@Stimpy.netroedge.com, linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: i2c-yosemite
+Message-Id: <20040223202420.33c25164.khali@linux-fr.org>
+In-Reply-To: <9DFF23E1E33391449FDC324526D1F25902253276@sjc1exm02.pmc_nt.nt.pmc-sierra.bc.ca>
+References: <9DFF23E1E33391449FDC324526D1F25902253276@sjc1exm02.pmc_nt.nt.pmc-sierra.bc.ca>
+Reply-To: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
+X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4038B244.2020209@t-st.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 22, 2004 at 02:44:36PM +0100, Tillmann Steinbrecher wrote:
-> Hi,
-> 
-> I'm using an external FireWire DVD writer (Plextor 708 in case w/Oxford
-> 911 chipset). This was working fine until kernel 2.6.2.
-> 
-> Since I upgraded to 2.6.3, it frequently happens that the system totally
-> freezes when trying to write a DVD. It's really a hard crash, no mouse
-> movement, no ping on the network. Reset required.
-> 
-> It doesn't happen each time I try to burn a DVD, but in about 20% the
-> cases. So basically the writer is unusable with 2.6.3.
-> 
-> I searched the web and archives for the problem, but didn't find any
-> results, except for one guy describing the same problem, also with
-> 2.6.3, also on this mailing list here:
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0402.2/0950.html
-> 
-> However he didn't get any replies.
-> 
-> Please CC: me for replies, or if anybody needs .config, lspci, or other
-> info. The firewire controller is a Texas Instruments TSB43AB22/A.
+> Couple of things. First of all, I did not have an idea that a driver
+> existed for Atmel 24C32 EEPROM.
 
-Can you enable spinlock debug so we can see if this is a race condition
-somewhere?
+Actually, I read you a bit fast. I think our driver only supports 24C02
+and 24C04, because 24C08 and bigger require 2-byte addressing.
+
+> In case of the Yosemite chip, the MAC address of the Gigabit
+> subsystem is stored in the EEPROM. It needs to be fetched by the Gige
+> driver using the I2C protocol.
+
+I didn't know about that. Funnily enough, a user reported today about a
+strange EEPROM on his I2C bus, and it turns out that it holds a MAC
+address (or at least it really looks like that).
+
+> I could not find the driver in the 2.4 tree and hence wrote one for
+> the yosemite. I could use the existing driver, which would make
+> sense. 
+
+The driver wasn't part of Linux 2.4 itself, because the lm_sensors
+drivers were never integrated there. But they are in 2.6.
+
+> The idea was that once the chip is released and the driver tested, it
+> could be checked in the generic i2c framework along with the driver
+> for the MAX 1619 sensors chip. Now that the drivers already exist, I
+> will use them instead.
+
+Aha, I read a bit too fast here too :/ We support the MAX1617(A), not
+the MAX1619. That said, I took a look at the datasheet and the chips are
+said to be very similar, so extending the driver should be quite
+straightforward.
+
+Anyway, the point isn't wether the exact drivers already exist or not.
+The point is that using the existing i2c subsystem means that other
+people needing support for similar chips will be able to use the same
+drivers as you. This also means that all existing user-space tools will
+work out-of-the-box, which is a great benefit IMHO.
 
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

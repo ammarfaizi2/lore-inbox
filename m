@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264688AbSKVLy5>; Fri, 22 Nov 2002 06:54:57 -0500
+	id <S264644AbSKVMFV>; Fri, 22 Nov 2002 07:05:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264690AbSKVLy5>; Fri, 22 Nov 2002 06:54:57 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:270 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S264688AbSKVLyz>; Fri, 22 Nov 2002 06:54:55 -0500
-Date: Fri, 22 Nov 2002 13:01:54 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Nero <neroz@iinet.net.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Qt 3.1 and xconfig
-In-Reply-To: <3DDD7CB9.4050001@iinet.net.au>
-Message-ID: <Pine.LNX.4.44.0211221257020.2109-100000@serv>
-References: <3DDD7CB9.4050001@iinet.net.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264646AbSKVMFV>; Fri, 22 Nov 2002 07:05:21 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:63886 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S264644AbSKVMFU>; Fri, 22 Nov 2002 07:05:20 -0500
+Message-Id: <4.3.2.7.2.20021122122413.00b54df0@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Fri, 22 Nov 2002 13:12:43 +0100
+To: linux-kernel@vger.kernel.org
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: P4 compile options
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Quite so, Dave.
+I just wondered what that might do with 2.4.xx.
+Following is based on 2.4.xx.
+In the next few days, I'll be setting up an Informix application on my P4 box.
+This is a read-only app.
+Bumping "shmmax" and configuring Informix ensures that all the data is
+held in shared memory (after the initial read).
+Thereafter, this is a tight semaphore/shared memory (also 
+user-program/Informix)
+reaction with the kernel.
+(This really gets the processor fan(s) going!)
+This app takes ca. 80 mins on a dual P3 (1 GHz) and (Hmm) 90 mins on a 
+single P3 (1 GHz)
+(Before anybody comments, all boxes (mine as well) have Adaptec 
+U160/controller/disks)
+So, Let's just wait and see !
 
-On Fri, 22 Nov 2002, Nero wrote:
-
-> If you link against qt 3.1 (and this will be common soon, KDE 3.1
-> requires it), you can't change any of the options. There is a warning
-> when it is running:
-> 
-> QObject::connect: No such signal ConfigList::menuSelected(struct menu*)
-> QObject::connect:  (sender name:   'unnamed')
-> QObject::connect:  (receiver name: 'unnamed')
-> QObject::connect: No such signal ConfigList::menuSelected(struct menu*)
-> QObject::connect:  (sender name:   'unnamed')
-> QObject::connect:  (receiver name: 'unnamed')
-
-This is a bug in QT, moc filters the 'struct' keyword from signal 
-specification, but connect call doesn't do this. I can work around this, 
-but could you please report this also to trolltech?
-
-bye, Roman
+Margit 
 

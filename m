@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277112AbRJHUA0>; Mon, 8 Oct 2001 16:00:26 -0400
+	id <S277115AbRJHUBq>; Mon, 8 Oct 2001 16:01:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277114AbRJHUAQ>; Mon, 8 Oct 2001 16:00:16 -0400
-Received: from web12303.mail.yahoo.com ([216.136.173.101]:1041 "HELO
-	web12303.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S277112AbRJHUAF>; Mon, 8 Oct 2001 16:00:05 -0400
-Message-ID: <20011008200032.97588.qmail@web12303.mail.yahoo.com>
-Date: Mon, 8 Oct 2001 13:00:32 -0700 (PDT)
-From: Stephen Cameron <smcameron@yahoo.com>
-Subject: [PATCH] eliminating virt_to_bus, bus_to_virt from cpqfc driver
-To: alan@redhat.com, linux-kernel@vger.kernel.org
-Cc: charles.white@compaq.com, amy.vanzant-hodge@compaq.com
-MIME-Version: 1.0
+	id <S277114AbRJHUBi>; Mon, 8 Oct 2001 16:01:38 -0400
+Received: from smtp.mailbox.net.uk ([195.82.125.32]:14289 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S277115AbRJHUBZ>; Mon, 8 Oct 2001 16:01:25 -0400
+Date: Mon, 8 Oct 2001 21:01:53 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Ian Thompson <ithompso@stargateip.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How can I jump to non-linux address space?
+Message-ID: <20011008210153.A12301@flint.arm.linux.org.uk>
+In-Reply-To: <20011006085743.A23628@flint.arm.linux.org.uk> <NFBBIBIEHMPDJNKCIKOBGEOPCAAA.ithompso@stargateip.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <NFBBIBIEHMPDJNKCIKOBGEOPCAAA.ithompso@stargateip.com>; from ithompso@stargateip.com on Mon, Oct 08, 2001 at 10:43:45AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Oct 08, 2001 at 10:43:45AM -0700, Ian Thompson wrote:
+> Am I correct in assuming that this will not remap the kernel address space?
+> If I'm trying to jump from the kernel to this physical address, will I need
+> to go through user space first?
 
-I have a patch to make the cpqfc driver use the
-2.4.x DMA APIs and no longer use virt_to_bus() or
-bus_to_virt(), applies to 2.4.10-ac8.
+If you want to execute code linked at address 0x3000, then you need to
+execute it at address 0x3000.
 
-It's been pretty well tested here at Compaq
-Haven't seen a bug related to these changes
-since before 9/27/2001 on ia32 and ia64 with 
-enough RAM to require bounce buffers. Of course,
-not that much testing has been done with this
-precise kernel version, since it's so new.
+Note that turning off the MMU will effectively change all the memory
+mappings.
 
-The patch is a bit large, so I've put it here:
-http://www.geocities.com/dotslashstar/cpqfc.html
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-Also, while I was at it, the ioctls that had been added
-to scsi.h, and that when merged were subsequently removed,
-(breaking the compile) have been moved into a cpqfc
-specific header file and defined differently.
-
--- steve (aka steve.cameron@compaq.com)
-
-
-__________________________________________________
-Do You Yahoo!?
-NEW from Yahoo! GeoCities - quick and easy web site hosting, just $8.95/month.
-http://geocities.yahoo.com/ps/info1

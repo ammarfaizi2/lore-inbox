@@ -1,35 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129912AbQKESpr>; Sun, 5 Nov 2000 13:45:47 -0500
+	id <S129928AbQKESrq>; Sun, 5 Nov 2000 13:47:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129928AbQKESph>; Sun, 5 Nov 2000 13:45:37 -0500
-Received: from [63.95.87.168] ([63.95.87.168]:42770 "HELO xi.linuxpower.cx")
-	by vger.kernel.org with SMTP id <S129912AbQKESpT>;
-	Sun, 5 Nov 2000 13:45:19 -0500
-Date: Sun, 5 Nov 2000 13:45:18 -0500
-From: Gregory Maxwell <greg@linuxpower.cx>
-To: Robert Morris <rtm@amsterdam.lcs.mit.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: gigabit ethernet small-packet performance
-Message-ID: <20001105134518.E12776@xi.linuxpower.cx>
-In-Reply-To: <200011051507.eA5F7KX30823@amsterdam.lcs.mit.edu>
-Mime-Version: 1.0
+	id <S129822AbQKESrg>; Sun, 5 Nov 2000 13:47:36 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:24803 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S129928AbQKESr0>; Sun, 5 Nov 2000 13:47:26 -0500
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Jonathan George <Jonathan.George@trcinc.com>,
+        "'matthew@mattshouse.com'" <matthew@mattshouse.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0-test10 Sluggish After Load
+In-Reply-To: <Pine.LNX.4.05.10011051433540.9109-100000@humbolt.nl.linux.org>
+From: Christoph Rohland <cr@sap.com>
+Date: 05 Nov 2000 19:49:50 +0100
+Message-ID: <m3ofzufe41.fsf@linux.local>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Capitol Reef)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.8i
-In-Reply-To: <200011051507.eA5F7KX30823@amsterdam.lcs.mit.edu>; from rtm@amsterdam.lcs.mit.edu on Sun, Nov 05, 2000 at 10:07:20AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 05, 2000 at 10:07:20AM -0500, Robert Morris wrote:
-> I'm building Linux-based routers and need to be able to forward as
-> many packets per second as possible over gigabit ethernet. It turns
-[snip]
+Hi Rik,
 
-Hmm.. Kernel code written in C++..
-Click is intesting. 
+Rik van Riel <riel@conectiva.com.br> writes:
+> On 4 Nov 2000, Christoph Rohland wrote:
+> > I do see two problems here:
+> > 1) shm_swap_core does not handle the failure of prepare_higmem_swapout
+> >    right and basically cannot do so. It gets called zone independant
+> >    and should probably get called per zone. At least it has to react:
+> 
+> AFAIC try_to_swap_out can handle this situation fine, it
+> shouldn't be very difficult to get shm_swap to handle it
+> too...
 
-You people are nuts. :)
+No I do not think that try_to_swap_out does handle this. It also
+simply fails on this. I have seen lockups after try_to_swap_out
+failing on prepare_higmem_swapout.
+
+> > You see: you only have 5+27+27=59 pages under your control...
+> 
+> Ughhhh. Maybe we need some rebalancing there as well.
+> That's a maximum of 5 pages of executable text mapped
+> into all processes...
+
+Yes, that's reasonable in my test case...
+
+Greetings
+                Christoph
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

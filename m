@@ -1,38 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264124AbTFUXjv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 19:39:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264146AbTFUXjv
+	id S264146AbTFUXkV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 19:40:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbTFUXkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 19:39:51 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58126 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S264124AbTFUXju (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 19:39:50 -0400
-Date: Sat, 21 Jun 2003 16:53:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>, <alan@lxorguk.ukuu.org.uk>,
-       <perex@suse.cz>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Isapnp warning
-In-Reply-To: <20030621125111.0bb3dc1c.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.44.0306211652130.1980-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 21 Jun 2003 19:40:21 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:42472 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264146AbTFUXkQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 19:40:16 -0400
+Date: Sun, 22 Jun 2003 01:54:18 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Corey Minyard <minyard@mvista.com>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [2.4 patch] fix IPMI compile with new ACPI
+Message-ID: <20030621235417.GH23337@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The patch below fixes the compilation of ipmi_kcs_intf.c in 2.4.22-pre1.
 
-On Sat, 21 Jun 2003, Andrew Morton wrote:
-> 
-> Meanwhile, let's do this:
+The changes are:
+- remove two now unneeded includes (since the files moved there was a 
+  compile error, but they are indirectly included via linux/acpi.h)
+- remove unneeded COMPILER_DEPENDENT_UINT64; besides that it's
+  unneeded it was wrong on 32 bit architectures
+- s/acpi_table_header/struct acpi_table_header/
 
-I'd prefer the C99 thing, ie
+-ac contains a similar patch that differs because it also adds 
+#include's for acpi/acpi.h and acpi/actypes.h (indirectly included via 
+linux/acpi.h).
 
-	for (int i = xxx ...)
+cu
+Adrian
 
-syntax. I know gcc-3.x supports it, maybe 2.96 does too? If so, we could
-just add "-std=c99" or whatever, and start using that.
-
-		Linus
-
+--- linux-2.4.22-pre1-full/drivers/char/ipmi/ipmi_kcs_intf.c.old	2003-06-22 01:28:28.000000000 +0200
++++ linux-2.4.22-pre1-full/drivers/char/ipmi/ipmi_kcs_intf.c	2003-06-22 01:40:12.000000000 +0200
+@@ -1031,10 +1031,6 @@
+    from Hewlett-Packard simple bmc.c, a GPL KCS driver. */
+ 
+ #include <linux/acpi.h>
+-/* A real hack, but everything's not there yet in 2.4. */
+-#define COMPILER_DEPENDENT_UINT64 unsigned long
+-#include <../drivers/acpi/include/acpi.h>
+-#include <../drivers/acpi/include/actypes.h>
+ 
+ struct SPMITable {
+ 	s8	Signature[4];
+@@ -1059,7 +1055,7 @@
+ static unsigned long acpi_find_bmc(void)
+ {
+ 	acpi_status       status;
+-	acpi_table_header *spmi;
++	struct acpi_table_header *spmi;
+ 	static unsigned long io_base = 0;
+ 
+ 	if (io_base != 0)

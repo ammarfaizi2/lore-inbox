@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278420AbRJSOGH>; Fri, 19 Oct 2001 10:06:07 -0400
+	id <S278424AbRJSPPi>; Fri, 19 Oct 2001 11:15:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278421AbRJSOF4>; Fri, 19 Oct 2001 10:05:56 -0400
-Received: from gw-nl4.philips.com ([212.153.190.6]:58117 "EHLO
-	gw-nl4.philips.com") by vger.kernel.org with ESMTP
-	id <S278420AbRJSOFq>; Fri, 19 Oct 2001 10:05:46 -0400
-From: fabrizio.gennari@philips.com
-Subject: Compilation fails if SERIAL_DEBUG_PCI is set
-To: linux-kernel@vger.kernel.org
-Date: Fri, 19 Oct 2001 16:05:51 +0200
-Message-ID: <OFBC87643B.976FB0A4-ONC1256AEA.004D3195@diamond.philips.com>
-X-MIMETrack: Serialize by Router on hbg001soh/H/SERVER/PHILIPS(Release 5.0.5 |September
- 22, 2000) at 19/10/2001 16:22:35
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S278426AbRJSPP2>; Fri, 19 Oct 2001 11:15:28 -0400
+Received: from [195.246.135.25] ([195.246.135.25]:1542 "EHLO
+	chert.194.133.98.200") by vger.kernel.org with ESMTP
+	id <S278424AbRJSPPK>; Fri, 19 Oct 2001 11:15:10 -0400
+Date: Fri, 19 Oct 2001 19:14:46 +0200
+From: Andrei Lahun <Uman@editec-lotteries.com>
+To: safemode <safemode@speakeasy.net>
+Cc: Uman@editec-lotteries.com, linux-kernel@vger.kernel.org
+Subject: Re: problems with I/O performance with 2.4.12-ac3
+Message-Id: <20011019191446.7748bd80.uman@chert>
+In-Reply-To: <20011019163058.1bb7c6f7.uman@chert>
+X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In kernel 2.4.12, the file drivers/char/serial.c fails to compile if SERIAL_DEBUG_PCI is set (line 128). The compiler giver the error:
+On Fri, 19 Oct 2001 09:27:35 -0400
+safemode <safemode@speakeasy.net> wrote:
 
-serial.c:4147 Structure has not a member subdevice
-
-(or something like that).
-
----------------------------------------------------------
-Fabrizio Gennari          tel. +39 039 203 7816
-Philips Research Monza    fax  +39 039 203 7800
-via G. Casati 23          fabrizio.gennari@philips.com
-20052 Monza (MI) Italy    http://www.research.philips.com
-
-
+>
+> You should give ide and drive chipset info.  This is not a problem seen by 
+> everyone using the ac3 kernel.  Mine for instance run just fine.  What 
+> settings did you use with bonnie++?  all of this is required info if someone 
+> wanted to look and see why you are getting those numbers.
+> 
+My chipset is VIA apollo 133-A ( old shirt).
+I have run bonnie++ just like bonnie -s 256 , and i have 128 MB of memory,
+disk is MAXTOR 52049H4.With old kernels i always had results something like i have with 2.4.13-pre now .
+And i have read one post in lkml about 2 times less write output with 2.4.13 -pre comparing with ac,
+mine result are opposite.

@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269412AbRGaSsd>; Tue, 31 Jul 2001 14:48:33 -0400
+	id <S269417AbRGaSqe>; Tue, 31 Jul 2001 14:46:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269414AbRGaSsV>; Tue, 31 Jul 2001 14:48:21 -0400
-Received: from netcore.fi ([193.94.160.1]:32531 "EHLO netcore.fi")
-	by vger.kernel.org with ESMTP id <S269412AbRGaSsL>;
-	Tue, 31 Jul 2001 14:48:11 -0400
-Date: Tue, 31 Jul 2001 21:47:57 +0300 (EEST)
-From: Pekka Savola <pekkas@netcore.fi>
-To: <kuznet@ms2.inr.ac.ru>
-cc: <therapy@endorphin.org>, <netdev@oss.sgi.com>,
-        <linux-kernel@vger.kernel.org>, <davem@redhat.com>
-Subject: Re: missing icmp errors for udp packets
-In-Reply-To: <200107311833.WAA09598@ms2.inr.ac.ru>
-Message-ID: <Pine.LNX.4.33.0107312145350.20436-100000@netcore.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269414AbRGaSqV>; Tue, 31 Jul 2001 14:46:21 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26637 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S269412AbRGaSqJ>;
+	Tue, 31 Jul 2001 14:46:09 -0400
+Date: Tue, 31 Jul 2001 19:46:15 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Stuart MacDonald <stuartm@connecttech.com>
+Cc: Khalid Aziz <khalid@fc.hp.com>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Support for serial console on legacy free machines
+Message-ID: <20010731194615.B22632@flint.arm.linux.org.uk>
+In-Reply-To: <200107302332.f6UNWbxg001791@webber.adilger.int> <3B65F1A2.30708CC1@fc.hp.com> <000701c119cd$ebf0c720$294b82ce@connecttech.com> <20010731174247.A21802@flint.arm.linux.org.uk> <00c001c119e4$31418560$294b82ce@connecttech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <00c001c119e4$31418560$294b82ce@connecttech.com>; from stuartm@connecttech.com on Tue, Jul 31, 2001 at 01:14:01PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, 31 Jul 2001 kuznet@ms2.inr.ac.ru wrote:
-> Hello!
->
-> > If you reboot the computer, the _first_ ping/scan attempt will not return
-> > icmp dest unreachable.
->
-> Hmm... how fast after reboot?
+On Tue, Jul 31, 2001 at 01:14:01PM -0400, Stuart MacDonald wrote:
+> There seems to be a serial console interface; perhaps we need
+> a general console interface that other code can make use of.
+> That might pave the way for an ethernet console, or a usb console,
+> etc.
 
-Can be quite a long time.  Previously, I tested it immediately after
-reboot.  Now I tried it about 6 minutes after I had typed 'reboot' with
-success.
+We already have a generic console interface - struct console.  Really,
+the code between the various serial drivers isn't all that big once
+you factor out the setup (which I've already done, including support
+for consoles up to 460800 baud).
 
-I believe it may be the first ICMP message to be sent after reboot..
-
--- 
-Pekka Savola                 "Tell me of difficulties surmounted,
-Netcore Oy                   not those you stumble over and fall"
-Systems. Networks. Security.  -- Robert Jordan: A Crown of Swords
-
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

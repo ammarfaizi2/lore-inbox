@@ -1,55 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314670AbSE0I4d>; Mon, 27 May 2002 04:56:33 -0400
+	id <S314681AbSE0JEd>; Mon, 27 May 2002 05:04:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314680AbSE0I4c>; Mon, 27 May 2002 04:56:32 -0400
-Received: from mail0.epfl.ch ([128.178.50.57]:33036 "HELO mail0.epfl.ch")
-	by vger.kernel.org with SMTP id <S314670AbSE0I4c>;
-	Mon, 27 May 2002 04:56:32 -0400
-Message-ID: <3CF1F4C0.5080201@epfl.ch>
-Date: Mon, 27 May 2002 10:56:32 +0200
-From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
-Organization: LTS-DE-EPFL
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, ja
+	id <S314707AbSE0JEc>; Mon, 27 May 2002 05:04:32 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:62993 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S314681AbSE0JEc>; Mon, 27 May 2002 05:04:32 -0400
+Message-ID: <3CF1E7C0.9090909@evision-ventures.com>
+Date: Mon, 27 May 2002 10:01:04 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Alessandro Morelli <alex@alphac.it>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: memory corruption with i815 chipset variant
-In-Reply-To: <fa.mm4ng1v.vmenaj@ifi.uio.no> <fa.gciunnv.cnaf99@ifi.uio.no> <3CF1EA3F.4070608@epfl.ch> <1022493086.11859.191.camel@irongate.swansea.linux.org.uk>
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Trivial: move PCI ID definitions from ide-pci.c to pci_ids.h
+In-Reply-To: <20020526152204.A18812@ucw.cz>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-
+Uz.ytkownik Vojtech Pavlik napisa?:
+> ChangeSet@1.585, 2002-05-26 15:19:41+02:00, vojtech@twilight.ucw.cz
+>   This cset moves a PCI ID definition from ide-pci.c to
+>   pci_ids.h where it belongs.
 > 
-> It certainly could be. If bits 29-31 maybe control things like memory
-> timings then it could do quite horrible things. Fixing it to leave the
-> ERRSTS register alone and keep bits 29-31 is definitely worth trying. If
-> that fixes it then its going to be easy enough to drop a fix into the
-> mainstream code
 > 
+>  drivers/ide/ide-pci.c   |    6 +-----
+>  include/linux/pci_ids.h |    4 ++++
+>  2 files changed, 5 insertions(+), 5 deletions(-)
+> 
+> 
+> diff -Nru a/drivers/ide/ide-pci.c b/drivers/ide/ide-pci.c
+> --- a/drivers/ide/ide-pci.c	Sun May 26 15:20:16 2002
+> +++ b/drivers/ide/ide-pci.c	Sun May 26 15:20:16 2002
+> @@ -27,10 +27,6 @@
+>  
+>  #include "pcihost.h"
+>  
+> -/* Missing PCI device IDs: */
+> -#define PCI_VENDOR_ID_HINT 0x3388
+> -#define PCI_DEVICE_ID_HINT 0x8013
+> -
+>  /*
+>   * This is the list of registered PCI chipset driver data structures.
+>   */
+> @@ -756,7 +752,7 @@
+>  	},
+>  	{
+>  		vendor: PCI_VENDOR_ID_HINT,
+> -		device: PCI_DEVICE_ID_HINT,
+> +		device: PCI_DEVICE_ID_HINT_VXPROII_IDE,
+>  		bootable: ON_BOARD
+>  	},
+>  	{
+> diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+> --- a/include/linux/pci_ids.h	Sun May 26 15:20:16 2002
+> +++ b/include/linux/pci_ids.h	Sun May 26 15:20:16 2002
+> @@ -1787,3 +1787,7 @@
+>  #define PCI_DEVICE_ID_MICROGATE_USC	0x0010
+>  #define PCI_DEVICE_ID_MICROGATE_SCC	0x0020
+>  #define PCI_DEVICE_ID_MICROGATE_SCA	0x0030
+> +
+> +#define PCI_VENDOR_ID_HINT		0x3388
+> +#define PCI_DEVICE_ID_HINT_VXPROII_IDE	0x8013
+> +
 
-OK, I have a patch almost ready to do that except, I am not sure about 
-what to do for those 3 bits...
+Please note that pci_ids.h. is a generated file. The ids have to be
+moved to the ancestor of it as well.
 
-The *usual* call is :
-	pci_write_config_dword(agp_bridge.dev, INTEL_ATTBASE,
-			       agp_bridge.gatt_bus_addr);
-
-Where 'gatt_bus_addr' is returned from a 'virt_to_phys' on 
-'gatt_table_real'.
-
-Should I mask those three bits out when writing or write
-'gatt_bus_addr >> 3' instead ? I am not too sure about the assumptions 
-that can be made about what returns 'virt_to_phys' ...
-
-Thanks in advance.
-
-Nicolas.
--- 
-Nicolas Aspert      Signal Processing Institute (ITS)
-Swiss Federal Institute of Technology (EPFL)
 

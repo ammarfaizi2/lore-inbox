@@ -1,64 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263810AbTL2Ra2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 12:30:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbTL2Ra2
+	id S263880AbTL2RdK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 12:33:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263868AbTL2RdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 12:30:28 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:30682 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263810AbTL2RaU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 12:30:20 -0500
-Date: Mon, 29 Dec 2003 18:30:12 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Nicklas Bondesson <nicke@nicke.nu>
-Cc: "'Christophe Saout'" <christophe@saout.de>, linux-kernel@vger.kernel.org
-Subject: Re: ataraid in 2.6.?
-Message-ID: <20031229173012.GB21479@devserv.devel.redhat.com>
-References: <1072717701.5152.123.camel@leto.cs.pocnet.net> <200312291727.hBTHRDA13745@mx1.redhat.com>
+	Mon, 29 Dec 2003 12:33:04 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:23474 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263850AbTL2Rc5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 12:32:57 -0500
+Subject: RE: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b7).
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Andrew Vasquez <andrew.vasquez@qlogic.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux-SCSI <linux-scsi@vger.kernel.org>
+In-Reply-To: <B179AE41C1147041AA1121F44614F0B060ED8F@AVEXCH02.qlogic.org>
+References: <B179AE41C1147041AA1121F44614F0B060ED8F@AVEXCH02.qlogic.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 29 Dec 2003 11:32:46 -0600
+Message-Id: <1072719168.1878.34.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5/uDoXvLw7AC5HRs"
-Content-Disposition: inline
-In-Reply-To: <200312291727.hBTHRDA13745@mx1.redhat.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2003-12-05 at 19:15, Andrew Vasquez wrote:
+> > A new version of the 8.x series driver for Linux 2.6.x kernels has
+> > been uploaded to SourceForge: 
+> > 
+> > 	http://sourceforge.net/projects/linux-qla2xxx/
+> >
+> 
+> False start.  I've uploaded 8.00.00b8 to the SF site.  This driver
+> instructs the mid-layer to perform its initial scan with
+> scsi_scan_host().  During testing, I disable the scan.  Sorry for
+> the confusion.
 
---5/uDoXvLw7AC5HRs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+OK, I've begun the BK process again.
 
-On Mon, Dec 29, 2003 at 06:27:08PM +0100, Nicklas Bondesson wrote:
-> How do you set this (device mapping) up using the 2.6 kernel. I like the
-> ease of using ataraid in 2.4.x. Why not have both alternatives as options
-> (both ataraid and devicemapper)?
+This driver is now in BK at
 
-because ataraid is nothing more than a devicemapper....
-duplicating that is rather silly...=20
-The outcome is to be a /sbin/ataraid binary or some such that will do all
-the magic to detect the raid and tell the kernel device mapper to set it all
-up.
+bk://linux-scsi.bkbits.net/scsi-qla2xxx-2.6
 
-> Also have anyone of you looked at the patch
-> from Walt H that he sent in yesterday? I have to use this after replacing=
- my
-> old hard drives (Maxtor 30GB) with WDC 80GB. The patch is attached.=20
+I didn't see any comments about Christoph's patches, so is it OK if I
+apply them?
 
-I sent it to Marcelo for applying last week, and he applied it today
+I plan to let it mature in it's own tree for a short while with the
+object being to get it into the right shape for a 2.6 inclusion
+candidate.
 
---5/uDoXvLw7AC5HRs
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+The two items we still need to do something about are:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+- Multi Pathing.  This really doesn't belong in the kernel
+- The odd ioctl set to the qla device...I'd much rather see something
+more standard that all FC drivers can use.
 
-iD8DBQE/8GSjxULwo51rQBIRAsD6AJ99OWdMUxG1zcGAVn6wS1G27qeJCgCgmxFL
-AcoJ0I/hSD7eWpAoRoOhFDQ=
-=gdFE
------END PGP SIGNATURE-----
+James
 
---5/uDoXvLw7AC5HRs--
+

@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313508AbSG2Ilr>; Mon, 29 Jul 2002 04:41:47 -0400
+	id <S313537AbSG2IpV>; Mon, 29 Jul 2002 04:45:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313563AbSG2Ilr>; Mon, 29 Jul 2002 04:41:47 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:53258 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S313508AbSG2Ilr>; Mon, 29 Jul 2002 04:41:47 -0400
-Date: Mon, 29 Jul 2002 05:44:45 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Daniel Phillips <phillips@arcor.de>
-cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/13] misc fixes
-In-Reply-To: <E17Z4v0-0002io-00@starship>
-Message-ID: <Pine.LNX.4.44L.0207290544180.3086-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313571AbSG2IpV>; Mon, 29 Jul 2002 04:45:21 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:9232 "EHLO www.home.local")
+	by vger.kernel.org with ESMTP id <S313537AbSG2IpV>;
+	Mon, 29 Jul 2002 04:45:21 -0400
+Date: Mon, 29 Jul 2002 10:48:33 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Karthik Arumugham <kernel@karthik.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New connections stall with 20k+ open sockets
+Message-ID: <20020729084833.GA6841@alpha.home.local>
+References: <Pine.LNX.4.44.0207281510550.9012-100000@neural.psychosis.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207281510550.9012-100000@neural.psychosis.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Jul 2002, Daniel Phillips wrote:
+On Sun, Jul 28, 2002 at 03:37:47PM -0400, Karthik Arumugham wrote:
+ 
+> I've been having an issue where when the server goes past 20k connections or
+> so, it'll start ignoring syn packets on the most heavily used ports. I've
+> experienced this under 2.4.18 and older 2.4 kernels, and I'm currently
+> running 2.5.29. Distribution is Debian unstable (not that that should matter
+> here). I'm using a Netgear GA620 gig-e card, x86 architecture.
 
-> Sadly, it turns out that there are no possibilities for page table
-> sharing when forking from bash.
+I've had such a behaviour with an HTTP reverse proxy I wrote, until I
+realized that when you have thousands of connections, the select() call
+slows down a bit, and the accept() was not called often enough to catch
+all the new connections. I simply solved the problem by calling as many
+accept() as possible each time the listen socket wakes up. I'm pretty
+sure you are in such a situation.
 
-Are you sure bash is using fork and not vfork ?
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Cheers,
+Willy
 

@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbUEJXUh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbUEJXYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261746AbUEJXUh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 19:20:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbUEJXTc
+	id S262007AbUEJXYl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 19:24:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbUEJXR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 19:19:32 -0400
-Received: from imf20aec.mail.bellsouth.net ([205.152.59.68]:49075 "EHLO
-	imf20aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S261746AbUEJXMz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 19:12:55 -0400
-Date: Mon, 10 May 2004 19:12:10 -0400 (EDT)
-From: Richard A Nelson <cowboy@debian.org>
-To: Stephen Hemminger <shemminger@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm1 Oops with dummy network device (sysfs related?)
-In-Reply-To: <20040510141829.467a2bb6@dell_ss3.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.58.0405101909450.31018@onpx40.onqynaqf.bet>
-References: <Pine.LNX.4.58.0405101654130.5731@erartnqr.onqynaqf.bet>
- <20040510141829.467a2bb6@dell_ss3.pdx.osdl.net>
-X-No-Markup: yes
-x-No-ProductLinks: yes
-x-No-Archive: yes
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 10 May 2004 19:17:26 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:8689 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S263020AbUEJXOF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 19:14:05 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add path-oriented proc_mkdir_path() function to /proc
+Message-Id: <E1BNJyD-0001YR-IU@peregrine.corp.google.com>
+From: Edward Falk <efalk@google.com>
+Date: Mon, 10 May 2004 16:14:01 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 May 2004, Stephen Hemminger wrote:
+[patch to allow creation of e.g. /proc/foo/bar/ with one function call.]
 
-> It would be easier to know what is wrong, if you said what you
-> did that started the problem.  Looks like ifrename or something
-> like that.
+> Hmm.. Looks like a useful utility function (there's certainly enough deep
+> trees in my /proc/sys tree), but I wonder...
+> 
+> 1) Do we have cases where code should be implementing "it had *better* exist"
+> checks?  This may be important if an intermediate directory "should have" been
+> created by sysctl or something, and has special permission needs..
+> 
+> 2) Alternatively, does using this open up accidental collisions where we should
+> have checked something *doesnt* exist already, and complain if it does?
+> 
+> (Feel free to address either one by adding a "Dont do that then" comment ;)
 
-hrm, been trying to track that down (several oopses later...)
+Don't do that, then.  :)
 
-the modprobe dummy worked ok (and is seen in the log)
-the next command is 'ip link set name ipsec0 dev dummy0'
-and I've yet to get passed that
+OK, long answer:
 
--- 
-Rick Nelson
-People disagree with me.  I just ignore them.
-	-- Linus Torvalds, regarding the use of C++ for the Linux kernel
+1 & 2) are beyond the scope of my patch, but it seems to me that
+additional functionality could be added -- perhaps in the form of O_CREAT,
+O_EXCL flags -- if demand warranted it.  Perhaps this could be done in
+a later patch?
+
+	-ed falk, efalk@google.com

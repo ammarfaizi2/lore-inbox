@@ -1,48 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264187AbUDBVhe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 16:37:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264188AbUDBVhd
+	id S264194AbUDBVhR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 16:37:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264188AbUDBVeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 16:37:33 -0500
-Received: from gprs214-45.eurotel.cz ([160.218.214.45]:9856 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S264187AbUDBVfP (ORCPT
+	Fri, 2 Apr 2004 16:34:46 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30849 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264187AbUDBVda (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 16:35:15 -0500
-Date: Fri, 2 Apr 2004 23:35:04 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Ross Biro <ross.biro@gmail.com>
-Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>, mj@ucw.cz,
-       jack@ucw.cz, "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cowlinks v2
-Message-ID: <20040402213504.GA246@elf.ucw.cz>
-References: <s5gznab4lhm.fsf@patl=users.sf.net> <20040320152328.GA8089@wohnheim.fh-wedel.de> <20040329171245.GB1478@elf.ucw.cz> <s5g7jx31int.fsf@patl=users.sf.net> <20040329231635.GA374@elf.ucw.cz> <20040402165440.GB24861@wohnheim.fh-wedel.de> <20040402180128.GA363@elf.ucw.cz> <20040402181707.GA28112@wohnheim.fh-wedel.de> <20040402182357.GB410@elf.ucw.cz> <2B32499D.222B761B@mail.gmail.com>
+	Fri, 2 Apr 2004 16:33:30 -0500
+Date: Fri, 2 Apr 2004 13:35:40 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: chrisw@osdl.org, andrea@suse.de, linux-kernel@vger.kernel.org,
+       kenneth.w.chen@intel.com
+Subject: Re: disable-cap-mlock
+Message-Id: <20040402133540.1dfa0256.akpm@osdl.org>
+In-Reply-To: <20040401173034.16e79fee.akpm@osdl.org>
+References: <20040401135920.GF18585@dualathlon.random>
+	<20040401170705.Y22989@build.pdx.osdl.net>
+	<20040401173034.16e79fee.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <2B32499D.222B761B@mail.gmail.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> Rumour has it that the more exhasperated among us are brewing up a patch to
+> login.c which will allow capabilities to be retained after the setuid.
 
-On Pá 02-04-04 11:28:55, Ross Biro wrote:
-> On Fri, 2 Apr 2004 20:23:58 +0200, Pavel Machek <pavel@ucw.cz> wrote:
-> > > > > If you really want cowlinks and hardlinks to be intermixed freely, I'd
-> > > > > happily agree with you as soon as you can define the behaviour for all
-> > > > > possible cases in a simple document and none of them make me scared
-> > > > > again.  Show me that it is possible and makes sense.
-> 
-> Maybe it's easiest to view the proposed copyfile() as being
-> semantically equivalent to cp from the point of view of anything above
-> the actual file system (modulo running out of space at weird times)
+So I spent a few hours getting pam_cap to work, and indeed it is now doing the
+right thing.  But the kernel is not.
 
-Yes, this is what I was trying to propose.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+It turns out that the whole "drop capabilities and then run something"
+thing does not work in either 2.4 or 2.6.  And hasn't done since forever. 
+What we have in there is no more useful than suser().
+
+You can do prctl(PR_SET_KEEPCAPS, 1) so that permitted caps are retained
+across setuid().  And after the setuid() you can raise effective caps
+again.  So that's workable, although pretty sad - it requires that su and
+login be patched to run the prctl and to re-raise effective caps.
+
+But the two showstoppers are:
+
+1) capabilities are unconditionally nuked across execve() unless you're
+   root (cap_bprm_set_security())
+
+2) the kernel unconditionally removes CAP_SETPCAP in dummy_capget() so
+   it is not possible for even a root-owned, otherwise-fully-capable task
+   to raise capabilities on another task.  Period.
+
+I must say that I'm fairly disappointed that we developed and merged all
+that fancy security stuff but nobody ever bothered to fix up the existing
+simple capability code.
+
+Particularly as, apparently, the new security stuff STILL cannot solve the
+extremely simple Oracle-wants-CAP_IPC_LOCK requirement.
+
+Chris has proposed a little patch which will enable the retention of caps
+across execve.  I'd be interested in knowing why we _ever_ dropped caps
+across execve?  I thing we should run with Chris's patch - but the new
+functionality should of course only be enabled by some admin-settable knob.
+
+I'm looking at securebits.h and wondering why that exists - there's no code
+in-kernel to set the thing, although it is exported to modules.  Perhaps
+securebits should be exposed in /proc and used to enable
+retain-caps-across-execve.

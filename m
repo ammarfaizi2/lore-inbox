@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287657AbSASWmU>; Sat, 19 Jan 2002 17:42:20 -0500
+	id <S287710AbSASWml>; Sat, 19 Jan 2002 17:42:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287699AbSASWmL>; Sat, 19 Jan 2002 17:42:11 -0500
-Received: from CPE00606767ED59.cpe.net.cable.rogers.com ([24.112.39.102]:31238
-	"EHLO cpe00606767ed59.cpe.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id <S287657AbSASWmD>; Sat, 19 Jan 2002 17:42:03 -0500
-Date: Sat, 19 Jan 2002 17:41:43 -0500 (EST)
-From: "D. Hugh Redelmeier" <hugh@mimosa.com>
-Reply-To: hugh@mimosa.com
-To: Rob Radez <rob@osinvestor.com>
-cc: linux-kernel@vger.kernel.org, Andre Hedrick <andre@linux-ide.org>
-Subject: Re: [PATCH] Andre's IDE Patch (1/7)
-In-Reply-To: <Pine.LNX.4.33.0201191457490.14950-100000@pita.lan>
-Message-ID: <Pine.LNX.4.44.0201191731320.12447-100000@redshift.mimosa.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287705AbSASWmb>; Sat, 19 Jan 2002 17:42:31 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:19398 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S287699AbSASWma>; Sat, 19 Jan 2002 17:42:30 -0500
+Date: Sun, 20 Jan 2002 00:42:11 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Jakob =?iso-8859-1?Q?=D8stergaard?= <jakob@unthought.net>,
+        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [STATUS 2.5]  January 18, 2002
+Message-ID: <20020119224210.GI51774@niksula.cs.hut.fi>
+In-Reply-To: <3C477B7F.22875.11D4078A@localhost> <Pine.GSO.4.21.0201180546310.296-100000@weyl.math.psu.edu> <3C488E84.A1453ED2@zip.com.au> <20020119184259.GE135220@niksula.cs.hut.fi> <20020119232455.D12692@unthought.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20020119232455.D12692@unthought.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-| From: Rob Radez <rob@osinvestor.com>
+On Sat, Jan 19, 2002 at 11:24:55PM +0100, you [Jakob Østergaard] claimed:
+>
+> That would be *very* nice indeed.  Even if it was only for things like NFS
+> and SMBFS.
+> 
+> And even if it is unsafe - it's a lot better to be able to say "screw
+> those pending writes", than to have to say "screw the pending writes by
+> rebooting the system".
 
-| This is the first of seven patches against 2.4.18-pre4, beginning the breakup
-| of Andre Hedrick's IDE patch into smaller chunks.
+Last time this was discussed on the list, Tigran Aivazian mentioned this
+patch:
 
-I'm glad you are doing this, although I am ignorant of the politics.
+http://www.moses.uklinux.net/patches/forced-umount-2.4.9.patch
 
-I have an HPT366 that I have never used due to fear of drivers not in
-the mainstream.
+I haven't tested it, but it seems better than "fuser -k -m /fs" (and the
+problem I've faced is that if there's something wrong (like HW level IO
+problems) kill -KILL won't work).
 
-| diff -ruN linux-2.4.18-pre3/drivers/ide/ide-cd.h linux-2.4.18-pre3-ide-rr/drivers/ide/ide-cd.h
-| --- linux-2.4.18-pre3/drivers/ide/ide-cd.h	Thu Nov 22 14:46:58 2001
-| +++ linux-2.4.18-pre3-ide-rr/drivers/ide/ide-cd.h	Mon Jan 14 18:29:06 2002
-| @@ -38,7 +38,9 @@
-|  /************************************************************************/
-| 
-|  #define SECTOR_BITS 		9
-| +#ifndef SECTOR_SIZE
-|  #define SECTOR_SIZE		(1 << SECTOR_BITS)
-| +#endif
-|  #define SECTORS_PER_FRAME	(CD_FRAMESIZE >> SECTOR_BITS)
-|  #define SECTOR_BUFFER_SIZE	(CD_FRAMESIZE * 32)
-|  #define SECTORS_BUFFER		(SECTOR_BUFFER_SIZE >> SECTOR_BITS)
 
-Being a chicken, I wonder if this would be better as:
+-- v --
 
-   #define SECTOR_BITS 		9
-  +#ifdef SECTOR_SIZE
-  +#if SECTOR_SIZE != (1 << SECTOR_BITS)
-  +#error SECTOR_SIZE != (1 << SECTOR_BITS)
-  +#else
-   #define SECTOR_SIZE		(1 << SECTOR_BITS)
-  +#endif
-   #define SECTORS_PER_FRAME	(CD_FRAMESIZE >> SECTOR_BITS)
-   #define SECTOR_BUFFER_SIZE	(CD_FRAMESIZE * 32)
-   #define SECTORS_BUFFER		(SECTOR_BUFFER_SIZE >> SECTOR_BITS)
-
-Hugh Redelmeier
-hugh@mimosa.com  voice: +1 416 482-8253
-
+v@iki.fi

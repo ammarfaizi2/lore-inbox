@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130186AbRCHXTL>; Thu, 8 Mar 2001 18:19:11 -0500
+	id <S130252AbRCHXdv>; Thu, 8 Mar 2001 18:33:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130261AbRCHXTB>; Thu, 8 Mar 2001 18:19:01 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:28654
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S130186AbRCHXSs>; Thu, 8 Mar 2001 18:18:48 -0500
-Date: Thu, 8 Mar 2001 16:16:39 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Steven Cole <scole@lanl.gov>, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] remove CONFIG_NCR885E from Configure.help
-Message-ID: <20010308161639.A16013@opus.bloom.county>
-In-Reply-To: <01030808522000.01048@spc.esa.lanl.gov> <Pine.LNX.4.05.10103081720460.924-100000@callisto.of.borg>
-Mime-Version: 1.0
+	id <S130261AbRCHXdm>; Thu, 8 Mar 2001 18:33:42 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:28042 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S130252AbRCHXde>; Thu, 8 Mar 2001 18:33:34 -0500
+Message-ID: <3AA8169F.FAE81841@uow.edu.au>
+Date: Thu, 08 Mar 2001 23:32:47 +0000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.1-pre10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andreas Dilger <adilger@turbolinux.com>
+CC: Vibol Hou <vhou@khmer.cc>, Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel BUG doing sysrq-t on 2.4.2-ac14
+In-Reply-To: <200103081934.f28JYGS05891@webber.adilger.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.LNX.4.05.10103081720460.924-100000@callisto.of.borg>; from geert@linux-m68k.org on Thu, Mar 08, 2001 at 05:21:32PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 08, 2001 at 05:21:32PM +0100, Geert Uytterhoeven wrote:
-> On Thu, 8 Mar 2001, Steven Cole wrote:
-> > It appears that use of CONFIG_NCR885E was removed in 2.4.2-ac2,
-> > in Config.in and the Makefile in drivers/net.
-> > 
-> > If it really is the case that CONFIG_NCR885E is history, then it
-> > should be history in Configure.help as well.
+Andreas Dilger wrote:
 > 
-> I'm still wondering whether there really are no other boards with a Sym53c885
-> than the Synergy PPC board (which is no longer supported).
+> > [< c0109557>] kernel BUG at printk.c:327!
+> 
+> It may be that if the tasklist is too long, and it runs with interrupts
+> disabled, that this will trigger the NMI watchdog timer.  Since I don't
+> know anything about the console, I can't help.
 
-...which is supposed to be coming back as well.
+Yes, this is being a pest.  I assume what is happening
+is that a CPU is (slowly) doing a print to the serial
+console with console_sem held.  Then the NMI watchdog
+fires and it reinitialises the console semaphore.  On return
+from the NMI handler, console_sem is now released.  It's off-by-one.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+So subsequent attempts to use printk() hit the BUG().  ho-hum.
+The machine is of course completely kaput by this stage
+but this really should be fixed.  This'll be fun to test.
+
+A wider question is why are we still getting NMI watchdog
+triggering during SYSRQ-T on a serial console.  This
+is the second time this has been reported.  It can certainly
+happen if the serial port is set up for hardware handshaking
+and the modem control lines aren't set up right - we loop
+for ever in the serial console code.  Fair enough.
+
+Maybe the sysrq handler should communicate with the NMI
+watchdog code, and tell it not to fire while it's dumping 
+stuff.  hmm...  Messy.
+
+-

@@ -1,91 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263605AbUJ3BiO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263666AbUJ3CCI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263605AbUJ3BiO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 21:38:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbUJ2ThL
+	id S263666AbUJ3CCI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 22:02:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbUJ3B7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 15:37:11 -0400
-Received: from alog0152.analogic.com ([208.224.220.167]:7040 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261168AbUJ2Smu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 14:42:50 -0400
-Date: Fri, 29 Oct 2004 14:39:06 -0400 (EDT)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Andreas Steinmetz <ast@domdv.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Richard Henderson <rth@redhat.com>, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>, Jan Hubicka <jh@suse.cz>
-Subject: Re: Semaphore assembly-code bug
-In-Reply-To: <Pine.LNX.4.58.0410291103000.28839@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.61.0410291424180.4870@chaos.analogic.com>
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> 
- <417550FB.8020404@drdos.com>  <1098218286.8675.82.camel@mentorng.gurulabs.com>
-  <41757478.4090402@drdos.com>  <20041020034524.GD10638@michonline.com> 
- <1098245904.23628.84.camel@krustophenia.net> <1098247307.23628.91.camel@krustophenia.net>
- <Pine.LNX.4.61.0410200744310.10521@chaos.analogic.com>
- <Pine.LNX.4.61.0410290805570.11823@chaos.analogic.com>
- <Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org> <41826A7E.6020801@domdv.de>
- <Pine.LNX.4.61.0410291255400.17270@chaos.analogic.com>
- <Pine.LNX.4.58.0410291103000.28839@ppc970.osdl.org>
+	Fri, 29 Oct 2004 21:59:07 -0400
+Received: from cantor.suse.de ([195.135.220.2]:61390 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261214AbUJ3B5h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 21:57:37 -0400
+To: Thomas Zehetbauer <thomasz@hostmaster.org>
+Cc: linux-kernel@vger.kernel.org, idr@us.ibm.com, eich@suse.de
+Subject: Re: status of DRM_MGA on x86_64
+References: <1099052450.11282.72.camel@hostmaster.org.suse.lists.linux.kernel>
+	<1099061384.11918.4.camel@hostmaster.org.suse.lists.linux.kernel>
+	<41829E39.1000909@us.ibm.com.suse.lists.linux.kernel>
+	<1099097616.11918.26.camel@hostmaster.org.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 30 Oct 2004 03:56:24 +0200
+In-Reply-To: <1099097616.11918.26.camel@hostmaster.org.suse.lists.linux.kernel>
+Message-ID: <p734qkd0y0n.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Oct 2004, Linus Torvalds wrote:
+Thomas Zehetbauer <thomasz@hostmaster.org> writes:
 
->
->
-> On Fri, 29 Oct 2004, linux-os wrote:
->>> with the following:
->>>
->>> leal 4(%esp),%esp
->>
->> Probably so because I'm pretty certain that the 'pop' (a memory
->> access) is not going to be faster than a simple register operation.
->
-> Bzzt, wrong answer.
->
-> It's not "simple register operation". It's really about the fact that
-> modern CPU's are smarter - yet dumber - then you think. They do things
-> like speculate the value of %esp in order to avoid having to calculate it,
-> and it's entirely possible that "pop" is much faster, simply because I
-> guarantee you that a CPU will speculate %esp correctly across a "pop", but
-> the same is not necessarily true for "lea %esp".
->
-> Somebody should check what the Pentium M does. It might just notice that
-> "lea 4(%esp),%esp" is the same as "add 4 to esp", but it's entirely
-> possible that lea will confuse its stack engine logic and cause
-> stack-related address generation stalls..
->
-> 		Linus
+> On Fre, 2004-10-29 at 12:47 -0700, Ian Romanick wrote:
+> > The problem, which exists with most (all?) DRM drivers, is that data 
+> > types are used in the kernel/user interface that have different sizes on 
+> > LP32 and LP64.  If your kernel is 64-bit, you will have problems with 
+> > 32-bit applications.
 
+That was not the reason I disabled it. I reenabled it now in my tree.
+  
+> Then either all or no DRM drivers should be enabled on x86_64, the
+> DRM_TDFX, DRM_R128, DRM_RADEON and DRM_SIS are not currently disabled. I
+> vote for enabling all drivers that work with 64-bit applications.
+ 
+> I wonder if this should be the first and only place where different
+> kernel/userland bitness causes problems. How has this been solved
+> elsewhere?
 
-Linus, there is no way in hell that you are going to move
-a value from memory into a register (pop ecx) faster than
-you are going to do anything to the stack-pointer or
-any other register. The register operations operate
-at the internal CPU clock-rate (GHz). The memory operations
-operate at the front-side bus rate (MHz), and the data-
-movement must actually occur before anything else can.
-In other words, with stack operations, modern CPUs will
-stall until the operation has completed.
+It was solved long ago for the Radeon driver by Egbert Eich.
+But for some unknown reason the DRI people never merged his patches.
 
-Using the rdtsc, on this computer, both of the stack-pointer
-additions (leal or add) take 6 +/- 2 clocks. The pop ecx
-takes 12 +/- 3 clocks.
-
-Things that should take only one clock, according to the
-documentation, take 4 or 5 even when subtracting-out
-the time necessary to do the rdtsc, because this machine
-(and probably others) is very noisy, so all I can state
-with certainty is that the pop from the stack takes longer.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
+-Andi

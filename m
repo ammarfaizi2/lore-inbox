@@ -1,49 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132894AbRAXWAq>; Wed, 24 Jan 2001 17:00:46 -0500
+	id <S132959AbRAXWB0>; Wed, 24 Jan 2001 17:01:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132941AbRAXWAg>; Wed, 24 Jan 2001 17:00:36 -0500
-Received: from [64.64.109.142] ([64.64.109.142]:19218 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S132894AbRAXWAQ>; Wed, 24 Jan 2001 17:00:16 -0500
-Message-ID: <3A6F5050.8627570C@didntduck.org>
-Date: Wed, 24 Jan 2001 16:59:44 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.73 [en] (WinNT; U)
-X-Accept-Language: en
+	id <S132958AbRAXWBR>; Wed, 24 Jan 2001 17:01:17 -0500
+Received: from thalia.fm.intel.com ([132.233.247.11]:56071 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S132959AbRAXWBB>; Wed, 24 Jan 2001 17:01:01 -0500
+Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE5D4@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: acpi@phobos.fachschaften.tu-muenchen.de,
+        "'dmeyer@dmeyer.net'" <dmeyer@dmeyer.net>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: ACPI trouble with MS-6167 motherboard (fwd)
+Date: Wed, 24 Jan 2001 13:54:48 -0800
 MIME-Version: 1.0
-To: Jie Zhou <jiezhou@us.ibm.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: question about compiling the kernel
-In-Reply-To: <OF8F6A4D7C.6EC3D10C-ON852569DE.0077CDA2@somers.hqregion.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jie Zhou wrote:
-> > > 3. After I run the /sbin/lilo, it says the new kernel is added to the
-> > > system. HOwever when I restart the system and go into the labeled kernel
-> > > I choose, the system gets stucked after these two lines:
-> > > Loading kernel.......................
-> > > Uncompressing Linux...OK, booting the kernel.
-> > >
-> > > Can you give me some advice on this. Thanks a lot for your kind reply..
-> >
-> > Make certain you compiled the kernel for the proper CPU type (ie. don't
-> > try to run a Pentium II kernel on a 486)
->
-> Thank you very much. My computer is a Pentium machine, should be able to
-> run any kernel. :-(
+This is pretty weird, since the latest ACPI update went in pre10, and it was
+pretty minor. That you are saying problems started in pre8 implies this is
+not a problem with the ACPI driver, but something else.. hmm..
 
-Not true.  If you compile the kernel for a Pentium Pro or higher cpu,
-GCC will include some instructions (cmovxx in particular) that do not
-exist on earlier processors.  Since the fault handlers are not set up
-yet when booting the kernel, this results in a silent crash.
+So it worked in pre7 and broke in pre8?
 
---
+Regards -- Andy
 
-				Brian Gerst
+> Date: Wed, 24 Jan 2001 09:06:45 -0500
+> From: dmeyer@dmeyer.net
+> Subject: ACPI trouble with MS-6167 motherboard
+> 
+> I'm still having ACPI difficulties with Linux-2.4.1-pre10 on my
+> system.  Up to (and including) Linux-2.4.0, it worked fine; the kernel
+> reported:
+> 
+> Jan 14 22:53:05 jhereg kernel: ACPI: System description tables found
+> Jan 14 22:53:05 jhereg kernel: ACPI: System description tables loaded
+> Jan 14 22:53:05 jhereg kernel: ACPI: Subsystem enabled
+> Jan 14 22:53:05 jhereg kernel: ACPI: System firmware supports: C2
+> Jan 14 22:53:05 jhereg kernel: ACPI: System firmware supports: S0 S1
+> 
+> However, since Linux-2.4.1-pre8, I get:
+> 
+> ACPI: System description tables found
+>     ACPI-0191: *** Warning: Invalid table signature found
+>     ACPI-0073: *** Error: Acpi_load_tables: Could not load 
+> RSDT: AE_BAD_SIGNATURE
+>     ACPI-0101: *** Error: Acpi_load_tables: Could not load 
+> tables: AE_BAD_SIGNATURE
+> ACPI: System description table load failed
+> 
+> 
+> 
+> Excerpts from my boot log follow:
+> 
+> BIOS Vendor: Award Software International, Inc.
+> BIOS Version: 6.0 PG
+> BIOS Release: 08/30/00
+> Board Vendor: MICRO-STAR INTERNATIONAL CO., LTD.
+> Board Name: MS-6167 (AMD751).
+> Board Version: 1.X.
+> 
+> BIOS-provided physical RAM map:
+>  BIOS-e820: 000000000009fc00 @ 0000000000000000 (usable)
+>  BIOS-e820: 0000000000000400 @ 000000000009fc00 (reserved)
+>  BIOS-e820: 0000000000010000 @ 00000000000f0000 (reserved)
+>  BIOS-e820: 0000000000010000 @ 00000000ffff0000 (reserved)
+>  BIOS-e820: 000000000fef0000 @ 0000000000100000 (usable)
+>  BIOS-e820: 000000000000d000 @ 000000000fff3000 (ACPI data)
+>  BIOS-e820: 0000000000003000 @ 000000000fff0000 (ACPI NVS)
+> 
+> I'd appreciate it if anyone can tell me what the deal is.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbUJ3BiS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbUJ3BiT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262220AbUJ3BiS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 21:38:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbUJ2ThT
+	id S261172AbUJ3BiT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 21:38:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263473AbUJ2Tig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 15:37:19 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:30272 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261172AbUJ2Sob (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 14:44:31 -0400
+	Fri, 29 Oct 2004 15:38:36 -0400
+Received: from web81307.mail.yahoo.com ([206.190.37.82]:30138 "HELO
+	web81307.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261446AbUJ2S5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 14:57:55 -0400
+Message-ID: <20041029185753.53517.qmail@web81307.mail.yahoo.com>
+Date: Fri, 29 Oct 2004 11:57:52 -0700 (PDT)
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: [PATCH 2/4] Driver core: add driver_probe_device
 To: Greg KH <greg@kroah.com>
-Cc: Klaus Dittrich <kladit@t-online.de>,
-       linux mailing-list <linux-kernel@vger.kernel.org>
-X-Message-Flag: Warning: May contain useful information
-References: <20041027115943.GA1674@xeon2.local.here>
-	<52pt32ywwg.fsf@topspin.com> <20041029043807.GA12309@kroah.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Fri, 29 Oct 2004 11:44:29 -0700
-In-Reply-To: <20041029043807.GA12309@kroah.com> (Greg KH's message of "Thu,
- 28 Oct 2004 23:38:07 -0500")
-Message-ID: <52hdodxt2q.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [PATCH] kobject hotplug: don't let SEQNUM overwrite other vars
 Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 29 Oct 2004 18:44:30.0566 (UTC) FILETIME=[5349D860:01C4BDE7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Greg> No, this puts back the problem where if the hotplug()
-    Greg> subsystem call fails, we have already incremented the seqnum
-    Greg> without emitting a call with that number.
+Sorry for breaking the threading...
 
-    Greg> Now I know userspace needs to handle this properly anyway,
-    Greg> but we might as well get the kernel right, and not do stuff
-    Greg> to make userspace unhappy if we can obviously help it.
+Greg KH wrote:
+> On Fri, Oct 29, 2004 at 01:24:21PM -0500, Dmitry Torokhov wrote:
+> > On Friday 29 October 2004 11:37 am, Greg KH wrote:
+> > > On Tue, Oct 12, 2004 at 01:31:36AM -0500, Dmitry Torokhov wrote:
+> > > > #### AUTHOR dtor_core@ameritech.net
+> > > > #### COMMENT START
+> > > > ### Comments for ChangeSet
+> > > > Driver core: rename bus_match into driver_probe_device and export
+> > > >              it so subsystems can bind an individual device to a
+> > > >              specific driver without getting involved with driver
+> > > >              core internals.
+> > >
+> > > Applied, thanks.
+> > >
+> >
+> > Greg,
+> >
+> > What about "bind_mode" device and driver attributes? If you are not
+> going
+> > to apply them then I need to rework driver_probe_device to not call
+> > bus->match() function.
+> 
+> Hm, I'm not going to apply them, but haven't written that email yet,
+> sorry.
+> 
+> Is things now broken with only these 2 patches applied?
+> 
+> > The reason is that if bind_mode is not in the core
+> > then I need to check these attributes in serio's bus match function, but
+> > then I will not be able to use driver_probe_device to force binding when
+> > user requests it. And if I don't check bind_mode in serio_bus_match then
+> > I will have to do all driver/device mathing by hand which I wanted to
+> > avoid in the first place.
+> 
+> Heh, I understand.  I like the ideas of your next patches, but just not
+> the implementation.
+> 
+> I really like the "driver" part in the device.  But not as a file, let's
+> make it a symlink back to the driver that is bound to the device at that
+> point in time.  This makes it just like the other symlinks in the sysfs
+> tree.
+> 
+> But if we do that, we still don't have a way to implement what you are
+> really trying to do (and it breaks your code as you already have a
+> driver file.)  I'll work on what I propose instead in my next message
+> (will be a few hours, have real work to do for a bit, sorry...)
+>
 
-Got it... I had remembered you saying gaps in the sequence numbers
-were OK in the past.
+Well, we can have driver as a symlink and rename my "driver" attribute
+into something like "drvctl" (just an example, maybe somebody has better
+name in mind, I am not fixed on the name) and make it writable only.
+I think it should work well as now device and driver objects are very
+symmetrical - they both similarly linked together via device->driver
+and driver->device).
 
- - R.
+Also, driver problem is tangent to the bind_mode as you can play with
+bind_mode even without driver attribute (f.e. you have 2 cards and 2
+modules, mark one card as manual bind, load first module, change bind
+mode to automatic, load another module).
+
+Just wanted to make these two points, now I'll wait for your poroposal
+later tonight.
+
+Thanks!
+
+-- 
+Dmitry
+

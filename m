@@ -1,79 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263210AbTCNBxv>; Thu, 13 Mar 2003 20:53:51 -0500
+	id <S263216AbTCNB6Q>; Thu, 13 Mar 2003 20:58:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263216AbTCNBxu>; Thu, 13 Mar 2003 20:53:50 -0500
-Received: from cs.columbia.edu ([128.59.16.20]:46802 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S263210AbTCNBxt>;
-	Thu, 13 Mar 2003 20:53:49 -0500
-Subject: Re: fork/sh/hello microbenchmark performance in chroot
-From: Shaya Potter <spotter@cs.columbia.edu>
+	id <S263217AbTCNB6Q>; Thu, 13 Mar 2003 20:58:16 -0500
+Received: from adsl-63-195-13-70.dsl.chic01.pacbell.net ([63.195.13.70]:45200
+	"EHLO mail.scitechsoft.com") by vger.kernel.org with ESMTP
+	id <S263216AbTCNB6P>; Thu, 13 Mar 2003 20:58:15 -0500
+From: "Kendall Bennett" <KendallB@scitechsoft.com>
+Organization: SciTech Software, Inc.
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <1047606869.7428.12.camel@zaphod>
-References: <1047606184.10046.9.camel@zaphod>
-	 <1047606869.7428.12.camel@zaphod>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1047607433.7428.23.camel@zaphod>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 13 Mar 2003 21:03:53 -0500
-Content-Transfer-Encoding: 7bit
+Date: Thu, 13 Mar 2003 18:08:45 -0800
+MIME-Version: 1.0
+Subject: Finding Aki M Laukkanen?
+Message-ID: <3E70C92D.7304.1364FA8@localhost>
+In-reply-to: <200303132203.53524.mauricio@chile.com>
+X-mailer: Pegasus Mail for Windows (v4.02)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-and a little more followup.  The chroot is basically a machine's fs's
-mounted over nfs over an ipsec tunnel
+Hi Guys,
 
-/chroot/"filesystems"
+I have found the old mailing list archives for the vesafbd project I was 
+interested in, but I can't seem to get in touch with the original author 
+and the web pages are all gone. The guys name was Aki M Laukkanen and he 
+was at the University of Helsinki through most of 2000 (and active within 
+the Linux kernel community during that time). If anyone knows him or his 
+current email address, please drop him a line for me and tell him to 
+email me so we can get in touch.
 
-when I run it /chroot/tmp/benchmark/forksh, I get .2s
+Thanks!
 
-but when I chroot into the /chroot tree and run /tmp/benchmark/forksh I
-get 1s.
+---
+Kendall Bennett
+Chief Executive Officer
+SciTech Software, Inc.
+Phone: (530) 894 8400
+http://www.scitechsoft.com
 
-If I make the chroot tree just composed of mount -o bind'd fs from the
-host machine, I don't see the slow down.
-
-so to recap
-
-plain linux, local filesystems - it's fine
-plain linux, nfs over ipsec filesystems - it's fine
-chrooted linux, local filesystems - it's fine
-chrooted linux, nfs over ipsec filesystems - it's very slow.
-
-thanks,
-
-shaya
-
-On Thu, 2003-03-13 at 20:54, Shaya Potter wrote:
-> in a followup, the only thing I can tell difference b/w the 2 runs
-> (under strace and inside and outside of the chroot) is that within the
-> chroot, after every fork() I see a SIGSTOP on the child.
-> 
-> anyone have any idea why this is happening?
-> 
-> On Thu, 2003-03-13 at 20:43, Shaya Potter wrote:
-> > I'm trying to play with our a homebrew version of lmbench's fork
-> > benchmark which exec's sh to run a "hello world" program.  On normal
-> > 2.4.18 (UP 933mhz p3) it runs in about .2s  However, within a chrooted
-> > environment I'm looking at 1s.
-> > 
-> > Anyone knows why this runs significantly slower within a chroot?
-> > 
-> > thanks,
-> > 
-> > shaya
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+~ SciTech SNAP - The future of device driver technology! ~
 

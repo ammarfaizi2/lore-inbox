@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314078AbSGUMUB>; Sun, 21 Jul 2002 08:20:01 -0400
+	id <S314096AbSGUMYo>; Sun, 21 Jul 2002 08:24:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314096AbSGUMUB>; Sun, 21 Jul 2002 08:20:01 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:25589 "EHLO
+	id <S314149AbSGUMYo>; Sun, 21 Jul 2002 08:24:44 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:30197 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314078AbSGUMUA>; Sun, 21 Jul 2002 08:20:00 -0400
-Subject: Re: [PATCH] user frobbable escd file can cause oops
+	id <S314096AbSGUMYo>; Sun, 21 Jul 2002 08:24:44 -0400
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0207211027400.32636-100000@linux-box.realnet.co.sz>
-References: <Pine.LNX.4.44.0207211027400.32636-100000@linux-box.realnet.co.sz>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <p731y9xva8m.fsf@oldwotan.suse.de>
+References: <OF918E6F71.637B1CBC-ON85256BFB.004CDDD0@pok.ibm.com.suse.lists.linux.kernel
+	 >
+	<1027199147.16819.39.camel@irongate.swansea.linux.org.uk.suse.lists.linux.ke
+	 rnel>  <p731y9xva8m.fsf@oldwotan.suse.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 21 Jul 2002 14:35:16 +0100
-Message-Id: <1027258516.17234.87.camel@irongate.swansea.linux.org.uk>
+Date: 21 Jul 2002 14:40:11 +0100
+Message-Id: <1027258811.17234.90.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-07-21 at 09:29, Zwane Mwaikambo wrote:
-> patch applies to 2.4-ac but tested on 2.5.26
-> 
-> I don't think this breaks any userland apps so If there aren't any 
-> objections, Alan, Linus please apply
+On Sun, 2002-07-21 at 07:57, Andi Kleen wrote:
+> One disadvantage of the LVM2 concept is that it relies a lot on compatible
+> user space and there is unlikely to be a stable API. While I'm normally
+> all for putting things in user space where it makes sense I think the
+> mounting of your root file system is a bit of exception. 
 
-I made the same change a few -ac patches ago, for the same reason that
-some BIOSes are not safe for escd accesses
+LVM2 relies on people doing things right so we shouldnt use it ? 
+
+Strange
 

@@ -1,43 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265541AbSKABWB>; Thu, 31 Oct 2002 20:22:01 -0500
+	id <S265565AbSKABUG>; Thu, 31 Oct 2002 20:20:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265566AbSKABVj>; Thu, 31 Oct 2002 20:21:39 -0500
-Received: from paloma12.e0k.nbg-hannover.de ([62.181.130.12]:21234 "HELO
-	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S265569AbSKABUw> convert rfc822-to-8bit; Thu, 31 Oct 2002 20:20:52 -0500
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Skip Ford <skip.ford@verizon.net>
-Subject: 2.5.45 ipt_TCPMSS.c syntax error
-Date: Fri, 1 Nov 2002 02:27:14 +0100
-User-Agent: KMail/1.4.7
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S265566AbSKABUF>; Thu, 31 Oct 2002 20:20:05 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:2776 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S265565AbSKABUB> convert rfc822-to-8bit; Thu, 31 Oct 2002 20:20:01 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: =?iso-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Hans Reiser <reiser@namesys.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Reiserfs-List@namesys.com
+Date: Thu, 31 Oct 2002 17:16:25 -0800 (PST)
+Subject: Re: Reiser vs EXT3
+In-Reply-To: <200210312352.07122.Dieter.Nuetzel@hamburg.de>
+Message-ID: <Pine.LNX.4.44.0210311714040.25405-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200211010227.14140.Dieter.Nuetzel@hamburg.de>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make -f scripts/Makefile.build obj=sound/core/seq/oss
-  gcc -Wp,-MD,net/ipv4/netfilter/.ipt_TCPMSS.o.d -D__KERNEL__ -Iinclude -Wall 
--Wstrict-prototypes -Wno-trigraphs -O -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -mcpu=k6 
--march=i686 -malign-functions=4 -fschedule-insns2 -fexpensive-optimizations 
--Iarch/i386/mach-generic -nostdinc -iwithprefix include -DMODULE -include 
-include/linux/modversions.h   -DKBUILD_BASENAME=ipt_TCPMSS   -c -o 
-net/ipv4/netfilter/ipt_TCPMSS.o net/ipv4/netfilter/ipt_TCPMSS.c
-net/ipv4/netfilter/ipt_TCPMSS.c: In function `ipt_tcpmss_target':
-net/ipv4/netfilter/ipt_TCPMSS.c:88: structure has no member named `pmtu'
-net/ipv4/netfilter/ipt_TCPMSS.c:91: structure has no member named `pmtu'
-net/ipv4/netfilter/ipt_TCPMSS.c:95: structure has no member named `pmtu'
-make[3]: *** [net/ipv4/netfilter/ipt_TCPMSS.o] Error 1
-make[2]: *** [net/ipv4/netfilter] Error 2
-make[1]: *** [net/ipv4] Error 2
-make: *** [net] Error 2
+One thing that concerns me is the warning to only use a filesystem created
+in a certin way for the benchmark, don't use a tar of an ext2/3 filesystem
+as that will kill performance.
 
-On x86 (Athlon)
+they say taht there will be a tool to fix this in 4.1, but this makes me
+treat the benchmark as a 'best possible' test case and expect the
+real-world performance to be considerably worse (how much worse who knows,
+I haven't seen anyone try to do worst-case performance tests on it)
 
--Dieter
+David Lang
+
+
+ On Thu, 31 Oct 2002, Dieter [iso-8859-15] Nützel wrote:
+
+> Date: Thu, 31 Oct 2002 23:52:07 +0100
+> From: "Dieter [iso-8859-15] Nützel" <Dieter.Nuetzel@hamburg.de>
+> To: Jeff Garzik <jgarzik@pobox.com>
+> Cc: Hans Reiser <reiser@namesys.com>,
+>      Linux Kernel <linux-kernel@vger.kernel.org>, Reiserfs-List@namesys.com
+> Subject: Re: Reiser vs EXT3
+>
+> Am Donnerstag, 31. Oktober 2002 22:05 schrieb Jeff Garzik:
+> > Hans Reiser wrote:
+> >
+> > > If you want to talk about 2.6 then you should talk about reiser4 not
+> > > reiserfs v3, and reiser4 is 7.6 times the write performance of ext3
+> > > for 30 copies of the linux kernel source code using modern IDE drives
+> > > and modern processors on a dual-CPU box, so I don't think any amount
+> > > of improved scalability will make ext3 competitive with reiser4 for
+> > > performance usages.
+> >
+> > What is the read performance like?
+>
+> From his mentioned paper http://www.namesys.com/v4/fast_reiser4.html, it is
+> more then doubled compared to ext3 and ReiserFS v3.
+>
+> To be fair he should explain if it was compared to the latest ext3 (htree)
+> stuff or not, yet.
+>
+> It looks truly impressive.
+>
+> Regards,
+>         Dieter
+>
+> --
+> Dieter Nützel
+> Graduate Student, Computer Science
+>
+> University of Hamburg
+> Department of Computer Science
+> @home: Dieter.Nuetzel at hamburg.de (replace at with @)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

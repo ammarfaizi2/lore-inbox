@@ -1,86 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262483AbUKDWnb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262486AbUKDWoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262483AbUKDWnb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 17:43:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262480AbUKDWlB
+	id S262486AbUKDWoN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 17:44:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbUKDWno
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 17:41:01 -0500
-Received: from alog0209.analogic.com ([208.224.220.224]:3456 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262483AbUKDWjX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 17:39:23 -0500
-Date: Thu, 4 Nov 2004 17:38:53 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: Giuseppe Bilotta <bilotta78@hotpop.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.6.9 won't allow a write to a NTFS file-system.
-In-Reply-To: <Pine.LNX.4.60.0411042216340.5130@hermes-1.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.61.0411041721110.9510@chaos.analogic.com>
-References: <Pine.LNX.4.61.0411041054370.4818@chaos.analogic.com>
- <MPG.1bf47baa1b621da0989706@news.gmane.org> <Pine.LNX.4.61.0411041158010.5193@chaos.analogic.com>
- <Pine.LNX.4.60.0411042216340.5130@hermes-1.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 4 Nov 2004 17:43:44 -0500
+Received: from fw.osdl.org ([65.172.181.6]:19937 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262481AbUKDWm7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 17:42:59 -0500
+Date: Thu, 4 Nov 2004 14:42:58 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Serge Hallyn <serue@us.ibm.com>
+Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH] [2/6] LSM Stacking: Add stacker LSM
+Message-ID: <20041104144258.A2357@build.pdx.osdl.net>
+References: <1099609471.2096.10.camel@serge.austin.ibm.com> <1099609681.2096.16.camel@serge.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1099609681.2096.16.camel@serge.austin.ibm.com>; from serue@us.ibm.com on Thu, Nov 04, 2004 at 05:08:01PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Nov 2004, Anton Altaparmakov wrote:
+* Serge Hallyn (serue@us.ibm.com) wrote:
+> This patch adds the stacker module, still required in order to
+> stack several LSMs.  In order to use this with SELinux, it must be
+> compiled into the kernel.  Otherwise, it can be loaded as a module.
 
-> On Thu, 4 Nov 2004, linux-os wrote:
->> On Thu, 4 Nov 2004, Giuseppe Bilotta wrote:
->>> linux-os wrote:
->>>>
->>>> Hello anybody maintaining NTFS,
->>>>
->>>> I can't write to a NTFS file-system.
->>>>
->>>> /proc/mounts shows it's mounted RW:
->>>> /dev/sdd1 /mnt ntfs
->>>> rw,uid=0,gid=0,fmask=0177,dmask=077,nls=utf8,errors=continue,mft_zone_multiplier=1
->>>> 0 0
->>>>
->>>> .config shows RW support.
->>>>
->>>> CONFIG_NTFS_FS=m
->>>> # CONFIG_NTFS_DEBUG is not set
->>>> CONFIG_NTFS_RW=y
->>>>
->>>> Errno is 1 (Operation not permitted), even though root.
->>>
->>> What are trying to write? AFAIK, the (new) NTFS module only
->>> allows one kind of writing: overwriting an existing file, as
->>> long as its size doesn't change.
->>
->> Huh? Are we talking about the same thing? I'm talking about
->> the NTFS that Windows/NT and later versions puts on its
->> file-systems. I use an USB external disk with my M$ Laptop
->> and I have always been able to transfer data to/from
->> my machines using that drive. Now I can't. The drive it
->> writable under M$, but I can't even delete anything
->> (no permission for root) under Linux.
->
-> You must have had it formatted as VFAT in the past.  There is now way you
-> were writing to an NTFS drive from Linux (unless you were using Captive
-> NTFS or one of the commercially available drivers).
->
-> Best regards,
->
-> 	Anton
+all the stacker_rwsem business has got to go.  can't you make the same
+array assumptions as the blobs, and assign modules to slots?  also the
+sysfs stuff should go into a (not quite yet) existing subsystem.  i'm
+not positive the authoritative capable() hook logic is right.
 
-I thought maybe that was so, so I tried to format it as a
-FAT-32 drive and W$ complained that it was too large. So
-I thought, I would just partition it, but I never partitioned
-it to two logical drives before before so I don't know
-what's changed (it's W/2000). Right now, I am partitioning
-it to two slices and formatting it with FAT-32.
-
-I've been using this since linux had USB and Firewire
-controllers. I really don't know what has changed.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263898AbTKZCIx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 21:08:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263900AbTKZCIx
+	id S263918AbTKZCFi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 21:05:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263920AbTKZCFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 21:08:53 -0500
-Received: from holomorphy.com ([199.26.172.102]:29116 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263898AbTKZCIw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 21:08:52 -0500
-Date: Tue, 25 Nov 2003 18:08:46 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Chris Petersen <Chris.Petersen@synopsys.com>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: PROBLEM:  Blk Dev Cache causing kswapd thrashing
-Message-ID: <20031126020846.GE8039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Chris Petersen <Chris.Petersen@synopsys.com>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>,
-	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-References: <3FC3C3BC.CAEC23CA@synopsys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FC3C3BC.CAEC23CA@synopsys.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Tue, 25 Nov 2003 21:05:38 -0500
+Received: from mail-09.iinet.net.au ([203.59.3.41]:12270 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S263918AbTKZCFg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 21:05:36 -0500
+Message-ID: <3FC40663.6050602@cyberone.com.au>
+Date: Wed, 26 Nov 2003 12:48:19 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Mr. BOFH" <icerbofh@hotmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: [OT] Re: Fire Engine??
+References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com>
+In-Reply-To: <BAY1-DAV15JU71pROHD000040e2@hotmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 25, 2003 at 04:03:56PM -0500, Chris Petersen wrote:
-> The block device cache is causing kswapd thrashing, usually bringing
-> the system to a halt.
-> This problem has been reproduced on kernels as recent as 2.4.21.
-> In our application we deal with large (multi-GB) files on multi-CPU
-> 4GB platforms.  While handling these files, the block device cache
-> allocates all remaining available memory (3.5G) up to the 4G
-> physical limit.
-
-Please try 2.4.23-rc5, and if that doesn't fix it, try 2.6.0-test10.
-AIUI both have page replacement improvements over 2.4.21.
 
 
--- wli
+Mr. BOFH wrote:
+
+>Sun has announced that they have redone their TCP/IP stack and is showing
+>for some instances a 30% improvement over Linux....
+>
+>http://www.theregister.co.uk/content/61/33440.html
+>
+>
+
+Thats odd. Since when did Linux's TCP/IP stack become the benchmark? :)
+
+PS. This isn't really appropriate for this list. I'm sure an open and
+    verifiable comparison would be welcomed though.
+
+

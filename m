@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbRCABh4>; Wed, 28 Feb 2001 20:37:56 -0500
+	id <S129429AbRCABjs>; Wed, 28 Feb 2001 20:39:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129417AbRCABhm>; Wed, 28 Feb 2001 20:37:42 -0500
+	id <S129438AbRCABiB>; Wed, 28 Feb 2001 20:38:01 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:51676 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129460AbRCAB2Y>;
-	Wed, 28 Feb 2001 20:28:24 -0500
+	by vger.kernel.org with ESMTP id <S129446AbRCAB2X>;
+	Wed, 28 Feb 2001 20:28:23 -0500
 X-Mailer: exmh version 2.1.1 10/15/1999
 From: Keith Owens <kaos@ocs.com.au>
-To: Christoph Hellwig <hch@ns.caldera.de>
+To: Boris Dragovic <lynx@falcon.etf.bg.ac.yu>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] reiserfs patch for linux-2.4.2 
-In-Reply-To: Your message of "Wed, 28 Feb 2001 20:27:33 BST."
-             <20010228202733.A18073@caldera.de> 
+Subject: Re: negative mod use count 
+In-Reply-To: Your message of "Wed, 28 Feb 2001 20:58:06 BST."
+             <200102281958.UAA13226@falcon.etf.bg.ac.yu> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 01 Mar 2001 11:01:59 +1100
-Message-ID: <20472.983404919@kao2.melbourne.sgi.com>
+Date: Thu, 01 Mar 2001 11:04:58 +1100
+Message-ID: <20516.983405098@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Feb 2001 20:27:33 +0100, 
-Christoph Hellwig <hch@ns.caldera.de> wrote:
->Urgg. limits.h is a userlevel header...
->
->The attached patch will make similar atempts fail (but not this one as
->there is also a limits.h in gcc's include dir).
->
->--- linux-2.4.0/Makefile	Mon Dec 25 19:21:14 2000
->-CPPFLAGS := -D__KERNEL__ -I$(HPATH)
->+GCCINCDIR = $(shell gcc -print-search-dirs | sed -ne 's/install: \(.*\)/\1include/gp')
->+CPPFLAGS := -D__KERNEL__ -nostdinc -I$(HPATH) -I$(GCCINCDIR)
+On Wed, 28 Feb 2001 20:58:06 +0100, 
+Boris Dragovic <lynx@falcon.etf.bg.ac.yu> wrote:
+>what does negative module use count mean?
 
-cc: trimmed to l-k.
-
-CPPFLAGS apply to the kernel compiler which can be a cross compiler but
-you are extracting data from the host gcc.  What exactly are you trying
-to do here?  Are you trying to prevent the use of user space includes
-or are you trying to pick up the cross compiler includes?
+Either an extra MOD_DEC_USE_COUNT was issued (buggy code) or the module
+has a can_unload() function.  When modules define a can_unload()
+routine then the use count is always displayed as -1 because the module
+decides if it can be unloaded.
 

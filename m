@@ -1,50 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129562AbQKADqP>; Tue, 31 Oct 2000 22:46:15 -0500
+	id <S131196AbQKADws>; Tue, 31 Oct 2000 22:52:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131196AbQKADp4>; Tue, 31 Oct 2000 22:45:56 -0500
-Received: from mnh-1-12.mv.com ([207.22.10.44]:65036 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S129562AbQKADpp>;
-	Tue, 31 Oct 2000 22:45:45 -0500
-Message-Id: <200011010453.XAA23218@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: user-mode port 0.32-2.4.0-test10
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 31 Oct 2000 23:53:23 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S131232AbQKADwj>; Tue, 31 Oct 2000 22:52:39 -0500
+Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:26103
+	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
+	id <S131196AbQKADwa>; Tue, 31 Oct 2000 22:52:30 -0500
+From: Jesse Pollard <pollard@cats-chateau.net>
+Reply-To: pollard@cats-chateau.net
+To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+        Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Subject: Re: 2.2.18Pre Lan Performance Rocks!
+Date: Tue, 31 Oct 2000 21:42:13 -0600
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200011010133.eA11Xtr11638@sleipnir.valparaiso.cl>
+In-Reply-To: <200011010133.eA11Xtr11638@sleipnir.valparaiso.cl>
+MIME-Version: 1.0
+Message-Id: <00103121504302.20791@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The user-mode port of 2.4.0-test10 is available.
+On Tue, 31 Oct 2000, Horst von Brand wrote:
+>Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil> said:
+>
+>[...]
+>
+>> Also pay attention to the security aspects of a true "zero copy" TCP stack.
+>> It means that SOMETIMES a user buffer will recieve data that is destined
+>> for a different process.
+>
+>Why? AFAIKS, given proper handling of the issues involved, this can't
+>happen (sure can get tricky, but can be done in principle. Or am I
+>off-base?)
 
-The stack overflows seen in test9 are fixed.  The stack is now allocated as 
-four pages, the top two used as a kernel stack, the third is inaccessible and 
-acts as a guard page, and the lowest page contains the task structure.
+As I understand the current implementation, this can't. One of the optimizations
+I had read about (for a linux test) used zero copy to/from user buffer as well
+as zero copy in the kernel. I believe the DMA went directly to the users memory.
 
-Host devices can again be mounted inside the virtual machine.  This was broken 
-a few releases ago when I made the block driver check io requests against the 
-device size.
+This causes a problem when/if there is a context switch before the data is
+actually transferred to the proper location. The buffer isn't ready for use,
+but could be examined by the user application (hence the security problem).
 
-It will no longer crash if the main console is not a terminal.
+It was posed that this is not a problem IF the cluster (and it was a beowulf
+cluster under discussion) is operated in a single user, dedicated mode.
+In which case, to examine the buffer would either be a bug in the program,
+or a debugger looking at a buffer directly.
 
-I fixed a race which was causing strange kernel memory faults.
+To my knowlege, zero copy is only done to/from device and kernel. Userspace
+has to go through a buffer copy (one into user space; one output from user
+space) for all IP handling. All checksums are either done by the device,
+or done without copying the data.
 
-In the sources (the patch and cvs), but not the binaries, there is the 
-beginning of a hostfs filesystem.  This gives you access to the host root 
-filesystem.  Doing 'mount none /wherever -t hostfs' will mount the host root 
-filesystem on /wherever.  Right now, you can mount it and cd into it, but ls 
-will crash the kernel.
+-- 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@cats-chateau.net
 
-The project's home page is http://user-mode-linux.sourceforge.net
-
-The project's download page is http://sourceforge.net/project/filelist.php?grou
-p_id=429
-
-				Jeff
-
-
+Any opinions expressed are solely my own.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

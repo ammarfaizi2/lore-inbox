@@ -1,39 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270822AbTHKBYM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 21:24:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270828AbTHKBYM
+	id S270850AbTHKBew (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 21:34:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270854AbTHKBew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 21:24:12 -0400
-Received: from tandu.perlsupport.com ([66.220.6.226]:29825 "EHLO
-	tandu.perlsupport.com") by vger.kernel.org with ESMTP
-	id S270822AbTHKBYM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 21:24:12 -0400
-Date: Sun, 10 Aug 2003 21:23:37 -0400
-From: Chip Salzenberg <chip@pobox.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       davem@redhat.com, jamie@shareable.org
-Subject: Re: [PATCH] 2.4.22pre10: {,un}likely_p() macros for pointers
-Message-ID: <20030811012337.GI24349@perlsupport.com>
-References: <1060488233.780.65.camel@cube> <20030810072945.GA14038@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030810072945.GA14038@alpha.home.local>
-User-Agent: Mutt/1.5.4i
+	Sun, 10 Aug 2003 21:34:52 -0400
+Received: from [66.45.37.187] ([66.45.37.187]:37295 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S270850AbTHKBet (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 21:34:49 -0400
+Date: Sun, 10 Aug 2003 21:09:06 -0400 (EDT)
+From: war <war@lucidpixels.com>
+X-X-Sender: war@p500
+To: linux-kernel@vger.kernel.org
+cc: kernelnewbies@nl.linux.org
+Subject: Kernel 2.4.21 Crashing
+Message-ID: <Pine.LNX.4.56.0308102103190.21263@p500>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to Willy Tarreau:
->   likely => __builtin_expect(!(x), 0)
-> unlikely => __builtin_expect((x), 0)
+I am out of ideas as to what could cause this crashing...
+Can anyone offer any suggestions as to what I should do next?
 
-Well, I'm not sure about the polarity, but that unlikely() macro isn't
-good -- it the same old problem that first prompted my message, namely
-that it's nonportable when (x) has a pointer type.
--- 
-Chip Salzenberg               - a.k.a. -               <chip@pobox.com>
-"I wanted to play hopscotch with the impenetrable mystery of existence,
-    but he stepped in a wormhole and had to go in early."  // MST3K
+war@war:~$ lsmod
+Module                  Size  Used by    Not tainted
+w83781d                20656   0
+i2c-isa                 1160   0 (unused)
+i2c-algo-pcf            5316   0 (unused)
+i2c-algo-bit            7560   0 (unused)
+i2c-dev                 4516   0 (unused)
+i2c-proc                7216   0 [w83781d]
+i2c-core               13028   0 [w83781d i2c-isa i2c-algo-pcf
+i2c-algo-bit i2c-dev i2c-proc]
+emu10k1                66284   0
+ac97_codec             10356   0 [emu10k1]
+sound                  58440   0 (unused)
+war@war:~$
+
+Other than that, I am not using any binary-only modules or applications.
+
+My X crashes randomly, my machine panicks, etc...
+
+I've compiled 2.4.20, 2.4.21, with gcc-3.2.3, gcc-3.3, both have the same
+or similiar problems.
+
+I am out of ideas, I've tried all sorts of kernels, etc, re-installing
+Slack 9.0, etc, I run the same setup on 2 other machines, and they work
+fine, I've checked all the hardware (memory), (disk (on another machine)),
+etc, it shows as OK.
+
+Should I try a windows variant (win2k,xp) and see if I get any crashes,
+beucase at this point I am not sure what else to do?
+
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:
+c0131906
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c0131906>]    Not tainted
+EFLAGS: 00010246
+eax: c0306a18   ebx: 00000000   ecx: c250fffc   edx: 00000000
+esi: c250ffe0   edi: 0001328a   ebp: c0306c40   esp: c2821f40
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 5, stackpage=c2821000)
+Stack: c2095dd0 000001d0 000001ff 000001d0 00000016 0000001f 000001d0 00000020
+       00000006 c0131ca3 00000006 c0306b90 c0306c40 000001d0 00000006 c0306c40
+       00000000 c0131d1e 00000020 c0306c40 00000002 c2820000 c0131e3c c0306c40
+Call Trace:    [<c0131ca3>] [<c0131d1e>] [<c0131e3c>] [<c0131eb8>] [<c0131fe8>]
+  [<c0131f50>] [<c0105000>] [<c01057ae>] [<c0131f50>]
+
+Code: 89 02 c7 01 00 00 00 00 89 50 04 a1 18 6a 30 c0 89 48 04 89
+ <1>Unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:
+c0131906
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c0131906>]    Not tainted
+EFLAGS: 00010246
+eax: c0306a18   ebx: 00000000   ecx: c250fffc   edx: 00000000
+esi: c250ffe0   edi: 00013361   ebp: c0306c40   esp: e11c1e04
+ds: 0018   es: 0018   ss: 0018
+Process cp (pid: 8221, stackpage=e11c1000)
+Stack: e11c1e38 c281916c 00000200 000001d2 00000020 00000020 000001d2 00000020
+       00000006 c0131ca3 00000006 004be6f5 c0306c40 000001d2 00000006 c0306c40
+       00000000 c0131d1e 00000020 e11c0000 0000021f c0306c40 c0132ba4 00000000
+Call Trace:    [<c0131ca3>] [<c0131d1e>] [<c0132ba4>] [<c0132e32>] [<c012ae99>]
+  [<c012b4ff>] [<c012b77d>] [<c012bcf0>] [<c012be82>] [<c012bcf0>] [<c01834a8>]
+  [<c01399a3>] [<c01073df>]
+
+Code: 89 02 c7 01 00 00 00 00 89 50 04 a1 18 6a 30 c0 89 48 04 89
+
+

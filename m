@@ -1,56 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262791AbTJOLmF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 07:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbTJOLmF
+	id S262794AbTJOLpU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 07:45:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262796AbTJOLpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 07:42:05 -0400
-Received: from smtp3.pp.htv.fi ([213.243.153.173]:26253 "EHLO smtp3.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S262791AbTJOLmC (ORCPT
+	Wed, 15 Oct 2003 07:45:20 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:36817 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S262794AbTJOLpP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 07:42:02 -0400
-Message-ID: <1066218121.3f8d32897f51b@webmail.welho.com>
-Date: Wed, 15 Oct 2003 14:42:01 +0300
-From: tapiov@welho.com
+	Wed, 15 Oct 2003 07:45:15 -0400
+Date: Wed, 15 Oct 2003 13:45:14 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
 To: linux-kernel@vger.kernel.org
-Cc: tapiov@welho.com
-Subject: 2.6.0-test7 : S3 Virge (DX) driver, framebuffer 
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
-X-Originating-IP: 207.83.32.85
+Subject: Re: Unbloating the kernel, was: :mem=16MB laptop testing
+Message-ID: <20031015114514.GC20846@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20031014143047.GA6332@ncsu.edu> <Pine.LNX.4.44.0310141813320.1776-100000@gaia.cela.pl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="q3hTxzd42jkGoc1w"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310141813320.1776-100000@gaia.cela.pl>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello,
+--q3hTxzd42jkGoc1w
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I have an older PC, dating back to 1997, which has a graphic chip integrated on
-the mother board. The chip is (based on) S3 Virge DX2. I have been using a
-2.4.22 kernel from Slackware 9.1 distribution, which has been able to use the
-framebuffer  modes (especially mode vga=773) successfully. 
-So I tried compiling the 2.6.0-test7 kernel and followed the advice given in the
-Framebuffer-HOWTO from TLDP (http://www.tldp.org/HOWTO/Framebuffer-HOWTO-5.html)
-as good as I was able to. I could not find all the items from the xconfig menus
-mentioned in that article  (namely the "advanced low level drivers) so I assumed
-that the article was probably a bit outdated. I successfully turned on all
-framebuffer related switches, fonts and mode selection support. Then compiled
-and installed the new kernel. 
+On Tue, 2003-10-14 18:27:05 +0200, Maciej Zenczykowski <maze@cela.pl>
+wrote in message <Pine.LNX.4.44.0310141813320.1776-100000@gaia.cela.pl>:
 
-Now I found out that I wasn't able to use vga=773 anymore; only some
-lower-resolution modes were available at the lilo prompt. From the mentioned
-article I also read about a patch used earlier for S3 drivers, due to S3 chips
-non-compatibility with VESA 2.0 (them being 1.2 only?).
+> errnum->string. I'd expect that between 10-15% of the uncompressed kernel=
+=20
+> is currently pure text.
 
-Does such a patch exist still for 2.6.0? Or how could I get back to using better
-resolution?
+Right. For a real lowmem system (4MB RAM) I defined printk to a no-op
+and gained 90K at the compressed image IIRC. This was 2.2.x, though.
 
-My apologizes, if this mail is completely off-topic. Please, let me know (email
-me directly) if you have a better source of information than this forum.
+MfG, JBG
 
-Thanks,
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
 
-Tapio Valli
+--q3hTxzd42jkGoc1w
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
+iD8DBQE/jTNKHb1edYOZ4bsRAkJ1AJsGJqO1ROA8VYMMUbvhf8GGfBkEhgCeKgLl
+hkDiA8IHqWZm61CxU3qTnHo=
+=al3p
+-----END PGP SIGNATURE-----
+
+--q3hTxzd42jkGoc1w--

@@ -1,76 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290024AbSAKR2X>; Fri, 11 Jan 2002 12:28:23 -0500
+	id <S290029AbSAKRcD>; Fri, 11 Jan 2002 12:32:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290028AbSAKR2N>; Fri, 11 Jan 2002 12:28:13 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:60687 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S290024AbSAKR2E>; Fri, 11 Jan 2002 12:28:04 -0500
-Date: Fri, 11 Jan 2002 15:27:53 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Dimitrie Paun <dimi@intelliware.ca>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Severe VM problem on stock RH7.2 while running Java
-In-Reply-To: <F7EB06D3ED62D311A15600104B6D909F44205C@IWD_MAIL>
-Message-ID: <Pine.LNX.4.33L.0201111523430.12225-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S290034AbSAKRb4>; Fri, 11 Jan 2002 12:31:56 -0500
+Received: from paloma13.e0k.nbg-hannover.de ([62.181.130.13]:7657 "HELO
+	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S290029AbSAKRbt>; Fri, 11 Jan 2002 12:31:49 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Ingo Molnar <mingo@elte.hu>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] O(1) scheduler, -H6
+Date: Fri, 11 Jan 2002 18:30:27 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: dan kelley <dkelley@otec.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020111173149Z290029-13996+4387@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Jan 2002, Dimitrie Paun wrote:
+Ingo,
 
-> It looks like the system spends 100% of it's time
-> in the kernel, doing some VM-related thing.
+you are the man!
+My 1 GHz Athlon II, 640 MB, is up and running with 2.4.17-O(1)-H6.
+Writing this under KDE-2.2.2 (KMail) during
+time nice +19 make -j40 modules
+Max load was: 41,97
 
-> In this particular case the OOM killer managed to
-> finally kill the offending java process, and the
-> system recovered:
+Great!
 
-OK, so kernel 2.4.7-13 has a VM bug when running OOM. There are
-two possible approaches to getting rid of this bug:
+dbench 32 during artsd (noatun, KDE-2.2.2) playing Ogg-Vorbis
+"show" hiccup when
 
-1) upgrade to a kernel which runs ok when pushed near OOM,
-   like 2.4.17 with my -rmap patch ... but if you do run
-   OOM with the newer kernel (a bit harder with 2.4.8 and
-   newer) your JVM will still be killed
+artsd (two sub processes) are in
+wait_on_p
+rt_sigsus
 
-2) add more swap or ram to the machine, so you have space
-   for the program you're trying to run
+and/or
 
-> Jan  9 21:29:59 vangogh kernel: Out of Memory: Killed process 6307 (java).
+dbench procs are in
+get_reque
+wait_on_b
+do_journ (ReiserFS?)
 
->    procs                      memory    swap          io     system
-> cpu
->  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy
-> id
->  0  2  1 484720   2048    612   8132 2348 6076  2356  6144  316  1174  16
-> 4  80
->  7  0  1 530088   2824    524   6420 568 13354   598 13366  510  1007   6
-> 9  85
->  1  1  1 530100   1804    548   6352 426 7682   686  7754  268  1622  24  27
-> 50
->  0  2  1 523096   2356    564   6952 662 8984  1030  8984  297   586   2  15
-> 82
->  1  2  3 514984   2616    580   6844 246 8388   246  8402  414   417   3  11
-> 86
+Even when I renice both artsd procs I get hiccup.
+  PID USER     PRI  NI PAGEIN  SIZE  RSS SHARE WCHAN     STAT %CPU %MEM   
+TIME COMMAND
+ 4953 nuetzel    1 -19      0  7148 7148  4324 rt_sigsus S <   3.6  1.1   
+0:04 artsd
+ 1048 nuetzel    1 -19   1280  7148 7148  4324 schedule_ S <   2.7  1.1   
+0:24 artsd
 
-As you can see, you're really running OOM here, with very
-little memory available for cache or buffers. You probably
-want to add more swap space and/or ram in order to get
-performance.
+But when I put the Ogg-Vorbis file into /dev/shm I get _NO_ hiccup anymore!!!
+So it is only disk IO limited with your O(1)-H6.
 
-regards,
+Wow, that is fantastic!!!
+Never had that before.
+Writing during both...;-)
 
-Rik
+Redid it without renice (-19):
+some very few short hiccup.
+
+-Dieter
+
 -- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+Dieter Nützel
+Graduate Student, Computer Science
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
-
-
-
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel@hamburg.de

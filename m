@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317365AbSILWtH>; Thu, 12 Sep 2002 18:49:07 -0400
+	id <S319045AbSILWqN>; Thu, 12 Sep 2002 18:46:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318460AbSILWtH>; Thu, 12 Sep 2002 18:49:07 -0400
-Received: from mta03ps.bigpond.com ([144.135.25.135]:53459 "EHLO
-	mta03ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S317365AbSILWtG>; Thu, 12 Sep 2002 18:49:06 -0400
-Message-ID: <3D811B12.A6615688@bigpond.com>
-Date: Fri, 13 Sep 2002 08:54:10 +1000
-From: Allan Duncan <allan.d@bigpond.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
+	id <S319153AbSILWqN>; Thu, 12 Sep 2002 18:46:13 -0400
+Received: from dsl-213-023-039-132.arcor-ip.net ([213.23.39.132]:7306 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S319045AbSILWqM>;
+	Thu, 12 Sep 2002 18:46:12 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@digeo.com>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+Date: Fri, 13 Sep 2002 00:43:20 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Urban Widmark <urban@teststation.com>, Chuck Lever <cel@citi.umich.edu>,
+       <trond.myklebust@fys.uio.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L.0209121926310.1857-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.44L.0209121926310.1857-100000@imladris.surriel.com>
 MIME-Version: 1.0
-To: Simon Fowler <simon@himi.org>
-CC: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
-Subject: Re: Linux 2.4.20-pre4 & ff. blows away Xwindows with Matrox G400 and 
- agpgart
-References: <3D7FF444.87980B8E@bigpond.com.suse.lists.linux.kernel> <p73ptvjpmec.fsf@oldwotan.suse.de> <20020912213201.GA9168@himi.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17pcgD-0007m3-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simon Fowler wrote:
+On Friday 13 September 2002 00:30, Rik van Riel wrote:
+> On Thu, 12 Sep 2002, Andrew Morton wrote:
 > 
-> On Thu, Sep 12, 2002 at 11:50:19AM +0200, Andi Kleen wrote:
-> > Allan Duncan <allan.d@bigpond.com> writes:
-> > >
-> > > Any suggestions of how to improve the error messages around the failure point
-> > > are welcome.  Nothing is written into dmesg at the time of failure.
-> >
-> > You're booting with mem=nopentium right ? It should go away when you turn
-> > that off. I'm working on a fix. You can safely turn it off for now, the
-> > old problems that it worked around are fixed.
-> >
-> The problem goes away without mem=nopentium - I've just booted into
-> 2.4.20-pre5aa2 and fired up X.
+> > Well the lazy invalidation would be OK - defer that to the next
+> > userspace access,
+> 
+> I think I have an idea on how to do that, here's some pseudocode:
+> 
+> invalidate_page(struct page * page) {
+> 	SetPageInvalidated(page);
+> 	rmap_lock(page);
+> 	for_each_pte(pte, page) {
+> 		make pte PROT_NONE;
+> 		flush TLBs for this virtual address;
+> 	}
+> 	rmap_unlock(page);
+> }
+> 
+> And in the page fault path:
+> 
+> if (pte_protection(pte) == PROT_NONE && PageInvalidated(pte_page_pte)) {
+> 	clear_pte(ptep);
+> 	page_cache_release(page);
+> 	mm->rss--;
+> }
+> 
+> What do you think, is this simple enough that it would work ? ;)
 
-Not in my case, at least for 2.4.20-pre4.
+This is very promising.  Actually, we'd only need to do that for
+pages that are currently skipped in invalidate_inode_pages.  Have
+to think about possible interactions now...
 
-At which kernels does the nopentium become obsolete?  Alan Cox mentioned some
-confusion about this.  Obviously the latest ones, but does this extend as far
-back as 2.4.19?
-
-In order to close in on what changes are triggering this, I found the patch for
-sched.c for -pre3 and ran that, and find that -pre3  is fine with or without
-nopentium, so that narrows it to what was altered pre3 to pre4.
-
-There was nothing obvious in Marcelo's log of changes, so I will trawl through
-the diffs themselves tonight.
-
-At the same time, I noticed that there seems to a fair bit of touchy
-behaviour of AGP out there, so maybe what is proving fatal to me is the same as
-the cause of flaky for others.
+-- 
+Daniel

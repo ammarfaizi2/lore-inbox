@@ -1,83 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272609AbRHaFuK>; Fri, 31 Aug 2001 01:50:10 -0400
+	id <S272611AbRHaFyK>; Fri, 31 Aug 2001 01:54:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272611AbRHaFuA>; Fri, 31 Aug 2001 01:50:00 -0400
-Received: from web10404.mail.yahoo.com ([216.136.130.96]:25862 "HELO
-	web10404.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S272609AbRHaFtu>; Fri, 31 Aug 2001 01:49:50 -0400
-Message-ID: <20010831055008.21675.qmail@web10404.mail.yahoo.com>
-Date: Fri, 31 Aug 2001 15:50:08 +1000 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: Re: 2.4.9 UDP broke?
-To: kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <8477538250.20010830232007@netcis.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S272612AbRHaFx7>; Fri, 31 Aug 2001 01:53:59 -0400
+Received: from rj.sgi.com ([204.94.215.100]:25744 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S272611AbRHaFxu>;
+	Fri, 31 Aug 2001 01:53:50 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: kbuild-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Announce: Kernel Build for 2.5, Release 1.2 is available.
+Date: Fri, 31 Aug 2001 15:53:45 +1000
+Message-ID: <11953.999237225@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- Jeremiah Johnson <miah@netcis.com> wrote: >
 -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: MD5
-> 
-> Hello linux-kernel,
-> 
->   I am having very strange problems with 2.4.9 and
-> UDP.  Basically,
->   anything using UDP wont work.  Anything using
-> TCP/ICMP works fine.
+Hash: SHA1
 
-May be it is not the kernel, I dont know but in my box
-it works as normal
+Content-Type: text/plain; charset=us-ascii
 
-(I can use speakfreely ; it uses UDP and otehr program
-too)
+Release 1.2 of kernel build for kernel 2.5 (kbuild 2.5) is available.
+http://sourceforge.net/projects/kbuild/, Package kbuild-2.5, download
+release 1.2.
 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=99725412902968&w=2
+contains information about the base release.
 
-> in the kernel so
->   that shouldn't be the issue, and I have looked at
-> pretty much
->   everything I can think of to resolve this issue. 
-> Can anybody either
->   point me in the right direction or if needed
-> request specific info
->   to fix the problem?
-> 
-> - --
-> Best regards,
->  Jeremiah                         
-> mailto:miah@netcis.com
-> 
-> -----BEGIN PGP SIGNATURE-----
-> Version: 2.6
-> 
->
-iQEVAwUAO48sm5HTj7BlqKb5AQGOpQgApna8Qr9qqHsQFRb2hCYYvgOere09U1Sf
->
-iWDVFXJSpR452/sZnURsaoR8FNiVfTK4OkeCtp12ufr5AKfF+1PX3uflHj9vmesT
->
-Hz5MVE4N7kN7NeJ3pfFsMLDpcVV52w+2R9vqsX4Dk3t4DubwPO2vXv3ND2rNjXCX
->
-CCFOcZK2kFxgitpICQpT5/KnvBoRMj84HGH2Co3i0IYRBOTQ/U506Hy6gbjhgTER
->
-9BbqtTuSkEwo90Ryp3WLIGGyjPn0qgRoaBxYlAm+2wVR3thGTQGQy0tU373sJxUC
->
-woh2ELHAK312vGCXbncXQ57pkU168QcEH5uzLL00/1QWILwtPa4MSA==
-> =roGe
-> -----END PGP SIGNATURE-----
-> 
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/ 
+Changes from Release 1.1
 
-=====
-S.KIEU
+  Add several commands:
 
-http://travel.yahoo.com.au - Yahoo! Travel
-- Got Itchy feet? Get inspired!
+    base_target() - allow for multiple targets, not just vmlinux.  This
+    allows the kbuild commands to be used for the boot loader as well
+    as the kernel.
+
+    hostcc(), hostld(), hostccld() - Better method of compiling
+    programs to run on the host, including full dependency tracking.
+
+    setup() - Last ditch option when nothing else will work, generate
+    setup files right at the start.
+
+  Sync with kernel 2.4.9.
+
+  More documentation.  As always, Documentation/kbuild/kbuild-2.5.txt
+  is your friend.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.3 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE7jyZoi4UHNye0ZOoRAjAZAKC5pm6bOTroeHdCb2lZDrLfQxslQwCfV5pV
+nSRuma9A/1DCs5UIS1T8liY=
+=zXNM
+-----END PGP SIGNATURE-----
+

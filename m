@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313773AbSEASEU>; Wed, 1 May 2002 14:04:20 -0400
+	id <S313789AbSEASGF>; Wed, 1 May 2002 14:06:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313790AbSEASEU>; Wed, 1 May 2002 14:04:20 -0400
-Received: from gherkin.frus.com ([192.158.254.49]:6784 "HELO gherkin.frus.com")
-	by vger.kernel.org with SMTP id <S313773AbSEASES>;
-	Wed, 1 May 2002 14:04:18 -0400
-Message-Id: <m172ySZ-0005khC@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob_Tracy)
-Subject: Re: SEVERE Problems in 2.5.12 at uid0 access
-In-Reply-To: <3CD02C60.3030004@wanadoo.fr> "from Pierre Rousselet at May 1, 2002
- 07:56:48 pm"
-To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Date: Wed, 1 May 2002 13:04:11 -0500 (CDT)
-CC: system_lists@nullzone.org, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	id <S313790AbSEASGE>; Wed, 1 May 2002 14:06:04 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:5836 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S313789AbSEASGC>;
+	Wed, 1 May 2002 14:06:02 -0400
+Date: Wed, 1 May 2002 11:05:47 -0700
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+Message-ID: <20020501180547.GA1212440@sgi.com>
+Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020426192711.D18350@flint.arm.linux.org.uk> <E171aOa-0001Q6-00@starship> <20020429153500.B28887@dualathlon.random> <E172K9n-0001Yv-00@starship> <20020501042341.G11414@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Rousselet wrote:
-> Bob_Tracy wrote:
-> > Confirmed on a 2.5.11 system as well.  Talk about your basic heart
-> > attack!  I'd just installed Postfix and found that I couldn't access
-> > any of the directories under /var/spool/postfix.  Fortunately (?),
-> > I've got older kernels to fall back on, and that's one of the hazards
-> > of running on the bleeding edge I reckon.
-> > 
-> > Oh yeah...  ext2 filesystem.  I think this bug is at least mostly
-> > independent of the filesystem type.
-> 
-> The same here with 2.5.12 and ext2, have you run fsck on this  fs ?
+On Wed, May 01, 2002 at 04:23:41AM +0200, Andrea Arcangeli wrote:
+> What's the advantage? And after you can have more than one mem_map,
+> after you added this "vector", then each mem_map will match a
+> discontigmem pgdat. Tell me a numa machine where there's an hole in the
+> middle of a node. The holes are always intra-node, never within the
+> nodes themself. So the nonlinear-numa should fallback to the stright
 
-Yes, it's clean.  Changing the owner of the inaccessible directory to
-root allows you to "cd" into it and everything seems normal.
-Alternatively, you can simply boot up on an older kernel and that takes
-care of the problem too.
+Just FYI, there _are_ many NUMA machines with memory holes in the
+middle of a node.  Check out the discontig patch at
+http://sf.net/projects/discontig for more info.
 
--- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+Jesse

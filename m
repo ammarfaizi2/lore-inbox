@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288936AbSANTHM>; Mon, 14 Jan 2002 14:07:12 -0500
+	id <S288922AbSANTFf>; Mon, 14 Jan 2002 14:05:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288946AbSANTFj>; Mon, 14 Jan 2002 14:05:39 -0500
-Received: from [208.29.163.248] ([208.29.163.248]:51880 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S288801AbSANTEX>; Mon, 14 Jan 2002 14:04:23 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: esr@thyrsus.com, babydr@baby-dragons.com, cate@debian.org,
-        linux-kernel@vger.kernel.org
-Date: Mon, 14 Jan 2002 10:57:19 -0800 (PST)
-Subject: Re: Hardwired drivers are going away?
-In-Reply-To: <E16QCPK-0002Yt-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.40.0201141055410.22904-100000@dlang.diginsite.com>
+	id <S288936AbSANTEj>; Mon, 14 Jan 2002 14:04:39 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43270 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288946AbSANTC5>; Mon, 14 Jan 2002 14:02:57 -0500
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+To: esr@thyrsus.com
+Date: Mon, 14 Jan 2002 19:14:40 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), eli.carter@inet.com (Eli Carter),
+        Michael.Lazarou@etl.ericsson.se ("Michael Lazarou (ETL)"),
+        linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <20020114134426.C17522@thyrsus.com> from "Eric S. Raymond" at Jan 14, 2002 01:44:26 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16QCZ7-0002b4-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jan 2002, Alan Cox wrote:
+> > it did last week". Random mechanics hating car owners don't do engine tuning
+> > jobs or fit turbochargers.
+> 
+> No...but they do change their own oil and antifreeze.  Upgrading your
+> kernel should be as simple as changing your oil.
 
-> > 1. security, if you don't need any modules you can disable modules entirly
-> > and then it's impossible to add a module without patching the kernel first
-> > (the module load system calls aren't there)
->
-> Urban legend.
->
+Yeah. I go to the garage versus I click "up 2 date". I don't mix custom
+oils.
 
-If this is the case then why do I get systemcall undefined error messages
-when I make a mistake and attempt to load a module on a kernel without
-modules enabled?
+> > Secondly we've established we can pick the right CPU for the kernel reliably
+> > that is seperate to modules. 
+> 
+> Right, but that doesn't get you a recompiled binary with extended instructions
+> in it.
 
-> > 2. speed, there was a discussion a few weeks ago pointing out that there
-> > is some overhead for useing modules (far calls need to be used just in
-> > case becouse the system can't know where the module will be located IIRC)
->
-> I defy you to measure it on x86
+It does. Once you have picked the required processor type you will get the
+right instructions. Except for the Athlon, Winchip and maybe the PIV
+I've seen little evidence it matters. The Debian folk claim its worth < 1%
+and I don't doubt them.
 
-during the discussion a few weeks ago there were people pointing out cases
-where this overhead would be a problem.
-
-> > 3. simplicity in building kernels for other machines. with a monolithic
-> > kernel you have one file to move (and a bootloader to run) with modules
-> > you have to move quite a few more files.
->
-> tar or nfs mount; make modules_install.
->
-not on my firewalls thank you.
-
-David Lang

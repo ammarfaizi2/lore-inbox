@@ -1,58 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263653AbTLELLl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 06:11:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263857AbTLELLl
+	id S263957AbTLELaa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 06:30:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263963AbTLELaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 06:11:41 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:64269 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263653AbTLELLk
+	Fri, 5 Dec 2003 06:30:30 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:31193 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S263957AbTLELa2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 06:11:40 -0500
-Message-ID: <3FD06A77.4050901@aitel.hist.no>
-Date: Fri, 05 Dec 2003 12:22:31 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: no, en
+	Fri, 5 Dec 2003 06:30:28 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Adam J. Richter" <adam@yggdrasil.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Linux GPL and binary module exception clause?
+Date: Fri, 5 Dec 2003 03:25:47 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKOEJJIHAA.davids@webmaster.com>
 MIME-Version: 1.0
-To: rob@landley.net
-CC: Szakacsits Szabolcs <szaka@sienet.hu>, linux-kernel@vger.kernel.org
-Subject: Re: Is there a "make hole" (truncate in middle) syscall?
-References: <200312041432.23907.rob@landley.net> <Pine.LNX.4.58.0312042300550.2330@ua178d119.elisa.omakaista.fi> <200312041802.52067.rob@landley.net>
-In-Reply-To: <200312041802.52067.rob@landley.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <200312051135.hB5BZ2V06015@adam.yggdrasil.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
-> On Thursday 04 December 2003 15:10, Szakacsits Szabolcs wrote:
-> 
->>On Thu, 4 Dec 2003, Rob Landley wrote:
->>
->>>What are the downsides of holes?  [...] is there a performance penalty to
->>>having a file with 1000 4k holes in it, etc...)
->>
->>Depends what you do, what fs you use. Using XFS XFS_IOC_GETBMAPX you might
->>get a huge improvement, see e.g. some numbers,
->>
->>	http://marc.theaimsgroup.com/?l=reiserfs&m=105827549109079&w=2
->>
->>The problem is, 0 general purpose (like cp, tar, cat, etc) util supports
->>it, you have to code your app accordingly.
-> 
-> 
-> Okay, I'll bite.  How would one go about adding hole support to cat? :)
 
-Easy.  Look at the data you're writing. Don't ever write zeroes, seek
-ahead in the file being written instead.  The filesystem will create a hole
-if possible.  You may want to optimize this a bit by not seeking past
-very small runs of zeroes.
+> 	The direct infringement occurs occurs when a user creates an
+> infringing work in RAM, which I think is restrictable for works that
+> are licensed rather than sold due to the US 9th circuit federal
+> appeals court decision MAI Systems Corp. v. Peak Computer [1]:
 
-Of course cat is sometimes used to write to things that aren't regular
-files, so make sure seek is supported and fall back to ordinary writing
-when it isn't.
+	The GPL says:
 
-Helge Hafting
+Activities other than copying, distribution and modification are not
+covered by this License; they are outside its scope.  The act of
+running the Program is not restricted, and the output from the Program
+is covered only if its contents constitute a work based on the
+Program (independent of having been made by running the Program).
+Whether that is true depends on what the Program does.
+
+	So how is running the program infringement of a license that clearly says
+executing is unrestricted? How do you execute without copying into RAM?
+(Again, a license to do X is automatically a license to do anything
+necessary to do X.)
+
+> 	The second, more practically restrictable, potential form of
+> infringement is contributory infringement by those who distribute
+> proprietary kernel modules, such as authors, FTP site maintainers,
+> vendors, and their employees.  Even if proprietary Linux kernel module
+> is shipped as an object which has other uses besides being linked into
+> Linux, it invariably requires "glue" code to work in Linux.  _Even
+> when the "glue" code is open source_, if it's only substantial use is
+> to form part of an infringing work in RAM, then it is a contributory
+> infringement device.  Here is a diagram to help illustrate:
+
+	Except that the act of running the program is unrestricted. So the
+"infringing work in RAM" does not and cannot exist.
+
+> 	The glue code may be part of the proprietary module or may be
+> distributed as a separate middle layer module.  This code usually has
+> no "substantial non-infringing use", thereby failing the test
+> established for contributory copyright infringement from the 1984 US
+> Supreme court decision, Sony Corporation of America v. Universal City
+> Studios, Inc. [6], which basically set the common law test for
+> contributory copyright infringement to be the same as the statutory
+> standard for contributory patent infringement [7].
+
+	This argument is pure bootstrapping. If the glue code is a license boundary
+(which is most likely its purpose) that is has no infringing use!
+
+	DS
+
 

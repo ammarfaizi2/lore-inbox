@@ -1,53 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbRALJtW>; Fri, 12 Jan 2001 04:49:22 -0500
+	id <S129511AbRALJyD>; Fri, 12 Jan 2001 04:54:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130282AbRALJtN>; Fri, 12 Jan 2001 04:49:13 -0500
-Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:34567 "EHLO
-	tellus.mine.nu") by vger.kernel.org with ESMTP id <S129511AbRALJsw>;
-	Fri, 12 Jan 2001 04:48:52 -0500
-Date: Fri, 12 Jan 2001 09:47:50 +0100 (CET)
-From: Tobias Ringstrom <tori@tellus.mine.nu>
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: Tobias Ringstrom <tori@tellus.mine.nu>, <andre@linux-ide.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: IDE DMA problem in 2.4.0
-In-Reply-To: <Pine.NEB.4.31.0101112024250.9238-100000@neptun.fachschaften.tu-muenchen.de>
-Message-ID: <Pine.LNX.4.30.0101120942170.7175-100000@svea.tellus>
+	id <S130539AbRALJxy>; Fri, 12 Jan 2001 04:53:54 -0500
+Received: from mr14.vic-remote.bigpond.net.au ([24.192.1.29]:53215 "EHLO
+	mr14.vic-remote.bigpond.net.au") by vger.kernel.org with ESMTP
+	id <S129511AbRALJxp>; Fri, 12 Jan 2001 04:53:45 -0500
+Message-ID: <000b01c07c7d$fba05980$0201a8c0@vaio>
+From: "Robert Lowery" <cangela@bigpond.net.au>
+To: "Jeff Garzik" <jgarzik@mandrakesoft.com>,
+        "Nathan Thompson" <nate@thebog.net>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <001801c07bc4$e95ee250$0201a8c0@vaio> <20010111095853.A4442@eliot.thebog.net> <3A5DCB9D.2DAF83AF@mandrakesoft.com>
+Subject: Re: ACPI lockup on boot in 2.4.0
+Date: Fri, 12 Jan 2001 20:56:48 +1100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Jan 2001, Adrian Bunk wrote:
-> On Thu, 11 Jan 2001, Tobias Ringstrom wrote:
->
-> > When copying huge files from one disk to another (hda->hdc), I get the
-> > following error (after some hundred megabytes):
+Thank-you for the pointers.
+
+Looking at the ACPI mailing list, it appears that the ACPI code gets stuck
+in an infinite loop with many of the VAIO notebooks.  So it:s back to APM
+for now
+
+-Robert
+----- Original Message -----
+From: "Jeff Garzik" <jgarzik@mandrakesoft.com>
+To: "Nathan Thompson" <nate@thebog.net>
+Cc: "Robert Lowery" <cangela@bigpond.net.au>; <linux-kernel@vger.kernel.org>
+Sent: Friday, January 12, 2001 2:05 AM
+Subject: Re: ACPI lockup on boot in 2.4.0
+
+
+> Nathan Thompson wrote:
 > >
-> > hdc: timeout waiting for DMA
-> > ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-> > hdc: irq timeout: status=0xd1 { Busy }
-> > hdc: DMA disabled
-> > ide1: reset: success
-> >...
-> > VP_IDE: VIA vt82c596b IDE UDMA66 controller on pci0:7.1
-> >...
-> > Did I miss anything?
+> > On Thu, Jan 11, 2001 at 10:51:59PM +1100, Robert Lowery wrote:
+> >
+> > > I compiled it with ACPI compiled as a module and APM not compiled in
+at all, but on booting I get the following.
+> > > ACPI: System description tables found
+> > > ACPI: System description tables loaded
+> > >
+> > > and then the system locks up..
+> >
+> > I have a Sony Vaio PCG-F350 that behaves the same way.  I compiled in
+> > ACPI (not a module) and never got further than this.  When I enabled APM
+> > and disabled ACPI everything started to work.
 >
-> Could you try if the (experimental) version 3.11 of the VIA IDE driver
-> (announced by Vojtech Pavlik in [1]) fixes your problem? Simply copy the
-> two files you find there to drivers/ide after you unpacked the kernel
-> source.
-
-Works like a charm!  I copied the full 4 GB without glitches, and it has
-not eaten my filesystem yet, either.  I will continue to stress it, and
-report any errors I find.
-
-Vojtech, can we expect to see this driver in 2.4 anytime soon?
-
-/Tobias
+> To get a more verbose failure scenario, grab the ACPI debug version from
+> http://developer.intel.com/technology/IAPC/acpi/downloads.htm
+>
+> Jeff
+>
+>
+> --
+> Jeff Garzik       | "You see, in this world there's two kinds of
+> Building 1024     |  people, my friend: Those with loaded guns
+> MandrakeSoft      |  and those who dig. You dig."  --Blondie
+>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

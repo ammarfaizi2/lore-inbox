@@ -1,72 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136818AbREIScp>; Wed, 9 May 2001 14:32:45 -0400
+	id <S136815AbREIScF>; Wed, 9 May 2001 14:32:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136819AbREIScg>; Wed, 9 May 2001 14:32:36 -0400
-Received: from twin.uoregon.edu ([128.223.214.27]:52131 "EHLO twin.uoregon.edu")
-	by vger.kernel.org with ESMTP id <S136818AbREISc2>;
-	Wed, 9 May 2001 14:32:28 -0400
-Date: Wed, 9 May 2001 11:32:18 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: =?iso-8859-1?q?Mart=EDn=20Marqu=E9s?= <martin@bugs.unl.edu.ar>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: reiserfs, xfs, ext2, ext3
-In-Reply-To: <01050910381407.26653@bugs>
-Message-ID: <Pine.LNX.4.33.0105091115390.10249-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S136819AbREISb4>; Wed, 9 May 2001 14:31:56 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:59287 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S136815AbREISbk>; Wed, 9 May 2001 14:31:40 -0400
+Date: Wed, 9 May 2001 14:30:20 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: David Brownell <david-b@pacbell.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Pete Zaitcev <zaitcev@redhat.com>, johannes@erdfelt.com,
+        rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: pci_pool_free from IRQ
+Message-ID: <20010509143020.A22522@devserv.devel.redhat.com>
+In-Reply-To: <200105082108.f48L8X1154536@saturn.cs.uml.edu> <E14xFD5-0000hh-00@the-village.bc.nu> <15096.27479.707679.544048@pizda.ninka.net> <050701c0d80f$8f876ca0$6800000a@brownell.org> <15096.38109.228916.621891@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15096.38109.228916.621891@pizda.ninka.net>; from davem@redhat.com on Tue, May 08, 2001 at 05:52:45PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a proxy server that's been running 2.4.3pre4 with reiserfs for the
-partitions on the cache disks. it has an uptime of 43 days at this point.
-it wasn't very stable at all (two crashes in one week) with 2.4.2. I'll be
-building 2.4.4 something when I get back from ghana to the US, but I don't
-want to reboot it onto a fresh kernel while I'm 11,000 miles away, serial
-console notwithstanding.
+> From: "David S. Miller" <davem@redhat.com>
+> Date: Tue, 8 May 2001 17:52:45 -0700 (PDT)
 
-Overall I'm of the belief that reiserfs is robust enough for mainstream
-use, and it's significantly faster than ext2 for the squid box, you do as
-usal need to be a bit selective about what kernel you choose to run.
+> Ummm... What Alan's saying is:
+> 
+> 1) Whatever driver is trying to shut down from IRQ context
+>    is broken must be fixed.  pci_pool is fine.
+> 
+> 2) The Documentation/ files which suggest that such device
+>    removal from IRQs is "OK" must be fixed because it is not
+>    "OK" to handle device removal from IRQ context.
+> 
+> So Pete's change is not needed.  A fix for the documentation and
+> broken drivers is needed instead.
 
-On Wed, 9 May 2001, Martín Marqués wrote:
+David, I do not follow your logic here, sorry.
 
-> Hi,
->
-> We are waiting for a server with dual PIII, RAID 1,0 and 5 18Gb scsi disks to
-> come so we can change our proxy server, that will run on Linux with Squid.
-> One disk will go inside (I think?) and the other 4 on a tower conected to the
-> RAID, which will be have the cache of the squid server.
->
-> One of my partners thinks that we should use reiserfs on all the server (the
-> partitions of the Linux distro, and the cache partitions), and I found out
-> that reiserfs has had lots of bugs, and is marked as experimental in kernel
-> 2.4.4. Not to mention that the people of RH discourage there users from using
-> it.
->
-> There has also been lots of talks about reiserfs being the cause of some data
-> lose and performance lose (not sure about this last one).
->
-> So what I want is to know which is the status of this 3 journaling FS. Which
-> is the one we should look for?
->
-> I think that the data lose is not significant in a proxy cache, if the FS is
-> really fast, as is said reiserfs is.
->
-> Saludos... :-)
->
->
+I wrote that a path exists from a function that is legal in
+interrupt context (pci_pool_free) into a function that is
+not legal in interrupt context (pci_free_consistent).
+The change breaks that connection. Note that pci_pool_free
+is called when driver operates normally.
 
--- 
---------------------------------------------------------------------------
-Joel Jaeggli				       joelja@darkwing.uoregon.edu
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
+When you write "fix documentation and broken drivers", you talk
+about a fix for a part that processes PCI remove. This is entirely
+fine by me. But I was talking about a regular interrupt procession
+in driver. A fix in pci remove does not fix regular processing.
 
-
+-- Pete

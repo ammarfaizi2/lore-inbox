@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132957AbRANSp5>; Sun, 14 Jan 2001 13:45:57 -0500
+	id <S132980AbRANSt6>; Sun, 14 Jan 2001 13:49:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133013AbRANSpr>; Sun, 14 Jan 2001 13:45:47 -0500
-Received: from pat.uio.no ([129.240.130.16]:23004 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S132957AbRANSpi>;
-	Sun, 14 Jan 2001 13:45:38 -0500
-To: "David S. Miller" <davem@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        NFS devel <nfs-devel@linux.kernel.org>
-Subject: Re: Spinlocking patch for in xprt.c
-In-Reply-To: <14942.64595.157544.350302@charged.uio.no> <14944.57417.917410.380225@pizda.ninka.net>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 14 Jan 2001 19:45:20 +0100
-In-Reply-To: "David S. Miller"'s message of "Sat, 13 Jan 2001 15:10:01 -0800 (PST)"
-Message-ID: <shs1yu60y7z.fsf@charged.uio.no>
-X-Mailer: Gnus v5.6.45/XEmacs 21.1 - "Channel Islands"
+	id <S132981AbRANSts>; Sun, 14 Jan 2001 13:49:48 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:44920
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S132980AbRANStn>; Sun, 14 Jan 2001 13:49:43 -0500
+Date: Sun, 14 Jan 2001 19:49:35 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] make drivers/scsi/a3000.c check request_irq (240p3)
+Message-ID: <20010114194935.A602@jaquet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == David S Miller <davem@redhat.com> writes:
+Hi.
 
-     > Trond, did you actually look at how this code works before you
-     > made modifications to my fixes?
+(I cannot seem to find a maintainer for this code.)
 
-     > xprt_lock serializes sleep/wakeup sequences in the xprt code,
-     > so you cannot remove xprt_lock from the sections where I added
-     > holding of xprt_sock_lock to protect the state of
-     > xprt->snd_task.  So for example, this part of your patch is
-     > completely bogus and will create new corruptions and crashes:
+The following patch makes drivers/scsi/a3000.c check the return from
+request_irq. Applies cleanly against 2.4.0 and ac9.
 
-IIRC xprt_lock is there for 2 purposes:
+Comments?
 
-  - serialize access to the TCP connect code
-  - gate access to the *socket* via the xprt_(up|down)_transmit() (and
-    hence setting xprt->snd_task which is a pointer to the task that
-    currently is allowed to access the socket.)
 
-Those 2 tasks are completely orthogonal to one another, so we should
-be quite free to drop xprt_lock in the second case.
+--- linux-ac9/drivers/scsi/a3000.c.org	Sun Jan 14 13:47:32 2001
++++ linux-ac9/drivers/scsi/a3000.c	Sun Jan 14 14:04:52 2001
+@@ -194,8 +194,11 @@
+     DMA(a3000_host)->DAWR = DAWR_A3000;
+     wd33c93_init(a3000_host, (wd33c93_regs *)&(DMA(a3000_host)->SASR),
+ 		 dma_setup, dma_stop, WD33C93_FS_12_15);
+-    request_irq(IRQ_AMIGA_PORTS, a3000_intr, SA_SHIRQ, "A3000 SCSI",
+-		a3000_intr);
++    if (!request_irq(IRQ_AMIGA_PORTS, a3000_intr, SA_SHIRQ, "A3000 SCSI",
++		     a3000_intr)) {
++	release_mem_region(0xDD0000, 256);
++    	return 0;
++    }	    
+     DMA(a3000_host)->CNTR = CNTR_PDMD | CNTR_INTEN;
+     called = 1;
+ 
 
-I can see no other places where we're using xprt_lock to protect a
-sleep/wakeup of xprt->snd_task unless you're introducing it? If so for
-what purpose?
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
 
-Cheers,
-  Trond
+"No man is genuinely happy, married, who has to drink worse whiskey than he
+used to drink when he was single." H.L. Mencken
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

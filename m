@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315420AbSFTT0w>; Thu, 20 Jun 2002 15:26:52 -0400
+	id <S315421AbSFTTbx>; Thu, 20 Jun 2002 15:31:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315421AbSFTT0v>; Thu, 20 Jun 2002 15:26:51 -0400
-Received: from fwvan1.pyr.ec.gc.ca ([199.212.20.2]:14469 "HELO
-	siebs.pyr.ec.gc.ca") by vger.kernel.org with SMTP
-	id <S315420AbSFTT0u>; Thu, 20 Jun 2002 15:26:50 -0400
-Message-ID: <3D122C76.9000906@sieb.net>
-Date: Thu, 20 Jun 2002 12:26:46 -0700
-From: Samuel Sieb <samuel@sieb.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a) Gecko/20020619
-X-Accept-Language: en-us, en
+	id <S315300AbSFTTbw>; Thu, 20 Jun 2002 15:31:52 -0400
+Received: from mail301.mail.bellsouth.net ([205.152.58.161]:59231 "EHLO
+	imf01bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S315421AbSFTTbv>; Thu, 20 Jun 2002 15:31:51 -0400
+Message-ID: <3D122D9B.B51BC0BD@bellsouth.net>
+Date: Thu, 20 Jun 2002 15:31:39 -0400
+From: Albert Cranford <ac9410@bellsouth.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.23 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: ext3 Assert
-References: <3D122589.4060301@sieb.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [patch] 2.5.23 i2c updates 1/4
+Content-Type: multipart/mixed;
+ boundary="------------301A3C8A3B94357729A37EA6"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for the bother.  I've been told by 2 people so far that it's known 
-and fixed in 2.4.18-4smp.
+This is a multi-part message in MIME format.
+--------------301A3C8A3B94357729A37EA6
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Samuel Sieb wrote:
+Hello Linus,
+Please apply patch 1/4 for i2c updates against 2.5.23
+Thanks,
+Albert
 
-> I upgraded a computer yesterday from Redhat 7.2 to 7.3 and got this 
-> assert not long after.
->
-> /proc/version:
-> Linux version 2.4.18-3smp (bhcompile@daffy.perf.redhat.com) (gcc 
-> version 2.96 20000731 (Red Hat Linux 7.3 2.96-110)) #1 SMP Thu Apr 18 
-> 07:27:31 EDT 2002
->
-> This is what was in the syslog:
-> kernel: Assertion failure in journal_commit_transaction() at 
-> commit.c:535: "buffer_jdirty(bh)"
-> kernel: ------------[ cut here ]------------
-> kernel: kernel BUG at commit.c:535!
->
+http://personal.atl.bellsouth.net/mia/a/c/ac9410/albert/albert.html
+-- 
+Albert Cranford Deerfield Beach FL USA
+ac9410@bellsouth.net
+--------------301A3C8A3B94357729A37EA6
+Content-Type: text/plain; charset=us-ascii;
+ name="2.5.23-i2c-1-patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="2.5.23-i2c-1-patch"
+
+# leave CONFIG names as in kernel
+--- linux/drivers/i2c/Config.in.orig	2002-05-05 23:38:06.000000000 -0400
++++ linux/drivers/i2c/Config.in	2002-05-16 01:00:36.000000000 -0400
+@@ -43,7 +43,7 @@
+ # This is needed for automatic patch generation: sensors code ends here
+ 
+    dep_tristate 'I2C device interface' CONFIG_I2C_CHARDEV $CONFIG_I2C
+-   dep_tristate 'I2C /proc interface (required for hardware sensors)' CONFIG_I2C_PROC $CONFIG_I2C
++   dep_tristate 'I2C /proc interface (required for hardware sensors)' CONFIG_I2C_PROC $CONFIG_I2C $CONFIG_SYSCTL
+ 
+ fi
+ endmenu
+
+--------------301A3C8A3B94357729A37EA6--
 

@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278550AbRJSRDm>; Fri, 19 Oct 2001 13:03:42 -0400
+	id <S278551AbRJSRGW>; Fri, 19 Oct 2001 13:06:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278548AbRJSRDe>; Fri, 19 Oct 2001 13:03:34 -0400
-Received: from mail3.panix.com ([166.84.0.167]:15817 "HELO mail3.panix.com")
-	by vger.kernel.org with SMTP id <S278546AbRJSRDW>;
-	Fri, 19 Oct 2001 13:03:22 -0400
-From: "Roy Murphy" <murphy@panix.com>
-Reply-To: murphy@panix.com
-To: linux-kernel@vger.kernel.org
-Date: Fri, 19 Oct 2001 13:03:56 -0500
-Subject: Re: MODULE_LICENSE and EXPORT_SYMBOL_GPL
-X-Mailer: DMailWeb Web to Mail Gateway 2.6k, http://netwinsite.com/top_mail.htm
-Message-id: <3bd05cfc.6bb9.0@panix.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S278554AbRJSRGM>; Fri, 19 Oct 2001 13:06:12 -0400
+Received: from t2.redhat.com ([199.183.24.243]:43003 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S278551AbRJSRGJ>; Fri, 19 Oct 2001 13:06:09 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20011019103041.D30774@taral.net> 
+In-Reply-To: <20011019103041.D30774@taral.net>  <3bceefa6.3cf6.0@panix.com> <3BCEF26E.12D69882@redhat.com> 
+To: Taral <taral@taral.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: MODULE_LICENSE and EXPORT_SYMBOL_GPL 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 19 Oct 2001 18:06:40 +0100
+Message-ID: <16082.1003511200@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-'Twas brillig when Taral scrobe:
->You're quite right. Module insertion is linking. And distributing a 
->kernel with binary-only modules already inserted would be a GPL 
->violation. What modules do is let people do the link at the last stage 
->-- the end user. The GPL does not restrict what end-users do with your 
->code if it doesn't involve redistribution. 
 
-The point was made earlier that a module might include some code expanded from
-a macro in a kernel header file.  Producers of binary 
-modules could adopt a "clean room" approach (as the first cloners of 
-the IBM PC BIOS did) and have one group write a technical specification 
-for any necessary kernel headers and have a second group implement 
-substitute headers from the specification.
+taral@taral.net said:
+>  Fine. I (the hypothetical binary driver maker) will just make two
+> modules -- one which is MODULE_LICENCEd GPL, and the other which is
+> not. The first will re-export your interfaces as unrestricted ones
+> which the second can use.
 
->I also think this is somewhat ridiculous. If I (the binary module 
->maker) distribute a program which effectively replicates the 
->functionality of insmod without the licence checking, and distribute 
->that program with my module, am I violating any restrictions? I don't 
->think so, since it's the end-user that ends up linking the kernel to 
->the module. No linked products are actually distributed... 
+You seem to have missed the point that it is already considered to be 
+unacceptable to add GPL'd code to the kernel, exporting functionality which 
+is required for non-GPL'd modules. 
 
-In the US it may be a violation of the DCMA prohibition on 
-circumvention of "effective access controls" (and perhaps violations of 
-corresponding laws in some European countries).  Though that's a whole 
-'nother huge legal morass.
- 
+--
+dwmw2
+
+

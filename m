@@ -1,74 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262955AbREWCkV>; Tue, 22 May 2001 22:40:21 -0400
+	id <S262953AbREWCf7>; Tue, 22 May 2001 22:35:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262956AbREWCkL>; Tue, 22 May 2001 22:40:11 -0400
-Received: from mail.ajato.com.br ([200.212.26.130]:7413 "HELO
-	mail.ajato.com.br") by vger.kernel.org with SMTP id <S262955AbREWCkC>;
-	Tue, 22 May 2001 22:40:02 -0400
-Date: Tue, 22 May 2001 23:39:47 -0300
-From: Carlos Laviola <claviola@ajato.com.br>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Weird bug in kernel (invalid operand?)
-Message-Id: <20010522233947.4426a82d.claviola@ajato.com.br>
-In-Reply-To: <3B0A611F.B0A554AA@uow.edu.au>
-In-Reply-To: <20010521171108.2fe854ab.claviola@ajato.com.br>
-	<3B0A611F.B0A554AA@uow.edu.au>
-X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S262954AbREWCft>; Tue, 22 May 2001 22:35:49 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:19462 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262953AbREWCfk>; Tue, 22 May 2001 22:35:40 -0400
+Date: Tue, 22 May 2001 19:35:11 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] struct char_device
+In-Reply-To: <Pine.GSO.4.21.0105221909001.17373-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0105221928380.4713-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 May 2001 22:52:47 +1000, Andrew Morton <andrewm@uow.edu.au> wrote:
 
-> Carlos Laviola wrote:
-> > 
-> > invalid operand: 0000
-[ ... oops here ... ]
-> > Segmentation fault
-> > 
-> > This seems to be a bug in the kernel, maybe because the file is too big,
-> > and VFAT partitions don't like that.
+On Tue, 22 May 2001, Alexander Viro wrote:
+
+> >    which populate the "inode->dev" union pointer, which in turn is _only_
+> >    a cache of the lookup. Right now we do this purely based on "dev_t",
+> >    and I think that is bogus. We should never pass a "dev_t" around
+> >    without an inode, I think.
 > 
-> It used to be that fatfs would hit the second BUG() in fat_get_block()
-> when a file reaches two gig.  But I can't make that happen in testing,
-> because the s_maxbytes stuff restricts it to 2gig-1.  What you *should*
-> have seen was `wget' locking up because of a different bug :)
+> I doubt it. First of all, then we'd better make i_rdev dev_t. Right now
+> we have it kdev_t and it makes absolutely no sense that way.
+
+Absolutely.
+
+In fact, the whole "kdev_t" makes no sense if we have proper char_dev and
+block_dev pointers.
+
+We have "dev_t" which is what we export to user space. And if we split up
+char dev and block dev (which I'm an avid proponent for), kdev_t will be
+an anachronism.
+
+> The real thing is inode->dev. Notice that for devfs (and per-device
+> filesystems) we can set it upon inode creation, since they _know_ it
+> from the very beginning and there is absolutely no reason to do any
+> hash lookups. Moreover, in these cases we may have no meaningful device
+> number at all.
+
+Sure. If something like devfs _knows_ the device pointers from the very
+beginning, then just do: 
+ - increment reference count
+ - inode->dev.char = cdev;
+
+> >    Block devices will have the "request queue" pointer, and the size and
+> >    partitioning information. Character devices currently would not have
 > 
-> Are you sure you got this with 2.4.4?  If so, please run the
-> output through
-> 
-> 	ksymoops -m System.map < oops-text
+> Do we really want a separate queue for each partition?
 
-Well, in fact, I was using 2.4.5-pre1 when I had this problem. However, since
-it doesn't seem like anything within the VFAT subsystem has changed from 2.4.4
-to 2.4.5-pre1, 2.4.4 is probably buggy too. The relevant output from ksymoops
-is below.
+No. 
 
->>EIP; c48fb709 <[fat]fat_get_block+5d/dc>   <=====
-Code;  c48fb709 <[fat]fat_get_block+5d/dc>
-00000000 <_EIP>:
-Code;  c48fb709 <[fat]fat_get_block+5d/dc>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c48fb70b <[fat]fat_get_block+5f/dc>
-   2:   83 c4 0c                  add    $0xc,%esp
-Code;  c48fb70e <[fat]fat_get_block+62/dc>
-   5:   b8 fb ff ff ff            mov    $0xfffffffb,%eax
-Code;  c48fb713 <[fat]fat_get_block+67/dc>
-   a:   eb 6d                     jmp    79 <_EIP+0x79> c48fb782 <[fat]fat_get_block+d6/dc>
-Code;  c48fb715 <[fat]fat_get_block+69/dc>
-   c:   8b 87 8c 00 00 00         mov    0x8c(%edi),%eax
-Code;  c48fb71b <[fat]fat_get_block+6f/dc>
-  12:   0f b7 00                  movzwl (%eax),%eax
+But the pointer is not a 1:1 thing (otherwise we'd just put the whole
+request queue _into_ the block device).
 
-Thanks,
-Carlos.
+The block device should have a pointer to the request queue, along with
+the partitioning information. Why? Because that way it becomes very simple
+indeed to do request processing: none of the current "look up the proper
+queue for each request and do the partition offset magic inside each
+driver". Instead, the queuing function becomes:
 
--- 
- _ _  _| _  _  | _   . _ | _  carlos.debian.net   Debian-BR Project
-(_(_|| |(_)_)  |(_|\/|(_)|(_| uin#: 981913 (icq)  debian-br.sf.net
+	bh->index = bdev->index;
+	bh->sector += bdev->sector_offset;
+	submit_bh(bh, bdev->request_queue);
 
-Linux: the choice of a GNU generation - Registered Linux User #103594
-Shah, shah!  Ayatollah you so!
+and you're done. Those three lines did both the queue lookup, the
+"index" for the driver, and the partitioning offset. Whoa, nelly.
+
+And THAT is why you want to have the queue pointer in the bdev structure.
+
+		Linus
+

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267659AbTACU4w>; Fri, 3 Jan 2003 15:56:52 -0500
+	id <S267662AbTACU6h>; Fri, 3 Jan 2003 15:58:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267660AbTACU4w>; Fri, 3 Jan 2003 15:56:52 -0500
-Received: from web41008.mail.yahoo.com ([66.218.93.7]:49300 "HELO
-	web41008.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S267659AbTACU4v>; Fri, 3 Jan 2003 15:56:51 -0500
-Message-ID: <20030103210518.4875.qmail@web41008.mail.yahoo.com>
-Date: Fri, 3 Jan 2003 13:05:18 -0800 (PST)
+	id <S267716AbTACU6g>; Fri, 3 Jan 2003 15:58:36 -0500
+Received: from web41012.mail.yahoo.com ([66.218.93.11]:52758 "HELO
+	web41012.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S267662AbTACU6a>; Fri, 3 Jan 2003 15:58:30 -0500
+Message-ID: <20030103210656.18194.qmail@web41012.mail.yahoo.com>
+Date: Fri, 3 Jan 2003 13:06:56 -0800 (PST)
 From: me athome <any_junk@yahoo.com>
 Subject: Dual P4 xeon and linux ethernet bridging 
-To: linux-kernel@vger.kernel.org
-Cc: any_junk@yahool.com, bridge@math.leidenuniv.nl
+To: linux-kernel@vger.kernel.org, buytenh@gnu.org
+Cc: any_junk@yahoo.com, bridge@math.leidenuniv.nl
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
@@ -50,6 +50,7 @@ Am I crazy for expecting the second P4 to do
 something?
 
 Ron.
+
 
 
 __________________________________________________

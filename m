@@ -1,84 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264433AbUBOJmi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 04:42:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbUBOJmi
+	id S264428AbUBOJjj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 04:39:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264420AbUBOJji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 04:42:38 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:59629 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264433AbUBOJmf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 04:42:35 -0500
-Date: Sun, 15 Feb 2004 10:42:24 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, mh@nadir.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: oops w/ 2.6.2-mm1 on ppc32
-Message-ID: <20040215094224.GY26397@suse.de>
-References: <20040215074140.GA3840@nadir.org> <1076831383.6958.38.camel@gaston> <20040215001019.33e4089b.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040215001019.33e4089b.akpm@osdl.org>
+	Sun, 15 Feb 2004 04:39:38 -0500
+Received: from ahriman.Bucharest.roedu.net ([141.85.128.71]:8864 "EHLO
+	ahriman.bucharest.roedu.net") by vger.kernel.org with ESMTP
+	id S264428AbUBOJja (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 04:39:30 -0500
+Date: Sun, 15 Feb 2004 11:41:17 +0200 (EET)
+From: Mihai RUSU <dizzy@roedu.net>
+X-X-Sender: dizzy@ahriman.bucharest.roedu.net
+To: Jon Smirl <jonsmirl@yahoo.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: libata patch
+In-Reply-To: <20040214160254.19491.qmail@web14902.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.58L0.0402151138140.7324@ahriman.bucharest.roedu.net>
+References: <20040214160254.19491.qmail@web14902.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 15 2004, Andrew Morton wrote:
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> >
-> > On Sun, 2004-02-15 at 18:41, Marc Heckmann wrote:
-> > > It happened while the machine was waking up from sleep. There were no
-> > > UDF or ISO filesystems mounted at the time, in fact, there wasn't even
-> > > a cd in the drive. The "autorun" process was running though (polls the
-> > > cdrom drive, to see if a disc has been inserted...). There were some
-> > > request timeouts on the cdrom drive (hdc) just before, it went to
-> > > sleep (system was idle at the time, I wasn't even at home).
-> > > 
-> > > Here is the kernel output before and after the machine went to sleep. The Oops
-> > > is at the bottom.
-> > 
-> > Looks like CD went berserk, and something didn't deal with the
-> > error correctly... I don't know those code path in there
-> > very well... Can you paste more of the ide-cd errors,
-> > those are weird.
-> 
-> Note that isofs_fill_super() calls sb_bread() before setting the blocksize.
-> For this it is relying on blockdev.bd_block_size being set up
-> appropriately.
-> 
-> Which all tends to imply that the underlying queue's ->hardsect_size is
-> very wrong.
-> 
-> The code which is responsible for setting up the queue's hardsect_size
-> appears to live in cdrom_read_toc():
-> 
-> 	/* Check to see if the existing data is still valid.
-> 	   If it is, just return. */
-> 	(void) cdrom_check_status(drive, sense);
-> 
-> 	if (CDROM_STATE_FLAGS(drive)->toc_valid)
-> 		return 0;
-> 
-> 	/* Try to get the total cdrom capacity and sector size. */
-> 	stat = cdrom_read_capacity(drive, &toc->capacity, &sectors_per_frame,
-> 				   sense);
-> 	if (stat)
-> 		toc->capacity = 0x1fffff;
-> 
-> 	set_capacity(drive->disk, toc->capacity * sectors_per_frame);
-> 	blk_queue_hardsect_size(drive->queue,
-> 				sectors_per_frame << SECTOR_BITS);
-> 
-> I'm wondering about that `return 0;' in there.  That will return "success"
-> even though we haven't set up half the things which should have been set
-> up.
-> 
-> Jens, should we be returning some sort of error code there?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I'll have a look to see if it can go wrong, but ->toc_valid should never
-be set if the hardsector stuff etc hasn't been set up yet.
+Hi
 
--- 
-Jens Axboe
+Hmm, I hit the same problem (only once so far) on 2.6.2 vanilla. While I 
+was installing one of my first SATA systems, on ICH5, I hit the same thing 
+(some error in kernel log regardning DMA and the SATA hdd seemed frozen, 
+the only commands working were those cached in RAM already). Hope this 
+helps :) (sorry I couldnt do more, it only happened once so far).
 
+On Sat, 14 Feb 2004, Jon Smirl wrote:
+
+> The latest 2.6 bk libata patch took my box down. It's a Dell PE400SC, 82801EB
+> ICH5, SATA drives. It works for a little while then I get DMA errors, then I
+> freeze.
+> It had been working fine on 2.6 for months.
+> 
+> I have non-RAID ICh5. One SATA drive using libata and one ATA drive.
+> 
+> =====
+> Jon Smirl
+> jonsmirl@yahoo.com
+> 
+> __________________________________
+> Do you Yahoo!?
+> Yahoo! Finance: Get your refund fast by filing online.
+> http://taxes.yahoo.com/filing.html
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+- -- 
+Mihai RUSU                                    Email: dizzy@roedu.net
+GPG : http://dizzy.roedu.net/dizzy-gpg.txt    WWW: http://dizzy.roedu.net
+                       "Linux is obsolete" -- AST
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFALz6/PZzOzrZY/1QRAi2DAKCP7ZKlrY4NoqqOKEbSoCY+bgYKrQCfZDR8
+7+HOPxqeGMOHf5VD+nB7eS0=
+=vGHb
+-----END PGP SIGNATURE-----

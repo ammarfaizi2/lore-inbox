@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288736AbSBKMJc>; Mon, 11 Feb 2002 07:09:32 -0500
+	id <S288810AbSBKMJm>; Mon, 11 Feb 2002 07:09:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288952AbSBKMJW>; Mon, 11 Feb 2002 07:09:22 -0500
-Received: from cobae1.consultronics.on.ca ([205.210.130.26]:5512 "EHLO
-	cobae1.consultronics.on.ca") by vger.kernel.org with ESMTP
-	id <S288736AbSBKMJC>; Mon, 11 Feb 2002 07:09:02 -0500
-Date: Mon, 11 Feb 2002 07:08:58 -0500
-From: Greg Louis <glouis@dynamicro.on.ca>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        LKML <linux-kernel@vger.kernel.org>, dz@debian.org
-Subject: Resolved: APM fix from -pre7 seems to break "Dell laptop support"
-Message-ID: <20020211120857.GA1505@athame.dynamicro.on.ca>
-Reply-To: Greg Louis <glouis@dynamicro.on.ca>
-Mail-Followup-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-	LKML <linux-kernel@vger.kernel.org>, dz@debian.org
-In-Reply-To: <Pine.LNX.4.21.0202041743180.14205-100000@freak.distro.conectiva> <20020210130447.GA1001@athame.dynamicro.on.ca>
+	id <S288930AbSBKMJc>; Mon, 11 Feb 2002 07:09:32 -0500
+Received: from dialin-145-254-129-082.arcor-ip.net ([145.254.129.82]:6148 "EHLO
+	dale.home") by vger.kernel.org with ESMTP id <S288810AbSBKMJP>;
+	Mon, 11 Feb 2002 07:09:15 -0500
+Date: Mon, 11 Feb 2002 12:59:02 +0100
+From: Alex Riesen <fork0@users.sourceforge.net>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.18-pre8-K2: Kernel panic: CPU context corrupt
+Message-ID: <20020211125902.B3342@steel>
+Reply-To: Alex Riesen <fork0@users.sourceforge.net>
+In-Reply-To: <20020208001831.A200@steel> <20020208003653.A28235@suse.de> <20020209222358.GA1589@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020210130447.GA1001@athame.dynamicro.on.ca>
-Organization: Dynamicro Consulting Limited
+In-Reply-To: <20020209222358.GA1589@elf.ucw.cz>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20020210 (Sun) at 0804:47 -0500, Greg Louis wrote:
-> With CONFIG_I8K=y and Massimo Dal Zotto's i8k utilities, it's necessary
-> for me to revert Stephen Rothwell's 2.4.17-APM.1 patch that went into
-> 18-pre7.  If I don't, CPU temperature readings jump around erratically
-> and the fans come on at the wrong temperatures.
+I can good understand that it is a hardware problem.
+But if someone seems not to be interested in reports like this,
+why dump them out? Just save what we can and hang silently,
+but no reports, they're boring 8-]
 
-After some offlist correspondence, Massimo has released version 1.10 of
-his utilities, and this new version is working fine for me with
-Stephen's APM changes in the kernel.  Thanks to both Massimo and Alan
-Cox for their help!
 
--- 
-| G r e g  L o u i s          | gpg public key:      |
-|   http://www.bgl.nu/~glouis |   finger greg@bgl.nu |
+What does the "Bank 4: b200000000040151" mean?
+If that is a memory, can anyone help to find out which slot it is?
+(memtest86 haven't found anything, btw, i doubt that counts)
+-alex
+
+P.S. if someone going to change the message about machine check,
+could you please avoid lame descriptions? Like "(hardware problem!)"?
+I sure the majority are experienced enough to understand what the
+words "Machine Check" mean.
+
+
+On Sat, Feb 09, 2002 at 11:23:58PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> >  > Feb  7 23:45:31 steel kernel: CPU 0: Machine Check Exception: 0000000000000004
+> >  > Feb  7 23:45:31 steel kernel: Bank 4: b200000000040151
+> >  > Feb  7 23:45:31 steel kernel: Kernel panic: CPU context corrupt
+> > 
+> >  Machine checks are indicative of hardware fault.
+> >  Overclocking, inadequate cooling and bad memory are the usual
+> > causes.
+> 
+> Maybe you should print something like
+> 
+> Machine Check Exception: .... (hardware problem!)
+> 
+> so that we get less reports like this?
+> 									Pavel
+> -- 
+> (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+> no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

@@ -1,63 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269240AbUHZREO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269238AbUHZQ66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269240AbUHZREO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 13:04:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269233AbUHZQ7u
+	id S269238AbUHZQ66 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 12:58:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269230AbUHZQz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 12:59:50 -0400
-Received: from mail.shareable.org ([81.29.64.88]:34758 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S269232AbUHZQ4N
+	Thu, 26 Aug 2004 12:55:56 -0400
+Received: from mail.shareable.org ([81.29.64.88]:31942 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S269213AbUHZQu3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 12:56:13 -0400
-Date: Thu, 26 Aug 2004 17:53:51 +0100
+	Thu, 26 Aug 2004 12:50:29 -0400
+Date: Thu, 26 Aug 2004 17:44:51 +0100
 From: Jamie Lokier <jamie@shareable.org>
-To: Rik van Riel <riel@redhat.com>
-Cc: Christophe Saout <christophe@saout.de>,
+To: Christoph Hellwig <hch@lst.de>, Christophe Saout <christophe@saout.de>,
+       Rik van Riel <riel@redhat.com>,
        Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
        Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
        Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
-       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
+       torvalds@osdl.org, reiser@namesys.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com,
+       reiserfs-list@namesys.com
 Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826165351.GM5733@mail.shareable.org>
-References: <20040826154446.GG5733@mail.shareable.org> <Pine.LNX.4.44.0408261152340.27909-100000@chimarrao.boston.redhat.com>
+Message-ID: <20040826164451.GL5733@mail.shareable.org>
+References: <Pine.LNX.4.44.0408261152340.27909-100000@chimarrao.boston.redhat.com> <1093536282.5482.6.camel@leto.cs.pocnet.net> <20040826160750.GC4326@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0408261152340.27909-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <20040826160750.GC4326@lst.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> And if an unaware application reads the compound file
-> and then writes it out again, does the filesystem
-> interpret the contents and create the other streams ?
+Christoph Hellwig wrote:
+> or placing this into a userspace helper that the kernel can invoke
+> transparently.
 
-Yes, exactly that.  The streams are created on demand of course, and
-by userspace helpers when that's appropriate which I suspect it almost
-always is.
+Yes, exactly this for most file formats.
+Ideally, with _some_ user control over the handlers for their own
+files a bit like Hurd.
 
-> Unless I overlook something (please tell me what), the
-> scheme just proposed requires filesystems to look at
-> the content of files that is being written out, in
-> order to make the streams work.
+Not just archive files: metadata pulled from audio files, images,
+distro packages, etc.  In other words much the same as Gnome and KDE's
+things, but with more emphasis on metadata extractors and efficient
+on-disk cache interaction, and a sane page-cache coherency interface
+(possibly FUSE).
 
-Yes.  Hence the idea of coherent views between two files: writing to
-one affects the content of the other, although the calcalation is only
-done on demand (or when the fs wants to migrate the representation --
-for example, creating the flat container prior to deleting the
-regeneratable pieces in order to save space).
+Metadata extraction is useful for search and indexing purposes.
+(That, and a way to hook change notifications up with indexers --
+again comes with any proper coherency interface).
 
-I haven't seen anything from Namesys that says they'll do that.  I
-have the impression the streams are just generated in memory on the
-fly, not stored on disk with a cacheing policy, but that's just an
-impression.  (We've all seen the Namesys white papers, they're not
-_that_ revealing). :)
+For new applications using a container, it's tempting to want one
+format which is optimised for this.  But really many applications want
+to write XML or compressed XML, or something else that isn't
+especially efficient but is easy to work with on many OSes.  We should
+support applications whatever format they need to work with, if
+providing an interior view as a directory is useful for them.  (This
+implies applications can introduce their own formats for files they
+need to operate on.)  By the way, lazy updating of containers is an
+even bigger advantage if you have to use XML as the flat format,
+because the savings from not serialising when you don't need to are
+more pronounced.
 
-I'm just pointing out how to do it _right_.  I think it will turn out
-like this eventually, either next year or some time over the next
-decade after some iterations.  Inevitable.  Mark my words, etc. :)
+For some applications the "content" isn't structured in a way which
+maps naturally to a plain archive file.  Hans' /etc/passwd is a simple
+example: at least one of the "flat" representations, when there are
+enough entries, probably ought to be a DB file for faster lookup.
+(Though, it would be great if /etc/passwd could automagically get fast
+lookup due to an automagic underlying representation, while still
+appearing to be a flat file when you cat it).
+
+Also, imagine "cd" into a MySQL table file.  It might just work.
+
+By the way, we don't need containers to waste huge amounts of space
+like the Microsoft Word "fast save" documents did.  Because our
+containers are created on demand, there is no performance advantage in
+them having unused holes, unlike the case were Word was saving changes
+periodically.
 
 -- Jamie
+

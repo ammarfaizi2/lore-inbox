@@ -1,81 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUEOKgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbUEOKr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbUEOKgz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 06:36:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbUEOKgz
+	id S261793AbUEOKr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 06:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbUEOKr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 06:36:55 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:4027 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261724AbUEOKgw (ORCPT
+	Sat, 15 May 2004 06:47:57 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:51133 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261793AbUEOKrz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 06:36:52 -0400
-Date: Sat, 15 May 2004 12:36:51 +0200
+	Sat, 15 May 2004 06:47:55 -0400
+Date: Sat, 15 May 2004 12:47:53 +0200
 From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: RPC request reserved 0 but used 96
-Message-ID: <20040515103650.GB24600@suse.de>
-References: <20040515083831.GR17326@suse.de> <20040515085819.GS17326@suse.de>
+To: gboyce@badbelly.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Burning CDs with a CD-ROM is a bad idea
+Message-ID: <20040515104752.GC24600@suse.de>
+References: <Pine.LNX.4.58.0405141352540.7746@buddha.badbelly.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040515085819.GS17326@suse.de>
+In-Reply-To: <Pine.LNX.4.58.0405141352540.7746@buddha.badbelly.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 15 2004, Jens Axboe wrote:
-> On Sat, May 15 2004, Jens Axboe wrote:
-> > Hi,
-> > 
-> > Seeing lots of these on a small server that hosts nfs shares (root and
-> > "normal").
-> > 
-> > router:~ # dmesg | tail -n5
-> > RPC request reserved 0 but used 96
-> > RPC request reserved 0 but used 96
-> > RPC request reserved 0 but used 140
-> > RPC request reserved 0 but used 140
-> > RPC request reserved 0 but used 96
-> > 
-> > I see nfs stalls on the client, doesn't seem to be directly related to
-> > when the above messages happen.
+On Fri, May 14 2004, gboyce@badbelly.com wrote:
+> Hello folks,
 > 
-> This went out a little early, lots of pieces missing.
+> Yesterday I made a slight thinko while attempting to burn a CD.  Rather 
+> than specifying dev=/dev/hdd, I add dev=/dev/hdc, which is my CD-ROM 
+> drive rather than my cd burner.  Whoops!
 > 
-> The server is running 2.6.6-mm2, NFS options are as follows:
+> Now, I believe I've done this before, and recieved an error message.  
+> However, in this particular case with 2.6.6, the system behaved a bit 
+> different.
 > 
-> CONFIG_NFS_FS=y
-> CONFIG_NFS_V3=y
-> # CONFIG_NFS_V4 is not set
-> CONFIG_NFS_DIRECTIO=y
-> CONFIG_NFSD=y
-> CONFIG_NFSD_V3=y
-> # CONFIG_NFSD_V4 is not set
-> CONFIG_NFSD_TCP=y
-> CONFIG_LOCKD=y
-> CONFIG_LOCKD_V4=y
-> CONFIG_EXPORTFS=y
-> CONFIG_SUNRPC=y
-> 
-> The shares are exported async.
-> 
-> Client is running 2.4.26, mount options are nfsvers=3,tcp.
-> 
-> I'll be trying 2.6.6-BK on the server now.
+> bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+> cdb: 1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+> ide-cd: cmd 0x1e timed out
+> hdc: lost interrupt
 
-2.6.6-BK with shares exported sync show the same behaviour. I get:
+Looks like one of the burning commands confused the drive so much, that
+it now refuses to do anything (the above command is a simple medium
+removal prevention command, doesn't even need a data transfer).
 
-RPC request reserved 0 but used 32900
-RPC request reserved 0 but used 32900
-RPC request reserved 0 but used 96
-
-and client stalls with a:
-
-nfs: server router not responding, still trying
-nfs: server router OK
-
-at that time.
+So I don't think this is a kernel problem. Well maybe we could reset the
+device and see if it recovers (do you see any resets in the log?)
 
 -- 
 Jens Axboe

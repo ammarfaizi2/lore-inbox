@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVCCASu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbVCCAtJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261297AbVCCASu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 19:18:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVCCAOx
+	id S261344AbVCCAtJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 19:49:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVCCApj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 19:14:53 -0500
-Received: from animx.eu.org ([216.98.75.249]:15252 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S261415AbVCCAON (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 19:14:13 -0500
-Date: Wed, 2 Mar 2005 19:20:17 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050303002017.GB15274@animx.eu.org>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <422643F0.8050603@utah-nac.org>
+	Wed, 2 Mar 2005 19:45:39 -0500
+Received: from ncc1701.cistron.net ([62.216.30.38]:2259 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S261335AbVCCAnZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 19:43:25 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: 2.6.11: iostat values broken, or IDE siimage driver ? 
+Date: Thu, 3 Mar 2005 00:43:24 +0000 (UTC)
+Organization: Cistron
+Message-ID: <d05mjc$v0u$1@news.cistron.nl>
+References: <d05513$8fr$1@news.cistron.nl> <200503022202.j22M2KUK020376@owlet.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <422643F0.8050603@utah-nac.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1109810604 31774 194.109.0.112 (3 Mar 2005 00:43:24 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: mikevs@cistron.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm only emailing to the list, feel free to keep my in CC (this way I'll
-know what part of the thread was directed towards me)
+In article <200503022202.j22M2KUK020376@owlet.beaverton.ibm.com>,
+Rick Lindsley  <ricklind@us.ibm.com> wrote:
+>Mike -- where did you get your iostat from?  There's a couple of different
+>flavors out there and it may not make a difference but just in case ...
 
-Jeff V. Merkey wrote:
-> __Stable__ would be a good thing. The entire 2.6 development has been a 
-> disaster from
-> a stability viewpoint. I have to maintain a huge tree of patches in 
-> order to ship appliance
-> builds due to the lack of stability for 2.6. I think that the even 
-> number releases will take longer
-> but it's worth the wait.
+Debian, sysstat+5.0.6-4
 
-I agree about the stability of the 2.6 kernels.  The system I'm using now
-has always been 2.6 since I first installed it.  I have noticed there were
-stability issues with 2.6.  I remember 2.6.7 was fairly good and was a bit
-stable.  2.6.8.1 wasn't that stable (I'm sure I had the .1 patch on it,
-however, attempting to do a lock over NFS caused the system to hard freeze).
-2.6.9 was more unstable especially with USB.  2.6.10 (which I'm using now)
-has to be IMO the most stable 2.6 kernel produced.  I'm quite pleased with
-it (and to all the kernel hackers, thanks for a great kernel).
+I know about the iostat problems - there were 32/64 bit issues,
+etc - but those have been solved in this version. Also the exact
+same iostat works fine on 2.6.10 and 2.6.11-rc3 kernels.
 
-P.S.  System is a dual xeon 2.6ghz on a supermicro x5da8 1gb ram.
+Mike.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals

@@ -1,79 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272575AbTHFVc1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 17:32:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272071AbTHFVcC
+	id S272325AbTHFVmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 17:42:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272355AbTHFVmP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 17:32:02 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62345 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272570AbTHFVbK (ORCPT
+	Wed, 6 Aug 2003 17:42:15 -0400
+Received: from mail.kroah.org ([65.200.24.183]:23266 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S272325AbTHFVmL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 17:31:10 -0400
-Date: Wed, 6 Aug 2003 14:32:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Florent Coste <coste.florent@free.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re 2.6.0-test2-mm4
-Message-Id: <20030806143251.6b84c749.akpm@osdl.org>
-In-Reply-To: <3F317097.4070401@free.fr>
-References: <3F2F0ED0.4060707@free.fr>
-	<20030804225737.007b6934.akpm@osdl.org>
-	<3F317097.4070401@free.fr>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 6 Aug 2003 17:42:11 -0400
+Date: Wed, 6 Aug 2003 14:40:38 -0700
+From: Greg KH <greg@kroah.com>
+To: Paul Dickson <dickson@permanentmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: My report on running 2.6.0-test2 on a Dell Inspiron 7000 (lost USB mouse)
+Message-ID: <20030806214037.GB7618@kroah.com>
+References: <20030806021621.2da5a850.dickson@permanentmail.com> <20030806030337.5a9dd2c6.dickson@permanentmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030806030337.5a9dd2c6.dickson@permanentmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florent Coste <coste.florent@free.fr> wrote:
->
-> - test2-mm2 :  pppd starts ok (i use & follow 2.5.x & 2.6-test branch 
->  since ~2.5.40 .... 2.5.72-mm2 was ok for instance)
->  - test2-mm3-1 : pppd does not start, kobject badness trace, full traces 
->  in my last email and parts above :
+On Wed, Aug 06, 2003 at 03:03:37AM -0700, Paul Dickson wrote:
+> On Wed, 6 Aug 2003 02:16:21 -0700, Paul Dickson wrote:
+> 
+> > But all is not perfect.  I'll attach the problems I had as replies (so
+> > each has it's own message thread).
+> 
+> After spending the day visiting relatives, I came back to the notebook and
+> put something down nearby.  I then went away for a moment and upon
+> returning discovered the screen unblanked but the mouse not functioning. 
+> Flipping workspaces relieved my fear that 2.6.0-test2 had crashed, but
+> still no mouse.
+> 
+> So I decided to unplug and replug in the mouse (its USB after all).
+> 
+> This allowed the mouse to function again.
+> 
+> This is what was recorded in the message log:
 
-The `badness' thing is just telling us that netdevices aren't fully up to
-speed with the kobject layer yet.  Don't worry about that.
+Known issue.  Is fixed in Linus's latest tree.  If this still shows up
+in 2.6.0-test3, please let us know.
 
-As for the ppp problem: don't know, sorry.  There was a small change in ppp
-between those two kernel versions, so it would be useful if you could do a
-`patch -R' of the below, see if that fixes mm3-1.  Thanks.
+thanks,
 
-diff -Nru a/drivers/char/tty_io.c b/drivers/char/tty_io.c
---- a/drivers/char/tty_io.c	Wed Aug  6 14:30:49 2003
-+++ b/drivers/char/tty_io.c	Wed Aug  6 14:30:49 2003
-@@ -611,6 +611,8 @@
- 		(tty->driver->stop)(tty);
- }
- 
-+EXPORT_SYMBOL(stop_tty);
-+
- void start_tty(struct tty_struct *tty)
- {
- 	if (!tty->stopped || tty->flow_stopped)
-@@ -628,6 +630,8 @@
- 		(tty->ldisc.write_wakeup)(tty);
- 	wake_up_interruptible(&tty->write_wait);
- }
-+
-+EXPORT_SYMBOL(start_tty);
- 
- static ssize_t tty_read(struct file * file, char * buf, size_t count, 
- 			loff_t *ppos)
-diff -Nru a/drivers/net/ppp_async.c b/drivers/net/ppp_async.c
---- a/drivers/net/ppp_async.c	Wed Aug  6 14:30:49 2003
-+++ b/drivers/net/ppp_async.c	Wed Aug  6 14:30:49 2003
-@@ -891,6 +891,11 @@
- 			process_input_packet(ap);
- 		} else if (c == PPP_ESCAPE) {
- 			ap->state |= SC_ESCAPE;
-+		} else if (I_IXON(ap->tty)) {
-+			if (c == START_CHAR(ap->tty))
-+				start_tty(ap->tty);
-+			else if (c == STOP_CHAR(ap->tty))
-+				stop_tty(ap->tty);
- 		}
- 		/* otherwise it's a char in the recv ACCM */
- 		++n;
-
+greg k-h

@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263161AbTCWTgN>; Sun, 23 Mar 2003 14:36:13 -0500
+	id <S263165AbTCWTo2>; Sun, 23 Mar 2003 14:44:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263162AbTCWTgN>; Sun, 23 Mar 2003 14:36:13 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:54801
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263161AbTCWTgM>; Sun, 23 Mar 2003 14:36:12 -0500
+	id <S263167AbTCWTo2>; Sun, 23 Mar 2003 14:44:28 -0500
+Received: from h214n1fls32o988.telia.com ([62.20.176.214]:61707 "EHLO
+	sirius.nix.badanka.com") by vger.kernel.org with ESMTP
+	id <S263165AbTCWTo1>; Sun, 23 Mar 2003 14:44:27 -0500
+Message-Id: <200303231955.h2NJtWAx038337@sirius.nix.badanka.com>
+Date: Sun, 23 Mar 2003 20:55:31 +0100
+From: Henrik Persson <nix@socialism.nu>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Ptrace hole / Linux 2.2.25
-From: Robert Love <rml@tech9.net>
-To: Martin Mares <mj@ucw.cz>
-Cc: Alan Cox <alan@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Stephan von Krawczynski <skraw@ithnet.com>, Pavel Machek <pavel@ucw.cz>,
-       szepe@pinerecords.com, arjanv@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20030323194423.GC14750@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <1048448838.1486.12.camel@phantasy.awol.org>
 References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz>
-	 <200303231938.h2NJcAq14927@devserv.devel.redhat.com>
-	 <20030323194423.GC14750@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1048448838.1486.12.camel@phantasy.awol.org>
+	<200303231938.h2NJcAq14927@devserv.devel.redhat.com>
+	<20030323194423.GC14750@atrey.karlin.mff.cuni.cz>
+	<1048448838.1486.12.camel@phantasy.awol.org>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 23 Mar 2003 14:47:19 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-03-23 at 14:44, Martin Mares wrote:
+On 23 Mar 2003 14:47:19 -0500
+Robert Love <rml@tech9.net> wrote:
 
-> Do you really think that "People should either use vendor kernels or
-> read LKML and be able to gather the fixes from there themselves" is a
-> good strategy?
+> If you do not use a vendor kernel then you assume the responsibility of
+> doing this stuff yourself.  If you do not want to worry about these
+> things, use a vendor kernel.
 
-Yes, I suspect he does as do most people here.
+Almost all of the people I know who are running Linux are compiling their
+own kernels fetched from kernel.org and very few of them are tracking
+LKML, so even if they should, they aren't.
 
-If you do not use a vendor kernel then you assume the responsibility of
-doing this stuff yourself.  If you do not want to worry about these
-things, use a vendor kernel.
+Would it really hurt that much to release 2.4.21 with the ptracefix(es)?
 
-	Robert Love
+If it hurts that much, can kernel.org put out a brief message and a link
+to the relevant patches somewhere so that people who doesn't follow LKML
+can find the patches without browsing the ML-archives?
 
+-- 
+Henrik Persson  nix@socialism.nu  http://nix.badanka.com
+PGP-key: http://nix.badanka.com/pgp  PGP-KeyID: 0x43B68116  

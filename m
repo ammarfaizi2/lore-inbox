@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbTJRRoo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 13:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbTJRRoo
+	id S261757AbTJRR64 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 13:58:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbTJRR6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 13:44:44 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:44790 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261749AbTJRRom (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 13:44:42 -0400
-Date: Sat, 18 Oct 2003 19:44:35 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] add a config option for -Os compilation
-Message-ID: <20031018174434.GJ12423@fs.tum.de>
-References: <20031015225055.GS17986@fs.tum.de> <20031015161251.7de440ab.akpm@osdl.org> <20031015232440.GU17986@fs.tum.de> <20031015165205.0cc40606.akpm@osdl.org> <20031018102127.GE12423@fs.tum.de> <649730000.1066491920@[10.10.2.4]> <20031018102402.3576af6c.akpm@osdl.org>
+	Sat, 18 Oct 2003 13:58:55 -0400
+Received: from pentafluge.infradead.org ([213.86.99.235]:2016 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261773AbTJRR6U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 13:58:20 -0400
+Subject: Re: 'drivers/block/swim3.c' fails to compile under 2.6.0-test8
+	[Bug #1370]
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: John Mock <kd6pag@qsl.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1AAv3q-0000wq-00@penngrove.fdns.net>
+References: <E1AAv3q-0000wq-00@penngrove.fdns.net>
+Content-Type: text/plain
+Message-Id: <1066499840.646.278.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031018102402.3576af6c.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 18 Oct 2003 19:57:21 +0200
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: benh@kernel.crashing.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 18, 2003 at 10:24:02AM -0700, Andrew Morton wrote:
-> "Martin J. Bligh" <mbligh@aracnet.com> wrote:
-> >
-> > Please don't - I benchmarked it a while ago, and it's definitely slower.
+On Sat, 2003-10-18 at 19:40, John Mock wrote:
+> Also fails at least back to 'test3'.  It seems at least to be missing
+> some #include files.  I've not had a chance to test the actual driver
+> as the framebuffer console won't sync for me under '2.6.0-test8' and
+> currently fails to come up far enough to allow 'ssh' access.  Attached
+> is a possible patch, which still gets a couple of warnings.  See
 > 
-> Alan said he generally found -Os to be faster...
+>     http://bugzilla.kernel.org/attachment.cgi?id=1090
+> 
+> for .config file.
 
-Not exactly:
-  http://www.ussg.iu.edu/hypermail/linux/kernel/0211.0/1513.html
+I'll take care of this one
 
-cu
-Adrian
+Ben.
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

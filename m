@@ -1,66 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268098AbUHTO33@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268105AbUHTObq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268098AbUHTO33 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 10:29:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268115AbUHTO33
+	id S268105AbUHTObq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 10:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268110AbUHTObp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 10:29:29 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:26527 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S268098AbUHTO3M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 10:29:12 -0400
-Date: Fri, 20 Aug 2004 16:28:40 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Itsuro Oda <oda@valinux.co.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC]Kexec based crash dumping
-Message-ID: <20040820142840.GD16660@thundrix.ch>
-References: <20040819083333.76F4.ODA@valinux.co.jp>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gE7i1rD7pdK0Ng3j"
-Content-Disposition: inline
-In-Reply-To: <20040819083333.76F4.ODA@valinux.co.jp>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+	Fri, 20 Aug 2004 10:31:45 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:16561 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S268105AbUHTOa5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 10:30:57 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: SMP cpu deep sleep
+Date: Fri, 20 Aug 2004 07:30:47 -0700
+Message-ID: <7F740D512C7C1046AB53446D37200173020B86D9@scsmsx402.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: SMP cpu deep sleep
+Thread-Index: AcSGjw548XlcVTjjTA+dSwUh4Q4icgAMa0Hw
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "Hans Kristian Rosbach" <hk@isphuset.no>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 20 Aug 2004 14:30:48.0299 (UTC) FILETIME=[4931BBB0:01C486C2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
+>owner@vger.kernel.org] On Behalf Of Hans Kristian Rosbach
+>Sent: Friday, August 20, 2004 1:07 AM
+>To: linux-kernel@vger.kernel.org
+>Subject: SMP cpu deep sleep
+>
+>While reading through hotplug and speedstep patches
+>I came to think of a feature I think might be useful.
+>
+>In an SMP system there are several cpus, this generates
+>extra heat and power consuption even on idle load.
+>Is there a way to put all cpus but cpu1 into a kind of
+>deep sleep? Cpu1 would have to do all work (including irqs)
+>of course.
+>
+>We have a lot of SMP systems that we host, and they
+>are heavily used ~10 hours of the day, the rest they are
+>mostly idle. They could run on only 1 cpu during lenghty
+>idle periods.
+>
+>If it is possible to put cpus to a deeper sleep than
+>just the simple idle, then the kernel could make use of this.
 
---gE7i1rD7pdK0Ng3j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Most SMP server systems today don't support the C-states beyond C1 (at
+least on x86 or x86-64, as far as I know). If your system supports that,
+I think it would be nice to do that. 
 
-Salut,
+Jun
 
-On Thu, Aug 19, 2004 at 08:45:00AM +0900, Itsuro Oda wrote:
-> - prepare a kernel which does only dump real memory to block
->   device. ("dump mini kernel")
-> - pre-allocate the memory (4MB is enough) used by the dump mini
->   kernel and pre-load the dump mini kernel.
-> - when crash occur exec the dump mini kernel.
-> - the dump mini kernel stands in and only uses pre-allocated
->   area.
+>
+>It would be a cool feature.
+>
+>Sincerly
+>    Hans K. Rosbach
+>
 
-One question, what  happens in your concept when  some stubborn zombie
-kernel driver  (say Nvidia) comes  along and overwrites  random memory
-areas? Will the booting of the dump kernel simply fail?
-
-			    Tonnerre
-
---gE7i1rD7pdK0Ng3j
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
-
-iD8DBQFBJgqX/4bL7ovhw40RAjFpAJ4iCPr6Mb2NtfxWT9ntbbdTP++shgCgsOdT
-hfV/3Z150rk3xjokx9aUgUM=
-=2EI4
------END PGP SIGNATURE-----
-
---gE7i1rD7pdK0Ng3j--

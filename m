@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275913AbSIUOKI>; Sat, 21 Sep 2002 10:10:08 -0400
+	id <S275918AbSIUOur>; Sat, 21 Sep 2002 10:50:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275914AbSIUOKI>; Sat, 21 Sep 2002 10:10:08 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:54235 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S275913AbSIUOKH>;
-	Sat, 21 Sep 2002 10:10:07 -0400
-Message-ID: <3D8C7EEE.7030500@colorfullife.com>
-Date: Sat, 21 Sep 2002 16:15:10 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
+	id <S275919AbSIUOuq>; Sat, 21 Sep 2002 10:50:46 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:52706 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S275918AbSIUOuq>; Sat, 21 Sep 2002 10:50:46 -0400
+Date: Sat, 21 Sep 2002 07:53:37 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.37 won't run X?
+Message-ID: <591884585.1032594816@[10.10.2.3]>
+In-Reply-To: <20020921121041.C20153@hh.idb.hist.no>
+References: <20020921121041.C20153@hh.idb.hist.no>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-To: Andries Brouwer <aebr@win.tue.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: quadratic behaviour
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Let me repeat this, and call it an observation instead of a question,
-> so that you do not think I am in doubt.
-> 
-> If you have 20000 processes, and do ps, then get_pid_list() will be
-> called 1000 times, and the for_each_process() loop will examine
-> 10000000 processes.
-> 
-> Unlike the get_pid() situation, which was actually amortized linear with a very
-> small coefficient, here we have a bad quadratic behaviour, still in 2.5.37.
-> 
-One solution would be to replace the idtag hash with an idtag tree.
+> X won't start on 2.5.37, but works with 2.5.36
+> The screen goes black as usual, but then nothing else happens.
+> ssh'ing in from another machine shows XFree86 using 50% cpu,
+> i.e. one of the two cpu's in this machine.
 
-Then get_pid_list() could return an array of sorted pids, and finding 
-the next pid after unlocking the task_lock would be just a tree lookup 
-(find first pid larger than x).
+Looks like Linus fixed this already in his BK tree ... want
+to grab that and see if it fixes your problem?
 
-And a sorted tree would make it possible find the next safe range for 
-get_pid() with O(N) instead of O(N^2).
-
---
-	Manfred
-
+M.
 

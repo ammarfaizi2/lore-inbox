@@ -1,126 +1,245 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262109AbVBAT2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262107AbVBATcS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262109AbVBAT2t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 14:28:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbVBAT2s
+	id S262107AbVBATcS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 14:32:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbVBATcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 14:28:48 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:61399 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262109AbVBAT17
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 14:27:59 -0500
-Subject: Re: [RFC] shared subtrees
-From: Ram <linuxram@us.ibm.com>
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <41FF2985.8000903@sun.com>
-References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk>
-	 <41FABD4E.6050701@sun.com> <1107224911.8118.65.camel@localhost>
-	 <41FF2985.8000903@sun.com>
-Content-Type: text/plain
-Organization: IBM 
-Message-Id: <1107286073.8118.80.camel@localhost>
+	Tue, 1 Feb 2005 14:32:18 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:387 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262107AbVBATbX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 14:31:23 -0500
+Date: Tue, 1 Feb 2005 19:31:13 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] device-mapper: Fixes for 64-bit sector_t.
+Message-ID: <20050201193113.GQ10195@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 01 Feb 2005 11:27:53 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-01-31 at 23:02, Mike Waychison wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Ram wrote:
-> > On Fri, 2005-01-28 at 14:31, Mike Waychison wrote:
-> > 
-> >>-----BEGIN PGP SIGNED MESSAGE-----
-> >>Hash: SHA1
-> >>
-> >>Al Viro wrote:
-> >>
-> >>
-> >>>OK, here comes the first draft of proposed semantics for subtree
-> >>>sharing.  What we want is being able to propagate events between
-> >>>the parts of mount trees.  Below is a description of what I think
-> >>>might be a workable semantics; it does *NOT* describe the data
-> >>>structures I would consider final and there are considerable
-> >>>areas where we still need to figure out the right behaviour.
-> >>>
-> >>
-> >>Okay, I'm not convinced that shared subtrees as proposed will work well
-> >>with autofs.
-> >>
-> >>The idea discussed off-line was this:
-> >>
-> >>When you install an autofs mountpoint, on say /home, a daemon is started
-> >>to service the requests.  As far as the admin is concerned, an fs is
-> >>mounted in the current namespace, call it namespaceA.  The daemon
-> >>actually runs in it's one private namespace: call it namespaceB.
-> >>namespaceB receives a new autofs filesystem: call it autofsB.  autofsB
-> >>is in it's own p-node.  namespaceA gets an autofsA on /home as well, and
-> >>autofsA is 'owned' by autofsB's p-node.
-> > 
-> > 
-> > Mike, multiple parsing through the problem definition, still did not
-> > make the problem clear. What problem is autofs trying to solve using
-> > namespaces?
-> > 
-> > My guess is you dont want to see a automount taking place in namespaceA,
-> > when a automount takes place in namespaceB, even though
-> > the automount-point is in a shared subtree?
-> > 
-> > Sorry don't understand automount's requirement in the first place,
-> > RP
-> 
-> The major concern for automounting is that currently, if you start an
-> automount daemon in the primary namespace, and some process clones off
-> into a new namespace with clone(CLONE_NS), then there is no way for the
-> daemon running in the first namespace to automount (let alone expire)
-> any mounts in the second namespace.  There doesn't exist a way for the
-> daemon to mount(2) nor umount(2) across namespaces.
-> 
-> The proposed solution for this is to use shared and private subtrees to
-> have the daemon run in it's own namespace, with the primary and any
-> derivative namespaces inheriting the automounts.  I'm not convinced that
-> it'd work though.
-> 
-> Does this clarify?
+Fix some bugs in device-mapper handling of 64-bit values,
+replacing dm_div_up() and dm_round_up() inlines with macros and
+removing some avoidable divisions of 64-bit numbers.
 
-Yes it does clarify the problem and motivates the reason behind using
-shared subtree.
+The mirror region size is the granularity used to manage and monitor
+the data copying, typically 512KB, so 32 bits (of sectors) should 
+be plenty to hold this.
 
-However going back to your original problem 1:
+Taken together with the two earlier patches:
+  "fix TB stripe data corruption" (a missing cast) and 
+  "stripe_width should be sector_t",
+I've now had 3 independent reports that this fixes device-mapper
+for devices with large stripes.
 
-you have a daemon running in namespaceB, and a process running in
-namespaceA and it acceses a auto-mountpoint /home. 
+Still awaiting test results for dm-crypt and dm-raid1.
 
-The expected behavior in this case should be: the autofs-daemon must
-mount the corresponding device at that mount point '/home' on all 
-existing namespaces(provided that part of the subtree is shared). Right?
-So in this case it should mount the device in both the namespaces, i.e
-namespaceA and namespaceB.  But you seem to be saying that you want to
-block the auto-mount in namespaceA?
+Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
 
-RP
-> 
-> - --
-> Mike Waychison
-> Sun Microsystems, Inc.
-> 1 (650) 352-5299 voice
-> 1 (416) 202-8336 voice
-> 
-> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> NOTICE:  The opinions expressed in this email are held by me,
-> and may not represent the views of Sun Microsystems, Inc.
-> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.2.5 (GNU/Linux)
-> Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-> 
-> iD8DBQFB/ymFdQs4kOxk3/MRAjuWAKCJfX+jZMUlm9ncM199Q0nJpxwPKQCgjQFE
-> VTNmwXtmKOLVlrqBd2AzfYk=
-> =tESv
-> -----END PGP SIGNATURE-----
-
+--- diff/drivers/md/dm-crypt.c	2005-01-12 15:21:22.000000000 +0000
++++ source/drivers/md/dm-crypt.c	2005-01-28 15:30:22.000000000 +0000
+@@ -329,7 +329,7 @@
+                    struct bio *base_bio, unsigned int *bio_vec_idx)
+ {
+ 	struct bio *bio;
+-	unsigned int nr_iovecs = dm_div_up(size, PAGE_SIZE);
++	unsigned int nr_iovecs = (size + PAGE_SIZE - 1) >> PAGE_SHIFT;
+ 	int gfp_mask = GFP_NOIO | __GFP_HIGHMEM;
+ 	unsigned long flags = current->flags;
+ 	unsigned int i;
+--- diff/drivers/md/dm-log.c	2005-01-28 15:26:35.000000000 +0000
++++ source/drivers/md/dm-log.c	2005-01-28 15:31:18.000000000 +0000
+@@ -129,7 +129,7 @@
+ struct log_c {
+ 	struct dm_target *ti;
+ 	int touched;
+-	sector_t region_size;
++	uint32_t region_size;
+ 	unsigned int region_count;
+ 	region_t sync_count;
+ 
+@@ -292,7 +292,7 @@
+ 	enum sync sync = DEFAULTSYNC;
+ 
+ 	struct log_c *lc;
+-	sector_t region_size;
++	uint32_t region_size;
+ 	unsigned int region_count;
+ 	size_t bitset_size;
+ 
+@@ -313,12 +313,12 @@
+ 		}
+ 	}
+ 
+-	if (sscanf(argv[0], SECTOR_FORMAT, &region_size) != 1) {
++	if (sscanf(argv[0], "%u", &region_size) != 1) {
+ 		DMWARN("invalid region size string");
+ 		return -EINVAL;
+ 	}
+ 
+-	region_count = dm_div_up(ti->len, region_size);
++	region_count = dm_sector_div_up(ti->len, region_size);
+ 
+ 	lc = kmalloc(sizeof(*lc), GFP_KERNEL);
+ 	if (!lc) {
+@@ -508,7 +508,7 @@
+ 	return write_header(lc);
+ }
+ 
+-static sector_t core_get_region_size(struct dirty_log *log)
++static uint32_t core_get_region_size(struct dirty_log *log)
+ {
+ 	struct log_c *lc = (struct log_c *) log->context;
+ 	return lc->region_size;
+@@ -616,7 +616,7 @@
+ 		break;
+ 
+ 	case STATUSTYPE_TABLE:
+-		DMEMIT("%s %u " SECTOR_FORMAT " ", log->type->name,
++		DMEMIT("%s %u %u ", log->type->name,
+ 		       lc->sync == DEFAULTSYNC ? 1 : 2, lc->region_size);
+ 		DMEMIT_SYNC;
+ 	}
+@@ -637,7 +637,7 @@
+ 
+ 	case STATUSTYPE_TABLE:
+ 		format_dev_t(buffer, lc->log_dev->bdev->bd_dev);
+-		DMEMIT("%s %u %s " SECTOR_FORMAT " ", log->type->name,
++		DMEMIT("%s %u %s %u ", log->type->name,
+ 		       lc->sync == DEFAULTSYNC ? 2 : 3, buffer,
+ 		       lc->region_size);
+ 		DMEMIT_SYNC;
+--- diff/drivers/md/dm-log.h	2005-01-12 15:21:22.000000000 +0000
++++ source/drivers/md/dm-log.h	2005-01-28 15:30:32.000000000 +0000
+@@ -39,7 +39,7 @@
+ 	 * Retrieves the smallest size of region that the log can
+ 	 * deal with.
+ 	 */
+-	sector_t (*get_region_size)(struct dirty_log *log);
++	uint32_t (*get_region_size)(struct dirty_log *log);
+ 
+         /*
+ 	 * A predicate to say whether a region is clean or not.
+--- diff/drivers/md/dm-raid1.c	2005-01-28 15:26:59.000000000 +0000
++++ source/drivers/md/dm-raid1.c	2005-01-28 15:31:18.000000000 +0000
+@@ -67,7 +67,7 @@
+ struct mirror_set;
+ struct region_hash {
+ 	struct mirror_set *ms;
+-	sector_t region_size;
++	uint32_t region_size;
+ 	unsigned region_shift;
+ 
+ 	/* holds persistent region state */
+@@ -135,7 +135,7 @@
+ #define MIN_REGIONS 64
+ #define MAX_RECOVERY 1
+ static int rh_init(struct region_hash *rh, struct mirror_set *ms,
+-		   struct dirty_log *log, sector_t region_size,
++		   struct dirty_log *log, uint32_t region_size,
+ 		   region_t nr_regions)
+ {
+ 	unsigned int nr_buckets, max_buckets;
+@@ -871,7 +871,7 @@
+  * Target functions
+  *---------------------------------------------------------------*/
+ static struct mirror_set *alloc_context(unsigned int nr_mirrors,
+-					sector_t region_size,
++					uint32_t region_size,
+ 					struct dm_target *ti,
+ 					struct dirty_log *dl)
+ {
+@@ -894,7 +894,7 @@
+ 
+ 	ms->ti = ti;
+ 	ms->nr_mirrors = nr_mirrors;
+-	ms->nr_regions = dm_div_up(ti->len, region_size);
++	ms->nr_regions = dm_sector_div_up(ti->len, region_size);
+ 	ms->in_sync = 0;
+ 
+ 	if (rh_init(&ms->rh, ms, dl, region_size, ms->nr_regions)) {
+@@ -916,7 +916,7 @@
+ 	kfree(ms);
+ }
+ 
+-static inline int _check_region_size(struct dm_target *ti, sector_t size)
++static inline int _check_region_size(struct dm_target *ti, uint32_t size)
+ {
+ 	return !(size % (PAGE_SIZE >> 9) || (size & (size - 1)) ||
+ 		 size > ti->len);
+--- diff/drivers/md/dm-table.c	2005-01-28 15:26:59.000000000 +0000
++++ source/drivers/md/dm-table.c	2005-01-28 15:30:22.000000000 +0000
+@@ -58,7 +58,7 @@
+ /*
+  * Similar to ceiling(log_size(n))
+  */
+-static unsigned int int_log(unsigned long n, unsigned long base)
++static unsigned int int_log(unsigned int n, unsigned int base)
+ {
+ 	int result = 0;
+ 
+--- diff/drivers/md/dm.c	2005-01-28 15:26:59.000000000 +0000
++++ source/drivers/md/dm.c	2005-01-28 15:31:32.000000000 +0000
+@@ -331,8 +331,8 @@
+ 	 */
+ 	if (ti->split_io) {
+ 		sector_t boundary;
+-		boundary = dm_round_up(offset + 1, ti->split_io) - offset;
+-
++		boundary = ((offset + ti->split_io) & ~(ti->split_io - 1))
++			   - offset;
+ 		if (len > boundary)
+ 			len = boundary;
+ 	}
+--- diff/drivers/md/dm.h	2005-01-28 15:26:59.000000000 +0000
++++ source/drivers/md/dm.h	2005-01-28 15:31:28.000000000 +0000
+@@ -143,21 +143,22 @@
+ }
+ 
+ /*
+- * ceiling(n / size) * size
++ * Ceiling(n / sz)
+  */
+-static inline unsigned long dm_round_up(unsigned long n, unsigned long size)
+-{
+-	unsigned long r = n % size;
+-	return n + (r ? (size - r) : 0);
+-}
++#define dm_div_up(n, sz) (((n) + (sz) - 1) / (sz))
++
++#define dm_sector_div_up(n, sz) ( \
++{ \
++	sector_t _r = ((n) + (sz) - 1); \
++	sector_div(_r, (sz)); \
++	_r; \
++} \
++)
+ 
+ /*
+- * Ceiling(n / size)
++ * ceiling(n / size) * size
+  */
+-static inline unsigned long dm_div_up(unsigned long n, unsigned long size)
+-{
+-	return dm_round_up(n, size) / size;
+-}
++#define dm_round_up(n, sz) (dm_div_up((n), (sz)) * (sz))
+ 
+ static inline sector_t to_sector(unsigned long n)
+ {
+--- diff/include/linux/device-mapper.h	2005-01-28 15:26:59.000000000 +0000
++++ source/include/linux/device-mapper.h	2005-01-28 15:46:17.000000000 +0000
+@@ -108,6 +108,7 @@
+ 	sector_t len;
+ 
+ 	/* FIXME: turn this into a mask, and merge with io_restrictions */
++	/* Always a power of 2 */
+ 	sector_t split_io;
+ 
+ 	/*

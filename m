@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281010AbRKGVeo>; Wed, 7 Nov 2001 16:34:44 -0500
+	id <S280996AbRKGViO>; Wed, 7 Nov 2001 16:38:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281006AbRKGVee>; Wed, 7 Nov 2001 16:34:34 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:4870 "EHLO toyota.com")
-	by vger.kernel.org with ESMTP id <S280991AbRKGVeT>;
-	Wed, 7 Nov 2001 16:34:19 -0500
-Message-ID: <3BE9A8D2.22D46175@lexus.com>
-Date: Wed, 07 Nov 2001 13:34:10 -0800
-From: J Sloan <jjs@lexus.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Mohammad A. Haque" <mhaque@haque.net>
-CC: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kernel 2.4.14 compiling fail for loop device
-In-Reply-To: <0994FB93-D3C4-11D5-A232-00306569F1C6@haque.net>
+	id <S280991AbRKGVh5>; Wed, 7 Nov 2001 16:37:57 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:48185 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S280996AbRKGVhm>; Wed, 7 Nov 2001 16:37:42 -0500
+Date: Wed, 7 Nov 2001 23:37:31 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ext3 vs resizerfs vs xfs
+Message-ID: <20011107233731.N1504@niksula.cs.hut.fi>
+In-Reply-To: <E161UYR-0004S5-00@the-village.bc.nu> <E161Vbf-0000m9-00@lilac.csi.cam.ac.uk> <20011107213837.F26218@niksula.cs.hut.fi> <E161ZYW-0006ky-00@mauve.csi.cam.ac.uk> <20011107141157.L5922@lynx.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011107141157.L5922@lynx.no>; from adilger@turbolabs.com on Wed, Nov 07, 2001 at 02:11:57PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Mohammad A. Haque" wrote:
+On Wed, Nov 07, 2001 at 02:11:57PM -0700, [Andreas Dilger] said:
+> 
+> If you have an open but unlinked file, then ext3 will delete this file at
+> mount/fsck time (unlike reiserfs which leaves it around wasting space).
 
-> On Wednesday, November 7, 2001, at 03:49 PM, Roeland Th. Jansen wrote:
->
-> > when mounting an EFS cd on the loop it also froze. this is _without_
-> > removing the lines. ...
->
-> I'm a little confused. How did you even get a working kernel (or module)
-> without removing the lines?
->
+Is this really still true for reiserfs? Is there a way to get rid of them?
+reiserfsck? I had this vague impression that this bug had been dealt with
+but...
 
-Probably compiled it modular -
 
-cu
+-- v --
 
-jjs
-
+v@iki.fi

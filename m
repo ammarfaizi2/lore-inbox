@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261505AbUCBH6m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 02:58:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbUCBH6l
+	id S261501AbUCBIA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 03:00:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbUCBIA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 02:58:41 -0500
-Received: from waste.org ([209.173.204.2]:7391 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261505AbUCBH6k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 02:58:40 -0500
-Date: Tue, 2 Mar 2004 01:58:26 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org
-Subject: Re: FASTBOOT options in EMBEDDED menu?
-Message-ID: <20040302075826.GX3883@waste.org>
-References: <40438CDB.9080003@am.sony.com> <20040301112435.66be3bcc.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040301112435.66be3bcc.rddunlap@osdl.org>
-User-Agent: Mutt/1.3.28i
+	Tue, 2 Mar 2004 03:00:27 -0500
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:15301 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S261501AbUCBIAV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 03:00:21 -0500
+Date: Tue, 2 Mar 2004 03:00:13 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Steve Lee <steve@tuxsoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-rc1 problems with e100 & 3c59x
+In-Reply-To: <005b01c3ffd3$54955140$8119fea9@pluto>
+Message-ID: <Pine.LNX.4.58.0403020258110.29087@montezuma.fsmlabs.com>
+References: <005b01c3ffd3$54955140$8119fea9@pluto>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 01, 2004 at 11:24:35AM -0800, Randy.Dunlap wrote:
-> On Mon, 01 Mar 2004 11:19:55 -0800 Tim Bird wrote:
-> 
-> | I'm starting to adapt some patches for options which
-> | allow Linux to boot faster (for embedded environments).
-> | 
-> | It seems like these should go under the EMBEDDED
-> | menu.  However, this menu looks like it is specific
-> | to size reductions:
-> | 
-> | menuconfig EMBEDDED
-> |      bool "Remove kernel features (for embedded systems)"
-> |      help
-> |        This option allows certain base kernel features to be removed from
-> |        the build...
-> | 
-> | Some of the options that CELF is working on for
-> | fast booting do remove features, but some do not.
-> | 
-> | Anyone have advice for whether I should:
-> | 1) use the existing EMBEDDED option (my preference), or
-> | 2) make a new FASTBOOT option?
-> 
-> I agree with you, EMBEDDED should be able to handle it.
+On Mon, 1 Mar 2004, Steve Lee wrote:
 
-I've renamed the EMBEDDED menu in my tree to something on the order of
-"modify standard feature set" as it's not really specific to EMBEDDED.
+> I've searched the archives as well as googled around without any luck
+> regarding my situation.  BTW, please CC me as I'm no longer subscribed
+> (furthering my education has prevented me from keeping up with the
+> list).
+>
+> Can anyone please give me some clue as to what might be wrong?  My
+> network is working fine with the drivers compiled in 2.6.3 (but not as
+> modules).  I can't get 2.6.4-rc1 to work at all with my network cards.
 
-Tim, if you want to send me your fastboot patches, I'd be happy to put
-them in -tiny.
+One thing to make sure is that you're using /etc/modprobe.conf and don't
+load the modules manually.
 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+	Zwane

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285273AbSALHxV>; Sat, 12 Jan 2002 02:53:21 -0500
+	id <S285347AbSALHyV>; Sat, 12 Jan 2002 02:54:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285161AbSALHxM>; Sat, 12 Jan 2002 02:53:12 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13324 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S285099AbSALHxI>; Sat, 12 Jan 2002 02:53:08 -0500
+	id <S285338AbSALHyP>; Sat, 12 Jan 2002 02:54:15 -0500
+Received: from vega.digitel2002.hu ([213.163.0.181]:27569 "EHLO
+	vega.digitel2002.hu") by vger.kernel.org with ESMTP
+	id <S285161AbSALHyB>; Sat, 12 Jan 2002 02:54:01 -0500
+Date: Sat, 12 Jan 2002 08:53:57 +0100
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
-Date: 11 Jan 2002 23:52:50 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a1oq0i$ino$1@cesium.transmeta.com>
-In-Reply-To: <m26669olcu.fsf@goliath.csn.tu-chemnitz.de.suse.lists.linux.kernel> <E16Oocq-0005tX-00@the-village.bc.nu.suse.lists.linux.kernel> <p737kqpp60w.fsf@oldwotan.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Cc: Michael Zhu <mylinuxk@yahoo.ca>
+Subject: Re: LOSETUP COMMAND
+Message-ID: <20020112075357.GG31826@vega.digitel2002.hu>
+Reply-To: lgb@lgb.hu
+In-Reply-To: <20020111210333.46759.qmail@web14912.mail.yahoo.com> <20020111155557.B5764@unpythonic.dhs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20020111155557.B5764@unpythonic.dhs.org>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: vega Linux 2.4.17 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <p737kqpp60w.fsf@oldwotan.suse.de>
-By author:    Andi Kleen <ak@suse.de>
-In newsgroup: linux.dev.kernel
->  
-> One corner case where emulation would IMHO make sense would be CMPXCHG8.
-> It would allow to do efficient inline mutexes in pthreads, and hit the
-> emulation only on 386/486. cpu feature flag checking is unfortunately
-> not an option normally for inline code.
+On Fri, Jan 11, 2002 at 03:55:57PM -0600, jepler@unpythonic.dhs.org wrote:
+> On Fri, Jan 11, 2002 at 04:03:33PM -0500, Michael Zhu wrote:
+> > Hello, everyone, does anyone know where I can find the
+> > source code of "losetup" and "mount"?  Thanks
 > 
+> If you're using an RPM-based distribution, you can use rpm to find this
+> kind of information.
+> 
+> $ rpm -qf /bin/mount
+> mount-2.10f-1
+> 
+> Now, get the mount-2.10f-1.src.rpm from your install media, use rpm -ivh to
+> install it, then rpm -bp on the installed specfile to recover the actual
+> source tree used to build that version of mount.
 
-You don't need CMPXCHG8B to do efficient inline mutexes.  In fact, the
-pthreads code for i386 uses the same mutexes the kernel does (LOCK INC
-based, I believe), complete with section hacking to make them
-efficiently inlinable -- and then they're put inside a function call.
-I believe "kill me now" is an appropriate response.
 
-	-hpa
+Or use Debian, and simply say:
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+apt-get source mount
+
+- Gábor

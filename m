@@ -1,58 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264647AbSLJJoG>; Tue, 10 Dec 2002 04:44:06 -0500
+	id <S265752AbSLJKEw>; Tue, 10 Dec 2002 05:04:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266712AbSLJJoG>; Tue, 10 Dec 2002 04:44:06 -0500
-Received: from holomorphy.com ([66.224.33.161]:57755 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S264647AbSLJJoF>;
-	Tue, 10 Dec 2002 04:44:05 -0500
-Date: Tue, 10 Dec 2002 01:51:18 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: george anzinger <george@mvista.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 3/3] High-res-timers part 3 (posix to hrposix) take 20
-Message-ID: <20021210095118.GG9882@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>, george anzinger <george@mvista.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <3DB9A314.6CECA1AC@mvista.com> <3DF2F965.59D7CD84@mvista.com> <3DF3D706.977AC5BB@digeo.com> <3DF4487C.67FD90EF@mvista.com> <3DF44E98.DD173EE8@digeo.com> <3DF5A62C.242E171@mvista.com> <3DF5B2D1.FD134082@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DF5B2D1.FD134082@digeo.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S266736AbSLJKEw>; Tue, 10 Dec 2002 05:04:52 -0500
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:14471 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S265752AbSLJKEv>; Tue, 10 Dec 2002 05:04:51 -0500
+Date: Tue, 10 Dec 2002 10:12:34 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cantab.net>
+To: Justin Pryzby <justinpryzby@users.sourceforge.net>
+cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
+       pryzju01@gettysburg.edu
+Subject: Re: [Linux-NTFS-Dev] [PATCH] 2.5.51 ntfs - GCC3
+In-Reply-To: <20021210075152.GA12219@perseus.homeunix.net>
+Message-ID: <Pine.SOL.3.96.1021210095357.6524A-100000@libra.cus.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 10, 2002 at 01:24:33AM -0800, Andrew Morton wrote:
-> A simple way of doing the "find an empty slot" is to descend the
-> tree, following the trail of nodes which have `count < 64' until
-> you hit the bottom.  At each node you'll need to walk the slots[]
-> array to locate the first empty one.
-> That's quite a few cache misses.  It can be optimised by adding
-> a 64-bit DECLARE_BITMAP to struct radix_tree_node.  This actually
-> obsoletes `count', because you can just replace the test for
-> zero count with a test for `all 64 bits are zero'.
+This patch is completely wrong. Please do not apply.
 
-I found that ffz() to find the index of the not-fully-populated child
-node to search was efficient enough to provide a precisely K == 2*levels
-constant within the O(1) for accesses in all non-failure cases.
-Measuring by cachelines it would have been superior to provide a
-cacheline-sized node at each level and perform ffz by hand.
+On Tue, 10 Dec 2002, Justin Pryzby wrote:
+> What was going on with 2.96<=__GNUC__<3 ?!
 
+gcc-2.96 introduces unnamed unions and structures which we make heavy use
+of in the NTFS driver. To be able to compile with earlier gcc versions, we
+had to do some macro magic which is what the below code snippet in your
+patch shows. The idea is that as soon as the official kernel requirements
+for the minimum compiler are raised to gcc-2.96 or above, we will remove
+all the macro magic and just leave everything unnamed.
 
-On Tue, Dec 10, 2002 at 01:24:33AM -0800, Andrew Morton wrote:
-> Such a search would be an extension to or variant of radix_tree_gang_lookup.
-> Something like the (old, untested) code below.
-> But it's a big job.  First thing to do is to write a userspace
-> test harness for the radix-tree code.  That's something I need to
-> do anyway, because radix_tree_gang_lookup fails for offests beyond
-> the 8TB mark, and it's such a pita fixing that stuff in-kernel.
+Unfortunately the gcc crew fscked up and broke typedefs to unnamed unions
+and structures in gcc-3.1 I think it was. This has since been fixed again
+in the more recent gcc versions (gcc-3.2 is ok).
 
-Userspace test harnesses are essential for this kind of work. They
-were for several of mine.
+So if any special casing needs to be made below it would be to extend the
+existing test with an || (__GNUC__ == 3 && __GNUC_MINOR__ == 1) but I
+prefer not to do that. People should just upgrade their compiler. After
+all it is the compiler that is broken not the code.
 
+Best regards,
 
-Bill
+	Anton
+
+> 
+> Justin
+> 
+> diff -Naur linux-2.5.51.org/fs/ntfs/types.h linux-2.5.51.ntfs/fs/ntfs/types.h
+> --- linux-2.5.51.org/fs/ntfs/types.h	2002-12-10 02:17:52.000000000 -0500
+> +++ linux-2.5.51.ntfs/fs/ntfs/types.h	2002-12-10 02:41:31.000000000 -0500
+> @@ -23,12 +23,12 @@
+>  #ifndef _LINUX_NTFS_TYPES_H
+>  #define _LINUX_NTFS_TYPES_H
+>  
+> -#if __GNUC__ < 2 || (__GNUC__ == 2 && __GNUC_MINOR__ < 96)
+> -#define SN(X)   X	/* Struct Name */
+> -#define SC(P,N) P.N	/* ShortCut: Prefix, Name */
+> -#else
+> +#if __GNUC__ == 2 && __GNUC_MINOR__ >= 96
+>  #define SN(X)
+>  #define SC(P,N) N
+> +#else
+> +#define SN(X)   X	/* Struct Name */
+> +#define SC(P,N) P.N	/* ShortCut: Prefix, Name */
+>  #endif
+>  
+>  /* 2-byte Unicode character type. */
+> 
+> 
+
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

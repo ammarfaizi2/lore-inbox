@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129804AbRB0LBF>; Tue, 27 Feb 2001 06:01:05 -0500
+	id <S129753AbRB0K7F>; Tue, 27 Feb 2001 05:59:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129792AbRB0LAz>; Tue, 27 Feb 2001 06:00:55 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:14858 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S129791AbRB0LAl>; Tue, 27 Feb 2001 06:00:41 -0500
-Date: Tue, 27 Feb 2001 11:56:50 +0100
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: David <dllorens@lsi.uji.es>, linux-kernel@vger.kernel.org
-Subject: Re: Posible bug in gcc
-Message-ID: <20010227115649.H25658@arthur.ubicom.tudelft.nl>
-In-Reply-To: <3A9A8489.224CF54C@inf.uji.es> <20010226233013.A2995@werewolf.able.es>
+	id <S129766AbRB0K6z>; Tue, 27 Feb 2001 05:58:55 -0500
+Received: from 25dyn119.com21.casema.net ([213.17.95.119]:12306 "HELO
+	home.ds9a.nl") by vger.kernel.org with SMTP id <S129753AbRB0K6l>;
+	Tue, 27 Feb 2001 05:58:41 -0500
+Date: Tue, 27 Feb 2001 11:58:29 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: rsync over ssh on 2.4.2 to 2.2.18
+Message-ID: <20010227115829.A6166@home.ds9a.nl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <200102271002.f1RA2B408058@brick.arm.linux.org.uk> <20010227111839.F2736@jaquet.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010226233013.A2995@werewolf.able.es>; from jamagallon@able.es on Mon, Feb 26, 2001 at 11:30:13PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+X-Mailer: Mutt 1.0pre4i
+In-Reply-To: <20010227111839.F2736@jaquet.dk>; from rasmus@jaquet.dk on Tue, Feb 27, 2001 at 11:18:39AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 26, 2001 at 11:30:13PM +0100, J . A . Magallon wrote:
-> On 02.26 David wrote:
-> > I think I heve found a bug in gcc. I have tried both egcs 1.1.2 (gcc
-> > 2.91.66) and gcc 2.95.2 versions.
-> 
-> gcc2.95.2 is sane in irix6.2, irix6.5 and solaris7sparc.
-> 
-> The optimizer is not in the common front-end ?
+On Tue, Feb 27, 2001 at 11:18:39AM +0100, Rasmus Andersen wrote:
 
-Yes and no. There is some common code in the optimiser, but each target
-has its own optimisation tricks for which the code is not shared with
-other targets.
+> terminate, apparently because the child does not receive the KILLUSR1
+> (wild speculation)? Anyways, the parent process waits in wait4 and
+> the child loops, waiting for the signal. This is not reproducable
+> in 2.2.X (for me).
 
+rsync problems of this type abound across several UNIX platforms - I had
+problems like this on FreeBSD, but never under Linux. I suspect that rsync
+bends or at least stretches certain limits.
 
-Erik
+Regards,
+
+bert
 
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+http://www.PowerDNS.com      Versatile DNS Services  
+Trilab                       The Technology People   
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet

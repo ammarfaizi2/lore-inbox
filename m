@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274975AbTHLBqr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 21:46:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274976AbTHLBqr
+	id S274984AbTHLBtR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 21:49:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274985AbTHLBtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 21:46:47 -0400
-Received: from cable98.usuarios.retecal.es ([212.22.32.98]:57485 "EHLO
-	hell.lnx.es") by vger.kernel.org with ESMTP id S274975AbTHLBqo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 21:46:44 -0400
-Date: Tue, 12 Aug 2003 03:46:40 +0200
-From: Manuel Estrada Sainz <ranty@debian.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] state request_firmware() maintainership.
-Message-ID: <20030812014640.GA31498@ranty.pantax.net>
-Reply-To: ranty@debian.org
-Mime-Version: 1.0
+	Mon, 11 Aug 2003 21:49:16 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:12755 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S274984AbTHLBtN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 21:49:13 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Christoph Hellwig <hch@infradead.org>
+Date: Tue, 12 Aug 2003 11:48:28 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16184.18284.969212.342794@gargle.gargle.HOWL>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2 of 2 - Allow O_EXCL on a block device to claim exclusive use.
+In-Reply-To: message from Christoph Hellwig on Monday August 11
+References: <E19m2XN-0002BU-00@notabene>
+	<20030811082231.A20077@infradead.org>
+X-Mailer: VM 7.17 under Emacs 21.3.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- I am not sure to hom I should should send this one, so I figured you
- where a good victim :)
+On Monday August 11, hch@infradead.org wrote:
+> On Mon, Aug 11, 2003 at 12:35:57PM +1000, NeilBrown wrote:
+> > diff ./fs/block_dev.c~current~ ./fs/block_dev.c
+> > -	return do_open(bdev, inode, filp);
+> > +	res = do_open(bdev, inode, filp);
+> > +	if (res)
+> > +		return res;
+> > +
+> > +	if (!(filp->f_flags & O_EXCL) )
+> > +		return 0;
+> > +
+> > +	if (!(res = bd_claim(bdev, filp)))
+> > +		return 0;
+> > +
+> > +	blkdev_put(bdev, BDEV_FILE);
+> > +	return res;
+> 
+> Shouldn't you claim it before opening.  Also what is the desired
+> behaviour when opening partitions vs whole device with O_EXCL?
 
- ChangeLog:
-	
-	 Add myself to MAINTAINERS for request_firmware().
-	
+Good question.
+My first attempt at this did claim before openning.
+However that didn't work.
+Some aspects of the bdev that are needed for claiming are not
+initialised before it is first opened.  In particular, bd_contains,
+gets set up by do_open.
 
+Also, other code uses this order.
+e.g. open_bdev_excl called blkdev_get (which calls do_open) before
+bd_claim.
 
- MAINTAINERS |    6 ++++++
- 1 files changed, 6 insertions(+)
-
-
-diff --exclude=CVS -urN linux-2.5.orig/MAINTAINERS linux-2.5.mine/MAINTAINERS
---- linux-2.5.orig/MAINTAINERS	2003-08-12 03:34:05.000000000 +0200
-+++ linux-2.5.mine/MAINTAINERS	2003-08-11 00:52:07.000000000 +0200
-@@ -717,6 +717,12 @@
- M:	viro@math.psu.edu
- S:	Maintained
- 
-+FIRMWARE LOADER (request_firmware)
-+P:	Manuel Estrada Sainz
-+M:	ranty@debian.org
-+L:	linux-kernel@vger.kernel.org
-+S:	Maintained
-+
- FPU EMULATOR
- P:	Bill Metzenthen
- M:	billm@suburbia.net
-
--- 
---- Manuel Estrada Sainz <ranty@debian.org>
-                         <ranty@bigfoot.com>
-			 <ranty@users.sourceforge.net>
------------------------- <manuel.estrada@hispalinux.es> -------------------
-Let us have the serenity to accept the things we cannot change, courage to
-change the things we can, and wisdom to know the difference.
+NeilBrown

@@ -1,29 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290656AbSBFQa3>; Wed, 6 Feb 2002 11:30:29 -0500
+	id <S290654AbSBFQ33>; Wed, 6 Feb 2002 11:29:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290657AbSBFQaU>; Wed, 6 Feb 2002 11:30:20 -0500
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:39697 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S290656AbSBFQaC> convert rfc822-to-8bit; Wed, 6 Feb 2002 11:30:02 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: Please add me to the kernel change distribution list 
-Date: Wed, 6 Feb 2002 10:29:53 -0600
-Message-ID: <46BC296DF8858447B94D8A4A6CE4A4AE10EFB7@cceexc15.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Please add me to the kernel change distribution list 
-Thread-Index: AcGvK4F/u7wNpmyoQjONrZh8yMLLiw==
-From: "Kopp, Jeffery" <Jeffery.Kopp@COMPAQ.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 06 Feb 2002 16:29:54.0065 (UTC) FILETIME=[81E29810:01C1AF2B]
+	id <S290656AbSBFQ3U>; Wed, 6 Feb 2002 11:29:20 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:28935 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S290654AbSBFQ3O>; Wed, 6 Feb 2002 11:29:14 -0500
+Date: Wed, 6 Feb 2002 16:29:09 +0000
+From: John Levon <movement@marcelothewonderpenguin.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel: ldt allocation failed
+Message-ID: <20020206162909.GA68254@compsoc.man.ac.uk>
+In-Reply-To: <Pine.LNX.3.96.1020206105011.7298A-100000@gatekeeper.tmr.com> <E16YUcn-0005bZ-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16YUcn-0005bZ-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Bendik Singers - Afrotid
+X-Toppers: N/A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 06, 2002 at 04:08:45PM +0000, Alan Cox wrote:
 
+> Actually Jakub has already replied to my email with a glibc folks paper
+> on the thread stuff (confusingly called tls just to confuse everyone who
 
+where can we find this ?
 
+thanks
+john
+
+-- 
+"Mathemeticians stand on each other's shoulders while computer scientists
+ stand on each other's toes."
+	- Richard Hamming

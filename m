@@ -1,74 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266491AbSLWPEv>; Mon, 23 Dec 2002 10:04:51 -0500
+	id <S266514AbSLWPLU>; Mon, 23 Dec 2002 10:11:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266514AbSLWPEv>; Mon, 23 Dec 2002 10:04:51 -0500
-Received: from host217-36-81-41.in-addr.btopenworld.com ([217.36.81.41]:37033
-	"EHLO mail.dark.lan") by vger.kernel.org with ESMTP
-	id <S266491AbSLWPEu>; Mon, 23 Dec 2002 10:04:50 -0500
-Subject: [PATCH]: Re: NMI: IOCK error (debug interrupt?) - nope
-From: Gianni Tedesco <gianni@ecsc.co.uk>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1040293420.12106.13.camel@lemsip>
-References: <1040293420.12106.13.camel@lemsip>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+mR9kVEwj6TgbGhf3Q1L"
-Organization: 
-Message-Id: <1040656341.23373.18.camel@lemsip>
+	id <S266520AbSLWPLU>; Mon, 23 Dec 2002 10:11:20 -0500
+Received: from c-24-99-36-145.atl.client2.attbi.com ([24.99.36.145]:3082 "HELO
+	babylon.d2dc.net") by vger.kernel.org with SMTP id <S266514AbSLWPLT>;
+	Mon, 23 Dec 2002 10:11:19 -0500
+Date: Mon, 23 Dec 2002 10:19:24 -0500
+From: "Zephaniah E\. Hull" <warp@babylon.d2dc.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.5.x console keyboard problem.
+Message-ID: <20021223151924.GA5970@babylon.d2dc.net>
+Mail-Followup-To: Vojtech Pavlik <vojtech@suse.cz>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
-Date: 23 Dec 2002 15:12:22 +0000
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
+X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
+X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
+X-Notice-4: policy and agree to the fee.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-+mR9kVEwj6TgbGhf3Q1L
-Content-Type: text/plain
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, 2002-12-19 at 10:23, Gianni Tedesco wrote:
-> Hello,
->=20
-> A firewall of ours recently went tits up (2.4.19). It was still routing
-> traffic but when I connected to SSH for example the SSH banner would not
-> appear, it looked like all userspace was dead.
->=20
-> When we looked in the logs there was this. Presumably the hardware is
-> broken. But I wonder if anyone can confirm this? Thanks!
->=20
-> NMI: IOCK error (debug interrupt?)
+It took me a while to track this down, with a few false paths.
 
-Turns out to be a 2bit ECC error. The machine is a dell power-edge 350.
+I have verified this is kernel side, so..
 
---- linux-2.4.19.orig/arch/i386/kernel/traps.c	Mon Dec 23 13:28:32 2002
-+++ linux-2.4.19/arch/i386/kernel/traps.c	Mon Dec 23 15:11:24 2002
-@@ -613,7 +613,7 @@
- {
- 	unsigned long i;
-=20
--	printk("NMI: IOCK error (debug interrupt?)\n");
-+	printk("NMI: IOCK error (debug interrupt / ECC RAM error?)\n");
- 	show_registers(regs);
-=20
- 	/* Re-enable the IOCK line, wait for a few seconds */
+The basic problem goes like this, start X, switch away from X with
+ctrl-alt-Fn, then switch back to X, this is where the fun starts.
 
+Sometimes (this seems to be a race condition, but I have no idea what it
+depends on) things go, interestingly wrong, X gets the message that it
+has the VC, it takes control of the screen, and the kernel grabs the
+ctrl-alt-Fn used to switch away from X, and does not tell X that it no
+longer actually HAS the console.
+
+Resulting in keyboard input going to the VC you switched out from X to,
+and the kernel believing that it can print to the screen, but with X also
+still trying to control the screen.
+
+If you switch back to the VC X is on then things work from there,
+however this is quite obviously quite broken.
+
+Verification that this was kernel side was not too hard, removing the
+console binds for ctrl-alt-Fn makes the problem go away.
+
+This happens for 2.5.x, but not 2.4.20, I don't know where in 2.5.x it
+started.
+
+Thanks.
+
+Zephaniah E. Hull.
 
 --=20
-// Gianni Tedesco (gianni at ecsc dot co dot uk)
-lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+	1024D/E65A7801 Zephaniah E. Hull <warp@babylon.d2dc.net>
+	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
+	    CCs of replies from mailing lists are requested.
 
---=-+mR9kVEwj6TgbGhf3Q1L
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+[1] Yes, we ARE rather dull people.  We appreciate being dull people.
+Exciting is only good when it happens to someone else ... as in "an
+exciting wreck", "an exciting plane crash", "an exciting install of
+Windows XP", et al.
+  -- Ralph Wade Phillips in the Scary Devil Monastery.
+
+--/04w6evG8XlLl3ft
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQA+ByfVkbV2aYZGvn0RAr8ZAJ4zYZYCd+JtxCruUWgjpRf6uiz4XgCfSOAi
-AzrdKsaP4vlddbj1brZQGQs=
-=NV64
+iD8DBQE+Byl8RFMAi+ZaeAERAmq0AJ49NSG5rVC7PJOUy09Hnmz3SzNkCACeOCeX
+HulV3rsZgveOXvH7LabSNPw=
+=eQjN
 -----END PGP SIGNATURE-----
 
---=-+mR9kVEwj6TgbGhf3Q1L--
-
+--/04w6evG8XlLl3ft--

@@ -1,88 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbUJYRUg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbUJYRUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbUJYRUg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 13:20:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbUJYRSc
+	id S261189AbUJYRUw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 13:20:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbUJYRUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 13:18:32 -0400
-Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:49937 "EHLO
-	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S261174AbUJYRQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 13:16:43 -0400
-Message-ID: <417D35F0.1070501@kolumbus.fi>
-Date: Mon, 25 Oct 2004 20:20:48 +0300
-From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mike Waychison <michael.waychison@sun.com>
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       raven@themaw.net
-Subject: Re: [PATCH 13/28] VFS: Introduce soft reference counts
-References: <10987154731896@sun.com> <10987155032816@sun.com>
-In-Reply-To: <10987155032816@sun.com>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 25.10.2004 20:18:01,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 25.10.2004 20:18:45,
-	Serialize complete at 25.10.2004 20:18:45
+	Mon, 25 Oct 2004 13:20:50 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:39343 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261174AbUJYRT4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 13:19:56 -0400
+Message-Id: <200410251719.i9PHJmOi009687@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
+To: "Nico Augustijn." <kernel@janestarz.com>
+Cc: hvr@gnu.org, clemens@endorphin.org, linux-kernel@vger.kernel.org
+Subject: Re: Cryptoloop patch for builtin default passphrase 
+In-Reply-To: Your message of "Mon, 25 Oct 2004 13:54:31 +0200."
+             <200410251354.31226.kernel@janestarz.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200410251354.31226.kernel@janestarz.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-618858920P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Date: Mon, 25 Oct 2004 13:19:48 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Waychison wrote:
+--==_Exmh_-618858920P
+Content-Type: text/plain; charset=us-ascii
 
->This patch introduces the concept of a 'soft' reference count for a vfsmount.
->This type of reference count allows for references to be held on mountpoints
->that do not affect their busy states for userland unmounting.  Some might
->argue that this is wrong because 'when I unmount a filesystem, I want the
->resources associated with it to go away too', but this way of thinking was
->deprecated with the addition of namespaces and --bind back in the 2.4 series.
->
->A future addition may see a callback mechanism so that in kernel users can
->use a given mountpoint and have it deregistered some way (quota and
->accounting come to mind).
->
->These soft reference counts are used by a later patch that adds an interface
->for holding and manipulating mountpoints using filedescriptors.
->
->Signed-off-by: Mike Waychison <michael.waychison@sun.com>
-> 
->+static inline struct vfsmount *mntsoftget(struct vfsmount *mnt)
->+{
->+	if (mnt) {
->+		read_lock(&vfsmountref_lock);
->+		atomic_inc(&mnt->mnt_softcount);
->+		mntgroupget(mnt);
->+		read_unlock(&vfsmountref_lock);
->+	}
->+	return mnt;
->+}
->+
->+static inline void mntsoftput(struct vfsmount *mnt)
->+{
->+	struct vfsmount *cleanup;
->+	might_sleep();
->+	if (mnt) {
->+		if (atomic_dec_and_test(&mnt->mnt_count))
->+			__mntput(mnt);
->+		read_lock(&vfsmountref_lock);
->+		cleanup = mntgroupput(mnt);
->+		atomic_dec(&mnt->mnt_softcount);
->+		read_unlock(&vfsmountref_lock);
->+		if (cleanup)
->+			__mntgroupput(cleanup);
->+	}
->+}
->+
-> extern void free_vfsmnt(struct vfsmount *mnt);
->  
->
-What is this against? What are mntgroupput and mntgroupget? Why does 
-soft put decrement mnt_count which isn't increment by soft get? How do 
-soft references allow userland umount? I don't see soft references used 
-anywhere...
+On Mon, 25 Oct 2004 13:54:31 +0200, "Nico Augustijn." said:
 
---Mika
+> But all that takes some searching. And the passphrase is also XOR-ed with the
+> first 32 bytes of /dev/nvram.
 
+So if something touches the first 32 bytes of NVRAM, your data evaporates?
+
+Is this considered a desirable result?
+
+--==_Exmh_-618858920P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBfTWzcC3lWbTT17ARAupWAKDfkZcgl1Ua+1YTmNis5XykiqaG6QCgns6m
+bM7MgqXbdGIjkuIpaPPx24c=
+=1TNi
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-618858920P--

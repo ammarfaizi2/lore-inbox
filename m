@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314277AbSEBHfq>; Thu, 2 May 2002 03:35:46 -0400
+	id <S314278AbSEBI3X>; Thu, 2 May 2002 04:29:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314278AbSEBHfp>; Thu, 2 May 2002 03:35:45 -0400
-Received: from [62.245.135.174] ([62.245.135.174]:9643 "EHLO mail.teraport.de")
-	by vger.kernel.org with ESMTP id <S314277AbSEBHfp>;
-	Thu, 2 May 2002 03:35:45 -0400
-Message-ID: <3CD0EC48.A0F13F53@TeraPort.de>
-Date: Thu, 02 May 2002 09:35:36 +0200
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Reply-To: m.knoblauch@TeraPort.de
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5-ac3 i686)
-X-Accept-Language: en, de
+	id <S314280AbSEBI3W>; Thu, 2 May 2002 04:29:22 -0400
+Received: from h24-68-93-250.vc.shawcable.net ([24.68.93.250]:18304 "EHLO
+	me.bcgreen.com") by vger.kernel.org with ESMTP id <S314278AbSEBI3V>;
+	Thu, 2 May 2002 04:29:21 -0400
+Message-ID: <3CD0F846.3070605@bcgreen.com>
+Date: Thu, 02 May 2002 01:26:46 -0700
+From: Stephen Samuel <samuel@bcgreen.com>
+Organization: Just Another Radical
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0+) Gecko/20020427
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: kaos@ocs.com.au
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: The tainted message
-X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 05/02/2002 09:35:37 AM,
-	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 05/02/2002 09:35:45 AM,
-	Serialize complete at 05/02/2002 09:35:45 AM
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: Bill Davidsen <davidsen@tmr.com>, Andre Hedrick <andre@linux-ide.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: A CD with errors (scratches etc.) blocks the whole system while
+ reading damadged files
+In-Reply-To: <Pine.LNX.4.10.10204260028140.10216-100000@master.linux-ide.org> <Pine.LNX.3.96.1020429173812.26335B-100000@gatekeeper.tmr.com> <20020502034530.GT574@matchmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Re: The tainted message
-> 
-> From: Keith Owens (kaos@ocs.com.au)
-> Date: Tue Apr 30 2002 - 08:44:48 EST
-> 
-> 
-> On Tue, 30 Apr 2002 23:37:32 +1000,
-> john slee <indigoid@higherplane.net> wrote:
-> >how about adding an optional tag to modules for a support/faq URL?
-> 
-> It is already there!
-> 
-> MODULE_LICENSE("Proprietary FOO P/L - contact someone@somewhere for support");
-> 
-> insmod prints the license text.
-> 
+I ran a similar type of test on a 2.4.9.31 (redhat 7.1 ) kernel.
+With the CD on HDD, I could read off of HDA just peachy while
+the system was choking on a scratched (aol) cd.
 
- purely technical question: does this work with the "compatible" license
-strings without making them incompatible? E.g. would this be a
-compatible license:
+I did a WC of a 300MB file (only 256MB of ram on the system,
+so that's guaranteed to not fit in any cache).
 
-MODULE_LICENSE("GPL - contact someone@somewhere for support");
-
- Just that something is GPL doesn't mean I should contact LKML for
-support at all :-)
-
-Martin
+Times to read the file were statistically equivalent whether
+the system was choking on the CD or not.
 -- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
+Stephen Samuel +1(604)876-0426                samuel@bcgreen.com
+		   http://www.bcgreen.com/~samuel/
+Powerful committed communication, reaching through fear, uncertainty and
+doubt to touch the jewel within each person and bring it to life.
+

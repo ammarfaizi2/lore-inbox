@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269089AbUHaWj7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268541AbUHaWj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269089AbUHaWj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 18:39:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269129AbUHaWXq
+	id S268541AbUHaWj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 18:39:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268527AbUHaWil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 18:23:46 -0400
-Received: from gprs214-205.eurotel.cz ([160.218.214.205]:899 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S269089AbUHaWNV (ORCPT
+	Tue, 31 Aug 2004 18:38:41 -0400
+Received: from fw.osdl.org ([65.172.181.6]:25025 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269232AbUHaWd5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 18:13:21 -0400
-Date: Wed, 1 Sep 2004 00:07:26 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
-       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040831220726.GB16428@elf.ucw.cz>
-References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl> <Pine.LNX.4.58.0408311252150.2295@ppc970.osdl.org> <20040831203226.GB16110@elf.ucw.cz> <Pine.LNX.4.58.0408311336580.2295@ppc970.osdl.org> <20040831205422.GD16110@elf.ucw.cz> <Pine.LNX.4.58.0408311357550.2295@ppc970.osdl.org>
+	Tue, 31 Aug 2004 18:33:57 -0400
+Date: Tue, 31 Aug 2004 15:36:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: ak@muc.de, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch]  kill __always_inline
+Message-Id: <20040831153649.7f8a1197.akpm@osdl.org>
+In-Reply-To: <20040831221348.GW3466@fs.tum.de>
+References: <20040831221348.GW3466@fs.tum.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408311357550.2295@ppc970.osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > However, that said, user space can trivially cache things in the 
-> > > filesystem, so while this may be a convenient feature, I think you should 
-> > > look at perhaps doing it in the _shell_ instead..
-> > 
-> > That cache should disappear as soon as I need disk
-> > space. I.e. userspace should never see -ENOSPC because of this kind of
-> > caching. This need some kernel support. Ouch and cached file should
-> > atomically go away as soon as main file changes, otherwise I do not
-> > see how multiple processes could cooperate on caching...
+Adrian Bunk <bunk@fs.tum.de> wrote:
+>
+> An issue that we already discussed at 2.6.8-rc2-mm2 times:
 > 
-> Well, what other projects have done is to just reserve a certain amount of 
-> disk for caching. See "ccache", which solves both of the above problems 
-> (it doesn't shrink the cache on ENOSPC, but reserving diskspace is 
-> accepted practice for things like this..)
+> 2.6.9-rc1 includes __always_inline which was formerly in  -mm.
+> __always_inline doesn't make any sense:
+> 
+> __always_inline is _exactly_ the same as __inline__, __inline and inline .
+> 
+> 
+> The patch below removes __always_inline again:
 
-Okay, that does work, it just is not really nice. Just as reserving
-fixed ammount of space for disk cache is bad, reserving fixed ammount
-of space for ccache (and similar) is bad. When there are few of such
-caches, balancing between them starts to matter...
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+But what happens if we later change `inline' so that it doesn't do
+the `always inline' thing?
+
+An explicit usage of __always_inline is semantically different than
+boring old `inline'.

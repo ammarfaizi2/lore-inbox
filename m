@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268968AbUJELAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268972AbUJELBo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268968AbUJELAr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 07:00:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268972AbUJELAr
+	id S268972AbUJELBo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 07:01:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268978AbUJELBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 07:00:47 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:65198 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S268968AbUJELAo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 07:00:44 -0400
-Date: Tue, 5 Oct 2004 12:59:18 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Matthias Bernges <mbernges@rumms.uni-mannheim.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops in 2.6.x maybe r8169 (maybe disk related as well)
-Message-ID: <20041005105918.GA31831@electric-eye.fr.zoreil.com>
-References: <200410050836.i958atFM000889@rumms.uni-mannheim.de>
+	Tue, 5 Oct 2004 07:01:44 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:37332 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S268972AbUJELBl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 07:01:41 -0400
+Date: Tue, 5 Oct 2004 13:03:16 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, "K.R. Foley" <kr@cybsft.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm2-T0
+Message-ID: <20041005110316.GA19964@elte.hu>
+References: <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <Pine.LNX.4.58.0410050257400.5641@devserv.devel.redhat.com> <20041005131237.63378c53@mango.fruits.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200410050836.i958atFM000889@rumms.uni-mannheim.de>
+In-Reply-To: <20041005131237.63378c53@mango.fruits.de>
 User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Bernges <mbernges@rumms.uni-mannheim.de> :
-[...]
-> since I use the Realtek 8169 Network card I get a kernel Oops
-> after which the kernel hangs completly.
-> I tried Kernel 2.6.6, 2.6.7 and 2.6.8.1. It appears randomly but
-> only if the machine has high load and high network traffic.
 
-Can you give 2.6.9-rc3 a try ?
+* Florian Schmidt <mista.tapas@gmx.net> wrote:
 
-[...]
-> >>EIP; c0271498 <SELECT_DRIVE+18/50>   <=====
+> On Tue, 5 Oct 2004 03:02:05 -0400 (EDT)
+> Ingo Molnar <mingo@redhat.com> wrote:
 > 
-> >>edi; c15eb220 <pg0+113d220/3fb50000>
-> >>esp; c0497f80 <per_cpu__tvec_bases+ec0/1008>
+> > i've released the -T0 VP patch:
 > 
-> Code;  c0271498 <SELECT_DRIVE+18/50>
-> 00000000 <_EIP>:
-> Code;  c0271498 <SELECT_DRIVE+18/50>   <=====
->    0:   8b 46 60                  mov    0x60(%esi),%eax   <=====
-> Code;  c027149b <SELECT_DRIVE+1b/50>
->    3:   ba 3c 00 00 00            mov    $0x3c,%edx
+> >  - fix !4K stack compilation breakage (reported by Lee Revell)
+> 
+> I still need to enable 4k stacks to get it to build [see error below w/o 4k
+> stacks].
 
-Your ata subsytem does not seem happy.
+doh - chunk went MIA. Updated the patch, please re-download -T0.
 
-Can you provide:
-- a short description of the system;
-- the revision of your compiler;
-- lspci -vx output;
-- /sbin/lsmod output;
-- complete dmesg after boot;
-- vmstat 1 for a few seconds during network load;
-- the content of /proc/interrupts adter a few seconds of network load.
-
---
-Ueimor
+	Ingo

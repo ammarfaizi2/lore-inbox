@@ -1,59 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265024AbUD2Wyy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265023AbUD2W52@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265024AbUD2Wyy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 18:54:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265021AbUD2WyL
+	id S265023AbUD2W52 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 18:57:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265026AbUD2W5C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 18:54:11 -0400
-Received: from CPE-61-9-212-151.qld.bigpond.net.au ([61.9.212.151]:60324 "EHLO
-	youngs.au.com") by vger.kernel.org with ESMTP id S265023AbUD2WwE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 18:52:04 -0400
-Mail-Copies-To: never
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@osdl.org>, brettspamacct@fastclick.com,
-       "David B. Stevens" <dsteven3@maine.rr.com>
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-References: <200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>
-	<40916681.1040502@maine.rr.com>
-From: Steve Youngs <steve@youngs.au.com>
-X-Face: #/1'_-|5_1$xjR,mVKhpfMJcRh8"k}_a{EkIO:Ox<]@zl/Yr|H,qH#3jJi6Aw(Mg@"!+Z"C
- N_S3!3jzW^FnPeumv4l#,E}J.+e%0q(U>#b-#`~>l^A!_j5AEgpU)>t+VYZ$:El7hLa1:%%L=3%B>n
- K{^jU_{&
-Organization: Linux Users - Fanatics Dept.
-X-X-Day: Only 2431486 days till X-Day.  Got Slack?
-X-URL: <http://users.bigpond.net.au/sryoungs/>
-X-Request-PGP: <http://users.bigpond.net.au/sryoungs/pgp/sryoungs.asc>
-X-OpenPGP-Fingerprint: 1659 2093 19D5 C06E D320  3A20 1D27 DB4B A94B 3003
-X-Discordian-Date: Setting Orange, the 47th day of Discord, 3170. 
-X-Attribution: SY
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>, Horst von
- Brand <vonbrand@inf.utfsm.cl>, Nick Piggin <nickpiggin@yahoo.com.au>, Jeff
- Garzik <jgarzik@pobox.com>,  Andrew Morton <akpm@osdl.org>,
- brettspamacct@fastclick.com, "David B. Stevens" <dsteven3@maine.rr.com>
-Date: Fri, 30 Apr 2004 08:42:54 +1000
-In-Reply-To: <40916681.1040502@maine.rr.com> (David B. Stevens's message of
- "Thu, 29 Apr 2004 16:33:05 -0400")
-Message-ID: <microsoft-free.87hdv24d8x.fsf@youngs.au.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 29 Apr 2004 18:57:02 -0400
+Received: from smtp.netcabo.pt ([212.113.174.9]:10473 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id S265023AbUD2WyS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 18:54:18 -0400
+Subject: [PATCH] can we compile ACPI without define CONFIG_PM ?
+From: =?ISO-8859-1?Q?S=E9rgio?= Monteiro Basto <sergiomb@netcabo.pt>
+Reply-To: sergiomb@netcabo.pt
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       acpi-devel <acpi-devel@lists.sourceforge.net>
+Content-Type: multipart/mixed; boundary="=-dLzTM9Lm4cHmA24HrIeB"
+Message-Id: <1083279256.3410.30.camel@darkstar>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 29 Apr 2004 23:54:17 +0100
+X-OriginalArrivalTime: 29 Apr 2004 22:54:17.0589 (UTC) FILETIME=[E6A7D250:01C42E3C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* David B Stevens <dsteven3@maine.rr.com> writes:
 
-  > Maybe the kernel should be told by the apps exactly what they
-  > require in the way of memory
+--=-dLzTM9Lm4cHmA24HrIeB
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-So what happens when Mr BloatyApp says: "Yo, Mr Kernel, gimme all ya
-got baby!"
+Hi Kernel mailing list!
 
--- 
-|---<Steve Youngs>---------------<GnuPG KeyID: A94B3003>---|
-|              Ashes to ashes, dust to dust.               |
-|      The proof of the pudding, is under the crust.       |
-|----------------------------------<steve@youngs.au.com>---|
+IIRC: if I recall correctly=20
+we couldn't compile ACPI without Power management option (CONFIG_PM),
+but now, this is possible.
+
+If the answer to the subject is no, then consider apply this patch on
+kernel 2.4.26.
+
+Accidentally, I compile ACPI without CONFIG_PM on one Dell something
+dual Pentium III and power off didn't work.
+
+So I need some confirmation from acpi-devel, but this is one meter of
+xconfig of the kernel so ...
+
+For APM Xconfiguration, it's better that, we can choose APM options only
+if we select APM ( because if we don't select CONFIG_PM, CONFIG_APM will
+be disable and the APM options don't!).
+This patch correct also this situation.
+
+Thanks,
+--=20
+S=E9rgio M. B.
+
+--=-dLzTM9Lm4cHmA24HrIeB
+Content-Disposition: attachment; filename=configopti.diff
+Content-Type: text/x-patch; name=configopti.diff; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+
+--- linux-2.4.26s/arch/i386/config.in.orig	2004-04-29 23:38:38.000000000 +0100
++++ linux-2.4.26s/arch/i386/config.in	2004-04-29 23:40:58.000000000 +0100
+@@ -360,7 +360,7 @@
+ bool 'Power Management support' CONFIG_PM
+ 
+ dep_tristate '  Advanced Power Management BIOS support' CONFIG_APM $CONFIG_PM
+-if [ "$CONFIG_APM" != "n" ]; then
++if [ "$CONFIG_APM" != "n" -a "$CONFIG_PM" = "y" ]; then
+    bool '    Ignore USER SUSPEND' CONFIG_APM_IGNORE_USER_SUSPEND
+    bool '    Enable PM at boot time' CONFIG_APM_DO_ENABLE
+    bool '    Make CPU Idle calls when idle' CONFIG_APM_CPU_IDLE
+@@ -370,7 +370,9 @@
+    bool '    Use real mode APM BIOS call to power off' CONFIG_APM_REAL_MODE_POWER_OFF
+ fi
+ 
+-source drivers/acpi/Config.in
++if [ "$CONFIG_PM" = "y" ]; then
++	source drivers/acpi/Config.in
++fi
+ 
+ endmenu
+ 
+
+--=-dLzTM9Lm4cHmA24HrIeB--
+

@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278742AbRJVNXX>; Mon, 22 Oct 2001 09:23:23 -0400
+	id <S278797AbRJVNaN>; Mon, 22 Oct 2001 09:30:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278793AbRJVNXN>; Mon, 22 Oct 2001 09:23:13 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:56076 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S278742AbRJVNXD>;
-	Mon, 22 Oct 2001 09:23:03 -0400
-Date: Mon, 22 Oct 2001 15:24:09 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        <linux-kernel@vger.kernel.org>
+	id <S278798AbRJVNaD>; Mon, 22 Oct 2001 09:30:03 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:35982 "HELO
+	outpost.powerdns.com") by vger.kernel.org with SMTP
+	id <S278797AbRJVN34>; Mon, 22 Oct 2001 09:29:56 -0400
+Date: Mon, 22 Oct 2001 15:30:24 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: rgammans@computer-surgery.co.uk
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.2.20pre10
-In-Reply-To: <E15veCh-0001nf-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0110221522300.28215-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20011022153024.A16225@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	rgammans@computer-surgery.co.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <20011022140844.A15243@outpost.ds9a.nl> <E15veDQ-0001nl-00@the-village.bc.nu> <20011022140703.A7305@knuth.computer-surgery.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011022140703.A7305@knuth.computer-surgery.co.uk>; from roger@computer-surgery.co.uk on Mon, Oct 22, 2001 at 02:07:03PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reral problem is that there are also good developers that this way are
-cutted out, and cannot give their contrib.
+On Mon, Oct 22, 2001 at 02:07:03PM +0100, Roger Gammans wrote:
+> On Mon, Oct 22, 2001 at 01:30:00PM +0100, Alan Cox wrote:
+> > > This would then presumably lead to password protected access for US kernel
+> > > developers that need to know? And some kind of NDA?
+> > 
+> > US kernel developers cannot be told. Period.
+> 
+> Huh, US resident or US citizens?
+> 
+> If US resident , does that mean we can't send security patches to 
+> Linus. 
 
-ufff! I tend to belive that politicians make law without a real knoledge
-of what they are doing (see Italian law on copyrights)
+You can send him the patch. It appears you cannot tell him which
+vulnerability it fixes.
 
-Luigi
+That is, unless the 'code = speech' people have succeded in setting enough
+precedent, in which case even 'code' may become a 'circumvention device'! 
 
-On Mon, 22 Oct 2001, Alan Cox wrote:
+I am not a lawyer though, but at this point logic seems so far away that
+anything appears possible.
 
-> > Putting pressure on US people to have them influence their
-> > legislation? Aka. every people have the rulers they deserve? Won't work
-> > out.
->
->    "Until they become conscious they will never rebel, and until after
->     they have rebelled they cannot become conscious."
->
-> > Seriously, are you kidding?
->
-> The current interpretation of the DMCA is as lunatic as it sounds. With luck
-> the Sklyarov case will see that overturned on constitutional grounds. Until
-> then US citizens will have to guess about security issues.
->
-> Alan
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Regards,
 
+bert
+
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+Trilab                                 The Technology People
+Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
+'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet

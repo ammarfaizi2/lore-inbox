@@ -1,71 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264699AbSLaTFK>; Tue, 31 Dec 2002 14:05:10 -0500
+	id <S264702AbSLaTOl>; Tue, 31 Dec 2002 14:14:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264702AbSLaTFK>; Tue, 31 Dec 2002 14:05:10 -0500
-Received: from bitmover.com ([192.132.92.2]:5057 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S264699AbSLaTFH>;
-	Tue, 31 Dec 2002 14:05:07 -0500
-Date: Tue, 31 Dec 2002 11:13:31 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
-Subject: Re: [TGAFB] implement the imageblit acceleration hook
-Message-ID: <20021231191331.GC5607@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
-References: <20021231004138.A13860@twiddle.net> <Pine.LNX.4.44.0212311100260.2697-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0212311100260.2697-100000@home.transmeta.com>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+	id <S264705AbSLaTOl>; Tue, 31 Dec 2002 14:14:41 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60937 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264702AbSLaTOk>; Tue, 31 Dec 2002 14:14:40 -0500
+Date: Tue, 31 Dec 2002 11:17:49 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5: make gigabit ethernet into a real submenu
+In-Reply-To: <20021231080146.GQ21097@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.44.0212311107480.2697-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-By the way, we know there are some security holes in BKD.  We're just 
-about to push bk-3.0.1 out the door which closes the ones we know about
-but you might want to be careful until you upgrade.  Part of the reason
-we provide hosting at bkbits.net is because then the security problems 
-are our problem, not yours.  
 
-We don't care if you run your own BKD, in fact we like it, the ultimate
-vision is a world of servers, not some centralized single point of
-failure, but until we've let the script kiddies beat on us for a bit
-longer you might set up at bkbits.net and I'll help you with a trigger
-which will autopush to there.  So you can have your local clones of
-whatever, you push into it, it pushes into your-proj.bkbits.net and maybe
-sends mail to an interest list.  Let me know if that would be useful
-(it works, this is how we update linux.bkbits.net from linus.bkbits.net).
+On Tue, 31 Dec 2002, Tomas Szepe wrote:
+> 
+> The attached unidiff creates a parent entry for all gigabit ethernet
+> interfaces, making the submenu consistent with that of 10/100.  Suggested
+> by Robert P. J. Day.  Trivial patch against 2.5-bkcurrent.
 
-You may contact me offline and I'll tell you what the security problems
-are (not doing it here for the obvious reason).
+Hmm.. Wouldn't it be nicer to instead of :
 
-On Tue, Dec 31, 2002 at 11:00:56AM -0800, Linus Torvalds wrote:
-> 
-> On Tue, 31 Dec 2002, Richard Henderson wrote:
-> >
-> > Please pull from
-> > 
-> > 	bk://are.twiddle.net/tgafb-2.5
-> 
-> Richard, you forgot to restart bkd again. Maybe add it to your 
-> initscripts?
-> 
-> 	bk://are.twiddle.net/tgafb-2.5: Connection refused
-> 
-> Heh,
-> 
-> 		Linus
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+   ...
+	 menu "Ethernet (1000 Mbit)"
+	        depends on NETDEVICES
+	 
+	+config NET_GIGABIT_ETH
+	+       bool "Ethernet (1000 Mbit)"
+	+       ---help---
+	+         Ethernet (also called IEEE 802.3 or ISO 8802-2) is the most common
+   ...
 
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+have
+
+   ...
+	+config NET_GIGABIT_ETH
+        +       bool "Ethernet (1000 Mbit)"
+	+	depends on NETDEVICES
+        +       ---help---
+        +         Ethernet (also called IEEE 802.3 or ISO 8802-2) is the most common
+	   ... 
+	menu "Ethernet (1000 Mbit)" 
+		depends on NET_GIGABIT_ETH
+   ...
+
+so that the you don't even see the things if you don't select for them?
+
+Untested, but it would seem to be the more natural approach..
+
+		Linus
+

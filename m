@@ -1,33 +1,25 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315176AbSEDDZF>; Fri, 3 May 2002 23:25:05 -0400
+	id <S315436AbSEDDaC>; Fri, 3 May 2002 23:30:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315428AbSEDDZE>; Fri, 3 May 2002 23:25:04 -0400
-Received: from [210.176.202.14] ([210.176.202.14]:15236 "EHLO
-	uranus.planet.shaolinmicro.com") by vger.kernel.org with ESMTP
-	id <S315176AbSEDDZE>; Fri, 3 May 2002 23:25:04 -0400
-Subject: query netdevice interfaces.
-From: Joe Wong <joewong@shaolinmicro.com>
+	id <S315730AbSEDDaB>; Fri, 3 May 2002 23:30:01 -0400
+Received: from [211.248.63.194] ([211.248.63.194]:64267 "HELO 211.248.63.194")
+	by vger.kernel.org with SMTP id <S315436AbSEDDaA>;
+	Fri, 3 May 2002 23:30:00 -0400
+From: qgmFT <vaoIaminvestor@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 04 May 2002 11:25:01 +0800
-Message-Id: <1020482701.4752.5.camel@star8.staff.shaolinmicro.com>
+Subject: FW: gufb
 Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Sat, 4 May 2002 04:33:38 +0100
+Message-Id: <20020504033000Z315436-22651+22499@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hello
 
-  I know there is a kernel API dev_get_by_name (const char * name) to
-return a netdev with a given name. However, is there any way to query a
-list of available interface so I don't need to know the name beforehand?
+http://cn.groups.yahoo.com/group/home4u/files/world.swf
 
-Thx,
+FLG
 
-- Joe
-
-
-
-
+ynjunakguviiknggckgglrqnhkbnucerwkp

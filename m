@@ -1,60 +1,34 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154081AbQBLWlV>; Sat, 12 Feb 2000 17:41:21 -0500
-Received: by vger.rutgers.edu id <S153996AbQBLWYV>; Sat, 12 Feb 2000 17:24:21 -0500
-Received: from [207.181.251.162] ([207.181.251.162]:1633 "EHLO bitmover.com") by vger.rutgers.edu with ESMTP id <S154584AbQBLWGx>; Sat, 12 Feb 2000 17:06:53 -0500
-Message-Id: <200002130207.SAA31705@work.bitmover.com>
-To: Zachary Amsden <zamsden@cthulhu.engr.sgi.com>
-Cc: linux-kernel@vger.rutgers.edu
-Subject: Re: Scheduled Transfer Protocol on Linux 
-In-Reply-To: Your message of "Sat, 12 Feb 2000 16:42:53 PST." <200002130042.QAA22405@clock.engr.sgi.com> 
-Date: Sat, 12 Feb 2000 18:07:26 -0800
-From: Larry McVoy <lm@bitmover.com>
+Received: by vger.rutgers.edu via listexpand id <S153945AbQBMHO3>; Sun, 13 Feb 2000 02:14:29 -0500
+Received: by vger.rutgers.edu id <S153938AbQBMHN6>; Sun, 13 Feb 2000 02:13:58 -0500
+Received: from colorfullife.com ([216.156.138.34]:2904 "EHLO colorfullife.com") by vger.rutgers.edu with ESMTP id <S153901AbQBMHNi>; Sun, 13 Feb 2000 02:13:38 -0500
+Message-ID: <38A69235.BDF5C7D2@colorfullife.com>
+Date: Sun, 13 Feb 2000 12:15:01 +0100
+From: Manfred Spraul <manfreds@colorfullife.com>
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.2.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.rutgers.edu
+Subject: Q: how can I enumerate all mm_struct
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-: > OK, so tell me: how many locks does it take to scale up the following to
-: > 16 CPUs:
-: > 	local disks
-: > 	local file system
-: > 	remote file system
-: > 	processes
-: > 	networking interfaces and stack
-: >
-: > What do the locks cover?  At 16 CPUs, can you keep all the locks straight
-: > in your head?  Nope.  So what happens when you go into the kernel and add
-: > a feature?  You add a lock.  What does that do?  Increases the number of
-: > locks.  What effect does that have?  Makes it more likely that you'll add
-: > more locks, because now it is even less obvious what the lock protects.
-: 
-: Good design can avoid these problems.  If it isn't obvious what a lock 
-: protects, you should rethink your locking structure.
+How can you enumerate all mm_struct's with the new lazy tlb code? Both
+ia64 [arch/ia64/mm/tlb.c] and  ppc [arch/ppc/mm/init.c] assume that
 
-I notice that you didn't actually answer any of the questions above, just
-a nice hand wave that says "it need not be so".  Well, just to indulge
-me, could you please either:
+	for_each_task(tsk) {
+		do_something(tsk->mm);
+	}
 
-    a) answer the questions above, or
-    b) show a shipping, production system which demonstrates your claims, or
-    c) admit that you don't know the answer.
+will reach all mm_structs, but if a thread is running in temporary lazy
+tlb mode {start,end}_lazy_tlb(), then this fails.
 
-: I wasn't arguing that 16 way SMP is OK.  Everyone knows it isn't.
+Is there another way to enumerate all mm_structs, or should I add a new
+double linked list?
 
-Geez, and this from the guy who said Linux needs to support "16-64 way SMP".
-
-: Are you saying that clusters of small SMP machines are better?  
-
-read these:
-	http://www.bitmover.com/llnl/smp.pdf
-	http://www.bitmover.com/llnl/labs.pdf
-
-: So the locking 
-: moves from the kernels to the application layer.  You still have the same 
-: synchronization concerns, it's just a matter of what layer they are 
-: implemented at.
-
-Err, if you had actually done this, you'd find that your statements
-are unsupportable in practice.  Please show me an application that has
-anything, even with an order of magnitude, like the number of locks
-taken/released per second in IRIX or Solaris.
+--
+	Manfred
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

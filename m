@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263195AbREaTzk>; Thu, 31 May 2001 15:55:40 -0400
+	id <S263201AbREaT5a>; Thu, 31 May 2001 15:57:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263206AbREaTza>; Thu, 31 May 2001 15:55:30 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:33799 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S263195AbREaTzY>;
-	Thu, 31 May 2001 15:55:24 -0400
-Date: Thu, 31 May 2001 11:56:44 -0700
-From: Greg KH <greg@kroah.com>
-To: thunder7@xs4all.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: interrupt problem with MPS 1.4 / not with MPS 1.1 ?
-Message-ID: <20010531115644.B12797@kroah.com>
-In-Reply-To: <20010531203908.A23936@middle.of.nowhere> <20010531110642.A12797@kroah.com> <20010531214835.A3590@middle.of.nowhere>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010531214835.A3590@middle.of.nowhere>; from thunder7@xs4all.nl on Thu, May 31, 2001 at 09:48:35PM +0200
-X-Operating-System: Linux 2.2.19 (i586)
+	id <S263205AbREaT5U>; Thu, 31 May 2001 15:57:20 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:65528 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S263201AbREaT5R> convert rfc822-to-8bit;
+	Thu, 31 May 2001 15:57:17 -0400
+Date: Thu, 31 May 2001 15:57:13 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Configure.help is complete
+In-Reply-To: <3B16A01C.ED5C6CCB@redhat.com>
+Message-ID: <Pine.GSO.4.21.0105311555250.17748-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=KOI8-R
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 31, 2001 at 09:48:35PM +0200, thunder7@xs4all.nl wrote:
-> On Thu, May 31, 2001 at 11:06:42AM -0700, Greg KH wrote:
-> > On Thu, May 31, 2001 at 08:39:08PM +0200, thunder7@xs4all.nl wrote:
-> > > What information would be necessary to debug this?
+
+
+On Thu, 31 May 2001, Arjan van de Ven wrote:
+
+> José Luis Domingo López wrote:
 > > 
-> > Which kernel version?
+> > On Thursday, 31 May 2001, at 13:24:54 -0400,
+> > Eric S. Raymond wrote:
 > > 
-> > greg k-h
-> > 
-> 2.4.5-ac4, but I rebooted in 2.4.4 and it did the same.
+> > > It gives me great pleasure to announce that the Configure.help master
+> > > file is now complete with respect to 2.4.5.  Every single one of the
+> > > 2699 configuration symbols actually used in the 2.4.5 codebase's C
+> > > source files or Makefiles now has an entry in Configure.help.
+> > >
+> > Would it be great to have a similar documentation for those hundreds of
+> > "files" under /proc ?. Something like:
+> 
+> <snip>
+> Powertweak has descriptions for most of the usable /proc entries,
+> in XML format but the descriptions are easily extractable. Maybe it's 
+> a good idea to make the powertweak set complete instead / share the set
+> with the kernel docs.
 
-Is the BIOS set to "Plug and Play supported OS" somewhere?  If not, try
-enabling it.
+We should start removing the crap from procfs in 2.5. Documenting shit is
+a good step, but taking it out would be better.
 
-Also the MPS 1.4 boot messages would be helpful :)
-
-thanks,
-
-greg k-h

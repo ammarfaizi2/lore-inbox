@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVABQge@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVABQpL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261273AbVABQge (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 11:36:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbVABQge
+	id S261274AbVABQpL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 11:45:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVABQpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 11:36:34 -0500
-Received: from holomorphy.com ([207.189.100.168]:18068 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261273AbVABQgd (ORCPT
+	Sun, 2 Jan 2005 11:45:11 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:54955 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261274AbVABQpG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 11:36:33 -0500
-Date: Sun, 2 Jan 2005 08:36:15 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
+	Sun, 2 Jan 2005 11:45:06 -0500
+Date: Sun, 2 Jan 2005 11:44:52 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
 To: Andrea Arcangeli <andrea@suse.de>
-Cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Robert_Hentosh@Dell.com,
-       Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH][1/2] adjust dirty threshold for lowmem-only mappings
-Message-ID: <20050102163615.GJ29332@holomorphy.com>
-References: <20041224160136.GG4459@dualathlon.random> <Pine.LNX.4.61.0412241118590.11520@chimarrao.boston.redhat.com> <20041224164024.GK4459@dualathlon.random> <Pine.LNX.4.61.0412241711180.11520@chimarrao.boston.redhat.com> <20041225020707.GQ13747@dualathlon.random> <Pine.LNX.4.61.0412251253090.18130@chimarrao.boston.redhat.com> <20041225190710.GZ771@holomorphy.com> <20041225200349.GA11116@dualathlon.random> <20041226030721.GA771@holomorphy.com> <20050102161008.GF5164@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050102161008.GF5164@dualathlon.random>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: VM fixes [4/4]
+In-Reply-To: <20050102155107.GB5164@dualathlon.random>
+Message-ID: <Pine.LNX.4.61.0501021143580.23180@chimarrao.boston.redhat.com>
+References: <20041224174156.GE13747@dualathlon.random>
+ <Pine.LNX.4.61.0412270837001.19240@chimarrao.boston.redhat.com>
+ <1104226960.27708.321.camel@tglx.tec.linutronix.de> <20050102155107.GB5164@dualathlon.random>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 25, 2004 at 07:07:21PM -0800, William Lee Irwin III wrote:
->> The problem as posed is that the dirty memory limits are global, but
+On Sun, 2 Jan 2005, Andrea Arcangeli wrote:
 
-On Sun, Jan 02, 2005 at 05:10:08PM +0100, Andrea Arcangeli wrote:
-> What do you mean with global? Global is one thing, but taking highmem
-> into account for calculating the limit is another thing. The
-> nr_free_buffer_pages exists exactly to avoid taking highmem into account
-> for the dirty memory limits. 2.6 must also ignore highmem in the dirty
-> memory limits like 2.4 does. I'd be surprised if somebody broke this in
-> 2.6. As far as I can tell, while writing to a blkdev it cannot make any
-> difference if you've 4G or 1G of ram because of that (I mean on x86 of
-> course).
+> The other part of Thomas's change is this one:
 
-It's not used for any of these purposes in 2.6.x.
+> Thomas's changes worked better than previous code so far, he can clearly
+> identify forkbombs or services spread across multiple processes.
 
+> optimal. What he does above by killing the childs first is a lot more
+> conservative and I'm fine with it as well.
 
--- wli
+I like it a lot, especially when thinking about overloaded
+web servers and other loads that are common but not malicious.
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

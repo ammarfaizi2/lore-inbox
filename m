@@ -1,47 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbTI3WeA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 18:34:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbTI3Wd7
+	id S261782AbTI3WOY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 18:14:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbTI3WOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 18:33:59 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:45018 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261779AbTI3Wd4
+	Tue, 30 Sep 2003 18:14:24 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5063 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261782AbTI3WON
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 18:33:56 -0400
-Date: Tue, 30 Sep 2003 15:35:00 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-Reply-To: Hanna Linder <hannal@us.ibm.com>
-To: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Update to lse call: IO perf. of mm tree vs mainline 
-Message-ID: <61700000.1064961300@w-hlinder>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Tue, 30 Sep 2003 18:14:13 -0400
+Date: Tue, 30 Sep 2003 23:14:11 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Matthew Wilcox <willy@debian.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] expand_resource
+Message-ID: <20030930221411.GF24824@parcelfarce.linux.theplanet.co.uk>
+References: <20030930210410.GD24824@parcelfarce.linux.theplanet.co.uk> <20030930222708.A10154@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030930222708.A10154@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 30, 2003 at 10:27:08PM +0100, Russell King wrote:
+> On Tue, Sep 30, 2003 at 10:04:10PM +0100, Matthew Wilcox wrote:
+> > +/*
+> > + * Expand an existing resource by size amount.
+> > + */
+> > +int expand_resource(struct resource *res, unsigned long size,
+> > +			   unsigned long align)
+> > +{
+> 
+> Could we have the kerneldoc stuff added to this function?
 
-	LSE Con Call Agenda for Wed Oct 1, 2003
+Certainly.  Rather than answering your question below directly,
+let's see if the kerneldoc answers it (and if not, then the kerneldoc
+needs to be made clearer).
 
-I. Sylvain Jeaugey and Simon Derr: CPUSETS, Controlling CPU placement.
+/**
+ * expand_resource - Expand an existing resource
+ * @res: Resource already linked into the resource tree.
+ * @size: Amount of additional space requested below @res.
+ * @align: Required alignment of new space.
+ *
+ * This function is intended to be called when we need more space
+ * below an existing resource than currently exists.  The @size and
+ * @align parameters describe the requirements of the child resource,
+ * not the parent.  Note that this call does not attempt to expand
+ * the parent of @res as that might require reprogramming devices.
+ * If a caller would like this behaviour, they must handle the recursion.
+ */
 
-http://marc.theaimsgroup.com/?l=lse-tech&m=106441942222186&w=2
+> My main
+> question though is - what is the intended purpose of "align" ?  As
+> it is implemented, it seems to have a weird behaviour:
+> 
+> - if we expand the "end" of the resource, we round it towards an
+>   address which is a multiple of align, but "start" may not be
+>   a multiple of align.
+> - if we expand "start", we round it down towards a multiple of
+>   align.  However, "end" may not be a multiple of align.
+> 
+> This may actually be of use to PCMCIA IO space handling - we only
+> have two windows, but we may need to expand them if we have a multi-
+> function card if we have more than 2 areas to map.  In this case,
+> we'd need to know whether "start" was expanded or "end" was expanded
+> since we can't change the use of the already-allocated resource.
 
-II. Mark Gross: Real-Time applications needs when system is stressed. 
+Heh, this sounds almost identical to the PARISC problem.  I knew other
+users would come out of the woodwork if I sent the patch ;-)  We also
+need to know whether the start or end was changed to reprogram the
+parent device -- see the caller in drivers/parisc/ccio-dma.c:
 
-http://marc.theaimsgroup.com/?l=lse-tech&m=106494685313136&w=2
+        if (expand_resource(parent, size, align) != 0) {
+                printk(KERN_ERR "Unable to expand %s window by 0x%lx\n",
+                       parent->name, size);
+                return;
+        }
+        __raw_writel(((parent->start)>>16) | 0xffff0000,
+                     (unsigned long)&(ioc->ioc_hpa->io_io_low));
+        __raw_writel(((parent->end)>>16) | 0xffff0000,
+                     (unsigned long)&(ioc->ioc_hpa->io_io_high));
 
-III. Steve Pratt: IO performance in mm tree vs mainline.
+> It may make sense to do something more generic, like:
+> 
+> int adjust_resource(struct resource *res, unsigned long start,
+> 		    unsigned long end);
+> 
+> so that the caller knows what he's requesting and knows whether that
+> change succeeded or failed.  However, it is something I'd need to
+> look deeper into when I have more time available to look at such
+> stuff, so please don't take the above as a well thought-out solution.
 
-http://marc.theaimsgroup.com/?l=lse-tech&m=106495069918264&w=2
+I don't like that.  It puts more work into the caller, but doesn't
+seem to simplify the _resource function.
 
-
-USA Toll Free:      1-800-967-7148
-International Toll: +1-719-457-2710
-Passcode: 298900
-10:00am PDT (1700 GMT)
-
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

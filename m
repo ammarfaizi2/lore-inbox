@@ -1,97 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273023AbRIOU1l>; Sat, 15 Sep 2001 16:27:41 -0400
+	id <S273027AbRIOUaL>; Sat, 15 Sep 2001 16:30:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273029AbRIOU1W>; Sat, 15 Sep 2001 16:27:22 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:57105 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S273018AbRIOU1R>;
-	Sat, 15 Sep 2001 16:27:17 -0400
-Date: Sat, 15 Sep 2001 17:26:59 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "David S.Miller" <davem@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Paul Mackerras <paulus@samba.org>
-Subject: [PATCH][RFC] spin_trylock_bh
-Message-ID: <20010915172659.A1916@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	David S.Miller <davem@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Paul Mackerras <paulus@samba.org>
+	id <S273028AbRIOUaB>; Sat, 15 Sep 2001 16:30:01 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:783 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S273027AbRIOU3t>; Sat, 15 Sep 2001 16:29:49 -0400
+Date: Sat, 15 Sep 2001 23:28:54 +0300
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <384017326.20010915232854@port.imtp.ilyichevsk.odessa.ua>
+To: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Athlon: Try this (was: Re: Athlon bug stomping #2)
+In-Reply-To: <Pine.GSO.4.21.0109152057000.12611-100000@skiathos.physics.auth.gr>
+In-Reply-To: <Pine.GSO.4.21.0109152057000.12611-100000@skiathos.physics.auth.gr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-X-Url: http://advogato.org/person/acme
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello Liakakis,
+Saturday, September 15, 2001, 9:00:41 PM, you wrote:
+LK> Hate to post a me-too, but my Asus A7V133 does have 55.7 set (reg 55 ==
+LK> 0x89) and is running fine with 2.4.9-ac9 and K7 optimizations. BIOS
+LK> revision is 1005A, memory is 3x256MB noname DIMMs.
 
-	Please see if this is acceptable, I noticed this while working on
-the locks for NetBEUI 8) Patch is against 2.4.9, but it should apply to
-latest prepatch. It was being used in the ppp code for quite some time.
+Ok, but we don't see KT133A mobos with Athlon/Duron and 55.7=1
+to fail always. It can start failing with faster CPU, different
+memory or once in a blue moon - nobody knows.
 
-                        - Arnaldo
+It is better to turn that bit off for good,
+unless VIA and BIOS writers will enlighten
+us what is 55.7 (and 55.6-0 too).
+-- 
+Best regards, VDA
+mailto:VDA@port.imtp.ilyichevsk.odessa.ua
+http://port.imtp.ilyichevsk.odessa.ua/vda/
 
-Index: include/linux/spinlock.h
-===================================================================
-RCS file: /home/cvs/kernel-acme/include/linux/spinlock.h,v
-retrieving revision 1.1.1.2
-diff -u -r1.1.1.2 spinlock.h
---- include/linux/spinlock.h	2001/08/16 21:48:34	1.1.1.2
-+++ include/linux/spinlock.h	2001/09/15 20:16:44
-@@ -30,6 +30,10 @@
- #define write_unlock_irqrestore(lock, flags)	do { write_unlock(lock); local_irq_restore(flags); } while (0)
- #define write_unlock_irq(lock)			do { write_unlock(lock); local_irq_enable();       } while (0)
- #define write_unlock_bh(lock)			do { write_unlock(lock); local_bh_enable();        } while (0)
-+#define spin_trylock_bh(lock)			({ int __r; local_bh_disable();\
-+						__r = spin_trylock(lock);      \
-+						if (!__r) local_bh_enable();   \
-+						__r; })
- 
- #ifdef CONFIG_SMP
- #include <asm/spinlock.h>
-Index: drivers/net/ppp_synctty.c
-===================================================================
-RCS file: /home/cvs/kernel-acme/drivers/net/ppp_synctty.c,v
-retrieving revision 1.1.1.2
-diff -u -r1.1.1.2 ppp_synctty.c
---- drivers/net/ppp_synctty.c	2001/08/16 21:45:05	1.1.1.2
-+++ drivers/net/ppp_synctty.c	2001/09/15 20:16:47
-@@ -44,13 +44,6 @@
- #include <linux/init.h>
- #include <asm/uaccess.h>
- 
--#ifndef spin_trylock_bh
--#define spin_trylock_bh(lock)	({ int __r; local_bh_disable();	\
--				   __r = spin_trylock(lock);	\
--				   if (!__r) local_bh_enable();	\
--				   __r; })
--#endif
--
- #define PPP_VERSION	"2.4.1"
- 
- /* Structure for storing local state. */
-Index: net/ipv6/ip6_fib.c
-===================================================================
-RCS file: /home/cvs/kernel-acme/net/ipv6/ip6_fib.c,v
-retrieving revision 1.1.1.2
-diff -u -r1.1.1.2 ip6_fib.c
---- net/ipv6/ip6_fib.c	2001/08/16 18:44:10	1.1.1.2
-+++ net/ipv6/ip6_fib.c	2001/09/15 20:16:50
-@@ -1192,10 +1192,8 @@
- 		spin_lock_bh(&fib6_gc_lock);
- 		gc_args.timeout = (int)dummy;
- 	} else {
--		local_bh_disable();
--		if (!spin_trylock(&fib6_gc_lock)) {
-+		if (!spin_trylock_bh(&fib6_gc_lock)) {
- 			mod_timer(&ip6_fib_timer, jiffies + HZ);
--			local_bh_enable();
- 			return;
- 		}
- 		gc_args.timeout = ip6_rt_gc_interval;
+

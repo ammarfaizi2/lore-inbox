@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130384AbRCPJ5j>; Fri, 16 Mar 2001 04:57:39 -0500
+	id <S130452AbRCPKIT>; Fri, 16 Mar 2001 05:08:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130388AbRCPJ53>; Fri, 16 Mar 2001 04:57:29 -0500
-Received: from smtp.alcove.fr ([212.155.209.139]:24586 "EHLO smtp.alcove.fr")
-	by vger.kernel.org with ESMTP id <S130384AbRCPJ5W>;
-	Fri, 16 Mar 2001 04:57:22 -0500
-Date: Fri, 16 Mar 2001 10:56:38 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: linux-kernel@vger.kernel.org
-Subject: Q: multiple task queues performance ?
-Message-ID: <20010316105638.B6384@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+	id <S130446AbRCPKIJ>; Fri, 16 Mar 2001 05:08:09 -0500
+Received: from t2.redhat.com ([199.183.24.243]:30460 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S129854AbRCPKIB>; Fri, 16 Mar 2001 05:08:01 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <200103160224.SAA03920@csl.Stanford.EDU> 
+In-Reply-To: <200103160224.SAA03920@csl.Stanford.EDU> 
+To: Dawson Engler <engler@csl.Stanford.EDU>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] 9 potential copy_*_user bugs in 2.4.1 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.4i
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 16 Mar 2001 10:06:48 +0000
+Message-ID: <1886.984737208@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
 
-I'm writing a driver for a ISDN card which needs to be able
-to send data to several channels, each channel having its own
-flow control flag.
+engler@csl.Stanford.EDU said:
+>  I wrote an extension to gcc that does global analysis to determine
+> which pointers in 2.4.1 are ever treated as user space pointers (i.e,
+> passed to copy_*_user, verify_area, etc) and then makes sure they are
+> always treated that way.
 
-Actually, I use one send queue (sk_buff_head) and one task queue 
-(tq_struct) for each channel, the task being controled by the
-flow flag and queued on tq_immediate.
+Nice work - thanks. One request though, to you and anyone else doing such
+cleanups - please could you list the affected files separately near the
+beginning of your mail, so that people can tell at a glance whether there's
+anything in there that might be their fault.
 
-The problem is that some versions of the same ISDN card are able
-to manage up to 256 ISDN channels, so the driver could end up
-having 256 task queues queued on tq_immediate...
+--
+dwmw2
 
-Is this The Good Way(tm) to do the job or 256 task queues implies
-too much overhead and I should reimplement the access to the channels
-using only one task queue and do some polling policy on the 
-channels myself ?
 
-Thanks.
-
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-|------------- Ingénieur Informatique Libre --------------|
-| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
-|----------- Alcôve, l'informatique est libre ------------|

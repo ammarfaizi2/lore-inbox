@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272863AbTG3Mb3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 08:31:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272865AbTG3MaS
+	id S272865AbTG3MmN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 08:42:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272876AbTG3MmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 08:30:18 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:53778 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S272863AbTG3MaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 08:30:05 -0400
-Date: Wed, 30 Jul 2003 14:21:15 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Valdis.Kletnieks@vt.edu
-Cc: jimis@gmx.net, linux-kernel@vger.kernel.org
-Subject: Re: Feature proposal (scheduling related) -- conclusion
-Message-ID: <20030730122115.GH2601@openzaurus.ucw.cz>
-References: <3F26CAF2.8070009@gmx.net> <200307291958.h6TJw43o030219@turing-police.cc.vt.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307291958.h6TJw43o030219@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.3.27i
+	Wed, 30 Jul 2003 08:42:12 -0400
+Received: from magic-mail.adaptec.com ([208.236.45.100]:52143 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S272865AbTG3MmJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 08:42:09 -0400
+Date: Wed, 30 Jul 2003 18:46:53 +0530 (IST)
+From: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
+X-X-Sender: tomar@localhost.localdomain
+Reply-To: nagendra_tomar@adaptec.com
+To: =?iso-8859-1?Q?Frank_Sch=E4fer?= <Frank.Schafer@setuza.cz>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Simple module question
+In-Reply-To: <1059472604.1109.6.camel@ADMIN.setuza.cz>
+Message-ID: <Pine.LNX.4.44.0307301845430.12027-100000@localhost.localdomain>
+Organization: Adaptec
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Add this to modules.conf 
+# man modules.conf
 
-> > great, I had no idea of this potential. But what I propose is scheduling the
-> > network traffic (at least the outgoing traffic that we can influence directly)
-> > according to the process priority, not according to the traffic type (which is
-> > important but different).
+tomar
+
+On Tue, 29 Jul 2003, Frank Schäfer wrote:
+
+> Hi list,
 > 
-> So you want to use a number that controls the CPU scheduling to force the network
-> scheduling to go along?  That's a bad idea waiting to happen.
+> We have a monolithic kernel 2.4.18 using ip-tables. The ftp contrack
+> module takes a optional parameter port=xxxxx.
 > 
-
-Hint: he's right.
-
-By default it is reasonable to give lower disk priority to nice -19 tasks. In some cases that
-breaks, so cpu_nice, disk_nice etc. would be better.
-				Pavel
--- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+> This parameter should be puttable by the kernel parameters. So I put it
+> on the addons line in lilo.conf.
+> 
+> The parameter doesn't show up in the boot dmesg, I can see it in
+> /proc/cmdline, but it doesn't seem to work. No ftp connection can be
+> made on this port.
+> 
+> Could anzbody put me a hint?
+> 
+> Thanks in advance
+> Frank
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

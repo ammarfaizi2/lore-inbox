@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263076AbVCQOfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263082AbVCQOgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263076AbVCQOfX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 09:35:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263086AbVCQOfW
+	id S263082AbVCQOgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 09:36:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbVCQOgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 09:35:22 -0500
-Received: from web25101.mail.ukl.yahoo.com ([217.12.10.49]:56691 "HELO
-	web25101.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S263076AbVCQOew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 09:34:52 -0500
-Message-ID: <20050317143450.83739.qmail@web25101.mail.ukl.yahoo.com>
-Date: Thu, 17 Mar 2005 15:34:49 +0100 (CET)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: Re: [UART] 8250:RTS/CTS flow control issue.
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: 6667
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 17 Mar 2005 09:36:08 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:56784 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263084AbVCQOfw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 09:35:52 -0500
+Subject: Re: Why no bigphysarea in mainline?
+From: Dave Hansen <haveblue@us.ibm.com>
+To: michael@ellerman.id.au
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       PPC64 External List <linuxppc64-dev@ozlabs.org>
+In-Reply-To: <200503172057.06570.michael@ellerman.id.au>
+References: <200503172057.06570.michael@ellerman.id.au>
+Content-Type: text/plain
+Date: Thu, 17 Mar 2005 06:35:32 -0800
+Message-Id: <1111070132.19021.31.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
->I, therefore, strongly suggest that you arrange to do
-the same - iow,
->deassert RTS when your buffer is approaching approx.
-2/3 full rather
->than absolutely full.
+On Thu, 2005-03-17 at 20:57 +1100, Michael Ellerman wrote:
+> I realise bigphysarea is a bit of a hack, but it's no where near as
+> big a hack as using mem=X to limit the kernel's memory and then using
+> the rest of memory for your device driver.
 
-Well, I don't think this gonna work because my rx fifo
-is only 8 bytes
-length and 8250's one is 16 bytes length. This means
-that if I
-deassert RTS when my fifo is 5 bytes full, I can
-potentially receive 8
-bytes and thus get an overrun...
+Well, the fact that you can get away with that is a coincidence.  What
+if you have 4GB of RAM on an x86 machine, you do mem=3G, and you start
+using that top GB of memory for your driver?  You eventually write into
+the PCI config space.  Ooops.  You get strange errors that way.
 
-But why should I "degrade" my UART because some 8250
-devices have
-poor hardware implementation. Maybe we should limit
-their tx fifo to
-one byte when rts/cts flow control is enabled...
+Doing mem= for drivers isn't just a hack, it's *WRONG*.  It's a ticking
+time bomb that magically happens to work on some systems.  It will not
+work consistently on a discontiguous memory system, or a memory hotplug
+system.
 
-thanks
+> If no one has any fundamental objections I think it'd be good to get
+> this merged into mainline so people start using it rather than mem=X
+> hacks. To that end please let me know what you think is wrong with
+> the patch as it stands (below).
 
-	Francis
+Could you give some examples of drivers which are in the kernel that
+could benefit from this patch?  We don't tend to put things like this
+in, unless they have actual users.  We don't tend to change code for
+out-of-tree users, either.
 
+-- Dave
 
-	
-
-	
-		
-Découvrez nos promotions exclusives "destination de la Tunisie, du Maroc, des Baléares et la Rép. Dominicaine sur Yahoo! Voyages :
-http://fr.travel.yahoo.com/promotions/mar14.html

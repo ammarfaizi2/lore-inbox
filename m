@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267569AbSLFHh3>; Fri, 6 Dec 2002 02:37:29 -0500
+	id <S267562AbSLFHnp>; Fri, 6 Dec 2002 02:43:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267574AbSLFHh3>; Fri, 6 Dec 2002 02:37:29 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:49672 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id <S267569AbSLFHh3>; Fri, 6 Dec 2002 02:37:29 -0500
-Date: Fri, 06 Dec 2002 16:45:05 +0900 (JST)
-Message-Id: <20021206.164505.28366762.yoshfuji@linux-ipv6.org>
-To: justinpryzby@users.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IPSsec kernel panic
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20021206071000.GA7493@perseus.homeunix.net>
-References: <20021206071000.GA7493@perseus.homeunix.net>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S267565AbSLFHnp>; Fri, 6 Dec 2002 02:43:45 -0500
+Received: from packet.digeo.com ([12.110.80.53]:22445 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267562AbSLFHno>;
+	Fri, 6 Dec 2002 02:43:44 -0500
+Message-ID: <3DF056EE.EA9ADE01@digeo.com>
+Date: Thu, 05 Dec 2002 23:51:10 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: GrandMasterLee <masterlee@digitalroadkill.net>
+CC: Andrea Arcangeli <andrea@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Norman Gaywood <norm@turing.une.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: Maybe a VM bug in 2.4.18-18 from RH 8.0?
+References: <3DF050EB.108DCF8@digeo.com> <1039160042.16565.15.camel@localhost>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Dec 2002 07:51:14.0276 (UTC) FILETIME=[4035E240:01C29CFC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20021206071000.GA7493@perseus.homeunix.net> (at Fri, 6 Dec 2002 02:10:00 -0500), Justin Pryzby <justinpryzby@users.sourceforge.net> says:
+GrandMasterLee wrote:
+> 
+> ...
+> > "crashes"?  kernel, or application?   What additional info is
+> > available?
+> 
+> Machine will panic. I've actually captured some and sent them to this
+> list, but I've been told that my stack was corrupt.
 
-> http://lwn.net/Articles/16924/ reports that Debian's freeswan package
-> (http://packages.debian.org/testing/non-us/freeswan.html) causes a
-> kernel kernel panic due to improper handling of short packets.  A
-> userspace program shouldn't be able to cause a kernel panic (unless it
-> tries, and is priveliged), so I believe this indicates a kernel problem.
+OK.  In your second oops trace the `swapper' process had used 5k of its
+8k kernel stack processing an XFS IO completion interrupt.  And I don't
+think `swapper' uses much stack of its own.
 
-It is FreeS/WAN's problem, isn't it?
-If yes, you probably need to talk with FreeS/WAN people.
+If some other process happens to be using 3k of stack when the same 
+interrupt hits it, it's game over.
 
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+So at a guess, I'd say you're being hit by excessive stack use in
+the XFS filesystem.  I think the XFS team have done some work on that
+recently so an upgrade may help.
+
+Or it may be something completely different ;)

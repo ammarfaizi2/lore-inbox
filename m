@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268476AbTGSQHy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 12:07:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270057AbTGSQHy
+	id S266051AbTGSQNl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 12:13:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268308AbTGSQNl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 12:07:54 -0400
-Received: from ip67-95-245-82.z245-95-67.customer.algx.net ([67.95.245.82]:59145
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S268476AbTGSQHx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 12:07:53 -0400
-Date: Sat, 19 Jul 2003 09:23:04 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Eugene Teo <eugene.teo@eugeneteo.net>
-Cc: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
-       Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: [PATCH] O7int for interactivity
-Message-ID: <20030719162304.GA1059@matchmail.com>
-Mail-Followup-To: Eugene Teo <eugene.teo@eugeneteo.net>,
-	Con Kolivas <kernel@kolivas.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Mike Galbraith <efault@gmx.de>,
-	Davide Libenzi <davidel@xmailserver.org>
-References: <200307190210.49687.kernel@kolivas.org> <20030718230717.GG2289@matchmail.com> <20030719034059.GE10120@eugeneteo.net>
+	Sat, 19 Jul 2003 12:13:41 -0400
+Received: from ns.tasking.nl ([195.193.207.2]:32270 "EHLO ns.tasking.nl")
+	by vger.kernel.org with ESMTP id S266051AbTGSQNk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 12:13:40 -0400
+To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
+X-Newsreader: knews 1.0b.1
+Reply-To: dick.streefland@xs4all.nl (Dick Streefland)
+Organization: none
+X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
+References: <Pine.LNX.4.55L.0307181649290.29493@freak.distro.conectiva>
+From: spam@streefland.xs4all.nl (Dick Streefland)
+Subject: Re: Linux 2.4.22-pre7
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030719034059.GE10120@eugeneteo.net>
-User-Agent: Mutt/1.5.4i
+NNTP-Posting-Host: 172.17.1.66
+Message-ID: <3b8b.3f19716a.4a88c@altium.nl>
+Date: Sat, 19 Jul 2003 16:27:22 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 19, 2003 at 11:40:59AM +0800, Eugene Teo wrote:
-> <quote sender="Mike Fedyk">
-> > On Sat, Jul 19, 2003 at 02:10:49AM +1000, Con Kolivas wrote:
-> > > Here is an update to my Oint patches for 2.5/6 interactivity. Note I will be 
-> > > away for a week so bash away and abuse this one lots and when I get back I can 
-> > > see what else needs doing. Note I posted a preview earlier but this is the formal
-> > > O7 patch (check the datestamp which people hate in the naming of my patches).
-> > > I know this is turning into a marathon effort but... as you're all probably aware
-> > > there is nothing simple about tuning this beast. Thanks to all the testers and
-> > > people commenting; keep it coming please.
-> > 
-> > Is this on top of 06 or 06.1?
-> 
-> His patches are usually on top of the previous patch,
-> so if you applied O6int, apply O6.1int on it, then O7int on O6.1int.
-> But do read his readme file when you download it.
+Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+| Here goes -pre7.
+| 
+| This is a feature freeze, only bugfixes will be accepted from now on.
 
-Yeah, I didn't even go to his web site.  I've been taking his patches sent
-through email, saving it to a file, and running that through patch... :-D
+OK, do you accept the following bugfix for /proc/cmdline?
+
+--- linux-2.4.21/fs/proc/proc_misc.c.orig	Fri Jun 27 11:35:06 2003
++++ linux-2.4.21/fs/proc/proc_misc.c	Fri Jun 27 11:37:15 2003
+@@ -423,9 +423,9 @@
+ 				 int count, int *eof, void *data)
+ {
+ 	extern char saved_command_line[];
+-	int len;
++	int len = 0;
+ 
+-	len = snprintf(page, count, "%s\n", saved_command_line);
++	proc_sprintf(page, &off, &len, "%s\n", saved_command_line);
+ 	return proc_calc_metrics(page, start, off, count, eof, len);
+ }
+ 
+Since kernel version 2.4.19, a read() from /proc/cmdline with a
+non-zero offset doesn't work anymore: try "dd bs=1 < /proc/cmdline".
+Because of this bug, the following fails in ash and the busybox shell:
+
+  $ read line < /proc/cmdline
+
+I've posted this fix to lkml in januari, and sent it to you several
+times, but got no reaction. Alan Cox included this patch in version
+2.4.21pre5-ac4 of his tree. Could you please include this obvious fix
+in 2.4.22?
+
+-- 
+Dick Streefland                    ////               De Bilt
+dick.streefland@xs4all.nl         (@ @)       The Netherlands
+------------------------------oOO--(_)--OOo------------------
+

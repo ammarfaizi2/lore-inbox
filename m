@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271834AbTHMLbF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 07:31:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271831AbTHMLbF
+	id S271755AbTHMLY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 07:24:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271813AbTHMLY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 07:31:05 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:28891 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S271834AbTHMLbB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 07:31:01 -0400
-X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Wed, 13 Aug 2003 13:30:59 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Realtek network card
-Message-Id: <20030813133059.616f0faa.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 13 Aug 2003 07:24:26 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:9720 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S271755AbTHMLYY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 07:24:24 -0400
+Subject: Re: consistent_dma_mask is a ghost?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200308130011.h7D0BME29033@devserv.devel.redhat.com>
+References: <mailman.1060643897.16128.linux-kernel2news@redhat.com>
+	 <200308130011.h7D0BME29033@devserv.devel.redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1060773827.8008.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 13 Aug 2003 12:23:48 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Mer, 2003-08-13 at 01:11, Pete Zaitcev wrote:
+> Platforms which worked correctly before continue to work
+> correctly thereafter. IMHO, the whole thing is a kludge,
+> designed to support AIC7xxx on SGI SN-2, and that's about
+> all it does. There's a device which uses fewer DMA bits
+> when it accesses its mailbox than when it accesses data.
 
-does anybody know how to make the below work (neiter 2.2.25 nor 2.4.21 seem to recognise it):
+Same is true for megaraid, aacraid and several other cards, but they
+just keep changing the pci mask at runtime. Thats in some ways even
+uglier but works for now
 
-lspci --vv:
-
-00:08.0 Ethernet controller: Realtek Semiconductor Co., Ltd.: Unknown device 8131 (rev 10)
-	Subsystem: Realtek Semiconductor Co., Ltd.: Unknown device 8139
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32 min, 64 max, 32 set
-	Interrupt: pin A routed to IRQ 11
-	Region 0: I/O ports at e800
-	Region 1: Memory at ee000000 (32-bit, non-prefetchable)
-	Capabilities: [50] Power Management version 2
-		Flags: PMEClk- AuxPwr- DSI- D1+ D2+ PME-
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-
-Regards,
-Stephan

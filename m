@@ -1,36 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289159AbSAVFPn>; Tue, 22 Jan 2002 00:15:43 -0500
+	id <S289162AbSAVF1J>; Tue, 22 Jan 2002 00:27:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289160AbSAVFPY>; Tue, 22 Jan 2002 00:15:24 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64784 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289159AbSAVFPQ>; Tue, 22 Jan 2002 00:15:16 -0500
-Date: Mon, 21 Jan 2002 21:14:37 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
+	id <S289163AbSAVF1A>; Tue, 22 Jan 2002 00:27:00 -0500
+Received: from coffee.Psychology.McMaster.CA ([130.113.218.59]:20419 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S289162AbSAVF0x>; Tue, 22 Jan 2002 00:26:53 -0500
+Date: Tue, 22 Jan 2002 00:28:09 -0500 (EST)
+From: Mark Hahn <hahn@physics.mcmaster.ca>
+X-X-Sender: <hahn@coffee.psychology.mcmaster.ca>
+To: Adam Keys <akeys@post.cis.smu.edu>
 cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Patch for ymfpci in 2.5.x
-In-Reply-To: <20020122001125.A19661@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.33.0201212113230.1469-100000@penguin.transmeta.com>
+Subject: Re: Performance Results for Ingo's O(1)-scheduler
+In-Reply-To: <20020122035540.ZUVU10199.rwcrmhc53.attbi.com@there>
+Message-ID: <Pine.LNX.4.33.0201220026350.19491-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> connecting to a server and talking to each other.  Is it a CPU, memory, or 
+> disk bound benchmark?  What is causing the 4-way machines to be only 2x the 
 
-On Tue, 22 Jan 2002, Pete Zaitcev wrote:
->
-> I think something like this would be better than one more
-> totally nonsesical random #define:
-
-No.
-
-Why don't you call it something SANE, like "default_gain" or something.
-
-Anybody who uses variable names like "le_0x40000000" is just horribly
-misguided. Never EVER do that. You're better off just writing it out as
-"cpu_to_le32(0x40000000)" in that case.
-
-		Linus
+none of the above: it's scheduler-bound: billions of runnable threads
+that do almost nothing but wake up other threads. a fine example of 
+where to use coroutines, not kernel threads...
 

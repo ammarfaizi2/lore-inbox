@@ -1,42 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbVBHBuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVBHCGC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261381AbVBHBuz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 20:50:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbVBHBuz
+	id S261243AbVBHCGC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 21:06:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVBHCGC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 20:50:55 -0500
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:54277 "EHLO
-	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S261381AbVBHBuv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 20:50:51 -0500
+	Mon, 7 Feb 2005 21:06:02 -0500
+Received: from schokokeks.org ([193.201.54.11]:233 "EHLO a.mx.schokokeks.org")
+	by vger.kernel.org with ESMTP id S261243AbVBHCFx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 21:05:53 -0500
+Subject: Re: kernel 2.6.9 failure
+From: Lars Strojny <larsml@strojny.net>
+Reply-To: lars@strojny.net
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@taverner.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [PATCH] BSD Secure Levels: claim block dev in file struct rather than inode struct, 2.6.11-rc2-mm1 (3/8)
-Date: Tue, 8 Feb 2005 01:48:40 +0000 (UTC)
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <cu95po$3ch$1@abraham.cs.berkeley.edu>
-References: <20050207192108.GA776@halcrow.us> <20050207193129.GB834@halcrow.us> <20050207142603.A469@build.pdx.osdl.net> <200502072241.j17MfTfP027969@turing-police.cc.vt.edu>
-Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1107827320 3473 128.32.168.222 (8 Feb 2005 01:48:40 GMT)
-X-Complaints-To: usenet@abraham.cs.berkeley.edu
-NNTP-Posting-Date: Tue, 8 Feb 2005 01:48:40 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+In-Reply-To: <1107823873.42080d01c42df@webmail.telus.net>
+References: <1107823873.42080d01c42df@webmail.telus.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-VEgGatZdWi3vGHrSZa+B"
+Date: Tue, 08 Feb 2005 03:05:53 +0100
+Message-Id: <1107828353.6820.4.camel@mabuse.strojny.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->For those systems that have everything on one big partition, you can often
->do stuff like:
->
->ln /etc/passwd /tmp/<filename_generated_by_mktemp>
->
->and wait for /etc/passwd to get clobbered by a cron job run by root...
 
-How would /etc/passwd get clobbered?  Are you thinking that a tmp
-cleaner run by cron might delete /tmp/whatever (i.e., delete the hardlink
-you created above)?  But deleting /tmp/whatever is safe; it doesn't affect
-/etc/passwd.  I'm guessing I'm probably missing something.
+--=-VEgGatZdWi3vGHrSZa+B
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+On Mon, 2005-02-07 at 16:51 -0800, gl34@telus.net wrote:
+[...]
+> On a K6-2 box the 2.6.9 kernel starts to load : "Loading...." then the PC=
+=20
+> resets.=20
+> The kernel compiled and everything installed OK. Lilo is OK.  I've tried =
+four=20
+> times different configs with the same result. Box resets. My 2.4.28 kerne=
+l=20
+> works OK.=20
+> I've tried rm'ing and re-unpacking the 2.6.9 source and starting afresh. =
+ Box=20
+[...]                                    ^^^^^
+
+Is there any special reason why you don't use 2.6.10. I think it would
+be a good idea to give it a try!
+
+Greets, Lars Strojny
+--=20
+name: Lars Strojny         web: http://strojny.net=20
+street: Yorckstrasse 22    blog: http://usrportage.de
+city: D-71636 Ludwigsburg  mail/jabber: lars@strojny.net
+f-print: 6663 1055 543E 3106 3FD3  4F40 AC74 CD1F C327 14BD
+
+--=-VEgGatZdWi3vGHrSZa+B
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iQIVAwUAQggefyQPF+sCY6wHAQJzww//Q8GR7BuXgsp36Pl0/J1Ph8wJEbshoK1H
+maVpYtSrT630BAscc+6xIQ5Tr5dpOGBe1tV+ltfBA0AjARNItEJFM1iPDtYUBFR/
+gu9F8wOkexQQFIqClNw7Mu/DmpctMtKut23lvS4HGX8TYjtJCKVWRoJ1yepom9Rv
+84jkvrRqVMThDx6u47zxo0gmjzWz7/0AmuoX18V70fCIsU3ufdUZTM4jaxQcupMJ
+aGeTpSX/k+COFkMX6c6cXSnTo53b2XDz3GPH8WRJyaKbxGrDLRsCsI2PruV/rpWL
+CbbWGKRzOucIeZwWbkwvPWA9Rv/Q0CkMPDB1uP6K2C+vKUfSHlV1HHjKQoiBPx2l
+GePiq+fYMun6WXpOOBS2q+bOXU0+MUXiiESIMpqkQfRckB/2jAbNGidO+O1vVNXN
+G2EMnO23BlQGCtotpzDjTr4o9PMB/DNNTLIJ/xUDlPa209GBpkZWYumkWYA8dVzw
+pk2B4J1V17jOYW+ra6bkAZAmNseLzM2aDwx/wu6geCJehG3gJByhYKNSBhSykMNB
+5S/ghFAtaK9HsoAn2/UoXECCZ/V1QkLW8b3zgd4ITWg39jHTOMTQRnx/SLkMOWIa
+tSKzN86Aplp5JD2QqFLNOf6+To1ztn3aFXqd9SwLNbYHIzB3MwnwEYsXPrlsDUP9
+apa/mI0DJQc=
+=p1W+
+-----END PGP SIGNATURE-----
+
+--=-VEgGatZdWi3vGHrSZa+B--
+

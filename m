@@ -1,118 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265513AbSKAAiP>; Thu, 31 Oct 2002 19:38:15 -0500
+	id <S265525AbSKAAmI>; Thu, 31 Oct 2002 19:42:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265472AbSKAAiO>; Thu, 31 Oct 2002 19:38:14 -0500
-Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:30597 "EHLO
-	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S265459AbSKAAiN>; Thu, 31 Oct 2002 19:38:13 -0500
-Date: Thu, 31 Oct 2002 17:37:50 -0800 (PST)
-From: James Simmons <jsimmons@infradead.org>
-X-X-Sender: <jsimmons@maxwell.earthlink.net>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] Re: [BK console] console updates.
-In-Reply-To: <20021030215258.A10037@infradead.org>
-Message-ID: <Pine.LNX.4.33.0210311731420.2733-100000@maxwell.earthlink.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265533AbSKAAli>; Thu, 31 Oct 2002 19:41:38 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:1152 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S265525AbSKAAke>;
+	Thu, 31 Oct 2002 19:40:34 -0500
+Date: Thu, 31 Oct 2002 17:46:22 -0800
+From: Bob Miller <rem@osdl.org>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.45] Export blkdev_ioctl for raw block driver.
+Message-ID: <20021031174622.A1185@doc.pdx.osdl.net>
+References: <20021031165719.A26498@doc.pdx.osdl.net> <Pine.GSO.4.21.0210311909010.16688-100000@weyl.math.psu.edu> <20021031172007.A28402@doc.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021031172007.A28402@doc.pdx.osdl.net>; from rem@osdl.org on Thu, Oct 31, 2002 at 05:20:07PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 31, 2002 at 05:20:07PM -0800, Bob Miller wrote:
+> On Thu, Oct 31, 2002 at 07:11:19PM -0500, Alexander Viro wrote:
 
-> On Wed, Oct 30, 2002 at 01:56:38PM -0800, James Simmons wrote:
-> > I doubt this code will go into 2.5.X but it is avaiable for anyone to play
-> > with it.
->
-> Why?  I don't want to live another release with the old, crappy console,
-> and you've been working on this during almost all of 2.4 now..
+Stuff deleted...
 
-Okay. Here is the new console system. The patch is against 2.5.45.
-Please note only vgacon has been fixed to work with this new api.
+> > Why not use ioctl_by_bdev() in the first place?  (and yes, it's very likely
+> > my fault - I hadn't realized that raw.c went modular at some point).
+> Didn't know about ioctl_by_bdev()... I'll make a patch that converts
+> the raw driver to call it instead of blkdev_ioctl().
+> 
 
-http://phoenix.infradead.org/~jsimmons/console.diff.gz
-
-Via BK bk://linuxconsole.bkbits.net/stable
-
-
-Diff stats:
-
- arch/alpha/kernel/setup.c                   |   13
- arch/arm/kernel/setup.c                     |    9
- arch/i386/kernel/setup.c                    |    8
- arch/i386/vmlinux.lds.s                     |  109
- arch/ia64/kernel/setup.c                    |   16
- arch/m68k/amiga/config.c                    |    4
- arch/m68k/apollo/config.c                   |    3
- arch/m68k/atari/config.c                    |    5
- arch/m68k/hp300/config.c                    |    4
- arch/m68k/mac/config.c                      |    5
- arch/m68k/q40/config.c                      |    3
- arch/m68k/sun3/config.c                     |    4
- arch/m68k/sun3x/config.c                    |    3
- arch/mips/ddb5476/setup.c                   |    5
- arch/mips/dec/setup.c                       |    5
- arch/mips/ite-boards/generic/it8172_setup.c |    7
- arch/mips/jazz/setup.c                      |    4
- arch/mips/philips/nino/setup.c              |    7
- arch/mips/sgi/kernel/setup.c                |    6
- arch/mips/sni/setup.c                       |    4
- arch/mips64/kernel/ioctl32.c                |    3
- arch/mips64/sgi-ip22/ip22-setup.c           |    5
- arch/mips64/sgi-ip32/ip32-setup.c           |    6
- arch/parisc/kernel/setup.c                  |    8
- arch/ppc/amiga/config.c                     |    3
- arch/ppc/kernel/ppc4xx_setup.c              |    7
- arch/ppc/platforms/chrp_setup.c             |    8
- arch/ppc/platforms/k2_setup.c               |    6
- arch/ppc/platforms/lopec_setup.c            |    4
- arch/ppc/platforms/mcpn765_setup.c          |    6
- arch/ppc/platforms/menf1_setup.c            |    6
- arch/ppc/platforms/mvme5100_setup.c         |    6
- arch/ppc/platforms/pcore_setup.c            |    6
- arch/ppc/platforms/pmac_setup.c             |    5
- arch/ppc/platforms/pplus_setup.c            |    4
- arch/ppc/platforms/prep_setup.c             |    4
- arch/ppc/platforms/prpmc750_setup.c         |    6
- arch/ppc/platforms/prpmc800_setup.c         |    6
- arch/ppc/platforms/sandpoint_setup.c        |    5
- arch/ppc/platforms/spruce_setup.c           |    6
- arch/ppc64/kernel/chrp_setup.c              |    5
- arch/ppc64/kernel/ioctl32.c                 |   73
- arch/sh/kernel/setup.c                      |    8
- arch/sparc/kernel/setup.c                   |    5
- arch/sparc64/kernel/ioctl32.c               |   37
- arch/um/kernel/um_arch.c                    |    2
- arch/x86_64/kernel/setup.c                  |   10
- drivers/char/Kconfig                        |    5
- drivers/char/console_macros.h               |  166 -
- drivers/char/consolemap.c                   |  152 -
- drivers/char/decvte.c                       | 2065 ++++++++++++++++++
- drivers/char/keyboard.c                     |  327 +-
- drivers/char/misc.c                         |    3
- drivers/char/n_tty.c                        |   12
- drivers/char/selection.c                    |   83
- drivers/char/sysrq.c                        |   17
- drivers/char/tty_io.c                       |   48
- drivers/char/vc_screen.c                    |  124 -
- drivers/char/vt.c                           | 3178 ++++++++--------------------
- drivers/char/vt_ioctl.c                     | 1020 +++++---
- drivers/video/dummycon.c                    |    1
- drivers/video/mdacon.c                      |    3
- drivers/video/newport_con.c                 |    1
- drivers/video/promcon.c                     |   13
- drivers/video/sticon.c                      |    1
- drivers/video/vgacon.c                      |  162 -
- include/linux/console.h                     |   60
- include/linux/console_struct.h              |  110
- include/linux/consolemap.h                  |    6
- include/linux/kbd_kern.h                    |   96
- include/linux/selection.h                   |   32
- include/linux/tty.h                         |   19
- include/linux/vt_kern.h                     |  350 ++-
- include/video/fbcon.h                       |    2
- 74 files changed, 4752 insertions(+), 3778 deletions(-)
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.869   -> 1.870  
+#	  drivers/char/raw.c	1.23    -> 1.24   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/10/31	rem@doc.pdx.osdl.net	1.870
+# Changed raw driver to call ioctl_by_bdev() instead of
+# blkdev_ioctl() so that it will build as a module.
+# --------------------------------------------
+#
+diff -Nru a/drivers/char/raw.c b/drivers/char/raw.c
+--- a/drivers/char/raw.c	Thu Oct 31 17:34:56 2002
++++ b/drivers/char/raw.c	Thu Oct 31 17:34:56 2002
+@@ -95,7 +95,7 @@
+ {
+ 	struct block_device *bdev = filp->private_data;
+ 
+-	return blkdev_ioctl(bdev->bd_inode, NULL, command, arg);
++	return ioctl_by_bdev(bdev, command, arg);
+ }
+ 
+ /*
+-- 
+Bob Miller					Email: rem@osdl.org
+Open Source Development Lab			Phone: 503.626.2455 Ext. 17

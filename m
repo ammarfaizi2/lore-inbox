@@ -1,309 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263431AbTCNSw4>; Fri, 14 Mar 2003 13:52:56 -0500
+	id <S263441AbTCNSzm>; Fri, 14 Mar 2003 13:55:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263436AbTCNSw4>; Fri, 14 Mar 2003 13:52:56 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:6049 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id <S263431AbTCNSwv>;
-	Fri, 14 Mar 2003 13:52:51 -0500
-Message-ID: <3E722788.8010506@namesys.com>
-Date: Fri, 14 Mar 2003 22:03:36 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Linus Torvalds <torvalds@transmeta.com>
-Subject: [BK][PATCH] ReiserFS Attempt 3: fix reiserfs memleaks on journal
- opening failures in 2.5.64
-Content-Type: multipart/mixed;
- boundary="------------010201060808060508070403"
+	id <S263442AbTCNSzm>; Fri, 14 Mar 2003 13:55:42 -0500
+Received: from h-64-105-35-119.SNVACAID.covad.net ([64.105.35.119]:51590 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S263441AbTCNSzk>; Fri, 14 Mar 2003 13:55:40 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Fri, 14 Mar 2003 11:06:23 -0800
+Message-Id: <200303141906.LAA02228@adam.yggdrasil.com>
+To: dwmw2@infradead.org
+Subject: Re: devfs + PCI serial card = no extra serial ports
+Cc: driver@jpl.nasa.gov, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010201060808060508070403
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On 2003-03-14 at 15:23:50, David Woodhouse wrote:
+>On Mon, 2003-03-10 at 18:25, Bryan Whitehead wrote:
+>> [snip]
+>> >       There is nothing in devfs that prevents you from registering
+>> > devfs devices even if they are not yet bound to specific hardware
+>> > (you do not need a sysfs mapping, for example).  So, you should be
+>> > able to register /dev/tts/0..N at initialization, where N is the
+>> > maximum number of serial devices you want to support.
+>> 
+>> are you saying there is a way to force devfs to make more entries in 
+>> /dev/tts/ without any hardware being attached to the entries? Then i can 
+>> use setserial? so on boot I'd have 4 entries in /dev/tts ?
 
+>Don't do this. The whole concept of opening a device node for a device
+>which is _absent_, then doing magic ioctls on it to make the driver
+>probe for the hardware, is utterly bogus.
 
--- 
-Hans
+>Fix it properly instead -- disallow opening of a /dev/ttySx node with
+>uart type unknown, and implement a proper way to tell the serial driver
+>'please look for a device _here_', via sysfs or something. 
 
+	I don't know what you mean by "is utterly bogus."  You need to
+explain why you think this practice results in a larger kernel
+footprint, lower throughput, longer latency, larger object or source
+code size, or is worse by some other objective external metric when
+compared to a specific alternative (another element you seem to have
+omitted).
 
---------------010201060808060508070403
-Content-Type: message/rfc822;
- name="Attempt 3: fix reiserfs memleaks on journal opening failures in 2.5.64"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="Attempt 3: fix reiserfs memleaks on journal opening failures in 2.5.64"
+	This is a frequent problem that I see in many public technical
+discussions.  Using intimidation words like "is utterly bogus" to
+cover for not stating real technical reasons not only wastes peoples
+time in reading an unnecessary email exchange but also can mislead
+people into decision chains that tack toward producing software that
+is bigger, slower, harder to maintain, lacking in functionality or
+worse by most weightings of external benefits that people would
+accept.
 
-Return-Path: <green@namesys.com>
-Delivered-To: reiser@namesys.com
-Received: (qmail 15482 invoked from network); 14 Mar 2003 16:41:35 -0000
-Received: from angband.namesys.com (postfix@212.16.7.85)
-  by thebsh.namesys.com with SMTP; 14 Mar 2003 16:41:35 -0000
-Received: by angband.namesys.com (Postfix on SuSE Linux 7.3 (i386), from userid 521)
-	id EE9103289C6; Fri, 14 Mar 2003 19:41:31 +0300 (MSK)
-Date: Fri, 14 Mar 2003 19:41:31 +0300
-From: Oleg Drokin <green@namesys.com>
-To: reiser@namesys.com
-Subject: Attempt 3: fix reiserfs memleaks on journal opening failures in 2.5.64
-Message-ID: <20030314194131.A20489@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	Getting back to the topic of /dev devices without a constant
+binding to hardware devices, a device having at least a
+context-depenedent binding goes back as far as /dev/tty.  Being able
+to define a new serial device with open and ioctl have been in the
+Linux kernel since before devfs ever existed.  Non-devfs systems
+generally have many device files in /dev that are not actually bound
+to any existing devcies.  For example, a non-devfs system may have
+device files for the first four SCSI disks even on a system that has
+no SCSI disks.  In fact, such a device file may become valid later if
+a USB disk is plugged in.  User programs seem to be working OK with
+the non-constance of a device file's binding to a specific hardware
+device (i.e., there has not been some big unintended consequence that
+has caused systems lock up when they boot or when it's time to run
+fsck or after 8 hours of use or whatever).  So, the costs of this
+approach that I can think of seem pretty small.
 
-Hello!
+	Being able to open a device and then using ioctl's to define
+it (such as is currently the case in serial and loop devices) creates
+a programming interface that is more easily ported to other operating
+systems that don't have /sys and but do have open and ioctl.  The
+existing approach is also more capitable with versions of Linux that
+lack /sys.
 
-    This changesets forward-ports Chris Mason's fixes to free up allocated
-    memory when we fail to open relocated journal in reiserfs. Also
-    it adds new line marks in printed messages, when needed.
+	Before these ioctl's are run on a serial device to set the
+UART type, interrupt and IO port, the kernel does not necessarily know
+that there is a UART at a particular IO location, what type it is and
+what interrupt it is associated with.  So, it sounds like a /sys
+interface would be more kernel code than the current scheme without
+solving any real problem or delivering any real benefit that I see.
 
-    Please pull it from: bk://thebsh.namesys.com/bk/reiser3-linux-2.5-relocation-fix
+	Also, the dynamic configuration of serial ports with setserial
+is code that has been widely used for a long time, so its reliability
+should be pretty good.
 
-Diffstat:
- journal.c |   76 +++++++++++++++++++++++++++++---------------------------------
- 1 files changed, 36 insertions(+), 40 deletions(-)
+	So, it seems to me that the expected reliability,
+compatability, kernel code size and user code size benefits are likely
+to exceed those of defining some new creation process using /sys.  If
+you disagree, then please come up with some specific proposal (even if
+just for purposes of example), list these trade-offs and whatever
+others you perceive, and then we can discuss which approach each of
+thinks provides the most benefit on balance.
 
-Plain text patch:
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1105  -> 1.1106 
-#	fs/reiserfs/journal.c	1.65    -> 1.66   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/03/14	green@angband.namesys.com	1.1106
-# reiserfs: Correctly free all the allocated memory if open of the journal failed.
-#   Also added \n to some error messages.
-# --------------------------------------------
-#
-diff -Nru a/fs/reiserfs/journal.c b/fs/reiserfs/journal.c
---- a/fs/reiserfs/journal.c	Fri Mar 14 19:30:28 2003
-+++ b/fs/reiserfs/journal.c	Fri Mar 14 19:30:28 2003
-@@ -1310,6 +1310,10 @@
-   if (SB_JOURNAL(p_s_sb)->j_header_bh) {
-     brelse(SB_JOURNAL(p_s_sb)->j_header_bh) ;
-   }
-+  /* j_header_bh is on the journal dev, make sure not to release the journal
-+   * dev until we brelse j_header_bh
-+   */
-+  release_journal_dev(p_s_sb, SB_JOURNAL(p_s_sb));
-   vfree(SB_JOURNAL(p_s_sb)) ;
- }
- 
-@@ -1341,7 +1345,6 @@
-     commit_wq = NULL;
-   }
- 
--  release_journal_dev( p_s_sb, SB_JOURNAL( p_s_sb ) );
-   free_journal_ram(p_s_sb) ;
- 
-   return 0 ;
-@@ -1867,24 +1870,18 @@
-     int result;
-     
-     result = 0;
--	
- 
-     if( journal -> j_dev_file != NULL ) {
--	/*
--	 * journal block device was taken via filp_open
--	 */
- 	result = filp_close( journal -> j_dev_file, NULL );
- 	journal -> j_dev_file = NULL;
- 	journal -> j_dev_bd = NULL;
-     } else if( journal -> j_dev_bd != NULL ) {
--	/*
--	 * journal block device was taken via bdget and blkdev_get
--	 */
- 	result = blkdev_put( journal -> j_dev_bd, BDEV_FS );
- 	journal -> j_dev_bd = NULL;
-     }
-+
-     if( result != 0 ) {
--	reiserfs_warning("sh-457: release_journal_dev: Cannot release journal device: %i", result );
-+	reiserfs_warning("sh-457: release_journal_dev: Cannot release journal device: %i\n", result );
-     }
-     return result;
- }
-@@ -1895,6 +1892,7 @@
- {
- 	int result;
- 	dev_t jdev;
-+	int blkdev_mode = FMODE_READ | FMODE_WRITE;
- 
- 	result = 0;
- 
-@@ -1902,12 +1900,16 @@
- 	journal -> j_dev_file = NULL;
- 	jdev = SB_ONDISK_JOURNAL_DEVICE( super ) ?
- 		SB_ONDISK_JOURNAL_DEVICE( super ) : super->s_dev;	
-+
-+	if (bdev_read_only(super->s_bdev))
-+	    blkdev_mode = FMODE_READ;
-+
- 	/* there is no "jdev" option and journal is on separate device */
- 	if( ( !jdev_name || !jdev_name[ 0 ] ) ) {
- 		journal -> j_dev_bd = bdget(jdev);
- 		if( journal -> j_dev_bd )
- 			result = blkdev_get( journal -> j_dev_bd, 
--					     FMODE_READ | FMODE_WRITE, 0, 
-+					     blkdev_mode, 0, 
- 					     BDEV_FS );
- 		else
- 			result = -ENOMEM;
-@@ -1928,10 +1930,10 @@
- 		jdev_inode = journal -> j_dev_file -> f_dentry -> d_inode;
- 		journal -> j_dev_bd = jdev_inode -> i_bdev;
- 		if( !S_ISBLK( jdev_inode -> i_mode ) ) {
--			printk( "journal_init_dev: '%s' is not a block device", jdev_name );
-+			printk( "journal_init_dev: '%s' is not a block device\n", jdev_name );
- 			result = -ENOTBLK;
- 		} else if( jdev_inode -> i_bdev == NULL ) {
--			printk( "journal_init_dev: bdev uninitialized for '%s'", jdev_name );
-+			printk( "journal_init_dev: bdev uninitialized for '%s'\n", jdev_name );
- 			result = -ENOMEM;
- 		} else  {
- 			/* ok */
-@@ -1941,12 +1943,12 @@
- 	} else {
- 		result = PTR_ERR( journal -> j_dev_file );
- 		journal -> j_dev_file = NULL;
--		printk( "journal_init_dev: Cannot open '%s': %i", jdev_name, result );
-+		printk( "journal_init_dev: Cannot open '%s': %i\n", jdev_name, result );
- 	}
- 	if( result != 0 ) {
- 		release_journal_dev( super, journal );
- 	}
--	printk( "journal_init_dev: journal device: %s", bdevname(journal->j_dev_bd));
-+	printk( "journal_init_dev: journal device: %s\n", bdevname(journal->j_dev_bd));
- 	return result;
- }
- 
-@@ -1960,20 +1962,24 @@
-     struct reiserfs_journal_header *jh;
-     struct reiserfs_journal *journal;
- 
--  if (sizeof(struct reiserfs_journal_commit) != 4096 ||
--      sizeof(struct reiserfs_journal_desc) != 4096
--     ) {
--    printk("journal-1249: commit or desc struct not 4096 %Zd %Zd\n", sizeof(struct reiserfs_journal_commit), 
-+    if (sizeof(struct reiserfs_journal_commit) != 4096 ||
-+      sizeof(struct reiserfs_journal_desc) != 4096) {
-+	printk("journal-1249: commit or desc struct not 4096 %Zd %Zd\n", sizeof(struct reiserfs_journal_commit), 
-         sizeof(struct reiserfs_journal_desc)) ;
--    return 1 ;
--  }
-+	return 1 ;
-+    }
- 
-     journal = SB_JOURNAL(p_s_sb) = vmalloc(sizeof (struct reiserfs_journal)) ;
-     if (!journal) {
- 	printk("journal-1256: unable to get memory for journal structure\n") ;
--    return 1 ;
--  }
-+	return 1 ;
-+    }
-     memset(journal, 0, sizeof(struct reiserfs_journal)) ;
-+    INIT_LIST_HEAD(&SB_JOURNAL(p_s_sb)->j_bitmap_nodes) ;
-+    INIT_LIST_HEAD (&SB_JOURNAL(p_s_sb)->j_prealloc_list);
-+    reiserfs_allocate_list_bitmaps(p_s_sb, SB_JOURNAL(p_s_sb)->j_list_bitmap, 
-+ 				   SB_BMAP_NR(p_s_sb)) ;
-+    allocate_bitmap_nodes(p_s_sb) ;
- 
-     /* reserved for journal area support */
-     SB_JOURNAL_1st_RESERVED_BLOCK(p_s_sb) = (old_format ?
-@@ -1983,7 +1989,7 @@
-     
-     if( journal_init_dev( p_s_sb, journal, j_dev_name ) != 0 ) {
-       printk( "sh-462: unable to initialize jornal device\n");
--      return 1;
-+      goto free_and_return;
-     }
- 
-      rs = SB_DISK_SUPER_BLOCK(p_s_sb);
-@@ -1993,8 +1999,7 @@
- 		   SB_ONDISK_JOURNAL_1st_BLOCK(p_s_sb) + SB_ONDISK_JOURNAL_SIZE(p_s_sb));
-      if (!bhjh) {
- 	 printk("sh-459: unable to read  journal header\n") ;
--	 release_journal_dev(p_s_sb, journal);
--	 return 1 ;
-+	 goto free_and_return;
-      }
-      jh = (struct reiserfs_journal_header *)(bhjh->b_data);
-      
-@@ -2005,8 +2010,7 @@
- 		jh->jh_journal.jp_journal_magic, bdevname( SB_JOURNAL(p_s_sb)->j_dev_bd ),
- 		sb_jp_journal_magic(rs), reiserfs_bdevname (p_s_sb));
- 	 brelse (bhjh);
--	 release_journal_dev(p_s_sb, journal);
--	 return 1 ;
-+	 goto free_and_return;
-   }
-      
-   SB_JOURNAL_TRANS_MAX(p_s_sb)      = le32_to_cpu (jh->jh_journal.jp_journal_trans_max);
-@@ -2064,7 +2068,6 @@
- 
-   brelse (bhjh);
-      
--
-   SB_JOURNAL(p_s_sb)->j_list_bitmap_index = 0 ;
-   SB_JOURNAL_LIST_INDEX(p_s_sb) = -10000 ; /* make sure flush_old_commits does not try to flush a list while replay is on */
- 
-@@ -2075,12 +2078,8 @@
-   memset(SB_JOURNAL(p_s_sb)->j_list_hash_table, 0, JOURNAL_HASH_SIZE * sizeof(struct reiserfs_journal_cnode *)) ;
-   memset(journal_writers, 0, sizeof(char *) * 512) ; /* debug code */
- 
--  INIT_LIST_HEAD(&SB_JOURNAL(p_s_sb)->j_bitmap_nodes) ;
-   INIT_LIST_HEAD(&SB_JOURNAL(p_s_sb)->j_dirty_buffers) ;
-   spin_lock_init(&SB_JOURNAL(p_s_sb)->j_dirty_buffers_lock) ;
--  reiserfs_allocate_list_bitmaps(p_s_sb, SB_JOURNAL(p_s_sb)->j_list_bitmap, 
--                                 SB_BMAP_NR(p_s_sb)) ;
--  allocate_bitmap_nodes(p_s_sb) ;
- 
-   SB_JOURNAL(p_s_sb)->j_start = 0 ;
-   SB_JOURNAL(p_s_sb)->j_len = 0 ;
-@@ -2107,20 +2106,15 @@
-   SB_JOURNAL_LIST(p_s_sb)[0].j_list_bitmap = get_list_bitmap(p_s_sb, SB_JOURNAL_LIST(p_s_sb)) ;
-   if (!(SB_JOURNAL_LIST(p_s_sb)[0].j_list_bitmap)) {
-     reiserfs_warning("journal-2005, get_list_bitmap failed for journal list 0\n") ;
--    release_journal_dev(p_s_sb, journal);
--    return 1 ;
-+    goto free_and_return;
-   }
-   if (journal_read(p_s_sb) < 0) {
-     reiserfs_warning("Replay Failure, unable to mount\n") ;
--    free_journal_ram(p_s_sb) ;
--    release_journal_dev(p_s_sb, journal);
--    return 1 ;
-+    goto free_and_return;
-   }
-   SB_JOURNAL_LIST_INDEX(p_s_sb) = 0 ; /* once the read is done, we can set this
-                                          where it belongs */
- 
--  INIT_LIST_HEAD (&SB_JOURNAL(p_s_sb)->j_prealloc_list);
--
-   if (reiserfs_dont_log (p_s_sb))
-     return 0;
- 
-@@ -2129,7 +2123,9 @@
-     commit_wq = create_workqueue("reiserfs");
- 
-   return 0 ;
--
-+free_and_return:
-+  free_journal_ram(p_s_sb);
-+  return 1;
- }
- 
- /*
-
-
-
---------------010201060808060508070403--
-
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

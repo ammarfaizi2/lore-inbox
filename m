@@ -1,66 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267687AbUHENnB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267689AbUHENrY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267687AbUHENnB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 09:43:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267684AbUHENnA
+	id S267689AbUHENrY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 09:47:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267688AbUHENrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 09:43:00 -0400
-Received: from cantor.suse.de ([195.135.220.2]:6291 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267687AbUHENlx (ORCPT
+	Thu, 5 Aug 2004 09:47:20 -0400
+Received: from cantor.suse.de ([195.135.220.2]:46733 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267677AbUHENkQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 09:41:53 -0400
-Date: Thu, 5 Aug 2004 15:39:14 +0200
-From: Olaf Hering <olh@suse.de>
-To: David Brownell <david-b@pacbell.net>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, Stuart_Hayes@Dell.com,
-       whbeers@mbio.ncsu.edu, Gary_Lerhaupt@Dell.com,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] [PATCH] proper bios handoff in ehci-hcd
-Message-ID: <20040805133914.GA8844@suse.de>
-References: <7A8F92187EF7A249BF847F1BF4903C046304CF@ausx2kmpc103.aus.amer.dell.com> <20040713145628.27ae43e7@lembas.zaitcev.lan> <40F46A7F.5000703@pacbell.net> <20040715093704.GA30351@suse.de>
+	Thu, 5 Aug 2004 09:40:16 -0400
+Date: Thu, 5 Aug 2004 15:34:43 +0200
+From: Andi Kleen <ak@suse.de>
+To: arjanv@redhat.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Automatically enable bigsmp on big HP machines
+Message-Id: <20040805153443.106c8915.ak@suse.de>
+In-Reply-To: <1091711039.2790.1.camel@laptop.fenrus.com>
+References: <20040805143837.4a6dce7e.ak@suse.de>
+	<1091711039.2790.1.camel@laptop.fenrus.com>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040715093704.GA30351@suse.de>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Thu, Jul 15, Olaf Hering wrote:
+On Thu, 05 Aug 2004 15:03:59 +0200
+Arjan van de Ven <arjanv@redhat.com> wrote:
 
->  On Tue, Jul 13, David Brownell wrote:
+> On Thu, 2004-08-05 at 14:38, Andi Kleen wrote:
+> > This enables apic=bigsmp automatically on some big HP machines that need it. 
+> > This makes them boot without kernel parameters on a generic arch kernel.
 > 
-> > Instead, how about:  (a) longer timeout, 5 seconds to match OHCI's
-> > absurdly long default there; (b) change that "handoff failed" message
-> > to add "continuing anyway"; and (c) return 0 as you do, which I'm
-> > expecting is the key part of that patch.
+> is it possible for this to use the new dmi infrastructure, eg not add it
+> to dmi_scan.c but to the place where it's used ?
 
-David, what is the status with this bios problem?
-Can a patch like this patch go in?
-What could we lose if the error is ignored?
+Certainly. Feel free to post a patch for that.
 
-> diff -purN linux-2.6.8-rc1-bk3.bios-handoff/drivers/usb/host/ehci-hcd.c linux-2.6.8-rc1-bk3/drivers/usb/host/ehci-hcd.c
-> --- linux-2.6.8-rc1-bk3.bios-handoff/drivers/usb/host/ehci-hcd.c	2004-07-15 11:24:14.000000000 +0200
-> +++ linux-2.6.8-rc1-bk3/drivers/usb/host/ehci-hcd.c	2004-07-15 11:32:28.463930957 +0200
-> @@ -303,9 +303,11 @@ static int bios_handoff (struct ehci_hcd
->  			pci_read_config_dword(pdev, where, &cap);
->  		} while ((cap & (1 << 16)) && msec);
->  		if (cap & (1 << 16)) {
-> -			ehci_err (ehci, "BIOS handoff failed (%d, %04x)\n",
-> +			ehci_err (ehci, "BIOS handoff failed (%d, %04x)\n"
-> +				" Devices connected to this controller will not work correctly.\n"
-> +				" Complain to your BIOS vendor.\n", /* Really! */
->  				where, cap);
-> -			return 1;
-> +			return 0;
->  		} 
->  		ehci_dbg (ehci, "BIOS handoff succeeded\n");
->  	}
+-Andi
 
--- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, nÜRNBERG
+> 

@@ -1,53 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264308AbUFKVxa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264337AbUFKV6d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264308AbUFKVxa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 17:53:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264337AbUFKVxa
+	id S264337AbUFKV6d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 17:58:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264352AbUFKV6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 17:53:30 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:57503 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S264308AbUFKVx1 (ORCPT
+	Fri, 11 Jun 2004 17:58:33 -0400
+Received: from fw.osdl.org ([65.172.181.6]:26526 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264337AbUFKV6a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 17:53:27 -0400
-Date: Fri, 11 Jun 2004 23:53:18 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: urban@teststation.com, samba@samba.org
-Cc: linux-kernel@vger.kernel.org, Bernhard Wesely <bernie@weselyb.net>
-Subject: Re: Typo in fs/smbfs/file.c
-Message-ID: <20040611215318.GA20046@wohnheim.fh-wedel.de>
-References: <50746.10.100.5.81.1086988491.squirrel@mail.brumma.com>
+	Fri, 11 Jun 2004 17:58:30 -0400
+Date: Fri, 11 Jun 2004 15:01:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Permit inode & dentry hash tables to be allocated >
+ MAX_ORDER size [#2]
+Message-Id: <20040611150110.73fadefb.akpm@osdl.org>
+In-Reply-To: <6567.1086963705@redhat.com>
+References: <567.1086950642@redhat.com>
+	<6567.1086963705@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <50746.10.100.5.81.1086988491.squirrel@mail.brumma.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 June 2004 23:14:51 +0200, Bernhard Wesely wrote:
-> 
-> I recently compiled 2.6.6 and got a gcc warning:
-> 
->   CC      fs/smbfs/file.o
-> fs/smbfs/file.c: In function `smb_file_sendfile':
-> fs/smbfs/file.c:274: warning: unknown conversion type character `z' in format
-> fs/smbfs/file.c:274: warning: too many arguments for format
-> 
-> Well, there seems to be a "z" instead of a "Z". I changed it and the
-> compile went cleanly. I downloaded the source of 2.6.7-rc3 and the typo
-> was still there.
-> 
-> The fixed line looks like:
-> 
-> PARANOIA("%s/%s validation failed, error=%Zd\n", DENTRY_PATH(dentry),
-> status);
+David Howells <dhowells@redhat.com> wrote:
+>
+> Here's an update to my patch.
 
-Just forwarding to the correct hands (as of MAINTAINERS file).
+-static void __init dcache_init(unsigned long mempages)
++static void __init dcache_init_early(void)
+ {
+-	struct hlist_head *d;
+-	unsigned long order;
+-	unsigned int nr_hash;
+-	int i;
++	struct hlist_head *p;
++	int loop;
++
++	dentry_hashtable =
++		alloc_large_system_hash("Dentry cache",
++					sizeof(struct hlist_head),
++					dhash_entries,
++					13,
++					0,
++					&d_hash_shift,
++					&d_hash_mask);
++
++	p = dentry_hashtable;
++	loop = 1 << d_hash_shift;
++	do {
++		INIT_HLIST_HEAD(p);
++		p++;
++		loop--;
++	} while (loop);
++}
 
-Jörn
+We have an opportunity to make this loop less baroque.
 
--- 
-The wise man seeks everything in himself; the ignorant man tries to get
-everything from somebody else.
--- unknown
+	for (i = 0; i < (1 << d_hash_shift); i++)
+		INIT_HLIST_HEAD(p[i]);
+
+
+
+
++void __init vfs_caches_init_early(void)
+
+This function was declared
+
++extern void vfs_caches_init_early(void);
+
+whereas in other places you _have_ made the definition of __init functions
+include the "__init".  I'm not sure which is best, really, but it seems
+better to include the __init in the declaration.
+
++static inline int log2(unsigned long x) __attribute__((pure));
+
+What's the attribute((pure)) for?
+
+It generates a warning on older gcc - please use __attribute_pure__.
+
++static inline int log2(unsigned long x)
+
+This is just asking for namespace collisions.
+
++{
++	int r = 0;
++	for (x >>= 1; x > 0; x >>= 1)
++		r++;
++	return r;
++}
+
+The other four or five implementations of log2() use ffx(~n).
+

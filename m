@@ -1,82 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286899AbSABKPF>; Wed, 2 Jan 2002 05:15:05 -0500
+	id <S286911AbSABKKz>; Wed, 2 Jan 2002 05:10:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286909AbSABKOp>; Wed, 2 Jan 2002 05:14:45 -0500
-Received: from dsl-213-023-043-195.arcor-ip.net ([213.23.43.195]:51726 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S286907AbSABKOn>;
-	Wed, 2 Jan 2002 05:14:43 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rob Landley <landley@trommello.org>, Larry McVoy <lm@bitmover.com>,
-        Benjamin LaHaise <bcrl@redhat.com>
-Subject: Re: The direction linux is taking
-Date: Wed, 2 Jan 2002 11:14:28 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Oliver Xymoron <oxymoron@waste.org>,
-        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20011229190600.2556C36DE6@hog.ctrl-c.liu.se> <E16Ky48-0003hT-00@starship.berlin> <20020101053446.HLQO11986.femail30.sdc1.sfba.home.com@there>
-In-Reply-To: <20020101053446.HLQO11986.femail30.sdc1.sfba.home.com@there>
+	id <S286899AbSABKKq>; Wed, 2 Jan 2002 05:10:46 -0500
+Received: from [194.206.157.151] ([194.206.157.151]:20349 "EHLO
+	iis000.microdata.fr") by vger.kernel.org with ESMTP
+	id <S286909AbSABKKj>; Wed, 2 Jan 2002 05:10:39 -0500
+Message-ID: <17B78BDF120BD411B70100500422FC6309E3ED@IIS000>
+From: Bernard Dautrevaux <Dautrevaux@microprocess.com>
+To: "'Tom Rini'" <trini@kernel.crashing.org>,
+        Momchil Velikov <velco@fadata.bg>
+Cc: linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
+        linuxppc-dev@lists.linuxppc.org
+Subject: RE: [PATCH] C undefined behavior fix
+Date: Wed, 2 Jan 2002 11:02:12 +0100 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16LiPl-00010E-00@starship.berlin>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 31, 2001 10:33 pm, Rob Landley wrote:
-> On Monday 31 December 2001 03:45 am, Daniel Phillips wrote:
-> > On December 29, 2001 11:04 pm, Larry McVoy wrote:
-> > > On Sat, Dec 29, 2001 at 04:03:34PM -0500, Benjamin LaHaise wrote:
-> > > > On Sat, Dec 29, 2001 at 11:37:49AM -0800, Larry McVoy wrote:
-> > > > > If you have N people trying to patch the same file, you'll require N
-> > > > > releases and some poor shlep is going to have to resubmit their patch
-> > > > > N-1 times before it gets in.
-> > > >
-> > > > Wrong.  Most patches are independant, and even touch different
-> > > > functions.
-> > >
-> > > Really?  And the data which shows this absolute statement to be true is
-> > > where?  I'm happy to believe data, but there is no data here.
-> >
-> > Ben's right.  Most patches are independant because the work divides itself
-> > up that way, because people talk about this stuff (on IRC) and cooperate,
-> > and because the tree structure evolves to support the natural divisions ;)
+> -----Original Message-----
+> From: Tom Rini [mailto:trini@kernel.crashing.org]
+> Sent: Wednesday, January 02, 2002 12:44 AM
+> To: Momchil Velikov
+> Cc: linux-kernel@vger.kernel.org; gcc@gcc.gnu.org;
+> linuxppc-dev@lists.linuxppc.org
+> Subject: Re: [PATCH] C undefined behavior fix
 > 
-> In a fan club, saying "andrea's the MM guy, talk to him" is only natural.  
-> It's a meritocracy, he's alpha geek on call in that area right now.
 > 
-> In a fortune 500 bureaucracy, people are largely supposed to be 
-> interchangeable cogs.  People's worth is measured in dollars, and somebody 
-> worth $70k a year should be swappable with somebody else worth $70k/year.  
-> (It's a bit more complex than that, there's certifications and experience, 
-> but somebody with a BA and 2 years experience working on inflatable widgets 
-> should be exchangeable with somebody else with a BA and 2 years experience 
-> working on inflatable widgets.  If not, they'll "get up to speed", it's just 
-> a question of acquiring experience...)
+> On Wed, Jan 02, 2002 at 01:03:25AM +0200, Momchil Velikov wrote:
 > 
-> So having a single point of failure in the development process...  It's 
-> unthinkable.  What if that guy decides to retire?  What if he gets hit by a 
-> bus.  What if the competition hires him away?  What if he DEMANDS MORE MONEY? 
->  (It's all about money in a corporation.  It's all numbers.  The bottom line. 
->  So if the whole project depends on one guy, logically he'll ask for as much 
-> salary as the project's worth.  That's a lot of how management thinks.)
+> > The appended patch fix incorrect code, which interferes badly with
+> > optimizations in GCC 3.0.4 and GCC 3.1.
+> > 
+> > The GCC tries to replace the strcpy from a constant string 
+> source with
+> > a memcpy, since the length is know at compile time.
 > 
-> So if you DO have someone breaking down the project into subsections, it's 
-> unlikely to be a developer, it would be a manager assigning areas of 
-> responsibility.  And shuffling them around from time to time so nobody gets 
-> the idea they can't be replaced.  But it's easiest just to scatter 
-> tasks over the group and keep things mixed up all the time...
-> 
-> Fan clubs are all individuals.  Bureaucracies try to eliminate the 
-> individual: the automated assembly line with no humans in it is the 
-> bureaucratic ideal...
-> 
-> Totally different paradigm.
+> Check the linuxppc-dev archives, but this has been discussed 
+> before, and
+> it came down to a few things.
+> 1) gcc shouldn't be making this optimization, and Paulus (who 
+> wrote the
+> code) disliked this new feature.  
 
-Yes, that's all +5 insightful, except... what makes you think any one of the 
-Linux core hackers is irreplaceable?  I know you didn't say that, but you
-did say 'single point of failure', and it amounts to the same thing.
+Why? If memcpy can then be expanded in line, and the string is short, this
+can be a *huge* win...
 
---
-Daniel
+> As a subnote, what you sent was sent
+> to Linus with a comment about working around a gcc-3.0 
+> bug/feature, and
+> was rejected because of this.
+> 2) We could modify the RELOC macro, and not have this problem.  The
+> patch was posted, but not acted upon.
+
+I think we MUST modify the RELOC macro. Currently the code has an undefined
+meaning WRT th eC standard, so is allowed to do almost anything from working
+as expected (quite bad in fact: it may suddenly fail when sth is modified
+elsewhere), to triggering the 3rd World War :-)
+
+> 3) We could also try turning off this particular optimization
+> (-fno-builtin perhaps) on this file, and not worry about it.
+
+That's a compiler dependant way to fix the problem that creates a constraint
+on the compiler: it MUST then from now continue to have a given behaviour to
+some undefined feature (that is in fact not even documented...) 
+
+Note that the RELOC macro triggers an UNDEFINED behaviour, not an
+IMPLEMENTATION DEFINED one, so the compiler writer is free of any constraint
+and that would be a genuine extension the the C language to fix the
+behaviour.
+
+	Bernard
+
+--------------------------------------------
+Bernard Dautrevaux
+Microprocess Ingenierie
+97 bis, rue de Colombes
+92400 COURBEVOIE
+FRANCE
+Tel:	+33 (0) 1 47 68 80 80
+Fax:	+33 (0) 1 47 88 97 85
+e-mail:	dautrevaux@microprocess.com
+		b.dautrevaux@usa.net
+-------------------------------------------- 

@@ -1,97 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262783AbSIPTIG>; Mon, 16 Sep 2002 15:08:06 -0400
+	id <S262776AbSIPTGf>; Mon, 16 Sep 2002 15:06:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262792AbSIPTIG>; Mon, 16 Sep 2002 15:08:06 -0400
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:29487 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S262783AbSIPTIE>;
-	Mon, 16 Sep 2002 15:08:04 -0400
-From: <Hell.Surfers@cwctv.net>
-To: phillips@arcor.de, rusty@rustcorp.com.au, zippel@linux-m68k.org,
-       lk@tantalophile.demon.co.uk, viro@math.psu.edu,
-       linux-kernel@vger.kernel.org
-Date: Mon, 16 Sep 2002 20:11:52 +0100
-Subject: RE:Understanding the Principles of Argumentation #3
+	id <S262780AbSIPTGf>; Mon, 16 Sep 2002 15:06:35 -0400
+Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:58774 "EHLO
+	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S262776AbSIPTGe>; Mon, 16 Sep 2002 15:06:34 -0400
+Date: Mon, 16 Sep 2002 16:11:14 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "Timothy D. Witham" <wookie@osdl.org>
+cc: Helge Hafting <helgehaf@aitel.hist.no>, <linux-kernel@vger.kernel.org>
+Subject: Re: Killing/balancing processes when overcommited
+In-Reply-To: <1032202163.1458.351.camel@wookie-t23.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.44L.0209161610370.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1032203512559"
-Message-ID: <0bbd34611191092DTVMAIL3@smtp.cwctv.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 16 Sep 2002, Timothy D. Witham wrote:
+> On Mon, 2002-09-16 at 07:03, Rik van Riel wrote:
 
---1032203512559
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+> > > > 1) memory is exhausted
+> > > > 2) the network driver can't allocate memory and
+> > > >    spits out a message
+> > > > 3) syslogd and/or klogd get killed
 
-Rusty doesn't like people quoting him in signatures, but that ones a definate possibility...
+>   Not in what I had described.  Unless the page fault was for a new page
+> (just malloc'ed) it wouldn't result in the killing of the process.
 
-Cheers, Dean McEwan. Currently hacking KGI, which I don't understand, oh and ask me about OpenModemTalk...
+Unfortunately they do. Reality doesn't quite match your
+description.
 
-On 	Mon, 16 Sep 2002 18:36:42 +0200 	Daniel Phillips <phillips@arcor.de> wrote:
-
---1032203512559
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Mon, 16 Sep 2002 17:40:26 +0100
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262544AbSIPQcU>; Mon, 16 Sep 2002 12:32:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262608AbSIPQcU>; Mon, 16 Sep 2002 12:32:20 -0400
-Received: from dsl-213-023-040-192.arcor-ip.net ([213.23.40.192]:65415 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S262544AbSIPQcT>;
-	Mon, 16 Sep 2002 12:32:19 -0400
-Received: from daniel by starship with local (Exim 3.36 #1 (Debian))
-	id 17qyrb-0000Jv-00; Mon, 16 Sep 2002 18:36:43 +0200
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Rusty Russell <rusty@rustcorp.com.au>,
-	Roman Zippel <zippel@linux-m68k.org>
-Subject: Understanding the Principles of Argumentation #3
-Date: Mon, 16 Sep 2002 18:36:42 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-	Alexander Viro <viro@math.psu.edu>,
-	linux-kernel@vger.kernel.org
-References: <20020916120022.22FFC2C12A@lists.samba.org>
-In-Reply-To: <20020916120022.22FFC2C12A@lists.samba.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17qyrb-0000Jv-00@starship>
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
-
-This is the third in my "Understanding the Principles of Argumentation"
-series.  Rusty has obligingly provided us with a fine example of an "ad
-hominem attack":
-
-On Monday 16 September 2002 04:17, Rusty Russell wrote:
-> > Don't forget that the Unix way has traditionally been to use the
-> > simplest interface that will do the job; if you propose a fat
-> > interface you need to prove that the thin one cannot do the job.
-> 
-> Gee, really?  You're so clever!
-> 
-> You patronising little shit,
-
-An ad hominem attack is a logical fallacy where the arguer attacks the
-person, rather than the issue:
-
-   http://home.mcn.net/~montanabw/fallacies.html
-
+Rik
 -- 
-Daniel
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---1032203512559--
+Bravely reimplemented by the knights who say "NIH".
 
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
 

@@ -1,46 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262037AbTFIVN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 17:13:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbTFIVN4
+	id S262095AbTFIVQA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 17:16:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbTFIVP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 17:13:56 -0400
-Received: from smtp.terra.es ([213.4.129.129]:64659 "EHLO tsmtp1.mail.isp")
-	by vger.kernel.org with ESMTP id S262037AbTFIVNz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 17:13:55 -0400
-Date: Mon, 9 Jun 2003 23:20:01 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.70-mm6
-Message-Id: <20030609232001.3980cb7a.diegocg@teleline.es>
-In-Reply-To: <Pine.LNX.4.51.0306091943580.23392@dns.toxicfilms.tv>
-References: <20030607151440.6982d8c6.akpm@digeo.com>
-	<Pine.LNX.4.51.0306091943580.23392@dns.toxicfilms.tv>
-X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	Mon, 9 Jun 2003 17:15:59 -0400
+Received: from 66-122-194-202.ded.pacbell.net ([66.122.194.202]:43425 "HELO
+	mail.keyresearch.com") by vger.kernel.org with SMTP id S262095AbTFIVPu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 17:15:50 -0400
+Subject: Re: memtest86 on the opteron
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Dan Carpenter <dcarpenter@penguincomputing.com>,
+       linux-kernel@vger.kernel.org, ppokorny@penguincomputing.com
+In-Reply-To: <20030609211823.GA2182@suse.de>
+References: <Pine.LNX.4.33.0306091320500.2640-100000@ddcarpen1.penguincompting.com>
+	 <20030609211823.GA2182@suse.de>
+Content-Type: multipart/mixed; boundary="=-JXwGAmiC4/4tovDQ5iCc"
+Organization: 
+Message-Id: <1055194161.32291.11.camel@serpentine.internal.keyresearch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 09 Jun 2003 14:29:22 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Jun 2003 19:45:58 +0200 (CEST)
-Maciej Soltysiak <solt@dns.toxicfilms.tv> wrote:
 
-> The interactivity seems to have dropped. Again, with common desktop
-> applications: xmms playing with ALSA, when choosing navigating through
-> evolution options or browsing with opera, music skipps.
-> X is running with nice -10, but with mm5 it ran smoothly.
+--=-JXwGAmiC4/4tovDQ5iCc
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Under "heavy" disk usage (when sylpheed finish merging the lkml
-messages in the 92M lkml mail folder) X pointer stops moving 
-(say, 1/8 or 1/6 seconds, very noticeable, pointer stops, windows stop
-redrawing, etc).
+On Mon, 2003-06-09 at 14:18, Dave Jones wrote:
 
-System is a dual p3 800; fs is ext3. This odd behaviour
-seems to happen since the 2.5.69-mm9 ext3 locking changes.
-(well i started testing 2.5.70-mm3 because i'm timid,
-but never happened before in mm or mainline)
+> Any reason to restrict it to a single stepping ?
+> This means you have to upgrade memtest every time a new model
+> is released, which seems a bit of a pain.
 
-Sorry that i can't provide really useful information now ;(
+This is the patch I use, which seems to make sense, since I don't know
+of any other steppings.  No point in parameterising the code until you
+have some parameters.
+
+	<b
+
+--=-JXwGAmiC4/4tovDQ5iCc
+Content-Disposition: inline; filename=memtest.patch
+Content-Type: text/plain; name=memtest.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+===== init.c 1.2 vs edited =====
+--- 1.2/init.c	Mon Jun  9 14:25:40 2003
++++ edited/init.c	Mon Jun  9 14:27:42 2003
+@@ -403,16 +403,12 @@
+ 			l1_cache = cpu_id.cache_info[3];
+ 			l1_cache += cpu_id.cache_info[7];
+ 		case 15:
+-			switch (cpu_id.model) {
+-			case 5:
+-				cprint(LINE_CPU, 0, "AMD Opteron");
+-				off = 11;
+-				l1_cache = cpu_id.cache_info[3];
+-				l1_cache += cpu_id.cache_info[7];
+-				l2_cache = (cpu_id.cache_info[11] << 8);
+-				l2_cache += cpu_id.cache_info[10];
+-				break;
+-			}
++			cprint(LINE_CPU, 0, "AMD Opteron");
++			off = 11;
++			l1_cache = cpu_id.cache_info[3];
++			l1_cache += cpu_id.cache_info[7];
++			l2_cache = (cpu_id.cache_info[11] << 8);
++			l2_cache += cpu_id.cache_info[10];
+ 		}
+ 		break;
+ 
+
+--=-JXwGAmiC4/4tovDQ5iCc--
+

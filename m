@@ -1,43 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319336AbSH2Ufn>; Thu, 29 Aug 2002 16:35:43 -0400
+	id <S319293AbSH2UdZ>; Thu, 29 Aug 2002 16:33:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319337AbSH2Ufm>; Thu, 29 Aug 2002 16:35:42 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:12807
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S319336AbSH2Ufi>; Thu, 29 Aug 2002 16:35:38 -0400
-Subject: Re: [PATCH] low-latency zap_page_range()
-From: Robert Love <rml@tech9.net>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <3D6E844C.4E756D10@zip.com.au>
-References: <1030635100.939.2551.camel@phantasy> 
-	<3D6E844C.4E756D10@zip.com.au>
-Content-Type: text/plain
+	id <S319336AbSH2UdZ>; Thu, 29 Aug 2002 16:33:25 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:26634 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S319293AbSH2UdY>; Thu, 29 Aug 2002 16:33:24 -0400
+Message-ID: <3D6E85A0.A88FA63A@zip.com.au>
+Date: Thu, 29 Aug 2002 13:35:44 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andre Hedrick <andre@linux-ide.org>
+CC: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: /pub/linux/kernel/people/hedrick/ide-2.5.32
+References: <3D6E7CBB.407299E3@zip.com.au> <Pine.LNX.4.10.10208291300130.24156-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 29 Aug 2002 16:40:02 -0400
-Message-Id: <1030653602.939.2677.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-29 at 16:30, Andrew Morton wrote:
+I'm a wee bit reluctant to shrink these settings globally,
+because it will have a small impact on people's ongoing
+evaluation of 2.5 on high-end SCSI hardware.
 
-> However with your change, we'll only ever put 256 pages into the
-> mmu_gather_t.  Half of that thing's buffer is unused and the
-> invalidation rate will be doubled during teardown of large
-> address ranges.
+Could you please set BIO_MAX_SECTORS to 64 within the IDE
+patch, and add a BIG FAT COMMENT?
 
-Agreed.  Go for it.
 
-Hm, unless, since 507 vs 256 is not the end of the world and latency is
-already low, we want to just make it always (FREE_PTE_NR*PAGE_SIZE)...
-
-As long as the "cond_resched_lock()" is a preempt only thing, I also
-agree with making ZAP_BLOCK_SIZE ~0 on !CONFIG_PREEMPT - unless we
-wanted to unconditionally drop the locks and let preempt just do the
-right thing and also reduce SMP lock contention in the SMP case.
-
-	Robert Love
-
+Andre Hedrick wrote:
+> 
+> Andrew,
+> 
+> I am just now getting back to crawling speeds in the 2.5 tree.
+> I can only comment on what works and what Viro tells me.
+> But if you think it needs to be globally set, until the updates from Jens
+> arrive, please send to Linus.  I am running my stuff by Viro and company.
+> 
+> Cheers,
+> 
+> On Thu, 29 Aug 2002, Andrew Morton wrote:
+> 
+> > Andre Hedrick wrote:
+> > >
+> > > ...
+> > > There is one more thing to fix.
+> > >
+> > > ./fs/mpage.c
+> > >
+> > > /*
+> > >  * The largest-sized BIO which this code will assemble, in bytes.  Set this
+> > >  * to PAGE_CACHE_SIZE if your drivers are broken.
+> > >  */
+> > > #define MPAGE_BIO_MAX_SIZE 32768        //BIO_MAX_SIZE
+> > >
+> > > This is confirmed with Al Viro and was required to make things sane!
+> >
+> > You'll need to do the same thing to fs/direct-io.c:DIO_BIO_MAX_SIZE
+> > in that case.
+> >
+> > I'd suggest that you just go in and change BIO_MAX_SECTORS
+> > to 64.   Or 32 if you happen to be using a qlogic controller :(
+> >
+> > So everything's broken in there - a hardwired constant doesn't
+> > cut it.   Jens is cooking up an `add_page_to_bio()' API which
+> > will do the right thing based upon q->max_sectors.  But that
+> > is not yet available.
+> >
+> 
+> Andre Hedrick
+> LAD Storage Consulting Group

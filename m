@@ -1,69 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266108AbTGLPn5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 11:43:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266111AbTGLPn5
+	id S266071AbTGLPgu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 11:36:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266077AbTGLPgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 11:43:57 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43141 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266108AbTGLPnz
+	Sat, 12 Jul 2003 11:36:49 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:1723 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S266071AbTGLPgh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 11:43:55 -0400
-Message-ID: <3F103018.6020008@pobox.com>
-Date: Sat, 12 Jul 2003 11:58:16 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Sat, 12 Jul 2003 11:36:37 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [RFC][PATCH] SCHED_ISO for interactivity
+Date: Sun, 13 Jul 2003 01:53:43 +1000
+User-Agent: KMail/1.5.2
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200307112053.55880.kernel@kolivas.org> <20030712154924.GC15452@holomorphy.com>
+In-Reply-To: <20030712154924.GC15452@holomorphy.com>
 MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 'what to expect'
-References: <20030711140219.GB16433@suse.de> <20030712152406.GA9521@mail.jlokier.co.uk>
-In-Reply-To: <20030712152406.GA9521@mail.jlokier.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307130153.43184.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
-> Dave Jones wrote:
-> 
->>- Some people seem to have trouble running rpm, most notably Red Hat 9 users.
->>  This is a known bug of rpm.
->>  Workaround: run "export LD_ASSUME_KERNEL=2.2.5", before running rpm.
-> 
-> 
-> Ah, _thank you_.
-> 
-> It's not an rpm bug, as such; it's a problem/bug with DB4, the
-> Berkeley DB library.
-> 
-> I just spent 2 hours trying to figure out why rpm was failing.
-> write() returning EINVAL for no reason?  Finally spotted that O_DIRECT
-> was the significant bit.
+On Sun, 13 Jul 2003 01:49, William Lee Irwin III wrote:
+> On Fri, Jul 11, 2003 at 08:53:38PM +1000, Con Kolivas wrote:
+> > Wli coined the term "isochronous" (greek for same time) for a real time
+> > task that was limited in it's timeslice but still guaranteed to run. I've
+> > decided to abuse this term and use it to name this new policy in this
+> > patch. This is neither real time, nor guaranteed.
+>
+> I didn't coin it; I know of it from elsewhere.
 
-You got it.  db4+O_DIRECT == blah.  (I just had a conversation yesterday 
-with rpm's maintainer about what the problems are)
+s/coined/informed me of
 
-One problem is O_DIRECT should return an error on open(2) or fcntl(2), 
-not write(2).
-
-Another problem appears to be that db does not know about the alignment 
-requirements of O_DIRECT.
-
-
-> End result: I copied an rpm database from another machine.  It's wrong
-> for this machine, but nearly right.  Ah well.
-> 
-> If I'd only known about the LD_ASSUME_KERNEL fix sooner.
-
-Unfortunately, LD_ASSUME_KERNEL is a lucky hack, not a fix.  rpm dlopens 
-a pam .so.  LD_ASSUME_KERNEL doesn't work for that .so, only for rpm 
-itself...  fun ensues.
-
-	Jeff
-
-
+Con
 

@@ -1,51 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129983AbQLTRGd>; Wed, 20 Dec 2000 12:06:33 -0500
+	id <S130076AbQLTRO0>; Wed, 20 Dec 2000 12:14:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130536AbQLTRGZ>; Wed, 20 Dec 2000 12:06:25 -0500
-Received: from flathead.gate.net ([216.219.246.5]:13996 "EHLO
-	flathead.gate.net") by vger.kernel.org with ESMTP
-	id <S129983AbQLTRGK>; Wed, 20 Dec 2000 12:06:10 -0500
-Message-ID: <000d01c06aa2$e28ad750$7d1a24cf@master>
-From: "Steve Grubb" <ddata@gate.net>
-To: "Jeff Epler" <jepler@inetnebr.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <000e01c06a8e$6945db60$bc1a24cf@master> <20001220100446.A1249@inetnebr.com>
-Subject: Re: [Patch] performance enhancement for simple_strtoul
-Date: Wed, 20 Dec 2000 11:35:33 -0500
+	id <S130536AbQLTROQ>; Wed, 20 Dec 2000 12:14:16 -0500
+Received: from avalon.student.liu.se ([130.236.230.76]:34472 "EHLO
+	mail.student.liu.se") by vger.kernel.org with ESMTP
+	id <S130076AbQLTROC>; Wed, 20 Dec 2000 12:14:02 -0500
+Message-ID: <3A40E1B1.88008025@student.liu.se>
+Date: Wed, 20 Dec 2000 17:43:29 +0100
+From: Robert Högberg <robho956@student.liu.se>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Extreme IDE slowdown with 2.2.18
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello,
 
-I thought about that. This would be my recommendation for glibc where the
-general public may be doing scientific applications. But this is the kernel
-and there are people that would reject my patch purely on the basis that it
-adds precious bytes to the kernel. But since the kernel is "controllable" &
-printf() and its variants only support 8, 10, & 16, perhaps a better
-solution might be to trap the odd case and write something for it if its
-that important, or simply don't allow it.
+I'm having problems with the performance of my harddrives after I
+upgraded my kernel from 2.2.17 to 2.2.18.
+The performancedrop is noticable on every IDE drive.
 
-The base guessing part at the beginning of the function only supports base
-8, 10, & 16. Therefore, the only way to require another base is to specify
-it in the function call (param - unsigned int base). A quick scan of the
-current linux source shows no one using something odd. So...
+Here are some numbers to show what I mean:
 
-If the maintainers of vsprintf.c want support for all number bases, that's
-fine with me. Just say the word & I'll gen up another patch...but it will be
-more bytes.
+2.2.17:
+/dev/hdc:
+ Timing buffered disk reads:  64 MB in  4.32 seconds =14.81 MB/sec
 
-Cheers,
-Steve Grubb
+2.2.18:
+/dev/hdc:
+ Timing buffered disk reads:  64 MB in 10.49 seconds = 6.10 MB/sec
 
+These are hdparm -t outputs and the performance drop is pretty noticable
+:-/
+
+I also copied a 600Mb file from my HDD to /dev/null and the results
+were:
+
+2.2.17: 1 minute 9 seconds
+2.2.18: 1 minute 38 seconds
+
+My system consists of:
+FIC VA-503+ motherboard with the MVP3 chipset
+K6-2 500MHz
+128Mb SDRAM
+3 IDE disks (see below)
+Slackware 7.0
+
+dmesg output for the IDE system (no differences between .17 and .18):
+
+VP_IDE: IDE controller on PCI bus 00 dev 39
+VP_IDE: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xe400-0xe407, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xe408-0xe40f, BIOS settings: hdc:DMA, hdd:DMA
+hda: QUANTUM FIREBALL ST6.4A, ATA DISK drive
+hdb: QUANTUM FIREBALL SE4.3A, ATA DISK drive
+hdc: IBM-DJNA-352030, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: QUANTUM FIREBALL ST6.4A, 6149MB w/81kB Cache, CHS=784/255/63
+hdb: QUANTUM FIREBALL SE4.3A, 4110MB w/80kB Cache, CHS=524/255/63
+hdc: IBM-DJNA-352030, 19470MB w/1966kB Cache, CHS=39560/16/63
+
+When I performed the tests I used similiar .17 and .18 kernels with a
+minimum components included. No network, SCSI, sound and such things.
+.config files can be supplied if needed.
+
+Does anyone know what could be wrong? Have I forgot something? Is this a
+known problem with the 2.2.18 kernel?
+
+Thanks in advance!
+
+Robert
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

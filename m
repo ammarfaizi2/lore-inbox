@@ -1,72 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289216AbSBNAL5>; Wed, 13 Feb 2002 19:11:57 -0500
+	id <S289213AbSBNAW1>; Wed, 13 Feb 2002 19:22:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289213AbSBNALh>; Wed, 13 Feb 2002 19:11:37 -0500
-Received: from maild.telia.com ([194.22.190.101]:63432 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id <S289216AbSBNALf>;
-	Wed, 13 Feb 2002 19:11:35 -0500
-Message-ID: <3C6B00B3.6000602@telia.com>
-Date: Thu, 14 Feb 2002 01:11:31 +0100
-From: Rickard Westman <rwestman@telia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S289224AbSBNAWS>; Wed, 13 Feb 2002 19:22:18 -0500
+Received: from femail34.sdc1.sfba.home.com ([24.254.60.24]:22261 "EHLO
+	femail34.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S289213AbSBNAWG>; Wed, 13 Feb 2002 19:22:06 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Aaron Lehmann <aaronl@vitelus.com>, Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: ssh primer (was Re: pull vs push (was Re: [bk patch] Make cardbus compile in -pre4))
+Date: Wed, 13 Feb 2002 19:22:57 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <E16ZhzF-0000ST-00@gondolin.me.apana.org.au> <3C65CBDE.A9B60BBD@mandrakesoft.com> <20020213171306.GA15924@vitelus.com>
+In-Reply-To: <20020213171306.GA15924@vitelus.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Using kernel_fpu_begin() in device driver - feasible or not?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020214002205.VBHJ21911.femail34.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wednesday 13 February 2002 12:13 pm, Aaron Lehmann wrote:
+> On Sat, Feb 09, 2002 at 08:24:46PM -0500, Jeff Garzik wrote:
+> > It is far easier to guess your private key with a blank passphrase.
+>
+> I challenge you to present a method for doing so.
 
-I am porting a device driver from an embedded platform where it's OK
-to do floating-point arithmetic in drivers.  To make it easy to
-incorporate future improvements from this "reference driver", I have
-tried to keep my modifications at a minimum, with most Linux-specific
-code clearly separated.  The heavy use of interspersed floating-point
-arithmetic is an obstacle, though, as I'm aware of the policy to avoid
-floating-point arithmetic in the Linux kernel.
+Your public/private key pair are pretty straightforward public key 
+cryptography.  If you can brute force one given the other, it wouldn't be 
+safe to use it over the wire in the first place.
 
-Ideally, I'd like to use the FPU in a daemonized kernel thread created
-by the driver, and possibly from process context as well (in the
-implementation of some ioctl:s.)  The target architecture is i386, and
-non-portable solutions are quite acceptable.
+The point of having a passphrase is that some really paranoid people want to 
+have both a key AND a password to get into their box.  A password in and of 
+itself isn't all that secure, since any human memorizable password contains 
+so little information it would be trivial to break computationally via brute 
+force (if you can arrange a brute force attack, which login tries to prevent 
+with the ~3 second delay between attempts, but they still tend to get written 
+down, or people watch keystrokes over your shoulder...).  And a key you carry 
+around with you on a floppy or propogate to multiple boxes can be stolen 
+(copied) from any of those places without you necessarily knowing about it.
 
-Now, I've noticed that there are two interesting-looking functions in
-the 2.4 kernel: kernel_fpu_begin() and kernel_fpu_end().  I have found
-little information on how to use them, though, and I'd appreciate any
-hints and guidelines.  Here are some issues I'm concerned about:
+In terms of brute forcing the key, the passphrase adds a fairly trivial 
+number of bits to the key.  It's not "far" easer, an 8 character mixed case 
+nonsense password with numbers and punctuation mixed in is still less than 6 
+bits per character, or at best an extra 48 bits.  You can select a 1024 bit 
+key if you want to be really really paranoid.
 
-1. Would it be sufficient to just bracket all fpu-using code code by
-kernel_fpu_begin()/kernel_fpu_end()?  If not, what problems could I
-run into?
+Not that it's worth it.  Keys get exponentially more difficult to brute force 
+as the key length increases.  I read part of a book a long time ago (might 
+have been called "applied cryptography") that figured out that if you could 
+build a perfectly efficient computer that could do 1 bit's worth of 
+calculation with the the amount of energy in the minimal electron state 
+transition in a hydrogen atom, and you built a dyson sphere around the sun to 
+capture its entire energy output for the however many billion years its 
+expected to last, you wouldn't even brute-force exhaust a relatively small 
+keyspace (128 bits?  256 bits?  Something like that).
 
-2. Would it be OK to go to sleep inside such a region, or should I
-take care to avoid that?
+Somebody else here is likely to recognize the above anecdote and give a more 
+accurate reference.  Book title and page number would be good...
 
-3. Perhaps I should call init_fpu() at some point as well?  If so,
-should it be done before or after kernel_fpu_begin()?
-
-4. Is there any difference between doing this in the context of a user
-process (implementation of an ioctl) compared to doing it in a
-daemonized kernel thread (created by a loadable kernel module)?
-
-5. The functions mentioned above are not exported for use by loadable
-modules, but I guess that could be arranged for.  Is there any other
-reason why it shouldn't work from a loadable kernel module?
-
-Suggestions on alternative approaches are welcome as well, of course,
-but I *do* realize that I could replace the calculations with
-fixed-point arithmetic, divide things so that all floating-point
-calculations were done in user-space, and similar ways to dodge the
-issue.  But for now, I'm just looking for feedback on how to actually
-do it in kernel space, aesthetics aside...
-
--- 
-Rickard Westman         "Beware of the panacea peddlers: Just
-<rwestman@telia.com>     because you wind up naked doesn't
-                          make you an emperor."
-                                     - Michael A Padlipsky
-
+Rob

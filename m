@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVAQPPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVAQPXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261264AbVAQPPX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 10:15:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVAQPPX
+	id S261592AbVAQPXp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 10:23:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbVAQPXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 10:15:23 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:63187 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261264AbVAQPPU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 10:15:20 -0500
-Message-ID: <41EBD662.1080409@nortelnetworks.com>
-Date: Mon, 17 Jan 2005 09:14:42 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Linux PPC64 <linuxppc64-dev@ozlabs.org>,
-       Anton Blanchard <anton@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PPC64 pmac hotplug cpu
-References: <Pine.LNX.4.61.0501122341410.23299@montezuma.fsmlabs.com>	 <1105827794.27410.82.camel@gaston>	 <Pine.LNX.4.61.0501162129380.3010@montezuma.fsmlabs.com> <1105937266.4534.0.camel@gaston>
-In-Reply-To: <1105937266.4534.0.camel@gaston>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 17 Jan 2005 10:23:45 -0500
+Received: from gprs215-94.eurotel.cz ([160.218.215.94]:16871 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261592AbVAQPXo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 10:23:44 -0500
+Date: Mon, 17 Jan 2005 16:22:30 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: hugang@soulinfo.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-mm3: swsusp: out of memory on resume (was: Re: Ho ho ho - Linux v2.6.10)
+Message-ID: <20050117152230.GA1379@elf.ucw.cz>
+References: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org> <200501152243.21483.rjw@sisk.pl> <20050116215145.GF2757@elf.ucw.cz> <200501171553.02565.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501171553.02565.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt wrote:
+Hi!
 
-> Well.. the cache flush part requires some not-really-documentd stuff on
-> the 970, but I'll try to come up with something.
+> > > > > > Has this patch been ported to x86_64?  Or is there a newer version of it anywhere,
+> > > > > > or an alternative?
+> > > > > > 
+> > > > > 
+> > > > > Ok, Here is a new patch with x86_64 support, But I have not machine, So
+> > > > > Need someone test it. 
+> > > > 
+> > > > OK, I will.
+> > > 
+> > > I have tested it and it works well.  For me, it speeds up the resume process significantly,
+> > > so I vote for including it into -mm (at least ;-)).  I'll be testing it further to see if it really
+> > > solves my "out of memory" problems on resume.
+> > 
+> > Try Lukas's patch, it should provide equivalent speedups.
+> 
+> It does.  Still, I don't think it'll solve memory allocation problems on resume,
+> and the hugang's patch has such a potential.
 
-Details?  We've got a cache-flush routine put together based on the 
-documentation that seems to be working, but if there's something else 
-that has to be done I'd love to know about it.
-
-Chris
+Yes, but it is also small/nonintrusive enough to be merged now.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

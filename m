@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262251AbTFBLq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 07:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbTFBLq2
+	id S262197AbTFBLy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 07:54:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbTFBLy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 07:46:28 -0400
-Received: from cpmail5.sol.no1.asap-asp.net ([195.225.3.232]:8941 "HELO
-	cpmail5.sol.no1.asap-asp.net") by vger.kernel.org with SMTP
-	id S262251AbTFBLq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 07:46:26 -0400
-Date: Mon, 2 Jun 2003 14:59:35 +0300
-Message-ID: <3E5AD46C00070B27@webmail-fi1.sol.no1.asap-asp.net>
-In-Reply-To: <1054496549.943.5.camel@teapot.felipe-alfaro.com>
-From: zipa24@suomi24.fi
-Subject: Re: 2.5.70-mm3
-To: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
-Cc: "LKML" <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 8bit
+	Mon, 2 Jun 2003 07:54:58 -0400
+Received: from holomorphy.com ([66.224.33.161]:20126 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262197AbTFBLy5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 07:54:57 -0400
+Date: Mon, 2 Jun 2003 05:07:53 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org
+Subject: pgcl-2.5.70-bk7-1
+Message-ID: <20030602120753.GE20413@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Did you compile the kernel with gcc 3.2 or later?
->I had a very, very similar oops on my laptop with the snd-ymfpci driver
->if I compiled the kernel with gcc 3.2.3. Reverting back to gcc 2.96
->solved the problem.
+Fix some oddities in and around arch/i386/kernel/srat.c, with some
+cleanups attached.
 
-After you suggestion I tried gcc 3.3 and gcc 2.95.3 but I got the same OOPS
-as with the original (gcc 3.2.2) version.
+Otherwise a brute-force merge to 2.5.70-bk7. Also available as an
+incremental diff against pgcl-2.5.70-bk6-1 as pgcl-2.5.70-bk6-2.
 
-There is a new ALSA patch available, but it didn't apply cleanly to -mm3.
-If I have time later today I'll see if I can apply only ymfpci-related changes
-and if they help.
+Testers, especially x440-based testers, please update to this release.
 
-// /
+Still hunting for the sysenter bug. There's also a report of an LTP
+regression the tester didn't send in an oops for. Things like fsx would
+also be helpful, e.g. on fs's with blocksize > 4KB with MMUPAGES_SIZE
+== 4KB, especially with aio and direct io involved.
 
-_____________________________________________________________
-Kuukausimaksuton nettiyhteys: http://www.suomi24.fi/liittyma/
-Yli 12000 logoa ja soitto‰‰nt‰: http://sms.suomi24.fi/
+Unified anonymizing fault handling is also scheduled to happen "soon",
+at which point the core performance code should be finalized, modulo
+stability regressions to be fixed up as needed and tuning. Then things
+should move on to drivers/ and fs/ sweeps.
+
+As usual, available from:
+ftp://ftp.kernel.org/pub/linux/kernel/people/wli/vm/pgcl/
 
 
+-- wli

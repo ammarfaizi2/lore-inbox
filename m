@@ -1,61 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbUKJHLE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbUKJHNj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261303AbUKJHLE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 02:11:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbUKJHLE
+	id S261249AbUKJHNj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 02:13:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbUKJHNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 02:11:04 -0500
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:3407 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261303AbUKJHKe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 02:10:34 -0500
-Message-ID: <4191BEE6.8000900@yahoo.com.au>
-Date: Wed, 10 Nov 2004 18:10:30 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-CC: Robert Love <rml@novell.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH] kmem_alloc (generic wrapper for kmalloc and	vmalloc)
-References: <4191A4E2.7040502@gmx.net> <1100066597.18601.124.camel@localhost> <4191B5D8.3090700@gmx.net>
-In-Reply-To: <4191B5D8.3090700@gmx.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Nov 2004 02:13:39 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:63719 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S261249AbUKJHNZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 02:13:25 -0500
+Date: Wed, 10 Nov 2004 16:13:15 +0900
+From: Tejun Heo <tj@home-tj.org>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.10-rc1 2/5] driver-model: bus_recan_devices() locking fix
+Message-ID: <20041110071315.GA17026@home-tj.org>
+References: <20041104185826.GA17756@kroah.com> <d120d50004110508333c183cc1@mail.gmail.com> <20041109012722.GA20689@home-tj.org> <200411082043.21818.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411082043.21818.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carl-Daniel Hailfinger wrote:
-> Robert Love schrieb:
-> 
->>On Wed, 2004-11-10 at 06:19 +0100, Carl-Daniel Hailfinger wrote:
->>
->>
->>>Hi,
->>>
->>>it seems there is a bunch of drivers which want to allocate memory as
->>>efficiently as possible in a wide range of allocation sizes. XFS and
->>>NTFS seem to be examples. Implement a generic wrapper to reduce code
->>>duplication.
->>>Functions have the my_ prefixes to avoid name clash with XFS.
->>
->>
->>No, no, no.  A good patch would be fixing places where you see this.
->>
->>Code needs to conscientiously decide to use vmalloc over kmalloc.  The
->>behavior is different and the choice needs to be explicit.
-> 
-> 
-> Yes, but what do you suggest for the following problem:
-> alloc(max_loop*sizeof(struct loop_device))
-> 
-> where sizeof(struct loop_device)==304 and 1<=max_loop<=16384
-> 
-> For the smallest allocation (304 bytes) vmalloc is clearly wasteful
-> and for the largest allocation (~ 5 MBytes) kmalloc doesn't work.
-> 
+ Hello, Dmitry.
 
-Can't you change it to use a hash or something?
+On Mon, Nov 08, 2004 at 08:43:21PM -0500, Dmitry Torokhov wrote:
+> On Monday 08 November 2004 08:27 pm, Tejun Heo wrote:
+> >  Are you suggesting splitting every bus implementation into two
+> > separate modules?  Otherwise, we will have to move kobj field of every
+> > bus-specific device structure to the head (to use the common release
+> > function).  Either way, it can be done, but it just seems another
+> > twist added to the already twisted refcounting.  Moreoever, not only
+> > the devices are problematic, refcounting in class devices and block
+> > device hierarchy seems broken too.
+> >
+> 
+> It is already defacto implementation standard - every subsystem has a core
+> modules (pci, usbcore, serio) plus modules (drivers) actually talking to
+> hardware and registering devices (ports, whatever) with the corresponding
+> core. It is just a matter of splitting cleanup functions into core and
+> device-specific parts.
 
-Even a linked list if it is not performance critical.
+ AFAIK, PCI isn't compiled as modules and USB has ohci/uhci/ehci stuff
+and serio has ports stuff.  But still, I cannot agree with you.
+
+ 1. It's too twisted.
+	a. to prevent premature unload, we depend on
+	   - attr -> kobj -> module_ref to bus core module.  By doing
+	   this, we're making a chain of two different types of
+	   reference counts.  IMHO, it's just a bit too subtle.
+	b. to enable bus module unload, we depend on
+	   - device creation/detach operations are done in a separate
+	     module than device release.
+
+ 2. too restrictive.
+	a. any bus implementation must be implemented as two separate
+	   modules just to enable peaceful module unloading
+	b. all other places which make use of kobject and any type of
+	   generic attr must use only the release routine proper to
+	   the core module.  No callbacks, no data dereferences....
+	   (for example, scsi_host class uses scsi_host_template
+	    structure which contain class device specific callbacks
+	    when releaseing scsi_host class device.  This is
+	    currently broken and won't be fixed by your method.)
+
+ 3. not intutive.  Maybe this is the most important.
+	a. it's natural to expect the release code has access to
+	   codes & data of whatever it's releasing.
+	b. children bypassing dependency hierarchy and depending
+	   directly on indirect ancestor is just difficult to
+           track, memorize and do correctly.
+    IMO, above a and b are the primary reasons for why kobject/attr
+    refcountings are currently done incorrectly in many places.
+
+> >  But all attrs will be deflated and it just seems the right thing to
+> > do(tm).
+> > 
+> 
+> I think there are much more kobjects than attrs.
+
+ Yes, there are.  But many objects which contain kobjs keep separate
+owner field anyway, which can be removed after kobj can handle module
+refcounting, and even without that, I think 4 or 8 bytes addition to
+struct kobject is worth it if we can get the refcounting straight.
+
+ Thanks.
+
+-- 
+tejun
+

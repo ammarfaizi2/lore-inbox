@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262834AbUCKI12 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 03:27:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbUCKI12
+	id S262845AbUCKI3X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 03:29:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbUCKI3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 03:27:28 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:23434 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262845AbUCKI1B (ORCPT
+	Thu, 11 Mar 2004 03:29:23 -0500
+Received: from [193.108.190.253] ([193.108.190.253]:1438 "EHLO
+	pluto.linuxkonsulent.dk") by vger.kernel.org with ESMTP
+	id S262892AbUCKI3T convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 03:27:01 -0500
-Date: Thu, 11 Mar 2004 09:26:57 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm1
-Message-ID: <20040311082657.GG6955@suse.de>
-References: <20040310233140.3ce99610.akpm@osdl.org>
+	Thu, 11 Mar 2004 03:29:19 -0500
+Subject: Re: UID/GID mapping system
+From: =?ISO-8859-1?Q?S=F8ren?= Hansen <sh@warma.dk>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1078958747.1940.80.camel@nidelv.trondhjem.org>
+References: <1078775149.23059.25.camel@luke> <04031009285900.02381@tabby>
+	 <1078941525.1343.19.camel@homer>  <04031015412900.03270@tabby>
+	 <1078958747.1940.80.camel@nidelv.trondhjem.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Message-Id: <1078993757.1576.41.camel@quaoar>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040310233140.3ce99610.akpm@osdl.org>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 11 Mar 2004 09:29:17 +0100
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 10 2004, Andrew Morton wrote:
-> - Major surgery against the pagecache, radix-tree and writeback code.  This
->   work is to address the O_DIRECT-vs-buffered data exposure horrors which
->   we've been struggling with for months.
+ons, 2004-03-10 kl. 23:45 skrev Trond Myklebust:
+> The NFSv4 client and server already do uid/gid mapping. That is
+> *mandatory* in the NFSv4 protocol, which dictates that you are only
+> allowed to send strings of the form user@domain on the wire.
 
-[snip]
+Clever! 
 
-Looks extremely kick ass! mpage is has a left-over spin_unlock in there
-though, I need this to boot:
+> If you really need uid/gid mapping for NFSv2/v3 too, why not just build
+> on the existing v4 upcall/downcall mechanisms?
 
---- /opt/kernel/linux-2.6.4-mm1/fs/mpage.c	2004-03-11 09:10:02.070434880 +0100
-+++ fs/mpage.c	2004-03-11 09:23:19.718019755 +0100
-@@ -672,7 +672,6 @@
- 		}
- 		pagevec_release(&pvec);
- 	}
--	spin_unlock_irq(&mapping->tree_lock);
- 	if (bio)
- 		mpage_bio_submit(WRITE, bio);
- 	return ret;
+Because that would require changes to both ends of the wire. I want this
+to:
+1. Work for ALL filesystems (NFS, smbfs, ext2(*) etc.)
+2. Be transparent for the server.
+
+*: For ext2, this could come in handy if you are moving disks between
+systems.
 
 -- 
-Jens Axboe
+Salu2, Søren.
 

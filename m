@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277316AbRJJQuE>; Wed, 10 Oct 2001 12:50:04 -0400
+	id <S277318AbRJJQxo>; Wed, 10 Oct 2001 12:53:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277313AbRJJQty>; Wed, 10 Oct 2001 12:49:54 -0400
-Received: from florence.buici.com ([206.124.142.26]:3200 "HELO
-	florence.buici.com") by vger.kernel.org with SMTP
-	id <S277315AbRJJQtm>; Wed, 10 Oct 2001 12:49:42 -0400
-From: elf@florence.buici.com
-Date: Wed, 10 Oct 2001 09:50:12 -0700
-To: saw@saw.sw.com.sg, linux-kernel@vger.kernel.org
-Subject: eepro100 selftest failure in 2.4.11 (and .10)
-Message-ID: <20011010095012.A29307@buici.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22i
+	id <S277317AbRJJQxe>; Wed, 10 Oct 2001 12:53:34 -0400
+Received: from mail2.megatrends.com ([155.229.80.11]:58381 "EHLO
+	mail2.megatrends.com") by vger.kernel.org with ESMTP
+	id <S277315AbRJJQxY>; Wed, 10 Oct 2001 12:53:24 -0400
+Message-ID: <1355693A51C0D211B55A00105ACCFE6402B9E015@ATL_MS1>
+From: Venkatesh Ramamurthy <Venkateshr@ami.com>
+To: "'adilger@turbolabs.com'" <adilger@turbolabs.com>,
+        Venkatesh Ramamurthy <Venkateshr@ami.com>
+Cc: "'xuan--lkml@baldauf.org'" <xuan--lkml@baldauf.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: dynamic swap prioritizing
+Date: Wed, 10 Oct 2001 12:47:54 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I checked the released 2.4.11 kernel and found the same driver
-failure as was present in the 2.4.10 kernel. 
+	> I'd rather just have the statistic data in a regular file for ALL
+disks,
+	> and then send it to the kernel via ioctl or write to a special
+file that
+	> the kernel will read from.  I don't think it is critical to have
+this
+	> data right at boot time, since it would only be used for
+optimizing I/O
+	> access and would not be required for a disk to actually work.
 
-I'm running Linux on a single-board computer that uses an Intel
-ethernet chip, apparently i82557 compatible.  The 2.2.17 kernel boots
-OK.  The 2.4.10 kernel fails to initialize the chip complaining
-[thanks to kernel message scrollback]:
+	My idea of putting this info on swap was that when the disk is moved
+from one system to another system, the statistics stays with the swap
+itself. If the swap disk(partition) is put in a different system which has
+different configuration(that which would affect the performance info on the
+disk), then we can recompute the statistics, otherwise there is no need to
+rerun the utility every time the swap disk is moved. 
+	Also the kernel would be smart enough to know about the swap
+performance without the need for an utility to invoked, to set the
+parameters through IOCTL.
 
-eth0: Intel Corporation 82557 [Ethernet Pro 100], 00:60:92:00:17:F4, IRQ 11
-  Board assembly 721383-006, Physical connectors present: RJ45
-  Primary interface chip 82555 PHY #1
-Self test failed, status ffffffff:
-  Failure to initialize the i82557.
-  Verify that the card is in a bus-master capable slot.
 
-   
-When the 2.2.17 kernel boots, it reports that
-
-  The receiver lock-up bug exists -- enabling workaround.
-
-and all of the tests succeed.  The rest of the messages are the same
-except for driver version information.

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270299AbRHWU5D>; Thu, 23 Aug 2001 16:57:03 -0400
+	id <S270349AbRHWVBX>; Thu, 23 Aug 2001 17:01:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270339AbRHWU4x>; Thu, 23 Aug 2001 16:56:53 -0400
-Received: from mx6.port.ru ([194.67.57.16]:8459 "EHLO mx6.port.ru")
-	by vger.kernel.org with ESMTP id <S270299AbRHWU4h>;
-	Thu, 23 Aug 2001 16:56:37 -0400
-From: "Samium Gromoff" <_deepfire@mail.ru>
-To: linux-kernel@vger.kernel.org
+	id <S270264AbRHWVBN>; Thu, 23 Aug 2001 17:01:13 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:30347
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S270373AbRHWVBC>; Thu, 23 Aug 2001 17:01:02 -0400
+Date: Thu, 23 Aug 2001 14:01:11 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Rick Hohensee <humbubba@smarty.smart.net>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
+Message-ID: <20010823140111.A14302@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <200108232108.RAA21070@smarty.smart.net>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [195.34.27.173]
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15a1X2-000LOp-00@f10.mail.ru>
-Date: Fri, 24 Aug 2001 00:56:52 +0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200108232108.RAA21070@smarty.smart.net>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Because with the exception of your unique situation in which you have
-> a machine which is stable enough to compile a kernel on and develop
-> but can't run python, it's not a problem.
+On Thu, Aug 23, 2001 at 05:08:14PM -0400, Rick Hohensee wrote:
 
-   Tom, i think Jes wanted to tell that basically
- there _are_ the cases when python hurts, so
- losing the freedom not to install python is not
- good. 
+>  In other words, a kernel build has a close correlation with actual system
+> bootstrap processes, where the niceties of the interpreter-du-jour are
+> irrelvant, as are the percentages or absolute numbers of people that don't
+> do hard bootstrapping of anything. This is the aspect of low-level code
+> that utilities used in a kernel build should adhere to, no gratuitous
+> dependancies. Linux is and always has been hard enough to bring up,
+> needing as it does a C compiler that needs a C compiler. Somehow the
+> cuteness of this class of recursion is lost on me. 
 
-   And you told him that his case is not looking good,
- so Jes miss the whole point. Bad logical chain.
+Yes, Linux does have a nice chicken-and-egg process.  But unless you're
+building a brand new arch, which means you have to fix glibc and gcc and
+binutils to know about you, throwing in python isn't going to hurt you.
+And if you're trying to do this on the machine you're trying to make
+supported, you're going to have lots of fun.  In other words, I don't
+see this as an issue.  If you're talking about bringing up a new board
+for supported platform X, the only issue is getting Python2 onto the
+system.  Which isn't nearly as painful as getting the kernel source, glibc
+or gcc will be.  It'll only be maybe twice as painful as getting the bash
+sources over (2.05) even. :)
 
----
-
-
-cheers,
-
-
-   Samium Gromoff
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

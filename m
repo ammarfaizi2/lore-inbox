@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261518AbTBFBC0>; Wed, 5 Feb 2003 20:02:26 -0500
+	id <S261724AbTBFBDf>; Wed, 5 Feb 2003 20:03:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261523AbTBFBC0>; Wed, 5 Feb 2003 20:02:26 -0500
-Received: from [64.8.50.187] ([64.8.50.187]:60603 "EHLO mta5.adelphia.net")
-	by vger.kernel.org with ESMTP id <S261518AbTBFBC0>;
-	Wed, 5 Feb 2003 20:02:26 -0500
-Message-ID: <01c601c2cd7c$be4002a0$6a01a8c0@wa1hco>
-From: "jeff millar" <wa1hco@adelphia.net>
-To: "Christoph Hellwig" <hch@infradead.org>
-Cc: <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.3.96L.1030205115551.1886A-100000@ndeb.net> <20030205171613.GB14909@nevyn.them.org> <87adhafx0d.fsf@topo.binary-only.priv> <20030205175428.A23701@infradead.org>
-Subject: Re: Monta Vista software license terms
-Date: Wed, 5 Feb 2003 20:11:55 -0500
+	id <S261701AbTBFBDf>; Wed, 5 Feb 2003 20:03:35 -0500
+Received: from node181b.a2000.nl ([62.108.24.27]:644 "EHLO ddx.a2000.nu")
+	by vger.kernel.org with ESMTP id <S261523AbTBFBDc>;
+	Wed, 5 Feb 2003 20:03:32 -0500
+Date: Thu, 6 Feb 2003 02:13:36 +0100 (CET)
+From: Stephan van Hienen <raid@a2000.nu>
+To: linux-raid@vger.kernel.org, Peter Chubb <peter@chubb.wattle.id.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 15 * 180gb in raid5 gives 299.49 GiB ?
+In-Reply-To: <Pine.LNX.4.53.0302060123150.6169@ddx.a2000.nu>
+Message-ID: <Pine.LNX.4.53.0302060211030.6169@ddx.a2000.nu>
+References: <Pine.LNX.4.53.0302060059210.6169@ddx.a2000.nu>
+ <Pine.LNX.4.53.0302060123150.6169@ddx.a2000.nu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2720.3000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So...could some kind soul with the source simply post it somewhere?
-MontaVista doesn't have to provide it on their site.  But they can't prevent
-anyone with a copy from posting it. I've got some hardware from an old
-project running hardhat linux and would like to upgrade.
+argh :
 
-They used to post it and it helped. I had a "frank exchange of views" with
-the MontaVista marketing folks about their change in policy a while back.
+tried to compile with this patch
+tried on 2.4.20 , 2.4.21-pre1 and 2.4.21-pre4
 
-Some questions about posting the source, though...
-    1. Can MontaVista add separate terms to their purchase agreement that
-forbid/discourage/impede publishing the source?
-    2. What if MV mixes GPL and proprietary code in the directories to make
-it difficult to post the GPL portion?
+        /usr/src/linux-2.4.21-pre1/arch/i386/lib/lib.a
+/usr/src/linux-2.4.21-pre1/lib/lib.a
+/usr/src/linux-2.4.21-pre1/arch/i386/lib/lib.a \
+        --end-group \
+        -o vmlinux
+drivers/scsi/scsidrv.o: In function `ahc_linux_biosparam':
+drivers/scsi/scsidrv.o(.text+0xf9c4): undefined reference to `__udivdi3'
+drivers/scsi/scsidrv.o(.text+0xfa0c): undefined reference to `__udivdi3'
 
-jeff
 
-> >     dj> I'm told that the preview kits do include kernel source,
-> >     dj> although I haven't checked for myself in a couple of months.
-> >
-> So that you got the binaries now could you check where their written offer
-> is and post it to lkml?  Afterwards anyone on this list could ask them
-> for their source (and at least I want to).
+
+
+
+On Thu, 6 Feb 2003, Stephan van Hienen wrote:
+
+> hmms found out after posting this msg :
 >
-> Btw, what do people think of a regular list where anyone who got such
-> an offer can post it so anyone else can get source aswell?
-
+> http://www.gelato.unsw.edu.au/patches-index.html
+>
+>   ³ ³ [*] Support for discs bigger than 2TB?  ³ ³
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>

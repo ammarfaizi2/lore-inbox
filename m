@@ -1,75 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263196AbUCTBb3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 20:31:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263197AbUCTBb3
+	id S263197AbUCTBsu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 20:48:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263199AbUCTBsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 20:31:29 -0500
-Received: from smtp-out1.blueyonder.co.uk ([195.188.213.4]:7674 "EHLO
-	smtp-out1.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S263196AbUCTBb0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 20:31:26 -0500
-Message-ID: <405B9FD6.7050100@jguk.org>
-Date: Sat, 20 Mar 2004 01:35:18 +0000
-From: "J. Grant" <jg-lists@jguk.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030824
-X-Accept-Language: en-gb
-MIME-Version: 1.0
-To: andersen@codepoet.org
-CC: Linux-Kernel ML <linux-kernel@vger.kernel.org>, tech_support2@sdesigns.com
-Subject: Re: Rimax Linux DVD/DivX player firwmare source code
-References: <405A0EB2.40105@jguk.org> <20040318224953.GA14730@codepoet.org>
-In-Reply-To: <20040318224953.GA14730@codepoet.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Mar 2004 01:31:26.0108 (UTC) FILETIME=[0F8DE5C0:01C40E1B]
+	Fri, 19 Mar 2004 20:48:50 -0500
+Received: from mail.convergence.de ([212.84.236.4]:18645 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S263197AbUCTBst
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 20:48:49 -0500
+Date: Sat, 20 Mar 2004 02:48:37 +0100
+From: Johannes Stezenbach <js@convergence.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Matthias Andree <matthias.andree@gmx.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] barrier patch set
+Message-ID: <20040320014837.GB11865@convergence.de>
+Mail-Followup-To: Johannes Stezenbach <js@convergence.de>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	Matthias Andree <matthias.andree@gmx.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20040319153554.GC2933@suse.de> <405B2127.8090705@pobox.com> <20040319230136.GC7161@merlin.emma.line.org> <200403200102.39716.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200403200102.39716.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Erik,
-
-Thanks for the info.
-
-I wonder if there is anyone at OSDN (I think these are the main managers
-of Linux?) who we could contact who would be able to encourage these
-companies to provide the source code to licensee's? (and comply with the
-licence in general etc).
-
-The firmware I have seems to be based on linux v2.4.17-uc0, with a
-EM850908/EM85xx0912 chipset support.  Compiled by someone with username
-lizq@SRCSRV.  The two modules are a front panel/remote control module,
-and "KHWL.O" by Emmanuel Michon and Fabrice Gautier of Sigma Designs.
-
-Kind regards
-
-JG
-
-
-
-on the 18/03/04 22:49, Erik Andersen wrote:
-> On Thu Mar 18, 2004 at 09:03:46PM +0000, J. Grant wrote:
->>     ./BIN:
->>     total 340
->>     -rwx------    1   53708 Dec 23 12:08 BUSYBOX*
->>     -rwx------    1   279060 Dec 23 12:08 INIT*
+Bartlomiej Zolnierkiewicz wrote:
+> On Saturday 20 of March 2004 00:01, Matthias Andree wrote:
+> >
+> > BTW, speaking of identify-device, hdparm -i (which uses
+> > HDIO_GET_IDENTITY) always returns "WriteCache=enabled" while hdparm -I
+> > that uses HDIO_DRIVE_CMD with WIN_PIDENTIFY reports the "correct" state
+> > that I've previously set with -W0. This is an i386 machine w/ 2.6.5-rc1.
+> >
+> > Is HDIO_GET_IDENTITY working correctly?
 > 
-> Sigh.  Yet another one.  I have a list of with some of them here:
->     http://www.busybox.net/shame.html
-> though undoubtedly there are others...  Sigma Designs EM8500
-> based DVD players are everyone, and I am not aware of a simgle
-> one that is in compliance with the GPL. :-(
-> 
-> The sigma designs reference system source code is here
-> 	http://www.uclinux.org/pub/uClinux/ports/arm/EM8500/
-> though it is difficult to know if this source is even remotely
-> relevant to your particular product.
-> 
->  -Erik
-> 
-> --
-> Erik B. Andersen             http://codepoet-consulting.com/
-> --This message was written using 73% post-consumer electrons--
-> 
+> There were reports that on some drives you can't disable write cache
+> and even (?) that some drives lie (WC still enabled but marked as disabled).
+
+hdparm -i and -I ultimately both interpret WIN_IDENTIFY result, and both test
+bit 0x0020 of word 85. So it's unclear to me why they report a
+different write cache setting. I added a hexdump to dump_identity()
+in hdparm.c, and found that bit 0x0020 of word 85 is always set.
+
+BTW, 'cat /proc/ide/hda/identify' or 'hdparm -Istdin </dev/ide/hda/identify'
+reports the same value as hdparm -I, and that is consistent with
+the value I set with hdparm -W x.
 
 
+So, is HDIO_GET_IDENTITY broken?
 
+Johannes

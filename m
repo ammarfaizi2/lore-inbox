@@ -1,99 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263760AbTK2JZb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 04:25:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263762AbTK2JZb
+	id S263732AbTK2Jk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 04:40:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263734AbTK2Jk6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 04:25:31 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:59154 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S263760AbTK2JZZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 04:25:25 -0500
-Date: Sat, 29 Nov 2003 20:24:58 +1100
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [JBD] Handle j_commit_interval == 0
-Message-ID: <20031129092458.GA19338@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="fUYQa+Pmc3FrFX/N"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Sat, 29 Nov 2003 04:40:58 -0500
+Received: from gw-undead3.tht.net ([216.126.84.18]:46208 "HELO mail.undead.cc")
+	by vger.kernel.org with SMTP id S263732AbTK2Jk5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Nov 2003 04:40:57 -0500
+Message-ID: <3FC869A3.8070809@undead.cc>
+Date: Sat, 29 Nov 2003 04:40:51 -0500
+From: John Zielinski <grim@undead.cc>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Rootfs mounted from user space - problem with umount
+References: <3FC82D8F.9030100@undead.cc> <20031129053128.GF8039@holomorphy.com> <3FC8394A.7010702@undead.cc> <20031129062136.GH8039@holomorphy.com>
+In-Reply-To: <20031129062136.GH8039@holomorphy.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+William Lee Irwin III wrote:
 
---fUYQa+Pmc3FrFX/N
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+>Looks like either namespace->sem or sb->s_umount; you should be able
+>to put some instrumentation code in down_write() and/or down_read() to
+>see who acquired it first by checking to see if the sem acquired belongs
+>to rootfs' sb or some namespace (doubtful you'll create many of them).
+>
+>
+>  
+>
 
-Hi:
+Found it.  It was a stupid mistake.  I made the get_sb function return 
+the same superblock when it was still get_sb_nodev.  When I switched it 
+to the proper get_sb_single I forgot to remove the code that returned 
+the old sb so it wasn't calling get_sb_single to increase the sb's usage 
+count.  Doh!
 
-After the laptop mode patch was merged, it is now possible for
-j_commit_interval to be zero.  Unfortunately jbd doesn't handle
-this situation very well.
+John
 
-This patch makes it do the sensible thing.
 
-Cheers,
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
---fUYQa+Pmc3FrFX/N
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
 
-Index: kernel-source-2.4/fs/jbd/journal.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.4/fs/jbd/journal.c,v
-retrieving revision 1.1.1.9
-diff -u -r1.1.1.9 journal.c
---- kernel-source-2.4/fs/jbd/journal.c	29 Nov 2003 06:39:14 -0000	1.1.1.9
-+++ kernel-source-2.4/fs/jbd/journal.c	29 Nov 2003 09:20:32 -0000
-@@ -253,6 +253,7 @@
- 
- 		/* Were we woken up by a commit wakeup event? */
- 		if ((transaction = journal->j_running_transaction) != NULL &&
-+		    journal->j_commit_interval &&
- 		    time_after_eq(jiffies, transaction->t_expires)) {
- 			journal->j_commit_request = transaction->t_tid;
- 			jbd_debug(1, "woke because of timeout\n");
-Index: kernel-source-2.4/fs/jbd/transaction.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.4/fs/jbd/transaction.c,v
-retrieving revision 1.1.1.6
-diff -u -r1.1.1.6 transaction.c
---- kernel-source-2.4/fs/jbd/transaction.c	28 Nov 2003 18:26:21 -0000	1.1.1.6
-+++ kernel-source-2.4/fs/jbd/transaction.c	29 Nov 2003 06:59:58 -0000
-@@ -60,10 +60,12 @@
- 	INIT_LIST_HEAD(&transaction->t_jcb);
- 
- 	/* Set up the commit timer for the new transaction. */
--	J_ASSERT (!journal->j_commit_timer_active);
--	journal->j_commit_timer_active = 1;
--	journal->j_commit_timer->expires = transaction->t_expires;
--	add_timer(journal->j_commit_timer);
-+	if (journal->j_commit_interval) {
-+		J_ASSERT (!journal->j_commit_timer_active);
-+		journal->j_commit_timer_active = 1;
-+		journal->j_commit_timer->expires = transaction->t_expires;
-+		add_timer(journal->j_commit_timer);
-+	}
- 	
- 	J_ASSERT (journal->j_running_transaction == NULL);
- 	journal->j_running_transaction = transaction;
-@@ -1465,7 +1467,8 @@
- 	if (handle->h_sync ||
- 			transaction->t_outstanding_credits >
- 				journal->j_max_transaction_buffers ||
--	    		time_after_eq(jiffies, transaction->t_expires)) {
-+	    		(journal->j_commit_interval &&
-+	    		 time_after_eq(jiffies, transaction->t_expires))) {
- 		/* Do this even for aborted journals: an abort still
- 		 * completes the commit thread, it just doesn't write
- 		 * anything to disk. */
-
---fUYQa+Pmc3FrFX/N--

@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264995AbSKAMyM>; Fri, 1 Nov 2002 07:54:12 -0500
+	id <S264993AbSKANAl>; Fri, 1 Nov 2002 08:00:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264996AbSKAMyL>; Fri, 1 Nov 2002 07:54:11 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:10119 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264995AbSKAMyK>; Fri, 1 Nov 2002 07:54:10 -0500
-Subject: Re: [PATCH] fixes for building kernel 2.5.45 using Intel compiler
-	(Ta ke 2)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>
-In-Reply-To: <F2DBA543B89AD51184B600508B68D4000EFF45BD@fmsmsx103.fm.intel.com>
-References: <F2DBA543B89AD51184B600508B68D4000EFF45BD@fmsmsx103.fm.intel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 01 Nov 2002 13:20:57 +0000
-Message-Id: <1036156857.12693.7.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S265002AbSKANAl>; Fri, 1 Nov 2002 08:00:41 -0500
+Received: from smtp3.cern.ch ([137.138.131.164]:49555 "EHLO smtp3.cern.ch")
+	by vger.kernel.org with ESMTP id <S264993AbSKANAg>;
+	Fri, 1 Nov 2002 08:00:36 -0500
+To: "'Linus Torvalds'" <torvalds@transmeta.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'lkcd-general@lists.sourceforge.net'" 
+	<lkcd-general@lists.sourceforge.net>,
+       "'lkcd-devel@lists.sourceforge.net'" 
+	<lkcd-devel@lists.sourceforge.net>
+Subject: Re: [lkcd-general] RE: What's left over.
+References: <A46BBDB345A7D5118EC90002A5072C7806CAC8B3@orsmsx116.jf.intel.com>
+From: Jan Iven <jan.iven@cern.ch>
+Date: 01 Nov 2002 14:06:38 +0100
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C7806CAC8B3@orsmsx116.jf.intel.com>
+Message-ID: <ma1lm4da17l.fsf@laptop.mydomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-31 at 20:16, Nakajima, Jun wrote:
-> This is take 2 of the updated patch against 2.5.45. I'm asking the compiler 
-> team if someone can answer your question:
+>>>>> "PI" == Perez-Gonzalez, Inaky <inaky.perez-gonzalez@intel.com> writes:
 
-Looks ok to me now
+ >> THAT is what I mean by vendor-driven. If vendors decide they 
+ >> really want the patches, and I actually start seeing noises on 
+ >> linux-kernel or getting
+ >> requests for it being merged from _users_ rather than developers, then
+ >> that means that the vendor is on to something.
+
+For what it is worth, CERN has been using LKCD kernels for the last
+6month or so, enabled mostly on headless farm machines (but the
+kernels get deployed to desktops as well). Please consider including
+it into the mainstream kernel.
+
+Jan Iven
+Linux support / CERN
+
 

@@ -1,117 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274596AbRJAGEi>; Mon, 1 Oct 2001 02:04:38 -0400
+	id <S274611AbRJAF62>; Mon, 1 Oct 2001 01:58:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274612AbRJAGE2>; Mon, 1 Oct 2001 02:04:28 -0400
-Received: from codepoet.org ([166.70.14.212]:2679 "HELO winder.codepoet.org")
-	by vger.kernel.org with SMTP id <S274596AbRJAGEP>;
-	Mon, 1 Oct 2001 02:04:15 -0400
-Date: Mon, 1 Oct 2001 00:04:46 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [CFT][PATCH] cleanup of partition code
-Message-ID: <20011001000446.A24245@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010930222210.A24037@codepoet.org> <Pine.GSO.4.21.0110010126001.14026-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0110010126001.14026-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.3.22i
-X-Operating-System: Linux 2.4.9-ac10-rmk1, Rebel-NetWinder(Intel sa110 rev 3), 262.14 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S274610AbRJAF6J>; Mon, 1 Oct 2001 01:58:09 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:15122 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S274596AbRJAF57>;
+	Mon, 1 Oct 2001 01:57:59 -0400
+Date: Mon, 1 Oct 2001 07:55:45 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Bernd Harries <bha@gmx.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: __get_free_pages(): is the MEM really mine?
+In-Reply-To: <3BB71715.A57FA7D4@gmx.de>
+Message-ID: <Pine.LNX.4.33.0110010732140.1792-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Oct 01, 2001 at 01:27:54AM -0400, Alexander Viro wrote:
-> 
-> 
-> On Sun, 30 Sep 2001, Erik Andersen wrote:
-> 
-> > On Sun Sep 30, 2001 at 06:31:55PM -0400, Alexander Viro wrote:
-> > > 
-> > > 	One thing that doesn't work yet is support of Acorn partitions -
-> > > I'm switching it to pagecache right now.
-> > 
-> > Well, acorn is broken anyways....  Try enabling in on a device
-> > with native 2048 byte sectors and _no_ partition table will be
-> > found on those devices (just an error msg resulting from acorn)
-> 
-> Could you send me an example of such animal?  I don't mean the disk itself -
-> just the contents of relevant sectors (i.e. everything except the contents
-> of partitions themselves).
 
-Here is what I normally see (in this case with 2.4.9-ac17):
+On Sun, 30 Sep 2001, Bernd Harries wrote:
 
-	scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.1
-		<Adaptec 2940 Ultra SCSI adapter>
-		aic7880: Ultra Single Channel A, SCSI Id=7, 16/255 SCBs
+> Is there a guarantee that the n - 1 pages above the 1st one are not
+> donated to other programs while my driver uses them?
 
-	(scsi0:A:4): 10.000MB/s transfers (10.000MHz, offset 15)
-	  Vendor: OLYMPUS   Model: MOS364            Rev: 1.02
-	  Type:   Optical Device                     ANSI SCSI revision: 02
-	(scsi0:A:5): 10.000MB/s transfers (10.000MHz, offset 15)
-	  Vendor: OLYMPUS   Model: MOS364            Rev: 1.02
-	  Type:   Optical Device                     ANSI SCSI revision: 02
-	[----------snip-------------]
-	Attached scsi removable disk sda at scsi0, channel 0, id 4, lun 0
-	Attached scsi removable disk sdb at scsi0, channel 0, id 5, lun 0
-	SCSI device sda: 310352 2048-byte hdwr sectors (636 MB)
-	sda: Write Protect is off
-	 sda: sda1
-	SCSI device sdb: 310352 2048-byte hdwr sectors (636 MB)
-	sdb: Write Protect is off
-	 sdb: sdb1
+yes. The 2MB block of 512 x 4k pages (we should perhaps call it a 'order 9
+page') is yours.
 
-Everything looks fairly normal...  I have 2 640Meg SCSI magneto optical drives
-with a single partiton on the media in each (working as expected).  Now lets
-enable some stuff: 
+> > is it a fundamental property of the hardware that it needs a continuous
+> > physical memory buffer?
+>
+> Yes. The FW on the card demands it.
 
-	+CONFIG_ACORN_PARTITION=y
-	+CONFIG_ACORN_PARTITION_ICS=y
-	+CONFIG_ACORN_PARTITION_ADFS=y
-	+CONFIG_ACORN_PARTITION_POWERTEC=y
-	+CONFIG_ACORN_PARTITION_RISCIX=y
+ok. then i'd suggest to do all this allocation at boot-time, and do not
+deallocate it. This is the safest method. Unless it's a point to have the
+driver as a module (for other than development purposes).
 
+> I'll move the code to init_module later once it is stable.
 
-Now I see:
+even init_module() can be executed much later: eg. kmod removes the module
+because it's unused, and it's reinserted later. So generally it's really
+unrobust to expect a 9th order allocation to succeed at module_init()
+time.
 
-	Attached scsi removable disk sda at scsi0, channel 0, id 4, lun 0
-	Attached scsi removable disk sdb at scsi0, channel 0, id 5, lun 0
-	SCSI device sda: 310352 2048-byte hdwr sectors (636 MB)
-	sda: Write Protect is off
-	 sda:<5>ll_rw_block: device 08:00: only 2048-char blocks implemented (1024)
-	 unable to read boot sectors / partition sectors
-	SCSI device sdb: 310352 2048-byte hdwr sectors (636 MB)
-	sdb: Write Protect is off
-	 sdb:<5>ll_rw_block: device 08:10: only 2048-char blocks implemented (1024)
-	 unable to read boot sectors / partition sectors
+the fundamental issue is not the lazyness of Linux VM developers. 99.9% of
+all allocations are order 0. 99.9% of the remaining allocations are order
+1 or 2. It takes a fair amount of overhead and complexity to handle
+high-order allocations 'well' - it takes even more effort (and a perverse
+limitation on the use of pointers) to guarantee the success of such
+allocations all the time.
 
-Note the ll_rw_block msg from where the acorn stuff is not reading in units
-of the physical sector size?  Also notice the "unable to read..." msg, which
-is where acorn chokes the partition table scanning...
+there is a longer-term and robust solution that could be used though. We
+could support a generic 'physical memory pool', that gets allocated on
+bootup (via eg. a physmem=10m kernel boot option), and never gets used for
+other than such critical allocations. Your driver could call eg.
+alloc_physmem(size) and free_physmem(). It would work similarly to
+bootmem.c. This 'physical memory pool' would never be used by generic
+subsystems - only drivers which support hardware with such limitations are
+allowed to use it. The advantage of this approach is that there would be
+one generic way to put physically continuous RAM aside for such drivers -
+so the driver would not have to worry about the VM situation. The other
+advantage is that we could decrease MAX_ORDER significantly (to around 7)
+- support for higher orders increases the runtime overhead of the buddy
+allocator, even for low-order allocations.
 
+(later on we could even add support to grow and shrink the size of the
+physical memory pool (within certain boundaries), so it could be sized
+boot-time.)
 
-So now, while fdisk is still able to see that partitions exist
+would anything like this be useful? Since it's a completely separate pool
+(in fact it wont even show up in the normal memory statistics), it does
+not disturb the existing VM in any way.
 
-	[andersen@dillweed andersen]$ fdisk -l /dev/sda
-	Note: sector size is 2048 (not 512)
+	Ingo
 
-	Disk /dev/sda: 64 heads, 32 sectors, 151 cylinders
-	Units = cylinders of 2048 * 2048 bytes
-
-	   Device Boot    Start       End    Blocks   Id  System
-	/dev/sda1   *         1       151    618432   83  Linux
-
-the acorn stuff has caused the partition scan to abort prematurely, such that
-proc partitions (and Linux) know nothing about the device's partitions.  I can
-give you a dd from one of these disks, but I doubt that would show the error... 
-
- -Erik
-
---
-Erik B. Andersen   email:  andersee@debian.org, formerly of Lineo
---This message was written using 73% post-consumer electrons--

@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136428AbRD3BlQ>; Sun, 29 Apr 2001 21:41:16 -0400
+	id <S136430AbRD3Bt2>; Sun, 29 Apr 2001 21:49:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136430AbRD3BlH>; Sun, 29 Apr 2001 21:41:07 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:55560 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S136428AbRD3Bk5>;
-	Sun, 29 Apr 2001 21:40:57 -0400
-Date: Sun, 29 Apr 2001 21:41:36 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: John Stoffel <stoffel@casc.com>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2 1.3.1, aka "I stick my neck out a mile..."
-Message-ID: <20010429214136.A2260@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Anton Altaparmakov <aia21@cam.ac.uk>,
-	John Stoffel <stoffel@casc.com>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <15084.12152.956561.490805@gargle.gargle.HOWL> <20010427193501.A9805@thyrsus.com> <15084.12152.956561.490805@gargle.gargle.HOWL> <20010429183526.B32748@thyrsus.com> <5.0.2.1.2.20010430023154.03cd52b0@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <5.0.2.1.2.20010430023154.03cd52b0@pop.cus.cam.ac.uk>; from aia21@cam.ac.uk on Mon, Apr 30, 2001 at 02:36:17AM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S136431AbRD3BtS>; Sun, 29 Apr 2001 21:49:18 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:6669 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S136430AbRD3BtL>;
+	Sun, 29 Apr 2001 21:49:11 -0400
+Date: Sun, 29 Apr 2001 22:27:29 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Andres Salomon <dilinger@mp3revolution.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: deregister?
+In-Reply-To: <20010429211049.A17111@mp3revolution.net>
+Message-ID: <Pine.LNX.4.21.0104292224000.19012-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov <aia21@cam.ac.uk>:
-> I don't know about whether this is possible with Tcl but have you tried A) 
-> invisible text and/or B) white space character text (e.g. one or more 
-> spaces)? That's the kind of thing I usually try in this situation... Just 
-> an idea...
+On Sun, 29 Apr 2001, Andres Salomon wrote:
 
-I tried whitespace, but the default Tkinter font isn't fixed-width.  How
-do you do invisible text?
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+> Not to mention in various comments and documentation.  Deregister,
+> according to www.m-w.com (and many other dictionaries), is not a word.
+> Is there some sort of historical significance to this being used, in
+> place of "unregister"?
 
-..every Man has a Property in his own Person. This no Body has any
-Right to but himself.  The Labour of his Body, and the Work of his
-Hands, we may say, are properly his. .... The great and chief end
-therefore, of Mens uniting into Commonwealths, and putting themselves
-under Government, is the Preservation of their Property.
-	-- John Locke, "A Treatise Concerning Civil Government"
+Yes, we're all anti-american terrorists who plan to make the
+US economy collapse by inventing lots of new words which will
+have to be added to the dictionary, making the US economy
+unable to support the ever-growing dictionaries and ensuring
+the Americans will be unable to (learn to) spell, leaving them
+dead in the water if there's ever a linguistic war between
+them and the UK.
+
+Cunning, isn't it?
+
+cheers,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

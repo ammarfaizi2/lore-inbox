@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261820AbUBWFsx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 00:48:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbUBWFsx
+	id S261826AbUBWFwf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 00:52:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbUBWFwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 00:48:53 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:12925 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S261820AbUBWFsw (ORCPT
+	Mon, 23 Feb 2004 00:52:34 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:8324 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S261826AbUBWFwb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 00:48:52 -0500
-Date: Sun, 22 Feb 2004 21:50:25 -0800
+	Mon, 23 Feb 2004 00:52:31 -0500
+Date: Sun, 22 Feb 2004 21:49:06 -0800
 From: Paul Jackson <pj@sgi.com>
 To: Hansjoerg Lipp <hjlipp@web.de>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Linux 2.6: shebang handling in fs/binfmt_script.c
-Message-Id: <20040222215025.02196d50.pj@sgi.com>
+Message-Id: <20040222214906.5cbc544e.pj@sgi.com>
 In-Reply-To: <20040222155410.GA3051@hobbes>
 References: <20040216133418.GA4399@hobbes>
 	<20040222020911.2c8ea5c6.pj@sgi.com>
@@ -27,14 +27,11 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's just a pain to have to use wrappers
+> BTW, which shell expects the name of the script in argv[2]?
 
-true
-
-> "my" way (as it's already done by
-> FreeBSD) makes writing complex scripts easier
-
-likely true as well
+I don't know.  Someone needs to actually examine the shell code,
+and see what it does, for various shells.  My jaw boning neither
+proves nor disproves anything.
 
 -- 
                           I won't rest till it's the best ...

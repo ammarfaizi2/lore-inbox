@@ -1,33 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316681AbSEVTNA>; Wed, 22 May 2002 15:13:00 -0400
+	id <S316684AbSEVTVI>; Wed, 22 May 2002 15:21:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316683AbSEVTM7>; Wed, 22 May 2002 15:12:59 -0400
-Received: from mail4.midata.com ([207.250.225.34]:57529 "EHLO
-	main01.hvms.metavante.com") by vger.kernel.org with ESMTP
-	id <S316681AbSEVTM7>; Wed, 22 May 2002 15:12:59 -0400
-Date: Wed, 22 May 2002 12:12:47 -0700 (PDT)
-From: "Sergey Kubushin" <ksi@cyberbills.com>
-To: Aschwin Marsman - aYniK Software Solutions <a.marsman@aYniK.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Off topic: Solaris 9 announced, a lot of Linux incorporated
-In-Reply-To: <Pine.LNX.4.44.0205222051220.2138-100000@quinten.nl>
-Message-ID: <Pine.LNX.4.31ksi3.0205221210480.2561-100000@nomad.cyberbills.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316686AbSEVTVI>; Wed, 22 May 2002 15:21:08 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:32517 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S316684AbSEVTVH>;
+	Wed, 22 May 2002 15:21:07 -0400
+Date: Wed, 22 May 2002 12:21:01 -0700
+From: Greg KH <greg@kroah.com>
+To: =?iso-8859-1?Q?Andr=E9?= Bonin <kernel@bonin.ca>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        Linux-usb-users@lists.sourceforge.net
+Subject: Re: What to do with all of the USB UHCI drivers in the kernel?
+Message-ID: <20020522192101.GG4802@kroah.com>
+In-Reply-To: <20020520223132.GC25541@kroah.com> <008b01c2012d$69db21c0$0601a8c0@CHERLYN>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Wed, 24 Apr 2002 17:42:56 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 May 2002, Aschwin Marsman - aYniK Software Solutions wrote:
+On Tue, May 21, 2002 at 09:10:04PM -0400, André Bonin wrote:
+> 
+> ----- Original Message -----
+> From: "Greg KH" <greg@kroah.com>
+> To: <linux-usb-devel@lists.sourceforge.net>
+> Cc: <linux-kernel@vger.kernel.org>; <Linux-usb-users@lists.sourceforge.net>
+> Sent: Monday, May 20, 2002 6:31 PM
+> Subject: What to do with all of the USB UHCI drivers in the kernel?
+> 
+> 
+> >
+> > Ok, now that 2.5.16 is out, we have a total of 4 different USB UHCI
+> > controller drivers in the kernel!  That's about 3 too many for me :)
+> >
+> > So what to do?  I propose the following:
+> >
+> >   From now until July 1, I want everyone to test out both the uhci-hcd
+> >   and usb-uhci-hcd drivers on just about every piece of hardware they
+> >   can find.  This includes SMP, UP, preempt kernels, big and little
+> >   endian machines, and loads of different types of USB devices.
+> 
+> The UHCI driver never recognizes my hardware.  The OHCI driver (in the
+> 2.4.18 kernel) does however.  My Asus A7M266-D doesn't have an onboard USB
+> but they ship an add-on card with the motherboard (made by Asus).
 
-> Today SUN announced the availability of Solaris 9. It has a lot
-> Linux compatibility features: ;-)
+This is probably because you have an OHCI hardware device, not a UHCI
+device.  What does 'lspci -v' say for your machine?
 
-It won't save them, their train's already gone...
+And how does 2.5.17 work for you?
 
----
-Sergey Kubushin				Sr. Unix Administrator
-Metavante, Inc.				Phone:	702-567-8857
-874 American Pacific Dr,		Fax:	702-567-8808
-Henderson, NV 89014
+thanks,
 
+greg k-h

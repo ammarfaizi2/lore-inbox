@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262494AbTFXPQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 11:16:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265393AbTFXPQ0
+	id S262429AbTFXPZo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 11:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbTFXPZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 11:16:26 -0400
-Received: from terminus.zytor.com ([63.209.29.3]:3033 "EHLO terminus.zytor.com")
-	by vger.kernel.org with ESMTP id S262494AbTFXPQZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 11:16:25 -0400
-Message-ID: <3EF86E50.20504@zytor.com>
-Date: Tue, 24 Jun 2003 08:29:20 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
-X-Accept-Language: en-us, en, sv
+	Tue, 24 Jun 2003 11:25:44 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34739 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262429AbTFXPZn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 11:25:43 -0400
+Message-ID: <3EF870BC.5010600@pobox.com>
+Date: Tue, 24 Jun 2003 11:39:40 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Werner Almesberger <wa@almesberger.net>
-CC: linux-kernel@vger.kernel.org, John Coffman <johninsd@san.rr.com>
-Subject: Re: Kernel & BIOS return differing head/sector geometries
-References: <20030624010906.08ad32f3.ktech@wanadoo.es> <20030624013908.B1133@pclin040.win.tue.nl> <bd8hgj$cas$1@cesium.transmeta.com> <20030624012220.E1418@almesberger.net> <3EF7D33E.6060009@zytor.com> <20030624081319.G1326@almesberger.net>
-In-Reply-To: <20030624081319.G1326@almesberger.net>
+To: Jens Axboe <axboe@suse.de>
+CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Jan-Benedict Glaw <jbglaw@lug-owl.de>, linux-kernel@vger.kernel.org
+Subject: Re: Testing IDE-TCQ and Taskfile - doesn't work nicely:)
+References: <Pine.SOL.4.30.0306232315480.8078-200000@mion.elka.pw.edu.pl> <3EF86019.3090608@pobox.com> <20030624144730.GW7383@suse.de>
+In-Reply-To: <20030624144730.GW7383@suse.de>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger wrote:
-> H. Peter Anvin wrote:
-> 
->>Presumably "linear", not "lba32".  I *presume* LILO has enough 
->>wherewithal to use EBIOS if it's available and fall back to CBIOS 
->>otherwise for at least one of these options.  I at least thought "lba32" 
->>would force EBIOS usage.
-> 
-> 
-> Yes, that seems to be the case. (All the LBA32 code is from John
-> Coffman. I've copied him in case he's interested in the thread.)
-> But you're still betting on the BIOS to either implement EDD
-> correctly, or at least to report that it doesn't support it.
-> 
-> Call me paranoid, but I wouldn't be at all surprised if there are
-> some BIOSes out there that get this wrong.
-> 
+Jens Axboe wrote:
+> ide-tcq is even more restrictive now, it only enables TCQ if the drive
+> is alone on the channel. Feel free to write the device select code if
+> you want, I'm not mucking more with the bastard that is ide tcq.
 
-Well... it's somewhat unlikely given the sheer amount of things that 
-would probably break.  The rule these days is that if it works with the 
-particular versin of M$ that's currently shipping then it's good, but 
-I'm pretty sure NTLOADER uses EDD.
+hehe!  I don't blame you ;-)
 
-	-hpa
+I plan to write the devsel code, but for my ata-scsi driver... :/  It 
+will go into libata, which I would love to have sharing code with 
+drivers/ide...
+
+	Jeff
+
 
 

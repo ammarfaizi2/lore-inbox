@@ -1,62 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288845AbSAIRjG>; Wed, 9 Jan 2002 12:39:06 -0500
+	id <S288897AbSAIRkR>; Wed, 9 Jan 2002 12:40:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288896AbSAIRi4>; Wed, 9 Jan 2002 12:38:56 -0500
-Received: from [200.10.161.32] ([200.10.161.32]:1459 "EHLO lila.inti.gov.ar")
-	by vger.kernel.org with ESMTP id <S288845AbSAIRip>;
-	Wed, 9 Jan 2002 12:38:45 -0500
-Message-ID: <3C3C8093.7213A219@inti.gov.ar>
-Date: Wed, 09 Jan 2002 14:40:35 -0300
-From: salvador <salvador@inti.gov.ar>
-Reply-To: salvador@inti.gov.ar
-Organization: INTI
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: es-AR, en, es
+	id <S288896AbSAIRkJ>; Wed, 9 Jan 2002 12:40:09 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:6273 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S288897AbSAIRju>; Wed, 9 Jan 2002 12:39:50 -0500
+Date: Wed, 9 Jan 2002 12:42:20 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Michael Zhu <mylinuxk@yahoo.ca>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: About Loop Device
+In-Reply-To: <20020109173206.40790.qmail@web14913.mail.yahoo.com>
+Message-ID: <Pine.LNX.3.95.1020109124027.7179A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFCA] Sound: adding /proc/driver/{vendor}/{dev_pci}/ac97 
- entry
-In-Reply-To: <E16OLS9-0001aF-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Wed, 9 Jan 2002, Michael Zhu wrote:
 
-> > +               if (proc_mkdir (proc_str, 0)) {
-> > +                       sprintf(proc_str, "driver/%s/%s", name,
-> > card->pci_dev->slot_name);
-> > +                       if (proc_mkdir (proc_str, 0)) {
-> > +                               sprintf(proc_str, "driver/%s/%s/ac97", name,
-> > card->pci_dev->slot_name);
-> > +                               create_proc_read_entry (proc_str, 0, 0,
-> > ac97_read_proc, codec);
-> > +                       }
-> > +               }
->
-> Where do you remove it.
+> Hi, I just want to confirm whether the loop device can
+> encrypt the whole data on the disk even including the
+> boot sector. I want to make a whole block level
+> encryption. Thanks.
+> 
+> Michael
 
-I don't remove it, sorry I'll add it in the next iteration of the patch
-BTW: I think the entry goes away when the module is removed. Is the kernel doing
-a cleanup?
+This may be a troll. How would you boot? Who decrypts during the
+boot?
 
-> Also a card can have multiple ac97 codecs
+Cheers,
+Dick Johnson
 
-You are right, will also take care about it. Do you think
-/proc/driver/{vendor}/{dev_pci}/{num_ac97}/ac97 will be ok?
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
 
-SET
-
---
-Salvador Eduardo Tropea (SET). (Electronics Engineer)
-Visit my home page: http://welcome.to/SetSoft or
-http://www.geocities.com/SiliconValley/Vista/6552/
-Alternative e-mail: set@computer.org set@ieee.org
-Address: Curapaligue 2124, Caseros, 3 de Febrero
-Buenos Aires, (1678), ARGENTINA Phone: +(5411) 4759 0013
-
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
 

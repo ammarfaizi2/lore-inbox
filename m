@@ -1,38 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131259AbRCMXSL>; Tue, 13 Mar 2001 18:18:11 -0500
+	id <S131228AbRCMXYB>; Tue, 13 Mar 2001 18:24:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131260AbRCMXRv>; Tue, 13 Mar 2001 18:17:51 -0500
-Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:23556 "EHLO
-	mail.harddata.com") by vger.kernel.org with ESMTP
-	id <S131259AbRCMXRr>; Tue, 13 Mar 2001 18:17:47 -0500
-Date: Tue, 13 Mar 2001 16:17:04 -0700
-From: Michal Jaegermann <michal@harddata.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2ac20
-Message-ID: <20010313161704.A15082@mail.harddata.com>
-In-Reply-To: <E14cgXm-0003O5-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.5us
-In-Reply-To: <E14cgXm-0003O5-00@the-village.bc.nu>; from Alan Cox on Tue, Mar 13, 2001 at 04:36:18AM +0000
+	id <S131242AbRCMXXm>; Tue, 13 Mar 2001 18:23:42 -0500
+Received: from ns1.uklinux.net ([212.1.130.11]:56586 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S131228AbRCMXXV>;
+	Tue, 13 Mar 2001 18:23:21 -0500
+Envelope-To: <linux-kernel@vger.kernel.org>
+Date: Tue, 13 Mar 2001 23:26:35 +0000 (GMT)
+From: James Stevenson <mistral@stev.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: VM problem with 2.2.18 ?
+Message-ID: <Pine.LNX.4.21.0103132323450.18168-100000@cyrix.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 13, 2001 at 04:36:18AM +0000, Alan Cox wrote:
-...
-> 
-> 2.4.2-ac20
-...
-> o	Fix Alpha build					(Jeff Garzik)
 
-Now I see (at least on Alpha) a constant wailing:
+Hi
 
-..../linux-2.4.2ac/include/linux/binfmts.h:45: warning: `struct 
-mm_struct' declared inside parameter list
-..../linux-2.4.2ac/include/linux/binfmts.h:45: warning: its scope is 
-only this definition or declaration, which is probably not what you want
+i had a small problem with a program i was running
+which got stuck in a loop allocing memory by the time i
+found out it was doing it these were appearing
 
-Is this somehow related?
+ VM: do_try_to_free_pages failed for ypbind...
+ VM: do_try_to_free_pages failed for syslogd...
+ VM: do_try_to_free_pages failed for klogd...
+ VM: do_try_to_free_pages failed for ypserv...
+ VM: do_try_to_free_pages failed for ypserv...
+ VM: do_try_to_free_pages failed for ypserv...
+ VM: do_try_to_free_pages failed for ypserv...
+ VM: do_try_to_free_pages failed for ypserv...
+ VM: do_try_to_free_pages failed for ypserv...
+ VM: do_try_to_free_pages failed for esd...
+ VM: do_try_to_free_pages failed for esd...
+ VM: do_try_to_free_pages failed for esd...
+ VM: do_try_to_free_pages failed for esd...
+ VM: do_try_to_free_pages failed for esd...
+ VM: do_try_to_free_pages failed for esd...
+ VM: do_try_to_free_pages failed for esd...
+ VM: do_try_to_free_pages failed for bash...
+ VM: do_try_to_free_pages failed for bash...
+ VM: do_try_to_free_pages failed for bash...
+ VM: do_try_to_free_pages failed for bash...
+ VM: do_try_to_free_pages failed for bash...
+ VM: do_try_to_free_pages failed for bash...
+ VM: do_try_to_free_pages failed for bash...
+ VM: do_try_to_free_pages failed for crond...
+ VM: do_try_to_free_pages failed for crond...
+ VM: do_try_to_free_pages failed for crond...
+ VM: do_try_to_free_pages failed for crond...
+ VM: do_try_to_free_pages failed for crond...
 
-   Michal
+
+etc.. etc.. for many more processes
+then it all ended in a hangup
+
+i remember hacing these problems around 2.2.14/15 or so
+then it never happened again until today
+
+thanks
+	James
+
+
+-- 
+---------------------------------------------
+Check Out: http://stev.org
+E-Mail: mistral@stev.org
+ 10:40pm  up 14 days, 10:46,  3 users,  load average: 0.02, 0.07, 0.03
+

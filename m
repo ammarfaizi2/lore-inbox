@@ -1,76 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130643AbRAROaz>; Thu, 18 Jan 2001 09:30:55 -0500
+	id <S132368AbRARObf>; Thu, 18 Jan 2001 09:31:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130425AbRAROaq>; Thu, 18 Jan 2001 09:30:46 -0500
-Received: from adsl-nrp10-C8B0F87C.sao.terra.com.br ([200.176.248.124]:28915
-	"EHLO thor.gds-corp.com") by vger.kernel.org with ESMTP
-	id <S130077AbRAROad> convert rfc822-to-8bit; Thu, 18 Jan 2001 09:30:33 -0500
-Date: Thu, 18 Jan 2001 12:31:22 -0200 (BRST)
-From: Joel Franco Guzmán <joel@gds-corp.com>
-To: Josh Myer <josh@joshisanerd.com>
-cc: "J . A . Magallon" <jamagallon@able.es>, <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: 128M memory OK, but with 192M sound card es1391 trouble
-In-Reply-To: <20010117043619.B23406@grace>
-Message-ID: <Pine.LNX.4.30.0101181227010.1059-100000@thor.gds-corp.com>
+	id <S130425AbRARObU>; Thu, 18 Jan 2001 09:31:20 -0500
+Received: from mail5.svr.pol.co.uk ([195.92.193.20]:11050 "EHLO
+	mail5.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S130077AbRAROaz>; Thu, 18 Jan 2001 09:30:55 -0500
+Date: Thu, 18 Jan 2001 14:34:08 +0000 (GMT)
+From: James Stevenson <mistral@stev.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PF_PACKET] and failed checksums
+Message-ID: <Pine.LNX.4.21.0101181421400.7439-100000@cyrix.home>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-BadReturnPath: mistral@cyrix.home rewritten as mistral@stev.org
+  using "From" header
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Jan 2001, Josh Myer wrote:
 
-> You're probably just hearing electrical noise from the memory buss; try
-> moving the 128 stick to the slot you put the 64 in (if you can) and run
-> that way -- you'll probably hear it there too.
+Hi
 
-i've exchanged the two memory slot, and the problem is still alive.
+when i use a PF_PACKET / raw socket when i read data from the
+socket everything is fine apart from udp packets which are going to
+the machine on port 2049 sometimes the checksums fail i belive that
+the data might be getting changed on the udp pakcet somewhere inside the
+kernel as with the same program on another machine sees the packets
+fine (no csum error) on the way into the machine. and also the kernel
+does not report a checksum error though the data out of the raw socket
+seems not to be the same but however this only seems to happen on a
+machine which is an nfs server and only on packets to the nfs 
+server port [2049] 
 
->
-> I get something similiar to this with my SB Live (!... damn marketroids) on
-> a BP6 with 192MB as well. In my case, it's not during DSP use per se, but
-> during memory activity. Try dragging a window around in X and listen for
-> buzzing.
+would anyone be able to shed some light on this ?
 
-When i drag a window around in X, the noise don't change. It's a rate
-constant and not influencied by the windows movement.
+greatly shortend log below
 
-Thank You Josh.
-
->
-> My guess is that JA's console player doesn't move around as much memory as
-> the gnome one (imagine that), therefore produces less memory noise.
-> --
-> /jbm, but you can call me Josh. Really, you can.
->        "car. snow. slippery. wheee.
->         dead josh. car slipped on ice."
->  -- Manda explaining my purchase of kitty litter
->
-> On Wed, 17 Jan 2001 17:25:51 J . A . Magallon wrote:
-> >
-> > On 2001.01.18 Joel Franco Guzmán wrote:
-> > > 1. 128M memory OK, but with 192M the sound card generate a noise while
-> > > use the DSP.
-> > ..
-> > > the problem: The sound card generates a toc.. toc.. toc .. toc...while
-> > > playing a sound using the DSP of the soundcard. Two "tocs"/sec
-> > > aproxiumadetely.
-> > >
-> > >
-> .
-> > I have noticed something similar. If I start gqmpeg from the command line
-> > in
-> > a terminal (rxvt), sounds fine. If I start it from the icon in the gnome
-> > panel, it makes that 'toc toc' noise you describe. ????
-> > (I know it sounds strange, but real...)
->
+UDP 192.168.1.2[690] -> 192.168.1.1[701] Len:48
+UDP 192.168.1.1[701] -> 192.168.1.2[690] Len:28
+UDP 192.168.1.1[2540] -> 192.168.1.1[701] Len:80
+UDP 192.168.1.1[701] -> 192.168.1.1[2540] Len:32
+UDP 192.168.1.1[2540] -> 192.168.1.3[53] Len:42
+UDP 192.168.1.3[53] -> 192.168.1.1[2540] Len:119
+UDP 192.168.1.1[2540] -> 192.168.1.1[701] Len:80
+UDP 192.168.1.1[701] -> 192.168.1.1[2540] Len:32
+UDP 192.168.1.1[2540] -> 192.168.1.3[53] Len:42
+UDP linux.home[2540] -> 192.168.1.3[53] Len:42
+UDP ns.home[53] -> linux.home[2540] Len:113
+FAILED UDP CHECKSUM: cyrix.home -> linux.home Packet: 26765 Sniffer: 43102 L:124
+UDP linux.home[2049] -> cyrix.home[800] Len:128
+UDP cyrix.home[800] -> linux.home[2049] Len:140
+UDP linux.home[2049] -> cyrix.home[800] Len:96
+UDP linux.home[2049] -> cyrix.home[800] Len:96
+FAILED UDP CHECKSUM: cyrix.home -> linux.home Packet: 25007 Sniffer: 40064 L:124
+UDP linux.home[2049] -> cyrix.home[800] Len:128
+UDP cyrix.home[800] -> linux.home[2049] Len:140
+UDP linux.home[2049] -> cyrix.home[800] Len:96
+UDP linux.home[2049] -> cyrix.home[800] Len:96
+FAILED UDP CHECKSUM: cyrix.home -> linux.home Packet: 17756 Sniffer: 31277 L:120
+UDP linux.home[2049] -> cyrix.home[800] Len:128
+UDP cyrix.home[800] -> linux.home[2049] Len:140
+FAILED UDP CHECKSUM: cyrix.home -> linux.home Packet: 16044 Sniffer: 28285 L:120
+UDP linux.home[2049] -> cyrix.home[800] Len:128
+UDP cyrix.home[800] -> linux.home[2049] Len:140
+UDP linux.home[2049] -> cyrix.home[800] Len:96
 
 -- 
-    Joel Franco Guzmán
-GDS - Global Dynamic Systems
-   joelfranco@bigfoot.com
-ICQ 19354050 | (16) 270-6867
+---------------------------------------------
+Check Out: http://stev.org
+E-Mail: mistral@stev.org
+  2:20pm  up 2 days, 21:41,  3 users,  load average: 0.14, 0.25, 0.15
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280958AbRKORc0>; Thu, 15 Nov 2001 12:32:26 -0500
+	id <S280959AbRKORf0>; Thu, 15 Nov 2001 12:35:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280959AbRKORcS>; Thu, 15 Nov 2001 12:32:18 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:19208 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S280958AbRKORb7>; Thu, 15 Nov 2001 12:31:59 -0500
-Date: Thu, 15 Nov 2001 18:14:45 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Gerd Knorr <kraxel@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [kernel] kiobuf question
-Message-ID: <20011115181445.B1381@athlon.random>
-In-Reply-To: <20011115093209.A3898@bytesex.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20011115093209.A3898@bytesex.org>; from kraxel@suse.de on Thu, Nov 15, 2001 at 09:32:09AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S280961AbRKORfG>; Thu, 15 Nov 2001 12:35:06 -0500
+Received: from gnu.in-berlin.de ([192.109.42.4]:1802 "EHLO gnu.in-berlin.de")
+	by vger.kernel.org with ESMTP id <S280960AbRKORfE>;
+	Thu, 15 Nov 2001 12:35:04 -0500
+X-Envelope-From: news@bytesex.org
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: kiobuf / vm bug
+Date: 15 Nov 2001 17:32:00 GMT
+Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
+Message-ID: <slrn9v7v0g.7hc.kraxel@bytesex.org>
+In-Reply-To: <20011115175531.A7068@bytesex.org>
+NNTP-Posting-Host: localhost
+X-Trace: bytesex.org 1005845520 7725 127.0.0.1 (15 Nov 2001 17:32:00 GMT)
+User-Agent: slrn/0.9.7.1 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 15, 2001 at 09:32:09AM +0100, Gerd Knorr wrote:
->      83         if (PageLRU(page))
->      84                 BUG();			<<================
+Gerd Knorr wrote:
+>    Hi,
+>  
+>  I think I have found a kiobuf-related bug in the VM of recent linux
+>  kernels.  2.4.13 is fine, 2.4.14-pre1 doesn't boot my machine,
+>  2.4.14-pre2 + newer kernels are broken.
 
-this is a VM bug, not a bttv bug.
+[ ... ]
 
-One simple fix is to replace __free_page(page) in unmap_kiobuf with
-page_cache_release(page). that will cure it.
+ok, the patch below (suggested by Andrea) fixes it.
 
-But a better fix that I probably prefer for robusteness is to change in
-page_alloc.c __free_pages with page_cache_release, so that we always do
-this:
+  Gerd
 
-		if (PageLRU(page))
-			lru_cache_del(page);
-
-while freeing pages.
-
-Andrea
+--------------------- cut here -----------------
+--- 2.4.15-pre4/mm/memory.c~	Tue Nov 13 10:52:01 2001
++++ 2.4.15-pre4/mm/memory.c	Thu Nov 15 18:24:16 2001
+@@ -588,7 +588,7 @@
+ 		if (map) {
+ 			if (iobuf->locked)
+ 				UnlockPage(map);
+-			__free_page(map);
++			page_cache_release(map);
+ 		}
+ 	}
+ 	

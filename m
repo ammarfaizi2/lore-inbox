@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262597AbVAEUK3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbVAEUKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262597AbVAEUK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 15:10:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbVAEUK2
+	id S262602AbVAEUKh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 15:10:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262582AbVAEUGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 15:10:28 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:40123 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262597AbVAEUJv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 15:09:51 -0500
-Date: Wed, 5 Jan 2005 20:04:40 +0100
-From: Jurriaan on adsl-gate <thunder7@xs4all.nl>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.10-rc3-bk15 hanged under high load (i386)
-Message-ID: <20050105190440.GA479@gates.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
-References: <20050105183947.GA5601@localhost>
+	Wed, 5 Jan 2005 15:06:50 -0500
+Received: from prosun.first.fraunhofer.de ([194.95.168.2]:27059 "EHLO
+	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S262580AbVAEUGo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 15:06:44 -0500
+Subject: Re: [BUG] 2.6.10-rc3 snd-powermac crash
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <jezmzuo5jc.fsf@sykes.suse.de>
+References: <1103389648.5967.7.camel@gaston>
+	 <pan.2004.12.21.07.53.37.708238@nn7.de>  <jezmzuo5jc.fsf@sykes.suse.de>
+Content-Type: text/plain
+Date: Wed, 05 Jan 2005 21:06:13 +0100
+Message-Id: <1104955573.10297.27.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050105183947.GA5601@localhost>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 05, 2005 at 07:39:48PM +0100, Jose Luis Domingo Lopez wrote:
-> Hi all:
+On Fri, 2004-12-31 at 16:23 +0100, Andreas Schwab wrote:
+> Soeren Sonnenburg <kernel@nn7.de> writes:
 > 
-> 2.6.10-rc3-bk15
->   
->   Dec 29 20:41:38 dardhal kernel: swap_free: Bad swap offset entry 003f0000
+> > I also get the very same oops - though very rarely - with pbbuttons and
+> > kernel 2.6.9 on my 1GHz-pbook 15"
 > 
-Did you have memtest86 run some loops over your memory?
+> I have been using ALSA on my G3 iBook already for a long time and never
+> saw this.  I didn't try 2.6.10 yet, though.
 
-HTH,
-Jurriaan
+FYI: I have been running 2.6.10 (which includes bens alsa ppc fix) since
+it was released... no oopses no crashes so far.
+
+Soeren (happy)
+-- 
+Sometimes, there's a moment as you're waking, when you become aware of
+the real world around you, but you're still dreaming.
 

@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275951AbSIUWtP>; Sat, 21 Sep 2002 18:49:15 -0400
+	id <S275949AbSIUWqf>; Sat, 21 Sep 2002 18:46:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275952AbSIUWtP>; Sat, 21 Sep 2002 18:49:15 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:24591 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S275951AbSIUWtO>;
-	Sat, 21 Sep 2002 18:49:14 -0400
-Date: Sat, 21 Sep 2002 15:53:46 -0700
+	id <S275950AbSIUWqf>; Sat, 21 Sep 2002 18:46:35 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:23311 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S275949AbSIUWqe>;
+	Sat, 21 Sep 2002 18:46:34 -0400
+Date: Sat, 21 Sep 2002 15:51:09 -0700
 From: Greg KH <greg@kroah.com>
-To: Marek Michalkiewicz <marekm@amelek.gda.pl>
-Cc: mdharm-usb@one-eyed-alien.net, linux-kernel@vger.kernel.org
-Subject: Re: Oops in usb_submit_urb with US_FL_MODE_XLATE (2.4.19 and 2.4.20-pre7)
-Message-ID: <20020921225346.GA29052@kroah.com>
-References: <E17sr4a-0007j8-00@alf.amelek.gda.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: problems building bzImage with 2.5.*
+Message-ID: <20020921225109.GB28936@kroah.com>
+References: <20020921183527.GL22811@kruhft.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E17sr4a-0007j8-00@alf.amelek.gda.pl>
+In-Reply-To: <20020921183527.GL22811@kruhft.dyndns.org>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 21, 2002 at 10:41:52PM +0200, Marek Michalkiewicz wrote:
-> Hi,
+On Sat, Sep 21, 2002 at 11:35:27AM -0700, Burton Samograd wrote:
+> Hi all,
 > 
-> while getting my Sagatek DCS-CF (aka Datafab KECF-USB) USB/CompactFlash
-> adapter to work, I got an Oops after adding US_FL_MODE_XLATE to the
-> drivers/usb/storage/unusual_devs.h entry.  Fortunately, my device does
-> not require that flag (it just avoids a harmless "test WP failed"
-> message, but the Oops a while later is worse ;), but I hope you find
-> the bug report useful (I can also see the same problem under 2.4.19).
+> I'm quite new to the list and I'm not sure if this has been posted
+> already but I thought I would give it a shot. I've been trying to
+> build the 2.5.* kernels (2.5.37 at the moment but this has happened
+> with previous version as well) and when doing a make bzImage i keep
+> getting the following error during the final linkage:
 
-Could you try the patch at:
-	http://marc.theaimsgroup.com/?l=linux-usb-devel&m=103255250215947&w=2
-for 2.4.20-pre7 and see if it fixes your problem?
+Enable CONFIG_HOTPLUG or downgrade your version of binutils.  That
+should fix the symptom.
 
-thanks,
+As to how to fix the problem, you have to dig to determine which driver
+is trying to reference a pointer that is marked __exit.
+
+Hope this helps,
 
 greg k-h

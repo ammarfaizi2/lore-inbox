@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316538AbSE0JlQ>; Mon, 27 May 2002 05:41:16 -0400
+	id <S316540AbSE0KAq>; Mon, 27 May 2002 06:00:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316540AbSE0JlP>; Mon, 27 May 2002 05:41:15 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:37578 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316538AbSE0JlO>;
-	Mon, 27 May 2002 05:41:14 -0400
-Date: Mon, 27 May 2002 11:40:54 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Trivial: move PCI ID definitions from ide-pci.c to pci_ids.h
-Message-ID: <20020527114054.C26574@ucw.cz>
-In-Reply-To: <20020526152204.A18812@ucw.cz> <3CF1E7C0.9090909@evision-ventures.com>
+	id <S316541AbSE0KAp>; Mon, 27 May 2002 06:00:45 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:9467 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316540AbSE0KAo>; Mon, 27 May 2002 06:00:44 -0400
+Subject: Re: [PATCH,CFT] Tentative fix for mem. corruption caused by intel
+	815 AGP
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
+Cc: Alessandro Morelli <alex@alphac.it>, linux-kernel@vger.kernel.org,
+        stilgar2k@wanadoo.fr
+In-Reply-To: <3CF1FD4B.8060608@epfl.ch>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 27 May 2002 12:03:06 +0100
+Message-Id: <1022497386.11859.232.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 27, 2002 at 10:01:04AM +0200, Martin Dalecki wrote:
+On Mon, 2002-05-27 at 10:32, Nicolas Aspert wrote:
+p to */
+> +	pci_read_config_dword(agp_bridge.dev, INTEL_APBASE, &temp);
+> +	agp_bridge.gart_bus_addr = (temp & PCI_BASE_ADDRESS_MEM_MASK);
+> +
+> +	/* attbase - aperture base */
+> +        /* the Intel 815 chipset spec. says that bits 29-31 in the
+> +         * ATTBASE register are reserved -> try not to write them */
+> +        if (agp_bridge.gatt_bus_addr & (~ INTEL_815_ATTBASE_MASK))
+> +		panic("gatt bus addr too high");
+> +	addr = agp_bridge.gatt_bus_addr & INTEL_815_ATTBASE_MASK;
 
-> > diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
-> > --- a/include/linux/pci_ids.h	Sun May 26 15:20:16 2002
-> > +++ b/include/linux/pci_ids.h	Sun May 26 15:20:16 2002
-> > @@ -1787,3 +1787,7 @@
-> >  #define PCI_DEVICE_ID_MICROGATE_USC	0x0010
-> >  #define PCI_DEVICE_ID_MICROGATE_SCC	0x0020
-> >  #define PCI_DEVICE_ID_MICROGATE_SCA	0x0030
-> > +
-> > +#define PCI_VENDOR_ID_HINT		0x3388
-> > +#define PCI_DEVICE_ID_HINT_VXPROII_IDE	0x8013
-> > +
-> 
-> Please note that pci_ids.h. is a generated file. The ids have to be
-> moved to the ancestor of it as well.
+You need to add  + temp&~INTEL_815_ATTBASE_MASK ..
 
-Generated? I don't think so. devlist.h is, same for classlist.h, but not
-pci_ids.h
 
--- 
-Vojtech Pavlik
-SuSE Labs

@@ -1,63 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135513AbRDZPVn>; Thu, 26 Apr 2001 11:21:43 -0400
+	id <S130038AbRDZPj4>; Thu, 26 Apr 2001 11:39:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135516AbRDZPVe>; Thu, 26 Apr 2001 11:21:34 -0400
-Received: from tomts6.bellnexxia.net ([209.226.175.26]:40910 "EHLO
-	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S135513AbRDZPV3>; Thu, 26 Apr 2001 11:21:29 -0400
-Message-ID: <3AE83CF0.9DBF702A@coplanar.net>
-Date: Thu, 26 Apr 2001 11:21:21 -0400
-From: Jeremy Jackson <jerj@coplanar.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: en
+	id <S131472AbRDZPjq>; Thu, 26 Apr 2001 11:39:46 -0400
+Received: from www.wen-online.de ([212.223.88.39]:22791 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S130038AbRDZPje>;
+	Thu, 26 Apr 2001 11:39:34 -0400
+Date: Thu, 26 Apr 2001 17:38:57 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
+In-Reply-To: <Pine.LNX.4.33.0104261608460.334-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.33.0104261727470.222-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-To: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Block device strategy and requests
-In-Reply-To: <20010426153815.B2101@sable.ox.ac.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Malcolm Beattie wrote:
+On Thu, 26 Apr 2001, Mike Galbraith wrote:
 
-> I'm designing a block device driver for a high performance disk
-> subsystem with unusual characteristics. To what extent is the
-> limited number of "struct request"s (128 by default) necessary for
-> back-pressure? With this I/O subsystem it would be possible for the
-> strategy function to rip the requests from the request list straight
-> away, arrange for the I/Os to be done to/from the buffer_heads (with
-> no additional state required) with no memory "leak". This would
-> effectively mean that the only limit on the number of I/Os queued
-> would be the number of buffer_heads allocated; not a fixed number of
-> "struct request"s in flight. Is this reasonable or does any memory or
-> resource balancing depend on the number of I/Os outstanding being
-> bounded?
+> On Thu, 26 Apr 2001, Rik van Riel wrote:
 >
-> Also, there is a lot of flexibility in how often interrupts are sent
-> to mark the buffer_heads up-to-date. (With the requests pulled
-> straight off the queue, the job of end_that_request_first() in doing
-> the linked list updates and bh->b_end_io() callbacks would be done by
-> the interrupt routine directly.) At one extreme, I could take an
-> interrupt for each 4K block issued and mark it up-to-date very
-> quickly making for very low-latency I/O but a very large interrupt
-> rate when I/O throughput is high. The alternative would be to arrange
-> for an interrupt every n buffer_heads (or based on some other
-> criterion) and only take an interrupt and mark buffers up-to-date on
+> > On Thu, 26 Apr 2001, Mike Galbraith wrote:
+> >
+> > > 1. pagecache is becoming swapcache and must be aged before anything is
+> > > done.  Meanwhile we're calling refill_inactive_scan() so fast that noone
+> > > has a chance to touch a page.   Age becomes a simple counter.. I think.
+> > > When you hit a big surge, swap pages are at the back of all lists, so all
+> > > of your valuable cache gets reclaimed before we write even one swap page.
+> >
+> > Does the patch I sent to linux-mm@kvack.org last night help in
+> > this ?
+> >
+> > I found that the way refill_inactive_scan() and swap_out() are being
+> > called from the main loop in refill_inactive() aren't equal and have
+> > fixed that in a way which (IMHO) also beautifies the code a bit.
+> >
+> > (and makes sure background aging doesn't get out of hand with a few
+> > simple checks)
+>
+> That patch livelocked my box with only ~1000 pages on any list.
+>
+> I can go back and test some more if you want.
 
-I believe it is common practice for this type of problem is to mix both
-approaches:
-Wait for a certain number of requests *OR* a timeout, whichever comes first.
-Then, if there's not much IO, things are still guaranteed to be updated
-reasonably
-quickly.  If io is heavy,
-then things will be updated in large chunks, becoming more efficient (fewer
-interrupts) when it is needed most.
+I put it back in, the livelock is 100% repeatable (10 repeats).  It's
+deactivating/laundering itself to death.  :) 3mb for my 386-20/0.96.9
+would have been enough to frolic (slowly) in.. this box can't live.
 
->
-> each of those). Are there any rules of thumb on which is best or
-> doesn't it matter too much?
->
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ ...
+37  3  0    988   1940   1912  32368   0   0    40    49  117   293  90  10   0
+47  0  0   1348   1940   1320  26816   0   0    80    17  121   415  86  14   0
+39  1  0   1364   1972   1076  20728   0   0   184     0  124   294  84  16   0
+39  3  2   1456   1940    232  14720   0 572    67   638  159  2225  85  15   0
+29 10  2   1456   1612    416   6908   0   0   252    72  235  2253  84  16   0
+17 18  2   1292   1420    608   4216   0  60   340   454  279  3289  29  20  51
+33  1  2   1296   1408    488   3464   0   4   317   752  295  2432  11  47  42
+locked here
 

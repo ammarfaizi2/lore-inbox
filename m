@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131246AbRDPQFm>; Mon, 16 Apr 2001 12:05:42 -0400
+	id <S131233AbRDPQMX>; Mon, 16 Apr 2001 12:12:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131233AbRDPQFd>; Mon, 16 Apr 2001 12:05:33 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:42763 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S131563AbRDPQFS>;
-	Mon, 16 Apr 2001 12:05:18 -0400
-Message-ID: <3ADB1837.A0AE3020@linux-m68k.org>
-Date: Mon, 16 Apr 2001 18:05:11 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
+	id <S131275AbRDPQMO>; Mon, 16 Apr 2001 12:12:14 -0400
+Received: from feeder.cyberbills.com ([64.41.210.81]:20241 "EHLO
+	sjc-smtp1.cyberbills.com") by vger.kernel.org with ESMTP
+	id <S131233AbRDPQMI>; Mon, 16 Apr 2001 12:12:08 -0400
+Date: Mon, 16 Apr 2001 09:12:00 -0700 (PDT)
+From: "Sergey Kubushin" <ksi@cyberbills.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3-ac7
+Message-ID: <Pine.LNX.4.31ksi3.0104160910330.20561-100000@nomad.cyberbills.com>
 MIME-Version: 1.0
-To: markh@compro.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: amiga affs support broken in 2.4.x kernels??
-In-Reply-To: <3AD59EB9.35F3A535@compro.net> <3AD9FEDD.2B636582@linux-m68k.org> <3ADAEA9B.D70DC130@compro.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+=== Cut ===
+make[3]: Entering directory `/tmp/build-kernel/usr/src/linux-2.4.3ac7/drivers/net/wan'
+ld -m elf_i386 -r -o wanpipe.o sdlamain.o sdla_ft1.o sdla_x25.o sdla_fr.o sdla_chdlc.o sdla_ppp.o wanpipe_multppp.o
+gcc -D__KERNEL__ -I/tmp/build-kernel/usr/src/linux-2.4.3ac7/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i586 -DMODULE -DMODVERSIONS -include /tmp/build-kernel/usr/src/linux-2.4.3ac7/include/linux/modversions.h   -c -o cycx_x25.o cycx_x25.c
+cycx_x25.c: In function `new_if':
+cycx_x25.c:364: structure has no member named `port'
+cycx_x25.c:365: structure has no member named `protocol'
+cycx_x25.c:371: structure has no member named `local_addr'
+cycx_x25.c:388: structure has no member named `local_addr'
+make[3]: *** [cycx_x25.o] Error 1
+make[3]: Leaving directory `/tmp/build-kernel/usr/src/linux-2.4.3ac7/drivers/net/wan'
+=== Cut ===
 
-Mark Hounschell wrote:
+---
+Sergey Kubushin				Sr. Unix Administrator
+CyberBills, Inc.			Phone:	702-567-8857
+874 American Pacific Dr,		Fax:	702-567-8808
+Henderson, NV 89014
 
-> Thanks, I can now mount affs filesystems. However when I try to write
-> to it via "cp somefile /amiga/somefile" I get a segmentation fault. If
-> I then do a "df -h" it hangs the system very much like the mount command
-> did before I installed your tar-ball. Was write support expected from
-> it.
-
-Yes, it should work.
-What sort of filesystem is it (ffs or ofs)? Did you check the dmesg
-output for an oops? Which kernel version did you use?
-
-> Are you the NEW maintainer of the affs stuff.
-
-Yes and as soon this problem is solved, I'm sending the changes to Linus
-and Alan.
-
-bye, Roman

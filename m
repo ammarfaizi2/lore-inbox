@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289007AbSBMWEK>; Wed, 13 Feb 2002 17:04:10 -0500
+	id <S289009AbSBMWLA>; Wed, 13 Feb 2002 17:11:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289012AbSBMWEC>; Wed, 13 Feb 2002 17:04:02 -0500
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:60923 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S289010AbSBMWDu>; Wed, 13 Feb 2002 17:03:50 -0500
-Date: Wed, 13 Feb 2002 14:03:46 -0800
-From: Daniel Schepler <schepler@math.berkeley.edu>
-Subject: What does AddrMarkNotFound mean?
-To: linux-kernel@vger.kernel.org
-Message-id: <873d059gzh.fsf@frobnitz.ddts.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Mail-Copies-To: schepler@math.berkeley.edu
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	id <S289010AbSBMWKw>; Wed, 13 Feb 2002 17:10:52 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:25545 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S289009AbSBMWKl>; Wed, 13 Feb 2002 17:10:41 -0500
+Message-Id: <200202132122.OAA03230@tstac.esa.lanl.gov>
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: Jens Axboe <axboe@suse.de>
+Subject: [PATCH] 2.5.4, add 2 help texts to drivers/scsi/Config.help
+Date: Wed, 13 Feb 2002 15:09:29 -0700
+X-Mailer: KMail [version 1.3.1]
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lately, whenever I try to access a certain part of my hard drive, I
-get messages like:
+The drivers/scsi/Config.in file contains 4 options which do not have any 
+help text in drivers/scsi/Config.help (or anywhere else).
 
-Feb 12 21:16:27 localhost kernel: hdc: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-Feb 12 21:16:27 localhost kernel: hdc: read_intr: error=0x01 { AddrMarkNotFound }, LBAsect=34508632, sector=32410984
-Feb 12 21:16:27 localhost kernel: ide1: reset: success
-Feb 12 21:16:27 localhost kernel: hdc: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-Feb 12 21:16:27 localhost kernel: hdc: read_intr: error=0x01 { AddrMarkNotFound }, LBAsect=34508632, sector=32410984
-Feb 12 21:16:27 localhost kernel: end_request: I/O error, dev 16:02 (hdc), sector 32410984
+The following patch provides help texts for CONFIG_SGIWD93_SCSI and
+CONFIG_SCSI_QLOGIC_FC_FIRMWARE.  The two help texts were added to
+drivers/scsi/Config.help in the order that they appear in Config.in.
 
-except that the first two messages are repeated several more times, at
-intervals of a few seconds.  Also, during the first bad access, DMA
-gets disabled.  While this is going on, the system load goes way up,
-and I don't seem to be able to do anything else.
+Two other options, CONFIG_SCSI_DECSII and CONFIG_SCSI_G_NCR5380_MEM could
+use help texts.  The second of these is a choice option.
 
-Is this typical behavior for a hard drive which has developed bad
-blocks?  And if I blacklist the affected blocks in the filesystem,
-should I also blacklist a few previous blocks in order to avoid
-problems with the readahead feature of the IDE drivers?
+Steven
 
-(I'm not subscribed; please Cc me on replies.)
--- 
-Daniel Schepler              "Please don't disillusion me.  I
-schepler@math.berkeley.edu    haven't had breakfast yet."
-                                 -- Orson Scott Card
+--- linux-2.5.4/drivers/scsi/Config.help.orig   Wed Feb 13 14:40:47 2002
++++ linux-2.5.4/drivers/scsi/Config.help        Wed Feb 13 14:46:40 2002
+@@ -172,6 +172,10 @@
+   there should be no noticeable performance impact as long as you have
+   logging turned off.
+
++CONFIG_SGIWD93_SCSI
++  If you have a Western Digital WD93 SCSI controller on
++  an SGI MIPS system, say Y.  Otherwise, say N.
++
+ CONFIG_SCSI_DECNCR
+   Say Y here to support the NCR53C94 SCSI controller chips on IOASIC
+   based TURBOchannel DECstations and TURBOchannel PMAZ-A cards.
+@@ -971,6 +975,11 @@
+   The module will be called qlogicfc.o.  If you want to compile it as
+   a module, say M here and read <file:Documentation/modules.txt>.
+
++CONFIG_SCSI_QLOGIC_FC_FIRMWARE
++  Say Y to include ISP2100 Fabric Initiator/Target Firmware, with
++  expanded LUN addressing and FcTape (FCP-2) support, in the
++  Qlogic QLA 1280 driver.
++
+ CONFIG_SCSI_QLOGIC_1280
+   Say Y if you have a QLogic ISP1x80/1x160 SCSI host adapter.

@@ -1,174 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264650AbTF0SV3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 14:21:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264651AbTF0SV3
+	id S264653AbTF0SW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 14:22:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264655AbTF0SW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 14:21:29 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:5783 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264650AbTF0SV0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 14:21:26 -0400
-Message-ID: <3EFC8E3D.6050505@austin.ibm.com>
-Date: Fri, 27 Jun 2003 13:34:37 -0500
-From: Mark Peloquin <peloquin@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>, linstab <linstab@osdl.org>,
-       ltp-results <ltp-results@lists.sourceforge.net>
-Subject: [BENCHMARK] 2.5.73-bk3, -bk4, -mjb1 regression test results
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Jun 2003 14:22:26 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:41449 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S264653AbTF0SWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 14:22:22 -0400
+Date: Fri, 27 Jun 2003 20:36:33 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21-ac4
+Message-ID: <20030627183633.GD21564@louise.pinerecords.com>
+References: <200306271811.h5RIBvX05325@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200306271811.h5RIBvX05325@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> [alan@redhat.com]
+> 
+> Hopefully this gets stuff back nice and stable. I'll start pushing stuff
+> to Marcelo soon and resync with 2.4.22pre
 
+$ ncftpget ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.4/2.4.21/patch-2.4.21-ac3.gz
+patch-2.4.21-ac3.gz:                                     2.76 MB  287.98 kB/s
+$ ncftpget ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.4/2.4.21/patch-2.4.21-ac4.gz
+patch-2.4.21-ac4.gz:                                     2.76 MB  293.25 kB/s  
+$ ls -la patch-2.4.21-ac[34].gz
+-rw-r--r--    1 kala     users     2891908 Jun 25 18:32 patch-2.4.21-ac3.gz
+-rw-r--r--    1 kala     users     2891908 Jun 27 20:07 patch-2.4.21-ac4.gz
+$ diff patch-2.4.21-ac[34].gz
+$
 
-Nightly Regression Summary
-for
-2.5.73-bk2 vs 2.5.73-bk3
-
-
-Benchmark         Pass/Fail   Improvements   Regressions       Results       Results   Summary
----------------   ---------   ------------   -----------   -----------   -----------   -------
-
-dbench.ext2           P            N              N         2.5.73-bk2    2.5.73-bk3    report
-dbench.ext3           P            Y              N         2.5.73-bk2    2.5.73-bk3    report
-dbench.jfs            P            N              N         2.5.73-bk2    2.5.73-bk3    report
-dbench.reiser         P            N              N         2.5.73-bk2    2.5.73-bk3    report
-dbench.xfs            P            N              N         2.5.73-bk2    2.5.73-bk3    report
-kernbench             P            N              N         2.5.73-bk2    2.5.73-bk3    report
-lmbench               P            Y              Y         2.5.73-bk2    2.5.73-bk3    report
-rawiobench            P            Y              Y         2.5.73-bk2    2.5.73-bk3    report
-specjbb               P            Y              N         2.5.73-bk2    2.5.73-bk3    report
-specsdet              P            N              N         2.5.73-bk2    2.5.73-bk3    report
-tbench                P            Y              Y         2.5.73-bk2    2.5.73-bk3    report
-tiobench.ext2         P            N              N         2.5.73-bk2    2.5.73-bk3    report
-tiobench.ext3         P            N              Y         2.5.73-bk2    2.5.73-bk3    report
-tiobench.jfs          P            N              N         2.5.73-bk2    2.5.73-bk3    report
-tiobench.reiser       P            N              Y         2.5.73-bk2    2.5.73-bk3    report
-tiobench.xfs          P            N              N         2.5.73-bk2    2.5.73-bk3    report
-volanomark            P            N              N         2.5.73-bk2    2.5.73-bk3    report
-
-http://ltcperf.ncsa.uiuc.edu/data/2.5.73-bk3/2.5.73-bk2-vs-2.5.73-bk3/
-
-Nightly Regression Summary
-for
-2.5.73 vs 2.5.73-bk3
-
-
-Benchmark         Pass/Fail   Improvements   Regressions       Results       Results   Summary
----------------   ---------   ------------   -----------   -----------   -----------   -------
-
-dbench.ext2           P            N              N             2.5.73    2.5.73-bk3    report
-dbench.ext3           P            N              N             2.5.73    2.5.73-bk3    report
-dbench.jfs            P            N              N             2.5.73    2.5.73-bk3    report
-dbench.reiser         P            N              N             2.5.73    2.5.73-bk3    report
-dbench.xfs            P            N              N             2.5.73    2.5.73-bk3    report
-kernbench             P            N              N             2.5.73    2.5.73-bk3    report
-lmbench               P            Y              Y             2.5.73    2.5.73-bk3    report
-rawiobench            P            Y              Y             2.5.73    2.5.73-bk3    report
-specjbb               P            Y              Y             2.5.73    2.5.73-bk3    report
-specsdet              P            Y              N             2.5.73    2.5.73-bk3    report
-tbench                P            N              Y             2.5.73    2.5.73-bk3    report
-tiobench.ext2         P            N              N             2.5.73    2.5.73-bk3    report
-tiobench.ext3         P            Y              N             2.5.73    2.5.73-bk3    report
-tiobench.jfs          P            N              N             2.5.73    2.5.73-bk3    report
-tiobench.reiser       P            N              N             2.5.73    2.5.73-bk3    report
-tiobench.xfs          P            N              N             2.5.73    2.5.73-bk3    report
-volanomark            P            N              N             2.5.73    2.5.73-bk3    report
-
-http://ltcperf.ncsa.uiuc.edu/data/2.5.73-bk3/2.5.73-vs-2.5.73-bk3/
-
-Nightly Regression Summary
-for
-2.5.73-bk3 vs 2.5.73-bk4
-
-
-Benchmark         Pass/Fail   Improvements   Regressions       Results       Results   Summary
----------------   ---------   ------------   -----------   -----------   -----------   -------
-
-dbench.ext2           P            N              N         2.5.73-bk3    2.5.73-bk4    report
-dbench.ext3           P            N              Y         2.5.73-bk3    2.5.73-bk4    report
-dbench.jfs            P            N              N         2.5.73-bk3    2.5.73-bk4    report
-dbench.reiser         P            N              N         2.5.73-bk3    2.5.73-bk4    report
-dbench.xfs            P            N              N         2.5.73-bk3    2.5.73-bk4    report
-kernbench             P            N              N         2.5.73-bk3    2.5.73-bk4    report
-lmbench               P            Y              Y         2.5.73-bk3    2.5.73-bk4    report
-rawiobench            P            Y              Y         2.5.73-bk3    2.5.73-bk4    report
-specjbb               P            N              Y         2.5.73-bk3    2.5.73-bk4    report
-specsdet              P            N              N         2.5.73-bk3    2.5.73-bk4    report
-tbench                P            Y              Y         2.5.73-bk3    2.5.73-bk4    report
-tiobench.ext2         P            N              N         2.5.73-bk3    2.5.73-bk4    report
-tiobench.ext3         P            N              Y         2.5.73-bk3    2.5.73-bk4    report
-tiobench.jfs          P            N              Y         2.5.73-bk3    2.5.73-bk4    report
-tiobench.reiser       P            N              Y         2.5.73-bk3    2.5.73-bk4    report
-tiobench.xfs          P            N              Y         2.5.73-bk3    2.5.73-bk4    report
-volanomark            P            N              N         2.5.73-bk3    2.5.73-bk4    report
-
-http://ltcperf.ncsa.uiuc.edu/data/2.5.73-bk4/2.5.73-bk3-vs-2.5.73-bk4/
-
-Nightly Regression Summary
-for
-2.5.73 vs 2.5.73-bk4
-
-
-Benchmark         Pass/Fail   Improvements   Regressions       Results       Results   Summary
----------------   ---------   ------------   -----------   -----------   -----------   -------
-
-dbench.ext2           P            N              N             2.5.73    2.5.73-bk4    report
-dbench.ext3           P            N              N             2.5.73    2.5.73-bk4    report
-dbench.jfs            P            N              N             2.5.73    2.5.73-bk4    report
-dbench.reiser         P            N              N             2.5.73    2.5.73-bk4    report
-dbench.xfs            P            N              N             2.5.73    2.5.73-bk4    report
-kernbench             P            N              N             2.5.73    2.5.73-bk4    report
-lmbench               P            Y              Y             2.5.73    2.5.73-bk4    report
-rawiobench            P            Y              Y             2.5.73    2.5.73-bk4    report
-specjbb               P            Y              Y             2.5.73    2.5.73-bk4    report
-specsdet              P            Y              N             2.5.73    2.5.73-bk4    report
-tbench                P            Y              Y             2.5.73    2.5.73-bk4    report
-tiobench.ext2         P            N              Y             2.5.73    2.5.73-bk4    report
-tiobench.ext3         P            N              Y             2.5.73    2.5.73-bk4    report
-tiobench.jfs          P            N              Y             2.5.73    2.5.73-bk4    report
-tiobench.reiser       P            N              Y             2.5.73    2.5.73-bk4    report
-tiobench.xfs          P            N              Y             2.5.73    2.5.73-bk4    report
-volanomark            P            N              N             2.5.73    2.5.73-bk4    report
-
-http://ltcperf.ncsa.uiuc.edu/data/2.5.73-bk4/2.5.73-vs-2.5.73-bk4/
-
-Nightly Regression Summary
-for
-2.5.73 vs 2.5.73-mjb1
-
-
-Benchmark         Pass/Fail   Improvements   Regressions       Results       Results   Summary
----------------   ---------   ------------   -----------   -----------   -----------   -------
-
-dbench.ext2           P            N              N             2.5.73   2.5.73-mjb1    report
-dbench.ext3           P            N              Y             2.5.73   2.5.73-mjb1    report
-dbench.jfs            P            N              N             2.5.73   2.5.73-mjb1    report
-dbench.reiser         P            Y              N             2.5.73   2.5.73-mjb1    report
-dbench.xfs            P            N              N             2.5.73   2.5.73-mjb1    report
-kernbench             P            N              N             2.5.73   2.5.73-mjb1    report
-lmbench               P            Y              Y             2.5.73   2.5.73-mjb1    report
-rawiobench            P            Y              Y             2.5.73   2.5.73-mjb1    report
-specjbb               P            N              Y             2.5.73   2.5.73-mjb1    report
-specsdet              P            Y              N             2.5.73   2.5.73-mjb1    report
-tbench                P            N              Y             2.5.73   2.5.73-mjb1    report
-tiobench.ext2         P            Y              N             2.5.73   2.5.73-mjb1    report
-tiobench.ext3         P            Y              Y             2.5.73   2.5.73-mjb1    report
-tiobench.jfs          P            N              Y             2.5.73   2.5.73-mjb1    report
-tiobench.reiser       P            N              N             2.5.73   2.5.73-mjb1    report
-tiobench.xfs          P            Y              Y             2.5.73   2.5.73-mjb1    report
-volanomark            P            N              N             2.5.73   2.5.73-mjb1    report
-
-http://ltcperf.ncsa.uiuc.edu/data/2.5.73-mjb1/2.5.73-vs-2.5.73-mjb1/
-
-Mark
-
-
-
-
-
-
+hrm0ps

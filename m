@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316857AbSF0OYq>; Thu, 27 Jun 2002 10:24:46 -0400
+	id <S316860AbSF0O2X>; Thu, 27 Jun 2002 10:28:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316860AbSF0OYp>; Thu, 27 Jun 2002 10:24:45 -0400
-Received: from terminus.zytor.com ([64.158.222.227]:2689 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP
-	id <S316857AbSF0OYo>; Thu, 27 Jun 2002 10:24:44 -0400
-Message-ID: <3D1B200B.5040202@zytor.com>
-Date: Thu, 27 Jun 2002 10:24:11 -0400
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020425
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: davidm@hpl.hp.com
-CC: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.24: auto_fs.h typo.
-References: <200206251759.34690.schwidefsky@de.ibm.com>	<afb4im$6nl$1@cesium.transmeta.com>	<je7kkm8bma.fsf@sykes.suse.de>	<3D19CE5E.1090704@zytor.com> <15642.36216.782111.506354@napali.hpl.hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S316869AbSF0O2W>; Thu, 27 Jun 2002 10:28:22 -0400
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:40336 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S316860AbSF0O2V>; Thu, 27 Jun 2002 10:28:21 -0400
+Subject: Re: x86 Page Sizes
+From: Steven Cole <elenstev@mesatop.com>
+To: Peter Svensson <petersv@psv.nu>
+Cc: Robert Love <rml@tech9.net>, Dan Sturtevant <dsturtev@plogic.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0206270832400.1602-100000@cheetah.psv.nu>
+References: <Pine.LNX.4.44.0206270832400.1602-100000@cheetah.psv.nu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 27 Jun 2002 08:26:07 -0600
+Message-Id: <1025187969.27133.117.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger wrote:
->>>>>>On Wed, 26 Jun 2002 10:23:26 -0400, "H. Peter Anvin" <hpa@zytor.com> said:
->>>>>
+On Thu, 2002-06-27 at 00:35, Peter Svensson wrote:
+> On 26 Jun 2002, Robert Love wrote:
 > 
->   hpa> Andreas Schwab wrote:
->   >> |> |> Please change this to:
->   >> |> 
->   >> |> #ifndef __alpha__
->   >> 
->   >> What about __ia64__?
+> > Kernel has 4K pages in user and kernel space.  It is the same address
+> > space and segment, just uses MMU protection.
+> > 
+> > x86 does 4K pages.
 > 
->   hpa> Oh right, that one too...
+> The x86 cpus can use 4K or 4M pages in the hardware. The 4M pages are 
+> restricted to the kernel in Linux due to various problems. This has been 
+> discussed on this list a while ago. The thread was called "Have the 2.4 
+> kernel memory management problems on large machines been fixed?" the last 
+> time around.
 > 
-> Isn't this the one which we agreed not to change because it would break
-> existing ia64 automount binaries and because we do not expect x86 automount
-> to run on ia64 machines?
+> 4M pages are useful to minimize tlb misses which can be costly for some 
+> algorithms.
 > 
+> Peter
 
-Right, hence:
+In addition to that thread, you might want to read the paper "Multiple
+Page Size Support in the Linux Kernel", pages 573-593 in the Proceedings
+of the Ottawa Linux Symposium which you can download from here:
 
-#if !defined(__alpha__) && !defined(__ia64__)
+http://www.linuxsymposium.org/2002/ 
 
-Alpha and IA64 being the 64-bit architectures which will continue to use 
-the older interface.
+If you're on a slow connection, be forewarned that it is a 631 page pdf,
+but thankfully it's compressed.
 
-	-hpa
-
-
+Steven
 
 

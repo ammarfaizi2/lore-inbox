@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262416AbULCWWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbULCWcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262416AbULCWWF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 17:22:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262432AbULCWWE
+	id S262432AbULCWcT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 17:32:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbULCWcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 17:22:04 -0500
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:14480 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S262416AbULCWWB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 17:22:01 -0500
-Date: Fri, 3 Dec 2004 23:21:45 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       LKML <linux-kernel@vger.kernel.org>, nickpiggin@yahoo.com.au
-Subject: Re: [PATCH] oom killer (Core)
-Message-ID: <20041203222145.GQ32635@dualathlon.random>
-References: <1101938767.13353.62.camel@tglx.tec.linutronix.de> <20041202033619.GA32635@dualathlon.random> <1101985759.13353.102.camel@tglx.tec.linutronix.de> <1101995280.13353.124.camel@tglx.tec.linutronix.de> <20041202164725.GB32635@dualathlon.random> <20041202085518.58e0e8eb.akpm@osdl.org> <20041202180823.GD32635@dualathlon.random> <1102013716.13353.226.camel@tglx.tec.linutronix.de> <20041202233459.GF32635@dualathlon.random> <1102108206.13353.263.camel@tglx.tec.linutronix.de>
+	Fri, 3 Dec 2004 17:32:19 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:53425 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S262432AbULCWcO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 17:32:14 -0500
+Date: Fri, 3 Dec 2004 23:31:58 +0100
+From: franz_pletz@t-online.de (Franz Pletz)
+To: Phil Oester <kernel@linuxace.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] loopback device can't act as its backing store
+Message-ID: <20041203233158.41595f46@sgx.home>
+In-Reply-To: <20041203214238.GA23245@linuxace.com>
+References: <Pine.LNX.4.61.0412032028220.10184@sgx.home>
+	<20041203214238.GA23245@linuxace.com>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1102108206.13353.263.camel@tglx.tec.linutronix.de>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-ID: S81GhUZBZeOAJQoRnjmfCRhHvlbQgJ+VzxPOInVZEjY-qFjNjKSBrx
+X-TOI-MSGID: fff89704-803e-46a1-bcc7-eb69557f8e3e
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 03, 2004 at 10:10:06PM +0100, Thomas Gleixner wrote:
-> On Fri, 2004-12-03 at 00:35 +0100, Andrea Arcangeli wrote:
-> > Fork eventually failing is very reasonable if you're executing a fork
-> > loop.
-> 
-> Yes, it's reasonable, but the effect that any consequent command is
-> aborted then is not so reasonable.
+On Fri, 3 Dec 2004 13:42:38 -0800, Phil Oester <kernel@linuxace.com> wrote:
+> Your mailer mangled the patch.
 
-Did you use the 4k stacks on 2.6 btw?
+Thanks for your feedback.
+I apologize for any inconvenience at applying or evaluating the patch.
 
-> Use a forking server, connect a lot of clients and it is real life. :)
+I think I got it now. Let's give it another try.
 
-;)
 
-> Yes, it was invoked
+Signed-off-by: Franz Pletz <franz_pletz@t-online.de>
 
-Ok good.
+ linux/drivers/block/loop.c |    7 +++++++
+  1 files changed, 7 insertions(+)
+
+--- linux-2.6.10-rc2/drivers/block/loop.c	2004-11-25 19:56:32.000000000 +0100
++++ linux/drivers/block/loop.c	2004-12-02 23:39:43.516913144 +0100
+@@ -596,6 +596,9 @@
+ 	old_file = lo->lo_backing_file;
+ 
+ 	error = -EINVAL;
++	/* new backing store mustn't be the loop device it's being mapped to */
++	if(inode->i_rdev == bdev->bd_dev)
++		goto out_putf;
+ 
+ 	if (!S_ISREG(inode->i_mode) && !S_ISBLK(inode->i_mode))
+ 		goto out_putf;
+@@ -652,6 +655,10 @@
+ 		lo_flags |= LO_FLAGS_READ_ONLY;
+ 
+ 	error = -EINVAL;
++	/* new backing store mustn't be the loop device it's being mapped to */
++	if(inode->i_rdev == bdev->bd_dev)
++		goto out_putf;
++
+ 	if (S_ISREG(inode->i_mode) || S_ISBLK(inode->i_mode)) {
+ 		struct address_space_operations *aops = mapping->a_ops;
+ 		/*

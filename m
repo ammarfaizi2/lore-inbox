@@ -1,35 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262743AbVCWDDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262128AbVCWDcs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262743AbVCWDDd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 22:03:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262742AbVCWDDc
+	id S262128AbVCWDcs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 22:32:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262615AbVCWDcs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 22:03:32 -0500
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:59622 "EHLO
-	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262743AbVCWDDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 22:03:21 -0500
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: Starting input devices
-To: Carlos Silva <r3pek@r3pek.homelinux.org>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Wed, 23 Mar 2005 04:08:06 +0100
-References: <fa.g31iata.1i0qpgc@ifi.uio.no>
-User-Agent: KNode/0.7.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1DDwE2-0002IB-LB@be1.7eggert.dyndns.org>
+	Tue, 22 Mar 2005 22:32:48 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:2507
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262128AbVCWDcq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 22:32:46 -0500
+Date: Tue, 22 Mar 2005 19:24:51 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: jt@hpl.hp.com
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH IRDA 2.6.12-rc1] DEBUG macro fixes
+Message-Id: <20050322192451.426903ba.davem@davemloft.net>
+In-Reply-To: <20050318235902.GA9146@bougret.hpl.hp.com>
+References: <20050318235902.GA9146@bougret.hpl.hp.com>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carlos Silva <r3pek@r3pek.homelinux.org> wrote:
+On Fri, 18 Mar 2005 15:59:02 -0800
+Jean Tourrilhes <jt@hpl.hp.com> wrote:
 
-> basically, what does he do to print this messages:
-> 
-> input: AT Translated Set 2 keyboard on isa0060/serio0
-> input: SynPS/2 Synaptics TouchPad on isa0060/serio1
+> 	A pretty big and tedious patch that mostly rename IrDA debug
+> macros, plus a few other tiny fixes. Has been on my web pages for a
+> long while, tested and rediff'd on 2.6.12-rc1. I would be grateful if
+> you could push that into the kernel ;-)
 
-grepping for "Translated" would have revealed drivers/input/keyboard/atkbd.c
-
-(Spoiler: It calls printk :)
+Applied, thanks Jean.

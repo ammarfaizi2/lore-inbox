@@ -1,63 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261695AbTISTMf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 15:12:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbTISTMf
+	id S261681AbTISTHo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 15:07:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbTISTHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 15:12:35 -0400
-Received: from mail.kroah.org ([65.200.24.183]:55746 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261695AbTISTMd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 15:12:33 -0400
-Date: Fri, 19 Sep 2003 12:12:52 -0700
-From: Greg KH <greg@kroah.com>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Thomas Molina <tmolina@cablespeed.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test problems loading network drivers
-Message-ID: <20030919191252.GK6624@kroah.com>
-References: <Pine.LNX.4.44.0309172010410.1856-600000@localhost.localdomain> <20030919091204.3a5e1c0c.shemminger@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 19 Sep 2003 15:07:44 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:3968 "EHLO
+	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S261681AbTISTHm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 15:07:42 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Rusty Russell <rusty@rustcorp.com.au>, "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: Make modules_install doesn't create /lib/modules/$version
+Date: Fri, 19 Sep 2003 15:04:20 -0400
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <20030919024455.834992C0F1@lists.samba.org>
+In-Reply-To: <20030919024455.834992C0F1@lists.samba.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030919091204.3a5e1c0c.shemminger@osdl.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200309191504.20535.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 19, 2003 at 09:12:04AM -0700, Stephen Hemminger wrote:
-> 
-> > 
-> > Sep 15 22:02:58 localhost cardmgr[1482]: socket 0: Intersil PRISM2 11 Mbps Wireless Adapter
-> > Sep 15 22:02:58 localhost kernel: cs: memory probe 0xa0000000-0xa0ffffff: clean.
-> > Sep 15 22:02:58 localhost cardmgr[1482]: executing: 'modprobe hermes'
-> > Sep 15 22:02:58 localhost cardmgr[1482]: executing: 'modprobe orinoco'
-> > Sep 15 22:02:58 localhost cardmgr[1482]: executing: 'modprobe orinoco_cs'
-> > Sep 15 22:02:58 localhost cardmgr[1482]: executing: './network start eth0'
-> > Sep 15 22:02:58 localhost /etc/hotplug/net.agent: NET add event not supported
-> > Sep 15 22:03:45 localhost login(pam_unix)[1783]: session closed for user root
-> > Sep 15 22:03:50 localhost login(pam_unix)[1894]: session opened for user tmolina by (uid=0)
-> 
-> network hotplug changed slightly in 2.6 so the kernel passes: 'add' instead of 'register'
-> to the scripts.  This is because network devices are kobjects and go through the generic
-> hotplug path.
-> 
-> The fix is:
-> --- /etc/hotplug/net.agent.old	2003-09-19 09:10:06.390819425 -0700
-> +++ /etc/hotplug/net.agent	2003-09-19 09:10:34.545620648 -0700
-> @@ -26,7 +26,7 @@
->  fi
->  
->  case $ACTION in
-> -register)
-> +add|register)
->      # Don't do anything if the network is stopped
->      if [ ! -f /var/lock/subsys/network ]; then
->  	exit 0
+On Thursday 18 September 2003 22:25, Rusty Russell wrote:
+> In message <20030918091511.276309a6.rddunlap@osdl.org> you write:
+> > On Thu, 18 Sep 2003 03:21:40 -0400 Rob Landley <rob@landley.net> wrote:
+> > | I've installed -test3, -test4, and now -test5, and each time make
+> > | modules_install died with the following error:
+> > |
+> > | Kernel: arch/i386/boot/bzImage is ready
+> > | sh arch/i386/boot/install.sh 2.6.0-test5 arch/i386/boot/bzImage
+> > | System.map "" /lib/modules/2.6.0-test5 is not a directory.
+>
+> Looks like arch/i386/boot/install.sh is calling ~/bin/installkernel or
+> /sbin/installkernel, which is not creating the directory.
+>
+> Should depmod create the directory?  It can, of course, but AFAICT the
+> old one didn't.
+>
+> Maybe a RedHat issue?
+>
+> Rusty.
 
-This fix is in the last released version of the hotplug package if
-people just want to use that instead of patching their scripts (it also
-has some other 2.6 fixes in it.)
+Okay, I traced through all this.  The directory is never explicitly created; 
+Red Hat's /sbin/installkernel calls /sbin/new-kernel-pkg, and deep in the 
+bowels of that there's a call to depmod:
 
-thanks,
+doDepmod() {
+    [ -n "$verbose" ] && echo "running depmod for $version"
+    depmod -ae -F /boot/System.map-$version $version
+}
 
-greg k-h
+And I had the old depmod because rusty's modutils installed themselves in 
+/usr/local/bin, and I fixed things up by hand (missing depmod).  I just did a 
+reinstall of rusty's modutils with --prefix=/ and we'll see if that fixes 
+things on the next kernel upgrade.
+
+It's still kind of a nasty side effect if you ask me.  I thought depmod was 
+run AFTER the modules were installed, not to create the directory for them to 
+install into.  (My chances of figuring this one out on my own in a finite 
+amount of time were pretty low.)
+
+Rob
+

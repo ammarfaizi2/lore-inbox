@@ -1,65 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbTKESlu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 13:41:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbTKESlu
+	id S263098AbTKESiW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 13:38:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263102AbTKESiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 13:41:50 -0500
-Received: from fw.osdl.org ([65.172.181.6]:14764 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263107AbTKESjz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 13:39:55 -0500
-Date: Wed, 5 Nov 2003 10:39:23 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Matt <dirtbird@ntlworld.com>, <herbert@gondor.apana.org.au>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [MOUSE] Alias for /dev/psaux
-In-Reply-To: <20031105180035.GB27922@ucw.cz>
-Message-ID: <Pine.LNX.4.44.0311051031450.11208-100000@home.osdl.org>
+	Wed, 5 Nov 2003 13:38:22 -0500
+Received: from maximus.kcore.de ([213.133.102.235]:18474 "EHLO
+	maximus.kcore.de") by vger.kernel.org with ESMTP id S263098AbTKESiT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 13:38:19 -0500
+From: Oliver Feiler <kiza@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: kernel nfsd + user id mapping
+Date: Wed, 5 Nov 2003 19:37:38 +0100
+User-Agent: KMail/1.5
+X-PGP-Key-Fingerprint: E9DD 32F1 FA8A 0945 6A74  07DE 3A98 9F65 561D 4FD2
+X-PGP-Key: http://kiza.kcore.de/pgpkey
+X-Species: Snow Leopard
+X-Operating-System: Linux
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_5NUq//fOOQ1VdHG";
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200311051937.45388.kiza@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 5 Nov 2003, Vojtech Pavlik wrote:
+--Boundary-02=_5NUq//fOOQ1VdHG
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: signed data
+Content-Disposition: inline
 
-> On Wed, Nov 05, 2003 at 09:36:28AM -0800, Linus Torvalds wrote:> 
-> 
-> > The alternative approach is to _not_ try to autodetect and leave it in a
-> > sane default state - or at least leaving the detection to a minimum, but
-> > having sane ways of letting the user set the thing.
-> 
-> Would sysfs be a sane enough way?
+Hi,
 
-I suspect sysfs would be a _good_ way to do it. I'm sure it could be 
-screwed up too, but I don't think it would necessarily be wrong to be able 
-to do
+I'm looking for a method to map user ids on the nfs server. I need to setup=
+=20
+nfsd to work in a mixed environment Linux server + Linux and Mac OS X=20
+clients. NFSv3 will be used.
 
-	echo imps2 > /sys/class/input/mouse/1/protocol
-	echo 200 > /sys/class/input/mouse/1/rate
+Does the kernel nfsd support user id mapping? If yes, what do I need to get=
+ it=20
+to work? The only way to map user ids I found is to use the user space nfsd=
+,=20
+but it hasn't been updates in ages and doesn't support v3 afaik.
 
-or something similar.
+Any pointers would be greatly appreciated.
 
-> I still would prefer to have the autodetect be enabled, because it works
-> for 99% of the cases and allow to set the mouse protocol manually
-> (either boot time or via sysfs) for the troublesome cases.
+Bye,
+Oliver
 
-I'm a big believer in having the "default behaviour" be as user-friendly 
-as possible. I do not believe in the mantra "we should do as little as 
-possible, and let the user set everything up".
+=2D-=20
+Oliver Feiler  <kiza@(kcore.de|lionking.org|gmx[pro].net)>
 
-> If psmouse.o is a module, the installer of course can ask the user. 
+--Boundary-02=_5NUq//fOOQ1VdHG
+Content-Type: application/pgp-signature
+Content-Description: signature
 
-I think that's a failure. For one thing, you need the module to even _let_
-the user select the mouse type: you can't seriously expect installers for
-normal users to not run graphically and with a mouse already?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-In general, module parameters are _always_ a sign of failure. I don't know
-of a single one that can be considered a "good thing". They are sometimes
-required, but they should be required only for hardware that is just very
-fundamentally broken.
+iD8DBQA/qUN5OpifZVYdT9IRAmYPAJ0XI/eThbZwUlj5sXyrEs60kkIVJACgtxJO
+rSj92YYnJqIR2Uy5NdvFIlI=
+=SH4t
+-----END PGP SIGNATURE-----
 
-			Linus
+--Boundary-02=_5NUq//fOOQ1VdHG--
 

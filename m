@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292327AbSBYWLp>; Mon, 25 Feb 2002 17:11:45 -0500
+	id <S292328AbSBYWPQ>; Mon, 25 Feb 2002 17:15:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292323AbSBYWLf>; Mon, 25 Feb 2002 17:11:35 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:14241 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S292351AbSBYWL0>;
-	Mon, 25 Feb 2002 17:11:26 -0500
-Date: Mon, 25 Feb 2002 14:08:51 -0800 (PST)
-Message-Id: <20020225.140851.31656207.davem@redhat.com>
-To: marcelo@conectiva.com.br
-Cc: DevilKin-LKML@blindguardian.org, linux-kernel@vger.kernel.org
+	id <S292333AbSBYWPF>; Mon, 25 Feb 2002 17:15:05 -0500
+Received: from mx1.afara.com ([63.113.218.20]:9189 "EHLO afara-gw.afara.com")
+	by vger.kernel.org with ESMTP id <S292328AbSBYWO7>;
+	Mon, 25 Feb 2002 17:14:59 -0500
 Subject: Re: Linux 2.4.18
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.21.0202251631170.31542-100000@freak.distro.conectiva>
+From: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020225.140851.31656207.davem@redhat.com>
 In-Reply-To: <20020225200618.0FAE82069E@eos.telenet-ops.be>
-	<Pine.LNX.4.21.0202251631170.31542-100000@freak.distro.conectiva>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	<Pine.LNX.4.21.0202251631170.31542-100000@freak.distro.conectiva> 
+	<20020225.140851.31656207.davem@redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2.99 Preview Release
+Date: 25 Feb 2002 14:14:30 -0800
+Message-Id: <1014675271.12310.36.camel@tduffy-lnx.afara.com>
+Mime-Version: 1.0
+X-OriginalArrivalTime: 25 Feb 2002 22:14:52.0962 (UTC) FILETIME=[D93CE020:01C1BE49]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-02-25 at 14:08, David S. Miller wrote:
+> 
+> We can avoid this kind of mess in the future if the "-rc*" releases
+> really are "release candidates" instead of "just another diff".
+> Ie. they are done as patches _and_ tarballs, then the final can just
+> be done with a "cp" command.
 
-We can avoid this kind of mess in the future if the "-rc*" releases
-really are "release candidates" instead of "just another diff".
-Ie. they are done as patches _and_ tarballs, then the final can just
-be done with a "cp" command.
+the problem with that is the top level Makefile still needs to be
+changed.  the last thing I want is to be running a 2.4.18-rc3 kernel and
+have uname tell me it is 2.4.18.
 
-That will make errors like this one more likely to be
-caught.
+-tduffy
+

@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265008AbUD2WkR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265016AbUD2WlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265008AbUD2WkR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 18:40:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265013AbUD2WkR
+	id S265016AbUD2WlH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 18:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265014AbUD2WlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 18:40:17 -0400
-Received: from fed1rmmtao11.cox.net ([68.230.241.28]:31677 "EHLO
-	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
-	id S265008AbUD2WkJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 18:40:09 -0400
-Date: Thu, 29 Apr 2004 15:40:07 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Ian Campbell <icampbell@arcom.com>, stefan.eletzhofer@eletztrick.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] 2.6 I2C epson 8564 RTC chip
-Message-ID: <20040429224007.GA15265@smtp.west.cox.net>
-References: <20040429120250.GD10867@gonzo.local> <1083242482.26762.30.camel@icampbell-debian> <20040429135408.G16407@flint.arm.linux.org.uk>
+	Thu, 29 Apr 2004 18:41:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5264 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265016AbUD2WlD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 18:41:03 -0400
+Date: Thu, 29 Apr 2004 23:40:57 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Marc Boucher <marc@linuxant.com>
+Cc: koke@sindominio.net, Paul Wagland <paul@wagland.net>,
+       linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
+       Rik van Riel <riel@redhat.com>,
+       David Gibson <david@gibson.dropbear.id.au>,
+       Timothy Miller <miller@techsource.com>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+Message-ID: <20040429224057.GQ17014@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.44.0404291114150.9152-100000@chimarrao.boston.redhat.com> <4FE43C97-9A20-11D8-B804-000A95CD704C@wagland.net> <4091757B.3090209@techsource.com> <200404292347.17431.koke_lkml@amedias.org> <0CAE0144-9A2C-11D8-B83D-000A95BCAC26@linuxant.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040429135408.G16407@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <0CAE0144-9A2C-11D8-B83D-000A95BCAC26@linuxant.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 29, 2004 at 01:54:08PM +0100, Russell King wrote:
-> On Thu, Apr 29, 2004 at 01:41:23PM +0100, Ian Campbell wrote:
-> > Hi Stefan,
-> > 
-> > > This driver only does the low-level I2C stuff, the rtc misc device
-> > > driver is a separate driver module which I will send a patch for soon.
-> > 
-> > I have a patch (attached, it could do with cleaning up) for the Dallas
-> > DS1307 I2C RTC which I ported from the 2.4 rmk patch, originally written
-> > by Intrinsyc. Currently it includes both the I2C and the RTC bits in the
-> > same driver.
+On Thu, Apr 29, 2004 at 06:24:58PM -0400, Marc Boucher wrote:
 > 
-> Have a look at drivers/acorn/char/{i2c,pcf8583}.[ch]
+> The inherent instability of binary modules is a religious myth. Any 
+> module can be stable or unstable, depending on how it's written, tested 
+> and the environment (hardware/evolving APIs it depends on). For 
+> example, Apple's current Mac OS X is extremely stable imho, despite the 
+> fact that their hardware drivers are generally binary-only.
 > 
-> > Do you think it is realistic/possible to have the same generic RTC
-> > driver speak to multiple I2C devices, from what I can see in your driver
-> > the two chips seem pretty similar and the differences could probably be
-> > abstracted away. Perhaps that is your intention from the start?
-> > 
-> > I guess I will wait until you post the RTC misc driver and try and make
-> > the DS1307 one work with that before I submit it.
-> 
-> If you look at the last 2.6-rmk patch, you'll notice that it contains
-> an abstracted RTC driver - I got peed off with writing the same code
-> to support the user interfaces to the variety of RTCs over and over
-> again.  (Ones which are simple 32-bit second counters with alarms
-> through to ones which return D/M/Y H:M:S.C format.)
+> The same goes for trustworthiness. It's a matter of point of view / 
+> preference whether you trust open-source projects and their security 
+> (which can be far from perfect, as evidenced by the recent break-ins in 
+> various servers hosting source repositories) more than stuff produced 
+> by a corporation. Every model has disadvantages and advantages. 
 
-A generic one for i2c rtcs or another generic rtc driver?  There's
-already drivers/char/genrtc.c...
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+You are missing the point.  Badly.  All software sucks, be it open-source
+of proprietary.  The only question is what can be done with particular
+instance of suckage, and that's where having the source matters.

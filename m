@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbUK0Xjz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbUK0XsZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbUK0Xjz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 18:39:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbUK0Xjz
+	id S261366AbUK0XsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 18:48:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbUK0XsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 18:39:55 -0500
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:29192 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S261365AbUK0Xjy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 18:39:54 -0500
-Date: Sat, 27 Nov 2004 23:39:52 +0000
-From: John Levon <levon@movementarian.org>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Document kfree and vfree NULL usage
-Message-ID: <20041127233952.GA5891@compsoc.man.ac.uk>
-References: <1101565560.9988.20.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 27 Nov 2004 18:48:25 -0500
+Received: from beseeingyou.bytemark.co.uk ([212.13.210.26]:31403 "HELO
+	beseeingyou.bytemark.co.uk") by vger.kernel.org with SMTP
+	id S261366AbUK0XsW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 18:48:22 -0500
+From: Fred Emmott <mail@fredemmott.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: [patch] make root_plug more useful via whitelist
+Date: Sat, 27 Nov 2004 23:47:15 +0000
+User-Agent: KMail/1.7.50
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1101565560.9988.20.camel@localhost>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Graham Coxon - Happiness in Magazines
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CYCAS-000GZv-Sj*Pv7aHRx8tvE*
+Message-Id: <200411272347.15728.mail@fredemmott.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 27, 2004 at 04:26:00PM +0200, Pekka Enberg wrote:
+patch: http://fredemmott.co.uk/files/rp.patch
 
-> This patch adds comments for kfree() and vfree() stating that both accept
-> NULL pointers.  I audited vfree() callers and there seems to be lots of
-> confusion over this in the kernel.
+This adds a whitelist of programs such as /bin/login and /sbin/agetty which 
+may be ran as root without the USB device prescent. It also includes my 
+earlier patch to check the USB device's serial number as well as 
+vendor/product.
 
-Erm, are you sure about this? Somebody had to patch OProfile because
-vfree() didn't like NULL value being passed in. When did this change?
+This is not meant for inclusion; I'd appreciate comments on anything I've done 
+wrong, and suggestions on how to make it distribution neutral (at the moment 
+it probably only works correctly on slackware) - I'm thinking of adding a 
+security/root_plug_relax/ directory containing files such as "slackware.h" 
+"redhat.h" etc.
 
-john
+Thanks for your time,
+
+-- 
+Fred Emmott
+(http://www.fredemmott.co.uk)

@@ -1,54 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314083AbSF2Smb>; Sat, 29 Jun 2002 14:42:31 -0400
+	id <S314138AbSF2Tfp>; Sat, 29 Jun 2002 15:35:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314082AbSF2Sma>; Sat, 29 Jun 2002 14:42:30 -0400
-Received: from sproxy.gmx.de ([213.165.64.20]:19332 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S314083AbSF2Sm3>;
-	Sat, 29 Jun 2002 14:42:29 -0400
-Message-ID: <3D1DF223.C56731EF@gmx.net>
-Date: Sat, 29 Jun 2002 19:45:07 +0200
-From: Gunther Mayer <gunther.mayer@gmx.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc1 i686)
-X-Accept-Language: en
+	id <S314096AbSF2Tfo>; Sat, 29 Jun 2002 15:35:44 -0400
+Received: from macker.loria.fr ([152.81.1.70]:39074 "EHLO macker.loria.fr")
+	by vger.kernel.org with ESMTP id <S314085AbSF2Tfn>;
+	Sat, 29 Jun 2002 15:35:43 -0400
+X-Amavix: Anti-spam check done by SpamAssassin
+X-Amavix: Anti-virus check done by McAfee
+X-Amavix: Scanned by Amavix
+Date: Sat, 29 Jun 2002 00:33:33 +0200 (CEST)
+From: Samuel Thibault <Samuel.Thibault@ens-lyon.fr>
+X-X-Sender: samy@localhost.localdomain
+Reply-To: Samuel Thibault <samuel.thibault@fnac.net>
+To: Alan.Cox@linux.org, <linux-net@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: recv(...,MSG_TRUNC)
+In-Reply-To: <Pine.LNX.4.44.0206102330510.11239-200000@youpi>
+Message-ID: <Pine.LNX.4.44.0206290031260.298-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Nick Evgeniev <nick@octet.spb.ru>, linux-kernel@vger.kernel.org
-Subject: Re: linux 2.4.19-rc1 i845e workaround udma fix
-References: <E17O821-0007we-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+(Previous mail seemed to be garbaged by mime attachment)
 
-> Complain to your BIOS vendor
->
-> A workaround for this BIOS flaw will be in the -ac tree in a week or so
+Hello,
 
-Or try this patch today:
+man recv says, about flags :
 
---- linux-2.4.19-rc1/arch/i386/kernel/pci-i386.c        Sat Jun 29 20:39:05
-2002
-+++ linux/arch/i386/kernel/pci-i386.c   Sat Jun 29 20:37:25 2002
-@@ -314,8 +314,8 @@
-        for(idx=0; idx<6; idx++) {
-                r = &dev->resource[idx];
-                if (!r->start && r->end) {
--                       printk(KERN_ERR "PCI: Device %s not available because
-of resource collisions\n", dev->slot_name);
--                       return -EINVAL;
-+                       printk(KERN_ERR "PCI: Device %s not available because
-of resource collisions on idx=%d %x %x\n",
-dev->slot_name,idx,r->start,r->end);
-+                       printk("Temporary Workaround for 845E/845G:
-ignoring.\n");
-                }
-                if (r->flags & IORESOURCE_IO)
-                        cmd |= PCI_COMMAND_IO;
+       MSG_TRUNC
+              Return  the real length of the packet, even when it
+              was longer than the passed buffer. Only  valid  for
+              packet sockets.
 
-This increases hdparm -t from 3MB/sec to 41MB/sec.
--
-Gunther
+But it is neither implemented in ipv4/udp.c, nor in ipv6/udp.c, although
+it is in tcp.c, for instance !
+
+By searching with google, I could read old manpages where it didn't exist,
+but I find it very useful, especially in conjunction with MSG_PEEK, for
+trying to read a packet with a little buffer, and then really get it with
+an appropriate buffer.
+
+So here's a patch which cures 2.4.18, and also works on 2.5 kernels.
+
+Best regards,
+
+Samuel Thibault
+
+diff -urN linux-2.4.18/net/ipv4/udp.c linux-2.4.18-cor/net/ipv4/udp.c
+--- linux-2.4.18/net/ipv4/udp.c	Mon Jun 10 23:34:59 2002
++++ linux-2.4.18-cor/net/ipv4/udp.c	Mon Jun 10 23:35:31 2002
+@@ -680,7 +680,7 @@
+   	}
+ 	if (sk->protinfo.af_inet.cmsg_flags)
+ 		ip_cmsg_recv(msg, skb);
+-	err = copied;
++	err = (flags&MSG_TRUNC) ? skb->len - sizeof(struct udphdr) : copied;
+
+ out_free:
+   	skb_free_datagram(sk, skb);
+diff -urN linux-2.4.18/net/ipv6/udp.c linux-2.4.18-cor/net/ipv6/udp.c
+--- linux-2.4.18/net/ipv6/udp.c	Mon Jun 10 23:35:07 2002
++++ linux-2.4.18-cor/net/ipv6/udp.c	Mon Jun 10 23:35:36 2002
+@@ -432,7 +432,7 @@
+ 			}
+ 		}
+   	}
+-	err = copied;
++	err = (flags&MSG_TRUNC) ? skb->len - sizeof(struct udphdr) : copied;
+
+ out_free:
+ 	skb_free_datagram(sk, skb);
 

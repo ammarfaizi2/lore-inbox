@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268823AbUHLV1d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268796AbUHLVKC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268823AbUHLV1d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 17:27:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268806AbUHLVY2
+	id S268796AbUHLVKC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 17:10:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268793AbUHLVJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 17:24:28 -0400
-Received: from host81-7-2-179.adsl.v21.co.uk ([81.7.2.179]:1666 "EHLO
-	hilly.house") by vger.kernel.org with ESMTP id S268798AbUHLVWF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 17:22:05 -0400
-Message-ID: <411BDF73.2090600@vu.a.la>
-Date: Thu, 12 Aug 2004 22:21:55 +0100
-From: Charlie Brej <brejc8@vu.a.la>
-User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Reproducable user mode system hang
-References: <411BC339.30504@vu.a.la> <20040812190444.GC23182@logos.cnet>
-In-Reply-To: <20040812190444.GC23182@logos.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Aug 2004 17:09:36 -0400
+Received: from havoc.gtf.org ([216.162.42.101]:5046 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S268796AbUHLVGB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 17:06:01 -0400
+Date: Thu, 12 Aug 2004 17:03:45 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Clem Taylor <clemtaylor@comcast.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Any news on a higher performance sata_sil SIL_QUIRK_MOD15WRITE workaround?
+Message-ID: <20040812210345.GA9558@havoc.gtf.org>
+References: <411AFD2C.5060701@comcast.net> <411B118B.4040802@pobox.com> <1092312030.21994.25.camel@localhost.localdomain> <411B89EA.3040400@pobox.com> <1092340739.22362.16.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092340739.22362.16.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> Can you get any kind of trace (ctrl+sysrq+p or NMI oopser) ? 
+On Thu, Aug 12, 2004 at 08:59:00PM +0100, Alan Cox wrote:
+> On Iau, 2004-08-12 at 16:16, Jeff Garzik wrote:
+> > > It fixes it completely on the drivers/ide driver.
+> > 
+> > SATA bus traces say otherwise.
+> 
+> Do you issue 15 or less or just combinations that are ok. With the 
+> siimage driver I just use the 15 limit and after hammering it hard
+> couldn't get it to fall over, while trying to be clever it did fall
+> over.
 
-I will be able to tell you tomorrow when I get back to work
+hmmm, perhaps I misunderstood your email?
 
- > And also make sure to rerun the tests with newer v2.6's.
+'15 or less' limit works, but 'sectors % 15 == 1' still produces odd
+Data FIS sizes that confuse Seagate drives.
 
-Well you are right. It seems to be either fixed in the newer kernel or not 
-effecting the newer kernel. These two both worked fine with the redhat compiled 
-2.6.7:
+I thought you were saying that 'sectors % 15 == 1' was OK.
 
-Linux solem.cs.man.ac.uk 2.6.7-1.517 #1 Wed Aug 11 16:28:33 EDT 2004 i686 athlon 
-i386 GNU/Linux
-Linux hilly.house 2.6.7-1.517 #1 Wed Aug 11 16:28:33 EDT 2004 i686 i686 i386 
-GNU/Linux
+	Jeff
 
-Did you have an idea of what was causing this?
--- 
-         Charlie Brej
-APT Group, Dept. Computer Science, University of Manchester
-Web: http://www.cs.man.ac.uk/~brejc8/ Tel: +44 161 275 6844
-Mail: IT302, Manchester University, Manchester, M13 9PL, UK
+
+

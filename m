@@ -1,97 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268130AbTBWKCH>; Sun, 23 Feb 2003 05:02:07 -0500
+	id <S268120AbTBWKLq>; Sun, 23 Feb 2003 05:11:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268199AbTBWKBA>; Sun, 23 Feb 2003 05:01:00 -0500
-Received: from kweetal.tue.nl ([131.155.2.7]:31712 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S268189AbTBWKAZ>;
-	Sun, 23 Feb 2003 05:00:25 -0500
-Date: Sun, 23 Feb 2003 11:10:33 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "Randy.Dunlap" <randy.dunlap@verizon.net>
+	id <S268127AbTBWKLq>; Sun, 23 Feb 2003 05:11:46 -0500
+Received: from packet.digeo.com ([12.110.80.53]:28380 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S268120AbTBWKLm>;
+	Sun, 23 Feb 2003 05:11:42 -0500
+Date: Sun, 23 Feb 2003 02:21:48 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: James Harper <james.harper@bigpond.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] seq_file_howto
-Message-ID: <20030223101033.GA13356@win.tue.nl>
-References: <3E584805.DE41B7E9@verizon.net>
+Subject: Re: SMP and CPU1 not showing interrupts in /proc/interrupts
+Message-Id: <20030223022148.7f71398b.akpm@digeo.com>
+In-Reply-To: <3E589799.3000105@bigpond.com>
+References: <3E589799.3000105@bigpond.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E584805.DE41B7E9@verizon.net>
-User-Agent: Mutt/1.3.25i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 Feb 2003 10:21:46.0372 (UTC) FILETIME=[5E649C40:01C2DB25]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 22, 2003 at 08:03:17PM -0800, Randy.Dunlap wrote:
-
-> acme prodded me into doing this a few weeks (or months?) ago.
-> It still needs some additional info for using single_open()
-> and single_release(), but I'd like to get some comments on it
-> and then add it to linux/Documentation/filesystems/ or post it
-> on the web somewhere, like kernelnewbies.org.
+James Harper <james.harper@bigpond.com> wrote:
+>
+> somewhere between about 2.5.53 and 2.5.62 my /proc/interrupts has gone 
+> from an approximately even distribution of interrupts between CPU0 and 
+> CPU1 to grossly uneven:
 > 
-> Comments, corrections?
+>            CPU0       CPU1       
+>   0:   13223321    2233217    IO-APIC-edge  timer
+>   1:      13442          0    IO-APIC-edge  i8042
+>   2:          0          0          XT-PIC  cascade
+>   3:     291874          0    IO-APIC-edge  serial
+>   8:          3          0    IO-APIC-edge  rtc
+>   9:          0          0    IO-APIC-edge  acpi
+>  14:      18932          0    IO-APIC-edge  ide0
+>  15:         14          0    IO-APIC-edge  ide1
+>  16:     190607          1   IO-APIC-level  eth0, nvidia
+>  17:       3214          0   IO-APIC-level  bttv0
+>  18:      14249          1   IO-APIC-level  ide2
+>  19:     121942          0   IO-APIC-level  uhci-hcd, wlan0
+> NMI:          0          0
+> LOC:   15458218   15458423
+> ERR:          0
+> MIS:          0
+> 
+> if i really hit the system hard then CPU1 will start accruing interrupts 
+> but in a mostly idle state CPU1 just sits on its bum and lets CPU0 
+> handle them all, with the exception of irq #0, for some reason.
+> 
 
-By some coincidence I also wrote some text recently.
-Take whatever you want from the below.
-(For example, this mentions the use of private_data.)
+That is a deliberate part of the new interrupt balancing code.
 
-Andries
+If the interrupt rate is low, it is better to keep all the interrupt
+processing code and data in the cache of a single CPU.
 
-<sect2>seqfiles<p>
-Some infrastructure exists for producing generated proc files
-that are larger than a single page. The call
-<verb>
-        create_seq_entry("foo", mode, &amp;proc_foo_operations);
-</verb>
-will create a file <tt>/proc/foo</tt> with given mode
-sich that opening it yields a file with <tt>proc_foo_operations</tt>
-as struct file_operations. Typically one has something like
-<verb>
-static struct file_operations proc_foo_operations = {
-        .open           = foo_open,
-        .read           = seq_read,
-        .llseek         = seq_lseek,
-        .release        = seq_release,
-};
-</verb>
-where <tt>foo_open</tt> is defined as
-<verb>
-static int foo_open(struct inode *inode, struct file *file)
-{
-        return seq_open(file, &amp;foo_op);
-}
-</verb>
-and <tt>foo_op</tt> is a <tt>struct seq_operations</tt>:
-<verb>
-struct seq_operations {
-        void * (*start) (struct seq_file *m, loff_t *pos);
-        void (*stop) (struct seq_file *m, void *v);
-        void * (*next) (struct seq_file *m, void *v, loff_t *pos);
-        int (*show) (struct seq_file *m, void *v);
-};
-</verb>
-<p>
-The routines <tt>seq_open()</tt> etc. are defined in <tt>seq_file.c</tt>.
-Here <tt>seq_open()</tt> initializes a <tt>struct seq_file</tt> and
-attaches it to the <tt>private_data</tt> field of the file structure:
-<verb>
-struct seq_file {
-        char *buf;
-        size_t size;
-        size_t from;
-        size_t count;
-        loff_t index;
-        struct semaphore sem;
-        struct seq_operations *op;
-        void *private;
-};
-</verb>
-(Use a buffer <tt>buf</tt> of size <tt>size</tt>. It still contains
-<tt>count</tt> unread bytes, starting from buf offset <tt>from</tt>.
-We return a sequence of items, and <tt>index</tt> is the current
-serial number. To get a new item, call <tt>op->start()</tt>
-followed by <tt>op->show()</tt>, then a number of times
-<tt>op->next()</tt> followed by <tt>op->show</tt>, as long as more items
-fit in the user-supplied buffer, and finally <tt>op->stop()</tt>.
-Thus, the start routine can get locks or down semaphores, and the
-stop routine can unlock or up them again.)
+It is only if that CPU starts to run out of steam that it is worthwhile
+taking the hit of getting other CPUs to service interrupts as well.
+
+(I think.  At least, it sounds good and the benchmarks came out well).
+

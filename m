@@ -1,102 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267163AbSKMKMe>; Wed, 13 Nov 2002 05:12:34 -0500
+	id <S267160AbSKMKXJ>; Wed, 13 Nov 2002 05:23:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267159AbSKMKMe>; Wed, 13 Nov 2002 05:12:34 -0500
-Received: from dp.samba.org ([66.70.73.150]:44207 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267163AbSKMKMc>;
-	Wed, 13 Nov 2002 05:12:32 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Modules and the Interfaces who Love Them (Take I)
-Date: Wed, 13 Nov 2002 21:17:22 +1100
-Message-Id: <20021113101924.104F92C0B0@lists.samba.org>
+	id <S267161AbSKMKXI>; Wed, 13 Nov 2002 05:23:08 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:28691 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S267160AbSKMKXI>; Wed, 13 Nov 2002 05:23:08 -0500
+Message-Id: <200211131024.gADAObp13940@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: "Theodore Ts'o" <tytso@mit.edu>, Alexander Viro <viro@math.psu.edu>
+Subject: Re: [RFC] devfs API
+Date: Wed, 13 Nov 2002 13:15:58 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <20021112013244.GF1729@mythical.michonline.com> <Pine.GSO.4.21.0211112039430.29617-100000@steklov.math.psu.edu> <20021112080417.GA11660@think.thunk.org>
+In-Reply-To: <20021112080417.GA11660@think.thunk.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Feedback appreciated.  It's aimed at driver writers.
-================
-Documentation/module-writing.txt
+On 12 November 2002 06:04, Theodore Ts'o wrote:
+> On Mon, Nov 11, 2002 at 08:49:22PM -0500, Alexander Viro wrote:
+> > The only way I'll use devfs is
+> > 	* on a separate testbox devoid of network interfaces
+> > 	* with no users
+> > 	* with no data - disk periodically populated from image on CD.
+> >
+> > And that's regardless of that cleanup - fixing the interface
+> > doesn't solve the internal races, so...
+>
+> Hi Al,
+>
+> It's good that you're trying to clean up the devfs code, but...
+>
+> How many people are actually using devfs these days?  I don't like it
+> myself, and I've had to add a fair amount of hair to fsck's
+> mount-by-label/uuid code to deal with interesting cases such as
+> kernels where devfs is configured, but not actually mounted (it
+> changes what /proc/partitions exports).  So I'm one of those who have
+> never looked all that kindly on devfs, which shouldn't come as a
+> surprise to most folks.
+>
+> In any case, if there aren't all that many people using devfs, I can
+> think of a really easy way in which we could simplify and clean up
+> its API by slimming it down by 100%......
 
-Writing Modules and the Interfaces To Be Used By Them: A Gentle Guide.
-Copyright 2002, Rusty Russell IBM Corportation
-
-Modules are running parts of the kernel which can be added, and
-sometimes removed, while the kernel is operational.
-
-There are several delicate issues involved in this procedure which
-indicate special care should be taken.
-
-There are three cases you need to be careful:
-
-1) Any code which creates an interface for callbacks (ie. almost any
-   function called register_*)
-	=> See Rule #1
-
-2) Any modules which use (old) interfaces which do not obey Rule #1
-	=> See Rule #2
-
-Rule #1: Module-safe Interfaces.  Any interface which allows
-	registration of callbacks, must also allow registration of a
-	"struct module *owner", either in the structure or as a
-	function parameter, and it must use them to protect the
-	callbacks.  See "MAKING INTERFACES SAFE".
-
-Exception #1: As an optimization, you may skip this protection if you
-	   *know* that the callbacks are non-preemtible and never
-	   sleep (eg. registration of interrupt handlers).
-
-
-Rule #2: Modules using unsafe interfaces.  If your module is using any
-	interface which does not obey rule number 1, that means your
-	module functions may be called from the rest of the kernel
-	without the caller first doing a successful try_module_get().
-
-	You must not register a "module_cleanup" handler, and your module
-	cannot be unloaded except by force.  You must be especially
-	careful in this case with initialization: see "INITIALIZING
-	MODULES WHICH USE UNSAFE INTERFACES".
-
-MAKING INTERFACES SAFE
-
-A caller must always call "try_module_get()" on a function pointers's
-owner before calling through that function pointer.  If
-"try_module_get()" returns 0 (false), the function pointer must *not*
-be called, and the caller should pretend that registration does not
-exist: this means the (module) owner is closing down and doesn't want
-any more calls, or in the process of starting up and isn't ready yet.
-
-For many interfaces, this can be optimized by assuming that a
-structure containing function pointers has the same owner, and knowing
-that one function is always called before the others, such as the
-filesystem code which knows a mount must succeed before any other
-methods can be accessed.
-
-You must call "module_put()" on the owner sometime after you have
-called the function(s).
-
-If you cannot make your interface module-safe in this way, you can at
-least split registration into a "reserve" stage and an "activate"
-stage, so that modules can use the interface, even if they cannot
-(easily) unload.
-
-
-INITIALIZING MODULES WHICH USE UNSAFE INTERFACES
-
-Safe interfaces will never enter your module before module_init() has
-successfully finished, but unsafe interfaces may.  The rule is simple:
-your init_module() function *must* succeed (by returning 0) if it has
-successfully used any unsafe interfaces.
-
-So, if you are only using ONE unsafe interface, simply use that
-interface last.  Otherwise you will have to use printk() to report
-failure and leave the module initialized (but possibly useless).
-
-
-If you have questions about how to apply this document to your own
-modules, please ask rusty@rustcorp.com.au or linux-kernel@vger.kernel.org.
-
-Thankyou,
-Rusty.
+I do use it.
 --
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+vda

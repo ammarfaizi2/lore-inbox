@@ -1,33 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264675AbRFTXRw>; Wed, 20 Jun 2001 19:17:52 -0400
+	id <S264677AbRFTXSW>; Wed, 20 Jun 2001 19:18:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264673AbRFTXRm>; Wed, 20 Jun 2001 19:17:42 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:31586 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S263016AbRFTXR1>; Wed, 20 Jun 2001 19:17:27 -0400
-Date: Thu, 21 Jun 2001 01:16:43 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: kuznet@ms2.inr.ac.ru, paulus@samba.org, torvalds@transmeta.com,
-        alan@lxorguk.ukuu.org.uk, mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: softirq in pre3 and all linux ports
-Message-ID: <20010621011642.A9153@athlon.random>
-In-Reply-To: <20010620060753.B849@athlon.random> <200106201806.WAA19422@ms2.inr.ac.ru> <15153.8005.551628.544731@pizda.ninka.net>
-Mime-Version: 1.0
+	id <S264673AbRFTXSN>; Wed, 20 Jun 2001 19:18:13 -0400
+Received: from sammy.netpathway.com ([208.137.139.2]:40976 "EHLO
+	sammy.netpathway.com") by vger.kernel.org with ESMTP
+	id <S264676AbRFTXSI>; Wed, 20 Jun 2001 19:18:08 -0400
+Message-ID: <3B312AD6.38D20AFB@netpathway.com>
+Date: Wed, 20 Jun 2001 17:59:34 -0500
+From: "Gary White (Network Administrator)" <admin@netpathway.com>
+Organization: Internet Pathway
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.5-ac16 kernel panic
+In-Reply-To: <3B3116A3.E89360DE@netpathway.com> <E15CqDS-0000DG-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15153.8005.551628.544731@pizda.ninka.net>; from davem@redhat.com on Wed, Jun 20, 2001 at 03:10:13PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+X-scanner: scanned by Inflex 0.1.5c - (http://www.inflex.co.za/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 20, 2001 at 03:10:13PM -0700, David S. Miller wrote:
-> TUX also has per-cpu timers patch of Ingo as well.
+Sorry I was so long getting back. I had to step out
+of the office for a minute. Here is the debug message.
 
-Not in my tree, tux doesn't depend on it at all. that's a further
-optimization that tcp will take advatage of regardless of tux, same
-applies to the pagecache scalability hashlock patch.
+Initializing RT netlink socket
+kernel BUG at ioremap.c:73
+invalid operand: 0000
 
-Andrea
+
+
+> > 2.4.5-ac16 patch applied to clean 2.4.5 tree. 2.4.5-ac15 boots
+> > with no problem.
+>
+> Yes I screwed up the bootflag handling
+>
+> > EIP:    0010:[<c01112cf>]
+> > EFLAGS: 00010286
+> > eax: 007ec000   ebx: e0800000   ecx: 3f7ec000   edx: c0101000
+>
+> Can you build with kernel debug enabled and then say Y to all the debug options
+> and give me the BUG() message where that next build dies. I think I know whats
+> up I want to be sure
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+--
+Gary White               Network Administrator
+admin@netpathway.com          Internet Pathway
+Voice 601-776-3355            Fax 601-776-2314
+
+

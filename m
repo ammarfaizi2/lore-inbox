@@ -1,76 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131932AbQKRXMV>; Sat, 18 Nov 2000 18:12:21 -0500
+	id <S129734AbQKRXpT>; Sat, 18 Nov 2000 18:45:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131933AbQKRXML>; Sat, 18 Nov 2000 18:12:11 -0500
-Received: from smtp-fwd.valinux.com ([198.186.202.196]:43790 "EHLO
-	mail.valinux.com") by vger.kernel.org with ESMTP id <S131932AbQKRXL6>;
-	Sat, 18 Nov 2000 18:11:58 -0500
-Date: Sat, 18 Nov 2000 14:41:55 -0800
-From: "H . J . Lu" <hjl@valinux.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: lseek/llseek allows the negative offset
-Message-ID: <20001118144155.B19804@valinux.com>
-In-Reply-To: <20001117155913.A26622@valinux.com> <20001117160900.A27010@valinux.com> <20001118192542.B24555@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001118192542.B24555@athlon.random>; from andrea@suse.de on Sat, Nov 18, 2000 at 07:25:42PM +0100
+	id <S131933AbQKRXpK>; Sat, 18 Nov 2000 18:45:10 -0500
+Received: from anime.net ([63.172.78.150]:52746 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S129734AbQKRXpC>;
+	Sat, 18 Nov 2000 18:45:02 -0500
+Date: Sat, 18 Nov 2000 15:15:28 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: bert hubert <ahu@ds9a.nl>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 sendfile() not doing as manpage promises?
+In-Reply-To: <20001119001558.B10579@home.ds9a.nl>
+Message-ID: <Pine.LNX.4.30.0011181513290.5897-100000@anime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 18, 2000 at 07:25:42PM +0100, Andrea Arcangeli wrote:
-> On Fri, Nov 17, 2000 at 04:09:00PM -0800, H . J . Lu wrote:
-> > On Fri, Nov 17, 2000 at 03:59:13PM -0800, H . J . Lu wrote:
-> > > # gcc x.c
-> > > # ./a.out
-> > > lseek on -100000: -100000
-> > > write: File too large
-> > > 
-> > > Should kernel allow negative offsets for lseek/llseek?
-> > > 
-> > > 
-> > 
-> > Never mind. I was running the wrong kernel.
-> 
-> With 2.2.18pre21aa2 this little proggy:
-> 
-> main()
-> {
-> 	int fd = creat("x", 0600);
-> 	lseek(fd, 0x80000000, 0);
-> }
-> 
-> get confused this way:
-> 
-> lseek(3, 2147483648, SEEK_SET)          = -1 ERRNO_0 (Success)
-> _exit(-2147483648)                      = ?
-> 
-> I fixed it this way:
-> 
-> diff -urN 2.2.18pre21/fs/read_write.c lseek/fs/read_write.c
-> --- 2.2.18pre21/fs/read_write.c	Tue Sep  5 02:28:49 2000
-> +++ lseek/fs/read_write.c	Sat Nov 18 18:42:55 2000
-> @@ -53,6 +53,10 @@
->  	struct dentry * dentry;
->  	struct inode * inode;
->  
-> +	retval = -EINVAL;
-> +	if (offset < 0)
-> +		goto out_nolock;
-> +
+On Sun, 19 Nov 2000, bert hubert wrote:
+> After some exploring with 'ddd' (a very nice graphical frontend for gdb,
+> which includes tools to display and traverse structs), I found that this
+> probably means that sendfile() can only be used to send files from
+> blockdevices which support mmap()-like functionality. Is this correct?
 
-offset shouldn't be < 0 to begin with. There may be a bug somewhere
-else. In my case,
+Correct.
 
-	if (offset < 0)
-		return -EINVAL;
+> In that case, the wording of the manpage needs to be changed, as it
+> implies that 'either or both' of the filedescriptors can be sockets.
 
-is missing from those FS lseek functions.
+Its quite clear.
 
-H.J.
+DESCRIPTION
+       This  call copies data between file descriptor and another
+       file  descriptor  or  socket.   in_fd  should  be  a  file
+       descriptor   opened  for  reading.   out_fd  should  be  a
+       descriptor opened for writing or a connected socket.
+
+in_fd must be a file, out_fd can be a file or socket.
+
+-Dan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

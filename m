@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264864AbUFQQ2w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266562AbUFQQaq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264864AbUFQQ2w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 12:28:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266563AbUFQQ2v
+	id S266562AbUFQQaq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 12:30:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266564AbUFQQaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 12:28:51 -0400
-Received: from catv-5062fad2.catv.broadband.hu ([80.98.250.210]:39179 "EHLO
-	balabit.hu") by vger.kernel.org with ESMTP id S264864AbUFQQ2u (ORCPT
+	Thu, 17 Jun 2004 12:30:46 -0400
+Received: from mail.kroah.org ([65.200.24.183]:38070 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266562AbUFQQaj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 12:28:50 -0400
-Subject: Re: kernel oops on ia64 (2.6.6 + 0521 ia64 patch)
-From: Balazs Scheidler <bazsi@balabit.hu>
-To: davidm@hpl.hp.com
+	Thu, 17 Jun 2004 12:30:39 -0400
+Date: Thu, 17 Jun 2004 09:29:28 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <16592.60876.886257.165633@napali.hpl.hp.com>
-References: <1087420973.4345.19.camel@bzorp.balabit>
-	 <16592.60876.886257.165633@napali.hpl.hp.com>
-Content-Type: text/plain; charset=iso-8859-2
-Message-Id: <1087489727.30553.0.camel@bzorp.balabit>
+Subject: [PATCH] remove EXPORT_SYMBOL(kallsyms_lookup)
+Message-ID: <20040617162927.GA12498@kroah.com>
 Mime-Version: 1.0
-Date: Thu, 17 Jun 2004 18:28:48 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2004-06-17, cs keltezéssel 03:03-kor David Mosberger ezt írta:
->   Balazs> I'm encountering more-or-less reproducible oopses on a 2.6.6
->   Balazs> kernel with 0521 ia64 patch, compiled with gcc 3.3.3 on
->   Balazs> Debian sarge.
-> 
->   Balazs> The box is a HP rx2600 with a single processor, kernel is
->   Balazs> compiled in UP mode. Here is the backtrace (saved off froma
->   Balazs> terminal session on the network console, thus the
->   Balazs> formatting, but the info should be correct).
-> 
-> Does the oops go away with an SMP kernel?
-> 
+Hi,
 
-yes, it does.
+Distros have started to ship kernels with this patch, as it seems that
+some unnamed binary module authors are already abusing this function (as
+well as some open source modules, like the openib code.)  I could not
+find any valid reason why this symbol should be exported, so here's a
+patch against 2.6.7 that removes it.
 
--- 
-Bazsi
-PGP info: KeyID 9AF8D0A9 Fingerprint CD27 CFB0 802C 0944 9CFD 804E C82C 8EB1
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+
+thanks,
+
+greg k-h
 
 
+diff -Nru a/kernel/kallsyms.c b/kernel/kallsyms.c
+--- a/kernel/kallsyms.c	Thu Jun 17 09:26:17 2004
++++ b/kernel/kallsyms.c	Thu Jun 17 09:26:17 2004
+@@ -320,5 +320,4 @@
+ }
+ __initcall(kallsyms_init);
+ 
+-EXPORT_SYMBOL(kallsyms_lookup);
+ EXPORT_SYMBOL(__print_symbol);

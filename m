@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVCCEqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVCCErX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261327AbVCCEqq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 23:46:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVCCEop
+	id S261404AbVCCErX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 23:47:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVCCErA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 23:44:45 -0500
-Received: from 200-170-96-180.veloxmail.com.br ([200.170.96.180]:19238 "EHLO
-	200-170-96-186.veloxmail.com.br") by vger.kernel.org with ESMTP
-	id S261404AbVCCEjJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 23:39:09 -0500
-X-Authenticated-User: fredlwm@veloxmail.com.br
-X-Authenticated-User: fredlwm@veloxmail.com.br
-Date: Thu, 3 Mar 2005 01:39:08 -0300 (BRT)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <2@pervalidus.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: radeonfb blanks my monitor
-In-Reply-To: <1109823010.5610.161.camel@gaston>
-Message-ID: <Pine.LNX.4.62.0503030134200.311@darkstar.example.net>
-References: <Pine.LNX.4.62.0503022347070.311@darkstar.example.net>
- <1109823010.5610.161.camel@gaston>
-X-Archive: encrypt
+	Wed, 2 Mar 2005 23:47:00 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21472 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261265AbVCCEqo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 23:46:44 -0500
+Message-ID: <4226969E.5020101@pobox.com>
+Date: Wed, 02 Mar 2005 23:46:22 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1252466297-1109824748=:311"
+To: "David S. Miller" <davem@davemloft.net>, torvalds@osdl.org, akpm@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>	<42264F6C.8030508@pobox.com>	<20050302162312.06e22e70.akpm@osdl.org>	<42265A6F.8030609@pobox.com>	<20050302165830.0a74b85c.davem@davemloft.net>	<422674A4.9080209@pobox.com>	<Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>	<42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net> <42268F93.6060504@pobox.com>
+In-Reply-To: <42268F93.6060504@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+If Linus/DaveM really don't like -pre/-rc naming, I think 2.6.x.y is 
+preferable to even/odd.
 
---8323328-1252466297-1109824748=:311
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Just create a 2.6.X repo at each release.  For bug fixes to 2.6.X, 
+commit to this repo, then pull into linux-2.6.  For everything else, 
+pull straight into linux-2.6.
 
-On Thu, 3 Mar 2005, Benjamin Herrenschmidt wrote:
+The linux-2.6 repo would be upstream, and linux-2.6.X repo would be 
+where bugfix-only releases come from.
 
-> On Wed, 2005-03-02 at 23:51 -0300, Fr=E9d=E9ric L. W. Meunier wrote:
->> I just replaced my Matrox G400 with a Jetway Radeon 9600LE
->> (256Mb). If I run 'modprobe radeonfb', the monitor blanks out
->> and the power on light keeps flashing.
->>
->> What may be wrong ? Using 2.6.11.
->
-> Do you have a way to capture the dmesg log produced ?
+	Jeff
 
-These are the lines before I have to use SysRq.
 
-Mar  2 15:16:45 darkstar kernel: radeonfb: Found Intel x86 BIOS ROM Image
-Mar  2 15:16:45 darkstar kernel: radeonfb: Retreived PLL infos from BIOS
-Mar  2 15:16:45 darkstar kernel: i2c-algo-bit.o: dvi passed test.
-Mar  2 15:16:45 darkstar kernel: i2c-algo-bit.o: vga passed test.
-Mar  2 15:16:46 darkstar kernel: radeonfb: Monitor 1 type CRT found
-Mar  2 15:16:46 darkstar kernel: radeonfb: EDID probed
-Mar  2 15:16:46 darkstar kernel: radeonfb: Monitor 2 type no found
 
-BTW, I don't know if it could be related, but my motherboard=20
-only supports AGP 4x.
-
-> Also, does it work if radeonfb is built-in ?
-
-I'll try later. Time to sleep.
-
---=20
-How to contact me - http://www.pervalidus.net/contact.html
---8323328-1252466297-1109824748=:311--

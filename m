@@ -1,137 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263002AbUAIRdV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 12:33:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbUAIRdV
+	id S263606AbUAIRab (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 12:30:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbUAIRaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 12:33:21 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:8320 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263002AbUAIRdR (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 12:33:17 -0500
-Message-Id: <200401091733.i09HXEQa003372@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.1-mm1 - OOPs and hangs during modprobe
-From: Valdis.Kletnieks@vt.edu
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1798737534P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 09 Jan 2004 12:33:14 -0500
+	Fri, 9 Jan 2004 12:30:30 -0500
+Received: from sloth.wcug.wwu.edu ([140.160.139.223]:36625 "HELO
+	sloth.wcug.wwu.edu") by vger.kernel.org with SMTP id S263606AbUAIRaS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 12:30:18 -0500
+Date: Fri, 9 Jan 2004 09:33:36 -0800 (PST)
+From: josh-lkernel@wcug.wwu.edu
+X-X-Sender: josh@sloth.wcug.wwu.edu
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+cc: Valdis.Kletnieks@vt.edu, Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: What SCSI in the IBM?
+In-Reply-To: <20040109152016.GH24295@rdlg.net>
+Message-ID: <Pine.LNX.4.58.0401090921180.25118@sloth.wcug.wwu.edu>
+References: <20040109150512.GF24295@rdlg.net> <200401091515.i09FFSDM030918@turing-police.cc.vt.edu>
+ <20040109152016.GH24295@rdlg.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1798737534P
-Content-Type: text/plain; charset=us-ascii
 
-Summary: 2.6.1-mm1 gives an OOPs while doing a modprobe.  Subsequent
-references to /proc/modules hang (causing hangs while doing a 'shutdown'
-because of scripts trying to rmmod modules.  lsmod and 'cat /proc/modules'
-hang as well after the oops.
+I have a few x345s at work.  This should help.
 
-This one's from trying to load ip_conntrack_ftp:
+It is a LSI Logic / Symbios Logic (formerly NCR) card.
 
-Module len 6897 truncated
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
- printing eip:
-c013040b
-*pde = 00000000
-Oops: 0002 [#1]
-PREEMPT
-CPU:    0
-EIP:    0060:[<c013040b>]    Not tainted VLI
-EFLAGS: 00010002
-EIP is at sys_init_module+0x90/0x225
-eax: 00000004   ebx: 0807a3e8   ecx: c03d5c30   edx: d187b104
-esi: 00000000   edi: cf220000   ebp: cf221fbc   esp: cf221fb0
-ds: 007b   es: 007b   ss: 0068
-Process modprobe (pid: 172, threadinfo=cf220000 task=cf4606c0)
-Stack: 0807a3e8 00000002 080573a0 cf220000 c03548de 0807a3e8 00001af1 0807a088
-       00000002 080573a0 bfffe8c0 00000080 0000007b 0000007b 00000080 ffffd41a
-       00000073 00000287 bfffe8c0 0000007b
-Call Trace:
- [<c03548de>] sysenter_past_esp+0x43/0x65
+Here are the SCSI files that I know are =y in my .config:
 
-Code: d8 57 3d c0 ff 05 d8 57 3d c0 0f 8e ac 06 00 00 89 c2 e9 9f 01 00 00 fa bf 00 e0 ff ff 21 e7 ff 47 14 8b 15 e8 57 3d c0 8d 40 04 <89> 56 04 89 42 04 a3 e8 57 3d c0 c7 40 04 e8 57 3d c0 fb 8b 47
- <6>note: modprobe[172] exited with preempt_count 1
-Debug: sleeping function called from invalid context at include/linux/rwsem.h:43
-in_atomic():1, irqs_disabled():0
-Call Trace:
- [<c011b50f>] __might_sleep+0xa4/0xac
- [<c011f16f>] do_exit+0xd9/0x389
- [<c010c5d2>] do_divide_error+0x0/0xad
- [<c011893d>] do_page_fault+0x35f/0x4b2
- [<c014576f>] unmap_vm_area+0x2c/0x73
- [<c0145a81>] vfree+0x25/0x27
- [<c0130354>] load_module+0x790/0x7b7
- [<c01185de>] do_page_fault+0x0/0x4b2
- [<c035535f>] error_code+0x2f/0x38
- [<c013040b>] sys_init_module+0x90/0x225
- [<c03548de>] sysenter_past_esp+0x43/0x65
+CONFIG_SCSI=y
+CONFIG_SCSI_DEBUG_QUEUES=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_AACRAID=y
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_SCSI_DPT_I2O=y
+CONFIG_SCSI_G_NCR5380_PORT=y
+CONFIG_SCSI_SYM53C8XX=y
+CONFIG_SCSI_NCR53C8XX_PQS_PDS=y
+CONFIG_SCSI_DC390T=y
+CONFIG_SCSI_PCMCIA=y
+CONFIG_I2O_SCSI=y
 
-My original thought was that the ip_conntrack_ftp.ko got corrupted,
-but the 6978 is the same size as it's been since at least 2.6.0-mm2,
-and this oops is *after* I'd hit one and done an 'rm -rf /lib/modules/2.6.1-mm1'
-and 'make modules_install'.  And it isn't just ip_conntrack_ftp:
+Sorry this list is not a clean as I would like.
 
-(this time, while trying to 'modprobe aes':
-Module len 19014 truncated
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
-printing eip:
-c013040b
-*pde = 00000000
-Oops: 0002 [#1]
-PREEMPT 
-CPU:    0
-EIP:    0060:[sys_init_module+144/549]    Tainted: P   VLI
-EFLAGS: 00010002
-EIP is at sys_init_module+0x90/0x225 
-eax: 00000004   ebx: 08084028   ecx: c03d5c30   edx: d1a30c84
-esi: 00000000   edi: c5a80000   ebp: c5a81fbc   esp: c5a81fb0
-ds: 007b   es: 007b   ss: 0068
-Process modprobe (pid: 2446, threadinfo=c5a80000 task=c5bc1340)
-Stack: 08084028 bfffe9c8 400972fd c5a80000 c03548de 08084028 00004a46 0807a0d0
-bfffe9c8 400972fd bfffe980 00000080 0000007b 0000007b 00000080 ffffd41a
-00000073 00000287 bfffe980 0000007b 
-Call Trace:
-[sysenter_past_esp+67/101] sysenter_past_esp+0x43/0x65
+I also know there is a debian add-on disk with the needed modules for this
+card, but I don't have an extra machine to try that on right now to look
+them up.
 
-Code: d8 57 3d c0 ff 05 d8 57 3d c0 0f 8e ac 06 00 00 89 c2 e9 9f 01 00 00 fa bf 00 e0 ff ff 21 e7 ff 47 14 8b 15 e8 57 3d c0 8d 40 04 <89> 56 04 89 42 04 a3 e8 57 3d c0 c7 40 04 e8 57 3d c0 fb 8b 47 
-<6>note: modprobe[2446] exited with preempt_count 1
-Debug: sleeping function called from invalid context at include/linux/rwsem.h:43
-in_atomic():1, irqs_disabled():0
-Call Trace:
-[__might_sleep+164/172] __might_sleep+0xa4/0xac
-[do_acct_process+365/618] do_acct_process+0x16d/0x26a
-[acct_process+83/105] acct_process+0x53/0x69
-[do_exit+180/905] do_exit+0xb4/0x389
-[do_divide_error+0/173] do_divide_error+0x0/0xad
-[do_page_fault+863/1202] do_page_fault+0x35f/0x4b2
-[unmap_vm_area+44/115] unmap_vm_area+0x2c/0x73
-[vfree+37/39] vfree+0x25/0x27
-[load_module+1936/1975] load_module+0x790/0x7b7
-[do_page_fault+0/1202] do_page_fault+0x0/0x4b2
-[error_code+47/56] error_code+0x2f/0x38
-[sys_init_module+144/549] sys_init_module+0x90/0x225
-[sysenter_past_esp+67/101] sysenter_past_esp+0x43/0x65
+jlogan@host:~$ cat /proc/scsi/scsi
+Attached devices:
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: LSILOGIC Model: 1030 IM          Rev: 1000
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 08 Lun: 00
+  Vendor: IBM      Model: 32P0032a S320  1 Rev: 1
+  Type:   Processor                        ANSI SCSI revision: 02
 
-Yes, this one's nvidia-tainted, the other one wasn't, so it isn't nvidia ;)
-
-Any ideas?
+jlogan@host:~$ lspci
+00:00.0 Host bridge: ServerWorks: Unknown device 0014 (rev 32)
+00:00.1 Host bridge: ServerWorks: Unknown device 0014
+00:00.2 Host bridge: ServerWorks: Unknown device 0014
+00:06.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
+00:0f.0 Host bridge: ServerWorks CSB5 South Bridge (rev 93)
+00:0f.1 IDE interface: ServerWorks CSB5 IDE Controller (rev 93)
+00:0f.2 USB Controller: ServerWorks OSB4/CSB5 OHCI USB Controller (rev 05)
+00:0f.3 ISA bridge: ServerWorks: Unknown device 0225
+00:10.0 Host bridge: ServerWorks: Unknown device 0101 (rev 05)
+00:10.2 Host bridge: ServerWorks: Unknown device 0101 (rev 05)
+00:11.0 Host bridge: ServerWorks: Unknown device 0101 (rev 05)
+00:11.2 Host bridge: ServerWorks: Unknown device 0101 (rev 05)
+06:08.0 Ethernet controller: Intel Corp.: Unknown device 1010 (rev 01)
+06:08.1 Ethernet controller: Intel Corp.: Unknown device 1010 (rev 01)
+08:07.0 SCSI storage controller: LSI Logic / Symbios Logic (formerly NCR)
+53c1030 (rev 07)
+08:07.1 SCSI storage controller: LSI Logic / Symbios Logic (formerly NCR)
+53c1030 (rev 07)
 
 
+Hope this helps.
 
---==_Exmh_1798737534P
-Content-Type: application/pgp-signature
+							Later, JOSH
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE//uXacC3lWbTT17ARAu9xAKCs3Ym5yoQuTF+aRSNMobIXOcgTUwCfUSAw
-zpkuwsHaS/uocF/oGM79/34=
-=ptCG
------END PGP SIGNATURE-----
+On Fri, 9 Jan 2004, Robert L. Harris wrote:
 
---==_Exmh_1798737534P--
+>
+> Thus spake Valdis.Kletnieks@vt.edu (Valdis.Kletnieks@vt.edu):
+>
+> > On Fri, 09 Jan 2004 10:05:12 EST, "Robert L. Harris" <Robert.L.Harris@rdlg.net>  said:
+> >
+> > > The network cards in this IBM came up great once I found the right port.
+> > > Now though I'm trying to find what SCSI driver to use.
+> >
+> > What IBM?  Laptop? PC? Netfinity? RS6K? e/i/p/z-series?
+>
+> Ok, I found the "isa-pnp" module which fixed the unresolved module but
+> now the sym driver also just give no device errors.  This is a 2U Xeon
+> "eServer" model number x345.
+>
+>
+> :wq!
+> ---------------------------------------------------------------------------
+> Robert L. Harris                     | GPG Key ID: E344DA3B
+>                                          @ x-hkp://pgp.mit.edu
+> DISCLAIMER:
+>       These are MY OPINIONS ALONE.  I speak for no-one else.
+>
+> Life is not a destination, it's a journey.
+>   Microsoft produces 15 car pileups on the highway.
+>     Don't stop traffic to stand and gawk at the tragedy.
+>

@@ -1,97 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131526AbRAaRAg>; Wed, 31 Jan 2001 12:00:36 -0500
+	id <S132437AbRAaRF4>; Wed, 31 Jan 2001 12:05:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131795AbRAaRA0>; Wed, 31 Jan 2001 12:00:26 -0500
-Received: from munch-it.turbolinux.com ([38.170.88.129]:50164 "EHLO
-	mail.us.tlan") by vger.kernel.org with ESMTP id <S131526AbRAaRAX>;
-	Wed, 31 Jan 2001 12:00:23 -0500
-Date: Wed, 31 Jan 2001 08:59:48 -0800
-From: Prasanna P Subash <psubash@turbolinux.com>
-To: Gerd Knorr <kraxel@goldbach.in-berlin.de>
-Cc: msg2@po.cwru.edu, John Jasen <jjasen1@umbc.edu>,
-        linux-kernel@vger.kernel.org, AmNet Computers <amnet@amnet-comp.com>
-Subject: Re: bttv problems in 2.4.0/2.4.1
-Message-ID: <20010131085948.A26240@turbolinux.com>
-In-Reply-To: <Pine.SGI.4.31L.02.0101301951040.887333-100000@irix2.gl.umbc.edu> <Pine.LNX.4.32.0101302004420.1138-100000@cheetah.STUDENT.cwru.edu> <200101310741.f0V7fj600833@bogomips.masq.in-berlin.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200101310741.f0V7fj600833@bogomips.masq.in-berlin.de>; from Gerd Knorr on Wed, Jan 31, 2001 at 08:41:45AM +0100
+	id <S132430AbRAaRFs>; Wed, 31 Jan 2001 12:05:48 -0500
+Received: from winds.org ([207.48.83.9]:6667 "EHLO winds.org")
+	by vger.kernel.org with ESMTP id <S131409AbRAaRFl>;
+	Wed, 31 Jan 2001 12:05:41 -0500
+Date: Wed, 31 Jan 2001 12:04:41 -0500 (EST)
+From: Byron Stanoszek <gandalf@winds.org>
+To: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: VIA VT82C686X
+In-Reply-To: <Pine.LNX.4.21.0101302105170.4439-100000@ns-01.hislinuxbox.com>
+Message-ID: <Pine.LNX.4.21.0101311148560.20840-100000@winds.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 30 Jan 2001, David D.W. Downey wrote:
 
---jI8keyz6grp/JLjh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> I removed the ide and ata setting. System is running stably as in no
+> kernel crashes, but I am getting daemon and shell crashes. With this
+> current kernel I've had 1 kernel crash in about 3 hours as compared to 1
+> every 10 or 15 minutes. Crash, reboot, 10 minutes or so crash, reboot. ect
+> ect.
+> 
+> I'm wanting to test something else out. I'm wondering if there isn't some
+> hardware issue with the RAM. This particular board will do 1GB of PC133,
+> or 2.5GB of PC100. I'm wondering if there isn't something wrong with how
+> it reads the speed and the appropriate limitation. It's running stably if
+> I only run 768MB of PC133 RAM. But if I run a solid 1GB of PC133 I get
+> segfaults and sig11 crashes constantly. All the RAM has been
+> professionally tested and certified.
 
+That definitely sounds like a RAM problem. The system should perform the same
+independent of how many RAM chips you put in there (segfault-wise). If you're
+still in doubt, you can try booting up with memtest86 and run it for several
+hours with only the memory chip that you think might be causing the problem.
 
-My bttv is at IRQ 3 and it still hangs the machine :(
-I dont even have acpi built in.
+You can grab the bootdisk image from:
+  ftp://ftp.winds.org/linux/images/memtest86-2.5.bin
 
-btw I am testing with 2.4.1-pre9
---=20
-Prasanna Subash   ---   psubash@turbolinux.com   ---     TurboLinux, INC
-------------------------------------------------------------------------
-Linux, the choice          | When the sun shineth, make hay.   -- John
-of a GNU generation   -o)  | Heywood=20
-Kernel 2.4.0-ac4      /\\  |=20
-on a i686            _\\_v |=20
-                           |=20
-------------------------------------------------------------------------
+and just write it to a floppy with 'cat memtest86-2.5.bin > /dev/fd0', then
+boot up with that disk.
 
-On Wed, Jan 31, 2001 at 08:41:45AM +0100, Gerd Knorr wrote:
-> > > > I have sent all this info to Gerd Knorr but, as far as I know, he h=
-asn't
-> > > > been able to track down the bug yet.  I thought that by posting her=
-e,
-> > > > more eyes might at least make more reports of similar situations th=
-at
-> > > > might help track down the problem.
-> > >
-> > > Try flipping the card into a different slot. A lot of the cards
-> > > exceptionally do not like IRQ/DMA sharing, and a lot of the motherboa=
-rds
-> > > share them between different slots.
-> >=20
-> > I will try this, but my card has (and does) worked with irq sharing for
-> > a long time.  Its entry in /proc/interrupts:
-> >   9:     164935     165896   IO-APIC-level  acpi, bttv
->                                               ^^^^
-> What happens with acpi disabled?  The power-down at boot could be caused =
-by
-> the acpi power management maybe ...
->=20
->   Gerd
->=20
-> --=20
-> Get back there in front of the computer NOW. Christmas can wait.
-> 	-- Linus "the Grinch" Torvalds,  24 Dec 2000 on linux-kernel
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+Regards,
+ Byron
 
+-- 
+Byron Stanoszek                         Ph: (330) 644-3059
+Systems Programmer                      Fax: (330) 644-8110
+Commercial Timesharing Inc.             Email: bstanoszek@comtime.com
 
-
---jI8keyz6grp/JLjh
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.2 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6eESE5UrYeFg/7bURArR8AJ9xCboW1yIcc8U49FRyANFa2897qQCgil6p
-nez/a4UnJqxfKnO7DqWkUgM=
-=Ba0T
------END PGP SIGNATURE-----
-
---jI8keyz6grp/JLjh--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

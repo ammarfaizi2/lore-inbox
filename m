@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbULXRgL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbULXRhj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261287AbULXRgL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Dec 2004 12:36:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbULXRgL
+	id S261234AbULXRhj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Dec 2004 12:37:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbULXRhR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Dec 2004 12:36:11 -0500
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:29084 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S261287AbULXRfb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Dec 2004 12:35:31 -0500
-Date: Fri, 24 Dec 2004 18:35:19 +0100
+	Fri, 24 Dec 2004 12:37:17 -0500
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:18874 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S261234AbULXRgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Dec 2004 12:36:09 -0500
+Date: Fri, 24 Dec 2004 18:35:58 +0100
 From: Andrea Arcangeli <andrea@suse.de>
 To: linux-kernel@vger.kernel.org
 Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>
-Subject: VM fixes [1/4]
-Message-ID: <20041224173519.GB13747@dualathlon.random>
+Subject: VM fixes [2/4]
+Message-ID: <20041224173558.GC13747@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,204 +24,326 @@ User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Likely I'll bring a -aa tree up in a few weeks to avoid this stuff to
-get lost, but I'm attempting to merge it in mainline first.
+This is the forward port to 2.6 of the lowmem_reserved algorithm I
+invented in 2.4.1*, merged in 2.4.2x already and needed to fix workloads
+like google (especially without swap) on x86 with >1G of ram, but it's
+needed in all sort of workloads with lots of ram on x86, it's also
+needed on x86-64 for dma allocations. This brings 2.6 in sync with
+latest 2.4.2x.
 
-This is protect-pids, a patch to allow the admin to tune the oom killer.
-The tweak is inherited between parent and child so it's easy to write a
-wrapper for complex apps.
-
-I made used_math a char at the light of later patches. per-cpu atomicity
-with byte granularity is provided by all archs AFIK.
-
-From: garloff@suse.de
-Subject: protect-pids
+From: Andrea Arcangeli <andrea@suse.de>
+Subject: keep balance between different classzones
 
 Signed-off-by: Andrea Arcangeli <andrea@suse.de>
 
-From: garloff@suse.de
-Subject: protect-pids
-
-Signed-off-by: Andrea Arcangeli <andrea@suse.de>
-
---- x/fs/proc/base.c.orig	2004-12-04 08:56:31.000000000 +0100
-+++ x/fs/proc/base.c	2004-12-24 17:50:29.043208992 +0100
-@@ -71,6 +71,8 @@ enum pid_directory_inos {
- 	PROC_TGID_ATTR_FSCREATE,
- #endif
- 	PROC_TGID_FD_DIR,
-+	PROC_TGID_OOM_SCORE,
-+	PROC_TGID_OOM_ADJUST,
- 	PROC_TID_INO,
- 	PROC_TID_STATUS,
- 	PROC_TID_MEM,
-@@ -97,6 +99,8 @@ enum pid_directory_inos {
- 	PROC_TID_ATTR_FSCREATE,
- #endif
- 	PROC_TID_FD_DIR = 0x8000,	/* 0x8000-0xffff */
-+	PROC_TID_OOM_SCORE,
-+	PROC_TID_OOM_ADJUST,
- };
- 
- struct pid_entry {
-@@ -132,6 +136,8 @@ static struct pid_entry tgid_base_stuff[
- #ifdef CONFIG_SCHEDSTATS
- 	E(PROC_TGID_SCHEDSTAT, "schedstat", S_IFREG|S_IRUGO),
- #endif
-+	E(PROC_TGID_OOM_SCORE, "oom_score",S_IFREG|S_IRUGO),
-+	E(PROC_TGID_OOM_ADJUST,"oom_adj", S_IFREG|S_IRUGO|S_IWUSR),
- 	{0,0,NULL,0}
- };
- static struct pid_entry tid_base_stuff[] = {
-@@ -157,6 +163,8 @@ static struct pid_entry tid_base_stuff[]
- #ifdef CONFIG_SCHEDSTATS
- 	E(PROC_TID_SCHEDSTAT, "schedstat",S_IFREG|S_IRUGO),
- #endif
-+	E(PROC_TID_OOM_SCORE,  "oom_score",S_IFREG|S_IRUGO),
-+	E(PROC_TID_OOM_ADJUST, "oom_adj", S_IFREG|S_IRUGO|S_IWUSR),
- 	{0,0,NULL,0}
- };
- 
-@@ -425,6 +433,18 @@ static int proc_pid_schedstat(struct tas
- }
- #endif
- 
-+/* The badness from the OOM killer */
-+unsigned long badness(struct task_struct *p, unsigned long uptime);
-+static int proc_oom_score(struct task_struct *task, char *buffer)
-+{
-+	unsigned long points;
-+	struct timespec uptime;
-+
-+	do_posix_clock_monotonic_gettime(&uptime);
-+	points = badness(task, uptime.tv_sec);
-+	return sprintf(buffer, "%lu\n", points);
-+}
-+
- /************************************************************************/
- /*                       Here the fs part begins                        */
- /************************************************************************/
-@@ -698,6 +718,55 @@ static struct file_operations proc_mem_o
- 	.open		= mem_open,
- };
- 
-+static ssize_t oom_adjust_read(struct file * file, char * buf,
-+				size_t count, loff_t *ppos)
-+{
-+	struct task_struct *task = proc_task(file->f_dentry->d_inode);
-+	char buffer[8];
-+	size_t len;
-+	int oom_adjust = task->oomkilladj;
-+
-+	len = sprintf(buffer, "%i\n", oom_adjust) + 1;
-+	if (*ppos >= len)
-+		return 0;
-+	if (count > len-*ppos)
-+		count = len-*ppos;
-+	if (copy_to_user(buf, buffer + *ppos, count)) 
-+		return -EFAULT;
-+	*ppos += count;
-+	return count;
-+}
-+
-+static ssize_t oom_adjust_write(struct file * file, const char * buf,
-+				size_t count, loff_t *ppos)
-+{
-+	struct task_struct *task = proc_task(file->f_dentry->d_inode);
-+	char buffer[8], *end;
-+	int oom_adjust;
-+
-+	if (!capable(CAP_SYS_RESOURCE))
-+		return -EPERM;
-+	memset(buffer, 0, 8);	
-+	if (count > 6)
-+		count = 6;
-+	if (copy_from_user(buffer, buf, count)) 
-+		return -EFAULT;
-+	oom_adjust = simple_strtol(buffer, &end, 0);
-+	if (oom_adjust < -16 || oom_adjust > 15)
-+		return -EINVAL;
-+	if (*end == '\n')
-+		end++;
-+	task->oomkilladj = oom_adjust;
-+	if (end - buffer == 0) 
-+		return -EIO;
-+	return end - buffer;
-+}
-+
-+static struct file_operations proc_oom_adjust_operations = {
-+	read:		oom_adjust_read,
-+	write:		oom_adjust_write,
-+};
-+
- static struct inode_operations proc_mem_inode_operations = {
- 	.permission	= proc_permission,
- };
-@@ -1377,6 +1446,15 @@ static struct dentry *proc_pident_lookup
- 			ei->op.proc_read = proc_pid_schedstat;
- 			break;
- #endif
-+		case PROC_TID_OOM_SCORE:	
-+		case PROC_TGID_OOM_SCORE:
-+			inode->i_fop = &proc_info_file_operations;
-+			ei->op.proc_read = proc_oom_score;
-+			break;
-+		case PROC_TID_OOM_ADJUST:
-+		case PROC_TGID_OOM_ADJUST:
-+			inode->i_fop = &proc_oom_adjust_operations;
-+			break;
- 		default:
- 			printk("procfs: impossible type (%d)",p->type);
- 			iput(inode);
---- x/include/linux/sched.h.orig	2004-12-04 08:56:32.000000000 +0100
-+++ x/include/linux/sched.h	2004-12-24 17:48:36.743281176 +0100
-@@ -600,7 +600,19 @@ struct task_struct {
- 	struct key *process_keyring;	/* keyring private to this process (CLONE_THREAD) */
- 	struct key *thread_keyring;	/* keyring private to this thread */
- #endif
--	unsigned short used_math;
-+/*
-+ * Must be changed atomically so it shouldn't be
-+ * be a shareable bitflag.
-+ */
-+	unsigned char used_math;
-+/*
-+ * OOM kill score adjustment (bit shift).
-+ * Cannot live together with used_math since
-+ * used_math and oomkilladj can be changed at the
-+ * same time, so they would race if they're in the
-+ * same atomic block.
-+ */
-+	short oomkilladj;
- 	char comm[16];
- /* file system info */
- 	int link_count, total_link_count;
---- x/mm/oom_kill.c.orig	2004-12-04 08:55:05.000000000 +0100
-+++ x/mm/oom_kill.c	2004-12-24 17:49:07.098666456 +0100
-@@ -42,7 +42,7 @@
-  *    of least surprise ... (be careful when you change it)
-  */
- 
--static unsigned long badness(struct task_struct *p, unsigned long uptime)
-+unsigned long badness(struct task_struct *p, unsigned long uptime)
- {
- 	unsigned long points, cpu_time, run_time, s;
- 
-@@ -98,6 +98,17 @@ static unsigned long badness(struct task
+--- x/include/linux/mmzone.h.orig	2004-12-04 08:56:32.000000000 +0100
++++ x/include/linux/mmzone.h	2004-12-24 17:59:13.864424040 +0100
+@@ -112,18 +112,14 @@ struct zone {
+ 	unsigned long		free_pages;
+ 	unsigned long		pages_min, pages_low, pages_high;
+ 	/*
+-	 * protection[] is a pre-calculated number of extra pages that must be
+-	 * available in a zone in order for __alloc_pages() to allocate memory
+-	 * from the zone. i.e., for a GFP_KERNEL alloc of "order" there must
+-	 * be "(1<<order) + protection[ZONE_NORMAL]" free pages in the zone
+-	 * for us to choose to allocate the page from that zone.
+-	 *
+-	 * It uses both min_free_kbytes and sysctl_lower_zone_protection.
+-	 * The protection values are recalculated if either of these values
+-	 * change.  The array elements are in zonelist order:
+-	 *	[0] == GFP_DMA, [1] == GFP_KERNEL, [2] == GFP_HIGHMEM.
++	 * We don't know if the memory that we're going to allocate will be freeable
++	 * or/and it will be released eventually, so to avoid totally wasting several
++	 * GB of ram we must reserve some of the lower zone memory (otherwise we risk
++	 * to run OOM on the lower zones despite there's tons of freeable ram
++	 * on the higher zones). This array is recalculated at runtime if the
++	 * sysctl_lowmem_reserve_ratio sysctl changes.
  	 */
- 	if (cap_t(p->cap_effective) & CAP_TO_MASK(CAP_SYS_RAWIO))
- 		points /= 4;
-+
-+	/* 
-+	 * Adjust the score by oomkilladj.
-+	 */
-+	if (p->oomkilladj) {
-+		if (p->oomkilladj > 0)
-+			points <<= p->oomkilladj;
-+		else
-+			points >>= -(p->oomkilladj);
-+	}
-+		
- #ifdef DEBUG
- 	printk(KERN_DEBUG "OOMkill: task %d (%s) got %d points\n",
- 	p->pid, p->comm, points);
+-	unsigned long		protection[MAX_NR_ZONES];
++	unsigned long		lowmem_reserve[MAX_NR_ZONES];
+ 
+ 	struct per_cpu_pageset	pageset[NR_CPUS];
+ 
+@@ -366,7 +362,8 @@ struct ctl_table;
+ struct file;
+ int min_free_kbytes_sysctl_handler(struct ctl_table *, int, struct file *, 
+ 					void __user *, size_t *, loff_t *);
+-int lower_zone_protection_sysctl_handler(struct ctl_table *, int, struct file *,
++extern int sysctl_lowmem_reserve_ratio[MAX_NR_ZONES-1];
++int lowmem_reserve_ratio_sysctl_handler(struct ctl_table *, int, struct file *,
+ 					void __user *, size_t *, loff_t *);
+ 
+ #include <linux/topology.h>
+--- x/include/linux/sysctl.h.orig	2004-12-04 08:56:32.000000000 +0100
++++ x/include/linux/sysctl.h	2004-12-24 17:59:13.865423888 +0100
+@@ -159,7 +159,7 @@ enum
+ 	VM_PAGEBUF=17,		/* struct: Control pagebuf parameters */
+ 	VM_HUGETLB_PAGES=18,	/* int: Number of available Huge Pages */
+ 	VM_SWAPPINESS=19,	/* Tendency to steal mapped memory */
+-	VM_LOWER_ZONE_PROTECTION=20,/* Amount of protection of lower zones */
++	VM_LOWMEM_RESERVE_RATIO=20,/* reservation ratio for lower memory zones */
+ 	VM_MIN_FREE_KBYTES=21,	/* Minimum free kilobytes to maintain */
+ 	VM_MAX_MAP_COUNT=22,	/* int: Maximum number of mmaps/address-space */
+ 	VM_LAPTOP_MODE=23,	/* vm laptop mode */
+--- x/kernel/sysctl.c.orig	2004-12-04 08:56:33.000000000 +0100
++++ x/kernel/sysctl.c	2004-12-24 17:59:13.868423432 +0100
+@@ -62,7 +62,6 @@ extern int core_uses_pid;
+ extern char core_pattern[];
+ extern int cad_pid;
+ extern int pid_max;
+-extern int sysctl_lower_zone_protection;
+ extern int min_free_kbytes;
+ extern int printk_ratelimit_jiffies;
+ extern int printk_ratelimit_burst;
+@@ -736,14 +735,13 @@ static ctl_table vm_table[] = {
+ 	 },
+ #endif
+ 	{
+-		.ctl_name	= VM_LOWER_ZONE_PROTECTION,
+-		.procname	= "lower_zone_protection",
+-		.data		= &sysctl_lower_zone_protection,
+-		.maxlen		= sizeof(sysctl_lower_zone_protection),
++		.ctl_name	= VM_LOWMEM_RESERVE_RATIO,
++		.procname	= "lowmem_reserve_ratio",
++		.data		= &sysctl_lowmem_reserve_ratio,
++		.maxlen		= sizeof(sysctl_lowmem_reserve_ratio),
+ 		.mode		= 0644,
+-		.proc_handler	= &lower_zone_protection_sysctl_handler,
++		.proc_handler	= &lowmem_reserve_ratio_sysctl_handler,
+ 		.strategy	= &sysctl_intvec,
+-		.extra1		= &zero,
+ 	},
+ 	{
+ 		.ctl_name	= VM_MIN_FREE_KBYTES,
+--- x/mm/page_alloc.c.orig	2004-12-04 08:56:33.000000000 +0100
++++ x/mm/page_alloc.c	2004-12-24 17:59:36.182031248 +0100
+@@ -42,7 +42,15 @@ unsigned long totalram_pages;
+ unsigned long totalhigh_pages;
+ long nr_swap_pages;
+ int numnodes = 1;
+-int sysctl_lower_zone_protection = 0;
++/*
++ * results with 256, 32 in the lowmem_reserve sysctl:
++ *	1G machine -> (16M dma, 800M-16M normal, 1G-800M high)
++ *	1G machine -> (16M dma, 784M normal, 224M high)
++ *	NORMAL allocation will leave 784M/256 of ram reserved in the ZONE_DMA
++ *	HIGHMEM allocation will leave 224M/32 of ram reserved in ZONE_NORMAL
++ *	HIGHMEM allocation will (224M+784M)/256 of ram reserved in ZONE_DMA
++ */
++int sysctl_lowmem_reserve_ratio[MAX_NR_ZONES-1] = { 256, 32 };
+ 
+ EXPORT_SYMBOL(totalram_pages);
+ EXPORT_SYMBOL(nr_swap_pages);
+@@ -583,19 +591,6 @@ buffered_rmqueue(struct zone *zone, int 
+ 
+ /*
+  * This is the 'heart' of the zoned buddy allocator.
+- *
+- * Herein lies the mysterious "incremental min".  That's the
+- *
+- *	local_low = z->pages_low;
+- *	min += local_low;
+- *
+- * thing.  The intent here is to provide additional protection to low zones for
+- * allocation requests which _could_ use higher zones.  So a GFP_HIGHMEM
+- * request is not allowed to dip as deeply into the normal zone as a GFP_KERNEL
+- * request.  This preserves additional space in those lower zones for requests
+- * which really do need memory from those zones.  It means that on a decent
+- * sized machine, GFP_HIGHMEM and GFP_KERNEL requests basically leave the DMA
+- * zone untouched.
+  */
+ struct page * fastcall
+ __alloc_pages(unsigned int gfp_mask, unsigned int order,
+@@ -608,7 +603,7 @@ __alloc_pages(unsigned int gfp_mask, uns
+ 	struct reclaim_state reclaim_state;
+ 	struct task_struct *p = current;
+ 	int i;
+-	int alloc_type;
++	int classzone_idx;
+ 	int do_retry;
+ 	int can_try_harder;
+ 
+@@ -628,11 +623,11 @@ __alloc_pages(unsigned int gfp_mask, uns
+ 		return NULL;
+ 	}
+ 
+-	alloc_type = zone_idx(zones[0]);
++	classzone_idx = zone_idx(zones[0]);
+ 
+ 	/* Go through the zonelist once, looking for a zone with enough free */
+ 	for (i = 0; (z = zones[i]) != NULL; i++) {
+-		min = z->pages_low + (1<<order) + z->protection[alloc_type];
++		min = z->pages_low + (1<<order) + z->lowmem_reserve[classzone_idx];
+ 
+ 		if (z->free_pages < min)
+ 			continue;
+@@ -655,7 +650,7 @@ __alloc_pages(unsigned int gfp_mask, uns
+ 			min /= 2;
+ 		if (can_try_harder)
+ 			min -= min / 4;
+-		min += (1<<order) + z->protection[alloc_type];
++		min += (1<<order) + z->lowmem_reserve[classzone_idx];
+ 
+ 		if (z->free_pages < min)
+ 			continue;
+@@ -698,7 +693,7 @@ rebalance:
+ 			min /= 2;
+ 		if (can_try_harder)
+ 			min -= min / 4;
+-		min += (1<<order) + z->protection[alloc_type];
++		min += (1<<order) + z->lowmem_reserve[classzone_idx];
+ 
+ 		if (z->free_pages < min)
+ 			continue;
+@@ -1117,9 +1112,9 @@ void show_free_areas(void)
+ 			zone->pages_scanned,
+ 			(zone->all_unreclaimable ? "yes" : "no")
+ 			);
+-		printk("protections[]:");
++		printk("lowmem_reserve[]:");
+ 		for (i = 0; i < MAX_NR_ZONES; i++)
+-			printk(" %lu", zone->protection[i]);
++			printk(" %lu", zone->lowmem_reserve[i]);
+ 		printk("\n");
+ 	}
+ 
+@@ -1816,87 +1811,29 @@ void __init page_alloc_init(void)
+ 	hotcpu_notifier(page_alloc_cpu_notify, 0);
+ }
+ 
+-static unsigned long higherzone_val(struct zone *z, int max_zone,
+-					int alloc_type)
+-{
+-	int z_idx = zone_idx(z);
+-	struct zone *higherzone;
+-	unsigned long pages;
+-
+-	/* there is no higher zone to get a contribution from */
+-	if (z_idx == MAX_NR_ZONES-1)
+-		return 0;
+-
+-	higherzone = &z->zone_pgdat->node_zones[z_idx+1];
+-
+-	/* We always start with the higher zone's protection value */
+-	pages = higherzone->protection[alloc_type];
+-
+-	/*
+-	 * We get a lower-zone-protection contribution only if there are
+-	 * pages in the higher zone and if we're not the highest zone
+-	 * in the current zonelist.  e.g., never happens for GFP_DMA. Happens
+-	 * only for ZONE_DMA in a GFP_KERNEL allocation and happens for ZONE_DMA
+-	 * and ZONE_NORMAL for a GFP_HIGHMEM allocation.
+-	 */
+-	if (higherzone->present_pages && z_idx < alloc_type)
+-		pages += higherzone->pages_low * sysctl_lower_zone_protection;
+-
+-	return pages;
+-}
+-
+ /*
+- * setup_per_zone_protection - called whenver min_free_kbytes or
+- *	sysctl_lower_zone_protection changes.  Ensures that each zone
+- *	has a correct pages_protected value, so an adequate number of
++ * setup_per_zone_lowmem_reserve - called whenever
++ *	sysctl_lower_zone_reserve_ratio changes.  Ensures that each zone
++ *	has a correct pages reserved value, so an adequate number of
+  *	pages are left in the zone after a successful __alloc_pages().
+- *
+- *	This algorithm is way confusing.  I tries to keep the same behavior
+- *	as we had with the incremental min iterative algorithm.
+  */
+-static void setup_per_zone_protection(void)
++static void setup_per_zone_lowmem_reserve(void)
+ {
+ 	struct pglist_data *pgdat;
+-	struct zone *zones, *zone;
+-	int max_zone;
+-	int i, j;
++	int j, idx;
+ 
+ 	for_each_pgdat(pgdat) {
+-		zones = pgdat->node_zones;
++		for (j = 0; j < MAX_NR_ZONES; j++) {
++			struct zone * zone = pgdat->node_zones + j;
++			unsigned long present_pages = zone->present_pages;
+ 
+-		for (i = 0, max_zone = 0; i < MAX_NR_ZONES; i++)
+-			if (zones[i].present_pages)
+-				max_zone = i;
++			zone->lowmem_reserve[j] = 0;
+ 
+-		/*
+-		 * For each of the different allocation types:
+-		 * GFP_DMA -> GFP_KERNEL -> GFP_HIGHMEM
+-		 */
+-		for (i = 0; i < GFP_ZONETYPES; i++) {
+-			/*
+-			 * For each of the zones:
+-			 * ZONE_HIGHMEM -> ZONE_NORMAL -> ZONE_DMA
+-			 */
+-			for (j = MAX_NR_ZONES-1; j >= 0; j--) {
+-				zone = &zones[j];
++			for (idx = j-1; idx >= 0; idx--) {
++				struct zone * lower_zone = pgdat->node_zones + idx;
+ 
+-				/*
+-				 * We never protect zones that don't have memory
+-				 * in them (j>max_zone) or zones that aren't in
+-				 * the zonelists for a certain type of
+-				 * allocation (j>=i).  We have to assign these
+-				 * to zero because the lower zones take
+-				 * contributions from the higher zones.
+-				 */
+-				if (j > max_zone || j >= i) {
+-					zone->protection[i] = 0;
+-					continue;
+-				}
+-				/*
+-				 * The contribution of the next higher zone
+-				 */
+-				zone->protection[i] = higherzone_val(zone,
+-								max_zone, i);
++				lower_zone->lowmem_reserve[j] = present_pages / sysctl_lowmem_reserve_ratio[idx];
++				present_pages += lower_zone->present_pages;
+ 			}
+ 		}
+ 	}
+@@ -1991,7 +1928,7 @@ static int __init init_per_zone_pages_mi
+ 	if (min_free_kbytes > 65536)
+ 		min_free_kbytes = 65536;
+ 	setup_per_zone_pages_min();
+-	setup_per_zone_protection();
++	setup_per_zone_lowmem_reserve();
+ 	return 0;
+ }
+ module_init(init_per_zone_pages_min)
+@@ -2006,20 +1943,23 @@ int min_free_kbytes_sysctl_handler(ctl_t
+ {
+ 	proc_dointvec(table, write, file, buffer, length, ppos);
+ 	setup_per_zone_pages_min();
+-	setup_per_zone_protection();
+ 	return 0;
+ }
+ 
+ /*
+- * lower_zone_protection_sysctl_handler - just a wrapper around
+- *	proc_dointvec() so that we can call setup_per_zone_protection()
+- *	whenever sysctl_lower_zone_protection changes.
++ * lowmem_reserve_ratio_sysctl_handler - just a wrapper around
++ *	proc_dointvec() so that we can call setup_per_zone_lowmem_reserve()
++ *	whenever sysctl_lowmem_reserve_ratio changes.
++ *
++ * The reserve ratio obviously has absolutely no relation with the
++ * pages_min watermarks. The lowmem reserve ratio can only make sense
++ * if in function of the boot time zone sizes.
+  */
+-int lower_zone_protection_sysctl_handler(ctl_table *table, int write,
++int lowmem_reserve_ratio_sysctl_handler(ctl_table *table, int write,
+ 		 struct file *file, void __user *buffer, size_t *length, loff_t *ppos)
+ {
+ 	proc_dointvec_minmax(table, write, file, buffer, length, ppos);
+-	setup_per_zone_protection();
++	setup_per_zone_lowmem_reserve();
+ 	return 0;
+ }
+ 

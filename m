@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264945AbTBAScp>; Sat, 1 Feb 2003 13:32:45 -0500
+	id <S264943AbTBASaq>; Sat, 1 Feb 2003 13:30:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264950AbTBAScp>; Sat, 1 Feb 2003 13:32:45 -0500
-Received: from mailg.telia.com ([194.22.194.26]:5582 "EHLO mailg.telia.com")
-	by vger.kernel.org with ESMTP id <S264945AbTBAScn>;
-	Sat, 1 Feb 2003 13:32:43 -0500
-X-Original-Recipient: linux-kernel@vger.kernel.org
-Message-ID: <005701c2ca21$9c1d90b0$020120b0@jockeXP>
-From: "Joakim Tjernlund" <Joakim.Tjernlund@lumentis.se>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <004701c2ca03$cb467460$020120b0@jockeXP> <3E3C0684.4010806@pobox.com>
-Subject: Re: NETIF_F_SG question
-Date: Sat, 1 Feb 2003 19:42:01 +0100
-Organization: Lumentis AB
+	id <S264944AbTBASaq>; Sat, 1 Feb 2003 13:30:46 -0500
+Received: from dc-mx15.cluster0.charter.net ([209.225.8.25]:53398 "EHLO
+	dc-mx15.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id <S264943AbTBASap>; Sat, 1 Feb 2003 13:30:45 -0500
+Message-ID: <3E3C15BD.7060505@charter.net>
+Date: Sat, 01 Feb 2003 12:45:17 -0600
+From: Howard Shane <ozymandias@charter.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel craps out accessing Sony CDRW with ide-scsi
+References: <Pine.LNX.4.10.10301291155280.28027-100000@master.linux-ide.org>	 <1043927211.28133.23.camel@irongate.swansea.linux.org.uk>	 <3E399431.2080603@charter.net> <1043966097.32594.2.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1043966097.32594.2.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Joakim Tjernlund wrote:
-> > I am thinking of implementing harware scatter/gatter support( NETIF_F_SG) in my 
-> > ethernet driver. The network device cannot do HW checksuming.
-> > 
-> > Will the IP stack make use of the SG support and will there be any significant performance
-> > improvement?
-> 
-> 
-> No; you need HW checksumming for NETIF_F_SG to be useful.
-> 
-> If HW checksumming is not available, scatter-gather is useless, because 
-> the net stack must always make a pass over the data to checksum it. 
-> Since it must do that, it can linearize the skb at the same time, 
-> eliminating the need for SG.
-> 
-> Jeff
+After heavy testing of the drive with a 2.4.21-pre kernel I have yet to 
+be able to reproduce the problem.  :^)
 
-linearize = copy small buffers inte one big buffer, or?
-Surley the copy operation will cost something?   
+Alan Cox wrote:
 
- Jocke
+>On Thu, 2003-01-30 at 21:08, Howard Shane wrote:
+>  
+>
+>>FYI I am running 2.4.20, and the CDRW in question is the master on the 
+>>bus it is attached to. I'll be happy to send more logs of the event or 
+>>any other info you request.  Thanks
+>>    
+>>
+>
+>Im mostly interested to know if the newer IDE code now merged into
+>2.4.21pre also shows the same problem for you.
+>
+>
+>  
+>
+

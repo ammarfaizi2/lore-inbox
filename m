@@ -1,47 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266736AbSK1Vkr>; Thu, 28 Nov 2002 16:40:47 -0500
+	id <S266763AbSK1Vvd>; Thu, 28 Nov 2002 16:51:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266749AbSK1Vkq>; Thu, 28 Nov 2002 16:40:46 -0500
-Received: from sccrmhc03.attbi.com ([204.127.202.63]:38299 "EHLO
-	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
-	id <S266736AbSK1Vkq>; Thu, 28 Nov 2002 16:40:46 -0500
-Message-ID: <3DE68F2D.3010706@kegel.com>
-Date: Thu, 28 Nov 2002 13:48:29 -0800
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
-X-Accept-Language: de-de, en
+	id <S266772AbSK1Vvd>; Thu, 28 Nov 2002 16:51:33 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:55014 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S266763AbSK1Vvb>;
+	Thu, 28 Nov 2002 16:51:31 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Russell King <rmk@arm.linux.org.uk>
+Date: Thu, 28 Nov 2002 22:58:35 +0100
 MIME-Version: 1.0
-To: Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org
-Subject: re: Possible Linux Theme Song :)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: [OT] Re: connectivity to bkbits.net?
+Cc: linux-kernel@vger.kernel.org, lm@bitmover.com
+X-mailer: Pegasus Mail v3.50
+Message-ID: <8D5CDD20AEF@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam wrote:
-> I just ran across this song, recorded by Lyle Lovett.  As you can see, he really
-> likes penguins.  If you'd like to hear the song, I'd be glad to send you a tape.
-
-A couple years ago, TiVo had a contest where they asked people to
-write essays about why they deserved a TiVo; they gave away ten a day for a while.
-My entire entry was:
-
-> There are about a zillion reasons why I want TiVo- here are the top ten:
+On 28 Nov 02 at 21:13, Russell King wrote:
+> On Thu, Nov 28, 2002 at 06:53:00PM +0200, Kai Henningsen wrote:
+> > >From two or three traceroutes, that problem seems to be at the SGI end. I  
+> > can't get to them either (nothing after the same IP as for you, at hop  
+> > #17, some place at Genuity), but you are practically next door.
 > 
-> 10. My fiancee loves TV.
-> 9. I hate commercials.
-> 8. We have three favorite shows, but are often out when they're on.
-> 7. I will forever kick myself for not taping all the episodes of Baylon 5.
-> 6. Want to make commercial-free tapes of "Sex in the City" for our friend who doesn't have cable.
-> 5. I'm tired of tapes getting caught in the VCR.
-> 4. I can't stand the channel guide on our cable system.
-> 3. I want to be able to single-step through Republican presidential commercials.
-> 2. TiVo runs Linux, and I go for penguins.
-> 1. No more blinking 12:00!
+> Lesson #1 of firewalling: drop everything.
+> Lesson #2 of firewalling: only accept what you absolutely have to.
+> 
+> Try pointing a web browser at sgi.com port 80.  I _bet_ you get a
+> response.  The site is reachable, they just block UDP (and probably
+> a lot of other stuff.)
+> 
+> traceroute uses UDP, so if a site drops UDP (rather than blocking it)
+> it will appear as a black hole.
 
-(#2 was a reference to the Lyle Lovett song.)
+Fortunately people do not sleep, and Michael C. Toren invented 
+tcptraceroute, so you get same level of diagnostic, but by using
+TCP instead of UDP probe... Very useful these days, as almost all
+sites have TCP port 80 open ;-)
+                                            Petr Vandrovec
+                                            
+                                            
 
-I won the TiVo.
-- Dan
-
+vana:/mnt2$ tcptraceroute www.sgi.com
+Selected device eth0, address 147.32.240.58, port 34029 for outgoing packets
+Tracing the path to www.sgi.com (128.167.58.40) on TCP port 80, 30 hops max
+ 1  vc-gw.cvut.cz (147.32.240.254)  1.321 ms  1.153 ms  6.154 ms
+ 2  147.32.253.80 (147.32.253.80)  0.423 ms  0.339 ms  0.307 ms
+ 3  195.113.144.173 (195.113.144.173)  0.419 ms  0.372 ms  0.321 ms
+ 4  r41prg-pos13-0-stm16.cesnet.cz (195.113.156.110)  0.559 ms  0.635 ms  0.647 ms
+ 5  prag-b1-pos4-0.telia.net (213.248.77.117)  0.867 ms  0.800 ms  0.884 ms
+ 6  hbg-bb1-pos1-3-2.telia.net (213.248.64.181)  26.808 ms  26.885 ms  26.638 ms
+ 7  kbn-bb1-pos2-0-0.telia.net (213.248.64.29)  32.324 ms  32.372 ms  32.316 ms
+ 8  nyk-bb1-pos2-0-0.telia.net (213.248.64.110)  111.833 ms  111.701 ms  111.697 ms
+ 9  chi-bb1-pos0-1-0.telia.net (213.248.80.6)  137.653 ms  137.799 ms  137.962 ms
+10  genuity2.k.telia.net (213.248.84.66)  134.193 ms  133.843 ms  133.846 ms
+11  so-2-3-0.chcgil2-br1.bbnplanet.net (4.24.7.133)  132.150 ms  132.127 ms  132.033 ms
+12  so-7-0-0.chcgil2-br2.bbnplanet.net (4.24.5.218)  132.175 ms  132.197 ms  132.248 ms
+13  p4-0.dnvtco1-br2.bbnplanet.net (4.24.9.62)  187.552 ms  187.429 ms  188.031 ms
+14  p15-0.snjpca1-br2.bbnplanet.net (4.0.6.225)  181.492 ms  181.259 ms  181.456 ms
+15  p1-0.sjccolo-dbe2.bbnplanet.net (4.24.6.249)  187.192 ms  188.640 ms  187.578 ms
+16  vlan40.sjccolo-isw03-rc1.bbnplanet.net (128.11.200.91)  187.261 ms  187.584 ms  187.468 ms
+17  128.11.16.169 (128.11.16.169)  187.644 ms  187.481 ms  187.460 ms
+18  www.sgi.com (128.167.58.40) [open]  181.586 ms  182.415 ms  181.513 ms
+vana:/mnt2$

@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262920AbTIAFlg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 01:41:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262893AbTIAFlg
+	id S263052AbTIAFoU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 01:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263071AbTIAFoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 01:41:36 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:47504 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262920AbTIAFkM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 01:40:12 -0400
-Date: Sun, 31 Aug 2003 22:31:02 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: mfedyk@matchmail.com, lm@bitmover.com, linux-kernel@vger.kernel.org
+	Mon, 1 Sep 2003 01:44:19 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:34441 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263052AbTIAFoO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 01:44:14 -0400
+Date: Mon, 1 Sep 2003 06:44:13 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
 Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-Message-Id: <20030831223102.3affcb34.davem@redhat.com>
-In-Reply-To: <20030831224937.GA29239@mail.jlokier.co.uk>
-References: <20030829053510.GA12663@mail.jlokier.co.uk>
-	<20030829154101.GB16319@work.bitmover.com>
-	<20030829230521.GD3846@matchmail.com>
-	<20030830221032.1edf71d0.davem@redhat.com>
-	<20030831224937.GA29239@mail.jlokier.co.uk>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Message-ID: <20030901054413.GF748@mail.jlokier.co.uk>
+References: <20030829053510.GA12663@mail.jlokier.co.uk> <20030829154101.GB16319@work.bitmover.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030829154101.GB16319@work.bitmover.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 31 Aug 2003 23:49:37 +0100
-Jamie Lokier <jamie@shareable.org> wrote:
+Larry McVoy wrote:
+> On Fri, Aug 29, 2003 at 06:35:10AM +0100, Jamie Lokier wrote:
+> > I'd appreciate if folks would run the program below on various
+> > machines, especially those whose caches aren't automatically coherent
+> > at the hardware level.
+> 
+> Results for Alpha, IA64, MIPS, ARM, PARISC, PPC, MIPSEL, X86, SPARC
 
-> It uses POSIX shared memory and (necessarily) MAP_SHARED, which
-> doesn't constrain the mapping alignment.
+Thanks Larry.  That's a great range you have!
+Collected and will be posted shortly in a table with the others.
 
-That's wrong.  If a platform needs to, it should properly
-align the mapping when MAP_SHARED is used on a file.
+> If you care, I also have freebsd (v2, v3, v4), netbsd 1.5, openbsd 3.0 (all
+> bsd systems are x86, mostly celerons), hpux 10.20, sco, solaris, solaris/x86,
+> Irix, MacOS X, AIX, Tru64 and probably some others.
 
-If you look in arch/sparc64/kernel/sys_sparc.c, you'll see
-that when we're mmap()'ing a file and MAP_SHARED is specified,
-we align things to SHMLBA.
+AIX would be interesting; I don't have an RS6000.  The rest of the
+CPUs I have results for, and it sounds like a lot of effort for what's
+basically a compile/compatibility test.
 
-If userspace purposefully violates this alignment attempt,
-then it's at it's own peril to keep the mappings coherent,
-there is simply nothing the kernel should be doing to help
-out that case.
+However, if it's very little effort for you to run the test on them please do!
+
+Thanks,
+-- Jamie

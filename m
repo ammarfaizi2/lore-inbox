@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267313AbUHPBZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267311AbUHPB13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267313AbUHPBZv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 21:25:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267314AbUHPBZv
+	id S267311AbUHPB13 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 21:27:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267314AbUHPB13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 21:25:51 -0400
-Received: from amdext4.amd.com ([163.181.251.6]:58305 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S267313AbUHPBZt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 21:25:49 -0400
-Message-ID: <C2BC72CDFC11A44083B660CAC2E9EA67257333@SAUSEXMB1.amd.com>
-From: richard.brunner@amd.com
-To: ak@muc.de, kugelfang@gentoo.org
-cc: linux-kernel@vger.kernel.org
-Subject: RE: [RFC] Microcode Update Driver for AMD K8 CPUs
-Date: Sun, 15 Aug 2004 20:24:57 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 6D3ED365548818-01-01
-Content-Type: text/plain;
- charset=iso-8859-1
+	Sun, 15 Aug 2004 21:27:29 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:10480 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S267311AbUHPB1X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 21:27:23 -0400
+Subject: [PATCH] Read cpumasks every time when exporting through sysfs
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, pj@sgi.com
+Content-Type: text/plain
+Message-Id: <1092619602.29608.47.camel@bach>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 16 Aug 2004 11:26:42 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Name: Read cpumasks every time when exporting through sysfs
+Status: Booted on 2.6.7-rc2-bk7
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+
+Paul Jackson points out that the sysfs code saves a node's cpumask in
+the sysfs node, although it can change with CPU hotplug.  Don't do
+this.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .4860-linux-2.6.7-rc2-bk7/drivers/base/node.c .4860-linux-2.6.7-rc2-bk7.updated/drivers/base/node.c
+--- .4860-linux-2.6.7-rc2-bk7/drivers/base/node.c	2004-06-07 07:47:33.000000000 +1000
++++ .4860-linux-2.6.7-rc2-bk7.updated/drivers/base/node.c	2004-06-07 12:26:16.000000000 +1000
+@@ -18,7 +18,7 @@ static struct sysdev_class node_class = 
+ static ssize_t node_read_cpumap(struct sys_device * dev, char * buf)
+ {
+ 	struct node *node_dev = to_node(dev);
+-	cpumask_t mask = node_dev->cpumap;
++	cpumask_t mask = node_to_cpumask(node_dev->sysdev.id);
+ 	int len;
+ 
+ 	/* 2004/06/03: buf currently PAGE_SIZE, need > 1 char per 4 bits. */
+@@ -116,7 +116,6 @@ int __init register_node(struct node *no
+ {
+ 	int error;
+ 
+-	node->cpumap = node_to_cpumask(num);
+ 	node->sysdev.id = num;
+ 	node->sysdev.cls = &node_class;
+ 	error = sysdev_register(&node->sysdev);
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .4860-linux-2.6.7-rc2-bk7/include/linux/node.h .4860-linux-2.6.7-rc2-bk7.updated/include/linux/node.h
+--- .4860-linux-2.6.7-rc2-bk7/include/linux/node.h	2003-09-22 10:27:37.000000000 +1000
++++ .4860-linux-2.6.7-rc2-bk7.updated/include/linux/node.h	2004-06-07 12:24:47.000000000 +1000
+@@ -23,7 +23,6 @@
+ #include <linux/cpumask.h>
+ 
+ struct node {
+-	cpumask_t cpumap;	/* Bitmap of CPUs on the Node */
+ 	struct sys_device	sysdev;
+ };
  
 
->Danny van Dyk <kugelfang@gentoo.org> writes:
->
->> I recently found some piece of code [1] to perform a microcode update
->> on AMD's K8 CPUs. It included some update blocks hardcoded into the
->> module.
-
->Several people found this code (including me). But I don't think
->it's a good idea right now to merge because it is better to leave
->these things to the BIOS. It's unlikely that AMD will regularly
->release "open" microcode updates anyways, and moving them
->between BIOSes seems a bit dangerous to me (often you likely
->need to change some magic MSRs too or you could have some 
->side effects). Overall it seems to be too dangerous to 
->do in a standard kernel. 
->
->Also I suspect the driver won't work very well on SMP. 
->
->-Andi
-
-As usual, Andi is absolutely correct.
-
-	-Rich Brunner, AMD Fellow
+-- 
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

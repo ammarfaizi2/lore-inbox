@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263104AbUB0Uye (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 15:54:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263108AbUB0Uye
+	id S263097AbUB0Uyj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 15:54:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263108AbUB0Uyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 15:54:34 -0500
-Received: from outbound01.telus.net ([199.185.220.220]:53957 "EHLO
-	priv-edtnes57.telusplanet.net") by vger.kernel.org with ESMTP
-	id S263104AbUB0Uyc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 15:54:32 -0500
-Subject: Re: drivers/ieee1394/sbp2.c:734: error: `host' undeclared (first
-	use in this function) 2.6.3-bk3
-From: Bob Gill <gillb4@telusplanet.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1077915448.5669.143.camel@localhost.localdomain>
+	Fri, 27 Feb 2004 15:54:39 -0500
+Received: from fw.osdl.org ([65.172.181.6]:2497 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263097AbUB0Uyh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 15:54:37 -0500
+Date: Fri, 27 Feb 2004 12:55:16 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rik van Riel <riel@redhat.com>
+Cc: andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high
+ end)
+Message-Id: <20040227125516.44a85ba4.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0402271544520.1747-100000@chimarrao.boston.redhat.com>
+References: <20040227122936.4c1be1fd.akpm@osdl.org>
+	<Pine.LNX.4.44.0402271544520.1747-100000@chimarrao.boston.redhat.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 27 Feb 2004 13:57:28 -0700
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.  I just saw your questions on LKML about this problem.  The current
-status is that the problem (for me) still exists (but a solution is in
-progress).  The initial problem was that the kernel build failed.  Both
-Ben Collins' and Dave Jones' solutions fixed that problem and the build
-process is successful, but my external firewire drives weren't working. 
-Ben suspected IEEE1212 detection wasn't working and sent me csr_dump.  I
-ran it and it confirmed that not all of my hardware rom is being read
-(the rom in the device, not in the 1394 controller) and so devices
-aren't being detected.  
-Ben contacted Steve Kinneberg (who contacted me).  I sent Steve a
-(really ugly hack) of csr_dump to try and display all of the rom, but
-there are still quadlets not being detected.  I don't have IEEE1212 spec
-sheets and am not familiar with the protocol, but Steve said that a CSR
-(configuration and status rom) node is missing from the ieee1212 root
-directory for my hard drives, and there is a gap in the rom data.  Steve
-is working on a updated csr_dump and hoped to have it finished this
-weekend.  I would suspect that anyone with Oxford Semi FW900 controllers
-would have the same problem (certainly anyone with same rom).  I have a
-sony camera connected  to the 1394 bus also, and it gets detected
-perfectly.  
+Rik van Riel <riel@redhat.com> wrote:
+>
+> > Current 2.6 will write out nr_inactive>>DEF_PRIORITY pages,
+> 
+>  That may be a bit much on extremely huge systems, but that should
+>  require no more than a little tweaking to fix.  Certainly no code
+>  changes should be needed ...
 
-Bob
+hmm, with 4 million pages on the inactive list that's 1000 pages.  It might
+be OK.
 
+Bear in mind that under usual circumstances the direct-reclaim path will
+refuse to block on request queue exhaustion so we might end up just
+scanning past some dirty pages without starting I/O against them at all. 
+End result: some jumbling up of the LRU order.  I suspect that's a
+second-order problem though.  But hey, if we have a testcase, we can fix it!

@@ -1,85 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263857AbTLJSh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 13:37:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263868AbTLJSh3
+	id S263726AbTLJTBv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 14:01:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263803AbTLJTBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 13:37:29 -0500
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:48013 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S263857AbTLJSh1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 13:37:27 -0500
-Date: Wed, 10 Dec 2003 19:37:23 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause?
-Message-ID: <20031210183723.GK29648@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10312100550500.3805-100000@master.linux-ide.org> <Pine.LNX.4.58.0312100714390.29676@home.osdl.org> <20031210153254.GC6896@work.bitmover.com> <Pine.LNX.4.58.0312100809150.29676@home.osdl.org> <20031210163425.GF6896@work.bitmover.com> <Pine.LNX.4.58.0312100852210.29676@home.osdl.org> <20031210175614.GH6896@work.bitmover.com> <Pine.LNX.4.58.0312100959180.29676@home.osdl.org> <20031210180822.GI6896@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="arYKMy5bKB/hcRo6"
-Content-Disposition: inline
-In-Reply-To: <20031210180822.GI6896@work.bitmover.com>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.4i
+	Wed, 10 Dec 2003 14:01:50 -0500
+Received: from us01smtp2.synopsys.com ([198.182.44.80]:37372 "EHLO
+	kiruna.synopsys.com") by vger.kernel.org with ESMTP id S263726AbTLJTBt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 14:01:49 -0500
+Message-ID: <3FD76D99.1960A104@synopsys.com>
+Date: Wed, 10 Dec 2003 14:01:45 -0500
+From: Chris Petersen <Chris.Petersen@synopsys.com>
+Reply-To: Chris.Petersen@synopsys.com
+Organization: Synopsys, Inc.
+X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>
+Cc: Chris Petersen <Chris.Petersen@synopsys.COM>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: FIXED (was Re: PROBLEM:  Blk Dev Cache causing kswapd thrashing)
+References: <Pine.LNX.4.44.0311271649520.21568-100000@logos.cnet> <3FD75B8A.21FA59D9@synopsys.com> <20031210180849.GA13303@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave Jones wrote:
+> 
+> On Wed, Dec 10, 2003 at 12:44:42PM -0500, Chris Petersen wrote:
+> >
+> > To confuse matters RedHat has released an RPM with 2.4.20-24.7 which
+> > apparently contains later patches that include the fix.
+> 
+> 2.4.20-24.7 contains two patches. Both security issues. (do_brk
+> and an nptl local DoS), nothing else (vs previous 2.4.20-20.7)
 
---arYKMy5bKB/hcRo6
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I wasn't claiming that it wasn't fixed UNTIL 2.4.20-24.7 specifically.
+I was merely stating that 2.4.20-24.7 appears to contain the fix.
 
-On Wed, 2003-12-10 10:08:22 -0800, Larry McVoy <lm@bitmover.com>
-wrote in message <20031210180822.GI6896@work.bitmover.com>:
-> On Wed, Dec 10, 2003 at 10:02:47AM -0800, Linus Torvalds wrote:
-> > On Wed, 10 Dec 2003, Larry McVoy wrote:
+After some research it looks like the fix is sortof there in
+RedHat's 2.4.20-13.7.  It behaves better, but not as good as 2.4.23
+or 2.4.20-24.7.  By "better" I mean kswapd (and bdflush, kupdated,
+kreclaimd) doesn't hog the CPU(s) as much; but it still does to
+a greater extent compared to what I'm calling the "fixed" versions.
+So in 2.4.20-13.7 it's quasi-busted or quasi-fixed, depending on
+your half-full/empty position.
 
-> Technicality.  Which, by your own reasoning, doesn't count.  Linux does
-> indeed have a binary interface, many people download drivers from some
-> website (I've done it a pile of times) and stuck them in and they worked.
-> I did that with the modem on my thinkpad across more than 10 kernel
-> versions in the 2.2 or 2.4 timeframe.
+>  > This can be
+>  > confusing because their 2.4.21-4EL kernel is busted (WRT this bug)
+> 
+> That kernel bears no relation whatsoever to 2.4.20-24.7
+> It's for a completely different product for one thing, with
+> very little in common between them (in terms of patches we add).
 
-But guess - that can fire back, too. Just had it these days: I've build
-a Linux kernel with, erm, some strange GCC options (hey, I like playing)
-and inserted AVM's binars ISDN driver. Guess what had happened then:)
+Exactly my point!
 
-That is, just let's stop to prattle about binary modules. We praddle
-(all the time) that there's no thing called an "ABI" in Linux for
-modules, but in The Real World, the ABIs of two kernel images are
-quasi-identical (except in some instances which can easily be caught by
-a wrapper module).
+I suppose I am working from the assumption that if vanilla
+(kernel.org) 2.4.20 was fixed then 2.4.21-4EL would also be fixed
+(which it's not).  It would seem to me that a kernel's got no
+business calling itself 2.4.21-<anything> if it's not based off of
+previous kernel base.  Otherwise, "21" has absolutely no meaning.
 
-So it's all about *really* changing ABI things here and there. Yes, an
-obnoxious pig I am:) I'd start thinking about who I could achieve that
-in a working manner...
+Imperical evidence seems to indicate that vanilla 2.4.20 does not
+contain the fix.  Whereas something that RedHat calls 2.4.20-XYZ does.
 
-MfG, JBG
+-chris
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
+-----------------------------------------------------------------
+Chris M. Petersen                                cmp@synopsys.com
+Sr. R&D Engineer
 
---arYKMy5bKB/hcRo6
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/12fjHb1edYOZ4bsRAkBCAJ95VoU/4pc+BdJPkylRIpzAViAHzQCfVNex
-izgbfDeSr44aerVq/Byk9Ik=
-=rHYp
------END PGP SIGNATURE-----
-
---arYKMy5bKB/hcRo6--
+Synopsys, Inc.                                    o: 919.425.7342
+1101 Slater Road, Suite 300                       c: 919.349.6393
+Durham, NC  27703                                 f: 919.425.7320
+-----------------------------------------------------------------

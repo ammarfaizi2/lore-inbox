@@ -1,84 +1,225 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264918AbUFAUox@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265214AbUFAUv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264918AbUFAUox (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 16:44:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264932AbUFAUox
+	id S265214AbUFAUv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 16:51:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265215AbUFAUv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 16:44:53 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:4783 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S264918AbUFAUov (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 16:44:51 -0400
-Date: Tue, 1 Jun 2004 22:46:03 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] active_load_balance() deadlock
-Message-ID: <20040601204603.GA20535@elte.hu>
-References: <200406011409.54478.bjorn.helgaas@hp.com> <Pine.LNX.4.58.0406011316190.14095@ppc970.osdl.org>
+	Tue, 1 Jun 2004 16:51:57 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:40289 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S265214AbUFAUvf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 16:51:35 -0400
+Subject: [PATCH] 2.6.6 synclink.c
+From: Paul Fulghum <paulkf@microgate.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@redhat.com>
+In-Reply-To: <20040528160612.306c22ab.akpm@osdl.org>
+References: <20040527174509.GA1654@quadpro.stupendous.org>
+	 <1085769769.2106.23.camel@deimos.microgate.com>
+	 <20040528160612.306c22ab.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1086123064.2171.12.camel@deimos.microgate.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0406011316190.14095@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 01 Jun 2004 15:51:05 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Patch to drivers/char/synclink.c against 2.6.6
+to cleanup properly on errors during
+driver initialization.
 
-* Linus Torvalds <torvalds@osdl.org> wrote:
+In particular, call pci_unregister_driver if
+driver init fails. This is in response to a bug
+report by Dave Jones.
 
-> On Tue, 1 Jun 2004, Bjorn Helgaas wrote:
-> >
-> > active_load_balance() looks susceptible to deadlock when busiest==rq.
-> > Without the following patch, my 128-way box deadlocks consistently
-> > during boot-time driver init.
-> 
-> Makes sense. The regular "load_balance()" already has that test,
-> although it also makes it a WARN_ON() for some unexplained reason (I
-> assume find_busiest_group() isn't supposed to find the local group,
-> although it doesn't seem to be documented anywhere).
-> 
-> Ingo, Andrew?
+Please apply.
 
-looks good to me. The condition is 'impossible', but the whole balancing
-code is (intentionally) a bit racy:
+--
+Paul Fulghum
+paulkf@microgate.com
 
-                cpus_and(tmp, group->cpumask, cpu_online_map);
-                if (!cpus_weight(tmp))
-                        goto next_group;
 
-                for_each_cpu_mask(i, tmp) {
-                        if (!idle_cpu(i))
-                                goto next_group;
-                        push_cpu = i;
-                }
 
-                rq = cpu_rq(push_cpu);
-                double_lock_balance(busiest, rq);
-                move_tasks(rq, push_cpu, busiest, 1, sd, IDLE);
+--- linux-2.6.6/drivers/char/synclink.c	2004-06-01 15:30:02.903257790 -0500
++++ linux-2.6.6-mg1/drivers/char/synclink.c	2004-06-01 15:28:24.166310318 -0500
+@@ -1,7 +1,7 @@
+ /*
+  * linux/drivers/char/synclink.c
+  *
+- * $Id: synclink.c,v 4.21 2004/03/08 15:29:22 paulkf Exp $
++ * $Id: synclink.c,v 4.22 2004/06/01 20:27:46 paulkf Exp $
+  *
+  * Device driver for Microgate SyncLink ISA and PCI
+  * high speed multiprotocol serial adapters.
+@@ -782,7 +782,6 @@
+ void mgsl_release_resources(struct mgsl_struct *info);
+ void mgsl_add_device(struct mgsl_struct *info);
+ struct mgsl_struct* mgsl_allocate_device(void);
+-int mgsl_enum_isa_devices(void);
+ 
+ /*
+  * DMA buffer manupulation functions.
+@@ -909,7 +908,7 @@
+ MODULE_PARM(txholdbufs,"1-" __MODULE_STRING(MAX_TOTAL_DEVICES) "i");
+ 
+ static char *driver_name = "SyncLink serial driver";
+-static char *driver_version = "$Revision: 4.21 $";
++static char *driver_version = "$Revision: 4.22 $";
+ 
+ static int synclink_init_one (struct pci_dev *dev,
+ 				     const struct pci_device_id *ent);
+@@ -4484,9 +4483,10 @@
+ /*
+  * perform tty device initialization
+  */
+-int mgsl_init_tty(void);
+-int mgsl_init_tty()
++static int mgsl_init_tty(void)
+ {
++	int rc;
++
+ 	serial_driver = alloc_tty_driver(mgsl_device_count);
+ 	if (!serial_driver)
+ 		return -ENOMEM;
+@@ -4503,9 +4503,13 @@
+ 		B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+ 	serial_driver->flags = TTY_DRIVER_REAL_RAW;
+ 	tty_set_operations(serial_driver, &mgsl_ops);
+-	if (tty_register_driver(serial_driver) < 0)
++	if ((rc = tty_register_driver(serial_driver)) < 0) {
+ 		printk("%s(%d):Couldn't register serial driver\n",
+ 			__FILE__,__LINE__);
++		put_tty_driver(serial_driver);
++		serial_driver = NULL;
++		return rc;
++	}
+ 			
+  	printk("%s %s, tty major#%d\n",
+ 		driver_name, driver_version,
+@@ -4515,7 +4519,7 @@
+ 
+ /* enumerate user specified ISA adapters
+  */
+-int mgsl_enum_isa_devices()
++static void mgsl_enum_isa_devices(void)
+ {
+ 	struct mgsl_struct *info;
+ 	int i;
+@@ -4546,51 +4550,9 @@
+ 		
+ 		mgsl_add_device( info );
+ 	}
+-	
+-	return 0;
+-}
+-
+-/* mgsl_init()
+- * 
+- * 	Driver initialization entry point.
+- * 	
+- * Arguments:	None
+- * Return Value:	0 if success, otherwise error code
+- */
+-int __init mgsl_init(void)
+-{
+-	int rc;
+-
+- 	printk("%s %s\n", driver_name, driver_version);
+-	
+-	mgsl_enum_isa_devices();
+-	pci_register_driver(&synclink_pci_driver);
+-
+-	if ( !mgsl_device_list ) {
+-		printk("%s(%d):No SyncLink devices found.\n",__FILE__,__LINE__);
+-		return -ENODEV;
+-	}
+-	if ((rc = mgsl_init_tty()))
+-		return rc;
+-	
+-	return 0;
+-}
+-
+-static int __init synclink_init(void)
+-{
+-/* Uncomment this to kernel debug module.
+- * mgsl_get_text_ptr() leaves the .text address in eax
+- * which can be used with add-symbol-file with gdb.
+- */
+-	if (break_on_load) {
+-	 	mgsl_get_text_ptr();
+-  		BREAKPOINT();
+-	}
+-	
+-	return mgsl_init();
+ }
+ 
+-static void __exit synclink_exit(void) 
++static void synclink_cleanup(void) 
+ {
+ 	int rc;
+ 	struct mgsl_struct *info;
+@@ -4598,11 +4560,13 @@
+ 
+ 	printk("Unloading %s: %s\n", driver_name, driver_version);
+ 
+-	if ((rc = tty_unregister_driver(serial_driver)))
+-		printk("%s(%d) failed to unregister tty driver err=%d\n",
+-		       __FILE__,__LINE__,rc);
++	if (serial_driver) {
++		if ((rc = tty_unregister_driver(serial_driver)))
++			printk("%s(%d) failed to unregister tty driver err=%d\n",
++			       __FILE__,__LINE__,rc);
++		put_tty_driver(serial_driver);
++	}
+ 
+-	put_tty_driver(serial_driver);
+ 	info = mgsl_device_list;
+ 	while(info) {
+ #ifdef CONFIG_SYNCLINK_SYNCPPP
+@@ -4623,6 +4587,40 @@
+ 	pci_unregister_driver(&synclink_pci_driver);
+ }
+ 
++static int __init synclink_init(void)
++{
++	int rc;
++
++	if (break_on_load) {
++	 	mgsl_get_text_ptr();
++  		BREAKPOINT();
++	}
++
++ 	printk("%s %s\n", driver_name, driver_version);
++	
++	mgsl_enum_isa_devices();
++	pci_register_driver(&synclink_pci_driver);
++
++	if ( !mgsl_device_list ) {
++		printk("%s(%d):No SyncLink devices found.\n",__FILE__,__LINE__);
++		rc = -ENODEV;
++		goto error;
++	}
++	if ((rc = mgsl_init_tty()) < 0)
++		goto error;
++	
++	return 0;
++
++error:
++	synclink_cleanup();
++	return rc;
++}
++
++static void __exit synclink_exit(void) 
++{
++	synclink_cleanup();
++}
++
+ module_init(synclink_init);
+ module_exit(synclink_exit);
+ 
 
-in the for_each_cpu_mask() loop we specifically check for each CPU in
-the target group to be idle - so push_cpu's runqueue == busiest [==
-current runqueue] cannot be true because the current CPU is not idle, we
-are running in the migration thread ... But this is not a real problem,
-load-balancing we do in a racy way to reduce overhead [and it's all
-statistics anyway so absolute accuracy is impossible], and active
-balancing itself is somewhat racy due to the migration-thread wakeup
-(and the active_balance flag) going outside the runqueue locks [for
-similar reasons].
 
-so it all looks quite plausible - the normal SMP boxes dont trigger it,
-but Bjorn's 128-CPU setup with a non-trivial domain hiearachy triggers
-it.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo

@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283357AbRLEPmB>; Wed, 5 Dec 2001 10:42:01 -0500
+	id <S283663AbRLEPtv>; Wed, 5 Dec 2001 10:49:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283375AbRLEPlv>; Wed, 5 Dec 2001 10:41:51 -0500
-Received: from mailgate.imerge.co.uk ([195.217.208.100]:37614 "EHLO
-	imgserv04.imerge.co.uk") by vger.kernel.org with ESMTP
-	id <S283357AbRLEPlg>; Wed, 5 Dec 2001 10:41:36 -0500
-Message-ID: <C0D45ABB3F45D5118BBC00508BC292DB0A815E@imgserv04>
-From: James Finnie <jf1@IMERGE.co.uk>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: SCSI generic upgraded in 2.4.17-pre2 ???
-Date: Wed, 5 Dec 2001 15:41:25 -0000 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S282955AbRLEPtl>; Wed, 5 Dec 2001 10:49:41 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:44418 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S283663AbRLEPt3>;
+	Wed, 5 Dec 2001 10:49:29 -0500
+Date: Wed, 5 Dec 2001 16:00:39 +0100
+From: Gert Menke <gert@menke.za.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kapm-idled
+Message-ID: <20011205160039.A1200@mouse.mydomain>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <XFMail.20011205022659.ast@domdv.de> <E16BY1Q-0005Rf-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16BY1Q-0005Rf-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Dec 05, 2001 at 09:07:20AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Hi,
+On Wed, Dec 05, 2001 at 09:07:20AM +0000, Alan Cox wrote:
+> > system idle time. I did send a patch correcting this weird behaviour for
+> > revision to Alan Cox a few days ago but until now there's no reaction from him.
+> It looks quite sensible to me (I thought i had replied)
+> [...]
+> Your patch attached below
 
-The changelog says that this is upgraded to 3.22 by the 2.4.17pre2 patch, I
-don't think it is though!  sg.c still says version 3.20...
+Okay, this seems to work well.
+Thank you!
 
-Or am I seeing things....
+Any chance to see this included in 2.4. soon? That would be great.
 
-
-James
-
-
-	
-
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-Imerge Limited                          Tel :- +44 (0)1954 783600 
-Unit 6 Bar Hill Business Park           Fax :- +44 (0)1954 783601 
-Saxon Way                               Web :- http://www.imerge.co.uk 
-Bar Hill 
-Cambridge 
-CB3 8SL 
-United Kingdom 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-
-
+Greetings
+Gert

@@ -1,75 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbUFSAlZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbUFRUi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261984AbUFSAlZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 20:41:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbUFRUjN
+	id S262007AbUFRUi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 16:38:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266801AbUFRUI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 16:39:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14258 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263851AbUFRUiF (ORCPT
+	Fri, 18 Jun 2004 16:08:57 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:474 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S266602AbUFRUFt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 16:38:05 -0400
-Date: Fri, 18 Jun 2004 13:40:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dimitri Sivanich <sivanich@sgi.com>
-Cc: manfred@colorfullife.com, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net, linux-mm@kvack.org
-Subject: Re: [PATCH]: Option to run cache reap in thread mode
-Message-Id: <20040618134045.2b7ce5c5.akpm@osdl.org>
-In-Reply-To: <20040618143332.GA11056@sgi.com>
-References: <40D08225.6060900@colorfullife.com>
-	<20040616180208.GD6069@sgi.com>
-	<40D09872.4090107@colorfullife.com>
-	<20040617131031.GB8473@sgi.com>
-	<20040617214035.01e38285.akpm@osdl.org>
-	<20040618143332.GA11056@sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 18 Jun 2004 16:05:49 -0400
+Date: Fri, 18 Jun 2004 22:05:48 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Stop the Linux kernel madness
+Message-ID: <20040618200548.GK20632@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040618153350.GB20632@lug-owl.de> <40D33C58.1030905@am.sony.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="r7yLYIqEOHf/o+Om"
+Content-Disposition: inline
+In-Reply-To: <40D33C58.1030905@am.sony.com>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dimitri Sivanich <sivanich@sgi.com> wrote:
->
-> At the time of the holdoff (the point where we've spent a total of 30 usec in
-> the timer_interrupt), we've looped through more than 100 of the 131 caches,
-> usually closer to 120.
 
-ahh, ooh, ow, of course.
+--r7yLYIqEOHf/o+Om
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Manfred, we need a separate list of "slabs which might need reaping".
+On Fri, 2004-06-18 12:02:48 -0700, Tim Bird <tim.bird@am.sony.com>
+wrote in message <40D33C58.1030905@am.sony.com>:
 
-That'll help the average case.  To help the worst case we should change
-cache_reap() to only reap (say) ten caches from the head of the new list
-and to then return.  Maybe increase the timer frequency too.
+> Here's a shameless plug:  I'm having a CELinux BOF at OLS to discuss
+> this and other issues.  It's the night of Wednesday, July 21.
+> Anyone can drop by if they are interested in this topic.
 
-something like:
+Want to offer some airplane ticket Europe -> Canada and back? I'd love
+at attend!
 
-/*
- * FIFO list of caches (via kmem_cache_t.reap_list) which need consideration in
- * cache_reap().  Protected by cache_chain_sem.
- */
-static LIST_HEAD(global_reap_list);
+> >There's a lot of Linux beyond LKML, with a common problem: outdated
+> >source trees, with a shitload of patches. Linus could need another
+> >hacker or two working full-time on reviewing / importing those patches!
+>=20
+> The idea of having some dedicated developers perform this function
+> is actually a pretty good one, although I wouldn't burden Linus
+> with managing them.  That is, it might be useful to have some people
+> following behind embedded product developers trying to glean,
+> generalize, forward-port and otherwise clean-up patches that
+> would otherwise never see the light of day.
 
-cache_reap()
-{
-	for (i = 0; i < 10; i++) {
-		if (list_empty(&global_reap_list))
-			break;
-		cachep = list_entry(&global_reap_list, kmem_cache_t, reap_list);
-		list_del_init(&cachep->reap_list);
-		<prune it>
-	}
-}
+Couldn't have said that any better:)
 
-mark_cache_for_reaping(kmem_cach_t *cachep)
-{
-	if (list_empty(&cachep->reap_list)) {
-		if (!down_trylock(&cache_chain_sem)) {
-			list_add(&cachep->reap_list, &global_reap_list);
-			up(&cache_chain_sem);
-	}
-}
+MfG, JBG
 
-Maybe cache_chain_sem should become a spinlock.
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
+
+--r7yLYIqEOHf/o+Om
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA00scHb1edYOZ4bsRAu8rAJwIz/YMYqXRPcSnQlt+ipl3kZuN+ACfZjmT
+/Ohc89ky+ulIZsHxwk4KTlE=
+=e/1A
+-----END PGP SIGNATURE-----
+
+--r7yLYIqEOHf/o+Om--

@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313675AbSDHPfA>; Mon, 8 Apr 2002 11:35:00 -0400
+	id <S313677AbSDHPpZ>; Mon, 8 Apr 2002 11:45:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313676AbSDHPfA>; Mon, 8 Apr 2002 11:35:00 -0400
-Received: from [62.245.135.174] ([62.245.135.174]:22950 "EHLO mail.teraport.de")
-	by vger.kernel.org with ESMTP id <S313675AbSDHPe7>;
-	Mon, 8 Apr 2002 11:34:59 -0400
-Message-ID: <3CB1B89D.13DDF456@TeraPort.de>
-Date: Mon, 08 Apr 2002 17:34:53 +0200
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Reply-To: m.knoblauch@TeraPort.de
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre3-ac3-mkn i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: pavel@ucw.cz
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [swsusp fixes] Re: Linux 2.4.19pre5-ac3
-X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 04/08/2002 05:34:52 PM,
-	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 04/08/2002 05:34:59 PM,
-	Serialize complete at 04/08/2002 05:34:59 PM
-Content-Transfer-Encoding: 7bit
+	id <S313679AbSDHPpY>; Mon, 8 Apr 2002 11:45:24 -0400
+Received: from kura.mail.jippii.net ([195.197.172.113]:3310 "HELO
+	kura.mail.jippii.net") by vger.kernel.org with SMTP
+	id <S313677AbSDHPpX>; Mon, 8 Apr 2002 11:45:23 -0400
+Date: Mon, 8 Apr 2002 18:47:33 +0300
+From: Anssi Saari <as@sci.fi>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROMBLEM: CD burning at 16x uses excessive CPU, although DMA is enabled
+Message-ID: <20020408154732.GA10271@sci.fi>
+In-Reply-To: <20020408122603.GA7877@sci.fi> <Pine.LNX.3.96.1020408104857.21476C-100000@gatekeeper.tmr.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [swsusp fixes] Re: Linux 2.4.19pre5-ac3
+On Mon, Apr 08, 2002 at 10:54:29AM -0400, Bill Davidsen wrote:
+> On Mon, 8 Apr 2002, Anssi Saari wrote:
 > 
-> +
-> +You have two ways to use this code. The first one is if you've compiled in
-> +sysrq support then you may press Sysrq-D to request suspend. The other way
-> +is with a patched SysVinit (my patch is against 2.76 and available at my
-> +home page). You might call 'swsusp' or 'shutdown -z <time>'.
-> +
-> +Either way it saves the state of the machine into active swaps and then
-> +reboots. By the next booting the kernel's resuming function is either triggered
-> +by swapon -a (which is ought to be in the very early stage of booting) or you
-> +may explicitly specify the swap partition/file to resume from with ``resume=''
-> +kernel option. If signature is found it loads and restores saved state. If the
+> > [1.] One line summary of the problem:    
+> > CD burning at 16x uses excessive CPU, although DMA is enabled
+> 
+>   That's a hint things are not working as you expect...
+>  
+> > [2.] Full description of the problem/report:
+> > My system seems to use a lot of CPU time when writing CDs at 16x. The
+> > system is unable to feed the burning software's buffer fast enough when
+> > burning software (cdrecord 1.11a20, cdrdao 1.1.5) is run as normal user.
+> > If run as root, system is almost unresponsive during the burn.
+> 
+>   With all the information you provided, you have totally not quatified
+> how much CPU you find "excessive."
 
- Does it have to be an "active swap partition"? What about systems
-without active swap, but space enough for a partition?
+I didn't really know how to put it. Maybe system load would be better. But
+the actual problem is, I effectively can't burn audio and other types
+at 16x in Linux, while there is no problem in some other operating systems
+with the same hardware and applications.
 
-Martin
--- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
+Here're some time figures from cdrdao:
+
+cdrdao simulate -n --speed 8 foo.cue  2.62s user 3.37s system 1% cpu 6:41.86 total
+cdrdao simulate -n --speed 12 foo.cue  2.78s user 29.91s system 12% cpu 4:31.71 total
+cdrdao simulate -n --speed 16 foo.cue  2.67s user 128.77s system 52% cpu 4:10.68 total
+
+So yes, system time goes up quite steeply.
+
+But even though 50% is quite high, CPU load is not the problem as such,
+the problem is getting data to the writer fast enough. And it's not
+happening. Even a single audio track that is completely cached so that
+there is no HD access has problems. It's like somehow accessing the CD
+writer hogs the system for such long periods that there is insufficient
+time to fill the writing program's buffer.
+
+One thing I noticed just now. If I turn off unmaskirq for the CD writer
+with hdparm -u 0 /dev/hdc, it helps a little, but not enough. Time
+reports now:
+
+cdrdao simulate -n --speed 16 foo.cue  2.75s user 75.18s system 58% cpu
+2:13.22 total

@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266319AbUH3DMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266344AbUH3DW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266319AbUH3DMy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 23:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266176AbUH3DMy
+	id S266344AbUH3DW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 23:22:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266357AbUH3DW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 23:12:54 -0400
-Received: from dh138.citi.umich.edu ([141.211.133.138]:36271 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S266069AbUH3DMv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 23:12:51 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Hans Reiser <reiser@namesys.com>, flx@msu.ru, Paul Jackson <pj@sgi.com>,
-       riel@redhat.com, ninja@slaphack.com, diegocg@teleline.es,
-       jamie@shareable.org, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       spam@tnonline.net, Andrew Morton <akpm@osdl.org>, wichert@wiggy.net,
-       jra@samba.org, hch@lst.de,
-       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
-In-Reply-To: <Pine.LNX.4.58.0408291919450.2295@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0408271043090.10272-100000@chimarrao.boston.redhat.com>
-	 <412F7D63.4000109@namesys.com> <20040827230857.69340aec.pj@sgi.com>
-	 <20040829150231.GE9471@alias> <4132205A.9080505@namesys.com>
-	 <20040829183629.GP21964@parcelfarce.linux.theplanet.co.uk>
-	 <20040829185744.GQ21964@parcelfarce.linux.theplanet.co.uk>
-	 <41323751.5000607@namesys.com>
-	 <20040829212700.GA16297@parcelfarce.linux.theplanet.co.uk>
-	 <Pine.LNX.4.58.0408291431070.2295@ppc970.osdl.org>
-	 <1093821430.8099.49.camel@lade.trondhjem.org>
-	 <Pine.LNX.4.58.0408291641070.2295@ppc970.osdl.org>
-	 <1093830135.8099.181.camel@lade.trondhjem.org>
-	 <Pine.LNX.4.58.0408291919450.2295@ppc970.osdl.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1093835526.8099.217.camel@lade.trondhjem.org>
+	Sun, 29 Aug 2004 23:22:56 -0400
+Received: from fw.osdl.org ([65.172.181.6]:48541 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266344AbUH3DWz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 23:22:55 -0400
+Date: Sun, 29 Aug 2004 20:21:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm1 can't compile a kernel
+Message-Id: <20040829202106.181784a3.akpm@osdl.org>
+In-Reply-To: <114120000.1093830897@[10.10.2.4]>
+References: <114120000.1093830897@[10.10.2.4]>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 29 Aug 2004 23:12:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På su , 29/08/2004 klokka 22:31, skreiv Linus Torvalds:
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>
+> Seems to crap out with file corruption partway through, saying things
+>  like:
+> 
+>  ld -m elf_i386  -r -o utilities.o utalloc.o utcopy.o utdebug.o utdelete.o uteval.o utglobal.o utinit.o utmath.o utmisc.o utobject.o utxface.o
+>  uteval.o: file not recognized: File truncated
+> 
+>  2.6.9-rc1 seems to work fine. You got any likely candidates to try backing
+>  out / trying separately? Else I guess I'll try linus.patch.
 
-> So together with the fact that nobody really _wants_ hardlinks to 
-> directories, I think the right answer is "no". It's not a problem as
-> long as the attributes streams are always tied to the file/directory
-> they are attributes of - then the "directory link" is really just a
-> file link, and can't cause any cycles.
+Yes, rc1-mm1 does everything right apart from reading data from files.
 
-Right.
+Reverting 
 
-> Do we have any servers that implement it? I think NFSv4 might be a good 
-> test-case if so.
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm1/broken-out/re-fix-pagecache-reading-off-by-one-cleanup.patch
 
-I believe Solaris Express already has an implementation, so I should
-have at least one server implementation available in the basement.
-So probably does Hummingbird, since their NFSv4 server runs on Windows.
+then
 
-CITI is working on the Linux code, but I'm not sure how far they've come
-on the server side. I'll ask Bruce in the morning...
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm1/broken-out/re-fix-pagecache-reading-off-by-one.patch
 
-Cheers,
-  Trond
+will help.

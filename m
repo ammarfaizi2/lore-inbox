@@ -1,446 +1,263 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262584AbTFJMz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 08:55:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbTFJMz5
+	id S262598AbTFJNCu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 09:02:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbTFJNCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 08:55:57 -0400
-Received: from c146009.vh.plala.or.jp ([210.150.146.9]:15493 "EHLO
-	mps3.plala.or.jp") by vger.kernel.org with ESMTP id S262584AbTFJMzs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 08:55:48 -0400
-Date: Tue, 10 Jun 2003 22:02:04 +0900
-From: <yokotak@rmail.plala.or.jp>
-X-Mailer: EdMax Ver2.85.2F
+	Tue, 10 Jun 2003 09:02:50 -0400
+Received: from ihemail2.lucent.com ([192.11.222.163]:22259 "EHLO
+	ihemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id S262598AbTFJNCp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 09:02:45 -0400
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] db9.c (Re: [PATCH] gamecon (added support for Sega Saturn controller), kernel 2.4.20)
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-In-Reply-To: <20030127113636.A9329@ucw.cz>
-References: <20030127113636.A9329@ucw.cz>
-Message-Id: <20030610130209.HXKK7400.mps3.plala.or.jp@rmail.mail.plala.or.jp>
+Message-ID: <16101.55819.768909.143767@gargle.gargle.HOWL>
+Date: Tue, 10 Jun 2003 09:15:55 -0400
+From: "John Stoffel" <stoffel@lucent.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: 2.5.70-mm3 - Oops and hang
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-This is db9.c patch to support Saturn DPP.
-I merged original interface section into DPP section to support
-analog controllers. I gave priority to documentation of
-joystick-parport.txt.
+Here's an oops and hang from /var/log/messages that happened the other
+evening.  It kicked in at 4am or so.  This was running 2.5.70-mm3 SMP,
+PREEMPT, no ACPI, RAID1 on one pair of disks, not root or /boot.
 
-Set 11 or 12 in 'type' to use DPP (11 for a connector, 12 for two
-connectors).
+Here's the messages I got in the messages file.  The system was
+completely hung and needed to be reset to recover:
 
-Tested with:
-* DPP interface (one connector) and joystick-parport.txt interface.
-* Digital controller, saturn keyboard (as joypad), racing controller,
-  mission stick, multi controller, shuttle mouse, multi terminal 6,
-  and sankyo ff.
-
-NOT tested with:
-* DPP interface (two connectors).
-* Virtua Gun, mission stick x2, and other controllers.
-
-Thank you for your reading,
-  yokota
-
-
---- db9.c.orig	2001-09-13 07:34:06.000000000 +0900
-+++ db9.c	2003-04-10 23:03:49.000000000 +0900
-@@ -55,7 +55,9 @@
- #define DB9_MULTI_0802		0x08
- #define DB9_MULTI_0802_2	0x09
- #define DB9_CD32_PAD		0x0A
--#define DB9_MAX_PAD		0x0B
-+#define DB9_SATURN_DPP		0x0B
-+#define DB9_SATURN_DPP_2	0x0C
-+#define DB9_MAX_PAD		0x0D
- 
- #define DB9_UP			0x01
- #define DB9_DOWN		0x02
-@@ -69,10 +71,7 @@
- #define DB9_NORMAL		0x0a
- #define DB9_NOSELECT		0x08
- 
--#define DB9_SATURN0		0x00
--#define DB9_SATURN1		0x02
--#define DB9_SATURN2		0x04
--#define DB9_SATURN3		0x06
-+#define DB9_MAX_DEVICES 2
- 
- #define DB9_GENESIS6_DELAY	14
- #define DB9_REFRESH_TIME	HZ/100
-@@ -82,7 +81,7 @@
- static int db9_3[] __initdata = { -1, 0 };
- 
- struct db9 {
--	struct input_dev dev[2];
-+	struct input_dev dev[DB9_MAX_DEVICES];
- 	struct timer_list timer;
- 	struct pardevice *pd;	
- 	int mode;
-@@ -95,12 +94,247 @@
- static short db9_genesis_btn[] = { BTN_START, BTN_A, BTN_B, BTN_C, BTN_X, BTN_Y, BTN_Z, BTN_MODE };
- static short db9_cd32_btn[] = { BTN_A, BTN_B, BTN_C, BTN_X, BTN_Y, BTN_Z, BTN_TL, BTN_TR, BTN_START };
- 
--static char db9_buttons[DB9_MAX_PAD] = { 0, 1, 2, 4, 0, 6, 8, 8, 1, 1, 7 };
-+static char db9_buttons[DB9_MAX_PAD] = { 0, 1, 2, 4, 0, 6, 8, 9, 1, 1, 7, 9, 9 };
- static short *db9_btn[DB9_MAX_PAD] = { NULL, db9_multi_btn, db9_multi_btn, db9_genesis_btn, NULL, db9_genesis_btn,
--					db9_genesis_btn, db9_cd32_btn, db9_multi_btn, db9_multi_btn, db9_cd32_btn };
-+					db9_genesis_btn, db9_cd32_btn, db9_multi_btn, db9_multi_btn, db9_cd32_btn,
-+					db9_cd32_btn, db9_cd32_btn };
- static char *db9_name[DB9_MAX_PAD] = { NULL, "Multisystem joystick", "Multisystem joystick (2 fire)", "Genesis pad",
- 				      NULL, "Genesis 5 pad", "Genesis 6 pad", "Saturn pad", "Multisystem (0.8.0.2) joystick",
--				     "Multisystem (0.8.0.2-dual) joystick", "Amiga CD-32 pad" };
-+				     "Multisystem (0.8.0.2-dual) joystick", "Amiga CD-32 pad", "Saturn dpp", "Saturn dpp dual" };
-+
-+static const int db9_max_pads[DB9_MAX_PAD] = { 0, 1, 1, 1, 0, 1, 1, 6, 1, 2, 1, 6, 12 };
-+static const int db9_num_axis[DB9_MAX_PAD] = { 0, 2, 2, 2, 0, 2, 2, 7, 2, 2, 2 ,7, 7 };
-+static const short db9_abs[] = { ABS_X, ABS_Y, ABS_RX, ABS_RY, ABS_RZ, ABS_Z, ABS_HAT0X, ABS_HAT0Y, ABS_HAT1X, ABS_HAT1Y };
-+static const int db9_bidirectional[DB9_MAX_PAD] = { 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0 };
-+static const int db9_reverse[DB9_MAX_PAD] = { 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0 };
-+
-+/*
-+ * Saturn controllers
-+ */
-+#define DB9_SATURN_DELAY 300
-+static const int db9_saturn_byte[] = { 1, 1, 1, 2, 2, 2, 2, 2, 1 };
-+static const unsigned char db9_saturn_mask[] = { 0x04, 0x01, 0x02, 0x40, 0x20, 0x10, 0x08, 0x80, 0x08 };
-+
-+/*
-+ * db9_saturn_write_sub() writes 2 bit data.
-+ */
-+static void db9_saturn_write_sub(struct parport *port, int type, unsigned char data, int powered, int pwr_sub)
-+{
-+	unsigned char c;
-+
-+	switch (type) {
-+	case 1: /* DPP1 */
-+		c = 0x80 | 0x30 | (powered ? 0x08 : 0) | (pwr_sub ? 0x04 : 0) | data;
-+		parport_write_data(port, c);
-+		break;
-+	case 2: /* DPP2 */
-+		c = 0x40 | data << 4 | (powered ? 0x08 : 0) | (pwr_sub ? 0x04 : 0) | 0x03;
-+		parport_write_data(port, c);
-+		break;
-+	case 0:	/* DB9 */
-+		c = ((((data & 2) ? 2 : 0) | ((data & 1) ? 4 : 0)) ^ 0x02) | !powered;
-+		parport_write_control(port, c);
-+		break;
-+	}
-+}
-+
-+/*
-+ * gc_saturn_read_sub() reads 4 bit data.
-+ */
-+static unsigned char db9_saturn_read_sub(struct parport *port, int type)
-+{
-+	unsigned char data;
-+
-+	if (type) {
-+		/* DPP */
-+		data = parport_read_status(port) ^ 0x80;
-+		return (data & 0x80 ? 1 : 0) | (data & 0x40 ? 2 : 0)
-+		     | (data & 0x20 ? 4 : 0) | (data & 0x10 ? 8 : 0);
-+	} else {
-+		/* DB9 */
-+		data = parport_read_data(port) & 0x0f;
-+		return (data & 0x8 ? 1 : 0) | (data & 0x4 ? 2 : 0)
-+		     | (data & 0x2 ? 4 : 0) | (data & 0x1 ? 8 : 0);
-+	}
-+}
-+
-+/*
-+ * db9_saturn_read_analog() sends clock and reads 8 bit data.
-+ */
-+static unsigned char db9_saturn_read_analog(struct parport *port, int type, int powered)
-+{
-+	unsigned char data;
-+
-+	db9_saturn_write_sub(port, type, 0, powered, 0);
-+	udelay(DB9_SATURN_DELAY);
-+	data = db9_saturn_read_sub(port, type) << 4;
-+	db9_saturn_write_sub(port, type, 2, powered, 0);
-+	udelay(DB9_SATURN_DELAY);
-+	data |= db9_saturn_read_sub(port, type);
-+	return data;
-+}
-+
-+/*
-+ * db9_saturn_read_packet() reads whole saturn packet at connector 
-+ * and returns device identifier code.
-+ */
-+static unsigned char db9_saturn_read_packet(struct parport *port, unsigned char *data, int type, int powered)
-+{
-+	int i, j;
-+	unsigned char tmp;
-+
-+	db9_saturn_write_sub(port, type, 3, powered, 0);
-+	data[0] = db9_saturn_read_sub(port, type);
-+	switch (data[0] & 0x0f) {
-+	case 0xf:
-+		/* 1111  no pad */
-+		return data[0] = 0xff;
-+	case 0x4: case 0x4 | 0x8:
-+		/* ?100 : digital controller */
-+		db9_saturn_write_sub(port, type, 0, powered, 1);
-+		data[2] = db9_saturn_read_sub(port, type) << 4;
-+		db9_saturn_write_sub(port, type, 2, powered, 1);
-+		data[1] = db9_saturn_read_sub(port, type) << 4;
-+		db9_saturn_write_sub(port, type, 1, powered, 1);
-+		data[1] |= db9_saturn_read_sub(port, type);
-+		db9_saturn_write_sub(port, type, 3, powered, 1);
-+		/* data[2] |= db9_saturn_read_sub(port, type); */
-+		data[2] |= data[0];
-+		return data[0] = 0x02;
-+	case 0x1:
-+		/* 0001 : analog controller or multitap */
-+		db9_saturn_write_sub(port, type, 2, powered, 0);
-+		udelay(DB9_SATURN_DELAY);
-+		data[0] = db9_saturn_read_analog(port, type, powered);
-+		if (data[0] != 0x41) {
-+			/* read analog controller */
-+			for (i = 0; i < (data[0] & 0x0f); i++)
-+				data[i + 1] = db9_saturn_read_analog(port, type, powered);
-+			db9_saturn_write_sub(port, type, 3, powered, 0);
-+			return data[0];
-+		} else {
-+			/* read multitap */
-+			if (db9_saturn_read_analog(port, type, powered) != 0x60)
-+				return data[0] = 0xff;
-+			for (i = 0; i < 60; i += 10) {
-+				data[i] = db9_saturn_read_analog(port, type, powered);
-+				if (data[i] != 0xff)
-+					/* read each pad */
-+					for (j = 0; j < (data[i] & 0x0f); j++)
-+						data[i + j + 1] = db9_saturn_read_analog(port, type, powered);
-+			}
-+			db9_saturn_write_sub(port, type, 3, powered, 0);
-+			return 0x41;
-+		}
-+	case 0x0:
-+		/* 0000 : mouse */
-+		db9_saturn_write_sub(port, type, 2, powered, 0);
-+		udelay(DB9_SATURN_DELAY);
-+		tmp = db9_saturn_read_analog(port, type, powered);
-+		if (tmp == 0xff) {
-+			for (i = 0; i < 3; i++)
-+				data[i + 1] = db9_saturn_read_analog(port, type, powered);
-+			db9_saturn_write_sub(port, type, 3, powered, 0);
-+			return data[0] = 0xe3;
-+		}
-+	default:
-+		return data[0];
-+	}
-+}
-+
-+/*
-+ * db9_saturn_report() analyzes packet and reports.
-+ */
-+static int db9_saturn_report(unsigned char id, unsigned char data[60], struct input_dev *dev, int n, int max_pads)
-+{
-+	int tmp, i, j;
-+
-+	tmp = (id == 0x41) ? 60 : 10;
-+	for (j = 0; (j < tmp) && (n < max_pads); j += 10, n++) {
-+		switch (data[j]) {
-+		case 0x16: /* multi controller (analog 4 axis) */
-+			input_report_abs(dev + n, db9_abs[5], data[j + 6]);
-+		case 0x15: /* mission stick (analog 3 axis) */
-+			input_report_abs(dev + n, db9_abs[3], data[j + 4]);
-+			input_report_abs(dev + n, db9_abs[4], data[j + 5]);
-+		case 0x13: /* racing controller (analog 1 axis) */
-+			input_report_abs(dev + n, db9_abs[2], data[j + 3]);
-+		case 0x34: /* saturn keyboard (udlr ZXC ASD QE Esc) */
-+		case 0x02: /* digital pad (digital 2 axis + buttons) */
-+			input_report_abs(dev + n, db9_abs[0], !(data[j + 1] & 128) - !(data[j + 1] & 64));
-+			input_report_abs(dev + n, db9_abs[1], !(data[j + 1] & 32) - !(data[j + 1] & 16));
-+			for (i = 0; i < 9; i++)
-+				input_report_key(dev + n, db9_cd32_btn[i], ~data[j + db9_saturn_byte[i]] & db9_saturn_mask[i]);
-+			break;
-+		case 0x19: /* mission stick x2 (analog 6 axis + buttons) */
-+			input_report_abs(dev + n, db9_abs[0], !(data[j + 1] & 128) - !(data[j + 1] & 64));
-+			input_report_abs(dev + n, db9_abs[1], !(data[j + 1] & 32) - !(data[j + 1] & 16));
-+			for (i = 0; i < 9; i++)
-+				input_report_key(dev + n, db9_cd32_btn[i], ~data[j + db9_saturn_byte[i]] & db9_saturn_mask[i]);
-+			input_report_abs(dev + n, db9_abs[2], data[j + 3]);
-+			input_report_abs(dev + n, db9_abs[3], data[j + 4]);
-+			input_report_abs(dev + n, db9_abs[4], data[j + 5]);
-+			/*
-+			input_report_abs(dev + n, db9_abs[8], (data[j + 6] & 128 ? 0 : 1) - (data[j + 6] & 64 ? 0 : 1));
-+			input_report_abs(dev + n, db9_abs[9], (data[j + 6] & 32 ? 0 : 1) - (data[j + 6] & 16 ? 0 : 1));
-+			*/
-+			input_report_abs(dev + n, db9_abs[6], data[j + 7]);
-+			input_report_abs(dev + n, db9_abs[7], data[j + 8]);
-+			input_report_abs(dev + n, db9_abs[5], data[j + 9]);
-+			break;
-+		case 0xd3: /* sankyo ff (analog 1 axis + stop btn) */
-+			input_report_key(dev + n, BTN_A, data[j + 3] & 0x80);
-+			input_report_abs(dev + n, db9_abs[2], data[j + 3] & 0x7f);
-+			break;
-+		case 0xe3: /* shuttle mouse (analog 2 axis + buttons. signed value) */
-+			input_report_key(dev + n, BTN_START, data[j + 1] & 0x08);
-+			input_report_key(dev + n, BTN_A, data[j + 1] & 0x04);
-+			input_report_key(dev + n, BTN_C, data[j + 1] & 0x02);
-+			input_report_key(dev + n, BTN_B, data[j + 1] & 0x01);
-+			input_report_abs(dev + n, db9_abs[2], data[j + 2] ^ 0x80);
-+			input_report_abs(dev + n, db9_abs[3], (0xff-(data[j + 3] ^ 0x80))+1); /* */
-+			break;
-+		case 0xff:
-+		default: /* no pad */
-+			input_report_abs(dev + n, db9_abs[0], 0);
-+			input_report_abs(dev + n, db9_abs[1], 0);
-+			for (i = 0; i < 9; i++)
-+				input_report_key(dev + n, db9_cd32_btn[i], 0);
-+			break;
-+		}
-+	}
-+	return n;
-+}
-+
-+static int db9_saturn(int mode, struct parport *port, struct input_dev *dev)
-+{
-+	unsigned char id, data[60];
-+	int type, n, max_pads;
-+	int tmp, i;
-+
-+	switch (mode) {
-+	case DB9_SATURN_PAD:
-+		type = 0;
-+		n = 1;
-+		break;
-+	case DB9_SATURN_DPP:
-+		type = 1;
-+		n = 1;
-+		break;
-+	case DB9_SATURN_DPP_2:
-+		type = 1;
-+		n = 2;
-+		break;
-+	default:
-+		return -1;
-+	}
-+	max_pads = min(db9_max_pads[mode], DB9_MAX_DEVICES);
-+	for (tmp = 0, i = 0; i < n; i++) {
-+		id = db9_saturn_read_packet(port, data, type + i, 1);
-+		tmp = db9_saturn_report(id, data, dev, tmp, max_pads);
-+	}
-+	return 0;
-+}
- 
- static void db9_timer(unsigned long private)
- {
-@@ -221,28 +455,10 @@
- 			break;
- 
- 		case DB9_SATURN_PAD:
-+		case DB9_SATURN_DPP:
-+		case DB9_SATURN_DPP_2:
- 
--			parport_write_control(port, DB9_SATURN0);
--			data = parport_read_data(port);
--
--			input_report_key(dev, BTN_Y,  ~data & DB9_LEFT);
--			input_report_key(dev, BTN_Z,  ~data & DB9_DOWN);
--			input_report_key(dev, BTN_TL, ~data & DB9_UP);
--			input_report_key(dev, BTN_TR, ~data & DB9_RIGHT);
--
--			parport_write_control(port, DB9_SATURN2);
--			data = parport_read_data(port);
--
--			input_report_abs(dev, ABS_X, (data & DB9_RIGHT ? 0 : 1) - (data & DB9_LEFT ? 0 : 1));
--			input_report_abs(dev, ABS_Y, (data & DB9_DOWN  ? 0 : 1) - (data & DB9_UP   ? 0 : 1));
--			
--			parport_write_control(port, DB9_NORMAL);
--			data = parport_read_data(port);
--
--			input_report_key(dev, BTN_A, ~data & DB9_LEFT);
--			input_report_key(dev, BTN_B, ~data & DB9_UP);
--			input_report_key(dev, BTN_C, ~data & DB9_DOWN);
--			input_report_key(dev, BTN_X, ~data & DB9_RIGHT);
-+			db9_saturn(db9->mode, port, dev);
- 			break;
- 
- 		case DB9_CD32_PAD:
-@@ -276,8 +492,10 @@
- 	if (!db9->used++) {
- 		parport_claim(db9->pd);
- 		parport_write_data(port, 0xff);
--		parport_data_reverse(port);
--		parport_write_control(port, DB9_NORMAL);
-+		if (db9_reverse[db9->mode]) {
-+			parport_data_reverse(port);
-+			parport_write_control(port, DB9_NORMAL);
-+		}
- 		mod_timer(&db9->timer, jiffies + DB9_REFRESH_TIME);
- 	}
- 
-@@ -318,11 +536,13 @@
- 		return NULL;
- 	}
- 
--	if (!(pp->modes & PARPORT_MODE_TRISTATE) && config[1] != DB9_MULTI_0802) {
--		printk(KERN_ERR "db9.c: specified parport is not bidirectional\n");
--		return NULL;
-+	if (db9_bidirectional[config[1]]) {
-+		if (!(pp->modes & PARPORT_MODE_TRISTATE)) {
-+			printk(KERN_ERR "db9.c: specified parport is not bidirectional\n");
-+			return NULL;
-+		}
- 	}
--	
-+
- 	if (!(db9 = kmalloc(sizeof(struct db9), GFP_KERNEL)))
- 		return NULL;
- 	memset(db9, 0, sizeof(struct db9));
-@@ -340,7 +560,7 @@
- 		return NULL;
- 	}
- 
--	for (i = 0; i < 1 + (db9->mode == DB9_MULTI_0802_2); i++) {
-+	for (i = 0; i < (min(db9_max_pads[db9->mode], DB9_MAX_DEVICES)); i++) {
- 
- 		db9->dev[i].private = db9;
- 		db9->dev[i].open = db9_open;
-@@ -353,14 +573,19 @@
- 		db9->dev[i].idversion = 0x0100;
- 
- 		db9->dev[i].evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
--		db9->dev[i].absbit[0] = BIT(ABS_X) | BIT(ABS_Y);
--
- 		for (j = 0; j < db9_buttons[db9->mode]; j++)
- 			set_bit(db9_btn[db9->mode][j], db9->dev[i].keybit); 
--
--		db9->dev[i].absmin[ABS_X] = -1; db9->dev[i].absmax[ABS_X] = 1;
--		db9->dev[i].absmin[ABS_Y] = -1; db9->dev[i].absmax[ABS_Y] = 1;
--
-+		for (j = 0; j < db9_num_axis[db9->mode]; j++) {
-+			set_bit(db9_abs[j], db9->dev[i].absbit);
-+			if (j < 2) {
-+				db9->dev[i].absmin[db9_abs[j]] = -1;
-+				db9->dev[i].absmax[db9_abs[j]] = 1;
-+			} else {
-+				db9->dev[i].absmin[db9_abs[j]] = 1;
-+				db9->dev[i].absmax[db9_abs[j]] = 255;
-+				db9->dev[i].absflat[db9_abs[j]] = 0;
-+			}
-+		}
- 		input_register_device(db9->dev + i);
- 		printk(KERN_INFO "input%d: %s on %s\n",
- 			db9->dev[i].number, db9_name[db9->mode], db9->pd->port->name);
-@@ -414,7 +639,7 @@
- 
- 	for (i = 0; i < 3; i++) 
- 		if (db9_base[i]) {
--			for (j = 0; j < 1 + (db9_base[i]->mode == DB9_MULTI_0802_2); j++)
-+			for (j = 0; j < min(db9_max_pads[db9_base[i]->mode], DB9_MAX_DEVICES); j++)
- 				input_unregister_device(db9_base[i]->dev + j);
- 		parport_unregister_device(db9_base[i]->pd);
- 	}
-
-
-
-
+Jun  9 04:02:12 jfsnew kernel: Unable to handle kernel paging request at virtual
+ address 6b6b6b6b
+Jun  9 04:02:12 jfsnew kernel:  printing eip:
+Jun  9 04:02:12 jfsnew kernel: c0133477
+Jun  9 04:02:12 jfsnew kernel: *pde = 00000000
+Jun  9 04:02:12 jfsnew kernel: Oops: 0000 [#1]
+Jun  9 04:02:12 jfsnew kernel: PREEMPTSMP DEBUG_PAGEALLOC
+Jun  9 04:02:12 jfsnew kernel: CPU:    1
+Jun  9 04:02:12 jfsnew kernel: EIP:    0060:[detach_pid+23/304]    Not tainted V
+LI
+Jun  9 04:02:12 jfsnew kernel: EIP:    0060:[<c0133477>]    Not tainted VLI
+Jun  9 04:02:12 jfsnew kernel: EFLAGS: 00010046
+Jun  9 04:02:12 jfsnew kernel: EIP is at detach_pid+0x17/0x130
+Jun  9 04:02:12 jfsnew kernel: eax: dfd30050   ebx: 6b6b6b6b   ecx: dfd30100   e
+dx: 6b6b6b6b
+Jun  9 04:02:12 jfsnew kernel: esi: e3cc6000   edi: 00000000   ebp: 00000000   e
+sp: e3cc7f08
+Jun  9 04:02:12 jfsnew kernel: ds: 007b   es: 007b   ss: 0068
+Jun  9 04:02:12 jfsnew kernel: Process makewhatis (pid: 2446, threadinfo=e3cc600
+0 task=e4117000)
+Jun  9 04:02:12 jfsnew kernel: Stack: dfd30000 e3cc6000 00000000 c0123a79 dfd300
+00 c0123bb3 dfd30000 dfd30000 
+Jun  9 04:02:12 jfsnew kernel:        dfd305c4 dfd30000 00000a07 bffff5c8 c01258
+cd dfd30000 ea854a74 bffff350 
+Jun  9 04:02:12 jfsnew kernel:        dfd300a4 dfd30000 e4117000 00000000 c0125c
+75 dfd30000 bffff5c8 00000000 
+Jun  9 04:02:12 jfsnew kernel: Call Trace:
+Jun  9 04:02:12 jfsnew kernel:  [__unhash_process+57/176] __unhash_process+0x39/
+0xb0
+Jun  9 04:02:12 jfsnew kernel:  [<c0123a79>] __unhash_process+0x39/0xb0
+Jun  9 04:02:12 jfsnew kernel:  [release_task+195/560] release_task+0xc3/0x230
+Jun  9 04:02:12 jfsnew kernel:  [<c0123bb3>] release_task+0xc3/0x230
+Jun  9 04:02:12 jfsnew kernel:  [wait_task_zombie+397/432] wait_task_zombie+0x18
+d/0x1b0
+Jun  9 04:02:12 jfsnew kernel:  [<c01258cd>] wait_task_zombie+0x18d/0x1b0
+Jun  9 04:02:12 jfsnew kernel:  [sys_wait4+357/640] sys_wait4+0x165/0x280
+Jun  9 04:02:12 jfsnew kernel:  [<c0125c75>] sys_wait4+0x165/0x280
+Jun  9 04:02:12 jfsnew kernel:  [default_wake_function+0/32] default_wake_functi
+on+0x0/0x20
+Jun  9 04:02:12 jfsnew kernel:  [<c011da40>] default_wake_function+0x0/0x20
+Jun  9 04:02:13 jfsnew kernel:  [default_wake_function+0/32] default_wake_functi
+on+0x0/0x20
+Jun  9 04:02:13 jfsnew kernel:  [<c011da40>] default_wake_function+0x0/0x20
+Jun  9 04:02:13 jfsnew kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Jun  9 04:02:13 jfsnew kernel:  [<c010af1f>] syscall_call+0x7/0xb
+Jun  9 04:02:13 jfsnew kernel: 
+Jun  9 04:02:13 jfsnew kernel: Code: 51 08 52 e8 8c cd fe ff 58 5b c3 89 f6 8d b
+c 27 00 00 00 00 57 56 53 89 d3 8d 14 9b 8d 04 d0 8d 88 b0 00 00 00 8b 59 08 8b 
+51 04 <39> 0a 74 08 0f 0b 8c 00 c8 8f 3a c0 8b 80 b0 00 00 00 39 48 04 
+Jun  9 04:02:13 jfsnew kernel:  <6>note: makewhatis[2446] exited with preempt_co
+unt 2
+Jun  9 04:02:13 jfsnew kernel: Debug: sleeping function called from illegal cont
+ext at include/linux/rwsem.h:43
+Jun  9 04:02:13 jfsnew kernel: Call Trace:
+Jun  9 04:02:13 jfsnew kernel:  [__might_sleep+99/112] __might_sleep+0x63/0x70
+Jun  9 04:02:13 jfsnew kernel:  [do_acct_process+381/656] do_acct_process+0x17d/
+0x290
+Jun  9 04:02:13 jfsnew kernel:  [<c013c0dd>] do_acct_process+0x17d/0x290
+Jun  9 04:02:13 jfsnew kernel:  [__wake_up_common+64/96] __wake_up_common+0x40/0
+x60
+Jun  9 04:02:13 jfsnew kernel:  [<c011daa0>] __wake_up_common+0x40/0x60
+Jun  9 04:02:13 jfsnew kernel:  [acct_process+133/223] acct_process+0x85/0xdf
+Jun  9 04:02:13 jfsnew kernel:  [<c013c275>] acct_process+0x85/0xdf
+Jun  9 04:02:13 jfsnew kernel:  [do_exit+187/1408] do_exit+0xbb/0x580
+Jun  9 04:02:13 jfsnew kernel:  [<c0124fbb>] do_exit+0xbb/0x580
+Jun  9 04:02:13 jfsnew kernel:  [smp_apic_timer_interrupt+320/352] smp_apic_time
+r_interrupt+0x140/0x160
+Jun  9 04:02:13 jfsnew kernel:  [<c0118660>] smp_apic_timer_interrupt+0x140/0x16
+0
+Jun  9 04:02:13 jfsnew kernel:  [__wake_up+109/192] __wake_up+0x6d/0xc0
+Jun  9 04:02:13 jfsnew kernel:  [<c011db2d>] __wake_up+0x6d/0xc0
+Jun  9 04:02:13 jfsnew kernel:  [apic_timer_interrupt+26/32] apic_timer_interrup
+t+0x1a/0x20
+Jun  9 04:02:13 jfsnew kernel:  [<c010b90e>] apic_timer_interrupt+0x1a/0x20
+Jun  9 04:02:13 jfsnew kernel:  [sys_ptrace+523/1920] sys_ptrace+0x20b/0x780
+Jun  9 04:02:13 jfsnew kernel:  [<c011007b>] sys_ptrace+0x20b/0x780
+Jun  9 04:02:13 jfsnew kernel:  [die+286/400] die+0x11e/0x190
+Jun  9 04:02:13 jfsnew kernel:  [<c010bfae>] die+0x11e/0x190
+Jun  9 04:02:13 jfsnew kernel:  [do_page_fault+787/1118] do_page_fault+0x313/0x4
+5e
+Jun  9 04:02:13 jfsnew kernel:  [<c011b243>] do_page_fault+0x313/0x45e
+Jun  9 04:02:13 jfsnew kernel:  [do_softirq+107/208] do_softirq+0x6b/0xd0
+Jun  9 04:02:13 jfsnew kernel:  [<c0126c3b>] do_softirq+0x6b/0xd0
+Jun  9 04:02:13 jfsnew kernel:  [free_pages_bulk+411/656] free_pages_bulk+0x19b/
+0x290
+Jun  9 04:02:13 jfsnew kernel:  [<c014033b>] free_pages_bulk+0x19b/0x290
+Jun  9 04:02:13 jfsnew kernel:  [kmem_cache_free+496/608] kmem_cache_free+0x1f0/
+0x260
+Jun  9 04:02:13 jfsnew kernel:  [<c0145990>] kmem_cache_free+0x1f0/0x260
+Jun  9 04:02:13 jfsnew kernel:  [free_task_struct+44/128] free_task_struct+0x2c/
+0x80
+Jun  9 04:02:13 jfsnew kernel:  [<c012018c>] free_task_struct+0x2c/0x80
+Jun  9 04:02:13 jfsnew kernel:  [do_page_fault+0/1118] do_page_fault+0x0/0x45e
+Jun  9 04:02:13 jfsnew kernel:  [<c011af30>] do_page_fault+0x0/0x45e
+Jun  9 04:02:13 jfsnew kernel:  [error_code+45/56] error_code+0x2d/0x38
+Jun  9 04:02:13 jfsnew kernel:  [<c010b989>] error_code+0x2d/0x38
+Jun  9 04:02:13 jfsnew kernel:  [detach_pid+23/304] detach_pid+0x17/0x130
+Jun  9 04:02:13 jfsnew kernel:  [<c0133477>] detach_pid+0x17/0x130
+Jun  9 04:02:13 jfsnew kernel:  [__unhash_process+57/176] __unhash_process+0x39/
+0xb0
+Jun  9 04:02:13 jfsnew kernel:  [<c0123a79>] __unhash_process+0x39/0xb0
+Jun  9 04:02:13 jfsnew kernel:  [release_task+195/560] release_task+0xc3/0x230
+Jun  9 04:02:13 jfsnew kernel:  [<c0123bb3>] release_task+0xc3/0x230
+Jun  9 04:02:13 jfsnew kernel:  [wait_task_zombie+397/432] wait_task_zombie+0x18
+d/0x1b0
+Jun  9 04:02:13 jfsnew kernel:  [<c01258cd>] wait_task_zombie+0x18d/0x1b0
+Jun  9 04:02:13 jfsnew kernel:  [sys_wait4+357/640] sys_wait4+0x165/0x280
+Jun  9 04:02:13 jfsnew kernel:  [<c0125c75>] sys_wait4+0x165/0x280
+Jun  9 04:02:13 jfsnew kernel:  [default_wake_function+0/32] default_wake_functi
+on+0x0/0x20
+Jun  9 04:02:13 jfsnew kernel:  [<c011da40>] default_wake_function+0x0/0x20
+Jun  9 04:02:13 jfsnew kernel:  [default_wake_function+0/32] default_wake_functi
+on+0x0/0x20
+Jun  9 04:02:13 jfsnew kernel:  [<c011da40>] default_wake_function+0x0/0x20
+Jun  9 04:02:13 jfsnew kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Jun  9 04:02:13 jfsnew kernel:  [<c010af1f>] syscall_call+0x7/0xb
+Jun  9 04:02:13 jfsnew kernel: 
+Jun  9 04:02:13 jfsnew kernel: bad: scheduling while atomic!
+Jun  9 04:02:13 jfsnew kernel: Call Trace:
+Jun  9 04:02:13 jfsnew kernel:  [schedule+61/1424] schedule+0x3d/0x590
+Jun  9 04:02:13 jfsnew kernel:  [<c011d49d>] schedule+0x3d/0x590
+Jun  9 04:02:13 jfsnew kernel:  [balance_dirty_pages_ratelimited+162/176] balanc
+e_dirty_pages_ratelimited+0xa2/0xb0
+Jun  9 04:02:13 jfsnew kernel:  [<c0141d82>] balance_dirty_pages_ratelimited+0xa
+2/0xb0
+Jun  9 04:02:13 jfsnew kernel:  [generic_file_aio_write_nolock+2438/2736] generi
+c_file_aio_write_nolock+0x986/0xab0
+Jun  9 04:02:14 jfsnew kernel:  [<c013ed56>] generic_file_aio_write_nolock+0x986
+/0xab0
+Jun  9 04:02:14 jfsnew kernel:  [scsi_delete_timer+15/80] scsi_delete_timer+0xf/
+0x50
+Jun  9 04:02:14 jfsnew kernel:  [<c02c87cf>] scsi_delete_timer+0xf/0x50
+Jun  9 04:02:14 jfsnew kernel:  [rcu_process_callbacks+438/480] rcu_process_call
+backs+0x1b6/0x1e0
+Jun  9 04:02:14 jfsnew kernel:  [<c0133b26>] rcu_process_callbacks+0x1b6/0x1e0
+Jun  9 04:02:14 jfsnew kernel:  [vt_console_print+105/688] vt_console_print+0x69
+/0x2b0
+Jun  9 04:02:14 jfsnew kernel:  [<c0270339>] vt_console_print+0x69/0x2b0
+Jun  9 04:02:14 jfsnew kernel:  [vt_console_print+105/688] vt_console_print+0x69
+/0x2b0
+Jun  9 04:02:14 jfsnew kernel:  [<c0270339>] vt_console_print+0x69/0x2b0
+Jun  9 04:02:14 jfsnew kernel:  [__call_console_drivers+70/96] __call_console_dr
+ivers+0x46/0x60
+Jun  9 04:02:14 jfsnew kernel:  [<c0123016>] __call_console_drivers+0x46/0x60
+Jun  9 04:02:14 jfsnew kernel:  [call_console_drivers+235/256] call_console_driv
+ers+0xeb/0x100
+Jun  9 04:02:14 jfsnew kernel:  [<c012318b>] call_console_drivers+0xeb/0x100
+Jun  9 04:02:14 jfsnew kernel:  [generic_file_aio_write+149/256] generic_file_ai
+o_write+0x95/0x100
+Jun  9 04:02:14 jfsnew kernel:  [<c013efd5>] generic_file_aio_write+0x95/0x100
+Jun  9 04:02:14 jfsnew kernel:  [ext3_file_write+42/176] ext3_file_write+0x2a/0x
+b0
+Jun  9 04:02:14 jfsnew kernel:  [<c0198e2a>] ext3_file_write+0x2a/0xb0
+Jun  9 04:02:14 jfsnew kernel:  [do_sync_write+170/224] do_sync_write+0xaa/0xe0
+Jun  9 04:02:14 jfsnew kernel:  [<c015c2fa>] do_sync_write+0xaa/0xe0
+Jun  9 04:02:14 jfsnew kernel:  [autoremove_wake_function+0/64] autoremove_wake_
+function+0x0/0x40
+Jun  9 04:02:14 jfsnew kernel:  [<c01206e0>] autoremove_wake_function+0x0/0x40
+Jun  9 04:02:14 jfsnew kernel:  [call_console_drivers+235/256] call_console_driv
+ers+0xeb/0x100
+Jun  9 04:02:14 jfsnew kernel:  [<c012318b>] call_console_drivers+0xeb/0x100
+Jun  9 04:02:14 jfsnew kernel:  [release_console_sem+323/400] release_console_se
+m+0x143/0x190
+Jun  9 04:02:14 jfsnew kernel:  [<c0123633>] release_console_sem+0x143/0x190
+Jun  9 04:02:14 jfsnew kernel:  [printk+559/656] printk+0x22f/0x290
+Jun  9 04:02:14 jfsnew kernel:  [<c012343f>] printk+0x22f/0x290
+Jun  9 04:02:14 jfsnew kernel:  [show_trace+131/144] show_trace+0x83/0x90
+Jun  9 04:02:14 jfsnew kernel:  [<c010bbc3>] show_trace+0x83/0x90
+Jun  9 04:02:14 jfsnew kernel:  [dump_stack+11/16] dump_stack+0xb/0x10
+Jun  9 04:02:14 jfsnew kernel:  [<c010bc8b>] dump_stack+0xb/0x10
+Jun  9 04:02:14 jfsnew kernel:  [do_acct_process+632/656] do_acct_process+0x278/
+0x290
+Jun  9 04:02:14 jfsnew kernel:  [<c013c1d8>] do_acct_process+0x278/0x290
+Jun  9 04:02:14 jfsnew kernel:  [__wake_up_common+64/96] __wake_up_common+0x40/0
+x60
+Jun  9 04:02:14 jfsnew kernel:  [<c011daa0>] __wake_up_common+0x40/0x60
+Jun  9 04:02:14 jfsnew kernel:  [acct_process+133/223] acct_process+0x85/0xdf
+Jun  9 04:02:14 jfsnew kernel:  [<c013c275>] acct_process+0x85/0xdf
+Jun  9 04:02:14 jfsnew kernel:  [do_exit+187/1408] do_exit+0xbb/0x580
+Jun  9 04:02:14 jfsnew kernel:  [<c0124fbb>] do_exit+0xbb/0x580
+Jun  9 04:02:14 jfsnew kernel:  [smp_apic_timer_interrupt+320/352] smp_apic_time
+r_interrupt+0x140/0x160
+Jun  9 04:02:14 jfsnew kernel:  [<c0118660>] smp_apic_timer_interrupt+0x140/0x16
+0
+Jun  9 04:02:14 jfsnew kernel:  [__wake_up+109/192] __wake_up+0x6d/0xc0
+Jun  9 04:02:14 jfsnew kernel:  [<c011db2d>] __wake_up+0x6d/0xc0
+Jun  9 04:02:14 jfsnew kernel:  [apic_timer_interrupt+26/32] apic_timer_interrup
+t+0x1a/0x20
+Jun  9 04:02:14 jfsnew kernel:  [<c010b90e>] apic_timer_interrupt+0x1a/0x20
+Jun  9 04:02:14 jfsnew kernel:  [sys_ptrace+523/1920] sys_ptrace+0x20b/0x780
+Jun  9 04:02:14 jfsnew kernel:  [<c011007b>] sys_ptrace+0x20b/0x780
+Jun  9 04:02:14 jfsnew kernel:  [die+286/400] die+0x11e/0x190
+Jun  9 04:02:14 jfsnew kernel:  [<c010bfae>] die+0x11e/0x190
+Jun  9 04:02:14 jfsnew kernel:  [do_page_fault+787/1118] do_page_fault+0x313/0x4
+5e
+Jun  9 04:02:14 jfsnew kernel:  [<c011b243>] do_page_fault+0x313/0x45e
+Jun  9 04:02:14 jfsnew kernel:  [do_softirq+107/208] do_softirq+0x6b/0xd0
+Jun  9 04:02:14 jfsnew kernel:  [<c0126c3b>] do_softirq+0x6b/0xd0
+Jun  9 04:02:14 jfsnew kernel:  [free_pages_bulk+411/656] free_pages_bulk+0x19b/
+0x290
+Jun  9 04:02:14 jfsnew kernel:  [<c014033b>] free_pages_bulk+0x19b/0x290
+Jun  9 04:02:14 jfsnew kernel:  [kmem_cache_free+496/608] kmem_cache_free+0x1f0/
+0x260
+Jun  9 04:02:14 jfsnew kernel:  [<c0145990>] kmem_cache_free+0x1f0/0x260
+Jun  9 04:02:14 jfsnew kernel:  [free_task_struct+44/128] free_task_struct+0x2c/
+0x80
+Jun  9 04:02:14 jfsnew kernel:  [<c012018c>] free_task_struct+0x2c/0x80
+Jun  9 04:02:14 jfsnew kernel:  [do_page_fault+0/1118] do_page_fault+0x0/0x45e
+Jun  9 04:02:14 jfsnew kernel:  [<c011af30>] do_page_fault+0x0/0x45e
+Jun  9 04:02:14 jfsnew kernel:  [error_code+45/56] error_code+0x2d/0x38
+Jun  9 04:02:14 jfsnew kernel:  [<c010b989>] error_code+0x2d/0x38
+Jun  9 04:02:14 jfsnew kernel:  [detach_pid+23/304] detach_pid+0x17/0x130
+Jun  9 04:02:14 jfsnew kernel:  [<c0133477>] detach_pid+0x17/0x130
+Jun  9 04:02:14 jfsnew kernel:  [__unhash_process+57/176] __unhash_process+0x39/
+0xb0
+Jun  9 04:02:14 jfsnew kernel:  [<c0123a79>] __unhash_process+0x39/0xb0
+Jun  9 04:02:14 jfsnew kernel:  [release_task+195/560] release_task+0xc3/0x230
+Jun  9 04:02:15 jfsnew kernel:  [<c0123bb3>] release_task+0xc3/0x230
+Jun  9 04:02:15 jfsnew kernel:  [wait_task_zombie+397/432] wait_task_zombie+0x18
+d/0x1b0
+Jun  9 04:02:15 jfsnew kernel:  [<c01258cd>] wait_task_zombie+0x18d/0x1b0
+Jun  9 04:02:15 jfsnew kernel:  [sys_wait4+357/640] sys_wait4+0x165/0x280
+Jun  9 04:02:15 jfsnew kernel:  [<c0125c75>] sys_wait4+0x165/0x280
+Jun  9 04:02:15 jfsnew kernel:  [default_wake_function+0/32] default_wake_functi
+on+0x0/0x20
+Jun  9 04:02:15 jfsnew kernel:  [<c011da40>] default_wake_function+0x0/0x20
+Jun  9 04:02:15 jfsnew kernel:  [default_wake_function+0/32] default_wake_functi
+on+0x0/0x20
+Jun  9 04:02:15 jfsnew kernel:  [<c011da40>] default_wake_function+0x0/0x20
+Jun  9 04:02:15 jfsnew kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Jun  9 04:02:15 jfsnew kernel:  [<c010af1f>] syscall_call+0x7/0xb
+Jun  9 04:02:15 jfsnew kernel: 

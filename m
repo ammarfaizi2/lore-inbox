@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267474AbUIJPHl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267413AbUIJPNm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267474AbUIJPHl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 11:07:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267460AbUIJPHl
+	id S267413AbUIJPNm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 11:13:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267452AbUIJPNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 11:07:41 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:47487 "EHLO
-	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S267474AbUIJPHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 11:07:36 -0400
-Date: Fri, 10 Sep 2004 16:07:21 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       <arjanv@redhat.com>, Chris Wedgwood <cw@f00f.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-In-Reply-To: <593560000.1094826651@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain>
+	Fri, 10 Sep 2004 11:13:42 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:50851 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S267413AbUIJPNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 11:13:40 -0400
+Message-ID: <4141C49E.3070509@nortelnetworks.com>
+Date: Fri, 10 Sep 2004 09:13:34 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Hugh Dickins <hugh@veritas.com>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: having problems with remap_page_range() and virt_to_phys()
+References: <Pine.LNX.4.44.0409101501530.16728-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.44.0409101501530.16728-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Sep 2004, Martin J. Bligh wrote:
-> 
-> I agree about killing anything but 4K stacks though - having the single
-> page is very compelling - not only can we allocate it easier, but we can
-> also use cache-hot pages from the hot list.
+Hugh Dickins wrote:
+> On Thu, 9 Sep 2004, Chris Friesen wrote:
 
-I think we all agree that's a promising future, and a good discipline.
-But I'm not the only one to doubt we're there yet.
+> You will need to SetPageReserved(pg) for remap_page_range to map it.
+> And no, remembering your earlier pleas, the MM system doesn't clean
+> up for you, you'll need to ClearPageReserved and free the page when
+> it's all done with (if ever).
 
-Chris's patch seems eminently sensible to me.  Why should having separate
-interrupt stack depend on whether you're configured for 4K or 8K stacks?
+Right.  I actually did call SetPageReserved(pg), I just forgot to include it in 
+the code snippet--my test machine is on the other side of the country and I 
+managed to hose it nicely last night.
 
-Wasn't Andrea worried, a couple of months back, about nested interrupts
-overflowing the 4K interrupt stack?  He was trying to work out how to
-have an 8K interrupt stack even with the 4K task stack, proposed thread
-info at both top and bottom of stack; but his "current" still looked to
-me like it'd be significantly more costly than the present one.
+> virt_to_phys applies to the kernel virtual address (what you name "virt"
+> above), it won't work on a user virtual address, that's something else.
 
-I'm all for Chris's patch.
+Aha.  That may be part of my problem, at least on the verification side.
 
-Hugh
+> But there are plenty
+> of examples of using remap_page_range in the kernel source tree, maybe
+> not all of them quite correct, but I'd have thought you could work out
+> what you need from those examples.
 
+So did I...the code finishes without errors, but the assembly language part 
+doesn't work properly.  (And it does work with another method of getting memory, 
+but that method breaks as soon as you go highmem...)
+
+Chris

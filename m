@@ -1,83 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264638AbRFTWGh>; Wed, 20 Jun 2001 18:06:37 -0400
+	id <S264640AbRFTWG5>; Wed, 20 Jun 2001 18:06:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264637AbRFTWG1>; Wed, 20 Jun 2001 18:06:27 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:1286 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S263080AbRFTWGS>;
-	Wed, 20 Jun 2001 18:06:18 -0400
-Date: Thu, 21 Jun 2001 00:06:12 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Ted Gervais <ve1drg@ve1drg.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: ip_tables/ipchains
-In-Reply-To: <Pine.LNX.4.21.0106201408460.3517-100000@ve1drg.com>
-Message-ID: <Pine.LNX.4.33.0106210004390.12617-100000@Expansa.sns.it>
+	id <S263080AbRFTWGi>; Wed, 20 Jun 2001 18:06:38 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15628 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264639AbRFTWGb>; Wed, 20 Jun 2001 18:06:31 -0400
+Subject: Re: [OT] Threads, inelegance, and Java
+To: zaitcev@redhat.com (Pete Zaitcev)
+Date: Wed, 20 Jun 2001 23:05:49 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200106202016.f5KKGtU17599@devserv.devel.redhat.com> from "Pete Zaitcev" at Jun 20, 2001 04:16:55 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Cq6f-0000C8-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-try to delete those two modules, and repit
-depmod -a
-then try to load the modules.
+> This is exactly the reason why Transmetians love to
+> showcase DVD playing and other performance related
+> stuff - it is where they beat Geode. Geode's performance
+> is quite adequate for kiosk/POS app and it's a formiddable
 
-ipchain and ipfwadm modules do have symbols inside that are confusing
-depmode/modprobe dor dependency of actual netfilter modules.
-
-
-On Wed, 20 Jun 2001, Ted Gervais wrote:
-
-> On Wed, 20 Jun 2001, Luigi Genoni wrote:
->
-> > Have you also compiled modules for ipchains and ipfwadm support??
->
->
-> Yes.  Is this a mistake??
->
-> >
-> >
-> > On Wed, 20 Jun 2001, Ted Gervais wrote:
-> >
-> > > Wondering something..
-> > > I ran insmod to bring up ip_tables.o and I received the following error:
-> > >
-> > > /lib/modules/2.4.5/kernel/net/ipv4/netfilter/ip_tables.o: unresolved
-> > > symbol nf_unregister_sockopt
-> > > /lib/modules/2.4.5/kernel/net/ipv4/netfilter/ip_tables.o: unresolved
-> > > symbol nf_register_sockopt
-> > >
-> > > This is with kernel 2.4.5 and Slackware 7.1 is the distribution.
-> > > Does anyone know what these unresolved symbols are about??
-> > >
-> > > ---
-> > > Doubt is not a pleasant condition, but certainty is absurd.
-> > >                 -- Voltaire
-> > >
-> > > Ted Gervais <ve1drg@ve1drg.com>
-> > > 44.135.34.201 linux.ve1drg.ampr.org
-> > >
-> > >
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > >
-> >
->
-> ---
-> Doubt is not a pleasant condition, but certainty is absurd.
->                 -- Voltaire
->
-> Ted Gervais <ve1drg@ve1drg.com>
-> 44.135.34.201 linux.ve1drg.ampr.org
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Geode is jut about capable of MPEG1. The VIA processors are extremely 
+interesting in the price/performance positioning. Neither of them are going
+to win a power consumption battle with an ARM
 

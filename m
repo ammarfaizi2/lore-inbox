@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291806AbSBHVGO>; Fri, 8 Feb 2002 16:06:14 -0500
+	id <S291817AbSBHVJP>; Fri, 8 Feb 2002 16:09:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291812AbSBHVGF>; Fri, 8 Feb 2002 16:06:05 -0500
-Received: from mail305.mail.bellsouth.net ([205.152.58.165]:49181 "EHLO
-	imf05bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S291806AbSBHVGA>; Fri, 8 Feb 2002 16:06:00 -0500
-Subject: Re: Problem with rmap-12c
-From: Louis Garcia <louisg00@bellsouth.net>
-To: Rik van Riel <riel@conectiva.com.br>
+	id <S291813AbSBHVJG>; Fri, 8 Feb 2002 16:09:06 -0500
+Received: from f40.law11.hotmail.com ([64.4.17.40]:18963 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S291817AbSBHVIy>;
+	Fri, 8 Feb 2002 16:08:54 -0500
+X-Originating-IP: [156.153.254.2]
+From: "Balbir Singh" <balbir_soni@hotmail.com>
+To: davem@redhat.com
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0202072006010.17850-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.33L.0202072006010.17850-100000@imladris.surriel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 (1.0.2-1) 
-Date: 08 Feb 2002 16:06:13 -0500
-Message-Id: <1013202380.1153.7.camel@tiger>
+Subject: Re: KSTK_EIP and KSTK_ESP
+Date: Fri, 08 Feb 2002 13:08:49 -0800
 Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F40UtI9dm5UxP9Fekza00014711@hotmail.com>
+X-OriginalArrivalTime: 08 Feb 2002 21:08:49.0312 (UTC) FILETIME=[CDB22200:01C1B0E4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I've tried rmap-12d and the swaping is better but still worse then
-12a. One thing I should say is I'm also using Andrews low latency patch.
+My fault, I was using lxr.linux.no. I was also confused by
+the way it is defined in include/asm-parisc (2.4.17)
 
-Is you want vm stats let me know.
+#define KSTK_EIP(tsk)   (0xdeadbeef)
+#define KSTK_ESP(tsk)   (0xdeadbeef)
 
---Louis
+Thanks for pointing this out,
+Balbir
 
 
-On Thu, 2002-02-07 at 17:12, Rik van Riel wrote:
-> On 7 Feb 2002, Louis Garcia wrote:
-> 
-> > I tried rmap-12c and had lots of swap usage. I when back to 12a and
-> > everything calmed down. Is their a known problem with 12c?
-> 
-> Nope, but the RSS limit enforcing stuff is a possible
-> suspect.
-> 
-> It turns out I used a "struct pte_t" in over_rss_limit(),
-> which turned into a compiler warning, for which I didn't
-> spot the cause ;)
-> 
-> A fix for the bug was sent by Roger Larsson, who spotted
-> the fact that "pte_t" already has a "struct" inside it.
-> 
-> Maybe page aging isn't working in rmap-12c because of this
-> stupid mistake ... but it's a long shot.  Maybe I should
-> release rmap 12d tonight ? ;)
-> 
-> regards,
-> 
-> Rik
-> -- 
-> "Linux holds advantages over the single-vendor commercial OS"
->     -- Microsoft's "Competing with Linux" document
-> 
-> http://www.surriel.com/		http://distro.conectiva.com/
-> 
 
+>From: "David S. Miller" <davem@redhat.com>
+>To: balbir_soni@hotmail.com
+>CC: linux-kernel@vger.kernel.org, tigran@veritas.com
+>Subject: Re: KSTK_EIP and KSTK_ESP
+>Date: Fri, 08 Feb 2002 12:55:22 -0800 (PST)
+>
+>    From: "Balbir Singh" <balbir_soni@hotmail.com>
+>    Date: Fri, 08 Feb 2002 12:36:59 -0800
+>
+>    Do we really need these defines, I found that it
+>    is not used anywhere and defined as deadbeef on
+>    some architectures. Does it make sense to remove
+>    these variables from the kernel source?
+>
+>Perhaps your copy of grep is buggy, check out
+>fs/proc/array.c which does make use of those macros.
+>
+
+
+
+
+_________________________________________________________________
+Chat with friends online, try MSN Messenger: http://messenger.msn.com
 

@@ -1,48 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281170AbRKTRTH>; Tue, 20 Nov 2001 12:19:07 -0500
+	id <S281173AbRKTRR5>; Tue, 20 Nov 2001 12:17:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281171AbRKTRTA>; Tue, 20 Nov 2001 12:19:00 -0500
-Received: from marine.sonic.net ([208.201.224.37]:14609 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S281170AbRKTRSq>;
-	Tue, 20 Nov 2001 12:18:46 -0500
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Tue, 20 Nov 2001 09:18:38 -0800
-From: Mike Castle <dalgoda@ix.netcom.com>
+	id <S281179AbRKTRRr>; Tue, 20 Nov 2001 12:17:47 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55045 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281173AbRKTRRe>; Tue, 20 Nov 2001 12:17:34 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: x bit for dirs: misfeature?
-Message-ID: <20011120091838.B16407@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200111191814.fAJIEPlQ019878@pincoya.inf.utfsm.cl> <200111191814.fAJIEPlQ019878@pincoya.inf.utfsm.cl> <5.1.0.14.2.20011120111439.04d42380@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.1.0.14.2.20011120111439.04d42380@pop.cus.cam.ac.uk>
-User-Agent: Mutt/1.3.23i
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: i386 flags register clober in inline assembly
+Date: Tue, 20 Nov 2001 17:12:16 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9te2tg$20d$1@penguin.transmeta.com>
+In-Reply-To: <20011118020957.A10674@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33.0111171844001.899-100000@penguin.transmeta.com> <20011120003338.A24717@twiddle.net>
+X-Trace: palladium.transmeta.com 1006276627 18877 127.0.0.1 (20 Nov 2001 17:17:07 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 20 Nov 2001 17:17:07 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 20, 2001 at 11:20:06AM +0000, Anton Altaparmakov wrote:
-> find . -type d -exec chmod a+rx "{}" \;
-> find . -type f -exec chmod a+r "{}" \;
+In article <20011120003338.A24717@twiddle.net>,
+Richard Henderson  <rth@twiddle.net> wrote:
+>
+>Hmm.  It appears to be easy to do with machine-dependent builtins.  E.g.
+>
+>	int x;
+>	__asm__ __volatile__(LOCK "subl %1,%0"
+>			     : "=m"(v->counter) : "ir"(i) : "memory");
+>	x = __builtin_ia32_sete();
+>	if (x) {
 
-That is a bit inefficient though.  It results in one fork/exec pair for
-each file and each directory.
+This would obviously be more than useful.
 
-A better solution is to use find | xargs
+However, at the same time I worry that the syntax of having things
+as separate expressions would be a total nightmare to support in the
+long run for gcc - making sure that they never split up by mistake
+during parsing/tree-forming/CSE/whatever. That makes for a nasty special
+case that just sounds like a maintainance headache.
 
-find /path/to/dir -type d -print0 | xargs -0 chmod a+rx
-find /path/to/dir -type f -print0 | xargs -0 chmod a+r
+It _sounds_ like you prototyped something like the above to test it
+out? If so, how hard would it be to just change the syntax slightly, and
+move the "builting_ia32_sete()" syntactically into the __asm__, even if
+it as an implementation then gets split out again for now.
 
-That way, xargs bunches up the arguments into as many arguments as chmod
-can handle, and calls it fewer times.
+That would make it less of a special case - or at least it would be an
+_internal_ special case rather than one exported to the user. 
 
-The -print0 and -0 are GNU extensions to handle spaces in names.
+The simplest syntactic extension would obviously be to add a fourth set
+of flags, and make the above look somehting like
 
-mrc
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+	char flag;
+	__asm__ __volatile__(LOCK "subl %1,%0"
+		:"=m" (v->counter)	/* Inputs */
+		:"ir" (i)		/* Outputs */
+		:"memory"		/* Clobbers */
+		:"=Z" (x)		/* Flags (Z/E=equal, A=above, C=carry etc etc*/
+		);
+	if (x) {
+		...
+
+which looks like a reasonable syntax to me. It has the advantage that it
+should be _very_ easy and natural to use this syntax on predicate-based
+machines like ia64, where the "flags" are trivially predicates. On such
+machines I bet that the need to export the predicates is even bigger
+than the need to export eflags on x86.
+
+In fact, for predicate architectures it might be reasonable to have both
+input and output predicates, which is why I did the "=Z" syntax (so that
+if you find it useful to do _input_ predicates, you might have fields 4
+and 5 look something like
+
+	:"=p" (is_zero)
+	:"p" (a == 7))
+
+and have support for using something like "%p0" and "%!p1" etc for
+specifying predicates in the assembly string.  I don't know if you
+already do something like this on ia64, or if gcc/ia64 even considers
+the predicate bits to be independent registers. 
+
+I don't know how much inline-asm has been written for ia64, but I
+suspect that it could come in handy to let gcc select predicates too,
+and not have to hardcode and clobber them (or whatever it is ia64 asms
+do). 
+
+		Linus

@@ -1,146 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266031AbUAUTYg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 14:24:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbUAUTYf
+	id S266034AbUAUTP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 14:15:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266102AbUAUTP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 14:24:35 -0500
-Received: from fed1mtao07.cox.net ([68.6.19.124]:44216 "EHLO
-	fed1mtao07.cox.net") by vger.kernel.org with ESMTP id S266102AbUAUTWc
+	Wed, 21 Jan 2004 14:15:27 -0500
+Received: from sandershosting.com ([69.26.136.138]:62628 "HELO
+	sandershosting.com") by vger.kernel.org with SMTP id S266034AbUAUTPZ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 14:22:32 -0500
-Date: Wed, 21 Jan 2004 12:22:30 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: Powerpc Linux <linuxppc-dev@lists.linuxppc.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
-       George Anzinger <george@mvista.com>
-Subject: Re: PPC KGDB changes and some help?
-Message-ID: <20040121192230.GW13454@stop.crashing.org>
-References: <20040120172708.GN13454@stop.crashing.org> <200401211946.17969.amitkale@emsyssoft.com> <20040121153019.GR13454@stop.crashing.org> <200401212223.13347.amitkale@emsyssoft.com> <20040121184217.GU13454@stop.crashing.org> <20040121192128.GV13454@stop.crashing.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040121192128.GV13454@stop.crashing.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 21 Jan 2004 14:15:25 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: David Sanders <linux@sandersweb.net>
+Reply-To: David Sanders <linux@sandersweb.net>
+Organization: SandersWeb.net
+Message-Id: <200401211412.55229@sandersweb.net>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [PATCH-BK-2.6] NTFS fix "du" and "stat" output (NTFS 2.1.6).
+Date: Wed, 21 Jan 2004 14:14:56 -0500
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
+References: <Pine.SOL.4.58.0401191413180.7391@yellow.csi.cam.ac.uk> <200401211318.53776@sandersweb.net>
+In-Reply-To: <200401211318.53776@sandersweb.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 21, 2004 at 12:21:28PM -0700, Tom Rini wrote:
-> On Wed, Jan 21, 2004 at 11:42:17AM -0700, Tom Rini wrote:
-> > On Wed, Jan 21, 2004 at 10:23:12PM +0530, Amit S. Kale wrote:
-> > 
-> > > Hi,
-> > > 
-> > > Here it is: ppc kgdb from timesys kernel is available at
-> > > http://kgdb.sourceforge.net/kgdb-2/linux-2.6.1-kgdb-2.1.0.tar.bz2
-> > > 
-> > > This is my attempt at extracting kgdb from TimeSys kernel. It works well in 
-> > > TimeSys kernel, so blame me if above patch doesn't work.
-> > 
-> > Okay, here's my first patch against this.
-> 
-> And dependant upon this is a patch to fixup the rest of the common PPC
-> code, as follows:
-
-And on top of all of that is the following, which allows KGDB to work on
-the Motorola LoPEC.
-
---- 1.48/arch/ppc/Kconfig	Wed Jan 21 10:13:13 2004
-+++ edited/arch/ppc/Kconfig	Wed Jan 21 10:33:55 2004
-@@ -583,11 +583,6 @@
- 	depends on PPC_MULTIPLATFORM
- 	default y
- 
--config PPC_GEN550
--	bool
--	depends on SANDPOINT
--	default y
--
- config PPC_PMAC
- 	bool
- 	depends on PPC_MULTIPLATFORM
-@@ -603,6 +598,11 @@
- 	depends on PPC_PMAC || PPC_CHRP
- 	default y
- 
-+config PPC_GEN550
-+	bool
-+	depends on SANDPOINT || MCPN765 || LOPEC
-+	default y
-+
- config FORCE
- 	bool
- 	depends on 6xx && (PCORE || POWERPMC250)
---- 1.20/arch/ppc/platforms/lopec_setup.c	Fri Sep 12 09:26:53 2003
-+++ edited/arch/ppc/platforms/lopec_setup.c	Wed Jan 21 10:32:15 2004
-@@ -32,6 +32,7 @@
- #include <asm/mpc10x.h>
- #include <asm/hw_irq.h>
- #include <asm/prep_nvram.h>
-+#include <asm/kgdb.h>
- 
- extern char saved_command_line[];
- extern void lopec_find_bridges(void);
-@@ -261,44 +262,6 @@
- 		: "=r" (batu), "=r" (batl));
- }
- 
--#ifdef  CONFIG_SERIAL_TEXT_DEBUG
--#include <linux/serial.h>
--#include <linux/serialP.h>
--#include <linux/serial_reg.h>
--#include <asm/serial.h>
--
--static struct serial_state rs_table[RS_TABLE_SIZE] = {
--	SERIAL_PORT_DFNS	/* Defined in <asm/serial.h> */
--};
--
--volatile unsigned char *com_port;
--volatile unsigned char *com_port_lsr;
--
--static void
--serial_writechar(char c)
--{
--	while ((*com_port_lsr & UART_LSR_THRE) == 0)
--		;
--	*com_port = c;
--}
--
--void
--lopec_progress(char *s, unsigned short hex)
--{
--	volatile char c;
--
--	com_port = (volatile unsigned char *) rs_table[0].port;
--	com_port_lsr = com_port + UART_LSR;
--
--	while ((c = *s++) != 0)
--		serial_writechar(c);
--
--	/* Most messages don't have a newline in them */
--	serial_writechar('\n');
--	serial_writechar('\r');
--}
--#endif	/* CONFIG_SERIAL_TEXT_DEBUG */
--
- TODC_ALLOC();
- 
- static void __init
-@@ -383,7 +346,10 @@
- 	ppc_ide_md.default_io_base = lopec_ide_default_io_base;
- 	ppc_ide_md.ide_init_hwif = lopec_ide_init_hwif_ports;
- #endif
-+#ifdef CONFIG_KGDB
-+	ppc_md.kgdb_map_scc = gen550_kgdb_map_scc;
-+#endif
- #ifdef CONFIG_SERIAL_TEXT_DEBUG
--	ppc_md.progress = lopec_progress;
-+	ppc_md.progress = gen550_progress;
- #endif
- }
-
+On Wednesday 21 January 2004 01:24 pm, David Sanders wrote:
+> On Monday 19 January 2004 09:15 am, Anton Altaparmakov wrote:
+> > This fixes the erroneous "du" and "stat" output people reported on
+> > ntfs partitions containing compressed directories.
+>
+> Thanks for the quick patch.  There are still problems with the
+> reported disk usage.  I use as an example the file win.ini.  With the
+> 2.4.24 kernel I get the following results:
+> $ ls -l win.ini
+> -r--r-----    1 root     staff         399 Jan 27  2003 win.ini
+>
+> $ stat win.ini
+>   File: "win.ini"
+>   Size: 399       	Blocks: 2          IO Block: 1024   Regular File
+> Device: 305h/773d	Inode: 1023        Links: 1
+> Access: (0440/-r--r-----)  Uid: (    0/    root)   Gid: (   50/  
+> staff) Access: Thu Jan 15 15:34:09 2004
+> Modify: Mon Jan 27 18:54:00 2003
+> Change: Sun Sep 22 07:23:44 2002
+>
+> $ du -h win.ini
+> 1.0k	win.ini
+>
+> But, under the 2.6.1 kernel:
+> $ ls -l win.ini
+> -r-xr-x---    1 root     staff         399 Jan 27  2003 win.ini
+>
+> $ stat win.ini
+>   File: "win.ini"
+>   Size: 399       	Blocks: 0          IO Block: 4096   Regular File
+> Device: 305h/773d	Inode: 1023        Links: 1
+> Access: (0550/-r-xr-x---)  Uid: (    0/    root)   Gid: (   50/  
+> staff) Access: Thu Jan 15 15:34:09 2004
+> Modify: Mon Jan 27 18:54:00 2003
+> Change: Mon Jan 27 18:54:00 2003
+>
+> $ du -h win.ini
+> 0	win.ini
+>
+> Now, surely the 2.4.24 kernel is reporting the more accurate disk
+> usage since with 2.6.1 it reports 0 blocks (vice 2).
+>
+> Thanks in advance,
+Also, chkdsk in winnt4 reports the cluster size in 512 bytes.  The ntfs 
+driver seems to think the size is 4096 bytes (or 1024 bytes in 2.4 
+kernel). Thanks,
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+David Sanders
+linux@sandersweb.net

@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVCNANT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVCNAPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbVCNANT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 19:13:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVCNANT
+	id S261597AbVCNAPV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 19:15:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVCNAPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 19:13:19 -0500
-Received: from mail23.syd.optusnet.com.au ([211.29.133.164]:56998 "EHLO
-	mail23.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261595AbVCNANO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 19:13:14 -0500
+	Sun, 13 Mar 2005 19:15:20 -0500
+Received: from fire.osdl.org ([65.172.181.4]:17343 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261597AbVCNAPH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 19:15:07 -0500
+Date: Sun, 13 Mar 2005 16:16:47 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Stas Sergeev <stsp@aknet.ru>
+cc: Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@redhat.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: [patch] x86: fix ESP corruption CPU bug
+In-Reply-To: <Pine.LNX.4.58.0503131306450.2822@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0503131614360.2822@ppc970.osdl.org>
+References: <42348474.7040808@aknet.ru> <20050313201020.GB8231@elf.ucw.cz>
+ <4234A8DD.9080305@aknet.ru> <Pine.LNX.4.58.0503131306450.2822@ppc970.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16948.55096.598031.618338@wombat.chubb.wattle.id.au>
-Date: Mon, 14 Mar 2005 11:13:44 +1100
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: Greg KH <greg@kroah.com>
-Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: User mode drivers: part 2: PCI device handling (patch 1/2 for 2.6.11)
-In-Reply-To: <20050311152106.GA32584@kroah.com>
-References: <16945.4717.402555.893411@berry.gelato.unsw.EDU.AU>
-	<20050311071825.GA28613@kroah.com>
-	<16945.22566.593812.759201@wombat.chubb.wattle.id.au>
-	<20050311152106.GA32584@kroah.com>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Greg" == Greg KH <greg@kroah.com> writes:
-
-Greg> On Fri, Mar 11, 2005 at 07:34:46PM +1100, Peter Chubb wrote:
->> >>>>> "Greg" == Greg KH <greg@kroah.com> writes:
->> 
-Greg> On Fri, Mar 11, 2005 at 02:37:17PM +1100, Peter Chubb wrote:
->> >> +/* + * The PCI subsystem is implemented as yet-another pseudo
->> >> filesystem, + * albeit one that is never mounted.  + * This is
->> its >> magic number.  + */ +#define USR_PCI_MAGIC (0x12345678)
->> 
-Greg> If you make it a real, mountable filesystem, then you don't need
-Greg> to have any of your new syscalls, right?  Why not just do that
-Greg> instead?
->> 
->> 
->> The only call that would go is usr_pci_open() -- you'd still need
->> usr_pci_map()
-
-Greg> see mmap(2)
-
-mmap maps a file's contents into your own virtual memory.
-usr_pci_map maps part of your own virtual memory into pci bus space
-for a particular device (using the IOMMU if your machine has one), and
-returns a scatterlist of bus addresses to hand to the device.
-
-Different semantics entirely.
 
 
-Greg> In fact, both of the above can be done today from /proc/bus/pci/
-Greg> right?
+On Sun, 13 Mar 2005, Linus Torvalds wrote:
+> 
+> That said, the "ldt_ss" case should be moved _after_ the conditional
+> tests, since most CPU's out there will do static prediction based on
+> forward/backwards direction 
 
-Nope.
+Btw, Stas, one thing I'd really like to see is even a partial list of 
+anything that actually cares about this. Ie, if there is some known 
+Windows app where Wine works better or something like that, just adding 
+that information to the comments would be hugely appreciated. 
 
--- 
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
+Another way of saying the same thing: I absolutely hate seeing patches 
+that fix some theoretical issue that no Linux apps will ever care about. 
+So I'd like to have a bit more of a case for this patch, since I know what 
+the case against it is ;)
+
+		Linus

@@ -1,75 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276094AbRKFAdU>; Mon, 5 Nov 2001 19:33:20 -0500
+	id <S276132AbRKFAfV>; Mon, 5 Nov 2001 19:35:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276249AbRKFAdL>; Mon, 5 Nov 2001 19:33:11 -0500
-Received: from genesis.westend.com ([212.117.67.2]:45189 "EHLO
-	genesis.westend.com") by vger.kernel.org with ESMTP
-	id <S276132AbRKFAdC>; Mon, 5 Nov 2001 19:33:02 -0500
-Date: Tue, 6 Nov 2001 01:32:54 +0100
-From: Christian Hammers <ch@westend.com>
-To: linux-kernel@vger.kernel.org
-Cc: Christian Hammers <ch@westend.com>
-Subject: Kernel BUG at namei.c:330!
-Message-ID: <20011106013254.A7269@westend.com>
+	id <S276135AbRKFAfL>; Mon, 5 Nov 2001 19:35:11 -0500
+Received: from mail.lysator.liu.se ([130.236.254.3]:19620 "EHLO
+	mail.lysator.liu.se") by vger.kernel.org with ESMTP
+	id <S276132AbRKFAfE>; Mon, 5 Nov 2001 19:35:04 -0500
+Date: Tue, 6 Nov 2001 01:34:56 +0100
+From: Jorgen Cederlof <jc@lysator.liu.se>
+To: lonnie@outstep.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Special Kernel Modification
+Message-ID: <20011106013456.B12540@ondska>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1004920141.3be5dd4db68a0@mail.outstep.com>
+User-Agent: Mutt/1.3.19i
+X-eric-conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
 
-This evening I experienced the following error on a system with kernel
-2.4.11-pre6 with an Adaptex 7892A SCSI controller, a EasyRAIDII external 
-RAID controller and an HP C1537A tape streamer on the same bus.
-The error occured while the tape was writing (I reported similar problems 
-a couple of weeks ago, but all patches on this list and all newer kernels
-failed to fix it).
+On Sun, Nov 04, 2001 at 19:29:01 -0500, lonnie@outstep.com wrote:
 
-The messages (roughly transscripted from console before rebooting):
-...
-I/O error: dev: 08:02, sector 65704 		# mounted as "/"
-...
-Kernel BUG at namei.c:330!
-invalid operand: 0000
-CPU:0
-EIP 0010:<c015c7e3> Not Tainted 	# c015c760 t reiserfs_find_entry
-...
-<4>st0: Error with sense data: Attention. Additional sense indicates
-Poweron,reset,or bus device reset occur
-I/O error: dev 08:02, secor 139192
-...
+> From what I can see. With chrooting, I have to make a complete
+> "fake" system an then place the users below that into a home
+> directory, or make a complete "fake" system for each user.
+> 
+> I was trying to find a simple solution that would allow for:
+> 
+> I was initially thinking about something like this for each user:
+> 
+> /system (real) /dev/hda4 (chrooted also)
+>       |
+>       /bin
+>       /etc
+>       /lib
 
-/fs/reiserfs/namei.c at line 330:
-       if (retval == IO_ERROR)
-            // FIXME: still has to be dealt with
+chtrunk (http://noid.sf.net/chtrunk.html) can set up the namespace
+dynamically for you. Instead of creating a complete system by hand and
+run chroot, just run (you don't need to be root):
 
-                                /* I want you to conform to our error
-                                   printing standard.  How many times
-                                   do I have to ask? -Hans */
+   chtrunk -s /bin /etc /lib /home/user -c program_to_run
 
-            BUG ();
-Well... "has to be dealt with"... the latest 2.4.14 at least says:
-        if (retval == IO_ERROR)
-            // FIXME: still has to be dealt with
-            reiserfs_panic (dir->i_sb, "zam-7001: io error in " __FUNCTION__ "\n"
+This will give that program access to /bin, /etc, /lib and the home
+directory, but nothing more.
 
+You can use
 
-The error itself occured several times now, with slightly different error
-messages (sometimes with nothing left on the console) but always
-immediately or somewhen during the tape backup.
+   chtrunk -s /bin /etc /lib /home/user /tmp=/home/user/tmp -c program
 
-Thank you for reading this far and hopefully this mail helps anybody to 
-improve anything. Contact me if you need further information.
+to give every user their own private /tmp.
 
-thanks,
+As a bonus, the suid/sgid bits will have no effect for these users,
+which will prevent them from becoming root through buggy suid
+programs.
 
- -christian-
-
--- 
-Christian Hammers    WESTEND GmbH - Aachen und Dueren     Tel 0241/701333-0
-ch@westend.com     Internet & Security for Professionals    Fax 0241/911879
-           WESTEND ist CISCO Systems Partner - Premium Certified
-
+    Jörgen

@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbUCKTbT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 14:31:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbUCKTbJ
+	id S261680AbUCKTaz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 14:30:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbUCKTaz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 14:31:09 -0500
-Received: from kiuru.kpnet.fi ([193.184.122.21]:54249 "EHLO kiuru.kpnet.fi")
-	by vger.kernel.org with ESMTP id S261678AbUCKT3z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 14:29:55 -0500
-Subject: 2.6.4: Mount of /dev/hdb1 impssible
-From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
-To: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1079033393.846.5.camel@midux>
+	Thu, 11 Mar 2004 14:30:55 -0500
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:33921 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261681AbUCKTaZ (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 14:30:25 -0500
+Message-Id: <200403111930.i2BJU9oh004246@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Christophe Saout <christophe@saout.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: LKM rootkits in 2.6.x 
+In-Reply-To: Your message of "Thu, 11 Mar 2004 20:16:28 +0100."
+             <1079032587.7517.1.camel@leto.cs.pocnet.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.44.0403111124020.27770-100000@linuxbox.co.uk> <20040311184835.GA21330@redhat.com>
+            <1079032587.7517.1.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 11 Mar 2004 21:29:53 +0200
+Content-Type: multipart/signed; boundary="==_Exmh_767934831P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Thu, 11 Mar 2004 14:30:09 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi list,
-I upgraded from 2.6.4-rc2 to 2.6.4 today, a few minutes before reboot I
-noticed that my /dev/hdb1 hadn't been mounted on last reboot, so I tried
-to mount it by hand:
-# mount /work
-mount: /dev/hdb1 already mounted or /work/ busy
+--==_Exmh_767934831P
+Content-Type: text/plain; charset=us-ascii
 
-Then I thought it'll be fixed when I boot up my 2.6.4, it wasn't, I
-tried to mount it to various locations (/mnt/ /mnt/work etc..) and it
-didn't want to mount, I'm totally out of ideas with this. according to
-df it's not mounted, according to mount it's not mounted and according
-to mtab it's not mounted, so what's going on?
+On Thu, 11 Mar 2004 20:16:28 +0100, Christophe Saout said:
 
-It mounts fine on my 2.6.1-mm4 kernel that I use for SCSI burning and
-fallback if something fails.
+> Ugh... this sounds ugly. This should be forbidden. I mean, what are
+> things like EXPORT_SYMBOL_GPL for if drivers are allowed to patch
+> whatever they want?
 
-Thanks in advice.
+If the binary blob knows enough about the innards to be able to do binary
+patching, it's a derived work and should be GPL.
 
-        Markus
+Even the NVidia driver isn't *that* evil... :)
 
+--==_Exmh_767934831P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAUL5BcC3lWbTT17ARAjyjAKCQ2x7JSJS1Jfz1sCXjpGOABoSlhwCgu2L4
+d42hDXk+AY2rqfrjSxQNJng=
+=Ie98
+-----END PGP SIGNATURE-----
+
+--==_Exmh_767934831P--

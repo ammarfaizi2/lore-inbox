@@ -1,171 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVALXRy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261564AbVALXRy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261229AbVALXRy (ORCPT <rfc822;willy@w.ods.org>);
+	id S261564AbVALXRy (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 12 Jan 2005 18:17:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVALXNQ
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVALXOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 18:13:16 -0500
-Received: from fire.osdl.org ([65.172.181.4]:3548 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S261557AbVALXI7 (ORCPT
+	Wed, 12 Jan 2005 18:14:05 -0500
+Received: from mail.kroah.org ([69.55.234.183]:8064 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261524AbVALW6d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 18:08:59 -0500
-Message-ID: <41E5AC72.1040301@osdl.org>
-Date: Wed, 12 Jan 2005 15:02:10 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: gene.heskett@verizon.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ieee1394 errors on attempted insmod
-References: <200501120000.15177.gene.heskett@verizon.net> <200501121519.17548.gene.heskett@verizon.net> <41E59783.3090408@osdl.org> <200501121758.38121.gene.heskett@verizon.net>
-In-Reply-To: <200501121758.38121.gene.heskett@verizon.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 12 Jan 2005 17:58:33 -0500
+Date: Wed, 12 Jan 2005 14:58:19 -0800
+From: Greg KH <greg@kroah.com>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>, Andrew Morton <akpm@osdl.org>,
+       Takashi Iwai <tiwai@suse.de>, ak@suse.de, mingo@elte.hu,
+       rlrevell@joe-job.com, linux-kernel@vger.kernel.org, pavel@suse.cz,
+       gordon.jin@intel.com, VANDROVE@vc.cvut.cz
+Subject: Re: [PATCH] fix: macros to detect existance of unlocked_ioctl and compat_ioctl
+Message-ID: <20050112225819.GB14590@kroah.com>
+References: <20041215065650.GM27225@wotan.suse.de> <20041217014345.GA11926@mellanox.co.il> <20050103011113.6f6c8f44.akpm@osdl.org> <20050105144043.GB19434@mellanox.co.il> <s5hd5wjybt8.wl@alsa2.suse.de> <20050105133448.59345b04.akpm@osdl.org> <20050106140636.GE25629@mellanox.co.il> <20050112203606.GA23307@mellanox.co.il> <20050112212954.GA13558@kroah.com> <20050112221309.GW8098@schnapps.adilger.int>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050112221309.GW8098@schnapps.adilger.int>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett wrote:
-> On Wednesday 12 January 2005 16:32, Randy.Dunlap wrote:
+On Wed, Jan 12, 2005 at 03:13:09PM -0700, Andreas Dilger wrote:
+> On Jan 12, 2005  13:29 -0800, Greg KH wrote:
+> > On Wed, Jan 12, 2005 at 10:36:06PM +0200, Michael S. Tsirkin wrote:
+> > > To make life bearable for out-of kernel modules, the following patch
+> > > adds 2 macros so that existance of unlocked_ioctl and compat_ioctl
+> > > can be easily detected.
+> > >  
+> > > Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+> > > 
+> > > diff -puN include/linux/fs.h~ioctl-rework include/linux/fs.h
+> > > --- 25/include/linux/fs.h~ioctl-rework	Thu Dec 16 15:48:31 2004
+> > > +++ 25-akpm/include/linux/fs.h	Thu Dec 16 15:48:31 2004
+> > > @@ -907,6 +907,12 @@ typedef struct {
+> > >  
+> > >  typedef int (*read_actor_t)(read_descriptor_t *, struct page *, unsigned long, unsigned long);
+> > >  
+> > > +/* These macros are for out of kernel modules to test that
+> > > + * the kernel supports the unlocked_ioctl and compat_ioctl
+> > > + * fields in struct file_operations. */
+> > > +#define HAVE_COMPAT_IOCTL 1
+> > > +#define HAVE_UNLOCKED_IOCTL 1
+> > 
+> > No, we do not do that in the kernel today, and I'm pretty sure we don't
+> > want to start doing it (it would get _huge_ very quickly...)
+> > 
+> > Please don't apply this.  Remember, out-of-the-tree modules are on their
+> > own.
 > 
->>Gene Heskett wrote:
->>
->>>On Wednesday 12 January 2005 13:56, Randy.Dunlap wrote:
->>>
->>>>Gene Heskett wrote:
->>>>
->>>>>Greetings;
->>>>>
->>>>>I just bought a Sony HandyCam DCR-TRV460, which has both firewire
->>>>>and usb ports.
->>>>>
->>>>>But I couldn't seem to open a path to it using usb, so I plugged
->>>>>in an old firewire card that has the TI-Lynx chipset on it.  Its
->>>>>recognized (apparently) by both dmesg and kudzu, but although I'd
->>>>>turned on all the 1394 stuff as modules when I got ready to plug
->>>>>the card in and rebuilt my 2.6.10-ac8 kernel, kudzu didn't load
->>>>>any of them, and when I try to, I'm getting "-1 Unknown Symbol in
->>>>>module" errors.
->>>>>
->>>>>Probably an attack of dumbass, but I'd appreciate any help that
->>>>>can be tossed my way.  ATM I'm rebuilding again with the base
->>>>>module built in.
-> 
-> [...]
-> 
->>>Here is a snip from an lspci -v:
->>>
->>>01:09.0 FireWire (IEEE 1394): Texas Instruments FireWire
->>>Controller (rev 01) (prog-if 10 [OHCI])
->>>        Subsystem: Texas Instruments: Unknown device 8010
->>>        Flags: bus master, medium devsel, latency 32, IRQ 19
->>>        Memory at db004000 (32-bit, non-prefetchable)
->>>        Memory at db000000 (32-bit, non-prefetchable) [size=16K]
->>>        Capabilities: [44] Power Management version 1
->>
->>That's not a PCILynx controller AFAIK, it seems that the
->>ohci1394 driver is handling it.
-> 
-> 
-> Or miss-handling it as the case may be :-)
-> 
->>>2 or 3 years ago when I was first playing with this card, it said
->>>it needed the pcilynx module, but I think the raw device is
->>>grabbing it first.  Is that kosher, and shouldn't I have a few
->>>more devices beside raw1394 in my devs directory?
->>
->>No idea on that one.  Are all of the modules loading OK now?
-> 
-> 
-> It would appear so.  I think now the question is, do I need some 
-> aliases setup in my modprobe.conf in order to force the correct 
-> loading sequence?
-> 
-> 
->>>Do you know where I can find an rpm for gscanbus, I cannot make
->>>the tarball build here, possibly a compiler error coupled with
->>>what I'd call poorly formed src codes.  gcc is 3.3.3 here.
->>
->>I see some here:
->>http://rpmfind.net/linux/rpm2html/search.php?query=gscanbus&submit=S
->>earch+... The ones listed are all for MandrakeLinux.
-> 
-> 
-> I saw those, never been able to use a mndrk rpm here.
+> Gee, thanks.  It's not like some out-of-tree code doesn't _want_ to go
+> into the core kernel, but usually the time between some code being
+> developed and when it is included is lengthy (i.e. "this feature won't
+> be accepted until lots of people use it").
 
-No surprise there.
+I understand that, but for stuff like that, isn't it easier to just test
+for VERSION?  Or use autoconf?
 
->>Or post the gscanbus build errors (to the
->>linux1394-devel@lists.sf.net mailing list).
-> 
-> Did that, rather quiet list.
+> You can't claim that this has never been done (e.g. KERNEL_HAS_O_DIRECT,
+> KERNEL_HAS_DIRECT_FILEIO in 2.4 kernels).
 
-Yes, it is.
+That was because of the backport mess that 2.4 went through and vendor
+kernels, right?
 
- > I fixed it so it would make but its only
-> working with the camera turned off!  If I turn it on, the shell that 
-> launches it soon fills up with "resource temporarily unavailable" 
-> messages.
-> 
-> Humm, my fix might need another.  Do long self allocating strings 
-> still need a terminating \0 in C, inside the dbl quotes?  OTOH, I've 
-> not seen either error string actually spit out (yet).  I've been 
-> under the impression that most modern compilers handle that silently 
-> and well.
+> For code that needs to handle
+> multiple kernel versions this makes life far easier and doesn't actually
+> hurt anything.  It used to be that you could use LINUX_VERSION_CODE for
+> this kind of check, but that breaks down quickly with vendor kernels and
+> the long development cycle.
 
-C automatically terminates quoted strings with a nul char.
+What long development cycle?  The out-of-the-tree stuff?  Or the kernel
+development stuff?
 
-> With the camera turned off, I can get this out of gscanbus:
-> ---------------
-> SelfID Info
-> -----------
-> Physical ID: 0
-> Link active: Yes
-> Gap Count: 63
-> PHY Speed: S400
-> PHY Delay: <=144ns
-> IRM Capable: Yes
-> Power Class: -1W
-> Port 0: Not connected
-> Port 1: Not connected
-> Port 2: Not connected
-> Init. reset: Yes
-> 
-> CSR ROM Info
-> ------------
-> GUID: 0x0050625600001065
-> Node Capabilities: 0x000083C0
-> Vendor ID: 0x00005062
-> Unit Spec ID: 0x0000005E
-> Unit SW Version: 0x00000001
-> Model ID: 0x00000000
-> Nr. Textual Leafes: 1
-> 
-> Vendor:  KOUWELL ELECTRONICS CORP.  **
-> Textual Leafes: 
-> Linux - ohci1394
-> 
-> AV/C Subunits
-> -------------
-> N/A
-> ----------------eof-----------------
-> 
-> With it turned on, I get the same report but it takes lots of time, 
-> and its locked up, whereas with the camera off, the report above is 
-> instant.
-> 
-> I going to shut down long enough to verify the chips on that card, 
-> just to satisfy my own itch.  I only have one, and it actually came 
-> in a Digital Research box several years ago, staples had a 20 dollar 
-> bill on it and I figured what the hey...  I suppose I could drag out 
-> the cd, but thats all winderz stuff, less than helpfull to an anti-M$ 
-> like me.
-> 
-> One other item that might bear, the card claims S400 speed, but the 
-> camera only claims S100, is the protocol not auto-negotiating?
+My main issue is when would we ever be able to remove such HAS macros?
 
-I dunno, I still suggest asking on the linux1394 mailing list.
+And who specifically will be testing for these HAVE_COMPAT_IOCTL and
+HAVE_UNLOCKED_IOCTL macros?  Will that code make it into the main tree
+ever?  If not, why not?
 
--- 
-~Randy
+thanks,
+
+greg k-h

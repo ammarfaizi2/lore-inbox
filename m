@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319539AbSH3Kkv>; Fri, 30 Aug 2002 06:40:51 -0400
+	id <S319542AbSH3Kwl>; Fri, 30 Aug 2002 06:52:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319540AbSH3Kkv>; Fri, 30 Aug 2002 06:40:51 -0400
-Received: from ip68-4-86-174.oc.oc.cox.net ([68.4.86.174]:45305 "HELO
-	ip68-4-77-172.oc.oc.cox.net") by vger.kernel.org with SMTP
-	id <S319539AbSH3Kku>; Fri, 30 Aug 2002 06:40:50 -0400
-Date: Fri, 30 Aug 2002 03:45:14 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Mat Harris <mat.harris@genestate.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18-3 on rh 7.1?
-Message-ID: <20020830104514.GA2165@ip68-4-77-172.oc.oc.cox.net>
-References: <20020830083233.GA9196@genestate.com>
+	id <S319543AbSH3Kwl>; Fri, 30 Aug 2002 06:52:41 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:28398
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319542AbSH3Kwl>; Fri, 30 Aug 2002 06:52:41 -0400
+Subject: Re: [PATCH] 6/41 sound/oss/pss.c - convert cli to spinlocks
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: pwaechtler@mac.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020830074730.GF19611@louise.pinerecords.com>
+References: <200208292154.g7TLs5ZH003520@smtp-relay02.mac.com> 
+	<20020830074730.GF19611@louise.pinerecords.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 30 Aug 2002 11:56:58 +0100
+Message-Id: <1030705018.3196.7.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020830083233.GA9196@genestate.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 30, 2002 at 09:32:33AM +0100, Mat Harris wrote:
-> silly question compared to all you gurus on the list, but it needs to be
-> asked. I need to fun freeswan (secure wan) between sever a redhat
-> servers. the only patched kernel i am permitted to use is the rpm for
-> ipsec enables 2.4.18-3. will this kernel work on redhat 7.1, or will it
-> fall over at the first opportunity?
+On Fri, 2002-08-30 at 08:47, Tomas Szepe wrote:
+> > static pss_confdata *devc = &pss_data;
+>                            ^ ^
+> > +static spinlock_t lock=SPIN_LOCK_UNLOCKED;
+> 
+> > 				if (!pss_put_dspword(devc, *data++)) {
+>                                                           ^
+> > +					spin_unlock_irqrestore(&lock,flags);
+> 
+> 
+> Would you please take care not to clutter the original sources with
+> lines in a different C formatting style?
 
-I've never done IPSec, but plain use of 2.4.18-3 does work with Red Hat
-7.1. Note that you'll need to either satisfy the dependencies by
-upgrading some packages from Red Hat 7.3, or use --nodeps. Both work in
-my experiences.
+When you've ported that much code to a new locking mechanism then you
+can moan. If he wants to take on the old OSS code and making it work in
+the 2.5 universe as far as I (as the ex OSS code maintainer) am concened
+he can format it how he likes
 
-However, note that:
-+ 2.4.18-3 has a data corruption bug with ext3 on SMP systems, fixed in
-  2.4.18-4.
-+ 2.4.18-4 (and -3) has weird NFS problems which are fixed in 2.4.18-5
-+ 2.4.18-[345] have security problems which are fixed in 2.4.18-10
-  (By the way, does anyone know if new 2.4.9-xx or 2.2.xx kernels are
-  coming from Red Hat to fix these holes for those releases? Or have
-  earlier Red Hat kernels (and releases) just been abandoned? Or are
-  they just not affected?)
-
--Barry K. Nathan <barryn@pobox.com>

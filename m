@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132794AbRAHKrW>; Mon, 8 Jan 2001 05:47:22 -0500
+	id <S136726AbRAHKvV>; Mon, 8 Jan 2001 05:51:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135621AbRAHKrK>; Mon, 8 Jan 2001 05:47:10 -0500
-Received: from rhlx01.fht-esslingen.de ([134.108.34.10]:53070 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id <S132794AbRAHKrG>; Mon, 8 Jan 2001 05:47:06 -0500
-Date: Mon, 8 Jan 2001 11:46:05 +0100 (CET)
-From: Nils Philippsen <nils@fht-esslingen.de>
-Reply-To: <nils@fht-esslingen.de>
-To: Narancs 1 <narancs1@externet.hu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: postgres/shm problem
-In-Reply-To: <Pine.LNX.4.02.10101081110001.1837-100000@prins.externet.hu>
-Message-ID: <Pine.LNX.4.30.0101081142090.8952-100000@rhlx01.fht-esslingen.de>
+	id <S135621AbRAHKvL>; Mon, 8 Jan 2001 05:51:11 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:22024 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S136726AbRAHKvB>; Mon, 8 Jan 2001 05:51:01 -0500
+Message-ID: <3A599B6D.E9757E5A@idb.hist.no>
+Date: Mon, 08 Jan 2001 11:50:21 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: no, da, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+To: nbreun@gmx.de, linux-kernel@vger.kernel.org
+Subject: Re: APIC-ERROR-Messages -
+In-Reply-To: <01010611131600.08129@nmb>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Norbert Breun wrote:
+> 
+> Hallo,
+> 
+> sorry if this is a silly question...
+> as far as I understood my smp-board seem not well designed - so I get APIC
+> error messages nearly every 1-3 seconds. These mmessages do not help me
+> because -so I was told - it is not possible to fix the problem.
+> Is it possible to eliminate these error messages. My logfiles grow enormously
+> and are "trashed" with these messages...
+> 
+> I'm running Kernel 2.4.0ac2 successfully  hoping that "sudden death" will not
+> come back...
 
-On Mon, 8 Jan 2001, Narancs 1 wrote:
+I don't know what board you have, but my abit BP6 improved with more
+cooling
+(better fans on the cpu's and a fan on another hot chip that only had a 
+heatsink before.)  And use thermal grease instead of the cleaner but
+inferior 
+rubber pads.
+  
+Lower clock frequency tends to help too, but nobody wants that. ;-)
 
-> Lots of things may have changed in 2.4.0-prer., because nor cdrecord
-> neither postgressql do not run because of system v ipc / shm problem.
-> After recompiling cdrecord with the new header files, started working.
-> I'm just recompiling postgres too.
->
-> /var/log/postgresql.log:
->
-> 010102.10:45:09.448   [627] IpcMemoryCreate: shmget failed (No space left
-> on device) key=5432010, size=144, permission=700
-> This type of error is usually caused by an improper
-> shared memory or System V IPC semaphore configuration.
-
-I had the same problem on my machine and it stemmed from accidentally setting
-/proc/sys/kernel/shmall to "0" (that is the maximum number of SHM segments).
-In my cas I used some /psoc/sys tweaking utility at a time where this value
-was unknown (other kernel) and that utility then set kernel.shmall in
-/etc/sysctl.conf to 0. You might check that.
-
-Nils
--- 
- Nils Philippsen / Berliner Straﬂe 39 / D-71229 Leonberg // +49.7152.209647
-nils@wombat.dialup.fht-esslingen.de / nils@fht-esslingen.de / nils@redhat.de
-   The use of COBOL cripples the mind; its teaching should, therefore, be
-   regarded as a criminal offence.                  -- Edsger W. Dijkstra
-
+Helge Hafting
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

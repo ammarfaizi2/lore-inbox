@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263149AbTIVNsP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 09:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263150AbTIVNsP
+	id S263152AbTIVNuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 09:50:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263154AbTIVNuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 09:48:15 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50646 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263149AbTIVNsO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 09:48:14 -0400
-Date: Mon, 22 Sep 2003 14:48:13 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Alistair J Strachan <alistair@devzero.co.uk>
+	Mon, 22 Sep 2003 09:50:24 -0400
+Received: from yankee.rb.xcalibre.co.uk ([217.8.240.35]:13443 "EHLO
+	yankee.rb.xcalibre.co.uk") by vger.kernel.org with ESMTP
+	id S263152AbTIVNuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 09:50:19 -0400
+Envelope-to: linux-kernel@vger.kernel.org
+From: Alistair J Strachan <alistair@devzero.co.uk>
+To: Zilvinas Valinskas <zilvinas@gemtek.lt>
+Subject: Re: 2.6.0-test5-mm4
+Date: Mon, 22 Sep 2003 14:49:37 +0100
+User-Agent: KMail/1.5.9
+References: <20030922013548.6e5a5dcf.akpm@osdl.org> <200309221317.42273.alistair@devzero.co.uk> <20030922143605.GA9961@gemtek.lt>
+In-Reply-To: <20030922143605.GA9961@gemtek.lt>
 Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        linux-mm@kvack.org
-Subject: Re: 2.6.0-test5-mm4
-Message-ID: <20030922134813.GF7665@parcelfarce.linux.theplanet.co.uk>
-References: <20030922013548.6e5a5dcf.akpm@osdl.org> <200309221317.42273.alistair@devzero.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200309221317.42273.alistair@devzero.co.uk>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200309221449.37677.alistair@devzero.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 22, 2003 at 01:17:42PM +0100, Alistair J Strachan wrote:
-> One possible explanation is that I have devfs compiled into my kernel. I do 
-> not, however, have it automatically mounting on boot. It overlays /dev (which 
-> is populated with original style device nodes) after INIT has loaded.
+On Monday 22 September 2003 15:36, Zilvinas Valinskas wrote:
+[snip]
+> >
+> > VFS: Cannot open root device "302" or hda2.
+> > Please append correct "root=" boot option.
+> > Kernel Panic: VFS: Unable to mount root fs on hda2.
+>
+> Do you use devfsd ?
+>
 
-Amazingly idiotic typo.  And yes, it gets hit only if devfs is configured.
+No. As I said, I mount /dev with mount -t devfs devfs /dev in a sysinit 
+bootscript. Whether it's in the kernel or not shouldn't make any difference. 
+Maybe I just need to reissue LILO after booting the 32bit dev_t kernel?
 
-diff -u B5-real32/init/do_mounts.h B5-current/init/do_mounts.h
---- B5-real32/init/do_mounts.h	Sun Sep 21 21:22:33 2003
-+++ B5-current/init/do_mounts.h	Mon Sep 22 09:41:21 2003
-@@ -53,7 +53,7 @@
- static inline u32 bstat(char *name)
- {
- 	struct stat64 stat;
--	if (!sys_stat64(name, &stat) != 0)
-+	if (sys_stat64(name, &stat) != 0)
- 		return 0;
- 	if (!S_ISBLK(stat.st_mode))
- 		return 0;
-@@ -65,7 +65,7 @@
- static inline u32 bstat(char *name)
- {
- 	struct stat stat;
--	if (!sys_newstat(name, &stat) != 0)
-+	if (sys_newstat(name, &stat) != 0)
- 		return 0;
- 	if (!S_ISBLK(stat.st_mode))
- 		return 0;
+> I had to specify root like this :
+> root=/dev/ide/host0/bus0/target0/lun0/part5  then it worked just fine.
+>
+
+I'll try that, thanks. But I have this in lilo.conf:
+
+boot=/dev/discs/disc0/disc
+root=/dev/discs/disc0/part2
+
+/dev/discs is indeed a symlink, but it should be resolved when LILO is 
+installed, i.e., prior to the reboot. Why has this behaviour changed?
+
+Cheers,
+Alistair.

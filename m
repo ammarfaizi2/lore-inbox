@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271694AbRIGK7r>; Fri, 7 Sep 2001 06:59:47 -0400
+	id <S271692AbRIGK75>; Fri, 7 Sep 2001 06:59:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271693AbRIGK7i>; Fri, 7 Sep 2001 06:59:38 -0400
-Received: from nbd.it.uc3m.es ([163.117.139.192]:8708 "EHLO nbd.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S271692AbRIGK73>;
-	Fri, 7 Sep 2001 06:59:29 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200109071059.MAA23146@nbd.it.uc3m.es>
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
-In-Reply-To: <m2y9nrn7p0.fsf@sympatico.ca> "from Bill Pringlemeir at Sep 6, 2001
- 08:52:27 pm"
-To: Bill Pringlemeir <bpringle@sympatico.ca>
-Date: Fri, 7 Sep 2001 12:58:25 +0200 (CEST)
-CC: linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL89 (25)]
+	id <S271693AbRIGK7s>; Fri, 7 Sep 2001 06:59:48 -0400
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:28166 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S271692AbRIGK7m>; Fri, 7 Sep 2001 06:59:42 -0400
+Date: Fri, 7 Sep 2001 09:52:38 +0100 (BST)
+From: Matthew Kirkwood <matthew@hairy.beasts.org>
+X-X-Sender: <matthew@sphinx.mythic-beasts.com>
+To: Wietse Venema <wietse@porcupine.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrey Savochkin <saw@saw.sw.com.sg>,
+        Matthias Andree <matthias.andree@gmx.de>, Andi Kleen <ak@suse.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip
+ alias
+In-Reply-To: <20010906172316.E0B74BC06C@spike.porcupine.org>
+Message-ID: <Pine.LNX.4.33.0109070942500.19950-100000@sphinx.mythic-beasts.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Bill Pringlemeir wrote:"
-> Otherwise, I think we have independently came up with the same thing
-> and the `error' throwing can of course be changed to whatever.
+On Thu, 6 Sep 2001, Wietse Venema wrote:
 
-If you are interested, the last version I had is the following. The
-compile_time_assert is linus' idea. We had an illegal assembler
-statement there originally, containing the line number and the
-error statement. One or the other will do until gcc gets the
-__builtin_ct_assert() function.
+> If an MTA receives a delivery request for user@[ip.address] then
+> the MTA has to decide if it is the final destination. This is
+> required by the SMTP RFC.
 
-#define compile_time_assert(x) \
-                do { switch (0) { case 0: case (x) != 0: ; } } while (0)
+Would it not suffice, in the common case, to check if the
+local address that the SMTP connection was accepted on is
+the same as the IP address in the email address?
 
-#define __MIN(x,y) ({\
-   typeof(x) _x = x; \
-   typeof(y) _y = y; \
-   _x < _y ? _x : _y ; \
- })
-#define MIN(x,y) ({\
-   const typeof(x) _x = ~(typeof(x))0; \
-   const typeof(y) _y = ~(typeof(y))0; \
-   compile_time_assert(sizeof(_x) == sizeof(_y));\
-   compile_time_assert( (_x > (typeof(x))0 && _y > (typeof(y))0) \
-                    ||  (_x < (typeof(x))0 && _y < (typeof(y))0)); \
-   __MIN(x,y); \
- })
+As I see it, it breaks only for multihomed relays or weird
+configurations, (with values of "breaks" close to "incurs
+an extra SMTP transaction").
 
-Peter
+You could even maintain a cache of IPs that SMTP connections
+had been accepted on.
+
+Matthew.
+

@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286339AbSAXJth>; Thu, 24 Jan 2002 04:49:37 -0500
+	id <S286303AbSAXJrR>; Thu, 24 Jan 2002 04:47:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286343AbSAXJt1>; Thu, 24 Jan 2002 04:49:27 -0500
-Received: from dns.uni-trier.de ([136.199.8.101]:8444 "EHLO
-	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
-	id <S286339AbSAXJtN>; Thu, 24 Jan 2002 04:49:13 -0500
-Date: Thu, 24 Jan 2002 10:49:11 +0100 (CET)
-From: Daniel Nofftz <nofftz@castor.uni-trier.de>
-X-X-Sender: nofftz@infcip10.uni-trier.de
-To: Hans-Peter Jansen <hpj@urpla.net>
-cc: Daniel Nofftz <nofftz@castor.uni-trier.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
-In-Reply-To: <20020123211611.8E0151458@shrek.lisa.de>
-Message-ID: <Pine.LNX.4.40.0201241047350.6560-100000@infcip10.uni-trier.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286336AbSAXJrI>; Thu, 24 Jan 2002 04:47:08 -0500
+Received: from eriador.apana.org.au ([203.14.152.116]:29452 "EHLO
+	eriador.apana.org.au") by vger.kernel.org with ESMTP
+	id <S286303AbSAXJqt>; Thu, 24 Jan 2002 04:46:49 -0500
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: rm-ing files with open file descriptors
+In-Reply-To: <20020123121819.GD965@elf.ucw.cz>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.17-686-smp (i686))
+Message-Id: <E16TgSj-0001OK-00@gondolin.me.apana.org.au>
+Date: Thu, 24 Jan 2002 20:46:29 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jan 2002, Hans-Peter Jansen wrote:
+Pavel Machek <pavel@suse.cz> wrote:
 
-> You see, I'm fiddleing with power saving quite some time.
+>> How is linking back a file into the normal namespace anymore
+>> a security hole as having it under /proc or keeping an fd to it
+>> open?
 
-oh ,.. by the way : does dmesg show somthing like "dissconect in via
-northbridge enabled: kt133 chipset found " or something similar ?
-(only if you have my patch ativated)
+> Imagine you want to delete my file, you are root.
 
-daniel
+> Before, you could rm it, then kill all my processes.
 
-
-# Daniel Nofftz
-# Sysadmin CIP-Pool Informatik
-# University of Trier(Germany), Room V 103
-# Mail: daniel@nofftz.de
-
+No you can't.  Your processes may be in a tight loop making new links
+for the file.  The only safe solution is to kill the processes first,
+then delete the file.
+-- 
+Debian GNU/Linux 2.2 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

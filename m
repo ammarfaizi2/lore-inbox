@@ -1,49 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262987AbTDRI6w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 04:58:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262992AbTDRI6w
+	id S262982AbTDRJC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 05:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262984AbTDRJC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 04:58:52 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37127 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262987AbTDRI6v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 04:58:51 -0400
-Date: Fri, 18 Apr 2003 10:10:42 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: John Bradford <john@grabjohn.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Patrick Mochel <mochel@osdl.org>,
-       Grover Andrew <andrew.grover@intel.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Subtle semantic issue with sleep callbacks in drivers
-Message-ID: <20030418101042.B25177@flint.arm.linux.org.uk>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	John Bradford <john@grabjohn.com>, Jeff Garzik <jgarzik@pobox.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Patrick Mochel <mochel@osdl.org>,
-	Grover Andrew <andrew.grover@intel.com>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030417150926.GA25402@gtf.org> <200304171547.h3HFljoK000140@81-2-122-30.bradfords.org.uk> <20030418073754.GA2753@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 18 Apr 2003 05:02:59 -0400
+Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:21467 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S262982AbTDRJC4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 05:02:56 -0400
+Message-ID: <20030418091437.8621.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030418073754.GA2753@kroah.com>; from greg@kroah.com on Fri, Apr 18, 2003 at 12:37:54AM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 18 Apr 2003 17:14:37 +0800
+Subject: [ALSA] no sound with Maestro3
+X-Originating-Ip: 62.101.98.215
+X-Originating-Server: ws5-8.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 18, 2003 at 12:37:54AM -0700, Greg KH wrote:
-> PCI Hotplug does not support video cards for just this reason.
+Kernel is 2.5.67,
 
-/me points at the Mobility Electronics EV1000 Cardbus-PCI widget
-with a ATI Rage VGA device.  Ok, it's hot-pluggable, but it'd be
-nice to work out a way to support it.
+Advanced Linux Sound Architecture Driver Version 0.9.2 (Thu Mar 20
+13:31:57 
+2003 UTC).
+request_module: failed /sbin/modprobe -- snd-card-0. error = -16
+no UART detected at 0xffff
+Motu MidiTimePiece on parallel port irq: 7 ioport: 0x378
+ALSA sound/drivers/mpu401/mpu401.c:76: specify port
+PCI: Found IRQ 5 for device 00:0d.0
+ALSA device list:
+  #0: Dummy 1
+  #1: 
+  #2: ESS Maestro3 PCI at 0x1800, irq 5
+
+Following my .config# Sound
+#
+CONFIG_SOUND=y
+
+#
+# Advanced Linux Sound Architecture
+#
+CONFIG_SND=y
+CONFIG_SND_SEQUENCER=y
+# CONFIG_SND_SEQ_DUMMY is not set
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_VERBOSE_PRINTK=y
+CONFIG_SND_DEBUG=y
+CONFIG_SND_DEBUG_MEMORY=y
+CONFIG_SND_DEBUG_DETECT=y
+
+#
+# Generic devices
+#
+CONFIG_SND_DUMMY=y
+# CONFIG_SND_VIRMIDI is not set
+CONFIG_SND_MTPAV=y
+CONFIG_SND_SERIAL_U16550=y
+CONFIG_SND_MPU401=y
+
+#
+# ISA devices
+#
+all are not set
+#
+# PCI devices
+#
+# CONFIG_SND_ALI5451 is not set
+# CONFIG_SND_CS46XX is not set
+# CONFIG_SND_CS4281 is not set
+# CONFIG_SND_EMU10K1 is not set
+# CONFIG_SND_KORG1212 is not set
+# CONFIG_SND_NM256 is not set
+# CONFIG_SND_RME32 is not set
+# CONFIG_SND_RME96 is not set
+# CONFIG_SND_RME9652 is not set
+# CONFIG_SND_HDSP is not set
+# CONFIG_SND_TRIDENT is not set
+# CONFIG_SND_YMFPCI is not set
+# CONFIG_SND_ALS4000 is not set
+# CONFIG_SND_CMIPCI is not set
+# CONFIG_SND_ENS1370 is not set
+# CONFIG_SND_ENS1371 is not set
+CONFIG_SND_ES1938=y
+CONFIG_SND_ES1968=y
+CONFIG_SND_MAESTRO3=y
+# CONFIG_SND_FM801 is not set
+# CONFIG_SND_ICE1712 is not set
+# CONFIG_SND_ICE1724 is not set
+# CONFIG_SND_INTEL8X0 is not set
+# CONFIG_SND_SONICVIBES is not set
+# CONFIG_SND_VIA82XX is not set
+
+#
+# Open Sound System
+#
+# CONFIG_SOUND_PRIME is not set
+
+The result is that I haven't sound.
+
+Bug 395 in bugzilla
+
+
+Ciao,
+         Paolo
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
 
+Powered by Outblaze

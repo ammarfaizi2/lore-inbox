@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132158AbQKBIRg>; Thu, 2 Nov 2000 03:17:36 -0500
+	id <S132144AbQKBIRq>; Thu, 2 Nov 2000 03:17:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132157AbQKBIRQ>; Thu, 2 Nov 2000 03:17:16 -0500
-Received: from genesis.qualica.com ([196.26.55.194]:11016 "EHLO
-	genesis.qualica.com") by vger.kernel.org with ESMTP
-	id <S132144AbQKBIRK>; Thu, 2 Nov 2000 03:17:10 -0500
-Date: Thu, 2 Nov 2000 10:16:40 +0200
-From: Craig Schlenter <craig@qualica.com>
-To: Hans-Joachim Baader <hjb@pro-linux.de>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+	id <S132157AbQKBIRg>; Thu, 2 Nov 2000 03:17:36 -0500
+Received: from smtp01.oce.nl ([134.188.1.25]:37062 "EHLO smtp01.oce.nl")
+	by vger.kernel.org with ESMTP id <S132144AbQKBIRU>;
+	Thu, 2 Nov 2000 03:17:20 -0500
+>Received: from pc1-adve.oce.nl (pc1-adve.oce.nl [134.188.176.32])
+	by smtp02.oce.nl (8.9.3/8.9.3) with ESMTP id JAA21484;
+	Thu, 2 Nov 2000 09:06:37 +0100 (MET)
+Message-Id: <m13rFOP-000qDEC@pc1-adve.oce.nl>
+Date: Thu, 2 Nov 2000 09:06:37 +0100 (CET)
+From: adve@oce.nl (Arjan van de Ven)
+To: hjb@pro-linux.de (Hans-Joachim Baader)
+cc: linux-kernel@vger.kernel.org
 Subject: Re: test10 won't boot
-Message-ID: <20001102101640.A4391@qualica.com>
-In-Reply-To: <3A0112C8.E7D1117C@mandrakesoft.com> <20001102075400.5D2F13DFC7F@grumbeer.hjb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <20001102075400.5D2F13DFC7F@grumbeer.hjb.de>
+X-Newsgroups: adve.linux.kernel
+In-Reply-To: <20001102070209.DFE7D355386@grumbeer.hjb.de>
+User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre15 (i686))
+Content-Type: text
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 02, 2000 at 08:54:00AM +0100, Hans-Joachim Baader wrote:
-> Jeff Garzik wrote:
-> 
-> > Hans-Joachim Baader wrote:
-> > > test10, compiled with gcc 2.95.2, won't boot on one of my machine.
-> > > It stops after the "now booting the kernel" message. Yes, I have
-> > > configured Virtual Terminal and VGA text console.
-> > 
-> > Does it boot with the attached patch?
-> 
-> Nope, it doesn't. Same observation.
-> 
-> BTW this was the first 2.4 kernel that I tried on this machine.
-> So I cannot say since when it's broken. 2.2.x works fine.
+In article <20001102070209.DFE7D355386@grumbeer.hjb.de> you wrote:
+> Hi,
 
-The test10pre series is where my machine (also with ALI chipset) was broken 
-but Linus fixed it by guessing how some of the pirq stuff worked on the 1533 
-chip so test10 final works for me. I'm guessing test9 will work for you
-or that removing the pci_enable line in Jeff's patch completely might do
-the job for you. Yes?
+> The system is a AMD K6-2/400 on an ASUS P5A-B board. lspci output:
 
---Craig
+
+[snip]
+
+> CONFIG_M686=y
+
+Ah ha!
+
+You have selected the Pentium II/III CPU type, which does NOT work on a K6. 
+The compiler (and the kernel) will use the "new" Pentium II instructions
+(such as "cmov") which are not supported by the K6, leading to "illegal
+instruction" usage very early.
+
+I'm sure your computer will work fine as soon as you select a "K6" processor
+in the configuration program you use (make menuconfig/xconfig/config), as I
+have the same CPU/mobo.
+
+Greetings,
+   Arjan van de Ven
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

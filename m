@@ -1,81 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262426AbTDAMFd>; Tue, 1 Apr 2003 07:05:33 -0500
+	id <S262478AbTDAMRE>; Tue, 1 Apr 2003 07:17:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262432AbTDAMFd>; Tue, 1 Apr 2003 07:05:33 -0500
-Received: from proxy.povodiodry.cz ([62.77.115.11]:11935 "HELO pc11.op.pod.cz")
-	by vger.kernel.org with SMTP id <S262426AbTDAMFb>;
-	Tue, 1 Apr 2003 07:05:31 -0500
-From: "Vitezslav Samel" <samel@mail.cz>
-Date: Tue, 1 Apr 2003 14:16:53 +0200
-To: Alan Cox <alan@redhat.com>, Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [IDE SiI680] throughput drop to 1/4
-Message-ID: <20030401121653.GA1313@pc11.op.pod.cz>
-Mail-Followup-To: Alan Cox <alan@redhat.com>,
-	Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-References: <20030324072910.GA16596@pc11.op.pod.cz> <Pine.LNX.4.10.10303240943070.8000-100000@master.linux-ide.org> <20030324072910.GA16596@pc11.op.pod.cz> <200303241213.h2OCD6u21467@devserv.devel.redhat.com> <20030325070605.GA26860@pc11.op.pod.cz> <20030326065650.GA10282@pc11.op.pod.cz>
+	id <S262482AbTDAMRD>; Tue, 1 Apr 2003 07:17:03 -0500
+Received: from mail.zmailer.org ([62.240.94.4]:32725 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S262478AbTDAMRD>;
+	Tue, 1 Apr 2003 07:17:03 -0500
+Date: Tue, 1 Apr 2003 15:28:24 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: shesha bhushan <bhushan_vadulas@hotmail.com>
+Cc: matti.aarnio@zmailer.org, linux-kernel@vger.kernel.org,
+       kernelnewbies@nl.linux.org
+Subject: Re: Deactivating TCP checksumming
+Message-ID: <20030401122824.GY29167@mea-ext.zmailer.org>
+References: <F91mkXMUIhAumscmKC00000f517@hotmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030326065650.GA10282@pc11.op.pod.cz>
-User-Agent: Mutt/1.4i
+In-Reply-To: <F91mkXMUIhAumscmKC00000f517@hotmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 26, 2003 at 07:56:50AM +0100, Vitezslav Samel wrote:
-> On Tue, Mar 25, 2003 at 08:06:05AM +0100, Vitezslav Samel wrote:
-> > On Mon, Mar 24, 2003 at 07:13:06AM -0500, Alan Cox wrote:
-> > > >   Recently I tried to figure out in 2.5.65, why throughput on my disk which
-> > > > hangs on Silicon Image 680 dropped to 1/4 compared to 2.4.21-pre5, but didn't
-> > > > found anything useful. Are there any known issues with this driver?
-> > > 
-> > > The same code in both cases. Its quite likely the problem is higher up in
-> > > the block or filesystem layer. It might also be a general IDE layer bug
-> > > 
-> > > What does performance look like on your other disk between
-> > > 2.4.21pre/2.5.65 ?
-> > 
-> >   Will test it as I come back home (it's on my home machine). But I think this
-> > performance drop is only on the SiI680 interface.
-> 
->   Tested today: on the other disk on integrated interface (piix) is throughput
-> exactly the same on both kernels.
+On Tue, Apr 01, 2003 at 12:12:04PM +0000, shesha bhushan wrote:
+> I get that. I can talk with the driver vendor. But to gain the usefulness 
+> of caculation of CSUM in HW we need to disable the software CSUM 
+> calculation in TCP layer in the kernel. Am I correct? I am trying to find 
+> that and I ma stuck there. How to disble the software TCP CSUM calculation? 
+> and later I can talk with driver vendor to enable it in hardware. I wanted 
+> help from linux gurus in disabling TCP csum calculation in the kernel.
 
-  I put my eyes on /etc/rc.d/* and found hdparm doing some magic; then I tried
-to fiddle with its params and came to this: the problem lied in fs readahead
-(hdparm -a xxx). Tried various numbers:
+The kernel code is already smart enough of detect that the outbound
+device will handle the checksum calculations all by itself, and not
+do it in that case.
 
- fs readahead	throughput in 2.5.66	throughput in 2.4.21-pre6
------------------------------------------------------------------
-  0		11.94 MB/sec		40.00 MB/sec
-  8		12.01 MB/sec            38.79 MB/sec
- 16		12.04 MB/sec            40.25 MB/sec
- 24		15.22 MB/sec            39.51 MB/sec
- 32		15.17 MB/sec            40.00 MB/sec
- 40		15.20 MB/sec            39.02 MB/sec
- 48		15.26 MB/sec            40.00 MB/sec
- 56		17.60 MB/sec            40.25 MB/sec
- 64		16.03 MB/sec            40.00 MB/sec
- 64		15.95 MB/sec            40.25 MB/sec
- 72		17.32 MB/sec            40.00 MB/sec
- 80		18.34 MB/sec            40.25 MB/sec
- 88		18.72 MB/sec            40.25 MB/sec
- 96		16.04 MB/sec            39.26 MB/sec
-104		16.68 MB/sec            40.25 MB/sec
-112		18.25 MB/sec            39.02 MB/sec
-120		18.42 MB/sec            40.00 MB/sec
-128		19.17 MB/sec            39.26 MB/sec
-136		26.67 MB/sec            40.00 MB/sec
-144		39.31 MB/sec            39.51 MB/sec
-152		39.58 MB/sec            39.75 MB/sec
-160		39.68 MB/sec            40.25 MB/sec
-168		39.98 MB/sec            40.25 MB/sec
-176		39.85 MB/sec            40.51 MB/sec
-184		40.18 MB/sec            40.00 MB/sec
+Testing of  dev->features   is done in files:
+   net/core/dev.c
+   net/ipv4/tcp.c
+(depending what protocol is in question.)
+in the latter case, actually in common tcp path with route-cached 
+route_caps flags.
 
-  So I disabled setting fs readahead (the default values are O.K.). Seems
-like setting fs readahead doesn't make any change on 2.4 kernels.
+I did
+   egrep 'NETIF_F_.._CSUM' net/*/*.c
+to find those.
+(and a number of other subset searches finding nothing)
 
-	Cheers,
-		Vita
+Grep is your friend.
+
+This whole "zero-copy" infastructure was implemented during
+development in 2.3 series.
+
+> Thanking You
+> Shesha
+
+/Matti Aarnio

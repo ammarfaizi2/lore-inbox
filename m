@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267189AbUBMSzd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 13:55:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267193AbUBMSzd
+	id S267026AbUBMSpj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 13:45:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267174AbUBMSpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 13:55:33 -0500
-Received: from fw.osdl.org ([65.172.181.6]:62088 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267189AbUBMSzb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 13:55:31 -0500
-Date: Fri, 13 Feb 2004 10:55:28 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Bas Mevissen <ml@basmevissen.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Shut up about the damn modules already...
-Message-ID: <20040213105528.E14506@build.pdx.osdl.net>
-References: <20040212031631.69CAD2C04B@lists.samba.org> <402D0083.7010606@basmevissen.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <402D0083.7010606@basmevissen.nl>; from ml@basmevissen.nl on Fri, Feb 13, 2004 at 05:51:15PM +0100
+	Fri, 13 Feb 2004 13:45:39 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:19721 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267026AbUBMSow (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 13:44:52 -0500
+Date: Fri, 13 Feb 2004 18:44:49 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: fbdev driver and sysfs question.
+In-Reply-To: <20040211225724.GN21151@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.44.0402131839040.17669-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[trimmed back Cc:]
 
-* Bas Mevissen (ml@basmevissen.nl) wrote:
-> I'm wondering why it is that the kernel is asking for non-existing 
-> modules so often. Is it that userspace applications try to access all 
-> kinds of devices too often (autoprobing) or it this (wanted) kernel 
-> behaviour?
+> > +	if (!info->screen_base) {
+> >  		release_mem_region(vesafb_fix.smem_start, vesafb_fix.smem_len);
+> >  		printk(KERN_ERR
+> >  		       "vesafb: abort, cannot ioremap video memory 0x%x @ 0x%lx\n",
+> 
+> 	Who will free info?
+...
+> 	Who will undo allocations?  BTW, that applies to the old code too -
+> even if fb_alloc_cmap() doesn't require any actions on cleanup, ioremap()
+> definitely does.
 
-The most common and annoying example (the one Rusty used), "net-pf-10,"
-is a result of a userspace app doing simple socket(AF_INET6,...).
+release_fb_info in fbsysfs.c. That happens in the struct class release 
+function. Also the fb_dealloc_cmap is called. No ioremap is called tho 
+since this is driver specific. So I have the ioremap and cleanup of it 
+done in the dev.remove function. 
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+This makes sense since we could have one driver for the hardware with 
+multiple framebuffers on board. One driver and two devices. 
+
+
+
+

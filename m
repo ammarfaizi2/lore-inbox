@@ -1,44 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129527AbQKHSce>; Wed, 8 Nov 2000 13:32:34 -0500
+	id <S129697AbQKHSeY>; Wed, 8 Nov 2000 13:34:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129508AbQKHScY>; Wed, 8 Nov 2000 13:32:24 -0500
-Received: from ss08.nc.us.ibm.com ([32.97.136.238]:4841 "EHLO
-	ddstreet.raleigh.ibm.com") by vger.kernel.org with ESMTP
-	id <S129527AbQKHScP>; Wed, 8 Nov 2000 13:32:15 -0500
-Date: Wed, 8 Nov 2000 12:12:31 -0500 (EST)
-From: Dan Streetman <ddstreet@us.ibm.com>
-To: linux-usb-devel <linux-usb-devel@lists.sourceforge.net>
-cc: Richard Polton <Richard.Polton@msdw.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] 2.4.0-test10 problems (power-down problem)
-In-Reply-To: <3A090F20.D4B42BDE@msdw.com>
-Message-ID: <Pine.LNX.4.10.10011081207210.25859-100000@ddstreet.raleigh.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129689AbQKHSeO>; Wed, 8 Nov 2000 13:34:14 -0500
+Received: from adsl-63-194-89-126.dsl.snfc21.pacbell.net ([63.194.89.126]:27660
+	"HELO skull.piratehaven.org") by vger.kernel.org with SMTP
+	id <S129508AbQKHSeF>; Wed, 8 Nov 2000 13:34:05 -0500
+Date: Wed, 8 Nov 2000 10:29:06 -0800
+From: Brian Pomerantz <bapper@piratehaven.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Pentium 4 and 2.4/2.5
+Message-ID: <20001108102906.A9302@skull.piratehaven.org>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20001108101248.A8902@skull.piratehaven.org> <E13tZrA-0000HQ-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <E13tZrA-0000HQ-00@the-village.bc.nu>
+X-homepage: http://www.piratehaven.org/~bapper/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 08, 2000 at 06:21:54PM +0000, Alan Cox wrote:
+> > > 		asm volatile("rep ; nop");
+> > > 
+> > > (there's not much a "rep nop" _can_ do, after all - the most likely CPU
+> > > extension would be to raise an "Illegal Opcode" fault).
+> > 
+> > Just for the curious, this works on Athlons. :)
+> 
+> What state does it leave the condition codes ?  That matters. 
+> 
+> Take for example
+> 
+> if (!oldval)
+>                 asm volatile(
+>                         "2:"
+>                         "cmpl $-1, %0;"
+>                         "rep; nop;"
+>                         "je 2b;"
+>                         	: :"m" (current->need_resched));
+> }
+> 
+> When running SMP with poll_idle enabled. I can't see it changing condition
+> codes on an athlon but..
 
-On Wed, 8 Nov 2000, Richard Polton wrote:
+Yup, that works as well.  This example:
 
->the power switch is disabled
->too and the only way in which the machine responds is by switching
->off at the wall and pulling the battery.
+	int	foo = -1;
+	asm volatile(
+		"2:"
+		"cmpl $-1, %0;"
+		"rep; nop;"
+		"je 2b;"
+		: :"m" (foo));
 
-I have seen this with my IBM Thinkpad 600E several times.
-
-Many (newer, at least) IBM machines I've seen will power down if you hold the
-power button down for 2-3 seconds.  Try that instead of pulling the plug and
-battery.
-
-It may be true for other machines also.
-
--- 
-Dan Streetman
-ddstreet@us.ibm.com
+loops forever.  If you set 'foo = 0' it drops out.
 
 
+BAPper
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

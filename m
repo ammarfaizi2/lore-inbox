@@ -1,50 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263811AbTLJRpo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 12:45:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263810AbTLJRpo
+	id S263798AbTLJRou (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 12:44:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263809AbTLJRou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 12:45:44 -0500
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:10510 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S263809AbTLJRpf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 12:45:35 -0500
-Message-ID: <3FD75BB0.7030001@lougher.demon.co.uk>
-Date: Wed, 10 Dec 2003 17:45:20 +0000
-From: Phillip Lougher <phillip@lougher.demon.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-GB; rv:1.2.1) Gecko/20030228
-X-Accept-Language: en, en-us
+	Wed, 10 Dec 2003 12:44:50 -0500
+Received: from us01smtp2.synopsys.com ([198.182.44.80]:10486 "EHLO
+	kiruna.synopsys.com") by vger.kernel.org with ESMTP id S263798AbTLJRoq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 12:44:46 -0500
+Message-ID: <3FD75B8A.21FA59D9@synopsys.com>
+Date: Wed, 10 Dec 2003 12:44:42 -0500
+From: Chris Petersen <Chris.Petersen@synopsys.com>
+Reply-To: Chris.Petersen@synopsys.com
+Organization: Synopsys, Inc.
+X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: manningc2@actrix.gen.nz
-CC: David Woodhouse <dwmw2@infradead.org>, joern@wohnheim.fh-wedel.de,
-       kbiswas@neoscale.com, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [OT?]Re: partially encrypted filesystem
-References: <E1ATLgF-0003XX-0V@anchor-post-31.mail.demon.net> <20031210010947.CA5875748@blood.actrix.co.nz>
-In-Reply-To: <20031210010947.CA5875748@blood.actrix.co.nz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Chris Petersen <Chris.Petersen@synopsys.COM>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: FIXED (was Re: PROBLEM:  Blk Dev Cache causing kswapd thrashing)
+References: <Pine.LNX.4.44.0311271649520.21568-100000@logos.cnet>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Charles Manning wrote:
-> On Tuesday 09 December 2003 02:44, phillip@lougher.demon.co.uk wrote:
->>Or maybe 'not in(to)-place' :-) I don't think I was saying compression is
->>difficult, it is not difficult if you've designed the filesystem correctly.
+Marcelo,
+
+It appears the block-device-cache/kswapd problem is indeed fixed in
+2.4.23 (yay!).
+
+To confuse matters RedHat has released an RPM with 2.4.20-24.7 which
+apparently contains later patches that include the fix.  This can be
+confusing because their 2.4.21-4EL kernel is busted (WRT this bug).
+But, at least this way we can simply tell our RH-based customers to go
+grab the RPM.
+
+Thanks,
+-chris
+
+Marcelo Tosatti wrote:
 > 
+> On Tue, 25 Nov 2003, William Lee Irwin III wrote:
 > 
-> Effectively saying that a fs that can't easily support compression is badly 
-> designed is a dangerous over-simplfication/generalisation/slur. 
+> > On Tue, Nov 25, 2003 at 04:03:56PM -0500, Chris Petersen wrote:
+> > > The block device cache is causing kswapd thrashing, usually bringing
+> > > the system to a halt.
+> > > This problem has been reproduced on kernels as recent as 2.4.21.
+> > > In our application we deal with large (multi-GB) files on multi-CPU
+> > > 4GB platforms.  While handling these files, the block device cache
+> > > allocates all remaining available memory (3.5G) up to the 4G
+> > > physical limit.
+> >
+> > Please try 2.4.23-rc5, and if that doesn't fix it, try 2.6.0-test10.
+> > AIUI both have page replacement improvements over 2.4.21.
 > 
+> Chris,
+> 
+> Did you try 2.4 already?
+> 
+> If you didnt, please tell me results when you do so.
+> 
+> Thanks
 
-Apologies all round to anyone who feels offended.  What I meant to say 
-is compression is not that difficult if you design the filesystem from 
-the outset with compression in mind - retro fitting compression to an 
-existing filesystem, however, can be very difficult (especially 
-compressed metadata), and that's why it's not a good idea.
+-- 
+-----------------------------------------------------------------
+Chris M. Petersen                                cmp@synopsys.com
+Sr. R&D Engineer
 
-The concept that all well designed filesystems should easily support 
-compression is wrong, and I didn't intend to imply that.
-
-Phillip
-
+Synopsys, Inc.                                    o: 919.425.7342
+1101 Slater Road, Suite 300                       c: 919.349.6393
+Durham, NC  27703                                 f: 919.425.7320
+-----------------------------------------------------------------

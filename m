@@ -1,100 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280911AbRKLSkM>; Mon, 12 Nov 2001 13:40:12 -0500
+	id <S280916AbRKLSqD>; Mon, 12 Nov 2001 13:46:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280916AbRKLSkC>; Mon, 12 Nov 2001 13:40:02 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:44418 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S280911AbRKLSjt>; Mon, 12 Nov 2001 13:39:49 -0500
-Date: Mon, 12 Nov 2001 13:39:46 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Sebastian Heidl <heidl@zib.de>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: doing a callback from the kernel to userspace
-In-Reply-To: <20011112180505.A5446@csr-pc1.zib.de>
-Message-ID: <Pine.LNX.3.95.1011112133630.7750A-100000@chaos.analogic.com>
+	id <S280921AbRKLSpy>; Mon, 12 Nov 2001 13:45:54 -0500
+Received: from mout04.kundenserver.de ([195.20.224.89]:14191 "EHLO
+	mout04.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S280917AbRKLSpj>; Mon, 12 Nov 2001 13:45:39 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hans-Peter Jansen <hpj@urpla.net>
+Organization: TreeWater Society Berlin
+To: Jason Lunz <j@falooley.org>
+Subject: Re: new aic7xxx bug, 2.4.13/6.2.4
+Date: Mon, 12 Nov 2001 19:45:31 +0100
+X-Mailer: KMail [version 1.3]
+In-Reply-To: <20011101222455.A5885@orr.falooley.org> <200111021443.fA2EhRY46335@aslan.scsiguy.com> <20011102143545.A30381@trellisinc.com>
+In-Reply-To: <20011102143545.A30381@trellisinc.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011112184533.1DE6A1027@shrek.lisa.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Nov 2001, Sebastian Heidl wrote:
+On Friday, 2. November 2001 20:35, Jason Lunz wrote:
+> In mlist.linux-kernel, you wrote:
 
-> 
-> 
-> Hi,
-> 
-> I read some of the signaling code and must admit that I could not extract the
-> necessary information from it. Ideally I'd like to call a user-supplied function
-> having just a pointer to this function and say the task_struct of the owning
-> process.
-> What steps are needed to savely do the callback ?  (How) can I retrieve the
-> necessary information from the task_struct ?
-> 
-> any pointers are welcome
-> _sh_
-> 
-> PS: Yes, I really do need this as signals form the kernel to userspace add to
->     much latency (10 to 20 usecs) and I want to avoid waiting in a system call.
+[...]
 
+> > But the mid-layer has already decided that it can't recover this device,
+> > so it calls it dead and refuses to allow I/O to it anymore.
+>
+> This is definitely wrong. The drive won't do anything now without a
+> reboot (or maybe removing and reinserting all scsi modules; I could do
+> that but I haven't tried it).
+>
+> > Have you recently changed your version of cdrdao?  Perhaps that program
+> > is issuing a command that this particular drive simply will not accept?
+>
+> This is the same drive and version of cdrdao that have ripped more than
+> 100 CDs. It's just this particular CD that breaks in this way at the
+> same spot every time.
+>
+> If the DVD-ROM can't handle that CD then that's fine, but it would be
+> nice if such a broken CD didn't result in not being able to use that
+> drive at all anymore.
 
-First, Linux is a Unix variant. There is no such thing as a
-"call-back" from kernel space because the "kernel" is not a
-process. The kernel executes functions on behalf of the process
-that is "current". The only event possible, that could result
-in a so-called call-back is an interrupt. Interrupt 'thunks' are
-not safely possible in any operating system, including those that
-purport to support them, regardless of the kiddie code in Dr. Dobbs.
+FYI: I've found a similar result under totally different conditions:
+2.4.13-ac7
+Vendor: TOSHIBA  Model: DVD-ROM SD-M1502 Rev: 1012
+Type:   CD-ROM                           ANSI SCSI revision: 02
+via ide-scsi
 
-The normal way to execute user-mode code as a result of an
-event is to use select() or poll(). In this case, the user-mode
-code that wants to do something as a result of an event, gets
-awakened as a result of that event. The wakeup does not take
-milliseconds are you describe, only a few microseconds. Of
-course if you have a task doing for(;;) ;, using all CPU just
-spinning, you are not going to get the CPU until the rogue task's
-time-slice is up.
+cdrdao read-cd --device /dev/sr0 --driver generic-mmc --buffers 80 -n
+--eject --paranoia-mode 0 toc
+[...]
+?: Input/output error.  : scsi sendcmd: retryable error
+CDB:  BE 00 00 04 2C 67 00 00 1A F8 01 00
+status: 0x0 (GOOD STATUS)
+cmd finished after 20.101s timeout 20s
+?: Input/output error.  : scsi sendcmd: retryable error
+CDB:  BE 00 00 04 2E 43 00 00 1A F8 01 00
+status: 0x0 (GOOD STATUS)
+cmd finished after 20.101s timeout 20s
+[...]
+killed with ^c
 
-Note that from user-space, you don't have to use main-line code
-to sleep in poll() waiting for an event, you can have multiple
-tasks, going about their business. One of these tasks can be
-waiting for the kernel event and, if necessary, communicate with
-your other tasks using shared memory, semaphores, pipes, signals,
-and a handful of other mechanisms.
+locked the drive completely. Need to reboot to eject the cd...
+I suspect some bad interference between DVD firmware, kernel 
+SCSI error handling and cdrdao. A plextor reader finally 
+succeeded on this job (wink :)
 
-If you insist, it is possible for kernel-mode code to write
-directly to user-mode memory. This memory must be locked down
-so it isn't paged out. However, the kernel can't execute
-user-mode code because the kernel doesn't exist as a separate
-process, therefore it can't get "back", there is no place for
-such a procedure call to return to.
+Maybe you're barking up the wrong tree.
 
-There is the capability, in 2.x.xx kernels for a kernel-thread.
-This is a process that exists in kernel space. Since this is
-a process, which has a context, it can do everything that user-mode
-code can do, in addition to directly accessing kernel structures.
+Hans-Peter
 
-You might wish to grep through some network drivers for "kernel_thread"
-to see how it's done.
-
-Please check the 'standard' ways of making drivers before you hack
-together something as Linux-specific as a kernel thread. I have
-drivers that are interrupted 10,000 times per second, transfer
-data from hardware buffers in 20,240 byte chunks at an overall
-transfer rate of 24 megabytes per second. The task(s) waiting
-for these data sleep in poll(), then call read() when data
-starts to arrive. This is the De-facto standard way for Unix
-systems. I don't have "latency" problems.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+> thanks for your help,
+>
+> Jason

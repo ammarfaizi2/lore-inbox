@@ -1,101 +1,46 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S156563AbPI1HqP>; Tue, 28 Sep 1999 03:46:15 -0400
-Received: by vger.rutgers.edu id <S156411AbPI1Hm3>; Tue, 28 Sep 1999 03:42:29 -0400
-Received: from mentolat-e0.core.genedata.com ([157.161.173.16]:2761 "EHLO mail.core.genedata.com") by vger.rutgers.edu with ESMTP id <S156578AbPI1Hjt>; Tue, 28 Sep 1999 03:39:49 -0400
-Message-ID: <37F070AE.1A3E8B4D@gold.net>
-Date: Tue, 28 Sep 1999 09:39:26 +0200
-From: Al Smith <Al.Smith@aeschi.ch.eu.org>
-Organization: http://aeschi.ch.eu.org/
-X-Mailer: Mozilla 4.61C-SGI [en] (X11; I; IRIX 6.5 IP32)
-X-Accept-Language: en
+Received: by vger.rutgers.edu via listexpand id <S157209AbPI3NYR>; Thu, 30 Sep 1999 09:24:17 -0400
+Received: by vger.rutgers.edu id <S157153AbPI3NYF>; Thu, 30 Sep 1999 09:24:05 -0400
+Received: from dukat.scot.redhat.com ([195.89.149.246]:1138 "EHLO dukat.scot.redhat.com") by vger.rutgers.edu with ESMTP id <S157160AbPI3NXu>; Thu, 30 Sep 1999 09:23:50 -0400
+From: "Stephen C. Tweedie" <sct@redhat.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.rutgers.edu
-Subject: buffer cache problem
-Content-Type: multipart/mixed; boundary="------------2CB036E11A5EBDB85A5ECEDB"
-Sender: owner-linux-kernel@vger.rutgers.edu
-
-This is a multi-part message in MIME format.
---------------2CB036E11A5EBDB85A5ECEDB
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <14323.25688.156773.889175@dukat.scot.redhat.com>
+Date: Thu, 30 Sep 1999 14:23:36 +0100 (BST)
+To: Chuck Lever <cel@monkey.org>
+Cc: Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>, davem@redhat.com, Stephen Tweedie <sct@redhat.com>, linux-kernel@vger.rutgers.edu
+Subject: Re: [PATCH] Re: Solaris 100K TCP connections, good example?  was:[Fwd: [Fwd:
+In-Reply-To: <Pine.BSO.4.10.9909291443200.25236-100000@funky.monkey.org>
+References: <Pine.GSO.4.10.9909291352400.23883-100000@stokes.math.psu.edu> <Pine.BSO.4.10.9909291443200.25236-100000@funky.monkey.org>
+Sender: owner-linux-kernel@vger.rutgers.edu
 
-it has been reported that there is a problem with efs regarding files being
-corrupt. the known example is with the IRIX 5.3 cd (sgi part number
-812-0119-006) and the file dist/compiler_eoe.sw. md5sum should return
-...ca10 for this file, however observe the following sequence of commands:
+Hi,
 
-# mount -t efs -o ro /dev/sr0 /n/sr0
-# md5sum /n/sr0/dist/compiler_eoe.sw
-38c7655a29faac15052f506f5fbc2f16  /n/sr0/dist/compiler_eoe.sw
-# umount /n/sr0
-# eject /dev/sr0
-(reinsert the CD)
-# mount -t efs -o ro /dev/sr0 /n/sr0
-# md5sum /n/sr0/dist/compiler_eoe.sw
-cec7e08bc479ef6b2599ea1458ea94f2  /n/sr0/dist/compiler_eoe.sw
-# umount /n/sr0
-# eject /dev/sr0
-(repeat ad infinitum, with a different md5sum each time).
+On Wed, 29 Sep 1999 15:30:29 -0400 (EDT), Chuck Lever <cel@monkey.org> said:
 
-fs/efs/inode.c:efs_map_block() _is_ returning the correct block number off
-the CD (rationale: looking at lots of printk() output in the systlog). in
-particular, it is irrelevant whether the file in question is composed of
-direct or indirect extents.
+> one of the difficulties i had understanding this code is the seeming
+> interchangeability of the terms "unused" and "free".  there are more
+> than simply the three states alluded to in the block comment at the
+> top of fs/inode.c:
 
-comparing the known-good compiler_eoe.sw with a corrupted file read with
-linux results in about 0.1% of single blocks throughout the file being
-"wrong", spread more-or-less evenly through the whole file. i have observed
-the "wrong" blocks to come from other blocks on the CD, however the "wrong"
-blocks have also been observed to come from other open files (the
-particular example reported was compiler_eoe.sw being interspersed with
-blocks from an oracle database).
+> 4.  zero count fs inode -- it's hashed, and on the in_use list, but
+>       is a target for reclamation if i_nrpages is zero (*)
 
-dd(1)ing the entire CD onto disk and mounting that image as /dev/loopN does
-not result in any problem - the correct md5sum is consistently returned.
+> (*) since it's use count is zero, it can also be said that this type of
+> inode is "unused."
 
-oddly enough, the following patch fixes the symptons, but points to a
-problem elsewhere. btw, this problem has been noted on at least 2.2.12 and
-2.2.13pre14, and probably most other 2.2 kernels. finally, i'm not
-subscribed to linux-kernel; please Cc: replies.
+No, these inodes are not necessarily unused.  The page cache does not
+count as a user on the inode's i_count field, but it does count against
+the i_nrpages field.  That's why the CAN_UNUSE macro reads as
 
--al.
+#define CAN_UNUSE(inode) \
+	(((inode)->i_count | (inode)->i_state | (inode)->i_nrpages) == 0)
 
+An inode with zero i_count may also be dirty, and hence still contain
+important state.
 
---------------2CB036E11A5EBDB85A5ECEDB
-Content-Type: text/plain; charset=us-ascii;
- name="efs-patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="efs-patch"
-
---- file.c.orig	Tue Sep 28 09:31:18 1999
-+++ file.c	Tue Sep 28 09:31:51 1999
-@@ -47,6 +47,7 @@
- };
-  
- int efs_bmap(struct inode *inode, efs_block_t block) {
-+	int result;
- 
- 	if (block < 0) {
- 		printk(KERN_WARNING "EFS: bmap(): block < 0\n");
-@@ -68,6 +69,13 @@
- 		return 0;
- 	}
- 
--	return(efs_map_block(inode, block));
-+	result = efs_map_block(inode, block);
-+
-+	{ struct buffer_head * bh;
-+		bh = bread(inode->i_dev, result, EFS_BLOCKSIZE);
-+		if (bh) brelse(bh);
-+	}
-+
-+	return(result);
- }
- 
-
---------------2CB036E11A5EBDB85A5ECEDB--
-
+--Stephen
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

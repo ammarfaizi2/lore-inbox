@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313255AbSDDQnp>; Thu, 4 Apr 2002 11:43:45 -0500
+	id <S313256AbSDDQow>; Thu, 4 Apr 2002 11:44:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313256AbSDDQnd>; Thu, 4 Apr 2002 11:43:33 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:20156 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S313255AbSDDQnX>;
-	Thu, 4 Apr 2002 11:43:23 -0500
-Date: Thu, 4 Apr 2002 11:43:21 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.8-pre1 fs/dquot
-In-Reply-To: <3CAC3F42.4040100@evision-ventures.com>
-Message-ID: <Pine.GSO.4.21.0204041142240.22660-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313258AbSDDQon>; Thu, 4 Apr 2002 11:44:43 -0500
+Received: from ns.suse.de ([213.95.15.193]:3342 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S313256AbSDDQof>;
+	Thu, 4 Apr 2002 11:44:35 -0500
+Date: Thu, 4 Apr 2002 18:44:33 +0200
+From: Dave Jones <davej@suse.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.8-pre1 binutils-related regression on x86
+Message-ID: <20020404184433.B11833@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Mikael Pettersson <mikpe@csd.uu.se>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200204041633.SAA10837@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 04, 2002 at 06:33:24PM +0200, Mikael Pettersson wrote:
 
+ > -	lcall	*%cs:realmode_swtch
+ > +	lcall	%cs:realmode_swtch
+ >  
+ >  	jmp	rmodeswtch_end
+ >  
+ > The "*" was put there early in the 2.5 series, to allow non-
+ > antique binutils to assemble the code cleanly without warnings.
+ > This patch reintroduces those warnings. Uncool.
 
-On Thu, 4 Apr 2002, Martin Dalecki wrote:
+GAR!, my bad.  Most of the silly bits seem to stem from early 2.5
+merges, hopefully there's not too many more sillies.
 
-> Looking further through the pre patch I have found the following:
-> 
-> diff -Nru a/fs/dquot.c b/fs/dquot.c
-> --- a/fs/dquot.c	Wed Apr  3 17:11:14 2002
-> +++ b/fs/dquot.c	Wed Apr  3 17:11:14 2002
-> ...
-> +static ctl_table fs_table[] = {
-> + 
-> {FS_NRDQUOT, "dquot-nr", &nr_dquots, 2*sizeof(int),
-> + 
->   0444, NULL, &proc_dointvec},
-> + 
-> {},
-> +};
-> 
-> 
-> What the heck is "dquot-nr"?
-
-The name that used to be there in 2.5.7 and before.  Check kernel/sysctl.c -
-this stuff had been moved from there verbatim.
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

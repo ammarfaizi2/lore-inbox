@@ -1,125 +1,586 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265320AbSKVWUu>; Fri, 22 Nov 2002 17:20:50 -0500
+	id <S265321AbSKVWYQ>; Fri, 22 Nov 2002 17:24:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265321AbSKVWUu>; Fri, 22 Nov 2002 17:20:50 -0500
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:9088 "EHLO
-	laptop.localdomain") by vger.kernel.org with ESMTP
-	id <S265320AbSKVWUt> convert rfc822-to-8bit; Fri, 22 Nov 2002 17:20:49 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Con Kolivas <conman@kolivas.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] 2.4.20-rc2-aa1 with contest
-Date: Sat, 23 Nov 2002 09:29:22 +1100
-User-Agent: KMail/1.4.3
-Cc: Andrea Arcangeli <andrea@suse.de>
+	id <S265333AbSKVWYQ>; Fri, 22 Nov 2002 17:24:16 -0500
+Received: from imrelay-2.zambeel.com ([209.240.48.8]:50442 "EHLO
+	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
+	id <S265321AbSKVWYJ>; Fri, 22 Nov 2002 17:24:09 -0500
+Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB199A@xch-a.win.zambeel.com>
+From: Manish Lachwani <manish@Zambeel.com>
+To: "'Andre Hedrick'" <andre@linux-ide.org>,
+       Manish Lachwani <manish@Zambeel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: 2.4.17 SMP hangs ..
+Date: Fri, 22 Nov 2002 14:30:28 -0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200211230929.31413.conman@kolivas.net>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+How can I conveniently produce this hang? Can you give me an example?
 
-Here is a partial run of contest (http://contest.kolivas.net) benchmarks for 
-rc2aa1 with the disk latency hack
+Thanks
+-Manish
 
-noload:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [5]              71.7    93      0       0       0.98
-2.4.19 [5]              69.0    97      0       0       0.94
-2.4.20-rc1 [3]          72.2    93      0       0       0.99
-2.4.20-rc1aa1 [1]       71.9    94      0       0       0.98
-2420rc2aa1 [1]          71.1    94      0       0       0.97
-
-cacherun:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [2]              66.6    99      0       0       0.91
-2.4.19 [2]              68.0    99      0       0       0.93
-2.4.20-rc1 [3]          67.2    99      0       0       0.92
-2.4.20-rc1aa1 [1]       67.4    99      0       0       0.92
-2420rc2aa1 [1]          66.6    99      0       0       0.91
-
-process_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              109.5   57      119     44      1.50
-2.4.19 [3]              106.5   59      112     43      1.45
-2.4.20-rc1 [3]          110.7   58      119     43      1.51
-2.4.20-rc1aa1 [3]       110.5   58      117     43      1.51*
-2420rc2aa1 [1]          212.5   31      412     69      2.90*
-
-This load just copies data between 4 processes repeatedly. Seems to take 
-longer.
+-----Original Message-----
+From: Andre Hedrick [mailto:andre@linux-ide.org]
+Sent: Wednesday, November 20, 2002 10:33 PM
+To: Manish Lachwani
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17 SMP hangs ..
 
 
-ctar_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              117.4   63      1       7       1.60
-2.4.19 [2]              106.5   70      1       8       1.45
-2.4.20-rc1 [3]          102.1   72      1       7       1.39
-2.4.20-rc1aa1 [3]       107.1   69      1       7       1.46
-2420rc2aa1 [1]          103.3   73      1       8       1.41
 
-xtar_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              150.8   49      2       8       2.06
-2.4.19 [1]              132.4   55      2       9       1.81
-2.4.20-rc1 [3]          180.7   40      3       8       2.47
-2.4.20-rc1aa1 [3]       166.6   44      2       7       2.28*
-2420rc2aa1 [1]          217.7   34      4       9       2.97*
+The problem may be associated w/ the interrupt mapping over the bridge
+riser.  I have seen this before and can reproduce it regardless of the
+system.
 
-Takes longer. Is only one run though so may not be an accurate average.
+Cheers,
 
+Andre Hedrick
+LAD Storage Consulting Group
 
-io_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              474.1   15      36      10      6.48
-2.4.19 [3]              492.6   14      38      10      6.73
-2.4.20-rc1 [2]          1142.2  6       90      10      15.60
-2.4.20-rc1aa1 [1]       1132.5  6       90      10      15.47
-2420rc2aa1 [1]          164.3   44      10      9       2.24
+On Wed, 20 Nov 2002, Manish Lachwani wrote:
 
-This was where the effect of the disk latency hack was expected to have an 
-effect. It sure did.
-
-
-read_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              102.3   70      6       3       1.40
-2.4.19 [2]              134.1   54      14      5       1.83
-2.4.20-rc1 [3]          173.2   43      20      5       2.37
-2.4.20-rc1aa1 [3]       150.6   51      16      5       2.06
-2420rc2aa1 [1]          140.5   51      13      4       1.92
-
-list_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              90.2    76      1       17      1.23
-2.4.19 [1]              89.8    77      1       20      1.23
-2.4.20-rc1 [3]          88.8    77      0       12      1.21
-2.4.20-rc1aa1 [1]       88.1    78      1       16      1.20
-2420rc2aa1 [1]          99.7    69      1       19      1.36
-
-mem_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.4.18 [3]              103.3   70      32      3       1.41
-2.4.19 [3]              100.0   72      33      3       1.37
-2.4.20-rc1 [3]          105.9   69      32      2       1.45
-
-Mem load hung the machine. I could not get rc2aa1 through this part of the 
-benchmark no matter how many times I tried to run it. No idea what was going 
-on. Easy to reproduce. Simply run the mem_load out of contest (which runs 
-until it is killed) and the machine will hang. 
-
-Con
-
-P.S. I'm having mailserver trouble so respond to lkml where I may see 
-responses
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE93q/IF6dfvkL3i1gRAqWCAKCp6eZ2MFe4Ag7LqoGwy4+0MbUqxQCgkkxl
-AOUDUScNazCAJ2oZrdgDMuE=
-=vHmI
------END PGP SIGNATURE-----
+> I am seeing system hangs with 2.4.17 SMP kernel when doing mke2fs accros
+12
+> drives in parallel. However, the hangs only occur when the I/O rate from
+> vmstat is high:
+> 
+> 
+> bash# vmstat 1
+>    procs                      memory    swap          io     system
+> cpu
+>  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
+sy
+> id
+>  1  0  0      0 815800   3656 102612   0   0   163  1086  129   961   6
+29
+> 65
+>  0  0  0      0 813096   3656 102992   0   0   363     0  265   928  44
+26
+> 31
+>  0  0  0      0 813172   3656 102996   0   0     4     0  180    99   0
+1
+> 99
+>  5  2  1      0 809476   3656 103044   0   0    44     0  206   274  18
+11
+> 71
+>  0 12  0      0 802040   3656 103072   0   0    18     2  296   745  47
+33
+> 21
+>  0  8  0      0 800696   3660 103152   0   0    34   244  349   501  10
+5
+> 85
+>  0  8  0      0 800696   3660 103152   0   0     0     0  187   106   1
+0
+> 99
+>  2  5  1      0 795864   3660 103200   0   0    13    45  278   717  14
+29
+> 57
+>  1  0  0      0 795592   3660 103248   0   0   107    46  502   663   7
+7
+> 86
+>  1  0  0      0 795592   3660 103248   0   0     0     0  184    95   0
+1
+> 99
+>  1  0  0      0 795596   3660 103244   0   0     4     1  191   139   0
+1
+> 99
+>  6  5  3      0 756932   3660 140192   0   0   194 36721  464   232   7
+87
+> 6
+> 11  0  1      0 723276   3660 173784   0   0     0 33718  681  1560   0
+39
+> 61
+> 
+> At that point the system hangs. The system consists of a 4-port and a
+8-port
+> 3ware controllers on an Intel 21154 bridge with 12 maxtor drives. When the
+> IO rate is lower:
+> 
+>    procs                      memory    swap          io     system
+> cpu
+>  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
+sy
+> id
+>  0  0  0      0 811888   3828 103476   0   0     0     0  172    91   0
+1
+> 99
+>  0  0  0      0 811888   3828 103476   0   0     0     0  184    93   0
+1
+> 99
+>  0  0  0      0 811888   3828 103476   0   0     0     0  171   153   0
+1
+> 99
+>  0  0  0      0 811852   3828 103512   0   0     0   170  171    85   0
+1
+> 99
+>  0  0  0      0 811852   3828 103512   0   0     0     0  174    95   1
+0
+> 99
+>  0  0  0      0 811852   3828 103512   0   0     0     0  173   147   0
+1
+> 99
+>  0  0  0      0 811852   3828 103512   0   0     0     0  176    98   0
+1
+> 99
+>  0  0  0      0 811852   3828 103512   0   0     0     1  175    96   0
+1
+> 99
+>  1  0  0      0 811852   3828 103512   0   0     0     0  173   110   1
+3
+> 96
+>  1  0  0      0 811704   3828 103516   0   0     0     0  179   145   0
+1
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     0  194   121   1
+1
+> 98
+>  0  0  0      0 811688   3828 103516   0   0     0    19  186   119   1
+1
+> 98
+>  0  0  0      0 811688   3828 103516   0   0     0     0  174   149   0
+1
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     0  172    86   0
+1
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     0  175    96   1
+0
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     1  171   149   1
+0
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     0  173    91   0
+1
+> 99
+>  0  0  1      0 811688   3828 103516   0   0     0     0  173    86   1
+0
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     0  179   154   0
+1
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     1  174    91   0
+1
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     0  179    98   1
+0
+> 99
+>    procs                      memory    swap          io     system
+> cpu
+>  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
+sy
+> id
+>  1  0  0      0 811688   3828 103516   0   0     0     0  174   100   0
+1
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     0  184   137   0
+1
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     1  171    89   1
+0
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     0  173    95   1
+0
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     0  176   150   0
+1
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     0  175   121   3
+0
+> 97
+>  0  0  0      0 811688   3828 103516   0   0     0    15  171   116   3
+0
+> 97
+>  0  0  0      0 811688   3828 103516   0   0     0     0  179   149   0
+1
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     0  173    88   1
+0
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     0  171    88   0
+1
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0    15  172   149   1
+0
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     0  171    88   1
+0
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     0  174    98   0
+1
+> 99
+>  1  0  0      0 811688   3828 103516   0   0     0     0  178   127   0
+1
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     1  179   153   1
+0
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     0  171    88   1
+0
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     0  173    88   0
+1
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     0  175   158   1
+0
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     1  175    96   1
+0
+> 99
+>  0  0  0      0 811688   3828 103516   0   0     0     0  171    90   0
+1
+> 99
+>  0  0  0      0 811924   3828 103516   0   0     0     0  173   204   1
+5
+> 94
+>    procs                      memory    swap          io     system
+> cpu
+>  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
+sy
+> id
+>  1  0  0      0 811924   3828 103516   0   0     0     0  174    90   1
+0
+> 99
+>  0  0  0      0 811924   3828 103516   0   0     0    24  182    93   1
+0
+> 99
+>  1  0  0      0 811924   3828 103516   0   0     0     0  173   142   0
+1
+> 99
+>  0  0  0      0 811924   3828 103516   0   0     0     0  171    93   1
+0
+> 99
+>  0  0  0      0 811924   3828 103516   0   0     0     0  175    94   0
+1
+> 99
+>  1  0  0      0 811924   3828 103516   0   0     0     2  173    92   1
+0
+> 99
+>  0  0  0      0 811924   3828 103516   0   0     0     0  175   151   1
+0
+> 99
+>  0  0  0      0 811924   3828 103516   0   0     0     0  173    87   1
+0
+> 99
+>  0  0  1      0 811924   3828 103516   0   0     0     0  173    89   1
+0
+> 99
+>  0  0  0      0 811924   3828 103516   0   0     0     1  171   142   0
+1
+> 99
+> 
+> bash# vmstat 1
+>    procs                      memory    swap          io     system
+> cpu
+>  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
+sy
+> id
+>  5  0  1      0 815896   3656 102228   0   0   156  1076  129   917   6
+34
+> 60
+>  2  0  1      0 812860   3656 102992   0   0   737     0  252  1015  36
+40
+> 25
+>  0  0  0      0 813104   3656 102992   0   0     0     0  187   129   2
+1
+> 97
+>  0  0  0      0 813180   3656 102996   0   0     4     0  168    93   0
+1
+> 99
+>  6  8  1      0 802392   3656 103220   0   0   222     0  251   757  62
+37
+> 1
+>  0 10  0      0 804588   3684 103252   0   0   133    40  214   871  50
+43
+> 8
+>  2  8  1      0 804324   3712 103272   0   0   162    40  222   817  43
+40
+> 18
+>  9  4  0      0 805400   3712 103288   0   0     4     0  196   276  13
+8
+> 79
+>  9  0  1      0 804724   3812 103348   0   0   644    96  297  1255  41
+59
+> 0
+> 14  0  1      0 804144   3816 103344   0   0     0     0  167   888  56
+44
+> 0
+> 10  0  1      0 804448   3820 103340   0   0     0     0  171   873  57
+43
+> 0
+>  0  1  0      0 812288   3828 103436   0   0    97     0  222  1051  53
+42
+> 5
+>  0  0  0      0 811868   3828 103476   0   0    84     0  395   429   0
+3
+> 97
+>  1  0  0      0 811868   3828 103476   0   0     0     0  167    91   0
+1
+> 99
+>  1  0  0      0 811868   3828 103476   0   0     0     0  167   141   1
+0
+> 99
+>  0  0  0      0 811868   3828 103476   0   0     0     0  177   100   1
+0
+> 99
+>  0  0  0      0 811868   3828 103476   0   0     0     0  171    96   0
+1
+> 99
+>  1  0  0      0 811868   3828 103476   0   0     0     0  171   132   1
+0
+> 99
+>  0  0  0      0 811868   3828 103476   0   0     0     0  170   100   1
+0
+> 99
+>  0  0  0      0 811868   3828 103476   0   0     0     0  167    90   1
+0
+> 99
+>  0  0  0      0 811868   3828 103476   0   0     0     0  171    93   1
+0
+> 99
+>    procs                      memory    swap          io     system
+> cpu
+>  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
+sy
+> id
+>  0  0  0      0 811868   3828 103476   0   0     0     0  170   148   1
+0
+> 99
+>  0  0  0      0 811868   3828 103476   0   0     0     0  176    83   0
+1
+> 99
+>  0  0  0      0 811868   3828 103476   0   0     0     0  167    86   0
+1
+> 99
+>  0  0  0      0 811868   3828 103476   0   0     0     0  169   146   0
+1
+> 99
+>  0  0  0      0 811832   3828 103512   0   0     0   173  168    84   1
+0
+> 99
+>  0  0  0      0 811832   3828 103512   0   0     0     0  178   104   1
+0
+> 99
+>  0  0  0      0 811832   3828 103512   0   0     0     0  167   141   0
+1
+> 99
+>  0  0  0      0 811832   3828 103512   0   0     0     0  173    92   1
+2
+> 97
+>  0  0  0      0 811832   3828 103512   0   0     0     1  169    89   0
+2
+> 98
+>  1  0  0      0 811832   3828 103512   0   0     0     0  173   138   2
+3
+> 95
+>  1  0  0      0 811684   3828 103516   0   0     0     0  183   132   0
+1
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0     0  178   103   0
+1
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0    19  180   108   1
+0
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0     0  169   148   1
+0
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0     0  169    88   0
+1
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0     0  171    94   1
+0
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0     1  170   147   1
+0
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0     0  168    94   0
+1
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0     0  171    95   1
+0
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0     0  173   175   3
+0
+> 97
+>  0  0  0      0 811668   3828 103516   0   0     0    15  169    89   1
+0
+> 99
+>    procs                      memory    swap          io     system
+> cpu
+>  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
+sy
+> id
+>  0  0  0      0 811668   3828 103516   0   0     0     0  168    87   1
+0
+> 99
+>  1  0  0      0 811668   3828 103516   0   0     0     0  178   156   2
+1
+> 97
+>  0  0  0      0 811668   3828 103516   0   0     0     0  175   122   0
+1
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0    15  167    86   1
+0
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0     0  171    92   0
+1
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0     0  177   151   0
+1
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0     0  169    93   0
+1
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0     1  169    86   0
+1
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0     0  167   146   0
+1
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0     0  172    95   0
+1
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0     0  167    84   1
+0
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0     1  178   189   1
+0
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0     0  171    89   1
+0
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0     0  171    89   0
+1
+> 99
+>  1  0  0      0 811668   3828 103516   0   0     0     0  171   124   1
+0
+> 99
+>  0  0  0      0 811668   3828 103516   0   0     0     1  183   127   0
+1
+> 99
+> 
+> bash# df
+> Filesystem           1k-blocks      Used Available Use% Mounted on
+> /dev/ram1               125011     85304     33154  73% /
+> coreserver:/var/cores
+>                       74858752    475144  70580928   1%
+> /var/.automount/cores
+> /dev/sdj1              7827172        24   7429540   1% /disks/disk10.1
+> /dev/sdi1              7827172        24   7429540   1% /disks/disk9.1
+> /dev/sdl1              7827172        24   7429540   1% /disks/disk12.1
+> /dev/sdk1              7827172        24   7429540   1% /disks/disk11.1
+> /dev/sdh1              7827172        24   7429540   1% /disks/disk8.1
+> /dev/sdf1              7827172        24   7429540   1% /disks/disk6.1
+> /dev/sde1              7827172        24   7429540   1% /disks/disk5.1
+> /dev/sdb1              7827172        24   7429540   1% /disks/disk2.1
+> /dev/sdg1              7827172        24   7429540   1% /disks/disk7.1
+> /dev/sda1              7827172        24   7429540   1% /disks/disk1.1
+> /dev/sdd1              7827172        24   7429540   1% /disks/disk4.1
+> /dev/sdc1              7827172        24   7429540   1% /disks/disk3.1
+> bash#
+> 
+> 
+> bash# vmstat 1
+>    procs                      memory    swap          io     system
+> cpu
+>  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
+sy
+> id
+>  0  0  0      0 755440   3924 105192   0   0    83  8108  353   655   5
+25
+> 69
+>  0  0  1      0 755440   3924 105192   0   0     0     0  167    70   0
+0
+> 100
+>  0  0  0      0 755440   3924 105192   0   0     0    24  159    82   0
+1
+> 99
+>  0  0  0      0 755052   3924 105192   0   0     0     0  162   133   0
+0
+> 100
+>  0  0  0      0 755052   3924 105192   0   0     0     0  156    68   0
+1
+> 99
+>  0  0  0      0 755052   3924 105192   0   0     0     0  155    59   0
+0
+> 100
+>  0  0  0      0 755052   3924 105192   0   0     0     1  157   124   0
+0
+> 100
+>  0  0  0      0 755052   3924 105192   0   0     0     0  174    82   0
+1
+> 99
+>  0  0  0      0 755052   3924 105192   0   0     0     0  161    73   0
+0
+> 100
+>  1  0  0      0 755052   3924 105192   0   0     0     0  159   101   0
+0
+> 100
+>  0  0  0      0 755052   3924 105192   0   0     0     1  155    92   0
+0
+> 100
+>  0  0  0      0 755052   3924 105192   0   0     0     0  155    57   0
+0
+> 100
+>  0  0  0      0 755052   3924 105192   0   0     0     0  155    67   1
+0
+> 99
+>  0  0  0      0 755052   3924 105192   0   0     0     0  155   112   0
+0
+> 100
+>  0  0  0      0 754440   3924 105192   0   0     0     6  157    67   0
+0
+> 100
+>  0  0  0      0 754440   3924 105192   0   0     0     0  155    62   0
+0
+> 100
+>  0  0  0      0 754440   3924 105192   0   0     0     0  157   128   0
+0
+> 100
+>  0  0  0      0 754440   3924 105192   0   0     0     0  160    66   0
+1
+> 99
+>  0  0  0      0 754440   3924 105192   0   0     0     1  157    72   0
+0
+> 100
+>  0  0  0      0 754440   3924 105192   0   0     0     0  155   117   0
+0
+> 100
+>  0  0  0      0 754440   3924 105192   0   0     0     0  155    71   0
+0
+> 100
+>    procs                      memory    swap          io     system
+> cpu
+>  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
+sy
+> id
+>  0  0  0      0 754440   3924 105192   0   0     0     0  157    66   0
+0
+> 100
+>  1  0  0      0 754440   3924 105192   0   0     0     1  166   114   0
+1
+> 99
+>  0  0  0      0 754440   3924 105192   0   0     0     0  158    93   0
+0
+> 100
+> 
+> there are no hangs. On startup, I am doing parallel mje2fs accross all the
+> drives. 3ware 4-port controller shows that LEDs are ON. I have tried
+> replacing the controllers but that also does not help ...
+> 
+> Thanks
+> Manish
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

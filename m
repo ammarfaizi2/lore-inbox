@@ -1,56 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272273AbTGYTdS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 15:33:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272272AbTGYTdR
+	id S272272AbTGYTeA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 15:34:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272274AbTGYTd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 15:33:17 -0400
-Received: from dsl-gte-19434.linkline.com ([64.30.195.78]:9607 "EHLO server")
-	by vger.kernel.org with ESMTP id S272274AbTGYTdK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 15:33:10 -0400
-Message-ID: <020601c352e5$b24cec80$3400a8c0@W2RZ8L4S02>
-From: "Jim Gifford" <maillist@jg555.com>
-To: "Marcelo Tosatti" <marcelo@conectiva.com.br>
-Cc: "Andrea Arcangeli" <andrea@suse.de>, "lkml" <linux-kernel@vger.kernel.org>,
-       "Marc Heckmann" <mh@nadir.org>
-References: <Pine.LNX.4.55L.0307100025160.6316@freak.distro.conectiva> <042801c3472c$f4539f80$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307110953370.28177@freak.distro.conectiva> <06e301c347c7$2a779590$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111405320.29894@freak.distro.conectiva> <002b01c347e9$36a04110$f300a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111749160.5537@freak.distro.conectiva> <001801c348a0$9dab91e0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307141145340.23121@freak.distro.conectiva> <008701c34a29$caabb0f0$3400a8c0@W2RZ8L4S02> <20030719172103.GA1971@x30.local> <018101c34f4d$430d5850$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307210943160.25565@freak.distro.conectiva> <005a01c34fed$fea51120$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307220852470.10991@freak.distro.conectiva> <012d01c35066$2c56d400$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307221358440.23424@freak.distro.conectiva> <01f001c352e4$9025e6d0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307251638590.15120@freak.distro.conectiva>
-Subject: Re: 2.4.22-pre5 deadlock
-Date: Fri, 25 Jul 2003 12:48:18 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Fri, 25 Jul 2003 15:33:59 -0400
+Received: from dsl-213-023-066-245.arcor-ip.net ([213.23.66.245]:6272 "EHLO
+	neon.pearbough.net") by vger.kernel.org with ESMTP id S272272AbTGYTdv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 15:33:51 -0400
+Date: Fri, 25 Jul 2003 21:48:45 +0200
+From: Axel Siebenwirth <axel@pearbough.net>
+To: "Mudama, Eric" <eric_mudama@maxtor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.22-pre8-bk] dma_timer_expiry: dma status == 0x64
+Message-ID: <20030725194845.GA723@neon>
+Mail-Followup-To: "Mudama, Eric" <eric_mudama@maxtor.com>,
+	linux-kernel@vger.kernel.org
+References: <785F348679A4D5119A0C009027DE33C102E0D6B8@mcoexc04.mlm.maxtor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <785F348679A4D5119A0C009027DE33C102E0D6B8@mcoexc04.mlm.maxtor.com>
+User-Agent: Mutt/1.4.1i
+Organization: pearbough.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: "Marcelo Tosatti" <marcelo@conectiva.com.br>
-To: "Jim Gifford" <maillist@jg555.com>
-Cc: "Andrea Arcangeli" <andrea@suse.de>; "lkml"
-<linux-kernel@vger.kernel.org>; "Marc Heckmann" <mh@nadir.org>
-Sent: Friday, July 25, 2003 12:39 PM
-Subject: Re: 2.4.22-pre5 deadlock
+Hi Eric!
 
+On Fri, 25 Jul 2003, Mudama, Eric wrote:
 
->
->
-> On Fri, 25 Jul 2003, Jim Gifford wrote:
->
-> > >From talking with others, we are considering this a netfilter issue, is
-this
-> > correct??
->
-> It seems you have isolated the problem down to additional netfilter
-> patches right ?
->
-That is correct. The wierd part is that people are having problems with
-different modules and it's hard to track down what is in common. It seems
-the LOG and limit are the only common ones in the group. When I get back
-from vacation, I'm going to add all the modules in except for LOG and limit
-and see if the problem comes back.
+> 0x64 has the seek complete, write fault, and corrected data bits set...
+> 
+> you get the short stalls, does the drive then keep functioning, or are the
+> stalls fatal/permanent?  The error recovery paths in our disk are generally
+> configured to be "heroic", as in "do everything possible to try to get that
+> data safely on the media"... this can take several seconds at least,
+> depending on the type of error.
 
+At least no reported loss of data. Filesystem is reiserfs.
+
+> Do these same errors happen with other kernels?
+
+It's ok with 2.4.21-pre6-ac1 and 2.6.0-test1-bk. So I go for the kernel
+problem. But my knowledge of IDE and harddisks is about null.
+
+> I'd suggest that your drive appears to be having trouble writing to the
+> media... I'd back up your data if you can and do a full-pack zeroing/write
+> of the drive.  If that completes with no issues, then it's probably fine, if
+> that has problems the drive ought to be RMA'd for a replacement... it could
+> be one of those few out of a million that dies in the field within a year.
+> 
+> --eric
+> 
+> 
+> -----Original Message-----
+> From: Axel Siebenwirth [mailto:axel@pearbough.net]
+> Sent: Friday, July 25, 2003 1:08 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: [2.4.22-pre8-bk] dma_timer_expiry: dma status == 0x64
+> 
+> 
+> hi,
+> 
+> this is a bug report?!
+> 
+> with the linux kernel 2.4.22-pre8 from bk as of this day I get short stalls
+> about 5 to 8 seconds resulting in nothing happening with my machine at all.
+> (right now it happenend, but I can still type this)
+> 
+> the kernel reports the following two messages:
+> 
+> hda: dma_timer_expiry: dma status == 0x64
+> hda: DMA interrupt recovery
+> hda: lost interrupt
+> ...
+> hda: dma_timer_expiry: dma status == 0x64
+> hda: DMA interrupt recovery
+> hda: lost interrupt
+> hda: dma_timer_expiry: dma status == 0x64
+> hda: DMA interrupt recovery
+> hda: lost interrupt
+> hda: dma_timer_expiry: dma status == 0x64
+> hda: DMA interrupt recovery
+> hda: lost interrupt
+> 
+> and so on.
+> 
+> so maybe this helps you find an error in the kernel.
+> 
+> best wishes,
+> axel siebenwirth
+> 
+> P.S. I attached gzipped dmesg and .config

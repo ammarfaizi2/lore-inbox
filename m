@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129623AbRCARGO>; Thu, 1 Mar 2001 12:06:14 -0500
+	id <S129624AbRCARHT>; Thu, 1 Mar 2001 12:07:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129624AbRCARGF>; Thu, 1 Mar 2001 12:06:05 -0500
-Received: from [63.68.113.130] ([63.68.113.130]:4011 "EHLO fire.osdlab.org")
-	by vger.kernel.org with ESMTP id <S129623AbRCARFy>;
-	Thu, 1 Mar 2001 12:05:54 -0500
-Date: Thu, 1 Mar 2001 09:04:16 -0800
-To: Hans Reiser <reiser@namesys.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: What is 2.4 Linux networking performance like compared to BSD?
-Message-ID: <20010301090416.E27440@osdlab.org>
-In-Reply-To: <Pine.A41.4.33.0102282123180.68876-100000@aix09.unm.edu> <3A9E72D3.36B28B8F@namesys.com>
-Mime-Version: 1.0
+	id <S129723AbRCARHG>; Thu, 1 Mar 2001 12:07:06 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:48389 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129624AbRCARG6>;
+	Thu, 1 Mar 2001 12:06:58 -0500
+To: Ofer Fryman <ofer@shunra.co.il>
+Cc: "'kernel@kvack.org'" <kernel@kvack.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Intel-e1000 for Linux 2.0.36-pre14
+In-Reply-To: <F1629832DE36D411858F00C04F24847A11DECF@SALVADOR>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 01 Mar 2001 18:06:42 +0100
+In-Reply-To: Ofer Fryman's message of "Thu, 1 Mar 2001 17:51:30 +0200"
+Message-ID: <d3elwhwh99.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <3A9E72D3.36B28B8F@namesys.com>; from reiser@namesys.com on Thu, Mar 01, 2001 at 07:03:31PM +0300
-From: Nathan Dabney <smurf@osdlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 01, 2001 at 07:03:31PM +0300, Hans Reiser wrote:
-> The problem is that I really need BSD vs. Linux experiences, not Linux 2.4 vs.
-> 2.2 experiences, because the webcache industry tends to strongly disparage Linux
-> networking code, so much better isn't necessarily good enough.
-> 
-> Hans
+>>>>> "Ofer" == Ofer Fryman <ofer@shunra.co.il> writes:
 
-Check with the www.swelltech.com people, they should have the info you need.
+Ofer> I need a giga fiber PMC cards for linux2.0.36-pre14, the only
+Ofer> cards I know are either Intel based or level-one lxt-1001 card,
+Ofer> the level-one lxt-1001 has very bad performance so I cannot use
+Ofer> it.
 
-http://www.swelltech.com/pengies/joe/squidtuneup/t1.html
+I'd recommend you to upgrade to at least 2.2.x, the scalability of
+2.0.x means there is really no good reason to spend time porting GigE
+drivers to it.
 
-The above link contains some decent squid performance hints for 2.2+Squid.
-
--Nathan Dabney
-
+Jes

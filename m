@@ -1,56 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267021AbTAWVGt>; Thu, 23 Jan 2003 16:06:49 -0500
+	id <S267281AbTAWVJR>; Thu, 23 Jan 2003 16:09:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267121AbTAWVGt>; Thu, 23 Jan 2003 16:06:49 -0500
-Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:4744 "EHLO
-	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S267021AbTAWVGs>; Thu, 23 Jan 2003 16:06:48 -0500
-Date: Thu, 23 Jan 2003 19:28:29 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Kevin Lawton <kevinlawton2001@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Simple patches for Linux as a guest OS in a plex86 VM (please consider)
-Message-ID: <20030123192829.A628@nightmaster.csn.tu-chemnitz.de>
-References: <20030122182341.66324.qmail@web80309.mail.yahoo.com>
+	id <S267292AbTAWVJR>; Thu, 23 Jan 2003 16:09:17 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:30663 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S267281AbTAWVJR>;
+	Thu, 23 Jan 2003 16:09:17 -0500
+Date: Thu, 23 Jan 2003 22:18:05 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Gregoire Favre <greg@ulima.unil.ch>
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, cdwrite@other.debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Can't burn DVD under 2.5.59 with ide-cd
+Message-ID: <20030123211805.GY910@suse.de>
+References: <200301231752.h0NHqOM5001079@burner.fokus.gmd.de> <20030123180124.GB9141@ulima.unil.ch> <20030123180653.GU910@suse.de> <20030123181002.GV910@suse.de> <20030123185554.GC9141@ulima.unil.ch> <20030123190711.GW910@suse.de> <20030123192140.GD9141@ulima.unil.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20030122182341.66324.qmail@web80309.mail.yahoo.com>; from kevinlawton2001@yahoo.com on Wed, Jan 22, 2003 at 10:23:41AM -0800
-X-Spam-Score: -2.5 (--)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18boha-0001aH-00*EHvUlgpbPHU*
+In-Reply-To: <20030123192140.GD9141@ulima.unil.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 22, 2003 at 10:23:41AM -0800, Kevin Lawton wrote:
-> For this, there's a few critical but simple diffs to
-> macro'ize the use of the PUSHF and POPF instructions,
-> due to broken semantics of running stuff using
-> PVI (protected mode virtual interrupts).  The rest of
-> the stuff I believe can be monitored effectively by
-> the VM monitor.
+On Thu, Jan 23 2003, Gregoire Favre wrote:
+>   	ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  usr/built-in.o  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
+> drivers/built-in.o(.text+0x5c563): In function `cdrom_end_request':
+> : undefined reference to `block_pc_request'
+> make: *** [vmlinux] Error 1
+> 
+> Sorry I certainly didn't understand you right...
 
-Yes, what you do is nice, but generates much code. What about
-this for pushfl:
+No it's my mistake, should be blk_pc_request(). Sorry about that.
 
-pushfl
-push %eax
-pushfl
-pop %eax
-orb $(1<<1),%ah  /* same as orl $(1<<9),%eax */
-testl $(1<<19),%eax
-jnz 69001f
-andb $~(1<<1),%ah /* same as andl $~(1<<9),%eax */
-69001:
-mov %eax,4(%esp)
-pop %eax
-
-
-? This saves 6 bytes, which is a 20% code reduction ;-)
-
-Regards
-
-Ingo Oeser
 -- 
-Science is what we can tell a computer. Art is everything else. --- D.E.Knuth
+Jens Axboe
+

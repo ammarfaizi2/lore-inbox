@@ -1,67 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281221AbRK0Sci>; Tue, 27 Nov 2001 13:32:38 -0500
+	id <S282397AbRK0SjI>; Tue, 27 Nov 2001 13:39:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282397AbRK0Sc2>; Tue, 27 Nov 2001 13:32:28 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:44306 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S281221AbRK0ScR>; Tue, 27 Nov 2001 13:32:17 -0500
-Date: Tue, 27 Nov 2001 19:32:09 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Daniel Gryniewicz <dang@fprintf.net>
-Cc: jsimmons@transvirtual.com, mj@ucw.cz, linux-kernel@vger.kernel.org,
-        acpi@phobos.fachschaften.tu-muenchen.de
-Subject: Re: Restoring videomode on return from S3 sleep
-Message-ID: <20011127193209.B3152@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20011126210621.A2039@elf.ucw.cz> <Pine.LNX.4.10.10111271003070.21131-100000@www.transvirtual.com> <20011127191604.A3152@atrey.karlin.mff.cuni.cz> <20011127132615.0a25c838.dang@fprintf.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011127132615.0a25c838.dang@fprintf.net>
-User-Agent: Mutt/1.3.20i
+	id <S281322AbRK0SjD>; Tue, 27 Nov 2001 13:39:03 -0500
+Received: from mail.gmx.de ([213.165.64.20]:51633 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S282470AbRK0Siy> convert rfc822-to-8bit;
+	Tue, 27 Nov 2001 13:38:54 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Sebastian =?iso-8859-1?q?Dr=F6ge?= <sebastian.droege@gmx.de>
+Reply-To: sebastian.droege@gmx.de
+To: linux-kernel@vger.kernel.org
+Subject: Re: "spurious 8259A interrupt: IRQ7"
+Date: Tue, 27 Nov 2001 19:40:27 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <XFMail.20011127152007.ast@domdv.de> <01112716302905.00872@manta>
+In-Reply-To: <01112716302905.00872@manta>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011127183856Z282470-17408+21175@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > > > I'll need to restore video mode on returning from acpi sleep...
-> > > > 
-> > > > Unfortunately, video selection code is not part of kernel, it is
-> > > > 16-bit code. acpi_wakeup.S, otoh, *is* part of kernel :-(. 
-> > > 
-> > > Is this on the console and if it is I assum you are uing vgacon. It could 
-> > > be the S# card has a broken implemenation. This wouldn't be the first.
-> > > Their has been a patch sometime for vesafb to work properly with S3 cards.
-> > > 
-> > > S3 framebuffer anyone? I remember their has been scathered work on this
-> > > but I never seen anything come to light for this.
-> > 
-> > Oh. Sorry. By S3 I mean ACPI S3 state. ACPI S3 == suspend to RAM.
-> > 
-> > Basically what I need is to restore video mode after returning from
-> > ACPI S3 sleep state, so that vesafb works properly.
-> 
-> I need the same for APM. (I would prefer ACPI, but it currently
-> hangs by box) 
-
-ACPI and APM are *very* different in this regard: in APM, you stay
-protected mode, while with ACPI, you *have to* go through real mode.
-
-> I have to use vesafb or I get artifacts (Trident CyberBlade/XP), but then a
-> resume from APM never restores the video.  Presumably, a reset (similar to
-> when the fb is turned on?) would fix the problem.  I haven't looked into it
-> yet due to lack of time, but if someone else is going to work on it, I'll
-> gladly help test.
+Hi,
+I've had this very message, too.
+System is a PII 350, MSI-6151 motherboard with Intel BX chipset
+But it's a time ago I had it ;)
+When I remember right it was the one kernel I've enabled APIC/IO-APIC but I'm
+not sure. Right now I have no APIC/IO-APIC enabled.
+I'll test it later the day
+Bye
 
 
-It is going to be different from ACPI sleep support.
+Am Dienstag, 27. November 2001 19:30 schrieb vda:
+ On Tuesday 27 November 2001 12:20, Andreas Steinmetz wrote:
+> > As far as I remember this was talked about earlier. Different mobos,
+> > chipsets, processor brands, but always IRQ 7. /me wonders. At least it
+> > doesn't do any harm (got this message on nearly all or all of my
+> > systems).
+> >
+> > On 27-Nov-2001 Alan Cox wrote:
+> > >> I get this with 2.4.16 vanilla, though. IRQ 7 appears to be unassigned
+> > >> according to /proc/pci.
+> > >>
+> > >> Machine is a 1ghz Athlon on a VIA VT82C686 mobo and a DEC 21140 NIC.
+> > >>
+> > >> Any pointers appreciated.
+> > >
+> > > IRQ7 is asserted when the PIC sees an interrupt but nobody appears to
+> > > be generating it when it looks.
+>
+> I see it too on my home system (Duron 650 + VIA chipset)
 
-...or...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-maybe not. vesafb with ability to go back realmode and reinit hw would
-be nice -- and it would also fix your APM problem. But I doubt that's
-implementable.
-									Pavel
--- 
-Casualities in World Trade Center: 6453 dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+iD8DBQE8A94fvIHrJes3kVIRAr3SAKCdcisZj7yfj7mENPSEc2h/Bq+AlQCfVC5i
+/wx+DcuyM4OH29GinxEEnYI=
+=LDkl
+-----END PGP SIGNATURE-----

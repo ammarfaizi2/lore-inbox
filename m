@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbUJYJIB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbUJYJIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261705AbUJYJIB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 05:08:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbUJYJIB
+	id S261708AbUJYJIx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 05:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbUJYJIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 05:08:01 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:30475 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261705AbUJYJHj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 05:07:39 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] reduce top(1) CPU usage by an order of magnitude
-Date: Mon, 25 Oct 2004 12:07:24 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, pmarques@grupopie.com, torvalds@osdl.org
-References: <200410251020.01932.vda@port.imtp.ilyichevsk.odessa.ua> <20041025003600.2f03c1fd.akpm@osdl.org>
-In-Reply-To: <20041025003600.2f03c1fd.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Mon, 25 Oct 2004 05:08:53 -0400
+Received: from gate.crashing.org ([63.228.1.57]:38863 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261708AbUJYJIs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 05:08:48 -0400
+Subject: Re: Concerns about our pci_{save,restore}_state()
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>
+In-Reply-To: <1098693129.2798.9.camel@laptop.fenrus.org>
+References: <1098677182.26697.21.camel@gaston>  <417C991C.2070806@pobox.com>
+	 <1098685464.26695.32.camel@gaston>
+	 <1098693129.2798.9.camel@laptop.fenrus.org>
+Content-Type: text/plain
+Date: Mon, 25 Oct 2004 19:04:49 +1000
+Message-Id: <1098695089.31118.0.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410251207.24075.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 25 October 2004 10:36, Andrew Morton wrote:
-> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
-> >
-> > Patch is not mine, Paulo Marques <pmarques@grupopie.com>
-> >  wrote it.
-> > 
-> >  I tested in on 2.6.9-rc2. top(1) CPU usage went from ~40% to ~4%
-> >  (yes, test box is a rather old piece of junk).
-> > 
-> >  The patch applies cleanly to 2.6.9.
+On Mon, 2004-10-25 at 10:32 +0200, Arjan van de Ven wrote:
+> On Mon, 2004-10-25 at 16:24 +1000, Benjamin Herrenschmidt wrote:
 > 
-> umm, this patch has been in -mm for six weeks, and in Linus's kernel for
-> one week.
+> > Currently, the default does nothing (doesn't even save/restore).
+> 
+> Are you sure? I could have sworn I made the default action to
+> save/restore some time ago
 
-Good.
+You are right, I was watching an outdated file for some strange reason I
+won't get into now :)
 
-Sorry for the noise.
---
-vda
+However, it doesn't seem to save/restore enough for a P2P bridge..
+
+Ben.
+
 

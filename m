@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261406AbTCYD3b>; Mon, 24 Mar 2003 22:29:31 -0500
+	id <S261415AbTCYDoQ>; Mon, 24 Mar 2003 22:44:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261407AbTCYD3b>; Mon, 24 Mar 2003 22:29:31 -0500
-Received: from dp.samba.org ([66.70.73.150]:43748 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261406AbTCYD31>;
-	Mon, 24 Mar 2003 22:29:27 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-To: Dominik Brodowski <linux@brodo.de>, Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5] pcmcia (2/5): add bus_type pcmcia_bus_type 
-In-reply-to: Your message of "Sat, 22 Mar 2003 20:33:06 -0800."
-             <Pine.LNX.4.44.0303222030360.5588-100000@home.transmeta.com> 
-Date: Tue, 25 Mar 2003 14:39:06 +1100
-Message-Id: <20030325034037.0A4C02C003@lists.samba.org>
+	id <S261432AbTCYDoP>; Mon, 24 Mar 2003 22:44:15 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:47376 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261415AbTCYDoO>;
+	Mon, 24 Mar 2003 22:44:14 -0500
+Date: Mon, 24 Mar 2003 19:54:51 -0800
+From: Greg KH <greg@kroah.com>
+To: Jan Dittmer <j.dittmer@portrix.net>
+Cc: Christoph Hellwig <hch@infradead.org>, Dominik Kubla <dominik@kubla.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: i2c-via686a driver
+Message-ID: <20030325035451.GG11874@kroah.com>
+References: <3E7E0B37.5060505@portrix.net> <20030323202743.A11150@infradead.org> <200303232136.10089.dominik@kubla.de> <20030323204810.A11421@infradead.org> <3E7E2963.4070302@portrix.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E7E2963.4070302@portrix.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0303222030360.5588-100000@home.transmeta.com> you wri
-te:
-> 
-> On Sat, 22 Mar 2003, Dominik Brodowski wrote:
+On Sun, Mar 23, 2003 at 10:38:43PM +0100, Jan Dittmer wrote:
+> Christoph Hellwig wrote:
+> >On Sun, Mar 23, 2003 at 09:36:10PM +0100, Dominik Kubla wrote:
 > >
-> > Register a bus_type pcmcia_bus_type. This means the initialization of
-> > the ds module needs to be done in two levels: one quite early
-> > (subsys_initcall) so that drivers may use the bus_type; the other one
-> > must stay that late (late_initcall). As only one initcall can be
-> > specified within one module, some tweaking is needed.
-> 
-> Hmm.. We should fix the module interface instead. 
-> 
-> I've applied this patch, but there's no reall reason why modules 
-> shouldn't be able to have multiple initcalls.
+> >>Why? It's a valid C99 feature and since the kernel already uses C99 
+> >>initializers it won't compile with compilers that choke on C99 comments 
+> >>anyway.
+> >
+> >
+> >Because there's a strong preference for traditional C style in the kernel.
+> >typedefs are also a valid C feature and we try to avoid them.
+> >
+> Anyway, here is a corrected version.
 
-Sure, it's been asked for before (dwmw2 IIRC).
+Oops, one other thing.  The pci_device_id structure should be
+initialized by using the .field = method, not the way the driver is
+currently.
 
-We need a new interface though, like:
+Oh, and one patch that adds the Kconfig, Makefile, and driver to the
+tree would be great.
 
-	init_and_cleanup(init1, cleanup1);
+thanks again,
 
-Because you have to unroll them when one fails.
-
-But of course, you thought of that before you asked, right?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+greg k-h

@@ -1,62 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262025AbVAYRIb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbVAYRMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262025AbVAYRIb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 12:08:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbVAYRIN
+	id S262026AbVAYRMR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 12:12:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbVAYRL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 12:08:13 -0500
-Received: from mailfe05.swip.net ([212.247.154.129]:22781 "EHLO
-	mailfe05.swip.net") by vger.kernel.org with ESMTP id S262023AbVAYRGs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 12:06:48 -0500
-X-T2-Posting-ID: 2Ngqim/wGkXHuU4sHkFYGQ==
-Subject: Re: PANIC in check_process_timers() running 2.6.11-rc2-mm1
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: roland@redhat.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1106669452.705.29.camel@boxen>
-References: <1106669452.705.29.camel@boxen>
-Content-Type: text/plain
-Date: Tue, 25 Jan 2005 18:06:42 +0100
-Message-Id: <1106672802.705.37.camel@boxen>
+	Tue, 25 Jan 2005 12:11:56 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:36691
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262026AbVAYRIl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 12:08:41 -0500
+Date: Tue, 25 Jan 2005 18:08:35 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: CVSps@dm.cobite.com, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org, Andreas Gruenbacher <agruen@suse.de>
+Subject: Re: kernel CVS troubles with cvsps
+Message-ID: <20050125170835.GZ7587@dualathlon.random>
+References: <20050125164203.GY7587@dualathlon.random> <20050125165807.GA20828@nevyn.them.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050125165807.GA20828@nevyn.them.org>
+X-AA-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-AA-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-Cpushare-GPG-Key: 1024D/4D11C21C 5F99 3C8B 5142 EB62 26C3  2325 8989 B72A 4D11 C21C
+X-Cpushare-SSL-SHA1-Cert: 3812 CD76 E482 94AF 020C  0FFA E1FF 559D 9B4F A59B
+X-Cpushare-SSL-MD5-Cert: EDA5 F2DA 1D32 7560  5E07 6C91 BFFC B885
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi Roland
-> 
-> Just got this running LTP-20050107 on 2.6.11-rc2-mm1, haven't looked
-> further yet. Box is i386 UP with preempt, I'm putting dmesg at the 
-> bottom of mail.
+On Tue, Jan 25, 2005 at 11:58:07AM -0500, Daniel Jacobowitz wrote:
+> FYI, I haven't tried using cvsps on the kernel CVS, but I used to use it on
+> GCC - and it fell down like this on a constant basis.
 
+Interesting, for me it always worked fine on the kernel until last
+month.
 
-It's possible that the last refcount of signal->live is dropped in
-do_exit and we're interrupted by the timer leaving nthreads to 0.
-Takes a few tries to hit but not impossible, this fixes it for me.
+> You might want to take a look at 'xcvs', by Jun Sun.  It's much more
+> reliable and does everything I used to use cvsps for.  And generally
+> faster too.
 
-
-Signed-off-by: Alexander Nyberg <alexn@dsv.su.se>
-
-Index: linux-2.6.10/kernel/posix-cpu-timers.c
-===================================================================
---- linux-2.6.10.orig/kernel/posix-cpu-timers.c	2005-01-25 17:40:22.000000000 +0100
-+++ linux-2.6.10/kernel/posix-cpu-timers.c	2005-01-25 17:43:15.000000000 +0100
-@@ -1132,6 +1132,13 @@
- 		unsigned long long sched_left, sched;
- 		const unsigned int nthreads = atomic_read(&sig->live);
- 
-+		/*
-+		 * We interrupted do_exit and the refcount has dropped,
-+		 * leave the task to exit
-+		 */
-+		if (nthreads == 0)
-+			return;
-+
- 		prof_left = cputime_sub(prof_expires,
- 					cputime_add(utime, stime)) / nthreads;
- 		virt_left = cputime_sub(virt_expires, utime) / nthreads;
-
-
-
+I'll check it, thanks for the info.

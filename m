@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312706AbSDGPdL>; Sun, 7 Apr 2002 11:33:11 -0400
+	id <S313333AbSDGQGm>; Sun, 7 Apr 2002 12:06:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312797AbSDGPdK>; Sun, 7 Apr 2002 11:33:10 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:58376 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S312706AbSDGPdK>; Sun, 7 Apr 2002 11:33:10 -0400
-Message-ID: <3CB067FC.12ECC11C@linux-m68k.org>
-Date: Sun, 07 Apr 2002 17:38:36 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S313334AbSDGQGl>; Sun, 7 Apr 2002 12:06:41 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:18699 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S313333AbSDGQGl>;
+	Sun, 7 Apr 2002 12:06:41 -0400
+Date: Sun, 7 Apr 2002 18:06:26 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Martin Eriksson <nitrax@giron.wox.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Best 2.4 kernel for SPARC?
+In-Reply-To: <000701c1dcf8$6d5b61b0$0201a8c0@homer>
+Message-ID: <Pine.LNX.4.44.0204071803130.2539-100000@Expansa.sns.it>
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Announce: Kernel Build for 2.5, Release 2.0 is available
-In-Reply-To: <28835.1018191216@ocs3.intra.ocs.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I am using 2.4.18 without problems on ultra2, ultra5 ultra10
+E280 E420, so I tested both mono CPU and SMP (till 4 CPUs) systems.
+on the ultra2 SMP I tested also the peemptive kernel patch.
 
-Keith Owens wrote:
+So I think you can be quite sure with latest 2.4 kernels.
+Another thing is 2.5 kernels, I was not able to use many of them on sparc.
 
-> It takes time to do all the analysis to work out what has changed and
-> what has been affected.  You might know that you only changed one file
-> but kernel build and make don't know that until they have checked
-> everything.  Changing one file or specifying a command override might
-> affect one file or it might affect the entire kernel.
+Luigi
 
-Doing that analysis once is fine. After that it should know what it has
-to check if I only want foo/bar.o recompiled and that shouldn't take
-that long.
+On Sat, 6 Apr 2002, Martin Eriksson wrote:
 
-> Otherwise let kbuild work out what has been affected.
+> What is the 2.4 kernel that works best for SPARC?
+>
+> The machine is a SPARC Ultra 10 3D creator with RedHat 6.2, now running some
+> old 2.4 kernel (cannot check right now).
+>
+> I would also like to test some low-latency stuff if possible, and it is very
+> important that rebooting/powering off works 100% as it's an remote machine.
+>
+> /Martin
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-That's the problem with kernel hackers, they want to know what's going
-on. :)
-
-bye, Roman

@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288308AbSBEEs3>; Mon, 4 Feb 2002 23:48:29 -0500
+	id <S288921AbSBEFs3>; Tue, 5 Feb 2002 00:48:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288338AbSBEEsT>; Mon, 4 Feb 2002 23:48:19 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56594 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S288308AbSBEEsP>; Mon, 4 Feb 2002 23:48:15 -0500
-Message-ID: <3C5F63F8.90808@zytor.com>
-Date: Mon, 04 Feb 2002 20:47:52 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: "Calin A. Culianu" <calin@ajvar.org>
-CC: Stevie O <stevie@qrpff.net>, linux-kernel@vger.kernel.org
-Subject: Re: Asynchronous CDROM Events in Userland
-In-Reply-To: <Pine.LNX.4.30.0202042341030.31336-100000@rtlab.med.cornell.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S288748AbSBEFsI>; Tue, 5 Feb 2002 00:48:08 -0500
+Received: from [65.169.83.229] ([65.169.83.229]:31360 "EHLO
+	hst000004380um.kincannon.olemiss.edu") by vger.kernel.org with ESMTP
+	id <S288342AbSBEFsD>; Tue, 5 Feb 2002 00:48:03 -0500
+Date: Mon, 4 Feb 2002 23:47:09 -0600
+From: Benjamin Pharr <ben@benpharr.com>
+To: linux-kernel@vger.kernel.org
+Subject: choice Help Sections
+Message-ID: <20020205054709.GA3245@hst000004380um.kincannon.olemiss.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.4.18-pre8
+X-PGP-ID: 0x6859792C
+X-PGP-Key: http://www.benpharr.com/public_key.asc
+X-PGP-Fingerprint: 7BF0 E432 3365 C1FC E0E3  0BE2 44E1 3E1E 6859 792C
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Calin A. Culianu wrote:
+Has anyone else noticed the availability of only one help section in
+"choice" blocks when using make menuconfig (and others maybe?)? 
 
->>>
->>Does it spin up the CD-ROM doing so?
->>
-> 
-> Probably it doesn't, but just having the cpu be non-idle when it could
-> otherwise be idle does add up over time.  In linux, polling the cdrom
-> *seems* inexpensive enough, but if you look at 'top' it seems to average
-> out to like 1-2% cpu time!  (Ok, these stats aren't super-accurate,
-> they're just from running 'top' with the kde autorun tool running).
-> 
-> [Admitedly, the autorun tool is written kind of strangely (it does one
-> redundant ioctl, plus it wait()s on its children constantly rather than
-> installing a signal handler), but still.. it would be nice to get those
-> extra cycles for quake3 or wolfenstein...]
-> 
+The best example of this is selection of "Processor family". No matter
+which option is highlighted when Help is selected, it always gives the
+help for CONFIG_M386.
 
+I thought this was possibly by design until I checked
+Documentation/Configure.help and found help sections for the other CPU
+families. 
 
-That just indicates a bullsh*t program.  It's also pretty certain that 
-these kinds of things don't belong in the GUI; one of the things I'd 
-like to do at some point is to write a daemon to mount things on insert 
-(vold).
-
-	-hpa
-
+Ben Pharr
 

@@ -1,34 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267678AbUIFI5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266341AbUIFJDI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267678AbUIFI5v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 04:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266341AbUIFI5v
+	id S266341AbUIFJDI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 05:03:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267668AbUIFJDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 04:57:51 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:34473 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S267668AbUIFI5g
+	Mon, 6 Sep 2004 05:03:08 -0400
+Received: from pauli.thundrix.ch ([213.239.201.101]:39337 "EHLO
+	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S266341AbUIFJDA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 04:57:36 -0400
-Date: Mon, 6 Sep 2004 10:56:14 +0200
+	Mon, 6 Sep 2004 05:03:00 -0400
+Date: Mon, 6 Sep 2004 10:58:19 +0200
 From: Tonnerre <tonnerre@thundrix.ch>
 To: Spam <spam@tnonline.net>
-Cc: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+Cc: John Stoffel <stoffel@lucent.com>, David Masover <ninja@slaphack.com>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Frank van Maarseveen <frankvm@xs4all.nl>,
+       Dave Kleikamp <shaggy@austin.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
        Jamie Lokier <jamie@shareable.org>,
        Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       Hans Reiser <reiser@namesys.com>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org,
+       Hans Reiser <reiser@namesys.com>, Christoph Hellwig <hch@lst.de>,
+       fsdevel <linux-fsdevel@vger.kernel.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Alexander Lyamin aka FLX <flx@namesys.com>,
        ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
-Message-ID: <20040906085614.GD28697@thundrix.ch>
-References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain> <Pine.LNX.4.58.0409021045210.2295@ppc970.osdl.org> <1591214030.20040902215031@tnonline.net> <20040906074518.GA28697@thundrix.ch> <1873133500.20040906100534@tnonline.net>
+Subject: Re: The argument for fs assistance in handling archives
+Message-ID: <20040906085819.GE28697@thundrix.ch>
+References: <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain> <20040902203854.GA4801@janus> <1094160994.31499.19.camel@shaggy.austin.ibm.com> <20040902214806.GA5272@janus> <20040902220027.GD23987@parcelfarce.linux.theplanet.co.uk> <4137B5F5.8000402@slaphack.com> <16696.30683.207905.803165@gargle.gargle.HOWL> <112181186.20040903160117@tnonline.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7DO5AaGCk89r4vaK"
+	protocol="application/pgp-signature"; boundary="qOrJKOH36bD5yhNe"
 Content-Disposition: inline
-In-Reply-To: <1873133500.20040906100534@tnonline.net>
+In-Reply-To: <112181186.20040903160117@tnonline.net>
 X-GPG-KeyID: 0x8BE1C38D
 X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
 X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
@@ -37,43 +40,34 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---7DO5AaGCk89r4vaK
+--qOrJKOH36bD5yhNe
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Salut,
 
-On Mon, Sep 06, 2004 at 10:05:34AM +0200, Spam wrote:
-> Then it is good. Just I see no programs other than Gnome or KDE apps
-> that are using them.
-
-Because KDE people  hate Gnome people and vice  versa, and because the
-rest of the world just neglects the two races for political reasons.
-
-Maybe   the  Freedesktop  project   should  provide   some  convenient
-specification/code to  do it.  Like they  do for HAL  and DBUS (Please
-note that this is something  interesting because it does clever things
-on hardware without requiring to patch the kernel.)
-
-> > In  case of  marketing it's  up  to the  distributions to  provide
-> > something  concise so everyone  can use  their programs  through a
-> > coherent namespace. (I.e. port all the apps they ship to gnome-vfs
-> > or kio).
+On Fri, Sep 03, 2004 at 04:01:17PM +0200, Spam wrote:
+> >> mount -t tarfs /some/place/on/disk/foo.tar.gz /mnt/tar
+> >> cp /var/tmp/img.gif .
+> >> umount /mnt/tar
 >=20
-> Do you really believe this will happen?
+> > Oops!  Someone did a rm /some/place/on/disk/foo.tar.gz between steps
+> > one and two.  Now what happens?  Please define those semantics...
+>=20
+>   Uhm, can you delete a file (loop) that is mounted?
 
-If the distributors  really want to be able to gain  money, and if the
-Free Unix community wants to  gain a significant market share, this is
-supposed to  happen. It's  the question of  whether we can  ignore our
-childish concept  wars, or if we're  always going to stay  at that low
-level we're at now.
+"Text file busy"
 
-Actually, this can't be fixed by putting everything into the kernel.
+But for files this isn't true.
 
-			    Tonnerre
+Currently, we  have another method assuring data  coherency: we remove
+the inode only when the last reference goes away.
 
---7DO5AaGCk89r4vaK
+				Tonnerre
+
+
+--qOrJKOH36bD5yhNe
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -81,9 +75,9 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.9.2 (GNU/Linux)
 
-iD8DBQFBPCYt/4bL7ovhw40RAuYdAJ9/9IaeqcMWfecCIjgFrCpVVYGjxwCeNtrx
-zCB78VYSwgBITYpC3Mg8V5M=
-=A2HU
+iD8DBQFBPCar/4bL7ovhw40RAqtyAKCAFsbtNLGylo3gxPXoX5COOmLCxwCfU5+Z
+hi8K34PIZbAzmL9Lr/EACGU=
+=2KZi
 -----END PGP SIGNATURE-----
 
---7DO5AaGCk89r4vaK--
+--qOrJKOH36bD5yhNe--

@@ -1,84 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277355AbRJELd6>; Fri, 5 Oct 2001 07:33:58 -0400
+	id <S277357AbRJELfi>; Fri, 5 Oct 2001 07:35:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277356AbRJELdt>; Fri, 5 Oct 2001 07:33:49 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:6614 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S277355AbRJELdh>; Fri, 5 Oct 2001 07:33:37 -0400
-Message-ID: <3BBD9ABD.6040909@wipro.com>
-Date: Fri, 05 Oct 2001 17:04:21 +0530
-From: "BALBIR SINGH" <balbir.singh@wipro.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [RFC][PATCH]Small Minor optimization to kmem_cache_estimate
-Content-Type: multipart/mixed;
-	boundary="------------InterScan_NT_MIME_Boundary"
+	id <S277356AbRJELf2>; Fri, 5 Oct 2001 07:35:28 -0400
+Received: from mail.2d3d.co.za ([196.14.185.200]:16068 "HELO mail.2d3d.co.za")
+	by vger.kernel.org with SMTP id <S277357AbRJELfW>;
+	Fri, 5 Oct 2001 07:35:22 -0400
+Date: Fri, 5 Oct 2001 13:39:22 +0200
+From: Abraham vd Merwe <abraham@2d3d.co.za>
+To: DRI Patches <dri-patches@lists.sourceforge.net>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: DRM bugfix
+Message-ID: <20011005133922.A20358@crystal.2d3d.co.za>
+Mail-Followup-To: Abraham vd Merwe <abraham@2d3d.co.za>,
+	DRI Patches <dri-patches@lists.sourceforge.net>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="p4qYPpj5QlsIQJ0K"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: 2d3D, Inc.
+X-Operating-System: Debian GNU/Linux crystal 2.4.2 i686
+X-GPG-Public-Key: http://oasis.blio.net/pgpkeys/keys/2d3d.gpg
+X-Uptime: 1:34pm  up 3 days, 22:01,  9 users,  load average: 0.04, 0.29, 0.22
+X-Edited-With-Muttmode: muttmail.sl - 2001-06-06
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is a multi-part message in MIME format.
-
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-A small minor optimization in kmem_cache_estimate() slab.c
-
-The patch below saves some CPU cycles, especially when the value of size
-is small. This is against 2.4.2-2.
-
---- slab.c.org  Fri Oct  5 16:09:39 2001
-+++ slab.c      Fri Oct  5 16:46:34 2001
-@@ -386,10 +386,10 @@
-                base = sizeof(slab_t);
-                extra = sizeof(kmem_bufctl_t);
-        }
--       i = 0;
-+       i = (wastage - base)/(size + extra);
-        while (i*size + L1_CACHE_ALIGN(base+i*extra) <= wastage)
-                i++;
--       if (i > 0)
-+       while (i*size + L1_CACHE_ALIGN(base+i*extra) > wastage)
-                i--;
-
-instead of looping through to get the right value, we make a guess
-(mathematically) and move a bit to get the correct value.
-
-Hey, I remember reading the Newton-Raphson method in school.
-
-I verified the number of objects per slab is the same in both cases.
-This patch may not improve the performance of your CPU by a great amount,
-but when there is a faster way to do things, why live with the slower one.
-
-NOTE: The code hardly does one loop in both the while statements.
-
-Comments,
-Balbir
+--p4qYPpj5QlsIQJ0K
+Content-Type: multipart/mixed; boundary="zYM0uCDKw75PZbzx"
+Content-Disposition: inline
 
 
+--zYM0uCDKw75PZbzx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
+Hi!
 
-----------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-----------------------------------------------------------------------------------------------------------------------
+I found a small bug in drm_proc.h. DRM(_vm_info) tries to access
+dev->maplist, but dev->maplist is only intitialized when the device is
+opened, so if you do a cat /proc/dri/0/vm just after you load any DRM module
+(just before loading X), you'll get an oops and mess up the whole proc
+system in the process...
+
+I've attached a fix for it. The patch is against the 2.4.10 kernel, but I
+think drm_proc.h in the 2.4.10 kernel is the same as in the DRI CVS
+repository.
+
+--=20
+
+Regards
+ Abraham
+
+One can never consent to creep when one feels an impulse to soar.
+		-- Helen Keller
+
+__________________________________________________________
+ Abraham vd Merwe - 2d3D, Inc.
+
+ Device Driver Development, Outsourcing, Embedded Systems
+
+  Cell: +27 82 565 4451         Snailmail:
+   Tel: +27 21 761 7549            Block C, Antree Park
+   Fax: +27 21 761 7648            Doncaster Road
+ Email: abraham@2d3d.co.za         Kenilworth, 7700
+  Http: http://www.2d3d.com        South Africa
 
 
---------------InterScan_NT_MIME_Boundary--
+--zYM0uCDKw75PZbzx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="maplist-fix.diff"
+
+diff -Nrup linux-2.4.10.orig/drivers/char/drm/drm_proc.h linux-2.4.10/drivers/char/drm/drm_proc.h
+--- linux-2.4.10.orig/drivers/char/drm/drm_proc.h	Wed Aug 15 23:21:47 2001
++++ linux-2.4.10/drivers/char/drm/drm_proc.h	Fri Oct  5 13:33:54 2001
+@@ -186,7 +186,7 @@ static int DRM(_vm_info)(char *buf, char
+ 	DRM_PROC_PRINT("slot	 offset	      size type flags	 "
+ 		       "address mtrr\n\n");
+ 	i = 0;
+-	list_for_each(list, &dev->maplist->head) {
++	if (dev->maplist != NULL) list_for_each(list, &dev->maplist->head) {
+ 		r_list = (drm_map_list_t *)list;
+ 		map = r_list->map;
+ 		if(!map) continue;
+
+--zYM0uCDKw75PZbzx--
+
+--p4qYPpj5QlsIQJ0K
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7vZvqzNXhP0RCUqMRAoRkAJsGwbEudie6gUr79w+fglximJhjMwCeNrbU
+GRXFAXiTFWgc35sPaK/LDh8=
+=97v3
+-----END PGP SIGNATURE-----
+
+--p4qYPpj5QlsIQJ0K--

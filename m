@@ -1,83 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262089AbVBASDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262094AbVBASFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262089AbVBASDo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 13:03:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbVBASDk
+	id S262094AbVBASFh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 13:05:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbVBASEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 13:03:40 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:47554 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262089AbVBASCq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 13:02:46 -0500
-Date: Tue, 1 Feb 2005 10:02:41 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: linux-poweredge@dell.com
-Cc: zaitcev@redhat.com, linux-precision@dell.com, linux-kernel@vger.kernel.org
-Subject: Patch to enable the USB handoff on Dell 650
-Message-ID: <20050201100241.07c6c504@localhost.localdomain>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+	Tue, 1 Feb 2005 13:04:15 -0500
+Received: from multivac.one-eyed-alien.net ([64.169.228.101]:38016 "EHLO
+	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S262094AbVBASDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 13:03:21 -0500
+Date: Tue, 1 Feb 2005 10:03:13 -0800
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Memory Stick read-only in 2.6.10
+Message-ID: <20050201180313.GA15549@one-eyed-alien.net>
+Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
+	linux-kernel@vger.kernel.org
+References: <cto2rs$tuu$1@gatekeeper.tmr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
+Content-Disposition: inline
+In-Reply-To: <cto2rs$tuu$1@gatekeeper.tmr.com>
+User-Agent: Mutt/1.4.1i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2005 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, guys,
 
-I was looking at this:
-  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=138892
+--J/dobhs11T7y2rNN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-  I have added usb-handoff as a kernel option in grub.conf for
-  2.4.21-20.EL (smp) and re-enabled USB Emulation and Controller in the
-  BIOS, and the machine now seems to boot normally.  I only had time to
-  try booting it twice, but previously it would fail almost every time,
-  so two successive successful boots seems very good.  Thanks for your
-  quick responses and working solution!
+Did you turn on CONFIG_USB_STORAGE_RW_DETECT?
 
-Can someone with the Dell PW650 (which, I think, should be same as PE600)
-test this patch for me? I do not want to send this for inclusion into
-Linus' kernel before it's tested.
+Matt
 
-In theory we probably will want USB handoff to be enabled by default, but
-I am not sure this time is now, so let us use DMI lists until then.
+On Tue, Feb 01, 2005 at 09:28:45AM -0500, Bill Davidsen wrote:
+> I upgraded a system from 2.4.19 (or so) to 2.6.10. Using a USB memory=20
+> stick reader one, and only one, stick is now read-only.
+>  - I can't go back, this was a backup/reinstall upgrade
+>  - it doesn't happen on Win98
+>  - it doesn't happen on WinXPhome
+>  - it doesn't happen on OSX
+>  - it doesn't happen in the camera
+>  - it doesn't happen with four other sticks bought at the same time
+>    and used in the same camera
+>=20
+> Out of the box FC2 + 2.6.10 built from kernel.org source.
+>=20
+> Before I start playing with the drivers and all, is there a known oddity=
+=20
+> in this area which I missed searching?
+>=20
+> --=20
+>    -bill davidsen (davidsen@tmr.com)
+> "The secret to procrastination is to put things off until the
+>  last possible moment - but no longer"  -me
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Thanks,
--- Pete
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
---- linux-2.6.11-rc2/arch/i386/kernel/dmi_scan.c	2005-01-22 14:53:59.000000000 -0800
-+++ linux-2.6.11-rc2-lem/arch/i386/kernel/dmi_scan.c	2005-01-31 20:42:16.163592792 -0800
-@@ -243,6 +243,19 @@
- }  
- #endif
- 
-+static __init int enable_usb_handoff(struct dmi_blacklist *d)
-+{
-+	extern int usb_early_handoff;
-+
-+	/*
-+	 * A printk is probably unnecessary. There's no way this causes
-+	 * any harm (famous last words). But seriously, we only add systems
-+	 * to the list if we know that they need handoff for sure.
-+	 */
-+	usb_early_handoff = 1;
-+	return 0;
-+}
-+
- /*
-  *	Process the DMI blacklists
-  */
-@@ -376,6 +389,14 @@
- 
- #endif
- 
-+	/*
-+	 *	Boxes which need USB taken over from BIOS explicitly.
-+	 */
-+	{ enable_usb_handoff, "Dell PW650", {
-+			MATCH(DMI_SYS_VENDOR, "Dell Computer Corporation"),
-+			MATCH(DMI_PRODUCT_NAME, "Precision WorkStation 650"),
-+			NO_MATCH, NO_MATCH }},
-+
- 	{ NULL, }
- };
- 
+We can customize our colonels.
+					-- Tux
+User Friendly, 12/1/1998
+
+--J/dobhs11T7y2rNN
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFB/8RhIjReC7bSPZARAqcWAJ4+6Zlu0TgsbIo9CJXa5bOe+gQJsQCggkiM
+wTO/nUKqgxHqEDeDiNRzvYc=
+=yVMy
+-----END PGP SIGNATURE-----
+
+--J/dobhs11T7y2rNN--

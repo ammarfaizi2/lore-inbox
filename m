@@ -1,57 +1,182 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbVBEAKh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVBEAEz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261849AbVBEAKh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 19:10:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbVBEAKf
+	id S261191AbVBEAEz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 19:04:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266134AbVBEADd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 19:10:35 -0500
-Received: from zork.zork.net ([64.81.246.102]:7394 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S264177AbVBEAGG (ORCPT
+	Fri, 4 Feb 2005 19:03:33 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:33253 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S264081AbVBEABj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 19:06:06 -0500
-From: Sean Neakums <sneakums@zork.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11-rc3-mm1
-References: <20050204103350.241a907a.akpm@osdl.org>
-	<6ud5vgezqx.fsf@zork.zork.net> <1107561472.2363.125.camel@gaston>
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew
-	Morton <akpm@osdl.org>, Linux Kernel list
-	<linux-kernel@vger.kernel.org>
-Date: Sat, 05 Feb 2005 00:05:55 +0000
-In-Reply-To: <1107561472.2363.125.camel@gaston> (Benjamin Herrenschmidt's
-	message of "Sat, 05 Feb 2005 10:57:52 +1100")
-Message-ID: <6u7jlng9b0.fsf@zork.zork.net>
-MIME-Version: 1.0
+	Fri, 4 Feb 2005 19:01:39 -0500
+Date: Sat, 5 Feb 2005 09:01:36 +0900
+From: Tejun Heo <tj@home-tj.org>
+To: bzolnier@gmail.com, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH REPOST 2.6.11-rc2 14/14] ide_pci: Merges serverworks.h into serverworks.c
+Message-ID: <20050205000136.GA2420@htj.dyndns.org>
+References: <42032014.1020606@home-tj.org> <20050204071319.0ED0E132703@htj.dyndns.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: sneakums@zork.net
-X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
+Content-Disposition: inline
+In-Reply-To: <20050204071319.0ED0E132703@htj.dyndns.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+ Sorry, the original #14 added back SVWKS_DEBUG_DRIVE_INFO which #13
+removed.  This is the regenerated patch.
 
-> On Fri, 2005-02-04 at 22:17 +0000, Sean Neakums wrote:
->> I gave this a crack on the PowerBook5.4 -- somewhat more successful
->> than 2.6.11-rc2-mm2.  It boots, radeonfb works and X starts.  However,
->> suspend seems a tad faster than usual, and resume stops after setting
->> the hard disk's DMA mode, although the log below made it to disk.
->
-> Looks like USB is dying on wakeup... Anyway, that's still better than
-> 2.6.11 since your model will not sleep/wakeup at all without these
-> patches.
->
-> I'll have to look into the USB thing. From the error messages, it looks
-> like at least some of my patches removing some old pmac IRQ cruft from
-> the ohci driver didn't make it (I though david picked it up a while ago
-> though). Or it could be a problem with the interrupt controller, I've
-> had reports of cases where the PIC just stops working on resume, I'm
-> still investigating.
->
-> Is this totally reproduceable or does it wake up sometimes ? Have you
-> tried with USB disabled ?
+14_ide_pci_serverworks_merge.patch
 
-I tried it two or three times, same result each time.  I'll give it a
-lash with USB disabled.
+	Merges ide/pci/serverworks.h into serverworks.c.
+
+
+Signed-off-by: Tejun Heo <tj@home-tj.org>
+
+
+Index: linux-idepci-export/drivers/ide/pci/serverworks.c
+===================================================================
+--- linux-idepci-export.orig/drivers/ide/pci/serverworks.c	2005-02-05 08:56:34.184740697 +0900
++++ linux-idepci-export/drivers/ide/pci/serverworks.c	2005-02-05 08:57:24.673562622 +0900
+@@ -39,7 +39,18 @@
+ 
+ #include <asm/io.h>
+ 
+-#include "serverworks.h"
++#define SVWKS_CSB5_REVISION_NEW	0x92 /* min PCI_REVISION_ID for UDMA5 (A2.0) */
++#define SVWKS_CSB6_REVISION	0xa0 /* min PCI_REVISION_ID for UDMA4 (A1.0) */
++
++/* Seagate Barracuda ATA IV Family drives in UDMA mode 5
++ * can overrun their FIFOs when used with the CSB5 */
++static const char *svwks_bad_ata100[] = {
++	"ST320011A",
++	"ST340016A",
++	"ST360021A",
++	"ST380021A",
++	NULL
++};
+ 
+ static u8 svwks_revision = 0;
+ static struct pci_dev *isa_dev;
+@@ -582,6 +593,48 @@ static int __init init_setup_csb6 (struc
+ 	return ide_setup_pci_device(dev, d);
+ }
+ 
++/*
++ *	Table of the various serverworks capability blocks
++ */
++
++static ide_pci_device_t serverworks_chipsets[] __devinitdata = {
++	{	/* 0 */
++		.name		= "SvrWks OSB4",
++		.init_setup	= init_setup_svwks,
++		.init_chipset	= init_chipset_svwks,
++		.init_hwif	= init_hwif_svwks,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.bootable	= ON_BOARD,
++	},{	/* 1 */
++		.name		= "SvrWks CSB5",
++		.init_setup	= init_setup_svwks,
++		.init_chipset	= init_chipset_svwks,
++		.init_hwif	= init_hwif_svwks,
++		.init_dma	= init_dma_svwks,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.bootable	= ON_BOARD,
++	},{	/* 2 */
++		.name		= "SvrWks CSB6",
++		.init_setup	= init_setup_csb6,
++		.init_chipset	= init_chipset_svwks,
++		.init_hwif	= init_hwif_svwks,
++		.init_dma	= init_dma_svwks,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.bootable	= ON_BOARD,
++	},{	/* 3 */
++		.name		= "SvrWks CSB6",
++		.init_setup	= init_setup_csb6,
++		.init_chipset	= init_chipset_svwks,
++		.init_hwif	= init_hwif_svwks,
++		.init_dma	= init_dma_svwks,
++		.channels	= 1,	/* 2 */
++		.autodma	= AUTODMA,
++		.bootable	= ON_BOARD,
++	}
++};
+ 
+ /**
+  *	svwks_init_one	-	called when a OSB/CSB is found
+Index: linux-idepci-export/drivers/ide/pci/serverworks.h
+===================================================================
+--- linux-idepci-export.orig/drivers/ide/pci/serverworks.h	2005-02-05 08:57:24.477594365 +0900
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,67 +0,0 @@
+-
+-#ifndef SERVERWORKS_H
+-#define SERVERWORKS_H
+-
+-#include <linux/config.h>
+-#include <linux/pci.h>
+-#include <linux/ide.h>
+-
+-#define SVWKS_CSB5_REVISION_NEW	0x92 /* min PCI_REVISION_ID for UDMA5 (A2.0) */
+-#define SVWKS_CSB6_REVISION	0xa0 /* min PCI_REVISION_ID for UDMA4 (A1.0) */
+-
+-/* Seagate Barracuda ATA IV Family drives in UDMA mode 5
+- * can overrun their FIFOs when used with the CSB5 */
+-static const char *svwks_bad_ata100[] = {
+-	"ST320011A",
+-	"ST340016A",
+-	"ST360021A",
+-	"ST380021A",
+-	NULL
+-};
+-
+-static int init_setup_svwks(struct pci_dev *, ide_pci_device_t *);
+-static int init_setup_csb6(struct pci_dev *, ide_pci_device_t *);
+-static unsigned int init_chipset_svwks(struct pci_dev *, const char *);
+-static void init_hwif_svwks(ide_hwif_t *);
+-static void init_dma_svwks(ide_hwif_t *, unsigned long);
+-
+-static ide_pci_device_t serverworks_chipsets[] __devinitdata = {
+-	{	/* 0 */
+-		.name		= "SvrWks OSB4",
+-		.init_setup	= init_setup_svwks,
+-		.init_chipset	= init_chipset_svwks,
+-		.init_hwif	= init_hwif_svwks,
+-		.channels	= 2,
+-		.autodma	= AUTODMA,
+-		.bootable	= ON_BOARD,
+-	},{	/* 1 */
+-		.name		= "SvrWks CSB5",
+-		.init_setup	= init_setup_svwks,
+-		.init_chipset	= init_chipset_svwks,
+-		.init_hwif	= init_hwif_svwks,
+-		.init_dma	= init_dma_svwks,
+-		.channels	= 2,
+-		.autodma	= AUTODMA,
+-		.bootable	= ON_BOARD,
+-	},{	/* 2 */
+-		.name		= "SvrWks CSB6",
+-		.init_setup	= init_setup_csb6,
+-		.init_chipset	= init_chipset_svwks,
+-		.init_hwif	= init_hwif_svwks,
+-		.init_dma	= init_dma_svwks,
+-		.channels	= 2,
+-		.autodma	= AUTODMA,
+-		.bootable	= ON_BOARD,
+-	},{	/* 3 */
+-		.name		= "SvrWks CSB6",
+-		.init_setup	= init_setup_csb6,
+-		.init_chipset	= init_chipset_svwks,
+-		.init_hwif	= init_hwif_svwks,
+-		.init_dma	= init_dma_svwks,
+-		.channels	= 1,	/* 2 */
+-		.autodma	= AUTODMA,
+-		.bootable	= ON_BOARD,
+-	}
+-};
+-
+-#endif /* SERVERWORKS_H */

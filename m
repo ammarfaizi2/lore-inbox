@@ -1,196 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263715AbTKAEqh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 23:46:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263716AbTKAEqg
+	id S263406AbTKAFcW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Nov 2003 00:32:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263716AbTKAFcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 23:46:36 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:20745 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S263715AbTKAEqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 23:46:32 -0500
-Date: Sat, 1 Nov 2003 15:46:19 +1100
-To: axboe@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [BIO] Bounce queue in bio_add_page
-Message-ID: <20031101044619.GA15628@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="GvXjxJ+pjyke8COw"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Sat, 1 Nov 2003 00:32:22 -0500
+Received: from pa-steclge-cmts2a-19.stcgpa.adelphia.net ([68.168.167.19]:39659
+	"EHLO potassium.stop.dyndns.org") by vger.kernel.org with ESMTP
+	id S263406AbTKAFcU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Nov 2003 00:32:20 -0500
+Message-ID: <3FA34523.30902@nodivisions.com>
+Date: Sat, 01 Nov 2003 00:31:15 -0500
+From: Anthony DiSante <orders@nodivisions.com>
+Reply-To: orders@nodivisions.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031027
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Audio skips when RAM is ~full
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---GvXjxJ+pjyke8COw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I have a memory-related question regarding a Slackware system I'm running 
+(kernel 2.4.22, compiled for i386, on a VIA Eden 600MHz processor, with 
+256MB RAM).
 
-Hi:
+First, the background info:
 
-Currently bio_add_page will allow segments to be counted as merged
-before they've been bounced.  This can create bio's that exceed
-limits set by the driver/hardware.  This bug can be triggered on
-HIGHMEM machines as well as ISA block devices such as AHA1542.
+This system is primarily an mp3 player.  It boots directly to /bin/bash 
+bypassing everything under /etc/rc.d, and just runs a small script that does 
+modprobing and a few other miscellaneous things, then starts the main 
+control script (which is Perl).
 
-Here is a hack that works around it by bouncing the queue before
-recounting the segments.
+I have about 250 CDs encoded as mp3s on the 40gig drive, laid out in 
+directories as /music/band/album/songs.mp3.  I also have a text file which 
+contains one line for the full path to each album (so ~250 lines total). 
+This file is used by my play-random-album function, which plays a random 
+album each time I press the tick key.  When I do that, the songs from the 
+randomly-chosen album become the current playlist, and the first song starts 
+playing.
 
-Cheers,
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Now, the problem/question:
 
---GvXjxJ+pjyke8COw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
+Each time I press the tick key, a new directory is read from the disk (and a 
+song is played, and the directory contents are enqueued).  This causes the 
+free memory (as reported by free) to drop by 1%, each time I press tick.  I 
+often press it 5 or 10 or 20 times in a row until I find something I feel 
+like listening to, and the free memory will drop by almost exactly 5 or 10 
+or 20 percent by the time I settle on an album.  If the free memory was 
+already very low (for example, when I do this after having already listened 
+to an album or two), then it will often get down to 2% or 3% at this point, 
+and stay there until I reboot.
 
-Index: kernel-source-2.5/include/linux/bio.h
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/include/linux/bio.h,v
-retrieving revision 1.1.1.8
-diff -u -r1.1.1.8 bio.h
---- kernel-source-2.5/include/linux/bio.h	28 Sep 2003 04:44:21 -0000	1.1.1.8
-+++ kernel-source-2.5/include/linux/bio.h	1 Nov 2003 04:36:28 -0000
-@@ -239,7 +239,8 @@
- 
- extern inline void bio_init(struct bio *);
- 
--extern int bio_add_page(struct bio *, struct page *, unsigned int,unsigned int);
-+extern int bio_add_page(struct bio **, struct page *, unsigned int,
-+			unsigned int);
- extern int bio_get_nr_vecs(struct block_device *);
- extern struct bio *bio_map_user(struct block_device *, unsigned long,
- 				unsigned int, int);
-Index: kernel-source-2.5/fs/bio.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/fs/bio.c,v
-retrieving revision 1.1.1.13
-diff -u -r1.1.1.13 bio.c
---- kernel-source-2.5/fs/bio.c	28 Sep 2003 04:44:16 -0000	1.1.1.13
-+++ kernel-source-2.5/fs/bio.c	1 Nov 2003 04:36:00 -0000
-@@ -292,9 +292,10 @@
-  *	number of reasons, such as the bio being full or target block
-  *	device limitations.
-  */
--int bio_add_page(struct bio *bio, struct page *page, unsigned int len,
-+int bio_add_page(struct bio **bio_orig, struct page *page, unsigned int len,
- 		 unsigned int offset)
- {
-+	struct bio *bio = *bio_orig;
- 	request_queue_t *q = bdev_get_queue(bio->bi_bdev);
- 	int retried_segments = 0;
- 	struct bio_vec *bvec;
-@@ -324,6 +325,8 @@
- 
- 		bio->bi_flags &= ~(1 << BIO_SEG_VALID);
- 		retried_segments = 1;
-+		blk_queue_bounce(q, &bio);
-+		*bio_orig = bio;
- 	}
- 
- 	/*
-@@ -410,7 +413,7 @@
- 		/*
- 		 * sorry...
- 		 */
--		if (bio_add_page(bio, pages[i], bytes, offset) < bytes)
-+		if (bio_add_page(&bio, pages[i], bytes, offset) < bytes)
- 			break;
- 
- 		len -= bytes;
-Index: kernel-source-2.5/fs/direct-io.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/fs/direct-io.c,v
-retrieving revision 1.1.1.9
-diff -u -r1.1.1.9 direct-io.c
---- kernel-source-2.5/fs/direct-io.c	8 Oct 2003 19:24:14 -0000	1.1.1.9
-+++ kernel-source-2.5/fs/direct-io.c	1 Nov 2003 04:36:59 -0000
-@@ -503,7 +503,7 @@
- {
- 	int ret;
- 
--	ret = bio_add_page(dio->bio, dio->cur_page,
-+	ret = bio_add_page(&dio->bio, dio->cur_page,
- 			dio->cur_page_len, dio->cur_page_offset);
- 	if (ret == dio->cur_page_len) {
- 		dio->pages_in_io--;
-Index: kernel-source-2.5/fs/mpage.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/fs/mpage.c,v
-retrieving revision 1.1.1.8
-diff -u -r1.1.1.8 mpage.c
---- kernel-source-2.5/fs/mpage.c	22 Aug 2003 23:53:13 -0000	1.1.1.8
-+++ kernel-source-2.5/fs/mpage.c	1 Nov 2003 04:37:27 -0000
-@@ -296,7 +296,7 @@
- 	}
- 
- 	length = first_hole << blkbits;
--	if (bio_add_page(bio, page, length, 0) < length) {
-+	if (bio_add_page(&bio, page, length, 0) < length) {
- 		bio = mpage_bio_submit(READ, bio);
- 		goto alloc_new;
- 	}
-@@ -540,7 +540,7 @@
- 	}
- 
- 	length = first_unmapped << blkbits;
--	if (bio_add_page(bio, page, length, 0) < length) {
-+	if (bio_add_page(&bio, page, length, 0) < length) {
- 		bio = mpage_bio_submit(WRITE, bio);
- 		goto alloc_new;
- 	}
-Index: kernel-source-2.5/fs/xfs/pagebuf/page_buf.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/fs/xfs/pagebuf/page_buf.c,v
-retrieving revision 1.1.1.15
-diff -u -r1.1.1.15 page_buf.c
---- kernel-source-2.5/fs/xfs/pagebuf/page_buf.c	8 Oct 2003 19:24:01 -0000	1.1.1.15
-+++ kernel-source-2.5/fs/xfs/pagebuf/page_buf.c	1 Nov 2003 04:40:46 -0000
-@@ -1346,7 +1346,7 @@
- 		bio->bi_end_io = bio_end_io_pagebuf;
- 		bio->bi_private = pb;
- 
--		bio_add_page(bio, pb->pb_pages[0], PAGE_CACHE_SIZE, 0);
-+		bio_add_page(&bio, pb->pb_pages[0], PAGE_CACHE_SIZE, 0);
- 		size = 0;
- 
- 		atomic_inc(&pb->pb_io_remaining);
-@@ -1390,7 +1390,7 @@
- 		if (nbytes > size)
- 			nbytes = size;
- 
--		if (bio_add_page(bio, pb->pb_pages[map_i],
-+		if (bio_add_page(&bio, pb->pb_pages[map_i],
- 					nbytes, offset) < nbytes)
- 			break;
- 
-Index: kernel-source-2.5/drivers/mtd/devices/blkmtd.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/drivers/mtd/devices/blkmtd.c,v
-retrieving revision 1.1.1.9
-diff -u -r1.1.1.9 blkmtd.c
---- kernel-source-2.5/drivers/mtd/devices/blkmtd.c	22 Aug 2003 23:51:04 -0000	1.1.1.9
-+++ kernel-source-2.5/drivers/mtd/devices/blkmtd.c	1 Nov 2003 04:45:27 -0000
-@@ -146,7 +146,7 @@
- 		bio->bi_sector = page->index << (PAGE_SHIFT-9);
- 		bio->bi_private = &event;
- 		bio->bi_end_io = bi_read_complete;
--		if(bio_add_page(bio, page, PAGE_SIZE, 0) == PAGE_SIZE) {
-+		if(bio_add_page(&bio, page, PAGE_SIZE, 0) == PAGE_SIZE) {
- 			submit_bio(READ, bio);
- 			blk_run_queues();
- 			wait_for_completion(&event);
-@@ -213,7 +213,7 @@
- 		bio->bi_bdev = blkdev;
- 	}
- 
--	if(bio_add_page(bio, page, PAGE_SIZE, 0) != PAGE_SIZE) {
-+	if(bio_add_page(&bio, page, PAGE_SIZE, 0) != PAGE_SIZE) {
- 		blkmtd_write_out(bio);
- 		bio = NULL;
- 		goto retry;
+This system has one of those awful on-board "ac'97" sound chips, which 
+(AIUI) uses the system CPU to do much of the audio work instead of using 
+dedicated audio chips for it.  When the free memory is less than about 10%, 
+each song will "skip" when it first starts playing.  (It sounds like 1/2 or 
+1 or 2 seconds of audio was deleted from the song; you don't hear silence, 
+you hear the music at seconds 1, 2, and then 4, or just 2, 3, 4, ... 
+skipping the very start, etc.  But it's always some portion of the first ~5 
+seconds getting skipped.)
 
---GvXjxJ+pjyke8COw--
+When the system is first booted, the free mem is around 90%, and this 
+skipping doesn't happen.  As time goes on, the free mem drops, and skipping 
+starts happening somewhere along the line; by the time it's down to ~10% 
+free, every song skips when it starts.
+
+The disk is a modern one using DMA.  And I even set up a ramdisk to try 
+playing the songs from there (copying the "next" track into ramdisk while 
+the current track is playing), but it still skips at the beginning of each 
+track when the free mem is low enough.
+
+My understanding/analysis/proposed solution:
+
+The kernel is buffering the contents of each directory (album) that it reads 
+(and also, mpg321 copies each mp3 file into RAM before playing it?).  I 
+understand that the idea is to stuff as much into RAM as possible to reduce 
+pagefile usage, and that the kernel will reclaim memory utilized by buffers 
+if/when it needs to.  But apparently that isn't happening fast enough to 
+allow a realtime process like music-playing to work skip-free on this system 
+with this soundcard.  I think that if I could regularly forcibly dump the 
+buffered stuff out of the RAM (dropping the used-RAM percentage down to, 
+say, 10%, like at boot time) then this would make the skipping stop.
+
+So... do I have a correct understanding of the problem, and a correct 
+analysis of the kernel/mem issues that are related to it?  Is it possible to 
+clear some of the RAM; if so, would that help?
+
+Thanks,
+Anthony
+
+PS - you can see the system at:
+http://nodivisions.com/tech/systems/musicbox/

@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbUKOWz0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbUKOWzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261521AbUKOWz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 17:55:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbUKOWzU
+	id S261573AbUKOWzG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 17:55:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbUKOWxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 17:55:20 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:25750 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261533AbUKOWxW (ORCPT
+	Mon, 15 Nov 2004 17:53:44 -0500
+Received: from fw.osdl.org ([65.172.181.6]:16795 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261521AbUKOWxG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 17:53:22 -0500
-Date: Mon, 15 Nov 2004 14:53:08 -0800
-Message-Id: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 15 Nov 2004 17:53:06 -0500
+Date: Mon, 15 Nov 2004 14:57:14 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Robin Holt <holt@sgi.com>
+Cc: linux-kernel@vger.kernel.org, dev@sw.ru, wli@holomorphy.com,
+       steiner@sgi.com, sandeen@sgi.com
+Subject: Re: 21 million inodes is causing severe pauses.
+Message-Id: <20041115145714.3f757012.akpm@osdl.org>
+In-Reply-To: <20041115195551.GA15380@lnx-holt.americas.sgi.com>
+References: <20041115195551.GA15380@lnx-holt.americas.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-X-Fcc: ~/Mail/linus
-Cc: Mike Hearn <mh@codeweavers.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Eric Pouech <pouech-eric@wanadoo.fr>
-Subject: Re: ptrace single-stepping change breaks Wine
-In-Reply-To: Linus Torvalds's message of  Monday, 15 November 2004 14:41:31 -0800 <Pine.LNX.4.58.0411151439270.2222@ppc970.osdl.org>
-X-Antipastobozoticataclysm: When George Bush projectile vomits antipasto on the Japanese.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No, TIF_SINGLESTEP gets set even when the _user_ set TF. It is just a flag
-> saying that we should re-enable TF when we get back to user space.
-> 
-> So TIF_SINGLESTEP in no way implies that TF was set by a debugger.
+Robin Holt <holt@sgi.com> wrote:
+>
+> One significant problem we are running into is autofs trying to umount the
+> file systems.  This results in the umount grabbing the BKL and inode_lock,
+> holding it while it scans through the inode_list and others looking for
+> inodes used by this super block and attempting to free them.
 
-Ok, whatever.  I'm not really sure its use for the single-step stuff in
-Davide Libenzi's changes doesn't change the expected behavior for the
-nondebugger case, but it's too early in the morning to think hard about that.
+You'll need invalidate_inodes-speedup.patch and
+break-latency-in-invalidate_list.patch (or an equivalent).
 
-Your change hit only one spot of three in arch/i386/kernel/signal.c where
-PT_PTRACED is now tested and it should be a "is PTRACE_SINGLESTEP in effect?"
-test.  Also the same spots in native and 32-bit emul for x86-64.
+That'll get you most of the way, but the BKL will still be a problem.
+
+Removing lock_kernel() in the umount path is probably a major project so
+for now, you can just drop and reacquire it by doing
+release_kernel_lock()/reacquire_kernel_lock() around invalidate_inodes().
+
+(You'll need to use that pair rather than unlock_kernel/lock_kernel because
+it seems that invalidate_inodes can be called under various depths of
+lock_kernel()).
 
 
-Thanks,
-Roland

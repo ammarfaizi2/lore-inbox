@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264473AbUBFIjL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 03:39:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265078AbUBFIjL
+	id S263568AbUBFJJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 04:09:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265291AbUBFJJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 03:39:11 -0500
-Received: from tristate.vision.ee ([194.204.30.144]:57475 "HELO mail.city.ee")
-	by vger.kernel.org with SMTP id S264473AbUBFIjH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 03:39:07 -0500
-Message-ID: <402352A9.7090705@vision.ee>
-Date: Fri, 06 Feb 2004 10:39:05 +0200
-From: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040205 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Fri, 6 Feb 2004 04:09:58 -0500
+Received: from mta05-svc.ntlworld.com ([62.253.162.45]:4641 "EHLO
+	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S263568AbUBFJJz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 04:09:55 -0500
+Message-ID: <402359E1.6000007@ntlworld.com>
+Date: Fri, 06 Feb 2004 09:09:53 +0000
+From: Matt <dirtbird@ntlworld.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.4-6 StumbleUpon/1.87
+X-Accept-Language: en, en-gb, ja
 MIME-Version: 1.0
-To: s0348365@sms.ed.ac.uk
-Cc: Arjen Verweij <A.Verweij2@ewi.tudelft.nl>, Andrew Morton <akpm@osdl.org>,
-       =?ISO-8859-1?Q?Luis_Miguel_Garc=EDa?= <ktech@wanadoo.es>,
-       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat"
-References: <20040205014405.5a2cf529.akpm@osdl.org> <200402051357.04005.s0348365@sms.ed.ac.uk> <4022505B.1020900@vision.ee> <200402052130.30344.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200402052130.30344.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: VFS locking: f_pos thread-safe ?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John Strachan wrote:
+> Werner Almesberger <wa@almesberger.net> wrote:
+>>
+>> "[...] read( ) [...] shall be atomic with respect to each other
+>>   in the effects specified in IEEE Std. 1003.1-200x when they
+>>   operate on regular files. If two threads each call one of these
+>>   functions, each call shall either see all of the specified
+>>   effects of the other call, or none of them."
 
->This fix doesn't work for me because I get problems if I disable ACPI IRQ 
->routing and still have apic enabled. Normally these problems would be 
->gracefully solved, but my USB HCD complains about not having been assigned an 
->IRQ.
->  
->
-Actually it's exactly the same here I'm just not bothered by my USB HCD 
-not having an IRQ since
-my USB mouse still works.
+> Whichever thread finishes its read last gets to update f_pos.
 
-It says this when booting:
+> I'm struggling a bit to understand what they're calling for there.  If
+> thread A enters a read and then shortly afterwards thread B enters the
+> read, does thread B see an f_pos which starts out at the beginning of A's
+> read, or the end of it?
 
-PCI: No IRQ known for interrupt pin A of device 0000:00:02.0. Please try 
-using pci=biosirq.
-drivers/usb/core/hcd-pci.c: Found HC with no IRQ.  Check BIOS/PCI 
-0000:00:02.0 setup!
+> Similar questions apply as the threads exit their read()s.
 
-All I can say is that in 2.6.1-rc1-mm1 it worked and I could have all my 
-interrupts off the XT-PIC.
+> Either way, there's no way in which we should serialise concurrent readers.
+> That would really suck for sensible apps which are using pread64().
 
-Lenar
+Surely, we can just serialise read() (and related) calls that modify f_pos?
+Since pread() doesn't modify f_pos we shouldn't need to serialise those calls
+no? Also doesn't spec make the same claims about other calls that modify
+f_pos such as write()?
+
+	Matt
+
+
+
+
+

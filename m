@@ -1,149 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262573AbTIQJng (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 05:43:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbTIQJng
+	id S262716AbTIQJsT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 05:48:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262718AbTIQJsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 05:43:36 -0400
-Received: from zinc.btinternet.com ([194.73.73.148]:5825 "EHLO
-	zinc.btinternet.com") by vger.kernel.org with ESMTP id S262573AbTIQJnc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 05:43:32 -0400
-From: Nick Sanders <sandersn@btinternet.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test5-mm2: Unknown symbols in atm module
-Date: Wed, 17 Sep 2003 10:43:29 +0100
-User-Agent: KMail/1.5.3
+	Wed, 17 Sep 2003 05:48:19 -0400
+Received: from [203.124.210.99] ([203.124.210.99]:43982 "EHLO
+	rocklines.oyeindia.com") by vger.kernel.org with ESMTP
+	id S262716AbTIQJsR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 05:48:17 -0400
+From: "msrinath" <msrinath@bplitl.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: Kernel NMI error
+Date: Wed, 17 Sep 2003 15:21:33 +0530
+Message-ID: <007c01c37d01$47622700$1d03000a@srinath>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_BzCa/eZ+l40j7TT"
-Message-Id: <200309171043.29468.sandersn@btinternet.com>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
+In-Reply-To: <1063718716.10036.10.camel@dhcp23.swansea.linux.org.uk>
+X-Information: Please contact the ISP for more information
+X-Kaspersky: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thanks for the reply. This is the only time this has ever happened. How can
+I make out if it is a memory error? Is there any way by which I can test it?
 
---Boundary-00=_BzCa/eZ+l40j7TT
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Thanks & Regards,
 
+- Srinath
 
-using 2.6.0-test5-mm2 when trying to load the speedtch module I get the 
-following :
-
-Sep 16 19:31:50 gandalf kernel: speedtch: Unknown symbol shutdown_atm_dev
-Sep 16 19:31:50 gandalf kernel: speedtch: Unknown symbol atm_dev_register
-Sep 16 19:31:50 gandalf kernel: speedtch: Unknown symbol atm_charge
-Sep 16 19:31:50 gandalf kernel: atm: Unknown symbol try_atm_clip_ops
-
-this doesn't happen with 2.6.0-test5 vanilla
-
-My config is attached
-
-Thanks
-
-Nick
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+Sent: 16 September 2003 18:55
+To: msrinath
+Cc: Linux Kernel Mailing List
+Subject: Re: Kernel NMI error
 
 
---Boundary-00=_BzCa/eZ+l40j7TT
-Content-Type: application/x-bzip2;
-  name="config-speedtch.bz2"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="config-speedtch.bz2"
+On Maw, 2003-09-16 at 12:38, msrinath wrote:
+> Recently one of our servers running RedHat linux 7.2 with 2.4.7-10 SMP
+> kernel generated the following log and the system rebooted. This system
+has
+> 2 CPUs.
 
-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
+Typically an NMI is a system error. That could be a memory error, it
+could be a freak power glitch if its only ever happened once.
 
---Boundary-00=_BzCa/eZ+l40j7TT--
+If you are using a 2.4.7 kernel you really should also update to the
+current errata kernel and other updates.
+
+
+
+--
+This message has been scanned for viruses and
+dangerous content by Kaspersky on bpl Server, and is
+believed to be clean.
+bpl www.kaspersky.com
+.
+
+
+-- 
+This message has been scanned for viruses and
+dangerous content by Kaspersky on bpl Server, and is
+believed to be clean.
+bpl www.kaspersky.com
+.
 

@@ -1,98 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282657AbRKZXqu>; Mon, 26 Nov 2001 18:46:50 -0500
+	id <S282602AbRKZXta>; Mon, 26 Nov 2001 18:49:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282658AbRKZXqk>; Mon, 26 Nov 2001 18:46:40 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:47490 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S282657AbRKZXqa>;
-	Mon, 26 Nov 2001 18:46:30 -0500
-Date: Mon, 26 Nov 2001 15:46:25 -0800 (PST)
-Message-Id: <20011126.154625.124867265.davem@redhat.com>
-To: alex.buell@tahallah.demon.co.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] show_trace_task() sparc32
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0111262311170.29479-100000@tahallah.demon.co.uk>
-In-Reply-To: <Pine.LNX.4.33.0111262311170.29479-100000@tahallah.demon.co.uk>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S282658AbRKZXtU>; Mon, 26 Nov 2001 18:49:20 -0500
+Received: from nydalah028.sn.umu.se ([130.239.118.227]:10113 "EHLO
+	x-files.giron.wox.org") by vger.kernel.org with ESMTP
+	id <S282602AbRKZXtG>; Mon, 26 Nov 2001 18:49:06 -0500
+Message-ID: <002f01c176d4$f79a3f70$0201a8c0@HOMER>
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: "Steve Brueggeman" <xioborg@yahoo.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <tgpu68gw34.fsf@mercury.rus.uni-stuttgart.de> <20011124103642.A32278@vega.ipal.net> <20011124184119.C12133@emma1.emma.line.org> <tgy9kwf02c.fsf@mercury.rus.uni-stuttgart.de> <4.3.2.7.2.20011124150445.00bd4240@10.1.1.42> <3C002D41.9030708@zytor.com> <0f050uosh4lak5fl1r07bs3t1ecdonc4c0@4ax.com>
+Subject: Re: Journaling pointless with today's hard disks?
+Date: Tue, 27 Nov 2001 00:49:19 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alex Buell <alex.buell@tahallah.demon.co.uk>
-   Date: Mon, 26 Nov 2001 23:13:45 +0000 (GMT)
-   
-   I don't know enough about the task stuff to implement this properly. I did
-   this patch for 2.4.15-pre9 but just noticed that 2.4.16 doesn't have it in
-   place.
+----- Original Message -----
+From: "Steve Brueggeman" <xioborg@yahoo.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Monday, November 26, 2001 7:05 PM
+Subject: Re: Journaling pointless with today's hard disks?
 
-Thanks for pointing this out, the following is in CVS and was
-passed on to Marcelo for 2.4.17-preX...
+<snip>
 
---- arch/sparc/kernel/process.c.~1~	Mon Nov 12 16:57:05 2001
-+++ arch/sparc/kernel/process.c	Mon Nov 26 15:45:00 2001
-@@ -1,4 +1,4 @@
--/*  $Id: process.c,v 1.157 2001/11/13 00:57:05 davem Exp $
-+/*  $Id: process.c,v 1.158 2001/11/26 23:45:00 davem Exp $
-  *  linux/arch/sparc/kernel/process.c
-  *
-  *  Copyright (C) 1995 David S. Miller (davem@caip.rutgers.edu)
-@@ -285,37 +285,29 @@
- 	show_regwindow((struct reg_window *)regs->u_regs[14]);
- }
- 
--#if NOTUSED
--void show_thread(struct thread_struct *thread)
-+void show_trace_task(struct task_struct *tsk)
- {
--	int i;
--
--	printk("uwinmask:          0x%08lx  kregs:             0x%08lx\n", thread->uwinmask, (unsigned long)thread->kregs);
--	show_regs(thread->kregs);
--	printk("ksp:               0x%08lx  kpc:               0x%08lx\n", thread->ksp, thread->kpc);
--	printk("kpsr:              0x%08lx  kwim:              0x%08lx\n", thread->kpsr, thread->kwim);
--	printk("fork_kpsr:         0x%08lx  fork_kwim:         0x%08lx\n", thread->fork_kpsr, thread->fork_kwim);
--
--	for (i = 0; i < NSWINS; i++) {
--		if (!thread->rwbuf_stkptrs[i])
--			continue;
--		printk("reg_window[%d]:\n", i);
--		printk("stack ptr:         0x%08lx\n", thread->rwbuf_stkptrs[i]);
--		show_regwindow(&thread->reg_window[i]);
--	}
--	printk("w_saved:           0x%08lx\n", thread->w_saved);
--
--	/* XXX missing: float_regs */
--	printk("fsr:               0x%08lx  fpqdepth:          0x%08lx\n", thread->fsr, thread->fpqdepth);
--	/* XXX missing: fpqueue */
-+	unsigned long pc, fp;
-+	unsigned long task_base = (unsigned long) tsk;
-+	struct reg_window *rw;
-+	int count = 0;
- 
--	printk("flags:             0x%08lx  current_ds:        0x%08lx\n", thread->flags, thread->current_ds.seg);
--	
--	show_regwindow((struct reg_window *)thread->ksp);
-+	if (!tsk)
-+		return;
- 
--	/* XXX missing: core_exec */
-+	fp = tsk->thread.ksp;
-+	do {
-+		/* Bogus frame pointer? */
-+		if (fp < (task_base + sizeof(struct task_struct)) ||
-+		    fp >= (task_base + (PAGE_SIZE << 1)))
-+			break;
-+		rw = (struct reg_window *) fp;
-+		pc = rw->ins[7];
-+		printk("[%08lx] ", pc);
-+		fp = rw->ins[6];
-+	} while (++count < 16);
-+	printk("\n");
- }
--#endif
- 
- /*
-  * Free current thread data structures etc..
+> >There is no "power monitor" in a PC system (at least not that is visible
+> >to the drive) -- if the drive needs it, it has to provide it itself.
+> >
+> >It's definitely the responsibility of the drive to recover gracefully
+> >from such an event, which means that it writes anything that it has
+> >committed to the host to write;
+> Correct.  If a write gets interrupted in the middle of it's operation,
+> it has not yet returned any completion status, (unless you've enabled
+> write-caching, in which case, you're already asking for trouble)  A
+> subsequent read of this half-written sector can return uncorrectable
+> status though, which would be unfortunate if this sector was your
+> allocation table, and the write was a read-modify-write.
+>
+> >anything it hasn't gotten committed to
+> >write (but has received) can be written or not written, but must not
+> >cause a failure of the drive.
+> Reading a sector that was a partial-write because of a power-loss, and
+> returning UNCORRECTABLE status, is not a failure of the drive.
+
+I sure think the drives could afford the teeny-weeny cost of a power failure
+detection unit, that when a power loss/sway is detected, halts all
+operations to the platters except for the writing of the current sector.
+
+_____________________________________________________
+|  Martin Eriksson <nitrax@giron.wox.org>
+|  MSc CSE student, department of Computing Science
+|  Umeå University, Sweden
+
+

@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269206AbUJKTxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269214AbUJKUGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269206AbUJKTxK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 15:53:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269207AbUJKTxK
+	id S269214AbUJKUGR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 16:06:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269217AbUJKUGR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 15:53:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:24528 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269206AbUJKTxG (ORCPT
+	Mon, 11 Oct 2004 16:06:17 -0400
+Received: from hacksaw.org ([66.92.70.107]:61361 "EHLO hacksaw.org")
+	by vger.kernel.org with ESMTP id S269214AbUJKUGK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 15:53:06 -0400
-Date: Mon, 11 Oct 2004 20:53:03 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: LVM snapshot creation hang
-Message-ID: <20041011195303.GA6408@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Meelis Roos <mroos@linux.ee>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <Pine.GSO.4.44.0410051312370.16512-100000@math.ut.ee>
+	Mon, 11 Oct 2004 16:06:10 -0400
+Message-Id: <200410112006.i9BK62Xn006966@hacksaw.org>
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.0.4
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: udev: what's up with old /dev ? 
+In-reply-to: Your message of "Mon, 11 Oct 2004 14:04:19 +0200."
+             <AE30E0FE-1B7D-11D9-96AD-000D9352858E@linuxmail.org> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.44.0410051312370.16512-100000@math.ut.ee>
-User-Agent: Mutt/1.4.1i
+Date: Mon, 11 Oct 2004 16:06:02 -0400
+From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 05, 2004 at 01:26:52PM +0300, Meelis Roos wrote:
-> snapshot creation hangs the process (lvcreate):
-> lvcreate --snapshot --name snap --size 100M /dev/vg/vol
- 
-If this is what I think it is, the fix needed is to LVM2 userspace 
-code, and it's a quite a lot of work and still isn't scheduled yet 
-I'm afraid:-(
+>> If the initrd gets corrupted, are we just hosed?
+>
+>In some way, the answer is yes... I think the best is having a real, 
+>on-disk, full "/dev" hierarchy in case the INITRD gets lost or 
+>corrupted, which will still allow booting. Now, the INITRD can mount 
+>tmpfs over "/dev" and use udev to create needed device nodes.
 
-Alasdair
+And see, this is where I say, what if /dev is hosed too? If the kernel at this 
+point gives up, then the user has to dig up a boot CD or something worse and 
+start trying to fix the system.
+
+If, however, the kernel just made /dev/console and maybe /dev/null, it could 
+start a shell and say "/dev missing /console device, initrd corrupted. Hit 
+enter for a shell or ctrl-alt-del to reboot."
+
+As a sys-admin, I'd like that. Get me into single user mode the best you can. 
+If a shell can be found, that's good enough.
 -- 
-agk@redhat.com
+The best is the enemy of the good  -- Voltaire
+The Good Enough is the enemy of the Great -- Me
+http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+
+

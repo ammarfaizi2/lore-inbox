@@ -1,106 +1,201 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267716AbSLSW6I>; Thu, 19 Dec 2002 17:58:08 -0500
+	id <S267722AbSLSW7w>; Thu, 19 Dec 2002 17:59:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267717AbSLSW6I>; Thu, 19 Dec 2002 17:58:08 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:17357 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S267716AbSLSW6F>; Thu, 19 Dec 2002 17:58:05 -0500
-Date: Thu, 19 Dec 2002 18:08:15 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: alan@lxorguk.ukuu.org.uk, "" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.21-pre1 broke the ide-tape driver
-In-Reply-To: <200212162327.AAA06228@harpo.it.uu.se>
-Message-ID: <Pine.LNX.4.50L.0212191806090.1711-100000@freak.distro.conectiva>
-References: <200212162327.AAA06228@harpo.it.uu.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267725AbSLSW7v>; Thu, 19 Dec 2002 17:59:51 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:4831 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267722AbSLSW7n>;
+	Thu, 19 Dec 2002 17:59:43 -0500
+Subject: [PATCH] (4/5) notifier callback mechanism - read copy update V2
+From: Stephen Hemminger <shemminger@osdl.org>
+To: vamsi@in.ibm.com, John Levon <levon@movementarian.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021219181929.A5265@in.ibm.com>
+References: <1040249652.14364.192.camel@dell_ss3.pdx.osdl.net>
+	 <20021219181929.A5265@in.ibm.com>
+Content-Type: text/plain
+Organization: Open Source Devlopment Lab
+Message-Id: <1040339247.1079.6.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 19 Dec 2002 15:07:27 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here is third try at using RCU for notifier callbacks.  The difference is
+that this version has a separate version for use by kernel profile that does
+it's own locking and can sleep.
 
-
-On Tue, 17 Dec 2002, Mikael Pettersson wrote:
-
-> I wrote:
-> >On Sun, 15 Dec 2002 02:23:34 +0100, Marc-Christian Petersen wrote:
-> >>> Kernel 2.4.21-pre1 broke the ide-tape driver: the driver
-> >>> now hangs during initialisation. 2.2 kernels (with Andre's
-> >>> IDE patch) and 2.4 up to 2.4.20 do not have this problem.
-> >>> My box has a Seagate STT8000A ATAPI tape drive as hdd;
-> >>> hdc is a Philips CD-RW, and the controller is ICH2 (i850 chipset).
-> >>http://linux.bkbits.net:8080/linux-2.4/patch@1.828?nav=index.html|ChangeSet@-7d|cset@1.828
-> >
-> >Addendum: this patch fixes the init-time hang, and ide-tape does
-> >seem to work fine, but 'rmmod ide-tape' oopses -- 2.4.20-ac2 also
-> >oopses on 'rmmod ide-tape'.
->
-> Solved, I think. Observe ide-tape's module_exit() procedure idetape_exit():
->
-> >static void __exit idetape_exit (void)
-> >{
-> >	ide_drive_t *drive;
-> >	int minor;
-> >
-> >	for (minor = 0; minor < MAX_HWIFS * MAX_DRIVES; minor++) {
-> >		drive = idetape_chrdevs[minor].drive;
-> >		if (drive != NULL && idetape_cleanup(drive))
-> >			printk(KERN_ERR "ide-tape: %s: cleanup_module() "
-> >				"called while still busy\n", drive->name);
-> >	}
-> >#ifdef CONFIG_PROC_FS
-> >	if (drive->proc)
-> >		ide_remove_proc_entries(drive->proc, idetape_proc);
-> >#endif
-> >
-> >	ide_unregister_module(&idetape_module);
-> >}
->
-> In the "if (drive->proc)" line, drive==NULL when I rmmod ide-tape,
-> causing the oops.
->
-> I'm not sure if ide_remove_proc_entries() is needed or not,
-> but the current code is obviously broken.
->
-> - ide_unregister_module() removes ide-tape's proc entry
->   (/proc/ide/ideX/hdY/name) for us, at least that's what happens
->   on my box after I commented out the entire "if (drive->proc) ..."
->   statement to prevent the oops. So possibly the call should be deleted.
->
-> - ide-disk/ide-floppy do the test&call inside the loop rather than after,
->   so possibly the call should be moved into the loop, and augmented
->   to be "if (drive && drive->proc) ide_remove_proc_entries(...)".
-
-Yes... here is a patch which moves the ide_remove_proc_entries inside the
-detection loop. Without ide_remove_proc_entries inside the loop we would
-also not unregister more than one device /proc entries, too.
-
-Please test it, works for me.
-
---- linux-bk/drivers/ide/ide-tape.c	2002-12-19 18:05:07.000000000 -0200
-+++ linux-2.4.21/drivers/ide/ide-tape.c	2002-12-19 17:59:39.000000000 -0200
-@@ -6597,14 +6597,16 @@
-
- 	for (minor = 0; minor < MAX_HWIFS * MAX_DRIVES; minor++) {
- 		drive = idetape_chrdevs[minor].drive;
--		if (drive != NULL && idetape_cleanup(drive))
--			printk(KERN_ERR "ide-tape: %s: cleanup_module() "
--				"called while still busy\n", drive->name);
--	}
-+		if (drive) {
-+			if (idetape_cleanup(drive))
-+				printk(KERN_ERR "ide-tape: %s: cleanup_module() "
-+					"called while still busy\n", drive->name);
- #ifdef CONFIG_PROC_FS
--	if (drive->proc)
--		ide_remove_proc_entries(drive->proc, idetape_proc);
-+			if (drive->proc)
-+				ide_remove_proc_entries(drive->proc, idetape_proc);
- #endif
-+		}
-+	}
-
- 	ide_unregister_module(&idetape_module);
+diff -Nru a/include/linux/notifier.h b/include/linux/notifier.h
+--- a/include/linux/notifier.h	Thu Dec 19 14:51:07 2002
++++ b/include/linux/notifier.h	Thu Dec 19 14:51:07 2002
+@@ -25,6 +25,7 @@
+ extern int notifier_chain_register(struct list_head *, struct notifier_block *);
+ extern int notifier_chain_unregister(struct list_head *, struct notifier_block *);
+ extern int notifier_call_chain(struct list_head *, unsigned long, void *);
++extern int notifier_call_chain_safe(struct list_head *, unsigned long, void *);
+ 
+ extern int register_panic_notifier(struct notifier_block *);
+ extern int unregister_panic_notifier(struct notifier_block *);
+diff -Nru a/kernel/profile.c b/kernel/profile.c
+--- a/kernel/profile.c	Thu Dec 19 14:51:07 2002
++++ b/kernel/profile.c	Thu Dec 19 14:51:07 2002
+@@ -55,21 +55,21 @@
+ void profile_exit_task(struct task_struct * task)
+ {
+ 	down_read(&profile_rwsem);
+-	notifier_call_chain(&exit_task_notifier, 0, task);
++	notifier_call_chain_safe(&exit_task_notifier, 0, task);
+ 	up_read(&profile_rwsem);
  }
+  
+ void profile_exit_mmap(struct mm_struct * mm)
+ {
+ 	down_read(&profile_rwsem);
+-	notifier_call_chain(&exit_mmap_notifier, 0, mm);
++	notifier_call_chain_safe(&exit_mmap_notifier, 0, mm);
+ 	up_read(&profile_rwsem);
+ }
+ 
+ void profile_exec_unmap(struct mm_struct * mm)
+ {
+ 	down_read(&profile_rwsem);
+-	notifier_call_chain(&exec_unmap_notifier, 0, mm);
++	notifier_call_chain_safe(&exec_unmap_notifier, 0, mm);
+ 	up_read(&profile_rwsem);
+ }
+ 
+diff -Nru a/kernel/sys.c b/kernel/sys.c
+--- a/kernel/sys.c	Thu Dec 19 14:51:07 2002
++++ b/kernel/sys.c	Thu Dec 19 14:51:07 2002
+@@ -22,6 +22,7 @@
+ #include <linux/security.h>
+ #include <linux/dcookies.h>
+ #include <linux/suspend.h>
++#include <linux/rcupdate.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/io.h>
+@@ -78,7 +79,7 @@
+  */
+ 
+ static LIST_HEAD(reboot_notifier_list);
+-static rwlock_t notifier_lock = RW_LOCK_UNLOCKED;
++static spinlock_t notifier_lock = SPIN_LOCK_UNLOCKED;
+ 
+ /**
+  *	notifier_chain_register	- Add notifier to a notifier chain
+@@ -95,7 +96,8 @@
+ 	struct list_head *p;
+ 
+ 	INIT_LIST_HEAD(&n->link);
+-	write_lock(&notifier_lock);
++
++	spin_lock(&notifier_lock);
+ 	list_for_each(p, list) {
+ 		struct notifier_block *e 
+ 			= list_entry(p, struct notifier_block, link);
+@@ -104,7 +106,7 @@
+ 	}
+ 
+ 	list_add(&n->link, p);
+-	write_unlock(&notifier_lock);
++	spin_unlock(&notifier_lock);
+ 	return 0;
+ }
+ 
+@@ -122,15 +124,18 @@
+ {
+ 	struct list_head *cur;
+ 
+-	write_lock(&notifier_lock);
++	spin_lock(&notifier_lock);
+ 	list_for_each(cur, list) {
+ 		if (n == list_entry(cur, struct notifier_block, link)) {
+-			list_del(cur);
+-			write_unlock(&notifier_lock);
++			list_del_rcu(cur);
++			spin_unlock(&notifier_lock);
++			
++			synchronize_kernel();
++
+ 			return 0;
+ 		}
+ 	}
+-	write_unlock(&notifier_lock);
++	spin_unlock(&notifier_lock);
+ 	return -ENOENT;
+ }
+ 
+@@ -148,18 +153,62 @@
+  *	the notifier function which halted execution.
+  *	Otherwise, the return value is the return value
+  *	of the last notifier function called.
++ *
++ *	This might be called from NMI or other context where it
++ *	is impossible to sleep or spin. The restriction is that the
++ *	handler must not sleep since rcu_read_lock disables preempt.
+  */
+- 
+ int notifier_call_chain(struct list_head *list, unsigned long val, void *v)
+ {
+-	struct list_head *p;
++	struct list_head *p, *nxtp;
+ 	int ret = NOTIFY_DONE;
+ 
+-	list_for_each(p, list) {
++	rcu_read_lock();
++	list_for_each_safe_rcu(p, nxtp, list) {
++		struct notifier_block *nb =
++			list_entry(p, struct notifier_block, link);
++
++		ret = nb->notifier_call(nb,val,v);
++
++		if (ret & NOTIFY_STOP_MASK) 
++			goto end_loop;
++	}
++
++ end_loop:
++	rcu_read_unlock();
++	return ret;
++}
++
++/**
++ *	notifier_call_chain_safe - Call functions in a notifier chain
++ *	@n: Pointer to root pointer of notifier chain
++ *	@val: Value passed unmodified to notifier function
++ *	@v: Pointer passed unmodified to notifier function
++ *
++ *	Calls each function in a notifier chain in turn.
++ *
++ *	If the return value of the notifier can be and'd
++ *	with %NOTIFY_STOP_MASK, then notifier_call_chain
++ *	will return immediately, with the return value of
++ *	the notifier function which halted execution.
++ *	Otherwise, the return value is the return value
++ *	of the last notifier function called.
++ *
++ *	This differs from notifier_call_chain because it assumes
++ *	that the caller has done its own mutual exclusion and
++ *	does not want to use read-copy-update.
++ */
++int notifier_call_chain_safe(struct list_head *list, unsigned long val, void *v)
++{
++	struct list_head *p, *nxtp;
++	int ret = NOTIFY_DONE;
++
++	list_for_each_safe(p, nxtp, list) {
+ 		struct notifier_block *nb =
+ 			list_entry(p, struct notifier_block, link);
+ 
+ 		ret = nb->notifier_call(nb,val,v);
++
+ 		if (ret & NOTIFY_STOP_MASK) 
+ 			goto end_loop;
+ 	}
+
+
+

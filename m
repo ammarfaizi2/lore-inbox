@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbUILT55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUILUFp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbUILT55 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 15:57:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUILT5t
+	id S261169AbUILUFp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 16:05:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUILUFp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 15:57:49 -0400
-Received: from smtp1.oregonstate.edu ([128.193.0.11]:38545 "EHLO
-	smtp1.oregonstate.edu") by vger.kernel.org with ESMTP
-	id S261169AbUILT5d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 15:57:33 -0400
-Message-ID: <4144AA2C.3080105@engr.orst.edu>
-Date: Sun, 12 Sep 2004 12:57:32 -0700
-From: Michael Marineau <marineam@engr.orst.edu>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040823)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel Poster -- the revival
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Sep 2004 16:05:45 -0400
+Received: from mail.mellanox.co.il ([194.90.237.34]:30891 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S261169AbUILUFm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 16:05:42 -0400
+Date: Sun, 12 Sep 2004 23:05:40 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Andi Kleen <ak@suse.de>
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch]   Re: [discuss] f_ops flag to speed up compatible ioctls in linux kernel
+Message-ID: <20040912200540.GA18013@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20040907143702.GC1016@mellanox.co.il> <20040907144452.GC20981@wotan.suse.de> <20040907144543.GA1340@mellanox.co.il> <20040907151022.GA32287@wotan.suse.de> <20040907181641.GB2154@mellanox.co.il> <20040908065548.GE27886@wotan.suse.de> <20040908142808.GA11795@mellanox.co.il> <20040908143852.GA27411@wotan.suse.de> <20040908145432.GA12332@mellanox.co.il> <20040908145837.GD15444@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040908145837.GD15444@wotan.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hello!
+Quoting r. Andi Kleen (ak@suse.de) "Re: [patch]   Re: [discuss] f_ops flag to speed up compatible ioctls in linux kernel":
+> > So I wander what goes on here- the syscall returns a long but
+> > libc cuts the high 32 bit?
+> 
+> System calls are always long, otherwise the syscall exit code cannot
+> check properly for signal restarts. 
+> 
+> glibc seems to indeed truncate. 
+> 
+> > 
+> > Now that I think about it,for compat if you start returning 0 in low
+> > 32 bits you are unlike to get the effect you wanted ...
+> > The ioctl_native could be changed but that would make it impossible
+> > for compatible ioctls to just use the same pointer in both.
+> > 
+> > So what do you think - should I make just the native ioctl a long,
+> > or both, and document that the high 32 bit are cut in the compat call?
+> 
+> both + document. 
 
-I thought a few people out here might be interested in knowing that
-the Linux Graphing Project's code had a new release a couple weeks ago
-after being quiet for a few years.  This is the descendent of Paul
-'Rusty' Russell's code that produced the 2.4.0 kernel posters a way
-back when 2.4.0 was big news.  Over the past few months I've slowly
-gotten the old code base updated to work cleanly on 2.6 kernels as
-well as being usable on kernels as old as 1.2 :-)  There are a few
-general bug fixes as well.
+Given that libc truncates the high 32 bit, that compat call can only use
+low 32 bit,  I begin to really think its better to leave this as int
+and avoid the whole issue.
 
-If anyone feels daring enough to try to print a full poster, it needs
-to be at least 6ft wide to have a chance at reading the file and
-function names. Also a high resolution is required; 600dpi is just
-barely usable.
+Additional advantage is in keeping 
+the exact same interface as ioctl is that its easier to change a driver
+to use this interface - just assign the call in field, no other changes.
 
-The project page: http://fcgp.sourceforge.net
-My personal page:
-http://oregonstate.edu/~marineam/index.php/Projects/Kernel_Poster
-The updated kernel mapper: http://lug.oregonstate.edu/projects/kernelmap/
-
-- --
-Michael Marineau
-marineam@engr.orst.edu
-Oregon State University
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBRKoriP+LossGzjARAqEqAJ9ExPUybDldvMouugxvlaQk8klyCQCfTe/I
-GIjuOIfnstqDOs5y7xAdgdQ=
-=417H
------END PGP SIGNATURE-----
+MST

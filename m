@@ -1,264 +1,424 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVDEE13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVDEE3Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261495AbVDEE13 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 00:27:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVDEE13
+	id S261477AbVDEE3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 00:29:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVDEE3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 00:27:29 -0400
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:36021 "EHLO
+	Tue, 5 Apr 2005 00:29:24 -0400
+Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:36789 "EHLO
 	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id S261495AbVDEE1E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 00:27:04 -0400
-Date: Tue, 5 Apr 2005 00:26:06 -0400
+	id S261477AbVDEE1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 00:27:46 -0400
+Date: Tue, 5 Apr 2005 00:27:01 -0400
 To: Greg KH <greg@kroah.com>, Sven Luther <sven.luther@wanadoo.fr>,
        Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
        debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 01/04] Load keyspan firmware with hotplug
-Message-ID: <20050405042606.GB10171@delft.aura.cs.cmu.edu>
+Subject: [PATCH 02/04] Load keyspan firmware with hotplug
+Message-ID: <20050405042701.GC10171@delft.aura.cs.cmu.edu>
 Mail-Followup-To: Greg KH <greg@kroah.com>,
 	Sven Luther <sven.luther@wanadoo.fr>,
 	Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
 	debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
-References: <20050404100929.GA23921@pegasos> <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404182753.GC31055@pegasos> <20050404191745.GB12141@kroah.com> <20050405042329.GA10171@delft.aura.cs.cmu.edu>
+References: <20050404100929.GA23921@pegasos> <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404182753.GC31055@pegasos> <20050404191745.GB12141@kroah.com> <20050405042329.GA10171@delft.aura.cs.cmu.edu> <20050405042606.GB10171@delft.aura.cs.cmu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050405042329.GA10171@delft.aura.cs.cmu.edu>
+In-Reply-To: <20050405042606.GB10171@delft.aura.cs.cmu.edu>
 User-Agent: Mutt/1.5.6+20040907i
 From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Adding firmware_load_ihex, to load IHEX formatted firmware images.
+Convert the keyspan USB serial driver to use request_firmware and
+firmware_load_ihex.
 
 Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
 
-
- drivers/base/firmware_class.c |  151 ++++++++++++++++++++++++++++++++++++++++++
- include/linux/firmware.h      |   26 +++++++
- 2 files changed, 177 insertions(+)
-
-Index: linux/include/linux/firmware.h
+Index: linux/drivers/usb/serial/keyspan.c
 ===================================================================
---- linux.orig/include/linux/firmware.h	2005-03-29 16:32:45.000000000 -0500
-+++ linux/include/linux/firmware.h	2005-03-29 16:33:11.000000000 -0500
-@@ -1,12 +1,34 @@
-+/*
-+ * Definitions for hotplug firmware loader
-+ *
-+ * Copyright (C) 2003 Manuel Estrada Sainz <ranty@debian.org>
-+ *
-+ *	This program is free software; you can redistribute it and/or
-+ *	modify it under the terms of the GNU General Public License version
-+ *	2 as published by the Free Software Foundation.
-+ *
-+ * 2005-03-10  Jan Harkes <jaharkes@cs.cmu.edu>
-+ *	Added parser for IHEX formatted firmware files.
-+ */
+--- linux.orig/drivers/usb/serial/keyspan.c	2005-03-10 16:01:15.000000000 -0500
++++ linux/drivers/usb/serial/keyspan.c	2005-03-10 23:07:21.070790916 -0500
+@@ -28,6 +28,9 @@
+ 
+   Change History
+ 
++    2005mar10	Jan Harkes
++      Use generic request_firmware/firmware_load_ihex functions.
 +
- #ifndef _LINUX_FIRMWARE_H
- #define _LINUX_FIRMWARE_H
-+
+     2003sep04	LPM (Keyspan) add support for new single port product USA19HS.
+ 				Improve setup message handling for all devices.
+ 
+@@ -106,6 +109,7 @@
+ #include <linux/tty_flip.h>
  #include <linux/module.h>
- #include <linux/types.h>
- #define FIRMWARE_NAME_MAX 30 
-+
- struct firmware {
- 	size_t size;
- 	u8 *data;
- };
-+
-+struct ihex_record {
-+	__u32 address;
-+	__u8  len;
-+	__u8  data[255];
-+};
-+
- struct device;
- int request_firmware(const struct firmware **fw, const char *name,
- 		     struct device *device);
-@@ -15,6 +37,10 @@ int request_firmware_nowait(
- 	const char *name, struct device *device, void *context,
- 	void (*cont)(const struct firmware *fw, void *context));
- 
-+int firmware_load_ihex(const struct firmware *fw, void *context,
-+		       int (*load)(struct ihex_record *record, void *context));
-+
- void release_firmware(const struct firmware *fw);
- void register_firmware(const char *name, const u8 *data, size_t size);
-+
- #endif
-Index: linux/drivers/base/firmware_class.c
-===================================================================
---- linux.orig/drivers/base/firmware_class.c	2005-03-29 16:32:45.000000000 -0500
-+++ linux/drivers/base/firmware_class.c	2005-03-29 16:33:11.000000000 -0500
-@@ -5,6 +5,8 @@
-  *
-  * Please see Documentation/firmware_class/ for more information.
-  *
-+ * 2005-03-10 Jan Harkes <jaharkes@cs.cmu.edu>
-+ *	Added parser for IHEX formatted firmware files.
-  */
- 
- #include <linux/device.h>
-@@ -553,6 +555,153 @@ request_firmware_nowait(
- 	return 0;
+ #include <linux/spinlock.h>
++#include <linux/firmware.h>
+ #include <asm/uaccess.h>
+ #include <linux/usb.h>
+ #include "usb-serial.h"
+@@ -1165,13 +1169,28 @@
+ 	port->tty = NULL;
  }
  
-+#ifdef VERBOSE_MSGS
-+#define dbg(msg, ...) printk(KERN_WARNING "%s: line %d: " msg, __FUNCTION__, line, ## __VA_ARGS__)
-+#else
-+#define dbg(msg, ...) do {} while(0)
-+#endif
-+
-+/**
-+ * nibble/hex are little helpers to parse hexadecimal numbers to a byte value
-+ **/
-+static __u8 nibble(__u8 n)
++static int keyspan_fw_load(struct ihex_record *record, void *arg)
 +{
-+	if      (n >= '0' && n <= '9') return n - '0';
-+	else if (n >= 'A' && n <= 'F') return n - ('A' - 10);
-+	else if (n >= 'a' && n <= 'f') return n - ('a' - 10);
-+	return 0;
++	struct usb_serial *serial = (struct usb_serial *)arg;
++	int ret;
++
++	ret = ezusb_writememory(serial, record->address, record->data,
++				record->len, 0xa0);
++	if (ret < 0) {
++		dev_err(&serial->dev->dev,
++			"ezusb_writememory failed for Keyspan"
++			"firmware (%d %08X %p %d)\n",
++			ret, record->address, record->data, record->len);
++	}
++	return ret;
 +}
-+static __u8 hex(__u8 *data, __u8 *crc)
-+{
-+	__u8 val = (nibble(data[0]) << 4) | nibble(data[1]);
-+	*crc += val;
-+	return val;
-+}
-+
-+/**
-+ * firmware_load_ihex:
-+ *
-+ * Description:
-+ *	@fw is expected to contain Intel HEX formatted data.
-+ *
-+ *	@load will be called for each record that is found in the IHEX data.
-+ *
-+ *	@context will be passed on to @load.
-+ *
-+ **/
-+int firmware_load_ihex(const struct firmware *fw, void *context,
-+		       int (*load)(struct ihex_record *record, void *context))
-+{
-+	struct ihex_record *record;
-+	__u32 offset = 0;
-+	__u8 type, crc = 0;
-+	int i, j, err = 0;
-+	int line = 1;
-+
-+	record = kmalloc(sizeof(*record), GFP_KERNEL);
-+	if (!record) {
-+	    dbg("Allocation failed\n");
-+	    return -ENOMEM;
-+	}
-+
-+	i = 0;
-+next_record:
-+	/* search for the start of record character */
-+	while (i < fw->size) {
-+		if (fw->data[i] == '\n') line++;
-+		if (fw->data[i++] == ':') break;
-+	}
-+
-+	/* Minimum record length would be about 10 characters */
-+	if (i + 10 > fw->size) {
-+		dbg("Can't find valid record\n");
-+		err = -EINVAL;
-+		goto done;
-+	}
-+
-+	record->len = hex(fw->data + i, &crc);
-+	i += 2;
-+
-+	/* now check if we have enough data to read everything */
-+	if (i + 8 + (record->len * 2) > fw->size) {
-+		dbg("Not enough data to read complete record\n");
-+		err = -EINVAL;
-+		goto done;
-+	}
-+
-+	record->address  = hex(fw->data + i, &crc) << 8; i += 2;
-+	record->address |= hex(fw->data + i, &crc); i += 2;
-+	record->address += offset;
-+	type = hex(fw->data + i, &crc); i += 2;
-+
-+	for (j = 0; j < record->len; j++, i += 2)
-+		record->data[j] = hex(fw->data + i, &crc);
-+
-+	/* check CRC */
-+	(void)hex(fw->data + i, &crc); i += 2;
-+	if (crc != 0) {
-+		dbg("CRC failure\n");
-+		err = -EINVAL;
-+		goto done;
-+	}
-+
-+	/* Done reading the record */
-+	switch (type) {
-+	case 0:
-+		/* old style EOF record? */
-+		if (!record->len)
-+			break;
-+
-+		err = load(record, context);
-+		if (err < 0) {
-+			dbg("Firmware load failed (err %d)\n", err);
-+			break;
-+		}
-+		goto next_record;
-+
-+	case 1: /* End-Of-File Record */
-+		if (record->address || record->len) {
-+		    dbg("Bad EOF record (type 01) format\n");
-+		    err = -EINVAL;
-+		}
-+		break;
-+
-+	case 2: /* Extended Segment Address Record (HEX86) */
-+	case 4: /* Extended Linear Address Record (HEX386) */
-+		if (record->address || record->len != 2) {
-+			dbg("Bad HEX86/HEX386 record (type %02X)\n", type);
-+			err = -EINVAL;
-+			break;
-+		}
-+
-+		/* We shouldn't really be using the offset for HEX86 because
-+		 * the wraparound case is specified quite differently. */
-+		offset = record->data[0] << 8 | record->data[1];
-+		offset <<= (type == 2 ? 4 : 16);
-+		goto next_record;
-+
-+	case 3: /* Start Segment Address Record */
-+	case 5: /* Start Linear Address Record */
-+		if (record->address || record->len != 4) {
-+			dbg("Bad Start Address record (type %02X)\n", type);
-+			err = -EINVAL;
-+			break;
-+		}
-+
-+		/* These records contain the CS/IP or EIP where execution
-+		 * starts. Don't really know what to do with them. */
-+		goto next_record;
-+
-+	default:
-+		dbg("Unknown record (type %02X)\n", type);
-+		err = -EINVAL;
-+		break; /* unknown record type */
-+	}
-+done:
-+	kfree(record);
-+	return err;
-+}
-+
- static int __init
- firmware_class_init(void)
+ 
+ 	/* download the firmware to a pre-renumeration device */
+ static int keyspan_fake_startup (struct usb_serial *serial)
  {
-@@ -584,3 +733,5 @@ EXPORT_SYMBOL(release_firmware);
- EXPORT_SYMBOL(request_firmware);
- EXPORT_SYMBOL(request_firmware_nowait);
- EXPORT_SYMBOL(register_firmware);
-+EXPORT_SYMBOL(firmware_load_ihex);
+ 	int 				response;
+-	const struct ezusb_hex_record 	*record;
+-	char				*fw_name;
++	char				*model, fw_name[20];
++	const struct firmware		*fw;
+ 
+ 	dbg("Keyspan startup version %04x product %04x",
+ 	    le16_to_cpu(serial->dev->descriptor.bcdDevice),
+@@ -1182,97 +1201,43 @@
+ 		return(1);
+ 	}
+ 
+-		/* Select firmware image on the basis of idProduct */
+ 	switch (le16_to_cpu(serial->dev->descriptor.idProduct)) {
+-	case keyspan_usa28_pre_product_id:
+-		record = &keyspan_usa28_firmware[0];
+-		fw_name = "USA28";
+-		break;
+-
+-	case keyspan_usa28x_pre_product_id:
+-		record = &keyspan_usa28x_firmware[0];
+-		fw_name = "USA28X";
+-		break;
+-
+-	case keyspan_usa28xa_pre_product_id:
+-		record = &keyspan_usa28xa_firmware[0];
+-		fw_name = "USA28XA";
+-		break;
+-
+-	case keyspan_usa28xb_pre_product_id:
+-		record = &keyspan_usa28xb_firmware[0];
+-		fw_name = "USA28XB";
+-		break;
+-
+-	case keyspan_usa19_pre_product_id:
+-		record = &keyspan_usa19_firmware[0];
+-		fw_name = "USA19";
+-		break;
+-			     
+-	case keyspan_usa19qi_pre_product_id:
+-		record = &keyspan_usa19qi_firmware[0];
+-		fw_name = "USA19QI";
+-		break;
+-			     
+-	case keyspan_mpr_pre_product_id:
+-		record = &keyspan_mpr_firmware[0];
+-		fw_name = "MPR";
+-		break;
+-
+-	case keyspan_usa19qw_pre_product_id:
+-		record = &keyspan_usa19qw_firmware[0];
+-		fw_name = "USA19QI";
+-		break;
+-			     
+-	case keyspan_usa18x_pre_product_id:
+-		record = &keyspan_usa18x_firmware[0];
+-		fw_name = "USA18X";
+-		break;
+-			     
+-	case keyspan_usa19w_pre_product_id:
+-		record = &keyspan_usa19w_firmware[0];
+-		fw_name = "USA19W";
+-		break;
+-		
+-	case keyspan_usa49w_pre_product_id:
+-		record = &keyspan_usa49w_firmware[0];
+-		fw_name = "USA49W";
+-		break;
+-
+-	case keyspan_usa49wlc_pre_product_id:
+-		record = &keyspan_usa49wlc_firmware[0];
+-		fw_name = "USA49WLC";
+-		break;
+-
++	case keyspan_usa18x_pre_product_id:   model = "usa18x";   break;
++	case keyspan_usa19_pre_product_id:    model = "usa19";    break;
++	case keyspan_usa19qi_pre_product_id:  model = "usa19qi";  break;
++	case keyspan_mpr_pre_product_id:      model = "mpr";      break;
++	case keyspan_usa19qw_pre_product_id:  model = "usa19qw";  break;
++	case keyspan_usa19w_pre_product_id:   model = "usa19w";   break;
++	case keyspan_usa28_pre_product_id:    model = "usa28";    break;
++	case keyspan_usa28x_pre_product_id:   model = "usa28x";   break;
++	case keyspan_usa28xa_pre_product_id:  model = "usa28xa";  break;
++	case keyspan_usa28xb_pre_product_id:  model = "usa28xb";  break;
++	case keyspan_usa49w_pre_product_id:   model = "usa49w";   break;
++	case keyspan_usa49wlc_pre_product_id: model = "usa49wlc"; break;
+ 	default:
+-		record = NULL;
+-		fw_name = "Unknown";
+-		break;
++		dev_err(&serial->dev->dev, "Unknown keyspan device (%04x).\n",
++			le16_to_cpu(serial->dev->descriptor.idProduct));
++		return(1);
+ 	}
+ 
+-	if (record == NULL) {
+-		dev_err(&serial->dev->dev, "Required keyspan firmware image (%s) unavailable.\n", fw_name);
++	sprintf(fw_name, "keyspan-%s.fw", model);
 +
++	if (request_firmware(&fw, fw_name, &serial->dev->dev) != 0) {
++		dev_err(&serial->dev->dev, "Required firmware image (%s) unavailable.\n", fw_name);
+ 		return(1);
+ 	}
+ 
+-	dbg("Uploading Keyspan %s firmware.", fw_name);
++	dbg("Uploading Keyspan %s firmware.", model);
+ 
+ 		/* download the firmware image */
+ 	response = ezusb_set_reset(serial, 1);
+ 
+-	while(record->address != 0xffff) {
+-		response = ezusb_writememory(serial, record->address,
+-					     (unsigned char *)record->data,
+-					     record->data_size, 0xa0);
+-		if (response < 0) {
+-			dev_err(&serial->dev->dev, "ezusb_writememory failed for Keyspan"
+-				"firmware (%d %04X %p %d)\n",
+-				response, 
+-				record->address, record->data, record->data_size);
+-			break;
+-		}
+-		record++;
+-	}
++	if (firmware_load_ihex(fw, serial, keyspan_fw_load))
++		dev_err(&serial->dev->dev, "Firmware %s upload failed\n",
++			fw_name);
++
++	release_firmware(fw);
++
+ 		/* bring device out of reset. Renumeration will occur in a
+ 		   moment and the new device will bind to the real driver */
+ 	response = ezusb_set_reset(serial, 0);
+@@ -1418,7 +1383,7 @@
+ 			(serial, d_details->outcont_endpoints[i], USB_DIR_OUT,
+ 			 port, p_priv->outcont_buffer, 64,
+ 			 cback->outcont_callback);
+-	}	
++	}
+ 
+ }
+ 
+Index: linux/drivers/usb/serial/keyspan.h
+===================================================================
+--- linux.orig/drivers/usb/serial/keyspan.h	2005-03-10 15:59:58.000000000 -0500
++++ linux/drivers/usb/serial/keyspan.h	2005-03-10 22:56:15.343354346 -0500
+@@ -99,90 +99,6 @@
+ 					 struct usb_serial_port *port,
+ 					 int reset_port);
+ 
+-/* Struct used for firmware - increased size of data section
+-   to allow Keyspan's 'C' firmware struct to be used unmodified */
+-struct ezusb_hex_record {
+-	__u16 address;
+-	__u8 data_size;
+-	__u8 data[64];
+-};
+-
+-/* Conditionally include firmware images, if they aren't
+-   included create a null pointer instead.  Current 
+-   firmware images aren't optimised to remove duplicate
+-   addresses in the image itself. */
+-#ifdef CONFIG_USB_SERIAL_KEYSPAN_USA28
+-	#include "keyspan_usa28_fw.h"
+-#else
+-	static const struct ezusb_hex_record *keyspan_usa28_firmware = NULL;
+-#endif
+-
+-#ifdef CONFIG_USB_SERIAL_KEYSPAN_USA28X
+-	#include "keyspan_usa28x_fw.h"
+-#else
+-	static const struct ezusb_hex_record *keyspan_usa28x_firmware = NULL;
+-#endif
+-
+-#ifdef CONFIG_USB_SERIAL_KEYSPAN_USA28XA
+-	#include "keyspan_usa28xa_fw.h"
+-#else
+-	static const struct ezusb_hex_record *keyspan_usa28xa_firmware = NULL;
+-#endif
+-
+-#ifdef CONFIG_USB_SERIAL_KEYSPAN_USA28XB
+-	#include "keyspan_usa28xb_fw.h"
+-#else
+-	static const struct ezusb_hex_record *keyspan_usa28xb_firmware = NULL;
+-#endif
+-
+-#ifdef CONFIG_USB_SERIAL_KEYSPAN_USA19
+-	#include "keyspan_usa19_fw.h"
+-#else
+-	static const struct ezusb_hex_record *keyspan_usa19_firmware = NULL;
+-#endif
+-
+-#ifdef CONFIG_USB_SERIAL_KEYSPAN_USA19QI
+-	#include "keyspan_usa19qi_fw.h"
+-#else
+-	static const struct ezusb_hex_record *keyspan_usa19qi_firmware = NULL;
+-#endif
+-
+-#ifdef CONFIG_USB_SERIAL_KEYSPAN_MPR
+-        #include "keyspan_mpr_fw.h"
+-#else
+-	static const struct ezusb_hex_record *keyspan_mpr_firmware = NULL;
+-#endif
+-
+-#ifdef CONFIG_USB_SERIAL_KEYSPAN_USA19QW
+-	#include "keyspan_usa19qw_fw.h"
+-#else
+-	static const struct ezusb_hex_record *keyspan_usa19qw_firmware = NULL;
+-#endif
+-
+-#ifdef CONFIG_USB_SERIAL_KEYSPAN_USA18X
+-	#include "keyspan_usa18x_fw.h"
+-#else
+-	static const struct ezusb_hex_record *keyspan_usa18x_firmware = NULL;
+-#endif
+-
+-#ifdef CONFIG_USB_SERIAL_KEYSPAN_USA19W
+-	#include "keyspan_usa19w_fw.h"
+-#else
+-	static const struct ezusb_hex_record *keyspan_usa19w_firmware = NULL;
+-#endif
+-
+-#ifdef CONFIG_USB_SERIAL_KEYSPAN_USA49W
+-	#include "keyspan_usa49w_fw.h"
+-#else
+-	static const struct ezusb_hex_record *keyspan_usa49w_firmware = NULL;
+-#endif
+-
+-#ifdef CONFIG_USB_SERIAL_KEYSPAN_USA49WLC
+-        #include "keyspan_usa49wlc_fw.h"
+-#else
+-	static const struct ezusb_hex_record *keyspan_usa49wlc_firmware = NULL;
+-#endif
+-
+ /* Values used for baud rate calculation - device specific */
+ #define	KEYSPAN_INVALID_BAUD_RATE		(-1)
+ #define	KEYSPAN_BAUD_RATE_OK			(0)
+Index: linux/drivers/usb/serial/Kconfig
+===================================================================
+--- linux.orig/drivers/usb/serial/Kconfig	2005-03-10 16:01:14.000000000 -0500
++++ linux/drivers/usb/serial/Kconfig	2005-03-10 16:18:19.000000000 -0500
+@@ -242,92 +242,21 @@
+ 	---help---
+ 	  Say Y here if you want to use Keyspan USB to serial converter
+ 	  devices.  This driver makes use of Keyspan's official firmware
+-	  and was developed with their support.  You must also include
+-	  firmware to support your particular device(s).
++	  and was developed with their support.  It uses hotplug to load
++	  the required firmware from /usr/lib/hotplug/firmware or
++	  /lib/firmware.
++	  
++	  However there really isn't a good way to get this firmware
++	  since the license only allows it to be distributed as part of
++	  a Linux or other Open Source operating system kernel.  So you
++	  will have to copy the firmware files from the kernel source
++	  tree (drivers/usb/serial/*.fw) to /lib/firmware yourself.
+ 
+ 	  See <http://misc.nu/hugh/keyspan.html> for more information.
+ 
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called keyspan.
+ 
+-config USB_SERIAL_KEYSPAN_MPR
+-	bool "USB Keyspan MPR Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the Keyspan MPR converter.
+-
+-config USB_SERIAL_KEYSPAN_USA28
+-	bool "USB Keyspan USA-28 Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-28 converter.
+-
+-config USB_SERIAL_KEYSPAN_USA28X
+-	bool "USB Keyspan USA-28X Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-28X converter.
+-	  Be sure you have a USA-28X, there are also 28XA and 28XB
+-	  models, the label underneath has the actual part number.
+-
+-config USB_SERIAL_KEYSPAN_USA28XA
+-	bool "USB Keyspan USA-28XA Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-28XA converter.
+-	  Be sure you have a USA-28XA, there are also 28X and 28XB
+-	  models, the label underneath has the actual part number.
+-
+-config USB_SERIAL_KEYSPAN_USA28XB
+-	bool "USB Keyspan USA-28XB Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-28XB converter.
+-	  Be sure you have a USA-28XB, there are also 28X and 28XA
+-	  models, the label underneath has the actual part number.
+-
+-config USB_SERIAL_KEYSPAN_USA19
+-	bool "USB Keyspan USA-19 Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-19 converter.
+-
+-config USB_SERIAL_KEYSPAN_USA18X
+-	bool "USB Keyspan USA-18X Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-18X converter.
+-
+-config USB_SERIAL_KEYSPAN_USA19W
+-	bool "USB Keyspan USA-19W Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-19W converter.
+-
+-config USB_SERIAL_KEYSPAN_USA19QW
+-	bool "USB Keyspan USA-19QW Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-19QW converter.
+-
+-config USB_SERIAL_KEYSPAN_USA19QI
+-	bool "USB Keyspan USA-19QI Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-19QI converter.
+-
+-config USB_SERIAL_KEYSPAN_USA49W
+-	bool "USB Keyspan USA-49W Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-49W converter.
+-
+-config USB_SERIAL_KEYSPAN_USA49WLC
+-	bool "USB Keyspan USA-49WLC Firmware"
+-	depends on USB_SERIAL_KEYSPAN
+-	help
+-	  Say Y here to include firmware for the USA-49WLC converter.
+-
+ config USB_SERIAL_KLSI
+ 	tristate "USB KL5KUSB105 (Palmconnect) Driver (EXPERIMENTAL)"
+ 	depends on USB_SERIAL && EXPERIMENTAL

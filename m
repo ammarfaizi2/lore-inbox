@@ -1,83 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317257AbSGNXss>; Sun, 14 Jul 2002 19:48:48 -0400
+	id <S317283AbSGOACx>; Sun, 14 Jul 2002 20:02:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317260AbSGNXss>; Sun, 14 Jul 2002 19:48:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6667 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317257AbSGNXsq>;
-	Sun, 14 Jul 2002 19:48:46 -0400
-Message-ID: <3D321041.2D25D649@zip.com.au>
-Date: Sun, 14 Jul 2002 16:58:57 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Joerg Schilling <schilling@fokus.gmd.de>
-CC: zaitcev@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-References: <200207141811.g6EIBXKc019318@burner.fokus.gmd.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317286AbSGOACw>; Sun, 14 Jul 2002 20:02:52 -0400
+Received: from AMontpellier-205-1-4-20.abo.wanadoo.fr ([217.128.205.20]:6616
+	"EHLO awak") by vger.kernel.org with ESMTP id <S317283AbSGOACw> convert rfc822-to-8bit;
+	Sun, 14 Jul 2002 20:02:52 -0400
+Subject: Re: apm power_off on smp
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Pozsar Balazs <pozsy@uhulinux.hu>,
+       Kelledin <kelledin+LKML@skarpsey.dyndns.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1026694644.13885.99.camel@irongate.swansea.linux.org.uk>
+References: <Pine.GSO.4.30.0207150101150.27346-100000@balu> 
+	<1026693542.13885.94.camel@irongate.swansea.linux.org.uk> 
+	<1026689642.2077.21.camel@bip> 
+	<1026694644.13885.99.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 15 Jul 2002 02:05:24 +0200
+Message-Id: <1026691525.2077.38.camel@bip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling wrote:
+Le lun 15/07/2002 à 02:57, Alan Cox a écrit :
+> > Would it be possible to use the CPU-hotplug patch to unplug all CPUs
+> > except the one entering apm power-off ?
 > 
-> ...
-> ftp://ftp.fokus.gmd.de/pub/unix/star/testscript/rock.tar.bz2
-> 
-> It is a tar archive that contains 207,440 empty files and one directory
-> using the names of the files in the 'rock' subdirectory from the
-> freedb project. This is a snapshot taken on May 30th 2002.
-> 
-> If you extract this archive on a machine running Solaris or FreeBSD,
-> it takes less than 7 minutes.
+> Only if your hardware supports true CPU unplugging and your BIOS
+> supports APM for it. That is wildly improbable at best
 
-With ext3 and the htree directory indexing, a 500MHz PIII does
-it in 57 seconds.
+Err .. my mobo's BIOS is SMP specific and implements APM, so I guess
+there is a case where it's useful. It must be something like when
+running Win95, which is UP only. Isn't Linux able to return to a UP-like
+state (à la Win95) just before entering poweroff ?
 
-tar xjf ~/rock.tar.bz2  19.63s user 29.42s system 84% cpu 57.879 total
+Or perhaps my first assumption is false: the APM implementation in my
+BIOS just wastes some flash and never intended to be utilized.
 
-> A pentium 800 running Solaris 9 results in:
-> 
-> # star -xp -time < rock.tar.bz2
-> star: WARNING: Archive is bzip2 compressed, trying to use the -bz option.
-> star: 10372 blocks + 1536 bytes (total of 106210816 bytes = 103721.50k).
-> star: Total time 405.988sec (255 kBytes/sec)
-> 6:46.051r 12.920u 63.420s 18% 0M 0+0k 0st 0+0io 0pf+0w
-> 
-> You see during the 6:43, the machine is 82% idle.
-> 
-> A Pentium 1200 running Linux-2.5.25 (ext3) results in:
-> 
-> # star -xp -time < rock.tar.bz2
-> star: WARNING: Archive is bzip2 compressed, trying to use the -bz option.
-> star: 10372 blocks + 1536 bytes (total of 106210816 bytes = 103721.50k).
-> star: Total time 3190.483sec (32 kBytes/sec)
-> 53:10.490r 12.299u 2970.099s 93% 0M 0+0k 0st 0+0io 4411pf+0w
-> 
-> You see, during the 53:20, the machine is only 7% idle!
-> 
-> It wasted 2900 seconds of CPU time on Linux. Let me guess: this was done
-> inside the function strcmp().
-
-Nope. ext3 and ext2 directories use the traditional first-fit
-search-from-start for directories.  So adding 200k files to
-a single directory is pathological.
-
-> There are ~ 5 different filesystems on Linux, but none if the projects seem
-> to care about the code outside the FS low level code. I suspect, that
-> this is not any better if you use reiserfs.
-> 
-> Solaris and FreeBSD put all the effort into one filesystem trying to make
-> it as good as possible. In Linux, it seems that nobody prooved the overall
-> concept of the kernel.
-
-Apply http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.25/ext3-htree.patch
-to your 2.5.25 tree, mount with `-o index' and enjoy watching ext3 eat
-Solaris and FreeBSD's lunch.
-
-htree isn't quite ready yet and development seems a little moribund.
-It'd be nice to get it finished off.
-
--

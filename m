@@ -1,83 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263204AbSKVKwW>; Fri, 22 Nov 2002 05:52:22 -0500
+	id <S263362AbSKVLDq>; Fri, 22 Nov 2002 06:03:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263362AbSKVKwW>; Fri, 22 Nov 2002 05:52:22 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:65181 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S263204AbSKVKwU>;
-	Fri, 22 Nov 2002 05:52:20 -0500
-Date: Fri, 22 Nov 2002 10:54:38 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Margit Schubert-While <margitsw@t-online.de>, linux-kernel@vger.kernel.org
-Subject: Re: P4 compile options
-Message-ID: <20021122105438.GA16662@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-	Margit Schubert-While <margitsw@t-online.de>,
-	linux-kernel@vger.kernel.org
-References: <4.3.2.7.2.20021121210830.00b58890@mail.dns-host.com> <200211220832.gAM8W4p30533@Port.imtp.ilyichevsk.odessa.ua> <20021122092659.GA13373@suse.de> <200211221013.gAMADpp31088@Port.imtp.ilyichevsk.odessa.ua>
+	id <S263977AbSKVLDq>; Fri, 22 Nov 2002 06:03:46 -0500
+Received: from pop.gmx.de ([213.165.65.60]:64141 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S263362AbSKVLDp>;
+	Fri, 22 Nov 2002 06:03:45 -0500
+Message-Id: <5.1.1.6.2.20021122120405.00c236e8@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Fri, 22 Nov 2002 12:07:36 +0100
+To: jim.houston@attbi.com, linux-kernel@vger.kernel.org
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: 2.5.47 scheduler problems?
+Cc: riel@conectiva.com.br
+In-Reply-To: <3DDDC37F.5AC219D5@attbi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200211221013.gAMADpp31088@Port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 22, 2002 at 01:04:39PM -0200, Denis Vlasenko wrote:
+At 12:41 AM 11/22/2002 -0500, Jim Houston wrote:
+>Hi Mike, Rik, Everyone,
+>
+>The O(1) schedule just isn't fair.  It will run a subset
+>of the runable processes excluding the rest.  See my earlier
+>emails for the details.
+>
+>I had been working on a fix for this but got distracted
+>by Posix timers.  I still hope to get back to it.
+>
+>My patch is here:
+>http://marc.theaimsgroup.com/?l=linux-kernel&m=103508412423719&w=2
 
- > I consider 16-byte code alignment as way too big.
- > P4 zealots can demand even more I guess :(
- > I will happily change my mind when/if I'll see
- > favorable speed/kernel size benchmarks. Until then,
+In a brief test, this seems to cure my problem.
 
-I think there's a misunderstanding here.
-The march=pentium4 option is only used when you select
-"build me a pentium 4 kernel" You do realise that right?
-Generic kernels don't change 1 bit.
+>It fixes fairness but breaks nice(2). Rik van Riel has a
+>patch here which builds on my patch which fixes this:
+>http://marc.theaimsgroup.com/?l=linux-kernel&m=103651801424031&w=2
 
- > I think 4-byte alignment is closest to sanity.
+(I haven't test this one yet)
 
-You know where to find the Intel P4 optimisation manuals..
+>I just gave this a spin with.  The patches still apply cleanly
+>to linux-2.5.48 and it seems well behaved:-)
 
- > Not exactly P4 related but: if you tell gcc your
- > processor has cmov, gcc will try to use it.
+It seems a little choppy still for a not swapping load, but greatly improved.
 
-So what ? Show me a P4 without cmov.
+Thanks!
 
- > Results: 
- > * gcc code is worse with cmov than without
- > * some CPUs (Cyrix?) have slow cmovs (microcoded?)
- > * you lose whenever you try to use your code
- >   on cmov-less CPU.
+         -Mike 
 
-  <------------ The point.
-                              --------------> You.
-
-Cmov is completely irrelevant here.
-Sure its still an optional instruction which
-should be tested for before use, but until Intel
-make a P4 without CMOV, adding march=pentium4
-is harmless.
- 
- > Dave, I am absolutely sure _you_ do not compile
- > for P4 needlessly, but lots of ordinary people
- > do that just to be hip.
-
-Those are probably the same folks who run Gentoo/Slackware/ or
-some-other-compile-everything-myself-because-I've-too-much-time-on-my-hands-distro.
-Fine, let them be happy.
-If some loon wants a P4 optimised /bin/ls, that's his problem,
-but optimisation of key components (like say, the kernel) _is_
-important.
-
- > I wanted to point out why it may be undesirable.
-
-All you've pointed out is that a P4 kernel won't run
-optimally on a 486. Well surprise, it won't run at all.
-
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk

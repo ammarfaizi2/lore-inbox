@@ -1,62 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261561AbTF3HWT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 03:22:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbTF3HWT
+	id S263676AbTF3HZW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 03:25:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263722AbTF3HZW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 03:22:19 -0400
-Received: from vtens.prov-liege.be ([193.190.122.60]:58177 "EHLO
-	mesepl.epl.prov-liege.be") by vger.kernel.org with ESMTP
-	id S261561AbTF3HWS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 03:22:18 -0400
-Message-ID: <D9B4591FDBACD411B01E00508BB33C1B0140536F@mesadm.epl.prov-liege.be>
-From: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Trying to improve /proc/filesystems
-Date: Mon, 30 Jun 2003 09:21:00 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Mon, 30 Jun 2003 03:25:22 -0400
+Received: from imhotep.hursley.ibm.com ([194.196.110.14]:9273 "EHLO
+	tor.trudheim.com") by vger.kernel.org with ESMTP id S263676AbTF3HZO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 03:25:14 -0400
+Subject: RE: Dell vs. GPL
+From: Anders Karlsson <anders@trudheim.com>
+To: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.NEB.4.44.0306292354100.7687-100000@slick.sigje.org>
+References: <Pine.NEB.4.44.0306292354100.7687-100000@slick.sigje.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-OSuXdwM8PpHyhYlUPQ9G"
+Organization: Trudheim Technology Limited
+Message-Id: <1056958773.2080.14.camel@tor.trudheim.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 Rubber Turnip www.usr-local-bin.org 
+Date: 30 Jun 2003 08:39:33 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	I'm trying to do 
 
-nodev		xxx	0
-		yyy	2
-(or replace nodev by 0->x)
+--=-OSuXdwM8PpHyhYlUPQ9G
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-with the following but Linux complains : VFS : unable to mount
-root....Someone could help ?
+On Mon, 2003-06-30 at 07:57, ahorn@deorth.org wrote:
+[snip]
+> I'm still not seeing any evidence of anyone being blocked from obtaining
+> the source code (although I haven't followed the whole thread)
 
---- linux-2.5.72/fs/filesystems.c	2003-06-22 20:33:07.000000000 +0200
-+++ linux-2.5.72FF/fs/filesystems.c	2003-06-29 18:53:08.000000000 +0200
-@@ -194,15 +194,25 @@
- 
- int get_filesystem_list(char * buf)
- {
--	int len = 0;
-+	int len = 0, dev = 0;
- 	struct file_system_type * tmp;
-+	struct list_head *p;
-+	char buf2[6];
- 
- 	read_lock(&file_systems_lock);
- 	tmp = file_systems;
- 	while (tmp && len < PAGE_SIZE - 80) {
--		len += sprintf(buf+len, "%s\t%s\n",
-+		dev=0;
-+		list_for_each(p,&tmp->fs_supers){
-+			dev++;
-+		} 
-+		len += sprintf(buf+len, "%s\t%s\t%d\n",
- 			(tmp->fs_flags & FS_REQUIRES_DEV) ? "" : "nodev",
--			tmp->name);
-+			tmp->name,
-+			dev);
- 		tmp = tmp->next;
- 	}
- 	read_unlock(&file_systems_lock);
+=46rom what I gathered, people were irritated because Dell only supplied a
+patch of what modifications they had made, against a known RedHat
+kernel.
+
+IANAL, but I think they have matched what the GPL required them to by
+doing so. There is a relatively easy way to recreate exactly what they
+did. A correctly worded request to the right place inside Dell should
+perhaps even yield the SPM they used.
+
+> I repeat, did anyone ask dell for source code for this supposed violation=
+?
+> They are not bound to _distribute_ the source code with their software
+> only to make it available in a reasonable fashion upon request.
+
+It was not clear, but it appeared that the source was not asked for.
+There was a whole lot of complaining that it wasn't distributed without
+being asked for though.
+
+> Or am I missing something here ?
+>=20
+> (not being argumentative here by the way, this is really interesting
+> discussion)
+
+It is interesting, but it would be nice to have a professional legal
+opinion on the matter.
+
+/A
+
+
+--=-OSuXdwM8PpHyhYlUPQ9G
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
+
+iD8DBQA+/+k1LYywqksgYBoRAjehAKCxLIQGQ9iWxcnDomVJru3MZo94egCeJs9L
+6/5IftPgft5EnhB0zJhn8ic=
+=6CBY
+-----END PGP SIGNATURE-----
+
+--=-OSuXdwM8PpHyhYlUPQ9G--
 

@@ -1,47 +1,163 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316446AbSHXO6x>; Sat, 24 Aug 2002 10:58:53 -0400
+	id <S316437AbSHXO6I>; Sat, 24 Aug 2002 10:58:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316465AbSHXO6x>; Sat, 24 Aug 2002 10:58:53 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:7 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S316446AbSHXO6w>;
-	Sat, 24 Aug 2002 10:58:52 -0400
-Date: Sat, 24 Aug 2002 17:12:45 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Larry McVoy <lm@work.bitmover.com>
-Cc: linux-kernel@vger.kernel.org, bitkeeper-announce@work.bitmover.com
-Subject: BKWeb Feature request [Was: BK license change]
-Message-ID: <20020824171245.C1889@mars.ravnborg.org>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org, bitkeeper-announce@work.bitmover.com
-References: <200208240039.g7O0dZf12300@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200208240039.g7O0dZf12300@work.bitmover.com>; from lm@work.bitmover.com on Fri, Aug 23, 2002 at 05:39:35PM -0700
+	id <S316446AbSHXO6I>; Sat, 24 Aug 2002 10:58:08 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:13697 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S316437AbSHXO6G>;
+	Sat, 24 Aug 2002 10:58:06 -0400
+Message-ID: <3D67A042.5030706@colorfullife.com>
+Date: Sat, 24 Aug 2002 17:03:30 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: torvalds@transmeta.com, dhinds@zen.stanford.edu
+Subject: [PATCH] reduce size of bridge regions for yenta.c
+Content-Type: multipart/mixed;
+ boundary="------------040207080401050801020507"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Larry.
+This is a multi-part message in MIME format.
+--------------040207080401050801020507
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Speaking about Bitkeeper, I have a feature request.
-The view of changesets on bkbits is usefull, but the sorting does not
-give the full picture.
+yenta.c tries to allocate 2 bridge regions, each 4 MB: one for 
+prefetchable memory, one for non-prefetchable memory.
 
-Follow this example:
-bk pull http://linux.bkbits.net/linux-2.5
-- Do some editing
-- Check in changes
-- Test the changes a few days
-- Submit the cset(s) to Linus
-Linus do a bk pull from my repository
+The size of the regions must be adaptive: in my laptop, the cardbus 
+bridge sits behind a pci bridge with a 1 MB bridge region :-(
 
-When accessing bkbits via the web interface, the canges are listed
-sorted after the time I did the modifications, not when Linus actually 
-did the bk pull, so they may be preceeded by maybe 100 cset's.
+The attached patch:
+- limits the memory window to 1/8 of the window of the parent bridge 
+(max 4 MB, min 16 kB)
+- frees the resources during module unload
+- adds error checking+printk
 
-Is it possible somehow to sort the cset(s) according to the time they were
-applied to the local tree, and not when they were originally committed?
+Please test it - my laptop now works.
+Patch vs. 2.4.19, applies to 2.5.30, too.
 
-	Sam
+--
+	Manfred
+
+--------------040207080401050801020507
+Content-Type: text/plain;
+ name="patch-yenta"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-yenta"
+
+--- 2.4/drivers/pcmcia/yenta.c	Sat Aug  3 02:39:44 2002
++++ build-2.4/drivers/pcmcia/yenta.c	Sat Aug 24 16:59:34 2002
+@@ -2,6 +2,11 @@
+  * Regular lowlevel cardbus driver ("yenta")
+  *
+  * (C) Copyright 1999, 2000 Linus Torvalds
++ *
++ * Changelog:
++ * Aug 2002: Manfred Spraul <manfred@colorfullife.com>
++ * 	Dynamically adjust the size of the bridge resource
++ * 	
+  */
+ #include <linux/init.h>
+ #include <linux/pci.h>
+@@ -704,6 +709,15 @@
+ 	return 0;
+ }
+ 
++/*
++ * Use an adaptive allocation for the memory resource,
++ * sometimes the size behind pci bridges is limited:
++ * 1/8 of the size of the io window of the parent.
++ * max 4 MB, min 16 kB.
++ */
++#define BRIDGE_SIZE_MAX	4*1024*1024
++#define BRIDGE_SIZE_MIN	16*1024
++
+ static void yenta_allocate_res(pci_socket_t *socket, int nr, unsigned type)
+ {
+ 	struct pci_bus *bus;
+@@ -735,21 +749,42 @@
+ 	if (start && end > start) {
+ 		res->start = start;
+ 		res->end = end;
+-		request_resource(root, res);
+-		return;
++		if (request_resource(root, res) == 0)
++			return;
++		printk(KERN_INFO "yenta %s: Preassigned resource %d busy, reconfiguring...\n",
++				socket->dev->slot_name, nr);
++		res->start = res->end = 0;
+ 	}
+ 
+-	align = size = 4*1024*1024;
+-	min = PCIBIOS_MIN_MEM; max = ~0U;
+ 	if (type & IORESOURCE_IO) {
+ 		align = 1024;
+ 		size = 256;
+ 		min = 0x4000;
+ 		max = 0xffff;
++	} else {
++		unsigned long avail = root->end - root->start;
++		int i;
++		align = size = BRIDGE_SIZE_MAX;
++		if (size > avail/8) {
++			size=(avail+1)/8;
++			/* round size down to next power of 2 */
++			i = 0;
++			while ((size /= 2) != 0)
++				i++;
++			size = 1 << i;
++		}
++		if (size < BRIDGE_SIZE_MIN)
++			size = BRIDGE_SIZE_MIN;
++		align = size;
++		min = PCIBIOS_MIN_MEM; max = ~0U;
+ 	}
+ 		
+-	if (allocate_resource(root, res, size, min, max, align, NULL, NULL) < 0)
++	if (allocate_resource(root, res, size, min, max, align, NULL, NULL) < 0) {
++		printk(KERN_INFO "yenta %s: no resource of type %x available, trying to continue...\n",
++				socket->dev->slot_name, type);
++		res->start = res->end = 0;
+ 		return;
++	}
+ 
+ 	config_writel(socket, offset, res->start);
+ 	config_writel(socket, offset+4, res->end);
+@@ -767,6 +802,20 @@
+ }
+ 
+ /*
++ * Free the bridge mappings for the device..
++ */
++static void yenta_free_resources(pci_socket_t *socket)
++{
++	int i;
++	for (i=0;i<4;i++) {
++		struct resource *res;
++		res = socket->dev->resource + PCI_BRIDGE_RESOURCES + i;
++		if (res->start != 0 && res->end != 0)
++			release_resource(res);
++		res->start = res->end = 0;
++	}
++}
++/*
+  * Close it down - release our resources and go home..
+  */
+ static void yenta_close(pci_socket_t *sock)
+@@ -782,6 +831,7 @@
+ 
+ 	if (sock->base)
+ 		iounmap(sock->base);
++	yenta_free_resources(sock);
+ }
+ 
+ #include "ti113x.h"
+
+--------------040207080401050801020507--
+
+

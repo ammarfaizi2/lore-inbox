@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275485AbRJPJHR>; Tue, 16 Oct 2001 05:07:17 -0400
+	id <S275178AbRJPJEG>; Tue, 16 Oct 2001 05:04:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275571AbRJPJHI>; Tue, 16 Oct 2001 05:07:08 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:530 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S275485AbRJPJG7>; Tue, 16 Oct 2001 05:06:59 -0400
-Date: Tue, 16 Oct 2001 11:07:09 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.13pre3aa1
-Message-ID: <20011016110708.D2380@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S275485AbRJPJD4>; Tue, 16 Oct 2001 05:03:56 -0400
+Received: from haneman.dialup.fu-berlin.de ([160.45.224.9]:2176 "EHLO
+	haneman.dialup.fu-berlin.de") by vger.kernel.org with ESMTP
+	id <S275178AbRJPJDu>; Tue, 16 Oct 2001 05:03:50 -0400
+Date: Tue, 16 Oct 2001 12:03:01 +0200 (MESZ)
+From: Enver Haase <ehaase@inf.fu-berlin.de>
+To: Philip.Blundell@pobox.com, tim@cyberelk.demon.co.uk, renau@acm.org,
+        campbell@torque.net, linux-kernel@vger.kernel.org
+Subject: Parport PCI card doesn't share IRQ
+Message-ID: <Pine.LNX.4.10.10110161156410.1239-100000@haneman.hacenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Only in 2.4.13pre2aa1: 00_lvm-1.0.1-rc4-1.bz2
-Only in 2.4.13pre3aa1: 00_lvm-1.0.1-rc4-2.bz2
 
-	Rediffed merging the unsigned long change in the blkdev size ioctl.
+Hi parport hackers,
 
-Only in 2.4.13pre2aa1: 00_vm-3.1
-Only in 2.4.13pre3aa1: 00_vm-3.2
+I have a
 
-	Further vm minor updates. In particular make sure not to overstimate
-	the amount of buffers available during balance_dirty(), by using the
-	exact per-classzone active/inactive info.
+Communication controller: PCI device 9710:9815 (rev 1).
 
-Only in 2.4.13pre2aa1: 50_uml-patch-2.4.12-1-1.bz2
-Only in 2.4.13pre3aa1: 50_uml-patch-2.4.12-3-1.bz2
+here, and it runs fine as long as you don't try to share its IRQ. Maybe
+related: "cat /proc/interrupts" does not show the card is on IRQ 11 --- so
+when I put my NE2000 clone network card _also_ on IRQ 11, the system hangs
+as soon as the card is used, i.e. ifconfig'ed.
 
-	Latest update from Jeff.
+Is there something I (or you) can do about it?
 
-Only in 2.4.13pre2aa1: 60_tux-2.4.10-ac10-F5.bz2
-Only in 2.4.13pre3aa1: 60_tux-2.4.10-ac12-H1.bz2
 
-	Latest update from Ingo.
+Regards+greetings,
+Enver
 
-Andrea
+PS: I have to share the IRQ between USB and NE2000 now, this works fine.
+However, I sometimes use Win98 to burn CDs. It doesn't start with this
+setup so I have to BIOS-SETUP the Comm.Card to share IRQ with the NE2000
+for this other OS.... brrrr!
+

@@ -1,64 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbUBVGHi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 01:07:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbUBVGHi
+	id S261169AbUBVGJR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 01:09:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbUBVGJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 01:07:38 -0500
-Received: from relay.pair.com ([209.68.1.20]:58889 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S261168AbUBVGHh (ORCPT
+	Sun, 22 Feb 2004 01:09:17 -0500
+Received: from fw.osdl.org ([65.172.181.6]:18649 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261169AbUBVGJN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 01:07:37 -0500
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <403845F5.5030101@kegel.com>
-Date: Sat, 21 Feb 2004 22:02:29 -0800
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en, de-de
-MIME-Version: 1.0
-To: Herbert Poetzl <herbert@13thfloor.at>
-CC: linux-kernel@vger.kernel.org, Jim Wilson <wilson@specifixinc.com>,
-       Judith Lebzelter <judith@osdl.org>, cliff white <cliffw@osdl.org>,
-       "Timothy D. Witham" <wookie@osdl.org>
-Subject: Re: Kernel Cross Compiling [update]
-References: <20040222035350.GB31813@MAIL.13thfloor.at>
-In-Reply-To: <20040222035350.GB31813@MAIL.13thfloor.at>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 22 Feb 2004 01:09:13 -0500
+Date: Sat, 21 Feb 2004 22:09:27 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: cw@f00f.org, torvalds@osdl.org, mfedyk@matchmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Large slab cache in 2.6.1
+Message-Id: <20040221220927.198749d4.akpm@osdl.org>
+In-Reply-To: <4038307B.2090405@cyberone.com.au>
+References: <4037FCDA.4060501@matchmail.com>
+	<20040222023638.GA13840@dingdong.cryptoapps.com>
+	<Pine.LNX.4.58.0402211901520.3301@ppc970.osdl.org>
+	<20040222031113.GB13840@dingdong.cryptoapps.com>
+	<Pine.LNX.4.58.0402211919360.3301@ppc970.osdl.org>
+	<20040222033111.GA14197@dingdong.cryptoapps.com>
+	<4038299E.9030907@cyberone.com.au>
+	<40382BAA.1000802@cyberone.com.au>
+	<4038307B.2090405@cyberone.com.au>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Poetzl wrote:
->    the GCC testsuite contains 2854 files in the relevant 
->    subdirs consistency.vlad, gcc.c-torture, gcc.dg, and
->    gcc.misc-tests.
->     
->    after removing the non relevant tests (file matching 
->    egrep '#include|float|double') 1799 C files remain.
->      
->    the result of the tests and comparison[4] shows that
->    both compilers produce the same code, except for one
->    little difference[5], which I'm unable to explain ...  
- > [5]  http://vserver.13thfloor.at/Stuff/Cross/Comparison/TEST-alpha.diff
- > ...
+Nick Piggin <piggin@cyberone.com.au> wrote:
+>
+> Although, nr_used_zone_pages probably shouldn't be counting
+>  highmem zones, which might be our problem.
 
->    my conclusion so far is that my approach should be
->    sufficient for Kernel Cross Compiling.
+yeah.  We should have made that change when making shrink_slab() ignore
+highmem scanning.
 
-Perhaps, but it's harder to repeat than using my crosstool script;
-you said you had to munge a bunch of header files, but with
-crosstool no special munging is required.  AFAIR you haven't
-posted your header-munging procedure.
+Something like this (the function needs a rename)
 
-It's vaguely possible that your header munging was wrong, which
-caused that one diff on alpha.
+--- 25/mm/page_alloc.c~shrink_slab-highmem-fix	2004-02-21 22:07:32.000000000 -0800
++++ 25-akpm/mm/page_alloc.c	2004-02-21 22:08:03.000000000 -0800
+@@ -769,8 +769,10 @@ unsigned int nr_used_zone_pages(void)
+ 	unsigned int pages = 0;
+ 	struct zone *zone;
+ 
+-	for_each_zone(zone)
+-		pages += zone->nr_active + zone->nr_inactive;
++	for_each_zone(zone) {
++		if (zone - zone->zone_pgdat->node_zones < ZONE_HIGHMEM)
++			pages += zone->nr_active + zone->nr_inactive;
++	}
+ 
+ 	return pages;
+ }
 
-Say, could you compare compiling the kernel with the two
-toolchains, and see if there are any differences?
-- Dan
+_
 
--- 
-US citizens: if you're considering voting for Bush, look at these first:
-http://www.misleader.org/
-http://www.cbc.ca/news/background/arar/
-http://www.house.gov/reform/min/politicsandscience/

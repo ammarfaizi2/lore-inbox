@@ -1,50 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262219AbVCOD2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbVCODb6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262219AbVCOD2J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 22:28:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbVCOD2J
+	id S262220AbVCODb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 22:31:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVCODb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 22:28:09 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:63384 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262219AbVCOD16 (ORCPT
+	Mon, 14 Mar 2005 22:31:58 -0500
+Received: from main.gmane.org ([80.91.229.2]:30164 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262220AbVCODbz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 22:27:58 -0500
-Date: Mon, 14 Mar 2005 19:22:03 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Albert Cahalan <albert@users.sourceforge.net>
-cc: Matt Mackall <mpm@selenic.com>, john stultz <johnstul@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>, Max Asbock <masbock@us.ibm.com>,
-       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A3)
-In-Reply-To: <1110852973.1967.180.camel@cube>
-Message-ID: <Pine.LNX.4.58.0503141920460.16054@schroedinger.engr.sgi.com>
-References: <1110590655.30498.327.camel@cog.beaverton.ibm.com> 
- <20050313004902.GD3163@waste.org>  <1110825765.30498.370.camel@cog.beaverton.ibm.com>
-  <20050314192918.GC32638@waste.org>  <1110829401.30498.383.camel@cog.beaverton.ibm.com>
-  <20050314195110.GD32638@waste.org>  <1110830647.30498.388.camel@cog.beaverton.ibm.com>
-  <20050314202702.GF32638@waste.org> <1110852973.1967.180.camel@cube>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 14 Mar 2005 22:31:55 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Subject: Re: Question about initramfs
+Date: Tue, 15 Mar 2005 08:31:43 +0500
+Message-ID: <d15ksi$n22$1@sea.gmane.org>
+References: <4235C0A1.3050508@jg555.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: dsa.physics.usu.ru
+User-Agent: KNode/0.8.2
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner: Found to be clean
+X-MailScanner-From: glk-linux-kernel@m.gmane.org
+X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Mar 2005, Albert Cahalan wrote:
+Jim Gifford wrote:
 
-> When the vsyscall page is created, copy the one needed function
-> into it. The kernel is already self-modifying in many places; this
-> is nothing new.
+> Question: Initramfs is going to replace initrd, but I haven't seen
+> anyone explain how to copy modules that are built during the build
+> process moved into the initramfs archive. Has somebody done, this or is
+> this still a work in progress?
 
-AFAIK this will only works on ia32 and x86_64 and not definitely not
-on ia64. Who knows about the other platforms ....
+Easy.
+
+1) Unpack a vanilla kernel and build and install it as you usually do for a
+system that doesn't need initramfs.
+
+make menuconfig
+make
+make modules_install
+cp arch/i386/boot/bzimage /boot/linux-2.6
+
+2) Make a temporary directory (say, "initramfs") and put all files that you
+want to go to your initramfs there. Don't forget the "/init" file, it is
+used as a starting point for initramfs.
+
+3) Make the initramfs image:
+
+cd initramfs
+find . | cpio -o -H newc | gzip -9 >/boot/initramfs-2.6.cpio.gz
+
+4) Add /boot/linux-2.6 and /boot/initramfs-2.6.cpio.gz to your LILO or GRUB
+as you would normally do with a kernel image and the initrd:
+
+image=/boot/linux-2.6
+        label="Linux"
+        initrd=/boot/initramfs-2.6.cpio.gz
+        root=/dev/hda1  # if your initramfs "/init" script understands this
+        read-only       # if your initramfs "/init" script understands this
+
+5) Upon reboot, the kernel will automatically determine that the image is
+really an initramfs, not an initrd.
+
+-- 
+Alexander E. Patrakov
 

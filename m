@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261844AbSJIQy6>; Wed, 9 Oct 2002 12:54:58 -0400
+	id <S261847AbSJIRAp>; Wed, 9 Oct 2002 13:00:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261845AbSJIQy6>; Wed, 9 Oct 2002 12:54:58 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:13219 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261844AbSJIQy5>; Wed, 9 Oct 2002 12:54:57 -0400
-Subject: Re: Looking for testers with these NICs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200210091637.g99Gbmp30784@Port.imtp.ilyichevsk.odessa.ua>
-References: <200210091637.g99Gbmp30784@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 09 Oct 2002 18:11:02 +0100
-Message-Id: <1034183463.2063.70.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S261831AbSJIRAo>; Wed, 9 Oct 2002 13:00:44 -0400
+Received: from members.cotse.com ([216.112.42.58]:63625 "EHLO cotse.com")
+	by vger.kernel.org with ESMTP id <S261847AbSJIRAn>;
+	Wed, 9 Oct 2002 13:00:43 -0400
+Message-ID: <YWxhbg==.35e5d37d477d0ddc01cb3484f9ef3349@1034183288.cotse.net>
+Date: Wed, 9 Oct 2002 13:08:08 -0400 (EDT)
+X-Abuse-To: abuse@cotse.com
+X-AntiForge: http://packetderm.cotse.com/antiforge.php
+Subject: Patches from Redhat gcc 3.2
+From: "Alan Willis" <alan@cotse.net>
+To: <phil-list@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: alan@cotse.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-09 at 22:31, Denis Vlasenko wrote:
-> depca.c
 
-Already done
+  Which of the 69 patches in the redhat gcc-3.2 rpm from RH8 provide the
+functionality needed for the __thread keyword, and anything else needed for
+nptl to work correctly.  Also, are any modifications needed to glibc 2.3?
+Also, I do not wish to make my system unusable with 2.4.x kernels,.. if I
+build glibc with --enable-kernel=current, will that make glibc unusable with
+2.4.x kernels?  I've been using 2.5 for a while now,. but I do want a sane
+recourse.  Is this line also correct: --enable-addons=nptl,nptl_db, where
+I've untarred the nptl dirs under in the main glibc directory.
 
-> ewrk3.c
-> lp486e.c
-> ni5010.c
-> ni65.c
-> smc9194.c
-> 
-> These drivers currently don't compile. I'm fixing them but
-> can't test on a live hardware. Anyone?
+   I'm trying to set up an environment where I can use nptl on gentoo.
 
-You may want to merge the 2.4 changes as you go. For lp486e you may just
-have to pray, its an unusual 486 onboard ethernet. I know 3 people who
-have one, and one (mine) burned out the psu and died
+Any assistance is most welcome :o)
+
+Thanks in advance,
+
+-alan
+
 

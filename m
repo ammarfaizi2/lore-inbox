@@ -1,58 +1,43 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <154055-19608>; Thu, 21 Jan 1999 23:00:26 -0500
-Received: by vger.rutgers.edu id <154141-19608>; Thu, 21 Jan 1999 20:35:52 -0500
-Received: from hera.ecs.csus.edu ([130.86.71.150]:4974 "EHLO hera.ecs.csus.edu" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154571-19608>; Thu, 21 Jan 1999 17:52:58 -0500
-Date: Thu, 21 Jan 1999 14:57:28 -0800 (PST)
-From: "Jon M. Taylor" <taylorj@ecs.csus.edu>
-To: Steven Roberts <strobert@ata-sd.com>
-Cc: linux-kernel@vger.rutgers.edu
-Subject: Re: User vs. Kernel (was: To be smug, or not to be smug, that is , the question)
-In-Reply-To: <36A755E0.D893343D@ata-sd.com>
-Message-ID: <Pine.HPP.3.91.990121142146.308A-100000@gaia.ecs.csus.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: by vger.rutgers.edu via listexpand id <156037-19607>; Fri, 22 Jan 1999 03:05:19 -0500
+Received: by vger.rutgers.edu id <154779-19607>; Fri, 22 Jan 1999 01:25:56 -0500
+Received: from electricrain.com ([209.60.85.20]:1591 "HELO electricrain.com" ident: "qmailr") by vger.rutgers.edu with SMTP id <156781-19608>; Fri, 22 Jan 1999 00:01:16 -0500
+From: "Numa" <numa@electricrain.com>
+Date: Thu, 21 Jan 1999 21:04:17 -0800
+To: Riley Williams <rhw@BigFoot.Com>
+Cc: Matthew Kirkwood <weejock@ferret.lmh.ox.ac.uk>, Javier Kohan <jkohan@adan.fceia.unr.edu.ar>, linux-kernel@vger.rutgers.edu
+Subject: Re: omirr
+Message-ID: <19990121210417.A10007@yyz.electricrain.com>
+References: <Pine.LNX.3.96.990121192507.31206A-100000@ferret.lmh.ox.ac.uk> <Pine.LNX.3.96.990121200529.28259B-100000@ps.cus.umist.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95i
+In-Reply-To: <Pine.LNX.3.96.990121200529.28259B-100000@ps.cus.umist.ac.uk>; from Riley Williams on Thu, Jan 21, 1999 at 08:07:44PM +0000
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Thu, 21 Jan 1999, Steven Roberts wrote:
+Once upon a time Riley Williams shaped the electrons to say...
 
-> "Albert D. Cahalan" wrote:
->
-> > If someone with great vision and design skills wants to create a
-> > new API for Linux, we should seriously consider such a proposal.
+>  > It went into the kernel at about 2.1.3x and out again at about 5x,
+>  > where it became obvious that it was causing too many complications
+>  > and was better left to userspace.
+> 
+> Ah...that makes sense - but did anybody bother writing the relevant
+> userland tools?
 
-	That is IMHO a bad idea.  Linux, because it follows the
-traditional Unix monolithic kernel model, is already so obsolete that it
-really isn't worth putting serious time into incompatible API
-improvements.  Its value right now is that it is a free, well-written and
-POSIX-compatible open source Unix clone.  Please leave it as such.  Just
-treat Linux as what it is: a legacy-compatible *interim* OS that provides
-a nice, mostly-stable and well-known environment in which to develop
-device drivers and OS guts (and apps, GUIs etc too).
+Something similar to omirr already exists, it has been implemeted in
+Irix, and is underway for FreeBSD. The userland tool is called 'webd',
+and although the name implies web, it could be used extensively in other
+arenas, such as a realtime tripwire. I would dearly love to see the
+kernel level stuff ('fmon' under FreeBSD) be ported (in concept at
+least) to Linux.. For more information see:
 
-	Soon, probably within a year or two, a decent, open-source next
-generation OS like Hurd (Microkernel), FluxOS (polymorphic virtual
-machines/nested processes), Dolphin (exokernel), The Cache Kernel, or
-another NGOS will be developed to the point where it can step in and
-cannibalize the guts out of Linux to produce a fully-functional NGOS which
-is suitable for mainstream use.  With the Univerity of Utah OSKit having
-been released, this process is well underway and accelerating rapidly.  At
-that point, then, we all can dump 25+ years of accumulated Unix API
-brokenness and move on to a clean, modern, well-designed OS.
+http://science.nas.nasa.gov/Groups/WWW/subpages/topology.html
 
-	Linux will then exist only as some sort of NGOS legacy
-compatibility wrapper, like WINE, and the real Linux can gracefully fade
-away into history, its "springboard" role having run its course.  This is 
-the natural way of things.  If you want to "fix" Unix/Linux, do it right 
-and rework everything ground-up from first principles.  Just MHO of 
-course.
+Or contact me directly.
 
-Jon
-
----
-'Cloning and the reprogramming of DNA is the first serious step in 
-becoming one with God.'
-	- Scientist G. Richard Seed
-
+-D
+--
+You know, for kids.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

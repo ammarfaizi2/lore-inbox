@@ -1,69 +1,341 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264164AbUEMMLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264160AbUEMMNW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264164AbUEMMLR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 08:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264154AbUEMMLR
+	id S264160AbUEMMNW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 08:13:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264154AbUEMMNW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 08:11:17 -0400
-Received: from main.gmane.org ([80.91.224.249]:46295 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264160AbUEMMLN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 08:11:13 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Thu, 13 May 2004 08:13:22 -0400
+Received: from mail.zrz.TU-Berlin.DE ([130.149.4.15]:29911 "EHLO
+	mail.zrz.tu-berlin.de") by vger.kernel.org with ESMTP
+	id S264160AbUEMMLy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 08:11:54 -0400
+From: Andreas Amann <amann@physik.tu-berlin.de>
 To: linux-kernel@vger.kernel.org
-From: Ari Pollak <ajp@aripollak.com>
-Subject: 2.6.6-mm-rc3-mm2 USB 2.0 after suspend issue
-Date: Thu, 13 May 2004 08:11:13 -0400
-Message-ID: <c7voku$jh8$1@sea.gmane.org>
-References: <20040513032736.40651f8e.akpm@osdl.org> <40A353A0.9060907@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: atlantis.ccs.neu.edu
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
-In-Reply-To: <40A353A0.9060907@gmx.de>
+Subject: 2.6.6 breaks kmail (nfs related?)
+Date: Thu, 13 May 2004 14:11:52 +0200
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_IY2oAaOeYc7v4f3"
+Message-Id: <200405131411.52336.amann@physik.tu-berlin.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That reminds me, I seem to be having problems with EHCI in 2.6.6-rc3-mm2 
-after a resume. With this: "0000:00:1d.7 USB Controller: Intel Corp. 
-82801DB (ICH4) USB2 EHCI Controller (rev 01)" if I suspend & resume with 
-APM, then plug in a USB 2.0 device, it won't work at all until I "rmmod 
-ehci_hcd; modprobe ehci_hcd". I'd imagine it has something to do with 
-these messages:
-uhci_hcd 0000:00:1d.1: suspend_hc
-ehci_hcd 0000:00:1d.7: suspend D0 --> D3
-ehci_hcd 0000:00:1d.7: No PM capability
-uhci_hcd 0000:00:1d.2: suspend D4 --> D3
-uhci_hcd 0000:00:1d.2: suspend_hc
-uhci_hcd 0000:00:1d.1: suspend D4 --> D3
-uhci_hcd 0000:00:1d.1: suspend_hc
-uhci_hcd 0000:00:1d.0: suspend D4 --> D3
-uhci_hcd 0000:00:1d.0: suspend_hc
-uhci_hcd 0000:00:1d.0: resume from state D4
-PCI: Setting latency timer of device 0000:00:1d.0 to 64
-uhci_hcd 0000:00:1d.1: resume from state D4
-PCI: Setting latency timer of device 0000:00:1d.1 to 64
-uhci_hcd 0000:00:1d.2: resume from state D4
-PCI: Setting latency timer of device 0000:00:1d.2 to 64
-ehci_hcd 0000:00:1d.7: resume from state D0
-ehci_hcd 0000:00:1d.7: can't resume, not suspended!
 
-Granted, this isn't a huge problem because I can easily work around it 
-by reloading the ehci_hcd module. But it's still a little annoying. It 
-doesn't look like this has changed as of 2.6.6-mm2 either.
+--Boundary-00=_IY2oAaOeYc7v4f3
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
 
-Prakash K. Cheemplavam wrote:
-> Please look at the end of dmesg output.
-> 
-> There appear lines like
-> 
-> usb usb2: string descriptor 0 read error: -108
-> 
-> bug or feature? They weren't there with 2.6.6-mm1. I have no usb2.0 
-> stuff to actually test. My usb1 stuff seems to work though.
-> 
-> Prakash
+Hi,
+
+I upgraded from vanilla 2.6.4 to vanilla 2.6.6, using the same compiler 
+(gcc-3.3.1) and .config file (shortened version in attachment) for both. Now 
+I cannot send messages with kmail and  I get the following error messages:
+
+...
+kmail: Error: Could not add message to folder (No space left on device?)
+kmail: WARNING: KMail encountered a fatal error and will terminate now.
+The error was:
+KMFolderMaildir::addMsg: abnormally terminating to prevent data loss.
+...
+
+Apparently kmail thinks that my /home device is full, but it is not (still 
+~37GB  free). Other programs have no problem writing into my home. 
+
+Maybe kmail uses some kind of lock before writing to a folder? (I have fam 
+enabled.) Is it possible that this broke recently?  
+
+My home directory is mounted via udp-nfs from a server running vanilla 2.4.25 
+with a  reiserfs on  a hardware raid. The mount options on the client are 
+hservnlds:/home /net/hservnlds/home nfs 
+rw,nosuid,nodev,v3,rsize=8192,wsize=8192,hard,intr,udp,lock,addr=sservnlds 0 
+0
+
+Any hints? This looks like a reproducible regression between 2.6.4 and 2.6.6 
+to me. I can do more tests on request. 
+
+Andreas
+
+
+
+-- 
+Andreas Amann
+Institut für Theoretische Physik, TU Berlin
+
+--Boundary-00=_IY2oAaOeYc7v4f3
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="config-2.6.6"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="config-2.6.6"
+
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_STANDALONE=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=15
+CONFIG_HOTPLUG=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+CONFIG_STOP_MACHINE=y
+CONFIG_X86_PC=y
+CONFIG_M586=y
+CONFIG_X86_GENERIC=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_PPRO_FENCE=y
+CONFIG_X86_F00F_BUG=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_ALIGNMENT_16=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_SMP=y
+CONFIG_NR_CPUS=32
+CONFIG_PREEMPT=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_IRQBALANCE=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_PM=y
+CONFIG_ACPI_BOOT=y
+CONFIG_APM=m
+CONFIG_APM_RTC_IS_GMT=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCI_LEGACY_PROC=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_PCMCIA_PROBE=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_1284=y
+CONFIG_BLK_DEV_FD=m
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_CRYPTOLOOP=m
+CONFIG_BLK_DEV_RAM=m
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_AMD74XX=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=m
+CONFIG_SCSI_PROC_FS=y
+CONFIG_BLK_DEV_SD=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_AIC7XXX=m
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+CONFIG_AIC7XXX_DEBUG_MASK=0
+CONFIG_SCSI_QLA2XXX=m
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_NET_KEY=y
+CONFIG_INET=y
+CONFIG_INET_AH=y
+CONFIG_INET_ESP=y
+CONFIG_INET_IPCOMP=y
+CONFIG_IPV6=m
+CONFIG_NETFILTER=y
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_XFRM=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=y
+CONFIG_NET_TULIP=y
+CONFIG_TULIP=y
+CONFIG_NET_PCI=y
+CONFIG_E100=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+CONFIG_PRINTER=m
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+CONFIG_AGP_VIA=y
+CONFIG_I2C=m
+CONFIG_I2C_CHARDEV=m
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_ALGOPCF=m
+CONFIG_I2C_AMD756=m
+CONFIG_I2C_ISA=m
+CONFIG_I2C_PIIX4=m
+CONFIG_I2C_VIA=m
+CONFIG_I2C_VIAPRO=m
+CONFIG_I2C_SENSOR=m
+CONFIG_SENSORS_VIA686A=m
+CONFIG_SENSORS_W83781D=m
+CONFIG_SENSORS_W83L785TS=m
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_SOUND=m
+CONFIG_SND=m
+CONFIG_SND_TIMER=m
+CONFIG_SND_PCM=m
+CONFIG_SND_HWDEP=m
+CONFIG_SND_RAWMIDI=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_MPU401_UART=m
+CONFIG_SND_OPL3_LIB=m
+CONFIG_SND_DUMMY=m
+CONFIG_SND_MPU401=m
+CONFIG_SND_AC97_CODEC=m
+CONFIG_SND_CMIPCI=m
+CONFIG_SND_ENS1371=m
+CONFIG_USB=m
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_EHCI_HCD=m
+CONFIG_USB_OHCI_HCD=m
+CONFIG_USB_UHCI_HCD=m
+CONFIG_USB_AUDIO=m
+CONFIG_USB_PRINTER=m
+CONFIG_USB_STORAGE=m
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_HIDDEV=y
+CONFIG_USB_USBNET=m
+CONFIG_USB_ALI_M5632=y
+CONFIG_USB_ARMLINUX=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_REISERFS_FS=m
+CONFIG_MINIX_FS=m
+CONFIG_AUTOFS4_FS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=m
+CONFIG_UDF_FS=m
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_NTFS_FS=m
+CONFIG_NTFS_RW=y
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_CRAMFS=m
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_SUNRPC=y
+CONFIG_SMB_FS=m
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_EARLY_PRINTK=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_NULL=m
+CONFIG_CRYPTO_MD4=m
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=y
+CONFIG_CRYPTO_SHA256=m
+CONFIG_CRYPTO_SHA512=m
+CONFIG_CRYPTO_DES=y
+CONFIG_CRYPTO_BLOWFISH=m
+CONFIG_CRYPTO_TWOFISH=m
+CONFIG_CRYPTO_SERPENT=m
+CONFIG_CRYPTO_AES=m
+CONFIG_CRYPTO_DEFLATE=y
+CONFIG_CRC32=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=y
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_X86_TRAMPOLINE=y
+CONFIG_X86_STD_RESOURCES=y
+CONFIG_PC=y
+
+--Boundary-00=_IY2oAaOeYc7v4f3--
 

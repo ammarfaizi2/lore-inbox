@@ -1,43 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266022AbUAKXNV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 18:13:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266023AbUAKXNV
+	id S266016AbUAKXPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 18:15:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266018AbUAKXPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 18:13:21 -0500
-Received: from bay7-dav33.bay7.hotmail.com ([64.4.10.90]:11524 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S266022AbUAKXNF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 18:13:05 -0500
-X-Originating-IP: [66.191.177.153]
-X-Originating-Email: [ameer_armaly@hotmail.com]
-From: "Ameer Armaly" <Ameer_Armaly@hotmail.com>
-To: "linux kernel" <linux-kernel@vger.kernel.org>
-Subject: patch: arch/i386/boot/install.sh
-Date: Sun, 11 Jan 2004 18:13:03 -0500
+	Sun, 11 Jan 2004 18:15:24 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:37513 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266016AbUAKXPQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 18:15:16 -0500
+Message-ID: <4001D8BF.902@us.ibm.com>
+Date: Sun, 11 Jan 2004 15:14:07 -0800
+From: Janet Morgan <janetmor@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: suparna@in.ibm.com, daniel@osdl.org, pbadari@us.ibm.com,
+       linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH linux-2.6.0-test10-mm1] filemap_fdatawait.patch
+References: <1070907814.707.2.camel@ibm-c.pdx.osdl.net>	<1071190292.1937.13.camel@ibm-c.pdx.osdl.net>	<1071624314.1826.12.camel@ibm-c.pdx.osdl.net>	<20031216180319.6d9670e4.akpm@osdl.org>	<20031231091828.GA4012@in.ibm.com>	<20031231013521.79920efd.akpm@osdl.org>	<20031231095503.GA4069@in.ibm.com>	<20031231015913.34fc0176.akpm@osdl.org>	<20031231100949.GA4099@in.ibm.com>	<20031231021042.5975de04.akpm@osdl.org>	<20031231104801.GB4099@in.ibm.com>	<20031231025309.6bc8ca20.akpm@osdl.org>	<20031231025410.699a3317.akpm@osdl.org> <20031231031736.0416808f.akpm@osdl.org>
+In-Reply-To: <20031231031736.0416808f.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Message-ID: <BAY7-DAV33eiTsSnJWI0002cadd@hotmail.com>
-X-OriginalArrivalTime: 11 Jan 2004 23:13:04.0996 (UTC) FILETIME=[779DBA40:01C3D898]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a patch to the i386 install script, which actually makes make
-install work, at least on my system; let me know how it works on yours.  For
-some reason, I had to pass the arguments to installkernel separately;  the
-original "$@" wouldn't work.   the diff is at
-ftp://ftp.linux-speakup.org/pub/incoming/install.sh.dif since hotmail won't
-let me send via linux, and OE keeps wordwrapping the diff whenever I paste
-it in; if anyone knows how to get linux working with hotmail, please send me
-privately.
-Thanks,
+Andrew Morton wrote:
+
+>Andrew Morton <akpm@osdl.org> wrote:
+>  
+>
+>>Let me actually think about this a bit.
+>>    
+>>
+>
+>Nasty.  The same race is present in 2.4.x...
+>
+>How's about we start new I/O in filemap_fdatawait() if the page is dirty?
+>
+>
+>diff -puN mm/filemap.c~a mm/filemap.c
+>--- 25/mm/filemap.c~a	2003-12-31 03:10:29.000000000 -0800
+>+++ 25-akpm/mm/filemap.c	2003-12-31 03:17:05.000000000 -0800
+>@@ -206,7 +206,13 @@ restart:
+> 		page_cache_get(page);
+> 		spin_unlock(&mapping->page_lock);
+> 
+>-		wait_on_page_writeback(page);
+>+		lock_page(page);
+>+		if (PageDirty(page) && mapping->a_ops->writepage) {
+>+			write_one_page(page, 1);
+>+		} else {
+>+			wait_on_page_writeback(page);
+>+			unlock_page(page);
+>+		}
+> 		if (PageError(page))
+> 			ret = -EIO;
+> 
+>
+>  
+>
+That fixed the problem!  Stephen's testcase is running successfully on 
+2.6.1-mm1 plus your patch -- no more uninitialized data!
+
+Thanks!
+-Janet
+P.S. Sorry so late testing this (was on vacation).
 
 
 
-Ameer

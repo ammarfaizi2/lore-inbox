@@ -1,103 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263204AbTCEXIT>; Wed, 5 Mar 2003 18:08:19 -0500
+	id <S266114AbTCEXIv>; Wed, 5 Mar 2003 18:08:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266114AbTCEXIT>; Wed, 5 Mar 2003 18:08:19 -0500
-Received: from mailhost.iprg.nokia.com ([205.226.5.12]:42302 "EHLO
-	mailhost.iprg.nokia.com") by vger.kernel.org with ESMTP
-	id <S263204AbTCEXIR>; Wed, 5 Mar 2003 18:08:17 -0500
-X-mProtect: <200303052318> Nokia Silicon Valley Messaging Protection
-Subject: Re: Chaotic structure of the net headers?
-From: Rod Van Meter <Rod.VanMeter@nokia.com>
-Reply-To: Rod.VanMeter@nokia.com
-To: ext Adrian Bunk <bunk@fs.tum.de>
-Cc: davem@redhat.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20030305225441.GO20423@fs.tum.de>
-References: <20030305225441.GO20423@fs.tum.de>
-Content-Type: text/plain
-Organization: Nokia Networks
-Message-Id: <1046905834.17778.400.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 05 Mar 2003 15:10:35 -0800
-Content-Transfer-Encoding: 7bit
+	id <S266210AbTCEXIv>; Wed, 5 Mar 2003 18:08:51 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:60891 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S266114AbTCEXIq>; Wed, 5 Mar 2003 18:08:46 -0500
+Message-ID: <15974.34008.255564.492025@milikk.co.intel.com>
+Date: Wed, 5 Mar 2003 15:14:32 -0800
+Subject: [PATCH 2.5.64] Use __set_current_state() instead of current->state = (take 3)
+To: linux-kernel@vger.kernel.org, rml@tech9.net, torvalds@transmeta.com
+From: Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>
+X-Mailer: VM 7.07 under Emacs 21.2.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-03-05 at 14:54, ext Adrian Bunk wrote:
-
-> 
-> There's some duplication, e.g. include/linux/in6.h contains
-> 
-> /*
->  *      IPV6 extension headers
->  */
-> #define IPPROTO_HOPOPTS         0       /* IPv6 hop-by-hop options      */
-> #define IPPROTO_ROUTING         43      /* IPv6 routing header          */
-> #define IPPROTO_FRAGMENT        44      /* IPv6 fragmentation header    */
-> #define IPPROTO_ICMPV6          58      /* ICMPv6                       */
-> #define IPPROTO_NONE            59      /* IPv6 no next header          */
-> #define IPPROTO_DSTOPTS         60      /* IPv6 destination options     */
 
 
-According to RFC2292 (Advanced Sockets):
+Hi all
 
-2.1.1.  IPv6 Next Header Values
+In fs/*.c, many functions manually set the task state directly
+accessing current->state, or with a macro, kind of
+inconsistently. This patch changes all of them to use
+[__]set_current_state().
 
-   IPv6 defines many new values for the Next Header field.  The
-   following constants are defined as a result of including
-   <netinet/in.h>.
+Changelog:
 
-   #define IPPROTO_HOPOPTS        0 /* IPv6 Hop-by-Hop options */
-   #define IPPROTO_IPV6          41 /* IPv6 header */
-   #define IPPROTO_ROUTING       43 /* IPv6 Routing header */
-   #define IPPROTO_FRAGMENT      44 /* IPv6 fragmentation header */
-   #define IPPROTO_ESP           50 /* encapsulating security payload */
-   #define IPPROTO_AH            51 /* authentication header */
-   #define IPPROTO_ICMPV6        58 /* ICMPv6 */
-   #define IPPROTO_NONE          59 /* IPv6 no next header */
-   #define IPPROTO_DSTOPTS       60 /* IPv6 Destination options */
+ Take 3:
 
-   Berkeley-derived IPv4 implementations also define IPPROTO_IP to be 0.
-   This should not be a problem since IPPROTO_IP is used only with IPv4
-   sockets and IPPROTO_HOPOPTS only with IPv6 sockets.
+  - Port to 2.5.64
 
+  - Port to 2.5.57
 
-> 
-> and include/net/ipv6.h contains:
-> 
-> <--  snip  -->
-> 
-> /*
->  *      NextHeader field of IPv6 header
->  */
-> 
-> #define NEXTHDR_HOP             0       /* Hop-by-hop option header. */
-> #define NEXTHDR_TCP             6       /* TCP segment. */
-> #define NEXTHDR_UDP             17      /* UDP message. */
-> #define NEXTHDR_IPV6            41      /* IPv6 in IPv6 */
-> #define NEXTHDR_ROUTING         43      /* Routing header. */
-> #define NEXTHDR_FRAGMENT        44      /* Fragmentation/reassembly header. */
+  - Use safe set_current_state() instead of __set... in
+    exec.c:de_thread()
 
-This form doesn't appear in RFC2292, nor in 2133 (Basic Socket...)
+ Take 2:
 
-My interpretation is that this latter form is defined for kernel use,
-while the former is for user-level manipulation of raw packet fields
-(the primary purpose of 2292).
+  - Added feedback from Robert Love regarding usage of
+    __set_current_thread() vs. set_current_thread() to avoid race
+    conditions related to memory flush. 
 
-Does it make sense to have two forms, one kernel, one user?  I haven't
-e.g. followed the desired include chain.  If we wanted to merge the
-uses, the former form and include location would probably have to be
-used.
+  - Use cond_resched() in namei.c:do_follow_link().
 
-I've been looking into this.  There are a *few* things missing from the
-2292 support.  AFAICT, it's just a handful of functions/macros for
-manipulating option headers that need to be added.
+ Take 1:
 
-Does anybody actually USE this stuff (the advanced sockets API, I mean,
-not IPv6)?  I'm planning to add those missing bits, just for kicks, but
-haven't done it yet.
+  - Ported forward to 2.5.52
 
-			--Rod
+diff -u linux/fs/exec.c:1.1.1.15 linux/fs/exec.c:1.1.1.1.6.6
+--- linux/fs/exec.c:1.1.1.15	Mon Feb 24 21:04:49 2003
++++ linux/fs/exec.c	Wed Mar  5 15:06:02 2003
+@@ -633,7 +633,7 @@
+ 		count = 1;
+ 	while (atomic_read(&oldsig->count) > count) {
+ 		oldsig->group_exit_task = current;
+-		current->state = TASK_UNINTERRUPTIBLE;
++		set_current_state(TASK_UNINTERRUPTIBLE);
+ 		spin_unlock_irq(lock);
+ 		schedule();
+ 		spin_lock_irq(lock);
+diff -u linux/fs/inode.c:1.1.1.10 linux/fs/inode.c:1.1.1.1.6.6
+--- linux/fs/inode.c:1.1.1.10	Wed Mar  5 08:12:22 2003
++++ linux/fs/inode.c	Wed Mar  5 15:06:02 2003
+@@ -1208,7 +1208,7 @@
+ 		goto repeat;
+ 	}
+ 	remove_wait_queue(wq, &wait);
+-	current->state = TASK_RUNNING;
++	__set_current_state(TASK_RUNNING);
+ }
+ 
+ void wake_up_inode(struct inode *inode)
+diff -u linux/fs/locks.c:1.1.1.7 linux/fs/locks.c:1.1.1.1.6.4
+--- linux/fs/locks.c:1.1.1.7	Tue Feb 18 12:51:54 2003
++++ linux/fs/locks.c	Wed Mar  5 15:06:02 2003
+@@ -571,7 +571,7 @@
+ 	int result = 0;
+ 	DECLARE_WAITQUEUE(wait, current);
+ 
+-	current->state = TASK_INTERRUPTIBLE;
++	set_current_state (TASK_INTERRUPTIBLE);
+ 	add_wait_queue(fl_wait, &wait);
+ 	if (timeout == 0)
+ 		schedule();
+@@ -580,7 +580,7 @@
+ 	if (signal_pending(current))
+ 		result = -ERESTARTSYS;
+ 	remove_wait_queue(fl_wait, &wait);
+-	current->state = TASK_RUNNING;
++	__set_current_state (TASK_RUNNING);
+ 	return result;
+ }
+ 
+diff -u linux/fs/namei.c:1.1.1.9 linux/fs/namei.c:1.1.1.1.6.6
+--- linux/fs/namei.c:1.1.1.9	Tue Feb 18 12:51:54 2003
++++ linux/fs/namei.c	Wed Mar  5 15:06:02 2003
+@@ -388,10 +388,7 @@
+ 		goto loop;
+ 	if (current->total_link_count >= 40)
+ 		goto loop;
+-	if (need_resched()) {
+-		current->state = TASK_RUNNING;
+-		schedule();
+-	}
++	cond_resched();
+ 	err = security_inode_follow_link(dentry, nd);
+ 	if (err)
+ 		goto loop;
+diff -u linux/fs/select.c:1.1.1.5 linux/fs/select.c:1.1.1.1.6.4
+--- linux/fs/select.c:1.1.1.5	Fri Jan 10 14:36:46 2003
++++ linux/fs/select.c	Fri Jan 10 16:45:54 2003
+@@ -235,7 +235,7 @@
+ 		}
+ 		__timeout = schedule_timeout(__timeout);
+ 	}
+-	current->state = TASK_RUNNING;
++	__set_current_state (TASK_RUNNING);
+ 
+ 	poll_freewait(&table);
+ 
+@@ -425,7 +425,7 @@
+ 			break;
+ 		timeout = schedule_timeout(timeout);
+ 	}
+-	current->state = TASK_RUNNING;
++	__set_current_state (TASK_RUNNING);
+ 	return count;
+ }
+ 
 
+-- 
 
+Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my fault]

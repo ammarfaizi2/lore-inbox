@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261251AbTEANSy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 09:18:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbTEANSy
+	id S261253AbTEANWs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 09:22:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbTEANWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 09:18:54 -0400
-Received: from science.horizon.com ([192.35.100.1]:41019 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S261251AbTEANSx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 09:18:53 -0400
-Date: 1 May 2003 13:31:10 -0000
-Message-ID: <20030501133110.7966.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] Faster generic_fls
+	Thu, 1 May 2003 09:22:48 -0400
+Received: from [193.89.230.30] ([193.89.230.30]:60633 "EHLO
+	roadrunner.hulpsystems.net") by vger.kernel.org with ESMTP
+	id S261253AbTEANWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 09:22:47 -0400
+Message-ID: <1051796106.3eb1228a4abb1@roadrunner.hulpsystems.net>
+Date: Thu,  1 May 2003 15:35:06 +0200
+From: Martin List-Petersen <martin@list-petersen.dk>
+To: bas.mevissen@hetnet.nl
+Cc: linux-kernel@vger.kernel.org, davem@redhat.com, pizza@shaftnet.org
+Subject: RE: Broadcom BCM4306/BCM2050  support
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2-cvs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Fount of Holy Pengun Pee expressed himself thus:
-> Yeah, except if you want best code generation you should probably use
+>> (..) And as Alan and myself have been
+>> talking to upper management entities at various wireless card
+>> companies we know the real reason has to do with making regulation
+>> agencies happy.  They do have drivers, and they do want to publish
+>> them and yes they recognize that this will expose a lot of their
+>> IP and they accept that.
 >
->	static inline int fls(int x)
->	{
->		int bit;
->		/* Only well-defined for non-zero */
->		asm("bsrl %1,%0":"=r" (bit):"rm" (x));
->		return x ? bit : 32;
->	}
->
-> which should generate (assuming you give "-march=xxxx" to tell gcc to use 
-> cmov):
->
->		movl    $32, %eax
->		bsrl %edx,%ecx
->		testl   %edx, %edx
->		cmovne  %ecx, %eax
->
-> which looks pretty optimal.
+> OK. So at least they are open to it. Maybe they should drop a binary
+somewhere
+> to get a start. It's not what you want in the long term, but I think good 
+> enough for now. Then we should work something out for the frequency settings.
 
-Except that the testl is unnecessary.  The full semantics of
-bsrl are:
+I totally agree on this. A binary driver could better than nothing at this
+point. Another thing that wonders me, is why companies like Broadcom, if they
+are so open to releasing the drivers at some point, where they can make the
+regulation agencies somewhat happy, are so ignorant then. I've heard of serveral
+people, that tried to get a statement on the possibilty for Linux drivers from
+then and the return is nothing. I've actually tried myself. No response at all.
 
-if (source != 0) {
-	destination = <index of most significant set bit in source>;
-	ZF = 0;
-} else {
-	destination = UNDEFINED;
-	ZF = 1;
-}
+Regards,
+Martin List-Petersen
+martin at list-petersen dot dk
+--
+knowledge, n.:
+	Things you believe.
 
-Thus, there are two reasonable code sequences:
 
-asm("	bsrl	%2, %1"
-"\n	cmovne  %1, %0" : "=r" (bit), "=r" (temp) : "rm" (x), "0" (32));
-
-and (if I've got the earlyclobber syntax right):
-
-asm("	bsrl	%1, %0"
-"\n	cmoveq  %2, %0" : "=&r,&r" (bit) : "0,rm" (x), "rm,rm" (32));
-
-Note that in this latter case, I have to list %1 == %0 as an explicit
-alternative, because otherwise the & on operand 0 would tell GCC to forbid
-that combination and it's only %0 == %2 that's forbidden.
-
-(The first alternative is listed first because it uses fewer registers
-and so is preferred, all other things being equal.)
-
-Unfortunately, I'm not sure how to let GCC choose between these two
-alternatives...

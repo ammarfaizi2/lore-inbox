@@ -1,84 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263692AbTEMHsn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 03:48:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263282AbTEMHsn
+	id S263303AbTEMIhT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 04:37:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTEMIhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 03:48:43 -0400
-Received: from landfill.ihatent.com ([217.13.24.22]:51584 "EHLO
-	mail.ihatent.com") by vger.kernel.org with ESMTP id S263692AbTEMHsO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 03:48:14 -0400
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.69-mm4
-References: <20030512225504.4baca409.akpm@digeo.com>
-	<87vfwf8h2n.fsf@lapper.ihatent.com>
-	<20030513001135.2395860a.akpm@digeo.com>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 13 May 2003 10:00:58 +0200
-In-Reply-To: <20030513001135.2395860a.akpm@digeo.com>
-Message-ID: <87n0hr8edh.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Tue, 13 May 2003 04:37:19 -0400
+Received: from amsfep15-int.chello.nl ([213.46.243.28]:42543 "EHLO
+	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id S263303AbTEMIhR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 04:37:17 -0400
+From: Jos Hulzink <josh@stack.nl>
+To: "STK" <stk@nerim.net>, "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] How to fix MPS 1.4 + ACPI behaviour ?
+Date: Tue, 13 May 2003 10:54:25 +0200
+User-Agent: KMail/1.5
+Cc: "'Zwane Mwaikambo'" <zwane@linuxpower.ca>
+References: <000b01c318cd$992f92e0$0200a8c0@QUASARLAND>
+In-Reply-To: <000b01c318cd$992f92e0$0200a8c0@QUASARLAND>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305131054.25846.josh@stack.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-Andrew Morton <akpm@digeo.com> writes:
+As you can see below, current ACPI implementation concludes it has to use the 
+PIC, before it finds the PRT. No occurences of PRT in dmesg before this one.
 
-> Alexander Hoogerhuis <alexh@ihatent.com> wrote:
+vvvv
+ACPI: Using PIC for interrupt routing
+^^^^
+ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 *5 6 7 9 10 11 12 14 15)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 *7 9 10 11 12 14 15)
+ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 7 9 *10 11 12 14 15)
+ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
+ACPI: PCI Root Bridge [PCI0] (00:00)
+PCI: Probing PCI hardware (bus 00)
+vvvv
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+^^^^
+
+Jos
+
+On Monday 12 May 2003 23:29, STK wrote:
+> For me the linux kernel should invoke the _PIC method with the right
+> parameter.
+>
+> Look at the specification Section
+>
+> << ================ Start ================
+> 5.8.1 _PIC Method
+> The \_PIC optional method is to report to the BIOS the current interrupt
+> model used by the OS. This
+> control method returns nothing. The argument passed into the method
+> signifies the interrupt model OSPM
+> has chosen, PIC mode, APIC mode, or SAPIC mode. Notice that calling this
+> method is optional for OSPM.
+> If the method is never called, the BIOS must assume PIC mode. It is
+> important that the BIOS save the value
+> passed in by OSPM for later use during wake operations.
+> _PIC(x):
+> _PIC(0) => PIC Mode
+> _PIC(1) => APIC Mode
+> _PIC(2) => SAPIC Mode
+> _PIC(3-n) => Reserved
+>
+> ==================== End ====================>
+>
+> ==> No MADT table, so ACPI sets up the APIC in PIC mode (which I wonder
+> wether correct, but ok)
+> For me the kernel should invoke the _PIC method with the right
+> parameter, in this case the ACPI module will receive the right table
+> during the _PRT
+>
+> Bios ASL code:
+>                 Method(_PRT)
+>                 {
+>                 If(\PICF) <== internal variable set by _PIC
+>                 {
+>                 	==> Returning APIC Mode
+>                 	Return(APIC)
+>                 }
+>                 Else
+>                 {
+>                 	==> Returning PIC Mode
+>                 	Return(PICM)
+>                 }
+> 			}
+>
+> Regards,
+>
+> Yann
+>
+>
+> -----Original Message-----
+> From: Jos Hulzink [mailto:josh@stack.nl]
+> Sent: lundi 12 mai 2003 22:51
+> To: STK; 'linux-kernel'
+> Cc: 'Zwane Mwaikambo'
+> Subject: Re: [RFC] How to fix MPS 1.4 + ACPI behaviour ?
+>
+> On Monday 12 May 2003 22:40, STK wrote:
+> > Hi,
 > >
-> > net/core/dev.c:1496: conflicting types for `handle_bridge'
-> >  net/core/dev.c:1468: previous declaration of `handle_bridge'
-> 
-> argh, sorry, stupid.
-> 
-> diff -puN net/core/dev.c~handle_bridge-fix net/core/dev.c
-> --- 25/net/core/dev.c~handle_bridge-fix	2003-05-13 00:10:47.000000000 -0700
-> +++ 25-akpm/net/core/dev.c	2003-05-13 00:10:57.000000000 -0700
-> @@ -1491,7 +1491,7 @@ static inline void handle_diverter(struc
->  #endif
->  }
->  
-> -static inline int handle_bridge(struct sk_buff *skb,
-> +static inline int __handle_bridge(struct sk_buff *skb,
->  			struct packet_type **pt_prev, int *ret)
->  {
->  #if defined(CONFIG_BRIDGE) || defined(CONFIG_BRIDGE_MODULE)
-> @@ -1548,7 +1548,7 @@ int netif_receive_skb(struct sk_buff *sk
->  
->  	handle_diverter(skb);
->  
-> -	if (handle_bridge(skb, &pt_prev, &ret))
-> +	if (__handle_bridge(skb, &pt_prev, &ret))
->  		goto out;
->  
->  	list_for_each_entry_rcu(ptype, &ptype_base[ntohs(type)&15], list) {
-> 
+> > If no Multiple APIC Description Table (MADT) is described, in this
+> > case the _PIC method can be used to tell the bios to return the right
+> > table (PIC or APIC routing table).
+> >
+> > In this case, if the MPS table describes matches the ACPI APIC table
+> > (this is the case, because the ACPI APIC table is built from the MPS
+> > table), you do not need to remap all IRQs.
+>
+> So, it's more or less a bug in the ACPI code that should do some things
+> when
+> no MADT is dectected ? Or do I understand you wrong ?
+>
+> Jos
 
-And this one :)
-
-        ld -m elf_i386  -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o   init/built-in.o --start-group  usr/built-in.o  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux1
-kernel/built-in.o(.text+0x1005): In function `schedule':
-: undefined reference to `active_load_balance'
-make: *** [.tmp_vmlinux1] Error 1
-alexh@lapper ~/src/linux/linux-2.5.69-mm4 $
-
-mvh,
-A
-- -- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
-
-iD8DBQE+wKY3CQ1pa+gRoggRAmd6AKDCJGGIiqot4yzmTlVdWpvQR1JagwCaAsY7
-UdsL8kbCLzCEKTrsL/ijsoA=
-=Uhvc
------END PGP SIGNATURE-----

@@ -1,46 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268146AbTAKVqq>; Sat, 11 Jan 2003 16:46:46 -0500
+	id <S268154AbTAKVtr>; Sat, 11 Jan 2003 16:49:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268149AbTAKVqq>; Sat, 11 Jan 2003 16:46:46 -0500
-Received: from mta1.srv.hcvlny.cv.net ([167.206.5.4]:43374 "EHLO
-	mta1.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S268146AbTAKVqp>; Sat, 11 Jan 2003 16:46:45 -0500
-Date: Sat, 11 Jan 2003 16:53:33 -0500
-From: Rob Wilkens <robw@optonline.net>
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-In-reply-to: <20030111214437.GD9153@nbkurt.casa-etp.nl>
-To: Kurt Garloff <kurt@garloff.de>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Reply-to: robw@optonline.net
-Message-id: <1042322012.1034.6.camel@RobsPC.RobertWilkens.com>
-Organization: Robert Wilkens
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com>
- <1042250324.1278.18.camel@RobsPC.RobertWilkens.com>
- <20030111020738.GC9373@work.bitmover.com>
- <1042251202.1259.28.camel@RobsPC.RobertWilkens.com>
- <20030111021741.GF9373@work.bitmover.com>
- <1042252717.1259.51.camel@RobsPC.RobertWilkens.com>
- <20030111214437.GD9153@nbkurt.casa-etp.nl>
+	id <S268155AbTAKVtq>; Sat, 11 Jan 2003 16:49:46 -0500
+Received: from dclient217-162-108-200.hispeed.ch ([217.162.108.200]:48391 "HELO
+	ritz.dnsalias.org") by vger.kernel.org with SMTP id <S268154AbTAKVto>;
+	Sat, 11 Jan 2003 16:49:44 -0500
+Subject: AGP oops on rmmod
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+To: davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 11 Jan 2003 22:58:56 +0100
+Message-Id: <1042322347.3418.34.camel@cast2.alcatel.ch>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-01-11 at 16:44, Kurt Garloff wrote:
-> You're new to Linux, aren't you?
-> Or terribly presumptous.
+maybe already know...kernel is 2.5.56
 
-A little of both, but not too much of either.
+modprobe apggart
+modprobe intel-agp
+-> lsmod shows 'em
+rmmod intel-agp
+-> produces that one:
 
-I'd say "New to linux" but I've been using it on and off since 1995 or
-earlier.
 
-I'd say terribly presumptuous, but I don't think it is presumptuous to
-say that if there are many patches (bug fixes, mostly) coming in that
-the code that was originally there was of questionable quality.
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:
+00000000
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0060:[<00000000>]    Not tainted
+EFLAGS: 00010246
+EIP is at 0x0
+eax: 00000000   ebx: d0891220   ecx: c0290ac4   edx: 00000000
+esi: c5f7e000   edi: 00000000   ebp: c5f7ff54   esp: c5f7ff50
+ds: 007b   es: 007b   ss: 0068
+Process rmmod (pid: 2100, threadinfo=c5f7e000 task=c9b48d80)
+Stack: d0895246 c5f7ff60 d0895379 d089527c c5f7ff68 d088f648 c5f7ffbc c0128225
+       bffff884 65746e69 67615f6c c0290a84 65746e69 67615f6c cbe10070 c9ccd3b4
+       00001000 c9ccd3d4 c99572b4 c5f7ffbc c01379dc c9ccd3b4 40016000 00001000
+Call Trace:
+ [<d0895246>] agp_backend_cleanup+0xa/0x2f76adc4 [agpgart]
+ [<d0895379>] agp_unregister_driver+0x21/0x2f76aca8 [agpgart]
+ [<d089527c>] agp_power+0x0/0x2f76ad84 [agpgart]
+ [<d088f648>] +0x8/0x2f7709c0 [intel_agp]
+ [<c0128225>] sys_delete_module+0x1b5/0x1d8
+ [<c01379dc>] sys_munmap+0x44/0x64
+ [<c010a89b>] syscall_call+0x7/0xb
 
--Rob
+Code:  Bad EIP value.
+
+
+machine is a toshiba tecra 8000 laptop, p3-500, lspci:
+00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX Host bridge (AGP disabled) (rev 03)
+00:04.0 VGA compatible controller: Neomagic Corporation [MagicMedia 256AV] (rev 12)
+00:05.0 Bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
+00:05.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
+00:05.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
+00:05.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)
+00:09.0 Communication controller: Toshiba America Info Systems FIR Port (rev 23)
+00:0b.0 CardBus bridge: Toshiba America Info Systems ToPIC97 (rev 05)
+00:0b.1 CardBus bridge: Toshiba America Info Systems ToPIC97 (rev 05)
+
+as you can see the chipset has agp disabled.
+
+
 

@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266605AbUGPRVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263585AbUGPR02@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266605AbUGPRVG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 13:21:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263585AbUGPRVG
+	id S263585AbUGPR02 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 13:26:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266609AbUGPR02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 13:21:06 -0400
-Received: from mail.gmx.de ([213.165.64.20]:15079 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266605AbUGPRTn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 13:19:43 -0400
-X-Authenticated: #689055
-Message-ID: <40F41D22.5080603@gmx.de>
-Date: Tue, 13 Jul 2004 19:34:26 +0200
-From: Torsten Scheck <torsten.scheck@gmx.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
+	Fri, 16 Jul 2004 13:26:28 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:31947 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S263585AbUGPR01 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 13:26:27 -0400
+Date: Fri, 16 Jul 2004 13:29:31 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Markus Lidel <Markus.Lidel@shadowconnect.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: Problem with ioremap which returns NULL in 2.6 kernel
+In-Reply-To: <40BDC553.4060809@shadowconnect.com>
+Message-ID: <Pine.LNX.4.58.0407161328030.26950@montezuma.fsmlabs.com>
+References: <40BC788A.3020103@shadowconnect.com> <20040601142122.GA7537@havoc.gtf.org>
+ <40BC9EF7.4060502@shadowconnect.com> <Pine.LNX.4.58.0406011228130.1794@montezuma.fsmlabs.com>
+ <40BDC553.4060809@shadowconnect.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PIIX4 ACPI device - hardwired IRQ9
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear friends:
+On Wed, 2 Jun 2004, Markus Lidel wrote:
 
-Please excuse my ignorance: Does the indicated line below have any other 
-purpose apart from making me comment it and recompile the kernel to get 
-my soundcard working? ;-)
+> Zwane Mwaikambo wrote:
+> >>>probably too large an area to be remapping.  Try remapping only the
+> >>>memory area needed, and not the entire area.
+> >>Is there a way, to increase the size, which could be remapped, or is
+> >>there a way, to find out what is the maximum size which could be remapped?
+> >>Thank you very much for the fast answer!
+> > You could try a 4G/4G enabled kernel, /proc/meminfo tells you how much
+> > vmalloc (ioremap) space there is too.
+>
+> VmallocTotal:   245752 kB
+> VmallocUsed:    137720 kB
+> VmallocChunk:   107904 kB
+>
+> Okay, i see the problem now, the largest piece of memory which could be
+> allocated is 107904 kB, right?
+>
+> Is the 4G/4G split already in the kernel? If yes, which entry activates it?
 
-kernel-source-2.4.26/arch/i386/kernel/pci-pc.c
-static void __devinit pci_fixup_piix4_acpi(struct pci_dev *d)
-         /* PIIX4 ACPI device: hardwired IRQ9 */
-  ===>   d->irq = 9;
-
-$ isapnp /etc/isapnp.conf
-/etc/isapnp.conf:167 -- Fatal - resource conflict allocating IRQ9
-(see pci)
-/etc/isapnp.conf:167 -- Fatal - Error occurred executing request
-'IRQ 9' --- further action aborted
-
-My soundcard is a Terratec EWS64 XL. I successfully use the 
-sam9407-1.0.4 driver after a proper isapnp configuration, i.e. comment 
-the hardwired IRQ9 line, compile the kernel, run isapnp.
-
-
-If there should be really no other purpose I recommend to comment the 
-line, so I can use a precompiled kernel from now on. :-)
-
-kernel-source-2.4.26/arch/i386/kernel/pci-pc.c
-static void __devinit pci_fixup_piix4_acpi(struct pci_dev *d)
-         /* PIIX4 ACPI device: hardwired IRQ9 */
-         /* d->irq = 9; */
-
-
-Or maybe there is some method to deactivate hardwired irqs with boot 
-parameters? My first experiments (without a clue about kernel internals) 
-using kernel boot parameters like 'acpi=', 'pci=irqmask=0xMMMM' failed, 
-though.
-
-
-Please CC me, if you want me to read your reply asap.
-
-All the best-
-Torsten Scheck
-
-
+No it's not in the current kernel, you'd have to download the patch, the
+most uptodate being the one in the Fedora/Redhat kernel tree.

@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129064AbQJ3Pcy>; Mon, 30 Oct 2000 10:32:54 -0500
+	id <S129055AbQJ3PmQ>; Mon, 30 Oct 2000 10:42:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129201AbQJ3Pco>; Mon, 30 Oct 2000 10:32:44 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:55347 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129064AbQJ3Pci>; Mon, 30 Oct 2000 10:32:38 -0500
-Date: Mon, 30 Oct 2000 16:28:15 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Andrew Morton <andrewm@uow.edu.au>, kumon@flab.fujitsu.co.jp,
-        Alexander Viro <viro@math.psu.edu>,
-        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
-        Olaf Kirch <okir@monad.swb.de>
-Subject: Re: [PATCH] Re: Negative scalability by removal of lock_kernel()?(Was:
-Message-ID: <20001030162815.B21935@athlon.random>
-In-Reply-To: <E13pYis-0005Q0-00@the-village.bc.nu> <Pine.LNX.4.21.0010291135570.11954-100000@twinlark.arctic.org> <20001030072950.A31668@gruyere.muc.suse.de>
-Mime-Version: 1.0
+	id <S129074AbQJ3PmF>; Mon, 30 Oct 2000 10:42:05 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:12816 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S129055AbQJ3PmD>; Mon, 30 Oct 2000 10:42:03 -0500
+Message-ID: <39FDA365.F16B781D@evision-ventures.com>
+Date: Mon, 30 Oct 2000 17:35:49 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16-1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Rik van Riel <riel@conectiva.com.br>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: killing read_ahead[]
+In-Reply-To: <Pine.LNX.4.10.10010251036010.1337-100000@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001030072950.A31668@gruyere.muc.suse.de>; from ak@suse.de on Mon, Oct 30, 2000 at 07:29:51AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2000 at 07:29:51AM +0100, Andi Kleen wrote:
-> It should not be needed anymore for 2.4, because the accept() wakeup has been
-> fixed.
+Linus Torvalds wrote:
+> 
+> On Wed, 25 Oct 2000, Rik van Riel wrote:
+> >
+> > OTOH, block-dev readahead makes sense for filesystems where
+> > the packing locality is close to the access pattern BUT NOT
+> > close to anything the page cache would recognise as being
+> > close.
+> 
+> I dunno. The main reason I'd like to get the block devices into the page
+> cache is that right now there is no way to mmap them - something that can
+> potentially be _very_ useful, regardless of readahead.
+> 
+> And quite frankly, the generic file readahead has been pounded upon and
+> tested a lot more than the block device read-ahead ever was. I bet it
+> performs better if for no other reason.
 
-Certainly sleeping in accept will be just way better than file any locking.
+And then of course the FS is the LOGICAL level of access to the device -
+so
+if read ahead matters then it's this level where it should happen -
+since
+this is the place where actual predictability of the next access
+(actually
+the assumption that the access will happen at least semi-sequentially)
+has good
+chances to be right. So you are completely right that the page-cache is
+the right place where the rahead logic should take place. I have just
+filled
+the argumentation gap ;-).
 
-OTOH accept() is still _wrong_ as it wake-one FIFO while it should wake-one
-LIFO (so that we optimize the cache usage skip TLB flushes and allow the
-redundand tasks to be paged out). I can only see cons in doing FIFO wake-one.
-
-Andrea
+-- 
+- phone: +49 214 8656 283
+- job:   STOCK-WORLD Media AG, LEV .de (MY OPPINNIONS ARE MY OWN!)
+- langs: de_DE.ISO8859-1, en_US, pl_PL.ISO8859-2, last ressort:
+ru_RU.KOI8-R
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317263AbSILUdr>; Thu, 12 Sep 2002 16:33:47 -0400
+	id <S317354AbSILUiC>; Thu, 12 Sep 2002 16:38:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317286AbSILUdr>; Thu, 12 Sep 2002 16:33:47 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:37264 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S317263AbSILUdq>;
-	Thu, 12 Sep 2002 16:33:46 -0400
-Date: Thu, 12 Sep 2002 22:44:25 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Robert Love <rml@tech9.net>
-Cc: Steven Cole <elenstev@mesatop.com>, <torvalds@transmeta.com>,
-       <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>,
-       Steven Cole <scole@lanl.gov>
-Subject: Re: [PATCH] kernel BUG at sched.c:944! only with CONFIG_PREEMPT=y]
-In-Reply-To: <1031862919.3770.103.camel@phantasy>
-Message-ID: <Pine.LNX.4.44.0209122242300.21936-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317355AbSILUiC>; Thu, 12 Sep 2002 16:38:02 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:4856 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317354AbSILUiB>; Thu, 12 Sep 2002 16:38:01 -0400
+Subject: Re: AMD 760MPX DMA lockup (partly solved)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jan Kasprzak <kas@informatics.muni.cz>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       kernel@street-vision.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020912211452.C29717@fi.muni.cz>
+References: <20020912161258.A9056@fi.muni.cz>
+	<200209121815.g8CIFdp06612@Port.imtp.ilyichevsk.odessa.ua> 
+	<20020912211452.C29717@fi.muni.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
+Date: 12 Sep 2002 21:43:12 +0100
+Message-Id: <1031863392.2902.113.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-09-12 at 20:14, Jan Kasprzak wrote:
+> 	I the bug got merged from the -ac kernels, because it is
+> present bot in the kernel 2.4.19-11 from RedHat "null" beta
+> and in 2.4.20-pre2-ac1 (altough the later crashes instead of lock-up).
 
-On 12 Sep 2002, Robert Love wrote:
+That would strange actually. The Red Hat beta kernel has 2.4.18 like IDE
+not -ac like IDE
 
-> While this sounds like a great debugging check, it is not useful in
-> general since we surely have some bad code that calls schedule() with
-> locks held.  Further, since the atomic accounting only includes locks if
-> CONFIG_PREEMPT is set, you only see this with kernel preemption enabled.
-
-it *is* a great debugging check, at zero added cost. Scheduling from an
-atomic region *is* a critical bug that can and will cause problems in 99%
-of the cases. Rather fix the asserts that got triggered instead of backing
-out useful debugging checks ...
-
-	Ingo
 

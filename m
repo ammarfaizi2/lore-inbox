@@ -1,70 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbTKIWQA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 17:16:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbTKIWQA
+	id S261151AbTKIWww (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 17:52:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbTKIWww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 17:16:00 -0500
-Received: from [62.67.222.139] ([62.67.222.139]:1167 "EHLO mail.ku-gbr.de")
-	by vger.kernel.org with ESMTP id S262610AbTKIWP6 (ORCPT
+	Sun, 9 Nov 2003 17:52:52 -0500
+Received: from mail.kroah.org ([65.200.24.183]:38120 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261151AbTKIWwv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 17:15:58 -0500
-Date: Sun, 9 Nov 2003 23:15:46 +0100
-From: Konstantin Kletschke <konsti@ludenkalle.de>
-To: Stefan Smietanowski <stesmi@stesmi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Weird partititon recocnising problem in 2.6.0-testX
-Message-ID: <20031109221546.GA11520%konsti@ludenkalle.de>
-Reply-To: Konstantin Kletschke <konsti@ludenkalle.de>
-Mail-Followup-To: Stefan Smietanowski <stesmi@stesmi.com>,
-	linux-kernel@vger.kernel.org
-References: <20031109011205.GA21914%konsti@ludenkalle.de> <20031109023625.GA15392@win.tue.nl> <20031109034940.GA8532@zappa.doom> <20031109115857.GA15484@win.tue.nl> <3FAE2EC1.6080307@stesmi.com>
+	Sun, 9 Nov 2003 17:52:51 -0500
+Date: Sun, 9 Nov 2003 14:50:28 -0800
+From: Greg KH <greg@kroah.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, colin@colino.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.6 : cdc_acm problem
+Message-ID: <20031109225027.GA2425@kroah.com>
+References: <3FAE77B7.8040901@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FAE2EC1.6080307@stesmi.com>
-Organization: Kletschke & Uhlig GbR
-User-Agent: Mutt/1.5.4i-ja.1
-X-Spam-Score: 3.2
-X-Spam-Report: Spam detection software, running on the system "kermit", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or block
-	similar future email.  If you have any questions, see
-	admin@mail.ku-gbr.de for details.
-	Content preview:  * Stefan Smietanowski <stesmi@stesmi.com> [Sun, Nov 09,
-	2003 at 01:10:41PM +0100]: > >An impossible error. Recompile your
-	kernel. We recompiled it from fresh unpacked tar.bz2 same error.
-	Instead of gcc-2.95.4 we tried gcc-3.3.2 same errot. I got serial
-	console running, so a detailed log is at [...] 
-	Content analysis details:   (3.2 points, 10.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.5 RCVD_IN_NJABL_DIALUP   RBL: NJABL: dialup sender did non-local SMTP
-	[145.254.143.166 listed in dnsbl.njabl.org]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[Dynamic/Residential IP range listed by]
-	[easynet.nl DynaBlock - <http://dynablock.easynet.nl/errors.html>]
-	0.1 RCVD_IN_NJABL          RBL: Received via a relay in dnsbl.njabl.org
-	[145.254.143.166 listed in dnsbl.njabl.org]
+In-Reply-To: <3FAE77B7.8040901@pacbell.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stefan Smietanowski <stesmi@stesmi.com> [Sun, Nov 09, 2003 at 01:10:41PM +0100]:
-> >An impossible error. Recompile your kernel.
+On Sun, Nov 09, 2003 at 09:21:59AM -0800, David Brownell wrote:
+> The problem is that cdc_acm calls a "softirq-only" routine
+> in a hardirq context.  See this patch:
+> 
+> http://marc.theaimsgroup.com/?l=linux-usb-devel&m=106764585001038&w=2
+> 
+> It's not clear that'll make it into 2.6.0-final.
 
-We recompiled it from fresh unpacked tar.bz2 same error. Instead of
-gcc-2.95.4 we tried gcc-3.3.2 same errot. I got serial console running,
-so a detailed log is at
+I've not planned to submit it for 2.6.0 as it's a relativly big change,
+and I don't have the hardware to test it out.  Anyone have any other
+thoughts about this?
 
-http://www.ludenkalle.de/jan.log
+thanks,
 
-My friend is trying to add this printk stuff (his PC) lets see...
-
-Konsti
-
--- 
-2.6.0-test6-mm4
-Konstantin Kletschke <konsti@ludenkalle.de>, <konsti@ku-gbr.de>
-GPG KeyID EF62FCEF
-Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
-keulator.homelinux.org up 4:58, 1 user
+greg k-h

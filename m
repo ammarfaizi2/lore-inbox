@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262812AbTBJUE2>; Mon, 10 Feb 2003 15:04:28 -0500
+	id <S265066AbTBJUHd>; Mon, 10 Feb 2003 15:07:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262821AbTBJUE1>; Mon, 10 Feb 2003 15:04:27 -0500
-Received: from port48.ds1-vbr.adsl.cybercity.dk ([212.242.58.113]:36652 "EHLO
-	valis.localnet") by vger.kernel.org with ESMTP id <S262812AbTBJUE1>;
-	Mon, 10 Feb 2003 15:04:27 -0500
-Message-ID: <3E48080F.9060209@murphy.dk>
-Date: Mon, 10 Feb 2003 21:14:07 +0100
-From: Brian Murphy <brian@murphy.dk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-MIME-Version: 1.0
+	id <S265095AbTBJUHd>; Mon, 10 Feb 2003 15:07:33 -0500
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:53183 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S265066AbTBJUHc>; Mon, 10 Feb 2003 15:07:32 -0500
+Subject: Re: [Lse-tech] gcc 2.95 vs 3.21 performance
+From: Albert Cahalan <albert@users.sf.net>
 To: linux-kernel@vger.kernel.org
-Subject: mtdblock read only device broken?
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Cc: velco@fadata.bg, mbligh@aracnet.com, davej@suse.de, ak@suse.de
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 10 Feb 2003 15:13:30 -0500
+Message-Id: <1044908011.3133.123.camel@cube>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is the mtd read only block device broken in general or is it only for 
-mips that it
-doesn't work?
+Momchil Velikov writes:
+> "Martin" == Martin J Bligh <mbligh@aracnet.com> writes:
 
-Is it sheduled for removal / fixing or is it just forgotten because
-everyone in the know uses the read / write driver which works.
+>> But the point is still the same ... even if it is doing
+>> more agressive optimisation, it's not actually buying us
+>> anything (at least for the kernel)
+>
+> which might be due in part to ``-fno-strict-aliasing''
+> used to compile the Linux kernel.
 
-The warning in the config option help for the read only driver seems to 
-imply
-that it is much more reliable to use it than the caching R/W driver, 
-hence the
-fact that I bothered looking at it at all, perhaps this recommendation 
-should at
-least be changed.
+This is fixable for any gcc implementing __may_alias__.
 
-/Brian
+Linux uses -fno-strict-aliasing because people like
+to cast a (foo*) to an (int*) instead of using a
+union or (char*) as required by the C language.
+When -fno-strict-aliasing was added to the command
+line, gcc did not offer the __may_alias__ attribute.
+
+BTW, in case any gcc hacker is paying attention,
+the documentation fails to mention the gcc version
+required for this or any other attribute. Also it
+would be nice to have an option to ditch the (char*)
+exception; it's junk when you have __may_alias__.
+
 

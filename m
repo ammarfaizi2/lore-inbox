@@ -1,72 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263795AbTJETuk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 15:50:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbTJETuk
+	id S263855AbTJEUAg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 16:00:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263854AbTJEUAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 15:50:40 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:29714
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S263795AbTJETuj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 15:50:39 -0400
-Date: Sun, 5 Oct 2003 12:47:41 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Maciej Zenczykowski <maze@cela.pl>
-cc: David Woodhouse <dwmw2@infradead.org>, Rob Landley <rob@landley.net>,
-       "Henning P. Schmiedehausen" <hps@intermeta.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
-In-Reply-To: <Pine.LNX.4.44.0310052120440.12277-100000@gaia.cela.pl>
-Message-ID: <Pine.LNX.4.10.10310051242550.21746-100000@master.linux-ide.org>
+	Sun, 5 Oct 2003 16:00:19 -0400
+Received: from play.smurf.noris.de ([192.109.102.42]:46510 "EHLO
+	play.smurf.noris.de") by vger.kernel.org with ESMTP id S263852AbTJET7H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 15:59:07 -0400
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Organization: {M:U} IT Consulting
+Subject: Re: [PATCH] expand_resource
+Date: Wed, 01 Oct 2003 19:50:10 +0200
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+Message-Id: <pan.2003.10.01.17.50.10.817924@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+References: <20030930210410.GD24824@parcelfarce.linux.theplanet.co.uk> <20030930222708.A10154@flint.arm.linux.org.uk> <20030930221411.GF24824@parcelfarce.linux.theplanet.co.uk> <20030930233352.C10154@flint.arm.linux.org.uk> <20031001142553.GN24824@parcelfarce.linux.theplanet.co.uk>
+X-Pan-Internal-Attribution: Hi, Matthew Wilcox wrote:
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+X-Pan-Internal-Post-Server: smurf
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Cc: recipient list not shown:;
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Usage of the kernel headers only, is using the effective API for that
-snapshot.  It is clear in many copyright cases under the terms of fair use
-and reverse engineering to obtain operational functionality is legal and
-upheld.
-
-Touching or using copied C-code is fatal.
-
-Reading the C-code and creating another work which is identical in
-functionality and completely original, it is not derived regardless what
-anybody thinks or tells you.  GPL only protects the actual file or
-document.  It is a total waste on protecting the content expressed.
-
-People confuse the two, and must admit I did so in the past.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Sun, 5 Oct 2003, Maciej Zenczykowski wrote:
-
-> > You are so young and fresh to the game, it is cute.
-> > 
-> > http://www.gcom.com/home/support/whitepapers/linux-gnu-license.html
+Hi, Matthew Wilcox wrote:
+> 	int new = expand_resource(res, size, align);
 > 
-> Can a module even be considered LGPL?  After all a module interfaces with
-> the kernel via including files from the kernel source - doesn't this
-> automatically mean that it is a derived work of at least a few of the
-> kernel headers (the module specific ones for example).  These headers
-> contribute code to the module as well: INC_MOD_USE_COUNT and the like...
-> And since the kernel is GPLed doesn't this mean that the entire module is
-> GPLed?
-> 
-> On the other hand any running program on linux dynamically links (via 
-> syscalls) against the kernel... I think everyone agrees that dynamically 
-> linking against the kernel in this manner should be allowed and not a 
-> violation of the GPL of the kernel source...
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> 	if (new < 0) {
+> 		return new;
+> 	} else if (new == res->start) {
+> 		/* program start */
+> 	} else {
+> 		/* program end */
+> 	}
 
+Umm, these /*program*/ starts/ends look backwards. 
+
+Personally, I'd check both independently. What stops expand_resource
+from doing both if there's no increase possible in only one direction to
+make room for <size>?
+
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+Battle, n.:
+	A method of untying with the teeth a political knot that
+	will not yield to the tongue.
+		-- Ambrose Bierce

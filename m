@@ -1,94 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267038AbTAPGVS>; Thu, 16 Jan 2003 01:21:18 -0500
+	id <S261561AbTAPGsi>; Thu, 16 Jan 2003 01:48:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267039AbTAPGVS>; Thu, 16 Jan 2003 01:21:18 -0500
-Received: from packet.digeo.com ([12.110.80.53]:56762 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267038AbTAPGVR>;
-	Thu, 16 Jan 2003 01:21:17 -0500
-Date: Wed, 15 Jan 2003 22:31:09 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: rwhron@earthlink.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: big ext3 sequential write improvement in 2.5.51-mm1 gone in
- 2.5.53-mm1?
-Message-Id: <20030115223109.52a860fe.akpm@digeo.com>
-In-Reply-To: <20030116015023.GA5439@rushmore>
-References: <20030116015023.GA5439@rushmore>
-X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S261615AbTAPGsi>; Thu, 16 Jan 2003 01:48:38 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:10994 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261561AbTAPGsh>;
+	Thu, 16 Jan 2003 01:48:37 -0500
+Date: Thu, 16 Jan 2003 12:29:41 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: lots of calls to __write/read_lock_failed
+Message-ID: <20030116065940.GA4801@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <3E263285.2000204@us.ibm.com> <20030116044600.GN919@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Jan 2003 06:30:06.0769 (UTC) FILETIME=[B5E30210:01C2BD28]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030116044600.GN919@holomorphy.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rwhron@earthlink.net wrote:
->
-> On a quad xeon running tiobench...
-> The throughput and max latency for ext3 sequential writes
-> looks very good when threads >= 2 on 2.5.51-mm1.
+On Thu, Jan 16, 2003 at 04:47:30AM +0000, William Lee Irwin III wrote:
+> On Wed, Jan 15, 2003 at 08:18:13PM -0800, Dave Hansen wrote:
+> >  file_table:_raw_read_lock() 3300000
+> >  Call Trace:
+> >   [<c0152469>] fget+0x9d/0xa0
+> >   [<c0152b27>] sys_fsync+0x21/0xbe
+> >   [<c0151b53>] sys_writev+0x47/0x56
+> >   [<c010931f>] syscall_call+0x7/0xb
 > 
-> Did 2.5.51-mm1 mount ext3 as ext2?  I have ext2 logs for
-> 2.5.51-mm1 and they look similar to the ext3 results.
-> The other 2.5 kernels from around that time look more
-> like 2.5.53-mm1.
+> read_lock(&file->files_lock);
+
+You mean read_lock(&files->file_lock); :)
+
+Dave, does your webserver benchmark clone() tasks with CLONE_FILES ? Unless
+the fd table is shared, can't see why there would be contention on this.
+If it is indeed necessary to share fd table, then there is a somewhat
+unmaintained lockfree fget() patch (files_struct_rcu) that you might want
+to try.
+
 > 
+> On Wed, Jan 15, 2003 at 08:18:13PM -0800, Dave Hansen wrote:
+> > time:_raw_write_lock() 1350000
+> > Call Trace:
+> >  [<c010f321>] timer_interrupt+0x99/0x9c
+> >  [<c010b150>] handle_IRQ_event+0x38/0x5c
+> 
+> read_lock_irqsave(&xtime_lock, flags)
+> or
+> write_lock_irq(&xtime_lock);
 
-Dunno.  There have been about 7,000 different versions of the I/O scheduler
-in that time and it seems a bit prone to butterfly effects.
+ISTR a patch from Stephen Hemminger at OSDL that used Andrea's
+sequence number trick based rwlock (frlock) to implement do_gettimeofday.
+It might be relevant here.
 
-Or maybe you accidentally ran the 2.5.51-mm1 tests on uniprocessor? 
-Multithreaded tiobench on SMP brings out the worst behaviour in the ext2 and
-ext3 block allocators.  Look:
-
-<start tiobench>
-<wait a while>
-<kill it all off>
-
-    quad:/mnt/sde5/tiobench> ls -ltr 
-    ...
-    -rw-------    1 akpm     akpm     860971008 Jan 15 22:02 _956_tiotest.0
-    -rw-------    1 akpm     akpm     840470528 Jan 15 22:03 _956_tiotest.1
-
-OK, 800 megs.
-
-    quad:/mnt/sde5/tiobench> 0 bmap _956_tiotest.0|wc
-     199224  597671 6751187
-
-wtf?  It's taking 200,000 separate chunks of disk.
-
-    quad:/mnt/sde5/tiobench> expr 860971008 / 199224
-    4321
-
-so the average chunk size is a little over 4k.
-
-    quad:/mnt/sde5/tiobench> 0 bmap _956_tiotest.0 | tail -50000 | head -10
-    149770-149770: 1845103-1845103 (1)
-    149771-149771: 1845105-1845105 (1)
-    149772-149772: 1845107-1845107 (1)
-    149773-149773: 1845109-1845109 (1)
-    149774-149774: 1845111-1845111 (1)
-    149775-149775: 1845113-1845113 (1)
-    149776-149776: 1845115-1845115 (1)
-    149777-149777: 1845117-1845117 (1)
-    149778-149778: 1845119-1845119 (1)
-    149779-149779: 1845121-1845121 (1)
-
-lovely.  These two files have perfectly intermingled blocks.  Writeback
-bandwdith goes from 20 megabytes per second to about 0.5.
-
-It doesn't happen on uniprocessor because each tiobench instance gets to run
-for a timeslice, during which it is able to allocate a decent number of
-contiguous blocks.
-
-ext2 has block preallocation and will intermingle in 32k units, not 4k units.
-So it's still crap, only not so smelly.
-
-Does it matter much in practice?   Sometimes, not often.
-
-It is crap? Yes.
-
-Do I have time to do anything about it?   Probably not.
-
-
+Thanks
+Dipankar

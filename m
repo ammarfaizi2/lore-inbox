@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284653AbRLIXhU>; Sun, 9 Dec 2001 18:37:20 -0500
+	id <S284659AbRLIXil>; Sun, 9 Dec 2001 18:38:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284656AbRLIXhA>; Sun, 9 Dec 2001 18:37:00 -0500
-Received: from femail42.sdc1.sfba.home.com ([24.254.60.36]:8590 "EHLO
-	femail42.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S284653AbRLIXgy>; Sun, 9 Dec 2001 18:36:54 -0500
-Date: Sun, 9 Dec 2001 18:36:52 -0500
-From: Tom Vier <tmv5@home.com>
-To: linux-kernel@vger.kernel.org
-Subject: block devs and high latency
-Message-ID: <20011209183652.A18469@zero>
-Mime-Version: 1.0
+	id <S284671AbRLIXib>; Sun, 9 Dec 2001 18:38:31 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:13620 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S284659AbRLIXiZ>; Sun, 9 Dec 2001 18:38:25 -0500
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: torvalds@transmeta.com, marcelo@kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux/i386 boot protocol version 2.03
+In-Reply-To: <200112090922.BAA11252@tazenda.transmeta.com>
+	<m17krww8ky.fsf@frodo.biederman.org> <3C13DD48.3070206@zytor.com>
+	<m11yi4vxvb.fsf@frodo.biederman.org> <3C13F021.3080307@zytor.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 09 Dec 2001 16:18:24 -0700
+In-Reply-To: <3C13F021.3080307@zytor.com>
+Message-ID: <m1wuzwugn3.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-while doing some experimentation, i've discovered an annoying problem. when
-writing to one or two scsi drives, there seems to be some weird side
-effects. the effect is the same, whether i run cat /dev/zero > /dev/sdc1 or
-dd bs=131027 if=/dev/zero of=/dev/sdc1. buffer size doesn't make a
-difference, bs can also be set to 5 megs. if you hit ctrl-c to kill one or
-two of the dd or cat procs, you can't switch consoles for a good 20-30
-seconds (my estimation). i was running screen and i couldn't switch screens,
-either, so, at some level, all keyboard input was being delayed. the machine
-has normal ping times during this.
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-also, if you run sync while the other procs are running, it won't return
-until they're done. it also is unkillable during this, in state D. is this a
-race? ie, as sync flushes dirty buffers, they're added just as fast. i
-always thought sync was atomic and meant "flush every io issued before this
-call, but not after".
+> Allowing unneeded options in protocols is a source of bugs.  You seem to think
+> this is a good idea, it's not.
 
-this is using 2.4.17-pre6 on an alpha pws500 with a half gig of ram, and a
-sym53c895 (using the new driver).
+I think it is more that we disagree on what are unneeded options, and
+what kinds of bugs happen.    Additionally there are issues with
+which things are mandatory, and which things are recommended behavior,
+in our communications.  
 
--- 
-Tom Vier <tmv5@home.com>
-DSA Key id 0x27371A2C
+I think we agree on goals of getting the booting as simple as error
+free as possible.  
+
+Beyond that it looks like our world views are so different we do not
+successfully communicate, so unless I have code or a specific case
+that needs fixing, I will not try.
+
+Eric

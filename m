@@ -1,95 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290589AbSARDlw>; Thu, 17 Jan 2002 22:41:52 -0500
+	id <S290591AbSARD6r>; Thu, 17 Jan 2002 22:58:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290591AbSARDle>; Thu, 17 Jan 2002 22:41:34 -0500
-Received: from topic-gw2.topic.com.au ([203.37.31.2]:24826 "EHLO
-	mailhost.topic.com.au") by vger.kernel.org with ESMTP
-	id <S290589AbSARDlV>; Thu, 17 Jan 2002 22:41:21 -0500
-Date: Fri, 18 Jan 2002 14:40:55 +1100
-From: Jason Thomas <jason@topic.com.au>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: network connections stalls
-Message-ID: <20020118034055.GD5653@topic.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="HlL+5n6rz5pIUxbD"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+	id <S290592AbSARD6h>; Thu, 17 Jan 2002 22:58:37 -0500
+Received: from cx97923-a.phnx3.az.home.com ([24.1.197.194]:64478 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S290591AbSARD6Q>;
+	Thu, 17 Jan 2002 22:58:16 -0500
+Message-ID: <3C479D4E.1010908@candelatech.com>
+Date: Thu, 17 Jan 2002 20:58:06 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: David Lang <david.lang@digitalinsight.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Tulip driver bug in 2.4.17 (fwd)
+In-Reply-To: <Pine.LNX.4.40.0201171733460.26448-100000@dlang.diginsite.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---HlL+5n6rz5pIUxbD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-please CC me I'm not on the list.
+David Lang wrote:
 
-Hi,
+> On Thu, 17 Jan 2002, Ben Greear wrote:
+> 
+> 
+>>You're not using a PCI extender/riser card, are you?
+>>
+> 
+> Yes, (it's in a 2u rackmount case). it's a low right-angle extender
 
-I need some help with this bug.
 
-I've got two athlon boxes which produce this same problem with all
-kernels from 2.4.18-pre4 back to 2.4.0 which is a far as I went.
+You're screwed :)
 
-It seems to be only triggered by a particular string of binary data
-which I've narrowed down (it came from a pdf document). which I'll
-attach now. its 735 bytes, if I change it or remove a byte it doesn't
-cause the problem.
+It seems to be a hardware/PCI problem.  I replaced 4-port NICS (the DFE-570-TX),
+motherboards, cpus, entire chassis...the problem followed the riser cards.
 
-The machines are both athlon 1.1GHZ on ASUS A7V133 mobo's, thats the
-only simularitys between them ones scsi the others ide ones a via-rhine
-nic and the other is a tulip.
+To debug, take off the face-plates of your NICS and run them in your box
+w/out the riser..or take the MB completely out of the case.  I'll bet
+you a dozen realtec nics that that will fix your lockup problem! :)
 
-output from tcpump:
-14:28:25.184415 hathor.tsa.46893 > alhazred.tsa.1234: S 2668390347:2668390347(0) win 5840 <mss 1460,sackOK,timestamp 18451301 0,nop,wscale 0> (DF)
-14:28:25.184461 alhazred.tsa.1234 > hathor.tsa.46893: S 2674935738:2674935738(0) ack 2668390348 win 5792 <mss 1460,sackOK,timestamp 102014 18451301,nop,wscale 0> (DF)
-14:28:25.184616 hathor.tsa.46893 > alhazred.tsa.1234: . ack 1 win 5840 <nop,nop,timestamp 18451301 102014> (DF)
-14:28:25.184954 hathor.tsa.46893 > alhazred.tsa.1234: P 1:735(734) ack 1 win 5840 <nop,nop,timestamp 18451301 102014> (DF)
-14:28:25.393041 hathor.tsa.46893 > alhazred.tsa.1234: P 1:735(734) ack 1 win 5840 <nop,nop,timestamp 18451322 102014> (DF)
-14:28:25.813051 hathor.tsa.46893 > alhazred.tsa.1234: P 1:735(734) ack 1 win 5840 <nop,nop,timestamp 18451364 102014> (DF)
-14:28:26.653052 hathor.tsa.46893 > alhazred.tsa.1234: P 1:735(734) ack 1 win 5840 <nop,nop,timestamp 18451448 102014> (DF)
-14:28:28.333082 hathor.tsa.46893 > alhazred.tsa.1234: P 1:735(734) ack 1 win 5840 <nop,nop,timestamp 18451616 102014> (DF)
-14:28:31.182923 hathor.tsa.46893 > alhazred.tsa.1234: F 735:735(0) ack 1 win 5840 <nop,nop,timestamp 18451901 102014> (DF)
-14:28:31.182947 alhazred.tsa.1234 > hathor.tsa.46893: . ack 1 win 5792 <nop,nop,timestamp 102614 18451616,nop,nop,sack sack 1 {735:736} > (DF)
-14:28:31.693138 hathor.tsa.46893 > alhazred.tsa.1234: P 1:735(734) ack 1 win 5840 <nop,nop,timestamp 18451952 102614> (DF)
-14:28:38.413253 hathor.tsa.46893 > alhazred.tsa.1234: P 1:735(734) ack 1 win 5840 <nop,nop,timestamp 18452624 102614> (DF)
-14:28:51.853463 hathor.tsa.46893 > alhazred.tsa.1234: P 1:735(734) ack 1 win 5840 <nop,nop,timestamp 18453968 102614> (DF)
-14:29:18.733896 hathor.tsa.46893 > alhazred.tsa.1234: P 1:735(734) ack 1 win 5840 <nop,nop,timestamp 18456656 102614> (DF)
+While you're doing that...order a $54 riser from adexelec.com.  Their
+riser fixed the problem for me.  If the riser isn't obvious on
+Adex's page, let me know and I'll find the version of the one I got.
 
-I've tried this with both netcat and rsh, which produce the same
-results. I've also tested sending the same string from a solaris box
-which results in the same error.
+Btw, if you find a butter-fly riser for a 1U chassis that works, let
+me know..cause I see the same problem in my 1U servers...
 
-I've also reduce the kernel to a bare minimum of drivers. I can send the
-.config if anyone wants it.
+Enjoy,
+Ben
 
-The problem does not show its self on the loopback device.
 
-I am willing to put some effort into debugging this if someone can help
-me figure out where to start. If there is any other info required let me
-know.
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
-Thanks.
 
---HlL+5n6rz5pIUxbD
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="testdata.dat"
-Content-Transfer-Encoding: base64
-
-7wAAAAAAAAAAE/3///+JAAAA1f/////9AwAAAAAAAAP8/////xUAAAAAAAAAP//////9AwAA
-AAAAAAAN/8WN////////1QAAAHAAAACA/////////1b/wAAAAAAAAAAAAAAN/////6kAAAAA
-AAAAN////////////ysAAAAAAAAAv/////0EAAAAAAAAAAAAAAAAAAAAAAAAAADA////////
-/////wwAAAAAAAAAAAAAAAAAbP////////////8rAAAAAAAAAJ///////////8kAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAF///fwAAAAAAAACA///////////XAAAAAAAAABb//////////0EA
-AAAAAAAAAAAAAG//////////gAAAAAAAAJX/////rAAAAAAAAAAx/////////4db////////
-RQAAAAAAAAC/////1QAAAAAAAAAABP3////AAAAAAAAAAACg/1f/////////5wAAAAAAAACA
-//////////9r/2IAAAAAAAAAAAA6/////3QAAAAAAAAAdP//////////6wAAAAAAAAAA4f//
-/9UAAAAAAAAAH///////////////////////////////ZwAAAAAAAAAAAAAAAAAASv//////
-//////QAAAAAAAAAANX////////////////////9AwAAAAAAAADD////////////NwAAAAAA
-AACs//////////+7AAAAAAAAAEH//////////0EAAAAAAAAAAAAAAACz////////gAAAAAAA
-AJv/////jQAAAAAAAACP////////////////////fwAAAAAAAACV////kwAAAAAAAAAAAMD/
-//+VAAAAAAAAACH/e+L/////////2wAAAAAAAACA//////////+fz+EAAAAAAAAAAABw////
-/0EAAAAAAAAAm///////////wAAAAAAAAAAf/////5c=
-
---HlL+5n6rz5pIUxbD--

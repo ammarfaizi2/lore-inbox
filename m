@@ -1,54 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272507AbTHEPSy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 11:18:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272819AbTHEPSy
+	id S272494AbTHEPKa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 11:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272500AbTHEPKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 11:18:54 -0400
-Received: from law11-oe35.law11.hotmail.com ([64.4.16.92]:44815 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S272507AbTHEPSl
+	Tue, 5 Aug 2003 11:10:30 -0400
+Received: from out002pub.verizon.net ([206.46.170.141]:27336 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S272494AbTHEPKX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 11:18:41 -0400
-X-Originating-IP: [165.98.111.210]
-X-Originating-Email: [bmeneses_beltran@hotmail.com]
-From: "Viaris" <bmeneses_beltran@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel 2.6.0-test2 hang in Starting RedHat Network Daemon
-Date: Tue, 5 Aug 2003 09:18:38 -0600
+	Tue, 5 Aug 2003 11:10:23 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+To: gene.heskett@verizon.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.4 vs 2.6 versions of include/linux/ioport.h
+Date: Tue, 5 Aug 2003 11:10:18 -0400
+User-Agent: KMail/1.5.1
+References: <200308051041.08078.gene.heskett@verizon.net>
+In-Reply-To: <200308051041.08078.gene.heskett@verizon.net>
+Organization: None that appears to be detectable by casual observers
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <Law11-OE35phwFutJLt00010b17@hotmail.com>
-X-OriginalArrivalTime: 05 Aug 2003 15:18:40.0341 (UTC) FILETIME=[D9ADD050:01C35B64]
+Content-Disposition: inline
+Message-Id: <200308051110.18766.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.205.9.38] at Tue, 5 Aug 2003 10:10:20 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
+On Tuesday 05 August 2003 10:41, Gene Heskett wrote:
+>Greetings;
+>
+>In the 2.4 includes, find this in ioport.h
+>----
+>/* Compatibility cruft */
+>#define check_region(start,n)   __check_region(&ioport_resource,
+>(start), (n))
+>[snip]
+>extern int __check_region(struct resource *, unsigned long, unsigned
+>long);
+>----
+>But in the 2.6 version, find this:
+>----
+>/* Compatibility cruft */
+>[snip]
+>extern int __check_region(struct resource *, unsigned long, unsigned
+>long);
+>[snip]
+>static inline int __deprecated check_region(unsigned long s,
+> unsigned long n)
+>{
+>        return __check_region(&ioport_resource, s, n);
+>}
+>----
+>First, the define itself is missing in the 2.6 version.
 
-I have problems with this new kernel, I compiled the 2.6.0-test2 but when
-start the services this kernel hang in the service starting RedHat Network,
-the message are:
+My mistake above, its been moved to a position above the comment and 
+redefined as check_mem_region.
 
-INIT:Id"1" respawning too fast: disabled for 5 minutes
-INIT:Id"2" respawning too fast: disabled for 5 minutes
-INIT:Id"3" respawning too fast: disabled for 5 minutes
-INIT:Id"4" respawning too fast: disabled for 5 minutes
-INIT:Id"5" respawning too fast: disabled for 5 minutes
-INIT:Id"6" respawning too fast: disabled for 5 minutes
-INIT:Id"4" respawning too fast: disabled for 5 minutes
-INIT: no more processes left in this runlevel.
+>
+>Many drivers seem to use this call, and in that which I'm trying to
+>build, the nforce and advansys modules use it.  And while the
+> modules seem to build, they do not run properly.
+>
+>I cannot run 2.6.x for extended tests because of the advansys
+> breakage this causes.  I also haven't even tried to run X because
+> of the nforce error reported when its built, the same error as
+> attacks the advansys code.
+>
+>Can I ask why this change was made, and is there a suitable
+>replacement call available that these drivers could use instead of
+>check_region(), as shown here in a snip from advansys.c?
+>----
+>if (check_region(iop, ASC_IOADR_GAP) != 0) {
+>...
+>if (check_region(iop_base, ASC_IOADR_GAP) != 0) {
+>...
+>
+>Hopeing for some hints here.
 
-I have in my grub.conf the oher kernel version 2.4.20, If I start with this
-kernel, all work fine.
-
-How can I to resolv this problem with new kernel?
-
-Thanks in Advanced,
-
-Regards
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 

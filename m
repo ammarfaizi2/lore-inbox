@@ -1,67 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292952AbSCOR2f>; Fri, 15 Mar 2002 12:28:35 -0500
+	id <S292941AbSCOR2P>; Fri, 15 Mar 2002 12:28:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292955AbSCOR20>; Fri, 15 Mar 2002 12:28:26 -0500
-Received: from smtp-server3.tampabay.rr.com ([65.32.1.41]:4044 "EHLO
-	smtp-server3.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S292952AbSCOR2R>; Fri, 15 Mar 2002 12:28:17 -0500
-Message-ID: <3C922F5F.54807AA3@cfl.rr.com>
-Date: Fri, 15 Mar 2002 12:29:03 -0500
-From: Mark Hounschell <dmarkh@cfl.rr.com>
-Reply-To: dmarkh@cfl.rr.com
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16-lcrs i686)
-X-Accept-Language: en
+	id <S292952AbSCOR2G>; Fri, 15 Mar 2002 12:28:06 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:53005 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292941AbSCOR14>; Fri, 15 Mar 2002 12:27:56 -0500
+Subject: Re: HPT370 RAID-1 or Software RAID-1, what's "best"?
+To: kernel@Expansa.sns.it (Luigi Genoni)
+Date: Fri, 15 Mar 2002 17:43:38 +0000 (GMT)
+Cc: thunder@ngforever.de (Thunder from the hill), linux-kernel@vger.kernel.org,
+        nitrax@giron.wox.org (Martin Eriksson)
+In-Reply-To: <Pine.LNX.4.44.0203151716120.30388-100000@Expansa.sns.it> from "Luigi Genoni" at Mar 15, 2002 05:52:47 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Advanced Programmable Interrupt Controller (APIC)?
-In-Reply-To: <3C91DC2D.BBEF50F6@cfl.rr.com> <200203151602.g2FG27s10703@mail.advfn.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16lvju-0004Bj-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Kay wrote:
-> 
-> Mark,
->         we have a similar problem using PowerEdge 2450s 1550s and 6400s, all our
-> machines are running with noapic in the lilo config which sounds like it
-> isn't an option for you. I'd be interested where you heard about Dell
-> stuffing up the setup of the APIC chip because we may be able to take this up
-> with them. 
+> Hardware RAID is indeed better, but what you get using HPT370 IDE
+> controlelr is not hardware raid at all. Just read the code of the driver.
+> You get a software raid, period.
 
-Search the kernel mailing lists at kernel.org for apic and you will find a number
-of them. Of coarse this is all hear say.
+Its not always that simple either.
 
->I've had no reply from the list for the message below (maybe it
-> would be better posted to Kernel Traffic SMP but that's a very quiet list).
-> Anyway maybe the BSD diagnostics will help you investigate this.
+Software raid on aic7xxx totally blows away the Dell/AMI megaraid card I
+have, to the point the megaraid now resides in my testing bucket. The promise
+Supertrak 100 (now superceded by the SX6000) is also slower than the
+software IDE raid, but does use less CPU in RAID5 mode.
 
-I have no experience with BSD.
+Some hardware raid cards do seem to be winners. The Dell Perc2/QC aacraid
+based boards (233Mhz ARM etc) really shift. When I've had the chance to
+borrow the disks to test I've seen it running over 100Mbytes/second. It
+also supports nice stuff like online reconfiguration of active volumes.
+[$$stupid from Dell $$notalot from ebay ;)]
 
-> 
-> --------------------enc---------------
-> Hello,
-> just a quickie, our Dell Poweredge boxes - Serverworks motherboard - are
-> continually pumping out IO-APIC errors as I've reported here before, we have
-> three of the same boxes running FreeBSD (limitless file descriptors per
-> process - sorry, we need it!) and I've just noticed that dmesg on these says
-> that:
-> 
-> IO APIC - APIC_IO: Testing 8254 interrupt delivery
-> APIC_IO: Broken MP table detected: 8254 is not connected to IOAPIC #0 intpin
-> 2
-> APIC_IO: routing 8254 via 8259 and IOAPIC #0 intpin 0
-> 
-> Does this help anyone diagnose the error??
-
-I see a message very similar but with the text "Broken_Bios". I don't really know
-if it is related to the problem or not.
-
-One thing for sure that I can say is that irqs 0,1,2 cannot be directed to or from
-any processor on these 6400 boxes. They insist on being stuck to all 4 processors.
-This I do beleive is related to the HANGS that I have.
-
--- 
-Mark Hounschell
-dmarkh@cfl.rr.com
+Alan

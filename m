@@ -1,66 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265485AbTFMSSh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 14:18:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265483AbTFMSQ3
+	id S265479AbTFMSPq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 14:15:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265476AbTFMSN2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 14:16:29 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:56249 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265475AbTFMSNn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 14:13:43 -0400
-Message-ID: <3EEA1716.9000903@us.ibm.com>
-Date: Fri, 13 Jun 2003 14:25:26 -0400
-From: Stacy Woods <stacyw@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-2 i686; en-US; 0.7) Gecko/20010316
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Bugs sitting in the RESOLVED state for more than 28 days
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Jun 2003 14:13:28 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:49652 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265475AbTFMSNW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 14:13:22 -0400
+Date: Fri, 13 Jun 2003 11:26:43 -0700
+From: Greg KH <greg@kroah.com>
+To: Steven Dake <sdake@mvista.com>
+Cc: Patrick Mochel <mochel@osdl.org>, Oliver Neukum <oliver@neukum.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] udev enhancements to use kernel event queue
+Message-ID: <20030613182643.GF6037@kroah.com>
+References: <Pine.LNX.4.44.0306130942040.908-100000@cherise> <3EEA0577.8050200@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EEA0577.8050200@mvista.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These bugs have been sitting in RESOLVED state for more than 28 days,
-ie, they have fixes, but aren't back in the mainline tree (when they
-should move to CLOSED state). If the fixes are back in mainline
-already, could the owner close them out? Otherwise, perhaps we
-can get those fixes back in?
+On Fri, Jun 13, 2003 at 10:10:15AM -0700, Steven Dake wrote:
+> Brian Jackson has said there are 50 disks in the OSDL cluster, of which 
+> he could put 3 partitions on, which would test 150 device enumerations.
 
-Kernel Bug Tracker: http://bugme.osdl.org
+You can also create 2000+ virtual disks today on your desktop using
+scsi-debug to eliminate any hardware spin up times :)
 
-  24  File Sys   NFS        khoa@us.ibm.com
-statfs returns incorrect  number fo blocks
+thanks,
 
-  85  Drivers    Network    jgarzik@pobox.com
-ham radio stuff still using cli etc
-
-150  Drivers    PNP        ambx1@neo.rr.com
-[PNP][2.5] IDE Detection problems (wrong IRQ and wrong IDE device number)
-
-206  Drivers    Console/   jsimmons@infradead.org
-broken colors on framebuffer console
-
-345  Drivers    SCSI       mikenc@us.ibm.com
-compile failure in drivers/scsi/inia100.c
-
-367  Platform   Alpha      rth@twiddle.net
-modules fail to resolve illegal Unhandled relocation of type 10 for .text
-
-372  Platform   UML        jdike@karaya.com
-uml doesn't not compile
-
-412  Drivers    USB        dbrownell@users.sourceforge.net
-[EHCI] report of first interrupt transfer is delayed
-
-418  Drivers    USB        greg@kroah.com
-Bad use of GFP_DMA
-
-663  Drivers    Sound      bugme-janitors@lists.osdl.org
-"make modules" causes an error in mwavedd.h.
-
-691  Platform   x86-64     ak@suse.de
-change_pageattr corrupts memory (breaks AGP)
-
+greg k-h

@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278258AbRJ1McV>; Sun, 28 Oct 2001 07:32:21 -0500
+	id <S278239AbRJ1M2A>; Sun, 28 Oct 2001 07:28:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278261AbRJ1McC>; Sun, 28 Oct 2001 07:32:02 -0500
-Received: from nydalah028.sn.umu.se ([130.239.118.227]:56192 "EHLO
-	x-files.giron.wox.org") by vger.kernel.org with ESMTP
-	id <S278258AbRJ1Mb5>; Sun, 28 Oct 2001 07:31:57 -0500
-Message-ID: <00b201c15fac$d633fef0$0201a8c0@HOMER>
-From: "Martin Eriksson" <nitrax@giron.wox.org>
-To: "David Flynn" <Dave@keston.u-net.com>,
-        "linux kernel mailinglist" <linux-kernel@vger.kernel.org>
-In-Reply-To: <045301c15fa7$c2809b70$1901a8c0@node0.idium.eu.org>
-Subject: Re: Via KT133 and 2.4.8 and a hard disk problem ?
-Date: Sun, 28 Oct 2001 13:34:07 +0100
+	id <S278258AbRJ1M1u>; Sun, 28 Oct 2001 07:27:50 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:31752 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S278239AbRJ1M1j>; Sun, 28 Oct 2001 07:27:39 -0500
+Message-ID: <3BDBF9C8.8E1F96AB@linux-m68k.org>
+Date: Sun, 28 Oct 2001 13:27:52 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Richard Gooch <rgooch@atnf.csiro.au>
+CC: Rik van Riel <riel@conectiva.com.br>,
+        Ryan Cumming <bodnar42@phalynx.dhs.org>,
+        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: more devfs fun (Piled Higher and Deeper)
+In-Reply-To: <E15xaiJ-0001Na-00@localhost>
+		<Pine.LNX.4.33L.0110272259060.32445-100000@imladris.surriel.com> <200110280845.f9S8jjJ25269@mobilix.atnf.CSIRO.AU>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I often get these kinds of problems with semi-old HD's (UDMA33) when I run
-*anything* else than DMA enabled (like when I run stuff like
-hdparm -c1 -m16 -u1). It could also be a hard drive reporting the wrong
-capabilities to the IDE controller.
+Hi,
 
-A "hdparm /dev/hdX" and "hdparm -I /dev/hdX" would be most helpful to
-diagnose your problem.
+Richard Gooch wrote:
 
-/Martin (fresh & new to l-k)
+> Furthermore, I've nearly finished the big rewrite of devfs which adds
+> proper locking and refcounting. That work was progressing nicely (but
+> it's a big job), although it's temporarily stalled because of some
+> important travel. Work on that will resume in the next couple of
+> weeks. There's no point sending in an incomplete version of the code.
 
------ Original Message -----
-From: "David Flynn" <Dave@keston.u-net.com>
-To: "linux kernel mailinglist" <linux-kernel@vger.kernel.org>
-Sent: Sunday, October 28, 2001 12:57 PM
-Subject: Via KT133 and 2.4.8 and a hard disk problem ?
+What about putting them somewhere in a CVS repository, so people can see
+what's going on and maybe even can help out?
+BTW you should really do something about your coding style, your code is
+very confusing to read. I wouldn't care if it would be just some driver,
+but devfs is supposed to be a very important part, so it would be nice
+to use the same rules that apply to other important parts of the kernel.
 
-
-> All;
->
-> What is the status of the problems with the old KT133 and kernel 2.4.8 ?
->
-> I have a system here which looks to me as if its beginning to suffer from
-> HDD failure, just do anything with the disk for a while and you get disk {
-> busy } errors (and there is an 0x0d error code there somewhere) ... (oh,
-and
-> the HDD light reports no activity) normally, i would view this as a good
-> time to pull all the data off the drive and replace it.
->
-> However, i have noticed that the chipset used is the Via KT133, and am now
-> wondering if this is actually a HDD problem (i still am siding with this)
-or
-> a chipset problem.
-
-<snip>
-
+bye, Roman

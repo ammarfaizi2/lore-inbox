@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317887AbSHUFl7>; Wed, 21 Aug 2002 01:41:59 -0400
+	id <S317888AbSHUGVK>; Wed, 21 Aug 2002 02:21:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317888AbSHUFl7>; Wed, 21 Aug 2002 01:41:59 -0400
-Received: from dp.samba.org ([66.70.73.150]:65255 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S317887AbSHUFl7>;
-	Wed, 21 Aug 2002 01:41:59 -0400
-Date: Wed, 21 Aug 2002 15:35:54 +1000
-From: David Gibson <hermes@gibson.dropbear.id.au>
-To: Anders Gustafsson <andersg@0x63.nu>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-       trivial@rustcorp.com.au
-Subject: Re: [PATCH] Remove extraneous ptrace.h include in hermes.c
-Message-ID: <20020821053554.GI18818@zax>
-Mail-Followup-To: David Gibson <hermes@gibson.dropbear.id.au>,
-	Anders Gustafsson <andersg@0x63.nu>, linux-kernel@vger.kernel.org,
-	torvalds@transmeta.com, trivial@rustcorp.com.au
-References: <20020820142634.GB577@h55p111.delphi.afb.lu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020820142634.GB577@h55p111.delphi.afb.lu.se>
-User-Agent: Mutt/1.4i
+	id <S317892AbSHUGVK>; Wed, 21 Aug 2002 02:21:10 -0400
+Received: from gremlin.ics.uci.edu ([128.195.1.70]:29089 "HELO
+	gremlin.ics.uci.edu") by vger.kernel.org with SMTP
+	id <S317888AbSHUGVJ>; Wed, 21 Aug 2002 02:21:09 -0400
+Date: Tue, 20 Aug 2002 23:25:11 -0700 (PDT)
+From: Mukesh Rajan <mrajan@ics.uci.edu>
+To: linux-kernel@vger.kernel.org
+Subject: detecting hard disk idleness
+Message-ID: <Pine.SOL.4.20.0208202316380.20323-100000@hobbit.ics.uci.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 20, 2002 at 04:26:34PM +0200, Anders Gustafsson wrote:
-> Remove extraneous ptrace.h include in hermes.c
+hi,
 
-Applied locally.
+i'm trying to implement an alogrithm that requires as input the idleness
+period of a hard disk (i.e. time between satisfying a request and arrival
+of new request).
 
--- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+so far implementation polls "proc/stat" periodically to detect idleness
+over the poll period. this implementation is not accurate and also i have
+very small poll interval (milli secs). with some measurements, conclusion
+is that implementation is consuming quite some power. this millisecond
+polling overhead could be avoided if i can come up with an interrupt
+driven implementation. in DOS, i would have manipulated the interrupt
+table and inserted my code for 13h (disk interrupt right?). this would
+help me do some preprocessing before the actual call to the hard disk
+(13h).
+
+is this possible in any way in Linux? i.e. have the kernel inform a
+program when a hard disk interrupt occurs? either through interrupt
+manipulation or otherwise?
+
+- mukesh
+
+
+

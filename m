@@ -1,109 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265331AbSKABt1>; Thu, 31 Oct 2002 20:49:27 -0500
+	id <S265374AbSKABwQ>; Thu, 31 Oct 2002 20:52:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265345AbSKABt0>; Thu, 31 Oct 2002 20:49:26 -0500
-Received: from dc-mx02.cluster1.charter.net ([209.225.8.12]:32492 "EHLO
-	mx02.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id <S265331AbSKABtX>; Thu, 31 Oct 2002 20:49:23 -0500
-Message-ID: <3DC1DEFB.6070206@free-market.net>
-Date: Thu, 31 Oct 2002 17:55:07 -0800
-From: "Matthew D. Hall" <mhall@free-market.net>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S265383AbSKABwJ>; Thu, 31 Oct 2002 20:52:09 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:25617 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S265374AbSKABwE>; Thu, 31 Oct 2002 20:52:04 -0500
+Date: Thu, 31 Oct 2002 20:57:28 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
 To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-CC: Davide Libenzi <davidel@xmailserver.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-aio@kvack.org, lse-tech@lists.sourceforge.net,
-       Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Unifying epoll,aio,futexes etc. (What I really want from epoll)
-References: <20021031154112.GB27801@bjl1.asuk.net> <Pine.LNX.4.44.0210311211160.1562-100000@blue1.dev.mcafeelabs.com> <20021031230215.GA29671@bjl1.asuk.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+cc: Andreas Dilger <adilger@clusterfs.com>, Andi Kleen <ak@muc.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: New nanosecond stat patch for 2.5.44
+In-Reply-To: <20021030221724.GA25231@bjl1.asuk.net>
+Message-ID: <Pine.LNX.3.96.1021031203329.22444D-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If I may respectfully weigh in...
+On Wed, 30 Oct 2002, Jamie Lokier wrote:
 
-If a new API and/or a significant change in semantics is to be applied 
-to the kernel for a unified event notification system, this is obviously 
-an issue for 2.7 or 2.9.  As such, we have plenty of time to focus upon 
-simplicity and correctness rather than plain old inertia.  We need to 
-bring a truly unified, and therefore new, event API to the kernel, and 
-it must be done right.  kevent attempts to achieve this for FreeBSD, and 
-generally speaking, it succeeds.  But linux can do much better.
+> Bill Davidsen wrote:
+> > I have to think about the point you raise of doing it one way or the other
+> > but not mixing. I had assumed that the inode of a file which was open
+> > would remain in core, and I want to look at the code before I form an
+> > opinion. If the file is not open or the inode is a non-file...
+> 
+> Oh, the inode of a file which is open does remain in core.  It's just
+> that between runs of a program like "make", the file's aren't open are
+> they?
 
-The API should present the notion of a general edge-triggered event 
-(e.g. I/O upon sockets, pipes, files, timers, etc.), and it should do so 
-simply.  Linus made some suggestions on lkml back in 2000 
-(http://marc.theaimsgroup.com/?l=linux-kernel&m=97236943118139&w=2) that 
-pretty much hit the nail on the head -- with some exceptions.
+I thought we were talking about parallel make, rather than "between runs."
+Your point is valid, but given the certainty that the inode has been
+recently used, hopefully the kernel is smart on releasing them.
 
-*  Unless every conceivable event is to be represented as a file (rather 
-unintuitive IMHO), his proposed interface fails to accomodate non-I/O 
-events (e.g. timers,  signals, directory updates, etc.).  As much as I 
-appreciate the UNIX Way, making everything a file is a massive 
-oversimplification.  We can often stretch the definition far enough to 
-make this work, but I'd be impressed to see how one intends to call, 
-e.g., a timer a type of file.
+My first thought is that the commonly used filesystems, other than ext2,
+do or will support high resolution time. NFS is its own nasty little
+problem.
+ 
+> > I think you may have missed the point of (4), some of the overhead of
+> > keeping HRT is the conversion of data to ns from some machine dependent
+> > information. Where possible the base information, such as a register,
+> > could be stored with a flag, avoiding the "convert to ns" CPU usage. The
+> > conversion could be done when the data was used, before save, at the time
+> > of a stat, etc. I have the feeling that would take some of the sting out
+> > of keeping HRT. It doesn't matter if it's atime, mtime or ctime, the atime
+> > was in response to "nobody uses HRT atime" in an earlier post.
+> 
+> That's some of the overhead.  The other overhead is reading the clock,
+> which is quite high on x86 when TSC is not available.  On a Pentium
+> with no reliable TSC, I think that the time for a read() system call
+> is comparable to the time to read the clock.
 
-*  There is a seemingly significant overhead in performing exactly one 
-callback per event.  Doesn't this prevent any kind of event coalescence? 
- It seems like we could be doing an awful lot of cache thrashing, among 
-other things.  In some cases, this might happen anyway, but why should 
-the interface enforce such behavior?  In most other cases, it's 
-perfectly acceptable to inline an event handler (either via compile-time 
-inlining or literally).  I do realize that Linus only suggested that the 
-C library do the mass callbacks, BTW, so strictly speaking, it's the 
-userland API that would "enforce such behavior."  Nonetheless, this is 
-of concern.
+Who uses a CPU without TSC? I guess the embedded folks and the people
+using really old systems. There was a suggestion on handling that posted,
+but I don't have it handy. Using the field as just a counter was the idea
+if I remember correctly. The NUMA folks have their own set of problems, I
+won't presume to even have an opinion on how they solve it, but if it
+needs doing I'm sure they can do it.
 
-Enough of what we shouldn't do.  Here's what we should:
+Thinking out loud:
+  To avoid overhead, the kernel needs to be smart about when the updated
+inode info is written to storage Perhaps on writes when the data written
+actually falls off the elevator or transferred to a network peer.  Until
+then the time can stay in memory, if the system goes down write data is
+lost, so having the inode reflect the time of the last completed write to
+storage isn't wildly wrong mtime. 
 
-*  The interface should allow the implementation to be highly extensible 
-without horrible code contortions within the kernel.  It is important to 
-be able to add new types of events as they become necessary.  The 
-interface should be general and simple enough to accomodate these 
-extensions.  Linux (really, UNIX) has failed to exercise this foresight 
-in the past, and that's why we have the current mess of varied 
-polling/triggering methods.
+  For reads, having some bounded delay between the time of a system call
+to read() and the time saved in the inode is of limited impact, as long as
+the time to update the inode to storage doesn't get wildly behind the time
+of the read. The one second you mentioned is probably aggressive if
+anything. That might have to be a tunable.
 
-*  I might be getting a bit utopian here, but IMHO the kernel should 
-move toward a completely edge-triggered event system.  The old 
-level-triggered interfaces should only wrap this paradigm.
+  I haven't forgotten access via execute, I don't know if it differs from
+read in practice.
 
-*  Might as well reiterate: simplicity.  FreeBSD's kevent solves nearly 
-all of the traditional problems, but it is gross.  And complicated. 
- There were clearly too many computer scientists and not enough 
-engineers on that team.
-
-*  Only one queue per process or kernel thread.  Multiple queues per 
-flow of execution is just ugly and ultimately pointless.  That is not to 
-say that you can't multithread, but each thread simply uses the same 
-queue.  In cases when you want one thread to only wait on a certain 
-type(s) of event, you can do this as well; you just can't have one 
-thread juggling more than one queue.  Since the event notification is 
-edge-triggered, I cannot see any reason for a significant performance 
-degradation resulting from this policy.  I am not altogether convinced 
-that this must be a strict policy, however; the issue of different 
-userspace threads having different event queues inside the same task is 
-interesting.
-
-*  No re-arming events.  They must be manually killed.
-
-*  I'm sure everyone would agree that passing an opaque "user context" 
-pointer is necessary with each event.
-
-*  Zero-copy event delivery (of course).
-
-Some question marks:
--  Should the kernel attempt to prune the queue of "cancelled" events 
-(hints later deemed irrelevant, untrue, or obsolete by newer events)?
--  Is one-queue-per-task really the way to go?  This stops many bad 
-practices but could prevent some decent ones (see user threads comment).
-
-Matthew D. Hall
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

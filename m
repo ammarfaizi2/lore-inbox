@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280357AbRKKSdc>; Sun, 11 Nov 2001 13:33:32 -0500
+	id <S280419AbRKKTAG>; Sun, 11 Nov 2001 14:00:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280000AbRKKSdW>; Sun, 11 Nov 2001 13:33:22 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3341 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280357AbRKKSdH>; Sun, 11 Nov 2001 13:33:07 -0500
-From: Linus Torvalds <torvalds@transmeta.com>
-Date: Sun, 11 Nov 2001 10:29:09 -0800
-Message-Id: <200111111829.fABIT9v14680@penguin.transmeta.com>
-To: sim@netnation.com, linux-kernel@vger.kernel.org
-Subject: Re: Writing over NFS causes lots of paging
-Newsgroups: linux.dev.kernel
-In-Reply-To: <20011111024855.A5893@netnation.com>
+	id <S280435AbRKKS75>; Sun, 11 Nov 2001 13:59:57 -0500
+Received: from m223-mp1-cvx1b.man.ntl.com ([62.252.200.223]:11648 "EHLO
+	box.penguin.power") by vger.kernel.org with ESMTP
+	id <S280387AbRKKS7m>; Sun, 11 Nov 2001 13:59:42 -0500
+Date: Sun, 11 Nov 2001 18:59:30 +0000
+From: Gavin Baker <gavbaker@ntlworld.com>
+To: linux-kernel@vger.kernel.org
+Subject: SiS630 and 5591/5592 AGP
+Message-ID: <20011111185930.A2700@box.penguin.power>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011111024855.A5893@netnation.com> you write:
->It looks like when writing large amounts of data to NFS where the remote
->end is slower than the local end the local end appears to start swapping
->out a lot I'm guessing this is because it can read much faster than it
->can write.
+My new laptop has this combination and the sis framebuffer driver
+mangles the display. The sis X driver produces a nice lavalamp style
+pattern that fades to white, the kernel stays alive but the machine
+needs a reboot to fix the display in both cases. 
 
-No, the real reason for why the NFS write stuff causes page-outs is that
-the VM layer does not really understand the notion of writeback pages.
+Im guessing the lack of 5591/5592 AGP support is the problem, and I 
+was just wondering if anyone is working on this or should i go bug SiS?
 
-The VM layer has one explicit special case: it knows about the magic in
-"page->buffers", and can handle writeback for block-oriented devices
-sanely. But any non-buffer-oriented filesystem is "invisible" to the VM
-layer, and has to use other tricks to make the VM ignore its pages.
+Everything else is 100%.
 
-In the case of NFS, it increments the page count and has it's own
-private non-VM-visible writeback data structures.  This pins the page in
-memory, but at the same time, because the VM doesn't understand it, the
-VM will end up thinking the page is mapped in user space or something
-else, and won't know how to start writeouts. 
+00:00.0 Host bridge: Silicon Integrated Systems [SiS] 630 Host (rev 31)
+00:00.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev
+d0)
+00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513
+00:01.1 Ethernet controller: Silicon Integrated Systems [SiS] SiS900
+10/100 Ethernet (rev 82)
+00:01.2 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
+00:01.3 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
+00:01.4 Multimedia audio controller: Silicon Integrated Systems [SiS]
+SiS PCI Audio Accelerator (rev 02)
+00:01.6 Modem: Silicon Integrated Systems [SiS]: Unknown device 7013
+(rev a0)
+00:02.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP
+00:03.0 CardBus bridge: O2 Micro, Inc. OZ6812 Cardbus Controller (rev
+05)
+01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS]
+SiS630 GUI Accelerator+3D (rev 31)
 
-Quite frankly, I don't rightly know what the real fix is. Making
-"page->buffers" be a generic thing (a "void *") along with making the
-buffer flushing logic be behind a address space operation is probably
-the right thing in the long run.
-
-		Linus
+Cheers,
+Gavin Baker

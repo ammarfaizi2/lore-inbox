@@ -1,69 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbUDCT3T (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 14:29:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbUDCT3T
+	id S261897AbUDCThs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 14:37:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbUDCThs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 14:29:19 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:17074 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261891AbUDCT3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 14:29:17 -0500
-Date: Sat, 3 Apr 2004 20:29:15 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: anon-vma (and now filebacked-mappings too) mprotect vma merging
-    [Re:    2.6.5-rc2-aa vma merging]
-In-Reply-To: <20040403184639.GN2307@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0404031954250.10509-100000@localhost.localdomain>
+	Sat, 3 Apr 2004 14:37:48 -0500
+Received: from pileup.ihatent.com ([217.13.24.22]:1482 "EHLO
+	pileup.ihatent.com") by vger.kernel.org with ESMTP id S261897AbUDCThq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 14:37:46 -0500
+To: "Kamil Srot" <kamil.srot@nlogy.com>
+Cc: "Jeff Garzik" <jgarzik@pobox.com>,
+       "Felix von Leitner" <felix-kernel@fefe.de>,
+       <linux-kernel@vger.kernel.org>, <davem@redhat.com>
+Subject: Re: tg3 error
+References: <20040309170945.GA2039@codeblau.de> <404DFB4F.1020208@pobox.com>
+	<005401c4195b$ede2f950$4100a8c0@rigel>
+From: Alexander Hoogerhuis <alexh@boxed.no>
+Date: Sat, 03 Apr 2004 20:56:39 +0200
+In-Reply-To: <005401c4195b$ede2f950$4100a8c0@rigel> (Kamil Srot's message of
+ "Sat, 3 Apr 2004 11:13:28 +0200")
+Message-ID: <87smfkao0o.fsf@dorker.boxed.no>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Apr 2004, Andrea Arcangeli wrote:
-> 
-> another relevant advantage of anon-vma compared to anonmm, is the smp
-> locking scalability and simplicity. With anonmm you're either forced to
-> keep the mm-wide page_table_lock during vma merging and in general
-> during all vma modifications (so you can lookup the rbtree from
-> try_to_unmap by trylocking on the page_table_lock). While with anon-vma
-> the page_table_lock goes away completely from the vma merging and all
-> vma manipulations. page_table_lock remains but only for accessing the
-> pagetables.
+"Kamil Srot" <kamil.srot@nlogy.com> writes:
 
-I liked Andrew's vma->page_table_lock suggestion, was imagining we
-should migrate in that direction (as you said at the time, needn't
-be right now), if only as a discipline to force us away from the
-page_table_lock or mmap_sem muddle in (not your version of) mmap.c.
+>> Felix von Leitner wrote:
+>> > A machine at a customer's site (running kernel 2.4.21) has stopped
+>> > answering over Ethernet today.  The machine itself was still there and
+>> > the customer could log in at the console.  A reboot fixed the problem.
+>> >
+>> > The machine has had these error messages in the syslog about once per
+>> > hour for about 24 hours:
+>> >
+>> > Mar  9 16:17:38 mail2 kernel: tg3: eth0: transmit timed out, resetting
+>> > Mar  9 16:17:38 mail2 kernel: tg3: tg3_stop_block timed out, ofs=3400
+> enable_bit=2
+>> > Mar  9 16:17:39 mail2 kernel: tg3: tg3_stop_block timed out, ofs=2400
+> enable_bit=2
+>> > Mar  9 16:17:39 mail2 kernel: tg3: tg3_stop_block timed out, ofs=1400
+> enable_bit=2
+>> > Mar  9 16:17:39 mail2 kernel: tg3: tg3_stop_block timed out, ofs=c00
+> enable_bit=2
+>>
+>>
+>> AFAIK this is fixed in the latest upstream tg3...
+>
+> I have exactly the same problems in 2.4.25 - the log says exactly the same
+> as for Felix.
+> I'm running two identical HP ProLiant servers but have this problem only on
+> one of them.
+> It's happening approximately twice a week.
+>
+> Any ideas?
+>
 
-So I had been expecting to shift anonmm in that direction,
-needing to do a down_read_trylock around its anon find_vma.
+Just to pipe in; I have a machine (HP 530cmt) running RHEL3 no the
+latest kernel, running with the tg3-driver for the onboard eth, and if
+requires the i/f to be taken down and up again to start speaking, or
+even negotiating an eth-link. Hardware at the other end is a cisco switch.
 
-By the way, your and my page_referenced_one do need to take
-page_table_lock, but the need for it is very very slender: Dave
-took it out a year ago, I persuaded him it had to go back in,
-but there's probably some way we can avoid it later on.
-
-> About the ppc page->mapping stuff I don't think the ppc fixes in
-> anobjrmap are really going to fix anything, though that tlb.c code is
-> very confusing to me, not sure how can it work without it, but OTOH then
-> even mainline shouldn't work if that's needed. ppc help?
-
-I just translated what was there before: I thought I could understand
-why it did that on user page tables, but I couldn't understand why it
-did it to all the kernel page tables too.
-
-I believe it's related to the fact that page_referenced_one does not
-flush TLB after ptep_test_and_clear_referenced: so MMU may not notice
-that we have cleared it, and not set it again even though referenced;
-so pages referenced very frequently may be treated as unreferenced.
-We ought to flush TLB there, but I presume it's been thought
-to waste more time than its worth (particularly across cpus).
-Probably depends rather on architecture, hence the ppc code.
-
-Hugh
-
+mvh,
+A
+-- 
+Alexander Hoogerhuis                               | alexh@boxed.no
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

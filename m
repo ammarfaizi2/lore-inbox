@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266808AbRGKWFf>; Wed, 11 Jul 2001 18:05:35 -0400
+	id <S266818AbRGKWJf>; Wed, 11 Jul 2001 18:09:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266812AbRGKWF0>; Wed, 11 Jul 2001 18:05:26 -0400
-Received: from hibernia.clubi.ie ([212.17.32.129]:50050 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP
-	id <S266808AbRGKWFN>; Wed, 11 Jul 2001 18:05:13 -0400
-Date: Wed, 11 Jul 2001 23:12:12 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: <paul@fogarty.jakma.org>
-To: Helge Hafting <helgehaf@idb.hist.no>
-cc: "C. Slater" <cslater@wcnet.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Switching Kernels without Rebooting?
-In-Reply-To: <3B4C180E.D3AE1960@idb.hist.no>
-Message-ID: <Pine.LNX.4.33.0107112310590.962-100000@fogarty.jakma.org>
-X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
-X-Dumb-Filters: aryan marijuiana cocaine heroin hardcore cum pussy porn teen tit sex lesbian group
+	id <S266813AbRGKWJZ>; Wed, 11 Jul 2001 18:09:25 -0400
+Received: from sncgw.nai.com ([161.69.248.229]:9404 "EHLO mcafee-labs.nai.com")
+	by vger.kernel.org with ESMTP id <S266816AbRGKWJN>;
+	Wed, 11 Jul 2001 18:09:13 -0400
+Message-ID: <XFMail.20010711145942.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Wed, 11 Jul 2001 14:59:42 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: linux-kernel@vger.kernel.org
+Subject: Improving (network) IO performance ...
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Jul 2001, Helge Hafting wrote:
 
-> That seems completely out of question.  The structures a 2.4.7
-> kernel understands might be insufficient to express the setup
-> a future 2.6.9 kernel is using to do its stuff better.
+For the ones interested I setup a page that describes the test contain links to
+the patches and software used for the test and shows some fancy graph too :
 
-however, it might be handy if say you needed to upgrade a stable
-kernel due to a bug fix or security update.
+http://www.xmailserver.org/linux-patches/nio-improve.html
 
-no?
 
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org
-PGP5 key: http://www.clubi.ie/jakma/publickey.txt
--------------------------------------------
-Fortune:
-I found Rome a city of bricks and left it a city of marble.
-		-- Augustus Caesar
+
+
+- Davide
 

@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265052AbUD3DlD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265064AbUD3EIL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265052AbUD3DlD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 23:41:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbUD3DlD
+	id S265064AbUD3EIL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 00:08:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265065AbUD3EIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 23:41:03 -0400
-Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:48134 "EHLO swin.edu.au")
-	by vger.kernel.org with ESMTP id S265052AbUD3Dk6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 23:40:58 -0400
-Cc: Paul Jackson <pj@sgi.com>, vonbrand@inf.utfsm.cl, nickpiggin@yahoo.com.au,
-       jgarzik@pobox.com, akpm@osdl.org, brettspamacct@fastclick.com,
-       linux-kernel@vger.kernel.org
-From: Tim Connors <tconnors@astro.swin.edu.au>
-Subject: Re:  ~500 megs cached yet 2.6.5 goes into swap hell
-In-reply-to: <40917F1E.8040106@techsource.com>
-References: <40904A84.2030307@yahoo.com.au>	<200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>	<20040429133613.791f9f9b.pj@sgi.com>	<409175CF.9040608@techsource.com> <20040429144737.3b0c736b.pj@sgi.com> <40917F1E.8040106@techsource.com>
-X-Face: "/6m>=uJ8[yh+S{nuW'%UG"H-:QZ$'XRk^sOJ/XE{d/7^|mGK<-"*e>]JDh/b[aqj)MSsV`X1*pA~Uk8C:el[*2TT]O/eVz!(BQ8fp9aZ&RM=Ym&8@.dGBW}KDT]MtT"<e(`rn*-w$3tF&:%]KHf"{~`X*i]=gqAi,ScRRkbv&U;7Aw4WvC
-X-Face-Author: David Bonde mailto:i97_bed@i.kth.se.REMOVE.THIS.TO.REPLY -- If you want to use it please also use this Authorline.
-Message-ID: <slrn-0.9.7.4-22225-31758-200404301332-tc@hexane.ssi.swin.edu.au>
-Date: Fri, 30 Apr 2004 13:37:55 +1000
-To: unlisted-recipients:; (no To-header on input)
+	Fri, 30 Apr 2004 00:08:10 -0400
+Received: from smtp016.mail.yahoo.com ([216.136.174.113]:25184 "HELO
+	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265064AbUD3EIH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 00:08:07 -0400
+Message-ID: <4091D123.9070606@yahoo.com.au>
+Date: Fri, 30 Apr 2004 14:08:03 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Marc Singer <elf@buici.com>
+CC: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       brettspamacct@fastclick.com, linux-kernel@vger.kernel.org,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+References: <409021D3.4060305@fastclick.com> <20040428170106.122fd94e.akpm@osdl.org> <409047E6.5000505@pobox.com> <40904A84.2030307@yahoo.com.au> <20040429005801.GA21978@buici.com> <40907AF2.2020501@yahoo.com.au> <20040429042047.GB26845@buici.com> <409083E9.2080405@yahoo.com.au> <20040429144941.GC708@buici.com>
+In-Reply-To: <20040429144941.GC708@buici.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Miller <miller@techsource.com> said on Thu, 29 Apr 2004 18:18:06 -0400:
-> Paul Jackson wrote:
-> > Timothy wrote:
-> > 
-> >>Perhaps nice level could influence how much a process is allowed to 
-> >>affect page cache.
-> > 
-> > 
-> > I'm from the school that says 'nice' applies to scheduling priority,
-> > not memory usage.
-> > 
-> > I'd expect a different knob, a per-task inherited value as is 'nice',
-> > to control memory usage.
+Marc Singer wrote:
+> On Thu, Apr 29, 2004 at 02:26:17PM +1000, Nick Piggin wrote:
 > 
-> Linux kernel developers seem to be of the mind that you cannot trust 
-> what applications tell you about themselves, so it's better to use 
-> heuristics to GUESS how to schedule something, rather than to add YET 
-> ANOTHER property to it.
+>>Yes it includes something which should help that. Along with
+>>the "split active lists" that I mentioned might help your
+>>problem when WLI first came up with the change to the
+>>swappiness calculation for your problem.
+>>
+>>It would be great if you had time to give my patch a run.
+>>It hasn't been widely stress tested yet though, so no
+>>production systems, of course!
+> 
+> 
+> As I said, I'm game to have a go.  The trouble was that it doesn't
+> apply.  My development kernel has an RMK patch applied that seems to
+> conflict with the MM patch on which you depend.
+> 
 
-Why is that?
+You would probably be better off trying a simpler change
+first actually:
 
-On the desktop system/workstation, which is what we are talking about
-here -- we want the desktop system in particular to be responsive --
-the user wouldn't try to do anythign malicious, so why not trust the
-applications? openoffice and mozilla and my visualisation software are
-going to know what they want out of the kernel (possibly with
-safegaurds such that they only tell the kernel what they want if the
-kernel happens to be in some tested range, perhaps), the kernel sure
-as hell won't know what my custom built application wants via
-heuristics, because I am doing something that no-one else is, and so
-my exact workloads haven't been experienced or designed for.
+in mm/vmscan.c, shrink_list(), change:
 
-On a server, you can have a /proc file to tell the kernel to ignore
-everything an application tells you, or ignore/believe application
-with uid in ranges xx--yy.
+if (res == WRITEPAGE_ACTIVATE) {
+	ClearPageReclaim(page);
+	goto activate_locked;
+}
 
--- 
-TimC -- http://astronomy.swin.edu.au/staff/tconnors/
-Beware of Programmers who carry screwdrivers.
+to
+
+if (res == WRITEPAGE_ACTIVATE) {
+	ClearPageReclaim(page);
+	goto keep_locked;
+}
+
+I think it is not the correct solution, but should narrow
+down your problem. Let us know how it goes.

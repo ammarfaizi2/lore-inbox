@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133007AbRADNTu>; Thu, 4 Jan 2001 08:19:50 -0500
+	id <S133018AbRADNYK>; Thu, 4 Jan 2001 08:24:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133028AbRADNTk>; Thu, 4 Jan 2001 08:19:40 -0500
-Received: from gidayu.max.uni-duisburg.de ([134.91.242.4]:6416 "HELO
+	id <S133028AbRADNYB>; Thu, 4 Jan 2001 08:24:01 -0500
+Received: from gidayu.max.uni-duisburg.de ([134.91.242.4]:6672 "HELO
 	gidayu.max.uni-duisburg.de") by vger.kernel.org with SMTP
-	id <S133007AbRADNTc>; Thu, 4 Jan 2001 08:19:32 -0500
-Date: Thu, 4 Jan 2001 14:19:23 +0100
+	id <S133018AbRADNXp>; Thu, 4 Jan 2001 08:23:45 -0500
+Date: Thu, 4 Jan 2001 14:23:35 +0100
 From: Christian Loth <chris@gidayu.max.uni-duisburg.de>
-To: Andrew Morton <andrewm@uow.edu.au>
+To: "Ingo T. Storm" <it@computerbild.de>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: DHCP Problems with 3com 3c905C Tornado
-Message-ID: <20010104141923.D15097@gidayu.max.uni-duisburg.de>
-In-Reply-To: <20010104123139.A15097@gidayu.max.uni-duisburg.de> <3A546F8E.ABF952F@uow.edu.au>, <3A546F8E.ABF952F@uow.edu.au>; <20010104134315.C15097@gidayu.max.uni-duisburg.de> <3A54739F.FB8D6F3D@uow.edu.au>
+Message-ID: <20010104142335.E15097@gidayu.max.uni-duisburg.de>
+In-Reply-To: <012101c0764f$c8b2f840$7400a8c0@dukat.cb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2i
-In-Reply-To: <3A54739F.FB8D6F3D@uow.edu.au>; from andrewm@uow.edu.au on Thu, Jan 04, 2001 at 11:59:11PM +1100
+In-Reply-To: <012101c0764f$c8b2f840$7400a8c0@dukat.cb.de>; from it@computerbild.de on Thu, Jan 04, 2001 at 02:11:00PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Greetings,
 
-On Thu, Jan 04, 2001 at 11:59:11PM +1100, Andrew Morton wrote:
-> Now that is wierd.  They're radically different drivers,
-> and the 3com one doesn't seem to undergo many changes at
-> all.
+On Thu, Jan 04, 2001 at 02:11:00PM +0100, Ingo T. Storm wrote:
 > 
-> I wonder if the PCI scan order may have changed.  What
-> other PCI devices did you have in that machine? Any other
-> NICs?
+> Have you checked conf.modules that now is modules.conf?
+> 
 
-No, no other NICs. There's a Matrox G200 in the AGP slot,
-and a 3Ware 6200 ATA-66 RAID Controller in another PCI slot.
-There's an onboard SCSI controller from Adaptec (AIC7xxx) 
-but it's unused and this is a SMP system. The Motherboard is 
-a Gigabyte G6BXDU. That's about it.
+Yes I have. By editing it, I was able to test both the 3c59x 
+and the 3c90x drivers. Also the modules were correctly loaded
+in both testruns, which I confirmed with a lsmod.
+
+On another note: I *was* able to set up the card manually
+by doing an ifconfig (and it worked that way), but as the
+firewall adapts dynamically to the DHCP leases, this
+is not a solution. So only DHCP negotiation was not working,
+which worked OK with the vanilla RH 6.2 2.2.14 kernel.
 
 - Chris
 

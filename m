@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129080AbQKBSeE>; Thu, 2 Nov 2000 13:34:04 -0500
+	id <S129088AbQKBSfE>; Thu, 2 Nov 2000 13:35:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129099AbQKBSdz>; Thu, 2 Nov 2000 13:33:55 -0500
-Received: from 128-VALL-X7.libre.retevision.es ([62.83.213.128]:27776 "EHLO
-	looping.es") by vger.kernel.org with ESMTP id <S129080AbQKBSdr>;
-	Thu, 2 Nov 2000 13:33:47 -0500
-Date: Thu, 2 Nov 2000 19:38:56 +0100
-From: Ragnar Hojland Espinosa <ragnar@jazzfree.com>
-To: linux-kernel@vger.kernel.org
-Cc: "M.H.VanLeeuwen" <vanl@megsinet.net>,
-        "CRADOCK, Christopher" <cradockc@oup.co.uk>, torvalds@transmeta.com
-Subject: Re: Linux-2.4.0-test10
-Message-ID: <20001102193856.A1204@macula.net>
-In-Reply-To: <A528EB7F25A2D111838100A0C9A6E5EF068A1DBC@exc01.oup.co.uk> <3A00B8E9.D5FD12B0@megsinet.net> <20001102185706.A984@macula.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 0.95.6i
-In-Reply-To: <20001102185706.A984@macula.net>; from Ragnar Hojland Espinosa on Thu, Nov 02, 2000 at 06:57:06PM +0100
-Organization: Mediocrity Naysayers Ltd
-X-Homepage: http://maculaisdeadsoimmovingit/lightside
+	id <S129099AbQKBSey>; Thu, 2 Nov 2000 13:34:54 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:36798 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129088AbQKBSei>; Thu, 2 Nov 2000 13:34:38 -0500
+Date: Thu, 2 Nov 2000 19:23:41 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Ulrich Drepper <drepper@cygnus.com>
+cc: root@chaos.analogic.com, kernel@kvack.org,
+        "Dr. David Gilbert" <dg@px.uk.com>, linux-kernel@vger.kernel.org
+Subject: Re: Dual XEON - >>SLOW<< on SMP
+In-Reply-To: <m3bsvy2qlb.fsf@otr.mynet.cygnus.com>
+Message-ID: <Pine.GSO.3.96.1001102191400.23267A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 02, 2000 at 06:57:06PM +0100, Ragnar Hojland Espinosa wrote:
-> Well, here never did until today :)   With test9, I had left the box idle
+On 2 Nov 2000, Ulrich Drepper wrote:
 
-Just happened with test10, same circumstances .. font map got corrupted, and
-noise on the screen.  Switching back and forth from X to a vc fixed it, tho. 
+> I'm seeing this as well, but only with PIII Xeon systems, not PII
+> Xeon.  Every single timer interrupt on any CPU is accompanied by a NMI
+> and LOC increment on every CPU.
+> 
+>            CPU0       CPU1       
+>   0:     146727     153389    IO-APIC-edge  timer
 
-Sort of amusing that it (apparently) only happens with ppp + wget ..
+ This is the legacy 8254 timer source, used for the system time, i.e. 
+gettimeofday() and friends. 
+
+> NMI:     300035     300035 
+
+ This is the NMI watchdog at work.  Every tick of the legacy timer all
+CPUs receive an NMI unless overridden by the "nmi_watchdog" command line
+argument. 
+
+> LOC:     300028     300028 
+
+ This is the internal local APIC timer used for scheduling.  Every CPU is
+equipped with such a private timer.
 
 -- 
-____/|  Ragnar Højland     Freedom - Linux - OpenGL      Fingerprint  94C4B
-\ o.O|                                                   2F0D27DE025BE2302C
- =(_)=  "Thou shalt not follow the NULL pointer for      104B78C56 B72F0822
-   U     chaos and madness await thee at its end."       hkp://keys.pgp.com
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
-Handle via comment channels only.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

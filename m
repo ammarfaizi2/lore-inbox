@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264138AbTDOEUx (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 00:20:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264161AbTDOEUx (for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 00:20:53 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:48903 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264138AbTDOEUw (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 00:20:52 -0400
-Date: Tue, 15 Apr 2003 00:27:50 -0400 (EDT)
+	id S264168AbTDOE16 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 00:27:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbTDOE15 (for <rfc822;linux-kernel-outgoing>);
+	Tue, 15 Apr 2003 00:27:57 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:50695 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264168AbTDOE14 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 00:27:56 -0400
+Date: Tue, 15 Apr 2003 00:34:54 -0400 (EDT)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "Randy.Dunlap" <rddunlap@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: oops when using hdc=ide-scsi (2.5.66)
-In-Reply-To: <1049740232.2965.80.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.3.96.1030415002500.22538A-100000@gatekeeper.tmr.com>
+To: Chris Wedgwood <cw@f00f.org>
+cc: Dominik Kubla <dominik@kubla.de>, Larry McVoy <lm@work.bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ECC error in 2.5.64 + some patches
+In-Reply-To: <20030327172559.GA26700@f00f.org>
+Message-ID: <Pine.LNX.3.96.1030415003108.22538C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 Apr 2003, Alan Cox wrote:
+On Thu, 27 Mar 2003, Chris Wedgwood wrote:
 
-> On Llu, 2003-04-07 at 20:02, Randy.Dunlap wrote:
-> > Hi,
-> > 
-> > I get this when I boot 2.5.66 and the Linux command line contains
-> > "hdc=ide-scsi".  Yes, I know that I can remove that option (as in
-> > "DDT"), but the kernel shouldn't do this, either.
+
+> > In Larry's case i'd remove the cpu cooler, clean everything and
+> > reassemble, since i would assume that there is a hot-spot on the
+> > die.
 > 
-> ide_scsi is completely broken in 2.5.x. Known problem. If you need it
-> either use 2.4 or fix it 8)
+> or simply remove the side of the case or increase air-conditioning and
+> see if that goes away or becomes less apparent, IME if you get these
+> sporadically rather than often it's 'just' overheating...
 
-Is that an official position that it will not be supported? People with MO
-drives and tape will be supported only on 2.4?
-
-It would make more sense to treat all ATAPI devices as SCSI, I would
-think, but I assume there's a good reason for this decision.
+Generally in any modern case the air flow works with the case closed, and
+opening the case will not improve things. If you are set up to use the
+fans to pull air out and have cold air come in by pressure differential it
+*really* won't help. Of course a bad case might work better that way, but
+there aren't a lot of them out there any more, sort of went out with the
+AT form factor.
 
 -- 
 bill davidsen <davidsen@tmr.com>

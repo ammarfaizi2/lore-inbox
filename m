@@ -1,32 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291547AbSBNMXW>; Thu, 14 Feb 2002 07:23:22 -0500
+	id <S291549AbSBNMYw>; Thu, 14 Feb 2002 07:24:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291549AbSBNMXM>; Thu, 14 Feb 2002 07:23:12 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11794 "EHLO
+	id <S291562AbSBNMYn>; Thu, 14 Feb 2002 07:24:43 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13330 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291547AbSBNMXB>; Thu, 14 Feb 2002 07:23:01 -0500
-Subject: Re: Linux 2.4.18-pre9-mjc2
-To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
-Date: Thu, 14 Feb 2002 12:36:53 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020214114335.GA4058@merlin.emma.line.org> from "Matthias Andree" at Feb 14, 2002 12:43:35 PM
+	id <S291549AbSBNMYa>; Thu, 14 Feb 2002 07:24:30 -0500
+Subject: Re: Linux 2.4.18pre9-ac3
+To: maneesh@in.ibm.com
+Date: Thu, 14 Feb 2002 12:37:41 +0000 (GMT)
+Cc: alan@redhat.com, viro@math.psu.edu, linux-kernel@vger.kernel.org (LKML)
+In-Reply-To: <20020214172709.G8328@in.ibm.com> from "Maneesh Soni" at Feb 14, 2002 05:27:09 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16bL89-0008Jl-00@the-village.bc.nu>
+Message-Id: <E16bL8v-0008Jv-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > lm_sensors				(lm_sensors team)
+> > Linux 2.4.18pre3-ac2
+> > +/o/X	Fix locking of file struct stuff found by ibm	(Dipankar Sarma)
+> > 	audit
 > 
-> Hum, the last time I merged that stuff into my own kernel, the
-> patch-generator that they ship did not include all of the drivers I
-> needed. Also, I'm missing i2c from your patch list. Is that intentional
-> or is the i2c patch not needed? Which lm_sensors version did you merge?
+> I can see that the audit patch has in-correct fix for proc_readfd. Can
+> you tell us if there is anything else wrong in the audit patch. I will re-do 
+> the patch.
 
-Be very careful merging lm_sensors. Incorrect use of it is a wonderful
-way to do things like totally destroy (back to factory) an ibm thinkpad.
-Thats why I've always stayed clear of it
+I've pushed the procfs one to Marcelo. I need to go and audit the others for
+locking problems then push those in 2.4.19pre (Marcelo wants essential fixes
+only for -rc1)
+

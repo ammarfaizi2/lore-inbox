@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132894AbRDJB7K>; Mon, 9 Apr 2001 21:59:10 -0400
+	id <S132898AbRDJCZk>; Mon, 9 Apr 2001 22:25:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132898AbRDJB7A>; Mon, 9 Apr 2001 21:59:00 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:36108
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S132894AbRDJB44>; Mon, 9 Apr 2001 21:56:56 -0400
-Date: Mon, 9 Apr 2001 22:05:42 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, dledford@redhat.com
-Subject: Re: Version 6.1.11 of the aic7xxx driver availalbe
-Message-ID: <20010409220542.A32675@animx.eu.org>
-In-Reply-To: <200104092111.f39LBPs17548@aslan.scsiguy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <200104092111.f39LBPs17548@aslan.scsiguy.com>; from Justin T. Gibbs on Mon, Apr 09, 2001 at 03:11:25PM -0600
+	id <S132900AbRDJCZb>; Mon, 9 Apr 2001 22:25:31 -0400
+Received: from femail13.sdc1.sfba.home.com ([24.0.95.140]:486 "EHLO
+	femail13.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S132898AbRDJCZS>; Mon, 9 Apr 2001 22:25:18 -0400
+Message-ID: <008001c0c165$78a6d130$8d19b018@c779218a>
+From: "Nicholas Knight" <tegeran@home.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <986664971.1224.4.camel@bugeyes.wcu.edu> <3AD0A38A.FB1FB9DB@gmx.at>
+Subject: Re: UDMA(66) drive coming up as UDMA(33)?
+Date: Mon, 9 Apr 2001 19:25:12 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As always, the latest version of this driver is availalbe here:
-> 
-> http://people.FreeBSD.org/~gibbs/linux/
-> 
-> This site now includes installation instructions, feature set,
-> etc.  The page is under construction - comments welcome.
-> 
-> For the impatient:
-> 
-> CHANGELOG:
->     http://people.FreeBSD.org/~gibbs/linux/CHANGELOG
-> 
-> 2.4.3-patch:
->     http://people.FreeBSD.org/~gibbs/linux/linux-aic7xxx-6.1.11-2.4.3.patch.gz
-> 
-> 2.2.19-patch:
->     http://people.FreeBSD.org/~gibbs/linux/linux-aic7xxx-6.1.11-2.2.19.patch.gz
+----- Original Message -----
+From: "Wilfried Weissmann" <Wilfried.Weissmann@gmx.at>
+To: <linux-kernel@vger.kernel.org>
+Sent: Sunday, April 08, 2001 10:44 AM
+Subject: Re: UDMA(66) drive coming up as UDMA(33)?
 
-So, what about on an alpha system.  I've asked a few times what I could do,
-but you didn't help nor explain what you meant.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+> "David St.Clair" wrote:
+> >
+> > I'm trying to get my hard drive to use UDMA/66.  I'm thinking the cable
+> > is not being detected.  When the HPT366 bios is set to UDMA 4; using
+>
+> I think that should be UDMA 5 for 66? As far as I can remember UDMA4 is
+33MHz with S.M.A.R.T. which
+> add some reporting functionality. But I might be wrong...
+
+66 is 4, 100 is 5,
+

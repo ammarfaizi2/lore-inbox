@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286679AbRLVEzs>; Fri, 21 Dec 2001 23:55:48 -0500
+	id <S286677AbRLVEzs>; Fri, 21 Dec 2001 23:55:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286672AbRLVEzm>; Fri, 21 Dec 2001 23:55:42 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:785 "EHLO mail3.aracnet.com")
-	by vger.kernel.org with ESMTP id <S286677AbRLVEzf>;
-	Fri, 21 Dec 2001 23:55:35 -0500
-Date: Fri, 21 Dec 2001 20:55:41 -0800 (PST)
-From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB =?iso-8859-1?q?in
- Configure=2Ehelp=2E?=
-In-Reply-To: <a0133l$2ln$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0112212050560.24550-100000@shell1.aracnet.com>
+	id <S286679AbRLVEzi>; Fri, 21 Dec 2001 23:55:38 -0500
+Received: from svr3.applink.net ([206.50.88.3]:4883 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S286672AbRLVEx1>;
+	Fri, 21 Dec 2001 23:53:27 -0500
+Message-Id: <200112220453.fBM4rGSr022807@svr3.applink.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB =?iso-8859-1?q?in	Configure=2Ehelp=2E?=
+Date: Fri, 21 Dec 2001 22:49:34 -0600
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <3C234CC100020E25@mta13n.bluewin.ch> <200112220152.fBM1qJSr022347@svr3.applink.net> <a012ck$2jo$1@cesium.transmeta.com>
+In-Reply-To: <a012ck$2jo$1@cesium.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 Dec 2001, H. Peter Anvin wrote:
-
-> > Finally, Farhenheit units are smaller so that they make more convenient
-> > divisions: Eg.
+On Friday 21 December 2001 22:32, H. Peter Anvin wrote:
+> Followup to:  <200112220152.fBM1qJSr022347@svr3.applink.net>
+> By author:    Timothy Covell <timothy.covell@ashavan.org>
+> In newsgroup: linux.dev.kernel
 >
-> Bullsh*t.  They seem more natural to you because you're more used to
-> them.  Anyone who hasn't grown up on the system think that Fahrenheit
-> is the ultimate in lunacy.
+> > No, the US never went metric.  That's why $200M Mars probes crash on
+> > entry due to some idiot using English units as opposed to the NASA
+> > standard of Metrics.  The funny thing is that Thomas Jefferson, an
+> > American President, suggested the Metric system to the French while he
+> > was ambassador there.
+>
+> Ewhat?!
+>
+> 	-hpa
 
-Fahrenheit units were developed by a different process than Celsius, but
-they are both "natural". The Celsius scale is 0 = freezing point of
-water and 100 = boiling point of water. The Fahrenheit scale was
-developed less precisely -- 0 is approximately the freezing point of
-human blood, IIRC, and 100 is approximately body temperature (Fahrenheit
-may have had a fever :)).
---
-znmeb@borasky-research.net
-http://www.meta-trading-coach.com
+I'm assuming that you're questioning Jefferson's role.   Here are a couple of
+quotations which show that Jefferson's idea predated the official 
+implemenation.    I can do more digging if need be.
 
-How do you get an elephant out of a theatre?
-You can't; it's in their blood!
+1791 - "Jefferson Report." Thomas Jefferson described England's weight and 
+measures standards to Congress "on the supposition that the present measures 
+are to be retained," and also outlined a decimal system of weights and 
+measures of Jefferson's conception.
 
+And:
+
+As the scientists were experimenting in their laboratories, practical 
+tradesmen were making themselves permanent standards. In 1793, during 
+Napoleon's time, the French government adopted a new system of standards 
+called the metric system, based on what they called the metre.
+
+
+-- 
+timothy.covell@ashavan.org.

@@ -1,35 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261514AbSJHTsS>; Tue, 8 Oct 2002 15:48:18 -0400
+	id <S261319AbSJHTNn>; Tue, 8 Oct 2002 15:13:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261505AbSJHTrQ>; Tue, 8 Oct 2002 15:47:16 -0400
-Received: from iml104.datareturn.com ([216.46.230.105]:32524 "EHLO
-	sportvision.com") by vger.kernel.org with ESMTP id <S261511AbSJHTpv> convert rfc822-to-8bit;
-	Tue, 8 Oct 2002 15:45:51 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roberto Peon <robertopeon@sportvision.com>
-Reply-To: robertopeon@sportvision.com
-Organization: Sportvision Inc.
-To: Rik van Riel <riel@conectiva.com.br>
-Subject: Re: Re: New BK License Problem?
-Date: Tue, 8 Oct 2002 12:16:41 -0700
-User-Agent: KMail/1.4.1
-Cc: <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44L.0210081530220.1648-100000@duckman.distro.conectiva> <200210081130.44639.robertopeon@sportvision.com>
-In-Reply-To: <200210081130.44639.robertopeon@sportvision.com>
+	id <S263239AbSJHTNf>; Tue, 8 Oct 2002 15:13:35 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27408 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261310AbSJHTIK>; Tue, 8 Oct 2002 15:08:10 -0400
+Subject: PATCH: fix telephony for tqueue
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Date: Tue, 8 Oct 2002 20:05:20 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210081216.41988.robertopeon@sportvision.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17yzfU-0004uy-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"I was disagreed with"?
-should have been:
-"I disagreed with"
-
-Seems I should proofread a bit more, hmm?
-
--Roberto JP
-robertopeon@sportvision.com
-
-
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/drivers/telephony/ixj.c linux.2.5.41-ac1/drivers/telephony/ixj.c
+--- linux.2.5.41/drivers/telephony/ixj.c	2002-10-07 22:12:26.000000000 +0100
++++ linux.2.5.41-ac1/drivers/telephony/ixj.c	2002-10-08 00:54:34.000000000 +0100
+@@ -260,7 +260,6 @@
+ #include <linux/mm.h>
+ #include <linux/ioport.h>
+ #include <linux/interrupt.h>
+-#include <linux/tqueue.h>
+ #include <linux/proc_fs.h>
+ #include <linux/poll.h>
+ #include <linux/timer.h>

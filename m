@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267668AbUI1MKm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267186AbUI1MV0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267668AbUI1MKm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 08:10:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267678AbUI1MKm
+	id S267186AbUI1MV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 08:21:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267536AbUI1MV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 08:10:42 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:35982 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S267668AbUI1MKf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 08:10:35 -0400
-Message-ID: <415954AD.7010905@grupopie.com>
-Date: Tue, 28 Sep 2004 13:10:21 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Nico Schottelius <nico-kernel@schottelius.org>
-Subject: Re: [PATCH] add sysfs attribute 'carrier' for net devices
-References: <Pine.LNX.4.61.0409270041460.2886@dragon.hygekrogen.localhost> <1096306153.1729.2.camel@localhost.localdomain>
-In-Reply-To: <1096306153.1729.2.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Sep 2004 08:21:26 -0400
+Received: from 217-114-210-112.kunde.vdserver.de ([217.114.210.112]:16900 "EHLO
+	old-fsckful.ath.cx") by vger.kernel.org with ESMTP id S267186AbUI1MVY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 08:21:24 -0400
+Date: Tue, 28 Sep 2004 14:21:17 +0200
+From: Andreas Happe <andreashappe@flatline.ath.cx>
+To: James Morris <jmorris@redhat.com>
+Cc: Michal Ludvig <michal@logix.cz>, Andreas Happe <crow@old-fsckful.ath.cx>,
+       cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.9-rc2 1/2] cryptoapi: update sysfs-patch
+Message-ID: <20040928122117.GA21010@final-judgement.ath.cx>
+References: <20040927084149.GA3625@final-judgement.ath.cx> <Xine.LNX.4.44.0409271151500.21876-100000@thoron.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="a8Wt8u1KmwUX3Y2C"
+Content-Disposition: inline
+In-Reply-To: <Xine.LNX.4.44.0409271151500.21876-100000@thoron.boston.redhat.com>
+X-Request-PGP: subkeys.pgp.net
+X-Hangover: none
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
-> ....
->>+{
->>+	struct net_device *net = to_net_dev(dev);
->>+	if (netif_running(net)) {
->>+		if (netif_carrier_ok(net))
->>+			return snprintf(buf, 3, "%d\n", 1);
->>+		else
->>+			return snprintf(buf, 3, "%d\n", 0);
-> 
-> 
-> Using snprintf in this way is kind of silly. since buffer is PAGESIZE.
-> The most concise format of this would be:
-> 	return sprintf(buf, dec_fmt, !!netif_carrier_ok(dev));
 
-<nitpick>
-Since netif_carrier_ok already has a "!" in it, it is guaranteed to 
-return a 0 / 1 result. so this could be:
+--a8Wt8u1KmwUX3Y2C
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-  	return sprintf(buf, dec_fmt, netif_carrier_ok(dev));
+Just removes the cra_list entry from the whirlpool - cipher.
 
-Of course your way is more robust to future 'netif_carrier_ok' changes 
-and the compiler should optimize it way anyway since it is an inline 
-function, so I actually prefer the !! version :)
-</nitpick>
+please apply after the old patch.
 
--- 
-Paulo Marques - www.grupopie.com
+Signed-off-by: Andreas Happe <andreashappe@snikt.net>
 
-To err is human, but to really foul things up requires a computer.
-Farmers' Almanac, 1978
+--a8Wt8u1KmwUX3Y2C
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="patch-2.6.9-rc2-update_cryptoapi_class"
+
+diff -u -r -N linux-2.6.8/crypto/whirlpool.c linux-sysfs/crypto/whirlpool.c
+--- linux-2.6.8/crypto/whirlpool.c	2004-09-28 12:50:31.000000000 +0200
++++ linux-sysfs/crypto/whirlpool.c	2004-09-28 12:24:23.000000000 +0200
+@@ -1106,7 +1106,6 @@
+ 	.cra_blocksize	=	WHIRLPOOL_BLOCK_SIZE,
+ 	.cra_ctxsize	=	sizeof(struct whirlpool_ctx),
+ 	.cra_module	=	THIS_MODULE,
+-	.cra_list       =       LIST_HEAD_INIT(alg.cra_list),	
+ 	.cra_u		=	{ .digest = {
+ 	.dia_digestsize	=	WHIRLPOOL_DIGEST_SIZE,
+ 	.dia_init   	= 	whirlpool_init,
+
+--a8Wt8u1KmwUX3Y2C--

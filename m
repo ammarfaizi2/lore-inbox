@@ -1,38 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263059AbUDORml (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 13:42:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263045AbUDORlz
+	id S263182AbUDORoU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 13:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263184AbUDORoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 13:41:55 -0400
-Received: from emulex.emulex.com ([138.239.112.1]:50897 "EHLO
-	emulex.emulex.com") by vger.kernel.org with ESMTP id S263141AbUDORjO
+	Thu, 15 Apr 2004 13:44:11 -0400
+Received: from mail.kroah.org ([65.200.24.183]:27574 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263182AbUDORmR convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 13:39:14 -0400
-Message-ID: <3356669BBE90C448AD4645C843E2BF2802C0168A@xbl.ma.emulex.com>
-From: "Smart, James" <James.Smart@Emulex.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: persistence of kernel object attribute ??
-Date: Thu, 15 Apr 2004 13:39:11 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	Thu, 15 Apr 2004 13:42:17 -0400
+X-Donotread: and you are reading this why?
+Subject: Re: [PATCH] Driver Core update for 2.6.6-rc1
+In-Reply-To: <10820509122685@kroah.com>
+X-Patch: quite boring stuff, it's just source code...
+Date: Thu, 15 Apr 2004 10:41:52 -0700
+Message-Id: <10820509124057@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ChangeSet 1.1643.36.11, 2004/03/31 15:20:20-08:00, lxiep@ltcfwd.linux.ibm.com
 
-I've been looking at everything I can find, asked a few questions, and don't
-have an answer to the following issue.
+[PATCH] kobject_set_name() doesn't allocate enough space
 
-I have a driver that wants to export attributes per instance. I'd like the
-ability for the user to modify an attribute dynamically (sysfs works well) -
-but I'd like the new value to be persistent the next time the driver
-unloads/loads or the system reboots.  I don't want to have to update
-constants in source and recompile the driver.  I'm looking for something
-similar (cringe!) to the MS registry.  Is there a facility available to
-kernel objects to allow for persistent attributes to be set/retrieved? If
-not, any recommendations on how to implement this ?
 
--- james
+ lib/kobject.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+
+diff -Nru a/lib/kobject.c b/lib/kobject.c
+--- a/lib/kobject.c	Thu Apr 15 10:20:40 2004
++++ b/lib/kobject.c	Thu Apr 15 10:20:40 2004
+@@ -349,16 +349,16 @@
+ 		/* 
+ 		 * Need more space? Allocate it and try again 
+ 		 */
+-		name = kmalloc(need,GFP_KERNEL);
++		limit = need + 1;
++		name = kmalloc(limit,GFP_KERNEL);
+ 		if (!name) {
+ 			error = -ENOMEM;
+ 			goto Done;
+ 		}
+-		limit = need;
+ 		need = vsnprintf(name,limit,fmt,args);
+ 
+ 		/* Still? Give up. */
+-		if (need > limit) {
++		if (need >= limit) {
+ 			kfree(name);
+ 			error = -EFAULT;
+ 			goto Done;
 

@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276097AbRJGE5N>; Sun, 7 Oct 2001 00:57:13 -0400
+	id <S276150AbRJGGJn>; Sun, 7 Oct 2001 02:09:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276099AbRJGE5D>; Sun, 7 Oct 2001 00:57:03 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:30340 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S276097AbRJGE4x>;
-	Sun, 7 Oct 2001 00:56:53 -0400
-Date: Sat, 06 Oct 2001 21:57:17 -0700 (PDT)
-Message-Id: <20011006.215717.41650670.davem@redhat.com>
-To: torvalds@transmeta.com
-Cc: tori@ringstrom.mine.nu, sim@netnation.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.11pre4 swapping out all over the place
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0110061457570.1454-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0110061948280.30116-100000@boris.prodako.se>
-	<Pine.LNX.4.33.0110061457570.1454-100000@penguin.transmeta.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S276170AbRJGGJe>; Sun, 7 Oct 2001 02:09:34 -0400
+Received: from robur.slu.se ([130.238.98.12]:11020 "EHLO robur.slu.se")
+	by vger.kernel.org with ESMTP id <S276150AbRJGGJS>;
+	Sun, 7 Oct 2001 02:09:18 -0400
+From: Robert Olsson <Robert.Olsson@data.slu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15295.61967.701804.309307@robur.slu.se>
+Date: Sun, 7 Oct 2001 08:11:27 +0200
+To: kuznet@ms2.inr.ac.ru
+Cc: adilger@turbolabs.com (Andreas Dilger), Robert.Olsson@data.slu.se,
+        mingo@elte.hu, hadi@cyberus.ca, linux-kernel@vger.kernel.org,
+        bcrl@redhat.com, netdev@oss.sgi.com, torvalds@transmeta.com,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <200110051917.XAA23007@ms2.inr.ac.ru>
+In-Reply-To: <20011005124824.F315@turbolinux.com>
+	<200110051917.XAA23007@ms2.inr.ac.ru>
+X-Mailer: VM 6.92 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Linus Torvalds <torvalds@transmeta.com>
-   Date: Sat, 6 Oct 2001 14:59:04 -0700 (PDT)
 
-   Ok, can you try this slightly more involved patch instead?
-   ...
+kuznet@ms2.inr.ac.ru writes:
 
-   --- pre4/linux/mm/oom_kill.c	Thu Oct  4 19:52:11 2001
-   +++ linux/mm/oom_kill.c	Fri Oct  5 13:13:43 2001
-   @@ -241,13 +241,12 @@
+ > "some hysteresis" is right word. This loop is an experiment with still
+ > unknown result yet. Originally, Jamal proposed to spin several times.
+ > I killed this. Robert proposed to check inifinite loop yet. (Note,
+ > jiffies check is just a way to get rid of completely idle devices,
+ > one jiffie is enough lonf time to be considered infinite).
+ > 
 
-I think you hand edited this patch a little too much this
-time :-)  Or something else went wrong, as I had to apply
-this by hand myself as patch complained about the first chunk
-being malformed.
+ And from our discussion about packet-reordering we get even more motivation
+ for the "extra-polls" not only to save IRQ's 
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+ We may expand this to others too...
+
+ As polling-lists are per CPU and consecutive polls stays within the same
+ CPU the device becomes bound to one CPU. We are protected against packet 
+ reordering as long there are consecutive polls.
+
+ I've consulted some CS people who has worked with this issues and I have
+ understood packet reordering is non-trivial problem at least with a general 
+ approach.
+
+ So to me it seems we do very well with a very simple scheme and as I 
+ understand all SMP networking will benefit from this.
+
+ Our "field-test" indicates that the packet load is still well distributed 
+ among the CPU's.
+
+ So maybe the showstopper comes out as a showwinner. :-)
+
+ Cheers.
+
+						--ro

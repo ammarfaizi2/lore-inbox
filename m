@@ -1,129 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270291AbTHQPbD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 11:31:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270295AbTHQPbD
+	id S270325AbTHQPdY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 11:33:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270326AbTHQPdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 11:31:03 -0400
-Received: from waste.org ([209.173.204.2]:39044 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S270291AbTHQPa7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 11:30:59 -0400
-Date: Sun, 17 Aug 2003 10:30:44 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: James Morris <jmorris@intercode.com.au>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Jamie Lokier <jamie@shareable.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, davem@redhat.com,
-       "Adam J. Richter" <adam@yggdrasil.com>
-Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
-Message-ID: <20030817153044.GM325@waste.org>
-References: <20030816155110.GH325@waste.org> <Mutt.LNX.4.44.0308180036570.1683-100000@excalibur.intercode.com.au>
+	Sun, 17 Aug 2003 11:33:24 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:8915
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S270325AbTHQPdV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 11:33:21 -0400
+Date: Sun, 17 Aug 2003 17:33:41 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Larry McVoy <lm@bitmover.com>, Mike Fedyk <mfedyk@matchmail.com>,
+       linux-kernel@vger.kernel.org
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Fwd: Re: Bug Report: 2.4.22-pre5: BUG in page_alloc (fwd)
+Message-ID: <20030817153341.GP7862@dualathlon.random>
+References: <20030721190226.GA14453@matchmail.com> <20030721194514.GA5803@work.bitmover.com> <20030721212155.GF4677@x30.linuxsymposium.org> <20030721213159.GA7240@work.bitmover.com> <20030721220000.GG4677@x30.linuxsymposium.org> <20030729092821.GC23835@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Mutt.LNX.4.44.0308180036570.1683-100000@excalibur.intercode.com.au>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030729092821.GC23835@dualathlon.random>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 18, 2003 at 12:37:29AM +1000, James Morris wrote:
-> On Sat, 16 Aug 2003, Matt Mackall wrote:
-> 
-> > Yes, but it's introduced by the requirements imposed by cryptoapi. The
-> > current code uses the stack (though currently rather a lot of it),
-> > which lets it be fully re-entrant. Not an option with cryptoapi.
-> 
-> This will be possible with your api flags patch, right?
+Hi,
 
-No, it's a mostly orthogonal problem.
+On Tue, Jul 29, 2003 at 11:28:21AM +0200, Andrea Arcangeli wrote:
+> Peter, any suggestion on this? Larry said it's all on your side, so I
+> assume you're running bkcvs yourself, or Larry is already providing you
+> a locking mechanism that serializes against bkcvs and that allows you
+> to fetch a coherent of the cvs repository. w/o this last locking bit
+> that allows to export a coherent copy of the repository, I can't easily
+> automate the stuff based on a local repository and I've to switch to the
+> remote one, despite having it local is more flexible (and much faster
+> for local browsing) and rsync -z is faster.
 
-Let's say we start with:
+Any news on this? I'm still looking into a way to rsync a coherenty copy
+of the cvs repository.
 
-int foo(char *a) {
-      char *tmp[N]; /* context stored on stack */
-
-      return nativehash(a, tmp);
-}
-
-The above is fully reentrant, interrupt safe and preemptible. Hurray
-for stacks. We convert this to cryptoapi something like this
-(simplified, don't try this at home kids):
-
-int foo2(char *a) {
-    crypto_tfm *hash;
-    int ret;
-
-    hash=crypto_alloc_tfm("hash");
-    ret=crypto_digest_digest(hash, a);
-    crypto_free(hash);
-
-    return ret;
-}
-
-This is also fully reentrant, but its not safe to call in irq
-contexts because of the allocation. So we do something like this:
-
-static DEFINE_PER_CPU(struct crypto_tfm *, hash);
-
-int foo_cpu_notify(cpu) {
-{
-	per_cpu(hash, (long)hcpu) = crypto_alloc_tfm("hash", 0);
-}
-
-int foo_init()
-{
-	/* set up per_cpu vars */
-	foo_cpu_notify(smp_processor_id());
-        register_cpu_notifier(&foo_nb);
-}
-
-int foo3(char *a) {
-    crypto_tfm *hash;
-    int ret;
-
-    hash=get_cpu_var("hash");
-    ret=crypto_digest_digest(hash, a);
-    put_cpu_var(hash);
-
-    return ret;
-}
-
-Now (ignoring the internals of the digest function, we can be called
-from interrupt contexts and different CPUs safely and more
-efficiently, but we've lost the property of being reentrant (either
-via preemption or interrupt handlers) during hashing because there's
-now only one context per cpu. So this is a regression from foo1.
-
-[And this is where the other patch comes in: the per_cpu vars code
-know that stuff using it is inherently unpreemptible so it increments
-the preempt count. Cryptoapi's yielding code gets into trouble because
-it's doing conditional rescheduling without being able to know that
-its in a safe context. Consider spinlock critical sections on
-UP/non-preempt for another example. The new flag sez "don't ever sleep
-unless I tell you its safe"]
-
-So my earlier suggestion was to add a couple functions to regain the
-fully reentrant properties of foo1:
-
-static crypto_alg alg;
-
-int foo_init() {
-    alg=crypto_alg_get("hash");
-}
-
-int foo4(char *a) {
-    char tfm_buf[SIZE];
-
-    hash=__crypto_init_tfm(alg, tfm_buff, SIZE);
-    return crypto_digest_digest(hash, a);
-}
-
-There are other ways around the preempt problem, obviously, but this
-is almost surely the simplest way with cryptoapi. And apparently the
-cryptoloop folks would like something similar.
-
-Now Dave can remind us why he doesn't like it.
-
--- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+Andrea

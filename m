@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265815AbSLJEuZ>; Mon, 9 Dec 2002 23:50:25 -0500
+	id <S266408AbSLJFWl>; Tue, 10 Dec 2002 00:22:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266199AbSLJEuY>; Mon, 9 Dec 2002 23:50:24 -0500
-Received: from CPE3236333432363339.cpe.net.cable.rogers.com ([24.114.185.204]:4
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S265815AbSLJEuY>; Mon, 9 Dec 2002 23:50:24 -0500
-From: Shawn Starr <spstarr@sh0n.net>
-Organization: sh0n.net
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [NEW][ERROR][2.5.51]: ACPI notice - AE_NOT_EXIST(?)
-Date: Mon, 9 Dec 2002 16:10:32 -0500
-User-Agent: KMail/1.5
-Cc: Andrew Grover <andrew.grover@intel.com>
+	id <S266564AbSLJFWk>; Tue, 10 Dec 2002 00:22:40 -0500
+Received: from mailnw.centurytel.net ([209.206.160.237]:17572 "EHLO
+	mailnw.centurytel.net") by vger.kernel.org with ESMTP
+	id <S266408AbSLJFWO>; Tue, 10 Dec 2002 00:22:14 -0500
+Message-ID: <3DF5EC8E.9050603@centurytel.net>
+Date: Tue, 10 Dec 2002 06:30:54 -0700
+From: eric lin <fsshl@centurytel.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021208 Debian/1.2.1-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Valdis.Kletnieks@vt.edu
+Subject: how do you successful compile or install 2.5.50?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200212091610.32071.spstarr@sh0n.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ACPI-0091: *** Error: No object was returned from [\_SB_.PCI0.UAR2._STA] (Node
-c15e32c0), AE_NOT_EXIST
+Dear Valdis:
 
-Whats this mean?
+   I also download from kernel.org 2.5.50, it have error at make modules 
+or make install
 
-Shawn.
+   after I downloan another patch-ac1 or mm1,  and patch it with 2.5.50, 
+recompile(I mean make modules or make install)  it still have error, (I 
+ever email the author)
 
+   I just wonder how do you successful compile or install that 2.5.50? 
+do you meet error at make modules?  if yes, how do you do ?(modify by 
+yourself or postto author or public waiting for reply?)
 
+   highly appreciate your experience on compile or install new kernel 
+especailly experiamental kernel
+
+sincere ERic
+www.linuxspice.com
+linux pc for sale
 

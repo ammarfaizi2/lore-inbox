@@ -1,44 +1,266 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313118AbSDDI7m>; Thu, 4 Apr 2002 03:59:42 -0500
+	id <S313117AbSDDJMm>; Thu, 4 Apr 2002 04:12:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313117AbSDDI7c>; Thu, 4 Apr 2002 03:59:32 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:55794 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S313114AbSDDI7R> convert rfc822-to-8bit; Thu, 4 Apr 2002 03:59:17 -0500
-Date: Thu, 4 Apr 2002 10:57:40 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Sandino Araico =?iso-8859-1?Q?S=E1nchez?= <sandino@sandino.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18 mount.smbfs oops
-In-Reply-To: <3CABA4FE.2835A5A8@sandino.net>
-Message-ID: <Pine.NEB.4.44.0204041054290.7845-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S313119AbSDDJMd>; Thu, 4 Apr 2002 04:12:33 -0500
+Received: from [193.108.239.33] ([193.108.239.33]:15876 "HELO
+	roppedisano.infracomspa.it") by vger.kernel.org with SMTP
+	id <S313117AbSDDJMO>; Thu, 4 Apr 2002 04:12:14 -0500
+Date: Thu, 4 Apr 2002 11:12:06 +0200
+From: Roberto Oppedisano <rao27@libero.it>
+To: linux-kernel@vger.kernel.org
+Subject: problem compiling 2.4.19pre5aa1
+Message-ID: <20020404091205.GA28408@roppedisano.infracomspa.it>
+Mail-Followup-To: Roberto Oppedisano <rao27@libero.it>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Apr 2002, Sandino Araico Sánchez wrote:
+Here's what I get:
 
-> 1. mount -t smbfs -o uid=500,gid=500 //blue/shared-dir /mnt/smb
->     The smbmount asked me for a password, I pressed enter
-> 2. df
->     Nothing strange happens
-> 3. ls /mnt/smb
->     The Oops happens.
->
-> The Windows machine is Windows Xp, the ksymoops output attached.
+make[2]: Entering directory `/usr/src/2.4.19pre5aa1/kernel'
+gcc -D__KERNEL__ -I/usr/src/2.4.19pre5aa1/include -Wall
+-Wstrict-prototypes -Wnoter -fno-strict-aliasing -fno-common -pipe
+-mpreferred-stack-boundary=2 -march=i  -DEXPORT_SYMTAB -c rcupdate.c
+rcupdate.c: In function `rcu_prepare_polling':
+rcupdate.c:88: `smp_num_cpus' undeclared (first use in this function)
+rcupdate.c:88: (Each undeclared identifier is reported only once
+rcupdate.c:88: for each function it appears in.)
+rcupdate.c: In function `rcu_polling':
+rcupdate.c:144: `smp_num_cpus' undeclared (first use in this function)
+make[2]: *** [rcupdate.o] Error 1
+make[2]: Leaving directory `/usr/src/2.4.19pre5aa1/kernel'
+make[1]: *** [first_rule] Error 2
+make[1]: Leaving directory `/usr/src/2.4.19pre5aa1/kernel'
+make: *** [_dir_kernel] Error 2
 
-This sounds like the nls bug. In this case a patch is at
-  http://www.hojdpunkten.ac.se/054/samba/00-smbfs-2.4.18-codepage.patch.gz
+rao@infraweb:pts/1:~$ grep -v ^\# .config|uniq
 
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
 
-> Sandino Araico Sánchez
+CONFIG_EXPERIMENTAL=y
 
-cu
-Adrian
+CONFIG_MODULES=y
+CONFIG_KMOD=y
 
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_MCE=y
+CONFIG_MICROCODE=m
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_NOHIGHMEM=y
+CONFIG_1GB=y
+CONFIG_MTRR=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+
+CONFIG_NET=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+
+CONFIG_BLK_DEV_FD=y
+
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETLINK_DEV=m
+CONFIG_NETFILTER=y
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_NET_IPIP=m
+CONFIG_NET_IPGRE=m
+CONFIG_ARPD=y
+CONFIG_INET_ECN=y
+
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_AH_ESP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_UNCLEAN=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_MIRROR=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_NAT_LOCAL=y
+CONFIG_IP_NF_NAT_SNMP_BASIC=m
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_ARPTABLES=m
+CONFIG_IP_NF_ARPFILTER=m
+CONFIG_VLAN_8021Q=m
+CONFIG_ATALK=m
+
+CONFIG_NET_PKTGEN=m
+
+CONFIG_IDE=y
+
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=m
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_CMD640=y
+CONFIG_BLK_DEV_RZ1000=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_IDE_MODES=y
+
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=m
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_SCSI_DEBUG_QUEUES=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+
+CONFIG_SCSI_MEGARAID=y
+CONFIG_SCSI_SYM53C8XX_2=m
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+CONFIG_SCSI_SYM53C8XX=y
+CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS=4
+CONFIG_SCSI_NCR53C8XX_MAX_TAGS=32
+CONFIG_SCSI_NCR53C8XX_SYNC=20
+
+CONFIG_I2O=m
+CONFIG_I2O_PCI=m
+CONFIG_I2O_BLOCK=m
+CONFIG_I2O_LAN=m
+CONFIG_I2O_SCSI=m
+CONFIG_I2O_PROC=m
+
+CONFIG_NETDEVICES=y
+
+CONFIG_DUMMY=m
+
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_PCI=y
+CONFIG_EEPRO100=y
+
+CONFIG_NETCONSOLE=m
+
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_SERIAL_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=m
+
+CONFIG_MOUSE=m
+CONFIG_PSMOUSE=y
+
+CONFIG_RTC=m
+
+CONFIG_AGP=m
+CONFIG_AGP_INTEL=y
+CONFIG_AGP_I810=y
+CONFIG_AGP_VIA=y
+CONFIG_AGP_AMD=y
+CONFIG_AGP_SIS=y
+CONFIG_AGP_ALI=y
+
+CONFIG_FS_POSIX_ACL=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_REISERFS_FS=m
+CONFIG_REISERFS_PROC_INFO=y
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_TMPFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_NTFS_FS=m
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_UDF_FS=m
+
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+CONFIG_SUNRPC=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_SMB_FS=m
+CONFIG_ZISOFS_FS=y
+CONFIG_ZLIB_FS_INFLATE=y
+
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_15=m
+
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+
+-- 
+Roberto Oppedisano
 
 

@@ -1,71 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267399AbUG2BPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267403AbUG2BSt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267399AbUG2BPm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 21:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267407AbUG2BPl
+	id S267403AbUG2BSt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 21:18:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267398AbUG2BSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 21:15:41 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:63416 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S267399AbUG2BOg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 21:14:36 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, suparna@in.ibm.com, fastboot@osdl.org,
-       mbligh@aracnet.com, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
-References: <16734.1090513167@ocs3.ocs.com.au>
-	<200407280903.37860.jbarnes@engr.sgi.com>
-	<m1bri06mgw.fsf@ebiederm.dsl.xmission.com>
-	<200407281106.17626.jbarnes@engr.sgi.com>
-	<20040728124405.1a934bec.akpm@osdl.org>
-	<m1pt6f681y.fsf@ebiederm.dsl.xmission.com>
-	<1091055192.31923.1.camel@localhost.localdomain>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 28 Jul 2004 19:12:14 -0600
-In-Reply-To: <1091055192.31923.1.camel@localhost.localdomain>
-Message-ID: <m14qnr62hd.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
+	Wed, 28 Jul 2004 21:18:49 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:44182 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267403AbUG2BSb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 21:18:31 -0400
+Date: Thu, 29 Jul 2004 12:14:53 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: lord@xfs.org, Amon Ott <ao@rsbac.org>
+Cc: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 4K stack kernel get Oops in Filesystem stress test
+Message-ID: <20040729021453.GG800@frodo>
+References: <20040720114418.GH21918@email.archlab.tuwien.ac.at> <40FD0A61.1040503@xfs.org> <40FD2E99.20707@mnsu.edu> <200407220927.45201.ao@rsbac.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200407220927.45201.ao@rsbac.org>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Thu, Jul 22, 2004 at 09:27:44AM +0200, Amon Ott wrote:
+> On Dienstag, 20. Juli 2004 16:39, Jeffrey E. Hundstad wrote:
+> > Steve Lord wrote:
+> > > Don't use 4K stacks and XFS. What you hit here is a path where the
+> > > filesystem is getting full and it needs to free some reserved space
+> > > by flushing cached data which is using reserved extents. Reserved
+> > > extents do not yet have an on disk address and they include a
+> > > reservation for the worst case metadata usage. Flushing them will
+> > > get you room back.
+> > >
+> > > As you can see, it is a pretty deep call stack, most of XFS is going
+> > > to work just fine with a 4K stack, but there are end cases like
+> > > this one which will just not fit.
 
-> On Iau, 2004-07-29 at 00:11, Eric W. Biederman wrote:
-> > If we can ensure the addresses where the new kernel will run will never
-> > have DMA pointed at them I actually don't think so.  This is why last
-> > year I recommended building a kernel that runs at a non-default address
-> > and finding a way to simply preload it there.
+Actually, this area of the code has been a source of several
+deadlocks, so we need to consider reworking how we do this
+anyay (helper thread or something along those lines) - that
+would also help to address the stack depth problem here, and
+this spot is probably the worst-case situation for stack use
+in XFS.
+
+> > If this is a known truth with XFS maybe it would be a good idea to have 
+> > 4K stacks and XFS be an impossible combination using the config tool.
+
+I would prefer not to do that, we want to know where the problems
+are - if we hide them like this it will just make them harder to
+find and resolve.  Certainly XFS is not the only subsystem with
+problems here (even saw an _ext2_ stack overflow go past recently,
+and I believe other filesystems can be much worse) - & when stacked
+volume managers and other drivers enter the picture...
+
+> It would be good if there was some warning in the 4K stack option help, 
+> there have been quite many cases already where the kernel broke with odd 
+> symptoms because of this switch.
 > 
-> We DMA into arbitary allocated pages anywhere in the memory space, so
-> you never know where is safe other than areas preallocated during the
-> old kernel run.
+> E.g.
+> Warning: Use this option with care, as it might break your system under 
+> load. If you experience weird crashes or oopses, please retry with this 
+> option turned off.
 
-Alan I just reread what you said and it appears we are in violent agreement
-about the facts.
+If its not done already, perhaps 4KSTACKS could be reported in
+the oops message (like PREEMPT and one or two other things are,
+IIRC)?
 
-Different methods but...
+cheers.
 
-> Since you can just clear the master bit on each PCI device it isnt a big
-> deal to protect against. (except a couple of devices that forget
-> to honour it)
-
-Or those devices that hang the machine when you clear it.
-Or the ioapics which loose the ability to generate interrupts
-when you clear the master bit, and with the i82559 timer behind
-them you can't get your new kernel to boot.
-
-Plus there are all of the non-pci devices.  
-
-And there is the fact that the pci configuration access methods
-are frequently BIOS calls.
-
-So I do see just clearing the master bit on each PCI devices to
-as dangerous as calling the shutdown methods.
-
-Eric
-
-
-
+-- 
+Nathan

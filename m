@@ -1,788 +1,1164 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261711AbTCZPNn>; Wed, 26 Mar 2003 10:13:43 -0500
+	id <S261743AbTCZPQG>; Wed, 26 Mar 2003 10:16:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261726AbTCZPNf>; Wed, 26 Mar 2003 10:13:35 -0500
-Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:8176 "EHLO
-	d12lmsgate-5.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S261711AbTCZPIw> convert rfc822-to-8bit; Wed, 26 Mar 2003 10:08:52 -0500
+	id <S261734AbTCZPPU>; Wed, 26 Mar 2003 10:15:20 -0500
+Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:9387 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S261727AbTCZPKg> convert rfc822-to-8bit; Wed, 26 Mar 2003 10:10:36 -0500
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Organization: IBM Deutschland GmbH
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] s390 update (2/9): syscall numbers > 255.
-Date: Wed, 26 Mar 2003 16:06:27 +0100
+Subject: [PATCH] s390 update (1/9): s390 arch fixes.
+Date: Wed, 26 Mar 2003 16:05:33 +0100
 User-Agent: KMail/1.5
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200303261606.27135.schwidefsky@de.ibm.com>
+Message-Id: <200303261605.33937.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add support for system calls with numbers > 255.
+* Initialize timing related variables first and then enable the timer interrupt.
+* Normalize nano seconds to micro seconds in do_gettimeofday.
+* Add types for __kernel_timer_t and __kernel_clockid_t.
+* Fix ugly bug in switch_to: set prev to the return value of resume, otherwise
+  prev still contains the previous process at the time resume was called and
+  not the previous process at the time resume returned. They differ...
+* Add missing include to get the kernel compiled.
+* Get a closer match with the i386 termios.h file.
+* Cope with INITIAL_JIFFIES.
+* Define cpu_relax to do a cpu yield on VM and LPAR.
+* Don't reenable interrupts in program check handler.
+* Add pte_file definitions.
+* Console initialization fixes for 3215 and sclp.
 
 diffstat:
- arch/s390/kernel/entry.S   |   36 ++++--
- arch/s390x/kernel/entry.S  |   45 +++++---
- include/asm-s390/unistd.h  |  252 ++++++++++++++++++++++++++-------------------
- include/asm-s390x/unistd.h |  252 ++++++++++++++++++++++++++-------------------
- 4 files changed, 351 insertions(+), 234 deletions(-)
+ arch/s390/defconfig             |   76 ++++++++++++++++++++++++--------------
+ arch/s390/kernel/entry.S        |    4 --
+ arch/s390/kernel/ptrace.c       |   21 ++++++----
+ arch/s390/kernel/time.c         |   16 ++++----
+ arch/s390/mm/ioremap.c          |    2 -
+ arch/s390x/defconfig            |   80 +++++++++++++++++++++++++---------------
+ arch/s390x/kernel/entry.S       |    4 --
+ arch/s390x/kernel/ptrace.c      |   27 ++++++++++---
+ arch/s390x/kernel/time.c        |   20 +++++-----
+ arch/s390x/mm/ioremap.c         |    2 -
+ drivers/s390/char/con3215.c     |    9 ++--
+ drivers/s390/char/sclp_tty.c    |    3 -
+ include/asm-s390/pgtable.h      |   69 +++++++++++++++++++++++-----------
+ include/asm-s390/posix_types.h  |    2 +
+ include/asm-s390/processor.h    |    5 ++
+ include/asm-s390/signal.h       |    1 
+ include/asm-s390/system.h       |    2 -
+ include/asm-s390/termios.h      |   25 ++++++------
+ include/asm-s390x/pgtable.h     |   57 +++++++++++++++++++---------
+ include/asm-s390x/posix_types.h |    2 +
+ include/asm-s390x/processor.h   |    6 ++-
+ include/asm-s390x/signal.h      |    1 
+ include/asm-s390x/system.h      |    2 -
+ include/asm-s390x/termios.h     |   27 ++++++-------
+ 24 files changed, 290 insertions(+), 173 deletions(-)
 
+diff -urN linux-2.5.66/arch/s390/defconfig linux-2.5.66-s390/arch/s390/defconfig
+--- linux-2.5.66/arch/s390/defconfig	Mon Mar 24 23:01:23 2003
++++ linux-2.5.66-s390/arch/s390/defconfig	Wed Mar 26 15:45:10 2003
+@@ -2,7 +2,6 @@
+ # Automatically generated make config: don't edit
+ #
+ CONFIG_MMU=y
+-CONFIG_SWAP=y
+ CONFIG_UID16=y
+ CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+ CONFIG_ARCH_S390=y
+@@ -15,6 +14,7 @@
+ #
+ # General setup
+ #
++CONFIG_SWAP=y
+ CONFIG_SYSVIPC=y
+ # CONFIG_BSD_PROCESS_ACCT is not set
+ CONFIG_SYSCTL=y
+@@ -158,6 +158,9 @@
+ # CONFIG_INET_ESP is not set
+ # CONFIG_XFRM_USER is not set
+ CONFIG_IPV6=m
++# CONFIG_IPV6_PRIVACY is not set
++# CONFIG_INET6_AH is not set
++# CONFIG_INET6_ESP is not set
+ 
+ #
+ # SCTP Configuration (EXPERIMENTAL)
+@@ -252,48 +255,63 @@
+ #
+ # File systems
+ #
++CONFIG_EXT2_FS=y
++# CONFIG_EXT2_FS_XATTR is not set
++CONFIG_EXT3_FS=y
++CONFIG_EXT3_FS_XATTR=y
++# CONFIG_EXT3_FS_POSIX_ACL is not set
++CONFIG_JBD=y
++# CONFIG_JBD_DEBUG is not set
++CONFIG_FS_MBCACHE=y
++# CONFIG_REISERFS_FS is not set
++# CONFIG_JFS_FS is not set
++# CONFIG_XFS_FS is not set
++# CONFIG_MINIX_FS is not set
++# CONFIG_ROMFS_FS is not set
+ # CONFIG_QUOTA is not set
+ # CONFIG_AUTOFS_FS is not set
+ # CONFIG_AUTOFS4_FS is not set
+-# CONFIG_REISERFS_FS is not set
++
++#
++# CD-ROM/DVD Filesystems
++#
++# CONFIG_ISO9660_FS is not set
++# CONFIG_UDF_FS is not set
++
++#
++# DOS/FAT/NT Filesystems
++#
++# CONFIG_FAT_FS is not set
++# CONFIG_NTFS_FS is not set
++
++#
++# Pseudo filesystems
++#
++CONFIG_PROC_FS=y
++# CONFIG_DEVFS_FS is not set
++CONFIG_DEVPTS_FS=y
++# CONFIG_TMPFS is not set
++CONFIG_RAMFS=y
++
++#
++# Miscellaneous filesystems
++#
+ # CONFIG_ADFS_FS is not set
+ # CONFIG_AFFS_FS is not set
+ # CONFIG_HFS_FS is not set
+ # CONFIG_BEFS_FS is not set
+ # CONFIG_BFS_FS is not set
+-CONFIG_EXT3_FS=y
+-CONFIG_EXT3_FS_XATTR=y
+-# CONFIG_EXT3_FS_POSIX_ACL is not set
+-CONFIG_JBD=y
+-# CONFIG_JBD_DEBUG is not set
+-# CONFIG_FAT_FS is not set
+ # CONFIG_EFS_FS is not set
+ # CONFIG_CRAMFS is not set
+-# CONFIG_TMPFS is not set
+-CONFIG_RAMFS=y
+-# CONFIG_ISO9660_FS is not set
+-# CONFIG_JFS_FS is not set
+-# CONFIG_MINIX_FS is not set
+ # CONFIG_VXFS_FS is not set
+-# CONFIG_NTFS_FS is not set
+ # CONFIG_HPFS_FS is not set
+-CONFIG_PROC_FS=y
+-# CONFIG_DEVFS_FS is not set
+-CONFIG_DEVPTS_FS=y
+ # CONFIG_QNX4FS_FS is not set
+-# CONFIG_ROMFS_FS is not set
+-CONFIG_EXT2_FS=y
+-# CONFIG_EXT2_FS_XATTR is not set
+ # CONFIG_SYSV_FS is not set
+-# CONFIG_UDF_FS is not set
+ # CONFIG_UFS_FS is not set
+-# CONFIG_XFS_FS is not set
+ 
+ #
+ # Network File Systems
+ #
+-# CONFIG_CODA_FS is not set
+-# CONFIG_INTERMEZZO_FS is not set
+ CONFIG_NFS_FS=y
+ CONFIG_NFS_V3=y
+ # CONFIG_NFS_V4 is not set
+@@ -301,16 +319,17 @@
+ CONFIG_NFSD_V3=y
+ # CONFIG_NFSD_V4 is not set
+ # CONFIG_NFSD_TCP is not set
+-CONFIG_SUNRPC=y
+-# CONFIG_SUNRPC_GSS is not set
+ CONFIG_LOCKD=y
+ CONFIG_LOCKD_V4=y
+ CONFIG_EXPORTFS=y
+-# CONFIG_CIFS is not set
++CONFIG_SUNRPC=y
++# CONFIG_SUNRPC_GSS is not set
+ # CONFIG_SMB_FS is not set
++# CONFIG_CIFS is not set
+ # CONFIG_NCP_FS is not set
++# CONFIG_CODA_FS is not set
++# CONFIG_INTERMEZZO_FS is not set
+ # CONFIG_AFS_FS is not set
+-CONFIG_FS_MBCACHE=y
+ 
+ #
+ # Partition Types
+@@ -324,6 +343,7 @@
+ # CONFIG_MAC_PARTITION is not set
+ # CONFIG_MSDOS_PARTITION is not set
+ # CONFIG_LDM_PARTITION is not set
++# CONFIG_NEC98_PARTITION is not set
+ # CONFIG_SGI_PARTITION is not set
+ # CONFIG_ULTRIX_PARTITION is not set
+ # CONFIG_SUN_PARTITION is not set
 diff -urN linux-2.5.66/arch/s390/kernel/entry.S linux-2.5.66-s390/arch/s390/kernel/entry.S
---- linux-2.5.66/arch/s390/kernel/entry.S	Wed Mar 26 15:45:11 2003
-+++ linux-2.5.66-s390/arch/s390/kernel/entry.S	Wed Mar 26 15:45:11 2003
-@@ -18,6 +18,7 @@
- #include <asm/ptrace.h>
- #include <asm/thread_info.h>
- #include <asm/offsets.h>
-+#include <asm/unistd.h>
+--- linux-2.5.66/arch/s390/kernel/entry.S	Mon Mar 24 23:00:08 2003
++++ linux-2.5.66-s390/arch/s390/kernel/entry.S	Wed Mar 26 15:45:10 2003
+@@ -644,13 +644,12 @@
+         tm      __LC_PGM_INT_CODE+1,0x80 # check whether we got a per exception
+         bnz     BASED(pgm_per)           # got per exception -> special case
+ 	SAVE_ALL __LC_PGM_OLD_PSW,1
+-	la	%r8,0x7f
+         l       %r3,__LC_PGM_ILC         # load program interruption code
++	la	%r8,0x7f
+         l       %r7,BASED(.Ljump_table)
+ 	nr	%r8,%r3
+         sll     %r8,2
+ 	GET_THREAD_INFO
+-        stosm   24(%r15),0x03            # reenable interrupts
+         l       %r7,0(%r8,%r7)		 # load address of handler routine
+         la      %r2,SP_PTREGS(%r15)	 # address of register-save area
+ 	la      %r14,BASED(sysc_return)
+@@ -677,7 +676,6 @@
+ 	GET_THREAD_INFO
+ 	la	%r4,0x7f
+ 	l	%r3,__LC_PGM_ILC	 # load program interruption code
+-        stosm   24(%r15),0x03            # reenable interrupts
+         nr      %r4,%r3                  # clear per-event-bit and ilc
+         be      BASED(pgm_per_only)      # only per or per+check ?
+         l       %r1,BASED(.Ljump_table)
+diff -urN linux-2.5.66/arch/s390/kernel/ptrace.c linux-2.5.66-s390/arch/s390/kernel/ptrace.c
+--- linux-2.5.66/arch/s390/kernel/ptrace.c	Mon Mar 24 23:01:24 2003
++++ linux-2.5.66-s390/arch/s390/kernel/ptrace.c	Wed Mar 26 15:45:10 2003
+@@ -207,21 +207,24 @@
+ 		return ptrace_attach(child);
+ 
+ 	/*
+-	 * I added child != current line so we can get the
+-	 * ieee_instruction_pointer from the user structure DJB
++	 * Special cases to get/store the ieee instructions pointer.
+ 	 */
+-	if (child != current) {
+-		ret = ptrace_check_attach(child, request == PTRACE_KILL);
+-		if (ret < 0)
+-			return ret;
++	if (child == current) {
++		if (request == PTRACE_PEEKUSR && addr == PT_IEEE_IP)
++			return peek_user(child, addr, data);
++		if (request == PTRACE_POKEUSR && addr == PT_IEEE_IP)
++			return poke_user(child, addr, data);
+ 	}
+ 
+-	/* Remove high order bit from address. */
+-	addr &= PSW_ADDR_INSN;
++	ret = ptrace_check_attach(child, request == PTRACE_KILL);
++	if (ret < 0)
++		return ret;
+ 
+ 	switch (request) {
+ 	case PTRACE_PEEKTEXT:
+ 	case PTRACE_PEEKDATA:
++		/* Remove high order bit from address. */
++		addr &= PSW_ADDR_INSN;
+ 		/* read word at location addr. */
+ 		copied = access_process_vm(child, addr, &tmp, sizeof(tmp), 0);
+ 		if (copied != sizeof(tmp))
+@@ -234,6 +237,8 @@
+ 
+ 	case PTRACE_POKETEXT:
+ 	case PTRACE_POKEDATA:
++		/* Remove high order bit from address. */
++		addr &= PSW_ADDR_INSN;
+ 		/* write the word at location addr. */
+ 		copied = access_process_vm(child, addr, &data, sizeof(data),1);
+ 		if (copied != sizeof(data))
+diff -urN linux-2.5.66/arch/s390/kernel/time.c linux-2.5.66-s390/arch/s390/kernel/time.c
+--- linux-2.5.66/arch/s390/kernel/time.c	Mon Mar 24 22:59:53 2003
++++ linux-2.5.66-s390/arch/s390/kernel/time.c	Wed Mar 26 15:45:10 2003
+@@ -49,8 +49,9 @@
+ u64 jiffies_64 = INITIAL_JIFFIES;
+ 
+ static ext_int_info_t ext_int_info_timer;
+-static uint64_t xtime_cc;
+-static uint64_t init_timer_cc;
++static u64 init_timer_cc;
++static u64 jiffies_timer_cc;
++static u64 xtime_cc;
+ 
+ extern unsigned long wall_jiffies;
+ 
+@@ -70,7 +71,7 @@
+ 	__u64 now;
+ 
+ 	asm volatile ("STCK 0(%0)" : : "a" (&now) : "memory", "cc");
+-        now = (now - init_timer_cc) >> 12;
++        now = (now - jiffies_timer_cc) >> 12;
+ 	/* We require the offset from the latest update of xtime */
+ 	now -= (__u64) wall_jiffies*USECS_PER_JIFFY;
+ 	return (unsigned long) now;
+@@ -202,14 +203,14 @@
+ 	unsigned long cr0;
+ 	__u64 timer;
+ 
++	timer = jiffies_timer_cc + jiffies_64 * CLK_TICKS_PER_JIFFY;
++	S390_lowcore.jiffy_timer = timer;
++	timer += CLK_TICKS_PER_JIFFY + CPU_DEVIATION;
++	asm volatile ("SCKC %0" : : "m" (timer));
+         /* allow clock comparator timer interrupt */
+         asm volatile ("STCTL 0,0,%0" : "=m" (cr0) : : "memory");
+         cr0 |= 0x800;
+         asm volatile ("LCTL 0,0,%0" : : "m" (cr0) : "memory");
+-	timer = init_timer_cc + jiffies_64 * CLK_TICKS_PER_JIFFY;
+-	S390_lowcore.jiffy_timer = timer;
+-	timer += CLK_TICKS_PER_JIFFY + CPU_DEVIATION;
+-	asm volatile ("SCKC %0" : : "m" (timer));
+ }
  
  /*
-  * Stack layout for the system_call stack entry.
-@@ -97,8 +98,7 @@
-         stam    %a0,%a15,SP_AREGS(%r15)   # store access registers to kst.
-         mvc     SP_AREGS+8(12,%r15),__LC_SAVE_AREA+12 # store ac. regs
-         mvc     SP_PSW(8,%r15),\psworg    # move user PSW to stack
--        la      %r0,\psworg               # store trap indication
--        st      %r0,SP_TRAP(%r15)
-+	mvc	SP_TRAP(4,%r15),BASED(.L\psworg) # store trap indication
-         xc      0(4,%r15),0(%r15)         # clear back chain
-         .endm
+@@ -239,6 +240,7 @@
+                 printk("time_init: TOD clock stopped/non-operational\n");
+                 break;
+         }
++	jiffies_timer_cc = init_timer_cc - jiffies_64 * CLK_TICKS_PER_JIFFY;
  
-@@ -179,12 +179,18 @@
- 	SAVE_ALL_BASE
-         SAVE_ALL __LC_SVC_OLD_PSW,1
- 	lh	%r7,0x8a	  # get svc number from lowcore
--        GET_THREAD_INFO           # load pointer to task_struct to R9
--	sll	%r7,2
-         stosm   24(%r15),0x03     # reenable interrupts
-+        GET_THREAD_INFO           # load pointer to task_struct to R9
-+	sla	%r7,2             # *4 and test for svc 0
-+	bnz	BASED(sysc_do_restart)  # svc number > 0
-+	# svc 0: system call number in %r1
-+	cl	%r1,BASED(.Lnr_syscalls)
-+	bnl	BASED(sysc_do_restart)
-+	lr	%r7,%r1           # copy svc number to %r7
-+	sla	%r7,2             # *4
- sysc_do_restart:
--        l       %r8,sys_call_table-entry_base(%r7,%r13) # get system call addr.
- 	tm	__TI_flags+3(%r9),_TIF_SYSCALL_TRACE
-+        l       %r8,sys_call_table-entry_base(%r7,%r13) # get system call addr.
-         bo      BASED(sysc_tracesys)
-         basr    %r14,%r8          # call sys_xxxx
-         st      %r2,SP_R2(%r15)   # store return value (change R2 on stack)
-@@ -247,7 +253,7 @@
- 	ni	__TI_flags+3(%r9),255-_TIF_RESTART_SVC # clear TIF_RESTART_SVC
- 	stosm	24(%r15),0x03          # reenable interrupts
- 	l	%r7,SP_R2(%r15)        # load new svc number
--	sll	%r7,2
-+	sla	%r2,2
- 	mvc	SP_R2(4,%r15),SP_ORIG_R2(%r15) # restore first argument
- 	lm	%r2,%r6,SP_R2(%r15)    # load svc arguments
- 	b	BASED(sysc_do_restart) # restart svc
-@@ -617,9 +623,15 @@
- 	.long  sys_epoll_wait
- 	.long  sys_set_tid_address
- 	.long  sys_fadvise64
--	.rept  255-253
--	.long  sys_ni_syscall
--	.endr
-+	.long  sys_timer_create
-+	.long  sys_timer_settime	 /* 255 */
-+	.long  sys_timer_gettime
-+	.long  sys_timer_getoverrun
-+	.long  sys_timer_delete
-+	.long  sys_clock_settime
-+	.long  sys_clock_gettime
-+	.long  sys_clock_getres
-+	.long  sys_clock_nanosleep
+ 	/* set xtime */
+ 	xtime_cc = init_timer_cc;
+diff -urN linux-2.5.66/arch/s390/mm/ioremap.c linux-2.5.66-s390/arch/s390/mm/ioremap.c
+--- linux-2.5.66/arch/s390/mm/ioremap.c	Mon Mar 24 23:00:04 2003
++++ linux-2.5.66-s390/arch/s390/mm/ioremap.c	Wed Mar 26 15:45:10 2003
+@@ -38,7 +38,7 @@
+                         printk("remap_area_pte: page already exists\n");
+ 			BUG();
+ 		}
+-                set_pte(pte, pfn_pte(pfn, __pgprot(_PAGE_PRESENT | flags)));
++                set_pte(pte, pfn_pte(pfn, __pgprot(flags)));
+                 address += PAGE_SIZE;
+                 pfn++;
+                 pte++;
+diff -urN linux-2.5.66/arch/s390x/defconfig linux-2.5.66-s390/arch/s390x/defconfig
+--- linux-2.5.66/arch/s390x/defconfig	Mon Mar 24 22:59:53 2003
++++ linux-2.5.66-s390/arch/s390x/defconfig	Wed Mar 26 15:45:10 2003
+@@ -2,7 +2,6 @@
+ # Automatically generated make config: don't edit
+ #
+ CONFIG_MMU=y
+-CONFIG_SWAP=y
+ CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+ CONFIG_ARCH_S390=y
+ CONFIG_ARCH_S390X=y
+@@ -15,6 +14,7 @@
+ #
+ # General setup
+ #
++CONFIG_SWAP=y
+ CONFIG_SYSVIPC=y
+ # CONFIG_BSD_PROCESS_ACCT is not set
+ CONFIG_SYSCTL=y
+@@ -38,7 +38,9 @@
+ #
+ CONFIG_SMP=y
+ CONFIG_NR_CPUS=64
+-# CONFIG_S390_SUPPORT is not set
++CONFIG_S390_SUPPORT=y
++CONFIG_COMPAT=y
++CONFIG_BINFMT_ELF32=y
  
- /*
-  * Program check handler routine
-@@ -923,6 +935,12 @@
- .Lc_pactive:   .long  PREEMPT_ACTIVE
- .Lc0xff:       .long  0xff
- .Lc256:        .long  256
-+.Lnr_syscalls: .long  NR_syscalls
-+.L0x018:       .long  0x018
-+.L0x020:       .long  0x020
-+.L0x028:       .long  0x028
-+.L0x030:       .long  0x030
-+.L0x038:       .long  0x038
+ #
+ # I/O subsystem configuration
+@@ -158,6 +160,9 @@
+ # CONFIG_INET_ESP is not set
+ # CONFIG_XFRM_USER is not set
+ CONFIG_IPV6=m
++# CONFIG_IPV6_PRIVACY is not set
++# CONFIG_INET6_AH is not set
++# CONFIG_INET6_ESP is not set
  
- /*
-  * Symbol constants
+ #
+ # SCTP Configuration (EXPERIMENTAL)
+@@ -252,51 +257,66 @@
+ #
+ # File systems
+ #
++CONFIG_EXT2_FS=y
++# CONFIG_EXT2_FS_XATTR is not set
++CONFIG_EXT3_FS=y
++CONFIG_EXT3_FS_XATTR=y
++# CONFIG_EXT3_FS_POSIX_ACL is not set
++CONFIG_JBD=y
++# CONFIG_JBD_DEBUG is not set
++CONFIG_FS_MBCACHE=y
++# CONFIG_REISERFS_FS is not set
++# CONFIG_JFS_FS is not set
++# CONFIG_XFS_FS is not set
++# CONFIG_MINIX_FS is not set
++# CONFIG_ROMFS_FS is not set
+ CONFIG_QUOTA=y
+ # CONFIG_QFMT_V1 is not set
+ # CONFIG_QFMT_V2 is not set
+ CONFIG_QUOTACTL=y
+ # CONFIG_AUTOFS_FS is not set
+ # CONFIG_AUTOFS4_FS is not set
+-# CONFIG_REISERFS_FS is not set
++
++#
++# CD-ROM/DVD Filesystems
++#
++# CONFIG_ISO9660_FS is not set
++# CONFIG_UDF_FS is not set
++
++#
++# DOS/FAT/NT Filesystems
++#
++# CONFIG_FAT_FS is not set
++# CONFIG_NTFS_FS is not set
++
++#
++# Pseudo filesystems
++#
++CONFIG_PROC_FS=y
++# CONFIG_DEVFS_FS is not set
++CONFIG_DEVPTS_FS=y
++# CONFIG_TMPFS is not set
++CONFIG_RAMFS=y
++
++#
++# Miscellaneous filesystems
++#
+ # CONFIG_ADFS_FS is not set
+ # CONFIG_AFFS_FS is not set
+ # CONFIG_HFS_FS is not set
+ # CONFIG_BEFS_FS is not set
+ # CONFIG_BFS_FS is not set
+-CONFIG_EXT3_FS=y
+-CONFIG_EXT3_FS_XATTR=y
+-# CONFIG_EXT3_FS_POSIX_ACL is not set
+-CONFIG_JBD=y
+-# CONFIG_JBD_DEBUG is not set
+-# CONFIG_FAT_FS is not set
+ # CONFIG_EFS_FS is not set
+ # CONFIG_CRAMFS is not set
+-# CONFIG_TMPFS is not set
+-CONFIG_RAMFS=y
+-# CONFIG_ISO9660_FS is not set
+-# CONFIG_JFS_FS is not set
+-# CONFIG_MINIX_FS is not set
+ # CONFIG_VXFS_FS is not set
+-# CONFIG_NTFS_FS is not set
+ # CONFIG_HPFS_FS is not set
+-CONFIG_PROC_FS=y
+-# CONFIG_DEVFS_FS is not set
+-CONFIG_DEVPTS_FS=y
+ # CONFIG_QNX4FS_FS is not set
+-# CONFIG_ROMFS_FS is not set
+-CONFIG_EXT2_FS=y
+-# CONFIG_EXT2_FS_XATTR is not set
+ # CONFIG_SYSV_FS is not set
+-# CONFIG_UDF_FS is not set
+ # CONFIG_UFS_FS is not set
+-# CONFIG_XFS_FS is not set
+ 
+ #
+ # Network File Systems
+ #
+-# CONFIG_CODA_FS is not set
+-# CONFIG_INTERMEZZO_FS is not set
+ CONFIG_NFS_FS=y
+ CONFIG_NFS_V3=y
+ # CONFIG_NFS_V4 is not set
+@@ -304,16 +324,17 @@
+ CONFIG_NFSD_V3=y
+ # CONFIG_NFSD_V4 is not set
+ # CONFIG_NFSD_TCP is not set
+-CONFIG_SUNRPC=y
+-# CONFIG_SUNRPC_GSS is not set
+ CONFIG_LOCKD=y
+ CONFIG_LOCKD_V4=y
+ CONFIG_EXPORTFS=y
+-# CONFIG_CIFS is not set
++CONFIG_SUNRPC=y
++# CONFIG_SUNRPC_GSS is not set
+ # CONFIG_SMB_FS is not set
++# CONFIG_CIFS is not set
+ # CONFIG_NCP_FS is not set
++# CONFIG_CODA_FS is not set
++# CONFIG_INTERMEZZO_FS is not set
+ # CONFIG_AFS_FS is not set
+-CONFIG_FS_MBCACHE=y
+ 
+ #
+ # Partition Types
+@@ -327,6 +348,7 @@
+ # CONFIG_MAC_PARTITION is not set
+ # CONFIG_MSDOS_PARTITION is not set
+ # CONFIG_LDM_PARTITION is not set
++# CONFIG_NEC98_PARTITION is not set
+ # CONFIG_SGI_PARTITION is not set
+ # CONFIG_ULTRIX_PARTITION is not set
+ # CONFIG_SUN_PARTITION is not set
 diff -urN linux-2.5.66/arch/s390x/kernel/entry.S linux-2.5.66-s390/arch/s390x/kernel/entry.S
---- linux-2.5.66/arch/s390x/kernel/entry.S	Wed Mar 26 15:45:11 2003
-+++ linux-2.5.66-s390/arch/s390x/kernel/entry.S	Wed Mar 26 15:45:11 2003
-@@ -18,6 +18,7 @@
- #include <asm/ptrace.h>
- #include <asm/thread_info.h>
- #include <asm/offsets.h>
-+#include <asm/unistd.h>
+--- linux-2.5.66/arch/s390x/kernel/entry.S	Mon Mar 24 23:00:10 2003
++++ linux-2.5.66-s390/arch/s390x/kernel/entry.S	Wed Mar 26 15:45:10 2003
+@@ -677,12 +677,11 @@
+         tm      __LC_PGM_INT_CODE+1,0x80 # check whether we got a per exception
+         jnz     pgm_per                  # got per exception -> special case
+ 	SAVE_ALL __LC_PGM_OLD_PSW,1
+-	lghi	%r8,0x7f
+ 	lgf     %r3,__LC_PGM_ILC	 # load program interruption code
++	lghi	%r8,0x7f
+ 	ngr	%r8,%r3
+         sll     %r8,3
+ 	GET_THREAD_INFO
+-	stosm   48(%r15),0x03            # reenable interrupts
+         larl    %r1,pgm_check_table
+         lg      %r1,0(%r8,%r1)		 # load address of handler routine
+         la      %r2,SP_PTREGS(%r15)	 # address of register-save area
+@@ -709,7 +708,6 @@
+ 	GET_THREAD_INFO
+ 	lghi    %r4,0x7f
+ 	lgf     %r3,__LC_PGM_ILC	 # load program interruption code
+-	stosm   48(%r15),0x03            # reenable interrupts
+         nr      %r4,%r3			 # clear per-event-bit and ilc
+         je      pgm_per_only		 # only per of per+check ?
+         sll     %r4,3
+diff -urN linux-2.5.66/arch/s390x/kernel/ptrace.c linux-2.5.66-s390/arch/s390x/kernel/ptrace.c
+--- linux-2.5.66/arch/s390x/kernel/ptrace.c	Mon Mar 24 23:00:00 2003
++++ linux-2.5.66-s390/arch/s390x/kernel/ptrace.c	Wed Mar 26 15:45:10 2003
+@@ -473,6 +473,8 @@
+ }
+ #endif
+ 
++#define PT32_IEEE_IP 0x13c
++
+ static int
+ do_ptrace(struct task_struct *child, long request, long addr, long data)
+ {
+@@ -481,16 +483,29 @@
+ 	if (request == PTRACE_ATTACH)
+ 		return ptrace_attach(child);
+ 
++
+ 	/*
+-	 * I added child != current line so we can get the
+-	 * ieee_instruction_pointer from the user structure DJB
++	 * Special cases to get/store the ieee instructions pointer.
+ 	 */
+-	if (child != current) {
+-		ret = ptrace_check_attach(child, request == PTRACE_KILL);
+-		if (ret < 0)
+-			return ret;
++	if (child == current) {
++		if (request == PTRACE_PEEKUSR &&
++		    addr == PT_IEEE_IP && !test_thread_flag(TIF_31BIT))
++			return peek_user(child, addr, data);
++		if (request == PTRACE_PEEKUSR &&
++		    addr == PT32_IEEE_IP && test_thread_flag(TIF_31BIT))
++			return peek_user_emu31(child, addr, data);
++		if (request == PTRACE_POKEUSR &&
++		    addr == PT_IEEE_IP && !test_thread_flag(TIF_31BIT))
++			return poke_user(child, addr, data);
++		if (request == PTRACE_POKEUSR &&
++		    addr == PT32_IEEE_IP && test_thread_flag(TIF_31BIT))
++			return poke_user_emu31(child, addr, data);
+ 	}
+ 
++	ret = ptrace_check_attach(child, request == PTRACE_KILL);
++	if (ret < 0)
++		return ret;
++
+ 	switch (request) {
+ 	/* First the common request for 31/64 bit */
+ 	case PTRACE_SYSCALL:
+diff -urN linux-2.5.66/arch/s390x/kernel/time.c linux-2.5.66-s390/arch/s390x/kernel/time.c
+--- linux-2.5.66/arch/s390x/kernel/time.c	Mon Mar 24 23:01:18 2003
++++ linux-2.5.66-s390/arch/s390x/kernel/time.c	Wed Mar 26 15:45:10 2003
+@@ -48,8 +48,9 @@
+ u64 jiffies_64 = INITIAL_JIFFIES;
+ 
+ static ext_int_info_t ext_int_info_timer;
+-static uint64_t xtime_cc;
+-static uint64_t init_timer_cc;
++static u64 init_timer_cc;
++static u64 jiffies_timer_cc;
++static u64 xtime_cc;
+ 
+ extern unsigned long wall_jiffies;
+ 
+@@ -65,7 +66,7 @@
+ 	__u64 now;
+ 
+ 	asm volatile ("STCK 0(%0)" : : "a" (&now) : "memory", "cc");
+-        now = (now - init_timer_cc) >> 12;
++        now = (now - jiffies_timer_cc) >> 12;
+ 	/* We require the offset from the latest update of xtime */
+ 	now -= (__u64) wall_jiffies*USECS_PER_JIFFY;
+ 	return (unsigned long) now;
+@@ -83,7 +84,7 @@
+ 	do {
+ 		seq = read_seqbegin_irqsave(&xtime_lock, flags);
+ 		sec = xtime.tv_sec;
+-		usec = xtime.tv_nsec + do_gettimeoffset();
++		usec = xtime.tv_nsec / 1000 + do_gettimeoffset();
+ 	} while (read_seqretry_irqrestore(&xtime_lock, seq, flags));
+ 
+ 	while (usec >= 1000000) {
+@@ -99,7 +100,7 @@
+ {
+ 
+ 	write_seqlock_irq(&xtime_lock);
+-	/* This is revolting. We need to set the xtime.tv_usec
++	/* This is revolting. We need to set the xtime.tv_nsec
+ 	 * correctly. However, the value in this location is
+ 	 * is value at the last tick.
+ 	 * Discover what correction gettimeofday
+@@ -187,14 +188,14 @@
+ 	unsigned long cr0;
+ 	__u64 timer;
+ 
++	timer = jiffies_timer_cc + jiffies_64 * CLK_TICKS_PER_JIFFY;
++	S390_lowcore.jiffy_timer = timer;
++	timer += CLK_TICKS_PER_JIFFY + CPU_DEVIATION;
++	asm volatile ("SCKC %0" : : "m" (timer));
+         /* allow clock comparator timer interrupt */
+         asm volatile ("STCTG 0,0,%0" : "=m" (cr0) : : "memory");
+         cr0 |= 0x800;
+         asm volatile ("LCTLG 0,0,%0" : : "m" (cr0) : "memory");
+-	timer = init_timer_cc + jiffies_64 * CLK_TICKS_PER_JIFFY;
+-	S390_lowcore.jiffy_timer = timer;
+-	timer += CLK_TICKS_PER_JIFFY + CPU_DEVIATION;
+-	asm volatile ("SCKC %0" : : "m" (timer));
+ }
  
  /*
-  * Stack layout for the system_call stack entry.
-@@ -60,8 +61,9 @@
+@@ -224,6 +225,7 @@
+                 printk("time_init: TOD clock stopped/non-operational\n");
+                 break;
+         }
++	jiffies_timer_cc = init_timer_cc - jiffies_64 * CLK_TICKS_PER_JIFFY;
  
-         .macro  SAVE_ALL psworg,sync     # system entry macro
-         stmg    %r14,%r15,__LC_SAVE_AREA
--        tm      \psworg+1,0x01           # test problem state bit
- 	stam    %a2,%a4,__LC_SAVE_AREA+16
-+	larl	%r14,.Lconst
-+        tm      \psworg+1,0x01           # test problem state bit
- 	.if	\sync
-         jz      1f                       # skip stack setup save
- 	.else
-@@ -69,23 +71,22 @@
- 	lg	%r14,__LC_ASYNC_STACK	 # are we already on the async. stack ?
- 	slgr	%r14,%r15
- 	srag	%r14,%r14,14
-+	larl	%r14,.Lconst
- 	jz	1f
- 	lg	%r15,__LC_ASYNC_STACK	 # load async. stack
- 	j	1f
- 	.endif
- 0:	lg      %r15,__LC_KERNEL_STACK   # problem state -> load ksp
--	larl	%r14,.Lc_ac
--	lam	%a2,%a4,0(%r14)
-+	lam	%a2,%a4,.Lc_ac-.Lconst(%r14)
- 1:      aghi    %r15,-SP_SIZE            # make room for registers & psw
-         nill    %r15,0xfff8              # align stack pointer to 8
--        stmg    %r0,%r14,SP_R0(%r15)     # store gprs 0-14 to kernel stack
-+        stmg    %r0,%r13,SP_R0(%r15)     # store gprs 0-13 to kernel stack
-         stg     %r2,SP_ORIG_R2(%r15)     # store original content of gpr 2
--        mvc     SP_R14(16,%r15),__LC_SAVE_AREA # move R15 to stack
-+        mvc     SP_R14(16,%r15),__LC_SAVE_AREA # move r14 and r15 to stack
-         stam    %a0,%a15,SP_AREGS(%r15)  # store access registers to kst.
-         mvc     SP_AREGS+8(12,%r15),__LC_SAVE_AREA+16 # store ac. regs
-         mvc     SP_PSW(16,%r15),\psworg  # move user PSW to stack
--        lhi     %r0,\psworg              # store trap indication
--        st      %r0,SP_TRAP(%r15)
-+	mvc	SP_TRAP(4,%r15),.L\psworg-.Lconst(%r14) # store trap ind.
-         xc      0(8,%r15),0(%r15)        # clear back chain
-         .endm
- 
-@@ -160,11 +161,16 @@
- system_call:
-         SAVE_ALL __LC_SVC_OLD_PSW,1
- 	llgh    %r7,__LC_SVC_INT_CODE # get svc number from lowcore
--        GET_THREAD_INFO           # load pointer to task_struct to R9
- 	stosm   48(%r15),0x03     # reenable interrupts
-+        GET_THREAD_INFO           # load pointer to task_struct to R9
-+        slag    %r7,%r7,3         # *8 and test for svc 0
-+	jnz	sysc_do_restart
-+	# svc 0: system call number in %r1
-+	clg	%r1,.Lnr_syscalls-.Lconst(%r14)
-+	jnl	sysc_do_restart
-+	slag    %r7,%r1,3         # svc 0: system call number in %r1
- sysc_do_restart:
- 	larl    %r10,sys_call_table
--        sll     %r7,3
-         tm      SP_PSW+3(%r15),0x01  # are we running in 31 bit mode ?
-         jo      sysc_noemu
- 	la      %r10,4(%r10)      # use 31 bit emulation system calls
-@@ -231,6 +237,7 @@
- 	ni	__TI_flags+3(%r9),255-_TIF_RESTART_SVC # clear TIF_RESTART_SVC
- 	stosm	48(%r15),0x03          # reenable interrupts
- 	lg	%r7,SP_R2(%r15)        # load new svc number
-+        slag    %r7,%r7,3              # *8
- 	mvc	SP_R2(8,%r15),SP_ORIG_R2(%r15) # restore first argument
- 	lmg	%r2,%r6,SP_R2(%r15)    # load svc arguments
- 	j	sysc_do_restart        # restart svc
-@@ -651,9 +658,15 @@
- 	.long  SYSCALL(sys_epoll_wait,sys_ni_syscall)
- 	.long  SYSCALL(sys_set_tid_address,sys32_set_tid_address_wrapper)
- 	.long  SYSCALL(sys_fadvise64,sys_ni_syscall)
--        .rept  255-253
--	.long  SYSCALL(sys_ni_syscall,sys_ni_syscall)
--	.endr
-+	.long  SYSCALL(sys_timer_create,sys_ni_syscall)
-+	.long  SYSCALL(sys_timer_settime,sys_ni_syscall)     /* 255 */
-+	.long  SYSCALL(sys_timer_gettime,sys_ni_syscall)
-+	.long  SYSCALL(sys_timer_getoverrun,sys_ni_syscall)
-+	.long  SYSCALL(sys_timer_delete,sys_ni_syscall)
-+	.long  SYSCALL(sys_clock_settime,sys_ni_syscall)
-+	.long  SYSCALL(sys_clock_gettime,sys_ni_syscall)
-+	.long  SYSCALL(sys_clock_getres,sys_ni_syscall)
-+	.long  SYSCALL(sys_clock_nanosleep,sys_ni_syscall)
- 
- /*
-  * Program check handler routine
-@@ -936,6 +949,12 @@
-  * Integer constants
+ 	/* set xtime */
+ 	xtime_cc = init_timer_cc;
+diff -urN linux-2.5.66/arch/s390x/mm/ioremap.c linux-2.5.66-s390/arch/s390x/mm/ioremap.c
+--- linux-2.5.66/arch/s390x/mm/ioremap.c	Mon Mar 24 23:00:37 2003
++++ linux-2.5.66-s390/arch/s390x/mm/ioremap.c	Wed Mar 26 15:45:10 2003
+@@ -38,7 +38,7 @@
+                         printk("remap_area_pte: page already exists\n");
+ 			BUG();
+ 		}
+-                set_pte(pte, pfn_pte(pfn, __pgprot(_PAGE_PRESENT | flags)));
++                set_pte(pte, pfn_pte(pfn, __pgprot(flags)));
+                 address += PAGE_SIZE;
+                 pfn++;
+                 pte++;
+diff -urN linux-2.5.66/drivers/s390/char/con3215.c linux-2.5.66-s390/drivers/s390/char/con3215.c
+--- linux-2.5.66/drivers/s390/char/con3215.c	Mon Mar 24 23:01:11 2003
++++ linux-2.5.66-s390/drivers/s390/char/con3215.c	Wed Mar 26 15:45:10 2003
+@@ -884,7 +884,7 @@
+  * 3215 console initialization code called from console_init().
+  * NOTE: This is called before kmalloc is available.
   */
-                .align 4
-+.Lconst:
- .Lc_ac:        .long  0,0,1
- .Lc_pactive:   .long  PREEMPT_ACTIVE
--.Lc256:        .quad  256
-+.L0x0130:      .long  0x0130
-+.L0x0140:      .long  0x0140
-+.L0x0150:      .long  0x0150
-+.L0x0160:      .long  0x0160
-+.L0x0170:      .long  0x0170
-+.Lnr_syscalls: .long  NR_syscalls
-diff -urN linux-2.5.66/include/asm-s390/unistd.h linux-2.5.66-s390/include/asm-s390/unistd.h
---- linux-2.5.66/include/asm-s390/unistd.h	Mon Mar 24 23:01:53 2003
-+++ linux-2.5.66-s390/include/asm-s390/unistd.h	Wed Mar 26 15:45:11 2003
-@@ -249,130 +249,170 @@
- #define __NR_epoll_wait		251
- #define __NR_set_tid_address	252
- #define __NR_fadvise64		253
-+#define __NR_timer_create	254
-+#define __NR_timer_settime	(__NR_timer_create+1)
-+#define __NR_timer_gettime	(__NR_timer_create+2)
-+#define __NR_timer_getoverrun	(__NR_timer_create+3)
-+#define __NR_timer_delete	(__NR_timer_create+4)
-+#define __NR_clock_settime	(__NR_timer_create+5)
-+#define __NR_clock_gettime	(__NR_timer_create+6)
-+#define __NR_clock_getres	(__NR_timer_create+7)
-+#define __NR_clock_nanosleep	(__NR_timer_create+8)
+-static void __init
++static int __init
+ con3215_init(void)
+ {
+ 	struct ccw_device *cdev;
+@@ -894,7 +894,7 @@
  
-+#define NR_syscalls 263
+ 	/* Check if 3215 is to be the console */
+ 	if (!CONSOLE_IS_3215)
+-		return;
++		return -ENODEV;
  
- /* user-visible error numbers are in the range -1 - -122: see <asm-s390/errno.h> */
+ 	/* Set the console mode for VM */
+ 	if (MACHINE_IS_VM) {
+@@ -913,7 +913,7 @@
  
--#define __syscall_return(type, res)                          \
--do {                                                         \
--        if ((unsigned long)(res) >= (unsigned long)(-125)) { \
--                errno = -(res);                              \
--                res = -1;                                    \
--        }                                                    \
--        return (type) (res);                                 \
-+#define __syscall_return(type, res)			     \
-+do {							     \
-+	if ((unsigned long)(res) >= (unsigned long)(-125)) { \
-+		errno = -(res);				     \
-+		res = -1;				     \
-+	}						     \
-+	return (type) (res);				     \
+ 	cdev = ccw_device_probe_console();
+ 	if (!cdev)
+-		return;
++		return -ENODEV;
+ 
+ 	raw3215[0] = raw = (struct raw3215_info *)
+ 		alloc_bootmem_low(sizeof(struct raw3215_info));
+@@ -938,9 +938,10 @@
+ 		free_bootmem((unsigned long) raw, sizeof(struct raw3215_info));
+ 		raw3215[0] = NULL;
+ 		printk("Couldn't find a 3215 console device\n");
+-		return;
++		return -ENODEV;
+ 	}
+ 	register_console(&con3215);
++	return 0;
+ }
+ #endif
+ 
+diff -urN linux-2.5.66/drivers/s390/char/sclp_tty.c linux-2.5.66-s390/drivers/s390/char/sclp_tty.c
+--- linux-2.5.66/drivers/s390/char/sclp_tty.c	Mon Mar 24 23:00:03 2003
++++ linux-2.5.66-s390/drivers/s390/char/sclp_tty.c	Wed Mar 26 15:45:10 2003
+@@ -797,6 +797,3 @@
+ 	if (tty_register_driver(&sclp_tty_driver))
+ 		panic("Couldn't register sclp_tty driver\n");
+ }
+-
+-console_initcall(sclp_tty_init);
+-
+diff -urN linux-2.5.66/include/asm-s390/pgtable.h linux-2.5.66-s390/include/asm-s390/pgtable.h
+--- linux-2.5.66/include/asm-s390/pgtable.h	Mon Mar 24 23:01:15 2003
++++ linux-2.5.66-s390/include/asm-s390/pgtable.h	Wed Mar 26 15:45:10 2003
+@@ -143,13 +143,21 @@
+  * C  : changed bit
+  */
+ 
+-/* Bits in the page table entry */
+-#define _PAGE_PRESENT   0x001          /* Software                         */
+-#define _PAGE_MKCLEAN   0x002          /* Software                         */
+-#define _PAGE_ISCLEAN   0x004	       /* Software			   */
++/* Hardware bits in the page table entry */
+ #define _PAGE_RO        0x200          /* HW read-only                     */
+ #define _PAGE_INVALID   0x400          /* HW invalid                       */
+ 
++/* Software bits in the page table entry */
++#define _PAGE_MKCLEAN   0x002
++#define _PAGE_ISCLEAN   0x004
++
++/* Mask and four different kinds of invalid pages. */
++#define _PAGE_INVALID_MASK	0x601
++#define _PAGE_INVALID_EMPTY	0x400
++#define _PAGE_INVALID_NONE	0x001
++#define _PAGE_INVALID_SWAP	0x200
++#define _PAGE_INVALID_FILE	0x201
++
+ /* Bits in the segment table entry */
+ #define _PAGE_TABLE_LEN 0xf            /* only full page-tables            */
+ #define _PAGE_TABLE_COM 0x10           /* common page-table                */
+@@ -166,29 +174,28 @@
+ /*
+  * User and Kernel pagetables are identical
+  */
+-#define _PAGE_TABLE     (_PAGE_TABLE_LEN )
+-#define _KERNPG_TABLE   (_PAGE_TABLE_LEN )
++#define _PAGE_TABLE	_PAGE_TABLE_LEN
++#define _KERNPG_TABLE	_PAGE_TABLE_LEN
+ 
+ /*
+  * The Kernel segment-tables includes the User segment-table
+  */
+ 
+-#define _SEGMENT_TABLE  (_USER_SEG_TABLE_LEN|0x80000000|0x100)
+-#define _KERNSEG_TABLE  (_KERNEL_SEG_TABLE_LEN)
++#define _SEGMENT_TABLE	(_USER_SEG_TABLE_LEN|0x80000000|0x100)
++#define _KERNSEG_TABLE	_KERNEL_SEG_TABLE_LEN
+ 
+-#define USER_STD_MASK           0x00000080UL
++#define USER_STD_MASK	0x00000080UL
+ 
+ /*
+  * No mapping available
+  */
+-#define PAGE_INVALID	  __pgprot(_PAGE_INVALID)
+-#define PAGE_NONE_SHARED  __pgprot(_PAGE_PRESENT|_PAGE_INVALID)
+-#define PAGE_NONE_PRIVATE __pgprot(_PAGE_PRESENT|_PAGE_INVALID|_PAGE_ISCLEAN)
+-#define PAGE_RO_SHARED	  __pgprot(_PAGE_PRESENT|_PAGE_RO)
+-#define PAGE_RO_PRIVATE	  __pgprot(_PAGE_PRESENT|_PAGE_RO|_PAGE_ISCLEAN)
+-#define PAGE_COPY	  __pgprot(_PAGE_PRESENT|_PAGE_RO|_PAGE_ISCLEAN)
+-#define PAGE_SHARED	  __pgprot(_PAGE_PRESENT)
+-#define PAGE_KERNEL	  __pgprot(_PAGE_PRESENT)
++#define PAGE_NONE_SHARED  __pgprot(_PAGE_INVALID_NONE)
++#define PAGE_NONE_PRIVATE __pgprot(_PAGE_INVALID_NONE|_PAGE_ISCLEAN)
++#define PAGE_RO_SHARED	  __pgprot(_PAGE_RO)
++#define PAGE_RO_PRIVATE	  __pgprot(_PAGE_RO|_PAGE_ISCLEAN)
++#define PAGE_COPY	  __pgprot(_PAGE_RO|_PAGE_ISCLEAN)
++#define PAGE_SHARED	  __pgprot(0)
++#define PAGE_KERNEL	  __pgprot(0)
+ 
+ /*
+  * The S390 can't do page protection for execute, and considers that the
+@@ -247,11 +254,20 @@
+ 	return (pmd_val(pmd) & (~PAGE_MASK & ~_PAGE_TABLE_INV)) != _PAGE_TABLE;
+ }
+ 
+-extern inline int pte_present(pte_t pte) { return pte_val(pte) & _PAGE_PRESENT; }
+ extern inline int pte_none(pte_t pte)
+ {
+-	return ((pte_val(pte) & 
+-                (_PAGE_INVALID | _PAGE_RO | _PAGE_PRESENT)) == _PAGE_INVALID);
++	return (pte_val(pte) & _PAGE_INVALID_MASK) == _PAGE_INVALID_EMPTY;
++}
++
++extern inline int pte_present(pte_t pte)
++{
++	return !(pte_val(pte) & _PAGE_INVALID) ||
++		(pte_val(pte) & _PAGE_INVALID_MASK) == _PAGE_INVALID_NONE;
++}
++
++extern inline int pte_file(pte_t pte)
++{
++	return (pte_val(pte) & _PAGE_INVALID_MASK) == _PAGE_INVALID_FILE;
+ }
+ 
+ #define pte_same(a,b)	(pte_val(a) == pte_val(b))
+@@ -298,7 +314,7 @@
+ 
+ extern inline void pte_clear(pte_t *ptep)
+ {
+-	pte_val(*ptep) = _PAGE_INVALID; 
++	pte_val(*ptep) = _PAGE_INVALID_EMPTY;
+ }
+ 
+ /*
+@@ -495,7 +511,7 @@
+ extern inline pte_t mk_swap_pte(unsigned long type, unsigned long offset)
+ {
+ 	pte_t pte;
+-	pte_val(pte) = (type << 1) | (offset << 12) | _PAGE_INVALID | _PAGE_RO;
++	pte_val(pte) = (type << 1) | (offset << 12) | _PAGE_INVALID_SWAP;
+ 	pte_val(pte) &= 0x7ffff6fe;  /* better to be paranoid */
+ 	return pte;
+ }
+@@ -509,6 +525,15 @@
+ 
+ typedef pte_t *pte_addr_t;
+ 
++#define PTE_FILE_MAX_BITS	26
++
++#define pte_to_pgoff(__pte) \
++	((((__pte).pte >> 12) << 7) + (((__pte).pte >> 1) & 0x7f))
++
++#define pgoff_to_pte(__off) \
++	((pte_t) { ((((__off) & 0x7f) << 1) + (((__off) >> 7) << 12)) \
++		   | _PAGE_INVALID_FILE })
++
+ #endif /* !__ASSEMBLY__ */
+ 
+ #define kern_addr_valid(addr)   (1)
+diff -urN linux-2.5.66/include/asm-s390/posix_types.h linux-2.5.66-s390/include/asm-s390/posix_types.h
+--- linux-2.5.66/include/asm-s390/posix_types.h	Mon Mar 24 22:59:46 2003
++++ linux-2.5.66-s390/include/asm-s390/posix_types.h	Wed Mar 26 15:45:10 2003
+@@ -30,6 +30,8 @@
+ typedef long            __kernel_time_t;
+ typedef long            __kernel_suseconds_t;
+ typedef long            __kernel_clock_t;
++typedef int		__kernel_timer_t;
++typedef int		__kernel_clockid_t;
+ typedef int             __kernel_daddr_t;
+ typedef char *          __kernel_caddr_t;
+ typedef unsigned short	__kernel_uid16_t;
+diff -urN linux-2.5.66/include/asm-s390/processor.h linux-2.5.66-s390/include/asm-s390/processor.h
+--- linux-2.5.66/include/asm-s390/processor.h	Mon Mar 24 23:00:35 2003
++++ linux-2.5.66-s390/include/asm-s390/processor.h	Wed Mar 26 15:45:10 2003
+@@ -133,7 +133,10 @@
+ #define KSTK_EIP(tsk)	(__KSTK_PTREGS(tsk)->psw.addr)
+ #define KSTK_ESP(tsk)	(__KSTK_PTREGS(tsk)->gprs[15])
+ 
+-#define cpu_relax()	barrier()
++/*
++ * Give up the time slice of the virtual PU.
++ */
++#define cpu_relax()	asm volatile ("diag 0,0,68" : : : "memory")
+ 
+ /*
+  * Set PSW mask to specified value, while leaving the
+diff -urN linux-2.5.66/include/asm-s390/signal.h linux-2.5.66-s390/include/asm-s390/signal.h
+--- linux-2.5.66/include/asm-s390/signal.h	Mon Mar 24 23:01:13 2003
++++ linux-2.5.66-s390/include/asm-s390/signal.h	Wed Mar 26 15:45:10 2003
+@@ -10,6 +10,7 @@
+ #define _ASMS390_SIGNAL_H
+ 
+ #include <linux/types.h>
++#include <linux/time.h>
+ 
+ /* Avoid too many header ordering problems.  */
+ struct siginfo;
+diff -urN linux-2.5.66/include/asm-s390/system.h linux-2.5.66-s390/include/asm-s390/system.h
+--- linux-2.5.66/include/asm-s390/system.h	Mon Mar 24 23:01:48 2003
++++ linux-2.5.66-s390/include/asm-s390/system.h	Wed Mar 26 15:45:10 2003
+@@ -82,7 +82,7 @@
+ 		break;							     \
+ 	save_fp_regs(&prev->thread.fp_regs);				     \
+ 	restore_fp_regs(&next->thread.fp_regs);				     \
+-	resume(prev,next);						     \
++	prev = resume(prev,next);					     \
  } while (0)
  
--#define _svc_clobber "cc", "memory"
-+#define _svc_clobber "1", "cc", "memory"
+ #define nop() __asm__ __volatile__ ("nop")
+diff -urN linux-2.5.66/include/asm-s390/termios.h linux-2.5.66-s390/include/asm-s390/termios.h
+--- linux-2.5.66/include/asm-s390/termios.h	Mon Mar 24 23:00:11 2003
++++ linux-2.5.66-s390/include/asm-s390/termios.h	Wed Mar 26 15:45:10 2003
+@@ -12,7 +12,6 @@
+ #include <asm/termbits.h>
+ #include <asm/ioctls.h>
  
--#define _syscall0(type,name)                                 \
--type name(void) {                                            \
--        register long __svcres asm("2");                     \
--        long __res;                                          \
--        __asm__ __volatile__ (                               \
--                "    svc %b1\n"                              \
--                : "=d" (__svcres)                            \
--                : "i" (__NR_##name)                          \
--                : _svc_clobber );                            \
--	__res = __svcres;                                    \
--        __syscall_return(type,__res);                        \
--}
 -
--#define _syscall1(type,name,type1,arg1)                      \
--type name(type1 arg1) {                                      \
--        register type1 __arg1 asm("2") = arg1;               \
--        register long __svcres asm("2");                     \
--        long __res;                                          \
--        __asm__ __volatile__ (                               \
--                "    svc %b1\n"                              \
--                : "=d" (__svcres)                            \
--                : "i" (__NR_##name),                         \
--                  "0" (__arg1)                               \
--                : _svc_clobber );                            \
--	__res = __svcres;                                    \
--        __syscall_return(type,__res);                        \
--}
--
--#define _syscall2(type,name,type1,arg1,type2,arg2)           \
--type name(type1 arg1, type2 arg2) {                          \
--        register type1 __arg1 asm("2") = arg1;               \
--        register type2 __arg2 asm("3") = arg2;               \
--        register long __svcres asm("2");                     \
--        long __res;                                          \
--        __asm__ __volatile__ (                               \
--                "    svc %b1\n"                              \
--                : "=d" (__svcres)                            \
--                : "i" (__NR_##name),                         \
--                  "0" (__arg1),                              \
--                  "d" (__arg2)                               \
--                : _svc_clobber );                            \
--	__res = __svcres;                                    \
--        __syscall_return(type,__res);                        \
-+#define _syscall0(type,name)				     \
-+type name(void) {					     \
-+	register long __svcres asm("2");		     \
-+	long __res;					     \
-+	__asm__ __volatile__ (				     \
-+		"    .if %b1 < 256\n"			     \
-+		"    svc %b1\n"				     \
-+		"    .else\n"				     \
-+		"    lhi %%r1,%b1\n"			     \
-+		"    svc 0\n"				     \
-+		"    .endif"				     \
-+		: "=d" (__svcres)			     \
-+		: "i" (__NR_##name)			     \
-+		: _svc_clobber );			     \
-+	__res = __svcres;				     \
-+	__syscall_return(type,__res);			     \
+ struct winsize {
+ 	unsigned short ws_row;
+ 	unsigned short ws_col;
+@@ -44,7 +43,7 @@
+ #define TIOCM_RI	TIOCM_RNG
+ #define TIOCM_OUT1	0x2000
+ #define TIOCM_OUT2	0x4000
+-#define TIOCM_LOOP      0x8000
++#define TIOCM_LOOP	0x8000
+ 
+ /* ioctl (fd, TIOCSERGETLSR, &result) where result may be as below */
+ 
+@@ -62,7 +61,8 @@
+ #define N_PROFIBUS_FDL	10	/* Reserved for Profibus <Dave@mvhi.com> */
+ #define N_IRDA		11	/* Linux IR - http://irda.sourceforge.net/ */
+ #define N_SMSBLOCK	12	/* SMS block mode - for talking to GSM data cards about SMS messages */
+-#define N_HDLC         13	/* synchronous HDLC */
++#define N_HDLC		13	/* synchronous HDLC */
++#define N_SYNC_PPP	14	/* synchronous PPP */
+ #define N_HCI		15  /* Bluetooth HCI UART */
+ 
+ #ifdef __KERNEL__
+@@ -78,19 +78,18 @@
+ /*
+  * Translate a "termio" structure into a "termios". Ugh.
+  */
++#define SET_LOW_TERMIOS_BITS(termios, termio, x) { \
++	unsigned short __tmp; \
++	get_user(__tmp,&(termio)->x); \
++	(termios)->x = (0xffff0000 & ((termios)->x)) | __tmp; \
++}
+ 
+ #define user_termio_to_kernel_termios(termios, termio) \
+ ({ \
+-        unsigned short tmp; \
+-        get_user(tmp, &(termio)->c_iflag); \
+-        (termios)->c_iflag = (0xffff0000 & ((termios)->c_iflag)) | tmp; \
+-        get_user(tmp, &(termio)->c_oflag); \
+-        (termios)->c_oflag = (0xffff0000 & ((termios)->c_oflag)) | tmp; \
+-        get_user(tmp, &(termio)->c_cflag); \
+-        (termios)->c_cflag = (0xffff0000 & ((termios)->c_cflag)) | tmp; \
+-        get_user(tmp, &(termio)->c_lflag); \
+-        (termios)->c_lflag = (0xffff0000 & ((termios)->c_lflag)) | tmp; \
+-        get_user((termios)->c_line, &(termio)->c_line); \
++	SET_LOW_TERMIOS_BITS(termios, termio, c_iflag); \
++	SET_LOW_TERMIOS_BITS(termios, termio, c_oflag); \
++	SET_LOW_TERMIOS_BITS(termios, termio, c_cflag); \
++	SET_LOW_TERMIOS_BITS(termios, termio, c_lflag); \
+ 	copy_from_user((termios)->c_cc, (termio)->c_cc, NCC); \
+ })
+ 
+diff -urN linux-2.5.66/include/asm-s390x/pgtable.h linux-2.5.66-s390/include/asm-s390x/pgtable.h
+--- linux-2.5.66/include/asm-s390x/pgtable.h	Mon Mar 24 23:00:20 2003
++++ linux-2.5.66-s390/include/asm-s390x/pgtable.h	Wed Mar 26 15:45:10 2003
+@@ -145,13 +145,21 @@
+  * C  : changed bit
+  */
+ 
+-/* Bits in the page table entry */
+-#define _PAGE_PRESENT   0x001          /* Software                         */
+-#define _PAGE_MKCLEAN   0x002          /* Software                         */
+-#define _PAGE_ISCLEAN   0x004          /* Software                         */
++/* Hardware bits in the page table entry */
+ #define _PAGE_RO        0x200          /* HW read-only                     */
+ #define _PAGE_INVALID   0x400          /* HW invalid                       */
+ 
++/* Software bits in the page table entry */
++#define _PAGE_MKCLEAN   0x002
++#define _PAGE_ISCLEAN   0x004
++
++/* Mask and four different kinds of invalid pages. */
++#define _PAGE_INVALID_MASK	0x601
++#define _PAGE_INVALID_EMPTY	0x400
++#define _PAGE_INVALID_NONE	0x001
++#define _PAGE_INVALID_SWAP	0x200
++#define _PAGE_INVALID_FILE	0x201
++
+ /* Bits in the segment table entry */
+ #define _PMD_ENTRY_INV   0x20          /* invalid segment table entry      */
+ #define _PMD_ENTRY       0x00        
+@@ -177,14 +185,13 @@
+ /*
+  * No mapping available
+  */
+-#define PAGE_INVALID	  __pgprot(_PAGE_INVALID)
+-#define PAGE_NONE_SHARED  __pgprot(_PAGE_PRESENT|_PAGE_INVALID)
+-#define PAGE_NONE_PRIVATE __pgprot(_PAGE_PRESENT|_PAGE_INVALID|_PAGE_ISCLEAN)
+-#define PAGE_RO_SHARED	  __pgprot(_PAGE_PRESENT|_PAGE_RO)
+-#define PAGE_RO_PRIVATE	  __pgprot(_PAGE_PRESENT|_PAGE_RO|_PAGE_ISCLEAN)
+-#define PAGE_COPY	  __pgprot(_PAGE_PRESENT|_PAGE_RO|_PAGE_ISCLEAN)
+-#define PAGE_SHARED	  __pgprot(_PAGE_PRESENT)
+-#define PAGE_KERNEL	  __pgprot(_PAGE_PRESENT)
++#define PAGE_NONE_SHARED  __pgprot(_PAGE_INVALID_NONE)
++#define PAGE_NONE_PRIVATE __pgprot(_PAGE_INVALID_NONE|_PAGE_ISCLEAN)
++#define PAGE_RO_SHARED	  __pgprot(_PAGE_RO)
++#define PAGE_RO_PRIVATE	  __pgprot(_PAGE_RO|_PAGE_ISCLEAN)
++#define PAGE_COPY	  __pgprot(_PAGE_RO|_PAGE_ISCLEAN)
++#define PAGE_SHARED	  __pgprot(0)
++#define PAGE_KERNEL	  __pgprot(0)
+ 
+ /*
+  * The S390 can't do page protection for execute, and considers that the
+@@ -261,16 +268,21 @@
+ 	return (pmd_val(pmd) & (~PAGE_MASK & ~_PMD_ENTRY_INV)) != _PMD_ENTRY;
+ }
+ 
++extern inline int pte_none(pte_t pte)
++{
++	return (pte_val(pte) & _PAGE_INVALID_MASK) == _PAGE_INVALID_EMPTY;
 +}
 +
-+#define _syscall1(type,name,type1,arg1)			     \
-+type name(type1 arg1) {					     \
-+	register type1 __arg1 asm("2") = arg1;		     \
-+	register long __svcres asm("2");		     \
-+	long __res;					     \
-+	__asm__ __volatile__ (				     \
-+		"    .if %b1 < 256\n"			     \
-+		"    svc %b1\n"				     \
-+		"    .else\n"				     \
-+		"    lhi %%r1,%b1\n"			     \
-+		"    svc 0\n"				     \
-+		"    .endif"				     \
-+		: "=d" (__svcres)			     \
-+		: "i" (__NR_##name),			     \
-+		  "0" (__arg1)				     \
-+		: _svc_clobber );			     \
-+	__res = __svcres;				     \
-+	__syscall_return(type,__res);			     \
+ extern inline int pte_present(pte_t pte)
+ {
+-	return pte_val(pte) & _PAGE_PRESENT;
++	return !(pte_val(pte) & _PAGE_INVALID) ||
++		(pte_val(pte) & _PAGE_INVALID_MASK) == _PAGE_INVALID_NONE;
+ }
+ 
+-extern inline int pte_none(pte_t pte)
++extern inline int pte_file(pte_t pte)
+ {
+-	return ((pte_val(pte) & 
+-		 (_PAGE_INVALID | _PAGE_RO | _PAGE_PRESENT)) == _PAGE_INVALID);
+-} 
++	return (pte_val(pte) & _PAGE_INVALID_MASK) == _PAGE_INVALID_FILE;
 +}
+ 
+ #define pte_same(a,b)	(pte_val(a) == pte_val(b))
+ 
+@@ -317,7 +329,7 @@
+ 
+ extern inline void pte_clear(pte_t *ptep)
+ {
+-	pte_val(*ptep) = _PAGE_INVALID;
++	pte_val(*ptep) = _PAGE_INVALID_EMPTY;
+ }
+ 
+ /*
+@@ -535,6 +547,15 @@
+ 
+ typedef pte_t *pte_addr_t;
+ 
++#define PTE_FILE_MAX_BITS	59
 +
-+#define _syscall2(type,name,type1,arg1,type2,arg2)	     \
-+type name(type1 arg1, type2 arg2) {			     \
-+	register type1 __arg1 asm("2") = arg1;		     \
-+	register type2 __arg2 asm("3") = arg2;		     \
-+	register long __svcres asm("2");		     \
-+	long __res;					     \
-+	__asm__ __volatile__ (				     \
-+		"    .if %b1 < 256\n"			     \
-+		"    svc %b1\n"				     \
-+		"    .else\n"				     \
-+		"    lhi %%r1,%b1\n"			     \
-+		"    svc 0\n"				     \
-+		"    .endif"				     \
-+		: "=d" (__svcres)			     \
-+		: "i" (__NR_##name),			     \
-+		  "0" (__arg1),				     \
-+		  "d" (__arg2)				     \
-+		: _svc_clobber );			     \
-+	__res = __svcres;				     \
-+	__syscall_return(type,__res);			     \
- }
++#define pte_to_pgoff(__pte) \
++	((((__pte).pte >> 12) << 7) + (((__pte).pte >> 1) & 0x7f))
++
++#define pgoff_to_pte(__off) \
++	((pte_t) { ((((__off) & 0x7f) << 1) + (((__off) >> 7) << 12)) \
++		   | _PAGE_INVALID_FILE })
++
+ #endif /* !__ASSEMBLY__ */
  
- #define _syscall3(type,name,type1,arg1,type2,arg2,type3,arg3)\
--type name(type1 arg1, type2 arg2, type3 arg3) {              \
--        register type1 __arg1 asm("2") = arg1;               \
--        register type2 __arg2 asm("3") = arg2;               \
--        register type3 __arg3 asm("4") = arg3;               \
--        register long __svcres asm("2");                     \
--        long __res;                                          \
--        __asm__ __volatile__ (                               \
--                "    svc %b1\n"                              \
--                : "=d" (__svcres)                            \
--                : "i" (__NR_##name),                         \
--                  "0" (__arg1),                              \
--                  "d" (__arg2),                              \
--                  "d" (__arg3)                               \
--                : _svc_clobber );                            \
--	__res = __svcres;                                    \
--        __syscall_return(type,__res);                        \
-+type name(type1 arg1, type2 arg2, type3 arg3) {		     \
-+	register type1 __arg1 asm("2") = arg1;		     \
-+	register type2 __arg2 asm("3") = arg2;		     \
-+	register type3 __arg3 asm("4") = arg3;		     \
-+	register long __svcres asm("2");		     \
-+	long __res;					     \
-+	__asm__ __volatile__ (				     \
-+		"    .if %b1 < 256\n"			     \
-+		"    svc %b1\n"				     \
-+		"    .else\n"				     \
-+		"    lhi %%r1,%b1\n"			     \
-+		"    svc 0\n"				     \
-+		"    .endif"				     \
-+		: "=d" (__svcres)			     \
-+		: "i" (__NR_##name),			     \
-+		  "0" (__arg1),				     \
-+		  "d" (__arg2),				     \
-+		  "d" (__arg3)				     \
-+		: _svc_clobber );			     \
-+	__res = __svcres;				     \
-+	__syscall_return(type,__res);			     \
- }
+ #define kern_addr_valid(addr)   (1)
+diff -urN linux-2.5.66/include/asm-s390x/posix_types.h linux-2.5.66-s390/include/asm-s390x/posix_types.h
+--- linux-2.5.66/include/asm-s390x/posix_types.h	Mon Mar 24 23:01:48 2003
++++ linux-2.5.66-s390/include/asm-s390x/posix_types.h	Wed Mar 26 15:45:10 2003
+@@ -31,6 +31,8 @@
+ typedef long            __kernel_time_t;
+ typedef long            __kernel_suseconds_t;
+ typedef long            __kernel_clock_t;
++typedef int		__kernel_timer_t;
++typedef int		__kernel_clockid_t;
+ typedef int             __kernel_daddr_t;
+ typedef char *          __kernel_caddr_t;
+ typedef unsigned long   __kernel_sigset_t;      /* at least 32 bits */
+diff -urN linux-2.5.66/include/asm-s390x/processor.h linux-2.5.66-s390/include/asm-s390x/processor.h
+--- linux-2.5.66/include/asm-s390x/processor.h	Mon Mar 24 23:01:18 2003
++++ linux-2.5.66-s390/include/asm-s390x/processor.h	Wed Mar 26 15:45:10 2003
+@@ -148,7 +148,11 @@
+ #define KSTK_EIP(tsk)	(__KSTK_PTREGS(tsk)->psw.addr)
+ #define KSTK_ESP(tsk)	(__KSTK_PTREGS(tsk)->gprs[15])
  
- #define _syscall4(type,name,type1,arg1,type2,arg2,type3,arg3,\
--                  type4,name4)                               \
-+		  type4,name4)				     \
- type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4) {  \
--        register type1 __arg1 asm("2") = arg1;               \
--        register type2 __arg2 asm("3") = arg2;               \
--        register type3 __arg3 asm("4") = arg3;               \
--        register type4 __arg4 asm("5") = arg4;               \
--        register long __svcres asm("2");                     \
--        long __res;                                          \
--        __asm__ __volatile__ (                               \
--                "    svc %b1\n"                              \
--                : "=d" (__svcres)                            \
--                : "i" (__NR_##name),                         \
--                  "0" (__arg1),                              \
--                  "d" (__arg2),                              \
--                  "d" (__arg3),                              \
--                  "d" (__arg4)                               \
--                : _svc_clobber );                            \
--	__res = __svcres;                                    \
--        __syscall_return(type,__res);                        \
-+	register type1 __arg1 asm("2") = arg1;		     \
-+	register type2 __arg2 asm("3") = arg2;		     \
-+	register type3 __arg3 asm("4") = arg3;		     \
-+	register type4 __arg4 asm("5") = arg4;		     \
-+	register long __svcres asm("2");		     \
-+	long __res;					     \
-+	__asm__ __volatile__ (				     \
-+		"    .if %b1 < 256\n"			     \
-+		"    svc %b1\n"				     \
-+		"    .else\n"				     \
-+		"    lhi %%r1,%b1\n"			     \
-+		"    svc 0\n"				     \
-+		"    .endif"				     \
-+		: "=d" (__svcres)			     \
-+		: "i" (__NR_##name),			     \
-+		  "0" (__arg1),				     \
-+		  "d" (__arg2),				     \
-+		  "d" (__arg3),				     \
-+		  "d" (__arg4)				     \
-+		: _svc_clobber );			     \
-+	__res = __svcres;				     \
-+	__syscall_return(type,__res);			     \
- }
+-#define cpu_relax()	barrier()
++/*
++ * Give up the time slice of the virtual PU.
++ */
++#define cpu_relax() \
++	asm volatile ("ex 0,%0" : : "i" (__LC_DIAG44_OPCODE) : "memory")
  
- #define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,\
--                  type4,name4,type5,name5)                   \
-+		  type4,name4,type5,name5)		     \
- type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4,    \
--          type5 arg5) {                                      \
--        register type1 __arg1 asm("2") = arg1;               \
--        register type2 __arg2 asm("3") = arg2;               \
--        register type3 __arg3 asm("4") = arg3;               \
--        register type4 __arg4 asm("5") = arg4;               \
--        register type5 __arg5 asm("6") = arg5;               \
--        register long __svcres asm("2");                     \
--        long __res;                                          \
--        __asm__ __volatile__ (                               \
--                "    svc %b1\n"                              \
--                : "=d" (__svcres)                            \
--                : "i" (__NR_##name),                         \
--                  "0" (__arg1),                              \
--                  "d" (__arg2),                              \
--                  "d" (__arg3),                              \
--                  "d" (__arg4),                              \
--                  "d" (__arg5)                               \
--                : _svc_clobber );                            \
--	__res = __svcres;                                    \
--        __syscall_return(type,__res);                        \
-+	  type5 arg5) {					     \
-+	register type1 __arg1 asm("2") = arg1;		     \
-+	register type2 __arg2 asm("3") = arg2;		     \
-+	register type3 __arg3 asm("4") = arg3;		     \
-+	register type4 __arg4 asm("5") = arg4;		     \
-+	register type5 __arg5 asm("6") = arg5;		     \
-+	register long __svcres asm("2");		     \
-+	long __res;					     \
-+	__asm__ __volatile__ (				     \
-+		"    .if %b1 < 256\n"			     \
-+		"    svc %b1\n"				     \
-+		"    .else\n"				     \
-+		"    lhi %%r1,%b1\n"			     \
-+		"    svc 0\n"				     \
-+		"    .endif"				     \
-+		: "=d" (__svcres)			     \
-+		: "i" (__NR_##name),			     \
-+		  "0" (__arg1),				     \
-+		  "d" (__arg2),				     \
-+		  "d" (__arg3),				     \
-+		  "d" (__arg4),				     \
-+		  "d" (__arg5)				     \
-+		: _svc_clobber );			     \
-+	__res = __svcres;				     \
-+	__syscall_return(type,__res);			     \
- }
+ /*
+  * Set PSW mask to specified value, while leaving the
+diff -urN linux-2.5.66/include/asm-s390x/signal.h linux-2.5.66-s390/include/asm-s390x/signal.h
+--- linux-2.5.66/include/asm-s390x/signal.h	Mon Mar 24 23:00:50 2003
++++ linux-2.5.66-s390/include/asm-s390x/signal.h	Wed Mar 26 15:45:10 2003
+@@ -10,6 +10,7 @@
+ #define _ASMS390_SIGNAL_H
  
- #ifdef __KERNEL_SYSCALLS__
-diff -urN linux-2.5.66/include/asm-s390x/unistd.h linux-2.5.66-s390/include/asm-s390x/unistd.h
---- linux-2.5.66/include/asm-s390x/unistd.h	Mon Mar 24 23:01:11 2003
-+++ linux-2.5.66-s390/include/asm-s390x/unistd.h	Wed Mar 26 15:45:11 2003
-@@ -216,130 +216,170 @@
- #define __NR_epoll_wait		251
- #define __NR_set_tid_address	252
- #define __NR_fadvise64		253
-+#define __NR_timer_create	254
-+#define __NR_timer_settime	(__NR_timer_create+1)
-+#define __NR_timer_gettime	(__NR_timer_create+2)
-+#define __NR_timer_getoverrun	(__NR_timer_create+3)
-+#define __NR_timer_delete	(__NR_timer_create+4)
-+#define __NR_clock_settime	(__NR_timer_create+5)
-+#define __NR_clock_gettime	(__NR_timer_create+6)
-+#define __NR_clock_getres	(__NR_timer_create+7)
-+#define __NR_clock_nanosleep	(__NR_timer_create+8)
+ #include <linux/types.h>
++#include <linux/time.h>
  
-+#define NR_syscalls 263
- 
- /* user-visible error numbers are in the range -1 - -122: see <asm-s390/errno.h> */
- 
--#define __syscall_return(type, res)                          \
--do {                                                         \
--        if ((unsigned long)(res) >= (unsigned long)(-125)) { \
--                errno = -(res);                              \
--                res = -1;                                    \
--        }                                                    \
--        return (type) (res);                                 \
-+#define __syscall_return(type, res)			     \
-+do {							     \
-+	if ((unsigned long)(res) >= (unsigned long)(-125)) { \
-+		errno = -(res);				     \
-+		res = -1;				     \
-+	}						     \
-+	return (type) (res);				     \
+ /* Avoid too many header ordering problems.  */
+ struct siginfo;
+diff -urN linux-2.5.66/include/asm-s390x/system.h linux-2.5.66-s390/include/asm-s390x/system.h
+--- linux-2.5.66/include/asm-s390x/system.h	Mon Mar 24 23:01:43 2003
++++ linux-2.5.66-s390/include/asm-s390x/system.h	Wed Mar 26 15:45:10 2003
+@@ -74,7 +74,7 @@
+ 		break;							     \
+ 	save_fp_regs(&prev->thread.fp_regs);				     \
+ 	restore_fp_regs(&next->thread.fp_regs);				     \
+-	resume(prev,next);						     \
++	prev = resume(prev,next);					     \
  } while (0)
  
--#define _svc_clobber "cc", "memory"
-+#define _svc_clobber "1", "cc", "memory"
+ #define nop() __asm__ __volatile__ ("nop")
+diff -urN linux-2.5.66/include/asm-s390x/termios.h linux-2.5.66-s390/include/asm-s390x/termios.h
+--- linux-2.5.66/include/asm-s390x/termios.h	Mon Mar 24 23:01:18 2003
++++ linux-2.5.66-s390/include/asm-s390x/termios.h	Wed Mar 26 15:45:10 2003
+@@ -12,7 +12,6 @@
+ #include <asm/termbits.h>
+ #include <asm/ioctls.h>
  
--#define _syscall0(type,name)                                 \
--type name(void) {                                            \
--        register long __svcres asm("2");                     \
--        long __res;                                          \
--        __asm__ __volatile__ (                               \
--                "    svc %b1\n"                              \
--                : "=d" (__svcres)                            \
--                : "i" (__NR_##name)                          \
--                : _svc_clobber );                            \
--	__res = __svcres;                                    \
--        __syscall_return(type,__res);                        \
--}
 -
--#define _syscall1(type,name,type1,arg1)                      \
--type name(type1 arg1) {                                      \
--        register type1 __arg1 asm("2") = arg1;               \
--        register long __svcres asm("2");                     \
--        long __res;                                          \
--        __asm__ __volatile__ (                               \
--                "    svc %b1\n"                              \
--                : "=d" (__svcres)                            \
--                : "i" (__NR_##name),                         \
--                  "0" (__arg1)                               \
--                : _svc_clobber );                            \
--	__res = __svcres;                                    \
--        __syscall_return(type,__res);                        \
--}
--
--#define _syscall2(type,name,type1,arg1,type2,arg2)           \
--type name(type1 arg1, type2 arg2) {                          \
--        register type1 __arg1 asm("2") = arg1;               \
--        register type2 __arg2 asm("3") = arg2;               \
--        register long __svcres asm("2");                     \
--        long __res;                                          \
--        __asm__ __volatile__ (                               \
--                "    svc %b1\n"                              \
--                : "=d" (__svcres)                            \
--                : "i" (__NR_##name),                         \
--                  "0" (__arg1),                              \
--                  "d" (__arg2)                               \
--                : _svc_clobber );                            \
--	__res = __svcres;                                    \
--        __syscall_return(type,__res);                        \
-+#define _syscall0(type,name)				     \
-+type name(void) {					     \
-+	register long __svcres asm("2");		     \
-+	long __res;					     \
-+	__asm__ __volatile__ (				     \
-+		"    .if %b1 < 256\n"			     \
-+		"    svc %b1\n"				     \
-+		"    .else\n"				     \
-+		"    lghi %%r1,%b1\n"			     \
-+		"    svc 0\n"				     \
-+		"    .endif"				     \
-+		: "=d" (__svcres)			     \
-+		: "i" (__NR_##name)			     \
-+		: _svc_clobber );			     \
-+	__res = __svcres;				     \
-+	__syscall_return(type,__res);			     \
+ struct winsize {
+ 	unsigned short ws_row;
+ 	unsigned short ws_col;
+@@ -44,7 +43,7 @@
+ #define TIOCM_RI	TIOCM_RNG
+ #define TIOCM_OUT1	0x2000
+ #define TIOCM_OUT2	0x4000
+-#define TIOCM_LOOP      0x8000
++#define TIOCM_LOOP	0x8000
+ 
+ /* ioctl (fd, TIOCSERGETLSR, &result) where result may be as below */
+ 
+@@ -62,8 +61,9 @@
+ #define N_PROFIBUS_FDL	10	/* Reserved for Profibus <Dave@mvhi.com> */
+ #define N_IRDA		11	/* Linux IR - http://irda.sourceforge.net/ */
+ #define N_SMSBLOCK	12	/* SMS block mode - for talking to GSM data cards about SMS messages */
+-#define N_HDLC         13	/* synchronous HDLC */
+-#define N_HCI		15	/* Bluetooth HCI UART */
++#define N_HDLC		13	/* synchronous HDLC */
++#define N_SYNC_PPP	14	/* synchronous PPP */
++#define N_HCI		15  /* Bluetooth HCI UART */
+ 
+ #ifdef __KERNEL__
+ 
+@@ -78,19 +78,18 @@
+ /*
+  * Translate a "termio" structure into a "termios". Ugh.
+  */
++#define SET_LOW_TERMIOS_BITS(termios, termio, x) { \
++	unsigned short __tmp; \
++	get_user(__tmp,&(termio)->x); \
++	(termios)->x = (0xffff0000 & ((termios)->x)) | __tmp; \
 +}
-+
-+#define _syscall1(type,name,type1,arg1)			     \
-+type name(type1 arg1) {					     \
-+	register type1 __arg1 asm("2") = arg1;		     \
-+	register long __svcres asm("2");		     \
-+	long __res;					     \
-+	__asm__ __volatile__ (				     \
-+		"    .if %b1 < 256\n"			     \
-+		"    svc %b1\n"				     \
-+		"    .else\n"				     \
-+		"    lghi %%r1,%b1\n"			     \
-+		"    svc 0\n"				     \
-+		"    .endif"				     \
-+		: "=d" (__svcres)			     \
-+		: "i" (__NR_##name),			     \
-+		  "0" (__arg1)				     \
-+		: _svc_clobber );			     \
-+	__res = __svcres;				     \
-+	__syscall_return(type,__res);			     \
-+}
-+
-+#define _syscall2(type,name,type1,arg1,type2,arg2)	     \
-+type name(type1 arg1, type2 arg2) {			     \
-+	register type1 __arg1 asm("2") = arg1;		     \
-+	register type2 __arg2 asm("3") = arg2;		     \
-+	register long __svcres asm("2");		     \
-+	long __res;					     \
-+	__asm__ __volatile__ (				     \
-+		"    .if %b1 < 256\n"			     \
-+		"    svc %b1\n"				     \
-+		"    .else\n"				     \
-+		"    lghi %%r1,%b1\n"			     \
-+		"    svc 0\n"				     \
-+		"    .endif"				     \
-+		: "=d" (__svcres)			     \
-+		: "i" (__NR_##name),			     \
-+		  "0" (__arg1),				     \
-+		  "d" (__arg2)				     \
-+		: _svc_clobber );			     \
-+	__res = __svcres;				     \
-+	__syscall_return(type,__res);			     \
- }
  
- #define _syscall3(type,name,type1,arg1,type2,arg2,type3,arg3)\
--type name(type1 arg1, type2 arg2, type3 arg3) {              \
--        register type1 __arg1 asm("2") = arg1;               \
--        register type2 __arg2 asm("3") = arg2;               \
--        register type3 __arg3 asm("4") = arg3;               \
--        register long __svcres asm("2");                     \
--        long __res;                                          \
--        __asm__ __volatile__ (                               \
--                "    svc %b1\n"                              \
--                : "=d" (__svcres)                            \
--                : "i" (__NR_##name),                         \
--                  "0" (__arg1),                              \
--                  "d" (__arg2),                              \
--                  "d" (__arg3)                               \
--                : _svc_clobber );                            \
--	__res = __svcres;                                    \
--        __syscall_return(type,__res);                        \
-+type name(type1 arg1, type2 arg2, type3 arg3) {		     \
-+	register type1 __arg1 asm("2") = arg1;		     \
-+	register type2 __arg2 asm("3") = arg2;		     \
-+	register type3 __arg3 asm("4") = arg3;		     \
-+	register long __svcres asm("2");		     \
-+	long __res;					     \
-+	__asm__ __volatile__ (				     \
-+		"    .if %b1 < 256\n"			     \
-+		"    svc %b1\n"				     \
-+		"    .else\n"				     \
-+		"    lghi %%r1,%b1\n"			     \
-+		"    svc 0\n"				     \
-+		"    .endif"				     \
-+		: "=d" (__svcres)			     \
-+		: "i" (__NR_##name),			     \
-+		  "0" (__arg1),				     \
-+		  "d" (__arg2),				     \
-+		  "d" (__arg3)				     \
-+		: _svc_clobber );			     \
-+	__res = __svcres;				     \
-+	__syscall_return(type,__res);			     \
- }
+ #define user_termio_to_kernel_termios(termios, termio) \
+ ({ \
+-        unsigned short tmp; \
+-        get_user(tmp, &(termio)->c_iflag); \
+-        (termios)->c_iflag = (0xffff0000 & ((termios)->c_iflag)) | tmp; \
+-        get_user(tmp, &(termio)->c_oflag); \
+-        (termios)->c_oflag = (0xffff0000 & ((termios)->c_oflag)) | tmp; \
+-        get_user(tmp, &(termio)->c_cflag); \
+-        (termios)->c_cflag = (0xffff0000 & ((termios)->c_cflag)) | tmp; \
+-        get_user(tmp, &(termio)->c_lflag); \
+-        (termios)->c_lflag = (0xffff0000 & ((termios)->c_lflag)) | tmp; \
+-        get_user((termios)->c_line, &(termio)->c_line); \
++	SET_LOW_TERMIOS_BITS(termios, termio, c_iflag); \
++	SET_LOW_TERMIOS_BITS(termios, termio, c_oflag); \
++	SET_LOW_TERMIOS_BITS(termios, termio, c_cflag); \
++	SET_LOW_TERMIOS_BITS(termios, termio, c_lflag); \
+ 	copy_from_user((termios)->c_cc, (termio)->c_cc, NCC); \
+ })
  
- #define _syscall4(type,name,type1,arg1,type2,arg2,type3,arg3,\
--                  type4,name4)                               \
-+		  type4,name4)				     \
- type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4) {  \
--        register type1 __arg1 asm("2") = arg1;               \
--        register type2 __arg2 asm("3") = arg2;               \
--        register type3 __arg3 asm("4") = arg3;               \
--        register type4 __arg4 asm("5") = arg4;               \
--        register long __svcres asm("2");                     \
--        long __res;                                          \
--        __asm__ __volatile__ (                               \
--                "    svc %b1\n"                              \
--                : "=d" (__svcres)                            \
--                : "i" (__NR_##name),                         \
--                  "0" (__arg1),                              \
--                  "d" (__arg2),                              \
--                  "d" (__arg3),                              \
--                  "d" (__arg4)                               \
--                : _svc_clobber );                            \
--	__res = __svcres;                                    \
--        __syscall_return(type,__res);                        \
-+	register type1 __arg1 asm("2") = arg1;		     \
-+	register type2 __arg2 asm("3") = arg2;		     \
-+	register type3 __arg3 asm("4") = arg3;		     \
-+	register type4 __arg4 asm("5") = arg4;		     \
-+	register long __svcres asm("2");		     \
-+	long __res;					     \
-+	__asm__ __volatile__ (				     \
-+		"    .if %b1 < 256\n"			     \
-+		"    svc %b1\n"				     \
-+		"    .else\n"				     \
-+		"    lghi %%r1,%b1\n"			     \
-+		"    svc 0\n"				     \
-+		"    .endif"				     \
-+		: "=d" (__svcres)			     \
-+		: "i" (__NR_##name),			     \
-+		  "0" (__arg1),				     \
-+		  "d" (__arg2),				     \
-+		  "d" (__arg3),				     \
-+		  "d" (__arg4)				     \
-+		: _svc_clobber );			     \
-+	__res = __svcres;				     \
-+	__syscall_return(type,__res);			     \
- }
- 
- #define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,\
--                  type4,name4,type5,name5)                   \
-+		  type4,name4,type5,name5)		     \
- type name(type1 arg1, type2 arg2, type3 arg3, type4 arg4,    \
--          type5 arg5) {                                      \
--        register type1 __arg1 asm("2") = arg1;               \
--        register type2 __arg2 asm("3") = arg2;               \
--        register type3 __arg3 asm("4") = arg3;               \
--        register type4 __arg4 asm("5") = arg4;               \
--        register type5 __arg5 asm("6") = arg5;               \
--        register long __svcres asm("2");                     \
--        long __res;                                          \
--        __asm__ __volatile__ (                               \
--                "    svc %b1\n"                              \
--                : "=d" (__svcres)                            \
--                : "i" (__NR_##name),                         \
--                  "0" (__arg1),                              \
--                  "d" (__arg2),                              \
--                  "d" (__arg3),                              \
--                  "d" (__arg4),                              \
--                  "d" (__arg5)                               \
--                : _svc_clobber );                            \
--	__res = __svcres;                                    \
--        __syscall_return(type,__res);                        \
-+	  type5 arg5) {					     \
-+	register type1 __arg1 asm("2") = arg1;		     \
-+	register type2 __arg2 asm("3") = arg2;		     \
-+	register type3 __arg3 asm("4") = arg3;		     \
-+	register type4 __arg4 asm("5") = arg4;		     \
-+	register type5 __arg5 asm("6") = arg5;		     \
-+	register long __svcres asm("2");		     \
-+	long __res;					     \
-+	__asm__ __volatile__ (				     \
-+		"    .if %b1 < 256\n"			     \
-+		"    svc %b1\n"				     \
-+		"    .else\n"				     \
-+		"    lghi %%r1,%b1\n"			     \
-+		"    svc 0\n"				     \
-+		"    .endif"				     \
-+		: "=d" (__svcres)			     \
-+		: "i" (__NR_##name),			     \
-+		  "0" (__arg1),				     \
-+		  "d" (__arg2),				     \
-+		  "d" (__arg3),				     \
-+		  "d" (__arg4),				     \
-+		  "d" (__arg5)				     \
-+		: _svc_clobber );			     \
-+	__res = __svcres;				     \
-+	__syscall_return(type,__res);			     \
- }
- 
- #ifdef __KERNEL_SYSCALLS__
 

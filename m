@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264206AbUDRXOA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 19:14:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264207AbUDRXOA
+	id S264208AbUDRXWh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 19:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264210AbUDRXWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 19:14:00 -0400
-Received: from vse.vse.cz ([146.102.16.2]:61154 "EHLO vse.vse.cz")
-	by vger.kernel.org with ESMTP id S264206AbUDRXN4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 19:13:56 -0400
-Message-ID: <40830BB3.4020302@okac.org>
-Date: Mon, 19 Apr 2004 01:13:55 +0200
-From: Kamil Okac <kamil@okac.org>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: via 6420 pata/sata controller
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 18 Apr 2004 19:22:34 -0400
+Received: from mail.shareable.org ([81.29.64.88]:47523 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S264208AbUDRXWc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 19:22:32 -0400
+Date: Mon, 19 Apr 2004 00:22:30 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Jamie Lokier <jamie@shareable.or>, linux-kernel@vger.kernel.org
+Subject: Re: NFS and kernel 2.6.x
+Message-ID: <20040418232230.GA11064@mail.shareable.org>
+References: <1082079061.7141.85.camel@lade.trondhjem.org> <20040415185355.1674115b.akpm@osdl.org> <20040416090331.GC22226@mail.shareable.org> <1082130906.2581.10.camel@lade.trondhjem.org> <20040416184821.GA25402@mail.shareable.org> <1082142401.2581.131.camel@lade.trondhjem.org> <20040416193914.GA25792@mail.shareable.org> <1082241169.3930.14.camel@lade.trondhjem.org> <20040418032638.GA1786@mail.shareable.org> <1082271815.3619.104.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1082271815.3619.104.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >Bartlomiej Zolnierkiewicz wrote:
- >> On Tuesday 30 of March 2004 15:24, Zdenek Tlusty wrote:
- >>
- >>>hello,
- >>>
- >>>I have problem with via 6420 controller under linux (I have mandrake 9.1
- >>>with kernel 2.4.25 with libata patch version 16).
- >>>This controller has two sata and one pata channels. Sata channel 
-works fine
- >>>with libata. My problem is with pata channel. I have pata hard disk 
-on this
- >>>controller. Bios of the controller detected this disk but linux did not.
- >>>What is the current status of the driver for this controller?
- >>>Thank you for your time.
- >>
- >>
- >> There are some patches floating around adding support for VT6410
- >> (not VT6420) to generic IDE PCI driver.  This controller may also work
- >> with generic IDE PCI driver (PCI VendorID/ProductID needs to be added
- >> to drivers/ide/pci/generic.h and drivers/ide/pci/generic.c).
- >
- >VT 6420 should be added to via82cxxx.c, since it does the necessary bus
- >setup and such.  AFAICS it is programmed just like all the other VIA
- >PATA controllers.
- >
- >> BTW Does anybody has contacts in VIA?
- >
- >Sure...  I'll check my VT 6420 cards as well.  It should just be another
- >PCI id added to via82cxxx.c.
- >
- >	Jeff
- >
+Trond Myklebust wrote:
+> On Sat, 2004-04-17 at 20:26, Jamie Lokier wrote:
+> >       Are they intended to stop doubling at 3.2?  The major timeout
+> >       thus happens after 22.3 seconds.
+> > 
+> >       Unsurprisingly, subsequent major timeouts take 44.1 seconds.
+> 
+> Right... ...but since the timeout value is already capped at 60 seconds,
+> this is not a major problem. It is pretty pointless to be talking about
+> "predictable" or "consistent" behaviour when talking about a situation
+> where we believe that the server has crashed.
 
-Hello,
+I agree, but would still prefer more consistent behaviour if it is
+easy -- and I explained how to do it, it's an easy algorithm.
 
-I tried to modify via82cxxx.c and .h, but was unsuccessful. Has anyone 
-got it to work properly?
+You don't respond to the other question: the doubling stopping at
+3.2s.  Is it intended?  It goes againt a basic principle of congestion
+control.
 
-   Kamil Okac
+> AFAICS, all we care about is to establish a predictable *lower limit*.
+
+I agree that is the most important thing, and the old behaviour was
+probably the cause of problems for at least one poster on this thread.
+
+-- Jamie
+

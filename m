@@ -1,69 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261569AbTKHAdh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 19:33:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbTKGWFN
+	id S262116AbTKHAYp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 19:24:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbTKGWHG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:05:13 -0500
-Received: from h80ad25c7.async.vt.edu ([128.173.37.199]:50048 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263907AbTKGGsw (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 01:48:52 -0500
-Message-Id: <200311070648.hA76mRe8007990@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: linux-kernel@vger.kernel.org, netfilter@lists.netfilter.org
-Subject: kernel: ipt_hook: happy cracking.
-From: Valdis.Kletnieks@vt.edu
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1686567374P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 07 Nov 2003 01:48:27 -0500
+	Fri, 7 Nov 2003 17:07:06 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:33548 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264358AbTKGOVB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 09:21:01 -0500
+Date: Fri, 7 Nov 2003 09:10:15 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: John Bradford <john@grabjohn.com>
+cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+In-Reply-To: <200311061956.hA6JuL6V002039@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.3.96.1031107090309.20991B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1686567374P
-Content-Type: text/plain; charset=us-ascii
+On Thu, 6 Nov 2003, John Bradford wrote:
 
-So I look in my syslogs, and I find a lot of:
+> Quote from Linus Torvalds <torvalds@osdl.org>:
+> 
+> > ide-scsi has always been broken. You should not use it, and indeed there 
+> > was never any good reason for it existing AT ALL. But because of a broken 
+> > interface to cdrecord, cdrecord historically only wanted to touch SCSI 
+> > devices. Ergo, a silly emulation layer that wasn't really worth it.
+> 
+> Hmmm, but ide-scsi is used for a lot more than cd recorders these
+> days.  Alan mentioned 'crazy' SATA devices back in April.
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=105000779411632&w=2
 
-Nov  6 14:36:37 turing-police kernel: ipt_hook: happy cracking.
+I mentioned ide tapes and ZIP drives, Linus didn't mention how one gets
+around those.
 
-messages. A quick grep finds it's ipv4/netfilter/iptable_filter.c:
+> (Not that I'm suggesting that it is particularly sane to deal with an
+> SATA connected printer by presenting it as a SCSI device, but I just
+> can't see how ide-scsi could successfully be removed now :-( )
 
-        /* root is playing with raw sockets. */
-        if ((*pskb)->len < sizeof(struct iphdr)
-            || (*pskb)->nh.iph->ihl * 4 < sizeof(struct iphdr)) {
-                if (net_ratelimit())
-                        printk("ipt_hook: happy cracking.\n");
-                return NF_ACCEPT;
-        }
+And I don't see the joy of doing so. Unless someone wants to write new
+versions of all the SCSI software out in use, a lot of functionality is
+lost. In the long run it might have been better to simply fix or rewrite
+ide-scsi and stop using the ide interface, becuase disk manufacturers
+certainly aren't going to stop making scsi and it needs to be supported
+anyway. I guess Doug Gilbert is doing other things now, I would have
+expected at least an opinion out of him ;-)
 
-The only problem is that root wasn't doing any playing at the time. The real
-culprit was an iptables filter with '-j REJECT'. (Yes, usually a '-j DROP' is
-my preference, but I get SYN packets from some places on our net where sending
-an RST is more polite than waiting for retransmits).
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-I admit not being positively clear on how this manages to trigger, as
-I'm not sure who's supposed to set the ->len field on the new pskb
-allocated by ipt_REJECT.c:send_reset() (AFAICT, ->ihl should be OK
-after skb_copy_bits() gets called).
-
-Hardly 'cracking' - but after yesterday's CVS scare, I had to double
-check this code was in 2.4.18 too before my pulse came down.. :)
-
-
-
---==_Exmh_-1686567374P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/q0A7cC3lWbTT17ARArLXAJ97FvI9hFFBYcl7DevQhy1tTuQCjACdEW0N
-t3Hpgyn1Ga9kQh8NQC86f+w=
-=7bAP
------END PGP SIGNATURE-----
-
---==_Exmh_-1686567374P--

@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261711AbUCFVBE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 16:01:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbUCFVBE
+	id S261689AbUCFVAW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 16:00:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbUCFVAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 16:01:04 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:30352 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261711AbUCFVBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 16:01:00 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: ANNOUCE: OpenIB InfiniBand software
-References: <52znavp2mk.fsf@topspin.com>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 06 Mar 2004 13:00:59 -0800
-In-Reply-To: <52znavp2mk.fsf@topspin.com>
-Message-ID: <52brn9wv04.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	Sat, 6 Mar 2004 16:00:22 -0500
+Received: from opersys.com ([64.40.108.71]:37646 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261689AbUCFVAV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Mar 2004 16:00:21 -0500
+Message-ID: <404A3CFC.1050603@opersys.com>
+Date: Sat, 06 Mar 2004 16:05:00 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 06 Mar 2004 21:00:59.0763 (UTC) FILETIME=[20876430:01C403BE]
+To: bluefoxicy@linux.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Kernel-User shared buffer
+References: <20040306000616.1D51F3953@sitemail.everyone.net>
+In-Reply-To: <20040306000616.1D51F3953@sitemail.everyone.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Several people have requested that we split the possibly-encumbered
-SDP code into a separate package so that they don't have to download
-it to get the free code.  To allow that, I have split the kernel code
-into two packages:
 
-    infiniband-kernel-2004-03-05.tar.bz2
-    infiniband-kernel-sdp-2004-03-05.tar.bz2
+john moser wrote:
+> I'm trying to create a shared buffer for realtime communication
+> between the kernel and a userspace application.  All allocation
+> is done for the userspace task in the kernel, and the kernel is
+> to write to the ram from within syscalls made by other
+> processes.
 
-If you wish to build SDP, you will need to download both packages and
-move the SDP files into the appropriate place in the tree.  For all
-other protocols, only the first package (containing only pure dual
-GPL/BSD code) is required.
+I'm not sure what you mean by "realtime", but have a look at relayfs:
+http://www.opersys.com/relayfs/index.html
 
-The new snapshot is available now from <http://openib.org/downloads>.
-(It also contains a few fixes and code cleanups as compared to the
-2004-02-26 drop)
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546
 

@@ -1,62 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129423AbQLKR0A>; Mon, 11 Dec 2000 12:26:00 -0500
+	id <S129226AbQLKRcb>; Mon, 11 Dec 2000 12:32:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129464AbQLKRZv>; Mon, 11 Dec 2000 12:25:51 -0500
-Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:54487 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S129423AbQLKRZp>; Mon, 11 Dec 2000 12:25:45 -0500
-From: Ulrich.Weigand@de.ibm.com
-X-Lotus-FromDomain: IBMDE
-To: linux-kernel@vger.kernel.org
-cc: schwidefsky@de.ibm.com
-Message-ID: <C12569B2.005C9182.00@d12mta01.de.ibm.com>
-Date: Mon, 11 Dec 2000 17:51:04 +0100
-Subject: NFS: set_bit on an 'int' variable OK for 64-bit?
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S129545AbQLKRcV>; Mon, 11 Dec 2000 12:32:21 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:48399 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129226AbQLKRcF>;
+	Mon, 11 Dec 2000 12:32:05 -0500
+To: Ulrich.Weigand@de.ibm.com
+Cc: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
+Subject: Re: NFS: set_bit on an 'int' variable OK for 64-bit?
+In-Reply-To: <C12569B2.005C9182.00@d12mta01.de.ibm.com>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 11 Dec 2000 18:01:30 +0100
+In-Reply-To: Ulrich.Weigand@de.ibm.com's message of "Mon, 11 Dec 2000 17:51:04 +0100"
+Message-ID: <d34s0a7uz9.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Ulrich" == Ulrich Weigand <Ulrich.Weigand@de.ibm.com> writes:
 
+Ulrich> Hello,
 
-Hello,
+Ulrich> since test11, the NFS code uses the set_bit and related
+Ulrich> routines to manipulate the wb_flags member of the nfs_page
+Ulrich> struct (nfs_page.h).  Unfortunately, wb_flags has still data
+Ulrich> type 'int'.
 
-since test11, the NFS code uses the set_bit and related routines
-to manipulate the wb_flags member of the nfs_page struct (nfs_page.h).
-Unfortunately, wb_flags has still data type 'int'.
+Ulrich> This is a problem (at least) on the 64-bit S/390 architecture,
+Ulrich> as our ..._bit macros assume bit 0 is the least significant
+Ulrich> bit of a 'long', which means due to big-endian byte order that
+Ulrich> bit 0 resides in the 7th byte of the variable.  As an int
+Ulrich> occupies only 4 bytes, however, set_bit(0, int) clobbers
+Ulrich> memory.
 
-This is a problem (at least) on the 64-bit S/390 architecture,
-as our ..._bit macros assume bit 0 is the least significant bit
-of a 'long', which means due to big-endian byte order that bit 0
-resides in the 7th byte of the variable.  As an int occupies only
-4 bytes, however, set_bit(0, int) clobbers memory.
+Ulrich> Now the question is, who's correct?
 
-Now the question is, who's correct?
+You are, the bit macros should only be used on long's. It happens to
+work on little endian bitfield machines like the Alpha but thats the
+same as when we had the problem with bit operations on char * in the
+file system code a couple of years ago.
 
-At all other places (I found, at least), the ..._bit macros
-are indeed used only on 'long' variables (or arrays).
+The NFS code needs to be fixed for this then.
 
-However, on the Alpha, the ..._bit routines assume bit 0 to
-be the least significant bit of an 'int'. Sparc64 on the other
-hand also uses 'long'  :-/
-
-What do you suggest we should do?   Fix nfs_page to use a 'long'
-variable, or change our bitops macros to use ints?
-
-
-Mit freundlichen Gruessen / Best Regards
-
-Ulrich Weigand
-
---
-  Dr. Ulrich Weigand
-  Linux for S/390 Design & Development
-  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
-  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
-
-
+Jes
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

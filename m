@@ -1,102 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313568AbSDLNaT>; Fri, 12 Apr 2002 09:30:19 -0400
+	id <S313567AbSDLOV6>; Fri, 12 Apr 2002 10:21:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313741AbSDLNaS>; Fri, 12 Apr 2002 09:30:18 -0400
-Received: from copper.ftech.net ([212.32.16.118]:15584 "EHLO relay5.ftech.net")
-	by vger.kernel.org with ESMTP id <S313568AbSDLNaR>;
-	Fri, 12 Apr 2002 09:30:17 -0400
-Message-ID: <7C078C66B7752B438B88E11E5E20E72E428C@GENERAL.farsite.co.uk>
-From: Kevin Curtis <kevin.curtis@farsite.co.uk>
-To: "'admin@nextframe.net'" <admin@nextframe.net>,
-        Francois Romieu <romieu@cogenit.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: [patch] 2.5.8-pre3 - drivers/net/wan/farsync.c
-Date: Fri, 12 Apr 2002 14:30:04 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S313990AbSDLOV5>; Fri, 12 Apr 2002 10:21:57 -0400
+Received: from mail.uhg.net ([208.128.168.19]:24845 "EHLO
+	UHGEXCHANGE00.uhg.net") by vger.kernel.org with ESMTP
+	id <S313567AbSDLOV5>; Fri, 12 Apr 2002 10:21:57 -0400
+Subject: ES1878 doesn't work in 2.4 series kernel
+From: "Roach, Mark R." <mrroach@uhg.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 12 Apr 2002 09:13:40 -0500
+Message-Id: <1018620823.24746.23.camel@tncorpmrr001.uhg>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-	yes this patch is fine.  I will submit another later today to fix
-the pci_enable_device problem, but the supa-dupa performance patch needs
-some more testing yet.
+I have a compaq armada 1592DMT and have been unable to get the sound
+card to work under 2.4.17 or 2.4.18 kernels (debian stock kernels or
+compiled from source). 
 
-Kevin
+This card is not a PNP card. modprobing sb with all the options (irq=5
+dma, etc) will load the module but cating things to /dev/dsp produces no
+output. If I do a dd if=/dev/dsp of=/tmp/dsp I get Sound: IRQ/DRQ config
+error messages.
+
+I have tried disabling isapnp in my kernel, I have compiled sb into the
+kernel(and passing the correct parameters at boot), I have tried alsa,
+all to no avail. 
+
+With kernel 2.2.20 it works great. no problems whatsoever. Is there a
+change in the 2.4 series that I am not aware of? Is this card no longer
+supported?
+
+Thanks very much for any help you can give me.
+
+Mark Roach
 
 
------Original Message-----
-From: Morten Helgesen [mailto:admin@nextframe.net]
-Sent: 12 April 2002 12:57
-To: Francois Romieu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.5.8-pre3 - drivers/net/wan/farsync.c
 
-
-Hey, Francois! 
-
-I`ve been working with Kevin Curtis <kevin.curtis@farsite.co.uk> (the
-current maintainer of farsync.c) the last couple
-of days, and we`ve performed a bit of spring cleaning, including
-pci_enable_device() fixes and this fix for
-dev->rmem_end/start. Kevin also said he has been working on performance
-issues, so the next release of this driver should be
-really fancy :) 
-
-Right, Kevin ? :)
-
-== Morten
-
-On Fri, Apr 12, 2002 at 01:34:38PM +0200, Francois Romieu wrote:
-> Greetings,
-> 
-> Problem:
-> compilation fails due to removal of rmem_{start/end} in struct net_device.
-> 
-> Fix:
-> Simple removal. I haven't found any other use of these fields in the
-driver.
-> 
-> --- linux-2.5.8-pre3.orig/drivers/net/wan/farsync.c	Thu Apr 11 23:51:52
-2002
-> +++ linux-2.5.8-pre3/drivers/net/wan/farsync.c	Thu Apr 11 23:55:24
-2002
-> @@ -1469,10 +1469,6 @@ fst_init_card ( struct fst_card_info *ca
->                                   + BUF_OFFSET ( txBuffer[i][0][0]);
->                  dev->mem_end     = card->phys_mem
->                                   + BUF_OFFSET (
-txBuffer[i][NUM_TX_BUFFER][0]);
-> -                dev->rmem_start  = card->phys_mem
-> -                                 + BUF_OFFSET ( rxBuffer[i][0][0]);
-> -                dev->rmem_end    = card->phys_mem
-> -                                 + BUF_OFFSET (
-rxBuffer[i][NUM_RX_BUFFER][0]);
->                  dev->base_addr   = card->pci_conf;
->                  dev->irq         = card->irq;
->  
-> -- 
-> Ueimor
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-
-"Livet er ikke for nybegynnere" - sitat fra en klok person.
-
-mvh
-Morten Helgesen 
-UNIX System Administrator & C Developer 
-Nextframe AS
-admin@nextframe.net / 93445641
-http://www.nextframe.net
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

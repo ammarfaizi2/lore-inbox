@@ -1,54 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132738AbRD1E6q>; Sat, 28 Apr 2001 00:58:46 -0400
+	id <S132413AbRD1G1x>; Sat, 28 Apr 2001 02:27:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132744AbRD1E6g>; Sat, 28 Apr 2001 00:58:36 -0400
-Received: from www.wen-online.de ([212.223.88.39]:3847 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S132738AbRD1E6U>;
-	Sat, 28 Apr 2001 00:58:20 -0400
-Date: Sat, 28 Apr 2001 06:57:56 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Nigel Gamble <nigel@nrg.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: #define HZ 1024 -- negative effects?
-In-Reply-To: <Pine.LNX.4.05.10104271609400.3283-100000@cosmic.nrg.org>
-Message-ID: <Pine.LNX.4.33.0104280646140.430-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132421AbRD1G1m>; Sat, 28 Apr 2001 02:27:42 -0400
+Received: from f50.law7.hotmail.com ([216.33.237.50]:11792 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S132413AbRD1G1h>;
+	Sat, 28 Apr 2001 02:27:37 -0400
+X-Originating-IP: [63.227.107.196]
+From: "daniel sheltraw" <l5gibson@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: busmaster question
+Date: Sat, 28 Apr 2001 01:27:30 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F50IEAOeIiGXix4A2Dr00010c13@hotmail.com>
+X-OriginalArrivalTime: 28 Apr 2001 06:27:31.0191 (UTC) FILETIME=[4DBCB070:01C0CFAC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Apr 2001, Nigel Gamble wrote:
+Hello kernel listees
 
-> On Fri, 27 Apr 2001, Mike Galbraith wrote:
-> > On Fri, 27 Apr 2001, Nigel Gamble wrote:
-> > > > What about SCHED_YIELD and allocating during vm stress times?
-> >
-> > snip
-> >
-> > > A well-written GUI should not be using SCHED_YIELD.  If it is
-> >
-> > I was refering to the gui (or other tasks) allocating memory during
-> > vm stress periods, and running into the yield in __alloc_pages()..
-> > not a voluntary yield.
->
-> Oh, I see.  Well, if this were causing the problem, then running the GUI
-> at a real-time priority would be a better solution than increasing the
-> clock frequency, since SCHED_YIELD has no effect on real-time tasks
-> unless there are other runnable real-time tasks at the same priority.
-> The call to schedule() would just reschedule the real-time GUI task
-> itself immediately.
->
-> However, in times of vm stress it is more likely that GUI performance
-> problems would be caused by parts of the GUI having been paged out,
-> rather than by anything which could be helped by scheduling differences.
+I have a busmaster question I am hoping you can help me with.
+If a PCI device is acting as a busmaster and the processor initiates a 
+read/write to another device on the PCI bus while the busmater-device is in 
+control of the bus what happens to the instructions initiated by the 
+processor? Are they never seen by the device that the processor
+is trying to read/write?
 
-Agreed.  I wasn't thinking about swapping, only kswapd not quite keeping
-up with laundering, and then user tasks having to pick up some of the
-load.  Anyway, I've been told that for most values of HZ the slice is
-50ms, so my reasoning wrt HZ/SCHED_YIELD was wrong.  (begs the question
-why do some archs use higher HZ values?)
-
-	-Mike
+Thanks for helping me with this,
+Daniel
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com
 

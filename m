@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132958AbRDSTLg>; Thu, 19 Apr 2001 15:11:36 -0400
+	id <S132860AbRDSTS2>; Thu, 19 Apr 2001 15:18:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133005AbRDSTLU>; Thu, 19 Apr 2001 15:11:20 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:9234 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132895AbRDSTKN>; Thu, 19 Apr 2001 15:10:13 -0400
-Date: Thu, 19 Apr 2001 12:09:34 -0700 (PDT)
-From: Patrick Mochel <mochel@transmeta.com>
-To: John Fremlin <chief@bandits.org>
-cc: "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Next gen PM interface
-In-Reply-To: <m24rvkpvjt.fsf@bandits.org>
-Message-ID: <Pine.LNX.4.10.10104191206100.7690-100000@nobelium.transmeta.com>
+	id <S132895AbRDSTSI>; Thu, 19 Apr 2001 15:18:08 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:21777 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S132860AbRDSTSF>;
+	Thu, 19 Apr 2001 15:18:05 -0400
+To: AJ Lewis <lewis@sistina.com>
+Cc: linux-kernel@vger.kernel.org, linux-openlvm@nl.linux.org,
+        Arjan van de Ven <arjanv@redhat.com>, Jens Axboe <axboe@suse.de>,
+        Martin Kasper Petersen <mkp@linuxcare.com>, riel@conectiva.com.br,
+        linux-lvm@sistina.com
+Subject: Re: [repost] Announce: Linux-OpenLVM mailing list
+In-Reply-To: <d37l0gvkuf.fsf@lxplus015.cern.ch> <20010419132927.D10345@sistina.com>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 19 Apr 2001 21:17:29 +0200
+In-Reply-To: AJ Lewis's message of "Thu, 19 Apr 2001 13:29:27 -0500"
+Message-ID: <d3lmowu2ba.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> ">" == AJ Lewis <lewis@sistina.com> writes:
 
-> > > >         (1) Battery status, power status, UPS status polling. It
-> > > >         should be possible for lots of processes to do this
-> > > >         simultaneously. [That does not prohibit a single process
-> > > >         querying the kernel and all the others querying it.]
-> > > 
-> > > Solution. Have a bunch of procfs or dev nodes each giving info on a
-> > > particular power source, like now, but vaguely standardise the output.
-> 
-> [...]
-> 
-> > I can see at least two types of events - (forgive the lack of colorful
-> > terminology) passive and active. Passive events are simply providing
-> > status updates, much like the events described above. These are simply so
-> > some UI can notify the user of things like a low battery or detection of
-> > an AC adapter. These can be handled in much the same way as described
-> > above.
-> 
-> No they can't. They only happen once. Battery status exists all the
-> time.
+>> It is unfortunate that this could not have been resolved in a more
+>> mature manner.  Saying "I don't like the way somebody is doing
+>> something.  I won't bother to talk to them about it, I'll just
+>> flame them and try to undermine their work." is not acceptable.  It
+>> would have been nice if you'd actually tried to work this out
+>> instead of handling it this way.
 
-Yes they can. My point was they can be handled from userspace in the same
-way that battery status does - by doing a select on a file in /proc or
-/dev. Once in a while (or constantly) they get data from the kernel -
-battery status, AC change, etc - that can be then translated and displayed
-in the UI.
+This was tried, trust me. We didn't create this list because someone
+forgot to respond to a single posting. As we wrote in the announcement
+there has been too many incidents: At least two people got kicked off
+the old lvm list for posting comments about the latest release using
+lower bits in pointers to store data. Other people have posted patches
+for serious bugs like NULL pointer dereferences and the postings were
+denied. Another person complained about the behavior and got no
+response.
 
-	-pat
+For modules included in the Linux kernel, an open development forum is
+a minimum requirement.
 
+Jes

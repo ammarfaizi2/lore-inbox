@@ -1,57 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317389AbSGIUEc>; Tue, 9 Jul 2002 16:04:32 -0400
+	id <S317390AbSGIUE6>; Tue, 9 Jul 2002 16:04:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317391AbSGIUEb>; Tue, 9 Jul 2002 16:04:31 -0400
-Received: from kweetal.tue.nl ([131.155.2.7]:30835 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S317389AbSGIUE3>;
-	Tue, 9 Jul 2002 16:04:29 -0400
-Date: Tue, 9 Jul 2002 22:07:11 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-Subject: Re: [PATCH] 2.4 IDE core for 2.5
-Message-ID: <20020709200711.GA13401@win.tue.nl>
-References: <20020709102249.GA20870@suse.de>
-Mime-Version: 1.0
+	id <S317391AbSGIUE5>; Tue, 9 Jul 2002 16:04:57 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47877 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S317390AbSGIUE5>; Tue, 9 Jul 2002 16:04:57 -0400
+Subject: Re: ATAPI + cdwriter problem
+To: as@sci.fi (Anssi Saari)
+Date: Tue, 9 Jul 2002 21:29:31 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020709195437.GA1834@sci.fi> from "Anssi Saari" at Jul 09, 2002 10:54:37 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020709102249.GA20870@suse.de>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17S1c3-0005eu-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 09, 2002 at 12:22:49PM +0200, Jens Axboe wrote:
+>  
+> I had a similar experience when trying my CD writer on pdc20265 and a
+> cmd649 based board. Sometimes a write goes fine, sometimes that error
+> comes up and you get a coaster. Writer is an LG GCE-8160B.  It works
+> fine on the VIA 686b however, except for certain speed related issues
+> (audio writes at > 8x make system unresponsive, data writes ok, more
+> in http://marc.theaimsgroup.com/?l=linux-kernel&m=101826880719379&w=2).
 
-> I've forward ported the 2.4 IDE core to 2.5.25.
-
-Very good!
-
-There are two kinds of objections.
-The minor one is political - you can imagine.
-The major one is technical. You did not port the 2.4 good PIO
-behaviour to 2.5. Bartlomiej already warned about this, so I
-need only confirm:
-
-This afternoon I booted 2.5.25 with your patches and two more,
-one to prevent an oops when shutting down, the other to fix
-ethernet cards detection. Started torturing two disks on
-HPT366. After 3 minutes
-
-	hde: status error: status=0x50 { DriveReady SeekComplete }
-	hde: no DRQ after issuing WRITE
-
-and seven minutes later
-
-	hde: task_out_intr: status=0x51 { DriveReady SeekComplete Error }
-	hde: task_out_intr: error=0x04 { DriveStatusError }
-
-Soon lots of processes were hanging in D. Reboot. e2fsck.
-
-Then booted vanilla 2.4.17. Tortured disks in the same way.
-After several hours all is still perfect. I'll leave this
-for a night, but so far I have never seen these errors on 2.4
-and very often in recent 2.5.
-
-Andries
-
+If you are having PDC202xx problems do try the patch Hank posted recently.
+It disables the raid controllers which is something we need to discuss in
+more detail to do in a better way but the rest of it is what Promise believe
+fixes the other problems - and it would benefit from much testing

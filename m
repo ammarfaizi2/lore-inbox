@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281981AbRKUVWS>; Wed, 21 Nov 2001 16:22:18 -0500
+	id <S281987AbRKUVX6>; Wed, 21 Nov 2001 16:23:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281984AbRKUVWJ>; Wed, 21 Nov 2001 16:22:09 -0500
-Received: from ppp01.ts1-1.NewportNews.visi.net ([209.8.196.1]:48118 "EHLO
-	blimpo.internal.net") by vger.kernel.org with ESMTP
-	id <S281981AbRKUVVy>; Wed, 21 Nov 2001 16:21:54 -0500
-Date: Wed, 21 Nov 2001 16:21:28 -0500
-From: Ben Collins <bcollins@debian.org>
+	id <S281990AbRKUVXt>; Wed, 21 Nov 2001 16:23:49 -0500
+Received: from ns.suse.de ([213.95.15.193]:2579 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S281984AbRKUVXd>;
+	Wed, 21 Nov 2001 16:23:33 -0500
 To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: Asm style
-Message-ID: <20011121162128.E363@visi.net>
-In-Reply-To: <01112123070300.05447@manta>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01112123070300.05447@manta>
-User-Agent: Mutt/1.3.23i
+In-Reply-To: <01112123070300.05447@manta.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 21 Nov 2001 22:23:25 +0100
+In-Reply-To: vda's message of "21 Nov 2001 22:13:40 +0100"
+Message-ID: <p73wv0jx1gy.fsf@amdsim2.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 21, 2001 at 11:07:03PM +0000, vda wrote:
+vda <vda@port.imtp.ilyichevsk.odessa.ua> writes:
+
 > I'm using GCC 3.0.1 and seeing "multi-line literals are deprecated".
 > Since a patch is necessary for that (and someone submitted it already)
-> I'd like to hear from big kernel guys what asm statement style to use:
-> 	asm(
-> "		cmd	r,r\n"
-> "lbl:		cmd	r,r\n"
-> "		cmd	r,r\n"
-> 		: spec
-> 		: spec
-> 	);
-> [variable width for labels? I don't like it] or
+
+The best patch for this IMHO would be to just remove the stupid warning
+from gcc. It's obvious that whoever added it has never used gcc inline
+assembly.
+
+If they want to remove multi-line strings they need to supply a way to
+write inline assembly without strings first. Both solutions below
+are very error prone and ugly.
+
+Failing that:
+
 > 	asm(
 > 	"	cmd	r,r\n"
 > 	"lbl:	cmd	r,r\n"
 > 	"	cmd	r,r\n"
-> 		: spec
-> 		: spec
-> 	);
-> [better. But \n's are ugly] or
+
+Is bearable with some pains.
+
+
 > #define NL "\n"
 > 	asm(
 > 	"	cmd	r,r" NL
 > 	"lbl:	cmd	r,r" NL
-> 	"	cmd	r,r" NL
-> 		: spec
-> 		: spec
-> 	);
 
-There's also:
+Is also bearable, but needs agreement (needs a central #define) 
 
-	asm("\
-	cmd	r,r\n\
-lbl:	cmd	r,r\n\
-	cmd	r,r\n" : spec : spec);
+-Andi
 
-
-Or something similar (the trailing "\" added for continuation). Probably
-the easiest way to patch existing asm.
-
--- 
- .----------=======-=-======-=========-----------=====------------=-=-----.
-/                   Ben Collins    --    Debian GNU/Linux                  \
-`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
- `---=========------=======-------------=-=-----=-===-======-------=--=---'

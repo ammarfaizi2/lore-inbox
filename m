@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbUFWXCN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbUFWXEI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262080AbUFWXCN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 19:02:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUFWXCN
+	id S262071AbUFWXEI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 19:04:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbUFWXEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 19:02:13 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:59785 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S262050AbUFWXCI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 19:02:08 -0400
-Subject: Re: [PATCH] Make POSIX locks compatible with the NPTL thread model
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040623144150.H21045@build.pdx.osdl.net>
-References: <1088010468.5806.52.camel@lade.trondhjem.org>
-	 <20040623122930.K22989@build.pdx.osdl.net>
-	 <1088020210.5806.95.camel@lade.trondhjem.org>
-	 <20040623144150.H21045@build.pdx.osdl.net>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1088031727.8944.71.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 23 Jun 2004 19:02:07 -0400
+	Wed, 23 Jun 2004 19:04:08 -0400
+Received: from box.punkt.pl ([217.8.180.66]:12807 "HELO box.punkt.pl")
+	by vger.kernel.org with SMTP id S262071AbUFWXEF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 19:04:05 -0400
+From: Mariusz Mazur <mmazur@kernel.pl>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.7.0
+Date: Thu, 24 Jun 2004 01:02:23 +0200
+User-Agent: KMail/1.6.2
+References: <200406240020.39735.mmazur@kernel.pl> <40DA0A42.3050205@nortelnetworks.com>
+In-Reply-To: <40DA0A42.3050205@nortelnetworks.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406240102.23162.mmazur@kernel.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På on , 23/06/2004 klokka 17:41, skreiv Chris Wright:
+On czwartek, 24 czerwca 2004 00:54, Chris Friesen wrote:
+> Not a high profile hacker, but you might try submitting a patch adding an
+> include/user_abi directory (or whatever it should be called) and putting
+> one of your files there, with patches to the original kernel header file to
+> remove the userspace bits and include the new file.  That would maybe kick
+> off some discussion.
 
-> Yes, it's a BUG in locks_remove_flock.  The first patch changes
-> locks_remove_posix, so posix lock is missed on filp_close and the BUG
-> is hit.  I believe the problem is that locks can have same fl_owner,
-> w/out having same tgid.
+I'm interested in guidelines, not discussion :)
+Kernel guys had a couple of years since 2.4 for discussing this so something 
+*must* have been agreed upon.
 
-Yep. I agree with that analysis. Blech...
 
-That just goes to show how broken the posix locks "logic" is when
-applied to CLONE_FILES: POSIX locks are not supposed to be inherited by
-child processes, and so the current VFS code checks both lock->fl_pid &
-lock->fl_owner in tests such as posix_locks_conflict(). Currently (as I
-said) on filp_close() we remove all locks with the same lock->fl_owner
-without checking the pid.
-
-However upon the last fput(), then in practice locks_remove_flock()
-expects all locks with the same *file descriptor* to have been cleaned
-up.
-
-So what do we do? There is no way that we can keep the current rules, as
-they provide no consistent way to inform the underlying NFS or CIFS
-filesystem  when to test for lock->fl_pid, when to test for
-lock->fl_owner, and when to test for lock->fl_file.
-
-Cheers,
-  Trond
+-- 
+In the year eighty five ten
+God is gonna shake his mighty head
+He'll either say,
+"I'm pleased where man has been"
+Or tear it down, and start again

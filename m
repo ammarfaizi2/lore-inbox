@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262017AbREVQHE>; Tue, 22 May 2001 12:07:04 -0400
+	id <S261990AbREVQFO>; Tue, 22 May 2001 12:05:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261999AbREVQGy>; Tue, 22 May 2001 12:06:54 -0400
-Received: from waste.org ([209.173.204.2]:35697 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S262017AbREVQGt>;
-	Tue, 22 May 2001 12:06:49 -0400
-Date: Tue, 22 May 2001 11:08:16 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] struct char_device
-In-Reply-To: <5.1.0.14.2.20010522153915.00ac1630@pop.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.30.0105221104070.19818-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262004AbREVQFE>; Tue, 22 May 2001 12:05:04 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:19727 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S261990AbREVQE4>;
+	Tue, 22 May 2001 12:04:56 -0400
+Date: Tue, 22 May 2001 19:04:43 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Tony Hoyle <tmh@magenta-netlogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ECN is on!
+Message-ID: <20010522190443.N5947@mea-ext.zmailer.org>
+In-Reply-To: <15114.18990.597124.656559@pizda.ninka.net> <Pine.LNX.4.30.0105220649530.17291-100000@biglinux.tccw.wku.edu> <200105221306.f4MD6Pi00360@mobilix.ras.ucalgary.ca> <3B0A8D16.2050400@magenta-netlogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3B0A8D16.2050400@magenta-netlogic.com>; from tmh@magenta-netlogic.com on Tue, May 22, 2001 at 05:00:22PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 May 2001, Anton Altaparmakov wrote:
+On Tue, May 22, 2001 at 05:00:22PM +0100, Tony Hoyle wrote:
+> > suggestion to bounce mails of the following type:
+> > - MIME encoded
+> > - HTML encoded
+> > - quoted printables (those stupid "=20" things are particuarly hard to
+> >   read).
+> 
+> Surely it'd be better to get the list to filter them through stripmime?
 
-> Hello,
->
-> At 15:18 22/05/01, Alexander Viro wrote:
-> [snip cool stuff]
-> >+struct char_device {
-> >+       struct list_head        hash;
-> >+       atomic_t                count;
-> >+       dev_t                   dev;
-> >+       atomic_t                openers;
-> >+       struct semaphore        sem;
->
-> Why not name consistently with the struct block_device?
-> I.e.:
-> struct char_device {
->          struct list_head        cd_hash;
->          atomic_t                cd_count;
->          dev_t                   cd_dev;
->          atomic_t                cd_openers;
->          struct semaphore        cd_sem;
-> };
+Read page:
 
-Because foo_ is a throwback to the days when C compilers had a single
-namespace for all structure elements, not a readability aid. If you need
-foo_ to know what type of structure you're futzing with, you need to name
-your variables better.
+    http://vger.kernel.org/majordomo-info.html
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+ 
+> :-)
+> Tony
 
+/Matti Aarnio

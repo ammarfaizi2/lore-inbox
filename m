@@ -1,45 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275375AbTHGOxY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 10:53:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275376AbTHGOxY
+	id S270222AbTHGPDh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 11:03:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271302AbTHGPDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 10:53:24 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27575 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S275375AbTHGOwI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 10:52:08 -0400
-Message-ID: <3F32678B.7020407@pobox.com>
-Date: Thu, 07 Aug 2003 10:51:55 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Javier Achirica <achirica@telefonica.net>
-CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] airo driver: fix races, oops, etc..
-References: <Pine.SOL.4.30.0308070946380.22832-100000@tudela.mad.ttd.net>
-In-Reply-To: <Pine.SOL.4.30.0308070946380.22832-100000@tudela.mad.ttd.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Aug 2003 11:03:11 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:6562 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S275391AbTHGPAl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 11:00:41 -0400
+Date: Thu, 7 Aug 2003 17:00:37 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Proper block queue reference counting
+Message-ID: <20030807150037.GJ2886@suse.de>
+References: <200308070909.h7799QHg022029@hera.kernel.org> <3F3263FC.5030100@pobox.com> <20030807145027.GI2886@suse.de> <3F3268A7.6090901@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F3268A7.6090901@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Javier Achirica wrote:
-> I've been studying the problem for a while and I've implemented a solution
-> using a single kernel thread and a wait queue for synchronization. I've
-> tested it and looks like it works fine. It can be used both in 2.4
-> and 2.6 kernels. Before submitting a patch with it I'd like someone with
-> experience in this kind of code to take a look at it just in case I'm
-> doing something dumb. Jeff? :-)
+On Thu, Aug 07 2003, Jeff Garzik wrote:
+> Jens Axboe wrote:
+> >blk_cleanup_queue() still does that, as does blk_put_queue() (same deal,
+> >each drop a reference, last reference frees the queue).
+> >
+> >This first patch is just the frame work, the only thing that's
+> >referenced counted right now is that the returned object has one
+> >reference and when the driver cleans the queue it drops the reference
+> >causing it to be freed. Next step is making sure others that hold a
+> >reference to the queue also grab a reference to it, using
+> >blk_get_queue(). That's stuff like bdev_get_queue(), for instance.
+> 
+> Groovy, thanks for explaining.
 
+No problem
 
-Unless the patch is huge (100K or more), post it to linux-kernel, and CC 
-it to me and Benjamin Herrenschmidt.
+> >>2) the blk_init_queue really should change names, IMO.  The other 
+> >>subsystems in the kernel tend to use a "foo_alloc" or "alloc_foo" 
+> >>pattern when creating new objects.  blk_alloc_queue, or simply blk_alloc?
+> >
+> >
+> >blk_alloc_queue() would be fine. However, it's hard to screw the usage
+> >up since it returns a queue, so... And people with out-of-tree drivers
+> >that need to be converted need only look at the blk_init_queue()
+> >changes, easy to grep for.
+> 
+> OTOH, blk_init_queue is changing quite radically, and people converting 
+> drivers will have to change that area of code _anyway_, so why not 
+> change the name too?  :)  It might create more confusion than it solves, 
+> to have the same function radically changing its behavior.  So I 
+> respectfully disagree :)
 
-	Jeff
+I wouldn't mind that change. I don't have time to do it right now
+though, I'll soon be outta here for 2 weeks :)
 
+> (this is a minor point, anyway.  I'm happy about the patch as a whole)
 
+Great
+
+-- 
+Jens Axboe
 

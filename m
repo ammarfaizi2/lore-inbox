@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268269AbUHQPDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268281AbUHQPHO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268269AbUHQPDz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 11:03:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268270AbUHQPDz
+	id S268281AbUHQPHO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 11:07:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268277AbUHQPHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 11:03:55 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:25576 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268269AbUHQPDu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 11:03:50 -0400
-Subject: Re: Merge I2O patches from -mm
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Markus Lidel <Markus.Lidel@shadowconnect.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Warren Togami <wtogami@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <412208A6.7020104@shadowconnect.com>
-References: <411F37CC.3020909@redhat.com>
-	 <20040817125303.A21238@infradead.org>  <412208A6.7020104@shadowconnect.com>
-Content-Type: text/plain
+	Tue, 17 Aug 2004 11:07:13 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:64903 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S268281AbUHQPGk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 11:06:40 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alan Cox <alan@redhat.com>
+Subject: Re: PATCH: straighten out the IDE layer locking and add hotplug
+Date: Tue, 17 Aug 2004 17:05:43 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
+References: <20040815151346.GA13761@devserv.devel.redhat.com> <200408171630.07979.bzolnier@elka.pw.edu.pl> <20040817144604.GA30778@devserv.devel.redhat.com>
+In-Reply-To: <20040817144604.GA30778@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1092751257.22793.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 17 Aug 2004 15:00:59 +0100
+Message-Id: <200408171705.43974.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-08-17 at 14:31, Markus Lidel wrote:
-> > Now to i2o_scsi:
-> >  - the logic of "demand-allocating" Scsi_Hosts looks rather bad to me,
-> >    life would be much simpler with a Scsi_Host per i2o device.
-> 
-> But wouldn't it be a waste of resources to allocate a Scsi_Host 
-> structure for every I2O device? Note that the i2o_scsi "sees" all disks 
-> even if they are in a RAID array, so in most cases there are at least 3 
-> Scsi_Host adapters...
+On Tuesday 17 August 2004 16:46, Alan Cox wrote:
+> > ide_match_hwif() checks for hwif->chipset - ordering will not be the same
+> > i.e. you load driver for some IDE PCI controller which doesn't have
+> > drives attached to it, unload it, load some other driver - hwifs will be
+> > reused - some sequence in 2.4 will possibly leave you with different
+> > ordering because hwif->chipset will stay as ide_pci not ide_unknown
+>
+> You can't unload them in 2.4.
 
-Christoph the "I2O" device is a communication processor. You need to
-preserve the real scsi busses in order to get sane results from scsi
-tools. If EH is implemented you'll need this to do controlled resets
-(although this gets quite umm 'interesting' if using i2o_block also)
+Really?  That would simplify a lot of considerations...
 
-You've got
+> > Yep, please tell me how are you going to support drive hot plug?
+>
+> We can do it the 2.4-ac way - that works with the locking I think. What
 
-	I2O comms processor
-		Multiple scsi busses
-			Multiple drives
-		Block driver providing abstract volumes
+if you are talking about abusing HDIO_SCAN_HWIF then HELL NO
 
-Sometimes (as with other raid) bypassing the block driver is faster.
+> might be nicer if it works out is to follow the shutdown/suspend code
+> approach so that we actually queue the "unplug" into the command stream.
 
-> >  - the completely lack of SCSI EH in this driver scares me, does the firmware
-> >    really handle all EH?
-> 
-> The i2o_scsi driver is not used to access the disks, it is only for 
-> monitoring. The i2o_block driver handles disk access. So if you reset 
-
-(not always - the FC920 is way faster using i2o_scsi for the disk I/O)
-
-> the SCSI channel in the i2o_scsi driver, commands which are transfered 
-> by the i2o_block driver will be aborted (this is the reason, why the I2O 
-> subsystem didn't work for users, which compiled in i2o_scsi and 
-> i2o_block into the kernel)...
-
-All error timeout handling is done by the controller. It does really
-need minimal EH handlers simply to reissue failed timed out commands.
-
-
+and we are back to lack of sysfs integration

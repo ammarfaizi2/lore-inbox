@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263861AbUAEJxo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 04:53:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263891AbUAEJxo
+	id S263453AbUAEJuc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 04:50:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbUAEJuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 04:53:44 -0500
-Received: from 1-1-4-20a.ras.sth.bostream.se ([82.182.72.90]:1969 "EHLO
-	garbo.kenjo.org") by vger.kernel.org with ESMTP id S263861AbUAEJxm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 04:53:42 -0500
-Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
-From: Kenneth Johansson <ken@kenjo.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Willy Tarreau <willy@w.ods.org>, szonyi calin <caszonyi@yahoo.com>,
-       azarah@nosferatu.za.org, Con Kolivas <kernel@kolivas.org>,
-       Soeren Sonnenburg <kernel@nn7.de>, Mark Hahn <hahn@physics.mcmaster.ca>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       gillb4@telusplanet.net
-In-Reply-To: <20040104234703.GY1882@matchmail.com>
-References: <1073227359.6075.284.camel@nosferatu.lan>
-	 <20040104225827.39142.qmail@web40613.mail.yahoo.com>
-	 <20040104233312.GA649@alpha.home.local>
-	 <20040104234703.GY1882@matchmail.com>
-Content-Type: text/plain
-Message-Id: <1073296227.8535.34.camel@tiger>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 05 Jan 2004 10:50:27 +0100
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Jan 2004 04:50:32 -0500
+Received: from mailrelay.just.fgov.be ([193.191.208.3]:45582 "EHLO
+	mailrelay.just.fgov.be") by vger.kernel.org with ESMTP
+	id S263453AbUAEJua (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 04:50:30 -0500
+To: linux-kernel@vger.kernel.org
+Subject: linux-2.6.0 and Asus P4P800-VM motherboard
+From: Lieven Marchand <mal@wyrd.be>
+Date: 05 Jan 2004 10:50:21 +0100
+Message-ID: <868ykmiv1e.fsf@wyrd.be>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.4 (Portable Code)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-01-05 at 00:47, Mike Fedyk wrote:
-> On Mon, Jan 05, 2004 at 12:33:12AM +0100, Willy Tarreau wrote:
-> > at a time. I have yet to understand why 'ls|cat' behaves
-> > differently, but fortunately it works and it has already saved
-> > me some useful time.
-> 
-> cat probably does some buffering for you, and sends the output to xterm in
-> larger blocks.
+Hi,
 
-you can try with "ls |dd bs=1"
+with the Asus P4P800-VM motherboard, linux 2.6.0 crashes at boot in
+the pnpbios routines. It will boot with the pnpbios=off parameter.
 
-I also see this problem but it is not constant. I noticed that "ps ax"
-sometimes takes like 10 times longer than usual. But I can only get this
-in a gnome-terminal not in xterm. The problem is that it should really
-not be that big difference when the load of the system is the same. 
+The kernel crashes with an invalid EIP so there's no stack trace. I've
+added printk's to the code to see what it was doing and it goes wrong
+in the initial build_devlist. pnp_bios_get_dev_node gets called in a
+loop and it succeeds for the first nodenumbers but it crashes for
+nodenumber 0x6.
 
-One thing to run is to start 4 xterm and run this little thing in
-everyone.
+pnp_bios_get_dev_node gets called with PNPMODE_DYNAMIC.
 
-while true ;do ls ;done
+I've flashed the bios to the latest version available.
 
-In a perfect world they should all appear to scroll at the same time.
-This is not what is happening on my system. 
+Any ideas on what to do to get this thing working?
 
-
+-- 
+A: Because it messes up the order in which people normally read text.
+Q: Why is top-posting such a bad thing?
+A: Top-posting.
+Q: What is the most annoying thing on usenet and in e-mail?

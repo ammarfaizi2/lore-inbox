@@ -1,53 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272923AbTHKSI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 14:08:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272824AbTHKSF6
+	id S272983AbTHKSMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 14:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272989AbTHKSMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 14:05:58 -0400
-Received: from fw.osdl.org ([65.172.181.6]:64220 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272818AbTHKSF1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 14:05:27 -0400
-Date: Mon, 11 Aug 2003 11:02:33 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Samuel Flory <sflory@rackable.com>
-Cc: len.brown@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-pre10 ACPI kennel oops
-Message-Id: <20030811110233.36bd1f1a.rddunlap@osdl.org>
-In-Reply-To: <3F37D49B.6050409@rackable.com>
-References: <BF1FE1855350A0479097B3A0D2A80EE009FC12@hdsmsx402.hd.intel.com>
-	<3F37D49B.6050409@rackable.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 11 Aug 2003 14:12:09 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54252 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S272983AbTHKSLu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 14:11:50 -0400
+Message-ID: <3F37DC58.503@pobox.com>
+Date: Mon, 11 Aug 2003 14:11:36 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+CC: davej@redhat.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       dri-devel@lists.sourceforge.net
+Subject: Re: [PATCH] CodingStyle fixes for drm_agpsupport
+References: <E19mF4Y-0005Eg-00@tetrachloride> <20030811164012.GB858@work.bitmover.com> <3F37CB44.5000307@pobox.com> <20030811170425.GA4418@work.bitmover.com> <3F37CF4E.3010605@pobox.com> <20030811172333.GA4879@work.bitmover.com> <3F37D80D.5000703@pobox.com> <20030811175941.GB4879@work.bitmover.com>
+In-Reply-To: <20030811175941.GB4879@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Aug 2003 10:38:35 -0700 Samuel Flory <sflory@rackable.com> wrote:
+Larry McVoy wrote:
+> On Mon, Aug 11, 2003 at 01:53:17PM -0400, Jeff Garzik wrote:
+> 
+>>Larry McVoy wrote:
+>>are function calls at a 10-nanosecond glance.  Also, having two styles 
+>>of 'if' formatting in your example just screams "inconsistent" to me :)
+> 
+> 
+> It is inconsistent, on purpose.  It's essentially like perl's
+> 
+> 	return unless pointer;
+> 
+> which is a oneliner, almost like an assert().
 
-| Brown, Len wrote:
-| 
-| >Was ACPI included in your 2.4.21 kernel?  If no, then 2.4.22-pre10 may
-| >be the 1st time that Linux ACPI has examined the tables on this system.
-| >
-| >I'm not familiar with "woodruf" -- do it have a part number?
-| >First thing to do is to locate the latest BIOS for the board, and see if
-| >this is something that has already been fixed there.
-| >
-| >If the latest BIOS doesn't do it, then filing a bug under componenet
-| >ACPI will be the best way to get it fixed w/o having it fall through the
-| >
-| 
-|   Still fails.  A bug with quad, or the ACPI project?
+perl is a yucky language full of hacks like this... one of the reasons 
+why I love it :)
 
-ACPI bugs can (should) be filed at bugme.osdl.org (or
-bugzilla.kernel.org) for both 2.4 and 2.5.
+So while perl's syntax sugar allows my hands to type a bit less, I'll 
+often find myself following a C style and doing
 
---
-~Randy				For Linux-2.6, see:
-http://www.kernel.org/pub/linux/kernel/people/davej/misc/post-halloween-2.5.txt
+	return
+		unless statement;
+
+In general, I will continue to say the 'if' test should be completely 
+separately from the statement, no matter how short either are.
+
+
+> Maybe this will help: I insist on braces on anything with indentation so
+> that I can scan them more quickly.  If I gave you a choice between
+> 
+> 	if (!pointer) {
+> 		return (whatever);
+> 	}
+> 
+> 	if (!pointer) return (whatever);
+> 
+> which one will you type more often?  I actually don't care which you use,
+> I prefer the shorter one because I don't measure my self worth in lines 
+> of code generated, I tend to favor lines of code deleted :)  But either
+> one is fine, I tend to use the first one if it has been a problem area
+> and I'm likely to come back and shove in some debugging.
+> 
+> Before you say "lose the braces" try reading more code and see how much faster
+> it is if all indented stuff has braces.  You whiz through it.
+
+Unless you get more than one or two independent 'if' tests like that, 
+then all those braces for a one-line test eat up wasted screen real 
+estate, slowing down the person reading the code.
+
+So, if you gave me the choice above, I would choose option C, neither :)
+
+
+>>Absolutely not.  I'm cooler, so my opinion counts more.
+> 
+> 
+> You are in North Carolina, I'm in San Francisco.  No competition, you are
+> sweating like a pig :)
+> 
+> 
+>>>Same for your eyes when you get to my age.  
+>>
+>>I bet when you were in school, you had to chip your homework into slate, 
+>>and dinner was brontosaurus-kebob, right?
+> 
+> 
+> Dinner?  You got dinner?  Damn, you were spoiled.
+
+hehe :)
+
+	Jeff
+
+
+

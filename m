@@ -1,52 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261377AbTIKQvn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 12:51:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbTIKQvn
+	id S261384AbTIKQxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 12:53:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbTIKQxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 12:51:43 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:15844 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261377AbTIKQvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 12:51:42 -0400
-Date: Thu, 11 Sep 2003 18:50:59 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: viro@parcelfarce.linux.theplanet.co.uk, Linus Torvalds <torvalds@osdl.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Stephen Hemminger <shemminger@osdl.org>, jffs-dev@axis.com,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       David Woodhouse <dwmw2@infradead.org>
-Subject: Re: [PATCH] fix type mismatch in jffs.
-Message-ID: <20030911165059.GC3989@wohnheim.fh-wedel.de>
-References: <20030910181847.GO454@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0309101152060.25211-100000@home.osdl.org> <20030910190303.GP454@parcelfarce.linux.theplanet.co.uk> <20030910201607.G30046@flint.arm.linux.org.uk>
+	Thu, 11 Sep 2003 12:53:09 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34063 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261384AbTIKQw2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 12:52:28 -0400
+Date: Thu, 11 Sep 2003 17:52:24 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Virtual alias cache coherency results (was: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this)
+Message-ID: <20030911175224.A20308@flint.arm.linux.org.uk>
+Mail-Followup-To: Jamie Lokier <jamie@shareable.org>,
+	linux-kernel@vger.kernel.org
+References: <20030910210416.GA24258@mail.jlokier.co.uk> <20030910233951.Q30046@flint.arm.linux.org.uk> <20030910233720.GA25756@mail.jlokier.co.uk> <20030911010702.W30046@flint.arm.linux.org.uk> <20030911123535.GB28180@mail.jlokier.co.uk> <20030911160929.A19449@flint.arm.linux.org.uk> <20030911162510.GA29532@mail.jlokier.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030910201607.G30046@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030911162510.GA29532@mail.jlokier.co.uk>; from jamie@shareable.org on Thu, Sep 11, 2003 at 05:25:10PM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 September 2003 20:16:07 +0100, Russell King wrote:
-> On Wed, Sep 10, 2003 at 08:03:04PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > 
-> > Seriously, though, by now fs/jffs/* has only one real use - extracting
-> > data from old filesystem.  IIRC, there was even a talk about having it go
-> > the way of ext and xiafs.  He's dead, Jim...
+On Thu, Sep 11, 2003 at 05:25:10PM +0100, Jamie Lokier wrote:
+> Russell King wrote:
+> > Maybe those StrongARM chips don't exhibit the write buffer bug?  Remember,
+> > I said _SOME_ StrongARM-110 chips exhibit the problem.  I did not say
+> > _ALL_ StrongARM-110 chips exhibit the problem.
 > 
-> It isn't that dead - I get the occasional patch from people wanting to keep
-> it working, although I really wish people would send them to dwmw2 rather
-> than myself.
+> I never assumed they all have the bug.  Credit me with at least
+> reading what you wrote before! :)
+> 
+> The results indicate some StrongARM-110 systems which _don't_ exhibit
+> the write buffer bug _do_ exhibit some _other_ cause of non-coherence.
 
-Yes, it still beats jffs2 in cases where people have <=5 flash blocks
-and want a r/w filesystem on them.  Until David, myself or someone
-else finds the time to improve jffs2 for corner cases like this, jffs
-has a use - sadly.
+Sigh.  Let me re-state one more time.  If you don't get it this time
+around, I can't help you to understand, and I ask that you drop all
+information concerning ARM from your document in case you mislead other
+parties who may think you're stating definitive information.
 
-Jörn
+It would appear that you've completely forgotten about my previous
+statements:
+
+| ARM caches are VIVT.  VIVT caches have inherent aliasing issues.  The
+| kernel works around these issues by marking memory uncacheable where
+| appropriate, and will continue to do so for VIVT cached ARM CPUs.
+
+On 1st September, I wrote:
+| This looks like an old kernel on your NetWinder.  Later 2.4 kernels
+| should get this right (by marking the pages uncacheable in user space.)
+
+So this says that there _are_ old kernels which didn't do any fixup
+_and_ I pointed out that you were receiving reports from such kernels.
+
+> ...until we learn what kernel versions the Netwinder folks are
+> running, or they kindly run the test on a new kernel.
+
+Absolutely - so what _you_ need to do now is to go off to each person
+who responded (only _you_ have those details and therefore only _you_
+can do this) and _ask_ them the question.
+
+Now, lets rewind back to the original mail.  You said:
+
+|>    CPUs with incoherent write buffers: PA-RISC 2.0, 68040 and ARMs.
+
+I still claim this is an inaccurate summary, and is misleading - this
+says "All ARMs have incoherent write buffers" which is many times removed
+from reality.
+
+Continuing:
+
+|>    SHMLBA not valid:           ARM, m68k
+|> On the ARM this is
+|> believed to be due to a chip bug, and very recent kernels may contain
+|> a workaround for it (disabling the write buffer for aliased pages).
+
+I still claim this description is wrong.  You are claiming that all ARMs
+contain this bug and the kernel needs to work around it for all ARMs.
+This is clearly not the case.  In addition, the fact that a previously
+undiscovered bug exists does not determine whether SHMLBA is valid or
+not.  The fact that SHMLBA _must_ be defined (it is not optional) _and_
+there exists _no_ value for SHMLBA on the buggy _StrongARM_s does not
+mean it is invalid as you are claiming.
 
 -- 
-When you close your hand, you own nothing. When you open it up, you
-own the whole world.
--- Li Mu Bai in Tiger & Dragon
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+Linux kernel maintainer of:
+  2.6 ARM Linux   - http://www.arm.linux.org.uk/
+  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+  2.6 Serial core

@@ -1,37 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262254AbVCBKcF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262255AbVCBKjQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262254AbVCBKcF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 05:32:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbVCBKcF
+	id S262255AbVCBKjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 05:39:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbVCBKjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 05:32:05 -0500
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:45031 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262254AbVCBKcD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 05:32:03 -0500
-Date: Wed, 2 Mar 2005 11:31:58 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.11
-Message-ID: <20050302103158.GA13485@merlin.emma.line.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0503012356480.25732@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503012356480.25732@ppc970.osdl.org>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.8i
+	Wed, 2 Mar 2005 05:39:15 -0500
+Received: from wasp.net.au ([203.190.192.17]:3996 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S262255AbVCBKjL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 05:39:11 -0500
+Message-ID: <422597C3.5020207@wasp.net.au>
+Date: Wed, 02 Mar 2005 14:38:59 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050115)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Florian Engelhardt <dot@dot-matrix.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: freezes with reiser4 in a raid1 with 2.6.11-rc5-mm1
+References: <1109758204.422590fca7872@domainfactory-webmail.de>
+In-Reply-To: <1109758204.422590fca7872@domainfactory-webmail.de>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 02 Mar 2005, Linus Torvalds wrote:
+Florian Engelhardt wrote:
+> 
+> I activated the raid (/dev/md0), then mounted it, and after
+> that i was starting nfs. I was able to mount the share
+> on my desktop, creating direcrotys was no problem, but
+> as soon as i was copying a file to the share, the server
+> freezed.
+> Creating files localy (while loged in via ssh) is leading
+> to the process is staying in state D.
+> Sometimes, when i start nfsd, the system reboots immediately,
+> sometimes not.
+> At the momment, most of the processes are in state D, reboot
+> does not work, and i am not at home, so i am unable to reboot
+> the machine manualy.
 
->  there it is. Only small stuff lately  - as promised. Shortlog from -rc5 
-> appended, nothing exciting there, mostly some fixes from various code 
-> checkers (like fixed init sections, and some coverity tool finds).
+Neat trick which I only discovered in desparation last week when battling a RAID lockup on the 
+-rc4-mm1 kernel on a remote box.
 
-ftp.kernel.org:/pub/linux/kernel/v2.6 doesn't seem to carry a crypto
-signature for the patch, patch-2.6.11.gz.sign
+I was also having hard lockup issues, but reseating all my PCI cards appear to have rectified that one.
+
+As root. echo b > /proc/sysrq-trigger
+
+Of course only if you have alt-sysrq built in.
+
+Brad
+-- 
+"Human beings, who are almost unique in having the ability
+to learn from the experience of others, are also remarkable
+for their apparent disinclination to do so." -- Douglas Adams

@@ -1,141 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262241AbVCBJcB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262243AbVCBJiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262241AbVCBJcB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 04:32:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262243AbVCBJcB
+	id S262243AbVCBJiI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 04:38:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262244AbVCBJiI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 04:32:01 -0500
-Received: from mailfe06.swip.net ([212.247.154.161]:676 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S262241AbVCBJba (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 04:31:30 -0500
-X-T2-Posting-ID: icQHdNe7aEavrnKIz+aKnQ==
-Subject: Re: Tracing memory leaks (slabs) in 2.6.9+ kernels?
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: Justin Schoeman <justin@expertron.co.za>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4225768B.3010005@expertron.co.za>
-References: <4225768B.3010005@expertron.co.za>
-Content-Type: text/plain
-Date: Wed, 02 Mar 2005 10:31:27 +0100
-Message-Id: <1109755887.2279.1.camel@boxen>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Wed, 2 Mar 2005 04:38:08 -0500
+Received: from rrcs-24-123-59-149.central.biz.rr.com ([24.123.59.149]:22583
+	"EHLO galon.ev-en.org") by vger.kernel.org with ESMTP
+	id S262243AbVCBJiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 04:38:03 -0500
+Message-ID: <42258974.4080104@ev-en.org>
+Date: Wed, 02 Mar 2005 09:37:56 +0000
+From: Baruch Even <baruch@ev-en.org>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paul Dickson <paul@permanentmail.com>
+Cc: dickson@permanentmail.com, linux-os@analogic.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Network speed Linux-2.6.10
+References: <Pine.LNX.4.61.0503011426180.578@chaos.analogic.com>	<20050301175143.04cbbe64.dickson@permanentmail.com>	<422510BA.1010305@ev-en.org> <20050301202400.36259d94.paul@permanentmail.com>
+In-Reply-To: <20050301202400.36259d94.paul@permanentmail.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am having a problem with memory leaking on a patched kernel.  In order 
-> to pinpoint the leak, I would like to try to trace the allocation points 
-> for the memory.
+Paul Dickson wrote:
+> On Wed, 02 Mar 2005 01:02:50 +0000, Baruch Even wrote:
 > 
-> I have found some vague references to patches that allow the user to 
-> dump the caller address for slab allocations, but I cannot find the 
-> patch itself.
+>>>Might this be related to the broken BicTCP implementations in the 2.6.6+
+>>>kernels?  A fix was added around 2.6.11-rc3 or 4.
+>>
+>>Unlikely, the problem with BIC would have shown itself only at high 
+>>speeds over long latency links, not over a lan connection.
 > 
-> Can anybody please point me in the right direction - either for that 
-> patch, or any other way to track down leaking slabs?
-> 
+> I only mentioned the possibility because I saw the same profile given by
+> the PDF (the link was mentioned in the patch) while downloading gnoppix
+> via my cable modem.  The oscillations of speed varied from 40K to 500+K.
+> The average ended up around 270K.  (I was using wget for the download).
 
->From akpm:
+If it is indeed BIC than we have a bug where it doesn't shut itself off 
+for low latencies. Since we don't test this case extensively here (we 
+work to improve high-speed and just make sure we don't ruin slower 
+speeds) I can't say it's impossible, try turning BIC off and see if it 
+helps.
 
-Could you please use this patch?  Make sure that you enable
-CONFIG_FRAME_POINTER (might not be needed for __builtin_return_address(0),
-but let's be sure).  Also enable CONFIG_DEBUG_SLAB.
+Due to the scenario that the OP gave it is more likely something to do 
+with auto-detection somewhere along the way or a driver bug. It is also 
+possible that I'm mistaken and it is BIC, never hurts to check.
 
-
-
-From: Manfred Spraul <manfred@colorfullife.com>
-
-With the patch applied,
-
-	echo "size-4096 0 0 0" > /proc/slabinfo
-
-walks the objects in the size-4096 slab, printing out the calling address
-of whoever allocated that object.
-
-It is for leak detection.
-
-
-diff -puN mm/slab.c~slab-leak-detector mm/slab.c
---- 25/mm/slab.c~slab-leak-detector	2005-02-15 21:06:44.000000000 -0800
-+++ 25-akpm/mm/slab.c	2005-02-15 21:06:44.000000000 -0800
-@@ -2116,6 +2116,15 @@ cache_alloc_debugcheck_after(kmem_cache_
- 		*dbg_redzone1(cachep, objp) = RED_ACTIVE;
- 		*dbg_redzone2(cachep, objp) = RED_ACTIVE;
- 	}
-+	{
-+		int objnr;
-+		struct slab *slabp;
-+
-+		slabp = GET_PAGE_SLAB(virt_to_page(objp));
-+
-+		objnr = (objp - slabp->s_mem) / cachep->objsize;
-+		slab_bufctl(slabp)[objnr] = (unsigned long)caller;
-+	}
- 	objp += obj_dbghead(cachep);
- 	if (cachep->ctor && cachep->flags & SLAB_POISON) {
- 		unsigned long	ctor_flags = SLAB_CTOR_CONSTRUCTOR;
-@@ -2179,12 +2188,14 @@ static void free_block(kmem_cache_t *cac
- 		objnr = (objp - slabp->s_mem) / cachep->objsize;
- 		check_slabp(cachep, slabp);
- #if DEBUG
-+#if 0
- 		if (slab_bufctl(slabp)[objnr] != BUFCTL_FREE) {
- 			printk(KERN_ERR "slab: double free detected in cache '%s', objp %p.\n",
- 						cachep->name, objp);
- 			BUG();
- 		}
- #endif
-+#endif
- 		slab_bufctl(slabp)[objnr] = slabp->free;
- 		slabp->free = objnr;
- 		STATS_DEC_ACTIVE(cachep);
-@@ -2998,6 +3009,29 @@ struct seq_operations slabinfo_op = {
- 	.show	= s_show,
- };
- 
-+static void do_dump_slabp(kmem_cache_t *cachep)
-+{
-+#if DEBUG
-+	struct list_head *q;
-+
-+	check_irq_on();
-+	spin_lock_irq(&cachep->spinlock);
-+	list_for_each(q,&cachep->lists.slabs_full) {
-+		struct slab *slabp;
-+		int i;
-+		slabp = list_entry(q, struct slab, list);
-+		for (i = 0; i < cachep->num; i++) {
-+			unsigned long sym = slab_bufctl(slabp)[i];
-+
-+			printk("obj %p/%d: %p", slabp, i, (void *)sym);
-+			print_symbol(" <%s>", sym);
-+			printk("\n");
-+		}
-+	}
-+	spin_unlock_irq(&cachep->spinlock);
-+#endif
-+}
-+
- #define MAX_SLABINFO_WRITE 128
- /**
-  * slabinfo_write - Tuning for the slab allocator
-@@ -3038,9 +3072,11 @@ ssize_t slabinfo_write(struct file *file
- 			    batchcount < 1 ||
- 			    batchcount > limit ||
- 			    shared < 0) {
--				res = -EINVAL;
-+				do_dump_slabp(cachep);
-+				res = 0;
- 			} else {
--				res = do_tune_cpucache(cachep, limit, batchcount, shared);
-+				res = do_tune_cpucache(cachep, limit,
-+							batchcount, shared);
- 			}
- 			break;
- 		}
-_
-
-
-
+Baruch

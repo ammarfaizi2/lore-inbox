@@ -1,96 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268929AbRG0TSs>; Fri, 27 Jul 2001 15:18:48 -0400
+	id <S268928AbRG0TV2>; Fri, 27 Jul 2001 15:21:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268930AbRG0TSa>; Fri, 27 Jul 2001 15:18:30 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:2065 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268929AbRG0TST>; Fri, 27 Jul 2001 15:18:19 -0400
-Date: Fri, 27 Jul 2001 10:46:44 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-cc: Pavel Machek <pavel@suse.cz>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alexander Viro <viro@math.psu.edu>,
-        "David S. Miller" <davem@redhat.com>,
-        Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@redhat.com>,
-        David Woodhouse <dwmw2@redhat.com>, <linux-scsi@vger.kernel.org>,
-        Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: 2.4.7-pre9..
-In-Reply-To: <20010727091858.C10787@one-eyed-alien.net>
-Message-ID: <Pine.LNX.4.33.0107271029340.21738-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268932AbRG0TVS>; Fri, 27 Jul 2001 15:21:18 -0400
+Received: from mail1.qualcomm.com ([129.46.64.223]:3264 "EHLO
+	mail1.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S268928AbRG0TVJ>; Fri, 27 Jul 2001 15:21:09 -0400
+Message-Id: <4.3.1.0.20010727121014.055d4c90@mail1>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.1
+Date: Fri, 27 Jul 2001 12:21:46 -0700
+To: kuznet@ms2.inr.ac.ru
+From: Maksim Krasnyanskiy <maxk@qualcomm.com>
+Subject: Re: 2.4.7 softirq incorrectness.
+Cc: andrea@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <200107271859.WAA24210@ms2.inr.ac.ru>
+In-Reply-To: <4.3.1.0.20010727112236.03454b30@mail1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
 
-On Fri, 27 Jul 2001, Matthew Dharm wrote:
+> > Also it doesn't fix the scenario that I described (reschedule while running). I'm still wondering why don't I hit that trylock/BUG 
+> > in tasklet_action.
 >
-> It looks like I missed an important discussion in the torrent of e-mail
-> that I receive... could someone give me the 30-second executive summary so
-> I can look at what may need to change in usb-storage?
+>How old the problem is ? Was it always present ?
+That's a good question. Data ordering check in Bluetooth tools was introduced pretty recently.
+So, before 2.4.7 I wasn't paying attention to it and there for didn't notice any problems with 
+tasklets.
 
-The basic summary is that we had this (fairly common) way of waiting for
-certain events by having a locked semaphore on the stack of the waiter,
-and then having the waiter do a "down()" which caused it to block until
-the thing it was waiting for did an "up()".
+>To be honest, this is too strong bug to believe to this at all. :-)
+:) Agree. But I checked all my code, tx_task is called from tasklet only. And I do see that it's getting run on several 
+cpus at the same time.
 
-This works fairly well, _but_ it has a really small (and quite unlikely)
-race on SMP, that is not so much a race of the idea itself, as of the
-implementation of the semaphores. We could have fixed the semaphores, but
-there were a few reasons not to:
+Also don't you agree with that it's possible (at least in theory) to hit that trylock/BUG in tasklet_action ?
 
- - the semaphores are optimized (on purpose) for the non-contention case.
-   The "wait for completion" usage has the opposite default case
- - the semaphores are quite involved and architecture-specific, exactly
-   due to this optimization. Trying to change them is painful as hell.
+Max
 
-So instead, I introduced the notion of "wait for completion":
+Maksim Krasnyanskiy	
+Senior Kernel Engineer
+Qualcomm Incorporated
 
-	struct completion event;
-
-	init_completion(&event);
-	.. pass of event pointer to waker ..
-	wait_for_completion(&event);
-
-where the thing we're waiting for just does "complete(event)" and we're
-all done.
-
-This has the advantage of being a bit more obvious just from a syntactic
-angle about what is going on. It also ends up being slightly more
-efficient than semaphores because we can handle the right expected case,
-and it also avoids the implementation issue that made for the race in the
-first place.
-
-Switching over to the new format is really trivial:
-
- struct semaphore	-> struct completion
- init_MUTEX_LOCKED	-> init_completion
- DECLARE_MUTEX_LOCKED	-> DECLARE_COMPLETION
- down()			-> wait_for_completion()
- up()			-> complete()
-
-and you can in fact maintain 2.2.x compatibility by just having a 2.2.x
-compatibility file that does the reverse mappings.
-
-In case anybody cares, the race was that Linux semaphores only protect the
-accesses _inside_ the semaphore, while the accesses by the semaphores
-themselves can "race" in the internal implementation. That helps make an
-efficient implementation, but it means that the race was:
-
-	cpu #1				cpu #2
-
-	DECLARE_MUTEX_LOCKED(sem);
-	..
-	down(&sem);			up(&sem);
-	return;
-					wake_up(&sem.wait) /*BOOM*/
-
-where the waker still touches the semaphore data structure after the
-sleeper has become happy with it no longer being locked - and free'd the
-data structure by virtue of freeing the stack.
-
-		Linus
+maxk@qualcomm.com
+http://bluez.sf.net
+http://vtun.sf.net
 

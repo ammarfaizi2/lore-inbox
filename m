@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129826AbRB0LVc>; Tue, 27 Feb 2001 06:21:32 -0500
+	id <S129792AbRB0L5I>; Tue, 27 Feb 2001 06:57:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129792AbRB0LVX>; Tue, 27 Feb 2001 06:21:23 -0500
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:40970 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S129791AbRB0LVQ>; Tue, 27 Feb 2001 06:21:16 -0500
-From: mshiju@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: linux-kernel@vger.kernel.org, linux-mca@vger.kernel.org
-Message-ID: <CA256A00.003E4A04.00@d73mta05.au.ibm.com>
-Date: Tue, 27 Feb 2001 16:41:32 +0530
-Subject: difficulty installing linux on ps/2 - 9595 server  having 
-	 pentium-90
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S129840AbRB0L46>; Tue, 27 Feb 2001 06:56:58 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3085 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129792AbRB0L44>; Tue, 27 Feb 2001 06:56:56 -0500
+Subject: Re: Linux 2.4.1 network (socket) performance
+To: davem@redhat.com (David S. Miller)
+Date: Tue, 27 Feb 2001 11:59:14 +0000 (GMT)
+Cc: root@chaos.analogic.com, manfred@colorfullife.com (Manfred Spraul),
+        linux-kernel@vger.kernel.org (Linux kernel)
+In-Reply-To: <15002.60558.421029.405754@pizda.ninka.net> from "David S. Miller" at Feb 26, 2001 03:53:50 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Ximk-0003FW-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I'm still talking with Alexey about how to fix this, I might just
+> prefer killing this fallback mechanism of skb_alloc_send_skb then
+> make AF_UNIX act just like everyone else.
+> 
+> This was always just a performance hack, and one which makes less
+> and less sense as time goes on.
 
-
-Hello,
-           Initially I had difficulty in booting linux on ps/2 server -9595
-for installation. I overcame that problem by replacing the installation
-boot image with a 2.4.0 custom build image . I am booting from the floppy
-disk since the system (old system) does not support booting from the cd
-rom.  Booting was successful. The problem is that after booting up the cd
-drive is not been recognized for installation .Currently os/2 is installed
-in the server and it displays CD-ROM device as IBM CD-ROM II ,Enhanced
-CD-ROM II .I had compiled the kernel with SCSI support  . I used redhat 7
-for installation . Have any one faced the similar difficulty .Can anyone
-help me to resolve the problem
-
-
-Thanks & Regards
-Shiju
-
-
+When I first did the hack it was worth about 20% performance, but at the time
+the fallback allocation and initial allocations didnt eat into pools in a 
+problematic way
 

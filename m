@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268758AbRHBFOK>; Thu, 2 Aug 2001 01:14:10 -0400
+	id <S268714AbRHBEr0>; Thu, 2 Aug 2001 00:47:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268763AbRHBFN7>; Thu, 2 Aug 2001 01:13:59 -0400
-Received: from h-207-228-73-44.gen.cadvision.com ([207.228.73.44]:28172 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S268758AbRHBFNr>; Thu, 2 Aug 2001 01:13:47 -0400
-Date: Wed, 1 Aug 2001 23:13:40 -0600
-Message-Id: <200108020513.f725De514057@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Douglas Gilbert <dougg@torque.net>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [RFT] Support for ~2144 SCSI discs
-In-Reply-To: <3B6755E7.B63FA6D5@torque.net>
-In-Reply-To: <200107310030.f6V0UeJ13558@mobilix.ras.ucalgary.ca>
-	<rgooch@ras.ucalgary.ca>
-	<10107310041.ZM233282@classic.engr.sgi.com>
-	<200107311225.f6VCPj003249@mobilix.ras.ucalgary.ca>
-	<20010731125926.B10914@us.ibm.com>
-	<200108010048.f710miA05150@mobilix.ras.ucalgary.ca>
-	<3B6755E7.B63FA6D5@torque.net>
+	id <S268713AbRHBErQ>; Thu, 2 Aug 2001 00:47:16 -0400
+Received: from quattro.sventech.com ([205.252.248.110]:54288 "HELO
+	quattro.sventech.com") by vger.kernel.org with SMTP
+	id <S268712AbRHBErB>; Thu, 2 Aug 2001 00:47:01 -0400
+Date: Thu, 2 Aug 2001 00:47:10 -0400
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: William T Wilson <fluffy@snurgle.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SMP possible with AMD CPUs?
+Message-ID: <20010802004708.O3126@sventech.com>
+In-Reply-To: <20010801161005.B784@sventech.com> <Pine.LNX.4.21.0108020032330.944-100000@benatar.snurgle.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.21.0108020032330.944-100000@benatar.snurgle.org>; from fluffy@snurgle.org on Thu, Aug 02, 2001 at 12:34:54AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Douglas Gilbert writes:
-> Richard Gooch wrote:
-> > 
-> > Mike Anderson writes:
-> > > In previous experiments trying to connect up to 512 devices we
-> > > switched to vmalloc because the static nature of sd.c's allocation
-> > > exceeds 128k which I assumed was the max for kmalloc YMMV.
-> > 
-> > Yes, I figure on switching to vmalloc() and putting in an
-> > in_interrupt() test in sd_init() to make sure the vmalloc() is safe.
-> > 
-> > Eric: do you happen to know why there are these GFP_ATOMIC flags?
-> > To my knowledge, nothing calls sd_init() outside of process context.
+On Thu, Aug 02, 2001, William T Wilson <fluffy@snurgle.org> wrote:
+> On Wed, 1 Aug 2001, Johannes Erdfelt wrote:
 > 
-> I've seen GFP_KERNEL take 10 minutes in lk 2.4.6 . The 
-> mm gets tweaked pretty often so it is difficult to know 
-> exactly how it will react when memory is tight. A time 
-> bound would be useful on GFP_KERNEL.
+> > I don't know if this was true to begin with, but I know that SMP AMD
+> > systems use the APIC SMP scheme Intel defined and uses.
 > 
-> <opinion> It is best to find out quickly there is 
-> not enough memory and have some alternate strategy 
-> to cope with that problem. GFP_KERNEL in its current 
-> form should be taken out and shot. </opinion>
+> Is this really true?  I seem to remember that there was very little
+> difference between OPIC and APIC in the first place, but AMD could not use
+> APIC because of licensing problems.
+> 
+> Since Athlons cannot use the same motherboards as Intel (unlike the K6-2)
+> and AMD makes the SMP chipsets for Athlon, why would they possibly want to
+> use APIC when they could more easily and cheaply use OPIC?
 
-Perhaps. But I don't think we should use GFP_ATOMIC just because
-GFP_KERNEL might be slow! That's just sweeping the problem under the
-carpet. If there are MM problems, then waiting 10 minutes for the SCSI
-driver to load might provide encouragement for people to fix the
-bloody thing.
+I'm pretty sure it's not identical since the APIC bus on GTL+ is most
+likely different than the EV6 bus.
 
-In any case, using GFP_ATOMIC just means that it will fail, which is
-probably worse than trying hard. Not being able to use my SCSI drive
-is pretty disastrous on some of my machines. Also, sd_init() is
-usually called very early on in the boot process. If memory is tight
-at that point, we have more to worry about.
+However, from a software point of view, they are pretty much identical
+give or take a few implementation details (as seen in 2.2)
 
-				Regards,
+I don't know anything about OpenAPIC, so I can't say anything about the
+similarities.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+JE
+

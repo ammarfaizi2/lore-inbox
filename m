@@ -1,53 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285058AbRLFIqG>; Thu, 6 Dec 2001 03:46:06 -0500
+	id <S285050AbRLFIp4>; Thu, 6 Dec 2001 03:45:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285060AbRLFIp4>; Thu, 6 Dec 2001 03:45:56 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:51470 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S285054AbRLFIpo>; Thu, 6 Dec 2001 03:45:44 -0500
-Message-ID: <3C0F301D.3368595@zip.com.au>
-Date: Thu, 06 Dec 2001 00:45:17 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre4 i686)
-X-Accept-Language: en
+	id <S285060AbRLFIpr>; Thu, 6 Dec 2001 03:45:47 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:20675 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S285050AbRLFIpe>;
+	Thu, 6 Dec 2001 03:45:34 -0500
+Date: Thu, 6 Dec 2001 11:41:29 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] scalable timers implementation, 2.4.16, 2.5.0
+In-Reply-To: <20011206082949.400dffd5.rusty@rustcorp.com.au>
+Message-ID: <Pine.LNX.4.33.0112061140260.2778-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Yusuf Goolamabbas <yusufg@outblaze.com>
-CC: ext3-users@redhat.com, linux-kernel@vger.kernel.org, anton@samba.org,
-        axboe@suse.de
-Subject: Re: 2.4.17-pre2+ext3-0.9.16+anton's cache aligned smp
-In-Reply-To: <3C0B12C5.F8F05016@zip.com.au> <1007595740.818.2.camel@phantasy>,
-		<1007595740.818.2.camel@phantasy> <20011206163056.A15550@outblaze.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yusuf Goolamabbas wrote:
-> 
-> Running 2.4.17-pre2 + ext3-0.9.16 + Anton Blanchards
-> cacheline_aligned_smp patch available at
-> 
-> http://samba.org/~anton/linux/cacheline_aligned/
 
-omigod look at that graph.
+On Thu, 6 Dec 2001, Rusty Russell wrote:
 
-Excuse me while I get frustrated.  Will someone *please* send that
-damn patch to marcelo@conectiva.com.br?
+> 	Hmm... there are some ugly hoops there to make sure that they
+> don't conflict with bottom halves or cli().  I assume you want to take
+> that out: what will break if that happens, and do we need a
+> disable_timers() interface to move code over?
 
-(It can be improved further by putting padding *behind* the lock
-but hey).
+hm, those ugly hoops are really limited in scope - they cause no
+scalability or other visible performance impact. So i thought we do the
+threading first (and *just* the threading), then we might change the timer
+interface. But that is a *huge* task.
 
-> ...
-> 
-> With Anton's patch, the number of ctx-swtch/sec drops by around 3000
-> from avg of 9000 (for 17-pre2+ext3) to avg of 6000 (with anton) as seen
-> by vmstat 1
+	Ingo
 
-Really?  The spinlock cacheline alignment alone made that
-difference?  I wonder why.
-
-
-Thanks for testing.
-
--

@@ -1,55 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbVCCJCR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbVCCJEU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261559AbVCCJCR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 04:02:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVCCJCI
+	id S261674AbVCCJEU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 04:04:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbVCCJEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 04:02:08 -0500
-Received: from mail.kroah.org ([69.55.234.183]:194 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261559AbVCCJBk (ORCPT
+	Thu, 3 Mar 2005 04:04:20 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:7886 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261674AbVCCJDl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 04:01:40 -0500
-Date: Thu, 3 Mar 2005 01:01:06 -0800
-From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050303090106.GC29955@kroah.com>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002047.GA10434@kroah.com> <Pine.LNX.4.58.0503021710430.25732@ppc970.osdl.org> <20050303081958.GA29524@kroah.com> <4226CCFE.2090506@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4226CCFE.2090506@pobox.com>
-User-Agent: Mutt/1.5.8i
+	Thu, 3 Mar 2005 04:03:41 -0500
+Message-ID: <4226E22A.2526DE09@tv-sign.ru>
+Date: Thu, 03 Mar 2005 13:08:42 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linuxram@us.ibm.com, slpratt@austin.ibm.com
+Subject: Re: [PATCH 1/2] readahead: simplify ra->size testing
+References: <42260F2C.FCAA1915@tv-sign.ru> <20050302175947.6f1e6b5f.akpm@osdl.org>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 03, 2005 at 03:38:22AM -0500, Jeff Garzik wrote:
-> The pertinent question for a point release (2.6.X.Y) would simply be 
-> "does a 2.6.11 user really need this fix?"
-
-"need this fix bad enough now, or can it wait until 2.6.12?"
-
-> >Like I previously said, I think we're doing a great job.  The current
-> >-mm staging area could use some more testers to help weed out the real
-> >issues, and we could do "real" releases a bit faster than every 2 months
-> >or so.  But other than that, we have adapted over the years to handle
-> >this extremely high rate of change in a pretty sane manner.
+Andrew Morton wrote:
 > 
-> I think Linus's "even/odd" proposal is an admission that 2.6.X releases 
-> need some important fixes after it hits kernel.org.
+> So...  the big "how it all works" comment needs an update..
 
-I agree.
+Same patch, comment updated.
 
-> Otherwise 2.6.X is simply a constantly indeterminent state.
+Currently page_cache_readahead() treats ra->size == 0 (first read)
+and ra->size == -1 (ra_off was called) separately, but does exactly
+the same in both cases.
 
-Heh, true, but all software is in that state :)
+With this patch we may assume that the reading starts in 'ra_off()'
+state, so we don't need to consider the first read as a special case.
 
-> We need to serve users, not just make life easier for kernel developers ;-)
 
-Damm those pesky users.  Without them our life would be so much
-easier...
+file_ra_state_init() sets
+	ra->prev_page = -1;
+	ra->size      =  0;
 
-greg k-h
+When the page_cache_readahead() is called for the first time it sets
+ra->size to nonzero value either via get_init_ra_size() or ra_off().
+So ra->size == 0 implies that ra->prev_page == -1. I am ignoring the
+case when readahead is disabled via ra->ra_pages == 0.
+
+
+page_cache_readahead detects sub-page sized reads:
+	if (offset == ra->prev_page && req_size == 1 && ra->size != 0)
+
+But if offset == ra->prev_page, then ra->size == 0 can happen only if
+offset == -1, so there is no need to check ra->size here. If application
+starts reading 16Tb file from the last page then readahead can't help.
+
+
+First offset==0 read or first sequential detection:
+	if ((ra->size == 0 && offset == 0) || (ra->size == -1 && sequential)
+could be changed to:
+	if ((ra->size == 0 && sequential) || (ra->size == -1 && sequential)
+which means:
+	if (sequential && (ra->size == 0 || ra->size == -1))
+
+
+Random case detection:
+	if (!sequential || (ra->size == 0))
+But if sequential == 1, then ra->size can't be 0, this case is already handled
+before.
+
+
+Now we have:
+
+	if (offset == ra->prev_page && req_size == 1)
+		/* sub-page reads */
+
+	if (sequential && (ra->size == 0 || ra->size == -1))
+		/* first offset==0 read or first sequential */
+
+	if (!sequential)
+		/* random case */
+
+Now ->size is checked only in one place, so ra_off() can set ra->size = 0,
+and we can just test ->size against 0.
+
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+--- 2.6.11/mm/readahead.c~	2005-02-04 21:33:40.000000000 +0300
++++ 2.6.11/mm/readahead.c	2005-02-04 21:33:57.000000000 +0300
+@@ -55,7 +55,7 @@ static inline void ra_off(struct file_ra
+ {
+ 	ra->start = 0;
+ 	ra->flags = 0;
+-	ra->size = -1;
++	ra->size = 0;
+ 	ra->ahead_start = 0;
+ 	ra->ahead_size = 0;
+ 	return;
+@@ -452,7 +452,7 @@ page_cache_readahead(struct address_spac
+ 	 * perturbing the readahead window expansion logic.
+ 	 * If size is zero, there is no read ahead window so we need one
+ 	 */
+-	if (offset == ra->prev_page && req_size == 1 && ra->size != 0)
++	if (offset == ra->prev_page && req_size == 1)
+ 		goto out;
+ 
+ 	ra->prev_page = offset;
+@@ -471,9 +471,7 @@ page_cache_readahead(struct address_spac
+ 	 * at start of file, and grow the window fast.  Or detect first
+ 	 * sequential access
+ 	 */
+-	if ((ra->size == 0 && offset == 0)	/* first io and start of file */
+-	    || (ra->size == -1 && sequential)) {
+-		/* First sequential */
++	if (sequential && ra->size == 0) {
+ 		ra->size = get_init_ra_size(newsize, max);
+ 		ra->start = offset;
+ 		if (!blockable_page_cache_readahead(mapping, filp, offset,
+@@ -499,7 +497,7 @@ page_cache_readahead(struct address_spac
+ 	 * partial page reads and first access were handled above,
+ 	 * so this must be the next page otherwise it is random
+ 	 */
+-	if (!sequential || (ra->size == 0)) {
++	if (!sequential) {
+ 		ra_off(ra);
+ 		blockable_page_cache_readahead(mapping, filp, offset,
+ 				 newsize, ra, 1);

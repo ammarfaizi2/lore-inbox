@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129319AbQLGWvH>; Thu, 7 Dec 2000 17:51:07 -0500
+	id <S130442AbQLGW5s>; Thu, 7 Dec 2000 17:57:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129465AbQLGWur>; Thu, 7 Dec 2000 17:50:47 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:15635 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129319AbQLGWuh>; Thu, 7 Dec 2000 17:50:37 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: kernel BUG at buffer.c:827! and scsi modules no load at boot w/ initrd - 
- test12pre7
-Date: 7 Dec 2000 14:19:40 -0800
-Organization: Transmeta Corporation
-Message-ID: <90p2ds$2hs$1@penguin.transmeta.com>
-In-Reply-To: <3A2FF076.946076FC@haque.net>
+	id <S130349AbQLGW5j>; Thu, 7 Dec 2000 17:57:39 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:31168 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130012AbQLGW5b>;
+	Thu, 7 Dec 2000 17:57:31 -0500
+Date: Thu, 7 Dec 2000 17:26:46 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+cc: Jan Niehusmann <jan@gondor.com>, linux-kernel@vger.kernel.org,
+        adilger@turbolinux.com, Byron Stanoszek <gandalf@winds.org>
+Subject: Re: [PATCH] Re: fs corruption with invalidate_buffers()
+In-Reply-To: <3A300933.29813DE8@Hell.WH8.TU-Dresden.De>
+Message-ID: <Pine.GSO.4.21.0012071718330.22281-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A2FF076.946076FC@haque.net>,
-Mohammad A. Haque <mhaque@haque.net> wrote:
->
->I'm getting a BUG at boot in buffer.c:827. Oops/ksymoops at teh end of
->this message. I also noticed that the driver for my scsi card isn't
->loading at boot if compiled as a module using initrd. This is what I get
->during the boot process. 
 
-This is a new BUG-check, where "UnlockPage()" actually verifies that the
-page was locked before it unlocks it.
 
-Trying to unlock a page that isn't locked is a nasty bug - if it happens
-it probably also means that with some bad luck that unlock could have
-unlocked the page that somebody _else_ had locked, and expected to stay
-locked until it was unlocked properly.
+On Thu, 7 Dec 2000, Udo A. Steinberg wrote:
 
-(It may also be that the BUG() is due to exactly that - somebody else
-who didn't have the lock unlocked the page from under you, and the
-_proper_ unlocker will in that case be the one that oopses).
+> Jan Niehusmann wrote:
+> > 
+> > The following patch actually prevents the corruption I described.
+> > 
+> > I'd like to hear from the people having problems with hdparm, if it helps
+> > them, too.
+> 
+> Yes, it prevents the issue.
+> 
+> > Please note that the patch circumvents the problem more than it fixes it.
+> > The true fix would invalidate the mappings, but I don't know how to do it.
+> 
+> I don't know either. What does Alexander Viro say to all of this?
 
-Do you have something special that triggers this? Can you test if it
-only happens with initrd, for example?
+That invalidate_buffers() should leave the unhashed ones alone. If it can't
+be found via getblk() - just leave it as is.
 
-		Linus
+IOW, let it skip bh if (bh->b_next == NULL && !destroy_dirty_buffers).
+No warnings needed - it's a normal situation.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

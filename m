@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136463AbREGRpe>; Mon, 7 May 2001 13:45:34 -0400
+	id <S136493AbREGRwp>; Mon, 7 May 2001 13:52:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136466AbREGRpY>; Mon, 7 May 2001 13:45:24 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:38665 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136463AbREGRpU>; Mon, 7 May 2001 13:45:20 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [PATCH][RFT] smbfs bugfixes for 2.4.4
-Date: 7 May 2001 10:44:59 -0700
-Organization: A poorly-installed InterNetNews site
-Message-ID: <9d6mur$df1$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.30.0103162326530.28939-200000@cola.teststation.com> <3AF4974C.D5D85498@baldauf.org>
+	id <S136483AbREGRwe>; Mon, 7 May 2001 13:52:34 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:48298 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S136468AbREGRwX>; Mon, 7 May 2001 13:52:23 -0400
+Message-Id: <5.1.0.14.2.20010507184618.00a8a5b0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 07 May 2001 18:52:49 +0100
+To: "Dunlap, Randy" <randy.dunlap@intel.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: RE: [PATCH] x86 page fault handler not interrupt safe 
+Cc: "'David Woodhouse'" <dwmw2@infradead.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE26F@orsmsx31.jf.intel
+ .com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3AF4974C.D5D85498@baldauf.org>,
-Xuan Baldauf  <xuan--lkml@baldauf.org> wrote:
+At 18:32 07/05/2001, Dunlap, Randy wrote:
+> > From: David Woodhouse [mailto:dwmw2@infradead.org]
+> >
+> > torvalds@transmeta.com said:
+> > >  If anybody has such a beast, please try this kernel patch _and_
+> > > running the F0 0F bug-producing program (search for it on the 'net -
+> > > it must be out there somewhere) to verify that the code still
+> > > correctly handles that case.
+> >
+> > Something along the lines of:
+> >
+> > echo "unsigned long main=0xf00fc7c8;" > f00fbug.c ; make f00fbug
 >
->it does not fix|work around the bug completely:
->
->1. windows: Create a file, e.g. with 741 bytes.
->2. linux: "ls -la" will show you the file with the correct size (741)
->3. linux: read the file into your smbfs cache (e.g. "less file")
->4. windows: add some contents to the file, e.g. so that it is now 896 bytes
->long
->5. linux: "ls -la" will show you the file with the correct size (896)
->6. linux: read the file (e.g. "less file")
->
->What you should see, on the linux box, are the new contents of the file. What
->you will see are the old contents of the file plus a lot "^@^@^@^@^@^@^@"
->(which mean null bytes) at the end of the old contents.
+>Yes, that's what the (SGI) program uses:
+>http://lwn.net/2001/0329/a/ltp-f00f.php3
 
-This is a different problem. Apparently the Linux client does not
-invalidate its caches sufficiently often. The smb client should at least
-do a "invalidate_inode_pages(inode);" when it notices that the file size
-has changed.
+That's not quite what they do. David's SGI equivalent would be:
 
-It has code to do that in smb_revalidate_inode(), but it may be that
-something else refreshes the inode size _without_ doing the proper
-invalidation checks. Or maybe Urban broke that logic by mistake while
-fixing the other one ;)
+echo "unsigned long main=0xc8c70ff0;" > f00fbug.c ; make f00fbug
 
-		Linus
+i.e. remember that ia32 is little endian.
+
+Thanks for the link.
+
+Best regards,
+
+Anton
+
+
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278424AbRJSPPi>; Fri, 19 Oct 2001 11:15:38 -0400
+	id <S278423AbRJSPLh>; Fri, 19 Oct 2001 11:11:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278426AbRJSPP2>; Fri, 19 Oct 2001 11:15:28 -0400
-Received: from [195.246.135.25] ([195.246.135.25]:1542 "EHLO
-	chert.194.133.98.200") by vger.kernel.org with ESMTP
-	id <S278424AbRJSPPK>; Fri, 19 Oct 2001 11:15:10 -0400
-Date: Fri, 19 Oct 2001 19:14:46 +0200
-From: Andrei Lahun <Uman@editec-lotteries.com>
-To: safemode <safemode@speakeasy.net>
-Cc: Uman@editec-lotteries.com, linux-kernel@vger.kernel.org
-Subject: Re: problems with I/O performance with 2.4.12-ac3
-Message-Id: <20011019191446.7748bd80.uman@chert>
-In-Reply-To: <20011019163058.1bb7c6f7.uman@chert>
-X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S278424AbRJSPL2>; Fri, 19 Oct 2001 11:11:28 -0400
+Received: from [206.162.172.138] ([206.162.172.138]:63738 "EHLO
+	remtk.solucorp.qc.ca") by vger.kernel.org with ESMTP
+	id <S278423AbRJSPLI>; Fri, 19 Oct 2001 11:11:08 -0400
+From: Jacques Gelinas <jack@solucorp.qc.ca>
+Date: Fri, 19 Oct 2001 11:11:47 -0500
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Announce: many virtual servers on a single box (ipv6)
+Cc: Riley Williams <rhw@memalpha.cx>
+X-mailer: tlmpmail 0.1
+Message-ID: <20011019111147.482a46f3e2d4@remtk.solucorp.qc.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Oct 2001 09:27:35 -0400
-safemode <safemode@speakeasy.net> wrote:
+On Thu, 18 Oct 2001 09:11:44 -0500, Riley Williams wrote
+> Hi Jacques.
 
+> > The concept is both very simple and sound
 >
-> You should give ide and drive chipset info.  This is not a problem seen by 
-> everyone using the ac3 kernel.  Mine for instance run just fine.  What 
-> settings did you use with bonnie++?  all of this is required info if someone 
-> wanted to look and see why you are getting those numbers.
-> 
-My chipset is VIA apollo 133-A ( old shirt).
-I have run bonnie++ just like bonnie -s 256 , and i have 128 MB of memory,
-disk is MAXTOR 52049H4.With old kernels i always had results something like i have with 2.4.13-pre now .
-And i have read one post in lkml about 2 times less write output with 2.4.13 -pre comparing with ac,
-mine result are opposite.
+> ...
+>
+> > 	set_ipv4root to tie all processes in a vserver to one IP.
+>
+> How well does this work on an ipv6 only box?
+
+For now, I guess it does not work. I have not tried it at all I must admit.
+I suspect a tiny patch will work though. The set_ipv4root() syscall only handle
+a u32 argument for now. It could be generalised I guess.
+
+
+---------------------------------------------------------
+Jacques Gelinas <jack@solucorp.qc.ca>
+vserver: run general purpose virtual servers on one box, full speed!
+http://www.solucorp.qc.ca/miscprj/s_context.hc

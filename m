@@ -1,43 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261526AbUKIMHq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbUKIMIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261526AbUKIMHq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 07:07:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbUKIMHq
+	id S261531AbUKIMIs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 07:08:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbUKIMIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 07:07:46 -0500
-Received: from rt.gnu.org ([199.232.76.167]:64131 "EHLO rt.gnu.org")
-	by vger.kernel.org with ESMTP id S261526AbUKIMHm (ORCPT
+	Tue, 9 Nov 2004 07:08:48 -0500
+Received: from rproxy.gmail.com ([64.233.170.192]:711 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261521AbUKIMIo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 07:07:42 -0500
-Subject: Re: [gnu.org #214016] GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox + code
-From: "Alan Cox via RT" <license-violation@fsf.org>
-Reply-To: license-violation@fsf.org
-In-Reply-To: <rt-214016@gnu.org>
-Message-ID: <rt-3.0.8-214016-682805.9.72099995582191@rt.gnu.org>
-X-RT-Loop-Prevention: gnu.org
-RT-Ticket: gnu.org #214016
-Managed-by: RT 3.0.8 (http://www.bestpractical.com/rt/)
-RT-Originator: alan@lxorguk.ukuu.org.uk
-To: shawn.starr@rogers.com
-Cc: license-violation@gnu.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-X-RT-Original-Encoding: utf-8
-Date: Tue, 09 Nov 2004 07:07:48 -0500
+	Tue, 9 Nov 2004 07:08:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=J+Bq579HUn+pv+0ZfEXOURRaol2YLkeH9Ypp3uzEUwZyIJUL9SL3YNEEAvA2qmNyipHWjBPnU9/O3TFSVVQmgLM/xo81e/qrYtfL2UvCPEygNWdWUam8CzvzZzK7VS62X8YSY7sY2PIVoHLYr7ovIAsPqU3L1b4Y9Qf26w3Uqv0=
+Message-ID: <a9951d2a04110904087d3a93e0@mail.gmail.com>
+Date: Tue, 9 Nov 2004 12:08:42 +0000
+From: Rogelio Serrano <rogelio.serrano@gmail.com>
+Reply-To: Rogelio Serrano <rogelio.serrano@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: mboot vmlinux
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-11-09 at 00:11, novalis@fsf.org via RT wrote:
-> But if you distribute binaries, you must either include or offer source
-> code.  Do they do this?  What software do they include that FSF holds
-> copyright on?   Where can I check this?
-> 
-> Do they include a copy of the GPL with the software?
-
-They include the GPL, they include the source nothing I can find they do
-violates the GPL.  They do appear to annoy a few people because their
-policy is that while you may join their early access process and get
-source if you redistribute that source then you get kicked off their
-program, but you are still allowed to distribute that source.
-
-
+Any progress on mboot vmlinux? Im backporting the mboot patch to
+linux-1.0.9 with the memory-savers patch.

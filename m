@@ -1,79 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVCaOWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVCaOYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261346AbVCaOWX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 09:22:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVCaOWX
+	id S261462AbVCaOYX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 09:24:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVCaOYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 09:22:23 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:6802 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261346AbVCaOV4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 09:21:56 -0500
-Date: Thu, 31 Mar 2005 16:21:55 +0200
-From: Jan Kara <jack@suse.cz>
-To: Niu YaWei <niu@clusterfs.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] possible bug in quota format v2 support
-Message-ID: <20050331142155.GB8008@atrey.karlin.mff.cuni.cz>
-References: <424BFA24.6040607@clusterfs.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="kXdP64Ggrk/fb43R"
-Content-Disposition: inline
-In-Reply-To: <424BFA24.6040607@clusterfs.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 31 Mar 2005 09:24:22 -0500
+Received: from simmts6.bellnexxia.net ([206.47.199.164]:28598 "EHLO
+	simmts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261462AbVCaOYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 09:24:08 -0500
+Message-ID: <4016.10.10.10.24.1112278858.squirrel@linux1.attic.local>
+In-Reply-To: <Pine.LNX.4.61.0503310706280.8616@chaos.analogic.com>
+References: <200503280154.j2S1s9e6009981@laptop11.inf.utfsm.cl>   
+    <1112011441.27381.31.camel@localhost.localdomain>   
+    <1112016850.6003.13.camel@laptopd505.fenrus.org>   
+    <1112018265.27381.63.camel@localhost.localdomain>   
+    <20050328154338.753f27e3.pj@engr.sgi.com>   
+    <1112055671.3691.8.camel@localhost.localdomain>   
+    <c4ce304162b3d2a3ad78dc9e0bc455f5@mac.com>   
+    <1112059642.3691.15.camel@localhost.localdomain>   
+    <Pine.LNX.4.61.0503290659360.10929@chaos.analogic.com>   
+    <Pine.LNX.4.61.0503301446430.30163@chimarrao.boston.redhat.com>   
+    <Pine.LNX.4.61.0503301455570.28630@chaos.analogic.com>
+    <3343.10.10.10.24.1112268948.squirrel@linux1.attic.local>
+    <Pine.LNX.4.61.0503310706280.8616@chaos.analogic.com>
+Date: Thu, 31 Mar 2005 09:20:58 -0500 (EST)
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+From: "Sean" <seanlkml@sympatico.ca>
+To: linux-os@analogic.com
+Cc: "Rik van Riel" <riel@redhat.com>, "Steven Rostedt" <rostedt@goodmis.org>,
+       "Kyle Moffett" <mrmacman_g4@mac.com>, floam@sh.nu,
+       "LKML" <linux-kernel@vger.kernel.org>, arjan@infradead.org,
+       "Paul Jackson" <pj@engr.sgi.com>, gilbertd@treblig.org,
+       vonbrand@inf.utfsm.cl, bunk@stusta.de
+User-Agent: SquirrelMail/1.4.4-2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, March 31, 2005 7:34 am, linux-os said:
+>
+> Sure it does. Before the GPL-only stuff the only problem one would
+> have with a proprietary module, i.e., one that didn't contain
+> the GPL "license" notice, was that the kernel would be marked
+> "tainted". Everything would still work.
+>
+> With the ADDITIONAL RESTRICTION added, the module won't even work
+> because an ARTIFICIAL CONSTRAINT was added to prevent its use
+> unless a GPL "license" notice existed.
+>
 
---kXdP64Ggrk/fb43R
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+There are absolutely no additional restrictions for anyone that is in full
+compliance with the spirit and intent of the GPL.  Full Stop.
 
-  Hello,
+Runtime restrictions do not fall under the GPL anyway, otherwise it would
+be illegal to impose _any_ security restrictions on a GPL system.
 
-> I'm afraid that there is a bug in quota format v2 delete qentry.
-> (The root block shouldn't be put into free blk list even if there isn't
-> any entry in quota file, right?)
-> 
-> This one line patch may fix it.
-  Such case should not actually occur in normal operation but I agree
-that with your patch the code will handle errors more gracefuly. Your
-patch seems to have wrapped lines and substituted tabs for spaces
-(please try to persuade your mail agent not to wrap lines and substitute
-tabs next time or just send the patch as an attachment) so I rediffed it
-- the result is attached. Andrew please apply the attached patch.
+You are just DeadWrong(Tm) on this issue.
 
-					Thanks for spotting it
-								Honza
-						
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+Sean
 
---kXdP64Ggrk/fb43R
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="quota-2.6.11-v2fix.diff"
 
-Don't put root block of quota tree to the free list (when quota file is completely
-empty). That should not actually happen anyway (somebody should get accounted for
-the filesystem root and so quota file should never be empty) but better prevent it
-here than solve magical quota file corruption...
-
-From: Niu YaWei <niu@clusterfs.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-
-diff -rupX /home/jack/.kerndiffexclude linux-2.6.11/fs/quota_v2.c linux-2.6.11-v2fix/fs/quota_v2.c
---- linux-2.6.11/fs/quota_v2.c	2005-03-03 18:58:30.000000000 +0100
-+++ linux-2.6.11-v2fix/fs/quota_v2.c	2005-03-31 15:51:51.000000000 +0200
-@@ -503,7 +503,8 @@ static int remove_tree(struct dquot *dqu
- 		int i;
- 		ref[GETIDINDEX(dquot->dq_id, depth)] = cpu_to_le32(0);
- 		for (i = 0; i < V2_DQBLKSIZE && !buf[i]; i++);	/* Block got empty? */
--		if (i == V2_DQBLKSIZE) {
-+		/* Don't put the root block into the free block list */
-+		if (i == V2_DQBLKSIZE && *blk != V2_DQTREEOFF) {
- 			put_free_dqblk(sb, type, buf, *blk);
- 			*blk = 0;
- 		}
-
---kXdP64Ggrk/fb43R--

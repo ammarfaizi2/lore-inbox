@@ -1,78 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266324AbUJIATX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266271AbUJIAX3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266324AbUJIATX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 20:19:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266271AbUJIATX
+	id S266271AbUJIAX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 20:23:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266333AbUJIAX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 20:19:23 -0400
-Received: from ithilien.qualcomm.com ([129.46.51.59]:45559 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id S266324AbUJIATC convert rfc822-to-8bit (ORCPT
+	Fri, 8 Oct 2004 20:23:29 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:44470 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266271AbUJIAX1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 20:19:02 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: autofs panic, linux 2.4.21-15.EL.c0smp
-Date: Fri, 8 Oct 2004 17:18:56 -0700
-Message-ID: <0320111483D8B84AAAB437215BBDA526D60686@NAEX01.na.qualcomm.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: autofs panic, linux 2.4.21-15.EL.c0smp
-Thread-Index: AcStlZDHacGFD4DGTnCv3iibu4WmPw==
-From: "Craig, Dave" <dwcraig@qualcomm.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 09 Oct 2004 00:19:04.0138 (UTC) FILETIME=[95651AA0:01C4AD95]
+	Fri, 8 Oct 2004 20:23:27 -0400
+Subject: Re: [PATCH] cpusets - big numa cpu and memory placement
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: Hubertus Franke <frankeh@watson.ibm.com>
+Cc: Paul Jackson <pj@sgi.com>, Rick Lindsley <ricklind@us.ibm.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Simon.Derr@bull.net,
+       pwil3058@bigpond.net.au, dipankar@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
+       efocht@hpce.nec.com, LSE Tech <lse-tech@lists.sourceforge.net>,
+       hch@infradead.org, steiner@sgi.com, Jesse Barnes <jbarnes@sgi.com>,
+       sylvain.jeaugey@bull.net, djh@sgi.com,
+       LKML <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
+       sivanich@sgi.com
+In-Reply-To: <4165A31E.4070905@watson.ibm.com>
+References: <20041007015107.53d191d4.pj@sgi.com>
+	 <200410071053.i97ArLnQ011548@owlet.beaverton.ibm.com>
+	 <20041007072842.2bafc320.pj@sgi.com>  <4165A31E.4070905@watson.ibm.com>
+Content-Type: text/plain
+Organization: IBM LTC
+Message-Id: <1097281329.6470.123.camel@arrakis>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 08 Oct 2004 17:22:10 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I came across the following panic today when shutting down a system that
-hung any processes attempting to access network mounts.
+On Thu, 2004-10-07 at 13:12, Hubertus Franke wrote:
+> The way this is heading is quite promising.
+> - sched_domains seems the right answer wrt to partitioning the machine.
+>    Given some boot option or dynamic means one can shift cpus from
+>    on domain to the next domain.
+> - If I understood correctly, there would be only one level of such
+>    hard partitioning, speak exclusive cpu-set or sched_domain.
+> - In each such domain/set we allow shared *use*.
 
-Has anyone seen something similar and have any suggestions on how to
-improve system availability?  We're experiencing problems about once a
-week.
+I don't think that there needs to be a requirement that we have only one
+level of hard partitioning.  The rest of your points are valid though,
+Hubertus.
 
-Thanks,
-	Dave Craig
+It'd be really nice if we could all get together with a wall of
+whiteboards, some markers, and a few pots of coffee.  I think we'd all
+get this pretty much hashed out in an hour or two.  This isn't directed
+at you, Hubertus, but at the many communication breakdowns in this
+thread.
 
-Unable to handle kernel NULL pointer dereference at virtual address
-00000000
-printing eip:
-c017c362
-*pde = 129b2001
-*pte = 00000000
-Oops: 0000
-loop vfat fat nfs sr_mod ide-cd cdrom dcdipm dcdbas nfsd lockd sunrpc lp
-parport autofs ppp_async ppp_generic slhc tg3 ipv6 floppy sg microcode
-keybdev moused
-CPU:    0
-EIP:    0060:[<c017c362>]    Tainted: PF
-EFLAGS: 00010207
- 
-EIP is at invalidate_list [kernel] 0x22 (2.4.21-15.EL.c0smp/i686)
-eax: f3273000   ebx: 00000000   ecx: f478b3a0   edx: e1195f50
-esi: c5ca0300   edi: 00000000   ebp: c03a9704   esp: e1195f24
-ds: 0068   es: 0068   ss: 0068
-Process umount (pid: 22290, stackpage=e1195000)
-Stack: f478b380 00000001 00000000 00000000 f3273000 e1195f50 f8972410
-c017c43d 
-       c03a9704 f3273000 e1195f50 f478b388 f478b388 f3273000 f3273048
-f8972440 
-       c0168592 f3273000 c03a8fe8 00000000 e1195f8c 0804def8 bfffb178
-c017f99f 
-Call Trace:   [<f8972410>] autofs_fs_type [autofs] 0x0 (0xe1195f3c)
-[<c017c43d>] invalidate_inodes [kernel] 0x4d (0xe1195f40)
-[<f8972440>] autofs_sops [autofs] 0x0 (0xe1195f60)
-[<c0168592>] kill_super [kernel] 0xe2 (0xe1195f64)
-[<c017f99f>] sys_umount [kernel] 0x3f (0xe1195f80)
-[<c017fa17>] sys_oldumount [kernel] 0x17 (0xe1195fb4)
- 
-Code: 8b 3f 39 eb 74 66 8d 73 f8 8b 44 24 24 39 86 ac 00 00 00 75
- 
-Kernel panic: Fatal exception
 
+> First, one needs to understand that sched_domains are nothing else
+> but a set of cpus that are considered during load balancing times.
+> By constricting the top_domain to the respective exclusive set one
+> essentially has accomplished the desired feature of partitioning
+> the machines into "isolated" sections (here from cpu perspective).
+> So it is quite possible that an entire domain is empty based, while
+> another exclusive domain would be totally overloaded.
+
+I think that is very well stated, Hubertus.  By having a more or less
+passive data structure that is only checked at load balance time, we can
+ensure (in a very light-weight way) that no task ever moves *out* of
+it's area nor moves *into* someone else's area.
+
+-Matt
 

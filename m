@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135314AbRDWPYD>; Mon, 23 Apr 2001 11:24:03 -0400
+	id <S135296AbRDWPYN>; Mon, 23 Apr 2001 11:24:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135296AbRDWPXn>; Mon, 23 Apr 2001 11:23:43 -0400
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:43137 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S135293AbRDWPXh>; Mon, 23 Apr 2001 11:23:37 -0400
-Date: Mon, 23 Apr 2001 17:23:35 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Christoph Rohland <cr@sap.com>
-Cc: "David L. Parsley" <parsley@linuxjedi.org>, linux-kernel@vger.kernel.org,
-        viro@math.psu.edu
-Subject: Re: hundreds of mount --bind mountpoints?
-Message-ID: <20010423172335.G719@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <3AE307AD.821AB47C@linuxjedi.org> <m3r8yjrgdc.fsf@linux.local> <20010423151753.C719@nightmaster.csn.tu-chemnitz.de> <m3d7a3r7jp.fsf@linux.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <m3d7a3r7jp.fsf@linux.local>; from cr@sap.com on Mon, Apr 23, 2001 at 04:54:02PM +0200
+	id <S135293AbRDWPYE>; Mon, 23 Apr 2001 11:24:04 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:49165 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S135310AbRDWPXu>; Mon, 23 Apr 2001 11:23:50 -0400
+Date: Mon, 23 Apr 2001 17:23:48 +0200 (CEST)
+From: axel <axel@rayfun.org>
+To: linux-kernel@vger.kernel.org
+Message-ID: <Pine.LNX.4.21.0104231718220.2691-100000@neon.rayfun.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Chris,
+Hallo,
 
-On Mon, Apr 23, 2001 at 04:54:02PM +0200, Christoph Rohland wrote:
-> > The question is: How? If you do it like ramfs, you cannot swap
-> > these symlinks and this is effectively a mlock(symlink) operation
-> > allowed for normal users. -> BAD!
-> 
-> How about storing it into the inode structure if it fits into the
-> fs-private union? If it is too big we allocate the page as we do it
-> now. The union has 192 bytes. This should be sufficient for most
-> cases.
+I just tried to compile latest kernel 2.4.4pre6 with following error
+output. Unfortunately I don't have no idea what this wants to tell me.
+Probably something about those rw_semaphores I have recently read about in
+lkml.
 
-Great idea. We allocate this space anyway. And we don't have to
-care about the internals of this union, because never have to use
-it outside the kernel ;-)
+Regards,
+Axel Siebenwirth
 
-I like it. ext2fs does the same, so there should be no VFS
-hassles involved. Al?
 
-Regards
+make[1]: Entering directory `/usr/src/linux-2.4.4pre6/arch/i386/lib'
+make all_targets
+make[2]: Entering directory `/usr/src/linux-2.4.4pre6/arch/i386/lib'
+make[2]: Nothing to be done for `all_targets'.
+make[2]: Leaving directory `/usr/src/linux-2.4.4pre6/arch/i386/lib'
+make[1]: Leaving directory `/usr/src/linux-2.4.4pre6/arch/i386/lib'
+ld -m elf_i386 -T /usr/src/linux-2.4.4pre6/arch/i386/vmlinux.lds -e stext
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o
+init/version.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o
+mm/mm.o fs/fs.o ipc/ipc.o \
+        drivers/block/block.o drivers/char/char.o drivers/misc/misc.o
+drivers/net/net.o drivers/media/media.o  drivers/isdn/isdn.a
+drivers/scsi/scsidrv.o drivers/scsi/aic7xxx/aic7xxx_drv.o
+drivers/cdrom/driver.o drivers/pci/driver.o drivers/pnp/pnp.o
+drivers/video/video.o \
+        net/network.o \
+        /usr/src/linux-2.4.4pre6/arch/i386/lib/lib.a
+/usr/src/linux-2.4.4pre6/lib/lib.a
+/usr/src/linux-2.4.4pre6/arch/i386/lib/lib.a \
+        --end-group \
+        -o vmlinux
+/usr/src/linux-2.4.4pre6/lib/lib.a(rwsem.o): In function
+`__rwsem_do_wake':
+rwsem.o(.text+0x30): undefined reference to `__builtin_expect'
+rwsem.o(.text+0x73): undefined reference to `__builtin_expect'
+make: *** [vmlinux] Error 1
 
-Ingo Oeser
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263299AbTIWGfi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 02:35:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263281AbTIWGfi
+	id S263334AbTIWGmW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 02:42:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263335AbTIWGmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 02:35:38 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:55509 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262974AbTIWGfe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 02:35:34 -0400
-Date: Mon, 22 Sep 2003 23:22:37 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: peter@chubb.wattle.id.au, ak@suse.de, iod00d@hp.com,
-       peterc@gelato.unsw.edu.au, linux-ns83820@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
-Message-Id: <20030922232237.28a5ac4a.davem@redhat.com>
-In-Reply-To: <20030922203629.B21836@kvack.org>
-References: <16234.33565.64383.838490@wombat.disy.cse.unsw.edu.au>
-	<20030919043847.GA2996@cup.hp.com>
-	<20030919044315.GC7666@wotan.suse.de>
-	<16234.36238.848366.753588@wombat.chubb.wattle.id.au>
-	<20030919055304.GE16928@wotan.suse.de>
-	<20030919064922.B3783@kvack.org>
-	<16239.38154.969505.748461@wombat.chubb.wattle.id.au>
-	<20030922203629.B21836@kvack.org>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Sep 2003 02:42:21 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:57216 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263334AbTIWGmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 02:42:21 -0400
+Date: Tue, 23 Sep 2003 07:42:00 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200309230642.h8N6g0S9000354@81-2-122-30.bradfords.org.uk>
+To: matti.aarnio@zmailer.org, mpm@selenic.com
+Subject: Re: banned again ?
+Cc: jamagallon@able.es, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Sep 2003 20:36:29 -0400
-Benjamin LaHaise <bcrl@kvack.org> wrote:
+> > > Am I unsibcribed again ?
+> > 
+> > No.  Nor anything is stuck at VGER towards your domain.
+> > Something else might be wrong in your local system(s).
+> > 
+> > On overall, these questions should go to address:
+> >     postmaster@vger.kernel.org
+>
+> Perhaps a web page that shows the length and median wait time of
+> vger's backlog would help answer the usual "did vger drop me or is it
+> just congested?" questions. Sending resubscribe messages to majordomo
+> doesn't tend to help matters in the congestion case.
 
-> Denied.  Dave, please explain.
+http://vger.kernel.org/z
 
-Why should I have anything to explain? :-)
-
-The fact that ia64 is doing a printk for an unaligned kernel
-load or store is what you should be asking questions about :)
-
-It's one thing if ia64 keeps track of unaligned accesses as
-a counter statistic, but emitting a printk for everyone is
-pretty anti-social.
-
-Unaligned accesses in the kernel are perfectly normal, and are
-absolutely going to happen in various kinds of networking setups.
+John.

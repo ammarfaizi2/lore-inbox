@@ -1,78 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265988AbTIJXXO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 19:23:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265997AbTIJXXO
+	id S265915AbTIJWm6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 18:42:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265920AbTIJWm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 19:23:14 -0400
-Received: from mta02-svc.ntlworld.com ([62.253.162.42]:43212 "EHLO
-	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S265988AbTIJXXM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 19:23:12 -0400
-From: James Clark <jimwclark@ntlworld.com>
-Reply-To: jimwclark@ntlworld.com
-To: root@chaos.analogic.com, Timothy Miller <miller@techsource.com>
-Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
-Date: Thu, 11 Sep 2003 00:22:16 +0100
-User-Agent: KMail/1.5
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-References: <1062637356.846.3471.camel@cube> <3F5F8E90.4020701@techsource.com> <Pine.LNX.4.53.0309101640550.18999@chaos>
-In-Reply-To: <Pine.LNX.4.53.0309101640550.18999@chaos>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Sep 2003 18:42:58 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27142 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265915AbTIJWmJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 18:42:09 -0400
+Date: Wed, 10 Sep 2003 23:41:59 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: What happened to SUSPEND_SAVE_STATE?
+Message-ID: <20030910234159.R30046@flint.arm.linux.org.uk>
+Mail-Followup-To: Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20030910201124.GA11449@elf.ucw.cz> <20030910204940.GA11571@elf.ucw.cz> <20030910232527.O30046@flint.arm.linux.org.uk> <20030910223640.GD257@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309110022.16193.jimwclark@ntlworld.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030910223640.GD257@elf.ucw.cz>; from pavel@ucw.cz on Thu, Sep 11, 2003 at 12:36:40AM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has anyone ever done any work to quantify what the loss in performance might 
-be with a binary interface? 
+On Thu, Sep 11, 2003 at 12:36:40AM +0200, Pavel Machek wrote:
+> > diff -Nru a/drivers/pcmcia/i82365.c b/drivers/pcmcia/i82365.c
+> > --- a/drivers/pcmcia/i82365.c	Wed Sep 10 23:18:34 2003
+> > +++ b/drivers/pcmcia/i82365.c	Wed Sep 10 23:18:34 2003
+> > @@ -1351,11 +1351,27 @@
+> >  
+> >  /*====================================================================*/
+> >  
+> > +static int i82365_suspend(struct device *dev, u32 state, u32 level)
+> > +{
+> > +	int ret = 0;
+> > +	if (level == SUSPEND_SAVE_STATE)
+> > +		ret = pcmcia_socket_dev_suspend(dev, state);
+> > +	return ret;
+> > +}
+> > +
+> > +static int i82365_resume(struct device *dev, u32 level)
+> > +{
+> > +	int ret = 0;
+> > +	if (level == RESUME_RESTORE_STATE)
+> > +		ret = pcmcia_socket_dev_resume(dev);
+> > +	return ret;
+> > +}
+> > +
+> >  static struct device_driver i82365_driver = {
+> >  	.name = "i82365",
+> >  	.bus = &platform_bus_type,
+> > -	.suspend = pcmcia_socket_dev_suspend,
+> > -	.resume = pcmcia_socket_dev_resume,
+> > +	.suspend = i82365_suspend,
+> > +	.resume = i82365_resume,
+> >  };
+> >  
+> >  static struct platform_device i82365_device = {
+> 
+> I was not able to find *any* place in the tree that would call suspend
+> with SUSPEND_SAVE_STATE as level. Maybe just my grep was wrong?
 
-James
+It is correct for the time being.  Well, as far as the ARM tree goes.
+At the moment, the attitude towards platform devices seems to be "tough,
+live with it."  So, I have my own work-arounds, and until such time that
+mainline comes up with a solution, I'm happy.
 
-On Wednesday 10 Sep 2003 9:48 pm, Richard B. Johnson wrote:
-> On Wed, 10 Sep 2003, Timothy Miller wrote:
-> > I just have one quick question about all of this:
-> >
-> > People mention that driver interfaces don't change much in stable
-> > releases, but if memory serves, symbol versioning information changes
-> > with each minor release, requiring a recompile of modules.
-> >
-> > Would it be possible to have a driver module which can be dropped into,
-> > say, 2.6.17 that can also be dropped into 2.6.18 as long as the
-> > interface doesn't change?
->
-> Short answer, YES. Anything that can be done is possible. The
-> problem is that different kernel versions end up with different
-> structure members, etc. So, you can't use code for 2.2.xxx in
-> 2.4.xx because, amongst other things, the first element in
-> 'struct file_operations' was added and the others moved up.
->
-> Now, you can make a different module interface that maintains
-> a compatibility level ABI. This has been discussed. Unfortunately,
-> this adds code in the execution path. This extra code gets
-> executed every time the module code is accessed. The result being
-> that the module can't possibly operate as fast as it would if
-> there were no such compatibility layer(s). It might be "good enough",
-> but it is unlikely that the module contributors/maintainers would
-> allow such an interface because the loss of performance is measurable
-> and there has been no requirement to trade-off performance for
-> anything (your and my convenience doesn't count, those are not
-> technical issues).
->
->
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
->             Note 96.31% of all statistics are fiction.
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+Linux kernel maintainer of:
+  2.6 ARM Linux   - http://www.arm.linux.org.uk/
+  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+  2.6 Serial core

@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264653AbUD2OfH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264635AbUD2Ohn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264653AbUD2OfH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 10:35:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264604AbUD2OfH
+	id S264635AbUD2Ohn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 10:37:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264561AbUD2Ohn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 10:35:07 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27314 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264644AbUD2Ocq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 10:32:46 -0400
-Date: Thu, 29 Apr 2004 11:33:51 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Albert Chin-A-Young <china@thewrittenword.com>
+	Thu, 29 Apr 2004 10:37:43 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:36752 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S264668AbUD2OgT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 10:36:19 -0400
+Date: Thu, 29 Apr 2004 16:36:18 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Shobhit Mathur <shobhitmmathur@yahoo.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: kernel BUG at inode.c:1204! in 2.2.26
-Message-ID: <20040429143351.GA19056@logos.cnet>
-References: <20040429041420.GA85751@mail1.thewrittenword.com>
+Subject: Re: Latest /proc implementation ?.....
+Message-ID: <20040429143618.GA8603@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Shobhit Mathur <shobhitmmathur@yahoo.com>,
+	linux-kernel@vger.kernel.org
+References: <20040429133545.35335.qmail@web90001.mail.scd.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040429041420.GA85751@mail1.thewrittenword.com>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20040429133545.35335.qmail@web90001.mail.scd.yahoo.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 29, 2004 at 06:35:45AM -0700, Shobhit Mathur wrote:
 
-Albert, 
 
-I believe this mibht be caused by the VMWare modules you are using.
+> I am aware of existing /proc/ implementations wherein
+> buffer-size is limited and data upto 4096 bytes
+> only is displayable via the "proc_info" entry-point in
+> the Scsi_Host_Template structure.
 
-Mind trying to reproduce it without external modules?
+I think you mean seq_file, described in http://lwn.net/Articles/22355/
 
-On Wed, Apr 28, 2004 at 11:14:20PM -0500, Albert Chin-A-Young wrote:
-> Upgraded to 2.2.26 on April 26 and received the following on April 27:
-> 
-> kernel: kernel BUG at inode.c:1204!
-> kernel: invalid operand: 0000
-> kernel: CPU:    0
-> kernel: EIP:    0010:[iput+608/624] Tainted: PF
-> kernel: EFLAGS: 00010246
-> kernel: eax: 00000000   ebx: de603980   ecx: de603990   edx: de603990
-> kernel: esi: f7e6bc00   edi: 00000000   ebp: 00007a61   esp: f7e71efc
-> kernel: ds: 0018   es: 0018   ss: 0018
-> kernel: Process kswapd (pid: 4, stackpage=f7e71000)
-> kernel: Stack: 00000292 de605880 00000292 de605918 de605900 de603980 c0148a4d de603980 
-> kernel:        de605880 00000017 c1886114 c0260e38 000063ad c0148da4 00009446 c012d336 
-> kernel:        00000006 000001d0 ffffffff 000001d0 00000017 00000020 000001d0 c0260e38 
-> kernel: Call Trace:    [prune_dcache+221/336] [shrink_dcache_memory+36/64] [shrink_cache+358/896] [shrink_caches+61/96] [try_to_free_pages_zone+98/240]
-> kernel:   [kswapd_balance_pgdat+102/176] [kswapd_balance+40/64] [kswapd+152/192] [kswapd+0/192] [rest_init+0/64] [arch_kernel_thread+46/64]
-> kernel:   [kswapd+0/192]
-> kernel: 
-> kernel: Code: 0f 0b b4 04 86 4b 23 c0 e9 c3 fd ff ff 8d 76 00 8b 54 24 04 
-> 
-> I did not encounter an OOPS. I saw this and then rebooted.
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272484AbTHSSIv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 14:08:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272447AbTHSSIu
+	id S272312AbTHSSZp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 14:25:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272309AbTHSSZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 14:08:50 -0400
-Received: from aneto.able.es ([212.97.163.22]:40180 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S272635AbTHSSAv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 14:00:51 -0400
-Date: Tue, 19 Aug 2003 20:00:49 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SCO's "proof"
-Message-ID: <20030819180049.GA10670@werewolf.able.es>
-References: <3F422809.7080806@yahoo.com> <20030819153056.GB3059@gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20030819153056.GB3059@gtf.org>; from jgarzik@pobox.com on Tue, Aug 19, 2003 at 17:30:56 +0200
-X-Mailer: Balsa 2.0.13
+	Tue, 19 Aug 2003 14:25:45 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:34577 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S272708AbTHSSO1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 14:14:27 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Linux 2.4.22-pre9
+Date: 19 Aug 2003 18:06:13 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bhtoul$7u0$1@gatekeeper.tmr.com>
+References: <Pine.LNX.4.53.0307292020280.11053@montezuma.mastecende.com> <Pine.LNX.4.55L.0307292137440.4822@freak.distro.conectiva>
+X-Trace: gatekeeper.tmr.com 1061316373 8128 192.168.12.62 (19 Aug 2003 18:06:13 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.LNX.4.55L.0307292137440.4822@freak.distro.conectiva>,
+Marcelo Tosatti  <marcelo@conectiva.com.br> wrote:
+| 
+| 
+| On Tue, 29 Jul 2003, Zwane Mwaikambo wrote:
+| 
+| > On Tue, 29 Jul 2003, Marcelo Tosatti wrote:
+| >
+| > > Here goes -pre9, yet another step in 2.4.22 direction.
+| > >
+| > > It contains a bunch of Netfilter fixes, set of IEEE1394 fixes, couple of
+| > > knfsd fixes amongst others.
+| > >
+| > > Expect -pre10 tomorrow.
+| >
+| > Marcelo, thanks for picking up the pace, but please slow down a tad,
+| > people still need to test these things...
+| 
+| I know. I just forgot to add network driver fixes and b44 driver from
+| jgarziks tree. He sent me those _before_ I released -pre9. Thats why
+| -pre10 so soon.
+| 
+| I think a one week average for pre releases is good.
 
-On 08.19, Jeff Garzik wrote:
-> On Tue, Aug 19, 2003 at 09:37:13AM -0400, Brandon Stewart wrote:
-> > compliments of "d1rkinator" from yahoo finance message board:
-> > 
-> > The code SCO finds offending:
-> > 
-> > www.heise.de/newsticker/data/jk-19.08.03-000/imh0.jpg
-> > www.heise.de/newsticker/data/jk-19.08.03-000/imh1.jpg
-> 
-> Why the heck is ia64 inventing its own mutex spinlocks?
-> 
-
-They can't even copy code to a slide:
-
-	if (size==0)
-		return)((ulong_t NULL);
-
-That does not compile...
-
+Absent any discovery of one of those "oh my God" errors I think that's
+great. Gives people time to shake things out.
 -- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.22-rc2-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-1mdk))
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

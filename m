@@ -1,140 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274500AbRIYV1F>; Tue, 25 Sep 2001 17:27:05 -0400
+	id <S274185AbRIYV3F>; Tue, 25 Sep 2001 17:29:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274185AbRIYV04>; Tue, 25 Sep 2001 17:26:56 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:1029 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S274590AbRIYV0j> convert rfc822-to-8bit; Tue, 25 Sep 2001 17:26:39 -0400
-Date: Tue, 25 Sep 2001 17:03:35 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Juan <piernas@ditec.um.es>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Bad, bad, bad VM behaviour in 2.4.10
-In-Reply-To: <3BB0F483.69929A79@ditec.um.es>
-Message-ID: <Pine.LNX.4.21.0109251702240.2193-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S274523AbRIYV24>; Tue, 25 Sep 2001 17:28:56 -0400
+Received: from hermes.csd.unb.ca ([131.202.3.20]:23209 "EHLO hermes.csd.unb.ca")
+	by vger.kernel.org with ESMTP id <S274185AbRIYV2m>;
+	Tue, 25 Sep 2001 17:28:42 -0400
+X-WebMail-UserID: newton
+Date: Tue, 25 Sep 2001 18:38:31 -0300
+From: Chris Newton <newton@unb.ca>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+X-EXP32-SerialNo: 00003025, 00003442
+Subject: RE: excessive interrupts on network cards
+Message-ID: <3BB11992@webmail1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebMail (Hydra) SMTP v3.61.08
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Yea, it is a single port card... I had meant to mention that in the email I 
+sent out...  ie: that it wasn't reporting correctly... but, I didnt really 
+think it was related, since the eepro was doing the same thing.
 
-Juan, 
+  As for comparing with ifconfig, I ran 'watch 1 ifconfig -a', and sure 
+enough, I have about ~7000-7500 packets coming in right now.  And, the 
+'procinfo -D', reports ~21000-22000 interrupts per second.
 
-It is a known problem which we are looking into.
+  Other sources I have used to confirm packet rate... include output from 
+'sniffer', a flow generator that was monitoring that link, and the hub this 
+machine is plugged into.
 
-I need some information which may help confirm a guess of mine:
+  the hub has 3 active ports.. port 1 is one side of our internet conenction 
+(out to our provider), port 2 was from the hub over to our main router... port 
+3 is a mirror of the IN on port 1 and the OUT on port 2 to port 3.  Comparing, 
+and verifying, showed port 3 getting 10K packets (this afternoon, which 
+obviously drops at night, which it is here now), and down to 7K now.
 
-Do you have swap available ?
+Chris
 
-If so, there was available anonymous memory to be swapped out ?
 
-On Tue, 25 Sep 2001, Juan wrote:
-
-> Hi!
-> 
-> My test is very simple. I have started X-Window and XMMS in order to
-> listen to some songs. Then, I have executed
-> 
-> 	dd if=/dev/hdc1 of=/dev/null
-> 
-> as root within a terminal, and I have got the following a few seconds
-> later:
-> 
-> Sep 25 22:05:55 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> Sep 25 22:06:00 localhost last message repeated 2 times
-> Sep 25 22:06:00 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0xf0/0) from c012ff60
-> Sep 25 22:06:00 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> Sep 25 22:06:00 localhost last message repeated 2 times
-> Sep 25 22:06:00 localhost kernel: VM: killing process xmms
-> Sep 25 22:06:00 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> Sep 25 22:06:04 localhost last message repeated 11 times
-> Sep 25 22:06:04 localhost kernel: VM: killing process xmms
-> Sep 25 22:06:04 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> Sep 25 22:06:04 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> Sep 25 22:06:04 localhost kernel: VM: killing process kmix
-> Sep 25 22:06:04 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> Sep 25 22:06:04 localhost last message repeated 2 times
-> Sep 25 22:06:04 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0xf0/0) from c012ff60
-> Sep 25 22:06:04 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> Sep 25 22:06:04 localhost last message repeated 3 times
-> Sep 25 22:06:04 localhost kernel: VM: killing process gpm
-> Sep 25 22:06:05 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> Sep 25 22:06:06 localhost last message repeated 6 times
-> sep 25 22:06:06 localhost su(pam_unix)[2548]: session closed for user
-> root
-> Sep 25 22:06:06 localhost kernel: VM: killing process sendmail
-> Sep 25 22:06:07 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> Sep 25 22:06:07 localhost kernel: VM: killing process konsole
-> Sep 25 22:06:07 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> Sep 25 22:06:07 localhost kernel: VM: killing process named
-> Sep 25 22:06:07 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> Sep 25 22:06:07 localhost kernel: VM: killing process xmms
-> Sep 25 22:06:07 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> Sep 25 22:06:07 localhost last message repeated 3 times
-> Sep 25 22:06:07 localhost kernel: VM: killing process ksmserver
-> Sep 25 22:06:07 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> Sep 25 22:06:07 localhost kernel: VM: killing process kdeinit
-> Sep 25 22:06:08 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> Sep 25 22:06:08 localhost kernel: VM: killing process X
-> Sep 25 22:06:08 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0xf0/0) from c012ff60
-> Sep 25 22:06:08 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> f60
-> Sep 25 22:06:08 localhost last message repeated 2 times
-> Sep 25 22:06:08 localhost kernel: VM: killing process kdeinit
-> Sep 25 22:06:08 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> Sep 25 22:06:08 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> Sep 25 22:06:08 localhost kernel: VM: killing process startkde
-> Sep 25 22:06:09 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> Sep 25 22:06:09 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> Sep 25 22:06:09 localhost kernel: VM: killing process named
-> Sep 25 22:06:09 localhost kernel: __alloc_pages: 0-order allocation
-> failed (gfp=0x1d2/0) from c012ff60
-> 
-> The /dev/hdc1 partition capacity is 6 GB. My root partition is on
-> /dev/hda5. My computer is a Pentium III with 384 MB of RAM.
-> 
-> BTW, the same test in 2.4.6 works fine without any problem.
-> 
-> Regards.
-> 
-> 
-> -- 
-> D. Juan Piernas Cánovas
-> Departamento de Ingeniería y Tecnología de Computadores
-> Facultad de Informática. Universidad de Murcia
-> Campus de Espinardo - 30080 Murcia (SPAIN)
-> Tel.: +34968367657    Fax: +34968364151
-> email: piernas@ditec.um.es
-> PGP public key:
-> http://pgp.rediris.es:11371/pks/lookup?search=piernas%40ditec.um.es&op=index
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+>===== Original Message From Andrew Morton <akpm@zip.com.au> =====
+>Chris Newton wrote:
+>>
+>> Hi,
+>>
+>>   I 'think' the number of interrupts being generated for the network 
+traffic I
+>> monitor, is excessive.  Having talked quikly with Donald Becker, he 
+indicated
+>> that I should be seeing a little less than the number of RX/TX packets/s on 
+a
+>> wire, in terms of interrupts/s.  That, however, is not what I am seeing.  I 
+am
+>> seeing 3 times as many interrupts/s as I am seeing packets/s.
+>>
+>>   I have used three network devices to look at the stream I am monitoring, 
+and
+>> it is usually aorund 5K packet/s IN, and 5K out, fed full duplex into a 
+single
+>> 3Com 3c982 (2.4.10 kernel reports that anyways).  However, watching:
+>
+>3c982 is a dual-port server NIC.  Is your card dual-port?  If not, it's 
+probably
+>a 3c980, and I goofed :)
+>
+>>  'procinfo -D', reports on the order of 30,000 interrupts per second.
+>
+>That does sound rather high.  You should compare the interrupt rate
+>with the packet rate from `ifconfig' or /proc/net/dev.
+>
+>Normally, 3c59x will show approx three Tx packets per interrupt
+>and one Rx packet per interrupt.  It varies with workload, but
+>it tends to vary in the "good" direction - at higher packet
+>rates, we do more work in a single interrupt and the interrupt-per-packet
+>rate falls.
 

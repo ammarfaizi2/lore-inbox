@@ -1,144 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316764AbSFUTix>; Fri, 21 Jun 2002 15:38:53 -0400
+	id <S316770AbSFUTlL>; Fri, 21 Jun 2002 15:41:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316768AbSFUTiw>; Fri, 21 Jun 2002 15:38:52 -0400
-Received: from p508878AB.dip.t-dialin.net ([80.136.120.171]:50068 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316764AbSFUTiu>; Fri, 21 Jun 2002 15:38:50 -0400
-Date: Fri, 21 Jun 2002 13:38:50 -0600 (MDT)
-From: Lightweight patch manager <patch@luckynet.dynu.com>
-X-X-Sender: patch@hawkeye.luckynet.adm
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [ANNOUNCE] Linux 2.5.23-ct1
-Message-ID: <Pine.LNX.4.44.0206211335380.20282-100000@hawkeye.luckynet.adm>
+	id <S316773AbSFUTlK>; Fri, 21 Jun 2002 15:41:10 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:8404 "EHLO
+	pimout3-int.prodigy.net") by vger.kernel.org with ESMTP
+	id <S316770AbSFUTlJ>; Fri, 21 Jun 2002 15:41:09 -0400
+Message-Id: <200206211941.g5LJfAI154858@pimout3-int.prodigy.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: zaimi@pegasus.rutgers.edu, linux-kernel@vger.kernel.org
+Subject: Re: kernel upgrade on the fly
+Date: Fri, 21 Jun 2002 09:42:44 -0400
+X-Mailer: KMail [version 1.3.1]
+References: <Pine.GSO.4.44.0206201600470.9816-100000@pegasus.rutgers.edu>
+In-Reply-To: <Pine.GSO.4.44.0206201600470.9816-100000@pegasus.rutgers.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After some time out of sight, I'm back now and here is my kernel.
+On Thursday 20 June 2002 04:19 pm, zaimi@pegasus.rutgers.edu wrote:
+> Thanks for the responses especially Rob. I was trying to find previous
+> threads about this and could not find them. Agreed, swsusp is a step
+> further to that goal; the way that memory is saved though may not make it
+> necessarily easier, at least in the current state of swsusp.
 
-It's basically some stuff + kbuild-2.5
+Several people have mentioned process migration in clusters.  Jessee Pollard 
+says he expects to see checkpointing of arbitrary user processes working this 
+fall, and then Nick LeRoy replied to him about the condor project, which 
+apparently does something similar in user space...
 
-<URL:ftp://luckynet.dynu.com/pub/linux/2.5.23-ct1/patch-2.5.23-ct1.bz2>
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0206.2/1017.html
 
-2.5.24-ct1 coming soon
+http://www.cs.wisc.edu/condor/
 
-<ac9410@bellsouth.net>:
-  o [patch] 2.5.23 i2c updates 1/4
-  o [patch] 2.5.23 i2c updates 2/4
-  o [patch] 2.5.23 i2c updates 3/4
-  o [patch] 2.5.23 i2c updates 4/4
+You might also want to look at the crash dump code (and the multithreaded 
+crash dump patch floating around in the 2.5 to-do list) as another starting 
+point, since A) it's flushing user info for a single process into a file in a 
+well-known format, B) such a file can already be loaded back in and at least 
+somewhat resumed by the Gnu Debugger (gdb).
 
-<cananian@lesser-magoo.lcs.mit.edu>:
-  o 2.5.23: missing tqueue.h in cpia_pp.c
+> As you were mentioning, the processes information needs
+> to be summarised and saved in such a way that the new kernel can pick up
+> and construct its own queues of processes independent on the differences
+> between the kernels being swapped.
 
-<gerald@io.com>:
-  o small cleanup of ide parameter parsing
+Which isn't impossible, I remember migrating WWIV message base files from 
+version to version a dozen years ago.  Good old brute force did the job: 
+new->field=old->field;  There's almost certainly a more elegant way to do it, 
+but brute force has the advantage that we know it could be made to work...
 
-<jwhite@codeweavers.com>:
-  o Fix bug parsing option of isofs driver
-  o Reverse isofs unhide option to hide
+As for maintaining a "convert 2.4.36->2.4.37" executable goes, (to be 
+released with each kernel version,) the fact there's a patch file to take the 
+kernel's source from version to version should help a LOT with figuring out 
+what structures got touched and what exactly needs to be converted.  Still 
+needs a human maintainer, though.  It's also bound to lag the kernel releases 
+a bit, but that's not such a bad thing...
 
-<lists-sender-14a37a@bittwiddlers.com>:
-  o 2.5.23 tqueue patches
+> Well, this does touch the idea of having migrating processes from one
+> machine to others in a network. In fact, I dont understand why is it so
+> hard to reparent a process. If it can be reparented within a machine, then
+> it can migrate to other machines as well, no?
 
-<manik@cisco.com>:
-  o (off 2.5.22) replacing __builtin_expect with unlikely in
-  o [Trivial Patch] : (2.5 latest) More __builtin_expect() cleanup in
+A process can touch zillions of arbitrary resources, which may not BE there 
+on the other machine.  If you have an mmap into 
+"/usr/thingy/rutabega/arbitrary/database/filename.fred" and on the remote 
+machine fred is there, the contents are identical, but the directory 
+"arbitrary" is owned by the wrong user so you don't have permission to 
+descend into it (or the /etc/passwd file gives the same username a different 
+pid/assigns that pid to a different username...)
 
-<mgross@unix-os.sc.intel.com>:
-  o tcore for 2.5.23 kernel
+Or how about fifos: are they all there on the resume?  Fifos are kind of 
+brain damaged so it's hard to re-use them, so "create, two connects, delete" 
+is a pretty common strategy.  The program has the initial setup and 
+negotiation code, but not And can the processes at each end be restored, in 
+pairs, such that they still communicate with each other properly?  What about 
+a process talking to a one-to-many server like X11 or apache or some such?  
+Freezing the server to go with your client is kind of overkill, eh?  Gotta 
+draw a line somewhere if you're going to cut out a running process and stick 
+it in an envelope...
 
-<patch@luckynet.dynu.com>:
-  o kbuild-2.5 other arches foreport
+The easy answer is have the restore fail easily and verbosely, and have 
+attempt 0.1 only able to freeze and restore a fairly small subset of 
+processes (like the distributed.net client and equivalents that sit in their 
+corner twiddling their thumbs really fast), and then add on as you need more. 
+ The wonderful world of shared library version skew is not something 
+checkpointing code should really HAVE to deal with, just fail if the 
+environment isn't pretty darn spotless and hand these problems over to the 
+"migration" utility.
 
-<willy@debian.org>:
-  o Convert cm206 to a tasklet
+If you're restoring back on top of the same set of mounted filesystems, and 
+you're only doing so once (freeze processes, reboot to new kernel, thaw 
+processes, discard checkpoint files), your problem gets much simpler.  Still, 
+did your reboot wipe out stuff in /tmp that running processes need?  (Hey, if 
+it's on shmfs and you didn't save it...)
 
-<wli@holomorphy.com>:
-  o [TRIVIAL] beautify nr_free_pages()
+Also, restoring one of these frozen processes has a certain amount of 
+security implications, doesn't it?  All well and good to say "well the 
+process's file belongs to user 'barbie', and the saved uid matches, so load 
+it back in", except that what if it was originally an suid executable so it 
+could bind to some resource and then drop privelidges?  How do you know some 
+user trying to attack the system didn't edit a frozen process file?  You 
+pretty much have to cryptographically sign the files to allow non-root users 
+to load them back in (public key cryptography, not md5sum.  Gotta be a secret 
+key or a user, with your source code, could replicate the process of creating 
+one of these suckers with arbitrary contents in userspace...)
 
-Adam J. Richter <adam@yggdrasil.com>:
-  o Patch: linux-2.5.23/Rules.make - enable modversions.h to build
+Again, less of a problem in a "trusted" environment, but this is unix we're 
+talking about, and unless you're makng an embedded system to put in a toaster 
+it will probably be attached to the internet.  And another easy answer is 
+"don't do that then", or "only allow root to restore the suckers" (that last 
+one probably has to be the case anyway, make an suid executable to verify the 
+save files via a gpg signature if you REALLY want users to be able to do 
+this, I.E. shove this problem into user space... :)
 
-Adrian Bunk <bunk@fs.tum.de>:
-  o [2.5 patch] drivers/atm/idt77252.h needs linux/tqueue.h
-  o [2.5 patch] tqueue.h fixes for ISDN
-  o [2.5 patch] fix compilation of ad1848_lib.c
+> Rob, I am going to the Newark campus FYI, and have interests in some AI
+> stuff.
+> Thanks again,
 
-Andi Kleen <ak@muc.de>:
-  o Export ioremap_nocache
-  o [NEW PATCH, testers needed] was Re: [PATCH] poll/select fast path
+I'm just trying to give you some idea how much work you're in for.  Then 
+again, Linus is on record as saying that if he knew how much work the kernel 
+would turn out to be, he probably never would have started it... :)
 
-Andrew Morton <akpm@zip.com.au>:
-  o [Ext2-devel] Shrinking ext3 directories
-  o [Ext2-devel] Shrinking ext3 directories
-  o [Ext2-devel] Shrinking ext3 directories
+> Adi
 
-Andrey Panin <pazke@orbita1.ru>:
-  o [RFC] SGI VISWS support for 2.5
-
-Andries E. Brouwer <Andries.Brouwer@cwi.nl>:
-  o [PATCHlet] 2.5.23 usb, ide
-
-Anton Altaparmakov <aia21@cantab.net>:
-  o [2.5-BK-PATCH] NTFS 2.0.9 update
-  o [2.5BK-PATCH] NTFS 2.0.10: Limit inodes to 2^32 - 1
-
-b.zolnierkiewicz@elka.pw.edu.pl <B.Zolnierkiewicz@elka.pw.edu.pl>:
-  o [redone PATCH 2.5.22] simple ide-tape/floppy.c cleanup
-
-Benjamin LaHaise <bcrl@redhat.com>:
-  o [patch] export default_wake_function
-  o [patch] credentials for 2.5.23
-
-Greg Kroah-Hartman <greg@kroah.com>:
-  o Re: 2.5.22 fix for pci_hotplug
-  o Re: [2.5 patch] drivers/hotplug/cpqphp.h must include tqueue.h
-  o Re: 2.5.22 fix for pci_hotplug
-
-Ingo Molnar <mingo@elte.hu>:
-  o [patch] migration thread & hotplug fixes, 2.5.23
-  o [patch] scheduler bits from 2.5.23-dj1
-
-James Simmons <jsimmons@transvirtual.com>:
-  o [UPDATES] fbdev ports and fixes
-
-Keith Owens <kaos@ocs.com.au>:
-  o kbuild-2.5 core 19
-  o kbuild-2.5 common 2.5.21
-  o kbuild-2.5 i386 2.5.21
-  o kbuild-2.5 s/390 2.5.21
-  o kbuild-2.5 s/390x 2.5.21
-
-Linus Torvalds <torvalds@transmeta.com>:
-  o Re: Linux 2.5.23 cpu_online_map undeclared
-
-Martin Dalecki <dalecki@evision-ventures.com>:
-  o Re: linux 2.5.23
-
-Peter Chubb <peter@chubb.wattle.id.au>:
-  o ppp_generic.c doesn't compile on IA64
-
-Robert Love <rml@tech9.net>:
-  o 2.5: mark variables as __initdata
-  o 2.5-dj: configurable NR_CPUS
-
-Rusty Russell <rusty@rustcorp.com.au>:
-  o Trivial rename bitmap_member -> DECLARE_BITMAP
-  o Fixed set_affinity/get_affinity syscalls
-
-Stelian Pop <stelian.pop@fr.alcove.com>:
-  o [PATCH 2.5] include <linux/tqueue.h> in pcmcia drivers
-
-Stephen Rothwell <sfr@canb.auug.org.au>:
-  o make kstack_depth_to_print and some APM stuff static
-  o ext2 statics
-  o ipv6 statics
-  o Consolidate include/asm/signal.h
-
--- 
-Lightweight patch manager using pine. If you have any objections, tell me.
-
+Rob

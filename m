@@ -1,30 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290618AbSBFPar>; Wed, 6 Feb 2002 10:30:47 -0500
+	id <S290619AbSBFPch>; Wed, 6 Feb 2002 10:32:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290619AbSBFPah>; Wed, 6 Feb 2002 10:30:37 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26377 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S290618AbSBFPaW>; Wed, 6 Feb 2002 10:30:22 -0500
-Subject: Re: kernel: ldt allocation failed
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Date: Wed, 6 Feb 2002 15:37:21 +0000 (GMT)
-Cc: ak@suse.de (Andi Kleen), linux-kernel@vger.kernel.org
-In-Reply-To: <200202061402.g16E2Nt32223@Port.imtp.ilyichevsk.odessa.ua> from "Denis Vlasenko" at Feb 06, 2002 04:02:25 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S290620AbSBFPc1>; Wed, 6 Feb 2002 10:32:27 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:2832 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S290619AbSBFPcQ>;
+	Wed, 6 Feb 2002 10:32:16 -0500
+Date: Wed, 6 Feb 2002 13:32:00 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+In-Reply-To: <87g04eljw6.fsf@CERT.Uni-Stuttgart.DE>
+Message-ID: <Pine.LNX.4.33L.0202061331210.17850-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16YU8P-0005VB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > allocation a bit (= not allocate 64K of vmalloc space every time
-> > sys_modify_ldt is called - there is only 8MB of it)
-> 
-> What do they use on arches without LDT or equivalent?
+On Wed, 6 Feb 2002, Florian Weimer wrote:
+> Linus Torvalds <torvalds@transmeta.com> writes:
+>
+> > The long-range plan, and the real payoff, comes if main developers start
+> > using bk too, which should make syncing a lot easier. That will take some
+> > time, I suspect.
+>
+> Do you think that at some point, using BitKeeper will become mandatory
+> for subsystem maintainers?  ("mandatory" in the sense that
+> non-BitKeeper input is dealt with in a less timely fashion, for
+> example.)
 
-Generally on such platforms you have enough registers to use a register
-for your thread specific storage. In fact even the kernel does that - you'll
-find 'current' on some platforms is a global register variable
+They're pretty much equally easy to deal with, except that the
+bitkeeper patches will always apply and will get better changelog
+entries ;)
+
+regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

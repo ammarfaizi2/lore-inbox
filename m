@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261781AbTCLQIN>; Wed, 12 Mar 2003 11:08:13 -0500
+	id <S261793AbTCLQOH>; Wed, 12 Mar 2003 11:14:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261782AbTCLQIN>; Wed, 12 Mar 2003 11:08:13 -0500
-Received: from blowme.phunnypharm.org ([65.207.35.140]:30474 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S261781AbTCLQIL>; Wed, 12 Mar 2003 11:08:11 -0500
-Date: Wed, 12 Mar 2003 11:18:38 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Jens Axboe <axboe@suse.de>, Larry McVoy <lm@work.bitmover.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Message-ID: <20030312161838.GF563@phunnypharm.org>
-References: <20030312034330.GA9324@work.bitmover.com> <20030312041621.GE563@phunnypharm.org> <20030312085517.GK811@suse.de> <20030312032614.G12806@schatzie.adilger.int>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030312032614.G12806@schatzie.adilger.int>
-User-Agent: Mutt/1.5.3i
+	id <S261798AbTCLQOH>; Wed, 12 Mar 2003 11:14:07 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18948 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261793AbTCLQOF>; Wed, 12 Mar 2003 11:14:05 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Kernel setup()
+Date: 12 Mar 2003 08:24:36 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b4nn04$3gk$1@cesium.transmeta.com>
+References: <Pine.GHP.4.53.0303120915340.16277@alderaan.science-computing.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 12, 2003 at 03:26:14AM -0700, Andreas Dilger wrote:
-> On Mar 12, 2003  09:55 +0100, Jens Axboe wrote:
-> > On Tue, Mar 11 2003, Ben Collins wrote:
-> > > You've made quite a marketing move. It's obvious to me, maybe not to
-> > > others. By providing this CVS gateway, you make it almost pointless to
-> > > work on an alternative client. Also by providing it, you make it easier
-> > > to get away with locking the revision history into a proprietary format.
-> > 
-> > This is a really good point, deserves high lighting imho...
-> > 
-> > The BK candy is getting increasingly bitter to swallow here, I may just
-> > have to drop it soon. A shame.
+Followup to:  <Pine.GHP.4.53.0303120915340.16277@alderaan.science-computing.de>
+By author:    Oliver Tennert <tennert@science-computing.de>
+In newsgroup: linux.dev.kernel
 > 
-> Sadly, some people see the dark side of everything.  I don't see how making
-> a CVS repository available with comments and an as-good-as-you-can-do-with-CVS
-> equivalent of a BK changeset equals "locking the revision history into a
-> proprietary format".  Yes, Larry said that this would allow him to change the
-> BK file format to break compatibility with CSSC, but it is no more "locked
-> away" now than before for those people who refuse to use BK.
+> My question is: is pivot_root deprecated by now? I just am quite dazzled
+> and want to know how to __cleanly__ handle the mounting of a new root
+> device.
 > 
-> Ironically, SCCS was a former "evil proprietary format" that was reverse
-> engineered to get CSSC, AFAIK.  People are still free to update CSSC to
-> track BK if they so choose.
 
-Atleast SCCS is mostly ascii. Larry is talking about binary. Who knows,
-maybe even encrypted and using some unknown compression method (I'm sure
-if it's encrypted, it will be called "compression").
+pivot_root() is the currently preferred method.  Depending on where
+the initramfs is by the time Linux 2.6 comes out it may be replaced by
+then, but for 2.4, pivot_root() is the way to go.
 
-
+	-hpa
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

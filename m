@@ -1,71 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263201AbUCMW3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 17:29:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263203AbUCMW3Y
+	id S263203AbUCMWes (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 17:34:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263204AbUCMWes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 17:29:24 -0500
-Received: from terminus.zytor.com ([63.209.29.3]:26004 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S263201AbUCMW3W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 17:29:22 -0500
-Message-ID: <40538B39.90803@zytor.com>
-Date: Sat, 13 Mar 2004 14:29:13 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040105
-X-Accept-Language: en, sv, es, fr
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: i386 very early memory detection cleanup patch breaks the build
-References: <1079198139.2512.19.camel@mulgrave> 	<40538091.9050707@zytor.com> <1079215809.2513.39.camel@mulgrave>
-In-Reply-To: <1079215809.2513.39.camel@mulgrave>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 13 Mar 2004 17:34:48 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:61092 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263203AbUCMWeq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 17:34:46 -0500
+Subject: Re: finding out the value of HZ from userspace
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Micha Feigin <michf@post.tau.ac.il>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040313221418.GF5960@luna.mooo.com>
+References: <20040311141703.GE3053@luna.mooo.com>
+	 <1079198671.4446.3.camel@laptop.fenrus.com> <4053624D.6080806@BitWagon.com>
+	 <20040313193852.GC12292@devserv.devel.redhat.com>
+	 <20040313221418.GF5960@luna.mooo.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Gcj1rtdmykoL4dqzJQ5M"
+Organization: Red Hat, Inc.
+Message-Id: <1079217159.4915.0.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sat, 13 Mar 2004 23:32:39 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> 
->>I removed it because I removed the VISWS dependency, thus making it 
->>redundant.  What you seem to be saying is that the dependency should 
->>have been on SMP not X86_SMP; if that's the issue then please make it so.
->>
->>I think you just needed to apply your own rule to the above statement.
-> 
-> If you mean the dependency should be
-> 
-> 	depends X86_SMP || (VOYAGER && SMP)
-> 
-> Then yes, I'm happy with that.
-> 
 
-Actually, I just meant changing:
+--=-Gcj1rtdmykoL4dqzJQ5M
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
--obj-$(CONFIG_X86_SMP)		+= smp.o smpboot.o trampoline.o
-+obj-$(CONFIG_X86_SMP)		+= smp.o smpboot.o
-+obj-$(CONFIG_SMP)		+= trampoline.o
+On Sat, 2004-03-13 at 23:14, Micha Feigin wrote:
+> On Sat, Mar 13, 2004 at 08:38:52PM +0100, Arjan van de Ven wrote:
+> > On Sat, Mar 13, 2004 at 11:34:37AM -0800, John Reiser wrote:
+> > > Arjan van de Ven wrote:
+> > > >On Thu, 2004-03-11 at 15:17, Micha Feigin wrote:
+> > > >
+> > > >>Is it possible to find out what the kernel's notion of HZ is from u=
+ser
+> > > >>space?
+> > > >>It seem to change from system to system and between 2.4 (100 on i38=
+6)
+> > > >>to 2.6 (1000 on i386).
+> > > >
+> > > >
+> > > >if you can see 1000 from userspace that is a bad kernel bug; can you=
+ say
+> > > >where you find something in units of 1000 ?
+> > >=20
+> > > create_elf_tables() in fs/binfmt_elf.c tells every ELF execve():
+> > >         NEW_AUX_ENT(AT_CLKTCK, CLOCKS_PER_SEC);
+> > > which can be found by crawling through the stack above the pointer
+> > > to the last environment variable.
+> >=20
+> > Ugh that should say 100 on x86....
+> > but..
+> > param.h:# define USER_HZ        100             /* .. some user interfa=
+ces are in "ticks" */
+> > param.h:# define CLOCKS_PER_SEC (USER_HZ)       /* like times() */
+> > .....
+> > that looks like 100 to me.
+> >=20
+>=20
+> When dealing with bdflush and a few other interfaces the values need to
+> be in jiffies which requires knowledge of the kernels notion of HZ not
+> userspace.
 
-... which is more like what the original code is doing, minus VISWS.
+Wrong. Any such interface is supposed to convert automatically. Any
+interface you can find that doesn't should be reported as a serious bug!
 
-> I'm still debugging the boot time failure.  As far as I can tell it
-> looks like ioremap is failing (this is after paging_init); does this
-> trigger any associations?
 
-Nope.  It shouldn't be using the boot page tables after paging_init, and 
-even so, the "new" boot page tables look just like the "old" ones except 
-there might be more of them, so there are two resaons that shouldn't be 
-happening.  I'd have been less surprised if you'd seen a problem with 
-boot_ioremap(), although even that shouldn't really be different...
+--=-Gcj1rtdmykoL4dqzJQ5M
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-My main guess would be a porting problem (_end -> init_pg_tables_end) in 
-discontig.c, which I believe Voyager uses, right?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-I don't have access to any real subarchitectures (I have a visws now, 
-but I haven't actually been able to run it yet), so the discontig stuff 
-didn't get tested; on the other hand the change in there was quite trivial.
+iD8DBQBAU4wGxULwo51rQBIRArEBAJ4jA91b04kmfFBIC2jNynhQ1Cm4FACeLuuz
+zRyfgqxVGQI6Gj5rZQhhOGY=
+=qi8C
+-----END PGP SIGNATURE-----
 
-Sorry for not being able to be more helpful, but I'm surrounded by boxes 
-and this is the last weekend I have to pack before I move houses...
+--=-Gcj1rtdmykoL4dqzJQ5M--
 
-	-hpa

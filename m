@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287279AbSALS3L>; Sat, 12 Jan 2002 13:29:11 -0500
+	id <S287276AbSALS2L>; Sat, 12 Jan 2002 13:28:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287283AbSALS24>; Sat, 12 Jan 2002 13:28:56 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:42506 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S287279AbSALS2m>;
-	Sat, 12 Jan 2002 13:28:42 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200201121828.g0CISaM342258@saturn.cs.uml.edu>
-Subject: Re: [PATCH] 1-2-3 GB
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Sat, 12 Jan 2002 13:28:36 -0500 (EST)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan), hpa@zytor.com (H. Peter Anvin),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020112184216.U1482@inspiron.school.suse.de> from "Andrea Arcangeli" at Jan 12, 2002 06:42:16 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S287279AbSALS2C>; Sat, 12 Jan 2002 13:28:02 -0500
+Received: from a178d15hel.dial.kolumbus.fi ([212.54.8.178]:64265 "EHLO
+	porkkala.jlaako.pp.fi") by vger.kernel.org with ESMTP
+	id <S287276AbSALS1t>; Sat, 12 Jan 2002 13:27:49 -0500
+Message-ID: <3C407FBF.4C55F963@kolumbus.fi>
+Date: Sat, 12 Jan 2002 20:26:07 +0200
+From: Jussi Laako <jussi.laako@kolumbus.fi>
+X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Andrew Morton <akpm@zip.com.au>
+CC: yodaiken@fsmlabs.com, Robert Love <rml@tech9.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <E16P0vl-0007Tu-00@the-village.bc.nu> <1010781207.819.27.camel@phantasy> <20020111195018.A2008@hq.fsmlabs.com>,
+			<20020111195018.A2008@hq.fsmlabs.com> <20020112042404.WCSI23959.femail47.sdc1.sfba.home.com@there> <3C3FC3B2.352EDF36@zip.com.au>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli writes:
-> On Sat, Jan 12, 2002 at 12:26:35PM -0500, Albert D. Cahalan wrote:
+Andrew Morton wrote:
+> 
+> Priority inheritance seems undesirable for Linux - these applications are
+> already in the minority.   A realtime application on Linux should simply
+> avoid complex system calls which can lead to blockage on a SCHED_OTHER
+> thread.
 
->> The numbers are wrong anyway, because of vmalloc() and PCI space.
->> The PCI space is motherboard-dependent AFAIK, but you could at
->> least account for the 128 MB vmalloc() area:
->
-> looks dirty, the size of the kernel direct mapping is mainly in function
-> of #defines that can be changed freely, they're not constant in function
-> of CONFIG_1G etc.. and it changes also in function of smp/up/4G/64G
-> options.  The 3GB/2GB/1GB/3.5GB visible into the menuconfig are exact
-> instead.  So I wouldn't mention inprecise stuff that can changed under
-> us (and the exact size of the kernel direct mapping doesn't matter to
-> the user anyways I think [and if it matters I think it means he's
-> skilled enough to know about vmalloc space ;) ]).
+I think it's very common to have SCHED_FIFO thread communicating with
+various other processes through pipe/fifo/socket or some other IPC
+mechanism.
 
-The problem is that the "1GB" option doesn't cover 1 GB.
-It is common for people to buy 1 GB of memory (power of 2),
-and then complain that Linux only sees 896 MB of memory.
+It would be great to have priority inheritance where process receiving data
+through fifo from SCHED_FIFO process would have raised priority for transfer
+time. (see QNX priority inheriting message queues) Too bad we don't have
+message queues so we could have send/receive/reply time priority
+inheritance.
 
-So how will you make the choices clear to such people?
-There are 3 options, not counting the slram block device:
+So we could have
 
-a. give up 128 MB (12.5 %) of memory
-b. suffer the kmap overhead
-c. give up some user virtual address space
+Process 1 at SCHED_FIFO sending data to two processes.
+Process 2 at SCHED_FIFO receiving data from process 1.
+Process 3 at SCHED_OTHER receiving data from process 1.
+Process 4 at SCHED_OTHER sending data to process 5.
+Process 5 at SCHED_OTHER receiving data from process 4.
 
-None of this is obvious. The user sees "1GB" and will
-innocently believe that this is good for a 1 GB system!
+And (2) would get the data first from (1) and then (3). And if (1) starts
+sending data to (2) system would immediately start running (1/2) and even
+pre-empt the ongoing system call of (3). Also (1/3) would take over/pre-empt
+(4/5) because (3) inherits priority from sending process (1).
 
-BTW, do we no longer require that the kernel side of things
-(whole thing, including vmalloc space) be a power of two?
-There used to be a bitwise operation in the user access stuff.
+If this is currently _not_ done I think it's very strange.
+
+But I think I have misunderstood the whole point of original message... :)
+
+
+ - Jussi Laako
+
+-- 
+PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+Available at PGP keyservers
+

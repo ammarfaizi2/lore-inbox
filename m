@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281460AbRKFFHL>; Tue, 6 Nov 2001 00:07:11 -0500
+	id <S274774AbRKFFMX>; Tue, 6 Nov 2001 00:12:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281463AbRKFFGx>; Tue, 6 Nov 2001 00:06:53 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:23996 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S281462AbRKFFGr>; Tue, 6 Nov 2001 00:06:47 -0500
-Date: Mon, 5 Nov 2001 22:06:22 -0700
-Message-Id: <200111060506.fA656Mq18958@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: more devfs fun
-In-Reply-To: <Pine.GSO.4.21.0110271458300.21545-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0110271422520.21545-100000@weyl.math.psu.edu>
-	<Pine.GSO.4.21.0110271458300.21545-100000@weyl.math.psu.edu>
+	id <S275082AbRKFFMN>; Tue, 6 Nov 2001 00:12:13 -0500
+Received: from mx5.port.ru ([194.67.57.15]:28947 "EHLO smtp5.port.ru")
+	by vger.kernel.org with ESMTP id <S274774AbRKFFMD>;
+	Tue, 6 Nov 2001 00:12:03 -0500
+From: Samium Gromoff <_deepfire@mail.ru>
+Message-Id: <200111060513.fA65DqZ26051@vegae.deep.net>
+Subject: 3.0.2 breaks linux-2.4.13-ac8 in tcp.c
+To: gcc-bugs@gcc.gnu.org
+Date: Tue, 6 Nov 2001 08:13:52 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> 	BTW, what the hell is that?
-> /*
->  * hwgraph_bdevsw_get - returns the fops of the given devfs entry.
-> */
-> struct file_operations * 
-> hwgraph_bdevsw_get(devfs_handle_t de)
-> {
->         return(devfs_get_ops(de));
-> }
-> 
-> 	It's arch/ia64/sn/io/hcl.c.  The funny thing being, the thing
-> you will get from devfs_get_ops() will _not_ be struct
-> file_operations *.  And that's aside of the fact that any use of
-> that function is very likely to be racy as hell.  Sigh...
+     well, not too much to add, maybe except that the RAM is ok and CPU is not
+   OC`ed...
 
-Sigh indeed. I didn't write that code. Looks like someone is (ab)using
-the devfs API. Contact the maintainer of that code for insight.
+make[3]: Entering directory `/usr/src/linux/net/ipv4'
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586    -c -o tcp.o tcp.c
+In file included from /usr/src/linux/include/net/checksum.h:33,
+                 from /usr/src/linux/include/net/tcp.h:30,
+                 from tcp.c:256:
+/usr/src/linux/include/asm/checksum.h:72:30: warning: multi-line string literals are deprecated
+/usr/src/linux/include/asm/checksum.h:105:17: warning: multi-line string literals are deprecated
+/usr/src/linux/include/asm/checksum.h:121:13: warning: multi-line string literals are deprecated
+/usr/src/linux/include/asm/checksum.h:161:17: warning: multi-line string literals are deprecated
+tcp.c: In function `tcp_close':
+tcp.c:1978: Internal compiler error in rtx_equal_for_memref_p, at alias.c:1121
+Please submit a full bug report,
+with preprocessed source if appropriate.
+See <URL:http://www.gnu.org/software/gcc/bugs.html> for instructions.
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+cheers, Samium Gromoff

@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266108AbSLISDW>; Mon, 9 Dec 2002 13:03:22 -0500
+	id <S265865AbSLIRrk>; Mon, 9 Dec 2002 12:47:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266112AbSLISDW>; Mon, 9 Dec 2002 13:03:22 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32526 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266108AbSLISDV>; Mon, 9 Dec 2002 13:03:21 -0500
-Date: Mon, 9 Dec 2002 10:11:39 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Richard Henderson <rth@twiddle.net>, Patrick Mochel <mochel@osdl.org>,
-       Willy Tarreau <willy@w.ods.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <jgarzik@pobox.com>
-Subject: Re: /proc/pci deprecation?
-In-Reply-To: <1039458577.10470.49.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0212090958140.10925-100000@home.transmeta.com>
+	id <S265885AbSLIRrk>; Mon, 9 Dec 2002 12:47:40 -0500
+Received: from ronispc.Chem.McGill.CA ([132.206.205.91]:45976 "EHLO
+	ronispc.chem.mcgill.ca") by vger.kernel.org with ESMTP
+	id <S265865AbSLIRrh>; Mon, 9 Dec 2002 12:47:37 -0500
+From: David Ronis <ronis@ronispc.chem.mcgill.ca>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15860.55555.185055.901097@ronispc.chem.mcgill.ca>
+Date: Mon, 9 Dec 2002 12:55:15 -0500
+To: ronis@onsager.chem.mcgill.ca
+Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux-kernel@vger.kernel.org,
+       David Ronis <ronis@ronispc.chem.mcgill.ca>
+Subject: Re: build failure in 2.4.20
+In-Reply-To: <15860.54084.694635.159603@ronispc.chem.mcgill.ca>
+References: <15860.46389.654483.692231@ronispc.chem.mcgill.ca>
+	<200212091809.57622.m.c.p@wolk-project.de>
+	<15860.54084.694635.159603@ronispc.chem.mcgill.ca>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: ronis@onsager.chem.mcgill.ca
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I wrote:
 
-On 9 Dec 2002, Alan Cox wrote:
->
-> Tested and verified. If I leave it alone non apic mode works. To use
-> APIC mode I have to write the new IRQ value into that register. I've
-> shoved that into the driver for now, since its a demented chip specific
-> horror.
+[snip]
+ > I'm using GNU ld version 2.13 and objdump -i shows that binary is
+ > allowed.  I tried changing the instances of -oformat binary to
+ > --oformat=binary in arch/i386/Makefile, but the changes seem to be
+ > ignored, which is strange.
+ > 
 
-That's definitely where it should be - the behaviour of the
-PCI_INTERRUPT_LINE register is clearly chip-specific, so it should be in
-the chip-specific drivers..
+It certainly is, I was changing the makefile in one directory tree and
+running make bzImage in another.  Changing -oformat binary to
+--oformat=binary fixes this probem and bzImage is now built.
 
-It's a kind of strange behaviour, though. What chip is this? It sounds
-kind of convenient, but as far as I can tell it can only work for those
-kinds of PCI devices that are on the same chip as the irq controller..
-
-		Linus
-
+David

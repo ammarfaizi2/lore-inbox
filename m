@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263507AbRFANsY>; Fri, 1 Jun 2001 09:48:24 -0400
+	id <S263517AbRFANyX>; Fri, 1 Jun 2001 09:54:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263078AbRFANsN>; Fri, 1 Jun 2001 09:48:13 -0400
-Received: from lech.pse.pl ([194.92.3.7]:6058 "EHLO lech.pse.pl")
-	by vger.kernel.org with ESMTP id <S263507AbRFANsJ>;
-	Fri, 1 Jun 2001 09:48:09 -0400
-Date: Fri, 1 Jun 2001 15:48:05 +0200
-From: Lech Szychowski <lech.szychowski@pse.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: unmount issues with 2.4.5-ac5, 3ware, and ReiserFS (was: kernel-2.4.5
-Message-ID: <20010601154805.A30543@lech.pse.pl>
-Reply-To: Lech Szychowski <lech.szychowski@pse.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <E155a3W-00084H-00@the-village.bc.nu> <3B16C002.E615CB80@home.com> <20010601105611.A3610@middle.of.nowhere> <20010601113724.A3444@lech.pse.pl>
+	id <S263523AbRFANyD>; Fri, 1 Jun 2001 09:54:03 -0400
+Received: from sovereign.org ([209.180.91.170]:59103 "EHLO lux.homenet")
+	by vger.kernel.org with ESMTP id <S263522AbRFANyA>;
+	Fri, 1 Jun 2001 09:54:00 -0400
+From: Jim Freeman <jfree@sovereign.org>
+Date: Fri, 1 Jun 2001 07:54:27 -0600
+To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: Remaining undocumented Configure.help symbols
+Message-ID: <20010601075427.A23321@sovereign.org>
+In-Reply-To: <20010529145940.A11498@thyrsus.com> <20010530185542.R14293@corellia.laforge.distro.conectiva> <20010530182012.D1305@thyrsus.com> <20010531144328.A16811@sovereign.org> <20010531191055.A13056@thyrsus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010601113724.A3444@lech.pse.pl>
+In-Reply-To: <20010531191055.A13056@thyrsus.com>
 User-Agent: Mutt/1.3.18i
-Organization: Polskie Sieci Elektroenergetyczne S.A.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks like -ac6 has fixed this problem :)
 
--- 
-	Leszek.
+On Thu, May 31, 2001 at 07:10:55PM -0400, Eric S. Raymond wrote:
+> Jim Freeman <jfree@sovereign.org>:
+> > The verbiage in these entries seems 'make config' / text-interaction
+> > -centric.  Granted, that's likely the context most kernel builders will
+> > use, but it would seem fair to at least consider a broader audience
+> > who may be using more gui-ish tools wrapped around extant content.
+> 
+> This is a general problem with almost all the existing entries, and
+> will have to await a future editing pass for solution.  For now I think
+> it's more important to have consistent cues that users can recognize,
+> even if they're not literally appropriate.
 
--- lech7@pse.pl 2:480/33.7          -- REAL programmers use INTEGERS --
--- speaking just for myself...
+Agreed - in the meantime, just wanted to have the issue acknowledged
+and put on the roadmap.

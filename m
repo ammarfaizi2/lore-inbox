@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272791AbTHENxG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 09:53:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272794AbTHENxG
+	id S272810AbTHEOEj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 10:04:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272811AbTHEOEj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 09:53:06 -0400
-Received: from niobium.golden.net ([199.166.210.90]:28655 "EHLO
-	niobium.golden.net") by vger.kernel.org with ESMTP id S272791AbTHENxD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 09:53:03 -0400
-Date: Tue, 5 Aug 2003 09:52:27 -0400
-From: Paul Mundt <lethal@linux-sh.org>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: lk maintainers
-Message-ID: <20030805135226.GA23566@linux-sh.org>
-Mail-Followup-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-	linux-kernel@vger.kernel.org
-References: <200308051226.h75CQVj19345@Port.imtp.ilyichevsk.odessa.ua>
+	Tue, 5 Aug 2003 10:04:39 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:62365 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S272810AbTHEOEh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 10:04:37 -0400
+X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Tue, 5 Aug 2003 16:04:35 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: root@chaos.analogic.com
+Cc: helgehaf@aitel.hist.no, linux-kernel@vger.kernel.org
+Subject: Re: FS: hardlinks on directories
+Message-Id: <20030805160435.7b151b0e.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.53.0308050916140.5994@chaos>
+References: <20030804141548.5060b9db.skraw@ithnet.com>
+	<03080409334500.03650@tabby>
+	<20030804170506.11426617.skraw@ithnet.com>
+	<03080416092800.04444@tabby>
+	<20030805003210.2c7f75f6.skraw@ithnet.com>
+	<3F2FA862.2070401@aitel.hist.no>
+	<20030805150351.5b81adfe.skraw@ithnet.com>
+	<Pine.LNX.4.53.0308050916140.5994@chaos>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
-Content-Disposition: inline
-In-Reply-To: <200308051226.h75CQVj19345@Port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 5 Aug 2003 09:36:37 -0400 (EDT)
+"Richard B. Johnson" <root@chaos.analogic.com> wrote:
 
---45Z9DzgjV8m4Oswq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> A hard-link is, by definition, indistinguishable from the original
+> entry. In fact, with fast machines and the course granularity of
+> file-system times, even the creation time may be exactly the
+> same.
 
-On Tue, Aug 05, 2003 at 03:36:03PM +0300, Denis Vlasenko wrote:
-> This document is mailed to lkml regularly and will be modified
-> whenever new victim wishes to be listed in it or someone can
-> no longer devote his time to maintainer work.
->=20
-Isn't this exactly what MAINTAINERS is for? What is the point of
-having this lk-maintainers list if MAINTAINERS is supposed to be
-authoritative?
+Hello Richard,
 
-It seems like this adds more confusion then anything else, since
-now it's not obvious what should be considered the defacto standard
-maintainer list.
+I really don't mind if you call the thing I am looking for a hardlink or a
+chicken. And I am really not sticking to creating them by ln or mount or just
+about anything else. I am, too, not bound to making them permanent on the
+media. All I really want to do is to _export_ them via nfs.
+And guys, looking at mount -bind makes me think someone else (before poor me)
+needed just about the same thing.
+So, instead of constantly feeding my bad conscience, can some kind soul explain
+the possibilities to make "mount -bind/rbind" work over a network fs of some
+flavor, please?
+
+Regards,
+Stephan
+
+PS: if you ever want to find out what *nix people are carrying guns, just enter
+the room and cry out loud "directory hardlinks to the left!"
+;-)
 
 
---45Z9DzgjV8m4Oswq
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE/L7aa1K+teJFxZ9wRAjxhAJ4oN+QwKabAddG4GbKMPHOMCssTWACfYWnP
-DxH5/nIpqHhjuE6I/rh1QOg=
-=L6vv
------END PGP SIGNATURE-----
-
---45Z9DzgjV8m4Oswq--

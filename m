@@ -1,28 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262754AbTJIVvK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 17:51:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbTJIVvK
+	id S262596AbTJIVrl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 17:47:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbTJIVrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 17:51:10 -0400
-Received: from ns.schottelius.org ([213.146.113.242]:7296 "HELO
+	Thu, 9 Oct 2003 17:47:41 -0400
+Received: from ns.schottelius.org ([213.146.113.242]:1408 "HELO
 	flapp.schottelius.org") by vger.kernel.org with SMTP
-	id S262754AbTJIVvC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 17:51:02 -0400
-Date: Thu, 9 Oct 2003 23:48:09 +0200
-From: Nico Schottelius <nico-linux-net@schottelius.org>
-To: linux-wlan-user@lists.linux-wlan.com, reyk@hannover.ccc.de
-Cc: linux-net@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Wireless Network Maintainer?
-Message-ID: <20031009214809.GA7719@schottelius.org>
-Mail-Followup-To: Nico Schottelius <nico-linux-net@schottelius.org>,
-	linux-wlan-user@lists.linux-wlan.com, reyk@hannover.ccc.de,
-	linux-net@vger.kernel.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id S262596AbTJIVrj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 17:47:39 -0400
+Date: Thu, 9 Oct 2003 20:16:17 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel Memory Issues (2.6 and later)
+Message-ID: <20031009181617.GB7591@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
+	protocol="application/pgp-signature"; boundary="TRYliJ5NKNqkz5bu"
 Content-Disposition: inline
 X-MSMail-Priority: gibbet nicht.
 X-Mailer: cat << EOF | netcat mailhost 110
@@ -34,30 +30,31 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---M9NhX3UHpAaciwkO
+--TRYliJ5NKNqkz5bu
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hello!
 
-Is there _anyone_ responsable for the wireless (802.11*) drivers in the
-Linux kernel?
+Once again I have to report: Linux 2.6 seems to have problems managing
+memory.
+After working on a laptop system (with Mozilla, X 4.3.99, Opera, 4xterms)
+for some hours the system becomes very slow.
+It looks like the system has no memery left, partly programs get
+killed (Out of Memory) although there is plenty memory left.
 
-I would like to have the following things (if possible) for all wireless
-drivers:
+I tried to kill processes to see whether one processes has a memory leak,
+but that's not the case.
 
-   - easy interface =3D support for wireless tools
-   - compatibility with 2.5/2.6 modul interface
-   - support for AP-Master/AP/Ad-Hoc/Monitor Modus (like HostAP can do)
-   - device naming scheme should be wlanX -> easier to see what it is
-   - support for external encryption (kernel modules/user space) like WLSec
+I even tried to kill all processes and restart everything (with sysrg+k)
+but this didn't show any success.
 
-Have a nice day,
+Any ideas where the problem is?
 
 Nico
 
-P.S.: Sorry for the crosspost!
+ps: please CC me again, not subscribed.
 
 --=20
 quote:   there are two time a day you should do nothing: before 12 and afte=
@@ -68,16 +65,16 @@ pgp:     new id: 0x8D0E27A4 | ftp.schottelius.org/pub/family/nico/pgp-key.n=
 ew
 url:     http://nerd-hosting.net - domains for nerds (from a nerd)
 
---M9NhX3UHpAaciwkO
+--TRYliJ5NKNqkz5bu
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQE/hdeZzGnTqo0OJ6QRAgQ7AJ9NVctV15rigbiiG36qgwhPRMViQwCdGB8E
-i7Ru9276wqofQE1LutAB7v8=
-=j4xe
+iD8DBQE/haXxzGnTqo0OJ6QRAm+FAKDgT0GShxau3XRysV+I7u6gqf/gggCg1rWw
+jxMjG9XgBoU7Z94LVkACLCw=
+=hM11
 -----END PGP SIGNATURE-----
 
---M9NhX3UHpAaciwkO--
+--TRYliJ5NKNqkz5bu--

@@ -1,73 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267386AbSLRXOA>; Wed, 18 Dec 2002 18:14:00 -0500
+	id <S267378AbSLRXMl>; Wed, 18 Dec 2002 18:12:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267387AbSLRXOA>; Wed, 18 Dec 2002 18:14:00 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:43281 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267386AbSLRXN6>;
-	Wed, 18 Dec 2002 18:13:58 -0500
-Date: Wed, 18 Dec 2002 15:19:17 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-Subject: [BK PATCH] LSM changes for 2.5.52
-Message-ID: <20021218231917.GA1782@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S267379AbSLRXMl>; Wed, 18 Dec 2002 18:12:41 -0500
+Received: from dexter.citi.umich.edu ([141.211.133.33]:1920 "EHLO
+	dexter.citi.umich.edu") by vger.kernel.org with ESMTP
+	id <S267378AbSLRXMj>; Wed, 18 Dec 2002 18:12:39 -0500
+Date: Wed, 18 Dec 2002 18:20:37 -0500 (EST)
+From: Chuck Lever <cel@citi.umich.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] give NFS client a "set_page_dirty" address space op.
+Message-ID: <Pine.LNX.4.44.0212181819520.1373-100000@dexter.citi.umich.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some minor cleanups for the existing LSM code, and a
-capabilities patch from Bill Irwin.
+Description:
+  The default set_page_dirty address space op is too heavyweight for NFS,
+  which doesn't use buffers.
 
-Please pull from:
-	bk://lsm.bkbits.net/linus-2.5
+Apply against:
+  2.5.52
 
-thanks,
 
-greg k-h
-
- kernel/capability.c  |   14 +++---
- security/Kconfig     |    7 ++-
- security/dummy.c     |  108 ---------------------------------------------------
- security/root_plug.c |    3 +
- security/security.c  |    8 +++
- 5 files changed, 25 insertions(+), 115 deletions(-)
------
-
-ChangeSet@1.901, 2002-12-18 15:10:25-08:00, greg@kroah.com
-  LSM: update the copyright dates for my entry.
-
- security/dummy.c    |    2 +-
- security/security.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-------
-
-ChangeSet@1.900, 2002-12-18 15:09:33-08:00, greg@kroah.com
-  LSM: Fix up the description of the root_plug code to try to make it clearer.
-
- security/Kconfig     |    7 +++++--
- security/root_plug.c |    3 +++
- 2 files changed, 8 insertions(+), 2 deletions(-)
-------
-
-ChangeSet@1.899, 2002-12-18 14:58:27-08:00, wli@holomorphy.com
-  [PATCH] converting cap_set_pg() to for_each_task_pid()
-  
-  cap_set_pg() wants to find all processes in a given process group. This
-  converts it to use for_each_task_pid().
-
- kernel/capability.c |   14 ++++++++------
- 1 files changed, 8 insertions(+), 6 deletions(-)
-------
-
-ChangeSet@1.898, 2002-12-18 14:57:38-08:00, greg@kroah.com
-  LSM: changed the dummy code to use the default operations logic.
-
- security/dummy.c    |  106 ----------------------------------------------------
- security/security.c |    6 ++
- 2 files changed, 7 insertions(+), 105 deletions(-)
-------
+diff -Naurp 01-kmap_atomic/fs/nfs/file.c 02-set_page_dirty/fs/nfs/file.c
+--- 01-kmap_atomic/fs/nfs/file.c	Sun Dec 15 21:08:12 2002
++++ 02-set_page_dirty/fs/nfs/file.c	Wed Dec 18 17:37:07 2002
+@@ -168,6 +168,7 @@ static int nfs_commit_write(struct file 
+ struct address_space_operations nfs_file_aops = {
+ 	.readpage = nfs_readpage,
+ 	.readpages = nfs_readpages,
++	.set_page_dirty = __set_page_dirty_nobuffers,
+ 	.writepage = nfs_writepage,
+ 	.writepages = nfs_writepages,
+ 	.prepare_write = nfs_prepare_write,
 

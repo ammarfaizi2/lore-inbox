@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261881AbREPLi7>; Wed, 16 May 2001 07:38:59 -0400
+	id <S261887AbREPMFF>; Wed, 16 May 2001 08:05:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261882AbREPLit>; Wed, 16 May 2001 07:38:49 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:12301 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S261881AbREPLip>; Wed, 16 May 2001 07:38:45 -0400
-Date: Wed, 16 May 2001 13:34:56 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Nicolas Pitre <nico@cam.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LANANA: To Pending Device Number Registrants
-Message-ID: <20010516133455.C902@arthur.ubicom.tudelft.nl>
-In-Reply-To: <Pine.LNX.4.33.0105151713020.30128-100000@xanadu.home> <01051602593001.00406@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01051602593001.00406@starship>; from phillips@bonn-fries.net on Wed, May 16, 2001 at 02:59:30AM +0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S261889AbREPMEz>; Wed, 16 May 2001 08:04:55 -0400
+Received: from bcnfwl02.retevision.es ([62.81.27.241]:38464 "EHLO
+	avinoe02.retevision.es") by vger.kernel.org with ESMTP
+	id <S261887AbREPMEq> convert rfc822-to-8bit; Wed, 16 May 2001 08:04:46 -0400
+Subject: Hidden interfaces on 2.4.x kernels
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.4  June 8, 2000
+Message-ID: <OF2434A91A.53D55D6A-ONC1256A4E.004188B6@retevision.es>
+From: rsaura@retevision.es
+Date: Wed, 16 May 2001 14:05:05 +0200
+X-MIMETrack: Serialize by Router on AVINOE02/SRV/EXT_RETEVISION(Release 5.0.6a |January
+ 17, 2001) at 05/16/2001 02:03:48 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 16, 2001 at 02:59:30AM +0200, Daniel Phillips wrote:
-> On Tuesday 15 May 2001 23:20, Nicolas Pitre wrote:
-> > Personally, I'd really like to see /dev/ttyS0 be the first detected
-> > serial port on a system, /dev/ttyS1 the second, etc.
-> 
-> There are well-defined rules for the first four on PC's.  The ttySx 
-> better match the labels the OEM put on the box.
+Hi all.
 
-Nico's point is that there is a lot of linux beyond PCs. My LART[1] has
-three serial ports which I didn't label at all. The official SA1100
-serial driver has /dev/ttySA[0-2] allocated. Other ARM systems use
-/dev/ttyS0. Guess what happens when you want to install debian-arm on
-an SA1100 system. A serial device registry like we have for the sound
-cards would be most welcome.
+      Several months ago I set up a lvs cluster on smtp servers on 2.2.16
+      kernels, which now I'm planning to move to 2.4.4.
+
+      I am using direct routing alternative so I configure a lo:0 interface
+      with the address of the virtualserver on every local node so it can
+      process the mails as its own, but I can't find
+      /proc/sys/net/ipv4/conf/hidden anywhere in my proc fs.
+
+      where did it go?
+      How can I set up a silent interface that don't send arps in 2.4
+      kernels?
+
+      TIA
+
+      Please answer directly to me because I am not subscribed.
 
 
-Erik
+          Raúl
+La información incluida en el presente correo electrónico es CONFIDENCIAL,
+siendo para el uso exclusivo del destinatario arriba mencionado. Si usted
+lee este mensaje y no es el destinatario señalado, el empleado o el agente
+responsable de entregar el mensaje al destinatario, o ha recibido esta
+comunicación por error, le informamos que está totalmente prohibida
+cualquier divulgación, distribución o reproducción de esta comunicación, y
+le rogamos que nos lo notifique, nos devuelva el mensaje original a la
+dirección arriba mencionada y borre el mensaje.
+Gracias.
 
-[1] StrongARM SA1100 embedded board, http://www.lart.tudelft.nl/
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/

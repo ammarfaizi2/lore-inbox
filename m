@@ -1,31 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262368AbSJTLQG>; Sun, 20 Oct 2002 07:16:06 -0400
+	id <S262385AbSJTLl7>; Sun, 20 Oct 2002 07:41:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262369AbSJTLQF>; Sun, 20 Oct 2002 07:16:05 -0400
-Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:59541 "EHLO
-	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S262368AbSJTLQF>; Sun, 20 Oct 2002 07:16:05 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Use of yield() in the kernel
-Date: Sun, 20 Oct 2002 13:22:30 +0200
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
-References: <200210151536.39029.baldrick@wanadoo.fr> <200210191425.34627.baldrick@wanadoo.fr> <20021019220000.GC28445@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20021019220000.GC28445@atrey.karlin.mff.cuni.cz>
+	id <S262440AbSJTLl7>; Sun, 20 Oct 2002 07:41:59 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:521 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S262385AbSJTLl7>; Sun, 20 Oct 2002 07:41:59 -0400
+Message-Id: <200210201142.g9KBgUp18341@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Bert Barbe <BERT.BARBE@oracle.com>, rmk@arm.linux.org.uk
+Subject: Re: Re: 2.4.19 orinoco_cs with Lucent WaveLAN "bronze"
+Date: Sun, 20 Oct 2002 14:35:19 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: jt@hpl.hp.com, linux-kernel@vger.kernel.org
+References: <3187992.1035061003952.JavaMail.nobody@web54.us.oracle.com>
+In-Reply-To: <3187992.1035061003952.JavaMail.nobody@web54.us.oracle.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210201322.30280.baldrick@wanadoo.fr>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well goodness me!  That just goes to show that spending
-all your time programming in other languages can be harmful
-to your C (or: to your brain)!  Let me just crawl away and find
-a hole to die in before someone pours salt on me...
+On 19 October 2002 18:56, Bert Barbe wrote:
+> > On Sat, Oct 19, 2002 at 02:14:57PM +0000, Denis Vlasenko wrote:
+> > > Today I played with wireless LAN euqipment for the first time.
+> > > I have ISA-to-PCMCIA converter and a Lucent (IEEE) PCMCIA card.
+> > > I set up everything as directed by HOWTOs. I do:
+> >
+> > Yes, I also noticed many problems with the current orinoco_cs
+> > driver.
+>
+> I have an orinocco gold. In 2.4.x<19 it gave me some errors in the
+> logs also, but despite that it seemed to work after setting the right
+> options with iwconfig. I haven't tested 2.4.19 with the orinioco_cs
+> driver yet since I had other problems with .19 before i got to that.
 
-Ciao,
+Can you be a bit more specific on that iwconfig options? ;-)
 
-Duncan.
+Also folks directed me to firmware upgrade, but it is for
+Windows. Is there any for Linux? Did you upgrade yours?
+--
+vda

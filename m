@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267342AbTAGIc6>; Tue, 7 Jan 2003 03:32:58 -0500
+	id <S267347AbTAGIuh>; Tue, 7 Jan 2003 03:50:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267343AbTAGIc6>; Tue, 7 Jan 2003 03:32:58 -0500
-Received: from h80ad273a.async.vt.edu ([128.173.39.58]:45186 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267342AbTAGIc6>; Tue, 7 Jan 2003 03:32:58 -0500
-Message-Id: <200301070841.h078fLCR005634@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: Werner Almesberger <wa@almesberger.net>
+	id <S267348AbTAGIuh>; Tue, 7 Jan 2003 03:50:37 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:1796 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267347AbTAGIug>;
+	Tue, 7 Jan 2003 03:50:36 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301070859.h078xEnI000337@darkstar.example.net>
+Subject: Re: Undelete files on ext3 ??
+To: maxvaldez@yahoo.com (Max Valdez)
+Date: Tue, 7 Jan 2003 08:59:13 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!) 
-In-Reply-To: Your message of "Tue, 07 Jan 2003 05:14:41 -0300."
-             <20030107051441.A18502@almesberger.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.10.10301051924140.421-100000@master.linux-ide.org> <3E19B401.7A9E47D5@linux-m68k.org> <17360000.1041899978@localhost.localdomain> <20030107042045.GA10045@waste.org> <200301070538.h075cICR004033@turing-police.cc.vt.edu> <20030107031638.D1406@almesberger.net> <200301070643.h076hWCR004411@turing-police.cc.vt.edu> <20030107040829.E1406@almesberger.net> <200301070800.h0780ECR005255@turing-police.cc.vt.edu>
-            <20030107051441.A18502@almesberger.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-753923798P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+In-Reply-To: <1041911922.29225.1.camel@garaged.fis.unam.mx> from "Max Valdez" at Jan 06, 2003 09:58:42 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Tue, 07 Jan 2003 03:41:21 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-753923798P
-Content-Type: text/plain; charset=us-ascii
+> Is there any way to revert the stupid mistyping of "rm file *" on ext3??
 
-On Tue, 07 Jan 2003 05:14:41 -0300, Werner Almesberger said:
+There is no simple way, no.
 
-> ... or figure out which combination of RFCs, I-Ds, and ad hoc genius
-> makes up Linux TCP, yes ;-)
+> I hope there is a way, because I dont have a backup of some files i
+> mistakenly deleted
 
-That's the easy part.  :)  You then get to take a cross-product of that and
-its interactions with whatever combination of RFC/I-D/ad-crockery are in
-the 4 different Solaris releases, the 2 or 3 AIX releases, the Tru64 releases,
-the myriad different Microsoft-based servers - and that's just the 10K square
-feet in our machine room.  A lot of our gear keeps trying to talk to the
-outside world, where ALL bets are off. ;)
+The only thing I can suggest is this:
 
-Does anybody think it would be worthwhile to collate a document of which
-RFCs/I-Ds are supported, and to what extent (the MUST/SHOULD/MAY stuff)?
-Or is there one already and my 3:30AM search for same is missing it? ;)
+* Do not write anything else to the partition, and immediately
+  re-mount it read-only.
 
-/Valdis
+E.G.:
 
---==_Exmh_-753923798P
-Content-Type: application/pgp-signature
+mount -oremount -oro /dev/hda3
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+* Use dd to copy the entire contents of the partition to a file on
+  another partition.
 
-iD8DBQE+GpKxcC3lWbTT17ARAn4UAJwLK9UasNP7yK91JpSCxy2Xo/WFWACdGbN1
-lqxM/L9ay7C3QzB5PiVutkc=
-=eVW0
------END PGP SIGNATURE-----
+E.G.:
 
---==_Exmh_-753923798P--
+dd if=/dev/hda3 of=/partition_image
+
+* Search through that file for the fragments of your lost files.
+
+E.G.:
+
+grep "Some text that you are looking for" /partition_image
+
+If it is a text file that you've lost, it's possible that you might be
+able to recover some of it quite easily, using grep to search for the
+fragments.  If it's anything else, you'll probably not be able to
+recover it, unless you have the details of the file format.
+
+John.

@@ -1,87 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbTLBSiP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 13:38:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263281AbTLBSiP
+	id S264322AbTLBSxN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 13:53:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264323AbTLBSxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 13:38:15 -0500
-Received: from fw.osdl.org ([65.172.181.6]:22694 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263185AbTLBSiJ (ORCPT
+	Tue, 2 Dec 2003 13:53:13 -0500
+Received: from havoc.gtf.org ([63.247.75.124]:20116 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S264322AbTLBSxJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 13:38:09 -0500
-Date: Tue, 2 Dec 2003 10:37:49 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: ross.alexander@uk.neceur.com
-cc: Ed Sweetman <ed.sweetman@wmich.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: IDE-SCSI oops in 2.6.0-test11
-In-Reply-To: <OFCDE312E0.4BD86A49-ON80256DF0.004D17F7-80256DF0.004DA592@uk.neceur.com>
-Message-ID: <Pine.LNX.4.58.0312021028590.1519@home.osdl.org>
-References: <OFCDE312E0.4BD86A49-ON80256DF0.004D17F7-80256DF0.004DA592@uk.neceur.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Dec 2003 13:53:09 -0500
+Date: Tue, 2 Dec 2003 13:49:14 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Greg Stark <gsstark@mit.edu>, Erik Steffl <steffl@bigfoot.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: libata in 2.4.24?
+Message-ID: <20031202184914.GA7839@gtf.org>
+References: <87fzg4ckej.fsf@stark.dyndns.tv> <3FCBB15F.7050505@rackable.com> <3FCBB9F1.2080300@bigfoot.com> <87n0abbx2k.fsf@stark.dyndns.tv> <20031202055336.GO1566@mis-mike-wstn.matchmail.com> <20031202055852.GP1566@mis-mike-wstn.matchmail.com> <87zneb9o5q.fsf@stark.dyndns.tv> <20031202174048.GQ1566@mis-mike-wstn.matchmail.com> <20031202180458.GC1990@gtf.org> <20031202184648.GU1566@mis-mike-wstn.matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031202184648.GU1566@mis-mike-wstn.matchmail.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 02, 2003 at 10:46:48AM -0800, Mike Fedyk wrote:
+> On Tue, Dec 02, 2003 at 01:04:58PM -0500, Jeff Garzik wrote:
+> > On Tue, Dec 02, 2003 at 09:40:48AM -0800, Mike Fedyk wrote:
+> > > There are PATA drives that do TCQ too, but you have to look for that feature
+> > > specifically.  IDE TCQ is in 2.6, but is still experemental.  I think Jens
+> > > Axboe was the one working on it IIRC.  He would have more details.
+> > 
+> > Let us distinguish three types of TCQ:
+> > 1) PATA drive-side TCQ (now called "legacy TCQ")
+> > 2) Controller-side TCQ
+> > 3) SATA drive/controller-side TCQ ("first party DMA")
+> > 
+> > libata will never support #1, which is what 2.6 supports in experimental
+> > option.
+> 
+> An experemental option with the ide layer, not libata, right?
+
+Correct.
 
 
-On Tue, 2 Dec 2003 ross.alexander@uk.neceur.com wrote:
->
-> I can't get the source, otherwise I would have compiled it against
-> 2.6.0.  However I don't find this point particularly relevant since
-> 2.6.0 should be backward compatible with 2.4,0, atleast at the binary
-> level.
->
-> I tried the earlier versions of dvdrtools and cdrtools and their didn't
-> like ide-cd.  This version (cdrecord-dvdpro) does but it still don't
-> alter the fact that while using ide-scsi is no longer recommended, it
-> still should work.
+> > libata will support #2 very soon, and will support #3 when hardware is
+> > available.
+> > 
+> 
+> If you have Controller-side TCQ, then will it work with any IDE PATA/SATA
+> drive?
 
-Well, we're trying, but nobody has had a lot of luck with it.
+Yes.
 
-However, your particular case looks pretty straightforward:
+	Jeff
 
-> Here the the oops again.
->
-> Dec  2 12:02:46 mig27 kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
-> Dec  2 12:02:46 mig27 kernel:  printing eip:
-> Dec  2 12:02:46 mig27 kernel: 00000000
 
-Somebody jumped through a NULL pointer, and it was:
 
-> Dec  2 12:02:46 mig27 kernel: Process cdrecord-prodvd (pid: 369,  threadinfo=e4160000 task=f65d4100)
-> Dec  2 12:02:46 mig27 kernel: Call Trace:
-> Dec  2 12:02:46 mig27 kernel:  [<f9859b1b>]  idescsi_transfer_pc+0x11b/0x120 [ide_scsi]
-
-That's the code that does:
-
-	...
-        if (test_bit (PC_DMA_OK, &pc->flags)) {
-                set_bit (PC_DMA_IN_PROGRESS, &pc->flags);
-                (void) (HWIF(drive)->ide_dma_begin(drive));
-        }
-	...
-
-and it looks like the PC_DMA_OK flag is incorrect.
-
-Doing a bit more digging shows that "idescsi_issue_pc()" seems to use some
-variables without ever actually _initializing_ them. How about this
-trivial one-liner? Does that make it work for you?
-
-Jens? Comments?
-
-			Linus
-
----
-===== drivers/scsi/ide-scsi.c 1.33 vs edited =====
---- 1.33/drivers/scsi/ide-scsi.c	Tue Nov 18 23:40:45 2003
-+++ edited/drivers/scsi/ide-scsi.c	Tue Dec  2 10:36:33 2003
-@@ -516,6 +516,7 @@
- 	pc->actually_transferred=0;					/* We haven't transferred any data yet */
- 	pc->current_position=pc->buffer;
- 	bcount.all = IDE_MIN(pc->request_transfer, 63 * 1024);		/* Request to transfer the entire buffer at once */
-+	feature.all = 0;
-
- 	if (drive->using_dma && rq->bio) {
- 		if (test_bit(PC_WRITING, &pc->flags))

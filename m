@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289883AbSAPGPM>; Wed, 16 Jan 2002 01:15:12 -0500
+	id <S289886AbSAPGae>; Wed, 16 Jan 2002 01:30:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289884AbSAPGPC>; Wed, 16 Jan 2002 01:15:02 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:47273 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S289883AbSAPGOp>;
-	Wed, 16 Jan 2002 01:14:45 -0500
-Subject: Performance: Neighbour table overflow
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF742EAB6F.38453691-ON65256B43.0021390F@in.ibm.com>
-From: "Rajasekhar Inguva" <irajasek@in.ibm.com>
-Date: Wed, 16 Jan 2002 11:43:46 +0530
-X-MIMETrack: Serialize by Router on d23m0067/23/M/IBM(Release 5.0.8 |June 18, 2001) at
- 16/01/2002 11:43:49 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S290364AbSAPGaZ>; Wed, 16 Jan 2002 01:30:25 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:5385 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S289886AbSAPGaS>; Wed, 16 Jan 2002 01:30:18 -0500
+Date: Wed, 16 Jan 2002 00:29:42 -0600
+To: "Eric S. Raymond" <esr@thyrsus.com>, Rob Landley <landley@trommello.org>,
+        Nicolas Pitre <nico@cam.org>, lkml <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2-2.1.3 is available
+Message-ID: <20020116062942.GC2067@cadcamlab.org>
+In-Reply-To: <Pine.LNX.4.33.0201151538340.5892-100000@xanadu.home> <20020116034137.CRFB26021.femail12.sdc1.sfba.home.com@there> <20020115224821.A4658@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020115224821.A4658@thyrsus.com>
+User-Agent: Mutt/1.3.25i
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
-I have observed that when the ARP cache is full , any further networking
-apps fail with error "Neighbour table overflow" until a timer expires and
-the cache is cleared. Below is a detailed re-creation scenario....
 
-1) Set  /proc/sys/net/ipv4/neigh/default/gc_thresh1,2,3  to values 2
-2) ping one_neighbour ( arp cache now has this entry )
-3) ping another_neighbour ( arp cache has now 2 entries )
-4) ping third_neighbour
+[esr]
+> The version I just released does exactly that.  Well, not exactly; it
+> actually looks at fstab -- /proc/mounts gives you '/dev/root' rather
+> than a physical device name in the root entry.
 
-    Neighbour table overflow
-    Ping: No buffer space available
+/etc/fstab is hardly guaranteed to be accurate either.  The kernel
+mounts the root device based on its command line and any pivot_root()
+calls you make, not based on /etc/fstab.
 
-Until the timer expires and the arp cache gets cleared , no further network
-connections succeed.
+[In practice, I imagine most people don't lie to fstab.  The fsck init
+script would get annoyed.]
 
-IMHO, in situations wherein stale entries do exist in the cache and the
-cache is full, then one should not wait for a timer expiry but remove a few
-entries asap.
+But the horse's mouth, in this case, is /proc/sys/kernel/real-root-dev,
+a 16-bit decimal int which represents a device number in
+MAJOR*256+MINOR format.  There *may* also the 'root=' asciiz string in
+/proc/cmdline, which will be a 4-digit hex number, but that is not
+reliable - because of pivot_root() among other things.
 
-I get a feeling it might violate some rfc's , but i am not really sure....
+On my system, real-root-dev gives 8453, which means /dev/hde5, which is
+on ide2.  According to /proc/ide/ide2/config, it is a PCI device of
+type 105a:4d30 [Promise Ultra100], so you can derive
+CONFIG_BLK_DEV_PDC202XX as well as CONFIG_BLK_DEV_IDEDISK.
 
-Any feedback ?
-
-Regards,
-
-Raj
-
+Peter

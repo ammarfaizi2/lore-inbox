@@ -1,59 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311495AbSCNDQI>; Wed, 13 Mar 2002 22:16:08 -0500
+	id <S311494AbSCNDTt>; Wed, 13 Mar 2002 22:19:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311497AbSCNDQC>; Wed, 13 Mar 2002 22:16:02 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8206 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311495AbSCNDPp>;
-	Wed, 13 Mar 2002 22:15:45 -0500
-Message-ID: <3C9015D2.4060108@mandrakesoft.com>
-Date: Wed, 13 Mar 2002 22:15:30 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
-MIME-Version: 1.0
-To: jt@hpl.hp.com
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
+	id <S311496AbSCNDTi>; Wed, 13 Mar 2002 22:19:38 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:58351 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S311494AbSCNDT3>;
+	Wed, 13 Mar 2002 22:19:29 -0500
+Date: Wed, 13 Mar 2002 19:19:27 -0800
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Linux kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH 2.4.19-pre3] New wireless driver API part 1
-In-Reply-To: <20020313185915.A14095@bougret.hpl.hp.com> <E16lLnM-0008E8-00@the-village.bc.nu> <20020313191159.B14095@bougret.hpl.hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20020313191927.C14095@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+In-Reply-To: <20020313185915.A14095@bougret.hpl.hp.com> <3C901455.5000704@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C901455.5000704@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Wed, Mar 13, 2002 at 10:09:09PM -0500
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Tourrilhes wrote:
+On Wed, Mar 13, 2002 at 10:09:09PM -0500, Jeff Garzik wrote:
+> Tangential question, what's up with the prism2 driver?
 
->1) Most Wireless LAN driver live outside the kernel. So, their
->evolution is somewhat decoupled to the kernel, so the earlier the
->patch goes it the better it is for those.
->
-As you may have gathered from my last email, this is a bit annoying when 
-trying to find and stabalize a driver for a card you just got :)
+	Which one ? ;-)
+	Orinoco can work sometime with those cards, David may have
+some updates in the pipeline (especially for WEP). The Prism2 driver
+from Jouni is actually pretty nice and dedicated for those cards.
 
->	2) David Gibson, maintainer of the Orinoco driver, told me
->that he would merge my new-API orinoco patches in his driver only when
->the new API would be in 2.4.x (as you may have noticed, he hasn't
->updated 2.5.X for a while). Chicken and Eggs.
->
-Does that mean orinoco updates are coming for 2.5.x?
+> It seems like everybody I meet these days has a wireless card which uses 
+> the prism2 driver from linux-wlan.org.  And since I just got two of 
+> these cards (D-Link DWL-650), I am strongly tempted to merge the driver 
+> into the kernel.
 
-Any idea if the other drivers are getting updates too, like airo?
+	Before doing that, have a chat with Alan that had a close look
+with it for a partial opinion. And you may want to go through the
+source yourself.
+	My personal take is that linux-wlan-ng is nice, does a lot,
+but is huge and complex, and it seems that Mark is not that interested
+in merging it in the kernel. Keeping it as a separate module may make
+most sense.
+	BTW, there was a thread about this on the linux-wlan mailing
+lists.
 
->I'm open to suggestions and will do what's best for
->everybody. What other people think ?
->	But I feel now is a good time (as it seem that 2.4.19 will
->have to go through some stabilisation process).
->
-My standard rule of thumb is turning out to be, deploy something 
-2.4.x-worthy in 2.5.x, wait a while, and then deploy it in 2.4.x.  I 
-have no particular opinion about whether your patch should go in -right 
-now- but it seems like a fair patch for 2.4.x sooner or later.
+> How well does the prism2 driver work with the current wireless driver API?
 
-    Jeff
+	Very basic support (mostly read only). linux-wlan-ng has it's
+own set of tools and MIB.
 
+> Is there any particular reason why it is not in the kernel now?
 
+	Nobody ever pushed it in. I can't force people to add their
+driver int he kernel (hint : compare the list on my web page with the
+list in the kernel).
 
+>     Jeff
 
+	Have fun...
 
+	Jean

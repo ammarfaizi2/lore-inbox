@@ -1,41 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267394AbUHXK03@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267579AbUHXK2I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267394AbUHXK03 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 06:26:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267400AbUHXK03
+	id S267579AbUHXK2I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 06:28:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267464AbUHXK1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 06:26:29 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:27652 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S267394AbUHXK02 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 06:26:28 -0400
-From: Felipe Alfaro Solana <lkml@felipe-alfaro.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.9-rc1 compile fix in ipv4/ip_conntrack_proto_udp
-Date: Tue, 24 Aug 2004 12:26:30 +0200
-User-Agent: KMail/1.7
+	Tue, 24 Aug 2004 06:27:36 -0400
+Received: from dns1.seagha.com ([217.66.0.18]:15076 "EHLO ndns1.seagha.com")
+	by vger.kernel.org with ESMTP id S267405AbUHXK1Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 06:27:16 -0400
+Message-ID: <6DED3619289CD311BCEB00508B8E133601A68B1E@nt-server2.antwerp.seagha.com>
+From: Karl Vogel <karl.vogel@seagha.com>
+To: "'Jens Axboe'" <axboe@suse.de>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: RE: Kernel 2.6.8.1: swap storm of death - CFQ scheduler=culprit
+Date: Tue, 24 Aug 2004 12:28:13 +0200
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_WfxKBMi4tGHq2kh"
-Message-Id: <200408241226.30298.lkml@felipe-alfaro.com>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_WfxKBMi4tGHq2kh
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> > > Original post with testcase + stats:
+> > >   http://article.gmane.org/gmane.linux.kernel/228156
+> > 
+> > 2.6.8.1-mm4 clean does not reproduce the problem. Marcelo, your
+> > 2.6.8-rc4 report is not valid due to the fixed problem 
+> related to that
+> > in CFQ already. I'd still like for you to retest with 2.6.8.1.
+> > 
+
+Did some extra testing yesterday. When not running X or anything
+substantial, I'm able to trigger it after running the expunge 2 or
+3 times in a row. 
+If I increase the calloc size, it triggers faster (tried with 1Gb
+calloc on a 512Mb box with 1Gb swap partition). 
+
+The first expunge run, completes fine. The ones after that, get 
+OOM killed and I get a printk about page allocation order 0 failure.
+
+The 2.6.8.1-mm4 was a clean version, but I will double check this,
+this evening.
+
+I also tried with deadline, but was unable to trigger it.
+
+> Oh, and please do also do a sysrq-t from a hung box and save 
+> the output.
+
+Note: the box doesn't hang completely. Just some processes get stuck
+in 'D' and the machine swaps heavily.
+
+The tests of yesterday evening, did recover. So I'm guessing if I had
+waited long enough the box would have recovered on the previous
+tests. Looking at the vmstat from my previous tests, shows that the
+box was low on memory (free/buff/cache are all very low):
+
+  http://users.telenet.be/kvogel/vmstat-after-kill.txt
+
+That was probably why it was swapping like mad. 
 
 
+Will provide you with that sysrq-t this evening.
 
---Boundary-00=_WfxKBMi4tGHq2kh
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="ip_conntrack_proto_udp-compile-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="ip_conntrack_proto_udp-compile-fix.patch"
-
-
---Boundary-00=_WfxKBMi4tGHq2kh--
+Karl.

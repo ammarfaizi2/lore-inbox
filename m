@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbUJ1PAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbUJ1PDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbUJ1PAr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 11:00:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbUJ1PAq
+	id S261682AbUJ1PDm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 11:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbUJ1PBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 11:00:46 -0400
-Received: from out011pub.verizon.net ([206.46.170.135]:41132 "EHLO
-	out011.verizon.net") by vger.kernel.org with ESMTP id S261566AbUJ1PAb
+	Thu, 28 Oct 2004 11:01:37 -0400
+Received: from out012pub.verizon.net ([206.46.170.137]:25504 "EHLO
+	out012.verizon.net") by vger.kernel.org with ESMTP id S261692AbUJ1PBB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 11:00:31 -0400
+	Thu, 28 Oct 2004 11:01:01 -0400
 From: james4765@verizon.net
 To: kernel-janitors@lists.osdl.org
 Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, james4765@verizon.net
-Message-Id: <20041028150029.2776.69333.50087@localhost.localdomain>
-Subject: [PATCH 1/9] to arch/sh/drivers/pci/Kconfig
-X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [209.158.211.53] at Thu, 28 Oct 2004 10:00:30 -0500
-Date: Thu, 28 Oct 2004 10:00:30 -0500
+Message-Id: <20041028150057.2776.70475.54914@localhost.localdomain>
+In-Reply-To: <20041028150029.2776.69333.50087@localhost.localdomain>
+References: <20041028150029.2776.69333.50087@localhost.localdomain>
+Subject: [PATCH 5/9] to arch/sparc/Kconfig
+X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [209.158.211.53] at Thu, 28 Oct 2004 10:00:57 -0500
+Date: Thu, 28 Oct 2004 10:00:58 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Description: Remove x86-specific help in arch/sh/drivers/pci/Kconfig.
+Description: Remove x86-specific help in arch/sparc/Kconfig.
 Apply against 2.6.9.
 
 Signed-off by: James Nelson <james4765@gmail.com>
 
-diff -u arch/sh/drivers/pci/Kconfig.orig arch/sh/drivers/pci/Kconfig
---- arch/sh/drivers/pci/Kconfig.orig	2004-10-17 15:22:15.567649627 -0400
-+++ arch/sh/drivers/pci/Kconfig	2004-10-17 15:23:00.778611363 -0400
-@@ -3,8 +3,7 @@
- 	help
- 	  Find out whether you have a PCI motherboard. PCI is the name of a
- 	  bus system, i.e. the way the CPU talks to the other stuff inside
--	  your box. Other bus systems are ISA, EISA, MicroChannel (MCA) or
--	  VESA. If you have PCI, say Y, otherwise N.
-+	  your box. If you have PCI, say Y, otherwise N.
+diff -u ./arch/sparc/Kconfig.orig ./arch/sparc/Kconfig
+--- ./arch/sparc/Kconfig.orig	2004-10-16 09:53:49.626021592 -0400
++++ ./arch/sparc/Kconfig	2004-10-16 10:18:35.964664772 -0400
+@@ -188,10 +188,10 @@
+ 	  (/dev/tty0) will still be used as the system console by default, but
+ 	  you can alter that using a kernel command line option such as
+ 	  "console=ttyS1". (Try "man bootparam" or see the documentation of
+-	  your boot loader (lilo or loadlin) about how to pass options to the
+-	  kernel at boot time.)
++	  your boot loader (silo) about how to pass options to the kernel at
++	  boot time.)
  
- 	  The PCI-HOWTO, available from
- 	  <http://www.tldp.org/docs.html#howto>, contains valuable
+-	  If you don't have a VGA card installed and you say Y here, the
++	  If you don't have a graphics card installed and you say Y here, the
+ 	  kernel will automatically use the first serial line, /dev/ttyS0, as
+ 	  system console.
+ 

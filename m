@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132685AbQK3Hvd>; Thu, 30 Nov 2000 02:51:33 -0500
+        id <S130021AbQK3ION>; Thu, 30 Nov 2000 03:14:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132689AbQK3HvX>; Thu, 30 Nov 2000 02:51:23 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:28912 "EHLO
-        webber.adilger.net") by vger.kernel.org with ESMTP
-        id <S132685AbQK3HvF>; Thu, 30 Nov 2000 02:51:05 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200011300720.eAU7KYT28277@webber.adilger.net>
-Subject: Re: ext2 directory size bug (?)
-In-Reply-To: <Pine.LNX.4.21.0011300453200.31229-100000@ace.ulyssis.org>
- "from Steven Van Acker at Nov 30, 2000 05:17:25 am"
-To: Steven Van Acker <deepstar@ulyssis.org>
-Date: Thu, 30 Nov 2000 00:20:34 -0700 (MST)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
-MIME-Version: 1.0
+        id <S130569AbQK3IOD>; Thu, 30 Nov 2000 03:14:03 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:56561 "EHLO blue.int.wirex.com")
+        by vger.kernel.org with ESMTP id <S130021AbQK3INx>;
+        Thu, 30 Nov 2000 03:13:53 -0500
+Date: Wed, 29 Nov 2000 23:44:20 -0800
+From: Greg KH <greg@wirex.com>
+To: "Mohammad A. Haque" <mhaque@haque.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Keyspan USB PDA adapter && test12pre3 hang
+Message-ID: <20001129234420.A7196@wirex.com>
+Mail-Followup-To: Greg KH <greg@wirex.com>,
+        "Mohammad A. Haque" <mhaque@haque.net>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3A25EB64.3462AE4D@haque.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A25EB64.3462AE4D@haque.net>; from mhaque@haque.net on Thu, Nov 30, 2000 at 12:53:40AM -0500
+X-Operating-System: Linux 2.2.17-immunix (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You write:
-> Hmm, gonna try to follow the REPORTING-BUGS file here...
-> 
-> [1.] One line summary of the problem:
-> 
->      directory size increases when adding 0-size files, 
->      but doesn't decrease when removing them.
+On Thu, Nov 30, 2000 at 12:53:40AM -0500, Mohammad A. Haque wrote:
+> Anyone else out there with a Keyspan USB PDA adapter using test12-pre3?
+> I'm experiencing hangs when I try to send data to my Palm Vx using it.
+> Locks up the machine hard. No SysRq. No messages. USB serial debug
+> output doesn't have much either...
 
-It may or may not be considered a bug, but in any case it has been like
-this for a long time and I doubt it will change.  The directory size is
-not dependent upon the file size, only the length of the file names.
+Are you using the usb-uhci host driver?
 
-One "reason" why ext2 directories don't shrink when the files are deleted
-is because e2fsck relies on this behaviour for the lost+found directory,
-so that you don't need to allocate blocks for lost+foung on a corrupted
-filesystem when doing recovery of unlinked files.
+If so, the following fix from Georg Acher should do the trick:
 
-In some cases, you may have a directory entry in the last block, so you
-can't free any of the earlier blocks even if they are empty.
+-----
+Replace line 275 (insert_td())
+qh->hw.qh.element = virt_to_bus (new) | UHCI_PTR_TERM;
+by
+qh->hw.qh.element = virt_to_bus (new) ;
 
-In most cases, if you have created many files in one directory in the past,
-you are likely to create many there again - so easier just to keep the
-directory blocks until next time.
+-----
 
-In most cases, the number of blocks allocated to a directory (but never
-to be used again) is very small, and people don't really worry about it.
-I think the scenario where you have a large amount of space in directories
-that will never be used again is very unusual and should not be a reason
-to make the code more complex.
+Let me (and the list) know if this doesn't fix your problem.
 
-Cheers, Andreas
+greg k-h
+
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+greg@(kroah|wirex).com
+http://immunix.org/~greg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

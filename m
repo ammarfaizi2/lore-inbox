@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbUDZUDg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263440AbUDZUUT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbUDZUDg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 16:03:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263375AbUDZUDg
+	id S263440AbUDZUUT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 16:20:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263444AbUDZUUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 16:03:36 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:55516 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261852AbUDZUDf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 16:03:35 -0400
-Message-ID: <408D6B0A.5060305@nortelnetworks.com>
-Date: Mon, 26 Apr 2004 16:03:22 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Load hid.o module synchronously?
-References: <s5g8ygi4l3q.fsf@patl=users.sf.net>	<408D65A7.7060207@nortelnetworks.com> <s5gisfm34kq.fsf@patl=users.sf.net>
-In-Reply-To: <s5gisfm34kq.fsf@patl=users.sf.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Apr 2004 16:20:19 -0400
+Received: from mail.kroah.org ([65.200.24.183]:42889 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263440AbUDZUUI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Apr 2004 16:20:08 -0400
+Date: Mon, 26 Apr 2004 12:53:59 -0700
+From: Greg KH <greg@kroah.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: "E. Oltmanns" <oltmanns@uni-bonn.de>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel Oops during usb usage (2.6.5)
+Message-ID: <20040426195359.GA29062@kroah.com>
+References: <20040423205617.GA1798@local> <20040424003013.GA13631@kroah.com> <408D4187.2040104@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <408D4187.2040104@tmr.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick J. LoPresti wrote:
+On Mon, Apr 26, 2004 at 01:06:15PM -0400, Bill Davidsen wrote:
+> 
+> Just in general, if there is anything a non-root user can do to crash 
+> the system, it's probably a kernel bug by definition. It doesn't matter 
+> that's it a stupid thing to do, it might be malicious. And in this case 
+> it might just be user error.
 
-> You mean under sysfs or usbfs?  Or both?
+But you either have to be root in order to talk to usbfs, or you were
+root when you gave a user access to the usbfs node.  So either way, a
+"normal" user can't even do this.
 
-Somewhere in there...
+thanks,
 
-> I see how I can scan for a USB keyboard after loading the USB host
-> controller module.  I think.  But what do I look for, exactly, to tell
-> when hid.o has hooked itself up to the keyboard?
-
-I don't know exactly what you'd look for.  Greg K-H would be the guy to ask, I think.
-
-Chris
+greg k-h

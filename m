@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266396AbUAOBO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 20:14:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266390AbUAOBO2
+	id S266369AbUAOBOA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 20:14:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266382AbUAOBN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 20:14:28 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:24327 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S266389AbUAOBOT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 20:14:19 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: [PATCH] mm/slab.c remove impossible <0 check - size_t is not
-   signed - patch is against 2.6.1-rc1-mm2
-Date: Wed, 14 Jan 2004 20:13:16 -0500
-Organization: TMR Associates, Inc
-Message-ID: <bu4oqc$2dl$2@gatekeeper.tmr.com>
-References: <20040108021658.0a8aaccc.pj@sgi.com> <1073576236.2340.34.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Wed, 14 Jan 2004 20:13:56 -0500
+Received: from nobody.lpr.e-technik.tu-muenchen.de ([129.187.151.1]:3288 "EHLO
+	nobody.lpr.e-technik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id S266369AbUAOBMf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 20:12:35 -0500
+Message-ID: <4005E8FF.4050700@metrowerks.com>
+Date: Thu, 15 Jan 2004 02:12:31 +0100
+From: Bernhard Kuhn <bkuhn@metrowerks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: inaky.perez-gonzalez@intel.com
+CC: linux-kernel@vger.kernel.org, robustmutexes@lists.osdl.org
+Subject: Re: [RFC/PATCH] FUSYN Realtime & Robust mutexes for Linux try 2.1
+References: <0401141449.CaWdGcXb9b6caaodvdxcqcwdkc7cOazb9031@intel.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1074128524 2485 192.168.12.10 (15 Jan 2004 01:02:04 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-In-Reply-To: <1073576236.2340.34.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Perches wrote:
-> On Thu, 2004-01-08 at 02:16, Paul Jackson wrote:
-> 
->>Jason asked:
->>
->>>Well, anything wrong in cleaning them [unsigned compare warnings] up?
-> 
-> 
-> In this case the warning is not unsigned compare but
-> "comparison of .* is always [true|false]".
-> 
-> This sort of code generally makes me think someone did something wrong,
-> not just that the person added additional unnecessary checking.
+inaky.perez-gonzalez@intel.com wrote:
 
-Agreed, often muddy thinking.
+> This code proposes an implementation of kernel based mutexes,
 
+Pretty interessting stuff! I will inspect if i could combine
+it with the "real-time interrupts" i recently described
+(http://www.linuxdevices.com/articles/AT6105045931.html).
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Currently i'm protecting critical areas with "prioritized
+spinlocks" that don't provide a priority inversion aviodance
+scheme. Having "real" mutexes with priority inheritence
+should be pretty helpfull to make the kernel hard real time
+aware.
+
+best regards
+
+Bernhard
+

@@ -1,46 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265290AbSJaS2K>; Thu, 31 Oct 2002 13:28:10 -0500
+	id <S263039AbSJaSPk>; Thu, 31 Oct 2002 13:15:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265291AbSJaS2J>; Thu, 31 Oct 2002 13:28:09 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:7817 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S265290AbSJaS2G>; Thu, 31 Oct 2002 13:28:06 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Thu, 31 Oct 2002 10:42:28 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <linux-aio@kvack.org>, <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] Re: and nicer too - Re: [PATCH] epoll more scalable
- than poll
-In-Reply-To: <20021031164035.A3178@in.ibm.com>
-Message-ID: <Pine.LNX.4.44.0210311026080.1562-100000@blue1.dev.mcafeelabs.com>
+	id <S263137AbSJaSOs>; Thu, 31 Oct 2002 13:14:48 -0500
+Received: from excalibur.cc.purdue.edu ([128.210.189.22]:38418 "EHLO
+	ibm-ps850.purdueriots.com") by vger.kernel.org with ESMTP
+	id <S262913AbSJaSN5>; Thu, 31 Oct 2002 13:13:57 -0500
+Date: Thu, 31 Oct 2002 13:21:27 -0500 (EST)
+From: Patrick Finnegan <pat@purdueriots.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
+       <lkcd-general@lists.sourceforge.net>,
+       <lkcd-devel@lists.sourceforge.net>
+Subject: Re: What's left over.
+In-Reply-To: <Pine.LNX.4.44.0210310951180.1410-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0210311314440.9552-100000@ibm-ps850.purdueriots.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Oct 2002, Suparna Bhattacharya wrote:
+On Thu, 31 Oct 2002, Linus Torvalds wrote:
 
-> I think what John means, and what Jamie has also brought up in a
-> separate note is that now when an event happens on an fd, in some cases
-> there are tests for 3 kinds of callbacks that get triggered -- the wait
-> queue for poll type registrations, the fasync list for sigio, and the
-> new epoll file send notify type callbacks. There is a little overhead
-> (not sure if significant) for each kind of test ...
+>
+> On Thu, 31 Oct 2002, Matt D. Robinson wrote:
+> >
+> > This isn't bloat.  If you want, it can be built as a module, and
+> > not as part of your kernel.  How can that be bloat?
+>
+> I don't care one _whit_ about the size of the binary. I don't maintain
+> binaries, adn the binary can be gigabytes for all I care.
+>
+> The only thing I care about is source code. So the "build it as a module
+> and it is not bloat" argument is a total nonsense thing as far as I'm
+> concerned.
 
-The poll hooks is not where an edge triggered event notification API wants
-to hook. For the way notification are sent and for the registration
-method, that is not the most efficent thing. Hooking inside the fasync
-list is worth to be investigated and I'll look into it as soon as I
-finished the patch for 2.5.45 for Linus. It does have certain limits IMHO,
-like the single lock protection. I'll look into it, even if the famous
-cost for the extra callback check cannot even be measured IMHO.
+So, you don't like bloat, such as having 22 different file systems (only
+including the ones that can be placed on disk, not things like devfs or
+smbfs...). That's more filesystems than I have dollars in my wallet at
+the moment.   For the amount of utility that this code provides, it's
+definately not 'bloat'.
 
+> Anyway, new code is always bloat to me, unless I see people using them.
 
+HEY!!! WE'RE USING IT!!!
 
-- Davide
+> Guys, why do you even bother trying to convince me? If you are right, you
+> will be able to convince other people, and that's the whole point of open
+> source.
+
+Now this sounds more like something I'd hear from Sun trying to get a fix
+for a version of Solaris without having to buy a new one.  I thought the
+whole point of Free Software was sharing with the community, and doing
+what's best for the community.
+
+> Being "vendor-driven" is _not_ a bad thing. It only means that _I_ am not
+> personally convinced. I'm only one person.
+
+That's the same as claiming that George W. Bush is just one person....
+
+So I'll plea yet again, please add LKCD!
+
+Pat
+--
+Purdue Universtiy ITAP/RCS
+Information Technology at Purdue
+Research Computing and Storage
+http://www-rcd.cc.purdue.edu
+
+http://dilbert.com/comics/dilbert/archive/images/dilbert2040637020924.gif
+
 
 

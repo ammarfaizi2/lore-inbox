@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264516AbTKNHjy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 02:39:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTKNHjy
+	id S261460AbTKNHxC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 02:53:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbTKNHxC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 02:39:54 -0500
-Received: from percy.comedia.it ([212.97.59.71]:63902 "EHLO percy.comedia.it")
-	by vger.kernel.org with ESMTP id S262190AbTKNHjl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 02:39:41 -0500
-Date: Fri, 14 Nov 2003 08:39:41 +0100
-From: Luca Berra <bluca@comedia.it>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: [RFCI] How best to partition MD/raid devices in 2.6
-Message-ID: <20031114073940.GC25371@percy.comedia.it>
-Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
-	linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-References: <16308.18387.142415.469027@notabene.cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 14 Nov 2003 02:53:02 -0500
+Received: from mx.stud.uni-hannover.de ([130.75.176.3]:19677 "EHLO
+	studserv.stud.uni-hannover.de") by vger.kernel.org with ESMTP
+	id S261460AbTKNHw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 02:52:59 -0500
+From: Michael Born <michael.born@stud.uni-hannover.de>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PCI: device 00:09.0 has unknown header type 04, ignoring.  What's that?
+Date: Fri, 14 Nov 2003 08:52:57 +0100
+User-Agent: KMail/1.5.3
+References: <Pine.GSO.4.33.0311131543430.26356-100000@sweetums.bluetronic.net>
+In-Reply-To: <Pine.GSO.4.33.0311131543430.26356-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <16308.18387.142415.469027@notabene.cse.unsw.edu.au>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200311140852.58026.michael.born@stud.uni-hannover.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 14, 2003 at 02:11:15PM +1100, Neil Brown wrote:
-> 3/ define minor numbers of block-major-9 that are larger than 255 to
->   have 6 bits of partitioning information. i.e.
->     9,0 -> md0
->     9,1 -> md1
->      ...
->     9,255 -> md255
->     9,256 -> md256
->     9,257 -> md256p1
->     9,257 -> md256p2
->      ...
->     9,320 -> md257
->     9,321 -> md257p1
->      ...
->   This has least impact on other system and is in some ways simplest,
->   but it has the problem of lack of uniformity.  You wouldn't be able
->   to partition md0, but that isn't a big problem as long as you can
->   partition some md arrays.
+Thanks a lot for your responses. I did some more testing and have one more 
+question.
+In the "nonshared IRQ" PCI slot 0.9.0 the card works with the Quancom driver 
+under Win2k but is ignored by linux 2.4.22 - as I wrote before.
+In "shared IRQ" PCI slot 0.c.0 the card is recognized by linux - lspci:
+00:0c.0 Class ff00: Quancom Electronic GmbH: Unknown device 3302 (rev 11)
 
-may i write in hex, i feel much unconfortable having 20bit numbers in
-decimal?
-9,0x00000 -> md0
-...
-9,0x000FF -> md255
-9,0x00100 -> md0p1
-9,0x00200 -> md0p2
-...
-one would expect it to be the other way around, but it is still fairly
-intuitive, and it keeps uniformity.
-Uniformity is important, because we can doo binary ops on the minor
-number and get consistent results.
+The driver I use is open source ( see: http://linux-gpib.sourceforge.net/ ). 
+The maintainer helped me a lot to get this Ines-GPIB clone card running.
 
-L.
+Is there a board / vendor who has good BIOS and PCI implementations? 
+If I understand correctly - there is no simple way to tell a good PCI card 
+apart from a bad one ? If I would send back the card they would want to know 
+what exactly the problem ist - but when nobody knows that ???
 
--- 
-Luca Berra -- bluca@comedia.it
-        Communication Media & Services S.r.l.
- /"\
- \ /     ASCII RIBBON CAMPAIGN
-  X        AGAINST HTML MAIL
- / \
+Greetings
+Michael
+
+
+Am Donnerstag, 13. November 2003 21:57 schrieb Ricky Beam:
+> On Thu, 13 Nov 2003, Richard B. Johnson wrote:
+> >> While booting the kernel says:
+> >> ---
+> >> <6>PCI: Probing PCI hardware
+> >> <4>PCI: ACPI tables contain no PCI IRQ routing entries
+> >> <4>PCI: Probing PCI hardware (bus 00)
+> >> <3>PCI: device 00:09.0 has unknown header type 04, ignoring.
+> >> <6>PCI: Using IRQ router VIA [1106/3074] at 00:11.0
+> >
+> >We don't know if 00:09.0 is your board, but a header type 04
+> >is currently not defined. There are three header types, 0->2.
+

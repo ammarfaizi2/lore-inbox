@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262323AbTLDBfb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 20:35:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263102AbTLDBfb
+	id S263088AbTLDBac (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 20:30:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbTLDBab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 20:35:31 -0500
-Received: from mtaw4.prodigy.net ([64.164.98.52]:23984 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S262323AbTLDBfW (ORCPT
+	Wed, 3 Dec 2003 20:30:31 -0500
+Received: from fw.osdl.org ([65.172.181.6]:51920 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263088AbTLDBa1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 20:35:22 -0500
-Date: Wed, 3 Dec 2003 17:34:08 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Vince <fuzzy77@free.fr>
-Cc: Zwane Mwaikambo <zwane@holomorphy.com>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [kernel panic @ reboot] 2.6.0-test10-mm1
-Message-ID: <20031204013408.GE29119@mis-mike-wstn.matchmail.com>
-Mail-Followup-To: Vince <fuzzy77@free.fr>,
-	Zwane Mwaikambo <zwane@holomorphy.com>,
-	"Randy.Dunlap" <rddunlap@osdl.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <3FC4E8C8.4070902@free.fr> <Pine.LNX.4.58.0311261305020.1683@montezuma.fsmlabs.com> <20031126233738.GD1566@mis-mike-wstn.matchmail.com> <3FC53A3B.50601@free.fr> <20031202160303.2af39da0.rddunlap@osdl.org> <20031203003106.GF4154@mis-mike-wstn.matchmail.com> <20031202162745.40c99509.rddunlap@osdl.org> <3FCDE506.7020302@free.fr> <Pine.LNX.4.58.0312031409410.27578@montezuma.fsmlabs.com> <3FCE877B.3010703@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FCE877B.3010703@free.fr>
-User-Agent: Mutt/1.5.4i
+	Wed, 3 Dec 2003 20:30:27 -0500
+Date: Wed, 3 Dec 2003 17:29:28 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Timothy Miller <miller@techsource.com>
+cc: Manfred Spraul <manfred@colorfullife.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Paul Mackerras <paulus@samba.org>, Pavel Machek <pavel@suse.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Fix locking in input
+In-Reply-To: <3FCE7569.5080305@techsource.com>
+Message-ID: <Pine.LNX.4.58.0312031725580.2055@home.osdl.org>
+References: <3FC13382.3060701@colorfullife.com> <20031123223443.A560@flint.arm.linux.org.uk>
+ <3FC13AA0.9030204@colorfullife.com> <3FCE7569.5080305@techsource.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 04, 2003 at 02:01:47AM +0100, Vince wrote:
-> Zwane Mwaikambo wrote:
-> >On Wed, 3 Dec 2003, Vince wrote:
-> >
-> >
-> >>Well, I get indeed a nice oops on screen with this sysctl... but the
-> >>oops/panic does not appear on the floppy dump  :-/
-> >>
-> >>--------------------------------------------------------
-> >><0>Kernel panic: Fatal exception
-> >><4> <0>Dumping messages in 100 seconds : last chance for
-> >>Alt-SysRq...<6>SysRq :
-> >>Emergency Sync
-> >><6>SysRq : Emergency Sync
-> >><6>SysRq : Emergency Remount R/O
-> >><6>SysRq : Trying to dump through real mode
-> >><4>
-> >>---------------------------------------------------------
-> >
-> >
-> >Do you see any floppy disk activity at all? I'll see if i can come up with
-> >something.
-> 
-> Yes, there *is* floppy activity. The previous messages make it to the 
-> floppy (in that case, I experienced with 
-> Alt-Sysrq+S/Alt-Sysrq+U/Alt-Sysrq+D), but the oops doesn't...
 
-do you mean s/Alt-Sysrq+D/Alt-Sysrq+B/  ?
 
-On 2.4 there isn't a Alt-Sysrq+D, but maybe there is on 2.6...?
+On Wed, 3 Dec 2003, Timothy Miller wrote:
+>
+> This is MOSTLY true, but not entirely.  As I recall, Alpha has two
+> addressing modes: Sparse and Dense.
+
+Nope. Alpha only does "dense" addressing on a CPU level.
+
+What the _system_ designers on most PCI systems did was to map the PCI
+address space twice: once through a "dense" mapping and once through a
+"sparse" mapping. In the sparse mapping the low address bits give byte
+enable information, while in the dense mapping you can onyl do 32-bit and
+64-bit aligned operations.
+
+But the original alpha CPU couldn't do the sparse mapping - in particular
+the above only worked with non-cached accesses.
+
+So "real memory" was always dense, and could not atomically be accessed
+with byte/word writes (you could use the atomic "load-locked" +
+"store-conditional" to do them, but at a huge performance loss, and
+obviously the compilers never did that).
+
+		Linus

@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129636AbQJ0KZf>; Fri, 27 Oct 2000 06:25:35 -0400
+	id <S129876AbQJ0K0P>; Fri, 27 Oct 2000 06:26:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129794AbQJ0KZR>; Fri, 27 Oct 2000 06:25:17 -0400
-Received: from pine.parrswood.manchester.sch.uk ([213.205.138.155]:16132 "EHLO
-	parrswood.manchester.sch.uk") by vger.kernel.org with ESMTP
-	id <S129636AbQJ0KZJ>; Fri, 27 Oct 2000 06:25:09 -0400
-Date: Fri, 27 Oct 2000 11:24:49 +0100 (BST)
-From: Tim <tim@parrswood.manchester.sch.uk>
-To: linux-kernel@vger.kernel.org
-Subject: IDE + RAID + SMP + PIII crashes
-Message-ID: <Pine.LNX.4.21.0010271036120.26729-100000@pine.parrswood.manchester.sch.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129873AbQJ0K0H>; Fri, 27 Oct 2000 06:26:07 -0400
+Received: from Cantor.suse.de ([194.112.123.193]:19461 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129866AbQJ0KZw>;
+	Fri, 27 Oct 2000 06:25:52 -0400
+Date: Fri, 27 Oct 2000 12:25:49 +0200
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: Andi Kleen <ak@suse.de>, Alexander Viro <viro@math.psu.edu>,
+        "Jeff V. Merkey" <jmerkey@timpanogas.org>, kumon@flab.fujitsu.co.jp,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Negative scalability by removal of lock_kernel()?(Was: Strange performance behavior of 2.4.0-test9)
+Message-ID: <20001027122549.A22417@gruyere.muc.suse.de>
+In-Reply-To: <39F92187.A7621A09@timpanogas.org> <Pine.GSO.4.21.0010270257550.18660-100000@weyl.math.psu.edu>, <Pine.GSO.4.21.0010270257550.18660-100000@weyl.math.psu.edu>; <20001027094613.A18382@gruyere.muc.suse.de> <39F957BC.4289FF10@uow.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <39F957BC.4289FF10@uow.edu.au>; from andrewm@uow.edu.au on Fri, Oct 27, 2000 at 09:23:56PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a number of machines (on 2 different motherboards) that if I run
-2.4 on hang with an NMI error about 2/3's of the way though boot (about
-were crond starts on redhat 6.2). 
+On Fri, Oct 27, 2000 at 09:23:56PM +1100, Andrew Morton wrote:
+> Andi Kleen wrote:
+> > 
+> > When you have two CPUs contending on common paths it is better to do:
+> > [ spinlock stuff ]
+> 
+> Andi, if the lock_kernel() is removed then the first time the CPUs will butt heads is on a semaphore.  This is much more expensive.
+> 
+> I bet if acquire_fl_sem() and release_fl_sem() are turned into lock_kernel()/unlock_kernel() then the scalability will come back.
 
-2 of the machines are based on Supermicro P6DBEs the other is based on a
-Gigabyte GA-6BXD. I am using the onboard ide and also have tried a Promise
-20262. There are RAID 0 and 1 arrays on the manchines. 
+To test your theory it would be enough to watch context switch rates in top
 
-The exact hardware specs are:
-Supermicro P6DBE
-2x P3 650
-512Mb SDRAM
-2x ST310212A (mirrored)
-2x Maxtor 53073U6 (Striped) on a Promise 20262
 
-Gigabyte GA-6BXD
-2x P3 650
-256Mb SDRAM
-2x Westen Digitals (model unknown as the machine is at home and I'm not)
 
-I have posted a decoded oops sometime ago, I can generate another one
-agaist a current test kernel (the latest I have tried is test9)
-
-I can test experimental / unstable / eat your fs patches on the gigabyte
-machine, the Supermicro boxes are production machines.
-
--- 
-   Tim Fletcher - Network manager   .~.
-                                    /V\      L   I   N   U   X   
-     nightshade@solanum.net        // \\  >Don't fear the penguin<
-tim@parrswood.manchester.sch.uk   /(   )\
-                                   ^^-^^
-
-"First they ignore you. Then they laugh at you.
-   Then they fight you. Then you win." - Gandhi
-
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,79 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265037AbUEKXTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264887AbUEKXWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265037AbUEKXTz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 19:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264887AbUEKXTy
+	id S264887AbUEKXWA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 19:22:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265056AbUEKXV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 19:19:54 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:10885 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S265037AbUEKXSq (ORCPT
+	Tue, 11 May 2004 19:21:59 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:11137 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S265054AbUEKXUw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 19:18:46 -0400
-Date: Tue, 11 May 2004 16:16:53 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: akpm@osdl.org, davidm@hpl.hp.com, linux-kernel@vger.kernel.org,
-       anil.s.keshavamurthy@intel.com
-Subject: Re: (resend) take3: Updated CPU Hotplug patches for IA64 (pj
- blessed) Patch [6/7]
-Message-Id: <20040511161653.49e836e5.pj@sgi.com>
-In-Reply-To: <20040504211755.A13286@unix-os.sc.intel.com>
-References: <20040504211755.A13286@unix-os.sc.intel.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 11 May 2004 19:20:52 -0400
+Date: Wed, 12 May 2004 00:20:51 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dri-devel@lists.sf.net
+Subject: Re: From Eric Anholt:
+In-Reply-To: <20040511222245.GA25644@kroah.com>
+Message-ID: <Pine.LNX.4.58.0405120018360.3826@skynet>
+References: <200405112211.i4BMBQDZ006167@hera.kernel.org> <20040511222245.GA25644@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Being somewhat thick in the head at times, it took me a lengthy private
-email thread with Ashok to understand why he needed to add a
-cpu_present_map for his cpu hotplug work, and just how that new map
-related to the existing ones.
+>
+> Ick, you can't use "int" as an ioctl structure member, sorry.  Please
+> use the proper "__u16" or "__u32" value instead.
 
-After patient and repeated explanations from Ashok, I worked out the
-following explanation that he found accurate.  On the off chance that
-others find this way of phrasing it helpful, I post it here for the
-record.
+I just looked at drm.h and nearly all the ioctls use int, this file is
+included in user-space applications also at the moment, I'm worried
+changing all ints to __u32 will break some of these, anyone on DRI list
+care to comment?
 
-===
+Dave.
 
-Ashok's cpu hot plug patch adds a cpu_present_map, resulting in the
-following cpu maps being available.  All the following maps are fixed
-size bitmaps of size NR_CPUS.
-
-#ifdef CONFIG_HOTPLUG_CPU
-	cpu_possible_map - map with all NR_CPUS bits set
-	cpu_present_map - map with bit 'cpu' set iff cpu is populated
-	cpu_online_map - map with bit 'cpu' set iff cpu available to scheduler
-#else
-	cpu_possible_map - map with bit 'cpu' set iff cpu is populated
-	cpu_present_map - copy of cpu_possible_map
-	cpu_online_map - map with bit 'cpu' set iff cpu available to scheduler
-#endif
-
-In either case, NR_CPUS is fixed at compile time, as the static size of
-these bitmaps.  The cpu_possible_map is fixed at boot time, as the set
-of CPU id's that it is possible might ever be plugged in at anytime
-during the life of that system boot.  The cpu_present_map is dynamic(*),
-representing which CPUs are currently plugged in.  And cpu_online_map is
-the dynamic subset of cpu_present_map, indicating those CPUs available
-for scheduling.
-
-If HOTPLUG is enabled, then cpu_possible_map is forced to have all
-NR_CPUS bits set, otherwise it is just the set of CPUs that ACPI reports
-present at boot.
-
-If HOTPLUG is enabled, then cpu_present_map varies dynamically,
-depending on what ACPI reports as currently plugged in, otherwise
-cpu_present_map is just a copy of cpu_possible_map.
-
-(*) Well, cpu_present_map is dynamic in the hotplug case.
-    If not hotplug, it's the same as cpu_possible_map, hence
-    fixed at boot.
+ >
+> And what about kernels running in 64bit mode with 32bit userspace?  Care
+> to provide the proper thunking layer for them too?
+>
+> thanks,
+>
+> greg k-h
+>
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
+

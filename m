@@ -1,65 +1,149 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261723AbSJIOBn>; Wed, 9 Oct 2002 10:01:43 -0400
+	id <S261719AbSJIOAf>; Wed, 9 Oct 2002 10:00:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261737AbSJIOBn>; Wed, 9 Oct 2002 10:01:43 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:49031 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261723AbSJIOBl>; Wed, 9 Oct 2002 10:01:41 -0400
-Subject: [BUG] NULL pointer dereference
-From: Paul Larson <plars@linuxtestproject.org>
-To: lkml <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 09 Oct 2002 09:01:47 -0500
-Message-Id: <1034172108.29084.96.camel@plars>
-Mime-Version: 1.0
+	id <S261723AbSJIOAf>; Wed, 9 Oct 2002 10:00:35 -0400
+Received: from 213-187-164-2.dd.nextgentel.com ([213.187.164.2]:24711 "EHLO
+	mail.pronto.tv") by vger.kernel.org with ESMTP id <S261719AbSJIOAd>;
+	Wed, 9 Oct 2002 10:00:33 -0400
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: softdog doesn't work on 2.4.20-pre10?
+Date: Wed, 9 Oct 2002 16:07:32 +0200
+User-Agent: KMail/1.4.1
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_KKWPO9AXSX59ZFWUG9RS"
+Message-Id: <200210091607.32769.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-During some testing I was doing on linux-2.5.41-mm1 I came across the
-NULL pointer dereference below.  I suspect it is also in 2.5.41 vanilla,
-but I have not been able to reproduce it so far.  It was on an 8-way
-PIII-700, 16 GB ram.  I had been running ltp at the time and it had
-completed.  I was hitting tab at the time it happened to get a command
-line completion in bash.
 
-Unable to handle kernel NULL pointer dereference at virtual address
-0000002c
- printing eip:
-c01525b5
-*pde = 00104001
-Oops: 0000
+--------------Boundary-00=_KKWPO9AXSX59ZFWUG9RS
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-CPU:    0
-EIP:    0060:[<c01525b5>]    Not tainted
-EFLAGS: 00010046
-EIP is at fasync_helper+0x75/0xf0
-eax: c0359198   ebx: 00000000   ecx: 0000002c   edx: 0000007e
-esi: 0000002c   edi: 00000000   ebp: cc2682c0   esp: f637bec4
-ds: 0068   es: 0068   ss: 0068
-Process python (pid: 1253, threadinfo=f637a000 task=f6c8f1a0)
-Stack: 00000000 f7c0c9bc f7c0c960 ffffffff 00000000 c014dc45 ffffffff
-cc2682c0
-       00000000 0000002c f7c0c960 f7ff5620 f7c0c960 f63b8ca0 c014dd83
-ffffffff
-       cc2682c0 00000000 cc2682c0 c014453b f7c0c960 cc2682c0 f7ff5760
-00000286
-Call Trace:
- [<c014dc45>] pipe_read_fasync+0x45/0x70
- [<c014dd83>] pipe_read_release+0x13/0x30
- [<c014453b>] __fput+0x2b/0xd0
- [<c0142cd9>] filp_close+0x99/0xb0
- [<c011c3eb>] put_files_struct+0x4b/0xd0
- [<c011cd69>] do_exit+0x109/0x2e0
- [<c011e16b>] do_softirq+0x5b/0xc0
- [<c01111df>] smp_apic_timer_interrupt+0x10f/0x120
- [<c01071d3>] syscall_call+0x7/0xb
+hi
 
-Code: 8b 16 85 d2 74 36 90 8d 74 26 00 39 6a 0c 75 22 85 ff 75 ba
+I have the softdog running on some of my machines, and I noticed it didn'=
+t=20
+work very well. I've got this little program feeding the dog (attached), =
+so=20
+if it gets killed, the machine should reboot.
 
-Thanks,
-Paul Larson
+but - this doesn't happen!
+
+can anyone take a look at this?
+
+roy
+--=20
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+
+--------------Boundary-00=_KKWPO9AXSX59ZFWUG9RS
+Content-Type: text/x-csrc;
+  charset="us-ascii";
+  name="feedthedog.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="feedthedog.c"
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <signal.h>
+#include <syslog.h>
+#include "watchdog.h"
+
+#define TIMEOUT_DEFAULT 60
+
+int fd;
+
+void sig_any() {
+	syslog(LOG_EMERG, "feedthedog killed by untrapped signal. System will be rebooted by watchdog.");
+	exit(0);
+}
+
+void sig_term() {
+	syslog(LOG_NOTICE, "Exiting, shutting down watchdog...");
+	if (write(fd, "V", 1) == -1) {
+		syslog(LOG_NOTICE, "Failed!");
+		exit(1);
+	}
+	if (close(fd) == -1) {
+		syslog(LOG_NOTICE, "Failed!");
+		exit(1);
+	}
+	syslog(LOG_NOTICE, "Watchdog successfully shut down!");
+	exit(0);
+}
+
+void get_info() {
+	int timeout;
+	struct watchdog_info info;
+
+    ioctl(fd, WDIOC_GETTIMEOUT, &timeout);
+    syslog(LOG_INFO, "Watchdog timeout is %d seconds\n", timeout);
+
+	ioctl(fd, WDIOC_GETSUPPORT, &info);
+	syslog(LOG_INFO, "Watchdog options: 0x%04x", info.options);
+	syslog(LOG_INFO, "Watchdog firmware ver: %d", info.firmware_version);
+	syslog(LOG_INFO, "Watchdog type:%s", info.identity);
+}
+
+int main() {
+	int i,timeout;
+
+	openlog("feedthedog", LOG_PID, LOG_DAEMON);
+
+	if ((fd = open("/dev/watchdog", O_WRONLY)) == -1) {
+		perror("open");
+		exit(1);
+	}
+
+	timeout = atoi(getenv("WATCHDOG_TIMEOUT"));
+	if (timeout <= 0) {
+		syslog(LOG_WARNING, "Timeout set to %d. Using default.", timeout);
+		timeout = TIMEOUT_DEFAULT;
+	}
+
+	get_info();
+	for (i=1;i<=_NSIG;i++) {
+		switch (i) {
+			case SIGSTOP:
+			case SIGKILL:
+				break;
+			case SIGTERM:
+				signal(SIGTERM, sig_term);
+				break;
+			default:
+				signal(i, sig_any);
+				break;
+		}
+	}
+
+	if (fork())
+		exit(0);
+
+	syslog(LOG_INFO, "Watchdog feeder started");
+
+	while (1) {
+		write(fd, "\0", 1);
+		sleep(10);
+	}
+
+	return 0;
+}
+
+--------------Boundary-00=_KKWPO9AXSX59ZFWUG9RS--
 

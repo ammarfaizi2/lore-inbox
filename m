@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVCZUPl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVCZUeh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbVCZUPl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 15:15:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVCZUPl
+	id S261250AbVCZUeh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 15:34:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVCZUeh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 15:15:41 -0500
-Received: from mail.europlex.ie ([83.141.76.10]:54961 "EHLO
-	eurodubx.europlex.local") by vger.kernel.org with ESMTP
-	id S261245AbVCZUPe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 15:15:34 -0500
-Message-ID: <4245C711.2040304@eircom.net>
-Date: Sat, 26 Mar 2005 20:33:21 +0000
-From: "Bryan O'Donoghue" <typedef@eircom.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: arc/arm/config.in still broken 2.4.19-2.4.29 ?
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 26 Mar 2005 15:34:37 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:57290 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261250AbVCZUef (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 15:34:35 -0500
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+From: Lee Revell <rlrevell@joe-job.com>
+To: Greg KH <greg@kroah.com>
+Cc: Mark Fortescue <mark@mtfhpc.demon.co.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050326182828.GA8540@kroah.com>
+References: <Pine.LNX.4.10.10503261710320.13484-100000@mtfhpc.demon.co.uk>
+	 <20050326182828.GA8540@kroah.com>
+Content-Type: text/plain
+Date: Sat, 26 Mar 2005 15:34:34 -0500
+Message-Id: <1111869274.32641.0.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Mar 2005 20:22:12.0890 (UTC) FILETIME=[7EA47FA0:01C53241]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings list.
+On Sat, 2005-03-26 at 10:28 -0800, Greg KH wrote:
+> On Sat, Mar 26, 2005 at 05:52:20PM +0000, Mark Fortescue wrote:
+> > 
+> > I am writing a "Proprietry" driver module for a "Proprietry" PCI card and
+> > I have found that I can't use SYSFS on Linux-2.6.10.
+> > 
+> > Why ?. 
+> 
+> What ever gave you the impression that it was legal to create a
+> "Proprietry" kernel driver for Linux in the first place.
 
-arch/arm/config.in has an error which breaks make.
+The fact that Nvidia and ATI get away with it?
 
-I've googled this a bit just by searching for drivers/ssi/Config.in and the 
-first reference I find to this breakage is in 2002 !
+Lee
 
-For completeness shouldn't this really be removed once and for all?
-
-I'm not clear on what the procedure is for submitting a patch, but, I've 
-included one to save somebody else the bother.
-
-Best
-Bryan
-
-
-diff -puN linux-2.4.29/arch/arm/config.in linux-2.4.30-rc2/arch/arm/config.in
-
---- linux-2.4.29/arch/arm/config.in     2004-11-17 11:54:21.000000000 +0000
-+++ linux-2.4.30-rc2/arch/arm/config.in 2005-03-26 20:11:54.000000000 +0000
-@@ -599,11 +599,6 @@ if [ "$CONFIG_SCSI" != "n" ]; then
-  fi
-  endmenu
-
--if [ "$CONFIG_ARCH_CLPS711X" = "y" ]; then
--   # This is _meant_ to be ssi _not_ scsi.  It is not a spelling error.
--   source drivers/ssi/Config.in
--fi
--
-  source drivers/ieee1394/Config.in
-
-  source drivers/message/i2o/Config.in

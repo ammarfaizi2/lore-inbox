@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265247AbRGATUI>; Sun, 1 Jul 2001 15:20:08 -0400
+	id <S265233AbRGATT6>; Sun, 1 Jul 2001 15:19:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265239AbRGATT6>; Sun, 1 Jul 2001 15:19:58 -0400
-Received: from [63.193.79.18] ([63.193.79.18]:24823 "HELO mwg.inxservices.lan")
-	by vger.kernel.org with SMTP id <S265264AbRGATTl>;
-	Sun, 1 Jul 2001 15:19:41 -0400
-Date: Sun, 1 Jul 2001 12:19:05 -0700
-From: George Garvey <tmwg-linuxknl@inxservices.com>
-To: linux-kernel@vger.kernel.org
-Subject: ASUS A7V/Thunderbird 1GHz lockup problems observation w/fix for me
-Message-ID: <20010701121905.B9838@inxservices.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: inX Services, Los Angeles, CA, USA
+	id <S265239AbRGATTs>; Sun, 1 Jul 2001 15:19:48 -0400
+Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:64899
+	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
+	id <S265250AbRGATTb>; Sun, 1 Jul 2001 15:19:31 -0400
+Date: Sun, 1 Jul 2001 12:23:17 -0700 (PDT)
+From: Justin Guyett <justin@soze.net>
+X-X-Sender: <tyme@gw.soze.net>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+        <linux-kernel@vger.kernel.org>, <jmerkey@timpanogas.org>
+Subject: Re: NWFS Submitted to Alan Cox
+In-Reply-To: <20010702025418.B14068@weta.f00f.org>
+Message-ID: <Pine.LNX.4.33.0107011220090.27557-100000@gw.soze.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Ever since building this system there have been spontaneous and
-unpredictable lockups, usually at least once per day. Sometimes several per
-day. The lockup is sometimes preceded by X starting to display things
-strangely (on a Voodoo 3 w/XF 4.X). Then I have a few minutes to reboot
-before it hangs (can't log in using ssh from another system.)
-   With the Northbridge discussion, I couldn't pinpoint anything to fix it,
-so I started experimenting.
-   Things got better by upgrading the BIOS; but still many hangs.
-   I've discovered that changing the CPU voltage from the default to 1.75V
-results in a stable system. Higher than that doesn't work. Lower still gets
-lockups.
-   It doesn't look like everyone has this problem with similar setups. But
-if there are others, I wanted to share this discovery.
+On Mon, 2 Jul 2001, Chris Wedgwood wrote:
+
+> On Sun, Jul 01, 2001 at 01:50:00PM +0100, Alan Cox wrote:
+>
+> > I'm not a file sustem hacker, nor since I work for one vendor the
+> > appropriate owner for larg chunks of code in some people's eyes. I
+> > suspect the FSF is a much much better asignee for the code itself
+>
+> I assume the legal threats that Jeff has experience will follow the
+> code? Surely before anyone wishes to adopt such a thing they should
+> get legal advice about the situation?
+>
+> It would be shame to let potentially useful code be left to die for
+> fear of bully-tactics if their claims are unfounded.
+
+presuming they are unfounded, given the history of attacks by Novell,
+perhaps the best move would be to turn it over to a company like compaq or
+ibm given a written contract that they will keep it open source.  Novell
+can't be that stupid.
+
+
+justin
+

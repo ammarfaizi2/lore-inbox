@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269890AbRHJCCN>; Thu, 9 Aug 2001 22:02:13 -0400
+	id <S269891AbRHJCDn>; Thu, 9 Aug 2001 22:03:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269891AbRHJCCC>; Thu, 9 Aug 2001 22:02:02 -0400
-Received: from mail11.speakeasy.net ([216.254.0.211]:41741 "EHLO
-	mail11.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S269890AbRHJCBp>; Thu, 9 Aug 2001 22:01:45 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: safemode <safemode@speakeasy.net>
-To: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
-Subject: Re: kapm-idled shows 90+% cpu usage when idle
-Date: Thu, 9 Aug 2001 22:01:55 -0400
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <200108100036.CAA09153@harpo.it.uu.se>
-In-Reply-To: <200108100036.CAA09153@harpo.it.uu.se>
+	id <S269893AbRHJCDd>; Thu, 9 Aug 2001 22:03:33 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:44912 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S269891AbRHJCDa>; Thu, 9 Aug 2001 22:03:30 -0400
+Message-ID: <3B7340EA.5050507@blue-labs.org>
+Date: Thu, 09 Aug 2001 22:03:22 -0400
+From: David Ford <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010810020152Z269890-28344+3523@vger.kernel.org>
+To: Rainer Mager <rvm@gol.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [somewhat OT] connecting to a box behind a NAT router
+In-Reply-To: <NEBBJBCAFMMNIHGDLFKGIEICELAA.rvm@gol.com>
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 09 August 2001 20:36, Mikael Pettersson wrote:
-> On Thu, 9 Aug 2001 19:33:42 -0400, safemode <safemode@speakeasy.net> wrote:
-> >Is this a true usage reading or just some quirk that's supposed to happen?
-> >I really doubt that this kernel daemon should really be using  cpu.  It
-> > seems to respond with a higher cpu usage when i'm idle.  It immediately
-> > goes away when something else uses cpu.   If you need any more info just
-> > ask.   I'm
->
-> Do you have CONFIG_APM_CPU_IDLE=y in your .config? If so, disable it.
->
-> There was a thread about this problem some months ago. I found
-> that on all of my APM-capable machines, including a Dell laptop,
-> CONFIG_APM_CPU_IDLE=y had a negative effect. The kernel ended up
-> in a tight loop performing tons of APM IDLE BIOS calls, since each
-> BIOS call returned immediately without having idled the CPU.
->
-> Leaving CONFIG_APM_CPU_IDLE unset lets the kernel use its own
-> "HLT when idle" code. On my main development box, idle CPU
-> temperature dropped >10 degrees C, and kapm-idled now uses 0% CPU.
->
-> /Mikael
+Yes, if you use ssh+pppd you can such a thing. Standard routing, no, the
+NAT make it unusable. What I would have done (as I do for my home
+network, is make a linux router and use a standard *DSL modem. Much
+better all around.
 
-I've been told by others that this is exactly what's supposed to happen.  It 
-acts like it's using cpu when it's idle and does it job that way.  I see no 
-difference either way.   I'm using a KA7 motherboard and it says it supports 
-apm and lspci shows what i pasted in the original post.  Oh well, it's not 
-causing the cpu to generate more heat than it would be idle.  
+-d
+
+Rainer Mager wrote:
+
+>Hi all,
+>
+>	I'm about to get ADSL installed for my home Internet connection and have
+>chosen to do this via an ADSL router (as opposed to a modem). The router
+>will have a static/global IP address but everything behind it will be
+>connecting through the router via NAT. So, my question is, is there any way
+>to get into (telnet or ssh) my box behind the router from outside?
+>	Is there some sort of tunneling protocol/tool to do this? If so, what
+>happens if I want to connect two boxes is the same situation (behind NAT
+>routers)? Is is still possible? Is is interoperable with Windows and Linux?
+>
+>	Any ideas would be greatly appreciated.
+>
+>
+>Thanks in advance,
+>
+>--Rainer
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+
+

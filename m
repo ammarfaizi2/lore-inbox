@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262296AbSJ2UAB>; Tue, 29 Oct 2002 15:00:01 -0500
+	id <S262215AbSJ2TfQ>; Tue, 29 Oct 2002 14:35:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262302AbSJ2UAB>; Tue, 29 Oct 2002 15:00:01 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:40349 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S262296AbSJ2UAA>;
-	Tue, 29 Oct 2002 15:00:00 -0500
-Message-ID: <015e01c27f86$a42d4290$9865fea9@PCJohn>
-From: "John Hawkes" <hawkes@sgi.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <wookie@osdlab.org>
-References: <fa.e2emdkv.j1ksaf@ifi.uio.no> <fa.f6uq3iv.232305@ifi.uio.no>
-Subject: Re: [BENCHMARK] AIM Independent Resource Benchmark  results for kernel-2.5.44
-Date: Tue, 29 Oct 2002 12:06:16 -0800
+	id <S262208AbSJ2Tes>; Tue, 29 Oct 2002 14:34:48 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:30190 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S262215AbSJ2Tbm>; Tue, 29 Oct 2002 14:31:42 -0500
+Message-ID: <3DBEE1CE.2060200@nortelnetworks.com>
+Date: Tue, 29 Oct 2002 14:30:22 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Khalid Aziz <khalid_aziz@hp.com>
+Cc: Paul.Clements@steeleye.com, Khalid Aziz <khalid@fc.hp.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5] Retrieve configuration information from kernel
+References: <Pine.LNX.4.10.10210291204590.28595-100000@clements.sc.steeleye.com> <3DBED111.96A3A1E8@hp.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Jakob Oestergaard" <jakob@unthought.net>
-...[snip]...
-> The correct way to terminate that loop is, like was already suggested,
-> doing a comparison to see if the residual is "numerically zero" or
-> "sufficiently zero-ish for the given purpose". Eg.  "delta < 1E-12" or
-> eventually "fabs(delta) < 1E-12".
+Khalid Aziz wrote:
+> Paul Clements wrote:
+> 
+>>Have you considered compressing the config info in order to reduce
+>>the space wastage in the loaded kernel image? Could easily be 10's of KB
+>>(not that that's a lot these days). The info would then be retrieved via
+>>"gunzip -c", et al. instead of a simple "cat".
+>>
+> 
+> I wanted to start with a simple implementation first. There are a couple
+> of things that can be done in future to further improve meory usage: (1)
+> Drop "CONFIG_" and "# CONFIG_" from each line and add it back when
+> printing from /proc/ikconfig and extract-ikconfig script, (2) Compress
+> the resulting configuration. Something to do in near future :)
 
-Tim Witham at the OSDL told me that he ran some experiments with
-different convergent deltas:
+Do we really need to store the ones that are not actually set to 
+something?  You'll get a bunch of queries when doing a "make oldconfig", 
+but saying N to all of them should just work...after all its the ones 
+that are actually *set* that we care about.
 
-  zero Rate (ops/sec) Iteration Rate
- 10-6    331,300    1656.5
- 10-8    315,049    1575.0
- 10-10    302,000    1510.0
- 10-12    292,300    1461.5
- 10-14    285,400    1427.0
+Also, if you wanted to get cute, you could make use of the fact that the 
+config names only use ascii chars from '0' to 'Z' which can be 
+represented by 6 bits, then pack them together in memory.  I don't know 
+how much difference this would make after zipping though.
 
-Anything smaller than 10-14 didn't converge.
+Chris
 
 
---
-John Hawkes
 
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

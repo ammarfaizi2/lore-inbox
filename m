@@ -1,86 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264694AbTFYRHt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 13:07:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264706AbTFYRHs
+	id S264666AbTFYRGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 13:06:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264679AbTFYRGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 13:07:48 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:31467 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S264694AbTFYRGz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 13:06:55 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Wed, 25 Jun 2003 13:06:09 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:42970 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S264666AbTFYRGG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 13:06:06 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16121.55803.509760.869572@napali.hpl.hp.com>
-Date: Wed, 25 Jun 2003 10:20:59 -0700
-To: "Riley Williams" <Riley@Williams.Name>
-Cc: "Vojtech Pavlik" <vojtech@suse.cz>, <davidm@hpl.hp.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] input: Fix CLOCK_TICK_RATE usage ...  [8/13]
-In-Reply-To: <BKEGKPICNAKILKJKMHCAIECMEHAA.Riley@Williams.Name>
-References: <20030618013114.A23697@ucw.cz>
-	<BKEGKPICNAKILKJKMHCAIECMEHAA.Riley@Williams.Name>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: ACPI 100002 IRQ 9 problem.
+Date: Wed, 25 Jun 2003 10:20:15 -0700
+Message-ID: <F760B14C9561B941B89469F59BA3A8470255EE65@orsmsx401.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: ACPI 100002 IRQ 9 problem.
+Thread-Index: AcM65a8cgy5b4kslQ+ahhV//v1eZDgAV7Rxw
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "Joshua Schmidlkofer" <menion@asylumwear.com>,
+       "lkml" <linux-kernel@vger.kernel.org>
+Cc: <acpi-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 25 Jun 2003 17:20:15.0837 (UTC) FILETIME=[0B3268D0:01C33B3E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 25 Jun 2003 09:03:34 +0100, "Riley Williams" <Riley@Williams.Name> said:
+> From: Joshua Schmidlkofer [mailto:menion@asylumwear.com] 
+>    First is there a different list for ACPI questions?
 
-  Riley> Hi all.
-  Riley> I have no objection to anything along these lines. The basic scenario
-  Riley> is simply this:
+>From MAINTAINERS:
 
-  Riley> 1. On ALL architectures except for IA64 and ARM there is a SINGLE
-  Riley> value for CLOCK_TICK_RATE that is used by several GENERIC drivers.
-  Riley> Currently, that value is used as a MAGIC NUMBER that corresponds
-  Riley> to the value in the Ix86 case, which is clearly wrong.
+ACPI
+P:	Andy Grover
+M:	andrew.grover@intel.com
+L:	acpi-devel@lists.sourceforge.net
+W:	http://sf.net/projects/acpi/
+S:	Maintained
 
-What do you mean be "generic"?  AFAIK, the drivers you're talking
-about all depend on there being an 8259-style PIT.  As such, they
-depend on the 8259 and are not generic.  This dependency should be
-made explicit.
+>    For the sake of disclosure, the dump I am reporting is 2.5.73, plus
+> the Davide Libenzis' SiS-96x patch.  I also am currently using the
+> nvidia driver, I was able to reproduce this in vanilla 2.5.72 (no
+> nvidia), and I will try tomorrow with a vanilla setup of 2.5.73-bk3.
+> [unless bk4 is available].
+> 
+>    I have a Soyo P4S-645D, with the SiS 645 chipset.  I have had some
+> problems w/ the IRQ routing, but 2.5.7[123] have sorted it 
+> out (mostly) 
+> I am having problems ACPI, it is better if I say 
+> 'pci=noacpi', but what
+> happens is when the ACPI interrupt count hit 100002, then I get the
+> following message on all consoles:
+> 
+> menion kernel: Disabling IRQ #9
+> 
+> Then, I have the following as part of dmesg:
+> 
+> Call Trace: [<c010cad4>]  [<c010cbad>]  [<c010ce46>]  [<c010880e>] 
+> [<c010880e>]  [<c010b320>]  [<c010880e>]  [<c010880e>]  [<c0108832>] 
+> [<c010889a>]  [<c0105000>]  [<c041c6bd>]  [<c041c41e>]
+> [<c0247446>]
+> Warning (Oops_read): Code line not seen, dumping what data is 
+> available
 
-BTW: I didn't think Alpha derived its clock-tick from the PIT either,
-but I could be misremembering.  Could someone more familiar with Alpha
-confirm or deny?
+There is a known, as-yet-unfixed problem, but the usual symptom is you
+hit 100000 interrupts and then it gets nicely disabled - I'm not sure
+why your system oopses.
 
-  Riley> 2. According to the IA64 people, those GENERIC drivers are apparently
-  Riley> irrelevant for that architecture, so making the CORRECT change of
-  Riley> replacing those magic numbers in the GENERIC drivers with the
-  Riley> CLOCK_TICK_RATE value will make no difference to IA64.
-
-That's not precise: _some_ ia64 machies do have legacy hardware and
-those should be able to use 8259-dependent drivers if they choose to
-do so.
-
-Moreover, the current drivers would compile just fine on ia64, even
-though they could not possibly work correctly with the current use of
-CLOCK_TICK_RATE.  With a separate header file (and a config option),
-these dependencies would be made explicit and that would improve
-overall cleanliness.
-
-In other words, I still think the right way to go about this is to
-have <asm/pit.h>.  On x86, this could be:
-
---
-#include <asm/timex.h>
-
-#define PIT_FREQ	CLOCK_TICK_RATE
-#define PIT_LATCH	((PIT_FREQ + HZ/2) / HZ)
---
-
-If you insist, you could even put this in asm-generic, though
-personally I don't think that's terribly elegant.
-
-On ia64, <asm/pit.h> could be:
-
-#ifdef CONFIG_PIT
-# define PIT_FREQ	1193182
-# define PIT_LATCH	((PIT_FREQ + HZ/2) / HZ)
-#endif
-
-	--david
+Regards -- Andy

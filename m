@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312315AbSCZOGa>; Tue, 26 Mar 2002 09:06:30 -0500
+	id <S312148AbSCZOGU>; Tue, 26 Mar 2002 09:06:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312334AbSCZOGZ>; Tue, 26 Mar 2002 09:06:25 -0500
-Received: from smtp2.flashnet.it ([194.247.160.60]:26131 "EHLO
+	id <S312334AbSCZOGP>; Tue, 26 Mar 2002 09:06:15 -0500
+Received: from smtp2.flashnet.it ([194.247.160.60]:25107 "EHLO
 	smtp2.flashnet.it") by vger.kernel.org with ESMTP
-	id <S312315AbSCZOGI>; Tue, 26 Mar 2002 09:06:08 -0500
-Message-Id: <200203261518.g2QFIJB09456@smtp2.flashnet.it>
+	id <S312148AbSCZOGC>; Tue, 26 Mar 2002 09:06:02 -0500
+Message-Id: <200203261518.g2QFI9B09441@smtp2.flashnet.it>
 Content-Type: text/plain; charset=US-ASCII
 From: Frederik Nosi <fredi@e-salute.it>
 Reply-To: fredi@e-salute.it
 Organization: e-salute s.r.l.
 To: linux-kernel@vger.kernel.org
 Subject: Compile problem in 2.5.7
-Date: Tue, 26 Mar 2002 15:13:51 +0100
+Date: Tue, 26 Mar 2002 15:12:48 +0100
 X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT

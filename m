@@ -1,78 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVACPEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261464AbVACPH1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261463AbVACPEh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 10:04:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVACPEh
+	id S261464AbVACPH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 10:07:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261466AbVACPH0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 10:04:37 -0500
-Received: from orb.pobox.com ([207.8.226.5]:5869 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S261463AbVACPEa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 10:04:30 -0500
-Date: Mon, 3 Jan 2005 07:05:05 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: Pavel Machek <pavel@ucw.cz>, lindqvist@netstar.se, edi@gmx.de,
-       john@hjsoft.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       torvalds@osdl.org
-Subject: [PATCH] swsusp: properly suspend and resume *all* devices
-Message-ID: <20050103150505.GA4120@ip68-4-98-123.oc.oc.cox.net>
-References: <20041228144741.GA2969@butterfly.hjsoft.com> <20050101172344.GA1355@elf.ucw.cz> <20050102055753.GB7406@ip68-4-98-123.oc.oc.cox.net> <20050102184239.GA21322@butterfly.hjsoft.com> <1104696556.2478.12.camel@pefyra> <20050103051018.GA4413@ip68-4-98-123.oc.oc.cox.net> <20050103084713.GB2099@elf.ucw.cz> <20050103101423.GA4441@ip68-4-98-123.oc.oc.cox.net>
+	Mon, 3 Jan 2005 10:07:26 -0500
+Received: from jubilee.implode.net ([64.40.108.188]:40321 "EHLO
+	jubilee.implode.net") by vger.kernel.org with ESMTP id S261464AbVACPHG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 10:07:06 -0500
+Date: Sun, 2 Jan 2005 09:37:04 -0800
+From: John Wong <kernel@implode.net>
+To: linux-kernel@vger.kernel.org
+Subject: Promise IDE DMA issue
+Message-ID: <20050102173704.GA14056@gambit.implode.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050103101423.GA4441@ip68-4-98-123.oc.oc.cox.net>
-User-Agent: Mutt/1.5.5.1i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-swsusp does not suspend and resume *all* devices, including system
-devices. This has been the case since at least 2.6.9, if not earlier.
+I recently upgraded fron a nVidia nForce2 MCP-T based A7NX-DX
+motherboard to an A8V DX, Via K8T800 Pro.  Now occassionally, I get 
+DMA issues on a drive attached to a Promise 133 TX2 controller (20269).
 
-One effect of this is that resuming fails to properly reconfigure
-interrupt routers. In 2.6.9 this was obscured by other kernel code,
-but in 2.6.10 this often causes post-resume APIC errors and near-total
-failure of some PCI devices (e.g. network, sound and USB controllers).
+Jan  1 11:14:51 gambit kernel: hde: dma_timer_expiry: dma status == 0x64
+Jan  1 11:16:01 gambit kernel: hdh: dma_timer_expiry: dma status == 0x64
+Jan  1 11:16:01 gambit kernel: PDC202XX: Primary channel reset.
+Jan  1 11:16:01 gambit kernel: hde: DMA interrupt recovery
+Jan  1 11:16:01 gambit kernel: hde: lost interrupt
+Jan  1 11:16:01 gambit kernel: PDC202XX: Secondary channel reset.
+Jan  1 11:16:01 gambit kernel: hdh: DMA interrupt recovery
+Jan  1 11:16:01 gambit kernel: hdh: lost interrupt
+Jan  1 11:16:01 gambit kernel: hde: dma_timer_expiry: dma status == 0x64
+Jan  1 11:16:01 gambit kernel: PDC202XX: Primary channel reset.
+Jan  1 11:16:01 gambit kernel: hde: DMA interrupt recovery
+Jan  1 11:16:01 gambit kernel: hde: lost interrupt
+Jan  1 11:16:01 gambit kernel: hde: dma_timer_expiry: dma status == 0x64
+Jan  1 11:16:01 gambit kernel: PDC202XX: Primary channel reset.
+Jan  1 11:18:31 gambit kernel: hde: DMA interrupt recovery
+Jan  1 11:18:31 gambit kernel: hde: lost interrupt
+Jan  1 11:18:31 gambit kernel: hde: dma_timer_expiry: dma status == 0x64
+Jan  1 11:18:31 gambit kernel: PDC202XX: Primary channel reset.
+Jan  1 11:18:31 gambit kernel: hde: DMA interrupt recovery
+Jan  1 11:18:31 gambit kernel: hde: lost interrupt
+Jan  1 11:18:31 gambit kernel: hde: dma_timer_expiry: dma status == 0x64
+Jan  1 11:18:31 gambit kernel: PDC202XX: Primary channel reset.
+Jan  1 11:18:31 gambit kernel: hde: DMA interrupt recovery
+Jan  1 11:18:31 gambit kernel: hde: lost interrupt
+Jan  1 11:18:31 gambit kernel: hde: dma_timer_expiry: dma status == 0x64
+Jan  1 11:18:31 gambit kernel: PDC202XX: Primary channel reset.
+Jan  1 11:18:31 gambit kernel: hde: DMA interrupt recovery
+Jan  1 11:18:31 gambit kernel: hde: lost interrupt
+Jan  1 11:18:31 gambit kernel: hde: dma_timer_expiry: dma status == 0x64
+Jan  1 11:19:31 gambit kernel: PDC202XX: Primary channel reset.
+Jan  1 11:19:31 gambit kernel: hde: DMA interrupt recovery
+Jan  1 11:19:31 gambit kernel: hde: lost interrupt
+Jan  1 11:19:31 gambit kernel: hde: dma_timer_expiry: dma status == 0x64
+Jan  1 11:19:31 gambit kernel: PDC202XX: Primary channel reset.
+Jan  1 11:19:31 gambit kernel: hde: DMA interrupt recovery
+Jan  1 11:19:31 gambit kernel: hde: lost interrupt
+Jan  1 11:19:31 gambit kernel: hde: dma_timer_expiry: dma status == 0x64
+Jan  1 11:19:31 gambit kernel: PDC202XX: Primary channel reset.
+Jan  1 11:19:31 gambit kernel: hde: DMA interrupt recovery
+Jan  1 11:19:31 gambit kernel: hde: lost interrupt
+Jan  1 11:19:31 gambit kernel: hde: dma_timer_expiry: dma status == 0x64
+Jan  1 11:19:31 gambit kernel: PDC202XX: Primary channel reset.
+Jan  1 11:19:31 gambit kernel: hde: DMA interrupt recovery
+Jan  1 11:19:31 gambit kernel: hde: lost interrupt
+Jan  1 11:19:51 gambit kernel: hde: dma_timer_expiry: dma status == 0x64
+Jan  1 11:20:01 gambit kernel: PDC202XX: Primary channel reset.
+Jan  1 11:20:01 gambit kernel: hde: DMA interrupt recovery
+Jan  1 11:20:01 gambit kernel: hde: lost interrupt
+Jan  1 11:20:21 gambit kernel: hde: dma_timer_expiry: dma status == 0x64
+Jan  1 11:20:31 gambit kernel: PDC202XX: Primary channel reset.
+Jan  1 11:20:31 gambit kernel: hde: DMA interrupt recovery
+Jan  1 11:20:31 gambit kernel: hde: lost interrupt
+Jan  1 11:20:51 gambit kernel: hde: dma_timer_expiry: dma status == 0x64
+Jan  1 11:21:01 gambit kernel: PDC202XX: Primary channel reset.
+Jan  1 11:21:01 gambit kernel: hde: DMA interrupt recovery
+Jan  1 11:21:01 gambit kernel: hde: lost interrupt
+Jan  1 11:21:21 gambit kernel: hde: dma_timer_expiry: dma status == 0x64
+Jan  1 11:21:31 gambit kernel: PDC202XX: Primary channel reset.
+Jan  1 11:21:31 gambit kernel: hde: DMA interrupt recovery
+Jan  1 11:21:31 gambit kernel: hde: lost interrupt
+Jan  1 11:21:51 gambit kernel: hde: dma_timer_expiry: dma status == 0x64
+Jan  1 11:22:01 gambit kernel: PDC202XX: Primary channel reset.
+Jan  1 11:22:01 gambit kernel: hde: DMA interrupt recovery
+Jan  1 11:22:01 gambit kernel: hde: lost interrupt
 
-On at least one of my systems, without this patch I also have to "ifdown
-eth0;ifup eth0" to get networking to function after resuming, even after
-working around the interrupt routing problem mentioned above. With this
-patch, networking simply works after a resume, and the ifdown/ifup is
-no longer needed.
+hde and hdh are identical Seagate ST3200822A
+hdf and hdg are Maxtor 6Y120P0 and 6Y120L0, however, they weren't
+mounted and are manually mounted as needed as they are FAT32 and NTFS.
 
-This patch is against 2.6.10-mm1, although it applies with an offset to
-2.6.10-bk4 as well. I have tested it against 2.6.10-mm1 and 2.6.10-bk4,
-with and without "noapic", with and without "acpi=off". However, I have
-not tested it on a highmem system.
+Jan  2 06:25:35 gambit kernel: hde: dma_intr: status=0x50 { DriveReady
+SeekCompl
+ete }
+Jan  2 06:25:35 gambit kernel: 
+Jan  2 06:25:35 gambit kernel: ide: failed opcode was: unknown
 
-I believe this patch fixes a severe problem in swsusp; I would like to
-see this patch (or at least *some* kind of fix for this problem) tested
-more widely and committed to mainline before the 2.6.11 release.
+The above happened at 6:25 which coincides with Debian's cron.daily
+runs (most likely the updating of the locate database).
 
-Signed-off-by: Barry K. Nathan <barryn@pobox.com>
 
---- linux-2.6.10-mm1/kernel/power/swsusp.c	2005-01-03 02:16:15.175265255 -0800
-+++ linux-2.6.10-mm1-bkn3/kernel/power/swsusp.c	2005-01-03 06:27:07.753344731 -0800
-@@ -843,11 +843,22 @@
- 	if ((error = arch_prepare_suspend()))
- 		return error;
- 	local_irq_disable();
-+	/* At this point, device_suspend() has been called, but *not*
-+	 * device_power_down(). We *must* device_power_down() now.
-+	 * Otherwise, drivers for some devices (e.g. interrupt controllers)
-+	 * become desynchronized with the actual state of the hardware
-+	 * at resume time, and evil weirdness ensues.
-+	 */
-+	if ((error = device_power_down(PM_SUSPEND_DISK))) {
-+		local_irq_enable();
-+		return error;
-+	}
- 	save_processor_state();
- 	error = swsusp_arch_suspend();
- 	/* Restore control flow magically appears here */
- 	restore_processor_state();
- 	restore_highmem();
-+	device_power_up();
- 	local_irq_enable();
- 	return error;
- }
+I've seen http://seclists.org/lists/linux-kernel/2003/Oct/4754.html
+where someone suggests disabling autotune to work around the problem.
+Without DMA, the DMA problem shouldn't happen, but this would slow
+things down.
+
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0412.2/1569.html
+mentions about needing multiple independent PCI buses for more than 2
+DMA transfers at a time.
+
+My lspci output from the old A7NX (nVidia nForce2) does appear to have 
+more PCI buses.  It looks to have a 0, 1, 2, 3 with 3 looking to be the 
+AGP bus.  The A8V (Via K8T800 Pro) on the other hand looks to have just 
+0, and 1 with 1 being the AGP bus.
+
+
+John

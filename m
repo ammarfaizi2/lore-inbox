@@ -1,76 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264934AbUGMMv3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264954AbUGMMw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264934AbUGMMv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 08:51:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264953AbUGMMv3
+	id S264954AbUGMMw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 08:52:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264957AbUGMMw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 08:51:29 -0400
-Received: from smtp011.mail.yahoo.com ([216.136.173.31]:33657 "HELO
-	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264934AbUGMMv1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 08:51:27 -0400
-Message-ID: <40F3DACC.9070703@yahoo.com.au>
-Date: Tue, 13 Jul 2004 22:51:24 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: preempt-timing-2.6.8-rc1
-References: <20040713122805.GZ21066@holomorphy.com>
-In-Reply-To: <20040713122805.GZ21066@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 13 Jul 2004 08:52:58 -0400
+Received: from rproxy.gmail.com ([64.233.170.204]:35706 "HELO mproxy.gmail.com")
+	by vger.kernel.org with SMTP id S264954AbUGMMwv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 08:52:51 -0400
+Message-ID: <2a4f155d040713055224a1e11@mail.gmail.com>
+Date: Tue, 13 Jul 2004 15:52:43 +0300
+From: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: XFS: how to NOT null files on fsck?
+Cc: Tim Connors <tconnors@astro.swin.edu.au>, Chris Wedgwood <cw@f00f.org>,
+       Anton Ertl <anton@mips.complang.tuwien.ac.at>,
+       linux-kernel@vger.kernel.org, Jan Knutar <jk-lkml@sci.fi>,
+       L A Walsh <lkml@tlinx.org>
+In-Reply-To: <40F3C49A.2090700@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20040713080950.GA1810@taniwha.stupidest.org> <E1BkJgc-0002Sb-O5@a4.complang.tuwien.ac.at> <20040713095300.GA2986@taniwha.stupidest.org> <slrn-0.9.7.4-25266-13316-200407132020-tc@hexane.ssi.swin.edu.au> <2a4f155d04071303384f156004@mail.gmail.com> <40F3C49A.2090700@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> This patch uses the preemption counter increments and decrements to time
-> non-preemptible critical sections.
+Ok sorry for bad language but as an XFS & KDE user I would like to see
+better discussion like there maybe some workarounds for this apart
+from them dumping KDE or XFS.
+
+About the KDE config stuff it happens in kconfig.cpp which lies under
+kdelibs/kdecore directory on CVS if you want to look at it.
+
+Again sorry for bad language.
+
+Cheers,
+ismail
+
+On Tue, 13 Jul 2004 21:16:42 +1000, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> This isn't really acceptable on this mailing list.
 > 
-> This is an instrumentation patch intended to help determine the causes of
-> scheduling latency related to long non-preemptible critical sections.
+> If you are offended by someone bitching about KDE, I politely
+> suggest that you unsubscribe.
 > 
-> Changes from 2.6.7-based patch:
-> (1) fix unmap_vmas() check correctly this time
-> (2) add touch_preempt_timing() to cond_resched_lock()
-> (3) depend on preempt until it's worked out wtf goes wrong without it
+> Nick
 > 
-> --- timing-2.6.8-rc1.orig/kernel/printk.c	2004-07-11 10:35:31.000000000 -0700
-> +++ timing-2.6.8-rc1/kernel/printk.c	2004-07-13 03:56:37.901603496 -0700
-> @@ -650,10 +650,8 @@
->   */
->  void console_conditional_schedule(void)
->  {
-> -	if (console_may_schedule && need_resched()) {
-> -		set_current_state(TASK_RUNNING);
-> -		schedule();
-> -	}
-> +	if (console_may_schedule)
-> +		cond_resched();
->  }
 
-You should send that one in
 
-> +void dec_preempt_count(void)
-> +{
-> +	if (preempt_count() == 1 && system_state == SYSTEM_RUNNING &&
-> +					__get_cpu_var(preempt_entry)) {
-> +		u64 hold;
-> +		unsigned long preempt_exit
-> +				= (unsigned long)__builtin_return_address(0);
-> +		hold = sched_clock() - __get_cpu_var(preempt_timings) + 999999;
-> +		do_div(hold, 1000000);
-> +		if (preempt_thresh && hold > preempt_thresh &&
-> +							printk_ratelimit()) {
-
-This looks wrong. This means hold times of 1ns to 1000000ns trigger the
-exceeded 1ms threshold, 1000001 to 2000000 trigger the 2ms one, etc.
-
-Removing the + 999999 gives the correct result:
-1000000 - 1999999ns triggers the 1ms threshold
-2000000 - 2999999ns triggers the 2ms threshold
-etc
-
-Or have I missed something?
+-- 
+Time is what you make of it

@@ -1,91 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275354AbRIZRWC>; Wed, 26 Sep 2001 13:22:02 -0400
+	id <S275359AbRIZR0C>; Wed, 26 Sep 2001 13:26:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275353AbRIZRVx>; Wed, 26 Sep 2001 13:21:53 -0400
-Received: from mail.fu-berlin.de ([160.45.11.165]:27939 "EHLO
-	mail.fu-berlin.de") by vger.kernel.org with ESMTP
-	id <S275354AbRIZRVi>; Wed, 26 Sep 2001 13:21:38 -0400
-Message-ID: <3BB20D5F.67A699AB@inf.fu-berlin.de>
-Date: Wed, 26 Sep 2001 19:16:15 +0200
-From: Enver Haase <ehaase@inf.fu-berlin.de>
-Organization: Free University of Berlin
-X-Mailer: Mozilla 4.75 [en] (Win98; U)
-X-Accept-Language: en,de,fr
+	id <S275361AbRIZRZx>; Wed, 26 Sep 2001 13:25:53 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19979 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S275359AbRIZRZj>; Wed, 26 Sep 2001 13:25:39 -0400
+Date: Wed, 26 Sep 2001 10:25:18 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "David S. Miller" <davem@redhat.com>, <bcrl@redhat.com>,
+        <marcelo@conectiva.com.br>, <andrea@suse.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Locking comment on shrink_caches()
+In-Reply-To: <E15mHjL-0000t8-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0109261003480.8327-200000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [OOPS] linux-2.4.10 tough problem
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="168447515-654106168-1001525118=:8327"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Hello,
+--168447515-654106168-1001525118=:8327
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-I'm sure 2.4.10 is an "uncomfortably large changeset" (Linus).
 
-I've been running a 2.4.9 machine using ext2, 192MB RAM, on a 
-K6-III-400 (66*6).
+On Wed, 26 Sep 2001, Alan Cox wrote:
+> >
+> > Your Athlons may handle exclusive cache line acquisition more
+> > efficiently (due to memory subsystem performance) but it still
+> > does cost something.
+>
+> On an exclusive line on Athlon a lock cycle is near enough free, its
+> just an ordering constraint. Since the line is in E state no other bus
+> master can hold a copy in cache so the atomicity is there. Ditto for newer
+> Intel processors
 
-I compiled 2.4.10 two times, so it's highly probable it was no
-hardware flaw (high temperature or so). Compiler is gcc 2.95.2
-(release).
+You misunderstood the problem, I think: when the line moves from one CPU
+to the other (the exclusive state moves along with it), that is
+_expensive_.
 
-The oopses are reproducible, albeit the message changes.
+Even when you have a backside bus (or cache pushout content snooping)  to
+allow the cacheline to move directly from one CPU to the other without
+having to go through memory, that's a really expensive thing to do.
 
-After the start of "init" I always experience an OOPS message with
-2.4.10,
-most times after some demons have been started.
+So re-aquring the lock on the same CPU is pretty much free (18 cycles for
+Intel, if I remember correctly, and that's _entirely_ due to the pipeline
+flush to ensure in-order execution around it).
 
-It completely locked up the machine, and because it was an Oops
-in an interrupt handler, the machine did not sync. I therefore
-don't have a "correct" oops here.
+[ Oh, just for interest I checked my P4, which has a much longer pipeline:
+  the cost of an exclusive locked access is a whopping 104 cycles. But we
+  already knew that the first-generation P4 does badly on many things.
 
-I don't know If I will get my harddisk back in a few hours, but I have
-__written__ some info from the screen onto a sheet of paper like:
+  Just reading the cycle counter is apparently around 80 cycles on a P4,
+  it's 32 cycles on a PIII. Looks like that also stalls the pipeline or
+  something. But cpuid is _really_ horrible. Test out the attached
+  program.
 
--------------------
-Oops: 0000
-CPU: 0
-EIP: 0010:[<c0221770>]
-EFLAGS: 00010203
-EAX: 00000000
-EBX: cb522da8
-ECX: c00153e0
-EDX: 00000000
-ESI: 00000000
-EDI: cb522ca0
-EBP: cbfb2440
-ESP: c83efdf0
-DS: 0018
-ES: 0018
-SS: 0018
+	PIII:
+		nothing: 32 cycles
+		locked add: 50 cycles
+		cpuid: 170 cycles
 
-Process: isdnctrl [IT HAS NOT ALWAYS BEEN THIS PROCESS!]
-(pid: 160, stackpage=c83ef000)
-Stack: cb522da8 cb522ca0 c13e2860 00000000 00000010 cbf4f120 00000000
-       00000001 c02218f5 c13e2860 cb522ca0 00000000 cb522da8 c13e2860
-       00000000 00000000 cb2ab3c0 00000000 00000000 c0221b56 c13e2860
-       cb522ca8 cbff9b60 04000001
+	P4:
+		nothing: 80 cycles
+		locked add: 184 cycles
+		cpuid: 652 cycles
 
-Call trace:
-       c02218f5 c0221b56 c0107d0c c0107e6e c0109be8 c01d9abe c01dc81c
-       c0107d0c c0107e6e c0109be8 c0129fb2 c011dc65 c010f546 c0112f93
-       c0113102 c0106af3
+   Remember: these are for the already-exclusive-cache cases. ]
 
-Code: 8b 46 dc 8d 6e d8 a9 00 00 80 00 74 3b 25 ff ff 7f ff 89 46
+What are the athlon numbers?
 
-<0> kernel panic: aiee, killing interrupt handler
-in interrupt handler - not syncing
+		Linus
 
---------------------
-I have some old a.out format binaries that are still used, I think
-some of them even at this early point of OOPSing.
+--168447515-654106168-1001525118=:8327
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="t.c"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0109261025180.8327@penguin.transmeta.com>
+Content-Description: 
+Content-Disposition: attachment; filename="t.c"
 
-I try to get my harddisk back: please tell me what I can do to provide
-you with more information.
-[I hope I get my ".config" back, to post the relevent lines here]
-
-Greetings,
-Enver
+I2RlZmluZSByZHRzYyhsb3cpIFwNCiAgIF9fYXNtX18gX192b2xhdGlsZV9f
+KCJyZHRzYyIgOiAiPWEiIChsb3cpIDogOiAiZWR4IikNCg0KI2RlZmluZSBU
+SU1FKHgseSkgXA0KCW1pbiA9IDEwMDAwMDsJCQkJCQlcDQoJZm9yIChpID0g
+MDsgaSA8IDEwMDA7IGkrKykgewkJCQlcDQoJCXVuc2lnbmVkIGxvbmcgc3Rh
+cnQsZW5kOwkJCVwNCgkJcmR0c2Moc3RhcnQpOwkJCQkJXA0KCQl4OwkJCQkJ
+CVwNCgkJcmR0c2MoZW5kKTsJCQkJCVwNCgkJZW5kIC09IHN0YXJ0OwkJCQkJ
+XA0KCQlpZiAoZW5kIDwgbWluKQkJCQkJXA0KCQkJbWluID0gZW5kOwkJCQlc
+DQoJfQkJCQkJCQlcDQoJcHJpbnRmKHkgIjogJWQgY3ljbGVzXG4iLCBtaW4p
+Ow0KDQojZGVmaW5lIExPQ0sJYXNtIHZvbGF0aWxlKCJsb2NrIDsgYWRkbCAk
+MCwwKCVlc3ApIikNCiNkZWZpbmUgQ1BVSUQJYXNtIHZvbGF0aWxlKCJjcHVp
+ZCI6IDogOiJheCIsICJkeCIsICJjeCIsICJieCIpDQoNCmludCBtYWluKCkN
+CnsNCgl1bnNpZ25lZCBsb25nIG1pbjsNCglpbnQgaTsNCg0KCVRJTUUoLyog
+Ki8sICJub3RoaW5nIik7DQoJVElNRShMT0NLLCAibG9ja2VkIGFkZCIpOw0K
+CVRJTUUoQ1BVSUQsICJjcHVpZCIpOw0KfQ0K
+--168447515-654106168-1001525118=:8327--

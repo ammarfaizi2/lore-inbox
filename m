@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262374AbTINLef (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 07:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbTINLef
+	id S262366AbTINLk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 07:40:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbTINLkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 07:34:35 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:60688 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S262374AbTINLee
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 07:34:34 -0400
-Date: Sun, 14 Sep 2003 13:34:21 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>, neilb@cse.unsw.edu.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.23-pre4 => NFSD problem on alpha
-Message-ID: <20030914113421.GA705@alpha.home.local>
-References: <Pine.LNX.4.44.0309121528290.3893-100000@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309121528290.3893-100000@logos.cnet>
-User-Agent: Mutt/1.4i
+	Sun, 14 Sep 2003 07:40:55 -0400
+Received: from dp.samba.org ([66.70.73.150]:23768 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262366AbTINLkz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 07:40:55 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Felipe W Damasio <felipewd@terra.com.br>
+Cc: Jamie Lokier <jamie@shareable.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] kernel/futex.c: Uneeded memory barrier 
+In-reply-to: Your message of "Fri, 12 Sep 2003 15:20:17 -0300."
+             <3F620E61.4080604@terra.com.br> 
+Date: Sun, 14 Sep 2003 21:39:01 +1000
+Message-Id: <20030914114054.CC7CE2C0A7@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo, Neil,
+In message <3F620E61.4080604@terra.com.br> you write:
+> 	Kills an unneeded set_current_state after schedule_timeout, since it 
+> already guarantees that the task will be TASK_RUNNING.
 
-I've tested -pre4 on my alpha, and noticed that knsfd doesn't work anymore :
-the client sticks in D state forever. It has been working flawlessly for
-weeks with 2.4.22-rc2. What's strange is that 23-pre4 is OK on my athlon with
-the same nfs-utils (1.0.5).
+I thought we already got rid of that once: damn thing won't die...
 
-I have the following NFSD options on both kernels :
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_TCP=y
+> 	Also, when setting the state to TASK_RUNNING, isn't that memory 
+> barrier unneeded? Patch removes this memory barrier too.
 
-My alpha kernels were build with GCC 3.2.3, while the athlon one is done with
-2.95.3.
+I personally *HATE* the set_task_state()/__set_task_state() macros.
+Simple assignments shouldn't be hidden behind macros, unless there's
+something really subtle involved.
 
-If I have some time, I'll try intermediate kernels to find which one brought
-the problem. I noticed that there were knfsd changes in 2.4.23-pre3, perhaps
-they're related. If you want me to try a patch, please ask.
+Personally, when there's a normal and a __ version of a function, I
+use the normal version unless there's a real (performance or
+correctness) reason.  (ie. I prefer the "think less" version 8).
+
+I don't mind either way.  I'll roll it in the next update.
 
 Cheers,
-Willy
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

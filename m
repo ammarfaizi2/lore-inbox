@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293014AbSBVVyh>; Fri, 22 Feb 2002 16:54:37 -0500
+	id <S293015AbSBVV4r>; Fri, 22 Feb 2002 16:56:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293015AbSBVVy1>; Fri, 22 Feb 2002 16:54:27 -0500
-Received: from codepoet.org ([166.70.14.212]:12008 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S293014AbSBVVyX>;
-	Fri, 22 Feb 2002 16:54:23 -0500
-Date: Fri, 22 Feb 2002 14:54:24 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Greg KH <greg@kroah.com>
-Cc: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>,
+	id <S293016AbSBVV4h>; Fri, 22 Feb 2002 16:56:37 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8970 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293015AbSBVV4Z>;
+	Fri, 22 Feb 2002 16:56:25 -0500
+Message-ID: <3C76BE88.B082831E@mandrakesoft.com>
+Date: Fri, 22 Feb 2002 16:56:24 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: G?rard Roudier <groudier@free.fr>, Arjan van de Ven <arjanv@redhat.com>,
         linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
-Message-ID: <20020222215424.GC30290@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Greg KH <greg@kroah.com>,
-	=?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020222200750.GE9558@kroah.com> <20020221221842.V1779-100000@gerard> <20020222204157.GG9558@kroah.com> <20020222213014.GB30290@codepoet.org> <20020222214225.GA10333@kroah.com>
-Mime-Version: 1.0
+In-Reply-To: <20020222154011.B5783@suse.cz> <20020221211606.F1418-100000@gerard> <20020222223444.A7238@suse.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020222214225.GA10333@kroah.com>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.4.17-rmk5, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri Feb 22, 2002 at 01:42:25PM -0800, Greg KH wrote:
-> Hm, I didn't try the 'cat' test, but I did successfully unplug and then
-> add a card, and then spin up the drives attached to that drive.  But
-> that was a long time ago.  Things might have changed since then.
+Vojtech Pavlik wrote:
+> For some adapters, this is possible, for other it is not (at all). You
+> happen to be a maintainer of one for which it is possible, and thus your
+> point of view is quite different from mine - mine comes from USB and
+> other parts of the device world, where no order can even be defined.
 > 
-> This is with a cardbus device, right?  I have never looked into them
-> before.
+> And because of that, I do not think that having the host adapters decide
+> what device gets what number is a good idea. They should provide the
+> information if they have it, but the final decision should definitely be
+> done in userspace, by the hotplug agent.
+> 
+> Ie. it should be configurable.
 
-Yup.  One of these: 
-    http://www.adaptec.com/worldwide/product/proddetail.html?prodkey=APA-1480B
-which I have been using to connect my MO drive to my laptop.  I'm
-happy to provide details.  I spent about two hours last week
-digging through the various layers trying to understand how the
-SCSI layer had leftover state.  I found one little bug, but had
-to move on to other things before I'd found the cause,
+For the future, we need to get away from legacy methods of disk
+ordering, indeed.
 
- -Erik
+For Gerard's case, I can see a userspace agent running in initramfs
+discovering the order...
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+Most filesystems have some sort of serial number of labelling capability
+which allows them to be addressed independent of spindle, or starting
+position on that spindle [partition].
+
+-- 
+Jeff Garzik      | "UNIX enhancements aren't."
+Building 1024    |           -- says /usr/games/fortune
+MandrakeSoft     |

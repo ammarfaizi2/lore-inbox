@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312419AbSDSKst>; Fri, 19 Apr 2002 06:48:49 -0400
+	id <S312253AbSDSLHB>; Fri, 19 Apr 2002 07:07:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312420AbSDSKss>; Fri, 19 Apr 2002 06:48:48 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:3590 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S312419AbSDSKsr>; Fri, 19 Apr 2002 06:48:47 -0400
-Message-Id: <200204191045.g3JAjpX04243@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Andrea Aime <aaime@libero.it>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre6+preempt problem...
-Date: Fri, 19 Apr 2002 13:48:09 -0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <200204181426.30823.aaime@libero.it>
+	id <S312256AbSDSLHA>; Fri, 19 Apr 2002 07:07:00 -0400
+Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:29255 "EHLO
+	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
+	id <S312253AbSDSLG7>; Fri, 19 Apr 2002 07:06:59 -0400
+Date: Fri, 19 Apr 2002 13:06:47 +0200 (MET DST)
+From: Oliver.Neukum@lrz.uni-muenchen.de
+X-X-Sender: ui222bq@sun3.lrz-muenchen.de
+To: George J Karabin <gkarabin@pobox.com>
+cc: Oliver Neukum <oliver@neukum.name>, Greg KH <greg@kroah.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        David Brownell <david-b@pacbell.net>,
+        <linux-usb-devel@lists.sourceforge.net>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB device support for2.5.8(take2)
+In-Reply-To: <1019196683.1733.34.camel@pane.chasm.dyndns.org>
+Message-Id: <Pine.SOL.4.44.0204191304490.10754-100000@sun3.lrz-muenchen.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 April 2002 10:26, Andrea Aime wrote:
-> while exiting from X windows yesterday I got the following error (the
-> system didn't crash, thought):
->
-> waiting for X server to shut down kernel BUG at page_alloc.c:108!
-> invalid operand: 0000
-> CPU:    0
-> EIP:    0010:[<c0131c90>]    Tainted: P
-> EFLAGS: 00013282
-> eax: 00000000   ebx: c10c77a8   ecx: c10c77a8   edx: c528a9b0
-> esi: 0016f000   edi: 00000000   ebp: 08048000   esp: c387feb8
-> ds: 0018   es: 0018   ss: 0018
-> Process X (pid: 15554, stackpage=c387f000)
-> Stack: c6418b40 c68f12c0 c01286bf c6418b40 c68f12c0 0805fd5c 00000000
-> 00041000 0016f000 c4e14224 08048000 c012737e c10c77a8 00000029 00000000
-> 081b7000 c3f30080 00000000 081b7000 c3f30080 c0115fb3 c6418b40 c68f12c0
-> 0805fd5c Call Trace: [<c01286bf>] [<c012737e>] [<c0115fb3>] [<c0129df8>]
-> [<c011833a>] [<c011ce16>] [<c0107f00>] [<c0108a9b>]
->
-> Code: 0f 0b 6c 00 5a 49 28 c0 89 d8 2b 05 10 02 33 c0 69 c0 a3 8b
->  <3>X[15554] exited with preempt_count 1
+> That said, target or client or anything else distinctive sounds fine
+> too. I'm just partial to the spec-derived-naming idea. (Although I
+> really wish the USB spec folks could have come up with two names that
+> were more descriptively different...)
 
-Please decode it with ksymoops.
-It not that important for BUGs but for real dirty oopses
-ksumoops is a must.
---
-vda
+Why you do you want to derive a name from the specs ?
+Someone who has read them will no what is refered to
+whatever we name it. The significance of a the name
+is important to those who look into usb code occasionaly.
+These typically haven't read the spec.
+
+	Regards
+		Oliver
+
+

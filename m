@@ -1,11 +1,11 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267731AbSLGGH1>; Sat, 7 Dec 2002 01:07:27 -0500
+	id <S267738AbSLGGMm>; Sat, 7 Dec 2002 01:12:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267732AbSLGGH1>; Sat, 7 Dec 2002 01:07:27 -0500
-Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:39297
+	id <S267739AbSLGGMm>; Sat, 7 Dec 2002 01:12:42 -0500
+Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:48769
 	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S267731AbSLGGHZ>; Sat, 7 Dec 2002 01:07:25 -0500
+	id <S267738AbSLGGMl>; Sat, 7 Dec 2002 01:12:41 -0500
 Subject: Re: [BENCHMARK] max bomb segment tuning with read latency 2 patch
 	in  contest
 From: GrandMasterLee <masterlee@digitalroadkill.net>
@@ -18,10 +18,10 @@ References: <200212071620.05503.conman@kolivas.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: Digitalroadkill.net
-Message-Id: <1039241701.2855.19.camel@localhost>
+Message-Id: <1039242017.2855.26.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.0 
-Date: 07 Dec 2002 00:15:01 -0600
+Date: 07 Dec 2002 00:20:17 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -34,21 +34,29 @@ On Fri, 2002-12-06 at 23:55, Andrew Morton wrote:
 > manner.
 > 
 > Setting the tag depth to zero helps heaps.
-
-Command tag queue? As in the compile time option? Or do you mean queue
-depth?(or are they the same)
-
+> 
 > But as you're interested in `desktop responsiveness' you should be
 > mostly testing against IDE disks.  Their behavour tends to be quite
 > different.
-> 
-> If you can turn on write caching on the SCSI disks that would change
-> the picture too.
-
-Just for clarity, What about for something like FC attached storage
-Where the controllers enforce cache policies on a "per volume" basis?
-Would that == the same thing? 
 
 
+One interesting thing about my current setup, with all scsi or FC disks,
+is that bomb never displays > 0. 
+Example: 
 
---The GrandMaster
+elvtune /dev/sdn yields:
+
+/dev/sdn elevator ID            17
+        read_latency:           8192
+        write_latency:          16384
+        max_bomb_segments:      0
+
+elvtune -b 6 /dev/sdn yields:
+
+/dev/sdn elevator ID            17
+        read_latency:           8192
+        write_latency:          16384
+        max_bomb_segments:      0
+
+Is it because I just do volume management at the hardware level and use
+whole disks? Or is that something else?

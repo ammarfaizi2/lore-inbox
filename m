@@ -1,54 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289240AbSAVKu4>; Tue, 22 Jan 2002 05:50:56 -0500
+	id <S289260AbSAVKxQ>; Tue, 22 Jan 2002 05:53:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289260AbSAVKuq>; Tue, 22 Jan 2002 05:50:46 -0500
-Received: from xsmtp.ethz.ch ([129.132.97.6]:39921 "EHLO xfe3.d.ethz.ch")
-	by vger.kernel.org with ESMTP id <S289240AbSAVKuc>;
-	Tue, 22 Jan 2002 05:50:32 -0500
-Message-ID: <3C4D4366.9020406@debian.org>
-Date: Tue, 22 Jan 2002 11:48:06 +0100
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
-X-Accept-Language: en-us, en
+	id <S289270AbSAVKxG>; Tue, 22 Jan 2002 05:53:06 -0500
+Received: from mail.loewe-komp.de ([62.156.155.230]:51217 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S289260AbSAVKxB>; Tue, 22 Jan 2002 05:53:01 -0500
+Message-ID: <3C4D457C.4E5E2A14@loewe-komp.de>
+Date: Tue, 22 Jan 2002 11:57:00 +0100
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: LOEWE. Hannover
+X-Mailer: Mozilla 4.78 [de] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: esr@thyrsus.com, linux-kernel@vger.kernel.org
-Subject: Re: CML2-2.1.3 is available
-In-Reply-To: <15312.1011695148@ocs3.intra.ocs.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <Pine.LNX.4.33.0201211418050.17139-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Jan 2002 10:50:31.0344 (UTC) FILETIME=[9C8FB300:01C1A332]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-
+Mark Hahn schrieb:
 > 
-> All the make *config entries generate include/linux/autoconf.h, it is
-> the C representation of .config.  Some people may think that autoconf.h
-> is created by make autoconfig when it is really created by all *config
-> steps.
+> > > > To me the benefit is clear enough: ASAP scheduling of IO threads, a
+> > > > simple heuristic that improves both throughput and latency.
+> > >
+> > > I think of "benefit", perhaps naiively, in terms of something that can
+> > > be measured or demonstrated rather than just announced.
+> >
+> > But you see why asap scheduling improves latency/throughput *in theory*,
+> > don't you?
 > 
- 
-I know.
+> NO, IT DOES NOT. why can't you preempt-ophiles get that through your heads?
+> 
+>         eager scheduling is NOT optimal in general.
+> 
+> for instance, suppose my disk can only read a sector at a time.
+> scheduling my sequentially-reading process to wake eagerly
+> is most definitly PESSIMAL.  laziness is a cardinal virtue!
+> this doesn't preclude heuristics to sometimes short-cut the laziness.
+> 
 
-My question: where do you find
+Do you think there are no other benefits besides the scheduling latency in
+a realtime system?
 
-autoconf autoconfigure: symlinks
-    $(SHELL_SCRIPT) script/...
+In a realtime system you want your event handling code (outside of the
+interrupt handler [on Linux: bottom halves/tasklets/sorftirq?) get running 
+on the CPU as fast as possible. Therefore a realtime kernel is often fully 
+preemptible (well, there are always critical sections that has to disable 
+interrupts).
 
+So the time between the interrupt handler wanting to schedule a specific 
+task/thread and the next scheduling decision is crucial, right? 
 
-This can cause confution, but I don't find ut in the sources.
+I have no hard numbers, but I can imagine that this can also lead to
+better IO (in terms of latency AND IO throughput but with the cost of 
+cpu cycles [user space CPU throughput]).
 
-BTW: I used 'make autoprobe' because of possible confutions, in
-
-latter version. Now Eric will use both 'make autoconfig' and
-'make autoprobe'.
-The choice of name now is on Eric hands. Important is that
-*users* doesn't confuse it.
-
-	giacomo
-
-
-
+I don't know the Linux kernel good enough right now, but if you shorten
+the scheduling latency: that could be a win for faster IO. But there's always
+a tradeoff: if you spent too much time in scheduling decisions/preparations
+the overhead eats the lower latency (especially if your mutexes have to deal
+with priority inversion, giving a lock holder at least the same priority as
+the lock contender for the period it holds the lock).

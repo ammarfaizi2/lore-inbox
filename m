@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262930AbVDBAvn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbVDBBA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262930AbVDBAvn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 19:51:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbVDBAEc
+	id S261642AbVDBBA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 20:00:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbVDBBA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 19:04:32 -0500
-Received: from mail.kroah.org ([69.55.234.183]:31452 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262930AbVDAXsO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 18:48:14 -0500
-Cc: willy@parisc-linux.org
-Subject: [PATCH] PCI: 80 column lines
-In-Reply-To: <11123992711809@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 1 Apr 2005 15:47:51 -0800
-Message-Id: <11123992711877@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+	Fri, 1 Apr 2005 20:00:56 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:30151 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261642AbVDBBAw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 20:00:52 -0500
+Message-Id: <200504020100.j3210fg04870@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Ingo Molnar'" <mingo@elte.hu>
+Cc: "'Linus Torvalds'" <torvalds@osdl.org>,
+       "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       "'Andrew Morton'" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: Industry db benchmark result on recent 2.6 kernels
+Date: Fri, 1 Apr 2005 17:00:41 -0800
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcU2dqAYWWaQP3D/RMi9o9IYROSavAAACMnQACn1B+A=
+In-Reply-To: 
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2181.16.11, 2005/03/17 14:31:08-08:00, willy@parisc-linux.org
-
-[PATCH] PCI: 80 column lines
-
-PCI 80-column lines
-
-A couple of lines are >80 columns
-
-Signed-off-by: Matthew Wilcox <willy@parisc-linux.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Ingo Molnar wrote on Thursday, March 31, 2005 8:52 PM
+> the current defaults for cache_hot_time are 10 msec for NUMA domains,
+> and 2.5 msec for SMP domains. Clearly too low for CPUs with 9MB cache.
+> Are you increasing cache_hot_time in your experiment? If that solves
+> most of the problem that would be an easy thing to fix for 2.6.12.
 
 
- drivers/pci/quirks.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+Chen, Kenneth W wrote on Thursday, March 31, 2005 9:15 PM
+> Yes, we are increasing the number in our experiments.  It's in the queue
+> and I should have a result soon.
 
+Hot of the press: bumping up cache_hot_time to 10ms on our db setup brings
+2.6.11 performance on par with 2.6.9.  Theory confirmed.
 
-diff -Nru a/drivers/pci/quirks.c b/drivers/pci/quirks.c
---- a/drivers/pci/quirks.c	2005-04-01 15:36:44 -08:00
-+++ b/drivers/pci/quirks.c	2005-04-01 15:36:44 -08:00
-@@ -541,7 +541,7 @@
- 		return;
- 	pci_write_config_dword(dev, PCI_CB_LEGACY_MODE_BASE, 0);
- }
--DECLARE_PCI_FIXUP_FINAL(PCI_ANY_ID,		PCI_ANY_ID,			quirk_cardbus_legacy );
-+DECLARE_PCI_FIXUP_FINAL(PCI_ANY_ID, PCI_ANY_ID, quirk_cardbus_legacy);
- 
- /*
-  * Following the PCI ordering rules is optional on the AMD762. I'm not
-@@ -659,7 +659,7 @@
-        printk(KERN_INFO "PCI: Ignoring BAR%d-%d of IDE controller %s\n",
-               first_bar, last_bar, pci_name(dev));
- }
--DECLARE_PCI_FIXUP_HEADER(PCI_ANY_ID,             PCI_ANY_ID,                     quirk_ide_bases );
-+DECLARE_PCI_FIXUP_HEADER(PCI_ANY_ID, PCI_ANY_ID, quirk_ide_bases);
- 
- /*
-  *	Ensure C0 rev restreaming is off. This is normally done by
+- Ken
+
 

@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265080AbSJRLmL>; Fri, 18 Oct 2002 07:42:11 -0400
+	id <S262876AbSJRMEP>; Fri, 18 Oct 2002 08:04:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265083AbSJRLmL>; Fri, 18 Oct 2002 07:42:11 -0400
-Received: from gateway.ukaea.org.uk ([194.128.63.73]:14205 "EHLO
-	fuspcnjc.culham.ukaea.org.uk") by vger.kernel.org with ESMTP
-	id <S265080AbSJRLmK>; Fri, 18 Oct 2002 07:42:10 -0400
-Message-ID: <3DAFF5C9.807BE885@ukaea.org.uk>
-Date: Fri, 18 Oct 2002 12:51:37 +0100
-From: Neil Conway <nconway.list@ukaea.org.uk>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: rml@tech9.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4: variable HZ
+	id <S265004AbSJRMEP>; Fri, 18 Oct 2002 08:04:15 -0400
+Received: from ns.suse.de ([213.95.15.193]:17682 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S262876AbSJRMEO>;
+	Fri, 18 Oct 2002 08:04:14 -0400
+Date: Fri, 18 Oct 2002 14:10:10 +0200
+From: Dave Jones <davej@suse.de>
+To: Hiroshi Miura <miura@da-cha.org>
+Cc: hpa@zytor.com, linux-kernel@vger.kernel.org, alan@redhat.com
+Subject: Re: NatSemi Geode improvement
+Message-ID: <20021018141009.A26652@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Hiroshi Miura <miura@da-cha.org>, hpa@zytor.com,
+	linux-kernel@vger.kernel.org, alan@redhat.com
+References: <20021017171217.4749211782A@triton2> <20021017192041.B17285@suse.de> <20021018022901.CA2D811782A@triton2>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021018022901.CA2D811782A@triton2>; from miura@da-cha.org on Fri, Oct 18, 2002 at 11:29:01AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hiya...  Nice patch, must try it when I find a few minutes - I think I
-have a few apps that are limited by select/poll behaviour.
+On Fri, Oct 18, 2002 at 11:29:01AM +0900, Hiroshi Miura wrote:
+ > I try now using set6x86 to set these registers, then can do most of these 
+ > except for set_cx86_memwb().
+ > 
+ > To set the memory write-back, I need to set the CR0  which needs special previlleges.
+ > set6x86 cannot set CR0.
+ > 
+ > the set_cx86_memwb() need to be done in the kernel
+ > the others has no reason to do that.
+ > it is ok?
 
-I was looking at your jiffies_to_clock_t() macro, and I notice that it
-will screw up badly if the user chooses a HZ value that isn't a multiple
-of the normal value (e.g. 1000 is OK, 512 isn't).
+It's all __init anyway, so it's ok I guess.
+The added bloat for non-cyrix users is in the region of a few bytes...
 
-How about tweaking the macro a little?  Instead of:
-x / (HZ/USER_HZ)
-you could use:
-(x/HZ*USER_HZ + x%HZ*USER_HZ/HZ)
+My initial idea for this sort of thing was going to be to dump it
+all in the early-userspace thing that Al Viro was hacking up.
+Al, anything appearing in a last minute merge over the next
+few days ?
 
-which minimises roundoff error and also won't overflow (at least, it
-won't overflow as long as HZ*USER_HZ doesn't overflow!).
+        Dave
 
-You could even use both versions of the macro, choosing between them at
-compile time depending on whether or not (HZ % USER_HZ == 0).
-
-What do you think?
-
-cheers
-Neil
-PS: I'm off-list.
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

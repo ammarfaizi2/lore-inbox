@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261873AbTEZRVL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 13:21:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbTEZRUi
+	id S261878AbTEZRUE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 13:20:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTEZRTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 13:20:38 -0400
-Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:27595 "EHLO
-	d12lmsgate-4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S261873AbTEZRTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 13:19:49 -0400
-Date: Mon, 26 May 2003 19:32:00 +0200
+	Mon, 26 May 2003 13:19:21 -0400
+Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:51428 "EHLO
+	d06lmsgate-4.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S261878AbTEZRPb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 13:15:31 -0400
+Date: Mon, 26 May 2003 19:26:42 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] s390 (10/10): network device drivers.
-Message-ID: <20030526173200.GK3748@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390 (7/10): block device drivers.
+Message-ID: <20030526172642.GH3748@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,96 +21,99 @@ User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-s390 network device driver fixes:
- - Make use of SET_MODULE_OWNER.
- - Fix ctc interrupt handler.
+s390 block device driver fixes:
+ - dasd: Don't continue on error in dasd_increase_state. Use hex_ascii view
+         for the dasd debug area. Fix typo.
+ - xpram: Fix setup of devfs_name.
 
 diffstat:
- drivers/s390/net/ctcmain.c |   10 +++++-----
- drivers/s390/net/ctctty.c  |    2 +-
- drivers/s390/net/lcs.c     |    2 +-
- drivers/s390/net/netiucv.c |    2 +-
- 4 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/s390/block/dasd.c  |   19 ++++++++++++-------
+ drivers/s390/block/xpram.c |    3 ++-
+ 2 files changed, 14 insertions(+), 8 deletions(-)
 
-diff -urN linux-2.5/drivers/s390/net/ctcmain.c linux-2.5-s390/drivers/s390/net/ctcmain.c
---- linux-2.5/drivers/s390/net/ctcmain.c	Mon May 26 19:20:46 2003
-+++ linux-2.5-s390/drivers/s390/net/ctcmain.c	Mon May 26 19:20:48 2003
-@@ -1,5 +1,5 @@
- /*
-- * $Id: ctcmain.c,v 1.41 2003/04/15 16:45:37 aberg Exp $
-+ * $Id: ctcmain.c,v 1.42 2003/05/23 17:45:57 felfert Exp $
+diff -urN linux-2.5/drivers/s390/block/dasd.c linux-2.5-s390/drivers/s390/block/dasd.c
+--- linux-2.5/drivers/s390/block/dasd.c	Mon May  5 01:53:14 2003
++++ linux-2.5-s390/drivers/s390/block/dasd.c	Mon May 26 19:20:46 2003
+@@ -7,7 +7,7 @@
+  * Bugreports.to..: <Linux390@de.ibm.com>
+  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999-2001
   *
-  * CTC / ESCON network driver
-  *
-@@ -36,7 +36,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.41 $
-+ * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.42 $
-  *
+- * $Revision: 1.94 $
++ * $Revision: 1.99 $
   */
- 
-@@ -272,7 +272,7 @@
- print_banner(void)
+ 
+ #include <linux/config.h>
+@@ -297,19 +297,23 @@
+ 	    device->target >= DASD_STATE_KNOWN)
+ 		rc = dasd_state_new_to_known(device);
+ 
+-	if (device->state == DASD_STATE_KNOWN &&
++	if (!rc &&
++	    device->state == DASD_STATE_KNOWN &&
+ 	    device->target >= DASD_STATE_BASIC)
+ 		rc = dasd_state_known_to_basic(device);
+ 
+-	if (device->state == DASD_STATE_BASIC &&
++	if (!rc &&
++	    device->state == DASD_STATE_BASIC &&
+ 	    device->target >= DASD_STATE_ACCEPT)
+ 		rc = dasd_state_basic_to_accept(device);
+ 
+-	if (device->state == DASD_STATE_ACCEPT &&
++	if (!rc &&
++	    device->state == DASD_STATE_ACCEPT &&
+ 	    device->target >= DASD_STATE_READY)
+ 		rc = dasd_state_accept_to_ready(device);
+ 
+-	if (device->state == DASD_STATE_READY &&
++	if (!rc &&
++	    device->state == DASD_STATE_READY &&
+ 	    device->target >= DASD_STATE_ONLINE)
+ 		rc = dasd_state_ready_to_online(device);
+ 
+@@ -729,6 +733,7 @@
+ 			DBF_DEV_EVENT(DBF_ERR, device, "%s",
+ 				      "I/O error, retry");
+ 			break;
++		case -EINVAL:
+ 		case -EBUSY:
+ 			DBF_DEV_EVENT(DBF_ERR, device, "%s",
+ 				      "device busy, retry later");
+@@ -1727,7 +1732,7 @@
+ dasd_release(struct inode *inp, struct file *filp)
  {
- 	static int printed = 0;
--	char vbuf[] = "$Revision: 1.41 $";
-+	char vbuf[] = "$Revision: 1.42 $";
- 	char *version = vbuf;
+ 	struct gendisk *disk = inp->i_bdev->bd_disk;
+-	struct dasd_device *device = isk->private_data;
++	struct dasd_device *device = disk->private_data;
  
- 	if (printed)
-@@ -1966,7 +1966,7 @@
- 	if (priv->channel[READ]->cdev == cdev)
- 		ch = priv->channel[READ];
- 	else if (priv->channel[WRITE]->cdev == cdev)
--		ch = priv->channel[READ];
-+		ch = priv->channel[WRITE];
- 	else {
- 		printk(KERN_ERR
- 		       "ctc: Can't determine channel for interrupt, "
-@@ -2751,8 +2751,8 @@
- 	dev->addr_len = 0;
- 	dev->type = ARPHRD_SLIP;
- 	dev->tx_queue_len = 100;
--	dev->owner = THIS_MODULE;
- 	dev->flags = IFF_POINTOPOINT | IFF_NOARP;
-+	SET_MODULE_OWNER(&tun->dev);
- 	return dev;
- }
+ 	if (device->state < DASD_STATE_ACCEPT) {
+ 		DBF_DEV_EVENT(DBF_ERR, device, " %s",
+@@ -2051,7 +2056,7 @@
+ 		rc = -ENOMEM;
+ 		goto failed;
+ 	}
+-	debug_register_view(dasd_debug_area, &debug_sprintf_view);
++	debug_register_view(dasd_debug_area, &debug_hex_ascii_view);
+ 	debug_set_level(dasd_debug_area, DBF_ERR);
  
-diff -urN linux-2.5/drivers/s390/net/ctctty.c linux-2.5-s390/drivers/s390/net/ctctty.c
---- linux-2.5/drivers/s390/net/ctctty.c	Mon May  5 01:53:31 2003
-+++ linux-2.5-s390/drivers/s390/net/ctctty.c	Mon May 26 19:20:48 2003
-@@ -1,5 +1,5 @@
- /*
-- * $Id: ctctty.c,v 1.10 2003/03/21 18:47:31 aberg Exp $
-+ * $Id: ctctty.c,v 1.11 2003/05/06 09:40:55 mschwide Exp $
-  *
-  * CTC / ESCON network driver, tty interface.
-  *
-diff -urN linux-2.5/drivers/s390/net/lcs.c linux-2.5-s390/drivers/s390/net/lcs.c
---- linux-2.5/drivers/s390/net/lcs.c	Mon May  5 01:53:02 2003
-+++ linux-2.5-s390/drivers/s390/net/lcs.c	Mon May 26 19:20:48 2003
-@@ -1786,7 +1786,7 @@
- 		dev->set_multicast_list = lcs_set_multicast_list;
- #endif
- 	dev->get_stats = lcs_getstats;
--	dev->owner = THIS_MODULE;
-+	SET_MODULE_OWNER(&tun->dev);
- 	netif_stop_queue(dev);
- 	lcs_stopcard(card);
- 	return 0;
-diff -urN linux-2.5/drivers/s390/net/netiucv.c linux-2.5-s390/drivers/s390/net/netiucv.c
---- linux-2.5/drivers/s390/net/netiucv.c	Mon May  5 01:53:32 2003
-+++ linux-2.5-s390/drivers/s390/net/netiucv.c	Mon May 26 19:20:48 2003
-@@ -1630,8 +1630,8 @@
- 	dev->addr_len            = 0;
- 	dev->type                = ARPHRD_SLIP;
- 	dev->tx_queue_len        = NETIUCV_QUEUELEN_DEFAULT;
--	dev->owner               = THIS_MODULE;
- 	dev->flags	         = IFF_POINTOPOINT | IFF_NOARP;
-+	SET_MODULE_OWNER(&tun->dev);
- 	return dev;
- }
+ 	DBF_EVENT(DBF_EMERG, "%s", "debug area created");
+diff -urN linux-2.5/drivers/s390/block/xpram.c linux-2.5-s390/drivers/s390/block/xpram.c
+--- linux-2.5/drivers/s390/block/xpram.c	Mon May  5 01:53:36 2003
++++ linux-2.5-s390/drivers/s390/block/xpram.c	Mon May 26 19:20:46 2003
+@@ -36,6 +36,7 @@
+ #include <linux/hdreg.h>  /* HDIO_GETGEO */
+ #include <linux/device.h>
+ #include <linux/bio.h>
++#include <linux/devfs_fs_kernel.h>
+ #include <asm/uaccess.h>
  
+ #define XPRAM_NAME	"xpram"
+@@ -459,7 +460,7 @@
+ 		disk->private_data = &xpram_devices[i];
+ 		disk->queue = &xpram_queue;
+ 		sprintf(disk->disk_name, "slram%d", i);
+-		sprintf(disk->disk_name, "slram/%d", i);
++		sprintf(disk->devfs_name, "slram/%d", i);
+ 		set_capacity(disk, xpram_sizes[i] << 1);
+ 		add_disk(disk);
+ 	}

@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVBZTdB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVBZT7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261248AbVBZTdB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 14:33:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbVBZTdB
+	id S261276AbVBZT7x (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 14:59:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbVBZT7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 14:33:01 -0500
-Received: from smtpout4.uol.com.br ([200.221.4.195]:11411 "EHLO
-	smtp.uol.com.br") by vger.kernel.org with ESMTP id S261248AbVBZTc6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 14:32:58 -0500
-Date: Sat, 26 Feb 2005 16:32:55 -0300
-From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Brian Kuschak <bkuschak@yahoo.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [PATCH] Re: 2.6.11-rc4 libata-core (irq 30: nobody cared!)
-Message-ID: <20050226193255.GA6256@ime.usp.br>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Brian Kuschak <bkuschak@yahoo.com>, linux-kernel@vger.kernel.org,
-	linux-ide@vger.kernel.org
-References: <20050224015859.55191.qmail@web40910.mail.yahoo.com> <421D3D33.9060707@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sat, 26 Feb 2005 14:59:45 -0500
+Received: from mx2.mail.ru ([194.67.23.122]:36706 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id S261281AbVBZT72 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Feb 2005 14:59:28 -0500
+From: Alexey Dobriyan <adobriyan@mail.ru>
+To: Eric Gaumer <gaumerel@ecs.fullerton.edu>
+Subject: Re: [PATCH] orinoco rfmon
+Date: Sat, 26 Feb 2005 22:59:30 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, proski@gnu.org, hermes@gibson.dropbear.id.au
+References: <4220BB87.2010806@ecs.fullerton.edu>
+In-Reply-To: <4220BB87.2010806@ecs.fullerton.edu>
+MIME-Version: 1.0
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <421D3D33.9060707@pobox.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200502262259.30897.adobriyan@mail.ru>
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 23 2005, Jeff Garzik wrote:
-> Does this patch do anything useful?
-> 	Jeff
-(...)
+On Saturday 26 February 2005 20:10, Eric Gaumer wrote:
 
-The patch you posted seems to only affect people using SATA, right?
+> If the code looks problematic could someone point out possible
+> deficiencies so we can work toward a satisfactory resolution? I didn't
+> write the code but I'm willing do what I have to in order to get this
+> (wireless scanning) into the official tree. 
 
-BTW, just for clarity I'm seeing the message in a PATA environment (on
-i386) and Brian is seeing his problem with a SATA device on ppc.
+Uhhh... Started to comment line-by-line but then realized it would take too
+much time.
 
+* Read Documentaion/CodingStyle.
+* Indent code with tabs where it is already indented with tabs.
+* Brackets around a single number in #define's are useless.
+* Use u8, u16, u32 (not uint*_t) where the code already uses them.
+* Comments are supposed to be anonymous.
+* Use appropriate KERN_* constant in printk()'s.
+* Don't pack simple types (uint32_t, ...)
+* Common convention is to return 0 on success, negative number on error.
+  Positive return values don't fit well into this scheme. If possible
+  follow it.
 
-Thanks, Rogério Brito.
+Oh, and the type p80211item_uint32_t when in fact it is a 12-bytes long
+structure ...
 
--- 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+	Alexey

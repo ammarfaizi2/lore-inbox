@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261274AbRFRQG3>; Mon, 18 Jun 2001 12:06:29 -0400
+	id <S261369AbRFRQRl>; Mon, 18 Jun 2001 12:17:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261296AbRFRQGU>; Mon, 18 Jun 2001 12:06:20 -0400
-Received: from ohiper1-48.apex.net ([209.250.47.63]:33289 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S261274AbRFRQGM>; Mon, 18 Jun 2001 12:06:12 -0400
-Date: Mon, 18 Jun 2001 11:04:57 -0500
-From: Steven Walter <srwalter@yahoo.com>
-To: Geoffrey Gallaway <geoffeg@sin.sloth.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Error in documentation?
-Message-ID: <20010618110457.A21328@hapablap.dyn.dhs.org>
-In-Reply-To: <20010618111510.A27662@sin.sloth.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010618111510.A27662@sin.sloth.org>; from geoffeg@sin.sloth.org on Mon, Jun 18, 2001 at 11:15:11AM -0400
-X-Uptime: 9:58am  up 1 day, 16:24,  0 users,  load average: 1.41, 1.23, 1.29
+	id <S261385AbRFRQRa>; Mon, 18 Jun 2001 12:17:30 -0400
+Received: from twinlark.arctic.org ([204.107.140.52]:53258 "HELO
+	twinlark.arctic.org") by vger.kernel.org with SMTP
+	id <S261369AbRFRQR1>; Mon, 18 Jun 2001 12:17:27 -0400
+Date: Mon, 18 Jun 2001 09:17:25 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Jan Hudec <bulb@ucw.cz>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Client receives TCP packets but does not ACK
+In-Reply-To: <20010618135018.A12320@artax.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.33.0106180913560.312-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It does appear that the documentation regarding this is out of date.
-However, you can still install modules to a given location by:
+On Mon, 18 Jun 2001, Jan Hudec wrote:
 
-INSTALL_MOD_PATH="/path/to/modules" make modules_install
+> Btw: can the aplication somehow ask the tcp/ip stack what was actualy acked?
+> (ie. how many bytes were acked).
 
-Had to dig through the Makefile for that, though it may actually be
-documented somewhere.
+no, but it's not necessarily a useful number anyhow -- because it's
+possible that the remote end ACKd bytes but the ACK never arrives.  so you
+can get into a situation where the remote application has the entire
+message but the local application doesn't know.  the only way to solve
+this is above the TCP layer.  (message duplicate elimination using an
+unique id.)
 
-On Mon, Jun 18, 2001 at 11:15:11AM -0400, Geoffrey Gallaway wrote:
-> linux/Documentation/modules.txt says that I should find my modules in
-> "linux/modules" after running "make modules". However, this is
-> apparently not true as I see no modules directory. 
-> 
-> I am trying to compile a kernel with lots of modules for a machine
-> without a network connection. To move the kernel, I simply copy it to
-> floppy and move it over to the other machine. However, for the modules,
-> is my only choice appears to be "make modules-install" then tar up
-> /lib/modules/kernel-release/ and then remove the directory. Is there a 
-> cleaner way to handle this?
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
+if the #bytes ack'd was available it would probably fool people into
+implementing buggy code (which of course they do anyhow :)
+
+-dean
+

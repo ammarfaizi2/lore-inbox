@@ -1,134 +1,193 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262958AbTIVFRn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 01:17:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262968AbTIVFRa
+	id S262983AbTIVFiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 01:38:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbTIVFiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 01:17:30 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:49679
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S262958AbTIVFRQ (ORCPT
+	Mon, 22 Sep 2003 01:38:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:62630 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262983AbTIVFiU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 01:17:16 -0400
-Subject: Re: [ANNOUNCE]  slab information utility
-From: Robert Love <rml@tech9.net>
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: Chris Rivera <cmrivera@ufl.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030922044354.GA18855@DUK2.13thfloor.at>
-References: <1064199786.1199.29.camel@boobies.awol.org>
-	 <20030922042308.GA8691@DUK2.13thfloor.at>
-	 <1064205590.8888.207.camel@localhost>
-	 <20030922044354.GA18855@DUK2.13thfloor.at>
-Content-Type: multipart/mixed; boundary="=-IrEueW9xgnmQt70SDQMG"
-Message-Id: <1064207838.8888.241.camel@localhost>
+	Mon, 22 Sep 2003 01:38:20 -0400
+Date: Sun, 21 Sep 2003 22:38:18 -0700
+From: Dave Olien <dmo@osdl.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       maryedie@osdl.org
+Subject: Re: 2.6.0-test5-mm3 as-iosched Oops running dbt2 workload
+Message-ID: <20030921223818.A7483@osdl.org>
+References: <20030919185621.GA18666@osdl.org> <3F6BAC5F.503@cyberone.com.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-7) 
-Date: Mon, 22 Sep 2003 01:17:18 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3F6BAC5F.503@cyberone.com.au>; from piggin@cyberone.com.au on Sat, Sep 20, 2003 at 11:24:47AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-IrEueW9xgnmQt70SDQMG
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+OK, we'll give it a shot Monday.  Thanks!
 
-On Mon, 2003-09-22 at 00:43, Herbert Poetzl wrote:
-
-> what about checking at which position the space occurs?
+On Sat, Sep 20, 2003 at 11:24:47AM +1000, Nick Piggin wrote:
+> Sigh. Sorry, I'm an idiot...
 > 
-> at least to me it seems like pos < 20 would be okay
-> for a space in the name  8-)
+> If a request is merged with another, it sometimes has to be repositioned
+> on the rbtree - you just do a delete then an add. This is a quite
+> uncommon case though.
+> 
+> I changed the way adding works, so collisions must be handled by the
+> caller instead of being dumbly fixed by the add routine. Unfortunately
+> the uncommon callers weren't handling it properly. Try this please.
+> 
+> 
+> 
+> Dave Olien wrote:
+> 
+> >Andrew,
+> >
+> >Attached is console output containing a stack trace from an Oops, followed
+> >by a Fatal exception, and LOTS of APIC errors.  The machine was hung,
+> >printing APIC error messages forever.
+> >
+> >This looks like another as-iosched problem.  So, I'm copying Nick Piggin
+> >on this email.  But the Fatal exception and APIC errors following
+> >that are a mystery to me.
+> >
+> >Mary encountered this running the sapdb dbt2 cached database workload on her
+> >project machine.  The project machine was running 2.6.0-test5-mm3.
+> >This same test passes on the stp machines.  But Mary's project machine
+> >has more processors, and more disks, and a different disk controller type.
+> >
+> >At this stage, the database has gotten past the database restore phase.
+> >That's where it was failing prior to last night's mm3 patch.  Now, the
+> >database itself has been running for about 30 minutes.  In the cached
+> >case, much of that first 30 minutes is spent loading the cache.
+> >
+> >This Oops seems to have occurred at about the time the database is
+> >transitioning to using its cache.  Most of the I/O after this point
+> >is to the log, doing LOTS of sequential writes, with the occasional
+> >random read/write.
+> >
+> >Since this machine has more processors, it's doing transactions
+> >more quickly than the same workload on STP machines.  So the log write
+> >traffic is probably a lot heavier.
+> >
+> >
+> >------------[ cut here ]------------
+> >kernel BUG at drivers/block/as-iosched.c:1230!
+> >invalid operand: 0000 [#1]
+> >SMP 
+> >CPU:    3
+> >EIP:    0060:[<c0228146>]    Not tainted VLI
+> >EFLAGS: 00010046
+> >EIP is at as_dispatch_request+0x236/0x2f0
+> >eax: 00000000   ebx: f7a451a0   ecx: 00000000   edx: 00000000
+> >esi: 00000000   edi: 00000001   ebp: 00000000   esp: f5f67ef8
+> >ds: 007b   es: 007b   ss: 0068
+> >Process kernel (pid: 2283, threadinfo=f5f66000 task=f62760a0)
+> >Stack: f7a451a0 f5900820 f7a28000 f7a02600 c0235c23 f7a451a0 00000000 f7836000 
+> >       f5f67fc4 c0228238 f7a451a0 f7a08420 f7836000 c021fbb6 f7836000 f77e0000 
+> >       f7a28000 f7a08420 f7a28000 c023a128 f7836000 f5f02de0 f77e0090 0000000a 
+> >Call Trace:
+> > [<c0235c23>] DAC960_BA_QueueCommand+0x43/0xb0
+> > [<c0228238>] as_next_request+0x38/0x50
+> > [<c021fbb6>] elv_next_request+0x16/0x110
+> > [<c023a128>] DAC960_ProcessRequest+0x38/0x190
+> > [<c023cd40>] DAC960_BA_InterruptHandler+0x90/0xb0
+> > [<c010e899>] handle_IRQ_event+0x49/0x80
+> > [<c010ec0f>] do_IRQ+0x9f/0x150
+> > [<c030cb0c>] common_interrupt+0x18/0x20
+> > [<c030007b>] rpcauth_free_credcache+0xbb/0x100
+> >
+> >Code: 43 50 00 00 00 00 8b 43 54 8b 6b 1c c7 43 5c 00 00 00 00 89 43 58 e9 95 fe ff ff c7 43 48 01 00 00 00 c7 43 4c 00 00 00 00 eb d4 <0f> 0b ce 04 fd da 32 c0 eb c7 8b 43 50 e9 61 ff ff ff 0f 0b b6 
+> > <0>Kernel panic: Fatal exception in interrupt
+> >In interrupt handler - not syncing
+> > <6>APIC error on CPU3: 00(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >APIC error on CPU3: 08(08)
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> >
+> >  
+> >
 
-Not too pretty with the sscanf we do.  Or even possible -- how do we
-differentiate between n spaces and the next delimiter followed by a
-legal field?
-
-Anyhow, Chris and I concocted a little patch.  Its not sexy but it
-works.  Apply it and recompile -- let me know.
-
-	Robert Love
-
-
-
---=-IrEueW9xgnmQt70SDQMG
-Content-Disposition: attachment; filename=slabtop-bogus-space-fix-rml-1.patch
-Content-Type: text/x-patch; name=slabtop-bogus-space-fix-rml-1.patch; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-
- proc/slab.c |   20 ++++++++------------
- slabtop.c   |    5 +++++
- 2 files changed, 13 insertions(+), 12 deletions(-)
-
-
-diff -urN --exclude=CVS procps-cvs/proc/slab.c procps/proc/slab.c
---- procps-cvs/proc/slab.c	2003-09-21 23:01:59.816907168 -0400
-+++ procps/proc/slab.c	2003-09-22 01:14:43.456249968 -0400
-@@ -88,10 +88,8 @@
- 			continue;
- 	
- 		curr = get_slabnode();
--		if (!curr) {
--			curr = NULL;
-+		if (!curr)
- 			break;
--		}
- 
- 		if (entries++ == 0)
- 			*list = curr;
-@@ -107,9 +105,9 @@
- 				&curr->nr_slabs);
- 
- 		if (assigned < 8) {
--			fprintf(stderr, "unrecognizable data in slabinfo!\n");
--			curr = NULL;
--			break;
-+			curr->obj_size = 0;
-+			prev = curr;
-+			continue;
- 		}
- 
- 		if (curr->obj_size < stats->min_obj_size)
-@@ -168,10 +166,8 @@
- 		int assigned;
- 
- 		curr = get_slabnode();
--		if (!curr) {
--			curr = NULL;
-+		if (!curr)
- 			break;
--		}
- 
- 		if (entries++ == 0)
- 			*list = curr;
-@@ -186,9 +182,9 @@
- 				&curr->pages_per_slab);
- 
- 		if (assigned < 6) {
--			fprintf(stderr, "unrecognizable data in slabinfo!\n");
--			curr = NULL;
--			break;
-+			curr->obj_size = 0;
-+			prev = curr;
-+			continue;
- 		}
- 
- 		if (curr->obj_size < stats->min_obj_size)
-diff -urN --exclude=CVS procps-cvs/slabtop.c procps/slabtop.c
---- procps-cvs/slabtop.c	2003-09-21 23:01:59.822906256 -0400
-+++ procps/slabtop.c	2003-09-22 01:12:58.069271224 -0400
-@@ -330,6 +330,11 @@
- 
- 		curr = slab_list;
- 		for (i = 0; i < rows - 8 && curr->next; i++) {
-+			if (!curr->obj_size) {
-+				curr = curr->next;
-+				i--;
-+				continue;
-+			}
- 			printw("%6d %6d %3d%% %7.2fK %6d %8d %9dK %-23s\n",
- 				curr->nr_objs, curr->nr_active_objs, curr->use,
- 				curr->obj_size / 1024.0, curr->nr_slabs,
-
---=-IrEueW9xgnmQt70SDQMG--
+>  linux-2.6-npiggin/drivers/block/as-iosched.c |   21 +++++++++++++++------
+>  1 files changed, 15 insertions(+), 6 deletions(-)
+> 
+> diff -puN drivers/block/as-iosched.c~as-oops-fix drivers/block/as-iosched.c
+> --- linux-2.6/drivers/block/as-iosched.c~as-oops-fix	2003-09-20 11:13:26.000000000 +1000
+> +++ linux-2.6-npiggin/drivers/block/as-iosched.c	2003-09-20 11:22:55.000000000 +1000
+> @@ -1303,7 +1303,7 @@ static struct request *as_next_request(r
+>   * Add arq to a list behind alias
+>   */
+>  static inline void
+> -as_add_aliased_request(struct as_rq *arq, struct as_rq *alias)
+> +as_add_aliased_request(struct as_data *ad, struct as_rq *arq, struct as_rq *alias)
+>  {
+>  	/*
+>  	 * Another request with the same start sector on the rbtree.
+> @@ -1312,6 +1312,11 @@ as_add_aliased_request(struct as_rq *arq
+>  	 */
+>  	list_add_tail(&arq->request->queuelist,	&alias->request->queuelist);
+>  
+> +	/*
+> +	 * Don't want to have to handle merges.
+> +	 */
+> +	as_remove_merge_hints(ad->q, arq);
+> +
+>  }
+>  
+>  /*
+> @@ -1353,7 +1358,7 @@ static void as_add_request(struct as_dat
+>  		as_update_arq(ad, arq); /* keep state machine up to date */
+>  
+>  	} else {
+> -		as_add_aliased_request(arq, alias);
+> +		as_add_aliased_request(ad, arq, alias);
+>  		/*
+>  		 * have we been anticipating this request?
+>  		 * or does it come from the same process as the one we are
+> @@ -1553,8 +1558,10 @@ static void as_merged_request(request_qu
+>  		 * currently don't bother. Ditto the next function.
+>  		 */
+>  		as_del_arq_rb(ad, arq);
+> -		if ((alias = as_add_arq_rb(ad, arq)) )
+> -			as_add_aliased_request(arq, alias);
+> +		if ((alias = as_add_arq_rb(ad, arq)) ) {
+> +			list_del_init(&arq->fifo);
+> +			as_add_aliased_request(ad, arq, alias);
+> +		}
+>  		/*
+>  		 * Note! At this stage of this and the next function, our next
+>  		 * request may not be optimal - eg the request may have "grown"
+> @@ -1586,8 +1593,10 @@ as_merged_requests(request_queue_t *q, s
+>  	if (rq_rb_key(req) != arq->rb_key) {
+>  		struct as_rq *alias;
+>  		as_del_arq_rb(ad, arq);
+> -		if ((alias = as_add_arq_rb(ad, arq)) )
+> -			as_add_aliased_request(arq, alias);
+> +		if ((alias = as_add_arq_rb(ad, arq)) ) {
+> +			list_del_init(&arq->fifo);
+> +			as_add_aliased_request(ad, arq, alias);
+> +		}
+>  	}
+>  
+>  	/*
+> 
+> _
 

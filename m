@@ -1,82 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266657AbUGKU1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264430AbUGKUhH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266657AbUGKU1S (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 16:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266656AbUGKU1S
+	id S264430AbUGKUhH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 16:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266656AbUGKUhH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 16:27:18 -0400
-Received: from service.sh.cvut.cz ([147.32.127.214]:47793 "EHLO
-	service.sh.cvut.cz") by vger.kernel.org with ESMTP id S266658AbUGKU1B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 16:27:01 -0400
-Date: Sun, 11 Jul 2004 22:26:55 +0200
-From: Antonin Kral <A.Kral@sh.cvut.cz>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fatal problem, possibly related to AIC79xx
-Message-ID: <20040711202655.GI8132@sh.cvut.cz>
-References: <20040710152125.GD21718@sh.cvut.cz> <20040711200707.GB1545@alpha.home.local>
+	Sun, 11 Jul 2004 16:37:07 -0400
+Received: from hauptpostamt.charite.de ([193.175.66.220]:47764 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id S264430AbUGKUhD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 16:37:03 -0400
+Date: Sun, 11 Jul 2004 22:36:59 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: VESA fb problem with 2.6.7-mm[567]
+Message-ID: <20040711203659.GE2899@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <20040711200707.GB1545@alpha.home.local>
-X-URL: http://www.bobek.cz
-User-Agent: Mutt/1.5.6+20040523i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've run memtest for more than 48 hours. And actually I have two boxes
-with same behaviour. I was thinking about more precise check of SCSI bus
-termination...
+The nvidia graphics card in one of my laptops cannot be talked into
+working with vesafb:
 
-Regards,
-    Antonin
+...
+ACPI: PCI Interrupt Link [LNK5] enabled at IRQ 11
+ACPI: PCI interrupt 0000:01:00.0[A] -> GSI 11 (level, low) -> IRQ 11
+PCI: Cannot allocate resource region 4 of device 0000:00:01.1
+PCI: Cannot allocate resource region 5 of device 0000:00:01.1
+vesafb: probe of vesafb0 failed with error -6
+vga16fb: initializing
+vga16fb: mapped to 0xc00a0000
+fb0: VGA16 VGA frame buffer device
+Simple Boot Flag at 0x36 set to 0x1
+devfs: 2004-01-31 Richard Gooch (rgooch@atnf.csiro.au)
+...
 
-* Willy Tarreau <willy@w.ods.org> [2004-07-11 22:23] wrote:
-> Looks like a hardware problem to me. Perhaps higher transfer rates obtained
-> with aic7xxx triggers it faster. You should really run cpuburn (burnBX) and
-> memtest86 on this box.
-> 
-> Regards,
-> Willy
-> 
-> On Sat, Jul 10, 2004 at 05:21:25PM +0200, Antonin Kral wrote:
-> > Hi all,
-> > 
-> > I'm trying to install Linux (in particular Debian) to our new servers.
-> > These servers are based od motherbard SuperMicro X5DL8-GG with aic7902
-> > without RAID, 1GB RAM, one XEON 3.06GHz
-> > 
-> > I have two, really strange problems, first of all I have noticed, that
-> > with enabled SMP support kernel detects TWO processors, but only one is
-> > physically installed.
-> > 
-> > The second problem is, that I am not able to run almost any program.
-> > E.g. if I try to execute free I'll get "Illegal instruction", for mount
-> > I'll get "Segmentation Fault".
-> > 
-> > What I've tried:
-> > 
-> >   Vanilla kernels 2.4.25, 2.4.26, 2.6.6, 2.6.7. And almost all
-> > combinations with/without:
-> >           * SMP
-> >           * APIC
-> >           * Highmem
-> >           * MTRR
-> > 
-> > All without ACPI and with aic79xx and e1000 build in kernel.
-> > 
-> >   I've tried Knoppix 3.4. The strange think was that I was unable to
-> > load module for aic79xx, because of "no such device".
-> > 
-> > Does anyone have any idea how to solve my problems?
-> > 
-> >   Thank you, best regards,
-> > 
-> >         Antonin Kral
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+0000:01:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 420 Go 32M] (rev a3) (prog-if 00 [VGA])
+        Subsystem: Hewlett-Packard Company: Unknown device 006d
+        Flags: bus master, 66MHz, medium devsel, latency 248, IRQ 11
+        Memory at ea000000 (32-bit, non-prefetchable) [size=16M]
+        Memory at f8000000 (32-bit, prefetchable) [size=64M]
+        Memory at fc000000 (32-bit, prefetchable) [size=512K]
+        Capabilities: [60] Power Management version 2
+        Capabilities: [44] AGP version 2.0
+	
+Short:
+
+* vesafb fails
+* vga16fb works
+
+The same kernel works on another laptop with another nvidia card.
+The only major difference is the unorthodox display resolution in this
+laptop (WXGA, 1280x800).
+
+-- 
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-916
+IT-Zentrum Standort Campus Mitte                          AIM.  ralfpostfix

@@ -1,69 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261698AbSKCIig>; Sun, 3 Nov 2002 03:38:36 -0500
+	id <S261689AbSKCImH>; Sun, 3 Nov 2002 03:42:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261701AbSKCIig>; Sun, 3 Nov 2002 03:38:36 -0500
-Received: from [203.167.79.9] ([203.167.79.9]:2323 "EHLO willow.compass.com.ph")
-	by vger.kernel.org with ESMTP id <S261698AbSKCIif>;
-	Sun, 3 Nov 2002 03:38:35 -0500
-Subject: Re: [Linux-fbdev-devel] [BK fbdev updates]
-From: Antonino Daplas <adaplas@pol.net>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.33.0211011524270.11313-100000@maxwell.earthlink.net>
-References: <Pine.LNX.4.33.0211011524270.11313-100000@maxwell.earthlink.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 03 Nov 2002 16:40:00 +0800
-Message-Id: <1036312836.615.15.camel@daplas>
-Mime-Version: 1.0
+	id <S261690AbSKCImH>; Sun, 3 Nov 2002 03:42:07 -0500
+Received: from h-64-105-136-52.SNVACAID.covad.net ([64.105.136.52]:32935 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S261689AbSKCImG>; Sun, 3 Nov 2002 03:42:06 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sun, 3 Nov 2002 00:48:30 -0800
+Message-Id: <200211030848.AAA07537@adam.yggdrasil.com>
+To: axboe@suse.de
+Subject: Re: Patch(2.5.45): move io_restrictions to blkdev.h
+Cc: linux-kernel@vger.kernel.org, thornber@sistina.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-11-02 at 07:29, James Simmons wrote:
-> 
-> > James,
-> >
-> > I tried the patch, and it does produce a cleaner and smaller driver.
-> > Overall, I like it. Some observations:
-> >
-> > 1. Without the fb_set_var() hook, switching from X messes up the
-> > console.  I would guess this will be addressed by the console?
-> 
-> fbcon_switch has to be rewritten. I'm going threw the process of cleaning
-> up the upper fbcon layer. Its such a mess. Yuck!!!
-> 
-> > 2. Console panning/wrapping does not work.  updatevar includes a check
-> > "if (con == info->currcon)", and my guess is info->currcon is obsoleted
-> > so the check always fails.
-> 
-> It worked before. Strange. Do you mean for you console panning doesn't
-> work on the visiable VC or a non visible VC?
-> 
+Jens Axboe wrote:
+>On Sat, Nov 02 2002, Adam J. Richter wrote:
+>> 	This patch makes good on a threat that I posted yesterday
+>> to move struct io_restrictions from <linux/device-mapper.h> to
+>> <linux/blkdev.h>, eliminating duplication of a list of fields in
+>> struct request_queue.
 
-Adding update_var to fbcon_switch fixes #1 and #2 for me.  Attached is a
-diff.
+>Adam, I generally think the patch is a good idea. I also think it's a
+>very stupid time to start messing with stuff that is basically trivial
+>but still touches lost of stuff.
 
-Also, using fbset to change video modes corrupts the console.  Looking
-at the code, the flow of control is from the console to fbdev only?  Is
-this correct?  I agree with this, it's saner.
+	It's pretty much simple string substitution and it doesn't
+touch that many files, but OK.
 
-Tony
+>Please leave it alone for a few weeks.
 
-diff -Naur linux/drivers/video/console/fbcon.c linux-2.5.45-fbdev/drivers/video/console/fbcon.c
---- linux/drivers/video/console/fbcon.c	Sun Nov  3 08:19:32 2002
-+++ linux-2.5.45-fbdev/drivers/video/console/fbcon.c	Sun Nov  3 08:18:56 2002
-@@ -1604,8 +1604,6 @@
-     scrollback_max = 0;
-     scrollback_current = 0;
- 
--    update_var(unit, info);
--
-     if (p->dispsw->clear_margins && vt_cons[unit]->vc_mode == KD_TEXT)
- 	p->dispsw->clear_margins(conp, p, 0);
-     if (logo_shown == -2) {
-   
+>> 	Jens, can I persuade you to integrate this change?
+
+>In due time, yes.
+
+	Great.  The only thing I was going to do that might depend
+on this patch is try to port /dev/loop to device mapper, and I may
+be able to eliminate the affected code anyhow.
+
+	I've checked in the change and will continue running it in the
+meantime.  Unless I hear otherwise or run into a problem with this
+patch, I'll plan to resubmit it around November 24.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
+
 

@@ -1,36 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbUAFQOU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 11:14:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbUAFQOU
+	id S264359AbUAFQVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 11:21:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264442AbUAFQVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 11:14:20 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:3281 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261799AbUAFQOT (ORCPT
+	Tue, 6 Jan 2004 11:21:09 -0500
+Received: from fw.osdl.org ([65.172.181.6]:54488 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264359AbUAFQVE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 11:14:19 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200401061614.i06GE5mZ030970@devserv.devel.redhat.com>
-To: Martin Hicks <mort@bork.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Weird problems with printer using USB
-In-Reply-To: <mailman.1073332322.31520.linux-kernel2news@redhat.com>
-References: <20040105192430.GA15884@DervishD> <mailman.1073332322.31520.linux-kernel2news@redhat.com>
-Date: Tue, 6 Jan 2004 11:14:05 -0500
+	Tue, 6 Jan 2004 11:21:04 -0500
+Date: Tue, 6 Jan 2004 08:19:47 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: johnstultz@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix get_jiffies_64 to work on voyager
+Message-Id: <20040106081947.3d51a1d5.akpm@osdl.org>
+In-Reply-To: <1073405053.2047.28.camel@mulgrave>
+References: <1073405053.2047.28.camel@mulgrave>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In rhat.general.linux-kernel, Martin Hicks <mort@bork.org> wrote:
-> On Mon, Jan 05, 2004 at 08:24:30PM +0100, DervishD wrote:
+James Bottomley <James.Bottomley@SteelEye.com> wrote:
+>
+> This patch
+> 
+> 
+>  ChangeSet@1.1534.5.2, 2003-12-30 15:40:23-08:00, akpm@osdl.org
+>    [PATCH] ia32 jiffy wrapping fixes
+> 
+>  Causes the voyager boot to hang.  The problem is this change:
+> 
+>  --- a/arch/i386/kernel/timers/timer_tsc.c       Tue Jan  6 09:57:34 2004
+>  +++ b/arch/i386/kernel/timers/timer_tsc.c       Tue Jan  6 09:57:34 2004
+>  @@ -141,7 +140,7 @@
+>   #ifndef CONFIG_NUMA
+>          if (!use_tsc)
+>   #endif
+>  -               return (unsigned long long)jiffies * (1000000000 / HZ);
+>  +               return (unsigned long long)get_jiffies_64() *
+>  (1000000000 / HZ);
 
-> I'm getting this same error when printing anything but the smallest
-> print job to an HP DeskJet 3550 USB.  Using latest RH9 errata packages.
+Hm, OK.  I hit the same deadlock when running with the "don't require TSCs
+to be synchronised in sched_clock()" patch from -mm.  The fix for that is
+below.  I shall accelerate it.
 
-Please never use the phrase "Using latest ... errata" again.
-NEVER. How am I supposed to know what kernel you are using?!
-Instead, write "Using 2.4.23-foo", or paste /proc/version.
+--- 25/arch/i386/kernel/timers/timer_tsc.c~sched_clock-2.6.0-A1-deadlock-fix	2003-12-30 00:45:09.000000000 -0800
++++ 25-akpm/arch/i386/kernel/timers/timer_tsc.c	2003-12-30 00:45:09.000000000 -0800
+@@ -140,7 +140,8 @@ unsigned long long sched_clock(void)
+ #ifndef CONFIG_NUMA
+ 	if (!use_tsc)
+ #endif
+-		return (unsigned long long)get_jiffies_64() * (1000000000 / HZ);
++		/* jiffies might overflow but this is not a big deal here */
++		return (unsigned long long)jiffies * (1000000000 / HZ);
+ 
+ 	/* Read the Time Stamp Counter */
+ 	rdtscll(this_offset);
 
-And once we are at it, file a bug to RH Bugzilla. Or better yet,
-upgrade to FC1 and file a bug.
+_
 
--- Pete

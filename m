@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264124AbUDVPaB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264136AbUDVPhx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264124AbUDVPaB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 11:30:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbUDVPaB
+	id S264136AbUDVPhx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 11:37:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264137AbUDVPhx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 11:30:01 -0400
-Received: from dsl-gw-90.pilosoft.com ([69.31.90.1]:63194 "EHLO
-	paix.pilosoft.com") by vger.kernel.org with ESMTP id S264124AbUDVP3z
+	Thu, 22 Apr 2004 11:37:53 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:62424 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S264136AbUDVPhv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 11:29:55 -0400
-Date: Thu, 22 Apr 2004 11:27:05 -0400 (EDT)
-From: alex@pilosoft.com
-To: jamal <hadi@cyberus.ca>
-cc: linux-kernel@vger.kernel.org, <netdev@oss.sgi.com>
-Subject: Re: tcp vulnerability?  haven't seen anything on it here...
-In-Reply-To: <1082647046.1099.47.camel@jzny.localdomain>
-Message-ID: <Pine.LNX.4.44.0404221121230.2738-100000@paix.pilosoft.com>
+	Thu, 22 Apr 2004 11:37:51 -0400
+Message-ID: <4087E6B1.9000606@cosmosbay.com>
+Date: Thu, 22 Apr 2004 17:37:21 +0200
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: fr, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: James Morris <jmorris@redhat.com>
+CC: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org,
+       vda@port.imtp.ilyichevsk.odessa.ua
+Subject: Re: Large inlines in include/linux/skbuff.h
+References: <Xine.LNX.4.44.0404221114500.22706-100000@thoron.boston.redhat.com>
+In-Reply-To: <Xine.LNX.4.44.0404221114500.22706-100000@thoron.boston.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Unless i misunderstood: You need someone/thing to see about 64K
-> > > packets within a single flow to make the predicition so the attack
-> > > is succesful. Sure to have access to such capability is to be in a
-> > > hostile path, no? ;->
-> > No, you do not need to see any packet.
-> > 
-> 
-> Ok, so i misunderstood then. How do you predict the sequences without
-> seeing any packet? Is there any URL to mentioned paper?
-You don't - just brute-force the tcp 4-tuple and sequence number. The
-attack relies on the fact that you don't have to match sequence number
-exactly, which cuts down on the search-space. (If total search space is
-2^32, rwin is 16k, effective attack search space is 2^32/16k). Multiplied 
-by number of ephemeral ports, it becomes *feasible* but still not very 
-likely.
+James Morris wrote:
 
-> > Inter-provider BGP is long-lived with close to fixed ports, which is
-> > why it has caused quite a stir.
-> 
-> Makes sense. What would be the overall effect though? Route flaps?
-Yep.
+>On Thu, 22 Apr 2004, Andi Kleen wrote:
+>
+>  
+>
+>>>How will these changes impact performance?  I asked this last time you 
+>>>posted about inlines and didn't see any response.
+>>>      
+>>>
+>>I don't think it will be an issue. The optimization guidelines
+>>of AMD and Intel recommend to move functions that generate 
+>>more than 30-40 instructions out of line. 100 instructions 
+>>is certainly enough to amortize the call overhead, and you 
+>>safe some icache too so it may be even faster.
+>>    
+>>
+>
+>Of course, but it would be good to see some measurements.
+>
+>
+>- James
+>  
+>
+It depends a lot of the workload of the machine.
 
-> > Nevertheless, number of packets to kill the session is still *large*
-> > (under "best-case" for attacker, you need to send 2^30 packets)...
+If this a specialized machine, with a small program that mostly uses 
+recv() & send() syscalls, then, inlining functions is a gain, since 
+icache may have a 100% hit ratio. Optimization guidelines are good for 
+the common cases, not every cases.
 
--alex
+Eric Dumazet
 

@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317232AbSGNXbv>; Sun, 14 Jul 2002 19:31:51 -0400
+	id <S317217AbSGNX33>; Sun, 14 Jul 2002 19:29:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317253AbSGNXbu>; Sun, 14 Jul 2002 19:31:50 -0400
-Received: from AMontpellier-205-1-4-20.abo.wanadoo.fr ([217.128.205.20]:40663
-	"EHLO awak") by vger.kernel.org with ESMTP id <S317232AbSGNXbr> convert rfc822-to-8bit;
-	Sun, 14 Jul 2002 19:31:47 -0400
-Subject: Re: apm power_off on smp
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Pozsar Balazs <pozsy@uhulinux.hu>,
-       Kelledin <kelledin+LKML@skarpsey.dyndns.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1026693542.13885.94.camel@irongate.swansea.linux.org.uk>
-References: <Pine.GSO.4.30.0207150101150.27346-100000@balu> 
-	<1026693542.13885.94.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 15 Jul 2002 01:34:02 +0200
-Message-Id: <1026689642.2077.21.camel@bip>
+	id <S317232AbSGNX32>; Sun, 14 Jul 2002 19:29:28 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:36854 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317217AbSGNX30>; Sun, 14 Jul 2002 19:29:26 -0400
+Subject: Re: Status of DRI modules for i810 with > 2.4.19-pre6
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Steve Kieu <haiquy@yahoo.com>
+Cc: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020714220922.61652.qmail@web10404.mail.yahoo.com>
+References: <20020714220922.61652.qmail@web10404.mail.yahoo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 15 Jul 2002 01:41:55 +0100
+Message-Id: <1026693715.13886.97.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le lun 15/07/2002 à 02:39, Alan Cox a écrit :
-> On Mon, 2002-07-15 at 00:03, Pozsar Balazs wrote:
-> > 
-> > Yes, all I want is poweroff.
-> > I understand that apm is not smp safe, and pretty much all of it is
-> > disabled in smp mode.
-> > 
-> > What i do not understand is why the poweroff functionality is disabled by
-> > default.
+On Sun, 2002-07-14 at 23:09, Steve Kieu wrote:
 > 
-> Because it too is unsafe on some machines
+> No, it is not fixed yet! I attched the dmesg.log but
+> if required I will make the result through ksymoop. 
 
-Would it be possible to use the CPU-hotplug patch to unplug all CPUs
-except the one entering apm power-off ?
+Duplicate the problem with a 2.4.19-rc1-ac3 kernel (not one with random
+pre-empt patches). Then get a traceback. Also be sure to use XFree86 4.2
+or later
 

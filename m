@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbQLGPIq>; Thu, 7 Dec 2000 10:08:46 -0500
+	id <S129226AbQLGPTT>; Thu, 7 Dec 2000 10:19:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129410AbQLGPIg>; Thu, 7 Dec 2000 10:08:36 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:20491 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129406AbQLGPIY>; Thu, 7 Dec 2000 10:08:24 -0500
-Subject: Re: [RFC-2] Configuring Synchronous Interfaces in Linux
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Thu, 7 Dec 2000 14:40:04 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        khc@intrepid.pm.waw.pl (Krzysztof Halasa),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3A2F9AD4.830153B4@mandrakesoft.com> from "Jeff Garzik" at Dec 07, 2000 09:12:36 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129257AbQLGPTJ>; Thu, 7 Dec 2000 10:19:09 -0500
+Received: from zcamail01.zca.compaq.com ([161.114.32.101]:55306 "HELO
+	zcamail01.zca.compaq.com") by vger.kernel.org with SMTP
+	id <S129226AbQLGPSy>; Thu, 7 Dec 2000 10:18:54 -0500
+Date: Thu, 7 Dec 2000 09:50:32 -0500
+From: Jay Estabrook <Jay.Estabrook@compaq.com>
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test12-pre6 on alpha
+Message-ID: <20001207095032.A1783@linux04.mro.cpqcorp.net>
+In-Reply-To: <20001206204723.A8390@animx.eu.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1442DQ-0002VT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20001206204723.A8390@animx.eu.org>; from wakko@animx.eu.org on Wed, Dec 06, 2000 at 08:47:23PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >                         struct hdlc_protocol
-> >                         struct fr_protocol
-> >                         struct eth_physical
+On Wed, Dec 06, 2000 at 08:47:23PM -0500, Wakko Warner wrote:
+> I'm glad to say that this is the first 2.4 kernel that works on my noritake
+> alpha with a pci-pci bridge.
 > 
-> Not yet another one for eth...  We now have ethtool for this.  And a
-> generic netdevice::set_config wrapper can be created that simply calls
-> the ethtool ioctl with the proper info and locking.
+> I have a small problem.  If I reboot, the srm console can't boot from dka0.
+> Doing a: show dev
+> doesn't list any of the hard drives in the machine.
+> doing an init causes it to reset and find all the drives again.
 
-There I disagree. I would do it the other way up. Post 2.4 you make the
-ethtool ioctl simply build an eth_physical and run in that way. Right now
-the ethtool stuff is a bit hackish and cannot handle upcoming real world
-situations such as setting the cryptokey for onboard crypto on ethernet
-cards, or handling devices that present themselves as ethernet but are not
-at the physical layer being remotely honest about it.
+During boot, the Linux kernel code (on Alpha) changes the PCI resource
+settings of cards and bridges alike. Some SRM consoles do not appreciate
+this... ;-}
 
-Alan
+There is code in 2.2 that restores card/bridge settings before exiting
+the kernel back to console mode. This code has NOT been ported to 2.4,
+due primarily to the size of the changes made to 2.4 in that area.
 
+Could you verify that 2.2 (take the latest, please) DOES exit to SRM
+correctly?
+
+A workaround for 2.4 is to set "boot_reset" to ON in SRM, which will
+force a full reset before continuing the boot. Yes, I know, for a lot
+of situations this is overkill, but at least it will do the right thing
+under the above described situations...
+
+Good luck.
+
+--Jay++
+
+-----------------------------------------------------------------------------
+Jay A Estabrook                            Alpha Engineering - LINUX Project
+Compaq Computer Corp. - MRO1-2/K20         (508) 467-2080
+200 Forest Street, Marlboro MA 01752       Jay.Estabrook@compaq.com
+-----------------------------------------------------------------------------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

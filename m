@@ -1,82 +1,226 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261496AbSJAGg5>; Tue, 1 Oct 2002 02:36:57 -0400
+	id <S261499AbSJAGwR>; Tue, 1 Oct 2002 02:52:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261497AbSJAGg5>; Tue, 1 Oct 2002 02:36:57 -0400
-Received: from transport.cksoft.de ([62.111.66.27]:18951 "EHLO
-	transport.cksoft.de") by vger.kernel.org with ESMTP
-	id <S261496AbSJAGg4>; Tue, 1 Oct 2002 02:36:56 -0400
-Date: Tue, 1 Oct 2002 08:40:30 +0200 (CEST)
-From: "Bjoern A. Zeeb" <bzeeb-lists@lists.zabbadoz.net>
-X-X-Sender: bz@e0-0.zab2.int.zabbadoz.net
-To: Corporal Pisang <Corporal_Pisang@Counter-Strike.com.my>
-Cc: linux-kernel@vger.kernel.org, <coreteam@netfilter.org>,
-       <netfilter-devel@lists.netfilter.org>, <patch@zabbadoz.net>
-Subject: Re: 2.5.39 make modules_install error (netfilter)
-In-Reply-To: <20021001142528.4640228c.Corporal_Pisang@Counter-Strike.com.my>
-Message-ID: <Pine.BSF.4.44.0210010838480.427-100000@e0-0.zab2.int.zabbadoz.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261500AbSJAGwR>; Tue, 1 Oct 2002 02:52:17 -0400
+Received: from Bart.matrix.ksan.de ([80.69.207.67]:37810 "EHLO
+	bart.matrix.ksan.de") by vger.kernel.org with ESMTP
+	id <S261499AbSJAGwP>; Tue, 1 Oct 2002 02:52:15 -0400
+X-Envelope-From: flo@grok.noroute.de
+Date: Tue, 1 Oct 2002 08:55:16 +0200
+From: Florian Thiel <thiel@ksan.de>
+To: marcelo@conectiva.com.br, davej@suse.de, max_mk@yahoo.com
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Kernel TUN/TAP Documentation rework
+Message-ID: <20021001065516.GA18838@grok.noroute.de>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="VS++wcV0S1rZb1Fb"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Oct 2002, Corporal Pisang wrote:
 
-Hi,
+--VS++wcV0S1rZb1Fb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Final hurdle for me to get 2.5.39 compiled,
->
-> This is the error on make modules_install
->
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.39; fi
-> depmod: *** Unresolved symbols in /lib/modules/2.5.39/kernel/net/ipv4/netfilter/ipt_owner.o
-> depmod:         next_thread
-> depmod:         find_task_by_pid
-> depmod: *** Unresolved symbols in /lib/modules/2.5.39/kernel/net/ipv6/netfilter/ip6t_owner.o
-> depmod:         next_thread
-> depmod:         find_task_by_pid
+Hi!
 
-think someone already posted at least parts of this one.
+The existing documentation for the tun/tap interface was outdated and in
+some ways just plain wrong. It took me at least an evening to figure out
+how to get tun/tap to work. I did a rework that should now be correct.
 
---- linux-20020930-175132/kernel/pid.c.orig	Mon Sep 30 19:13:24 2002
-+++ linux-20020930-175132/kernel/pid.c	Mon Sep 30 21:13:30 2002
-@@ -23,6 +23,7 @@
- #include <linux/slab.h>
- #include <linux/init.h>
- #include <linux/bootmem.h>
-+#include <linux/module.h>
+The documentation only applies to Linux! I feel it should be included in
+both 2.4 and 2.5. I also send the patch to the author of tun/tap and the
+"small fix" maintainers for 2.4 and 2.5. Hope, this is correct.
 
- #define PIDHASH_SIZE 4096
- #define pid_hashfn(nr) ((nr >> 8) ^ nr) & (PIDHASH_SIZE - 1)
-@@ -275,3 +276,5 @@
- 		attach_pid(current, i, 0);
- 	}
- }
-+
-+EXPORT_SYMBOL(find_task_by_pid);
---- linux-20020930-175132/kernel/Makefile.orig	Mon Sep 30 19:41:03 2002
-+++ linux-20020930-175132/kernel/Makefile	Mon Sep 30 20:38:38 2002
-@@ -3,7 +3,8 @@
- #
-
- export-objs = signal.o sys.o kmod.o context.o ksyms.o pm.o exec_domain.o \
--	      printk.o platform.o suspend.o dma.o module.o cpufreq.o
-+	      printk.o platform.o suspend.o dma.o module.o cpufreq.o pid.o \
-+	      exit.o
-
- obj-y     = sched.o fork.o exec_domain.o panic.o printk.o \
- 	    module.o exit.o itimer.o time.o softirq.o resource.o \
---- linux-20020930-175132/kernel/exit.c.orig	Mon Sep 30 20:37:53 2002
-+++ linux-20020930-175132/kernel/exit.c	Mon Sep 30 21:13:15 2002
-@@ -911,3 +911,5 @@
- }
-
- #endif
-+
-+EXPORT_SYMBOL(next_thread);
+Greetings, Florian
 
 -- 
-Greetings
-Bjoern A. Zeeb				bzeeb at Zabbadoz dot NeT
-56 69 73 69 74				http://www.zabbadoz.net/
+Florian Thiel - Medienzentrum Kassel
+Systembetreuung Internet- und Kommunikationstechnik
+Kasseler Schulen am Netz - http://www.ksan.de
 
+--VS++wcV0S1rZb1Fb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="tuntap-docs.diff"
+
+--- Documentation/networking/tuntap.txt.orig	2002-09-30 15:44:32.000000000 +0200
++++ Documentation/networking/tuntap.txt	2002-10-01 08:34:56.000000000 +0200
+@@ -7,43 +7,71 @@
+   FreeBSD TAP driver 
+   Copyright (c) 1999-2000 Maksim Yevmenkin <m_evmenkin@yahoo.com>
+ 
++  Revision of this document 2002 by Florian Thiel <florian.thiel@gmx.net>
++
+ 1. Description
+   TUN/TAP provides packet reception and transmission for user space programs. 
+-  It can be viewed as a simple Point-to-Point or Ethernet device, which 
+-  instead of receiving packets from a physical media, receives them from 
++  It can be seen as a simple Point-to-Point or Ethernet device, which,
++  instead of receiving packets from physical media, receives them from 
+   user space program and instead of sending packets via physical media 
+   writes them to the user space program. 
+ 
+-  When a program opens /dev/net/tun, driver creates and registers corresponding
+-  net device tunX or tapX. After a program closed above devices, driver will 
+-  automatically delete tunXX or tapXX device and all routes corresponding to it.
+-
+-  This package(http://vtun.sourceforge.net/tun) contains two simple example 
+-  programs how to use tun and tap devices. Both programs works like 
+-  bridge between two network interfaces.
++  In order to use the driver a program has to open /dev/net/tun and issue a
++  corresponding ioctl() to register a network device with the kernel. A network
++  device will appear as tunXX or tapXX, depending on the options chosen. When
++  the program closes the file descriptor, the network device and all
++  corresponding routes will disappear.
++
++  Depending on the type of device chosen the userspace program has to read/write
++  IP packets (with tun) or ethernet frames (with tap). Which one is being used
++  depends on the flags given with the ioctl().
++
++  The package from http://vtun.sourceforge.net/tun contains two simple examples
++  for how to use tun and tap devices. Both programs work like a bridge between
++  two network interfaces.
+   br_select.c - bridge based on select system call.
+   br_sigio.c  - bridge based on async io and SIGIO signal.
+-  However the best example is VTun http://vtun.sourceforge.net :))  
++  However, the best example is VTun http://vtun.sourceforge.net :))
+ 
+ 2. Configuration 
+   Create device node:
++     mkdir /dev/net (if it doesn't exist already)
+      mknod /dev/net/tun c 10 200
++  
++  Set permissions:
++     e.g. chmod 0700 /dev/net/tun
++     if you want the device only accesible by root. Giving regular users the
++     right to assign network devices is NOT a good idea. Users could assign
++     bogus network interfaces to trick firewalls or administrators.
+ 
+   Driver module autoloading
+      Make sure that "Kernel module loader" - module auto-loading support is enabled 
+      in your kernel. 
+ 
+-     Add following line to the /etc/modules.conf:
++     Add the following line to the /etc/modules.conf:
+ 	alias char-major-10-200 tun
+-     
+-     Run:
++     and run
+         depmod -a 
+-
+-     Driver will be automatically loaded when application access /dev/net/tun.
++  
++  Manual loading 
++     insert the module by hand:
++        modprobe tun
++
++  If you do it the latter way, you have to load the module every time you
++  need it, if you do it the other way it will be automatically loaded when
++  /dev/net/tun is being opened.
+ 
+ 3. Program interface 
+   3.1 Network device allocation:
+ 
++  char *dev should be the name of the device with a format string (e.g.
++  "tun%d"), but (as far as I can see) this can be any valid network device name.
++  Note that the character pointer becomes overwritten with the real device name
++  (e.g. "tun0")
++
++  #include <linux/if.h>
++  #include <linux/if_tun.h>
++
+   int tun_alloc(char *dev)
+   {
+       struct ifreq ifr;
+@@ -79,65 +107,44 @@
+ 
+ Universal TUN/TAP device driver Frequently Asked Question.
+    
+-1. What is the TUN ?
+-The TUN is Virtual Point-to-Point network device.
+-TUN driver was designed as low level kernel support for
+-IP tunneling. It provides to userland application
+-two interfaces:
+-  - /dev/tunX	- character device;
+-  - tunX	- virtual Point-to-Point interface.
+-
+-Userland application can write IP frame to /dev/tunX
+-and kernel will receive this frame from tunX interface. 
+-In the same time every frame that kernel writes to tunX 
+-interface can be read by userland application from /dev/tunX
+-device.
+-
+-2. What is the TAP ?
+-The TAP is a Virtual Ethernet network device.
+-TAP driver was designed as low level kernel support for
+-Ethernet tunneling. It provides to userland application
+-two interfaces:
+-  - /dev/tapX	- character device;
+-  - tapX	- virtual Ethernet interface.
+-
+-Userland application can write Ethernet frame to /dev/tapX
+-and kernel will receive this frame from tapX interface. 
+-In the same time every frame that kernel writes to tapX 
+-interface can be read by userland application from /dev/tapX
+-device.
+-
+-3. What platforms are supported by TUN/TAP driver ?
++1. What platforms are supported by TUN/TAP driver ?
+ Currently driver has been written for 3 Unices:
+    Linux kernels 2.2.x, 2.4.x 
+    FreeBSD 3.x, 4.x, 5.x
+    Solaris 2.6, 7.0, 8.0
+ 
+-4. What is TUN/TAP driver used for?
++2. What is TUN/TAP driver used for?
+ As mentioned above, main purpose of TUN/TAP driver is tunneling. 
+ It is used by VTun (http://vtun.sourceforge.net).
+ 
+-5. How does Virtual network device actually work ? 
++Another interesting application using TUN/TAP is pipsecd
++(http://perso.enst.fr/~beyssac/pipsec/), an userspace IPSec
++implementation that can use complete kernel routing (unlike FreeS/WAN).
++
++3. How does Virtual network device actually work ? 
+ Virtual network device can be viewed as a simple Point-to-Point or
+ Ethernet device, which instead of receiving packets from a physical 
+ media, receives them from user space program and instead of sending 
+ packets via physical media sends them to the user space program. 
+ 
+ Let's say that you configured IPX on the tap0, then whenever 
+-kernel sends any IPX packet to tap0, it is passed to the application
+-(VTun for example). Application encrypts, compresses and sends it to 
+-the other side over TCP or UDP. Application on other side decompress 
+-and decrypts them and write packet to the TAP device, kernel handles 
+-the packet like it came from real physical device.
++the kernel sends an IPX packet to tap0, it is passed to the application
++(VTun for example). The application encrypts, compresses and sends it to 
++the other side over TCP or UDP. The application on the other side decompresses
++and decrypts the data received and writes the packet to the TAP device, 
++the kernel handles the packet like it came from real physical device.
+ 
+-6. What is the difference between TUN driver and TAP driver?
++4. What is the difference between TUN driver and TAP driver?
+ TUN works with IP frames. TAP works with Ethernet frames.
+ 
+-7. What is the difference between BPF and TUN/TAP driver?
+-BFP is a advanced packet filter. It can be attached to existing
+-network interface. It does not provide virtual network interface.
+-TUN/TAP driver does provide virtual network interface and it is possible
++This means that you have to read/write IP packets when you are using tun and
++ethernet frames when using tap.
++
++5. What is the difference between BPF and TUN/TAP driver?
++BFP is an advanced packet filter. It can be attached to existing
++network interface. It does not provide a virtual network interface.
++A TUN/TAP driver does provide a virtual network interface and it is possible
+ to attach BPF to this interface.
+ 
+-8. Does TAP driver support kernel Ethernet bridging?
++6. Does TAP driver support kernel Ethernet bridging?
+ Yes. Linux and FreeBSD drivers support Ethernet bridging. 
+
+--VS++wcV0S1rZb1Fb--

@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317580AbSHBBMX>; Thu, 1 Aug 2002 21:12:23 -0400
+	id <S317390AbSHBBIF>; Thu, 1 Aug 2002 21:08:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317605AbSHBBMX>; Thu, 1 Aug 2002 21:12:23 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:35085 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S317580AbSHBBMW>; Thu, 1 Aug 2002 21:12:22 -0400
-Message-ID: <3D49DD2C.2070604@namesys.com>
-Date: Fri, 02 Aug 2002 05:15:24 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
-X-Accept-Language: en-us, en
+	id <S317484AbSHBBIF>; Thu, 1 Aug 2002 21:08:05 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:60886 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S317390AbSHBBIE>; Thu, 1 Aug 2002 21:08:04 -0400
+Date: Thu, 01 Aug 2002 18:09:50 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+cc: "Seth, Rohit" <rohit.seth@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>
+Subject: Re: large page patch
+Message-ID: <737220000.1028250590@flay>
+In-Reply-To: <3D49D45A.D68CCFB4@zip.com.au>
+References: <3D49D45A.D68CCFB4@zip.com.au>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: Funding GPL projects or funding the GPL?
-References: <20020727085931.X26813@work.bitmover.com> <Pine.LNX.4.44L.0207271302550.3086-100000@imladris.surriel.com> <20020727092223.B26813@work.bitmover.com> <3D44EC66.5020104@namesys.com> <20020801162716.B27939@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd just like to add that I respect Larry's problems regarding:
+> - The change to MAX_ORDER is unneeded
 
-* small number of seats means large number of dollars per seat is 
-necessary to justify the business investment
+It's not only unneeded, it's detrimental. Not only will we spend more
+time merging stuff up and down to no effect, it also makes the 
+config_nonlinear stuff harder (or we have to #ifdef it, which just causes
+more unnecessary differentiation). Please don't do that little bit ....
 
-* people modifying the source to turn off open logging and thus 
-defeating his original business model  (this would really piss me off also)
-
-He is also an all around nice guy who has given us some nice tools, and 
-tries hard to be generous while keeping his business alive.
-
-I would like to see him try making his license such that if open logging 
-is not used, and he is not paid a license fee, then the user has agreed 
-that the software is GPL'd and any potential user may sue to claim that 
-software.  I think this would scare managers into paying their fees, and 
-I think it would work, but I also understand and respect that it is not 
-my business that would go under if I was wrong, and it is not I who 
-would have to explain to his workers why payroll couldn't be met.
-
--- 
-Hans
-
+M.
 
 

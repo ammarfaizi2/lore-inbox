@@ -1,74 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271801AbUKAR34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262037AbUKARbS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271801AbUKAR34 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 12:29:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272241AbUKAR34
+	id S262037AbUKARbS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 12:31:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S280980AbUKARbR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 12:29:56 -0500
-Received: from mail3.utc.com ([192.249.46.192]:7313 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S266857AbUKARYu (ORCPT
+	Mon, 1 Nov 2004 12:31:17 -0500
+Received: from gprs214-124.eurotel.cz ([160.218.214.124]:52609 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S271911AbUKAR2X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 12:24:50 -0500
-Message-ID: <41867143.4020709@cybsft.com>
-Date: Mon, 01 Nov 2004 11:24:19 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Florian Schmidt <mista.tapas@gmx.net>, Lee Revell <rlrevell@joe-job.com>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-References: <20041031120721.GA19450@elte.hu> <20041031124828.GA22008@elte.hu> <1099227269.1459.45.camel@krustophenia.net> <20041031131318.GA23437@elte.hu> <20041031134016.GA24645@elte.hu> <20041031162059.1a3dd9eb@mango.fruits.de> <20041031165913.2d0ad21e@mango.fruits.de> <20041031200621.212ee044@mango.fruits.de> <20041101134235.GA18009@elte.hu> <20041101135358.GA19718@elte.hu> <20041101140630.GA20448@elte.hu>
-In-Reply-To: <20041101140630.GA20448@elte.hu>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 1 Nov 2004 12:28:23 -0500
+Date: Mon, 1 Nov 2004 18:28:09 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: Re: Map extra keys on compaq evo
+Message-ID: <20041101172809.GB23341@elf.ucw.cz>
+References: <20041031213859.GA6742@elf.ucw.cz> <200410312016.08468.dtor_core@ameritech.net> <20041101080306.GA1002@elf.ucw.cz> <20041101093830.GA1145@ucw.cz> <20041101133214.GE32347@atrey.karlin.mff.cuni.cz> <20041101140717.GA1180@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041101140717.GA1180@ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> 
->>>removing the poll() lines doesnt seem to impact the quality of the
->>>data, but i still see roughly 50 usecs added to the 'real' latency
->>>that i see in traces.
->>
->>this i think is related to what Thomas observed, that there's a new
->>irqs-off critical section somewhere. (it's in the new priority
->>handling code i think.)
-> 
-> 
-> ah, found it. Only RT tasks were supposed to get special priority
-> handling, while in fact all tasks got it - so when Thomas ran hackbench
-> (Thomas, you did, right?) it created an O(nr_hackbench) overhead within
-> the mutex code ... I've uploaded -V0.6.5 to the usual place:
-> 
->   http://redhat.com/~mingo/realtime-preempt/
-> 
+Hi!
 
-V0.6.5 built and booted fine on my SMP workstation. However, just a few 
-minutes after booting it exhibited behavior like a system does when you 
-can't fork any new processses.
-The system was responsive.
-I could switch between windows.
-I could switch from X to a virtual terminal.
-I could type in commands but they never return.
-At the virtual terminal login I could type the login but never get a 
-passwd prompt.
-Nothing in the logs during this timeframe.
-Reset button was the only way to recover.
+> > With accurate list "hotkeys" could run with no configuration, but I am
+> > afraid maintaining accurate list of keys for each keyboard is way too
+> > much work.
+> 
+> The lists need to be kept _somewhere_, so why not have a userspace
+> database with a program that loads the description into the kernel at
+> boot, possibly using DMI as a hint to what keyboard is connected?
 
-kr
+Doing dmi blacklist from userspace is going to be pretty
+painfull... Kernel already has all the infrastructure.
 
+My preference is forget about providing list of keys (it never worked
+anyway), and just fixup few notebooks we know...
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,79 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263161AbTCLMSI>; Wed, 12 Mar 2003 07:18:08 -0500
+	id <S263160AbTCLMPl>; Wed, 12 Mar 2003 07:15:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263162AbTCLMSI>; Wed, 12 Mar 2003 07:18:08 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:23818 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S263161AbTCLMSH>; Wed, 12 Mar 2003 07:18:07 -0500
-Message-Id: <200303121207.h2CC7Ku29506@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Runaway cron task on 2.5.63/4 bk?
-Date: Wed, 12 Mar 2003 14:04:24 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: george@mvista.com, felipe_alfaro@linuxmail.org, cobra@compuserve.com,
-       linux-kernel@vger.kernel.org
-References: <20030311144448.4d9ee416.akpm@digeo.com> <Pine.LNX.4.44.0303111458390.1709-100000@home.transmeta.com> <20030311150913.20ddb760.akpm@digeo.com>
-In-Reply-To: <20030311150913.20ddb760.akpm@digeo.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S263161AbTCLMPl>; Wed, 12 Mar 2003 07:15:41 -0500
+Received: from mail.gmx.net ([213.165.64.20]:1393 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S263160AbTCLMPk>;
+	Wed, 12 Mar 2003 07:15:40 -0500
+Message-Id: <5.2.0.9.2.20030312132025.00c97520@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Wed, 12 Mar 2003 13:30:56 +0100
+To: Con Kolivas <kernel@kolivas.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: 2.5.64-mm2->4 hangs on contest
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+In-Reply-To: <200303122219.49195.kernel@kolivas.org>
+References: <5.2.0.9.2.20030312113354.00c8dcc0@pop.gmx.net>
+ <5.2.0.9.2.20030312101646.00c8e238@pop.gmx.net>
+ <5.2.0.9.2.20030312113354.00c8dcc0@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 March 2003 01:09, Andrew Morton wrote:
-> > However, gcc is unable to do-the-right-thing and generate 32x32->64
-> > multiplies, or 32x64->64 multiplies, even though those are both a
-> > _lot_ faster than the full 64x64->64 case.
+At 10:19 PM 3/12/2003 +1100, Con Kolivas wrote:
+>On Wed, 12 Mar 2003 21:37, Mike Galbraith wrote:
+> > >Is this in addition to your previous errr hack or instead of?
+> >
+> > Instead of.  The buttugly patch destroyed interactivity.  This one cures
+> > starvation, and interactivity is really nice.
 >
-> 2.95.3 and 3.2.1 seem to do it right?
->
->
->
-> long a;
-> long b;
-> long long c;
->
-> void foo(void)
-> {
-> 	c = a * b;
+>Ok that fixes the "getting stuck in process load" but it still hangs on
+>contest. I'll just have to give mm5 a go and see if whatever problem that was
+>went away in the mean time.
 
-(long * long) is a long
-(long long = long) has to sign extend right side and do assignment
+(%$&#!!)
 
-> }
->
->
->
-> 	.file	"t.c"
-> 	.version	"01.01"
-> gcc2_compiled.:
-> .text
-> 	.align 4
-> .globl foo
-> 	.type	 foo,@function
-> foo:
-> 	pushl %ebp
-> 	movl %esp,%ebp
-> 	movl a,%eax
-> 	imull b,%eax
-> 	movl %eax,c
+Oh well, Ingo probably has it nailed already anyway.
 
-store low word...
+         -Mike
 
-> 	cltd
+(but meanwhile, where's your website again?) 
 
-sign extend eax into edx...
-
-> 	movl %edx,c+4
-
-store sign-extended high word
-
-In other words, you lost high 32 bits of 32x32 mul here
-due to error in C code.
-
-Proper example would be  c = ((long long)a) * b;
---
-vda

@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275482AbRJAUAr>; Mon, 1 Oct 2001 16:00:47 -0400
+	id <S275511AbRJAU2m>; Mon, 1 Oct 2001 16:28:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275485AbRJAUAh>; Mon, 1 Oct 2001 16:00:37 -0400
-Received: from embolism.psychosis.com ([216.242.103.100]:2058 "EHLO
-	embolism.psychosis.com") by vger.kernel.org with ESMTP
-	id <S275482AbRJAUAe>; Mon, 1 Oct 2001 16:00:34 -0400
+	id <S275506AbRJAU2c>; Mon, 1 Oct 2001 16:28:32 -0400
+Received: from net2.ameuro.de ([62.208.90.8]:56288 "EHLO mail2.ameuro.de")
+	by vger.kernel.org with ESMTP id <S275504AbRJAU2T>;
+	Mon, 1 Oct 2001 16:28:19 -0400
+Date: Mon, 1 Oct 2001 22:28:24 +0200
+From: Anders Larsen <anders@alarsen.net>
+To: Dan Mann <daniel_b_mann@hotmail.com>
+Cc: Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: QNX Scheduler patch
+Message-ID: <20011001222824.M1948@errol.alarsen.net>
+In-Reply-To: <OE309IcVux1Zcn8TtEv00006b70@hotmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Dave Cinege <dcinege@psychosis.com>
-Reply-To: dcinege@psychosis.com
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH] invalidate buffers on blkdev_put
-Date: Mon, 1 Oct 2001 16:02:51 -0400
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <Pine.GSO.4.21.0109242333240.21827-100000@weyl.math.psu.edu> <Pine.LNX.4.33.0109242118540.29038-100000@penguin.transmeta.com> <20010927140312.A35@toy.ucw.cz>
-In-Reply-To: <20010927140312.A35@toy.ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E15o9FF-0005Ve-00@schizo.psychosis.com>
+In-Reply-To: <OE309IcVux1Zcn8TtEv00006b70@hotmail.com>; from daniel_b_mann@hotmail.com on Mon, Oct 01, 2001 at 18:19:28 +0200
+X-Mailer: Balsa 1.2.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 September 2001 10:03, Pavel Machek wrote:
-> Hi!
->
-> > > It's solvable, but not obvious.  It _does_ solve coherency problems
-> > > between device page cache and buffer cache (thus killing
-> > > update_buffers() and its ilk), but the last issue (new access path to
-> > > page-private buffer_heads) may be rather nasty.
-> >
-> > It's certainly solvable, but it is also certainly very fraught with tons
-> > of small details. I'll be very happy if people end up looking through the
-> > patches _very_ critically (and don't even bother testing them if you
-> > don't have a machine where you can lose a filesystem or two).
->
-> Time to rename 2.4.10 to 2.5.0? ;-)
+On 2001-10-01 18:19:28 +0200 Dan Mann wrote:
+> Can anyone tell me about experience with the QNX scheduler patch done way
+> back for kernel 2.0.31?  I've been wanting to try it on a 2.4 series kernel
+> (I'm looking for best possible interactive performance under X), and I want
+> to know if it is worth porting to the 2.4 line.
 
-<Waving hand> It broke my feature patch. Good enough for me.  ; >
+You may wish to take a look at the Linux kernel preemption project at
+  http://kpreempt.sourceforge.net/  (official site, patch for 2.4.6)
+  http://tech9.net/rml/linux/       (bleeding edge, patch for 2.4.10+)
 
--- 
-The time is now 22:19 (Totalitarian)  -  http://www.ccops.org/clock.html
+cheers
+  Anders

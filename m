@@ -1,72 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263267AbTCYSoP>; Tue, 25 Mar 2003 13:44:15 -0500
+	id <S263266AbTCYSkv>; Tue, 25 Mar 2003 13:40:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263270AbTCYSoP>; Tue, 25 Mar 2003 13:44:15 -0500
-Received: from main.gmane.org ([80.91.224.249]:19371 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S263267AbTCYSoO>;
-	Tue, 25 Mar 2003 13:44:14 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	id <S263268AbTCYSkv>; Tue, 25 Mar 2003 13:40:51 -0500
+Received: from customer-148-223-196-18.uninet.net.mx ([148.223.196.18]:54923
+	"EHLO soltisns.soltis.cc") by vger.kernel.org with ESMTP
+	id <S263266AbTCYSku>; Tue, 25 Mar 2003 13:40:50 -0500
+From: "jds" <jds@soltis.cc>
 To: linux-kernel@vger.kernel.org
-From: Raja R Harinath <harinath@cs.umn.edu>
-Subject: Re: [CHECKER] potential dereference of user pointer errors
-Date: Tue, 25 Mar 2003 12:52:14 -0600
-Organization: Dept. of Computer Science, Univ. of Minnesota
-Message-ID: <d9u1drqnxd.fsf@bose.cs.umn.edu>
-References: <200303041112.h24BCRW22235@csl.stanford.edu> <Pine.GSO.4.44.0303202226230.24869-100000@elaine24.Stanford.EDU>
- <d9llz4v1qh.fsf@bose.cs.umn.edu> <1048553088.7097.2.camel@rth.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Gnus/5.090017 (Oort Gnus v0.17) Emacs/21.3.50 (gnu/linux)
-Cancel-Lock: sha1:hvE4/ugb5SUBGwwmkb+Z1KQANRo=
+Subject: Problems when boot new kernel 2.5.66 kernel panic
+Date: Tue, 25 Mar 2003 13:13:07 -0600
+Message-Id: <20030325190214.M66226@soltis.cc>
+X-Mailer: Open WebMail 1.90 20030212
+X-OriginatingIP: 170.169.46.200 (jds)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi my name is Jesus Delgado from Mexico City:
 
-"David S. Miller" <davem@redhat.com> writes:
+  I need help for resolve this problems, compile kernel 2.5.66 in rh 8, update
+my lvm to lvm2 utils, devmapper, modutil 2.4.24, when try to boot with new
+kernel recive this messages:
 
-> On Mon, 2003-03-24 at 14:28, Raja R Harinath wrote:
->> Something like
->> 
->>   /* struct user_space should never be defined.  */
->>   typedef struct user_space user_space;
->> 
->>   int copy_to_user (user_space *to, char *from, size_t len);
->>   int copy_from_user (char *to, user_space *from, size_t len);
->>   /* ... */
->> 
->>   #define TREAT_AS_USER_SPACE_POINTER(p) \
->>             ({                                  \
->>               BUG_ON(get_fs() != get_gs());     \
->>               (user_space *)p;                  \
->>             })
->
-> A great idea, we'd need to use this struct user_space at every
-> system call, 
+   VFS: Cannot open root device "rootvg/lvol1" or unknown-block(0,0)
+   Please append a coorect "root=" boot option
+   kernel panic
+   VFS= Unable to mount fs on unknown-block(0,0).
 
-Which is good, I think.  It annotates the source.
+   In my new kernel the modules this into kernel not how modules.
 
-> and it doesn't work to well when pointers are embedded inside of a
-> structure.
 
-I don't understand this point.  'struct user_space' will never be
-defined.  The C compiler ensure that 'struct user_space *p' cannot be
-dereferenced then, since it will be a pointer to an incomplete type.
+   In kernel 2.4.20 the boot OK with LVM
 
-I don't see any difference between
+   Help please.
 
-  struct foo { char *p; };
 
-and 
+   Regards
 
-  struct foo { user_space *p; };
 
-in terms of the code generated.  (On second reading, I don't think
-this was your point though).
 
-- Hari
--- 
-Raja R Harinath ------------------------------ harinath@cs.umn.edu
 

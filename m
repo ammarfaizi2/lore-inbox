@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281241AbRKTTgh>; Tue, 20 Nov 2001 14:36:37 -0500
+	id <S281233AbRKTTj4>; Tue, 20 Nov 2001 14:39:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281284AbRKTTg0>; Tue, 20 Nov 2001 14:36:26 -0500
-Received: from erasmus.jurri.net ([62.236.96.196]:9088 "EHLO
-	oberon.erasmus.jurri.net") by vger.kernel.org with ESMTP
-	id <S281274AbRKTTgQ>; Tue, 20 Nov 2001 14:36:16 -0500
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.15pre7: kernel: invalidate: busy buffer
-From: Samuli Suonpaa <suonpaa@iki.fi>
-Date: 20 Nov 2001 21:31:46 +0200
-Message-ID: <87itc5dysd.fsf@puck.erasmus.jurri.net>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
+	id <S281244AbRKTTjh>; Tue, 20 Nov 2001 14:39:37 -0500
+Received: from pat.uio.no ([129.240.130.16]:3470 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S281233AbRKTTjc>;
+	Tue, 20 Nov 2001 14:39:32 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15354.45419.978323.438540@charged.uio.no>
+Date: Tue, 20 Nov 2001 20:39:23 +0100
+To: kuznet@ms2.inr.ac.ru
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: more tcpdumpinfo for nfs3 problem: aix-server --- linux 2.4.15pre5 client
+In-Reply-To: <200111201742.UAA03009@ms2.inr.ac.ru>
+In-Reply-To: <shsn11i31g2.fsf@charged.uio.no>
+	<200111201742.UAA03009@ms2.inr.ac.ru>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After booting with 2.4.15pre7 for the first time, I got a screeful of
-messages saying: "invalidate: busy buffer".
+>>>>> " " == kuznet  <kuznet@ms2.inr.ac.ru> writes:
 
->From my syslog:
+     > Hello!
+    >> I forgot to add: The socket fasync lists use spinlocking in the
+    >> same was as RPC does, with sock_fasync() setting
+    >> write_lock_bh(&sk->callback_lock), and sock_def_write_space()
+    >> doing read_lock(&sk->callback_lock).
+    >>
+    >> So that would deadlock with the QDIO driver in the exact same
+    >> manner as the RPC stuff (albeit probably a lot less
+    >> frequently).
 
-Nov 20 21:20:27 oberon kernel: invalidate: busy buffer
-Nov 20 21:20:27 oberon last message repeated 55 times
-Nov 20 21:20:27 oberon kernel: invalidate: dirty buffer
-Nov 20 21:20:27 oberon kernel: invalidate: busy buffer
-Nov 20 21:20:27 oberon kernel: invalidate: dirty buffer
-Nov 20 21:20:27 oberon kernel: invalidate: busy buffer
-Nov 20 21:20:27 oberon kernel: invalidate: dirty buffer
-Nov 20 21:20:27 oberon kernel: invalidate: busy buffer
+     > Please, elaborate. I do not see any way.
 
-Since I do not know what this should tell me, I'd appreciate if
-somebody told me what this is all about. I can, of course, provide
-more information if necessary. But since I don't have a clue on what
-this would be related to (other that the printk seems to be in
-buffer.c) I have no idea of what information might be useful.
 
-Suonpää...
+Processor 1                                       Processor 2
+
+
+(Call QDIO bottom half code)
+spin_lock(&QDIO_lock);
+                                                write_lock_bh(&sk->callback_lock)
+dev_kfree_skb_any()
+   -> kfree_skb()
+                                                 <QDIO hard interrupt>
+     -> write_space()
+                                                       ->spin_lock(&QDIO_lock)
+                                                              (spins...)
+        ->read_lock(&sk->callback_lock);
+               (spins)
+
+
+Deadlock - in exactly the same way as with the xprt code...
+
+Cheers,
+   Trond

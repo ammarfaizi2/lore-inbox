@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131415AbRANBjN>; Sat, 13 Jan 2001 20:39:13 -0500
+	id <S131484AbRANCO2>; Sat, 13 Jan 2001 21:14:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131578AbRANBjD>; Sat, 13 Jan 2001 20:39:03 -0500
-Received: from d136.as5200.mesatop.com ([208.164.122.136]:58252 "HELO
-	localhost.localdomain") by vger.kernel.org with SMTP
-	id <S131415AbRANBi4>; Sat, 13 Jan 2001 20:38:56 -0500
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-Date: Sat, 13 Jan 2001 18:40:40 -0700
-X-Mailer: KMail [version 1.1.99]
+	id <S131517AbRANCOS>; Sat, 13 Jan 2001 21:14:18 -0500
+Received: from jalon.able.es ([212.97.163.2]:719 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S131484AbRANCOO>;
+	Sat, 13 Jan 2001 21:14:14 -0500
+Date: Sun, 14 Jan 2001 03:14:06 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Call for testers: ne2k-pci and io apic
+Message-ID: <20010114031406.A879@werewolf.able.es>
+In-Reply-To: <200101131237.f0DCb8g15518@flint.arm.linux.org.uk> <3A6071C2.47E8418A@colorfullife.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk
-Subject: Re: Linux 2.4.0-ac9
-MIME-Version: 1.0
-Message-Id: <01011318404000.18233@localhost.localdomain>
 Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3A6071C2.47E8418A@colorfullife.com>; from manfred@colorfullife.com on Sat, Jan 13, 2001 at 16:18:26 +0100
+X-Mailer: Balsa 1.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the following error while building 2.4.0-ac9:
 
-shmem.c:971: `shmem_readlink' undeclared here (not in a function)
-shmem.c:971: initializer element is not constant
-shmem.c:971: (near initialization for 
-`shmem_symlink_inode_operations.readlink')
-shmem.c:972: `shmem_follow_link' undeclared here (not in a function)
-shmem.c:972: initializer element is not constant
-shmem.c:972: (near initialization for 
-`shmem_symlink_inode_operations.follow_link')
-shmem.c:973: initializer element is not constant
-shmem.c:973: (near initialization for `shmem_symlink_inode_operations')
-shmem.c:973: initializer element is not constant
-shmem.c:973: (near initialization for `shmem_symlink_inode_operations')
-make[2]: *** [shmem.o] Error 1
+On 2001.01.13 Manfred Spraul wrote:
+> 
+> Any volunteers with ne2k-pci cards and other motherboards that include
+> an io apic (e.g. all Intel motherboards that use an IO Controller Hub,
+> Via Apollo Pro133, Pro133A, KX133)?
+> 
 
-It looks like changes were recently made to linux/mm/shmem.c.
+In my case, (440GX/BX, PIIX4), network goes off (both with a ping-flood
+or some web browsing) with a message:
 
-Steven
+Jan 14 03:01:25 werewolf kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Jan 14 03:01:57 werewolf last message repeated 19 times
+
+
+-- 
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
+
+Linux werewolf 2.4.0-ac9 #2 SMP Sun Jan 14 01:46:07 CET 2001 i686
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,62 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289952AbSAKNcB>; Fri, 11 Jan 2002 08:32:01 -0500
+	id <S289954AbSAKNqX>; Fri, 11 Jan 2002 08:46:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289951AbSAKNbv>; Fri, 11 Jan 2002 08:31:51 -0500
-Received: from codeblau.walledcity.de ([212.84.209.34]:32518 "EHLO codeblau.de")
-	by vger.kernel.org with ESMTP id <S289952AbSAKNbg>;
-	Fri, 11 Jan 2002 08:31:36 -0500
-Date: Fri, 11 Jan 2002 14:31:50 +0100
-From: Felix von Leitner <felix-dietlibc@fefe.de>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, felix-dietlibc@fefe.de,
-        andersen@codepoet.org
-Subject: Re: [RFC] klibc requirements, round 2
-Message-ID: <20020111133150.GI21447@codeblau.de>
-In-Reply-To: <20020110231849.GA28945@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020110231849.GA28945@kroah.com>
-User-Agent: Mutt/1.3.24i
+	id <S289953AbSAKNqN>; Fri, 11 Jan 2002 08:46:13 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:6661 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S289951AbSAKNqB>;
+	Fri, 11 Jan 2002 08:46:01 -0500
+Message-ID: <3C3EEC94.7020001@evision-ventures.com>
+Date: Fri, 11 Jan 2002 14:45:56 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
+Subject: Re: Big patch: linux-2.5.2-pre11/drivers/scsi compilation fixes
+In-Reply-To: <20020111051456.A12788@baldur.yggdrasil.com> <20020111141850.B19814@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus spake Greg KH (greg@kroah.com):
->   - klibc
->     Portability can be achieved through using the kernel unistd.h file
->     for the syscall logic, and having a very small _start function
->     written.  For an example of this kind of code, see the initramfs
->     patches from Al Viro on his ftp site:
-> 	    ftp://ftp.math.psu.edu/pub/viro/
->     This would involve writing/porting a lot of the basic library
->     functions.  They could be copied from the existing libc
->     implementations, but this would be a separate project, requiring
->     maintenance over time, and people willing to do the work.
+Jens Axboe wrote:
 
-Portability should be achieved by using unified syscalls, which both the
-diet libc and uClibc now use.  That saves space over the unistd.h
-approach.
+>On Fri, Jan 11 2002, Adam J. Richter wrote:
+>
+>>	Today I plan to post patches to make everything in
+>>linux-2.5.2-pre11/drivers/scsi compile, at least everything under
+>>x86, compiled as modules.  They compile, and, the only undefined
+>>symbol in when I boot is scsi_mark_host_reset in BusLogic.c.
+>>However, the 2.5.2-pre11 patches are completely untested.
+>>
+>
+>Please hang on with this for a week or so, there will be other changes
+>to SCSI drivers required. You'll just end up doing the work twice.
+>
 
-> How about responses from the dietlibc and uClibc people on the odds of
-> them being able to port to the remaining platforms?
+For the record. We have a file called: sun3_NCR5380.c inside dirvers/scis.
 
-I think I can speak for both Erik and myself when I say that we don't
-hate architectures and because of that don't support them.  If we get a
-chance (and maybe a little help from someone who knows those platform),
-we will port our libc to that platform.
+There appers to be code there, which is using some of the oboslted error 
+handling facilities.
+But under a compilation switch, there is code for the new error 
+management as well
+already there, with some notes about the midlayer having problems.
 
-Sadly, I don't have the deep pockets to buy myself a hardware lab with a
-VAX to port my libc to it.  So I (and Erik, too, obviously) would need
-at least an account on one of those boxes, with gcc, binutils, strace
-and gdb installed.
+If there is nobody supporting this driver, pleas consider switching 
+those macros... the
+oboslete stuff,won't compile anyway.
 
-> In the meantime, I'll go off and play with klibc, and see if I can get
-> some portability based off of Al's example code.  If anyone is
-> interested, the code can be found at:
-> 	http://linuxusb.bkbits.net:8088/klibc
+However I doubt, that sun3 is supported anyway at all... so if not, then 
+please
+consider this driver seriously  for total removal ftom the kernel soruce 
+tree.
 
-In my eyes that is a waste of time, really.
-But it's your time, so don't let that stand in your way ;)
+Here is the  actual cided code:
 
-Felix
+#if 1 /* XXX Should now be done by midlevel code, but it's broken XXX */
+      /* XXX see below                                            XXX */
+
+    /* MSch: old-style reset: actually abort all command processing here */
+
+    /* After the reset, there are no more connected or disconnected commands
+     * and no busy units; to avoid problems with re-inserting the commands
+     * into the issue_queue (via scsi_done())
+
+And later down:
+#else /* 1 */
+
+    /* MSch: new-style reset handling: let the mid-level do what it can */
+
+    /* ++guenther: MID-LEVEL IS STILL BROKEN.
+     * Mid-level is supposed to requeue all commands that were active on the
+     * various low-l
+
+
+Both are quite at the end of the file...
+
+

@@ -1,93 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267535AbUIGFsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267583AbUIGFu5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267535AbUIGFsa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 01:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267565AbUIGFsa
+	id S267583AbUIGFu5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 01:50:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267594AbUIGFux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 01:48:30 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:14757 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S267535AbUIGFs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 01:48:27 -0400
-Subject: Re: sleep and wakeup at microsecond boundary
-From: "NucleoDyne Systems, " "Inc." <nucleon@nucleodyne.com>
-Reply-To: nucleon@nucleodyne.com
-To: Mike Galbraith <efault@gmx.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <5.2.1.1.2.20040905085650.00b1e640@pop.gmx.net>
-References: <5.2.1.1.2.20040905085650.00b1e640@pop.gmx.net>
-Content-Type: text/plain
-Organization: NucleoDyne Corporation
-Message-Id: <1094536010.3436.34.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 06 Sep 2004 22:46:50 -0700
+	Tue, 7 Sep 2004 01:50:53 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:61879 "EHLO slaphack.com")
+	by vger.kernel.org with ESMTP id S267565AbUIGFuX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 01:50:23 -0400
+Message-ID: <413D4C18.6090501@slaphack.com>
+Date: Tue, 07 Sep 2004 00:50:16 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040813)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: Spam <spam@tnonline.net>, Tonnerre <tonnerre@thundrix.ch>,
+       Christer Weinigel <christer@weinigel.se>,
+       Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+References: <200409070206.i8726vrG006493@localhost.localdomain>
+In-Reply-To: <200409070206.i8726vrG006493@localhost.localdomain>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-      Let me explain the requirement a little more in detail.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Consider the routine sleep_on_timeout(, timeout) in sched.c:
+Horst von Brand wrote:
+[...]
+|>Second, there are quite a few things which I might want to do, which can
+|>be done with this interface and without patching programs,
+|
+|
+| Such as?
 
-A timer is started and then schedule() is called. The timer expires
-after present jiffies + timeout (in jiffies) period.
+They've been mentioned.
+|
+|
+|>                                                           but would
+|>require massive patches to userspace.  There have been numerous examples.
+|
+|
+| Haven't seen any that made sense to me, sorry.
 
-On  x86 the jiffies is updated every time PIT raises interrupt and
-do_timer() is called, i.e. once in every 10ms.
+Sorry if they don't make sense to you, but I don't feel like discussing
+them now.  Either you get it or you don't, either you agree or you
+don't.  Read the archives.
+|
+|
+|>There are some things which can't be solved without patching.
+|
+|
+| Maybe. Question is, is it worth it (kernel modifications + userland
+| support, or just userland support, or leave it alone). Sure, it might make
+| your particular application easier to write (at a cost for _all_
+filesystem
+| hackers!), perhaps even a bit faster; but is _your_ particular convenience
+| worth the cost for _everybody_?
 
-So we can set timeout in multiples of 10ms. 
+There are far more userland developers than filesystem hackers.  If
+you're a filesystem hacker, it's easier to understand how much work it
+is to do something in the filesystem/kernel, and harder to understand
+how it works in userland, or for the actual user.
+|
+|
+|>                                                               Version
+|>control is one such thing.
+|
+|
+| bk, cvs, svn, rcs, ... are working just fine here, thank you so much. Used
+| to work on SunOS and Solaris, even SCO Unix (I used at least rcs and cvs
+| there). No Reiser4 in sight.
 
-We are developing a very powerful system (not x86 based) with multiple
-CPUs, one of them will be running linux and will act as a co-processor
-for the other CPUs running different OS.
+Transparently?
 
-On the CPU running linux we need to be able to call sleep_on_timeout()
-with more granular expiration time, may be in multiples of microseconds.
+It _works_ to do
+	zcat file.gz > /tmp/file
+	vim /tmp/file
+	gzip -c /tmp/file > file.gz
+	rm /tmp/file
+You can even do that as a script, call it zvim.  You could even do it as
+a generic script, where "vim" is replaced with "$1".  But is it as
+elegent as transparently compressed files?
 
-I already have done the investigation and looking for feedback from the
-developers on all possible issues.
+I'm not sure about the version control thing -- I don't think people
+have hit every conceptual issue about it yet.  But the point is:
 
-Hope this explains.
-
-
-Thanks,
-Kallol Biswas
-
-
-
-On Sun, 2004-09-05 at 00:09, Mike Galbraith wrote:
-> At 12:51 PM 9/4/2004 -0700, NucleoDyne Systems, " "Inc. wrote:
-> >Hello,
-> >       We have a requirement to implement the sleep and wakeup mechanism
-> >at microsecond boundary in 2.4 kernel.
-> 
-> I've re-visited this message about 10 times now, so I suppose I'm curious 
-> enough to ask:  why on God's green Earth would someone want to do 
-> that?  (to _any_ kernel, but I'm mostly wondering why [TILT] anyone would 
-> do such a thing to a GP kernel)
-> 
->          -Mike
-
-On Sat, 2004-09-04 at 12:51, NucleoDyne Systems, Inc. wrote: \
-
-> Hello,
->       We have a requirement to implement the sleep and wakeup mechanism
-> at microsecond boundary in 2.4 kernel. The intent of this mail is to
-> start a discussion on this topic and collect inputs from the kernel
-> developers. Any reply on the issues of implementing such a feature will
-> be greatly appreciated.
-> 
-> Thanks,
-> Kallol Biswas
-
-
--- 
---
-NucleoDyne Corporation
-nucleon@nucleodyne.com
-www.nucleodyne.com
--- 
+Moving complexity from kernel space to user space (or the other way)
+doesn't make it any less complex.
 
 
+|>                            But then there can be more generic patches
+|>- -- as soon as the transaction API is done, you only have to patch apps
+|>to use that, and have a version control reiser4 plugin.
+|
+|
+| Again, _what_ version control exactly? Will the above packages be able to
+| make use of it (remember they all are cross-platform (at least
+cross-Unix),
+| and so quite unlikely to make use of a Reiser4 on Linux whackiness...)?
+
+Probably.  It wasn't specified what version control would be used --
+that's currently just as abstract as what compression algorithm to use
+to transparently compress files.
+
+Maybe something new.  Version control just doesn't look that complex
+once you've got the interface and the data storage done.  I do
+incremental backups using rsync and hardlinks -- why would version
+control be so much more complex than that?
+
+Said backup system uses hardlinks, btw, which not all systems support.
+And rsync is fairly broken on some platforms.
+
+|>| I'd go the other way around: Get userspace to agree on a common
+framework,
+|>| make it work in userspace; if (extensive, hopefully) experience
+shows that
+|>| a pure userspace solution has issues that can't be solved except by
+kernel
+|>| assistance, so be it.
+|
+|
+|>We already have such a framework -- it's called "VFS".
+|
+|
+| Right. It offers what applications need to build their own stuff. It is
+| minimalistic (well, sort of) and  time-proven.
+
+x86 assemby is minimalistic and time-proven.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iQIVAwUBQT1MGHgHNmZLgCUhAQLxoQ/+Mglz6tr0A4wQmAnP1y9q7WVqQQ8s3Cwg
+b3VyOHaIIZSw3lod+bWDgE9LJJsQOxO4SThlWLyMEHipFJT0iHVIYjLSrC5e4DOb
+Wl5E51yz3ZVx11mRTM7uEw+Ez6wOcaWIFLTvarDxzmDaxS6oh2ZpN2Ibnf8h/1lT
+0YJnz6C964TkaA8jYIsQljIWkMMk7EGzP6UlrQOBbo4xMJNT+wIZMJWX5JAsULc2
+EGzTO8dgZB0MbJ5STufS4h5tudny/lz4TO9iTv9CRGhusf2am7k7PVFPG4RcjXKU
+iMgLTHKsXbDjncj39JZqwQtBZP8nuf72pMzbEe5iiYYIHGWu4Mm/JSxUmuJZ/YXX
+yZIS6DKwSrKzDf/p1chvLVCaScxsaIWuetoe4ODFUoWMRUfCdxK+r7+6j9tKn+hn
+LK5iYVAs3/xpU64jpBKvrKlRlISm8++GvGD+tdnZKAnetmaS0QHb2DrbwSbONvC1
+4RvABUYC2IoVoDuAsueRDQxqTJjGPWn7DBvVUI5SCQZVlJPMavHmrv9qRVtNA4Y4
+LBzfYK6aCprbmmX2Axs8FS4ptNGdwGpUhwuVKfSzlOgUS5gIaWlMKOGxWOTgDx7U
+Q53mVhdZIinHH+/h4xBpcP3Q1fk8nTQ1gqfYVTseNlrMZvgFAax7E2VINiJWohis
+KH6z9bFgkZA=
+=aNM7
+-----END PGP SIGNATURE-----

@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135985AbREGDnU>; Sun, 6 May 2001 23:43:20 -0400
+	id <S135991AbREGEPI>; Mon, 7 May 2001 00:15:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135981AbREGDnA>; Sun, 6 May 2001 23:43:00 -0400
-Received: from femail19.sdc1.sfba.home.com ([24.0.95.128]:11198 "EHLO
-	femail19.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S135980AbREGDmx>; Sun, 6 May 2001 23:42:53 -0400
-Message-ID: <3AF61C68.3FC7F66B@didntduck.org>
-Date: Sun, 06 May 2001 23:54:16 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i586)
-X-Accept-Language: en
+	id <S135992AbREGEO6>; Mon, 7 May 2001 00:14:58 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:37360 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S135991AbREGEOw>; Mon, 7 May 2001 00:14:52 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200105070408.f4748seA026331@webber.adilger.int>
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+In-Reply-To: <E14wVc1-0002aj-00@the-village.bc.nu> "from Alan Cox at May 6, 2001
+ 09:58:38 pm"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Sun, 6 May 2001 22:08:54 -0600 (MDT)
+CC: Andreas Dilger <adilger@turbolinux.com>,
+        Alexander Viro <viro@math.psu.edu>, Chris Wedgwood <cw@f00f.org>,
+        Andrea Arcangeli <andrea@suse.de>, Jens Axboe <axboe@suse.de>,
+        Rogier Wolff <R.E.Wolff@bitwizard.nl>,
+        Linus Torvalds <torvalds@transmeta.com>, volodya@mindspring.com,
+        linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 page fault handler not interrupt safe
-In-Reply-To: <Pine.LNX.4.21.0105061750010.11175-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Alan writes:
+> > Actually, the EVMS project does exactly this.  All I/O is done on a full
+> > disk basis, and essentially does block remapping for each partition.  This
+> > also solves the problem of cache inconsistency if accessing the parent
+> > device vs. accessing the partition.
 > 
-> On Sat, 5 May 2001, Brian Gerst wrote:
-> >
-> > Currently the page fault handler on the x86 can get a clobbered value
-> > for %cr2 if an interrupt occurs and causes another page fault (interrupt
-> > handler touches a vmalloced area for example) before %cr2 is read.
-> 
-> That should be ok.
-> 
-> Yes, we'll get a clobbered value, but we'll get a _valid_ clobbered value,
-> and we'll just end up doing the fixups twice (and returning to the user
-> process that didn't get the page it wanted, which will end up re-doing the
-> page fault).
-> 
-> [ Looks closer.. ]
-> 
-> Actually, the second time we'd do the fixup we'd be unhappy, because it
-> has already been done. That test should probably be removed. Hmm.
-> 
-> Hmm.. The threading people wanted this same thing. Maybe we should just
-> make it so.
-> 
->                 Linus
+> Interesting. Can EVMS handle the partition labels used by the LVM layer - ie
+> could it replace it as well ?
 
-I think it's better to be on the side of correctness.  I designed the
-patch to have interrupts disabled for the minimum time possible, so
-there should be nearly no impact.
+Yes, they already support all current LVM volumes (including snapshots).
+However, the user-space tools to set up new LVM volumes and manage existing
+ones is not ready yet.  The last I talked with the IBM folks (a week ago),
+they said they were starting to work on the user-space tools.
 
---
-					Brian Gerst
+Because the whole partition/volume code is modular in EVMS, they will be able
+to handle AIX LVM, HP/UX LVM, etc. volumes in addition to the normal DOS or
+other partitions.
+
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316601AbSGVJXr>; Mon, 22 Jul 2002 05:23:47 -0400
+	id <S317253AbSGVNqV>; Mon, 22 Jul 2002 09:46:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316604AbSGVJXr>; Mon, 22 Jul 2002 05:23:47 -0400
-Received: from i01.ip.uk.com ([62.6.163.226]:13073 "EHLO d21.datatone.co.uk")
-	by vger.kernel.org with ESMTP id <S316601AbSGVJXq>;
-	Mon, 22 Jul 2002 05:23:46 -0400
-Message-ID: <96AD56B9964DC448990E3DE3FD19A65605039C@d21.datatone.co.uk>
-From: Dave Humphreys <dave@datatone.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: ECS DeskNote A929 (i-Buddie XP)  (Kernel 2.4.18 & 2.4.19rc3)
-Date: Mon, 22 Jul 2002 10:29:36 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S317309AbSGVNpy>; Mon, 22 Jul 2002 09:45:54 -0400
+Received: from verein.lst.de ([212.34.181.86]:14604 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S317253AbSGVNn5>;
+	Mon, 22 Jul 2002 09:43:57 -0400
+Date: Mon, 22 Jul 2002 15:46:56 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Russell King <rmk@arm.linux.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>, Robert Love <rml@tech9.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] cli()/sti() cleanup, 2.5.27-A2
+Message-ID: <20020722154656.A19039@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Ingo Molnar <mingo@elte.hu>, Russell King <rmk@arm.linux.org.uk>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
+References: <20020722152056.A18619@lst.de> <Pine.LNX.4.44.0207221538580.9004-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0207221538580.9004-100000@localhost.localdomain>; from mingo@elte.hu on Mon, Jul 22, 2002 at 03:43:50PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have just aquired an ECS DeskNote A929 (i-Buddie XP). This
-machine is supposed to be based on:
-SiS 740 North Bridge
-SiS 961 South Bridge
-with integrated network interface (and graphics and other features).
+On Mon, Jul 22, 2002 at 03:43:50PM +0200, Ingo Molnar wrote:
+> i'm not so sure about flags_t. 'unsigned long' worked pretty well so far,
+> and i do not see the need for a more complex (or more opaque) irqflags
+> type. It's not that we confuse flags with some other flag all that
+> frequently that would necessiate some structure-based more abstract
+> protection of these variables.
 
-I found that I could not make the kernel detect the network
-card, despite the fact that I had built support for 'SiS 900/7096'
-into the kernel.
+It's just that we don't really care what it is.  But the type change
+wasn't my main point, rather the returning of the flags value in
+irq_save to allow implementing it as non-macro.
 
-I found a patch which identified a need to add the SiS 740 and
-SiS 961 into pci.ids, and which suggested that this was all that was
-necessary to make the 740/961 work.
-
-I find that my kernel does not create /proc/pci which suggests
-to me something quite fundamental.
-
-I ran lspci -H2 and I get:
-
-00:04.0 Class 000e: 00c1:0000
-00:08.0 Class 000e: 00c1:0000
-00:0c.0 Class 0000: 0040:0000 
-
-The 0000 class code worries me, as do the vendor and device ID's.
-
-The machine came with a 'ThizLinux' CD which has 2.4.18 kernel,
-so someone has made it work, but I don't have the sources.
-
-Any pointers would be appreciated.
-
-Regards,
-Dave Humphreys

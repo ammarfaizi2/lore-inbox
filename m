@@ -1,68 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293503AbSCLLNU>; Tue, 12 Mar 2002 06:13:20 -0500
+	id <S292385AbSCLLTK>; Tue, 12 Mar 2002 06:19:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292385AbSCLLNL>; Tue, 12 Mar 2002 06:13:11 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:43783 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S293503AbSCLLNE>; Tue, 12 Mar 2002 06:13:04 -0500
-Message-ID: <3C8DE239.2070305@evision-ventures.com>
-Date: Tue, 12 Mar 2002 12:10:49 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: Linus Torvalds <torvalds@transmeta.com>, Bill Davidsen <davidsen@tmr.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] My AMD IDE driver, v2.7
-In-Reply-To: <Pine.LNX.4.33.0203111638290.26250-100000@home.transmeta.com> <3C8D5CCD.3050208@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S293531AbSCLLSw>; Tue, 12 Mar 2002 06:18:52 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:37577 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S292385AbSCLLSk>;
+	Tue, 12 Mar 2002 06:18:40 -0500
+Date: Tue, 12 Mar 2002 03:15:09 -0800 (PST)
+Message-Id: <20020312.031509.53067416.davem@redhat.com>
+To: michael@metaparadigm.com
+Cc: bcrl@redhat.com, whitney@math.berkeley.edu, rgooch@ras.ucalgary.ca,
+        linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: [patch] ns83820 0.17
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <51A3E836-35A8-11D6-A4A8-000393843900@metaparadigm.com>
+In-Reply-To: <20020312004036.A3441@redhat.com>
+	<51A3E836-35A8-11D6-A4A8-000393843900@metaparadigm.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Linus Torvalds wrote:
-> 
->> The only common factor here is the "synchronize with other requests" - I
->> feel strongly (much more strongly than any parsing notion) that the raw
->> requests have to be passed down the "struct request" and NOT be done the
->> way they are traditionally done (ie completely outside the request 
->> stream,
->> with no synchronization at all with any IO currently in progress).
->>
-> agreed
-> 
->>> I think "future new commands" is total FUD, the idea that some new 
->>> command
->>> would come along and be so instantly popular, useful and incompatible 
->>> that
->>> all Linux boxes would require it before the next kernel or driver update
->>> is silly at best, and I'm working hard to keep this on a civil plane.
->>>
->>
->> It has nothing to do with "new" commands, and everything to do with
->> "random vendor-specific commands and the vendor-specific tools". Commands
->> that simply should _never_ be parsed in the kernel, because we do not 
->> want
->> to care about 10 different vendors 10 different revisions of their
->> firmware having 10 different small random special commands for that
->> particular drive.
->>
->> In particular, a user that upgrades his hardware should never _ever_ have
->> to upgrade his kernel just because some random disk diagnostic tool needs
->> support for a disk that is new and has new diagnostics.
->>
-> Are such random vendor-specific commands really that common?
-> 
-> Linus, would it be acceptable to you to include an -optional- filter for 
-> ATA commands?  There is definitely a segment of users that would like to 
-> firewall their devices, and I think (as crazy as it may sound) that 
-> notion is a valid one.
+   From: Michael Clark <michael@metaparadigm.com>
+   Date: Tue, 12 Mar 2002 19:00:09 +0800
 
-If you are *trully paranoid* and want to *fire wall* your device then
-the proper way of doing this is to DISABLE those ioctl entierly.
-It simple like that. They are not required for regular operation by
-concept. Other then this I see no argument here.
+   Dave, what performance do you get with the sk98 using normal size
+   frames? (to compare apples with apples). BTW - i can't try jumbo
+   frames due to my crappy 3com gig switch.
 
+Use a cross-over cable to play with Jumbo frames, that is
+what I do :-)
+
+Later this week I'll rerun tests on all the cards I have
+(Acenic, Sk98, tigon3, Natsemi etc.) with current drivers
+to see what it looks like with both jumbo and non-jumbo
+mtus over gigabit.

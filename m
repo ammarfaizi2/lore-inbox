@@ -1,33 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274752AbRJFARe>; Fri, 5 Oct 2001 20:17:34 -0400
+	id <S274756AbRJFAWN>; Fri, 5 Oct 2001 20:22:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274756AbRJFARY>; Fri, 5 Oct 2001 20:17:24 -0400
-Received: from nycsmtp3fa.rdc-nyc.rr.com ([24.29.99.79]:56334 "EHLO si.rr.com")
-	by vger.kernel.org with ESMTP id <S274752AbRJFARJ>;
-	Fri, 5 Oct 2001 20:17:09 -0400
-Message-ID: <3BBE4DE6.2050305@si.rr.com>
-Date: Fri, 05 Oct 2001 20:18:46 -0400
-From: Frank Davis <fdavis@si.rr.com>
-Reply-To: fdavis@si.rr.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us
+	id <S274757AbRJFAWE>; Fri, 5 Oct 2001 20:22:04 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27148 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S274756AbRJFAVr>; Fri, 5 Oct 2001 20:21:47 -0400
+Subject: Re: Thinkpad 755CX & 2.4: Machine Check Exception
+To: chris@chiappa.net
+Date: Sat, 6 Oct 2001 01:27:28 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011005195939.A7662@lumberjack.snurgle.org> from "Chris Chiappa" at Oct 05, 2001 07:59:39 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: 2.4.10-ac6: PPP over ATM config option
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15pfJQ-0008Br-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-     During 'make config', I tried to add the new PPP over ATM option. 
-Either typing y or m for that option produced a :
-scripts/Configure : P  command not found
+> I've got a Thinkpad 755CX (75MHz Pentium classic with the f00f bug).  I've
+> been unable to boot any 2.4 kernels, even though 2.2 seems to run fine, and
+> burnP5 doesn't seem to produce any ill effects.
 
-I enabled the new JFFS stats option and it worked without a problem.
-
-Regards,
-Frank
-
+2.4.10acX should be fine. The problem is that many pentium class boxes the
+vendors didnt correctly wire the mce handling. The 2.4.10-ac tree defaults
+to mce off for P5 boxes. (Or boot with "nomce" for older 2.4)

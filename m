@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291942AbSBATtl>; Fri, 1 Feb 2002 14:49:41 -0500
+	id <S291957AbSBATvl>; Fri, 1 Feb 2002 14:51:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291949AbSBATtW>; Fri, 1 Feb 2002 14:49:22 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:15270 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S291951AbSBATry>;
-	Fri, 1 Feb 2002 14:47:54 -0500
-Date: Fri, 1 Feb 2002 14:47:51 -0500
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: arjan@fenrus.demon.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Radix-tree pagecache for 2.5
-Message-ID: <20020201144751.A32553@havoc.gtf.org>
-In-Reply-To: <20020201132953.A27508@havoc.gtf.org> <m16Wig6-000OVeC@amadeus.home.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m16Wig6-000OVeC@amadeus.home.nl>; from arjan@fenrus.demon.nl on Fri, Feb 01, 2002 at 06:44:50PM +0000
+	id <S291952AbSBATvc>; Fri, 1 Feb 2002 14:51:32 -0500
+Received: from port29.ds1-rdo.adsl.cybercity.dk ([212.242.196.94]:6959 "EHLO
+	xyzzy.adsl.dk") by vger.kernel.org with ESMTP id <S291943AbSBATvA>;
+	Fri, 1 Feb 2002 14:51:00 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: should I trust 'free' or 'top'?
+In-Reply-To: <20020201192415.GC23997@flounder.net>
+X-Home-Page: http://peter.makholm.net/
+Xyzzy: Nothing happens!
+From: Peter Makholm <peter@makholm.net>
+Date: Fri, 01 Feb 2002 20:50:53 +0100
+In-Reply-To: <20020201192415.GC23997@flounder.net>
+ (adam-dated-1013023458.e87e05@flounder.net's message of "Fri, 1 Feb 2002
+ 19:34:48 +0000 (UTC)")
+Message-ID: <87pu3pvv4y.fsf@xyzzy.adsl.dk>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.4 (Artificial
+ Intelligence, i386-debian-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 01, 2002 at 06:44:50PM +0000, arjan@fenrus.demon.nl wrote:
-> In article <20020201132953.A27508@havoc.gtf.org> you wrote:
-> > On Fri, Feb 01, 2002 at 09:06:37AM -0800, Linus Torvalds wrote:
-> >> Even databases often use multiple files, and quite frankly, a database
-> >> that doesn't use mmap and doesn't try very hard to not cause extra system
-> >> calls is going to be bad performance-wise _regardless_ of any page cache
-> >> locking.
-> 
-> > I've always thought that read(2) and write(2) would in the end wind up
-> > faster than mmap(2)...  Tests in my rewritten cp/rm/mv type utilities
-> > seem to bear this out.
-> 
-> the biggest reason for this is that we *suck* at readahead for mmap....
+adam-dated-1013023458.e87e05@flounder.net ("Adam McKenna") writes:
 
-Is there not also fault overhead and similar issues related to mmap(2)
-in general, that are not present with read(2)/write(2)?
+> Now top, on the other hand, has a very different idea about the amount of
+> free memory:
 
-	Jeff
+A very different idea? The difference is about 1M if I read it
+correctly. 
 
-
-
+-- 
+Når folk spørger mig, om jeg er nørd, bliver jeg altid ilde til mode
+og svarer lidt undskyldende: "Nej, jeg bruger RedHat".
+                                -- Allan Olesen på dk.edb.system.unix

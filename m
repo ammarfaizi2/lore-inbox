@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129636AbQKPIcw>; Thu, 16 Nov 2000 03:32:52 -0500
+	id <S129821AbQKPIrl>; Thu, 16 Nov 2000 03:47:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129851AbQKPIcm>; Thu, 16 Nov 2000 03:32:42 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:59267 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129636AbQKPIcc>;
-	Thu, 16 Nov 2000 03:32:32 -0500
-Date: Thu, 16 Nov 2000 03:02:31 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: Andries Brouwer <aeb@veritas.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test10 truncate() change broke `dd'
-In-Reply-To: <200011160058.BAA20802@harpo.it.uu.se>
-Message-ID: <Pine.GSO.4.21.0011160251450.11017-100000@weyl.math.psu.edu>
+	id <S129778AbQKPIra>; Thu, 16 Nov 2000 03:47:30 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:9424 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S129821AbQKPIrS>; Thu, 16 Nov 2000 03:47:18 -0500
+From: Christoph Rohland <cr@sap.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: shm swapping in 2.4 again
+In-Reply-To: <Pine.LNX.4.21.0011151854150.1111-100000@duckman.distro.conectiva>
+Organisation: SAP LinuxLab
+Date: 16 Nov 2000 09:17:03 +0100
+In-Reply-To: Rik van Riel's message of "Wed, 15 Nov 2000 19:04:13 -0200 (BRDT)"
+Message-ID: <qww1ywcz5z4.fsf@sap.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Rik,
 
+On Wed, 15 Nov 2000, Rik van Riel wrote:
+> On 15 Nov 2000, Christoph Rohland wrote:
+> You really want to have it in the swap cache, so we have
+> a place for it allocated in cache, etc...
+> 
+> Basically, when we unmap it in try_to_swap_out(), we
+> should add the page to the swap cache, and when the
+> last user stops using the page, we should push the
+> page out to swap.
 
-On Thu, 16 Nov 2000, Mikael Pettersson wrote:
+So in shm_swap_out I check if the page is already in the swap
+cache. If not I put the page into it and note the swap entry in the
+shadow pte of shm. Right?
 
-> I noticed because I needed to build a boot floppy with an
-> initial ram disk under 2.4.0-test11pre5. The standard recipe
-> (Documentation/ramdisk.txt) basically goes:
-> - dd if=bzImage of=/dev/fd0 bs=1k
->   notice how many blocks dd reported (NNN)
-> - dd if=ram_image of=/dev/fd0 bs=1k seek=NNN
-> dd implements the seek=NNN option by calling ftruncate() before
-> starting the write. This is where 2.4.0-test10 breaks, since
-> ftruncate on a block device now provokes an EACCES error.
+So does the page live all the time in the swap cache? This would lead
+to a vastly increased swap usage since we would have to preallocate
+the swap entries on page allocation.
 
-And what kind of meaning would you assign to truncate on floppy?
- 
-> Maybe `dd' is buggy and should use lseek() instead, but this has
-> apparently worked for a long time.
-
-Use conv=notrunc.
-
-> Does anyone know the reason for the S_ISDIR -> !S_ISREG change in test10?
-
-For one thing, you really don't want it working on pipes. For another -
-it's just damn meaningless on devices, symlinks and sockets. Which leaves
-regular files.
-
-OTOH, -EACCES looks wrong - for directories we must return -EISDIR and for
-sockets ftruncate() should return -EINVAL. Adopting -EINVAL for devices
-and pipes may be a good idea... Andries, could you comment on that?
+Greetings
+		Christoph
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

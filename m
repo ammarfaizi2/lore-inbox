@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbVC2TFP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVC2TJJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261301AbVC2TFP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 14:05:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVC2TFP
+	id S261308AbVC2TJJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 14:09:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbVC2TJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 14:05:15 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:28640 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261301AbVC2TFK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 14:05:10 -0500
-Subject: Re: Mac mini sound woes
-From: Lee Revell <rlrevell@joe-job.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Takashi Iwai <tiwai@suse.de>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1112094290.6577.19.camel@gaston>
-References: <1111966920.5409.27.camel@gaston>
-	 <1112067369.19014.24.camel@mindpipe>  <s5h8y46kbx7.wl@alsa2.suse.de>
-	 <1112094290.6577.19.camel@gaston>
-Content-Type: text/plain
-Date: Tue, 29 Mar 2005 14:05:08 -0500
-Message-Id: <1112123109.4922.3.camel@mindpipe>
+	Tue, 29 Mar 2005 14:09:08 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:15494 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261308AbVC2TJF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 14:09:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=GxRrwx4lgYOmogRZW0aE/YL/q6mkH6UTvgnIA+Ze+u7s1qfQEw089coChPQW+qXNbtIp8iyTuiCcNXc/Ex7rZUV0L45MS5lGPhkG+OBiZyH58xdPwU/Mp6CPaXXwDi0jwgUnDmrMr8/xIPO7gafjFGVv1khVlu3J1qqof3zQwPQ=
+Message-ID: <d120d50005032911027c13436e@mail.gmail.com>
+Date: Tue, 29 Mar 2005 14:02:00 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Alexey Dobriyan <adobriyan@mail.ru>
+Subject: Re: 2.6.12-rc1-bk2+PREEMPT_BKL: Oops at serio_interrupt
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <200503292128.20140.adobriyan@mail.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+References: <200503282126.55366.adobriyan@mail.ru>
+	 <200503290127.52614.dtor_core@ameritech.net>
+	 <200503292128.20140.adobriyan@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-29 at 21:04 +1000, Benjamin Herrenschmidt wrote:
-> Can the driver advertize in some way what it can do ? depending on the
-> machine we are running on, it will or will not be able to do HW volume
-> control... You probably don't want to use softvol in the former case...
+On Tue, 29 Mar 2005 21:28:20 +0400, Alexey Dobriyan <adobriyan@mail.ru> wrote:
+> On Tuesday 29 March 2005 10:27, Dmitry Torokhov wrote:
+> > On Monday 28 March 2005 12:26, Alexey Dobriyan wrote:
+> > > Steps to reproduce for me:
+> > >     * Boot CONFIG_PREEMPT_BKL=y kernel (.config, dmesg are attached)
+> > >     * Start rebooting
+> > >     * Start moving serial mouse (I have Genius NetMouse Pro)
+> > >     * Right after gpm is shut down I see the oops
+> > >     * The system continues to reboot
+> >
+> > Could you try the patch below, please? Thanks!
 > 
-> dmix by default would be nice though :)
+> > Input: serport - fix an Oops when closing port - should not call
+> >        serio_interrupt when serio port is being unregistered.
+> 
+> Doesn't work, sorry. Even worse: rebooting now also produces many pages of
+> oopsen, then hang the system. I'm willing to test any new patches.
+> 
 
-No, there's still no way to ask the driver whether hardware mixing is
-supported yet.  It's come up on alsa-devel before.  Patches are welcome.
+Does it oops at the same place with this patch or at some other place?
+Btw, what happen if you try to kill inputattach or GPM or both without
+rebooting?
 
-dmix by default would not be nice as users who have sound cards that can
-do hardware mixing would be annoyed.  However, in the upcoming 1.0.9
-release softvol will be used by default for all the mobo chipsets.
-
-Lee
-
+-- 
+Dmitry

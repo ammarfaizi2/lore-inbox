@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136982AbREJWvy>; Thu, 10 May 2001 18:51:54 -0400
+	id <S137059AbREKHEE>; Fri, 11 May 2001 03:04:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136984AbREJWvp>; Thu, 10 May 2001 18:51:45 -0400
-Received: from pc7.prs.nunet.net ([199.249.167.77]:39688 "HELO
-	pc7.prs.nunet.net") by vger.kernel.org with SMTP id <S136982AbREJWvf>;
-	Thu, 10 May 2001 18:51:35 -0400
-Message-ID: <20010510225133.3897.qmail@pc7.prs.nunet.net>
-From: "Rico Tudor" <rico-linux-kernel@patrec.com>
-Subject: Re: 2.4.3 Kernel Freeze with highmem BUG at highmem.c:155 - CRASH
-To: kowalski@datrix.co.za
-Date: Thu, 10 May 101 17:51:33 -0500 (CDT)
+	id <S137058AbREKHDy>; Fri, 11 May 2001 03:03:54 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:1796 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S136913AbREKHDh>;
+	Fri, 11 May 2001 03:03:37 -0400
+Date: Mon, 7 May 2001 19:07:27 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: agrawal@ais.org
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01051013425806.03256@webman> from "Marcin Kowalski" at May 10, 1 01:42:58 pm
-X-Mailer: ELM [version 2.4 PL25]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: vsyscallRe: X15 alpha release: as fast as TUX but in user space (fwd)
+Message-ID: <20010507190726.C45@(none)>
+In-Reply-To: <20010503210904.B9715@bug.ucw.cz> <Pine.LNX.4.10.10105031541190.32369-100000@SLASH.REM.CMU.EDU>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.10.10105031541190.32369-100000@SLASH.REM.CMU.EDU>; from agrawal@ais.org on Thu, May 03, 2001 at 03:50:07PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The symptons were an ever more sluggish machine over time, memory usage 
-> looked pretty standard with the majority of memory assigned to cache... what 
-> would happen is that at terminal it would go into semi-freeze states of about 
-> 5-10 seconds (increasing with time), where no user interaction was possible. 
-> By terminal I mean through a ssh remote terminal.... The load would also 
-> occasionally just increase for no apparent reason to values of 7,8,9...
+Hi!
 
-I reported the same sluggishness problem on Feb 25.  Capsule summary
-is 64GB option does not work.  I was easily able to reproduce the
-sluggishness in 2.4.2, but need to test again for 2.4.4.  See if your
-problem goes away with the 4GB option.
+> > That means that for fooling closed-source statically-linked binary,
+> > you now need to patch kernel. That's regression; subterfugue.org could
+> > do this with normal user rights in 2.4.0.
+> 
+> This is particularly pretty, but something that might work:
+> 
+> 1. a "deceiver" process creates a shared memory page, populates shared
+>    page with appropriate magic (perhaps copying from its own magic page?)
+> 2. have subterfuge unmap the magic page for the fooled process, and map in
+>    the shared page in its place (assumes subterfuge can insert system
+>    calls, instead of just modifying them)
+
+subterfugue can insert calls just fine; just I'm not sure if vsyscall
+implementation will let you unmap magic page.
+
+> 3. deceiver periodically updates magic page
+
+This is going to be the hard part.
+
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

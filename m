@@ -1,44 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264380AbRFXTHv>; Sun, 24 Jun 2001 15:07:51 -0400
+	id <S264395AbRFXTMV>; Sun, 24 Jun 2001 15:12:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264395AbRFXTHm>; Sun, 24 Jun 2001 15:07:42 -0400
-Received: from amadeus.resilience.com ([209.245.157.29]:11619 "HELO jmcmullan")
-	by vger.kernel.org with SMTP id <S264380AbRFXTHb>;
-	Sun, 24 Jun 2001 15:07:31 -0400
-Date: Sun, 24 Jun 2001 14:52:00 -0400
-From: Jason McMullan <jmcmullan@linuxcare.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Jason McMullan <jmcmullan@linuxcare.com>, linux-kernel@vger.kernel.org
-Subject: Re: What are the VM motivations??
-Message-ID: <20010624145200.A14534@jmcmullan.resilience.com>
-In-Reply-To: <20010624140114.A10745@jmcmullan.resilience.com> <Pine.LNX.4.21.0106241525430.7419-100000@imladris.rielhome.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.LNX.4.21.0106241525430.7419-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Sun, Jun 24, 2001 at 03:26:13PM -0300
+	id <S264399AbRFXTML>; Sun, 24 Jun 2001 15:12:11 -0400
+Received: from nw02.internal.netwalk.net ([216.69.192.202]:12550 "EHLO
+	nw02.netwalk.net") by vger.kernel.org with ESMTP id <S264395AbRFXTMH>;
+	Sun, 24 Jun 2001 15:12:07 -0400
+Message-ID: <007d01c0fce1$c55a8960$29c845d8@hal9000>
+Reply-To: "David Brown" <dave@codewhore.org>
+From: "David Brown" <dave@codewhore.org>
+To: <andyw@edafio.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <001001c0fcde$a9422ec0$ecbd3fd8@wamprat>
+Subject: Re: Crash on boot (2.4.5)
+Date: Sun, 24 Jun 2001 15:13:35 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 24, 2001 at 03:26:13PM -0300, Rik van Riel wrote:
-> On Sun, 24 Jun 2001, Jason McMullan wrote:
-> > 	Uhh. That's not what I was ranting about. What I was
-> > ranting about is that we have never 'put to paper' the
-> > requirements ('motiviations') for a good VM, nor have we
-> > looked at said nonexistent list and figured out what instrumentation
-> > would be needed.
-> 
-> But we have.  The fact that you missed the event doesn't
-> make it any less true.
+Daniel:
 
-	Excellent! Where can I find this? I would be most
-interested in what your considerations for a good VM are.
-(It'd probably be a good thing to reference people to when
-they start arguing off-the-cuff about VMs, eh?)
+Have you tried swapping in a different stick of RAM and/or running a
+boot-time memory tester? Does it boot on 2.2 or any other OSs?
 
--- 
-Jason McMullan, Senior Linux Consultant
-Linuxcare, Inc. 412.432.6457 tel, 412.656.3519 cell
-jmcmullan@linuxcare.com, http://www.linuxcare.com/
-Linuxcare. Putting open source to work.
+I had a problem like this once before - turned out one of the two 128MB CAS2
+modules were bad. I replaced it and 2.4 booted wonderfully.
+
+
+Good Luck,
+
+- Dave
+  dave@codewhore.org
+
+
+----- Original Message -----
+From: "Daniel Fraley" <the_toastman@aristotle.net>
+To: <linux-kernel@vger.kernel.org>
+Sent: Sunday, June 24, 2001 2:51 PM
+Subject: Crash on boot (2.4.5)
+
+
+> Hi, everyone..  I'm borrowing my roommate's email, so please send replies
+to
+> andyw@edafio.com.  Thanks!
+>
+> Here's my problem...  when I boot anything 2.4, I get several oopsen in a
+> row, all of which are either (most commonly) kernel paging request could
+not
+> be handled, or (much less common) unable to handle kernel Null pointer
+> dereference.  I will send any info on request, but here's my hardware and
+> kernel config:
+>
+> iWill KKR-266R (Via 8363 Northbridge, 686B south)
+> AMD tbird 1GHz
+> 256MB cas2 pc133 sdram
+> ATI Radeon DDR 64MB VIVO
+> Kingston KNE120TX (Realtek 8139 chip)
+> SBLive! 5.1
+> IBM GXP75 30GB (on the via ide controller)
+> Pioneer 16x dvd
+> ls120
+>
+> This happens regardless if I turn on swap or not.  When swap is on, it is
+a
+> 128MB partition (and yes, I'm aware of the recommendation of 2x RAM, but I
+> believe I read somewhere that someone was working on that, and I didn't
+want
+> to waste the extra 384MB on swap).
+>
+> Is there anything I can do to fix this?
+>
+> -- andyw
+>
+> p.s., booting with devfs=nomount is better, but still causes oopsen (I get
+> to a login prompt, but if I do much more than mount a disk a copy to it,
+the
+> system freaks)
+>
+>
+>
+

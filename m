@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318830AbSHMQYZ>; Tue, 13 Aug 2002 12:24:25 -0400
+	id <S318250AbSHMQTc>; Tue, 13 Aug 2002 12:19:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318966AbSHMQYZ>; Tue, 13 Aug 2002 12:24:25 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:30735 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S318830AbSHMQYY>;
-	Tue, 13 Aug 2002 12:24:24 -0400
-Date: Tue, 13 Aug 2002 09:25:05 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: James Bottomley <James.Bottomley@steeleye.com>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cdrom sane fallback vs 2.4.20-pre1 
-In-Reply-To: <200208131621.g7DGLc202919@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33L2.0208130922300.5175-100000@dragon.pdx.osdl.net>
+	id <S318255AbSHMQTc>; Tue, 13 Aug 2002 12:19:32 -0400
+Received: from www.wotug.org ([194.106.52.201]:48945 "EHLO
+	gatemaster.ivimey.org") by vger.kernel.org with ESMTP
+	id <S318250AbSHMQT1> convert rfc822-to-8bit; Tue, 13 Aug 2002 12:19:27 -0400
+Date: Tue, 13 Aug 2002 17:21:14 +0100 (BST)
+From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+X-X-Sender: ruthc@sharra.ivimey.org
+To: Christoph Hellwig <hch@infradead.org>
+cc: Stephane Wirtel <stephane.wirtel@belgacom.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre2 compile error
+In-Reply-To: <20020813123255.A5393@infradead.org>
+Message-ID: <Pine.LNX.4.44.0208131714360.19585-100000@sharra.ivimey.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Aug 2002, James Bottomley wrote:
+On Tue, 13 Aug 2002, Christoph Hellwig wrote:
 
-| rddunlap@osdl.org said:
-| > and that's precisely the wrong attitude IMO.
-|
-| I wasn't expressing an opinion, just stating what could and could not be done
-| in 2.4.
+>On Tue, Aug 13, 2002 at 01:01:38PM +0200, Stephane Wirtel wrote:
+>Yes, it is.   And I'm pissed that it neither was depend on the devfs config option
+>nor had a devfsßrelated named for a long time.  Richard just bloats the whole kernel
+>woth devfs crap all over the place.
 
-I guess that at least Jens and I (not trying to speak for Jens)
-see it as a style issue and somewhat as an education issue.
-At least we both used /IMO/i.
+I would like to defend devfs a bit, although I know nothing of this particular 
+case.
 
-| > I was glad to see that Marcelo asked about the hardcoded values. They
-| > hurt.
-|
-| Well, this is a rather big and particularly rancid can of worms.  If you look
-| a little further, you'll see that cdrom.h has its own definition of the
-| (effectively SCSI) struct request_sense that sr.c uses, yet the sense key is
-| defined in scsi/scsi.h.  Then you notice that cdrom.h also duplicates all of
-| the scsi commands with a GPCMD_ prefix.
-|
-| If you'd like to take this particular can of worms off somewhere, clean it out
-| and return it neatly labelled, I'd be more than grateful...just don't take the
-| lid off too close to me.
+I have (for ever) HATED the tendency of Unix systems to have one huge /dev
+directory with, often, thousands of completely useless devnodes in it, many of
+then with names that are obscure to say the least, and no idea how to find the
+right one.
 
-I'm not sure that it could ever get by Jens, but I'll take a look at it.
+For example, recently I wanted to find the combined mouse device on an RH3
+system that I haven't got around to switching to devfs; after a lot of
+searching, including in the kernel sources, I gave up. On defvs it's obvious:  
+you have /dev/mouse/, and under that "mice", which, being the plural of
+"mouse", is pretty clear, IMO.
+
+At least devfs does address this, and IMO quite well. I don't at the moment
+understand the problems people have with it (and if possible I would
+appreciate a _sensible- discussion), but if anyone wants to return to the 'bad
+old days' I'm very much against it.
+
+Rant over,
+
+Regards,
+
+Ruth
+
 
 -- 
-~Randy
+Ruth Ivimey-Cook
+Software engineer and technical writer.
 

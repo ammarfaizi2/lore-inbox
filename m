@@ -1,280 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265514AbUBPNO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 08:14:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265526AbUBPNO6
+	id S265515AbUBPN1X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 08:27:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265526AbUBPN1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 08:14:58 -0500
-Received: from pr-117-210.ains.net.au ([202.147.117.210]:18887 "EHLO
-	mail.ocs.com.au") by vger.kernel.org with ESMTP id S265514AbUBPNOm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 08:14:42 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: linux-kernel@vger.kernel.org
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Subject: 2.6.3-rc3 serial console woes
+	Mon, 16 Feb 2004 08:27:23 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:51897 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S265515AbUBPN1G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 08:27:06 -0500
+Subject: Re: kthread vs. dm-daemon (was: Oopsing cryptoapi (or loop
+	device?) on 2.6.*)
+From: Christophe Saout <christophe@saout.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Joe Thornber <thornber@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040216034250.EDCC82C053@lists.samba.org>
+References: <20040216034250.EDCC82C053@lists.samba.org>
+Content-Type: text/plain
+Message-Id: <1076938020.7350.18.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 17 Feb 2004 00:14:22 +1100
-Message-ID: <3326.1076937262@ocs3.ocs.com.au>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 16 Feb 2004 14:27:00 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Between 2.6.3-rc2 and 2.6.3-rc3, the serial console initialisation
-changed, due to this patch :-
+Am Mo, den 16.02.2004 schrieb Rusty Russell um 04:02:
 
-  http://linux.bkbits.net:8080/linux-2.5/cset@1.1653?nav=index.html|ChangeSet@-7d
+> Yes, looks like dm-daemon is a workqueue.
 
-Now the serial console is not initialised until a long way into the
-boot, just after the disks are probed.  This makes it impossible to use
-a kernel debugger such as kdb or kgdb over a serial console during
-device initialisation.
+The only small difference is that you don't need a work_struct and the
+work function is only called once, if there is work. The work function
+has process all the work that has been queued.
 
-You get no serial console output until after devices have been probed.
-So if something goes wrong during boot, you have no indication of the
-problem.  Even without device problems, the delay on serial console
-output can make it look like the machine has hung, with no output on
-the serial console until a couple of minutes after boot.
+> > There seems to beg a small race conditition that can appear when using
+> > only wake_up for notifies so dm-daemon uses an additional atomic_t
+> > variable to make sure nothing gets missed. Just see the function
+> > ``daemon'' in dm-daemon.c.
+> 
+> This is why using a workqueue, rather than having everyone invent
+> their own methods, is a good idea.
 
-.config extract
+The only downside on using a workqueue here is that you have to put the
+work_struct somewhere. If you have just bio structures floating around
+this means you need an additional mempool, etc... In my case I already
+had a structure that I could use (I was using bio->bi_next
+concatenation), it just means that I can't do per-clone-queueing only
+per-original-bio-queueing but in my case this doesn't make a difference.
 
-X86=y
-MMU=y
-UID16=y
-GENERIC_ISA_DMA=y
-EXPERIMENTAL=y
-CLEAN_COMPILE=y
-STANDALONE=y
-SWAP=y
-SYSVIPC=y
-SYSCTL=y
-LOG_BUF_SHIFT=16
-KALLSYMS=y
-FUTEX=y
-EPOLL=y
-IOSCHED_NOOP=y
-IOSCHED_AS=y
-IOSCHED_DEADLINE=y
-MODULES=y
-OBSOLETE_MODPARM=y
-KMOD=y
-X86_PC=y
-M686=y
-X86_CMPXCHG=y
-X86_XADD=y
-X86_L1_CACHE_SHIFT=5
-RWSEM_XCHGADD_ALGORITHM=y
-X86_PPRO_FENCE=y
-X86_WP_WORKS_OK=y
-X86_INVLPG=y
-X86_BSWAP=y
-X86_POPAD_OK=y
-X86_GOOD_APIC=y
-X86_USE_PPRO_CHECKSUM=y
-SMP=y
-NR_CPUS=2
-X86_LOCAL_APIC=y
-X86_IO_APIC=y
-X86_TSC=y
-X86_MCE=y
-X86_MSR=m
-X86_CPUID=m
-NOHIGHMEM=y
-MTRR=y
-HAVE_DEC_LOCK=y
-ACPI_BOOT=y
-PCI=y
-PCI_GOANY=y
-PCI_BIOS=y
-PCI_DIRECT=y
-PCI_NAMES=y
-ISA=y
-BINFMT_ELF=y
-BINFMT_AOUT=m
-BINFMT_MISC=m
-PARPORT=m
-PARPORT_PC=m
-PARPORT_PC_CML1=m
-BLK_DEV_FD=y
-BLK_DEV_LOOP=m
-BLK_DEV_RAM=y
-BLK_DEV_RAM_SIZE=4096
-IDE=y
-BLK_DEV_IDE=y
-BLK_DEV_IDEDISK=y
-BLK_DEV_IDECD=y
-BLK_DEV_IDESCSI=y
-IDE_GENERIC=y
-BLK_DEV_IDEPCI=y
-IDEPCI_SHARE_IRQ=y
-BLK_DEV_IDEDMA_PCI=y
-IDEDMA_PCI_AUTO=y
-BLK_DEV_ADMA=y
-BLK_DEV_HPT366=y
-BLK_DEV_PIIX=y
-BLK_DEV_IDEDMA=y
-IDEDMA_AUTO=y
-SCSI=y
-SCSI_PROC_FS=y
-BLK_DEV_SD=y
-BLK_DEV_SR=m
-BLK_DEV_SR_VENDOR=y
-CHR_DEV_SG=m
-SCSI_REPORT_LUNS=y
-SCSI_CONSTANTS=y
-SCSI_LOGGING=y
-SCSI_AHA1542=m
-SCSI_SYM53C8XX_2=y
-SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
-SCSI_SYM53C8XX_DEFAULT_TAGS=16
-SCSI_SYM53C8XX_MAX_TAGS=64
-SCSI_QLA2XXX=y
-NET=y
-PACKET=m
-NETLINK_DEV=m
-UNIX=y
-INET=y
-INET_ECN=y
-SYN_COOKIES=y
-NETFILTER=y
-IP_NF_CONNTRACK=m
-IP_NF_FTP=m
-IP_NF_IRC=m
-IP_NF_QUEUE=m
-IP_NF_IPTABLES=m
-IP_NF_MATCH_LIMIT=m
-IP_NF_MATCH_MAC=m
-IP_NF_MATCH_PKTTYPE=m
-IP_NF_MATCH_MARK=m
-IP_NF_MATCH_MULTIPORT=m
-IP_NF_MATCH_TOS=m
-IP_NF_MATCH_ECN=m
-IP_NF_MATCH_DSCP=m
-IP_NF_MATCH_AH_ESP=m
-IP_NF_MATCH_LENGTH=m
-IP_NF_MATCH_TTL=m
-IP_NF_MATCH_TCPMSS=m
-IP_NF_MATCH_HELPER=m
-IP_NF_MATCH_STATE=m
-IP_NF_MATCH_CONNTRACK=m
-IP_NF_MATCH_OWNER=m
-IP_NF_FILTER=m
-IP_NF_TARGET_REJECT=m
-IP_NF_NAT=m
-IP_NF_NAT_NEEDED=y
-IP_NF_TARGET_MASQUERADE=m
-IP_NF_TARGET_REDIRECT=m
-IP_NF_NAT_LOCAL=y
-IP_NF_NAT_IRC=m
-IP_NF_NAT_FTP=m
-IP_NF_MANGLE=m
-IP_NF_TARGET_TOS=m
-IP_NF_TARGET_ECN=m
-IP_NF_TARGET_DSCP=m
-IP_NF_TARGET_MARK=m
-IP_NF_TARGET_LOG=m
-IP_NF_TARGET_ULOG=m
-IP_NF_TARGET_TCPMSS=m
-IP_NF_ARPTABLES=m
-IP_NF_ARPFILTER=m
-IP_NF_COMPAT_IPCHAINS=m
-IP_NF_COMPAT_IPFWADM=m
-IPV6_SCTP__=y
-NETDEVICES=y
-DUMMY=m
-ETHERTAP=m
-NET_ETHERNET=y
-NET_TULIP=y
-TULIP=m
-NET_ISA=y
-NE2000=m
-NET_PCI=y
-PLIP=m
-PPP=m
-PPP_ASYNC=m
-PPP_DEFLATE=m
-PPP_BSDCOMP=m
-SLIP=m
-SLIP_COMPRESSED=y
-INPUT=y
-INPUT_MOUSEDEV=y
-INPUT_MOUSEDEV_PSAUX=y
-INPUT_MOUSEDEV_SCREEN_X=1024
-INPUT_MOUSEDEV_SCREEN_Y=768
-SOUND_GAMEPORT=y
-SERIO=y
-SERIO_I8042=y
-SERIO_SERPORT=y
-INPUT_KEYBOARD=y
-KEYBOARD_ATKBD=y
-INPUT_MOUSE=y
-MOUSE_PS2=y
-VT=y
-VT_CONSOLE=y
-HW_CONSOLE=y
-SERIAL_8250=y
-SERIAL_8250_CONSOLE=y
-SERIAL_8250_NR_UARTS=4
-SERIAL_CORE=y
-SERIAL_CORE_CONSOLE=y
-UNIX98_PTYS=y
-UNIX98_PTY_COUNT=256
-PRINTER=m
-LP_CONSOLE=y
-NVRAM=m
-RTC=y
-VGA_CONSOLE=y
-DUMMY_CONSOLE=y
-SOUND=m
-EXT2_FS=y
-XFS_FS=y
-XFS_QUOTA=y
-MINIX_FS=m
-ROMFS_FS=m
-QUOTACTL=y
-AUTOFS_FS=m
-AUTOFS4_FS=m
-ISO9660_FS=m
-JOLIET=y
-ZISOFS=y
-ZISOFS_FS=m
-FAT_FS=m
-MSDOS_FS=m
-VFAT_FS=m
-NTFS_FS=m
-PROC_FS=y
-PROC_KCORE=y
-DEVPTS_FS=y
-TMPFS=y
-RAMFS=y
-HPFS_FS=m
-NFS_FS=m
-NFS_V3=y
-NFSD=m
-NFSD_V3=y
-LOCKD=m
-LOCKD_V4=y
-EXPORTFS=m
-SUNRPC=m
-SMB_FS=m
-MSDOS_PARTITION=y
-NLS=y
-NLS_DEFAULT="iso8859-1"
-DEBUG_KERNEL=y
-DEBUG_SLAB=y
-MAGIC_SYSRQ=y
-KDB=y
-KDB_MODULES=m
-KDB_CONTINUE_CATASTROPHIC=0
-X86_FIND_SMP_CONFIG=y
-X86_MPPARSE=y
-CRC32=m
-ZLIB_INFLATE=m
-ZLIB_DEFLATE=m
-X86_SMP=y
-X86_HT=y
-X86_BIOS_REBOOT=y
-X86_TRAMPOLINE=y
-PC=y
+> > It seems to me that this functionality could perhaps be somehow added to
+> > kthread without changing it too much... ?
+> 
+> You could build it on top of kthread probably.
+
+dm-daemon? That would make it a really stupid 10-line-wrapper.
+
+I moved my dm-crypt target from dm-daemon to kthread and used
+set_current_state/schedule/wakeup_process and the
+bio->bi_next-concatenation. Fine.
+
+Switching to kthread+semaphores and removing only a single bio from the
+queue at a time made the code simpler (but adds a very small overhead
+because of the spinlock every time a bio gets popped).
+
+And finally a workqueue instead of kthread made the code even more
+simple.
+
+> You could also change
+> workqueues to resize dynamically, rather than be one per cpu (but
+> that's some fairly tricky code).
+
+I think that's overkill. The threads don't waste too much resources. And
+things would get complicated if you want to make the work function run
+on the same cpu but don't have enough threads for this. You would have
+to always change the affinity...?
+
+Another question:
+
+The workqueue code currently always executes the work function on the
+same cpu. Would it be a good idea to add the possibility to make it run
+on the next free cpu?
+
+Assuming dm-crypt gets a lot of reads returned and has to decrypt them.
+Decrypting the buffers on all CPUs in parallel would probably be faster.
+This was done in order to avoid cache trashing?
+
 

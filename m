@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262673AbTJTPsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 11:48:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbTJTPsQ
+	id S262686AbTJTPzR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 11:55:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbTJTPzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 11:48:16 -0400
-Received: from [62.67.222.139] ([62.67.222.139]:9676 "EHLO mail.ku-gbr.de")
-	by vger.kernel.org with ESMTP id S262709AbTJTPsP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 11:48:15 -0400
-Date: Mon, 20 Oct 2003 17:48:13 +0200
-From: Konstantin Kletschke <konsti@ludenkalle.de>
-To: Eric Valette <eric.valette@free.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Uncorrectable Error on IDE, significant accumulation
-Message-ID: <20031020154813.GC815@synertronixx3>
-Reply-To: konsti@ludenkalle.de
-References: <3F93EBFA.4040003@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F93EBFA.4040003@free.fr>
-X-PGP-Key: http://www.ludenkalle.de/konsti/pubkey.asc
-User-Agent: Mutt/1.5.4i
+	Mon, 20 Oct 2003 11:55:17 -0400
+Received: from mcomail03.maxtor.com ([134.6.76.14]:56338 "EHLO
+	mcomail03.maxtor.com") by vger.kernel.org with ESMTP
+	id S262686AbTJTPzM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 11:55:12 -0400
+Message-ID: <785F348679A4D5119A0C009027DE33C105CDB30C@mcoexc04.mlm.maxtor.com>
+From: "Mudama, Eric" <eric_mudama@Maxtor.com>
+To: "'Hans Reiser'" <reiser@namesys.com>,
+       Norman Diamond <ndiamond@wta.att.ne.jp>
+Cc: "'Wes Janzen '" <superchkn@sbcglobal.net>,
+       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
+       "'John Bradford '" <john@grabjohn.com>, linux-kernel@vger.kernel.org,
+       nikita@namesys.com, "'Pavel Machek '" <pavel@ucw.cz>,
+       "'Justin Cormack '" <justin@street-vision.com>,
+       "'Russell King '" <rmk+lkml@arm.linux.org.uk>,
+       "'Vitaly Fertman '" <vitaly@namesys.com>,
+       "'Krzysztof Halasa '" <khc@pm.waw.pl>
+Subject: RE: Blockbusting news, results are in
+Date: Mon, 20 Oct 2003 09:55:07 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 20, 2003 at 04:06:50PM +0200, Eric Valette wrote:
-> I have killed at least 10 disks myself and most of the time, electrical 
-> problems were at the root cause (+ some series of known to be defective 
-> WD)...
 
-Which electrical Problems? When mounting them (ESD) or afterwards?
+> -----Original Message-----
+> From: Hans Reiser [mailto:reiser@namesys.com]
+> Sent: Sunday, October 19, 2003 2:25 AM
+> To: Norman Diamond
+> Cc: Mudama, Eric; 'Wes Janzen '; 'Rogier Wolff '; 'John Bradford ';
+> linux-kernel@vger.kernel.org; nikita@namesys.com; 'Pavel Machek ';
+> 'Justin Cormack '; 'Russell King '; 'Vitaly Fertman '; 
+> 'Krzysztof Halasa
+> '
+> Subject: Re: Blockbusting news, results are in
+> 
+> 
+> Norman Diamond wrote:
+> 
+> >
+> >>What would you like "us disk makers" to say?
+> >>    
+> >>
+> >
+> >How to force reallocations even when data are lost, 
+> >
+> buy Maxtor and write to them, thereby triggering the remap.
 
-I see, it was a good Idea to ask here, I head to the shop so I can trust
-the machine afterward and we will know more in a year...
-
-Konsti
-
--- 
-2.6.0-test1-mm2
-Konstantin Kletschke <konsti@ludenkalle.de>, <konsti@ku-gbr.de>
-GPG KeyID EF62FCEF
-Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
-keulator.homelinux.org up 1:31, 7 users
+It isn't necessarilly that simple.  However, if the drive is still alive, it
+has written your data to a place where it can get at it again.  

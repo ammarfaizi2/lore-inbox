@@ -1,49 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267022AbSK2Lod>; Fri, 29 Nov 2002 06:44:33 -0500
+	id <S267024AbSK2Lqq>; Fri, 29 Nov 2002 06:46:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267023AbSK2Lod>; Fri, 29 Nov 2002 06:44:33 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:37764 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267022AbSK2Loc>;
-	Fri, 29 Nov 2002 06:44:32 -0500
-Date: Fri, 29 Nov 2002 11:49:36 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] named struct initialiser updates
-Message-ID: <20021129114935.GA20166@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200211260414.gAQ4EaJ26436@hera.kernel.org> <Pine.GSO.4.21.0211291044410.29438-100000@vervain.sonytel.be>
+	id <S267025AbSK2Lqq>; Fri, 29 Nov 2002 06:46:46 -0500
+Received: from 48-121-ADSL.red.retevision.es ([80.224.121.48]:56515 "EHLO
+	jerry.marcet.dyndns.org") by vger.kernel.org with ESMTP
+	id <S267024AbSK2Lqp>; Fri, 29 Nov 2002 06:46:45 -0500
+Date: Fri, 29 Nov 2002 12:54:05 +0100
+From: Javier Marcet <jmarcet@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Exaggerated swap usage
+Message-ID: <20021129115405.GD15682@jerry.marcet.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="M38YqGLZlgb6RLPS"
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0211291044410.29438-100000@vervain.sonytel.be>
-User-Agent: Mutt/1.4i
+X-Editor: Vim http://www.vim.org/
+X-Operating-System: Gentoo GNU/Linux 1.4 / 2.4.20-ac1-marcet i686 AMD Athlon(TM) XP 1800+ AuthenticAMD
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 29, 2002 at 10:45:24AM +0100, Geert Uytterhoeven wrote:
 
- > > diff -Nru a/drivers/video/fbcon.c b/drivers/video/fbcon.c
- > > --- a/drivers/video/fbcon.c	Mon Nov 25 20:14:39 2002
- > > +++ b/drivers/video/fbcon.c	Mon Nov 25 20:14:39 2002
- > > @@ -230,8 +230,9 @@
- > >  
- > >  static void cursor_timer_handler(unsigned long dev_addr);
- > >  
- > > -static struct timer_list cursor_timer =
- > > -		TIMER_INITIALIZER(cursor_timer_handler, 0, 0);
- > > +static struct timer_list cursor_timer = {
- > > +    function: cursor_timer_handler
- > > +};
- > Doesn't this part reverse the timer initializer fix?
+--M38YqGLZlgb6RLPS
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Looks like it. I'll take a look later.
 
-		Dave
+Forgive me if I don't provide enough information just yet, or am not
+clear enough. I simply don't know what setting to tweak.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+I'll explain.
+In recent 2.4.20 pre and rc kernels ( I tend to use the ac branch ), I
+had notice my system, when using X mainly, got terribly slow after some
+use. It surprised me that when I tried 2.5.47 this did not happen at
+all, since I thought my problem was a lack of memory - the system has
+384MB -.
+Hence I tried to find where the difference was. What I found is that
+2.4.20 kernels - 2.4.19 does the same -, was swapping just too much,
+while there was a lot free memory on the system, cached but free.
+I disabled all swap and it suddenly began to work smoothly again, yet
+with the random kills when memory was a scarce resource on the system.
+I've tried different sysctl's vm.overcommit settings but the result is
+the same.
+
+I also found a 2.4.x kernel which did not show this behavior, WOLK, in
+any version I tried.
+
+Could you please point me toward something I can try tweaking, or some
+documentation to read which explains what I can change, unless it's some
+kind of kernel problem?
+
+BTW, aa kernels behaved somewhat better on this, only that the last one
+I tried -rc2aa1- had some stability problems.
+
+I can provide you with dmesg, /proc/meminfo or whatever might be useful.
+
+Thanks in advance :)
+
+
+--=20
+Javier Marcet <jmarcet@pobox.com>
+
+--M38YqGLZlgb6RLPS
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iEYEARECAAYFAj3nVV0ACgkQx/ptJkB7frzpVACeLtLDO/l7UusoWUdhYR6P0d7L
+n1IAn0m3D5Gxs6b9zdkUatjNrvddSbiZ
+=2VsD
+-----END PGP SIGNATURE-----
+
+--M38YqGLZlgb6RLPS--

@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbUCKUVj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 15:21:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbUCKUVj
+	id S261634AbUCKUVp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 15:21:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbUCKUVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 15:21:39 -0500
-Received: from colin2.muc.de ([193.149.48.15]:32783 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261673AbUCKUVh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 15:21:37 -0500
-Date: 11 Mar 2004 21:21:36 +0100
-Date: Thu, 11 Mar 2004 21:21:36 +0100
-From: Andi Kleen <ak@muc.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm1
-Message-ID: <20040311202136.GA59610@colin2.muc.de>
-References: <1ysXv-wm-11@gated-at.bofh.it> <m3lllzawlm.fsf@averell.firstfloor.org> <20040311112852.4f56cf34.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040311112852.4f56cf34.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 11 Mar 2004 15:21:45 -0500
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:43856 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261634AbUCKUVl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 15:21:41 -0500
+Date: Thu, 11 Mar 2004 21:21:37 +0100
+Message-Id: <200403112021.i2BKLbUm000824@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 419] m68k __test_and_set_bit()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > For SMT there is a patch from Intel pending that teaches x86-64
-> > to set up the SMT scheduler. They said they got slightly better
-> > benchmark results. The SMT setup seems to be racy though.
-> 
-> Am I correct in thinking that this patch provides the necessary hooks to
-> integrate x86_4 into the new functionality which sched-domains provides, or
-> is the Intel patch independent of sched-domains?
+M68k: Add missing implementation for non-atomic __test_and_set_bit()
 
-It sets up the sched-domains code to know about HyperThreading CPUs
-on x86-64 too (basically same thing as the i386 code does with a 
-few minor tweaks) 
+--- linux-2.6.4/include/asm-m68k/bitops.h	2004-01-21 22:03:53.000000000 +0100
++++ linux-m68k-2.6.4/include/asm-m68k/bitops.h	2004-02-29 13:37:03.000000000 +0100
+@@ -21,6 +21,8 @@
+    __constant_test_and_set_bit(nr, vaddr) : \
+    __generic_test_and_set_bit(nr, vaddr))
+ 
++#define __test_and_set_bit(nr,vaddr) test_and_set_bit(nr,vaddr)
++
+ static inline int __constant_test_and_set_bit(int nr,
+ 					      volatile unsigned long *vaddr)
+ {
 
-So it's dependent on that. 
+Gr{oetje,eeting}s,
 
-I will send it to you in separate mail.
+						Geert
 
-> > Some kind of SMT scheduler is definitely needed, we have a serious
-> > regression compared to 2.4 here right now. I'm not sure this 
-> > is the right approach though, it seems to be far too complex.
-> 
-> Well that's discouraging.  I really do want to push this thing along a bit.
-> 
-> Yours is the only report of regression of which I am aware.  Is the reason
-> understood?
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-I think the reason is that it doesn't do balance on clone/fork. The 
-normal scheduler also doesn't do that, but for some reason it still does 
-better on the benchmarks (but worse than the old 2.4 -aa/Intel O(1) HT 
-scheduler)
-
-> And is anyone developing alternative SMT enhancements?
-
-I thought there was a patch from Ingo Molnar? ("shared runqueue") 
-I must admit I never tried it, just remember seeing the patches.
-
-Also I've been playing with the entitlement scheduler to fix 
-some of the interactivity problems I have on UP, but it also
-seems to still have problems.
-
--Andi
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

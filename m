@@ -1,64 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135498AbRD3QSh>; Mon, 30 Apr 2001 12:18:37 -0400
+	id <S135508AbRD3Q02>; Mon, 30 Apr 2001 12:26:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135508AbRD3QS1>; Mon, 30 Apr 2001 12:18:27 -0400
-Received: from ns.snowman.net ([63.80.4.34]:10251 "EHLO ns.snowman.net")
-	by vger.kernel.org with ESMTP id <S135498AbRD3QSU>;
-	Mon, 30 Apr 2001 12:18:20 -0400
-Date: Mon, 30 Apr 2001 12:16:27 -0400 (EDT)
-From: <nick@snowman.net>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: Alexander Viro <viro@math.psu.edu>, volodya@mindspring.com,
-        Anton Altaparmakov <aia21@cam.ac.uk>, John Stoffel <stoffel@casc.com>,
-        CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2 1.3.1, aka "I stick my neck out a mile..."
-In-Reply-To: <20010430034001.A5520@thyrsus.com>
-Message-ID: <Pine.LNX.4.21.0104301216150.11402-100000@ns>
+	id <S135509AbRD3Q0S>; Mon, 30 Apr 2001 12:26:18 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:777 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135508AbRD3QZ6>; Mon, 30 Apr 2001 12:25:58 -0400
+Subject: Re: DMI deactivated - why?
+To: reinelt@eunet.at (Michael Reinelt)
+Date: Mon, 30 Apr 2001 17:27:30 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <3AED016D.5D77F29E@eunet.at> from "Michael Reinelt" at Apr 30, 2001 08:08:45 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14uGWM-0008Gi-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think ppl are recommending you BZ2 all your sigs......
-	Nick
+> It should print some DMI values at boot. As far as I remember, I've seen
+> these at times of 2.4.0 or so. Now these outputs are deactivated with a 
+> #define dmi_printk(x)
+> 
+> Can someone explain why this has been deactivated? I would find these
+> values quite useful!
 
-On Mon, 30 Apr 2001, Eric S. Raymond wrote:
-
-> Alexander Viro <viro@math.psu.edu>:
-> > >From AFW FAQ:
-> > 
-> > Q11. What is the McQuary limit?
-> > A11. "There once was a man from Nantucket,
-> >      who lost his .sig in a bucket.
-> >      Five lines was too long,
-> >      columns 80 just strong,
-> >      so he didn't know where to tuck it."
-> > A11. The limit on signature size:  "4x80".
-> 
-> I just added the following to the Jargon File masters:
-> 
-> @hd{McQuary limit} @p{} 4 lines of at most 80 characters each,
->    sometimes still cited on Usenet as the maximum acceptable size of a
->    @es{sig block}.  Before the great bandwidth explosion of the early
->    1990s, long sigs actually cost people running Usenet servers
->    significant amounts of money.  Nowadays social pressure against
->    long sigs is intended to avoid waste of human attention rather
->    than machine bandwidth.  Accordingly, the McQuary limit should 
->    be considered a rule of thumb rather than a hard limit; it's
->    best to avoid sigs that are large, repetitive, and distracting.
->    See also @es{warlording}.
-> -- 
-> 		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-> 
-> What, then is law [government]? It is the collective organization of
-> the individual right to lawful defense."
-> 	-- Frederic Bastiat, "The Law"
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+They take up a lot of boot log space and you can recover them later. Take a 
+look at dmiscan.c on
+	ftp://ftp.linux.org.uk/pub/linux/alan/

@@ -1,93 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbVBIRL0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVBIROr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261851AbVBIRL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 12:11:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbVBIRLZ
+	id S261852AbVBIROr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 12:14:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261853AbVBIROq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 12:11:25 -0500
-Received: from fw.osdl.org ([65.172.181.6]:12973 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261851AbVBIRLS (ORCPT
+	Wed, 9 Feb 2005 12:14:46 -0500
+Received: from lug-owl.de ([195.71.106.12]:17844 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S261852AbVBIROj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 12:11:18 -0500
-Date: Wed, 9 Feb 2005 09:10:53 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: torvalds <torvalds@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] i386 defconfig: trim modules
-Message-Id: <20050209091053.45f89926.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 9 Feb 2005 12:14:39 -0500
+Date: Wed, 9 Feb 2005 18:14:38 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: LKML <linux-kernel@vger.kernel.org>,
+       Linux-Input <linux-input@atrey.karlin.mff.cuni.cz>
+Cc: Paulo Marques <pmarques@grupopie.com>, Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [RFC/RFT] [patch] Elo serial touchscreen driver
+Message-ID: <20050209171438.GI10594@lug-owl.de>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>,
+	Linux-Input <linux-input@atrey.karlin.mff.cuni.cz>,
+	Paulo Marques <pmarques@grupopie.com>,
+	Vojtech Pavlik <vojtech@suse.cz>
+References: <20050208164227.GA9790@ucw.cz> <420A0ECF.3090406@grupopie.com> <20050209170015.GC16670@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2MeieX8lS1K8IJ9W"
+Content-Disposition: inline
+In-Reply-To: <20050209170015.GC16670@ucw.cz>
+X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Is there some logical reason that these modules are selected
-in i386/defconfig?  Can we not default them to =m ?
+--2MeieX8lS1K8IJ9W
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Wed, 2005-02-09 18:00:15 +0100, Vojtech Pavlik <vojtech@suse.cz>
+wrote in message <20050209170015.GC16670@ucw.cz>:
+> On Wed, Feb 09, 2005 at 01:23:27PM +0000, Paulo Marques wrote:
+> > Vojtech Pavlik wrote:
+> > >Hi!
+> > >
+> > >I've written a driver for probably the most common touchscreen type -
+> > >the serial Elo touchscreen.
+> >=20
+> > If we are serious about getting support for serial touchscreens into th=
+e=20
+> > kernel, I can certainly give a hand there.
+>=20
+> I want serious support for ALL touchscreens in Linux.
 
+Maybe I'd write drivers for the T-Sharc and fujitsu controllers, too.
+These are in a lot of POS hardware, too, and sometimes they're a pain to
+use (esp. calibration).
 
-Reduce number of modules built via defconfig.
+Linux at the Point Of Sale is quite well running (I'm employed at a POS
+software company).
 
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+> And I'm glad there is interest. :)
 
-diffstat:=
- arch/i386/defconfig |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
+If I find a minute, I'll possibly give it a test run. I've got actual
+hardware around.
 
-diff -Naurp ./arch/i386/defconfig~defcfg ./arch/i386/defconfig
---- ./arch/i386/defconfig~defcfg	2005-01-15 16:13:03.848940080 -0800
-+++ ./arch/i386/defconfig	2005-01-15 16:47:14.933127888 -0800
-@@ -359,7 +359,7 @@ CONFIG_CHR_DEV_SG=y
- # CONFIG_SCSI_AIC7XXX is not set
- # CONFIG_SCSI_AIC7XXX_OLD is not set
- # CONFIG_SCSI_AIC79XX is not set
--CONFIG_SCSI_DPT_I2O=m
-+# CONFIG_SCSI_DPT_I2O is not set
- # CONFIG_SCSI_ADVANSYS is not set
- # CONFIG_SCSI_IN2000 is not set
- # CONFIG_SCSI_MEGARAID is not set
-@@ -388,7 +388,7 @@ CONFIG_SCSI_SATA_SIS=m
- # CONFIG_SCSI_IMM is not set
- # CONFIG_SCSI_NCR53C406A is not set
- # CONFIG_SCSI_SYM53C8XX_2 is not set
--CONFIG_SCSI_IPR=m
-+# CONFIG_SCSI_IPR is not set
- # CONFIG_SCSI_IPR_TRACE is not set
- # CONFIG_SCSI_IPR_DUMP is not set
- # CONFIG_SCSI_PAS16 is not set
-@@ -660,7 +660,7 @@ CONFIG_8139TOO_PIO=y
- # Ethernet (10000 Mbit)
- #
- # CONFIG_IXGB is not set
--CONFIG_S2IO=m
-+# CONFIG_S2IO is not set
- # CONFIG_S2IO_NAPI is not set
- 
- #
-@@ -1013,7 +1013,7 @@ CONFIG_USB_HIDINPUT=y
- # CONFIG_USB_KBTAB is not set
- # CONFIG_USB_POWERMATE is not set
- # CONFIG_USB_MTOUCH is not set
--CONFIG_USB_EGALAX=m
-+# CONFIG_USB_EGALAX is not set
- # CONFIG_USB_XPAD is not set
- # CONFIG_USB_ATI_REMOTE is not set
- 
-@@ -1063,8 +1063,8 @@ CONFIG_USB_EGALAX=m
- # CONFIG_USB_LEGOTOWER is not set
- # CONFIG_USB_LCD is not set
- # CONFIG_USB_LED is not set
--CONFIG_USB_CYTHERM=m
--CONFIG_USB_PHIDGETSERVO=m
-+# CONFIG_USB_CYTHERM is not set
-+# CONFIG_USB_PHIDGETSERVO is not set
- # CONFIG_USB_TEST is not set
- 
- #
+> > Also, I've already seen touchscreens where the POS manufacturer got the=
+=20
+> > pin-out wrong (or something like that) so the touch reports the X=20
+> > coordinate where the Y should be, and vice-versa. I really don't know=
+=20
+> > where this should be handled (driver, input layer, application?), but i=
+t=20
+> > must be handled somewhere for the applications to work.
+>=20
+> I think the best place would be in the X event driver, if X is used, or
+> the graphics toolkit, and worst case the application.
 
+First of all, we need a really properly working Linux event driver in
+XFree86/X.Org.  I'm not sure if this is already the case.
 
----
+> I don't believe the mirroring/flipping is kernel's job, since it tries
+> to always pass the data with the least amount of transformation applied
+> to achieve hardware abstraction.
+
+ACK. Should be handled by XFree86's driver.
+
+Additionally, there are two other things that need to be addressed (and
+I'm willing to actually write code for this, but need input from other
+parties, too:)
+
+	- Touchscreen calibration
+		Basically all these touchscreens are capable of being
+		calibrated. It's not done with just pushing the X/Y
+		values the kernel receives into the Input API. These
+		beasts may get physically mis-calibrated and eg. report
+		things like (xmax - xmin) <=3D 20, so resolution would be
+		really bad and kernel reported min/max values were only
+		"theoretical" values, based on the protocol specs.
+
+		I think about a simple X11 program for this. Comments?
+
+	- POS keyboards
+		These are real beasties. Next to LEDs and keycaps, they
+		can contain barcode scanners, magnetic card readers and
+		displays. Right now, there's no good API to pass
+		something as complex as "three-track magnetic stripe
+		data" or a whole scanned EAN barcode. Also, some
+		keyboards can be written to (change display contents,
+		switch on/off scanners, ...).
+
+		This is usually "solved" with a little patch that allows
+		userspace to write to the keyboard (/dev/psaux like),
+		but this is a bad hack (just look at the patches
+		floating around for this...).
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
+k!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--2MeieX8lS1K8IJ9W
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCCkT+Hb1edYOZ4bsRAvuGAJ9YMGrVsCH1uKKqBgEw+VSbtCwi9gCfb9cd
+rgEULRfGKS0kiJDKQbyRBlM=
+=BXGu
+-----END PGP SIGNATURE-----
+
+--2MeieX8lS1K8IJ9W--

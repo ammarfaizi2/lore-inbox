@@ -1,78 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbVCIO21@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVCIObf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261653AbVCIO21 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 09:28:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVCIO1p
+	id S261625AbVCIObf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 09:31:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVCIObf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 09:27:45 -0500
-Received: from mail4.utc.com ([192.249.46.193]:30713 "EHLO mail4.utc.com")
-	by vger.kernel.org with ESMTP id S261634AbVCIO11 (ORCPT
+	Wed, 9 Mar 2005 09:31:35 -0500
+Received: from [202.125.86.130] ([202.125.86.130]:33242 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S261625AbVCIObN convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 09:27:27 -0500
-Message-ID: <422F07C2.7080900@cybsft.com>
-Date: Wed, 09 Mar 2005 08:27:14 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Wed, 9 Mar 2005 09:31:13 -0500
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       "Jack O'Quin" <joq@io.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.11 low latency audio test results
-References: <1110324852.6510.11.camel@mindpipe>
-In-Reply-To: <1110324852.6510.11.camel@mindpipe>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: badness in interruptible_sleep_on_timeout FC-3 (source code and Makefile attached)
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Date: Wed, 9 Mar 2005 20:00:40 +0530
+Message-ID: <4EE0CBA31942E547B99B3D4BFAB348113A48BF@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: badness in interruptible_sleep_on_timeout FC-3 (source code and Makefile attached)
+Thread-Index: AcUktJGEv6XfIHC9RuGx9114gepojA==
+From: "Srinivas G." <srinivasg@esntechnologies.co.in>
+To: "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
+Cc: "Kernelnewbies Mailing List" <kernelnewbies@nl.linux.org>,
+       <michal@harddata.com>, <js@linuxtv.org>, <davej@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> OK, I have run some simple tests with JACK, Hydrogen, and 2.6.11.
-> 
-> 2.6.11 does not seem to be much of an improvement over 2.6.10.  It may
-> in fact be slightly worse.  This was what I expected, as it appears that
-> a number of latency fixes in the VM got preempted by the 4-level page
-> tables merge.
-> 
-> At 32 frames (0.667 ms latency) I get an xrun about every 10-20 seconds,
-> just running JACK and Hydrogen.
-> 
-> At 64 frames (1.33 ms latency) it's better, but I can easily cause
-> massive xruns with "dbench 32".
-> 
-> At 128 frames (2.66 ms) it seems to work pretty well.
-> 
-> Overall, this puts us about even with Windows XP, and somewhat worse
-> than Mac OS X.
-> 
-> Of course all of the above settings provide flawless xrun-free
-> performance with 2.6.11-rc4 + PREEMPT_RT.
-> 
+Dear All,
 
-The above mentioned patch will apply (and build and run) just fine to 
-2.6.11 if you fix the EXTRAVERSION portion of the patch to not expect -rc4.
+I have developed a small module in Fedora Core 3 with 2.6.9-1.667 kernel
+version. This module uses the interruptible_sleep_on_timeout call and
+one proc entry in it. After inserting the module when I try to cat the
+/proc entry I got the following messages on the screen.
 
-> Until Ingo releases the RT preempt patch for 2.6.11, I can't provide
-> details, because the vanilla kernel lacks sufficient instrumentation.
-> But the above results should help us move in the right direction.
-> 
-> Given the above results, and the performance of the RT patched kernel,
-> I don't see why 2.6.12 should not be able to solidly outperform Windows
-> and Mac in this area.
-> 
-> See the "Latency regressions" thread for some areas that might need
-> attention.
-> 
-> Lee
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+<jit_init> invoked!
+Badness in interruptible_sleep_on_timeout at kernel/sched.c:3005
+ [<02302989>] interruptible_sleep_on_timeout+0x5d/0x23a
+ [<0211b919>] default_wake_function+0x0/0xc
+ [<0aa120f9>] jit_read_queue+0x48/0x60 [badness_test]
+ [<021a515f>] proc_file_read+0xd1/0x1ee
+ [<0216554f>] vfs_read+0xb6/0xe2
+ [<02165762>] sys_read+0x3c/0x62
+Badness in interruptible_sleep_on_timeout at kernel/sched.c:3005
+ [<02302989>] interruptible_sleep_on_timeout+0x5d/0x23a
+ [<0211b919>] default_wake_function+0x0/0xc
+ [<0aa120f9>] jit_read_queue+0x48/0x60 [badness_test]
+ [<021a515f>] proc_file_read+0xd1/0x1ee
+ [<0216554f>] vfs_read+0xb6/0xe2
+ [<02165762>] sys_read+0x3c/0x62
 
+I tried with spinlocks also. Even though, I got the same messages.
+Here is the source code for the *.c file and Makefile.
+
+badness_test.c file 
+-------------------
+#include <linux/config.h>
+#include <linux/module.h>
+#include <linux/sched.h>
+#include <linux/kernel.h> 	/* printk() */
+#include <linux/fs.h>     	/* everything... */
+#include <linux/proc_fs.h>
+#include <linux/errno.h> 	/* error codes */
+#include <linux/types.h>  	/* size_t */
+
+/*
+ * This module is a silly one: it only embeds short code fragments
+ * that show how time delays can be handled in the kernel.
+ */
+
+int jit_delay = 1; /* the default delay in read() */
+char *jit_spoke = "Sample string to test various delay options.\n";
+
+MODULE_PARM(jit_delay, "i");
+MODULE_PARM(jit_spoke, "s");
+MODULE_LICENSE("GPL");
+
+#define LIMIT (PAGE_SIZE-128) /* don't print any more after this size */
+
+static int jit_print(char *buf)
+{
+    int len = 0;
+    len = sprintf(buf+len,"%s",jit_spoke);
+    return len;
+}
+
+int jit_read_queue(char *buf, char **start, off_t offset,
+                   int len, int *eof, void *data)
+{
+    wait_queue_head_t wait;
+
+    init_waitqueue_head (&wait);
+    interruptible_sleep_on_timeout(&wait, jit_delay*HZ);
+
+    *eof = 1;
+    return jit_print(buf);
+}
+
+int jit_init(void)
+{
+    printk("<%s> invoked!\n",__FUNCTION__);
+
+    create_proc_read_entry("jitqueue", 0, NULL, jit_read_queue, NULL);
+
+    return 0; /* succeed */
+}
+
+void jit_cleanup(void)
+{
+    printk("<%s> invoked!\n",__FUNCTION__);
+    
+    remove_proc_entry ("jitqueue", 0);
+}
+
+module_init(jit_init);
+module_exit(jit_cleanup);
+
+-----------------------------------------------------------------------
+
+Makefile 
+--------
+#
+# Makefile for badness_test.c file
+#
+KDIR:=/lib/modules/$(shell uname -r)/build
+TRGT:=badness_testing
+OBJS:=badness_test.o
+
+obj-m += $(TRGT).o
+$(TRGT)-objs := $(OBJS)
+
+default:
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
+clean:
+	$(RM) .*.cmd *.mod.c *.ko *.o -r .tmp*
+
+------------------------------------------------------------------------
+---
+
+Please give some advices on this issue. 
+
+Thanks and Regards,
+Srinivas G

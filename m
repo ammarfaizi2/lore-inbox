@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314284AbSG2J6U>; Mon, 29 Jul 2002 05:58:20 -0400
+	id <S314278AbSG2JyZ>; Mon, 29 Jul 2002 05:54:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314325AbSG2J6U>; Mon, 29 Jul 2002 05:58:20 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:63757 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314284AbSG2J6T>; Mon, 29 Jul 2002 05:58:19 -0400
-Message-ID: <3D45114F.5060704@evision.ag>
-Date: Mon, 29 Jul 2002 11:56:31 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: Art Haas <ahaas@neosoft.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] warning fix for ide.h
-References: <20020727170246.GA22926@debian>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S314284AbSG2JyZ>; Mon, 29 Jul 2002 05:54:25 -0400
+Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:47366 "EHLO
+	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S314278AbSG2JyY>; Mon, 29 Jul 2002 05:54:24 -0400
+Date: Mon, 29 Jul 2002 10:39:12 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>, torvalds@transmeta.com
+Subject: Re: [PATCH] automatic initcalls
+Message-ID: <20020729103912.A18765@nightmaster.csn.tu-chemnitz.de>
+References: <20020728033359.7B2A2444C@lists.samba.org> <3D436A44.8080505@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3D436A44.8080505@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Jul 27, 2002 at 11:51:32PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Art Haas wrote:
-> Hi.
-> 
-> I saw this when building 2.5.29 ...
-> 
-> make[2]: Entering directory `/mnt/src/linux-2.5.29/drivers/ide'
-> gcc -Wp,-MD,./.ide-cd.o.d -D__KERNEL__ -I/mnt/src/linux-2.5.29/include
-> -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
-> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
-> -march=i586 -nostdinc -iwithprefix include -DMODULE
-> -DKBUILD_BASENAME=ide_cd   -c -o ide-cd.o ide-cd.c
-> ide-cd.c: In function `ide_cdrom_do_request':
-> ide-cd.c:1623: warning: implicit declaration of function `ide_stall_queue'
-> 
-> Adding a prototype to ide.h removes the warning.
+On Sat, Jul 27, 2002 at 11:51:32PM -0400, Jeff Garzik wrote:
+> I've always preferred a system where one simply lists dependencies [as 
+> you describe above], and some program actually does the hard work of 
+> chasing down all the initcall dependency checking and ordering.
 
-Please don't bother - this function is subject to go.
+So we just need to build a directed graph, detect edges without
+existing nodes (someone changed the initcall, we depend on) and
+cycles (someone messed up the ordering) as errors, sort the
+resulting graph toplogically and dump it as a sequence.
 
+This is no rocket science and we have two tools, which does this
+all for us (make and tsort, which create a warning for both cases).
+
+The hard part is to CREATE all the dependencies and check and
+double check them with the maintainers.
+
+Regards
+
+Ingo Oeser
+-- 
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

@@ -1,79 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbVAGW4j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVAGWze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261688AbVAGW4j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 17:56:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbVAGW4W
+	id S261676AbVAGWze (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 17:55:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVAGWw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 17:56:22 -0500
-Received: from fw.osdl.org ([65.172.181.6]:45256 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261688AbVAGWxe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 17:53:34 -0500
-Date: Fri, 7 Jan 2005 14:58:01 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: mingo@elte.hu, viro@parcelfarce.linux.theplanet.co.uk, paulmck@us.ibm.com,
-       arjan@infradead.org, linux-kernel@vger.kernel.org, jtk@us.ibm.com,
-       wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
-       greghk@us.ibm.com, torvalds@osdl.org
-Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
-Message-Id: <20050107145801.64d55cd3.akpm@osdl.org>
-In-Reply-To: <20050107221905.GA17567@infradead.org>
-References: <20050106203258.GN26051@parcelfarce.linux.theplanet.co.uk>
-	<20050106210408.GM1292@us.ibm.com>
-	<20050106212417.GQ26051@parcelfarce.linux.theplanet.co.uk>
-	<20050106152621.395f935e.akpm@osdl.org>
-	<20050106234123.GA27869@infradead.org>
-	<20050106162928.650e9d71.akpm@osdl.org>
-	<20050107002624.GA29006@infradead.org>
-	<20050107090014.GA24946@elte.hu>
-	<20050107091542.GA5295@infradead.org>
-	<20050107140034.46aec534.akpm@osdl.org>
-	<20050107221905.GA17567@infradead.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Jan 2005 17:52:59 -0500
+Received: from amsfep18-int.chello.nl ([213.46.243.13]:33844 "EHLO
+	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261676AbVAGWux (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 17:50:53 -0500
+Date: Fri, 7 Jan 2005 23:50:49 +0100
+Message-Id: <200501072250.j07Monq3012305@anakin.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 539] M68k: Remove nowhere referenced files
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
->
-> On Fri, Jan 07, 2005 at 02:00:34PM -0800, Andrew Morton wrote:
-> > No, I'd say that unexports are different.  They can clearly break existing
-> > code and so should only be undertaken with caution, and with lengthy notice
-> > if possible.
-> 
-> As mentioned before we only unexported symbols were we were pretty clear
-> that all users of it are indeep utterly broken.  I got about a dozend
-> replies for this patches, and for more than half of it where the reporter
-> was either the author or the module was opensource I could help them to
-> actually fix their code.  In this case the code is far more broken than
-> the others, but we've even been trying to help them fix their code for
-> more than a year, but IBM folks have been constanly refusing.
+M68k: Remove nowhere referenced files
 
-They didn't fix their code because it worked - no reason to do so.
+Signed-off-by: Domen Puncer <domen@coderock.org>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Telling people "this is going away in 12 months" gives them reason to fix
-the code.  And a reasonable amount of time to do so and to distribute the
-new version.
+--- linux-2.6.10/arch/m68k/apollo/dn_debug.c	2004-05-24 11:13:22.000000000 +0200
++++ linux-m68k-2.6.10/arch/m68k/apollo/dn_debug.c	1970-01-01 01:00:00.000000000 +0100
+@@ -1,22 +0,0 @@
+-
+-#define DN_DEBUG_BUFFER_BASE 0x82800000
+-#define DN_DEBUG_BUFFER_SIZE 8*1024*1024
+-
+-static char *current_dbg_ptr=DN_DEBUG_BUFFER_BASE;
+-
+-int dn_deb_printf(const char *fmt, ...) {
+-
+-	va_list args;
+-	int i;
+-
+-	if(current_dbg_ptr<(DN_DEBUG_BUFFER_BASE + DN_DEBUG_BUFFER_SIZE)) {
+-		va_start(args,fmt);
+-		i=vsprintf(current_dbg_ptr,fmt,args);
+-		va_end(args);
+-		current_dbg_ptr+=i;
+-
+-		return i;
+-	}
+-	else
+-		return 0;
+-}
+--- linux-2.6.10/arch/m68k/sun3x/sun3x_ksyms.c	2004-04-27 16:25:45.000000000 +0200
++++ linux-m68k-2.6.10/arch/m68k/sun3x/sun3x_ksyms.c	1970-01-01 01:00:00.000000000 +0100
+@@ -1,13 +0,0 @@
+-#include <linux/module.h>
+-#include <linux/types.h>
+-#include <asm/dvma.h>
+-#include <asm/idprom.h>
+-
+-/*
+- * Add things here when you find the need for it.
+- */
+-EXPORT_SYMBOL(dvma_map_align);
+-EXPORT_SYMBOL(dvma_unmap);
+-EXPORT_SYMBOL(dvma_malloc_align);
+-EXPORT_SYMBOL(dvma_free);
+-EXPORT_SYMBOL(idprom);
+--- linux-2.6.10/include/asm-m68k/atari_SCCserial.h	2004-05-24 11:13:52.000000000 +0200
++++ linux-m68k-2.6.10/include/asm-m68k/atari_SCCserial.h	1970-01-01 01:00:00.000000000 +0100
+@@ -1,67 +0,0 @@
+-#ifndef _ATARI_SCCSERIAL_H
+-#define _ATARI_SCCSERIAL_H
+-
+-/* Special configuration ioctls for the Atari SCC5380 Serial
+- * Communications Controller
+- */
+-
+-/* ioctl command codes */
+-
+-#define TIOCGATSCC	0x54c0	/* get SCC configuration */
+-#define TIOCSATSCC	0x54c1	/* set SCC configuration */
+-#define TIOCDATSCC	0x54c2	/* reset configuration to defaults */
+-
+-/* Clock sources */
+-
+-#define CLK_RTxC	0
+-#define CLK_TRxC	1
+-#define CLK_PCLK	2
+-
+-/* baud_bases for the common clocks in the Atari. These are the real
+- * frequencies divided by 16.
+- */
+-
+-#define SCC_BAUD_BASE_TIMC	19200	/* 0.3072 MHz from TT-MFP, Timer C */
+-#define SCC_BAUD_BASE_BCLK	153600	/* 2.4576 MHz */
+-#define SCC_BAUD_BASE_PCLK4	229500	/* 3.6720 MHz */
+-#define SCC_BAUD_BASE_PCLK	503374	/* 8.0539763 MHz */
+-#define SCC_BAUD_BASE_NONE	0		/* for not connected or unused
+-						 * clock sources */
+-
+-#define SCC_BAUD_BASE_M147_PCLK	312500	/* 5 MHz */
+-#define SCC_BAUD_BASE_M147	312500	/* 5 MHz */
+-#define SCC_BAUD_BASE_MVME_PCLK	781250	/* 12.5 MHz */
+-#define SCC_BAUD_BASE_MVME	625000	/* 10.000 MHz */
+-#define SCC_BAUD_BASE_BVME_PCLK	781250	/* 12.5 MHz */   /* XXX ??? */
+-#define SCC_BAUD_BASE_BVME	460800	/* 7.3728 MHz */
+-
+-/* The SCC configuration structure */
+-
+-struct atari_SCCserial {
+-	unsigned	RTxC_base;	/* base_baud of RTxC */
+-	unsigned	TRxC_base;	/* base_baud of TRxC */
+-	unsigned	PCLK_base;	/* base_baud of PCLK, for both channels! */
+-	struct {
+-		unsigned clksrc;	/* CLK_RTxC, CLK_TRxC or CLK_PCLK */
+-		unsigned divisor;	/* divisor for base baud, valid values:
+-					 * see below */
+-	} baud_table[17];		/* For 50, 75, 110, 135, 150, 200, 300,
+-					 * 600, 1200, 1800, 2400, 4800, 9600,
+-					 * 19200, 38400, 57600 and 115200 bps. The
+-					 * last two could be replaced by other
+-					 * rates > 38400 if they're not possible.
+-					 */
+-};
+-
+-/* The following divisors are valid:
+- *
+- *   - CLK_RTxC: 1 or even (1, 2 and 4 are the direct modes, > 4 use
+- *               the BRG)
+- *
+- *   - CLK_TRxC: 1, 2 or 4 (no BRG, only direct modes possible)
+- *
+- *   - CLK_PCLK: >= 4 and even (no direct modes, only BRG)
+- *
+- */
+-
+-#endif /* _ATARI_SCCSERIAL_H */
 
-> > The cost to us of maintaining those two lines of code for a year is
-> > basically zero.
-> 
-> But as long as IBM people don't fix their %$^%! they'll continue annoying
-> us and the Distibutors about adding more and more hacks for it,
+Gr{oetje,eeting}s,
 
-Maybe, maybe not.  But is it appropriate for us to be trying to control
-someone else's internal activities via alterations to the kernel?
+						Geert
 
-> and other
-> people will write similarly crappy code using it again and making the
-> removal even more difficult. 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-I doubt if people would be silly enough to use a deprecated export in new
-code after the export has been scheduled for removal.  If they do then yes,
-sorry, we have to draw the line somewhere.
-
-You still have not demonstrated any benefit to any party from not delaying
-the removal of these two exports.
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

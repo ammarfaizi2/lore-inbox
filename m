@@ -1,74 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262788AbTLDBDN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 20:03:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbTLDBDN
+	id S262784AbTLDBCG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 20:02:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbTLDBCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 20:03:13 -0500
-Received: from ns1.skjellin.no ([80.239.42.66]:10700 "HELO mail.skjellin.no")
-	by vger.kernel.org with SMTP id S262789AbTLDBDE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 20:03:04 -0500
-Subject: Re: Serial ATA (SATA) for Linux status report
-From: Andre Tomt <lkml@tomt.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-In-Reply-To: <3FCE737C.1080105@pobox.com>
-References: <20031203204445.GA26987@gtf.org>
-	 <1070494030.15415.111.camel@slurv.pasop.tomt.net>
-	 <3FCE737C.1080105@pobox.com>
-Content-Type: text/plain
-Message-Id: <1070499770.15415.158.camel@slurv.pasop.tomt.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 04 Dec 2003 02:02:50 +0100
+	Wed, 3 Dec 2003 20:02:06 -0500
+Received: from ferreol-1-82-66-171-16.fbx.proxad.net ([82.66.171.16]:49420
+	"EHLO diablo.hd.free.fr") by vger.kernel.org with ESMTP
+	id S262784AbTLDBCD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 20:02:03 -0500
+Message-ID: <3FCE877B.3010703@free.fr>
+Date: Thu, 04 Dec 2003 02:01:47 +0100
+From: Vince <fuzzy77@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+CC: "Randy.Dunlap" <rddunlap@osdl.org>, Mike Fedyk <mfedyk@matchmail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [kernel panic @ reboot] 2.6.0-test10-mm1
+References: <3FC4DA17.4000608@free.fr> <Pine.LNX.4.58.0311261213510.1683@montezuma.fsmlabs.com> <3FC4E42A.40906@free.fr> <Pine.LNX.4.58.0311261240210.1683@montezuma.fsmlabs.com> <3FC4E8C8.4070902@free.fr> <Pine.LNX.4.58.0311261305020.1683@montezuma.fsmlabs.com> <20031126233738.GD1566@mis-mike-wstn.matchmail.com> <3FC53A3B.50601@free.fr> <20031202160303.2af39da0.rddunlap@osdl.org> <20031203003106.GF4154@mis-mike-wstn.matchmail.com> <20031202162745.40c99509.rddunlap@osdl.org> <3FCDE506.7020302@free.fr> <Pine.LNX.4.58.0312031409410.27578@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.58.0312031409410.27578@montezuma.fsmlabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-12-04 at 00:36, Jeff Garzik wrote:
-> Andre Tomt wrote:
-> > One question - with "including hotplug", does that mean some set hotplug
-> > standard? Reason I'm asking is, we have a few servers from SuperMicro,
-> > with a ICH5R S-ATA controller that claims it's supporting hotplug, but
-> > hotplug is not in your ICH5-summary.
+Zwane Mwaikambo wrote:
+> On Wed, 3 Dec 2003, Vince wrote:
 > 
-> Alas, there is no hotplug support in the ICH5 or ICH5-R SATA hardware.
 > 
-> One could argue there is "coldplug" support in that hardware -- disable 
-> the entire interface, including any active devices, then re-enable and 
-> re-scan -- but it's a bit of a hack.  If there's enough demand, I could 
-> write some code for that.  It would involve something like
+>>Well, I get indeed a nice oops on screen with this sysctl... but the
+>>oops/panic does not appear on the floppy dump  :-/
+>>
+>>--------------------------------------------------------
+>><0>Kernel panic: Fatal exception
+>><4> <0>Dumping messages in 100 seconds : last chance for
+>>Alt-SysRq...<6>SysRq :
+>>Emergency Sync
+>><6>SysRq : Emergency Sync
+>><6>SysRq : Emergency Remount R/O
+>><6>SysRq : Trying to dump through real mode
+>><4>
+>>---------------------------------------------------------
 > 
-> 	# /sbin/sata off
-> 	{ plug in or remove a device }
-> 	# /sbin/sata on
 > 
-> You really, really, really don't want to actually unplug a SATA drive 
-> while it's active, on ICH5 hardware.
+> Do you see any floppy disk activity at all? I'll see if i can come up with
+> something.
 
-Hmm. There is a backplane involved, that might change things a little.
-
-Quoting the manual:
-"A Serial ATA controller is incorporated into the 875P chipset to
-provide a two-port Serial ATA subsystem, which is RAID 0 and RAID 1
-supported. The Serial ATA drives are hot-swappable units. Note: The
-operating system you use must have RAID support to enable the hot-swap
-capability and RAID function of the Serial ATA drives."
-
-"The Serial ATA drives plug into a backplane that provides power, drive
-ID and bus termination. A RAID controller can be used with the backplane
-to provide data security. The operating system you use must have RAID
-support to enable the hot-swap capability of the Serial ATA drives."
-
-The wording here is a little confusing, but hot-swap seems to work quite
-well with intels windows fakeraid-drivers, at least. One just pushes the
-"i'm going to pull you out now"-button on the tray, and pull the drive
-tray out. Maybe it triggers an event to the fakeraid-driver, wich then
-powers down the bus? black backplane-magic?
-
-Anyways, REAL S-ATA hardware RAID controllers are pretty cheap over here
-nowadays..
-
-[trimmed off linux-scsi]
+Yes, there *is* floppy activity. The previous messages make it to the 
+floppy (in that case, I experienced with 
+Alt-Sysrq+S/Alt-Sysrq+U/Alt-Sysrq+D), but the oops doesn't...
 

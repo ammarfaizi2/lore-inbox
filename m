@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbUKOUp2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbUKOVfm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261703AbUKOUp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 15:45:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbUKOUn5
+	id S261360AbUKOVfm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 16:35:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbUKOVdX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 15:43:57 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:39625 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261693AbUKOUlN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 15:41:13 -0500
-Date: Mon, 15 Nov 2004 21:41:00 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Dean Nelson <dcn@sgi.com>
-cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch] export sched_setscheduler() for kernel module use
-In-Reply-To: <20041115203343.GA32173@sgi.com>
-Message-ID: <Pine.LNX.4.53.0411152139580.19849@yvahk01.tjqt.qr>
-References: <4198F70D.mailxMSZ11J00J@aqua.americas.sgi.com>
- <20041115105801.T14339@build.pdx.osdl.net> <20041115203343.GA32173@sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+	Mon, 15 Nov 2004 16:33:23 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:16275 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261398AbUKOVbu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 16:31:50 -0500
+Date: Mon, 15 Nov 2004 15:31:39 -0600
+From: Robin Holt <holt@sgi.com>
+To: linux-os@analogic.com
+Cc: Norbert van Nobelen <Norbert@edusupport.nl>, Robin Holt <holt@sgi.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 21 million inodes is causing severe pauses.
+Message-ID: <20041115213139.GA14258@lnx-holt.americas.sgi.com>
+References: <20041115195551.GA15380@lnx-holt.americas.sgi.com> <200411152135.35121.Norbert@edusupport.nl> <Pine.LNX.4.61.0411151549060.22810@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0411151549060.22810@chaos.analogic.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> * Dean Nelson (dcn@sgi.com) wrote:
->> > +int do_sched_setscheduler(pid_t pid, int policy, struct sched_param __user *param)
->>
->> this should be static.
->
->You're right. I made another change in that one now passes the task_struct
->pointer to sched_setscheduler() instead of the pid. This requires that
->the caller of sched_setscheduler() hold the tasklist_lock. The new patch
->for people's feedback follows.
+On Mon, Nov 15, 2004 at 03:57:44PM -0500, linux-os wrote:
+> 
+> Another temporary fix is to do:
+> 
+> while true ; do sleep 5 ; sync ; done
 
-Hi,
+I don't think we are looking at a flushing buffers to disk problem.
+Even after doing a sync, I see 1.3M entries.  Before the sync, I
+was at 1.2M, so the count went up during the sync.
 
-can you elaborate a little why passing the task struct/pid is better/worse,
-respectively?
+I am specifically noticing problems with the inode_list and not
+buffers.
 
+> 
+> ... or some 'C' code equivalent to force most of the stuff to
+> disk before it takes so much time that it's obvious to the
+> users.
+> 
+> If you have soooo much data buffered, it is going to take a
+> verrrry long time to write it to disk so. Just write it before
+> you have so much buffered!
 
-Jan Engelhardt
--- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de
+This is already being done.  Nearly all of the inodes have
+buffers that are expired and have been pushed to disk.
+
+> 
+> NULL pointer problems shouldn't happen. However, you don't say
+> if its a kernel crash problem or a user-mode problem. If it's
+> a user-mode problem, the possibility exists that somebody isn't
+> properly checking the return value of read/write, etc. If EIO
+> (from attempting to modify an inode) was return in errno, you
+> get -1 in the return value, it that's used as an index into the
+> next bunch of data, you are dorked.
+
+Kernel null pointer dereference in remove_inode_buffers().
+
+Thanks,
+Robin

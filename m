@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262107AbTCZTp7>; Wed, 26 Mar 2003 14:45:59 -0500
+	id <S262399AbTCZTwy>; Wed, 26 Mar 2003 14:52:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262118AbTCZTp6>; Wed, 26 Mar 2003 14:45:58 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:25606 "EHLO
+	id <S262402AbTCZTwy>; Wed, 26 Mar 2003 14:52:54 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:31494 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262107AbTCZTp5>; Wed, 26 Mar 2003 14:45:57 -0500
-Date: Wed, 26 Mar 2003 19:57:08 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Framebuffer fixes.
-Message-ID: <Pine.LNX.4.44.0303261951090.21188-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262399AbTCZTwu>; Wed, 26 Mar 2003 14:52:50 -0500
+Date: Wed, 26 Mar 2003 20:04:02 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com
+Subject: Re: [PATCH] s390 update (1/9): s390 arch fixes.
+Message-ID: <20030326200402.A21308@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com
+References: <OF80FD93D6.AA8C5DBA-ONC1256CF5.00589668@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <OF80FD93D6.AA8C5DBA-ONC1256CF5.00589668@de.ibm.com>; from schwidefsky@de.ibm.com on Wed, Mar 26, 2003 at 05:20:39PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> s390 and s390x are similar at the first glance. But if you look in detail
+> you will notice that there are a lot of small differences. A simple diff
+> of the files that are present in both arch folger gives a patch of 5600
+> lines.
 
-Okay. Here you go. This patch is against 2.5.66 vanialla. I tested to see 
-if it applied. It does. Basically I added back in the static buffers in 
-accel_cursor in fbcon.c. Now the cursor will work just like it did before. 
-The draw back is that if you have more than one framebuffer then the 
-cursors will be messed up. So for single headed frmaebuffer systems it 
-will work perfectly. It is not that big of a deal since the console layer 
-is broken for multi-head and pre-emptive support anyways. Plus fbcon has 
-issues as well. The proper fix would require a huge amount of work. 
-I have a few updated drivers as well. Please test.
+Now actually take a look at this diff :)  The biggest part is that the
+s390 compat files exist only on s390x and the math-emu dir only exists
+on s390, that's just a matter of conditionally compiling the files.
 
-http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
+Then there's of course slightly different assembly, this is just different
+but can be abstracted out nicely.  In C code there's lots of spurious
+differences that don't make any sense (like using the proper type on s390x
+but soething that doesn't matter on s390, commenting changes, etc..).
 
- drivers/video/aty/aty128fb.c    |   16 +-
- drivers/video/cfbimgblt.c       |    4
- drivers/video/console/fbcon.c   |  246 +++++++++++++++++++++-------------------
- drivers/video/controlfb.c       |   18 --
- drivers/video/fbmem.c           |   42 ++----
- drivers/video/i810/i810.h       |    6
- drivers/video/i810/i810_accel.c |  140 +++++++++++-----------
- drivers/video/i810/i810_dvt.c   |    3
- drivers/video/i810/i810_gtf.c   |    7 -
- drivers/video/i810/i810_main.c  |  135 +++++++++------------
- drivers/video/i810/i810_main.h  |    4
- drivers/video/logo/logo.c       |   69 +++++------
- drivers/video/platinumfb.c      |   28 +---
- drivers/video/radeonfb.c        |   10 +
- drivers/video/riva/fbdev.c      |    2
- drivers/video/softcursor.c      |   95 ++++-----------
- drivers/video/tdfxfb.c          |   18 +-
- drivers/video/tgafb.c           |    2
- drivers/video/vga16fb.c         |    4
- include/linux/fb.h              |    4
- include/linux/linux_logo.h      |    2
- 21 files changed, 393 insertions(+), 462 deletions(-)
+There's still some real differences of course, but it's really a small
+amount of the code size.
 
 

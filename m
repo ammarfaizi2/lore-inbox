@@ -1,92 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbUKSOmE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbUKSOnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbUKSOmE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 09:42:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbUKSOmE
+	id S261438AbUKSOnY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 09:43:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbUKSOnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 09:42:04 -0500
-Received: from soundwarez.org ([217.160.171.123]:4816 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S261429AbUKSOl6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 09:41:58 -0500
-Subject: Re: [ANNOUNCE] udev 046 release
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Mathieu Segaud <matt@minas-morgul.org>
-Cc: Greg KH <greg@kroah.com>,
-       Hotplug Devel <linux-hotplug-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <87sm76oz9z.fsf@barad-dur.crans.org>
-References: <20041118224411.GA10876@kroah.com>
-	 <87sm76oz9z.fsf@barad-dur.crans.org>
-Content-Type: multipart/mixed; boundary="=-yXzIELDcXJB7zFcFMBnv"
-Date: Fri, 19 Nov 2004 15:42:19 +0100
-Message-Id: <1100875339.18701.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-4) 
+	Fri, 19 Nov 2004 09:43:23 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21947 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261433AbUKSOm2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 09:42:28 -0500
+Message-ID: <419E0644.909@pobox.com>
+Date: Fri, 19 Nov 2004 09:42:12 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@redhat.com>
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       "Tomita, Haruo" <haruo.tomita@toshiba.co.jp>,
+       Marcelo Tosatti <marcelo@hera.kernel.org>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: linux-2.4.28 released
+References: <BF571719A4041A478005EF3F08EA6DF05EB481@pcsmail03.pcs.pc.ome.toshiba.co.jp> <20041118111235.GA26216@logos.cnet> <20041119134832.GA9552@havoc.gtf.org> <20041119135452.GA10422@devserv.devel.redhat.com>
+In-Reply-To: <20041119135452.GA10422@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-yXzIELDcXJB7zFcFMBnv
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Fri, 2004-11-19 at 12:26 +0100, Mathieu Segaud wrote:
-> seems like these changes broke something in rules applying to eth* devices.
-> the rules put and still working with udev 045 have no effect, now....
-> not so inconvenient now that I've got just one card in my box, but I guess
-> it could be a show-stopper for laptop users.
+Alan Cox wrote:
+> On Fri, Nov 19, 2004 at 08:48:32AM -0500, Jeff Garzik wrote:
 > 
-> My rules which can be found at the end of /etc/udev/rules.d/50-udev.rules are:
+>>PATA and SATA (DMA doesn't work for PATA, in split-driver configuration),
+>>and there is no split-driver to worry about.
+>>
+>>I think there may need to be some code to prevent the IDE driver from
+>>claiming the legacy ISA ports.
 > 
-> KERNEL="eth*", SYSFS{address}="00:10:5a:49:36:d8", NAME="external"
-> KERNEL="eth*", SYSFS{address}="00:50:04:69:db:56", NAME="private"
-> KERNEL="eth*", SYSFS{address}="00:0c:6e:e4:2c:81", NAME="dmz"
+> 
+> Its called "request_resource". If you want the resource claim it. IDE will
+> be a good citizen.
 
-This should fix it.
+That's what the quirk does.  libata still needs to find out who obtained 
+the resource, not blindly grab it (and fail).
 
-Thanks,
-Kay
- 
+	Jeff
 
---=-yXzIELDcXJB7zFcFMBnv
-Content-Disposition: inline; filename=udev-device-type-01.patch
-Content-Type: text/x-patch; name=udev-device-type-01.patch; charset=utf-8
-Content-Transfer-Encoding: 7bit
 
-diff -Nru a/udev_lib.c b/udev_lib.c
---- a/udev_lib.c	2004-11-19 15:40:52 +01:00
-+++ b/udev_lib.c	2004-11-19 15:40:52 +01:00
-@@ -40,6 +40,7 @@
- 		     const char *subsystem, const char* action)
- {
- 	memset(udev, 0x00, sizeof(struct udevice));
-+
- 	if (devpath)
- 		strfieldcpy(udev->devpath, devpath);
- 	if (subsystem)
-@@ -49,17 +50,13 @@
- 
- 	if (strcmp(udev->subsystem, "block") == 0)
- 		udev->type = 'b';
--
--	if (strcmp(udev->subsystem, "net") == 0)
-+	else if (strcmp(udev->subsystem, "net") == 0)
- 		udev->type = 'n';
--
--	if (strncmp(udev->devpath, "/block/", 7) == 0)
-+	else if (strncmp(udev->devpath, "/block/", 7) == 0)
- 		udev->type = 'b';
--
--	if (strncmp(udev->devpath, "/class/net/", 11) == 0)
-+	else if (strncmp(udev->devpath, "/class/net/", 11) == 0)
- 		udev->type = 'n';
--
--	if (strncmp(udev->devpath, "/class/", 7) == 0)
-+	else if (strncmp(udev->devpath, "/class/", 7) == 0)
- 		udev->type = 'c';
- }
- 
-
---=-yXzIELDcXJB7zFcFMBnv--
 

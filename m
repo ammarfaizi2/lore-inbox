@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264993AbTFQW4R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 18:56:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264994AbTFQW4R
+	id S264992AbTFQWyj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 18:54:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264993AbTFQWyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 18:56:17 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:42707 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264993AbTFQW4N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 18:56:13 -0400
-Date: Wed, 18 Jun 2003 01:10:01 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Joe Thornber <thornber@sistina.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/7] dm: Replace __HIGH() and __LOW() macros
-Message-ID: <20030617231000.GH29247@fs.tum.de>
-References: <20030609142946.GA11331@fib011235813.fsnet.co.uk> <20030609143440.GB11331@fib011235813.fsnet.co.uk>
-Mime-Version: 1.0
+	Tue, 17 Jun 2003 18:54:39 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:32941 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S264992AbTFQWyi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 18:54:38 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030609143440.GB11331@fib011235813.fsnet.co.uk>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16111.40816.147471.84610@napali.hpl.hp.com>
+Date: Tue, 17 Jun 2003 16:08:32 -0700
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: davidm@hpl.hp.com, Riley Williams <Riley@Williams.Name>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] input: Fix CLOCK_TICK_RATE usage ...  [8/13]
+In-Reply-To: <20030618004233.B21001@ucw.cz>
+References: <16110.4883.885590.597687@napali.hpl.hp.com>
+	<BKEGKPICNAKILKJKMHCAEEOAEFAA.Riley@Williams.Name>
+	<16111.37901.389610.100530@napali.hpl.hp.com>
+	<20030618002146.A20956@ucw.cz>
+	<16111.38768.926655.731251@napali.hpl.hp.com>
+	<20030618004233.B21001@ucw.cz>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 09, 2003 at 03:34:40PM +0100, Joe Thornber wrote:
-> Replace __HIGH() and __LOW() with max() and min_not_zero().
-> --- diff/drivers/md/dm-table.c	2003-05-21 11:50:15.000000000 +0100
-> +++ source/drivers/md/dm-table.c	2003-06-09 15:04:57.000000000 +0100
-> @@ -78,22 +78,33 @@
->  	return result;
->  }
->  
-> -#define __HIGH(l, r) if (*(l) < (r)) *(l) = (r)
-> -#define __LOW(l, r) if (*(l) == 0 || *(l) > (r)) *(l) = (r)
-> +/*
-> + * Returns the minimum that is _not_ zero, unless both are zero.
-> + */
-> +#define min_not_zero(l, r) (l == 0) ? r : ((r == 0) ? l : min(l, r))
->...
+>>>>> On Wed, 18 Jun 2003 00:42:33 +0200, Vojtech Pavlik <vojtech@suse.cz> said:
 
-Are there potential other users of min_not_zero?
-If yes, shouldn't it go into kernel.h?
+  >> so if a legacy speaker is present, it assumes a particular
+  >> frequency.  In other words: it's a driver issue.  On ia64, this
+  >> frequency certainly has nothing to do with time-keeping and
+  >> therefore doesn't belong in timex.h.
 
-cu
-Adrian
+  Vojtech> I'm quite fine with that. However, different (sub)archs,
+  Vojtech> for example the AMD Elan CPUs have a slightly different
+  Vojtech> base frequency. So it looks like an arch-dependent #define
+  Vojtech> is needed. I don't care about the location (timex.h indeed
+  Vojtech> seems inappropriate, maybe the right location is pcspkr.c
+  Vojtech> ...), or the name, but something needs to be done so that
+  Vojtech> the beeps have the same sound the same on all archs.
 
--- 
+Sounds much better to me.  Wouldn't something along the lines of this
+make the most sense:
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+  #ifdef __ARCH_PIT_FREQ
+  # define PIT_FREQ	__ARCH_PIT_FREQ
+  #else
+  # define PIT_FREQ	1193182
+  #endif
 
+After all, it seems like the vast majority of legacy-compatible
+hardware _do_ use the standard frequency.
+
+	--david

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264216AbTH2B0S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 21:26:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbTH2B0S
+	id S264341AbTH2BZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 21:25:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264348AbTH2BZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 21:26:18 -0400
-Received: from adsl-67-114-19-186.dsl.pltn13.pacbell.net ([67.114.19.186]:56807
-	"EHLO bastard") by vger.kernel.org with ESMTP id S264348AbTH2B0H
+	Thu, 28 Aug 2003 21:25:59 -0400
+Received: from adsl-67-114-19-186.dsl.pltn13.pacbell.net ([67.114.19.186]:54759
+	"EHLO bastard") by vger.kernel.org with ESMTP id S264341AbTH2BZy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 21:26:07 -0400
-Message-ID: <3F4EABAD.1020408@tupshin.com>
-Date: Thu, 28 Aug 2003 18:26:05 -0700
+	Thu, 28 Aug 2003 21:25:54 -0400
+Message-ID: <3F4EAB9F.9080205@tupshin.com>
+Date: Thu, 28 Aug 2003 18:25:51 -0700
 From: Tupshin Harper <tupshin@tupshin.com>
 User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030813 Thunderbird/0.2a
 X-Accept-Language: en-us, en

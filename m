@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272316AbRHXUYL>; Fri, 24 Aug 2001 16:24:11 -0400
+	id <S272318AbRHXUZb>; Fri, 24 Aug 2001 16:25:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272320AbRHXUYB>; Fri, 24 Aug 2001 16:24:01 -0400
-Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:23462 "EHLO
-	mailout.plan9.de") by vger.kernel.org with ESMTP id <S272316AbRHXUXm>;
-	Fri, 24 Aug 2001 16:23:42 -0400
-Date: Fri, 24 Aug 2001 22:23:50 +0200
-From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
-To: Daryll Strauss <daryll@valinux.com>
-Cc: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: software raid does not do parallel reads under 2.4?
-Message-ID: <20010824222350.C12903@fuji.laendle>
-Mail-Followup-To: Daryll Strauss <daryll@valinux.com>,
-	Wilfried Weissmann <Wilfried.Weissmann@gmx.at>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010823234218.B12873@cerebro.laendle> <15238.11161.492557.264988@notabene.cse.unsw.edu.au> <3B868874.B89B04DE@gmx.at> <20010824101439.C1717@newbie>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20010824101439.C1717@newbie>
-X-Operating-System: Linux version 2.4.8-ac8 (root@cerebro) (gcc version 3.0.1) 
+	id <S272319AbRHXUZL>; Fri, 24 Aug 2001 16:25:11 -0400
+Received: from [209.10.41.242] ([209.10.41.242]:43414 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S272318AbRHXUZH>;
+	Fri, 24 Aug 2001 16:25:07 -0400
+Date: Fri, 24 Aug 2001 17:19:07 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
+        "Marc A. Lehmann" <pcg@goof.com>, <linux-kernel@vger.kernel.org>,
+        <oesi@plan9.de>
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+In-Reply-To: <20010824201125Z16096-32383+1213@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.33L.0108241713420.31410-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 24, 2001 at 10:14:39AM -0700, Daryll Strauss <daryll@valinux.com> wrote:
-> > There were a lot of ide reports some time ago. Maybe they where problems
-> > with concurrent I/O operations...?
-> 
-> I'm seeing similar behavior with SCSI. I've got two SCSI channels. If I
-> run two dd's each talking to disks on different channels, I get 2x disk
+On Fri, 24 Aug 2001, Daniel Phillips wrote:
+> On August 24, 2001 07:43 pm, Rik van Riel wrote:
 
-similar, but quite different: the difefrence is that i get full speed when
-accessing drives as /dev/hdx, but slow speed when doping the same opertaion
-using md.
+> > 1) under memory pressure, the inactive_dirty list is
+> >    only as large as 1 second of pageout IO, meaning
+> 		      ^^^^^^^^
+> This is the problem.  In the absense of competition and truly
+> active pages, the inactive queue should just grow until it is
+> much larger than the active ring.  Then the replacement policy
+> will naturally become fifo, which is exactly what you want in
+> your example.
 
--- 
-      -----==-                                             |
-      ----==-- _                                           |
-      ---==---(_)__  __ ____  __       Marc Lehmann      +--
-      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
-      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
-    The choice of a GNU generation                       |
-                                                         |
+Actually, no.  FIFO would be ok if you had ONE readahead
+stream going on, but when you have multiple readahead
+streams going on you want to evict the data each of the
+streams has already used, and not all the readahead data
+which happened to be read in first.
+
+> Anyway, this is a theoretical problem, we haven't seen it in the
+> wild yet, or a test load that demonstrates it.
+
+I've seen it in the wild, have given you a test load and
+have shown you the arithmetic explaining what's going on.
+
+How long will you continue ignoring things which aren't
+convenient to your idea of the world ?
+
+regards,
+
+Rik
+--
+IA64: a worthy successor to the i860.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

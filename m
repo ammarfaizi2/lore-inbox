@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261339AbSLAAFW>; Sat, 30 Nov 2002 19:05:22 -0500
+	id <S261346AbSLAASJ>; Sat, 30 Nov 2002 19:18:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261346AbSLAAFW>; Sat, 30 Nov 2002 19:05:22 -0500
-Received: from mtl.slowbone.net ([213.237.73.175]:9603 "EHLO
-	leeloo.slowbone.net") by vger.kernel.org with ESMTP
-	id <S261339AbSLAAFU>; Sat, 30 Nov 2002 19:05:20 -0500
-Message-ID: <018501c298ce$6e4e10d0$0201a8c0@mtl>
-From: =?iso-8859-1?Q?Thorbj=F8rn_Lind?= <mtl@slowbone.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: quirk_via_ioapic
-Date: Sun, 1 Dec 2002 01:13:10 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S261349AbSLAASJ>; Sat, 30 Nov 2002 19:18:09 -0500
+Received: from r2q57.mistral.cz ([62.245.80.57]:23936 "EHLO ppc.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id <S261346AbSLAASI>;
+	Sat, 30 Nov 2002 19:18:08 -0500
+Date: Sun, 1 Dec 2002 01:25:33 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Matt Reppert <arashi@arashi.yi.org>
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.co.au
+Subject: Re: [PATCH] Unsafe MODULE_ usage in crc32.c
+Message-ID: <20021201002533.GA2869@ppc.vc.cvut.cz>
+References: <20021130181224.4b4cddad.arashi@arashi.yi.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021130181224.4b4cddad.arashi@arashi.yi.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Performs the following code when io_apic is enabled.
+On Sat, Nov 30, 2002 at 06:12:24PM -0600, Matt Reppert wrote:
+> Hi,
+> 
+> Okay, I know, it's just a library module, doesn't need to ever be unloaded
+> anyway. But error noise in dmesg annoys me, hence this patch.
+ 
+Better asking Rusty, why module cannot call MOD_INC_USE_COUNT on itself
+during its own init... I'm pretty sure that crc32 module knows that nobody
+can unload it at this point: it is executing its own code, isn't it?
+					Petr Vandrovec
+					vandrove@vc.cvut.cz
 
-tmp = 0x1f;
-pci_write_config_byte (dev, 0x58, tmp);
-
-Which happens to be a bad idea(tm) on my Tyan Tiger 230T (Via 691+686 chipset) because it will cause
-one of the upper IRQ lines (>15) to trigger about 10M times / minute. In this case it's the ide
-controller, but is seen on other devices too.
-
-Things sortof work w/o the quirk.
-What is going on here ? :)
-
-leeloo:~# cat /proc/interrupts...
- 17:          0   IO-APIC-level  Ensoniq AudioPCI
- 19:         12   IO-APIC-level  ide2
-...
-
-Pretending to use the quirk....
-leeloo:~# pcitweak -w 0:7:0 -b 0x58 0x1f
-
-And just a few seconds later...
-leeloo:~# cat /proc/interrupts
-...
- 17:          0   IO-APIC-level  Ensoniq AudioPCI
- 19:    2007685   IO-APIC-level  ide2
-
-
-
+> Matt
+> 
+>   Convert CRC32 to try_module_get; fixes an unsafe usage that
+>   prevents unloading.
+> 
+> 
+>  lib/crc32.c |    5 ++++-
+>  1 files changed, 4 insertions(+), 1 deletion(-)
+> 
+> --- linux-2.5.50/lib/crc32.c~crc32-unsafe	2002-11-30 05:31:19.000000000 -0600
+> +++ linux-2.5.50-arashi/lib/crc32.c	2002-11-30 05:36:17.000000000 -0600
+> @@ -551,7 +551,10 @@ static int __init init_crc32(void)
+>  	rc1 = crc32init_le();
+>  	rc2 = crc32init_be();
+>  	rc = rc1 || rc2;
+> -	if (!rc) MOD_INC_USE_COUNT;
+> +	if (!rc) {
+> +		if (!try_module_get(THIS_MODULE))
+> +			rc = -1;
+> +	}
+>  	return rc;
+>  }
+>  
+> 
+> [patch ends]
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

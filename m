@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316608AbSHAS0m>; Thu, 1 Aug 2002 14:26:42 -0400
+	id <S316397AbSHASXz>; Thu, 1 Aug 2002 14:23:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316609AbSHAS0m>; Thu, 1 Aug 2002 14:26:42 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:29966 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316608AbSHAS0l>; Thu, 1 Aug 2002 14:26:41 -0400
-Date: Thu, 1 Aug 2002 14:24:18 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Jens Axboe <axboe@suse.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] block/elevator updates + deadline i/o scheduler
-In-Reply-To: <20020801085152.GC1096@suse.de>
-Message-ID: <Pine.LNX.3.96.1020801141845.15133B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316434AbSHASXy>; Thu, 1 Aug 2002 14:23:54 -0400
+Received: from stine.vestdata.no ([195.204.68.10]:34765 "EHLO
+	stine.vestdata.no") by vger.kernel.org with ESMTP
+	id <S316397AbSHASXy>; Thu, 1 Aug 2002 14:23:54 -0400
+Date: Thu, 1 Aug 2002 20:27:18 +0200
+From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+To: jpiszcz@lucidpixels.com, linux-kernel@vger.kernel.org, lftp@uniyar.ac.ru,
+       lftp-devel@uniyar.ac.ru, apiszcz@mitre.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: Nasty ext2fs bug!
+Message-ID: <20020801202718.S20768@vestdata.no>
+References: <Pine.LNX.4.44.0208011150310.17729-100000@lucidpixels.com> <20020801174856.GA29562@clusterfs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020801174856.GA29562@clusterfs.com>; from adilger@clusterfs.com on Thu, Aug 01, 2002 at 11:48:56AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Aug 2002, Jens Axboe wrote:
-
-> On Tue, Jul 30 2002, Bill Davidsen wrote:
-
-> > Now a request, if someone is running a database app and tests this I'd
-> > love to see the results. I expect things like LMbench to show more threads
-> > ending at the same time, but will it help a reall app?
+On Thu, Aug 01, 2002 at 11:48:56AM -0600, Andreas Dilger wrote:
+> >  Problem: The pget -n feature of lftp is very nice if you want to maximize
+> >           your download bandwidth, however, if getting a large file, such
+> >           as the one I am getting, once the file is successfully
+> >           retrived, transferring it to another HDD or FTPing it to another
+> >           computer is very slow (800KB-1600KB/s).
 > 
-> Note that the deadline i/o scheduler only considers deadlines on
-> individual requests so far, so there's no real guarentee that process X,
-> Y, and Z will receive equal share of the bandwidth. This is something
-> I'm thinking about, though.
+> I find it hard to believe that this would actually make a huge
+> difference, except in the case where the source is throttling bandwidth
+> on a per-connection basis.  Either your network is saturated by the
+> transfer, or some point in between is saturated.  I could be wrong, of
+> course, and it would be interesting to hear the reasoning behind the
+> speedup.
 
-I'm not sure that equal bandwidth and deadline are compatible, some
-processes may need more bandwidth to meet deadlines. I'm not unhappy about
-that, it's the reads waiting in a flood of write or vice-versa that
-occasionally make an app really rot.
- 
-> My testing does seem to indicate that the deadline scheduler is fairer
-> than the linus scheduler, but ymmv.
-> 
-> > I bet it was tested briefly on IDE, my last use of IDE a week or so ago
-> > lasted until I did "make dep" and the output went all over every attached
-> > drive :-( Still, nice to know it will work if IDE makes it into 2.5.
-> 
-> :/
-> 
-> I'll say that 2.5.29 IDE did work fine for the testing I did with the
-> deadline scheduler, at least it survived a dbench 64 (that's about the
-> testing it got).
+If some link is saturated with 1000 connections, you will get 1% of the
+bandwith instead of 0.1% if you use 10 concurrent connections. right?
 
-Hum, looks as if I should plan to retest with 29 and the deadline patches.
-My personal test is a program doing one read/sec while making CD images
-(mkisofs) on a machine with large memory. It tends to build the whole
-700MB in memory and then bdflush decides it should be written and the read
-latency totally goes to hell. I will say most of this can be tuned out at
-some small cost to total performance (thanks Andrea).
+
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Ragnar Kjørstad

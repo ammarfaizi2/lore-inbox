@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267401AbSLETa6>; Thu, 5 Dec 2002 14:30:58 -0500
+	id <S267403AbSLETnV>; Thu, 5 Dec 2002 14:43:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267402AbSLETa6>; Thu, 5 Dec 2002 14:30:58 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:47322 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S267401AbSLETa5>; Thu, 5 Dec 2002 14:30:57 -0500
-Message-ID: <957BD1C2BF3CD411B6C500A0C944CA260216C228@pdsmsx32.pd.intel.com>
-From: "Hu, Boris" <boris.hu@intel.com>
-To: "NPTL list (E-mail)" <phil-list@redhat.com>
-Cc: "Linux Kernel ML (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: what's the relationship between tgid, tid and pid ?
-Date: Fri, 6 Dec 2002 03:36:21 +0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="gb2312"
+	id <S267404AbSLETnU>; Thu, 5 Dec 2002 14:43:20 -0500
+Received: from verein.lst.de ([212.34.181.86]:56082 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S267403AbSLETnT>;
+	Thu, 5 Dec 2002 14:43:19 -0500
+Date: Thu, 5 Dec 2002 20:50:47 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Michael <soppscum@online.no>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.5.47-xfs[cvs] Oops when mounting ISO image.
+Message-ID: <20021205205047.A29552@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Hugh Dickins <hugh@veritas.com>, Michael <soppscum@online.no>,
+	linux-kernel@vger.kernel.org
+References: <20021205132649.5be6fded.soppscum@online.no> <Pine.LNX.4.44.0212051316550.1405-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0212051316550.1405-100000@localhost.localdomain>; from hugh@veritas.com on Thu, Dec 05, 2002 at 01:36:27PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 05, 2002 at 01:36:27PM +0000, Hugh Dickins wrote:
+> If your xfs[cvs] resembles the xfs source in 2.5.50-mm1, then it looks
+> to me like fs/xfs/linux has a .sendfile = linvfs_sendfile in xfs_file.c
+> (which assures the loop driver it can loop this file for reading), but
+> lacks a .vop_ioctl = xfs_sendfile (and its extern) in xfs_vnodeops.c.
+> 
+> But I've not delved into XFS, for all I know that code may not be ready
+> to use yet: Christoph can say.  And to get further with the 2.5.47 loop,
+> you'll also need this patch (in 2.5.48):
 
-Linux 2.5.49
-NTPL 0.10
-
-I learned from the kernel source. sys_getpid() returns tgid and 
-sys_gettid() returns pid. Moreover, 
-/kernel/source/fork.c
-copy_process() 
-771 if (clone_flags & CLONE_PARENT_SETTID)
-772 if (put_user(p->pid, parent_tidptr))  // parent_tidptr is tid in struct
-pthread
-                                   ....
-It seems tid = pid, while tgid is head pthread pid. 
-
-But the following lines let me confused.
-/kernel/source/fork.c
-copy_process()              
-893         p->tgid = p->pid;
-894         p->group_leader = p;
-every pthread_create()->sys_clone()->do_fork()->copy_process()
-p->tgid will be overwritten every time?
-
-any comments? thanks. 
-
-  Boris
-=========================
-To know what I don't know
-To learn what I don't know
-To contribute what I know
-=========================
+It's fixed now.
 

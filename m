@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130309AbRAVUHn>; Mon, 22 Jan 2001 15:07:43 -0500
+	id <S135179AbRAVUVY>; Mon, 22 Jan 2001 15:21:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135179AbRAVUHd>; Mon, 22 Jan 2001 15:07:33 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:42404 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S130309AbRAVUHZ>; Mon, 22 Jan 2001 15:07:25 -0500
-Importance: Normal
-Subject: Re: [Lse-tech] more on scheduler benchmarks
-To: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-From: "Bill Hartner" <bhartner@us.ibm.com>
-Date: Mon, 22 Jan 2001 15:07:21 -0500
-Message-ID: <OFBD35263C.BED6AC47-ON852569DC.006C12E2@raleigh.ibm.com>
-X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.3 (Intl)|21 March 2000) at
- 01/22/2001 03:07:23 PM
+	id <S135282AbRAVUVP>; Mon, 22 Jan 2001 15:21:15 -0500
+Received: from hood.tvd.be ([195.162.196.21]:38559 "EHLO hood.tvd.be")
+	by vger.kernel.org with ESMTP id <S135179AbRAVUVF>;
+	Mon, 22 Jan 2001 15:21:05 -0500
+Date: Mon, 22 Jan 2001 21:20:07 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Freeze: atyfb & XFree4.0.1
+In-Reply-To: <20010122172009.A1437@lug-owl.de>
+Message-ID: <Pine.LNX.4.05.10101222118440.13798-100000@callisto.of.borg>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 22 Jan 2001, Jan-Benedict Glaw wrote:
+> I just discovered a solid freeze:
+> jbglaw@jbglaw-sid:~$ uname -r
+> 2.4.1-pre8
+> jbglaw@jbglaw-sid:~$ grep aty /etc/lilo.conf
+>         append="video=atyfb:800x600
+> 
+> Parts of /etc/X11/XF86Config-4:
+> 
+> 	Section "Device"
+> 		Identifier	"Generic Video Card"
+> 		Driver		"ati"
+> 	EndSection
+>         SubSection "Display"
+>                 Depth           24
+>                 Modes           "1024x768"
+>         EndSubSection
+> 
+> 
+> Now, when I switch from X to a configured virtual console (eg. tty1),
+> everything is okay. But if I press <Ctrl><Alt><F12> (for example)
+> the system just dies. I've not yet attached a serial console,
+> but SysRq keys seem to not be functional, as well as the NumLock
+> LED doesn't change when pressing the NumLock key...
 
-Hubertus wrote :
+The `CONFIG_FB' entry in Documentation/Configure.help says:
 
-> The only problem I have with sched_yield like benchmarks is that it
-creates
-> artificial lock contention as we basically spent most of the time other
-> then context switching + syscall under the scheduler lock. This we won't
-> see in real apps, that's why I think the chatroom numbers are probably
-> better indicators.
+|   If you are compiling for the x86 architecture, you can say Y if you
+|   want to play with it, but it is not essential. Please note that
+|   running graphical applications that directly touch the hardware
+|   (e.g. an accelerated X server) and that are not frame buffer
+|   device-aware may cause unexpected results. If unsure, say N.
 
-Agreed. 100% artificial. The intention of the benchmark is to put a lot
-of pressure on the scheduler so that the benchmark results will be very
-"sensitive" to changes in schedule().  For example, if you were to split
-the scheduling fields used by goodness() into several cache lines, the
-benchmark results should reveal the degradation.  chatroom would probably
-show it too though.  At some point, we could run your patch on our
-SPECweb99 setup using Zeus - we don't have any lock analysis data on the
-workload yet so I don't know what the contention on the run_queue lock is.
-Zeus does not use many threads.  Apache does.
+XFree86 4.x is not fbdev-aware (yet), unless you specify some `UseFBDev' option
+keyword (exact syntax may differ, I don't run 4.x yet).
 
-Bill
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

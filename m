@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131309AbRAQKES>; Wed, 17 Jan 2001 05:04:18 -0500
+	id <S132124AbRAQKGs>; Wed, 17 Jan 2001 05:06:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132124AbRAQKEI>; Wed, 17 Jan 2001 05:04:08 -0500
-Received: from xsmtp.ethz.ch ([129.132.97.6]:25354 "EHLO xfe3.d.ethz.ch")
-	by vger.kernel.org with ESMTP id <S131309AbRAQKEE>;
-	Wed, 17 Jan 2001 05:04:04 -0500
-Message-ID: <3A656C1C.60B4330C@student.ethz.ch>
-Date: Wed, 17 Jan 2001 10:55:40 +0100
-From: Giacomo Catenazzi <cate@student.ethz.ch>
-X-Mailer: Mozilla 4.7C-SGI [en] (X11; I; IRIX 6.5 IP22)
-X-Accept-Language: en, en-US, en-GB
+	id <S132561AbRAQKGi>; Wed, 17 Jan 2001 05:06:38 -0500
+Received: from mel.alcatel.fr ([212.208.74.132]:27988 "EHLO mel.alcatel.fr")
+	by vger.kernel.org with ESMTP id <S132124AbRAQKG1>;
+	Wed, 17 Jan 2001 05:06:27 -0500
+Message-ID: <3A656E59.424842E2@vz.cit.alcatel.fr>
+Date: Wed, 17 Jan 2001 11:05:13 +0100
+From: Christian Gennerat <christian.gennerat@vz.cit.alcatel.fr>
+X-Mailer: Mozilla 4.7 [fr] (WinNT; I)
+X-Accept-Language: fr,en
 MIME-Version: 1.0
-To: Sajeev <sajeevm@vantel.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problems in 2.4 kernel
-In-Reply-To: <fa.fb4ouhv.1q2suj4@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Jan 2001 09:55:31.0361 (UTC) FILETIME=[A0C6C110:01C0806B]
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: Jeffrey Rose <Jeffrey.Rose@t-online.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 config breaks /dev/fd0* major/minor ?
+In-Reply-To: <3A656749.ACF3F01A@t-online.de> <3A6567CF.E10FDEBD@mandrakesoft.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-aprasad@in.ibm.com wrote:
-> 
-> Sanjeev Wrote:
-> I am not able to mount my floppy drive. When I try to mount it gives me the
-> following error
-> 'mount: /dev/fd0 has wrong major or minor number'
+Jeff Garzik a écrit :
 
-did you update the modutils?
+> Jeffrey Rose wrote:
+> > I get a wrong major/minor reported when attempting
+> > to mount /dev/fd0 ...
+>
+> Sounds like it can't find the floppy driver, for whatever reason...
+>
 
-	giacomo
+I have seen this message, new with 2.4.0-2mdk
+(before I have 2.4.0-0.15mdk)
+but only on one PC.
+I have 2 PC, with same hardware, same PCMCIA config
+The first have mandrake 7.2 Odissey, and the modules
+floppy and floppy_cs are loaded, and /mnt/floppy is mounted
+The second have mandrake 7.1 Helium, and the modules
+fail during init. and I have this message:
+'mount: /dev/fd0 has wrong major or minor number'
+
+Problem of compatibility of some library?
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129754AbRCCVHX>; Sat, 3 Mar 2001 16:07:23 -0500
+	id <S129759AbRCCVeV>; Sat, 3 Mar 2001 16:34:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129758AbRCCVHD>; Sat, 3 Mar 2001 16:07:03 -0500
-Received: from 25dyn104.com21.casema.net ([213.17.95.104]:263 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S129754AbRCCVHC>;
-	Sat, 3 Mar 2001 16:07:02 -0500
-Date: Sat, 3 Mar 2001 22:06:40 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: my first post to the list - newbie alert
-Message-ID: <20010303220639.E1591@home.ds9a.nl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010303205729.A1472@home.ds9a.nl> <Pine.LNX.4.30.0103032057400.23794-100000@dax.joh.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre4i
-In-Reply-To: <Pine.LNX.4.30.0103032057400.23794-100000@dax.joh.cam.ac.uk>; from jas88@cam.ac.uk on Sat, Mar 03, 2001 at 08:59:27PM +0000
+	id <S129762AbRCCVeL>; Sat, 3 Mar 2001 16:34:11 -0500
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:46066 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S129759AbRCCVd6>; Sat, 3 Mar 2001 16:33:58 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [BUG] 2.4.x system Freezes
+Date: Sat, 3 Mar 2001 16:31:29 -0500
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <E14YzmE-0002dD-00@the-village.bc.nu>
+In-Reply-To: <E14YzmE-0002dD-00@the-village.bc.nu>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <01030316312900.00689@oscar>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 03, 2001 at 08:59:27PM +0000, James A. Sutherland wrote:
+On Friday 02 March 2001 19:20, you wrote:
+> > Should an X crash really freeze my box like a block of ice?  Would be
+> > nice if linux could just detect an X crash an recover...  Is this too
+> > much to ask from PC harware?
+>
+> X pokes hardware, so X is kind of a device driver in part. One slip and
+> splat..
 
-> > Another great place to ask questions is on irc, see
-> > http://www.kernelnewbies.org
-> 
-> Also try the techtalk mailing list on linuxchix - www.linuxchix.org, IIRC.
-> A good place to ask "newbie" questions without being told to RTFM!
+Yes - gather this can make life in the fast lane easier... if its all done 
+perfectly.
 
-<beavis>You might even score!</beavis>
+Just wanted to confirm that the freezes _do_ happen with X3.3.6 too.  I was 
+able to get into kdb from a serial console (an then lost the log - murphy can 
+be a real PITA).   I figure a ps, bt and bta should be enough to point out 
+the problem task?  Its there anything else I should do (sr t maybe?)?
 
-Regards,
+This was with 2.4.2+ac10+kdb1.8 and x3.3.6 it froze when I returned to the 
+keyboard after a pause of three hours.
 
-bert
-
--- 
-http://www.PowerDNS.com      Versatile DNS Services  
-Trilab                       The Technology People   
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+TIA,
+Ed

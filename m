@@ -1,61 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131417AbQLUWUL>; Thu, 21 Dec 2000 17:20:11 -0500
+	id <S131428AbQLUWVK>; Thu, 21 Dec 2000 17:21:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131428AbQLUWUA>; Thu, 21 Dec 2000 17:20:00 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:260 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S131417AbQLUWTv>; Thu, 21 Dec 2000 17:19:51 -0500
-Date: Thu, 21 Dec 2000 15:44:46 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: jmerkey@timpanogas.org, linux-kernel@vger.kernel.org
-Subject: Re: bigphysarea support in 2.2.19 and 2.4.0 kernels
-Message-ID: <20001221154446.A10579@vger.timpanogas.org>
-In-Reply-To: <20001221144247.A10273@vger.timpanogas.org> <E149DKS-0003cX-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E149DKS-0003cX-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Dec 21, 2000 at 09:32:46PM +0000
+	id <S131458AbQLUWVA>; Thu, 21 Dec 2000 17:21:00 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:45818 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S131428AbQLUWUp>; Thu, 21 Dec 2000 17:20:45 -0500
+Date: Thu, 21 Dec 2000 19:49:47 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-mm@kvack.org, Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] generic_file_map drop-behind fix
+Message-ID: <Pine.LNX.4.21.0012211935470.1613-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 21, 2000 at 09:32:46PM +0000, Alan Cox wrote:
-> > A question related to bigphysarea support in the native Linux
-> > 2.2.19 and 2.4.0 kernels.
-> > 
-> > I know there are patches for this support, but is it planned for 
-> > rolling into the kernel by default to support Dolphin SCI and 
-> > some of the NUMA Clustering adapters.  I see it there for some 
-> > of the video adapters.
-> 
-> bigphysarea is the wrong model for 2.4. The bootmem allocator means that
-> drivers could do early claims via the bootmem interface during boot up. That
-> would avoid all the cruft.
-> 
-> For 2.2 bigphysarea is a hack, but a neccessary add on patch and not one you
-> can redo cleanly as we don't have bootmem
-> 
-> I belive Pauline Middelink had a patch implementing bigphysarea in terms of
-> bootmem
-> 
-> Alan
+Hi Ingo,
 
-Alan,
+the attached patch (against 2.4.0-test12-pre3) should fix the
+problem where generic_file_write() causes a page to be moved
+to the inactive list when the program is still writing to it.
 
-Thanks for the prompt response.  I am merging the Dolphin SCI High Speed
-interconnect drivers into 2.2.18 and 2.4.0 for our M2FS project, and I 
-am reviewing the big ugly nasty patch they have current as of 2.2.13 
-(really old).  I will be looking over the 2.4 tree for a more clean 
-manner to do what they want.
+Does this patch fix the web benching bottleneck in tux2 ? ;)
 
-What's in the patch alters the /proc filesystem, and the VM code.  I will
-submit a patch against 2.2.19 and 2.4.0 for this support for their SCI 
-adapters after I get a handle on it.
+regards,
 
-:-)
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
 
-Jeff
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+
+
+--- linux-2.4.0-test12-pre3/mm/filemap.c.orig	2000/12/21 18:20:17
++++ linux/mm/filemap.c	2000/12/21 21:31:39
+@@ -2436,7 +2436,7 @@
+ 	}
+ 
+ 	while (count) {
+-		unsigned long bytes, index, offset;
++		unsigned long bytes, index, offset, partial = 0;
+ 		char *kaddr;
+ 
+ 		/*
+@@ -2446,8 +2446,10 @@
+ 		offset = (pos & (PAGE_CACHE_SIZE -1)); /* Within page */
+ 		index = pos >> PAGE_CACHE_SHIFT;
+ 		bytes = PAGE_CACHE_SIZE - offset;
+-		if (bytes > count)
++		if (bytes > count) {
+ 			bytes = count;
++			partial = 1;
++		}
+ 
+ 		status = -ENOMEM;	/* we'll assign it later anyway */
+ 		page = __grab_cache_page(mapping, index, &cached_page);
+@@ -2478,9 +2480,17 @@
+ 			buf += status;
+ 		}
+ unlock:
+-		/* Mark it unlocked again and drop the page.. */
++		/*
++		 * Mark it unlocked again and release the page.
++		 * In order to prevent large (fast) file writes
++		 * from causing too much memory pressure we move
++		 * completely written pages to the inactive list.
++		 * We do, however, try to keep the pages that may
++		 * still be written to (ie. partially written pages).
++		 */
+ 		UnlockPage(page);
+-		deactivate_page(page);
++		if (!partial)
++			deactivate_page(page);
+ 		page_cache_release(page);
+ 
+ 		if (status < 0)
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

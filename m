@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132143AbRDAKLO>; Sun, 1 Apr 2001 06:11:14 -0400
+	id <S132145AbRDAKNy>; Sun, 1 Apr 2001 06:13:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132128AbRDAKKz>; Sun, 1 Apr 2001 06:10:55 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:43429 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S132126AbRDAKKf>;
-	Sun, 1 Apr 2001 06:10:35 -0400
-Date: Sun, 1 Apr 2001 12:09:18 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Simon Garner <sgarner@expio.co.nz>
-Cc: linux-kernel@vger.kernel.org, linux-smp@vger.kernel.org
-Subject: Re: Asus CUV4X-D, 2.4.3 crashes at boot
-Message-ID: <20010401120918.B23618@khan.acc.umu.se>
-In-Reply-To: <00d501c0ba93$1e6331b0$1400a8c0@expio.net.nz>
-Mime-Version: 1.0
+	id <S132126AbRDAKNo>; Sun, 1 Apr 2001 06:13:44 -0400
+Received: from mystique.daimi.au.dk ([130.225.18.94]:39439 "EHLO
+	mystique.daimi.au.dk") by vger.kernel.org with ESMTP
+	id <S132145AbRDAKNi>; Sun, 1 Apr 2001 06:13:38 -0400
+X-Mozilla-Status: 0001
+Message-ID: <3AC6FF09.1F7B0A89@daimi.au.dk>
+Date: Sun, 01 Apr 2001 10:12:25 +0000
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 3.04 (X11; I; Linux 2.2.16-3 i686)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Bug in proc permition checks.
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <00d501c0ba93$1e6331b0$1400a8c0@expio.net.nz>; from sgarner@expio.co.nz on Sun, Apr 01, 2001 at 10:04:17PM +1200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 01, 2001 at 10:04:17PM +1200, Simon Garner wrote:
-> From: "Mikael Pettersson" <mikpe@csd.uu.se>
-> 
-> > Boot with "nmi_watchdog=0" as a boot parameter. Does it work now?
-> > 
-> > Some people have reported before here that the IO-APIC driven NMI
-> > watchdog itself can cause boot-time hangs.
-> > 
-> > /Mikael
-> 
-> 
-> Thanks, but I do not have watchdog support compiled into the kernel.
+Somewhere between 2.2.16 and 2.4.1 a bug in
+vfs_permission() in the file "fs/namei.c" has
+been fixed. S_ISDIR(mode) was incorrect,
+S_ISDIR(inode->i_mode) is correct.
 
-Doesn't matter. The NMI-watchdog tries to detect SMP-lockups, and is
-always present. Unless you specifically disable it on boot.
+The same piece of code exist in the proc
+filesystem, here the bug has not been fixed.
+
+I wonder why does the function exist in the
+proc filesystem, shouldn't proc be able to
+use the default permission cheks?
 
 
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+I have also found a lot of bugs in the file
+arch/i386/kernel/vm86.c, this is not mentioned
+in the maintainer list. Is there a maintainer
+I can send a bug report to? If not I will try
+to fix the bugs on my own.
+
+
+-- 
+Kasper Dupont

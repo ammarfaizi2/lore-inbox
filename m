@@ -1,61 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262051AbTHTRB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 13:01:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbTHTRBp
+	id S262064AbTHTRC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 13:02:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbTHTRC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 13:01:45 -0400
-Received: from main.gmane.org ([80.91.224.249]:50653 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262051AbTHTRAJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 13:00:09 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: how to turn off, or to clear read cache?
-Date: Wed, 20 Aug 2003 18:57:15 +0200
-Message-ID: <yw1xptj0b72s.fsf@users.sourceforge.net>
-References: <200308201322.h7KDMQga000797@81-2-122-30.bradfords.org.uk> <3F437646.4050107@gamic.com>
- <yw1x8ypocv63.fsf@users.sourceforge.net>
- <20030820164949.GA5613@lsd.di.uminho.pt>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:HZREoTZDqOXGARKik0xFyltByow=
+	Wed, 20 Aug 2003 13:02:29 -0400
+Received: from fmr09.intel.com ([192.52.57.35]:35537 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S262064AbTHTRCE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 13:02:04 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [PATCH][2.6][2/5]Support for HPET based timer
+Date: Wed, 20 Aug 2003 10:01:53 -0700
+Message-ID: <C8C38546F90ABF408A5961FC01FDBF1902C7D1D6@fmsmsx405.fm.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH][2.6][2/5]Support for HPET based timer
+Thread-Index: AcNnCHCu9ngPWo70Q2ORc/h2Z0t5xgAMjVFQ
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Mikael Pettersson" <mikpe@csd.uu.se>, "Andi Kleen" <ak@suse.de>
+Cc: "Vojtech Pavlik" <vojtech@suse.cz>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 20 Aug 2003 17:01:54.0023 (UTC) FILETIME=[C198EF70:01C3673C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luciano Miguel Ferreira Rocha <luciano@lsd.di.uminho.pt> writes:
 
->> >>> I need to make some performance tests. I need to switch off or to
->> >>> clear read cache, so that consequent reading of the same file will
->> >>> take the same amount of time.
->> >>>
->> >>>Is there an easy way to do it, without rebuilding the kernel?
->> >> Unmount and remount the filesystem.
->> >
->> >
->> > Would
->> >
->> > # mount -o remount
->> >
->> > do the job?
->> 
->> no
->
-> What about dd if=/dev/hda bs=8M count=$(awk '/MemTotal/ { printf "%d", $2/4096 }' /proc/meminfo) ?
->
-> Will it clear the cache?
+Yes. I hadn't thought about early_ioremap option. There seems to be
+multiple ways of doing early ioremap: bt_ioremap() and boot_ioremap(). I
+will look at them closer and work on changing HPET code to use one of
+these in place of fixmap.
 
-It will probably clear some cache to make room for cache from hda.
+Thanks,
+-Venkatesh  
 
-perl -e '@f[0..100000000]=0'
-
-will do it faster.
-
--- 
-Måns Rullgård
-mru@users.sf.net
-
+> -----Original Message-----
+> From: Mikael Pettersson [mailto:mikpe@csd.uu.se] 
+> Sent: Wednesday, August 20, 2003 3:47 AM
+> To: Andi Kleen
+> Cc: Vojtech Pavlik; linux-kernel@vger.kernel.org; Pallipadi, Venkatesh
+> Subject: Re: [PATCH][2.6][2/5]Support for HPET based timer
+> 
+> 
+> Andi Kleen writes:
+>  > Vojtech Pavlik <vojtech@suse.cz> writes:
+>  > 
+>  > > On Tue, Aug 19, 2003 at 05:18:50PM -0700, Pallipadi, 
+> Venkatesh wrote:
+>  > > 
+>  > > > Fixmap is for HPET memory map address access. As the timer
+>  > > > initialization happen 
+>  > > > early in the boot sequence (before vm initialization), 
+> we need to have
+>  > > > fixmap() 
+>  > > > and fix_to_virt() to access HPET memory map address.
+>  > > 
+>  > > Ahh, yes, you're right. You can't use ioremap at that 
+> time. Actually I
+>  > > did the same on x86_64 not only because of vsyscalls.
+>  > 
+>  > iirc i386 has an ioremap_early or somesuch.
+> 
+> bt_ioremap(). I wrote it to support early DMI scan so DMI data
+> could be used to blacklist BIOSen that break local APICs.
+> This was done pretty much just to handle Dell laptops.
+> 

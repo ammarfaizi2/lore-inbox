@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293091AbSCFDf7>; Tue, 5 Mar 2002 22:35:59 -0500
+	id <S293087AbSCFDc3>; Tue, 5 Mar 2002 22:32:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293097AbSCFDfk>; Tue, 5 Mar 2002 22:35:40 -0500
-Received: from clmboh1-smtp3.columbus.rr.com ([65.24.0.112]:44797 "EHLO
-	clmboh1-smtp3.columbus.rr.com") by vger.kernel.org with ESMTP
-	id <S293091AbSCFDfi>; Tue, 5 Mar 2002 22:35:38 -0500
-Date: Tue, 5 Mar 2002 22:35:38 -0500
-Subject: Re: [opensource] Re: Petition Against Official Endorsement ofBitKeeper  by Linux Maintainers
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v481)
-Cc: "Jeff Garzik" <jgarzik@mandrakesoft.com>,
-        "Colin Walters" <walters@debian.org>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        <linux-kernel@vger.kernel.org>, <opensource@cis.ohio-state.edu>
-To: "Karl" <ktatgenhorst@earthlink.net>
-From: michael bernstein <bernstein.46@osu.edu>
-In-Reply-To: <NDBBJHDEALBBOIDJGBNNEEMBCGAA.ktatgenhorst@earthlink.net>
-Message-Id: <3A190CDF-30B3-11D6-B682-003065C60BC2@osu.edu>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.481)
+	id <S293091AbSCFDcJ>; Tue, 5 Mar 2002 22:32:09 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:39337 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S293087AbSCFDcG>; Tue, 5 Mar 2002 22:32:06 -0500
+Date: Tue, 5 Mar 2002 20:47:02 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Karl <ktatgenhorst@earthlink.net>
+Cc: The Open Source Club at The Ohio State University 
+	<opensource-admin@cis.ohio-state.edu>,
+        linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
+Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
+Message-ID: <20020305204702.B7870@vger.timpanogas.org>
+In-Reply-To: <20020305154147.A6211@vger.timpanogas.org> <NDBBJHDEALBBOIDJGBNNCEMBCGAA.ktatgenhorst@earthlink.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <NDBBJHDEALBBOIDJGBNNCEMBCGAA.ktatgenhorst@earthlink.net>; from ktatgenhorst@earthlink.net on Tue, Mar 05, 2002 at 09:23:16PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I totally and utterly agree with you.  They have every right to ignore 
-the petition, but those we signed it were acting out their right of 
-freedom of speech.  I know all the people who signed it, and none of 
-them likely would force ANYTHING on anyone.  Rather then looking at this 
-as an ultimatum, look at it as a request.  Negative responses only lead 
-to more negatives responses back, and nothing EVER comes out of flame 
-wars, ever.  Except worthless air being wasted by the likes of some.
+On Tue, Mar 05, 2002 at 09:23:16PM -0500, Karl wrote:
+> >All hail the non-profit nazis from Ohio State.  It's none of your
+> >f_cking business what we use to develop software.  I use a hardware
+> >American Arium logic analyzer and a proprietary Linux kernel
+> >debugger.  Should people be boycotted when they use hardware
+> >analyzers to debug hardware and software with Linux.
+> 
+> 
+>    I don't want to speak for our friends in Ohio, but I don't think they
+> asked to inhibit you in any way shape or form. Their point was about
+> official endorsement not personal choice. I think they went as far as to
+> state that explicitly.
+> 
+>    Karl
 
-cheers,
 
-Michael Bernstein
-bernstein.46@osu.edu
+Yeah, I saw that part Karl, but the bottom line in their position 
+was to limit our choices and choose for us their oppresive views.  It's
+also tortorious to post such a petition as a mean to attack a for
+profit endeavor, whether the profit is kudos or consideration.  Try
+pulling this on Novell or Microsoft, and watch how fast you go to court.
 
+These people are bullies.  
 
+:-)
 
-On Tuesday, March 5, 2002, at 09:23 PM, Karl wrote:
+Jeff
 
->    A petition is a statement from a group of people who feel affected by
-> what you do, they are then requesting that you do something different. 
-> That
-> IS freedom of speech. Your decision to follow it or ignore it IS your
-> freedom. To try and crush out their desire to make petitions is IMHO
-> CENSORSHIP... I doubt many share my opinion (and yes it is just that) 
-> but I
-> throw it out as food for thought.
->
-> Karl
->
-> PS though it may sound sarcastic, it isn't actually meant to.
->
-> _______________________________________________
-> Opensource mailing list
-> Opensource@mail.cis.ohio-state.edu
-> http://mail.cis.ohio-state.edu/mailman/listinfo/opensource
->
-
+> 

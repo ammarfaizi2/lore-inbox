@@ -1,66 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264903AbUHHF4t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264911AbUHHGEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264903AbUHHF4t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 01:56:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264911AbUHHF4s
+	id S264911AbUHHGEr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 02:04:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbUHHGEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 01:56:48 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:43713 "EHLO
+	Sun, 8 Aug 2004 02:04:47 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:3522 "EHLO
 	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S264903AbUHHF4l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 01:56:41 -0400
-Date: Sun, 8 Aug 2004 02:00:32 -0400 (EDT)
+	id S264911AbUHHGEk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 02:04:40 -0400
+Date: Sun, 8 Aug 2004 02:08:30 -0400 (EDT)
 From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
        Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH][2.6] Completely out of line spinlocks / i386
-In-Reply-To: <Pine.LNX.4.58.0408072220490.1793@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0408080143230.19619@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0408072123590.19619@montezuma.fsmlabs.com>
- <Pine.LNX.4.58.0408072157500.1793@ppc970.osdl.org>
- <Pine.LNX.4.58.0408080110280.19619@montezuma.fsmlabs.com>
- <Pine.LNX.4.58.0408072220490.1793@ppc970.osdl.org>
+Subject: Re: [PATCH][2.6] Completely out of line spinlocks / x86_64
+In-Reply-To: <Pine.LNX.4.58.0408072217170.19619@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.58.0408080156550.19619@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0408072217170.19619@montezuma.fsmlabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Aug 2004, Linus Torvalds wrote:
+On Sun, 8 Aug 2004, Zwane Mwaikambo wrote:
 
-> On Sun, 8 Aug 2004, Zwane Mwaikambo wrote:
-> > >
-> > > that looks just broken.
-> >
-> > _raw_spin_lock will have the symbol __spin_lock_loop{,_flags} when used in
-> > symbols, modules won't load otherwise.
+> Pulled from the -tiny tree, the focus of this patch is for reduced kernel
+> image size, the shared spinlock text may be more of a benefit later on
+> when multicore packages with shared caches arrive but should benefit
+> em64t systems with HT enabled. I've set the config option to y so
+> that it gets a bit of runtime, but it can be left as a config option.
 >
-> Yes, I was talking about the "failed" things only. The non-failure-cases
-> obviously do have to be exported.
+> Tested on 4x logical em64t.
+>
+>    text    data     bss     dec     hex filename
+> 3870057 1350301  508048 5728406  576896 vmlinux-after
+> 3885801 1352134  508048 5745983  57ad3f vmlinux-before
 
-Thanks, here is a cleaned up version, we seem to have even managed to save
-some text (~5k), gcc probably managed to do the asm call setup without too
-much register shuffling. I still find the decrease in data odd.
+A few changes from the i386 thread.
 
-   text    data     bss     dec     hex filename
-5527214  873510  321872 6722596  669424 vmlinux-before
-5480308  867964  321872 6670144  65c740 vmlinux-after
-5474492  867930  321872 6664294  65b066 vmlinux-after2
-
- arch/i386/Kconfig           |   10 ++++++++++
- arch/i386/lib/Makefile      |    1 +
- arch/i386/lib/spinlock.c    |   38 ++++++++++++++++++++++++++++++++++++++
- include/asm-i386/spinlock.h |   22 ++++++++++++++++++++--
+ arch/x86_64/Kconfig           |   10 ++++++++++
+ arch/x86_64/lib/Makefile      |    1 +
+ arch/x86_64/lib/spinlock.c    |   38 ++++++++++++++++++++++++++++++++++++++
+ include/asm-x86_64/spinlock.h |   22 ++++++++++++++++++++--
  4 files changed, 69 insertions(+), 2 deletions(-)
 
-Index: linux-2.6.8-rc3-mm1/arch/i386/Kconfig
+Index: linux-2.6.8-rc3-mm1-amd64/arch/x86_64/Kconfig
 ===================================================================
-RCS file: /home/cvsroot/linux-2.6.8-rc3-mm1/arch/i386/Kconfig,v
+RCS file: /home/cvsroot/linux-2.6.8-rc3-mm1/arch/x86_64/Kconfig,v
 retrieving revision 1.1.1.1
 diff -u -p -B -r1.1.1.1 Kconfig
---- linux-2.6.8-rc3-mm1/arch/i386/Kconfig	5 Aug 2004 16:37:39 -0000	1.1.1.1
-+++ linux-2.6.8-rc3-mm1/arch/i386/Kconfig	7 Aug 2004 23:07:05 -0000
-@@ -1262,6 +1262,16 @@ config DEBUG_SPINLOCK
+--- linux-2.6.8-rc3-mm1-amd64/arch/x86_64/Kconfig	5 Aug 2004 16:37:48 -0000	1.1.1.1
++++ linux-2.6.8-rc3-mm1-amd64/arch/x86_64/Kconfig	7 Aug 2004 22:47:30 -0000
+@@ -438,6 +438,16 @@ config DEBUG_SPINLOCK
  	  best used in conjunction with the NMI watchdog so that spinlock
  	  deadlocks are also debuggable.
 
@@ -69,66 +61,63 @@ diff -u -p -B -r1.1.1.1 Kconfig
 +	depends on SMP
 +	default y
 +	help
-+          Say Y here to build spinlocks which have common text for contended
-+          and uncontended paths. This reduces kernel text size by at least
-+          50k on most configurations, plus there is the additional benefit
-+          of better cache utilisation.
++	  Say Y here to build spinlocks which have common text for contended
++	  and uncontended paths. This reduces kernel text size by at least
++	  50k on most configurations, plus there is the additional benefit
++	  of better cache utilisation.
 +
- config DEBUG_PAGEALLOC
- 	bool "Page alloc debugging"
- 	depends on DEBUG_KERNEL
-Index: linux-2.6.8-rc3-mm1/arch/i386/lib/Makefile
+ # !SMP for now because the context switch early causes GPF in segment reloading
+ # and the GS base checking does the wrong thing then, causing a hang.
+ config CHECKING
+Index: linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/Makefile
 ===================================================================
-RCS file: /home/cvsroot/linux-2.6.8-rc3-mm1/arch/i386/lib/Makefile,v
+RCS file: /home/cvsroot/linux-2.6.8-rc3-mm1/arch/x86_64/lib/Makefile,v
 retrieving revision 1.1.1.1
 diff -u -p -B -r1.1.1.1 Makefile
---- linux-2.6.8-rc3-mm1/arch/i386/lib/Makefile	5 Aug 2004 16:37:39 -0000	1.1.1.1
-+++ linux-2.6.8-rc3-mm1/arch/i386/lib/Makefile	7 Aug 2004 22:51:37 -0000
-@@ -6,6 +6,7 @@
- lib-y = checksum.o delay.o usercopy.o getuser.o memcpy.o strstr.o \
- 	bitops.o
+--- linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/Makefile	5 Aug 2004 16:37:48 -0000	1.1.1.1
++++ linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/Makefile	7 Aug 2004 22:32:44 -0000
+@@ -13,3 +13,4 @@ lib-y += memcpy.o memmove.o memset.o cop
 
-+lib-$(CONFIG_COOL_SPINLOCK) += spinlock.o
- lib-$(CONFIG_X86_USE_3DNOW) += mmx.o
  lib-$(CONFIG_HAVE_DEC_LOCK) += dec_and_lock.o
  lib-$(CONFIG_KGDB) += kgdb_serial.o
-Index: linux-2.6.8-rc3-mm1/arch/i386/lib/spinlock.c
++lib-$(CONFIG_COOL_SPINLOCK) += spinlock.o
+Index: linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/spinlock.c
 ===================================================================
-RCS file: linux-2.6.8-rc3-mm1/arch/i386/lib/spinlock.c
-diff -N linux-2.6.8-rc3-mm1/arch/i386/lib/spinlock.c
+RCS file: linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/spinlock.c
+diff -N linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/spinlock.c
 --- /dev/null	1 Jan 1970 00:00:00 -0000
-+++ linux-2.6.8-rc3-mm1/arch/i386/lib/spinlock.c	8 Aug 2004 05:39:13 -0000
++++ linux-2.6.8-rc3-mm1-amd64/arch/x86_64/lib/spinlock.c	8 Aug 2004 05:39:04 -0000
 @@ -0,0 +1,38 @@
 +#include <linux/module.h>
 +
 +#define PROC(name)	\
-+	".align 4\n" \
++	".align 4\n"	\
 +	".globl " #name"\n" \
 +	#name":\n"
 +
 +asm (PROC(__spin_lock_loop_flags)
-+	"lock; decb (%eax)\n\t"
++	"lock; decb (%rax)\n\t"
 +	"js 1f\n\t"
 +	"nop\n\t"
 +	"ret\n\t"
 +	"1:\n\t"
-+	"testl $0x200, %edx\n\t"
++	"test $0x200, %rbx\n\t"
 +	"jz 1f\n\t"
 +	"sti\n\t"
 +	"2: rep; nop\n\t"
-+	"cmpb $0, (%eax)\n\t"
++	"cmpb $0, (%rax)\n\t"
 +	"jle 2b\n\t"
 +	"cli\n\t"
 +	"jmp __spin_lock_loop_flags\n\t"
 +);
 +
 +asm (PROC(__spin_lock_loop)
-+	"lock; decb (%eax)\n\t"
++	"lock; decb (%rax)\n\t"
 +	"js 1f\n\t"
 +	"nop\n\t"
 +	"ret\n\t"
 +	"1: rep; nop\n\t"
-+	"cmpb $0, (%eax)\n\t"
++	"cmpb $0, (%rax)\n\t"
 +	"jle 1b\n\t"
 +	"jmp __spin_lock_loop\n\t"
 +);
@@ -137,28 +126,28 @@ diff -N linux-2.6.8-rc3-mm1/arch/i386/lib/spinlock.c
 +void __spin_lock_loop(void);
 +EXPORT_SYMBOL(__spin_lock_loop_flags);
 +EXPORT_SYMBOL(__spin_lock_loop);
-Index: linux-2.6.8-rc3-mm1/include/asm-i386/spinlock.h
+Index: linux-2.6.8-rc3-mm1-amd64/include/asm-x86_64/spinlock.h
 ===================================================================
-RCS file: /home/cvsroot/linux-2.6.8-rc3-mm1/include/asm-i386/spinlock.h,v
+RCS file: /home/cvsroot/linux-2.6.8-rc3-mm1/include/asm-x86_64/spinlock.h,v
 retrieving revision 1.1.1.1
 diff -u -p -B -r1.1.1.1 spinlock.h
---- linux-2.6.8-rc3-mm1/include/asm-i386/spinlock.h	5 Aug 2004 16:37:51 -0000	1.1.1.1
-+++ linux-2.6.8-rc3-mm1/include/asm-i386/spinlock.h	8 Aug 2004 05:19:10 -0000
-@@ -43,6 +43,13 @@ typedef struct {
+--- linux-2.6.8-rc3-mm1-amd64/include/asm-x86_64/spinlock.h	5 Aug 2004 16:37:48 -0000	1.1.1.1
++++ linux-2.6.8-rc3-mm1-amd64/include/asm-x86_64/spinlock.h	8 Aug 2004 05:19:41 -0000
+@@ -42,6 +42,13 @@ typedef struct {
  #define spin_is_locked(x)	(*(volatile signed char *)(&(x)->lock) <= 0)
  #define spin_unlock_wait(x)	do { barrier(); } while(spin_is_locked(x))
 
 +#ifdef CONFIG_COOL_SPINLOCK
-+	#define spin_lock_string \
-+		"call __spin_lock_loop\n\t"
++#define spin_lock_string \
++	"call __spin_lock_loop\n\t"
 +
-+	#define spin_lock_string_flags \
-+		"call __spin_lock_loop_flags\n\t"
++#define spin_lock_string_flags \
++	"call __spin_lock_loop_flags\n\t"
 +#else
  #define spin_lock_string \
  	"\n1:\t" \
  	"lock ; decb %0\n\t" \
-@@ -71,6 +78,7 @@ typedef struct {
+@@ -70,6 +77,7 @@ typedef struct {
  	"cli\n\t" \
  	"jmp 1b\n" \
  	LOCK_SECTION_END
@@ -166,7 +155,7 @@ diff -u -p -B -r1.1.1.1 spinlock.h
 
  /*
   * This works. Despite all the confusion.
-@@ -139,7 +147,12 @@ here:
+@@ -138,7 +146,12 @@ printk("eip: %p\n", &&here);
  #endif
  	__asm__ __volatile__(
  		spin_lock_string
@@ -180,10 +169,10 @@ diff -u -p -B -r1.1.1.1 spinlock.h
  }
 
  static inline void _raw_spin_lock_flags (spinlock_t *lock, unsigned long flags)
-@@ -154,7 +167,12 @@ here:
+@@ -152,7 +165,12 @@ here:
+ 	}
  #endif
- 	__asm__ __volatile__(
- 		spin_lock_string_flags
+ 	__asm__ __volatile__(spin_lock_string_flags
 -		:"=m" (lock->lock) : "r" (flags) : "memory");
 +#ifdef CONFIG_COOL_SPINLOCK
 +		: : "a" (&lock->lock), "d" (flags) : "memory"
@@ -193,4 +182,4 @@ diff -u -p -B -r1.1.1.1 spinlock.h
 +	);
  }
 
- /*
+

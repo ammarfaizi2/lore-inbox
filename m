@@ -1,82 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275105AbTHLGf7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 02:35:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275108AbTHLGfz
+	id S275097AbTHLGmY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 02:42:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275125AbTHLGmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 02:35:55 -0400
-Received: from mail7.speakeasy.net ([216.254.0.207]:54419 "EHLO
-	mail.speakeasy.net") by vger.kernel.org with ESMTP id S275105AbTHLGfr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 02:35:47 -0400
-Message-Id: <5.2.1.1.0.20030811233014.02900008@no.incoming.mail>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Mon, 11 Aug 2003 23:35:26 -0700
-To: Andries Brouwer <aebr@win.tue.nl>
-From: Jeff Woods <kazrak+kernel@cesmail.net>
-Subject: Re: [PATCH] oops in sd_shutdown
-Cc: linux-scsi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030812044901.A1650@pclin040.win.tue.nl>
-References: <5.2.1.1.0.20030811180413.01a67dc0@no.incoming.mail>
- <Pine.LNX.4.53.0308111426570.16008@thevillage.soulcatcher>
- <Pine.LNX.4.53.0308111426570.16008@thevillage.soulcatcher>
- <20030812002844.B1353@pclin040.win.tue.nl>
- <5.2.1.1.0.20030811180413.01a67dc0@no.incoming.mail>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Tue, 12 Aug 2003 02:42:24 -0400
+Received: from odpn1.odpn.net ([212.40.96.53]:53405 "EHLO odpn1.odpn.net")
+	by vger.kernel.org with ESMTP id S275097AbTHLGmV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 02:42:21 -0400
+To: linux-kernel@vger.kernel.org
+From: "Gabor Z. Papp" <gzp@papp.hu>
+Subject: PPPoE Oops with 2.4.22-rc
+Organization: Who, me?
+User-Agent: tin/1.5.19-20030610 ("Darts") (UNIX) (Linux/2.4.22-rc2-gzp1 (i686))
+Message-ID: <5ff3.3f388c4b.4453f@gzp1.gzp.hu>
+Date: Tue, 12 Aug 2003 06:42:19 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At +0200 04:49 AM 8/12/2003, Andries Brouwer wrote:
->On Mon, Aug 11, 2003 at 06:13:50PM -0700, Jeff Woods wrote:
->
->>Looking only at the above code snippet, I'd suggest something more like:
->
->>+       if (!sdp ||
->
->This is not meaningful.
+I'm getting Oopses at reboots while pppoe module loaded.
 
-How is it not meaningful?  The next action in the expression is to 
-dereference the pointer and if it has a NULL value then I expect the 
-dereference to fail.  [But I am a complete newbie with respect to Linux 
-kernel and driver code so perhaps my understanding is in error.  If so, 
-please enlighten me.]
+Linux 2.4.22-pre* and -rc*
+pppd version 2.4.2b3
 
->A general kind of convention is that a pointer will be NULL either by 
->mistake, when it is uninitialized, or on purpose, when no object is 
->present or no action (other than the default) needs to be performed.
+The ksymoops output attached, more details at
+http://gzp.odpn.net/tmp/linux-pppoe-oops/
 
-Of course.  But in this case, the next action the code will attempt is to 
-dereference that pointer which I expect would fail if it's NULL.  If you're 
-telling me the pointer cannot be NULL, then fine [which I tried to indicate 
-was a possibility in my first email in this thread], but if the pointer 
-might *ever* be NULL (and dereferencing a NULL pointer in this context is 
-as bad as it usually is) then there is no point in proceeding and returning 
-from the function immediately seems like a reasonable thing to do in case 
-of a shutdown function.  (I can see possible value in additionally 
-reporting an error or warning somehow if feasible, but that's not germane 
-to whether checking the pointers for NULL is a prudent action.
+ksymoops 2.4.9 on i686 2.4.22-rc2-gzp1.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.22-rc2-gzp1/ (default)
+     -m /usr/src/linux/System.map (default)
 
->But that general idea is broken by container_of(), which just subtracts a 
->constant. So, one should check before subtracting that the pointer is 
->non-NULL. Checking afterwards is meaningless.
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-As I tried to indicate in the opening statement I have not looked at any 
-other code than what you included in the patch diff beginning this thread 
-so I don't see any reference to anything that indicates some function 
-called container_of() [which sounds like it might be some C++ routine... 
-and I was under the impression this code is C rather than C++].  The diff 
-includes the beginning of the function including initialization of both the 
-sdp and sdkp pointers.  One bug the patch fixes is the implicit dereference 
-of sdkp in the original version of the "if" statement I suggest be 
-modified.  My version of the patch (1) reduces the number of lines changed, 
-(2) results in fewer lines, (3) improves the transparency of the code, and 
-(4) additionally checks for a (perhaps unlikely or even  improbable) 
-potential unanticipated runtime error, all of which makes me believe it is 
-an improvement.
+Oops: 0002
+CPU:    0
+EIP:    0010:[<e0ed9bce>]    Tainted: PF
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010286
+eax: ddf0ba20   ebx: ddf843c0   ecx: c02747a8   edx: 00000000
+esi: ddf0ba20   edi: 00000000   ebp: dd697ef4   esp: dd697ebc
+ds: 0018   es: 0018   ss: 0018
+Process pppd (pid: 387, stackpage=dd697000)
+Stack: 00008229 ddf0ba4a dd697ef4 0000001e dd6a1980 dd697ef4 0000001e bffffd28 
+       c01cb4cd dd6a1980 dd697ef4 0000001e 00000002 00000000 00000018 00000000 
+       ecc10400 74658784 fc003168 00004015 04090000 dd790000 08086094 00000001 
+Call Trace:    [<c01cb4cd>] [<c01495bd>] [<c01cbfc5>] [<c010744f>]
+Code: ff 8a e8 00 00 00 0f 94 c0 84 c0 75 24 c7 44 24 08 60 00 00 
 
---
-Jeff Woods <kazrak+kernel@cesmail.net> 
 
+>>EIP; e0ed9bce <[pppoe]pppoe_connect+1ce/220>   <=====
+
+>>eax; ddf0ba20 <_end+1dc76630/20610c70>
+>>ebx; ddf843c0 <_end+1dceefd0/20610c70>
+>>ecx; c02747a8 <irq_stat+8/20>
+>>esi; ddf0ba20 <_end+1dc76630/20610c70>
+>>ebp; dd697ef4 <_end+1d402b04/20610c70>
+>>esp; dd697ebc <_end+1d402acc/20610c70>
+
+Trace; c01cb4cd <sys_connect+7d/b0>
+Trace; c01495bd <fcntl_setlk+8d/1d0>
+Trace; c01cbfc5 <sys_socketcall+b5/270>
+Trace; c010744f <system_call+33/38>
+
+Code;  e0ed9bce <[pppoe]pppoe_connect+1ce/220>
+00000000 <_EIP>:
+Code;  e0ed9bce <[pppoe]pppoe_connect+1ce/220>   <=====
+   0:   ff 8a e8 00 00 00         decl   0xe8(%edx)   <=====
+Code;  e0ed9bd4 <[pppoe]pppoe_connect+1d4/220>
+   6:   0f 94 c0                  sete   %al
+Code;  e0ed9bd7 <[pppoe]pppoe_connect+1d7/220>
+   9:   84 c0                     test   %al,%al
+Code;  e0ed9bd9 <[pppoe]pppoe_connect+1d9/220>
+   b:   75 24                     jne    31 <_EIP+0x31> e0ed9bff <[pppoe]pppoe_connect+1ff/220>
+Code;  e0ed9bdb <[pppoe]pppoe_connect+1db/220>
+   d:   c7 44 24 08 60 00 00      movl   $0x60,0x8(%esp,1)
+Code;  e0ed9be2 <[pppoe]pppoe_connect+1e2/220>
+  14:   00 
+
+
+1 warning issued.  Results may not be reliable.
 

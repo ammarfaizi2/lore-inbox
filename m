@@ -1,88 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264540AbTH2Lv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 07:51:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264545AbTH2Lv6
+	id S264530AbTH2LqW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 07:46:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264533AbTH2LqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 07:51:58 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:15118 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S264540AbTH2Lvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 07:51:47 -0400
-Date: Fri, 29 Aug 2003 21:51:30 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Jamie Lokier <jamie@shareable.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-In-Reply-To: <20030829053510.GA12663@mail.jlokier.co.uk>
-Message-ID: <Mutt.LNX.4.44.0308292149060.29499-100000@excalibur.intercode.com.au>
+	Fri, 29 Aug 2003 07:46:22 -0400
+Received: from user-0cal2fl.cable.mindspring.com ([24.170.137.245]:32676 "EHLO
+	bender.davehollis.com") by vger.kernel.org with ESMTP
+	id S264530AbTH2LqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 07:46:17 -0400
+Message-ID: <3F4F3D18.4010804@davehollis.com>
+Date: Fri, 29 Aug 2003 07:46:32 -0400
+From: David T Hollis <dhollis@davehollis.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@redhat.com>
+CC: arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: We have ethtool_ops, any thoughts on miitool_ops?
+References: <3F4EB6F4.3010007@davehollis.com>	<1062147016.4999.0.camel@laptop.fenrus.com> <20030829041629.69a3be62.davem@redhat.com>
+In-Reply-To: <20030829041629.69a3be62.davem@redhat.com>
+X-Enigmail-Version: 0.76.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's the result for sparc64 (Ultrasparc II):
+David S. Miller wrote:
 
-$ gcc -o test test.c -O2
-$ time ./test
-Test separation: 8192 bytes: FAIL - cache not coherent
-Test separation: 16384 bytes: pass
-Test separation: 32768 bytes: pass
-Test separation: 65536 bytes: pass
-Test separation: 131072 bytes: pass
-Test separation: 262144 bytes: pass
-Test separation: 524288 bytes: pass
-Test separation: 1048576 bytes: pass
-Test separation: 2097152 bytes: pass
-Test separation: 4194304 bytes: pass
-Test separation: 8388608 bytes: pass
-Test separation: 16777216 bytes: pass
-VM page alias coherency test: minimum fast spacing: 16384 (2 pages)
-
-real    0m0.194s
-user    0m0.160s
-sys     0m0.040s
-$ gcc -o test test.c -O2 -DHAVE_SYSV_SHM
-$ time ./test
-Test separation: 8192 bytes: FAIL - cache not coherent
-Test separation: 16384 bytes: pass
-Test separation: 32768 bytes: pass
-Test separation: 65536 bytes: pass
-Test separation: 131072 bytes: pass
-Test separation: 262144 bytes: pass
-Test separation: 524288 bytes: pass
-Test separation: 1048576 bytes: pass
-Test separation: 2097152 bytes: pass
-Test separation: 4194304 bytes: pass
-Test separation: 8388608 bytes: pass
-Test separation: 16777216 bytes: pass
-VM page alias coherency test: minimum fast spacing: 16384 (2 pages)
-
-real    0m0.162s
-user    0m0.140s
-sys     0m0.020s
-
-$ cat /proc/cpuinfo
-
-cpu             : TI UltraSparc II  (BlackBird)
-fpu             : UltraSparc II integrated FPU
-promlib         : Version 3 Revision 23
-prom            : 3.23.1
-type            : sun4u
-ncpus probed    : 2
-ncpus active    : 2
-Cpu0Bogo        : 591.46
-Cpu0ClkTck      : 0000000011a4f2ed
-Cpu2Bogo        : 591.46
-Cpu2ClkTck      : 0000000011a4f2ed
-MMU Type        : Spitfire
-State:
-CPU0:           online
-CPU2:           online
-
-
-
--- 
-James Morris
-<jmorris@intercode.com.au>
+>On Fri, 29 Aug 2003 10:50:17 +0200
+>Arjan van de Ven <arjanv@redhat.com> wrote:
+>
+>  
+>
+>>On Fri, 2003-08-29 at 04:14, David T Hollis wrote:
+>>    
+>>
+>>>If a driver is converted to use ethtool_ops, it does not seem to have 
+>>>the ability to support mii-tool any longer.  RedHat uses mii-tool to 
+>>>check for link before running dhclient so that you don't have to wait 
+>>>forever for dhclient to timeout if the connection is down (laptops, 
+>>>etc). 
+>>>      
+>>>
+>>this is legacy; the road to the future for this is ethtool + the link
+>>status change notification stuff 
+>>    
+>>
+>
+>Besides, the original claim is false.  You can still support all
+>the other ioctls however you want, even the MII ones, after
+>enabling ethtool_ops in a driver.
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
+Thanks for the pointer.  I didn't realize I could still have the old 
+ioctl handler and just not worry about the ethool portion of it. 
 

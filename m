@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272059AbRIIQ3j>; Sun, 9 Sep 2001 12:29:39 -0400
+	id <S272465AbRIIQiu>; Sun, 9 Sep 2001 12:38:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272062AbRIIQ3b>; Sun, 9 Sep 2001 12:29:31 -0400
-Received: from mnh-1-15.mv.com ([207.22.10.47]:62470 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S272059AbRIIQ3W>;
-	Sun, 9 Sep 2001 12:29:22 -0400
-Message-Id: <200109091746.MAA02088@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: "Shiva Raman Pandey" <shiva@sasken.com>
-cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
-Subject: Re: Query about Tun/Tap Modules 
-In-Reply-To: Your message of "Sun, 09 Sep 2001 20:58:56 +0530."
-             <9ng1q4$or1$1@ncc-z.sasken.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 09 Sep 2001 12:46:40 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S272163AbRIIQil>; Sun, 9 Sep 2001 12:38:41 -0400
+Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:50310 "EHLO
+	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S272118AbRIIQi1>; Sun, 9 Sep 2001 12:38:27 -0400
+Message-ID: <002901c13884$08d99400$0200a8c0@lazybrain.com>
+From: "faybaby" <faybaby@enter.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: sb live problem with 2.4.9 (was working)
+Date: Sat, 8 Sep 2001 12:33:47 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-shiva@sasken.com said:
-> Q1 : Now I am not able to understand how to use this module for my
-> above stated purpose.
->      If anybody has used this utility(Tun/tap) before , please let me
-> know how to get these ethernet packet going towards IP layer and IP
-> packets going towards ethernet driver. 
+i have the creative sb live card, (emu10k1.0) its worked with
+every other kernel even 2.4.6. i get the following messages
+with insmod.
 
-It's not clear how similar my use of TUN/TAP is to what you want, but UML uses
-TUN/TAP as one mechanism to network a virtual machine to the host, and it
-works quite well.
+emu10k1.o: init_module: No such device
+Hint: insmod errors can be caused by incorrect module parameters, including
+invalid IO or IRQ parameters
 
-See tuntap_up() in 
-http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/user-mode-linux/tools/uml_net/uml_net.c?rev=1.10&content-type=text/vnd.viewcvs-markup
-for setting up a TUN/TAP interface and 
-tuntap_user_read() and tuntap_user_write() (which are both trivial)
-http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/user-mode-linux/linux/arch/um/drivers/tuntap_user.c?rev=1.2&content-type=text/vnd.viewcvs-markup
-for getting packets in and out of the interface.
+any suggestions? thanks again
 
-				Jeff
+
 

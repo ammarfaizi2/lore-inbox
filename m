@@ -1,49 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265633AbSKKHXl>; Mon, 11 Nov 2002 02:23:41 -0500
+	id <S265636AbSKKHba>; Mon, 11 Nov 2002 02:31:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265631AbSKKHXl>; Mon, 11 Nov 2002 02:23:41 -0500
-Received: from bbned239-32-100.dsl.hccnet.nl ([80.100.32.239]:30212 "EHLO
-	vanvergehaald.nl") by vger.kernel.org with ESMTP id <S265633AbSKKHXk>;
-	Mon, 11 Nov 2002 02:23:40 -0500
-Date: Mon, 11 Nov 2002 00:10:17 +0100
-From: Toon van der Pas <toon@hout.vanvergehaald.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.46-mm2
-Message-ID: <20021111001017.J10769@vdpas.vanvergehaald.nl>
-References: <3DCDD9AC.C3FB30D9@digeo.com> <20021110143208.GJ31134@suse.de> <20021110145203.GH23425@holomorphy.com> <20021110145757.GK31134@suse.de> <20021110150626.GI23425@holomorphy.com> <3DCE9034.6F833C31@digeo.com> <20021110171130.GJ23425@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021110171130.GJ23425@holomorphy.com>; from wli@holomorphy.com on Sun, Nov 10, 2002 at 09:11:30AM -0800
+	id <S265641AbSKKHba>; Mon, 11 Nov 2002 02:31:30 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:63140 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S265636AbSKKHb2>; Mon, 11 Nov 2002 02:31:28 -0500
+Message-ID: <3DCF5E5D.3030808@nortelnetworks.com>
+Date: Mon, 11 Nov 2002 02:38:05 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: perez@suze.cz
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: patch for cs46xx driver on 2.5.47 to fix compilation error
+Content-Type: multipart/mixed;
+ boundary="------------020108040405000604040007"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 10, 2002 at 09:11:30AM -0800, William Lee Irwin III wrote:
-> William Lee Irwin III wrote:
-> >> Go for it, I'm just trying to get tiobench to actually run (seems to
-> >> have new/different "die from too many threads" behavior wrt. --threads).
-> >> Dropping me a fresh kernel shouldn't slow anything down.
-> 
-> On Sun, Nov 10, 2002 at 08:58:28AM -0800, Andrew Morton wrote:
-> > It could be the procps thing?  `tiobench --threads 256' shows up as a
-> > single process in top and ps due to the new thread consolidation feature.
-> > If you run `ps auxm' or hit 'H' in top, all is revealed.  Not my fave
-> > feature that.
-> 
-> Turns out monitoring things via /proc/ slowed it down by some ridiculous
-> factor while it was trying to spawn threads. 9 hours became less than 1s
-> when I stopped looking.
+This is a multi-part message in MIME format.
+--------------020108040405000604040007
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Ah!
-You just rediscovered the strange world of quantum physics:
-the result of your experiment depends on wether you're looking or not.
 
-:-)
+The attached patch fixes compilation when the CONFIG_SND_CS46XX_NEW_DSP 
+  option is not enabled.
+
+The patch wraps _cs46xx_adjust_sample_rate() in #ifdefs since it is only 
+used when the above option is defined, and moves an up() call back to 
+the procedure that did the down() where it conceptually belongs.
+
+Chris
+
+
+
+
 
 -- 
- /"\                             | "I never much liked Macs.
- \ /     ASCII RIBBON CAMPAIGN   |  All the interesting stuff is hidden away."
-  X        AGAINST HTML MAIL     |    --  Linus Torvalds (at the Geek Cruise)
- / \
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+
+--------------020108040405000604040007
+Content-Type: text/plain;
+ name="soundcard.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="soundcard.patch"
+
+diff -Nur linus-2.5/sound/pci/cs46xx/cs46xx_lib.c localtree/sound/pci/cs46xx/cs46xx_lib.c
+--- linus-2.5/sound/pci/cs46xx/cs46xx_lib.c	2002-11-11 02:30:03.000000000 -0500
++++ localtree/sound/pci/cs46xx/cs46xx_lib.c	2002-11-11 02:23:16.000000000 -0500
+@@ -1023,6 +1023,7 @@
+ 	return result;
+ }
+ 
++#ifdef CONFIG_SND_CS46XX_NEW_DSP
+ static int _cs46xx_adjust_sample_rate (cs46xx_t *chip, cs46xx_pcm_t *cpcm,
+ 				       int sample_rate) 
+ {
+@@ -1051,7 +1052,6 @@
+ 									 cpcm->hw_addr,
+ 									 cpcm->pcm_channel->pcm_channel_id)) == NULL) {
+ 			snd_printk(KERN_ERR "cs46xx: failed to re-create virtual PCM channel\n");
+-			up (&chip->spos_mutex);
+ 			return -ENXIO;
+ 		}
+ 
+@@ -1061,6 +1061,8 @@
+ 
+ 	return 0;
+ }
++#endif
++
+ static int snd_cs46xx_playback_hw_params(snd_pcm_substream_t * substream,
+ 					 snd_pcm_hw_params_t * hw_params)
+ {
+@@ -1083,6 +1085,7 @@
+ 	if (cpcm->pcm_channel->pcm_channel_id != DSP_IEC958_CHANNEL ||
+ 	    !(chip->dsp_spos_instance->spdif_status_out & DSP_SPDIF_STATUS_AC3_MODE)) {
+ 		if (_cs46xx_adjust_sample_rate (chip,cpcm,sample_rate)) {
++			up (&chip->spos_mutex);
+ 			return -ENXIO;
+ 		}
+ 	}
+
+--------------020108040405000604040007--
+

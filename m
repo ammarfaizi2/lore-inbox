@@ -1,79 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264630AbTARKmB>; Sat, 18 Jan 2003 05:42:01 -0500
+	id <S264631AbTARLIL>; Sat, 18 Jan 2003 06:08:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264631AbTARKmA>; Sat, 18 Jan 2003 05:42:00 -0500
-Received: from B57cc.pppool.de ([213.7.87.204]:22408 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S264630AbTARKl7>; Sat, 18 Jan 2003 05:41:59 -0500
-Subject: Re: any brand recomendation for a linux laptop ?
-From: Daniel Egger <degger@fhm.edu>
-To: Gianni Tedesco <gianni@ecsc.co.uk>
+	id <S264646AbTARLIL>; Sat, 18 Jan 2003 06:08:11 -0500
+Received: from vsmtp1.tin.it ([212.216.176.221]:16033 "EHLO smtp1.cp.tin.it")
+	by vger.kernel.org with ESMTP id <S264631AbTARLIK>;
+	Sat, 18 Jan 2003 06:08:10 -0500
+Date: Sat, 18 Jan 2003 12:20:36 +0100
+From: Mattia Dongili <dongili@supereva.it>
+To: thunder7@xs4all.nl
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1042820273.8935.2.camel@lemsip>
-References: <200301161100.45552.Nicolas.Turro@sophia.inria.fr>
-	 <20030116104154.GL25246@pegasys.ws> <3E26BE43.6000406@walrond.org>
-	 <20030116144045.GC30736@work.bitmover.com>
-	 <20030116153727.GA27441@lug-owl.de>  <1042733652.18213.35.camel@sonja>
-	 <1042820273.8935.2.camel@lemsip>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-p1ZWiEoSuyMjxQ6lto19"
-Organization: 
-Message-Id: <1042886952.24291.15.camel@sonja>
+Subject: Re: 2.5.59 doesn't boot - hangs after 'Uncompressing the kernel'
+Message-Id: <20030118122036.24c9958b.dongili@supereva.it>
+In-Reply-To: <20030118100955.GB1138@middle.of.nowhere>
+References: <20030118081408.GA1163@middle.of.nowhere>
+	<20030118093743.GB1483@mars.ravnborg.org>
+	<20030118100955.GB1138@middle.of.nowhere>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 18 Jan 2003 11:49:12 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-p1ZWiEoSuyMjxQ6lto19
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Sat, 18 Jan 2003 11:09:55 +0100
+Jurriaan <thunder7@xs4all.nl> wrote:
+[...]
+> > People have problems after recent changes in vmlinux.lds.
+> > 
+> > Try apply the vmlinux patch from Andrew's set of patches:
+> > http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.59/2.5.59-mm2/
+> > 
+> > Usually report is an oops, but that may be UP only.
+> > 
+> No change, both 2.5.59-mm2 and 2.5.59 + the mm2 vmlinux patch hang just
+> in the same way.
+> 
+> This is on a Debian/Unstable system, btw.
 
-Am Fre, 2003-01-17 um 17.17 schrieb Gianni Tedesco:
+I have the same problem here, I tried 2.5.59 + vmlinux.patch. I'm Debian/testing.
+BTW, 2.5.58 didn't go further too.
 
-> I have a G4 667 powerbook titanium III and the battery life is very poor
-> (around 2hrs) it gets very hot, I think its a kernel problem. Which
-> kernel do you use, could you send me your config off list perhaps?
-
-I'm using 2.4.x and 2.5.x kernels; no special version.=20
-
-A few pointers:
-You might want to check /proc/sys/kernel/powersave-nap is "1".
-Any suspicious messages on bootlog? (Post if in doubt)
-
-What CPU does it have (post /proc/cpuinfo).
-What clocks does it support according to /proc/cpufreq?
-What does the pmu say? (see /proc/pmu)
-What does the APM emulation say (need to run pmud to get reliable
-results)?
-Are the infos from the battery accurate? I need to completely empty
-the battery without pmud every now and then to make the infos realistic.
-
-Normally Motorola cpus turn of unused units to save power,
-you might want to check that your system is really idle;
-when running setiathome for instance my notebook also gets
-warm and the battery is draining much faster (intersting=20
-fact actually, since common belief is that the current drawn
-by processor is far less that the sum of all other components).
-
-
-
---=20
-Servus,
-       Daniel
-
---=-p1ZWiEoSuyMjxQ6lto19
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+KTEochlzsq9KoIYRAiBUAJ9r3crEOf0OwJCOzhb+3i5MplGKQACgsrNJ
-IvicIM5C4tAhXUsyi7hYUhk=
-=4RPm
------END PGP SIGNATURE-----
-
---=-p1ZWiEoSuyMjxQ6lto19--
+--
+mattia
 

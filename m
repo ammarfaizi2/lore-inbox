@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131414AbQKXAOt>; Thu, 23 Nov 2000 19:14:49 -0500
+        id <S131226AbQKXAYO>; Thu, 23 Nov 2000 19:24:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131403AbQKXAOm>; Thu, 23 Nov 2000 19:14:42 -0500
-Received: from 13dyn232.delft.casema.net ([212.64.76.232]:63499 "EHLO
-        abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-        id <S131226AbQKXAOc>; Thu, 23 Nov 2000 19:14:32 -0500
-Message-Id: <200011232343.AAA02174@cave.bitwizard.nl>
-Subject: Re: [NEW DRIVER] firestream
-In-Reply-To: <Pine.LNX.4.21.0011232059560.496-100000@tricky> from Bartlomiej
- Zolnierkiewicz at "Nov 23, 2000 11:19:16 pm"
-To: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
-Date: Fri, 24 Nov 2000 00:43:55 +0100 (MET)
-CC: Patrick van de Lageweg <patrick@bitwizard.nl>,
-        Rogier Wolff <wolff@bitwizard.nl>, linux-kernel@vger.kernel.org
-From: R.E.Wolff@bitwizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+        id <S131353AbQKXAYE>; Thu, 23 Nov 2000 19:24:04 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:27663 "EHLO
+        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+        id <S131226AbQKXAXs>; Thu, 23 Nov 2000 19:23:48 -0500
+Date: Thu, 23 Nov 2000 15:53:27 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Michael Elkins <me@sigpipe.org>,
+        Rui Sousa <rsousa@grad.physics.sunysb.edu>, usb@in.tum.de,
+        linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Re: PROBLEM: kernel 2.4.0-test11-ac1 hang with usb-uhci
+ and  emu10k1
+In-Reply-To: <3A1DA2F7.94114CD2@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.10.10011231551210.1702-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> You may also consider processing firestream.[ch] through indent because
-> spacing is inconsistent - sometimes tabs, sometimes 8*space (it would
-> be nice too have tabs everywhere).
 
-As far as I know the tabs/spaces are exactly the way I want them. 
 
-There are tabs for the number of indentation levels. From then on
-there are only spaces.
+On Thu, 23 Nov 2000, Jeff Garzik wrote:
+> > 
+> > It hangs in start_uhci():
+> > 
+> >                 /* disable legacy emulation */
+> >                 pci_write_config_word (dev, USBLEGSUP, USBLEGSUP_DEFAULT);
 
-Although the "kernel-rules" say that tabs are 8 spaces, if you set
-your tabsize to 4, my sources should still be nicely formatted.  If
-I'd perform your substitute it wouldn't. 
+Try changing the thing around a bit: make the above place say
 
-			Roger. 
+	/* disable legacy emulation */
+	pci_write_config_word (dev, USBLEGSUP, 0);
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+and then AFTER we have successfully done a request_irq() call, we 
+can enable PCI interrupts with
+
+	/* Enable PIRQ */
+	pci_write_config_word (dev, USBLEGSUP, USBLEGSUP_DEFAULT);
+
+Does that make it happier?
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

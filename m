@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266114AbTBKVEI>; Tue, 11 Feb 2003 16:04:08 -0500
+	id <S266100AbTBKVD5>; Tue, 11 Feb 2003 16:03:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266175AbTBKVEI>; Tue, 11 Feb 2003 16:04:08 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:4736
+	id <S266114AbTBKVD5>; Tue, 11 Feb 2003 16:03:57 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:3456
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266114AbTBKVEH>; Tue, 11 Feb 2003 16:04:07 -0500
-Subject: Re: 2.5.60 linking error with IDE-DMA disabled
+	id <S266100AbTBKVD4>; Tue, 11 Feb 2003 16:03:56 -0500
+Subject: Re: 2.4.21-pre4-ac3 hangs at reboot
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Guennadi Liakhovetski <gl@dsa-ac.de>
+To: walt <wa1ter@hotmail.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0302111207080.1173-100000@pcgl.dsa-ac.de>
-References: <Pine.LNX.4.33.0302111207080.1173-100000@pcgl.dsa-ac.de>
+In-Reply-To: <3E47E257.3000904@hotmail.com>
+References: <3E47E257.3000904@hotmail.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1044968542.12907.7.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1044913493.2077.2.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 11 Feb 2003 13:02:23 +0000
+Date: 10 Feb 2003 21:44:54 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-02-11 at 11:12, Guennadi Liakhovetski wrote:
-> Hello
+On Mon, 2003-02-10 at 17:33, walt wrote:
+> Hi Alan,
 > 
-> If I try to compile the kernel with IDE bus-mastering disabled (which,
-> IIRC, worked on 2.4.x), I get the following error:
+> Actually this problem started with ac2.  All seems to work well until I
+> reboot the machine with 'shutdown' or 'reboot' or 'ctl-alt-del'.
 > 
+> The machine shuts down properly to the point where all filesystems
+> are remounted readonly, which is the point where I normally see an
+> immediate reboot.  Starting with pre4-ac2 I just get an indefinite
+> hang instead of the reboot.
 
-Looks like the 2.5 makefile is broken. If you didnt include any IDE DMA
-support them ide-dma.c should not have been linked into the kernel. 2.4.x
-seems to get this right (though I have to fix modular IDE there yet). 
-I'll have a look at the rest when I try and get 2.5.60 IDE back in sync
-with the newer 2.4 code.
-
-Alan
+I know about it, I've not yet had time to track it down
 

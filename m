@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVBSQT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVBSQXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbVBSQT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 11:19:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbVBSQT1
+	id S261698AbVBSQXr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 11:23:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbVBSQXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 11:19:27 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:5696 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261299AbVBSQTY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 11:19:24 -0500
-To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: Vicente Feito <vicente.feito@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: workqueue - process context
-X-Message-Flag: Warning: May contain useful information
-References: <200502190148.11334.vicente.feito@gmail.com>
-	<52is4ptae0.fsf@topspin.com> <42174DD4.9010506@keyaccess.nl>
-From: Roland Dreier <roland@topspin.com>
-Date: Sat, 19 Feb 2005 08:19:23 -0800
-In-Reply-To: <42174DD4.9010506@keyaccess.nl> (Rene Herman's message of "Sat,
- 19 Feb 2005 15:31:48 +0100")
-Message-ID: <52acq0ttdg.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
+	Sat, 19 Feb 2005 11:23:47 -0500
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:48581 "EHLO
+	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S261698AbVBSQXq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 11:23:46 -0500
+Date: Sat, 19 Feb 2005 17:23:42 +0100
+From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: FAUmachine: Looking for a good documented DMA bus master capable PCI IDE Controller card
+Message-ID: <20050219162342.GA29455@cip.informatik.uni-erlangen.de>
+Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+	Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <20050219102410.GD16858@cip.informatik.uni-erlangen.de> <58cb370e05021903481de251df@mail.gmail.com> <20050219132606.GH16858@cip.informatik.uni-erlangen.de> <58cb370e050219055337ca9d62@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 19 Feb 2005 16:19:23.0730 (UTC) FILETIME=[C649DB20:01C5169E]
+Content-Disposition: inline
+In-Reply-To: <58cb370e050219055337ca9d62@mail.gmail.com>
+X-URL: http://wwwcip.informatik.uni-erlangen.de/~sithglan/
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Rene> I have no idea about the module refcounting stuff. Is there
-    Rene> a chance that create_workqueue() could increase a reference
-    Rene> somewhere so that the module wouldn't be allowed to unload
-    Rene> untill after a destroy_workqueue()?
+Hello,
 
-There's no point to doing this, since it's adding complexity to try
-and avoid a very obvious and easy to find bug.  Other types of
-resource leaks are harder to find, but a module not destroying a
-workqueue is going to be trivial to spot and fix.
+> Hm, maybe you will have to implement some PCI add-on IDE controller,
+> AFAIR Silicon Image 680 datasheet is publicly available now.
 
-(There are technical issues as well -- if create_workqueue()
-increments the module reference count, then you would never be able to
-unload the module if the destroy_workqueue() was in the module_exit
-function, because you can never even start to unload a module with a
-non-zero ref count).
+I just talked with a coworker who has experience with the above card. He
+told me that this IDE controller (hardware) has havy problems if you
+have havy load on both channels. (Blue screens in windows and DMA errors
+in Linux).
 
- - R.
+He also told me that everything works fine if you use one channel in PIO
+mode and that there are workarounds in the linux kernel to circumvent
+the upcomming problems under havy load.
+
+Is that true or just nonsense?
+
+However it is worth to look at them. Thanks for the pointer! :-)
+
+	Thomas

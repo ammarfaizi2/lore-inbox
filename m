@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262095AbTGCMf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 08:35:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262148AbTGCMf2
+	id S261245AbTGCMds (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 08:33:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbTGCMds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 08:35:28 -0400
-Received: from angband.namesys.com ([212.16.7.85]:2432 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S262095AbTGCMfW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 08:35:22 -0400
-Date: Thu, 3 Jul 2003 16:49:47 +0400
-From: Oleg Drokin <green@namesys.com>
-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: high system usage with kmail in 2.5.7X
-Message-ID: <20030703124947.GA819@namesys.com>
-References: <200307031637.46227.rathamahata@php4.ru>
+	Thu, 3 Jul 2003 08:33:48 -0400
+Received: from pasta.sw.starentnetworks.com ([12.33.234.10]:6375 "EHLO
+	pasta.sw.starentnetworks.com") by vger.kernel.org with ESMTP
+	id S261245AbTGCMdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 08:33:47 -0400
+Date: Thu, 3 Jul 2003 08:48:13 -0400
+From: Brian Ristuccia <bristucc@sw.starentnetworks.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21-rmap15j: sometimes processes stuck in state D, WCHAN 'down'
+Message-ID: <20030703124813.GN24907@sw.starentnetworks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200307031637.46227.rathamahata@php4.ru>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+We've been seeing processes which occasionally get stuck in state D, WCHAN
+'down'. If I go look in /proc/pid/fd, or proc/pid/cwd/, usually I can find
+one of the open files or directory which will I can hang a new process by
+attempting to access. The affected files/directories have been on a local
+ext3 filesystem. The stuck processes are unkillable, even with signal 9.
 
-On Thu, Jul 03, 2003 at 04:37:46PM +0400, Sergey S. Kostyliov wrote:
+If I attempt to attach to one of the hung processes with strace, there is no
+output from strace, and the strace process becomes hung and unkillable as
+well.
 
-> I experienced an abnormally high system usage whith kmail
-> (KDE mail client). This is usually happened when I click on a
-> huge mail folder. Then kmail just stops responding for a dozens of seconds.
-> Seems like problem started around 2.5.70 (2.5.69 doesn't compile on my box,
-> 2.5.68 works fine for me).
+Is anyone else seeing this problem with stock 2.4.21 or 2.4.21-rmap15j?
 
-This is a kmail 3.0x problem (with large recommended i/o sizes), it is reported that upgrading to kmail 3.1+ will help.
-Alternatively you can mount your reiserfs volumes with "-o nolargeio=1"
-
-Bye,
-    Oleg
+--
+Brian Ristuccia
+bristucc@sw.starentnetworks.com

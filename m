@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269324AbTGUORu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 10:17:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270109AbTGUORu
+	id S269569AbTGUOWc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 10:22:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270136AbTGUOWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 10:17:50 -0400
-Received: from mail.kroah.org ([65.200.24.183]:14738 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S269324AbTGUORs (ORCPT
+	Mon, 21 Jul 2003 10:22:31 -0400
+Received: from mail.kroah.org ([65.200.24.183]:53395 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269569AbTGUOW3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 10:17:48 -0400
-Date: Mon, 21 Jul 2003 10:31:40 -0400
+	Mon, 21 Jul 2003 10:22:29 -0400
+Date: Mon, 21 Jul 2003 10:36:45 -0400
 From: Greg KH <greg@kroah.com>
-To: Ronald Jerome <imun1ty@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: INIT:   USB FATAL in for Kernel 2.5.xx and 2.6.xx in Redhat v9.0  PLease Read.
-Message-ID: <20030721143140.GB9401@kroah.com>
-References: <20030720211048.19155.qmail@web13308.mail.yahoo.com>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: Andrey Borzenkov <arvidjaar@mail.ru>, KML <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: devfsd/2.6.0-test1
+Message-ID: <20030721143645.GA9480@kroah.com>
+References: <200307202117.32753.arvidjaar@mail.ru> <1058741336.19817.147.camel@nosferatu.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030720211048.19155.qmail@web13308.mail.yahoo.com>
+In-Reply-To: <1058741336.19817.147.camel@nosferatu.lan>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 20, 2003 at 02:10:48PM -0700, Ronald Jerome wrote:
+On Mon, Jul 21, 2003 at 12:48:56AM +0200, Martin Schlemmer wrote:
+> On Sun, 2003-07-20 at 19:17, Andrey Borzenkov wrote:
+> > > Also, read the threads on the list about udev/hotplug - apparently
+> > > devfsd is going out ...
+> > 
+> > as long as you have memory-based /dev you need devfsd even if it is called 
+> > differently.
+> >
 > 
-> One thing I knwo for sure is that in 2.5.xx and 2.6.xx
-> kernels there is no usb-uhci.o driver.  I believe they
-> changes the name and I wonder if this is why I am
-> having problems booting the 2.5.xx and 2.6.xx serieis
-> kernels?
+> I have not looked at it myself, but as far as I have it, you do not
+> mount /dev, and just need udev/hotplug/libsysfs (not sure on libsysfs).
+> Currently udev still call mknod, but I think Greg said he will fix that
+> in the future.
 
-That is probably your problem :)
+What's wrong with calling mknod?
 
-Try loading the uhci-hcd module and see if your usb devices now work.
+I did say I thought about calling sys_mknod directly from udev, but
+that's just a minor change.  Is that what you were referring to?
 
 thanks,
 

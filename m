@@ -1,64 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267508AbUHYOC3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267504AbUHYOGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267508AbUHYOC3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 10:02:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267511AbUHYOC2
+	id S267504AbUHYOGq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 10:06:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267523AbUHYOGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 10:02:28 -0400
-Received: from main.gmane.org ([80.91.224.249]:6810 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S267508AbUHYOC0 (ORCPT
+	Wed, 25 Aug 2004 10:06:46 -0400
+Received: from cantor.suse.de ([195.135.220.2]:53925 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267504AbUHYOGn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 10:02:26 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Simon Oosthoek <simon@ti-wmc.nl>
-Subject: Re: kernel 2.6.8 pwc patches and counterpatches
-Date: Wed, 25 Aug 2004 16:02:17 +0200
-Message-ID: <cgi65a$s76$1@sea.gmane.org>
-References: <1092793392.17286.75.camel@localhost> <1092845135.8044.22.camel@localhost> <20040823221028.GB4694@kroah.com> <200408250058.24845@smcc.demon.nl>
+	Wed, 25 Aug 2004 10:06:43 -0400
+Date: Wed, 25 Aug 2004 16:03:35 +0200
+From: Kurt Garloff <kurt@garloff.de>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Process Aggregates for 2.6.8
+Message-ID: <20040825140335.GG11565@tpkurt.garloff.de>
+Mail-Followup-To: Kurt Garloff <kurt@garloff.de>,
+	Arjan van de Ven <arjanv@redhat.com>,
+	Linux kernel list <linux-kernel@vger.kernel.org>
+References: <Pine.SGI.4.53.0408161127580.663457@subway.americas.sgi.com> <1092675050.7416.0.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: darla.ti-wmc.nl
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-In-Reply-To: <200408250058.24845@smcc.demon.nl>
-Cc: linux-usb-devel@lists.sourceforge.net
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qoTlaiD+Y2fIM3Ll"
+Content-Disposition: inline
+In-Reply-To: <1092675050.7416.0.camel@laptop.fenrus.com>
+X-Operating-System: Linux 2.6.8-2-KG i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: SUSE/Novell
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nemosoft Unv. wrote:
 
-> Actually, I've got a little surprise for you. The NDA I signed with Philips 
-> has already expired a year ago. Yet, I didn't just throw the decompressor 
-> code on the Internet. First, there could still be legal remedies since the 
-> cams are still in production to this very day. Second, that NDA was signed 
-> on a basis of trust and I do not want to lose that trust. I'm looking at 
-> the bigger picture here: if we (Linux developers) can show we are 
-> trustworthy, we may be able to get better support from hardware 
-> manufacturers now and in the future (and really, that's what the kernel is 
-> for 75% about ....) I'm still in contact with Philips and who knows, maybe 
-> we can get all the source opened up...
+--qoTlaiD+Y2fIM3Ll
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I have one of those philips cams (bought it because I saw pwc in the 
-kernel source), but I found out that without pwcx is was next to 
-useless. I haven't found a good alternative camera though...
+Hi,
 
-The fact that the NDA has expired already doesn't surprise me, but I 
-would have expected some (or a huge) effort to liberate the source with 
-full permission from Philips (they probably don't care anymore and could 
-use the (marginal) good publicity more that the secret).
+On Mon, Aug 16, 2004 at 06:50:50PM +0200, Arjan van de Ven wrote:
+> On Mon, 2004-08-16 at 18:32, Erik Jacobson wrote:
+> > This is a fresh PAGG patch that applies cleanly to 2.6.8.
+> >=20
+> > There have been no major changes since the last PAGG patch I posted.
+>=20
+> are there (GPL) users of this yet ??
 
-The fact that this hasn't happened is to me a hint that Nemosoft likes 
-the power of "owning" it more that the chance of liberating it. But I 
-could be wrong in that... (I apologise in advance if I'm wrong!)
+Hmm, I thought they might be useful for AFS as well?=20
+And maybe NFS?
 
-I'd prefer that a clear choice is made on this, as Nemosoft suggests, 
-because it shouldn't be in the kernel without the full decoding algorithms.
+Regards,
+--=20
+Kurt Garloff                   <kurt@garloff.de>             [Koeln, DE]
+Physics:Plasma modeling <garloff@plasimo.phys.tue.nl> [TU Eindhoven, NL]
+Linux: SUSE Labs (Head)        <garloff@suse.de>    [SUSE Nuernberg, DE]
 
-Cheers
+--qoTlaiD+Y2fIM3Ll
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Simon (a user)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
+iD8DBQFBLJw3xmLh6hyYd04RAibcAJ904SuIHgn6ocj9bv6JE5+ket7qPwCfZngi
+4uY/j9dIxx5PLGy2iHAIQp0=
+=aQpS
+-----END PGP SIGNATURE-----
 
+--qoTlaiD+Y2fIM3Ll--

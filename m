@@ -1,121 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269099AbUINBux@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269102AbUINBvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269099AbUINBux (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 21:50:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269103AbUINBuw
+	id S269102AbUINBvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 21:51:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269103AbUINBvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 21:50:52 -0400
-Received: from c-24-10-253-213.client.comcast.net ([24.10.253.213]:65489 "EHLO
+	Mon, 13 Sep 2004 21:51:09 -0400
+Received: from c-24-10-253-213.client.comcast.net ([24.10.253.213]:722 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269099AbUINBur (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 21:50:47 -0400
-Message-Id: <200409140151.i8E1p03W023713@localhost.localdomain>
-Subject: [patch 1/2] Incorrect PCI interrupt assignment on ES7000 for platform GSI
+	id S269102AbUINBuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 21:50:50 -0400
+Message-Id: <200409140151.i8E1p4ZE023810@localhost.localdomain>
+Subject: [patch 2/2] Incorrect PCI interrupt assignment on ES7000 for pin zero
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, Natalie.Protasevich@unisys.com
 From: Natalie.Protasevich@unisys.com
-Date: Mon, 13 Sep 2004 19:50:59 -0600
+Date: Mon, 13 Sep 2004 19:51:03 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resending the patches for PCI interrupt assignment problem after proper formatting (sorry, Andrew!)
+ACPI driver uses zero as an error return while parsing _PRT. On ES7000, pin 0 on the first IO-APIC is used for a PCI device. While zero is a legitimate GSI, it gets discarded as invalid by the parser. This results in any device with an interrupt line wired to IRQ 0 will not be assigned an IRQ for that interrupt line. This causes failure of the slot that contains device wired to pin 0. Below is proposed code change to use "-1" as error return:
 
-In arch/i386/kernel/acpi/boot.c, platform GSI does not propagate back from mp_register_gsi() to a calling routine which results in IRQ to be set for wrong GSI. This causes most of the PCI slots on the first PCI module to fail.  This patch fixes the problem by returning new GSI back to acpi_register_gsi().
 
 Signed-off-by: Natalie Protasevich <Natalie.Protasevich@xxxxxxxxxx>
 
 ---
 
- linux-root/arch/i386/kernel/acpi/boot.c |    5 +++--
- linux-root/arch/i386/kernel/mpparse.c   |   11 ++++++-----
- linux-root/include/asm-i386/mpspec.h    |    2 +-
- 3 files changed, 10 insertions(+), 8 deletions(-)
+ linux-root/drivers/acpi/pci_irq.c  |   26 +++++++++++++-------------
+ linux-root/drivers/acpi/pci_link.c |   10 +++++-----
+ 2 files changed, 18 insertions(+), 18 deletions(-)
 
-diff -puN arch/i386/kernel/acpi/boot.c~mypatch arch/i386/kernel/acpi/boot.c
---- linux/arch/i386/kernel/acpi/boot.c~mypatch	2004-09-13 14:08:21.192015024 -0600
-+++ linux-root/arch/i386/kernel/acpi/boot.c	2004-09-13 14:10:51.457171248 -0600
-@@ -442,6 +442,7 @@ int acpi_gsi_to_irq(u32 gsi, unsigned in
- unsigned int acpi_register_gsi(u32 gsi, int edge_level, int active_high_low)
- {
- 	unsigned int irq;
-+	unsigned int plat_gsi;
+diff -L vers/acpi/pci_irq.c -puN /dev/null /dev/null
+diff -puN drivers/acpi/pci_link.c~mypatch1 drivers/acpi/pci_link.c
+--- linux/drivers/acpi/pci_link.c~mypatch1	2004-09-13 14:19:32.000000000 -0600
++++ linux-root/drivers/acpi/pci_link.c	2004-09-13 14:30:06.000000000 -0600
+@@ -593,27 +593,27 @@ acpi_pci_link_get_irq (
+ 	result = acpi_bus_get_device(handle, &device);
+ 	if (result) {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Invalid link device\n"));
+-		return_VALUE(0);
++		return_VALUE(-1);
+ 	}
  
- #ifdef CONFIG_PCI
+ 	link = (struct acpi_pci_link *) acpi_driver_data(device);
+ 	if (!link) {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Invalid link context\n"));
+-		return_VALUE(0);
++		return_VALUE(-1);
+ 	}
+ 
+ 	/* TBD: Support multiple index (IRQ) entries per Link Device */
+ 	if (index) {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Invalid index %d\n", index));
+-		return_VALUE(0);
++		return_VALUE(-1);
+ 	}
+ 
+ 	if (acpi_pci_link_allocate(link))
+-		return_VALUE(0);
++		return_VALUE(-1);
+ 	   
+ 	if (!link->irq.active) {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Link active IRQ is 0!\n"));
+-		return_VALUE(0);
++		return_VALUE(-1);
+ 	}
+ 
+ 	if (edge_level) *edge_level = link->irq.edge_level;
+diff -puN drivers/acpi/pci_irq.c~mypatch1 drivers/acpi/pci_irq.c
+--- linux/drivers/acpi/pci_irq.c~mypatch1	2004-09-13 14:19:54.000000000 -0600
++++ linux-root/drivers/acpi/pci_irq.c	2004-09-13 15:23:22.463717712 -0600
+@@ -249,14 +249,14 @@ acpi_pci_irq_lookup (
+ 	entry = acpi_pci_irq_find_prt_entry(segment, bus_nr, device, pin); 
+ 	if (!entry) {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_INFO, "PRT entry not found\n"));
+-		return_VALUE(0);
++		return_VALUE(-1);
+ 	}
+ 	
+ 	if (entry->link.handle) {
+ 		irq = acpi_pci_link_get_irq(entry->link.handle, entry->link.index, edge_level, active_high_low);
+-		if (!irq) {
++		if (irq < 0) {
+ 			ACPI_DEBUG_PRINT((ACPI_DB_WARN, "Invalid IRQ link routing entry\n"));
+-			return_VALUE(0);
++			return_VALUE(-1);
+ 		}
+ 	} else {
+ 		irq = entry->link.index;
+@@ -277,7 +277,7 @@ acpi_pci_irq_derive (
+ 	int			*active_high_low)
+ {
+ 	struct pci_dev		*bridge = dev;
+-	int			irq = 0;
++	int			irq = -1;
+ 	u8			bridge_pin = 0;
+ 
+ 	ACPI_FUNCTION_TRACE("acpi_pci_irq_derive");
+@@ -289,7 +289,7 @@ acpi_pci_irq_derive (
+ 	 * Attempt to derive an IRQ for this device from a parent bridge's
+ 	 * PCI interrupt routing entry (eg. yenta bridge and add-in card bridge).
+ 	 */
+-	while (!irq && bridge->bus->self) {
++	while (irq < 0 && bridge->bus->self) {
+ 		pin = (pin + PCI_SLOT(bridge->devfn)) % 4;
+ 		bridge = bridge->bus->self;
+ 
+@@ -299,7 +299,7 @@ acpi_pci_irq_derive (
+ 			if (!bridge_pin) {
+ 				ACPI_DEBUG_PRINT((ACPI_DB_INFO, 
+ 					"No interrupt pin configured for device %s\n", pci_name(bridge)));
+-				return_VALUE(0);
++				return_VALUE(-EINVAL);
+ 			}
+ 			/* Pin is from 0 to 3 */
+ 			bridge_pin --;
+@@ -310,9 +310,9 @@ acpi_pci_irq_derive (
+ 			pin, edge_level, active_high_low);
+ 	}
+ 
+-	if (!irq) {
++	if (irq < 0) {
+ 		ACPI_DEBUG_PRINT((ACPI_DB_WARN, "Unable to derive IRQ for device %s\n", pci_name(dev)));
+-		return_VALUE(0);
++		return_VALUE(-EINVAL);
+ 	}
+ 
+ 	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Derive IRQ %d for device %s from %s\n",
+@@ -327,7 +327,7 @@ acpi_pci_irq_enable (
+ 	struct pci_dev		*dev)
+ {
+ 	int			irq = 0;
+-	u8			pin = 0;
++	u8			pin = -1;
+ 	int			edge_level = ACPI_LEVEL_SENSITIVE;
+ 	int			active_high_low = ACPI_ACTIVE_LOW;
+ 
+@@ -358,24 +358,24 @@ acpi_pci_irq_enable (
+ 	 * If no PRT entry was found, we'll try to derive an IRQ from the
+ 	 * device's parent bridge.
+ 	 */
+-	if (!irq)
++	if (irq < 0)
+  		irq = acpi_pci_irq_derive(dev, pin, &edge_level, &active_high_low);
+  
  	/*
-@@ -463,10 +464,10 @@ unsigned int acpi_register_gsi(u32 gsi, 
+ 	 * No IRQ known to the ACPI subsystem - maybe the BIOS / 
+ 	 * driver reported one, then use it. Exit in any case.
+ 	 */
+-	if (!irq) {
++	if (irq < 0) {
+ 		printk(KERN_WARNING PREFIX "PCI interrupt %s[%c]: no GSI",
+ 			pci_name(dev), ('A' + pin));
+ 		/* Interrupt Line values above 0xF are forbidden */
+-		if (dev->irq && (dev->irq <= 0xF)) {
++		if (dev->irq >= 0 && (dev->irq <= 0xF)) {
+ 			printk(" - using IRQ %d\n", dev->irq);
+ 			return_VALUE(dev->irq);
+ 		}
+ 		else {
+ 			printk("\n");
+-			return_VALUE(0);
++			return_VALUE(-EINVAL);
+ 		}
+  	}
  
- #ifdef CONFIG_X86_IO_APIC
- 	if (acpi_irq_model == ACPI_IRQ_MODEL_IOAPIC) {
--		mp_register_gsi(gsi, edge_level, active_high_low);
-+		plat_gsi = mp_register_gsi(gsi, edge_level, active_high_low);
- 	}
- #endif
--	acpi_gsi_to_irq(gsi, &irq);
-+	acpi_gsi_to_irq(plat_gsi, &irq);
- 	return irq;
- }
- EXPORT_SYMBOL(acpi_register_gsi);
-diff -puN include/asm-i386/mpspec.h~mypatch include/asm-i386/mpspec.h
---- linux/include/asm-i386/mpspec.h~mypatch	2004-09-13 14:08:21.249006360 -0600
-+++ linux-root/include/asm-i386/mpspec.h	2004-09-13 14:09:52.381152168 -0600
-@@ -33,7 +33,7 @@ extern void mp_register_lapic_address (u
- extern void mp_register_ioapic (u8 id, u32 address, u32 gsi_base);
- extern void mp_override_legacy_irq (u8 bus_irq, u8 polarity, u8 trigger, u32 gsi);
- extern void mp_config_acpi_legacy_irqs (void);
--extern void mp_register_gsi (u32 gsi, int edge_level, int active_high_low);
-+extern int mp_register_gsi (u32 gsi, int edge_level, int active_high_low);
- #endif /*CONFIG_ACPI_BOOT*/
- 
- #define PHYSID_ARRAY_SIZE	BITS_TO_LONGS(MAX_APICS)
-diff -puN arch/i386/kernel/mpparse.c~mypatch arch/i386/kernel/mpparse.c
---- linux/arch/i386/kernel/mpparse.c~mypatch	2004-09-13 14:08:21.311996784 -0600
-+++ linux-root/arch/i386/kernel/mpparse.c	2004-09-13 14:12:00.562665616 -0600
-@@ -1051,7 +1051,7 @@ void __init mp_config_acpi_legacy_irqs (
- 
- int (*platform_rename_gsi)(int ioapic, int gsi);
- 
--void mp_register_gsi (u32 gsi, int edge_level, int active_high_low)
-+int mp_register_gsi (u32 gsi, int edge_level, int active_high_low)
- {
- 	int			ioapic = -1;
- 	int			ioapic_pin = 0;
-@@ -1060,13 +1060,13 @@ void mp_register_gsi (u32 gsi, int edge_
- #ifdef CONFIG_ACPI_BUS
- 	/* Don't set up the ACPI SCI because it's already set up */
- 	if (acpi_fadt.sci_int == gsi)
--		return;
-+		return gsi;
- #endif
- 
- 	ioapic = mp_find_ioapic(gsi);
- 	if (ioapic < 0) {
- 		printk(KERN_WARNING "No IOAPIC for GSI %u\n", gsi);
--		return;
-+		return gsi;
- 	}
- 
- 	ioapic_pin = gsi - mp_ioapic_routing[ioapic].gsi_base;
-@@ -1085,12 +1085,12 @@ void mp_register_gsi (u32 gsi, int edge_
- 		printk(KERN_ERR "Invalid reference to IOAPIC pin "
- 			"%d-%d\n", mp_ioapic_routing[ioapic].apic_id, 
- 			ioapic_pin);
--		return;
-+		return gsi;
- 	}
- 	if ((1<<bit) & mp_ioapic_routing[ioapic].pin_programmed[idx]) {
- 		Dprintk(KERN_DEBUG "Pin %d-%d already programmed\n",
- 			mp_ioapic_routing[ioapic].apic_id, ioapic_pin);
--		return;
-+		return gsi;
- 	}
- 
- 	mp_ioapic_routing[ioapic].pin_programmed[idx] |= (1<<bit);
-@@ -1098,6 +1098,7 @@ void mp_register_gsi (u32 gsi, int edge_
- 	io_apic_set_pci_routing(ioapic, ioapic_pin, gsi,
- 		    edge_level == ACPI_EDGE_SENSITIVE ? 0 : 1,
- 		    active_high_low == ACPI_ACTIVE_HIGH ? 0 : 1);
-+	return gsi;
- }
- 
- #endif /*CONFIG_X86_IO_APIC && (CONFIG_ACPI_INTERPRETER || CONFIG_ACPI_BOOT)*/
 _

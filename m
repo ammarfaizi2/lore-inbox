@@ -1,108 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129807AbQK3Oui>; Thu, 30 Nov 2000 09:50:38 -0500
+        id <S129806AbQK3O63>; Thu, 30 Nov 2000 09:58:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129909AbQK3Ou2>; Thu, 30 Nov 2000 09:50:28 -0500
-Received: from 13dyn240.delft.casema.net ([212.64.76.240]:2052 "EHLO
-        abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-        id <S129807AbQK3OuU>; Thu, 30 Nov 2000 09:50:20 -0500
-Date: Thu, 30 Nov 2000 15:19:36 +0100 (CET)
-From: Patrick van de Lageweg <patrick@bitwizard.nl>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Rogier Wolff <wolff@bitwizard.nl>
-Subject: [PATCH] generic_serial's block_til_ready
-Message-ID: <Pine.LNX.4.21.0011301518550.12764-100000@panoramix.bitwizard.nl>
+        id <S129846AbQK3O6S>; Thu, 30 Nov 2000 09:58:18 -0500
+Received: from [216.219.246.7] ([216.219.246.7]:50362 "EHLO shuswap.gate.net")
+        by vger.kernel.org with ESMTP id <S129806AbQK3O6P>;
+        Thu, 30 Nov 2000 09:58:15 -0500
+Message-ID: <000301c05ad9$830bde10$df1a24cf@master>
+Reply-To: "Steve Grubb" <steve@web-insights.net>
+From: "Steve Grubb" <steve@web-insights.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] minor do_syslog cleanup
+Date: Thu, 30 Nov 2000 09:26:17 -0500
+Organization: Web Insights, Inc.
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
- 
-This patch renames the block_til_ready of generic serial to
-gs_block_til_ready. 
+Hello,
 
-it helps when other modules have a "static block_til_ready" defined when
-used older modutils.
+This patch removes extra setting of the error value in the do_syslog
+function. The patch is against 2.2.16, but printk.c seems to have changed
+little so it probably applies against other kernels.
 
- 	Patrick
+See Ya,
+Steve Grubb
 
+--------------------
 
-diff -r -u linux-2.4.0-test10.clean/drivers/char/generic_serial.c linux-2.4.0-test10.generic_serial/drivers/char/generic_serial.c
---- linux-2.4.0-test10.clean/drivers/char/generic_serial.c	Tue Nov 21 12:08:20 2000
-+++ linux-2.4.0-test10.generic_serial/drivers/char/generic_serial.c	Tue Nov 21 12:31:43 2000
-@@ -35,7 +35,6 @@
- 
- static int gs_debug;
- 
--
- #ifdef DEBUG
- #define gs_dprintk(f, str...) if (gs_debug & f) printk (str)
- #else
-@@ -583,7 +582,7 @@
- }
- 
- 
--int block_til_ready(void *port_, struct file * filp)
-+int gs_block_til_ready(void *port_, struct file * filp)
- {
- 	struct gs_port *port = port_;
- 	DECLARE_WAITQUEUE(wait, current);
-@@ -600,7 +599,7 @@
- 
- 	if (!tty) return 0;
- 
--	gs_dprintk (GS_DEBUG_BTR, "Entering block_till_ready.\n"); 
-+	gs_dprintk (GS_DEBUG_BTR, "Entering gs_block_till_ready.\n"); 
- 	/*
- 	 * If the device is in the middle of being closed, then block
- 	 * until it's done, and then try again.
-@@ -1070,7 +1069,7 @@
- EXPORT_SYMBOL(gs_start);
- EXPORT_SYMBOL(gs_hangup);
- EXPORT_SYMBOL(gs_do_softint);
--EXPORT_SYMBOL(block_til_ready);
-+EXPORT_SYMBOL(gs_block_til_ready);
- EXPORT_SYMBOL(gs_close);
- EXPORT_SYMBOL(gs_set_termios);
- EXPORT_SYMBOL(gs_init_port);
-diff -r -u linux-2.4.0-test10.clean/drivers/char/sh-sci.c linux-2.4.0-test10.generic_serial/drivers/char/sh-sci.c
---- linux-2.4.0-test10.clean/drivers/char/sh-sci.c	Wed Nov  1 13:57:19 2000
-+++ linux-2.4.0-test10.generic_serial/drivers/char/sh-sci.c	Tue Nov 21 12:13:56 2000
-@@ -839,7 +839,7 @@
- 		MOD_INC_USE_COUNT;
- 	}
- 
--	retval = block_til_ready(port, filp);
-+	retval = gs_block_til_ready(port, filp);
- 
- 	if (retval) {
- 		MOD_DEC_USE_COUNT;
-diff -r -u linux-2.4.0-test10.clean/drivers/char/sx.c linux-2.4.0-test10.generic_serial/drivers/char/sx.c
---- linux-2.4.0-test10.clean/drivers/char/sx.c	Tue Nov 21 12:08:21 2000
-+++ linux-2.4.0-test10.generic_serial/drivers/char/sx.c	Tue Nov 21 12:13:56 2000
-@@ -1478,7 +1478,7 @@
- 		return -EIO;
- 	}
- 
--	retval = block_til_ready(port, filp);
-+	retval = gs_block_til_ready(port, filp);
- 	sx_dprintk (SX_DEBUG_OPEN, "Block til ready returned %d. Count=%d\n", 
- 	            retval, port->gs.count);
- 
-diff -r -u linux-2.4.0-test10.clean/include/linux/generic_serial.h linux-2.4.0-test10.generic_serial/include/linux/generic_serial.h
---- linux-2.4.0-test10.clean/include/linux/generic_serial.h	Mon Mar 13 04:18:55 2000
-+++ linux-2.4.0-test10.generic_serial/include/linux/generic_serial.h	Tue Nov 21 12:13:56 2000
-@@ -92,7 +92,7 @@
- void gs_start(struct tty_struct *tty);
- void gs_hangup(struct tty_struct *tty);
- void gs_do_softint(void *private_);
--int  block_til_ready(void *port, struct file *filp);
-+int  gs_block_til_ready(void *port, struct file *filp);
- void gs_close(struct tty_struct *tty, struct file *filp);
- void gs_set_termios (struct tty_struct * tty, 
-                      struct termios * old_termios);
+--- printk.orig Thu Nov 30 07:58:58 2000
++++ printk.c    Thu Nov 30 08:55:07 2000
+@@ -123,19 +123,18 @@
+        unsigned long i, j, limit, count;
+        int do_clear = 0;
+        char c;
+-       int error = -EPERM;
++       int error = 0;
+
+-       error = 0;
+        switch (type) {
+        case 0:         /* Close log */
+                break;
+        case 1:         /* Open log */
+                break;
+        case 2:         /* Read from log */
+-               error = -EINVAL;
+-               if (!buf || len < 0)
++               if (!buf || len < 0) {
++                       error = -EINVAL;
+                        goto out;
+-               error = 0;
++               }
+                if (!len)
+                        goto out;
+                error = verify_area(VERIFY_WRITE,buf,len);
+@@ -163,10 +162,10 @@
+                do_clear = 1;
+                /* FALL THRU */
+        case 3:         /* Read last kernel messages */
+-               error = -EINVAL;
+-               if (!buf || len < 0)
++               if (!buf || len < 0) {
++                       error = -EINVAL;
+                        goto out;
+-               error = 0;
++               }
+                if (!len)
+                        goto out;
+                error = verify_area(VERIFY_WRITE,buf,len);
+@@ -224,15 +223,15 @@
+                spin_unlock_irq(&console_lock);
+                break;
+        case 8:
+-               error = -EINVAL;
+-               if (len < 1 || len > 8)
++               if (len < 1 || len > 8) {
++                       error = -EINVAL;
+                        goto out;
++               }
+                if (len < minimum_console_loglevel)
+                        len = minimum_console_loglevel;
+                spin_lock_irq(&console_lock);
+                console_loglevel = len;
+                spin_unlock_irq(&console_lock);
+-               error = 0;
+                break;
+        default:
+                error = -EINVAL;
 
 
 -

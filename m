@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275283AbTHMRNd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 13:13:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275284AbTHMRNd
+	id S275280AbTHMRJ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 13:09:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275279AbTHMRJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 13:13:33 -0400
-Received: from 12-254-105-101.client.attbi.com ([12.254.105.101]:23823 "EHLO
-	gw.kuetemeier.com") by vger.kernel.org with ESMTP id S275283AbTHMRNc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 13:13:32 -0400
-Subject: Re: [PATCH][DOCO] Re: 2.6.0-test3 and dnotify
-From: Ronald Kuetemeier <ron_ker@kuetemeier.com>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Linus <torvalds@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030813143751.3dc0b14b.sfr@canb.auug.org.au>
-References: <1060705727.1189.12.camel@ronald.kuetemeier.com>
-	 <20030813143751.3dc0b14b.sfr@canb.auug.org.au>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1060794788.1145.22.camel@ronald.kuetemeier.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 13 Aug 2003 11:13:09 -0600
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Aug 2003 13:09:29 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:58522 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S275280AbTHMRJ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 13:09:28 -0400
+Date: Wed, 13 Aug 2003 14:08:32 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@localhost.localdomain
+To: Jim Gifford <maillist@jg555.com>
+Cc: Stephan von Krawczynski <skraw@ithnet.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
+In-Reply-To: <076901c361ae$9a105030$3400a8c0@W2RZ8L4S02>
+Message-ID: <Pine.LNX.4.44.0308131407090.5194-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan, 
-I most certainly will give it a shot.  But why is it working under 2.4.X
-iff glibc or bash are blocking SIGRTMIN, they should also block under
-2.4.x or is there a bug in 2.4.x which prevents it?
-
-Thanks for your help,
-Ronald
 
 
+On Wed, 13 Aug 2003, Jim Gifford wrote:
 
-On Tue, 2003-08-12 at 22:37, Stephen Rothwell wrote:
-> Linus,
-> 
-> On 12 Aug 2003 10:28:47 -0600 Ronald Kuetemeier <ron_ker@kuetemeier.com> wrote:
-> >
-> > I run some of my programs on 2.6.0-test3 this morning, before my coffee
-> > ..., anyhow seems dnotify isn't working any more. I compiled the example
-> > from <linux-2.6.0-test3>/Documentation/dnotify.txt this also doesn't
-> > work anymore.
-> 
-> This has been asked a couple of times, so can you please apply the
-> following documentation patch?
+> Marcelo,
+>     Could this be related to the issues I was having. Since rc1 I have not
+> had any problems, and I have all the iptables stuff running again. My
+> machine is smp and is using ext3.
+
+Jim,
+
+Dont think so. Your problems were caused by additional netfilter patches 
+or the dazuko module -- Stephan is not using any of those. 
 

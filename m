@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129375AbRAXXGN>; Wed, 24 Jan 2001 18:06:13 -0500
+	id <S133021AbRAXXMR>; Wed, 24 Jan 2001 18:12:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129401AbRAXXGD>; Wed, 24 Jan 2001 18:06:03 -0500
-Received: from [212.255.16.226] ([212.255.16.226]:462 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S129375AbRAXXFs> convert rfc822-to-8bit;
-	Wed, 24 Jan 2001 18:05:48 -0500
-Message-ID: <01b301c0865a$2cfdc0e0$0100a8c0@homeip.net>
-From: "mirabilos" <eccesys@topmail.de>
-To: "Linux-Kernel ML" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10101222129310.3031-100000@clueserver.org> <3A6F0D6B.34EB2CB0@coppice.org> <20010124123001.52317@winksmith.com> <3A6F2F9E.6030600@signalstorm.com> <20010124173854.35773@winksmith.com> <20010124145140.N2452@draco.foogod.com>
-Subject: Re: Probably Off-topic Question...
-Date: Wed, 24 Jan 2001 23:04:55 -0000
-Organization: eccesys.net Linux Distribution Development
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.3018.1300
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
+	id <S133046AbRAXXMH>; Wed, 24 Jan 2001 18:12:07 -0500
+Received: from post.cnt.ru ([212.15.122.243]:46093 "EHLO post.cnt.ru")
+	by vger.kernel.org with ESMTP id <S133021AbRAXXMA>;
+	Wed, 24 Jan 2001 18:12:00 -0500
+Date: Thu, 25 Jan 2001 02:11:49 +0300
+From: "dobro.cnt" <dobro@cnt.ru>
+X-Mailer: The Bat! (v1.34a) UNREG / CD5BF9353B3B7091
+Reply-To: "dobro.cnt" <dobro@cnt.ru>
+X-Priority: 3 (Normal)
+Message-ID: <791.010125@cnt.ru>
+To: linux-kernel@vger.kernel.org
+CC: linux-alpha@vger.kernel.org
+Subject: Problem with 2.4.0 and Nautilus
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nono it can't be the BIOS coz then it won't work under Losedoze (old vers, e.g. Wfw 3.11 with Win32s).
-AFAIK it's the "keyboard controller" (i.e. the chipset)
+I have Alpha system based on AMD 751 & ALI 1543C chipset (Nautilus).
+Since I compiled and boot kernel 2.4.0 problem appears.
+1. don't work IDE DMA mode at all, only PIO
+2. don't work eepro100 support for Intel Ethernet card - driver
+reports I use non-busmaster slot (2.2.16 works fine)
+3. many other issues such SCSI device hang up during insmod driver and
+so on.
 
-For my Scenic Mobile 510 everything works fine under DOS, NT 5 (though _this_ Windoze _has_ advanced features) and Linnux.
+It seems there is problem with DMA, but 2.2.16 works fine. Any help?
 
-mirabilos
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12+custom(^=href;C-style-comments)
-GO/S dx@ s--: a--->---- C++ UL++++ P--- L++$(-^lang) E----/joe W+(++)
-N? o K? w-(+$) O+>+++ M-- V- PS+++@ PE(--) Y+ PGP t+ 5? X+ R+ !tv!----
-b++++* DI- D+ G(>++) e(^age) h! r(-) y--(!y+) /* lang=NASM, GW-BASIC, C */
-------END GEEK CODE BLOCK------
+Mike Pershin
 
 
 -

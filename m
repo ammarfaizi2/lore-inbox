@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbVC1R0P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbVC1Ra4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261961AbVC1R0P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 12:26:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbVC1R0P
+	id S261882AbVC1Ra4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 12:30:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVC1Raz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 12:26:15 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:24072 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261961AbVC1R0D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 12:26:03 -0500
-Date: Mon, 28 Mar 2005 19:25:58 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: vherva@viasys.com
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.30-rc3 md/ext3 problems
-Message-ID: <20050328172558.GU30052@alpha.home.local>
-References: <20050326162801.GA20729@logos.cnet> <20050328073405.GQ16169@viasys.com> <20050328165501.GR16169@viasys.com>
+	Mon, 28 Mar 2005 12:30:55 -0500
+Received: from imag.imag.fr ([129.88.30.1]:22431 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S261962AbVC1R2Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 12:28:24 -0500
+Date: Mon, 28 Mar 2005 19:28:20 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: forkbombing Linux distributions
+Message-ID: <20050328172820.GA31571@linux.ensimag.fr>
+Reply-To: 20050323135317.GA22959@roonstrasse.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="u3/rZRmxL6MmkK24"
 Content-Disposition: inline
-In-Reply-To: <20050328165501.GR16169@viasys.com>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.5.6+20040722i
+From: Matthieu Castet <mat@ensilinx1.imag.fr>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (imag.imag.fr [129.88.30.1]); Mon, 28 Mar 2005 19:28:20 +0200 (CEST)
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ville,
 
-On Mon, Mar 28, 2005 at 07:55:01PM +0300, Ville Herva wrote:
-(...) 
-> I rebooted (fsck took the fs errors away, no big offenders), and after a few
-> minutes, I got the same error ("journal commit I/O error"). So it doesn't
-> appear all that random memory corruption. The error happened right when I
-> logged out, but that might have been a coincidence. No ide nor md errors
-> this time either. 
-> 
-> I don't know what to suspect. What I gather from changelogs, there haven't
-> been any critical looking ext3 changes in 2.4 lately, but then again,
-> vserver doesn't mess with block layer / ext3 journalling either.
-> 
-> Any ideas?
+--u3/rZRmxL6MmkK24
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Since you don't seem to be willing to remove vserver, I guess you really
-need it on this machine, and to be honnest, I too don't see what trouble
-it could cause in this area. However, could you try removing the journal,
-or simply mount the FS as ext2 ? It would help to narrow the problem down.
+> The memory limits aren't good enough either: if you set them low
+> enough that memory-forkbombs are unperilous for
+> RLIMIT_NPROC*RLIMIT_DATA, it's probably too low for serious
+> applications.
 
-To resume, you have your root on ext3 on top of soft raid1 consisting in
-two IDE disks, which works in 2.4.21 but not on 2.4.30-rc3, that's
-correct ? There was a fix last week by Neil Brown about RAID1 rebuild
-process (degraded array of 3 disks, etc...), unless it obviously does
-not come from there, you might want to try reverting it first ? The
-next one is from Doug Ledford on 2004/09/18 and should only affect SMP.
+yes, if you want to run application like openoffice.org you need at
+least 200Mo. If you want that your system is usable, you need at least 40 process per user. So 40*200 = 8Go, and it don't think you have all this memory...
 
-My different raid machines run either reiserfs or xfs on soft raid5 on
-top of scsi and with kernel 2.4.27, so there's not much to compare...
-Perhaps someone on the list has a setup similar to yours and could test
-the kernel ?
+I think per user limit could be a solution.
 
-Cheers,
-Willy
+attached a small fork-memory bombing.
 
+Matthieu
+
+--u3/rZRmxL6MmkK24
+Content-Type: text/x-csrc; charset=us-ascii
+Content-Disposition: attachment; filename="kha.c"
+
+int main()
+{
+	while(1){
+		while(fork()){
+			malloc(1);
+		}
+	}
+}
+
+--u3/rZRmxL6MmkK24--

@@ -1,77 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262290AbVCIKds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262273AbVCIKgD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262290AbVCIKds (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 05:33:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbVCIKak
+	id S262273AbVCIKgD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 05:36:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVCIKew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 05:30:40 -0500
-Received: from smtp.dei.uc.pt ([193.137.203.228]:27563 "EHLO smtp.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S262283AbVCIK3a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 05:29:30 -0500
-Date: Wed, 9 Mar 2005 10:28:32 +0000 (WET)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: Dominik Karall <dominik.karall@gmx.net>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>, Greg KH <greg@kroah.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       chrisw@osdl.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Linux 2.6.11.2
-In-Reply-To: <200503091121.16801.dominik.karall@gmx.net>
-Message-ID: <Pine.LNX.4.61.0503091023410.7496@student.dei.uc.pt>
-References: <20050309083923.GA20461@kroah.com> <Pine.LNX.4.61.0503090950200.7496@student.dei.uc.pt>
- <Pine.LNX.4.62.0503091104180.22598@numbat.sonytel.be>
- <200503091121.16801.dominik.karall@gmx.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-UC-FCT-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-FCT-DEI-MailScanner: Found to be clean
-X-MailScanner-From: marado@student.dei.uc.pt
+	Wed, 9 Mar 2005 05:34:52 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56591 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262273AbVCIKcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 05:32:47 -0500
+Date: Wed, 9 Mar 2005 10:32:23 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andi Kleen <ak@muc.de>, Greg KH <greg@kroah.com>,
+       Chris Wright <chrisw@osdl.org>, torvalds@osdl.org,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] -stable, how it's going to work.
+Message-ID: <20050309103223.C17289@flint.arm.linux.org.uk>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	Andi Kleen <ak@muc.de>, Greg KH <greg@kroah.com>,
+	Chris Wright <chrisw@osdl.org>, torvalds@osdl.org,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050309072833.GA18878@kroah.com> <m1sm35w3am.fsf@muc.de> <1110363060.6280.74.camel@laptopd505.fenrus.org> <20050309101728.A17289@flint.arm.linux.org.uk> <1110363899.6280.77.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1110363899.6280.77.camel@laptopd505.fenrus.org>; from arjan@infradead.org on Wed, Mar 09, 2005 at 11:24:58AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Mar 09, 2005 at 11:24:58AM +0100, Arjan van de Ven wrote:
+> On Wed, 2005-03-09 at 10:17 +0000, Russell King wrote:
+> > What about the case (as highlighted in previous discussions) that the
+> > stable tree needs a simple "dirty" fix, whereas mainline takes the
+> > complex "clean" fix?
+> 
+> that's the exception I talked about a bit later in my mail. It should be
+> rare and very deliberate. And in fact once the mainline change ripples
+> out into maturity I rather replace the -stable one with that later on,
+> even if it's a bit more invasive. 
 
-On Wed, 9 Mar 2005, Dominik Karall wrote:
+Is that really necessary with a stable tree which may only be around
+for about 2 months before the next stable tree is forked (which would
+have the mature mainline fix in) ?
 
->>>> which is a patch against the 2.6.11.1 release.  If consensus arrives
->>>> that this patch should be against the 2.6.11 tree, it will be done that
->>>> way in the future.
->>>
->>> IMHO it sould be against 2.6.11 and not 2.6.11.1, like -rc's that are'nt
->>> againt
->>> the last -rc but against 2.6.x.
->>
->> It's a stable release, not a pre/rc, so against 2.6.11.1 sounds most
->> logical to me.
->
-> I don't think so. The latest patch (2.6.11.2 now) is on the frontpage of
-> kernel.org, so IMHO the user should not need to search the kernel.org/pub
-> archives to get 2.6.11.1 patch before he can start working with 2.6.11.2.
->
-> I think it's a small problem too, that 2.6.11 source isn't directly accessable
-> through the kernel.org frontpage while there is no "full tarball" of 2.6.11.X
-> trees.
+There is another point here though, which I think is much more important.
+Remember that the original issue which caused the -stable tree to be
+created was a concern over the testing that Linus' kernels were getting.
+Also, realise that by creating a -stable tree, we haven't increased the
+number of testers which Linus' kernels are seeing.
 
-With that "full tarball" for 2.6.11.X the issues would be over.
-I think there should be one.
+Given that, how can we decide that a complex fix has matured enough
+in Linus' kernel to warrant replacing a (proven) fix which users are
+perfectly happy with in the corresponding -stable tree?
 
-Marado
+I thought the -stable tree is targeted towards stability, not towards
+"lets replace this change with some other because we as developers think
+it's better".
 
-- -- 
-/* *********************************************************** */
-    Marcos Daniel Marado Torres     AKA      Mind Booster Noori
-    http://student.dei.uc.pt/~marado  -	 marado@magicbrain.biz
-    () 	Join the ASCII ribbon campaign against HTML e-mail and
-    /\ 	Microsoft attachments.        They endanger the World.
-/* *********************************************************** */
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
-
-iD8DBQFCLs/gmNlq8m+oD34RAnu6AJwOvkvet1kLLGzLQ5EGuiVxtNbeEQCg7Ar9
-Stnv4wmM74a5mX3fFrAh34Y=
-=fCVH
------END PGP SIGNATURE-----
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

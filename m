@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318086AbSGWIx1>; Tue, 23 Jul 2002 04:53:27 -0400
+	id <S318001AbSGWJAv>; Tue, 23 Jul 2002 05:00:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318088AbSGWIx0>; Tue, 23 Jul 2002 04:53:26 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:9161 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S318086AbSGWIx0>;
-	Tue, 23 Jul 2002 04:53:26 -0400
-Date: Tue, 23 Jul 2002 10:55:23 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: george anzinger <george@mvista.com>
-Cc: Diego Calleja <diegocg@teleline.es>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.27: do_softirq
-In-Reply-To: <3D3C8C43.F65E7ED1@mvista.com>
-Message-ID: <Pine.LNX.4.44.0207231050130.2980-100000@localhost.localdomain>
+	id <S318002AbSGWJAv>; Tue, 23 Jul 2002 05:00:51 -0400
+Received: from moutvdom.kundenserver.de ([195.20.224.200]:58585 "EHLO
+	moutvdomng3.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S318001AbSGWJAu>; Tue, 23 Jul 2002 05:00:50 -0400
+Date: Tue, 23 Jul 2002 03:03:58 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Andre Hedrick <andre@linux-ide.org>
+Subject: Uncleanness in 2.4 IDE
+Message-ID: <Pine.LNX.4.44.0207230302580.3384-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Mon, 22 Jul 2002, george anzinger wrote:
+IDE in late 2.4 kernels always gives me things like this:
 
-> > This is the output of readprofile | sort -nr:
-> > It shows too much calls to do_softirq ( i don't know what it means but i
-> > hope it can help)
-> >
-> Maybe _local_bh_enable() should check to see if the call is needed
-> before it calls....
+hdd: timeout waiting for DMA
+hdd: ide_dma_timeout: Lets do it again!stat = 0xd0, dma_stat = 0x60
+hdd: DMA disabled
+hdd: ide_set_handler: handler not null; old=c021f610, new=c022db60
+bug: kernel timer added twice at c021f552.
 
-it does in Linus' latest BK tree, which can also be downloaded from:
+>From that moment the IDE cdrom becomes unuseable.
 
-  http://redhat.com/~mingo/irqlock-removal-patches/diff-bk-020723-2.5.27.bz2
-
-(patch against 2.5.27-vanilla.) It includes all the irqlock related
-patches.
-
-	Ingo
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

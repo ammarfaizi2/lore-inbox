@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbUDCJu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 04:50:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbUDCJu7
+	id S261677AbUDCKHw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 05:07:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbUDCKHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 04:50:59 -0500
-Received: from 217-162-71-11.dclient.hispeed.ch ([217.162.71.11]:46535 "EHLO
-	steudten.com") by vger.kernel.org with ESMTP id S261672AbUDCJu4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 04:50:56 -0500
-Message-ID: <406E88F7.9090601@steudten.com>
-Date: Sat, 03 Apr 2004 11:50:47 +0200
-From: Thomas Steudten <alpha@steudten.com>
-Organization: STEUDTEN ENGINEERING
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Stefan Wanner <stefan.wanner@postmail.ch>, linux-alpha@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: SCSI generic support: Badness in kobject_get
-References: <7CA30FDE-84F1-11D8-8FED-000393C43976@postmail.ch> <20040402223550.GA12467@kroah.com>
-In-Reply-To: <20040402223550.GA12467@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 3 Apr 2004 05:07:52 -0500
+Received: from fw.osdl.org ([65.172.181.6]:8354 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261677AbUDCKHv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 05:07:51 -0500
+Date: Sat, 3 Apr 2004 02:07:40 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: a.nielsen@optushome.com.au, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, degger@tarantel.rz.fh-muenchen.de
+Subject: Re: [PATCH] Fix kernel lockup in RTL-8169 gigabit ethernet driver
+Message-Id: <20040403020740.33ef375f.akpm@osdl.org>
+In-Reply-To: <20040403112755.A19308@electric-eye.fr.zoreil.com>
+References: <20040403150229.75ec6b98.a.nielsen@optushome.com.au>
+	<20040403112755.A19308@electric-eye.fr.zoreil.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Mailer
-X-Check: 2c1783c72b2809387bfafaa1e08e3128
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not on my alpha 2.6.4, as I post this message a few weeks ago.
-
-Greg KH wrote:
-
-> On Sat, Apr 03, 2004 at 12:02:52AM +0200, Stefan Wanner wrote:
+Francois Romieu <romieu@fr.zoreil.com> wrote:
+>
+> Adam Nielsen <a.nielsen@optushome.com.au> :
+> [...]
+> > in the Realtek 8169 gigabit ethernet driver.  Due to a logic error,
+> > there is a loop in an interrupt handler that often goes infinite, thus
+> > locking up the entire computer.  The attached patch fixes the problem.
 > 
->>Hi
->>
->>I have an Alpha AS400 with Debian Linux 3.0 and Kernel 2.6.3
+> - until there is an explanation on _why_ this condition happens, this is a
+>   band-aid for an unexplained condition, not a fix for a "logic error" (it
+>   may have interesting performance effects though);
 > 
-> 
-> Please use a newer kernel, this bug has been fixed in 2.6.4.
-> 
-> thanks,
-> 
-> greg k-h
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-alpha" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
--- 
-Tom
+The logic is faulty, or at least very odd.
 
-LINUX user since kernel 0.99.x 1994.
-RPM Alpha packages at http://alpha.steudten.com/packages
-Want to know what S.u.S.E 1995 cdrom-set contains?
+	tx_left = tp->cur_tx - dirty_tx;
 
+	while (tx_left > 0) {
+		int entry = dirty_tx % NUM_TX_DESC;
 
+		if (!(le32_to_cpu(tp->TxDescArray[entry].status) & OWNbit)) {
+			...
+		}
+	}
+
+Why is that `if' test there at all?  If it ever returns false, the box
+locks up.  A BUG_ON(le32_to_cpu(tp->TxDescArray[entry].status) & OWNbit)
+might make more sense.

@@ -1,131 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286322AbSCLW5P>; Tue, 12 Mar 2002 17:57:15 -0500
+	id <S287488AbSCLXDj>; Tue, 12 Mar 2002 18:03:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286343AbSCLW5A>; Tue, 12 Mar 2002 17:57:00 -0500
-Received: from rwcrmhc52.attbi.com ([216.148.227.88]:26505 "EHLO
-	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
-	id <S286322AbSCLW4s>; Tue, 12 Mar 2002 17:56:48 -0500
-Message-ID: <3C8E8794.5060903@didntduck.org>
-Date: Tue, 12 Mar 2002 17:56:20 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
+	id <S287862AbSCLXDU>; Tue, 12 Mar 2002 18:03:20 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:26607 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S287488AbSCLXDM>; Tue, 12 Mar 2002 18:03:12 -0500
+Message-ID: <3C8E8912.64435C1E@us.ibm.com>
+Date: Tue, 12 Mar 2002 15:02:42 -0800
+From: Larry Kessler <kessler@us.ibm.com>
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Alexander Viro <viro@math.psu.edu>, vandrove@vc.cvut.cz,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] struct super_block cleanup - ncpfs
-Content-Type: multipart/mixed;
- boundary="------------050902080709060800070608"
+To: Dominik Kubla <kubla@sciobyte.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH-RFC] POSIX Event Logging, kernel 2.5.6 & 2.4.18
+In-Reply-To: <3C8E7E08.C3CF4227@us.ibm.com> <20020312224101.GB12952@duron.intern.kubla.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050902080709060800070608
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Dominik Kubla wrote:
+> 
+> On Tue, Mar 12, 2002 at 02:15:36PM -0800, Larry Kessler wrote:
+> > 2) If the buffer overruns the oldest events are kept, newest
+> >    discarded, and a count of discarded events is reported.
+> 
+> Hmm. That sounds like a possible security problem to me: simply generate a
+> bunch of harmless messages to fill the buffer and then one can do the nasty
+> stuff...
 
-Seperates ncp_sb_info from struct super_block.
+I assume that you mean do the nasty stuff but never have anything in
+your
+event log indicating that it happened.  Good point, but if the buffer is
+sized appropriately for the incoming volume of events and the logging
+daemon 
+is reading the events out of the kernel buffer (as should normally be
+the case), 
+then you would see the events.  
 
--- 
-
-						Brian Gerst
-
---------------050902080709060800070608
-Content-Type: text/plain;
- name="sb-ncp-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sb-ncp-1"
-
-diff -urN linux-2.5.7-pre1/fs/ncpfs/inode.c linux/fs/ncpfs/inode.c
---- linux-2.5.7-pre1/fs/ncpfs/inode.c	Tue Mar 12 17:35:11 2002
-+++ linux/fs/ncpfs/inode.c	Tue Mar 12 17:44:53 2002
-@@ -315,6 +315,10 @@
- #endif
- 	struct ncp_entry_info finfo;
- 
-+	server = kmalloc(sizeof(struct ncp_server), GFP_KERNEL);
-+	if (!server)
-+		return -ENOMEM;
-+	sb->u.generic_sbp = server;
- 	error = -EFAULT;
- 	if (raw_data == NULL)
- 		goto out;
-@@ -520,6 +524,8 @@
- 	 */
- 	fput(ncp_filp);
- out:
-+	sb->u.generic_sbp = NULL;
-+	kfree(server);
- 	return error;
- }
- 
-@@ -553,7 +559,8 @@
- 	if (server->auth.object_name)
- 		ncp_kfree_s(server->auth.object_name, server->auth.object_name_len);
- 	vfree(server->packet);
--
-+	sb->u.generic_sbp = NULL;
-+	kfree(server);
- }
- 
- static int ncp_statfs(struct super_block *sb, struct statfs *buf)
-diff -urN linux-2.5.7-pre1/include/linux/fs.h linux/include/linux/fs.h
---- linux-2.5.7-pre1/include/linux/fs.h	Tue Mar 12 17:35:11 2002
-+++ linux/include/linux/fs.h	Tue Mar 12 17:40:30 2002
-@@ -667,7 +667,6 @@
- #include <linux/reiserfs_fs_sb.h>
- #include <linux/bfs_fs_sb.h>
- #include <linux/udf_fs_sb.h>
--#include <linux/ncp_fs_sb.h>
- #include <linux/jffs2_fs_sb.h>
- 
- extern struct list_head super_blocks;
-@@ -724,7 +723,6 @@
- 		struct reiserfs_sb_info	reiserfs_sb;
- 		struct bfs_sb_info	bfs_sb;
- 		struct udf_sb_info	udf_sb;
--		struct ncp_sb_info	ncpfs_sb;
- 		struct jffs2_sb_info	jffs2_sb;
- 		void			*generic_sbp;
- 	} u;
-diff -urN linux-2.5.7-pre1/include/linux/ncp_fs.h linux/include/linux/ncp_fs.h
---- linux-2.5.7-pre1/include/linux/ncp_fs.h	Thu Mar  7 21:18:17 2002
-+++ linux/include/linux/ncp_fs.h	Tue Mar 12 17:44:20 2002
-@@ -13,6 +13,7 @@
- #include <linux/types.h>
- 
- #include <linux/ncp_fs_i.h>
-+#include <linux/ncp_fs_sb.h>
- #include <linux/ipx.h>
- #include <linux/ncp_no.h>
- 
-@@ -190,7 +191,10 @@
- #define NCP_SUPER_MAGIC  0x564c
- 
- 
--#define NCP_SBP(sb)		(&((sb)->u.ncpfs_sb))
-+static inline struct ncp_server *NCP_SBP(struct super_block *sb)
-+{
-+	return sb->u.generic_sbp;
-+}
- 
- #define NCP_SERVER(inode)	NCP_SBP((inode)->i_sb)
- static inline struct ncp_inode_info *NCP_FINFO(struct inode *inode)
-diff -urN linux-2.5.7-pre1/include/linux/ncp_fs_sb.h linux/include/linux/ncp_fs_sb.h
---- linux-2.5.7-pre1/include/linux/ncp_fs_sb.h	Tue Mar 12 13:53:06 2002
-+++ linux/include/linux/ncp_fs_sb.h	Tue Mar 12 17:43:57 2002
-@@ -81,8 +81,6 @@
- 	unsigned int flags;
- };
- 
--#define ncp_sb_info	ncp_server
--
- #define NCP_FLAG_UTF8	1
- 
- #define NCP_CLR_FLAG(server, flag)	((server)->flags &= ~(flag))
-
---------------050902080709060800070608--
-
+The reasoning behind this approach is to increase the liklihood that
+events
+indicating "root cause" would be logged and not over-written by a flood
+of 
+secondary events.  Keep in mind that only events originating in the
+kernel (or
+kernel module) are stored in this buffer.

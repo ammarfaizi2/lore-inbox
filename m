@@ -1,44 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315350AbSEBSqn>; Thu, 2 May 2002 14:46:43 -0400
+	id <S315352AbSEBSxV>; Thu, 2 May 2002 14:53:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315354AbSEBSqm>; Thu, 2 May 2002 14:46:42 -0400
-Received: from mail.sonytel.be ([193.74.243.200]:60380 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S315350AbSEBSqj>;
-	Thu, 2 May 2002 14:46:39 -0400
-Date: Thu, 2 May 2002 20:46:11 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: martin@dalecki.de, Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: ide broken again
-In-Reply-To: <Pine.LNX.4.21.0204300143240.23113-100000@serv>
-Message-ID: <Pine.GSO.4.21.0205022039100.27986-100000@vervain.sonytel.be>
+	id <S315353AbSEBSxU>; Thu, 2 May 2002 14:53:20 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:51726 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315352AbSEBSxT>; Thu, 2 May 2002 14:53:19 -0400
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Thu, 2 May 2002 20:11:59 +0100 (BST)
+Cc: davem@redhat.com (David S. Miller), arjanv@redhat.com,
+        rgooch@ras.ucalgary.ca, linux-kernel@vger.kernel.org
+In-Reply-To: <3CD17A6D.1040809@evision-ventures.com> from "Martin Dalecki" at May 02, 2002 07:42:05 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E173Lzj-0004bc-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Apr 2002, Roman Zippel wrote:
-> 2. Why was ide_request_region removed? I see the changelog entry, but I
-> somehow doubt you contacted any of the affected architectures or even
-> really tested it. request_region will fail on most archs without ioports
-> and no "hack" will change that.
+> Yes I know. But my main point is that they maintain the
+> whole module symbol and dependency data entierly in user space
 
-Perhaps he noticed that on our beloved but marginally m68k we have dummy
-ide_request_region() and friends (except on Q40, where IDE is faked to be in
-I/O space) and do our resource management in the low-level driver (cfr. the
-call to request_mem_region() in gayle.c)?
+Actually thats also incorrect as far as I can tell
 
-But then he still breaks PPC...
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Alan

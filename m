@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262074AbVCAVyw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262090AbVCAV5N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262074AbVCAVyw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 16:54:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbVCAVyw
+	id S262090AbVCAV5N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 16:57:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbVCAV5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 16:54:52 -0500
-Received: from gprs215-167.eurotel.cz ([160.218.215.167]:24287 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262074AbVCAVyt (ORCPT
+	Tue, 1 Mar 2005 16:57:13 -0500
+Received: from fire.osdl.org ([65.172.181.4]:16352 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262090AbVCAV44 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 16:54:49 -0500
-Date: Tue, 1 Mar 2005 22:54:36 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Martin Hicks <mort@wildopensource.com>, pj@sgi.com,
-       linux-kernel@vger.kernel.org, raybry@sgi.com
-Subject: Re: [PATCH/RFC] A method for clearing out page cache
-Message-ID: <20050301215436.GC2129@elf.ucw.cz>
-References: <20050214154431.GS26705@localhost> <20050214193704.00d47c9f.pj@sgi.com> <20050221192721.GB26705@localhost> <20050221134220.2f5911c9.akpm@osdl.org>
+	Tue, 1 Mar 2005 16:56:56 -0500
+Date: Tue, 1 Mar 2005 13:58:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: reiser@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc5-mm1
+Message-Id: <20050301135852.6f0b3bee.akpm@osdl.org>
+In-Reply-To: <20050301201631.GF4845@stusta.de>
+References: <20050301012741.1d791cd2.akpm@osdl.org>
+	<20050301201631.GF4845@stusta.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050221134220.2f5911c9.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> So what it comes down to is
+Adrian Bunk <bunk@stusta.de> wrote:
+>
+> On Tue, Mar 01, 2005 at 01:27:41AM -0800, Andrew Morton wrote:
+> >...
+> > All 728 patches:
+> >...
+> > reiser4-rcu-barrier.patch
+> >   reiser4: add rcu_barrier() synchronization point
 > 
-> sys_free_node_memory(long node_id, long pages_to_make_free, long what_to_free)
+> Considering the patent situation at least in the USA, the 
+> EXPORT_SYMBOL(rcu_barrier) has to become an EXPORT_SYMBOL_GPL.
+
+I'll make that change.
+
+> > reiser4-export-inode_lock.patch
+> >   reiser4: export inode_lock to modules
+> >...
 > 
-> where `what_to_free' consists of a bunch of bitflags (unmapped pagecache,
-> mapped pagecache, anonymous memory, slab, ...).
+> __iget seems to be no longer used by reiser4.
+> This part of the patch can therefore be dropped.
 
-Heh, swsusp needs shrink_all_memory() and I'd like to use something
-more generic as shrink_all_memory() does not seem to work properly. I
-guess that loop over all node_ids should be easy ;-).
-
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+And that one.

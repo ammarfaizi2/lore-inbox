@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262104AbVAYTns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262095AbVAYToI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262104AbVAYTns (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 14:43:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbVAYTla
+	id S262095AbVAYToI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 14:44:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbVAYTlB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 14:41:30 -0500
-Received: from gprs213-152.eurotel.cz ([160.218.213.152]:21632 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262090AbVAYTf7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 14:35:59 -0500
-Date: Tue, 25 Jan 2005 20:35:40 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       johnpol@2ka.mipt.ru, greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1
-Message-ID: <20050125193539.GA1563@elf.ucw.cz>
-References: <20050124021516.5d1ee686.akpm@osdl.org> <20050125125323.GA19055@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050125125323.GA19055@infradead.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 25 Jan 2005 14:41:01 -0500
+Received: from a26.t1.student.liu.se ([130.236.221.26]:62639 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S262094AbVAYThw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 14:37:52 -0500
+Message-ID: <41F6A00A.6070404@drzeus.cx>
+Date: Tue, 25 Jan 2005 20:37:46 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Page fault in umount
+References: <41F1A90D.5000809@drzeus.cx> <20050124164524.3589856a.akpm@osdl.org>
+In-Reply-To: <20050124164524.3589856a.akpm@osdl.org>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Andrew Morton wrote:
 
-> Review of the superio subsystem sneaked in through bk-i2c.patch:
-> 
-> 
-> diff -Nru a/drivers/superio/Kconfig b/drivers/superio/Kconfig
-> --- /dev/null	Wed Dec 31 16:00:00 196900
-> +++ b/drivers/superio/Kconfig	2005-01-23 22:34:15 -08:00
-> @@ -0,0 +1,56 @@
-> +menu "SuperIO subsystem support"
-> +
-> +config SC_SUPERIO
-> +	tristate "SuperIO subsystem support"
-> +	depends on CONNECTOR
-> +	help
-> +	  SuperIO subsystem support.
-> +	
-> +	  This support is also available as a module.  If so, the module
-> +          will be called superio.ko.
-> 
-> This doesn't mention what "SuperIO" is at all.  Also please skip the .ko
-> postfix for the module name as the intree Kconfigs do.  The boilerplate has
-> changed to:
-> 
->   To compile this driver as a module, choose M here: the
->   module will be called <foo>.
+>Pierre Ossman <drzeus-list@drzeus.cx> wrote:
+>  
+>
+>>When I yank out my MP3 player, the programs trying to umount the disk 
+>>cause the following page fault:
+>>
+>>...
+>>EIP is at scsi_device_put+0xf/0x70 [scsi_mod]
+>>    
+>>
+>
+>This should be fixed in 2.6.11-rc2-mm1, via bk-scsi-rc-fixes.patch.  Could you
+>retest with either
+>
+>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc2/2.6.11-rc2-mm1/2.6.11-rc2-mm1.bz2
+>
+>or
+>
+>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc2/2.6.11-rc2-mm1/broken-out/bk-scsi-rc-fixes.patch
+>
+>applied?
+>  
+>
+The patch seems to solve the problem. Thanks.
 
-Could we kill this boilerplate? Just explain modules in CONFIG_MODULE
-or something like that. Or making module name mandatory parameter for
-tristates, or something like that...
+Rgds
+Pierre
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,103 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264095AbUFFULS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264103AbUFFUUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264095AbUFFULS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 16:11:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264117AbUFFULS
+	id S264103AbUFFUUs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 16:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264096AbUFFUUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 16:11:18 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:24968 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S264108AbUFFULH convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 16:11:07 -0400
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Matthew Wilcox <willy@debian.org>, Stephen Rothwell <sfr@canb.auug.org.au>,
-       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Killing POSIX deadlock detection
-References: <200406050725.i557P3hQ004052@supreme.pcug.org.au>
-	<20040606130422.0c8946b3.sfr@canb.auug.org.au>
-	<20040606132751.GZ5850@parcelfarce.linux.theplanet.co.uk>
-	<1086551360.5472.48.camel@lade.trondhjem.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 06 Jun 2004 14:09:02 -0600
-In-Reply-To: <1086551360.5472.48.camel@lade.trondhjem.org>
-Message-ID: <m165a4phy9.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Sun, 6 Jun 2004 16:20:47 -0400
+Received: from wl-193.226.227-253-szolnok.dunaweb.hu ([193.226.227.253]:10425
+	"EHLO szolnok.dunaweb.hu") by vger.kernel.org with ESMTP
+	id S264103AbUFFUUn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 16:20:43 -0400
+Message-ID: <40C37C99.1050103@freemail.hu>
+Date: Sun, 06 Jun 2004 22:20:41 +0200
+From: Zoltan Boszormenyi <zboszor@freemail.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.4.1) Gecko/20031114
+X-Accept-Language: hu, en-US
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: linux-kernel@vger.kernel.org
+Subject: DEC 2104x driver confusion with 2.6.5+
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> writes:
+Hi,
 
-> På su , 06/06/2004 klokka 09:27, skreiv Matthew Wilcox:
-> \
-> > > T1 locks file F1 -> lock (P1, F1)
-> > > P2 locks file F2 -> lock (P2, F2)
-> > > P2 locks file F1 -> blocks against (P1, F1)
-> > > T1 locks file F2 -> blocks against (P2, F2)
-> > 
-> > Less contrived example -- T2 locks file F2.  We report deadlock here too,
-> > even though T1 is about to unlock file F1.
+this afternoon I installed FC2 on an old Pentium 166MMX
+machine that serves as a firewall. I installed RH9 on this
+same machine about 18 month ago, the hard disk died 3 days ago.
 
-There is a fairly sane linux specific definition here.  We should
-track these things not by pid or tid, but by struct files_struct.
+The machine has two identical network card:
 
-> So what is better: report an error and give the user a chance to
-> recover, or allowing the potential deadlock?
+# lspci
+00:00.0 Host bridge: Intel Corp. 430TX - 82439TX MTXC (rev 01)
+00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 01)
+00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 01)
+00:0e.0 VGA compatible controller: S3 Inc. 86c764/765 [Trio32/64/64V+] 
+(rev 54)
+00:0f.0 Ethernet controller: Digital Equipment Corporation DECchip 21041 
+  Tulip Pass 3] (rev 11)
+00:10.0 Ethernet controller: Digital Equipment Corporation DECchip 21041 
+[Tulip Pass 3] (rev 11)
+[root@localhost root]# lspci -n -vvv -s 00:0f.0
+00:0f.0 Class 0200: 1011:0014 (rev 11)
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
+ >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+         Latency: 96
+         Interrupt: pin A routed to IRQ 10
+         Region 0: I/O ports at fc00
+         Region 1: Memory at fedffc00 (32-bit, non-prefetchable) [size=128]
+[root@localhost root]# lspci -n -vvv -s 00:10.0
+00:10.0 Class 0200: 1011:0014 (rev 11)
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium 
+ >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+         Latency: 96
+         Interrupt: pin A routed to IRQ 11
+         Region 0: I/O ports at f880
+         Region 1: Memory at fedff800 (32-bit, non-prefetchable) [size=128]
 
-Reading the SUS definition below we should only report a deadlock when
-it is certain. 
+There are two problems, the first one is that the OS thinks
+that "tulip.ko" drives the card but it doesn't.
+The same "tulip.o" driver in RH9 (2.4.x) handled this well,
+although I had to manually give the media type since autosense
+did not work.
 
-For multiple processes with the same set of file descriptors open
-that is an interesting graph problem.  Unless there is nothing
-another process can do, to remove the deadlock situation.
+The second problem is that "de2104x.ko" recognizes the cards
+but autosense does not work, either, and one of the card
+shares its interrupt (IRQ 11) with the onboard USB host.
+The host is flooded with interrupts on IRQ 11 after I load
+de2104x and after some minutes, the kernel disables this IRQ, 
+occasionally I got a lockup, too.
 
-> Only the user can resolve problems such as the above threaded problem,
-> given the SuS definitions.
-> 
-> > So, final call.  Any objections to never returning -EDEADLCK?
-> 
-> Yes: As Chuck points out, that is a fairly nasty change of the userland
-> API.
+Fortunately, there is a third driver, "de4x5.ko", which
+can drive these, but only after I do a "modprobe de2104x ;
+rmmod de2104x". Without this, after a clean boot into single
+mode "modprobe de4x5" does not emit any messages.
 
-???? Failing to detect a deadlock is not a change in the API.
-It is simply a change in behavior.
+I finally put
 
-> Worse: it is a change that fixes only one problem for only a minority of
-> users (those that combine locking over multiple NPTL threads - a
-> situation which after the "fix" remains just as poorly defined) at the
-> expense of reintroducing a series of deadlocking problems for those
-> single threaded users that rely on the EDEADLK (and have done so
-> throughout the entire 2.4.x series).
+alias eth0 de4x5
+alias eth1 de4x5
 
-Relying on EDEADLK is broken.  That is about as bad as relying on 
-getting -EACCESS instead of SIGSEGV.
+into /etc/modprobe.conf and modified /etc/rc.d/init.d/network
+so it pulls in and removes de2104x before doing anything.
 
-Detecting deadlocks is certainly a quality of implementation issue.
-But unless my memory is shaky detecting deadlocks is a hard problem.
+I have now these in dmesg:
 
-Perhaps what we should do is simply not attempt to detect deadlocks
-involving threaded processes.
+...
+de2104x PCI Ethernet driver v0.7 (Mar 17, 2004)
+PCI: Enabling device 0000:00:0f.0 (0004 -> 0007)
+de0: SROM leaf offset 30, default media 10baseT auto
+de0:   media block #0: 10baseT-FD
+de0:   media block #1: BNC
+de0:   media block #2: 10baseT-HD
+divert: allocating divert_blk for eth0
+eth0: 21041 at 0xd0843c00, 00:e0:29:09:84:99, IRQ 10
+PCI: Enabling device 0000:00:10.0 (0004 -> 0007)
+de1: SROM leaf offset 30, default media 10baseT auto
+de1:   media block #0: 10baseT-FD
+de1:   media block #1: BNC
+de1:   media block #2: 10baseT-HD
+divert: allocating divert_blk for eth1
+eth1: 21041 at 0xd08a9800, 00:e0:29:09:84:ab, IRQ 11
+divert: freeing divert_blk for eth0
+divert: freeing divert_blk for eth1
+0000:00:0f.0: DC21041 at 0xfc00, h/w address 00:e0:29:09:84:99,
+       and requires IRQ10 (provided by PCI BIOS).
+de4x5.c:V0.546 2001/02/22 davies@maniac.ultranet.com
+divert: allocating divert_blk for eth0
+0000:00:10.0: DC21041 at 0xf880, h/w address 00:e0:29:09:84:ab,
+       and requires IRQ11 (provided by PCI BIOS).
+de4x5.c:V0.546 2001/02/22 davies@maniac.ultranet.com
+divert: allocating divert_blk for eth1
+eth0: media is TP.
+eth1: media is TP.
+...
 
-With threads the problems escalates from one of cycle detection
-to something fairly weird.
- 
-> Finally, EDEADLK does actually appear to be mandatory to implement in
-> SUSv3, given that it states:
-> 
->         A potential for deadlock occurs if a process controlling a
->         locked region is put to sleep by attempting to lock another
->         process' locked region. If the system detects that sleeping
->         until a locked region is unlocked would cause a deadlock,
->         fcntl() shall fail with an [EDEADLK] error.
->         
-> (again see
-> http://www.opengroup.org/onlinepubs/009695399/functions/fcntl.html)
+Hence the subject is driver confusion, I though it worth reporting. :-)
 
-Hmm.  I don't see that the system is required to detect a deadlock.
-Just what it does after it has detected one.
+Best regards,
+Zoltán Böszörményi
 
-Eric

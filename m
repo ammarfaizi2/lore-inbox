@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290756AbSBYJ7f>; Mon, 25 Feb 2002 04:59:35 -0500
+	id <S291162AbSBYKRI>; Mon, 25 Feb 2002 05:17:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290792AbSBYJ7Z>; Mon, 25 Feb 2002 04:59:25 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:60677 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S290756AbSBYJ7M>; Mon, 25 Feb 2002 04:59:12 -0500
-Date: Mon, 25 Feb 2002 04:59:00 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Luigi Genoni <kernel@Expansa.sns.it>
-Cc: "Paul G. Allen" <pgallen@randomlogic.com>,
-        "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>,
-        gcc@gcc.gnu.org
-Subject: Re: gcc-2.95.3 vs gcc-3.0.4
-Message-ID: <20020225045859.S2434@devserv.devel.redhat.com>
-Reply-To: gcc@gcc.gnu.org
-In-Reply-To: <20020225024817.Q2434@devserv.devel.redhat.com> <Pine.LNX.4.44.0202251044040.18205-100000@Expansa.sns.it>
+	id <S293366AbSBYKQ6>; Mon, 25 Feb 2002 05:16:58 -0500
+Received: from pop.univ-lyon1.fr ([134.214.100.7]:530 "HELO pop.univ-lyon1.fr")
+	by vger.kernel.org with SMTP id <S291162AbSBYKQt>;
+	Mon, 25 Feb 2002 05:16:49 -0500
+Date: Mon, 25 Feb 2002 11:16:24 +0100
+From: Fabrice Bellet <Fabrice.Bellet@creatis.insa-lyon.fr>
+To: Steven Walter <srwalter@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext3 and undeletion
+Message-ID: <20020225111624.A6835@creatis.insa-lyon.fr>
+Reply-To: Fabrice Bellet <Fabrice.Bellet@creatis.insa-lyon.fr>
+In-Reply-To: <20020224212727.A15097@hapablap.dyn.dhs.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0202251044040.18205-100000@Expansa.sns.it>; from kernel@Expansa.sns.it on Mon, Feb 25, 2002 at 10:46:52AM +0100
+In-Reply-To: <20020224212727.A15097@hapablap.dyn.dhs.org>; from srwalter@yahoo.com on Sun, Feb 24, 2002 at 09:27:27PM -0600
+X-Operating-System: Linux bonobo 2.4.18-pre9-mjc2
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 25, 2002 at 10:46:52AM +0100, Luigi Genoni wrote:
-> > > At this link:
-> > >
-> > >  http://www.cs.utk.edu/~rwhaley/ATLAS/gcc30.html
-> > >
-> > > you can find an interesting explanation why code compiled with gcc 3.0 is
-> > > mostly slower than code compiled with gcc 2.95 on x86 CPUs (but it is
-> > > really faster on other platforms like alpha and sparc64).
-> > >
-> > > basically the main reasons semm to be the scheduler algorithm and the fpu
-> > > stack handling, but I suggest to read the full study.
-> > >
-> > >
-> > > I would be interested to know if this apply to gcc 3.1 too.
-> >
-> > Well, concerning reg-stack, you can completely get away without it in 3.1
-> > by using -mfpmath=sse if you are targeting Pentium 3,4 or Athlon 4,xp,mp
-> > (for float math, for higher precision only for Pentium 4).
-> 
-> Yes, but the lot of users (like me) who are still using Athlon TB, 1330 or
-> 1400 Mhz, and who do not have any reason to upgrade to MP since the
-> performance gain is not really considerable, they cannot use sse instructions.
-> So, what could they do? should they stay with gcc 2.95?
+On Sun, Feb 24, 2002 at 09:27:27PM -0600, Steven Walter wrote:
+> After unintentionally deleting some file, I noticed what appears to be
+> an incosistency (or at least a change) in ext3.  Running debugfs and
+> executing the command "lsdel", I saw no inodes listed since I last ran
+> the partition as ext2.  Does ext3 not add its deleted inodes to whatever
+> list ext2 does?  And can this be fixed without compromising the speed or
+> data-integrity of ext3?
 
-Linux kernel doesn't use floating point math at all, so this is irrelevant
-on lkml, moving to an more appropriate list...
+This issue has been discussed in the ext3-users mailing few monthes ago:
 
-	Jakub
+https://listman.redhat.com/pipermail/ext3-users/2001-March/000381.html
+
+and more recently :
+
+https://listman.redhat.com/pipermail/ext3-users/2002-February/002950.html
+
+-- 
+fabrice
+

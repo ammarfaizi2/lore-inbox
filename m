@@ -1,178 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130053AbRBZAZZ>; Sun, 25 Feb 2001 19:25:25 -0500
+	id <S130048AbRBZAQn>; Sun, 25 Feb 2001 19:16:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130054AbRBZAZF>; Sun, 25 Feb 2001 19:25:05 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:13838 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S130053AbRBZAYz>;
-	Sun, 25 Feb 2001 19:24:55 -0500
-Date: Mon, 26 Feb 2001 01:24:30 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Nate Eldredge <neldredge@hmc.edu>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.2-ac3: loop threads in D state
-Message-ID: <20010226012430.V7830@suse.de>
-In-Reply-To: <20010225233957.R7830@suse.de> <Pine.GSO.4.21.0102251745560.26808-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="f+W+jCU1fRNres8c"
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0102251745560.26808-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sun, Feb 25, 2001 at 05:48:15PM -0500
+	id <S130055AbRBZAQd>; Sun, 25 Feb 2001 19:16:33 -0500
+Received: from relay.phys.ualberta.ca ([129.128.7.238]:2054 "EHLO
+	relay.phys.ualberta.ca") by vger.kernel.org with ESMTP
+	id <S130048AbRBZAQR>; Sun, 25 Feb 2001 19:16:17 -0500
+From: Jonathan Oppenheim <jono@Phys.UAlberta.CA>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 242-ac3 loop bug
+Message-ID: <Pine.LNX.4.10.10102251701520.2320-100000@dirac.phys.ualberta.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Sun, 25 Feb 2001 17:15:52 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+i have also been having trouble with many cyphers including
+blowfish (although twofish and idea worked).  the error seems to be the
+same in all 2.4.x kernels (i have all the relevant options compiled
+as modules eg. loopback and ciphers))
 
---f+W+jCU1fRNres8c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+i follow the encryptionhowto, but when i do a 
+losetup -e blah blah blah
+i get a segmentation fault (no core, no other error
+messages as far as i can see)
 
-On Sun, Feb 25 2001, Alexander Viro wrote:
-> Jens, you have a race in lo_clr_fd() (loop-6). I've put the fixed
-> variant on ftp.math.psu.edu/pub/viro/loop-S2.gz. Diff and you'll
-> see - it's in the very beginning of the lo_clr_fd().
+then, i can't rmmod the loop module and other modules because
+they are busy.
 
-Oops yeah you are right. Here's a diff of my current loop stuff
-against -ac4, Alan could you apply? Andrea suggested removing
-the loop private slab cache for buffer heads and just using the
-bh_cachep pool, and it seems like a good idea to me.
+so i can't unmount the disk.
 
--- 
-Jens Axboe
+i haven't yet tried things with 2.4.2-ac3, but the problem
+seems to be with particular cyphers not with loopback.
 
+let me know what system specs you need (directly -as i'm not
+on the kernel list)
 
---f+W+jCU1fRNres8c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename=loop-ac4-1
+(i have an amd athlon running on k7a asus motherboard if that helps).
 
-diff -ur --exclude-from /home/axboe/cdrom/exclude /opt/kernel/linux-2.4.2-ac4/drivers/block/loop.c linux/drivers/block/loop.c
---- /opt/kernel/linux-2.4.2-ac4/drivers/block/loop.c	Mon Feb 26 01:19:38 2001
-+++ linux/drivers/block/loop.c	Mon Feb 26 01:22:28 2001
-@@ -79,7 +79,6 @@
- static int *loop_sizes;
- static int *loop_blksizes;
- static devfs_handle_t devfs_handle;      /*  For the directory */
--static kmem_cache_t *loop_bhp;
- 
- /*
-  * Transfer functions
-@@ -289,7 +288,7 @@
- 	if (bh) {
- 		kunmap(bh->b_page);
- 		__free_page(bh->b_page);
--		kmem_cache_free(loop_bhp, bh);
-+		kmem_cache_free(bh_cachep, bh);
- 	}
- }
- 
-@@ -358,7 +357,7 @@
- 	struct buffer_head *bh;
- 
- 	do {
--		bh = kmem_cache_alloc(loop_bhp, SLAB_BUFFER);
-+		bh = kmem_cache_alloc(bh_cachep, SLAB_BUFFER);
- 		if (bh)
- 			break;
- 
-@@ -508,7 +507,7 @@
- 	sprintf(current->comm, "loop%d", lo->lo_number);
- 
- 	spin_lock_irq(&current->sigmask_lock);
--	siginitsetinv(&current->blocked, sigmask(SIGKILL));
-+	sigfillset(&current->blocked);
- 	flush_signals(current);
- 	spin_unlock_irq(&current->sigmask_lock);
- 
-@@ -526,7 +525,7 @@
- 	up(&lo->lo_sem);
- 
- 	for (;;) {
--		down(&lo->lo_bh_mutex);
-+		down_interruptible(&lo->lo_bh_mutex);
- 		if (!atomic_read(&lo->lo_pending))
- 			break;
- 
-@@ -671,9 +670,12 @@
- 	if (lo->lo_refcnt > 1)	/* we needed one fd for the ioctl */
- 		return -EBUSY;
- 
-+	spin_lock_irq(&lo->lo_lock);
- 	lo->lo_state = Lo_rundown;
- 	atomic_dec(&lo->lo_pending);
- 	up(&lo->lo_bh_mutex);
-+	spin_unlock_irq(&lo->lo_lock);
-+
- 	down(&lo->lo_sem);
- 
- 	lo->lo_backing_file = NULL;
-@@ -927,13 +929,6 @@
- 		return -EIO;
- 	}
- 
--	loop_bhp = kmem_cache_create("loop_buffers", sizeof(struct buffer_head),
--				     0, SLAB_HWCACHE_ALIGN, NULL, NULL);
--	if (!loop_bhp) {
--		printk(KERN_WARNING "loop: unable to create slab cache\n");
--		return -ENOMEM;
--	}
--				
- 	devfs_handle = devfs_mk_dir(NULL, "loop", NULL);
- 	devfs_register_series(devfs_handle, "%u", max_loop, DEVFS_FL_DEFAULT,
- 			      MAJOR_NR, 0,
-@@ -942,7 +937,7 @@
- 
- 	loop_dev = kmalloc(max_loop * sizeof(struct loop_device), GFP_KERNEL);
- 	if (!loop_dev)
--		goto out_dev;
-+		return -ENOMEM;
- 
- 	loop_sizes = kmalloc(max_loop * sizeof(int), GFP_KERNEL);
- 	if (!loop_sizes)
-@@ -974,8 +969,6 @@
- 	printk(KERN_INFO "loop: loaded (max %d devices)\n", max_loop);
- 	return 0;
- 
--out_dev:
--	kmem_cache_destroy(loop_bhp);
- out_sizes:
- 	kfree(loop_dev);
- out_blksizes:
-@@ -990,7 +983,6 @@
- 	if (devfs_unregister_blkdev(MAJOR_NR, "loop"))
- 		printk(KERN_WARNING "loop: cannot unregister blkdev\n");
- 
--	kmem_cache_destroy(loop_bhp);
- 	kfree(loop_dev);
- 	kfree(loop_sizes);
- 	kfree(loop_blksizes);
-diff -ur --exclude-from /home/axboe/cdrom/exclude /opt/kernel/linux-2.4.2-ac4/fs/Makefile linux/fs/Makefile
---- /opt/kernel/linux-2.4.2-ac4/fs/Makefile	Mon Feb 26 01:19:40 2001
-+++ linux/fs/Makefile	Mon Feb 26 01:14:44 2001
-@@ -7,7 +7,7 @@
- 
- O_TARGET := fs.o
- 
--export-objs :=	filesystems.o open.o
-+export-objs :=	filesystems.o open.o dcache.o
- mod-subdirs :=	nls
- 
- obj-y :=	open.o read_write.o devices.o file_table.o buffer.o \
-diff -ur --exclude-from /home/axboe/cdrom/exclude /opt/kernel/linux-2.4.2-ac4/fs/dcache.c linux/fs/dcache.c
---- /opt/kernel/linux-2.4.2-ac4/fs/dcache.c	Sat Feb 17 01:06:17 2001
-+++ linux/fs/dcache.c	Mon Feb 26 01:14:54 2001
-@@ -22,6 +22,7 @@
- #include <linux/init.h>
- #include <linux/smp_lock.h>
- #include <linux/cache.h>
-+#include <linux/module.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -1250,6 +1251,7 @@
- 
- /* SLAB cache for buffer_head structures */
- kmem_cache_t *bh_cachep;
-+EXPORT_SYMBOL(bh_cachep);
- 
- void __init vfs_caches_init(unsigned long mempages)
- {
+cheers,
+j
 
---f+W+jCU1fRNres8c--
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: 2.6.2
+
+mQCNAzc5/rwAAAEEALGi/cKupURWMeRs3xKx7+3PHi1hqfswOuM5suJhTEJZiR+p
+xYsVYB/B/uNwrr+m+Rzd8sEJlB2D/JkkCHMUplDR2OC0hfUYmQGIXEg9kShudRsO
+E+1oVFFevj6MTgIY6c5nSWvz3n+zLHrcHk/k8pLDpI6qcIGqrAEcX2GVzVwNAAUR
+tARqb25vtBU8am9ub0BwaHlzaWNzLnViYy5jYT4=
+=fDxR
+-----END PGP PUBLIC KEY BLOCK-----
+

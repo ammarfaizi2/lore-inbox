@@ -1,72 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289347AbSAOBoZ>; Mon, 14 Jan 2002 20:44:25 -0500
+	id <S289350AbSAOBpP>; Mon, 14 Jan 2002 20:45:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289350AbSAOBoF>; Mon, 14 Jan 2002 20:44:05 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:35590 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S289347AbSAOBoA>;
-	Mon, 14 Jan 2002 20:44:00 -0500
-Message-Id: <200201150143.CAA24288@webserver.ithnet.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org
-Date: Tue, 15 Jan 2002 02:43:51 +0100
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-To: Jussi Laako <jussi.laako@kolumbus.fi>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S289355AbSAOBpK>; Mon, 14 Jan 2002 20:45:10 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:3589 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S289350AbSAOBov>; Mon, 14 Jan 2002 20:44:51 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 14 Jan 2002 17:50:41 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Ed Tomlinson <tomlins@cam.org>
+cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
+        Dave Jones <davej@suse.de>
+Subject: Re: [patch] O(1) scheduler-H6/H7 and nice +19
+In-Reply-To: <20020115013732.384A6BB346@oscar.casa.dyndns.org>
+Message-ID: <Pine.LNX.4.40.0201141748570.1233-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-User-Agent: IMHO/0.97.1 (Webmail for Roxen)
-In-Reply-To: <3C435995.24B8880B@kolumbus.fi>
-From: Stephan von Krawczynski <skraw@ithnet.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alan Cox wrote:                                                     
-> >                                                                   
-> > > > In eepro100.c, wait_for_cmd_done() can busywait for one       
-millisecond                                                           
-> > > > and is called multiple times under spinlock.                  
-> > >                                                                 
-> > > Did I get that right, as long as spinlocked no sense in         
-> > > conditional_schedule()                                          
-> >                                                                   
-> > No conditional schedule, no pre-emption. You would need to rewrite
-that                                                                  
-> > code to do something like try for 100uS then queue a 1 tick timer 
-to                                                                    
-> > retry asynchronously. That makes the code vastly more complex for 
-an                                                                    
-> > error case and for some drivers where irq mask is required during 
-reset                                                                 
-> > waits won't help.                                                 
->                                                                     
-> That wait_for_cmd_done() and similar functions in other drivers are 
-called                                                                
-> let's say 3 times in interrupt handler or spinlocked routine and 20 
-times in                                                              
-> non-interrupts disabled nor spinlocked functions.                   
->                                                                     
-> Spinlocked reqions are usually protected by spin_lock_irqsave().    
-                                                                      
-Now I have really waited for this one: _usually_.                     
-My servers work usually, except for the days they hit that other      
-rather unusual part of the code...                                    
-                                                                      
-> So the code reads                                                   
->                                                                     
-> 	if (!spin_is_locked(sl))                                           
-> 		conditional_schedule();                                           
->                                                                     
-> This doesn't make the whole problem go away, but could make the     
-situation a                                                           
-> little bit better for most of the time?                             
-                                                                      
-Time to take out these big hats and rename ourself to Gandalf or the  
-like. What do you expect your server to do, having no problem "most of
-the time"? Please read Albert E. Time can be pretty relative to your  
-personal point of view...                                             
-                                                                      
-Regards,                                                              
-Stephan                                                               
-                                                                      
-                                                                      
+On Mon, 14 Jan 2002, Ed Tomlinson wrote:
+
+> On January 13, 2002 10:45 pm, Davide Libenzi wrote:
+> > On Sun, 13 Jan 2002, Ed Tomlinson wrote:
+> > > With pre3+H7, kernel compiles still take 40% longer with a setiathome
+> > > process running at nice +19.  This is _not_ the case with the old
+> > > scheduler.
+> >
+> > Did you try to set MIN_TIMESLICE to 10 ( sched.h ) ?make bzImage with setiathome running nice +19
+>
+> This makes things a worst - note the decreased cpu utilizaton...
+>
+> make bzImage  424.33s user 32.21s system 48% cpu 15:48.69 total
+>
+> What is this telling us?
+
+Doh !
+Did you set this ?
+
+#define MIN_TIMESLICE   (10 * HZ / 1000)
+
+
+
+
+- Davide
+
+

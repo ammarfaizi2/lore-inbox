@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266705AbUH1KZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267414AbUH1K2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266705AbUH1KZK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 06:25:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUH1KWP
+	id S267414AbUH1K2x (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 06:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUH1KZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 06:22:15 -0400
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:40556 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267401AbUH1KTR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 06:19:17 -0400
-Message-ID: <41305BFF.6040209@yahoo.com.au>
-Date: Sat, 28 Aug 2004 20:18:39 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: "Rafael J. Wysocki" <rjw@sisk.pl>, linuxram@us.ibm.com, hugh@veritas.com,
-       dice@mfa.kfki.hu, vda@port.imtp.ilyichevsk.odessa.ua,
-       linux-kernel@vger.kernel.org
-Subject: Re: data loss in 2.6.9-rc1-mm1
-References: <Pine.LNX.4.44.0408271950460.8349-100000@localhost.localdomain>	<1093669312.11648.80.camel@dyn319181.beaverton.ibm.com>	<41301E27.2020504@yahoo.com.au>	<200408281144.50704.rjw@sisk.pl> <20040828024504.70407b43.akpm@osdl.org>
-In-Reply-To: <20040828024504.70407b43.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Aug 2004 06:25:42 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:24331 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267413AbUH1KXZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 06:23:25 -0400
+Date: Sat, 28 Aug 2004 11:23:24 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Takao Indoh <indou.takao@soft.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/4][diskdump] x86-64 support
+Message-ID: <20040828112324.B8000@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Takao Indoh <indou.takao@soft.fujitsu.com>,
+	linux-kernel@vger.kernel.org
+References: <89C48CE36A27FFindou.takao@soft.fujitsu.com> <8DC48CE421568Cindou.takao@soft.fujitsu.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <8DC48CE421568Cindou.takao@soft.fujitsu.com>; from indou.takao@soft.fujitsu.com on Sat, Aug 28, 2004 at 06:48:11PM +0900
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> 
->>Well, guys, to make it 100% clear: if I apply the Nick's patch to the 
->> 2.6.9-rc1-mm1 tree, it will fix the data loss issue.  Is that right?
-> 
-> 
-> Should do.
+On Sat, Aug 28, 2004 at 06:48:11PM +0900, Takao Indoh wrote:
+> +/*
+> + *  Dump stuff...
+> + */
+> +#include <linux/diskdump.h>
+> +
+> +#define MPT_HOST_LOCK(host_lock)		\
+> +	if (crashdump_mode()) 			\
+> +		spin_lock(host_lock);		\
+> +	else					\
+> +		spin_lock_irq(host_lock);
+> +
+> +#define MPT_HOST_UNLOCK(host_lock)		\
+> +	if (crashdump_mode())			\
+> +		spin_unlock(host_lock);		\
+> +	else					\
+> +		spin_unlock_irq(host_lock);
+> +
 
-It passes test cases that would previously fail here, so consider it
-lightly tested. Note that the patch is on top of 2.6.9-rc1 though,
-it becomes slightly deranged when applying straight onto mm. So don't
-do that.
+Please stop this macro madness.  Why can't you simply use
+spin+lock_irqsave?
 
-...
+> +mptscsih_sanity_check(struct scsi_device *sdev)
+> +{
+> +	MPT_ADAPTER    *ioc;
+> +	MPT_SCSI_HOST  *hd;
+> +
+> +	hd = (MPT_SCSI_HOST *) sdev->host->hostdata;
+> +	if (!hd)
+> +		return -ENXIO;
+> +	ioc = hd->ioc;
+> +
+> +	/* message frame freeQ is busy */
+> +	if (spin_is_locked(&ioc->FreeQlock))
+> +		return -EBUSY;
 
->  Or revert
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm1/broken-out/re-fix-pagecache-reading-off-by-one-cleanup.patch
-> 
-> and then
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm1/broken-out/re-fix-pagecache-reading-off-by-one.patch
-> 
-> 
-> 
+As in the scsi code spin_is_locked checks are bogus and racy.  Only
+a spin_trylock would be safe.  hd can't be NULL.
 
-Once you have these backed out mine should apply fine, but it only closes
-some performance (not correctness) corner cases that the above patches
-attempted to.

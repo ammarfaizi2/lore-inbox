@@ -1,80 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129724AbQLNEY3>; Wed, 13 Dec 2000 23:24:29 -0500
+	id <S130231AbQLNE1I>; Wed, 13 Dec 2000 23:27:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131132AbQLNEYS>; Wed, 13 Dec 2000 23:24:18 -0500
-Received: from ip252.uni-com.net ([205.198.252.252]:16390 "HELO www.nondot.org")
-	by vger.kernel.org with SMTP id <S129724AbQLNEYN>;
-	Wed, 13 Dec 2000 23:24:13 -0500
-Date: Wed, 13 Dec 2000 21:52:55 -0600 (CST)
-From: Chris Lattner <sabre@nondot.org>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        korbit-cvs@lists.sourceforge.net
-Subject: Re: [Korbit-cvs] Re: ANNOUNCE: Linux Kernel ORB: kORBit
-In-Reply-To: <Pine.GSO.4.21.0012132234280.6300-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.21.0012132148100.24765-100000@www.nondot.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130340AbQLNE0t>; Wed, 13 Dec 2000 23:26:49 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:4114 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S130231AbQLNE0j>; Wed, 13 Dec 2000 23:26:39 -0500
+Message-Id: <200012140356.eBE3u8s42047@aslan.scsiguy.com>
+To: "Steven N. Hirsch" <shirsch@adelphia.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Adaptec AIC7XXX v 6.0.6 BETA Released 
+In-Reply-To: Your message of "Wed, 13 Dec 2000 20:31:28 EST."
+             <Pine.LNX.4.21.0012132029260.3736-100000@pii.fast.net> 
+Date: Wed, 13 Dec 2000 20:56:08 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > either.  Oops, wasn't interoperability an important part of the Linux
-> > kernel design?  Didn't we want to use and follow and define _real_
-> > standards? 
-> Erm... 9P stub exists for Linux. It exists for FreeBSD. I suspect that
-> it exists for other *BSD too - never checked that.
-
-Okay, so there are _stubs_ for these platforms.  How many languages are
-there bindings for?  What about Win32 (gross I know, but at least for now,
-it is important)?  What about OS/2 what about Amiga and palm?  CORBA is
-very popular for certain things... even inferno isn't nearly as big...
-
-> > Heh, that's interesting.  _getting_ the data isn't hard in 9P, actually
-> > using it or displaying it in a meaningful way commonly requires something
-> > more than cat.  :)
-> Same for any other RPC mechanism.
-
-Of course.  Which is why CORBA is about putting STRUCTURE in that stream
-of random bytes coming over the wire.  Why should I have to rewrite my
-marshalling and demarshalling code every time I want to write a
-server.  read and write are fine.  But sometimes I want a
-structure.  Sometimes, my structures aren't laid out like C struct's
-either.  What then?  What if I want to send an "object" to you?
-
-> > nothing enforces it.  9P works wonderfully for Plan9 because they had the
-> > luxery of redefining/rewriting the whole OS, and the whole interaction
-> > with user space processes.  We, unfortunately, don't have that
-> > possibility.  :)
-> Notice that they _don't_ export random internal APIs to userland.
-
-And neither do we.  Beautiful isn't it?  :)
-
-> > Please don't get me wrong.  I'm not opposed to other ideas, and 9P may in
-> > fact turn out to be a very nice protocol that would be able to support 
-> > much kORBit level functionality).  I do maintain that by writing a custom
-> > user->kernel marshalling library, you could obtain better peformance than
-> > 9P though, because you could take advantage of lots of machine specific
-> > optimizations.  Hell you could even pass things in register if you'd have
-> > <= 4 args.  :)
+>Thanks for posting this.  Unfortunately, the kernel won't build unless you
+>restore this macro to the namespace after aic7xxx_linux.h blows it away:
+>
+>--- linux-2.2.18/drivers/scsi/hosts.c.orig	Wed Dec 13 20:27:34 2000
+>+++ linux-2.2.18/drivers/scsi/hosts.c	Wed Dec 13 20:26:22 2000
+>@@ -137,6 +137,7 @@
 > 
-> You mentioned OOP, didn't you? Encapsulation is a good thing and what you
-> are talking about is "layering violations made Real Easy(tm)".
-> I simply don't see why _that_ is a good goal.
+> #ifdef CONFIG_SCSI_AIC7XXX
+> #include "aic7xxx/aic7xxx_linux.h"
+>+#define current get_current()
+> #endif
+> 
+> #ifdef CONFIG_SCSI_IPS
+>
+>
+>Steve
 
-I completely fail to see how I'm breaking encapsulation or making layering
-violations easy.  Why I'm talking about is the fact that CORBA doesn't
-care how you ship bytes around: it's a higher level protocol that cares
-about shipping "things" around.  Bytes are old school, "stuff" is the wave
-of the future.  ;)  heh.
+I take it you had other controllers enabled?  I tested this against
+2.2.18-pre24 and didn't see any problems.  I didn't enable anything
+other than the aic7xxx driver.
 
--Chris
+Luckily, in newer kernels, the per-controller includes are no longer
+required in hosts.c.  None-the-less, it seems to me that spamming
+the kernel namespace with "current" in at least the way that the
+2.2 kernels do (does this occur in later kernels?) should be corrected.
+As you can see from my comment in aic7xxx_linux.h, I was very surprised
+to see this occur.
 
-http://www.nondot.org/~sabre/os/
-http://www.nondot.org/MagicStats/
-http://korbit.sourceforge.net/
+I'll update my patch tomorrow to restore the definition of current.
+I do fear, however, that this will perpetuate the polution of the
+namespace should "current" ever get cleaned up.
 
+--
+Justin
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

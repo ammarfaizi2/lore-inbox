@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263388AbTDCNKY>; Thu, 3 Apr 2003 08:10:24 -0500
+	id <S263379AbTDCNZ7>; Thu, 3 Apr 2003 08:25:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263389AbTDCNKX>; Thu, 3 Apr 2003 08:10:23 -0500
-Received: from fionet.com ([217.172.181.68]:44455 "EHLO service")
-	by vger.kernel.org with ESMTP id <S263388AbTDCNKW>;
-	Thu, 3 Apr 2003 08:10:22 -0500
-Subject: Re: System time warping around real time problem - please help
-From: Fionn Behrens <mail@fionn.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, george anzinger <george@mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1049376145.29020.216.camel@rtfm>
+	id <S263382AbTDCNZ7>; Thu, 3 Apr 2003 08:25:59 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:12696 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S263379AbTDCNZ6>; Thu, 3 Apr 2003 08:25:58 -0500
+Date: Thu, 3 Apr 2003 14:37:18 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.66-bk vm oops.
+Message-ID: <20030403133712.GA19693@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 03 Apr 2003 15:22:25 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+with BK from ~24hrs ago,..
 
-Ok, I had the system running about a week with "notsc" AND no power
-management. No system crashes so far. Nevertheless, I keep getting some
-kernel oopses like this from time to time. The call trace suggests that
-there is still an issue with timing.
+kernel BUG at mm/slab.c:1582!
+invalid operand: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c014ebab>]    Not tainted
+EFLAGS: 00010016
+EIP is at kmem_cache_free+0x24b/0x2c0
+eax: 011999cc   ebx: 00010c00   ecx: 0000003c   edx: c7dedc74
+esi: 81dfc120   edi: c3dfcd14   ebp: c198fd30   esp: c198fd08
+ds: 007b   es: 007b   ss: 0068
+Process kswapd0 (pid: 6, threadinfo=c198e000 task=c198d980)
+Stack: c7dedc74 c49138a0 00000000 c3dfc000 c0171d5c c19a3704 00000292 c198e000 
+       c10df6d8 00000001 c198fd44 c0171d5c c7dedc74 c3dfcd18 c3dfcd18 c198fd78 
+       c0171b1b c3dfcd18 c198fd68 c1ac14c8 c1066670 c198fe68 c198fd78 00000000 
+Call Trace:
+ [<c0171d5c>] free_buffer_head+0x2c/0x70
+ [<c0171d5c>] free_buffer_head+0x2c/0x70
+ [<c0171b1b>] try_to_free_buffers+0x13b/0x210
+ [<c0152224>] shrink_list+0x4e4/0x5f0
+ [<c010d425>] do_IRQ+0x235/0x350
+ [<c0152529>] shrink_cache+0x1f9/0x600
+ [<c015348b>] shrink_zone+0x9b/0xa0
+ [<c0121590>] autoremove_wake_function+0x0/0x50
+ [<c0153746>] balance_pgdat+0x116/0x180
+ [<c015389d>] kswapd+0xed/0xf0
+ [<c0121590>] autoremove_wake_function+0x0/0x50
+ [<c010a306>] ret_from_fork+0x6/0x20
+ [<c0121590>] autoremove_wake_function+0x0/0x50
+ [<c01537b0>] kswapd+0x0/0xf0
+ [<c01075fd>] kernel_thread_helper+0x5/0x18
 
-Apr  3 15:09:51 rtfm kernel:  printing eip:
-Apr  3 15:09:51 rtfm kernel: 49199fd0
-Apr  3 15:09:51 rtfm kernel: *pde = 00000000
-Apr  3 15:09:51 rtfm kernel: Oops: 0000
-Apr  3 15:09:51 rtfm kernel: CPU:    0
-Apr  3 15:09:51 rtfm kernel: EIP:    0010:[<49199fd0>]    Tainted: P 
-Apr  3 15:09:51 rtfm kernel: EFLAGS: 00210287
-Apr  3 15:09:51 rtfm kernel: eax: 3e8c329f   ebx: cfd15fac   ecx:
-054f7f1e   edx: 000e213f
-Apr  3 15:09:51 rtfm kernel: esi: bffffa50   edi: 00000000   ebp:
-bffffa58   esp: cfd15f9c
-Apr  3 15:09:51 rtfm kernel: ds: 0018   es: 0018   ss: 0018
-Apr  3 15:09:51 rtfm kernel: Process lmule (pid: 27969,
-stackpage=cfd15000)
-Apr  3 15:09:51 rtfm kernel: Stack: c0122b4b bffffa50 cfd15fac 00000008
-3e8c329f 000e213f cfd14000 bffffa50 
-Apr  3 15:09:51 rtfm kernel:        bffffab0 c01091ff bffffa50 00000000
-408584d4 bffffa50 bffffab0 bffffa58 
-Apr  3 15:09:51 rtfm kernel:        0000004e 0000002b 0000002b 0000004e
-40655501 00000023 00200287 bffffa1c 
-Apr  3 15:09:51 rtfm kernel: Call Trace:    [sys_gettimeofday+59/128]
-[system_call+51/56]
-Apr  3 15:09:51 rtfm kernel: 
-Apr  3 15:09:51 rtfm kernel: Code:  Bad EIP value.
+Code: 0f 0b 2e 06 e3 53 53 c0 e9 d7 fe ff ff 8b 55 08 8b 5a 34 e9
 
+		Dave
 
-Do you have any more ideas regarding this issue? I'd hate trying to send
-the board in for a check...
-
-Regards,
-	Fionn (not subscribed to lklm)

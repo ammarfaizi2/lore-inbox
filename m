@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbUBWRr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 12:47:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbUBWRr6
+	id S261976AbUBWRwO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 12:52:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261977AbUBWRwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 12:47:58 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:42907 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261973AbUBWRr5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 12:47:57 -0500
-Date: Mon, 23 Feb 2004 09:47:52 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Mipam <mipam@ibb.net>
-Cc: linux-kernel@vger.kernel.org, mipam@ibb.net
-Subject: Re: broadcom bcm5703 support in 2.6.3?
-Message-Id: <20040223094752.572ab884.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0402231043430.30027-100000@ux1.ibb.net>
-References: <Pine.LNX.4.33.0402231043430.30027-100000@ux1.ibb.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Feb 2004 12:52:13 -0500
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:44046 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id S261976AbUBWRwM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 12:52:12 -0500
+Message-ID: <NkcvILAg5jOAFwZp@n-cantrell.demon.co.uk>
+Date: Mon, 23 Feb 2004 17:54:40 +0000
+To: linux-kernel@vger.kernel.org
+From: robert of northworthige <bobh@n-cantrell.demon.co.uk>
+Subject: Re: Is LOADLIN still viable for 2.6?
+References: <20040223145740.M2949@www.igotu.com>
+ <20040223081138.50f03334.rddunlap@osdl.org>
+In-Reply-To: <20040223081138.50f03334.rddunlap@osdl.org>
+MIME-Version: 1.0
+X-Mailer: Turnpike Integrated Version 5.01 S <sUd$$IGoML1uLgd5isJZTxuCeM>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Feb 2004 10:59:53 +0100 (MET)
-Mipam <mipam@ibb.net> wrote:
+In article <20040223081138.50f03334.rddunlap@osdl.org>, Randy.Dunlap
+<rddunlap@osdl.org> writes
+>On Mon, 23 Feb 2004 10:05:58 -0500 "Martin Bogomolni" <martinb@www.igotu.com> 
+>wrote:
+>
+>| 
+> 
+>| Since it doesn't seem that Hans Lermen has been updating or maintaining
+>| loadlin since the release of 2.4 is there anyone who is continuing to 
+>maintain
+>| LOADLIN, or has it fallen by the wayside?   Due to the nature of the system,
+>| and a requirement for backwards compatibility and user interaction during
+>| startup, I cannot use Peter Anvin's SYSLINUX linux loader which occurs too
+>| early on in the process.
+>| 
+>| Are there any other options to startup a linux environment from DOS?
+>
+>I don't know anything about it, but you might look at gujin:
+>  http://sourceforge.net/projects/gujin/
+>
+>--
+>~Randy
+>-
 
-> No where appears to be bcm5703 support.
+Hans produced loadlin1.6c for Pat Volkerding, about slack 8.1 time
+(kernel 2.4.18). I'm sure he'd rise to the challenge to update for 2.6
+if needed. 
+And...
+I've just tried loadlin1.6c on a 2.6.2 kernel and it's come up fine
 
-The tigon3 driver supports the whole bcm57XX series gigabit chips.
-The core chip in the 57XX series is code named "tigon3", the successor
-to the Alteon Acenic tigon and tigon2 chips.
+Bob Hall
+
+There's also linld (??) from a russian guy IIRC.
+
+

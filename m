@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271297AbRHORJ6>; Wed, 15 Aug 2001 13:09:58 -0400
+	id <S271304AbRHORK1>; Wed, 15 Aug 2001 13:10:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271304AbRHORJr>; Wed, 15 Aug 2001 13:09:47 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:39317 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S271297AbRHORJk>; Wed, 15 Aug 2001 13:09:40 -0400
-Date: Wed, 15 Aug 2001 11:09:12 -0600
-Message-Id: <200108151709.f7FH9Ch26989@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: "Kevin P. Fleming" <kevin@labsysgrp.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: need help debugging a weird md/devfs problem...
-In-Reply-To: <15226.568.747760.467691@notabene.cse.unsw.edu.au>
-In-Reply-To: <022901c124dc$ee5138f0$6baaa8c0@kevin>
-	<15226.568.747760.467691@notabene.cse.unsw.edu.au>
+	id <S271305AbRHORKS>; Wed, 15 Aug 2001 13:10:18 -0400
+Received: from dsl254-096-012.nyc1.dsl.speakeasy.net ([216.254.96.12]:64172
+	"EHLO mercury.infiniconsys.com") by vger.kernel.org with ESMTP
+	id <S271304AbRHORKK>; Wed, 15 Aug 2001 13:10:10 -0400
+content-class: urn:content-classes:message
+Subject: RE: Implications of PG_locked and reference count in page structures....
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C125AD.286A8074"
+Date: Wed, 15 Aug 2001 13:10:18 -0400
+Message-ID: <08628CA53C6CBA4ABAFB9E808A5214CB0C4C92@mercury.infiniconsys.com>
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
+Thread-Topic: Implications of PG_locked and reference count in page structures....
+Thread-Index: AcElpMUs7eLbBDi8Rl+IGAz8ovov+AAB8v5A
+From: "Heinz, Michael" <mheinz@infiniconsys.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <ignacio@openservices.net>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown writes:
-> On Tuesday August 14, kevin@labsysgrp.com wrote:
-> > 
-> > Anyone have any suggesting as to where to continue looking to find the
-> > problem? I can put a workaround in to get my machine working, but there's
-> > definitely something very weird going on here. Too bad I can't just tell the
-> > kernel to notify me when that particular memory location gets modified...
-> 
-> The arrays in the "struct gendisk" are only allocated big enough to
-> hold any drives that were found.  See init_gendisk in
-> drivers/ide/ide-probe.c
-> 
-> In your situation device 3,67 is being referenced, which is hdb3.  As
-> hdb was not detected, the arrays, particularly the partition array is
-> not big enough to refer to that.  So when disk_name does:
->       hd->part[minor].de
-> is it indexing off the end of an array an getting garbage.
-> 
+This is a multi-part message in MIME format.
 
-I haven't looked at the closely, but if you're right, other code is
-going to fall off the ends of arrays as well.
+------_=_NextPart_001_01C125AD.286A8074
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-> If I am right, the following patch should fix it for you.
-> 
-> NeilBrown
-> 
-> --- fs/partitions/check.c	2001/08/15 04:56:57	1.1
-> +++ fs/partitions/check.c	2001/08/15 04:57:47
-> @@ -101,7 +101,7 @@
->  	int unit = (minor >> hd->minor_shift) + 'a';
->  
->  	part = minor & ((1 << hd->minor_shift) - 1);
-> -	if (hd->part[minor].de) {
-> +	if (unit < hd->nr_real && hd->part[minor].de) {
+Thanks for all the replies;=20
 
-This is definately wrong, since unit is not an index, but an ASCII
-character. See the "+ 'a'" in there?
+I am using the O'Reilly book - but I'm kind of stuck using the semantics
+that the driver's original author used. The whole effort is so we can
+experiment with some hardware rather than for final release, so we don't
+want to spend too much effort reengineering anything we don't have to.
 
-				Regards,
+Heh. I missed the part in LDD that mentions kmalloc regions being
+unpageable.=20
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+;->
+
+--
+"Oh, bother!" said the Borg. "We've assimilated Pooh!"
+"Thanks for noticing." replied Eeyore.
+
+mheinz@infiniconsys.com
+=20
+
+------_=_NextPart_001_01C125AD.286A8074
+Content-Type: text/x-vcard;
+	name="Heinz, Michael.vcf"
+Content-Transfer-Encoding: base64
+Content-Description: Heinz, Michael.vcf
+Content-Disposition: attachment;
+	filename="Heinz, Michael.vcf"
+
+QkVHSU46VkNBUkQNClZFUlNJT046Mi4xDQpOOkhlaW56O01pY2hhZWwNCkZOOkhlaW56LCBNaWNo
+YWVsDQpFTUFJTDtQUkVGO0lOVEVSTkVUOm1oZWluekBpbmZpbmljb25zeXMuY29tDQpSRVY6MjAw
+MTA3MTFUMTkxNTM1Wg0KRU5EOlZDQVJEDQo=
+
+------_=_NextPart_001_01C125AD.286A8074--

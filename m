@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263740AbUHJJnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263735AbUHJJnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263740AbUHJJnY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 05:43:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbUHJJnY
+	id S263735AbUHJJnq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 05:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbUHJJnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 05:43:24 -0400
-Received: from main.gmane.org ([80.91.224.249]:63144 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263740AbUHJJmg (ORCPT
+	Tue, 10 Aug 2004 05:43:46 -0400
+Received: from [203.12.160.103] ([203.12.160.103]:31702 "EHLO mail.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S263735AbUHJJnn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 05:42:36 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Date: Tue, 10 Aug 2004 11:42:40 +0200
-Message-ID: <yw1x7js79vn3.fsf@kth.se>
-References: <1092082920.5761.266.camel@cube> <1092124796.1438.3695.camel@imladris.demon.co.uk>
+	Tue, 10 Aug 2004 05:43:43 -0400
+Subject: Re: [RFC] Fix Device Power Management States
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>, david-b@pacbell.net
+In-Reply-To: <Pine.LNX.4.50.0408092156480.24154-100000@monsoon.he.net>
+References: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net>
+	 <20040809113829.GB9793@elf.ucw.cz>
+	 <Pine.LNX.4.50.0408090840560.16137-100000@monsoon.he.net>
+	 <20040809212949.GA1120@elf.ucw.cz>
+	 <Pine.LNX.4.50.0408092156480.24154-100000@monsoon.he.net>
+Content-Type: text/plain
+Message-Id: <1092130981.2676.1.camel@laptop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:Tmos1uOau3rq37KhC28pK7SCdWQ=
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 10 Aug 2004 19:43:02 +1000
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org> writes:
+Hi.
 
-> On Mon, 2004-08-09 at 16:22 -0400, Albert Cahalan wrote:
->> Joerg:
->>    "WARNING: Cannot do mlockall(2).\n"
->>    "WARNING: This causes a high risk for buffer underruns.\n"
->> Fixed:
->>    "Warning: You don't have permission to lock memory.\n"
->>    "         If the computer is not idle, the CD may be ruined.\n"
->> 
->> Joerg:
->>    "WARNING: Cannot set priority class parameters priocntl(PC_SETPARMS)\n"
->>    "WARNING: This causes a high risk for buffer underruns.\n"
->> Fixed:
->>    "Warning: You don't have permission to hog the CPU.\n"
->>    "         If the computer is not idle, the CD may be ruined.\n"
->
-> That seems reasonable, but _only_ if burnfree is not enabled. If the
-> hardware _supports_ burnfree but it's disabled, the warning should also
-> recommend turning it on.
+On Tue, 2004-08-10 at 15:03, Patrick Mochel wrote:
+> Once the swsusp consolidation is merged upstream, I will merge a new
+> device power model in -mm, and we can start working on the drivers. How
+> does that sound?
 
-I'm also wondering why cdrecord disables it by default.  Can it ever
-do any harm being enabled?
+Do you want me to merge before or after all this is done; I'm a bit
+concerned that you guys are expending effort (well, Pavel is), getting
+SMP and Highmem going when I already have a working version that -
+unless the plans have changed - we were intending to merge too.
 
--- 
-Måns Rullgård
-mru@kth.se
+Nigel
 

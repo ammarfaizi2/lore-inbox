@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269969AbSISGKJ>; Thu, 19 Sep 2002 02:10:09 -0400
+	id <S269981AbSISGWO>; Thu, 19 Sep 2002 02:22:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269977AbSISGKJ>; Thu, 19 Sep 2002 02:10:09 -0400
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:64752 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S269969AbSISGKI>; Thu, 19 Sep 2002 02:10:08 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Thu, 19 Sep 2002 00:13:01 -0600
-To: Shawn Starr <spstarr@sh0n.net>
-Cc: sct@redhat.com, akpm@digeo.com, Con Kolivas <conman@kolivas.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BENCHMARK] EXT3 vs EXT2 results with rmap14a and testing with contest 0.34
-Message-ID: <20020919061301.GB13929@clusterfs.com>
-Mail-Followup-To: Shawn Starr <spstarr@sh0n.net>, sct@redhat.com,
-	akpm@digeo.com, Con Kolivas <conman@kolivas.net>,
-	linux-kernel@vger.kernel.org
-References: <200209182118.12701.spstarr@sh0n.net> <200209182140.30364.spstarr@sh0n.net> <1032403983.3d893c0f8986b@kolivas.net> <200209190016.26609.spstarr@sh0n.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S269984AbSISGWO>; Thu, 19 Sep 2002 02:22:14 -0400
+Received: from mta05ps.bigpond.com ([144.135.25.137]:61386 "EHLO
+	mta05ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S269981AbSISGWN>; Thu, 19 Sep 2002 02:22:13 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: "Michael Duane" <Mike.Duane@digeo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: CDCether.c
+Date: Thu, 19 Sep 2002 16:20:57 +1000
+User-Agent: KMail/1.4.5
+References: <4C568C6A13479744AA1EA3E97EEEB3231B7DDC@schumi.digeo.com>
+In-Reply-To: <4C568C6A13479744AA1EA3E97EEEB3231B7DDC@schumi.digeo.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <200209190016.26609.spstarr@sh0n.net>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Message-Id: <200209191620.58022.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 19, 2002  00:16 -0400, Shawn Starr wrote:
-> These results compare EXT3 against EXT2 with rmap using the contest tool
-> you can get it at: http://contest.kolivas.net
-> 
-> These tests are from a Athlon MP 2000+ w/ 512MB RAM
-> 
-> noload:
-> 
-> Kernel					Time            	CPU
-> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            259.47		99%
-> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            267.66          	97%
-> 
-> process_load:
-> 
-> Kernel                  			Time            	CPU
-> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            318.91          	80%
-> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            324.44          	79%
-> 
-> io_halfmem:
-> 
-> Kernel                  			Time			CPU
-> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            306.82          	87%
-> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            461.74          	57%
-> 
-> io full mem:
-> 
-> Kernel					Time			CPU
-> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            325.39          	82%
-> 2.4.20-pre7-rmap14a-xfs-uml-shawn12d            411.47          	64%
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I don't see this as hugely surprising.  ext3 uses more CPU than ext2.
-If you are using up the CPU doing other things, then naturally ext3
-will take a longer wall-clock time to complete the same tasks as ext2.
+On Thu, 19 Sep 2002 09:49, Michael Duane wrote:
+> Who is the maintainer of CDCEther.c?  I am having a problem
+> with packets getting "wedged" somewhere on the way out
+> and need to know if others have reported this problem.
+Others have reported probems that normally look something like "it works fine 
+for some minutes to days, and then all connectivity stops, till I reboot or 
+re-insert the module", but I can't duplicate. Does this match your problem?
 
-I know that Andrew has been doing a bunch of work to reduce ext3 CPU
-usage/locking/etc., but I think that is all in 2.5 kernels.
+There are some races, but I can't explain the problem from them. I do need to 
+fix the races, but I only do this when I have some spare time (after work, 
+SO, and some other hobbies).
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+> I'm running the 2.4.17 kernel and using a Broadcom DOCSIS
+> modem based around a 3345.
+Most people have reported the problem with Via UHCI chipsets, and usb-uhci 
+driver. Does this match your configuration?
+
+You might care to upgrade the kernel too.
+
+Brad
+
+- -- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9iWzJW6pHgIdAuOMRAvXrAJ9JfDSnx25dKI7yXvQC2XjNEydS+wCgpKMe
+kSP0H8AB5Sj8Ebo6SGAPVNs=
+=RTI4
+-----END PGP SIGNATURE-----
 

@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262450AbSK0Mt1>; Wed, 27 Nov 2002 07:49:27 -0500
+	id <S262457AbSK0MyN>; Wed, 27 Nov 2002 07:54:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262457AbSK0Mt1>; Wed, 27 Nov 2002 07:49:27 -0500
-Received: from thunk.org ([140.239.227.29]:34771 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S262450AbSK0MtZ>;
-	Wed, 27 Nov 2002 07:49:25 -0500
-Date: Wed, 27 Nov 2002 07:55:48 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Clemmitt Sigler <siglercm@jrt.me.vt.edu>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>, Alan Cox <Alan.Cox@linux.org>
-Subject: Re: 2.4.20-rc3 ext3 fsck corruption -- tool update warning needed?
-Message-ID: <20021127125547.GA7903@think.thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Clemmitt Sigler <siglercm@jrt.me.vt.edu>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>, Alan Cox <Alan.Cox@linux.org>
-References: <20021126024739.GA11903@think.thunk.org> <Pine.LNX.4.33L2.0211261042290.2368-100000@jrt.me.vt.edu>
+	id <S262464AbSK0MyN>; Wed, 27 Nov 2002 07:54:13 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:25004 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S262457AbSK0MyM>;
+	Wed, 27 Nov 2002 07:54:12 -0500
+Date: Thu, 28 Nov 2002 00:00:26 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: "David S. Miller" <davem@redhat.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, anton@samba.org,
+       ak@muc.de, davidm@hpl.hp.com, schwidefsky@de.ibm.com, ralf@gnu.org,
+       willy@debian.org
+Subject: Re: [PATCH] Start of compat32.h (again)
+Message-Id: <20021128000026.6bd71217.sfr@canb.auug.org.au>
+In-Reply-To: <20021126.235810.22015752.davem@redhat.com>
+References: <20021127184228.2f2e87fd.sfr@canb.auug.org.au>
+	<20021126.235810.22015752.davem@redhat.com>
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L2.0211261042290.2368-100000@jrt.me.vt.edu>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 26, 2002 at 10:55:10AM -0500, Clemmitt Sigler wrote:
-> The e2fsck run seemed to me to go normally.  It reported that it
-> optimized some directories, but this has happened on other auto-fscks
-> of my ext3 filesystems without corruption under earlier kernels.  (This
-> is the first corruption I've seen in many, many years.)  But I didn't
-> capture the messages :^( and they don't get written into
-> /var/log/messages (that I could find).
+Hi Dave,
 
-Ah, ha.  I think I know what happened.
+On Tue, 26 Nov 2002 23:58:10 -0800 (PST) "David S. Miller" <davem@redhat.com> wrote:
+>
+>    From: Stephen Rothwell <sfr@canb.auug.org.au>
+>    Date: Wed, 27 Nov 2002 18:42:28 +1100
+> 
+>    How's this one :-)
+>    
+> I don't think this is the way to go.
+> 
+> I think we really need to give the 32-bit compatability
+> types names and allow 64-bit arches to define what their
+> 32-bit counterparts use.
 
-What version of e2fsprogs were you using?  If it was 1.28, that would
-explain what you saw.  There was a fencepost error that could corrupt
-directories when it was optimizing/rehashing them.  This bug was fixed
-in in the next version, which was rushed out the door as a result of
-this bug.  Fortunately, 1.28 didn't get adopted by any distro's as far
-as I know, and not that many people downloaded and compiled e2fsprogs
-1.28.
+OK, we can discuss that as well, but what do you think of the particular
+patch that I supplied?  It is independent of the naming of types.  If I
+can get linux/compat32.h and CONFIG_COMPAT32 started, the consolidation
+will preceed fairly rapidly and I think that is far more important than
+what the names look like ...
 
-If you're not using the latest version of e2fsprogs, which is
-e2fsprogs 1.32, I'd strongly suggest updating to it.  Version 1.28 is
-just *so* three months ago.  :-)
+> For example, nlink_t is going to need to be different
+> for sparc 32-bit compat vs. most other platforms because
+> we use a signed short there.
 
-						- Ted
+This will be allowed for when linux/compat32.h includes asm/compat32.h
+at a later stage.  asm/compat32.h will be expected to have typedefs for
+compat32_<type> (or __kernel_<type>32 whatever) for all the types that
+vary between the architectures.
 
-P.S.  If you do have a directory which is corrupted by e2fsck 1.28, no
-data is lost; it just created a directory entry which is too small, so
-it triggers the sanity checks in the kernel.  Running e2fsck version
-1.29 or later will unbork the directory.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

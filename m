@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261586AbSJALeo>; Tue, 1 Oct 2002 07:34:44 -0400
+	id <S261585AbSJALsv>; Tue, 1 Oct 2002 07:48:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261588AbSJALeo>; Tue, 1 Oct 2002 07:34:44 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:17802 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261586AbSJALem>;
-	Tue, 1 Oct 2002 07:34:42 -0400
-Date: Tue, 1 Oct 2002 13:39:39 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.39 "Sleeping function called from illegal context at slab.c:1374"
-Message-ID: <20021001113939.GQ3867@suse.de>
-References: <3D99885B.533C320D@aitel.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D99885B.533C320D@aitel.hist.no>
+	id <S261588AbSJALsv>; Tue, 1 Oct 2002 07:48:51 -0400
+Received: from k100-28.bas1.dbn.dublin.eircom.net ([159.134.100.28]:44303 "EHLO
+	corvil.com.") by vger.kernel.org with ESMTP id <S261585AbSJALsu>;
+	Tue, 1 Oct 2002 07:48:50 -0400
+Message-ID: <3D998C95.9060606@corvil.com>
+Date: Tue, 01 Oct 2002 12:52:53 +0100
+From: Padraig Brady <padraig.brady@corvil.com>
+Organization: Corvil Networks
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: garrett@tbaytel.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE, TRIVIAL, RFC] Linux source strip/bundle script
+References: <200210010734.14949.garrett@tbaytel.net>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01 2002, Helge Hafting wrote:
-> I get two of these during bootup of 2.5.39 UP, preempt
-> PIIX4: not 100% native mode: will probe irqs later
->     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
->     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:pio
-> hda: FUJITSU MPB3032ATU, ATA DISK drive
-> hdb: CD-ROM 32X/AKU, ATAPI CD/DVD-ROM drive
-> Sleeping function called from illegal context at slab.c:1374
-> c12b3ec4 c01146c4 c02801a0 c0284429 0000055e 000001d0 c012dca0 c0284429 
->        0000055e c039a390 c01d1b84 04000000 c039a390 c010915f 00000018
-> 000001d0 
->        c039a390 c039a380 cfe0e2c0 04000000 c01cb617 0000000e c01d1b84
-> 04000000 
-> Call Trace:
->  [<c01146c4>]__might_sleep+0x54/0x60
->  [<c012dca0>]kmalloc+0x4c/0x130
->  [<c01d1b84>]ide_intr+0x0/0x17c
->  [<c010915f>]request_irq+0x53/0xa8
->  [<c01cb617>]init_irq+0x1e7/0x338
->  [<c01d1b84>]ide_intr+0x0/0x17c
->  [<c01cbaa6>]hwif_init+0x112/0x258
->  [<c01cb31c>]probe_hwif_init+0x1c/0x6c
->  [<c01d789d>]ide_setup_pci_device+0x3d/0x68
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> hdc: WDC WD200BB-00CAA0, ATA DISK drive
+Garrett Kajmowicz wrote:
+> As per the suggestion of the lkml FAQ section 7-7, I have spent some time 
+> working on a script to automatically go through the Linux source tree and 
+> generate a stripped down version of the kernel source code (x86 only), along 
+> with a few additional 'modules' which will contain additional funtionality, 
+> if desired (such as irda or scsi support).
+> 
+> I have requested an account on kernel.org, and hope to run/test this script 
+> for each full, stable release.  I would like all of the input possible on the 
+> script.  Please note that this is the first version, so there are probably 
+> many rough areas.
+> 
+> For a copy of the script please try:
+> 
+> http://garrett.dyndns.biz/makemini.sh.bz2
+> 
+> Please Cc: all comments to:
+> 
+> Garrett Kajmowicz
+> gkajmowi@tbaytel.net
 
-Fixed in 2.5.40
+1. There is a distinct dearth (hmm an anagram of redhat) of loops.
+2. When trashing the source like this you may as well remove
+    trailing whitespace (reduces kernel by 200K after compression).
+3. What's the difference in size between 2.4.19.tar.bz2 and
+    2.4.19-bastardized.tar.bz2 ?
+4. Is this just for (a) removing redundant code after installation or
+    (b) providing subset version(s) for download.
+5. If 4(a) wouldn't you need to parse the .config to find the appropriate
+    bits to remove?
 
--- 
-Jens Axboe
+Pádraig.
 

@@ -1,56 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVCEWGL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVCEWVJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261219AbVCEWGL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 17:06:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbVCEWGK
+	id S261292AbVCEWVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 17:21:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVCEWVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 17:06:10 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:40647 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261219AbVCEWGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 17:06:03 -0500
-Subject: Re: Linux 2.6.11.1
-From: Lee Revell <rlrevell@joe-job.com>
-To: gene.heskett@verizon.net
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200503051649.58709.gene.heskett@verizon.net>
-References: <20050304175302.GA29289@kroah.com>
-	 <20050305174654.J3282@flint.arm.linux.org.uk>
-	 <Pine.LNX.4.58.0503051316510.2304@ppc970.osdl.org>
-	 <200503051649.58709.gene.heskett@verizon.net>
-Content-Type: text/plain
-Date: Sat, 05 Mar 2005 17:06:02 -0500
-Message-Id: <1110060362.12513.48.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Sat, 5 Mar 2005 17:21:09 -0500
+Received: from mx1.mail.ru ([194.67.23.121]:21366 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S261292AbVCEWU7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 17:20:59 -0500
+From: Alexey Dobriyan <adobriyan@mail.ru>
+To: Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: 2.6.11-mm1 (x86-abstract-discontigmem-setup.patch)
+Date: Sun, 6 Mar 2005 01:21:19 +0200
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, Andy Whitcroft <apw@shadowen.org>,
+       linux-kernel@vger.kernel.org
+References: <200503051535.24372.adobriyan@mail.ru> <1110049138.6446.3.camel@localhost>
+In-Reply-To: <1110049138.6446.3.camel@localhost>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200503060121.19354.adobriyan@mail.ru>
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-03-05 at 16:49 -0500, Gene Heskett wrote:
-> What he said!  Perfectly good patches, which fix real problems would 
-> appear to be sitting in testing/broken_out till bit rot or ???.
+On Saturday 05 March 2005 20:58, Dave Hansen wrote:
+> On Sat, 2005-03-05 at 15:35 +0200, Alexey Dobriyan wrote:
+> > > +	}
+> > > +	printk(KERN_DEBUG "\n");
+> > 	       ^^^^^^^^^^
+> > > +}
+> > 
+> > Too much KERN_DEBUG.
 > 
-> If you want a testers testimony, I'm running the bk-ieee1394.patch, 
-> and all I can say at this point is that it Just Works(TM).  I have 
-> NDI how it got a yesterdays Mar 4) date in the directory listing 
-> there though, I've had it a bit longer than that by 2-3 days as my 
-> copy shows a Mar 1 date.  I first got it via svn fetch at 
-> linux-ieee1394.org or some such in January.
+> On my system, that ends up printing out 4 or 5 lines of output per node,
+> but it's quite invaluable if you're debugging early memory setup issues.
+> It is KERN_DEBUG after all.  What does it do on your system?
 > 
-> Fixes for real problems that fix real problems should somehow get a 
-> faster track into final.  The current firewire in the kernel as of 
-> 2.6.11 is still badly borked.
+> I'm not horribly opposed to removing some of this output, let's just
+> make sure...
 
-Driver updates are a hard problem.  Nothing annoys users more than
-unsupported hardware.  But if you aggressively add support for new
-devices you can break things that have worked for ages.
+You misundestood. I'm not proposing to remove these printk's altogether. I'm
+for removing KERN_DEBUG solely in the middle of the line.
 
-A change that makes your hardware work may break someone else's.  There
-is no such thing as an obviously correct patch when you are flipping
-bits in the hardware.  You can never eliminate 100% of driver
-regressions, all you can do is minimize the impact by getting release
-candidates tested on the widest possible range of hardware.
+Try the following program with and without 3-rd and 4-th KERN_DEBUG.
 
-Lee
+	Alexey
+============================================================================
+#include <stdio.h>
 
+#define KERN_DEBUG "<7>"
+
+int main(void)
+{
+        int i;
+
+        printf(KERN_DEBUG "  Setting physnode_map array to node:\n");
+        printf(KERN_DEBUG "  ");
+        for (i = 0; i < 10; i++)
+                printf(KERN_DEBUG "%d ", i);
+        printf(KERN_DEBUG "\n");
+
+        return 0;
+}

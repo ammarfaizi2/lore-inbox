@@ -1,84 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266237AbUGATB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266224AbUGATIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266237AbUGATB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 15:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266241AbUGAS7h
+	id S266224AbUGATIY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 15:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266227AbUGATIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 14:59:37 -0400
-Received: from duchamp.tecgraf.puc-rio.br ([139.82.85.1]:35590 "EHLO
-	tecgraf.puc-rio.br") by vger.kernel.org with ESMTP id S266227AbUGAS6l
+	Thu, 1 Jul 2004 15:08:24 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:8832 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S266224AbUGATIR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 14:58:41 -0400
-Date: Thu, 1 Jul 2004 16:03:42 -0300
-From: Andre Costa <costa@tecgraf.puc-rio.br>
-To: "Nick Warne" <nick@ukfsn.org>
-Cc: linux-kernel@vger.kernel.org, ballen@gravity.phys.uwm.edu
-Subject: Re: 2.4.26: IDE drives become unavailable randomly
-Message-Id: <20040701160342.26c557b0.costa@tecgraf.puc-rio.br>
-In-Reply-To: <40E4697E.28752.15EB61B8@localhost>
-References: <Pine.GSO.4.21.0407010446090.2056-100000@dirac.phys.uwm.edu>
-	<40E4697E.28752.15EB61B8@localhost>
-Organization: TecGraf
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 1 Jul 2004 15:08:17 -0400
+Date: Thu, 1 Jul 2004 15:07:53 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Sebastian Kuzminsky <seb@highlab.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: io priorities?
+In-Reply-To: <E1Bg64T-0003MC-00@highlab.com>
+Message-ID: <Pine.LNX.4.53.0407011456110.1241@chaos>
+References: <E1Bg64T-0003MC-00@highlab.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(please cc me on any replies, I am not subscribed to this list)
+On Thu, 1 Jul 2004, Sebastian Kuzminsky wrote:
 
-Hi Nick,
+> Hi folks, i've got IO problems...
+>
+>
+> I've got a computer with one IDE disk.  There are a couple of processes
+> writing big telemetry logs, totally not time-critical.  Then there's one
+> process periodically writing a tiny little state file, about 150 bytes.
+> The process with the state file wants to sync its file to disk and then
+> quickly be back and running.  When it calls fsync() it has to wait for
+> other processes' less-important pending I/O before it gets to complete,
+> and it's not unusual for this to take 30 seconds (CF over IDE), which
+> is too slow for my application.
+>
+>
+> This happens with both 2.4.23 and 2.6.6 (as, cfq, & deadline).  I havent
+> tried to tune the schedulers at all, just using the default values.
+>
+>
+> I've tried five methods of syncing the file: sync(), fsync(), fdatasync(),
+> and opening with O_SYNC or O_DSYNC.  All take about the same amount
+> of time.
+>
+>
+> I've tried it on my target machine (Compact Flash via pio IDE) and on
+> my development machine (regular hard drive via udma5 IDE).  Same results
+> qualitatively speaking.
+>
+> I read Jens Axboe's thread about cfq + io priorities, and it sounds
+> perfect!  I could give my one time-critical process high io priority
+> and it should preempt the others and life would be fine.  But all the
+> l-k traffic i've found about this is from back in November.  Did this
+> work go anywhere?
+>
+> Any suggestions on fixes or workarounds?
+>
+>
+> I'm stumped.
+>
 
-On Thu, 01 Jul 2004 19:43:58 +0100
-"Nick Warne" <nick@ukfsn.org> wrote:
+Periodically fsync() the logs so there isn't soooo much stuff to
+write. In fact, a simple sync() call about once every few seconds
+should make everything work, i.e. ...
 
-[snip]
-> > Thks, folks, I wouldn't really suspect of bad cables/PSU, this was
-> > an eye-opener. I have just opened the box and reseated the 80-wire
-> > IDE cable to my hda device, and I will consider replacing it, just
-> > in case. The PSU is brand new, 450W -- although it could be bad
-> > quality, I will try to check this out.
-> > 
-> > BTW: Nick, I missed your msg because you didn't cc me. My hda also
-> > usually gets disconnected at early hours in the morning, as you
-> > pointed out. I arrived today to work and it had happened again =/
-> > Last entry on/var/log/messages was around 1:30am, and it was about a
-> > NFS mount that had expired.
-> > 
-> > Best,
-> > 
-> > Andre
-> 
-> Hi Andre,
-> 
-> Sorry, I too am not subscribed to the list, and I read (and reply to) 
-> from:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel
-> 
-> I totally overlooked CC'ing you.
+main()
+{
+    for(;;)
+    {
+        sync();
+        sleep(3);
+    }
+}
 
-No worries. I have to remind myself over and over again to put the
-"please cc me" header on every msg =)
+... in another task should fix it. We no longer have `update` running
+like the old unixes. Now there is bdflush that cares only about
+kernel buffers getting in short supply. If you want your files to
+be sync(ed) quickly, you need to keep the in-kernel buffers short
+which means you need to do it yourself.
 
-> Anyway, new IDE cable did fix the box at work for me.  Also I only 
-> used smartd AFTER the problem arose, not before, so it was not smartd 
-> that caused it.
+Before everybody chimes in.... just try it. You'll probably like it.
 
-Thks, this is definitely valuable info. I will surely go after some new
-cables to see if it improves my situation (I hope it does, otherwise I
-will have to move services away from this box and relocate them to other
-servers, which will be a PITA...)
 
-On a side note, I browsed 2.4.27rc2 changelogs today, and there is some
-interesting stuff there about interruptions, ACPI etc. Looking forward
-to trying it out.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-Thks again,
 
-Andre
-
--- 
-Andre Oliveira da Costa
-(costa@tecgraf.puc-rio.br)

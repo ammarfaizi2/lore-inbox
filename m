@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270748AbRIAOja>; Sat, 1 Sep 2001 10:39:30 -0400
+	id <S270721AbRIAOgu>; Sat, 1 Sep 2001 10:36:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270758AbRIAOjK>; Sat, 1 Sep 2001 10:39:10 -0400
-Received: from cpe-24-221-114-147.az.sprintbbd.net ([24.221.114.147]:23687
-	"EHLO localhost.digitalaudioresources.org") by vger.kernel.org
-	with ESMTP id <S270748AbRIAOjF>; Sat, 1 Sep 2001 10:39:05 -0400
-Message-ID: <3B90F310.1030808@digitalaudioresources.org>
-Date: Sat, 01 Sep 2001 07:39:12 -0700
-From: David Hollister <david@digitalaudioresources.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
-X-Accept-Language: en-us
+	id <S270748AbRIAOgl>; Sat, 1 Sep 2001 10:36:41 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:34573 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S270721AbRIAOga>;
+	Sat, 1 Sep 2001 10:36:30 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200109011436.SAA18432@ms2.inr.ac.ru>
+Subject: Re: Lost TCP retransmission timer
+To: val@nmt.edu (Val Henson)
+Date: Sat, 1 Sep 2001 18:36:35 +0400 (MSK DST)
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20010830161139.A18224@boardwalk> from "Val Henson" at Aug 30, 1 04:11:39 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-To: Jim Roland <jroland@roland.net>
-CC: Jan Niehusmann <jan@gondor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Athlon doesn't like Athlon optimisation?
-In-Reply-To: <20010831044247.B811@gondor.com> <3B8EFF67.9010409@digitalaudioresources.org> <001101c132cd$cbbf7050$bb1cfa18@JimWS>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Roland wrote:
-> Which kernel are you gentlemen using?  I have a Athlon 1.2GHz (not
-> overclocked), 512MB PC133, and also an EPoX 8KTA3+, and have had no problems
-> whatsoever (using kernel 2.4.2-2).
+Hello!
 
-I'm on 2.4.9.  No overclocking.  I applied the patch that somebody (sorry, 
-forgot who) posted yesterday for arch/i386/lib/mmx.c and rebuilt the kernel with 
-Athlon optimization.  It now works.
--- 
-David Hollister
-Driversoft Engineering:  http://devicedrivers.com
-Digital Audio Resources: http://digitalaudioresources.org
+> 2.4.6 machine pushes lots of data on _first_ TCP connection after boot
 
+Lots? I see only about 24K of data transmitted in both your samples.
+
+Actually, the problem is more or less clear from your /proc/net/tcp.
+You use some funny device or netfilter plugin, which leak memory.
+You can look into 7th column of /proc/net/tcp to estimate amount of leaked
+buffers. When it reaches ~15, connection stalls. Seems, it raises
+monotonically, so that it looks like all the buffers leak.
+
+What is output device?
+
+Alexey

@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVCCOwT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbVCCOz2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbVCCOwT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 09:52:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbVCCOwT
+	id S261781AbVCCOz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 09:55:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbVCCOz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 09:52:19 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:15620 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261786AbVCCOvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 09:51:50 -0500
-Date: Thu, 3 Mar 2005 15:51:47 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrea Arcangeli <andrea@cpushare.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] seccomp: don't say it was more or less mandatory
-Message-ID: <20050303145147.GX4608@stusta.de>
-References: <20050223014233.6710fd73.akpm@osdl.org> <20050224215136.GK8651@stusta.de> <20050224224134.GE20715@opteron.random> <20050225211453.GC3311@stusta.de> <20050226013137.GO20715@opteron.random> <20050301003247.GY4021@stusta.de> <20050301004449.GV8880@opteron.random>
+	Thu, 3 Mar 2005 09:55:28 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:61873 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261781AbVCCOzW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 09:55:22 -0500
+Date: Thu, 3 Mar 2005 06:54:12 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: neilb@cse.unsw.edu.au, akpm@osdl.org, davej@redhat.com,
+       davem@davemloft.net, jgarzik@pobox.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+Message-Id: <20050303065412.499f2a80.pj@sgi.com>
+In-Reply-To: <20050303031047.GA30423@infradead.org>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+	<42264F6C.8030508@pobox.com>
+	<20050302162312.06e22e70.akpm@osdl.org>
+	<42265A6F.8030609@pobox.com>
+	<20050302165830.0a74b85c.davem@davemloft.net>
+	<20050303011151.GJ10124@redhat.com>
+	<20050302172049.72a0037f.akpm@osdl.org>
+	<16934.28536.137910.735002@cse.unsw.edu.au>
+	<20050303031047.GA30423@infradead.org>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050301004449.GV8880@opteron.random>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 01, 2005 at 01:44:49AM +0100, Andrea Arcangeli wrote:
-> On Tue, Mar 01, 2005 at 01:32:47AM +0100, Adrian Bunk wrote:
-> > If you want to use Cpushare, you know that you have to enable seccomp.
-> 
-> Oh yeah, I know it, you know it, but not everyone will know it while
-> configuring the kernel, infact I doubt they'll even know what Cpushare
-> is about while they configure the kernel ;). And I doubt they should be
-> required to know all those details in order to make that choice, and my
-> point is that seccomp is low overhead enough that everyone can enable it
-> if they're unsure, just in case. I'm just trying to explain why I
-> recommend it to Y by default "if unsure".
+Christoph wrote in reply to Neil:
+> The point is that it's happening anyway.  See Andres' -as tree which
+> is the basis for the Debian vendor kernel. 
 
-My point is simply:
-
-The help text for an option you need only under very specific 
-circumstances shouldn't sound as if this option was nearly was 
-mandatory.
-
-For me, that's a question principle, not of risks of breakage or code 
-size.
-
-cu
-Adrian
+Interesting.  We already have a pre-Linus tree, in Andrew's *-mm.
+Currently, each distro adds its own set of patches, on top of some
+version of a Linus tree.  If we had a blessed post-Linus tree, which the
+2.6.<even>.y numbering fits, then we could unify this post-Linus tree
+patching to some degree as well, to the general benefit of most everyone
+involved.  A bit of holy penguin pee, a chosen spot in the official
+numbering scheme, and a good choice of penguin prince as manager of this
+release series should be enough to get this going.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401

@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293525AbSCFNqb>; Wed, 6 Mar 2002 08:46:31 -0500
+	id <S293590AbSCFOEe>; Wed, 6 Mar 2002 09:04:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293552AbSCFNqS>; Wed, 6 Mar 2002 08:46:18 -0500
-Received: from smtp2.vol.cz ([195.250.128.42]:24324 "EHLO smtp2.vol.cz")
-	by vger.kernel.org with ESMTP id <S293525AbSCFNpH>;
-	Wed, 6 Mar 2002 08:45:07 -0500
-Date: Tue, 5 Mar 2002 21:47:37 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Rik van Riel <riel@conectiva.com.br>, Rakesh Kumar Banka <Rakesh@asu.edu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Monolithic Vs. Microkernel
-Message-ID: <20020305204737.GC318@elf.ucw.cz>
-In-Reply-To: <20020304144923.A96@toy.ucw.cz> <Pine.GSO.4.21.0203051533160.18755-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0203051533160.18755-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.3.27i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S293583AbSCFOEY>; Wed, 6 Mar 2002 09:04:24 -0500
+Received: from dsl-213-023-039-135.arcor-ip.net ([213.23.39.135]:23978 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S293565AbSCFOEL>;
+	Wed, 6 Mar 2002 09:04:11 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3)
+Date: Wed, 6 Mar 2002 14:59:52 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+        Chris Mason <mason@suse.com>, "Stephen C. Tweedie" <sct@redhat.com>,
+        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <200203041448.g24EmGr01578@localhost.localdomain>
+In-Reply-To: <200203041448.g24EmGr01578@localhost.localdomain>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16ibxR-0002zI-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Not *all* of them. On vsta, you could do
-> > 
-> > ( killall keyboard; sleep 1; keyboard ) &
-> > 
-> > to change your keymap. On linux you need special tools for managing
-> > modules and are not protected from module bugs. Try developing filesystem
-> > on production box.... You can do that on u-kernels.
+On March 4, 2002 03:48 pm, James Bottomley wrote:
+> phillips@bonn-fries.net said:
+> > I've been following the thread, I hope I haven't missed anything
+> > fundamental. A better long term solution is to have ordered tags work
+> > as designed.  It's  not broken by design is it, just implementation? 
 > 
-> Userland filesystems != microkernel.
+> There is actually one hole in the design:  A scsi device may accept a command 
+> with an ordered tag, disconnect and at a later time reconnect and return a 
+> QUEUE FULL status indicating that the tag must be retried.  In the time 
+> between the disconnect and reconnect, the standard doesn't require that no 
+> other tags be accepted, so if the local flow control conditions abate, the 
+> device is allowed to accept and execute a tag sent down in between the 
+> disconnect and reconnect.
 
-Yep, but microkernel => userland filesystems ;-). Anyway, they *can*
-do things linux can't do (or linux has hard time with), like
-partitioning physical machine into few logical ones, filesystems in
-userland, ability to debug drivers on production machines, etc.
+How can a drive can accept a command while it is disconnected from the bus.
+Did you mean that after it reconnects it might refuse the ordered tag and
+accept another?  That would be a bug, I'd think.
 
-I like those features, but I'm not sure if costs introduced by
-u-kernels are worth it.
-									Pavel
+> I think this would introduce a very minor deviation where one tag could 
+> overtake another, but we may still get a useable implementation even with this.
+
+It would mean we would have to wait for completion of the tagged command
+before submitting any more commands.  Not nice, but not horribly costly
+either.
+
 -- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+Daniel

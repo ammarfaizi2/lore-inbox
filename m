@@ -1,63 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313922AbSDPVpl>; Tue, 16 Apr 2002 17:45:41 -0400
+	id <S313895AbSDPVvs>; Tue, 16 Apr 2002 17:51:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313923AbSDPVpk>; Tue, 16 Apr 2002 17:45:40 -0400
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:45964 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S313922AbSDPVpf>; Tue, 16 Apr 2002 17:45:35 -0400
-Date: Tue, 16 Apr 2002 12:57:17 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH] 2.5.8 fix for percpu area
-Message-ID: <20020416125716.A31123@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-Mime-Version: 1.0
+	id <S313906AbSDPVvr>; Tue, 16 Apr 2002 17:51:47 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:41546 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S313895AbSDPVvq>; Tue, 16 Apr 2002 17:51:46 -0400
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 arch subdivision into machine types for 2.5.8
+In-Reply-To: <200204162051.g3GKpDb05800@localhost.localdomain>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 16 Apr 2002 15:44:37 -0600
+Message-ID: <m1n0w3iaii.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The percpu area stuff is broken in two places -
+James Bottomley <James.Bottomley@HansenPartnership.com> writes:
 
-Missing stub for setup_per_cpu_areas() in the UP case
-and missing definition of __per_cpu_data attribute in percpu.h.
-Here is a patch that fixes these. Please apply.
+> ebiederm@xmission.com said:
+> > - There is no way to build a generic kernel, that just needs
+> >   a command line to select the architecture.  Something that is
+> > important
+> >   for installers.  Even better would auto detection of the platform
+> > from
+> >   firmware information, but you can't always do that. 
+> 
+> The design is to do this from config.in, not to modularise so you can select 
+> on boot.  Is that what you were asking?
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+Yes.  I'm totally for the ability to select from config.in.  But at
+the same time having being able to build a kernel that works in all
+kinds of configurations comes in quite handy.  I know the alpha does
+this I'm not quite certain about ARM.
 
 
-[percpufix-2.5.8-1.patch]
+> > - By just allowing redirecting setup_memory_region you don't allow for
+> >   architectures that don't have the 384K memory hole. 
+> 
+> True.  The split has been evolved only far enough to let me slot in the 
+> voyager port fairly easily, and it has a 384K hole too.  The idea is more to 
+> begin the framework, so others can adapt it as more machine types come along.
+> 
+> Like all abstractions, unless they're tightly bound to the actual use, they 
+> can become unwieldy and unusable very quickly as you abstract out things that 
+> no-one is ever going to want.  I erred on the side of utility.
 
-
-diff -urN linux-2.5.8-base/include/asm-generic/percpu.h linux-2.5.8-percpufix/include/asm-generic/percpu.h
---- linux-2.5.8-base/include/asm-generic/percpu.h	Mon Apr 15 00:48:47 2002
-+++ linux-2.5.8-percpufix/include/asm-generic/percpu.h	Tue Apr 16 11:49:28 2002
-@@ -4,6 +4,8 @@
- #define __GENERIC_PER_CPU
- #include <linux/compiler.h>
+True.  It's just that I have a machine that doesn't have the 384K hole..
+I found all I needed to export was add_memory_region and
+print_memory_region, and then I could do whatever was needed.
  
-+#define __per_cpu_data  __attribute__((section(".data.percpu")))
-+
- extern unsigned long __per_cpu_offset[NR_CPUS];
- 
- /* var is in discarded region: offset to particular copy we want */
-diff -urN linux-2.5.8-base/init/main.c linux-2.5.8-percpufix/init/main.c
---- linux-2.5.8-base/init/main.c	Mon Apr 15 00:48:46 2002
-+++ linux-2.5.8-percpufix/init/main.c	Tue Apr 16 11:50:57 2002
-@@ -272,6 +272,10 @@
- #define smp_init()	do { } while (0)
- #endif
- 
-+static inline void setup_per_cpu_areas(void)
-+{
-+}
-+
- #else
- 
- #ifdef __GENERIC_PER_CPU
+> > - setup_arch.h is nasty.  What code it has depends on what it is
+> > defined
+> >   when it is included.  Couldn't 2 headers to this job better?  Or
+> > better yet
+> >   can't you just use function calls? 
+> 
+> I agree with both of these.  The main problem with the memory setup calls is 
+> that most of them are static.  I could export them and do overrides, like I do 
+> for everything else, but as someone who also debugs the kernel, I like static 
+> functions because they tell me the use is tightly isolated.  I could easily do 
+> two files, it was just looking more messy.
+> 
+> I'll see if I can export some of the setup.c internals and re-arrange this in 
+> a more orderly way.
+> 
+> > - The hooks you add aren't used and are so generic it isn't obvious
+> > what
+> >   they are supposed do from their names. 
+> 
+> All of them are used if you look at the additional voyager stuff, what names 
+> would you like to be more explicit?
+
+O.k.  When I was looking I hadn't gotten that post yet.
+
+The names pre_arch_setup_hook is my best example, seems to
+answer nothing.
+
+And ARCH_SETUP looks nasty.  
+
+> 
+> > And of course you don't look at allowing different firmware
+> > implementations, but I'm doing that, so it is covered. :) 
+> 
+> actually, I've silently ignored all the boot problems as well.
+
+Do you have boot problems on the NCR voyagers?  If so I'd be
+interested in hearing what the issues are.
+
+Eric

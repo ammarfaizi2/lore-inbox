@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318895AbSHMBGK>; Mon, 12 Aug 2002 21:06:10 -0400
+	id <S318896AbSHMBNQ>; Mon, 12 Aug 2002 21:13:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318896AbSHMBGK>; Mon, 12 Aug 2002 21:06:10 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:29197 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S318895AbSHMBGK>; Mon, 12 Aug 2002 21:06:10 -0400
-Date: Mon, 12 Aug 2002 22:09:41 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Thomas Molina <tmolina@cox.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: pte_chain leak in rmap code (2.5.31)
-In-Reply-To: <Pine.LNX.4.44.0208121942371.25611-100000@dad.molina>
-Message-ID: <Pine.LNX.4.44L.0208122208510.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318897AbSHMBNQ>; Mon, 12 Aug 2002 21:13:16 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:44026 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318896AbSHMBNP>; Mon, 12 Aug 2002 21:13:15 -0400
+Subject: Re: [PATCH] fast reader/writer lock for gettimeofday 2.5.30
+From: john stultz <johnstul@us.ibm.com>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200208130054.g7D0s1N09420@eng2.beaverton.ibm.com>
+References: <200208130054.g7D0s1N09420@eng2.beaverton.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 12 Aug 2002 18:02:53 -0700
+Message-Id: <1029200573.1058.73.camel@cog>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Aug 2002, Thomas Molina wrote:
-> On Mon, 12 Aug 2002, Rik van Riel wrote:
-> > On Mon, 12 Aug 2002, Christian Ehrhardt wrote:
-> >
-> > > Note the strange use of continue and break which both achieve the same!
-> > > What was meant to happen (judging from rmap-13c) is that we break
-> > Excellent hunting!   Thank you!
-> Any chance this is the cause of the following?
+>  The following patch generalizes Andrea's trick of using sequence numbers
+>  to create a reader region/writer lock. It against the 2.5.30 kernel.
 
-Yes, quite possible.
+Ah! Very nice! I have hit the xtime_lock starvation issue, and was
+looking to implement something like vxtime_lock to help it (I'm also
+hoping to port the vsyscall gtod to i386 as well). 
 
-> From:     Adam Kropelin <akropel1@rochester.rr.com>
-> Date:     2002-08-12 2:54:31
+>  A new composite primitive 'frlock' is defined in include/linux/frlock.h
+>  and used to replace the rwlock xtime_lock enforce consistent access to
+>  the clock time variables.
 
-> But we do have a repeatable inconsistency happening with ntpd and
-> memory pressure.  That may be related, but in that case it's probably
-> related to mlock().
+My only comment is that while you have wrapped it up nicely, I'm not
+sure this locking algorithm is worth generalizing. While the vxtime_lock
+implementation for x86-64 might take a bit to grasp, the macros are very
+short, fairly straight forward, and difficult to confuse with a standard
+spin/rw_lock. Additionally, the extra complexity of managing the
+sequence number isn't really being hidden (and really, I'm not sure how
+one would hide it).
 
-kind regards,
+Maybe I'm just partial to the way Andrea did it (especially considering
+I'd like to use the lock from userspace as well), but regardless this
+style of rwlock is definitely needed for the xtime_lock. Very cool!
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+thanks
+-john
+ 
 

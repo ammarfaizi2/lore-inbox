@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315096AbSENCQt>; Mon, 13 May 2002 22:16:49 -0400
+	id <S315091AbSENCVZ>; Mon, 13 May 2002 22:21:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315091AbSENCQs>; Mon, 13 May 2002 22:16:48 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:9909 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S315096AbSENCQr>;
-	Mon, 13 May 2002 22:16:47 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S315101AbSENCVY>; Mon, 13 May 2002 22:21:24 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:17634 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S315091AbSENCVY>;
+	Mon, 13 May 2002 22:21:24 -0400
+Date: Mon, 13 May 2002 19:08:09 -0700 (PDT)
+Message-Id: <20020513.190809.97007595.davem@redhat.com>
+To: andrew.grover@intel.com
+Cc: mochel@osdl.org, jgarzik@mandrakesoft.com, Greg@kroah.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: pci segments/domains
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7E45@orsmsx111.jf.intel.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15584.29498.972412.612229@argo.ozlabs.ibm.com>
-Date: Tue, 14 May 2002 12:15:22 +1000 (EST)
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3 deadlock?
-In-Reply-To: <3CDF3C34.5F0EB4EE@zip.com.au>
-X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
+   From: "Grover, Andrew" <andrew.grover@intel.com>
+   Date: Mon, 13 May 2002 19:07:23 -0700
 
-> It appears that kjournald has submitted a block for writeout
-> (via submit_bh() or ll_rw_block()) and the interrupt which
-> signifies completion simply hasn't happened.
+   I don't care what they're called, but I wanted to bring them up and see what
+   everyone thought about how best to implement them, or at least if anyone had
+   an objection to adding a "segment" parameter to pci_scan_root.
+   
+   I certainly don't have a machine that uses these but some people do, and it
+   sounds like it would be nice to handle them in an arch-neutral way.
 
-Ahhh...  I had a "hdparm -m16 -d1 -u1 /dev/hda" command in
-/etc/rc.d/rc.sysinit.  If I take that out it doesn't lock up.
-
-So it is an IDE bug not an ext3 bug.  Thanks for the clue.
-
-Paul.
+What exactly doesn't work right now?  I've been using multi-PCI-domain
+systems for years under Linux :-)

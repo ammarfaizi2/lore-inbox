@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263101AbUEBPpa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263121AbUEBPzJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263101AbUEBPpa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 11:45:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUEBPpa
+	id S263121AbUEBPzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 11:55:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263124AbUEBPzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 11:45:30 -0400
-Received: from web02-imail.bloor.is.net.cable.rogers.com ([66.185.86.76]:9895
-	"EHLO web02-imail.rogers.com") by vger.kernel.org with ESMTP
-	id S263101AbUEBPp2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 11:45:28 -0400
-Date: Sun, 2 May 2004 11:45:29 -0400
-From: Sean Estabrooks <seanlkml@rogers.com>
-To: Marc Boucher <marc@linuxant.com>
-Cc: rol@as2917.net, mbligh@aracnet.com, rusty@rustcorp.com.au, riel@redhat.com,
-       nico@cam.org, tconnors+linuxkernel1083378452@astro.swin.edu.au,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] clarify message and give support contact for non-GPL
- modules
-Message-Id: <20040502114529.2dc7940a.seanlkml@rogers.com>
-In-Reply-To: <5C616C5C-9C4E-11D8-B83D-000A95BCAC26@linuxant.com>
-References: <200405021305.i42D5L625036@tag.witbe.net>
-	<5C616C5C-9C4E-11D8-B83D-000A95BCAC26@linuxant.com>
-Organization: 
-X-Mailer: Sylpheed version 0.9.9-gtk2-20040229 (GTK+ 2.2.4; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at web02-imail.rogers.com from [24.103.219.176] using ID <seanlkml@rogers.com> at Sun, 2 May 2004 11:45:07 -0400
+	Sun, 2 May 2004 11:55:09 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:6644 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S263121AbUEBPzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 11:55:05 -0400
+Date: Sun, 2 May 2004 11:55:07 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: [PATCH][2.4] remove amd7(saucy)_tco
+In-Reply-To: <20040502084841.GA10228@alpha.home.local>
+Message-ID: <Pine.LNX.4.58.0405021151400.2332@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0405011534230.2332@montezuma.fsmlabs.com>
+ <20040502084841.GA10228@alpha.home.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 May 2004 11:35:37 -0400
-Marc Boucher <marc@linuxant.com> wrote:
+On Sun, 2 May 2004, Willy Tarreau wrote:
 
-> There will always be things in life that cannot be controlled. The 
-> kernel already depends on (by being called by, or itself calling) 
-> uncontrolled proprietary code in many environments without telling 
-> users about it. Informing people about this is perfectly ok,  
-> unnecessarily scaring or confusing them is not.
+> On Sat, May 01, 2004 at 03:37:36PM -0400, Zwane Mwaikambo wrote:
+> > Hello Marcelo,
+> > 	This driver has already been removed in 2.6, essentially we've had
+> > problems getting it working (it's been a while now) with a lot of boards,
+> > all seems to be alright until the actual point where the hardware is
+> > supposed to reset the system. So lets just back it out.
+>
+> Indeed, I've just checked here, because I believed I had seen it working,
+> but now I think it was the softdog. It does nothing at all. I've downloaded
+> and read AMD's datasheet and the driver seems to do the right thing. BTW,
+> I wonder if the chip is buggy or not, because I tried to play with the
+> SYSRST and FULLRST bits in the 0xCF9 register. Changing SYSRST to 1 does not
+> change anything, and changing FULLRST to 1 immediately reboots the machine
+> even if no reset was pending !
 
-Agreed.
+That agrees with what Martin Josefsson and i came across, we ended up
+combing through the datasheet and ended up coming to the conclusion that
+either we were missing something subtle or the hardware just didn't work.
+It's a shame because i had a friend who had a whole bunch of these and
+wanted to use the watchdog in production.
 
-> Very good point. You can make things as negative-sounding, politically 
-> hostile as you want, but Linux distribution vendors would be perfectly 
-> free under the GPL to modify the kernel to remove or attenuate 
-> exaggerated messages and any other hostile measures if necessary.
-
-Yes.  You're right.
-
-> If the messages are reasonable and clear, no-one will want/try to 
-> remove or avoid them, and people will be properly informed.
-
-That is what the latest patch attempts to do while still making sure 
-that users are not fooled into thinking they're running an open 
-source operating system.
-
-Cheers,
-Sean
+	Zwane

@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262629AbSI0Txd>; Fri, 27 Sep 2002 15:53:33 -0400
+	id <S262623AbSI0Tzq>; Fri, 27 Sep 2002 15:55:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262626AbSI0Txa>; Fri, 27 Sep 2002 15:53:30 -0400
-Received: from packet.digeo.com ([12.110.80.53]:14471 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262623AbSI0Twl>;
-	Fri, 27 Sep 2002 15:52:41 -0400
-Message-ID: <3D94B848.E2F6412E@digeo.com>
-Date: Fri, 27 Sep 2002 12:58:00 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S262630AbSI0Tzq>; Fri, 27 Sep 2002 15:55:46 -0400
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:3498 "EHLO
+	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S262623AbSI0TzL>; Fri, 27 Sep 2002 15:55:11 -0400
+Date: Fri, 27 Sep 2002 17:00:25 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: procps-list@redhat.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] procps 2.0.8
+In-Reply-To: <Pine.LNX.4.44L.0209271320240.22735-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.44L.0209271657330.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Jens Axboe <axboe@suse.de>, Matthew Jacob <mjacob@feral.com>,
-       "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
-       Mathieu Chouquet-Stringer <mathieu@newview.com>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Warning - running *really* short on DMA buffers while 
- doingfiletransfers
-References: <3D94AC8B.4AB6EB09@digeo.com> <2561606224.1033154176@aslan.btc.adaptec.com> <3D94B33F.EB3B9D41@digeo.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Sep 2002 19:57:53.0892 (UTC) FILETIME=[2AB0D240:01C26660]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> ...
-> One sample trace is at
-> http://www.zip.com.au/~akpm/linux/patches/trace.txt
-> 
+On Fri, 27 Sep 2002, Rik van Riel wrote:
 
-Another thing to note from that trace is that many writes
-went through the entire submit_bio/elv_next_request/bio_endio
-cycle between the submission and completion of the read.
+> 		Procps 2.0.8
+> 		27 Sep 2002
 
-So there was:
+Does anybody have a brown paper bag I could borrow ?
 
-	submit_bio(the read)
-	elv_next_request(the read)
-	...
-	submit_bio(a write)
-	elv_next_request(that write)
-	bio_endio(that write)
-	...
-	bio_endio(the read)
+It appears Robert and I cleaned up stuff a bit too much
+and procps lost it's VERSION string, so -V doesn't work
+in the tarball I released earlier today.
 
-For many writes.  I'm fairly (but not 100%) sure that the same
-behaviour was seen with four tags.
+Also, it appears the release has awoken some long sleeping
+patches, which I'll read and (if they work) integrate into
+procps.
+
+> You can download procps 2.0.8 from:
+> 	http://surriel.com/procps/
+
+Expect patches and maybe even a fixed 2.0.8 tarball soon...
+
+If you have any procps bugs or patches, please mail the procps team:
+
+	procps-list@redhat.com
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
+

@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318304AbSHZU3y>; Mon, 26 Aug 2002 16:29:54 -0400
+	id <S318313AbSHZUaG>; Mon, 26 Aug 2002 16:30:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318310AbSHZU3y>; Mon, 26 Aug 2002 16:29:54 -0400
-Received: from ezri.xs4all.nl ([194.109.253.9]:44243 "HELO ezri.xs4all.nl")
-	by vger.kernel.org with SMTP id <S318304AbSHZU3w>;
-	Mon, 26 Aug 2002 16:29:52 -0400
-Date: Mon, 26 Aug 2002 22:34:08 +0200 (CEST)
-From: Eric Lammerts <eric@lammerts.org>
-To: Kai-Boris Schad <kschad@ebs.e-technik.uni-ulm.de>
-cc: linux-console@vger.kernel.org, <linux-kernel@vger.kernel.org>
-Subject: Re: Q: Howto access the keyboard in a linux system without a graphics
- card ?
-In-Reply-To: <200208260943.LAA25845@correo.e-technik.uni-ulm.de>
-Message-ID: <Pine.LNX.4.44.0208262228590.10042-100000@ally.lammerts.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318310AbSHZUaF>; Mon, 26 Aug 2002 16:30:05 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:18670 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318313AbSHZUaE>; Mon, 26 Aug 2002 16:30:04 -0400
+Subject: Re: [PATCH] hyperthreading scheduler improvement
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Robert Love <rml@tech9.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1030393512.15007.435.camel@phantasy>
+References: <1030392337.15007.413.camel@phantasy> 
+	<1030392908.2776.17.camel@irongate.swansea.linux.org.uk> 
+	<1030393512.15007.435.camel@phantasy>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 26 Aug 2002 21:35:29 +0100
+Message-Id: <1030394129.2776.23.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-08-26 at 21:25, Robert Love wrote:
+> Do you think it could be some odd behavior on non-P4 x86 SMP systems? 
+> Maybe sparse CPU ids?
+> 
+> At least for now, this 2.5 patch is P4-only.
 
-On Mon, 26 Aug 2002, Kai-Boris Schad wrote:
-> I'm trying to set up a small embedded system for gps receiving with a linux
-> system.  I want to have the system working without a graphics card - wich
-> works well. The Problem I have at the moment is to access the keyboard
-> without a graphics card, because the console driver does not start then (
-> Also a redirect doesn't work then :-( )
-> Is there a way to access the keyboard in this case by a user program ?
-> The system recognises the keyboard ( I think Kernel and init) and reacts if
-> ctrl-alt-del is pressed.
 
-What would probably work, is to add funkey support to your kernel
-(http://rick.vanrein.org/linux/funkey/), define all keys of your
-keyboard to be funkeys, and read them from /dev/funkey.
-
-Eric
+It crashes on P4 systems
 

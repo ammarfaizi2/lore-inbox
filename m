@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbTDHUrb (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 16:47:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbTDHUrb (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 16:47:31 -0400
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:3070 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S261710AbTDHUr0 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 16:47:26 -0400
-Date: Tue, 8 Apr 2003 22:56:23 +0200
-From: Dominik Brodowski <linux@brodo.de>
-To: linux-kernel@vger.kernel.org
-Cc: rmk@arm.linux.org.uk
-Subject: [PATCHES 2.5.67] PCMCIA hotplugging, in-kernel-matching and depmod support
-Message-ID: <20030408205623.GA5253@brodo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S261759AbTDHUtP (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 16:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbTDHUtP (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 16:49:15 -0400
+Received: from imap.gmx.net ([213.165.65.60]:6784 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261759AbTDHUss (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 16:48:48 -0400
+From: Helge Deller <deller@gmx.de>
+To: arjanv@redhat.com, FRODRIGUEZC@REPSOLYPF.COM
+Subject: Re: Uncompressing Linux... Ok, booting the kernel.
+Date: Tue, 8 Apr 2003 23:00:23 +0200
+User-Agent: KMail/1.5.9
+Cc: linux-kernel@vger.kernel.org
+References: <B93FC7A08A0B954C9590761383E59C9F4951A9@dti.ypf.com.ar> <1049821384.1580.7.camel@laptop.fenrus.com>
+In-Reply-To: <1049821384.1580.7.camel@laptop.fenrus.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200304082300.23719.deller@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-... and the deprecation of "cardmgr" and "cardctl"
+On Tuesday 08 April 2003 19:03, Arjan van de Ven wrote:
+> On Tue, 2003-04-08 at 18:51, FRODRIGUEZC@REPSOLYPF.COM wrote:
+> > Please, if someone can help me... the problem is, that all I see is:
+> >
+> > Uncompressing Linux... Ok, booting the kernel.
+> >
+> > The kernel type is OK, because the same kernel is happily running on
+> > another Pentium III Xeon. Actually this kernel was compiled by the people
+> > at SAP and I am supposed to make it run without making any changes.
+> > Actually I do not have the info on how this kernel was compiled (or with
+> > what patches).
+>
+> You can just ask SAP about that... the GPL specifies that they have to
+> give that to you then.
 
-Dear kernel developers and testers,
+Hi FRODRIGUEZC,
 
-Updated and re-diffed revisions of my pcmcia-related patches are 
-available at http://www.brodo.de/pcmcia/
+SAP doesn't compile any kernels and provides it to customers.
+vmlinuz-2.4.9-31enterprise looks like one of the update-kernels from RedHat.
+Anyway, you should address this sort of questions to mailto:linux@sap.com instead.
 
-These patches update the PCMCIA subsystem (16-bit) to use the driver
-model matching and hotplug utilities. The "cardmgr" will not be 
-needed any longer - in fact, it won't even work any longer.
+Regards,
+Helge
 
-They are based on kernel 2.5.67
 
-Many thanks to David Hinds for the great PCMCIA package to build this
-work onto, to David Woodhouse for parts of the code and many ideas,
-to Russell King, Greg Kroah-Hartman for their insight, and to Patrick
-Mochel for the great linux driver model which made implementing this
-so much easier.
 
-A descritption of each patch, and more information can be found at the said
-website, http://www.brodo.de/pcmcia/index.html
-
-	Dominik

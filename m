@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318013AbSHQPNK>; Sat, 17 Aug 2002 11:13:10 -0400
+	id <S318017AbSHQPWR>; Sat, 17 Aug 2002 11:22:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318014AbSHQPNJ>; Sat, 17 Aug 2002 11:13:09 -0400
-Received: from host194.steeleye.com ([216.33.1.194]:15372 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S318013AbSHQPNJ>; Sat, 17 Aug 2002 11:13:09 -0400
-Message-Id: <200208171516.g7HFGpK03104@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Ingo Molnar <mingo@elte.hu>
-cc: James Bottomley <James.Bottomley@HansenPartnership.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Boot failure in 2.5.31 BK with new TLS patch 
-In-Reply-To: Message from Ingo Molnar <mingo@elte.hu> 
-   of "Sat, 17 Aug 2002 08:51:47 +0200." <Pine.LNX.4.44.0208170845250.3209-100000@localhost.localdomain> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 17 Aug 2002 10:16:51 -0500
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S318018AbSHQPWR>; Sat, 17 Aug 2002 11:22:17 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50444 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318017AbSHQPWR>;
+	Sat, 17 Aug 2002 11:22:17 -0400
+Message-ID: <3D5E6B10.9070106@mandrakesoft.com>
+Date: Sat, 17 Aug 2002 11:26:08 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "H. J. Lu" <hjl@lucon.org>
+CC: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, dhinds <dhinds@sonic.net>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: New fix for CardBus bridge behind a PCI bridge
+References: <20020809172140.A30911@sonic.net> <20020810222355.A13749@lucon.org> <20020812104902.A18430@lucon.org> <20020812110431.A14125@sonic.net> <20020812112911.A18947@lucon.org> <20020812122158.A27172@sonic.net> <20020812140730.A21710@lucon.org> <20020812154851.A20073@sonic.net> <20020812202942.A27362@lucon.org> <20020816194825.A7086@jurassic.park.msu.ru> <20020816224950.A17930@lucon.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mingo@elte.hu said:
-> while your patch looks OK, it would be *really* interesting to find
-> out why the previous layout failed. Does the BIOS somehow corrupt the
-> GDT? You are using the stock SMP code otherwise, correct? And this
-> part of the patch: 
+H. J. Lu wrote:> On Fri, Aug 16, 2002 at 07:48:25PM +0400, Ivan 
+Kokshaysky wrote:
+> 
+>>On Mon, Aug 12, 2002 at 08:29:42PM -0700, H. J. Lu wrote:
+>>
+>>>I was told all PCI_CLASS_BRIDGE_PCI bridges were transparent. The non-
+>>>transparent ones have class code PCI_CLASS_BRIDGE_OTHER. This new patch
+>>>only checks PCI_CLASS_BRIDGE_PCI and works for me.
+>>
+>>I guess that info came from Intel ;-)  Interesting, but completely wrong.
+>>The devices they call "non-transparent PCI-to-PCI bridges" aren't classic
+>>PCI-to-PCI bridges at all, that's why they are PCI_CLASS_BRIDGE_OTHER.
+>>It's more to do with CPU-to-CPU bridges.
+>>In our terms, "transparent" PCI-to-PCI bridge means subtractive decoding one.
+>>Your previous patch makes much more sense, although a) it should belong to
+>>generic pci code b) is way incomplete.
+>>
+>>Please try this one instead.
+>>
+> 
+> 
+> CardBus works now. But I can no longer load usb-uhci. My X server no
+> longer works. Your patch is not right.
 
-Well, I should say, this is the voyager MCA box again...
 
-The boot problem only happens with my quad pentium cards, the dyad pentium and 
-486 are fine.  Originally, a voyager system with quad cards just wouldn't boot 
-(this was in the 2.2.x days).  Eventually, by trial and error and long debug 
-of the boot process I discovered it would boot if the GDT was 8 bytes aligned 
-(actually, the manuals say it should be 16 byte aligned, so perhaps we should 
-also add this to the Linux setup.S?).  SUS (the voyager BIOS equivalent) 
-reports that the CPU took a Trap 6 at FFF38466 in the boot sequence, but I 
-knew there wasn't an illegal instruction, and the memory address isn't in the 
-boot code. I suspect that the quad cards have some real mode instruction 
-emulation and that's where the trap is occuring.
+I would be willing to bet there is some silliness in the X server, at 
+least.  It's PCI code has always left a lot to be desired...
 
-Unfortunately, all the people at NCR who could explain what is going on have 
-long since departed, so I'm afraid I can only guess.
+	Jeff
 
-However, the general point that we should keep the boot sequence as simple as 
-possible (just in case we run across any other wierd quirks even in modern 
-PCs) still remains.
 
-James
 
 

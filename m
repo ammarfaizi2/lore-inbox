@@ -1,75 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbUKCKst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbUKCKxd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbUKCKst (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 05:48:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbUKCKst
+	id S261537AbUKCKxd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 05:53:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbUKCKxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 05:48:49 -0500
-Received: from smtp-out4.blueyonder.co.uk ([195.188.213.7]:10058 "EHLO
-	smtp-out4.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S261548AbUKCKrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 05:47:11 -0500
-Message-ID: <4188B6E3.8010800@blueyonder.co.uk>
-Date: Wed, 03 Nov 2004 10:45:55 +0000
-From: Ross Kendall Axe <ross.axe@blueyonder.co.uk>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-os@analogic.com
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: question on common error-handling idiom
-References: <4187E920.1070302@nortelnetworks.com> <Pine.LNX.4.53.0411022154210.28980@yvahk01.tjqt.qr> <Pine.LNX.4.61.0411021607400.8977@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0411021607400.8977@chaos.analogic.com>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig66D075D1C8C05A9085B37196"
-X-OriginalArrivalTime: 03 Nov 2004 10:46:33.0389 (UTC) FILETIME=[626CA5D0:01C4C192]
+	Wed, 3 Nov 2004 05:53:33 -0500
+Received: from dialin-212-144-166-159.arcor-ip.net ([212.144.166.159]:56751
+	"EHLO karin.de.interearth.com") by vger.kernel.org with ESMTP
+	id S261537AbUKCKx0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 05:53:26 -0500
+In-Reply-To: <p737jp38qs4.fsf@verdi.suse.de>
+References: <5AC1EEB8-2CD7-11D9-BF00-000A958E35DC@fhm.edu.suse.lists.linux.kernel> <p737jp38qs4.fsf@verdi.suse.de>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-19-912901068"
+Message-Id: <8A4609E0-2D86-11D9-BF00-000A958E35DC@fhm.edu>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Daniel Egger <degger@fhm.edu>
+Subject: Re: 2.6.8 and 2.6.9 Dual Opteron glitches
+Date: Wed, 3 Nov 2004 11:53:05 +0100
+To: Andi Kleen <ak@suse.de>
+X-Pgp-Agent: GPGMail 1.0.2
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig66D075D1C8C05A9085B37196
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+
+--Apple-Mail-19-912901068
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-linux-os wrote:
+On 03.11.2004, at 06:06, Andi Kleen wrote:
 
->>> There's something I've been wondering about for a while.  There is a 
->>> lot of code
->>> in linux that looks something like this:
->>>
->>> err = -ERRORCODE
->>> if (error condition)
->>>     goto out;
->>
-> 
-> 
-> I think it's just to get around the "uninitialized variable"
-> warning when the 'C' compiler doesn't know that it will
-> always be initialized.
-> 
+>>    Replacing those panic(s) by printk make the machine boot just fine
+>>    and also work (seemingly) without any problems under load.
 
-gcc is smart enough to get this case right.
+> Can you print the two values? I've never seen such a problem.
+> If it works then they must be identical, otherwise user space would
+> break very quickly.
 
-Ross
+printk("%p %p %p\n", (unsigned long) &vgettimeofday, &vgettimeofday, 
+VSYSCALL_ADDR(__NR_vgettimeofday));
 
+ffffffffff600000 ffffffffff600000 ffffffffff600000
 
---------------enig66D075D1C8C05A9085B37196
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+I've no idea why it still triggers. Also the next one BTW:
+vtime link addr brokenIA32
+
+The compiler is: gcc version 3.4.0 20040111 (experimental)
+
+Servus,
+       Daniel
+
+--Apple-Mail-19-912901068
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Version: GnuPG v1.2.4 (Darwin)
 
-iD8DBQFBiLbq9bR4xmappRARAhw3AKDCFyukFvZD8l2MNxzbSrg6C7b9VwCgjKmc
-F/4HUAMDAGaMBO5BZnsvsHs=
-=XbKd
+iQEVAwUBQYi4kTBkNMiD99JrAQKpVwf/cnKQFlRGx8GX2qtvNuw2qvyr4MSudTbi
+EjeUjTIKuA+6d4kwiM5N6Odg7Pb7mPezZ5afNRQ7usk9Q60ArXNvHwl/8xCkjqtt
+DRd6t+vnfXLhzzeNL8BlRoIZbnK69lUnEWOhYirMMybx86WgHrK6JBRyLTUzuHtd
+qs58lEmLGNEUJ9oKoas9TWAMrBKWA8eLDISK5YJHZPiXML/rWSIkw30l/684QKSp
+A6l5K8nPiZOR0wFqf3AfF3k3kSY4zJxuiE4b35xlZhgQZzNzdoUSuMpCHJdRyqYj
+TB4qCtEU9Zb+wbgVxhBAdSke9T+IlvHEmnRWggb1dSWWGxE/KLipXw==
+=Bqev
 -----END PGP SIGNATURE-----
 
---------------enig66D075D1C8C05A9085B37196--
+--Apple-Mail-19-912901068--
+

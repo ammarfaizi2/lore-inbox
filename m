@@ -1,39 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268038AbUH1A5i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268013AbUH1A6V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268038AbUH1A5i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 20:57:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268013AbUH1A5i
+	id S268013AbUH1A6V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 20:58:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268040AbUH1A6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 20:57:38 -0400
-Received: from smtp807.mail.ukl.yahoo.com ([217.12.12.197]:22129 "HELO
-	smtp807.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S268038AbUH1A52 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 20:57:28 -0400
-Message-ID: <412FD882.5000605@steve-parker.org>
-Date: Sat, 28 Aug 2004 01:57:38 +0100
-From: Steve Parker <steve@steve-parker.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20040406
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PWC issue
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Aug 2004 20:58:21 -0400
+Received: from jib.isi.edu ([128.9.128.193]:13704 "EHLO jib.isi.edu")
+	by vger.kernel.org with ESMTP id S268013AbUH1A6O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 20:58:14 -0400
+Date: Fri, 27 Aug 2004 17:50:03 -0700
+From: Craig Milo Rogers <rogers@isi.edu>
+To: Rob van Nieuwkerk <robn@berrymount.nl>
+Cc: Wouter Van Hemel <wouter-kernel@fort-knox.rave.org>, prakashkc@gmx.de,
+       vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6.8 pwc patches and counterpatches
+Message-ID: <20040828005003.GJ24018@isi.edu>
+References: <33193.151.37.215.244.1093530681.squirrel@webmail.azzurra.org> <200408270917.47656.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.61.0408271445120.578@senta.theria.org> <200408271604.35400.vda@port.imtp.ilyichevsk.odessa.ua> <412F337C.90206@gmx.de> <Pine.LNX.4.61.0408271536340.578@senta.theria.org> <20040828011818.2d5f282c.robn@berrymount.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040828011818.2d5f282c.robn@berrymount.nl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How does the Philips WebCam (pwc/pwcx) issue affect the speedtch 
-project? AIUI, that project requires additional proprietary microcode to 
-work.
+On 04.08.28, Rob van Nieuwkerk wrote:
+> 	The author of the pwc driver has publicly stated that this
+> 	NDA has expired more than 1 year ago !!!
+> 
+> Despite this he refuses to release the source code for the binary-only
+> driver.  Of course it is his right to do so: it is his code.
+> But I think it is important for everyone to know this fact.
 
-The ramifications are potentially huge...
+	I agree that everyone should know this.  It shows remarkable
+integrity and restraint on Nemosoft's part, and is, I feel, in
+concordance with the values that Linux recently expressed in his
+message regarding the GPL and lawyers.
 
-Steve
-steve@steve-parker.org
-sparkz@users.sourceforge.net
-(current maintainer of speedtouchconf.sf.net; hoping to resign soon as 
-the speedtouch.sf.net project gains more steam, or the speedtch module 
-becomes more popular - either way, reducing the importance of my 
-project, and allowing me to resign ;-)
+	In one of Nemosoft's messages, he said that we wasn't
+releasing proprietary data on the Philips chips, even though his NDA
+has expired, because (and I'm paraphrasing here) he wants to maintain
+a good working relationship with Philips.  I believe that this is an
+important point, and a critical one for long-term success.  We, the
+Linux community, should want Philips to voluntarily release the
+details on their chips.  This is important because we should want
+Philips to release *new* programming details on *new* chips in a
+timely fashion; preferably, in an open-source-conformant fashion.
 
+	As you can see, if Nemosoft were to unilaterally breach
+Philips' confidence in him, then Philips might stop telling him the
+programming details on new chips.  Linux would potentially have
+working open source drivers for older chips, but potentially no
+drivers at all, open or closed source, for new chips by this
+manufacturer.
 
+					Craig Milo Rogers

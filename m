@@ -1,94 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbTJFUYl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 16:24:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbTJFUYl
+	id S261459AbTJFUUk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 16:20:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbTJFUUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 16:24:41 -0400
-Received: from mtagate2.uk.ibm.com ([195.212.29.135]:26297 "EHLO
-	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S261684AbTJFUYi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 16:24:38 -0400
-Date: Tue, 7 Oct 2003 01:56:56 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Maneesh Soni <maneesh@in.ibm.com>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Greg KH <gregkh@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC 0/6] Backing Store for sysfs
-Message-ID: <20031006202656.GB9908@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20031006192713.GE1788@in.ibm.com> <Pine.LNX.4.44.0310061224230.985-100000@localhost.localdomain>
-Mime-Version: 1.0
+	Mon, 6 Oct 2003 16:20:40 -0400
+Received: from gemini.smart.net ([205.197.48.109]:21011 "EHLO gemini.smart.net")
+	by vger.kernel.org with ESMTP id S261459AbTJFUUj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 16:20:39 -0400
+Message-ID: <3F81CE9A.851806B8@smart.net>
+Date: Mon, 06 Oct 2003 16:20:42 -0400
+From: "Daniel B." <dsb@smart.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18+dsb+smp+ide i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: IDE DMA errors, massive disk corruption:  Why?  Fixed Yet?  Why not  
+ re-do failed op?
+References: <785F348679A4D5119A0C009027DE33C105CDB20A@mcoexc04.mlm.maxtor.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310061224230.985-100000@localhost.localdomain>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 06, 2003 at 12:33:19PM -0700, Patrick Mochel wrote:
-> It's not a realistic requirement for me to solve your customer problems. 
-> :) I've been involved in this argument before, and the arguments have been 
-> the same, pretty much along party lines of IBM vs. Everyone else. I'm not 
-> here to point fingers, but you must heed the fact that we've been here 
-> before. 
-
-Well, I didn't mention the c-word, Pat, you did :-) I would much
-rather help figure out the best possible way to implement dentry/inode
-ageing in sysfs.
-
-> > Besides that think about the added complexity of lookups due to
-> > all those pinned dentries forever residing in dentry hash table.
+"Mudama, Eric" wrote:
+... 
+> > Doesn't the kernel keep track of uncompleted operations,
+> > retain the information needed to try again, and try again
+> > if there's a failure?  If not, why not?
 > 
-> Well, along with more memory and more devices, I would expect your 
-> customers to also be paying for the fastest processors. :) 
+> If the disk has write cache enabled, this isn't necessarilly possible, since
+> there's nothing in the IDE specification that guarantees the order of writes
+> to the media without a FLUSH CACHE (EXT) command.
 
-Again, more than customers, it is a question of DTRT.
+Are you sure?  If you issue a write to block 1 and then issue another
+write to block 1, it would have to guarantee the relative order of those 
+writes (or equivalent optimization in the write cache), wouldn't it?
 
-> > sysfs currently uses dentries to represent filesystem hierarchy.
-> > We want to create the dentries on the fly and age them out.
-> > So, we can no longer use dentries to represent filesystem hierarchy.
-> > Now, *something* has to represent the actual filesystem
-> > hierarchy, so that dentries/inodes can be created on a lookup
-> > miss based on that. So, what do you do here ? kobject and
-> > its associates already represent most of the information necessary
-> > for a backing store. 
-> 
-> I understand what you're trying to do, and I say it's the wrong approach. 
-> You're overloading kobjects in a manner unintended, and in a way that is 
-> not welcome. I do not have an alternative solution, but my last email gave 
-> some hints of where to look. Don't get bitter because I disagree. 
 
-The overloading kobject argument is much better. Gregkh has also
-indicated that non-sysfs kobjects will increase. That definitely
-puts things in a different perspective. Fair enough.
+> Hypothetically, if you were doing full-pack random writes continuously with
+> no idle time and no FLUSH CACHE, you can have writes that are days old still
+> in the drive's buffer and still un-attempted.  A write with write-cache
+> enabled reports ending status at the completion of the transfer.  There is
+> no mechanism to tell the host that a cached write failed, other than giving
+> an error on the next command.
 
-> > > You can also use the assumption that an attribute group exists for all the 
-> > > kobjects in a kset, and that a kobject knows what kset it belongs to. And
-> > > that eventually, all attributes should be added as part of an attribute 
-> > > group..
-> > 
-> > As I said before, no matter how much you save on kobjects and attrs,
-> > I can't see how you can account for ageing of dentries and inodes.
-> > Please look at it from the VFS angle and see if there is a better
-> > way to represent kobjects/attrs in order to create dentries/inodes
-> > on demand and age later.
-> 
-> That's what I told you, only reversed - try again. The patch posted in 
-> unacceptable, though I'm willing to look at alternatives. I don't have or 
+But we're not talking about errors IN the disk drive after the communi-
+cation between the kernel and drive is already done.  We're talking
+about errors in the communication BETWEEN the kernel and the drive (lost
+DMA interrupts), aren't we?
 
-Viro's suggestion of pinning the non-leaf dentries only seems like
-a very good first alternative to try out.
+If the kernel issues a write command to the drive, and never gets a 
+response (DMA-complete interrupt?) from the drive that it has accepted 
+the command, why can't the kernel repeat the write command?
 
-> see a problem with the current situation, so your arguments are going to 
-> have to be a bit stronger. 
-
-By not pinning dentries, you save several hundreds of KBs of lowmem
-in a common case low-end system with six disks, much reduced number of dentries
-in the hash table and huge savings in large systems. I would hope that
-is a good argument. Granted you don't like Maneesh's patch as it is now,
-but those things will change as more feedbacks come in.
-
-Thanks
-Dipankar
+Daniel
+-- 
+Daniel Barclay
+dsb@smart.net

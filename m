@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262275AbVCEPq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbVCEPq5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262275AbVCEPq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 10:46:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbVCEPgm
+	id S261626AbVCEPq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 10:46:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbVCEPht
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 10:36:42 -0500
-Received: from coderock.org ([193.77.147.115]:37027 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261900AbVCEPfY (ORCPT
+	Sat, 5 Mar 2005 10:37:49 -0500
+Received: from coderock.org ([193.77.147.115]:42147 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S262008AbVCEPfl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 10:35:24 -0500
-Subject: [patch 02/12] arch/i386/pci/i386.c: Use new for_each_pci_dev macro
+	Sat, 5 Mar 2005 10:35:41 -0500
+Subject: [patch 06/12] i386/traps: replace schedule_timeout() with ssleep()
 To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org, hannal@us.ibm.com,
-       janitor@sternwelten.at
+Cc: linux-kernel@vger.kernel.org, domen@coderock.org, nacc@us.ibm.com
 From: domen@coderock.org
-Date: Sat, 05 Mar 2005 16:35:11 +0100
-Message-Id: <20050305153512.06F531F1F0@trashy.coderock.org>
+Date: Sat, 05 Mar 2005 16:35:25 +0100
+Message-Id: <20050305153525.032C51EE1E@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
+Please consider applying. 
 
-As requested by Christoph Hellwig I've created a new macro called
-for_each_pci_dev. It is a wrapper for this common use of pci_get/find_device:
+Use ssleep() instead of schedule_timeout() to guarantee the task
+delays as expected.
 
-(while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL))
-
-This macro will return the pci_dev *for all pci devices.  Here is the first patch I 
-used to test this macro with. Compiled and booted on my T23. There will be
-53 more patches using this new macro.
-
-Signed-off-by: Hanna Linder <hannal@us.ibm.com>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
 
 
- kj-domen/arch/i386/pci/i386.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ kj-domen/arch/i386/kernel/traps.c |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
 
-diff -puN arch/i386/pci/i386.c~for-each-pci-dev-arch_i386_pci_i386 arch/i386/pci/i386.c
---- kj/arch/i386/pci/i386.c~for-each-pci-dev-arch_i386_pci_i386	2005-03-05 16:09:19.000000000 +0100
-+++ kj-domen/arch/i386/pci/i386.c	2005-03-05 16:09:19.000000000 +0100
-@@ -124,7 +124,7 @@ static void __init pcibios_allocate_reso
- 	u16 command;
- 	struct resource *r, *pr;
+diff -puN arch/i386/kernel/traps.c~ssleep-arch_i386_kernel_traps arch/i386/kernel/traps.c
+--- kj/arch/i386/kernel/traps.c~ssleep-arch_i386_kernel_traps	2005-03-05 16:11:14.000000000 +0100
++++ kj-domen/arch/i386/kernel/traps.c	2005-03-05 16:11:14.000000000 +0100
+@@ -345,8 +345,7 @@ void die(const char * str, struct pt_reg
  
--	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-+	for_each_pci_dev(dev) {
- 		pci_read_config_word(dev, PCI_COMMAND, &command);
- 		for(idx = 0; idx < 6; idx++) {
- 			r = &dev->resource[idx];
-@@ -168,7 +168,7 @@ static int __init pcibios_assign_resourc
- 	int idx;
- 	struct resource *r;
- 
--	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-+	for_each_pci_dev(dev) {
- 		int class = dev->class >> 8;
- 
- 		/* Don't touch classless devices and host bridges */
+ 	if (panic_on_oops) {
+ 		printk(KERN_EMERG "Fatal exception: panic in 5 seconds\n");
+-		set_current_state(TASK_UNINTERRUPTIBLE);
+-		schedule_timeout(5 * HZ);
++		ssleep(5);
+ 		panic("Fatal exception");
+ 	}
+ 	do_exit(SIGSEGV);
 _

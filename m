@@ -1,38 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266562AbSKGOVg>; Thu, 7 Nov 2002 09:21:36 -0500
+	id <S266565AbSKGO0s>; Thu, 7 Nov 2002 09:26:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266563AbSKGOVg>; Thu, 7 Nov 2002 09:21:36 -0500
-Received: from [198.149.18.6] ([198.149.18.6]:17337 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S266562AbSKGOVg>;
-	Thu, 7 Nov 2002 09:21:36 -0500
-Date: Thu, 7 Nov 2002 16:42:24 -0500
-From: Christoph Hellwig <hch@sgi.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Christoph Hellwig <hch@sgi.com>, Robert Love <rml@tech9.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] set_cpus_allowed() for 2.4
-Message-ID: <20021107164224.A14817@sgi.com>
-Mail-Followup-To: Christoph Hellwig <hch@sgi.com>,
-	Adrian Bunk <bunk@fs.tum.de>, Robert Love <rml@tech9.net>,
-	linux-kernel@vger.kernel.org
-References: <1033513407.12959.91.camel@phantasy> <20021104223725.A23168@sgi.com> <20021106153217.GB13905@fs.tum.de>
+	id <S266567AbSKGO0s>; Thu, 7 Nov 2002 09:26:48 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:21710 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S266565AbSKGO0p>;
+	Thu, 7 Nov 2002 09:26:45 -0500
+Date: Thu, 7 Nov 2002 15:33:14 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Adam Kropelin <akropel1@rochester.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.46: ide-cd cdrecord (almost) success report
+Message-ID: <20021107143314.GC32005@suse.de>
+References: <20021106041330.GA9489@www.kroptech.com> <20021106072223.GB4369@suse.de> <20021106074457.GE4369@suse.de> <20021106232529.GC27210@www.kroptech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021106153217.GB13905@fs.tum.de>; from bunk@fs.tum.de on Wed, Nov 06, 2002 at 04:32:17PM +0100
+In-Reply-To: <20021106232529.GC27210@www.kroptech.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 06, 2002 at 04:32:17PM +0100, Adrian Bunk wrote:
-> On Mon, Nov 04, 2002 at 10:37:25PM -0500, Christoph Hellwig wrote:
-> >...
-> > now that all vendors ship a backport of Ingo's O(1) scheduler external projects
-> >...
+On Wed, Nov 06 2002, Adam Kropelin wrote:
+> On Wed, Nov 06, 2002 at 08:44:57AM +0100, Jens Axboe wrote:
+> > On Wed, Nov 06 2002, Jens Axboe wrote:
+> > > > when the cdrecord buffer underran was surprising, though: oops below.
+> > > > Very repeatable. Can supply copious hw details if it helps.
+> > > 
+> > > I'll try and reproduce that here, there's been a similar report (same
+> > > oops) before. If you can just send me the dmesg output after a boot that
+> > > should be fine.
+> > 
+> > Could you reproduce with this patch? I'd like to see the request state
+> > when this happens.
 > 
-> Your "all vendors" doesn't include Debian?
+> Here you go... This was with max tags locked at 4. I've included some of
+> the surrounding lines from cdrecord.
 
-No.  Replace all vendors with all commercial vendors or all recently
-releaseased distribution :)  
+ok
+
+> --Adam
+> 
+> Track 01:   85 of  437 MB written (fifo   0%) [buf  31%]   3.3x./opt/schily/bin/cdrecord: Input/output error. write_g1: scsi sendcmd: no error
+> CDB:  2A 00 00 00 AA BE 00 00 1F 00
+> status: 0x1 (GOOD STATUS)
+> resid: 63488
+> cmd finished after 0.011s timeout 40s
+> 
+> write track data: error after 89518080 bytes
+> cdrom_newpc_intr: dev hdc: flags = REQ_RW REQ_NOMERGE REQ_STARTED REQ_BLOCK_PC REQ_FAILED REQ_QUIET
+> sector 0, nr/cnr 124/8
+> bio 00000000, biotail c1cd0860, buffer c968d000, data 00000000, len 63488
+> cdb: 2a 00 00 00 aa be 00 00 1f 00 00 00 00 00 00 00
+> hdc: padding 63488 bytes
+> Sense Bytes: 70 00 00 00 00 00 00 12 00 00 00 00 00 00 00 00 00 00
+
+>From the ide-cd POV, the best we can do here is just try to continue
+safely in case of error. So a slight modification to last patch should
+be fine, I think.
+
+At least that is the atapi part of.
+
+===== drivers/ide/ide-cd.c 1.32 vs edited =====
+--- 1.32/drivers/ide/ide-cd.c	Sun Nov  3 19:57:35 2002
++++ edited/drivers/ide/ide-cd.c	Thu Nov  7 15:25:05 2002
+@@ -1722,6 +1722,11 @@
+ 			blen = bio_iovec(rq->bio)->bv_len;
+ 		}
+ 
++		if (!ptr) {
++			printk("%s: confused, missing data\n", drive->name);
++			break;
++		}
++
+ 		if (blen > thislen)
+ 			blen = thislen;
+ 
+@@ -1741,8 +1746,6 @@
+ 	 * pad, if necessary
+ 	 */
+ 	if (len) {
+-		printk("%s: padding %u bytes\n", drive->name, len);
+-
+ 		while (len) {
+ 			int pad = 0;
+ 
+
+-- 
+Jens Axboe
 

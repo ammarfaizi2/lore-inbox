@@ -1,104 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318035AbSIONOs>; Sun, 15 Sep 2002 09:14:48 -0400
+	id <S318044AbSIONsP>; Sun, 15 Sep 2002 09:48:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318038AbSIONOs>; Sun, 15 Sep 2002 09:14:48 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:28585 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S318035AbSIONOr>;
-	Sun, 15 Sep 2002 09:14:47 -0400
-Date: Sun, 15 Sep 2002 15:19:20 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Samium Gromoff <_deepfire@mail.ru>, linux-kernel@vger.kernel.org
-Subject: Re: [2.5] DAC960
-Message-ID: <20020915131920.GR935@suse.de>
-References: <E17odbY-000BHv-00@f1.mail.ru> <20020910062030.GL8719@suse.de> <E17qQum-0001qO-00@starship>
+	id <S318047AbSIONsP>; Sun, 15 Sep 2002 09:48:15 -0400
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:37364 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S318044AbSIONsO>;
+	Sun, 15 Sep 2002 09:48:14 -0400
+Date: Sun, 15 Sep 2002 09:53:05 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Jens Axboe <axboe@suse.de>, Charles.White@compaq.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix cpqarray on 2.5
+Message-ID: <20020915135305.GA22713@www.kroptech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E17qQum-0001qO-00@starship>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 15 2002, Daniel Phillips wrote:
-> On Tuesday 10 September 2002 08:20, Jens Axboe wrote:
-> > On Tue, Sep 10 2002, Samium Gromoff wrote:
-> > >       Hello folks, i`m looking at the DAC960 driver and i have
-> > > realised its implemented at the block layer, bypassing SCSI.
-> > > 
-> > >    So given i have some motivation to have a working 2.5 DAC960
-> > > driver (i have one, being my only controller)
-> > > i`m kinda pondering the matter.
-> > > 
-> > >    Questions:
-> > >        1. Whether we need the thing to be ported to SCSI
-> > > layer, as opposed to leaving it being a generic block device? (i suppose yes)
-> > 
-> > No
-> 
-> A somewhat curt reply, it could be seen as a brush-off.  I believe the
-> whole story goes something like this: the scsi system is a festering
-> sore on the whole and eventually needs to be rationalized.  But until
-> that happens, we should basically just keep nursing along the various
-> drivers that should be using a generic interface, until there really
-> is a generic interface around worth putting in the effort to port to.
+Jens & Charles,
 
-Please, the scsi sub system is not a 'festering sore'. Have you even
-taken a decent look at it, or just spreading the usual "I heard SCSI
-dizzed somwhere" fud? Sure there's room for improvement, 2.5 has in fact
-already gotten quite a lot. It's not perfect and there's still stuff
-that can be cleaned up, but that doesn't mean it's crap.
+The attached patch fixes some critical bugs in cpqarray in 2.5. One of the fixes
+essentially backs out the block queue stop/start behavior that was added
+recently. This code as it stands is buggy and locks up under even light SMP
+workloads. Certainly we want the performance benefits of proper block queue
+plugging, but the driver needs some work before it will fit nicely.
 
-> Linus indicated at the Kernel Summit that he'd like to see a
-> cleaned-up scsi midlayer used as framework for *all* disk IO,
-> including IDE.  Obviously, what with IDE transitions and whatnot, we
-> are far from being ready to attempt that, so see "nursing along"
-> above.  There's no longer any chance that a generic disk midlayer is
-> going to happen in this cycle, as far as I can see.  Still, anybody
-> who is interested would do well by studing the issues, and fixing
-> broken drivers certainly qualifies as a way to come up to speed.
+Some of these fixes do theoretically hurt performance, but when you consider
+that the driver is unusable under SMP as-is, I think it is right to get
+correctness first.
 
-First of all, I believe Linus' plan is to push more functionality into
-the block layer. Generic functionality. And in fact a lot of has already
-happened there, but one does need to pay attention to that sort of thing
-instead of just assuming spouting fud. Examples:
+Specifically, this patch does the following:
 
-	- queue merge and dma mappings. this is all generic block/bio
-	  functionality now. please compare scsi_merge.c between 2.4 and
-	  2.5, if you care to.
+* Adds locking to proc queue-walking code for debugging use. Note that the proc
+registration is still broken and I've left it that way since this stuff should
+probably migrate to driverfs anyway.
 
-	- highmem bounceless operation also added the possibilty to do
-	  isa bouncing generically in 2.5. this is also gone from scsi.
+* Moves interrupt enabling so queue lock is initialized before interrupts are
+enabled. Otherwise if we get a quick interrupt we oops the machine.
 
-	- request tagging. 2.5 has a generic implementation, scsi
-	  transition is not complete though.
+* Removes unconditional IRQ enabling in do_ida_request(). The block layer takes
+the spinlock with irq_save so if we're going to play this trick then we need to
+irq_restore. For now, just eliminate the unlocked region.
 
-that's just off the top of my head.
+* Remove block queue stop/start logic since it can leave the queue stopped with
+no outstanding completions to start it again. Plugging logic can come back but
+it should go hand-in-hand with a cleanup of the driver's request handling
+algorithm. If nobody screams about this patch I'll go ahead and start making
+those improvments.
 
-So where am I going with this? I said "don't bother" to the question of
-studying SCSI code, and I stand by that 100%. It would be an absolute
-_waste of time_ if the goal is to make dac960 work in 2.5. I believe why
-should be pretty obvious now.
+Patch is against 2.5.34 but should apply to any vaguely recent 2.5.
 
-Daniel, your (seen before) 'clarification' posts are not.
+--Adam
 
-> > >        2. Which 2.5 SCSI driver should i use as a start of learning?
-> > 
-> > Don't bother
-> 
-> Ah, a little harsh.  I'd say: study the DAC960 driver, study the
-> scsi midlayer, and study the new bio interface.  That's what I'm
-> doing.
-
-My advise is: take a look at the transition of other drivers, forget
-scsi. Study of bio goes hand in hand with learning from transition of
-other drivers. And note that a reasonable update of dac960 should remove
-3x as much code as it adds, at least.
-
-I can only note that so far there has been a lot of talk about dac960
-and updating it, and that's about it. Talk/code ratio is very very low,
-I'm tempted to just do the update myself. Might even safe some time.
-
--- 
-Jens Axboe
+--- /mnt/linux-2.5.34/drivers/block/cpqarray.c	Mon Sep  9 14:28:31 2002
++++ linux-2.5.34-mm1/drivers/block/cpqarray.c	Sat Sep 14 14:03:35 2002
+@@ -202,6 +202,7 @@
+ 	drv_info_t *drv;
+ #ifdef CPQ_PROC_PRINT_QUEUES
+ 	cmdlist_t *c;
++	unsigned long flags;
+ #endif
+ 
+ 	ctlr = h->ctlr;
+@@ -238,6 +239,7 @@
+ 	}
+ 
+ #ifdef CPQ_PROC_PRINT_QUEUES
++	spin_lock_irqsave(IDA_LOCK(h->ctlr), flags); 
+ 	size = sprintf(buffer+len, "\nCurrent Queues:\n");
+ 	pos += size; len += size;
+ 
+@@ -260,6 +262,7 @@
+ 	}
+ 
+ 	size = sprintf(buffer+len, "\n"); pos += size; len += size;
++	spin_unlock_irqrestore(IDA_LOCK(h->ctlr), flags); 
+ #endif
+ 	size = sprintf(buffer+len, "nr_allocs = %d\nnr_frees = %d\n",
+ 			h->nr_allocs, h->nr_frees);
+@@ -414,8 +417,6 @@
+ 		getgeometry(i);
+ 		start_fwbk(i); 
+ 
+-		hba[i]->access.set_intr_mask(hba[i], FIFO_NOT_EMPTY);
+-
+ 		ida_procinit(i);
+ 
+ 		q = BLK_DEFAULT_QUEUE(MAJOR_NR + i);
+@@ -436,6 +437,9 @@
+ 		hba[i]->timer.function = ida_timer;
+ 		add_timer(&hba[i]->timer);
+ 
++		/* Enable IRQ now that spinlock and rate limit timer are set up */
++		hba[i]->access.set_intr_mask(hba[i], FIFO_NOT_EMPTY);
++
+ 		for(j=0; j<NWD; j++) {
+ 			struct gendisk *disk = ida_gendisk + i*NWD + j;
+ 			drv_info_t *drv = &hba[i]->drv[j];
+@@ -832,8 +836,6 @@
+ 
+ 	blkdev_dequeue_request(creq);
+ 
+-	spin_unlock_irq(q->queue_lock);
+-
+ 	c->ctlr = h->ctlr;
+ 	c->hdr.unit = minor(creq->rq_dev) >> NWD_SHIFT;
+ 	c->hdr.size = sizeof(rblk_t) >> 2;
+@@ -865,8 +867,6 @@
+ 	c->req.hdr.cmd = (rq_data_dir(creq) == READ) ? IDA_READ : IDA_WRITE;
+ 	c->type = CMD_RWREQ;
+ 
+-	spin_lock_irq(q->queue_lock);
+-
+ 	/* Put the request on the tail of the request queue */
+ 	addQ(&h->reqQ, c);
+ 	h->Qdepth++;
+@@ -876,7 +876,6 @@
+ 	goto queue_next;
+ 
+ startio:
+-	__blk_stop_queue(q);
+ 	start_io(h);
+ }
+ 
+@@ -1027,8 +1026,8 @@
+ 	/*
+ 	 * See if we can queue up some more IO
+ 	 */
+-	spin_unlock_irqrestore(IDA_LOCK(h->ctlr), flags);
+-	blk_start_queue(BLK_DEFAULT_QUEUE(MAJOR_NR + h->ctlr));
++	do_ida_request(BLK_DEFAULT_QUEUE(MAJOR_NR+h->ctlr));
++	spin_unlock_irqrestore(IDA_LOCK(h->ctlr), flags); 
+ }
+ 
+ /*
 

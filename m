@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263889AbTCUTqv>; Fri, 21 Mar 2003 14:46:51 -0500
+	id <S263868AbTCUTfJ>; Fri, 21 Mar 2003 14:35:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263892AbTCUTpa>; Fri, 21 Mar 2003 14:45:30 -0500
-Received: from magic-mail.adaptec.com ([208.236.45.100]:19400 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP
-	id <S263890AbTCUToW>; Fri, 21 Mar 2003 14:44:22 -0500
-Date: Fri, 21 Mar 2003 12:54:42 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Zwane Mwaikambo <zwane@holomorphy.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: aic7(censored) dying horribly in 2.5.65-mm2
-Message-ID: <411800000.1048276482@aslan.btc.adaptec.com>
-In-Reply-To: <Pine.LNX.4.50.0303210202080.2133-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0303210202080.2133-100000@montezuma.mastecende.com>
-X-Mailer: Mulberry/3.0.2 (Linux/x86)
+	id <S263863AbTCUTd7>; Fri, 21 Mar 2003 14:33:59 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13834 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263862AbTCUTdB>; Fri, 21 Mar 2003 14:33:01 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Deprecating .gz format on kernel.org
+Date: 21 Mar 2003 11:43:58 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b5fq1u$re4$1@cesium.transmeta.com>
+References: <200303211128.h2LBSSEY002790@green.mif.pg.gda.pl> <1048261179.5718.34.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi Justin i got this booting 2.5.65-mm2, 2.5.65 was fine there is an oops 
-> right at the end. Is there anything specific you want?
+Followup to:  <1048261179.5718.34.camel@irongate.swansea.linux.org.uk>
+By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
+In newsgroup: linux.dev.kernel
+> 
+> An original IBM 4.77MHz PC reports 0.7 bogomips running Linux 8086, but
+> can still run a webserver!
+> 
 
-It would be nice to know the devices that are attached to the controller.
-Could you also use the latest driver from here:
+I miss my 0.59 bogomips 386/16 (no cache, memory on the ISA bus.)
+That was a truly braindamaged piece of engineering, and held the
+bogomips antirecord for a long time until ELKS came along and ruined
+it all :(
 
-http://people.FreeBSD.org/~gibbs/linux/SRC/
-
-Be sure to enable "Decode registers during diagnostics" when configuring
-the driver and send me the output you get.
-
-Thanks,
-Justin
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263989AbRFYLbh>; Mon, 25 Jun 2001 07:31:37 -0400
+	id <S264090AbRFYLfh>; Mon, 25 Jun 2001 07:35:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264035AbRFYLb2>; Mon, 25 Jun 2001 07:31:28 -0400
-Received: from f158.law12.hotmail.com ([64.4.19.158]:13577 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S263989AbRFYLbS>;
-	Mon, 25 Jun 2001 07:31:18 -0400
-X-Originating-IP: [62.157.2.208]
-From: "Yasmin Brown" <colgate000@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux Kernel  Urgently Needed-Open Source Projects and Good Salary
-Date: Mon, 25 Jun 2001 11:31:12 -0000
+	id <S264288AbRFYLfR>; Mon, 25 Jun 2001 07:35:17 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:27408 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S264090AbRFYLfP>; Mon, 25 Jun 2001 07:35:15 -0400
+Date: Mon, 25 Jun 2001 13:33:49 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>, Jens Axboe <axboe@suse.de>,
+        Mike Galbraith <mikeg@wen-online.de>,
+        Rik van Riel <riel@conectiva.com.br>, Pavel Machek <pavel@suse.cz>,
+        John Stoffel <stoffel@casc.com>,
+        Roger Larsson <roger.larsson@norran.net>, thunder7@xs4all.nl,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Early flush (was: spindown)
+Message-ID: <20010625133349.B21253@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.4.33.0106171156410.318-100000@mikeg.weiden.de> <200106201612.f5KGCca06372@vindaloo.ras.ucalgary.ca> <20010623012550.B415@pelks01.extern.uni-tuebingen.de> <01062307104500.00430@starship>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F158u1OOLMgnnz2X4D900003af0@hotmail.com>
-X-OriginalArrivalTime: 25 Jun 2001 11:31:12.0509 (UTC) FILETIME=[5672AAD0:01C0FD6A]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <01062307104500.00430@starship>; from phillips@bonn-fries.net on Sat, Jun 23, 2001 at 07:10:45AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sirs,
+Hi!
 
-First of all, please excuse my message on this public board-I do not want to 
-spam anyone. However, I am urgently searching for someone who wants to work 
-on Open Source Projects in Karlsruhe Germany and felt this was the best way 
-to get in touch with people. The company is one of today's most successful 
-internet firms. The salary and benefits will be a proper reflection of the 
-candidate's Know-How and  access to top  technology will  be unsurpassed.
-If you are not interested yourself, please forward this anyone you think 
-might be interested in the role. Here is a (German language version) of the 
-job description: please share it will anyone you may know in Germany with 
-these qualifications. Thank you for your help.
->
->Aufgaben:
->- permanente Anpassung wichtiger Systemkomponenten  an unsere
->Anforderungen
->(in diesem Zusammenhang: Programmieren von Kernel-Modulen und
->Weiterentwicklung unseres Apache-Webservers)
->
->- Konzeption und Implementierung von Daemons für unsere
->Server-Architektur
->
->- Mitarbeit bei Open Source Projekten (z. B. GFS, Apache oder Linux
->Kernel).
+> > > > I'd like that too, but what about sync writes?  As things stand now,
+> > > > there is no option but to spin the disk back up.  To get around this
+> > > > we'd have to change the basic behavior of the block device and
+> > > > that's doable, but it's an entirely different proposition than the
+> > > > little patch above.
+> > >
+> > > I don't care as much about sync writes. They don't seem to happen very
+> > > often on my boxes.
+> >
+> > syslog and some editors are the most common users of sync writes. vim,
+> > e.g., per default keeps fsync()ing its swapfile. Tweaking the configuration
+> > of these apps, this can be prevented fairly easy though. Changing sync
+> > semantics for this matter on the other hand seems pretty awkward to me. I'd
+> > expect an application calling fsync() to have good reason for having its
+> > data flushed to disk _now_, no matter what state the disk happens to be in.
+> > If it hasn't, fix the app, not the kernel.
+> 
+> But apps shouldn't have to know about the special requirements of
+> laptops.  
 
-
-Jill Simmons, Senior Consultant
-Horizon Systeme AG
-Tel. 0611-166-7224
-Mobile: 0175-899-1941
-
-
-_________________________________________________________________________
-Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
-
+If app does fsync(), it hopefully knows what it is doing. [Random apps
+should not really do sync even on normal systems -- it hurts
+performance.]
+								Pavel
+-- 
+The best software in life is free (not shareware)!		Pavel
+GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+

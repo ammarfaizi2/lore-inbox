@@ -1,36 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbUKGWwB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbUKGXOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261709AbUKGWwB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 17:52:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUKGWwA
+	id S261705AbUKGXOc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 18:14:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbUKGXOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 17:52:00 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:30440 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261709AbUKGWvy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 17:51:54 -0500
-Date: Sun, 7 Nov 2004 23:48:03 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: seby@focomunicatii.ro
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: ZyXEL GN650-T
-Message-ID: <20041107224803.GA29248@electric-eye.fr.zoreil.com>
-References: <20041107214427.20301.qmail@focomunicatii.ro>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041107214427.20301.qmail@focomunicatii.ro>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+	Sun, 7 Nov 2004 18:14:32 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:33961 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261705AbUKGXO0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 18:14:26 -0500
+From: "Peter T. Breuer" <ptb@inv.it.uc3m.es>
+Message-Id: <200411072314.iA7NEM119415@inv.it.uc3m.es>
+Subject: kernel analyser to detect sleep under spinlock
+To: "linux kernel" <linux-kernel@vger.kernel.org>
+Date: Mon, 8 Nov 2004 00:14:20 +0100 (MET)
+X-Anonymously-To: 
+Reply-To: ptb@inv.it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-13
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-seby@focomunicatii.ro <seby@focomunicatii.ro> :
-[...]
-> I just bouth a zyxel GN650T network card .. and it sems that vlan's don't 
-> work on this card .. anybody had this problems with this card .. 
 
-You are using the in-kernel via-velocity driver on 2.6.something, right ?
+ ftp://øboe.it.uc3m.es/pub/Programs/c-1.2.tgz
 
---
-Ueimor
+To use the application, compile and then use "c" in place of
+"gcc" on a typical kernel compile line.
+
+This is currently tested only on kernel 2.4 and probably will need some
+slight mods to the parser for kernel 2.6 code, as it has to
+inverse engineer some of the assembler produced by macros in kernel
+headers.
+
+Here's some typical output ...
+ 
+ % ./c -D__KERNEL__ -DMODULE \
+   -I/usr/local/src/linux-2.4.25-xfs/include ../dbr/1/sbull.c 
+ *************** sleepy functions *******************************
+ *       function                line    calls
+ *
+ * - /usr/local/src/linux-2.4.25-xfs/include/linux/smb_fs_sb.h
+ *       smb_lock_server         63      down
+ *
+ * - /usr/local/src/linux-2.4.25-xfs/include/linux/fs.h
+ *       lock_parent             1624    down
+ *       double_down             1647    down
+ *       triple_down             1668    down
+ *       double_lock             1718    double_down
+ *
+ * - /usr/local/src/linux-2.4.25-xfs/include/linux/locks.h
+ *       lock_super              38      down
+ *
+ * - ../dbr/1/sbull.c
+ *       sbull_ioctl             171     interruptible_sleep_on
+ *
+ * - /usr/local/src/linux-2.4.25-xfs/include/linux/blk.h
+ *       sbull_request           358     interruptible_sleep_on
+ *
+ * - ../dbr/1/sbull.c
+ *       sbull_init              431     kmalloc
+ *       sbull_init              431     kfree
+ *       sbull_cleanup           542     kfree
+ *
+ ****************************************************************
+ *************** sleep_under_spinlock ****************************
+ *       function                line    calls
+ *
+ * - ../dbr/1/sbull.c
+ *       sbull_request           420     interruptible_sleep_on
+ *
+ *
+ * *** found 1 instances of sleep under spinlock ***
+ *
+ ***********************************************
+
+It's GPL/LGPL.
+
+Peter (ptb@inv.it.uc3m.es)

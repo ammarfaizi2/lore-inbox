@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261450AbSKZWx7>; Tue, 26 Nov 2002 17:53:59 -0500
+	id <S261527AbSKZXFD>; Tue, 26 Nov 2002 18:05:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261495AbSKZWx6>; Tue, 26 Nov 2002 17:53:58 -0500
-Received: from dp.samba.org ([66.70.73.150]:11474 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261450AbSKZWx6>;
-	Tue, 26 Nov 2002 17:53:58 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org, vandrove@vc.cvut.cz, zippel@linux-m68k.org
-Subject: Re: Modules with list 
-In-reply-to: Your message of "Mon, 25 Nov 2002 22:49:35 -0800."
-             <200211260649.WAA22216@adam.yggdrasil.com> 
-Date: Wed, 27 Nov 2002 09:40:29 +1100
-Message-Id: <20021126230116.123E82C480@lists.samba.org>
+	id <S262266AbSKZXFD>; Tue, 26 Nov 2002 18:05:03 -0500
+Received: from main.gmane.org ([80.91.224.249]:38882 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S261527AbSKZXFC>;
+	Tue, 26 Nov 2002 18:05:02 -0500
+To: linux-kernel@vger.kernel.org
+X-Injected-Via-Gmane: http://gmane.org/
+Path: not-for-mail
+From: mst <gmane@misha.eml.cc>
+Subject: lspci/pciutils  maintainer?
+Date: Wed, 27 Nov 2002 00:58:37 +0200
+Message-ID: <as0ud4$2he$1@main.gmane.org>
+NNTP-Posting-Host: ras14-p49.hfa.netvision.net.il
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: main.gmane.org 1038351589 2606 62.0.112.49 (26 Nov 2002 22:59:49 GMT)
+X-Complaints-To: usenet@main.gmane.org
+NNTP-Posting-Date: Tue, 26 Nov 2002 22:59:49 +0000 (UTC)
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en,pdf
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200211260649.WAA22216@adam.yggdrasil.com> you write:
-> >TCP for example, sets the destructor function for the skb.  It can be
-> >called an arbitrary time later.  Netfilter modules do a similar thing,
-> >for similar reasons.  You'd better grab a reference to *something*.
-> 
-> 	The ->remove() function of a network device driver will
-> not return until it has freed all receive skb's that it allocated
-> and all transmit skb's that were passed to its transmit function.
+Hello!
+Does anyone know who maintains pciutils now?
+I tried contacting Martin Mares <mj@suse.cz> but got no reply :(.
 
-I'm not talking about a device driver, but modularizing the IPv4
-stack.
+So I have no idea where to send it now.
+Sorry if this is the wrong forum, pls mail me back off-list.
 
-> >This would only happen if someone says "rmmod --wait".
+I have a trivial patch which intialises otherwise ununitialised
+header type (It is later used to display capabilities and status for PCI-X
+devices). As it is any PCIX devie is reported with non-bridge capabilities.
 
-As I realized last night after I wrote this, there is a bug in
-module.c.  If O_NONBLOCK is specified, we shouldn't drop the module
-sempaphore at all, for exactly this reason.  A bug I introduced while
-"cleaning up" the "--wait" path.
 
-Sorry for the confusion.
 
-> 	I think of people would consider it to be progress to have
-> non-removable modular IP, which what I run, but I digress again.
+--- lspci.c Sat Mar 30 18:39:24 2002
++++ linux/lspci.c  Thu Oct 31 14:16:08 2002
+@@ -108,7 +108,8 @@ scan_device(struct pci_dev *p)
+    d->dev = p;
+    if (!pci_read_block(p, 0, d->config, how_much))
+      die("Unable to read %d bytes of configuration space.", how_much);
+-  if (how_much < 128 && (d->config[PCI_HEADER_TYPE] & 0x7f) == 
+PCI_HEADER_TYPE_CARDBUS)
++  p->hdrtype=d->config[PCI_HEADER_TYPE] & 0x7f;
++  if (how_much < 128 && p->hdrtype == PCI_HEADER_TYPE_CARDBUS)
+      {
+        /* For cardbus bridges, we need to fetch 64 bytes more to get the full 
+standard header... */
+        if (!pci_read_block(p, 64, d->config+64, 64))
 
-Non-removable is easy.  It's now possible to do removable IPv4 and
-IPv6, which was kind of the point of the exercise.
 
-Hope that helps,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+

@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264235AbTEaIub (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 04:50:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264236AbTEaIub
+	id S264236AbTEaIvI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 04:51:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264242AbTEaIvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 04:50:31 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:27318 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264235AbTEaIu3 (ORCPT
+	Sat, 31 May 2003 04:51:06 -0400
+Received: from tag.witbe.net ([81.88.96.48]:3078 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S264236AbTEaIvB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 04:50:29 -0400
-Date: Sat, 31 May 2003 02:01:02 -0700 (PDT)
-Message-Id: <20030531.020102.26975316.davem@redhat.com>
-To: davids@webmaster.com
-Cc: willy@w.ods.org, linux-kernel@vger.kernel.org
-Subject: Re: Algoritmic Complexity Attacks and 2.4.20 the dcache code
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAECGDFAA.davids@webmaster.com>
-References: <20030531.011210.34750891.davem@redhat.com>
-	<MDEHLPKNGKAHNMBLJOLKAECGDFAA.davids@webmaster.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Sat, 31 May 2003 04:51:01 -0400
+From: "Paul Rolland" <rol@witbe.net>
+To: <linux-kernel@vger.kernel.org>
+Cc: <rol@as2917.net>
+Subject: warning: process 'update' used the obsolete bdflush...
+Date: Sat, 31 May 2003 11:04:20 +0200
+Organization: Witbe.net
+Message-ID: <006a01c32753$9fdac7b0$2101a8c0@witbe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "David Schwartz" <davids@webmaster.com>
-   Date: Sat, 31 May 2003 01:58:09 -0700
+Hello,
 
-   
-   	It's a macro, and the way it inlines, it should be obvious in
-   most cases that 'a', 'b', and 'c' can't be in the same place in memory.
-   
-Not true at all in Willy's test case, which was:
+When switching from 2.4.20 to 2.5.x (x being recent), I have this
+message...
 
-void test(u32 *a, u32 *b, u32 *c)
-{
-	__jhash_mix(*a, *b, *c);
-}
+What does this mean ?
+1 - I have no process named update running,
+2 - I can't find anything name update in /etc/rc.d/* recursively.
 
-And here you certainly have absolutely NO idea where a, b, and
-c might point to.
+Regards,
+Paul
 
-   	One is to check if the input pointer happens to be aligned on
-   a double-word boundary,
-
-The most generic jhash() frankly isn't very interesting for
-kernel applications,  %99 of uses there can use the u32 optimized
-version.
-
-Even for dcache strings we can't use it because for each character
-we have to test it against some terminating value or translate
-it somehow.
-
-I wouldn't waste any time at all on this thing.

@@ -1,87 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267421AbTA3GRP>; Thu, 30 Jan 2003 01:17:15 -0500
+	id <S267432AbTA3GWu>; Thu, 30 Jan 2003 01:22:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267432AbTA3GRP>; Thu, 30 Jan 2003 01:17:15 -0500
-Received: from h234n2fls24o900.telia.com ([217.208.132.234]:15848 "EHLO
-	oden.fish.net") by vger.kernel.org with ESMTP id <S267421AbTA3GRN>;
-	Thu, 30 Jan 2003 01:17:13 -0500
-Date: Thu, 30 Jan 2003 07:26:42 +0100
-From: Voluspa <046-136912@telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Oops in modutils
-Message-Id: <20030130072642.58628e72.046-136912@telia.com>
-Organization: The Foggy One
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S267433AbTA3GWu>; Thu, 30 Jan 2003 01:22:50 -0500
+Received: from h80ad25d7.async.vt.edu ([128.173.37.215]:27266 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S267432AbTA3GWt>; Thu, 30 Jan 2003 01:22:49 -0500
+Message-Id: <200301300631.h0U6Vxfl003947@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: Takeshi Kodama <kodama@flab.fujitsu.co.jp>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why doesn't kernel store ICMP redirect in the routing tables? 
+In-Reply-To: Your message of "Thu, 30 Jan 2003 14:36:30 +0900."
+             <008401c2c821$8af20cf0$c1a5190a@png.flab.fujitsu.co.jp> 
+From: Valdis.Kletnieks@vt.edu
+References: <008401c2c821$8af20cf0$c1a5190a@png.flab.fujitsu.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_-1210627288P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Thu, 30 Jan 2003 01:31:58 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_-1210627288P
+Content-Type: text/plain; charset=us-ascii
 
-David van Hoose wrote (at 2003-01-17 14:14:52):
+On Thu, 30 Jan 2003 14:36:30 +0900, Takeshi Kodama <kodama@flab.fujitsu.co.jp>  said:
 
-> This occured at the insmod/modprobe point at the end of 'make install'
+> Is it no matter that it generates ICMP redirect every time flush the route ca
+che?  
+> 
+> Please tell me why kernel has such a specification that doesn't store ICMP re
+direct
+> in the routing tables.
 
-I got practically the same OOPS at the point of loading my NIC. Is the only thing, apart from sound, which I've compiled as a module:
+This is intentional behavior.  Otherwise, if it were entered into the routing
+table, it would remain there essentially permanently (unless forced out by
+a 'route -f' command or perhaps another ICMP redirect).  In general, if
+your default router is telling you to go someplace else, one of two situations
+applies:
 
-KVERSION=$(/bin/uname -r | /bin/sed -n -e 's/[^\.]\{1,\}$//p')
-if [ "$KVERSION" = "2.4." ]; then
-/sbin/modprobe de4x5
-else
-/usr/local/sbin/modprobe de4x5
-fi
+1) This is a temporary condition caused by a router flap, in which case we
+should only cache it, so later we will re-learn a better path.
 
-Kernel 2.5.59 (not tainted)
-module-init-tools-0.9.9-pre
+2) The router is trying to tell you that you should be fixing your routing
+table, either by adding static routes or running a full routing protocol.
+-- 
+				Valdis Kletnieks
+				Computer Systems Senior Engineer
+				Virginia Tech
 
-Here's the /var/log/kernel message:
 
-Jan 29 23:59:22 loke kernel: VFS: Mounted root (ext2 filesystem) readonly.
-Jan 29 23:59:22 loke kernel: Freeing unused kernel memory: 252k freed
-Jan 29 23:59:22 loke kernel: Adding 489940k swap on /dev/hda7.  Priority:-1 exte
-nts:1
-Jan 29 23:59:22 loke kernel: Unable to handle kernel paging request at virtual a
-ddress 16a0c029
-Jan 29 23:59:22 loke kernel:  printing eip:
-Jan 29 23:59:22 loke kernel: c01236d1
-Jan 29 23:59:22 loke kernel: *pde = 00000000
-Jan 29 23:59:23 loke kernel: Oops: 0000
-Jan 29 23:59:23 loke kernel: CPU:    0
-Jan 29 23:59:23 loke kernel: EIP:    0060:[__find_symbol+61/120]    Not tainted
-Jan 29 23:59:23 loke kernel: EFLAGS: 00010093
-Jan 29 23:59:23 loke kernel: EIP is at __find_symbol+0x3d/0x78
-Jan 29 23:59:23 loke kernel: eax: c028e48e   ebx: c8840ef1   ecx: 00000000   edx
-: c0317adc
-Jan 29 23:59:23 loke kernel: esi: 16a0c029   edi: c8840ef1   ebp: 00000616   esp
-: c7d57ec8
-Jan 29 23:59:23 loke kernel: ds: 007b   es: 007b   ss: 0068
-Jan 29 23:59:23 loke kernel: Process modprobe (pid: 55, threadinfo=c7d56000 task
-=c11da660)
-Jan 29 23:59:23 loke kernel: Stack: c7d56000 c8840e14 c8840f40 c883de5c c01240ab
- c8840ef1 c7d57ef4 00000001 
-Jan 29 23:59:23 loke kernel:        c8840dc4 c8840e14 00000021 c7d57f28 c01242dd
- c883de5c 00000010 c8840e14 
-Jan 29 23:59:23 loke kernel:        c8840ef1 c8840f40 c883de5c 00000004 00000011
- c8840f40 00000000 00000026 
-Jan 29 23:59:23 loke kernel: Call Trace:
-Jan 29 23:59:23 loke kernel:  [resolve_symbol+43/104] resolve_symbol+0x2b/0x68
-Jan 29 23:59:23 loke kernel:  [simplify_symbols+129/228] simplify_symbols+0x81/0
-xe4
-Jan 29 23:59:23 loke kernel:  [load_module+1468/2020] load_module+0x5bc/0x7e4
-Jan 29 23:59:23 loke kernel:  [sys_init_module+95/420] sys_init_module+0x5f/0x1a
-4
-Jan 29 23:59:23 loke kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Jan 29 23:59:23 loke kernel: 
-Jan 29 23:59:23 loke kernel: Code: ac ae 75 08 84 c0 75 f8 31 c0 eb 04 19 c0 0c 
-01 85 c0 75 0e 
-Jan 29 23:59:23 loke kernel:  <6>note: modprobe[55] exited with preempt_count 1
-Jan 29 23:59:25 loke kernel: end_request: I/O error, dev hdd, sector 0
-Jan 29 23:59:25 loke kernel: end_request: I/O error, dev hdd, sector 0
-Jan 29 23:59:25 loke kernel: hdd: DMA disabled
+--==_Exmh_-1210627288P
+Content-Type: application/pgp-signature
 
-Note, /dev/hdd is my cdrom, hence the DMA messages...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Regards,
-Mats Johannesson
+iD8DBQE+OMbecC3lWbTT17ARApVmAJ9pBUa0HKjofPtUYbJ6YrYmzs1p2QCg5vzm
++M6BfqdWNczEbe9lvu0AXxA=
+=Cz8o
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1210627288P--

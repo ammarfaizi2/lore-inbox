@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263362AbSLBBxW>; Sun, 1 Dec 2002 20:53:22 -0500
+	id <S263280AbSLBBuZ>; Sun, 1 Dec 2002 20:50:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263491AbSLBBxW>; Sun, 1 Dec 2002 20:53:22 -0500
-Received: from blackbird.intercode.com.au ([203.32.101.10]:10258 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S263362AbSLBBxV>; Sun, 1 Dec 2002 20:53:21 -0500
-Date: Mon, 2 Dec 2002 13:00:27 +1100 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Greg KH <greg@kroah.com>
-cc: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
-       <linux-security-module@wirex.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] LSM fix for stupid "empty" functions
-In-Reply-To: <20021201192532.GA9278@kroah.com>
-Message-ID: <Mutt.LNX.4.44.0212021248290.20929-100000@blackbird.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263321AbSLBBuZ>; Sun, 1 Dec 2002 20:50:25 -0500
+Received: from dp.samba.org ([66.70.73.150]:660 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S263280AbSLBBuW>;
+	Sun, 1 Dec 2002 20:50:22 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: Matt Reppert <arashi@arashi.yi.org>, linux-kernel@vger.kernel.org
+Subject: Re: Fwd: [PATCH] Unsafe MODULE_ usage in crc32.c 
+In-reply-to: Your message of "Sun, 01 Dec 2002 01:27:17 BST."
+             <20021201002717.GB2869@ppc.vc.cvut.cz> 
+Date: Mon, 02 Dec 2002 12:56:43 +1100
+Message-Id: <20021202015750.CA9C72C0CA@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Dec 2002, Greg KH wrote:
+In message <20021201002717.GB2869@ppc.vc.cvut.cz> you write:
+> Sorry, I forgot 'm' in your email address. BTW, I thought that this is
+> fixed in 2.5.50, isn't?
+> 							Petr
 
-> > I think we still want to make sure that the module author has explicitly
-> > accounted for all of the hooks, in case new hooks are added.
-> 
-> But with this patch, if the module author hasn't specified a hook, they
-> get the "dummy" ones.  So the structure should always be full of
-> pointers, making the VERIFY_STRUCT macro pointless.
+Since SMP was introduced in the kernel, MOD_INC_USE_COUNT; has never
+been reliable, and since preempt was introduced, it doesn't work on UP
+either[1].
 
+It's the caller's responsibility to grab a reference.  And that's OK,
+because this is done automatically for you when a module is loaded
+which references one of your symbols (it's the handing out of function
+pointers that you have to be careful with).
 
-Yes, but defaulting unspecified hooks to dummy operations could be
-dangerous.  A module might appear to compile and run perfectly well, but 
-be missing some important new hook.
+In summary, the correct solution is (and always was) to delete the
+MOD_INC_USE_COUNT; and MOD_DEC_USE_COUNT; in crc32.c
 
+Looks like someone was thinking too hard 8)
 
+Hope this helps?
+Rusty.
 
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
-
-
+[1] Well, theoretically it could work if you were not preemptible, but
+  since you can't be removed while not preemptible, there's usually no
+  reason to bump your own refcount anyway.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

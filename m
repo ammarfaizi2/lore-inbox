@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264976AbSKERSl>; Tue, 5 Nov 2002 12:18:41 -0500
+	id <S265008AbSKERXc>; Tue, 5 Nov 2002 12:23:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264986AbSKERSl>; Tue, 5 Nov 2002 12:18:41 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:37359 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S264976AbSKERSi>; Tue, 5 Nov 2002 12:18:38 -0500
-Subject: Re: 2.5 vi .config ; make oldconfig not working
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021105171409.GA1137@suse.de>
-References: <20021105165024.GJ13587@suse.de> <3DC7FB11.10209@pobox.com> 
-	<20021105171409.GA1137@suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-wAFVIbkLOkgVeT/aE2hR"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Nov 2002 18:26:35 +0100
-Message-Id: <1036517201.5601.0.camel@localhost.localdomain>
+	id <S264992AbSKERXc>; Tue, 5 Nov 2002 12:23:32 -0500
+Received: from almesberger.net ([63.105.73.239]:36873 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S264990AbSKERXV>; Tue, 5 Nov 2002 12:23:21 -0500
+Date: Tue, 5 Nov 2002 14:29:43 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       ebiederm@xmission.com
+Subject: kexec (was: Re: What's left over.)
+Message-ID: <20021105142943.I1407@almesberger.net>
+References: <20021031020836.E576E2C09F@lists.samba.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021031020836.E576E2C09F@lists.samba.org>; from rusty@rustcorp.com.au on Thu, Oct 31, 2002 at 01:07:15PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+By the way, let's not forget Eric Biederman's kexec. While not
+perfect, it's definitely usable, and looks good enough for
+inclusion as an experimental feature.
 
---=-wAFVIbkLOkgVeT/aE2hR
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+As to why we need it, I've explained this in my OLS 2000 paper,
+sections 2.6 and 5:
 
-On Tue, 2002-11-05 at 18:14, Jens Axboe wrote:
+http://www.almesberger.net/cv/papers/ols2k-9.ps
 
-> axboe@burns:[.]linux-2.5-deadline-rbtree $ grep CONFIG_NFSD_V4 < .config
-> 641:CONFIG_NFSD_V4=3Dy
-> axboe@burns:[.]linux-2.5-deadline-rbtree $ vi .config
-> axboe@burns:[.]linux-2.5-deadline-rbtree $ grep CONFIG_NFSD_V4 < .config
-> 641:CONFIG_NFSD_V4=3Dn
+My approach was called "bootimg". kexec is similar, but does a few
+things related to page sorting/moving better, and it's much smarter
+about quiescencing the system before trying to reboot.
 
-=3Dn never worked...
+I view kexec as an "enabler", much like initrd, which had to be
+part of the kernel for a while before people started to figure out
+how to use it. (At this year's OLS, somebody told me they just
+"discovered" initrd and are now using it. Oh well, it's only been
+around for six years ;-)
 
-# CONFIG_NFSD_V4 is not set
+It should be "experimental", because some compatibility issues
+still have to be addressed, but most of this can be done in user
+space, and shouldn't require significant changes in the kernel
+part of kexec, or in its interface to user space.
 
+- Werner
 
---=-wAFVIbkLOkgVeT/aE2hR
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9x/9KxULwo51rQBIRAroxAJ9eYr3nkLGnbSHwh1foNcgWtyyZjACglVtp
-CXcVROg2Kx+qa7Q1/lMv+L4=
-=hcfI
------END PGP SIGNATURE-----
-
---=-wAFVIbkLOkgVeT/aE2hR--
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

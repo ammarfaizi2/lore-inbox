@@ -1,44 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264479AbUHDLzt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264519AbUHDMHk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264479AbUHDLzt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 07:55:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264519AbUHDLzs
+	id S264519AbUHDMHk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 08:07:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264526AbUHDMHk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 07:55:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:1479 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264479AbUHDLzr (ORCPT
+	Wed, 4 Aug 2004 08:07:40 -0400
+Received: from dialpool2-106.dial.tijd.com ([62.112.11.106]:36226 "EHLO
+	precious.kicks-ass.org") by vger.kernel.org with ESMTP
+	id S264519AbUHDMHh convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 07:55:47 -0400
-Date: Wed, 4 Aug 2004 07:54:51 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Rudo Thomas <rudo@matfyz.cz>
-cc: Shane Shrybman <shrybman@aei.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-O2
-In-Reply-To: <20040804112201.GA7842@ss1000.ms.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.58.0408040754170.10810@devserv.devel.redhat.com>
-References: <1091459297.2573.10.camel@mars> <Pine.LNX.4.58.0408031019090.20420@devserv.devel.redhat.com>
- <20040804112201.GA7842@ss1000.ms.mff.cuni.cz>
+	Wed, 4 Aug 2004 08:07:37 -0400
+From: Jan De Luyck <lkml@kcore.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.8-rc3
+Date: Wed, 4 Aug 2004 14:07:20 +0200
+User-Agent: KMail/1.6.2
+References: <Pine.LNX.4.58.0408031505470.24588@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0408031505470.24588@ppc970.osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200408041407.39871.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Wed, 4 Aug 2004, Rudo Thomas wrote:
+On Wednesday 04 August 2004 00:09, Linus Torvalds wrote:
+> Tons of small fixes all around the tree.
+>
+> There's an optimized assembly AES implementation for x86 (from Brian
+> Gladman), and a number of driver updates, all of which are reasonably
+> minor.
+>
+> It would be good if people only sent serious stuff for a while, and we can
+> do a real 2.6.8, ok?
+>
+> 		Linus
 
-> > thx - i fixed this in -O3.
-> 
-> Hi, Ingo.
-> 
-> I just wanted to report that O3 (+preempt-timing-O2) locks up hard at
-> random occasions, even with voluntary-preempt=2 preempt=1 set at boot
-> time. I never changed any of /proc/irq/*/threaded.
-> 
-> I will provide any information needed to hunt this down.
+Works like a charm, only one comment:
 
-could you check whether it works with all APIC options turned off in the
-.config?
+Mounting my vfat partitions gave me this error:
 
-	Ingo
+FAT: codepage or iocharset option didn't specified
+     File name can not access proper (mounted as read-only)
+
+which was easily fixed by supplying a iocharset= mount option. But according 
+to the man page of mount:
+
+       iocharset=value
+              Character set to use for converting between 8 bit characters and
+              16 bit Unicode characters. The default is iso8859-1.  Long file-
+              names are stored on disk in Unicode format.
+
+the default is iso8859-1. Has this default gone haywire somewhere?
+
+Thanks anyway for another great kernel :)
+
+Jan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBENGKUQQOfidJUwQRApCPAJ9cJC0fZDmRlzmmyJT5372gMK1FmACePEy2
+mxQyIW3/SQBA7deQBBwjMX0=
+=7cdD
+-----END PGP SIGNATURE-----

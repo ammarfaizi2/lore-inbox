@@ -1,57 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131342AbRARAnI>; Wed, 17 Jan 2001 19:43:08 -0500
+	id <S130092AbRARAzM>; Wed, 17 Jan 2001 19:55:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131340AbRARAmt>; Wed, 17 Jan 2001 19:42:49 -0500
-Received: from [24.65.192.120] ([24.65.192.120]:14832 "EHLO webber.adilger.net")
-	by vger.kernel.org with ESMTP id <S131342AbRARAlb>;
-	Wed, 17 Jan 2001 19:41:31 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200101180039.f0I0du929822@webber.adilger.net>
-Subject: Re: Linux not adhering to BIOS Drive boot order?
-In-Reply-To: <Pine.LNX.4.30.0101180009460.26536-100000@pine.parrswood.manchester.sch.uk>
- "from Tim Fletcher at Jan 18, 2001 00:14:42 am"
-To: Tim Fletcher <tim@parrswood.manchester.sch.uk>
-Date: Wed, 17 Jan 2001 17:39:56 -0700 (MST)
-CC: Andreas Dilger <adilger@turbolinux.com>,
-        Werner Almesberger <Werner.Almesberger@epfl.ch>,
-        Venkatesh Ramamurthy <Venkateshr@ami.com>,
+	id <S130388AbRARAzC>; Wed, 17 Jan 2001 19:55:02 -0500
+Received: from ns.caldera.de ([212.34.180.1]:30985 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S130092AbRARAys>;
+	Wed, 17 Jan 2001 19:54:48 -0500
+Date: Thu, 18 Jan 2001 01:53:33 +0100
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Christoph Hellwig <hch@ns.caldera.de>,
+        Linus Torvalds <torvalds@transmeta.com>, mingo@elte.hu,
         linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
-MIME-Version: 1.0
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+Message-ID: <20010118015333.A20691@caldera.de>
+Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
+	Christoph Hellwig <hch@ns.caldera.de>,
+	Linus Torvalds <torvalds@transmeta.com>, mingo@elte.hu,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010110084235.A365@caldera.de> <Pine.LNX.4.31.0101180104050.31432-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <Pine.LNX.4.31.0101180104050.31432-100000@localhost.localdomain>; from riel@conectiva.com.br on Thu, Jan 18, 2001 at 01:05:43AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Fletcher writes:
-> You can already do this, just specify /dev/md0 as the device to install
-> onto, and lilo does the rest
+On Thu, Jan 18, 2001 at 01:05:43AM +1100, Rik van Riel wrote:
+> On Wed, 10 Jan 2001, Christoph Hellwig wrote:
 > 
-> > This would potentially allow you to boot from the second drive if the
-> > first one fails, assuming the kernel does UUID or LABEL resolution for
-> > the root device.  The kernel would boot from the first BIOS drive, and
-> > would search for a UUID or LABEL as the root device.
+> > Simple.  Because I stated before that I DON'T even want the
+> > networking to use kiobufs in lower layers.  My whole argument is
+> > to pass a kiovec into the fileop instead of a page, because it
+> > makes sense for other drivers to use multiple pages,
 > 
-> I have a mirrored boot drive in a pair of firewalls / routers and to test
-> before I put them into service I pulled hda and the machine booted fine
-> from hdc and baring winging about the missing disk (all the drives are
-> mirrored) carried on as normal. A fresh disk was put and rebuilt no
-> problems and was then booted off with the other disk missing.
+> Now wouldn't it be great if we had one type of data
+> structure that would work for both the network layer
+> and the block layer (and v4l, ...)  ?
 
-Ahh.  What I was missing was that by specifying /dev/md0 as the root device,
-not only do you get an identical map for the kernels, but the root device
-remains /dev/md0 no matter which drive fails and LILO/kernel don't need to
-do anything special to find it.  This assumes the BIOS can boot from /dev/hdc
-to start with (i.e. /dev/hda is totally gone).
+Sure it would be nice, and IIRC that was what the kiobuf stuff was
+designed for.  But it looks like it doesn't do well for the networking
+(and maybe other) guys.
 
-How does MD/RAID0 know which array should be /dev/md0?  What if you had a
-second array on /dev/hdb and /dev/hdd, would that become /dev/md0 (assuming
-it had a kernel/boot sector)?
+That means we have to find something that might be worth paying a little
+overhead for in all layers, but that on the other hand is usable evrywhere.
 
-Cheers, Andreas
+So after the last flame^H^H^H^H^Hthread I've come up in my mind with the
+following structures:
+
+/*
+ * a simple page,offset,legth tuple like Linus wants it
+ */
+struct kiobuf2 {
+	struct page *   page;   /* The page itself               */
+	u_int16_t       offset; /* Offset to start of valid data */
+	u_int16_t       length; /* Number of valid bytes of data */
+};
+
+/*
+ * A container for the tuples - it is actually pretty similar to old
+ * kiobuf, but on the other hand allows SG
+ */
+struct kiovec2 {
+	int             nbufs;          /* Kiobufs actually referenced */
+	int             array_len;      /* Space in the allocated lists */
+
+	struct kiobuf * bufs;
+
+	unsigned int    locked : 1;     /* If set, pages has been locked */
+
+	/* Always embed enough struct pages for 64k of IO */
+	struct kiobuf * buf_array[KIO_STATIC_PAGES];	 
+
+	/* Private data */
+	void *          private;
+	
+	/* Dynamic state for IO completion: */
+	atomic_t        io_count;       /* IOs still in progress */
+	int             errno;
+
+	/* Status of completed IO */
+	void (*end_io)	(struct kiovec *); /* Completion callback */
+	wait_queue_head_t wait_queue;
+};
+
+
+We don't need the page-length/offset in the usual block-io path, but on
+the other hand, if we get a common interface for it...
+
+	Christoph
+
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Whip me.  Beat me.  Make me maintain AIX.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264688AbSLaSzT>; Tue, 31 Dec 2002 13:55:19 -0500
+	id <S264716AbSLaS6D>; Tue, 31 Dec 2002 13:58:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264699AbSLaSzT>; Tue, 31 Dec 2002 13:55:19 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26888 "EHLO
+	id <S264724AbSLaS6D>; Tue, 31 Dec 2002 13:58:03 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42504 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264688AbSLaSzT>; Tue, 31 Dec 2002 13:55:19 -0500
-Date: Tue, 31 Dec 2002 10:58:28 -0800 (PST)
+	id <S264716AbSLaS6C>; Tue, 31 Dec 2002 13:58:02 -0500
+Date: Tue, 31 Dec 2002 11:00:56 -0800 (PST)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix up UP in 2.5-bkcurrent
-In-Reply-To: <20021231083825.GS21097@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.44.0212311058050.2697-100000@home.transmeta.com>
+To: Richard Henderson <rth@twiddle.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [TGAFB] implement the imageblit acceleration hook
+In-Reply-To: <20021231004138.A13860@twiddle.net>
+Message-ID: <Pine.LNX.4.44.0212311100260.2697-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 31 Dec 2002, Tomas Szepe wrote:
+On Tue, 31 Dec 2002, Richard Henderson wrote:
+>
+> Please pull from
 > 
-> The following bit is needed to build (and boot) current 2.5 bk on
-> UP.  The fix just favors a "we may have to do this" comment. <g>
+> 	bk://are.twiddle.net/tgafb-2.5
 
-Damn, I even tested that on UP, but I tested it on UP-without-APIC, so I 
-didn't see any problems. Thanks,
+Richard, you forgot to restart bkd again. Maybe add it to your 
+initscripts?
+
+	bk://are.twiddle.net/tgafb-2.5: Connection refused
+
+Heh,
 
 		Linus
 

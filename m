@@ -1,88 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266181AbUIMGfe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266187AbUIMGjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266181AbUIMGfe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 02:35:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266183AbUIMGfe
+	id S266187AbUIMGjo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 02:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266188AbUIMGjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 02:35:34 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:54748 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266181AbUIMGfT (ORCPT
+	Mon, 13 Sep 2004 02:39:44 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:15300 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266187AbUIMGjm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 02:35:19 -0400
-Date: Mon, 13 Sep 2004 08:35:48 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: Zwane Mwaikambo <zwane@fsmlabs.com>, Linus Torvalds <torvalds@osdl.org>,
-       Paul Mackerras <paulus@samba.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] Yielding processor resources during lock contention
-Message-ID: <20040913063548.GA11661@elte.hu>
-References: <7F740D512C7C1046AB53446D372001730232E11C@scsmsx402.amr.corp.intel.com>
+	Mon, 13 Sep 2004 02:39:42 -0400
+Date: Mon, 13 Sep 2004 08:38:12 +0200
+From: Jens Axboe <axboe@suse.de>
+To: alan <alan@clueserver.org>
+Cc: Supphachoke Suntiwichaya <mrchoke@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: LITE-ON COMBO SOHC-5232K
+Message-ID: <20040913063811.GE2326@suse.de>
+References: <66bd7830040912211143759341@mail.gmail.com> <Pine.LNX.4.44.0409122022480.18569-100000@www.fnordora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <7F740D512C7C1046AB53446D372001730232E11C@scsmsx402.amr.corp.intel.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <Pine.LNX.4.44.0409122022480.18569-100000@www.fnordora.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Sep 12 2004, alan wrote:
+> On Mon, 13 Sep 2004, Supphachoke Suntiwichaya wrote:
+> 
+> > On Sun, 12 Sep 2004 12:57:25 +0200, Jens Axboe <axboe@suse.de> wrote:
+> > > On Fri, Sep 10 2004, Supphachoke Suntiwichaya wrote:
+> > > > Hi,
+> > > >
+> > > > I use kernel 2.6.8.1 I can't write CD by LITE-ON COMBO SOHC-5232K
+> > > > revision NK05, but I can write by revision NK0A.
+> > > 
+> > > Well, upgrade the buggy firmware then? Follow-ups should go to the
+> > > cdrecord list, this is not a kernel issue.
+> > > 
+> > 
+> > Thank you man. I can write CD on 2.6.8.1 now...
+> > 
+> > Remark.. NK05 can write on 2.6.7..
+> 
+> I am seeing similar problems with a Pioneer DVD writer on 2.6.8.1.  2.6.7 
+> can burn discs fine.  2.6.8.1 it does not even recognise it as a writable 
+> drive.
+> 
+> I am wondering if this relates to other write problems I have seen 
+> reported for 2.6.8.1 involving music tracks.
 
-* Nakajima, Jun <jun.nakajima@intel.com> wrote:
+It has to do with 2.6.8.1 having a stupid filter for SCSI commands.
+Either run the program as root, or upgrade to 2.6.9-rc2.
 
-> The instruction mwait is just a hint for the processor to enter an
-> (implementation-specific) optimized state, and in general it cannot
-> cause indefinite delays because of various break events, including
-> interrupts. If an interrupt happens, then the processor gets out of
-> the mwait state. [...]
+-- 
+Jens Axboe
 
-the problem is, there is no guarantee that an interrupt may happen on a
-CPU from that point on _ever_. Currently we do have a periodic timer
-interrupt but this is not cast into stone. So we cannot really use MWAIT
-for the idle loop either - at most as a replacement for HLT without any
-latency assumptions. We could monitor the idle task's ->need_resched
-flag.
-
-> [...] The instruction does not support a restart at the mwait
-> instruction. In other words the processor needs to redo the mwait
-> instruction to reenter the state after a break event. Event time-outs
-> may take the processor out of the state, depending on the
-> implementation.
-
-this is not a problem. The proper way to fix MWAIT for spinlocks (as i
-suggested in the first email) would be to monitor a given cacheline's
-existence in the L2 cache. I.e. to snoop for invalidates of that 
-cacheline. That would make it possible to do:
-
-	while (!spin_trylock(lock)) {
-		MONITOR(lock);
-		if (spin_is_locked(lock))
-			MWAIT(lock);
-	}
-
-the first spin_trylock() test brings the cacheline into the L2 cache. 
-There is no guarantee that by the time MONITOR executes it will still be
-there but the likelyhood is high. Then we execute MONITOR which clears
-the event flag. The second spin_is_locked() test brings the cacheline
-into the L2 for sure - then we enter MWAIT which waits until the
-event-flag is clear. If at any point another CPU moves the cacheline
-into Exclusive (and then Modified) state then this CPU _must_ invalidate
-the lock cacheline - hence the event flag will be set and MWAIT
-immediately exits. I know that this is not how MONITOR/MWAIT works right
-now but this is how MONITOR/MWAIT could work well for spinlocks.
-
-(if the cache is not MESI but MOESI then the second test has to be
-spin_trylock() as well [which dirties the cacheline] - since in that
-case there would be no guarantee that the spin_is_locked() read-only
-test would invalidate the possibly dirty cacheline on the spinlock owner
-CPU.)
-
-	Ingo

@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbVBOS1L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVBOSdt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261794AbVBOS1L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 13:27:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbVBOS1L
+	id S261810AbVBOSdt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 13:33:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbVBOSdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 13:27:11 -0500
-Received: from smtp-vbr4.xs4all.nl ([194.109.24.24]:49156 "EHLO
-	smtp-vbr4.xs4all.nl") by vger.kernel.org with ESMTP id S261794AbVBOS1G
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 13:27:06 -0500
-Message-Id: <3.0.32.20050215192749.01165860@pop.xs4all.nl>
-X-Mailer: Windows Eudora Pro Version 3.0 (32)
-Date: Tue, 15 Feb 2005 19:27:49 +0100
+	Tue, 15 Feb 2005 13:33:49 -0500
+Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:33778 "EHLO
+	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S261810AbVBOSdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 13:33:47 -0500
+Message-ID: <4212408C.3070804@austin.rr.com>
+Date: Tue, 15 Feb 2005 12:33:48 -0600
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-From: Vincent Diepeveen <diep@xs4all.nl>
-Subject: 2.6.7 modification, does it hurt?
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Subject: keyring API, pam and user space
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good Morning,
+As I was trying to decipher the kernel keyring API this morning, I 
+noticed the gnome-keyring/gnom-keyring manager which I thought might 
+have already implemented a pam module to store logon info 
+(userid/password at a minimum) in the kernel keyring (could avoid the 
+need for prompting for the users password in the mount utility - and 
+could better impement "multiuser mounts" across the network ie if I can 
+get at the password and username in kernel for a particular uid I could 
+automatically setup and usie the correct authenticated session for each 
+uid on the client without user intervention if the client is configured 
+for that).  We do have a quick and dirty pam module for storing the 
+passwords via the kernel keyring API but it is a little ugly since we 
+could not find a good header with the syscalls etc. already defined.
 
-In order to get to work suse 9.1 with 2.6.7 patched with quadrics
-supercomputing network patches (which only work at vanilla 2.6.7) the
-following function gave an error:
-  "coproc_invalidate_range(mm,start,start+length);"
-  in /mm/hugetlb.c in function zap_hugepage_range() 
-
-I removed that coprop_invalidate_range() line.
-
-Can it hurt?
-
-It is in order to get x86-32 to work with the cards. x86-64 already works.
-All nodes here are dual k7's with 1GB - 1.5GB ram
-   
-After removing that line, the kernel compiled, installed and booted fine
-and quadrics network card (QM500) seems to function excellent as ever at
-this node when performing tests. 
-
-Under which conditions this change will give problems?
-
-Thanks in advance for answerring,
-Vincent Diepeveen
-www.diep3d.com
-diep@xs4all.nl
-
-
+Unfortunately in grepping through the current gnome-keyring and 
+gnome-keyring-manager code from ftp://ftp.gnome.org/pub/GNOME/sources I 
+don't see any calls to the kernel API in the gnome keyring code so I 
+doubt that the gnome keyring would be any help.  Has there been any work 
+to integrate user space tools (pam helper, keyring GUI and libs) with 
+the relatively new kernel keyring code?

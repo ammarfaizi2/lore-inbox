@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287886AbSAMBMi>; Sat, 12 Jan 2002 20:12:38 -0500
+	id <S287894AbSAMBF5>; Sat, 12 Jan 2002 20:05:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287892AbSAMBM2>; Sat, 12 Jan 2002 20:12:28 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4100 "EHLO
+	id <S287892AbSAMBFr>; Sat, 12 Jan 2002 20:05:47 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33811 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287886AbSAMBMN>; Sat, 12 Jan 2002 20:12:13 -0500
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-To: zippel@linux-m68k.org (Roman Zippel)
-Date: Sun, 13 Jan 2002 01:23:25 +0000 (GMT)
-Cc: yodaiken@fsmlabs.com, landley@trommello.org (Rob Landley),
-        rml@tech9.net (Robert Love), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        nigel@nrg.org, akpm@zip.com.au (Andrew Morton),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3C40A8EF.D45600E3@linux-m68k.org> from "Roman Zippel" at Jan 12, 2002 10:21:51 PM
+	id <S287886AbSAMBFg>; Sat, 12 Jan 2002 20:05:36 -0500
+Subject: Re: Unauthorized connection blocking withing socket
+To: stao@nbnet.nb.ca (Senhua Tao)
+Date: Sun, 13 Jan 2002 01:17:24 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <3C40B526.D960AC26@nbnet.nb.ca> from "Senhua Tao" at Jan 12, 2002 06:13:58 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16PZMr-0003fE-00@the-village.bc.nu>
+Message-Id: <E16PZH2-0003eQ-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So even the low priority process will have the same time as before to do
-> it's job, it will be delayed, but it will not be delayed forever, so I'm
-> failing to see how preempting Linux should deadlock.
+> I am not sure that it is a good idea to mess around sys_connect() or any
+> one want to put such restriction on their computer. I don't see amy
+> problem for the people who just use applications on their computers
+> though. Any suggestion?
 
-First task scheduled takes a resource that a second task needs. 150 other
-threads schedule via pre-emption, the one that it should share the resource
-with cannot run but the rest do. Repeat. It doesn't deadlock but it goes
-massively unfair
-
+Most systems do this by role based security. You might want to have a look
+at the LSM patch and the NSA security module, as well perhaps at the RSBAC
+security project. The LSM and NSA modules can I suspect not only deal with
+connect based cases but a lot more

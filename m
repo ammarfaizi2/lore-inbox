@@ -1,35 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262093AbTE2JzX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 05:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbTE2JzX
+	id S262095AbTE2KFd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 06:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTE2KFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 05:55:23 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:61348 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262093AbTE2JzX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 05:55:23 -0400
-Date: Thu, 29 May 2003 03:07:32 -0700 (PDT)
-Message-Id: <20030529.030732.70218972.davem@redhat.com>
-To: chas@cmf.nrl.navy.mil
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] lane and mpoa module cleanup
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200305281155.h4SBtm9m031163@locutus.cmf.nrl.navy.mil>
-References: <200305281155.h4SBtm9m031163@locutus.cmf.nrl.navy.mil>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 29 May 2003 06:05:33 -0400
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:32499 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id S262095AbTE2KFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 06:05:32 -0400
+Message-ID: <3ED5DE49.5CA79049@wipro.com>
+Date: Thu, 29 May 2003 15:47:45 +0530
+From: Arvind Kandhare <arvind.kan@wipro.com>
+X-Mailer: Mozilla 4.61 [en] (WinNT; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Manfred Spraul <manfred@colorfullife.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       "indou.takao" <indou.takao@jp.fujitsu.com>, rml <rml@tech9.net>,
+       Dave Jones <davej@suse.de>, roystgnr@owlnet.rice.edu,
+       garagan@borg.cs.dal.ca, arvind.kan@wipro.com
+Subject: Re: Changing SEMVMX to a tunable parameter
+References: <3ED4C6B6.7050806@wipro.com> <3ED4E0BB.2080603@colorfullife.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 May 2003 10:18:35.0606 (UTC) FILETIME=[A9EE4760:01C325CB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: chas williams <chas@cmf.nrl.navy.mil>
-   Date: Wed, 28 May 2003 07:55:48 -0400
+Manfred Spraul wrote:
+> _If_ there are no signed/unsigned problems and if Oracle wants 64K, then 
+> I would increase SEMVMX to 64K, without making it tunable. Dito for SEMAEM.
+> 
 
-   the lec and mpoa module both should be safely referenced from the atm
-   module (and each other in the case of mpc handling shortcuts for a 
-   lec device).
-   
-Applied, thanks.
+1. Most of the IPC parameters (e.g. msgmni, msgmax, 
+msgmnb , shmmni, shmmax) are tunables. 
+
+(Please refer : 
+http://web.gnu.walfield.org/mail-archive/linux-kernel-digest/1999-November/0020.html)
+
+Was there any specific reason why semvmx was not made a tunable with the 
+above set??  
+
+2. By having semvmx as tunable, administrator gets more flexibility 
+in controlling the resource usage on the system:
+        a. By increasing this, it is possible to allow more     
+        processes to use the system resources controlled by a
+        semaphore concurrently.
+
+        b. By decreasing this, the number of processes
+        using the system resources controlled by a semaphore
+        concurrently can be limited.
+
+Tuning this value may be desirable so that system is run at optimum 
+performance. We are working towards avoiding kernel re-build for any 
+desired value of semvmx. This will be most desirable in enterprise 
+systems.
+
+Because of problems with dynamic tuning (ref first mail on the subject), 
+static tuning (boot time) is proposed.
+
+Please let us know your comments.
+
+thanks and regards,
+Arvind

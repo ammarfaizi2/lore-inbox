@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131482AbRAFEwA>; Fri, 5 Jan 2001 23:52:00 -0500
+	id <S129994AbRAFExA>; Fri, 5 Jan 2001 23:53:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131484AbRAFEvu>; Fri, 5 Jan 2001 23:51:50 -0500
-Received: from holomorphy.com ([216.36.33.161]:1551 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S131482AbRAFEvk>;
-	Fri, 5 Jan 2001 23:51:40 -0500
-Date: Fri, 5 Jan 2001 20:51:34 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Subject: ppp_generic labels
-Message-ID: <20010105205134.C27068@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+	id <S130282AbRAFEwu>; Fri, 5 Jan 2001 23:52:50 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:27618 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129994AbRAFEwe>;
+	Fri, 5 Jan 2001 23:52:34 -0500
+Date: Fri, 5 Jan 2001 23:52:31 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Stefan Traby <stefan@hello-penguin.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
+In-Reply-To: <20010106054615.A2958@stefan.sime.com>
+Message-ID: <Pine.GSO.4.21.0101052350460.25336-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In certain situations, it's possible for one of the jump labels in
-drivers/net/ppp_generic.c to get mangled by a macro, causing a failure
-in compilation. The following patch ameliorates this somewhat:
 
 
-diff -r -N linux/drivers/net/ppp_generic.c linux.wli/drivers/net/ppp_generic.c
-2345c2345
-< 		goto outw;
----
-> 		goto ppp_outw;
-2364c2364
-<  outw:
----
->  ppp_outw:
+On Sat, 6 Jan 2001, Stefan Traby wrote:
 
-Many of the jump labels therein also appear nameclash prone; I'm
-tempted to prefix them all with "ppp_". If this is only a symptom of a
-deeper problem, and should not be done, my apologies for the bandwidth.
+> Then I tried to unlink the file by running rm lfs.file log.
+> 
+> The rm process (and an ls process that I started after that)
+> are now in "D" state...
+> 
+> root      2934  0.0  0.2  1292  452 pts/5    D    05:38   0:00 ls /ramfs
+> root      2952  0.0  1.5  4028 2384 pts/3    S    05:40   0:00 vi sdlkhfd
 
-Cheers,
-Bill
+Add UnlockPage(page) at the end of ramfs_writepage().
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

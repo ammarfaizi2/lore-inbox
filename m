@@ -1,101 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130102AbRCBWdz>; Fri, 2 Mar 2001 17:33:55 -0500
+	id <S129478AbRCBWip>; Fri, 2 Mar 2001 17:38:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129594AbRCBWdr>; Fri, 2 Mar 2001 17:33:47 -0500
-Received: from f280.law14.hotmail.com ([64.4.20.155]:22534 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S129581AbRCBWdc>;
-	Fri, 2 Mar 2001 17:33:32 -0500
-X-Originating-IP: [212.46.197.1]
-From: "John Being" <olonho@hotmail.com>
-To: manfred@colorfullife.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: strange nonmonotonic behavior of gettimeoftheday
-Date: Fri, 02 Mar 2001 22:33:25 -0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F280ueD0WeOnFl0YldT00002135@hotmail.com>
-X-OriginalArrivalTime: 02 Mar 2001 22:33:26.0118 (UTC) FILETIME=[CC050060:01C0A368]
+	id <S129581AbRCBWif>; Fri, 2 Mar 2001 17:38:35 -0500
+Received: from b1.ovh.net ([213.186.33.51]:18161 "HELO ns0.ovh.net")
+	by vger.kernel.org with SMTP id <S129478AbRCBWi0>;
+	Fri, 2 Mar 2001 17:38:26 -0500
+From: "Stéphane GARIN" <sgarin@sgarin.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.2.19pre - Kernel Panic: no init found
+Date: Fri, 2 Mar 2001 23:36:56 +0100
+Message-ID: <002501c0a369$4abe8f70$4601a8c0@oracle.intranet>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3612.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, short status from the same box. It was up for about 2 weeks, but
-yesterday due this problem it become unuseable, as X failed at startup with 
-message about failed select(). Before reboot I made some tests
-and found:
-- it triggered by starting of X (without X no backjumps)
-- it has something with interrupts, at least when I run program above
-    (it is correct, at least it can determine problem) as
-    while [ 1 ]; do ./clo; done
-    and pressed key, it printed much less strings
-- jumps are about 300-2000 microseconds
-- there are some cases of such behaviour on Usenet (mainly diagnosed as 
-screen  flickering due incorrect  screensaver startup)
+Hi,
+
+I have a kernel panic with the patch 2.2.19pre16 that I test. I use a 2.2.18
+Kernel very well. I used the last patch on this kernel and make my kernel
+with sames parameters without error message. At the boot, I can see this :
+
+...
+eth0: RealTek RTL8139 Fast Ethernet at 0xa800, IRQ 10, 00:50:fc:0b:60:70
+eth1: RealTek RTL8139 Fast Ethernet at 0xac00, IRQ 11, 00:50:fc:1f:c1:98
+Partition check:
+ hda: hda1 hda2 < hda5 hda6 hda7 hda8 hda9 hda10 >
+Trying to vfree() noexistent vm area (c00f0000)
+VFS: Mounted root (ext2 filesystem) readonly.
+Freeing unused kernel memory: 68k freed
+Kernel panic: No init found. Try passing init= option to kernel.
 
 
-After reboot problem goes away( nothing changed in config). Maybe it related 
-to APM (as I did several suspends before this problem appears). Program 
-testing RDTSC works OK now. If this problem appears again - I will run it.
-  Thanks for help.
 
+I tried to start with init=3 but no change. I send this information on this
+mailing list because I think that could be a bug. Sorry if it is a wrong
+action of me...
 
->From: Manfred Spraul <manfred@colorfullife.com>
->To: olonho@hotmail.com
->CC: linux-kernel@vger.kernel.org
->Subject: Re: strange nonmonotonic behavior of gettimeoftheday
->Date: Fri, 02 Mar 2001 18:06:05 +0100
->
-> >
-> > on AMD K6, VIA Technologies VT 82C586, Compaq Presario XL119.
-> > [snip]
-> > gives following result on box in question
-> > root@******:# ./clo
-> > Leap found: -1687 msec
-> > and prints nothing on all other my boxes.
->
->Perhaps APM or SMI problems?
->Could you run the attached program?
->
->--
->	Manfred
->#include <stdio.h>
->#include <sys/time.h>
->#include <unistd.h>
->#include <time.h>
->
->static unsigned long long get_tsc(void)
->{
->     	unsigned long v1;
->	unsigned long v2;
->	__asm__ __volatile__(
->		"rdtsc\n\t"
->		: "=a" (v1), "=d" (v2));
->	return (((unsigned long long)v2)<<32)+v1;
->}
->
->int main(int argc, char** argv)
->{
->	unsigned long long t1;
->	unsigned long long t2;
->
->	printf("RDTSC tester\n");
->	t1 = get_tsc();
->	for(;;) {
->		t2 = get_tsc();
->		if(t1 > t2) {
->			printf("tsc jumped backwards: from %lld to %lld.\n",
->					t1, t2);
->		}
->#if 0
->		printf("diff is %lld-%lld=%d.\n",t2,t1,t2-t1);
->#endif
->		t1 = t2;
->
->	}
->	return 1;
->}
->
-
-_________________________________________________________________________
-Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
+With Regards,
+Stephane Garin
 

@@ -1,34 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282040AbRKVEf2>; Wed, 21 Nov 2001 23:35:28 -0500
+	id <S281701AbRKVFRW>; Thu, 22 Nov 2001 00:17:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282041AbRKVEfT>; Wed, 21 Nov 2001 23:35:19 -0500
-Received: from hall.mail.mindspring.net ([207.69.200.60]:40759 "EHLO
-	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S282040AbRKVEfL>; Wed, 21 Nov 2001 23:35:11 -0500
-Message-ID: <3BFC7458.4B9B2065@mindspring.com>
-Date: Wed, 21 Nov 2001 19:43:20 -0800
-From: Joe <joeja@mindspring.com>
-Reply-To: joeja@mindspring.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S282041AbRKVFRN>; Thu, 22 Nov 2001 00:17:13 -0500
+Received: from quechua.inka.de ([212.227.14.2]:3671 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S281701AbRKVFQ7>;
+	Thu, 22 Nov 2001 00:16:59 -0500
+From: Bernd Eckenfels <ecki@lina.inka.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: iogear guc232a
-In-Reply-To: <3BFC3806.DCE7BF46@mindspring.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: NFS, Paging & Installing [was: Re: Swap]
+In-Reply-To: <shs3d38xuk4.fsf@charged.uio.no>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.11-xfs (i686))
+Message-Id: <E166mEL-0004sX-00@calista.inka.de>
+Date: Thu, 22 Nov 2001 06:16:57 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have a USB 2 serial converter (guc232a) and I think I need some
-> specific code to make it work.  So I am planning on writing a driver for
-> this unless someone already is.
+In article <shs3d38xuk4.fsf@charged.uio.no> you wrote:
+>  Exactly how, pray tell, does SMB cope with recovering the full state
+> info after client/server crashes?
 
-Nevermind I had to enable usb support in apcupsd and the guc232a works out
-of the box and rather nicely.
+Not doing that is the better solution.
 
-Joe
-
-
-
+Greetings
+Bernd

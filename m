@@ -1,55 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261225AbUBVLPh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 06:15:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbUBVLP0
+	id S261226AbUBVMBh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 07:01:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbUBVMBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 06:15:26 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:51630 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261225AbUBVLPU
+	Sun, 22 Feb 2004 07:01:37 -0500
+Received: from m013-078.nv.iinet.net.au ([203.217.13.78]:30995 "EHLO
+	mail.adixein.com") by vger.kernel.org with ESMTP id S261226AbUBVMBe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 06:15:20 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Sun, 22 Feb 2004 12:08:14 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Michal Kochanowicz <michal@michal.waw.pl>, linux-kernel@vger.kernel.org
-Subject: Re: Fw: v4l fails after on 2.6.3 (works on 2.6.2)
-Message-ID: <20040222110814.GB15351@bytesex.org>
-References: <20040221214258.12f56a29.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040221214258.12f56a29.akpm@osdl.org>
-User-Agent: Mutt/1.5.3i
+	Sun, 22 Feb 2004 07:01:34 -0500
+From: "Elliot Mackenzie" <macka@adixein.com>
+To: "'Randy.Dunlap'" <rddunlap@osdl.org>
+Cc: "'lkml'" <linux-kernel@vger.kernel.org>
+Subject: RE: PROBLEM: Panic booting from USB disk in ioremap.c (line 81)
+Date: Sun, 22 Feb 2004 22:02:22 +1000
+Keywords: macka@adixein.com
+Message-ID: <001201c3f93b$bbd94170$4301a8c0@waverunner>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+Importance: Normal
+In-Reply-To: <20040220213157.7da96979.rddunlap@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> After upgrade of kernel 2.6.2 -> 2.6.3 (built from exactly the same
-> config) I'm no longer able to use my TV tuner card. When I launch tvtime
-> following appears in system log:
-> kernel: tuner: Huh? tv_set is NULL?
+Randy:
 
-Yea, thats exactly the corner case which the last-minute tuner.c fix for
-2.6.3 gets very wrong because the initialization code doesn't run :-/
+This issue just got a lot weirder but I have some more information.  
 
-Fix is already in the queue, I think both -mm and Linus' latest -bk have
-that.
+This is the weird part:
+I applied the patch you suggested, and the system stopped panicking at
+that point.  Instead, it just hung for about 10 minutes, eventually
+kicking off again and finishing bootup.  To be sure, I then removed the
+code and recompiled (clean), and now the original code started doing
+that too (without your patch).  To my knowledge I changed nothing (not
+even in BIOS), but I rebuilt the kernel again from the raw 2.6.3 source
+to be sure - same result.
 
-> tvtime reports that "there is no signal" and when I try to change the
-> channel, following appears in the log:
-> kernel: bttv0: skipped frame. no signal? high irq latency? [main=1bd24000,o_vbi=1bd24018,o_field=e74c000,rc=ee9c3e0]
+The interesting part (more information):
+If we bypass the bootflag.c code (simply by putting "return 0;" as the
+first line), the system will boot normally.  On shutdown we seem to be
+getting a system jumping to maintenance mode, but I am not sure if its
+related.  It appears you are right in assuming that the problem is
+related to the bios sbf rather than the usb.  Doug pointed out to me
+that looking through the stack trace, sbf_init is giving an rsdt_length
+of something in the order of 1GB, and somehow the checks are not picking
+it up.
 
-Thats just because tuning doesn't work at all and thus there is no
-signal.
+Since it is now relevant, the BIOS is flashed to the most recent stable
+BIOS for the ASUS P4SGX-MX motherboard (1005).
 
-> options tuner type=5
-> options bttv card=16
+This is the tricky part:
+When we bypass the bootflag code, and boot the "working" kernel, I am
+able to capture a serial transcript.  However, I have been unsuccessful
+in establishing a serial console for the broken 2.6.3 kernel to date.
+It's possible I have done something strange while building one of the
+kernels, but I am just trying to verify that now.  Are there
+alternatives?
 
-Use "options bttv card=16 tuner=5" instead, that should work.  I'll
-probably drop the "tuner type=" insmod anyway in near future, just have
-to check with other users of the tuner.o module that it wouldn't break
-anything.
+Currently the text on screen comes up way to quickly for me to capture,
+and since I don't have a working serial console for the broken kernel
+yet, I am not able to capture a transcript.  Previously I could just
+type to you what I saw, but the kernel is now booting to the same point,
+hanging 10 minutes then continuing.
 
-  Gerd
+Kind regards,
+Elliot.
+
+-----Original Message-----
+From: Randy.Dunlap [mailto:rddunlap@osdl.org] 
+Sent: Saturday, 21 February 2004 3:32 PM
+To: macka@adixein.com
+Cc: lkml
+Subject: RE: PROBLEM: Panic booting from USB disk in ioremap.c (line 81)
+
+
+As enumerated below:
+| Calling initcall 0xc03f7e19 pcibios_init
+| Calling initcall 0xc03f819c netdev_init
+| Calling initcall 0xc03f1e7c chr_dev_init
+| Calling initcall 0xc03e7084 i8259_init_sysfs
+| Calling initcall 0xc03e7101 init_timer_sysfs
+| Calling initcall 0xc03e90e2 sbf_init
+
+
+I still don't see how USB enters into it, but please try the patch
+below to see if I'm on the right track or not.
+It looks like sbf_init() is finding an invalid ACPI RSDT length field.
+This patch will telll us if that's the case or not.
+
+--
+~Randy
+
+
 

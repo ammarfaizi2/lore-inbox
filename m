@@ -1,29 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbULWPds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbULWPfz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261253AbULWPds (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 10:33:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbULWPds
+	id S261256AbULWPfz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 10:35:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbULWPfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 10:33:48 -0500
-Received: from apachihuilliztli.mtu.ru ([195.34.32.124]:63244 "EHLO
+	Thu, 23 Dec 2004 10:35:55 -0500
+Received: from apachihuilliztli.mtu.ru ([195.34.32.124]:61453 "EHLO
 	Apachihuilliztli.mtu.ru") by vger.kernel.org with ESMTP
-	id S261253AbULWPdn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 10:33:43 -0500
-Subject: reiserfs bug fix: do not clear MS_ACTIVE mount flag
+	id S261256AbULWPfj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Dec 2004 10:35:39 -0500
+Subject: reiserfs bug fix: add missing pair of lock_kernel()/unlock_kernel()
 From: Vladimir Saveliev <vs@namesys.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
        reiserfs-list@namesys.com
-Content-Type: multipart/mixed; boundary="=-fS9+cARK/p7wgIZYaHY1"
-Message-Id: <1103816009.3529.130.camel@tribesman.namesys.com>
+Content-Type: multipart/mixed; boundary="=-/5hXGKpWNF1ZZrGIOTaJ"
+Message-Id: <1103816136.8064.136.camel@tribesman.namesys.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 23 Dec 2004 18:33:31 +0300
+Date: Thu, 23 Dec 2004 18:35:36 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-fS9+cARK/p7wgIZYaHY1
+--=-/5hXGKpWNF1ZZrGIOTaJ
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
@@ -31,59 +31,38 @@ Hello
 
 Andrew, please apply this reiserfs bug fix.
 
---=-fS9+cARK/p7wgIZYaHY1
-Content-Disposition: attachment; filename=reiserfs-do-not-clear-MS_ACTIVE.patch
-Content-Type: text/plain; name=reiserfs-do-not-clear-MS_ACTIVE.patch; charset=KOI8-R
+--=-/5hXGKpWNF1ZZrGIOTaJ
+Content-Disposition: attachment; filename=reiserfs-add-missing-lock_kernel.patch
+Content-Type: text/plain; name=reiserfs-add-missing-lock_kernel.patch; charset=koi8-r
 Content-Transfer-Encoding: 7bit
 
 
-When CONFIG_QUOTA is defined reiserfs's finish_unfinished sets and clears
-MS_ACTIVE bit in s_flags field of super block. If that bit was set already
-it should not be set.
+This patch adds missing lock_kernel()/unlock_kernel() pair in reiserfs_get_dentry
 
 
- fs/reiserfs/super.c |   13 ++++++++++---
- 1 files changed, 10 insertions(+), 3 deletions(-)
+ fs/reiserfs/inode.c |    2 ++
+ 1 files changed, 2 insertions(+)
 
-diff -puN fs/reiserfs/super.c~reiserfs-do-not-clear-MS_ACTIVE fs/reiserfs/super.c
---- linux-2.6.10-rc3-mm1/fs/reiserfs/super.c~reiserfs-do-not-clear-MS_ACTIVE	2004-12-23 18:22:06.568755520 +0300
-+++ linux-2.6.10-rc3-mm1-vs/fs/reiserfs/super.c	2004-12-23 18:22:06.576756006 +0300
-@@ -158,6 +158,7 @@ static int finish_unfinished (struct sup
-     int truncate;
- #ifdef CONFIG_QUOTA
-     int i;
-+    int ms_active_set;
- #endif
-  
-  
-@@ -168,7 +169,12 @@ static int finish_unfinished (struct sup
- 
- #ifdef CONFIG_QUOTA
-     /* Needed for iput() to work correctly and not trash data */
--    s->s_flags |= MS_ACTIVE;
-+    if (s->s_flags & MS_ACTIVE) {
-+	    ms_active_set = 0;
-+    } else {
-+	    ms_active_set = 1;
-+	    s->s_flags |= MS_ACTIVE;
-+    }
-     /* Turn on quotas so that they are updated correctly */
-     for (i = 0; i < MAXQUOTAS; i++) {
- 	if (REISERFS_SB(s)->s_qf_names[i]) {
-@@ -276,8 +282,9 @@ static int finish_unfinished (struct sup
-             if (sb_dqopt(s)->files[i])
-                     vfs_quota_off_mount(s, i);
+diff -puN fs/reiserfs/inode.c~reiserfs-add-missing-lock_kernel fs/reiserfs/inode.c
+--- linux-2.6.10-rc3-mm1/fs/reiserfs/inode.c~reiserfs-add-missing-lock_kernel	2004-12-23 18:23:53.557228800 +0300
++++ linux-2.6.10-rc3-mm1-vs/fs/reiserfs/inode.c	2004-12-23 18:23:53.583230368 +0300
+@@ -1447,12 +1447,14 @@ struct dentry *reiserfs_get_dentry(struc
+     
+     key.on_disk_key.k_objectid = data[0] ;
+     key.on_disk_key.k_dir_id = data[1] ;
++    reiserfs_write_lock(sb);
+     inode = reiserfs_iget(sb, &key) ;
+     if (inode && !IS_ERR(inode) && data[2] != 0 &&
+ 	data[2] != inode->i_generation) {
+ 	    iput(inode) ;
+ 	    inode = NULL ;
      }
--    /* Restore the flag back */
--    s->s_flags &= ~MS_ACTIVE;
-+    if (ms_active_set)
-+	    /* Restore the flag back */
-+	    s->s_flags &= ~MS_ACTIVE;
- #endif
-     pathrelse (&path);
-     if (done)
++    reiserfs_write_unlock(sb);
+     if (!inode)
+ 	    inode = ERR_PTR(-ESTALE);
+     if (IS_ERR(inode))
 
 _
 
---=-fS9+cARK/p7wgIZYaHY1--
+--=-/5hXGKpWNF1ZZrGIOTaJ--
 

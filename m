@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284879AbRLKDji>; Mon, 10 Dec 2001 22:39:38 -0500
+	id <S284886AbRLKDnI>; Mon, 10 Dec 2001 22:43:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284871AbRLKDj2>; Mon, 10 Dec 2001 22:39:28 -0500
-Received: from opus.INS.CWRU.Edu ([129.22.8.2]:63175 "EHLO opus.INS.cwru.edu")
-	by vger.kernel.org with ESMTP id <S284850AbRLKDjL>;
-	Mon, 10 Dec 2001 22:39:11 -0500
-Date: Mon, 10 Dec 2001 22:41:56 -0500
-From: "Justin Hibbits <jrh29@po.cwru.edu>"@opus.INS.cwru.edu
+	id <S284874AbRLKDnA>; Mon, 10 Dec 2001 22:43:00 -0500
+Received: from mail.igrin.co.nz ([202.49.244.12]:36111 "EHLO mail.igrin.co.nz")
+	by vger.kernel.org with ESMTP id <S284875AbRLKDmn>;
+	Mon, 10 Dec 2001 22:42:43 -0500
+Message-Id: <3.0.6.32.20011211164149.00b7ba20@mail.igrin.co.nz>
+X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
+Date: Tue, 11 Dec 2001 16:41:49 +1300
 To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: Exporting GPLONLY symbols (Please CC to my email address)
-Message-ID: <20011210224156.E14022@po.cwru.edu>
+From: Simon Byrnand <simon@igrin.co.nz>
+Subject: Bug in disk Quota's on 2.2.19 (and maybe other kernels) ?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22i
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Umm....I'm a new poster here to the list, but, nonetheless, I have a
-small complaint about the track the kernel is taking with respect to
-kernel modules, specifically the exporting of symbols as GPLONLY.  I
-understand that several hackers are pushing to export many symbols as
-GPLONLY, which I feel is a very bad idea.  The NVidia drivers will no
-longer work, and any other module which depends on symbols which will
-eventually be exported as GPLONLY will also no longer work.  Do you guys
-really want to restrict everyone to using modules licensed under the
-GPL?  I've read and understand the GPL all too well, and came to the
-conclusion that it's a horrible license to begin with, given the simple
-fact that Stallman's communist views are in it, forcing everything
-licensed under it to be under every future license....with one change to
-the license, he can claim all source licensed under the GPL.
+Hi everyone, please CC any replies as I'm not on the list.
 
-I agree with Cox that something has to be done to warn the average user
-that inserting closed source modules might cause something bad, and you
-guys can't do anything about it, but FORCING all modules to become GPL
-is the stupidest idea yet!  Linux is starting to take the road of M$,
-forcing a one-licensed approach.  Not cool guys.
+I've just started using Disk Quotas with Redhat 6.2, and 2.2.19 kernel, ext2.
 
-Those are my thoughts.
+Everything is working ok except I notice an anomoly - if I have an apache
+log file (which is kept open while apache is running) which is owned by a
+normal user account, and I chown it to root, the quotas are not updated to
+reflect the fact that the user who used to own the file should have less
+space "used" from their quota. There should be a decrease in the amount of
+space used in their quota by the size of the file.
 
-Justin Hibbits
+If I then chown the file back to them again there *is* an increase in space
+used on their quota. chowning the file back to root again a second time
+*does* cause a decrease in space used from their quota, but only back to
+the previous incorrect amount.
+
+If I then run quotacheck -avug to force a manual refresh of all the quotas,
+the discrepancy is corrected.
+
+Whats going on here ? Is the quota code buggy ? Is this something which has
+been fixed in 2.4 ?
+
+Not having used quotas under Linux before I don't know if I'm missing
+something obvious.
+
+Regards,
+Simon
+
 

@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129135AbRBLPMV>; Mon, 12 Feb 2001 10:12:21 -0500
+	id <S129104AbRBLPOL>; Mon, 12 Feb 2001 10:14:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129199AbRBLPML>; Mon, 12 Feb 2001 10:12:11 -0500
-Received: from [199.202.147.246] ([199.202.147.246]:52752 "EHLO
-	norton.miranda.com") by vger.kernel.org with ESMTP
-	id <S129135AbRBLPL4>; Mon, 12 Feb 2001 10:11:56 -0500
-Message-ID: <3A87FD00.1040309@cam.org>
-Date: Mon, 12 Feb 2001 10:10:56 -0500
-From: "Justin F. Knotzke" <shampoo@cam.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17 i686; en-US; 0.6) Gecko/20001205
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: protocol fe11 is buggy, dev eth0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S129440AbRBLPOB>; Mon, 12 Feb 2001 10:14:01 -0500
+Received: from kweetal.tue.nl ([131.155.2.7]:19757 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S129104AbRBLPNt>;
+	Mon, 12 Feb 2001 10:13:49 -0500
+Message-ID: <20010212161347.A28981@win.tue.nl>
+Date: Mon, 12 Feb 2001 16:13:47 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: Matti Aarnio <matti.aarnio@zmailer.org>,
+        Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lkml subject line
+In-Reply-To: <Pine.GSO.4.21.0102121118580.10132-100000@acms23> <20010212133324.B15688@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20010212133324.B15688@mea-ext.zmailer.org>; from Matti Aarnio on Mon, Feb 12, 2001 at 01:33:24PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
+On Mon, Feb 12, 2001 at 01:33:24PM +0200, Matti Aarnio wrote:
+> On Mon, Feb 12, 2001 at 11:20:40AM +0000, Guennadi Liakhovetski wrote:
+> > Dear all (and list maintainers in particular)
+> > 
+> > Wouldn't it be a good idea to prepend all lkml subjects with [LKML] like
+> > many other lists do to distinguish lkml messages from the rest.
+> 
+>   NO!
+> 
+>   Have you ever seen reply-chains resulting at such schemes ?
+> 
+>     Re: [FOO] Re: [FOO] Re: [FOO] Re: [FOO] subject text
+> 
 
-	I am running kernel 2.2.17 and my logs are littered with:
+Matti - that is not a very good reason.
 
-"protocol fe11 is buggy, dev eth0." I managed to locate where in the 
-source code this line gets printed. However I can't say much more then that.
+No doubt we are able to write software that prepends [FOO]
+and then removes all other instances on [FOO].
+Many mailing lists do precisely that.
 
-	Any ideas if this has been fixed? Please cc to my address since I am not 
-on the list.
+There are advantages: distinguish personal messages from
+mailing list messages, and distinguish between different
+mailing lists. And disadvantages - maybe only one:
+sacrificing valuable Subject: line space.
 
-	Justin.
+I would not be against a [LK] label.
 
-
-
-This msg comes from the kernel (as syslog mentions), more precisely from
-$(LK_SRC_ROOT)/net/core/dev.c (usually $(LK_SRC_ROOT)=/usr/src/linux) :
-
-       /* More sensible variant. skb->nh should be correctly
-          set by sender, so that the second statement is
-          just protection against buggy protocols.
-       */
-       skb2->mac.raw = skb2->data;
-
-       if (skb2->nh.raw < skb2->data || skb2->nh.raw >= skb2->tail) {
-               if (net_ratelimit())
-                       printk(KERN_DEBUG "protocol %04x is buggy, dev
-%s\n", skb2->protocol, dev->name);
-               skb2->nh.raw = skb2->data;
-               if (dev->hard_header)
-                       skb2->nh.raw += dev->hard_header_len;
-       }
-
--- 
-Justin F. Knotzke
-shampoo@cam.org
-pgp public key http://www.shampoo.ca/pubkey.html
-
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,52 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270319AbTGRUDy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 16:03:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270334AbTGRUDy
+	id S270346AbTGRUHc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 16:07:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270350AbTGRUHc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 16:03:54 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:51966 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S270319AbTGRUDx (ORCPT
+	Fri, 18 Jul 2003 16:07:32 -0400
+Received: from snowman.net ([66.93.83.236]:21517 "EHLO relay.snowman.net")
+	by vger.kernel.org with ESMTP id S270346AbTGRUHa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 16:03:53 -0400
-Date: Fri, 18 Jul 2003 22:18:00 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: James Simmons <jsimmons@infradead.org>, Amit Shah <shahamit@gmx.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test1: Framebuffer problem
-In-Reply-To: <1058533025.19511.33.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.GSO.4.21.0307182214240.26729-100000@vervain.sonytel.be>
+	Fri, 18 Jul 2003 16:07:30 -0400
+From: nick@snowman.net
+Date: Fri, 18 Jul 2003 16:22:19 -0400 (EDT)
+To: Rik van Riel <riel@redhat.com>
+cc: Richard Stallman <rms@gnu.org>, linux-kernel@vger.kernel.org
+Subject: Re: Bitkeeper
+In-Reply-To: <Pine.LNX.4.44.0307181603340.21716-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.21.0307181621530.16266-100000@ns.snowman.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Jul 2003, Alan Cox wrote:
-> On Iau, 2003-07-17 at 18:34, James Simmons wrote:
-> > > > > > CONFIG_FB_VGA16=y 		<---- to many drivers selected. Please 
-> > > > 				<---- pick only one.
-> > > > > > CONFIG_FB_VESA=y
-> > > 
-> > > This is a completely sensible selection and works as expected in 2.4 so
-> > > it really wants fixing anyway
-> > 
-> > It is if you have more than one graphics card. If you only have one card 
-> > then you will have problems. 
+How about all of you take a much nicer tilt on this, and ask McVoy (who's
+already giveing you the software free) his price to GPL bitkeeper.
+	Nick
+
+On Fri, 18 Jul 2003, Rik van Riel wrote:
+
+> On Fri, 18 Jul 2003, Richard Stallman wrote:
 > 
-> Then it still needs to be fixed. This works correctly in 2.4
-
-Since vesafb can detect whether you booted with a graphics mode, vga16fb should
-be able to detect you didn't, right?
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+> > I think it would be appropriate at this point to write a free client
+> > that talks with Bitkeeper,
+> 
+> Maybe.  I'll leave that decision to whomever decides to
+> invest his time and/or money in implementing such software.
+> 
+> > and for Linux developers to start switching to that from Bitkeeper.
+> 
+> That would be a bit premature.  I certainly wouldn't switch
+> to a piece of software that doesn't exist yet. ;)
+> 
+> To put it more bluntly: free software would have to implement
+> a very significant amount of Bitkeeper's functionality before
+> I would ever consider switching to it.
+> 
+> At the moment there simply is no equivalent free alternative
+> to Bitkeeper, so there's nothing to switch to.  Once such an
+> alternative exists we could continue this debate.
+> 
+> kind regards,
+> 
+> Rik
+> -- 
+> Great minds drink alike.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266519AbUIIL5l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263001AbUIIMBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266519AbUIIL5l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 07:57:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266505AbUIIL45
+	id S263001AbUIIMBY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 08:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267283AbUIIMBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 07:56:57 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:64909 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S266490AbUIIL4g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 07:56:36 -0400
-Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>
-In-Reply-To: <20040908184130.GA12691@k3.hellgate.ch>
-References: <20040908184130.GA12691@k3.hellgate.ch>
+	Thu, 9 Sep 2004 08:01:24 -0400
+Received: from gate.crashing.org ([63.228.1.57]:43719 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263001AbUIIMBL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 08:01:11 -0400
+Subject: Re: vDSO for ppc64 : Preliminary release #3
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Jakub Jelinek <jakub@redhat.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linuxppc64-dev <linuxppc64-dev@lists.linuxppc.org>,
+       Ulrich Drepper <drepper@redhat.com>
+In-Reply-To: <16704.15604.289019.476483@cargo.ozlabs.ibm.com>
+References: <1094719382.2543.62.camel@gaston>
+	 <20040909091208.GY31909@devserv.devel.redhat.com>
+	 <16704.15604.289019.476483@cargo.ozlabs.ibm.com>
 Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1094730811.22014.8.camel@moss-spartans.epoch.ncsc.mil>
+Message-Id: <1094731188.2543.76.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 09 Sep 2004 07:53:31 -0400
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 09 Sep 2004 21:59:49 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-08 at 14:41, Roger Luethi wrote:
-> A few notes:
-> - Access control can be implemented easily. Right now it would be bloat,
->   though -- the vast majority of fields in /proc are world-readable
->   (/proc/pid/environ being the notable exception).
+On Thu, 2004-09-09 at 21:22, Paul Mackerras wrote:
+> Jakub Jelinek writes:
+> 
+> > That is on purpose, even if vDSO location is randomized (e.g. on IA-32),
+> > no relocations should happen, so that the vDSO can be shared (unless
+> > written into by the debugger, that is).  ld.so knows how to deal with
+> > .dynamic section relocation of vDSOs.
+> 
+> On 64-bit architectures which use procedure descriptors, the
+> descriptors will have to be relocated (unless you or Alan can come up
+> with some toolchain or ld.so magic or something).  But the descriptors
+> are in the data section rather than the text, of course.
 
-They aren't world readable when using a security module like SELinux;
-they are then typically only accessible by processes in the same
-security domain, aside from processes in privileged domains. 
-security_task_to_inode() hook sets the security attributes on the
-/proc/pid inodes based on their security context, and then
-security_inode_permission() hook controls access to them.  So you need
-at least comparable controls.
+In the case of the ppc vDSO, there is no .data section, the descriptors
+are in the .opd section along with the .text, but that isn't a problem.
+That means that 1 page of vDSO text will be COW'ed for the few apps that
+request a different address (again, unless we want randomizing). The
+vDSO also has a special data page that _has_ to be shared, but it's
+separate and doesn't overlap the actual .so pages so it shouldn't be
+affected by a possible relocation.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
+Of course, unless somebody comes up with a clever trick to avoid those
+altogether...
+
+Ben.
+
 

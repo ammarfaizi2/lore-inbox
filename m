@@ -1,45 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbULUNva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbULUNzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261758AbULUNva (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 08:51:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbULUNva
+	id S261759AbULUNzF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 08:55:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbULUNzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 08:51:30 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:40940 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261758AbULUNv1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 08:51:27 -0500
-Subject: Re: Intercepting system calls
-From: Steven Rostedt <rostedt@goodmis.org>
-To: selvakumar nagendran <kernelselva@yahoo.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041221042224.48160.qmail@web60608.mail.yahoo.com>
-References: <20041221042224.48160.qmail@web60608.mail.yahoo.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 21 Dec 2004 08:51:23 -0500
-Message-Id: <1103637083.17511.3.camel@localhost.localdomain>
+	Tue, 21 Dec 2004 08:55:05 -0500
+Received: from rproxy.gmail.com ([64.233.170.200]:29899 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261759AbULUNy7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 08:54:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=ehtTMobTcIHjAPkNXUm6v2rWdvucTOvYxiaEbS/1HetTN7PTCSJZf+qyaa1gxp9nttPX0AVuVeM0laS/2dR1Hfb1xvnWGLOtwjOi6b6N87aCEx+fiRFXcl/BZkwXygf3yUPj+X168QLJjh8lZNDz6OV3Ieq8Z4OJFs75haiOuWM=
+Message-ID: <72c6e3790412210554400907c8@mail.gmail.com>
+Date: Tue, 21 Dec 2004 19:24:58 +0530
+From: linux lover <linux.lover2004@gmail.com>
+Reply-To: linux lover <linux.lover2004@gmail.com>
+To: Adrian von Bidder <avbidder@fortytwo.ch>
+Subject: Re: how to solve kernel oops message
+Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+In-Reply-To: <200412211415.22276@fortytwo.ch>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <72c6e37904122101137698b6a1@mail.gmail.com>
+	 <200412211415.22276@fortytwo.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-12-20 at 20:22 -0800, selvakumar nagendran wrote:
->     I want to intercept system calls that are provided
-> for IPC in Linux. I have to determine whether a
-> process blocks while executing a system call and I
-> must save the arguments passed to that system call.
->     Can I modify the system call source code directly
-> for this? or if I want the system calls to refer my
-> module, how should I do that? can anyone explain for
-> this, if possible with some code?..
+Hello Adrian,
+               I have RH9 with its default kernel 2.4.20-8. And i
+compile a new kernel 2.4.24 with minimum options in make menuconfig on
+2 pcs connected via crossover wire. When i boot both pcs either one
+starting first got oops when other pc try to bring eth0 up. What is
+the problem?
+              I add a lot printk's in kernel to check packet path in
+case of TCP connection.
+regards,
+linux.lover
 
-Do you have to do this in the kernel? Have you taken a look at ptrace?
-Especially PTRACE_SYSCALL (man ptrace).  Although it may be trickier to
-know if it blocked or not, but it should still be possible to do
-entirely from user land, and thus easier to write/debug.
-
--- Steve
-
-
+On Tue, 21 Dec 2004 14:15:17 +0100, Adrian von Bidder
+<avbidder@fortytwo.ch> wrote:
+> On Tuesday 21 December 2004 10.13, linux lover wrote:
+> > Hi all,
+> >             I need urgent help on kernel oops message. Can anybody
+> [..]
+> 
+> This information is next to useless. At least report
+>  - what did you do that caused the oops message?
+>  - what kernel version, exactly, are you using
+>    - can you reproduce it with other (newer) kernel versions, too?
+>    - can you reproduce it on other machines, too?
+>  - how does your kernel configuration look like?
+> 
+> (btw, your previous message about loading a module makes me wonder if you
+> understand enough of Linux to understand what people here might propose
+> that you do to solve the problem.  There are are many places where people
+> who are new to Linux can request help, but the kernel mailing list is
+> probably not one of those...)
+> 
+> greetings
+> -- vbi
+> 
+> --
+> Beware of the FUD - know your enemies. This week
+>     * The Alexis de Toqueville Institue *
+> http://fortytwo.ch/opinion/adti
+> 
+> 
+>

@@ -1,51 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130635AbQKMF3L>; Mon, 13 Nov 2000 00:29:11 -0500
+	id <S130074AbQKMFgw>; Mon, 13 Nov 2000 00:36:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130636AbQKMF3B>; Mon, 13 Nov 2000 00:29:01 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:49674 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130635AbQKMF2s>; Mon, 13 Nov 2000 00:28:48 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Where is it written?
-Date: 12 Nov 2000 21:28:29 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8unu5t$it4$1@cesium.transmeta.com>
-In-Reply-To: <20001110184031.A2704@munchkin.spectacle-pond.org> <20001111163204.B6367@inspiron.suse.de> <20001111171749.A32100@wire.cadcamlab.org> <20001112132328.C2366@athlon.random>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+	id <S130149AbQKMFgn>; Mon, 13 Nov 2000 00:36:43 -0500
+Received: from dolly.vellum.cz ([62.80.80.20]:19531 "EHLO dolly.vellum.cz")
+	by vger.kernel.org with ESMTP id <S130074AbQKMFg2>;
+	Mon, 13 Nov 2000 00:36:28 -0500
+Message-ID: <20001113063559.A27820@dolly.vellum.cz>
+Date: Mon, 13 Nov 2000 06:35:59 +0100
+From: Karel Zatloukal <kamzik@dolly.vellum.cz>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Announce: NFS-client & NIS-client UID/GID remapper
+In-Reply-To: <200011062121.eA6LLir27520@dolly.vellum.cz> <200011062321.eA6NLON235284@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2
+In-Reply-To: <200011062321.eA6NLON235284@saturn.cs.uml.edu>; from Albert D. Cahalan on Mon, Nov 06, 2000 at 06:21:24PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20001112132328.C2366@athlon.random>
-By author:    Andrea Arcangeli <andrea@suse.de>
-In newsgroup: linux.dev.kernel
+On Mon, Nov 06, 2000 at 06:21:24PM -0500, Albert D. Cahalan wrote:
 > 
-> I think it doesn't worth to break binary compatilibity at this late stage.
-> 
-> > design such.)  One issue: ideally you want to use 64-bit regs on AMD
-> > Hammer for long longs, but then you leave out all legacy x68s. :(
-> 
-> We can't in compatibilty mode because the rex regs are available _only_ in
-> 64bit mode and even assuming the hardware would support that I would not
-> recommend that since as you said that binary would not run anymore on any other
-> x86 so causing pain.  Recompiling a program with native x86-64 gcc 64bit (that
-> uses the 64bit ABI) is the right way to go in that case (64bit mode uses 1
-> 64bit register for long long as all other 64bit architectures of course).
-> 
+> The UID/GID mapper should be sepatate from the regex rewriting rules.
 
-Well, you *could* run REX32, but REX32 is not x86 (x86 code doesn't
-run in REX32 mode, and REX32 code doesn't run on an x86.)
+This is already done - the code is independent, it is just written in the same
+source file.  Any problems from it?
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+> Both should be separate from NFS, because they have little to do with NFS.
+> These are useful generic VFS features. It would be perfectly reasonable
+> to use these features on a Zip disk with UFS (from MacOS X maybe).
+
+Hmm... You are perfectly right, oops.
+
+There is only a bit of technical detail how to set such mapping:  Currently I'm
+using the "struct nfs_mount_data" which can contain any passed id-mapping
+table.  When it would be filesystem-general, it would need different solution
+("data" mount(2) argument is passed only as textstring, not as flexible
+'struct' as in NFS case).  Probably to pass it by ioctl() call after the
+mount(2) call has been done.
+
+OK, I've todolisted this better generic-VFS approach, thanks. B ut I'll
+implement it with some delay (busy etc).
+
+...
+> The pathname remapper might best be done as a namespace operation
+> similar to mounting.
+...
+> an exploitable /usr/bin/suidperl, I'd like to "mount" a new
+> executable on top of that from /bin/good-suidperl to fix the hole.
+
+Such pathname remapper may be nice but it IMHO doesn't correspond to any code
+written for announced idmapper.  This would be a nice but completely separate
+feature.  Just to clarify - I have previously written:
+
+# As a feature it also supports general regex rewriting rules for NIS client (to
+# enable adjusts like "/bin/ksh -> /bin/bash" etc.).
+
+This has the purpose to change the NIS line itself to prevent such hacking as
+simulating some /bin/ksh etc.
+
+
+						Karel Zatloukal
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,65 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267827AbUHEUc7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267825AbUHEUep@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267827AbUHEUc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 16:32:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267933AbUHEUcG
+	id S267825AbUHEUep (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 16:34:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267829AbUHEUdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 16:32:06 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:26188 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S267827AbUHEUbr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 16:31:47 -0400
-Date: Thu, 5 Aug 2004 22:33:17 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Alexander Stohr <Alexander.Stohr@gmx.de>
-Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org,
-       Pawe? Sikora <pluto@pld-linux.org>
-Subject: Re: confirmed: kernel build for 2.6.8-rc3 is broken for at least i386
-Message-ID: <20040805203317.GA22342@mars.ravnborg.org>
-Mail-Followup-To: Alexander Stohr <Alexander.Stohr@gmx.de>,
-	sam@ravnborg.org, linux-kernel@vger.kernel.org,
-	Pawe? Sikora <pluto@pld-linux.org>
-References: <2695.1091715476@www33.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2695.1091715476@www33.gmx.net>
-User-Agent: Mutt/1.5.6i
+	Thu, 5 Aug 2004 16:33:19 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:21412 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S267825AbUHEUcz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 16:32:55 -0400
+Date: Thu, 5 Aug 2004 21:32:46 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: Christoph Rohland <cr@sap.com>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] simple fs stop -ve dentries
+Message-ID: <Pine.LNX.4.44.0408052129570.2563-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05, 2004 at 04:17:56PM +0200, Alexander Stohr wrote:
-> 
-> As you, and possibly others can see,
-> the compilation happens from the arch/i386/kernel/timers subdir,
-> where we got lead to by th arch/i386/kernel subdir directly
-> and in this case the needed settings seem to lack despite they
-> were present in a former stage of the compilation.
+A tmpfs user reported increasingly slow directory reads when repeatedly
+creating and unlinking in a mkstemp-like way.  The negative dentries
+accumulate alarmingly (until memory pressure finally frees them), and
+are just a hindrance to any in-memory filesystem.  simple_lookup set
+d_op to arrange for negative dentries to be deleted immediately.
 
-What happens is that the value assigned to AFLAGS_vmlinux.lds.o is lost
-between the first and the second invocation of make in arch/i386/kernel
+(But I failed to discover how it is that on-disk filesystems seem to
+keep their negative dentries within manageable bounds: this effect was
+gross with tmpfs or ramfs, but no problem at all with extN or reiser.)
 
-The only difference is the setting of LANG etc. - which you deleted
-from the log.
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
 
-Pleae try to delete the following lines from the top-level Makefile and try again:
+--- 2.6.8-rc3-mm1/fs/libfs.c	2004-04-04 03:38:40.000000000 +0100
++++ linux/fs/libfs.c	2004-08-05 20:25:50.054872096 +0100
+@@ -26,14 +26,27 @@ int simple_statfs(struct super_block *sb
+ }
+ 
+ /*
+- * Lookup the data. This is trivial - if the dentry didn't already
+- * exist, we know it is negative.
++ * Retaining negative dentries for an in-memory filesystem just wastes
++ * memory and lookup time: arrange for them to be deleted immediately.
+  */
++static int simple_delete_dentry(struct dentry *dentry)
++{
++	return 1;
++}
+ 
++/*
++ * Lookup the data. This is trivial - if the dentry didn't already
++ * exist, we know it is negative.  Set d_op to delete negative dentries.
++ */
+ struct dentry *simple_lookup(struct inode *dir, struct dentry *dentry, struct nameidata *nd)
+ {
++	static struct dentry_operations simple_dentry_operations = {
++		.d_delete = simple_delete_dentry,
++	};
++
+ 	if (dentry->d_name.len > NAME_MAX)
+ 		return ERR_PTR(-ENAMETOOLONG);
++	dentry->d_op = &simple_dentry_operations;
+ 	d_add(dentry, NULL);
+ 	return NULL;
+ }
 
-line 622-626:
-	$(Q)if [ ! -z $$LC_ALL ]; then          \
-	export LANG=$$LC_ALL;           \
-	export LC_ALL= ;                \
-	fi;                                     \
-	export LC_COLLATE=C; export LC_CTYPE=C; \
-	
-If this cures the problem then please provide me with you LANG settings.
-Both LANG and LC_* variables.
-
-If it still fails please provide me with the _full_ unedited log up until
-the point where it fails.
-
-Since I have to reports on this issue I really would like to have it
-nailed before 2.6.8 is out.
-
-The other report is from: Pawe? Sikora <pluto@pld-linux.org>
-
-	Sam

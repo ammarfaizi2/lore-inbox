@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265135AbTCCOfo>; Mon, 3 Mar 2003 09:35:44 -0500
+	id <S264925AbTCCOfD>; Mon, 3 Mar 2003 09:35:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265154AbTCCOfo>; Mon, 3 Mar 2003 09:35:44 -0500
-Received: from 213.237.116.70.adsl.oebr.worldonline.dk ([213.237.116.70]:39789
-	"EHLO thor.jiffies.dk") by vger.kernel.org with ESMTP
-	id <S265135AbTCCOfm>; Mon, 3 Mar 2003 09:35:42 -0500
-Date: Mon, 3 Mar 2003 15:46:02 +0100
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S265135AbTCCOfC>; Mon, 3 Mar 2003 09:35:02 -0500
+Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:64709 "EHLO
+	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S264925AbTCCOfC> convert rfc822-to-8bit; Mon, 3 Mar 2003 09:35:02 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <pollard@admin.navo.hpc.mil>
+To: Dan Kegel <dank@kegel.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Protecting processes from the OOM killer
+Date: Mon, 3 Mar 2003 08:45:00 -0600
+User-Agent: KMail/1.4.1
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with aacraid driver in 2.5.63-bk-latest
-Message-ID: <20030303144602.GA3602@jiffies.dk>
-References: <20030303100515.GA2697@jiffies.dk> <1046698844.5890.2.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1046698844.5890.2.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
-From: Christoffer Hall-Frederiksen <hall@jiffies.dk>
+References: <3E5EB9A8.3010807@kegel.com> <1046439618.16599.22.camel@irongate.swansea.linux.org.uk> <3E5F8985.60606@kegel.com>
+In-Reply-To: <3E5F8985.60606@kegel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200303030845.00097.pollard@admin.navo.hpc.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 03, 2003 at 01:40:44PM +0000, Alan Cox wrote:
-|>  Its freezing after setup somewhere. There have been a lot of scsi changes
-|>  and not all of them are ones I've checked with aacraid. The osdl guys have
-|>  actually done pretty much all the work so far.
-|>  
-|>  First things to try
-|>  
-|>  Does it hang with SMP/Pre-empt off
-|>  Where does the nmi lockbreaker show it hanging 
+On Friday 28 February 2003 10:08 am, Dan Kegel wrote:
+> Alan Cox wrote:
+snip
+> > Everything else is armwaving "works half the time" stuff. By the time
+> > the OOM kicks in the game is already over.
+>
+> Even with overcommit disallowed, the OOM killer is going to run
+> when my users try to run too big a job, so I would still like
+> the OOM killer to behave "well".
 
-Preemt was never on and turning off smp doesn't change anything, the
-freeze happens in the same place.
+Shouldn't - the process the user tries to run will not be started since
+it must reserve the space first. malloc will fail immediately, allowing the
+process to handle the even gracefully and exit.
 
-I've tried with UP, APIC-enabled and nmi_watchdog={1,2}, but that
-doesn't change anything. Next I'll be throwing kgdb after it.
+Anything else is a bug in the application.
 
 -- 
-	Christoffer
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

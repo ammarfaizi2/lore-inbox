@@ -1,70 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262942AbTDIJOw (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 05:14:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbTDIJOv (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 05:14:51 -0400
-Received: from unthought.net ([212.97.129.24]:36803 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id S262942AbTDIJOu (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 05:14:50 -0400
-Date: Wed, 9 Apr 2003 11:26:28 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.66-(bk) == horrible response times for non X11 applications
-Message-ID: <20030409092628.GF10141@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.50.0304061757240.2268-100000@montezuma.mastecende.com> <20030406182435.5a243297.akpm@digeo.com> <20030409064215.GC10141@unthought.net> <3E93D345.5090209@aitel.hist.no> <20030409085231.GD10141@unthought.net> <3E93E36A.1050206@aitel.hist.no>
+	id S262945AbTDIJPf (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 05:15:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262947AbTDIJPd (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 05:15:33 -0400
+Received: from [12.47.58.221] ([12.47.58.221]:33053 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262945AbTDIJP3 (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 05:15:29 -0400
+Date: Wed, 9 Apr 2003 02:27:26 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: keitha@edp.fastfreenet.com, linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: bdflush flushing memory mapped pages.
+Message-Id: <20030409022726.1ec93a0f.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.10.10304090209440.12558-100000@master.linux-ide.org>
+References: <007601c2fecd$12209070$230110ac@kaws>
+	<Pine.LNX.4.10.10304090209440.12558-100000@master.linux-ide.org>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3E93E36A.1050206@aitel.hist.no>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Apr 2003 09:27:01.0514 (UTC) FILETIME=[2D0DCEA0:01C2FE7A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 09, 2003 at 11:10:02AM +0200, Helge Hafting wrote:
-...
-> >Look, I'm not trying to defend the boosting mechanism at all costs - I'm
-> >just trying to argue that it's not fundamentally insane.   :)
+Andre Hedrick <andre@linux-ide.org> wrote:
+>
 > 
-> I agree that it isn't fundamentally insane, but using the 2.5.66
-> mechanism might force you to
-> concider some apps "broken" that were fine before.  This forces the
-> question of how hard it should be to write a user program.
-
-That is a good and valid point
-
+> Funny you mention this point!
 > 
-> 100 screen updates per second doesn't mean it is important if it only
-> is twiddling of a baton or some progress bar.  People simply stick such
-> things in an outer loop - and that worked out to a update or two
-> per second in 1989.  Same code on todays machines results in hundreds
-> of updates per second.  Are we going to fix apps as our pcs becomes faster?
+> I just spent 30-45 minutes on the phone talking to Jens about this very
+> issue.  Jens states he can map the model in to 2.5. and will give it a
+> fling in a bit.  This issue is a must; however, I had given up on the idea
+> until 2.7.  However, the issues he and I addressed, in combination to your
+> request jive in sync.
 
-nice my_old_compute_intensive_app
+noooo.....   This isn't going to happen.  There are many reasons.
 
-We agree that only CPU intensive apps will cause the problem right?
+Firstly, how can bdflush even know what pages to write?  The dirtiness of
+these pages is recorded *only* in some processor's hardware pte cache and/or
+the software pagetables.  Someone needs to go tell all the CPUs to writeback
+their pte caches into the pagetables and then someone needs to walk the
+pagetables propagating the pte dirty bit into the pageframes before we can
+even start the I/O.
 
-So if we keep the CPU boosting mechanism, but only boost non-niced
-processes (makes good sense in my twisted mind at least), we provide the
-interactiveness benefits for the general case, and provide an easy way
-to run unmaintained (or "semi broken" or whatever we will call them)
-applications.
+That's what msync does, in filemap_sync().
 
-We end up "forcing" the user to nice some (hopefully few) CPU intensive
-applications that didn't need nicing before.   I can see that that will
-be a problem.
 
-But will it be a bigger problem than not having the interactiveness
-boost at all?
+And even if bdflush did this automagically, it's the wrong thing to do
+because the application could very well be repeatedly dirtying the pages. 
+Very probably.  So we've just gone and done a ton of pointless I/O, over and
+over.
 
-Cheers,
+You can view MAP_SHARED as an IPC mechanism which uses the filesystem
+namespace for naming.  No way do these people want bdflush pointlessly
+hammering the disk.
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+You can also view MAP_SHARED as a (strange) way of writing files out.  If you
+want to do that then fine, but you need to tell the kernel when you've
+finished, just like write() does.   You do that with msync.
+
+
+

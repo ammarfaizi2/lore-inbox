@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269572AbTGOTtO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 15:49:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269616AbTGOTtO
+	id S269559AbTGOTvu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 15:51:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269583AbTGOTvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 15:49:14 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:30733 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S269572AbTGOTtL (ORCPT
+	Tue, 15 Jul 2003 15:51:50 -0400
+Received: from tazz.wtf.dk ([80.199.6.58]:1664 "EHLO sokrates")
+	by vger.kernel.org with ESMTP id S269559AbTGOTvt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 15:49:11 -0400
-Date: Tue, 15 Jul 2003 22:03:57 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 'what to expect'
-Message-ID: <20030715200357.GA1121@win.tue.nl>
-References: <20030711155613.GC2210@gtf.org> <20030711203850.GB20970@win.tue.nl> <20030715000331.GB904@matchmail.com> <20030715170804.GA1089@win.tue.nl> <20030715194215.GE904@matchmail.com>
+	Tue, 15 Jul 2003 15:51:49 -0400
+Date: Tue, 15 Jul 2003 22:07:07 +0200
+From: Michael Kristensen <michael@wtf.dk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Unable to boot linux-2.6-test1
+Message-ID: <20030715200707.GA581@sokrates>
+References: <20030715180346.GB3843@sokrates>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030715194215.GE904@matchmail.com>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030715180346.GB3843@sokrates>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 15, 2003 at 12:42:15PM -0700, Mike Fedyk wrote:
+Okay, now, when I can boot the kernel (read some of the other posts in
+this thread: I have got the booting working), I have found out that the
+modules, which have unresolved symbols, can't be loaded within the
+kernel. So far, so good. These unresolved symbols. Are they kernel
+errors or are the errors on my side? What can *I* do to fix it, besides
+messing with the kernel code? Thanks.
 
-> > DOS partition table works up to 2^32 sectors, and with
-> > 2^9-byte sectors that is 2 TiB.
-> > 
-> > People are encountering that limit already. We need something
-> > better, either use some existing scheme, or invent something.
-> 
-> Please point me to an URL for a 2TB hard drive.  Or are you pointing out
-> that hardware raid setups look like a single drive (block device)? 
-
-Yes.
-
-
+-- 
+Med Venlig Hilsen/Best Regards/Mit freundlichen Grüßen
+Michael Kristensen <michael@wtf.dk>

@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268868AbUIBTaf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268401AbUIBTdD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268868AbUIBTaf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 15:30:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268474AbUIBTaf
+	id S268401AbUIBTdD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 15:33:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268474AbUIBTdD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 15:30:35 -0400
-Received: from rproxy.gmail.com ([64.233.170.196]:16955 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268868AbUIBT3n (ORCPT
+	Thu, 2 Sep 2004 15:33:03 -0400
+Received: from sycorax.lbl.gov ([128.3.5.196]:5052 "EHLO sycorax.lbl.gov")
+	by vger.kernel.org with ESMTP id S268401AbUIBTcD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 15:29:43 -0400
-Message-ID: <2c6b3ab004090212293b394b41@mail.gmail.com>
-Date: Fri, 3 Sep 2004 00:59:42 +0530
-From: Amit Gud <amitgud@gmail.com>
-Reply-To: Amit Gud <amitgud@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Using filesystem blocks
-Cc: gud@eth.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Sep 2004 15:32:03 -0400
+To: Thomas Davis <tadavis@lbl.gov>
+Cc: Stuart Young <cef-lkml@optusnet.com.au>, linux-kernel@vger.kernel.org,
+       len.brown@intel.com
+Subject: Re: 2.6.9-rc1 : Weirdness after shutdown - ACPI or Suspend bug?
+References: <200409012020.42482.cef-lkml@optusnet.com.au>
+	<200409012352.21576.cef-lkml@optusnet.com.au>
+	<41363D89.2070604@lbl.gov>
+From: Alex Romosan <romosan@sycorax.lbl.gov>
+Date: Thu, 02 Sep 2004 12:30:56 -0700
+In-Reply-To: <41363D89.2070604@lbl.gov> (message from Thomas Davis on Wed,
+ 01 Sep 2004 14:22:17 -0700)
+Message-ID: <877jrcv573.fsf@sycorax.lbl.gov>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know if this has been already discussed on the list before.
+Thomas Davis <tadavis@lbl.gov> writes:
 
-Is it wise enough to abstract away the usage of blocks for storing
-extended attributes? I mean can the code  - of using filesystem
-blocks, putting headers and all data in place within the blocks,
-managing the block boundaries, padding ... - be taken away from within
-the xattr code. I know xattr is filesystem specific, but if most of
-filesystems are using blocks not associated with any inode to store
-xattr-specifc information it could well be taken to a different layer
-- just like mbcache. Almost only ext2/3 uses mbcache - and that too
-only for xattr - but it is implemented at an abstract level.
+> HOWEVER, using swsusp2, hibernating the machine works, but it
+> refuses to wake back up until you pull the AC power and battery out.
 
-Not only this would add to the modularization, this can help other
-filesystems if they want to use filesystem blocks. Like if one wishes
-to implement distributed filesystem, he may prefer to store the FS
-metadata in blocks rather than in files. Is it advisible for him to
-redo the code, which is very beautifully written in ext2/3 ? I think
-not.
+on my thinkpad t40 after suspending to ram the machine wakes up but
+then it shuts off. shutdown works fine though.
 
-AG
+--alex--
+
+-- 
+| I believe the moment is at hand when, by a paranoiac and active |
+|  advance of the mind, it will be possible (simultaneously with  |
+|  automatism and other passive states) to systematize confusion  |
+|  and thus to help to discredit completely the world of reality. |

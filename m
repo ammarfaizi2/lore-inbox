@@ -1,68 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132284AbRCWA0T>; Thu, 22 Mar 2001 19:26:19 -0500
+	id <S132285AbRCWA07>; Thu, 22 Mar 2001 19:26:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132285AbRCWA0K>; Thu, 22 Mar 2001 19:26:10 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:896 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S132284AbRCWA0A>; Thu, 22 Mar 2001 19:26:00 -0500
-Message-ID: <3ABA9919.C6BEABD4@redhat.com>
-Date: Thu, 22 Mar 2001 19:30:17 -0500
-From: Doug Ledford <dledford@redhat.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-11 i686)
-X-Accept-Language: en
+	id <S132286AbRCWA0k>; Thu, 22 Mar 2001 19:26:40 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:58634 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132285AbRCWA03>; Thu, 22 Mar 2001 19:26:29 -0500
+Subject: Re: [PATCH] gcc-3.0 warnings
+To: jamagallon@able.es (J . A . Magallon)
+Date: Fri, 23 Mar 2001 00:28:32 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds)
+In-Reply-To: <20010323011140.A1176@werewolf.able.es> from "J . A . Magallon" at Mar 23, 2001 01:11:41 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.2ac22
-In-Reply-To: <E14gEvg-0003c0-00@the-village.bc.nu>
-Content-Type: multipart/mixed;
- boundary="------------6F925B480609C1601E789A8C"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14gFRT-0003f4-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------6F925B480609C1601E789A8C
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+>  	page_cache_release(page);
+> -out:
 
-Alan Cox wrote:
+out:;
 
-> o       Next incarnation of the i810 audio driver       (Doug Ledford)
+does that trick
 
-Is this the i810 that's in Red Hat's CVS or the last copy of the big file that
-I sent you?  If it's the last copy of the big file I sent you, then it has a
-memory leak that needs fixed.  I committed the fix for the memory leak to the
-CVS archive something like two days ago.  The patch is attached.
+> -	default:
+> +	default:;
 
--- 
+Agree - done
 
- Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-      Please check my web site for aic7xxx updates/answers before
-                      e-mailing me about problems
---------------6F925B480609C1601E789A8C
-Content-Type: text/plain; charset=us-ascii;
- name="linux-2.4.2-i810_audio-dealloc.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-2.4.2-i810_audio-dealloc.patch"
+> --- linux-2.4.2-ac21/net/ipv4/icmp.c.orig	Thu Mar 22 23:39:22 2001
+> +++ linux-2.4.2-ac21/net/ipv4/icmp.c	Thu Mar 22 23:42:23 2001
 
---- linux/drivers/sound/i810_audio.c.save	Wed Mar 21 20:44:29 2001
-+++ linux/drivers/sound/i810_audio.c	Wed Mar 21 20:44:34 2001
-@@ -1820,12 +1820,11 @@
- 			return -EBUSY;
- 		}
- 		stop_dac(state);
--		dealloc_dmabuf(state);
- 	}
- 	if(dmabuf->enable & ADC_RUNNING) {
- 		stop_adc(state);
--		dealloc_dmabuf(state);
- 	}
-+	dealloc_dmabuf(state);
- 	if (file->f_mode & FMODE_WRITE) {
- 		state->card->free_pcm_channel(state->card, dmabuf->write_channel->num);
- 	}
+Again out:;
 
---------------6F925B480609C1601E789A8C--
+>  			goto error;
+> -	default:
+> +	default:;
+
+Ok
+
+The aic7xxx change looks right too. Someone with the hardware handy needs to
+check that one though.
+
+As to the asm - I'll apply it to -ac if you can verify the asm after changes
+goes happily through the older gcc/binutils (should do) and send me a nice
+clean diff of just those changes
+
+
 

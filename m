@@ -1,93 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265415AbTGCV7k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 17:59:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265416AbTGCV7k
+	id S265416AbTGCWAI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 18:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265418AbTGCWAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 17:59:40 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17168 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265415AbTGCV7g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 17:59:36 -0400
-Date: Thu, 3 Jul 2003 23:14:01 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Johoho <johoho@hojo-net.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.74-mm1
-Message-ID: <20030703231401.G20336@flint.arm.linux.org.uk>
-Mail-Followup-To: Johoho <johoho@hojo-net.de>, linux-kernel@vger.kernel.org
-References: <20030703023714.55d13934.akpm@osdl.org> <20030703103703.GA4266@gmx.de> <20030703120626.D15013@flint.arm.linux.org.uk> <20030703151529.B20336@flint.arm.linux.org.uk> <20030703214921.GM4266@gmx.de>
+	Thu, 3 Jul 2003 18:00:08 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:46792
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S265416AbTGCV77 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 17:59:59 -0400
+Date: Thu, 3 Jul 2003 21:33:28 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Jamie Lokier <jamie@shareable.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Mel Gorman <mel@csn.ul.ie>,
+       Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: What to expect with the 2.6 VM
+Message-ID: <20030703193328.GN23578@dualathlon.random>
+References: <20030702221551.GH26348@holomorphy.com> <20030702222641.GU23578@dualathlon.random> <20030702231122.GI26348@holomorphy.com> <20030702233014.GW23578@dualathlon.random> <20030702235540.GK26348@holomorphy.com> <20030703113144.GY23578@dualathlon.random> <20030703114626.GP26348@holomorphy.com> <20030703125839.GZ23578@dualathlon.random> <20030703184825.GA17090@mail.jlokier.co.uk> <20030703185431.GQ26348@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030703214921.GM4266@gmx.de>; from wodecki@gmx.de on Thu, Jul 03, 2003 at 11:49:21PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <20030703185431.GQ26348@holomorphy.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 03, 2003 at 11:49:21PM +0200, Wiktor Wodecki wrote:
-> On Thu, Jul 03, 2003 at 03:15:29PM +0100, Russell King wrote:
-> > Ok, Wiktor has tried removing these 6 patches, and his problem persists.
-> > According to bk revtool, these 6 patches are the only changes which
-> > went in for to pcmcia from .73 to .74.
-> > 
-> > If anyone else is having similar problems, they need to report them so
-> > we can obtain more data points - I suspect some other change in some other
-> > subsystem broke PCMCIA for Wiktor.
-> > 
-> > Wiktor - short of anyone else responding, you could try reversing each
-> > of the nightly -bk patches from .74 to .73 and work out which set of
-> > changes broke it.
+On Thu, Jul 03, 2003 at 11:54:31AM -0700, William Lee Irwin III wrote:
+> Andrea Arcangeli wrote:
+> >> but I didn't hear any emulator developer ask for this feature yet
 > 
-> it broke with the 2.5.73-rc2 patch. I assume it was:
+> On Thu, Jul 03, 2003 at 07:48:25PM +0100, Jamie Lokier wrote:
+> > No, but there was a meek request to get writable/read-only protection
+> > working with remap_file_pages, so that a garbage collector can change
+> > protection on individual pages without requiring O(nr_pages) vmas.
+> > Perhaps that should have nothing to do with remap_file_pages, though.
+> 
+> I call that application #2.
 
-Ok, looking at the -bk1-bk2 incremental patch, there's a couple of
-possibilities:
+maybe I'm missing something but protections have nothing to do with
+remap_file_pages IMHO. That's all about teaching the swap code to
+reserve more bits in the swap entry and to store the protections there
+and possibly teaching the page fault not to get confused. It might
+prefer to use the populate callback too to avoid specializing the
+pte_none case, but I think the syscall should be different, and it
+shouldn't have anything to do with the nonlinearity (nor with rmap).
 
-- changes to the x86 PCI code
-- changes to yenta_socket.c to add different overrides
-- add burst support to yenta_socket.c for TI bridges
-- add ISA interrupt routing work-around for TI bridges
-
-I think the number one suspect is probably the final one.  Could you try
-reversing this patch please?
-
-diff -urN linux-2.5.73-bk1/drivers/pcmcia/ti113x.h linux-2.5.73-bk2/drivers/pcmcia/ti113x.h
---- linux-2.5.73-bk1/drivers/pcmcia/ti113x.h	2003-06-22 11:32:41.000000000 -0700
-+++ linux-2.5.73-bk2/drivers/pcmcia/ti113x.h	2003-06-24 13:06:59.000000000 -0700
-@@ -175,6 +175,27 @@
- 	new = reg & ~I365_INTR_ENA;
- 	if (new != reg)
- 		exca_writeb(socket, I365_INTCTL, new);
-+
-+	/*
-+	 * If ISA interrupts don't work, then fall back to routing card
-+	 * interrupts to the PCI interrupt of the socket.
-+	 */
-+	if (!socket->socket.irq_mask) {
-+		int irqmux, devctl;
-+
-+		printk (KERN_INFO "ti113x: Routing card interrupts to PCI\n");
-+
-+		devctl = config_readb(socket, TI113X_DEVICE_CONTROL);
-+		devctl &= ~TI113X_DCR_IMODE_MASK;
-+
-+		irqmux = config_readl(socket, TI122X_IRQMUX);
-+		irqmux = (irqmux & ~0x0f) | 0x02; /* route INTA */
-+		irqmux = (irqmux & ~0xf0) | 0x20; /* route INTB */
-+
-+		config_writel(socket, TI122X_IRQMUX, irqmux);
-+		config_writeb(socket, TI113X_DEVICE_CONTROL, devctl);
-+	}
-+
- 	socket->socket.ss_entry->init = ti_init;
- 	return 0;
- }
-
-
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Andrea

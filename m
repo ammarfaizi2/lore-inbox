@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262790AbUKRRQA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262794AbUKRR2p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262790AbUKRRQA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 12:16:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbUKRRNl
+	id S262794AbUKRR2p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 12:28:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbUKRR2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 12:13:41 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:53937 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262779AbUKRRL0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 12:11:26 -0500
-Date: Thu, 18 Nov 2004 12:11:18 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Chris Wright <chrisw@osdl.org>
-cc: Ross Kendall Axe <ross.axe@blueyonder.co.uk>, <netdev@oss.sgi.com>,
-       Stephen Smalley <sds@epoch.ncsc.mil>,
-       lkml <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] linux 2.9.10-rc1: Fix oops in unix_dgram_sendmsg when
- using SELinux and SOCK_SEQPACKET
-In-Reply-To: <20041118090706.O2357@build.pdx.osdl.net>
-Message-ID: <Xine.LNX.4.44.0411181209380.5179-100000@thoron.boston.redhat.com>
+	Thu, 18 Nov 2004 12:28:44 -0500
+Received: from mail.convergence.de ([212.227.36.84]:51362 "EHLO
+	email.convergence2.de") by vger.kernel.org with ESMTP
+	id S262794AbUKRRQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 12:16:40 -0500
+Message-ID: <419CD8BC.1080401@linuxtv.org>
+Date: Thu, 18 Nov 2004 18:15:40 +0100
+From: Michael Hunold <hunold@linuxtv.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Gerd Knorr <kraxel@bytesex.org>
+CC: Andrew Morton <akpm@osdl.org>, Eyal Lebedinsky <eyal@eyal.emu.id.au>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Michael Hunold <hunold@convergence.de>
+Subject: Re: Fw: Re: Linux 2.6.10-rc2 [dvb-bt8xx unload oops]
+References: <20041116014350.54500549.akpm@osdl.org> <20041118130312.GE19568@bytesex>
+In-Reply-To: <20041118130312.GE19568@bytesex>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Nov 2004, Chris Wright wrote:
+Hi,
 
-> Right, but the snippet I posted guards against that I think.  It forces
-> unix_peer_get() in dgram_sendmsg.
+On 18.11.2004 14:03, Gerd Knorr wrote:
+>>This is vanilla 2.6.10-rc2 on P4. This was a problem with -rc1 but
 
-Correct.  We could also add more code to dgram_sendmsg() to simply ignore
-any address passed in for SOCK_SEQPACKETs, but again, I think that is a
-programming error and I think we should signal that, especially as this is
-a new feature.
+> Yes, looks very simliar ...
 
+>>some patches off the list [attached] fixed it. I expected these to be
+>>in -rc2, I am not able to say which patch is missing.
 
+> Uhm, strange.  The bttv patches _are_ merged.
+> Not sure about any for dvb-bt8xx, Michael?
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
+Hm, I'm not sure either, because Eyal says that the problem does not 
+exist with rc2-mm1. But AFAIK all DVB stuff has been merged by Linus so 
+I'm clueless here... 8-(
 
+>   Gerd
+
+CU
+Michael.
 

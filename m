@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265169AbUAGHZh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 02:25:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265193AbUAGHZg
+	id S266153AbUAGH2q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 02:28:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266154AbUAGH2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 02:25:36 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:58762 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265169AbUAGHZf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 02:25:35 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 6 Jan 2004 23:25:33 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: mingo@redhat.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] kthread_create 
-In-Reply-To: <20040107070617.33CE92C107@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0401062314070.1030-100000@bigblue.dev.mdolabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Jan 2004 02:28:46 -0500
+Received: from ms-smtp-02-qfe0.nyroc.rr.com ([24.24.2.56]:51666 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S266153AbUAGH2o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 02:28:44 -0500
+Date: Wed, 7 Jan 2004 02:28:40 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5isms
+Message-ID: <20040107072840.GA2903@andromeda>
+References: <20030703200134.GA18459@andromeda> <20031230213050.GA3301@andromeda>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031230213050.GA3301@andromeda>
+User-Agent: Mutt/1.5.4i
+From: Justin Pryzby <justinpryzby@users.sourceforge.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Jan 2004, Rusty Russell wrote:
+And again ;)
 
-> In message <Pine.LNX.4.44.0401042243510.16042-100000@bigblue.dev.mdolabs.com> you write:
-> > On Mon, 5 Jan 2004, Rusty Russell wrote:
-> > > Nope.  That's EXACTLY the kind of burden on the caller I wanted to
-> > > avoid if at all possible.
+arch/i386/kernel/irq.c:
+ * (mostly architecture independent, will move to kernel/irq.c in 2.5.)
+
+Justin
+On Tue, Dec 30, 2003 at 04:30:50PM -0500, pryzbyj wrote:
+> It seems I've found another 2.5ism.  2.6.0, arch/i386/kernel/dmi_scan.c
+> has
+> 
+> #ifdef CONFIG_SIMNOW
+>         /*
+>          *      Skip on x86/64 with simnow. Will eventually go away
+>          *      If you see this ifdef in 2.6pre mail me !
+>          */
+>         return -1;
+> #endif
+> 
+> I don't know whose file this is ..
+> 
+> Also, 2.6.0 still has the previously mentioned problem in
+> include/asm/io.h.
+> 
+> Not subscribed, CC me.
+> 
+> Justin
+> 
+> On Thu, Jul 03, 2003 at 01:01:34PM -0700, pryzbyj wrote:
+> > Linux 2.4.21, include/asm/io.h:51 says "Will be removed in 2.4".  Its
+> > there in 2.5.74 as well.
 > > 
-> > Which burden? The kthread is a resource and a "struct kthread" is an 
-> > handle to the resource. You create the resource (kthread_create()), you 
-> > control the resource (kthread_start()) and you free the resource 
-> > (kthread_stop()). To me it's simple and clean and does not require hacks 
-> > like taking owerships of tasks and using SIGCLD/waitpid to communicate. 
-> > Anyway, that's your baby and you'll take your choice.
-> 
-> Thinking more about this issue lead me to rewrite the code to be
-> simpler to use.  Main benefit is that the transition from existing
-> code is minimal.
-> 
-> Latest version of patch, and code which uses it.  It's actually quite
-> neat now.  Changes since first version:
-> 
-> 1) kthread_start() deleted in favor of wake_up_process() directly.
-> 2) New kthread_bind() for just-created threads, to replace original
->    migration thread open-coded version.
-> 3) Slight simplification: thread named only if spawned OK.
-
-Yes, I like this better. Without any doubt, the removal of sync'd start 
-function simplified things a lot.
-
-
-
-- Davide
-
-
-
-
+> > I can understand why it would be in 2.5; the comment should say 2.6,
+> > though.
+> > 
+> > Justin

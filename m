@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129259AbQKUBq3>; Mon, 20 Nov 2000 20:46:29 -0500
+	id <S129231AbQKUCOH>; Mon, 20 Nov 2000 21:14:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129379AbQKUBqT>; Mon, 20 Nov 2000 20:46:19 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:16389 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129259AbQKUBqG>; Mon, 20 Nov 2000 20:46:06 -0500
-Message-ID: <3A19CBD3.FC897005@timpanogas.org>
-Date: Mon, 20 Nov 2000 18:11:47 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
+	id <S129239AbQKUCN5>; Mon, 20 Nov 2000 21:13:57 -0500
+Received: from uberbox.mesatop.com ([208.164.122.11]:269 "EHLO
+	uberbox.mesatop.com") by vger.kernel.org with ESMTP
+	id <S129231AbQKUCNv>; Mon, 20 Nov 2000 21:13:51 -0500
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] CONFIG_TOSHIBA Configure.help for 2.4.0-test11
+Date: Mon, 20 Nov 2000 18:44:06 -0700
+X-Mailer: KMail [version 1.1.95.2]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-To: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: NFS 2.4.0-11 noisy messages/NFS rpc.lockd returns error
-In-Reply-To: <200011210111.eAL1Bdj15941@moisil.dev.hydraweb.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <00112018440600.00911@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I noticed that for 2.4.0-test11 there is no help
+for CONFIG_TOSHIBA, although there is for 2.2.17.
 
+The following patch borrows the words for CONFIG_TOSHIBA
+from the 2.2.17 Documentation/Configure.help, dropping
+an extraneous "the" from the first line.
 
-Ion Badulescu wrote:
-> 
-> On Mon, 20 Nov 2000 17:56:20 -0700, Jeff V. Merkey <jmerkey@timpanogas.org> wrote:
-> 
-> > also, the rpc.lockd program is reporting an error when invoked from the
-> > System V init startup scripts:
-> >
-> > lockd: lockdsvc: invalid argument
-> 
-> lockd is a kernel thread nowadays, remove it from your nfsd start script
-> or simply ignore the error (if you want compatibility with 2.2 kernels
-> before 2.2.18).
-> 
+This patch applies to 2.4.0-test11.
 
-Thanks.  I saw [lockd] running from ps -ax along with [rpciod] --
-performance was also significantly faster.  2.2 compatibility is a
-problem, but not a serious one.  I am updating initscripts.rpm.  More
-stuff in the kernel is always better.
+Steven
 
-Jeff
+diff -u linux/Documentation/Configure.help.orig \
+linux/Documentation/Configure.help
+--- linux/Documentation/Configure.help.orig     Mon Nov 20 18:26:27 2000
++++ linux/Documentation/Configure.help  Mon Nov 20 18:26:46 2000
+@@ -13420,6 +13420,17 @@
+   module, say M here and read Documentation/modules.txt. Most people
+   will say N.
 
-> Ion
-> 
-> --
->   It is better to keep your mouth shut and be thought a fool,
->             than to open it and remove all doubt.
++Toshiba Laptop support
++CONFIG_TOSHIBA
++  If you intend to run this kernel on a Toshiba portable say yes
++  here. This adds a driver to safely access the System Management
++  Mode of the CPU on Toshiba portables. The System Management Mode
++  is used to set the BIOS and power saving options on Toshiba portables.
++
++  For information on utilities to make use of this driver see the
++  Toshiba Linux utilities website at:
++  http://www.buzzard.org.uk/toshiba/
++
+ /dev/cpu/microcode - Intel P6 CPU microcode support
+ CONFIG_MICROCODE
+   If you say Y here and also to "/dev file system support" in the
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

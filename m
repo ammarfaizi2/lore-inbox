@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264027AbRFNUka>; Thu, 14 Jun 2001 16:40:30 -0400
+	id <S264028AbRFNUn7>; Thu, 14 Jun 2001 16:43:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264028AbRFNUkU>; Thu, 14 Jun 2001 16:40:20 -0400
-Received: from alpo.casc.com ([152.148.10.6]:21464 "EHLO alpo.casc.com")
-	by vger.kernel.org with ESMTP id <S264027AbRFNUkA>;
-	Thu, 14 Jun 2001 16:40:00 -0400
-From: John Stoffel <stoffel@casc.com>
+	id <S264038AbRFNUnu>; Thu, 14 Jun 2001 16:43:50 -0400
+Received: from mailhost.idcomm.com ([207.40.196.14]:37252 "EHLO
+	mailhost.idcomm.com") by vger.kernel.org with ESMTP
+	id <S264028AbRFNUnb>; Thu, 14 Jun 2001 16:43:31 -0400
+Message-ID: <3B292235.D81F3637@idcomm.com>
+Date: Thu, 14 Jun 2001 14:44:37 -0600
+From: "D. Stimits" <stimits@idcomm.com>
+Reply-To: stimits@idcomm.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: bzDisk compression Q; boot debug Q
+In-Reply-To: <6B1DF6EEBA51D31182F200902740436802678F59@mail-in.comverse-in.com> <3B2869F9.D0AE17CB@idcomm.com> <3B28ADB3.7CE09FC3@internet-factory.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15145.8435.312548.682190@gargle.gargle.HOWL>
-Date: Thu, 14 Jun 2001 16:39:15 -0400
-To: Roger Larsson <roger.larsson@norran.net>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.6-pre2, pre3 VM Behavior
-In-Reply-To: <200106142030.f5EKUWH19842@maile.telia.com>
-In-Reply-To: <Pine.LNX.4.21.0106140013000.14934-100000@imladris.rielhome.conectiva>
-	<01061410474103.00879@starship>
-	<200106142030.f5EKUWH19842@maile.telia.com>
-X-Mailer: VM 6.92 under Emacs 20.6.1
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Holger Lubitz wrote:
+> 
+> "D. Stimits" proclaimed:
+> > down to 1.44 MB. But then it would also have to be self-extracting,
+> > which complicates it, so I'm wondering how effective this current
+> > compression is, and if a more bzip2-like system would be beneficial as
+> > kernels get larger?
+> 
+> bzip2 has pretty large memory requirements, consuming up to 8 MB in
+> addition to the data being uncompressed.
+> Although thats less of an issue now than it was some years ago, i still
+> doubt that the kernel is going to be bzip2 compressed any time soon.
+> 
+> if you're looking for better compression, you might want to examine upx
+> (http://wildsau.idv.uni-linz.ac.at/mfx/upx.html). The kernel image
+> compression is still experimental, but already usable. kernels tend to
+> get ~100 K smaller compared to the usual gzip compressed bzImage.
 
-Roger> It does if you are running on a laptop. Then you do not want
-Roger> the pages go out all the time. Disk has gone too sleep, needs
-Roger> to start to write a few pages, stays idle for a while, goes to
-Roger> sleep, a few more pages, ...
+Interesting stuff...and the license is non-commercial as well.
 
-That could be handled by a metric which says if the disk is spun down,
-wait until there is more memory pressure before writing.  But if the
-disk is spinning, we don't care, you should start writing out buffers
-at some low rate to keep the pressure from rising too rapidly.  
+D. Stimits, stimits@idcomm.com
 
-The idea of buffers is more to keep from overloading the disk
-subsystem with IO, not to stop IO from happening at all.  And to keep
-it from going from no IO to full out stalling the system IO.  It
-should be a nice line as VM pressure goes up, buffer flushing IO rate
-goes up as well.  
-
-Overall, I think Rik, Jonathan and the rest of the hard core VM crew
-have been doing a great job with 2.4.5+ work, it seems like it's
-getting better and better all the time, and I really appreciate it.
-
-We're now more into some corner cases and tuning issues.  Hopefully.
-
-John
-   John Stoffel - Senior Unix Systems Administrator - Lucent Technologies
-	 stoffel@lucent.com - http://www.lucent.com - 978-952-7548
+> 
+> Holger
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

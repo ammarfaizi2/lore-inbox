@@ -1,46 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261483AbSIXAQK>; Mon, 23 Sep 2002 20:16:10 -0400
+	id <S261488AbSIXAPE>; Mon, 23 Sep 2002 20:15:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261491AbSIXAQJ>; Mon, 23 Sep 2002 20:16:09 -0400
-Received: from holomorphy.com ([66.224.33.161]:1432 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261483AbSIXAQI>;
-	Mon, 23 Sep 2002 20:16:08 -0400
-Date: Mon, 23 Sep 2002 17:20:52 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.38 semaphore.c calls sleeping function in illegal context
-Message-ID: <20020924002052.GS25605@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
+	id <S261495AbSIXAPE>; Mon, 23 Sep 2002 20:15:04 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:39901 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S261488AbSIXAPD>;
+	Mon, 23 Sep 2002 20:15:03 -0400
+Date: Mon, 23 Sep 2002 17:20:15 -0700
+To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.5.38] : Minor Wavelan fixes...
+Message-ID: <20020924002014.GA13200@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ksymoops 2.4.6 on i686 2.5.38-2.  Options used
-     -v /mnt/b/2.5.38/vmlinux-2.5.38-2 (specified)
-     -K (specified)
-     -L (specified)
-     -O (specified)
-     -m /boot/System.map-2.5.38-2 (specified)
+	Hi Jeff,
 
-Reading Oops report from the terminal
-c02c9f6c c02c9f84 c01175f7 c0260f80 c0261500 0000007e c02c9f98 c011a4a1 
-       c0261500 0000007e 00000000 c02c9fac c011a78a c0312480 c0278213 c0383244 
-       c02c9fb8 c02d8316 c02ba640 c02c9fc0 c02d8164 c02c9fd0 c02d8a4b 00000000 
-Call Trace: [<c01175f7>] [<c011a4a1>] [<c011a78a>] [<c0105000>]                
-Warning (Oops_read): Code line not seen, dumping what data is available
+	Minor Wavelan fixes :
+	o use 'time_after' (contributed by Tim Schmielau)
+	o fix compile warning in my previous patch (Rene Scharfe)
+	o use 'inline' to try to minimise ethtool bloat (me)
 
+	Have fun...
 
-Trace; c01175f7 <__might_sleep+27/2b>
-Trace; c011a4a1 <acquire_console_sem+2d/50>
-Trace; c011a78a <register_console+122/1cc>
-Trace; c0105000 <_stext+0/0>
+	Jean
 
+----------------------------------------------------------
 
-1 warning issued.  Results may not be reliable.
+diff -u -p linux/drivers/net/wireless/wavelan_cs.b2.c  linux/drivers/net/wireless/wavelan_cs.c
+--- linux/drivers/net/wireless/wavelan_cs.b2.c	Mon Sep 23 17:07:40 2002
++++ linux/drivers/net/wireless/wavelan_cs.c	Mon Sep 23 17:12:54 2002
+@@ -676,7 +676,7 @@ void wl_cell_expiry(unsigned long data)
+   
+   while(wavepoint!=NULL)
+     {
+-      if(wavepoint->last_seen < jiffies-CELL_TIMEOUT)
++      if(time_after(jiffies, wavepoint->last_seen + CELL_TIMEOUT))
+ 	{
+ #ifdef WAVELAN_ROAMING_DEBUG
+ 	  printk(KERN_DEBUG "WaveLAN: Bye bye %.4X\n",wavepoint->nwid);
+@@ -1859,7 +1859,8 @@ wl_his_gather(device *	dev,
+ }
+ #endif	/* HISTOGRAM */
+ 
+-static int netdev_ethtool_ioctl(struct net_device *dev, void *useraddr)
++static inline int
++wl_netdev_ethtool_ioctl(struct net_device *dev, void *useraddr)
+ {
+ 	u32 ethcmd;
+ 
+@@ -2901,7 +2902,9 @@ wavelan_ioctl(struct net_device *	dev,	/
+ 	      struct ifreq *	rq,	/* Data passed */
+ 	      int		cmd)	/* Ioctl number */
+ {
++#if WIRELESS_EXT <= 12
+   struct iwreq *	wrq = (struct iwreq *) rq;
++#endif
+   int			ret = 0;
+ 
+ #ifdef DEBUG_IOCTL_TRACE
+@@ -2912,7 +2915,7 @@ wavelan_ioctl(struct net_device *	dev,	/
+   switch(cmd)
+     {
+     case SIOCETHTOOL:
+-      ret = netdev_ethtool_ioctl(dev, (void *) rq->ifr_data);
++      ret = wl_netdev_ethtool_ioctl(dev, (void *) rq->ifr_data);
+       break;
+ 
+ #if WIRELESS_EXT <= 12
+

@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268520AbUHQXgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266837AbUHRAAC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268520AbUHQXgh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 19:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266769AbUHQXgh
+	id S266837AbUHRAAC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 20:00:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268527AbUHRAAC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 19:36:37 -0400
-Received: from av7-1-sn1.fre.skanova.net ([81.228.11.113]:44444 "EHLO
-	av7-1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S268520AbUHQXgd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 19:36:33 -0400
-To: Julien Oster <lkml-7994@mc.frodoid.org>
-Cc: Frediano Ziglio <freddyz77@tin.it>, axboe@suse.de,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: Packet writing problems
-References: <1092669361.4254.24.camel@freddy> <m3acwuq5nc.fsf@telia.com>
-	<m3657iq4rk.fsf@telia.com> <1092686149.4338.1.camel@freddy>
-	<m37jrxk024.fsf@telia.com> <87acwt49zl.fsf@killer.ninja.frodoid.org>
-From: Peter Osterlund <petero2@telia.com>
-Date: 18 Aug 2004 01:36:30 +0200
-In-Reply-To: <87acwt49zl.fsf@killer.ninja.frodoid.org>
-Message-ID: <m3y8kdibgh.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 17 Aug 2004 20:00:02 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:50362 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266837AbUHQX77 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 19:59:59 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P0
+From: Lee Revell <rlrevell@joe-job.com>
+To: Roger Luethi <rl@hellgate.ch>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+In-Reply-To: <20040816080745.GA18406@k3.hellgate.ch>
+References: <20040801193043.GA20277@elte.hu>
+	 <20040809104649.GA13299@elte.hu> <20040810132654.GA28915@elte.hu>
+	 <20040812235116.GA27838@elte.hu> <1092382825.3450.19.camel@mindpipe>
+	 <20040813104817.GI8135@elte.hu> <1092432929.3450.78.camel@mindpipe>
+	 <20040814072009.GA6535@elte.hu> <20040815115649.GA26259@elte.hu>
+	 <1092612264.867.9.camel@krustophenia.net>
+	 <20040816080745.GA18406@k3.hellgate.ch>
+Content-Type: text/plain
+Message-Id: <1092787266.1807.8.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 17 Aug 2004 20:01:06 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Julien Oster <lkml-7994@mc.frodoid.org> writes:
+On Mon, 2004-08-16 at 04:07, Roger Luethi wrote:
 
-> Peter Osterlund <petero2@telia.com> writes:
+> > Also, isn't there a better solution than for network drivers to actively 
+> > poll for changes in link status?  Can't they just register a callback that 
 > 
-> Hello Peter,
-> 
-> > That shouldn't cause any real problems, but since it's quite
-> > confusing, here is a patch to fix it.  With this change, both DVD+RW
-> > and DVD-RW media is correctly identified in the kernel log, and DVD
-> > speeds are printed in kB/s.
-> 
-> The following patch on top of your patch adds all commonly used media
-> types to the output and changes CD-R and CD-RW to be detected by
-> profile type. It also reports unconforming non-standard profiles as
-> well as profiles which have a MMC profile definition but are unknown
-> as of the current MMC3 revision.
-> 
-> Please review.
+> For the Rhine, there is, but making it work requires some extra black
+> magic we didn't know until a few months ago. It's fixed in -mm now and
+> will probably be in 2.6.9.
 
-Will any of those printk's ever get printed? Media types that can't be
-handled by the packet driver aren't supposed to make it past the
-pkt_good_disc() test.
+Which of the broken out patches from -mm should I apply to get this
+fix?  Should I just apply all the ones that touch via-rhine.c?
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+Lee
+

@@ -1,65 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266142AbUGTSoR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266187AbUGTSsZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266142AbUGTSoR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 14:44:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266141AbUGTSnM
+	id S266187AbUGTSsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 14:48:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266137AbUGTSmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 14:43:12 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:2861 "EHLO
-	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
-	id S266170AbUGTSj5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 14:39:57 -0400
-Date: Tue, 20 Jul 2004 20:39:55 +0200
-Message-Id: <200407201839.i6KIdtUD015560@anakin.of.borg>
+	Tue, 20 Jul 2004 14:42:32 -0400
+Received: from nl-ams-slo-l4-01-pip-3.chellonetwork.com ([213.46.243.17]:58967
+	"EHLO amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S266139AbUGTSiK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 14:38:10 -0400
+Date: Tue, 20 Jul 2004 20:38:08 +0200
+Message-Id: <200407201838.i6KIc8kS015419@anakin.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Greg Kroah-Hartman <greg@kroah.com>, johnpol@2ka.mipt.ru
+       James Simmons <jsimmons@infradead.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] Dallas 1-wire delay.h
+Subject: [PATCH 470] amifb sparse &=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dallas 1-wire: never include <asm/delay.h> directly
+Amiga Frame buffer: Use `&' instead of `&=' (found by sparse, present since at
+least 2.0.x)
 
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
---- linux-2.6.8-rc2/drivers/w1/matrox_w1.c	2004-07-18 15:55:33.000000000 +0200
-+++ linux-m68k-2.6.8-rc2/drivers/w1/matrox_w1.c	2004-07-18 23:36:48.000000000 +0200
-@@ -22,8 +22,8 @@
- #include <asm/atomic.h>
- #include <asm/types.h>
- #include <asm/io.h>
--#include <asm/delay.h>
- 
-+#include <linux/delay.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/list.h>
---- linux-2.6.8-rc2/drivers/w1/w1.c	2004-07-18 15:55:33.000000000 +0200
-+++ linux-m68k-2.6.8-rc2/drivers/w1/w1.c	2004-07-18 23:36:46.000000000 +0200
-@@ -20,8 +20,8 @@
-  */
- 
- #include <asm/atomic.h>
--#include <asm/delay.h>
- 
-+#include <linux/delay.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
---- linux-2.6.8-rc2/drivers/w1/w1_io.c	2004-07-18 15:55:33.000000000 +0200
-+++ linux-m68k-2.6.8-rc2/drivers/w1/w1_io.c	2004-07-18 23:36:45.000000000 +0200
-@@ -20,8 +20,8 @@
-  */
- 
- #include <asm/io.h>
--#include <asm/delay.h>
- 
-+#include <linux/delay.h>
- #include <linux/moduleparam.h>
- 
- #include "w1.h"
+--- linux-2.6.8-rc2/drivers/video/amifb.c	2004-04-28 15:49:02.000000000 +0200
++++ linux-m68k-2.6.8-rc2/drivers/video/amifb.c	2004-07-10 21:07:38.000000000 +0200
+@@ -1309,7 +1311,7 @@
+ 		info->fix.ypanstep = 0;
+ 	} else {
+ 		info->fix.ywrapstep = 0;
+-		if (par->vmode &= FB_VMODE_SMOOTH_XPAN)
++		if (par->vmode & FB_VMODE_SMOOTH_XPAN)
+ 			info->fix.xpanstep = 1;
+ 		else
+ 			info->fix.xpanstep = 16<<maxfmode;
 
 Gr{oetje,eeting}s,
 

@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129557AbQLBOlV>; Sat, 2 Dec 2000 09:41:21 -0500
+	id <S129260AbQLBP2P>; Sat, 2 Dec 2000 10:28:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130077AbQLBOlL>; Sat, 2 Dec 2000 09:41:11 -0500
-Received: from 62-6-233-52.btconnect.com ([62.6.233.52]:9476 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S129557AbQLBOk7>;
-	Sat, 2 Dec 2000 09:40:59 -0500
-Date: Sat, 2 Dec 2000 14:11:35 +0000 (GMT)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch-2.4.0-test12-pre3] microcode update for P4 (fwd)
-In-Reply-To: <90a1ca$3rt$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0012021406450.902-100000@penguin.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129345AbQLBP2F>; Sat, 2 Dec 2000 10:28:05 -0500
+Received: from 216-80-74-178.dsl.enteract.com ([216.80.74.178]:4612 "EHLO
+	kre8tive.org") by vger.kernel.org with ESMTP id <S129260AbQLBP1t>;
+	Sat, 2 Dec 2000 10:27:49 -0500
+Date: Sat, 2 Dec 2000 08:08:37 -0600
+From: mike@kre8tive.org
+To: Kernel ML <linux-kernel@vger.kernel.org>
+Subject: libc load error
+Message-ID: <20001202080837.A1097@lingas.basement.bogus>
+Reply-To: mike@kre8tive.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1 Dec 2000, H. Peter Anvin wrote:
-> > +/* symbolic names for some interesting MSRs */
-> > +#define IA32_PLATFORM_ID	0x17
-> > +#define IA32_UCODE_WRITE	0x79
-> > +#define IA32_UCODE_REV		0x8B
-> > 
-> 
-> Please call these MSR_* instead, "IA32_*" isn't very descriptive,
-> besides, the preferred prefix in existing locations in the Linux
-> kernel is "X86_", e.g. X86_EFLAGS_IF or X86_CR4_PSE.  I think there
-> are standard symbolic names for most MSRs in volume 3 of the Intel
-> processor manuals; I would suggest we use those.
-                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+All,
 
-which is exactly what I did. The old name for 0x17 was something like
-BBL_CR_OVRD which had absolutely no meaning (or no meaning that I could
-discern) so in the past I use just the number 0x17. Now (see P4 manuals,
-already on developer.intel.com) they renamed to a very meaningful
-IA32_PLATFORM_ID so I used that one. It is more important to match the
-naming of the original specs than to be consistent with other naming used
-in the kernel. To prove this point I suggest you look at NFSv2/NFSv3
-naming used in the Linux kernel -- it matches rfc1094/rfc1813 which I
-liked very much because it simplified reading kernel code (I assume
-everyone first studies the specs and then reads Linux implementation).
+Anyone know what causes an error like this:
 
-Now that was about 0x17. As for 0x79 and 0x8B I made up my own names using
-the Intel's one for 0x17 as a guideline. So they "look just like" as if
-they were from the manual too ;) (and they are meaningful, which is a
-bonus)
+init: error while loading shared libraries: init: 
+symbol __ctype_h, version GLIBC_2.0 not defined in 
+file libc.so.6 with link time reference
 
-I am also glad Alan agrees with me.
+Booted a 2.2.18pre16 box and it failed to come back
+up throwing that message after the unused kernel space
+was freed.
 
-Regards,
-Tigran
+Any information is appreciated.
+
+-- 
+___________
+Thanks,
+Mike Elmore
+mike@kre8tive.org
+
+"The more you complain, the longer God makes 
+you live."
+			-unknown
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,87 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264245AbUBPMRN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 07:17:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbUBPMRN
+	id S265193AbUBPMZe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 07:25:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265332AbUBPMZe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 07:17:13 -0500
-Received: from p508155B0.dip.t-dialin.net ([80.129.85.176]:56193 "EHLO
-	o.ww.redhat.com") by vger.kernel.org with ESMTP id S264245AbUBPMRL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 07:17:11 -0500
-Date: Mon, 16 Feb 2004 13:17:09 +0100
-From: Heinz Mauelshagen <mauelshagen@redhat.com>
-To: Joe Thornber <thornber@redhat.com>
-Cc: Lars Marowsky-Bree <lmb@suse.de>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>, axboe@suse.de
-Subject: Re: dm core patches
-Message-ID: <20040216121709.GA15372@redhat.com>
-Reply-To: mauelshagen@redhat.com
-References: <20040210163548.GC27507@reti> <20040211101659.GF3427@marowsky-bree.de> <20040211103541.GW27507@reti> <20040212185145.GY21298@marowsky-bree.de> <20040212201340.GB1898@reti> <20040213151213.GR21298@marowsky-bree.de> <20040213153936.GF15736@reti>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040213153936.GF15736@reti>
-User-Agent: Mutt/1.4.1i
+	Mon, 16 Feb 2004 07:25:34 -0500
+Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:52434
+	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
+	id S265193AbUBPMZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 07:25:32 -0500
+Message-ID: <4030B259.1070805@tmr.com>
+Date: Mon, 16 Feb 2004 07:06:49 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Valdis.Kletnieks@vt.edu, Chip Salzenberg <chip@pobox.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Linux 2.6.3-rc3 - IDE DMA errors on Thinkpad A30
+References: <E1AsO6X-0003hW-1u@tytlal> <200402151658.57710.bzolnier@elka.pw.edu.pl> <20040215163438.GC3789@perlsupport.com> <200402151808.42611.bzolnier@elka.pw.edu.pl> <20040216005523.GD3789@perlsupport.com> <40302783.6020505@pobox.com> <20040216033740.GE3789@perlsupport.com>            <40303D59.4030605@pobox.com> <200402160358.i1G3wC6W013389@turing-police.cc.vt.edu> <40304290.7090207@pobox.com>
+In-Reply-To: <40304290.7090207@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 13, 2004 at 03:39:36PM +0000, Joe Thornber wrote:
-> On Fri, Feb 13, 2004 at 04:12:14PM +0100, Lars Marowsky-Bree wrote:
-> > On 2004-02-12T20:13:40,
-> >    Joe Thornber <thornber@redhat.com> said:
-> > 
-> > > I think the main concern now is over the testing of paths.  Sending an
-> > > io down an inactive path can be very expensive for some hardware
-> > > configurations.  So I'm considering changing a couple of things:
-> > > 
-> > > - Only ever send io to 1 priority group at a time (even test ios).
-> > >   To test the lower priority groups we'd have to periodically switch to
-> > >   them and use them for a bit for both test io and proper io.
-> > 
-> > You are missing the obvious answer:
-> > 
-> > - Periodically checking paths is a user-space issue and doesn't belong
-> >   into the kernel. User-space gets to handle this policy.
+Jeff Garzik wrote:
+> Valdis.Kletnieks@vt.edu wrote:
 > 
-> Yes, that is obvious, I had wanted to do failback automatically.  But
-> pushing it to userland does allow people to write hardware specific
-> tests.  I'll try it and see what people think.
-
-Right, such policy belongs to userpsace it seems.
-
-The reason why I put it into the multipath target is to cover the case,
-where all paths are inoperational, the system is OOM _and_ the only
-chance to recover from that is the hope to unfail a path in order to
-release memory preasure.
-
-'Sorry, userspace test handler can't run, your enterprise server
-is a pile of sh..' is not acceptable in case there's a path we
-could unfail IMO.
-
-Regards,
-Heinz    -- The LVM Guy --
-
-
+>> On Sun, 15 Feb 2004 22:47:37 EST, Jeff Garzik said:
+>>
+>>> One for the todo list, I suppose...  a useable workaround for this is 
+>>> probably good ole 'e2fsck -c', i.e. badblocks...  That says "check 
+>>> again to see if this sector is bad", and -hopefully- will unmark bad 
+>>> blocks that were incorrectly marked bad.
+>>
+>>
+>>
+>> Does e2fsck/badblocks issue the right ioctls/etc to make the disk read 
+>> the
+>> *original* block, or will the disk simply check the *redirected* block?
 > 
-> Thanks,
 > 
-> - Joe
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> I'm not sure your question has meaning.
+> 
+> Consider:  ext2 reads sector 1234.  drive returns "media error", and 
+> then swaps the bad sector for a good one.  Reboot and run badblocks. 
+> badblocks reads sector 1234, in whatever manner the drive chooses to 
+> present sector 1234 to the OS.
 
-*** Software bugs are stupid.
-    Nevertheless it needs not so stupid people to solve them ***
+That's the point, the original 1234 may not really be bad.
+> 
+> "original" versus "redirected" block is invisible to the OS.  The OS 
+> only knows that an event occured at a single point in time -- the media 
+> error.
 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+It's invisible unlesss the o/s chooses to see. By default there would 
+never be an attempt to recheck the original sector 1234 unless the o/s 
+tells the drive to do so. It may be that a write to the sector will work 
+and there is nothing wrong with the sector (transient errors could be 
+caused by mechanical or electrical transients, more likely in a laptop).
 
-Heinz Mauelshagen                                 Red Hat, Inc.
-Consulting Development Engineer                   Am Sonnenhang 11
-                                                  56242 Marienrachdorf
-                                                  Germany
-Mauelshagen@RedHat.com                            +49 2626 141200
-                                                       FAX 924446
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264431AbTICUUu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 16:20:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264406AbTICUTL
+	id S264242AbTICUrK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 16:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264307AbTICUrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 16:19:11 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:44810 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264399AbTICUSC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 16:18:02 -0400
-Date: Wed, 3 Sep 2003 21:18:01 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: James Clark <jimwclark@ntlworld.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
-Message-ID: <20030903211801.A10695@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	James Clark <jimwclark@ntlworld.com>, linux-kernel@vger.kernel.org
-References: <200309031850.14925.jimwclark@ntlworld.com>
+	Wed, 3 Sep 2003 16:47:10 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:45064 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S264242AbTICUrE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 16:47:04 -0400
+Date: Wed, 3 Sep 2003 22:37:53 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Lockups with 2.4.22 on a dual P3/Katmai
+Message-ID: <20030903203753.GC24145@alpha.home.local>
+References: <20030902193531.GA992@digitasaru.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200309031850.14925.jimwclark@ntlworld.com>; from jimwclark@ntlworld.com on Wed, Sep 03, 2003 at 06:53:01PM +0100
+In-Reply-To: <20030902193531.GA992@digitasaru.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 03, 2003 at 06:53:01PM +0100, James Clark wrote:
-> Following my initial post yesterday please find attached my proposal for a 
-> binary 'plugin' interface:
+Hi,
+
+wouldn't you have sort of a powersaving mode enabled in the bios or something
+like that which could be triggered by recent changes ?
+
+Willy
+
+On Tue, Sep 02, 2003 at 02:35:32PM -0500, Joseph Pingenot wrote:
+> Hello.
 > 
-> This is not an attempt to have a Microkernel, or any move away from GNU/OSS 
-> software. I believe that sometimes the ultimate goals of stability and 
-> portability get lost in the debate on OSS and desire to allow anyone to 
-> contribute. It is worth remembering that for every Kernel hacker there must 
-> be 1000's of plain users. I believe this proposal would lead to better 
-> software and more people using it.
-
-Looks like you're looking for UDI.  Most people on this list don't like
-it for various reasons (me included) but you seem to like it.  Since
-SCO was the driving factor development probably has slowed down even
-more, go and help them!
-
-Don't expect it to ever be merged though..
-
-	http://projectudi.sourceforge.net/
+> I'm getting lockups on my dual P3 Katmai system under 2.4.22.  It worked
+>   fine with 2.4.21-pre4 (I had an uptime of about 130 or so days), but
+>   I tried to upgrade to 2.4.22 and it's now started locking up.  I get
+>   no Oops output or anything.  I've tried both the vanilla 2.4.22 and
+>   the vanilla 2.4.23-pre1 kernels.
+> Symptoms: screen will occasionally go blank for a split second, then
+>   the system locks up after about half an hour to two hours (doesn't seem
+>   to be a strict time).  When it locks up, I don't notice any LEDs on the
+>   keyboard flashing, and I don't notice any other activity.  The Magic
+>   SysRq sync and unmount keys have no effect, so far as I can tell.  It
+>   seems to be truly locked up.  The reset button will, however, reset
+>   the computer; I don't have to pull the plug.
+> Any ideas on what might be causing this?  Anything I can do to get
+>   a better idea what's going on?
+> Thanks!
+> 
+> -Joseph
+> 
+> -- 
+> trelane@digitasaru.net--------------------------------------------------
+> "We continue to live in a world where all our know-how is locked into
+>  binary files in an unknown format. If our documents are our corporate
+>  memory, Microsoft still has us all condemned to Alzheimer's."
+>     --Simon Phipps, http://theregister.com/content/4/30410.html
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

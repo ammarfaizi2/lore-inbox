@@ -1,34 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263441AbTKKIy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 03:54:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264275AbTKKIy3
+	id S264277AbTKKJse (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 04:48:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264280AbTKKJse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 03:54:29 -0500
-Received: from mail.enyo.de ([212.9.189.167]:27661 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S263441AbTKKIy2 (ORCPT
+	Tue, 11 Nov 2003 04:48:34 -0500
+Received: from smtp4.cern.ch ([137.138.131.165]:54159 "EHLO smtp4.cern.ch")
+	by vger.kernel.org with ESMTP id S264277AbTKKJsc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 03:54:28 -0500
-Date: Tue, 11 Nov 2003 09:54:26 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: loopback device + crypto = crash on 2.6.0-test7 ?
-Message-ID: <20031111085426.GA11435@deneb.enyo.de>
-References: <6.0.0.22.2.20031111101721.01bde418@caffeine.cc.com.au> <Pine.LNX.4.44.0311101613440.2881-100000@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 Nov 2003 04:48:32 -0500
+Keywords: CERN SpamKiller Note: -51
+From: Alexander ZVYAGIN <Alexander.Zviagine@cern.ch>
+To: Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: PCI with SiS: Cannot allocate resource.
+Date: Tue, 11 Nov 2003 10:48:29 +0100
+User-Agent: KMail/1.5
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0311101557020.2097-100000@bigblue.dev.mdolabs.com>
+In-Reply-To: <Pine.LNX.4.44.0311101557020.2097-100000@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0311101613440.2881-100000@home.osdl.org>
-User-Agent: Mutt/1.5.4i
-From: Florian Weimer <fw@deneb.enyo.de>
+Message-Id: <200311111048.30130.Alexander.Zviagine@cern.ch>
+X-OriginalArrivalTime: 11 Nov 2003 09:48:30.0370 (UTC) FILETIME=[F67FA020:01C3A838]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Hello again,
 
-> What compiler versions do you have installed on the broken vs good
-> machines?
+On Tuesday 11 November 2003 04:48, Davide Libenzi wrote:
+>
+> Running really out of options here. The dmesg shows that you're sharing
+> the IRQ5 but it does not even show up in your int list. Your card seems to
+> be sharing IRQ 5 with:
+>
+> PCI: Sharing IRQ 5 with 0000:00:01.6
+> PCI: Sharing IRQ 5 with 0000:00:0c.1
+>
+> IIRC one is the modem, and I do not remember the other one. If your BIOS
+> has the option to shut those device off, you can try that. Also you can
+> try (if you can) to change the interrupt pin.
 
-GCC 3.3.2 (Debian 3.3.2-3) is broken for me (binutils is 2.14.89.0.7-2).
+Two 'no'. I can not disable it in BIOS. And I will not touch the hardware!
 
-Which compiler is recommend/known to work?  The README file mentions GCC
-2.95.3, but this one has problems as well, AFAIK.
+Is it really nothing can be done? I can apply debug patches, if somebody will 
+provide them...
+
+Thanks for your time anyway!
+A bit disappointed Alexander.
+

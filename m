@@ -1,93 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbVDEJok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261656AbVDEJol@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbVDEJok (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 05:44:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbVDEJmc
+	id S261656AbVDEJol (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 05:44:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVDEJmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 05:42:32 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:53949 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261677AbVDEJhw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 05:37:52 -0400
-Subject: Re: [RFC] shared subtrees
-From: Ram <linuxram@us.ibm.com>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: "J. Bruce Fields" <bfields@fieldses.org>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050117061150.GS26051@parcelfarce.linux.theplanet.co.uk>
-References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk>
-	 <20050116160213.GB13624@fieldses.org>
-	 <20050116180656.GQ26051@parcelfarce.linux.theplanet.co.uk>
-	 <20050116184209.GD13624@fieldses.org>
-	 <20050117061150.GS26051@parcelfarce.linux.theplanet.co.uk>
+	Tue, 5 Apr 2005 05:42:07 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:55262 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261670AbVDEJhL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 05:37:11 -0400
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+	copyright notice.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Ian Campbell <ijc@hellion.org.uk>, Sven Luther <sven.luther@wanadoo.fr>,
+       "Theodore Ts'o" <tytso@mit.edu>, Greg KH <greg@kroah.com>,
+       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
+       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050405093258.GA18523@lst.de>
+References: <20050404182753.GC31055@pegasos>
+	 <20050404191745.GB12141@kroah.com> <20050404192945.GB1829@pegasos>
+	 <20050404205527.GB8619@thunk.org> <20050404211931.GB3421@pegasos>
+	 <1112689164.3086.100.camel@icampbell-debian>
+	 <20050405083217.GA22724@pegasos>
+	 <1112690965.3086.107.camel@icampbell-debian>
+	 <20050405091144.GA18219@lst.de>
+	 <1112693287.6275.30.camel@laptopd505.fenrus.org>
+	 <20050405093258.GA18523@lst.de>
 Content-Type: text/plain
-Organization: IBM 
-Message-Id: <1112693868.4258.105.camel@localhost>
+Date: Tue, 05 Apr 2005 11:36:58 +0200
+Message-Id: <1112693819.6275.36.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 05 Apr 2005 02:37:48 -0700
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-01-16 at 22:11, Al Viro wrote:
-> On Sun, Jan 16, 2005 at 01:42:09PM -0500, J. Bruce Fields wrote:
-> > On Sun, Jan 16, 2005 at 06:06:56PM +0000, Al Viro wrote:
-> > > On Sun, Jan 16, 2005 at 11:02:13AM -0500, J. Bruce Fields wrote:
-> > > > On Thu, Jan 13, 2005 at 10:18:51PM +0000, Al Viro wrote:
-> > > > > 	6. mount --move
-> > > > > prohibited if what we are moving is in some p-node, otherwise we move
-> > > > > as usual to intended mountpoint and create copies for everything that
-> > > > > gets propagation from there (as we would do for rbind).
-> > > > 
-> > > > Why this prohibition?
-> > > 
-> > > How do you propagate that?  We can weaken that to "in a p-node that
-> > > owns something or contains more than one vfsmount", but it's not
-> > > worth the trouble, AFAICS.
-> > 
-> > I guess I'm not seeing what there is to propagate.  If the vfsmount we
-> > are moving is mounted under a vfsmount that's in a p-node, then there'd
-> > be something to propagate, but since the --move doesn't change the
-> > structure of mounts underneath the moved mountpoint, I wouldn't expect
-> > any changes to be propagated from it to other mountpoints.
-> > 
-> > I must be missing something fundamental....
+
+> > Second step is to make the built-in firmware a
+> > config option and then later on when the infrastructure matures for
+> > firmware loading/providing firmware it can be removed from the driver
+> > entirely.
 > 
-> No - I have been missing a typo.  Make that "if mountpoint of what we
-> are moving...".
+> I think the infrasturcture is quite mature.  We have a lot of drivers
+> that require it to function.
 
-Ok. I have been spending time lately on implementing this RFC. So time
-for some questions.
+what seems to be currently missing is distro level support for using
+firmware for modules needed for booting (and tg3 falls sort of under
+that via nfsroot) and widespread easy availability of firmware in
+distros and for users.
 
-If the vfsmount that is being moved is mounted within a shared-vfsmount
-(i.e is in p-node) why should the move operation be prohibited?
+Both are a bit of a chick-and-egg thing, and this is what a transition
+period with a few key drivers in dual-mode would hopefully resolve.
 
-The way I look at it is: umount the vfsmount, propogate the unmount
-event to all corresponding vfsmounts, and mount the vfsmount struct at
-its destination and if applicable propogate the mount event.
+One of the options is to even ship the firmware in the kernel tarbal but
+from a separate directory with a clear license clarification text in it.
 
-An example:
-
-     If A is a vfsmount contained in pnode p  and B is a vfsmount
-mounted on A, and B is moved to a mountpoint on vfsmount C the
-operations involved are:
-
-1. umount B from A and  propogate the unmount to all vfsmount 	contained
-in p as well as recursively to all slave-pnodes 
-         and slave vfsstructs.
-2. mount B on the mountpoint in C, and if C is in
-   some p-node,  propogate the mount to all vfsmounts in that
-   pnode as well as recursively to its slave p-nodes and
-   slave vfsstructs.
-
-
-
-RP
-
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 

@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265080AbTL1LYT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 06:24:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265081AbTL1LYS
+	id S265083AbTL1L6q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 06:58:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265095AbTL1L6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 06:24:18 -0500
-Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:13061 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S265080AbTL1LYR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 06:24:17 -0500
-To: "Kevin Krieser" <kkrieser@lcisp.com>
-Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.7 (future kernel) wish
-Mail-Copies-To: nobody
-References: <011801c3cd34$239b0020$6e01a8c0@athlon2400>
-From: kilobug@freesurf.fr (=?iso-8859-1?q?Ga=EBl_Le_Mignot?=)
-Organization: HurdFr - http://hurdfr.org
-X-PGP-Fingerprint: 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
-Date: Sun, 28 Dec 2003 12:23:56 +0100
-In-Reply-To: <011801c3cd34$239b0020$6e01a8c0@athlon2400> (Kevin Krieser's
- message of "Sun, 28 Dec 2003 05:17:11 -0600")
-Message-ID: <plopm365g118z7.fsf@drizzt.kilobug.org>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Sun, 28 Dec 2003 06:58:46 -0500
+Received: from mail6.bluewin.ch ([195.186.4.229]:12202 "EHLO mail6.bluewin.ch")
+	by vger.kernel.org with ESMTP id S265083AbTL1L6o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 06:58:44 -0500
+Date: Sun, 28 Dec 2003 12:58:22 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: Andrew Morton <akpm@osdl.org>
+Cc: riel@surriel.com, torvalds@osdl.org, benh@kernel.crashing.org,
+       linux-kernel@vger.kernel.org, andrea@suse.de
+Subject: Re: Page aging broken in 2.6
+Message-ID: <20031228115822.GB4847@k3.hellgate.ch>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, riel@surriel.com,
+	torvalds@osdl.org, benh@kernel.crashing.org,
+	linux-kernel@vger.kernel.org, andrea@suse.de
+References: <1072423739.15458.62.camel@gaston> <Pine.LNX.4.58.0312260957100.14874@home.osdl.org> <1072482941.15458.90.camel@gaston> <Pine.LNX.4.58.0312261626260.14874@home.osdl.org> <1072485899.15456.96.camel@gaston> <Pine.LNX.4.58.0312261649070.14874@home.osdl.org> <Pine.LNX.4.55L.0312262147030.7686@imladris.surriel.com> <20031226190045.0f4651f3.akpm@osdl.org> <20031227230757.GA25229@k3.hellgate.ch> <20031227160410.754c5ce1.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031227160410.754c5ce1.akpm@osdl.org>
+X-Operating-System: Linux 2.6.0-test11 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Kevin!
+On Sat, 27 Dec 2003 16:04:10 -0800, Andrew Morton wrote:
+> > Having all processes blocked is indeed one problem of 2.6 under memory
+> > pressure. I don't know what the cause is, though.
+> 
+> I usually work this sort of thing out by "random sampling".  When
+> everything is in steady state, break into kgdb and start looking at task
+> backtraces, see where they are all sleeping.
 
-Sun, 28 Dec 2003 05:17:11 -0600, you wrote: 
+Well, there isn't really a steady state as such. On a loaded system
+there are periods during compile benchmarks where the system spends
+half the time and more in I/O wait, so some processes do get to run
+and do some minimal amount of work.
 
- > XP came with an option that I've seen on USB hard drives where it won't
- > cache writes by default.  It is in Device Manager, and called Optimize
- > for quick removal.  You can also enable write caching, which requires
- > the use of the Safe Removal icon.
+> If it's in the pagefault handler, go up to do_page_fault() and work out the
+> faulting address.  Compare that with /proc/pid/maps to see if it's libc or
+> whatever.
+> 
+> Repeat the above N times until you have a decent feel for what's happening
+> in there.  It doesn't take long.
 
- > I don't recall 2000 having this option.
+I instrumented the kernel a while ago to log page fault handling
+(address, backing file if available) when the system became idle with
+all processes blocked. I can resurrect that code which would allow for
+larger samples. I'll post results if/when I get around to do it.
 
- > With Linux, I'm just ingrained to umount first.
-
-Or with  Linux, you can  use the "sync"  mount option (or  dirsync) to
-force direct write of data.
-
--- 
-Gael Le Mignot "Kilobug" - kilobug@nerim.net - http://kilobug.free.fr
-GSM         : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
-Fingerprint : 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
-
-Member of HurdFr: http://hurdfr.org - The GNU Hurd: http://hurd.gnu.org
+Roger

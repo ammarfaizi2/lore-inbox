@@ -1,32 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265523AbTASIVz>; Sun, 19 Jan 2003 03:21:55 -0500
+	id <S265650AbTASIrH>; Sun, 19 Jan 2003 03:47:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265637AbTASIVz>; Sun, 19 Jan 2003 03:21:55 -0500
-Received: from maxmail006.maximumasp.com ([216.26.171.6]:6667 "EHLO
-	worldtechtribune.com") by vger.kernel.org with ESMTP
-	id <S265523AbTASIVy> convert rfc822-to-8bit; Sun, 19 Jan 2003 03:21:54 -0500
-Date: Sun, 19 Jan 2003 03:30:55 -0500
-Message-Id: <200301190330.AA33882268@worldtechtribune.com>
+	id <S265657AbTASIrG>; Sun, 19 Jan 2003 03:47:06 -0500
+Received: from packet.digeo.com ([12.110.80.53]:21659 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265650AbTASIrG>;
+	Sun, 19 Jan 2003 03:47:06 -0500
+Date: Sun, 19 Jan 2003 00:57:37 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Mike Galbraith <efault@gmx.de>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.59mm2 BUG at fs/jbd/transaction.c:1148
+Message-Id: <20030119005737.5d0b8a7e.akpm@digeo.com>
+In-Reply-To: <5.1.1.6.2.20030119090404.00c82030@pop.gmx.net>
+References: <5.1.1.6.2.20030119084031.00c81180@pop.gmx.net>
+	<20030118002027.2be733c7.akpm@digeo.com>
+	<5.1.1.6.2.20030119084031.00c81180@pop.gmx.net>
+	<5.1.1.6.2.20030119090404.00c82030@pop.gmx.net>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-From: "joe wagner" <joe_D-.wagner@worldtechtribune.com>
-Reply-To: <joe_D-.wagner@worldtechtribune.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Stall-man is Stall-ing
-X-Mailer: <IMail v7.12>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Jan 2003 08:56:01.0327 (UTC) FILETIME=[973FCBF0:01C2BF98]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mike Galbraith <efault@gmx.de> wrote:
+>
+> At 12:05 AM 1/19/2003 -0800, Andrew Morton wrote:
+> >Mike Galbraith <efault@gmx.de> wrote:
+> > >
+> > > Greetings,
+> > >
+> > > I got the attached oops upon doing my standard reboot sequence SysRq[sub].
+> > >
+> > > fwiw, I was fiddling with an ext2 ramdisk just prior to poking buttons.
+> > >
+> >
+> >You using data=journal?
+> 
 
-Today, in the Amazing Adventures of Stall-man, Stallman decried Microsoft’s effort to move to a Trusted Computing platform as “treacherous computing.”  Palladium, the name Microsoft gave to the project, would bring the same trusted computing architecture used by the military and intelligence agencies to your everyday desktop PC.  Yeah, you heard that right.  Microsoft is trying to bring military-level security to your desktop PC.  Now everybody wants that, right?  Well, not Richard M. Stallman.
+data=journal is sick in 2.5, although this is not the crash which I have seen
+it exhibit.
 
-For those of you who don’t know, Richard M. Stallman is a lonely, homely, pot-smoking atheist who has spent the last 20 years of his life fighting the free enterprise system with his own tax-exempt organization, the Free Software Foundation, Inc., and a project he calls "GNU" (pronounced g-NEW).  As a BA graduate in Physics, he continuously demonstrates that he does not grasp basic economic concepts, like the cost of research and development, by trying to convince everyone to give their software away for free.
-
-****************************************
-
-Read the rest of the article at:
-http://www.worldtechtribune.com/worldtechtribune/asparticles/buzz/bz01032003.asp
-
-
+On my todo list.

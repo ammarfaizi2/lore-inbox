@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129666AbQLNX7o>; Thu, 14 Dec 2000 18:59:44 -0500
+	id <S129784AbQLOADf>; Thu, 14 Dec 2000 19:03:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129784AbQLNX7e>; Thu, 14 Dec 2000 18:59:34 -0500
-Received: from [199.26.153.10] ([199.26.153.10]:46858 "EHLO fourelle.com")
-	by vger.kernel.org with ESMTP id <S129666AbQLNX7V>;
-	Thu, 14 Dec 2000 18:59:21 -0500
-Message-ID: <3A39573D.BB731C8@fourelle.com>
-Date: Thu, 14 Dec 2000 15:26:53 -0800
-From: Adam Scislowicz <adams@fourelle.com>
-Organization: Fourelle Systems, Inc.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11-ac4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Non-Blocking socket (SOCK_STREAM send)
-In-Reply-To: <3A3953DB.CDA2DF4E@fourelle.com> <20001215002032.A24018@gruyere.muc.suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131370AbQLOAD0>; Thu, 14 Dec 2000 19:03:26 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:14087 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129784AbQLOADQ>; Thu, 14 Dec 2000 19:03:16 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: test13-pre1 changelog
+Date: 14 Dec 2000 15:31:54 -0800
+Organization: Transmeta Corporation
+Message-ID: <91bl9a$cc4$1@penguin.transmeta.com>
+In-Reply-To: <3A392852.B9B64C7F@the-rileys.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We understand the meaning of EPIPE, the question is why 2.4.x is returning EPIPE,
-while 2.2.x is succeeding in sending
-the data to thttpd. Using the 2.2.x kernel our proxy functions, and I can access
-thttpd directly. In 2.4.x I can access thttpd
-directly but the proxy does not function.
+In article <3A392852.B9B64C7F@the-rileys.net>,
+David Riley  <oscar@the-rileys.net> wrote:
+>Did I miss a post from Linus on the list, or is there no posted
+>changelog for test13-pre1?  Nothing's posted at kernel.org yet, either.
 
- I have already noticed that the 2.4.x kernel does not set errno = 0 in many places
-where the 2.2.x kernel did, so there are
-differences.
+The test13-pre1 changes are almost exclusively a radical Makefile
+cleanup, and it's been discussed mainly on the kbuild mailing list.  It
+doesn't actually contain any actual _code_ changes apart from some very
+minor details (one of which was the "swapoff()" fix, but I doubt
+"swapoff()" not working is all that big of an issue)
 
- -Adam
+I'm hoping that most of the fall-out from switching over exclusively to
+the new-style Makefiles will be over in a day or two, at which point
+I'll make a pre2 that is worth announcing.
 
-Andi wrote:
+Especially if we get that netfilter problem sorted out (see the other
+thread about the IP fragmentation issues associated with that one), and
+if we figure out why apparently some people have trouble with external
+modules (at least one person has trouble with loading alsa modules). 
 
-> EPIPE means that the other end or you have closed the connection. It has nothing
-> to do with the socket's non blockingness.
-
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

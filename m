@@ -1,55 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278701AbRJ1WTJ>; Sun, 28 Oct 2001 17:19:09 -0500
+	id <S278297AbRJ1WXT>; Sun, 28 Oct 2001 17:23:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278703AbRJ1WSz>; Sun, 28 Oct 2001 17:18:55 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:14608 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S278701AbRJ1WRm>; Sun, 28 Oct 2001 17:17:42 -0500
-Date: Sun, 28 Oct 2001 23:18:13 +0100
-From: Jan Kara <jack@ucw.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, mason@suse.com
-Subject: Quota fix
-Message-ID: <20011028231813.F22960@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="qMm9M+Fa2AknHoGS"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
+	id <S277313AbRJ1WXJ>; Sun, 28 Oct 2001 17:23:09 -0500
+Received: from ibis.worldnet.net ([195.3.3.14]:13075 "EHLO ibis.worldnet.net")
+	by vger.kernel.org with ESMTP id <S278297AbRJ1WXB>;
+	Sun, 28 Oct 2001 17:23:01 -0500
+Message-ID: <3BDC8565.ADCD6FD0@worldnet.fr>
+Date: Sun, 28 Oct 2001 23:23:33 +0100
+From: Laurent Deniel <deniel@worldnet.fr>
+Organization: Home
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en, fr
+MIME-Version: 1.0
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Ethernet NIC dual homing
+In-Reply-To: <Pine.LNX.4.10.10110281248320.5138-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mark Hahn wrote:
+> 
+> > the kernel switches to the second NIC. Such a similar feature exists in
+> 
+> why not user-space?
 
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-  Hello,
-
-  I'm sending you a small fix (thanks to Chris Mason for the patch)
-which fixes possible list corruption when dquots are invalidated.
-Please apply.
-
-								Honza
-
-PS to Chris: I simplified an condition a bit. Your was right too but
-  I like being more careful and tell we block even if we don't.
-
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="dquot_deadlock.diff"
-
-Index: 0.43/fs/dquot.c
---- 0.43/fs/dquot.c Mon, 15 Oct 2001 03:51:05 -0400 root (linux/i/40_dquot.c 1.1.2.1.3.1.1.1 644)
-+++ 0.43(w)/fs/dquot.c Mon, 15 Oct 2001 14:12:57 -0400 root (linux/i/40_dquot.c 1.1.2.1.3.1.1.1 644)
-@@ -1246,6 +1246,8 @@
- {
- 	if (dquot->dq_dup_ref && dquot->dq_count - dquot->dq_dup_ref <= 1)
- 		return 1;
-+	if (dquot->dq_count <= 1) 
-+		return 1; 
- 	return 0;
- }
- 
-
---qMm9M+Fa2AknHoGS--
+Good question. The switch could be initiated by a user-space daemon but 
+the switch itself should be implemented at kernel level for performance 
+and atomicity reasons (to avoid too many loss of packets) ?

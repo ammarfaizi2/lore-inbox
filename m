@@ -1,53 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbUDCE7z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 23:59:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbUDCE7z
+	id S261604AbUDCE7W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 23:59:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbUDCE7W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 23:59:55 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:23004 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261605AbUDCE7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 23:59:51 -0500
-Date: Fri, 2 Apr 2004 23:59:48 -0500
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Paul Eggert <eggert@gnu.org>, Andi Kleen <ak@suse.de>, gcc@gcc.gnu.org,
-       linux-kernel@vger.kernel.org, bug-coreutils@gnu.org
-Subject: Re: Linux 2.6 nanosecond time stamp weirdness breaks GCC build
-Message-ID: <20040403045948.GA21384@pimlott.net>
-Mail-Followup-To: Jamie Lokier <jamie@shareable.org>,
-	Paul Eggert <eggert@gnu.org>, Andi Kleen <ak@suse.de>,
-	gcc@gcc.gnu.org, linux-kernel@vger.kernel.org,
-	bug-coreutils@gnu.org
-References: <200404011928.VAA23657@faui1d.informatik.uni-erlangen.de> <20040401220957.5f4f9ad2.ak@suse.de> <7w3c7nb4jb.fsf@sic.twinsun.com> <20040402011411.GE28520@mail.shareable.org>
+	Fri, 2 Apr 2004 23:59:22 -0500
+Received: from mail016.syd.optusnet.com.au ([211.29.132.167]:1928 "EHLO
+	mail016.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261604AbUDCE7R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 23:59:17 -0500
+Date: Sat, 3 Apr 2004 15:02:29 +1000
+From: Adam Nielsen <a.nielsen@optushome.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] Fix kernel lockup in RTL-8169 gigabit ethernet driver
+Message-Id: <20040403150229.75ec6b98.a.nielsen@optushome.com.au>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040402011411.GE28520@mail.shareable.org>
-User-Agent: Mutt/1.3.28i
-From: Andrew Pimlott <andrew@pimlott.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 02, 2004 at 02:14:11AM +0100, Jamie Lokier wrote:
-> However, sponteneous mtime changes are not polite.  So I broadly agree
-> with the principle of:
-> 
-> Paul Eggert wrote:
-> > The only way I can see to satisfy these two principles is to truncate
-> > the timestamp right away, when it is first put into the inode cache.
-> > That way, the copy in main memory equals what will be put onto disk.
-> > This is the approach taken by other operating systems like Solaris,
-> > and it explains why parallel GCC builds won't have this problem on
-> > these other systems.
+Hi everyone,
 
-So is there any chance in the world that this behavior could be
-implemented?  None of the alternatives work, and we now know that the
-problem bites.  (I can't even guess how much time Ulrich wasted
-diagnosing it.)
+This is a tiny patch that fixes a particularly annoying bug
+in the Realtek 8169 gigabit ethernet driver.  Due to a logic error,
+there is a loop in an interrupt handler that often goes infinite, thus
+locking up the entire computer.  The attached patch fixes the problem.
 
-> This behaviour was established in 2.5.48, 18th November 2002.
+I have patched against linux-2.6.5-rc2-bk6, however the source file in
+question hasn't been modified for a long time, so the patch should apply
+cleanly to any recent kernel version.
 
-And shown to be broken in October.
+Cheers,
+Adam.
 
-Andrew
+--- linux-2.6.5-rc2-bk6/drivers/net/r8169.c	2004-03-27 17:38:03.000000000 +1000
++++ linux-2.6.5-rc2-bk6a/drivers/net/r8169.c	2004-03-31 18:45:10.000000000 +1000
+@@ -33,6 +33,12 @@
+ 	- Copy mc_filter setup code from 8139cp
+ 	  (includes an optimization, and avoids set_bit use)
+ 
++VERSION 1.2a <2004/03/31> Adam Nielsen (a.nielsen@optushome.com.au)
++
++	"else break;" added to the if-statement in rtl8169_tx_interrupt() to prevent
++	an infinite loop and the resulting kernel lockup when the interrupt is called
++	with a dirty buffer (perhaps when there's nothing to transmit?)
++
+ */
+ 
+ #include <linux/module.h>
+@@ -892,7 +898,7 @@
+ 			tp->Tx_skbuff[entry] = NULL;
+ 			dirty_tx++;
+ 			tx_left--;
+-		}
++		} else break;
+ 	}
+ 
+ 	if (tp->dirty_tx != dirty_tx) {

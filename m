@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261623AbTISQ4b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 12:56:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbTISQ4b
+	id S261656AbTISROe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 13:14:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbTISROe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 12:56:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:10132 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261623AbTISQ4a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 12:56:30 -0400
-Date: Fri, 19 Sep 2003 09:57:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, suparna@in.ibm.com
-Subject: Re: use O_DIRECT open file, when read will hang.
-Message-Id: <20030919095736.284aaa9f.akpm@osdl.org>
-In-Reply-To: <200309190939.18796.pbadari@us.ibm.com>
-References: <20030919124631.3b4e6301.hugang@soulinfo.com>
-	<20030918225450.3d6bb72c.akpm@osdl.org>
-	<200309190939.18796.pbadari@us.ibm.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Sep 2003 13:14:34 -0400
+Received: from CPEdeadbeef0000-CM000039d4cc6a.cpe.net.cable.rogers.com ([67.60.40.239]:40587
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id S261656AbTISROe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 13:14:34 -0400
+Date: Fri, 19 Sep 2003 13:14:26 -0400 (EDT)
+From: Shawn Starr <spstarr@sh0n.net>
+To: linux-kernel@vger.kernel.org
+Subject: Power Management and A7M266-D support in 2.6
+Message-ID: <Pine.LNX.4.44.0309191311550.22074-100000@coredump.sh0n.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
->
-> I am also seeing some kind of regression on raw in 2.6.0-test5-mm2.
+Will the new power management in 2.6 take advantage vendor specific PM?
 
-What is "some kind of regression"?
+Ie, the A7M266-D has onboard support for suspending to disk, ram, and CPU
+power regulation.
 
-> Unfortunately, this happens only with huge database benchmarks.
-> I still haven't narrowed it down.
+I know Alan Cox has a 2.4 driver has anyone ported this to 2.6? If so, I'd
+like to test it out on my system.
 
-Use mm3 - it has fixes.  Daniel McNeil reports that mm3 fixes the dbt2
-problems he was seeing.
+Thanks,
 
-> 
-> 	- can I do fsx, rawiobench on NFS files to test DIO on NFS ?
-
-Probably, but it will deadlock immediately.
-
-All the i_sem and i_alloc_sem rework needs to be pushed down to the
-blockdev_direct_IO level.  That means reverting
-O_DIRECT-race-fixes-fixes-2.patch first.
+Shawn S.
 
 

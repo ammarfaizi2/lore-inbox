@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282194AbRKWSBX>; Fri, 23 Nov 2001 13:01:23 -0500
+	id <S282203AbRKWSUp>; Fri, 23 Nov 2001 13:20:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282196AbRKWSBN>; Fri, 23 Nov 2001 13:01:13 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50190 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S282194AbRKWSBF>; Fri, 23 Nov 2001 13:01:05 -0500
-Date: Fri, 23 Nov 2001 09:55:43 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Tim Tassonis <timtas@cubic.ch>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.15-greased-turkey ???
-In-Reply-To: <E167C3O-00028a-00@lttit>
-Message-ID: <Pine.LNX.4.33.0111230953240.1294-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282202AbRKWSUf>; Fri, 23 Nov 2001 13:20:35 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:1524 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S282201AbRKWSUT>;
+	Fri, 23 Nov 2001 13:20:19 -0500
+Date: Fri, 23 Nov 2001 11:20:09 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: =?iso-8859-1?Q?Ra=FAlN=FA=F1ez_de_Arenas_Coronado?= 
+	<dervishd@jazzfree.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Moving ext3 journal file
+Message-ID: <20011123112009.V1308@lynx.no>
+Mail-Followup-To: =?iso-8859-1?Q?Ra=FAlN=FA=F1ez_de_Arenas_Coronado?= <dervishd@jazzfree.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E167Fuw-00001K-00@DervishD>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <E167Fuw-00001K-00@DervishD>; from dervishd@jazzfree.com on Fri, Nov 23, 2001 at 01:58:54PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Nov 23, 2001  13:58 +0100, RaúlNúñez de Arenas Coronado wrote:
+>     Is there any problem on moving the /.journal file (even renaming
+> it) so it doesn't lives on the root? I mean, maintaining its inode
+> number, of course ;))
 
-On Fri, 23 Nov 2001, Tim Tassonis wrote:
->
-> linux/include/linux/version.h in 2.4.15:
->
-> #define UTS_RELEASE "2.4.15-greased-turkey"
-> #define LINUX_VERSION_CODE 132111
-> #define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
->
-> What's this all about??
+The name is irrelevant.  The kernel only accesses the journal by inode
+number, and only once at boot time.  Rather than "renaming" it and
+causing problems, you should just unmount the filesystem, and run
+"e2fsck -f /dev/hdX" (with e2fsck 1.25) and it will hide it for you.
 
-It'sa worthy follow-up to the 2.2.x "greased weasel" releases, but as
-yesterday was Thanksgiving here in the US, and a lot of turkeys offered
-their lives in celebration of the new 2.5.0 tree, the 2.4.x series got
-christened a "greased turkey" instead of a weasel.
+>     Anyway, ext3 shouldn't (just an idea) show the journal as a
+> normal file. It may add some load on the kernel, because the inode
+> number should be compared with that of the journal every time a file
+> is accessed, but it's just a suggestion ;))
 
-It may not have quite the same connotations of slippery speed as the
-weasel, but then some people said the same thing about the penguin too.
+???? This doesn't make sense.  Having the .journal file places no load
+on the system.  OK, when you do "ls -a /" it has to list an extra file,
+but that is so little work as to be unnoticable.  Even with a hidden
+journal, it is still in an inode with an inode number, it's just not
+in a directory anywhere.
 
-		Linus
+As to "comparing the inode number to that of the journal every time a
+file is accessed" it appears you just don't understand how file access
+works in the kernel.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

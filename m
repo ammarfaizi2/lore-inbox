@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276285AbRJGKv3>; Sun, 7 Oct 2001 06:51:29 -0400
+	id <S272197AbRJGLMW>; Sun, 7 Oct 2001 07:12:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276278AbRJGKvT>; Sun, 7 Oct 2001 06:51:19 -0400
-Received: from uucp.cistron.nl ([195.64.68.38]:24841 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S276234AbRJGKvE>;
-	Sun, 7 Oct 2001 06:51:04 -0400
-From: "Rob Turk" <r.turk@chello.nl>
-Subject: Re: AIC7xxx panic
-Date: Sun, 7 Oct 2001 12:48:28 +0200
-Organization: Cistron Internet Services B.V.
-Message-ID: <9ppc3l$cde$1@ncc1701.cistron.net>
-In-Reply-To: <1002451051.3718.20.camel@warblade>
-X-Trace: ncc1701.cistron.net 1002451894 12718 213.46.44.164 (7 Oct 2001 10:51:34 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Newsreader: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-To: linux-kernel@vger.kernel.org
+	id <S276302AbRJGLMN>; Sun, 7 Oct 2001 07:12:13 -0400
+Received: from [193.252.19.44] ([193.252.19.44]:59271 "EHLO
+	mel-rti19.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S272197AbRJGLMC>; Sun, 7 Oct 2001 07:12:02 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: <linux-kernel@vger.kernel.org>, <linux-xfs@oss.sgi.com>
+Subject: Re: %u-order allocation failed
+Date: Sun, 7 Oct 2001 13:12:02 +0200
+Message-Id: <20011007111202.17296@smtp.wanadoo.fr>
+In-Reply-To: <Pine.LNX.3.96.1011007003227.18004B-100000@artax.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.3.96.1011007003227.18004B-100000@artax.karlin.mff.cuni.cz>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jim Crilly" <noth@noth.is.eleet.ca> wrote in message
-news:cistron.1002451051.3718.20.camel@warblade...
-> I got a reproducible panic while running dbench simulating 25+ clients,
-> the new aic7xxx driver panics with "Too few segs for dma mapping.
-> "Increase AHC_NSEG". The partition in question is FAT32 and on a
-> different disk than /, I'm not using HIGHMEM. I am using XFS and the
-> preempt patches, but I don't think they're related to the panic.
 >
-> The odd thing, is if I run dbench in the same manner on my / partition,
-> which is on a different disk on the same controller, it goes fine. It
-> seems, to my untrained eye anyway, to be a bad interaction between the
-> vfat driver and the aic7xxx driver.
->
-> I'm using the old aic7xxx driver right now and it's fine, has anyone
-> else seen anything like this?
->
-> Jim
+>You are right. Code that allocates more than page and expects it to be
+>physicaly contignuous is broken by design. Even rewrite the driver or
+>allocate memory on boot. It will be very hard to audit all drivers for it.
 
-Since this seems to fail on just one disk, it might have to do with one of the
-disk characteristics, like command queue depth. Did you enable Tagged Command
-Queueing, and if so, can you try playing around with the maximum depth?
+Well, the problem here is not code. Some piece of hardware just can't
+scatter gather, or in some case, they can, but the scatter/gather list
+itself has to be contiguous and can be larger than a page.
 
-Rob
+The fact that kmalloc returns physically contiguous memory is a feature
+and can't be modified that easily. If you intend to do so, then you need
+different GFP flags, for example a GFP_CONTIGUOUS flag, and then make
+sure that drivers allocating DMA memory use that new flag.
 
-
+Ben.
 
 

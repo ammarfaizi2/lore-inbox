@@ -1,77 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275990AbRKHRRo>; Thu, 8 Nov 2001 12:17:44 -0500
+	id <S276707AbRKHRSo>; Thu, 8 Nov 2001 12:18:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276707AbRKHRRf>; Thu, 8 Nov 2001 12:17:35 -0500
-Received: from cayuga.grammatech.com ([209.4.89.66]:27405 "EHLO grammatech.com")
-	by vger.kernel.org with ESMTP id <S275990AbRKHRRS>;
-	Thu, 8 Nov 2001 12:17:18 -0500
-Message-ID: <3BEABE11.AFF00CF0@grammatech.com>
-Date: Thu, 08 Nov 2001 12:17:05 -0500
-From: David Chandler <chandler@grammatech.com>
-Organization: GrammaTech, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Bug Report: Dereferencing a bad pointer
-In-Reply-To: <Pine.LNX.3.95.1011108103553.22138A-100000@chaos.analogic.com>
+	id <S276761AbRKHRSf>; Thu, 8 Nov 2001 12:18:35 -0500
+Received: from [212.18.232.186] ([212.18.232.186]:55563 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S276751AbRKHRS1>; Thu, 8 Nov 2001 12:18:27 -0500
+Date: Thu, 8 Nov 2001 17:18:04 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Drizzt Do'Urden" <drizzt.dourden@iname.com>
+Cc: Doug McNaught <doug@wireboard.com>, linux-kernel@vger.kernel.org
+Subject: Re: Module Licensing? (thinking a little more)
+Message-ID: <20011108171804.C2642@flint.arm.linux.org.uk>
+In-Reply-To: <m3bsidxnm4.fsf@belphigor.mcnaught.org> <NLEDJBJHJDOPHJOIBBAFOEIOCGAA.drizzt.dourden@iname.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <NLEDJBJHJDOPHJOIBBAFOEIOCGAA.drizzt.dourden@iname.com>; from drizzt.dourden@iname.com on Thu, Nov 08, 2001 at 06:00:45PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dick,
+On Thu, Nov 08, 2001 at 06:00:45PM +0100, Drizzt Do'Urden wrote:
+> Yes, clause 3.a) "machine readable source code". A .s file is, "machine
+> readable source code" by the assembler and by people that have enough time
+> to lost.. It is like head.S, but using numeric labels and other stuff of
+> that kind.
 
-You're right that the one-liner below may not necessarily produce a seg
-fault, but shouldn't it terminate normally if it doesn't?  After all,
-the program just *reads*.  Hanging does not seem to be an option!
+Sigh.
 
-BTW, your example program produces very similar output for the 2.4 and
-2.2 kernels to which I have access.  I apologize for any confusion my
-original report created -- 0xc0000000 was chosen because of its relation
-to the start of the stack frame, and indeed it has nothing
-to do with the size of virtual address space.
+"The source code for a work means the preferred form of the work for
+making modifications to it."
 
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-David Chandler
-
-
-"Richard B. Johnson" wrote:
-> 
-> > > On Wed, Nov 07, 2001 at 06:23:13PM -0500, David Chandler wrote:
-> > > > The following one-line C program, when compiled by gcc 2.96 without
-> > > > optimization, should produce a SIGSEGV segmentation fault (on a machine
-> > > > with 3 or less gigabytes of virtual memory, at least):
-> > > >
-> > > >         int main() { int k  = *(int *)0xc0000000; }
-> > > >
-> 
-> This may not necessarily produce a seg-fault! If this virtual
-> address is mapped within the current process (.bss .stack, etc.),
-> It's perfectly all right to write to it although you probably
-> broke malloc() by doing it. The actual value of the number in
-> the pointer depends upon PAGE_OFFSET and other kernel variables.
-> If you change the kernel, this number may change. It has nothing
-> to do with the size of virtual address space, really.
-
-
-> 
-> All this stuff you "own". You can write to most all of it because
-> the kernel has allocated it for you. Whether or not 'const' is
-> really read-only is "implementation dependent".
-> 
-> In your case, it looks as though you scribbled over the top of
-> your user stack, in some harmless place.
-
-
-> Cheers,
-> Dick Johnson
-
-
--- 
-
-_____
-David L. Chandler.                              GrammaTech, Inc.
-mailto:chandler@grammatech.com         http://www.grammatech.com

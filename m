@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318464AbSHEMnx>; Mon, 5 Aug 2002 08:43:53 -0400
+	id <S318410AbSHEMu5>; Mon, 5 Aug 2002 08:50:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318467AbSHEMnx>; Mon, 5 Aug 2002 08:43:53 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:8112 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S318464AbSHEMnw>;
-	Mon, 5 Aug 2002 08:43:52 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15694.29516.215781.380474@argo.ozlabs.ibm.com>
-Date: Mon, 5 Aug 2002 22:45:00 +1000 (EST)
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix mesh cfg in drivers/scsi/Config.in
-X-Mailer: VM 6.75 under Emacs 20.7.2
+	id <S318422AbSHEMu5>; Mon, 5 Aug 2002 08:50:57 -0400
+Received: from [213.69.232.58] ([213.69.232.58]:46090 "HELO schottelius.org")
+	by vger.kernel.org with SMTP id <S318410AbSHEMu5>;
+	Mon, 5 Aug 2002 08:50:57 -0400
+Date: Sun, 4 Aug 2002 22:12:16 +0200
+From: Nico Schottelius <nico-mutt@schottelius.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux.nics@intel.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: network driver informations [general NIC, Wireless and e100]
+Message-ID: <20020804201216.GG403@schottelius.org>
+References: <20020731212426.GA3342@schottelius.org> <3D492531.9030905@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="t4apE7yKrX2dGgJC"
+Content-Disposition: inline
+In-Reply-To: <3D492531.9030905@mandrakesoft.com>
+User-Agent: Mutt/1.4i
+X-MSMail-Priority: Is not really needed
+X-Mailer: Yam on Linux ?
+X-Operating-System: Linux flapp 2.4.18
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
 
-We need this small change to drivers/scsi/Config.in.  It only affects
-people using powermacs since the MESH hardware only exists on
-powermacs and clones.
+--t4apE7yKrX2dGgJC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
-Paul.
+Jeff Garzik [Thu, Aug 01, 2002 at 08:10:25AM -0400]:
+> Al Viro has talked about, long term, making this information available=20
+> through a filesystem.  When that happens, your request will have=20
+> basically been implemented.
 
-diff -urN linux-2.5/drivers/scsi/Config.in pmac-2.5/drivers/scsi/Config.in
---- linux-2.5/drivers/scsi/Config.in	Mon Jun 24 23:59:08 2002
-+++ pmac-2.5/drivers/scsi/Config.in	Wed Jun 26 02:10:03 2002
-@@ -221,10 +221,11 @@
- if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
-    dep_tristate 'SCSI debugging host simulator (EXPERIMENTAL)' CONFIG_SCSI_DEBUG $CONFIG_SCSI
- fi
--if [ "$CONFIG_PPC" = "y" ]; then
-+if [ "$CONFIG_ALL_PPC" = "y" ]; then
-    dep_tristate 'MESH (Power Mac internal SCSI) support' CONFIG_SCSI_MESH $CONFIG_SCSI
-    if [ "$CONFIG_SCSI_MESH" != "n" ]; then
-       int '  maximum synchronous transfer rate (MB/s) (0 = async)' CONFIG_SCSI_MESH_SYNC_RATE 5
-+      int '  initial bus reset delay (ms) (0 = no reset)' CONFIG_SCSI_MESH_RESET_DELAY_MS 4000
-    fi
-    dep_tristate '53C94 (Power Mac external SCSI) support' CONFIG_SCSI_MAC53C94 $CONFIG_SCSI
- fi
+will wait until that happy day. Hopefully this will be as soon as
+floppy.o works again :/
+
+Nico
+
+--=20
+Changing mail address: please forget all known @pcsystems.de addresses.
+
+Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
+ils
+to mailing list!). If you don't know what pgp is visit www.gnupg.org.
+(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
+
+--t4apE7yKrX2dGgJC
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9TYqgtnlUggLJsX0RAowrAJ90B01zg6Z+VvhS+GGJi7jSGHEctgCggPcG
+21+5clDT1c8S7Fj4j5tik3k=
+=ZWOS
+-----END PGP SIGNATURE-----
+
+--t4apE7yKrX2dGgJC--

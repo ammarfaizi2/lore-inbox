@@ -1,40 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264943AbTANScU>; Tue, 14 Jan 2003 13:32:20 -0500
+	id <S264940AbTANSg3>; Tue, 14 Jan 2003 13:36:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264944AbTANScU>; Tue, 14 Jan 2003 13:32:20 -0500
-Received: from ore.jhcloos.com ([64.240.156.239]:23557 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id <S264943AbTANScT>;
-	Tue, 14 Jan 2003 13:32:19 -0500
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: new CPUID bit
-References: <3E23E04B.2050802@redhat.com>
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-In-Reply-To: <3E23E04B.2050802@redhat.com>
-Date: 14 Jan 2003 13:41:01 -0500
-Message-ID: <m38yxn377m.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S264944AbTANSg3>; Tue, 14 Jan 2003 13:36:29 -0500
+Received: from adsl-173-18.barak.net.il ([62.90.173.18]:10368 "EHLO
+	laptop.slamail.org") by vger.kernel.org with ESMTP
+	id <S264940AbTANSg2>; Tue, 14 Jan 2003 13:36:28 -0500
+Message-ID: <3E24595A.7040801@slamail.org>
+Date: Tue, 14 Jan 2003 20:39:22 +0200
+From: Yaacov Akiba Slama <ya@slamail.org>
+Reply-To: Yaacov Akiba Slama <ya@slamail.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+X-Accept-Language: en, fr, he
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re : [BUG] cardbus/hotplugging still broken in 2.5.56
+Content-Type: multipart/mixed;
+ boundary="------------000807030805010305030608"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich> Northwood P4's have one more bit in the CPUID processor info
-Ulrich> set: bit 31.  Intel calls the feature PBE (Pending Break
-Ulrich> Enable).
+This is a multi-part message in MIME format.
+--------------000807030805010305030608
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-For the curious, from <http://www.aceshardware.com/forum?read=80030620>:
+Hello all !
 
-Adrian> Bit 31 is PBE (Pending Break Enable) which you can find in the
-Adrian> latest P4 instruction manual (document 24547106, page
-Adrian> 159-162). To quote:
+I have a xircom (RBEM56G-100) lan+modem, and it seems that the following 
+patch solves the problem of ressources collisions.
+Now, I can use 2.5.58mm1 in my laptop and I am happy.
 
-24547106> Pending Break Enable. The processor supports the use of the
-24547106> FERR#/PBE# pin when the processor is in the stop-clock state
-24547106> (STPCLK# is asserted) to signal the processor that an
-24547106> interrupt is pending and that the processor should return to
-24547106> normal operation to handle the interrupt. Bit 10 (PBE
-24547106> enable) in the IA32_MISC_ENABLE MSR enables this capability.
+Yaacov Akiba Slama
 
--JimC
+--------------000807030805010305030608
+Content-Type: text/plain;
+ name="cardbus.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cardbus.patch"
+
+--- a/drivers/pcmcia/cardbus.c	2003-01-14 19:38:49.000000000 +0200
++++ b/drivers/pcmcia/cardbus.c	2003-01-14 19:57:13.000000000 +0200
+@@ -285,18 +285,19 @@
+ 		dev->dev.dma_mask = &dev->dma_mask;
+ 
+ 		pci_setup_device(dev);
+-		if (pci_enable_device(dev))
+-			continue;
+ 
+ 		strcpy(dev->dev.bus_id, dev->slot_name);
+ 
+ 		/* FIXME: Do we need to enable the expansion ROM? */
+ 		for (r = 0; r < 7; r++) {
+ 			struct resource *res = dev->resource + r;
+-			if (res->flags)
++			if (!res->start && res->end)
+ 				pci_assign_resource(dev, r);
+ 		}
+ 
++		if (pci_enable_device(dev))
++			continue;
++
+ 		/* Does this function have an interrupt at all? */
+ 		pci_readb(dev, PCI_INTERRUPT_PIN, &irq_pin);
+ 		if (irq_pin) {
+
+--------------000807030805010305030608--
 

@@ -1,93 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271069AbTGWBCz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 21:02:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271070AbTGWBCz
+	id S270079AbTGWBvy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 21:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270826AbTGWBvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 21:02:55 -0400
-Received: from aneto.able.es ([212.97.163.22]:5540 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S271069AbTGWBCx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 21:02:53 -0400
-Date: Wed, 23 Jul 2003 03:17:56 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: Re: Kernel 2.4 CPU Arch issues]
-Message-ID: <20030723011756.GA16043@werewolf.able.es>
-References: <3F1B25C2.8010403@jmu.edu> <1058745605.6299.4.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <1058745605.6299.4.camel@dhcp22.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Mon, Jul 21, 2003 at 02:00:05 +0200
-X-Mailer: Balsa 2.0.12
+	Tue, 22 Jul 2003 21:51:54 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:47634
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S270079AbTGWBvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 21:51:53 -0400
+Date: Tue, 22 Jul 2003 18:59:04 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Erik Andersen <andersen@codepoet.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Promise SATA driver GPL'd
+In-Reply-To: <20030722184532.GA2321@codepoet.org>
+Message-ID: <Pine.LNX.4.10.10307221852030.8687-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 07.21, Alan Cox wrote:
-> On Llu, 2003-07-21 at 00:29, William M. Quarles wrote:
-> > Well, you separated the Pentium and Pentium-MMX.  It's the exact same
-> > difference between Pentium Pro and Pentium-II: MMX technology.  That's
-> > the point.
+It is a HUGE POS!
+
+The obfustication (sp) level is so high you wonder why.
+It may be GPL, but only goes to prove a few points that everyone lost on
+me in the past.
+
+OEM drivers in ATA suck!  Their CAM blows goat.
+
+Look at the crap in the stack when Marcelo was suckered into taking a
+"Promise Patch".
+
+I have already cut all ties with Promise so here is the deal.
+I no longer have to count the number of fingers on my hand between hand
+shakes.  IE no extras and not shortages.
+
+I wish you well in your adventures in pain.
+
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Tue, 22 Jul 2003, Erik Andersen wrote:
+
+> Some folk I've done some consulting work for bought a zillion
+> Promise SATA cards.  They were able to convince Promise to
+> release their SATA driver, which was formerly available only as 
+> a binary only kernel module, under the terms of the GPL.
 > 
-> This makes no difference to the kernel. Splitting PPro would only make
-> sense for one reason. The Pentium Pro needs store barriers on
-> spin_unlock and friends, the PII and later do not. However if this was
-> done you'd also want to check for PPro boots with a PII kernel and panic
-> which isn't currently done
+> So <drum-roll, trumpets> here it is: the Promise SATA driver for
+> the PDC20318, PDC20375, PDC20378, and PDC20618.  This driver is
+> released as-is.  It is useful for the
+> 
+> 	Promise SATA150 TX4
+> 	Promise SATA150 TX2plus
+> 	Promise SATA 378
+> 	Promise Ultra 618
+> 
+> cards.  As a temporary download location, the GPL'd driver can be
+> obtained from http://www.busybox.net/pdc-ultra-1.00.0.10.tgz
+> 
+> Have fun!  And many thanks to Promise for contributing the driver
+> for their cards!
+> 
+>  -Erik
+> 
+> --
+> Erik B. Andersen             http://codepoet-consulting.com/
+> --This message was written using 73% post-consumer electrons--
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
-(sorry for the late answer, I have been out for a course...)
-
-Is this done now ? Where is detected if you try to boot a P3-built kernel on a
-PPro ?
-
-AFAIK, P2 is more similar to a P3 than to a PPro in terms of architecture.
-Some people say that P3=P2+SSE-50%cache.
-As features like fxsr or cmov are detected independent of gcc flags
-(/proc/cpuinfo...) I think this can affect on how gcc schedules instructions.
-If I grep -r IUMIII * /usr/src/linux, I just get this:
-
-/* Prefetch instructions for Pentium III and AMD Athlon */
-#if defined(CONFIG_MPENTIUMIII) || defined (CONFIG_MPENTIUM4)
-
-#define ARCH_HAS_PREFETCH
-extern inline void prefetch(const void *x)
-{
-    __asm__ __volatile__ ("prefetchnta (%0)" : : "r"(x));
-}                                                                               
-
-And in terms of CONFIG_ flags, the differences from 686 to PIII are:
-
--  bool 'PGE extensions (not for Cyrix/Transmeta)' CONFIG_X86_PGE
-+  define_bool CONFIG_X86_PGE y
--  define_bool CONFIG_X86_PPRO_FENCE y
-
-In short:
-- P3 is separate from 686 just for the prefetch and for the PPRO_FENCE
-- P2 can kill also the PPRO_FENCE
-
-so you I can suppose the main reason to separate P3 is that you trust gcc
-to generate better code if it knows its a P3. So same applies to P2, as
-gcc explicitely says that i686 is a pentiumpro, but says nothing about
-being also a P2:
-
-info gcc:
-
-`-mcpu=CPU-TYPE'
-     ...
-     While picking a specific CPU-TYPE will schedule things
-     appropriately for that particular chip, the compiler will not
-     generate any code that does not run on the i386 without the
-     `-march=CPU-TYPE' option being used.  `i586' is equivalent to
-     `pentium' and `i686' is equivalent to `pentiumpro'.  `k6' and
-     `athlon' are the AMD chips as opposed to the Intel ones.
-
-;)
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.22-pre7-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-0.6mdk))

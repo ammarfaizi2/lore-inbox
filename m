@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271150AbTHLVOs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 17:14:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271152AbTHLVOs
+	id S271141AbTHLVLx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 17:11:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271148AbTHLVLx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 17:14:48 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:2435 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S271150AbTHLVOh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 17:14:37 -0400
-Subject: Re: PCI parallel card causes erratic timekeeping? (2.4.21)
-From: john stultz <johnstul@us.ibm.com>
-To: Ryan Underwood <nemesis-lists@icequake.net>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030810072647.GU6464@dbz.icequake.net>
-References: <20030810072647.GU6464@dbz.icequake.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1060722814.10732.1416.camel@cog.beaverton.ibm.com>
+	Tue, 12 Aug 2003 17:11:53 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:10253
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S271141AbTHLVLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 17:11:44 -0400
+Date: Tue, 12 Aug 2003 14:11:37 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Mike Galbraith <efault@gmx.de>
+Cc: Nick Piggin <piggin@cyberone.com.au>, rob@landley.net,
+       Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [PATCH] O13int for interactivity
+Message-ID: <20030812211137.GH1027@matchmail.com>
+Mail-Followup-To: Mike Galbraith <efault@gmx.de>,
+	Nick Piggin <piggin@cyberone.com.au>, rob@landley.net,
+	Con Kolivas <kernel@kolivas.org>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+References: <3F389221.6080202@cyberone.com.au> <200308110248.09399.rob@landley.net> <200308050207.18096.kernel@kolivas.org> <200308052022.01377.kernel@kolivas.org> <3F2F87DA.7040103@cyberone.com.au> <200308110248.09399.rob@landley.net> <5.2.1.1.2.20030812075224.01988de8@pop.gmx.net> <3F389221.6080202@cyberone.com.au> <5.2.1.1.2.20030812112325.01a06cb8@pop.gmx.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 12 Aug 2003 14:13:34 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5.2.1.1.2.20030812112325.01a06cb8@pop.gmx.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-08-10 at 00:26, Ryan Underwood wrote:
-> In the ISA slot, up until recently, we had a dual parallel port card
-> that was attached to the network printers.  However, the printers and
-> the card were fried in a storm recently; luckily, the server survived.
-> We replaced the card with a dual PCI parallel port card (Netmos
-> NM9715CV) and the printers are now working fine.
+On Tue, Aug 12, 2003 at 11:42:16AM +0200, Mike Galbraith wrote:
+> At 05:18 PM 8/12/2003 +1000, Nick Piggin wrote:
 > 
-> However, a new problem emerged.  The software clock of the system is
-> crazy!  Sometimes it is very fast, other times very slow.  NTP
-> constantly loses synchronization, and since this machine is also a
-> Kerberos KDC, Kerberos tickets are flakey. :(  This problem exists
-> independently of whether a driver is loaded for the card or not; if it
-> is in the system at all, the clock runs screwy.  If I remove the card,
-> the clock is back to normal as far as I can tell.
+> >And no, X isn't intentionally sleeping. Its being preempted which is
+> >obviously not intentional.
+> 
+> Right.  Every time X wakes the gl thread, he'll lose the cpu.  Once the gl 
+> thread passes X in priority, X is pretty much doomed.  (hmm... sane [hard] 
+> backboost will probably prevent that)
 
-[snip]
-
-> Can simply inserting a card generally make a system clock act screwy
-> like this?  Should I try to find a different card?
-
-Sounds like the card is blocking the timer interrupt from being handled.
-This would cause a loss in time as well as time inconsistencies. I'm a
-bit curious about time running too fast, though. It could be NTP trying
-to compensate for the slowness and then overcompensates if the card
-stops misbehaving. Its also possible calibrate_tsc is being confused by
-the card's funkyness. It would be interesting to see what Bogomips is
-being reported as the system acts up.
-
-Sounds like a bad card to me. 
-
-thanks
--john
-
-
-
-
+Isn't 2.4 doing exactly that for pipes and such?

@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270032AbUJTLvx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270203AbUJTL5Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270032AbUJTLvx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 07:51:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270055AbUJTLtX
+	id S270203AbUJTL5Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 07:57:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270200AbUJTLyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 07:49:23 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:4302 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S270029AbUJTLph (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 07:45:37 -0400
-Date: Wed, 20 Oct 2004 13:43:12 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-Message-ID: <20041020114312.GA5418@elte.hu>
-References: <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041020100424.GA32396@elte.hu> <11742.195.245.190.93.1098268363.squirrel@195.245.190.93> <20041020104005.GA1813@elte.hu> <15773.195.245.190.94.1098271919.squirrel@195.245.190.94>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15773.195.245.190.94.1098271919.squirrel@195.245.190.94>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 20 Oct 2004 07:54:32 -0400
+Received: from webapps.arcom.com ([194.200.159.168]:37390 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S270122AbUJTLwc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 07:52:32 -0400
+Message-ID: <4176517C.4090504@arcom.com>
+Date: Wed, 20 Oct 2004 12:52:28 +0100
+From: David Vrabel <dvrabel@arcom.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Harald Welte <laforge@gnumonks.org>,
+       Jeff Chua <jeffchua@silk.corp.fedex.com>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org, LARTC@mailman.ds9a.nl
+Subject: Re: iproute2 and 2.6.9 kernel headers (was Re: [ANNOUNCE] iproute2
+ 2.6.9-041019)
+References: <41758014.4080502@osdl.org>	 <Pine.LNX.4.61.0410200805110.8475@boston.corp.fedex.com>	 <20041020070017.GA19899@sunbeam.de.gnumonks.org>	 <20041020094123.GF19899@sunbeam.de.gnumonks.org> <1098268885.3872.81.camel@baythorne.infradead.org>
+In-Reply-To: <1098268885.3872.81.camel@baythorne.infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Oct 2004 11:52:41.0234 (UTC) FILETIME=[4DA93F20:01C4B69B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
-
-> > please re-download -U8, i've updated it a couple of minutes after
-> > uploading it, but apparently not fast enough :-| Sorry!
-> >
+David Woodhouse wrote:
 > 
-> OK. No problem.... and yes, mkinitrd (make install) works again.
+> The time has come to fix it properly instead. Anything which these tools
+> actually need from the kernel headers should be moved into a separate
+> header file (still in the kernel source) which is usable from _both_
+> kernel and userspace.
 
-good.
+Isn't this what linux-libc-headers is for?
 
-> >> RTNL: assertion failed at net/ipv4/devinet.c (1049)
-> >
-> > yeah - this too was an oversight i fixed in the latest upload.
-> 
-> I don't think so. I still see plenty of those here.
-> 
-> Is there an even more recent U8? I think you should consider add some
-> dot numbering to each of the uploads... ;)
+> It should use standard types (like uint16_t etc)
 
-indeed this most likely means there's a newer update :-| Please 
-double-check that the one you have is:
+Why doesn't the kernel use these standard types also?
 
- $ md5sum realtime-preempt-2.6.9-rc4-mm1-U8
- b59ae00ca0f45f545519348113af5c4f  realtime-preempt-2.6.9-rc4-mm1-U8
+David Vrabel
+--
+David Vrabel, Design Engineer
 
-	Ingo
+Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
+Cambridge CB1 7EA, UK         Web: http://www.arcom.com/

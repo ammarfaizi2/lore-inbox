@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131323AbRD3FD4>; Mon, 30 Apr 2001 01:03:56 -0400
+	id <S133098AbRD3FL2>; Mon, 30 Apr 2001 01:11:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133098AbRD3FDr>; Mon, 30 Apr 2001 01:03:47 -0400
-Received: from rumor.cps.intel.com ([192.102.198.242]:6131 "EHLO
-	rumor.cps.intel.com") by vger.kernel.org with ESMTP
-	id <S131323AbRD3FDa>; Mon, 30 Apr 2001 01:03:30 -0400
-Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDDDE5@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Pavel Machek'" <pavel@suse.cz>,
-        "Michael K. Johnson" <johnsonm@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: Lid support for ACPI
-Date: Sun, 29 Apr 2001 22:00:05 -0700
+	id <S133101AbRD3FLS>; Mon, 30 Apr 2001 01:11:18 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:60820 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S133098AbRD3FLA>;
+	Mon, 30 Apr 2001 01:11:00 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15084.62398.56283.772414@pizda.ninka.net>
+Date: Sun, 29 Apr 2001 22:10:22 -0700 (PDT)
+To: Ralf Nyren <ralf@nyren.net>
+Cc: <linux-kernel@vger.kernel.org>, kuznet@ms2.inr.ac.ru
+Subject: Re: 2.4.4: Kernel crash, possibly tcp related
+In-Reply-To: <Pine.LNX.4.31.0104291552190.523-100000@HADDOCK.100Mbit.nyren.net>
+In-Reply-To: <Pine.LNX.4.31.0104291552190.523-100000@HADDOCK.100Mbit.nyren.net>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(btw ACPI 2.0 spec section 12.1.1 discusses this)
 
-> From: Pavel Machek [mailto:pavel@suse.cz]
-> > No, the ACPI standard requires CPUs to shut themselves down before
-> > any damage would occur from overheading.  Well, at least the 1.0b
-> > version of the standard did; I haven't read 2.0 yet.
+Ralf Nyren writes:
+ > The problem appears when this value is set to 40481 or higher. For ex:
+ > $ tcpblast -d0 -s 40481 another_host 9000
+ ...
+ > KERNEL: assertion (!skb_queue_empty(&sk->write_queue)) failed at tcp_timer.c(327):
+ > tcp_retransmit_timer
+ > Unable to handle kernel NULL pointer dereference...
 
-> BTW shut themselves down to halt, or shut themselves to 
-> *very* low speed?
+I'm having a devil of a time finding the tcpblast sources on the
+net, can you point me to where I can get them?  The one reference
+I saw to get the original sources was:
 
-Both. When a CPU overheats, the OS implements either active (turning on a
-fan) or passive (cpu throttling). If the temperature still exceeds the
-critical threshold, the OS must shut down.
+ftp://ftp.xlink.net/pub/network/tcpblast.shar.gz
 
-> Slow down to 10% speed is what my toshiba does. Is there way 
-> back from such
-> mode?
+But even that directory no longer exists.
 
-Once the temperature drops below the active and passive cooling thresholds,
-the OS should stop its cooling measures, such as throttling.
+The kernel error you see is a gross fatal error, the TCP retransmit
+timer has fired yet there are no packets on the transmit queue :-)
 
-That said, I seem to recall your laptop is doing throttling in a non-OS
-visible way (BIOS) so I don't know under what circumstances it stops cpu
-throttling.
+My current theory is that tcpblast does something erratic when the
+error occurs.
 
-Regards -- Andy
-
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,73 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262864AbUKXVpG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262692AbUKXVrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262864AbUKXVpG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 16:45:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262870AbUKXVn2
+	id S262692AbUKXVrp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 16:47:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261591AbUKXVps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 16:43:28 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:11439 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262866AbUKXVmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 16:42:20 -0500
-Subject: Re: Suspend 2 merge: 24/51: Keyboard and serial console hooks.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041124132949.GB13145@infradead.org>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <1101296414.5805.286.camel@desktop.cunninghams>
-	 <20041124132949.GB13145@infradead.org>
-Content-Type: text/plain
-Message-Id: <1101332321.3895.57.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 25 Nov 2004 08:38:41 +1100
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Nov 2004 16:45:48 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:43399 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262692AbUKXVop (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 16:44:45 -0500
+Date: Wed, 24 Nov 2004 21:41:26 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Michael Kerrisk <mtk-lkml@gmx.net>
+cc: Rik van Riel <riel@redhat.com>, Chris Wright <chrisw@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       <michael.kerrisk@gmx.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Further shmctl() SHM_LOCK strangeness
+In-Reply-To: <7379.1101327249@www30.gmx.net>
+Message-ID: <Pine.LNX.4.44.0411242124400.2769-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Thu, 2004-11-25 at 00:29, Christoph Hellwig wrote:
-> On Wed, Nov 24, 2004 at 11:59:02PM +1100, Nigel Cunningham wrote:
-> > Here we add simple hooks so that the user can interact with suspend
-> > while it is running. (Hmm. The serial console condition could be
-> > simplified :>). The hooks allow you to do such things as:
-> > 
-> > - cancel suspending
-> > - change the amount of detail of debugging info shown
-> > - change what debugging info is shown
-> > - pause the process
-> > - single step
-> > - toggle rebooting instead of powering down
+On Wed, 24 Nov 2004, Michael Kerrisk wrote:
 > 
-> And why would we want this?  If the users calls the suspend call
-> he surely wants to suspend, right?
+> While studying the RLIMIT_MEMLOCK stuff further, I came 
+> up with another observation: a process can perform a
+> shmctl(SHM_LOCK) on *any* System V shared memory segment, 
+> regardles of the segment's ownership or permissions,
+> providing the size of the segment falls within the 
+> process's RLIMIT_MEMLOCK limit.
 
-Have you ever pressed control-alt-delete/init 0 and then gone "Oh. I
-forgot, I wanted to..."? That's why you'd want to be able to cancel
-suspending.
+That's a very good observation.
 
-The ability to toggle rebooting is helpful because you don't have to
-edit a config file/proc entry. You can use one key press to initiate the
-suspend, and press 'R' iif you want to reboot (eg for dual booting)
-instead of powering down.
+I think it's unintended, but I'm not sure.
+I've forgotten what can_do_mlock on shm was about.
 
-The other options are really helpful when testing and debugging, and can
-be turned off at compile time.
+Offhand I find it hard to grasp whether it's harmless or bad,
+but inclined to think bad - if there happen to be lots of small
+enough shared memory segments on the system, a series of processes
+run by one unprivileged user can lock down lots of memory?
 
-By the way, thanks for all the feedback.
+Isn't it further the case that any process can now SHM_UNLOCK
+any segment?  That would surely be wrong.
 
-Regards,
+I've added Rik and Chris to the CC list, they seem to be the
+main can_do_mlock guys, hope they can answer.
 
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+Hugh
 
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
+> Is this intended behaviour?  For most other System V IPC 
+> "ctl" operations the process must either:
+> 
+> 1. be the owner of the object or have an appropriate 
+>    capability, or
+> 
+> 2. have suitable permissions on the object.
+> 
+> Which of these two conditions applies depends on the
+> "ctl" operation.
 

@@ -1,72 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268206AbRHCKHy>; Fri, 3 Aug 2001 06:07:54 -0400
+	id <S268515AbRHCKJo>; Fri, 3 Aug 2001 06:09:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268382AbRHCKHo>; Fri, 3 Aug 2001 06:07:44 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:41633 "EHLO
+	id <S268427AbRHCKJY>; Fri, 3 Aug 2001 06:09:24 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:47521 "EHLO
 	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S268206AbRHCKHZ>; Fri, 3 Aug 2001 06:07:25 -0400
-Message-ID: <3B6A78C1.7A1B13AB@veritas.com>
-Date: Fri, 03 Aug 2001 15:41:13 +0530
+	id <S268382AbRHCKJX>; Fri, 3 Aug 2001 06:09:23 -0400
+Message-ID: <3B6A7962.B5B586C5@veritas.com>
+Date: Fri, 03 Aug 2001 15:43:54 +0530
 From: "Amit S. Kale" <akale@veritas.com>
 Organization: Veritas Software (India)
 X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: jalaja devi <jala_74@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kgdb ksymtab_addr not found!!
-In-Reply-To: <20010802174730.76395.qmail@web13704.mail.yahoo.com>
+To: Rajeev Bector <rajeev_bector@yahoo.com>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: finding out module name from an address  ?
+In-Reply-To: <GIEMIEJKPLDGHDJKJELAGECPCCAA.rajeev_bector@yahoo.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jalaja devi wrote:
+Rajeev Bector wrote:
 > 
 > Hi,
-> 
-> I have 2 quesions here:
-> 
-> 1. Could any plz tell me what am i missing out here?
-> 
-> I basically, trying to debug my my loadable module in
-> kernel in kernel2.4.6 version. I patched the kernel
-> with 2.4.6 kgdb patch, using the recent version.
-> 
-> I am using the modutils shell script to load my module
-> loadmodule.sh which creates a gdbscript. When I source
-> the gdbscript I get the following warnings:
-> 
-> warning : section _ksymtab not found in mymodule.o
-> warning : section _archdata not found in mymodule.o
-> 
-> Do I need to patch the kernel with the modutils. Why
-> do I get these warnings.
+>   I am trying to write a patched kmalloc() which
+> will track the caller function using
+> __builtin_return_address(0). From that address,
+> is there a clean way to figure out if the address
+> belongs to a loadable module and if yes, get
+> to the module structure of that module so
+> that I can log on the basis of module->name
 
-These warnings can be safely ignored.
+You can traverse module_list. An element of the
+list (struct module) also describes size of the module.
+So if an address is between struct module pointer and
+struct module pointer + mdoule size, you know that the module
+contains the code.
 
 > 
-> 2. How can I put a breakpoint to debug my init_module?
-> Which is the Kernel Fxn to be invoked to put a
-> breakpoint in my init_module?
-
-You can place a breakpoint just before the the statement
-where kernel calls init_module. Then load the generated
-gdb script into gdb once the breakpoint is hit. Now you
-can place a breakpoint directly into any statement in the
-module code.
-
-
+> Thanks
+> Rajeev
 > 
-> Thanks in advance,
-> 
-> Jalaja
-> 
-> __________________________________________________
+> _________________________________________________________
 > Do You Yahoo!?
-> Make international calls for as low as $.04/minute with Yahoo! Messenger
-> http://phonecard.yahoo.com/
+> Get your free @yahoo.com address at http://mail.yahoo.com
+> 
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

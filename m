@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263469AbRFRFQO>; Mon, 18 Jun 2001 01:16:14 -0400
+	id <S263480AbRFRGCR>; Mon, 18 Jun 2001 02:02:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263473AbRFRFQE>; Mon, 18 Jun 2001 01:16:04 -0400
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:32204 "EHLO
-	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S263469AbRFRFPy>; Mon, 18 Jun 2001 01:15:54 -0400
-Message-ID: <3B2D8ED0.40B299B5@kegel.com>
-Date: Sun, 17 Jun 2001 22:17:04 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: getrusage vs /proc/pid/stat?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263496AbRFRGCI>; Mon, 18 Jun 2001 02:02:08 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:28067 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S263480AbRFRGBw>; Mon, 18 Jun 2001 02:01:52 -0400
+Date: Mon, 18 Jun 2001 00:01:03 -0600
+Message-Id: <200106180601.f5I613D29992@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: [PATCH] devfs v181 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd like to monitor CPU, memory, and I/O utilization in a 
-long-running multithreaded daemon under kernels 2.2, 2.4,
-and possibly also Solaris (#ifdefs are ok).
+  Hi, all. Version 181 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
-getrusage() looked promising, and might even work for CPU utilization.
-Dunno if it returns info for all child threads yet, haven't tried it.
-In Linux, though, getrusage() doesn't return any info about RAM.
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
 
-I know I can get the RSS and VSIZE under Linux by parsing /proc/pid/stat,
-but was hoping for a faster interface (although I suppose a seek,
-a read, and an ascii parse isn't *that* slow).  Is /proc/pid/stat
-the only way to go under Linux to monitor RSS?
-- Dan
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
 
--- 
-"A computer is a state machine.
- Threads are for people who can't program state machines."
-         - Alan Cox
+This is against 2.4.6-pre3. Highlights of this release:
+
+- Answered question posed by Al Viro and removed his comments from <devfs_open>
+
+- Moved setting of registered flag after other fields are changed
+
+- Fixed race between <devfsd_close> and <devfsd_notify_one>
+
+- Global VFS changes added bogus BKL to devfsd_close(): removed
+
+- Widened locking in <devfs_readlink> and <devfs_follow_link>
+
+- Replaced <devfsd_read> stack usage with <devfsd_ioctl> kmalloc
+
+- Simplified locking in <devfsd_ioctl> and fixed memory leak
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

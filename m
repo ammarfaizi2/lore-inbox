@@ -1,79 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265845AbUFOTHD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265863AbUFOTON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265845AbUFOTHD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 15:07:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265877AbUFOTGh
+	id S265863AbUFOTON (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 15:14:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265877AbUFOTON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 15:06:37 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:25396 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S265845AbUFOTFN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 15:05:13 -0400
-Date: Tue, 15 Jun 2004 21:14:18 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Tom Rini <trini@kernel.crashing.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Wolfgang Denk <wd@denx.de>
-Subject: Re: [PATCH 0/5] kbuild
-Message-ID: <20040615191418.GD2310@mars.ravnborg.org>
-Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@osdl.org>, Wolfgang Denk <wd@denx.de>
-References: <20040614204029.GA15243@mars.ravnborg.org> <20040615154136.GD11113@smtp.west.cox.net> <20040615174929.GB2310@mars.ravnborg.org> <20040615190951.C7666@flint.arm.linux.org.uk>
+	Tue, 15 Jun 2004 15:14:13 -0400
+Received: from cfcafw.SGI.COM ([198.149.23.1]:59564 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S265863AbUFOTOK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 15:14:10 -0400
+Date: Tue, 15 Jun 2004 14:14:40 -0500
+From: Dean Nelson <dcn@sgi.com>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, dcn@sgi.com
+Subject: Re: calling kthread_create() from interrupt thread
+Message-ID: <20040615191440.GA17669@sgi.com>
+References: <40CF350B.mailxD2X1NPFBC@aqua.americas.sgi.com> <1087321777.2710.43.camel@laptop.fenrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040615190951.C7666@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1087321777.2710.43.camel@laptop.fenrus.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 07:09:51PM +0100, Russell King wrote:
+On Tue, Jun 15, 2004 at 07:49:37PM +0200, Arjan van de Ven wrote:
+> On Tue, 2004-06-15 at 19:42, Dean Nelson wrote:
+> > I'm working on a driver that needs to create threads that can sleep/block
+> > for an indefinite period of time.
 > > 
-> > Compared to the original behaviour where the all: target picked the default
-> > target for a given architecture, this patch adds the following:
+> >     . Can kthread_create() be called from an interrupt handler?
 > 
-> This isn't the case on ARM.  I've always told people 'make zImage'
-> or 'make Image'.  I've never told people to use just 'make' on its
-> own - in fact, I've never used 'make' on its own with the kernel.
-
-Why not?
-Letting the build system select a default target is often a
-better choice than some random choice by a developer.
-
+> no
 > 
-> > - One has to select the default kernel image only once
-> >   when configuring the kernel.
-> > - There exist a possibility to add more than half a line of text
-> >   describing individual targets. All relevant information can be
-> >   specified in the help section in the Kconfig file
+> > 
+> >     . Is the cost of a kthread's creation/demise low enough so that one
+> >       can, as often as needed, create a kthread that performs a simple
+> >       function and exits?  Or is the cost too high for this?
 > 
-> You can't fit details for 500 platforms into half a line of text.
-Not discussing different platforms, only discussing kernel targets.
-For arm I see the following:
-zImage, Image bootpImage uImage
-And some test targets: zImg, Img, bp, i, zi
+> for that we have keventd in 2.4, work queues in 2.6
 
-Not counting the test targets it is only 4 target of which 3 is
-documented in help today.
+Can an interrupt handler setup a work_struct structure, call schedule_work()
+and then simply return, not waiting around for the work queue event to
+complete?
 
-> 
-> > If we remove the current support for for example uboot we create an
-> > additional step in between the make and copy image.
-> 
-> uboot support on ARM was only recently added, and only happened
-> because I happened to misread the patch.  Had I been more on the
-> ball, the support would NOT have been merged.  However, as it did
-> get merged, I didn't want to create extra noise by taking it out.
-> 
-> Please don't take this as acceptance that throwing the uboot crap
-> into the kernel for ARM was something I found agreeable.  I still
-> find it distasteful that boot loaders have to define their own
-> image formats and the kernel has to conform to the boot loader
-> authors whims.
-
-Maybe Wolgang can jump in here - I do not know why mkimage is needed.
-But I do like to have it present for convinience.
-It is btw called mkuboot.sh in scripts/ to better say what it does.
-
-	Sam
+Thanks,
+Dean

@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266367AbTB0Tgh>; Thu, 27 Feb 2003 14:36:37 -0500
+	id <S266771AbTB0TmP>; Thu, 27 Feb 2003 14:42:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266434AbTB0Tgg>; Thu, 27 Feb 2003 14:36:36 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:37763 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S266367AbTB0Tfz>; Thu, 27 Feb 2003 14:35:55 -0500
-Message-Id: <200302271946.h1RJkAJT010712@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.1 02/18/2003 with nmh-1.0.4+dev
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.63 - if/ifdef janitor work - actual bug found..
-From: Valdis.Kletnieks@vt.edu
+	id <S266796AbTB0TmP>; Thu, 27 Feb 2003 14:42:15 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:28838 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S266771AbTB0TmM>;
+	Thu, 27 Feb 2003 14:42:12 -0500
+Date: Thu, 27 Feb 2003 11:47:52 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous reboots)
+Message-Id: <20030227114752.2f687dcc.rddunlap@osdl.org>
+In-Reply-To: <20030227193943.GA28379@actcom.co.il>
+References: <39710000.1045757490@[10.10.2.4]>
+	<Pine.LNX.4.44.0302200847060.2493-100000@home.transmeta.com>
+	<20030227105056.3fd76ac6.rddunlap@osdl.org>
+	<20030227193943.GA28379@actcom.co.il>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1352218482P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Thu, 27 Feb 2003 14:46:10 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1352218482P
-Content-Type: text/plain; charset=us-ascii
+On Thu, 27 Feb 2003 21:39:44 +0200
+Muli Ben-Yehuda <mulix@mulix.org> wrote:
 
-The previous patches cleaned things up enough that -Wundef doesn't trigger
-a lot of false positives.. which made this one visible.  There's no other
-occurrence of MAX_OWNER_OVERRIDE in the tree, and it's obviously not
-MAY_OWNER_OVERRIDE either.  Looks like just remaindered cruft that I've
-cleaned up....
+| On Thu, Feb 27, 2003 at 10:50:56AM -0800, Randy.Dunlap wrote:
+| > On Thu, 20 Feb 2003 08:54:55 -0800 (PST)
+| > Linus Torvalds <torvalds@transmeta.com> wrote:
+| 
+| [snipped] 
+| 
+| > | A sorted list of bad stack users (more than 256 bytes) in my default build
+| > | follows. Anybody can create their own with something like
+| > | 
+| > | 	objdump -d linux/vmlinux |
+| > | 		grep 'sub.*$0x...,.*esp' |
+| > | 		awk '{ print $9,$1 }' |
+| > | 		sort > bigstack
+| > | 
+| > | and a script to look up the addresses.
+| 
+| [snipped] 
+| 
+| > I don't get a nice listing from this script like you did.
+| > Example of mine is below.  Do I just have a tools issue?
+| 
+| See the part where Linus said "...and a script to look up the
+| addresses.". You can use 'ksymoops -v vmlinux -m System.map --no-ksyms
+| --no-lsmod -A 0xcodebabe' to translate address to symbol. 
 
---- include/linux/nfsd/nfsd.h.dist	2003-02-24 14:06:01.000000000 -0500
-+++ include/linux/nfsd/nfsd.h	2003-02-27 00:21:53.957428476 -0500
-@@ -39,7 +39,7 @@
- #define MAY_LOCK		32
- #define MAY_OWNER_OVERRIDE	64
- #define	MAY_LOCAL_ACCESS	128 /* IRIX doing local access check on device special file*/
--#if (MAY_SATTR | MAY_TRUNC | MAY_LOCK | MAX_OWNER_OVERRIDE | MAY_LOCAL_ACCESS) & (MAY_READ | MAY_WRITE | MAY_EXEC | MAY_OWNER_OVERRIDE)
-+#if (MAY_SATTR | MAY_TRUNC | MAY_LOCK | MAY_LOCAL_ACCESS) & (MAY_READ | MAY_WRITE | MAY_EXEC | MAY_OWNER_OVERRIDE)
- # error "please use a different value for MAY_SATTR or MAY_TRUNC or MAY_LOCK or MAY_OWNER_OVERRIDE."
- #endif
- #define MAY_CREATE		(MAY_EXEC|MAY_WRITE)
+Yes, sorry about skimming over that.
+And yes, I'm familiar with that option of ksymoops.*  :)
+
+--
+~Randy
 
 
-
---==_Exmh_1352218482P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+XmsCcC3lWbTT17ARAlKPAKCgn+ctrKYzi9bwpp70OVQNPVfp3wCdH/Zi
-4/BFc+ZaBvKKP3zTwfsrq24=
-=Ye4O
------END PGP SIGNATURE-----
-
---==_Exmh_1352218482P--
+*: since it's based on
+   http://www.osdl.org/archive/rddunlap/scripts/ksysmap

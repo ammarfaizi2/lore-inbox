@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266183AbUGJICA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266022AbUGJIKX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266183AbUGJICA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 04:02:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266187AbUGJICA
+	id S266022AbUGJIKX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 04:10:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266031AbUGJIKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 04:02:00 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:1165 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266183AbUGJIB7 (ORCPT
+	Sat, 10 Jul 2004 04:10:23 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:62447 "HELO mproxy.gmail.com")
+	by vger.kernel.org with SMTP id S266022AbUGJIKV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 04:01:59 -0400
-Date: Sat, 10 Jul 2004 10:02:34 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Redeeman <lkml@metanurb.dk>
-Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjanv@redhat.com>
+	Sat, 10 Jul 2004 04:10:21 -0400
+Message-ID: <2a4f155d040710011041a95210@mail.gmail.com>
+Date: Sat, 10 Jul 2004 11:10:07 +0300
+From: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
+To: Ingo Molnar <mingo@elte.hu>
 Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040710080234.GA25155@elte.hu>
-References: <20040709182638.GA11310@elte.hu> <1089407610.10745.5.camel@localhost>
+Cc: Andrea Arcangeli <andrea@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>
+In-Reply-To: <20040710075747.GA25052@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1089407610.10745.5.camel@localhost>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20040709182638.GA11310@elte.hu> <20040709195105.GA4807@infradead.org> <20040709235017.GP20947@dualathlon.random> <20040710075747.GA25052@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A patch against 2.6.7 would be more appreciated as Linus looks like
+won't release 2.6.8 soon.
 
-* Redeeman <lkml@metanurb.dk> wrote:
+On Sat, 10 Jul 2004 09:57:47 +0200, Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> * Andrea Arcangeli <andrea@suse.de> wrote:
+> 
+> > the other bad thing is that there is no  point for the sysctl [...]
+> 
+>  [snipped another 30 lines of rant]
+> 
+> > >  (Note to kernel patch reviewers: the split voluntary_resched type of
+> > >  APIs, the feature #ifdefs and runtime flags are temporary and were
+>            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> > >  only introduced to enable easy benchmarking/comparisons. I'll split
+>      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> > >  this up into small pieces once there's testing feedback and actual
+> > >  audio users had their say!)
+> 
+>         Ingo
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-> this all seems pretty cool... do you think you could make a patch
-> against mm for this? it would be greatly apreciated
 
-it should apply cleanly to 2.6.7-mm6. -mm7 already includes most of the
-might_sleep() additions. I'll do a patch against -mm7 too.
-
-	Ingo
+-- 
+Time is what you make of it

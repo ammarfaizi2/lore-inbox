@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263468AbTEMTOi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 15:14:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263481AbTEMTOi
+	id S262164AbTEMTXC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 15:23:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbTEMTXC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 15:14:38 -0400
-Received: from terminus.zytor.com ([63.209.29.3]:61828 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S263468AbTEMTOh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 15:14:37 -0400
-Message-ID: <3EC14706.1010200@zytor.com>
-Date: Tue, 13 May 2003 12:27:02 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
-X-Accept-Language: en-us, en, sv
+	Tue, 13 May 2003 15:23:02 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:62705 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262164AbTEMTXB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 15:23:01 -0400
+Date: Tue, 13 May 2003 21:35:30 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Ian Molton <spyro@f2s.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ARM26 [NEW ARCHITECTURE]
+In-Reply-To: <1052835818.431.37.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.GSO.4.21.0305132134230.13355-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use correct x86 reboot vector
-References: <200305130851_MC3-1-38A3-A3B4@compuserve.com> <b9refc$qmd$1@cesium.transmeta.com> <Pine.LNX.4.53.0305131501150.2332@chaos>
-In-Reply-To: <Pine.LNX.4.53.0305131501150.2332@chaos>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> 
-> Don't thing there's anything much easier than:
-> 
-> 		movl	$1, %eax
-> 		movl	%eax, %cr0
-> 
-> ... execute that in paged RAM (above the 1:1 mapping), and you
-> will get a hard processor reset without any bus access at all.
-> This unmaps everything in one fell-swoop.
-> 
+On 13 May 2003, Alan Cox wrote:
+> I guess its no crazier than the MacII port. What does Russell think
 
-You go back to 1:1 mappings at that point, so you *will* have bus accesses.
+Wait until we're gonna submit the TekExpress port for 2.4.22... ;-)
 
-	-hpa
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129834AbRBGHsB>; Wed, 7 Feb 2001 02:48:01 -0500
+	id <S129028AbRBGH4d>; Wed, 7 Feb 2001 02:56:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129885AbRBGHrv>; Wed, 7 Feb 2001 02:47:51 -0500
-Received: from blackhole.adamant.net ([212.26.128.69]:16921 "EHLO
-	blackhole.adamant.net") by vger.kernel.org with ESMTP
-	id <S129834AbRBGHre>; Wed, 7 Feb 2001 02:47:34 -0500
-Date: Wed, 7 Feb 2001 09:47:25 +0200
-From: Alexander Trotsai <mage@adamant.net>
-To: linux-kernel@vger.kernel.org
-Subject: Massive speed slowdown with any kernel after 2.4.1
-Message-ID: <20010207094725.D12250@blackhole.adamant.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.3.14i
-Organization: Adamant ISP
+	id <S129135AbRBGH4N>; Wed, 7 Feb 2001 02:56:13 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:49404 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129028AbRBGH4B>; Wed, 7 Feb 2001 02:56:01 -0500
+Date: Wed, 7 Feb 2001 05:55:45 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Alexander Trotsai <mage@adamant.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Massive speed slowdown with any kernel after 2.4.1
+In-Reply-To: <20010207094725.D12250@blackhole.adamant.net>
+Message-ID: <Pine.LNX.4.21.0102070555270.1535-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all
+On Wed, 7 Feb 2001, Alexander Trotsai wrote:
 
-I have PIII/128Mb/IDE uDMA 66 PC
-I try 2.4.1ac1, ac2 and 2.4.2pre1
-And all this kernel after message "Freeing unused kernel memmory" highly slowing
-Even cursor (I have framebuffer) blink slowly
-But (via vmstat) no processor used, no disk operation.
-I try to compile both gcc from redhat and kgcc and have no difference
-But with the same config 2.4.0ac10 work Ok.
+> I have PIII/128Mb/IDE uDMA 66 PC I try 2.4.1ac1, ac2 and
+> 2.4.2pre1 And all this kernel after message "Freeing unused
+> kernel memmory" highly slowing Even cursor (I have framebuffer)
+> blink slowly But
 
-____________________________________________________________________
-Info&Contacts -- RIPE: MAGE-RIPE, InterNic: AT2963, ICQ: 18035130
-PGP: ftp://blackhole.adamant.net/pgp/mykey.pgp.asc
-Trouble of the day: excessive collisions & not enough packet ambulances
+Turn off ACPI
+
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

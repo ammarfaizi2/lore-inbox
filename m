@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310224AbSDMTq6>; Sat, 13 Apr 2002 15:46:58 -0400
+	id <S310258AbSDMTtx>; Sat, 13 Apr 2002 15:49:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310435AbSDMTq5>; Sat, 13 Apr 2002 15:46:57 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:21767 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310224AbSDMTq5>; Sat, 13 Apr 2002 15:46:57 -0400
-Subject: Re: ReiserFS Bug Fixes 3 of 6 (Please apply all 6)
-To: Weimer@CERT.Uni-Stuttgart.DE (Florian Weimer)
-Date: Sat, 13 Apr 2002 21:03:35 +0100 (BST)
-Cc: Torrey.Hoffman@myrio.com (Torrey Hoffman),
-        jsimmons@transvirtual.com (James Simmons),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <878z7vxmxz.fsf@CERT.Uni-Stuttgart.DE> from "Florian Weimer" at Apr 10, 2002 11:28:56 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16wTkF-000180-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S310435AbSDMTtw>; Sat, 13 Apr 2002 15:49:52 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:27531 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S310258AbSDMTtw>; Sat, 13 Apr 2002 15:49:52 -0400
+Date: Sat, 13 Apr 2002 13:49:43 -0600
+Message-Id: <200204131949.g3DJnhD07302@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: linux as a minicomputer ?
+In-Reply-To: <3CB889C7.2080907@zytor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> | binary form) with the major components (compiler, kernel, and so on)
-> | of the operating system on which the executable runs, unless that
-> | component itself accompanies the executable.
+H. Peter Anvin writes:
+> Richard Gooch wrote:
+> > 
+> > Actually, there is some impedance matching. I've seen monitors with
+> > hi/lo impedance switches. And I've used 15 m long high-quality VGA
+> > cables. The result has been pretty good.
+> > 
 > 
-> Modules for proprietary kernels seem to be okay, don't they?
+> The best I've seen is to use Sun D-sub coax or plain coax inputs on
+> the monitors that have them.  Those are impedance matched and can be
+> extended without problem.
 
-It doesnt normally accompany the executable - thats an irrelevant ite,
+Sure, coax inputs are the best. But there are still problems. Even
+expensive coax has higher attenuation at higher frequencies, so the
+longer the cable, the more fuzziness you get. Also, there are
+differential delay effects between the R, G and B components. You
+don't want the pixel components to arrive at different times. So
+there's a length limitation there as well.
 
-> > Finally, that second option could be even more difficult... I hear 
-> > MS has recently changed the terms of their C run-time-library license
-> > to forbid use by GPLed code.
-> 
-> This is extremely unlikely, as Microsoft is selling its own version of
-> an operation system with GNU components. ;-)
+But even though coax is better, VGA isn't that bad. 15 m gets you
+quite a lot of terminals in a web kiosk (or undergrad computer lab).
 
-Microsoft are not required to obey their own licenses
+BTW: I agree that X terminals suck. Even worse are SunRays. Ug!
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

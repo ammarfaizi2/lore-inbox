@@ -1,76 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUIDV6X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbUIDV6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbUIDV6X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 17:58:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbUIDV6X
+	id S263024AbUIDV6f (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 17:58:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbUIDV6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 17:58:23 -0400
-Received: from omx2-ext.SGI.COM ([192.48.171.19]:56226 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261724AbUIDV6U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 17:58:20 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: multi-domain PCI and sysfs
-Date: Sat, 4 Sep 2004 14:57:46 -0700
-User-Agent: KMail/1.7
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <9e4733910409041300139dabe0@mail.gmail.com>
-In-Reply-To: <9e4733910409041300139dabe0@mail.gmail.com>
+	Sat, 4 Sep 2004 17:58:35 -0400
+Received: from gsstark.mtl.istop.com ([66.11.160.162]:18060 "EHLO
+	stark.xeocode.com") by vger.kernel.org with ESMTP id S263024AbUIDV6b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 17:58:31 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Brad Campbell <brad@wasp.net.au>, Greg Stark <gsstark@mit.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Crashed Drive, libata wedges when trying to recover data
+References: <87oekpvzot.fsf@stark.xeocode.com> <4136E277.6000408@wasp.net.au>
+	<87u0ugt0ml.fsf@stark.xeocode.com> <413868CE.7070303@wasp.net.au>
+	<1094220595.7923.14.camel@localhost.localdomain>
+In-Reply-To: <1094220595.7923.14.camel@localhost.localdomain>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 04 Sep 2004 17:58:23 -0400
+Message-ID: <87y8jppugw.fsf@stark.xeocode.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409041457.46578.jbarnes@engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, September 4, 2004 1:00 pm, Jon Smirl wrote:
-> How do multiple PCI domains appear in sysfs? I don't own a machine
-> with these so I can't just look.
->
-> Do they appear like:
-> /sys/devices/pci0000:00
-> /sys/devices/pci0001:00
-> /sys/devices/pci0002:00
 
-Yep, on all the machines I've used.
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-sn2 (ia64):
-[root@flatearth ~]# ls -l /sys/devices
-total 0
-drwxr-xr-x  5 root root 0 Sep  5 08:07 pci0000:01
-drwxr-xr-x  3 root root 0 Sep  5 08:07 pci0000:02
-drwxr-xr-x  2 root root 0 Sep  5 08:07 platform
-drwxr-xr-x  5 root root 0 Sep  5 08:07 system
-[root@flatearth ~]# ls -l /sys/devices/pci0000\:02
-total 0
-drwxr-xr-x  2 root root     0 Sep  5 08:07 0000:02:01.0
--rw-r--r--  1 root root 16384 Sep  5 08:07 detach_state
+> > Jeff, do we really have to wait 30 seconds for a timeout? If the drive hits an unreadble spot I 
+> > would have thought it would come back to us with a read error rather than timing out the command.
+> 
+> The drive will retry for a few seconds then fail. The failure now
+> generates a SCSI medium error to the core scsi layer and it does like to
+> issue a few retries. The default retry count for scsi is probably too
+> high for SATA given the drive retries.
 
-ppc32:
-jbarnes@mill:~$ ls -l /sys/devices
-total 0
-drwxr-xr-x   5 root root 0 Sep  4 13:37 pci0000:00/
-drwxr-xr-x  13 root root 0 Sep  4 13:37 pci0001:01/
-drwxr-xr-x   7 root root 0 Sep  4 13:37 pci0002:06/
-drwxr-xr-x   3 root root 0 Sep  4 13:37 platform/
-drwxr-xr-x   4 root root 0 Sep  4 13:37 system/
-drwxr-xr-x   5 root root 0 Sep  4 13:37 uni-n-i2c/
-jbarnes@mill:~$ ls -l /sys/devices/pci0001\:01/
-total 0
-drwxr-xr-x  3 root root    0 Sep  4 13:37 0001:01:0b.0/
-drwxr-xr-x  3 root root    0 Sep  4 13:37 0001:01:12.0/
-drwxr-xr-x  3 root root    0 Sep  4 13:37 0001:01:13.0/
-drwxr-xr-x  4 root root    0 Sep  4 13:37 0001:01:17.0/
-drwxr-xr-x  3 root root    0 Sep  4 13:37 0001:01:18.0/
-drwxr-xr-x  3 root root    0 Sep  4 13:37 0001:01:19.0/
-drwxr-xr-x  4 root root    0 Sep  4 13:37 0001:01:1a.0/
-drwxr-xr-x  4 root root    0 Sep  4 13:37 0001:01:1b.0/
-drwxr-xr-x  4 root root    0 Sep  4 13:37 0001:01:1b.1/
-drwxr-xr-x  3 root root    0 Sep  4 13:37 0001:01:1b.2/
--rw-r--r--  1 root root 4096 Sep  4 13:37 detach_state
-drwxr-xr-x  2 root root    0 Sep  4 13:37 power/
+Certainly over an hour seems a little excessive:
 
-Jesse
+$ time dd bs=512 count=1  if=/dev/sda4 of=/dev/null
+dd: reading `/dev/sda4': Input/output error
+0+0 records in
+0+0 records out
+
+real    67m59.382s
+user    0m0.001s
+sys     0m0.002s
+
+bash-2.05b# time mount /dev/sda4 /u4
+/dev/sda4: Input/output error
+mount: you must specify the filesystem type
+
+real    71m59.322s
+user    0m0.000s
+sys     0m0.004s
+bash-2.05b# 
+
+-- 
+greg
+

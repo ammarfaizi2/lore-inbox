@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130537AbQLPMLL>; Sat, 16 Dec 2000 07:11:11 -0500
+	id <S130026AbQLPMOM>; Sat, 16 Dec 2000 07:14:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130026AbQLPMLC>; Sat, 16 Dec 2000 07:11:02 -0500
-Received: from janeway.cistron.net ([195.64.65.23]:9744 "EHLO
-	janeway.cistron.net") by vger.kernel.org with ESMTP
-	id <S130634AbQLPMKt>; Sat, 16 Dec 2000 07:10:49 -0500
-Date: Sat, 16 Dec 2000 12:40:11 +0100
-From: Miquel van Smoorenburg <miquels@cistron.nl>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Kurt Garloff <garloff@suse.de>,
-        Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: TIOCGDEV ioctl
-Message-ID: <20001216124011.A14129@cistron.nl>
-In-Reply-To: <20001216114645.A8944@cistron.nl> <Pine.GSO.4.21.0012160550240.15518-100000@weyl.math.psu.edu>
+	id <S131685AbQLPMOC>; Sat, 16 Dec 2000 07:14:02 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:61449 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S130026AbQLPMNz>;
+	Sat, 16 Dec 2000 07:13:55 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Lee Leahu <lee@ricis.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel panic: VFS: LRU block list corrupted 
+In-Reply-To: Your message of "Sat, 16 Dec 2000 05:32:51 MDT."
+             <5.0.0.25.2.20001216051043.00a6b008@mail.ricis.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0012160550240.15518-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, Dec 16, 2000 at 06:15:51AM -0500
-X-NCC-RegID: nl.cistron
+Date: Sat, 16 Dec 2000 22:43:22 +1100
+Message-ID: <15486.976967002@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to Alexander Viro:
-> OK, I can see the point of finding out where the console is redirected
-> to. How about the following:
-> 
-> 	/proc/sys/vc -> /dev/tty<n>
-> 	/proc/sys/console -> where the hell did we redirect it or
-> 			     vc if there's no redirect right now
-> Will that be OK with you?
+On Sat, 16 Dec 2000 05:32:51 -0600, 
+Lee Leahu <lee@ricis.com> wrote:
+>i'm not very familiar with klog, but i'll go with klogd.
+>do i append a '-x' to the line that calls klogs in the startup scripts or
+>is there some other better way of preventing klogd from destroying
+>the Oops information.
 
-Well, I'd prefer the ioctl, but I can see the general direction the
-kernel is heading to: get rid of numeric ioctls and sysctl()s and
-put all that info under /proc.
+Edit the script that starts klogd, probably /etc/rc.d/init.d/syslog.
+Find the line that starts klogd, add '-x' to the options then restart
+klogd (probably /etc/rc.d/init.d/syslog restart).
 
-However /proc/sys only contains directories now, it would look
-kindof ugly to put 2 symlinks in there directly. Oh well.
+>Then i guess ksymoops. decodes the oops info
 
-Mike.
--- 
-RAND USR 16514
+Absolutely.  See linux/Documentation/oops-tracing.txt
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

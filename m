@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262237AbTFBLp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 07:45:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbTFBLp5
+	id S262251AbTFBLq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 07:46:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbTFBLq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 07:45:57 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:1770 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S262237AbTFBLp4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 07:45:56 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: =?iso-8859-15?q?J=E9r=F4me=20Aug=E9?= <jauge@club-internet.fr>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21 can't set IDE DMA on harddrive (HDIO_SET_DMA failed: Operation not permitted)
-Date: Mon, 2 Jun 2003 22:00:37 +1000
-User-Agent: KMail/1.5.1
-References: <20030602114838.GA1730@satellite.workgroup.fr>
-In-Reply-To: <20030602114838.GA1730@satellite.workgroup.fr>
+	Mon, 2 Jun 2003 07:46:28 -0400
+Received: from cpmail5.sol.no1.asap-asp.net ([195.225.3.232]:8941 "HELO
+	cpmail5.sol.no1.asap-asp.net") by vger.kernel.org with SMTP
+	id S262251AbTFBLq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 07:46:26 -0400
+Date: Mon, 2 Jun 2003 14:59:35 +0300
+Message-ID: <3E5AD46C00070B27@webmail-fi1.sol.no1.asap-asp.net>
+In-Reply-To: <1054496549.943.5.camel@teapot.felipe-alfaro.com>
+From: zipa24@suomi24.fi
+Subject: Re: 2.5.70-mm3
+To: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
+Cc: "LKML" <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200306022200.37685.kernel@kolivas.org>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Jun 2003 21:48, JÈrÙme AugÈ wrote:
-> Hi,
->
-> I'm now using kernel 2.4.20-13.8 (from RH8) and 2.4.21-ck1 (from Con
-> Kolivas based on 2.4.21-rc6) and I'm unable to set the dma for my
-> harddrive with hdparm:
+>Did you compile the kernel with gcc 3.2 or later?
+>I had a very, very similar oops on my laptop with the snd-ymfpci driver
+>if I compiled the kernel with gcc 3.2.3. Reverting back to gcc 2.96
+>solved the problem.
 
-Feel free to blame me, but I haven't formally released 2.4.21-ck1, and you 
-should really try the vanilla 2.4.21-rc kernel. Then you can post a bug 
-report that the actual IDE developers can look at. Mine is a non-standard 
-kernel tree and bug reports with that branch should just be directed to me.
+After you suggestion I tried gcc 3.3 and gcc 2.95.3 but I got the same OOPS
+as with the original (gcc 3.2.2) version.
 
-Con
+There is a new ALSA patch available, but it didn't apply cleanly to -mm3.
+If I have time later today I'll see if I can apply only ymfpci-related changes
+and if they help.
+
+// /
+
+_____________________________________________________________
+Kuukausimaksuton nettiyhteys: http://www.suomi24.fi/liittyma/
+Yli 12000 logoa ja soitto‰‰nt‰: http://sms.suomi24.fi/
+
+

@@ -1,105 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267843AbRGRHQt>; Wed, 18 Jul 2001 03:16:49 -0400
+	id <S267844AbRGRHSj>; Wed, 18 Jul 2001 03:18:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267836AbRGRHQj>; Wed, 18 Jul 2001 03:16:39 -0400
-Received: from 63-216-69-197.sdsl.cais.net ([63.216.69.197]:11524 "EHLO
-	vyger.freesoft.org") by vger.kernel.org with ESMTP
-	id <S267843AbRGRHQ2>; Wed, 18 Jul 2001 03:16:28 -0400
-Message-ID: <3B5537CB.60B196E7@freesoft.org>
-Date: Wed, 18 Jul 2001 03:16:27 -0400
-From: Brent Baccala <baccala@freesoft.org>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.5 i686)
+	id <S267836AbRGRHS3>; Wed, 18 Jul 2001 03:18:29 -0400
+Received: from penguin-ext.wise.edt.ericsson.se ([194.237.142.110]:13022 "EHLO
+	penguin-ext.wise.edt.ericsson.se") by vger.kernel.org with ESMTP
+	id <S267844AbRGRHSP>; Wed, 18 Jul 2001 03:18:15 -0400
+Message-ID: <3B553838.6DB92928@eth.ericsson.se>
+Date: Wed, 18 Jul 2001 09:18:16 +0200
+From: Ferenc Kubinszky <Ferenc.Kubinszky@eth.ericsson.se>
+X-Mailer: Mozilla 4.61 [en] (X11; I; SunOS 5.6 sun4u)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Do kernel threads need their own stack?
+Subject: Re: PCI hiccup installing Lucent/Orinoco carbus PCI adapter
+In-Reply-To: <20010718065606.1125.qmail@toyland.ping.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi -
+> > [1.] One line summary of the problem:
+> >
+> >      PCI Drivers fail to allocate interrrupt for Lucent Cardbus bridge
+> >
+> > [2.] Full description of the problem/report:
+> >
+> > The 2.4.3 kernel recognizes the card but failts to allocate an
+> > interrupt for it.  This is the Lucent Oinoco PCI Carbus bridge product
+> > which is based on the TI1410 chip.  In talking with Dave Hinds about
+> > the problem, he looked at the enclose outbut and suggested that it
+> > looks like a kernel/PCI problem.
+> 
+> Is the card getting an interrupt from thew bios ? Check your bios screen
+> after reboot. There should be a patch regarding this included in 2.4.6, would
+> you try this and see if it works ?
 
-I'm experimenting with some code to track down stack overruns in the
-kernel, and I've stumbled across some stuff in the i386 kernel_thread
-code that strikes me as very suspicious.  This is 2.4.6.
+Hello,
 
-First off, here's kernel_thread from arch/i386/kernel/process.c:
+Just an idea:
+Check the "exclude irq n" lines in your /etc/pcmcia/config.opts
+Maybe it conflicts with some "PnP" interrupt like serial or paralell
+port's...
 
-
-int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
-{
-        long retval, d0;
-
-        __asm__ __volatile__(
-                "movl %%esp,%%esi\n\t"
-                "int $0x80\n\t"         /* Linux/i386 system call */
-                "cmpl %%esp,%%esi\n\t"  /* child or parent? */
-                "je 1f\n\t"             /* parent - jump */
-
- ... stuff omitted ...
-
-                "1:\t"
-                :"=&a" (retval), "=&S" (d0)
-                :"0" (__NR_clone), "i" (__NR_exit),
-                 "r" (arg), "r" (fn),
-                 "b" (flags | CLONE_VM)
-                : "memory");
-        return retval;
-}
-
-The register constraints make sure that the "a" register (eax) is
-operand 0 and contains __NR_clone to start with.  The "b" register (ebx)
-contains (flags | CLONE_VM).  We save the stack pointer to ESI and INT
-80, which (combined with the __NR_clone in eax) lands us in sys_clone
-(same file):
-
-asmlinkage int sys_clone(struct pt_regs regs)
-{
-        unsigned long clone_flags;
-        unsigned long newsp;
-
-        clone_flags = regs.ebx;
-        newsp = regs.ecx;
-        if (!newsp)
-                newsp = regs.esp;
-        return do_fork(clone_flags, newsp, &regs, 0);
-}
-
-The first thing I notice is that this function refers not only to the
-clone flags in ebx, but also to a "newsp" in ecx - and ecx went
-completely unmentioned in kernel_thread()!  A disassembly of
-kernel_thread shows that "arg" winds up in ecx before the system call,
-so I guess this is what gets passed to do_fork(), where (I think) it
-ultimately ends up being the child's stack pointer.
-
-In the case of bdflush_init() (end of fs/buffer.c), what gets passed in
-as "arg" is the address of a semaphore on the stack - the only variable
-allocated by the function.  That means that the child's stack pointer
-starts at the bottom of the parent's stack in bdflush_init() and grows
-down from there.  And if the parent never goes deeper into its stack
-than bdflush_init(), I guess it works - sort of.
-
-Anyway, I'm confused.  My analysis might be wrong, since I don't spend
-that much time in the Linux kernel, but bottom line - doesn't
-kernel_thread() need to allocate stack space for the child?  I mean,
-even if everything else is shared, doesn't the child at least need it's
-own stack?
-
-I need to stare at this more, but maybe somebody else can explain what's
-going on here.  At the very least, I think kernel_thread() needs to
-explicitly specify what goes into the ECX register, because it looks to
-me like it's just the luck of the compiler's draw...
-
--- 
-                                        -bwb
-
-                                        Brent Baccala
-                                        baccala@freesoft.org
-
-==============================================================================
-       For news from freesoft.org, subscribe to announce@freesoft.org:
-   
-mailto:announce-request@freesoft.org?subject=subscribe&body=subscribe
-==============================================================================
+Ferenc

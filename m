@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275202AbTHRWGP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 18:06:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275211AbTHRWGP
+	id S275212AbTHRWLU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 18:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275213AbTHRWLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 18:06:15 -0400
-Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:14518
-	"HELO mail.theoesters.com") by vger.kernel.org with SMTP
-	id S275202AbTHRWGH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 18:06:07 -0400
-Date: Mon, 18 Aug 2003 15:06:05 -0700
-From: Phil Oester <kernel@theoesters.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-net@vger.kernel.org
-Subject: [PATCH] Ratelimit SO_BSDCOMPAT warnings
-Message-ID: <20030818150605.A23957@ns1.theoesters.com>
+	Mon, 18 Aug 2003 18:11:19 -0400
+Received: from holomorphy.com ([66.224.33.161]:16873 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S275212AbTHRWLT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 18:11:19 -0400
+Date: Mon, 18 Aug 2003 15:12:31 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Hank Leininger <hlein@progressive-comp.com>, linux-kernel@vger.kernel.org
+Subject: Re: Dumb question: Why are exceptions such as SIGSEGV not logged
+Message-ID: <20030818221231.GX32488@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Hank Leininger <hlein@progressive-comp.com>,
+	linux-kernel@vger.kernel.org
+References: <200308182050.h7IKonga016378@marc2.theaimsgroup.com> <20030818210238.GG10320@matchmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030818210238.GG10320@matchmail.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Back in March, there was some discussion about ratelimiting the
-BSDCOMPAT errors, and James Morris provided a patch to achieve
-this.
+On Mon, Aug 18, 2003 at 04:50:49PM -0400, Hank Leininger wrote:
+>> ..So not *all* such cases are cause for alarm.  However, if you run one of
+>> the patches enabling logging of this, you quickly learn what's normal for
+>> the apps you run, and can teach your log-auditing tools and/or your brain
+>> to ignore them.
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0303.3/1078.html
+On Mon, Aug 18, 2003 at 02:02:38PM -0700, Mike Fedyk wrote:
+> And why not just catch the ones sent from the kernel?  That's the one that
+> is killing the program because it crashed, and that's the one the origional
+> poster wants logged...
 
-To which David Miller stated the patch had been applied.
+They're almost all sent by the kernel. Very few represent kill(1).
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0303.3/1081.html
 
-Unfortunately, it seems to have fallen through the cracks.  Below
-is the patch again, updated for 2.6.0-test3 - please apply.
-
-Phil Oester
-
---- linux-2.6.0-test3-orig/net/core/sock.c      Sat Aug  9 00:38:59 2003
-+++ linux-2.6.0-test3/net/core/sock.c   Mon Aug 18 18:01:15 2003
-@@ -153,8 +153,13 @@
- 
- static void sock_warn_obsolete_bsdism(const char *name)
- {
--       printk(KERN_WARNING "process `%s' is using obsolete "
--              "%s SO_BSDCOMPAT\n", current->comm, name);
-+       static int warned;
-+
-+       if (!warned) {
-+               warned = 1;
-+               printk(KERN_WARNING "process `%s' is using obsolete "
-+                      "%s SO_BSDCOMPAT\n", current->comm, name);
-+       }
- }
- 
- /*
-
+-- wli

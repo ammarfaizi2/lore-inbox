@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282812AbRLGIMC>; Fri, 7 Dec 2001 03:12:02 -0500
+	id <S282793AbRLGI3q>; Fri, 7 Dec 2001 03:29:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285426AbRLGILs>; Fri, 7 Dec 2001 03:11:48 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:33037 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S282812AbRLGILm>; Fri, 7 Dec 2001 03:11:42 -0500
-Date: Fri, 7 Dec 2001 09:11:37 +0100
-From: Jan Kara <jack@suse.cz>
-To: Michael Renner <robe@amd.co.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Where's the vfsv0 quota?
-Message-ID: <20011207091136.B22282@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.33.0112062150160.24250-100000@trottelkunde.amd.co.at>
+	id <S282814AbRLGI3g>; Fri, 7 Dec 2001 03:29:36 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:61200 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S282793AbRLGI3a>;
+	Fri, 7 Dec 2001 03:29:30 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Converting the 2.5 kernel to kbuild 2.5
+In-Reply-To: Your message of "Thu, 06 Dec 2001 21:10:11 -0800."
+             <Pine.LNX.4.33.0112062109400.7866-100000@penguin.transmeta.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0112062150160.24250-100000@trottelkunde.amd.co.at>
-User-Agent: Mutt/1.3.20i
+Date: Fri, 07 Dec 2001 19:29:18 +1100
+Message-ID: <26499.1007713758@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+On Thu, 6 Dec 2001 21:10:11 -0800 (PST), 
+Linus Torvalds <torvalds@transmeta.com> wrote:
+>
+>On Fri, 7 Dec 2001, Keith Owens wrote:
+>>
+>> Linus, the time has come to convert the 2.5 kernel to kbuild 2.5.
+>
+>We're getting the block IO layer in shape first, the time has not come for
+>_anything_ else before that.
 
-> Are there any plans to incorporate the vfsv0 quota code into the 2.4
-> and/or 2.5 tree? The last kernel which supported the new quota format was
-> 2.4.13-ac8 afaik.
-  I've written most of the code for vfsv0 quota patches to be backward
-compatible (ie. both formats will be supported) so I hope I'll finish it
-this weekend so submit for testing (and inclusion in 2.5). Later backport
-to 2.4... If you're interested you can download patche to new quota from
-ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/v2.4/quota-patch-2.4.16-1.diff.gz
+That is what I said ....
 
-								Honza
---
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+2.5.1           Semi-stable kernel, after bio is working.
+2.5.2-pre1      Add the kbuild 2.5 and CML2 code, still using
+                Makefile-2.5, supporting both CML1 and CML2.
+2.5.2-pre2      Remove kbuild 2.4 code, rename Makefile-2.5 to Makefile.
+		Still supporting both CML1 and CML2.
+2.5.2-pre3      Remove CML1 support.
+
+Is that timetable acceptable?
+

@@ -1,42 +1,151 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131382AbRCKIiS>; Sun, 11 Mar 2001 03:38:18 -0500
+	id <S131384AbRCKJDx>; Sun, 11 Mar 2001 04:03:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131381AbRCKIiJ>; Sun, 11 Mar 2001 03:38:09 -0500
-Received: from aic.ee.ndhu.edu.tw ([203.64.105.113]:25472 "EHLO
-	aic.ee.ndhu.edu.tw") by vger.kernel.org with ESMTP
-	id <S131380AbRCKIh7>; Sun, 11 Mar 2001 03:37:59 -0500
-Date: Sun, 11 Mar 2001 16:37:10 +0800
-From: ³¯¤ý®i <cwz@aic.ee.ndhu.edu.tw>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: About DC-315U scsi driver
-Message-Id: <20010311163710.11a86b52.cwz@aic.ee.ndhu.edu.tw>
-X-Mailer: Sylpheed version 0.4.9 (GTK+ 1.2.8; Linux 2.4.2-ac17; i686)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S131385AbRCKJDo>; Sun, 11 Mar 2001 04:03:44 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:21773 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S131384AbRCKJDZ>;
+	Sun, 11 Mar 2001 04:03:25 -0500
+Date: Sun, 11 Mar 2001 10:01:45 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <andrewm@uow.edu.au>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: [patch] nmi-watchdog-2.4.2-A1
+In-Reply-To: <15973.984297609@ocs3.ocs-net>
+Message-ID: <Pine.LNX.4.30.0103110933310.1595-200000@elte.hu>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="655616-888427248-984300147=:1734"
+Content-ID: <Pine.LNX.4.30.0103110947400.1814@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All.....
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Maybe I post at wrong place.....sorry
+--655616-888427248-984300147=:1734
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.30.0103110947401.1814@elte.hu>
 
-The driver has not to be included in officeal kernel.
-And the maintainer has not updated the driver from 2.4.0-test9-pre7.
-Maybe he is very busy.The last update is 2000-12-03.
 
-I used some kernels from 2.4.0 to 2.4.2-ac17,and the driver always go wrong
-when I burn CDRs. Some files burned is different from the origin at HD.
-I use 2.2.17 with Tekram's driver,and nothing is wrong.
-I think the scsi layer maybe changed from 2.2.x,so the driver cannot run well.
-I am sure the hardware&software is ok,and no error messages about scsi  found by me. 
+On Sun, 11 Mar 2001, Keith Owens wrote:
 
-Can anyone do me a favor to modify the driver in order to suite the
-new kernel?
+> Works for me.  It even makes kdb simpler.
 
-Thanks....
+agreed. Also, touch_nmi_watchdog() is stateless and is thus much less
+prone to locking bugs.
 
-And some resources can be found at http://www.garloff.de/kurt/linux/dc395/.
+i've attached nmi-watchdog-2.4.2-A1 that implements touch_nmi_watchdog(),
+ontop of 2.4.2-ac18, and changes show_state() to use this interface. (the
+patch also takes the NMI counters out of the obscure in-function place
+they used to be.)
 
-Best Regards,cwz
+the patch compiles & boots just fine on 2.4.2-ac18 in both SMP and
+APIC-less-UP mode. The NMI watchdog is functional, and SysRq-T does not
+cause a lockup if used with a slow serial console that takes more than 5
+seconds to output the tasklist.
+
+	Ingo
+
+--655616-888427248-984300147=:1734
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="nmi-watchdog-2.4.2-A0"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.30.0103110942270.1734@elte.hu>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="nmi-watchdog-2.4.2-A0"
+
+LS0tIGxpbnV4L2luY2x1ZGUvbGludXgvaXJxLmgub3JpZwlTdW4gTWFyIDEx
+IDExOjIwOjIxIDIwMDENCisrKyBsaW51eC9pbmNsdWRlL2xpbnV4L2lycS5o
+CVN1biBNYXIgMTEgMTE6MjI6MjcgMjAwMQ0KQEAgLTU3LDE4ICs1NywxNiBA
+QA0KICNpbmNsdWRlIDxhc20vaHdfaXJxLmg+IC8qIHRoZSBhcmNoIGRlcGVu
+ZGVudCBzdHVmZiAqLw0KIA0KIC8qKg0KLSAqIG5taV93YXRjaGRvZ19kaXNh
+YmxlIC0gZGlzYWJsZSBOTUkgd2F0Y2hkb2cgY2hlY2tpbmcuDQorICogdG91
+Y2hfbm1pX3dhdGNoZG9nIC0gcmVzdGFydCBOTUkgd2F0Y2hkb2cgdGltZW91
+dC4NCiAgKiANCi0gKiBJZiB0aGUgYXJjaGl0ZWN0dXJlIHN1cHBvcnRzIHRo
+ZSBOTUkgd2F0Y2hkb2csIG5taV93YXRjaGRvZ19kaXNhYmxlKCkgbWF5IGJl
+IHVzZWQNCi0gKiB0byB0ZW1wb3JhcmlseSBkaXNhYmxlIGl0LiAgVXNlIG5t
+aV93YXRjaGRvZ19lbmFibGUoKSBsYXRlciBvbi4gIEl0IGlzIGltcGxlbWVu
+dGVkDQotICogdmlhIGFuIHVwL2Rvd24gY291bnRlciwgc28geW91IG11c3Qg
+a2VlcCB0aGUgY2FsbHMgYmFsYW5jZWQuDQorICogSWYgdGhlIGFyY2hpdGVj
+dHVyZSBzdXBwb3J0cyB0aGUgTk1JIHdhdGNoZG9nLCB0b3VjaF9ubWlfd2F0
+Y2hkb2coKQ0KKyAqIG1heSBiZSB1c2VkIHRvIHJlc2V0IHRoZSB0aW1lb3V0
+IC0gZm9yIGNvZGUgd2hpY2ggaW50ZW50aW9uYWxseQ0KKyAqIGRpc2FibGVz
+IGludGVycnVwdHMgZm9yIGEgbG9uZyB0aW1lLiBUaGlzIGNhbGwgaXMgc3Rh
+dGVsZXNzLg0KICAqLw0KICNpZmRlZiBBUkNIX0hBU19OTUlfV0FUQ0hET0cN
+Ci1leHRlcm4gdm9pZCBubWlfd2F0Y2hkb2dfZGlzYWJsZSh2b2lkKTsNCi1l
+eHRlcm4gdm9pZCBubWlfd2F0Y2hkb2dfZW5hYmxlKHZvaWQpOw0KK2V4dGVy
+biB2b2lkIHRvdWNoX25taV93YXRjaGRvZyh2b2lkKTsNCiAjZWxzZQ0KLSNk
+ZWZpbmUgbm1pX3dhdGNoZG9nX2Rpc2FibGUoKSBkb3t9IHdoaWxlKDApDQot
+I2RlZmluZSBubWlfd2F0Y2hkb2dfZW5hYmxlKCkgZG97fSB3aGlsZSgwKQ0K
+KyMgZGVmaW5lIHRvdWNoX25taV93YXRjaGRvZygpIGRvIHsgfSB3aGlsZSgw
+KQ0KICNlbmRpZg0KIA0KIGV4dGVybiBpbnQgaGFuZGxlX0lSUV9ldmVudCh1
+bnNpZ25lZCBpbnQsIHN0cnVjdCBwdF9yZWdzICosIHN0cnVjdCBpcnFhY3Rp
+b24gKik7DQotLS0gbGludXgvZHJpdmVycy9jaGFyL3N5c3JxLmMub3JpZwlT
+dW4gTWFyIDExIDExOjMwOjQ2IDIwMDENCisrKyBsaW51eC9kcml2ZXJzL2No
+YXIvc3lzcnEuYwlTdW4gTWFyIDExIDExOjMxOjEyIDIwMDENCkBAIC03Miw5
+ICs3Miw5IEBADQogDQogCS8qDQogCSAqIEludGVycnVwdHMgYXJlIGRpc2Fi
+bGVkLCBhbmQgc2VyaWFsIGNvbnNvbGVzIGFyZSBzbG93LiBTbw0KLQkgKiBM
+ZXQncyBzdXNwZW5kIHRoZSBOTUkgd2F0Y2hkb2cuDQorCSAqIGxldCdzIHJl
+LXN0YXJ0IHRoZSBOTUkgd2F0Y2hkb2cgdGltZW91dC4NCiAJICovDQotCW5t
+aV93YXRjaGRvZ19kaXNhYmxlKCk7DQorCXRvdWNoX25taV93YXRjaGRvZygp
+Ow0KIAljb25zb2xlX2xvZ2xldmVsID0gNzsNCiAJcHJpbnRrKEtFUk5fSU5G
+TyAiU3lzUnE6ICIpOw0KIAlzd2l0Y2ggKGtleSkgew0KQEAgLTE1OCw3ICsx
+NTgsNiBAQA0KIAkJLyogRG9uJ3QgdXNlICdBJyBhcyBpdCdzIGhhbmRsZWQg
+c3BlY2lhbGx5IG9uIHRoZSBTcGFyYyAqLw0KIAl9DQogDQotCW5taV93YXRj
+aGRvZ19lbmFibGUoKTsNCiAJY29uc29sZV9sb2dsZXZlbCA9IG9yaWdfbG9n
+X2xldmVsOw0KIH0NCiANCi0tLSBsaW51eC9hcmNoL2kzODYva2VybmVsL25t
+aS5jLm9yaWcJU3VuIE1hciAxMSAxMToyNDozNCAyMDAxDQorKysgbGludXgv
+YXJjaC9pMzg2L2tlcm5lbC9ubWkuYwlTdW4gTWFyIDExIDExOjMwOjA2IDIw
+MDENCkBAIC0yMjYsMzcgKzIyNiwzNiBAQA0KIH0NCiANCiBzdGF0aWMgc3Bp
+bmxvY2tfdCBubWlfcHJpbnRfbG9jayA9IFNQSU5fTE9DS19VTkxPQ0tFRDsN
+Ci1zdGF0aWMgYXRvbWljX3Qgbm1pX3dhdGNoZG9nX2Rpc2FibGVkID0gQVRP
+TUlDX0lOSVQoMCk7DQogDQotdm9pZCBubWlfd2F0Y2hkb2dfZGlzYWJsZSh2
+b2lkKQ0KLXsNCi0JYXRvbWljX2luYygmbm1pX3dhdGNoZG9nX2Rpc2FibGVk
+KTsNCi19DQorLyoNCisgKiB0aGUgYmVzdCB3YXkgdG8gZGV0ZWN0IHdldGhl
+ciBhIENQVSBoYXMgYSAnaGFyZCBsb2NrdXAnIHByb2JsZW0NCisgKiBpcyB0
+byBjaGVjayBpdCdzIGxvY2FsIEFQSUMgdGltZXIgSVJRIGNvdW50cy4gSWYg
+dGhleSBhcmUgbm90DQorICogY2hhbmdpbmcgdGhlbiB0aGF0IENQVSBoYXMg
+c29tZSBwcm9ibGVtLg0KKyAqDQorICogYXMgdGhlc2Ugd2F0Y2hkb2cgTk1J
+IElSUXMgYXJlIGdlbmVyYXRlZCBvbiBldmVyeSBDUFUsIHdlIG9ubHkNCisg
+KiBoYXZlIHRvIGNoZWNrIHRoZSBjdXJyZW50IHByb2Nlc3Nvci4NCisgKg0K
+KyAqIHNpbmNlIE5NSXMgZG9udCBsaXN0ZW4gdG8gX2FueV8gbG9ja3MsIHdl
+IGhhdmUgdG8gYmUgZXh0cmVtZWx5DQorICogY2FyZWZ1bCBub3QgdG8gcmVs
+eSBvbiB1bnNhZmUgdmFyaWFibGVzLiBUaGUgcHJpbnRrIG1pZ2h0IGxvY2sN
+CisgKiB1cCB0aG91Z2gsIHNvIHdlIGhhdmUgdG8gYnJlYWsgdXAgYW55IGNv
+bnNvbGUgbG9ja3MgZmlyc3QgLi4uDQorICogW3doZW4gdGhlcmUgd2lsbCBi
+ZSBtb3JlIHR0eS1yZWxhdGVkIGxvY2tzLCBicmVhayB0aGVtIHVwDQorICog
+IGhlcmUgdG9vIV0NCisgKi8NCisNCitzdGF0aWMgdW5zaWduZWQgaW50DQor
+CWxhc3RfaXJxX3N1bXMgW05SX0NQVVNdLA0KKwlhbGVydF9jb3VudGVyIFtO
+Ul9DUFVTXTsNCiANCi12b2lkIG5taV93YXRjaGRvZ19lbmFibGUodm9pZCkN
+Cit2b2lkIHRvdWNoX25taV93YXRjaGRvZyAodm9pZCkNCiB7DQotCWF0b21p
+Y19kZWMoJm5taV93YXRjaGRvZ19kaXNhYmxlZCk7DQorCS8qDQorCSAqIEp1
+c3QgcmVzZXQgdGhlIGFsZXJ0IGNvdW50ZXI6DQorCSAqLw0KKwlhbGVydF9j
+b3VudGVyW3NtcF9wcm9jZXNzb3JfaWQoKV0gPSAwOw0KIH0NCiANCiB2b2lk
+IG5taV93YXRjaGRvZ190aWNrIChzdHJ1Y3QgcHRfcmVncyAqIHJlZ3MpDQog
+ew0KLQkvKg0KLQkgKiB0aGUgYmVzdCB3YXkgdG8gZGV0ZWN0IHdldGhlciBh
+IENQVSBoYXMgYSAnaGFyZCBsb2NrdXAnIHByb2JsZW0NCi0JICogaXMgdG8g
+Y2hlY2sgaXQncyBsb2NhbCBBUElDIHRpbWVyIElSUSBjb3VudHMuIElmIHRo
+ZXkgYXJlIG5vdA0KLQkgKiBjaGFuZ2luZyB0aGVuIHRoYXQgQ1BVIGhhcyBz
+b21lIHByb2JsZW0uDQotCSAqDQotCSAqIGFzIHRoZXNlIHdhdGNoZG9nIE5N
+SSBJUlFzIGFyZSBicm9hZGNhc3RlZCB0byBldmVyeSBDUFUsIGhlcmUNCi0J
+ICogd2Ugb25seSBoYXZlIHRvIGNoZWNrIHRoZSBjdXJyZW50IHByb2Nlc3Nv
+ci4NCi0JICoNCi0JICogc2luY2UgTk1JcyBkb250IGxpc3RlbiB0byBfYW55
+XyBsb2Nrcywgd2UgaGF2ZSB0byBiZSBleHRyZW1lbHkNCi0JICogY2FyZWZ1
+bCBub3QgdG8gcmVseSBvbiB1bnNhZmUgdmFyaWFibGVzLiBUaGUgcHJpbnRr
+IG1pZ2h0IGxvY2sNCi0JICogdXAgdGhvdWdoLCBzbyB3ZSBoYXZlIHRvIGJy
+ZWFrIHVwIGFueSBjb25zb2xlIGxvY2tzIGZpcnN0IC4uLg0KLQkgKiBbd2hl
+biB0aGVyZSB3aWxsIGJlIG1vcmUgdHR5LXJlbGF0ZWQgbG9ja3MsIGJyZWFr
+IHRoZW0gdXANCi0JICogIGhlcmUgdG9vIV0NCi0JICovDQotDQotCXN0YXRp
+YyB1bnNpZ25lZCBpbnQgbGFzdF9pcnFfc3VtcyBbTlJfQ1BVU10sDQotCQkJ
+CWFsZXJ0X2NvdW50ZXIgW05SX0NQVVNdOw0KIA0KIAkvKg0KIAkgKiBTaW5j
+ZSBjdXJyZW50LT4gaXMgYWx3YXlzIG9uIHRoZSBzdGFjaywgYW5kIHdlIGFs
+d2F5cyBzd2l0Y2gNCkBAIC0yNjYsNyArMjY1LDcgQEANCiANCiAJc3VtID0g
+YXBpY190aW1lcl9pcnFzW2NwdV07DQogDQotCWlmIChsYXN0X2lycV9zdW1z
+W2NwdV0gPT0gc3VtICYmIGF0b21pY19yZWFkKCZubWlfd2F0Y2hkb2dfZGlz
+YWJsZWQpID09IDApIHsNCisJaWYgKGxhc3RfaXJxX3N1bXNbY3B1XSA9PSBz
+dW0pIHsNCiAJCS8qDQogCQkgKiBBeWllZSwgbG9va3MgbGlrZSB0aGlzIENQ
+VSBpcyBzdHVjayAuLi4NCiAJCSAqIHdhaXQgYSBmZXcgSVJRcyAoNSBzZWNv
+bmRzKSBiZWZvcmUgZG9pbmcgdGhlIG9vcHMgLi4uDQo=
+--655616-888427248-984300147=:1734--

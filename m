@@ -1,92 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263885AbUDVJSm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263887AbUDVJZ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263885AbUDVJSm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 05:18:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263785AbUDVJSm
+	id S263887AbUDVJZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 05:25:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263889AbUDVJZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 05:18:42 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:30082 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S263885AbUDVJS3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 05:18:29 -0400
-Date: Thu, 22 Apr 2004 11:18:29 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Guillaume =?iso-8859-1?Q?Lac=F4te?= <Guillaume@lacote.name>
-Cc: linux-kernel@vger.kernel.org, Linux@glacote.com
-Subject: Re: Using compression before encryption in device-mapper
-Message-ID: <20040422091829.GA3691@wohnheim.fh-wedel.de>
-References: <200404131744.40098.Guillaume@Lacote.name> <20040415092854.GA28721@wohnheim.fh-wedel.de> <200404220959.14440.Guillaume@Lacote.name>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200404220959.14440.Guillaume@Lacote.name>
-User-Agent: Mutt/1.3.28i
+	Thu, 22 Apr 2004 05:25:26 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:1199 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S263887AbUDVJZV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 05:25:21 -0400
+Subject: Re: [PATCH] s390 (7/9): oprofile for s390.
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: akpm@osdl.org, hch@infradead.org, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
+Message-ID: <OF139039C9.0CD544AD-ONC1256E7E.00310DE4-C1256E7E.0033BA72@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Thu, 22 Apr 2004 11:25:00 +0200
+X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.0.2CF2|July 23, 2003) at
+ 22/04/2004 11:25:01
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 April 2004 09:59:14 +0200, Guillaume Lacôte wrote:
-> > Btw, looks like the whole idea is broken.  Consider a block of
-> > known-plaintext.  The known plaintext happens to be at the beginning
-> > of the block and has more entropy than the blocksize of your block
-> > cypher.  Bang, you're dead.
-> I am sorry but I failed to understand this problem; could you elaborate on it 
-> ? Are you saying that if I have known plaintext that compreses to at least on 
-> full block, the problem remains ?
 
-Before: 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=107419912024246&w=2
-The described attack works against user-friendly passwords.  People
-who can remember long strings from /dev/random are safe.
 
-After:
-You compressed the known plaintext.  But the compressed known
-plaintext remains known plaintext, just shorter.  If it remains longer
-than one block of the block cypher, it is still sufficient for a
-dictionary attack.  Nothing gained.
 
-And of course it has to be at the beginning of a compression block, so
-the offset is known in advance.
 
-> - Now (with dm-crypt) = basically the first 512 bytes are known (apart from 
-> iv, see discussion in dm-crypt threads). This termendously helps a 
-> brute-force attack (use a cluster to pre-calculate all possible encryptions 
-> of these 512 bytes and you are done).
-> 
-> - What I suggest = 1) grow entropy (this does not solve the above problem)
-> 2) interleave random bytes _before_ each (plain) block of data. Bytes are 
-> drawn as to make the distribution on Huffman encodings uniform.
-> Thus even if you know the plain text, even if it would compress to more than 
-> 4kB, since the block starts with random bytes you know nothing about, and 
-> since these random bytes have changed the Huffman encoding used to encode the 
-> known plain text, I claim that you know about nothing (?).
+> Could you also delete unrelated lines from arch/s390/oprofile/Makefile.
+>
+> > +++ linux-2.6-s390/arch/s390/oprofile/Makefile           Wed Apr 21
+20:25:32 2004
+> > +oprofile-y                                              :=
+$(DRIVER_OBJS) init.o
+> > +#oprofile-$(CONFIG_X86_LOCAL_APIC)          += nmi_int.o
+op_model_athlon.o \
+> > +
+op_model_ppro.o op_model_p4.o
+> > +#oprofile-$(CONFIG_X86_IO_APIC)                         +=
+nmi_timer_int.o
+>
+> The X86 stuff should go away.
 
-Ok, that makes the attack a little harder (but not much).  After any
-amount of random data, you end up with a random huffman tree, agreed.
-Compress another 1k of zeros and see what the huffman tree looks like
-now.  There are not too many options, what the compressed data could
-look like, right?  Somewhere in the ballpark of 2, 4 or maybe 8.
+Ok, just removed this from my patch. Anything else before I re-sent
+it to Andrew?
 
-So now the attack takes twice as long.  Yeah, it helps a little, but
-is it really worth the trouble?
+blue skies,
+   Martin
 
-> You are perfectly right that Huffman is a poor redundancy fighter and will not 
-> always drive the size of data down to its Kolmogorov complexity. The "1k of 
-> zeroes" might still be a problem. I agree that a better compression algorithm 
-> would be nice, but the problem is that i _need_ to know how draw random bytes 
-> so as to make the _compressed_ encoding uniformly distributed.
-> >
-> > Does the idea still sound sane to you?
-> I hope so; what is your opinion ?
-
-I doubt it.  Maybe with a statistical encoding or even with block
-sorting followed by statistical encoding, you increase the complexity
-by much more than 8.  But without changes, the idea looks pretty
-futile.
-
-Jörn
-
--- 
-When in doubt, punt.  When somebody actually complains, go back and fix it...
-The 90% solution is a good thing.
--- Rob Landley

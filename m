@@ -1,75 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263435AbTECViG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 17:38:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263434AbTECViG
+	id S263436AbTECVqW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 17:46:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263437AbTECVqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 17:38:06 -0400
-Received: from smtp02.web.de ([217.72.192.151]:30725 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S263435AbTECViE convert rfc822-to-8bit
+	Sat, 3 May 2003 17:46:22 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:64529 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S263436AbTECVqV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 17:38:04 -0400
-Date: Sun, 4 May 2003 00:04:25 +0200
-From: =?ISO-8859-1?Q?Ren=E9?= Scharfe <l.s.r@web.de>
-To: Christoph Hellwig <hch@lst.de>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [PATCH 2.5] [TRIVIAL] Get rid of magic numbers in
- drivers/block/genhd.c
-Message-Id: <20030504000425.726daf8b.l.s.r@web.de>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 3 May 2003 17:46:21 -0400
+Date: Sat, 3 May 2003 23:58:24 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Thomas Backlund <tmb@iki.fi>
+Cc: Willy Tarreau <willy@w.ods.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4.21-rc1] vesafb with large memory
+Message-ID: <20030503215824.GA22461@alpha.home.local>
+References: <3EB0413D.2050200@superonline.com> <200305020314.01875.tmb@iki.fi> <20030502130331.GA1803@alpha.home.local> <200305031546.57631.tmb@iki.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200305031546.57631.tmb@iki.fi>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph,
-
-a few days ago you cleaned up disk_name() in fs/partitions/check.c. It
-is now guaranteed to write no more than BDEVNAME_SIZE into the provided
-buffer.
-
-There are two buffers in drivers/block/genhd.c, that are used solely for
-calling disk_name(), and have a size of 64. The patch below replaces
-these magic numbers with BDEVNAME_SIZE.
-
-Additionally it corrects the comment at the top of disk_name(): The md
-driver does not call that function, the genhd driver does.
-
-René
-
-
-
-diff -ur l-x/drivers/block/genhd.c l-y/drivers/block/genhd.c
---- l-x/drivers/block/genhd.c	2003-05-03 21:37:47.000000000 +0200
-+++ l-y/drivers/block/genhd.c	2003-05-03 23:58:35.000000000 +0200
-@@ -350,7 +350,7 @@
- {
- 	struct gendisk *sgp = v;
- 	int n;
--	char buf[64];
-+	char buf[BDEVNAME_SIZE];
+On Sat, May 03, 2003 at 03:46:57PM +0300, Thomas Backlund wrote:
  
- 	if (&sgp->kobj.entry == block_subsys.kset.list.next)
- 		seq_puts(part, "major minor  #blocks  name\n\n");
-@@ -583,7 +583,7 @@
- static int diskstats_show(struct seq_file *s, void *v)
- {
- 	struct gendisk *gp = v;
--	char buf[64];
-+	char buf[BDEVNAME_SIZE];
- 	int n = 0;
- 
- 	/*
-diff -ur l-x/fs/partitions/check.c l-y/fs/partitions/check.c
---- l-x/fs/partitions/check.c	2003-05-03 21:37:59.000000000 +0200
-+++ l-y/fs/partitions/check.c	2003-05-03 23:58:58.000000000 +0200
-@@ -88,7 +88,7 @@
- };
-  
- /*
-- * disk_name() is used by partition check code and the md driver.
-+ * disk_name() is used by partition check code and the genhd driver.
-  * It formats the devicename of the indicated disk into
-  * the supplied buffer (of size at least 32), and returns
-  * a pointer to that same buffer (for convenience).
+> Oh man...
+> I must have been sleeping when I posted that patch...
+
+no problem, we all need some sleep at least once a week ;-)
+
+> the correct line should AFAIK be:
+> video_size = screen_info.lfb_width * screen_info.lfb_height * video_bpp;
+> 
+> (AFAIK we are calculating bits here, not bytes so the '/8' you used is 
+> wrong... could you try without it, and let me know...)
+
+OK, I was assuming that video_size was in bytes. I will retry without the /8.
+
+> I'll be rebuilding and retesting my system today or tommorrow,
+> but I wuold like to hear if it works for you...
+
+I just come back home this evening, so let's say you'll get a feedback tomorrow
+morning.
+
+Regards,
+Willy
+

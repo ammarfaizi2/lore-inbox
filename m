@@ -1,61 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267312AbTA0WHf>; Mon, 27 Jan 2003 17:07:35 -0500
+	id <S267311AbTA0WH7>; Mon, 27 Jan 2003 17:07:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267309AbTA0WHc>; Mon, 27 Jan 2003 17:07:32 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:21001 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267308AbTA0WHZ>; Mon, 27 Jan 2003 17:07:25 -0500
-Date: Mon, 27 Jan 2003 17:08:54 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Lee Chin <leechin@mail.com>
-cc: linux-kernel@vger.kernel.org, linux-newbie@vger.kernel.org
-Subject: Re: debate on 700 threads vs asynchronous code
-In-Reply-To: <20030123231913.26663.qmail@mail.com>
-Message-ID: <Pine.LNX.3.96.1030127165006.27928H-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267309AbTA0WH7>; Mon, 27 Jan 2003 17:07:59 -0500
+Received: from smtp.terra.es ([213.4.129.129]:60134 "EHLO tsmtp9.mail.isp")
+	by vger.kernel.org with ESMTP id <S267311AbTA0WHz>;
+	Mon, 27 Jan 2003 17:07:55 -0500
+Date: Mon, 27 Jan 2003 23:16:27 +0100
+From: Arador <diegocg@teleline.es>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.59-mm5: cpu1 not working
+Message-Id: <20030127231627.2b23e456.diegocg@teleline.es>
+In-Reply-To: <Pine.LNX.3.96.1030127162924.27928C-101000@gatekeeper.tmr.com>
+References: <20030124224836.639ebefa.diegocg@teleline.es>
+	<Pine.LNX.3.96.1030127162924.27928C-101000@gatekeeper.tmr.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Jan 2003, Lee Chin wrote:
+On Mon, 27 Jan 2003 16:34:22 -0500 (EST)
+Bill Davidsen <davidsen@tmr.com> wrote:
 
-> I am discussing with a few people on different approaches to solving a
-> scale problem I am having, and have gotten vastly different views
-> 
-> In a nutshell, as far as this debate is concerned, I can say I am writing a web server.
-> 
-> Now, to cater to 700 clients, I can a) launch 700 threads that each
-> block on I/O to disk and to the client (in reading and writing on the
-> socket) 
-> 
-> OR
-> 
-> b) Write an asycnhrounous system with only 2 or three threads where I
-> manage the connections and stack (via setcontext swapcontext etc), which
-> is progromatically a little harder
+> That's the thing I would expect to see if you used 'noapic' and watchdog. 
+> I posted over the weekend that I have been seeing some inobvious results
+> to IPC benchmarking with scombinations of noapic and watchdog, but I
+> didn't snap the interrupts. I'll be happy to add that to my list of stuff
+> to try next weekend, but the box is not a toy during the week, and I would
+> have a five hour round trip drive if a reboot failed, so I'll pass on
+> trying it until I'll in the same room. 
 
-There are many other ways, involving use of async io for disk and select
-on some limited number of sockets per thread. If you want to wallow in
-analysis paralysis you can certainly do it. Take a look at existing
-usenet, mail, web and dns servers and you will see a number of ways to
-attack this problem, and correctly implemented most of them work fine.
+no "noapic" here:
 
-I believe Ingo mentioned some huge number of practical threads when he was
-first talking about the latest thread library. If you believe it, or if
-you really will be happy at 700 tasks per server, then thread per socket
-is the easiest to implement, at least IMHO.
-
-I'm using various news software which does most combinations of threading,
-select, and even full processes per client, and none of them strike me as
-being inherently better (as opposed to some being better implementations). 
-Ask Ingo how many threads you can really run in six months when the new
-kernel and thread bits are more stable, that's the only scaling bit I
-can't even guess. Pick one method, write code. I believe implementation
-will be more important than method, unless you make a *really* bad choice.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+kernel /boot/linux-2.5.59-mm5 root=/dev/hda5 ro vga=0x30a profile=2 nmi_watchdog=1

@@ -1,95 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266071AbUFPCRO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266072AbUFPCZC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266071AbUFPCRO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 22:17:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266072AbUFPCRN
+	id S266072AbUFPCZC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 22:25:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266073AbUFPCZC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 22:17:13 -0400
-Received: from crianza.bmb.uga.edu ([128.192.34.109]:1921 "EHLO crianza")
-	by vger.kernel.org with ESMTP id S266071AbUFPCQk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 22:16:40 -0400
-Date: Tue, 15 Jun 2004 22:16:33 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: processes hung in D (raid5/dm/ext3)
-Message-ID: <20040616021633.GB13672@porto.bmb.uga.edu>
-Reply-To: foo@porto.bmb.uga.edu
-References: <20040615062236.GA12818@porto.bmb.uga.edu> <20040615030932.3ff1be80.akpm@osdl.org> <20040615150036.GB12818@porto.bmb.uga.edu> <20040615162607.5805a97e.akpm@osdl.org>
+	Tue, 15 Jun 2004 22:25:02 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:14504 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S266072AbUFPCY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 22:24:59 -0400
+Subject: ld segfault at end of 2.6.6 compile
+From: Geoff Mishkin <gmishkin@acs.bu.edu>
+Reply-To: gmishkin@bu.edu
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1087352698.8671.23.camel@amsa>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040615162607.5805a97e.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: foo@porto.bmb.uga.edu
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 15 Jun 2004 22:24:58 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 04:26:07PM -0700, Andrew Morton wrote:
-> Other than that, the chances of getting this fixed are proportional to your
-> skill in finding us a way of reproducing it.  A good start would be to tell
-> us exactly which commands were used to set up the LVM and the raid array. 
-> That way a raid/LVM ignoramus like me can take a look ;)
-> 
+I'm getting the
 
-In case any of this is of interest...
+make: *** [.tmp_vmlinux1] Error 139
 
-# cat /proc/mdstat 
-Personalities : [raid1] [raid5] 
-md0 : active raid5 sde1[4] sdd1[3] sdc1[2] sdb1[1] sda1[0]
-      573487616 blocks level 5, 128k chunk, algorithm 2 [5/5] [UUUUU]
-      
-unused devices: <none>
+problem with kernel 2.6.6.  It works fine on one of my computer, but not
+the other.
 
-# pvdisplay /dev/md0
-  --- Physical volume ---
-  PV Name               /dev/md0
-  VG Name               vg0
-  PV Size               546.92 GB / not usable 0   
-  Allocatable           yes 
-  PE Size (KByte)       4096
-  Total PE              140011
-  Free PE               62699
-  Allocated PE          77312
-  PV UUID               a76cj4-Fvnf-xkY8-bE0j-Wcdk-jtb0-mq9NbF
-   
-# vgdisplay vg0
-  --- Volume group ---
-  VG Name               vg0
-  System ID             
-  Format                lvm2
-  Metadata Areas        1
-  Metadata Sequence No  37
-  VG Access             read/write
-  VG Status             resizable
-  MAX LV                256
-  Cur LV                36
-  Open LV               36
-  Max PV                256
-  Cur PV                1
-  Act PV                1
-  VG Size               546.92 GB
-  PE Size               4.00 MB
-  Total PE              140011
-  Alloc PE / Size       77312 / 302.00 GB
-  Free  PE / Size       62699 / 244.92 GB
-  VG UUID               EameBy-n1m#-cwNa-rKqz-YqoM-hSEH-BKVeQQ
-   
-# lvdisplay 
-  --- Logical volume ---
-  LV Name                /dev/vg0/home
-  VG Name                vg0
-  LV UUID                yQFLXG-KLog-TdWQ-Rvis-35U1-jUj1-zO0h3M
-  LV Write Access        read/write
-  LV Status              available
-  # open                 1
-  LV Size                25.00 GB
-  Current LE             6400
-  Segments               1
-  Allocation             next free (default)
-  Read ahead sectors     0
-  Block device           253:0
-   
-[...35 more...]
+The full line is
 
--ryan
+ld -m elf_i386  -T arch/i386/kernel/vmlinux.lds.s
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o   init/built-in.o
+--start-group  usr/built-in.o arch/i386/kernel/built-in.o 
+arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o 
+kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o 
+security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a 
+lib/built-in.o  arch/i386/lib/built-in.o  drivers/built-in.o 
+sound/built-in.o  arch/i386/pci/built-in.o  arch/i386/power/built-in.o 
+net/built-in.o --end-group  -o .tmp_vmlinux1
+make: *** [.tmp_vmlinux1] Error 139
+
+Both are using gcc 2.95.3.  Both are using binutils version
+2.14.90.0.8.  Both have the same module-init-tools version.  Etc., etc.,
+etc.
+
+The only difference is on the nonworking one, the processor type is
+Pentium M instead of Pentium 4, and I'm using different video and
+ethernet drivers because the two machines have different video and
+ethernet cards :P.  The nonworking one is a laptop, if that makes a
+difference.  I've got the enhanced SpeedStep option enabled for it.
+
+I found a lot of stuff on Google about this problem, but a lot of it is
+old and/or just tells you to upgrade to a 2.14 of binutils, which I
+have.  I get this error if I use gcc3 as well.
+
+			--Geoff Mishkin <gmishkin@bu.edu>
+

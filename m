@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281241AbRKPIe1>; Fri, 16 Nov 2001 03:34:27 -0500
+	id <S281244AbRKPIi1>; Fri, 16 Nov 2001 03:38:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281242AbRKPIeR>; Fri, 16 Nov 2001 03:34:17 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:20498 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S281241AbRKPIeM>; Fri, 16 Nov 2001 03:34:12 -0500
-Message-ID: <3BF4CF5C.18CBE4BC@zip.com.au>
-Date: Fri, 16 Nov 2001 00:33:32 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: "Stephen C. Tweedie" <sct@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
-        Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: synchronous mounts
-In-Reply-To: <3BF376EC.EA9B03C8@zip.com.au> <20011115214525.C14221@redhat.com> <3BF45B9F.DEE1076B@mandrakesoft.com>
+	id <S281245AbRKPIiH>; Fri, 16 Nov 2001 03:38:07 -0500
+Received: from [194.213.32.133] ([194.213.32.133]:25475 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S281244AbRKPIiC>;
+	Fri, 16 Nov 2001 03:38:02 -0500
+Date: Thu, 15 Nov 2001 23:35:29 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: __get_free_pages but no get_free_pages?
+Message-ID: <20011115233528.A7496@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> As it stands, it seems like redefining 'sync' to sync less data than is
-> currently done is not only changing current behavior, but providing less
-> to users overall.
-> 
+Hi!
 
-Persuasively argued.  You appear to have your wish, as this
-patch was merged in -pre5.
+free_pages() exists.
+__get_free_pages() exists.
+get_free_pages() does not. Why? What's the reason get_free_pages
+always has two underscores at the beggining?
+							Pavel
+-- 
+STOP THE WAR! Someone killed innocent Americans. That does not give
+U.S. right to kill people in Afganistan.
 
-A `dirsync' option does make sense though, for the reasons which
-Stephen outlined.
 
-The whole handling of synchronous operations needs a rip-up-and-rewrite
-anyway.  We're currently holding onto a stack of locks while waiting
-for the disk to spin round and round.  It's a great scalability bottleneck
-for multiple threads doing things in the same directory.   This is
-something I shall look at when the kernel versions turn odd.
-
--

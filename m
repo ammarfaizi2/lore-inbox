@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129486AbRBKUJA>; Sun, 11 Feb 2001 15:09:00 -0500
+	id <S129231AbRBKUKv>; Sun, 11 Feb 2001 15:10:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129231AbRBKUIu>; Sun, 11 Feb 2001 15:08:50 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:23272 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129421AbRBKUIj>;
-	Sun, 11 Feb 2001 15:08:39 -0500
-Date: Sun, 11 Feb 2001 20:06:47 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Petru Paler <ppetru@ppetru.net>
-Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: Re: Raw devices bound to RAID arrays ?
-Message-ID: <20010211200647.A20222@redhat.com>
-In-Reply-To: <20010211182912.D949@ppetru.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010211182912.D949@ppetru.net>; from ppetru@ppetru.net on Sun, Feb 11, 2001 at 06:29:12PM +0200
+	id <S129617AbRBKUKm>; Sun, 11 Feb 2001 15:10:42 -0500
+Received: from clueserver.org ([206.163.47.224]:63493 "HELO clueserver.org")
+	by vger.kernel.org with SMTP id <S129231AbRBKUKF>;
+	Sun, 11 Feb 2001 15:10:05 -0500
+Date: Sun, 11 Feb 2001 12:21:43 -0800 (PST)
+From: Alan Olsen <alan@clueserver.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
+        Rogerio Brito <rbrito@iname.com>
+Subject: Re: Slowing down CDROM drives (was: Re: ATAPI CDRW which doesn't
+ work)
+In-Reply-To: <20010211174707.I16362@suse.de>
+Message-ID: <Pine.LNX.4.10.10102111220160.22754-100000@clueserver.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 11 Feb 2001, Jens Axboe wrote:
 
-On Sun, Feb 11, 2001 at 06:29:12PM +0200, Petru Paler wrote:
+> On Sat, Feb 10 2001, Pavel Machek wrote:
+> > > 	ioctl(cd_fd, CDROM_SELECT_SPEED, speed);
+> > 
+> > Does this actually work? I helped my friend with partly broken cdrom
+> > (worked only at low speeds) and it did not have much effect. It did
+> > not make my cdrom quiet, either, AFAI can remember.
 > 
-> Is it possible to bind a raw device to a software RAID 1 array ?
+> It's no news that vendors only implement what they want to. New
+> cd-r/w and dvd drives are not required to implement this command,
+> so it may not work there either.
 
-Yes.
+Take a look at the code for cdparanoia or one of the other MP3 ripping
+programms. Slowing down the drive is a standard feature for that type of
+program.  (Reduces errors when pulling audio tracks off the disc.)
 
---Stephen
+alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
+Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
+    "In the future, everything will have its 15 minutes of blame."
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

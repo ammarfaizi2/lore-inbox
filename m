@@ -1,41 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbUL2Ox6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbUL2O5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261346AbUL2Ox6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 09:53:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbUL2Ox6
+	id S261352AbUL2O5n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 09:57:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbUL2O5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 09:53:58 -0500
-Received: from smtp.telefonica.net ([213.4.129.135]:34522 "EHLO
-	tnetsmtp2.mail.isp") by vger.kernel.org with ESMTP id S261352AbUL2Oxs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 09:53:48 -0500
-Message-ID: <41D2C4FA.7010806@telefonica.net>
-Date: Wed, 29 Dec 2004 15:53:46 +0100
-From: Miguelanxo Otero Salgueiro <miguelanxo@telefonica.net>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.10 resuming laptop from suspension f*cks usb subsystem
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 29 Dec 2004 09:57:43 -0500
+Received: from mail.codeweavers.com ([216.251.189.131]:14565 "EHLO
+	mail.codeweavers.com") by vger.kernel.org with ESMTP
+	id S261352AbUL2O5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 09:57:41 -0500
+From: Mike Hearn <mh@codeweavers.com>
+To: Thomas Sailer <sailer@scs.ch>
+Cc: Linus Torvalds <torvalds@osdl.org>, Eric Pouech <pouech-eric@wanadoo.fr>,
+       Jesse Allen <the3dfxdude@gmail.com>, Daniel Jacobowitz <dan@debian.org>,
+       Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
+In-Reply-To: <1104286459.7640.54.camel@gamecube.scs.ch>
+References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
+	 <419E42B3.8070901@wanadoo.fr>
+	 <Pine.LNX.4.58.0411191119320.2222@ppc970.osdl.org>
+	 <419E4A76.8020909@wanadoo.fr>
+	 <Pine.LNX.4.58.0411191148480.2222@ppc970.osdl.org>
+	 <419E5A88.1050701@wanadoo.fr> <20041119212327.GA8121@nevyn.them.org>
+	 <Pine.LNX.4.58.0411191330210.2222@ppc970.osdl.org>
+	 <20041120214915.GA6100@tesore.ph.cox.net> <41A251A6.2030205@wanadoo.fr>
+	 <Pine.LNX.4.58.0411221300460.20993@ppc970.osdl.org>
+	 <1101161953.13273.7.camel@littlegreen>
+	 <1104286459.7640.54.camel@gamecube.scs.ch>
+Organization: Codeweavers, Inc
+Date: Wed, 29 Dec 2004 15:02:38 +0000
+Message-Id: <1104332559.3393.16.camel@littlegreen>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+X-SPF-Flag: YES
+X-SA-Exim-Connect-IP: 81.97.76.53
+X-SA-Exim-Mail-From: mh@codeweavers.com
+Subject: Re: ptrace single-stepping change breaks Wine
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on mail.codeweavers.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apart from the timer drift thingie, 2.6.10 brought some new features 
-like usb devices (ramdomly) not working after resuming from suspend mode.
+On Wed, 2004-12-29 at 03:14 +0100, Thomas Sailer wrote:
+> Any news about the ptrace single-stepping breakage of wine?
 
-In 2.6.9 usb worked well, resuming from suspend just throws a bunch 
-(near 20) messages like:
+I can't see if he CCd anybody from the archives but Jesse Allen posted a
+nice analysis of the remaining problem here:
 
-    drivers/usb/input/hid-core.c: input irq status -84 received
+http://www.winehq.org/hypermail/wine-devel/2004/12/0691.html
 
-(getting form /var/log/syslog, just don't have time to switch back to 
-2.6.9 and fiddle with it again). After those messages, the usb subsystem 
-comes stable again and worked like a charm.
+Here is one interesting portion of his email:
 
-In 2.6.10, resuming from suspend mode just (randomly) crashes the USB 
-subsystem, and I get the same messages (not sure about the whole message 
-but the "-84" part really is there) over and over again until I reboot.
+> #3 signal.c - Clearing the trap flag if being traced by debugger in
+> setup_sigcontext()
+> 
+> For some reason, Warcraft III doesn't work if it is cleared here.  I
+> have no idea if this TF clear is really necessary.  However,
+> everything I've read on this seems to indicate to me that this change
+> is important, so I need to find out what this causes to the game.
+
+The other changes Linus made are apparently good and do not cause
+Warcraft to regress.
+
+thanks -mike
+

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263150AbTEGMne (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 08:43:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTEGMne
+	id S263163AbTEGNCc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 09:02:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263169AbTEGNCc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 08:43:34 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:36363 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263150AbTEGMnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 08:43:33 -0400
-Date: Wed, 7 May 2003 13:56:00 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
-Subject: Re: ioctl cleanups: enable sg_io and serial stuff to be shared
-Message-ID: <20030507135600.A22642@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Pavel Machek <pavel@ucw.cz>, Arnd Bergmann <arnd@arndb.de>,
-	linux-kernel@vger.kernel.org
-References: <20030507104008$12ba@gated-at.bofh.it> <200305071154.h47BsbsD027038@post.webmailer.de> <20030507124113.GA412@elf.ucw.cz>
+	Wed, 7 May 2003 09:02:32 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18959 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263163AbTEGNCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 09:02:31 -0400
+Date: Wed, 7 May 2003 14:14:58 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: The magical mystical changing ethernet interface order
+Message-ID: <20030507141458.B30005@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030507124113.GA412@elf.ucw.cz>; from pavel@ucw.cz on Wed, May 07, 2003 at 02:41:14PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 07, 2003 at 02:41:14PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > Only change *needed* in each architecture is moving A() macros into
-> > > compat.h, so that generic code can use it. Please apply,
-> > 
-> > Please don't use A() in new code, we now have compat_ptr() and
-> > compat_uptr_t for this.
-> 
-> Fixed now.
+Does anyone know if there's a reason that the ethernet driver initialisation
+order has changed again in 2.5?
 
-Btw, if you really want to move all the 32bit ioctl compat code to the
-drivers a ->ioctl32 file operation might be the better choice..
+In 2.2.xx, we had eth0 = NE2000, eth1 = Tulip
+In 2.4, we have eth0 = Tulip, eth1 = NE2000
+And in 2.5, it's back to eth0 = NE2000, eth1 = Tulip
+
+Both interfaces are on the same bus:
+
+00:0a.0 Ethernet controller: Digital Equipment Corporation DECchip 21142/43 (rev 30)
+00:0d.0 Ethernet controller: Winbond Electronics Corp W89C940F
+
+Its rather annoying when your dhcpd starts on the wrong interface.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270948AbUJVJ0F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270962AbUJVJaR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270948AbUJVJ0F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 05:26:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270938AbUJVJWt
+	id S270962AbUJVJaR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 05:30:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270915AbUJVJ0c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 05:22:49 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:4841 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S270915AbUJVJVD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 05:21:03 -0400
-Date: Fri, 22 Oct 2004 11:21:02 +0200
-From: Luc Saillard <luc@saillard.org>
-To: Luca Risolia <luca.risolia@studio.unibo.it>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.6.9-ac3
-Message-ID: <20041022092102.GA16963@sd291.sivit.org>
-References: <20041022101335.6dcf247a.luca.risolia@studio.unibo.it>
+	Fri, 22 Oct 2004 05:26:32 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:60946 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S270918AbUJVJYb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 05:24:31 -0400
+Date: Fri, 22 Oct 2004 02:24:04 -0700
+To: Jens Axboe <axboe@suse.de>
+Cc: Bill Huey <bhuey@lnxw.com>, Thomas Gleixner <tglx@linutronix.de>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Ingo Molnar <mingo@elte.hu>,
+       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+Message-ID: <20041022092404.GA24605@nietzsche.lynx.com>
+References: <20041021201443.GF32465@suse.de> <20041021202422.GA24555@nietzsche.lynx.com> <20041021203350.GK32465@suse.de> <20041021203821.GA24628@nietzsche.lynx.com> <20041022061901.GM32465@suse.de> <20041022085007.GA24444@nietzsche.lynx.com> <20041022085928.GK1820@suse.de> <20041022090637.GA24523@nietzsche.lynx.com> <20041022090938.GB24523@nietzsche.lynx.com> <20041022092058.GO1820@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041022101335.6dcf247a.luca.risolia@studio.unibo.it>
-User-Agent: Mutt/1.5.6+20040523i
+In-Reply-To: <20041022092058.GO1820@suse.de>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 10:13:35AM +0200, Luca Risolia wrote:
-> > o       Restore PWC driver                              (Luc Saillard)
-> 
-> This driver does decompression in kernel space, which is not
-> allowed. That part has to be removed from the driver before
-> asking for the inclusion in the mainline kernel.
+On Fri, Oct 22, 2004 at 11:20:59AM +0200, Jens Axboe wrote:
+> I've been as clear as I know how on the matter of semaphore use in
+> Linux. I've made no comments at all on improving your deadlock
+> detection scheme.
 
-I know this problem, but without a user API like ALSA, each driver need to
-implement the decompression module. When the driver will support v4l2, we can
-return the compressed stream to the user land. I want a v4l3, which is
-designed as ALSA does for soundcard, with a API for userland and kernelland.
-In the meantime, i can put a module option, if the user want the
-decompression in the kernel mode.
+True, but "...deadlock detection breaks" is a negative comment about
+the deadlock detector without a positive suggestion to change it, is
+it not ? if so, then suggest a change to be made and it'll get
+implementated somehow.
 
-Just for your information, many other part in the kernel use
-decompression/compression like PPP, video, ... Have you look about the
-algorithm use in decompression ?, it's just a lookup table with some
-pre-calculated values. Ok you lost ~60Kbytes of kernel memory. I you look into
-the logitech windows drivers, you will a see a big fat library name openvc
-(apt-cache search opencv). I don't want to include all operations but if we
-haven't a good userland library, our webcam is useless on Linux. 
-Please, if you can provide some help to put this in userland (provides
-patches for mplayer, xawtv, kame, gnomeeting, ...), i'll be glad to remove
-the offending code.
+bill
 
-Luc
-
-opencv:
- The Open Computer Vision Library is a collection of algorithms and sample
- code for various computer vision problems. The library is compatible with
- IPL (Intel's Image Processing Library) and, if available, can use IPP
- (Intel's Integrated Performance Primitives) for better performance.
- .
- OpenCV provides low level portable data types and operators, and a set
- of high level functionalities for video acquisition, image processing and
- analysis, structural analysis, motion analysis and object tracking, object
- recognition, camera calibration and 3D reconstruction.
-(taken from apt-cache show libopencv-doc)

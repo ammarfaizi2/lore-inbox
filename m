@@ -1,51 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265952AbUBJQDV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 11:03:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265955AbUBJQDV
+	id S265843AbUBJQW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 11:22:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265948AbUBJQW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 11:03:21 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:25274 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S265952AbUBJQDU (ORCPT
+	Tue, 10 Feb 2004 11:22:58 -0500
+Received: from fw.osdl.org ([65.172.181.6]:27801 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265843AbUBJQWv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 11:03:20 -0500
-Date: Tue, 10 Feb 2004 17:03:17 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Greg KH <greg@kroah.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PCI Update for 2.6.3-rc1
-In-Reply-To: <10763689362321@kroah.com>
-Message-ID: <Pine.GSO.4.58.0402101702420.2261@waterleaf.sonytel.be>
-References: <10763689362321@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Feb 2004 11:22:51 -0500
+Date: Tue, 10 Feb 2004 08:25:14 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Chua <jchua@fedex.com>
+Cc: jeffchua@silk.corp.fedex.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] warning: `__attribute_used__' redefined
+Message-Id: <20040210082514.04afde4a.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0402102150150.17289@silk.corp.fedex.com>
+References: <Pine.LNX.4.58.0402101434260.27213@boston.corp.fedex.com>
+	<20040209225336.1f9bc8a8.akpm@osdl.org>
+	<Pine.LNX.4.58.0402102150150.17289@silk.corp.fedex.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Feb 2004, Greg KH wrote:
-> ChangeSet 1.1500.11.2, 2004/01/30 16:34:48-08:00, ambx1@neo.rr.com
+Jeff Chua <jchua@fedex.com> wrote:
 >
-> [PATCH] PCI: Remove uneeded resource structures from pci_dev
->
-> The following patch remove irq_resource and dma_resource from pci_dev.  It
-> appears that the serial pci driver depends on irq_resource, however, it may be
-> broken portions of an old quirk.  I attempted to maintain the existing behavior
-> while removing irq_resource.  I changed FL_IRQRESOURCE to FL_NOIRQ.  Russell,
-> could you provide any comments?  irq_resource and dma_resource are most likely
-> remnants from when pci_dev was shared with pnp.
+> ...
+> Here's output of "gcc -H sig.c" gcc 2.95.3  glibc 2.2.5  linux 2.6.3-rc2
+> 
+> 
+> /usr/include/signal.h
+>  /usr/include/features.h
+>   /usr/include/sys/cdefs.h
+>   /usr/include/gnu/stubs.h
+>  /usr/include/bits/sigset.h
+>  /usr/include/bits/types.h
+>   /usr/lib/gcc-lib/i586-pc-linux-gnu/2.95.3/include/stddef.h
+>   /usr/include/bits/pthreadtypes.h
+>    /usr/include/bits/sched.h
+>  /usr/include/bits/signum.h
+>  /usr/include/time.h
+>  /usr/include/bits/siginfo.h
+>   /usr/include/bits/wordsize.h
+>  /usr/include/bits/sigaction.h
+>  /usr/include/bits/sigcontext.h
+>   /usr/include/asm/sigcontext.h
+>    /usr/include/linux/compiler.h
+>     /usr/include/linux/compiler-gcc2.h
+>      /usr/include/linux/compiler-gcc.h
+> In file included from /usr/include/linux/compiler.h:18,
+>                  from /usr/include/asm/sigcontext.h:4,
+>                  from /usr/include/bits/sigcontext.h:28,
+>                  from /usr/include/signal.h:307,
+>                  from sig.c:1:
+> /usr/include/linux/compiler-gcc2.h:21: warning: `__attribute_used__' redefined
 
-FYI, at least one ISDN driver seems to need it as well:
+ah, thanks.
 
-| drivers/isdn/hardware/avm/b1isa.c: In function `b1isa_init':
-| drivers/isdn/hardware/avm/b1isa.c:183: structure has no member named `irq_resource'
+Like this?
 
-Gr{oetje,eeting}s,
+--- 25/include/asm-i386/sigcontext.h~sigcontext-include-fix	2004-02-10 08:23:47.000000000 -0800
++++ 25-akpm/include/asm-i386/sigcontext.h	2004-02-10 08:24:18.000000000 -0800
+@@ -1,7 +1,9 @@
+ #ifndef _ASMi386_SIGCONTEXT_H
+ #define _ASMi386_SIGCONTEXT_H
+ 
++#ifdef __KERNEL__
+ #include <linux/compiler.h>
++#endif
+ 
+ /*
+  * As documented in the iBCS2 standard..
 
-						Geert
+_
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

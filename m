@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318804AbSHESDf>; Mon, 5 Aug 2002 14:03:35 -0400
+	id <S318806AbSHESHk>; Mon, 5 Aug 2002 14:07:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318806AbSHESDf>; Mon, 5 Aug 2002 14:03:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5382 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318804AbSHESDe>;
-	Mon, 5 Aug 2002 14:03:34 -0400
-Message-ID: <3D4EC114.C87FEEFF@zip.com.au>
-Date: Mon, 05 Aug 2002 11:16:52 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Daniel Phillips <phillips@arcor.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Rmap speedup
-References: <E17biDi-0000w7-00@starship> <Pine.LNX.4.44L.0208051056440.23404-100000@imladris.surriel.com>
+	id <S318812AbSHESHk>; Mon, 5 Aug 2002 14:07:40 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:47364 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S318806AbSHESHi>; Mon, 5 Aug 2002 14:07:38 -0400
+Date: Mon, 5 Aug 2002 20:10:47 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-ac4
+Message-ID: <20020805181047.GE25892@louise.pinerecords.com>
+References: <200208051147.g75Blh720012@devserv.devel.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200208051147.g75Blh720012@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
+X-Uptime: 62 days, 18 min
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Mon, 5 Aug 2002, Daniel Phillips wrote:
-> 
-> > > Despite the fact that the number of pte_chain references in
-> > > page_add/remove_rmap now just averages two in that test.
-> >
-> > It's weird that it only averages two.  It's a four way and your running
-> > 10 in parallel, plus a process to watch for completion, right?
-> 
-> I explained this one in the comment above the declaration of
-> struct pte_chain ;)
-> 
->  * A singly linked list should be fine for most, if not all, workloads.
->  * On fork-after-exec the mapping we'll be removing will still be near
->  * the start of the list, on mixed application systems the short-lived
->  * processes will have their mappings near the start of the list and
->  * in systems with long-lived applications the relative overhead of
->  * exit() will be lower since the applications are long-lived.
+> The IDE debugging continues. -ac4 should fix the breakages in ac2/ac3. It
+> hopefully also fixes the ALi hangs with non ALi north bridges (mostly 
+> Transmeta boxes).
 
-I don't think so - the list walks in there are fairly long.
-What seems to be happening is that, as Daniel mentioned,
-all the pte_chains for page N happen to have good locality
-with the pte_chains for page N+1.  Like parallel lines.
+It is a nice shrubbery, but there is one small problem!!
 
-That might not hold up for longer-lived processes, slab cache
-fragmentation, longer chains, etc...
+# depmod -ae -F /boot/System.map-2.4.19-ac4 2.4.19-ac4
+depmod: *** Unresolved symbols in /lib/modules/2.4.19-ac4/kernel/drivers/ide/ide-mod.o
+depmod:         pci_enable_device_bars
+
+T.

@@ -1,51 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbUGLT5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbUGLUAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbUGLT5t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 15:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUGLT5t
+	id S262080AbUGLUAL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 16:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUGLUAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 15:57:49 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:38277 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262080AbUGLT5g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 15:57:36 -0400
-Date: Mon, 12 Jul 2004 15:54:56 -0400 (EDT)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: davidm@hpl.hp.com
-cc: Christoph Hellwig <hch@infradead.org>, Jakub Jelinek <jakub@redhat.com>,
-       suresh.b.siddha@intel.com, jun.nakajima@intel.com,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: serious performance regression due to NX patch
-In-Reply-To: <16626.57892.533203.683465@napali.hpl.hp.com>
-Message-ID: <Pine.LNX.4.58.0407121552210.30965@devserv.devel.redhat.com>
-References: <200407100528.i6A5SF8h020094@napali.hpl.hp.com>
- <Pine.LNX.4.58.0407110437310.26065@devserv.devel.redhat.com>
- <Pine.LNX.4.58.0407110536130.2248@devserv.devel.redhat.com>
- <Pine.LNX.4.58.0407110550340.4229@devserv.devel.redhat.com>
- <20040711123803.GD21264@devserv.devel.redhat.com>
- <Pine.LNX.4.58.0407121402160.2451@devserv.devel.redhat.com>
- <20040712182431.GB28281@infradead.org> <Pine.LNX.4.58.0407121428270.22224@devserv.devel.redhat.com>
- <16626.57892.533203.683465@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 12 Jul 2004 16:00:10 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:55544 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S262080AbUGLUAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 16:00:01 -0400
+Date: Mon, 12 Jul 2004 12:59:56 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: XFS: how to NOT null files on fsck?
+Message-ID: <20040712195956.GA14105@taniwha.stupidest.org>
+References: <20040710184357.GA5014@taniwha.stupidest.org> <E1BjPL3-00076U-00@calista.eckenfels.6bone.ka-ip.net> <20040711215446.GA21443@hh.idb.hist.no> <ccujbr$unl$1@terminus.zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ccujbr$unl$1@terminus.zytor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 12, 2004 at 05:56:11PM +0000, H. Peter Anvin wrote:
 
-On Mon, 12 Jul 2004, David Mosberger wrote:
+> No it won't, since if you're using file descriptors there *is* no C
+> library buffer.  fclose() will, though, and then call close().
 
->   Ingo> is it an issue? Each new port will have PT_GNU_STACK, unless they base
->   Ingo> themselves on old compilers.
-> 
-> PT_GNU_STACK is pure bloat on new architectures (and ia64).
+Data sits in the page-cache though, and if you loose power before
+that's flushed you will loose data.  This is why fsync is needed to be
+sure.
 
-EF_IA_64_LINUX_EXECUTABLE_STACK is using elf_ex->e_flags. I did it the
-same way for x86 originally, but the tools people specifically rejected it
-as a hack. We dont control the ELF specification, but a new gcc section
-like PT_GNU_STACK is fair game. So it might be 'bloat' but it's clean and
-doesnt try to hijack.
 
-	Ingo
+   --cw

@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262134AbVCIRkX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbVCIRmD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262134AbVCIRkX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 12:40:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbVCIRkJ
+	id S262103AbVCIRmD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 12:42:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbVCIRmC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 12:40:09 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:30708 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262103AbVCIRiw
+	Wed, 9 Mar 2005 12:42:02 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:44794 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262103AbVCIRlp convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 12:38:52 -0500
-Subject: Re: [PATCH] rwsem: Make rwsems use interrupt disabling spinlocks
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, suparna@in.ibm.com,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4175.1110370343@redhat.com>
-References: <20050309032832.159e58a4.akpm@osdl.org>
-	 <20050308170107.231a145c.akpm@osdl.org>
-	 <1110327267.24286.139.camel@dyn318077bld.beaverton.ibm.com>
-	 <18744.1110364438@redhat.com> <20050309110404.GA4088@in.ibm.com>
-	 <1110366469.6280.84.camel@laptopd505.fenrus.org>
-	 <4175.1110370343@redhat.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1110389707.24286.156.camel@dyn318077bld.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 09 Mar 2005 09:35:07 -0800
-Content-Transfer-Encoding: 7bit
+	Wed, 9 Mar 2005 12:41:45 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: [Linux-fbdev-devel] Re: [announce 7/7] fbsplash - documentation
+Date: Wed, 9 Mar 2005 18:29:47 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Michal Januszewski <spock@gentoo.org>
+References: <20050308021706.GH26249@spock.one.pl> <20050308223728.GA11065@spock.one.pl> <9e4733910503090854e245740@mail.gmail.com>
+In-Reply-To: <9e4733910503090854e245740@mail.gmail.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200503091829.48999.arnd@arndb.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Your patch seems to have helped. I don't see the Oops anymore - my
-tests are still running (past 1 hour - it used to panic in 10 min).
+On Middeweken 09 März 2005 17:54, Jon Smirl wrote:
 
-Thanks,
-Badari
-
-On Wed, 2005-03-09 at 04:12, David Howells wrote:
-> The attached patch makes read/write semaphores use interrupt disabling
-> spinlocks, thus rendering the up functions and trylock functions available for
-> use in interrupt context.
+> framebuffer already has a class registered. check out /sys/class/grpahics.
 > 
-> I've assumed that the normal down functions must be called with interrupts
-> enabled (since they might schedule), and used the irq-disabling spinlock
-> variants that don't save the flags.
-> 
-> Signed-Off-By: David Howells <dhowells@redhat.com>
-> ---
-> warthog>diffstat -p1 rwsem-irqspin-2611mm2.diff
+> You should be able to just call request_firmware and have it download
+> your image whenever you need it. It doesn't have to be firmware,
+> request_firmware will download anything.
 
+Agreed, request_firmware() would be a really nice way to simplify the interface.
+It might be more practical to use the /sys/class/tty/tty* object instead of
+the /sys/class/graphics/fb* one, but I don't know enough about the console
+subsystem to tell for sure.
 
+ Arnd <><

@@ -1,91 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262352AbVBBTvW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262253AbVBBTuZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262352AbVBBTvW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 14:51:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbVBBTrT
+	id S262253AbVBBTuZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 14:50:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbVBBTuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 14:47:19 -0500
-Received: from rproxy.gmail.com ([64.233.170.199]:28220 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262334AbVBBTjP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 14:39:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ErUaSPWpCBkg5IO3s1PiKnCS2uofwrzh47EB7e6/KYmH4OwMN054vEtTClG49vEYBtUFkNDVgPLevTTUgzHAMmLR6pPBN7xkm5Oi0lYfXq4maVzqDNLw0srqyb/Vy8etVJOhb1H0LstRQWJdU4f1fNxZF3LpHTAAGNIuhcwtTVg=
-Message-ID: <d120d500050202113954912c34@mail.gmail.com>
-Date: Wed, 2 Feb 2005 14:39:05 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: Touchpad problems with 2.6.11-rc2
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Peter Osterlund <petero2@telia.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050202095851.27321bcf@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050123190109.3d082021@localhost.localdomain>
-	 <m3acqr895h.fsf@telia.com>
-	 <20050201234148.4d5eac55@localhost.localdomain>
-	 <20050202102033.GA2420@ucw.cz>
-	 <20050202085628.49f809a0@localhost.localdomain>
-	 <20050202170727.GA2731@ucw.cz>
-	 <20050202095851.27321bcf@localhost.localdomain>
+	Wed, 2 Feb 2005 14:50:24 -0500
+Received: from postfix3-2.free.fr ([213.228.0.169]:27313 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S262253AbVBBTsk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 14:48:40 -0500
+Date: Wed, 2 Feb 2005 20:47:31 +0100 (CET)
+From: =?ISO-8859-15?Q?Peter_M=FCnster?= <pmlists@free.fr>
+X-X-Sender: peter@gaston.free.fr
+To: linux-kernel@vger.kernel.org
+Cc: acpi-devel@lists.sourceforge.net, axboe@suse.de, benh@kernel.crashing.org,
+       B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: [Patch] keep ide disk sleeping when resuming
+Message-ID: <Pine.LNX.4.58.0502022006030.4130@gaston.free.fr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Feb 2005 09:58:51 -0800, Pete Zaitcev <zaitcev@redhat.com> wrote:
-> On Wed, 2 Feb 2005 18:07:27 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> 
-> > On Wed, Feb 02, 2005 at 08:56:28AM -0800, Pete Zaitcev wrote:
-> > > On Wed, 2 Feb 2005 11:20:33 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > >
-> > > > Well, you removed the scaling to the touchpad resolution, which will
-> > > > cause ALPS touchpad to be significantly slower than Synaptics touchpads.
-> > > > Similarly, the screen size used to be taken into account, but probably
-> > > > that was a mistake, since the value is usually left at default and
-> > > > doesn't correspond to the real screen size.
-> > >
-> > > Exactly. And it works much better now.
-> >
-> > With a Synaptics I suppose? You wouldn't like it with an ALPS.
-> 
-> No, it's a Dualpoint, and so ALPS. But never mind that, I think I see
-> your point.
-> 
-> However, while I see a possibility of serious regressions with the other
-> variety, but isn't it striking that result is so radical? With all the
-> arithmetics still in place I can move my finger all across the pad without
-> causing any motions. We are not talking about ballistics or any fine tuning,
-> simply the calculations are wrong.
-> 
+Hello,
 
-It works fine for my Synaptics with default resolution, I don't have
-ALPS to try but I think Peter tried to make it behave similarly.
-Still, I agree that relying on the screen coordinates is a bad idea.
+I need this patch (against linux-2.6.11-rc2), to keep ide disk sleeping,
+when resuming from ACPI S1.
 
-> If Synaptics delivers much bigger deltas for small motions, it's up to the
-> Synapics mode of alps.c to make them reasonable, if that. There's no need
-> to penalize ALPS. But I seriously doubt that Synaptics can be so broken.
+In fact, it's just removing a patch from 22 Jun 2004 by Jens Axboe. He has
+told me, that "We can probably kill the patch completely".
+So, this is what I'm doing now.
 
-Why is that having 5x better resolution is considered broken? And how
-synaptics should "make them reasonable"? Driver emits pretty much raw
-coordinate values and it is up to the consumer to make sense of them.
+Kind regards, Peter
 
-> I wish Peter tested the removal of scaling with his Synaptics. If he
-> (and Dmitry) insist on running a special code in X, that's fine.
-
-Yes, because there are other things we can do in that special code. Do
-you like default tochpad sensitivity? What if someone does not? Do you
-like verical and horisontal scrolling? Circular scrolling?
-multi-finger tappng (synaptics only)? Corner tapping? What about
-rebooting every time you change an option?
-
->  But honestly, I expect that things will go well for them.
-
-Well, your code will make my touchpad (Synaptics) go ballistic. It
-really has resolution of about 4000 points across.
+--- drivers/ide/ide-disk.c.orig	2005-02-02 20:30:12.000000000 +0100
++++ drivers/ide/ide-disk.c	2005-02-02 20:32:21.000000000 +0100
+@@ -864,9 +864,7 @@
+ enum {
+ 	idedisk_pm_flush_cache	= ide_pm_state_start_suspend,
+ 	idedisk_pm_standby,
+-
+-	idedisk_pm_idle		= ide_pm_state_start_resume,
+-	idedisk_pm_restore_dma,
++	idedisk_pm_restore_dma	= ide_pm_state_start_resume
+ };
+ 
+ static void idedisk_complete_power_step (ide_drive_t *drive, struct request *rq, u8 stat, u8 error)
+@@ -881,9 +879,6 @@
+ 	case idedisk_pm_standby:	/* Suspend step 2 (standby) complete */
+ 		rq->pm->pm_step = ide_pm_state_completed;
+ 		break;
+-	case idedisk_pm_idle:		/* Resume step 1 (idle) complete */
+-		rq->pm->pm_step = idedisk_pm_restore_dma;
+-		break;
+ 	}
+ }
+ 
+@@ -914,12 +909,6 @@
+ 		args->handler	   = &task_no_data_intr;
+ 		return do_rw_taskfile(drive, args);
+ 
+-	case idedisk_pm_idle:		/* Resume step 1 (idle) */
+-		args->tfRegister[IDE_COMMAND_OFFSET] = WIN_IDLEIMMEDIATE;
+-		args->command_type = IDE_DRIVE_TASK_NO_DATA;
+-		args->handler = task_no_data_intr;
+-		return do_rw_taskfile(drive, args);
+-
+ 	case idedisk_pm_restore_dma:	/* Resume step 2 (restore DMA) */
+ 		/*
+ 		 * Right now, all we do is call hwif->ide_dma_check(drive),
 
 -- 
-Dmitry
+http://pmrb.free.fr/contact/

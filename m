@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262946AbTDYSsh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 14:48:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263635AbTDYSsh
+	id S263635AbTDYTAo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 15:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263643AbTDYTAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 14:48:37 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:2699
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262946AbTDYSsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 14:48:36 -0400
-Subject: Re: problem with Serverworks CSB5 IDE
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Duncan Laurie <duncan@sun.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3EA983F3.2000306@sun.com>
-References: <3EA85C5C.7060402@sun.com> <20030423212713.GD21689@puck.ch>
-	 <1051136469.2062.108.camel@dhcp22.swansea.linux.org.uk>
-	 <20030423232909.GE21689@puck.ch> <20030423232909.GE21689@puck.ch>
-	 <20030424080023.GG21689@puck.ch> <3EA85C5C.7060402@sun.com>
-	 <1051268422.5573.25.camel@dhcp22.swansea.linux.org.uk>
-	 <3EA964D1.3070908@sun.com>
-	 <1051285350.5902.14.camel@dhcp22.swansea.linux.org.uk>
-	 <3EA983F3.2000306@sun.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051293721.6642.0.camel@dhcp22.swansea.linux.org.uk>
+	Fri, 25 Apr 2003 15:00:44 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:38536 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263635AbTDYTAn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 15:00:43 -0400
+Date: Fri, 25 Apr 2003 20:12:53 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Andreas Jellinghaus <aj@dungeon.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Flame Linus to a crisp!
+Message-ID: <20030425191252.GA1853@mail.jlokier.co.uk>
+References: <170EBA504C3AD511A3FE00508BB89A9201FD91E8@exnanycmbx4.ipc.com> <20030424212811.GH30082@mail.jlokier.co.uk> <20030425081358.B750C2128A@dungeon.inka.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 25 Apr 2003 19:02:01 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030425081358.B750C2128A@dungeon.inka.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-04-25 at 19:52, Duncan Laurie wrote:
-> It might just be another unfortunate serverworks chipset bug...
+Andreas Jellinghaus wrote:
+> > Also that day, that same article doesn't load from Al-Jazeera or
+> > anywhere else, on the PC you bought from the only affordable store in
+> > town. 
 > 
-> The CSB5 doesn't appear to fully support native mode--sure you can
-> put it in native mode (!) and you're free to assign the BARs any
-> way you want, but it still assumes IRQ14 for ide0 and IRQ15 for
-> ide1 when they should really be collapsed and shared on a single
-> PCI (non-compatibility) interrupt.
+> ah, myth. please dig into the tcpa spec and quote where you find
+> anything that provides substance for that. possible? even today without
+> tcpa or DRM or anything like that.
 
-Could be. I've never seen one in native mode. 
+<paranoid>
+There is nothing in the tcpa spec, they'd be foolish to put the _real_
+agenda in the spec wouldn't they? :)
+</paranoid>
 
+> but why does DRM or TCPA make this easier or harder to work around?
 
+Because the only kernels that ISPs accept connections from are signed
+and encrypted by the computer vendor - which means you _cannot_ trust
+those kernels to not contain back doors.
+
+> if we could asure that DRM would only be used in 0.1% of all computer
+> uses, then banks and stuff could use it, maybe even that digitial video
+> rental using the internet (they already do, but without hardware
+> support), and everyone else will not. I don't see the problem with
+> some uses, but with everyone using it.
+
+The question is, if it is widely implemented in available hardware,
+_will_ everyone be using it whether they want to or not?
+
+Also, what about the law?  Remember, there have been attempts in the
+last year, in the US, to legislate DRM into all computers.
+
+-- Jamie

@@ -1,30 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276569AbRI2Rvq>; Sat, 29 Sep 2001 13:51:46 -0400
+	id <S276572AbRI2SYj>; Sat, 29 Sep 2001 14:24:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276571AbRI2Rvg>; Sat, 29 Sep 2001 13:51:36 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:17687 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S276569AbRI2Rv3>; Sat, 29 Sep 2001 13:51:29 -0400
-Date: Sat, 29 Sep 2001 13:51:56 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Manfred Spraul <manfred@colorfullife.com>
+	id <S276573AbRI2SY3>; Sat, 29 Sep 2001 14:24:29 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4625 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S276572AbRI2SYW>; Sat, 29 Sep 2001 14:24:22 -0400
+Subject: Re: PROBLEM: AST P/75 causes Machine Check Exception type 0x9 on v2.4.10
+To: daniel.elvin@fagotten.org (Daniel Elvin)
+Date: Sat, 29 Sep 2001 19:29:12 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: lock_kiovec question
-Message-ID: <20010929135156.A26140@redhat.com>
-In-Reply-To: <3BB58FAF.D1AF2D25@colorfullife.com>
-Mime-Version: 1.0
+In-Reply-To: <3BB5F4C6.DDB15B49@fagotten.org> from "Daniel Elvin" at Sep 29, 2001 06:20:22 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BB58FAF.D1AF2D25@colorfullife.com>; from manfred@colorfullife.com on Sat, Sep 29, 2001 at 11:09:03AM +0200
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15nOrR-0002d1-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 29, 2001 at 11:09:03AM +0200, Manfred Spraul wrote:
-> lock_kiovec tries to lock each page in the kiovec, and fails if it can't
-> lock one of the pages.
+> Booting an AST Bravo P/75 with kernel v2.4.10 results in a "CPU#0
+> Machine Check Exception: 0x10C938 (type: 0x9)".
 
-lock_kiovec is dead code and should be deleted.
+Please try 2.4.9ac17 - it should be fixed in the -ac tree, and if so I can
+push it on to Linus
 
-		-ben
+Alan

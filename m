@@ -1,68 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261666AbVCUTRQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbVCUTbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261666AbVCUTRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 14:17:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVCUTRJ
+	id S261535AbVCUTbL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 14:31:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbVCUTbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 14:17:09 -0500
-Received: from c7ns3.center7.com ([216.250.142.14]:62105 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S261666AbVCUTOQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 14:14:16 -0500
-Message-ID: <423F1A6B.5040005@utah-nac.org>
-Date: Mon, 21 Mar 2005 12:03:07 -0700
-From: jmerkey <jmerkey@utah-nac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: clone() and pthread_create() segment fault in 2.4.29
-References: <423F13EA.6050007@utah-nac.org> <1111431021.6952.73.camel@laptopd505.fenrus.org> <423F1852.3070902@utah-nac.org> <20050321190721.GA19194@devserv.devel.redhat.com>
-In-Reply-To: <20050321190721.GA19194@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Mar 2005 14:31:11 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:56216 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261535AbVCUTbK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 14:31:10 -0500
+Date: Mon, 21 Mar 2005 20:30:51 +0100 (MET)
+Message-Id: <200503211930.j2LJUp7S003701@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: anton@samba.org
+Subject: Re: [PATCH] ppc64: fix linkage error on G5
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
+       paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+On Tue, 22 Mar 2005 03:32:59 +1100, Anton Blanchard wrote:
+>> When 2.6.12-rc1-mm1 is configured for a ppc64/G5, so CONFIG_PPC_PSERIES
+>> is disabled, linking of vmlinux fails with:
+>> 
+>> arch/ppc64/kernel/built-in.o(.text+0x7de0): In function `.sys_call_table32':
+>> : undefined reference to `.ppc_rtas'
+>> arch/ppc64/kernel/built-in.o(.text+0x8668): In function `.sys_call_table':
+>> : undefined reference to `.ppc_rtas'
+>> make: *** [.tmp_vmlinux1] Error 1
+>
+>It turns out we are trying to fix this problem twice, we may as well
+>remove the #define hack and use cond_syscall.
+>
+>--
+>
+>Move the ppc64 specific cond_syscall(ppc_rtas) into sys_ni.c so that it
+>takes effect. With this fixed we can remove the #define hack.
 
->On Mon, Mar 21, 2005 at 11:54:10AM -0700, jmerkey wrote:
->  
->
->>Arjan van de Ven wrote:
->>
->>    
->>
->>>On Mon, 2005-03-21 at 11:35 -0700, jmerkey wrote:
->>>
->>>
->>>      
->>>
->>>>In case nobody has already reported it, clone() and pthread_create() 
->>>>return SIGSEGV faults
->>>>when a 2.4.29 kernel on the Taroon Red Hat release.
->>>>  
->>>>
->>>>        
->>>>
->>>you're running an OS that requires a kernel with NPTL support. Yet you
->>>run a kernel without. Bad idea.
->>>
->>>
->>>
->>>
->>>      
->>>
->>which 2.4 kernels will work properly on RH ES release 3, Taroon Update 
->>4. 
->>    
->>
->
->Only kernels with NPTL in, which for 2.4 limits you to the RH supplied one.
->
->  
->
-Thanks for the update on this issue.
+This worked fine. Thanks.
 
-Jeff
+/Mikael

@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273326AbRINPqK>; Fri, 14 Sep 2001 11:46:10 -0400
+	id <S273418AbRINQG7>; Fri, 14 Sep 2001 12:06:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273417AbRINPqB>; Fri, 14 Sep 2001 11:46:01 -0400
-Received: from pD9508A29.dip.t-dialin.net ([217.80.138.41]:15154 "EHLO
-	bennew01.localdomain") by vger.kernel.org with ESMTP
-	id <S273326AbRINPpo>; Fri, 14 Sep 2001 11:45:44 -0400
-Date: Fri, 14 Sep 2001 17:46:43 +0200
-From: Matthias Haase <matthias_haase@bennewitz.com>
-To: "James Washer" <washer@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: repeatable SMP lockups - kernel 2.4.9
-Message-Id: <20010914174643.776e1d22.matthias_haase@bennewitz.com>
-In-Reply-To: <OF21F37EC6.10570427-ON88256AC7.0052A32C@boulder.ibm.com>
-In-Reply-To: <OF21F37EC6.10570427-ON88256AC7.0052A32C@boulder.ibm.com>
-X-Operating-System: linux smp kernel 2.4* on i686
-X-Mailer: Sylpheed
+	id <S273419AbRINQGr>; Fri, 14 Sep 2001 12:06:47 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:33682 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S273418AbRINQGd>;
+	Fri, 14 Sep 2001 12:06:33 -0400
+From: Matthias Kramm <matthias.kramm@stud.tu-muenchen.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ISOFS corrupt filesizes
+Message-ID: <20010914180744.A11125@stud.tu-muenchen.de>
+In-Reply-To: <20010914145352.A9952@stud.tu-muenchen.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010914145352.A9952@stud.tu-muenchen.de>; from matthias.kramm@stud.tu-muenchen.de on Fri, Sep 14, 2001 at 02:54:17PM +0200
+X-Mutt-References: <20010914145352.A9952@stud.tu-muenchen.de>
+Date: Fri, 14 Sep 2001 18:06:55 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Jim...
+> I came across a (commercial) DVD with an ISOFS Filesystem on it and filesizes
+> bigger than 1M.
+> (...)
+> My personal guess would be that the assumption that iso files can't be
+> bigger than 1M unless the CD-ROM is defective is wrong.
+> (I don't know where the 1M comes from. 2M sounds more logical to me,
+>  however)
+> (...)
 
-> have you enable Magic Sysrq, and attempted to get a register dump
-> (Alt-Sysrq-p)..
+Please substitute 1M with 1G and 2M with 2G. Thank you. (My fault, sorry :) )
 
-Alt-Sysrq-* doesn't work at this time. Couldn't do a
-sync/mount/read-only/boot or get a dump with 'p'.
+Greetings
 
-regards
+Matthias
 
-                          Matthias
-
--- 
-Gruesse
-
-
-Matthias Haase            | Telefon +49-(0)3733-23713
-Markt 2                   | Telefax +49-(0)3733-22660
-                          |
-D-09456 Annaberg-Buchholz | http://www.bennewitz.com
 

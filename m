@@ -1,72 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318158AbSG2VAG>; Mon, 29 Jul 2002 17:00:06 -0400
+	id <S318163AbSG2VBk>; Mon, 29 Jul 2002 17:01:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318159AbSG2VAG>; Mon, 29 Jul 2002 17:00:06 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27654 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318158AbSG2VAE>;
-	Mon, 29 Jul 2002 17:00:04 -0400
-Message-ID: <3D45AD1B.864458B@zip.com.au>
-Date: Mon, 29 Jul 2002 14:01:15 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
+	id <S318164AbSG2VBk>; Mon, 29 Jul 2002 17:01:40 -0400
+Received: from eamail1-out.unisys.com ([192.61.61.99]:47286 "EHLO
+	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
+	id <S318163AbSG2VBh>; Mon, 29 Jul 2002 17:01:37 -0400
+Message-ID: <3FAD1088D4556046AEC48D80B47B478C0101F3AE@usslc-exch-4.slc.unisys.com>
+From: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
+To: "'Matthew Wilcox'" <willy@debian.org>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-ia64@linuxia64.org'" <linux-ia64@linuxia64.org>
+Subject: RE: [Linux-ia64] Linux kernel deadlock caused by spinlock bug
+Date: Mon, 29 Jul 2002 16:05:35 -0500
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH 2.5] Introduce 64-bit versions of 
- PAGE_{CACHE_,}{MASK,ALIGN}
-References: <5.1.0.14.2.20020728193528.04336a80@pop.cus.cam.ac.uk> <Pine.LNX.4.44.0207281622350.8208-100000@home.transmeta.com> <3D448808.CF8D18BA@zip.com.au> <20020729004942.GL1201@dualathlon.random> <3D44A2DF.F751B564@zip.com.au> <20020729205211.GB1201@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
+> On Mon, Jul 29, 2002 at 03:37:17PM -0500, Van Maren, Kevin wrote:
+> > I changed the code to allow the writer bit to remain set even if
+> > there is a reader.  By only allowing a single processor to set
+> > the writer bit, I don't have to worry about pending writers starving
+> > out readers.  The potential writer that was able to set the 
+> writer bit
+> > gains ownership of the lock when the current readers finish.  Since
+> > the retry for read_lock does not keep trying to increment the reader
+> > count, there are no other required changes.
 > 
-> On Sun, Jul 28, 2002 at 07:05:19PM -0700, Andrew Morton wrote:
-> > But yes, all of this is a straight speed/space tradeoff.  Probably
-> > some of it should be ifdeffed.
+> however, this is broken.  linux relies on being able to do
 > 
-> I would say so. recalculating page_address in cpu core with no cacheline
-> access is one thing, deriving the index is a different thing.
+> read_lock(x);
+> func()
+>   -> func()
+>        -> func()
+>             -> read_lock(x);
 > 
-> > The cost of the tree walk doesn't worry me much - generally we
-> > walk the tree with good locality of reference, so most everything is
-> > in cache anyway.
+> if a writer comes between those two read locks, you're toast.
 > 
-> well, the rbtree showedup heavily when it started growing more than a
-> few steps, it has less locality of reference though.
-> 
-> >    Good luck setting up a testcase which does this ;)
-> 
-> a gigabit will trigger it in a millisecond. of course nobody tested it
-> either I guess (I guess not many people tested the 800Gbyte offset
-> either in the first place).
+> i suspect the right answer for the contention you're seeing 
+> is an improved
+> get_timeofday which is lockless.
 
-There's still the mempool.
+Recursive read locks certainly make it more difficult to fix the
+problem.  Placing a band-aid on gettimeofday will fix the symptom
+in one location, but will not fix the general problem, which is
+writer starvation with heavy read lock load.  The only way to fix
+that is to make writer locks fair or to eliminate them (make them
+_all_ stateless).
 
-We could perform a GFP_KERNEL replenishment of the ratnode mempool
-after the page_cache_alloc(), and before taking any locks, if
-that's needed.
+Recursive read locks also imply that you can't replace them with
+a "normal" spinlock, which would also solve the problem (although
+they do _not_ scale under contention -- something like O(N^2)
+cache-cache transfers for N processors to acquire once).
 
-> > Then again, Andi says that sizeof(struct page) is a problem for
-> > x86-64.
-> 
-> not true.
-> 
-> > No recursion needed, no allocations needed.
-> 
-> the 28 bytes if they're on the stack they're like recursion, just using
-> an interactive algorithm.
-> 
-> you're done with 28 bytes with a max 7/8 level tree, so 7*4 = 28 (4 size
-> of pointer/long). On a 32bit arch the max index supported is
-> 2^32, on a 64bit arch the max index supported is
-> 2^(64-PAGE_CACHE_SHFIT), plus each pointer is 8 bytes. You may want to
-> do the math to verify if you've enough stack to walk the tree in order,
-> it's not obvious.
+There are ways of fixing the writer starvation and allowing recursive
+read locks, but that is more work (and heavier-weight than desirable).
+How pervasive are recursive reader locks?  Should they be a special
+type of reader lock?
 
-I make that 144 bytes of stack.
-
--
+Kevin

@@ -1,36 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267219AbUHSSnK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267238AbUHSSnX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267219AbUHSSnK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 14:43:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267235AbUHSSnK
+	id S267238AbUHSSnX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 14:43:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267235AbUHSSnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 14:43:10 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:9119 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S267219AbUHSSnI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 14:43:08 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: kernbench on 512p
-Date: Thu, 19 Aug 2004 14:42:29 -0400
-User-Agent: KMail/1.6.2
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org
-References: <200408191216.33667.jbarnes@engr.sgi.com> <200408191237.16959.jbarnes@engr.sgi.com> <253460000.1092939952@flay>
-In-Reply-To: <253460000.1092939952@flay>
+	Thu, 19 Aug 2004 14:43:23 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:18109 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S267237AbUHSSnU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 14:43:20 -0400
+Message-ID: <4124F479.90905@rtr.ca>
+Date: Thu, 19 Aug 2004 14:42:01 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: new tool:  blktool
+References: <411FD744.2090308@pobox.com> <4120E693.8070700@pobox.com> <4124C135.7050200@rtr.ca> <200408191751.19101.bzolnier@elka.pw.edu.pl> <4124E701.5020905@rtr.ca> <4124E9F6.6030000@pobox.com> <4124EB91.60706@rtr.ca> <4124ED87.6040702@pobox.com>
+In-Reply-To: <4124ED87.6040702@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408191442.29578.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, August 19, 2004 2:25 pm, Martin J. Bligh wrote:
-> Does lockmeter not work for you? It's sitting in my tree still, and
-> Andrew's last time I looked.
+Yup, that's how I implemented it:  they just piggy back onto
+the ATA Passthrough feature.
 
-I haven't tried it recently.  I'm building a kernel with lockmetering enabled 
-now.
-
-Jesse
+Cheers
+-- 
+Mark Lord
+(hdparm keeper & the original "Linux IDE Guy")

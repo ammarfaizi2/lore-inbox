@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318377AbSGYI6v>; Thu, 25 Jul 2002 04:58:51 -0400
+	id <S318399AbSGYJKn>; Thu, 25 Jul 2002 05:10:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318375AbSGYI6r>; Thu, 25 Jul 2002 04:58:47 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:23814 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S318372AbSGYI6S>; Thu, 25 Jul 2002 04:58:18 -0400
-Message-ID: <3D3FBD21.2020607@evision.ag>
-Date: Thu, 25 Jul 2002 10:56:01 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: martin@dalecki.de, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       William Lee Irwin III <wli@holomorphy.com>,
+	id <S318401AbSGYJKn>; Thu, 25 Jul 2002 05:10:43 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:14586 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318399AbSGYJKm>; Thu, 25 Jul 2002 05:10:42 -0400
+Subject: Re: Safety of IRQ during i/o
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: martin@dalecki.de
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Pete Zaitcev <zaitcev@redhat.com>, Bill Davidsen <davidsen@tmr.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [RFC/CFT] cmd640 irqlocking fixes
-References: <20020724225826.GF25038@holomorphy.com> <1027559111.6456.34.camel@irongate.swansea.linux.org.uk> <20020725095448.B21541@ucw.cz> <3D3FB6C8.1070409@evision.ag> <20020725105538.B21927@ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+In-Reply-To: <3D3FAEB1.6070704@evision.ag>
+References: <Pine.SOL.4.30.0207250041400.15959-100000@mion.elka.pw.edu.pl> 
+	<3D3FAEB1.6070704@evision.ag>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 25 Jul 2002 11:26:24 +0100
+Message-Id: <1027592784.9489.11.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> On Thu, Jul 25, 2002 at 10:28:56AM +0200, Marcin Dalecki wrote:
+On Thu, 2002-07-25 at 08:54, Marcin Dalecki wrote:
+> > Yup, for PIO unmask (if possible) is a must.
 > 
->>Vojtech Pavlik wrote:
->>
->>
->>>The kernel functions are OK. The problem is that the kernel can use
->>>PCIBIOS calls to set the registers. And certain old buggy BIOSes which
->>>violate the PCI spec can use wrong size data transfers to set the
->>>registers, which the CMD640 doesn't like.
->>>
->>>IMHO the best workaround here would be either to disable PCIBIOS calls
->>>and revert to conf1 or conf2 in the PCI code if a CMD640 is present, or
->>>just panic() in the CMD640 code and suggest to the user to use
->>>"pci=nobios" on the kernel command line. I'd actually prefer the later.
->>>
->>
->> From a long long time ago during the first days of this driver I 
->>remember that those chips could be wired to both PCI and VLB(ISA) bus.
->>And this is the main reaons why the functions is question exist in first 
->>place -> "emulating" PCI configuration space access on VLB.
-> 
-> 
-> No. For VLB the CMD640 has a somewhat different configuration method.
-> See the source. ;) We really should be using pci_write_config_* and
-> create vlb_write_config_* in CMD640 for the VLB accesses, panic() in
-> case we have a PCI system that uses BIOS and we found a CMD640, and
-> remove the duplicate PCI conf1 and PCI conf2 code from cmd640.c
+> It's even for DMA a good thing, since the IRQ handler in question can
+> reenter the RQ handler. The invention of the not unmasking
+> behaviour in Linux is the result of some not entierly ATA-2 compliant
+> devices long long time ago gone. Basically XT disks on PC. They did have 
+> the habbit of splewing IRQs too early for command ACK.
 
-OK. Right. We have to touch this code anyway. Do you know first hand how
-to detect programmatically which configuration method is in charge? If 
-not I can look it up on my own..
+There are also some older systems where if the block transfer of the IDE
+data didn't keep up with the controller instead of handshaking properly
+it kind of dribbled random numbers onto the disk.
+
+Unless anyone knows of PCI era devices with this problem I would be
+inclined to agree that we should default to IRQ unmasking in the 2.5 IDE
+code if the IDE controller is PCI.
+
+For old ISA/VLB controllers its safer left as is, and nobody running a
+machine like that can realistically expect good performance without hand
+tuning stuff anyway
 

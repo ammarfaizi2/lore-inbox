@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262508AbREUWBo>; Mon, 21 May 2001 18:01:44 -0400
+	id <S262510AbREUWCE>; Mon, 21 May 2001 18:02:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262506AbREUWBZ>; Mon, 21 May 2001 18:01:25 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:65034 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262505AbREUWBS>; Mon, 21 May 2001 18:01:18 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: tmpfs + sendfile bug ?
-Date: 21 May 2001 15:01:05 -0700
-Organization: A poorly-installed InterNetNews site
-Message-ID: <9ec371$gqn$1@penguin.transmeta.com>
-In-Reply-To: <XFMail.20010521183553.petchema@concept-micro.com> <m3bsomwsgs.fsf@linux.local>
+	id <S262509AbREUWBz>; Mon, 21 May 2001 18:01:55 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19977 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262505AbREUWBn>; Mon, 21 May 2001 18:01:43 -0400
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+To: viro@math.psu.edu (Alexander Viro)
+Date: Mon, 21 May 2001 22:56:35 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), pavel@suse.cz (Pavel Machek),
+        rgooch@ras.ucalgary.ca (Richard Gooch),
+        matthew@wil.cx (Matthew Wilcox), clausen@gnu.org (Andrew Clausen),
+        bcrl@redhat.com (Ben LaHaise), torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0105211745490.12245-100000@weyl.math.psu.edu> from "Alexander Viro" at May 21, 2001 05:51:08 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E151xfH-0000xg-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <m3bsomwsgs.fsf@linux.local>, Christoph Rohland  <cr@sap.com> wrote:
->
->tmpfs does not provide the necessary functions for sendfile and lo:
->readpage, prepare_write and commitwrite.
->
->And I do not see a way how to provide readpage in tmpfs :-(
+> Sure. But we have to do two syscalls only if ioctl has both in- and out-
+> arguments that way. Moreover, we are talking about non-trivial in- arguments.
+> How many of these are in hotspots?
 
-Why not just do it the same way ramfs does?
+There is also a second question. How do you ensure the read is for the right 
+data when you are sharing a file handle with another thread..
 
-If you don't have any backing store, you know that the page is empty. If
-you _do_ have backing store, a readpage() won't be called. Ergo:
+ioctl() has the nice property that an in/out ioctl is implicitly synchronized
 
-	static int ramfs_readpage(struct file *file, struct page * page)
-	{
-		if (!Page_Uptodate(page)) {
-			memset(kmap(page), 0, PAGE_CACHE_SIZE);
-			kunmap(page);
-			flush_dcache_page(page);   
-			SetPageUptodate(page);
-		}
-		UnlockPage(page);
-		return 0;
-	}
-
-while the writepage ones just do a "SetPageDirty(page)" (with
-prepare_write() needing to do the same "Page_Uptodate()" checks to see
-if we need to clear stuff first).
-
-		Linus

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316768AbSHJJsk>; Sat, 10 Aug 2002 05:48:40 -0400
+	id <S316753AbSHJJro>; Sat, 10 Aug 2002 05:47:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316770AbSHJJsk>; Sat, 10 Aug 2002 05:48:40 -0400
-Received: from keyaki.cc.u-tokai.ac.jp ([150.7.3.4]:17629 "HELO
-	keyaki.cc.u-tokai.ac.jp") by vger.kernel.org with SMTP
-	id <S316768AbSHJJsj>; Sat, 10 Aug 2002 05:48:39 -0400
-Date: Sat, 10 Aug 2002 18:52:16 +0900
-From: Naohiko Shimizu <nshimizu@keyaki.cc.u-tokai.ac.jp>
-To: linux-kernel@vger.kernel.org
-Subject: Super Page Kernel patch seems to work on i386 too. Call for testers.
-Message-Id: <20020810185216.0af0ed5c.nshimizu@keyaki.cc.u-tokai.ac.jp>
-Organization: Tokai University
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-vine-linux)
+	id <S316757AbSHJJro>; Sat, 10 Aug 2002 05:47:44 -0400
+Received: from aba.krakow.pl ([62.233.163.30]:55460 "HELO two.aba.krakow.pl")
+	by vger.kernel.org with SMTP id <S316753AbSHJJrn>;
+	Sat, 10 Aug 2002 05:47:43 -0400
+Date: Sat, 10 Aug 2002 11:51:26 +0200
+From: =?iso-8859-2?Q?Pawe=B3?= Krawczyk <kravietz@aba.krakow.pl>
+To: zhengchuanbo <zhengcb@netpower.com.cn>
+Cc: "linux-kernel @ vger. kernel. org" <linux-kernel@vger.kernel.org>
+Subject: Re: about the tuning of eepro100
+Message-ID: <20020810095126.GF21239@aba.krakow.pl>
+References: <200208101742654.SM00824@zhengcb>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200208101742654.SM00824@zhengcb>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In addition to the Alpha and Sparc64, we now support i386.
-The patch is just uploaded on our web.
-Feel free to download and test it.
+On Sat, Aug 10, 2002 at 05:38:39PM +0800, zhengchuanbo wrote:
 
-Be sure to try the 020810 version on:
-http://shimizu-lab.dt.u-tokai.ac.jp/lsp.html
+> so i think the limit is at the eepro100 card. is there any way to improve the throughput? or someone got a higher throughput then that?
+> the eepro100 chip is 82559.
 
-Our university will shutdown the electricity at monday(8/12),
-then I will shutdown the web tomorrow(8/11 JST).
-The power will turn on again at 8/14.
-Sorry for the inconvenient.
+Use e100 driver from Intel [1] with the following parameters:
 
-Regards,
+insmod e100.o BundleSmallFr=1 IntDelay=0x600 ucode=1
+
+Intel's driver supports all the interrupt saving features (interrupt
+delay and small packet bundling) present in EEPro/100 cards. The driver
+is now GPL, so it should get back to the mainstream kernel.
+
+[1] http://downloadfinder.intel.com/scripts-df/Detail_Desc.asp?ProductID=417&DwnldID=2896
+
 -- 
-
-Naohiko Shimizu
-Department of Communications Engineering,
-School of Information Technology and Electronics, Tokai University
-1117 Kitakaname Hiratsuka 259-1292 Japan
-TEL.+81-463-58-1211(ext. 4084) FAX.+81-463-58-8320
-http://shimizu-lab.dt.u-tokai.ac.jp/
-
+Pawe³ Krawczyk, Kraków, Poland  http://echelon.pl/kravietz/
+crypto: http://ipsec.pl/
+horses: http://kabardians.com/

@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263733AbUG2HrW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266558AbUG2HzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263733AbUG2HrW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 03:47:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266580AbUG2HrW
+	id S266558AbUG2HzW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 03:55:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267191AbUG2HzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 03:47:22 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:34009 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263733AbUG2HrU (ORCPT
+	Thu, 29 Jul 2004 03:55:22 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9695 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266558AbUG2HzQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 03:47:20 -0400
-Message-ID: <4108AB1A.1050706@redhat.com>
-Date: Thu, 29 Jul 2004 00:45:30 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040728
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Peter Chubb <peter@chubb.wattle.id.au>
-CC: viro@parcelfarce.linux.theplanet.co.uk,
-       "David S. Miller" <davem@redhat.com>, Chris Wedgwood <cw@f00f.org>,
+	Thu, 29 Jul 2004 03:55:16 -0400
+Date: Thu, 29 Jul 2004 09:54:29 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Chris Caputo <ccaputo@alt.net>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: stat very inefficient
-References: <233602095@toto.iv>	<16648.10711.200049.616183@wombat.chubb.wattle.id.au>	<20040728154523.20713ef1.davem@redhat.com>	<20040729000837.GA24956@taniwha.stupidest.org>	<20040728171414.5de8da96.davem@redhat.com>	<20040729002924.GK12308@parcelfarce.linux.theplanet.co.uk> <16648.42669.907048.112765@wombat.chubb.wattle.id.au>
-In-Reply-To: <16648.42669.907048.112765@wombat.chubb.wattle.id.au>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Subject: Re: inode_unused list corruption in 2.4.26 - spin_lock problem?
+Message-ID: <20040729075429.GA15700@devserv.devel.redhat.com>
+References: <20040729002535.GA5145@logos.cnet> <Pine.LNX.4.44.0407282325460.30510-100000@nacho.alt.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0407282325460.30510-100000@nacho.alt.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Chubb wrote:
 
-> With hot cache the system time is really small.
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-But this is not all you'll have to look at.
+On Wed, Jul 28, 2004 at 11:27:41PM -0700, Chris Caputo wrote:
+> On Wed, 28 Jul 2004, Marcelo Tosatti wrote:
+> > Changing the affinity writes new values to the IOAPIC registers, I can't see
+> > how that could interfere with the atomicity of a spinlock operation. I dont
+> > understand why you think irqbalance could affect anything.
+> 
+> Because when I stop running irqbalance the crashes no longer happen.
 
-Single application performs does not really tell the whole story.  If
-you touch more memory, more cache is used.  In SMP machines the cost of
-cacheline transfers are added.  And in multi-core processors the cores
-even share some cache which means every bit used might decrease system
-performance ever so slightly.
+what is the irq distribution when you do that?
+Can you run irqbalance for a bit to make sure there's a static distribution
+of irq's and then disable it and see if it survives ?
 
-If the added complexity is manageable the avoided memory operations
-should be a win even if you cannot directly measure it.
+--PNTmBPCT7hxwcZjr
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFBCK01xULwo51rQBIRAiATAKCYFz29MmIgcc4JbL6WuegQ5JrCzgCgqeP+
+vguwGF1sYuQw9lbMNL9xrKE=
+=Rcqz
+-----END PGP SIGNATURE-----
+
+--PNTmBPCT7hxwcZjr--

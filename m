@@ -1,91 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311121AbSDDGzy>; Thu, 4 Apr 2002 01:55:54 -0500
+	id <S311264AbSDDHAz>; Thu, 4 Apr 2002 02:00:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311239AbSDDGzo>; Thu, 4 Apr 2002 01:55:44 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:34022 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S311121AbSDDGz1>; Thu, 4 Apr 2002 01:55:27 -0500
-X-Uptime: 3:54pm  up 2 days,  4:55,  2 users,  load average: 0.05, 0.01, 0.00
-X-OS: Linux hazuki 2.4.17 #5 SMP Tue Feb 19 12:06:25 JST 2002 i686 unknown
-To: linux-kernel@vger.kernel.org
-Cc: jt@hpl.hp.com, dhinds@zen.stanford.edu
-Subject: [PATCH] 2.5.8-pre1 wavelan_cs
-X-Organization: IOS
-X-Disclaimer: My opinions do not necessarily represent anything ...err those of my employer
-Content-Type: text/plain; charset=US-ASCII
-From: flaniganr@intel.co.jp
-Date: 04 Apr 2002 15:54:14 +0900
-Message-ID: <87vgb8x8bt.fsf@hazuki.jp.intel.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+	id <S311244AbSDDHAq>; Thu, 4 Apr 2002 02:00:46 -0500
+Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:23936 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S311239AbSDDHAl>;
+	Thu, 4 Apr 2002 02:00:41 -0500
+Message-ID: <3CABFA10.9060707@tmsusa.com>
+Date: Wed, 03 Apr 2002 23:00:32 -0800
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020403
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+CC: arjan@fenrus.demon.nl, "Axel H. Siebenwirth" <axel@hh59.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Another BUG in page_alloc.c:108
+In-Reply-To: <Pine.LNX.4.44.0204040817240.10620-100000@netfinity.realnet.co.sz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+OK, I was all wet - so the nvidia driver is
+implicated after all...
 
-not sure if i did this right, so if you 
-have any suggestions/comments please tell me.
+Joe
 
-Basically 2.5.8-pre1 fails to compile with:
+Zwane Mwaikambo wrote:
 
-In file included from wavelan_cs.c:59:
-wavelan_cs.p.h:495:33: warning: extra tokens at end of #undef directive
-wavelan_cs.c: In function `wv_pcmcia_config':
-wavelan_cs.c:4480: structure has no member named `rmem_start'
-wavelan_cs.c:4482: structure has no member named `rmem_end'
-make[3]: *** [wavelan_cs.o] Error 1
+>On Wed, 3 Apr 2002 arjan@fenrus.demon.nl wrote:
+>
+>>In article <20020403035406.GA2925@neon> you wrote:
+>>
+>>>EIP:    0010:[__free_pages_ok+45/688]    Tainted: P 
+>>>
+>>Nvidia ? 
+>>I get the distinct impression that the lastest nvidia drivers
+>>reintroduced a bug that fubars the page allocator ;(
+>>
+>
+>The latest nvidia stuff definately spews major chunks on its way out...
+>
+>This is on 2.4.19-pre2-ac3, backing upto the previous release nvidia 
+>drivers i can't reproduce.
+>
+>invalid operand: 0000
+>CPU:    0
+>EIP:    0010:[<c0130c47>]    Not tainted
+>EFLAGS: 00013282
+>eax: 00000000   ebx: c15f94b0   ecx: c100000c   edx: db140eb0
+>esi: 00000000   edi: 00000000   ebp: 00007000   esp: deb35edc
+>ds: 0018   es: 0018   ss: 0018
+>Process X (pid: 1457, stackpage=deb35000)
+>Stack: c0306380 c15f94b0 00000000 00000001 c15f94b0 00008000 c15f94b0 
+>c15f94b0 
+>       00008000 debb5688 00007000 c0124782 c15f94b0 1d68d027 00000008 
+>00000000 
+>       425a3000 de793424 4259b000 00000000 425a3000 de793424 dfffcd50 
+>dec00420 
+>Call Trace: [<c0124782>] [<c01270ed>] [<c01271a2>] [<c0106f2b>] 
+>
+>Code: 0f 0b c6 43 24 05 8b 43 18 89 f1 83 e0 eb 89 43 18 c1 e8 18
+>
+>>>EIP; c0130c47 <__free_pages_ok+97/250>   <=====
+>>>
+>Trace; c0124782 <zap_page_range+192/260>
+>Trace; c01270ed <do_munmap+1ed/270>
+>Trace; c01271a2 <sys_munmap+32/50>
+>Trace; c0106f2b <system_call+33/38>
+>Code;  c0130c47 <__free_pages_ok+97/250>
+>00000000 <_EIP>:
+>Code;  c0130c47 <__free_pages_ok+97/250>   <=====
+>   0:   0f 0b                     ud2a      <=====
+>Code;  c0130c49 <__free_pages_ok+99/250>
+>   2:   c6 43 24 05               movb   $0x5,0x24(%ebx)
+>Code;  c0130c4d <__free_pages_ok+9d/250>
+>   6:   8b 43 18                  mov    0x18(%ebx),%eax
+>Code;  c0130c50 <__free_pages_ok+a0/250>
+>   9:   89 f1                     mov    %esi,%ecx
+>Code;  c0130c52 <__free_pages_ok+a2/250>
+>   b:   83 e0 eb                  and    $0xffffffeb,%eax
+>Code;  c0130c55 <__free_pages_ok+a5/250>
+>   e:   89 43 18                  mov    %eax,0x18(%ebx)
+>Code;  c0130c58 <__free_pages_ok+a8/250>
+>  11:   c1 e8 18                  shr    $0x18,%eax
+>
+>0xc0130c40 <__free_pages_ok+144>:       mov    0x28(%ebx),%edx
+>0xc0130c43 <__free_pages_ok+147>:       test   %edx,%edx
+>0xc0130c45 <__free_pages_ok+149>:       je     0xc0130c49 
+><__free_pages_ok+153>
+>0xc0130c47 <__free_pages_ok+151>:       ud2a
+>
+>if (page->pte_chain)
+>                BUG();
+>
+>
 
-due to the removal of rmem_{start,end} from net_device.
-here is the patch [tested]:
-
-diff -ru a/drivers/net/wireless/wavelan_cs.c b/drivers/net/wireless/wavelan_cs.c
---- a/drivers/net/wireless/wavelan_cs.c Tue Mar 19 05:37:16 2002
-+++ b/drivers/net/wireless/wavelan_cs.c Thu Apr  4 13:17:43 2002
-@@ -4383,6 +4383,7 @@
-   tuple_t              tuple;
-   cisparse_t           parse;
-   struct net_device *  dev;
-+  struct net_local *   lp;
-   int                  i;
-   u_char               buf[64];
-   win_req_t            req;
-@@ -4390,6 +4391,7 @@
-
-   handle = link->handle;
-   dev = (device *) link->priv;
-+  lp = (net_local *)dev->priv;
-
- #ifdef DEBUG_CONFIG_TRACE
-   printk(KERN_DEBUG "->wv_pcmcia_config(0x%p)\n", link);
-@@ -4477,9 +4479,9 @@
-          break;
-        }
-
--      dev->rmem_start = dev->mem_start =
-+      lp->rmem_start = dev->mem_start =
-          (u_long)ioremap(req.Base, req.Size);
--      dev->rmem_end = dev->mem_end = dev->mem_start + req.Size;
-+      lp->rmem_end = dev->mem_end = dev->mem_start + req.Size;
-
-       mem.CardOffset = 0; mem.Page = 0;
-       i = CardServices(MapMemPage, link->win, &mem);
-diff -ru a/drivers/net/wireless/wavelan_cs.p.h b/drivers/net/wireless/wavelan_cs.p.h
---- a/drivers/net/wireless/wavelan_cs.p.h       Tue Mar 19 05:37:09 2002
-+++ b/drivers/net/wireless/wavelan_cs.p.h       Thu Apr  4 14:05:43 2002
-@@ -638,6 +638,9 @@
-   int          rfp;            /* Last DMA machine receive pointer */
-   int          overrunning;    /* Receiver overrun flag */
-
-+  unsigned long rmem_start;
-+  unsigned long rmem_end;
-+
- #ifdef WIRELESS_EXT
-   iw_stats     wstats;         /* Wireless specific stats */
- #endif
 
 
-
-
--- 
-
-----

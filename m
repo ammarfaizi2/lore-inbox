@@ -1,61 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263851AbUANWHR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 17:07:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUANWHR
+	id S264310AbUANWMn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 17:12:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264342AbUANWMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 17:07:17 -0500
-Received: from kluizenaar.xs4all.nl ([213.84.184.247]:18736 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S263851AbUANWHM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 17:07:12 -0500
-Message-ID: <4005BD8D.4090806@samwel.tk>
-Date: Wed, 14 Jan 2004 23:07:09 +0100
-From: Bart Samwel <bart@samwel.tk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Wed, 14 Jan 2004 17:12:43 -0500
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:20548 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S264310AbUANWMj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 17:12:39 -0500
+To: James Morris <jmorris@redhat.com>
+Cc: linux-kernel@vger.kernel.org, <linux-scsi@vger.kernel.org>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: [PATCH] Add CRC32C chksums to crypto routines
+References: <Xine.LNX.4.44.0401141643560.12649-100000@thoron.boston.redhat.com>
+From: Clay Haapala <chaapala@cisco.com>
+Organization: Cisco Systems, Inc. SRBU
+Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAHlBMVEXl5ufMrp3a4OLr6ujO
+ lXzChGmsblZzRzjF1+ErFRAz+KIaAAACVElEQVR4nG3TQW/aMBQAYC9IO88dguyWUomqt0DQ
+ do7koO22SXFQb6uE7XIMKrFya+mhPk8D43+79+wMyrp3gnx59nvxMxmNEnIWycgH+U9E55CO
+ rkZJ8hYipbXTdfcvQK/Xy6JF2zqI+qpbjZAszSDG2oXYp0FI5mOqbAeuDtLBdeuO8fNVxkzr
+ E9jklKEgQWsppYYf9v4IE3i/4RiVRPneQTpoXSM8QA7un3QZQ2cl54wXIH7VDwEmrdOiZBgF
+ V5BiLwLM4B3BS0ZpB24d4IvzW+QIc7/JIcAQIadF2eeUzn3FAa6xWFYUotjIRmLB7vEvCC4t
+ VAugpTrC2FleLBm2wVnlAc7Dl2u5L1UozgWCjTxMW+vb4GVVFhWWFSCdKmgDMhaNFoxL3bSH
+ rc/Irn1/RcWlh+UqNgHeNwishJ1L6LCpjdmGz76RmFGyuSwLgLUxJhyUlLA7fHMpeSGVPsFA
+ wqtK4voI8RE+I3DsDpfamSNMpIBTKrF1yIpPMA0AzQPU5gSwCTyC/aEAtX4NM6gLM3CCziBT
+ jRR+StQ/AA8a7AMuwxn0YAmcRKnVGwDRiOcw3uMWlajgAJsAPbw4OIpwrH3/vdq9B7hpl7GD
+ w61A4PxwSqyH9J25gePnYdqhYjjZ5s6QCb3bwvOLJWPBFvCvWVDSthYmcff44IcacOUOt1Yv
+ yGCF1+twuQtQCPjzZIaK/Lrx9+6b7TKEdXTwgz8R+uJv5K1jOcWMnO7NJ3v/QlprnzP1deUe
+ 8j4CpVE82MRj4j5SHGDnfvul8uGwjqNnpf4Ak4pzJDIy3lkAAAAASUVORK5CYII=
+Date: Wed, 14 Jan 2004 16:12:31 -0600
+In-Reply-To: <Xine.LNX.4.44.0401141643560.12649-100000@thoron.boston.redhat.com> (James
+ Morris's message of "Wed, 14 Jan 2004 16:45:49 -0500 (EST)")
+Message-ID: <yqujzncq2n8w.fsf@chaapala-lnx2.cisco.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.5 (celeriac, linux)
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?J=FCrgen_Scholz?= <juergen@scholz-gmbh.cc>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Hude read/write cache
-References: <BC2B59C1.2E87%juergen@scholz-gmbh.cc>
-In-Reply-To: <BC2B59C1.2E87%juergen@scholz-gmbh.cc>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jürgen,
-
-You could take a look at laptop-mode. This a patch that defers disk writes, so that your disks can 
-remain spun down for longer than just a couple of seconds. I've actually done the port of this patch 
-to Linux 2.6 because I wanted to achieve exactly what you want to achieve. Be aware though that most 
-HDs have a VERY LIMITED amount of spinups/spindowns in them, about 50K for most desktop drives 
-(which translates to about once every two hours over a 6-year lifetime). This is why I've actually 
-abandoned my original goal -- I couldn't get my spindown frequency below about twice per hour, so 
-that would kill my drives. If you care for your drives and your data, make ABSOLUTELY SURE that your 
-drive doesn't spin up more than once every two hours on average. And if you can't make that happen, 
-don't do it, find a quiet drive+case+fan+etc instead. Good luck!
-
--- Bart
-
-Jürgen Scholz wrote:
-> Hello!
+On Wed, 14 Jan 2004, James Morris stated:
+> On Wed, 14 Jan 2004, Clay Haapala wrote:
 > 
-> I got a small server, which main purpose is routing and dialup besides being
-> a repository for files. This system is very noisy. Because of that I want to
-> stop the disks from spinning, when the system is in regular usage (standby,
-> routing..). This should happen through a read and write cache which keeps
-> the most often used files in RAM (like log files, bash, ...), so that there
-> is no need for the system to access the (physical) hard drive.
-> I would like to use a regular filesystem with a sort of transparent cache.
-> Any ideas?
+>> This patch against 2.6.1 adds CRC32C checksumming capabilities to
+>> the crypto routines.  The structure of it is based wholly on the
+>> existing digest (md5) routines, the main difference being that
+>> chksums are often used in an "accumulator" fashion, effectively
+>> requiring one to set the seed, and the digest algorithms don't do
+>> that.
 > 
-> Ciao,
-> Jürgen
+> This looks interesting; do you know of any other chksum algorithms
+> which might need to be implemented in the kernel?
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I reference the one other user of CRC32C in my code, that would be the
+sctp network driver, at this time.
+
+Of course, there is library/crc32, which I did make an attempt to
+implement companion code to it, but we really need the "work over
+scatterlists" feature of the crypto routines.
+
+I took the design goals the of the library/crc32 routines (flexible
+XOR policy, flexible initial values) and tried to allow that in the
+crypto chksum routines.  CRC32 could be moved into it, but the uses of
+CRC32 are often quick accumulation over packet fragments, rather than
+computing digests over scatterlists describing would can be many K of
+data.
+-- 
+Clay Haapala (chaapala@cisco.com) Cisco Systems SRBU +1 763-398-1056
+   6450 Wedgwood Rd, Suite 130 Maple Grove MN 55311 PGP: C89240AD
+	 Funny, I didn't think Haliburton was into aerospace.

@@ -1,39 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264542AbTF0Rhq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 13:37:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264543AbTF0Rhq
+	id S264543AbTF0Rif (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 13:38:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264544AbTF0Rif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 13:37:46 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:16519
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264542AbTF0Rhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 13:37:45 -0400
-Subject: Re: AC97 and i810 problem
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Paladin <paladin@utopia.ddts.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030627182130.07c087a8.paladin@utopia.ddts.net>
-References: <20030627182130.07c087a8.paladin@utopia.ddts.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1056736144.3172.60.camel@dhcp22.swansea.linux.org.uk>
+	Fri, 27 Jun 2003 13:38:35 -0400
+Received: from csl2.consultronics.on.ca ([204.138.93.2]:13448 "EHLO
+	csl2.consultronics.on.ca") by vger.kernel.org with ESMTP
+	id S264543AbTF0Ri0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 13:38:26 -0400
+Date: Fri, 27 Jun 2003 13:52:27 -0400
+From: Greg Louis <glouis@dynamicro.on.ca>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.4.21-ac3 nfs v3 malfunctioning, -ac2 ok
+Message-ID: <20030627175227.GA5449@athame.dynamicro.on.ca>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 27 Jun 2003 18:49:04 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Organization: Dynamicro Consulting Limited
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-06-27 at 18:21, Paladin wrote:
-> Hi,
-> 
-> I've recently installed the 2.4.21 kernel. But with this version I
-> don't have sound. That is, sound coming from the CD is played, but
-> all other isn't.
-> I don't know how I can help you discover the problem, so I'm asking
-> some assistance to better report the problem.
-> For now I'll show you what is returned when I install the modules:
+Problem summary: nfs v3 in -ac3 mishandles root directory exports:
+subdirectories exported with the nohide option are invisible to the
+client, and re-export on the server (exportfs -rv) shows exports of /
+failing with "Invalid parameter".
 
-Fixed in the -ac tree and will go to Marcelo soon
+Config info:
 
+NFS file system support (CONFIG_NFS_FS) [Y/m/n/?] 
+  Provide NFSv3 client support (CONFIG_NFS_V3) [Y/n/?] 
+  Allow direct I/O on NFS files (EXPERIMENTAL) (CONFIG_NFS_DIRECTIO) [N/y/?] 
+NFS server support (CONFIG_NFSD) [Y/m/n/?] 
+  Provide NFSv3 server support (CONFIG_NFSD_V3) [Y/n/?] 
+  Provide NFS server over TCP support (EXPERIMENTAL) (CONFIG_NFSD_TCP) [N/y/?] 
+
+nfs-utils-1.0.3
+
+Details:
+
+I've got 3 Linux boxes at home that allow nfs mounts of each other's
+root trees, and each server exports its other mounted subtrees
+with the "nohide" option so that they should be visible to the clients
+after the NFS mount of / is performed.
+
+With an -ac2 client and -ac2 server, this works fine.  Mounts succeed,
+clients can see, read and write into exported subtrees.
+
+With -ac3 client and server, when the server offers to export / to that
+client, an initial mount seems to work; however, the nohide option for
+subdirectories that are also exported does not.  The client can't see
+the contents of such subdirectories, and a write to the mount point by
+the client writes to the parent disk as if the mounted tree wasn't
+there.  Further, if one then does exportfs -rv on the server, exports
+of / to the kernel fail with "Invalid parameter" and the client can no
+longer mount / at all.
+
+With an -ac2 client and -ac3 server, the initial mounts of the server /
+are successful, and mounted-and-exported subdirectory trees are visible
+to the client; I didn't try re-exporting in this configuration.  With
+-ac2 on both ends, re-exporting is successful.
+
+The -ac2 tree's .config file was copied into the -ac3 tree and new
+options presented during 'make oldconfig' were declined.
+
+-- 
+| G r e g  L o u i s          | gpg public key: finger     |
+|   http://www.bgl.nu/~glouis |   glouis@consultronics.com |
+| http://wecanstopspam.org in signatures fights junk email |

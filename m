@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264528AbRFOVgU>; Fri, 15 Jun 2001 17:36:20 -0400
+	id <S264527AbRFOVfj>; Fri, 15 Jun 2001 17:35:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264531AbRFOVgN>; Fri, 15 Jun 2001 17:36:13 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:62459 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S264528AbRFOVf4>;
-	Fri, 15 Jun 2001 17:35:56 -0400
-Date: Fri, 15 Jun 2001 17:35:49 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Paul Faure <paul@engsoc.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.0.35 limits
-In-Reply-To: <Pine.LNX.4.33.0106151702300.22155-100000@stout.engsoc.carleton.ca>
-Message-ID: <Pine.GSO.4.21.0106151726050.9091-100000@weyl.math.psu.edu>
+	id <S264528AbRFOVfa>; Fri, 15 Jun 2001 17:35:30 -0400
+Received: from ss02.nc.us.ibm.com ([32.97.136.232]:36842 "EHLO
+	ddstreet.raleigh.ibm.com") by vger.kernel.org with ESMTP
+	id <S264527AbRFOVfI>; Fri, 15 Jun 2001 17:35:08 -0400
+Date: Fri, 15 Jun 2001 17:30:03 -0400 (EDT)
+From: Dan Streetman <ddstreet@us.ibm.com>
+To: Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@redhat.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ps2 keyboard filter hook
+In-Reply-To: <OF6CD0EC09.7E779796-ON85256A6C.007426B5@raleigh.ibm.com>
+Message-ID: <Pine.LNX.4.10.10106151704170.27777-100000@ddstreet.raleigh.ibm.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+>X11 likes to talk direct to the PS/2 port.  I actually think you should
+>instead
+>talk to Vojtech for the mainstream kernel about the input device work. It
+>sounds much cleaner and more close to what you need
 
-On Fri, 15 Jun 2001, Paul Faure wrote:
+Ah, I didn't realize the input layer was handling PS/2 stuff...?  Although I am
+not sure it would work; the special needs of these keyboards requires the driver
+to do some bizarre things, such as:
 
-> Just this morning, our firewall get a kernel panic after 500 days of
-> uptime.
-> 
-> As you can see from the log files, the date starts at June 15th, where we
-> get two div by zeros, then jumps May 11th, then a kernel panic. A reboot
-> brings it back to June 15th. Since cron could not open /dev/rtc. My first
-> thought was an internal kernel limit on the time, but 500 days seems a bit
-> short.
-> 
-> Any ideas ?
+- change scancodes.  I was and still am shocked by this.  I will say that it is
+  a 'legacy feature' that I'm told is due having to deal with Windoze...
+- consume scancodes.  The keyboard uses normal scancodes for the extra hardware
+  as well as normal keys, so if the driver can't filter them out large amounts
+  of strange characters will appear when (e.g.) a credit card is swiped.
+- send large amounts of bytes (multi-KB) to the PS/2 port (I think this
+  may be possible).
 
-(1<<32) / (24 * 60 * 60 * 100) == 497
+The filtering needs to be done fairly early (I think), or the keyboard state may
+get corrupted by seemingly random 'normal' scancodes coming in (for non-raw
+modes)...
 
-IOW, 2^32 timer interrupts since the boot.
+Vojtech, could you comment on if the above is possible using the input layer?
+
+-- 
+Dan Streetman
+ddstreet@us.ibm.com
+--------------------------------------------------
+186,282 miles per second:
+It isn't just a good idea, it's the law!
 

@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265629AbUBBFVz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 00:21:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265630AbUBBFVz
+	id S265622AbUBBF2w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 00:28:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265627AbUBBF2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 00:21:55 -0500
-Received: from mail.kroah.org ([65.200.24.183]:21728 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265629AbUBBFVv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 00:21:51 -0500
-Date: Sun, 1 Feb 2004 21:21:00 -0800
-From: Greg KH <greg@kroah.com>
-To: Martin Schlemmer <azarah@nosferatu.za.org>
-Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: module-init-tools/udev and module auto-loading
-Message-ID: <20040202052100.GA21753@kroah.com>
-References: <1075674718.27454.17.camel@nosferatu.lan>
+	Mon, 2 Feb 2004 00:28:51 -0500
+Received: from h80ad2616.async.vt.edu ([128.173.38.22]:14783 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265622AbUBBF2u (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 00:28:50 -0500
+Message-Id: <200402020527.i125RvTx008088@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: joshk@triplehelix.org (Joshua Kwan)
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: 2.6 input drivers FAQ 
+In-Reply-To: Your message of "Sun, 01 Feb 2004 08:31:37 PST."
+             <20040201163136.GF11391@triplehelix.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040201100644.GA2201@ucw.cz>
+            <20040201163136.GF11391@triplehelix.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1075674718.27454.17.camel@nosferatu.lan>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_-389920603P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 02 Feb 2004 00:27:57 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 02, 2004 at 12:31:58AM +0200, Martin Schlemmer wrote:
-> Hi
+--==_Exmh_-389920603P
+Content-Type: text/plain; charset=us-ascii
+
+On Sun, 01 Feb 2004 08:31:37 PST, Joshua Kwan said:
+
+> On Sun, Feb 01, 2004 at 11:06:44AM +0100, Vojtech Pavlik wrote:
+> > I'm getting double clicks when I click only once.
 > 
-> A quick question on module-init-tools/udev and module auto-loading ...
-> lets say I have a module called 'foo', that I want the kernel to
-> auto-load.
+> I get these spuriously and i'm using only /dev/input/mice in my config
+> flie.
 
-Wait, stop right there.  When do you want the module autoloaded?
+OK.. and here I thought I was getting senile or Mozilla was buggy. Every
+once in a while (a few times a day at most) I'd middle-click a link to open it
+in a new tab, and get 2 tabs.
 
-If you want it loaded when the device is plugged in, then great, the
-hotplug scripts will do that.
+It may affect left-button as well, I don't often do things where a single
+or double left-click produce different noticably results.
 
-If you want the module loaded when you try to access the /dev node, then
-see the FAQ about udev for that :)
+--==_Exmh_-389920603P
+Content-Type: application/pgp-signature
 
-> Then a distant related issue - anybody thought about dynamic major
-> numbers of 2.7/2.8 (?) and the 'alias char-major-<whatever>-* whatever'
-> type modprobe rules (as the whole fact of them being dynamic, will make
-> that alias type worthless ...)?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Yes, it will make the char-major-* stuff worthless, however the distro
-I use has not used that style of alias for years, why would yours?  :)
+iD8DBQFAHd/dcC3lWbTT17ARAgiyAKC2zlwzEwpXLC18oLCX1/CWvRZuZgCff1Cz
+/tCe7gDpAAAZ71yw1+J6vtA=
+=zles
+-----END PGP SIGNATURE-----
 
-Rusty had it correct in that you need to try to load for the type of
-module:
-	alias eth1 tulip
-	alias usb-controller usb-ohci
-and so on.  That's the much better way.
-
-thanks,
-
-greg (I hate kmod) k-h
+--==_Exmh_-389920603P--

@@ -1,60 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293725AbSCPGBT>; Sat, 16 Mar 2002 01:01:19 -0500
+	id <S293728AbSCPGQe>; Sat, 16 Mar 2002 01:16:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293726AbSCPGBJ>; Sat, 16 Mar 2002 01:01:09 -0500
-Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:9614 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S293725AbSCPGAz>;
-	Sat, 16 Mar 2002 01:00:55 -0500
-Message-ID: <3C92DF96.6010904@tmsusa.com>
-Date: Fri, 15 Mar 2002 22:00:54 -0800
-From: J Sloan <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020207
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: MrChuoi@yahoo.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-pre3-ac1
-In-Reply-To: <E16lgjZ-0002Uh-00@the-village.bc.nu> <20020316052309.9B9F44E51A@mail.vnsecurity.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S293731AbSCPGQY>; Sat, 16 Mar 2002 01:16:24 -0500
+Received: from mail.bstc.net ([63.90.24.2]:52492 "HELO mail.bstc.net")
+	by vger.kernel.org with SMTP id <S293728AbSCPGQK>;
+	Sat, 16 Mar 2002 01:16:10 -0500
+Date: Sat, 16 Mar 2002 17:15:35 +1100
+From: Anton Blanchard <anton@samba.org>
+To: lse-tech@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: 7.52 second kernel compile
+Message-ID: <20020316061535.GA16653@krispykreme>
+In-Reply-To: <20020313085217.GA11658@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020313085217.GA11658@krispykreme>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-MrChuoi wrote:
 
->I think there are something wrong in MM of -ac tree. I can't build & run my
->project (~100 source files) from inside JBuilder4 anymore. JBuilder always
->reports that "cannot allocate memory".
->
->My system:
->CPU: K6-III 500Mhz
->Mem: 128Mb
->Swap: 64Mb
->
-Why so stingy on the swap space?
+> Let the kernel compile benchmarks continue!
 
->
->Linux From Scratch 3.1
->
->Tested with:
->2.4.19-pre3: OK
->2.4.19-pre2-ac4: cannot allocate memory
->2.4.19-pre3-ac1: cannot allocate memory
->2.4.19-pre2aa*: OK
->2.4.19-pre3aa*: OK
->
+I think Im addicted. I need help!
 
-I'd bet they are all on the borderline -
-It may be that you are simply exhausting vm.
+In this update we added 8 cpus and rewrote the ppc64 pagetable management
+code to do lockless inserts and removals (there is still locking at
+the pte level to avoid races).
 
-What if you make a decent swap partition,
-say 512 MB or so, and try the tests again?
+hardware: 32 way logical partition, 1.1GHz POWER4, 60G RAM
 
-Joe
+kernel: 2.5.7-pre1 + ppc64 pagetable rework
 
+kernel compiled: 2.4.18 x86 with Martin's config
 
+compiler: gcc 2.95.3 x86 cross compiler
 
+make[1]: Leaving directory `/home/anton/intel_kernel/linux/arch/i386/boot'
+128.89user 40.23system 0:07.52elapsed 2246%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (437084major+572835minor)pagefaults 0swaps
 
+7.52 seconds is not a bad result for something running under a hypervisor.
+The profile looks much better now. We still spend a lot of time flushing tlb
+entries but we can look into batching them.
 
+Anton
+--
+anton@samba.org
+anton@au.ibm.com
 
+155912 total                                      0.0550
+114562 .cpu_idle                               
+
+ 12615 .local_flush_tlb_range                  
+  8476 .local_flush_tlb_page                   
+  2576 .insert_hpte_into_group                 
+
+  1980 .do_anonymous_page                      
+  1813 .lru_cache_add                          
+  1390 .d_lookup                               
+  1320 .__copy_tofrom_user                     
+  1140 .save_remaining_regs                    
+   612 .rmqueue                                
+   517 .atomic_dec_and_lock                    
+   492 .do_page_fault                          
+   444 .copy_page                              
+   438 .__free_pages_ok                        
+   375 .set_page_dirty                         
+   350 .zap_page_range                         
+   314 .schedule                               
+   270 .__find_get_page                        
+   245 .page_cache_release                     
+   233 .lru_cache_del                          
+   231 .hvc_poll                               
+   215 .sys_brk                                

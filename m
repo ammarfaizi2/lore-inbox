@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274603AbRJYO2i>; Thu, 25 Oct 2001 10:28:38 -0400
+	id <S274513AbRJYOa6>; Thu, 25 Oct 2001 10:30:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274426AbRJYO22>; Thu, 25 Oct 2001 10:28:28 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:20681 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S274603AbRJYO2N>; Thu, 25 Oct 2001 10:28:13 -0400
-Date: Thu, 25 Oct 2001 15:30:31 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Steven Butler <stevenb1@bigpond.net.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory Paging and fork copy-on-write semantics
-In-Reply-To: <3BD7AA3A.8040104@bigpond.net.au>
-Message-ID: <Pine.LNX.4.21.0110251506570.1169-100000@localhost.localdomain>
+	id <S274426AbRJYOas>; Thu, 25 Oct 2001 10:30:48 -0400
+Received: from host-21.50by.nyc.onsiteaccess.net ([216.89.84.21]:19978 "EHLO
+	mailessentials.wagweb.com") by vger.kernel.org with ESMTP
+	id <S274627AbRJYOah> convert rfc822-to-8bit; Thu, 25 Oct 2001 10:30:37 -0400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Message-ID: <3BD8222C.E741D186@wagweb.com>
+Date: Thu, 25 Oct 2001 10:31:08 -0400
+From: "Frontgate Lab" <mdiwan@wagweb.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: <linux-kernel@vger.kernel.org>
+Subject: kernel compiler
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-OriginalArrivalTime: 25 Oct 2001 14:31:41.0125 (UTC) FILETIME=[C333D750:01C15D61]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Oct 2001, Steven Butler wrote:
-> 
-> I have been making use of copy-on-write semantics of linux fork to 
-> duplicate a process around 100+ times to generate client load against a 
-> server.  The copy-on-write allows me to run many more processes without 
-> swap thrashing than I'd otherwise be able to.  The client code is in 
-> perl, so the process sizes are in the MBs.  Using this technique I only 
-> need about 2 MB per user, with around 5.5 MB shared.
-> 
-> What I've found is that everything works fine, so long as I don't run so 
-> many clients that the kernel pages out part of a process.  When this 
-> happens, it seems (from looking at top output) that the shared memory is 
-> copied when it is paged-out.  What's worse is it seems that it is copied 
-> for each process that is sharing it.  The net effect is that one page is 
-> gained, but many more pages are created in the other processes that were 
-> sharing the memory.  I typically see shared memory in each perl process 
-> drop down to less than 2 MB when this occurs, so each process now 
-> consumes about 6 MB of unshared memory (or so top tells me).
+Just out of a need to know things :)
 
-It's to be expected that "top" (or 3rd field of /proc/pid/statm) will
-tell you that under heavy swapout.  It counts a page as "shared" if it's
-currently mapped into more than one process (approx. description), and
-swapout is doing its best to remove the mappings from processes, to free
-up pages later; the usage count of the corresponding data, which would
-include the swap usage count, is not being counted here (nor should it be).
-If you were to swapoff, ideally you would find those shared counts going
-back up to what they were; however, those processes do need that swap, so
-in practice swapoff will probably fail or hang or cause OOM kills instead.
+What compiler do Alan Cox and Linus use to create the 2.4 series
+kernels?
 
-Hugh
+I am currently using RedHat's compiler gcc-2.96-85 and have been told
+not to do so because it "breaks things" .
 
+So far it has not broken anything, but then again i am compiling kernels
+for use on my RedHat Distributions.
+
+The question would be .. how hard is it going to be for me to upgrade to
+gcc 3 +  and  will i get any benefit from it?  WillI loose any
+advantages that i currently do have?
+
+Or can i still get what i need from compiling 2.4.12 or 2.4.13 with the
+compiler I have now?
+
+Thank you 
+
+Madhav Diwan
+
+
+Note: The information contained in this message may be privileged and confidential and protected from disclosure.  If the reader of this message is not the intended recipient, or an employee or agent responsible for delivering this message to the intended recipient, you are hereby notified that any dissemination, distribution or copying of this communication is strictly prohibited. If you have received this communication in error, please notify us immediately by replying to the message and deleting it from your computer.  Thank you.  Wagner Weber & Williams

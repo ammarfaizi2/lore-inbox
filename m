@@ -1,55 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269726AbUHZWtY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269686AbUHZWnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269726AbUHZWtY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 18:49:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269693AbUHZWpd
+	id S269686AbUHZWnq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 18:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269688AbUHZWkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 18:45:33 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:63910 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S269660AbUHZWnx
+	Thu, 26 Aug 2004 18:40:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8686 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269759AbUHZWgb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 18:43:53 -0400
-Subject: [PATCH] Fix comment in include/linux/nodemask.h
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1093560210.4769.7.camel@arrakis>
+	Thu, 26 Aug 2004 18:36:31 -0400
+Date: Thu, 26 Aug 2004 23:36:25 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Rik van Riel <riel@redhat.com>, Diego Calleja <diegocg@teleline.es>,
+       jamie@shareable.org, christophe@saout.de, christer@weinigel.se,
+       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
+       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com,
+       reiserfs-list@namesys.com
+Subject: Re: [some sanity for a change] possible design issues for hybrids
+Message-ID: <20040826223625.GB21964@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.44.0408261356330.27909-100000@chimarrao.boston.redhat.com> <200408262128.41326.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.58.0408261132150.2304@ppc970.osdl.org> <20040826191323.GY21964@parcelfarce.linux.theplanet.co.uk> <20040826203228.GZ21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408261344150.2304@ppc970.osdl.org> <20040826212853.GA21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408261436480.2304@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 26 Aug 2004 15:43:31 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408261436480.2304@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew, here's a small comment fix for include/linux/nodemask.h.  It's a
-comment that is only relevant to cpumasks and accidentally got copied
-over during my (failed) attempt to correctly post the nodemask code. 
-The patch just updates the comment to make sense for nodemasks.
-
-Thanks!
-
--Matt
-
---- linux-2.6.9-rc1-mm1/include/linux/nodemask.h	2004-08-26 15:38:42.000000000 -0700
-+++ linux-2.6.9-rc1-mm1/include/linux/nodemask.h.fixed	2004-08-26 15:39:04.000000000 -0700
-@@ -69,12 +69,9 @@
-  *
-  * Subtlety:
-  * 1) The 'type-checked' form of node_isset() causes gcc (3.3.2, anyway)
-- *    to generate slightly worse code.  Note for example the additional
-- *    40 lines of assembly code compiling the "for each possible node"
-- *    loops buried in the disk_stat_read() macros calls when compiling
-- *    drivers/block/genhd.c (arch i386, CONFIG_SMP=y).  So use a simple
-- *    one-line #define for node_isset(), instead of wrapping an inline
-- *    inside a macro, the way we do the other calls.
-+ *    to generate slightly worse code.  So use a simple one-line #define 
-+ *    for node_isset(), instead of wrapping an inline inside a macro, the 
-+ *    way we do the other calls.
-  */
+On Thu, Aug 26, 2004 at 03:04:21PM -0700, Linus Torvalds wrote:
  
- #include <linux/kernel.h>
+> > 2) we would need to do something about locking, since mount trees in other
+> > guys' namespaces are protected by semaphores of their own.
+> 
+> Ok, I'll admit that I don't know how to handle namespaces. These things 
+> should just go into a global namespace, and I was kind of assuming it 
+> would happen automatically in "lookup_mnt()" or something like that. A 
+> special case in lookup_mnt which says something like "if you didn't find a 
+> vfsmount, we create a new one for you".
+> 
+> It should be reasonably easy to create new ones on-the-fly, since we'd
+> have all the information (the parent vfsmount comes stated, and the
+> vfsmount we create would point to the same things that the "base" one
+> would).
 
+Erm...  What do we do upon unlink()?  I'm killing a file, fs it's in is
+mounted in a dozen of places (no namespaces, just chroot jails, whatever).
+We need to find all vfsmounts to be killed by that.
 
+And BTW that's an argument against anchoring that list in inode - unlink()
+on foo should not screw bar/... even if bar and foo are links to the same
+file.  So we'll need to check for dentry match anyway.
+ 
+> > 3) what do we do on umount(2)?  We can get a bunch of vfsmounts hanging off
+> > it.  MNT_DETACH will have no problems, but normal umount() is a different
+> > story.  Note that it's not just hybrid-related problem - implementing the
+> > mount traps will cause the same kind of trouble,
+> 
+> Don't allow umount. It's not something the user can unmount - the mount is 
+> "implied" in the file. 
+
+See below.
+
+> > 4) OK, we have those hybrids and want to create vfsmounts when crossing a
+> > mountpoint.  When do they go away, anyway?  When we don't reference them
+> > anymore?  Right now "attached to mount tree" == "+1 to refcount" and detaching
+> > happens explicitly - outside of the "dropping the final reference" path.
+> > Might become a locking issue.
+> 
+> Ahh. Umm.. Yes. I think this might be the real problem. Unless I seriously 
+> clossed something over when I blathered about the "create the vfsmount on 
+> the fly" thing above ;)
+
+> > 5) Creation of these vfsmounts: fs should somehow tell us whether it wants
+> > one or not (at the very least, we should stop *somewhere*).  Can we use
+> > the same dentry/inode?  I'm not sure and I really doubt that we'd like that.
+> 
+> Why not? When doing the ->lookup() operation, the filesystem would create
+> the vfsmount and bind it to the current vfsmount. That guarantees that it
+> has a vfsmount, and will mean that it will show up positive with the
+> "d_mountpoint()" query, which in turn will cause us to do the
+> "lookup_mnt()".
+
+Several paragraphs below you are saying that you don't like fs messing with
+vfsmounts.  Use of ->lookup() would mean that we should not only create
+and attach vfsmounts from within fs code, but would actually have to make
+->lookup() return vfsmount+dentry, AFAICS.
+ 
+> > 6) if it's a method, where should it live, *especially* if we want them on
+> > device nodes.  Note that inode_operations belongs to underlying fs, so it's
+> > not particulary good place for device case.
+> 
+> Why not just let the existing .lookup method initialize the mount-point 
+> thing? After that, it's all in the VFS layer (I'd hate to have filesystems 
+> mess around with vfsmounts - they'll just get it wrong).
+
+> Allow file-on-file mounts - it will just totally hide the thing (in that
+> namespace, at least). But don't allow the dir-on-file thing (that we
+> already don't allow).
+
+Err...  What about dir-on-dir-that-is-on-file?  I.e. mount on foo/. when foo
+is a file?
+ 
+> > 9) how do we recognize such mountpoints in the path lookups?  It *is* a
+> > hot path, so we should be careful in that area; the impact will be felt
+> > by everything in the system.
+
+> I don't think you'll have any special cases. Same d_mountpount(), same 
+> lookup_mnt().
+
+See above on use ->lookup()

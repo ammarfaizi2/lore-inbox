@@ -1,479 +1,786 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbULIPJx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbULIPNf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261518AbULIPJx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 10:09:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbULIPJx
+	id S261531AbULIPNf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 10:13:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbULIPN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 10:09:53 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:14793 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261518AbULIPJZ (ORCPT
+	Thu, 9 Dec 2004 10:13:27 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:19145 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261521AbULIPJ3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 10:09:25 -0500
+	Thu, 9 Dec 2004 10:09:29 -0500
 Date: Thu, 9 Dec 2004 15:08:58 GMT
-Message-Id: <200412091508.iB9F8wgt027555@warthog.cambridge.redhat.com>
+Message-Id: <200412091508.iB9F8wlM027545@warthog.cambridge.redhat.com>
 From: dhowells@redhat.com
 To: akpm@osdl.org, davidm@snapgear.com, gerg@snapgear.com, wli@holomorphy.com
 cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
-Subject: [PATCH 3/5] NOMMU: mmap fixes and extensions
-In-Reply-To: <3e47b0ba-49f4-11d9-9df1-0002b3163499@redhat.com> 
+Subject: [PATCH 2/5] NOMMU: High-order page management overhaul
+In-Reply-To: <3e47b0ba-49f4-11d9-9df1-0002b3163499@redhat.com>
 References: <3e47b0ba-49f4-11d9-9df1-0002b3163499@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch applies some fixes and extensions to the nommu mmap
-implementation:
+The attached patch overhauls high-order page handling.
 
- (1) /proc/maps distinguishes shareable private mappings and real shared
-     mappings by marking the former with 's' and the latter with 'S'.
+ (1) A new bit flag PG_compound_slave has been added. This is used to mark the
+     second+ subpages of a compound page, thus making get_page() and
+     put_page() able to determine the need to perform weird stuff quickly.
 
- (2) Remove some #ifdefs from linux/mm.h now that proper VMAs are used.
+     This could be changed to do horribly things with the page count or to
+     abuse the page->lru member instead of eating another page flag.
 
- (3) Compile in prio_trees again now that proper VMAs are used.
+ (2) Compound page metadata is now always set on compound pages when allocating
+     and checked when freeing. This metadata is mostly as it was before:
 
- (4) Keep track of VMAs in the relevant mapping's prio_tree.
+	- PG_compound is set on all subpages
+	- PG_compound_slave is set on all but the first subpage <--- [1]
+	- page[1].index holds the compound page order
+	- page[1...N-1].private points to page[0]. <--- [2]
+	- page[1].mapping may hold a destructor function for put_page()
 
- (5) Only set VM_SHARED on MAP_SHARED mappings. Its presence indicates that the
-     backing memory is supplied by the underlying file or chardev.
+     This is now done in prep_new_page().
 
-     VM_MAYSHARE indicates that a VMA may be shared if it's a private VMA
-     (memory allocated by do_mmap_pgoff() calling kmalloc()).
+     [1] New metadata addition
+     [2] Page private is no longer modified on page[0]
 
- (6) Permit MAP_SHARED + PROT_WRITE on memory-backed files[*] and chardevs if
-     the backing fs/chardev is willing to indicate a contiguous area of memory
-     when its get_unmapped_area() is called.
+ (3) __page_first() is now provided to find the first page of any page set
+     (even single page sets).
 
-     [*] file->f_mapping->backing_dev_info->memory_backed == 1
+ (4) A new config option ENHANCED_COMPOUND_PAGES is now available. This is
+     only set on !MMU or HUGETLB_PAGE. It causes __page_first() to dereference
+     page->private if PG_compound_slave is set.
 
- (7) Uniquify overlapping VMAs (eg: MAP_SHARED on chardevs) in
-     nommu_vma_tree. Identical entries break the assumptions on which rbtrees
-     work. Since we don't need to share VMAs in this case, we uniquify such
-     VMAs by using the pointer to the VMA. They're only kept in the tree for
-     /proc/maps visibility.
+ (5) __GFP_COMP is required to request a compound page. This is asserted by the
+     slab allocator when it allocates a page. The flag is ignored for any
+     single-page allocation.
 
-With this patch it should be possible to map contiguous flash files directly
-out of ROM simply by providing get_unmapped_area() for a read-only/shared
-mapping.
+ (6) compound_page_order() is now available. This will indicate the order of a
+     compound page. It says that high-order arrays of single pages are order 0.
+
+     Since it is now trivial to work out the order of any page, free_pages()
+     and co could all lose their order arguments.
+
+ (7) bad_page() now prints more information, including information about more
+     pages in the case of a compound page.
+
+ (8) prep_compound_page() and destroy_compound_page() have been absorbed.
+
+ (9) A lot more unlikely() clauses have been inserted in the free page
+     checking functions.
+
+(10) The !MMU bits have all gone from page_alloc.c.
+
+(11) There's now a page destructor prototype and a function to set the
+     destructor on compound pages.
+
+(12) Two functions are now provided in page_alloc.c to dissociate high-order or
+     compound pages into pages of a smaller order.
+
+Note: I've changed my patch such that high-order pages aren't always marked
+compound now. This has reverted to being contingent on the __GFP_COMP flag
+being passed to __alloc_pages(). The slab allocator now always supplies this
+flag.
 
 Signed-Off-By: dhowells@redhat.com
 ---
-diffstat nommu-mmap-2610rc2mm3-3.diff
- fs/proc/nommu.c    |    2 
- include/linux/mm.h |    4 -
- mm/Makefile        |    4 -
- mm/nommu.c         |  173 ++++++++++++++++++++++++++++++++++++++---------------
- 4 files changed, 129 insertions(+), 54 deletions(-)
+diffstat compound-2610rc2mm3-3.diff
+ include/linux/mm.h         |   69 ++++++--
+ include/linux/page-flags.h |    6 
+ init/Kconfig               |   13 +
+ mm/hugetlb.c               |    4 
+ mm/page_alloc.c            |  388 ++++++++++++++++++++++++++++-----------------
+ mm/slab.c                  |    2 
+ 6 files changed, 323 insertions(+), 159 deletions(-)
 
-diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/fs/proc/nommu.c linux-2.6.10-rc2-mm3-shmem/fs/proc/nommu.c
---- linux-2.6.10-rc2-mm3-mmcleanup/fs/proc/nommu.c	2004-11-22 10:54:11.000000000 +0000
-+++ linux-2.6.10-rc2-mm3-shmem/fs/proc/nommu.c	2004-12-03 11:53:00.000000000 +0000
-@@ -62,7 +62,7 @@ static int nommu_vma_list_show(struct se
- 		   flags & VM_READ ? 'r' : '-',
- 		   flags & VM_WRITE ? 'w' : '-',
- 		   flags & VM_EXEC ? 'x' : '-',
--		   flags & VM_MAYSHARE ? 's' : 'p',
-+		   flags & VM_MAYSHARE ? flags & VM_SHARED ? 'S' : 's' : 'p',
- 		   vma->vm_pgoff << PAGE_SHIFT,
- 		   MAJOR(dev), MINOR(dev), ino, &len);
- 
 diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/include/linux/mm.h linux-2.6.10-rc2-mm3-shmem/include/linux/mm.h
 --- linux-2.6.10-rc2-mm3-mmcleanup/include/linux/mm.h	2004-11-22 10:54:16.000000000 +0000
 +++ linux-2.6.10-rc2-mm3-shmem/include/linux/mm.h	2004-12-08 16:52:24.000000000 +0000
-@@ -724,14 +772,12 @@ struct vm_area_struct *vma_prio_tree_nex
- 	for (prio_tree_iter_init(iter, root, begin, end), vma = NULL;	\
- 		(vma = vma_prio_tree_next(vma, iter)); )
+@@ -227,6 +227,12 @@ typedef unsigned long page_flags_t;
+  * it to keep track of whatever it is we are using the page for at the
+  * moment. Note that we have no way to track which tasks are using
+  * a page.
++ *
++ * Any high-order page allocation has all the pages marked PG_compound. The
++ * first page of such a block holds the block's usage count and control
++ * data. The second page holds the order in its index member and a destructor
++ * function pointer in its mapping member. In enhanced compound page mode, the
++ * second+ pages have their private pointers pointing at the first page.
+  */
+ struct page {
+ 	page_flags_t flags;		/* Atomic flags, some possibly
+@@ -314,45 +320,76 @@ struct page {
+  */
+ #define get_page_testone(p)	atomic_inc_and_test(&(p)->_count)
  
--#ifdef CONFIG_MMU
- static inline void vma_nonlinear_insert(struct vm_area_struct *vma,
- 					struct list_head *list)
+-#define set_page_count(p,v) 	atomic_set(&(p)->_count, v - 1)
++#define set_page_count(p,v) 	atomic_set(&(p)->_count, (v) - 1)
+ #define __put_page(p)		atomic_dec(&(p)->_count)
+ 
+ extern void FASTCALL(__page_cache_release(struct page *));
+ 
+-#ifdef CONFIG_HUGETLB_PAGE
+-
+-static inline int page_count(struct page *p)
++static inline struct page *page_head(struct page *page)
  {
- 	vma->shared.vm_set.parent = NULL;
- 	list_add_tail(&vma->shared.vm_set.list, list);
+-	if (PageCompound(p))
+-		p = (struct page *)p->private;
+-	return atomic_read(&(p)->_count) + 1;
++#ifdef CONFIG_ENHANCED_COMPOUND_PAGES
++	if (unlikely(PageCompoundSlave(page)))
++		page = (struct page *) page->private;
++#endif
++	return page;
  }
--#endif
  
- /* mmap.c */
- extern void vma_adjust(struct vm_area_struct *vma, unsigned long start,
-@@ -846,7 +892,6 @@ static inline void __vm_stat_account(str
- }
- #endif /* CONFIG_PROC_FS */
- 
--#ifdef CONFIG_MMU
- static inline void vm_stat_account(struct vm_area_struct *vma)
+-static inline void get_page(struct page *page)
++static inline unsigned compound_page_order(struct page *page)
  {
- 	__vm_stat_account(vma->vm_mm, vma->vm_flags, vma->vm_file,
-@@ -858,7 +903,6 @@ static inline void vm_stat_unaccount(str
- 	__vm_stat_account(vma->vm_mm, vma->vm_flags, vma->vm_file,
- 							-vma_pages(vma));
+-	if (unlikely(PageCompound(page)))
+-		page = (struct page *)page->private;
+-	atomic_inc(&page->_count);
++	unsigned order = 0;
++
++	if (unlikely(PageCompound(page))) {
++		page = page_head(page);
++		order = page[1].index;
++	}
++	return order;
  }
--#endif
  
- /* update per process rss and vm hiwater data */
- extern void update_mem_hiwater(void);
-diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/mm/Makefile linux-2.6.10-rc2-mm3-shmem/mm/Makefile
---- linux-2.6.10-rc2-mm3-mmcleanup/mm/Makefile	2004-11-22 10:54:18.000000000 +0000
-+++ linux-2.6.10-rc2-mm3-shmem/mm/Makefile	2004-11-26 16:15:04.000000000 +0000
-@@ -5,12 +5,12 @@
- mmu-y			:= nommu.o
- mmu-$(CONFIG_MMU)	:= fremap.o highmem.o madvise.o memory.o mincore.o \
- 			   mlock.o mmap.o mprotect.o mremap.o msync.o rmap.o \
--			   vmalloc.o prio_tree.o
-+			   vmalloc.o
+-void put_page(struct page *page);
++extern void split_compound_page(struct page *page, unsigned new_order);
++extern void split_highorder_page(struct page *page, unsigned new_order,
++				 unsigned old_order);
  
- obj-y			:= bootmem.o filemap.o mempool.o oom_kill.o fadvise.o \
- 			   page_alloc.o page-writeback.o pdflush.o \
- 			   readahead.o slab.o swap.o truncate.o vmscan.o \
--			   $(mmu-y)
-+			   prio_tree.o $(mmu-y)
+-#else		/* CONFIG_HUGETLB_PAGE */
++typedef void (*page_dtor_t)(struct page *);
  
- obj-$(CONFIG_SWAP)	+= page_io.o swap_state.o swapfile.o thrash.o
- obj-$(CONFIG_HUGETLBFS)	+= hugetlb.o
-diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/mm/nommu.c linux-2.6.10-rc2-mm3-shmem/mm/nommu.c
---- linux-2.6.10-rc2-mm3-mmcleanup/mm/nommu.c	2004-11-22 10:54:18.000000000 +0000
-+++ linux-2.6.10-rc2-mm3-shmem/mm/nommu.c	2004-12-07 18:44:17.000000000 +0000
-@@ -48,10 +48,6 @@ DECLARE_RWSEM(nommu_vma_sem);
- struct vm_operations_struct generic_file_vm_ops = {
- };
+-#define page_count(p)		(atomic_read(&(p)->_count) + 1)
++static inline page_dtor_t page_dtor(struct page *page)
++{
++	page_dtor_t dtor = NULL;
++
++	if (unlikely(PageCompound(page))) {
++		page = page_head(page);
++		dtor = (page_dtor_t) page[1].mapping;
++	}
++	return dtor;
++}
++
++static inline void set_page_dtor(struct page *page, page_dtor_t dtor)
++{
++	BUG_ON(!PageCompound(page));
++	BUG_ON(PageCompoundSlave(page));
++	page[1].mapping = (void *) dtor;
++}
++
++static inline int page_count(struct page *page)
++{
++	page = page_head(page);
++	return atomic_read(&page->_count) + 1;
++}
  
--void __init prio_tree_init(void)
+ static inline void get_page(struct page *page)
+ {
++	page = page_head(page);
+ 	atomic_inc(&page->_count);
+ }
+ 
++#ifdef CONFIG_ENHANCED_COMPOUND_PAGES
++extern fastcall void put_page(struct page *page);
++#else
+ static inline void put_page(struct page *page)
+ {
+ 	if (!PageReserved(page) && put_page_testzero(page))
+ 		__page_cache_release(page);
+ }
+-
+-#endif		/* CONFIG_HUGETLB_PAGE */
++#endif /* CONFIG_COMPOUND_PAGE */
+ 
+ /*
+  * Multiple processes may "see" the same page. E.g. for untouched
+diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/include/linux/page-flags.h linux-2.6.10-rc2-mm3-shmem/include/linux/page-flags.h
+--- linux-2.6.10-rc2-mm3-mmcleanup/include/linux/page-flags.h	2004-11-22 10:54:16.000000000 +0000
++++ linux-2.6.10-rc2-mm3-shmem/include/linux/page-flags.h	2004-11-22 11:45:09.000000000 +0000
+@@ -78,6 +78,7 @@
+ #define PG_sharedpolicy         19      /* Page was allocated for a file
+ 					   mapping using a shared_policy */
+ 
++#define PG_compound_slave	20	/* second+ page of a compound page */
+ 
+ /*
+  * Global page accounting.  One instance per CPU.  Only unsigned longs are
+@@ -294,6 +295,11 @@ extern unsigned long __read_page_state(u
+ #define PageCompound(page)	test_bit(PG_compound, &(page)->flags)
+ #define SetPageCompound(page)	set_bit(PG_compound, &(page)->flags)
+ #define ClearPageCompound(page)	clear_bit(PG_compound, &(page)->flags)
++#define __ClearPageCompound(page)	__clear_bit(PG_compound, &(page)->flags)
++
++#define PageCompoundSlave(page)		test_bit(PG_compound_slave, &(page)->flags)
++#define SetPageCompoundSlave(page)	set_bit(PG_compound_slave, &(page)->flags)
++#define ClearPageCompoundSlave(page)	clear_bit(PG_compound_slave, &(page)->flags)
+ 
+ #define PageSharedPolicy(page)      test_bit(PG_sharedpolicy, &(page)->flags)
+ #define SetPageSharedPolicy(page)   set_bit(PG_sharedpolicy, &(page)->flags)
+diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/init/Kconfig linux-2.6.10-rc2-mm3-shmem/init/Kconfig
+--- linux-2.6.10-rc2-mm3-mmcleanup/init/Kconfig	2004-11-22 10:54:17.000000000 +0000
++++ linux-2.6.10-rc2-mm3-shmem/init/Kconfig	2004-12-01 17:07:36.000000000 +0000
+@@ -380,6 +380,19 @@ config TINY_SHMEM
+ 	default !SHMEM
+ 	bool
+ 
++config ENHANCED_COMPOUND_PAGES
++	bool
++	default HUGETLB_PAGE || !MMU
++	help
++
++	  Enhance management of high-order pages by pointing the 2nd+ pages at
++	  the first. get_page() and put_page() then use the usage count on the
++	  first page to manage all the pages in the block.
++
++	  This is used when it might be necessary to access the intermediate
++	  pages of a block, such as ptrace() might under nommu of hugetlb
++	  conditions.
++
+ menu "Loadable module support"
+ 
+ config MODULES
+diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/mm/hugetlb.c linux-2.6.10-rc2-mm3-shmem/mm/hugetlb.c
+--- linux-2.6.10-rc2-mm3-mmcleanup/mm/hugetlb.c	2004-11-22 10:54:18.000000000 +0000
++++ linux-2.6.10-rc2-mm3-shmem/mm/hugetlb.c	2004-12-01 15:37:59.000000000 +0000
+@@ -67,7 +67,7 @@ void free_huge_page(struct page *page)
+ 	BUG_ON(page_count(page));
+ 
+ 	INIT_LIST_HEAD(&page->lru);
+-	page[1].mapping = NULL;
++	set_page_dtor(page, NULL);
+ 
+ 	spin_lock(&hugetlb_lock);
+ 	enqueue_huge_page(page);
+@@ -87,7 +87,7 @@ struct page *alloc_huge_page(void)
+ 	}
+ 	spin_unlock(&hugetlb_lock);
+ 	set_page_count(page, 1);
+-	page[1].mapping = (void *)free_huge_page;
++	set_page_dtor(page, free_huge_page);
+ 	for (i = 0; i < (HPAGE_SIZE/PAGE_SIZE); ++i)
+ 		clear_highpage(&page[i]);
+ 	return page;
+diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/mm/page_alloc.c linux-2.6.10-rc2-mm3-shmem/mm/page_alloc.c
+--- linux-2.6.10-rc2-mm3-mmcleanup/mm/page_alloc.c	2004-11-23 16:13:04.000000000 +0000
++++ linux-2.6.10-rc2-mm3-shmem/mm/page_alloc.c	2004-12-02 14:02:37.000000000 +0000
+@@ -80,15 +80,61 @@ static int bad_range(struct zone *zone, 
+ 	return 0;
+ }
+ 
+-static void bad_page(const char *function, struct page *page)
++static inline void __bad_page(struct page *page)
+ {
+-	printk(KERN_EMERG "Bad page state at %s (in process '%s', page %p)\n",
+-		function, current->comm, page);
+-	printk(KERN_EMERG "flags:0x%0*lx mapping:%p mapcount:%d count:%d\n",
+-		(int)(2*sizeof(page_flags_t)), (unsigned long)page->flags,
+-		page->mapping, page_mapcount(page), page_count(page));
++	const char *fmt;
++
++	if (sizeof(void *) == 4)
++		fmt = KERN_EMERG "%08lx %p %08x %p %8x %8x %8lx %8lx\n";
++	else
++		fmt = KERN_EMERG "%016lx %p %08x %p %8x %8x %16lx %16lx\n";
++
++	printk(fmt,
++	       page_to_pfn(page),
++	       page,
++	       (unsigned) page->flags,
++	       page->mapping, page_mapcount(page), page_count(page),
++	       page->index, page->private);
++}
++
++static void bad_page(const char *function, struct page *page,
++		     struct page *page0, int order)
++{
++	printk(KERN_EMERG "\n");
++	printk(KERN_EMERG
++	       "Bad page state at %s (in process '%s', order %d)\n",
++	       function, current->comm, order);
++
++	if (sizeof(void *) == 4) {
++		printk(KERN_EMERG
++		       "PFN      PAGE*    FLAGS    MAPPING  MAPCOUNT COUNT    INDEX    PRIVATE\n");
++		printk(KERN_EMERG
++		       "======== ======== ======== ======== ======== ======== ======== ========\n");
++	}
++	else {
++		printk(KERN_EMERG
++		       "PFN              PAGE*            FLAGS    MAPPING          MAPCOUNT COUNT    INDEX            PRIVATE\n");
++		printk(KERN_EMERG
++		       "================ ================ ======== ================ ======== ======== ================ ================\n");
++	}
++
++	/* print extra details on a compound page */
++	if (PageCompound(page0)) {
++		__bad_page(page0);
++		__bad_page(page0 + 1);
++
++		if (page > page0 + 1) {
++			if (page > page0 + 2)
++				printk(KERN_EMERG "...\n");
++			__bad_page(page);
++		}
++	} else {
++		__bad_page(page);
++	}
++
+ 	printk(KERN_EMERG "Backtrace:\n");
+ 	dump_stack();
++
+ 	printk(KERN_EMERG "Trying to fix it up, but a reboot is needed\n");
+ 	page->flags &= ~(1 << PG_private	|
+ 			1 << PG_locked	|
+@@ -103,82 +149,6 @@ static void bad_page(const char *functio
+ 	tainted |= TAINT_BAD_PAGE;
+ }
+ 
+-void set_page_refs(struct page *page, int order)
 -{
+-#ifdef CONFIG_MMU
+-	set_page_count(page, 1);
+-#else
+-	int i;
+-
+-	/*
+-	 * We need to reference all the pages for this order, otherwise if
+-	 * anyone accesses one of the pages with (get/put) it will be freed.
+-	 * - eg: access_process_vm()
+-	 */
+-	for (i = 0; i < (1 << order); i++)
+-		set_page_count(page + i, 1);
+-#endif /* CONFIG_MMU */
+-}
+-
+-#ifndef CONFIG_HUGETLB_PAGE
+-#define prep_compound_page(page, order) do { } while (0)
+-#define destroy_compound_page(page, order) do { } while (0)
+-#else
+-/*
+- * Higher-order pages are called "compound pages".  They are structured thusly:
+- *
+- * The first PAGE_SIZE page is called the "head page".
+- *
+- * The remaining PAGE_SIZE pages are called "tail pages".
+- *
+- * All pages have PG_compound set.  All pages have their ->private pointing at
+- * the head page (even the head page has this).
+- *
+- * The first tail page's ->mapping, if non-zero, holds the address of the
+- * compound page's put_page() function.
+- *
+- * The order of the allocation is stored in the first tail page's ->index
+- * This is only for debug at present.  This usage means that zero-order pages
+- * may not be compound.
+- */
+-static void prep_compound_page(struct page *page, unsigned long order)
+-{
+-	int i;
+-	int nr_pages = 1 << order;
+-
+-	page[1].mapping = NULL;
+-	page[1].index = order;
+-	for (i = 0; i < nr_pages; i++) {
+-		struct page *p = page + i;
+-
+-		SetPageCompound(p);
+-		p->private = (unsigned long)page;
+-	}
+-}
+-
+-static void destroy_compound_page(struct page *page, unsigned long order)
+-{
+-	int i;
+-	int nr_pages = 1 << order;
+-
+-	if (!PageCompound(page))
+-		return;
+-
+-	if (page[1].index != order)
+-		bad_page(__FUNCTION__, page);
+-
+-	for (i = 0; i < nr_pages; i++) {
+-		struct page *p = page + i;
+-
+-		if (!PageCompound(p))
+-			bad_page(__FUNCTION__, page);
+-		if (p->private != (unsigned long)page)
+-			bad_page(__FUNCTION__, page);
+-		ClearPageCompound(p);
+-	}
+-}
+-#endif		/* CONFIG_HUGETLB_PAGE */
+-
+ /*
+  * function for dealing with page's order in buddy system.
+  * zone->lock is already acquired when we use these.
+@@ -201,6 +171,11 @@ static inline void rmv_page_order(struct
+ 	page->private = 0;
+ }
+ 
++static inline void set_page_refs(struct page *page, int order)
++{
++	set_page_count(page, 1);
++}
++
+ /*
+  * This function checks whether a page is free && is the buddy
+  * we can do coalesce a page and its buddy if
+@@ -221,6 +196,93 @@ static inline int page_is_buddy(struct p
+ }
+ 
+ /*
++ * validate a page that's being handed back for recycling
++ */
++static
++void free_pages_check_compound(const char *function, struct page *page, int order)
++{
++	struct page *xpage;
++	int i;
++
++	xpage = page;
++
++	if (unlikely(order == 0 ||
++		     PageCompoundSlave(page)
++		     ))
++		goto badpage;
++
++	xpage++;
++	if (unlikely(xpage->index != order))
++		goto badpage;
++
++	for (i = (1 << order) - 1; i > 0; i--) {
++		if (unlikely(!PageCompound(xpage) ||
++			     !PageCompoundSlave(xpage) ||
++			     (xpage->flags & (
++				     1 << PG_lru	|
++				     1 << PG_private	|
++				     1 << PG_locked	|
++				     1 << PG_active	|
++				     1 << PG_reclaim	|
++				     1 << PG_slab	|
++				     1 << PG_swapcache	|
++				     1 << PG_writeback
++				     )) ||
++			     page_count(xpage) != 0 ||
++			     page_mapped(xpage) ||
++			     xpage->mapping != NULL ||
++			     xpage->private != (unsigned long) page
++			     ))
++			goto badpage;
++
++		if (PageDirty(xpage))
++			ClearPageDirty(xpage);
++		xpage++;
++	}
++
++	return;
++
++ badpage:
++	bad_page(function, xpage, page, order);
++	return;
++}
++
++static inline
++void free_pages_check(const char *function, struct page *page, int order)
++{
++	if (unlikely(
++		page_mapped(page) ||
++		page->mapping != NULL ||
++		page_count(page) != 0 ||
++		(page->flags & (
++			1 << PG_lru	|
++			1 << PG_private |
++			1 << PG_locked	|
++			1 << PG_active	|
++			1 << PG_reclaim	|
++			1 << PG_slab	|
++			1 << PG_swapcache |
++			1 << PG_writeback ))
++		))
++		goto badpage;
++
++	/* check that compound pages are correctly assembled */
++	if (unlikely(PageCompound(page)))
++		free_pages_check_compound(function, page, order);
++	else if (unlikely(order > 0))
++		goto badpage;
++
++	if (PageDirty(page))
++		ClearPageDirty(page);
++
++	return;
++
++ badpage:
++	bad_page(function, page, page, order);
++	return;
++}
++
++/*
+  * Freeing function for a buddy system allocator.
+  *
+  * The concept of a buddy system is to maintain direct-mapped table
+@@ -251,8 +313,14 @@ static inline void __free_pages_bulk (st
+ 	struct page *coalesced;
+ 	int order_size = 1 << order;
+ 
+-	if (unlikely(order))
+-		destroy_compound_page(page, order);
++	if (unlikely(PageCompound(page))) {
++		struct page *xpage = page;
++		int i;
++
++		for (i = (1 << order); i > 0; i--)
++			(xpage++)->flags &=
++				~(1 << PG_compound | 1 << PG_compound_slave);
++	}
+ 
+ 	page_idx = page - base;
+ 
+@@ -285,25 +353,6 @@ static inline void __free_pages_bulk (st
+ 	zone->free_area[order].nr_free++;
+ }
+ 
+-static inline void free_pages_check(const char *function, struct page *page)
+-{
+-	if (	page_mapped(page) ||
+-		page->mapping != NULL ||
+-		page_count(page) != 0 ||
+-		(page->flags & (
+-			1 << PG_lru	|
+-			1 << PG_private |
+-			1 << PG_locked	|
+-			1 << PG_active	|
+-			1 << PG_reclaim	|
+-			1 << PG_slab	|
+-			1 << PG_swapcache |
+-			1 << PG_writeback )))
+-		bad_page(function, page);
+-	if (PageDirty(page))
+-		ClearPageDirty(page);
 -}
 -
  /*
-  * Handle all mappings that got truncated by a "truncate()"
-  * system call.
-@@ -315,25 +311,69 @@ static inline struct vm_area_struct *fin
- static void add_nommu_vma(struct vm_area_struct *vma)
+  * Frees a list of pages.
+  * Assumes all pages on list are in same zone, and of same order.
+@@ -341,20 +390,12 @@ free_pages_bulk(struct zone *zone, int c
+ void __free_pages_ok(struct page *page, unsigned int order)
  {
- 	struct vm_area_struct *pvma;
-+	struct address_space *mapping;
- 	struct rb_node **p = &nommu_vma_tree.rb_node;
- 	struct rb_node *parent = NULL;
+ 	LIST_HEAD(list);
+-	int i;
  
-+	/* add the VMA to the mapping */
-+	if (vma->vm_file) {
-+		mapping = vma->vm_file->f_mapping;
+ 	arch_free_page(page, order);
+ 
+ 	mod_page_state(pgfree, 1 << order);
+ 
+-#ifndef CONFIG_MMU
+-	if (order > 0)
+-		for (i = 1 ; i < (1 << order) ; ++i)
+-			__put_page(page + i);
+-#endif
+-
+-	for (i = 0 ; i < (1 << order) ; ++i)
+-		free_pages_check(__FUNCTION__, page + i);
++	free_pages_check(__FUNCTION__, page, order);
+ 	list_add(&page->lru, &list);
+ 	kernel_map_pages(page, 1 << order, 0);
+ 	free_pages_bulk(page_zone(page), 1, &list, order);
+@@ -419,25 +460,57 @@ expand(struct zone *zone, struct page *p
+ /*
+  * This page is about to be returned from the page allocator
+  */
+-static void prep_new_page(struct page *page, int order)
++static void prep_new_page(struct page *page, unsigned int gfp_mask, int order,
++			  int check)
+ {
+-	if (page->mapping || page_mapped(page) ||
+-	    (page->flags & (
+-			1 << PG_private	|
+-			1 << PG_locked	|
+-			1 << PG_lru	|
+-			1 << PG_active	|
+-			1 << PG_dirty	|
+-			1 << PG_reclaim	|
+-			1 << PG_swapcache |
+-			1 << PG_writeback )))
+-		bad_page(__FUNCTION__, page);
++	page_flags_t pgflags = page->flags;
 +
-+		flush_dcache_mmap_lock(mapping);
-+		vma_prio_tree_insert(vma, &mapping->i_mmap);
-+		flush_dcache_mmap_unlock(mapping);
++	/* check the struct page hasn't become corrupted */
++	if (check) {
++		if (page->mapping || page_mapped(page) ||
++		    (pgflags & (
++			    1 << PG_private	|
++			    1 << PG_locked	|
++			    1 << PG_lru	|
++			    1 << PG_active	|
++			    1 << PG_dirty	|
++			    1 << PG_reclaim	|
++			    1 << PG_swapcache |
++			    1 << PG_writeback |
++			    1 << PG_compound |
++			    1 << PG_compound_slave)))
++			bad_page(__FUNCTION__, page, page, order);
 +	}
 +
-+	/* add the VMA to the master list */
- 	while (*p) {
- 		parent = *p;
- 		pvma = rb_entry(parent, struct vm_area_struct, vm_rb);
++	pgflags &= ~(1 << PG_uptodate | 1 << PG_error |
++		     1 << PG_referenced | 1 << PG_arch_1 |
++		     1 << PG_checked | 1 << PG_mappedtodisk);
  
--		if (vma->vm_start < pvma->vm_start)
-+		if (vma->vm_start < pvma->vm_start) {
- 			p = &(*p)->rb_left;
--		else if (vma->vm_start > pvma->vm_start)
-+		}
-+		else if (vma->vm_start > pvma->vm_start) {
- 			p = &(*p)->rb_right;
--		else
--			BUG(); /* shouldn't happen by this point */
-+		}
-+		else {
-+			/* mappings are at the same address - this can only
-+			 * happen for shared-mem chardevs and shared file
-+			 * mappings backed by ramfs/tmpfs */
-+			BUG_ON(!(pvma->vm_flags & VM_SHARED));
+-	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
+-			1 << PG_referenced | 1 << PG_arch_1 |
+-			1 << PG_checked | 1 << PG_mappedtodisk);
+ 	page->private = 0;
 +
-+			if (vma < pvma)
-+				p = &(*p)->rb_left;
-+			else if (vma > pvma)
-+				p = &(*p)->rb_right;
-+			else
-+				BUG();
++	/* set the refcount on the page */
+ 	set_page_refs(page, order);
++
++	/* if requested, mark a high-order allocation as being a compound page
++	 * and store high-order page metadata on the second page */
++	if (order > 0 && gfp_mask & __GFP_COMP) {
++		struct page *xpage;
++		int i;
++
++		pgflags |= 1 << PG_compound;
++
++		page[1].index = order;
++		page[1].mapping = NULL; /* no destructor yet */
++
++		xpage = page + 1;
++		for (i = (1 << order) - 1; i > 0; i--) {
++			xpage->flags |= 1 << PG_compound | 1 << PG_compound_slave;
++			xpage->private = (unsigned long) page;
++			xpage++;
 +		}
- 	}
- 
- 	rb_link_node(&vma->vm_rb, parent, p);
- 	rb_insert_color(&vma->vm_rb, &nommu_vma_tree);
++	}
++
++	page->flags = pgflags;
  }
  
-+static void delete_nommu_vma(struct vm_area_struct *vma)
-+{
-+	struct address_space *mapping;
-+
-+	/* remove the VMA from the mapping */
-+	if (vma->vm_file) {
-+		mapping = vma->vm_file->f_mapping;
-+
-+		flush_dcache_mmap_lock(mapping);
-+		vma_prio_tree_remove(vma, &mapping->i_mmap);
-+		flush_dcache_mmap_unlock(mapping);
-+	}
-+
-+	/* remove from the master list */
-+	rb_erase(&vma->vm_rb, &nommu_vma_tree);
-+}
-+
-+/*
-+ * handle mapping creation for uClinux
-+ */
- unsigned long do_mmap_pgoff(struct file *file,
- 			    unsigned long addr,
- 			    unsigned long len,
-@@ -343,19 +383,27 @@ unsigned long do_mmap_pgoff(struct file 
+ /*
+@@ -589,7 +662,7 @@ void fastcall free_hot_cold_page(struct 
+ 	inc_page_state(pgfree);
+ 	if (PageAnon(page))
+ 		page->mapping = NULL;
+-	free_pages_check(__FUNCTION__, page);
++	free_pages_check(__FUNCTION__, page, 0);
+ 	pcp = &zone->pageset[get_cpu()].pcp[cold];
+ 	local_irq_save(flags);
+ 	if (pcp->count >= pcp->high)
+@@ -708,11 +781,11 @@ perthread_pages_alloc(void)
+  */
+ 
+ static struct page *
+-buffered_rmqueue(struct zone *zone, int order, int gfp_flags)
++buffered_rmqueue(struct zone *zone, int order, unsigned int gfp_mask)
  {
- 	struct vm_list_struct *vml = NULL;
- 	struct vm_area_struct *vma = NULL;
-+	struct address_space *mapping = NULL;
- 	struct rb_node *rb;
- 	unsigned int vm_flags;
- 	void *result;
--	int ret, chrdev;
-+	int ret, chrdev, memback;
+ 	unsigned long flags;
+ 	struct page *page = NULL;
+-	int cold = !!(gfp_flags & __GFP_COLD);
++	int cold = !!(gfp_mask & __GFP_COLD);
  
- 	/*
- 	 * Get the !CONFIG_MMU specific checks done first
- 	 */
-+	memback = 0;
- 	chrdev = 0;
--	if (file)
-+	if (file) {
- 		chrdev = S_ISCHR(file->f_dentry->d_inode->i_mode);
-+		mapping = file->f_mapping;
-+		if (!mapping)
-+			mapping = file->f_dentry->d_inode->i_mapping;
-+		if (mapping && mapping->backing_dev_info)
-+			memback = mapping->backing_dev_info->memory_backed;
-+	}
- 
--	if ((flags & MAP_SHARED) && (prot & PROT_WRITE) && file && !chrdev) {
-+	if ((flags & MAP_SHARED) && (prot & PROT_WRITE) && file && !chrdev && !memback) {
- 		printk("MAP_SHARED not completely supported (cannot detect page dirtying)\n");
- 		return -EINVAL;
+ 	if (order == 0) {
+ 		struct per_cpu_pages *pcp;
+@@ -740,9 +813,7 @@ buffered_rmqueue(struct zone *zone, int 
+ 	if (page != NULL) {
+ 		BUG_ON(bad_range(zone, page));
+ 		mod_page_state_zone(zone, pgalloc, 1 << order);
+-		prep_new_page(page, order);
+-		if (order && (gfp_flags & __GFP_COMP))
+-			prep_compound_page(page, order);
++		prep_new_page(page, gfp_mask, order, 1);
  	}
-@@ -387,49 +435,53 @@ unsigned long do_mmap_pgoff(struct file 
- 		goto error_getting_vml;
- 	memset(vml, 0, sizeof(*vml));
+ 	return page;
+ }
+@@ -1003,23 +1074,24 @@ fastcall void free_pages(unsigned long a
  
--	/* Do simple checking here so the lower-level routines won't have
-+	/* do simple checking here so the lower-level routines won't have
- 	 * to. we assume access permissions have been handled by the open
- 	 * of the memory object, so we don't do any here.
- 	 */
- 	vm_flags = calc_vm_flags(prot,flags) /* | mm->def_flags */
- 		| VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC;
+ EXPORT_SYMBOL(free_pages);
  
--	if (!chrdev) {
-+	if (!chrdev && !memback) {
- 		/* share any file segment that's mapped read-only */
- 		if (((flags & MAP_PRIVATE) && !(prot & PROT_WRITE) && file) ||
- 		    ((flags & MAP_SHARED) && !(prot & PROT_WRITE) && file))
--			vm_flags |= VM_SHARED | VM_MAYSHARE;
-+			vm_flags |= VM_MAYSHARE;
- 
- 		/* refuse to let anyone share files with this process if it's being traced -
- 		 * otherwise breakpoints set in it may interfere with another untraced process
- 		 */
--		if (!chrdev && current->ptrace & PT_PTRACED)
-+		if (current->ptrace & PT_PTRACED)
- 			vm_flags &= ~(VM_SHARED | VM_MAYSHARE);
- 	}
- 	else {
--		/* permit sharing of character devices at any time */
-+		/* permit sharing of character devices and ramfs files at any time */
- 		vm_flags |= VM_MAYSHARE;
- 		if (flags & MAP_SHARED)
- 			vm_flags |= VM_SHARED;
- 	}
- 
--	/* if we want to share, we need to search for VMAs created by another mmap() call that
--	 * overlap with our proposed mapping
--	 * - we can only share with an exact match on regular files
--	 * - shared mappings on character devices are permitted to overlap inexactly as far as we
--	 *   are concerned, but in that case, sharing is handled in the driver rather than here
--	 */
- 	down_write(&nommu_vma_sem);
--	if (!chrdev && vm_flags & VM_SHARED) {
-+
-+	/* if we want to share, we need to search for VMAs created by another
-+	 * mmap() call that overlap with our proposed mapping
-+	 * - we can only share with an exact match on most regular files
-+	 * - shared mappings on character devices and memory backed files are
-+	 *   permitted to overlap inexactly as far as we are concerned for in
-+	 *   these cases, sharing is handled in the driver or filesystem rather
-+	 *   than here
-+	 */
-+	if (vm_flags & VM_MAYSHARE) {
- 		unsigned long pglen = (len + PAGE_SIZE - 1) >> PAGE_SHIFT;
- 		unsigned long vmpglen;
- 
- 		for (rb = rb_first(&nommu_vma_tree); rb; rb = rb_next(rb)) {
- 			vma = rb_entry(rb, struct vm_area_struct, vm_rb);
- 
--			if (!(vma->vm_flags & VM_SHARED))
-+			if (!(vma->vm_flags & VM_MAYSHARE))
- 				continue;
- 
-+			/* search for overlapping mappings on the same file */
- 			if (vma->vm_file->f_dentry->d_inode != file->f_dentry->d_inode)
- 				continue;
- 
-@@ -440,8 +492,9 @@ unsigned long do_mmap_pgoff(struct file 
- 			if (pgoff >= vma->vm_pgoff + vmpglen)
- 				continue;
- 
-+			/* handle inexact matches between mappings */
- 			if (vmpglen != pglen || vma->vm_pgoff != pgoff) {
--				if (flags & MAP_SHARED)
-+				if (!chrdev && !memback)
- 					goto sharing_violation;
- 				continue;
- 			}
-@@ -455,6 +508,8 @@ unsigned long do_mmap_pgoff(struct file 
- 		}
- 	}
- 
-+	vma = NULL;
-+
- 	/* obtain the address to map to. we verify (or select) it and ensure
- 	 * that it represents a valid section of the address space
- 	 * - this is the hook for quasi-memory character devices
-@@ -496,7 +551,6 @@ unsigned long do_mmap_pgoff(struct file 
- 
- #ifdef MAGIC_ROM_PTR
- 		/* First, try simpler routine designed to give us a ROM pointer. */
+-#ifdef CONFIG_HUGETLB_PAGE
 -
- 		if (file->f_op->romptr && !(prot & PROT_WRITE)) {
- 			ret = file->f_op->romptr(file, vma);
- #ifdef DEBUG
-@@ -510,9 +564,9 @@ unsigned long do_mmap_pgoff(struct file 
- 				goto error;
- 		} else
- #endif /* MAGIC_ROM_PTR */
--		/* Then try full mmap routine, which might return a RAM pointer,
--		   or do something truly complicated. */
--
-+		/* Then try full mmap routine, which might return a RAM
-+		 * pointer, or do something truly complicated
-+		 */
- 		if (file->f_op->mmap) {
- 			ret = file->f_op->mmap(file, vma);
- 
-@@ -530,8 +584,9 @@ unsigned long do_mmap_pgoff(struct file 
- 			goto error;
- 		}
- 
--		/* An ENOSYS error indicates that mmap isn't possible (as opposed to
--		   tried but failed) so we'll fall through to the copy. */
-+		/* An ENOSYS error indicates that mmap isn't possible (as
-+		 * opposed to tried but failed) so we'll fall through to the
-+		 * copy. */
- 	}
- 
- 	/* allocate some memory to hold the mapping */
-@@ -576,8 +631,10 @@ unsigned long do_mmap_pgoff(struct file 
- 		flush_icache_range((unsigned long) result, (unsigned long) result + len);
- 
-  done:
--	realalloc += kobjsize(result);
--	askedalloc += len;
-+	if (!(vma->vm_flags & VM_SHARED)) {
-+		realalloc += kobjsize(result);
-+		askedalloc += len;
-+	}
- 
- 	realalloc += kobjsize(vma);
- 	askedalloc += sizeof(*vma);
-@@ -639,21 +696,24 @@ static void put_vma(struct vm_area_struc
- 		down_write(&nommu_vma_sem);
- 
- 		if (atomic_dec_and_test(&vma->vm_usage)) {
--			rb_erase(&vma->vm_rb, &nommu_vma_tree);
-+			delete_nommu_vma(vma);
- 
- 			if (vma->vm_ops && vma->vm_ops->close)
- 				vma->vm_ops->close(vma);
- 
--			if (!(vma->vm_flags & VM_IO) && vma->vm_start) {
-+			/* IO memory and memory shared directly out of the pagecache from
-+			 * ramfs/tmpfs mustn't be released here */
-+			if (!(vma->vm_flags & (VM_IO | VM_SHARED)) && vma->vm_start) {
- 				realalloc -= kobjsize((void *) vma->vm_start);
- 				askedalloc -= vma->vm_end - vma->vm_start;
--				if (vma->vm_file)
--					fput(vma->vm_file);
- 				kfree((void *) vma->vm_start);
- 			}
- 
- 			realalloc -= kobjsize(vma);
- 			askedalloc -= sizeof(*vma);
-+
-+			if (vma->vm_file)
-+				fput(vma->vm_file);
- 			kfree(vma);
- 		}
- 
-@@ -664,6 +724,7 @@ static void put_vma(struct vm_area_struc
- int do_munmap(struct mm_struct *mm, unsigned long addr, size_t len)
+-void put_page(struct page *page)
++#ifdef CONFIG_ENHANCED_COMPOUND_PAGES
++fastcall void put_page(struct page *page)
  {
- 	struct vm_list_struct *vml, **parent;
-+	unsigned long end = addr + len;
+ 	if (unlikely(PageCompound(page))) {
+-		page = (struct page *)page->private;
++		page = (struct page *) page->private;
+ 		if (put_page_testzero(page)) {
+-			void (*dtor)(struct page *page);
++			page_dtor_t dtor;
  
- #ifdef MAGIC_ROM_PTR
- 	/* For efficiency's sake, if the pointer is obviously in ROM,
-@@ -677,15 +738,16 @@ int do_munmap(struct mm_struct *mm, unsi
+-			dtor = (void (*)(struct page *))page[1].mapping;
++			dtor = (page_dtor_t) page[1].mapping;
+ 			(*dtor)(page);
+ 		}
+ 		return;
+ 	}
+-	if (!PageReserved(page) && put_page_testzero(page))
++
++	if (likely(!PageReserved(page)) && put_page_testzero(page))
+ 		__page_cache_release(page);
+ }
++
+ EXPORT_SYMBOL(put_page);
  #endif
  
- 	for (parent = &mm->context.vmlist; *parent; parent = &(*parent)->next)
--		if ((*parent)->vma->vm_start == addr)
--			break;
--	vml = *parent;
-+		if ((*parent)->vma->vm_start == addr &&
-+		    (*parent)->vma->vm_end == end)
-+			goto found;
+@@ -2258,3 +2330,39 @@ void *__init alloc_large_system_hash(con
  
--	if (!vml) {
--		printk("munmap of non-mmaped memory by process %d (%s): %p\n",
--		       current->pid, current->comm, (void *) addr);
--		return -EINVAL;
--	}
-+	printk("munmap of non-mmaped memory by process %d (%s): %p\n",
-+	       current->pid, current->comm, (void *) addr);
-+	return -EINVAL;
-+
-+ found:
-+	vml = *parent;
- 
- 	put_vma(vml->vma);
- 
-@@ -793,12 +855,23 @@ unsigned long do_mremap(unsigned long ad
- 	return vml->vma->vm_start;
+ 	return table;
  }
- 
--struct vm_area_struct * find_vma(struct mm_struct * mm, unsigned long addr)
++
 +/*
-+ * Look up the first VMA which satisfies  addr < vm_end,  NULL if none
++ * split a compound page into an array of smaller chunks of a given order
 + */
-+struct vm_area_struct *find_vma(struct mm_struct *mm, unsigned long addr)
- {
-+	struct vm_list_struct *vml;
-+
-+	for (vml = mm->context.vmlist; vml; vml = vml->next)
-+		if (addr >= vml->vma->vm_start && addr < vml->vma->vm_end)
-+			return vml->vma;
-+
- 	return NULL;
- }
- 
--struct page * follow_page(struct mm_struct *mm, unsigned long addr, int write)
-+EXPORT_SYMBOL(find_vma);
-+
-+struct page *follow_page(struct mm_struct *mm, unsigned long addr, int write)
- {
- 	return NULL;
- }
-@@ -845,3 +918,9 @@ void unmap_mapping_range(struct address_
- 			 int even_cows)
- {
- }
-+
-+struct page * filemap_nopage(struct vm_area_struct * area, unsigned long address, int *type)
++void split_compound_page(struct page *page, unsigned new_order)
 +{
-+	BUG();
-+	return NULL;
++	unsigned old_order, loop, stop, step;
++
++	old_order = compound_page_order(page);
++	if (old_order != new_order) {
++		BUG_ON(old_order < new_order);
++
++		stop = 1 << old_order;
++		step = 1 << new_order;
++		for (loop = 0; loop < stop; loop += step)
++			prep_new_page(page + loop, __GFP_COMP, new_order, 0);
++	}
 +}
++
++/*
++ * split a high-order page into an array of smaller chunks of a given order
++ */
++void split_highorder_page(struct page *page, unsigned new_order,
++			  unsigned old_order)
++{
++	unsigned loop, stop, step;
++
++	if (old_order != new_order) {
++		BUG_ON(old_order < new_order);
++
++		stop = 1 << old_order;
++		step = 1 << new_order;
++		for (loop = 0; loop < stop; loop += step)
++			prep_new_page(page + loop, 0, new_order, 0);
++	}
++}
+diff -uNrp linux-2.6.10-rc2-mm3-mmcleanup/mm/slab.c linux-2.6.10-rc2-mm3-shmem/mm/slab.c
+--- linux-2.6.10-rc2-mm3-mmcleanup/mm/slab.c	2004-11-22 10:54:18.000000000 +0000
++++ linux-2.6.10-rc2-mm3-shmem/mm/slab.c	2004-12-01 15:49:28.000000000 +0000
+@@ -873,7 +873,7 @@ static void *kmem_getpages(kmem_cache_t 
+ 	void *addr;
+ 	int i;
+ 
+-	flags |= cachep->gfpflags;
++	flags |= cachep->gfpflags | __GFP_COMP;
+ 	if (likely(nodeid == -1)) {
+ 		addr = (void*)__get_free_pages(flags, cachep->gfporder);
+ 		if (!addr)

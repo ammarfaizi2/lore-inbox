@@ -1,63 +1,126 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289735AbSBGUhE>; Thu, 7 Feb 2002 15:37:04 -0500
+	id <S291282AbSBGUgE>; Thu, 7 Feb 2002 15:36:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291284AbSBGUgs>; Thu, 7 Feb 2002 15:36:48 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:29701 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S289735AbSBGUgd>;
-	Thu, 7 Feb 2002 15:36:33 -0500
-Date: Thu, 7 Feb 2002 13:36:02 -0700
-From: yodaiken@fsmlabs.com
-To: Robert Love <rml@tech9.net>
-Cc: yodaiken@fsmlabs.com, Martin Wirth <Martin.Wirth@dlr.de>,
-        linux-kernel@vger.kernel.org, akpm@zip.com.au, torvalds@transmet.com,
-        mingo@elte.hu, nigel@nrg.org
-Subject: Re: [RFC] New locking primitive for 2.5
-Message-ID: <20020207133602.C21935@hq.fsmlabs.com>
-In-Reply-To: <3C629F91.2869CB1F@dlr.de> <1013107259.10430.29.camel@phantasy> <20020207125853.B21354@hq.fsmlabs.com> <1013112523.9534.75.camel@phantasy> <20020207131550.A21935@hq.fsmlabs.com> <1013113285.11659.84.camel@phantasy>
+	id <S291290AbSBGUfy>; Thu, 7 Feb 2002 15:35:54 -0500
+Received: from barbados.bluemug.com ([63.195.182.101]:45833 "EHLO
+	barbados.bluemug.com") by vger.kernel.org with ESMTP
+	id <S291288AbSBGUe5>; Thu, 7 Feb 2002 15:34:57 -0500
+Date: Thu, 7 Feb 2002 12:34:51 -0800
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: "H. Peter Anvin" <hpa@zytor.com>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: How to check the kernel compile options ?
+Message-ID: <20020207203451.GE26826@bluemug.com>
+Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <a3mjhc$qba$1@cesium.transmeta.com> <E16YoRQ-0000aS-00@starship.berlin> <20020207182653.GA26664@bluemug.com> <E16Yu52-00015I-00@starship.berlin>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <1013113285.11659.84.camel@phantasy>; from rml@tech9.net on Thu, Feb 07, 2002 at 03:20:24PM -0500
-Organization: FSM Labs
+In-Reply-To: <E16Yu52-00015I-00@starship.berlin>
+X-PGP-ID: 5C09BB33
+X-PGP-Fingerprint: C518 67A5 F5C5 C784 A196  B480 5C97 3BBD 5C09 BB33
+From: Mike Touloumtzis <miket@bluemug.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 07, 2002 at 03:20:24PM -0500, Robert Love wrote:
-> On Thu, 2002-02-07 at 15:15, yodaiken@fsmlabs.com wrote:
+On Thu, Feb 07, 2002 at 08:19:36PM +0100, Daniel Phillips wrote:
+> On February 7, 2002 07:26 pm, Mike Touloumtzis wrote:
+> > 
+> > I installed a custom rsync just the other day, and I did it by downloading
+> > the Debian rsync source, patching it, and building a Debian package.
+> > I would certainly do the same for cat if I needed to.
+> > 
+> > Sorry, I still don't see any fundamental difference.
 > 
-> > I'd love to hear how things could be done right here. 
-> > There seem to be 3 choices for reader writer locks
+> Yes, and would you configure cat?  Which options would you select?
 > 
-> Assuming there is no
-> 
-> 	4. a solution that works
-> 
-> (and I do not assume that) we can just not do inheritance under
+> I'm trying to avoid just saying 'you're being silly', but it's what I
+> really mean.
 
-> reader-writer locks and that means they remain as spin locks.  Normal
-> spin locks remain proper candidates.
-> 
-> I never mentioned anything about reader-writer locks in my original
-> email.  Most of the long-held locks I am considering are not in this
-> category anyway ...
+I'm talking about rsync now, not cat (that was reductio ad absurdum to
+make a point).  In case you haven't compiled any userspace programs in
+a while: many of them have configuration options.  In the case of rsync,
+things like "--enable-profile" and "--disable-ipv6".
 
-I'm content to let it drop here, but I simply observe that you keep bringing
-up the glorious future of inheritance without addressing any of the hard
-problems. My contention is that the very capable Solaris engineers did not find the
-(4) above because it does not exist.
+I fail to see how tracking a custom compiled rsync is any different
+from tracking a custom compiled kernel.  In both cases you have local
+history to track and a group of files to bundle together.
 
-> P.S. If this is going to turn into another priority-inheritance flame, I
-> am stopping here.  Let's take it off-list or just drop it, please.  I'd
-> much prefer to discuss the current combilock issue which is at hand. ;)
+Let's replay this discussion as I see it:
 
-It's the same issue.
+You: Users are clamoring for the inclusion of configuration information
+     in the kernel.  They clearly need it, so let's include it even
+     though it has no functional purpose.
 
+Me: Actually, I'm a user and the distribution-provided packaging tools
+    work fine for this purpose.  We don't bundle similar information
+    into the binaries of userspace tools.
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+You: Userspace tools don't have configuration options like the kernel.
 
+Me: Yes they do.
+
+Arguing that people don't custom configure anything but the kernel is
+a dead end.  Also, I have already claimed that I don't need any of the
+"stuffing config info into kernels" solutions mentioned on this thread,
+so it's hard to try to convince me I need this feature.
+
+Some possible available avenues of argument for you are:
+
+-- "You don't know what you're missing".
+
+   You can argue that moving configuration info into the kernel is
+   fundamentally better than, or makes things easier than, bundling
+   it into a package.  This is a hard sell, since in an earlier mail
+   I demonstrated that I can get at the configuration info in a kernel
+   package with two commands.
+
+-- "You are not a typical user".
+
+   Since I'm satisfied with the status quo, your best defense of this
+   change is to argue that I am not the target audience for this change.
+
+   As far as I can tell, the userbase of Linux, includes, in descending
+   order of frequency:
+
+   1) People who use prepackaged distribution kernels.
+   2) People who build their own kernels based on distribution packaging
+      systems, or have evolved their own systems of kernel management
+      over the years.
+   3) People who sling kernels around like loose change and forget where
+      each kernel came from.
+
+   AFAICT most of the "config info needs to go in the kernel" arguments
+   seem to come from camp #3.  I think those people should just get
+   their acts together or start using the right tools instead.
+
+   When I first started using Unix (on a multiuser system, back in
+   school), I was struck by how messy it was.  The root directories
+   contained all kinds of locally added directories and forgotten crap.
+   The systems were a mishmash of forgotten compiled-from-source packages,
+   temporary workarounds, expedient measures, and haphazardly patcheded
+   kernels.
+
+   The extent to which the distributors and other measures like the FHS
+   have rationalized this situation, and automated the tasks it sprung
+   from, continues to amaze me.  My sneaking suspicion is that people
+   who want to stuff configuration info into the kernel haven't made that
+   leap yet.  That's why I'm being a bit of a harsh critic of the concept
+   (plus, it seems to be par for the course on lkml :-).
+
+A final argument for using packaging/bundling tools and userspace files
+instead of files in /proc for tracking kernel metadata:
+
+-- Kernels are no longer single files, at least for most people.
+   A _harder_ problem than this one is tracking which modules go with
+   which kernel.  Solving this problem solves the configuration tracking
+   problem as a _side_effect_.  Conversely, solving the configuration
+   tracking problem without solving the module tracking problem is
+   largely useless.
+
+miket

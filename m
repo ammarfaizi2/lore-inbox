@@ -1,29 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263115AbRE1STC>; Mon, 28 May 2001 14:19:02 -0400
+	id <S263116AbRE1SXw>; Mon, 28 May 2001 14:23:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263116AbRE1SSx>; Mon, 28 May 2001 14:18:53 -0400
-Received: from mauve.demon.co.uk ([158.152.209.66]:33721 "EHLO
-	mauve.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S263115AbRE1SSn>; Mon, 28 May 2001 14:18:43 -0400
-From: Ian Stirling <root@mauve.demon.co.uk>
-Message-Id: <200105281816.TAA15469@mauve.demon.co.uk>
-Subject: Loopback crypt.
-To: linux-kernel@vger.kernel.org
-Date: Mon, 28 May 2001 19:16:40 +0100 (BST)
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+	id <S263117AbRE1SXm>; Mon, 28 May 2001 14:23:42 -0400
+Received: from sncgw.nai.com ([161.69.248.229]:8422 "HELO mcafee-labs.nai.com")
+	by vger.kernel.org with SMTP id <S263116AbRE1SXb>;
+	Mon, 28 May 2001 14:23:31 -0400
+Message-ID: <XFMail.20010528112631.davidel@xmailserver.org>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <NEBBIIKAMMOCGCPMPBJOMEJLCDAA.anilk@subexgroup.com>
+Date: Mon, 28 May 2001 11:26:31 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Anil Kumar <anilk@subexgroup.com>
+Subject: RE: File read.
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there any way to delete the key of an existing loopback encrypted
-device, and have it block, until a key is reloaded?
 
-Of course any cached pages would need deleted, and dirty ones flushed
-first.
+On 28-Jun-2001 Anil Kumar wrote:
+> hi,
+> How do i read file within the kernel modules. I hope we can't use the FS
+> open... calls within kernel.
 
-To enable things like deleting keys from memory, before suspend-to-disk,
-or forcing users of devices to verify identitiy, on various events.
+You can access fs methods directly.
+Look at this newbie article :
+
+http://www.linux-mag.com/2000-11/gear_01.html
+
+
+
+
+- Davide
 

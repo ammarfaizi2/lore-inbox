@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265530AbUATODO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 09:03:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265531AbUATODO
+	id S265510AbUATNyR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 08:54:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265512AbUATNyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 09:03:14 -0500
-Received: from kiuru.kpnet.fi ([193.184.122.21]:45266 "EHLO kiuru.kpnet.fi")
-	by vger.kernel.org with ESMTP id S265530AbUATODL (ORCPT
+	Tue, 20 Jan 2004 08:54:17 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:8066 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265510AbUATNyF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 09:03:11 -0500
-Subject: Re: ALSA vs. OSS
-From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
-To: Mark Borgerding <mark@borgerding.net>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <400D2AB2.7030400@borgerding.net>
-References: <1074532714.16759.4.camel@midux>
-	 <microsoft-free.87vfn7bzi1.fsf@eicq.dnsalias.org>
-	 <1074536486.5955.412.camel@castle.bigfiber.net>
-	 <200401201046.24172.hus@design-d.de>  <400D2AB2.7030400@borgerding.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-WEMBuo33ILJI5nhIhDoz"
-Message-Id: <1074607389.19502.4.camel@midux>
+	Tue, 20 Jan 2004 08:54:05 -0500
+Date: Tue, 20 Jan 2004 14:54:06 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [PATCH] missing space in printk message (was Re: 2.6.1-mm5)
+Message-ID: <20040120135406.GA553@ucw.cz>
+References: <20040120000535.7fb8e683.akpm@osdl.org> <6ur7xuzqci.fsf@zork.zork.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 20 Jan 2004 16:03:09 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6ur7xuzqci.fsf@zork.zork.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 20, 2004 at 01:45:01PM +0000, Sean Neakums wrote:
 
---=-WEMBuo33ILJI5nhIhDoz
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: quoted-printable
+> Against 2.6.1-mm5.
+> 
+> 
+> --- S1-mm5/drivers/input/keyboard/atkbd.c~	2004-01-20 13:36:13.000000000 +0000
+> +++ S1-mm5/drivers/input/keyboard/atkbd.c	2004-01-20 13:36:24.000000000 +0000
+> @@ -279,7 +279,7 @@
+>  				atkbd->translated ? "translated" : "raw", 
+>  				atkbd->set, code, serio->phys);
+>  			if (atkbd->translated && atkbd->set == 2 && code == 0x7a)
+> -				printk(KERN_WARNING "atkbd.c: This is an XFree86 bug. It shouldn't access"
+> +				printk(KERN_WARNING "atkbd.c: This is an XFree86 bug. It shouldn't access "
+>  					"hardware directly.\n");
+>  			else
+>  				printk(KERN_WARNING "atkbd.c: Use 'setkeycodes %s%02x <keycode>' to make it known.\n",						code & 0x80 ? "e0" : "", code & 0x7f);
 
-On Tue, 2004-01-20 at 15:18, Mark Borgerding wrote:
-> Me too.  I cannot get ALSA working on my SB Live.
->=20
-> If I may be so bold as to make a suggestion: Maybe the developer in
-> charge of ALSA's e-mu driver could work with us poor unfortunates.
-> There may be some commonality between our systems that causes this
-> (besides the sound blaster live).
-> ....
-Ok, here's mine:
-Sound: Creative Labs SB Live! EMU10k1
-Debian Sid
-Kernel: 2.6.1-mm4 atm
-CPU: Athlon XP 2600+
-Mobo: epox EP-8RDA3+ w/ NForce2 chipset
---=20
-"Software is like sex, it's better when it's free."
-Markus H=E4stbacka <midian at ihme dot org>
+Fixed already in my version. Thanks for pointing it out. Other than
+that, does keyboard work OK for you?
 
---=-WEMBuo33ILJI5nhIhDoz
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBADTUc3+NhIWS1JHARAugfAJ4/e2DpG6f7E20mo/+6wt46g1qI/wCggw9U
-a5/p5O6iI22clLEYUaMNPtU=
-=cWqo
------END PGP SIGNATURE-----
-
---=-WEMBuo33ILJI5nhIhDoz--
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

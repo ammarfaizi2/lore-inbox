@@ -1,65 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285134AbSAMPTQ>; Sun, 13 Jan 2002 10:19:16 -0500
+	id <S285709AbSAMPVg>; Sun, 13 Jan 2002 10:21:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285709AbSAMPTF>; Sun, 13 Jan 2002 10:19:05 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:33286 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S285134AbSAMPSv>; Sun, 13 Jan 2002 10:18:51 -0500
-Message-ID: <3C41A545.A903F24C@linux-m68k.org>
-Date: Sun, 13 Jan 2002 16:18:29 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
+	id <S285745AbSAMPV0>; Sun, 13 Jan 2002 10:21:26 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:54146 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S285709AbSAMPVT>;
+	Sun, 13 Jan 2002 10:21:19 -0500
+Date: Sun, 13 Jan 2002 18:18:37 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Mike Kravetz <kravetz@us.ibm.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] O(1) scheduler, -H5
+In-Reply-To: <20020111091744.B1170@w-mikek2.des.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.33.0201131811460.5353-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Robert Love <rml@tech9.net>, Kenneth Johansson <ken@canit.se>,
-        arjan@fenrus.demon.nl, Rob Landley <landley@trommello.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Alan Cox wrote:
+On Fri, 11 Jan 2002, Mike Kravetz wrote:
 
-> All I have seen so far is benchmarks that say low latency is better as is,
+>         reacquire_kernel_lock(current);
+>         if (unlikely(current->need_resched))
+>                 goto need_resched_back;
+>         return;
+>
+> The question is why do we reacquire the kernel lock before checking
+> for need_resched?.  If it is not needed, we can save a lock/unlock
+> cycle in the case of need_resched.
 
-If Andrew did a good job (what he obviously did), I don't doubt that.
+that code is something i discovered when trying to reduce scheduling
+latencies for the very first lowlatency patchset i released. Back then,
+1-2-3 years ago, kernel_lock usage was still common in the kernel. So it
+often happened that tasks were spending more than 1 msec spinning for the
+kernel lock, and often they did that in the reacquire code. So to reduce
+latencies, i've added ->need_resched checking to kernel_lock() and
+reacquire_kernel_lock() as well.
 
-> and evidence that preempt patches cause far more problems than they solve
-> and have complex and subtle side effects nobody yet understands.
+these days kernel_lock contention doesnt happen all that often, so i think
+we should remove it from the 2.5 tree. I consider the preemptible kernel
+patch to be the most advanced method to get low scheduling-latencies
+anyway.
 
-I'm aware of two side effects:
-- preempt exposes already existing problems, which are worth fixing
-independent of preempt.
-- it can cause unexpected delays, which should be nonfatal, otherwise
-worth fixing as well.
+> This code isn't new with the O(1) scheduler, so I'm guessing there is
+> a need to hold the kernel_lock when checking need_resched.  I just
+> don't know what it is.
 
-What somehow got lost in this discussion, that both patches don't
-necessarily conflict with each other, they both attack the same problem
-with different approaches, which complement each other. I prefer to get
-the best of both patches.
-The ll patch identifies problem, which preempt alone can't fix, on the
-other hand the ll patch inserts schedule calls all over the place, where
-preempt can handle this transparently. So far I haven't seen any
-evidence, that preempt introduces any _new_ serious problems, so I'd
-rather like to see to get the best out of both.
+there is no need for it to be under the kernel_lock - i simply found it to
+be an easy and common preemption point.
 
-> Furthermore its obvious that the only way to fix these side effects is to
-> implement full priority handling to avoid priority inversion issues (which
-> is precisely what the IRQ problem is) , that means implementing interrupt
-> handlers as threads, heavyweight locks and an end result I'm really not
-> interested in using.
+	Ingo
 
-It's not really needed to go that far, it's generally a good idea to
-keep interrupt handler as short as possible, we use bh or tasklets for
-exactly that reason. I don't think we need to work around broken
-hardware, but halfway decent hardware should not be a problem to get
-decent latency.
-
-bye, Roman

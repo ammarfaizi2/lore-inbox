@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271129AbTHMMOD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 08:14:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271890AbTHMMOD
+	id S271890AbTHMMTh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 08:19:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272445AbTHMMTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 08:14:03 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:62972 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S271129AbTHMMOB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 08:14:01 -0400
-Date: Wed, 13 Aug 2003 13:13:22 +0100
-From: Dave Jones <davej@redhat.com>
-To: Michel D?nzer <michel@daenzer.net>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       dri-devel@lists.sourceforge.net
-Subject: Re: [Dri-devel] [PATCH] cpu_relax whilst in busy-wait loops.
-Message-ID: <20030813121322.GE12953@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Michel D?nzer <michel@daenzer.net>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
-References: <E19mCuO-0003dX-00@tetrachloride> <1060770126.26452.142.camel@thor.holligenstrasse29.lan>
+	Wed, 13 Aug 2003 08:19:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43138 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S271890AbTHMMTg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 08:19:36 -0400
+Date: Wed, 13 Aug 2003 13:19:35 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Adrian Reber <adrian@lisas.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vsnprintf patch
+Message-ID: <20030813121935.GC454@parcelfarce.linux.theplanet.co.uk>
+References: <20030813115212.GA28066@lisas.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1060770126.26452.142.camel@thor.holligenstrasse29.lan>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030813115212.GA28066@lisas.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 13, 2003 at 12:22:06PM +0200, Michel D?nzer wrote:
- > > -	while ( GAMMA_READ(GAMMA_INFIFOSPACE) < 2);
- > > +	while ( GAMMA_READ(GAMMA_INFIFOSPACE) < 2)
- > > +		cpu_relax();
- > 
- > Are you actually using the gamma driver? :) Something like this might be
- > useful in other drivers as well?
+On Wed, Aug 13, 2003 at 01:52:12PM +0200, Adrian Reber wrote:
+> 
+> When using the snprintf function from the kernel the length returned is
+> not the length written:
+> 
+> len = snprintf(test,1,"BLA 1"); 
+> 
+> len is 5 although test is "B"
+> 
+> the patch below fixes the symptom, but I am not sure if this is the real
+> solution for this problem.
 
-No, I just stumbled across this, and remembered seeing a similar
-patch some time earlier.  Indeed, there are probably other places in
-DRI that need the same treatment.
+For what problem?  In the example above, 5 is correct return value.
 
-		Dave
+7.19.6.5  The snprintf function
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+Synopsis
+
+#include <stdio.h>
+
+int snprintf(char * restrict s, size_t n, const char * restrict format, ...);
+
+Description
+
+The snprintf function is equivalent to fprintf, except that the output is
+written into an array (specified by argument s) rather than to a stream.
+If n is zero, nothing is written, and s may be a null pointer.  Otherwise,
+output characters beyond the n-1st are discarded rather than being written
+to the array, and a null character is written at the end of the characters
+actually written into the array.  If copying takes place between objects
+that overlap, the behavior is undefined.
+
+Returns
+
+The snprintf function returns the number of characters that would have
+been written had n been sufficiently large, not counting the terminating
+null character, or a negative value if an encoding error occurred.  Thus,
+the null-terminated output has been completely written if and only if
+the returned value is nonnegative and less than n.

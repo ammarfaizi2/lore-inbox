@@ -1,80 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265567AbSJXRhX>; Thu, 24 Oct 2002 13:37:23 -0400
+	id <S265571AbSJXRnE>; Thu, 24 Oct 2002 13:43:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265568AbSJXRhW>; Thu, 24 Oct 2002 13:37:22 -0400
-Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:19477 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S265567AbSJXRhU>;
-	Thu, 24 Oct 2002 13:37:20 -0400
-Message-ID: <3DB83156.5000402@mvista.com>
-Date: Thu, 24 Oct 2002 12:43:50 -0500
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Levon <levon@movementarian.org>
-CC: dipankar@gamebox.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NMI request/release, version 5 - I think this one's ready
-References: <20021022190818.GA84745@compsoc.man.ac.uk> <3DB5C4F3.5030102@mvista.com> <20021023230327.A27020@dikhow> <3DB6E45F.5010402@mvista.com> <20021024002741.A27739@dikhow> <3DB7033C.1090807@mvista.com> <20021024132004.A29039@dikhow> <3DB7F574.9030607@mvista.com> <20021024144632.GC32181@compsoc.man.ac.uk> <3DB81376.90403@mvista.com> <20021024171815.GA6920@compsoc.man.ac.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265572AbSJXRnE>; Thu, 24 Oct 2002 13:43:04 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:7854 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S265571AbSJXRnA>;
+	Thu, 24 Oct 2002 13:43:00 -0400
+From: Andreas Hartmann <andihartmann@freenet.de>
+X-Newsgroups: fa.linux.kernel
+Subject: Ongoing problems with sis900.c in 2.4.20pre11
+Date: Thu, 24 Oct 2002 19:53:06 +0200
+Organization: privat
+Message-ID: <ap9c23$1cb$1@ID-44327.news.dfncis.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Trace: susi.maya.org 1035481987 1419 192.168.1.3 (24 Oct 2002 17:53:07 GMT)
+X-Complaints-To: abuse@fu-berlin.de
+User-Agent: KNode/0.7.1
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Levon wrote:
+Hello all,
 
->On Thu, Oct 24, 2002 at 10:36:22AM -0500, Corey Minyard wrote:
->
->  
->
->>Is there any way to detect if the nmi watchdog actually caused the 
->>timeout?  I don't understand the hardware well enough to do it without 
->>    
->>
->
->You can check if the counter used overflowed :
->
->#define CTR_OVERFLOWED(n) (!((n) & (1U<<31)))
->#define CTRL_READ(l,h,msrs,c) do {rdmsr(MSR_P6_PERFCTR0, (l), (h));} while (0)
->
->                CTR_READ(low, high, msrs, i);
->                if (CTR_OVERFLOWED(low)) {
->			... found
->
->like oprofile does.
->
-Ok, thanks, I'll add that to the nmi_watchdog code.
+though the new bug fix for Tx timeout from Mufasa Yang in Rev 1.08.06, the 
+problem is not fixed at all. The problem appeares now not quite often as 
+before.
 
->
->I've accidentally deleted your patch, but weren't you unconditionally
->returning "break out of loop" from the watchdog ? I'm not very clear on
->the difference between NOTIFY_DONE and NOTIFY_OK anyway...
->
-The comments on these are:
-#define NOTIFY_DONE        0x0000        /* Don't care */
-#define NOTIFY_OK        0x0001        /* Suits me */
-#define NOTIFY_STOP_MASK    0x8000        /* Don't call further */
 
-I'mt taking these to mean that NOTIFY_DONE means you didn't handle it, 
-NOTIFY_OK means you did handle it, and you "or" on NOTIFY_STOP_MASK if 
-you want it to stop.  I'm thinking that stopping is probably a bad idea, 
-if the NMI is really edge triggered.
+I can find the following logentries in /var/log/messages:
 
->
->  
->
->>Plus, can't you get more than one cause of an NMI?  Shouldn't you check 
->>them all?
->>    
->>
->
->Shouldn't the NMI stay asserted ? At least with perfctr, two counters
->causes two interrupts (actually there's a bug in mainline oprofile on
->that that I'll fix when Linus is back)
->
-There's a comment in do_nmi() that says that the NMI is edge triggered. 
- If it is, then you have to call everything.  I'd really like a manual 
-on how the timer chip works, I'll see if I can hunt one down.
+Oct 24 19:40:25 susi kernel: eth0: Media Link Off
+Oct 24 19:40:35 susi kernel: eth0: Media Link On 100mbps full-duplex
+Oct 24 19:40:36 susi kernel: eth0: Media Link Off
+Oct 24 19:40:46 susi kernel: eth0: Media Link On 100mbps full-duplex
+Oct 24 19:40:47 susi kernel: eth0: Media Link Off
+Oct 24 19:40:57 susi kernel: eth0: Media Link On 100mbps full-duplex
+Oct 24 19:40:58 susi kernel: eth0: Media Link Off
+Oct 24 19:41:07 susi kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Oct 24 19:41:07 susi kernel: eth0: Transmit timeout, status 00000004 
+00000000
+Oct 24 19:41:08 susi kernel: eth0: Media Link On 100mbps full-duplex
+Oct 24 19:41:09 susi kernel: eth0: Media Link Off
+Oct 24 19:41:18 susi kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Oct 24 19:41:18 susi kernel: eth0: Transmit timeout, status 00000004 
+00000040
+Oct 24 19:41:19 susi kernel: eth0: Media Link On 100mbps full-duplex
+Oct 24 19:41:20 susi kernel: eth0: Media Link Off
+Oct 24 19:41:30 susi kernel: eth0: Media Link On 100mbps full-duplex
 
--Corey
 
+The problem occures between two sis900-cards (see lspci). You can fix it by 
+restarting the network on one of the two machines (including rmmod sis900).
+
+
+00:00.0 Host bridge: Acer Laboratories Inc. [ALi] M1541 (rev 04)
+        Subsystem: Acer Laboratories Inc. [ALi] ALI M1541 Aladdin V/V+ AGP 
+System Controller
+        Flags: bus master, slow devsel, latency 64
+        Memory at e6000000 (32-bit, non-prefetchable) [size=16M]
+        Capabilities: [b0] AGP version 1.0
+
+00:01.0 PCI bridge: Acer Laboratories Inc. [ALi] M5243 (rev 04) (prog-if 00 
+[Normal decode])
+        Flags: bus master, slow devsel, latency 64
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+        I/O behind bridge: 0000d000-0000dfff
+        Memory behind bridge: e4800000-e5ffffff
+        Prefetchable memory behind bridge: e7f00000-e7ffffff
+
+00:03.0 Bridge: Acer Laboratories Inc. [ALi] M7101 PMU
+        Subsystem: Acer Laboratories Inc. [ALi] ALI M7101 Power Management 
+Controller
+        Flags: medium devsel
+
+00:07.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge 
+[Aladdin IV] (rev c3)
+        Flags: bus master, medium devsel, latency 0
+
+00:0a.0 Multimedia audio controller: Xilinx, Inc. RME Digi96
+        Flags: slow devsel, IRQ 12
+        Memory at e3000000 (32-bit, non-prefetchable) [size=16M]
+
+00:0b.0 Ethernet controller: Silicon Integrated Systems [SiS] SiS900 10/100 
+Ethernet (rev 02)
+        Subsystem: Silicon Integrated Systems [SiS] SiS900 10/100 Ethernet 
+Adapter
+        Flags: bus master, medium devsel, latency 32, IRQ 10
+        I/O ports at b800 [size=256]
+        Memory at e2800000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at <unassigned> [disabled] [size=128K]
+        Capabilities: [40] Power Management version 1
+
+00:0f.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c1) 
+(prog-if 8a [Master SecP PriP])
+        Flags: bus master, medium devsel, latency 32
+        I/O ports at b400 [size=16]
+
+01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 
+1X/2X (rev 5c) (prog-if 00 [VGA])
+        Subsystem: ATI Technologies Inc: Unknown device 0084
+        Flags: bus master, stepping, medium devsel, latency 64, IRQ 11
+        Memory at e5000000 (32-bit, non-prefetchable) [size=16M]
+        I/O ports at d800 [size=256]
+        Memory at e4800000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at e7fe0000 [disabled] [size=128K]
+        Capabilities: [50] AGP version 1.0
+
+
+I would be very happy if this very old problem could be really fixed.
+
+
+Regards,
+Andreas Hartmann

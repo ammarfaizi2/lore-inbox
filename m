@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284809AbRLPU74>; Sun, 16 Dec 2001 15:59:56 -0500
+	id <S284816AbRLPVHG>; Sun, 16 Dec 2001 16:07:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284816AbRLPU7q>; Sun, 16 Dec 2001 15:59:46 -0500
-Received: from ns.suse.de ([213.95.15.193]:44047 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S284809AbRLPU7h>;
-	Sun, 16 Dec 2001 15:59:37 -0500
-Date: Sun, 16 Dec 2001 21:59:29 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: More fun with fsx.
-In-Reply-To: <15388.60557.527680.468341@charged.uio.no>
-Message-ID: <Pine.LNX.4.33.0112162154080.16845-100000@Appserv.suse.de>
+	id <S284820AbRLPVG4>; Sun, 16 Dec 2001 16:06:56 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44036 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S284816AbRLPVGi>; Sun, 16 Dec 2001 16:06:38 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Booting a modular kernel through a multiple streams file
+Date: 16 Dec 2001 13:06:15 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9vj2c7$vgr$1@cesium.transmeta.com>
+In-Reply-To: <3C1D060B.9475C9F8@bluewin.ch>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Dec 2001, Trond Myklebust wrote:
+Followup to:  <3C1D060B.9475C9F8@bluewin.ch>
+By author:    Otto Wyss <otto.wyss@bluewin.ch>
+In newsgroup: linux.dev.kernel
+> 
+> Disadvantages:
+> - Someone else has to do it, I'm not a kernel/driver developer
+> 
 
-> I found the bug. It's a pretty ugly race...
+By this you have pretty much shown yourself utterly unqualified to be
+a kernel *designer*.  I won't even go into the various bogus
+assumption you're making.
 
-Well, you found _a_ bug perhaps, but not this one..
-Still repeatedly fails in exactly the same part with
-your second patch applied instead.
-
-Dave.
-
+	-hpa
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,31 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277151AbRJDHJ7>; Thu, 4 Oct 2001 03:09:59 -0400
+	id <S277149AbRJDHfy>; Thu, 4 Oct 2001 03:35:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277149AbRJDHJr>; Thu, 4 Oct 2001 03:09:47 -0400
-Received: from zok.sgi.com ([204.94.215.101]:39596 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S277147AbRJDHJd>;
-	Thu, 4 Oct 2001 03:09:33 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH - gameport_{,un}register_port must be static when inline 
-In-Reply-To: Your message of "Thu, 04 Oct 2001 15:04:39 +1000."
-             <15291.60903.127755.574686@notabene.cse.unsw.edu.au> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 04 Oct 2001 15:10:31 +1000
-Message-ID: <11465.1002172231@kao2.melbourne.sgi.com>
+	id <S277152AbRJDHfp>; Thu, 4 Oct 2001 03:35:45 -0400
+Received: from mail.sonytel.be ([193.74.243.200]:40424 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S277149AbRJDHfd>;
+	Thu, 4 Oct 2001 03:35:33 -0400
+Date: Thu, 4 Oct 2001 09:32:26 +0200 (MEST)
+From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+To: David Weinehall <tao@acc.umu.se>
+cc: Juha Siltala <juha.siltala@mail.suomi.net>, linux-kernel@vger.kernel.org
+Subject: Re: Past CREDITS files
+In-Reply-To: <20011004034733.V7800@khan.acc.umu.se>
+Message-ID: <Pine.GSO.4.21.0110040930420.17814-100000@mullein.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Oct 2001 15:04:39 +1000 (EST), 
-Neil Brown <neilb@cse.unsw.edu.au> wrote:
->Are you sure?  2.4.10 seems to have a big input rewrite, and
->patch-2.4.10-ac4 doesn't change gameport.h and makes only minimal
->changes to esssolo1.c, one of the drivers in question.
+On Thu, 4 Oct 2001, David Weinehall wrote:
+> On Wed, Oct 03, 2001 at 04:22:17PM +0300, Juha Siltala wrote:
+> > I would like to examine the CREDITS files of all/most kernels released over
+> > time. How could I get my hands on these? I want to study the accumulation
+> > of contributors over the years. This is part of my masters thesis project.
+> > 
+> > BTW, when was the current twofold stable/devel numbering scheme started?
+> 
+> I don't think this will be very rewarding, as a lot of very important
+> contributors aren't listed in this file (if I remember correctly,
+> Alexander Viro, the guru of VFS-design, is one example, all the people
+> behind my all-time favourite project, the Standford-checker, is another
+> example), hence this file is pretty useless.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=99419452230792&w=2, find
-gameport.  It was finally fixed in 2.4.5-ac17.
+So it would be better to search for names in the full sources. I admit that's
+not to simple. Email adresses would be simpler but suffers from the same
+problem as the CREDITS file.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,260 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265194AbUD3OM5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265207AbUD3OW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265194AbUD3OM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 10:12:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265207AbUD3OM5
+	id S265207AbUD3OW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 10:22:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265212AbUD3OW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 10:12:57 -0400
-Received: from h001061b078fa.ne.client2.attbi.com ([24.91.86.110]:54920 "EHLO
-	linuxfarms.com") by vger.kernel.org with ESMTP id S265194AbUD3OMs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 10:12:48 -0400
-Date: Fri, 30 Apr 2004 10:14:40 -0400 (EDT)
-From: Arthur Perry <kernel@linuxfarms.com>
-X-X-Sender: kernel@tiamat.perryconsulting.net
-To: Giuliano Colla <copeca@copeca.dsnet.it>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-       hsflinux@lists.mbsi.ca, Rusty Russell <rusty@rustcorp.com.au>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [hsflinux] [PATCH] Blacklist binary-only modules lying about
- their license
-In-Reply-To: <409256A4.5080607@copeca.dsnet.it>
-Message-ID: <Pine.LNX.4.58.0404300947290.17408@tiamat.perryconsulting.net>
-References: <408DC0E0.7090500@gmx.net> <40914C35.1030802@copeca.dsnet.it>
- <Pine.LNX.4.58.0404291404100.1629@ppc970.osdl.org> <409256A4.5080607@copeca.dsnet.it>
+	Fri, 30 Apr 2004 10:22:28 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:4345 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S265207AbUD3OWZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 10:22:25 -0400
+Date: Fri, 30 Apr 2004 10:22:19 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Alexey Mahotkin <alexm@w-m.ru>
+Subject: [PATCH][2.6] throttle P4 thermal warnings
+Message-ID: <Pine.LNX.4.58.0404300952350.2332@montezuma.fsmlabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In really bad conditions this can keep printing for a while, throttle the
+output somewhat. Also change the "CPU%d" formatting to better match the
+other boot output.
 
-Hello,
+Index: linux-2.6.6-rc2-mm2/arch/i386/kernel/cpu/mcheck/p4.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.6-rc2-mm2/arch/i386/kernel/cpu/mcheck/p4.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 p4.c
+--- linux-2.6.6-rc2-mm2/arch/i386/kernel/cpu/mcheck/p4.c	26 Apr 2004 16:55:53 -0000	1.1.1.1
++++ linux-2.6.6-rc2-mm2/arch/i386/kernel/cpu/mcheck/p4.c	30 Apr 2004 12:51:51 -0000
+@@ -38,7 +38,7 @@ static int mce_num_extended_msrs = 0;
+ #ifdef CONFIG_X86_MCE_P4THERMAL
+ static void unexpected_thermal_interrupt(struct pt_regs *regs)
+ {
+-	printk(KERN_ERR "CPU#%d: Unexpected LVT TMR interrupt!\n", smp_processor_id());
++	printk(KERN_ERR "CPU%d: Unexpected LVT TMR interrupt!\n", smp_processor_id());
+ }
 
-I have 2 parts to this IMHO exerpt.
-Top half is system level oriented in response to the hardware detection
-"issue", and the bottom half is in regard to the tainted kernel module
-load flag.
+ /* P4/Xeon Thermal transition interrupt handler */
+@@ -46,15 +46,20 @@ static void intel_thermal_interrupt(stru
+ {
+ 	u32 l, h;
+ 	unsigned int cpu = smp_processor_id();
++	static unsigned long next[NR_CPUS];
 
-Creating a hardware detection package for a distribution is not an
-incredibly difficult thing to do, since most of the tools that one needs is readily available.
-It only takes someone with reasonable hardware knowledge to be able to
-script some simpleton program to be able to detect most hardware and load
-the proper device driver AFTER the correct hardware/driver combination has
-been determined.
+ 	ack_APIC_irq();
 
-This is a system-level issue, and not really a kernel level one, assuming
-that all of the possible device drivers to be used has already been
-built for the target architecture that you are trying to build this
-system-level hardware detection package.
+-	rdmsr (MSR_IA32_THERM_STATUS, l, h);
+-	if (l & 1) {
+-		printk(KERN_EMERG "CPU#%d: Temperature above threshold\n", cpu);
+-		printk(KERN_EMERG "CPU#%d: Running in modulated clock mode\n", cpu);
++	if (time_after(next[cpu], jiffies))
++		return;
++
++	next[cpu] = jiffies + HZ*5;
++	rdmsr(MSR_IA32_THERM_STATUS, l, h);
++	if (l & 0x1) {
++		printk(KERN_EMERG "CPU%d: Temperature above threshold\n", cpu);
++		printk(KERN_EMERG "CPU%d: Running in modulated clock mode\n", cpu);
+ 	} else {
+-		printk(KERN_INFO "CPU#%d: Temperature/speed normal\n", cpu);
++		printk(KERN_INFO "CPU%d: Temperature/speed normal\n", cpu);
+ 	}
+ }
 
-The Linux architecture is flexible and robust enough for somebody to be
-able to detect hardware, simply by "walking" the general busses in the
-proper respective order for the architecture that you are targeting.
-There is no need to "brute force" load all device drivers in order to
-discover what the user has on his/her system.
+@@ -89,13 +94,13 @@ static void __init intel_init_thermal(st
+ 	rdmsr (MSR_IA32_MISC_ENABLE, l, h);
+ 	h = apic_read(APIC_LVTTHMR);
+ 	if ((l & (1<<3)) && (h & APIC_DM_SMI)) {
+-		printk(KERN_DEBUG "CPU#%d: Thermal monitoring handled by SMI\n", cpu);
++		printk(KERN_DEBUG "CPU%d: Thermal monitoring handled by SMI\n", cpu);
+ 		return; /* -EBUSY */
+ 	}
 
-For PC architecture, this is a no brainer.
-1) walk the PCI bus. Yes, it will already be supported because your Linux
-kernel (if built by someone who knows something about what he is
-doing) will already have it mapped out just fine after boot, no modules to load.
-2) from your list, identify chipsets (this may not even be necessary). If
-you know nothing about registers (ususally device 0, offset 0x0), just use lspci! (pcitools)
-3) Identify controllers and hub types from that list (SCSI, IDE, USB, etc)
-and load those device drivers. If you cannot determine which device driver
-to load, then you probably shouldn't be writing this hardware detection
-package in the first place.
-4) continue down other busses and load their device drivers (walk the USB
-bus, load whatever...)
+ 	/* check whether a vector already exists, temporarily masked? */
+ 	if (h & APIC_VECTOR_MASK) {
+-		printk(KERN_DEBUG "CPU#%d: Thermal LVT vector (%#x) already installed\n",
++		printk(KERN_DEBUG "CPU%d: Thermal LVT vector (%#x) already installed\n",
+ 			cpu, (h & APIC_VECTOR_MASK));
+ 		return; /* -EBUSY */
+ 	}
+@@ -116,7 +121,7 @@ static void __init intel_init_thermal(st
 
-This is an oversimplified approach to what is really not a killer problem.
-I would not worry too much about distributions who are still doing things
-the lazy way such as brute force loading all modules just because they
-have no rhyme or reason to their hardware detection approach.
-If they want errors to go away, they will be smarter about their approach.
-It's not our job to worry about that for them.
+ 	l = apic_read (APIC_LVTTHMR);
+ 	apic_write_around (APIC_LVTTHMR, l & ~APIC_LVT_MASKED);
+-	printk (KERN_INFO "CPU#%d: Thermal monitoring enabled\n", cpu);
++	printk (KERN_INFO "CPU%d: Thermal monitoring enabled\n", cpu);
+ 	return;
+ }
+ #endif /* CONFIG_X86_MCE_P4THERMAL */
+@@ -247,7 +252,7 @@ void __init intel_p4_mcheck_init(struct
+ 	rdmsr (MSR_IA32_MCG_CAP, l, h);
+ 	if (l & (1<<9))	{/* MCG_EXT_P */
+ 		mce_num_extended_msrs = (l >> 16) & 0xff;
+-		printk (KERN_INFO "CPU#%d: Intel P4/Xeon Extended MCE MSRs (%d) available\n",
++		printk (KERN_INFO "CPU%d: Intel P4/Xeon Extended MCE MSRs (%d) available\n",
+ 			smp_processor_id(), mce_num_extended_msrs);
 
-Now about the "tainted" flag, the end user who is at the level of who
-needs this whole package is probably not going to know too much about what
-"tainted" means, or would not know that is is even there.
-Professionals will be flagged, but I think they have a right to know.
-
-I would want to know if a device driver that I have loaded is indeed a
-binary-type within a wrapper of some kind. That will give me an indication
-of what to expect. If I caught any wind of the vendor HIDING such things
-from me, because they want to make their device driver APPEAR to be just
-as native as the rest, then I would say that TAINTS the VENDOR'S
-REPUTATION in my eyes.
-You have to remember who you are trying to fool.
-
-
-Arthur Perry
-Lead Linux Developer / Linux Systems Architect
-Validation, CSU Celestica
-Sair/Linux Gnu Certified Professional, 2000
-Project Manager, Linuxfarms
-http://www.linuxfarms.com
-
-
-
-
-On Fri, 30 Apr 2004, Giuliano Colla wrote:
-
-> Linus Torvalds ha scritto:
->
-> >On Thu, 29 Apr 2004, Giuliano Colla wrote:
-> >
-> >
-> >>Let's try not to be ridiculous, please.
-> >>
-> >>
-> >
-> >It's not abotu being ridiculous. It's about honoring peoples copyrights.
-> >
-> >
-> >
-> On that ground you're correct.
->
-> >>As an end user, if I buy a full fledged modem, I get some amount of
-> >>proprietary, non GPL, code  which executes within the board or the
-> >>PCMCIA card of the modem. The GPL driver may even support the
-> >>functionality of downloading a new version of *proprietary* code into
-> >>the flash Eprom of the device. The GPL linux driver interfaces with it,
-> >>and all is kosher.
-> >>
-> >>
-> >
-> >Indeed. Everything is kosher, because the other piece of hardware and
-> >software has _nothing_ to do with the kernel. It's not linked into it, it
-> >cannot reasonably corrupt internal kernel data structures with random
-> >pointer bugs, and in general you can think of firmware as part of the
-> >_hardware_, not the software of the machine.
-> >
-> >
-> >
-> >>On the other hand, I have the misfortune of being stuck with a
-> >>soft-modem, roughly the *same* proprietary code is provided as a binary
-> >>file, and a linux driver (source provided) interfaces with it. In that
-> >>case the kernel is flagged as "tainted".
-> >>
-> >>
-> >
-> >It is flagged as tainted, because your argument that it is "the same code"
-> >is totally BOGUS AND UNTRUE!
-> >
-> >In the binary kernel module case, a bug in the code corrupts random data
-> >structures, or accesses kernel internals without holding the proper locks,
-> >or does a million other things wrong, BECAUSE A KERNEL MODULE IS VERY
-> >INTIMATELY LINKED WITH THE KERNEL.
-> >
-> >A kernel module is _not_ a separate work, and can in _no_ way be seen as
-> >"part of the hardware". It's very much a part of the _kernel_. And the
-> >kernel developers require that such code be GPL'd so that it can be fixed,
-> >or if there's a valid argument that it's not a derived work and not GPL'd,
-> >then the kernel developers who have to support the end result mess most
-> >definitely do need to know about the taint.
-> >
-> >You are not the first (and sadly, you likely won't be the last) person to
-> >equate binary kernel modules with binary firmware. And I tell you that
-> >such a comparison is ABSOLUTE CRAPOLA. There's a damn big difference
-> >between running firmware on another chip behind a PCI bus, and linking
-> >into the kernel directly.
-> >
-> >And if you don't see that difference, then you are either terminally
-> >stupid, or you have some ulterior reason to claim that they are the same
-> >case even though they clearly are NOT.
-> >
-> >
-> >
-> O.K. you're right. By a strictly technical point of view I goofed.
->
-> But please do consider a different perspective.
->
-> I'm an end user.
-> I download a damn Linuxant driver because the manufacturer of the laptop
-> I own has seen fit to use a Conexant chipset.
-> In order to do that I must:
-> a) Pay a (small) sum.
-> b) Accept a Microsoft-like license agreement.
-> If at that point I haven't realized that I'm not getting a fully GPL'd
-> software I'm really terminally stupid as you kindly suggest.
->
-> If I'm not technically skilled, I don't know how much of the stuff I
-> downloaded executes in kernel space and how much in user's space. But,
-> as an end user, I don't care too much, because bogus code executing in
-> user space (with root privileges) cannot affect kernel stability, but
-> can make my system completely unusable as far as I'm concerned (as an
-> end user, I stress).
->
-> The big difference you mention exist when you *debug* the damn thing
-> (which of course is your concern), but the difference fades out when you
-> *use* it (which is my concern).
->
-> However, if I'm not terminally stupid, I will never think of addressing
-> to kernel people in order to fix problems arising from or after loading
-> the driver, and associated utilities, even if lsmod doesn't show
-> "tainted" modules. Kernel people shouldn't even consider supporting the
-> resulting mess.
->
-> That said, I'd like to explain what made me react to the announcement
-> posted.
->
-> Linuxant have figured a Microsoft-like brute force hardware detection
-> mechanism: they attempt to load *all* drivers, and only the one which
-> fits with actual hardware gets loaded. Of course the user gets tons of
-> error messages. They've tried to reduce the amount of error message by
-> using the pathetic workaround of a \0 after the GPL string. All of that
-> is much on Microsoft style, i.e. to find a workaround instead of a solution.
->
-> But I didn't appreciate that the reaction to that mess has been also on
-> Microsoft style.
-> The reaction has been:
->
-> a) a workaround of the workaround (if you put a \0, I'll detect the
-> Linuxant string)
->
-> b) a lie (the /GPL directory is empty).
->
-> This appears to me the beginning of a process which may lead to further
-> workarounds, and which will waste time and energies which may be
-> addressed to more useful issues.
->
-> A more relaxed reaction of the sort:
-> "Dear Linuxant people, if you're unable to work out an acceptable
-> hardware detection mechanism, why don't you address your line toward
-> interesting opportunities in the agriculture field, instead of messing
-> up with GPL license strings?"
-> would have been in my opinion much more appropriate.
->
-> But if you really insist on your policy, try at least to avoid Microsoft
-> style, and upon recognition of the Linuxant/Conexant string, flag the
-> module not as "tainted" but rather as "crappy", or "brain-damaged".
->
-> <..>
->
-> >It has absolutely nothing to do with religion.
-> >
-> >
-> >
-> It shouldn't. But it's not good to convey even remotely this feeling.
-> I'm proud of being, in my limited capacities, a member of the Open
-> Source community. I want to continue to be proud of it. If I detect
-> something that doesn't sound right, I feel it necessary to point it out.
-> Nothing makes me happier than being proved wrong.
->
-> --
-> Ing. Giuliano Colla
-> Direttore Tecnico
-> Copeca srl
-> Bologna Italy
->
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+ #ifdef CONFIG_X86_MCE_P4THERMAL

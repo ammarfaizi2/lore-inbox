@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261785AbTICJjD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 05:39:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbTICJjD
+	id S261725AbTICJti (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 05:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbTICJti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 05:39:03 -0400
-Received: from mail1.bluewin.ch ([195.186.1.74]:3209 "EHLO mail1.bluewin.ch")
-	by vger.kernel.org with ESMTP id S261785AbTICJi7 (ORCPT
+	Wed, 3 Sep 2003 05:49:38 -0400
+Received: from lidskialf.net ([62.3.233.115]:8326 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S261725AbTICJth (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 05:38:59 -0400
-Date: Wed, 3 Sep 2003 11:38:08 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Andrew de Quincey <adq_dvb@lidskialf.net>
-Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+	Wed, 3 Sep 2003 05:49:37 -0400
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: Roger Luethi <rl@hellgate.ch>
 Subject: Re: [ACPI] Where do I send APIC victims?
-Message-ID: <20030903093808.GA28594@k3.hellgate.ch>
-Mail-Followup-To: Andrew de Quincey <adq_dvb@lidskialf.net>,
-	linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-References: <20030903080852.GA27649@k3.hellgate.ch> <200309031123.58713.adq_dvb@lidskialf.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Wed, 3 Sep 2003 11:48:03 +0100
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+References: <20030903080852.GA27649@k3.hellgate.ch> <200309031123.58713.adq_dvb@lidskialf.net> <20030903093808.GA28594@k3.hellgate.ch>
+In-Reply-To: <20030903093808.GA28594@k3.hellgate.ch>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200309031123.58713.adq_dvb@lidskialf.net>
-X-Operating-System: Linux 2.6.0-test4 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.4i
+Message-Id: <200309031148.03941.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 03 Sep 2003 11:23:58 +0100, Andrew de Quincey wrote:
-> Hi, I'm trying to develop patches for ACPI IRQ issues. 
 
-That would be most appreciated.
+> > with these chipsets. I'm waiting on some docs from VIA to fix this issue.
+>
+> Which still leaves the question of why it used to work (or made the
+> impression it did) with older kernels.
 
-> Are these VIA KT333/KT400 chipsets? If so, there's a known bug in many BIOSes 
+I think on earlier kernels there was a bug in ACPI which prevented it from 
+being used for PCI IRQ routing. I know this was fixed somewhere in the 2.5.5X 
+series.
 
-Yes, at least some of them are. I often don't know, since the reports just
-say "Rhine ethernet broke in the new kernel" (VIA based boards typically
-come with Rhine ethernet integrated into the south bridge).
+When this bug was fixed, it unfortunately caused my nforce2 board to stop 
+working because of other IRQ issues, which is how I got into this. Its likely 
+the same thing causes older kernels to work with Via motherboards to work 
+'cos ACPI isn't being used for IRQ routing.
 
-> with these chipsets. I'm waiting on some docs from VIA to fix this issue.
+2.4.22 has the ACPI from 2.6 backported into it, (which includes my patch for 
+nforce2 boards) so it will start having the same issue with the BIOS bug in 
+KT333/KT400  boards.
 
-Which still leaves the question of why it used to work (or made the
-impression it did) with older kernels.
-
-Roger

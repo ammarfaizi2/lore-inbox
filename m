@@ -1,92 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316887AbSGHMvX>; Mon, 8 Jul 2002 08:51:23 -0400
+	id <S316889AbSGHMxI>; Mon, 8 Jul 2002 08:53:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316889AbSGHMvX>; Mon, 8 Jul 2002 08:51:23 -0400
-Received: from gherkin.frus.com ([192.158.254.49]:40576 "HELO gherkin.frus.com")
-	by vger.kernel.org with SMTP id <S316887AbSGHMvV>;
-	Mon, 8 Jul 2002 08:51:21 -0400
-Message-Id: <m17RY1h-0005khC@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob_Tracy)
-Subject: [PATCH] 2.5.25: IFORCE joystick code buglets
-To: linux-kernel@vger.kernel.org
-Date: Mon, 8 Jul 2002 07:54:01 -0500 (CDT)
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	id <S316891AbSGHMxH>; Mon, 8 Jul 2002 08:53:07 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:34947 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S316889AbSGHMxF>; Mon, 8 Jul 2002 08:53:05 -0400
+Date: Mon, 8 Jul 2002 08:57:20 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Thunder from the hill <thunder@ngforever.de>
+cc: Daniel Phillips <phillips@arcor.de>, Pavel Machek <pavel@ucw.cz>,
+       "Stephen C. Tweedie" <sct@redhat.com>, Bill Davidsen <davidsen@tmr.com>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: simple handling of module removals Re: [OKS] Module removal
+In-Reply-To: <Pine.LNX.4.44.0207080632200.10105-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.3.95.1020708084535.19250A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'll include the following patches in-line since they are both small
-and obvious.  For what it's worth, I wouldn't have found the first bug
-if the second hadn't existed :-).
+On Mon, 8 Jul 2002, Thunder from the hill wrote:
+
+> Hi,
+> 
+> On Mon, 8 Jul 2002, Richard B. Johnson wrote:
+> > (3)	Set a global flag "module_remove", it doesn't have to be atomic.
+> > 	It needs only to be volatile. It is used in schedule() to trap
+> > 	all CPUs.
+> >         schedule()
+> >         {
+> >             while(module_remove)
+> >                 ;
+> >         }
+> 
+> That doesn't sound too clean to me...
+> 
+> Maybe we should lock that module explicitly, instead of halting anything 
+> that is schedule()d.
+
+Locking the module does nothing except increase module overhead. The
+premise is that we don't care how long it takes to remove a module. It
+just must be done safely. So, what we need to do it make certain that...
+
+(1) All calls from the module have returned.
+(2) All calls to the module code have returned.
+(3) All user-access has completed.
+
+That's what the trap in schedule() does, in conjunction with the
+wait-for-timer-ticks. We don't want to have lots of locks and semiphores
+that have to be accessed during normal execution paths.
+
+> 
+> We should possibly add something to lock in struct module (or 
+> module_info), be it some kind of integer or be it a semaphore (which is 
+> clearly a bit too much, I think) or a spinlock, or whatever.
+
+But this doesn't solve the module-removal problem .
+
+> shouldn't protect the module from being used in parallel, but from being 
+> used in removal. So on removal, we do something like module->remove |= 1 
+> or even up(module->m_sem), and when we're done, we do something related to 
+> undo the up, remove or whatever...
+> 
+
+Again, it's not the problem I'm addressing.
 
 
-====--CUT HERE--====
---- linux/drivers/input/joystick/iforce/iforce-packets.c.orig	Sun Jul  7 20:42:42 2002
-+++ linux/drivers/input/joystick/iforce/iforce-packets.c	Sun Jul  7 20:45:28 2002
-@@ -249,9 +249,8 @@
- 
- 	switch (iforce->bus) {
- 
--	case IFORCE_USB:
--
- #ifdef IFORCE_USB
-+	case IFORCE_USB:
- 		iforce->cr.bRequest = packet[0];
- 		iforce->ctrl->dev = iforce->usbdev;
- 
-@@ -274,14 +273,11 @@
- 			usb_unlink_urb(iforce->ctrl);
- 			return -1;
- 		}
--#else
--		printk(KERN_ERR "iforce_get_id_packet: iforce->bus = USB!\n");
--#endif
- 		break;
--
--	case IFORCE_232: +#endif
- 
- #ifdef IFORCE_232
-+	case IFORCE_232:
- 		iforce->expect_packet = FF_CMD_QUERY;
- 		iforce_send_packet(iforce, FF_CMD_QUERY, packet);
- 
-@@ -298,10 +294,8 @@
- 			iforce->expect_packet = 0;
- 			return -1;
- 		}
--#else
--		printk(KERN_ERR "iforce_get_id_packet: iforce->bus = SERIO!\n");
--#endif
- 		break;
-+#endif
- 
- 	default:
- 		printk(KERN_ERR "iforce_get_id_packet: iforce->bus = %d\n",
-====--TUC EREH--====
+> BTW, looking at struct module, we have this union
+> 
+> union {
+> 	atomic_t usecount;
+> 	long pad;
+> }
+> 
+> Fair enough, but if long pad is to pad (as it name tells us), shouldn't it 
+> be atomic_t then (I mean, what if we change the type for atomic_t)?
+> 
 
-====--CUT HERE--====
---- linux/drivers/input/joystick/iforce/iforce.h.orig	Sun Jul  7 15:18:26 2002
-+++ linux/drivers/input/joystick/iforce/iforce.h	Sun Jul  7 16:35:43 2002
-@@ -47,10 +47,10 @@
- 
- #define IFORCE_MAX_LENGTH	16
- 
--#if defined(CONFIG_JOYSTICK_IFORCE_232)
-+#if defined(CONFIG_JOYSTICK_IFORCE_232) || defined(CONFIG_JOYSTICK_IFORCE_232_MODULE)
- #define IFORCE_232	1
- #endif
--#if defined(CONFIG_JOYSTICK_IFORCE_USB)
-+#if defined(CONFIG_JOYSTICK_IFORCE_USB) || defined(CONFIG_JOYSTICK_IFORCE_USB_MODULE)
- #define IFORCE_USB	2
- #endif
- 
-====--TUC EREH--====
+Good point. Member usecount could be anything. A 'long' isn't the correct
+pad for all types, but it will probably handle everything that was
+intended.
 
--- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

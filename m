@@ -1,91 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263354AbTIGQGV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 12:06:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbTIGQGV
+	id S263351AbTIGQDq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 12:03:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263354AbTIGQDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 12:06:21 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:43026 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263354AbTIGQGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 12:06:19 -0400
-Date: Sun, 7 Sep 2003 17:06:10 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test4-bk9:  card services build error
-Message-ID: <20030907170610.B23176@flint.arm.linux.org.uk>
-Mail-Followup-To: "Robert P. J. Day" <rpjday@mindspring.com>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0309071139520.16112-100000@localhost.localdomain>
-Mime-Version: 1.0
+	Sun, 7 Sep 2003 12:03:46 -0400
+Received: from pat.uio.no ([129.240.130.16]:8350 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S263351AbTIGQDo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 12:03:44 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0309071139520.16112-100000@localhost.localdomain>; from rpjday@mindspring.com on Sun, Sep 07, 2003 at 11:41:28AM -0400
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Content-Transfer-Encoding: 7bit
+Message-ID: <16219.22236.521008.199583@charged.uio.no>
+Date: Sun, 7 Sep 2003 12:03:40 -0400
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+Subject: Re: NFS client problems in 2.4.18 to 2.4.20
+In-Reply-To: <20030907154238.GK19977@mail.jlokier.co.uk>
+References: <16218.5318.401323.630346@charged.uio.no>
+	<20030906212250.64809.qmail@web40414.mail.yahoo.com>
+	<20030906231401.GB12392@mail.jlokier.co.uk>
+	<16218.37312.1855.652692@charged.uio.no>
+	<20030907142727.GG19977@mail.jlokier.co.uk>
+	<16219.19506.659542.990013@charged.uio.no>
+	<20030907154238.GK19977@mail.jlokier.co.uk>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 07, 2003 at 11:41:28AM -0400, Robert P. J. Day wrote:
-> 
->   from a build of 2.6.0-test4-bk9 (didn't appear to be there in bk8):
-> 
-> ...
-> 
-> make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
->   CHK     include/linux/compile.h
->   CC      kernel/configs.o
->   LD      kernel/built-in.o
->   GEN     .version
->   CHK     include/linux/compile.h
->   UPD     include/linux/compile.h
->   CC      init/version.o
->   LD      init/built-in.o
->   LD      .tmp_vmlinux1
-> drivers/built-in.o(.text+0x8511c): In function `CardServices':
-> : undefined reference to `pcmcia_deregister_client'
-> drivers/built-in.o(.text+0x86d15): In function `pcmcia_bus_remove_socket':
-> : undefined reference to `pcmcia_deregister_client'
-> drivers/built-in.o(__ksymtab+0x1150): undefined reference to `pcmcia_deregister_client'
-> make: *** [.tmp_vmlinux1] Error 1
+>>>>> " " == Jamie Lokier <jamie@shareable.org> writes:
 
-Yes, my editors escape code processing was buggy so it dropped an extra "R"
-(from the F3 escape code) into cs.c while I was searching.  (F3 is search
-forward in MicroEMACS.)  Naturally, with open source, such things get fixed
-once they cause you enough annoyance.  (Did I ever mention that terminal
-escape codes are broken by design?)
+    >> This is not an issue for tapes, etc. NFS has an alternative
+    >> mechanisms for dealing with this in the form of the
+    >> NFSERR_JUKEBOX error.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1189  -> 1.1190 
-#	 drivers/pcmcia/cs.c	1.60    -> 1.61   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/09/07	rmk@flint.arm.linux.org.uk	1.1190
-# [PCMCIA] Remove editor droppings.
-# --------------------------------------------
-#
-diff -Nru a/drivers/pcmcia/cs.c b/drivers/pcmcia/cs.c
---- a/drivers/pcmcia/cs.c	Sun Sep  7 17:04:33 2003
-+++ b/drivers/pcmcia/cs.c	Sun Sep  7 17:04:34 2003
-@@ -1053,7 +1053,7 @@
- 
- /*====================================================================*/
- 
--int pcmcia_deregister_clientR(client_handle_t handle)
-+int pcmcia_deregister_client(client_handle_t handle)
- {
-     client_t **client;
-     struct pcmcia_socket *s;
+     > Oh, cool.  Perhaps the server should send these automatically,
+     > when I/O operations are taking a little bit too long?
 
+Yes. Needs a patch to knfsd, but would be very useful for people that
+want to export tapes, CD exchangers, etc...
 
--- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-Linux kernel maintainer of:
-  2.6 ARM Linux   - http://www.arm.linux.org.uk/
-  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-  2.6 Serial core
+    >> By setting 'retrans=6' (5 + 1 to compensate for the bug),
+    >> therefore, people can ensure that we retry for at least 6
+    >> seconds before timing out. The question is: is this an adequate
+    >> default?
+
+     > That would be a big improvement.  I take it you have
+     > effectively clamped the retransmit time at a minimum of 1/10
+     > second, then?  (I didn't understand what you meant earlier).
+
+Yes. When we calculate the timeout value, we add the estimated error*4
+to the estimated round trip time. I've set a floor on the former value
+so that the minumum timeout will be 1/10second.
+
+     > Last time I used a soft mount, I was seeing the first
+     > retransmit after some time smaller than a millisecond.  (I
+     > don't remember, but 0.1ms sounds about right).  If that is the
+     > retransmit time, then retrans=6 won't be enough - retrans=16
+     > would be needed.  I don't think a good correct retrans=xxx
+     > setting should depend on the network like that.  Setting a
+     > minimum retransmit time is one way to fix that.
+
+It is already in 2.6.0. I'm expecting to put it into 2.4.23 too, but I
+want to know that this (together with a patch to 'mount' to change the
+retrans default) really does solve the problem for people...
+
+Cheers,
+  Trond

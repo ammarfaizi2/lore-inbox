@@ -1,57 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261923AbSJJRsY>; Thu, 10 Oct 2002 13:48:24 -0400
+	id <S262034AbSJJRz7>; Thu, 10 Oct 2002 13:55:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261934AbSJJRsY>; Thu, 10 Oct 2002 13:48:24 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22031 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261923AbSJJRsX>; Thu, 10 Oct 2002 13:48:23 -0400
-Date: Thu, 10 Oct 2002 13:46:07 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: lell02 <lell02@stud.uni-passau.de>
-cc: Jens Axboe <axboe@suse.de>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Status of UDF CD packet writing?
-In-Reply-To: <200210091042.g99Agwjm009964@tom.rz.uni-passau.de>
-Message-ID: <Pine.LNX.3.96.1021010134148.17862C-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262050AbSJJRz7>; Thu, 10 Oct 2002 13:55:59 -0400
+Received: from findaloan-online.cc ([216.209.85.42]:41993 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S262034AbSJJRz6>;
+	Thu, 10 Oct 2002 13:55:58 -0400
+Date: Thu, 10 Oct 2002 14:01:08 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Robert Love <rml@tech9.net>,
+       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: More on O_STREAMING (goodby read pauses)
+Message-ID: <20021010180108.GB16962@mark.mielke.cc>
+References: <20021009222349.GA2353@werewolf.able.es> <1034203433.794.152.camel@phantasy> <20021010034057.GC8805@mark.mielke.cc> <20021010143927.GA2193@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021010143927.GA2193@werewolf.able.es>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Oct 2002, lell02 wrote:
+On Thu, Oct 10, 2002 at 04:39:27PM +0200, J.A. Magallon wrote:
+> On 2002.10.10 Mark Mielke wrote:
+> >I assume the stall is not 'while pages are sent to disk', but rather
+> >until kswapd gets around to freeing enough pages to allow memory to
+> >fill again. The stall is due to the pages being fully analyzed to
+> >determine which ones should go, and which ones shouldn't. O_STREAMING
+> >removes the pages ahead of time, so no analysis is ever required.
+> I can _hear_ the disk activity when the stall happens, so selecting what
+> to drop is fast, but then you have to write it...
 
-> >You might be talking about two different patches -- one for cd-rw
-> >support (this is the pktcdvd (or -packet) patch that Peter Osterlund has
-> >been maintaining) and the other for cd-mrw. The cd-mrw patch is very
-> >small, not a lot is required to support that in the cd driver.
-> >Supporting cd-rw is a lot harder, basically you have to do in software
-> >what cd-mrw does in hardware (defect management, read-modify-write
-> >packet gathering, etc).
-> >
-> >cd-mrw will definitely be in 2.6. cd-rw support maybe, I haven't even
-> >looked at that lately.
-> >
-> 
-> thanx for clearing out these differences. 
-> 
-> but, isn't cd-mrw supposed to replace the old packet-writing technique?
-> so, in the end, there wouldn't be any need for packet-writing, if every burner 
-> ships with cd-mrw-support... i read in the "specs", that the technology would 
-> be much better.
+I don't think this is right. Prove me wrong by explaining how kswapd works,
+but if a page isn't dirty, there is no need to write it out to disk.
 
-When will you be sending me my replacement writers which support cd-mrw?
-Hum, I thought not. You ignore the fact that there are at least hundreds
-of thousands of devices in use which don't have that feature, but which
-will support packet with the existing patches. AFAIK the code exists for
-2.4, so perhaps only a port is needed.
+My (perhaps incorrect) assumption is that kswapd prefers to swap on clean
+pages over dirty pages. If your pages are mostly clean, there is nothing
+to write to disk the clear majority of the time.
 
-Hopefully someone using this can clarify, I tried the code a while ago,
-and it worked but was pretty slow. I would still find it useful in many
-cases, however, I'm getting smarter about using slow writers :-(
+Clean read-only pages should *never* be written to swap. They can be re-read
+from their source.
+
+I _think_ what you are seeing is that kswapd is not cleaning pages out
+fast enough, which means that *other* tasks executing need to have their
+*swapped out* pages *read* from disk. I.e. the churning you hear is probably
+mostly reads - not writes.
+
+mark
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

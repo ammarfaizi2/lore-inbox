@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130985AbRBAQak>; Thu, 1 Feb 2001 11:30:40 -0500
+	id <S131025AbRBAQca>; Thu, 1 Feb 2001 11:32:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131001AbRBAQaa>; Thu, 1 Feb 2001 11:30:30 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:56061 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130985AbRBAQaR>; Thu, 1 Feb 2001 11:30:17 -0500
-Date: Thu, 1 Feb 2001 14:29:27 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: David Ford <david@linux.com>
-cc: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
-Subject: Re: VM brokenness, possibly related to reiserfs
-In-Reply-To: <3A7959E9.E62F4581@linux.com>
-Message-ID: <Pine.LNX.4.21.0102011428090.1321-100000@duckman.distro.conectiva>
+	id <S131027AbRBAQcU>; Thu, 1 Feb 2001 11:32:20 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:32013 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S131025AbRBAQcF>; Thu, 1 Feb 2001 11:32:05 -0500
+Date: Thu, 01 Feb 2001 11:31:42 -0500
+From: Chris Mason <mason@suse.com>
+To: Rik van Riel <riel@conectiva.com.br>, David Ford <david@linux.com>
+cc: LKML <linux-kernel@vger.kernel.org>, reiserfs-list@namesys.com
+Subject: Re: [reiserfs-list] Re: VM brokenness, possibly related to reiserfs
+Message-ID: <377430000.981045102@tiny>
+In-Reply-To: <Pine.LNX.4.21.0102011411540.1321-100000@duckman.distro.conectiva>
+X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Feb 2001, David Ford wrote:
 
-> Correct, the point of the matter is to find stress points.  It
-> will do the exact same thing when it reaches the end of swap.  
-> I suspect a relation to reiserfs fighting for buffers perhaps.  
-> This fight occurs a few megs before the OOM routine trips.
 
-Ah, so this is the problem. I've already heard that the
-OOM killer is no longer triggered for some reason, I'll
-enter the bug in the Linux-MM bugzilla so I don't forget
-it and I'll fix it ASAP.
+On Thursday, February 01, 2001 02:16:43 PM -0200 Rik van Riel <riel@conectiva.com.br> wrote:
 
-ObBugzillaURL:
-	http://www.linux-mm.org/bugzilla.shtml
+> 
+> About the system hanging completely, I wonder if it goes
+> away by pressing sysrq-S (sync all disks). If it does,
+> maybe Reiserfs was blocking all the pages in the inactive
+> list from being written because one of the active pages
+> (not a replacement candidate) needed to be written out
+> first?  Or does the Reiserfs ->writepage() function handle
+> this?
+> 
 
-regards,
+In most cases, the reiserfs writepage func is the same as block_write_full_page.  The only difference should come when a packed tail has been mmap'd.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+Since JOURNAL_MAX_BATCH was at 100, the log should have only pinned 400k.  More blocks could be pinned, but kreiserfsd should be in the process of flushing those.
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+I've been trying out a few things to send memory pressure down to reiserfs, but they have mostly been based on the code to make fs/buffer.c use writepage for flushing.  I should have done something simple first, I'll start on that now.
+
+-chris
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

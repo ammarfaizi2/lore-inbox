@@ -1,46 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbULTQpz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbULTQrF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbULTQpz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 11:45:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbULTQpz
+	id S261567AbULTQrF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 11:47:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbULTQrE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 11:45:55 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:60688 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261566AbULTQpv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 11:45:51 -0500
-To: YOSHIFUJI Hideaki / =?iso-2022-jp?b?GyRCNUhGIzFRGyhC?=
-	 =?iso-2022-jp?b?GyRCTEAbKEI=?= <yoshfuji@linux-ipv6.org>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
-       netdev@oss.sgi.com
-X-Message-Flag: Warning: May contain useful information
-References: <200412192215.69tnzAhGIT1vQGLF@topspin.com>
-	<200412192215.fZX1ZQqQD4QGkKcF@topspin.com>
-	<20041220.155836.75677852.yoshfuji@linux-ipv6.org>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 20 Dec 2004 08:45:49 -0800
-In-Reply-To: <20041220.155836.75677852.yoshfuji@linux-ipv6.org> (YOSHIFUJI
- Hideaki's message of "Mon, 20 Dec 2004 15:58:36 +0900 (JST)")
-Message-ID: <52is6wkjeq.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Mon, 20 Dec 2004 11:47:04 -0500
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:27730 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S261567AbULTQqx convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 11:46:53 -0500
+X-Ironport-AV: i="3.88,76,1102312800"; 
+   d="scan'208"; a="163631515:sNHT1416332426"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6527.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: [PATCH][v4][19/24] Add IPoIB (IP-over-InfiniBand) driver
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 20 Dec 2004 16:45:50.0074 (UTC) FILETIME=[5C9FFDA0:01C4E6B3]
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH][1/2] adjust dirty threshold for lowmem-only mappings
+Date: Mon, 20 Dec 2004 10:46:48 -0600
+Message-ID: <037BE7456155544096945D871C4709AA01A99EB3@ausx2kmps318.aus.amer.dell.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH][1/2] adjust dirty threshold for lowmem-only mappings
+Thread-Index: AcTmp+4KhIapSeZ7RNihhqmTFWXfoQACnDsg
+From: <Robert_Hentosh@Dell.com>
+To: <riel@redhat.com>, <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 20 Dec 2004 16:46:49.0302 (UTC) FILETIME=[7FED7760:01C4E6B3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    YOSHIFUJI> above entries does not seem to appropriate for enum
-    YOSHIFUJI> (than #define).
 
-As Arnd mentioned, I thought enum values were preferred to using the
-preprocessor.  What's the advantage of converting to macros (which
-have no type, are invisible to the compiler, etc)?
 
-Thanks,
-  Roland
+> On Mon, 20 Dec 2004, Rik van Riel wrote:
+>
+>> Simply running "dd if=/dev/zero of=/dev/hd<one you can miss>"
+>> will result in OOM kills, with the dirty pagecache
+>> completely filling up lowmem.  This patch is part 1 to
+>> fixing that problem.
+>
+> What I forgot to say is that in order to trigger this OOM
+> Kill the dirty_limit of 40% needs to be more memory than
+> what fits in low memory.  So this will work on x86 with 
+> 4GB RAM, since the dirty_limit is 1.6GB, but the block 
+> device cache cannot grow that big because it is restricted
+> to low memory.
+>
+> This has the effect of all low memory being tied up in
+> Dirty page cache and userspace try_to_free_pages() skipping
+> the writeout of these pages because the block device is
+> congested.
+
+I am just confirming that this is a real problem.  The problem 
+more frequently shows up with block sizes above 4k on the
+dd and also showed up on some platforms with just a mke2fs
+on a slower device such as a USB hard drive.
+
+Rik's patch has solved the issue and has been running under
+stress (via ctcs) over the weekend without failure.  
+
+Regards,
+Robert
+

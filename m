@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277713AbRKFEEv>; Mon, 5 Nov 2001 23:04:51 -0500
+	id <S277728AbRKFEIb>; Mon, 5 Nov 2001 23:08:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277728AbRKFEEl>; Mon, 5 Nov 2001 23:04:41 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47881 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S277713AbRKFEE1>; Mon, 5 Nov 2001 23:04:27 -0500
-Date: Mon, 5 Nov 2001 20:01:29 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [Ext2-devel] disk throughput
-In-Reply-To: <Pine.GSO.4.21.0111052236001.27713-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33.0111051953490.1006-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277758AbRKFEIV>; Mon, 5 Nov 2001 23:08:21 -0500
+Received: from viper.haque.net ([66.88.179.82]:48802 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S277728AbRKFEIM>;
+	Mon, 5 Nov 2001 23:08:12 -0500
+Date: Mon, 5 Nov 2001 23:08:08 -0500
+Subject: Re: kernel 2.4.14 compiling fail for loop device
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v475)
+Cc: Mike Fedyk <mfedyk@matchmail.com>, Terminator <jimmy@mtc.dhs.org>,
+        linux-kernel@vger.kernel.org
+To: Robert Love <rml@tech9.net>
+From: "Mohammad A. Haque" <mhaque@haque.net>
+In-Reply-To: <1005019360.897.2.camel@phantasy>
+Message-Id: <E290D3DA-D26B-11D5-A0A2-00306569F1C6@haque.net>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.475)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 5 Nov 2001, Alexander Viro wrote:
+On Monday, November 5, 2001, at 11:02 PM, Robert Love wrote:
+
+> On Mon, 2001-11-05 at 22:43, Mike Fedyk wrote:
+>> Did anyone have this problem with pre8???
 >
-> OK, some digging had brought another one:
->
-> a) if it's first-level directory - get it the fsck out of root's cylinder
-> group.
+> Nope, it was added post-pre8 to final.  The deactivate_page function was
+> removed completely.
 
-Hey, now that you've read it in a paper you like it, but when I suggest it
-in email you shoot it down?
+Safe to remove those two lines from loop.c? Other calls of deactive_page 
+were just removed it seemed.
 
-<Whiny mode on>  I thought you loved me, Al.  <Whiny mode off>
+--
 
-> b) if we just keep creating directories in a cylinder group and do not
-> create any files there - stop, it's no good (i.e. there's a limit on
-> number of back-to-back directory creations in the same group).
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/
+                                                mhaque@haque.net
 
-The current code actually has some vestiges that _seem_ to be trying to do
-something like this: see the commented-out
-
-	if (tmp && le16_to_cpu(tmp->bg_used_dirs_count) << 8) <
-		   le16_to_cpu(tmp->bg_free_inodes_count)) {
-
-which _seems_ to want to play games with "number of directories allocated
-vs nr of free inodes".
-
-But it's commented out with "I am not yet convinced that this next bit is
-necessary". I don't know if the code has ever been active, or whether it
-showed other problems.
-
-> c) try putting it into the parent's CG, but reserve some number of inodes
-> and data blocks in it.  If we can't - tough, get the fsck out of there.
-
-Hmm.. Maybe this is actually closer to what we try to do above..
-
-		Linus
+   "Alcohol and calculus don't mix.             Developer/Project Lead
+    Don't drink and derive." --Unknown          http://wm.themes.org/
+                                                batmanppc@themes.org
+=====================================================================
 

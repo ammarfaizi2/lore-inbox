@@ -1,43 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261463AbTJAKGi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 06:06:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbTJAKGi
+	id S261842AbTJAKUT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 06:20:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbTJAKUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 06:06:38 -0400
-Received: from twix.hotpop.com ([204.57.55.70]:49541 "EHLO twix.hotpop.com")
-	by vger.kernel.org with ESMTP id S261463AbTJAKGh (ORCPT
+	Wed, 1 Oct 2003 06:20:19 -0400
+Received: from [212.97.163.22] ([212.97.163.22]:54148 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S261842AbTJAKUN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 06:06:37 -0400
-Subject: 2.6.0-test6 Quake3/Wolfenstein Lockups
-From: Dan <overridex@punkass.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1065002791.5548.5.camel@nazgul.overridex.net>
+	Wed, 1 Oct 2003 06:20:13 -0400
+Date: Wed, 1 Oct 2003 12:20:01 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Andries.Brouwer@cwi.nl
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] linuxabi
+Message-ID: <20031001102001.GA3495@werewolf.able.es>
+References: <UTC200310010001.h9101NU17078.aeb@smtp.cwi.nl>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 01 Oct 2003 06:06:31 -0400
-Content-Transfer-Encoding: 7bit
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <UTC200310010001.h9101NU17078.aeb@smtp.cwi.nl> (from Andries.Brouwer@cwi.nl on Wed, Oct 01, 2003 at 02:01:23 +0200)
+X-Mailer: Balsa 2.0.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
 
-I'm experiencing frequent hard lockups (magic sysrq doesn't even work)
-when exiting quake3 or return to castle wolfenstein on 2.6.0-test5 and
-test6... they happen about 50% of the time, and usually my quake3 config
-file is missing when I boot back up.  They only happen after clicking to
-bypass the credits screens when exiting the games... is anyone
-experiencing this?  I'm unable to strace quake3 as it won't start up at
-all when straced, and I can't get return to castle wolfenstein to lockup
-when it's straced.  I'm running a dual athlon 1700 machine, with
-reiserfs and LVM.  This lockup doesn't happen on 2.4.x nor did it happen
-on 2.5.72 (though at the time I was running raid-0 and not lvm) If
-anyone else is having this problem I'd like to hear it, or if anyone
-else wants info just let me know.  Please cc me any replies. -Dan
+On 10.01, Andries.Brouwer@cwi.nl wrote:
+> Hi Linus,
+> 
+> Something we have talked about for a long time is
+> separating out from the kernel headers the parts
+> fit for inclusion in user space.
+> 
+> This is a very large project, and it will take a long
+> time, especially if we want the user space headers to
+> be a pleasure to look at, instead of just a cut-n-paste
+> copy of whatever we find in the current headers.
+> 
+> Some start is required, and the very first step is
+> making sure that you agree with the project.
+> Immediately following is the choice of directory names.
+> 
+> Below
+>   (i) a small textfile "linuxabi" describing the naming
+> (subdirectories linuxabi and linuxabi-alpha etc of include),
 
+Why not just 'abi' ? Simpler, and allows glibc to include
+just 'abi/xxxx' in other systems if they follow the same convention (BSD?) ?
 
+Where would this live in userspace, /usr/include/abi or /usr/include/linux/abi ?
+How would this relate to current /usr/include/linux 
+(symlink /usr/include/linux to /usr/include/abi) ?
+
+Just curious.
+
+-- 
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.23-pre5-jam1 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-2mdk))

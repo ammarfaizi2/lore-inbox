@@ -1,71 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274161AbRIXTId>; Mon, 24 Sep 2001 15:08:33 -0400
+	id <S274517AbRIXTJE>; Mon, 24 Sep 2001 15:09:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274505AbRIXTIY>; Mon, 24 Sep 2001 15:08:24 -0400
-Received: from granger.mail.mindspring.net ([207.69.200.148]:21554 "EHLO
-	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S274161AbRIXTIP>; Mon, 24 Sep 2001 15:08:15 -0400
-Subject: Re: Linux 2.4.9-ac15
-From: Robert Love <rml@tech9.net>
-To: Kent Borg <kentborg@borg.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, LMKL <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010924145944.A23589@borg.org>
-In-Reply-To: <200109241610.f8OGAUk19897@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-	<E15lYYQ-00032z-00@the-village.bc.nu>  <20010924145944.A23589@borg.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.14.99+cvs.2001.09.24.08.08 (Preview Release)
-Date: 24 Sep 2001 15:08:22 -0400
-Message-Id: <1001358505.5382.4.camel@phantasy>
-Mime-Version: 1.0
+	id <S274505AbRIXTIu>; Mon, 24 Sep 2001 15:08:50 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:4356 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S274412AbRIXTIf>; Mon, 24 Sep 2001 15:08:35 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Jonathan Morton <chromi@cyberspace.org>,
+        VDA <VDA@port.imtp.ilyichevsk.odessa.ua>,
+        Andrea Arcangeli <andrea@suse.de>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Alexander Viro <viro@math.psu.edu>
+Subject: Re: Linux VM design
+Date: Mon, 24 Sep 2001 21:16:21 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010916204528.6fd48f5b.skraw@ithnet.com> <20010924182948Z16175-2757+1593@humbolt.nl.linux.org> <a05100301b7d52f49f7b6@[192.168.239.101]>
+In-Reply-To: <a05100301b7d52f49f7b6@[192.168.239.101]>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010924190853Z16175-2757+1600@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-09-24 at 14:59, Kent Borg wrote:
-> Does CONFIG_APM depend upon CONFIG_MAGIC_SYSRQ?  Is it supposed to?
-
-No, it shouldn't.  There must of been a bug in the new sysrq code merged
-in.  Personally, I would just enable sysrq support for now.
-
-> I tried doing a build of 2.4.9-ac15 plus
-> patch-rml-2.4.10-pre12-preempt-kernel-1 (which did apply nicely with
-> only one hunk moved only one line), but my build failed with:
-
-Btw, this isn't the preemption patches fault, although I would recommend
-you use the patches I make explicitly for Alan's tree. 2.4.9-ac14 will
-apply cleanly and is at http://tech9.net/rml/linux
-
->   arch/i386/kernel/kernel.o: In function `apm':
->   arch/i386/kernel/kernel.o(.text+0xbd35): undefined reference to `__sysrq_lock_table'
->   arch/i386/kernel/kernel.o(.text+0xbd3c): undefined reference to `__sysrq_get_key_op'
->   arch/i386/kernel/kernel.o(.text+0xbd4d): undefined reference to `__sysrq_put_key_op'
->   arch/i386/kernel/kernel.o(.text+0xbd54): undefined reference to `__sysrq_unlock_table'
+On September 24, 2001 08:46 pm, Jonathan Morton wrote:
+> >  > DP> The arguments in support of aging over LRU that I'm aware of are:
+> >>
+> >>  DP>   - incrementing an age is more efficient than resetting several LRU
+> >>  DP>     list links
+> >>  DP>   - also captures some frequency-of-use information
+> >>
+> >>  Of what use this info can be? If one page is accessed 100 times/second
+> >>  and other one once in 10 seconds, they both have to stay in RAM.
+> >>  VM should take 'time since last access' into account whan deciding
+> >>  which page to swap out, not how often it was referenced.
+> >
+> >You might want to have a look at this:
+> >
+> >    http://archi.snu.ac.kr/jhkim/seminar/96-004.ps
+> >    (lrfu algorithm)
+> >
+> >To tell the truth, I don't really see why the frequency information is all
+> >that useful either.  Rik suggested it's good for streaming IO but we 
+already
+> >have effective means of dealing with that that don't rely on any frequency
+> >information.
+> >
+> >So the list of reasons why aging is good is looking really short.
 > 
-> Which is apm.c failing on the likes of: 
-> 
->   register_sysrq_key('o',&sysrq_poweroff_op);
-> 
-> and:
-> 
->   unregister_sysrq_key('o',&sysrq_poweroff_op);
-> 
-> If I turn on CONFIG_MAGIC_SYSRQ, it builds happily.
+> It's not really frequency information.  If a page is accessed 1000 
+> times during a single schedule cycle, that will count as a single 
+> increment in the age come the time.  However, *macro* frequency 
+> information of this type *is* useful in the case where thrashing is 
+> taking place.  You want to swap out the page that is accessed only 
+> once every other schedule cycle, before the one accessed every cycle. 
 
-I am not familar with the code, but either apm.c needs to wrap its sysrq
-calls with ifdefs or the sysrq code needs to optimize away via defines
-its various sysrq functions if it is not enabled.
+But this happens naturally with LRU.  Think how it works: to get evicted a 
+page has to progress all the way from the head to the tail of the LRU list.  
+Any page that's accessed frequently is going to keep being put back at the 
+head of the list, and only infrequently accessed pages will drop off the tail.
 
-The maintainer (Crutcher?) should see this.
+> This is of course moot if one process is being suspended (as it 
+> probably should), but the criteria for suspension might include this 
+> access information.
 
-> Previously 2.4.9-ac12 with the same rml preemption patch was happy to
-> compile for me.  I have been using it on my Sony Vaio PCG-Z505LE
-> happily.
-> 
-> 2.4.10 is also happy to compile without CONFIG_MAGIC_SYSRQ.
+OK, that does get at something you can do with aging that you can't do with 
+an LRU list: look at the weightings of random pages.  You can't do that with 
+the LRU list because there's no efficient way to determine which position a 
+page holds in the list.
 
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+One application where you would want to know the weightings of random pages 
+is defragmentation.  That might become important in the future but we're not 
+doing it now.
 
+A little contemplation will probably turn up other uses for this special 
+property.
+
+--
+Daniel

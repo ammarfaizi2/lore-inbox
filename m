@@ -1,57 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267480AbUHSWbK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267483AbUHSWch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267480AbUHSWbK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 18:31:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267484AbUHSWbK
+	id S267483AbUHSWch (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 18:32:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267482AbUHSWcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 18:31:10 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:42948 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267480AbUHSWbG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 18:31:06 -0400
-Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-In-Reply-To: <20040819193049.GA13070@thunk.org>
-References: <20040809104649.GA13299@elte.hu>
-	 <20040810132654.GA28915@elte.hu> <20040812235116.GA27838@elte.hu>
-	 <1092374851.3450.13.camel@mindpipe> <1092375673.3450.15.camel@mindpipe>
-	 <20040813103151.GH8135@elte.hu>
-	 <1092699974.13981.95.camel@krustophenia.net>
-	 <20040817074826.GA1238@elte.hu> <20040817191819.GA19449@thunk.org>
-	 <1092914397.830.3.camel@krustophenia.net>
-	 <20040819193049.GA13070@thunk.org>
-Content-Type: text/plain
-Message-Id: <1092954744.830.23.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 19 Aug 2004 18:32:24 -0400
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Aug 2004 18:32:36 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:46000 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S267484AbUHSWcL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 18:32:11 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Fri, 20 Aug 2004 00:31:12 +0200
+To: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: GNU make alleged of "bug" (was: PATCH: cdrecord: avoiding scsi 
+ device numbering for ide devices)
+Message-ID: <41252A30.nail8D551I5Z2@burner>
+References: <200408191600.i7JG0Sq25765@tag.witbe.net>
+ <200408191341.07380.gene.heskett@verizon.net>
+ <20040819194724.GA10515@merlin.emma.line.org>
+ <20040819220553.GC7440@mars.ravnborg.org>
+ <20040819205301.GA12251@merlin.emma.line.org>
+In-Reply-To: <20040819205301.GA12251@merlin.emma.line.org>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-19 at 15:30, Theodore Ts'o wrote:
-> On Thu, Aug 19, 2004 at 07:19:58AM -0400, Lee Revell wrote:
-> > > I doubt SHA_CODE_SIZE will make a sufficient difference to avoid the
-> > > latency problems.  What we would need to do is to change the code so
-> > > that the rekey operation in __check_and_rekey takes place in a
-> > > workqueue.  Say, something like this (warning, I haven't tested this
-> > > patch; if it breaks, you get to keep both pieces):
-> > > 
-> > 
-> > Tested, works for me.  This should probably be pushed upstream, as well
-> > as added to -P5, correct?  Is there any disadvantage to doing it this
-> > way?
-> 
-> Great, I will be pushing this upstream very shortly.
-> 
+Matthias Andree <matthias.andree@gmx.de> wrote:
 
-Hmm, turns out that this does not fix the problem:
+> > Using:
+> > -include hello.d
+> > will result in a silent make.
+>
+> Indeed it will. However, Solaris' /usr/ccs/bin/make doesn't understand
+> the "-include" form:
+>
+> make: Fatal error in reader: Makefile, line 5: Unexpected end of line seen
+>
+> include without leading "-" is fine. BSD make doesn't understand either
+> form.
+>
+> J?rg, how about Sam's suggestion? It seems compatible with smake.
 
-http://krustophenia.net/testresults.php?dataset=2.6.8.1-P4#/var/www/2.6.8.1-P4/extract_entropy_latency_trace.txt
+-include does not work with Sun's make and it does not cure the bug in GNU make
+but hides it only.
 
-Lee
+GNU make just violates the unwritten "golden rule" for all make programs:
 
+	If you like to "use" anything, first check whether you have a rule
+	that could make the file in question.
+
+For makefiles on the Command Line, GNU make follows this rule. If you are in an 
+empty directory and call "gmake", GNU make will first try if "Makefile" or 
+"makefile" could be retrieved using e.g. "sccs get Makefile" before GNU make 
+tries to read the file.
+
+For makefiles that appear as argument to an include statement, GNU make ingnores
+this rule. GNU make instead, later (too late) executes the rule set and creates 
+the missing files using known rules. In order to be able to do anything useful, 
+GNU make then executes "exec gmake <old arg list>" after it is done with 
+executing the rules. This is complete nonsense.
+
+Smake works this way:
+
+-	if it is going to "include" a file, it checks whether there is a rule 
+	to make the file that is going to be included.
+
+-	If the file has been "made", smake includes the file.
+
+-	After including the file, smake clears the "has been made already" 
+	cache flags for the included file.
+
+-	After all make files and all recursive include rules have been made and 
+	included, smake checks all rules again. This may result in rare cases 
+	that the rule for one of the the include file is executed again.
+
+As you noe see that GNU make behaves inconsistent, I hope you believe me that 
+there is a bug in GNU make that should be fixed.
+
+
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

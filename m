@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277728AbRKAD5f>; Wed, 31 Oct 2001 22:57:35 -0500
+	id <S277782AbRKAEM1>; Wed, 31 Oct 2001 23:12:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277782AbRKAD50>; Wed, 31 Oct 2001 22:57:26 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:58020
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S277728AbRKAD5Q>; Wed, 31 Oct 2001 22:57:16 -0500
-Date: Wed, 31 Oct 2001 20:48:08 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Adam Williams <broadcast@earthling.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: crash in smp_core99_kick_cpu
-Message-ID: <20011031204808.H20613@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <3BE09769.2060703@earthling.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BE09769.2060703@earthling.net>
-User-Agent: Mutt/1.3.23i
+	id <S277791AbRKAEMI>; Wed, 31 Oct 2001 23:12:08 -0500
+Received: from ares.sot.com ([195.74.13.236]:50704 "EHLO ares.sot.com")
+	by vger.kernel.org with ESMTP id <S277782AbRKAEMG>;
+	Wed, 31 Oct 2001 23:12:06 -0500
+Date: Thu, 1 Nov 2001 06:12:41 +0200 (EET)
+From: Yaroslav Popovitch <yp@sot.com>
+To: Joachim Backes <backes@rhrk.uni-kl.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.4.12: Missing tty when logging in on the console
+Message-ID: <Pine.LNX.4.10.10111010601190.22300-100000@ares.sot.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 31, 2001 at 04:29:29PM -0800, Adam Williams wrote:
 
-> This is a dual CPU G4.  Startup freezes after
-[snip]
-> Compiler gcc 2.96
-> Kernel 2.4.13
+Was it fixed?
+And where find this fix..
 
-Hit http://penguinppc.org/dev/kernel.shtml, and try one of those trees.
-There's a few minor differences in the linuxppc_2_4 tree which might fix
-this and will be in Linus' tree eventually.  And for future reference,
-you might have better luck on linuxppc-dev or linuxppc-users
-(http://lists.linuxppc.org)
 
-> Kernels compiled with gcc 3.0.2 just crash and go into
-> open firmware.
+Cheers,YP
 
-Known gcc 3.0.x/kernel 'feature'.
+###########################################################
+after installation of kernel 2.4.12 (migrated from 2.4.10
+by "make oldconfig"), having problems when logging in on
+a virtual console:
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+It sems that there is no correct tty attached to the console:
+
+1. the ps command lists _all_ processes actually running under
+   the correspondent userid and only those running under
+   the login shell.
+
+2. Starting a ssh command for some other box is rejected
+   by
+
+                You have no controlling tty and no DISPLAY.
+                Cannot read passphrase.
+
+I never had such problems when running 2.4.10 kernel.
+
+
+

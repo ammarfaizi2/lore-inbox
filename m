@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262967AbTDBLpJ>; Wed, 2 Apr 2003 06:45:09 -0500
+	id <S261842AbTDBLiN>; Wed, 2 Apr 2003 06:38:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262969AbTDBLpJ>; Wed, 2 Apr 2003 06:45:09 -0500
-Received: from smtp02.web.de ([217.72.192.151]:33557 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S262967AbTDBLpJ>;
-	Wed, 2 Apr 2003 06:45:09 -0500
-From: Michael Buesch <freesoftwaredeveloper@web.de>
-To: dick.streefland@altium.nl (Dick Streefland)
-Subject: Re: 2.5.66 oops
-Date: Wed, 2 Apr 2003 13:39:27 +0200
-User-Agent: KMail/1.5
-References: <200304012032.43228.freesoftwaredeveloper@web.de> <3862.3e8ab21c.73a7f@altium.nl>
-In-Reply-To: <3862.3e8ab21c.73a7f@altium.nl>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	id <S262967AbTDBLiM>; Wed, 2 Apr 2003 06:38:12 -0500
+Received: from [81.2.110.254] ([81.2.110.254]:12273 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id <S261842AbTDBLiM>;
+	Wed, 2 Apr 2003 06:38:12 -0500
+Subject: Re: Query about SIS963 Bridges
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: John Wendel <jwendel10@attbi.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030401191836.40ff4b5f.jwendel10@attbi.com>
+References: <Pine.LNX.4.44.0303300940200.16280-100000@hades.internal.beyondhelp.co.nz>
+	 <1049208265.19703.14.camel@dhcp22.swansea.linux.org.uk>
+	 <20030401191836.40ff4b5f.jwendel10@attbi.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304021339.27977.freesoftwaredeveloper@web.de>
+Organization: 
+Message-Id: <1049280661.16275.0.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 02 Apr 2003 11:51:02 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 April 2003 11:49, Dick Streefland wrote:
-> This is probably the same oops as I reported saturday (Subject:
-> [2.5.66] Oops in bttv driver). I got a reply from Greg KH that the
-> problem is fixed in the latest bk tree.
+On Wed, 2003-04-02 at 04:18, John Wendel wrote:
+> It seems to me that if SIS has provided the chipset docs to Microsoft,
+> then a polite note from Redhat legal that mentions "RESTRAINT OF TRADE"
+> might work wonders. Perhaps Alan could get the RH lawyers involved.
 
-Thanks, I was unsubscribed from linux-kernel, so I didn't knew that. :)
+And what good would that do ?
 
-Regards Michael Buesch.
+At the moment I'm trying to get them to talk sanely about workable NDA's
+with vendors.
 
--- 
--------------
-My homepage: http://www.8ung.at/tuxsoft
-fighting for peace is like fu**ing for virginity
+Alan
 

@@ -1,62 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262063AbVCZNvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbVCZNxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbVCZNvU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 08:51:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbVCZNvU
+	id S262070AbVCZNxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 08:53:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVCZNxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 08:51:20 -0500
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:13229 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262063AbVCZNvR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 08:51:17 -0500
-Message-ID: <424568D2.7090701@yahoo.com.au>
-Date: Sun, 27 Mar 2005 00:51:14 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
+	Sat, 26 Mar 2005 08:53:24 -0500
+Received: from natsmtp00.rzone.de ([81.169.145.165]:39082 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S262070AbVCZNxM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 08:53:12 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Bart Oldeman <bartoldeman@users.sourceforge.net>
+Subject: Re: 2.6.12-rc1 breaks dosemu
+Date: Sat, 26 Mar 2005 14:49:44 +0100
+User-Agent: KMail/1.7.1
+Cc: Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, linux-msdos@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+References: <20050320021141.GA4449@stusta.de> <1111824629.6293.19.camel@laptopd505.fenrus.org> <Pine.LNX.4.58.0503262009040.3040@enm-bo-lt.localnet>
+In-Reply-To: <Pine.LNX.4.58.0503262009040.3040@enm-bo-lt.localnet>
 MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Hugh Dickins <hugh@veritas.com>, akpm@osdl.org, davem@davemloft.net,
-       tony.luck@intel.com, benh@kernel.crashing.org, ak@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/6] freepgt: free_pgtables shakeup
-References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com> <20050325212234.F12715@flint.arm.linux.org.uk> <4244C3B7.4020409@yahoo.com.au> <20050326113530.A12809@flint.arm.linux.org.uk> <20050326133720.B12809@flint.arm.linux.org.uk>
-In-Reply-To: <20050326133720.B12809@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200503261449.46219.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-
-> Ok.  What's happening is that the ARM pgd_alloc uses pte_alloc_map() to
-> allocate the first L1 page table.  This sets mm->nr_ptes to be one.
+On Sünnavend 26 März 2005 09:18, Bart Oldeman wrote:
+> On Sat, 26 Mar 2005, Arjan van de Ven wrote:
 > 
-> The ARM free_pgd knows about this, and will free this PTE at the
-> appropriate time.  However, exit_mmap() doesn't know about this itself,
-> so in the ARM case, it should BUG_ON(mm->nr_ptes != 1) if we're using
-> low vectors.
+> > > eip: 0x000069ee  esp: 0xbfdbffcc  eflags: 0x00010246
+> >
+> > hmm interesting. Can you check if at the time of the crash, the esp is
+> > actually inside the stack vma? If it's not, I wonder what dosemu does to
+> > get its stack pointer outside the vma... (and on which side of the vma
+> > it is)
+
+The esp value is always slightly below the stack vma and above ld.so.
+Running it a few times gives 
+
+stack VMA         crash esp
+bfc8f000-bfca4000 bfc5ffcc  
+bffa0000-bffb7000 bff5ffcc  
+bfe0c000-bfe23000 bfdbffcc  
+bf7ff000-bf814000 bf7bffcc  
+bfaa9000-bfabe000 bfa5ffcc  
+bfaa9000-bfabe000 bfa5ffcc  
+bffc5000-bffda000 bff7ffcc  
+bfba9000-bfbbf000 bfb5ffcc  
+bf865000-bf87b000 bf81ffcc  
+bfe7d000-bfe92000 bfe3ffcc
+...  
+bff9f000-bffb4000 bff5ffcc  
+bfc73000-bfc89000 bfc3ffcc
+bffe3000-bfff8000 -> works
+
+> To Arnd:
 > 
-> I guess we could hack it such that the ARM pgd_alloc decrements mm->nr_ptes
-> itself to keep things balanced, since free_pte_range() won't be called
-> for this pte.  However, I don't like that because its likely to break at
-> some point in the future.
+> Another thing you should probably do is to build dosemu with debug
+> information, and then look into ~/.dosemu/boot.log after it crashes.
+> That will give you the contents of /proc/self/maps, a gdb backtrace and
+> various other goodies.
 > 
-> Any ideas how to cleanly support this with the new infrastructure?
-> 
+> I've checked it myself but can't reproduce, neither with plain dosemu
+> 1.2.2 nor with current CVS.
 
-Hmm, in that case it could be just a problem with that BUG_ON() -
-it wasn't there before... but it seems like a very useful test,
-especially with all this new work going on, so it would be a shame
-not to run it in releases.
+I'm using the dosemu-1.2.1-3 binary that currently comes with debian
+sarge, and would prefer not having to build a new dosemu. As far as
+I can tell, the command.com that is started belongs to freedos, not
+comcom.
+The crash however does happen shortly after the command.com file
+is opened.
 
-But I don't quite understand (should really look at the code more),
-how come you aren't leaking memory? Do _all_ processes share this
-same first L1 page table? If so, can it be allocated with a more
-specialised function? If not, can nr_ptes be decremented in the
-place where it is freed?
-
-/me goes to bed now - I'll have a bit of a look tomorrow.
-
-Nick
-
+ Arnd <><

@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbTFFQXr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 12:23:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTFFQXr
+	id S261969AbTFFQ1m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 12:27:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbTFFQ1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 12:23:47 -0400
-Received: from 24-216-225-11.charter.com ([24.216.225.11]:26535 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id S261932AbTFFQXp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 12:23:45 -0400
-Date: Fri, 6 Jun 2003 12:37:17 -0400
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: PERC4-DI?
-Message-ID: <20030606163717.GK8594@rdlg.net>
-Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
+	Fri, 6 Jun 2003 12:27:41 -0400
+Received: from almesberger.net ([63.105.73.239]:27913 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S261969AbTFFQ1k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 12:27:40 -0400
+Date: Fri, 6 Jun 2003 13:40:49 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: "David S. Miller" <davem@redhat.com>
+Cc: chas@cmf.nrl.navy.mil, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations (take 2)
+Message-ID: <20030606134049.D3232@almesberger.net>
+References: <20030606122616.B3232@almesberger.net> <20030606.082802.124082825.davem@redhat.com> <20030606125416.C3232@almesberger.net> <20030606.085558.56056656.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AzNpbZlgThVzWita"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030606.085558.56056656.davem@redhat.com>; from davem@redhat.com on Fri, Jun 06, 2003 at 08:55:58AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David S. Miller wrote:
+> Because ATM devices have always been "funny", and there
+> is so much infrastructure, and frankly sanity, they can
+> share by being more netdevice like.
 
---AzNpbZlgThVzWita
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes, and I agree that it's important that this gets fixed.
+Also, the code was basically unmaintained for about two
+years, and that shows.
 
+I'm just pointing out that "asynchronizing" some internal
+process that is perfectly happy with being synchronous
+(and consistent with the semantics of ATM, which themselves
+are quite "funny" most of the time) strikes me as a not
+very helpful move.
 
+> Tell me it at least uses netlink ;(
 
-My company is looking at buying some machines with "PERC4-DI" SCSI RAID
-controllers.  Poking around the .config file I'm not finding anything
-related to this.  Anyone know off the top of their heads what driver
-would be used for this controller, any known catastrophic bugs, etc?
+Nope, pure DIY. Actually, I think at the time when I wrote
+that stuff ('95), SIOC* still ruled the world ...
 
-Thanks,
-  Robert
+- Werner
 
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu=20
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Diagnosis: witzelsucht  =09
-
-IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
-IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
-
---AzNpbZlgThVzWita
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+4MM98+1vMONE2jsRAsFTAJwK06qiA+nEWPaHujhpOTWmTwmQ5wCg0BpP
-msnmSU+A3WHqD4YplCnjvTk=
-=tdYB
------END PGP SIGNATURE-----
-
---AzNpbZlgThVzWita--
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

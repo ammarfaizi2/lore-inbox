@@ -1,56 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262888AbTCKKSX>; Tue, 11 Mar 2003 05:18:23 -0500
+	id <S262897AbTCKKVc>; Tue, 11 Mar 2003 05:21:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262891AbTCKKSX>; Tue, 11 Mar 2003 05:18:23 -0500
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:27340 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S262888AbTCKKSW>; Tue, 11 Mar 2003 05:18:22 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: [PATCH][COMPAT] compat_sys_fcntl{,64} 1/9 Generic part
-Date: Mon, 10 Mar 2003 13:43:57 +0100
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>
+	id <S262894AbTCKKVc>; Tue, 11 Mar 2003 05:21:32 -0500
+Received: from [196.12.44.6] ([196.12.44.6]:16843 "EHLO students.iiit.net")
+	by vger.kernel.org with ESMTP id <S262897AbTCKKU6>;
+	Tue, 11 Mar 2003 05:20:58 -0500
+Date: Tue, 11 Mar 2003 16:02:19 +0530 (IST)
+From: Prasad <prasad_s@students.iiit.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: User Process and a Kernel Thread
+Message-ID: <Pine.LNX.4.44.0303111559001.26984-100000@students.iiit.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303101343.57545.arnd@arndb.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Rothwell wrote:
-+asmlinkage long compat_sys_fcntl64(unsigned int fd, unsigned int cmd,
-+                unsigned long arg)
-+{
-+        mm_segment_t old_fs;
-+        struct flock f;
-+        long ret;
-+
-+        switch (cmd) {
-+        case F_GETLK:
-+        case F_SETLK:
-+        case F_SETLKW:
-+                ret = get_compat_flock(&f, (struct compat_flock *)arg);
 
-and
+Hi all,
+	Whats the difference between the user process and a kernel thread? 
+IS it possible to make the kernel thread a user process? if yes, how do we 
+do that?
 
--asmlinkage long sys32_fcntl(unsigned int fd, unsigned int cmd, unsigned long arg)
--{
--       switch (cmd) {
--       case F_GETLK:
--               {
--                       struct flock f;
--                       mm_segment_t old_fs;
--                       long ret;
--                       
--                       if(get_compat_flock(&f, (struct compat_flock *)A(arg)))
-                                                                   ^^^^^^^^
+Prasad.
 
-Did you notice the use of the address conversion macro? Maybe I missed 
-something myself, but I suppose this will fail on s390 if the msb of arg 
-is not cleared.
+-- 
+Failure is not an option
 
-	Arnd <><

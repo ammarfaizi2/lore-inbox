@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262694AbTK1RFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 12:05:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbTK1RFZ
+	id S262746AbTK1RMg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 12:12:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbTK1RMg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 12:05:25 -0500
-Received: from pat.uio.no ([129.240.130.16]:34983 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262694AbTK1RFV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 12:05:21 -0500
+	Fri, 28 Nov 2003 12:12:36 -0500
+Received: from ivoti.terra.com.br ([200.176.3.20]:21387 "EHLO
+	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S262746AbTK1RMe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Nov 2003 12:12:34 -0500
+Message-ID: <3FC781F4.7070201@terra.com.br>
+Date: Fri, 28 Nov 2003 15:12:20 -0200
+From: Felipe W Damasio <felipewd@terra.com.br>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Lista da disciplina de Sistemas Operacionais III 
+	<sisopiii-l@cscience.org>,
+       Ricardo Nabinger Sanchez <rnsanchez@terra.com.br>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [SisopIII-l] Re: [PATCH] fix #endif misplacement
+References: <20031128141927.5ff1f35a.rnsanchez@terra.com.br> <Pine.LNX.4.53.0311281732100.21904@gockel.physik3.uni-rostock.de> <3FC77A59.2090705@elipse.com.br> <3FC7803D.2050203@cyberone.com.au>
+In-Reply-To: <3FC7803D.2050203@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16327.32843.197191.606592@charged.uio.no>
-Date: Fri, 28 Nov 2003 12:05:15 -0500
-To: "Shantanu Goel" <Shantanu.Goel@lehman.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: [NFS PATCH] 2.6.0-test10 Invalidate cached inode
- attributes after rename]
-In-Reply-To: <3FC77CC3.7090702@lehman.com>
-References: <3FC763A5.6030404@lehman.com>
-	<shsu14oh27m.fsf@charged.uio.no>
-	<3FC77CC3.7090702@lehman.com>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Shantanu Goel <Shantanu.Goel@lehman.com> writes:
+	Hi Nick,
 
-     > BTW, this also affects 2.4 kernels (e.g. RedHat's AS3 kernel)
-     > which include your CTO patches that aren't in the upstream
-     > kernels yet.
+Nick Piggin wrote:
+> The ifdef isn't pretty, but its performance critical code, its easy to
+> understand, and there is a big comment above it. I think its OK the
+> way it is. Not that you would ever notice any difference probably.
 
-AFAIK Steve Dickson is already aware of the need for this particular
-patch for the AS3 kernel. He was one of the people that brought it to
-my attention a couple of weeks ago.
+	You're right. As Lucas already pointed out, the ifdef CONFIG_NUMA is 
+actually an ifndef...
 
-Cheers,
-  Trond
+	Like myself, I think Ricardo overlooked this :)
+
+	Cheers,
+
+Felipe
+

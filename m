@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287347AbSAHQy4>; Tue, 8 Jan 2002 11:54:56 -0500
+	id <S288166AbSAHRBG>; Tue, 8 Jan 2002 12:01:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288166AbSAHQyq>; Tue, 8 Jan 2002 11:54:46 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:41233 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S287347AbSAHQyf>; Tue, 8 Jan 2002 11:54:35 -0500
-Message-ID: <3C3B21AD.6080600@evision-ventures.com>
-Date: Tue, 08 Jan 2002 17:43:25 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: "Cameron, Steve" <Steve.Cameron@COMPAQ.com>
-CC: linux-kernel@vger.kernel.org, "White, Charles" <Charles.White@COMPAQ.com>
-Subject: Re: PATCH 2.5.2-pre9 scsi cleanup
-In-Reply-To: <45B36A38D959B44CB032DA427A6E1064012812AD@cceexc18.americas.cpqcorp.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S288173AbSAHRAq>; Tue, 8 Jan 2002 12:00:46 -0500
+Received: from aef.wh.Uni-Dortmund.DE ([129.217.129.132]:52983 "EHLO
+	ReneEngelhard.local") by vger.kernel.org with ESMTP
+	id <S288166AbSAHRAk>; Tue, 8 Jan 2002 12:00:40 -0500
+Date: Tue, 8 Jan 2002 17:58:02 +0100
+From: Rene Engelhard <mail@rene-engelhard.de>
+To: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Getting ScanLogic USB-ATAPI Adapter to work
+Message-ID: <20020108175802.A8011@rene-engelhard.de>
+Mail-Followup-To: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>,
+	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020107211757.A4196@rene-engelhard.de> <3C3AE450.E3255D64@loewe-komp.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3C3AE450.E3255D64@loewe-komp.de>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key: http://www.rene-engelhard.de/gnupg/mykey.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cameron, Steve wrote:
+Peter Wächtler wrote:
+> 
+> I sent a patch to unusual_devs.h but didn't get any response yet.
+> I need to set "CONFIG_SCSI_MULTI_LUN=y" and use the second device for 
+> CompactFlash.
+> No other needed change here:
+> 
+> 
+> UNUSUAL_DEV(  0x04ce, 0x0002, 0x0074, 0x0074,
+>                 "ScanLogic",
+>                 "SL11R-IDE",
+>                 US_SC_SCSI, US_PR_BULK, NULL,
+>                 US_FL_FIX_INQUIRY),
 
->Martin Dalecki (dalecki@evision-ventures.com) wrote:
->
->[...]
->
->>--- linux-old/drivers/scsi/scsi.c	Sat May  4 09:11:44 2002
->>+++ linux/drivers/scsi/scsi.c	Sat May  4 07:49:19 2002
->>@@ -139,25 +139,7 @@
->>  */
->> unsigned int scsi_logging_level;
->> 
->>-const char *const scsi_device_types[MAX_SCSI_DEVICE_CODE] =
->>-{
->>-	"Direct-Access    ",
->>-	"Sequential-Access",
->>-	"Printer          ",
->>-	"Processor        ",
->>-	"WORM             ",
->>-	"CD-ROM           ",
->>-	"Scanner          ",
->>
->[...etc...]
->
->Hmmm, I was using that.... (In, for example, 
->the cciss patch here: http://www.geocities.com/smcameron 
->It's not any big deal, though.)
->
-Precisely this "not any big deal" is the point: It was the wrong 
-approach to a
-trivial problem ;-).
+Yes, I saw it in the unusual_devs.h in 2.5.2-pre8 and above but it
+does not help to get my mentioned device working.
 
+My patch does.
+
+Rene

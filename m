@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263537AbUA3TYF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 14:24:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263561AbUA3TYF
+	id S263486AbUA3Tcn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 14:32:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263544AbUA3Tcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 14:24:05 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:59802 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263537AbUA3TYC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 14:24:02 -0500
-Subject: Re: 2.6.2-rc2-mm2
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Thomas Schlichter <thomas.schlichter@web.de>
-Cc: Torrey Hoffman <thoffman@arnor.net>, Andrew Morton <akpm@osdl.org>,
-       Linux-Kernel List <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-In-Reply-To: <200401302007.26333.thomas.schlichter@web.de>
-References: <20040130014108.09c964fd.akpm@osdl.org>
-	 <1075489136.5995.30.camel@moria.arnor.net>
-	 <200401302007.26333.thomas.schlichter@web.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-xkRAxDXiPlQsZ5n9EjdN"
-Organization: Red Hat, Inc.
-Message-Id: <1075490624.4272.7.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 30 Jan 2004 14:23:45 -0500
+	Fri, 30 Jan 2004 14:32:42 -0500
+Received: from pop.gmx.de ([213.165.64.20]:52964 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263486AbUA3Tcl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 14:32:41 -0500
+X-Authenticated: #4512188
+Message-ID: <401AB157.1040209@gmx.de>
+Date: Fri, 30 Jan 2004 20:32:39 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: khubd crash on scanner disconnect
+References: <20040130173656.GA4570@merlin.emma.line.org> <20040130191453.GA7173@kroah.com>
+In-Reply-To: <20040130191453.GA7173@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg KH wrote:
+> On Fri, Jan 30, 2004 at 06:36:56PM +0100, Matthias Andree wrote:
+> 
+>>Hi,
+>>
+>>I have just caught this khubd NULL dereference simply by unplugging my
+>>scanner. Kernel is a current 2.6.2-rc2 from BK, PNP enabled:
+> 
+> 
+> Known bug, don't use that module, it's OBSOLETED.  Use xscane and libusb
+> instead.
 
---=-xkRAxDXiPlQsZ5n9EjdN
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Are you sure, it is "xscane" and not "xsane"? I thought you just did a 
+typo in my post, but now you did it twice, so no typo?
 
-On Fri, 2004-01-30 at 14:07, Thomas Schlichter wrote:
-> Am Freitag, 30. Januar 2004 19:58 schrieb Torrey Hoffman:
-> > On Fri, 2004-01-30 at 01:41, Andrew Morton wrote:
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2-r=
-c2/2
-> > >.6.2-rc2-mm2/
-> >
-> > I used the rc2-mm1-1 patch and got this on make modules_install:
-> >
-> > WARNING: /lib/modules/2.6.2-rc2-mm2/kernel/net/sunrpc/sunrpc.ko needs
-> > unknown symbol groups_free
-> > WARNING: /lib/modules/2.6.2-rc2-mm2/kernel/fs/nfsd/nfsd.ko needs unknow=
-n
-> > symbol sys_setgroups
-> >
-> > Same .config had no problems in 2.6.2-rc2-mm1.
->=20
-> The attached patches make it work for me...
-
-directly calling sys_ANYTHING sounds really wrong to me...
-
---=-xkRAxDXiPlQsZ5n9EjdN
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAGq9AxULwo51rQBIRAo7DAJ9eruPAtHOkrh0t4/FdR3UX93P4cACgi3nb
-IR53D2JIys5wd7ABDwSnpfM=
-=wyF5
------END PGP SIGNATURE-----
-
---=-xkRAxDXiPlQsZ5n9EjdN--
+Prakash

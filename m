@@ -1,84 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262749AbTCUBNn>; Thu, 20 Mar 2003 20:13:43 -0500
+	id <S262642AbTCUBVQ>; Thu, 20 Mar 2003 20:21:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262757AbTCUBNn>; Thu, 20 Mar 2003 20:13:43 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:19718 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262749AbTCUBNl>;
-	Thu, 20 Mar 2003 20:13:41 -0500
-Date: Thu, 20 Mar 2003 17:24:55 -0800
-From: Greg KH <greg@kroah.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, akpm@digeo.com
-Subject: Re: [PATCH] alternative dev patch
-Message-ID: <20030321012455.GB10298@kroah.com>
-References: <UTC200303202150.h2KLoEl09978.aeb@smtp.cwi.nl> <Pine.LNX.4.44.0303202314210.5042-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303202314210.5042-100000@serv>
-User-Agent: Mutt/1.4i
+	id <S262663AbTCUBVQ>; Thu, 20 Mar 2003 20:21:16 -0500
+Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:33298
+	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
+	id <S262642AbTCUBVP>; Thu, 20 Mar 2003 20:21:15 -0500
+Message-ID: <3E7A6B4F.1000205@rackable.com>
+Date: Thu, 20 Mar 2003 17:30:55 -0800
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: John Bradford <john@grabjohn.com>
+CC: Andrew Morton <akpm@digeo.com>, hch@infradead.org, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: Release of 2.4.21
+References: <200303210013.h2L0D0jx000566@81-2-122-30.bradfords.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Mar 2003 01:32:05.0821 (UTC) FILETIME=[AE72DED0:01C2EF49]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 21, 2003 at 12:03:57AM +0100, Roman Zippel wrote:
-> I'm unsure how your code will scale. It depends on how that code will be 
-> used. If drivers register a lot of devices, your lookup function has to 
-> scan a possibly very long list of minor devices and that function is 
-> difficult to optimize.
+John Bradford wrote:
 
-And then we grab the BKL :(
+>>>>For critical fixes, release a 2.4.20.1, 2.4.20.2, etc.  Don't disrupt
+>>>>the 2.4.21-pre cycle, that would be less productive than just patching
+>>>>2.4.20 and rolling a separate release off of that.
+>>>>        
+>>>>
+>>>I think the naming is illogical.  If there's a bugfix-only release
+>>>it whould have normal incremental numbers.  So if marcelo want's
+>>>it he should clone a tree of at 2.4.20, apply the essential patches
+>>>and bump the version number in the normal 2.4 tree to 2.4.22-pre1
+>>>      
+>>>
+>>No point in making things too complex.  2.4.20-post1 is something people can
+>>easily understand.
+>>
+>>I needed that for the ext3 problems which popped up shortly after 2.4.20 was
+>>released - I was reduced to asking people to download fixes from my web page.
+>>
+>>And having a -post stream may allow us to be a bit more adventurous in the
+>>-pre stream.
+>>    
+>>
+>
+>Why can't we just make all releases smaller and more frequent?
+>
+>Why do we need 2.4.x-pre at all, anyway - why can't we just test
+>things in the -[a-z][a-z] trees, and _start_ with -rc1?
+>
+>Why can't we just do bugfixes for 2.4, and speed up 2.5 development?
+>
+>  
+>
 
-Hint, optimizing the open() path for char devices is not anything we
-will probably be doing in 2.6, due to the BKL usage there.  It's also
-not anything anyone has seen on any known benchmarks as a point of
-contention, so I would not really worry about this for now.
+  That would imply some changes could take place in a short cycle.  This 
+is not true for things like major ide subsystem updates.
 
-For 2.7, when we want to drop the BKL, then we can worry about this.
-
-> char devices don't have partitions, so you hardly need regions. The 
-> problem with the tty layer is that the console and the serial devices 
-> should have different majors.
-
-There are a number of char drivers that have "regions".  The tty layer
-support them, and the usb core supports them as two examples.  I'm sure
-there are others.  Personally, I like the symmetry with the block device
-function the way Andries did it.
-
-> Even for block devices blk_register_region() is not the preferred 
-> interface, you should use alloc_disk/add_disk instead. This will make it 
-> easier to assign dynamic device numbers later.
-
-True, but dynamic device numbers can be built on top of the *_region()
-calls as it is today.  Anyway, dynamic numbers are for 2.7 :)
-
-> > I am not sure I understand. Where are these huge tables?
-> > And how did you remove them?
-> 
-> See the misc device example. It doesn't have a table, but the list is now 
-> only needed to generate /proc/misc. As soon as character devices are 
-> better integrated into the driver model, even this list is not needed 
-> anymore. This means for simple character devices, we can easily add a 
-> alloc_chardev/add_chardev interface similiar to block devices.
-
-No, I don't see /proc/misc going away due to the driver model, I imagine
-there are too many users of it to disappear.  Also, the driver model
-doesn't care a thing about major/minor numbers so I don't understand how
-you think it can help in this situation.
-
-thanks,
-
-greg k-h
+-- 
+There is no such thing as obsolete hardware.
+Merely hardware that other people don't want.
+(The Second Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
 
 
 
-
-
-> 
-> bye, Roman
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

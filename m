@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313202AbSE2DNX>; Tue, 28 May 2002 23:13:23 -0400
+	id <S313300AbSE2DVK>; Tue, 28 May 2002 23:21:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313238AbSE2DNW>; Tue, 28 May 2002 23:13:22 -0400
-Received: from relay02.valueweb.net ([216.219.253.236]:23059 "EHLO
-	relay02.valueweb.net") by vger.kernel.org with ESMTP
-	id <S313202AbSE2DNW>; Tue, 28 May 2002 23:13:22 -0400
-Message-ID: <3CF446D1.684250F2@opersys.com>
-Date: Tue, 28 May 2002 23:11:13 -0400
-From: Karim Yaghmour <karim@opersys.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
-MIME-Version: 1.0
-To: Mark Mielke <mark@mark.mielke.cc>
-CC: Roman Zippel <zippel@linux-m68k.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        yodaiken@fsmlabs.com, linux-kernel@vger.kernel.org
-Subject: Re: A reply on the RTLinux discussion.
-In-Reply-To: <Pine.LNX.4.21.0205281702540.17583-100000@serv> <1022604318.4123.114.camel@irongate.swansea.linux.org.uk> <3CF42179.29A2CAED@linux-m68k.org> <20020528213457.A22540@mark.mielke.cc>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S314080AbSE2DVJ>; Tue, 28 May 2002 23:21:09 -0400
+Received: from h-64-105-136-78.SNVACAID.covad.net ([64.105.136.78]:35749 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S313300AbSE2DVJ>; Tue, 28 May 2002 23:21:09 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 28 May 2002 20:21:02 -0700
+Message-Id: <200205290321.UAA01482@adam.yggdrasil.com>
+To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: business models [was patent stuff]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+>On Tue, 2002-05-28 at 18:13, Adam J. Richter wrote:
+>>       You could license all programs that consist entirely of
+>> free software.  That way, BSD, LGPL, and MPL software that did
+>> not link in proprietary software would be allowed too, but your
+>> example of a proprietary program that linked in the BSD'ed
+>> libpatent.o/c would not be covered by this permission.
+>
+>Define "free software" using only legally defined phrases which have
+>precedent. In fact put four people in a room and get them to define free
+>software.
 
-Mark Mielke wrote:
-> The only real argument I have seen from RTAI folk is that Victor isn't
-> being a proper Open Source priest. This may annoy other Open Source
-> priests, but it does not affect my own opinion of the man. I find the
-> 'Open Source' religion to have no future.
+	Many if not all legal documents contain more than
+"only legally defined phrases which have precedent."  I'm sure Red Hat
+has signed many.  You can reasonably find a definition that covers 99%
+of what people consider free software and make subsequent grants later.
+In the other direction, if you accidentally include some less than
+free software, that should not matter much if you are only taking out
+these patents for "defensive" purposes.
 
-This is not the argument put forth, but this is definitely where the
-political line falls: You either believe in open source or you don't.
-No one has summarized this better than Victor:
+	Example definitions might be: "public domain or any license
+certified by the Open Software Initiative", "a license that has
+no more restrictions than version 2 of the GNU General Public License
+as published by the Free Software Foundation ("or any subsequent
+version"?)."  You could also cut and paste from OSI or Debian bullet
+items.
 
-"The GPL/RTLinux work that we do loses money -- actually, we budget it
-under "marketing"."
+	More importantly, licensing patents only for pure GPL'ed use
+is unlikely to become a norm that you can expect broad adoption of
+in free software businesses, as many of them tend to be proponents of
+slightly different copying permissions.  If we have a bunch of patents
+licensed for GPL-only, another bunch for MPL-only, another bunch for
+pure-BSD only, then the patent proliferation that I described
+yesterday will still probably occur.
 
-Regardless of which side of the political spectrum you find yourself,
-ask yourself this question:
-Do I want to be part of Victor's marketing team?
+	You have a fleeting opportunity to possibly head most of this
+off, but you have to look beyond just your favorite license.  Many
+developers and even companies' managements identify strongly with their
+favorite licenses, and feel personally about their ability to develop
+free software under those licenses.  If the GPL developers don't shield
+the Apache developers, the X developers, the BSD developers, and the
+MPL developers so that their ability to continue with the free software
+portion of their activities has been respected, do you really think
+they'll shield GPL development from their patents?
 
-Karim
-
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

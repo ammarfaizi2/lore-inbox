@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbUJaUru@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbUJaUse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbUJaUru (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 15:47:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbUJaUrt
+	id S261363AbUJaUse (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 15:48:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbUJaUse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 15:47:49 -0500
-Received: from gprs214-91.eurotel.cz ([160.218.214.91]:16261 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261362AbUJaUrs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 15:47:48 -0500
-Date: Sun, 31 Oct 2004 21:47:17 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Larry McVoy <lm@work.bitmover.com>, Roman Zippel <zippel@linux-m68k.org>,
-       Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrea Arcangeli <andrea@novell.com>, Joe Perches <joe@perches.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-Message-ID: <20041031204717.GF5578@elf.ucw.cz>
-References: <20041025133951.GW14325@dualathlon.random> <20041025162022.GA27979@work.bitmover.com> <20041025164732.GE14325@dualathlon.random> <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org> <Pine.LNX.4.61.0410252350240.17266@scrub.home> <20041026010141.GA15919@work.bitmover.com> <Pine.LNX.4.61.0410270338310.877@scrub.home> <20041027035412.GA8493@work.bitmover.com> <Pine.LNX.4.61.0410272214580.877@scrub.home> <20041028005412.GA8065@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041028005412.GA8065@work.bitmover.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Sun, 31 Oct 2004 15:48:34 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:23780 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261363AbUJaUs3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 15:48:29 -0500
+Message-ID: <418550C1.1060203@comcast.net>
+Date: Sun, 31 Oct 2004 12:53:21 -0800
+From: Z Smith <plinius@comcast.net>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Diego Calleja <diegocg@teleline.es>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
+References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>	<200410310000.38019.vda@port.imtp.ilyichevsk.odessa.ua>	<1099170891.1424.1.camel@krustophenia.net>	<200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua>	<1099175138.1424.18.camel@krustophenia.net> <20041031150637.6311a2ec.diegocg@teleline.es>
+In-Reply-To: <20041031150637.6311a2ec.diegocg@teleline.es>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Diego Calleja wrote:
 
-> > Allow me to translate that what this means, so everyone clearly knows 
-> > what's going on here:
-> > The complete development history of the Linux kernel is now effectly 
-> > locked into the bk format, you can get a summary of it, but that's it.
-> 
-> That's not even close to being the case.
-> 
-> 100% of the information is available on bkbits.net, diffs, comments, 
-> everything, all of which you can get at with a wget in a form that
-> is perfect for import into another system.
+> I don't think it's so bad (ie: it could be _worse_)
 
-...but, if someone actually *tries* to import it into another system,
-your bandwidth bill will be so huge that you'll stop bkbits.net, no?
-How many terabytes would need to be transfered in order to do complete
-import of linux-kernel into another system?
-								Pavel
+But not everyone can tolerate today's level of bloat.
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Imagine a small charity in a rural town in Bolivia or
+Colorado. They have no budget for computers and no one
+is offering donations. A local person put Linux on their 200 MHz
+system after Windows crashed and the Windows CD couldn't
+be found, but he can't put KDE or Gnome on it as well because
+that would bring it to a crawl. The only way to make the
+computer usable is to install an old distribution of Linux
+from 1998 which has Netscape 4 but no office app. Eventually
+they will give up on the computer and just throw it out,
+because they can't wait forever for programmers to write
+non-bloated software to make good use of their system.
+The machine ends up at a landfill where it leeches chemicals
+into the local water supply.
+
+Zack

@@ -1,517 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318115AbSHNA4Y>; Tue, 13 Aug 2002 20:56:24 -0400
+	id <S319228AbSHNBIp>; Tue, 13 Aug 2002 21:08:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319170AbSHNA4Y>; Tue, 13 Aug 2002 20:56:24 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:54510 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S318115AbSHNA4T>; Tue, 13 Aug 2002 20:56:19 -0400
-Message-ID: <3D59AAFF.40304@us.ibm.com>
-Date: Tue, 13 Aug 2002 17:57:35 -0700
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
+	id <S319230AbSHNBIo>; Tue, 13 Aug 2002 21:08:44 -0400
+Received: from rj.sgi.com ([192.82.208.96]:33444 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S319228AbSHNBIn>;
+	Tue, 13 Aug 2002 21:08:43 -0400
+Message-ID: <3D59AEB7.7B80F33@alphalink.com.au>
+Date: Wed, 14 Aug 2002 11:13:27 +1000
+From: Greg Banks <gnb@alphalink.com.au>
+Organization: Corpus Canem Pty Ltd.
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdkfb i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       linux-kernel@vger.kernel.org, Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       Greg KH <gregkh@us.ibm.com>
-Subject: Re: [patch] PCI Cleanup
-References: <Pine.LNX.4.33.0208131545500.1277-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Peter Samuelson <peter@cadcamlab.org>
+CC: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: [patch] config language dep_* enhancements
+References: <Pine.LNX.4.44.0208120924320.5882-100000@chaos.physics.uiowa.edu> <3D587483.1C459694@alphalink.com.au> <20020813033951.GF761@cadcamlab.org> <3D59110B.6D9A1223@alphalink.com.au> <20020813155330.GG761@cadcamlab.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> On Tue, 13 Aug 2002, Matthew Dobson wrote:
+Peter Samuelson wrote:
 > 
->>	I think I'm getting what you're aiming for here.  See if this patch comes close 
->>to what you're looking for.
-> 
-> This seems to be more what I was thinking of, yes (although please drop 
-> the "size_independent" part of the names, that just looks too horrible ;)
-Fair enough..  Couldn't think of a fun creative name anyway...  Just took the 
-road more traveled and renamed the old pci_conf1_read __pci_conf1_read and the 
-old pci_conf1_read_size_indep pci_conf1_read.  Much prettier.  And it even 
-seems to work on i386.  I definitely wouldn't try booting this on any other 
-arch's though! ;)
+> (BTW, the format is great - I can use 'M-x compile' and 'M-x
+> next-error' and Emacs pulls up files and lines for me.)
 
--Matt
+This is not a coincidence.
 
+> CONFIG_SCSI should be defined earlier, like in the "Block Devices"
+> menu.  Then again, 'sg' is not a block device so this isn't strictly
+> correct.  Perhaps a "kernel subsystems" submenu under "general setup",
+> or even as a toplevel menu.
 
+Sounds like a good idea.  You could put CONFIG_SERIAL and CONFIG_PCMCIA
+in there too.
 
-diff -Nur linux-2.5.31-vanilla/arch/i386/pci/direct.c 
-linux-2.5.31-patched/arch/i386/pci/direct.c
---- linux-2.5.31-vanilla/arch/i386/pci/direct.c	Sat Aug 10 18:41:23 2002
-+++ linux-2.5.31-patched/arch/i386/pci/direct.c	Tue Aug 13 16:14:40 2002
-@@ -13,7 +13,7 @@
-  #define PCI_CONF1_ADDRESS(bus, dev, fn, reg) \
-  	(0x80000000 | (bus << 16) | (dev << 11) | (fn << 8) | (reg & ~3))
+> CONFIG_INPUT - arch/{alpha,mips,mips64}/config.in are broken.  There's
+> a comment in other arch/*/config.in files to the effect that
+> drivers/input/Config.in must come before drivers/usb/input/Config.in.
+> These 3 explicitly do the opposite.
 
--static int pci_conf1_read (int seg, int bus, int dev, int fn, int reg, int 
-len, u32 *value)
-+static int __pci_conf1_read (int seg, int bus, int dev, int fn, int reg, int 
-len, u32 *value)
-  {
-  	unsigned long flags;
+There are many broken things about the arch toplevel config.ins, mostly
+due to them starting life as copy-n-paste jobs from arch/i386/config.in
+and then slowly diverging.  A brief sampling from my bugs list...
 
-@@ -41,7 +41,7 @@
-  	return 0;
-  }
+*   CONFIG_KERNEL_ELF
+    	Defined in arch/ppc/config.in as "define_bool CONFIG_KERNEL_ELF y".
+	Specified in a large number of ppc defconfigs.
+	Not used anywhere in the source.
+	Appears to be an obsolete artifact.
+	
+    CONFIG_ELF_KERNEL
+    	Defined in arch/mips/config.in as "define_bool CONFIG_ELF_KERNEL y".
+	Specified in a large number of mips defconfigs.
+	Not used anywhere in the source.
+	Appears to be an obsolete artifact.
 
--static int pci_conf1_write (int seg, int bus, int dev, int fn, int reg, int 
-len, u32 value)
-+static int __pci_conf1_write (int seg, int bus, int dev, int fn, int reg, int 
-len, u32 value)
-  {
-  	unsigned long flags;
+*   arch/ia64/config.in has this:
 
-@@ -69,75 +69,23 @@
-  	return 0;
-  }
+	if [ "$CONFIG_DEVFS_FS" = "y" ]; then
+	  bool '    Enable DEVFS Debug Code' CONFIG_DEVFS_DEBUG n
+	fi
 
--
-  #undef PCI_CONF1_ADDRESS
+    but why!?!? Not only does this have a bogus third argument as
+    if it were dep_bool, but it defines a symbol already defined
+    over in fs/Config.in, which is *included* from this config.in.
 
--static int pci_conf1_read_config_byte(struct pci_dev *dev, int where, u8 *value)
-+static int pci_conf1_read(struct pci_dev *dev, int where, int size, u32 *value)
-  {
-- 
-int result;
-- 
-u32 data;
--
-- 
-if (!value)
-- 
-	return -EINVAL;
--
-- 
-result = pci_conf1_read(0, dev->bus->number, PCI_SLOT(dev->devfn),
-- 
-	PCI_FUNC(dev->devfn), where, 1, &data);
--
-- 
-*value = (u8)data;
--
-- 
-return result;
-+ 
-return __pci_conf1_read(0, dev->bus->number, PCI_SLOT(dev->devfn),
-+ 
-	PCI_FUNC(dev->devfn), where, size, value);
-  }
+*   Most architectures have two global menus "General setup", one from
+    their own arch/foo/config.in, one from init/Config.in.
 
--static int pci_conf1_read_config_word(struct pci_dev *dev, int where, u16 *value)
-+static int pci_conf1_write(struct pci_dev *dev, int where, int size, u32 value)
-  {
-- 
-int result;
-- 
-u32 data;
--
-- 
-if (!value)
-- 
-	return -EINVAL;
--
-- 
-result = pci_conf1_read(0, dev->bus->number, PCI_SLOT(dev->devfn),
-- 
-	PCI_FUNC(dev->devfn), where, 2, &data);
--
-- 
-*value = (u16)data;
--
-- 
-return result;
--}
--
--static int pci_conf1_read_config_dword(struct pci_dev *dev, int where, u32 *value)
--{
-- 
-if (!value)
-- 
-	return -EINVAL;
--
-- 
-return pci_conf1_read(0, dev->bus->number, PCI_SLOT(dev->devfn),
-- 
-	PCI_FUNC(dev->devfn), where, 4, value);
--}
--
--static int pci_conf1_write_config_byte(struct pci_dev *dev, int where, u8 value)
--{
-- 
-return pci_conf1_write(0, dev->bus->number, PCI_SLOT(dev->devfn),
-- 
-	PCI_FUNC(dev->devfn), where, 1, value);
--}
--
--static int pci_conf1_write_config_word(struct pci_dev *dev, int where, u16 value)
--{
-- 
-return pci_conf1_write(0, dev->bus->number, PCI_SLOT(dev->devfn),
-- 
-	PCI_FUNC(dev->devfn), where, 2, value);
--}
--
--static int pci_conf1_write_config_dword(struct pci_dev *dev, int where, u32 value)
--{
-- 
-return pci_conf1_write(0, dev->bus->number, PCI_SLOT(dev->devfn),
-- 
-	PCI_FUNC(dev->devfn), where, 4, value);
-+ 
-return __pci_conf1_write(0, dev->bus->number, PCI_SLOT(dev->devfn),
-+ 
-	PCI_FUNC(dev->devfn), where, size, value);
-  }
+*   One of these two correctly describes the device(s) it supports:
 
-  static struct pci_ops pci_direct_conf1 = {
-- 
-pci_conf1_read_config_byte,
-- 
-pci_conf1_read_config_word,
-- 
-pci_conf1_read_config_dword,
-- 
-pci_conf1_write_config_byte,
-- 
-pci_conf1_write_config_word,
-- 
-pci_conf1_write_config_dword
-+ 
-read: 
-pci_conf1_read,
-+ 
-write: 
-pci_conf1_write
-  };
+    arch/m68k/config.in:      dep_tristate 'A2091 WD33C93A support' CONFIG_A2091_SCSI $CONFIG_SCSI
+    drivers/scsi/Config.in:   dep_tristate 'A2091/A590 WD33C93A support' CONFIG_A2091_SCSI $CONFIG_SCSI
+
+*   What's the story with CONFIG_ALPHA_EV56?  It's defined as a symbol
+    three times in arch/alpha/config.in with different banners:
+    
+            bool 'EV56 CPU (speed >= 333MHz)?' CONFIG_ALPHA_EV56
+    bool 'EV56 CPU (speed >= 366MHz)?' CONFIG_ALPHA_EV56
+    bool 'EV56 CPU (speed >= 400MHz)?' CONFIG_ALPHA_EV56
+
+*   WTF?!?  arch/cris/drivers/bluetooth/Makefile has an install: target
+    which actually hacks Config.in and Makefile in other directories!?!?!
+    
+*   There's a fair bit of confusion between the architectures about
+    CONFIG_BINFMT_ELF{,32}...
+    
+    ARCH    C_B_ELF 	C_B_ELF32
+    ----    ------- 	---------
+    alpha   	1
+    arm     	1
+    cris    	1
+    i386    	1
+    ia64    	1
+    m68k    	1
+    mips64  	2   	    4
+    mips    	3
+    parisc  	1
+    ppc64   	2   	    5
+    ppc     	3
+    s390    	1
+    s390x   	1   	    6
+    sh	    	1
+    sparc64 	2   	    5
+    sparc   	1
+    x86_64  	1
+
+    
+    1='Kernel support for ELF binaries'
+    2='Kernel support for 64-bit ELF binaries'
+    3=define_bool
+    4=define_bool,unset
+    5='Kernel support for 32-bit ELF binaries'
+    6='Kernel support for 31 bit ELF binaries'
+
+    Note that the interpretation of CONFIG_BINFMT_ELF appears to be
+    "support for largest-ELF" but some 64 bit platforms present this
+    to the user as explicitly "64-bit" while other 64 bit platforms
+    don't seem to care.  The 32-bit platforms just pretend there's
+    no such thing as 64-bits.
 
 
-@@ -147,7 +95,7 @@
+> CONFIG_SOUND_GAMEPORT - defined in drivers/input/gameport/, used only
+> in sound/oss/.  I'm not sure what's going on here
 
-  #define PCI_CONF2_ADDRESS(dev, reg)	(u16)(0xC000 | (dev << 8) | reg)
-
--static int pci_conf2_read (int seg, int bus, int dev, int fn, int reg, int 
-len, u32 *value)
-+static int __pci_conf2_read (int seg, int bus, int dev, int fn, int reg, int 
-len, u32 *value)
-  {
-  	unsigned long flags;
-
-@@ -181,7 +129,7 @@
-  	return 0;
-  }
-
--static int pci_conf2_write (int seg, int bus, int dev, int fn, int reg, int 
-len, u32 value)
-+static int __pci_conf2_write (int seg, int bus, int dev, int fn, int reg, int 
-len, u32 value)
-  {
-  	unsigned long flags;
-
-@@ -217,57 +165,21 @@
-
-  #undef PCI_CONF2_ADDRESS
-
--static int pci_conf2_read_config_byte(struct pci_dev *dev, int where, u8 *value)
--{
-- 
-int result;
-- 
-u32 data;
-- 
-result = pci_conf2_read(0, dev->bus->number, PCI_SLOT(dev->devfn),
-- 
-	PCI_FUNC(dev->devfn), where, 1, &data);
-- 
-*value = (u8)data;
-- 
-return result;
--}
--
--static int pci_conf2_read_config_word(struct pci_dev *dev, int where, u16 *value)
--{
-- 
-int result;
-- 
-u32 data;
-- 
-result = pci_conf2_read(0, dev->bus->number, PCI_SLOT(dev->devfn),
-- 
-	PCI_FUNC(dev->devfn), where, 2, &data);
-- 
-*value = (u16)data;
-- 
-return result;
--}
--
--static int pci_conf2_read_config_dword(struct pci_dev *dev, int where, u32 *value)
--{
-- 
-return pci_conf2_read(0, dev->bus->number, PCI_SLOT(dev->devfn),
-- 
-	PCI_FUNC(dev->devfn), where, 4, value);
--}
--
--static int pci_conf2_write_config_byte(struct pci_dev *dev, int where, u8 value)
-+static int pci_conf2_read(struct pci_dev *dev, int where, int size, u32 *value)
-  {
-- 
-return pci_conf2_write(0, dev->bus->number, PCI_SLOT(dev->devfn),
-- 
-	PCI_FUNC(dev->devfn), where, 1, value);
-+ 
-return __pci_conf2_read(0, dev->bus->number, PCI_SLOT(dev->devfn),
-+ 
-	PCI_FUNC(dev->devfn), where, size, value);
-  }
-
--static int pci_conf2_write_config_word(struct pci_dev *dev, int where, u16 value)
-+static int pci_conf2_write(struct pci_dev *dev, int where, int size, u32 value)
-  {
-- 
-return pci_conf2_write(0, dev->bus->number, PCI_SLOT(dev->devfn),
-- 
-	PCI_FUNC(dev->devfn), where, 2, value);
--}
--
--static int pci_conf2_write_config_dword(struct pci_dev *dev, int where, u32 value)
--{
-- 
-return pci_conf2_write(0, dev->bus->number, PCI_SLOT(dev->devfn),
-- 
-	PCI_FUNC(dev->devfn), where, 4, value);
-+ 
-return __pci_conf2_write(0, dev->bus->number, PCI_SLOT(dev->devfn),
-+ 
-	PCI_FUNC(dev->devfn), where, size, value);
-  }
-
-  static struct pci_ops pci_direct_conf2 = {
-- 
-pci_conf2_read_config_byte,
-- 
-pci_conf2_read_config_word,
-- 
-pci_conf2_read_config_dword,
-- 
-pci_conf2_write_config_byte,
-- 
-pci_conf2_write_config_word,
-- 
-pci_conf2_write_config_dword
-+ 
-read: 
-pci_conf2_read,
-+ 
-write: 
-pci_conf2_write
-  };
+I couldn't figure out CONFIG_SOUND_GAMEPORT or CONFIG_INPUT_GAMEPORT either.
 
 
-@@ -292,16 +204,16 @@
-  	bus.number = 0;
-  	dev.bus = &bus;
-  	for(dev.devfn=0; dev.devfn < 0x100; dev.devfn++)
-- 
-	if ((!o->read_word(&dev, PCI_CLASS_DEVICE, &x) &&
-+ 
-	if ((!o->read(&dev, PCI_CLASS_DEVICE, 2, &x) &&
-  		     (x == PCI_CLASS_BRIDGE_HOST || x == PCI_CLASS_DISPLAY_VGA)) ||
-- 
-	    (!o->read_word(&dev, PCI_VENDOR_ID, &x) &&
-+ 
-	    (!o->read(&dev, PCI_VENDOR_ID, 2, &x) &&
-  		     (x == PCI_VENDOR_ID_INTEL || x == PCI_VENDOR_ID_COMPAQ)))
-  	 
-	return 1;
-  	DBG("PCI: Sanity check failed\n");
-  	return 0;
-  }
-
--static struct pci_ops * __devinit pci_check_direct(void)
-+static int __init pci_direct_init(void)
-  {
-  	unsigned int tmp;
-  	unsigned long flags;
-@@ -321,8 +233,10 @@
-  	 
-	local_irq_restore(flags);
-  	 
-	printk(KERN_INFO "PCI: Using configuration type 1\n");
-  	 
-	if (!request_region(0xCF8, 8, "PCI conf1"))
-- 
-			return NULL;
-- 
-		return &pci_direct_conf1;
-+ 
-			pci_root_ops = NULL;
-+ 
-		else
-+ 
-			pci_root_ops = &pci_direct_conf1;
-+ 
-		return 0;
-  		}
-  		outl (tmp, 0xCF8);
-  	}
-@@ -339,28 +253,15 @@
-  	 
-	local_irq_restore(flags);
-  	 
-	printk(KERN_INFO "PCI: Using configuration type 2\n");
-  	 
-	if (!request_region(0xCF8, 4, "PCI conf2"))
-- 
-			return NULL;
-- 
-		return &pci_direct_conf2;
-+ 
-			pci_root_ops = NULL;
-+ 
-		else
-+ 
-			pci_root_ops = &pci_direct_conf2;
-+ 
-		return 0;
-  		}
-  	}
-
-  	local_irq_restore(flags);
-- 
-return NULL;
--}
--
--static int __init pci_direct_init(void)
--{
-- 
-if ((pci_probe & (PCI_PROBE_CONF1 | PCI_PROBE_CONF2))
-- 
-	&& (pci_root_ops = pci_check_direct())) {
-- 
-	if (pci_root_ops == &pci_direct_conf1) {
-- 
-		pci_config_read = pci_conf1_read;
-- 
-		pci_config_write = pci_conf1_write;
-- 
-	}
-- 
-	else {
-- 
-		pci_config_read = pci_conf2_read;
-- 
-		pci_config_write = pci_conf2_write;
-- 
-	}
-- 
-}
-+ 
-pci_root_ops = NULL;
-  	return 0;
-  }
-
-diff -Nur linux-2.5.31-vanilla/drivers/pci/access.c 
-linux-2.5.31-patched/drivers/pci/access.c
---- linux-2.5.31-vanilla/drivers/pci/access.c	Sat Aug 10 18:41:29 2002
-+++ linux-2.5.31-patched/drivers/pci/access.c	Tue Aug 13 15:09:56 2002
-@@ -19,24 +19,38 @@
-  #define PCI_word_BAD (pos & 1)
-  #define PCI_dword_BAD (pos & 3)
-
--#define PCI_OP(rw,size,type) \
--int pci_##rw##_config_##size (struct pci_dev *dev, int pos, type value) \
-+#define PCI_OP_READ(size,type,len) \
-+int pci_read_config_##size (struct pci_dev *dev, int pos, type *value) \
-  {	 
-							\
-  	int res;				 
-		\
-  	unsigned long flags;						\
-+ 
-u32 data;			 
-			\
-  	if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
-  	spin_lock_irqsave(&pci_lock, flags);				\
-- 
-res = dev->bus->ops->rw##_##size(dev, pos, value);		\
-+ 
-res = dev->bus->ops->read(dev, pos, len, &data);		\
-+ 
-*value = (type)data;						\
-  	spin_unlock_irqrestore(&pci_lock, flags);			\
-  	return res;							\
-  }
-
--PCI_OP(read, byte, u8 *)
--PCI_OP(read, word, u16 *)
--PCI_OP(read, dword, u32 *)
--PCI_OP(write, byte, u8)
--PCI_OP(write, word, u16)
--PCI_OP(write, dword, u32)
-+#define PCI_OP_WRITE(size,type,len) \
-+int pci_write_config_##size (struct pci_dev *dev, int pos, type value) \
-+{ 
-								\
-+ 
-int res;			 
-			\
-+ 
-unsigned long flags;						\
-+ 
-if (PCI_##size##_BAD) return PCIBIOS_BAD_REGISTER_NUMBER;	\
-+ 
-spin_lock_irqsave(&pci_lock, flags);				\
-+ 
-res = dev->bus->ops->write(dev, pos, len, value);		\
-+ 
-spin_unlock_irqrestore(&pci_lock, flags);			\
-+ 
-return res;							\
-+}
-+
-+PCI_OP_READ(byte, u8, 1)
-+PCI_OP_READ(word, u16, 2)
-+PCI_OP_READ(dword, u32, 4)
-+PCI_OP_WRITE(byte, u8, 1)
-+PCI_OP_WRITE(word, u16, 2)
-+PCI_OP_WRITE(dword, u32, 4)
-
-  EXPORT_SYMBOL(pci_read_config_byte);
-  EXPORT_SYMBOL(pci_read_config_word);
-diff -Nur linux-2.5.31-vanilla/include/linux/pci.h 
-linux-2.5.31-patched/include/linux/pci.h
---- linux-2.5.31-vanilla/include/linux/pci.h	Sat Aug 10 18:41:28 2002
-+++ linux-2.5.31-patched/include/linux/pci.h	Tue Aug 13 14:49:36 2002
-@@ -456,12 +456,8 @@
-  /* Low-level architecture-dependent routines */
-
-  struct pci_ops {
-- 
-int (*read_byte)(struct pci_dev *, int where, u8 *val);
-- 
-int (*read_word)(struct pci_dev *, int where, u16 *val);
-- 
-int (*read_dword)(struct pci_dev *, int where, u32 *val);
-- 
-int (*write_byte)(struct pci_dev *, int where, u8 val);
-- 
-int (*write_word)(struct pci_dev *, int where, u16 val);
-- 
-int (*write_dword)(struct pci_dev *, int where, u32 val);
-+ 
-int (*read)(struct pci_dev *, int where, int size, u32 *val);
-+ 
-int (*write)(struct pci_dev *, int where, int size, u32 val);
-  };
-
-  struct pbus_set_ranges_data
-
+Greg.
+-- 
+the price of civilisation today is a courageous willingness to prevail,
+with force, if necessary, against whatever vicious and uncomprehending
+enemies try to strike it down.     - Roger Sandall, The Age, 28Sep2001.

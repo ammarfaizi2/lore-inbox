@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292422AbSBZRkd>; Tue, 26 Feb 2002 12:40:33 -0500
+	id <S292423AbSBZRmB>; Tue, 26 Feb 2002 12:42:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292429AbSBZRkD>; Tue, 26 Feb 2002 12:40:03 -0500
-Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:9149 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S292422AbSBZRjv>;
-	Tue, 26 Feb 2002 12:39:51 -0500
-Message-ID: <3C7BC858.5070400@tmsusa.com>
-Date: Tue, 26 Feb 2002 09:39:36 -0800
-From: J Sloan <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020207
-X-Accept-Language: en-us
+	id <S292429AbSBZRlw>; Tue, 26 Feb 2002 12:41:52 -0500
+Received: from p3EE267C0.dip.t-dialin.net ([62.226.103.192]:32992 "EHLO
+	artus.fbunet.de") by vger.kernel.org with ESMTP id <S292423AbSBZRki>;
+	Tue, 26 Feb 2002 12:40:38 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Fridtjof Busse <fridtjof.busse@gmx.de>
+Message-Id: <200202261834.39908@fbunet.de>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Subject: Re: [2.4.18-ac1] Unable to mount root fs
+Date: Tue, 26 Feb 2002 18:40:59 +0100
+In-Reply-To: <200202261722.13431@fbunet.de> <20020226164509.GI4393@matchmail.com>
+In-Reply-To: <20020226164509.GI4393@matchmail.com>
+Cc: linux-kernel@vger.kernel.org
+X-OS: Linux on i686
 MIME-Version: 1.0
-To: Guido Volpi <lugburz@tiscalinet.it>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: oproblem with nvidia driver
-In-Reply-To: <200202261447.g1QElLO02468@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guido Volpi wrote:
+On Tuesday, 26. February 2002 17:45, Mike Fedyk wrote:
+> What was the last version of -ac that worked for you?
 
->it's all right: nvidia modules depend only by nvidia, but i don't understand 
->why a module that is perfect (or so) with 2.4.17 in 2.4.18-rc4 is no more 
->usabily.
->
+I didn't use any ac-Patches of the 2.4.18-pre series, sorry. But I can 
+try some of the pre-ac-patches if that helps you.
+The latest ac I run on my machine was a 2.4.9-ac (don't remember which 
+one exactly).
+The precompiled RH-errata kernel also runs without problems (2.4.9-21).
 
-I'm using 2.4.18-rc4+most of the -aa patches.
-nvidia works fine for me -
-
-There are patches available that will break
-the nvidia driver without warning, but that's
-the problem with a binary driver - you have
-to be careful about what patches you apply,
-and you will lag the bleeding edge in some
-areas because of driver compatibility issues.
-
-Joe
-
-
+-- 
+Fridtjof Busse
+"Mosaic is the 1990's equivalent of forcing friends to sit through
+slides of your trip to Florida - painful for everyone but the host." 
+ -Steve G. Steinberg

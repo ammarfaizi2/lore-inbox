@@ -1,44 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265264AbRFUWWp>; Thu, 21 Jun 2001 18:22:45 -0400
+	id <S265266AbRFUWa1>; Thu, 21 Jun 2001 18:30:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265263AbRFUWWf>; Thu, 21 Jun 2001 18:22:35 -0400
-Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:62453
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S265264AbRFUWW1>; Thu, 21 Jun 2001 18:22:27 -0400
-Date: Thu, 21 Jun 2001 18:22:22 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: <nico@xanadu.home>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: CML2 <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
-Subject: Re: Missing help entries in 2.4.6pre5
-In-Reply-To: <20010621154934.A6582@thyrsus.com>
-Message-ID: <Pine.LNX.4.33.0106211812560.30096-100000@xanadu.home>
+	id <S265267AbRFUWaR>; Thu, 21 Jun 2001 18:30:17 -0400
+Received: from helios.jpl.nasa.gov ([137.78.79.47]:23247 "EHLO
+	helios.jpl.nasa.gov") by vger.kernel.org with ESMTP
+	id <S265266AbRFUWaD>; Thu, 21 Jun 2001 18:30:03 -0400
+Message-ID: <3B3274F2.56FAB826@telerobotics.jpl.nasa.gov>
+Date: Thu, 21 Jun 2001 15:28:02 -0700
+From: Chris Leger <cleger@helios.jpl.nasa.gov>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: Unable to handle kernel NULL pointer dereference at virtual address 
+ - 2.4.5
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+I have the same problem, only mine occurs early in the boot process
+(right after a message saying something like "trying to mount old
+root..."; or maybe s/mount/unmount)so I don't have a log.  I have a
+similar system: dual PIIIs w/ Adaptec AIC-7xxx controller, an HP Kayak. 
+I saw some earlier messages about AIC-7xxx problems w/ 2.4.5, so I tried
+using aic7xxx_old and also tried a patch someone mentioned.  I have yet
+to be able to bring up my machine with 2.4.5 under any combination of
+aic7xxx drivers, so maybe it's not the driver after all.
 
-On Thu, 21 Jun 2001, Eric S. Raymond wrote:
+Any ideas?  I built the kernel w/ gcc 2.91.66 (kgcc).
 
-> The following configuration symbols in 2.4.6pre5 do not have
-> Congfgure.help entries,:
-[...]
-> CONFIG_XSCALE_IQ80310
+Thanks,
 
-1- This symbol is mine;
-2- It is part of 2.4.6-pre5 only as a dependency argument, with no
-   point where a value is actually assigned to it;
-3- It is likely to be different when the actual question for which the
-   user need an help text is merged into the mainline kernel.
+Chris Leger
 
-So you can safely ignore it for now.
+Rafael Martinez writes:
+> Hello
+>
+>     I have got a error in my syslog about a Null pointer in the kernel:
+>
+>     Kernel 2.4.5
+>     glibc 2.2.12
+>     gcc version 2.96 20000731 (Red Hat Linux 7.0)
+>
+>     Modell: ISP2150 
+>     Motherboard: L440GX+ DP 
+>     CPU: 2 x Intel Pentium III (Coppermine) 850 MHz L2 cache: 256K / Bus: 100 MHz 
+>     RAM: 256 MB 
+>     SCSI controller: Adaptec AIC-7896/7 Ultra2
+>
+>Unable to handle kernel NULL pointer dereference at virtual address
+>     00000015
+>      printing eip:
+>     c014db72
+>     *pde = 00000000
+>     Oops: 0002
+>     CPU:    1
+>     EIP:    0010:[<c014db72>]
+>     EFLAGS: 000
 
-Maybe it could be a good thing for your tool to ignore missing help text for
-symbols that don't get enabled interactively by the user?
+-- 
+[ Chris Leger  ::  cleger@robotics.jpl.nasa.gov   (818)393-4462 ]
 
-
-Nicolas
-
+You can come up with a hundred reasons why a thing can't be done, 
+and you have to eat them all when someone else does it.

@@ -1,40 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283591AbRLWFKx>; Sun, 23 Dec 2001 00:10:53 -0500
+	id <S283618AbRLWFRD>; Sun, 23 Dec 2001 00:17:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283594AbRLWFKo>; Sun, 23 Dec 2001 00:10:44 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:5899 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S283591AbRLWFKc>;
-	Sun, 23 Dec 2001 00:10:32 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Chris Vandomelen <chrisv@b0rked.dhs.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Assigning syscall numbers for testing 
-In-Reply-To: Your message of "Sat, 22 Dec 2001 20:04:24 -0800."
-             <Pine.LNX.4.31.0112221956280.23282-100000@b0rked.dhs.org> 
-Mime-Version: 1.0
+	id <S283658AbRLWFQn>; Sun, 23 Dec 2001 00:16:43 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:46600 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S283618AbRLWFQk>; Sun, 23 Dec 2001 00:16:40 -0500
+Message-ID: <3C256851.CD91C2A@zip.com.au>
+Date: Sat, 22 Dec 2001 21:14:57 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Phil Brutsche <pbrutsch@tux.creighton.edu>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.17 compile error + fix
+In-Reply-To: <1009081736.968.0.camel@fury>
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 23 Dec 2001 16:10:21 +1100
-Message-ID: <22263.1009084221@ocs3.intra.ocs.com.au>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Dec 2001 20:04:24 -0800 (PST), 
-Chris Vandomelen <chrisv@b0rked.dhs.org> wrote:
->> No, that's not the case I'm talking about: what happens when a vendor
->> starts shipping this patch and Linus decides to add a new syscall that
->> uses a syscall number that the old kernel used for dynamic syscalls?
+Phil Brutsche wrote:
+> 
+> --- linux/drivers/usb/usb-uhci.c        Fri Dec 21 11:41:55 2001
+> +++ linux-2.4.17-modified/drivers/usb/usb-uhci.c        Sat Dec 22
+> 22:10:27 2001
+> @@ -3001,7 +3001,7 @@
+>         s->irq = irq;
+> 
+>         if(uhci_start_usb (s) < 0) {
+> -               uhci_pci_remove(dev);
+> +               __devexit_p (uhci_pci_remove(dev));
+>                 return -1;
+>         }
 >
->If I understood correctly, /proc/dynamic_syscalls contains the information
->about dynamically registered syscall name->number associations, which are
->placed beyond the end of the currently registered set of syscalls. Later
->on down the line when we have 500 syscalls (exaggeration of course), the
->patch should still work as intended by just telling it that the empty
->slots in the syscall table begin at 501. So now your syscall that was
->registered as syscall 241 with the dynamic syscall patch in 2.4.17 now
->gets number 502 (or anything else for that matter) with the same patch
->under 5.4.23. Whee.
 
-I'm glad somebody understands the code :).
+If uhci_start_usb() fails, the driver still wants to call
+uhci_pci_remove() to clean stuff up.  Same with bttv.
 
+
+
+--- linux-2.4.17/drivers/media/video/bttv-driver.c	Fri Dec 21 11:19:13 2001
++++ linux-akpm/drivers/media/video/bttv-driver.c	Sat Dec 22 21:09:22 2001
+@@ -2820,7 +2820,7 @@ static void bttv_irq(int irq, void *dev_
+  *	Scan for a Bt848 card, request the irq and map the io memory 
+  */
+ 
+-static void __devexit bttv_remove(struct pci_dev *pci_dev)
++static void bttv_remove(struct pci_dev *pci_dev)
+ {
+         u8 command;
+         int j;
+@@ -3025,7 +3025,7 @@ static struct pci_driver bttv_pci_driver
+         name:     "bttv",
+         id_table: bttv_pci_tbl,
+         probe:    bttv_probe,
+-        remove:   __devexit_p(bttv_remove),
++        remove:   bttv_remove,
+ };
+ 
+ int bttv_init_module(void)
+--- linux-2.4.17/drivers/usb/uhci.c	Fri Dec 21 11:19:14 2001
++++ linux-akpm/drivers/usb/uhci.c	Sat Dec 22 21:09:01 2001
+@@ -2929,7 +2929,7 @@ static int __devinit uhci_pci_probe(stru
+ 	return -ENODEV;
+ }
+ 
+-static void __devexit uhci_pci_remove(struct pci_dev *dev)
++static void uhci_pci_remove(struct pci_dev *dev)
+ {
+ 	struct uhci *uhci = pci_get_drvdata(dev);
+ 
+@@ -2990,7 +2990,7 @@ static struct pci_driver uhci_pci_driver
+ 	id_table:	uhci_pci_ids,
+ 
+ 	probe:		uhci_pci_probe,
+-	remove:		__devexit_p(uhci_pci_remove),
++	remove:		uhci_pci_remove,
+ 
+ #ifdef	CONFIG_PM
+ 	suspend:	uhci_pci_suspend,

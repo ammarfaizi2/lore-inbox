@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319144AbSIDLkE>; Wed, 4 Sep 2002 07:40:04 -0400
+	id <S319146AbSIDLpv>; Wed, 4 Sep 2002 07:45:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319147AbSIDLkE>; Wed, 4 Sep 2002 07:40:04 -0400
-Received: from cs144080.pp.htv.fi ([213.243.144.80]:47886 "EHLO chip.ath.cx")
-	by vger.kernel.org with ESMTP id <S319144AbSIDLkD>;
-	Wed, 4 Sep 2002 07:40:03 -0400
-Date: Wed, 4 Sep 2002 14:44:06 +0300 (EEST)
-From: Panu Matilainen <pmatilai@welho.com>
-X-X-Sender: pmatilai@chip.ath.cx
-To: Urban Widmark <urban@teststation.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 32bit UID wraps around with smbfs
-In-Reply-To: <Pine.LNX.4.44.0209041252590.7921-100000@cola.enlightnet.local>
-Message-ID: <Pine.LNX.4.44.0209041441050.7970-100000@chip.ath.cx>
+	id <S319147AbSIDLpv>; Wed, 4 Sep 2002 07:45:51 -0400
+Received: from [62.70.77.106] ([62.70.77.106]:50864 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S319146AbSIDLpv> convert rfc822-to-8bit;
+	Wed, 4 Sep 2002 07:45:51 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: writing OOPS/panic info to nvram?
+Date: Wed, 4 Sep 2002 13:50:21 +0200
+User-Agent: KMail/1.4.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209041350.21358.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Sep 2002, Urban Widmark wrote:
+hi
 
-> On Wed, 4 Sep 2002, Panu Matilainen wrote:
-> 
-> > Hi,
-> > 
-> > Smbfs has problems with 32bit UID/GID's: when you do
-> > 'smbmount //some/share /mnt/samba -o uid=100000' the mountpoint UID (and 
-> > GID) wrap around at 65535.
-> > 
-> > The attached patch, along with samba recompile against fixed headers
-> > apparently fixes it. This problem is present at least in all 2.4 kernels,
-> > I haven't looked at 2.5.
-> 
-> I don't think this is an acceptable fix for the main kernel. You are
-> changing a binary interface in a stable kernel series.
+I just read in the OS X.2 technote 
+(http://developer.apple.com/technotes/tn2002/tn2053.html#TN001016) that 
+they're writing the panic dump to nvram.
 
-Yup.. I had my doubts about the changes (I'm not a kernel hacker, just 
-poked around and noticed that things seem to work with that change)
+Is it hard to implement this on Linux?
 
-> I personally think that smb_mount_data is a bad idea and are slowly
-> working on moving smbfs to an ascii interface. With 2.4 any recent
-> smbmount should be using the ascii interface already, the problem there is
-> that smbmnt uses the smb_mount_data internally ...
-> 
-> This patch contains stuff I want to have included in samba 2.2.6,
-> including fixes for smbmnt's uid-abuse:
-> http://www.hojdpunkten.ac.se/054/samba/smbmount-2.2.5-misc-2.patch.gz
-> 
-> And this is needed to change the storage size of the in-kernel mount
-> struct:
-> http://www.hojdpunkten.ac.se/054/samba/smbfs-2.4.18-uid32.patch
-
-Thanks, I'll try these out!
-
+roy
 -- 
-	- Panu -
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
+
+Computers are like air conditioners.
+They stop working when you open Windows.
 

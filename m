@@ -1,71 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbVBOSyw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbVBOSzv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261820AbVBOSyw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 13:54:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbVBOSyw
+	id S261821AbVBOSzv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 13:55:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbVBOSzv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 13:54:52 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:41676 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261820AbVBOSyt (ORCPT
+	Tue, 15 Feb 2005 13:55:51 -0500
+Received: from imap.gmx.net ([213.165.64.20]:42946 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261821AbVBOSzg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 13:54:49 -0500
-Message-ID: <42124551.8060401@sgi.com>
-Date: Tue, 15 Feb 2005 12:54:09 -0600
-From: Ray Bryant <raybry@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
+	Tue, 15 Feb 2005 13:55:36 -0500
+X-Authenticated: #26200865
+Message-ID: <4212460A.4000100@gmx.net>
+Date: Tue, 15 Feb 2005 19:57:14 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.2) Gecko/20040906
+X-Accept-Language: de, en
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Robin Holt <holt@sgi.com>, Hirokazu Takahashi <taka@valinux.co.jp>,
-       Hugh DIckins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Marcello Tosatti <marcello@cyclades.com>,
-       Ray Bryant <raybry@austin.rr.com>, linux-mm <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC 2.6.11-rc2-mm2 7/7] mm: manual page migration --	sys_page_migrate
-References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com>	 <20050212032620.18524.15178.29731@tomahawk.engr.sgi.com>	 <1108242262.6154.39.camel@localhost>	 <20050214135221.GA20511@lnx-holt.americas.sgi.com>	 <1108407043.6154.49.camel@localhost>	 <20050214220148.GA11832@lnx-holt.americas.sgi.com>	 <1108419774.6154.58.camel@localhost>	 <20050215105056.GC19658@lnx-holt.americas.sgi.com> <1108492753.6154.82.camel@localhost>
-In-Reply-To: <1108492753.6154.82.camel@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Norbert Preining <preining@logic.at>
+CC: Pavel Machek <pavel@suse.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
+Subject: Re: [ACPI] Call for help: list of machines with working S3
+References: <20050214211105.GA12808@elf.ucw.cz> <20050215125555.GD16394@gamma.logic.tuwien.ac.at> <42121EC5.8000004@gmx.net> <20050215170837.GA6336@gamma.logic.tuwien.ac.at>
+In-Reply-To: <20050215170837.GA6336@gamma.logic.tuwien.ac.at>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> On Tue, 2005-02-15 at 04:50 -0600, Robin Holt wrote:
+Norbert Preining schrieb:
+> On Die, 15 Feb 2005, Carl-Daniel Hailfinger wrote:
 > 
->>What is the fundamental opposition to an array from from-to node mappings?
->>They are not that difficult to follow.  They make the expensive traversal
->>of ptes the single pass operation.  The time to scan the list of from nodes
->>to locate the node this page belongs to is relatively quick when compared
->>to the time to scan ptes and will result in probably no cache trashing
->>like the long traversal of all ptes in the system required for multiple
->>system calls.  I can not see the node array as anything but the right way
->>when compared to multiple system calls.  What am I missing?
+>>To suspend and resume properly, call the following script as root:
 > 
 > 
-> I don't really have any fundamental opposition.  I'm just trying to make
-> sure that there's not a simpler (better) way of doing it.  You've
-> obviously thought about it a lot more than I have, and I'm trying to
-> understand your process.
-> 
-> As far as the execution speed with a simpler system call.  Yes, it will
-> likely be slower.  However, I'm not sure that the increase in scan time
-> is all that significant compared to the migration code (it's pretty
-> slow).
-> 
-> -- Dave
-> 
-> 
-I'm worried about doing all of those find_get_page() things over and over
-when the mapped file we are migrating is large.  I suppose one can argue
-that that is never going to be the case (e. g. no one in their right mind
-would migrate a job with a 300 GB mapped file).  So we are back to the
-overlapping set of nodes issue.  Let me look into this some more.
+> Success. 
 
+Great!
+
+
+> After deactivating DRI in the X config file and saving the states with
+> your script (thanks) and turning off various stuff I get X running
+> again.
+> 
+> Questions:
+> - DRI must be disabled I guess?! Even with newer X server (x.org)?
+
+I never disabled it.
+
+> - I dont have to restore the font, it is back without any problem
+>   (I have vga console)
+
+Good. I guess that's highly chipset-specific.
+
+> - Sometimes I have to make a Sysrq-s (sync) to get some stuff running
+>   (eg logging in from the console hangs after input of passwd, calling
+>   sysrq-s makes it continue). I had a similar effect when logging in
+>   AFTER resuming (for the resume I had only gdm running but wasn't
+>   logged in) the GNOME starting screen stayed there indefinitely, no
+>   change. Even after restarting the X server and retrying.
+>   Logging in with twm session DID work without any problem.
+>   Do you have any idea what this could be?
+
+Pavel?
+
+> - My script is a bit more complicated: stopping: hotplug, mysql,
+>   ifplugd, waproamd, cpufreqd, acpid, ifdown eth0, eth1, rmmod acerhk
+>   echo "performance" onto governor, then going to sleepand doing
+>   more or less the reverse stuff after waking up.
+>   DO you have any experience with hotplug network etc stuff, working
+>   even without stopping?
+
+I used to unload modules, shutdown network interfaces etc. until I
+tried without all that stuff and it still worked. So I concluded
+that stopping things before suspend was a thing only needed with
+older kernels. Granted, mounted volumes on USB or IEEE1394 still
+have problems because the kernel doesn't expect them to disappear
+for a few moments, but that's nothing a module unload would fix.
+Simply umount all external drives and use my script. Drivers which
+still need to be unloaded and reloaded are buggy and have to be
+fixed.
+
+I'll prepare a web page with detailed S3/S4 suspend/resume
+information for ATI graphics card owners including step-by-step
+howtos for smooth suspend/resume cycles.
+
+Kendall Bennett is working with me to get suspend/resume working
+even with framebuffers. Once we have results, I'll post them here.
+
+
+Regards,
+Carl-Daniel
 -- 
------------------------------------------------
-Ray Bryant
-512-453-9679 (work)         512-507-7807 (cell)
-raybry@sgi.com             raybry@austin.rr.com
-The box said: "Requires Windows 98 or better",
-	 so I installed Linux.
------------------------------------------------
+http://www.hailfinger.org/

@@ -1,74 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315276AbSFXVC3>; Mon, 24 Jun 2002 17:02:29 -0400
+	id <S315278AbSFXVDu>; Mon, 24 Jun 2002 17:03:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315278AbSFXVC2>; Mon, 24 Jun 2002 17:02:28 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:17554 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S315276AbSFXVC1>; Mon, 24 Jun 2002 17:02:27 -0400
-Subject: Re: [Lse-tech] Re: efficient copy_to_user and copy_from_user routines in
- Linux Kernel
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-       lse-tech-admin@lists.sourceforge.net
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF74FDD393.9C0D100A-ON85256BE2.00737417@raleigh.ibm.com>
-From: "Mala Anand" <manand@us.ibm.com>
-Date: Mon, 24 Jun 2002 16:02:17 -0500
-X-MIMETrack: Serialize by Router on D04NM108/04/M/IBM(Release 5.0.9a |January 7, 2002) at
- 06/24/2002 05:02:17 PM
+	id <S315279AbSFXVDt>; Mon, 24 Jun 2002 17:03:49 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:24791 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S315278AbSFXVDr>; Mon, 24 Jun 2002 17:03:47 -0400
+Date: Mon, 24 Jun 2002 23:03:41 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Torrey Hoffman <thoffman@arnor.net>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19-rc1: compile error: undefined reference to `change_floppy'
+In-Reply-To: <1024951621.2225.136.camel@shire.arnor.net>
+Message-ID: <Pine.NEB.4.44.0206242302370.21028-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->David Miller wrote..
- >If the code is going to become so much larger, move the implementation
->out of the header file and into arch/i386/lib/foo.S
+On 24 Jun 2002, Torrey Hoffman wrote:
 
->It makes no sense to inline it anymore if it is going to be
->implemented with so many instructions.
-I will do that. Thanks.
+>...
+> init/do_mounts.o: In function `rd_load_image':
+> init/do_mounts.o(.text.init+0x91b): undefined reference to
+> `change_floppy'
+> init/do_mounts.o: In function `rd_load_disk':
+> init/do_mounts.o(.text.init+0xa65): undefined reference to
+> `change_floppy'
+> make: *** [vmlinux] Error 1
+>...
 
-Regards,
-    Mala
+This is a known problem. The fix is simple:
 
+--- init/do_mounts.c.old	Tue Jun 18 12:20:12 2002
++++ init/do_mounts.c	Tue Jun 18 12:20:38 2002
+@@ -378,7 +378,7 @@
+ 	return sys_symlink(path + n + 5, name);
+ }
 
-   Mala Anand
-   E-mail:manand@us.ibm.com
-   Linux Technology Center - Performance
-   Phone:838-8088; Tie-line:678-8088
+-#if defined(CONFIG_BLOCK_DEV_RAM) || defined(CONFIG_BLK_DEV_FD)
++#if defined(CONFIG_BLK_DEV_RAM) || defined(CONFIG_BLK_DEV_FD)
+ static void __init change_floppy(char *fmt, ...)
+ {
+ 	struct termios termios;
 
+cu
+Adrian
 
+-- 
 
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 
-                                                                                                                                               
-                      "David S. Miller"                                                                                                        
-                      <davem@redhat.com>               To:       Mala Anand/Austin/IBM@IBMUS                                                   
-                      Sent by:                         cc:       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net                  
-                      lse-tech-admin@lists.sour        Subject:  [Lse-tech] Re: efficient copy_to_user and copy_from_user routines in Linux    
-                      ceforge.net                       Kernel                                                                                 
-                                                                                                                                               
-                                                                                                                                               
-                      06/24/02 02:33 PM                                                                                                        
-                                                                                                                                               
-                                                                                                                                               
-
-
-
-   From: "Mala Anand" <manand@us.ibm.com>
-   Date: Mon, 24 Jun 2002 14:34:08 -0500
-
-
-
-
--------------------------------------------------------
-Sponsored by:
-ThinkGeek at http://www.ThinkGeek.com/
-_______________________________________________
-Lse-tech mailing list
-Lse-tech@lists.sourceforge.net
-https://lists.sourceforge.net/lists/listinfo/lse-tech
 
 
 

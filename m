@@ -1,89 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264161AbUESPAo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264236AbUESPKe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264161AbUESPAo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 11:00:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264208AbUESPAo
+	id S264236AbUESPKe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 11:10:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUESPKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 11:00:44 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:61154 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S264161AbUESPAm (ORCPT
+	Wed, 19 May 2004 11:10:34 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:18363 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264236AbUESPKa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 11:00:42 -0400
-Date: Wed, 19 May 2004 17:00:40 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Cc: Larry McVoy <lm@work.bitmover.com>, Christoph Hellwig <hch@infradead.org>
-Subject: Re: bk-3.2.0 released
-Message-ID: <20040519150040.GR1912@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Larry McVoy <lm@work.bitmover.com>,
-	Christoph Hellwig <hch@infradead.org>
-References: <20040518233238.GC28206@work.bitmover.com> <20040519075128.A19221@infradead.org> <20040519140259.GA18977@work.bitmover.com> <20040519141115.GO1912@lug-owl.de> <20040519141648.GB18977@work.bitmover.com> <20040519142656.GP1912@lug-owl.de> <20040519144852.GC18977@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8FuZXOhcVXRF3t6s"
+	Wed, 19 May 2004 11:10:30 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] implement TIOCGSERIAL in sn_serial.c
+Date: Wed, 19 May 2004 11:09:51 -0400
+User-Agent: KMail/1.6.2
+Cc: pfg@sgi.com, Erik Jacobson <erikj@sgi.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040519144852.GC18977@work.bitmover.com>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_/i3qA+BHQMG2njU"
+Message-Id: <200405191109.51751.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---8FuZXOhcVXRF3t6s
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, 2004-05-19 07:48:52 -0700, Larry McVoy <lm@bitmover.com>
-wrote in message <20040519144852.GC18977@work.bitmover.com>:
-> On Wed, May 19, 2004 at 04:26:56PM +0200, Jan-Benedict Glaw wrote:
-> > On Wed, 2004-05-19 07:16:48 -0700, Larry McVoy <lm@bitmover.com>
-> > wrote in message <20040519141648.GB18977@work.bitmover.com>:
-> > > new version of a widely used tool is available?  If someone posted th=
-at
-> > > there is a new version of gcc available is that off topic? =20
-> >=20
-> > Yes, it was. Even miscompilation reports are mostly OT, since they
-> > should go to GCC's bugzilla.
->=20
-> Sigh.  This strikes me as "aha, Larry's posted something, let's see if
-> we can get him hooked on some trollbait, that would be fun, it's been
-> a while!" =20
-
-Not at all! You *do* post useful/helpful/serious/whatnot emails (eg.
-those about the corruption-at-page's-end topic). It's just that I like
-to see noise on this list going down, which includes announcments eg. of
-binutils/gcc, bitkeeper, but also the constant announcments for
-yet-some-more-email-addresses-added patches for some rarely used script.
-
-So, let's just try to keep noise low, I won't even send more messages to
-this thread (accepting whatever you make out of it), but I'll just
-continue hacking DZ11 ...
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---8FuZXOhcVXRF3t6s
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+--Boundary-00=_/i3qA+BHQMG2njU
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+The sn2 console driver behaves something like a serial port, but was missing 
+some of the ioctls that userland apps expected.  This patch implements the 
+TIOCGSERIAL ioctl, which allows applications to identify the console as a 
+serial port.
 
-iD8DBQFAq3aYHb1edYOZ4bsRAkecAJ9gFfme8guGV98HpeoubKhA4EEiCwCfQP5R
-v498AE6rqioDodI0z2WpbBw=
-=22Hb
------END PGP SIGNATURE-----
+Jesse
 
---8FuZXOhcVXRF3t6s--
+--Boundary-00=_/i3qA+BHQMG2njU
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="sn-serial-ioctl-3.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="sn-serial-ioctl-3.patch"
+
+--- linux-2.6.6.orig/drivers/char/sn_serial.c	2004-05-09 22:33:21.000000000 -0400
++++ linux-2.6.6/drivers/char/sn_serial.c	2004-05-19 10:59:20.000000000 -0400
+@@ -21,6 +21,7 @@
+ #include <linux/sysrq.h>
+ #include <linux/circ_buf.h>
+ #include <linux/serial_reg.h>
++#include <linux/serial_core.h>
+ #include <asm/uaccess.h>
+ #include <asm/sn/sgi.h>
+ #include <asm/sn/sn_sal.h>
+@@ -38,7 +39,7 @@ static unsigned long sysrq_requested;
+ #define SN_SAL_MINOR 64
+ 
+ /* number of characters left in xmit buffer before we ask for more */
+-#define WAKEUP_CHARS 128
++#define SN_WAKEUP_CHARS 128
+ 
+ /* number of characters we can transmit to the SAL console at a time */
+ #define SN_SAL_MAX_CHARS 120
+@@ -411,7 +412,7 @@ sn_poll_transmit_chars(void)
+ 	 * that we could stand for the upper layer to send us some
+ 	 * more, ask for it. */
+ 	if (sn_sal_tty)
+-		if (CIRC_CNT(xmit.cb_head, xmit.cb_tail, SN_SAL_BUFFER_SIZE) < WAKEUP_CHARS)
++		if (CIRC_CNT(xmit.cb_head, xmit.cb_tail, SN_SAL_BUFFER_SIZE) < SN_WAKEUP_CHARS)
+ 			sn_sal_sched_event(SN_SAL_EVENT_WRITE_WAKEUP);
+ }
+ 
+@@ -466,7 +467,7 @@ sn_intr_transmit_chars(void)
+ 	 * that we could stand for the upper layer to send us some
+ 	 * more, ask for it. */
+ 	if (sn_sal_tty)
+-		if (CIRC_CNT(xmit.cb_head, xmit.cb_tail, SN_SAL_BUFFER_SIZE) < WAKEUP_CHARS)
++		if (CIRC_CNT(xmit.cb_head, xmit.cb_tail, SN_SAL_BUFFER_SIZE) < SN_WAKEUP_CHARS)
+ 			sn_sal_sched_event(SN_SAL_EVENT_WRITE_WAKEUP);
+ }
+ 
+@@ -784,6 +785,29 @@ sn_sal_read_proc(char *page, char **star
+ 	return count < begin+len-off ? count : begin+len-off;
+ }
+ 
++/*
++ * sn_sal_ioctl - we only support a very limited TIOCGSERIAL
++ */
++static int
++sn_sal_ioctl(struct tty_struct *tty, struct file *filp, unsigned int cmd,
++	     unsigned long arg)
++{
++	struct serial_struct tmp_serial;
++	struct serial_struct *force_cast_serial;
++
++	force_cast_serial = (struct serial_struct *)arg;
++
++	memset(&tmp_serial, 0, sizeof(tmp_serial));
++	tmp_serial.irq = sn_sal_irq;
++	tmp_serial.xmit_fifo_size = SN_SAL_UART_FIFO_DEPTH;
++
++	if (cmd == TIOCGSERIAL) {
++		if (copy_to_user(force_cast_serial, &tmp_serial, sizeof(*force_cast_serial)))
++			return -EFAULT;
++		return 0;
++	}
++	return -ENOIOCTLCMD;
++}
+ 
+ static struct tty_operations sn_sal_driver_ops = {
+ 	.open		 = sn_sal_open,
+@@ -796,6 +820,7 @@ static struct tty_operations sn_sal_driv
+ 	.hangup		 = sn_sal_hangup,
+ 	.wait_until_sent = sn_sal_wait_until_sent,
+ 	.read_proc	 = sn_sal_read_proc,
++	.ioctl		 = sn_sal_ioctl,
+ };
+ static struct tty_driver *sn_sal_driver;
+ 
+
+--Boundary-00=_/i3qA+BHQMG2njU--

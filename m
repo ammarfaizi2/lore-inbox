@@ -1,97 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265255AbUGZMpm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265256AbUGZMrd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265255AbUGZMpm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 08:45:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265264AbUGZMpm
+	id S265256AbUGZMrd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 08:47:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265264AbUGZMrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 08:45:42 -0400
-Received: from irulan.endorphin.org ([212.13.208.107]:59656 "EHLO
-	irulan.endorphin.org") by vger.kernel.org with ESMTP
-	id S265255AbUGZMp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 08:45:29 -0400
-Subject: Re: [PATCH] Delete cryptoloop
-To: Jari Ruusu <jariruusu@users.sourceforge.net>,
-       James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4104E2CC.D8CBA56@users.sourceforge.net>
-References: <Pine.LNX.4.58.0407211609230.19655@devserv.devel.redhat.com>
-	<1090672906.8587.66.camel@ghanima>
-	<41039CAC.965AB0AA@users.sourceforge.net>
-	<1090761870.10988.71.camel@ghanima>
-	<4103ED18.FF2BC217@users.sourceforge.net>
-	<1090778567.10988.375.camel@ghanima>
-	<4104E2CC.D8CBA56@users.sourceforge.net>
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="=-0roL3SOQhYe0FWY5LWr7"
-Message-Id: <1090845926.13338.98.camel@ghanima>
+	Mon, 26 Jul 2004 08:47:32 -0400
+Received: from main.gmane.org ([80.91.224.249]:21464 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265256AbUGZMqm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 08:46:42 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Frederik Himpe <fhimpe@pandora.be>
+Subject: Re: 2.6.7-ck5: System hangs under constant load
+Date: Mon, 26 Jul 2004 14:46:34 +0200
+Message-ID: <pan.2004.07.26.12.46.33.38548@pandora.be>
+References: <200407252227.05580.rototor@rototor.de> <pan.2004.07.25.20.57.36.483562@pandora.be> <200407252321.22781.rototor@rototor.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 26 Jul 2004 14:45:26 +0200
-From: Fruhwirth Clemens <clemens-dated-1091709927.ed82@endorphin.org>
-X-Delivery-Agent: TMDA/0.92 (Kauai King)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 194.78.190.194
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 25 Jul 2004 23:21:22 +0200, Emmeran Seehuber wrote:
 
---=-0roL3SOQhYe0FWY5LWr7
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Am Sonntag, 25. Juli 2004 22:57 schrieb Frederik Himpe:
+>> On Sun, 25 Jul 2004 22:27:05 +0200, Emmeran Seehuber wrote:
+>> > Hello everybody!
+>> >
+>> > I'm using a 2.6.7 kernel with the ck5 patch (gentoo ck-sources). But
+>> > the problem I have may not directly be related to this kernel version,
+>> > because I had it a few times already with other 2.6.x kernels.
+>> >
+>> > When I put the machine under constant load (e.g. emerge of kde
+>> > 3.3beta2), it works for some hours without problems. But then the
+>> > machine suddenly hangs. "Hang" means that no keyboard or mouse input
+>> > works (even SysRq doesn't work), the screen freezes and the cpu seems
+>> > to go into a loop. The system is a laptop and I hear the fan spin
+>> > loudly. And the fan doesn't stop to spin nor turns down the sound,
+>> > even after some hours. (Well, I start the emerge and then let the
+>> > computer alone for some hours, in the hope that it finishes it ...
+>> > when I come back, it hangs)
+>>
+>> Interesting, as I'm having also a problem with random hangs since kernel
+>> 2.6.6 (2.6.5 and before worked fine), also on a laptop. Which laptop do
+>> you have? I'm using a Compaq EVO N1020v, with this hardware:
+>>
+>>
+> I've got a Xeron laptop with this hardware:
 
-On Mon, 2004-07-26 at 12:54, Jari Ruusu wrote:
-> Fruhwirth Clemens wrote:
-> > On Sun, 2004-07-25 at 19:25, Jari Ruusu wrote:
-> > > In short: exploit encodes watermark patterns as sequences of identica=
-l
-> > > ciphertexts.
-> >=20
-> > Probably I'm missing the point, but at the moment this looks like a
-> > chosen plain text attack. As you know for sure, this is trivial. For
-> > instance, AES asserts to be secure against this kind of attack. (See th=
-e
-> > author's definition of K-secure..).
->=20
-> > I'm suggesting it doesn't work at all.
->=20
-> Fruhwirth, your incompetence has always amazed me. And this time is no
-> exception. What is conserning is that some mainline folks seem to listeni=
-ng
-> to your ill opinions. No wonder that both mainline device crypto
-> implementations are such a joke.
+[...]
 
-Please don't resort to personal defamations.=20
+Thanks, it seems especially the network chip (Realtek 8139) is similar,
+and both have a graphics chip based on radeon (although this one is an
+integrated thing).
 
-To summarize for an innocent bystander:
+I have put more detailed information (dmesg, lsmod,
+config, lspci -v) on http://users.telenet.be/fhimpe/kernelbug/ . Maybe you
+could also make it available somewhere?
 
-- The attacks you brought forward are in the best case a starting point
-for known plain text attacks. Even DES is secure against this attack,
-since an attacker would need 2^47 chosen plain texts to break the cipher
-via differential cryptanalysis. (Table 12.14 Applied Cryptography,
-Schneier). First, the watermark attack can only distinguish 32
-watermarks. Second, you'd need a ~2.000.000 GB to store 2^47 chosen
-plain texts. Third, I'm talking about DES (designed 1977!), no chance
-against AES.
+Is there a kernel hacker who could give us any clue about what we can do
+to get more information to find the exact cause and to solve this problem?
 
-- The weaknesses brought forward by me are summarized  at
-http://clemens.endorphin.org/OnTheProblemsOfCryptoloop . Thanks goes to
-Pascal Brisset, who pointed out that cryptoloop is actually more secure
-than I assumed.
+Frederik
 
-If you, Jari, have any arguments left, it's time to state them now.
-Otherwise, have a nice day,
---=20
-Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
-
---=-0roL3SOQhYe0FWY5LWr7
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBBPzlW7sr9DEJLk4RAnqnAJ9ghY6VldsZUgRTH6a1vqGNYdQnmQCeMEKV
-k1jfeeyoSStDsctUH5qyO6E=
-=Virw
------END PGP SIGNATURE-----
-
---=-0roL3SOQhYe0FWY5LWr7--

@@ -1,59 +1,72 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S153993AbPGIUpI>; Fri, 9 Jul 1999 16:45:08 -0400
-Received: by vger.rutgers.edu id <S153877AbPGIUox>; Fri, 9 Jul 1999 16:44:53 -0400
-Received: from sgi.SGI.COM ([192.48.153.1]:24622 "EHLO sgi.com") by vger.rutgers.edu with ESMTP id <S153900AbPGIUna>; Fri, 9 Jul 1999 16:43:30 -0400
-To: Robert Walsh <rjwalsh@durables.org>
-Cc: linux-kernel@vger.rutgers.edu
-Subject: Re: kernel profiling
-References: <7m3tm8$7lvnt@fido.engr.sgi.com>
-From: Dimitris Michailidis <dimitris@darkside.engr.sgi.com>
-Date: 09 Jul 1999 13:43:40 -0700
-In-Reply-To: Robert Walsh's message of "8 Jul 1999 21:26:48 -0700"
-Message-ID: <6yrwvw9y2o3.fsf@darkside.engr.sgi.com>
-X-Mailer: Gnus v5.5/XEmacs 20.4 - "Emerald"
+Received: by vger.rutgers.edu via listexpand id <S153929AbPGIVm6>; Fri, 9 Jul 1999 17:42:58 -0400
+Received: by vger.rutgers.edu id <S153903AbPGIVmu>; Fri, 9 Jul 1999 17:42:50 -0400
+Received: from [194.46.8.33] ([194.46.8.33]:6267 "EHLO angusbay.vnl.com") by vger.rutgers.edu with ESMTP id <S153881AbPGIVlS>; Fri, 9 Jul 1999 17:41:18 -0400
+Date: Sat, 10 Jul 1999 01:25:27 +0100 (BST)
+From: Dale Amon <amon@vnl.com>
+Reply-To: Dale Amon <amon@vnl.com>
+To: linux-kernel@vger.rutgers.edu
+cc: bennett@transnational.net
+Subject: Linux and real time process control (Can't sleep less than 20ms)
+In-Reply-To: <19990709202830Z154016-4163+689@vger.rutgers.edu>
+Message-ID: <Pine.LNX.3.96.990710010050.25053F-100000@angusbay.vnl.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Robert Walsh <rjwalsh@durables.org> writes:
+Since I happened to be chatting with Richard Gooch
+about an area related to timers offline, although
+in a different context, I'll toss my ideas into the 
+fray.
 
-> Other than /dev/profile, is there any mechanism available for
-> profiling the kernel?  For example, has anyone implemented a
-> __mcount() function to handle a kernel compiled with -pg, or is this
-> even possible?
-> 
-> We're currently profiling the kernel NFS daemon (the entire path from
-> network to disk) using SPECsfs and other benchmarking mechanisms, and
-> before I start working on a home-grown profiling mechanism I'd like to
-> make sure I'm not reinventing the wheel.
-> 
-> BTW: /proc/profile hasn't got enough granularity for our purposes and
-> doesn't provide info such as call-graph statistics.
+First, I spent nearly 10 years doing 
+real time process control type things.
+We never used Unix because it lacked the ability
+to accurately control time-based events where
+you simply could NOT get things out of sequence or
+have two events execute at other than a correct
+time +/- some delta. Mostly I was not dealing
+with life and death... mostly.
 
-Back in May I posted a patch to enable kernel profiling using gprof, which
-should give you the call graph statistics you want.  The patch basically
-implements mcount() to collect statistics, adds a couple of files to /proc to 
-make the statistics available to the user land, and provides a command,
-kernprof, to generate gmon.out for consumption by gprof.  kernprof, in
-addition to preparing data for gprof, also does the job of readprofile, with
-a number of bugs of the latter fixed.
+Unix has improved in this, more due to processor
+speed and finer time slicing, but I'd still be
+leary of controlling seriously critical stuff
+with it (go ahead, convince me :-)
 
-You can get the patch from
+I started thinking about this again while
+doing a user land serial protocol driver that
+requires two indep timers. The only way to do it
+is to take a high speed SIGALRM and execute
+call backs on timed events from within your
+program. This is seriously inefficient when
+you may only need a handful of asynch time
+interrupts per second. 
 
-http://linuxwww.db.erau.edu/mail_archives/linux-kernel/May_99/2383.html
+This has always struck me as a weakness in
+Unix vs say, DEC OS's (or more commonly,
+dedicated assembly coded controllers.) If you 
+are going to do process control, you would really 
+like to register a time based event with the
+OS and be awakened to process it within
+some reasonably *guaranteeable* delta.
+(Otherwise, something might just go 
+BOOM and give your employer very bad PR.)
 
-or other archives.  Since there has been no response to this patch there has
-been no further development since the initial release, but it probably still
-applies cleanly against the 2.2.x kernels.
+I'm pretty sure some Unices have since added
+real time extensions. I've not thought about
+it much in years so I haven't really kept
+up. However Linux apparently does not. And
+I may have some very interesting applications
+in about 2 years that will need top notch
+industrial strength process control abilities
+from a Linux kernel. That's plenty of time
+to become second to none.
 
-As noted in the initial post, due to bugs in gcc/egcs that cause
-miscompilation of programs that use -pg and regparms, to use this patch you
-either need a hacked version of egcs or you need to disable the FASTCALLs in
-the kernel (the latter is done in the IKD patch).
+So has anyone been thinking about this set of
+problems? Would it be within the two year 
+timeframe? Anyone want to chat about it?
 
-Let me know if you have any suggestions to improve the patch or need other
-assistance.
 
--- 
-Dimitris Michailidis                    dimitris@engr.sgi.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

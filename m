@@ -1,65 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277014AbRJDTkN>; Thu, 4 Oct 2001 15:40:13 -0400
+	id <S276950AbRJDTwe>; Thu, 4 Oct 2001 15:52:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277215AbRJDTkD>; Thu, 4 Oct 2001 15:40:03 -0400
-Received: from [209.237.5.66] ([209.237.5.66]:9933 "EHLO clyde.stargateip.com")
-	by vger.kernel.org with ESMTP id <S276984AbRJDTjo>;
-	Thu, 4 Oct 2001 15:39:44 -0400
-From: "Ian Thompson" <ithompso@stargateip.com>
-To: "Helge Hafting" <helgehaf@idb.hist.no>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: How can I jump to non-linux address space?
-Date: Thu, 4 Oct 2001 12:40:01 -0700
-Message-ID: <NFBBIBIEHMPDJNKCIKOBEEIACAAA.ithompso@stargateip.com>
+	id <S276984AbRJDTw0>; Thu, 4 Oct 2001 15:52:26 -0400
+Received: from mailf.telia.com ([194.22.194.25]:5063 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id <S276950AbRJDTwP>;
+	Thu, 4 Oct 2001 15:52:15 -0400
+Message-Id: <200110041952.f94JqSv14951@mailf.telia.com>
+From: Roger Larsson <roger.larsson@norran.net>
+To: andre@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] scaling of 'max_readahead' in /proc/ide/hda/settings
+Date: Thu, 4 Oct 2001 21:47:26 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Robert Cohen <robert.cohen@anu.edu.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <3BBC2603.7C1327AC@idb.hist.no>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_2N5P3662PWBNKBQYESB4"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge,
 
-Thanks for your advice!  It's brought up a couple of other question, if you
-don't mind:
+--------------Boundary-00=_2N5P3662PWBNKBQYESB4
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-> The kernel can get to know - all you need is code that maps the
-> ROM address range into some available virtual address range.
-> Look at device driver code - they do such mapping for ROM and/or
-> memory-based io regions.
+I put the note first since it is important:
+-----------------------------------------------
+NOTE: this scaling problem might be in several drivers and possibly
+also in several places in this driver. Most likely in -ac too when
+enabling dynamic readahead for SCSI
+-----------------------------------------------
 
-I've seen the mapping of the single RAM address range, but I don't see where
-it is possible to add in another range for ROM.  What functions should I
-look for that do this mapping?
+In an earlier message I reported that dynamically changing readahead
+for ide disk produced unexpected results.
 
-> Do that ROM code work when the MMU has remapped its adresses so it
-> appears at some adress completely different from the bus address?  (only
-> if it contains relative jumps only - no absolute addresses.) Does
-> it work with 4G segments?  Does it work at all in protected mode,
-> with all interrupts routed to the linux kernel instead of the bios?
-> Does this code expect to find something (data, device interfaces,
-> vga memory) at certain addresses?  If so, this must be mapped too.
+I have now found the reason!
 
-I've run this code (in ROM) successfully before starting the kernel.  I
-believe the cache is disabled, and interrupts are not needed (and are off).
-The code does not refer to anything within the kernel.  I've tried turning
-off the MMU completely before branching, but this seems to hang the system.
-=(
+If you did cat the /proc/ide/hda/settings you would have noticed that
+max_readahead was zero. But reading the code you would see that
+is initialized with MAX_READAHEAD (defined to 31)
 
-Any ideas of what I should look for to turn off, aside from just shutting
-down the MMU?  If I map the ROM address range into a virtual addr range,
-won't I run into problems once I'm running the code, such as physical
-addresses being interpreted by virtual ones?
+I tried to modify this and got strange results when diffing two files bigger
+than RAM. Sinusoidal between very good and very poor...
+But modifying the MAX_READAHEAD and recompiling worked!
 
-btw, this is running on an XScale (strongARM).
+Both of these are due to the same problem with scaling in ide-disk.c
 
-Thanks again,
--ian
+mul_factor = 1
+div_factor = 1024
 
+But max_readahead is measured in pages.
+
+When reading the file max_readahead is divided by 1024, resulting
+in zero.
+
+A value written to it is on the other hand multiplied by 1024...
+
+So when I tried to set 511 pages readahead (2MB) it was interpreted
+as 511*1024 pages (2GB !) So it tried to read ahead all of one file
+before trying to read the other (but one file is bigger than my memory)
+
+With the included patch I measure in kB and limit it at 16MB.
+
+/RogerL
+
+-- 
+Roger Larsson
+Skellefteå
+Sweden
+
+--------------Boundary-00=_2N5P3662PWBNKBQYESB4
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="patch-2.4.11-pre2-ide_settings"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="patch-2.4.11-pre2-ide_settings"
+
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKgpQYXRjaCBwcmVwYXJl
+ZCBieTogcm9nZXIubGFyc3NvbkBub3JyYW4ubmV0Ck5hbWUgb2YgZmlsZTogL2hvbWUvcm9nZXIv
+cGF0Y2hlcy9wYXRjaC0yLjQuMTEtcHJlMi1pZGVfc2V0dGluZ3MKCi0tLSBsaW51eC9kcml2ZXJz
+L2lkZS9pZGUtZGlzay5jLm9yaWcJVHVlIE9jdCAgMiAwMTowNTo0MSAyMDAxCisrKyBsaW51eC9k
+cml2ZXJzL2lkZS9pZGUtZGlzay5jCVRodSBPY3QgIDQgMjE6MTU6MzYgMjAwMQpAQCAtNjkwLDcg
+KzY5MCw3IEBACiAJaWRlX2FkZF9zZXR0aW5nKGRyaXZlLAkibXVsdGNvdW50IiwJCWlkID8gU0VU
+VElOR19SVyA6IFNFVFRJTkdfUkVBRCwJCQlIRElPX0dFVF9NVUxUQ09VTlQsCUhESU9fU0VUX01V
+TFRDT1VOVCwJVFlQRV9CWVRFLAkwLAlpZCA/IGlkLT5tYXhfbXVsdHNlY3QgOiAwLAkxLAkyLAkm
+ZHJpdmUtPm11bHRfY291bnQsCQlzZXRfbXVsdGNvdW50KTsKIAlpZGVfYWRkX3NldHRpbmcoZHJp
+dmUsCSJub3dlcnIiLAkJU0VUVElOR19SVywJCQkJCUhESU9fR0VUX05PV0VSUiwJSERJT19TRVRf
+Tk9XRVJSLAlUWVBFX0JZVEUsCTAsCTEsCQkJCTEsCTEsCSZkcml2ZS0+bm93ZXJyLAkJCXNldF9u
+b3dlcnIpOwogCWlkZV9hZGRfc2V0dGluZyhkcml2ZSwJImJyZWFkYV9yZWFkYWhlYWQiLAlTRVRU
+SU5HX1JXLAkJCQkJQkxLUkFHRVQsCQlCTEtSQVNFVCwJCVRZUEVfSU5ULAkwLAkyNTUsCQkJCTEs
+CTIsCSZyZWFkX2FoZWFkW21ham9yXSwJCU5VTEwpOwotCWlkZV9hZGRfc2V0dGluZyhkcml2ZSwJ
+ImZpbGVfcmVhZGFoZWFkIiwJU0VUVElOR19SVywJCQkJCUJMS0ZSQUdFVCwJCUJMS0ZSQVNFVCwJ
+CVRZUEVfSU5UQSwJMCwJSU5UX01BWCwJCQkxLAkxMDI0LAkmbWF4X3JlYWRhaGVhZFttYWpvcl1b
+bWlub3JdLAlOVUxMKTsKKwlpZGVfYWRkX3NldHRpbmcoZHJpdmUsCSJmaWxlX3JlYWRhaGVhZCIs
+CVNFVFRJTkdfUlcsCQkJCQlCTEtGUkFHRVQsCQlCTEtGUkFTRVQsCQlUWVBFX0lOVEEsCTAsCTQw
+OTYsCQkJUEFHRV9TSVpFLAkxMDI0LAkmbWF4X3JlYWRhaGVhZFttYWpvcl1bbWlub3JdLAlOVUxM
+KTsKIAlpZGVfYWRkX3NldHRpbmcoZHJpdmUsCSJtYXhfa2JfcGVyX3JlcXVlc3QiLAlTRVRUSU5H
+X1JXLAkJCQkJQkxLU0VDVEdFVCwJCUJMS1NFQ1RTRVQsCQlUWVBFX0lOVEEsCTEsCTI1NSwJCQkJ
+MSwJMiwJJm1heF9zZWN0b3JzW21ham9yXVttaW5vcl0sCU5VTEwpOwogCWlkZV9hZGRfc2V0dGlu
+Zyhkcml2ZSwJImx1biIsCQkJU0VUVElOR19SVywJCQkJCS0xLAkJCS0xLAkJCVRZUEVfSU5ULAkw
+LAk3LAkJCQkxLAkxLAkmZHJpdmUtPmx1biwJCQlOVUxMKTsKIAlpZGVfYWRkX3NldHRpbmcoZHJp
+dmUsCSJmYWlsdXJlcyIsCQlTRVRUSU5HX1JXLAkJCQkJLTEsCQkJLTEsCQkJVFlQRV9JTlQsCTAs
+CTY1NTM1LAkJCQkxLAkxLAkmZHJpdmUtPmZhaWx1cmVzLAkJTlVMTCk7Cg==
+
+--------------Boundary-00=_2N5P3662PWBNKBQYESB4--

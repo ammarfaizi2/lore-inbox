@@ -1,89 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261460AbTLHTmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 14:42:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbTLHTmJ
+	id S261575AbTLHTcy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 14:32:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbTLHTcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 14:42:09 -0500
-Received: from fmr04.intel.com ([143.183.121.6]:24008 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261460AbTLHTki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 14:40:38 -0500
-Subject: Re: irq again
-From: Len Brown <len.brown@intel.com>
-To: Jing Xu <xujing_cn2001@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE00184D63D@hdsmsx402.hd.intel.com>
-References: <BF1FE1855350A0479097B3A0D2A80EE00184D63D@hdsmsx402.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1070912434.2408.50.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 08 Dec 2003 14:40:34 -0500
+	Mon, 8 Dec 2003 14:32:54 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:24471 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261575AbTLHTcv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 14:32:51 -0500
+Message-ID: <3FD4D103.2080007@nucleodyne.com>
+Date: Mon, 08 Dec 2003 11:29:07 -0800
+From: "NucleoDyne Systems Inc." <nucleon@nucleodyne.com>
+Organization: www.NucleoDyne.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: lost SCSI IO
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If the Dell has an IO-APIC, you want to build support for it into the
-kernel -- doing so may free up some additional interrupt lines.
+I have been developing a SCSI based application and facing hardship due 
+to lack of  better debugging support in SCSI domain on linux. May be I 
+am not very familiar with linux scsi subsystem.
 
-If you can upgrade to the 2.4.23 kernel and run in ACPI mode, then there
-are a couple of knobs that might be able to help you.
+ I have a lost IO, sitting somewhere in some queue. The scsi logging 
+facility has been turned on with : echo "scsi log all" > /proc/scsi/scsi.
 
-        acpi_irq_balance        ACPI will balance active IRQs
-        acpi_irq_nobalance      ACPI will not move active IRQs
-        acpi_irq_pci=   If irq_balance, Clear listed IRQs for use by PCI
-        acpi_irq_isa=   If irq_balance, Mark listed IRQs used by ISA
+The syslog shows that the request has started:
+scsi_do_req (host = 0, channel = 0 target = 3, buffer =00000000, bufflen 
+= 0, d)command : 00  20  00  00  00  00
+Leaving scsi_do_req()
 
-acpi_irq_balance is default in IOAPIC mode
-acpi_irq_nobalance is default in PIC mode
-the acpi_irq_[pci, isa] are to list specify IRQs that should, and should
-not be used for PCI interrupts, respectively.
+The SCSI bus trace does not show any activity.
 
-cheers,
--Len
+I guess only way to find out the state of the IO is to put printf and 
+recompile the kernel. HP-UX had facilities like  lkcd, linux crash dump 
+analyzer. I used to be called q4. A perl script could be written to 
+navigate kernel data structures and extract information from them on a 
+running system. If we had that kind of tool already into linux then 
+debugging the live system would be easier.
 
-ps. Might also try to disable USB in the BIOS and use a PS/2 keyboard to
-free up the IRQs?
+Is there a plan to include lkcd into  default kernel?
 
-On Mon, 2003-12-08 at 13:58, Jing Xu wrote:
-> Hi, guys,
-> 
-> I have been stuct on this problem for a long time. Any
-> suggestion on this will be highly appreciated.
-> 
-> I'm running linux 2.4.20 and rtai 24.1.11. My linux
-> kernel module needs to use IRQ 9 10 11 for AGP graphic
-> card, sound card and PCI-Dio24 IO card. These irqs are
-> also shared by USB controllers. My module hangs when
-> it tries to request one of the above irqs that is used
-> by USB keyboard.
-> 
-> I am using DELL machine, and its bios cannot reserve
-> irq's.
-> 
-> I also tried to set boot paramter "pci=irqmask=0xf1ef"
-> to reserve irqs 9 10 11 4 for my driver, and it hasn't
-> had any effect - those irqs are still used by usb
-> controllers on initialization.
-> 
-> How to solve this irq confliction problem?
-> 
-> Thanks in advance,
-> 
-> jing
-> 
-> __________________________________
-> Do you Yahoo!?
-> New Yahoo! Photos - easier uploading and sharing.
-> http://photos.yahoo.com/
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+
 

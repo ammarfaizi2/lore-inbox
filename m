@@ -1,52 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265325AbTFZC1E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 22:27:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265330AbTFZC1E
+	id S265330AbTFZCbk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 22:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265338AbTFZCbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 22:27:04 -0400
-Received: from ajax.cs.uga.edu ([128.192.251.3]:62183 "EHLO ajax.cs.uga.edu")
-	by vger.kernel.org with ESMTP id S265325AbTFZC1C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 22:27:02 -0400
-Date: Wed, 25 Jun 2003 22:47:07 -0400
-From: Ed L Cashin <ecashin@uga.edu>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: compile error in drivers/perfctr/x86.c (Re: 2..5.73-osdl2)
-Message-ID: <20030625224707.A15559@atlas.cs.uga.edu>
-References: <20030625174048.221471a0.shemminger@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030625174048.221471a0.shemminger@osdl.org>; from shemminger@osdl.org on Wed, Jun 25, 2003 at 05:40:48PM -0700
+	Wed, 25 Jun 2003 22:31:40 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:27283 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S265330AbTFZCbi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 22:31:38 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Larry McVoy" <lm@bitmover.com>
+Cc: "Robert White" <rwhite@casabyte.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Date: Wed, 25 Jun 2003 19:45:48 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKAEPFDOAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20030626011440.GB17417@work.bitmover.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 25, 2003 at 05:40:48PM -0700, Stephen Hemminger wrote:
-> http://developer.osdl.org/shemminger/patches/patch-2.5.73-osdl2.bz2
 
-Hi.  I'm getting a compile error:
+> On Wed, Jun 25, 2003 at 04:05:01PM -0700, David Schwartz wrote:
 
-  CC      drivers/perfctr/x86_setup.o
-  CC      drivers/perfctr/x86.o
-drivers/perfctr/x86.c: In function `unregister_nmi_pmdev':
-drivers/perfctr/x86.c:1484: `nmi_pmdev' undeclared (first use in this function)
-drivers/perfctr/x86.c:1484: (Each undeclared identifier is reported only once
-drivers/perfctr/x86.c:1484: for each function it appears in.)
-drivers/perfctr/x86.c:1485: warning: implicit declaration of function `apic_pm_unregister'
-drivers/perfctr/x86.c: In function `x86_pm_init':
-drivers/perfctr/x86.c:1500: warning: implicit declaration of function `apic_pm_register'
-drivers/perfctr/x86.c:1500: warning: assignment makes pointer from integer without a cast
-make[2]: *** [drivers/perfctr/x86.o] Error 1
-make[1]: *** [drivers/perfctr] Error 2
-make: *** [drivers] Error 2
+> Couldn't agree more.  The part you don't seem to want to accept is that
+> I don't agree with the merits of the arguments presented.  And my view
+> is based on real world experience versus the theoretical views of the
+> people making the arguments.
 
-Here is .config and ver_linux output:
+	That's just not a useful way to engage in rational debate. No rational
+response is possible to "I can find no specific rational flaw in what you're
+saying but based upon my experience it doesn't work". We have no access to
+your experiences nor any way to validate them or debate them. It's no more
+useful than "that's what you think". In fact, that's precisely what it is.
 
-  http://www.cs.uga.edu/~cashin/temp/2.5.73-osdl2-error.txt
+> That doesn't make me right, it just makes quite likely that I'm right
+> based on past history.
 
--- 
---Ed L Cashin            |   PGP public key:
-  ecashin@uga.edu        |   http://noserose.net/e/pgp/
+	Not only doesn't it make you right, it doesn't even make your claims
+useful. If based on your experience you acquired reasons why the argument is
+wrong, then share those reasons. But "based on my experience that just
+doesn't work" is not something anyone can rationally respond to.
+
+> Experience almost always wins over theory.
+
+	Only when that experience produces some sort of reasoning. Like, "in my
+experience, businesses that don't have patent protection for their
+developments don't work because it is too easy for a competitor to produce a
+similar product at a lower cost since they're spared the cost of
+innovation". That's a rational argument. But that's not what you're doing.
+You're saying that you've considered his ideas, thought about them, and
+rejected them because you don't like his credentials.
+
+> Not always but so far noone has presenting anything compelling which
+> suggests the theory beats experience in this case, IMO.
+
+	Then there is no possibility of reasoning about the issue. All we can do is
+keep trying things and see what works and what doesn't. So why are you
+wasting our time?
+
+	DS
+
+

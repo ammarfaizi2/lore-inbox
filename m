@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267602AbTBEAVR>; Tue, 4 Feb 2003 19:21:17 -0500
+	id <S267594AbTBEAY4>; Tue, 4 Feb 2003 19:24:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267605AbTBEAVR>; Tue, 4 Feb 2003 19:21:17 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:63113 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S267602AbTBEAVR>;
-	Tue, 4 Feb 2003 19:21:17 -0500
-Date: Tue, 4 Feb 2003 19:32:56 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: Art Haas <ahaas@airmail.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Trivial C99 patch for drivers/pnp/card.c
-Message-ID: <20030204193256.GD22089@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Art Haas <ahaas@airmail.net>, linux-kernel@vger.kernel.org
-References: <20030204214347.GA7235@debian>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030204214347.GA7235@debian>
-User-Agent: Mutt/1.4i
+	id <S267605AbTBEAY4>; Tue, 4 Feb 2003 19:24:56 -0500
+Received: from mgw-dax2.ext.nokia.com ([63.78.179.217]:12940 "EHLO
+	mgw-dax2.ext.nokia.com") by vger.kernel.org with ESMTP
+	id <S267594AbTBEAYz> convert rfc822-to-8bit; Tue, 4 Feb 2003 19:24:55 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: Problems with bootimg (wish to be personally CC'ed the answers/comments posted to the list in response to this posting)
+Date: Tue, 4 Feb 2003 16:33:24 -0800
+Message-ID: <4D7B558499107545BB45044C63822DDE0219C291@mvebe001.americas.nokia.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Problems with bootimg (wish to be personally CC'ed the answers/comments posted to the list in response to this posting)
+Thread-Index: AcLMrjeET9n8QsZyQvaCK8DcnFisbw==
+From: <Sowmya.Krishnaswamy@nokia.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 05 Feb 2003 00:33:25.0093 (UTC) FILETIME=[31C16950:01C2CCAE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 04, 2003 at 03:43:47PM -0600, Art Haas wrote:
-> Hi.
-> 
-> The following trivial patch switches this file to use C99 initializers.
-> Please apply. Thanks.
-> 
-> Art Haas
-> 
-> ===== drivers/pnp/card.c 1.5 vs edited =====
-> --- 1.5/drivers/pnp/card.c	Mon Jan 13 12:25:14 2003
-> +++ edited/drivers/pnp/card.c	Tue Jan 14 10:34:42 2003
-> @@ -43,8 +43,8 @@
->  }
->  
->  struct bus_type pnpc_bus_type = {
-> -	name:	"pnp_card",
-> -	match:	card_bus_match,
-> +	.name	= "pnp_card",
-> +	.match	= card_bus_match,
->  };
->  
+Hello,
 
-Thanks, I'll send this out soon.
+We are trying to use bootimg for dual boot: 
 
--Adam
+# bootimg -f bzImage -n -i ram40.img.gz -v console=ttyS0,115200n8 ramdisk_size=131072 root=/dev/ram
+
+bzImage "2.4.17_MVL21CGENOKIA_4-cpi1-lb-arun (abalasub@mvaserg011) #5 SMP Wed Nov 27 17:27:00 PST 2002"
+
+    1439613 bytes (352 pages) 0x4109cc08-0x411fcc07 -> 0x100000-0x25fff
+    16161140 bytes (3946 pages) 0x40131008-0x4109b007 -> 0x8668c-0xff068b
+    4096 bytes (1 page) 0x804b908-0x804c907 -> 0x90000-0x90fff
+
+Total 4299 pages, start address is 0x100000
+
+Loading Kernel Image vmlinuz
+Running boot code at 0x03011000
+
+SYSTEM STOPS PRINTING MESSAGES AND HANGS. Has anyone faced a similar problem before. Any Suggestions?
+
+Thanks,
+
+Sowmya  
+

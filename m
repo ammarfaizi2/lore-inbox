@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263014AbTI2WIo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 18:08:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263039AbTI2WIo
+	id S263054AbTI2WLV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 18:11:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263058AbTI2WLV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 18:08:44 -0400
-Received: from gprs144-48.eurotel.cz ([160.218.144.48]:2693 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263014AbTI2WIm (ORCPT
+	Mon, 29 Sep 2003 18:11:21 -0400
+Received: from mail.kroah.org ([65.200.24.183]:45001 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263054AbTI2WLS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 18:08:42 -0400
-Date: Tue, 30 Sep 2003 00:07:17 +0200
-From: Pavel Machek <pavel@suse.cz>
+	Mon, 29 Sep 2003 18:11:18 -0400
+Date: Mon, 29 Sep 2003 15:11:13 -0700
+From: Greg KH <greg@kroah.com>
 To: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
 Cc: Linux Kernel <linux-kernel@vger.kernel.org>, scottm@somanetworks.com,
-       greg@kroah.com, rgooch@atnf.csiro.au, mingo@redhat.com, pavel@suse.cz
+       rgooch@atnf.csiro.au, mingo@redhat.com, pavel@suse.cz
 Subject: Re: 2.6.0-test6: a few __init bugs
-Message-ID: <20030929220717.GH1815@elf.ucw.cz>
+Message-ID: <20030929221113.GB2720@kroah.com>
 References: <1064872693.5733.42.camel@dooby.cs.berkeley.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <1064872693.5733.42.camel@dooby.cs.berkeley.edu>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Here are several places where non-__init functions call __init functions
-> or reference __init data.  I've looked at all of them and believe that
-> they are all either legitimate bugs or opportunities to declare more
-> code as __init to save memory.  Thanks for looking over these, and sorry
-> if I've made any mistakes.
-
-> ** Code should be declared __init?
-> ** name_to_dev_t()                                                     (__init)
->      called by kernel/power/swsusp.c:read_suspend_image()              (not __init)
->        called by kernel/power/swsusp.c:software_resume()               (not __init)
-> Fix: declare read_suspend_image() __init
-> Fix: declare software_resume() __init
+On Mon, Sep 29, 2003 at 02:58:12PM -0700, Robert T. Johnson wrote:
+> ** Possible bug:
+> ** drivers/pci/quirks.c:asus_hides_smbus_hostbridge()                  (__init)
+>    in table: drivers/pci/quirks.c:pci_fixups                           (not __init)
+>      indirect call f->hook(): drivers/pci/quirks.c:pci_do_fixups()     (not __init)
+>        called by: drivers/pci/quirks.c:pci_fixup_device()              (not __init)
+>          called by: drivers/pci/probe.c:pci_scan_slot()                (not __init)
+>            called by lots of hotplug enable() functions, e.g.
+>            drivers/pci/hotplug/ibmphp_core.c:ibm_configure_device()    (not __init)
+>              called by drivers/pci/hotplug/ibmphp_core.c:enable_slot() (not __init)
 > 
-> Note: read_suspend_image() in pmdisk.c is declared __init.
+> Note: It looks like this may have been originally designed to initialize the
+>       pci bus at startup, but has been re-used in the hotplug code, which means it 
+>       can be run after the __init segments have gone away.
+> 
+> Fix: Delete all the __init declarations on the quirks hooks.
 
-Yes, it should be safe to declare that code __init. Applied.
+No, this was discussed a lot a year or so ago.  We don't currently have
+anything in the quirks table that can be hotplug added as far as I know.
+So it's safe for us to throw those quirk entries away.
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Yeah, it doesn't make automated test tools easy for this case, sorry.
+
+Hope this helps.
+
+greg k-h
+

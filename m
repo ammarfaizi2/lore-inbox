@@ -1,48 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265000AbUFRGjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265005AbUFRGkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265000AbUFRGjB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 02:39:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265001AbUFRGjA
+	id S265005AbUFRGkc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 02:40:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265006AbUFRGkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 02:39:00 -0400
-Received: from tag.witbe.net ([81.88.96.48]:55713 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S265000AbUFRGi7 (ORCPT
+	Fri, 18 Jun 2004 02:40:32 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:14765 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265005AbUFRGkX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 02:38:59 -0400
-Message-Id: <200406180638.i5I6cwX12193@tag.witbe.net>
-Reply-To: <rol@as2917.net>
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Randy.Dunlap'" <rddunlap@osdl.org>,
-       "'lkml'" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] save kernel version in .config file
-Date: Fri, 18 Jun 2004 08:38:58 +0200
-Organization: AS2917
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcRU8u99NLaybkq4RUeXEX7JevE7fwAC53XA
-In-Reply-To: <20040617220651.0ceafa91.rddunlap@osdl.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Fri, 18 Jun 2004 02:40:23 -0400
+Subject: Re: Stop the Linux kernel madness
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: 4Front Technologies <dev@opensound.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <40D232AD.4020708@opensound.com>
+References: <40D232AD.4020708@opensound.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+j4vPRnJjN2qmTTMBz+l"
+Organization: Red Hat UK
+Message-Id: <1087540814.2709.8.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 18 Jun 2004 08:40:15 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-> 
-> Is this interesting to anyone besides me?
-> 
-Is it also possible to have this version being displayed during
-a make config/make menuconfig/... so that we know we are reading a
-config file that may have been generated for another kernel version,
-and not yet saved ?
+--=-+j4vPRnJjN2qmTTMBz+l
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-You would have, for make menuconfig :
+On Fri, 2004-06-18 at 02:09, 4Front Technologies wrote:
+> Hi Folks,
+>=20
+> I am writing this message to bring a huge problem to light. SuSE has been=
+ systematically
+> forking the linux kernel and shipping all kinds of modifications and stil=
+l call their
+> kernels 2.6.5 (for example).
 
- Linux Kernel v2.2.13 Configuration, Configuration file version 2.4.20
-....
+internal kernel apis change and are fair game. As a RH kernel maintainer
+I can guarantee you that you will suffer too from internal kernel
+changes in RH/Fedora kernels. Or from changes within the 2.6.x series.
+Linux needs such changes to allow faster and cleaner development.
+The cost is on the external modules; it has a good side too, it provides
+an incentive for external modules to merge into the kernel so that they
+get fixed automatic. Having such incentives is in my opinion a good
+thing.
 
-Regards,
-Paul
+
+--=-+j4vPRnJjN2qmTTMBz+l
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA0o5OxULwo51rQBIRAv0KAJ0dom7lzYdm+G/xW9tR/ecX26RT0gCdH3Bb
+avJ2geBra8cdCl9DInISYrM=
+=NWga
+-----END PGP SIGNATURE-----
+
+--=-+j4vPRnJjN2qmTTMBz+l--
 

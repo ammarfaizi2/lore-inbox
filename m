@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315430AbSGYPIx>; Thu, 25 Jul 2002 11:08:53 -0400
+	id <S315267AbSGYPGN>; Thu, 25 Jul 2002 11:06:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315431AbSGYPIx>; Thu, 25 Jul 2002 11:08:53 -0400
-Received: from bitmover.com ([192.132.92.2]:17891 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S315430AbSGYPIw>;
-	Thu, 25 Jul 2002 11:08:52 -0400
-Date: Thu, 25 Jul 2002 08:12:02 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+	id <S315370AbSGYPGM>; Thu, 25 Jul 2002 11:06:12 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:40392 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S315267AbSGYPGM>;
+	Thu, 25 Jul 2002 11:06:12 -0400
+Date: Thu, 25 Jul 2002 17:08:50 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Brad Hards <bhards@bigpond.net.au>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
        linuxconsole-dev@lists.sourceforge.net
 Subject: Re: [cset] Add the EVIOCSABS ioctl for X people.
-Message-ID: <20020725081202.D27813@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Vojtech Pavlik <vojtech@suse.cz>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org,
-	linuxconsole-dev@lists.sourceforge.net
-References: <20020725083716.A20717@ucw.cz> <20020725140040.A14561@ucw.cz> <20020725140342.B14561@ucw.cz> <20020725142559.C14561@ucw.cz> <20020725161132.A22767@ucw.cz> <20020725163816.A23988@ucw.cz>
+Message-ID: <20020725170850.A24176@ucw.cz>
+References: <20020725083716.A20717@ucw.cz> <20020725161132.A22767@ucw.cz> <20020725163816.A23988@ucw.cz> <200207260047.20953.bhards@bigpond.net.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020725163816.A23988@ucw.cz>; from vojtech@suse.cz on Thu, Jul 25, 2002 at 04:38:16PM +0200
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200207260047.20953.bhards@bigpond.net.au>; from bhards@bigpond.net.au on Fri, Jul 26, 2002 at 12:47:20AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 25, 2002 at 04:38:16PM +0200, Vojtech Pavlik wrote:
-> 'bk pull http://linux-input.bkbits.net:8080/linux-input' should also
+On Fri, Jul 26, 2002 at 12:47:20AM +1000, Brad Hards wrote:
 
-Make that 
+> > ChangeSet@1.448, 2002-07-25 16:36:05+02:00, vojtech@twilight.ucw.cz
+> >   Add EVIOCSABS() ioctl to change the abs* informative
+> >   values on input devices. This is something the X peoople
+> >   really wanted.
 
-	bk pull bk://linux-input.bkbits.net/linux-input
-or
-	bk pull http://linux-input.bkbits.net/linux-input
+> Grr. I was just working on modifying this ioctl() to return
+> something better than int[5], which is pretty ugly.
+> 
+> How about something along these lines (I have the rest of it - its
+> just trivial changes to evdev.c)?
 
-the 8080 port is for BK/Web.
+No problem. Send me a patch that does it for both the EVIOSGABS and
+EVIOCSABS and I'll take it. You can either just do it in evdev.c, or
+change every driver to use the struct.
 
-Cheers,
+> I could live with curr, min and max instead of *_value, but it
+> would be nicer if it was a bit more descriptive.
+
+You can make it current, minimum, and maximum, if you wish.  I'm a
+minimalist when it comes to naming, and I don't really think "_value" is
+bringing much information here. All of them are values after all.
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Vojtech Pavlik
+SuSE Labs

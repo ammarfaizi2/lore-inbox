@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267587AbUIGFwp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267601AbUIGGCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267587AbUIGFwp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 01:52:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267594AbUIGFwo
+	id S267601AbUIGGCh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 02:02:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267598AbUIGGCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 01:52:44 -0400
-Received: from [211.155.249.251] ([211.155.249.251]:62993 "EHLO
-	nnt.neonetech.com") by vger.kernel.org with ESMTP id S267587AbUIGFwj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 01:52:39 -0400
-Date: Tue, 7 Sep 2004 13:52:34 +0800
-From: "xuhaoz" <xuhaoz@neonetech.com>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: beginner met kernel BUG at slab.c 871
-X-mailer: Foxmail 5.0 [cn]
-Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
+	Tue, 7 Sep 2004 02:02:37 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:11660 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S267594AbUIGGCf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 02:02:35 -0400
+Message-ID: <413D4ED9.5090206@namesys.com>
+Date: Mon, 06 Sep 2004 23:02:01 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Masover <ninja@slaphack.com>
+CC: Horst von Brand <vonbrand@inf.utfsm.cl>, Spam <spam@tnonline.net>,
+       Tonnerre <tonnerre@thundrix.ch>,
+       Christer Weinigel <christer@weinigel.se>,
+       Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+References: <200409070206.i8726vrG006493@localhost.localdomain> <413D4C18.6090501@slaphack.com>
+In-Reply-To: <413D4C18.6090501@slaphack.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <NNT6PcyfAWZdVbOnoPx00000024@nnt.neonetech.com>
-X-OriginalArrivalTime: 07 Sep 2004 05:56:25.0437 (UTC) FILETIME=[68EE38D0:01C4949F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-kernelhi:
-
-	I met a kernel BUG at slab.c , exactly at here:
-
-			down(&cache_chain_sem);
-			{
-				struct list_head *p;
-				list_for_each(p,&cache_chain){
-					kmem_cache_t *pc=list_entry(p,kmem_cache_t,next);
-					if(!strcmp(pc->name,name))
-						BUG();
-				}
-			}
-	I also print the pc->name and name to the terminal, the pc->name is files_cache, certainly the name is files_cache.
- 
-     the version is linux-2.4.19
-
-	Would you please give some advice about the cause of the Kernel BUG?
-	Maybe I haven't give you enough information, but I really don't know what message I should give, please tell me, 
-	and I will post them .
-	 Any suggestion will be appreciated.
-	Thank you . 
-
+I just want to remind that no one has been able to offer a good way of 
+handling attributes/streams/metafiles other than reiser4 in which 
+CTRL-XCTRL-Ffilename within emacs to edit the stream/attribute/metafile 
+will work without modifying the emacs source.  David Masover is right 
+that there are far more application writers than kernel hackers, and we 
+should make the kernel more complicated if it makes a few thousand apps 
+simpler.

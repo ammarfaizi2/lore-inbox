@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266955AbUBGQSF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 11:18:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266960AbUBGQSF
+	id S266964AbUBGQat (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 11:30:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266967AbUBGQat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 11:18:05 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:44256 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266955AbUBGQSB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 11:18:01 -0500
-Date: Sat, 7 Feb 2004 17:17:53 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Juergen Rose <rose@rz.uni-potsdam.de>
+	Sat, 7 Feb 2004 11:30:49 -0500
+Received: from fw.osdl.org ([65.172.181.6]:54977 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266964AbUBGQar (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 11:30:47 -0500
+Date: Sat, 7 Feb 2004 08:32:54 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Matthias Urlichs <smurf@smurf.noris.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.6.2-mm1 and can't open file "drivers/pnp/isapnp/Kconfig
-Message-ID: <20040207161752.GH26093@fs.tum.de>
-References: <1075978665.14000.28.camel@moen.bioinf.mdc-berlin.de>
+Subject: Re: BUG: 2.6.2-mm1: destroy_workqueue
+Message-Id: <20040207083254.2440175b.akpm@osdl.org>
+In-Reply-To: <pan.2004.02.07.11.49.04.872088@smurf.noris.de>
+References: <pan.2004.02.07.11.49.04.872088@smurf.noris.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1075978665.14000.28.camel@moen.bioinf.mdc-berlin.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 05, 2004 at 11:57:46AM +0100, Juergen Rose wrote:
-
-> Hi,
-
-Hi Juergen,
-
-> I can't configure linux-2.6.2-mm1, because a missing
-> drivers/pnp/isapnp/Kconfig. I patched a plain linux-2.6.2 with
-> 2.6.2-mm1.bz2 from
-> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2/2.6.2-mm1/
+Matthias Urlichs <smurf@smurf.noris.de> wrote:
+>
+> I had a crash when unmounting a reiserfs at shutdown time.
 > 
-> vilm:/usr/src/linux(40)#make menuconfig
-> make[1]: `scripts/fixdep' is up to date.
-> scripts/kconfig/mconf arch/i386/Kconfig
-> drivers/pnp/Kconfig:34: can't open file "drivers/pnp/isapnp/Kconfig"
-> make[1]: *** [menuconfig] Error 1
+> Apparently, destroy_workqueue() inlines list_del(), which checks for
 > 
-> Any hint how to manage this problem, especially without bk, would be
-> very helpfull.
+> 148             BUG_ON(entry->prev->next != entry);
+> 
+> This is a problem when entry->prev is NULL.  :-/
+> 
+> Call trace, copied off the screen by hand:
+> destroy_workqueue+0x30
+> do_journal_release+0x4e
+> journal_mark_dirty+0x18c
+> journal_release+0x10
+> reiserfs_put_super+0x24
+> 
 
-drivers/pnp/isapnp/Kconfig is included in 2.6.2-mm1.bz2 .
+yup, thanks.
 
-Did anything went wrong when you patched the 2.6.2 sources?
+--- 25/kernel/workqueue.c~cpuhotplug-03-core-workqueue-fix	Fri Feb  6 14:36:04 2004
++++ 25-akpm/kernel/workqueue.c	Fri Feb  6 14:36:41 2004
+@@ -335,7 +335,7 @@ void destroy_workqueue(struct workqueue_
+ 		if (cpu_online(cpu))
+ 			cleanup_workqueue_thread(wq, cpu);
+ 	}
+-	list_del(&wq->list);
++	del_workqueue(wq);
+ 	unlock_cpu_hotplug();
+ 	kfree(wq);
+ }
 
-> 	Regards Juergen
->...
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+_
 

@@ -1,37 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263664AbUE3PWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262361AbUE3P5Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263664AbUE3PWm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 11:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263942AbUE3PWm
+	id S262361AbUE3P5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 11:57:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263944AbUE3P5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 11:22:42 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:16133 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S263664AbUE3PWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 11:22:41 -0400
-Subject: Re: PROBLEM: kernel-2.6.7-rc1 ACPI and USB failures
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Roland Lewis <roland_wap@yahoo.co.uk>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040529190631.78891.qmail@web86402.mail.ukl.yahoo.com>
-References: <20040529190631.78891.qmail@web86402.mail.ukl.yahoo.com>
-Content-Type: text/plain
-Message-Id: <1085930551.1981.0.camel@teapot.felipe-alfaro.com>
+	Sun, 30 May 2004 11:57:24 -0400
+Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:26090 "EHLO
+	hawk.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S262361AbUE3P5W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 May 2004 11:57:22 -0400
+Date: Sun, 30 May 2004 08:57:15 -0700
+From: Lee Howard <faxguy@howardsilvan.com>
+To: c-d.hailfinger.kernel.2004@gmx.net
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.7-rc1 breaks forcedeth
+Message-ID: <20040530155715.GA2612@bilbo.x101.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
-Date: Sun, 30 May 2004 17:22:31 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-05-29 at 21:06, Roland Lewis wrote:
-> [1.] ACPI and USB failures in 2.6.7-rc1 
-> [2.] CPU frequency table is not provided by DMESG at all.
-> Soft-rebooting results in failure to reinitialise USB peripherals.
-> Soft-rebooting causes Windows XP to hang during startup.
-> [3.] kernel, ACPI, CPUFREQ, USB
-> [4.] kernel-2.6.7-rc1
+I use the forcedeth driver for my nVidia ethernet successfully with 
+kernel 2.6.6.  I recently tested 2.6.7-rc1, and when using it the 
+ethernet does not work, and I see this in dmesg:
 
-Please, try again with 2.6.7-rc2. Todd fixed the problems with USB
-devices not resuming from suspend between rc1 and rc2.
+eth1: forcedeth.c: subsystem: 01043:80a7 bound to 0000:00:04.0
+NETDEV WATCHDOG: eth1: transmit timed out
+NETDEV WATCHDOG: eth1: transmit timed out
+NETDEV WATCHDOG: eth1: transmit timed out
+NETDEV WATCHDOG: eth1: transmit timed out
+NETDEV WATCHDOG: eth1: transmit timed out
 
+I can ping localhost and the device's IP number, but I cannot ping 
+other systems' IP numbers.
+
+Thanks.
+
+Lee.

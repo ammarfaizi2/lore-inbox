@@ -1,33 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267651AbRHJMwC>; Fri, 10 Aug 2001 08:52:02 -0400
+	id <S267812AbRHJM7o>; Fri, 10 Aug 2001 08:59:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267743AbRHJMvm>; Fri, 10 Aug 2001 08:51:42 -0400
-Received: from ns.caldera.de ([212.34.180.1]:42451 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S267651AbRHJMvj>;
-	Fri, 10 Aug 2001 08:51:39 -0400
-Date: Fri, 10 Aug 2001 14:51:45 +0200
-From: Christoph Hellwig <hch@caldera.de>
-To: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: [ANNOUNCE] Vendor kernels unpakced
-Message-ID: <20010810145145.A21564@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
-	linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Mime-Version: 1.0
+	id <S267836AbRHJM7d>; Fri, 10 Aug 2001 08:59:33 -0400
+Received: from gear.torque.net ([204.138.244.1]:33032 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S267812AbRHJM7N>;
+	Fri, 10 Aug 2001 08:59:13 -0400
+Message-ID: <3B73D9F0.8BE1B0D1@torque.net>
+Date: Fri, 10 Aug 2001 08:56:16 -0400
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFT] #2 Support for ~2144 SCSI discs, scsi_debug
+In-Reply-To: <200108020642.f726g0L15715@mobilix.ras.ucalgary.ca>
+		<3B735FCF.E197DD5B@torque.net> <200108100431.f7A4VkG01068@mobilix.ras.ucalgary.ca>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Richard Gooch wrote:
+> 
+> Douglas Gilbert writes:
 
-I'd like to announce a the availability of unpacked vendor kernel RPMs
-on www.kernelnewbies.org.  We allow taking a look at the specfile and
-the various patches included in that packages.  Currently the follwing
-kernel packages are prvovided (others are of course welcome):
+> > $ ls -l /devfs/scsi/host46/bus0/target0/lun0/*
+> > brw-------    1 root     root     114,  16 Dec 31  1969
+> >                         /devfs/scsi/host46/bus0/target0/lun0/disc
+> > brw-------    1 root     root     114,  17 Dec 31  1969
+> >                         /devfs/scsi/host46/bus0/target0/lun0/part1
+> > brw-------    1 root     root     114,  18 Dec 31  1969
+> >                         /devfs/scsi/host46/bus0/target0/lun0/part2
+> > brw-------    1 root     root     114,  19 Dec 31  1969
+> >                         /devfs/scsi/host46/bus0/target0/lun0/part3
+> >
+> > Note the large major device number that devfs is pulling
+> > from the unused pool. Devfs makes some noise when
+> > 'rmmod scsi_debug' is executed but otherwise things looked
+> > ok.
+> 
+> What was the message?
 
-	Caldera OpenLinux 3.1 (linux-2.4.2-11)
-	Red Hat Linux 7.1 (kernel-2.4.2-2)
+After several seconds of silence, lots of these appeared:
+ devfs_dealloc_unique_number(): number 128 was already free
+ devfs_dealloc_unique_number(): number 128 was already free
 
-Please take a look at http://www.kernelnewbies.org/kernels/
 
+By the way, that scsi_debug_many_disks.tgz tarball contains:
+  drivers/scsi/scsi_debug.h
+  drivers/scsi/scsi_debug.c
+This driver is valid for any kernel in the lk 2.4 series.
+If the tarball is unzipped in /usr/src/linux it would 
+replace the originals (which is no great loss but you 
+may like to keep copies of them).
+Also my .config contains: CONFIG_SCSI_DEBUG=m
+(for GUI users it is the last SCSI adapter listed).
+
+Doug Gilbert

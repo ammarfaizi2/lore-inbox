@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263578AbUECDV3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263581AbUECD1M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263578AbUECDV3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 May 2004 23:21:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263580AbUECDV3
+	id S263581AbUECD1M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 May 2004 23:27:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263582AbUECD1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 May 2004 23:21:29 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:3549 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S263578AbUECDV1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 May 2004 23:21:27 -0400
-Subject: Re: [PATCH] Numdimmies MUST DIE!
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040502195109.3897ee2e@laptop.delusion.de>
-References: <1083551201.25582.149.camel@bach>
-	 <20040502195109.3897ee2e@laptop.delusion.de>
-Content-Type: text/plain
-Message-Id: <1083554446.6876.153.camel@bach>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 03 May 2004 13:20:50 +1000
+	Sun, 2 May 2004 23:27:12 -0400
+Received: from opersys.com ([64.40.108.71]:37902 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S263581AbUECD1J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 May 2004 23:27:09 -0400
+Message-ID: <4095BD6A.5000803@opersys.com>
+Date: Sun, 02 May 2004 23:32:58 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Timothy Miller <miller@techsource.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Hand with radeon 9000 / AGP / DRI
+References: <408B7DA4.7010101@opersys.com> <408E833C.6030808@techsource.com>
+In-Reply-To: <408E833C.6030808@techsource.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-05-03 at 12:51, Udo A. Steinberg wrote:
-> While you're at it, there's more (revised patch below):
 
-Thank you for your valuable contribution.  I hesitate to suggest that a
-CREDITS entry is appropriate at this point, but it's good to know that
-someone else shares my finely-tuned sense of what's important in the
-kernel.
+Timothy Miller wrote:
+> Which driver are you using for OpenGL?  The x11 (mesa) driver, or ATI's 
+> driver?  ATI's driver doesn't play nice with radeonfb.
 
-Name: Psuedo Numdimmies MUST DIE!
-Status: Vitally Important
+The X11 one. I used to use ATI's, but it didn't really give me any
+advantage over X11 (At least not that I could see.) So it went the way
+of "rpm -e".
 
-I'm sure this is violating the trademark of a pre-schooler's TV show
-somewhere in the world.
+> Also, telling radeonfb what resolution you want on the boot command line 
+> is broken if the res you request and the res reported by EDID disagree.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .18765-linux-2.6.6-rc3-bk4/drivers/net/dummy.c .18765-linux-2.6.6-rc3-bk4.updated/drivers/net/dummy.c
---- .18765-linux-2.6.6-rc3-bk4/drivers/net/dummy.c	2004-04-29 17:29:43.000000000 +1000
-+++ .18765-linux-2.6.6-rc3-bk4.updated/drivers/net/dummy.c	2004-05-03 12:25:11.000000000 +1000
-@@ -104,7 +104,7 @@ static struct net_device **dummies;
- 
- /* Number of dummy devices to be set up by this module. */
- module_param(numdummies, int, 0);
--MODULE_PARM_DESC(numdimmies, "Number of dummy psuedo devices");
-+MODULE_PARM_DESC(numdummies, "Number of dummy pseudo devices");
- 
- static int __init dummy_init_one(int index)
- {
+I'm not giving it any res at all as boot parm.
 
+Karim
 -- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546
 

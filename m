@@ -1,48 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263872AbTJEUH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 16:07:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263873AbTJEUH7
+	id S263862AbTJEURL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 16:17:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263864AbTJEURL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 16:07:59 -0400
-Received: from hacksaw.org ([66.92.70.107]:53681 "EHLO
-	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
-	id S263872AbTJEUHk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 16:07:40 -0400
-Message-Id: <200310052007.h95K7X6M007980@habitrail.home.fools-errant.com>
-X-Mailer: exmh version 2.6.1 02/18/2003 with nmh-1.0.4
-To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: swap and 2.4.20 
-In-reply-to: Your message of "Sun, 05 Oct 2003 20:21:27 +0200."
-             <E1A6DVX-0007dB-00@calista.inka.de> 
-Mime-Version: 1.0
+	Sun, 5 Oct 2003 16:17:11 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:30738
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S263862AbTJEURE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 16:17:04 -0400
+Date: Sun, 5 Oct 2003 13:14:35 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Rob Landley <rob@landley.net>,
+       "Henning P. Schmiedehausen" <hps@intermeta.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
+In-Reply-To: <1065384197.3129.4.camel@lapdancer.baythorne.internal>
+Message-ID: <Pine.LNX.4.10.10310051303450.21746-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 05 Oct 2003 16:07:33 -0400
-From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So it's accurate to say that you can turn of swapping (by having no swap 
-space), but you can't turn off paging.
 
-One upshot of this is that the disk your root is on must be always available.
+On Sun, 5 Oct 2003, David Woodhouse wrote:
 
-I have a real interest in this, because I have a consulting client who uses 
-Linux on an embedded product. They were testing the product in a rough 
-situation, and the CF card that they used to boot the system from came out of 
-the slot. However, the machine kept running.
+> On Sun, 2003-10-05 at 12:21 -0700, Andre Hedrick wrote:
+> > David,
+> > 
+> > It is about the fact that Linus on his own set a position that modules are
+> > permitted. 
+> 
+> It is indeed. And about that fact that by the time he made that
+> declaration, he was not in a position to make it unilaterally.
 
-I would assume that since its programs were loaded, and it was unlikely to be 
-starting new ones, it was just happily working, and would have until some 
-random event would have caused it to try and do some paging. I assume that 
-paging out wouldn't hurt anything, because that would just be flipping a bit 
-in a table somewhere.
+Regardless, nobody stopped him at that time and thus a right of way has
+been granted and can not be revoked.
 
-Does this mean that you could replace a library out from under a running but 
-largely paged out app, and have it suddenly switch to the new library?
--- 
-The audience is mother to the music.
-http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+> 
+> >  Now if you want to take the position that one can not modify
+> > and redistribute the modified kernel in source, you are imposing a
+> > restriction.
+> 
+> A restriction in this case which I assert was present in the original
+> licence; not an 'additional restriction'.
 
+See above, the boss changed the rules and nobody challanged it.
+It sticks like glue and we all have to suck up the point and move forward.
+
+> If I wanted to distribute my code without restrictions, I'd have
+> contributed to a BSD kernel, or released my code under the terms 
+> "GPL but not if you really really don't fancy it".
+> 
+> I don't. I didn't.
+> 
+> > If I wanted to be rude, I could take the changes I made and copyright the
+> > combined work and make it so others could not use that version without
+> > permission. 
+> 
+> Not without being in violation of the original licence. This isn't about
+> the resulting combined work, but about your permission to use the
+> _original_.
+> 
+> > Neither you or I can do anything, provide the vendor who is using Linux
+> > publishes their source fork.  I also dare you to stop them, because you
+> > can't.
+> 
+> Believe me, there are ways this can be achieved.
+
+Sure, and I am out there proving the points that will undermine your
+arguements.
+
+Whatever happened to "World Domination" according to TUX ?
+Whatever happened to 'having a choice' ?
+
+Lets assume you are correct, and the effect is a "Tar Baby".
+
+Your claims that anything which loads into a kernel is automatically a
+derived work.  Thus the effect of an original work loading into a gpl work
+force the original work to be GPL.  This is a joke and will never see a
+second in any court.
+
+Cheers,
+
+Andre
+
+For those who do not know about history and english archers, go read.
 

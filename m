@@ -1,58 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315734AbSGWXyo>; Tue, 23 Jul 2002 19:54:44 -0400
+	id <S316043AbSGWXyX>; Tue, 23 Jul 2002 19:54:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315260AbSGWXy1>; Tue, 23 Jul 2002 19:54:27 -0400
-Received: from vivi.uptime.at ([62.116.87.11]:5577 "EHLO mail.uptime.at")
-	by vger.kernel.org with ESMTP id <S315988AbSGWXwl>;
-	Tue, 23 Jul 2002 19:52:41 -0400
-From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
-To: "'Martin Brulisauer'" <bruli@uceb.org>, <thunder@ngforever.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: kbuild 2.5.26 - arch/alpha
-Date: Wed, 24 Jul 2002 01:54:26 +0200
-Organization: =?US-ASCII?Q?UPtime_Systemlosungen?=
-Message-ID: <003101c232a4$47b254d0$1211a8c0@pitzeier.priv.at>
+	id <S315260AbSGWXyV>; Tue, 23 Jul 2002 19:54:21 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:52180 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S316043AbSGWXwy>;
+	Tue, 23 Jul 2002 19:52:54 -0400
+Date: Wed, 24 Jul 2002 01:54:49 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] big IRQ lock removal, 2.5.27-G0
+In-Reply-To: <Pine.LNX.4.44.0207240137190.3812-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0207240153550.5581-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-In-Reply-To: <200207211354.g6LDsADU005586@alder.intra.bruli.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
-X-MailScanner: Nothing found, baby
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Brulisauer wrote:
-> >>On Sat, 20 Jul 2002, Martin Brulisauer wrote:
-> >> Is the kernel arch tree for alphas not maintained anymore? If I 
-> >>download  the vanilla 2.5.26 I can't build it at all. Even a make 
-> >>clean fails  due to missing directives in 
-> arch/alpha/kernel/Makefile.
 
-As I saw it... There is no modversions.h created while trying to
-compile the kernel on an alpha... I'll take a look at this in
-a few hours (after sleeping... :-) ).
+On Wed, 24 Jul 2002, Ingo Molnar wrote:
 
-> >On Sat, 20 Jul 2002, Thunder from the hill wrote:
-> >What exactly are you experiencing?
+> > local_bh_disable() is rare (i think), and do_softirq() checks
+> > in_interrupt().
+> 
+> but still we dont want to call do_softirq() all the time. local_bh_enable
+> is used in quite performance-sensitive networking code.
 
-[ ... ]
- 
-> Looks to me like noone ever tried to compile this
-> kernel on this platform. That is why I asked my
-> silly question.
+in fact the in_interrupt() check in do_softirq() should never trigger with
+the latest patch applied - i'll put a debugging printk there and we can
+remove it after some time. This will speed things up a bit.
 
-Have you ever ended this discussion??? I only mean
-you two. Because I havn't found a reply from Thunder
-to Martin...
-
-However... Let me know...
-
--Oliver
-
+	Ingo
 

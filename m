@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130820AbRECSbY>; Thu, 3 May 2001 14:31:24 -0400
+	id <S130507AbRECShO>; Thu, 3 May 2001 14:37:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130507AbRECSbO>; Thu, 3 May 2001 14:31:14 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27656 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130820AbRECSbG>; Thu, 3 May 2001 14:31:06 -0400
-Subject: Re: [RFC] Direct Sockets Support??
-To: venkateshr@ami.com
-Date: Thu, 3 May 2001 19:34:59 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <007901c0d3fd$ea3f0880$7253e59b@megatrends.com> from "Venkatesh Ramamurthy" at May 03, 2001 02:21:46 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131497AbRECShE>; Thu, 3 May 2001 14:37:04 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:36343 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130507AbRECSg4>;
+	Thu, 3 May 2001 14:36:56 -0400
+Date: Thu, 3 May 2001 14:36:47 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Why recovering from broken configs is too hard
+In-Reply-To: <20010503115551.E31960@thyrsus.com>
+Message-ID: <Pine.GSO.4.21.0105031357310.17788-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14vNwL-0005z8-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> With the advent of VI and Infiniband, there is a growing need to support =
-> Sockets over such new technologies. I studied recent performance =
-> analysis of sockets vs direct sockets and found that there is a 250% =
-> performance hike and 30% decrease in latency time. Also CPU bandwidth is =
-> significantly reduced.=20
 
-Define 'direct sockets' firstly.
 
-I have seen several lines of attack on very high bandwidth devices. Firstly
-the linux projects a while ago doing usermode message passing directly over
-network cards for ultra low latency. Secondly there was a VI based project
-that was mostly driven from userspace.
+On Thu, 3 May 2001, Eric S. Raymond wrote:
 
-One thing that remains unresolved is the question as to whether the very low
-cost Linux syscalls and zero copy are enough to achieve this using a
-conventional socket API and the kernel space, or whether a hybrid direct 
-access setup is actually needed.
+> Alexander Viro <viro@math.psu.edu>:
+> > I'm not talking about connectedness of the thing. However, I suspect that
+> > graph has a small subset such that removing it makes it fall apart.
+> 
+> Um.  So how does that help?
+
+First of all, it reduces the complexity of finding the best valid
+approximation (mind you, I'm not saying that it's the problem you
+need to solve, just that you don't need anything close to 3^1976
+even for _that_).
+
+And simple variation of the full thing can be used for "find a
+valid approximation within given distance".
+
+Full (and dumb) variant first:
+	for all combinations of values of core variables
+		for each peripherial group
+			find the best valid approximation within that group,
+			given the values of core variables.
+The cost is 3^(size of core) * 3^(size of maximal peripherial group) *
+number of peripherial groups * size of maximal periph. group * maximal
+number of constraints for periph. group.
+
+Again, I'm _not_ suggesting to do that. However, limited variant of the
+problem (find valid approximation within 10 changes from given or complain)
+is much easier.
+
+Eric, could you point me to a place where I could grab the current
+set of constraints? In any case I have a very strong gut feeling that
+separation the variables into core and peripherial is essential part
+of data and ignoring it makes problem much harder than it really is.
+I'd like to see how large the core actually is and how large periph.
+groups are.
 

@@ -1,76 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285556AbRL3PNK>; Sun, 30 Dec 2001 10:13:10 -0500
+	id <S287436AbRL3Pwo>; Sun, 30 Dec 2001 10:52:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287429AbRL3PNA>; Sun, 30 Dec 2001 10:13:00 -0500
-Received: from mout1.freenet.de ([194.97.50.132]:8341 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S285556AbRL3PMz>;
-	Sun, 30 Dec 2001 10:12:55 -0500
-Message-ID: <3C2F2F62.3060606@athlon.maya.org>
-Date: Sun, 30 Dec 2001 16:14:42 +0100
-From: Andreas Hartmann <andihartmann@freenet.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011225
-X-Accept-Language: en-us
+	id <S287437AbRL3Pwe>; Sun, 30 Dec 2001 10:52:34 -0500
+Received: from sproxy.gmx.de ([213.165.64.20]:3660 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S287436AbRL3PwY>;
+	Sun, 30 Dec 2001 10:52:24 -0500
+Message-ID: <3C2F3823.461F36F6@gmx.net>
+Date: Sun, 30 Dec 2001 16:52:03 +0100
+From: Mike <maneman@gmx.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: knobi@knobisoft.de
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <3C2F18A5.B50792F0@sirius-cafe.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: LKML <linux-kernel@vger.kernel.org>
+CC: Lionel Bouton <Lionel.Bouton@free.fr>
+Subject: Re: Oops: UMOUNTING in 2.4.17 / Ext2 Partitions destroyed (3x)
+In-Reply-To: <3C2F2948.DB59646A@gmx.net> <3C2F2C1B.2000100@free.fr>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Knoblauch wrote:
+I'm not too e-mail savvy so I HOPE I've sent this e-mail and CC
+correctly...if not let me know.
 
->>Re: [2.4.17/18pre] VM and swap - it's really unusable
->>
->>
->>My observation:
->>Why does the kernel swap to get free memory for caching / buffering? I
->>can't see any sense in this action. Wouldn't it be better to shrink the
->>cashing / buffering-RAM to the amount of memory, which is obviously free?
->>
->>Swapping should be principally used, if the RAM ends for real memory
->>(memory, which is used for running applications). First of all, the
->>memory-usage of cache and buffers should be reduced before starting to
->>swap IMHO.
+Lionel Bouton wrote:
 
+> By any chance do you use a SIS735 based mainboard ?
+>
+> If so, try your disks in another system or boot with "ide=nodma".
 
-[...]
+Yes indeed, it's the (in)famous ECS K7S5A with SiS 735 chipset.
+Thanks I'll try this ASAP (which implies January 3rd or such because
+I'll have to strip the new system bare and reassemble the old one again
+after regaining counsciousness after Jan .1st and a hot date the 2nd.)
+Merci and Greets!
+-Mike
 
-
->  In any case, 2.4 Caches/Buffers show to much persistance. This is
-> basically true for both branches of VM. I was using the -ac kernels
-> because, being far from perfect, the VM gave considreabele better
-> interactive behaviour.
-
-
-I did some tests with different VM-patches. I tested one ac-patch, too. 
-I detected the same as you described - but the memory-consumption and 
-the behaviour at all isn't better. If you want to, you can test another 
-patch, which worked best in my test. It's nearly as good as kernel 
-2.2.x. Ask M.H.vanLeeuwen (vanl@megsinet.net) for his oom-patch to 
-kernel 2.4.17.
-But beware: maybe this strategy doesn't fit to your applications. And 
-it's not for productive use.
-I and some others surely too, would be interested in your experience 
-with this patch.
-
->>Or would it be possible, to implement more than one swapping strategy,
->>which could be configured during make menuconfig? This would give the
->>user the chance to find the best swapping strategy for his purpose.
->>
->>
-> 
->  That is another option. But I would prefer something that could be
-> selected dynamically or at boot time.
-
-Dynamic selection - this would be great. For all situations the best 
-swapping strategy. On servers switched with a cronjob or a intelligent 
-daemon.
-
-
-Regards,
-Andreas Hartmann
 

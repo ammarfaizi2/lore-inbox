@@ -1,82 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262060AbTIPVMe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 17:12:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbTIPVMe
+	id S262499AbTIPVTU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 17:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbTIPVTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 17:12:34 -0400
-Received: from bart.one-2-one.net ([217.115.142.76]:21004 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S262060AbTIPVMc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 17:12:32 -0400
-Date: Tue, 16 Sep 2003 23:13:54 +0200 (CEST)
-From: Martin Diehl <lists@mdiehl.de>
-X-X-Sender: martin@notebook.home.mdiehl.de
-To: Jon Fairbairn <Jon.Fairbairn@cl.cam.ac.uk>
-cc: Russell King <rmk@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Omnibook PCMCIA slots unusable after suspend. 
-In-Reply-To: <7839.1063471929@cl.cam.ac.uk>
-Message-ID: <Pine.LNX.4.44.0309140058440.16165-100000@notebook.home.mdiehl.de>
+	Tue, 16 Sep 2003 17:19:20 -0400
+Received: from mtagate3.uk.ibm.com ([195.212.29.136]:43683 "EHLO
+	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP id S262499AbTIPVTS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 17:19:18 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Richard J Moore <rasman@uk.ibm.com>
+Organization: Linux Technoilogy Centre - RAS team
+Subject: Fwd: Re: Kernel NMI error
+Date: Tue, 16 Sep 2003 22:14:13 +0000
+User-Agent: KMail/1.4.1
+To: "msrinath" <msrinath@bplitl.com>
+Cc: "Linux Kernel Mailing List " <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200309162214.13839.rasman@uk.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+NMI can occur for a number fo reasons:
 
-Sorry for the delay...
+I/O check from a card
+Parity error from memory
+DMA timeout
+Watchdog timer expiry
+INT 2  instruction
 
-On Sat, 13 Sep 2003, Jon Fairbairn wrote:
+To investigate this further you need to look back though your Syslog for any
+messages that might indicate intmittant h/w related errors or watchdog
+reports.
 
-> > I had a similar problem with my OB800. It turned out the
-> > problem is the BIOS maps the yenta memory window into
-> > legacy address range below 1MB.
-> 
-> This appears to be the correct diagnosis. I applied your
-> patch to 2.4.22 and the Omnibook now correctly restarts the
-> network after a suspend. Vielen dank!
+One way to cause an intermittent NMI is by having power management enabled
+with devices that don't support it. They see the world caving in when power
+goes away and sometimes generate an NMI. If you're in a power saving process
+then you have probably switched to System Management Mode, in which case the
+NMI will be held pending the processor returning from SMM.
 
-You're welcome.
+Do you have a crash dump associtated with this problem?
 
-> What's the status of a patch like this? It's obviously of
-> use to more than one person, and it took me a great deal of
-> time to find you and your solution -- I suspect fainter
-> hearted folk might just have given up and said "Linux
-> doesn't work with this combination of hardware" which would
-> have been a shame.
+--
+Richard J Moore
+IBM Linux Technology Centre
 
-Well, I've sent it to lkml once or twice some years ago. It was apparently 
-lost in the noise and I personally didn't care much resending it because 
-nobody else reported a similar problem. So I've just included it in my 
-local patchset - just the "fixed and forget because nobody else reports 
-this problem" case ;-)
+On Tue 16 September 2003 11:38 am, msrinath wrote:
+> Hello Everybody,
+>
+> Can anyone help me on this?
+>
+> Recently one of our servers running RedHat linux 7.2 with 2.4.7-10 SMP
+> kernel generated the following log and the system rebooted. This system has
+> 2 CPUs.
+>
+> Sep 16 01:34:24 cbesc ftpd[30753]: FTP LOGIN FROM 16.128.157.7
+> [16.128.157.7], scuser
+> Sep 16 01:36:48 cbesc ftpd[30753]: FTP session closed
+> Sep 16 01:54:30 cbesc kernel: Uhhuh. NMI received for unknown reason 35.
+> Sep 16 01:54:30 cbesc kernel: Dazed and confused, but trying to continue
+> Sep 16 01:54:30 cbesc kernel: Do you have a strange power saving mode
+> enabled?
+> Sep 16 01:54:30 cbesc kernel: eth0: card reports no resources.
+> Sep 16 01:58:09 cbesc syslogd 1.4.1: restart.
+> Sep 16 01:58:09 cbesc syslog: syslogd startup succeeded
+>
+> This is the first time we have faced this problem. The ethernet card used
+> is intel eepro 100. The details are shown below.
+>
+> Sep 16 07:33:53 cbesc kernel: eepro100.c:v1.09j-t 9/29/99 Donald Becker
+> http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
+> Sep 16 07:33:53 cbesc kernel: eepro100.c: $Revision: 1.36 $ 2000/11/17
+> Modified by Andrey V. Savochkin <saw@saw.sw.com.sg> and others
+> Sep 16 07:33:53 cbesc kernel: eth0: Intel Corporation 82557 [Ethernet Pro
+> 100], 00:A0:C9:A0:B7:71, IRQ 16.
+> Sep 16 07:33:53 cbesc kernel:   Receiver lock-up bug exists -- enabling
+> work-around.
+> Sep 16 07:33:53 cbesc kernel:   Board assembly 668081-004, Physical
+> connectors present: RJ45
+> Sep 16 07:33:53 cbesc kernel:   Primary interface chip i82555 PHY #1.
+> Sep 16 07:33:54 cbesc kernel:   General self-test: passed.
+> Sep 16 07:33:54 cbesc kernel:   Serial sub-system self-test: passed.
+> Sep 16 07:33:54 cbesc kernel:   Internal registers self-test: passed.
+> Sep 16 07:33:54 cbesc kernel:   ROM checksum self-test: passed
+> (0x3c15c8f1). Sep 16 07:33:54 cbesc kernel:   Receiver lock-up workaround
+> activated.
+>
+>
+> Please let me know why this happened and whether it indicates any hardware
+> problem in the system.
+>
+> Please send a CC to my email address, since I have not subscribed to the
+> list.
+>
+> Thanks & Regards,
+>
+> - Srinath.
 
-> I haven't tried it with 2.6 yet; I don't normally get into
-> test kernels, but I might try out of curiosity. I'll post
-> the result if anyone indicates that it's a worthwhile thing
-> to do.
+-------------------------------------------------------
 
-Right, except for some fuzz the patch should work with both 2.4 and 2.6 - 
-at least it does for me. I'm not sure if this is the best possible way to 
-work around the issue. But it does the job and I've taken considerable 
-care to avoid breaking other boxes.
+--
+Richard J Moore
+IBM Linux Technology Centre
 
-Of course I personally have no objections wrt. including it in the 
-official tree. Russel, what do you think - do you want to apply it? Or 
-shall I send it to Greg directly?
+-------------------------------------------------------
 
-> > Yep, this is what happens fo me in the sitation above. And
-> > the next time one inserts/ejects any card the box dies in
-> > interrupt storm because the irq cannot be acknoledged.
-> 
-> I think I got that too, at least, reinserting the card caused
-> a lockup.  With the patch applied I can eject and reinsert,
-> which is fortunate because there seems to be another problem
-> where the card switches off when I switch VCs, but it's hard
-> to reproduce. (and inconvenient because /usr is on nfs on
-> this machine)
-
-No idea - sounds strange to me. No such problem here with any of 
-serial_cs, pcnet_cs or orinoco_cs with my ob800 (neither 2.4 nor 2.6).
-
-Martin
-
+-- 
+Richard J Moore
+IBM Linux Technology Centre

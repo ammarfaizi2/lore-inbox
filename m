@@ -1,74 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264167AbTCXL65>; Mon, 24 Mar 2003 06:58:57 -0500
+	id <S264165AbTCXL6X>; Mon, 24 Mar 2003 06:58:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264168AbTCXL65>; Mon, 24 Mar 2003 06:58:57 -0500
-Received: from dp.samba.org ([66.70.73.150]:44210 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S264166AbTCXL6u>;
-	Mon, 24 Mar 2003 06:58:50 -0500
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S264166AbTCXL6X>; Mon, 24 Mar 2003 06:58:23 -0500
+Received: from ns2.uk.superh.com ([193.128.105.170]:60811 "EHLO
+	ns2.uk.superh.com") by vger.kernel.org with ESMTP
+	id <S264165AbTCXL6V>; Mon, 24 Mar 2003 06:58:21 -0500
+Date: Mon, 24 Mar 2003 12:09:23 +0000
+From: Richard Curnow <Richard.Curnow@superh.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: struct nfs_fattr alignment problem in nfs3proc.c
+Message-ID: <20030324120923.GB17163@malvern.uk.w2k.superh.com>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030321175206.GA17163@malvern.uk.w2k.superh.com> <shs7karzmwv.fsf@charged.uio.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15998.62418.678276.238530@nanango.paulus.ozlabs.org>
-Date: Mon, 24 Mar 2003 23:02:26 +1100 (EST)
-To: James Simmons <jsimmons@infradead.org>
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] update control video driver
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Disposition: inline
+In-Reply-To: <shs7karzmwv.fsf@charged.uio.no>
+User-Agent: Mutt/1.4i
+X-OS: Linux 2.4.19 i686
+X-OriginalArrivalTime: 24 Mar 2003 12:09:29.0027 (UTC) FILETIME=[386A4130:01C2F1FE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below fixes the controlfb driver to access the
-pseudo_palette as 32-bit quantities and takes out the font option
-handling.
+* Trond Myklebust <trond.myklebust@fys.uio.no> [2003-03-22]:
+> Why not just define
+> 
+> struct {
+>         struct nfs3_diropargs   arg;
+>         struct nfs_fattr        res;
+> } unlinkxdr;
+> 
+> and then kmalloc that?
+> 
 
-Paul.
+Yes, that's much better, since it also avoids bloating the allocation on
+architectures that only need 4-byte alignment for later stores into the
+result structures to work, plus it's more future-proof.  Here's the
+revised patch.
 
-diff -urN linux-2.5/drivers/video/controlfb.c linuxppc-2.5/drivers/video/controlfb.c
---- linux-2.5/drivers/video/controlfb.c	2003-03-23 16:29:31.000000000 +1100
-+++ linuxppc-2.5/drivers/video/controlfb.c	2003-03-23 21:42:33.000000000 +1100
-@@ -376,13 +376,12 @@
- 		int i;
- 		switch (p->par.cmode) {
- 		case CMODE_16:
--			((u16 *) (info->pseudo_palette))[regno] =
-+			p->pseudo_palette[regno] =
- 			    (regno << 10) | (regno << 5) | regno;
- 			break;
- 		case CMODE_32:
- 			i = (regno << 8) | regno;
--			((u32 *) (info->pseudo_palette))[regno] =
--			    (i << 16) | i;
-+			p->pseudo_palette[regno] = (i << 16) | i;
- 			break;
- 		}
- 	}
-@@ -475,7 +474,6 @@
- 		var.yres_virtual = vyres;
+--- ../linux-2.4/fs/nfs/nfs3proc.c	Fri Jan  3 15:01:17 2003
++++ fs/nfs/nfs3proc.c	Mon Mar 24 09:39:21 2003
+@@ -294,25 +294,30 @@
+ 	nfs_refresh_inode(dir, &dir_attr);
+ 	dprintk("NFS reply remove: %d\n", status);
+ 	return status;
+ }
  
- 	/* Apply default var */
--	p->info.var = var;
- 	var.activate = FB_ACTIVATE_NOW;
- 	rc = fb_set_var(&var, &p->info);
- 	if (rc && (vmode != VMODE_640_480_60 || cmode != CMODE_8))
-@@ -1068,17 +1066,7 @@
- 		return;
+ static int
+ nfs3_proc_unlink_setup(struct rpc_message *msg, struct dentry *dir, struct qstr *name)
+ {
+ 	struct nfs3_diropargs	*arg;
+ 	struct nfs_fattr	*res;
++	struct unlinkxdr {
++		struct nfs3_diropargs	*arg;
++		struct nfs_fattr	*res;
++	} *ptr;
  
- 	while ((this_opt = strsep(&options, ",")) != NULL) {
--		if (!strncmp(this_opt, "font:", 5)) {
--			char *p;
--			int i;
--
--			p = this_opt +5;
--			for (i = 0; i < sizeof(fontname) - 1; i++)
--				if (!*p || *p == ' ' || *p == ',')
--					break;
--			memcpy(fontname, this_opt + 5, i);
--			fontname[i] = 0;
--		} else if (!strncmp(this_opt, "vmode:", 6)) {
-+		if (!strncmp(this_opt, "vmode:", 6)) {
- 			int vmode = simple_strtoul(this_opt+6, NULL, 0);
- 			if (vmode > 0 && vmode <= VMODE_MAX &&
- 			    control_mac_modes[vmode - 1].m[1] >= 0)
+-	arg = (struct nfs3_diropargs *)kmalloc(sizeof(*arg)+sizeof(*res), GFP_KERNEL);
+-	if (!arg)
++	ptr = (struct unlinkxdr *) kmalloc(sizeof(struct unlinkxdr), GFP_KERNEL);
++	if (!ptr)
+ 		return -ENOMEM;
+-	res = (struct nfs_fattr*)(arg + 1);
++	arg = &ptr->arg;
++	res = &ptr->res;
+ 	arg->fh = NFS_FH(dir->d_inode);
+ 	arg->name = name->name;
+ 	arg->len = name->len;
+ 	res->valid = 0;
+ 	msg->rpc_proc = NFS3PROC_REMOVE;
+ 	msg->rpc_argp = arg;
+ 	msg->rpc_resp = res;
+ 	return 0;
+ }
+ 
+
+Cheers
+Richard
+
+-- 
+Richard \\\ SuperH Core+Debug Architect /// .. At home ..
+  P.    /// richard.curnow@superh.com  ///  rc@rc0.org.uk
+Curnow  \\\ http://www.superh.com/    ///  www.rc0.org.uk
+Speaking for myself, not on behalf of SuperH

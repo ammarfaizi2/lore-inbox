@@ -1,94 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbULEQFS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbULEQT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbULEQFS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 11:05:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbULEQFR
+	id S261239AbULEQT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 11:19:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbULEQT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 11:05:17 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:248 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261211AbULEQFH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 11:05:07 -0500
-From: Kernel Stuff <kernel-stuff@comcast.net>
-To: Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: [PATCH] Document kfree and vfree NULL usage (resend)
-Date: Sun, 5 Dec 2004 11:05:10 -0500
-User-Agent: KMail/1.7.1
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Pekka Enberg <penberg@cs.helsinki.fi>
-References: <Pine.LNX.4.44.0412051628280.13644-100000@dbl.q-ag.de>
-In-Reply-To: <Pine.LNX.4.44.0412051628280.13644-100000@dbl.q-ag.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 5 Dec 2004 11:19:26 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:34857 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261239AbULEQTT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 11:19:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=hn7ODEH00Ev1GUJytZF3/+BASW2KPyaUi8aG7J8emIyXRNOdfbhqxkdqQsxBvbZDktlA5Qrhyh23NVrt4GhuEwHi2jzmjGJmTylcvtCyUXyUh7PqbcOBFx9lzANgcJoeoRxMBJCz2MATf/qrHUtXl9TFZV0J069Ic01OhpafBOM=
+Message-ID: <58cb370e04120508191488d4a2@mail.gmail.com>
+Date: Sun, 5 Dec 2004 17:19:11 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Nico Schottelius <nico-kernel@schottelius.org>,
+       linux-kernel@vger.kernel.org, Andre Hedrick <andre@linux-ide.org>,
+       Frank Tiernan <frankt@promise.com>
+Subject: Re: [BUG] pdc202xx_new and ACPI fails
+In-Reply-To: <20041205005946.GA7695@schottelius.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412051105.10934.kernel-stuff@comcast.net>
+References: <20041205005946.GA7695@schottelius.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   *	May not be called in interrupt context 
-Does this need to change to 
-      * Must not be called in interrupt context 
-?
-Is there a case where it is guaranteed that kfree will not sleep? "May" sounds 
-to me like "You can call it in interrupt ctx, but it is not recommended", 
-whereas calling it in interrupt ctx is definitely not recommended.
+On Sun, 5 Dec 2004 01:59:46 +0100, Nico Schottelius
+<nico-kernel@schottelius.org> wrote:
+> Hello dear developers,
+> 
+> when loading pdc202xx_new on a 2.6.9 kernel with ACPI on the moprobe
+>  call will never return and prints many errors [0].
+> 
+> The controller is a Promise Technology, Inc. PDC20270 (FastTrak100 LP/TX2/TX4) (rev 02).
+> 
+> If loading the driver without the forced option, it says deactivated
+> by BIOS.
+> 
+> On the other hand, when loading with apm onlyi and enabling forced,
+> it works fine [1].
+> 
+> So my questions:
+> 
+> - Why does it fail with ACPI?
 
-Parag
+Because ACPI assigns wrong IRQ line for the second PCI device
+(ports ide4 and ide5).
 
-On Sunday 05 December 2004 10:33 am, Manfred Spraul wrote:
-> Hi Andrew,
->
-> I think it's worth to explicitely mention that kfree(NULL) is valid - too
-> many users have/had their own (unnecessary) if(ptr) checks.
->
-> Pekka wrote:
-> > This patch adds comments for kfree() and vfree() stating that both
-> > accept NULL pointers.
-> >
-> > Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
->
-> Signed-Off-By: Manfred Spraul <manfred@colorfullife.com>
->
-> ---
->
->  slab.c    |    2 ++
->  vmalloc.c |    3 ++-
->  2 files changed, 4 insertions(+), 1 deletion(-)
->
-> Index: 2.6.10-rc2/mm/slab.c
-> ===================================================================
-> --- 2.6.10-rc2.orig/mm/slab.c	2004-11-27 14:33:14.000000000 +0200
-> +++ 2.6.10-rc2/mm/slab.c	2004-11-27 16:12:54.573387384 +0200
-> @@ -2535,6 +2535,8 @@
->   * kfree - free previously allocated memory
->   * @objp: pointer returned by kmalloc.
->   *
-> + * If @objp is NULL, no operation is performed.
-> + *
->   * Don't free memory not originally allocated by kmalloc()
->   * or you will run into trouble.
->   */
-> Index: 2.6.10-rc2/mm/vmalloc.c
-> ===================================================================
-> --- 2.6.10-rc2.orig/mm/vmalloc.c	2004-11-27 16:13:48.026261312 +0200
-> +++ 2.6.10-rc2/mm/vmalloc.c	2004-11-27 16:14:04.875699808 +0200
-> @@ -389,7 +389,8 @@
->   *	@addr:		memory base address
->   *
->   *	Free the virtually contiguous memory area starting at @addr, as
-> - *	obtained from vmalloc(), vmalloc_32() or __vmalloc().
-> + *	obtained from vmalloc(), vmalloc_32() or __vmalloc(). If @addr is
-> + *	NULL, no operation is performed.
->   *
->   *	May not be called in interrupt context.
->   */
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> - Is it possible to fix that? If, how?
+
+Maybe. ;-)
+Please forward this mail to ACPI maintainer.
+
+> - Is it possible to make forced enabling a module option?like force_against_bios=0|1
+> - Where in which bios (controller/Mainboard) should one activate the ports?
+
+They are marked as disabled for use of Windows software RAID driver,
+
+Juse use forced option or -mm kernels
+(they contain patch for automatic ignoring of BIOS settings).
+
+> Greetings,
+> 
+> Nico
+> 
+> [0]: see attached dmesg.eiche
+> 
+> [1]:
+> PDC20270: IDE controller at PCI slot 0000:02:01.0
+> PDC20270: chipset revision 2
+> PDC20270: ROM enabled at 0xdfee0000
+> PDC20270: 100% native mode on irq 10
+>     ide2: BM-DMA at 0xbc00-0xbc07, BIOS settings: hde:pio, hdf:pio
+>     ide3: BM-DMA at 0xbc08-0xbc0f, BIOS settings: hdg:pio, hdh:pio
+>     ide4: BM-DMA at 0xa800-0xa807, BIOS settings: hdi:pio, hdj:pio
+>     ide5: BM-DMA at 0xa808-0xa80f, BIOS settings: hdk:pio, hdl:pio
+> Probing IDE interface ide2...
+> Probing IDE interface ide3...
+> hdh: IDE DVD-ROM 16X, ATAPI CD/DVD-ROM drive
+> ide3 at 0xc400-0xc407,0xc002 on irq 10
+> Probing IDE interface ide4...
+> Probing IDE interface ide5...
+> hdk: WDC WD1200BB-00GUA0, ATA DISK drive
+> ide5 at 0xb000-0xb007,0xac02 on irq 10
+> hdk: max request size: 1024KiB
+> hdk: 234441648 sectors (120034 MB) w/2048KiB Cache, CHS=16383/255/63, UDMA(100)
+> hdk: cache flushes supported
+>  /dev/ide/host4/bus1/target0/lun0: unknown partition table

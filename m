@@ -1,65 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264946AbSLJVfA>; Tue, 10 Dec 2002 16:35:00 -0500
+	id <S267049AbSLJVdt>; Tue, 10 Dec 2002 16:33:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266772AbSLJVfA>; Tue, 10 Dec 2002 16:35:00 -0500
-Received: from mailnw.centurytel.net ([209.206.160.237]:13035 "EHLO
-	mailnw.centurytel.net") by vger.kernel.org with ESMTP
-	id <S264946AbSLJVe6>; Tue, 10 Dec 2002 16:34:58 -0500
-Message-ID: <3DF6D088.5060308@centurytel.net>
-Date: Tue, 10 Dec 2002 22:43:36 -0700
-From: eric lin <fsshl@centurytel.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Holger Waechtler <holger@convergence.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: how do you successful compile or install 2.5.50?
-References: <3DF5EC8E.9050603@centurytel.net> <3DF5C40B.5060002@convergence.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267050AbSLJVdt>; Tue, 10 Dec 2002 16:33:49 -0500
+Received: from splat.lanl.gov ([128.165.17.254]:45521 "EHLO
+	balance.radtt.lanl.gov") by vger.kernel.org with ESMTP
+	id <S267049AbSLJVdr>; Tue, 10 Dec 2002 16:33:47 -0500
+Date: Tue, 10 Dec 2002 14:41:20 -0700
+From: Eric Weigle <ehw@lanl.gov>
+To: Stephan van Hienen <ultra@a2000.nu>
+Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Alteon AceNIC Coper Seen as Fibre ? (and incorrect settings)
+Message-ID: <20021210214120.GZ10934@lanl.gov>
+References: <Pine.LNX.4.50.0212102157440.1634-100000@ddx.a2000.nu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uLcrxnkzOGy8pA6s"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50.0212102157440.1634-100000@ddx.a2000.nu>
+User-Agent: Mutt/1.3.28i
+X-Eric-Conspiracy: There is no conspiracy
+X-Editor: Vim, http://www.vim.org
+X-GnuPG-fingerprint: 112E F8CA 12A9 771E DB10  6514 D4B0 D758 59EA 9C4F
+X-GnuPG-key: http://public.lanl.gov/ehw/ehw.gpg.key
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--uLcrxnkzOGy8pA6s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Holger Waechtler wrote:
+> eth2: Alteon AceNIC Gigabit Ethernet at 0x1ff02900000, irq 6,7d0
+=2E..
+> eth2: 10/100BaseT link UP
+> eth2: Optical link DOWN
+> eth2: 10/100BaseT link UP
+>=20
+> but this card is not an Fibre (Optical) card ?
+This is a hold-over from the first revision of the cards, which were all
+optical; the driver was written at that point.
 
-> eric lin wrote:
->
->> Dear Valdis:
->>
->>   I also download from kernel.org 2.5.50, it have error at make 
->> modules or make install
->
->
-> Where exactly do you get the error? Please send post the last lines of 
-> your compile log to the appropriate mailing list.
->
-> linux-dvb for DVB-related stuff and linux-kernel for the general stuff.
->
-> Holger
->
->
->
- gcc -Wp,-MD,drivers/char/.mxser.o.d -D__KERNEL__ -Iinclude -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 
--Iarch/i386/mach-generic -Iarch/i386/mach-defaults -nostdinc 
--iwithprefix include -DMODULE   -DKBUILD_BASENAME=mxser 
--DKBUILD_MODNAME=mxser   -c -o drivers/char/mxser.o drivers/char/mxser.c
-drivers/char/mxser.c:378: redefinition of `__module_name'
-drivers/char/mxser.c:332: `__module_name' previously defined here
-make[2]: *** [drivers/char/mxser.o] Error 1
-make[1]: *** [drivers/char] Error 2
-make: *** [drivers] Error 2
-www:/home/fsshl/linux-2.5.50#
+(Remember, the hideous copper GigE hack came out after the fiber did).
 
-that is 2.5.50 with .50-ac1 patch
-  /* I do not know  now where can get 2.5.50 since I got from kernel.org 
-the latest is 50 but now is 51 */
+Unless there's some actual failure, just ignore it.
 
-sincere Eric
-www.linuxspice.com
-linux pc for sale
 
+-Eric
+
+--=20
+------------------------------------------------------------
+        Eric H. Weigle -- http://public.lanl.gov/ehw/
+"They that can give up essential liberty to obtain a little
+temporary safety deserve neither" -- Benjamin Franklin
+------------------------------------------------------------
+
+--uLcrxnkzOGy8pA6s
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE99l+A1LDXWFnqnE8RAkrdAKDigE9QmgtQlLH2QJGVblhQJGLmmgCfUbtf
+78XrMC5sSJiIYaYwzC+wsgc=
+=Fq1g
+-----END PGP SIGNATURE-----
+
+--uLcrxnkzOGy8pA6s--

@@ -1,88 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbUC3Wfd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 17:35:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbUC3Wfd
+	id S261497AbUC3Wjs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 17:39:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbUC3Wjs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 17:35:33 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20612 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261440AbUC3WfH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 17:35:07 -0500
-Message-ID: <4069F60B.6000102@pobox.com>
-Date: Tue, 30 Mar 2004 17:34:51 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-CC: Kevin Corry <kevcorry@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-raid@vger.kernel.org,
-       dm-devel@redhat.com
-Subject: Re: "Enhanced" MD code avaible for review
-References: <760890000.1079727553@aslan.btc.adaptec.com> <200403261315.20213.kevcorry@us.ibm.com> <1644340000.1080333901@aslan.btc.adaptec.com> <200403270939.29164.kevcorry@us.ibm.com> <842610000.1080666235@aslan.btc.adaptec.com> <4069AB1B.90108@pobox.com> <854630000.1080668158@aslan.btc.adaptec.com> <4069B289.9030807@pobox.com> <866290000.1080669880@aslan.btc.adaptec.com> <4069EB03.9000202@pobox.com> <1001500000.1080684755@aslan.btc.adaptec.com>
-In-Reply-To: <1001500000.1080684755@aslan.btc.adaptec.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Mar 2004 17:39:48 -0500
+Received: from uslink-66.173.43-133.uslink.net ([66.173.43.133]:37791 "EHLO
+	dingdong.cryptoapps.com") by vger.kernel.org with ESMTP
+	id S261497AbUC3Wg2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 17:36:28 -0500
+Date: Tue, 30 Mar 2004 14:36:25 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Chris Mason <mason@suse.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] barrier patch set
+Message-ID: <20040330223625.GA1245@dingdong.cryptoapps.com>
+References: <20040319153554.GC2933@suse.de> <200403201723.11906.bzolnier@elka.pw.edu.pl> <1079800362.11062.280.camel@watt.suse.com> <200403201805.26211.bzolnier@elka.pw.edu.pl> <1080662685.1978.25.camel@sisko.scot.redhat.com> <1080674384.3548.36.camel@watt.suse.com> <1080683417.1978.53.camel@sisko.scot.redhat.com> <4069F2FC.90003@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4069F2FC.90003@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin T. Gibbs wrote:
->>>So you are saying that this presents an unrecoverable situation?
->>
->>No, I'm saying that the data phase need not have a bunch of in-kernel
->>checks, it should be generated correctly from the source.
-> 
-> 
-> The SCSI drivers validate the controller's data phase based on the
-> expected phase presented to them from an upper layer.  I never talked
-> about adding checks that make little sense or are overly expensive.  You
-> seem to equate validation with huge expense.  That is just not the
-> general case.
-> 
-> 
->>>Hmm.  I've never had someone tell me that my SCSI drivers are slow.
->>
->>This would be noticed in the CPU utilization area.  Your drivers are
->>probably a long way from being CPU-bound.
-> 
-> 
-> I very much doubt that.  There are perhaps four or five tests in the
-> I/O path where some value already in a cache line that has to be accessed
-> anyway is compared against a constant.  We're talking about something
-> down in the noise of any type of profiling you could perform.  As I said,
-> validation makes sense where there is basically no-cost to do it.
-> 
-> 
->>>I don't think that your statement is true in the general case.  My
->>>belief is that validation should occur where it is cheap and efficient
->>>to do so.  More expensive checks should be pushed into diagnostic code
->>>that is disabled by default, but the code *should be there*.  In any event,
->>>for RAID meta-data, we're talking about code that is *not* in the common
->>>or time critical path of the kernel.  A few dozen lines of validation code
->>>there has almost no impact on the size of the kernel and yields huge
->>>benefits for debugging and maintaining the code.  This is even more
->>>the case in Linux the end user is often your test lab.
->>
->>It doesn't scale terribly well, because the checks themselves become a
->>source of bugs.
-> 
-> 
-> So now the complaint is that validation code is somehow harder to write
-> and maintain than the rest of the code?
 
-Actually, yes.  Validation of random user input has always been a source 
-of bugs (usually in edge cases), in Linux and in other operating 
-systems.  It is often the area where security bugs are found.
+> For IDE, O_DIRECT and O_SYNC can use special "FUA" commands, which
+> don't return until the data is on the platter.
 
-Basically you want to avoid add checks for conditions that don't occur 
-in properly written software, and make sure that the kernel always 
-generates correct requests.  Obviously that excludes anything on the 
-target side, but other than that...  in userland, a priveleged user is 
-free to do anything they wish, including violate protocols, cook their 
-disk, etc.
+On modern drives how reliable is this?  At one point disk-scrubbing
+software which used FUA (to ensure data was being written to the
+platters) showed that some drives completely ignore this.
 
-	Jeff
+Has the state of things changed significantly that we can assume this
+is very rare or might we need to have to kind of whitelist/blacklist
+system?
 
 
-
+    --cw

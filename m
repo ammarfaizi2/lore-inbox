@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284927AbRLPXcS>; Sun, 16 Dec 2001 18:32:18 -0500
+	id <S284929AbRLPXsU>; Sun, 16 Dec 2001 18:48:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284928AbRLPXcI>; Sun, 16 Dec 2001 18:32:08 -0500
-Received: from r-fi057-2-388.tin.it ([62.211.53.132]:16389 "EHLO
-	penny.ik5pvx.ampr.org") by vger.kernel.org with ESMTP
-	id <S284927AbRLPXcD>; Sun, 16 Dec 2001 18:32:03 -0500
-To: linux-kernel@vger.kernel.org
+	id <S284933AbRLPXsK>; Sun, 16 Dec 2001 18:48:10 -0500
+Received: from adsl-67-36-120-14.dsl.klmzmi.ameritech.net ([67.36.120.14]:8891
+	"HELO tabris.net") by vger.kernel.org with SMTP id <S284929AbRLPXry>;
+	Sun, 16 Dec 2001 18:47:54 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Adam Schrotenboer <adam@tabris.net>
+Organization: Dome-S-Isle Data
+To: =?iso-8859-1?q?Ra=FAl=20N=FA=F1ez=20de=20Arenas=20Coronado?= 
+	<raul@viadomus.com>,
+        rml@tech9.net
 Subject: Re: Is /dev/shm needed?
-In-Reply-To: <E16FkV9-00010E-00@DervishD.viadomus.com>
-	<1008544328.843.0.camel@phantasy>
-Reply-To: Pierfrancesco Caci <p.caci@tin.it>
-From: Pierfrancesco Caci <ik5pvx@penny.ik5pvx.ampr.org>
-Date: 17 Dec 2001 00:31:53 +0100
-In-Reply-To: <1008544328.843.0.camel@phantasy>
-Message-ID: <877krm68t2.fsf@penny.ik5pvx.ampr.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.1
+Date: Sun, 16 Dec 2001 18:47:47 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16Fkqc-0001Z0-00@DervishD.viadomus.com>
+In-Reply-To: <E16Fkqc-0001Z0-00@DervishD.viadomus.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+Message-Id: <20011216234748.3EDE9FB80D@tabris.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-:-> "Robert" == Robert Love <rml@tech9.net> writes:
+On Sunday 16 December 2001 18:37, Raúl Núñez de Arenas Coronado wrote:
+>     Hello Adam :))
+>
+> >> have lots of memory to spare, give it a try.  Mount /tmp or all of /var
+> >> in tmpfs.
+> >
+> >Unfortunately, some(many?) distros are b0rken in re /var/. There is
+> >stuff put there that is needed across boots (for example, mandrake
+> >puts the DNS master files in /var/named.)
 
+Thank you for this correction of my understanding of /var
+I now am under the impression that it merely means that /var must be mounted 
+rw. It is for variables, but not discardable data.
 
+This still means that the concept of a tmpfs /var is _severely_ broken. DON'T 
+DO IT.
 
-    > See Documentation/filesystems/tmpfs.txt for more information.
+I may be wrong about /tmp as well, but I have come to think that it is data 
+that ought be discarded after logout, and have sometimes considered writing a 
+script for it in the login/logout scripts.
 
-
-There's no such file in my tree... what version are you talking about? 
-
-ik5pvx@penny:/usr/src/linux/Documentation/filesystems $ ls
-00-INDEX  bfs.txt     ext2.txt     ncpfs.txt  smbfs.txt    umsdos.txt
-Locking   coda.txt    fat_cvf.txt  ntfs.txt   sysv-fs.txt  vfat.txt
-adfs.txt  cramfs.txt  hpfs.txt     proc.txt   udf.txt      vfs.txt
-affs.txt  devfs       isofs.txt    romfs.txt  ufs.txt
-ik5pvx@penny:/usr/src/linux/Documentation/filesystems $ head ../../Makefile 
-VERSION = 2
-PATCHLEVEL = 4
-SUBLEVEL = 16
-EXTRAVERSION =
-
-Pf
+>
+>     Moreover, didn't the LHS say that /var/tmp is supposed to be
+> maintained across reboots? I'm not sure about this, but anyway /var
+> is supposed to hold temporary data, not boot-throwable data, isn't
+> it?
+>
+>     Raúl
 
 -- 
+tabris
 
--------------------------------------------------------------------------------
- Pierfrancesco Caci | ik5pvx | mailto:p.caci@tin.it  -  http://gusp.dyndns.org
-  Firenze - Italia  | Office for the Complication of Otherwise Simple Affairs 
-     Linux penny 2.4.16 #1 Fri Nov 30 22:12:51 CET 2001 i686 unknown
+   Once I swore I would die for you, but I never meant like this.
+
+                                              Shame, by Stabbing Westward
+

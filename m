@@ -1,32 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262013AbTEKCS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 22:18:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbTEKCS7
+	id S262109AbTEKDjs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 23:39:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbTEKDjs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 22:18:59 -0400
-Received: from siaab1aa.compuserve.com ([149.174.40.1]:10439 "EHLO
-	siaab1aa.compuserve.com") by vger.kernel.org with ESMTP
-	id S262013AbTEKCS7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 22:18:59 -0400
-Date: Sat, 10 May 2003 22:28:10 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
-To: "Tuncer M \"zayamut\" Ayaz" <tuncer.ayaz@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <200305102231_MC3-1-384E-4E4C@compuserve.com>
+	Sat, 10 May 2003 23:39:48 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9477 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S262109AbTEKDjr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 23:39:47 -0400
+Date: Sat, 10 May 2003 20:50:58 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jamie Lokier <jamie@shareable.org>
+cc: Jos Hulzink <josh@stack.nl>, Andi Kleen <ak@muc.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Use correct x86 reboot vector
+In-Reply-To: <20030510181056.GB29682@mail.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.44.0305102043320.28287-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> first, as you see in my other reply to Xavier Bestel disabling
-> "apm idle call" fixed the problem, it seems, but I didn't want
-> to disable those calls because of thermal reasons.
 
-  Maybe you could set 2.5 to run at 100 Hz?  I don't know
-if that's possible, but it could let you test if that's what
-makes the noise so much more annoying.
+On Sat, 10 May 2003, Jamie Lokier wrote:
+> Jos Hulzink wrote:
+> > For the sake of bad behaving BIOSes however, I'd vote for the f000:fff0 
+> > vector, unless someone can hand me a paper that says it is wrong.
+> 
+> I agree, for the simple reason that it is what the chip does on a
+> hardware reset signal.
+
+Hmm.. Doesnt' a _real_ hardware reset actually use a magic segment that
+isn't even really true real mode? I have this memory that the reset value
+for a i386 has CS=0xf000, but the shadow base register actually contains
+0xffff0000. In other words, the CPU actually starts up in "unreal" mode,
+and will fetch the first instruction from physical address 0xfffffff0.
+
+At least that was true on an original 386. It's something that could 
+easily have changed since.
+
+In other words, you're all wrong. Nyaah, nyaah.
+
+			Linus
+

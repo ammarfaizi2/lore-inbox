@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbTIKRdg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 13:33:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbTIKRbx
+	id S261436AbTIKRkw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 13:40:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbTIKRka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 13:31:53 -0400
-Received: from [65.248.4.67] ([65.248.4.67]:59281 "EHLO verdesmares.com")
-	by vger.kernel.org with ESMTP id S261456AbTIKR0R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 13:26:17 -0400
-Message-ID: <009f01c3788a$08b7f780$9f0210ac@forumci.com.br>
-From: "Breno" <brenosp@brasilsec.com.br>
-To: <Valdis.Kletnieks@vt.edu>
-Cc: "Stan Bubrouski" <stan@ccs.neu.edu>, <linux-kernel@vger.kernel.org>
-References: <001b01c39047$d65cf580$f8e4a7c8@bsb.virtua.com.br> <20030911002755.GA13177@triplehelix.org> <3F5FD993.2060900@ccs.neu.edu>            <009201c37860$f0d3c5f0$131215ac@poslab219> <200309111419.h8BEJbSo010948@turing-police.cc.vt.edu>
-Subject: Re: Size of Tasks during ddos 
-Date: Thu, 11 Sep 2003 14:27:51 -0300
+	Thu, 11 Sep 2003 13:40:30 -0400
+Received: from bluebox.CS.Princeton.EDU ([128.112.136.38]:14576 "EHLO
+	bluebox.CS.Princeton.EDU") by vger.kernel.org with ESMTP
+	id S261433AbTIKRkA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 13:40:00 -0400
+Date: Thu, 11 Sep 2003 13:39:59 -0400 (EDT)
+From: Yaoping Ruan <yruan@CS.Princeton.EDU>
+To: linux-kernel@vger.kernel.org
+Subject: Linux on Intel Server Board SE7501WV2 
+Message-ID: <Pine.GSO.4.55.0309111338120.28288@oakley.CS.Princeton.EDU>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-XTmail: http://www.verdesmares.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a Syn Flood DDoS 
+Hello,
 
-att
-Breno
------ Original Message ----- 
-From: <Valdis.Kletnieks@vt.edu>
-To: "Breno Silva" <brenosp@brasilsec.com.br>
-Cc: "Stan Bubrouski" <stan@ccs.neu.edu>; <linux-kernel@vger.kernel.org>
-Sent: Thursday, September 11, 2003 11:19 AM
-Subject: Re: Size of Tasks during ddos 
+We plan to install Linux (2.4.21 and later with epoll patch) on an Intel
+Server Board SE7501WV2 with 1 XEON 2.4GHz CPU, 4GB PC2100 DDR memory, and
+a Seagate 120GB ATA 7200RPM harddisk, and use the server box for high
+demand SpecWeb99 tests. Does anyone have any experience on this Server
+Board, and see any compatibility problem here?
 
+An other question about this box is the two on-board Gigabit Network
+Controller. Do they work fine on Linux? May I use fiber Giganet NCI like
+Netgear GA621 on it?
 
+Any thoughts/information are welcome.
 
+Thanks a lot
+
+- Yaoping Ruan
+*********************
+Computer Science Dept.
+Princeton University
+*********************

@@ -1,93 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315808AbSEOFWZ>; Wed, 15 May 2002 01:22:25 -0400
+	id <S316331AbSEOFZr>; Wed, 15 May 2002 01:25:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316330AbSEOFWY>; Wed, 15 May 2002 01:22:24 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:56582 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S315808AbSEOFWY>;
-	Wed, 15 May 2002 01:22:24 -0400
-Date: Tue, 14 May 2002 21:21:13 -0700
-From: Greg KH <greg@kroah.com>
-To: Denis Oliver Kropp <dok@directfb.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] vmwarefb 0.5.2
-Message-ID: <20020515042113.GA22029@kroah.com>
-In-Reply-To: <20020515010242.GA1257@skunk.convergence.de>
+	id <S316328AbSEOFZq>; Wed, 15 May 2002 01:25:46 -0400
+Received: from [202.108.44.203] ([202.108.44.203]:60668 "HELO sm1.163.com")
+	by vger.kernel.org with SMTP id <S316329AbSEOFZp>;
+	Wed, 15 May 2002 01:25:45 -0400
+Date: Wed, 15 May 2002 12:45:48 +0800
+From: Matt Wu <mattwu@163.com>
+Reply-To: mattwu@163.com
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Ext2 File System Driver for Winnt!
+X-mailer: FoxMail 3.11 Release [cn]
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 17 Apr 2002 03:10:07 -0700
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20020515044024.011181C59BB22@sm1.163.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 15, 2002 at 03:02:42AM +0200, Denis Oliver Kropp wrote:
-> 
-> Hi,
-> 
-> this is an updated version of the VMware framebuffer driver.
-> It contains a fix regarding the framebuffer offset (screen_base)
-> for non-standard modes.
+Dear all,
 
-Some non-technical questions about this code:
-	- please read Documentation/CodingStyle and reformat your code
-	  based on that (scripts/Lindent will do it for you if you
-	  want.)
+    Ext2fsd - Ext2 File System Driver V0.07 is released. A more stable/efficient one than it's former releases.
+	You can get it at http://sys.xiloo.com or http://sf.net/projects/ext2fsd.
 
-> +++ linux/drivers/video/vmware/guest_os.h	Tue May 14 01:32:04 2002
-> @@ -0,0 +1,27 @@
-> +/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/vmware/guest_os.h,v 1.1 2001/04/05 19:29:44 dawes Exp $ */
-> +/* *********************************************************
-> + * Copyright (C) 1999-2001 VMware, Inc.
-> + * All Rights Reserved
-> + * Id: guest_os.h,v 1.5 2001/01/26 23:32:15 yoel Exp $
-> + * **********************************************************/
+    Now it supports:
 
-<snip>
+    1, Readonly
+    2, Large Ext2 Partition (512 * 4 G in theory)
+    3, Caching
+    4, Exe files Executing
+    5, ...
 
-> +++ linux/drivers/video/vmware/svga_limits.h	Tue May 14 01:31:47 2002
-> @@ -0,0 +1,53 @@
-> +/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/vmware/svga_limits.h,v 1.1 2001/04/05 19:29:44 dawes Exp $ */
-> +/* **********************************************************
-> + * Copyright (C) 1998-2001 VMware, Inc.
-> + * All Rights Reserved
-> + * Id: svga_limits.h,v 1.8 2001/01/26 23:32:15 yoel Exp $
-> + * **********************************************************/
+    Wish this tool could help.
 
-<snip>
+Thanks and best wishes,
 
-> +++ linux/drivers/video/vmware/svga_reg.h	Tue May 14 01:31:27 2002
-> @@ -0,0 +1,298 @@
-> +/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/vmware/svga_reg.h,v 1.4 2001/09/13 08:36:24 alanh Exp $ */
-> +/* **********************************************************
-> + * Copyright (C) 1998-2001 VMware, Inc.
-> + * All Rights Reserved
-> + * $Id: svga_reg.h,v 1.16 2001/07/25 22:41:24 mgoodman Exp $
-> + * **********************************************************/
+Matt 
+http://sys.xiloo.com
 
-<snip>
 
-> +#ifdef MODULE
-> +
-> +MODULE_AUTHOR("(c) 2002  Denis Oliver Kropp <dok@directfb.org>");
-> +MODULE_LICENSE("GPL");
-> +MODULE_DESCRIPTION("FBDev driver for VMware Virtual SVGA Card");
-> +MODULE_PARM(disabled, "i");
-> +MODULE_PARM_DESC(disabled, "Disable this driver's initialization.");
-> +
-> +#endif
 
-	- drop the #ifdef, it's not needed.
-
-	- you are stating that your module is under the GPL, yet it uses
-	  two files that are marked "All Rights Reserved" with the
-	  copyright from VMWare, Inc.  I don't think you can do that :)
-
-Is VMWare ok with releasing those files under the GPL?  If so, I suggest
-you add that line to those files, and then everything should be fine.
-
-thanks,
-
-greg k-h

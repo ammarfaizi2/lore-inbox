@@ -1,83 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265785AbUBFTQf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 14:16:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265802AbUBFTPV
+	id S265658AbUBFTbE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 14:31:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265663AbUBFTbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 14:15:21 -0500
-Received: from devil.servak.biz ([209.124.81.2]:8428 "EHLO devil.servak.biz")
-	by vger.kernel.org with ESMTP id S265785AbUBFTMH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 14:12:07 -0500
-Subject: 2.6.2-mm1 - errors during boot
-From: Torrey Hoffman <thoffman@arnor.net>
-To: Linux-Kernel List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1076094927.6331.5.camel@moria.arnor.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 06 Feb 2004 11:15:27 -0800
+	Fri, 6 Feb 2004 14:31:04 -0500
+Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:63415
+	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
+	id S265658AbUBFTa7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 14:30:59 -0500
+Message-ID: <4023EBF8.2070804@tmr.com>
+Date: Fri, 06 Feb 2004 14:33:12 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mattias Wadenstein <maswan@acc.umu.se>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Performance issue with 2.6 md raid0
+References: <Pine.A41.4.58.0402051304410.28218@lenin.acc.umu.se>
+In-Reply-To: <Pine.A41.4.58.0402051304410.28218@lenin.acc.umu.se>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - devil.servak.biz
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - arnor.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I didn't have these with 2.6.2-rc3-mm1.
+Mattias Wadenstein wrote:
+> Greetings.
+> 
+> While testing a file server to store a couple of TB in resonably large
+> files (>1G), I noticed an odd performance behaviour with the md raid0 in a
+> pristine 2.6.2 kernel as compared to a 2.4.24 kernel.
+> 
+> When striping two md raid5:s, instead of going from about 160-200MB/s for
+> a single raid5 to 300M/s for the raid0 in 2.4.24, the 2.6.2 kernel gave
+> 135M/s in single stream read performance.
+> 
+> The setup:
+> 2 x 2.0 GHz Opteron 248, 4 gigs of ram (running 32-bit kernels)
+> 2 x 8-port 3ware sata raid cards, acting as disk controllers (no hw raid)
+> 16 x Maxtor 250-gig 7k2 rpm sata drives.
+> 1 x system drive on onboard pata doing pretty much nothing.
+> 
+> The sata drives are configured in 2 8-disk md raid5s, not hw raid for
+> performance reasons, we get better numbers from the md driver in that case
+> than the hw raid on the card. Then I have created a raid0 of these two
+> raid5 devices.
+> 
+> I used jfs for these numbers, I have only seen minor differences in speed
+> in the single-stream case on this hardware though for different
+> filesystems I have tested (ext2, xfs, jfs, reiserfs). And the filesystem
+> numbers are reflected pretty close by doing a dd from /dev/md10. The same
+> goes for increasing the chunk-size to 4M instead of 32k, roughly the same
+> numbers. The system is not doing anything else.
+> 
+> The results (as meassured by bonnie++ -f -n0, all numbers in kB/s, all
+> numbers for a single stream[*]):
+> 2.4.24, one of the raid5s: Write: 138273, Read: 212474
+> 2.4.24, raid0 of two raid5s: Write: 215827, Read: 303388
+> 2.6.2, one of the raid5s: Write: 159271, Read: 161327
+> 2.6.2, raid0 of two raid5s: Write: 280691, Read: 134622
+> 
+> It is the last read value that really stands out.
+> 
+> Any ideas? Anything I should try? More info wanted?
+> 
+> Please Cc: me as I'm not a subscriber to this list.
+> 
+> [*]: For multiple streams, say a dozen or so readers, the aggregate
+> performance on the 2.6.2 raid0 went down to about 60MB/s, which is a bit
+> of a real performance problem for the intended use, I'd like to at least
+> saturate a single gigE interface and hopefully two with that many readers.
 
-(snipped from dmesg log:)
-...
-found reiserfs format "3.6" with standard journal
-ieee1394: Host added: ID:BUS[0-00:1023]  GUID[00508d0000f42af5]
-Badness in kobject_get at lib/kobject.c:431
-Call Trace:
- [<c02078dc>] kobject_get+0x3c/0x50
- [<c0272fd1>] get_device+0x11/0x20
- [<c0273c68>] bus_for_each_dev+0x78/0xd0
- [<fc876185>] nodemgr_node_probe+0x45/0x100 [ieee1394]
- [<fc876030>] nodemgr_probe_ne_cb+0x0/0x90 [ieee1394]
- [<fc87654b>] nodemgr_host_thread+0x14b/0x180 [ieee1394]
- [<fc876400>] nodemgr_host_thread+0x0/0x180 [ieee1394]
- [<c010b285>] kernel_thread_helper+0x5/0x10
- 
-Unable to handle kernel paging request at virtual address 57e58955
- printing eip:
-57e58955
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT SMP
-CPU:    0
-EIP:    0060:[<57e58955>]    Not tainted VLI
-EFLAGS: 00010206
-EIP is at 0x57e58955
-eax: fc87f5a8   ebx: fc87f5a8   ecx: fc87f584   edx: 57e58955
-esi: fc875af0   edi: 00000000   ebp: f7265f6c   esp: f7265f58
-ds: 007b   es: 007b   ss: 0068
-Process knodemgrd_0 (pid: 28, threadinfo=f7264000 task=f7267780)
-Stack: c0207974 fc874940 fc87f584 fc87f58c fc87f4e0 f7265f90 c0273c7a
-fc87f52c
-       00000000 f7350244 f7265fa4 f735023c f7265fa4 f7c46398 f7265fc8
-fc876185
-       fc876030 f7fa8000 00000001 f7c46398 f7350200 0000ffff f7265fb8
-00000004
-Call Trace:
- [<c0207974>] kobject_cleanup+0x84/0x90
- [<fc874940>] nodemgr_bus_match+0x0/0xb0 [ieee1394]
- [<c0273c7a>] bus_for_each_dev+0x8a/0xd0
- [<fc876185>] nodemgr_node_probe+0x45/0x100 [ieee1394]
- [<fc876030>] nodemgr_probe_ne_cb+0x0/0x90 [ieee1394]
- [<fc87654b>] nodemgr_host_thread+0x14b/0x180 [ieee1394]
- [<fc876400>] nodemgr_host_thread+0x0/0x180 [ieee1394]
- [<c010b285>] kernel_thread_helper+0x5/0x10
- 
-Code:  Bad EIP value.
- Reiserfs journal params: device md1, size 8192, journal first block 18,
-max trans len 1024, max batch 900, max commit age 30, max trans age 30
-...
+I believe what you see between 2.4 and 2.6 is just lack of readahead, 
+and you should increase this for your read performance. With no other 
+changes you should be able to pretty much match performance between 2.4 
+and 2.6.
+
+However, after some years of trying to tune stripe size on both Linux 
+and AIX news servers, I suspect that the stripe size you have is too 
+small. The optimal stripe size under heavy load seems to be at least 2x 
+the largest typical io size, so that you don't have to seek on multiple 
+drives all the time. Note "at least," in most cases you can go larger 
+than that unless you create and delete a lot of files, in which case you 
+can wind up with the inodes on one drive, which can be a real issue.
+
+For this reason I find that most install programs are about worthless, 
+they simply use too small a stripe size and generate a lot of overhead 
+when used, because too many io are on multiple devices. That's good for 
+huge io on separate busses where bus bandwidth is a factor, but very bad 
+when most of the time is latency.
 
 -- 
-Torrey Hoffman <thoffman@arnor.net>
-
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVARBOm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262827AbVARBOm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261587AbVARBOm (ORCPT <rfc822;willy@w.ods.org>);
+	id S262827AbVARBOm (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 17 Jan 2005 20:14:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbVARBKZ
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVARBKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 20:10:25 -0500
-Received: from [218.28.6.155] ([218.28.6.155]:42485 "HELO zzgjj.net")
-	by vger.kernel.org with SMTP id S261557AbVARBII (ORCPT
+	Mon, 17 Jan 2005 20:10:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:55780 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261577AbVARBIs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 20:08:08 -0500
-Message-ID: <20050118010800.54061.qmail@zzgjj.net>
-Date: Tue, 18 Jan 2005 09:08:00 +0800 (CST)
-From: faxsky@zzgxrc.net
-Reply-To: faxsky@zzgxrc.net
-To: agi@gamelan.org
-Subject: =?GBK?B?ufrE2tfuwffQ0LXnxNTK1beiL8i6t6K0q9XmyO28/g==?=
-X-mailer: DCMail_v1.10_by_Zhouhui
+	Mon, 17 Jan 2005 20:08:48 -0500
+Date: Mon, 17 Jan 2005 17:08:43 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Chris Wright <chrisw@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Werner Almesberger <wa@almesberger.net>, Jesper Juhl <juhl-lkml@dif.dk>,
+       Steve Bergman <steve@rueb.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Proper procedure for reporting possible security vulnerabilities?
+Message-ID: <20050117170843.P24171@build.pdx.osdl.net>
+References: <20050110164001.Q469@build.pdx.osdl.net> <Pine.LNX.4.61.0501111758290.3368@dragon.hygekrogen.localhost> <1105461562.16168.46.camel@localhost.localdomain> <Pine.LNX.4.61.0501111854120.3368@dragon.hygekrogen.localhost> <20050111132905.N10567@build.pdx.osdl.net> <20050117194919.A14107@almesberger.net> <20050117145216.J24171@build.pdx.osdl.net> <20050117232314.GB17616@infradead.org> <20050117152607.K24171@build.pdx.osdl.net> <1106006274.16119.123.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="==--==--Zhou_Hui_41ec61704ada39.39295293--==--=="
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1106006274.16119.123.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Mon, Jan 17, 2005 at 11:57:58PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
+> On Llu, 2005-01-17 at 23:26, Chris Wright wrote:
+> > * Christoph Hellwig (hch@infradead.org) wrote:
+> > > On Mon, Jan 17, 2005 at 02:52:16PM -0800, Chris Wright wrote:
+> > > > Yeah, "choose one, then put it here."  I've set up
+> > > > security@kernel.osdl.org.
+> > > 
+> > > Any chance we could have that @kernel.org or @vger.kernel.org?
+> 
+> @kernel.org would make a lot of sense given most other products/projects
+> are security@[projectsite] - security@mozilla.org etc
 
---==--==--Zhou_Hui_41ec61704ada39.39295293--==--==
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+Makes perfect sense.
 
-ICAgINW+s6SjrMT6usOjobDvsO/DpreisrzPwsPmtcTI7bz+o6zQu9C7o6EgDQogICANCiAgICDI
-7bz+w/uzxqO60MK6/LXnxNS0q9XmW0ZheE5vd10NCiAgICDI7bz+sOaxvqO6ViAyLjUNCiAgICDI
-7bz+tPPQoaO6Nzk5S0INCiAgICDTptPDxr3MqKO6V2luOXgvTWUvTlQvMjAwMC9YUA0KICAgIMPi
-t9HPwtTYo7podHRwOi8vRkFYbm93Lll3emMubmV0DQogICAgw+K30c/C1Nijumh0dHA6Ly9YSEZB
-WC5ZZWFoLm5ldA0KICAgIMPit9HPwtTYo7podHRwOi8vWEhGQVguMTI2LmNvbQ0KICAgILXnu7DB
-qs+1o7owIDUgMSA5LS0gOCA2IDcgMCAzIDIgMw0KICAgIFFR18nRr6O6MTE0IDA3NSAzMDMNCiAg
-IA0KICAgIMjtvP688r3po7oNCiAgIA0KICAgILn6svq88szl1tDOxLDmzai5/bX31sa94rX3xvco
-xtXNqE1vZGVtKbrNxtXNqLXnu7DP38K3DQogICAgt6LLzbrNvdPK1bSr1ebI7bz+oaPX1LavvatX
-T1JEL1dQUy+8x8rCsb4vQ0FEu+bNvC/QtNfWDQogICAgsOUvRVhDRUyx7bjxtcizo9PDyO28/tbQ
-seC8rbrDtcTOxNfWus3NvMasxNrI3dequ7vOqrSrDQogICAg1ebOxLz+o6zK5MjrxtXNqLSr1ea7
-+rrFwuu8tL/Jt6LLzbSr1eaho7Xju/e908rVsLTFpby0DQogICAgv8m908rVoaLkr8DAtKvV5rvy
-yuSz9rW9tPLTobv6yc+ho82ouf2158TUt6LLzbrNvdPK1bSrDQogICAg1ebL2bbIv+yjrMTayN3H
-5c76o6y92sqhyMu5pLrNsOy5q7fR08OjrLKiv8nXqru7zqrNvM/xDQogICAgzsS8/rTmtbW78mVN
-QUlM16q3oqGjufrE2taqw/vXydGvuavLvqGiwsPQ0MnnoaLVucDAu+Ghog0KICAgIM7vwffG89K1
-tcjKudPDuvO++cjPzqqjusjtvP6/ydLUzt7Iy8qx19S2r8rVt6K0q9Xm0rK/yQ0KICAgIM/IxMPG
-8LKiwaq1xLXnu7C7+s2ou7C689TZt6LLzbvyvdPK1bSr1eajrLjDz+65psTcyse5+g0KICAgIMTa
-zeLL+dPQzazA4LSr1ebI7bz+tryyu77fsbi1xKOs08O687jQvvWxyMrbvNvI/cvEx6fUqg0KICAg
-ILXEtKvV5rv6u7nSqre9seOjrMrH0ru/7r74vNG1xMjVs6O158TUsOy5q8jtvP6how0KICAgDQog
-ICAgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KICAgDQogICAg0MK6
-/LSr1eZbyLpdt6LI7bz+o7oNCg0KICAgIMPit9HPwtTYo7podHRwOi8vRkFYc2t5LllXemMubmV0
-DQogICAgw+K30c/C1Nijumh0dHA6Ly94aEZBWC55ZWFoLk5FVA0KICAgDQogICANCiAgIA==
-
-
---==--==--Zhou_Hui_41ec61704ada39.39295293--==--==--
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

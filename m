@@ -1,174 +1,190 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264288AbTFDXR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 19:17:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbTFDXR7
+	id S264289AbTFDXU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 19:20:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264292AbTFDXU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 19:17:59 -0400
-Received: from CPE-203-51-32-18.nsw.bigpond.net.au ([203.51.32.18]:62711 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP id S264288AbTFDXRz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 19:17:55 -0400
-Message-ID: <3EDE8147.5B9A7093@eyal.emu.id.au>
-Date: Thu, 05 Jun 2003 09:31:19 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.21-rc6 i686)
-X-Accept-Language: en
+	Wed, 4 Jun 2003 19:20:26 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:38817 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S264289AbTFDXUW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 19:20:22 -0400
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: select for UNIX sockets?
+References: <m3llwkauq5.fsf@defiant.pm.waw.pl>
+	<1054651886.9233.35.camel@dhcp22.swansea.linux.org.uk>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 05 Jun 2003 01:27:20 +0200
+In-Reply-To: <1054651886.9233.35.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <m3n0gxfmp3.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-To: list linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.21-rc6: usb-uhci.c: interrupt
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For some time now I notice these messages when I use my SCSI
-tape:
-	kernel: usb-uhci.c: interrupt, status 28, frame# 1015
-with different frame# each time.
+--=-=-=
 
-I used a USB mass-storage device a while back, for a short time,
-it was since removed.
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-I am chasing some data corruption and will suspect everything
-at this point. Any chance that this causes a problem for scsi
-devices?
+> Sort of. The wakeup may occur for several reasons and you need to check
+> the return (for signals). Also the wakeup can occur when there is room
+> but another thread fills it, or return room but not enough for a large
+> datagram. Those don't seem to be the case on your example
 
-Anyway, I am rather sure that the usb system should keep quiet
-as it is not accessed at all.
+I've traced the problem to datagram_poll(). This function doesn't
+check if the receiver queue has at least one slot empty, it only
+checks sock_writeable() i.e. if:
+        atomic_read(&sk->wmem_alloc) < (sk->sndbuf / 2);
 
-boot messages:
-==============
-May 29 21:40:45 eyal kernel: usb.c: registered new driver usbdevfs
-May 29 21:40:45 eyal kernel: usb.c: registered new driver hub
-May 29 21:40:45 eyal kernel: usb-uhci.c: $Revision: 1.275 $ time
-20:19:46 May 29 2003
-May 29 21:40:45 eyal kernel: usb-uhci.c: High bandwidth mode enabled
-May 29 21:40:45 eyal kernel: usb-uhci.c: USB UHCI at I/O 0xd800, IRQ 5
-May 29 21:40:45 eyal kernel: usb-uhci.c: Detected 2 ports
-May 29 21:40:45 eyal kernel: usb.c: new USB bus registered, assigned bus
-number 1
-May 29 21:40:45 eyal kernel: hub.c: USB hub found
-May 29 21:40:45 eyal kernel: hub.c: 2 ports detected
-May 29 21:40:45 eyal kernel: usb-uhci.c: USB UHCI at I/O 0xd400, IRQ 5
-May 29 21:40:45 eyal kernel: usb-uhci.c: Detected 2 ports
-May 29 21:40:45 eyal kernel: usb.c: new USB bus registered, assigned bus
-number 2
-May 29 21:40:45 eyal kernel: hub.c: USB hub found
-May 29 21:40:45 eyal kernel: hub.c: 2 ports detected
-May 29 21:40:45 eyal kernel: usb-uhci.c: v1.275:USB Universal Host
-Controller Interface driver
+unix_dgram_sendmsg() can then block on:
 
-Mass-storage usage
-==================
-May 30 19:16:13 eyal kernel: hub.c: new USB device 00:07.2-1, assigned
-address 2
-May 30 19:16:13 eyal kernel: usb.c: USB device 2 (vend/prod 0xc76/0x7)
-is not claimed by any active driver.
-May 30 19:18:56 eyal kernel: SCSI subsystem driver Revision: 1.00
-May 30 19:18:57 eyal kernel: Initializing USB Mass Storage driver...
-May 30 19:18:57 eyal kernel: usb.c: registered new driver usb-storage
-May 30 19:18:57 eyal kernel: scsi0 : SCSI emulation for USB Mass Storage
-devices
-May 30 19:18:57 eyal kernel:   Vendor:          
-Model:                   Rev:     
-May 30 19:18:57 eyal kernel:   Type:  
-Direct-Access                      ANSI SCSI revision: 02
-May 30 19:18:57 eyal kernel: USB Mass Storage support registered.
-May 30 19:18:57 eyal kernel: Attached scsi removable disk sda at scsi0,
-channel 0, id 0, lun 0
-May 30 19:18:57 eyal kernel: SCSI device sda: 512000 512-byte hdwr
-sectors (262 MB)
-May 30 19:18:57 eyal kernel: sda: Write Protect is off
-May 30 19:18:57 eyal kernel:  sda: sda1
-May 30 19:21:49 eyal kernel: usb.c: deregistering driver usb-storage
-May 30 19:21:49 eyal kernel: scsi : 0 hosts left.
-May 30 19:21:53 eyal kernel: usb.c: USB disconnect on device 00:07.2-1
-address 2
+        if (unix_peer(other) != sk &&
+            skb_queue_len(&other->receive_queue) > other->max_ack_backlog) {
+                if (!timeo) {
+                        err = -EAGAIN;
+                        goto out_unlock;
 
-some stray messages
-===================
-Jun  3 20:16:15 eyal kernel: usb-uhci.c: interrupt, status 28, frame#
-607
-Jun  3 20:18:12 eyal kernel: usb-uhci.c: interrupt, status 28, frame#
-801
-Jun  3 20:18:12 eyal kernel: usb-uhci.c: interrupt, status 28, frame#
-329
-Jun  3 20:18:40 eyal kernel: usb-uhci.c: interrupt, status 30, frame#
-1309
-Jun  3 20:20:51 eyal kernel: usb-uhci.c: interrupt, status 28, frame#
-1335
-Jun  3 20:27:00 eyal kernel: usb-uhci.c: interrupt, status 28, frame#
-440
-Jun  4 00:24:13 eyal kernel: usb-uhci.c: interrupt, status 28, frame#
-1015
-Jun  4 01:00:04 eyal kernel: usb-uhci.c: interrupt, status 28, frame#
-240
+Now the question is how should the problem be fixed?
+I've tried using modified datagram_poll():
 
-# lsmod
-=======
-Module                  Size  Used by    Tainted: P  
-st                     27124   0  (autoclean)
-dc395x_trm             47168   0  (autoclean)
-sg                     24772   0  (autoclean)
-sd_mod                 10172   0  (autoclean)
-scsi_mod               84680   4  [st dc395x_trm sg sd_mod]
-bttv                   77568   0  (autoclean)
-tuner                   9540   1 
-videodev                5664   3  (autoclean) [bttv]
-i2c-algo-bit            8300   1  (autoclean) [bttv]
-es1371                 27136   1  (autoclean)
-gameport                1548   0  (autoclean) [es1371]
-ac97_codec             10912   0  (autoclean) [es1371]
-soundcore               3588   4  (autoclean) [bttv es1371]
-nvidia               1540320  10  (autoclean)
-usb-uhci               21764   0  (unused)
-usbcore                57152   1  [usb-uhci]
-ipt_limit                960   2  (autoclean)
-ipt_LOG                 3200   3  (autoclean)
-ipt_state                608   4  (autoclean)
-iptable_filter          1760   1  (autoclean)
-ip_conntrack_ftp        3808   0  (unused)
-ip_conntrack           17396   2  [ipt_state ip_conntrack_ftp]
-ip_tables              10752   4  [ipt_limit ipt_LOG ipt_state
-iptable_filter]
-ide-cd                 29024   0  (autoclean)
-cdrom                  29024   0  (autoclean) [ide-cd]
-via686a                 8228   0 
-eeprom                  3552   0  (unused)
-i2c-proc                6624   0  [via686a eeprom]
-i2c-isa                 1252   0  (unused)
-i2c-viapro              3912   0  (unused)
-i2c-core               15112   0  [bttv tuner i2c-algo-bit via686a
-eeprom i2c-proc i2c-isa i2c-viapro]
-3c509                  10400   1  (autoclean)
-nls_iso8859-1           2880   2  (autoclean)
-nls_cp437               4384   2  (autoclean)
-msdos                   4988   2  (autoclean)
-fat                    29944   0  (autoclean) [msdos]
-serial                 43808   1  (autoclean)
-isa-pnp                28796   0  (autoclean) [3c509 serial]
-rtc                     6012   0  (autoclean)
-unix                   14212  56  (autoclean)
++       unix_socket *other = NULL;
 
-# cat /proc/interrupts 
-======================
-           CPU0       
-  0:   56055069          XT-PIC  timer
-  1:     162333          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  4:         29          XT-PIC  serial
-  5:      11057          XT-PIC  usb-uhci, usb-uhci, bttv
-  8:          3          XT-PIC  rtc
-  9:   36502293          XT-PIC  nvidia
- 10:    2546310          XT-PIC  es1371, DC395x_TRM
- 11:   15725277          XT-PIC  eth0
- 12:    2104939          XT-PIC  PS/2 Mouse
- 14:    3748686          XT-PIC  ide0
- 15:         19          XT-PIC  ide1
-NMI:          0 
-ERR:          0
+-       if (sock_writeable(sk))
++       other = unix_peer_get(sk);
++       if (sock_writeable(sk) && other &&
++           skb_queue_len(&other->receive_queue) <= other->max_ack_backlog)
+                mask |= POLLOUT | POLLWRNORM | POLLWRBAND;
+        else
+                set_bit(SOCK_ASYNC_NOSPACE, &sk->socket->flags);
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+but unix_peer_get(sk) returns NULL.
+How can I examine the receiver queue length?
+Should I worry about "restarts" as in unix_dgram_sendmsg()?
+Maybe someone has a fix ready?
+
+I've attached the userspace tests, a modified version of someone's real
+program - recv should be run first, send should be straced.
+
+The problem is present in both 2.5.70 and 2.4.20rc7.
+-- 
+Krzysztof Halasa
+Network Administrator
+
+--=-=-=
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename=recv.c
+
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <fcntl.h>
+
+int                 socketUn;
+struct sockaddr_un  addrUn;
+int                 lenUn;
+int                 size = 1;
+char                datagram[2000];
+
+void sockInit();
+
+int main() {
+  sockInit();
+
+  while(1) {
+    sleep(30);
+
+    while(size != -1){
+      size = recvfrom(socketUn, &datagram, sizeof(datagram), 0,
+                      (struct sockaddr*)NULL, (socklen_t *)NULL);
+    /*  if (size == -1) perror("recvfrom failed: ");
+        else printf("DATAGRAM: size: %d\n", size);*/
+    }
+    size = 0;
+  }
+}
+
+
+void sockInit() {
+  if ( unlink("/tmp/tempUn") == -1) perror("unlink failed\n");
+
+  socketUn = socket(AF_UNIX, SOCK_DGRAM, 0);
+  if (socketUn == -1) perror("socket failed");
+
+  addrUn.sun_family = AF_UNIX;
+
+  strcpy(addrUn.sun_path, "/tmp/tempUn");
+
+  lenUn = strlen(addrUn.sun_path) + sizeof(addrUn.sun_family);
+
+  if ( bind(socketUn, (struct sockaddr *)&addrUn, lenUn) == -1)
+    perror("bind failed");
+
+  fcntl(socketUn, F_SETFL, O_APPEND|O_NONBLOCK);
+}
+
+
+--=-=-=
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename=send.c
+
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <fcntl.h>
+
+int                 socketUn;
+struct sockaddr_un  addrUn;
+int                 lenUn;
+int                 size;
+char                datagram[1];
+int                 dgramCounter = 0;
+int                 maxFdToWatch;
+fd_set              writeFdToWatch;
+
+
+void sockInit();
+
+
+int main() {
+
+  sockInit();
+
+  maxFdToWatch = socketUn + 1;
+
+  while(1) {
+    FD_ZERO(&writeFdToWatch);
+    FD_SET(socketUn, &writeFdToWatch);
+
+    select(FD_SETSIZE, NULL, &writeFdToWatch, NULL, NULL);
+    sleep(1);
+
+    if (FD_ISSET(socketUn, &writeFdToWatch)) {
+      size = sendto(socketUn, &datagram, sizeof(datagram), 0, (struct
+sockaddr *)&addrUn, lenUn);
+      if (size == -1) perror("sendto failed");
+      sleep(1);
+    }
+
+    dgramCounter++;
+
+    FD_ZERO(&writeFdToWatch);
+  }
+}
+
+void sockInit() {
+  socketUn = socket(AF_UNIX, SOCK_DGRAM, 0);
+  if (socketUn == -1) perror("socket failed");
+  addrUn.sun_family = AF_UNIX;
+  strcpy(addrUn.sun_path, "/tmp/tempUn");
+  lenUn = strlen(addrUn.sun_path) + sizeof(addrUn.sun_family);
+}
+
+
+--=-=-=--

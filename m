@@ -1,69 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273930AbRIXOmH>; Mon, 24 Sep 2001 10:42:07 -0400
+	id <S273925AbRIXOq1>; Mon, 24 Sep 2001 10:46:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273926AbRIXOlt>; Mon, 24 Sep 2001 10:41:49 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:5903 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S273925AbRIXOlo>;
-	Mon, 24 Sep 2001 10:41:44 -0400
-Date: Mon, 24 Sep 2001 11:42:01 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux VM design
-In-Reply-To: <12730310183.20010924170539@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.33L.0109241138130.19147-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S273927AbRIXOqR>; Mon, 24 Sep 2001 10:46:17 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:59856
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S273925AbRIXOqA>; Mon, 24 Sep 2001 10:46:00 -0400
+Date: Mon, 24 Sep 2001 10:46:09 -0400
+From: Chris Mason <mason@suse.com>
+To: Beau Kuiper <kuib-kl@ljbc.wa.edu.au>, linux-kernel@vger.kernel.org
+cc: reiserfs-list@namesys.com
+Subject: Re: [reiserfs-list] [PATCH] 2.4.10 improved reiserfs a lot, but
+ could still be better
+Message-ID: <2315740000.1001342769@tiny>
+In-Reply-To: <B0005839269@gollum.logi.net.au>
+In-Reply-To: <B0005839269@gollum.logi.net.au>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[grrrrr, the dog was sitting against my arm and I pressed the
-wrong key ;)]
 
-On Mon, 24 Sep 2001, VDA wrote:
 
-> >Virtual Memory Management Policy
-> >--------------------------------
-> >The basic principle of the Linux VM system is page aging.
+On Monday, September 24, 2001 10:09:59 PM +0800 Beau Kuiper
+<kuib-kl@ljbc.wa.edu.au> wrote:
 
-> is better than plain simple LRU?
+> Hi all again,
+> 
+> I have updated my last set of patches for reiserfs to run on the 2.4.10 
+> kernel.
+> 
+> The new set of patches create a new method to do kupdated syncs. On 
+> filesystems that do no support this new method, the regular write_super 
+> method is used. Then reiserfs on kupdated super_sync, simply calls the 
+> flush_old_commits code with immediate mode off. 
+> 
 
-All research I've seen indicates that it's better to take
-frequency into account as well instead of only access
-recency.
+Ok, I think the patch is missing ;-)
 
-Plain LRU just breaks down under sequential IO, LRU with
-a large enough inactive list should hold up decently under
-streaming IO, but only a replacement strategy which keeps
-access frequency into account too will be able to make
-proper decisions as to which pages to keep in memory and
-which pages to throw out.
+What we need to do now is look more closely at why the performance
+increases.  There are a few possibilities:
 
-Note that it's not me making this up, it's simply the info
-I've seen everywhere ... I don't like reinventing the wheel ;)
+1) larger transactions due to less frequent commits.  
 
-> We definitely need VM FAQ to have these questions answered once per VM
-> design, not once per week :-)
+2) More efficient metadata writes due to less frequent calls to
+reiserfs_journal_kupdate
 
-Go ahead, make on on the Linux-MM wiki:
+3) Less time spent flushing direct->indirect targets due to less frequent
+commits.
 
-	http://linux-mm.org/wiki/
+The good news is we can easily separate these.  Start by running
+debugreiserfs -j /dev/xxx > /tmp/foo
 
-(note that for some reason the thing gives an internal
-server error once in a while ... I haven't yet been able
-to find a pattern to it, so I it's not fixed yet)
+This prints out the transactions still in the log.  You are looking for
+j_len, which is the length of each transaction.  The closer this is to ~900
+or so, the more efficient the log is.
 
-regards,
+Q1) Does your patch increase the average length of the transactions?
 
-Rik
--- 
-IA64: a worthy successor to i860.
+Q2) Run the tests again with -o notail (including on pure 2.4.10).  Does
+the performance gain go down relative to pure 2.4.10?
 
-http://www.surriel.com/		http://distro.conectiva.com/
+If Q1 is true, we might be able to tune /proc/sys/vm/bdflush to have
+similar benefits.
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+If Q2 is true, we need to tune the way direct->indirect targets get flushed
+(this probably neesd to be tuned regardless).
+
+If neither is true, it is probably the less frequent calls to
+reiserfs_journal_kupdate, also tunable through the bdflush params.
+
+I'm not saying we don't need your patch, but I'd like to find out for sure
+why it is helping.
+
+Thanks,
+Chris
 

@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262633AbVCSQcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262635AbVCSQcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262633AbVCSQcd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 11:32:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbVCSQcd
+	id S262635AbVCSQcz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 11:32:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbVCSQcy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 11:32:33 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:34267 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262633AbVCSQcQ (ORCPT
+	Sat, 19 Mar 2005 11:32:54 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:38881 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262635AbVCSQcj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 11:32:16 -0500
-Date: Sat, 19 Mar 2005 17:31:28 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: bhuey@lnxw.com, paulmck@us.ibm.com, dipankar@in.ibm.com,
-       shemminger@osdl.org, akpm@osdl.org, torvalds@osdl.org,
-       rusty@au1.ibm.com, tgall@us.ibm.com, jim.houston@comcast.net,
-       manfred@colorfullife.com, gh@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption and RCU
-Message-ID: <20050319163128.GB28958@elte.hu>
-References: <20050318160229.GC25485@elte.hu> <E1DCPut-0005XI-00@gondolin.me.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 19 Mar 2005 11:32:39 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Brice Goglin <Brice.Goglin@ens-lyon.org>
+Subject: Re: Fix agp_backend usage in drm_agp_init (was: 2.6.11-mm3 - DRM/i915 broken)
+Date: Sat, 19 Mar 2005 08:32:03 -0800
+User-Agent: KMail/1.8
+Cc: Dave Airlie <airlied@gmail.com>, Mike Werner <werner@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, m4rkusxxl@web.de
+References: <20050312034222.12a264c4.akpm@osdl.org> <200503181940.54252.jbarnes@sgi.com> <200503181948.34706.jbarnes@sgi.com>
+In-Reply-To: <200503181948.34706.jbarnes@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <E1DCPut-0005XI-00@gondolin.me.apana.org.au>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200503190832.03783.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday, March 18, 2005 7:48 pm, Jesse Barnes wrote:
+> On Friday, March 18, 2005 7:40 pm, Jesse Barnes wrote:
+> > What does your patch look like?  Markus might like to try it out as he
+> > narrowed his problem down to something AGP related recently too:
+> > http://bugme.osdl.org/show_bug.cgi?id=4337
+>
+> duh, ignore me.  At least Markus can give it a try.
 
-* Herbert Xu <herbert@gondor.apana.org.au> wrote:
+Oh well, Brice's patch didn't work for Marcus (symptoms were different anyway 
+so it was a long shot).  I really have to find an AGP machine with a single 
+pipe to test this stuff on...
 
-> Ingo Molnar <mingo@elte.hu> wrote:
-> >
-> > i really have no intention to allow multiple readers for rt-mutexes. We
-> > got away with that so far, and i'd like to keep it so. Imagine 100
-> > threads all blocked in the same critical section (holding the read-lock)
-> > when a highprio writer thread comes around: instant 100x latency to let
-> > all of them roll forward. The only sane solution is to not allow
-> > excessive concurrency. (That limits SMP scalability, but there's no
-> > other choice i can see.)
-> 
-> What about allowing only as many concurrent readers as there are CPUs?
-
-since a reader may be preempted by a higher prio task, there is no
-linear relationship between CPU utilization and the number of readers
-allowed. You could easily end up having all the nr_cpus readers
-preempted on one CPU. It gets pretty messy.
-
-	Ingo
+Jesse

@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262947AbUKXXwH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262932AbUKXXwH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262947AbUKXXwH (ORCPT <rfc822;willy@w.ods.org>);
+	id S262932AbUKXXwH (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 24 Nov 2004 18:52:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262988AbUKXXtb
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262993AbUKXXtl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 18:49:31 -0500
+	Wed, 24 Nov 2004 18:49:41 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:49101 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262947AbUKXXqO (ORCPT
+	by vger.kernel.org with ESMTP id S262932AbUKXXqV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 18:46:14 -0500
-Message-ID: <41A5105E.7020908@am.sony.com>
-Date: Wed, 24 Nov 2004 14:51:10 -0800
-From: Tim Bird <tim.bird@am.sony.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: ltt-dev <ltt-dev@shafik.org>,
-       CE Linux Developers List <celinux-dev@tree.celinuxforum.org>,
-       linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ltt-dev] [Announce] Linux Trace Toolkit 0.9.6 now available
-References: <41A4E476.8020001@am.sony.com>
-In-Reply-To: <41A4E476.8020001@am.sony.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Wed, 24 Nov 2004 18:46:21 -0500
+Date: Wed, 24 Nov 2004 15:25:27 -0800
+From: Greg KH <greg@kroah.com>
+To: Simon Fowler <simon@himi.org>, linux-kernel@vger.kernel.org,
+       rl@hellgate.ch
+Subject: Re: [2.6 PATCH] visor: Don't count outstanding URBs twice
+Message-ID: <20041124232527.GB4394@kroah.com>
+References: <20041116154943.GA13874@k3.hellgate.ch> <20041119174405.GE20162@kroah.com> <20041123193604.GA12605@k3.hellgate.ch>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+Content-Disposition: inline
+In-Reply-To: <20041123193604.GA12605@k3.hellgate.ch>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Bird wrote:
-> In a move that I hope is not too presumptuous, I have made a new release
-> of the Linux Trace Toolkit....
+On Tue, Nov 23, 2004 at 08:36:04PM +0100, Roger Luethi wrote:
+> Guys, can you please CC me when discussing patches of mine? I don't read
+> LKML religiously, and my procmail filters are pretty dumb. Thanks. So
+> my previous patch fixed the oops, but the driver's still borked.
+> 
+> Incrementing the outstanding_urbs counter twice for the same URB can't
+> be good. No wonder Simon didn't get far syncing his Palm.
+> 
+> Signed-off-by: Roger Luethi <rl@hellgate.ch>
 
-I thought I should clarify that this is not an official release of LTT!
+Applied, thanks.
 
-I'm currently working with the rest of the LTT team to get the changes
-in this version merged into an "official" 0.9.6. In the mean time you
-should consider this 0.9.6-tb :)
-
-Sorry for any confusion.
-
-=============================
-Tim Bird
-Architecture Group Chair, CE Linux Forum
-Senior Staff Engineer, Sony Electronics
-=============================
+greg k-h

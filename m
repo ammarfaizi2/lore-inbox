@@ -1,38 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265490AbUHMXK1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267700AbUHMXKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265490AbUHMXK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 19:10:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267654AbUHMXK1
+	id S267700AbUHMXKF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 19:10:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267662AbUHMXKF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 19:10:27 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:52698 "EHLO
+	Fri, 13 Aug 2004 19:10:05 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:51674 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S265490AbUHMXKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 19:10:22 -0400
-Subject: Re: 2.6.x Fork Problem?
+	id S267700AbUHMXJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 19:09:57 -0400
+Subject: Re: [Patch} to fix oops in olympic token ring driver on media
+	disconnect
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Frank van Maarseveen <frankvm@xs4all.nl>
-Cc: Jesse Pollard <jesse@cats-chateau.net>, Torin Ford <code-monkey@qwest.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040813190958.GB18563@janus>
-References: <006101c47fff$8feedac0$0200000a@torin>
-	 <04081209262700.19998@tabby>  <20040813190958.GB18563@janus>
+To: Neil Horman <nhorman@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pete Zaitcev <zaitcev@redhat.com>, mike_phillips@urscorp.com
+In-Reply-To: <411D126B.6090303@redhat.com>
+References: <411D126B.6090303@redhat.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1092434870.25002.27.camel@localhost.localdomain>
+Message-Id: <1092434830.25002.25.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 13 Aug 2004 23:07:51 +0100
+Date: Fri, 13 Aug 2004 23:07:16 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-08-13 at 20:09, Frank van Maarseveen wrote:
-> > Yup - the parent process executed waitpid before the child process finished 
-> > the setup. This can happen in a multi-cpu environment or even a single, if
-> > the scheduler puts the parent process higher than the child in the queue.
+On Gwe, 2004-08-13 at 20:11, Neil Horman wrote:
+> the olympic_close routine was waiting on.  This patch cleans that up.
 > 
-> ugh! I can follow the rationale for SMP.
+> Tested by me, on 2.4 and 2.6 with good, working results, and no more oopses.
 
-Such a behaviour would not be rational, so we don't do anything like
-that.
+Should it not be blocking the IRQs on the chip as well ?
 

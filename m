@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278303AbRJMOZg>; Sat, 13 Oct 2001 10:25:36 -0400
+	id <S278305AbRJMO10>; Sat, 13 Oct 2001 10:27:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278304AbRJMOZ0>; Sat, 13 Oct 2001 10:25:26 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:41746 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S278303AbRJMOZM>;
-	Sat, 13 Oct 2001 10:25:12 -0400
-Date: Sat, 13 Oct 2001 11:25:52 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Abhishek Rai <abbashake007@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question : spinlock
-Message-ID: <20011013112552.A11166@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Abhishek Rai <abbashake007@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011013141804.51667.qmail@web11406.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011013141804.51667.qmail@web11406.mail.yahoo.com>
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+	id <S278306AbRJMO1S>; Sat, 13 Oct 2001 10:27:18 -0400
+Received: from ns.suse.de ([213.95.15.193]:42247 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S278305AbRJMO07>;
+	Sat, 13 Oct 2001 10:26:59 -0400
+Date: Sat, 13 Oct 2001 16:27:30 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
+        <torvalds@transmeta.com>
+Subject: Re: [PATCH] Pentium IV cacheline size.
+In-Reply-To: <200110131417.QAA25601@harpo.it.uu.se>
+Message-ID: <Pine.LNX.4.30.0110131623440.7753-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sat, Oct 13, 2001 at 07:18:04AM -0700, Abhishek Rai escreveu:
-> > Can anybody tell me/ direct me to some tutorial/web
-> > site/manual etc/ where i can gather the concepts of
-> > Spin locks in linux, and get a good idea of the
-> > commonly used functions like : spin_lock_irqsave()
-> > etc.
-> > abhishek
- 
-> PS : since i am not registered with the list please
-> make sure that u peronally send me the reply at
-> abbashake007@yahoo.com
+On Sat, 13 Oct 2001, Mikael Pettersson wrote:
 
-sheesh, calm down, the answer is coming 8)
+> According to the P4 and Xeon optimisation manual (#248966-03), the
+> L1 cache has a 64-byte line size and the L2 cache has a 128-byte
+> line size. (Page 1-18, Table 1-1.) Perhaps someone just confused
 
-The very reliable Rusty's "Unreliable Guide To Locking":
-http://kernelnewbies.org/documents/kdoc/kernel-locking/lklockingguide.html
+Great, conflicting documentation.
+#24547203 (Vol3 : System programming guide) has this to say..
+(page 325)
+"The cache lines for the L1 and L2 caches in the Pentium 4 processor
+ are 64 bytes wide"
 
-also available at your local hard disk, at
-/wherever_you_put_your_linux_sources/Documentation/DocBook
 
-try:
+regards,
 
-make htmldocs
+Dave.
 
-8)
-
-- Arnaldo
-
-``"90% of everything is crap", Its called Sturgeon's law 8)
-One of the problems is indeed finding the good bits''
-    - Alan Cox
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

@@ -1,38 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266223AbUHBCzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266227AbUHBDBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266223AbUHBCzY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 22:55:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266224AbUHBCzY
+	id S266227AbUHBDBV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 23:01:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266233AbUHBDBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 22:55:24 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:55721 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266223AbUHBCzR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 22:55:17 -0400
-Date: Sun, 1 Aug 2004 19:54:11 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: arjanv@redhat.com
-Cc: rwhite@casabyte.com, linux-kernel@vger.kernel.org
-Subject: Re: tcp_push_pending_frames() without TCP_CORK or TCP_NODELAY
-Message-Id: <20040801195411.0577b7f2.davem@redhat.com>
-In-Reply-To: <1091261406.2819.1.camel@laptop.fenrus.com>
-References: <20040729193637.36d018a5.davem@redhat.com>
-	<!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAto7TSbyGCEOKEjP4Tiu9VgEAAAAA@casabyte.com>
-	<20040730153700.2bb46976.davem@redhat.com>
-	<1091261406.2819.1.camel@laptop.fenrus.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 1 Aug 2004 23:01:21 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:18450 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S266227AbUHBDBT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Aug 2004 23:01:19 -0400
+Date: Mon, 2 Aug 2004 11:13:39 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+X-X-Sender: raven@wombat.indigo.net.au
+To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+cc: Daniel Phillips <phillips@istop.com>,
+       "Walker, Bruce J" <bruce.walker@hp.com>,
+       Discussion of clustering software components including
+	 GFS <linux-cluster@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       opengfs-devel@lists.sourceforge.net,
+       opengfs-users@lists.sourceforge.net,
+       opendlm-devel@lists.sourceforge.net
+Subject: Re: [Linux-cluster] Re: [ANNOUNCE] OpenSSI 1.0.0 released!!
+In-Reply-To: <410D2949.20503@backtobasicsmgmt.com>
+Message-ID: <Pine.LNX.4.58.0408021112170.18701@wombat.indigo.net.au>
+References: <3689AF909D816446BA505D21F1461AE4C750E6@cacexc04.americas.cpqcorp.net>
+ <200408011330.01848.phillips@istop.com> <410D2949.20503@backtobasicsmgmt.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.5, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, REFERENCES,
+	REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 31 Jul 2004 10:10:06 +0200
-Arjan van de Ven <arjanv@redhat.com> wrote:
+On Sun, 1 Aug 2004, Kevin P. Fleming wrote:
 
-> btw do we export MSG_MORE functionality to userspace ? That might be a
-> solution as well...
+> Daniel Phillips wrote:
+> 
+> > On Saturday 31 July 2004 12:00, Walker, Bruce J wrote:
+> > 
+> >>In the 2.4 implementation, providing this one capability by
+> >>leveraging devfs was quite economic, efficient and has been very stable.
+> > 
+> > 
+> > I wonder if device-mapper (slightly hacked) wouldn't be a better approach for 
+> > 2.6+.
+> 
+> It appeared from the original posting that their "cluster-wide devfs" 
+> actually supported all types of device nodes, not just block devices. I 
+> don't know whether accessing a character device on another node would 
+> ever be useful, but certainly using device-mapper wouldn't help for that 
+> case.
 
-Yes, we do.
+Does the reduced function 2.6 devfs still have what's needed?
+If it does then you should have a fair amount of breathing space.
+
 

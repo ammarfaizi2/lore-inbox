@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbVASFXE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVASF3S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261588AbVASFXE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 00:23:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVASFXE
+	id S261468AbVASF3S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 00:29:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVASF3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 00:23:04 -0500
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:40915 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S261588AbVASFWl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 00:22:41 -0500
-Date: Tue, 18 Jan 2005 21:21:19 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Pavel Machek <pavel@ucw.cz>, George Anzinger <george@mvista.com>,
-       john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Con Kolivas <kernel@kolivas.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] dynamic tick patch
-Message-ID: <20050119052118.GA19591@atomide.com>
-References: <20050119000556.GB14749@atomide.com> <1106108467.4500.169.camel@gaston> <20050119050701.GA19542@atomide.com>
+	Wed, 19 Jan 2005 00:29:18 -0500
+Received: from moutng.kundenserver.de ([212.227.126.191]:7147 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261468AbVASF3P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 00:29:15 -0500
+Subject: Re: [PATCH][RFC] sched: Isochronous class for unprivileged soft rt
+	scheduling
+From: utz <utz@s2y4n2c.de>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       rlrevell@joe-job.com, paul@linuxaudiosystems.com, joq@io.com,
+       CK Kernel <ck@vds.kolivas.org>
+In-Reply-To: <41ED08AB.5060308@kolivas.org>
+References: <41ED08AB.5060308@kolivas.org>
+Content-Type: text/plain
+Date: Wed, 19 Jan 2005 06:26:09 +0100
+Message-Id: <1106112369.3956.7.camel@segv.aura.of.mankind>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050119050701.GA19542@atomide.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a3828f1c4d839cf12e8a3b808f7ed34
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Tony Lindgren <tony@atomide.com> [050118 21:08]:
-> * Benjamin Herrenschmidt <benh@kernel.crashing.org> [050118 20:22]:
-> >
-> > BTW. Is it possible, when entering the "idle" loop, to quickly know an
-> > estimate of when the next tick shoud actually kick in ?
-> 
-> Yes, see next_timer_interrupt() for that.
+Hi Con
 
-Hmmm, or maybe you mean _quick_estimate_ instead of 
-next_timer_interrupt()?
+I just played with your SCHED_ISO patch and found a simple way to crash
+my machine.
 
-I don't think there's any faster way to estimate the skippable ticks
-without going through the list like next_timer_interrupt already does.
-Does anybody have any ideas for that?
+I'm running this as unprivileged user with SCHED_ISO:
 
-Tony
+main ()
+{
+        while(1) {
+                sched_yield();
+        }
+}
+
+The system hangs about 3s and then reboots itself.
+2.6.11-rc1 + 2.6.11-rc1-iso-0501182249 on an UP Athlon XP.
+
+With real SCHED_FIFO it just lockup the system.
+ 
+utz
+
+

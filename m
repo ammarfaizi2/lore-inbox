@@ -1,85 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283916AbRLROZg>; Tue, 18 Dec 2001 09:25:36 -0500
+	id <S283780AbRLROVg>; Tue, 18 Dec 2001 09:21:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284135AbRLROZ0>; Tue, 18 Dec 2001 09:25:26 -0500
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:13229 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S284038AbRLROZG>; Tue, 18 Dec 2001 09:25:06 -0500
+	id <S283782AbRLROV1>; Tue, 18 Dec 2001 09:21:27 -0500
+Received: from adsl-67-36-120-14.dsl.klmzmi.ameritech.net ([67.36.120.14]:15233
+	"HELO tabris.net") by vger.kernel.org with SMTP id <S283780AbRLROVR>;
+	Tue, 18 Dec 2001 09:21:17 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: "ChristianK."@t-online.de (Christian Koenig)
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Booting a modular kernel through a multiple streams file / Making Linux multiboot capable and grub loading kernel modules at boot time.
-Date: Tue, 18 Dec 2001 16:26:23 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C42D7FE@orsmsx111.jf.intel.com>
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C42D7FE@orsmsx111.jf.intel.com>
-Cc: Otto Wyss <otto.wyss@bluewin.ch>, Alexander Viro <viro@math.psu.edu>,
-        "H. Peter Anvin" <hpa@zytor.com>, antirez <antirez@invece.org>,
-        Andreas Dilger <adilger@turbolabs.com>,
-        "Grover, Andrew" <andrew.grover@intel.com>,
-        Craig Christophel <merlin@transgeek.com>
+From: Adam Schrotenboer <adam@tabris.net>
+Organization: Dome-S-Isle Data
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler ( was: Just a second ) ...
+Date: Tue, 18 Dec 2001 09:21:08 -0500
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20011217200946.D753@holomorphy.com> <Pine.LNX.4.33.0112172014530.2281-100000@penguin.transmeta.com> <20011217205547.C821@holomorphy.com>
+In-Reply-To: <20011217205547.C821@holomorphy.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-ID: <16GLAZ-1rFguGC@fwd07.sul.t-online.com>
+Message-Id: <20011218142110.A0DD2FB8C0@tabris.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Monday 17 December 2001 23:55, William Lee Irwin III wrote:
+> On Mon, Dec 17, 2001 at 08:27:18PM -0800, Linus Torvalds wrote:
+> > The most likely cause is simply waking up after each sound interrupt: you
+> > also have a _lot_ of time handling interrupts. Quite frankly, web surfing
+> > and mp3 playing simply shouldn't use any noticeable amounts of CPU.
+>
+> I think we have a winner:
+> /proc/interrupts
+> ------------------------------------------------
+>            CPU0
+>   0:   17321824          XT-PIC  timer
+>   1:          4          XT-PIC  keyboard
+>   2:          0          XT-PIC  cascade
+>   5:   46490271          XT-PIC  soundblaster
+>   9:     400232          XT-PIC  usb-ohci, eth0, eth1
+>  11:     939150          XT-PIC  aic7xxx, aic7xxx
+>  14:         13          XT-PIC  ide0
+>
+> Approximately 4 times more often than the timer interrupt.
+> That's not nice...
 
-On Monday 17 December 2001 23:10, Grover, Andrew wrote:
-> > From: Alexander Viro [mailto:viro@math.psu.edu]
-> >
-> > On Mon, 17 Dec 2001, Grover, Andrew wrote:
-> > > I don't think multiple streams is a good idea, but did you
-> >
-> > all see the patch
-> >
-> > > by Christian Koenig to let the bootloader load modules?
-> >
-> > That seems to solve
-> >
-> > > the problem nicely.
-> >
-> > That puts an awful lot of smarts into bootloader and creates
-> > code duplication
-> > for no good reason.
+FWIW, I have an ES1371 based sound card, and mpg123 drives it at 172 
+interrupts/sec (calculated in procinfo). But that _is_ only when playing. And 
+(my slightly hacked) timidity drives my card w/ only 23(@48kHz sample rate; 
+21 @ 44.1kHz) interrupts/sec
 
-I agree, but the problem I have with Initrd is that you could only have 
-1 single initrd-image on your hard disk / loaded by the boot-loader.
+Is this 172 figure right? (Not through esd either. i almost always turn it 
+off, and sp recompiled mpg123 to use the std OSS driver)
 
-Imaging my situation, I have some removeable hard-disks, changing it between 
-a large amount of Systems all with individual Hardware-configuration.
-(Some SCSI, some ide, and a cluster booting with pxegrub/Floppy-Disks).
-
-With the last relleas of my patch I'm now capable to have a grub menu.lst 
-looking like:
-
-tile Kernel 2.4.14 Adaptec xyz/ne2000
-kernel /boot/vmlinuz-2.4.14 root=/dev/sdxyz ...
-
-# Loading SCSI-Drivers
-modulesfromfile /etc/modules-adaptec /lib/modules/2.4.14/modules.dep 
-
-# Loading Network-Drivers
-modulesfromfile /etc/modules-ne2000 /lib/modules/2.4.14/modules.dep
-
-tile Kernel 2.4.14 Tecram xyz / Inter EExpresPro 
-
-# Loading SCSI-Drivers
-modulesfromfile /etc/modules-tecram /lib/modules/2.4.14/modules.dep 
-
-# Loading Network-Drivers
-modulesfromfile /etc/modules-eepro /lib/modules/2.4.14/modules.dep 
-......
-
-Could you Imaging what work it would be to create an individual initrd-Image 
-/ Kernel Image for every system I have. Beside this I sometimes have the 
-Problem that I come to a system never seen bevore and have to boot with my 
-Floppy Disk's. (I'm now looking forward that grub someday gets capable to use 
-cd-roms directly).
-
-I know this it isn't the best solution to add a module-loader to the Kernel, 
-but did you have a better idea ?
-
-MfG, Christian Koenig.
+>
+> On Mon, Dec 17, 2001 at 08:27:18PM -0800, Linus Torvalds wrote:
+> > Which sound driver are you using, just in case this _is_ the reason?
+>
+> SoundBlaster 16
+> A change of hardware should help verify this.
+>
+>
+> Cheers,
+> Bill
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

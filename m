@@ -1,70 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131161AbRADSXa>; Thu, 4 Jan 2001 13:23:30 -0500
+	id <S131964AbRADSXu>; Thu, 4 Jan 2001 13:23:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131541AbRADSXV>; Thu, 4 Jan 2001 13:23:21 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:7433 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S131161AbRADSWu>; Thu, 4 Jan 2001 13:22:50 -0500
-Message-ID: <3A54CD80.4A163381@t-online.de>
-Date: Thu, 04 Jan 2001 20:22:40 +0100
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
+	id <S131541AbRADSXm>; Thu, 4 Jan 2001 13:23:42 -0500
+Received: from ntx.cix.co.uk ([194.153.15.116]:10257 "EHLO nvlonlx01.nv.london")
+	by vger.kernel.org with ESMTP id <S131964AbRADSXb>;
+	Thu, 4 Jan 2001 13:23:31 -0500
+Date: Thu, 4 Jan 2001 18:20:51 +0000 (UTC)
+From: Mo McKinlay <mmckinlay@gnu.org>
+To: David Lang <david.lang@digitalinsight.com>
+cc: Mo McKinlay <mmckinlay@gnu.org>, Chris Wedgwood <cw@f00f.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Daniel Phillips <phillips@innominate.de>,
+        Helge Hafting <helgehaf@idb.hist.no>, <linux-kernel@vger.kernel.org>
+Subject: Re: Journaling: Surviving or allowing unclean shutdown?
+In-Reply-To: <Pine.LNX.4.31.0101041018430.10387-100000@dlang.diginsite.com>
+Message-ID: <Pine.LNX.4.30.0101041820200.967-100000@nvws005.nv.london>
+Organization: inter/open Labs
+X-URL: http://www.interopen.org/
 MIME-Version: 1.0
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-CC: linux-parport@torque.net, linux-kernel@vger.kernel.org
-Subject: Re: Printing to off-line printer in 2.4.0-prerelease
-In-Reply-To: <200101041530.JAA92328@tomcat.admin.navo.hpc.mil>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Pollard wrote:
-> Originally, (wayback machine on) this was handled by a pull-up resistor
-> in the parallel interface, on the "off-line" signal. ANY time the printer
-> was powered off, set offline, or cable unplugged, the "off-line" signal
-> was raised by the pull-up. No data lost.
-> 
-> Now the parallel interface is bidirectional, and can have multiple devices
-> attached - this "fix" cannot be used. The interface is now more of a
-> buss than a single attached interface, and signals from a missing device
-> (powered off or disconnected) are floating. They may float high or low,
-> and depending on the environment (and which end of the cable is unplugged)
-> any thing in between.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Not true. Electrical characteristics for parallel port implementations/cards
-differ wildly, nevertheless most implementations have:
-- data lines: bidirectional (see datasheets)
-- signal lines: see datasheets, never floating !
+Today, David Lang (david.lang@digitalinsight.com) wrote:
 
-Floating signal lines are a silicon bug/bad engineering and have nothing
-to do with bidirectional interfaces ! 
+  > On Thu, 4 Jan 2001, Mo McKinlay wrote:
+  >
+  > >   > The off button need not and _does not_ remove power instantly (if at
+  > >   > all) on many appliances.
+  > >
+  > > Indeed - but unplugging your VCR from the wall won't harm it. Everyone
+  > > knows the power button on a TV/VCR/etc doesn't actually kill the power,
+  > > just reduce consumption (i.e., standby mode). But unplugging it at the
+  > > wall doesn't have any detrimental effects - doing that to a PC will.
+  >
+  > if you change that statement to "usually won't harm it" I agree with you
+  > (I have had a VCR eat a tape when this was done)
 
-Nowadays most integrated chips have internal signal line pull-ups internally, e.g. 
-W83877TF says:
--BUSY, ACK, PE, SLCT, ERR:
-  TTL level input pin. This pin is pulled high internally.
--AFD, STB, INIT, SLIN
-  Open-drain output pin with 12 mA sink capability. Pulled up internally.
--Data lines:
-  TTL level bi-directional with 24 mA source-sink capability.
+Crikey. Most people would consider that a fault in the VCR.
 
-Of course I would expect add-in cards to exist, with not so sophisticated chipsets
-and makers that have "forgotten" external pull-ups for economical reasons (2 cents :-)
-We should NOT care for broken hardware !!! I haven't seen any of these yet, even.
+Just goes to show how far removed from appliances PCs currently are.
 
-On the other hand printer implmentations vary wildly, too.
-LJ1100: leave signal lines alone if powered off (0x7f)
-    i.e. signal printer-not-ready ack-active out-of-paper
-DJ500: signal printer-error and off-line when powered off (0x87) !!!
-    => Linux would dump data on this printer, if switched off.
+- -- 
+Mo McKinlay
+mmckinlay@gnu.org
+- -------------------------------------------------------------------------
+GnuPG/PGP Key: pub  1024D/76A275F9 2000-07-22
 
-I think the current linux lp code tries to handle exotic/weird printers 
-gracefully and leaves mainstream printers and users alone.
--
-Gunther
+
+
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjpUvwcACgkQRcGgB3aidfkR3wCfVTY9NJY8irZ5BNxgQ1jrQWsP
+3jIAnjVpIdJtOb66Q1wK451QPH00Q7wH
+=90Eb
+-----END PGP SIGNATURE-----
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

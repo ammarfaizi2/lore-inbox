@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269101AbRHBQiL>; Thu, 2 Aug 2001 12:38:11 -0400
+	id <S266706AbRHBRBb>; Thu, 2 Aug 2001 13:01:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267985AbRHBQiC>; Thu, 2 Aug 2001 12:38:02 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:4341 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S269090AbRHBQht>; Thu, 2 Aug 2001 12:37:49 -0400
-Message-ID: <3B698177.C12183CF@mvista.com>
-Date: Thu, 02 Aug 2001 09:36:07 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Oliver Xymoron <oxymoron@waste.org>
-CC: Rik van Riel <riel@conectiva.com.br>,
-        Chris Friesen <cfriesen@nortelnetworks.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: No 100 HZ timer !
-In-Reply-To: <Pine.LNX.4.30.0108020928230.2340-100000@waste.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S266723AbRHBRBW>; Thu, 2 Aug 2001 13:01:22 -0400
+Received: from h-207-228-73-44.gen.cadvision.com ([207.228.73.44]:40207 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S266673AbRHBRBC>; Thu, 2 Aug 2001 13:01:02 -0400
+Date: Thu, 2 Aug 2001 11:00:14 -0600
+Message-Id: <200108021700.f72H0E119628@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: adilger@turbolinux.com (Andreas Dilger), linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: [RFT] #2 Support for ~2144 SCSI discs
+In-Reply-To: <E15SLQQ-00011K-00@the-village.bc.nu>
+In-Reply-To: <no.id>
+	<E15SLQQ-00011K-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron wrote:
+Alan Cox writes:
+> > That said, in 2.5 I want to see us move away from using device numbers
+> > as the fundamental device handle and move to device instance
+> > structures. That's a lot cleaner, and BTW is devfs-neutral
+> > (i.e. doesn't need devfs to work). Exposing a 32 bit dev_t to
+> > user-space is acceptable, but internally it should be shunned.
 > 
-> On Wed, 1 Aug 2001, george anzinger wrote:
-> 
-> > > Never set the next hit of the timer to (now + MIN_INTERVAL).
-> >
-> > The overhead under load is _not_ the timer interrupt, it is the context
-> > switch that needs to set up a "slice" timer, most of which never
-> > expire.  During a kernel compile on an 800MHZ PIII I am seeing ~300
-> > context switches per second (i.e. about every 3 ms.)   Clearly the
-> > switching is being caused by task blocking.  With the ticked system the
-> > "slice" timer overhead is constant.
-> 
-> Can you instead just not set up a reschedule timer if the timer at the
-> head of the list is less than MIN_INTERVAL?
-> 
-> if(slice_timer_needed)
-> {
->         if(time_until(next_timer)>TASK_SLICE)
->         {
->                 next_timer=jiffies()+TASK_SLICE;
->                 add_timer(TASK_SLICE);
->         }
->         slice_timer_needed=0;
-> }
-> 
-Ok, but then what?  The head timer expires.  Now what?  Since we are not
-clocking the slice we don't know when it started.  Seems to me we are
-just shifting the overhead to a different place and adding additional
-tests and code to do it.  The add_timer() code is fast.  The timing
-tests (800MHZ PIII) show the whole setup taking an average of about 1.16
-micro seconds.  the problem is that this happens, under kernel compile,
-~300 times per second, so the numbers add up.  Note that the ticked
-system timer overhead (interrupts, time keeping, timers, the works) is
-about 0.12% of the available cpu.  Under heavy load this raises to about
-0.24% according to my measurments.  The tick less system overhead under
-the same kernel compile load is about 0.12%.  No load is about 0.012%,
-but heavy load can take it to 12% or more, most of this comming from the
-accounting overhead in schedule().  Is it worth it?
+> You need it internally otherwise you are screwed the moment you have
+> 65536 volumes mounted - because you run out of unique device
+> identifiers for stat.
 
-George
+I consider that "external" use. The kernel doesn't need it, it just
+provides unique numbers for user-space. The kernel just happens to
+carry along the information so that user-space can get it as needed.
+
+Aside: the idea of mounting >65536 volumes frightens me. Accidentally
+do a "df" and go away for a coffee while your machine hammers away.
+
+> Fortunately 32bit dev_t (not kdev_t .. which I think is what you are
+> talking about and will I assume go pointer to struct) is only one
+> syscall change
+
+Looks like we agree. And as long as you have <65536 volumes, then
+libc5 will continue to work just fine. Which is also good.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

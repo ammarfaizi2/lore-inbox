@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268026AbUHFAZO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267985AbUHFAeb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268026AbUHFAZO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 20:25:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268028AbUHFAZO
+	id S267985AbUHFAeb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 20:34:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268028AbUHFAeb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 20:25:14 -0400
-Received: from fed1rmmtao08.cox.net ([68.230.241.31]:48345 "EHLO
-	fed1rmmtao08.cox.net") by vger.kernel.org with ESMTP
-	id S268026AbUHFAZH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 20:25:07 -0400
-Date: Thu, 5 Aug 2004 17:25:06 -0700
-From: Matt Porter <mporter@kernel.crashing.org>
-To: Geoff Levand <geoffrey.levand@am.sony.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][PPC32] Fix ebony uart clock
-Message-ID: <20040805172505.J14159@home.com>
-References: <4112C33A.40904@am.sony.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <4112C33A.40904@am.sony.com>; from geoffrey.levand@am.sony.com on Thu, Aug 05, 2004 at 04:31:06PM -0700
+	Thu, 5 Aug 2004 20:34:31 -0400
+Received: from mail1.fw-sj.sony.com ([160.33.82.68]:44223 "EHLO
+	mail1.fw-sj.sony.com") by vger.kernel.org with ESMTP
+	id S267985AbUHFAe1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 20:34:27 -0400
+Message-ID: <4112D32B.4060900@am.sony.com>
+Date: Thu, 05 Aug 2004 17:39:07 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux kernel <linux-kernel@vger.kernel.org>
+CC: rth@twiddle.net
+Subject: Is extern inline -> static inline OK?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05, 2004 at 04:31:06PM -0700, Geoff Levand wrote:
-> ebony-uart-clock-04.08.05.patch:
-> 
-> This patch corrects the Ebony board's uart clock value to the rate
-> of the external Epson SG-615P clock source.  Now good to 115Kbps.
-> 
-> Signed-off-by: Geoff Levand <geoffrey.levand@am.sony.com> for CELF
-> ---
-> 
->   ebony.h |    3 ++-
->   1 files changed, 2 insertions(+), 1 deletion(-)
-> 
->   diff -X dontdiff -ruN 
-> linux-2.6.8-rc3.orig/arch/ppc/platforms/4xx/ebony.h 
-> branch_KGDB/arch/ppc/platforms/4xx/ebony.h
-> --- linux-2.6.8-rc3.orig/arch/ppc/platforms/4xx/ebony.h	2004-07-17 
-> 21:59:03.000000000 -0700
-> +++ branch_KGDB/arch/ppc/platforms/4xx/ebony.h	2004-08-05 
-> 15:58:40.000000000 -0700
-> @@ -64,7 +64,8 @@
->   #define UART0_IO_BASE	(u8 *) 0xE0000200
->   #define UART1_IO_BASE	(u8 *) 0xE0000300
-> 
-> -#define BASE_BAUD	33000000/3/16
-> +/* external Epson SG-615P */
-> +#define BASE_BAUD	691200
-> 
->   #define STD_UART_OP(num)					\
->   	{ 0, BASE_BAUD, 0, UART##num##_INT,			\
+Pardon my ignorance...
 
-Looks good for my Ebony board. Andrew, please apply.
+Under what conditions is it NOT OK to convert "extern inline"
+to "static inline"?
 
--Matt
+Linus once wrote:
+>  - "static inline" means "we have to have this function, if you use it
+>    but don't inline it, then make a static version of it in this
+>    compilation unit"
+> 
+>  - "extern inline" means "I actually _have_ an extern for this function,
+>    but if you want to inline it, here's the inline-version"
+> 
+> ... we should just convert
+> all current users of "extern inline" to "static inline".
+
+But Richard Henderson rejected (in 2002) the following patch (excerpt):
+
+-#define __EXTERN_INLINE extern inline
++#define __EXTERN_INLINE static inline
+
+presumably because the exact semantics of extern inline were
+required.  I can only find __EXTERN_INLINE in the alpha
+architecture.  Is the requirement to use 'extern' rather
+than 'static' unique to alpha?
+
+Thanks for any illumination on this.
+
+=============================
+Tim Bird
+Architecture Group Co-Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+E-mail: tim.bird@am.sony.com
+=============================

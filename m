@@ -1,65 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316864AbSGXGJI>; Wed, 24 Jul 2002 02:09:08 -0400
+	id <S316878AbSGXGV2>; Wed, 24 Jul 2002 02:21:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316887AbSGXGJI>; Wed, 24 Jul 2002 02:09:08 -0400
-Received: from moutng.kundenserver.de ([212.227.126.177]:52942 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S316864AbSGXGJH>; Wed, 24 Jul 2002 02:09:07 -0400
-X-KENId: 00006EB8KEN001A4C06
-X-KENRelayed: 00006EB8KEN001A4C06@PCDR800
-Date: Wed, 24 Jul 2002 08:11:11 +0200
-From: "Christoph Baumann" <cb@sorcus.com>
-Subject: Resolving physical addresses (change in 2.4.x?)
-To: <linux-kernel@vger.kernel.org>
-Reply-To: "Christoph Baumann" <cb@sorcus.com>
-Message-Id: <010f01c232d8$e9b56860$2b65a8c0@Mitarb>
+	id <S316887AbSGXGV2>; Wed, 24 Jul 2002 02:21:28 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:12480 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S316878AbSGXGV1>;
+	Wed, 24 Jul 2002 02:21:27 -0400
+Date: Wed, 24 Jul 2002 08:24:59 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Peter Osterlund <petero2@telia.com>
+Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>,
+       Bill Davidsen <davidsen@tmr.com>,
+       Guillaume Boissiere <boissiere@adiglobal.com>
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
+Message-ID: <20020724082458.A1109@suse.de>
+References: <20020723113923.H800@suse.de> <Pine.LNX.4.44.0207231435190.4586-100000@best.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain;
-   charset="iso-8859-1"
-X-Priority: 3
-Organization: SORCUS Computer GmbH
-Content-Transfer-Encoding: 7bit
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207231435190.4586-100000@best.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Jul 23 2002, Peter Osterlund wrote:
+> On Tue, 23 Jul 2002, Jens Axboe wrote:
+> 
+> > On Fri, Jul 19 2002, Peter Osterlund wrote:
+> > > Peter Osterlund <petero2@telia.com> writes:
+> > > 
+> > > > Dave Jones <davej@suse.de> writes:
+> > > > 
+> > > > > On Thu, Jul 18, 2002 at 12:46:43PM -0400, Bill Davidsen wrote:
+> > > > > 
+> > > > >  > > o UDF Write support for CD-R/RW (packet writing)  (Jens Axboe, Peter Osterlund)
+> > > > >  > 	Hopefully this is close as well
+> > > > > 
+> > > > > This has been around for an age, but I haven't seen anything for 2.5
+> > > > > yet. Then again, I dropped off the packet-writing mailing list a long
+> > > > > time ago, so I'm not sure how up to date those folks are.
+> > > > 
+> > > > Patches for 2.5 can be found here:
+> > > > 
+> > > >         http://w1.894.telia.com/~u89404340/patches/packet/2.5/
+> > > > 
+> > > > The most recent patch is for 2.5.25. As far as I know, there are only
+> > > > two remaining problems with the 2.5 patch:
+> > > 
+> > > Btw, there is one more potential problem. A new block major number is
+> > > allocated for the pktcdvd device. Is this still forbidden? Are there
+> > > better ways to do this now?
+> > 
+> > Why a new number? What's wrong with the official 97?
+> 
+> It is still using 97. I didn't know it was official until it got into the
+> kernel tree. I think Linus once said he wouldn't accept patches adding
+> device numbers, because he wanted people to think up something better than
+> device numbers.
+> 
+> I was thinking about this old message:
+> 
+> 	http://www.uwsg.indiana.edu/hypermail/linux/kernel/0105.1/1042.html
+> 
+> If that's no longer a problem, then fine.
 
-with a 2.2.19 kernel I used the routine below to resolve physical addresses
-for preparing gather/scatter DMA. Using it on unmapped memory (allocated but
-not yet used) it returned zero. Knowing this I could force the mapping of
-such memory. Now with 2.4.x kernels I get something like 0x100000 for
-unmapped pages.
-Even recognizing these as unmapped and resolving anew, produced a frozen
-machine once the DMA used these addresses. Was there a change in 2.4.x so
-that my resolving routine now works incorrect?
+97 was allocated a loong time ago, it predates the above message.
 
-/*resolve virt. addresses to phys.*/
-unsigned long ch_get_physpage(unsigned long virtaddr)
-{
-  /*Stuff for browsing through the memory page tables*/
-  pgd_t *pgd_t_dir;
-  pmd_t *pmd_t_dir;
-  pte_t *pte_t_dir;
-
-  /*Get physical address*/
-  pgd_t_dir=pgd_offset(current->mm,virtaddr);
-  pmd_t_dir=pmd_offset(pgd_t_dir,virtaddr);
-  pte_t_dir=pte_offset(pmd_t_dir,virtaddr);
-  return virt_to_bus((void *)pte_page(*pte_t_dir));
-}
-
-
-Mit freundlichen Gruessen / Best regards
-Dipl.-Phys. Christoph Baumann
----
-SORCUS Computer GmbH
-Im Breitspiel 11 c
-D-69126 Heidelberg
-
-Tel.: +49(0)6221/3206-0
-Fax: +49(0)6221/3206-66
+-- 
+Jens Axboe
 

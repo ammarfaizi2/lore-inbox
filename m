@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271646AbRIGJeW>; Fri, 7 Sep 2001 05:34:22 -0400
+	id <S271658AbRIGJop>; Fri, 7 Sep 2001 05:44:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271649AbRIGJeC>; Fri, 7 Sep 2001 05:34:02 -0400
-Received: from COD-ETH-14.WYOMING.COM ([204.227.211.254]:5560 "HELO
-	noir.kain.org") by vger.kernel.org with SMTP id <S271648AbRIGJeB>;
-	Fri, 7 Sep 2001 05:34:01 -0400
-Date: Fri, 7 Sep 2001 01:35:54 -0600
-From: Kain <kain@kain.org>
-To: linux-kernel@vger.kernel.org
-Subject: what ever happened to fastpath routing
-Message-ID: <20010907013554.A19454@noir.kain.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+	id <S271660AbRIGJof>; Fri, 7 Sep 2001 05:44:35 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36101 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271658AbRIGJoW>; Fri, 7 Sep 2001 05:44:22 -0400
+Subject: Re: replaying reiserfs journal and bad blocks (was: Re[3]: Basic
+To: reiser@namesys.com (Hans Reiser)
+Date: Fri, 7 Sep 2001 10:48:15 +0100 (BST)
+Cc: nerijus@users.sourceforge.net (Nerijus Baliunas),
+        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <3B987D2A.41C975B3@namesys.com> from "Hans Reiser" at Sep 07, 2001 11:54:18 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15fIFE-0001JF-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > hdd: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> > hdd: dma_intr: error=0x40 { UncorrectableError }, LBAsect=84415, sector=36216
 
---fdj2RfSjLxBAspz7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thats the drive deciding it cant read the block. 
 
-What ever happened to fastpath routing in the 2.4 Kernel?  I still see the =
-API there, but the only driver I see implementing it is dummy :(
+> My guess is turn off UDMA, I think we have a www.namesys.com/faq.html entry on
+> that which you can read and see if my memory of the typical symptoms of flaky
+> udma are correct.  Commenting on the cause of flaky udma I will leave to others
+> familiar with your mob's interaction with Linux, except to say that one should> always check cables at a time like this.
 
---=20
-Govern a great nation as you would cook a small fish. Don't overdo it.
-	-- Lao Tsu
-**
-Programmer
-Bryon Roche, Kain <kain@imperativesoultions.com>
-<kain@kain.org>
-
---fdj2RfSjLxBAspz7
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7mHjaBK2G/mh4q9URAhj7AJ4wp86nMlcAPuS3IyTIjawntjBxdACdE1yL
-ly7z+/F3vvuBNizqSpjat4E=
-=MpNz
------END PGP SIGNATURE-----
-
---fdj2RfSjLxBAspz7--
+You'd expect CRC errors then. It looks like the 2.2 log replay code worked
+but the 2.4 log replay code failed on the error, or the layers below it in
+the IDE got stuck.

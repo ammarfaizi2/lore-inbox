@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286258AbRLTOGl>; Thu, 20 Dec 2001 09:06:41 -0500
+	id <S286254AbRLTOGB>; Thu, 20 Dec 2001 09:06:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286259AbRLTOGc>; Thu, 20 Dec 2001 09:06:32 -0500
-Received: from unamed.infotel.bg ([212.39.68.18]:33036 "EHLO l.himel.bg")
-	by vger.kernel.org with ESMTP id <S286258AbRLTOGR>;
-	Thu, 20 Dec 2001 09:06:17 -0500
-Date: Thu, 20 Dec 2001 16:10:11 +0200 (EET)
-From: Julian Anastasov <ja@ssi.bg>
-X-X-Sender: <ja@l>
-To: bert hubert <ahu@ds9a.nl>
-cc: <kuznet@ms2.inr.ac.ru>, <netdev@oss.sgi.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG/FIXED !] Equal Cost Multipath Broken in 2.4.x
-In-Reply-To: <20011220145332.A15230@outpost.ds9a.nl>
-Message-ID: <Pine.LNX.4.33.0112201605120.9578-100000@l>
+	id <S286259AbRLTOFv>; Thu, 20 Dec 2001 09:05:51 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:55813 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S286258AbRLTOFi>; Thu, 20 Dec 2001 09:05:38 -0500
+Date: Thu, 20 Dec 2001 06:05:44 -0800 (PST)
+From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+To: christian e <cej@ti.com>
+cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: minimizing swap usage
+In-Reply-To: <3C21E7F1.3040406@ti.com>
+Message-ID: <Pine.LNX.4.33.0112200559350.8883-100000@shell1.aracnet.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 20 Dec 2001, christian e wrote:
 
-	Hello,
-
-On Thu, 20 Dec 2001, bert hubert wrote:
-
-> must have not been awake this morning. It does apply now, AND fixes the
-> problem. Thanks!
-
-	Very good
-
-> > [010803]
-> >  * If "dev" is not specified in multipath route, ifindex remained
-> >    uninitialized. Grr. Thanks to Kunihiro Ishiguro <kunihiro@zebra.org>.
+> Hi,all
 >
-> I do specify dev on the commandline, however, you are right in that is the
-> compiler that fixes the behaviour. Apparently, gcc-3.0 is lucky in this
-> respect.
-
-	Yes, it seems dev is an old problem. IMO the right fix is to
-memset with 0 the struct before usage. This will avoid any further errors.
-
-> I happened to be compiling with gcc-3.0 at the time, while debian compile
-> their packages with gcc-2.95. I'll mention this patch on the LARTC
-> mailinglist too.
-
-	Yes, it must depend somehow on the compiler, may be from
-previous calls of other functions, no time to investigate.
-
-> Will you push this patch towards Alexey?
-
-	If he is not reading the whole thread, please, do it directly.
-
-> Regards,
+> Can someone give me a pointer to how I can avoid somethign like this:
 >
-> bert
+> foo@bar]$ free -m
+> 	    total       used       free     shared    buffers     cached
+> Mem:           249        245          4          0          6       136
+> -/+ buffers/cache:        102        147
+> Swap:          243         89        153
+>
+> What's with all the caching when my apps crawl because it's swapping so
+> much ? I've tried to adjust /proc/vm/kswapd parameters but that doesn't
+> seem to help..I'd like to postpone the swapping until its almost out of
+> physical memory..
 
-Regards
-
+This may seem counterintuitive, but postponing swapping / cache flushing
+to disk till the last possible moment is counterproductive. It's a
+little like procrastination in the time management world -- when the
+time finally comes when you *have* to flush stuff out to disk, your poor
+daemons / kernel threads go catatonic trying to keep up, and you end up
+both CPU-bound and I/O bound. It is far better to have enough free
+memory available to satisfy the demand for pages, even if that means
+*raising* the watermarks, *more* swapping and smaller page caches.
 --
-Julian Anastasov <ja@ssi.bg>
+M. Edward Borasky
+
+znmeb@borasky-research.net
+http://www.borasky-research.net
+
+When puns are outlawed, only inlaws will have gnus.
 

@@ -1,50 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263195AbTH0LSr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 07:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263316AbTH0LSr
+	id S263322AbTH0Lfs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 07:35:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263288AbTH0Lfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 07:18:47 -0400
-Received: from holomorphy.com ([66.224.33.161]:46006 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263195AbTH0LSq (ORCPT
+	Wed, 27 Aug 2003 07:35:47 -0400
+Received: from holomorphy.com ([66.224.33.161]:54710 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263379AbTH0Lfh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 07:18:46 -0400
-Date: Wed, 27 Aug 2003 04:18:59 -0700
+	Wed, 27 Aug 2003 07:35:37 -0400
+Date: Wed, 27 Aug 2003 04:36:46 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
-To: warudkar@vsnl.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4-mm1 - kswap hogs cpu OO takes ages to start!
-Message-ID: <20030827111859.GA4306@holomorphy.com>
+To: Takao Indoh <indou.takao@soft.fujitsu.com>
+Cc: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: cache limit
+Message-ID: <20030827113646.GC4306@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	warudkar@vsnl.net, linux-kernel@vger.kernel.org
-References: <200308272138.h7RLciK29987@webmail2.vsnl.net>
+	Takao Indoh <indou.takao@soft.fujitsu.com>,
+	Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
+References: <20030827094512.GZ1715@holomorphy.com> <1AC36C8C57E018indou.takao@soft.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200308272138.h7RLciK29987@webmail2.vsnl.net>
+In-Reply-To: <1AC36C8C57E018indou.takao@soft.fujitsu.com>
 Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 27, 2003 at 04:38:44PM -0500, warudkar@vsnl.net wrote:
-> Here a snapshot of Top output when running 2.6.0-test4-mm1:
-> ==============================
->   4:24pm  up 21:19,  6 users,  load average: 3.47, 2.04, 1.49
-> 96 processes: 88 sleeping, 8 running, 0 zombie, 0 stopped
-> CPU states: 11.3% user, 88.6% system,  0.0% nice,  0.0% idle
-> Mem:   124632K av,  122664K used,    1968K free,       0K shrd,     160K buff
-> Swap: 1052248K av,   71256K used,  980992K free                   43540K cached
-> 
->   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
->     8 root      15   0     0    0     0 SW   66.6  0.0   4:59 kswapd0
->  2087 wipro     17   0 29576  10M 27408 S     4.6  8.9   0:03 kdeinit
->  2044 wipro     17   0  118M  22M  103M D     2.7 18.8   0:04 soffice.bin
+On Wed, 27 Aug 2003 02:45:12 -0700, William Lee Irwin III wrote:
+>> How do you know it would be effective? Have you written a patch to
+>> limit it in some way and tried running it?
 
-This looks odd. At any rate, the 71MB swap should be a big hint you're
-in for slow times. 2.4.x likely does okay here because the virtualscan
-acts as implicit load control; 2.6.x will likely need explicit load
-control to handle that workload on that machine.
+On Wed, Aug 27, 2003 at 08:14:12PM +0900, Takao Indoh wrote:
+> It's just my guess. You mean that "index cache" is on the pagecache?
+> "index cache" is allocated in the user space by malloc,
+> so I think it is not on the pagecache.
+
+That will be in the pagecache.
+
+
+On Wed, 27 Aug 2003 02:45:12 -0700, William Lee Irwin III wrote:
+>> How do you know most of it is unmapped?
+
+On Wed, Aug 27, 2003 at 08:14:12PM +0900, Takao Indoh wrote:
+> I checked /proc/meminfo.
+> For example, this is my /proc/meminfo(kernel 2.5.73)
+[...]
+> Buffers:         18520 kB
+> Cached:         732360 kB
+> SwapCached:          0 kB
+> Active:         623068 kB
+> Inactive:       179552 kB
+[...]
+> Dirty:           33204 kB
+> Writeback:           0 kB
+> Mapped:          73360 kB
+> Slab:            32468 kB
+> Committed_AS:   167396 kB
+[...]
+> According to this information, I thought that
+> all pagecache was 732360 kB and all mapped page was 73360 kB, so
+> almost of pagecache was not mapped...
+> Do I misread meminfo?
+
+No. Most of your pagecache is unmapped pagecache. This would correspond
+to memory that caches files which are not being mmapped by any process.
+This could result from either the page replacement policy favoring
+filesystem cache too heavily or from lots of io causing the filesystem
+cache to be too bloated and so defeating the swapper's heuristics (you
+can do this by generating large amounts of read() traffic).
+
+Limiting unmapped pagecache would resolve your issue. Whether it's the
+right thing to do is still open to question without some knowledge of
+application behavior (for instance, teaching userspace to do fadvise()
+may be right thing to do as opposed to the /proc/ tunable).
+
+Can you gather traces of system calls being made by the applications?
 
 
 -- wli

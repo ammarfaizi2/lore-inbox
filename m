@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265418AbSJXLeb>; Thu, 24 Oct 2002 07:34:31 -0400
+	id <S265404AbSJXLig>; Thu, 24 Oct 2002 07:38:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265419AbSJXLeb>; Thu, 24 Oct 2002 07:34:31 -0400
-Received: from tomts12.bellnexxia.net ([209.226.175.56]:62127 "EHLO
-	tomts12-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S265418AbSJXLea>; Thu, 24 Oct 2002 07:34:30 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>
-Subject: Re: ZONE_NORMAL exhaustion (dcache slab)
-Date: Thu, 24 Oct 2002 07:35:48 -0400
-User-Agent: KMail/1.4.3
-Cc: Rik van Riel <riel@conectiva.com.br>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm mailing list <linux-mm@kvack.org>
-References: <3DB4C87E.7CF128F3@digeo.com> <2622146086.1035233637@[10.10.2.3]>
-In-Reply-To: <2622146086.1035233637@[10.10.2.3]>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210240735.48973.tomlins@cam.org>
+	id <S265408AbSJXLif>; Thu, 24 Oct 2002 07:38:35 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:23154 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S265404AbSJXLif>; Thu, 24 Oct 2002 07:38:35 -0400
+Date: Thu, 24 Oct 2002 13:44:55 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@digeo.com>, chrisl@vmware.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: writepage return value check in vmscan.c
+Message-ID: <20021024114455.GG3354@dualathlon.random>
+References: <20021024082505.GB1471@vmware.com> <3DB7B11B.9E552CFF@digeo.com> <1035450906.8675.4.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1035450906.8675.4.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Oct 24, 2002 at 10:15:06AM +0100, Alan Cox wrote:
+> On Thu, 2002-10-24 at 09:36, Andrew Morton wrote:
+> > A few fixes have been discussed.  One way would be to allocate
+> > the space for the page when it is first faulted into reality and
+> > deliver SIGBUS if backing store for it could not be allocated.
+> 
+> You still have to handle the situation where the page goes walkies and
+> you get ENOSPC or any other ERANDOMSUPRISE from things like NFS. SIGBUS
+> appears the right thing to do.
 
-I just experienced this problem on UP with 513M memory.  About 400m was 
-locked in dentries.  The system was very unresponsive - suspect it was
-spending gobs of time scaning unfreeable dentries.  This was with -mm3
-up about 24 hours.
+I would tend to agree SIGBUS could be the right thing to do since the
+other (current) option is silent data corruption.
 
-The inode caches looked sane.  Just the dentries were out of wack.
-
-Ed
-
+Andrea

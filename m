@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318354AbSHFANI>; Mon, 5 Aug 2002 20:13:08 -0400
+	id <S318989AbSHFE5v>; Tue, 6 Aug 2002 00:57:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318920AbSHFANI>; Mon, 5 Aug 2002 20:13:08 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:57475 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S318354AbSHFANH>; Mon, 5 Aug 2002 20:13:07 -0400
-Date: Tue, 6 Aug 2002 02:16:07 +0200
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Jeff Dike <jdike@karaya.com>
-Cc: rz@linux-m68k.org, alan@redhat.com, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
-Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode
-Message-Id: <20020806021607.28a75a3d.us15@os.inf.tu-dresden.de>
-In-Reply-To: <200208060042.TAA04321@ccure.karaya.com>
-References: <20020806003419.3457fcb9.us15@os.inf.tu-dresden.de>
-	<200208060042.TAA04321@ccure.karaya.com>
-Organization: Disorganized
-X-Mailer: Sylpheed version 0.7.8claws (GTK+ 1.2.10; )
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S318990AbSHFE5v>; Tue, 6 Aug 2002 00:57:51 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:53467 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S318989AbSHFE5v>;
+	Tue, 6 Aug 2002 00:57:51 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15695.22556.128499.64377@napali.hpl.hp.com>
+Date: Mon, 5 Aug 2002 22:01:16 -0700
+To: "Seth, Rohit" <rohit.seth@intel.com>
+Cc: "'frankeh@watson.ibm.com'" <frankeh@watson.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       "David S. Miller" <davem@redhat.com>, davidm@hpl.hp.com, gh@us.ibm.com,
+       Martin.Bligh@us.ibm.com, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org
+Subject: RE: large page patch (fwd) (fwd)
+In-Reply-To: <25282B06EFB8D31198BF00508B66D4FA03EA56CA@fmsmsx114.fm.intel.com>
+References: <25282B06EFB8D31198BF00508B66D4FA03EA56CA@fmsmsx114.fm.intel.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 05 Aug 2002 19:42:31 -0500
-Jeff Dike <jdike@karaya.com> wrote:
+>>>>> On Mon, 5 Aug 2002 16:30:54 -0700 , "Seth, Rohit" <rohit.seth@intel.com> said:
 
-> Similarly, with other signals, like the timer, SIGIO, or page faults, it
-> would just annull the signal and call into the IRQ system.  Although page 
-> faults will be difficult because of the inability to read err or cr3, as 
-> you've pointed out.
+  Rohit> I'm afraid you may be wasting a lot of extra memory by
+  Rohit> replicaitng these PTEs(Take an example of one 4G large TLB
+  Rohit> size entry and assume there are few hunderd processes using
+  Rohit> that same physical page.)
 
-Jeff,
+In my opinion, this is perhaps the strongest argument *for* a separate
+"giant page" syscall interface.  It will be very hard (perhaps
+impossible) to optimize superpages to work efficiently when the ratio
+of superpage/basepage grows huge (as, by definition, the kernel would
+manage them as a set of basepages).  For example, even if we used a
+base page-size of 64KB, a 4GB giant page (as supported by Itanium 2)
+would correspond to 65536 base pages.  A superpage of this size would
+almost certainly still do a lot better than 65536 base pages, but
+compared to a single giant page, it probably stands no chance
+performance-wise.
 
-If my understanding of UML is right, you implement interrupts with socket
-pairs where the interrupt handler writes a byte into one end and the other
-end receives an async notification (SIGIO). In order to stop the right task
-with a SIGIO, you change the socket owner on each context switch using fcntl.
-
-If you have one process per task and a kernel process, the kernel process
-cannot change socket ownership over to the next task's process, because it's
-not allowed to. Only the process itself could set the ownership to his pid,
-but then each task switch would have to be done with a trampoline too.
-
-The issue boils down to how the kernel process can stop a task process in
-order to force the task into kernel. You can of course kill (taskpid, SIG)
-but that has a race if the task tries to enter kernel at the same time.
-SIG will be pending in the task until it is scheduled next.
-
--Udo.
+	--david

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274365AbRIYBe4>; Mon, 24 Sep 2001 21:34:56 -0400
+	id <S274362AbRIYBf4>; Mon, 24 Sep 2001 21:35:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274362AbRIYBeq>; Mon, 24 Sep 2001 21:34:46 -0400
-Received: from mercury.Sun.COM ([192.9.25.1]:55015 "EHLO mercury.Sun.COM")
-	by vger.kernel.org with ESMTP id <S274360AbRIYBek>;
-	Mon, 24 Sep 2001 21:34:40 -0400
-Message-ID: <3BAFDF16.4BD38E7C@sun.com>
-Date: Mon, 24 Sep 2001 18:34:14 -0700
-From: Tim Hockin <thockin@sun.com>
-Organization: Sun Microsystems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
+	id <S274369AbRIYBfs>; Mon, 24 Sep 2001 21:35:48 -0400
+Received: from fep04-svc.mail.telepac.pt ([194.65.5.203]:37790 "EHLO
+	fep04-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
+	id <S274362AbRIYBfd>; Mon, 24 Sep 2001 21:35:33 -0400
+Message-ID: <3BAFDAA9.404@yahoo.com>
+Date: Tue, 25 Sep 2001 02:15:21 +0100
+From: Paulo da Silva <psdasilva@yahoo.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: read() called twice for /proc files
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.9 performance issue NO MORE
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-woops!  sent too early!
+This problem does NOT occur with 2.4.10.
+________________________________________
 
-Is there a general solution to the case of read() being called minimum
-twice for a file in /proc?  I have a small file in /proc, whose data takes
-a fair time to generate.  My read() handler gets called once for the data,
-and once so I can return 0 to terminate read().
+GOOD!!!
+------------------------------------------------------------------------
 
-This results in the actual read taking twice as long.  Perhaps I am missing
-something...
 
-What if the proc generic stuff used file->private_data as an EOF flag.  It
-seems really bizarre that the read loop loops until return 0 or eof is
-set.  We promptly throw away the EOF information that the read() handler
-set.
+Hi,
 
-Would it break anything?  Is there something I am not seeing in the larger
-picture?
+I used to listen mp3 files, using mpg123 -b 2048 -z (nice -15, for ex. -
+sometimes I forget this!), without any interruption, even with
+an relatively overloaded system! This was one
+of my arguments when advertising Linux performance.
 
--- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Cobalt Server Appliances
-thockin@sun.com
+Now I'm getting, from times to times, some interruptions,
+without any relevant workload.
+I have noticed that when this happens, the kswapd task is allways
+on the top of "top" program, CPU sorted.
+
+....
+
+
+Best regards,
+Paulo da Silva
+
+
+

@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280388AbRKEJBv>; Mon, 5 Nov 2001 04:01:51 -0500
+	id <S280391AbRKEJDB>; Mon, 5 Nov 2001 04:03:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280392AbRKEJBl>; Mon, 5 Nov 2001 04:01:41 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:41989 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S280388AbRKEJBY>; Mon, 5 Nov 2001 04:01:24 -0500
-Date: Mon, 5 Nov 2001 10:01:11 +0100
-From: Jan Kara <jack@suse.cz>
-To: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>,
-        ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: disk throughput
-Message-ID: <20011105100111.A8161@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <3BE5F5BF.7A249BDF@zip.com.au> <20011105094701.H29577@atrey.karlin.mff.cuni.cz> <20011105005035.A18620@mikef-linux.matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011105005035.A18620@mikef-linux.matchmail.com>
-User-Agent: Mutt/1.3.20i
+	id <S280392AbRKEJC6>; Mon, 5 Nov 2001 04:02:58 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:62604 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S280391AbRKEJCl>; Mon, 5 Nov 2001 04:02:41 -0500
+Date: Mon, 5 Nov 2001 11:14:10 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.13-ac5-preempt, overflow in cached memory stat?
+In-Reply-To: <3BE64FE3.DBEF8E21@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0111051110580.6741-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, Nov 05, 2001 at 09:47:01AM +0100, Jan Kara wrote:
-> > If I understood well the code it tries to spread files uniformly over the
-> > fs (ie. all groups equally full). I think that if you have filesystem like
-> > /home where are large+small files changing a lot your change can actually
-> > lead to more fragmentation - groups in the beginning gets full (files
-> > are created in the same group as it's parent). Then if some file gets deleted
-> > and new one created filesystem will try to stuff new file in the first
-> > groups and that causes fragmentation.. But it's just an idea - some testing
-> > would be probably more useful...
-> > 
-> 
-> Shouldn't it choose another block group if the file won't fit in the current
-> one?
-  If I understand the code well: When ext2 creates new file it will try to
-allocate data in the same group where it got inode. If there's no free block
-(or better 8 blocks) in the group it will try another one etc (but it will
-be probably also full - we will first try to spread file over half of full
-groups (in average) before hitting the empty one). But I agree that this way it
-will fill the holes with the file and next time it will start in empty
-group. Anyway this allocation strategy will IMHO not keep inodes near data...
+On Mon, 5 Nov 2001, Andrew Morton wrote:
 
-								Honza
---
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+> Robert Love wrote:
+> >
+> > > PS I know you keep hearing this, but that preempt patch makes for some
+> > > damn smooth interactive performance ;)
+> >
+> > I can't hear it enough :)
+> >
+>
+> umm...  Look.  Sorry.  But I don't see any theoretical reason
+> why interactivity should be noticeably different from the
+> little patch at
+>
+> http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.14pre7aa2/00_lowlatency-fixes-2
+>
+> and I did some quantitative testing a week or so back which
+> bears this out.  With either patch, worst-case latencies
+> are very rare, and very bad.   Usual latencies are excellent.
+>
+> Is there any reason why preempt should be noticeably better than
+> that little patch?  If it is, then where on earth are the
+> problematic commonly-occuring, long-running, lock-free code paths?
+
+Unfortunately i haven't tested that patch so i can't provide an objective
+comparison. In which case are there patches for -ac? because if not there
+might also be other factors influencing the "perception" of improved
+interactivity, this is mainly because i'm doing "tests" by just plain
+using the box for an extended period instead of "real" scientific tests.
+
+Regards,
+	Zwane Mwaikambo
+>
+> -
+>
+

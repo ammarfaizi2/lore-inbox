@@ -1,36 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281228AbRKHBUe>; Wed, 7 Nov 2001 20:20:34 -0500
+	id <S281066AbRKHB1O>; Wed, 7 Nov 2001 20:27:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281232AbRKHBUZ>; Wed, 7 Nov 2001 20:20:25 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:47112 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S281228AbRKHBUN>; Wed, 7 Nov 2001 20:20:13 -0500
-Date: Thu, 8 Nov 2001 02:20:02 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: "David S. Miller" <davem@redhat.com>
-cc: <adilger@turbolabs.com>, <jgarzik@mandrakesoft.com>, <andrewm@uow.edu.au>,
-        <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>,
-        <netdev@oss.sgi.com>, <ak@muc.de>, <kuznet@ms2.inr.ac.ru>
-Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
-In-Reply-To: <20011107.170940.10246156.davem@redhat.com>
-Message-ID: <Pine.LNX.4.30.0111080216250.30014-100000@gans.physik3.uni-rostock.de>
+	id <S281232AbRKHB1E>; Wed, 7 Nov 2001 20:27:04 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37384 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281066AbRKHB0p>; Wed, 7 Nov 2001 20:26:45 -0500
+Message-ID: <3BE9DF48.20802@zytor.com>
+Date: Wed, 07 Nov 2001 17:26:32 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: antirez <antirez@invece.org>
+CC: David Ford <david@blue-labs.org>,
+        "Brenneke, Matthew Jeffrey (UMR-Student)" <mbrennek@umr.edu>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Yet another design for /proc. Or actually /kernel.
+In-Reply-To: <6CAC36C3427CEB45A4A6DF0FBDABA56D59C91D@umr-mail03.cc.umr.edu> <20011108012051.C568@blu> <3BE9D7BD.7030308@blue-labs.org> <20011108021057.E568@blu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->    --- linux-2.4.14/net/ipv4/ipconfig.c	Wed Oct 31 00:08:12 2001
->    +++ linux-2.4.14-jiffies64/net/ipv4/ipconfig.c	Wed Nov  7 23:28:47 2001
->
-> These cases are indeed buggy.  I'd rather fix these ones with
-> time_{after,before}() though.  And again, your "signed" casts
-> are totally superfluous.
->
+antirez wrote:
 
-They actually are necessary as unsigned values can never become less than
-zero.
+> On Wed, Nov 07, 2001 at 07:54:21PM -0500, David Ford wrote:
+> 
+>>That doesn't solve anything if the data value includes ( or ).  It just 
+>>avoids ' ' in the data value and adds complexity.
+>>
+> 
+> Wrong, exampel of () in data:
+> 
+> ((data)(\(\)))
+> 
+> About the complexity. It only "looks" complex. But from the
+> machine point of view it's very simple to parse.
+> Note that the strong advantage of this isn't the quoting,
+> you can quote anyway in 1000 different ways. The advantage
+> is that data is structured and parsing does not rely on
+> spaces or newlines, but just on ().
+> With this syntax you can express data as complex and structured
+> as you want but the parsing is still simple.
+> 
 
-Tim
+
+You just changed spaces and newlines to ( and ) -- it doesn't really solve
+anything unless you want three levels of nesting or more; in which case
+you have *WAY* too much data in a single proc item.
+
+	-hpa
+
 

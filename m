@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276369AbRJCPUX>; Wed, 3 Oct 2001 11:20:23 -0400
+	id <S276359AbRJCPTN>; Wed, 3 Oct 2001 11:19:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276364AbRJCPUG>; Wed, 3 Oct 2001 11:20:06 -0400
-Received: from 1-196.ctame701-5.telepar.net.br ([200.181.178.196]:58118 "EHLO
-	stratus.heavenlabs") by vger.kernel.org with ESMTP
-	id <S276369AbRJCPTv>; Wed, 3 Oct 2001 11:19:51 -0400
-Date: Wed, 3 Oct 2001 12:29:44 -0300
-From: sergio@bruder.net
-To: linux-kernel@vger.kernel.org
-Cc: jgarzik@mandrakesoft.com
-Subject: CONFIG_SOUND_VIA82CXXX problems
-Message-ID: <20011003122944.C8214@bruder.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+	id <S276364AbRJCPTD>; Wed, 3 Oct 2001 11:19:03 -0400
+Received: from shell.cyberus.ca ([209.195.95.7]:61879 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S276359AbRJCPSw>;
+	Wed, 3 Oct 2001 11:18:52 -0400
+Date: Wed, 3 Oct 2001 11:16:33 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Arjan van de Ven <arjanv@redhat.com>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, <netdev@oss.sgi.com>
+Subject: Re: [patch] auto-limiting IRQ load take #2, irq-rewrite-2.4.11-F4
+In-Reply-To: <Pine.LNX.4.33.0110031625330.7342-101000@localhost.localdomain>
+Message-ID: <Pine.GSO.4.30.0110031114490.4833-100000@shell.cyberus.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---n8g4imXOkfNTN/H1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-I'm having some strange problems with VIA82CXXX sound driver.
-(BTW, I'm using a ECS K7VZA - KT133A + VIA686b)
+Your approach is still wrong. Please do not accept this patch.
 
-Sometimes my sound gets 'garbled', normally in the same time of a large video
-update. Then I just cause more updates (just keep switching workspaces in
-WMaker) and the sound 'corrects' itself again.
+cheers,
+jamal
 
-I'm using XMMS through artsd, if it matters. I already tried the kernel's
-driver and the 1.1.15 version, too. I'm using 2.4.9-ac18.
+On Wed, 3 Oct 2001, Ingo Molnar wrote:
 
-BTW, I'm using an old S3 Trio64V+ 2MB PCI (Diamond Stealth Video 2001 Series).
+>
+> the attached patch contains a cleaned up version of IRQ auto-mitigation.
+>
+> - i've removed the max_rate limit and have streamlined the impact of the
+>   load-estimator on do_IRQ() to this piece of code:
+>
+>         desc->total_contexts++;
+>         if (unlikely(in_interrupt()))
+>                 goto mitigate_irqload;
+>
+>   i dont think we can get much cheaper than this. (We could perhaps avoid
+>   the total_contexts counter by saving a 'snapshot' of the existing
+>   kstat.irqs array of counters in every timer tick and comparing the
+>   snapshot to the current kstat.irqs values. That looked pretty unclean
+>   though.)
+>
+> - the per-cpu irq counting in -D9 was incorrect as it collapsed all irq
+>   handlers into a single counter.
+>
+> - i've removed the net-polling hacks - they are unrelated to this problem.
+>
+> the patch is against 2.4.11-pre2. (the eepro100.c fixes from the -ac tree
+> are already included in -pre2, i only included them in this patch to make
+> patching & testing against 2.4.10 easier.).
+>
+> (i'd like to stress the point again that the goal of this approach is
+> *not* to be nice. This is an airbag mechanizm, it can and will hurt
+> performance. But my box does not lock up anymore.)
+>
+> 	Ingo
+>
 
-Anyone with the same problem?
-
-It's the sound driver, its the PCI bus, it's my video board or what?
-
-
-Sergio Bruder
---
-http://pontobr.org, http://sergio.bruder.net, http://bruder.homeip.net:81
------------------------------------------------------------------------------
-pub  1024D/0C7D9F49 2000-05-26 Sergio Devojno Bruder <sergio@bruder.net>
-     Key fingerprint = 983F DBDF FB53 FE55 87DF  71CA 6B01 5E44 0C7D 9F49
-sub  1024g/138DF93D 2000-05-26
-
---n8g4imXOkfNTN/H1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7uy7oawFeRAx9n0kRApryAJ46QRFzoSdbPW62psv7tAi13YGQAACghUtr
-GtrhvO5NmgBNOfjPv7VFEKY=
-=nG2s
------END PGP SIGNATURE-----
-
---n8g4imXOkfNTN/H1--

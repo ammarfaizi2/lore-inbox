@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312973AbSDKVPw>; Thu, 11 Apr 2002 17:15:52 -0400
+	id <S312975AbSDKV2n>; Thu, 11 Apr 2002 17:28:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312975AbSDKVPv>; Thu, 11 Apr 2002 17:15:51 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:59397 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S312973AbSDKVPu>; Thu, 11 Apr 2002 17:15:50 -0400
-Date: Thu, 11 Apr 2002 22:15:33 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: the oom killer
-Message-ID: <20020411221533.A20867@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@zip.com.au>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020405164348.K32431@dualathlon.random> <Pine.LNX.4.21.0204051844521.11472-100000@freak.distro.conectiva> <20020411151353.K14605@dualathlon.random> <3CB5E6E4.981B8C0D@zip.com.au>
+	id <S312977AbSDKV2m>; Thu, 11 Apr 2002 17:28:42 -0400
+Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:24071
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S312975AbSDKV2m>; Thu, 11 Apr 2002 17:28:42 -0400
+Subject: ANNOUNCEMENT: 2.4.19-pre6-rmap-12i-xfs-shawn11 released
+From: Shawn Starr <spstarr@sh0n.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
+Date: 11 Apr 2002 17:28:20 -0400
+Message-Id: <1018560530.356.0.camel@unaropia>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 11, 2002 at 12:41:24PM -0700, Andrew Morton wrote:
-> It'd be nice if the second and subsequent passes of the oom
-> killer were able to note that a kill was already outstanding,
-> so they don't just kill the same process all the time.
+This is not a stable release. Please test: 
 
--rmap uses a simple timeout for that.  And I've just send the
-rmap oom_killer tweaks to Marcelo so they hopefully will appear
-in mainline soon.
+xfs-2.4.19-pre6-rmap-12i-shawn11 against 2.4.18 vanilla, (April 10th,
+2002) 
+
+Contains: 
+
+2.4.19-pre6                     (Marcelo Tosatti) 
+rmap-12i                        (Rik van Riel 
+                                 William Lee Irwin III) 
+
+April 10th, XFS CVS             (me) 
+
+*NOTE: 2.4.19-pre5-ac3 does *NOT* boot my system I get swapper kernel
+panic. -ac is out for now. 
+
+*IDE taskfile IO was merged into the later 2.4.19 pre kernels. 
+
+* There are significant Quota problems with current -ac patch and XFS
+quota. I should hopefully have this working in -shawn12 but I need a
+working -ac patch to boot from ;) 
+
+You can find all my patches at http://xfs.sh0n.net/2.4
+
+
+
 

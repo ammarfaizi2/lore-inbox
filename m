@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265681AbSLJT6M>; Tue, 10 Dec 2002 14:58:12 -0500
+	id <S265677AbSLJTyR>; Tue, 10 Dec 2002 14:54:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265713AbSLJT6M>; Tue, 10 Dec 2002 14:58:12 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:516 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S265681AbSLJT6K>;
-	Tue, 10 Dec 2002 14:58:10 -0500
-Date: Mon, 9 Dec 2002 22:49:53 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: #! incompatible -- binfmt_script.c broken?
-Message-ID: <20021209214953.GA1624@elf.ucw.cz>
-References: <9633612287A@vcnet.vc.cvut.cz> <20021206090234.GA1940@zaurus> <3DF4DEC0.3030800@zytor.com> <20021209182605.GA22747@atrey.karlin.mff.cuni.cz> <at2qin$fgn$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <at2qin$fgn$1@cesium.transmeta.com>
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S265681AbSLJTyR>; Tue, 10 Dec 2002 14:54:17 -0500
+Received: from mail1.dac.neu.edu ([129.10.1.75]:9990 "EHLO mail1.dac.neu.edu")
+	by vger.kernel.org with ESMTP id <S265677AbSLJTyQ>;
+	Tue, 10 Dec 2002 14:54:16 -0500
+Message-ID: <3DF64852.9030006@ccs.neu.edu>
+Date: Tue, 10 Dec 2002 15:02:26 -0500
+From: Stan Bubrouski <stan@ccs.neu.edu>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robert Love <rml@ufl.edu>
+CC: Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 2.5.51 with contest
+References: <200212102245.19862.conman@kolivas.net>	 <3DF621D0.6040505@ccs.neu.edu> <1039545941.1831.849.camel@phantasy>
+In-Reply-To: <1039545941.1831.849.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > Why can't we simply have /bin/bash_that_splits_args_itself
-> > > 
-> > > We could, but it would in practice mean doing an extra exec() for each
-> > > executable.  This seems undesirable.
-> > 
-> > Only for executables that need argument spliting... For such scripts I
-> > guess we can get handle the overhead.
-> > 
+Robert Love wrote:
+> On Tue, 2002-12-10 at 12:18, Stan Bubrouski wrote:
 > 
-> We probably can, but a better question is really: what are the
-> semantics that users expect?  Given that Unices are by and large
-> inconsistent, we should pick the behaviour that makes sense to the
-> most people.  I suspect that most people would expect whitespace
-> partition.
+> 
+>>I know this has been brought up before, but
+>>these don't seem to mean much unless you
+>>include 2.4.20 in the comaprison.
+> 
+> 
+> Comparing this to 2.4 achieves nothing because so much changed.
 
-Most people would also expect " and ' to work, and $FOO to work
-:-(. So I believe keeping it simple is right.
-								Pavel
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+I disagree, 2.4.20 is the current stable kernel, it would
+be nice to see how it compares to the current development,
+what's faster, what's not... from Con's previous results
+we can see that some things are indeed not as fast in 2.5.x
+as in 2.4.x.  It's just nice to be able to see the whole
+picture.  I often follow these threads for just this purpose.
+
+-Stan
+
+> 
+> The point of these benchmarks are not marketing, but to find
+> improvements or regressions from one version to the next and find out
+> what caused them.
+> 
+> Comparing the kernel to 2.4 has some uses (i.e. finding micro-ops) but
+> Con's mission is much different (and imo more useful).
+> 
+> 	Robert Love
+> 
+
+
+

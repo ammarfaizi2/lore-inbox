@@ -1,68 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270439AbTHLOsS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 10:48:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270441AbTHLOsS
+	id S270384AbTHLOuj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 10:50:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270385AbTHLOuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 10:48:18 -0400
-Received: from out006pub.verizon.net ([206.46.170.106]:30410 "EHLO
-	out006.verizon.net") by vger.kernel.org with ESMTP id S270439AbTHLOsH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 10:48:07 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-To: Thomas Molina <tmolina@cablespeed.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] add an -Os config option
-Date: Tue, 12 Aug 2003 10:48:04 -0400
-User-Agent: KMail/1.5.1
-References: <Pine.LNX.4.44.0308112149470.1795-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0308112149470.1795-100000@localhost.localdomain>
-Organization: None that appears to be detectable by casual observers
+	Tue, 12 Aug 2003 10:50:39 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:29194 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S270384AbTHLOuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 10:50:25 -0400
+Message-ID: <3F39020C.6040408@techsource.com>
+Date: Tue, 12 Aug 2003 11:04:44 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: rob@landley.net, Charlie Baylis <cb-lkml@fish.zetnet.co.uk>,
+       linux-kernel@vger.kernel.org, kernel@kolivas.org
+Subject: Re: [PATCH] O12.2int for interactivity
+References: <20030804195058.GA8267@cray.fish.zetnet.co.uk> <3F303494.3030406@techsource.com> <200308110414.28569.rob@landley.net> <3F382B8B.9000301@techsource.com> <20030812001759.GS1715@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308121048.04063.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [151.205.10.14] at Tue, 12 Aug 2003 09:48:05 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 11 August 2003 22:51, Thomas Molina wrote:
->On Mon, 11 Aug 2003, Gene Heskett wrote:
->> On Monday 11 August 2003 17:19, Michael Buesch wrote:
->> >-----BEGIN PGP SIGNED MESSAGE-----
->> >Hash: SHA1
->> >
->> >On Monday 11 August 2003 23:11, Adrian Bunk wrote:
->> >> +	  The resulting kernel might be significantly slower.
->> >
->> >With my poor english knowledge I would say it should be
->> > "significant". Correct?
->>
->> No, the quoted "significantly" version is the correct english
->> useage in this apparently present tense.
->
->Now you have hit one of my hot buttons :)
->
->Your use of useage is an incorrect use.  Simply use use in the above
->sentence :)
->
->sineage, useage, etc. are simply incorrect
 
-Well, in the everyday use, they do seem to be miss-used quite 
-frequently as it is observed by me.  And I am not an english 
-professor, just a senior (68) citizen with an 8th grade education, a 
-GED, and a diploma from the University of Hard Knocks.  There really 
-is such a thing you see.
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+William Lee Irwin III wrote:
+
+> 
+> Guys, it's _way_ premature to say any of this. AFAICT _no_ alternatives
+> to the duelling queues with twiddled priorities have been explored yet,
+> nor has the maximum been squeezed out of twiddling the methods for
+> priority adjustment in that yet (which is Con Kolivas' area).
+> 
+
+
+Ok... this reminds me that there is an aspect of all of this that I 
+don't understand.  Please pardon my ignorance.  And furthermore, if 
+there is some document which answers all of my questions, please direct 
+me to it so I don't waste your time.
+
+
+
+I understand that the O(1) scheduler uses two queues.  One is the active 
+queue, and the other is the expired queue.  When a process has exhausted 
+its timeslice, it gets put into the expired queue (at the end, I 
+presume).  If not, it gets put into the active queue.
+
+Is this the vanilla scheduler?
+
+One thing I don't understand is, for a given queue, how do priorities 
+affect running of processes?  Two possibilities come to mind:
+
+1) All pri 10 processes will be run before any pri 11 processes.
+2) A pri 10 process will be run SLIGHTLY more often than a pri 11 process.
+
+For the former, is the active queue scanned for runnable processes of 
+the highest priority?  If that's the case, why not have one queue for 
+each priority level?  Wouldn't that reduce the amount of scanning 
+through the queue?
+
+What it comes down to that I want to know is if priorities affect 
+running of processes linearly or exponentially.
+
+How do nice levels affect priorities?  (Vanilla and interactive)
+
+How do priorities affect processes in the expired queue?
+
+In the vanilla scheduler, can a low enough nice value keep an expired 
+process off the expired queue?  How is that determined?
+
+Does the vanilla scheduler have priorities?  If so, how are they determined?
+
+
+Thanks.
 

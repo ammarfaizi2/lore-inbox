@@ -1,609 +1,187 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262106AbSI3ODz>; Mon, 30 Sep 2002 10:03:55 -0400
+	id <S262103AbSI3NtA>; Mon, 30 Sep 2002 09:49:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262101AbSI3Nyz>; Mon, 30 Sep 2002 09:54:55 -0400
-Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:31211 "EHLO
-	d06lmsgate-4.uk.ibm.COM") by vger.kernel.org with ESMTP
-	id <S262080AbSI3Nn4> convert rfc822-to-8bit; Mon, 30 Sep 2002 09:43:56 -0400
+	id <S262073AbSI3Nsa>; Mon, 30 Sep 2002 09:48:30 -0400
+Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:42702 "EHLO
+	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S262074AbSI3Nnr> convert rfc822-to-8bit; Mon, 30 Sep 2002 09:43:47 -0400
 Content-Type: text/plain;
   charset="us-ascii"
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Organization: IBM Deutschland GmbH
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] 2.5.39 s390 (12/26): linker scripts.
-Date: Mon, 30 Sep 2002 14:56:06 +0200
+Subject: [PATCH] 2.5.39 s390 (15/26): 64bit spinlocks.
+Date: Mon, 30 Sep 2002 14:59:08 +0200
 X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200209301456.06139.schwidefsky@de.ibm.com>
+Message-Id: <200209301459.08801.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use a preprocessed linker script for building vmlinux on s390/s390x.
+Use diag 0x44 on s390x for spinlocks.
 
-diff -urN linux-2.5.39/arch/s390/vmlinux-shared.lds linux-2.5.39-s390/arch/s390/vmlinux-shared.lds
---- linux-2.5.39/arch/s390/vmlinux-shared.lds	Fri Sep 27 23:50:58 2002
-+++ linux-2.5.39-s390/arch/s390/vmlinux-shared.lds	Thu Jan  1 01:00:00 1970
-@@ -1,93 +0,0 @@
--/* ld script to make s390 Linux kernel
-- * Written by Martin Schwidefsky (schwidefsky@de.ibm.com)
-- */
--OUTPUT_FORMAT("elf32-s390", "elf32-s390", "elf32-s390")
--OUTPUT_ARCH(s390)
--ENTRY(_start)
--jiffies = jiffies_64 + 4;
--SECTIONS
--{
--  . = 0x00000000;
--  _text = .;			/* Text and read-only data */
--  .text : {
--	*(.text)
--	*(.fixup)
--	*(.gnu.warning)
--	} = 0x0700
--
--  _etext = .;			/* End of text section */
--
--  .rodata : { *(.rodata) }
--  .kstrtab : { *(.kstrtab) }
--
--  . = ALIGN(16);		/* Exception table */
--  __start___ex_table = .;
--  __ex_table : { *(__ex_table) }
--  __stop___ex_table = .;
--
--  __start___ksymtab = .;	/* Kernel symbol table */
--  __ksymtab : { *(__ksymtab) }
--  __stop___ksymtab = .;
--
--  . = ALIGN(1048576);		/* VM shared segments are 1MB aligned */
--
--  _eshared = .;			/* End of shareable data */
--
--  .data : {			/* Data */
--	*(.data)
--	CONSTRUCTORS
--	}
--
--  _edata = .;			/* End of data section */
--
--  . = ALIGN(8192);		/* init_task */
--  .data.init_task : { *(.data.init_task) }
--
--  . = ALIGN(4096);		/* Init code and data */
--  __init_begin = .;
--  .text.init : { *(.text.init) }
--  .data.init : { *(.data.init) }
--  . = ALIGN(256);
--  __setup_start = .;
--  .setup.init : { *(.setup.init) }
--  __setup_end = .;
--  __initcall_start = .;
--  .initcall.init : {
--	*(.initcall1.init) 
--	*(.initcall2.init) 
--	*(.initcall3.init) 
--	*(.initcall4.init) 
--	*(.initcall5.init) 
--	*(.initcall6.init) 
--	*(.initcall7.init)
--  }
--  __initcall_end = .;
--  . = ALIGN(256);
--  __per_cpu_start = .;
--  .date.percpu  : { *(.data.percpu) }
--  __per_cpu_end = .;
--  . = ALIGN(4096);
--  __init_end = .;
--
--  . = ALIGN(32);
--  .data.cacheline_aligned : { *(.data.cacheline_aligned) }
--
--  . = ALIGN(4096);
--  .data.page_aligned : { *(.data.idt) }
--
--
--  __bss_start = .;		/* BSS */
--  .bss : {
--	*(.bss)
--	}
--  _end = . ;
--
--  /* Stabs debugging sections.  */
--  .stab 0 : { *(.stab) }
--  .stabstr 0 : { *(.stabstr) }
--  .stab.excl 0 : { *(.stab.excl) }
--  .stab.exclstr 0 : { *(.stab.exclstr) }
--  .stab.index 0 : { *(.stab.index) }
--  .stab.indexstr 0 : { *(.stab.indexstr) }
--  .comment 0 : { *(.comment) }
--}
-diff -urN linux-2.5.39/arch/s390/vmlinux.lds linux-2.5.39-s390/arch/s390/vmlinux.lds
---- linux-2.5.39/arch/s390/vmlinux.lds	Fri Sep 27 23:49:40 2002
-+++ linux-2.5.39-s390/arch/s390/vmlinux.lds	Thu Jan  1 01:00:00 1970
-@@ -1,88 +0,0 @@
--/* ld script to make s390 Linux kernel
-- * Written by Martin Schwidefsky (schwidefsky@de.ibm.com)
-- */
--OUTPUT_FORMAT("elf32-s390", "elf32-s390", "elf32-s390")
--OUTPUT_ARCH(s390)
--ENTRY(_start)
--jiffies = jiffies_64 + 4;
--SECTIONS
--{
--  . = 0x00000000;
--  _text = .;			/* Text and read-only data */
--  .text : {
--	*(.text)
--	*(.fixup)
--	*(.gnu.warning)
--	} = 0x0700
--
--  _etext = .;			/* End of text section */
--
--  .rodata : { *(.rodata) *(.rodata.*) }
--  .kstrtab : { *(.kstrtab) }
--
--  . = ALIGN(16);		/* Exception table */
--  __start___ex_table = .;
--  __ex_table : { *(__ex_table) }
--  __stop___ex_table = .;
--
--  __start___ksymtab = .;	/* Kernel symbol table */
--  __ksymtab : { *(__ksymtab) }
--  __stop___ksymtab = .;
--
--  .data : {			/* Data */
--	*(.data)
--	CONSTRUCTORS
--	}
--
--  _edata = .;			/* End of data section */
--
--  . = ALIGN(8192);		/* init_task */
--  .data.init_task : { *(.data.init_task) }
--
--  . = ALIGN(4096);		/* Init code and data */
--  __init_begin = .;
--  .text.init : { *(.text.init) }
--  .data.init : { *(.data.init) }
--  . = ALIGN(256);
--  __setup_start = .;
--  .setup.init : { *(.setup.init) }
--  __setup_end = .;
--  __initcall_start = .;
--  .initcall.init : {
--	*(.initcall1.init) 
--	*(.initcall2.init) 
--	*(.initcall3.init) 
--	*(.initcall4.init) 
--	*(.initcall5.init) 
--	*(.initcall6.init) 
--	*(.initcall7.init)
--  }
--  __initcall_end = .;
--  . = ALIGN(256);
--  __per_cpu_start = .;
--  .date.percpu  : { *(.data.percpu) }
--  __per_cpu_end = .;
--  . = ALIGN(4096);
--  __init_end = .;
--
--  . = ALIGN(32);
--  .data.cacheline_aligned : { *(.data.cacheline_aligned) }
--
--  . = ALIGN(4096);
--  .data.page_aligned : { *(.data.idt) }
--
--  __bss_start = .;		/* BSS */
--  .bss : {
--	*(.bss)
--	}
--  _end = . ;
--
--  /* Stabs debugging sections.  */
--  .stab 0 : { *(.stab) }
--  .stabstr 0 : { *(.stabstr) }
--  .stab.excl 0 : { *(.stab.excl) }
--  .stab.exclstr 0 : { *(.stab.exclstr) }
--  .stab.index 0 : { *(.stab.index) }
--  .stab.indexstr 0 : { *(.stab.indexstr) }
--  .comment 0 : { *(.comment) }
--}
-diff -urN linux-2.5.39/arch/s390/vmlinux.lds.S linux-2.5.39-s390/arch/s390/vmlinux.lds.S
---- linux-2.5.39/arch/s390/vmlinux.lds.S	Fri Sep 27 23:49:44 2002
-+++ linux-2.5.39-s390/arch/s390/vmlinux.lds.S	Mon Sep 30 13:32:24 2002
-@@ -1,7 +1,94 @@
--#include <linux/config.h>
-+/* ld script to make s390 Linux kernel
-+ * Written by Martin Schwidefsky (schwidefsky@de.ibm.com)
-+ */
-+OUTPUT_FORMAT("elf32-s390", "elf32-s390", "elf32-s390")
-+OUTPUT_ARCH(s390)
-+ENTRY(_start)
-+jiffies = jiffies_64 + 4;
-+SECTIONS
-+{
-+  . = 0x00000000;
-+  _text = .;			/* Text and read-only data */
-+  .text : {
-+	*(.text)
-+	*(.fixup)
-+	*(.gnu.warning)
-+	} = 0x0700
-+
-+  _etext = .;			/* End of text section */
-+
-+  .rodata : { *(.rodata) *(.rodata.*) }
-+  .kstrtab : { *(.kstrtab) }
-+
-+  . = ALIGN(16);		/* Exception table */
-+  __start___ex_table = .;
-+  __ex_table : { *(__ex_table) }
-+  __stop___ex_table = .;
-+
-+  __start___ksymtab = .;	/* Kernel symbol table */
-+  __ksymtab : { *(__ksymtab) }
-+  __stop___ksymtab = .;
+diff -urN linux-2.5.39/arch/s390x/kernel/head.S linux-2.5.39-s390/arch/s390x/kernel/head.S
+--- linux-2.5.39/arch/s390x/kernel/head.S	Mon Sep 30 13:25:21 2002
++++ linux-2.5.39-s390/arch/s390x/kernel/head.S	Mon Sep 30 13:32:48 2002
+@@ -555,6 +555,17 @@
+ 	oi     7(%r12),16               # set MVPG flag
+ 0:
  
- #ifdef CONFIG_SHARED_KERNEL
--#include "vmlinux-shared.lds"
--#else
--#include "vmlinux.lds"
-+  . = ALIGN(1048576);		/* VM shared segments are 1MB aligned */
++#
++# find out if the diag 0x44 works in 64 bit mode
++#
++	la     %r1,0f-.LPG1(%r13)	# set program check address
++	stg    %r1,__LC_PGM_NEW_PSW+8
++	mvc    __LC_DIAG44_OPCODE(8),.Lnop-.LPG1(%r13)
++	diag   0,0,0x44			# test diag 0x44
++	oi     7(%r12),32		# set diag44 flag
++	mvc    __LC_DIAG44_OPCODE(8),.Ldiag44-.LPG1(%r13)
++0:	
 +
-+  _eshared = .;			/* End of shareable data */
- #endif
-+
-+  .data : {			/* Data */
-+	*(.data)
-+	CONSTRUCTORS
-+	}
-+
-+  _edata = .;			/* End of data section */
-+
-+  . = ALIGN(8192);		/* init_task */
-+  .data.init_task : { *(.data.init_task) }
-+
-+  . = ALIGN(4096);		/* Init code and data */
-+  __init_begin = .;
-+  .text.init : { *(.text.init) }
-+  .data.init : { *(.data.init) }
-+  . = ALIGN(256);
-+  __setup_start = .;
-+  .setup.init : { *(.setup.init) }
-+  __setup_end = .;
-+  __initcall_start = .;
-+  .initcall.init : {
-+	*(.initcall1.init) 
-+	*(.initcall2.init) 
-+	*(.initcall3.init) 
-+	*(.initcall4.init) 
-+	*(.initcall5.init) 
-+	*(.initcall6.init) 
-+	*(.initcall7.init)
-+  }
-+  __initcall_end = .;
-+  . = ALIGN(256);
-+  __per_cpu_start = .;
-+  .date.percpu  : { *(.data.percpu) }
-+  __per_cpu_end = .;
-+  . = ALIGN(4096);
-+  __init_end = .;
-+
-+  . = ALIGN(32);
-+  .data.cacheline_aligned : { *(.data.cacheline_aligned) }
-+
-+  . = ALIGN(4096);
-+  .data.page_aligned : { *(.data.idt) }
-+
-+  __bss_start = .;		/* BSS */
-+  .bss : {
-+	*(.bss)
-+	}
-+  _end = . ;
-+
-+  /* Stabs debugging sections.  */
-+  .stab 0 : { *(.stab) }
-+  .stabstr 0 : { *(.stabstr) }
-+  .stab.excl 0 : { *(.stab.excl) }
-+  .stab.exclstr 0 : { *(.stab.exclstr) }
-+  .stab.index 0 : { *(.stab.index) }
-+  .stab.indexstr 0 : { *(.stab.indexstr) }
-+  .comment 0 : { *(.comment) }
-+}
-diff -urN linux-2.5.39/arch/s390x/vmlinux-shared.lds linux-2.5.39-s390/arch/s390x/vmlinux-shared.lds
---- linux-2.5.39/arch/s390x/vmlinux-shared.lds	Fri Sep 27 23:50:27 2002
-+++ linux-2.5.39-s390/arch/s390x/vmlinux-shared.lds	Thu Jan  1 01:00:00 1970
-@@ -1,93 +0,0 @@
--/* ld script to make s390 Linux kernel
-- * Written by Martin Schwidefsky (schwidefsky@de.ibm.com)
-- */
--OUTPUT_FORMAT("elf64-s390", "elf64-s390", "elf64-s390")
--OUTPUT_ARCH(s390)
--ENTRY(_start)
--jiffies = jiffies_64;
--SECTIONS
--{
--  . = 0x00000000;
--  _text = .;			/* Text and read-only data */
--  .text : {
--	*(.text)
--	*(.fixup)
--	*(.gnu.warning)
--	} = 0x0700
--
--  _etext = .;			/* End of text section */
--
--  .rodata : { *(.rodata) }
--  .kstrtab : { *(.kstrtab) }
--
--  . = ALIGN(16);		/* Exception table */
--  __start___ex_table = .;
--  __ex_table : { *(__ex_table) }
--  __stop___ex_table = .;
--
--  __start___ksymtab = .;	/* Kernel symbol table */
--  __ksymtab : { *(__ksymtab) }
--  __stop___ksymtab = .;
--
--  . = ALIGN(1048576);		/* VM shared segments are 1MB aligned */
--
--  _eshared = .;			/* End of shareable data */
--
--  .data : {			/* Data */
--	*(.data)
--	CONSTRUCTORS
--	}
--
--  _edata = .;			/* End of data section */
--
--  . = ALIGN(16384);		/* init_task */
--  .data.init_task : { *(.data.init_task) }
--
--  . = ALIGN(4096);		/* Init code and data */
--  __init_begin = .;
--  .text.init : { *(.text.init) }
--  .data.init : { *(.data.init) }
--  . = ALIGN(256);
--  __setup_start = .;
--  .setup.init : { *(.setup.init) }
--  __setup_end = .;
--  __initcall_start = .;
--  .initcall.init : {
--	*(.initcall1.init) 
--	*(.initcall2.init) 
--	*(.initcall3.init) 
--	*(.initcall4.init) 
--	*(.initcall5.init) 
--	*(.initcall6.init) 
--	*(.initcall7.init)
--  }
--  __initcall_end = .;
--  . = ALIGN(256);
--  __per_cpu_start = .;
--  .date.percpu  : { *(.data.percpu) }
--  __per_cpu_end = .;
--  . = ALIGN(4096);
--  __init_end = .;
--
--  . = ALIGN(32);
--  .data.cacheline_aligned : { *(.data.cacheline_aligned) }
--
--  . = ALIGN(4096);
--  .data.page_aligned : { *(.data.idt) }
--
--
--  __bss_start = .;		/* BSS */
--  .bss : {
--	*(.bss)
--	}
--  _end = . ;
--
--  /* Stabs debugging sections.  */
--  .stab 0 : { *(.stab) }
--  .stabstr 0 : { *(.stabstr) }
--  .stab.excl 0 : { *(.stab.excl) }
--  .stab.exclstr 0 : { *(.stab.exclstr) }
--  .stab.index 0 : { *(.stab.index) }
--  .stab.indexstr 0 : { *(.stab.indexstr) }
--  .comment 0 : { *(.comment) }
--}
-diff -urN linux-2.5.39/arch/s390x/vmlinux.lds linux-2.5.39-s390/arch/s390x/vmlinux.lds
---- linux-2.5.39/arch/s390x/vmlinux.lds	Fri Sep 27 23:50:31 2002
-+++ linux-2.5.39-s390/arch/s390x/vmlinux.lds	Thu Jan  1 01:00:00 1970
-@@ -1,89 +0,0 @@
--/* ld script to make s390 Linux kernel
-- * Written by Martin Schwidefsky (schwidefsky@de.ibm.com)
-- */
--OUTPUT_FORMAT("elf64-s390", "elf64-s390", "elf64-s390")
--OUTPUT_ARCH(s390)
--ENTRY(_start)
--jiffies = jiffies_64;
--SECTIONS
--{
--  . = 0x00000000;
--  _text = .;			/* Text and read-only data */
--  .text : {
--	*(.text)
--	*(.fixup)
--	*(.gnu.warning)
--	} = 0x0700
--
--  _etext = .;			/* End of text section */
--
--  .rodata : { *(.rodata) *(.rodata.*) }
--  .kstrtab : { *(.kstrtab) }
--
--  . = ALIGN(16);		/* Exception table */
--  __start___ex_table = .;
--  __ex_table : { *(__ex_table) }
--  __stop___ex_table = .;
--
--  __start___ksymtab = .;	/* Kernel symbol table */
--  __ksymtab : { *(__ksymtab) }
--  __stop___ksymtab = .;
--
--  .data : {			/* Data */
--	*(.data)
--	CONSTRUCTORS
--	}
--
--  _edata = .;			/* End of data section */
--
--  . = ALIGN(16384);		/* init_task */
--  .data.init_task : { *(.data.init_task) }
--
--  . = ALIGN(4096);		/* Init code and data */
--  __init_begin = .;
--  .text.init : { *(.text.init) }
--  .data.init : { *(.data.init) }
--  . = ALIGN(256);
--  __setup_start = .;
--  .setup.init : { *(.setup.init) }
--  __setup_end = .;
--  __initcall_start = .;
--  .initcall.init : {
--	*(.initcall1.init) 
--	*(.initcall2.init) 
--	*(.initcall3.init) 
--	*(.initcall4.init) 
--	*(.initcall5.init) 
--	*(.initcall6.init) 
--	*(.initcall7.init)
--  }
--  __initcall_end = .;
--  . = ALIGN(256);
--  __per_cpu_start = .;
--  .date.percpu  : { *(.data.percpu) }
--  __per_cpu_end = .;
--  . = ALIGN(4096);
--  __init_end = .;
--
--  . = ALIGN(32);
--  .data.cacheline_aligned : { *(.data.cacheline_aligned) }
--
--  . = ALIGN(4096);
--  .data.page_aligned : { *(.data.idt) }
--
--
--  __bss_start = .;		/* BSS */
--  .bss : {
--	*(.bss)
--	}
--  _end = . ;
--
--  /* Stabs debugging sections.  */
--  .stab 0 : { *(.stab) }
--  .stabstr 0 : { *(.stabstr) }
--  .stab.excl 0 : { *(.stab.excl) }
--  .stab.exclstr 0 : { *(.stab.exclstr) }
--  .stab.index 0 : { *(.stab.index) }
--  .stab.indexstr 0 : { *(.stab.indexstr) }
--  .comment 0 : { *(.comment) }
--}
-diff -urN linux-2.5.39/arch/s390x/vmlinux.lds.S linux-2.5.39-s390/arch/s390x/vmlinux.lds.S
---- linux-2.5.39/arch/s390x/vmlinux.lds.S	Fri Sep 27 23:49:42 2002
-+++ linux-2.5.39-s390/arch/s390x/vmlinux.lds.S	Mon Sep 30 13:32:24 2002
-@@ -1,7 +1,95 @@
--#include <linux/config.h>
-+/* ld script to make s390 Linux kernel
-+ * Written by Martin Schwidefsky (schwidefsky@de.ibm.com)
-+ */
-+OUTPUT_FORMAT("elf64-s390", "elf64-s390", "elf64-s390")
-+OUTPUT_ARCH(s390:64-bit)
-+ENTRY(_start)
-+jiffies = jiffies_64;
-+SECTIONS
-+{
-+  . = 0x00000000;
-+  _text = .;			/* Text and read-only data */
-+  .text : {
-+	*(.text)
-+	*(.fixup)
-+	*(.gnu.warning)
-+	} = 0x0700
-+
-+  _etext = .;			/* End of text section */
-+
-+  .rodata : { *(.rodata) *(.rodata.*) }
-+  .kstrtab : { *(.kstrtab) }
-+
-+  . = ALIGN(16);		/* Exception table */
-+  __start___ex_table = .;
-+  __ex_table : { *(__ex_table) }
-+  __stop___ex_table = .;
-+
-+  __start___ksymtab = .;	/* Kernel symbol table */
-+  __ksymtab : { *(__ksymtab) }
-+  __stop___ksymtab = .;
+         lpswe .Lentry-.LPG1(13)         # jump to _stext in primary-space,
+                                         # virtual and never return ...
+         .align 16
+@@ -578,6 +589,8 @@
+ .Lpcmsk:.quad  0x0000000180000000
+ .L4malign:.quad 0xffffffffffc00000
+ .Lscan2g:.quad 0x80000000 + 0x20000 - 8 # 2GB + 128K - 8
++.Lnop:	.long  0x07000700
++.Ldiag44:.long 0x83000044
  
- #ifdef CONFIG_SHARED_KERNEL
--#include "vmlinux-shared.lds"
--#else
--#include "vmlinux.lds"
-+  . = ALIGN(1048576);		/* VM shared segments are 1MB aligned */
+ 	.org PARMAREA-64
+ .Lduct:	.long 0,0,0,0,0,0,0,0
+diff -urN linux-2.5.39/include/asm-s390x/lowcore.h linux-2.5.39-s390/include/asm-s390x/lowcore.h
+--- linux-2.5.39/include/asm-s390x/lowcore.h	Fri Sep 27 23:50:27 2002
++++ linux-2.5.39-s390/include/asm-s390x/lowcore.h	Mon Sep 30 13:32:48 2002
+@@ -38,6 +38,8 @@
+ #define __LC_IO_INT_WORD                0x0C0
+ #define __LC_MCCK_CODE                  0x0E8
+ 
++#define __LC_DIAG44_OPCODE		0x214
 +
-+  _eshared = .;			/* End of shareable data */
- #endif
-+
-+  .data : {			/* Data */
-+	*(.data)
-+	CONSTRUCTORS
-+	}
-+
-+  _edata = .;			/* End of data section */
-+
-+  . = ALIGN(16384);		/* init_task */
-+  .data.init_task : { *(.data.init_task) }
-+
-+  . = ALIGN(4096);		/* Init code and data */
-+  __init_begin = .;
-+  .text.init : { *(.text.init) }
-+  .data.init : { *(.data.init) }
-+  . = ALIGN(256);
-+  __setup_start = .;
-+  .setup.init : { *(.setup.init) }
-+  __setup_end = .;
-+  __initcall_start = .;
-+  .initcall.init : {
-+	*(.initcall1.init) 
-+	*(.initcall2.init) 
-+	*(.initcall3.init) 
-+	*(.initcall4.init) 
-+	*(.initcall5.init) 
-+	*(.initcall6.init) 
-+	*(.initcall7.init)
-+  }
-+  __initcall_end = .;
-+  . = ALIGN(256);
-+  __per_cpu_start = .;
-+  .date.percpu  : { *(.data.percpu) }
-+  __per_cpu_end = .;
-+  . = ALIGN(4096);
-+  __init_end = .;
-+
-+  . = ALIGN(32);
-+  .data.cacheline_aligned : { *(.data.cacheline_aligned) }
-+
-+  . = ALIGN(4096);
-+  .data.page_aligned : { *(.data.idt) }
-+
-+
-+  __bss_start = .;		/* BSS */
-+  .bss : {
-+	*(.bss)
-+	}
-+  _end = . ;
-+
-+  /* Stabs debugging sections.  */
-+  .stab 0 : { *(.stab) }
-+  .stabstr 0 : { *(.stabstr) }
-+  .stab.excl 0 : { *(.stab.excl) }
-+  .stab.exclstr 0 : { *(.stab.exclstr) }
-+  .stab.index 0 : { *(.stab.index) }
-+  .stab.indexstr 0 : { *(.stab.indexstr) }
-+  .comment 0 : { *(.comment) }
-+}
+ #define __LC_SAVE_AREA                  0xC00
+ #define __LC_KERNEL_STACK               0xD40
+ #define __LC_ASYNC_STACK                0xD48
+@@ -146,7 +148,8 @@
+ 	psw_t        io_new_psw;               /* 0x1f0 */
+         psw_t        return_psw;               /* 0x200 */
+ 	__u32        sync_io_word;             /* 0x210 */
+-        __u8         pad8[0xc00-0x214];        /* 0x214 */
++	__u32        diag44_opcode;            /* 0x214 */
++        __u8         pad8[0xc00-0x218];        /* 0x218 */
+         /* System info area */
+ 	__u64        save_area[16];            /* 0xc00 */
+         __u8         pad9[0xd40-0xc80];        /* 0xc80 */
+diff -urN linux-2.5.39/include/asm-s390x/setup.h linux-2.5.39-s390/include/asm-s390x/setup.h
+--- linux-2.5.39/include/asm-s390x/setup.h	Fri Sep 27 23:50:21 2002
++++ linux-2.5.39-s390/include/asm-s390x/setup.h	Mon Sep 30 13:32:48 2002
+@@ -25,11 +25,12 @@
+  */
+ extern unsigned long machine_flags;
+ 
+-#define MACHINE_IS_VM    (machine_flags & 1)
+-#define MACHINE_IS_P390  (machine_flags & 4)
+-#define MACHINE_HAS_MVPG (machine_flags & 16)
++#define MACHINE_IS_VM		(machine_flags & 1)
++#define MACHINE_IS_P390		(machine_flags & 4)
++#define MACHINE_HAS_MVPG	(machine_flags & 16)
++#define MACHINE_HAS_DIAG44	(machine_flags & 32)
+ 
+-#define MACHINE_HAS_HWC  (!MACHINE_IS_P390)
++#define MACHINE_HAS_HWC		(!MACHINE_IS_P390)
+ 
+ /*
+  * Console mode. Override with conmode=
+diff -urN linux-2.5.39/include/asm-s390x/spinlock.h linux-2.5.39-s390/include/asm-s390x/spinlock.h
+--- linux-2.5.39/include/asm-s390x/spinlock.h	Mon Sep 30 13:25:21 2002
++++ linux-2.5.39-s390/include/asm-s390x/spinlock.h	Mon Sep 30 13:32:48 2002
+@@ -16,7 +16,14 @@
+  * asm/spinlock.h. The diagnose is only available in kernel
+  * context.
+  */
++#ifdef __KERNEL__
+ #include <asm/lowcore.h>
++#define __DIAG44_INSN "ex"
++#define __DIAG44_OPERAND __LC_DIAG44_OPCODE
++#else
++#define __DIAG44_INSN "#"
++#define __DIAG44_OPERAND 0
++#endif
+ 
+ /*
+  * Simple spin lock operations.  There are two variants, one clears IRQ's
+@@ -38,12 +45,13 @@
+ {
+ 	unsigned long reg1, reg2;
+         __asm__ __volatile("    bras  %1,1f\n"
+-                           "0:  # diag  0,0,68\n"
++                           "0:  " __DIAG44_INSN " 0,%4\n"
+                            "1:  slr   %0,%0\n"
+                            "    cs    %0,%1,0(%3)\n"
+                            "    jl    0b\n"
+                            : "=&d" (reg1), "=&d" (reg2), "+m" (lp->lock)
+-                           : "a" (&lp->lock) : "cc" );
++                           : "a" (&lp->lock), "i" (__DIAG44_OPERAND)
++			   : "cc" );
+ }
+ 
+ extern inline int _raw_spin_trylock(spinlock_t *lp)
+@@ -88,43 +96,47 @@
+ #define _raw_read_lock(rw)   \
+         asm volatile("   lg    2,0(%1)\n"   \
+                      "   j     1f\n"     \
+-                     "0: # diag  0,0,68\n" \
++                     "0: " __DIAG44_INSN " 0,%2\n" \
+                      "1: nihh  2,0x7fff\n" /* clear high (=write) bit */ \
+                      "   la    3,1(2)\n"   /* one more reader */  \
+                      "   csg   2,3,0(%1)\n" /* try to write new value */ \
+                      "   jl    0b"       \
+-                     : "+m" ((rw)->lock) : "a" (&(rw)->lock) \
++                     : "+m" ((rw)->lock) \
++		     : "a" (&(rw)->lock), "i" (__DIAG44_OPERAND) \
+ 		     : "2", "3", "cc" )
+ 
+ #define _raw_read_unlock(rw) \
+         asm volatile("   lg    2,0(%1)\n"   \
+                      "   j     1f\n"     \
+-                     "0: # diag  0,0,68\n" \
++                     "0: " __DIAG44_INSN " 0,%2\n" \
+                      "1: lgr   3,2\n"    \
+                      "   bctgr 3,0\n"    /* one less reader */ \
+                      "   csg   2,3,0(%1)\n" \
+                      "   jl    0b"       \
+-                     : "+m" ((rw)->lock) : "a" (&(rw)->lock) \
++                     : "+m" ((rw)->lock) \
++		     : "a" (&(rw)->lock), "i" (__DIAG44_OPERAND) \
+ 		     : "2", "3", "cc" )
+ 
+ #define _raw_write_lock(rw) \
+         asm volatile("   llihh 3,0x8000\n" /* new lock value = 0x80...0 */ \
+                      "   j     1f\n"       \
+-                     "0: # diag  0,0,68\n"   \
++                     "0: " __DIAG44_INSN " 0,%2\n"   \
+                      "1: slgr  2,2\n"      /* old lock value must be 0 */ \
+                      "   csg   2,3,0(%1)\n" \
+                      "   jl    0b"         \
+-                     : "+m" ((rw)->lock) : "a" (&(rw)->lock) \
++                     : "+m" ((rw)->lock) \
++		     : "a" (&(rw)->lock), "i" (__DIAG44_OPERAND) \
+ 		     : "2", "3", "cc" )
+ 
+ #define _raw_write_unlock(rw) \
+         asm volatile("   slgr  3,3\n"      /* new lock value = 0 */ \
+                      "   j     1f\n"       \
+-                     "0: # diag  0,0,68\n"   \
++                     "0: " __DIAG44_INSN " 0,%2\n"   \
+                      "1: llihh 2,0x8000\n" /* old lock value must be 0x8..0 */\
+                      "   csg   2,3,0(%1)\n"   \
+                      "   jl    0b"         \
+-                     : "+m" ((rw)->lock) : "a" (&(rw)->lock) \
++                     : "+m" ((rw)->lock) \
++		     : "a" (&(rw)->lock), "i" (__DIAG44_OPERAND) \
+ 		     : "2", "3", "cc" )
+ 
+ #endif /* __ASM_SPINLOCK_H */
 

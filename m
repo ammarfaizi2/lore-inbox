@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266180AbUF3BUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266179AbUF3BZZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266180AbUF3BUy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 21:20:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266182AbUF3BUy
+	id S266179AbUF3BZZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 21:25:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266182AbUF3BZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 21:20:54 -0400
-Received: from havoc.gtf.org ([216.162.42.101]:17630 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S266180AbUF3BUw (ORCPT
+	Tue, 29 Jun 2004 21:25:24 -0400
+Received: from mproxy.gmail.com ([216.239.56.244]:5212 "HELO mproxy.gmail.com")
+	by vger.kernel.org with SMTP id S266179AbUF3BZX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 21:20:52 -0400
-Date: Tue, 29 Jun 2004 21:20:51 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: libata: 2.6.7-bk6,12 hang with ata_piix in combined mode; -bk5 ok
-Message-ID: <20040630012051.GA30823@havoc.gtf.org>
-References: <20040630005420.GA4163@ti64.telemetry-investments.com>
+	Tue, 29 Jun 2004 21:25:23 -0400
+Message-ID: <8783be6604062918255d594d19@mail.gmail.com>
+Date: Tue, 29 Jun 2004 21:25:22 -0400
+From: Ross Biro <ross.biro@gmail.com>
+To: David Ashley <dash@xdr.com>
+Subject: Re: Cached memory never gets released
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200406291618.i5TGIQ8F028141@xdr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040630005420.GA4163@ti64.telemetry-investments.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <200406291618.i5TGIQ8F028141@xdr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 29, 2004 at 08:54:20PM -0400, Bill Rugolsky Jr. wrote:
-> ata_piix: combined mode detected
-> ACPI: PCI interrupt 0000:1f.2[A]: no GSI
-[...]
->  sda:<3>ata1: command 0x25 timeout, stat 0xd0 host_stat 0x64
+On Tue, 29 Jun 2004 09:18:26 -0700, David Ashley <dash@xdr.com> wrote:
+> 
+> 
+> In the thread this is made clear somewhat, but when I post new
+> emails I don't summarize all that is known about the problem.
+
+Sorry, I missed that part of the thread.
 
 
-I wonder what "no GSI" is.  Since the command is timing out, that is
-often a symptom of ACPI interrupt routing problems.
+It does sounds like you may have a real problem, so the next step I
+would do is instrument kswapd to explain why it's not freeing cache
+when it's under demand.
 
-Does booting with "noapic" or "acpi=off" help anything?
+The first step is to add something to kernel/sysctrl.c to create a
+variable to turn the debugging code on or off.
 
-Also, does disabling combined mode solve anything?
+Then add a bunch of printk's to mm/vmscan.c explaining why every page
+is not being freed, but only when the sysctrl variable is set.
 
-	Jeff
+Then get the machine into the bad state and turn on the printks.
 
+Run your program that can't allocate memory
 
+Turn off the printks and analyze the logs.
 
+I'll be happy to help you figure out where to put printks and go over
+the logs, but you have to make sure you are really getting an OOM kill
+with that much cache for the output to be useful.

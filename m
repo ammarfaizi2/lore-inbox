@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129562AbRAZMGP>; Fri, 26 Jan 2001 07:06:15 -0500
+	id <S129143AbRAZM14>; Fri, 26 Jan 2001 07:27:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135654AbRAZMFz>; Fri, 26 Jan 2001 07:05:55 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:1796 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129562AbRAZMFw>;
-	Fri, 26 Jan 2001 07:05:52 -0500
-Message-ID: <20010126101422.A124@bug.ucw.cz>
-Date: Fri, 26 Jan 2001 10:14:22 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: yodaiken@fsmlabs.com, Jay Ts <jay@toltec.metran.cx>
-Cc: Andrew Morton <andrewm@uow.edu.au>, lkml <linux-kernel@vger.kernel.org>,
-        lad <linux-audio-dev@ginette.musique.umontreal.ca>, xpert@xfree86.org,
-        "mcrichto@mpp.ecs.umass.edu" <mcrichto@mpp.ecs.umass.edu>
-Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
-In-Reply-To: <3A5D994A.1568A4D5@uow.edu.au> <200101130245.TAA02910@toltec.metran.cx> <20010120171045.B15918@hq.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20010120171045.B15918@hq.fsmlabs.com>; from yodaiken@fsmlabs.com on Sat, Jan 20, 2001 at 05:10:45PM -0700
+	id <S129562AbRAZM1q>; Fri, 26 Jan 2001 07:27:46 -0500
+Received: from smtp.im.cz ([195.39.10.4]:15886 "HELO email.seznam.cz")
+	by vger.kernel.org with SMTP id <S129143AbRAZM1h>;
+	Fri, 26 Jan 2001 07:27:37 -0500
+From: "NightHawk" <nighthawk@seznam.cz>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 26 Jan 2001 13:27:25 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: (Fwd) Re: ALi Datasheets
+Reply-to: nighthawk@seznam.cz
+Message-ID: <3A717B3D.19141.190DD7@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > And making the kernel preemptive might be the best way to do that
-> > (and I'm saying "might"...).
-> 
-> Keep in mind that Ken Thompson & Dennis Ritchie did not decide on a 
-> non-preemptive strategy for UNIX because they were unaware of such 
-> methods or because they were stupid. And when Rob Pike redesigned a new
-> "unix" Plan9  note there is no-preemptive kernel, and the core Linux
-> designers have rejected preemptive kernels too. Now it is certainly possible
-> that things have change and/or all these folks are just plain wrong. But
-> I wouldn't bet too much on it.
+------- Forwarded message follows -------
+Date sent:      	Thu, 25 Jan 2001 23:20:42 -0500 (EST)
+From:           	"Mike A. Harris" <mharris@redhat.com>
+To:             	NightHawk <nighthawk@seznam.cz>
+Subject:        	Re: ALi Datasheets
 
-Wrong. It was linus who suggested how to do preemptive kernel nicely. I
-guess he counts as core Linux designer ;-).
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+On Fri, 26 Jan 2001, NightHawk wrote:
+
+>sorry to disturb...
+>I'm looking for datasheets for ALi1621 & 1533 chipset. I found your email in
+>one linux conference. Specificaly I need some description of PCI config.
+>registers for these PCI devs: (something like *.PCR files would be very
+>useful - see www.h- oda.com) 1621 host bridge 5247 PCI-PCI bridge 5229 IDE
+>1533 ISA bridge
+
+Sorry.. I don't have them anymore. If you ask on
+linux-kernel@vger.kernel.org for the sheets, I'm sure someone
+there will send them to you though.
+
+Good luck.
+TTYL
+
+
+--
+Mike A. Harris                  Mailing address:
+OS Systems Engineer             190 Pittsburgh Ave.
+Red Hat Inc.                    Sault Ste. Marie,
+(705)949-2136                   Ontario, Canada, P6C 5B3
+------------
+
+Please Help...
+
+
+
+------- End of forwarded message -------
+
+Zdravi NightHawk
+http://spedia.webzdarma.cz/
+http://referect.zde.cz/
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

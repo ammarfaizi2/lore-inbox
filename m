@@ -1,104 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262125AbUCLRza (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 12:55:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262141AbUCLRza
+	id S262349AbUCLSAm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 13:00:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbUCLSAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 12:55:30 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:30457 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262125AbUCLRz1
+	Fri, 12 Mar 2004 13:00:42 -0500
+Received: from stine.vestdata.no ([195.204.68.10]:35017 "EHLO
+	stine.vestdata.no") by vger.kernel.org with ESMTP id S262349AbUCLSAi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 12:55:27 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Markus Kossmann <markus.kossmann@inka.de>
-Subject: Re: kernelparameter idex=noprobe
-Date: Fri, 12 Mar 2004 19:02:44 +0100
-User-Agent: KMail/1.5.3
-References: <200403121826.21442.markus.kossmann@inka.de>
-In-Reply-To: <200403121826.21442.markus.kossmann@inka.de>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Mar 2004 13:00:38 -0500
+Date: Fri, 12 Mar 2004 18:59:59 +0100
+From: Ragnar =?iso-8859-15?Q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Arthur Corliss <corliss@digitalmages.com>, watters@sgi.com, law@sgi.com,
+       te@scali.com
+Subject: Re: [PATCH][RFC] fix BSD accounting (w/ long-term perspective ;-)
+Message-ID: <20040312175959.GN1066@vestdata.no>
+References: <Pine.LNX.4.53.0403082241200.16420@gockel.physik3.uni-rostock.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-Message-Id: <200403121902.44371.bzolnier@elka.pw.edu.pl>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.53.0403082241200.16420@gockel.physik3.uni-rostock.de>
+User-Agent: Mutt/1.5.2i
+X-Zet.no-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 of March 2004 18:26, Markus Kossmann wrote:
-> Hallo,
-> according to linux-2.6.4/Documentation/ide.txt :
-> "idex=noprobe"         : do not attempt to access/use this interface
-> SuSEs inofficial 2.6.4-0 kernel ( precompiled from rpm) comes with
-> CONFIG_BLK_DEV_SIIMAGE=y
-> CONFIG_SCSI_SATA_SIL=m
->
-> Trying to use the sata_sil driver for my sil3112 controler I did give
-> ide4=noprobe ide5=noprobe hdi=noprobe hdj=noprobe hdk=noprobe hdl=noprobe
-> on the kernel commandline
->
-> The Bootup- messages show:
-> [...]
-> 6>Using ACPI (MADT) for SMP configuration information
-> <4>Built 1 zonelists
-> <4>Kernel command line: root=/dev/hde2 vga=0x317 desktop hdc=ide-scsi
-> hdclun=0 splash=silent 3
-> ide4=noprobe ide5=noprobe hdi=noprobe hdj=noprobe hdk=noprobe hdl=noprobe
-> <6>ide_setup: hdc=ide-scsi
-> <6>ide_setup: hdclun=0
-> <6>bootsplash: silent mode.
-> <6>ide_setup: ide4=noprobe
-> <6>ide_setup: ide5=noprobe
-> <6>ide_setup: hdi=noprobe
-> <6>ide_setup: hdj=noprobe
-> <6>ide_setup: hdk=noprobe
-> <6>ide_setup: hdl=noprobe
-> [...]
-> 6>ide: Assuming 33MHz system bus speed for PIO modes; override with
-> idebus=xx <6>AMD7411: IDE controller at PCI slot 0000:00:07.1
-> <6>AMD7411: chipset revision 1
-> <6>AMD7411: not 100%% native mode: will probe irqs later
-> <6>AMD7411: 0000:00:07.1 (rev 01) UDMA100 controller
-> <6>    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:pio
-> <6>    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:pio
-> <4>hda: DM166D DVD-ROM, ATAPI CD/DVD-ROM drive
-> <4>ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> <4>hdc: PLEXTOR DVDR PX-708A, ATAPI CD/DVD-ROM drive
-> <4>ide1 at 0x170-0x177,0x376 on irq 15
-> <6>PDC20270: IDE controller at PCI slot 0000:00:09.0
-> <6>PDC20270: chipset revision 2
-> <6>PDC20270: 100%% native mode on irq 177
-> <6>    ide2: BM-DMA at 0x1830-0x1837, BIOS settings: hde:pio, hdf:pio
-> <6>    ide3: BM-DMA at 0x1838-0x183f, BIOS settings: hdg:pio, hdh:pio
-> <4>hde: SAMSUNG SP0612N, ATA DISK drive
-> <4>ide2 at 0x1868-0x186f,0x1862 on irq 177
-> <6>SiI3112 Serial ATA: IDE controller at PCI slot 0000:00:0a.0
-> <6>SiI3112 Serial ATA: chipset revision 2
-> <6>SiI3112 Serial ATA: 100%% native mode on irq 185
-> <6>    ide4: MMIO-DMA , BIOS settings: hdi:pio, hdj:pio
-> <6>    ide5: MMIO-DMA , BIOS settings: hdk:pio, hdl:pio
-> <4>hde: max request size: 1024KiB
-> <6>hde: 117304992 sectors (60060 MB) w/2048KiB Cache, CHS=16383/255/63,
-> UDMA(100)
-> <6> hde: hde1 < hde5 hde6 hde7 hde8 hde9 > hde2 hde3 hde4
-> [...]
->
-> Why is the SIL3112 taken over by the siimage driver ?
-> Did I misinterpret ide.txt, is ide.txt wrong or is this a bug ?
+[ CCing Sam Watters and Linda Walsh at SGI for feedback about using
+pid/ppid/pgid/sid/paggid/whatever to track jobs in accounting-logs ]
 
-It is not a bug - siimage driver is compiled in and PCI device is detected.
-It has nothing to do with "idex=noprobe" or "hdx=noprobe".
+On Tue, Mar 09, 2004 at 12:03:27AM +0100, Tim Schmielau wrote:
+> BSD accounting currently reports only the lower 16 bits of 32 bit uids,
+> reports times in units of 1/HZ seconds while it announces a unit of
+> 1/100 seconds in the header file (which hurts especially on i386 where
+> HZ changed since 2.4) and cannot report times longer that 49 days.
 
-> hdi=noprobe seems to work however. The attached SATA disk doesn't show up.
-> And it does show up if I leave out hdi=noprobe.
->
-> Is there any chance to use sata_sil with that kernel configuration ?
-> Or is recompiling with CONFIG_BLK_DEV_SIIMAGE=m or with siimage disabled
-> the only option ?
+Red Hat uses a patch that adds 32 bit uids and 32 bit gids at the end of
+struct acct, reducing the size of the padding to 2 bytes. If a simular
+extension is added to the official kernel it would be nice if they were
+compatible.
 
-Yep.
 
-Regards,
-Bartlomiej
+There is also a few other problems with the current implementation that
+we would like to see fixed if there is going to be a format-change
+anyway:
+- Architecture indepencence. It would be nice if the binary format was
+  independent of the architecture so files can be processed on other
+  hosts. This would involve defining padding and byte-ordering, as well
+  as either stop using 1/HZ units in the file or add AHZ to the record.
 
+- Better accuracy. Specificly the records don't include an exact
+  termination-time for the process. One can estimate termination-time
+  based on creation time and elapsed time but since elapsed time is
+  truncated into comp_t it is not accurate for long-lived processes.
+
+- More information. Accounting is typically used to keep track of
+  what resources different jobs have used, where the definition of
+  "job" may differ from site to site. Quite often "job" is a group
+  of related processes, so including pid/ppid would allow
+  post-processing to rebuild the process-hierarchy and deduce what
+  processes were part of the same job. Even better, if usespace
+  could notify the kernel what job a process belongs to, it would be
+  easier to track jobs across multiple nodes in a cluster and so on.
+  Maybe adding pid, ppid and jobid to the format and then use the sid
+  as the jobid for now? And then it can be replaced by a proper jobid
+  from e.g. PAGG later?
+
+>    My proposed solution: keep backwards compatibility with 2.4 by using
+>    a unit of 1/USER_HZ, announce that correctly in the header file,
+>    and simply admit that BSD accounting on i386 is broken in 2.6.0-2.6.4.
+
+Sounds good.
+
+>  - store a version number in the last byte of struct acct, which allows
+>    for a smooth transition to a new binary format when 2.7 comes out.
+>    For 2.7, extend uid/gid fields to 32 bit, report times in terms
+>    of AHZ=100 on all platforms (thus allowing to report times up to 1988 
+>    days), and remove the compatibility stuff from the kernel.
+
+It may be useful to have the version-information in the beginning of the
+struct to allow future versions to use a struct of a different size.
+There should be some bits available in the flag-field, maybe that's
+enough?
+
+
+-- 
+Ragnar Kjørstad
+Software Engineer
+Scali - http://www.scali.com
+High Performance Clustering

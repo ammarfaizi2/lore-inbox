@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262618AbVCVKnO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262619AbVCVKvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262618AbVCVKnO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 05:43:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbVCVKnO
+	id S262619AbVCVKvl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 05:51:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbVCVKvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 05:43:14 -0500
-Received: from fire.osdl.org ([65.172.181.4]:27594 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262615AbVCVKmr (ORCPT
+	Tue, 22 Mar 2005 05:51:41 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:50843 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262620AbVCVKvg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 05:42:47 -0500
-Date: Tue, 22 Mar 2005 02:42:15 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: Holger.Kiehl@dwd.de, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, emoore@lsil.com
-Subject: Re: Fusion-MPT much faster as module
-Message-Id: <20050322024215.2896fb13.akpm@osdl.org>
-In-Reply-To: <200503221029.j2MATNg12775@unix-os.sc.intel.com>
-References: <Pine.LNX.4.61.0503220813290.17195@diagnostix.dwd.de>
-	<200503221029.j2MATNg12775@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 22 Mar 2005 05:51:36 -0500
+Date: Tue, 22 Mar 2005 02:49:22 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: rjw@sisk.pl, linux-kernel@vger.kernel.org,
+       "Brown, Len" <len.brown@intel.com>
+Subject: Re: 2.6.12-rc1-mm1: Kernel BUG at pci:389
+Message-ID: <20050322014922.GA1512@elf.ucw.cz>
+References: <20050321025159.1cabd62e.akpm@osdl.org> <200503212343.31665.rjw@sisk.pl> <20050321160306.2f7221ec.akpm@osdl.org> <20050322004456.GB1372@elf.ucw.cz> <20050321170623.4eabc7f8.akpm@osdl.org> <20050322013535.GA1421@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050322013535.GA1421@elf.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
->
-> On Mon, 21 Mar 2005, Andrew Morton wrote:
-> > Holger, this problem remains unresolved, does it not?  Have you done any
-> > more experimentation?
-> >
-> > I must say that something funny seems to be happening here.  I have two
-> > MPT-based Dell machines, neither of which is using a modular driver:
-> >
-> > akpm:/usr/src/25> 0 hdparm -t /dev/sda
-> >
-> > /dev/sda:
-> > Timing buffered disk reads:  64 MB in  5.00 seconds = 12.80 MB/sec
-> 
-> 
-> Holger Kiehl wrote on Tuesday, March 22, 2005 12:31 AM
-> > Got the same result when compiled in, always between 12 and 13 MB/s. As
-> > module it is approx. 75 MB/s.
-> 
-> 
-> Half guess, half with data to prove: it must be the variable driver_setup
-> initialization.  If compiled as built-in, driver_setup is initialized to
-> zero for all of its member variables, which isn't the fastest setting. If
-> compiled as module, it gets first class treatment with shinny performance
-> setting.  Goofing around, this patch appears to be giving higher throughput.
+Hi!
 
-ooh, you actually looked at the code ;)
+> And they are both "dangerous" -- they introduce new and untested
+> functionality while I'm trying to transition from int to
+> pm_message_t. They also affect all the drivers.
 
-> Before:
-> /dev/sdc:
->  Timing buffered disk reads:   92 MB in  3.03 seconds =  30.32 MB/sec
-> 
-> After:
-> /dev/sdc:
->  Timing buffered disk reads:  174 MB in  3.02 seconds =  57.61 MB/sec
-> 
+Actually, there's one even more severe problem with
+platform_pci_choose_state...
 
-Yes, that's it.  Eric, you owe me about 10000 hours ;)
+If we are doing freeze for swsusp snapshot (or freeze for kexec or
+something similar, that ACPI does not know about), it is very wrong to
+ask ACPI to tell us power levels for devices. ACPI does not even know
+about those states, it can not tell us anything meaningfull.
 
+So if this hook is to be reintroduced, it should go down in the
+function, and only trigger for ACPI S3 and ACPI S1 cases. Maybe for
+swsusp/plaform (== ACPI S4).
+
+But I'd prefer the hook to go away for now, it clearly needs
+infrastructure that is not yet there, and provides nothing.
+
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

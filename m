@@ -1,94 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131981AbRCYNMh>; Sun, 25 Mar 2001 08:12:37 -0500
+	id <S132000AbRCYOXQ>; Sun, 25 Mar 2001 09:23:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131986AbRCYNM1>; Sun, 25 Mar 2001 08:12:27 -0500
-Received: from gadolinium.btinternet.com ([194.73.73.111]:23976 "EHLO
-	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
-	id <S131981AbRCYNMW>; Sun, 25 Mar 2001 08:12:22 -0500
-From: Wayne Pascoe <wayne@penguinpowered.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Remounting usb camera causes problems with copy of data
-Date: 25 Mar 2001 14:09:04 +0100
-Message-ID: <87ofuq0zdb.fsf@ford.penguinpowered.org.uk>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S132002AbRCYOXG>; Sun, 25 Mar 2001 09:23:06 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:47889 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S132000AbRCYOW6>; Sun, 25 Mar 2001 09:22:58 -0500
+Message-ID: <3ABDFC38.9558DF6C@evision-ventures.com>
+Date: Sun, 25 Mar 2001 16:10:00 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
+To: Doug Ledford <dledford@redhat.com>
+CC: Horst von Brand <vonbrand@inf.utfsm.cl>,
+        Christian Bodmer <cbinsec01@freesurf.ch>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <200103231508.f2NF83xY001147@pincoya.inf.utfsm.cl> <3ABC5143.167A649E@redhat.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Doug Ledford wrote:
+> 
+> Horst von Brand wrote:
+> >
+> > "Christian Bodmer" <cbinsec01@freesurf.ch> said:
+> >
+> > > I can't say I understand the whole MM system, however the random killing
+> > > of processes seems like a rather unfortunate solution to the problem. If
+> > > someone has a spare minute, maybe they could explain to me why running
+> > > out of free memory in kswapd results in a deadlock situation.
+> >
+> > OOM is not "normal operations", it is a machine under very extreme stress,
+> > and should *never* happen. To complicate (or even worse, slow down or
+> > otherwise use up resources like memory) normal operations for "better
+> > handling of OOM" is total nonsense.
+> 
+> Puh-Leeze.   Let's inject some reality into this conversation:
+> 
+> [dledford@aic-cvs dledford]$ more kill-list
+> Mar 10 22:02:34 monster kernel: Out of Memory: Killed process 475 (identd).
+> Mar 10 22:03:25 monster kernel: Out of Memory: Killed process 660 (xfs).
+...
+> Mar 22 15:45:54 monster kernel: Out of Memory: Killed process 504 (atd).
+> Mar 22 16:12:13 monster kernel: Out of Memory: Killed process 524 (sshd).
+> [dledford@aic-cvs dledford]$
+> 
+> What was that you were saying about "should *never* happen"?  Oh, and let's
+> not overlook the fact that it killed off mostly system daemons to start off
+> with while leaving the real culprits alone.  Once it did get around to the
+> real culprits (diff and tar), it wasn't even killing them because they were
+> overly large, it was killing them because it wasn't reclaiming space from the
+> buffer cache and page cache.  All of the programs running on this machine were
+> never more than roughly 256MB of program code, and this is a 1GB machine.
 
-I found this problem (the hard way - through stupid data loss by not
-checking things before erasing my memory stick) while on holiday. I
-have been able to reproduce it using kernel 2.4.0 and kernel 2.4.2.
+This is due to the fact that Riks killer doesn't normalize the
+resource units it's using for measure. Basically the current
+penatly calculations are a good random number generator.
 
-The camera is a Sony Cybershot DSC-F505. The laptop is a Sony Vaio
-PCG-505G. 
+> This behavior is totally unacceptable and, as Alan put it, is a bug in the
+> code.  It should never trigger the oom killer with 750+MB of cache sitting
+> around, but it does.  If you want people to buy into the value of the oom
+> killer, you've at least got to get it to quit killing shit when it absolutely
+> doesn't need to.
+> 
+> To those people that would suggest I send in code I only have this to say.
+> Fine, I'll send in a patch to fix this bug.  It will make the oom killer call
+> the cache reclaim functions and never kill anything.  That would at least fix
+> the bug you see above.
 
-I am using the usb-storage module to mount my camera as a filesystem
-on the machine, then copying data off of the memory sticks. I have 2
-16MB Memory sticks. I have also tried this with usb-storage compiled
-into my kernel, not as a module, and in that case, once I umount
-/camera and swap memory sticks, I can't remount it. It says something
-to the effect of incorrect major or minor device number.
-
-All the tests and the output below are using the usb-storage stuff as
-a module.
-
-When I power up the camera I get the following message :
-Vendor: Sony      Model: DSC - F505      Rev: 1.06
-  Type: Direct Access                 ANSI SCSI revision: 02
-Detected scsi removable disk sda at scsi0, channel 0, id0, lun 0
-usb-uhci.c: interrupt, status 3, frame #184
-usb-uhci.c: interrupt, status 3, frame #187
-sda: test WP failed, assume Write Protected
-
-When I mount it, I get the following output
-maggie# mount /camera
-mount: block device /dev/sda1 is write protected, mounting read-only
-usb-uhci.c: interrupt, status 3, frame #35
-usb-uhci.c: interrupt, status 3, frame #37
-
-If I have 2 memory sticks with data on them and need to get the data
-to my machine before clearing the memory sticks, this is the procedure
-that I normally use :
-
-Insert 1st memory stick
-Power up camera
-modprobe usb-storage
-mount /dev/sda1 /camera
-mkdir 1
-cp /camera/dcim/100msdcf/* 1
-umount /camera
-mkdir 2
-Swap memory sticks so that now the 2nd stick is in the camera, and
-   power back on.
-mount /dev/sda1 /camera
-cp /camera/dcim/100msdcf/* 2
-umount /camera
-
-All of the pictures from the 1st memory stick copy fine. Their file
-sizes match the sizes of the files on the memory stick.
-
-The first 22 pictures of the 2nd memory stick copy fine. All files
-after that (dsc00023.jpg - dsc000??.jpg) are empty files (0 bytes).
-
-If I rmmod usb-storage, modprobe usb-storage and try again, it works
-fine. _BUT_ I have to rmmod usb-storage before swapping sticks.
-
-This is only really an inconvinience, and now that I know about it, I
-can work around it, but I thought that someone should know in case
-this is a bug.
-
-Also, just out of curiosity, why does the Sony Cybershot mount
-read-only? The Fujitsu finepix range all mount read-write, and writing
-to the flash seems to work ok. Is this because the Cybershot is using
-a non-standard interface?
-
-TIA,
-
--- 
---Wayne--
-I laugh in the face of danger...            | wayne@penguinpowered.org.uk
-Then I run and hide until it goes away!     | www.penguinpowered.org.uk
+Please just apply it to the patch I have recently send... It will help
+more :-).

@@ -1,40 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287572AbSAHCZR>; Mon, 7 Jan 2002 21:25:17 -0500
+	id <S287574AbSAHCox>; Mon, 7 Jan 2002 21:44:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287577AbSAHCZI>; Mon, 7 Jan 2002 21:25:08 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:62815 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S287572AbSAHCYz>; Mon, 7 Jan 2002 21:24:55 -0500
-Date: Mon, 7 Jan 2002 21:24:45 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] in 2.4.17 after 10 days uptime
-Message-ID: <20020107212445.A7376@redhat.com>
-In-Reply-To: <20020101145605.B3283@redhat.com> <Pine.LNX.4.21.0201071623380.18722-100000@freak.distro.conectiva>
+	id <S287577AbSAHCoo>; Mon, 7 Jan 2002 21:44:44 -0500
+Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:44935 "EHLO
+	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S287574AbSAHCoj>; Mon, 7 Jan 2002 21:44:39 -0500
+Date: Mon, 7 Jan 2002 21:48:32 -0500
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020107214832.A11527@earthlink.net>
+In-Reply-To: <20020106153854.A10824@earthlink.net> <20020107183937.40625026.skraw@ithnet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0201071623380.18722-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Mon, Jan 07, 2002 at 04:28:12PM -0200
+In-Reply-To: <20020107183937.40625026.skraw@ithnet.com>; from skraw@ithnet.com on Mon, Jan 07, 2002 at 06:39:37PM +0100
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 07, 2002 at 04:28:12PM -0200, Marcelo Tosatti wrote:
-> Is my thinking correct ?
+> can you please try The Same Thing while copying large files around in the
+> background (lets say 100MB files) and re-comment.
+> 
+> Thanks,
+> Stephan
 
-Yes, that's the case I was thinking of.  sendfile() and tux are potential 
-triggers of this.
+I used the script below to create 10 330 megabyte files; then cpio them
+over to another filesystem while another process was constantly allocating
+and writing to 85% of VM.  It did 77 iterations allocating about 1.6GB of
+RAM during the time (10 * 330 * 2) MB worth of files were created and cpio'd.
+The test took 53 minutes.
 
-> If so, I don't see why Ed's trace BUGs at rmqueue first: It should bug at
-> __free_pages_ok() PageLRU check.
+I do most of my work from console.  
+http://home.earthlink.net/~rwhron/hardware/matrox.html
 
-Hmm, as we've discussed on irc, there are some other nasty implications of 
-the __free_pages code interacting with shrink_cache without this patch.  I'm 
-not certain that explains it, but it could.  Ed, have you seen this oops 
-again?  What kind of load is the machine under?
+There was an obvious but not painful delay for interactive use during 
+the test.  An X desktop would be less kind to the user.
 
-		-ben
+Kernel: 2.4.17rc2aa2
+Memory: 901804k/917504k available 
+1027 MB swap.
+Athlon 1333
+(1) 40GB 7200 rpm IDE disk.
+
+#!/bin/bash
+# What does the VM do when copying big files and a memory hog is running.
+
+cmd=${0##*/}
+kern=$(uname -r)
+
+typeset -i i
+typeset -i j
+
+log=${cmd}-${kern}.log
+src=/usr/src/sources
+dest=/opt/testing
+mtest01=$src/l/ltp*206/testcases/bin/mtest01
+percent=85	# vm to fill
+
+uname -a > $log
+
+# create memhog script to run during test
+cat>memhog<<EOF
+#!/bin/bash
+while :
+do	# allocate and write to $percent of virtual memory
+	uptime
+	head -3 /proc/meminfo
+	egrep 'inode|dentry|buffer' /proc/slabinfo
+	time $mtest01 -p $percent -w 2>&1
+	head -3 /proc/meminfo
+	egrep 'inode|dentry|buffer' /proc/slabinfo
+done
+EOF
+
+# execute memhog in background
+chmod +x memhog
+/memhog >> $log 2>&1 &
+mpid=$!
+
+# timer
+SECONDS=0
+vmstat 15  >> $log &
+updatedb
+rm -rf $src/?/bigfile $dest
+mkdir $dest
+df -k /opt /usr/src >> $log
+
+# create 10 big files
+for ((i=0; i<=9; i++))
+do	cat $src/[gbl]/*.{gz,bz2} > $src/$i/bigfile
+done
+ls -l $src/?/bigfile >> $log
+size=$(ls -l $src/?/bigfile|awk '{print $5}'|uniq)
+num=$(ls $src/?/bigfile|wc -w)
+
+# copy the files
+cd $src
+find [0-9] -name bigfile|cpio -pdm $dest >> $log
+sync
+df -k /opt /usr/src
+echo $SECONDS to create and copy $num $size byte files  >> $log
+
+# kill memhog and vmstat
+kill $! $mpid
+rm -rf $src/?/bigfile $dest
+echo "log is in $log"
+
 -- 
-Fish.
+Randy Hron
+

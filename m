@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbUEKCOg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbUEKCjj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbUEKCOg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 22:14:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbUEKCOg
+	id S261369AbUEKCjj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 22:39:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUEKCjj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 22:14:36 -0400
-Received: from hera.kernel.org ([63.209.29.2]:61389 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261405AbUEKCOe (ORCPT
+	Mon, 10 May 2004 22:39:39 -0400
+Received: from fw.osdl.org ([65.172.181.6]:63968 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261369AbUEKCji (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 22:14:34 -0400
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: AMD64 and RAID6
-Date: Tue, 11 May 2004 02:13:47 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c7pcsr$u4e$1@terminus.zytor.com>
-References: <409D1D86.6050907@clanhk.org>
+	Mon, 10 May 2004 22:39:38 -0400
+Date: Mon, 10 May 2004 19:39:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: davidsen@tmr.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+Message-Id: <20040510193901.59cebd6a.akpm@osdl.org>
+In-Reply-To: <200405102031.i4AKVXLg022041@eeyore.valparaiso.cl>
+References: <c7om3o$akd$1@gatekeeper.tmr.com>
+	<200405102031.i4AKVXLg022041@eeyore.valparaiso.cl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1084241627 30863 127.0.0.1 (11 May 2004 02:13:47 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Tue, 11 May 2004 02:13:47 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <409D1D86.6050907@clanhk.org>
-By author:    "J. Ryan Earl" <heretic@clanhk.org>
-In newsgroup: linux.dev.kernel
+Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
 >
-> I noticed the following in my dmesg:
+> Bill Davidsen <davidsen@tmr.com> said:
 > 
-> raid5: measuring checksumming speed
->   generic_sse:  6604.000 MB/sec
-> raid5: using function: generic_sse (6604.000 MB/sec)
-> raid6: int64x1   1847 MB/s
-> raid6: int64x2   2753 MB/s
-> raid6: int64x4   2878 MB/s
-> raid6: int64x8   1902 MB/s
-> raid6: sse2x1    1015 MB/s
-> raid6: sse2x2    1488 MB/s
-> raid6: sse2x4    1867 MB/s
-> raid6: using algorithm sse2x4 (1867 MB/s)
-> md: raid6 personality registered as nr 8
-> md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
+> [...]
 > 
-> Why doesn't RAID6 use the int64x4 algorithm in this situation?  What is 
-> the motivation of setting the 'prefer field' on the sse algorithms and 
-> not on the integer based algorithms?
+> > I tried 4k stack, I couldn't measure any improvement in anything (as in 
+> > no visible speedup or saving in memory).
 > 
+> 4K stacks lets the kernel create new threads/processes as long as there is
+> free memory; with 8K stacks it needs two consecutive free page frames in
+> physical memory, when memory is fragmented (and large) they are hard to
+> come by...
 
-The SSE algorithms are non-cache-polluting.  This makes them slightly
-slower, but avoids slowing the rest of the machine down as much.
+This is true to a surprising extent.  A couple of weeks ago I observed my
+256MB box freeing over 20MB of pages before it could successfully acquire a
+single 1-order page.
 
-	-hpa
+That was during an updatedb run.
+
+And a 1-order GFP_NOFS allocation was actually livelocking, because
+!__GFP_FS allocations aren't allowed to enter dentry reclaim.  Which is why
+VFS caches are now forced to use 0-order allocations.
+
+

@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130139AbRAGKXJ>; Sun, 7 Jan 2001 05:23:09 -0500
+	id <S130110AbRAGKoA>; Sun, 7 Jan 2001 05:44:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130162AbRAGKW6>; Sun, 7 Jan 2001 05:22:58 -0500
-Received: from james.kalifornia.com ([208.179.0.2]:22890 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S130139AbRAGKWx>; Sun, 7 Jan 2001 05:22:53 -0500
-Date: Sun, 7 Jan 2001 02:22:31 -0800 (PST)
-From: David Ford <david@linux.com>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Ben Greear <greearb@candelatech.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
-Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission
- policy!)
-In-Reply-To: <20010107162905.B1804@metastasis.f00f.org>
-Message-ID: <Pine.LNX.4.10.10101070220410.4173-100000@Huntington-Beach.Blue-Labs.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130162AbRAGKnl>; Sun, 7 Jan 2001 05:43:41 -0500
+Received: from cs16028-106.austin.rr.com ([24.160.28.106]:18631 "EHLO
+	confucius.gnacademy.org") by vger.kernel.org with ESMTP
+	id <S130110AbRAGKn3>; Sun, 7 Jan 2001 05:43:29 -0500
+Date: Sun, 7 Jan 2001 04:33:01 -0600
+Message-Id: <200101071033.f07AX1w14897@confucius.gnacademy.org>
+From: Joseph Wang <joe@gnacademy.tzo.org>
+To: linux-kernel@vger.kernel.org
+Subject: Pcnet32 patch to get HomePNA working
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jan 2001, Chris Wedgwood wrote:
-> Virtual IP interfaces in the form of ifname:<number> (e.g. eth:1) IMO
-> should be deprecated and removed completely in 2.5.x. It's an ugly
-> external wart that should be removed.
-> 
-> That said, if this was done -- how would things like routing daemons
-> and bind cope? Actually, when I think about it they can't cope with
-> situating like this now:
-> 
-> tapu:~# ip addr show lo
-> 1: lo: <LOOPBACK,UP> mtu 3904 qdisc noqueue
->     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
->     inet 127.0.0.1/8 scope host lo
->     inet 10.0.0.1/32 scope global lo
 
-BIND copes just fine, how would it not?  I haven't heard any problems with
-routing daemons either.
+I have a patch here to the pcnet32 driver that is needed to get
+HomePNA cards working under 2.4.  I was working with the maintainer of
+the driver to test this, but this does not seem to have made it into 
+the 2.4.0 kernel.
+
+Any ideas as to what I should do?
+
+*** pcnet32.c~	Mon Dec 11 15:38:29 2000
+--- pcnet32.c	Sat Dec 16 03:43:22 2000
+***************
+*** 582,593 ****
+  	 */
+  	/* switch to home wiring mode */
+  	media = a->read_bcr (ioaddr, 49);
+- #if 0
+  	if (pcnet32_debug > 2)
+  	    printk(KERN_DEBUG "pcnet32: pcnet32 media value %#x.\n",  media);
+  	media &= ~3;
+  	media |= 1;
+! #endif
+  	if (pcnet32_debug > 2)
+  	    printk(KERN_DEBUG "pcnet32: pcnet32 media reset to %#x.\n",  media);
+  	a->write_bcr (ioaddr, 49, media);
+--- 582,592 ----
+  	 */
+  	/* switch to home wiring mode */
+  	media = a->read_bcr (ioaddr, 49);
+  	if (pcnet32_debug > 2)
+  	    printk(KERN_DEBUG "pcnet32: pcnet32 media value %#x.\n",  media);
+  	media &= ~3;
+  	media |= 1;
+! 
+  	if (pcnet32_debug > 2)
+  	    printk(KERN_DEBUG "pcnet32: pcnet32 media reset to %#x.\n",  media);
+  	a->write_bcr (ioaddr, 49, media);
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

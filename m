@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262442AbUDHUc1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 16:32:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262784AbUDHUcX
+	id S262415AbUDHUgU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 16:36:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbUDHUgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 16:32:23 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:8934 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262442AbUDHTum (ORCPT
+	Thu, 8 Apr 2004 16:36:17 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:30437 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262415AbUDHTuZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 15:50:42 -0400
-Date: Thu, 8 Apr 2004 12:49:43 -0700
+	Thu, 8 Apr 2004 15:50:25 -0400
+Date: Thu, 8 Apr 2004 12:49:01 -0700
 From: Paul Jackson <pj@sgi.com>
 To: Paul Jackson <pj@sgi.com>
 Cc: colpatch@us.ibm.com, wli@holomorphy.com, rusty@rustcorp.com.au,
        linux-kernel@vger.kernel.org
-Subject: Patch 10/23 - Bitmaps, Cpumasks and Nodemasks
-Message-Id: <20040408124943.62318fb9.pj@sgi.com>
+Subject: Patch 6a/23 - Bitmaps, Cpumasks and Nodemasks
+Message-Id: <20040408124901.70697354.pj@sgi.com>
 In-Reply-To: <20040408115050.2c67311a.pj@sgi.com>
 References: <20040408115050.2c67311a.pj@sgi.com>
 Organization: SGI
@@ -26,36 +26,311 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-P10.rm_old_cpumask_emul - Remove obsolete cpumask emulation from cpumask.h
-        Now that the emulation of the obsolete cpumask macros is no
-        longer needed, remove it from cpumask.h
+P6a.unline_find_next_bit_ia64 - Uninline find_next_bit on ia64
 
-Index: 2.6.5.bitmap/include/linux/cpumask.h
+	Move the page of code (~700 bytes of instructions)
+	for find_next_bit and find_next_zero_bit from inline
+	in include/asm-ia64/bitops.h to a real function in
+	arch/ia64/lib/bitops.c, leaving a declaration and
+	macro wrapper behind.
+
+	The other arch's with almost this same code might want to
+	also uninline it: alpha, parisc, ppc, sh, sparc, sparc64.
+
+	These are too big to inline.
+
+Index: 2.6.5.bitmap/include/asm-ia64/bitops.h
 ===================================================================
---- 2.6.5.bitmap.orig/include/linux/cpumask.h	2004-04-07 21:34:10.000000000 -0700
-+++ 2.6.5.bitmap/include/linux/cpumask.h	2004-04-07 21:57:34.000000000 -0700
-@@ -315,16 +315,4 @@
- #define for_each_online_cpu(cpu)     \
- 			for_each_cpu_mask(cpu, cpu_online_map)
+--- 2.6.5.bitmap.orig/include/asm-ia64/bitops.h	2004-04-08 03:02:48.000000000 -0700
++++ 2.6.5.bitmap/include/asm-ia64/bitops.h	2004-04-08 03:03:28.000000000 -0700
+@@ -11,7 +11,7 @@
  
--/* Begin obsolete cpumask operator emulation */
--#define cpu_isset_const(a,b) cpu_isset(a,b)
--#define cpumask_const_t cpumask_t
--#define cpus_coerce(m) (cpus_addr(m)[0])
--#define cpus_coerce_const cpus_coerce
--#define cpus_promote(x) ({ cpumask_t m; m.bits[0] = x; m; })
--#define cpus_weight_const cpus_weight
--#define first_cpu_const first_cpu
--#define mk_cpumask_const(x) x
--#define next_cpu_const next_cpu
--/* End of obsolete cpumask operator emulation */
+ #include <linux/compiler.h>
+ #include <linux/types.h>
 -
- #endif /* __LINUX_CPUMASK_H */
-
-%diffstat
- cpumask.h |   12 ------------
- 1 files changed, 12 deletions(-)
-
++#include <asm/bitops.h>
+ #include <asm/intrinsics.h>
+ 
+ /**
+@@ -236,7 +236,7 @@
+ }
+ 
+ /**
+- * test_and_change_bit - Change a bit and return its new value
++ * test_and_change_bit - Change a bit and return its old value
+  * @nr: Bit to set
+  * @addr: Address to count from
+  *
+@@ -359,93 +359,21 @@
+ 
+ #endif /* __KERNEL__ */
+ 
+-/*
+- * Find next zero bit in a bitmap reasonably efficiently..
+- */
+-static inline int
+-find_next_zero_bit (void *addr, unsigned long size, unsigned long offset)
+-{
+-	unsigned long *p = ((unsigned long *) addr) + (offset >> 6);
+-	unsigned long result = offset & ~63UL;
+-	unsigned long tmp;
+-
+-	if (offset >= size)
+-		return size;
+-	size -= result;
+-	offset &= 63UL;
+-	if (offset) {
+-		tmp = *(p++);
+-		tmp |= ~0UL >> (64-offset);
+-		if (size < 64)
+-			goto found_first;
+-		if (~tmp)
+-			goto found_middle;
+-		size -= 64;
+-		result += 64;
+-	}
+-	while (size & ~63UL) {
+-		if (~(tmp = *(p++)))
+-			goto found_middle;
+-		result += 64;
+-		size -= 64;
+-	}
+-	if (!size)
+-		return result;
+-	tmp = *p;
+-found_first:
+-	tmp |= ~0UL << size;
+-	if (tmp == ~0UL)		/* any bits zero? */
+-		return result + size;	/* nope */
+-found_middle:
+-	return result + ffz(tmp);
+-}
++extern int __find_next_zero_bit (void *addr, unsigned long size, \
++			unsigned long offset);
++extern int __find_next_bit(const void *addr, unsigned long size, \
++			unsigned long offset);
++
++#define find_next_zero_bit(addr, size, offset) \
++			__find_next_zero_bit((addr), (size), (offset))
++#define find_next_bit(addr, size, offset) \
++			__find_next_bit((addr), (size), (offset))
+ 
+ /*
+  * The optimizer actually does good code for this case..
+  */
+ #define find_first_zero_bit(addr, size) find_next_zero_bit((addr), (size), 0)
+ 
+-/*
+- * Find next bit in a bitmap reasonably efficiently..
+- */
+-static inline int
+-find_next_bit(const void *addr, unsigned long size, unsigned long offset)
+-{
+-	unsigned long *p = ((unsigned long *) addr) + (offset >> 6);
+-	unsigned long result = offset & ~63UL;
+-	unsigned long tmp;
+-
+-	if (offset >= size)
+-		return size;
+-	size -= result;
+-	offset &= 63UL;
+-	if (offset) {
+-		tmp = *(p++);
+-		tmp &= ~0UL << offset;
+-		if (size < 64)
+-			goto found_first;
+-		if (tmp)
+-			goto found_middle;
+-		size -= 64;
+-		result += 64;
+-	}
+-	while (size & ~63UL) {
+-		if ((tmp = *(p++)))
+-			goto found_middle;
+-		result += 64;
+-		size -= 64;
+-	}
+-	if (!size)
+-		return result;
+-	tmp = *p;
+-  found_first:
+-	tmp &= ~0UL >> (64-size);
+-	if (tmp == 0UL)		/* Are any bits set? */
+-		return result + size; /* Nope. */
+-  found_middle:
+-	return result + __ffs(tmp);
+-}
+-
+ #define find_first_bit(addr, size) find_next_bit((addr), (size), 0)
+ 
+ #ifdef __KERNEL__
+Index: 2.6.5.bitmap/include/asm-cris/bitops.h
+===================================================================
+--- 2.6.5.bitmap.orig/include/asm-cris/bitops.h	2004-04-08 03:02:48.000000000 -0700
++++ 2.6.5.bitmap/include/asm-cris/bitops.h	2004-04-08 03:03:28.000000000 -0700
+@@ -169,7 +169,7 @@
+ 	return retval;
+ }
+ /**
+- * test_and_change_bit - Change a bit and return its new value
++ * test_and_change_bit - Change a bit and return its old value
+  * @nr: Bit to change
+  * @addr: Address to count from
+  *
+Index: 2.6.5.bitmap/include/asm-i386/bitops.h
+===================================================================
+--- 2.6.5.bitmap.orig/include/asm-i386/bitops.h	2004-04-08 03:02:48.000000000 -0700
++++ 2.6.5.bitmap/include/asm-i386/bitops.h	2004-04-08 03:03:28.000000000 -0700
+@@ -212,7 +212,7 @@
+ }
+ 
+ /**
+- * test_and_change_bit - Change a bit and return its new value
++ * test_and_change_bit - Change a bit and return its old value
+  * @nr: Bit to change
+  * @addr: Address to count from
+  *
+Index: 2.6.5.bitmap/include/asm-mips/bitops.h
+===================================================================
+--- 2.6.5.bitmap.orig/include/asm-mips/bitops.h	2004-04-08 03:02:48.000000000 -0700
++++ 2.6.5.bitmap/include/asm-mips/bitops.h	2004-04-08 03:03:28.000000000 -0700
+@@ -296,7 +296,7 @@
+ }
+ 
+ /*
+- * test_and_change_bit - Change a bit and return its new value
++ * test_and_change_bit - Change a bit and return its old value
+  * @nr: Bit to change
+  * @addr: Address to count from
+  *
+@@ -567,7 +567,7 @@
+ }
+ 
+ /*
+- * test_and_change_bit - Change a bit and return its new value
++ * test_and_change_bit - Change a bit and return its old value
+  * @nr: Bit to change
+  * @addr: Address to count from
+  *
+Index: 2.6.5.bitmap/include/asm-x86_64/bitops.h
+===================================================================
+--- 2.6.5.bitmap.orig/include/asm-x86_64/bitops.h	2004-04-08 03:02:48.000000000 -0700
++++ 2.6.5.bitmap/include/asm-x86_64/bitops.h	2004-04-08 03:03:28.000000000 -0700
+@@ -204,7 +204,7 @@
+ }
+ 
+ /**
+- * test_and_change_bit - Change a bit and return its new value
++ * test_and_change_bit - Change a bit and return its old value
+  * @nr: Bit to change
+  * @addr: Address to count from
+  *
+Index: 2.6.5.bitmap/arch/ia64/lib/bitop.c
+===================================================================
+--- 2.6.5.bitmap.orig/arch/ia64/lib/bitop.c	2004-04-08 03:03:18.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/lib/bitop.c	2004-04-08 03:03:28.000000000 -0700
+@@ -0,0 +1,88 @@
++#include <linux/compiler.h>
++#include <linux/types.h>
++#include <asm/intrinsics.h>
++#include <linux/module.h>
++#include <asm/bitops.h>
++
++/*
++ * Find next zero bit in a bitmap reasonably efficiently..
++ */
++
++int __find_next_zero_bit (void *addr, unsigned long size, unsigned long offset)
++{
++	unsigned long *p = ((unsigned long *) addr) + (offset >> 6);
++	unsigned long result = offset & ~63UL;
++	unsigned long tmp;
++
++	if (offset >= size)
++		return size;
++	size -= result;
++	offset &= 63UL;
++	if (offset) {
++		tmp = *(p++);
++		tmp |= ~0UL >> (64-offset);
++		if (size < 64)
++			goto found_first;
++		if (~tmp)
++			goto found_middle;
++		size -= 64;
++		result += 64;
++	}
++	while (size & ~63UL) {
++		if (~(tmp = *(p++)))
++			goto found_middle;
++		result += 64;
++		size -= 64;
++	}
++	if (!size)
++		return result;
++	tmp = *p;
++found_first:
++	tmp |= ~0UL << size;
++	if (tmp == ~0UL)		/* any bits zero? */
++		return result + size;	/* nope */
++found_middle:
++	return result + ffz(tmp);
++}
++EXPORT_SYMBOL(__find_next_zero_bit);
++
++/*
++ * Find next bit in a bitmap reasonably efficiently..
++ */
++int __find_next_bit(const void *addr, unsigned long size, unsigned long offset)
++{
++	unsigned long *p = ((unsigned long *) addr) + (offset >> 6);
++	unsigned long result = offset & ~63UL;
++	unsigned long tmp;
++
++	if (offset >= size)
++		return size;
++	size -= result;
++	offset &= 63UL;
++	if (offset) {
++		tmp = *(p++);
++		tmp &= ~0UL << offset;
++		if (size < 64)
++			goto found_first;
++		if (tmp)
++			goto found_middle;
++		size -= 64;
++		result += 64;
++	}
++	while (size & ~63UL) {
++		if ((tmp = *(p++)))
++			goto found_middle;
++		result += 64;
++		size -= 64;
++	}
++	if (!size)
++		return result;
++	tmp = *p;
++  found_first:
++	tmp &= ~0UL >> (64-size);
++	if (tmp == 0UL)		/* Are any bits set? */
++		return result + size; /* Nope. */
++  found_middle:
++	return result + __ffs(tmp);
++}
++EXPORT_SYMBOL(__find_next_bit);
+Index: 2.6.5.bitmap/arch/ia64/lib/Makefile
+===================================================================
+--- 2.6.5.bitmap.orig/arch/ia64/lib/Makefile	2004-04-08 03:01:12.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/lib/Makefile	2004-04-08 03:03:28.000000000 -0700
+@@ -6,7 +6,7 @@
+ 
+ lib-y := __divsi3.o __udivsi3.o __modsi3.o __umodsi3.o			\
+ 	__divdi3.o __udivdi3.o __moddi3.o __umoddi3.o			\
+-	checksum.o clear_page.o csum_partial_copy.o copy_page.o		\
++	bitop.o checksum.o clear_page.o csum_partial_copy.o copy_page.o	\
+ 	clear_user.o strncpy_from_user.o strlen_user.o strnlen_user.o	\
+ 	flush.o ip_fast_csum.o do_csum.o				\
+ 	memset.o strlen.o swiotlb.o
 
 
 -- 

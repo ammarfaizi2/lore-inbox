@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263101AbVAFXuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263127AbVAFXpd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263101AbVAFXuV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 18:50:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbVAFXrT
+	id S263127AbVAFXpd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 18:45:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263122AbVAFXoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 18:47:19 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:62814
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263101AbVAFXk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 18:40:58 -0500
-Date: Fri, 7 Jan 2005 00:41:04 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Richard Ems <Richard.Ems@mtg-marinetechnik.de>
-Cc: linux-kernel@vger.kernel.org, Hubert Mantel <mantel@suse.de>
-Subject: Re: [PROBLEM] Badness in out_of_memory (Plain)
-Message-ID: <20050106234104.GX4597@dualathlon.random>
-References: <41DD6F67.6070303@mtg-marinetechnik.de> <20050106173052.GW4597@dualathlon.random> <41DD7A96.5060006@mtg-marinetechnik.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41DD7A96.5060006@mtg-marinetechnik.de>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Thu, 6 Jan 2005 18:44:38 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:61175 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S263127AbVAFXnz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 18:43:55 -0500
+Message-ID: <41DDCD2B.4060709@mvista.com>
+Date: Thu, 06 Jan 2005 15:43:39 -0800
+From: Steve Longerbeam <stevel@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: Hugh Dickins <hugh@veritas.com>, Ray Bryant <raybry@sgi.com>,
+       Hirokazu Takahashi <taka@valinux.co.jp>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Marcello Tosatti <marcelo.tosatti@cyclades.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, andrew morton <akpm@osdl.org>
+Subject: Re: page migration patchset
+References: <Pine.LNX.4.44.0501052008160.8705-100000@localhost.localdomain> <41DC7EAD.8010407@mvista.com> <20050106144307.GB59451@muc.de>
+In-Reply-To: <20050106144307.GB59451@muc.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 06:51:18PM +0100, Richard Ems wrote:
-> this! Do you know a memory eater program other than starting lots of 
-> mozilla's, OpenOffices's, etc.?
+Andi Kleen wrote:
 
-You can run a few of this.
+>On Wed, Jan 05, 2005 at 03:56:29PM -0800, Steve Longerbeam wrote:
+>  
+>
+>>Hugetlbfs is also defining its own shared policy RB tree in its
+>>inode info struct, but it doesn't seem to be used, just initialized
+>>and freed at alloc/destroy inode time. Does anyone know why that
+>>is there? A place-holder for future hugetlbfs mempolicy support?
+>>If so, it can be removed and use the generic_file policies instead.
+>>    
+>>
+>
+>You need lazy hugetlbfs to use it (= allocate at page fault time,
+>not mmap time). Otherwise the policy can never be applied. I implemented 
+>my own version of lazy allocation for SLES9, but when I wanted to 
+>merge it into mainline some other people told they had a much better 
+>singing&dancing lazy hugetlb patch. So I waited for them, but they 
+>never went forward with their stuff and their code seems to be dead
+>now. So this is still a dangling end :/
+>
+>If nothing happens soon regarding the "other" hugetlb code I will
+>forward port my SLES9 code. It already has NUMA policy support.
+>
+>For now you can remove the hugetlb policy code from mainline if you
+>want, it would be easy to readd it when lazy hugetlbfs is merged.
+>  
+>
 
-#include <stdio.h>
-#include <time.h>
+if you don't mind I'd like to. Sounds as if lazy hugetlbfs would be able to
+make use of the generic file mapping->policy instead of a hugetlb-specific
+policy anyway. Same goes for shmem.
 
-main()
-{
-	char *p[160];
-	int i, j;
-	int count;
-	for (j=0; j<160; j++)
-	{
-		p[j] = (char *) malloc(10000000);
-	}
-	for (count=0;count<2000;count++)
-	{
-		for (j=0; j<160; j++)
-		{
-			for (i=0; i<10000000; i+= 4096)
-				p[j][i] = 0;
-		}
-		pause();
-	}
-}
+Steve
+
+

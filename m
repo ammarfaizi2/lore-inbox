@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129363AbRBUNWH>; Wed, 21 Feb 2001 08:22:07 -0500
+	id <S129051AbRBUNeU>; Wed, 21 Feb 2001 08:34:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129744AbRBUNV5>; Wed, 21 Feb 2001 08:21:57 -0500
-Received: from alto.i-cable.com ([210.80.60.4]:16031 "EHLO alto.i-cable.com")
-	by vger.kernel.org with ESMTP id <S129363AbRBUNVo>;
-	Wed, 21 Feb 2001 08:21:44 -0500
-Message-ID: <3A93C11A.ECA56C30@hkicable.com>
-Date: Wed, 21 Feb 2001 21:22:34 +0800
-From: Thomas Lau <lkthomas@hkicable.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac15 i586)
-X-Accept-Language: en
+	id <S129104AbRBUNeK>; Wed, 21 Feb 2001 08:34:10 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:48400 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129051AbRBUNeB>;
+	Wed, 21 Feb 2001 08:34:01 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: mager@tzi.de (Markus Germeier), linux-kernel@vger.kernel.org,
+        davem@redhat.com
+Subject: Re: Problem with 2.2.19pre9 (Connection closed.)
+In-Reply-To: <E14VZCs-00023R-00@the-village.bc.nu>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 21 Feb 2001 14:32:50 +0100
+In-Reply-To: Alan Cox's message of "Wed, 21 Feb 2001 13:21:20 +0000 (GMT)"
+Message-ID: <d3g0h8nou5.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Bug report about the cable modem:
-In-Reply-To: <3A93BA54.A26B9EAD@hkicable.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Lau wrote:
+>>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> config:
-> NE2000-PCI NIC
-> AMD K6-2+ 200
-> 256M RAM
-> LINUX-KERNEL-2.4.1-AC18
-> CABLE MODEM TYPE:
->  - TERAYON
->  - DHCP
->
->  Problem:
-> When I reboot system, it's OK
-> but when I use a long time ( over 24 hours )
-> only receive or send light are flash on , another LED will not happen (
-> I mean send and receive light only have one are on, another was off )
-> I need to reboot linux and let kernel reconfig my NE2000-PCI interface
-> How come will happen?
-> please help me, Thanks
+>> after upgrading to 2.2.19pre9 (+ 2 NFS-patches, IPv6 enabled) idle
+>> connections tend to shut down without a visible reason:
 
-mail server have problem?
-why missing this mail?
+Alan> Yes I've seen this too. It seems that the tcp changes broke the
+Alan> keepalive handling somewhere when I leave a non Linux target
+Alan> idle.
 
+I reported this on netdev last week as well.
+
+I only see this for connections with incoming traffic where I don't
+send something out (like irc), whereas unused ssh connections seem to
+survive fine.
+
+Hopefully another hint that could help nailing the bug.
+
+Jes

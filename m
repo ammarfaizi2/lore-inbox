@@ -1,79 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286693AbRLVFm7>; Sat, 22 Dec 2001 00:42:59 -0500
+	id <S281794AbRLVF5c>; Sat, 22 Dec 2001 00:57:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286694AbRLVFmv>; Sat, 22 Dec 2001 00:42:51 -0500
-Received: from dracula.gtri.gatech.edu ([130.207.193.70]:42256 "EHLO
-	shaft.shaftnet.org") by vger.kernel.org with ESMTP
-	id <S286693AbRLVFme>; Sat, 22 Dec 2001 00:42:34 -0500
-Date: Sat, 22 Dec 2001 00:42:28 -0500
-From: Stuffed Crust <pizza@shaftnet.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] - 2.4.17 - if_arp.h - Add the Prism2 ARP type
-Message-ID: <20011222004228.A22793@shaftnet.org>
-In-Reply-To: <20011222000105.A22554@shaftnet.org> <20011221.210655.91756024.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011221.210655.91756024.davem@redhat.com>; from davem@redhat.com on Fri, Dec 21, 2001 at 09:06:55PM -0800
+	id <S286698AbRLVF5W>; Sat, 22 Dec 2001 00:57:22 -0500
+Received: from svr3.applink.net ([206.50.88.3]:28435 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S281794AbRLVF5F>;
+	Sat, 22 Dec 2001 00:57:05 -0500
+Message-Id: <200112220556.fBM5uoSr022924@svr3.applink.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: Ryan Cumming <bodnar42@phalynx.dhs.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB =?iso-8859-1?q?in	Configure=2Ehelp=2E?=
+Date: Fri, 21 Dec 2001 23:53:09 -0600
+X-Mailer: KMail [version 1.3.2]
+Cc: timothy.covell@ashavan.org
+In-Reply-To: <3C234CC100020E25@mta13n.bluewin.ch> <200112220214.fBM2EsSr022402@svr3.applink.net> <E16HeiS-0000Cd-00@phalynx>
+In-Reply-To: <E16HeiS-0000Cd-00@phalynx>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 21 December 2001 23:29, Ryan Cumming wrote:
+> On December 21, 2001 18:11, Timothy Covell wrote:
+> > As concerns the use of Traditional Units being weird, I would say that
+> > the motivation made a lot of since.   The units were based on commonly
+> > available natural units of measure, eg.
+> >
+> > one inch = 1 thumb = 1 pouce
+> > one foot  = size of a foot = 1 pied
+>
+> Oh, and things like having 0 degrees being the temperature of -frozen
+> water- isn't really that natural... no, we'd be much better off using
+> averagish sizes of human body parts as a reference.
 
---wRRV7LY7NUeQGEoC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Well, certainly makes more sense when you consider how hard
+it is to make ice at intellectual centers like Alexandria and Cordoba.
+I suppose that if you lived in Iceland, then you'd have a ready
+reference. ;-)
 
-On Fri, Dec 21, 2001 at 09:06:55PM -0800, David S. Miller wrote:
->    From: Stuffed Crust <pizza@shaftnet.org>
->    Date: Sat, 22 Dec 2001 00:01:05 -0500
->=20
->    Hey, this one-line patch (I diffed it against 2.4.17-rc2) defines the
->    ARPHRD_IEEE80211_PRISM arp type.
->=20
-> Is the allocation of this number standardized somewhere?
+>
+> > Also, as is very appropriate to this discussion, the English Units
+> > made use of powers of two and three. Eg.
+> >
+> > 1 inch, 1/2 inch, 1/4 inch, 1/8 inch
+>
+> Oh, that's right, only users of the Imperial system can use these
+> new-fangled "fractions". If only someone would invent a 1/4 centimeter, the
+> metric system would be a viable replacement!
 
-Yes and no.  There are a handful of standard hardware ARP types defined
-in RFC826, I believe.  [checks.]  No, I guess not.   But those are
-definately standardized, probably by the IEEE or somesuch.
+Ha.  The point is that it's easy to halve and quarter something while it's
+much harder to one tenth something.  
 
-Meanwhile, the "Dummy types for non ARP hardware" list in if_arp.h seems
-to be the authoratitive non-standard standard, as it starts at 256 and
-seems to pretty much sequentially count up with the occasional large
-gap.  =20
+>
+> How about this: Seeing there is no commonly used unit smaller than an inch,
+> people had to resort to using fractions of an inch to describe sizes. It
+> works in metric too, but people just don't, because there are a wider range
+> of metric units.
+>
+> > 3 feet equals a yard.
+> >
+> > So, the English units were more attuned to nature.  The only thing
+> > natural about base ten is that the majority of us have 10 fingers and
+> > 10 toes.
+>
+> Yes, and three is a magical number decreed by God himself. You do have a
+> good point, though, the Imperial system fits in quite well with our
+> base-two-but-sometimes-three number system.
+>
 
-Linux's PF_SOCKET code uses this to identify the packet type
-coming off the wire.
+I don't recall that God ever made any special mention of three, but he
+did mention seven.
 
-The ARPHRD_IEEE80211 type was defined in 2.4.6 by incrementing the
-number by one and appending it to the end of the list.  I just
-incremented the protocol number by one for the _PRISM type.
+> > Finally, Farhenheit units are smaller so that they make more convenient
+> > divisions: Eg.
+>
+> Brilliant. The system with the smallest units wins. Let me introduce you to
+> the yocto-centigrade, where the boiling point is 10^26 degrees. Combined
+> with the revolutionary new "decimal point", you can obtain never before
+> seen precision in describing temperatures!
 
-I have no idea if there was some master list somewhere; google didn't
-seem to return any hits other than the linux source.
+My point is that HUMANS cannot accurately measure temperature, so it
+makes more sense to use a fuzzier system.   Unless you are an android
+with a 555 timer chip embedded in brain, you are a "fuzzy" thinker on
+things which are continuous in nature.
 
- - Pizza
---=20
-Solomon Peachy                                    pizzaATfucktheusers.org
-I ain't broke, but I'm badly bent.                           ICQ# 1318344
-Patience comes to those who wait.
-    ...It's not "Beanbag Love", it's a "Transanimate Relationship"...
+But then again, I suppose that we should legislate exact frequencies
+of light so that no one can make any mistake as concerns what is
+yellow and what is lemon-chiffon.  And if your eyes are test and
+are found to be out of spec, you'll be subjected to psychotherapy
+sessions because you obviously have personnal issues which
+are preventing you from seeing colour properly. ;-)
 
---wRRV7LY7NUeQGEoC
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Look, just so that you all understand, I'm pro metrics.  I'm just
+saying that they were not all totally crazy.   It's not like before
+1790 all the people who had ever lived were morons.   Indeed,
+after further reading, I found that Jefferson rejected the French
+version of the Metric system because he though that their
+measurements were not accurate enough (and less accurate
+than many Greek and Egyptian mathematicians had made
+millenia before.)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+>
+> -Ryan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-iD8DBQE8JB1EysXuytMhc5ERAsw2AKCRN+ulH8xu+L9c1G1F0L+UZFExdQCaAzEk
-utFUaJljD4zCtGfHKfSFThI=
-=qSJY
------END PGP SIGNATURE-----
-
---wRRV7LY7NUeQGEoC--
+-- 
+timothy.covell@ashavan.org.

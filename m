@@ -1,36 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263229AbTDGEMd (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 00:12:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263244AbTDGEMd (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 00:12:33 -0400
-Received: from [210.22.78.238] ([210.22.78.238]:47327 "HELO trust-mart.com")
-	by vger.kernel.org with SMTP id S263229AbTDGEMc (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 00:12:32 -0400
-From: hv <hv@trust-mart.com.cn>
-To: linux-kernel@vger.kernel.org
-Subject: compile error with 2.5.66-ac2
-Message-Id: <20030407122310.22b2023a.hv@trust-mart.com.cn>
-Organization: it-TM
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	id S263244AbTDGEVW (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 00:21:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263245AbTDGEVW (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 00:21:22 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:45974 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263244AbTDGEVV (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 00:21:21 -0400
+Message-ID: <1071.4.64.238.61.1049689975.squirrel@webmail.osdl.org>
+Date: Sun, 6 Apr 2003 21:32:55 -0700 (PDT)
+Subject: Re: Wanted: a limit on kernel log buffer size
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <rml@tech9.net>
+In-Reply-To: <1049686794.894.13.camel@localhost>
+References: <200304062137_MC3-1-3346-A97E@compuserve.com>
+        <33182.4.64.238.61.1049683748.squirrel@webmail.osdl.org>
+        <33271.4.64.238.61.1049686559.squirrel@webmail.osdl.org>
+        <1049686794.894.13.camel@localhost>
+X-Priority: 3
+Importance: Normal
+Cc: <rddunlap@osdl.org>, <76306.1226@compuserve.com>,
+       <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.11 [cvs])
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Date: Mon, 7 Apr 2003 00:12:32 -0400
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  When I compile 2.5.66-ac2 on HP LH6000,I get the follow error:
-arch/i386/kernel/apic.c: In function `setup_local_APIC':
-arch/i386/kernel/apic.c:454: unrecognizable insn:
-(insn 541 1623 1624 (set (strict_low_part (reg:QI 2 cl [58]))
-        (const_int 0 [0x0])) -1 (insn_list:REG_DEP_OUTPUT 530 (nil))
-    (nil))
-arch/i386/kernel/apic.c:454: Internal compiler error in insn_default_length, at
-insn-attrtab.c:356
-Please submit a full bug report,
-with preprocessed source if appropriate.
-See <URL:http://bugzilla.redhat.com/bugzilla/> for instructions.
-make[1]: *** [arch/i386/kernel/apic.o] Error 1
-make: *** [arch/i386/kernel] Error 2
+> On Sun, 2003-04-06 at 23:35, Randy.Dunlap wrote:
+>
+>> > a.  If someone won't read the help text, how can we help them?
+>> >
+>> > b.  If we make a 2 GB log buffer size a compile-time error, will they
+>> read that?
+>> >
+>> > c.  If we make it a compile-time warning, will they read that?
+>> >
+>> > d.  What limit(s) do you suggest?  I can try to add some limits.
+>> >
+>> > e.  This kind of config limiting should be done in the config system
+>> IMO. I've asked Roman for that capability....
+>>
+>> Here's a patch that limits kernel log buffer size to 1 MB max.
+>> Comments?
+>
+> I liked points (a) and (e) above.
+>
+> I say if users cannot bother to read the documentation and understanding
+> things, why are they compiling a kernel?
+>
+> And if we are going to implement parameters bounds checking it should be
+> done in kconfig.  There are a few other places that want it, too.
 
-My linux is redhat8.0
+I forgot another point:  don't change default config settings unless
+you are willing to read the help text.
+
+~Randy  [sorry if you get this multiple times; i had to resend it]
+
+
+
+

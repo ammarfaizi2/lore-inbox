@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267538AbUJGUbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268122AbUJGUbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267538AbUJGUbN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 16:31:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268059AbUJGU2z
+	id S268122AbUJGUbM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 16:31:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267538AbUJGU3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 16:28:55 -0400
-Received: from fw.osdl.org ([65.172.181.6]:45250 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268049AbUJGU1k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 16:27:40 -0400
-Subject: Re: Probable module bug in linux-2.6.5-1.358
-From: Stephen Hemminger <shemminger@osdl.org>
+	Thu, 7 Oct 2004 16:29:08 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33545 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S267958AbUJGU11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 16:27:27 -0400
+Date: Thu, 7 Oct 2004 21:27:22 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1097175596.31547.111.camel@localhost.localdomain>
-References: <Pine.LNX.4.61.0410061807030.4586@chaos.analogic.com>
-	 <1097175903.29576.12.camel@localhost.localdomain>
-	 <1097175596.31547.111.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Open Source Development Lab
-Date: Thu, 07 Oct 2004 13:27:47 -0700
-Message-Id: <1097180867.29576.15.camel@localhost.localdomain>
+Cc: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       sebastien.hinderer@libertysurf.fr
+Subject: Re: [Patch] new serial flow control
+Message-ID: <20041007212722.G8579@flint.arm.linux.org.uk>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	Chuck Ebbert <76306.1226@compuserve.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	sebastien.hinderer@libertysurf.fr
+References: <200410051249_MC3-1-8B8B-5504@compuserve.com> <20041005172522.GA2264@bouh.is-a-geek.org> <1097176130.31557.117.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1097176130.31557.117.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Thu, Oct 07, 2004 at 08:08:56PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-07 at 19:59 +0100, Alan Cox wrote:
-> On Iau, 2004-10-07 at 20:05, Stephen Hemminger wrote:
-> > --------------
-> > /*
-> >  *   Since some in the Linux-kernel development group want to play
-> >  *   lawyer, and require that a GPL License exist for every kernel
-> >  *   module,  I provide the following:
-> >  *
-> >  *   Everything in this file (only) is released under the so-called
-> >  *   GNU Public License, incorporated herein by reference.
-> >  *
-> >  *   Now, we just link this with any proprietary code and everybody
-> >  *   but the lawyers are happy.
-> >  */
+On Thu, Oct 07, 2004 at 08:08:56PM +0100, Alan Cox wrote:
+> On Maw, 2004-10-05 at 18:25, Samuel Thibault wrote:
+> > No: data actually pass _after_ CTS and RTS are lowered back: the flow control
+> > only indicate the beginning of one frame.
 > 
-> What a fascinating object. I hope thats not reflective of OSDL policy 8)
+> Ok I've pondered this somewhat. I don't think the hack proposed is the
+> right answer for this. I believe you should implement a simple line
+> discipline for this device so that it stays out of the general code.
+> 
+> Right now that poses a challenge but if drivers were to implement
+> ldisc->modem_change() or a similar callback for such events an ldisc
+> could then handle many of the grungy suprises and handle them once and
+> in one place.
 
-That's from Richard's license.c in the source he attached.
-All copies of that code have been deleted from here because the rest of
-it is proprietary.
+To me at least that sounds like a good solution.  I can't help but
+wonder whether moving some of the usual modem line status change
+processing should also be moved into the higher levels.  This will
+probably make more sense if the "block till ready" code also moves,
+which I think Ted was considering at one point.
 
+However, that's probably something to think about later.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

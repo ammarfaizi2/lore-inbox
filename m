@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbUDOMCT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 08:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbUDOMCT
+	id S262046AbUDOMLo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 08:11:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbUDOMLo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 08:02:19 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:31884 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S262499AbUDOMCR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 08:02:17 -0400
-Date: Thu, 15 Apr 2004 14:03:58 +0200 (CEST)
-From: Simon Derr <simon.derr@bull.net>
-X-X-Sender: derr@daphne.frec.bull.fr
-To: =?iso-8859-1?q?alan=20pearson?= <alandpearson@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: sched_getaffinity & sched_setaffinity returning -1 (errstr =
- Bad address)
-In-Reply-To: <20040415105424.19946.qmail@web11411.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.58.0404151358160.7864@daphne.frec.bull.fr>
-References: <20040415105424.19946.qmail@web11411.mail.yahoo.com>
+	Thu, 15 Apr 2004 08:11:44 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:44003 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262046AbUDOMLn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 08:11:43 -0400
+Date: Thu, 15 Apr 2004 08:11:36 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, Chris Mason <mason@suse.com>
+Subject: Re: 2.6.5-mm6
+In-Reply-To: <20040414230413.4f5aa917.akpm@osdl.org>
+Message-ID: <Xine.LNX.4.44.0404150809190.24909-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+What are the chances of seeing Chris's reiserfs xattr patches merged into 
+mainline?
 
 
-On Thu, 15 Apr 2004, alan pearson wrote:
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
-> Hi
->
-> I've been trying to use the sched_getaffinity &
-> sched_setaffinity on
-> kernel 2.6.4 and it is working on some systems and not
-> others !
-> It works fine on my aged dual CPU pentium pro box, but
-> on the box I
-> really want it to work on, the calls return -1 !
-
-My guess is that on your newer box you also have a newer Linux
-distribution with the new sched_setaffinity() prototype, e.g with only two
-parameters.
-
-new libc sched.h:
-extern int sched_setaffinity (__pid_t __pid, __const cpu_set_t *__mask);
-
-	Simon.
 

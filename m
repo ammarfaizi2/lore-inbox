@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbUCaVdi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 16:33:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262561AbUCaVcw
+	id S262625AbUCaVnC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 16:43:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUCaVl0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 16:32:52 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:10885 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262574AbUCaVaF
+	Wed, 31 Mar 2004 16:41:26 -0500
+Received: from motgate5.mot.com ([144.189.100.105]:41454 "EHLO
+	motgate5.mot.com") by vger.kernel.org with ESMTP id S262547AbUCaVjQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 16:30:05 -0500
-Date: Wed, 31 Mar 2004 16:31:29 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Chuck Lever <cel@citi.umich.edu>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: timer question
-In-Reply-To: <Pine.BSO.4.33.0403311609180.17377-100000@citi.umich.edu>
-Message-ID: <Pine.LNX.4.53.0403311628120.12948@chaos>
-References: <Pine.BSO.4.33.0403311609180.17377-100000@citi.umich.edu>
+	Wed, 31 Mar 2004 16:39:16 -0500
+Message-ID: <D5A7E45D575DD61180130002A5DB377C04E48C67@ca25exm01>
+From: Stephens Tim-MGI1634 <Tim.Stephens@motorola.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Why does serial.c not allow you to share the serial console port 
+	 interrupt?
+Date: Wed, 31 Mar 2004 13:37:21 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2657.2)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Mar 2004, Chuck Lever wrote:
+Hello,
 
-> hi all-
->
-> i'm looking for a way to do microsecond resolution timing in the RPC
-> client.  i need a timer or timestamp function that is fairly cheap, that i
-> can call on any hardware platform, and that i can invoke from inside a
-> bottom half.
->
-> any suggestions?
->
-> 	- Chuck Lever
+I'm trying to understand why the serial.c driver does not allow the sharing of the serial console interrupt.  There are several places on the net the mention you cannot share the console interrupt, however there is no explaination why.  I assume it has something to do with OOPS reporting.  Please advise.
 
-If you find one, we'd all like to use it!  The Intel machines,
-after the i486, have the rdtsc instruction which will return
-the number of CPU clocks that have occurred since the chip was
-turned ON. It can be calibrated upon startup so you know how
-many clocks occur in a second.
+I'm trying to enable the second serial port on a MIPS based embedded system.  Both serial ports (16550 type) are attached to the same MIPS interrupt.  The console is attached to ttyS0, which shares the MIPS interrupt with ttyS1.
 
+The code in question is:
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+#ifdef CONFIG_SERIAL_CONSOLE
+    /*
+     *    The interrupt of the serial console port
+     *    can't be shared.
+     */
+    if (sercons.flags & CON_CONSDEV) {
+        for(i = 0; i < NR_PORTS; i++)
+            if (i != sercons.index &&
+                rs_table[i].irq == rs_table[sercons.index].irq)
+                rs_table[i].irq = 0;
+    }
+#endif
 
+If I change the #ifdef to #if 0 both the console and ttyS1 seem to work ok.
 
+Thanks,
+Tim

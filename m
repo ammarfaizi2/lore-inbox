@@ -1,38 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbULTUtB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbULTUsR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbULTUtB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 15:49:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbULTUtA
+	id S261634AbULTUsR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 15:48:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbULTUsQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 15:49:00 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:20181 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261636AbULTUsn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 15:48:43 -0500
-To: linux-kernel@vger.kernel.org
-Subject: AMD64: timer is running twice as fast as it should (again??)
-From: Enrico Scholz <enrico.scholz@informatik.tu-chemnitz.de>
-Date: Mon, 20 Dec 2004 21:48:24 +0100
-Message-ID: <87ekhkhf1j.fsf@londo.ultra.csn.tu-chemnitz.de>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:cf015127439e61eb16a460417aa16ac1
+	Mon, 20 Dec 2004 15:48:16 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:54163 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261634AbULTUqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 15:46:40 -0500
+Subject: Re: [linux-usb-devel] Re: RFC: [2.6 patch] let BLK_DEV_UB depend
+	on EMBEDDED
+From: Lee Revell <rlrevell@joe-job.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Ed Tomlinson <edt@aei.ca>, Pete Zaitcev <zaitcev@redhat.com>,
+       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44L0.0412201026390.1358-100000@ida.rowland.org>
+References: <Pine.LNX.4.44L0.0412201026390.1358-100000@ida.rowland.org>
+Content-Type: text/plain
+Date: Mon, 20 Dec 2004 15:46:37 -0500
+Message-Id: <1103575597.1252.80.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 2004-12-20 at 10:28 -0500, Alan Stern wrote:
+> On Mon, 20 Dec 2004, Ed Tomlinson wrote:
+> 
+> > Its not that they just enable it.  Its that it has side effects.  I enable it to support
+> > one device - it then 'devnaps' other devices that usbstorage supports _much_
+> > better.  Is there some way it could work in reverse.  eg. let ub bind only if 
+> > usbstorage does not, possibly making usbstorage a _little_ more conservative
+> > if ub is present?
+> 
+> Unfortunately there isn't any way to define which driver should bind to a 
+> device, if they are both capable of controlling it.  Maybe there should 
+> be.  It might not be too hard to add a sysfs interface for that sort of 
+> thing.
 
-with 2.6 kernels, the timer on AMD64 runs exactly twice as fast as
-expected. E.g. 'sleep 10' returns after 5 seconds external time.
+This is a neverending battle with ALSA and OSS modules claiming the same
+device, resulting in bizarre behavior.  You could argue that it's user
+or vendor error but that doesn't change the flood of bug reports on
+alsa-user.
 
-This behavior was seen with Fedora Core 3 kernel 2.6.9-1.681_FC3 and
-2.6.10-rc3-bk13 (both x86_64 mode).
+I am sure the ALSA developers would welcome a generic solution for this
+problem.
 
-System information can be found at
-                http://www.tu-chemnitz.de/~ensc/hw/amd64
+Lee
 
-
-
-Enrico

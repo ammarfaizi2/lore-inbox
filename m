@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263046AbTCSPTF>; Wed, 19 Mar 2003 10:19:05 -0500
+	id <S263106AbTCSP0O>; Wed, 19 Mar 2003 10:26:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263050AbTCSPTF>; Wed, 19 Mar 2003 10:19:05 -0500
-Received: from dhcpvisitor217225.slac.stanford.edu ([198.129.217.225]:59280
-	"EHLO localhost.sgowdy.org") by vger.kernel.org with ESMTP
-	id <S263046AbTCSPTE>; Wed, 19 Mar 2003 10:19:04 -0500
-Date: Wed, 19 Mar 2003 07:28:47 -0800 (PST)
-From: "Stephen J. Gowdy" <gowdy@slac.stanford.edu>
-X-X-Sender: gowdy@localhost.localdomain
-Reply-To: gowdy@slac.stanford.edu
-To: Andrey Panin <pazke@orbita1.ru>
-cc: linux-kernel@vger.kernel.org, <linux-usb-users@lists.sourceforge.net>
-Subject: Re: [Linux-usb-users] USB harddrive not working (2.4, 2.5)
-In-Reply-To: <20030319102117.GA689@pazke>
-Message-ID: <Pine.LNX.4.44.0303190727360.2052-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.44.0303190727362.2052@localhost.localdomain>
-Content-Disposition: INLINE
+	id <S263107AbTCSP0O>; Wed, 19 Mar 2003 10:26:14 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:32520 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S263106AbTCSP0N>; Wed, 19 Mar 2003 10:26:13 -0500
+Date: Wed, 19 Mar 2003 15:37:07 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 2.5.65-mjb1: lkcd: EXTRA_TARGETS is obsolete
+Message-ID: <20030319153707.A24084@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Adrian Bunk <bunk@fs.tum.de>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <8230000.1047975763@[10.10.2.4]> <20030319153304.GC23258@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030319153304.GC23258@fs.tum.de>; from bunk@fs.tum.de on Wed, Mar 19, 2003 at 04:33:04PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The error "USB device not accepting new address" can sometimes be a 
-symptom of an interrupt problem. Do you see interrupts increasing for this 
-device in /proc/interrupts? There is some more info on this in the FAQ at 
-http://www.linux-usb.org .
+On Wed, Mar 19, 2003 at 04:33:04PM +0100, Adrian Bunk wrote:
+> On Tue, Mar 18, 2003 at 12:22:43AM -0800, Martin J. Bligh wrote:
+> >...
+> > lkcd						LKCD team
+> > 	Linux kernel crash dump support
+> >...
+> 
+> EXTRA_TARGETS is obsolete in 2.5.
+> 
+> The following should do the same:
 
-On Wed, 19 Mar 2003, Andrey Panin wrote:
-
-> Hi,
-> 
-> ISD200 based hard drive bay doesn't work with 2.4 & 2.5, 
-> can someone assist me with it?
-> 
-> Kernel message log appended.
-> 
-> Best regards.
-> 
-> 
-
--- 
- /------------------------------------+-------------------------\
-|Stephen J. Gowdy                     | SLAC, MailStop 34,       |
-|http://www.slac.stanford.edu/~gowdy/ | 2575 Sand Hill Road,     |
-|http://calendar.yahoo.com/gowdy      | Menlo Park CA 94025, USA |
-|EMail: gowdy@slac.stanford.edu       | Tel: +1 650 926 3144     |
- \------------------------------------+-------------------------/
+No, kerntypes.o should not be linked into the kernel image.
 

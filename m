@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262824AbTAaWli>; Fri, 31 Jan 2003 17:41:38 -0500
+	id <S262871AbTAaWmx>; Fri, 31 Jan 2003 17:42:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262838AbTAaWli>; Fri, 31 Jan 2003 17:41:38 -0500
-Received: from bitmover.com ([192.132.92.2]:5573 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S262824AbTAaWlh>;
-	Fri, 31 Jan 2003 17:41:37 -0500
+	id <S263039AbTAaWmx>; Fri, 31 Jan 2003 17:42:53 -0500
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:61568 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S262871AbTAaWmu>;
+	Fri, 31 Jan 2003 17:42:50 -0500
+Message-ID: <3E3AFDD1.7000909@candelatech.com>
 Date: Fri, 31 Jan 2003 14:50:57 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Larry McVoy <lm@bitmover.com>, bitkeeper-announce@bitmover.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: bkbits.net downtime
-Message-ID: <20030131225057.GA18662@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Larry McVoy <lm@bitmover.com>, bitkeeper-announce@bitmover.com,
-	linux-kernel@vger.kernel.org
-References: <200301312114.h0VLEmC11997@work.bitmover.com> <20030131145018.N3904@schatzie.adilger.int>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030131145018.N3904@schatzie.adilger.int>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: Jeff Garzik <jgarzik@pobox.com>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
+       Konrad Eisele <eiselekd@web.de>
+Subject: Re: Perl in the toolchain
+References: <20030131133929.A8992@devserv.devel.redhat.com> <Pine.LNX.4.44.0301311327480.16486-100000@chaos.physics.uiowa.edu> <20030131194837.GC8298@gtf.org> <20030131204132.GA1226@mars.ravnborg.org>
+In-Reply-To: <20030131204132.GA1226@mars.ravnborg.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Actually, with BK it should be possible to have read only clones on
-> multiple servers, should it not?  
+Sam Ravnborg wrote:
+> On Fri, Jan 31, 2003 at 02:48:37PM -0500, Jeff Garzik wrote:
+> 
+>>On Fri, Jan 31, 2003 at 01:41:26PM -0600, Kai Germaschewski wrote:
+>>
+>>>Generally, we've been trying to not make perl a prequisite for the kernel 
+>>>build, and I'd like to keep it that way. Except for some arch specific 
+>>
+>>That's pretty much out the window when klibc gets merged, so perl will
+>>indeed be a build requirement for all platforms...
+> 
+> 
+> None of the perl scripts looks complicated.
+> Obivious question is if the same functionality could be achived by a simple
+> c program.
+> In the tool chain we use small C utilities in favour of for example
+> perl scripts in several places.
 
-Oh, sure.  Even if we were down for a week, the trees which people care
-about are almost certainly on their local disks so they could set up
-servers all over the place make the data available if need be.
+I've seen a lot of machines, and I've yet to see one that has the gcc toolchain
+but not perl.  Why do you want to keep perl out?
 
-bkbits.net is a cache, it's not the authoritative source of anything.
+Ben
 
-> I wonder if any of the kernel.org mirror sites would be interested in
-> hosting a clone of one or more BK repositories.
 
-Eventually we'll have a version of the BKD that we've bullet proofed
-enough that we'd encourage that.  For the time being we've encouraged
-hosting at bkbits.net simply because (a) the infrastructure is there
-and (b) if there are security problems then it's our mess not yours.
-
-It's partially self interest: if kernel.org got compromised and it was
-our fault then we'd get a black eye.  If bkbits got compromised we'd 
-just fix it up quietly  (and, no, so far it has never been broken into
-but that's probably because we're very careful about how we run things,
-even if you got in via BKD you'd have no write permissions on anything
-but tmp dirs).
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

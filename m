@@ -1,84 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266113AbRGESN1>; Thu, 5 Jul 2001 14:13:27 -0400
+	id <S266168AbRGESQ5>; Thu, 5 Jul 2001 14:16:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266124AbRGESNS>; Thu, 5 Jul 2001 14:13:18 -0400
-Received: from zeke.inet.com ([199.171.211.198]:42738 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S266113AbRGESND>;
-	Thu, 5 Jul 2001 14:13:03 -0400
-Message-ID: <3B44AD33.26D97B4C@inet.com>
-Date: Thu, 05 Jul 2001 13:08:51 -0500
-From: "Jordan Breeding" <jordan.breeding@inet.com>
-Reply-To: Jordan <ledzep37@home.com>,
-        Jordan Breeding <jordan.breeding@inet.com>
-Organization: Inet Technologies, Inc.
-X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S266179AbRGESQs>; Thu, 5 Jul 2001 14:16:48 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38155 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S266168AbRGESQj>; Thu, 5 Jul 2001 14:16:39 -0400
+Subject: Re: [PATCH] RE: 2.4.5-ac14 through to 2.4.6-ac1 fdomain.c initialisation for shared IRQ
+To: grant@aerodeck.prestel.co.uk
+Date: Thu, 5 Jul 2001 19:16:26 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <000201c1057b$f8ff4600$0101a8c0@heron1> from "Grant Fribbens" at Jul 05, 2001 06:57:23 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Problems halting/rebooting with 2.4.{5,6}-ac
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15IDfu-00034t-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a Tyan Tiger 230 SMP system running dual 1 GHz PIII processors. 
-The processors are of the same lot and revision, bought on the same
-day.  Everything worked fine or some time in regard to
-halting/rebooting.  I was using ac kernels configured with ACPI.  At the
-time of the merge with the Linus stuff which included new ACPI I started
-configuring with ACPI and ACPI bus management and I could no longer halt
-the system but rebooting worked OK.  As of 2.4.5-ac24 and 2.4.6-ac1 I
-can no longer halt or reboot my system properly using no power
-management or ACPI, and APM still displays the message about being
-broken on SMP.  Has anyone seen this problem, is there a fix for it? 
-Another thing I have noticed is that my /proc/cpuinfo file looks like
-this:
+> I have recently had a problem with the fdomain driver initialisation and
+> have found the problem to be the way in which it requests the irq. Here is
+> my patch that has so far work ok.
 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 8
-model name      : Pentium III (Coppermine)
-stepping        : 6
-cpu MHz         : 999.694
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 mmx fxsr sse
-bogomips        : 1992.29
+I've seen this patch before. It needs at least one change
 
-processor       : 1
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 8
-model name      : Pentium III (Coppermine)
-stepping        : 6
-cpu MHz         : 999.694
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 3
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 mmx fxsr sse
-bogomips        : 1998.84
+> -			     do_fdomain_16x0_intr, 0, "fdomain", NULL);
+> +      retcode = request_irq( shpnt->irq,
+> +			     do_fdomain_16x0_intr, SA_SHIRQ, "fdomain", shpnt);
 
-Notice the difference in cpuid level and bogomips values between the
-two.  These processors should be exactly the same, same lot and revision
-and everything else according to the shrink wrapped Intel retail boxes
-they came out of.  What could be casuing them to show up at different
-cpuid levels?  Thanks for any help with either issue.
+Only set SA_SHIRQ if PCI - say -
 
-Jordan Breeding
+		pdev?SA_SHIRQ:0
+
+The other problem is that the code doesnt have support for handling IRQ
+source checking, so if the line it shares with generates interrupts we might
+sometimes do the right thing
+
+I have a long outstanding request with adaptec (who bought future domain)
+for the info needed to fix this, but obviously its a dead product, from a
+bought company and hardly on their priorities.
+
+I suspect the IRQ handler needs to either
+
+A.	Check bit 0 of the status port and return 
+
+B.	Check bit 4 or bit 9 of the interrupt control register
+
+Without docs someone would need to play with the various combinations and
+see what happened
+

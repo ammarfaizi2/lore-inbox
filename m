@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261975AbVCQR2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261844AbVCQRkT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261975AbVCQR2S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 12:28:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262314AbVCQR2S
+	id S261844AbVCQRkT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 12:40:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbVCQRkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 12:28:18 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:53888 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261979AbVCQR2L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 12:28:11 -0500
-Subject: RE: [ANNOUNCE][PATCH] drivers/scsi/megaraid/megaraid_{mm,mbox}
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Ju, Seokmann" <sju@lsil.com>
-Cc: "'Andrew Morton'" <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E5703662770@exa-atlanta>
-References: <0E3FA95632D6D047BA649F95DAB60E5703662770@exa-atlanta>
+	Thu, 17 Mar 2005 12:40:19 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:45466 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261844AbVCQRkL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 12:40:11 -0500
+Subject: e2fsprogs bug [was Re: ext2/3 file limits to avoid overflowing
+	i_blocks]
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <1111080221.2684.122.camel@sisko.sctweedie.blueyonder.co.uk>
+References: <1111080221.2684.122.camel@sisko.sctweedie.blueyonder.co.uk>
 Content-Type: text/plain
-Date: Thu, 17 Mar 2005 12:27:56 -0500
-Message-Id: <1111080476.5994.13.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-1) 
 Content-Transfer-Encoding: 7bit
+Message-Id: <1111081190.2684.135.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Thu, 17 Mar 2005 17:39:51 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-17 at 11:48 -0500, Ju, Seokmann wrote:
-> On Thursday, March 17, 2005 1:26 AM, Andrew wrote:
-> > Some of these things have already been done in Linus's 
-> > post-2.6.11 tree and
-> > you patch throws lots of rejects.  Please always work against the most
-> > recent kernel - 2.6.11 is very out of date.
-> Thank you for correction. I've created NEW patch against 2.6.11.4 which is
-> latest from kernel.org.
+Hi,
 
-This is still rejecting:
+On Thu, 2005-03-17 at 17:23, Stephen C. Tweedie wrote:
 
-patching file drivers/scsi/megaraid/megaraid_mm.c
-Hunk #2 FAILED at 43.
-Hunk #4 FAILED at 68.
-Hunk #5 FAILED at 1217.
-Hunk #6 FAILED at 1225.
-Hunk #7 FAILED at 1245.
-5 out of 7 hunks FAILED -- saving rejects to file
-drivers/scsi/megaraid/megaraid_mm.c.rej
+> I wrote a small program to calculate the total indirect tree overhead
+> for any given file size, and 0x1ff7fffe000 turned out to be the largest
+> file we can get without the total i_blocks overflowing 2^32.
+> 
+> But in testing, that *just* wrapped --- we need to limit the file to be
+> one page smaller than that to deal with the possibility of an EA/ACL
+> block being accounted against i_blocks.
 
-Could you rebase this patch to the bk snapshots so we can look at
-applying it?
+On a side, issue, e2fsck was unable to find any problem on that
+filesystem after the i_blocks had wrapped exactly to zero.
 
-Thanks,
+The bug seems to be in e2fsck/pass1.c: we do the numblocks checking
+inside process_block(), which is called as an inode block iteration
+function in check_blocks().  Then, later, check_blocks() does
 
-James
+	if (inode->i_file_acl && check_ext_attr(ctx, pctx, block_buf))
+		pb.num_blocks++;
 
+	pb.num_blocks *= (fs->blocksize / 512);
+
+but without any further testing to see if pb.num_blocks has exceeded the
+max_blocks.  So by the time we've got to the end of check_blocks(),
+we're testing the wrapped i_blocks on disk against the wrapped
+num_blocks in memory, and so e2fsck fails to notice anything wrong.
+
+The fix may be as simple as just moving the
+
+	if (inode->i_file_acl && check_ext_attr(ctx, pctx, block_buf))
+		pb.num_blocks++;
+
+earlier in the function; Ted, do you see any problems with that?
+
+--Stephen
 

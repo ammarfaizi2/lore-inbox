@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316586AbSHSBNK>; Sun, 18 Aug 2002 21:13:10 -0400
+	id <S316594AbSHSBVM>; Sun, 18 Aug 2002 21:21:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316588AbSHSBNK>; Sun, 18 Aug 2002 21:13:10 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:58378 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S316586AbSHSBNK>; Sun, 18 Aug 2002 21:13:10 -0400
-Date: Mon, 19 Aug 2002 11:16:32 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Alan Cox <alan@redhat.com>
-cc: Jeff Dike <jdike@karaya.com>, "David S. Miller" <davem@redhat.com>,
-       <kuznet@ms2.inr.ac.ru>, Andi Kleen <ak@muc.de>,
-       <linux-kernel@vger.kernel.org>, Matthew Wilcox <willy@debian.org>
-Subject: Re: [PATCH][RFC] sigurg/sigio cleanup for 2.5.31
-In-Reply-To: <Mutt.LNX.4.44.0208181055390.6481-100000@blackbird.intercode.com.au>
-Message-ID: <Mutt.LNX.4.44.0208191114410.9295-100000@blackbird.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316601AbSHSBVM>; Sun, 18 Aug 2002 21:21:12 -0400
+Received: from mnh-1-18.mv.com ([207.22.10.50]:45316 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S316594AbSHSBVM>;
+	Sun, 18 Aug 2002 21:21:12 -0400
+Message-Id: <200208190228.VAA04400@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: James Morris <jmorris@intercode.com.au>
+cc: "David S. Miller" <davem@redhat.com>, kuznet@ms2.inr.ac.ru,
+       Andi Kleen <ak@muc.de>, viro@math.psu.edu, linux-kernel@vger.kernel.org,
+       Matthew Wilcox <willy@debian.org>
+Subject: Re: [PATCH][RFC] sigurg/sigio cleanup for 2.5.31 [version 2] 
+In-Reply-To: Your message of "Sat, 17 Aug 2002 12:58:12 +1000."
+             <Mutt.LNX.4.44.0208171249510.3437-100000@blackbird.intercode.com.au> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 18 Aug 2002 21:28:18 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Aug 2002, James Morris wrote:
+This is still wrong.  You need to be checking fown->pid in the loop.
 
-> On Sat, 17 Aug 2002, Alan Cox wrote:
-> 
-> > Looks like the lock is needed - oh well
-> > 
-> 
-> It's still lockless in the sigio delivery path, which is where it 
-> matters.
-> 
+Same thing in send_sigurg.
 
-Ahh, you're right, of course.  Please disregard the last version of the 
-patch.
+				Jeff
 
-
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
-
+@@ -469,6 +492,12 @@
+ 	struct task_struct * p;
+ 	int   pid	= fown->pid;
+ 	
++	if (!pid)
++		return;
++		
++	while (pid == PID_INVALID)
++		cpu_relax();
++	
+ 	read_lock(&tasklist_lock);
+ 	if ( (pid > 0) && (p = find_task_by_pid(pid)) ) {
+ 		send_sigio_to_task(p, fown, fd, band);
 

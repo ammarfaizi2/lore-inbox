@@ -1,93 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261669AbSK0IiB>; Wed, 27 Nov 2002 03:38:01 -0500
+	id <S261693AbSK0IjG>; Wed, 27 Nov 2002 03:39:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261689AbSK0IiB>; Wed, 27 Nov 2002 03:38:01 -0500
-Received: from point41.gts.donpac.ru ([213.59.116.41]:49425 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S261669AbSK0Ih7>;
-	Wed, 27 Nov 2002 03:37:59 -0500
-Date: Wed, 27 Nov 2002 11:44:25 +0300
-From: Andrey Panin <pazke@orbita1.ru>
-To: James Simmons <jsimmons@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fbdev 2.5.49 BK fixes.
-Message-ID: <20021127084425.GA488@pazke.ipt>
-Mail-Followup-To: James Simmons <jsimmons@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <20021122100215.GA4998@pazke.ipt> <Pine.LNX.4.44.0211262306070.30451-100000@phoenix.infradead.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YZ5djTAD1cGYuMQK"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211262306070.30451-100000@phoenix.infradead.org>
-User-Agent: Mutt/1.4i
-X-Uname: Linux pazke 2.2.17 
+	id <S261723AbSK0IjG>; Wed, 27 Nov 2002 03:39:06 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:19945 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S261693AbSK0IjF>;
+	Wed, 27 Nov 2002 03:39:05 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15844.34389.396428.645047@napali.hpl.hp.com>
+Date: Wed, 27 Nov 2002 00:46:13 -0800
+To: Andi Kleen <ak@muc.de>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Linus <torvalds@transmeta.com>,
+       LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
+       "David S. Miller" <davem@redhat.com>, ak@muc.de, schwidefsky@de.ibm.com,
+       ralf@gnu.org, willy@debian.org
+Subject: Re: [PATCH] Start of compat32.h (again)
+In-Reply-To: <20021127082918.GA5227@averell>
+References: <20021127184228.2f2e87fd.sfr@canb.auug.org.au>
+	<15844.31669.896101.983575@napali.hpl.hp.com>
+	<20021127082918.GA5227@averell>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> On Wed, 27 Nov 2002 09:29:18 +0100, Andi Kleen <ak@muc.de> said:
 
---YZ5djTAD1cGYuMQK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+  Andi> But the 32bit user space surely doesn't care about any garbage
+  Andi> in the upper 32bits, no ?
 
-On Tue, Nov 26, 2002 at 11:22:07PM +0000, James Simmons wrote:
->=20
-> > > Hm. Strange. It should work. Can you get serial console working?=20
-> >=20
-> > Forgot to mention, I've seen message:
-> > 	fbcon_setup: No support for fontwidth 8
-> > in /var/log/dmesg.=20
-> >=20
-> > I found this printk() in fbcon_setup(), but i can't even imagine=20
-> > why it happens.
->=20
-> Perfect. I found the problem and I'm about to commit to BK. I posted the=
-=20
-> latest patch against 2.5.49 at
->
->=20
-> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
->=20
-I see some harmless crap slipped into the patch again :))
+The user-space won't, but the kernel exit path might.  Remember that
+most compatibility syscalls go straight to the 64-bit syscall
+handlers.  You're probably hosed anyhow if a 64-bit syscall returns,
+say, 0x1ffffffff, but on ia64 I'd still rather play it safe and
+consistently have all compatibility syscalls return a 64-bit
+sign-extended value like all other syscall handlers ("least surprise"
+principle).
 
-Add these file into /home/jsimmons/dontdiff:
-	vmlinux.lds.s
-	gen_init_cpio
-	initramfs_data.cpio.gz
-
-I'll test the patch this eveninig.
-
-> > I understand this situation perfectly, looks like it's almost common for
-> > developers working in "not so importatnt for servers" subsystems :(
->=20
-> :-( Some day that attitude will change.
->=20
-
-Lets hope so.
-
-> P.S
->=20
->     Several drivers have been ported but not all. NVIDIA is still broken=
-=20
-> but I will fix it tonight.
-
-I can test the fix on my riva128.
-
---=20
-Andrey Panin            | Embedded systems software developer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
---YZ5djTAD1cGYuMQK
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE95IXpBm4rlNOo3YgRAobFAJ9PurjKzqC8np1ylYe5Yq2PHBVmjwCgiiOB
-un07qb8i/PSq90GznFA+pmM=
-=Wfam
------END PGP SIGNATURE-----
-
---YZ5djTAD1cGYuMQK--
+	--david

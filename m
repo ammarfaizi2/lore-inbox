@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269704AbUJVNxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267535AbUJVN4y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269704AbUJVNxt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 09:53:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269755AbUJVNwU
+	id S267535AbUJVN4y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 09:56:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269696AbUJVN4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 09:52:20 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:11528 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S269762AbUJVNu7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 09:50:59 -0400
-Date: Fri, 22 Oct 2004 15:50:26 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-net@vger.kernel.org
-Subject: 2.6.9-mm1: timer_event multiple definition
-Message-ID: <20041022135026.GC2831@stusta.de>
-References: <20041022032039.730eb226.akpm@osdl.org>
+	Fri, 22 Oct 2004 09:56:54 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:5581 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S267535AbUJVN4u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 09:56:50 -0400
+Date: Fri, 22 Oct 2004 15:58:00 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Luben Tuikov <luben_tuikov@adaptec.com>
+Cc: "K.R. Foley" <kr@cybsft.com>, "J.A. Magallon" <jamagallon@able.es>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc3-mm3 fails to detect aic7xxx
+Message-ID: <20041022135800.GA8254@elte.hu>
+References: <1097178019.24355.39.camel@localhost> <1097188963l.6408l.2l@werewolf.able.es> <41661013.9090700@cybsft.com> <41668346.6090109@adaptec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041022032039.730eb226.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <41668346.6090109@adaptec.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 03:20:39AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.9-rc4-mm1:
->...
-> +posix-layer-clock-driver-api-fix.patch
+
+* Luben Tuikov <luben_tuikov@adaptec.com> wrote:
+
+> >>>backing out bk-scsi.patch seems to fix it.  I believe this worked in
+> >>>2.6.9-rc3-mm2.
+
+> >Mine doesn't without backing out those patches :) See my other post 
+> >about this.
+> >
+> >04:05.0 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
+> >04:05.1 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
 > 
->  posix clock api fix
->...
+> You can see you have different chips.  It's the IDs.
+> I'll come up with something shortly.
 
-This causes the following compile error:
+Same adapter, same problem here:
 
-<--  snip  -->
+ 03:04.0 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
+ 03:04.1 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
 
-...
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.text+0x30a210): In function `timer_event':
-: multiple definition of `timer_event'
-kernel/built-in.o(.text+0x16270): first defined here
-ld: Warning: size of symbol `timer_event' changed from 157 in 
-kernel/built-in.o to 11 in drivers/built-in.o
-make: *** [.tmp_vmlinux1] Error 1
+any patch i could try (other than backing out the whole SCSI patch)? 
 
-<--  snip  -->
-
-
-I'd say drivers/net/skfp/queue.c is more at fault for using the pretty 
-generic timer_event name...
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+	Ingo

@@ -1,99 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbUASRwN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 12:52:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbUASRwN
+	id S261575AbUASR7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 12:59:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbUASR7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 12:52:13 -0500
-Received: from smtp1.clear.net.nz ([203.97.33.27]:29363 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S261879AbUASRuh
+	Mon, 19 Jan 2004 12:59:24 -0500
+Received: from absinthe.ifi.unizh.ch ([130.60.75.58]:35495 "EHLO
+	diamond.madduck.net") by vger.kernel.org with ESMTP id S261575AbUASR6o
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 12:50:37 -0500
-Date: Tue, 20 Jan 2004 06:56:04 +1300
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Subject: Re: Help port swsusp to ppc.
-In-reply-to: <1074490463.10595.16.camel@gaston>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Hugang <hugang@soulinfo.com>, ncunningham@clear.net.nz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       debian-powerpc@lists.debian.org
-Reply-to: ncunningham@users.sourceforge.net
-Message-id: <1074534964.2505.6.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: multipart/signed; boundary="=-OJiUoqa4Dv1i4/YUjPz8";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <20040119105237.62a43f65@localhost>
- <1074483354.10595.5.camel@gaston> <1074489645.2111.8.camel@laptop-linux>
- <1074490463.10595.16.camel@gaston>
+	Mon, 19 Jan 2004 12:58:44 -0500
+Date: Mon, 19 Jan 2004 18:58:42 +0100
+From: martin f krafft <madduck@madduck.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-usb-users@lists.sourceforge.net
+Subject: [solved] failing to force-claim USB interface
+Message-ID: <20040119175842.GA8346@piper.madduck.net>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	linux-usb-users@lists.sourceforge.net
+References: <20040119164627.GA29146@piper.madduck.net> <20040119154633.GA3797@piper.madduck.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
+Content-Disposition: inline
+In-Reply-To: <20040119164627.GA29146@piper.madduck.net> <20040119154633.GA3797@piper.madduck.net>
+X-OS: Debian GNU/Linux testing/unstable kernel 2.6.1-diamond i686
+X-Mailer: Mutt 1.5.4i (2003-03-19)
+X-Motto: Keep the good times rollin'
+X-Subliminal-Message: debian/rules!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-OJiUoqa4Dv1i4/YUjPz8
-Content-Type: text/plain
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi.
+also sprach Martin F Krafft <krafft@ailab.ch> [2004.01.19.1646 +0100]:
+>   struct usb_device *dev;
+>   [...]
+>   sprintf(path, "/proc/bus/usb/%s/%s", dev->bus->dirname, dev->filename);
+>   int fd =3D open(path);
+>   struct usbdevfs_ioctl command =3D { 0, USBDEVFS_DISCONNECT, 0 };
+>   ioctl (fd, USBDEVFS_IOCTL, &command) < 0
 
-On Tue, 2004-01-20 at 00:39, Benjamin Herrenschmidt wrote:
-> I see no reason why this would be needed on ppc, only the last step,
-> that is the actual CPU state save, should matter.
+I was using the wrong fd. The following works:
 
-Besides saving the CPU state, the code copies the original kernel back.
-It sort of defeats the purpose to remove that code :>
+  struct usb_device *dev;
+  [...]
+  struct usb_device_handle udev =3D usb_open(dev);
+  struct usbdevfs_ioctl command =3D { 0, USBDEVFS_DISCONNECT, 0 };
+  ioctl(udev->fd, USBDEVFS_IOCTL, &command)
 
-> That's very hairy... You basically assume the boot kernel and the
-> restore kernel are completely identical, which isn't something I would
-> do. I didn't have time to dive into it, but I do/did intend to implement
-> swsusp on ppc and I would eventually resume the whole environement
-> straight from the bootloader without kernel help.
+Now the only thing left to figure out is how the libusb library
+expects us to do this, because struct usb_device_handle; is not
+implemented in the exported interface.
 
-Well, the whole things is pretty hairy :> But I don't think there's
-anything wrong with assuming the boot and restored kernels are
-identical. After all, we're calling it suspending and resuming, not
-kexec. It does sound nice to do it all from the bootloader without
-kernel help.
+I guess the solution is to implement the above functionality in
+libusb itself.
 
-> If you want to pass some infos between the "loader" kernel and the "loade=
-d"
-> one, I strongly suggest you define some well specified interface for doin=
-g
-> so that is immune to kernel versions.
-
-It is a well defined interface: a section of memory marked nosave, with
-variables given the matching attribute. Not my idea, by the way. If you
-have a problem, you should be taking it up with Pavel or Linus. We
-should also note that the interface can't be too well defined - there
-has to be room for development over time.
-
-> Also, I haven't looked in details, but when switching to the "new" kernel
-> from the "loader" (boot) one, do you shut down all devices properly ?
-> This switch could actually be fairly similar to a kexec pass in this
-> regard.
-
-Yes. we device_suspend. Regarding the similarities with kexec, I fully
-agree. In fact, there is also LKCD to think off. There should be a
-synergy here.
-
-Regards,
-
-Nigel
 --=20
-My work on Software Suspend is graciously brought to you by
-LinuxFund.org.
+martin;              (greetings from the heart of the sun.)
+  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
+=20
+invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
+=20
+there are 3 types of guys -- the ones who hate nerds (all nerds, that
+is; girls aren't let off the hook); the ones who are scared off by
+girls who are slightly more intelligent than average; and the guys who
+are also somewhat more intelligent than average, but are so shy that
+they can't put 2 words together when they're within 20 feet of a girl.
+                                     -- vikki roemer on debian-curiosa
 
---=-OJiUoqa4Dv1i4/YUjPz8
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+--r5Pyd7+fXNt84Ff3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQBADBozVfpQGcyBBWkRAvAgAKCV4WNFALcU3nmzRAmV1I4CDUcTpwCfexbf
-/Vk7YihfcJa4ZVmGiQUSx1g=
-=COAG
+iD8DBQFADBrSIgvIgzMMSnURAtczAJ910QIxk+IJlOr6YQJIsMzwmTPHPACg3TyS
+L1bV+YqQZb6i3/a7nreOZVw=
+=KKtT
 -----END PGP SIGNATURE-----
 
---=-OJiUoqa4Dv1i4/YUjPz8--
-
+--r5Pyd7+fXNt84Ff3--

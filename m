@@ -1,97 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262428AbUB0MZl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 07:25:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbUB0MZl
+	id S261817AbUB0MZr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 07:25:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbUB0MZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 07:25:41 -0500
-Received: from gate.crashing.org ([63.228.1.57]:48314 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262614AbUB0MWb (ORCPT
+	Fri, 27 Feb 2004 07:25:47 -0500
+Received: from freedom.icomedias.com ([62.99.232.79]:27917 "EHLO
+	freedom.grz.icomedias.com") by vger.kernel.org with ESMTP
+	id S261817AbUB0MWz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 07:22:31 -0500
-Subject: [PATCH] ppc64 iommu rewrite part 4/5
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1077884018.22925.371.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 27 Feb 2004 23:13:38 +1100
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Feb 2004 07:22:55 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: Network error with Intel E1000 Adapter on update 2.4.25 ==> 2.6.3
+Date: Fri, 27 Feb 2004 13:22:54 +0100
+Message-ID: <FA095C015271B64E99B197937712FD020B01BB@freedom.grz.icomedias.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Network error with Intel E1000 Adapter on update 2.4.25 ==> 2.6.3
+Thread-Index: AcP9LGy9DCYDtwk0RnOTuLLUfxW6jQ==
+From: "Martin Bene" <martin.bene@icomedias.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix drivers/ide when using an IOMMU
+When trying to update the kernel from 2.4.25 to 2.6.3 I run into a probelm:
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/02/27 22:28:18+11:00 benh@kernel.crashing.org 
-#   Make IDE advertise only 128 entries of SG table on archs with an IOMMU.
-#   The current IOMMU implementations of pci_map_sg() may produce segments
-#   that don't match the boundary requirements of IDE, thus causing the
-#   driver to break them up. The BIO is supposed to account for that,
-#   however, it cannot account for a pci_map_sg producing a segment of
-#   the requested size, but with incorrect alignement, thus we may still
-#   try to break up the list in more entries than is supported by the HW.
-#   A similar fix already went in libata. The "real" long term fix will be
-#   to move the boundary requirements to struct device so that pci_map_sg()
-#   can respect them when producing the sglist. In the meantime, this
-#   band-aid works around the problem.
-# 
-# drivers/ide/ide-probe.c
-#   2004/02/27 22:28:06+11:00 benh@kernel.crashing.org +16 -1
-#   Make IDE advertise only 128 entries of SG table on archs with an IOMMU.
-#   The current IOMMU implementations of pci_map_sg() may produce segments
-#   that don't match the boundary requirements of IDE, thus causing the
-#   driver to break them up. The BIO is supposed to account for that,
-#   however, it cannot account for a pci_map_sg producing a segment of
-#   the requested size, but with incorrect alignement, thus we may still
-#   try to break up the list in more entries than is supported by the HW.
-#   A similar fix already went in libata. The "real" long term fix will be
-#   to move the boundary requirements to struct device so that pci_map_sg()
-#   can respect them when producing the sglist. In the meantime, this
-#   band-aid works around the problem.
-# 
-diff -Nru a/drivers/ide/ide-probe.c b/drivers/ide/ide-probe.c
---- a/drivers/ide/ide-probe.c	Fri Feb 27 22:44:36 2004
-+++ b/drivers/ide/ide-probe.c	Fri Feb 27 22:44:36 2004
-@@ -50,6 +50,7 @@
- #include <linux/spinlock.h>
- #include <linux/pci.h>
- #include <linux/kmod.h>
-+#include <linux/pci.h>
- 
- #include <asm/byteorder.h>
- #include <asm/irq.h>
-@@ -926,11 +927,25 @@
- 		max_sectors = hwif->rqsize;
- 	blk_queue_max_sectors(q, max_sectors);
- 
--	/* IDE DMA can do PRD_ENTRIES number of segments. */
-+#if !defined(CONFIG_PCI) || PCI_DMA_BUS_IS_PHYS
-+	/* IDE DMA can do PRD_ENTRIES number of segments. */	
- 	blk_queue_max_hw_segments(q, PRD_ENTRIES);
- 
- 	/* This is a driver limit and could be eliminated. */
- 	blk_queue_max_phys_segments(q, PRD_ENTRIES);
-+#else
-+	/* When we have an IOMMU, we may have a problem where pci_map_sg()
-+	 * creates segments that don't completely match our boundary
-+	 * requirements and thus need to be broken up again. Because it
-+	 * doesn't align properly neither, we may actually have to break up
-+	 * to more segments than what was we got in the first place, a max
-+	 * worst case is twice as many.
-+	 * This will be fixed once we teach pci_map_sg() about our boundary
-+	 * requirements, hopefully soon
-+	 */
-+	blk_queue_max_hw_segments(q, PRD_ENTRIES / 2);
-+	blk_queue_max_phys_segments(q, PRD_ENTRIES / 2);
-+#endif
- 
- 	/* assign drive and gendisk queue */
- 	drive->queue = q;
+While the driver for the onboard Intel E1000 network adapter loads OK, it doesn't seem to find an interrupt for the interface - ifconfig shows:
 
+eth0      Link encap:Ethernet  HWaddr 00:0E:A6:2D:7A:64
+          BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
+          Base address:0x9000 Memory:fc000000-fc020000
 
+Trying to configure the infterface results in a frozen system.
+
+Running the system with 2.4.25 kernel works OK and shows 
+
+eth0      Link encap:Ethernet  HWaddr 00:0E:A6:2D:7A:64
+          BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
+          Interrupt:18 Base address:0x9000 Memory:fc000000-fc020000
+
+and works OK. 
+
+/proc/interrupts for 2.4.25
+
+           CPU0       CPU1
+  0:      19341          0    IO-APIC-edge  timer
+  1:          2          0    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  3:          0          0    IO-APIC-edge  serial
+  8:          1          0    IO-APIC-edge  rtc
+  9:          0          0   IO-APIC-level  acpi
+ 14:       1591          0    IO-APIC-edge  ide0
+ 15:       1823          1    IO-APIC-edge  ide1
+ 18:         57          0   IO-APIC-level  eth0
+ 22:       2888          0   IO-APIC-level  eth1
+ 23:          2          0   IO-APIC-level  libata
+NMI:          0          0
+LOC:      19270      19268
+ERR:          0
+MIS:          0
+
+/proc/interrupts for 2.6.3
+           CPU0       CPU1
+  0:     640029          0    IO-APIC-edge  timer
+  1:          9          0    IO-APIC-edge  i8042
+  2:          0          0          XT-PIC  cascade
+  3:          0          0    IO-APIC-edge  serial
+  8:          1          0    IO-APIC-edge  rtc
+  9:          0          0   IO-APIC-level  acpi
+ 12:         84          0    IO-APIC-edge  i8042
+ 14:       1368          0    IO-APIC-edge  ide0
+ 15:       1316          0    IO-APIC-edge  ide1
+ 22:       3212          0   IO-APIC-level  eth1
+ 23:          2          0   IO-APIC-level  libata
+NMI:          0          0
+LOC:     640020     640019
+ERR:          0
+MIS:          0
+
+Board is an Asus PC-DL, Intel 875P Chipset, one Xeon 2.8Ghz CPU, Onboard e1000 Network interface. Any idea how I can get the onboard NIC to work?
+
+Thanks, Martin

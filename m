@@ -1,27 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281772AbRKQP6h>; Sat, 17 Nov 2001 10:58:37 -0500
+	id <S281773AbRKQQQB>; Sat, 17 Nov 2001 11:16:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281770AbRKQP61>; Sat, 17 Nov 2001 10:58:27 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49166 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281769AbRKQP6M>; Sat, 17 Nov 2001 10:58:12 -0500
-Subject: Re: 2.4.13-ac8: crash on IBM Thinkpad 600x
-To: ruf@tik.ee.ethz.ch
-Date: Sat, 17 Nov 2001 16:04:52 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel ml)
-In-Reply-To: <20011117165248.A10543@tik.ee.ethz.ch> from "Lukas Ruf" at Nov 17, 2001 04:52:48 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S281776AbRKQQPu>; Sat, 17 Nov 2001 11:15:50 -0500
+Received: from smtp02.uc3m.es ([163.117.136.122]:23312 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S281773AbRKQQPe>;
+	Sat, 17 Nov 2001 11:15:34 -0500
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200111171615.fAHGFM027673@oboe.it.uc3m.es>
+Subject: Re: Raw access to block devices
+In-Reply-To: <20011117154448.97910.qmail@web21101.mail.yahoo.com> from "Roy S.C.
+ Ho" at "Nov 17, 2001 07:44:48 am"
+To: "Roy S.C. Ho" <scho1208@yahoo.com>
+Date: Sat, 17 Nov 2001 17:15:22 +0100 (MET)
+Cc: linux-kernel@vger.kernel.org, scho@whizztech.com
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <E1657xc-0007cT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.4.13-ac8 unfortunately crashes on my IBM Thinkpad 600x every now and
-> then by a kernel panic.  Unfortunately, not syncing.
-> Does anyone has similar experienes and managed a workaround?
+"A month of sundays ago Roy S.C. Ho wrote:"
+> I would like to write a driver for a block device that
+> is better to be accessed directly without going
+> through the buffer cache. I read the source code raw.c
+> and learnt that linux does have raw I/O support.
+> However, it seems to me that the support only provides
+> a character device interface to users. Is there a
 
-Known bug - use ac7 or 2.4.15pre6
+I think that's the control device. You can work out how to use it
+by looking at the ioctls in raw.c. But, yes, sure, if you get some
+"official" news on how to work it, let me know too and I'll use the
+info like a shot!
+
+> simple way to maintain the block device interface to
+> user programs / other parts of the kernel, while
+> bypassing the buffer cache system?
+
+Peter

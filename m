@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266176AbUHSOBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266183AbUHSOEa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266176AbUHSOBy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 10:01:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266183AbUHSOBy
+	id S266183AbUHSOEa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 10:04:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266195AbUHSOEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 10:01:54 -0400
-Received: from albireo.ucw.cz ([81.27.203.89]:2436 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S266176AbUHSOBv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 10:01:51 -0400
-Date: Thu, 19 Aug 2004 16:01:52 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Greg KH <greg@kroah.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-Message-ID: <20040819140152.GB12634@ucw.cz>
-References: <20040814221010.GA18592@ucw.cz> <20040818181310.12047.qmail@web14927.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040818181310.12047.qmail@web14927.mail.yahoo.com>
-User-Agent: Mutt/1.3.28i
+	Thu, 19 Aug 2004 10:04:30 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:37048 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S266183AbUHSOE2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 10:04:28 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Thu, 19 Aug 2004 16:03:00 +0200
+To: schilling@fokus.fraunhofer.de, mj@ucw.cz
+Cc: linux-kernel@vger.kernel.org, kernel@wildsau.enemy.org, diablod3@gmail.com
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <4124B314.nail8221CVOE9@burner>
+References: <200408041233.i74CX93f009939@wildsau.enemy.org>
+ <d577e5690408190004368536e9@mail.gmail.com>
+ <4124A024.nail7X62HZNBB@burner> <20040819131026.GA9813@ucw.cz>
+ <4124AD46.nail80H216HKB@burner> <20040819135614.GA12634@ucw.cz>
+In-Reply-To: <20040819135614.GA12634@ucw.cz>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+>From: Martin Mares <mj@ucw.cz>
 
-> I haven't received any comments on pci-sysfs-rom-17.patch. Is everyone
-> asleep or is it ready to be pushed upstream? I'm still not sure that
-> anyone has tried it on a ppc machine.
+>You explain that SuSE is non-cooperative, because they distribute crippled
+>cdrecord, but you fail to explain what crippledness do you have in mind.
 
-I was away, so sorry for the delay.  The patch looks OK to me now.
+>Also, if you put away your flamethrower and just politely asked SUSE to add
+>a message like `this version has been modified by SUSE, so please send your
+>bug reports to support@suse.com instead of the original author', the whole
+>issue would be probably already settled a long time ago.
 
-I was thinking again about the VGA ROM's and I tend to believe that even if
-you happen to guess correctly where is the ROM shadowed, it would be better
-to show the _original_ ROM image and deliver the shadow copy as a separate
-file. (If somebody decides to initialize the VGA manually by running the
-code in the ROM, is the shadow copy any better?)
+I did talk to the official SuSE product manager 1.5 years ago and this person
+just tried to take me as a clod.
 
-I think that we can apply the current version of the patch (maybe except the
-shadowing logic) and think about these issues later.
+Do you really believe that I am doing all this before trying to find a decent 
+discussion based solution? 
 
-				Have a nice fortnight
+SuSE did _proove_ being unwilling or unable to for a discussion :-(
+
+Jörg
+
 -- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-"In theory, practice and theory are the same, but in practice they are different." -- Larry McVoy
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbTLCUz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 15:55:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbTLCUz4
+	id S261881AbTLCVF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 16:05:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbTLCVF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 15:55:56 -0500
-Received: from fw.osdl.org ([65.172.181.6]:63116 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261276AbTLCUzw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 15:55:52 -0500
-Date: Wed, 3 Dec 2003 12:55:23 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Manfred Spraul <manfred@colorfullife.com>,
-       Srivatsa Vaddagiri <vatsa@in.ibm.com>, Raj <raju@mailandnews.com>,
-       linux-kernel@vger.kernel.org, lhcs-devel@lists.sourceforge.net
-Subject: Re: kernel BUG at kernel/exit.c:792!
-In-Reply-To: <Pine.LNX.4.58.0312032122420.6622@earth>
-Message-ID: <Pine.LNX.4.58.0312031254590.2055@home.osdl.org>
-References: <20031203153858.C14999@in.ibm.com> <3FCDCEA3.1020209@mailandnews.com>
- <20031203182319.D14999@in.ibm.com> <Pine.LNX.4.58.0312032059040.4438@earth>
- <Pine.LNX.4.58.0312031203430.7406@home.osdl.org> <3FCE453D.9080701@colorfullife.com>
- <Pine.LNX.4.58.0312032122420.6622@earth>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 3 Dec 2003 16:05:29 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:42406
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261881AbTLCVFU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 16:05:20 -0500
+Date: Wed, 3 Dec 2003 22:05:22 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ian Soboroff <ian.soboroff@nist.gov>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23 includes Andrea's VM?
+Message-ID: <20031203210522.GF24651@dualathlon.random>
+References: <9cfptf6vts7.fsf@rogue.ncsl.nist.gov> <20031203183719.GD24651@dualathlon.random> <9cfu14hbqvz.fsf@rogue.ncsl.nist.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9cfu14hbqvz.fsf@rogue.ncsl.nist.gov>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 3 Dec 2003, Ingo Molnar wrote:
->
-> On Wed, 3 Dec 2003, Manfred Spraul wrote:
->
-> > It's wrong, because next_thread() relies on
+On Wed, Dec 03, 2003 at 03:14:24PM -0500, Ian Soboroff wrote:
+> Andrea Arcangeli <andrea@suse.de> writes:
+> 
+> > It's probably going to work an order of magnitude better thanks
+> > especially to the lower_zone_reserve algorithm.
 > >
-> >     task->pids[PIDTYPE_TGID].pid_chain.next
+> > However I'd still recommend to use my tree, the last two critical bits
+> > you need from my tree are inode-highmem and related_bhs. Those two are
+> > still missing, and you probably need them with 12G.
 > >
-> > That pointer is not valid after detach_pid(task, PIDTYPE_TGID), and
-> > that's called within __unhash_process.  Thus next_thread() fails if it's
-> > called on a dead task. Srivatsa's second patch is the right change: If
-> > pid_alive() is wrong, then break from the loop without calling
-> > next_thread().
->
-> yes. And for thread groups this can only happen for the thread group
-> leader if all 'child' threads have exited.
+> > I'm going to release a 2.4.23aa1 btw, that will be the last 2.4-aa.
+> 
+> I found 10_inode-highmem-2 in the 2.4.23pre6aa3 directory, but I
+> couldn't find any related_bhs one.  Am I looking in the wrong place?
 
-Ok, color me convinced. Will apply,
+the latter is not a self contained patch unfortunately (it could be in
+theory but it isn't in practice), and there's no way I can invest effort
+in 2.4 to extract it now (infact I need to check that 2.6 addresses that
+instead). But you can find it in the 05_vm_26-rest-1 patch.  Ideally if
+you apply all the 05_vm_* and the inode-highmem (solving possible
+rejects, or applying only the patch with dependencies), you should be
+fine then.
 
-		Linus
+> I'd wait for -aa1, but I want to try the updated aic7xxx driver in 2.4.23
+> sooner rather than later.
+
+Just to try the driver you can go with plain 2.4.23 right now, the inode
+and bh troubles showup in a few days normally, not in a few minutes,
+however it depends on your workload. For example with 12G you probably
+want to avoid updatedb until you apply all the vm fixes.

@@ -1,54 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264141AbTKLTHA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 14:07:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264143AbTKLTG7
+	id S264143AbTKLT0a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 14:26:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbTKLT0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 14:06:59 -0500
-Received: from uu90.internetdsl.tpnet.pl ([80.55.150.90]:52997 "EHLO
-	zachod.com") by vger.kernel.org with ESMTP id S264141AbTKLTG6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 14:06:58 -0500
-From: Bartlomiej Pater <nostah@gazeta.pl>
-To: linux-kernel@vger.kernel.org
-Subject: problems with usb storage and nforce2 board
-Date: Wed, 12 Nov 2003 20:06:52 +0100
-User-Agent: KMail/1.5.93
-MIME-Version: 1.0
+	Wed, 12 Nov 2003 14:26:30 -0500
+Received: from mailer.scri.fsu.edu ([144.174.128.142]:26683 "EHLO
+	mailer.csit.fsu.edu") by vger.kernel.org with ESMTP id S264143AbTKLT02
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 14:26:28 -0500
+Date: Wed, 12 Nov 2003 14:26:28 -0500
+From: Charles Mason <mason@csit.fsu.edu>
+To: zippel@linux-m68k.org, linux-kernel@vger.kernel.org
+Subject: HFS bug
+Message-ID: <20031112192627.GA3331@imap.csit.fsu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200311122006.52088.nostah@gazeta.pl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
 
-I have recently changed mainboard for SIS735-based to nForce2-based (asus
-a7n8x-x if that matters). Since then I've been experiencing problems using
-my datafab KCCF-USBG CF reader. It means it does not work at all - it is
-detected by kernel but mounting the partition causes lock of the mount
-process and timeout messages until the reader is unplugged.
+This may or may not be a bug, but I figured that sending out the message
+would do better good than not sending one out at all:
 
-The reader itself is functional - works with any other mainboard I have
-access to, including USB2.0 one based on Intel 845G chipset. The mainboards
-usb ports are also working as I've managed to configure my digital camera
-to work. Both camera and CF reader are usb1.1 devices but turning BIOS into
-USB 1.1 mode changes nothing.
+when I run the command:
 
-I've tried all the latest kernels available including 2.4.23-rc1 and
-2.6.0-test9 with no success. I know that Datafab devices are tricky and
-often caused problems in the past, but is there anything that could make it
-work? I don't have Windows at home so I couldn't test how it behaves on it. 
+# mount -t hfs /dev/scd0 /mnt/cdrom 
 
-Because both syslog and kernel config are quite big files I've placed them on 
-WWW. USB and USB-storage were compiled with full debug. Here are the URLs:
+The kernel gives an Oops that traces back to line buffer.c:2555 (kernel
+version 2.4.23-pre1). I'd attach the Oops output, but I'm on a remote
+machine now.
 
-http://zachod.com/~noster/kernel-config
-http://zachod.com/~noster/syslog-usb20
+The BUG() macro is called because the block size requested to be read by
+HFS (512 bytes) is not the same as the hardware block size set by the
+SCSI drivers (2048 by default).  grow_buffers() wants whatever called it
+to request a blocksize that is a multiple of get_hardsect_size().
 
-If there anything I could do to help in solving this thing I am ready :)
+I would have bothered myself to write a fix, since I firmly believe that
+a CD could have an HFS filesystem, but the kernel code has grown so
+complex that writing the code to perform the reads correctly would be
+difficult.
 
-regards,
-nst;
+My idea was to change buffer.c:2555 to just modify the requested block
+size to fit the hardware block size, then return an offset into a buffer
+where that requested (sub)block is.  For example, if you're requesting
+512 bytes but the hardsect size is 2048.  Read a 2048 block, and offset
+the buffer to (block_no % 4) * 512.  This may have worked, but it could
+possibly have been slow too.
+
+By the way, the offending code is the hfs/super.c:hfs_read_super() that
+traces to hfs/sysdep.c:hfs_buffer_get() which calls sb_bread() and
+further then to buffer.c:grow_buffers().  hfs_read_super() sets
+mdb->s_blocksize to 512.  sb_bread will use the hardsect_size set by the
+SCSI driver (drivers/scsi/sr.c:sr_init()).
+
+Alas, if this information helps out, let me know -- I'm not on any
+kernel mailing list.  Further information about my system is attached.
+
+Sincerely,
+Charles Mason
+mason@csit.fsu.edu
+
+
+Kernel: Linux 2.4.23-pre1 (generally tained with the nvidia module)
+Hardware:  AMD XP 2500+ / 1GB RAM / nVidia mainboard/chipset
+Distribution: Debian unstable
+

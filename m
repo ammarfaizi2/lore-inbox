@@ -1,65 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbTD1Syq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 14:54:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbTD1Syq
+	id S261253AbTD1S7c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 14:59:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbTD1S7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 14:54:46 -0400
-Received: from twinlark.arctic.org ([168.75.98.6]:8064 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S261254AbTD1Syo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 14:54:44 -0400
-Date: Mon, 28 Apr 2003 12:07:01 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Mark Grosberg <mark@nolab.conman.org>
-cc: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
-       Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFD] Combined fork-exec syscall.
-In-Reply-To: <Pine.BSO.4.44.0304272154080.23296-100000@kwalitee.nolab.conman.org>
-Message-ID: <Pine.LNX.4.53.0304281203200.8792@twinlark.arctic.org>
-References: <Pine.BSO.4.44.0304272154080.23296-100000@kwalitee.nolab.conman.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+	Mon, 28 Apr 2003 14:59:31 -0400
+Received: from elaine24.Stanford.EDU ([171.64.15.99]:9376 "EHLO
+	elaine24.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S261253AbTD1S72 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 14:59:28 -0400
+Date: Mon, 28 Apr 2003 12:11:37 -0700 (PDT)
+From: Junfeng Yang <yjf@stanford.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <mc@cs.stanford.edu>
+Subject: Re: [CHECKER] 8 potential user-pointer errors that allow arbitrary
+ writes to kernel
+In-Reply-To: <1051534156.16805.13.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.GSO.4.44.0304281206330.19401-100000@elaine24.Stanford.EDU>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Apr 2003, Mark Grosberg wrote:
 
-> On Sun, 27 Apr 2003, dean gaudet wrote:
+Thanks a lot for the confirmations!
+
+-Junfeng
+
+On 28 Apr 2003, Alan Cox wrote:
+
+> On Llu, 2003-04-28 at 07:50, Junfeng Yang wrote:
+> > /home/junfeng/linux-tainted/drivers/usb/media/vicam.c:617:vicam_ioctl:
+> > ERROR:TAINTED:617:617: dereferencing tainted ptr 'vp' [Callstack:
+> > /home/junfeng/linux-tainted/drivers/scsi/sg.c:1002:vicam_ioctl((tainted
+> > 3))]
+> >
+> > 			struct video_picture *vp = (struct video_picture
+> > *) arg;
+> >
+> > 			DBG("VIDIOCSPICT depth = %d, pal = %d\n",
+> > vp->depth,
+> > 			    vp->palette);
+> >
+> >
+> > Error --->
 >
-> > the only time fork-exec is inefficient, given the existence of vfork, is
-> > when you need to fork a process which has a lot of fd.  and by "a lot" i
-> > mean thousands.
+> Correct report. Fixed in 2.4.21-ac now
 >
-> Depends at what level of optimization you are talking about. I consider a
-> syscall an expensive operation.
-
-"expensive syscalls" are a mistake of non-linux unixes :)
-
-> The transition from user to kernel mode,
-> the setup and retrieval of parameters all cost (and some architectures are
-> worse at it than i386).
+> > /home/junfeng/linux-tainted/drivers/video/sis/sis_main.c:2476:sisfb_ioctl:
+> > ERROR:TAINTED:2476:2476: dereferencing tainted ptr 'x' [Callstack:
+> > /home/junfeng/linux-tainted/drivers/video/sstfb.c:808:sisfb_ioctl((tainted
+> > 3))]
+> >
 >
-> > but even this has a potential work-around using procfs -- use clone() to
-> > get the vfork semantics without also copying the fd array.  then open
-> > /proc/$ppid/fd/N for any file descriptors you want opened in the forked
-> > process.
+> Correct - already fixed in 2.4.21-ac
 >
-> That is still quite a few syscalls (and some path walking for each file
-> descriptor)... I was proposing to get around the syscall overhead which
-> on large multi-user systems (or webservers running lots of CGI) could be
-> significant.
+> > ---------------------------------------------------------
+> > [BUG] can write to anywhere in kernel. do_read is assigned to
+> > file_operations.read, which can take tainted inputs. even the parm itself
+> > has a name pUserBuffer
+> >
+> > /home/junfeng/linux-tainted/drivers/isdn/eicon/linchr.c:166:do_read:
+> > ERROR:TAINTED:166:166: passing tainted ptr 'pClientLogBuffer' to
+> > __constant_memcpy [Callstack:
+> > /home/junfeng/linux-tainted/drivers/scsi/sg.c:362:do_read((tainted 1))]
+> >
+> >
+> > 	pHeadItem = (klog_t *) DivasLogFifoRead();
+> >
+> Correct - fixed in 2.4.21-ac now
+>
+> > [BUG] can write to anywhere in kernel. in the same subdir,
+> > midi_synth.c:midi_synth_ioctl does __copy_to_user(not copy_to_user?). it
+> > could be that there are some assumptions about the devices.
+> >
+> > /home/junfeng/linux-tainted/sound/oss/mpu401.c:792:mpu_synth_ioctl:
+> > ERROR:TAINTED:792:792: passing tainted ptr 'arg' to __constant_memcpy
+> > [Callstack:
+> > /home/junfeng/linux-tainted/sound/oss/midi_synth.c:270:mpu_synth_ioctl((tainted
+> > 2))]
+>
+> The verify is done in soundcard.c
+> Fixed mpu_synth_ioctl in 2.4.21-ac
+>
+> > [BUG] can write to anywhere in kernel. mdc800_device_read is assigned to
+> > file_operations.read, which can take tainted inputs
+> >
+> > /home/junfeng/linux-tainted/drivers/usb/image/mdc800.c:750:mdc800_device_read:
+> > ERROR:TAINTED:750:750: passing tainted ptr 'ptr' to __memcpy [Callstack:
+> > /home/junfeng/linux-tainted/drivers/scsi/sg.c:362:mdc800_device_read((tainted
+> > 1))]
+>
+> Correct. Fixed in 2.4.21-ac
+>
+>
+> > [BUG] can write to anywhere in kernel. file_operations.write
+> >
+> > /home/junfeng/linux-tainted/drivers/usb/image/mdc800.c:805:mdc800_device_write:
+> > ERROR:TAINTED:805:805: dereferencing tainted ptr 'buf + i' [Callstack:
+> > /home/junfeng/linux-tainted/drivers/media/dvb/av7110/av7110.c:3858:mdc800_device_write((tainted
+> > 1))]
+>
+> Correct, fixed in 2.4.21-ac
+>
+>
+> > [BUG] can write to anywhere in kernel. awe_ioctl is assigned to
+> > file_operations.ioctl
+> >
+> > /home/junfeng/linux-tainted/sound/oss/awe_wave.c:2049:awe_ioctl:
+> > ERROR:TAINTED:2049:2049: passing tainted ptr 'arg' to __constant_memcpy
+> > [Callstack:
+> > /home/junfeng/linux-tainted/sound/oss/midi_synth.c:270:awe_ioctl((tainted
+> > 2))]
+> >
+> > 	case SNDCTL_SYNTH_INFO:
+> > 		if (playing_mode == AWE_PLAY_DIRECT)
+> > 			awe_info.nr_voices = awe_max_voices;
+> > 		else
+> > 			awe_info.nr_voices = AWE_MAX_CHANNELS;
+> >
+> > Error --->
+> > 		memcpy((char*)arg, &awe_info, sizeof(awe_info));
+>
+> Already fixed in 2.4, but correct report
+>
 
-it's no more syscalls than are already required to set up stdin, out, and
-error... the open() calls replace dup2() calls.
-
-if the path walking is a problem then create a openparent(int parent_fd)
-syscall... which would have to do all the same permissions checking that
-using an open("/proc/ppid/...") would.
-
-note that for this to be generically useful for CGI you also need to be
-able to setuid(), and chdir().  this is why NT CreateProcess has a zillion
-arguments -- and why it's really suspect...
-
--dean

@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263653AbUAVEZn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 23:25:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263679AbUAVEZn
+	id S264356AbUAVEjc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 23:39:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264376AbUAVEjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 23:25:43 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:34572 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S263653AbUAVEZm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 23:25:42 -0500
-Date: Thu, 22 Jan 2004 05:29:51 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: modular ide + fixed legacy/ppc doesn't work when non modular on ppc
-Message-ID: <20040122042951.GB2210@mars.ravnborg.org>
-Mail-Followup-To: Arkadiusz Miskiewicz <arekm@pld-linux.org>,
-	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	linux-kernel@vger.kernel.org
-References: <200401212354.45957.arekm@pld-linux.org> <200401220015.21827.bzolnier@elka.pw.edu.pl> <200401220025.07135.arekm@pld-linux.org>
+	Wed, 21 Jan 2004 23:39:32 -0500
+Received: from h80ad2664.async.vt.edu ([128.173.38.100]:30593 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S264356AbUAVEjb (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 23:39:31 -0500
+Message-Id: <200401220439.i0M4dPKJ008274@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: sclark46@earthlink.net
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.2-rc1 
+In-Reply-To: Your message of "Wed, 21 Jan 2004 23:32:59 EST."
+             <400F527B.3070505@earthlink.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <400F527B.3070505@earthlink.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401220025.07135.arekm@pld-linux.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_-610853172P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 21 Jan 2004 23:39:25 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 22, 2004 at 12:25:07AM +0100, Arkadiusz Miskiewicz wrote:
-> Dnia czw 22. stycznia 2004 00:15, Bartlomiej Zolnierkiewicz napisa?:
-> > Thanks, I have alternative fix.
-> >
-> > --- linux/drivers/ide/ppc/pmac.c.orig	2004-01-09 07:59:08.000000000 +0100
-> > +++ linux/drivers/ide/ppc/pmac.c	2004-01-22 00:10:11.550746088 +0100
-> > @@ -46,7 +46,7 @@
-> >  #include <asm/sections.h>
-> >  #include <asm/irq.h>
-> >
-> > -#include "ide-timing.h"
-> > +#include "../ide-timing.h"
+--==_Exmh_-610853172P
+Content-Type: text/plain; charset=us-ascii
 
-Please don't do that. It is much better to tell cc where to look,
-instead of this.
-So please use the solutin posted by Arkadiusz.
+On Wed, 21 Jan 2004 23:32:59 EST, Stephen Clark <stephen.clark@earthlink.net>  said:
+> Hello,
+> 
+> I am running RH9 with the latest kernel and get the following when I try 
+> to use rpm:
+> rpm -qa
+> rpmdb: unable to join the environment
+> error: db4 error(11) from dbenv->open: Resource temporarily unavailable
+> error: cannot open Packages index using db3 - Resource temporarily 
+> unavailable (11)
+> error: cannot open Packages database in /var/lib/rpm
+> no packages
 
-When using seperate output directory with kbuild the latter makes
-life much easier.
+1) Later releases of RPM (from Fedora) have this fixed.  Fedora-development
+currently has rpm-4.3-0.7.  Pre-reqs are your problem. :)
 
-	Sam
+2) 'LD_ASSUME_KERNEL=2.4.1 rpm -qa' also works around it.
+
+--==_Exmh_-610853172P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAD1P8cC3lWbTT17ARAkmRAJ4gtLbng5kG3EaiSBaT2RbA7Jb8zgCfT+cd
+Dw7chMgYehB5Ap2rB4k6qIw=
+=M+l3
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-610853172P--

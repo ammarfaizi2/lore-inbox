@@ -1,98 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261985AbTFOHuy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 03:50:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbTFOHuy
+	id S261998AbTFOHtR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 03:49:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbTFOHtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 03:50:54 -0400
-Received: from pat.uio.no ([129.240.130.16]:39641 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261985AbTFOHup (ORCPT
+	Sun, 15 Jun 2003 03:49:17 -0400
+Received: from mailc.telia.com ([194.22.190.4]:10472 "EHLO mailc.telia.com")
+	by vger.kernel.org with ESMTP id S261998AbTFOHtQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 03:50:45 -0400
+	Sun, 15 Jun 2003 03:49:16 -0400
+X-Original-Recipient: <linux-kernel@vger.kernel.org>
+Message-ID: <3EEC2811.2040500@telia.com>
+Date: Sun, 15 Jun 2003 10:02:25 +0200
+From: Peter Lundkvist <p.lundkvist@telia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Cardbus devices added twice since 2.5.69-bk10
+X-Enigmail-Version: 0.74.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16108.10350.294138.850242@charged.uio.no>
-Date: Sun, 15 Jun 2003 01:03:58 -0700
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Florin Iucha <florin@iucha.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.71
-In-Reply-To: <Pine.LNX.4.44.0306141849290.20728-100000@home.transmeta.com>
-References: <20030615014221.GA25303@iucha.net>
-	<Pine.LNX.4.44.0306141849290.20728-100000@home.transmeta.com>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Linus Torvalds <torvalds@transmeta.com> writes:
+Hi,
 
-     > Trond, any ideas?
+I can't get any cardbus (network) devices to work since 2.5.69-bk10.
+I have tested this with 2.5.70 and 2.5.71 with same result. Output
+of lspci lists the cardbus device twice with same device number.
+Also tried with acpi=off, but same result.
 
-Here's the patch I posted to Bugzilla earlier today. The problem is
-that whereas using the dentry->d_hash list for private purposes was
-previously harmless, it is not allowed with the RCU lists, because we
-depend on the unhashed node continuing to point back to the original
-list.
 
-Cheers,
-   Trond
+Peter
 
-diff -u --recursive --new-file linux-2.5.71/net/sunrpc/rpc_pipe.c linux-2.5.71-fix_rpcpipe/net/sunrpc/rpc_pipe.c
---- linux-2.5.71/net/sunrpc/rpc_pipe.c	2003-06-11 19:24:29.000000000 -0700
-+++ linux-2.5.71-fix_rpcpipe/net/sunrpc/rpc_pipe.c	2003-06-14 16:58:21.000000000 -0700
-@@ -472,30 +472,37 @@
- rpc_depopulate(struct dentry *parent)
- {
- 	struct inode *dir = parent->d_inode;
--	HLIST_HEAD(head);
- 	struct list_head *pos, *next;
--	struct dentry *dentry;
-+	struct dentry *dentry, *dvec[10];
-+	int n = 0;
- 
- 	down(&dir->i_sem);
-+repeat:
- 	spin_lock(&dcache_lock);
- 	list_for_each_safe(pos, next, &parent->d_subdirs) {
- 		dentry = list_entry(pos, struct dentry, d_child);
-+		spin_lock(&dentry->d_lock);
- 		if (!d_unhashed(dentry)) {
- 			dget_locked(dentry);
- 			__d_drop(dentry);
--			hlist_add_head(&dentry->d_hash, &head);
--		}
-+			spin_unlock(&dentry->d_lock);
-+			dvec[n++] = dentry;
-+			if (n == ARRAY_SIZE(dvec))
-+				break;
-+		} else
-+			spin_unlock(&dentry->d_lock);
- 	}
- 	spin_unlock(&dcache_lock);
--	while (!hlist_empty(&head)) {
--		dentry = list_entry(head.first, struct dentry, d_hash);
--		/* Private list, so no dcache_lock needed and use __d_drop */
--		__d_drop(dentry);
--		if (dentry->d_inode) {
--			rpc_inode_setowner(dentry->d_inode, NULL);
--			simple_unlink(dir, dentry);
--		}
--		dput(dentry);
-+	if (n) {
-+		do {
-+			dentry = dvec[--n];
-+			if (dentry->d_inode) {
-+				rpc_inode_setowner(dentry->d_inode, NULL);
-+				simple_unlink(dir, dentry);
-+			}
-+			dput(dentry);
-+		} while (n);
-+		goto repeat;
- 	}
- 	up(&dir->i_sem);
- }
+--
+lspci:
+00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03)
+00:03.0 CardBus bridge: Texas Instruments PCI1420
+00:03.1 CardBus bridge: Texas Instruments PCI1420
+00:07.0 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 03)
+00:08.0 Multimedia audio controller: ESS Technology ES1983S Maestro-3i PCI Audio Accelerator (rev 10)
+00:10.0 Communication controller: Lucent Microelectronics WinModem 56k (rev 01)
+01:00.0 VGA compatible controller: ATI Technologies Inc Rage Mobility M3 AGP 2x (rev 02)
+06:00.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+06:00.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+
+cardctl status:
+Socket 0:
+  no card
+Socket 1:
+  3.3V CardBus card
+  function 0: [ready]
+
+

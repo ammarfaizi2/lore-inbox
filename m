@@ -1,117 +1,175 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268997AbRIDUtD>; Tue, 4 Sep 2001 16:49:03 -0400
+	id <S269081AbRIDUyD>; Tue, 4 Sep 2001 16:54:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269041AbRIDUsy>; Tue, 4 Sep 2001 16:48:54 -0400
-Received: from [24.93.67.53] ([24.93.67.53]:57860 "EHLO Mail6.nc.rr.com")
-	by vger.kernel.org with ESMTP id <S268997AbRIDUst>;
-	Tue, 4 Sep 2001 16:48:49 -0400
-Subject: cdrecord with LSI53C1010 and Yamaha CRW2100S
-From: "C. Linus Hicks" <lhicks@nc.rr.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S269186AbRIDUxy>; Tue, 4 Sep 2001 16:53:54 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:7558 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S269041AbRIDUxo>; Tue, 4 Sep 2001 16:53:44 -0400
+Date: Tue, 04 Sep 2001 16:53:55 -0400
+From: Chris Mason <mason@suse.com>
+To: Pavel Machek <pavel@suse.cz>, Hans Reiser <reiser@namesys.com>
+cc: Nikita Danilov <Nikita@namesys.com>, Pavel Machek <pavel@ucw.cz>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Reiserfs: how to mount without journal replay?
+Message-ID: <417980000.999636835@tiny>
+In-Reply-To: <20010830235005.B9330@bug.ucw.cz>
+In-Reply-To: <20010826130858.A39@toy.ucw.cz> <15246.11218.125243.775849@gargle.gargle.HOWL> <20010830225323.A18630@atrey.karlin.mff.cuni.cz> <3B8EAD35.5695B30B@namesys.com> <20010830235005.B9330@bug.ucw.cz>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12 (Preview Release)
-Date: 04 Sep 2001 16:48:40 -0400
-Message-Id: <999636520.5244.146.camel@lh2>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been unsuccessful trying to burn a CD-R since upgrading my
-computer and I'm not sure where to go with this. I decided to try here.
-I suspect a problem with the SYM53C8xx driver, and I think there may
-also be additional problems elsewhere. My old system worked. It was:
 
-RedHat 7.0 with 2.2.19 kernel
-ASUS P2B-DS (440BX chipset) with 2 600MHz Intel processors
-On-board Adaptec AIC-7890 with the new aic7xxx driver
-Add-on Adaptec 2940 PCI adapter (narrow devices attached here)
-Yamaha CRW6416S CD writer
 
-My new system:
+On Thursday, August 30, 2001 11:50:05 PM +0200 Pavel Machek <pavel@suse.cz> wrote:
 
-RedHat 7.1 with 2.4.8-ac11 kernel
-Tyan Thunder HEsl S2567 (ServerWorks chipset) with 2 1000MHz Intel
-processors
-On-board LSI 53C1010-66 (running at 33MHz) dual channel SCSI
-Add-on LSI21003 with 53C1010-33 (narrow devices here)
-SYM53C8xx driver
-Yamaha CRW2100S CD writer
+> ext2 is willing to mount ro even with known inconsistencies. SuSE 7.1
+> does not come with 'live filesystem' and install cd does not have
+> reiserfsck on it. Too bad. You have to install somewhere to be able to
+> run reiserfsck on suse7.1.
 
-I looked for problem reports with the 2100S and didn't see any, rather
-several reports that it worked okay. I updated the firmware to the
-latest - 1.0N and it didn't help.
+If your reiserfs isn't consistent, your chances of finding reiserfsck in 
+the broken btree are slim to none.  A readonly mount in this case is 
+unlikely to find a valid, fully intact reiserfsck executable.
 
-I have tried several versions of cdrecord including the latest 1.11a05
-with associated tools to no avail.
+The best reason I've heard for a -o noreplay option is for shared 
+readonly mounts.  The patch below adds that, with a few conditions:
 
-When I try burning a CD, sometimes I get errors and sometimes it appears
-to work. When I try to mount a CD-R that burned successfully in a
-Toshiba DVD-ROM drive, I get errors like this:
+mount -o noreplay /dev/xxx /mnt
 
-[root@lh2 /root]# mount /mnt/cdrom
-mount: wrong fs type, bad option, bad superblock on /dev/cdrom,
-       or too many mounted file systems
-[root@lh2 /root]#
+If no log replay is required, rw mount succeeds (ro is -o noreplay,ro is used).
 
-And in /var/log/messages:
+Otherwise, no replay is done, mount is changed to readonly.  Later 
+attempts at mount -o rw,remount /mnt will fail with -EIO.
 
-Sep  4 16:31:18 LH2 kernel: sym53c1010-33-1:4: ERROR (0:18) (1-21-0)
-(10/30) @ (script 8e8:110007c1).
-Sep  4 16:31:18 LH2 kernel: sym53c1010-33-1: script cmd = 88080000
-Sep  4 16:31:18 LH2 kernel: sym53c1010-33-1: regdump: da 10 c0 30 47 10
-04 0e 80 01 84 21 80 01 01 00 00 b0 d6 37 08 00 00 00.
-Sep  4 16:31:18 LH2 kernel: sym53c1010-33-1: ctest4/sist original
-0x8/0x18  mod: 0x18/0x0
-Sep  4 16:31:18 LH2 kernel: sym53c1010-33-1: restart (scsi reset).
-Sep  4 16:31:18 LH2 kernel: sym53c1010-33-1: handling phase mismatch
-from SCRIPTS.
-Sep  4 16:31:18 LH2 kernel: sym53c1010-33-1: Downloading SCSI SCRIPTS.
-Sep  4 16:31:20 LH2 kernel: sym53c1010-33-1-<4,*>: FAST-20 SCSI 20.0
-MB/s (50.0 ns, offset 16)
-Sep  4 16:31:20 LH2 kernel:  I/O error: dev 0b:00, sector 68
-Sep  4 16:31:20 LH2 kernel: isofs_read_super: bread failed, dev=0b:00,
-iso_blknum=17, block=17
+This is lightly tested, and not intended for inclusion anywhere.  If 
+there's enough interest, I'll verify and send in.
 
-I tried replacing the LSI21003 with a 2940 and burned a CD-R. The
-process went smoothly with no errors reported. I mounted the burned CD
-in the Toshiba successfully and listed the contents. I did not think to
-verify the CD with the mastered file. I then switched back to the
-LSI21003 and tried to mount the burned CD-R. I got:
+(against 2.4.10pre4)
 
-[root@lh2 /root]# mount /mnt/cdrom
-mount: Not a directory
-[root@lh2 /root]#
+-chris
 
-And in /var/log/messages:
+#
+--- linux/include/linux/reiserfs_fs_sb.h	Tue Sep  4 14:37:27 2001
++++ linux/include/linux/reiserfs_fs_sb.h	Tue Sep  4 14:39:44 2001
+@@ -387,6 +387,7 @@
+ #define REISERFS_NO_UNHASHED_RELOCATION 12
+ #define REISERFS_HASHED_RELOCATION 13
+ #define REISERFS_TEST4 14 
++#define REISERFS_NO_REPLAY 15 
+ 
+ #define REISERFS_TEST1 11
+ #define REISERFS_TEST2 12
+@@ -401,6 +402,7 @@
+ #define reiserfs_no_unhashed_relocation(s) ((s)->u.reiserfs_sb.s_mount_opt & (1 << REISERFS_NO_UNHASHED_RELOCATION))
+ #define reiserfs_hashed_relocation(s) ((s)->u.reiserfs_sb.s_mount_opt & (1 << REISERFS_HASHED_RELOCATION))
+ #define reiserfs_test4(s) ((s)->u.reiserfs_sb.s_mount_opt & (1 << REISERFS_TEST4))
++#define reiserfs_noreplay(s) ((s)->u.reiserfs_sb.s_mount_opt & (1 << REISERFS_NO_REPLAY))
+ 
+ #define dont_have_tails(s) ((s)->u.reiserfs_sb.s_mount_opt & (1 << NOTAIL))
+ #define replay_only(s) ((s)->u.reiserfs_sb.s_mount_opt & (1 << REPLAYONLY))
+--- linux/include/linux/reiserfs_fs.h	Tue Sep  4 14:37:27 2001
++++ linux/include/linux/reiserfs_fs.h	Tue Sep  4 15:47:43 2001
+@@ -1723,6 +1723,7 @@
+ */
+ #define JOURNAL_BUFFER(j,n) ((j)->j_ap_blocks[((j)->j_start + (n)) % JOURNAL_BLOCK_COUNT])
+ 
++int reiserfs_replay_error(struct super_block *s) ;
+ void reiserfs_wait_on_write_block(struct super_block *s) ;
+ void reiserfs_block_writes(struct reiserfs_transaction_handle *th) ;
+ void reiserfs_allow_writes(struct super_block *s) ;
+--- linux/fs/reiserfs/journal.c	Sun Sep  2 03:52:37 2001
++++ linux/fs/reiserfs/journal.c	Tue Sep  4 15:57:59 2001
+@@ -96,6 +96,7 @@
+ 
+ /* state bits for the journal */
+ #define WRITERS_BLOCKED 1      /* set when new writers not allowed */
++#define REPLAY_ERROR 2      /* set when -o noreplay forces unclean mount */
+ 
+ static int do_journal_end(struct reiserfs_transaction_handle *,struct super_block *,unsigned long nblocks,int flags) ;
+ static int flush_journal_list(struct super_block *s, struct reiserfs_journal_list *jl, int flushall) ;
+@@ -106,6 +107,10 @@
+   memset(SB_JOURNAL(p_s_sb)->j_hash_table, 0, JOURNAL_HASH_SIZE * sizeof(struct reiserfs_journal_cnode *)) ;
+ }
+ 
++int reiserfs_replay_error(struct super_block *s) {
++    return test_bit(REPLAY_ERROR, &SB_JOURNAL(s)->j_state) ;
++}
++
+ /*
+ ** clears BH_Dirty and sticks the buffer on the clean list.  Called because I can't allow refile_buffer to
+ ** make schedule happen after I've freed a block.  Look at remove_from_transaction and journal_mark_freed for
+@@ -1651,12 +1656,20 @@
+     brelse(d_bh) ;
+   }
+ 
+-  if (continue_replay && is_read_only(p_s_sb->s_dev)) {
+-    printk("clm-2076: device is readonly, unable to replay log\n") ;
+-    return -1 ;
+-  }
+-  if (continue_replay && (p_s_sb->s_flags & MS_RDONLY)) {
+-    printk("Warning, log replay starting on readonly filesystem\n") ;    
++  if (continue_replay) {
++    if (is_read_only(p_s_sb->s_dev)) {
++      printk("clm-2076: device is readonly, unable to replay log\n") ;
++      return -1 ;
++    }
++    if (reiserfs_noreplay(p_s_sb)) {
++      printk("-o noreplay used to force unclean mount.  FS set to readonly\n");
++      p_s_sb->s_flags |= MS_RDONLY ;
++      set_bit(REPLAY_ERROR, &SB_JOURNAL(p_s_sb)->j_state) ;
++      return 0 ;
++    }
++    if (p_s_sb->s_flags & MS_RDONLY) {
++      printk("Warning, log replay starting on readonly filesystem\n") ;    
++    }
+   }
+ 
+   /* ok, there are transactions that need to be replayed.  start with the first log block, find
+@@ -2022,6 +2035,12 @@
+     th->t_super = p_s_sb ; /* others will check this for the don't log flag */
+     return 0 ;
+   }
++
++  if (test_bit(REPLAY_ERROR, &SB_JOURNAL(p_s_sb)->j_state)) {
++    printk("clm-2100: calling journal_begin after replay errors\n") ;
++    BUG() ;
++  }
++  
+ 
+ relock:
+   lock_journal(p_s_sb) ;
+--- linux/fs/reiserfs/super.c	Tue Sep  4 14:37:28 2001
++++ linux/fs/reiserfs/super.c	Tue Sep  4 15:58:02 2001
+@@ -176,6 +176,8 @@
+ 	    set_bit (REISERFS_HASHED_RELOCATION, mount_options);
+ 	} else if (!strcmp (this_char, "test4")) {
+ 	    set_bit (REISERFS_TEST4, mount_options);
++	} else if (!strcmp (this_char, "noreplay")) {
++	    set_bit (REISERFS_NO_REPLAY, mount_options);
+ 	} else if (!strcmp (this_char, "nolog")) {
+ 	    reiserfs_warning("reiserfs: nolog mount option not supported yet\n");
+ 	} else if (!strcmp (this_char, "replayonly")) {
+@@ -268,6 +270,14 @@
+     journal_mark_dirty(&th, s, SB_BUFFER_WITH_SB (s));
+     s->s_dirt = 0;
+   } else {
++    /* if we are currently readonly, and were mounted with noreplay, 
++    ** we need to check if replay failed and the journal params are not
++    ** correctly set.  If so, we cannot allow a rw mount, horrible, horrible
++    ** things would happen
++    */
++    if (reiserfs_replay_error(s)) {
++      return -EIO ;
++    }
+     s->u.reiserfs_sb.s_mount_state = sb_state(rs) ;
+     s->s_flags &= ~MS_RDONLY ; /* now it is safe to call journal_begin */
+     journal_begin(&th, s, 10) ;
 
-Sep  4 15:15:47 LH2 kernel: scsi : aborting command due to timeout : pid
-0, scsi1, channel 0, id 4, lun 0 Read (10) 00 00 00 00 1c 00 00 01 00
-Sep  4 15:15:47 LH2 kernel: sym53c8xx_abort: pid=0 serial_number=149685
-serial_number_at_timeout=149685
-Sep  4 15:15:48 LH2 kernel: SCSI host 1 abort (pid 0) timed out -
-resetting
-Sep  4 15:15:48 LH2 kernel: SCSI bus is being reset for host 1 channel
-0.
-Sep  4 15:15:48 LH2 kernel: sym53c8xx_reset: pid=0 reset_flags=2
-serial_number=149685 serial_number_at_timeout=149685
-Sep  4 15:15:48 LH2 kernel: sym53c1010-33-1: restart (scsi reset).
-Sep  4 15:15:48 LH2 kernel: sym53c1010-33-1: handling phase mismatch
-from SCRIPTS.
-Sep  4 15:15:48 LH2 kernel: sym53c1010-33-1: Downloading SCSI SCRIPTS.
-Sep  4 15:15:48 LH2 kernel: sym53c1010-33-1-<4,*>: FAST-20 SCSI 20.0
-MB/s (50.0 ns, offset 16)
-Sep  4 15:15:48 LH2 kernel: Device 0b:00 not ready.
-Sep  4 15:15:48 LH2 kernel:  I/O error: dev 0b:00, sector 112
-Sep  4 15:15:49 LH2 kernel: ISOFS: unable to read i-node block
-Sep  4 15:15:49 LH2 kernel: Device 0b:00 not ready.
-Sep  4 15:15:49 LH2 kernel:  I/O error: dev 0b:00, sector 128
-Sep  4 15:15:49 LH2 kernel: ISOFS: unable to read i-node block
 
-Any help would be appreciated, and if anyone needs additional
-information I will be glad to do what I can.
-
-Linus
 
 

@@ -1,82 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270232AbRHGXxf>; Tue, 7 Aug 2001 19:53:35 -0400
+	id <S270230AbRHHAFs>; Tue, 7 Aug 2001 20:05:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270231AbRHGXxZ>; Tue, 7 Aug 2001 19:53:25 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:36229 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S270229AbRHGXxN>;
-	Tue, 7 Aug 2001 19:53:13 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 7 Aug 2001 23:52:49 GMT
-Message-Id: <200108072352.XAA25661@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, viro@math.psu.edu
-Subject: Re: [RFC][PATCH] parser for mount options
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
+	id <S270231AbRHHAFi>; Tue, 7 Aug 2001 20:05:38 -0400
+Received: from wawura.off.connect.com.au ([202.21.9.2]:47357 "HELO
+	wawura.off.connect.com.au") by vger.kernel.org with SMTP
+	id <S270230AbRHHAFZ>; Tue, 7 Aug 2001 20:05:25 -0400
+To: Jes Sorensen <jes@sunsite.dk>
+Cc: Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org
+Subject: Re: how to tell Linux *not* to share IRQs ? 
+In-Reply-To: Your message of "07 Aug 2001 17:09:47 +0200."
+             <d33d73x5xg.fsf@lxplus014.cern.ch> 
+Date: Wed, 08 Aug 2001 10:05:28 +1000
+From: Andrew McNamara <andrewm@connect.com.au>
+Message-Id: <20010808000528.DB146BF02@wawura.off.connect.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> it breeds global variables for no good reason
+>Chris> Yes, drivers need to check their hardware devices and
+>Chris> acknowledge whether or not it's was their interrupt or not.  It
+>Chris> sounds terrible but even with many thousands of interrupts per
+>Chris> second the cost doesn't seem to be that high.
+>
+>Not only is this the case, it's also the only sane thing to do <tm>,
+>any device driver should check the status of the hardware it is
+>serving before doing anything else.
 
-Globals? What globals?
+That's not necessarily the case - the problem arises due the
+limitations of PC interrupt routing. In an ideal world, the
+interrupting device would be able to be uniquely identified, rather
+than having to poll every device sharing that interrupt.
 
-> Switch that will keep growing, BTW.
-> would turn into complete mess two years down the road.
+The problem is largely historical - each interrupt traditionally had a
+physically line associated with it, and lines on your backplane were a
+limited resource. 
 
-But this was written five and a half years ago, and I think it
-still suffices.
+If you were to do it again these days, you might have some sort of
+shared serial bus, so devices could give detailed data to the cpu
+(not only to uniquely identify the interrupting device, but also
+identify sub-devices - say a USB peripheral).
 
-> There are two different tasks - one of them is to decide which option we
-> are dealing with and another - decode and act upon it.  Mixing parsing
-> and data conversion in that kind of situations is a Bad Thing(tm).
+ ---
+Andrew McNamara (System Architect)
 
-Possibly. I like the option parsing for each filesystem:
-
-	parse_mount_options((char *) data, SIZE(opts), opts);
-
-and this does parse_and_assign. You do
-
-	while (more_tokens) {
-		t = type_of_next_token();
-		switch (t) {
-		case ...
-		}
-	}
-
-where the type_of_next_token() does the parsing, and the switch
-does the assigning. Much more code. Much uglier - but tastes differ.
-The reason that I call it uglier is that you have the same, or
-nearly the same code for each filesystem. But then discrepancies arise,
-and things are not treated uniformly across filesystems. A single
-parser and assigner forces uniformity.
-You have a coherency problem. In
-
-+enum { Opt_mode, ...};
-+                               
-+static match_table_t tokens = {
-+       {Opt_mode, "mode=%o"},
-...
-+                       case Opt_mode:
-+                               mode = match_octal(args);
-+                               break;
-
-the %o must correspond to the match_octal().
-But that is unfortunate duplication.
-That same code is
-
-	{ "mode", OPT_INT_8, 0, &mode},
-
-for me. Not only much more compact, but no coherency problem either.
-Of course one might write
-
-	{ "mode", "%o", 0, &mode},
-
-to save the reader the trouble of looking up what OPT_INT_8 means.
-
-If you see strange warts in my parser it is mostly because
-it was a patch without user-visible changes, so all existing
-msdos option peculiarities had to be accommodated.
-Once such code is in place one needs a very good reason to
-invent option syntax not covered by it.
-
-Andries
+connect.com.au Pty Ltd
+Lvl 3, 213 Miller St, North Sydney, NSW 2060, Australia
+Phone: +61 2 9409 2117, Fax: +61 2 9409 2111

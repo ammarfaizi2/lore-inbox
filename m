@@ -1,545 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262914AbVCQAy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262921AbVCQAy5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262914AbVCQAy5 (ORCPT <rfc822;willy@w.ods.org>);
+	id S262921AbVCQAy5 (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 16 Mar 2005 19:54:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbVCQAxF
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbVCQAyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 19:53:05 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:31407 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S262930AbVCQAj3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 19:39:29 -0500
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E570366276A@exa-atlanta>
-From: "Ju, Seokmann" <sju@lsil.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
-Cc: "Ju, Seokmann" <sju@lsil.com>
-Subject: [ANNOUNCE][PATCH] drivers/scsi/megaraid/megaraid_{mm,mbox}
-Date: Wed, 16 Mar 2005 19:39:19 -0500
+	Wed, 16 Mar 2005 19:54:12 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:25240 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262933AbVCQAkB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 19:40:01 -0500
+Message-ID: <4238D1DC.8070004@us.ibm.com>
+Date: Wed, 16 Mar 2005 16:39:56 -0800
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+To: linux-kernel@vger.kernel.org, Linux Memory Management <linux-mm@kvack.org>
+CC: "Bligh, Martin J." <mbligh@aracnet.com>
+Subject: Bug in __alloc_pages()?
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------030506090103090606080101"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+This is a multi-part message in MIME format.
+--------------030506090103090606080101
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Here is a patch for megaraid_mm/megaraid_mbox driver which makes it
-2.20.4.6.
-Following is brief on the changes:
-1. Added compat_ioctl
-2. Reordered inputs on memset
-3. Convert pci_module_iit to pci_register_driver 
-4. Added DMA_{32,64}BIT_MASK 5. Modified PCI PnP ID table
+While looking at some bugs related to OOM handling in 2.6, Martin Bligh and 
+I noticed some order 0 page allocation failures from kswapd:
 
-Signed-off-by: Seokmann Ju <sju@lsil.com>
+kswapd0: page allocation failure. order:0, mode:0x50
+  [<c0147b92>] __alloc_pages+0x288/0x295
+  [<c0147bb7>] __get_free_pages+0x18/0x24
+  [<c014b2c4>] kmem_getpages+0x15/0x94
+  [<c014c047>] cache_grow+0x154/0x299
+  [<c014c399>] cache_alloc_refill+0x20d/0x23d
+  [<c014c622>] kmem_cache_alloc+0x46/0x4c
+  [<f885a4b0>] journal_alloc_journal_head+0x10/0x5d [jbd]
+  [<f885a523>] journal_add_journal_head+0x1a/0xe1 [jbd]
+  [<f8850be3>] journal_dirty_data+0x2e/0x3a5 [jbd]
+  [<f8883400>] ext3_journal_dirty_data+0xc/0x2a [ext3]
+  [<f888329a>] walk_page_buffers+0x62/0x87 [ext3]
+  [<f888382d>] ext3_ordered_writepage+0xea/0x136 [ext3]
+  [<f8883731>] journal_dirty_data_fn+0x0/0x12 [ext3]
+  [<c014ec31>] pageout+0x83/0xc0
+  [<c014ee80>] shrink_list+0x212/0x55f
+  [<c014de86>] __pagevec_release+0x15/0x1d
+  [<c014f400>] shrink_cache+0x233/0x4d5
+  [<c014fee2>] shrink_zone+0x91/0x9c
+  [<c01501e9>] balance_pgdat+0x15f/0x208
+  [<c0150350>] kswapd+0xbe/0xc0
+  [<c011e1ef>] autoremove_wake_function+0x0/0x2d
+  [<c0308886>] ret_from_fork+0x6/0x20
+  [<c011e1ef>] autoremove_wake_function+0x0/0x2d
+  [<c0150292>] kswapd+0x0/0xc0
+  [<c01041d5>] kernel_thread_helper+0x5/0xb
 
----
-diff -Naur old/Documentation/scsi/ChangeLog.megaraid
-new/Documentation/scsi/ChangeLog.megaraid
---- old/Documentation/scsi/ChangeLog.megaraid	2005-03-16
-13:34:15.839275224 -0500
-+++ new/Documentation/scsi/ChangeLog.megaraid	2005-03-16
-10:24:47.999449560 -0500
-@@ -1,3 +1,38 @@
-+Release Date	: Mon Mar 07 12:27:22 EST 2005 - Seokmann Ju <sju@lsil.com>
-+Current Version	: 2.20.4.6 (scsi module), 2.20.2.6 (cmm module)
-+Older Version	: 2.20.4.5 (scsi module), 2.20.2.5 (cmm module)
+We decided that seemed odd, as kswapd should be able to get a page as long 
+as there is even one page left in the system, since being a memory 
+allocator task (PF_MEMALLOC) should exempt kswapd from any page watermark 
+restrictions.  Digging into the code I found what looked like a bug that 
+could potentially cause this situation to be far more common.
+
+This chunk of code from __alloc_pages() demonstrates the problem:
+
+	/* This allocation should allow future memory freeing. */
+	if (((p->flags & PF_MEMALLOC) || unlikely(test_thread_flag(TIF_MEMDIE))) 
+&& !in_interrupt()) {
+		/* go through the zonelist yet again, ignoring mins */
+		for (i = 0; (z = zones[i]) != NULL; i++) {
+			if (!cpuset_zone_allowed(z))
+				continue;
+			page = buffered_rmqueue(z, order, gfp_mask);
+			if (page)
+				goto got_pg;
+		}
+		goto nopage;
+	}
+
+	/* Atomic allocations - we can't balance anything */
+	if (!wait)
+		goto nopage;
+
+rebalance:
+	cond_resched();
+
+	/* We now go into synchronous reclaim */
+	p->flags |= PF_MEMALLOC;
+	reclaim_state.reclaimed_slab = 0;
+	p->reclaim_state = &reclaim_state;
+
+	did_some_progress = try_to_free_pages(zones, gfp_mask, order);
+
+	p->reclaim_state = NULL;
+	p->flags &= ~PF_MEMALLOC;
+
+If, while the system is under memory pressure, something attempts to 
+allocate a page from interrupt context while current == kswapd we will 
+obviously fail the !in_interrupt() check and fall through.  If this 
+allocation request was made with __GFP_WAIT set then we'll fall through the 
+next !wait check.  We will then set the PF_MEMALLOC flag and set 
+p->reclaim_state to point to __alloc_pages() local reclaim_state structure. 
+  kswapd alread has it's own reclaim_state and already has PF_MEMALLOC set, 
+which would then be lost when, after try_to_free_pages(), we 
+unconditionally set the reclaim_state to NULL and turn off the PF_MEMALLOC 
+flag.
+
+I'm not 100% sure that this potential bug is even possible (ie: can we have 
+an in_interrupt() page request that has __GFP_WAIT set?), or is the cause 
+of the 0-order page allocation failures we see, but it does seem like 
+potentially dangerous code.  I have attatched a patch (against 2.6.11-mm4) 
+to check whether the current task has it's own reclaim_state or already has 
+PF_MEMALLOC set and if so, no longer throws away this data.
+
+-Matt
+
+--------------030506090103090606080101
+Content-Type: text/plain;
+ name="fix-__alloc_pages.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fix-__alloc_pages.patch"
+
+diff -Nurp --exclude-from=/home/mcd/.dontdiff linux-2.6.11-mm4/mm/page_alloc.c linux-2.6.11-mm4+fix-__alloc_pages/mm/page_alloc.c
+--- linux-2.6.11-mm4/mm/page_alloc.c	2005-03-16 16:07:49.179230440 -0800
++++ linux-2.6.11-mm4+fix-__alloc_pages/mm/page_alloc.c	2005-03-16 16:09:54.019251872 -0800
+@@ -867,13 +867,14 @@ __alloc_pages(unsigned int gfp_mask, uns
+ 	const int wait = gfp_mask & __GFP_WAIT;
+ 	struct zone **zones, *z;
+ 	struct page *page;
+-	struct reclaim_state reclaim_state;
++	struct reclaim_state reclaim_state = { .reclaimed_slab = 0 };
+ 	struct task_struct *p = current;
+ 	int i;
+ 	int classzone_idx;
+ 	int do_retry;
+ 	int can_try_harder;
+ 	int did_some_progress;
++	int is_memalloc = 0, has_reclaim_state = 0;
+ 
+ 	might_sleep_if(wait);
+ 
+@@ -957,14 +958,22 @@ rebalance:
+ 	cond_resched();
+ 
+ 	/* We now go into synchronous reclaim */
+-	p->flags |= PF_MEMALLOC;
+-	reclaim_state.reclaimed_slab = 0;
+-	p->reclaim_state = &reclaim_state;
++	if (p->flags & PF_MEMALLOC)
++		is_memalloc = 1;
++	else
++		p->flags |= PF_MEMALLOC;
 +
-+1.	Added IOCTL backward compatibility.
-+	Convert megaraid_mm driver to new compat_ioctl entry points.
-+	I don't have easy access to hardware, so only compile tested.
-+		- Signed-off-by:Andi Kleen <ak@muc.de>
-+
-+2.	megaraid_mbox fix: wrong order of arguments in memset()
-+	That, BTW, shows why cross-builds are useful-the only indication of
-+	problem had been a new warning showing up in sparse output on alpha
-+	build (number of exceeding 256 got truncated).
-+		- Signed-off-by: Al Viro
-+		<viro@parcelfarce.linux.theplanet.co.uk>
-+
-+3.	Convert pci_module_init to pci_register_driver
-+	Convert from pci_module_init to pci_register_driver
-+	(from:http://kerneljanitors.org/TODO)
-+		- Signed-off-by: Domen Puncer <domen@coderock.org>
-+
-+4.	Use the pre defined DMA mask constants from dma-mapping.h
-+	Use the DMA_{64,32}BIT_MASK constants from dma-mapping.h when
-calling
-+	pci_set_dma_mask() or pci_set_consistend_dma_mask(). See
-+	http://marc.theaimsgroup.com/?t=108001993000001&r=1&w=2 for more
-+	details.
-+		Signed-off-by: Tobias Klauser <tklauser@nuerscht.ch>
-+		Signed-off-by: Domen Puncer <domen@coderock.org>
-+
-+5.	Remove SSID checking for Dobson, Lindsay, and Verde based products.
-+	Checking the SSVID/SSID for controllers which have Dobson, Lindsay,
-+	and Verde is unnecessary because device ID has been assigned by LSI
-+	and it is unique value. So, all controllers with these IOPs have to
-be
-+	supported by the driver regardless SSVID/SSID.
-+
- Release Date	: Thu Feb 03 12:27:22 EST 2005 - Seokmann Ju <sju@lsil.com>
- Current Version	: 2.20.4.5 (scsi module), 2.20.2.5 (cmm module)
- Older Version	: 2.20.4.4 (scsi module), 2.20.2.4 (cmm module)
-diff -Naur old/drivers/scsi/megaraid/mega_common.h
-new/drivers/scsi/megaraid/mega_common.h
---- old/drivers/scsi/megaraid/mega_common.h	2005-03-16
-10:20:16.034794472 -0500
-+++ new/drivers/scsi/megaraid/mega_common.h	2005-03-16
-14:11:35.110854200 -0500
-@@ -27,6 +27,7 @@
- #include <linux/list.h>
- #include <linux/version.h>
- #include <linux/moduleparam.h>
-+#include <linux/dma-mapping.h>
- #include <asm/semaphore.h>
- #include <scsi/scsi.h>
- #include <scsi/scsi_cmnd.h>
-diff -Naur old/drivers/scsi/megaraid/megaraid_mbox.c
-new/drivers/scsi/megaraid/megaraid_mbox.c
---- old/drivers/scsi/megaraid/megaraid_mbox.c	2005-03-16
-10:20:16.043793104 -0500
-+++ new/drivers/scsi/megaraid/megaraid_mbox.c	2005-03-16
-14:11:35.119852832 -0500
-@@ -10,7 +10,7 @@
-  *	   2 of the License, or (at your option) any later version.
-  *
-  * FILE		: megaraid_mbox.c
-- * Version	: v2.20.4.5 (Feb 03 2005)
-+ * Version	: v2.20.4.6 (Mar 07 2005)
-  *
-  * Authors:
-  * 	Atul Mukker		<Atul.Mukker@lsil.com>
-@@ -202,7 +202,7 @@
-  * ### global data ###
-  */
- static uint8_t megaraid_mbox_version[8] =
--	{ 0x02, 0x20, 0x04, 0x05, 2, 3, 20, 5 };
-+	{ 0x02, 0x20, 0x04, 0x06, 3, 7, 20, 5 };
++	if (p->reclaim_state)
++		has_reclaim_state = 1;
++	else
++		p->reclaim_state = &reclaim_state;
  
+ 	did_some_progress = try_to_free_pages(zones, gfp_mask, order);
  
- /*
-@@ -229,9 +229,9 @@
- 	},
- 	{
- 		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_DEVICE_ID_PERC4_QC,
--		PCI_VENDOR_ID_DELL,
--		PCI_SUBSYS_ID_PERC4_QC,
-+		PCI_DEVICE_ID_VERDE,
-+		PCI_ANY_ID,
-+		PCI_ANY_ID,
- 	},
- 	{
- 		PCI_VENDOR_ID_DELL,
-@@ -271,15 +271,9 @@
- 	},
- 	{
- 		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_DEVICE_ID_PERC4E_DC_320_2E,
--		PCI_VENDOR_ID_DELL,
--		PCI_SUBSYS_ID_PERC4E_DC_320_2E,
--	},
--	{
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_DEVICE_ID_PERC4E_SC_320_1E,
--		PCI_VENDOR_ID_DELL,
--		PCI_SUBSYS_ID_PERC4E_SC_320_1E,
-+		PCI_DEVICE_ID_DOBSON,
-+		PCI_ANY_ID,
-+		PCI_ANY_ID,
- 	},
- 	{
- 		PCI_VENDOR_ID_AMI,
-@@ -331,36 +325,6 @@
- 	},
- 	{
- 		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_DEVICE_ID_MEGARAID_SCSI_320_0x,
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_SUBSYS_ID_MEGARAID_SCSI_320_0x,
--	},
--	{
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_DEVICE_ID_MEGARAID_SCSI_320_2x,
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_SUBSYS_ID_MEGARAID_SCSI_320_2x,
--	},
--	{
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_DEVICE_ID_MEGARAID_SCSI_320_4x,
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_SUBSYS_ID_MEGARAID_SCSI_320_4x,
--	},
--	{
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_DEVICE_ID_MEGARAID_SCSI_320_1E,
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_SUBSYS_ID_MEGARAID_SCSI_320_1E,
--	},
--	{
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_DEVICE_ID_MEGARAID_SCSI_320_2E,
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_SUBSYS_ID_MEGARAID_SCSI_320_2E,
--	},
--	{
--		PCI_VENDOR_ID_LSI_LOGIC,
- 		PCI_DEVICE_ID_MEGARAID_I4_133_RAID,
- 		PCI_VENDOR_ID_LSI_LOGIC,
- 		PCI_SUBSYS_ID_MEGARAID_I4_133_RAID,
-@@ -379,21 +343,9 @@
- 	},
- 	{
- 		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_DEVICE_ID_MEGARAID_SATA_300_4x,
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_SUBSYS_ID_MEGARAID_SATA_300_4x,
--	},
--	{
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_DEVICE_ID_MEGARAID_SATA_300_8x,
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_SUBSYS_ID_MEGARAID_SATA_300_8x,
--	},
--	{
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_DEVICE_ID_INTEL_RAID_SRCU42X,
--		PCI_VENDOR_ID_INTEL,
--		PCI_SUBSYS_ID_INTEL_RAID_SRCU42X,
-+		PCI_DEVICE_ID_LINDSAY,
-+		PCI_ANY_ID,
-+		PCI_ANY_ID,
- 	},
- 	{
- 		PCI_VENDOR_ID_LSI_LOGIC,
-@@ -403,58 +355,10 @@
- 	},
- 	{
- 		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_DEVICE_ID_INTEL_RAID_SRCU42E,
--		PCI_VENDOR_ID_INTEL,
--		PCI_SUBSYS_ID_INTEL_RAID_SRCU42E,
--	},
--	{
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_DEVICE_ID_INTEL_RAID_SRCZCRX,
--		PCI_VENDOR_ID_INTEL,
--		PCI_SUBSYS_ID_INTEL_RAID_SRCZCRX,
--	},
--	{
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_DEVICE_ID_INTEL_RAID_SRCS28X,
--		PCI_VENDOR_ID_INTEL,
--		PCI_SUBSYS_ID_INTEL_RAID_SRCS28X,
--	},
--	{
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_DEVICE_ID_INTEL_RAID_SROMBU42E_ALIEF,
--		PCI_VENDOR_ID_INTEL,
--		PCI_SUBSYS_ID_INTEL_RAID_SROMBU42E_ALIEF,
--	},
--	{
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_DEVICE_ID_INTEL_RAID_SROMBU42E_HARWICH,
--		PCI_VENDOR_ID_INTEL,
--		PCI_SUBSYS_ID_INTEL_RAID_SROMBU42E_HARWICH,
--	},
--	{
--		PCI_VENDOR_ID_LSI_LOGIC,
- 		PCI_DEVICE_ID_INTEL_RAID_SRCU41L_LAKE_SHETEK,
- 		PCI_VENDOR_ID_INTEL,
- 		PCI_SUBSYS_ID_INTEL_RAID_SRCU41L_LAKE_SHETEK,
- 	},
--	{
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_DEVICE_ID_FSC_MEGARAID_PCI_EXPRESS_ROMB,
--		PCI_SUBSYS_ID_FSC,
--		PCI_SUBSYS_ID_FSC_MEGARAID_PCI_EXPRESS_ROMB,
--	},
--	{
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_DEVICE_ID_MEGARAID_ACER_ROMB_2E,
--		PCI_VENDOR_ID_AI,
--		PCI_SUBSYS_ID_MEGARAID_ACER_ROMB_2E,
--	},
--	{
--		PCI_VENDOR_ID_LSI_LOGIC,
--		PCI_DEVICE_ID_MEGARAID_NEC_ROMB_2E,
--		PCI_VENDOR_ID_NEC,
--		PCI_SUBSYS_ID_MEGARAID_NEC_ROMB_2E,
--	},
- 	{0}	/* Terminating entry */
- };
- MODULE_DEVICE_TABLE(pci, pci_id_table_g);
-@@ -539,7 +443,8 @@
+-	p->reclaim_state = NULL;
+-	p->flags &= ~PF_MEMALLOC;
++	if (!has_reclaim_state)
++		p->reclaim_state = NULL;
++	if (!is_memalloc)
++		p->flags &= ~PF_MEMALLOC;
  
+ 	cond_resched();
  
- 	// register as a PCI hot-plug driver module
--	if ((rval = pci_module_init(&megaraid_pci_driver_g))) {
-+	rval = pci_register_driver(&megaraid_pci_driver_g);
-+	if (rval < 0) {
- 		con_log(CL_ANN, (KERN_WARNING
- 			"megaraid: could not register hotplug support.\n"));
- 	}
-@@ -619,7 +524,7 @@
- 
- 	// Setup the default DMA mask. This would be changed later on
- 	// depending on hardware capabilities
--	if (pci_set_dma_mask(adapter->pdev, 0xFFFFFFFF) != 0) {
-+	if (pci_set_dma_mask(adapter->pdev, DMA_32BIT_MASK) != 0) {
- 
- 		con_log(CL_ANN, (KERN_WARNING
- 			"megaraid: pci_set_dma_mask failed:%d\n",
-__LINE__));
-@@ -1031,7 +936,7 @@
- 
- 	// Set the DMA mask to 64-bit. All supported controllers as capable
-of
- 	// DMA in this range
--	if (pci_set_dma_mask(adapter->pdev, 0xFFFFFFFFFFFFFFFFULL) != 0) {
-+	if (pci_set_dma_mask(adapter->pdev, DMA_64BIT_MASK) != 0) {
- 
- 		con_log(CL_ANN, (KERN_WARNING
- 			"megaraid: could not set DMA mask for 64-bit.\n"));
-@@ -4100,9 +4005,9 @@
- 	mbox64	= raid_dev->sysfs_mbox64;
- 	ldmap	= raid_dev->sysfs_buffer;
- 
--	memset(uioc, sizeof(uioc_t), 0);
--	memset(mbox64, sizeof(mbox64_t), 0);
--	memset(ldmap, sizeof(raid_dev->curr_ldmap), 0);
-+	memset(uioc, 0, sizeof(uioc_t));
-+	memset(mbox64, 0, sizeof(mbox64_t));
-+	memset(ldmap, 0, sizeof(raid_dev->curr_ldmap));
- 
- 	mbox		= &mbox64->mbox32;
- 	raw_mbox	= (char *)mbox;
-diff -Naur old/drivers/scsi/megaraid/megaraid_mbox.h
-new/drivers/scsi/megaraid/megaraid_mbox.h
---- old/drivers/scsi/megaraid/megaraid_mbox.h	2005-03-16
-10:20:16.044792952 -0500
-+++ new/drivers/scsi/megaraid/megaraid_mbox.h	2005-03-16
-14:11:35.120852680 -0500
-@@ -21,8 +21,8 @@
- #include "megaraid_ioctl.h"
- 
- 
--#define MEGARAID_VERSION	"2.20.4.5"
--#define MEGARAID_EXT_VERSION	"(Release Date: Thu Feb 03 12:27:22 EST
-2005)"
-+#define MEGARAID_VERSION	"2.20.4.6"
-+#define MEGARAID_EXT_VERSION	"(Release Date: Mon Mar 07 12:27:22 EST
-2005)"
- 
- 
- /*
-@@ -37,8 +37,7 @@
- #define PCI_DEVICE_ID_PERC4_DC				0x1960
- #define PCI_SUBSYS_ID_PERC4_DC				0x0518
- 
--#define PCI_DEVICE_ID_PERC4_QC				0x0407
--#define PCI_SUBSYS_ID_PERC4_QC				0x0531
-+#define PCI_DEVICE_ID_VERDE				0x0407
- 
- #define PCI_DEVICE_ID_PERC4_DI_EVERGLADES		0x000F
- #define PCI_SUBSYS_ID_PERC4_DI_EVERGLADES		0x014A
-@@ -58,11 +57,7 @@
- #define PCI_DEVICE_ID_PERC4E_DI_GUADALUPE		0x0013
- #define PCI_SUBSYS_ID_PERC4E_DI_GUADALUPE		0x0170
- 
--#define PCI_DEVICE_ID_PERC4E_DC_320_2E			0x0408
--#define PCI_SUBSYS_ID_PERC4E_DC_320_2E			0x0002
--
--#define PCI_DEVICE_ID_PERC4E_SC_320_1E			0x0408
--#define PCI_SUBSYS_ID_PERC4E_SC_320_1E			0x0001
-+#define PCI_DEVICE_ID_DOBSON				0x0408
- 
- #define PCI_DEVICE_ID_MEGARAID_SCSI_320_0		0x1960
- #define PCI_SUBSYS_ID_MEGARAID_SCSI_320_0		0xA520
-@@ -73,21 +68,6 @@
- #define PCI_DEVICE_ID_MEGARAID_SCSI_320_2		0x1960
- #define PCI_SUBSYS_ID_MEGARAID_SCSI_320_2		0x0518
- 
--#define PCI_DEVICE_ID_MEGARAID_SCSI_320_0x		0x0407
--#define PCI_SUBSYS_ID_MEGARAID_SCSI_320_0x		0x0530
--
--#define PCI_DEVICE_ID_MEGARAID_SCSI_320_2x		0x0407
--#define PCI_SUBSYS_ID_MEGARAID_SCSI_320_2x		0x0532
--
--#define PCI_DEVICE_ID_MEGARAID_SCSI_320_4x		0x0407
--#define PCI_SUBSYS_ID_MEGARAID_SCSI_320_4x		0x0531
--
--#define PCI_DEVICE_ID_MEGARAID_SCSI_320_1E		0x0408
--#define PCI_SUBSYS_ID_MEGARAID_SCSI_320_1E		0x0001
--
--#define PCI_DEVICE_ID_MEGARAID_SCSI_320_2E		0x0408
--#define PCI_SUBSYS_ID_MEGARAID_SCSI_320_2E		0x0002
--
- #define PCI_DEVICE_ID_MEGARAID_I4_133_RAID		0x1960
- #define PCI_SUBSYS_ID_MEGARAID_I4_133_RAID		0x0522
- 
-@@ -97,52 +77,18 @@
- #define PCI_DEVICE_ID_MEGARAID_SATA_150_6		0x1960
- #define PCI_SUBSYS_ID_MEGARAID_SATA_150_6		0x0523
- 
--#define PCI_DEVICE_ID_MEGARAID_SATA_300_4x		0x0409
--#define PCI_SUBSYS_ID_MEGARAID_SATA_300_4x		0x3004
--
--#define PCI_DEVICE_ID_MEGARAID_SATA_300_8x		0x0409
--#define PCI_SUBSYS_ID_MEGARAID_SATA_300_8x		0x3008
--
--#define PCI_DEVICE_ID_INTEL_RAID_SRCU42X		0x0407
--#define PCI_SUBSYS_ID_INTEL_RAID_SRCU42X		0x0532
-+#define PCI_DEVICE_ID_LINDSAY				0x0409
- 
- #define PCI_DEVICE_ID_INTEL_RAID_SRCS16			0x1960
- #define PCI_SUBSYS_ID_INTEL_RAID_SRCS16			0x0523
- 
--#define PCI_DEVICE_ID_INTEL_RAID_SRCU42E		0x0408
--#define PCI_SUBSYS_ID_INTEL_RAID_SRCU42E		0x0002
--
--#define PCI_DEVICE_ID_INTEL_RAID_SRCZCRX		0x0407
--#define PCI_SUBSYS_ID_INTEL_RAID_SRCZCRX		0x0530
--
--#define PCI_DEVICE_ID_INTEL_RAID_SRCS28X		0x0409
--#define PCI_SUBSYS_ID_INTEL_RAID_SRCS28X		0x3008
--
--#define PCI_DEVICE_ID_INTEL_RAID_SROMBU42E_ALIEF	0x0408
--#define PCI_SUBSYS_ID_INTEL_RAID_SROMBU42E_ALIEF	0x3431
--
--#define PCI_DEVICE_ID_INTEL_RAID_SROMBU42E_HARWICH	0x0408
--#define PCI_SUBSYS_ID_INTEL_RAID_SROMBU42E_HARWICH	0x3499
--
- #define PCI_DEVICE_ID_INTEL_RAID_SRCU41L_LAKE_SHETEK	0x1960
- #define PCI_SUBSYS_ID_INTEL_RAID_SRCU41L_LAKE_SHETEK	0x0520
- 
--#define PCI_DEVICE_ID_FSC_MEGARAID_PCI_EXPRESS_ROMB	0x0408
--#define PCI_SUBSYS_ID_FSC_MEGARAID_PCI_EXPRESS_ROMB	0x1065
--
--#define PCI_DEVICE_ID_MEGARAID_ACER_ROMB_2E		0x0408
--#define PCI_SUBSYS_ID_MEGARAID_ACER_ROMB_2E		0x004D
--
- #define PCI_SUBSYS_ID_PERC3_QC				0x0471
- #define PCI_SUBSYS_ID_PERC3_DC				0x0493
- #define PCI_SUBSYS_ID_PERC3_SC				0x0475
- 
--#define PCI_DEVICE_ID_MEGARAID_NEC_ROMB_2E		0x0408
--#define PCI_SUBSYS_ID_MEGARAID_NEC_ROMB_2E		0x8287
--
--#ifndef PCI_SUBSYS_ID_FSC
--#define PCI_SUBSYS_ID_FSC				0x1734
--#endif
- 
- #define MBOX_MAX_SCSI_CMDS	128	// number of cmds reserved for
-kernel
- #define MBOX_MAX_USER_CMDS	32	// number of cmds for applications
-diff -Naur old/drivers/scsi/megaraid/megaraid_mm.c
-new/drivers/scsi/megaraid/megaraid_mm.c
---- old/drivers/scsi/megaraid/megaraid_mm.c	2005-03-16
-10:20:16.047792496 -0500
-+++ new/drivers/scsi/megaraid/megaraid_mm.c	2005-03-16
-14:11:35.122852376 -0500
-@@ -10,7 +10,7 @@
-  *	   2 of the License, or (at your option) any later version.
-  *
-  * FILE		: megaraid_mm.c
-- * Version	: v2.20.2.5 (Jan 21 2005)
-+ * Version	: v2.20.2.6 (Mar 7 2005)
-  *
-  * Common management module
-  */
-@@ -43,8 +43,7 @@
- static void mraid_mm_teardown_dma_pools(mraid_mmadp_t *);
- 
- #ifdef CONFIG_COMPAT
--static int mraid_mm_compat_ioctl(unsigned int, unsigned int, unsigned long,
--		struct file *);
-+static long mraid_mm_compat_ioctl(struct file *, unsigned int, unsigned
-long);
- #endif
- 
- MODULE_AUTHOR("LSI Logic Corporation");
-@@ -61,7 +60,7 @@
- EXPORT_SYMBOL(mraid_mm_adapter_app_handle);
- 
- static int majorno;
--static uint32_t drvr_ver	= 0x02200201;
-+static uint32_t drvr_ver	= 0x02200206;
- 
- static int adapters_count_g;
- static struct list_head adapters_list_g;
-@@ -69,9 +68,12 @@
- static wait_queue_head_t wait_q;
- 
- static struct file_operations lsi_fops = {
--	.open	= mraid_mm_open,
--	.ioctl	= mraid_mm_ioctl,
--	.owner	= THIS_MODULE,
-+	.open		= mraid_mm_open,
-+	.ioctl		= mraid_mm_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl	= mraid_mm_compat_ioctl, 
-+#endif
-+	.owner		= THIS_MODULE,
- };
- 
- /**
-@@ -1215,8 +1217,6 @@
- 
- 	INIT_LIST_HEAD(&adapters_list_g);
- 
--	register_ioctl32_conversion(MEGAIOCCMD, mraid_mm_compat_ioctl);
--
- 	return 0;
- }
- 
-@@ -1225,13 +1225,14 @@
-  * mraid_mm_compat_ioctl	: 32bit to 64bit ioctl conversion routine
-  */
- #ifdef CONFIG_COMPAT
--static int
--mraid_mm_compat_ioctl(unsigned int fd, unsigned int cmd,
--			unsigned long arg, struct file *filep)
-+static long
-+mraid_mm_compat_ioctl(struct file *filep, unsigned int cmd, unsigned long
-arg)
- {
--	struct inode *inode = filep->f_dentry->d_inode;
-+	int err;
-+
-+	err = mraid_mm_ioctl(NULL, filep, cmd, arg);
- 
--	return mraid_mm_ioctl(inode, filep, cmd, arg);
-+	return err;
- }
- #endif
- 
-@@ -1244,7 +1245,6 @@
- 	con_log(CL_DLEVEL1 , ("exiting common mod\n"));
- 
- 	unregister_chrdev(majorno, "megadev");
--	unregister_ioctl32_conversion(MEGAIOCCMD);
- }
- 
- module_init(mraid_mm_init);
-diff -Naur old/drivers/scsi/megaraid/megaraid_mm.h
-new/drivers/scsi/megaraid/megaraid_mm.h
---- old/drivers/scsi/megaraid/megaraid_mm.h	2005-03-16
-10:20:16.047792496 -0500
-+++ new/drivers/scsi/megaraid/megaraid_mm.h	2005-03-16
-14:11:35.122852376 -0500
-@@ -29,9 +29,9 @@
- #include "megaraid_ioctl.h"
- 
- 
--#define LSI_COMMON_MOD_VERSION	"2.20.2.5"
-+#define LSI_COMMON_MOD_VERSION	"2.20.2.6"
- #define LSI_COMMON_MOD_EXT_VERSION	\
--		"(Release Date: Fri Jan 21 00:01:03 EST 2005)"
-+		"(Release Date: Mon Mar 7 00:01:03 EST 2005)"
- 
- 
- #define LSI_DBGLVL			dbglevel
----
+
+--------------030506090103090606080101--

@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262746AbUKMAgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262744AbUKMAeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262746AbUKMAgh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 19:36:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbUKMAea
+	id S262744AbUKMAeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 19:34:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbUKMAbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 19:34:30 -0500
-Received: from fmr12.intel.com ([134.134.136.15]:62100 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262746AbUKMAbm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 19:31:42 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 12 Nov 2004 19:31:49 -0500
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:39601 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262748AbUKLX4X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 18:56:23 -0500
+Message-ID: <41954D9A.9000303@yahoo.com.au>
+Date: Sat, 13 Nov 2004 10:56:10 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.10-rc1-mm5
-Date: Fri, 12 Nov 2004 16:30:56 -0800
-Message-ID: <44BDAFB888F59F408FAE3CC35AB47041F5A35C@orsmsx409>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.10-rc1-mm5
-Thread-Index: AcTJFmgzQtcpdYQGSwKFgufIL2Wb2gAATnig
-From: "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>
-To: "Greg KH" <greg@kroah.com>, "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>
-X-OriginalArrivalTime: 13 Nov 2004 00:30:58.0596 (UTC) FILETIME=[0BB3FE40:01C4C918]
+To: Chris Ross <chris@tebibyte.org>
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Nick Piggin <piggin@cyberone.com.au>, Rik van Riel <riel@redhat.com>,
+       Andrea Arcangeli <andrea@novell.com>,
+       Martin MOKREJ? <mmokrejs@ribosome.natur.cuni.cz>, tglx@linutronix.de
+Subject: Re: [PATCH] fix spurious OOM kills
+References: <20041111112922.GA15948@logos.cnet> <4193E056.6070100@tebibyte.org> <4194EA45.90800@tebibyte.org>
+In-Reply-To: <4194EA45.90800@tebibyte.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
-	This is fixed in the latest Len's acpi tree, when you pull from
-his tree next time this should have been fixed.
+Chris Ross wrote:
+> 
+> Chris Ross escreveu:
+> 
+>> It seems good.
+> 
+> 
+> Sorry Marcelo, I spoke to soon. The oom killer still goes haywire even 
+> with your new patch. I even got this one whilst the machine was booting!
+> 
+> Ignore the big numbers, they are cured by Kame's patch. I haven't 
+> applied that to this kernel. This tree is pure 2.6.10-rc1-mm2 with only 
+> your recent oom patch applied.
+> 
+
+But those big numbers are going to cause things to stop working properly.
+You'd be best off to upgrade to the latest -mm kernel.
 
 Thanks,
-Anil 
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
->owner@vger.kernel.org] On Behalf Of Greg KH
->Sent: Friday, November 12, 2004 4:12 PM
->To: Andrew Morton
->Cc: linux-kernel@vger.kernel.org
->Subject: Re: 2.6.10-rc1-mm5
->
->On Thu, Nov 11, 2004 at 01:23:33AM -0800, Andrew Morton wrote:
->>
->> - Let me be the first to report this:
->>
->> 	*** Warning: "hotplug_path" [drivers/acpi/container.ko]
-undefined!
->
->The acpi developers know about this and they said they would fix it in
->their code tree before pushing to Linus.
->
->thanks,
->
->greg k-h
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+Nick

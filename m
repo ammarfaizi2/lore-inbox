@@ -1,59 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S386181AbUKBAiK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S292735AbUKBAmd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S386181AbUKBAiK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 19:38:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S277078AbUKBAOg
+	id S292735AbUKBAmd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 19:42:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S292254AbUKBAlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 19:14:36 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:56725 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S384351AbUKBAFu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 19:05:50 -0500
-Subject: Re: [PATCH 10/14] FRV: Make calibrate_delay() optional
-From: john stultz <johnstul@us.ibm.com>
-To: dhowells@redhat.com
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       davidm@snapgear.com, lkml <linux-kernel@vger.kernel.org>,
-       uclinux-dev@uclinux.org
-In-Reply-To: <200411011930.iA1JULKN023227@warthog.cambridge.redhat.com>
-References: <76b4a884-2c3c-11d9-91a1-0002b3163499@redhat.com>
-	 <200411011930.iA1JULKN023227@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Message-Id: <1099353962.9139.11.camel@cog.beaverton.ibm.com>
+	Mon, 1 Nov 2004 19:41:52 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:47544
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S387307AbUKBAli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 19:41:38 -0500
+Date: Mon, 1 Nov 2004 16:28:37 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: acme@conectiva.com.br, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] appletalk: remove an unused function
+Message-Id: <20041101162837.33fd343e.davem@davemloft.net>
+In-Reply-To: <20041029001439.GC29142@stusta.de>
+References: <20041028221046.GI3207@stusta.de>
+	<20041029001439.GC29142@stusta.de>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 01 Nov 2004 16:06:03 -0800
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-11-01 at 11:30, dhowells@redhat.com wrote:
-> The attached patch makes calibrate_delay() optional. In this architecture, it's
-> a waste of time since we can predict exactly what it's going to come up with
-> just by looking at the CPU's hardware clock registers. Thus far, we haven't
-> seem a board with any clock not dependent on the CPU's clock.
+On Fri, 29 Oct 2004 02:14:39 +0200
+Adrian Bunk <bunk@stusta.de> wrote:
 
-Just doing a quick skim, the patch looks good. Making a whole new file
-for just one function is a bit heavy handed, but I don't feel that code
-needed to be in main.c
+> The patch below removes an unsed function from net/appletalk/ddp.c
 
-My only nit would be to save the tabs and switch the code from:
-
-if (preset_lpj) {
-	newstuff
-} else {
-	oldstuff
-}
-
-to
-
-if (preset_lpj) {
-	newstuff
-	return
-}
-oldstuff
-
-
-thanks
--john
-
+Applied, thanks Adrian.

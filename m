@@ -1,52 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262844AbTLWXUh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 18:20:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbTLWXUh
+	id S263185AbTLWXTq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 18:19:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263189AbTLWXTq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 18:20:37 -0500
-Received: from mail.kroah.org ([65.200.24.183]:44171 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262844AbTLWXUe (ORCPT
+	Tue, 23 Dec 2003 18:19:46 -0500
+Received: from mx1.mail.ru ([194.67.23.21]:40210 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S263185AbTLWXTo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 18:20:34 -0500
-Date: Tue, 23 Dec 2003 15:14:57 -0800
-From: Greg KH <greg@kroah.com>
-To: Hua Zhong <hzhong@cisco.com>
-Cc: "'Rob Love'" <rml@ximian.com>,
-       "'Jari Soderholm'" <Jari.Soderholm@edu.stadia.fi>,
-       linux-kernel@vger.kernel.org
-Subject: Re: DEVFS is very good compared to UDEV
-Message-ID: <20031223231457.GD16315@kroah.com>
-Reply-To: linux-kernel@vger.kernel.org
-References: <1072218603.6987.57.camel@fur> <008901c3c9a8$97ac5c50$ca41cb3f@amer.cisco.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <008901c3c9a8$97ac5c50$ca41cb3f@amer.cisco.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 23 Dec 2003 18:19:44 -0500
+Message-ID: <3FE8CD8D.6090303@mail.ru>
+Date: Tue, 23 Dec 2003 18:19:41 -0500
+From: Yaroslav Klyukin <skintwin@mail.ru>
+User-Agent: Mozilla/5.0 (ICQ: 1045670, AIM: infiniteparticle)
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: aacraid issues
+X-Enigmail-Version: 0.82.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig4BAA6B66BCFC82D51C78A802"
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 23, 2003 at 03:00:43PM -0800, Hua Zhong wrote:
-> > So I cannot comment over _why_ defvs is unmaintained, but that is not
-> > the point: either way, it stands that devfs is unmaintained.  
-> > That is a problem in and of itself.
-> 
-> It's just my impression that around that time core developers had
-> decided to replace devfs with a new model. If I were in ths same shoes,
-> I would probably also stop maintaining it. Then 2 years later when
-> somebody asks, the reason to replace my code shouldn't be
-> "unmaintained". Just the technical reasons should be enough. :-)
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig4BAA6B66BCFC82D51C78A802
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Back in June of 2001, Pat Mochel and I talked with Richard about this
-whole driver model, sysfs, and udev design at the 2001 kernel summit,
-after presenting it to all of the other kernel developers.  He had some
-objections, but was very aware of what we wanted to do.
+I have very strange aacraid behavior:
+First of all, I know, that aacraid support is experimental, but maybe 
+the issue is related to something else in the kernel.
 
-It's not like udev and this whole sysfs / driver model implementation
-snuck into the kernel late at night when no one else was looking, and
-pounced on all of the poor, unsuspecting devfs users, eating them for a
-early morning snack.
+I have AMD Opteron system with 10 scsi disks, connected to Adaptec 2200S 
+controller, constituting about 1.2TB in total.
+
+I can boot with 2.4.22 kernel, compiled for Xeon, into RedHat 9
+(32 bit mode). aacraid version 1.1.2. The raid works great.
+
+Then I boot into SuSE Linux 9 for the Opterons, with 2.4.23 kernel.
+aacraid version 1.1-3.
+
+Seems to work, but when I try to access blocks close to the end of the 
+RAID, I am getting I/O errors.
+
+Any ideas?
+Where can I get the latest patches for the aacraid driver?
+
+Just tried 2.6.0 kernel with patches for Opteron, but as soon as it 
+starts working with Adaptec controller, it crashes miserably... :-(
 
 
-greg k-h
+
+
+
+
+--------------enig4BAA6B66BCFC82D51C78A802
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE/6M2NXtaNP/qDgm8RAoVoAJ9psZg23P5DoOKJ6ntuaXG0jXledwCePA1H
+FRocFVYEscjVXgS4JFIt5SU=
+=N/7+
+-----END PGP SIGNATURE-----
+
+--------------enig4BAA6B66BCFC82D51C78A802--
+

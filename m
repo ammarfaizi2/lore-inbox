@@ -1,72 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271906AbRIMRJC>; Thu, 13 Sep 2001 13:09:02 -0400
+	id <S271911AbRIMR1J>; Thu, 13 Sep 2001 13:27:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271911AbRIMRIw>; Thu, 13 Sep 2001 13:08:52 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:20668 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S271910AbRIMRIo>; Thu, 13 Sep 2001 13:08:44 -0400
-Message-ID: <3BA111FD.499BBF1D@us.ibm.com>
-Date: Thu, 13 Sep 2001 10:07:25 -1000
-From: Mingming cao <cmm@us.ibm.com>
-Organization: Linux Technology Center
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk
-CC: linux-kernel@vger.kernel.org, manfreds@colorfullife.com
-Subject: [PATCH]Fix bug in msgsnd
-Content-Type: text/plain; charset=us-ascii
+	id <S271905AbRIMR07>; Thu, 13 Sep 2001 13:26:59 -0400
+Received: from maynard.mail.mindspring.net ([207.69.200.243]:42245 "EHLO
+	maynard.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S271911AbRIMR0s>; Thu, 13 Sep 2001 13:26:48 -0400
+Subject: Re: Feedback on preemptible kernel patch
+From: Robert Love <rml@tech9.net>
+To: Arjan Filius <iafilius@xs4all.nl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0109102323450.24212-100000@sjoerd.sjoerdnet>
+In-Reply-To: <Pine.LNX.4.33.0109102323450.24212-100000@sjoerd.sjoerdnet>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13.99+cvs.2001.09.12.07.08 (Preview Release)
+Date: 13 Sep 2001 13:27:06 -0400
+Message-Id: <1000402027.23162.45.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello linus & Alan,
+On Mon, 2001-09-10 at 17:29, Arjan Filius wrote:
+> Yes I am using reiserfs (for "ages"). better said, reiser on LVM.
+> 
+> Small discription of my system and used setup:
+> scsi-disk,scsi-cdrom,ide-disk,ide-scsi,ext2,reiser, iptables, ipv6,
+> acenic-Gbit-ethernet, ramdisk, highmem (1.5GB-ram), Athlon 1.1GHz, Asus
+> a7v MB (via).
 
-This patch fixes a bug in msgsnd.  If a message is sent via
-pipelined_send(), the q_lrpid field of the associated message queue
-(last pid receive) is not updated correctly.  The existing code
-(apparently by mistake) updates the lspid field instead. The second
-problem is that, for the pipelinesend case, q_lstime(last msgsnd time)
-is set AFTER q_lrtime(last msgrcv time), yielding a negative time delta.
+Hi Arjan,
 
-This patch is against kernel 2.4.9 and has been tested.  Please
-apply.  
+first, highmem is fixed and the original patch you have from me is good.
+second, Daniel Phillips gave me some feedback into how to figure out the
+VM error.  I am working on it, although just the VM potential --
+ReiserFS may be another problem.
 
-Please CC your feedback to me also, thanks.
+third, you may be experiencing problems with a kernel optimized for
+Athlon.  this may or may not be related to the current issues with an
+Athlon-optimized kernel.  Basically, functions in arch/i386/lib/mmx.c
+seem to need some locking to prevent preemption.  I have a basic patch
+and we are working on a final one.
 
 -- 
-Mingming Cao
-IBM Linux Technology Center
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 
-diff -urN -X dontdiff linux/ipc/msg.c linux-tk/ipc/msg.c
---- linux/ipc/msg.c	Tue Sep 11 16:21:42 2001
-+++ linux-tk/ipc/msg.c	Tue Sep 11 16:21:31 2001
-@@ -613,7 +613,7 @@
- 				wake_up_process(msr->r_tsk);
- 			} else {
- 				msr->r_msg = msg;
--				msq->q_lspid = msr->r_tsk->pid;
-+				msq->q_lrpid = msr->r_tsk->pid;
- 				msq->q_rtime = CURRENT_TIME;
- 				wake_up_process(msr->r_tsk);
- 				return 1;
-@@ -683,6 +683,9 @@
- 		goto retry;
- 	}
- 
-+	msq->q_lspid = current->pid;
-+	msq->q_stime = CURRENT_TIME;
-+
- 	if(!pipelined_send(msq,msg)) {
- 		/* noone is waiting for this message, enqueue it */
- 		list_add_tail(&msg->m_list,&msq->q_messages);
-@@ -694,8 +697,6 @@
- 	
- 	err = 0;
- 	msg = NULL;
--	msq->q_lspid = current->pid;
--	msq->q_stime = CURRENT_TIME;
- 
- out_unlock_free:
- 	msg_unlock(msqid);

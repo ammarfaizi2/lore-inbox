@@ -1,57 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266508AbUBGANa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 19:13:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266476AbUBGAN3
+	id S266472AbUBGALM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 19:11:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266476AbUBGALL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 19:13:29 -0500
-Received: from mail.shareable.org ([81.29.64.88]:18640 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S266508AbUBGANX
+	Fri, 6 Feb 2004 19:11:11 -0500
+Received: from mail-01.iinet.net.au ([203.59.3.33]:59044 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S266472AbUBGALF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 19:13:23 -0500
-Date: Sat, 7 Feb 2004 00:13:17 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Andy Isaacson <adi@hexapodia.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: avoiding dirty code pages with fixups
-Message-ID: <20040207001317.GE12503@mail.shareable.org>
-References: <20040203225453.GB18320@hexapodia.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040203225453.GB18320@hexapodia.org>
-User-Agent: Mutt/1.4.1i
+	Fri, 6 Feb 2004 19:11:05 -0500
+Message-ID: <40242D14.6070908@cyberone.com.au>
+Date: Sat, 07 Feb 2004 11:11:00 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: Rick Lindsley <ricklind@us.ibm.com>, Anton Blanchard <anton@samba.org>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, dvhltc@us.ibm.com
+Subject: Re: [PATCH] Load balancing problem in 2.6.2-mm1
+References: <200402062311.i16NBdF14365@owlet.beaverton.ibm.com> <40242152.5030606@cyberone.com.au> <231480000.1076110387@flay> <4024261E.5070702@cyberone.com.au> <232690000.1076111266@flay>
+In-Reply-To: <232690000.1076111266@flay>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Isaacson wrote:
-> This is sorta like MAP_PRIVATE, but instead of writing the dirty
-> page out to the swapfile, I want the page never to leave RAM.  If
-> the kernel decides to evict the page, it should just drop it and
-> invalidate the virtual address range.  When my program faults it
-> back in, provide me with the contents of the page *as they exist in
-> the backing file*.
 
-That idea has come up about a thousand million times.  Well, three.
-It's a good one :)
 
-It has lots of uses, not just the one you describe.  For example,
-cacheing generated image data.
+Martin J. Bligh wrote:
 
-It would also be nice for a memory allocator to be able to convert a
-region from MAP_PRIVATE to MAP_SCRATCH and back, so that freed blocks
-of memory can be reclaimed by the system but only when there is memory
-pressure.
+>>>If CPU 8 has 2 tasks, and cpu 1 has 1 task, there's an imbalance of 1.
+>>>*If* that imbalance persists (and it probably won't, given tasks being
+>>>created, destroyed, and blocking for IO), we may want to rotate that 
+>>>to 1 vs 2, and then back to 2 vs 1, etc. in the interests of fairness,
+>>>even though it's slower throughput overall.
+>>>
+>>>
+>>Yes, although as long as it's node local and happens a couple of
+>>times a second you should be pretty hard pressed noticing the
+>>difference.
+>>
+>
+>Not sure how true that turns out to be in practice ... probably depends
+>heavily on both the workload (how heavily it's using the cache) and the
+>chip (larger caches have proportionately more to lose).
+>
+>As we go forward in time, cache warmth gets increasingly important, as
+>CPUs accelerate speeds quicker than memory. Cache sizes also get larger.
+>I'd really like us to be conservative here - the unfairness thing is 
+>really hard to hit anyway - you need a static number of processes that
+>don't ever block on IO or anything.
+>
+>
 
-> The downside is the additional computation on page-in.
+Can we keep current behaviour default, and if arches want to
+override it they can? And if someone one day does testing to
+show it really isn't a good idea, then we can change the default.
 
-> It is a function of how many fixups there are per page, and of how
-> much work ld.so does to satisfy a fixup.  I don't have a good feel
-> for how expensive ld.so's fixup mechanism is... any comments?
+I like to try stick to the fairness first approach.
 
-The other downside of your idea is that every instance of a program
-has more dirty pages.  While it is true that the pages do not require
-disk I/O, they still take up RAM that could be used for other page
-cache things.
+We got quite a few complaints about unfairness when the
+scheduler used to keep 2 on one cpu and 1 on another, even in
+development kernels. I suspect that most wouldn't have known
+one way or the other if only top showed 66% each, but still.
 
--- Jamie

@@ -1,63 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132886AbRECQHn>; Thu, 3 May 2001 12:07:43 -0400
+	id <S132895AbRECQPE>; Thu, 3 May 2001 12:15:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132895AbRECQHd>; Thu, 3 May 2001 12:07:33 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:48392 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S132886AbRECQHU>;
-	Thu, 3 May 2001 12:07:20 -0400
-Date: Thu, 3 May 2001 12:07:09 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, John Stoffel <stoffel@casc.com>,
-        cate@dplanet.ch, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Requirement of make oldconfig [was: Re: [kbuild-devel] Re: CML2 1.3.1, aka ...]
-Message-ID: <20010503120709.I31960@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Horst von Brand <vonbrand@inf.utfsm.cl>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	John Stoffel <stoffel@casc.com>, cate@dplanet.ch,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <alan@lxorguk.ukuu.org.uk> <200105031324.f43DOeaA030953@pincoya.inf.utfsm.cl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200105031324.f43DOeaA030953@pincoya.inf.utfsm.cl>; from vonbrand@inf.utfsm.cl on Thu, May 03, 2001 at 09:24:40AM -0400
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S132898AbRECQOy>; Thu, 3 May 2001 12:14:54 -0400
+Received: from picard.csihq.com ([204.17.222.1]:54747 "EHLO picard.csihq.com")
+	by vger.kernel.org with ESMTP id <S132895AbRECQOk>;
+	Thu, 3 May 2001 12:14:40 -0400
+Message-ID: <04e601c0d3ec$32ed29c0$e1de11cc@csihq.com>
+From: "Mike Black" <mblack@csihq.com>
+To: <linux-kernel@vger.kernel.org>,
+        "Christian Iseli" <chris@ludwig-alpha.unil.ch>
+In-Reply-To: <200105021613.SAA22580@ludwig-alpha.unil.ch>
+Subject: Re: Linux 2.4.4-ac3, asm problem in asm-i386/rwsem.h using gcc 3.0 CVS
+Date: Thu, 3 May 2001 12:14:57 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-Mimeole: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand <vonbrand@inf.utfsm.cl>:
->> No. Every new kernel changes the constraints so every new kernel you have
->> to reconfigure from scratch. That also makes it very hard to be sure you got
->> the results right.
-> 
-> Really? I've mostly seen symbols added, very rarely did I see constraints
-> changed. But that might be just my narrow view on the matter...
+Looks like if you remove the "inline" from the function definition this
+compiles OK.
 
-It's mine as well.  And I have been paying careful attention to this issue.
- 
-> > oldconfig has a simple algorithm that works well for current cases
-> > 
-> > Start at the top of the symbols in file order. If a symbol is new ask the
-> > user. If a symbol is now violating a constraint it gets set according to 
-> > existing constraints if not it gets set to its old value.
-> 
-> I understand that to mean: "If it is new and (at least somewhat)
-> unconstrained, ask the user.  If fully constrained, take that value
-> unconditionally." This is a _very_ different case from a broken
-> configuration as a starting point, in which constraints are violated with
-> the values as set.
+________________________________________
+Michael D. Black   Principal Engineer
+mblack@csihq.com  321-676-2923,x203
+http://www.csihq.com  Computer Science Innovations
+http://www.csihq.com/~mike  My home page
+FAX 321-676-2355
+----- Original Message -----
+From: "Christian Iseli" <chris@ludwig-alpha.unil.ch>
+To: <linux-kernel@vger.kernel.org>
+Sent: Wednesday, May 02, 2001 12:13 PM
+Subject: Linux 2.4.4-ac3, asm problem in asm-i386/rwsem.h using gcc 3.0 CVS
 
-Exactly!  And in fact, my oldconfig already does what Alan prescribes.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-To make inexpensive guns impossible to get is to say that you're
-putting a money test on getting a gun.  It's racism in its worst form.
-        -- Roy Innis, president of the Congress of Racial Equality (CORE), 1988
+Hi folks,
+
+I currently fail to compile the 2.4.4-ac3 kernel using latest GCC 3.0 from
+CVS:
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+ -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+ -mpreferred-stack-boundary=2 -march=i686    -DEXPORT_SYMTAB -c sys.c
+sys.c: In function `sys_gethostname':
+/usr/src/linux/include/asm/rwsem.h:152:
+ inconsistent operand constraints in an `asm'
+
+Here is the code exerpt:
+/*
+ * unlock after reading
+ */
+static inline void __up_read(struct rw_semaphore *sem)
+{
+        __s32 tmp = -RWSEM_ACTIVE_READ_BIAS;
+        __asm__ __volatile__(
+                "# beginning __up_read\n\t"
+LOCK_PREFIX     "  xadd      %%edx,(%%eax)\n\t" /* subtracts 1, returns the
+old value */
+                "  js        2f\n\t" /* jump if the lock is being waited
+upon */
+                "1:\n\t"
+                ".section .text.lock,\"ax\"\n"
+                "2:\n\t"
+                "  decw      %%dx\n\t" /* do nothing if still outstanding
+active readers */
+                "  jnz       1b\n\t"
+                "  pushl     %%ecx\n\t"
+                "  call      rwsem_wake\n\t"
+                "  popl      %%ecx\n\t"
+                "  jmp       1b\n"
+                ".previous\n"
+                "# ending __up_read\n"
+                : "+m"(sem->count), "+d"(tmp)
+                : "a"(sem)
+                : "memory", "cc");
+}
+
+I'm afraid I know zilch about asm constraints...
+Can anybody spot the trouble (and fix it :) ?
+
+Thanks,
+Christian
+
+
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,46 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288742AbSAQNwL>; Thu, 17 Jan 2002 08:52:11 -0500
+	id <S288733AbSAQNyl>; Thu, 17 Jan 2002 08:54:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288733AbSAQNvy>; Thu, 17 Jan 2002 08:51:54 -0500
-Received: from mailhost.uni-koblenz.de ([141.26.64.1]:17026 "EHLO
-	mailhost.uni-koblenz.de") by vger.kernel.org with ESMTP
-	id <S288742AbSAQNvl>; Thu, 17 Jan 2002 08:51:41 -0500
-Message-Id: <200201171351.g0HDpdK05456@bliss.uni-koblenz.de>
-Content-Type: text/plain; charset=US-ASCII
-From: Rainer Krienke <krienke@uni-koblenz.de>
-Organization: Uni Koblenz
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.17:Increase number of anonymous filesystems beyond 256?
-Date: Thu, 17 Jan 2002 14:51:39 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S288747AbSAQNyb>; Thu, 17 Jan 2002 08:54:31 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:28290 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S288733AbSAQNyV>; Thu, 17 Jan 2002 08:54:21 -0500
+Date: Thu, 17 Jan 2002 08:55:58 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Yann E. MORIN" <yann.morin.1998@anciens.enib.fr>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: modules detection
+In-Reply-To: <013901c19f59$d72beb50$8a140237@rennes.si.fr.atosorigin.com>
+Message-ID: <Pine.LNX.3.95.1020117084759.19203B-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, 17 Jan 2002, Yann E. MORIN wrote:
 
-I have to increase the number of anonymous filesystems the kernel can handle  
-and found the array unnamed_dev_in_use fs/super.c and changed the array size 
-from the default of 256 to 1024. Testing this patch by mounting more and more 
-NFS-filesystems I found that still no more than 800 NFS mounts are possible. 
-One more mount results in the kernel saying:
+> Hi!
+> 
+> I need to know (in a script shell for instance) if a running kernel
+> is compiled with/without module support. I don't have access to the
+> source tree when detecting (though I have it mounted sometime later).
+> 
+> Reading the source (fs/proc/proc_misc.c), I understand that the file
+> /proc/modules exists only when modules are supported by the running
+> kernel. Is that true? If so, can I assume that the following script
+> is correct?
+> 
+> -=-=-=-
+> #!/bin/bash
+> [ -e /proc/modules ] && echo Modules supported by running kernel. \
+>                      || echo Modules not supported by running kernel.
+> -=-=-=-
+> 
+> If not, how may I detect module support?
+> 
+> (Yes, I could build two kernels supporting modules vs not supporting
+> modules, but my machine is quite slow : 2h per compilation :-( ).
+> 
+> Thanks for any reply.
+> 
+> Regards,
+> Yann E. MORIN.
+> 
 
-Jan 17 14:03:11 gl kernel: RPC: Can't bind to reserved port (98).
-Jan 17 14:03:11 gl kernel: NFS: cannot create RPC transport.
-Jan 17 14:03:11 gl kernel: nfs warning: mount version older than kernel
+You could also use `lsmod`. It uses query_module() which will return
+some error code if modules are not supported.
 
-This bug can easily be reproduced any time. Does anyone know how to overcome 
-this strange limitation? I am really in need of a solution to get a server 
-running. Please help.
+if  lsmod >/dev/null ; then
+    echo "Modules are supported"
+else
+   echo "Modules not supported"
+fi
 
-Thanks
-Rainer
--- 
----------------------------------------------------------------------
-Rainer Krienke                     krienke@uni-koblenz.de
-Universitaet Koblenz	http://www.uni-koblenz.de/~krienke
-Rechenzentrum,                 	Voice: +49 261 287 - 1312
-Rheinau 1, 56075 Koblenz, Germany  Fax:   +49 261 287 - 1001312
----------------------------------------------------------------------
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

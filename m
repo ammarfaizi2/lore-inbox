@@ -1,42 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266860AbRGFVwf>; Fri, 6 Jul 2001 17:52:35 -0400
+	id <S266864AbRGFVyp>; Fri, 6 Jul 2001 17:54:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266865AbRGFVwZ>; Fri, 6 Jul 2001 17:52:25 -0400
-Received: from w146.z064001233.sjc-ca.dsl.cnc.net ([64.1.233.146]:41936 "EHLO
-	windmill.gghcwest.com") by vger.kernel.org with ESMTP
-	id <S266860AbRGFVwQ>; Fri, 6 Jul 2001 17:52:16 -0400
-Date: Fri, 6 Jul 2001 14:49:54 -0700 (PDT)
-From: "Jeffrey W. Baker" <jwbaker@acm.org>
-X-X-Sender: <jwb@heat.gghcwest.com>
-To: Tim McDaniel <tim.mcdaniel@tuxia.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Trouble Booting Linux PPC 2000 On Mac G4
-In-Reply-To: <A16915712C18BD4EBD97897F82DA08CD480BFB@exchange1.win.agb.tuxia>
-Message-ID: <Pine.LNX.4.33.0107061448340.22870-100000@heat.gghcwest.com>
+	id <S266865AbRGFVyf>; Fri, 6 Jul 2001 17:54:35 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:24836 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S266864AbRGFVyZ>; Fri, 6 Jul 2001 17:54:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: VM Requirement Document - v0.0
+Date: Fri, 6 Jul 2001 23:57:15 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Xavier Bestel <xavier.bestel@free.fr>, Dan Maas <dmaas@dcine.com>,
+        <linux-kernel@vger.kernel.org>, Tom spaziani <digiphaze@deming-os.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+In-Reply-To: <Pine.LNX.4.33L.0107061608380.17825-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0107061608380.17825-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01070623571501.22952@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 6 Jul 2001, Tim McDaniel wrote:
-
-> I think what we are seeing is XBoot rather than yaboot and we tried just
-> about all conceivable "kernel options", as exposed by Xboot. When Xboot
-> comes up it shows a ramdisk_size=8192 as the only default parameter.
-> Rapidly growing to hate the non-intuitive nature of the MAC OS we are
-> not experts on the Mac OS.  P.S. We are running Mac OS 9.1.
+On Friday 06 July 2001 21:09, Rik van Riel wrote:
+> On Thu, 5 Jul 2001, Daniel Phillips wrote:
+> > Let me comment on this again, having spent a couple of minutes
+> > more thinking about it.  Would you be happy paying 1% of your
+> > battery life to get 80% less sluggish response after a memory
+> > pig exits?
 >
-> Oops, We just discovered that Xboot does not work with MacOS 9.1 (geez)
-> .... you MUST use yaboot.
+> Just to pull a few random numbers out of my ass too,
+> how about 50% of battery life for the same optimistic
+> 80% less sluggishness ?
 >
->
-> We will try the Q4 release.
+> How about if it were only 30% of battery life?
 
-I endorse Debian PPC.  LinuxPPC is a quadruple hack that has never worked
-properly on the three Macs I tried to inflict it upon.
+It's not as random as that.  The idea being considered was: suppose a 
+program starts up, goes through a period of intense, cache-sucking 
+activity, then exits.  Could we reload the applications it just 
+displaced so that the disk activity to reload them doesn't have to take 
+place the first time the user touches the keyboard/mouse.  Sure, we 
+obviously can, with how much complexity is another question entirely ;-)
 
--jwb
+So probably, we could eliminate more than 80% of the latency we now see 
+in such a situation, I was being conservative.
 
+Now what's the cost in battery life?  Suppose it's a 128 meg machine, 
+1/3 filled with program text and data.  Hopefully, the working sets 
+that were evicted are largely coherent so we'll read it back in at a 
+rate not too badly degraded from the drive's transfer rate, say 5 
+MB/sec.  This gives about three seconds of intense reading to restore 
+something resembling the previous working set, then the disk can spin 
+down and perhaps the machine will suspend itself.  So the question is, 
+how much longer did the machine have to run to do this?  Well, on my 
+machine updatedb takes 5-10 minutes, so the 3 seconds of activity 
+tacked onto the end of the episode amounts to less than 1%, and this is 
+where the 1% figure came from.
+
+I'm not saying this would be an easy hack, just that it's possible and 
+the numbers work.
+
+--
+Daniel

@@ -1,60 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312570AbSDATnl>; Mon, 1 Apr 2002 14:43:41 -0500
+	id <S312575AbSDATpL>; Mon, 1 Apr 2002 14:45:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312573AbSDATnc>; Mon, 1 Apr 2002 14:43:32 -0500
-Received: from port-213-20-224-66.reverse.qdsl-home.de ([213.20.224.66]:14597
-	"EHLO el-zoido.localnet") by vger.kernel.org with ESMTP
-	id <S312570AbSDATnQ>; Mon, 1 Apr 2002 14:43:16 -0500
-Date: Mon, 1 Apr 2002 21:43:03 +0200 (CEST)
-From: Patrick McHardy <kaber@trash.net>
-To: Alexey Kuznetsov <kuznet2@ms2.inr.ac.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: bug in sch_generic.c:pfifo_fast_enqueue
-Message-ID: <Pine.LNX.4.44.0204012131330.13230-200000@el-zoido.localnet>
+	id <S312574AbSDATpC>; Mon, 1 Apr 2002 14:45:02 -0500
+Received: from penguin.roanoke.edu ([199.111.154.8]:53768 "EHLO
+	penguin.roanoke.edu") by vger.kernel.org with ESMTP
+	id <S312573AbSDATot>; Mon, 1 Apr 2002 14:44:49 -0500
+Message-ID: <3CA8B8A8.4020802@roanoke.edu>
+Date: Mon, 01 Apr 2002 14:44:40 -0500
+From: "David L. Parsley" <parsley@roanoke.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811840-707478154-1017690183=:13230"
+To: Dan Kegel <dank@ixiacom.com>
+CC: "Peter J. Braam" <braam@clusterfs.com>, linux-kernel@vger.kernel.org
+Subject: Re: Nomination
+In-Reply-To: <3CA8A9AB.AEFA87DC@ixiacom.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-RAVMilter-Version: 8.3.1(snapshot 20020108) (penguin.roanoke.edu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Ah, Dan - you've hit the nail on the head.  I, too, am awed by Rick's 
+forward thinking.  My only hesitation is that his thinking is so far 
+above and beyond the norm that I find I am unable to respond to his 
+postings at the level of intelligence required to communicate with him. 
+  Given the normal lack of responses to his postings, I assume that 
+others must feel the same.
 
----1463811840-707478154-1017690183=:13230
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Perhaps his vision and leadership would spur us all on to higher order 
+thinking, but I can only wonder how many of us would be able to make the 
+leap.  I can only say that I would be willing to try, and hope that he 
+would be as gentle towards the ignorant as Linus has been.
 
-Hi Alexey.
-I found a small bug in pfifo_fast_enqueue, instead of
+Besides, I've always thought FORTH was the wave of the future.
 
-if (list->qlen <= skb->dev->tx_queue_len)
+regards,
+	David
 
-it should be
+Dan Kegel wrote:
+> "Peter J. Braam" <braam@clusterfs.com> wrote:
+> 
+>>Linus, I'm sad to see you give this up, but I think I understand. 
+>>
+>>I'd like to nominate/vote for Alan Cox as your successor.
+> 
+> 
+> IMHO the time of greybeards like Alan has passed.  It's
+> time for dynamic new leadership, unafraid to confront
+> conformancy!  That's why I nominate Rick Hohensee as
+> the new maintainer.  With cLIeNUX [1], he has demonstrated
+> that he can think outside of the box.
+> 
+> Vote Hohensee for Linux Kernel Leader!
+> 
+> - Dan
+> 
+> [1] ftp://linux01.gwdg.de/pub/cLIeNUX/BEGIN_HERE
+> ftp://linux01.gwdg.de/pub/cLIeNUX/descriptive/DSFH.html
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-if (list->qlen <= qdisc->dev->tx_queue_len)
 
-i guess. the attached patch fixes it.
-Bye,
-Patrick
+-- 
+David L. Parsley
+Network Administrator, Roanoke College
+"If I have seen further it is by standing on ye shoulders of Giants."
+--Isaac Newton
 
-
----1463811840-707478154-1017690183=:13230
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="sch_generic.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0204012143030.13230@el-zoido.localnet>
-Content-Description: 
-Content-Disposition: attachment; filename="sch_generic.diff"
-
-ZGlmZiAtdXJOIGxpbnV4LTIuNC4xOC1jbGVhbi9uZXQvc2NoZWQvc2NoX2dl
-bmVyaWMuYyBsaW51eC0yLjQuMTgtc2NoZWRfZml4ZWQvbmV0L3NjaGVkL3Nj
-aF9nZW5lcmljLmMNCi0tLSBsaW51eC0yLjQuMTgtY2xlYW4vbmV0L3NjaGVk
-L3NjaF9nZW5lcmljLmMJRnJpIEF1ZyAxOCAxOToyNjoyNSAyMDAwDQorKysg
-bGludXgtMi40LjE4LXNjaGVkX2ZpeGVkL25ldC9zY2hlZC9zY2hfZ2VuZXJp
-Yy5jCVNhdCBNYXIgMzAgMTE6NDU6NTYgMjAwMg0KQEAgLTI4MCw3ICsyODAs
-NyBAQA0KIAlsaXN0ID0gKChzdHJ1Y3Qgc2tfYnVmZl9oZWFkKilxZGlzYy0+
-ZGF0YSkgKw0KIAkJcHJpbzJiYW5kW3NrYi0+cHJpb3JpdHkmVENfUFJJT19N
-QVhdOw0KIA0KLQlpZiAobGlzdC0+cWxlbiA8PSBza2ItPmRldi0+dHhfcXVl
-dWVfbGVuKSB7DQorCWlmIChsaXN0LT5xbGVuIDw9IHFkaXNjLT5kZXYtPnR4
-X3F1ZXVlX2xlbikgew0KIAkJX19za2JfcXVldWVfdGFpbChsaXN0LCBza2Ip
-Ow0KIAkJcWRpc2MtPnEucWxlbisrOw0KIAkJcmV0dXJuIDA7DQo=
----1463811840-707478154-1017690183=:13230--

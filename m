@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265110AbUF1SDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265108AbUF1SEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265110AbUF1SDz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 14:03:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265108AbUF1SDz
+	id S265108AbUF1SEo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 14:04:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265114AbUF1SEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 14:03:55 -0400
-Received: from zcamail05.zca.compaq.com ([161.114.32.105]:2830 "EHLO
+	Mon, 28 Jun 2004 14:04:44 -0400
+Received: from zcamail05.zca.compaq.com ([161.114.32.105]:23054 "EHLO
 	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
-	id S265110AbUF1SDv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 14:03:51 -0400
-Message-ID: <40E05EC2.20700@hp.com>
-Date: Mon, 28 Jun 2004 14:09:06 -0400
+	id S265108AbUF1SEh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 14:04:37 -0400
+Message-ID: <40E05EF1.2070505@hp.com>
+Date: Mon, 28 Jun 2004 14:09:53 -0400
 From: Robert Picco <Robert.Picco@hp.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] hpet related
+Subject: [PATCH] ia64 kgdb
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,7 +24,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi Andrew:
 
-Some hpet clean up and a fix to the RTC request_irq issue.
+This fixes the broken kgdb patch.
 
 thanks,
 
@@ -32,84 +32,62 @@ Bob
 
 Signed-off-by: Bob Picco at Robert.Picco@hp.com
 
-diff -ruN -X /home/picco/losl/dontdiff linux-2.6.7-mm2-orig/arch/i386/kernel/time_hpet.c linux-2.6.7-mm2-hpet/arch/i386/kernel/time_hpet.c
---- linux-2.6.7-mm2-orig/arch/i386/kernel/time_hpet.c	2004-06-28 13:19:27.000000000 -0400
-+++ linux-2.6.7-mm2-hpet/arch/i386/kernel/time_hpet.c	2004-06-24 07:49:24.000000000 -0400
-@@ -155,9 +155,9 @@
- 		hd.hd_address = hpet_virt_address;
- 		hd.hd_nirqs = ntimer;
- 		hd.hd_flags = HPET_DATA_PLATFORM;
--		HD_STATE(&hd, 0);
-+		hpet_timer_reserved(&hd, 0);
- #ifdef	CONFIG_HPET_EMULATE_RTC
--		HD_STATE(&hd, 1);
-+		hpet_timer_reserved(&hd, 1);
- #endif
- 		hd.hd_irq[0] = HPET_LEGACY_8254;
- 		hd.hd_irq[1] = HPET_LEGACY_RTC;
-diff -ruN -X /home/picco/losl/dontdiff linux-2.6.7-mm2-orig/drivers/char/Kconfig linux-2.6.7-mm2-hpet/drivers/char/Kconfig
---- linux-2.6.7-mm2-orig/drivers/char/Kconfig	2004-06-24 07:41:01.000000000 -0400
-+++ linux-2.6.7-mm2-hpet/drivers/char/Kconfig	2004-06-28 13:20:55.000000000 -0400
-@@ -955,8 +955,8 @@
- 	default n
- 	depends on ACPI
- 	help
--	  If you say Y here, you will have a device named "/dev/hpet/XX" for
--	  each timer supported by the HPET.  The timers are
-+	  If you say Y here, you will have a miscdevice named "/dev/hpet/".  Each
-+	  open selects one of the timers supported by the HPET.  The timers are
- 	  non-periodioc and/or periodic.
+diff -ruN -X /home/picco/losl/dontdiff linux-2.6.7-mm3-orig/drivers/firmware/pcdp.c linux-2.6.7-mm3-kgdb/drivers/firmware/pcdp.c
+--- linux-2.6.7-mm3-orig/drivers/firmware/pcdp.c	2004-06-27 13:32:37.000000000 -0400
++++ linux-2.6.7-mm3-kgdb/drivers/firmware/pcdp.c	2004-06-28 10:16:15.000000000 -0400
+@@ -51,13 +51,20 @@
+ }
  
- config HPET_RTC_IRQ
-diff -ruN -X /home/picco/losl/dontdiff linux-2.6.7-mm2-orig/drivers/char/rtc.c linux-2.6.7-mm2-hpet/drivers/char/rtc.c
---- linux-2.6.7-mm2-orig/drivers/char/rtc.c	2004-06-28 13:19:27.000000000 -0400
-+++ linux-2.6.7-mm2-hpet/drivers/char/rtc.c	2004-06-27 17:28:26.000000000 -0400
-@@ -99,7 +99,6 @@
+ static void __init
++#ifndef	CONFIG_KGDB_EARLY
+ setup_serial_console(int rev, struct pcdp_uart *uart)
++#else
++setup_serial_console(int rev, struct pcdp_uart *uart, int line)
++#endif
+ {
+ #ifdef CONFIG_SERIAL_8250_CONSOLE
+ 	struct uart_port port;
+ 	static char options[16];
  
- #ifdef	CONFIG_HPET_RTC_IRQ
- #undef	RTC_IRQ
--#define	RTC_IRQ	0
- #endif
+ 	memset(&port, 0, sizeof(port));
++#ifdef	CONFIG_KGDB_EARLY
++	port.line = line;
++#endif
+ 	port.uartclk = uart->clock_rate;
+ 	if (!port.uartclk)	/* some FW doesn't supply this */
+ 		port.uartclk = BASE_BAUD * 16;
+@@ -99,6 +106,9 @@
  
- #ifdef RTC_IRQ
-diff -ruN -X /home/picco/losl/dontdiff linux-2.6.7-mm2-orig/include/linux/hpet.h linux-2.6.7-mm2-hpet/include/linux/hpet.h
---- linux-2.6.7-mm2-orig/include/linux/hpet.h	2004-06-28 13:19:27.000000000 -0400
-+++ linux-2.6.7-mm2-hpet/include/linux/hpet.h	2004-06-24 08:52:30.000000000 -0400
-@@ -54,12 +54,6 @@
- #define	HPET_LEG_RT_CNF_MASK		(2UL)
- #define	HPET_ENABLE_CNF_MASK		(1UL)
+ 	snprintf(options, sizeof(options), "%lun%d", uart->baud,
+ 		uart->bits ? uart->bits : 8);
++#ifdef	CONFIG_KGDB_EARLY
++	if (!line)
++#endif
+ 	add_preferred_console("ttyS", port.line, options);
  
--/*
-- * HPET interrupt status register
-- */
--
--#define	HPET_ISR_CLEAR(HPET, TIMER)				\
--		(HPET)->hpet_isr |= (1UL << TIMER)
+ 	printk(KERN_INFO "PCDP: serial console at %s 0x%lx (ttyS%d, options %s)\n",
+@@ -145,10 +155,19 @@
+ 	for (i = 0, uart = pcdp->uart; i < pcdp->num_uarts; i++, uart++) {
+ 		if (uart->flags & PCDP_UART_PRIMARY_CONSOLE || serial) {
+ 			if (uart->type == PCDP_CONSOLE_UART) {
++#ifndef	CONFIG_KGDB_EARLY
+ 				setup_serial_console(pcdp->rev, uart);
+ 				return;
++#else
++				setup_serial_console(pcdp->rev, uart, 0);
++				serial = 0;
++#endif
+ 			}
+ 		}
++#ifdef	CONFIG_KGDB_EARLY
++		else if (uart->type == PCDP_DEBUG_UART)
++				setup_serial_console(pcdp->rev, uart, 1);
++#endif
+ 	}
  
- /*
-  * Timer configuration register
-@@ -115,8 +109,6 @@
- 	void *ht_opaque;
- };
- 
--#define	HD_STATE(HD, TIMER)	(HD)->hd_state |= (1 << TIMER)
--
- struct hpet_data {
- 	unsigned long hd_address;
- 	unsigned short hd_nirqs;
-@@ -127,6 +119,12 @@
- 
- #define	HPET_DATA_PLATFORM	0x0001	/* platform call to hpet_alloc */
- 
-+static inline void hpet_timer_reserved(struct hpet_data *hd, int timer)
-+{
-+	hd->hd_state |= (1 << timer);
-+	return;
-+}
-+
- int hpet_alloc(struct hpet_data *);
- int hpet_register(struct hpet_task *, int);
- int hpet_unregister(struct hpet_task *);
+ 	end = (struct pcdp_device *) ((u8 *) pcdp + pcdp->length);
+
+
 
 
 

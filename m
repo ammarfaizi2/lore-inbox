@@ -1,52 +1,169 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318991AbSHQC2N>; Fri, 16 Aug 2002 22:28:13 -0400
+	id <S319117AbSHQC3J>; Fri, 16 Aug 2002 22:29:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319117AbSHQC2N>; Fri, 16 Aug 2002 22:28:13 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:58351 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S318991AbSHQC2M>;
-	Fri, 16 Aug 2002 22:28:12 -0400
-Date: Fri, 16 Aug 2002 22:32:10 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Larry McVoy <lm@bitmover.com>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: IDE?
-In-Reply-To: <Pine.LNX.4.44.0208161822130.1674-100000@home.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0208162211030.14493-100000@weyl.math.psu.edu>
+	id <S319236AbSHQC3J>; Fri, 16 Aug 2002 22:29:09 -0400
+Received: from imo-r09.mx.aol.com ([152.163.225.105]:19149 "EHLO
+	imo-r09.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S319117AbSHQC3G>; Fri, 16 Aug 2002 22:29:06 -0400
+Message-ID: <3D5D7E50.4030307@netscape.net>
+Date: Fri, 16 Aug 2002 22:36:00 +0000
+From: Adam Belay <ambx1@netscape.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Patrick Mochel <mochel@osdl.org>
+CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.31 driverfs: patch for your consideration
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Mailer: Unknown (No Version)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here's the patch as we discussed.
+
+diff -ur --new-file a/drivers/base/interface.c b/drivers/base/interface.c
+--- a/drivers/base/interface.c    Wed Aug 14 17:09:28 2002
++++ b/drivers/base/interface.c    Fri Aug 16 22:03:18 2002
+@@ -88,8 +88,20 @@
+ static DEVICE_ATTR(power,"power",S_IWUSR | S_IRUGO,
+            device_read_power,device_write_power);
+ 
++
++static ssize_t device_read_driver(struct device * dev, char * buf, 
+size_t count, loff_t off)
++{
++    if (dev->driver)
++        return off ? 0 : sprintf(buf,"%s\n",dev->driver->name);
++    else
++        return 0;
++}
++
++static DEVICE_ATTR(driver,"driver",S_IRUGO,device_read_driver,NULL);
++
+ struct device_attribute * device_default_files[] = {
+     &dev_attr_name,
+     &dev_attr_power,
++    &dev_attr_driver,
+     NULL,
+ };
 
 
-On Fri, 16 Aug 2002, Linus Torvalds wrote:
 
-> Good luck, but I think those init rules etc are really horribly subtle.
 
-They are, but there is a buttload of amazingly convoluted C on top of them.
-And I'd like to shave _that_ off.  After that we'll be left with real
-complexity imposed by hardware - $DEITY witness, there's enough of it to
-make the things nasty; no need to further complicate control flow...
 
-Let me put it another way: I feel that a lot of things can be un-obfuscated
-by pure equivalent transformations that would treat almost all driver as
-block box - making sure that same functions are called with the same
-arguments in the same order and not even thinking about possible
-reordering/changes inside the "payload" part.
+Also if You're interested here's the write support for "driver".
 
-IOW, there is high-level logics that
-	(a) is sufficiently separate from the guts
-	(b) would be worth IOCCC submission if it passed the size limit
-	(c) manages to mask and obfuscate _real_ complexity present in there.
+diff -ur --new-file a/drivers/base/base.h b/drivers/base/base.h
+--- a/drivers/base/base.h    Fri Aug 16 12:20:18 2002
++++ b/drivers/base/base.h    Fri Aug 16 22:17:26 2002
+@@ -26,3 +26,5 @@
+ 
+ extern int driver_attach(struct device_driver * drv);
+ extern void driver_detach(struct device_driver * drv);
++extern int do_driver_detach(struct device * dev, struct device_driver * 
+drv);
++extern int do_driver_attach(struct device * dev, void * data);
+diff -ur --new-file a/drivers/base/core.c b/drivers/base/core.c
+--- a/drivers/base/core.c    Wed Aug 14 17:09:28 2002
++++ b/drivers/base/core.c    Fri Aug 16 22:16:30 2002
+@@ -98,7 +98,7 @@
+ 
+ static void device_detach(struct device * dev)
+ {
+-    struct device_driver * drv;
++    struct device_driver * drv;
+ 
+     if (dev->driver) {
+         lock_device(dev);
+@@ -117,7 +117,7 @@
+     }
+ }
+ 
+-static int do_driver_attach(struct device * dev, void * data)
++int do_driver_attach(struct device * dev, void * data)
+ {
+     struct device_driver * drv = (struct device_driver *)data;
+     int error = 0;
+@@ -134,7 +134,7 @@
+     return bus_for_each_dev(drv->bus,drv,do_driver_attach);
+ }
+ 
+-static int do_driver_detach(struct device * dev, struct device_driver * 
+drv)
++int do_driver_detach(struct device * dev, struct device_driver * drv)
+ {
+     lock_device(dev);
+     if (dev->driver == drv) {
+diff -ur --new-file a/drivers/base/interface.c b/drivers/base/interface.c
+--- a/drivers/base/interface.c    Fri Aug 16 22:06:41 2002
++++ b/drivers/base/interface.c    Fri Aug 16 22:15:29 2002
+@@ -8,6 +8,7 @@
+ #include <linux/device.h>
+ #include <linux/err.h>
+ #include <linux/stat.h>
++#include "base.h"
+ 
+ static ssize_t device_read_name(struct device * dev, char * buf, size_t 
+count, loff_t off)
+ {
+@@ -97,7 +98,44 @@
+         return 0;
+ }
+ 
+-static DEVICE_ATTR(driver,"driver",S_IRUGO,device_read_driver,NULL);
++struct device_driver * find_driver_by_name(struct bus_type * bus, char 
+* name)
++{
++    struct list_head * pos;
++    struct device_driver * drv;
++    list_for_each (pos, &bus->drivers)
++    {
++        drv = list_entry(pos, struct device_driver, bus_list);
++        if (!strncmp(drv->name,name,strlen(name) - 1))
++            return drv;
++
++    }
++    return NULL;
++
++}
++
++static ssize_t device_write_driver(struct device * dev, char * buf, 
+size_t count, loff_t off)
++{
++    struct device_driver * drv = NULL;
++    int error = 0;
++    if (off)
++        return 0;
++    if (!dev->bus)
++        return count;
++    if (!dev->driver)
++    {
++        drv = find_driver_by_name(dev->bus, buf);
++        if (drv)
++            error = do_driver_attach(dev,drv);
++
++    } else if (!strnicmp(buf,"remove",6))
++    {
++        error = do_driver_detach(dev, dev->driver);
++    }
++    return error < 0 ? error : count;
++}
++
++static DEVICE_ATTR(driver,"driver",S_IWUSR | S_IRUGO,
++           device_read_driver,device_write_driver);
+ 
+ struct device_attribute * device_default_files[] = {
+     &dev_attr_name,
 
-And yes, I'd like that to be gone.  After that... at the very least we will
-see what's really going on in there.  I'm rather sceptical about IDE-TNG -
-grand rewrites _might_ be necessary at some point, but right now the mess
-in the interfaces and in the way top-level code is organized is the worst
-problem.  Any work with real guts of the driver is complicated by that and
-IMO any decisions on what to do with the guts should wait until we _see_
-said guts.
+
+
+I look forward to hearing from you.
+
+Thanks,
+Adam
+
+PS:   Would you be interested in a patch that would port the pnpbios 
+driver to the driver model?
 

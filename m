@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288354AbSAHVRG>; Tue, 8 Jan 2002 16:17:06 -0500
+	id <S288377AbSAHVT0>; Tue, 8 Jan 2002 16:19:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288351AbSAHVQ4>; Tue, 8 Jan 2002 16:16:56 -0500
-Received: from zero.tech9.net ([209.61.188.187]:37384 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S288333AbSAHVQl>;
-	Tue, 8 Jan 2002 16:16:41 -0500
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-From: Robert Love <rml@tech9.net>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Andrew Morton <akpm@zip.com.au>, Anton Blanchard <anton@samba.org>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Luigi Genoni <kernel@Expansa.sns.it>,
-        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16O3L5-0000B8-00@starship.berlin>
-In-Reply-To: <20020108030420Z287595-13997+1799@vger.kernel.org>
-	<E16Nxjg-00009W-00@starship.berlin> <3C3B4CB7.FEAAF5FC@zip.com.au> 
-	<E16O3L5-0000B8-00@starship.berlin>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
-Date: 08 Jan 2002 16:17:32 -0500
-Message-Id: <1010524653.3225.109.camel@phantasy>
-Mime-Version: 1.0
+	id <S288372AbSAHVTR>; Tue, 8 Jan 2002 16:19:17 -0500
+Received: from blackhole.compendium-tech.com ([64.156.208.74]:17307 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S288364AbSAHVSn>; Tue, 8 Jan 2002 16:18:43 -0500
+Date: Tue, 8 Jan 2002 13:18:40 -0800 (PST)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+X-X-Sender: <kernel@sol.compendium-tech.com>
+To: matthew david reuther <mreuther@engin.umich.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help
+In-Reply-To: <200112220839.DAA15715@alumni.engin.umich.edu>
+Message-ID: <Pine.LNX.4.33.0201081316210.23436-100000@sol.compendium-tech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-01-08 at 15:59, Daniel Phillips wrote:
+On Sat, 22 Dec 2001, matthew david reuther wrote:
 
-> And while I'm enumerating differences, the preemptable kernel (in this 
-> incarnation) has a slight per-spinlock cost, while the non-preemptable kernel 
-> has the fixed cost of checking for rescheduling, at intervals throughout all 
-> 'interesting' kernel code, essentially all long-running loops.  But by clever 
-> coding it's possible to finesse away almost all the overhead of those loop 
-> checks, so in the end, the non-preemptible low-latency patch has a slight 
-> efficiency advantage here, with emphasis on 'slight'.
+> I guess the reason these feel more "natural" to some people, is because
+> they relate to our bodies, just like the inch, foot, hand, and cubit. It
+> still doesn't explain things like pounds, but that's probably related to
+> agriculture somehow.
 
-True (re spinlock weight in preemptible kernel) but how is that not
-comparable to explicit scheduling points?  Worse, the preempt-kernel
-typically does its preemption on a branch on return to interrupt
-(similar to user space's preemption).  What better time to check and
-reschedule if needed?
+a pound is the weight of one pint of water (one gallon = 7.8 lbs, roughly)
+there are two pints in a quart, and four quarts to a gallon. therefore, a 
+pint is 1/8 gallon, and very close to one pound.
 
-	Robert Love
+ Kelsey Hudson                                           khudson@ctica.com 
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------     
 

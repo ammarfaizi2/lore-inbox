@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287283AbSAUQHh>; Mon, 21 Jan 2002 11:07:37 -0500
+	id <S287254AbSAUQL2>; Mon, 21 Jan 2002 11:11:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287276AbSAUQHR>; Mon, 21 Jan 2002 11:07:17 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:12554 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S287254AbSAUQHG>;
-	Mon, 21 Jan 2002 11:07:06 -0500
-Date: Mon, 21 Jan 2002 09:06:02 -0700
-From: yodaiken@fsmlabs.com
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: yodaiken@fsmlabs.com, george anzinger <george@mvista.com>,
-        Momchil Velikov <velco@fadata.bg>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020121090602.A13715@hq.fsmlabs.com>
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <E16SgXE-0001i8-00@starship.berlin> <20020121084344.A13455@hq.fsmlabs.com> <E16SgwP-0001iN-00@starship.berlin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E16SgwP-0001iN-00@starship.berlin>; from phillips@bonn-fries.net on Mon, Jan 21, 2002 at 05:05:01PM +0100
-Organization: FSM Labs
+	id <S287276AbSAUQLR>; Mon, 21 Jan 2002 11:11:17 -0500
+Received: from dsl-213-023-039-080.arcor-ip.net ([213.23.39.80]:25993 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S287254AbSAUQLI>;
+	Mon, 21 Jan 2002 11:11:08 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Why not "attach" patches?
+Date: Mon, 21 Jan 2002 17:15:05 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16QZFv-0005wy-00@the-village.bc.nu>
+In-Reply-To: <E16QZFv-0005wy-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Sh69-0001iV-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 21, 2002 at 05:05:01PM +0100, Daniel Phillips wrote:
-> > I think of "benefit", perhaps naiively, in terms of something that can
-> > be measured or demonstrated rather than just announced.
+On January 15, 2002 08:28 pm, Alan Cox wrote:
+> > all tools will see as a normal body), I simply WILL NOT apply it unless
+> > I have strong reason to. I usually wont even bother looking at it,
+> > unless I expected something special from the sender.
+> > 
+> > Really. Don't send patches as attachments. 
 > 
-> But you see why asap scheduling improves latency/throughput *in theory*, 
+> BTW: If you are sending me anything DO use attachments. Especially if you
+> use any of the following, which seem to have some versions that mangle 
+> inline diffs
+> 
+> 	Lotus Notes
+> 	Pine
+> 	Kmail
+> [...]
 
-Nope. And I don't even see a relationship between preemption and asap I/O
-schedulding. What make you think that I/O threads won't be preempted by
-other threads?
+Kmail's patch-mangling problems seem to be all gone in kmail 2.2+.  The only 
+thing to be careful about is that word wrap should be off.  Since I forgot to 
+turn it off a couple of times I now leave it permanently off and turn it on 
+for individual mails as needed.
 
-> don't you?  As for the measured benefit, there have been a steady stream of 
-> postive reports on lkml. 
-
-I have not seen a single well structured benchmark that shows a significant
-difference. I've seen lots of benchmarks with odd mixes of different patches
-showing something unknown. How about a simple clear dbench?
-
->My own experience is that the usability of my 
-> laptop with its small memory is much improved under heavy IO load.
-
-No comment.
-
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
-
+--
+Daniel

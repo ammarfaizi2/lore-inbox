@@ -1,112 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129392AbQLFV1X>; Wed, 6 Dec 2000 16:27:23 -0500
+	id <S129627AbQLFV3h>; Wed, 6 Dec 2000 16:29:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129627AbQLFV1H>; Wed, 6 Dec 2000 16:27:07 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:60166 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S129410AbQLFV05>; Wed, 6 Dec 2000 16:26:57 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Brian Kress <kressb@fsc-usa.com>
-Date: Thu, 7 Dec 2000 07:54:45 +1100 (EST)
+	id <S130063AbQLFV31>; Wed, 6 Dec 2000 16:29:27 -0500
+Received: from grace.speakeasy.org ([216.254.0.2]:62735 "HELO
+	grace.speakeasy.org") by vger.kernel.org with SMTP
+	id <S129627AbQLFV3N>; Wed, 6 Dec 2000 16:29:13 -0500
+Date: Wed, 6 Dec 2000 15:59:21 -0500 (EST)
+From: Pavel Roskin <proski@gnu.org>
+To: Pete Zaitcev <zaitcev@metabyte.com>
+cc: <linux-kernel@vger.kernel.org>, Jaroslav Kysela <perex@suse.cz>
+Subject: Re: YMF PCI - thanks, glitches, patches (fwd)
+In-Reply-To: <Pine.LNX.4.30.0012061423450.3758-101000@fonzie.nine.com>
+Message-ID: <Pine.LNX.4.30.0012061539070.2504-100000@fonzie.nine.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14894.42901.943835.494412@notabene.cse.unsw.edu.au>
-Cc: Peter Samuelson <peter@cadcamlab.org>,
-        Roberto Ragusa <robertoragusa@technologist.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: kernel panic in SoftwareRAID autodetection
-In-Reply-To: message from Brian Kress on Wednesday December 6
-In-Reply-To: <14893.25967.936504.881427@notabene.cse.unsw.edu.au>
-	<yam8375.1358.149393648@a4000>
-	<20001205183657.J6567@cadcamlab.org>
-	<3A2E3C39.B96B9516@fsc-usa.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday December 6, kressb@fsc-usa.com wrote:
-> Peter Samuelson wrote:
-> > 
-> > [Roberto Ragusa]
-> > > BTW, here is a little patch regarding a silly problem I found
-> > > about RAID partitions naming (/proc/partitions).
-> > > No more "md8" "md9" "md:" "md;" ... but "md8" "md9" "md10" "md11" ...
-> > > Well, this patch should work up to "md99".
-> > 
-> > This stuff *really* should be split out into the drivers.  Brian Kress
-> > had a patch against test11 for this.  Brian?  You want to fold in this
-> > fix?
-> 
-> 	Sure.  I got resounding silence to posting the patch last time,
-> so I'm not sure if anyone actually wants this patch, but here it is 
-> again with this fix (the non ugly version) folded in.
-> 
+> > Ioctl 0x5401 is a mystery. I do not know what it is
+> > (looks like SNDCTL_TMR_TIMEBASE without uppper bits).
+>
+> It is caused by an attempt to play at 5512 Hz. In fact, this time (I've
 
-Have you ever noticed that bad patches get a lot more response than
-good patches?  I think people like having something useful to say and
-a simple "I like it" often doesn't seem worth it, though in reality is
-very valuable.
+I was wrong. It happens for all sounds when sox calls
 
-Mayge the thing to do is include a few obvious but not very
-significant errors like:
-  - initialise a static variable to 0
-  - use /** to introduce a comment that isn't in the right format for
-    the auto-documentation stuff
-  - uses lines wider than 80 characters
-  - use unnecessary extra parentheses 
-  - use non-standard indenting
+setvbuf (ft->fp,NULL,_IOFBF,sizeof(char)*BUFSIZ)
 
-that way people will respond because they think they have something to
-say, and will hopefully comment further... :-)
+Ioctl 0x5401 is not a mystery. It's TCGETS (see
+include/asm-i386/ioctls.h). Other drivers (sb_mixer.c) return -EINVAL
+silently while ymfpci.c returns -ENOTTY and writes to the log.
 
-But I see that you have done that .... a simple compiler error (I
-think).
+> upgraded to test12-pre6 in the meantime) it hung very badly, so that even
+> "kill -KILL" doesn't help:
 
-> diff -u --recursive linux-2.4.0-test11/fs/partitions/check.c
-> linux-2.4.0-test11-ppfix/fs/partitions/check.c
-> --- linux-2.4.0-test11/fs/partitions/check.c	Mon Nov 20 15:17:27 2000
-> +++ linux-2.4.0-test11-ppfix/fs/partitions/check.c	Thu Nov 23 14:30:45
-> 2000
-> @@ -83,11 +83,10 @@
->   */
->  char *disk_name (struct gendisk *hd, int minor, char *buf)
->  {
-> -	unsigned int part;
->  	const char *maj = hd->major_name;
->  	int unit = (minor >> hd->minor_shift) + 'a';
-> +	unsigned int part = minor & ((1 << hd->minor_shift) - 1);
->  
-> -	part = minor & ((1 << hd->minor_shift) - 1);
+This problem is also fixed by my patch.
 
-here we have lost the "part" automatic variable in disk_name but ....
+_____________________
+--- ymfpci.c	Wed Dec  6 11:19:15 2000
++++ ymfpci.c	Wed Dec  6 15:50:46 2000
+@@ -1867,18 +1867,12 @@
+ 	case SNDCTL_DSP_SETSYNCRO:
+ 	case SOUND_PCM_WRITE_FILTER:
+ 	case SOUND_PCM_READ_FILTER:
+-		return -ENOTTY;
++		printk("ymfpci: ioctl cmd 0x%x\n not yet supported", cmd);
++		return -EINVAL;
 
-(stuff deleted)
-> - 		else
-> - 			sprintf(buf, "%s/c%dd%dp%d", maj, ctlr, disk, part);
-> - 		return buf;
-> - 	}
-> +	if (hd->hd_name) return hd->hd_name(hd, minor, buf);
-> +
->  	if (part)
->  		sprintf(buf, "%s%c%d", maj, unit, part);
+ 	default:
+-	/* P3 */ printk("ymfpci: ioctl cmd 0x%x\n", cmd);
+-		/*
+-		 * Some programs mix up audio devices and ioctls
+-		 * or perhaps they expect "universal" ioctls,
+-		 * for instance we get SNDCTL_TMR_CONTINUE here.
+-		 * XXX Is there sound_generic_ioctl() around?
+-		 */
++		return -EINVAL;
+ 	}
+-	return -ENOTTY;
+ }
 
-here we use it.  Does this compile?
+ static int ymf_open(struct inode *inode, struct file *file)
+_____________________
 
-But apart from this, I like it, and I think that it would be good if
-it went into 2.4.  
+> Maybe it explains why I'll have to reboot now to kill that "sox" :-/
 
-Maybe do one more iteration (or convince me that the above isn't a
-bug), and ask for comment.  I promise to test and respond.
-Then send it to Linus, and explain what it does, and mention that it
-fixes a real issue in lvm (I assume it does as someone said so. I
-haven't actually looked into that) and leave it to him.
+Nope :-)
 
-NeilBrown
+Regards,
+Pavel Roskin
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

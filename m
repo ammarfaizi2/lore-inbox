@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132362AbQKZQ5c>; Sun, 26 Nov 2000 11:57:32 -0500
+        id <S132375AbQKZRAM>; Sun, 26 Nov 2000 12:00:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132375AbQKZQ5X>; Sun, 26 Nov 2000 11:57:23 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:24439 "EHLO
-        penguin.e-mind.com") by vger.kernel.org with ESMTP
-        id <S132362AbQKZQ5J>; Sun, 26 Nov 2000 11:57:09 -0500
-Date: Sun, 26 Nov 2000 17:26:58 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: kernel_thread bogosity
-Message-ID: <20001126172658.A5636@athlon.random>
-In-Reply-To: <20001123232333.A6426@bug.ucw.cz> <20001124014830.I1461@athlon.random> <20001124205247.A141@bug.ucw.cz>
-Mime-Version: 1.0
+        id <S132436AbQKZRAC>; Sun, 26 Nov 2000 12:00:02 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:40645 "EHLO
+        smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+        id <S132375AbQKZQ7n>; Sun, 26 Nov 2000 11:59:43 -0500
+To: buhr@stat.wisc.edu (Kevin Buhr)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test5 bug: invalid "shmid_kernel" passed to "shm_nopage_core"
+In-Reply-To: <vbaaeapf4ti.fsf@mozart.stat.wisc.edu>
+        <m3g0kggydi.fsf@linux.local> <vbay9y7dxgr.fsf@mozart.stat.wisc.edu>
+From: Christoph Rohland <cr@sap.com>
+Date: 26 Nov 2000 11:41:21 +0100
+In-Reply-To: buhr@stat.wisc.edu's message of "26 Nov 2000 01:05:56 -0600"
+Message-ID: <m37l5rggmm.fsf@linux.local>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Capitol Reef)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20001124205247.A141@bug.ucw.cz>; from pavel@suse.cz on Fri, Nov 24, 2000 at 08:52:47PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 24, 2000 at 08:52:47PM +0100, Pavel Machek wrote:
-> How can that work? restore_args ends with iret, anyway, and iret does
-> reload esp afaics...
+Hi Kevin,
 
-... only if there's an IPL change during the iret. Page 3-321 of 24319102.pdf
-from Intel:
+buhr@stat.wisc.edu (Kevin Buhr) writes:
 
-	[..] If the return is to another privilege level, the IRET instruction
-	also pops the stack pointer and SS from the stack, before resuming
-	program execution. [..]
+> I know no way to reproduce it.  I've been using "test5" reliably since
+> just after its release, and I've triggered this bug only the one time.
 
-Andrea
+That's what I feared :-(
+
+> I use a SysReq patch to do an oops-style dump instead of the usual
+> "showPc" function, so I was able to copy a stack dump down.
+
+Could you send me the patch? Does it do the dump on all cpus?
+
+> I'll fiddle around a bit more and see if I can find a way to reproduce
+> it reliably.
+
+I would be happy to help debug the shm code if you find a way to
+reproduce it. 
+
+        Christoph
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

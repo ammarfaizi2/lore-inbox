@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266344AbUIWQDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266319AbUIWQHt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266344AbUIWQDv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 12:03:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266319AbUIWQDv
+	id S266319AbUIWQHt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 12:07:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266364AbUIWQHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 12:03:51 -0400
-Received: from denise.shiny.it ([194.20.232.1]:968 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id S266344AbUIWQDY (ORCPT
+	Thu, 23 Sep 2004 12:07:48 -0400
+Received: from mail-3-bnl.tiscali.it ([213.205.33.223]:32859 "EHLO
+	mail-3-bnl.tiscali.it") by vger.kernel.org with ESMTP
+	id S266319AbUIWQDw convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 12:03:24 -0400
-Date: Thu, 23 Sep 2004 18:03:18 +0200 (CEST)
-From: Giuliano Pochini <pochini@denise.shiny.it>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: linux-kernel@vger.kernel.org, arjanv@redhat.com
-Subject: Re: [arjanv@redhat.com: Re: [PATCH] shrink per_cpu_pages to fit
- 32byte cacheline]
-In-Reply-To: <20040923141157.GA12367@logos.cnet>
-Message-ID: <Pine.LNX.4.58.0409231755150.32673@denise.shiny.it>
-References: <20040923141157.GA12367@logos.cnet>
+	Thu, 23 Sep 2004 12:03:52 -0400
+Date: Thu, 23 Sep 2004 18:03:23 +0200
+Message-ID: <4152E6450000003B@mail-3-bnl.tiscali.it>
+In-Reply-To: <20040922214304.GS16153@parcelfarce.linux.theplanet.co.uk>
+From: "Joel Soete" <soete.joel@tiscali.be>
+Subject: RE: [parisc-linux] [PATCH] Sort generic PCI fixups after specific ones
+To: "Matthew Wilcox" <matthew@wil.cx>, "Linus Torvalds" <torvalds@osdl.org>,
+       "Andrew Morton" <akpm@zip.com.au>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       parisc-linux@parisc-linux.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="ISO-8859-15"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> -- Original Message --
+> Date: Wed, 22 Sep 2004 22:43:04 +0100
+> From: Matthew Wilcox <matthew@wil.cx>
+> To: Linus Torvalds <torvalds@osdl.org>,
+> 	Andrew Morton <akpm@zip.com.au>
+> Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+> 	parisc-linux@parisc-linux.org
+> Subject: [parisc-linux] [PATCH] Sort generic PCI fixups after specific
+ones
+> 
+> 
+> 
+> The recent change that allowed PCI fixups to be declared everywhere
+> broke IDE on PA-RISC by making the generic IDE fixup be applied before
+> the PA-RISC specific one.  This patch fixes that by sorting generic fixups
+> after the specific ones.  It also obeys the 80-column limit and reduces
+> the amount of grotty macro code.
+> 
+> I'd like to thank Joel Soete for his work tracking down the source of
+> this problem.
+>
+Thanks (but too much honor)
 
-On Thu, 23 Sep 2004, Marcelo Tosatti wrote:
+That said, I apply your patch against 2.6.9-rc2-pa7 and it boot fine :)
 
-> Forgot to CC linux-kernel, just in case someone else
-> can have useful information on this matter.
->
-> Andi says any additional overhead will be in the noise
-> compared to cacheline saving benefit.
->
-> ***********
->
-> Within the Linux kernel we can benefit from changing some fields
-> of commonly accessed data structures to 16 bit instead of 32 bits,
-> given that the values for these fields never reach 2 ^ 16.
->
-> Arjan warned me, however, that the prefix (in this case "data16") will
-> cause an additional extra cycle in instruction decoding, per message above.
->
-> Can you confirm that please? We can't seem to be able to find
-> it in Intel's documentation.
->
-> By shrinking two fields of "per_cpu_pages" structure we can fit it
-> in one 32-byte cacheline (<= Pentium III and probably several other
-> embedded/whatnot architectures will benefit from such a change).
-
-One cycle is a small overhead compared to the cost of a fetch from L2
-cache or, even worse, a cache miss. Memory is terribly slow. I think that
-nowadays we should design things trying to keep memory accesses as few as
-possible.
+Thanks a lot for great job,
+Joel
 
 
---
-Giuliano.
+---------------------------------------------------------------------------
+Tiscali ADSL GO, 29,50 Euro/mois pendant toute une année, profitez-en...
+http://reg.tiscali.be/adsl/welcome.asp?lg=FR
+
+
+
+

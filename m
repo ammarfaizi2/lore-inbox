@@ -1,50 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263284AbUCNEe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 23:34:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263285AbUCNEe0
+	id S263111AbUCNEja (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 23:39:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263279AbUCNEja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 23:34:26 -0500
-Received: from holomorphy.com ([207.189.100.168]:14604 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263100AbUCNEeY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 23:34:24 -0500
-Date: Sat, 13 Mar 2004 20:34:20 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.3-mm4 scsi_delete_timer() oops
-Message-ID: <20040314043420.GL655@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	James Bottomley <James.Bottomley@steeleye.com>,
-	SCSI Mailing List <linux-scsi@vger.kernel.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20040314041047.GK655@holomorphy.com> <1079238471.1759.74.camel@mulgrave>
+	Sat, 13 Mar 2004 23:39:30 -0500
+Received: from [213.227.237.65] ([213.227.237.65]:3712 "EHLO
+	berloga.shadowland") by vger.kernel.org with ESMTP id S263111AbUCNEj1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 23:39:27 -0500
+Subject: Re: possible kernel bug in signal transit.
+From: Alex Lyashkov <shadow@psoft.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040313171856.37b32e52.akpm@osdl.org>
+References: <1079197336.13835.15.camel@berloga.shadowland>
+	 <20040313171856.37b32e52.akpm@osdl.org>
+Content-Type: text/plain; charset=KOI8-R
+Content-Transfer-Encoding: 8BIT
+Organization: PSoft
+Message-Id: <1079239159.8186.24.camel@berloga.shadowland>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1079238471.1759.74.camel@mulgrave>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Sun, 14 Mar 2004 06:39:19 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-03-13 at 23:10, William Lee Irwin III wrote:
->> Mar 13 19:41:59 holomorphy kernel: EIP:    0060:[<00000000>]    Not tainted VLI
-> [...]
->> Mar 13 19:41:59 holomorphy kernel:  [<c0358076>] scsi_delete_timer+0x16/0x30
->> Mar 13 19:41:59 holomorphy kernel:  [<c0373de9>] ahc_linux_run_complete_queue+0x69/0xd0
+В Вск, 14.03.2004, в 03:18, Andrew Morton пишет:
+> Alex Lyashkov <shadow@psoft.net> wrote:
+> >
+> > Hello All
+> > 
+> > I analyze kernel vanila 2.6.4 and found one possible bug in
+> > __kill_pg_info function.
+> > 
+> >         for_each_task_pid(pgrp, PIDTYPE_PGID, p, l, pid) {
+> >                 err = group_send_sig_info(sig, info, p);
+> >                 if (retval)
+> >                         retval = err;
+> >         }
+> > but I think if (retval) is incorrect check. possible this cycle must be
+> >         for_each_task_pid(pgrp, PIDTYPE_PGID, p, l, pid) {
+> >                 err = group_send_sig_info(sig, info, p);
+> >                 if (ret) {
+> >                         retval = err;
+> > 			break;
+> > 		}
+> >         }
+> > because in original variant me assign to retval only first value from
+> > ret and other be ignored if this value be 0.
+> > 
+> 
+> No, the code's OK, albeit undesirably obscure.  It will return -ESRCH if
+> none of the tasks had a matching pgrp and will return the result of the
+> final non-zero-returning group_send_sig_info() if one or more of the
+> group_send_sig_info() calls failed, and will return zero if all of the
+> group_send_sig_info() calls returned zero.
+> 
+> Thanks for checking though..
+No. it can`t return final non-zero-returning group_send_sig_info() if
+first call group_send_sig_info return 0.
+Example me have 3 groups it will return
+1 - zero
+2 - nonzero (example -1)
+3 - nonzero (example -2)
+original code will return zero.
+but you say it will return last non zero - "-2" in example.
+(do only first assignment after it retval is zero and no assignments
+does.)
+For her logic me can write.
+=====
+	int retval = 0;
+	int err = -1;
+        for_each_task_pid(pgrp, PIDTYPE_PGID, p, l, pid) {
+                 err = group_send_sig_info(sig, info, p);
+		if( err )
+			retval = err;
 
-On Sat, Mar 13, 2004 at 11:27:50PM -0500, James Bottomley wrote:
-> This trace doesn't make sense to me.  A null EIP usually indicates
-> jumping through a NULL function pointer.  There are no fptr derefs in
-> scsi_delete_timer.  Also ahc_linux_run_complete_queue doesn't call
-> scsi_delete_timer.
-> Could you try to reproduce and get a more meaningful backtrace?
-
-I'm pretty stumped as to what's going on with this. The stack is
-moderately deep. It's also possible a fair fraction of the stuff is
-garbage off the end of the stack and the real leaf routine is buried.
+         }
+	return err==-1 ? -ESRCH : retval;
+===
+If me not enter to this cycle - retval = -ESRCH, and last non zero err
+if cycle is worked or zero if all group_send_sig_info() return zero.
 
 
--- wli
+-- 
+Alex Lyashkov <shadow@psoft.net>
+PSoft

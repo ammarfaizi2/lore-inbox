@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261553AbTIXRih (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Sep 2003 13:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbTIXRih
+	id S261566AbTIXRco (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Sep 2003 13:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbTIXRco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Sep 2003 13:38:37 -0400
-Received: from jstevenson.plus.com ([212.159.71.212]:61109 "EHLO
-	alpha.stev.org") by vger.kernel.org with ESMTP id S261553AbTIXRig
+	Wed, 24 Sep 2003 13:32:44 -0400
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:12833 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S261566AbTIXRcn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Sep 2003 13:38:36 -0400
-Date: Wed, 24 Sep 2003 18:40:21 +0100 (IST)
-From: James Stevenson <james@stev.org>
-To: John Bradford <john@grabjohn.com>
-cc: david.lang@digitalinsight.com, <andrea@suse.de>,
-       <linux-kernel@vger.kernel.org>, <rjohnson@analogic.com>
-Subject: Re: Horiffic SPAM
-In-Reply-To: <200309241645.h8OGjS9i000412@81-2-122-30.bradfords.org.uk>
-Message-ID: <Pine.LNX.4.44.0309241838360.8056-100000@god.stev.org>
+	Wed, 24 Sep 2003 13:32:43 -0400
+From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Message-Id: <200309241732.h8OHWj05015957@green.mif.pg.gda.pl>
+Subject: Re: Minimizing the Kernel
+To: linux-kernel@vger.kernel.org (kernel list)
+Date: Wed, 24 Sep 2003 19:32:45 +0200 (CEST)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> A lot of the simple SMTP engines embedded in viruses _don't_ retry on
-> 4xx error codes.  Real SMTP engines do.
-> 
-> That flaw is what we are taking advantage of, to filter out the junk.
-> 
-> I.E. we tell everybody 'come back later'.  Genuine mail does, whilst
-> junk mail often doesn't bother.
+> > Well for starters dont use gcc 3 or above.. code size has increased
+> > dramatically with thoose versions. sure they give you more optimization
+> Hmm, has anyone tried -Os with gcc3+ ?
+> Maybe that'd be good for size optimization?
 
-This also seems to work with most spammer systems.
-But its hard to tell which connections to refuse and
-which to accept.
+AFAIK, the -Os optimization in gcc3 gives you larger binary than -Os in
+gcc2.
 
-I have had a situation where the connection to the
-internet has failed on either the mail server or
-its backup relay and amount of spam that day for all users
-is greatly reduced.
-
-	James
-
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Gdansk University of Technology

@@ -1,31 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272549AbRJCJyY>; Wed, 3 Oct 2001 05:54:24 -0400
+	id <S272620AbRJCKTv>; Wed, 3 Oct 2001 06:19:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272559AbRJCJyO>; Wed, 3 Oct 2001 05:54:14 -0400
-Received: from eispost12.serverdienst.de ([212.168.16.111]:26119 "EHLO imail")
-	by vger.kernel.org with ESMTP id <S272549AbRJCJyA>;
-	Wed, 3 Oct 2001 05:54:00 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Robert Szentmihalyi <robert.szentmihalyi@entracom.de>
+	id <S272592AbRJCKTm>; Wed, 3 Oct 2001 06:19:42 -0400
+Received: from s2.relay.oleane.net ([195.25.12.49]:18436 "HELO
+	s2.relay.oleane.net") by vger.kernel.org with SMTP
+	id <S272576AbRJCKTd>; Wed, 3 Oct 2001 06:19:33 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Which is currently the most stable 2.4 kernel?
-Date: Wed, 3 Oct 2001 11:54:09 +0200
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <E15oYGS-0006Dq-00@the-village.bc.nu>
-In-Reply-To: <E15oYGS-0006Dq-00@the-village.bc.nu>
-Cc: Samium Gromoff <_deepfire@mail.ru>, linux-kernel@vger.kernel.org
+Cc: James Simmons <jsimmons@transvirtual.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: Huge console switching lags
+Date: Wed, 3 Oct 2001 12:19:44 +0200
+Message-Id: <20011003101944.29249@smtp.adsl.oleane.com>
+In-Reply-To: <E15oYUA-0006HG-00@the-village.bc.nu>
+In-Reply-To: <E15oYUA-0006HG-00@the-village.bc.nu>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200110031201906.SM00085@there>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Can you describe, or point to a description of your tests?
+>>    The software accel functions needed by the console layer (copyarea,
+>> fillrect, and drawimage) have been already written. Okay the drawimage one
+>> needs alot of work. I haven't benchmarked the new code versus the current
 >
-> Cerberus is the main one I run. It provides suprisingly effective
-> testing for load triggered bugs
+>On x86 they'll probably make no difference at all, unless the old code
+>is really really crap. Your bottleneck is the PCI bus. All you can do is
+>avoid reads.
 
-Samium Gromoff said he ran Cerberus over 2.4.10 and it did quite 
-well
+Well, there are indeed a few improvements to get with machine specific
+optimisations on unaccelerated framebuffer.
+
+One example is, on PPC, the use of a floating point register to do the
+blits 64 bits at a time. This allow the PCI host controller to generate
+bursts of 2 32 bits transactions (for machines with controllers unable
+to write combine). Of course, having such optimisations in the kernel
+is tricky because of the lazy FPU switching (well, at least on PPC),
+but the point is that improvement _is_ possible.
+
+Regards,
+Ben.
 

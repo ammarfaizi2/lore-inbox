@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261958AbVBPIf6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbVBPIf0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261958AbVBPIf6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 03:35:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbVBPIf6
+	id S261912AbVBPIf0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 03:35:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVBPIf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 03:35:58 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38366 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261958AbVBPIfv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 03:35:51 -0500
-Date: Wed, 16 Feb 2005 08:35:50 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Alexey Dobriyan <adobriyan@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] procfs: Fix sparse warnings
-Message-ID: <20050216083550.GO8859@parcelfarce.linux.theplanet.co.uk>
-References: <200502151455.55711.adobriyan@mail.ru> <20050215115934.GK8859@parcelfarce.linux.theplanet.co.uk> <200502151512.37774.adobriyan@mail.ru> <20050215192618.GL8859@parcelfarce.linux.theplanet.co.uk>
+	Wed, 16 Feb 2005 03:35:26 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:2790 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261912AbVBPIfW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 03:35:22 -0500
+Date: Wed, 16 Feb 2005 09:35:49 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: InputML <linux-input@atrey.karlin.mff.cuni.cz>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RCF/RFT] Fix race timer race in gameport-based joystick drivers
+Message-ID: <20050216083549.GD1535@ucw.cz>
+References: <200502150042.32564.dtor_core@ameritech.net> <d120d500050215065115706773@mail.gmail.com> <20050215150606.GA8560@ucw.cz> <200502160046.00311.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050215192618.GL8859@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200502160046.00311.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 15, 2005 at 07:26:18PM +0000, Al Viro wrote:
-> Umm...  Let's do it that way: I'll get carving the sucker up to relatively
-> sane point and post it again (-bird, that is).  Give me until tomorrow
-> morning and then feel free to send stuff my way - I'll merge it and feed
-> upstream when 2.6.11 opens (credited, obviously).
+On Wed, Feb 16, 2005 at 12:45:59AM -0500, Dmitry Torokhov wrote:
+> Somehow missed sidewinder driver...
+> 
+> ======================================================================
+> 
+> Input: fix timer handling race in sidewinder joystick driver by
+>        switching to gameport's polling facilities.
+> 
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
-Gaack...  My apologies - I've seriously underestimated the amount of RL
-crap, so no, it won't be ready today.  I'll try to do that ASAP, but I can't
-make a good estimate of how much I'll be able to do during the next week.
-Crap...
+Thanks; applied.
 
-OK, let's do it that way - send the stuff my way, I'll port it if needed
-and if there are duplicates, your patches win.  FWIW, stuff in fs/* is
-	* a bunch of patches in fs/reiserfs/* (carved up, see R[0-4]-* on
-ftp.linux.org.uk/pub/people/viro)
-	* nfs, nfsd, lockd and net/sunrpc along with them (not carved up
-into sane form and that will be needed to even start talking about merge)
-	* compat_ioctl.c (part of i2c annotations)
-	* fs/hostfs/* (part of UML patches, so that'll a part of further split
-once the things stabilize a bit)
-	* couple of trivial ones - procfs (duplicate of your patch) and
-ncpfs (ncp_request_reply.sign made be32[6])
-	* include-ectomy in a lot of places, but that's not likely to clash
-with your stuff.
-
-Most of the mess is in drivers/*, arch/* and (for endianness patches) net/*...
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVC3UN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVC3UPo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbVC3UN4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 15:13:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262470AbVC3UN4
+	id S262453AbVC3UPo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 15:15:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262469AbVC3UOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 15:13:56 -0500
-Received: from alog0191.analogic.com ([208.224.220.206]:58062 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261156AbVC3UMQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 15:12:16 -0500
-Date: Wed, 30 Mar 2005 15:11:58 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Vicente Feito <vicente.feito@gmail.com>
-cc: krishna <krishna.c@globaledgesoft.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How to debug kernel before there is no printk mechanism?
-In-Reply-To: <200503301616.10450.vicente.feito@gmail.com>
-Message-ID: <Pine.LNX.4.61.0503301506350.28684@chaos.analogic.com>
-References: <424AD247.4080409@globaledgesoft.com> <200503301454.41322.vicente.feito@gmail.com>
- <Pine.LNX.4.61.0503301305260.28280@chaos.analogic.com>
- <200503301616.10450.vicente.feito@gmail.com>
+	Wed, 30 Mar 2005 15:14:23 -0500
+Received: from smtp9.poczta.onet.pl ([213.180.130.49]:29649 "EHLO
+	smtp9.poczta.onet.pl") by vger.kernel.org with ESMTP
+	id S262453AbVC3UNn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 15:13:43 -0500
+Message-ID: <424B090F.3090508@poczta.onet.pl>
+Date: Wed, 30 Mar 2005 22:16:15 +0200
+From: Wiktor <victorjan@poczta.onet.pl>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFD] 'nice' attribute for executable files
+References: <fa.ed33rit.1e148rh@ifi.uio.no>	<E1DGNaV-0005LG-9m@be1.7eggert.dyndns.org>	<424ACEA9.6070401@poczta.onet.pl>	<yw1xpsxhvzsz.fsf@ford.inprovide.com>	<424AE18B.1080009@poczta.onet.pl> <yw1xll85vtva.fsf@ford.inprovide.com>
+In-Reply-To: <yw1xll85vtva.fsf@ford.inprovide.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Mar 2005, Vicente Feito wrote:
-
-> On Wednesday 30 March 2005 06:09 pm, linux-os wrote:
->> On Wed, 30 Mar 2005, Vicente Feito wrote:
->>> Video memory is at b800:0000, for humans 0x0000b800, not at 0x000b8000
->>
->> Wrong. "real-mode" can use a segment address of b800, that doesn't
->> work in protected mode. A segment address of b800:0000 is never
->> under any conditions 0000b800.
-> I was referring to the basic conditions, haven't played under protected mode
-> with that, only in real mode, I assumed the question was under that mode.
-> What you mean is this:
-> B800:0010 -> B8010H right?
+Måns Rullgård wrote:
 >
+> You could wrap /lib/ld-linux.so, and get all dynamically linked
+> programs done in one sweep.
+>
+That's mad idea - keep similar things in one place! starting programs is 
+done in kernel and nice-value-support is also done in kernel!!
 
-Sort of, but incomplete....
+> 
+> Using a shell to run external programs is quite common.  The system()
+> and popen() functions both invoke the shell.
+> 
+Yes, but compexity of 'sh -c /some/command' is uncomparable to one of 
+shell-level-program-renicing system. such system should keep database of 
+reniced processes, parse it (using awk or sed, i'm afraid...) and then 
+renice process (what also takes two files[!, they are in fact 
+one-liners, but it is needed to gain root privileges to renice 
+process]). sorry, but linux works smoothly on 386, and such mess would 
+surely change it.
 
-The real-mode segment is a 16-byte thing:
+> 
+> I'm not so sure it belongs at all.  The can of worms it opens up is a
+> bit too big, IMHO.
+> 
+What can? the only account that have access to renicing field is root. 
+if some-malicious-person can gain access to root account, he does not 
+need renicing field, because he can renice processes by snice tool! for 
+normal user, this field is unchangeable. of course, if root is so <....> 
+to set inpropertly nice field, he is propably also about to set setuid 
+to /bin/[ba]sh and set root's password to '123'... I really do not see 
+any dangers of providing such feature in kernel (b[u]y the way - 
+renicing in user space requires root privileges, so [from security point 
+of view] it doesn't really matter where renicing is done - both in 
+kernel and userland it has full-access to the system)
 
- 	0001:0000	=  0x00000010
- 	0002:0000	=  0x00000020
- 	0003:0000	=  0x00000030
+thx for replies
 
- 	b801:0000	=  0x000B8010
- 	b802:0000	=  0x000B8020
- 	b803:0000	=  0x000B8030
-
-To get the physical address, you multiply the
-segment by 0x10 and add the offset. To access
-these in 32-bit "linear" mode, you use the
-address on the right. To access these in paged-
-mode on Linux, you OR in PAGE_OFFSET. This
-is an artifact of how the low-memory page-tables
-were written. It is not the "correct" way. There
-are macros available to perform the translation
-for you if you are making some driver that needs
-to work over many kernel versions.
-
-[SNIPPED]
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+--
+wixor
+May the Source be with you.

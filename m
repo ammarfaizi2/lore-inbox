@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262557AbUCJIgk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 03:36:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbUCJIgk
+	id S262551AbUCJIip (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 03:38:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262560AbUCJIip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 03:36:40 -0500
-Received: from mail-01.iinet.net.au ([203.59.3.33]:29313 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262549AbUCJIg3
+	Wed, 10 Mar 2004 03:38:45 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23711 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262551AbUCJIil
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 03:36:29 -0500
-Message-ID: <404ED388.5050905@cyberone.com.au>
-Date: Wed, 10 Mar 2004 19:36:24 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Wed, 10 Mar 2004 03:38:41 -0500
+Message-ID: <404ED404.4050604@pobox.com>
+Date: Wed, 10 Mar 2004 03:38:28 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: VM patches in 2.6.4-rc1-mm2
-References: <20040302201536.52c4e467.akpm@osdl.org>	<40469E50.6090401@matchmail.com> <20040303193025.68a16dc4.akpm@osdl.org> <404ECFE5.7040005@matchmail.com>
-In-Reply-To: <404ECFE5.7040005@matchmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+CC: Dax Kelson <dax@gurulabs.com>,
+       James Ketrenos <jketreno@linux.co.intel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Announce] Intel PRO/Wireless 2100 802.11b driver
+References: <404E27E6.40200@linux.co.intel.com> <1078866774.2925.15.camel@mentor.gurulabs.com> <200403101015.19506.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200403101015.19506.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+vda wrote:
+> *FLAME ALERT*
+> /me is slowly getting mad about his prism54 11g hardware
+> and its firmware, with neither firmware authors nor documentation
+> for this pile of silicon crap nowhere in sight
+> 
+> What's so cool about having binary firmware? Bugs are bugs,
+> and you won't be able to even see bugs, less fix, in it.
+> I don't like being at the mercy of firmware authors.
 
 
-Mike Fedyk wrote:
+Well that's typical in wireless, unfortunately.  Certain parts of 
+wireless are political tennis balls with the US govt. and FCC. 
+Sometimes "put it in firmware" is the only way get ever get open source 
+drivers at all :/
 
-> Andrew Morton wrote:
->
->> Mike Fedyk <mfedyk@matchmail.com> wrote:
->>
->>> Most of the previous 2.6 kernels I was running on these servers 
->>> would be lightly hitting swap by now.  This definitely looks better 
->>> to me.
->>
->>
->>
->> It sounds worse to me.  "Lightly hitting swap" is good.  It gets rid 
->> of stuff,
->> freeing up physical memory.
->
->
-> Andrew, it looks like you're right.  This[1] server doesn't seem to be 
-> hitting swap enough.  But my other[2] file server is doing great with 
-> it on the other hand (though, it hasn't swapped at all).
->
+I'll pick firmware over no-driver any day.
 
-Just curious, what makes you say [1] isn't hitting swap enough and [2]
-is OK? The graphs are better now, by the way. Thank you.
+	Jeff
 
-> Maybe a little tuning is in order?
->
-> Any patches I should try?
->
 
-Mainline doesn't put enough pressure on slab with highmem systems. This
-creates a lot more ZONE_NORMAL pressure and that causes swapping.
-
-Now with the 2.6 VM, you don't do any mapped memory scaning at all
-while you only have a small amount of memory pressure. This means that
-truely inactive mapped pages never get reclaimed.
-
-The patches you are using do not address this. My split active list
-patches should do so. Alternatively you can increase
-/proc/sys/vm/swappiness, but that isn't a complete solution, and might
-make things too swappy. It is a difficult beast to control.
 

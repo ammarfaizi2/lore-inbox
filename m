@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312169AbSCUOCX>; Thu, 21 Mar 2002 09:02:23 -0500
+	id <S293688AbSCUOMf>; Thu, 21 Mar 2002 09:12:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312213AbSCUOCN>; Thu, 21 Mar 2002 09:02:13 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:30223 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S312169AbSCUOBx>;
-	Thu, 21 Mar 2002 09:01:53 -0500
-MIME-Version: 1.0
+	id <S312213AbSCUOM0>; Thu, 21 Mar 2002 09:12:26 -0500
+Received: from boden.synopsys.com ([204.176.20.19]:26576 "HELO
+	boden.synopsys.com") by vger.kernel.org with SMTP
+	id <S293688AbSCUOMQ>; Thu, 21 Mar 2002 09:12:16 -0500
+Date: Thu, 21 Mar 2002 15:12:05 +0100
+From: Alex Riesen <Alexander.Riesen@synopsys.com>
+To: Paul Larson <plars@austin.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.19-pre3 - readv/writev should return EINVAL for count=0
+Message-ID: <20020321151205.D1350@riesen-pc.gr05.synopsys.com>
+Reply-To: Alexander.Riesen@synopsys.com
+Mail-Followup-To: Paul Larson <plars@austin.ibm.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <1016650428.2202.98.camel@plars.austin.ibm.com> <20020321083408.C1350@riesen-pc.gr05.synopsys.com> <1016717331.2202.108.camel@plars.austin.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15513.59145.678790.431319@gargle.gargle.HOWL>
-Date: Fri, 22 Mar 2002 00:58:33 +1100
-From: Christopher Yeoh <cyeoh@samba.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        marcelo@conectiva.com.br (Marcelo Tosatti),
-        linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: [PATCH] fcntl returns wrong error code
-In-Reply-To: <E16o2cX-0005At-00@the-village.bc.nu>
-X-Mailer: VM 7.03 under Emacs 21.1.1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 2002/3/21 13:28+0000  Alan Cox writes:
-> > When fcntl(fd, F_DUPFD, b) is called where 'b' is greater than the
-> > maximum allowable value EINVAL should be returned. From POSIX:
-> > 
-> > "[EINVAL] The cmd argument is invalid, or the cmd argument is F_DUPFD and
-> > arg is negative or greater than or equal to {OPEN_MAX}, or ..."
+may be not. SunOS, HPUX, and AIX return EINVAL (unless it's their libc).
+Maybe it is useful for compatibility with read/write.
+And it's not really an error, after all, whereas EINVAL also means
+overflow (sum of all iovec's longer than ssize_t) for readv/writev.
+-alex
+
+On Thu, Mar 21, 2002 at 07:28:50AM -0600, Paul Larson wrote:
+> On Thu, 2002-03-21 at 01:34, Alex Riesen wrote:
+> > I would disagree. According to the spec "The iovcnt argument is valid
+> > if greater than 0 and less than or equal to {IOV_MAX}, as defined in
+> > <limits.h>" (http://www.opengroup.org/onlinepubs/007904975/).
+> > The behaviour you want to achieve is described as optional, besides
+> > there is programs depending on the old behaviour (of my own at least :).
+> > It's very handy to skip extra zero-parameter check...
+> > -alex
+> ^-This is the one I was referring to.  Is there any reason for it to not
+> be in compliance with this?
+> "The iovcnt argument is valid if greater than 0 and less than or equal to {IOV_MAX}, as defined in
+>  <limits.h>" (http://www.opengroup.org/onlinepubs/007904975/)
 > 
-> Where does it mention rlimit ? Also we sort of have a problem since
-> OPEN_MAX is not a constant on Linux x86. I guess that means a libc enforced
-> behaviour or something for that bit
-
-In this case OPEN_MAX is defined as:
-
-"3.167 File descriptor 
-
-A per-process unique, non negative integer used to identify an open
-file for the purpose of file access. The value of a file descriptor
-is from zero to {OPEN_MAX}. A process can have no more than {OPEN_MAX} file
-descriptors open simultaneously. File descriptors may also be used ...."
-
-Also from the limit.h page in Headers section it mentions that "many
-of the listed limits are not invariant, and at runtime, the value of
-the limit may differ from those given in the header ..... <snip> ..
-.. For these reasons an application may use the fpathconf(),
-pathconf() and sysconf() functions to determine the actual value of a
-limit at runtime."
-
-So the standard does take into account that the value may not be
-constant and (I think) that in the fcntl case the OPEN_MAX refers to
-the actual runtime value, which is not necessarily the same as the
-definition in limits.h.
-
-This problem was picked up by the POSIX.1-1990 test suite which
-does a sysconf(_SC_OPEN_MAX) to determine OPEN_MAX. 
-
-btw Stephen Rothwell pointed out that there is a much neater way to
-achieve the same change. I'll post a new patch in the morning.
-
-Chris
--- 
-cyeoh@au.ibm.com
-IBM OzLabs Linux Development Group
-Canberra, Australia
+> Sorry, I just noticed that there was a previous thread here in which a
+> patch was submitted by balbir_soni@yahoo.com.  I think the same person
+> who started it might have been the same person that pointed out that one
+> of our LTP testcases was passing when it shouldn't be and brought it to
+> my attention.  It doesn't look like that thread got resolved though.
+> 
+> Paul Larson

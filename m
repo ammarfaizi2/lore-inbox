@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262085AbSJITyn>; Wed, 9 Oct 2002 15:54:43 -0400
+	id <S262082AbSJITxx>; Wed, 9 Oct 2002 15:53:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262093AbSJITyn>; Wed, 9 Oct 2002 15:54:43 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:11794
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S262085AbSJITyl>; Wed, 9 Oct 2002 15:54:41 -0400
-Subject: Re: BK kernel commits list
-From: Robert Love <rml@tech9.net>
+	id <S262083AbSJITxx>; Wed, 9 Oct 2002 15:53:53 -0400
+Received: from blowme.phunnypharm.org ([65.207.35.140]:38408 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S262082AbSJITxw>; Wed, 9 Oct 2002 15:53:52 -0400
+Date: Wed, 9 Oct 2002 15:59:18 -0400
+From: Ben Collins <bcollins@debian.org>
 To: Jeff Garzik <jgarzik@pobox.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, Ben Collins <bcollins@debian.org>,
-       linux-kernel@vger.kernel.org, davem@redhat.com
-In-Reply-To: <3DA4882A.8000909@pobox.com>
-References: <20021009144414.GZ26771@phunnypharm.org> 
-	<20021009.045845.87764065.davem@redhat.com>
-	<18079.1034115320@passion.cambridge.redhat.com>
-	<20021008.175153.20269215.davem@redhat.com>
-	<200210091149.g99BnWQ5000628@pool-141-150-241-241.delv.east.verizon.net>
-	<7908.1034165878@passion.cambridge.redhat.com> <3DA4392B.8070204@pobox.com>
-	<27367.1034175300@passion.cambridge.redhat.com> 
-	<3DA4882A.8000909@pobox.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 09 Oct 2002 15:59:17 -0400
-Message-Id: <1034193558.29463.4400.camel@phantasy>
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: BK kernel commits list
+Message-ID: <20021009195918.GR26771@phunnypharm.org>
+References: <20021009144414.GZ26771@phunnypharm.org> <20021009.045845.87764065.davem@redhat.com> <18079.1034115320@passion.cambridge.redhat.com> <20021008.175153.20269215.davem@redhat.com> <200210091149.g99BnWQ5000628@pool-141-150-241-241.delv.east.verizon.net> <7908.1034165878@passion.cambridge.redhat.com> <3DA4392B.8070204@pobox.com> <27367.1034175300@passion.cambridge.redhat.com> <3DA4882A.8000909@pobox.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DA4882A.8000909@pobox.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-09 at 15:48, Jeff Garzik wrote:
+On Wed, Oct 09, 2002 at 03:48:58PM -0400, Jeff Garzik wrote:
+> Actually, after subscribing to bk-commits-* and seeing the output, I 
+> really think the only addition needed is to pipe the output through 
+> diffstat.
 
-> Actually, after subscribing to bk-commits-* and seeing the output,
-> I really think the only addition needed is to pipe the output
-> through diffstat.
+Without the info concerning the file revs being affected, it's pretty
+useless for me. I can actually just use that info and pull diffs
+locally from my repo via sccs.
 
-I think this would be cool, too.
+But I guess the point of the list is for diffs to kernel devs. Guess
+I'll get my info elsewhere.
 
-I think simplicity is important, but more information is always helper.
 
-I also like Daniel's suggestion of having the sender's _name_ by the
-name attributed with the patch (or at least "BK Commit" or something).
-
-But nothing _needs_ to be done.  This works great.  Good job, Dave and
-Co.
-
-	Robert Love
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

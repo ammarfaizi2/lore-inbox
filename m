@@ -1,86 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264034AbTCXBhB>; Sun, 23 Mar 2003 20:37:01 -0500
+	id <S264036AbTCXBlS>; Sun, 23 Mar 2003 20:41:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264036AbTCXBhA>; Sun, 23 Mar 2003 20:37:00 -0500
-Received: from AMarseille-201-1-1-254.abo.wanadoo.fr ([193.252.38.254]:13351
-	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S264034AbTCXBg7>; Sun, 23 Mar 2003 20:36:59 -0500
-Subject: Re: [PATCH] fix powerbook media bay
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Paul Mackerras <paulus@samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <1048460903.10712.89.camel@irongate.swansea.linux.org.uk>
-References: <15997.17378.538276.91950@nanango.paulus.ozlabs.org>
-	 <1048433932.10727.18.camel@irongate.swansea.linux.org.uk>
-	 <15998.10367.608276.488022@nanango.paulus.ozlabs.org>
-	 <1048460903.10712.89.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048470547.582.23.camel@zion.wanadoo.fr>
+	id <S264037AbTCXBlS>; Sun, 23 Mar 2003 20:41:18 -0500
+Received: from smtp09.iddeo.es ([62.81.186.19]:2703 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id <S264036AbTCXBlQ>;
+	Sun, 23 Mar 2003 20:41:16 -0500
+Date: Mon, 24 Mar 2003 02:52:18 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCHSET] Linux-2.4.21-pre5-jam1
+Message-ID: <20030324015218.GA1929@werewolf.able.es>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 24 Mar 2003 02:49:07 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 2.0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-24 at 00:08, Alan Cox wrote:
-> On Sun, 2003-03-23 at 21:34, Paul Mackerras wrote:
-> > Is the IDE stuff still in the middle of open-heart surgery?  I'm happy
-> > to hack on it and send you patches if it isn't all going to change
-> > dramatically in the next week anyway.
-> 
-> Its on the crash trolley right now, but we think we may be able to save
-> the patient. The registration is saner now for PCI but not for the non
-> PCI cases. In addition the resource allocation is ass backwards and that
-> I will change at some point so the caller does the resource work.
-> PC9800 requires this really, PCMCIA badly needs it, and it lets me
-> remove a ton of hacks from the mmio aware drivers.
+Hi all...
 
-Yes, please, do that :)
+I'm back again ;). After wating for -pre5-aa, here it is a new -jam version.
+It works for my dual PII.
 
-I did the hwif->mmio == 2 case especially for that purpose, that is
-let the hwif driver deal with resource management since I need it
-for ide-pmac.
-(today, hwif->mmio == 0 means PIO, == 1 means MMIO with request_xxx
-done by the generic code & other assumptions, and == 2 means the
-generic code does nothing)
+I'm still pending of testing thoroughly the bproc part, but I can't get down
+the cluster now. Anyways, do not know how many people are really interested
+on that part...
 
-Paul: regarding media-bay, don't waste too much time on this for 2.5,
-the whole probing stuff is going to change once I get the macio-asic
-bus getting in and all those drivers moved to the new model.
+Main changes:
+- based on 2.4.21-pre5-aa2
+- ptrace fix ;)
+- inode size reduction (WARNING, see README, you _need_ gcc3)
+- finedgrained timeslice for O(1) from Ingo
+- cleanup of PII spli in config
+- gcc -march support for i386
+- ext3-0.9.19+htree+orlov
+- perfctr-2.5.1
+- kksymoops
+- aic-20030318 (aic7xxx-6.2.30, aic79xx-1.3.4)
+- reverted to i2c-sensors 2.7.0. CVS is under a big reorganization now...
+- bproc-3.2.4
 
-The kernel still badly lacks some good way to deal with driver
-dependencies (similar what I did with OCP stuff where a driver
-can return -EAGAIN on probe when it relies on some other
-not-yet-probed driver, but that's really a hack).
+All patches:
 
-What I will do is that:
+000-aa2.bz2                   17-slab-loop-init.bz2
+001-version.bz2               18-fat-fdmode.bz2
+002-printk.bz2                19-interactive-timeslice.bz2
+003-memparam.bz2              21-x86-pII.bz2
+004-clone-detached.bz2        22-x86-check_gcc.bz2
+005-self_exec_id.bz2          23-x86-mb.bz2
+006-always-inline.bz2         24-config-nr-cpus.bz2
+007-scsi-error-tmout.bz2      30-ext3-0.9.19+htree+orlov.bz2
+009-config-syntax.bz2         40-perfctr-2.5.1.bz2
+010-e1000-close.bz2           41-kksymoops.bz2
+012-ide-scsi.bz2              50-aic-20030318.bz2
+013-ptrace.bz2                55-ide-readahead.bz2
+014-e100-leak.bz2             60-proconfig-0.9.7.bz2
+10-inode.bz2                  70-i2c-2.7.0.bz2
+11-handle2dentry.bz2          71-sensors-2.7.0.bz2
+12-fast-csum-D-2.bz2          80-bproc-3.2.4.bz2
+13-kill-per-cpu-stats.bz2     81-export-task_nice.bz2
+14-O_STREAMING.bz2            90-make.bz2
+15-binfmt-stack.bz2           README.txt
+16-mremap-use-after-free.bz2
 
- - PCI layer will probe the macio-asic (based on matching the
-OF node with whatever pmac_feature will have detected. I did consider
-moving all of pmac_feature to macio-asic, but we still need too many
-stuff beeing initialized early, so at least for 2.5, it will stay split)
+Download at
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.21-pre5-jam1.tar.bz2
 
- - macio-asic declares a bus type, and will probe devices based
-on the OF tree. At this point, it will probe media-bays first
+Info:
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.21-pre5-jam1/
 
- - then it probes IDE drivers. Thus, the registration mecanism of
-ide-pmac will be a carbon-copy of the one for IDE PCI devices.
+Enjoy !!
 
-In order to deal with ordering properly, media-bay will not call
-ide_register_hw directly. Instead, it will call a pmac-ide specific
-routine (either via macio-asic, that is it will force macio-asic
-to add a new device to it's tree as by default, it will only be
-one level deep, or I will go directly to ide-pmac, I haven't
-decided yet).
-
-At that point, ide-pmac can decide what to do, that is just reserve
-the hwif slot for later probe, or really call ide_register_hw.
-
-Ben.
-
-
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Bamboo) for i586
+Linux 2.4.21-pre5-jam1 (gcc 3.2.2 (Mandrake Linux 9.1 3.2.2-3mdk))

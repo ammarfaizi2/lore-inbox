@@ -1,268 +1,279 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264737AbUGBReu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264775AbUGBRkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264737AbUGBReu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 13:34:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264775AbUGBReu
+	id S264775AbUGBRkb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 13:40:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264781AbUGBRkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 13:34:50 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:41890 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264737AbUGBRdE (ORCPT
+	Fri, 2 Jul 2004 13:40:31 -0400
+Received: from cfcafw.sgi.com ([198.149.23.1]:7405 "EHLO omx1.americas.sgi.com")
+	by vger.kernel.org with ESMTP id S264775AbUGBRkB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 13:33:04 -0400
-From: Kevin Corry <kevcorry@us.ibm.com>
-To: linux-kernel@vger.kernel.org, DevMapper <dm-devel@redhat.com>
-Subject: Re: [PATCH] 1/1: Device-Mapper: Remove 1024 devices limitation
-Date: Fri, 2 Jul 2004 12:33:09 -0500
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       Alasdair Kergon <agk@redhat.com>
-References: <200407011035.13283.kevcorry@us.ibm.com> <200407012154.16312.kevcorry@us.ibm.com> <20040701203043.08226a0c.akpm@osdl.org>
-In-Reply-To: <20040701203043.08226a0c.akpm@osdl.org>
-MIME-Version: 1.0
+	Fri, 2 Jul 2004 13:40:01 -0400
+Date: Fri, 2 Jul 2004 12:39:05 -0500
+From: Jack Steiner <steiner@sgi.com>
+To: davidm@hpl.hp.com
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] - Reduce TLB flushing during process migration
+Message-ID: <20040702173905.GA18884@sgi.com>
+References: <20040623143844.GA15670@sgi.com> <20040623143318.07932255.akpm@osdl.org> <16605.1322.355489.223220@napali.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407021233.09610.kevcorry@us.ibm.com>
+In-Reply-To: <16605.1322.355489.223220@napali.hpl.hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 July 2004 10:30 pm, Andrew Morton wrote:
-> Kevin Corry <kevcorry@us.ibm.com> wrote:
-> > > Did you consider going to a different data structure altogether?
-> > >
-> >  > lib/radix-tree.c and lib/idr.c provide appropriate ones.
-> >
-> >  The idr stuff looks promising at first glance. I'll take a better look
-> > at it tomorrow and see if we can switch from a bit-set to one of these
-> > data structures.
->
-> Yes, idr is the one to use.  That linear search you have in there becomes
-> logarithmic.  Will speed up the registration of 100,000 minors no end ;)
+On Fri, Jun 25, 2004 at 10:10:02PM -0700, David Mosberger wrote:
+> >>>>> On Wed, 23 Jun 2004 14:33:18 -0700, Andrew Morton <akpm@osdl.org> said:
+> 
+>   Andrew> Jack Steiner <steiner@sgi.com> wrote:
+> 
+>   >> This patch adds a platform specific hook to allow an arch-specific
+>   >> function to be called after an explicit migration.
+> 
+>   Andrew> OK by me.  David, could you please merge this up?
+> 
+>   Andrew> Jack, please prepare an update for Documentation/cachetlb.txt.
+> 
+> Jack, could you send me an updated patch which has all the revisions requested?
+> Also, my preference would be for tlb_migrate_finish() to be a true no-op
+> (not a call to a no-op function) when compiling for a platform that
+> doesn't need this hook.  Could you look into this?
+> 
+> Thanks,
+> 
+> 	--david
 
-I've got a patch that switches from a bit-set to an IDR structure. The only
-thing I'm slightly uncertain about is the case where we're trying to create
-a device with a specific minor number (when creating a DM device, you have
-the choice to specify a minor number or have DM find the first available
-one). To do this, I call idr_find() with the desired minor. If that returns
-NULL (meaning it's not already in use), then I call idr_get_new_above() with
-that same desired minor. In the cases I've tested, this always chooses the
-desired minor, but can we depend on that behavior? For now I've got a check
-to make sure the idr_get_new_above() call returned the correct value, but if
-we can't be certain that this value will be correct in at least the vast
-majority of the cases, we might want to find an alternate approach.
 
-Here's the proposed patch. This is in addition to yesterday's, since Linus
-has already picked that one up in his tree. It completely removes the
-realloc_minor_bits() and free_minor_bits() routines, and modifies
-free_minor(), specific_minor() and next_free_minor() to use the IDR
-instead of the bit-set.
+Here is the final patch. It should have all the requested changes.
+
+
+For platforms that dont define their own tlb_migrate_finish, it is defined as :
+
+	#define tlb_migrate_finish(mm) do {} while (0)
+
+I'm not sure if I understood your point above. This is consistent with
+other noop definitions (at least some of them) & should not generate any
+code.
+
+
+
+
+Signed-off-by: Jack Steiner <steiner@sgi.com>
+
+
+
+diff -uprN linux_base/arch/ia64/kernel/machvec.c linux/arch/ia64/kernel/machvec.c
+--- linux_base/arch/ia64/kernel/machvec.c	2004-07-02 12:28:17.000000000 -0500
++++ linux/arch/ia64/kernel/machvec.c	2004-07-02 12:31:01.000000000 -0500
+@@ -62,6 +62,12 @@ machvec_timer_interrupt (int irq, void *
+ EXPORT_SYMBOL(machvec_timer_interrupt);
+ 
+ void
++machvec_tlb_migrate_finish (struct mm_struct *mm)
++{
++}
++EXPORT_SYMBOL(machvec_tlb_migrate_finish);
++
++void
+ machvec_dma_sync_single (struct device *hwdev, dma_addr_t dma_handle, size_t size, int dir)
+ {
+ 	mb();
+diff -uprN linux_base/arch/ia64/sn/kernel/sn2/sn2_smp.c linux/arch/ia64/sn/kernel/sn2/sn2_smp.c
+--- linux_base/arch/ia64/sn/kernel/sn2/sn2_smp.c	2004-07-02 12:28:17.000000000 -0500
++++ linux/arch/ia64/sn/kernel/sn2/sn2_smp.c	2004-07-02 12:31:01.000000000 -0500
+@@ -27,6 +27,7 @@
+ #include <asm/delay.h>
+ #include <asm/io.h>
+ #include <asm/smp.h>
++#include <asm/tlb.h>
+ #include <asm/numa.h>
+ #include <asm/bitops.h>
+ #include <asm/hw_irq.h>
+@@ -60,6 +61,13 @@ wait_piowc(void)
+ }
+ 
+ 
++void
++sn_tlb_migrate_finish(struct mm_struct *mm)
++{
++	if (mm == current->mm)
++		flush_tlb_mm(mm);
++}
++
+ 
+ /**
+  * sn2_global_tlb_purge - globally purge translation cache of virtual address range
+@@ -114,6 +122,13 @@ sn2_global_tlb_purge (unsigned long star
+ 		return;
+ 	}
+ 
++	if (atomic_read(&mm->mm_users) == 1) {
++		flush_tlb_mm(mm);
++		preempt_enable();
++		return;
++	}
++
++
+ 	nix = 0;
+ 	for (cnode=find_first_bit(&nodes_flushed, NR_NODES); cnode < NR_NODES; 
+ 			cnode=find_next_bit(&nodes_flushed, NR_NODES, ++cnode))
+diff -uprN linux_base/Documentation/cachetlb.txt linux/Documentation/cachetlb.txt
+--- linux_base/Documentation/cachetlb.txt	2004-07-02 12:28:16.000000000 -0500
++++ linux/Documentation/cachetlb.txt	2004-07-02 12:31:01.000000000 -0500
+@@ -132,6 +132,17 @@ changes occur:
+ 	translations for software managed TLB configurations.
+ 	The sparc64 port currently does this.
+ 
++7) void tlb_migrate_finish(struct mm_struct *mm)
++
++	This interface is called at the end of an explicit
++	process migration. This interface provides a hook 
++	to allow a platform to update TLB or context-specific 
++	information for the address space.
++
++	The ia64 sn2 platform is one example of a platform
++	that uses this interface.
++
++
+ Next, we have the cache flushing interfaces.  In general, when Linux
+ is changing an existing virtual-->physical mapping to a new value,
+ the sequence will be in one of the following forms:
+diff -uprN linux_base/include/asm-generic/tlb.h linux/include/asm-generic/tlb.h
+--- linux_base/include/asm-generic/tlb.h	2004-07-02 12:28:23.000000000 -0500
++++ linux/include/asm-generic/tlb.h	2004-07-02 12:31:01.000000000 -0500
+@@ -146,4 +146,6 @@ static inline void tlb_remove_page(struc
+ 		__pmd_free_tlb(tlb, pmdp);			\
+ 	} while (0)
+ 
++#define tlb_migrate_finish(mm) do {} while (0)
++
+ #endif /* _ASM_GENERIC__TLB_H */
+diff -uprN linux_base/include/asm-ia64/machvec.h linux/include/asm-ia64/machvec.h
+--- linux_base/include/asm-ia64/machvec.h	2004-07-02 12:28:24.000000000 -0500
++++ linux/include/asm-ia64/machvec.h	2004-07-02 12:31:01.000000000 -0500
+@@ -19,6 +19,7 @@ struct pt_regs;
+ struct scatterlist;
+ struct irq_desc;
+ struct page;
++struct mm_struct;
+ 
+ typedef void ia64_mv_setup_t (char **);
+ typedef void ia64_mv_cpu_init_t (void);
+@@ -26,6 +27,7 @@ typedef void ia64_mv_irq_init_t (void);
+ typedef void ia64_mv_send_ipi_t (int, int, int, int);
+ typedef void ia64_mv_timer_interrupt_t (int, void *, struct pt_regs *);
+ typedef void ia64_mv_global_tlb_purge_t (unsigned long, unsigned long, unsigned long);
++typedef void ia64_mv_tlb_migrate_finish_t (struct mm_struct *);
+ typedef struct irq_desc *ia64_mv_irq_desc (unsigned int);
+ typedef u8 ia64_mv_irq_to_vector (u8);
+ typedef unsigned int ia64_mv_local_vector_to_irq (u8 vector);
+@@ -72,6 +74,7 @@ typedef unsigned long ia64_mv_readq_rela
+ extern void machvec_noop (void);
+ extern void machvec_setup (char **);
+ extern void machvec_timer_interrupt (int, void *, struct pt_regs *);
++extern void machvec_tlb_migrate_finish (struct mm_struct *);
+ extern void machvec_dma_sync_single (struct device *, dma_addr_t, size_t, int);
+ extern void machvec_dma_sync_sg (struct device *, struct scatterlist *, int, int);
+ 
+@@ -95,6 +98,7 @@ extern void machvec_dma_sync_sg (struct 
+ #  define platform_send_ipi	ia64_mv.send_ipi
+ #  define platform_timer_interrupt	ia64_mv.timer_interrupt
+ #  define platform_global_tlb_purge	ia64_mv.global_tlb_purge
++#  define platform_tlb_migrate_finish	ia64_mv.tlb_migrate_finish
+ #  define platform_dma_init		ia64_mv.dma_init
+ #  define platform_dma_alloc_coherent	ia64_mv.dma_alloc_coherent
+ #  define platform_dma_free_coherent	ia64_mv.dma_free_coherent
+@@ -140,6 +144,7 @@ struct ia64_machine_vector {
+ 	ia64_mv_send_ipi_t *send_ipi;
+ 	ia64_mv_timer_interrupt_t *timer_interrupt;
+ 	ia64_mv_global_tlb_purge_t *global_tlb_purge;
++	ia64_mv_tlb_migrate_finish_t *tlb_migrate_finish;
+ 	ia64_mv_dma_init *dma_init;
+ 	ia64_mv_dma_alloc_coherent *dma_alloc_coherent;
+ 	ia64_mv_dma_free_coherent *dma_free_coherent;
+@@ -181,6 +186,7 @@ struct ia64_machine_vector {
+ 	platform_send_ipi,			\
+ 	platform_timer_interrupt,		\
+ 	platform_global_tlb_purge,		\
++	platform_tlb_migrate_finish,		\
+ 	platform_dma_init,			\
+ 	platform_dma_alloc_coherent,		\
+ 	platform_dma_free_coherent,		\
+@@ -260,6 +266,9 @@ extern ia64_mv_dma_supported		swiotlb_dm
+ #ifndef platform_global_tlb_purge
+ # define platform_global_tlb_purge	ia64_global_tlb_purge /* default to architected version */
+ #endif
++#ifndef platform_tlb_migrate_finish
++# define platform_tlb_migrate_finish machvec_tlb_migrate_finish
++#endif
+ #ifndef platform_dma_init
+ # define platform_dma_init		swiotlb_init
+ #endif
+diff -uprN linux_base/include/asm-ia64/machvec_sn2.h linux/include/asm-ia64/machvec_sn2.h
+--- linux_base/include/asm-ia64/machvec_sn2.h	2004-07-02 12:28:24.000000000 -0500
++++ linux/include/asm-ia64/machvec_sn2.h	2004-07-02 12:31:01.000000000 -0500
+@@ -39,6 +39,7 @@ extern ia64_mv_irq_init_t sn_irq_init;
+ extern ia64_mv_send_ipi_t sn2_send_IPI;
+ extern ia64_mv_timer_interrupt_t sn_timer_interrupt;
+ extern ia64_mv_global_tlb_purge_t sn2_global_tlb_purge;
++extern ia64_mv_tlb_migrate_finish_t	sn_tlb_migrate_finish;
+ extern ia64_mv_irq_desc sn_irq_desc;
+ extern ia64_mv_irq_to_vector sn_irq_to_vector;
+ extern ia64_mv_local_vector_to_irq sn_local_vector_to_irq;
+@@ -83,6 +84,7 @@ extern ia64_mv_dma_supported		sn_dma_sup
+ #define platform_send_ipi		sn2_send_IPI
+ #define platform_timer_interrupt	sn_timer_interrupt
+ #define platform_global_tlb_purge       sn2_global_tlb_purge
++#define platform_tlb_migrate_finish	sn_tlb_migrate_finish
+ #define platform_pci_fixup		sn_pci_fixup
+ #define platform_inb			__sn_inb
+ #define platform_inw			__sn_inw
+diff -uprN linux_base/include/asm-ia64/tlb.h linux/include/asm-ia64/tlb.h
+--- linux_base/include/asm-ia64/tlb.h	2004-07-02 12:28:24.000000000 -0500
++++ linux/include/asm-ia64/tlb.h	2004-07-02 12:31:01.000000000 -0500
+@@ -44,6 +44,7 @@
+ #include <asm/pgalloc.h>
+ #include <asm/processor.h>
+ #include <asm/tlbflush.h>
++#include <asm/machvec.h>
+ 
+ #ifdef CONFIG_SMP
+ # define FREE_PTE_NR		2048
+@@ -211,6 +212,8 @@ __tlb_remove_tlb_entry (struct mmu_gathe
+ 	tlb->end_addr = address + PAGE_SIZE;
+ }
+ 
++#define tlb_migrate_finish(mm)	platform_tlb_migrate_finish(mm)
++
+ #define tlb_start_vma(tlb, vma)			do { } while (0)
+ #define tlb_end_vma(tlb, vma)			do { } while (0)
+ 
+diff -uprN linux_base/kernel/sched.c linux/kernel/sched.c
+--- linux_base/kernel/sched.c	2004-07-02 12:28:27.000000000 -0500
++++ linux/kernel/sched.c	2004-07-02 12:31:01.000000000 -0500
+@@ -40,6 +40,7 @@
+ #include <linux/cpu.h>
+ #include <linux/percpu.h>
+ #include <linux/kthread.h>
++#include <asm/tlb.h>
+ 
+ #include <asm/unistd.h>
+ 
+@@ -3335,6 +3336,7 @@ int set_cpus_allowed(task_t *p, cpumask_
+ 		task_rq_unlock(rq, &flags);
+ 		wake_up_process(rq->migration_thread);
+ 		wait_for_completion(&req.done);
++		tlb_migrate_finish(p->mm);
+ 		return 0;
+ 	}
+ out:
 
 -- 
-Kevin Corry
-kevcorry@us.ibm.com
-http://evms.sourceforge.net/
+Thanks
+
+Jack Steiner (steiner@sgi.com)          651-683-5302
+Principal Engineer                      SGI - Silicon Graphics, Inc.
 
 
-Keep track of allocated minor numbers with an IDR instead of a bit-set.
-
-Signed-off-by: Kevin Corry <kevcorry@us.ibm.com>
-
---- diff/drivers/md/dm.c	2004-07-02 11:48:26.402266784 -0500
-+++ source/drivers/md/dm.c	2004-07-02 12:14:12.000000000 -0500
-@@ -15,15 +15,13 @@
- #include <linux/buffer_head.h>
- #include <linux/mempool.h>
- #include <linux/slab.h>
-+#include <linux/idr.h>
- 
- static const char *_name = DM_NAME;
- 
- static unsigned int major = 0;
- static unsigned int _major = 0;
- 
--static int realloc_minor_bits(unsigned long requested_minor);
--static void free_minor_bits(void);
--
- /*
-  * One of these is allocated per bio.
-  */
-@@ -113,19 +111,11 @@
- 		return -ENOMEM;
- 	}
- 
--	r = realloc_minor_bits(1024);
--	if (r < 0) {
--		kmem_cache_destroy(_tio_cache);
--		kmem_cache_destroy(_io_cache);
--		return r;
--	}
--
- 	_major = major;
- 	r = register_blkdev(_major, _name);
- 	if (r < 0) {
- 		kmem_cache_destroy(_tio_cache);
- 		kmem_cache_destroy(_io_cache);
--		free_minor_bits();
- 		return r;
- 	}
- 
-@@ -139,7 +129,6 @@
- {
- 	kmem_cache_destroy(_tio_cache);
- 	kmem_cache_destroy(_io_cache);
--	free_minor_bits();
- 
- 	if (unregister_blkdev(_major, _name) < 0)
- 		DMERR("devfs_unregister_blkdev failed");
-@@ -624,59 +613,15 @@
- }
- 
- /*-----------------------------------------------------------------
-- * A bitset is used to keep track of allocated minor numbers.
-+ * An IDR is used to keep track of allocated minor numbers.
-  *---------------------------------------------------------------*/
- static DECLARE_MUTEX(_minor_lock);
--static unsigned long *_minor_bits = NULL;
--static unsigned long _max_minors = 0;
--
--#define MINORS_SIZE(minors) ((minors / BITS_PER_LONG) * sizeof(unsigned long))
--
--static int realloc_minor_bits(unsigned long requested_minor)
--{
--	unsigned long max_minors;
--	unsigned long *minor_bits, *tmp;
--
--	if (requested_minor < _max_minors)
--		return -EINVAL;
--
--	/* Round up the requested minor to the next power-of-2. */
--	max_minors = 1 << fls(requested_minor - 1);
--	if (max_minors > (1 << MINORBITS))
--		return -EINVAL;
--
--	minor_bits = kmalloc(MINORS_SIZE(max_minors), GFP_KERNEL);
--	if (!minor_bits)
--		return -ENOMEM;
--	memset(minor_bits, 0, MINORS_SIZE(max_minors));
--
--	/* Copy the existing bit-set to the new one. */
--	if (_minor_bits)
--		memcpy(minor_bits, _minor_bits, MINORS_SIZE(_max_minors));
--
--	tmp = _minor_bits;
--	_minor_bits = minor_bits;
--	_max_minors = max_minors;
--	if (tmp)
--		kfree(tmp);
--
--	return 0;
--}
--
--static void free_minor_bits(void)
--{
--	down(&_minor_lock);
--	kfree(_minor_bits);
--	_minor_bits = NULL;
--	_max_minors = 0;
--	up(&_minor_lock);
--}
-+static DEFINE_IDR(_minor_idr);
- 
- static void free_minor(unsigned int minor)
- {
- 	down(&_minor_lock);
--	if (minor < _max_minors)
--		clear_bit(minor, _minor_bits);
-+	idr_remove(&_minor_idr, minor);
- 	up(&_minor_lock);
- }
- 
-@@ -685,24 +630,37 @@
-  */
- static int specific_minor(unsigned int minor)
- {
--	int r = 0;
-+	int r, m;
- 
- 	if (minor > (1 << MINORBITS))
- 		return -EINVAL;
- 
- 	down(&_minor_lock);
--	if (minor >= _max_minors) {
--		r = realloc_minor_bits(minor);
--		if (r) {
--			up(&_minor_lock);
--			return r;
--		}
-+
-+	if (idr_find(&_minor_idr, minor)) {
-+		r = -EBUSY;
-+		goto out;
- 	}
- 
--	if (test_and_set_bit(minor, _minor_bits))
-+	r = idr_pre_get(&_minor_idr, GFP_KERNEL);
-+	if (!r) {
-+		r = -ENOMEM;
-+		goto out;
-+	}
-+
-+	r = idr_get_new_above(&_minor_idr, specific_minor, minor, &m);
-+	if (r) {
-+		goto out;
-+	}
-+
-+	if (m != minor) {
-+		idr_remove(&_minor_idr, m);
- 		r = -EBUSY;
--	up(&_minor_lock);
-+		goto out;
-+	}
- 
-+out:
-+	up(&_minor_lock);
- 	return r;
- }
- 
-@@ -712,21 +670,29 @@
- 	unsigned int m;
- 
- 	down(&_minor_lock);
--	m = find_first_zero_bit(_minor_bits, _max_minors);
--	if (m >= _max_minors) {
--		r = realloc_minor_bits(_max_minors * 2);
--		if (r) {
--			up(&_minor_lock);
--			return r;
--		}
--		m = find_first_zero_bit(_minor_bits, _max_minors);
-+
-+	r = idr_pre_get(&_minor_idr, GFP_KERNEL);
-+	if (!r) {
-+		r = -ENOMEM;
-+		goto out;
-+	}
-+
-+	r = idr_get_new(&_minor_idr, next_free_minor, &m);
-+	if (r) {
-+		goto out;
-+	}
-+
-+	if (m > (1 << MINORBITS)) {
-+		idr_remove(&_minor_idr, m);
-+		r = -ENOSPC;
-+		goto out;
- 	}
- 
--	set_bit(m, _minor_bits);
- 	*minor = m;
--	up(&_minor_lock);
- 
--	return 0;
-+out:
-+	up(&_minor_lock);
-+	return r;
- }
- 
- static struct block_device_operations dm_blk_dops;

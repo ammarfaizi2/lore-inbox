@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269333AbUJQXqj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269332AbUJQXvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269333AbUJQXqj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 19:46:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269335AbUJQXqj
+	id S269332AbUJQXvu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 19:51:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269335AbUJQXvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 19:46:39 -0400
-Received: from ppp4-adsl-118.the.forthnet.gr ([193.92.235.118]:21051 "EHLO
-	ppp1-100.the.forthnet.gr") by vger.kernel.org with ESMTP
-	id S269333AbUJQXqd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 19:46:33 -0400
-From: V13 <v13@priest.com>
-To: John McCutchan <ttb@tentacle.dhs.org>
+	Sun, 17 Oct 2004 19:51:49 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:38835 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S269332AbUJQXvs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 19:51:48 -0400
 Subject: Re: [RFC][PATCH] inotify 0.14
-Date: Mon, 18 Oct 2004 02:46:25 +0300
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org, gamin-list@gnome.org, rml@ximian.com,
-       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
-       bkonrath@redhat.com, greg@kroah.com
+From: Robert Love <rml@novell.com>
+To: V13 <v13@priest.com>
+Cc: John McCutchan <ttb@tentacle.dhs.org>, linux-kernel@vger.kernel.org,
+       gamin-list@gnome.org, viro@parcelfarce.linux.theplanet.co.uk,
+       akpm@osdl.org, bkonrath@redhat.com, greg@kroah.com
+In-Reply-To: <200410180246.27654.v13@priest.com>
 References: <1097808272.4009.0.camel@vertex>
-In-Reply-To: <1097808272.4009.0.camel@vertex>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	 <200410180246.27654.v13@priest.com>
+Content-Type: text/plain
+Date: Sun, 17 Oct 2004 19:52:09 -0400
+Message-Id: <1098057129.5497.107.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410180246.27654.v13@priest.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 15 October 2004 05:44, John McCutchan wrote:
-> Hello,
->
-> Here is release 0.14.0 of inotify. Attached is a patch to 2.6.8.1
+On Mon, 2004-10-18 at 02:46 +0300, V13 wrote:
 
-  AFAICS this patch adds inotify and removes dnotify. I believe that the 
-addition of inotify to 2.6 series (if it is going to happen) should leave 
-dnotify intact since there may be programs that rely on it (kde for example).
+>   AFAICS this patch adds inotify and removes dnotify. I believe that the 
+> addition of inotify to 2.6 series (if it is going to happen) should leave 
+> dnotify intact since there may be programs that rely on it (kde for example).
 
-<<V13>>
+It should make dnotify a configuration option, controlled via
+CONFIG_DNOTIFY.
+
+	Robert Love
+
+

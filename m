@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315468AbSEQIlA>; Fri, 17 May 2002 04:41:00 -0400
+	id <S315472AbSEQInX>; Fri, 17 May 2002 04:43:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315471AbSEQIk7>; Fri, 17 May 2002 04:40:59 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:50436 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S315468AbSEQIk7>; Fri, 17 May 2002 04:40:59 -0400
-Message-Id: <200205170836.g4H8atY20814@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Tomas Szepe <szepe@pinerecords.com>
+	id <S315471AbSEQInW>; Fri, 17 May 2002 04:43:22 -0400
+Received: from front1.mail.megapathdsl.net ([66.80.60.31]:65289 "EHLO
+	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S315472AbSEQInV>; Fri, 17 May 2002 04:43:21 -0400
 Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
-Date: Fri, 17 May 2002 11:39:22 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3038.1021588938@ocs3.intra.ocs.com.au> <200205170807.g4H87OY20686@Port.imtp.ilyichevsk.odessa.ua> <20020517081749.GA5621@louise.pinerecords.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: Miles Lane <miles@megapathdsl.net>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020517033056.GB4595@louise.pinerecords.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 17 May 2002 01:42:44 -0700
+Message-Id: <1021624966.10049.780.camel@turbulence.megapathdsl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 May 2002 06:17, Tomas Szepe wrote:
-> > And Linus is _human too_. Why _demand_ him to answer?
-> > But we can _ask nicely_. :-) I'd put it this way:
->
-> I believe Keith did precisely that three times already.
+On Thu, 2002-05-16 at 20:30, Tomas Szepe wrote:
+> > > Third and final attempt.  Original sent on May 2, second mail sent on
+> > > May 14, still no response from Linus.
+> > 
+> > Linus is a bastard.  Did you forget?
+> 
+> This is getting ridiculous all right.
+> 
+> Linus, what makes you ignore Keith's work?
+> 
+> Would you tend to think he's worked on kbuild25 this long
+> to end up having to send a linus-dammit-would-you-have-
+> -a-look-at-last-i'm-not-going-to-keep-asking-forever msg?
+> 
+> Sorry for a slightly offensive post; I can't stand to
+> see such impoliteness.
 
-One can ask Linus to do something as many times as one wants.
-Linus, just like everyone else, may ignore such requests.
+Along the same lines, we have James Bottomly attempting to 
+get support for the NCR Voyager architecture added to the
+kernel.  His original submission post was sent 2001-12-23:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=100913508007485&w=2
+The latest submission attempt was sent 2002-05-11:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102115570805131&w=2
 
-You may not like it, but you have to live with it.
+It seems to me that adding a new architecture probably doesn't
+impact the rest of the kernel much, so I am not sure way 
+acceptance would be so long delayed.  I have noticed that 
+there has been minimal feedback to James, which he appears
+to have responded to quickly and well.  I tend to think
+that any tweaks needed could be accomplished as easily once
+the code has been accepted into the kernel tree.
 
-It's not about Linus, it's about freedom.
-You'd like to be free, right? Then allow others to be free,
-even to be free to ignore you. :-)
---
-vda
+Is there some justification for the delay that I have somehow
+overlooked?
+
+	Miles
+

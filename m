@@ -1,55 +1,26 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <157671-8093>; Sun, 17 Jan 1999 22:30:07 -0500
-Received: by vger.rutgers.edu id <157661-8100>; Sun, 17 Jan 1999 22:29:56 -0500
-Received: from [204.193.135.230] ([204.193.135.230]:12395 "EHLO linux42.dn.net" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <157651-8100>; Sun, 17 Jan 1999 22:29:44 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <13986.43678.718410.351098@wander.auton.org>
-Date: Sun, 17 Jan 1999 22:29:34 -0500 (EST)
-To: linux-kernel@vger.rutgers.edu
-From: lk@winux.com
-Subject: TCP Splice alleviates proxy bottleneck
-X-Mailer: VM 6.62 under 21.2 "Aglaia" XEmacs Lucid (beta3)
+Received: by vger.rutgers.edu via listexpand id <157331-27300>; Sat, 30 Jan 1999 18:20:14 -0500
+Received: by vger.rutgers.edu id <157249-27300>; Sat, 30 Jan 1999 18:19:44 -0500
+Received: from snowcrash.cymru.net ([163.164.160.3]:1432 "EHLO snowcrash.cymru.net" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <157268-27302>; Sat, 30 Jan 1999 18:19:14 -0500
+Message-Id: <m106kj0-0007U2C@the-village.bc.nu>
+From: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Subject: Re: Strange interrupt behavior in 2.2.0(and pre)
+To: linker@z.ml.org (Gregory Maxwell)
+Date: Sun, 31 Jan 1999 00:26:52 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk, dagb@cs.uit.no, linux-kernel@vger.rutgers.edu, linux-irda@list.uit.no
+In-Reply-To: <Pine.LNX.3.96.990130182906.2872C-100000@z.ml.org> from "Gregory Maxwell" at Jan 30, 99 06:30:16 pm
+Content-Type: text
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Anyone who's interested in high performance network development on
-Linux should take a look at what these folks are doing.  It seems to
-be a very clever way to eliminate the drudge work that an application
-level proxy performs without significant impact on the application
-code.  Looks like a great performance booster.  Very nice.  The paper
-says that this is all running on BSDI.  Wish they'd picked Linux.. :-)
+> I believe this is a deliberate feature to keep the device open so that
+> other devices cant make /dev/dsp unavailable to esd. (or for the more
+> paranoid, it's designed that way to get you to switch all your sound apps
+> to ESD).
 
-     Application Layer Proxy Performance Using TCP Splice. 
-     David Maltz, Pravin Bhagwat. IBM Technical Report RC-21139, March
-     1998. (submitted for publication).
+The current one should be able to avoid that. As I pointed out to the
+author the current behaviour is more in incentive not to run ESD in some
+cases than anything else.
 
-           TCP Splicing for Application Layer Proxy Performance
-
-                         David Maltz, Pravin Bhagwat
-
-     Application layer proxies already play an important role in today's
-     networks, serving as firewalls and HTTP caches --- and their role is
-     being expanded to include encryption, compression, and mobility
-     support services.  Current application layer proxies suffer major
-     performance penalties as they spend most of their time moving data
-     back and forth between connections; context switching and crossing
-     protection boundaries for each chunk of data they handle.  We present
-     a technique called TCP Splice that provides kernel support for data
-     relaying operations which runs at near router speeds.  In our lab
-     testing, we find SOCKS firewalls using TCP Splice can sustain a data
-     throughput twice that of normal firewalls, with an average packet
-     forwarding latency 30 times less.
-     
-     http://www.cs.umd.edu/users/pravin/TR-21139.ps.gz
-
-Here are some other publications by one of the authors:
-
-     http://www.cs.umd.edu/users/pravin/publist.htm
-
-The MSOCKS paper also discusses TCP Splice.
-
--lda
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

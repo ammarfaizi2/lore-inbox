@@ -1,65 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267489AbUH2AON@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268141AbUH2AVQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267489AbUH2AON (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 20:14:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268141AbUH2AOM
+	id S268141AbUH2AVQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 20:21:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268142AbUH2AVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 20:14:12 -0400
-Received: from rudy.mif.pg.gda.pl ([153.19.42.16]:45061 "EHLO
-	rudy.mif.pg.gda.pl") by vger.kernel.org with ESMTP id S267489AbUH2AOJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 20:14:09 -0400
-Date: Sun, 29 Aug 2004 02:14:03 +0200 (CEST)
-From: =?ISO-8859-2?Q?Tomasz_K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Robert Milkowski <milek@rudy.mif.pg.gda.pl>,
-       Julien Oster <usenet-20040502@usenet.frodoid.org>,
-       Miles Lane <miles.lane@comcast.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: DTrace-like analysis possible with future Linux kernels?
-In-Reply-To: <1093354658.2810.31.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.60L.0408290154030.15099@rudy.mif.pg.gda.pl>
-References: <200408191822.48297.miles.lane@comcast.net> 
- <87hdqyogp4.fsf@killer.ninja.frodoid.org>  <Pine.LNX.4.60L.0408210520380.3003@rudy.mif.pg.gda.pl>
-  <1093174557.24319.55.camel@localhost.localdomain> 
- <Pine.LNX.4.60L.0408232107270.13955@rudy.mif.pg.gda.pl>
- <1093354658.2810.31.camel@localhost.localdomain>
+	Sat, 28 Aug 2004 20:21:16 -0400
+Received: from gizmo12ps.bigpond.com ([144.140.71.43]:47323 "HELO
+	gizmo12ps.bigpond.com") by vger.kernel.org with SMTP
+	id S268141AbUH2AVM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 20:21:12 -0400
+Message-ID: <41312174.40707@bigpond.net.au>
+Date: Sun, 29 Aug 2004 10:21:08 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1118624370-1093737663=:15099"
-Content-ID: <Pine.LNX.4.60L.0408290201130.15099@rudy.mif.pg.gda.pl>
+To: spaminos-ker@yahoo.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Scheduler fairness problem on 2.6 series (Attn: Nick Piggin and
+ others)
+References: <20040828015937.50607.qmail@web13902.mail.yahoo.com>
+In-Reply-To: <20040828015937.50607.qmail@web13902.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+spaminos-ker@yahoo.com wrote:
+> --- Peter Williams <pwil3058@bigpond.net.au> wrote:
+> 
+>>A (gzipped) combined ZAPHOD and P9 voluntary preempt patch for 2.6.8.1 
+>>is available at:
+>>
+>>
+> 
+> <http://prdownloads.sourceforge.net/cpuse/patch-2.6.8.1-zaphod-vp-v5.0.1.gz?download>
+> 
+>>This patch has had minimal testing so use with care and please let me 
+>>know if there are any problems.
+>>
+> 
+> 
+> I tried this patch, and I get a pretty high latency in "sub_preempt_count"
+> 00000001 0.730ms (+0.730ms): sub_preempt_count (_mmx_memcpy)
+> 
+> I am not sure if that makes sense and what it means.
+> 
+> Nicolas
+> 
+> 
+> Here are the full messages:
+> 
+> Aug 27 18:42:11 localhost kernel: (events/0/4): new 730 us maximum-latency
+> critical section.
+> Aug 27 18:42:11 localhost kernel:  => started at: <kernel_fpu_begin+0x21/0x60>
+> Aug 27 18:42:11 localhost kernel:  => ended at:   <_mmx_memcpy+0x131/0x180>
+> Aug 27 18:42:11 localhost kernel:  [<c014106a>]
+> check_preempt_timing+0x1aa/0x240
+> Aug 27 18:42:11 localhost kernel:  [<c0225751>] _mmx_memcpy+0x131/0x180
+> Aug 27 18:42:11 localhost kernel:  [<c0225751>] _mmx_memcpy+0x131/0x180
+> Aug 27 18:42:11 localhost kernel:  [<c0141244>] sub_preempt_count+0x54/0x60
+> Aug 27 18:42:11 localhost kernel:  [<c0141244>] sub_preempt_count+0x54/0x60
+> Aug 27 18:42:11 localhost kernel:  [<c0225751>] _mmx_memcpy+0x131/0x180
+> Aug 27 18:42:11 localhost kernel:  [<c02dd9fe>] vgacon_save_screen+0x7e/0x80
+> Aug 27 18:42:11 localhost kernel:  [<c0267d32>] do_blank_screen+0x182/0x2b0
+> Aug 27 18:42:11 localhost kernel:  [<c0122fa4>] acquire_console_sem+0x44/0x70
+> Aug 27 18:42:11 localhost kernel:  [<c0266ab2>] console_callback+0x72/0xf0
+> Aug 27 18:42:11 localhost kernel:  [<c0134dcb>] worker_thread+0x1eb/0x2d0
+> Aug 27 18:42:11 localhost kernel:  [<c0266a40>] console_callback+0x0/0xf0
+> Aug 27 18:42:11 localhost kernel:  [<c011c000>] default_wake_function+0x0/0x20
+> Aug 27 18:42:11 localhost kernel:  [<c011c000>] default_wake_function+0x0/0x20
+> Aug 27 18:42:11 localhost kernel:  [<c013963c>] kthread+0xbc/0xd0
+> Aug 27 18:42:11 localhost kernel:  [<c0134be0>] worker_thread+0x0/0x2d0
+> Aug 27 18:42:11 localhost kernel:  [<c0139580>] kthread+0x0/0xd0
+> Aug 27 18:42:11 localhost kernel:  [<c0104389>] kernel_thread_helper+0x5/0xc
+> 
+> preemption latency trace v1.0.2
+> -------------------------------
+>  latency: 730 us, entries: 4 (4)
+>     -----------------
+>     | task: events/0/4, uid:0 nice:-10 policy:0 rt_prio:0
+>     -----------------
+>  => started at: kernel_fpu_begin+0x21/0x60
+>  => ended at:   _mmx_memcpy+0x131/0x180
+> =======>
+> 00000001 0.000ms (+0.000ms): kernel_fpu_begin (_mmx_memcpy)
+> 00000001 0.730ms (+0.730ms): sub_preempt_count (_mmx_memcpy)
+> 00000001 0.730ms (+0.000ms): _mmx_memcpy (check_preempt_timing)
+> 00000001 0.730ms (+0.000ms): kernel_fpu_begin (_mmx_memcpy)
+> 
 
---8323328-1118624370-1093737663=:15099
-Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-2; FORMAT=flowed
-Content-Transfer-Encoding: 8BIT
-Content-ID: <Pine.LNX.4.60L.0408290201131.15099@rudy.mif.pg.gda.pl>
+As far as I can see sub_preempt_count() is part of the latency measuring 
+component of the voluntary preempt patch so, like you, I'm not sure 
+whether this report makes any sense.
 
-On Sat, 28 Aug 2004, Alan Cox wrote:
-
-> On Llu, 2004-08-23 at 20:48, Robert Milkowski wrote:
->> Solaris runs on x86 platform, and runs quite well.
->> And guess what - DTrace runs on x86 like a charm.
->
-> Larger x86 boxes. I can't seem to find PDA's with Solaris or phones
-> with Solaris or $70 wireless routers with Solaris.
-
-I don't thing naming anything larger than PDA or phone as "large 
-computer" is correct/acceptable :o)
-If fact Solaris works quite well on usual desktop size computer.
-
-Probalby after full porting Solaris to x86 using system on embeded 
-system definitely will not be only potential solution.
-Even if Solaris after this still can'd be useable on embeded-like systems
-this can't matter on DTrace subject :)
-
-kloczek
+Peter
 -- 
------------------------------------------------------------
-*Ludzie nie maj± problemów, tylko sobie sami je stwarzaj±*
------------------------------------------------------------
-Tomasz K³oczko, sys adm @zie.pg.gda.pl|*e-mail: kloczek@rudy.mif.pg.gda.pl*
---8323328-1118624370-1093737663=:15099--
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce
+

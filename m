@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261714AbTCGSfw>; Fri, 7 Mar 2003 13:35:52 -0500
+	id <S261703AbTCGSdB>; Fri, 7 Mar 2003 13:33:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261715AbTCGSfw>; Fri, 7 Mar 2003 13:35:52 -0500
-Received: from mail.tbdnetworks.com ([63.209.25.99]:56788 "EHLO
-	tbdnetworks.com") by vger.kernel.org with ESMTP id <S261714AbTCGSfv>;
-	Fri, 7 Mar 2003 13:35:51 -0500
-Subject: Re: [PATCH] Multiple & vs. && and | vs. || bugs in 2.4.20
-From: Norbert Kiesel <nkiesel@tbdnetworks.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Ulrich Drepper <drepper@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030306195812.GH2781@zaurus.ucw.cz>
-References: <20030302121425.GA27040@defiant> <3E6247F7.8060301@redhat.com>
-	 <20030306195812.GH2781@zaurus.ucw.cz>
-Content-Type: text/plain
-Organization: TBD Networks
-Message-Id: <1047062752.30853.135.camel@defiant>
+	id <S261705AbTCGSdB>; Fri, 7 Mar 2003 13:33:01 -0500
+Received: from packet.digeo.com ([12.110.80.53]:8595 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261703AbTCGSdA>;
+	Fri, 7 Mar 2003 13:33:00 -0500
+Date: Fri, 7 Mar 2003 10:43:33 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: WimMark I for 2.5.64-mm1
+Message-Id: <20030307104333.6f63c53a.akpm@digeo.com>
+In-Reply-To: <20030307175700.GA2835@ca-server1.us.oracle.com>
+References: <20030307175700.GA2835@ca-server1.us.oracle.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 07 Mar 2003 10:45:52 -0800
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Mar 2003 18:43:23.0736 (UTC) FILETIME=[6EC6E580:01C2E4D9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Alan included my 2.4.20 patches - including the one for acm.c - in
-2.4.21-pre5-ac1, so I expect them to show up in mainline someday.  Still
-working on delivering some of the 2.5.x ones...
-
---nk
-
-On Thu, 2003-03-06 at 11:58, Pavel Machek wrote:
-> Hi!
+Joel Becker <Joel.Becker@oracle.com> wrote:
+>
 > 
-> > >  
-> > > -	if (!urb->status & !acm->throttle)  {
-> > > +	if (!urb->status && !acm->throttle)  {
-> > >  		for (i = 0; i < urb->actual_length && !acm->throttle; i++) {
+> WimMark I report for 2.5.64-mm1
 > 
-> > To summarize, I'd probably not be amused if you would change any of my
-> > code which takes advantage of such programming finess.  I would probably
-> > have added appropriate comments to explain the code but nevertheless,
-> > replacing the more efficient code with some which is easier to
-> > understand should probably be considered on a case by case basis.
+> Runs with anticipatory scheduler:  547.28 580.69
+> Runs with deadline scheduler:  1557.79 1360.52
 > 
-> Actually I feel co-responsible for acm.c,
-> and this *is* typo. acm is for modems,
-> thats *not* performance critical, and certainly
-> not worth code obfuscation.
--- 
-Norbert Kiesel <nkiesel@tbdnetworks.com>
-TBD Networks
+
+Boggle.
+
+I have a patch in my inbox which increases NickMark I throughput by 400%, so
+it should help this one.
+
+Is the difference between 2.5.64 and 2.5.64-mm1 statistically significant? 
+(It should be - the readahead changes).
 

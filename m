@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318258AbSHKJVA>; Sun, 11 Aug 2002 05:21:00 -0400
+	id <S313190AbSHKJaW>; Sun, 11 Aug 2002 05:30:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318260AbSHKJVA>; Sun, 11 Aug 2002 05:21:00 -0400
-Received: from dsl-213-023-020-163.arcor-ip.net ([213.23.20.163]:20891 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318258AbSHKJU6>;
-	Sun, 11 Aug 2002 05:20:58 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch 21/21] writeback correctness and peformance fixes
-Date: Sun, 11 Aug 2002 11:26:08 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <3D5614E6.460814A5@zip.com.au>
-In-Reply-To: <3D5614E6.460814A5@zip.com.au>
+	id <S317012AbSHKJaW>; Sun, 11 Aug 2002 05:30:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21513 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313190AbSHKJaV>;
+	Sun, 11 Aug 2002 05:30:21 -0400
+Message-ID: <3D5631E0.200E37D4@zip.com.au>
+Date: Sun, 11 Aug 2002 02:44:00 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17dozA-0001fA-00@starship>
+To: Hans Reiser <reiser@namesys.com>
+CC: Tom Vier <tmv@comcast.net>,
+       JFS-Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Testing of filesystems
+References: <20020730094902.GA257@prester.freenet.de> <20020811025018.GE17886@zero> <3D562498.9020901@namesys.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 11 August 2002 09:40, Andrew Morton wrote:
-> Incidentally, the occurrence of a locked-and-dirty buffer in
-> block_write_full_page() is fairly rare: normally the collision avoidance
-> happens at the address_space level, via PageWriteback.  But some
-> mappings (blockdevs, ext3 files, etc) have their dirty buffers written
-> out via submit_bh().  It is these buffers which can stall
-> block_write_full_page().
+Hans Reiser wrote:
 > 
-> This wart will be pretty intrusive to fix.  ext3 needs to become fully
-> page-based (ugh.  It's a block-based journalling filesystem, and pages
-> are unnatural).
+> Tom Vier wrote:
+> 
+> >On Tue, Jul 30, 2002 at 11:49:02AM +0200, Axel Siebenwirth wrote:
+> >
+> >
+> >>I wonder what a good way is to stress test my JFS filesystem. Is there a tool
+> >>
+> >>
+> ><snip>
+> >
+> >fsx.c came up a while ago on l-k. it's an old (but still very useful) fs
+> >stressor(sp) from neXT. i have a copy davej modded for linux. if you can't
+> >find it, i can send it to you. i haven't been brave enough to run it myself,
+> >on my alpha's reiserfs. 8) it found some hard to find bugs in ext2 that were
+> >lurking for years (iirc).
+> >
+> >
+> >
+> It found bugs in reiserfs and we fixed them.:)
 
-Ah, so you have finally seen the light.  This is the answer to the question: 
-"why do we need soft page size, with subpages?"  At least it's one of the 
-answers, other answers include: "finally getting rid of buffers", "cleaning 
-up the page+buffer state mess" and "eliminating the locking madness when 
-blocks are smaller than pages".
+fsx-linux is great.  Caused me no end of grief in 2.5.13.  Running
+it on small blocksize fs alongside really heavy memory pressure 
+touches all sorts of corner cases.
 
-> blockdev mappings are still written out by buffers
-> because that's how filesystems use them.  Putting _all_ metadata
-> (indirects, inodes, superblocks, etc) into standalone address_spaces
-> would fix that up.
-
-You'll like that idea until you try it.  Think about what happens when you 
-need to lock more than one subpage block at the same time, with page locks.
-
-At the rate things are going I can see actually doing the subpage thing in 
-2.7, and yes, you're right to be skeptical until you see working code.
-
--- 
-Daniel
+I have a version which is tricked up to understand O_DIRECT
+in http://www.zip.com.au/~akpm/linux/ext3-tools.tar.gz

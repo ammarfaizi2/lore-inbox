@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313005AbSC0NAe>; Wed, 27 Mar 2002 08:00:34 -0500
+	id <S313004AbSC0NKf>; Wed, 27 Mar 2002 08:10:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313004AbSC0NAZ>; Wed, 27 Mar 2002 08:00:25 -0500
-Received: from isengard.sl.pt ([212.55.140.11]:39941 "EHLO angelina.sl.pt")
-	by vger.kernel.org with ESMTP id <S313005AbSC0NAT>;
-	Wed, 27 Mar 2002 08:00:19 -0500
-Date: Wed, 27 Mar 2002 13:06:01 +0000 (WET)
-From: Nuno Miguel Rodrigues <nmr@co.sapo.pt>
-X-X-Sender: <nmr@angelina.sl.pt>
-To: Frank Schaefer <frank.schafer@setuza.cz>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler priorities
-In-Reply-To: <1017222101.1123.12.camel@ADMIN>
-Message-ID: <20020327125828.U2343-100000@angelina.sl.pt>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S313006AbSC0NKP>; Wed, 27 Mar 2002 08:10:15 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:12051 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S313004AbSC0NKJ>; Wed, 27 Mar 2002 08:10:09 -0500
+Date: Wed, 27 Mar 2002 14:10:01 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre4-ac1 vmware and emu10k1 problems
+Message-ID: <20020327131001.GA25086@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020326160638.A2103@trianna.upcommand.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 Mar 2002, Frank Schaefer wrote:
+On Tue, 26 Mar 2002, Malcolm Mallardi wrote:
 
-> On Tue, 2002-03-26 at 18:55, Mike Fedyk wrote:
-> > On Tue, Mar 26, 2002 at 11:41:39AM +0000, Nuno Miguel Rodrigues wrote:
-> > >
-> > > Hi,
-> > >
-> > > Does Linux support a fixed process scheduling priority, in the 2.4.x
-> > > releases?
-> > > If not, are there any plans to support it?
-> >
-> > Can you elaborate?  What do you mean by "fixed process"?  Minimum percentage
-> > of CPU?
-> Hi,
->
-> I'd read this ...
-> a fixed prority of some process ...
+> The vmware modules will not compile properly under 2.4.19-pre4-ac1, or
+> under 2.4.19-pre2-ac2, but compile fine on their mainline kernel
+> counterparts.  Here is the errors that I get from vmware-config.pl:
+> 
+> Building the vmmon module.
+> 
+> make: Entering directory `/tmp/vmware-config1/vmmon-only'
+> make[1]: Entering directory `/tmp/vmware-config1/vmmon-only'
+> make[2]: Entering directory
+> `/tmp/vmware-config1/vmmon-only/driver-2.4.19-pre4-ac1'
+> In file included from .././linux/driver.c:38:
+> /lib/modules/2.4.19-pre4-ac1/build/include/linux/malloc.h:4: #error
+> linux/malloc.h is deprecated, use linux/slab.h instead.
+> make[2]: *** [driver.d] Error 1
+> make[2]: Leaving directory
+> `/tmp/vmware-config1/vmmon-only/driver-2.4.19-pre4-ac1'
+> make[1]: *** [deps] Error 2
+> make[1]: Leaving directory `/tmp/vmware-config1/vmmon-only'
+> make: *** [auto-build] Error 2
+> make: Leaving directory `/tmp/vmware-config1/vmmon-only'
+> Unable to build the vmmon module.
 
-Indeed.  In other words a priority that is not dynamically adjusted over
-time.  Like a real-time scheduling priority.
-
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+Replace all #include <linux/malloc.h> by #include <linux/slab.h> as the
+#error says -- I tried that, and it works for me with 2.4.19-pre3-ac4.

@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284010AbRLAIsS>; Sat, 1 Dec 2001 03:48:18 -0500
+	id <S284008AbRLAIus>; Sat, 1 Dec 2001 03:50:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284008AbRLAIsA>; Sat, 1 Dec 2001 03:48:00 -0500
-Received: from ns.caldera.de ([212.34.180.1]:9885 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S284009AbRLAIrp>;
-	Sat, 1 Dec 2001 03:47:45 -0500
-Date: Sat, 1 Dec 2001 09:47:38 +0100
-Message-Id: <200112010847.fB18lcc21966@ns.caldera.de>
-From: Marcus Meissner <mm@ns.caldera.de>
-To: dervishd@jazzfree.com (Ra?lN??ez de Arenas	 Coronado),
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Enhancement of /proc/partitions output (2.5.1-pre5)
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <E16A5XI-0005Lr-00@DervishD.viadomus.com>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
+	id <S281506AbRLAIum>; Sat, 1 Dec 2001 03:50:42 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:34568 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S284008AbRLAIu2>; Sat, 1 Dec 2001 03:50:28 -0500
+Subject: Re: Coding style - a non-issue
+To: yodaiken@fsmlabs.com (Victor Yodaiken)
+Date: Sat, 1 Dec 2001 08:57:17 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        yodaiken@fsmlabs.com (Victor Yodaiken),
+        riel@conectiva.com.br (Rik van Riel), akpm@zip.com.au (Andrew Morton),
+        lm@bitmover.com (Larry McVoy),
+        phillips@bonn-fries.net (Daniel Phillips),
+        hps@intermeta.de (Henning Schmiedehausen),
+        jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
+In-Reply-To: <20011130214448.A28617@hq2> from "Victor Yodaiken" at Nov 30, 2001 09:44:48 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16A5xV-0006UL-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E16A5XI-0005Lr-00@DervishD.viadomus.com> you wrote:
->     Hello Anton :)
+> Here's a characteristic good Linux design method ,( or call it "less than random
+> mutation method" if that makes you feel happy): read the literature,
+> think hard, try something, implement it
 
->>Please consider below patch which adds the starting sector and number of
->>sectors to /proc/partitions.
+That assumes computer science is a functional engineering discipline. Its
+not, at best we are at the alchemy stage of progression. You put two things
+together it goes bang and you try to work out why.
 
->     This is a *great* idea. I was wondering why this information is
-> not included by default :)))
+In many of these fields there is no formal literature. The scientific paper
+system in computer science is based on publishing things people already
+believe. Much of the rest of the knowledge is unwritten or locked away in
+labs as a trade secret, and wil probably never be reused.
 
->     I have a somewhat 'special' partition scheme and that information
-> is vital for me. Thanks a lot for the patch. I hope that Marcello
-> accepts it for 2.4.17...
+Take TCP for example. The TCP protocol is specified in a series of
+documents. If you make a formally correct implementation of the base TCP RFC
+you won't even make connections. Much of the flow control behaviour, the
+queueing and the detail is learned only by being directly part of the
+TCP implementing community. You can read  all the scientific papers you
+like, it will not make you a good TCP implementor. 
 
-Marcelo, don't apply to this to 2.4, a lot of userland applications rely
-on it.
-
-Ciao, Marcus
+Alan

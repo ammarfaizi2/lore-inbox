@@ -1,103 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268128AbTAJEFP>; Thu, 9 Jan 2003 23:05:15 -0500
+	id <S261451AbTAJEN6>; Thu, 9 Jan 2003 23:13:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268129AbTAJEFP>; Thu, 9 Jan 2003 23:05:15 -0500
-Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:39665 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S268128AbTAJEFO>; Thu, 9 Jan 2003 23:05:14 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH]  Add support for ROM kernel on v850 AS85EP1 target [try #2]
+	id <S262646AbTAJEN6>; Thu, 9 Jan 2003 23:13:58 -0500
+Received: from holomorphy.com ([66.224.33.161]:54422 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261451AbTAJEN5>;
+	Thu, 9 Jan 2003 23:13:57 -0500
+Date: Thu, 9 Jan 2003 20:19:18 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Brian Tinsley <btinsley@emageon.com>
 Cc: linux-kernel@vger.kernel.org
-Reply-To: Miles Bader <miles@gnu.org>
-Message-Id: <20030110041345.E4EBE3701@mcspd15.ucom.lsi.nec.co.jp>
-Date: Fri, 10 Jan 2003 13:13:45 +0900 (JST)
-From: miles@lsi.nec.co.jp (Miles Bader)
+Subject: Re: 2.4.20, .text.lock.swap cpu usage? (ibm x440)
+Message-ID: <20030110041918.GK23814@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Brian Tinsley <btinsley@emageon.com>, linux-kernel@vger.kernel.org
+References: <3E1E3B64.5040803@emageon.com> <20030110032937.GI23814@holomorphy.com> <3E1E410E.5050905@emageon.com> <20030110035412.GJ23814@holomorphy.com> <3E1E4757.3060206@emageon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E1E4757.3060206@emageon.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[This differs from the patch I sent yesterday in that the file-encoding
- matches what's in the distribution, so should apply cleanly]
+William Lee Irwin III wrote:
+>> I don't know what to tell you here. I'm lucky that this is my day job
+>> and that I can contribute so much. However, there are plenty who
+>> contribute major changes (many even more important than my own) without
+>> any such sponsorship. Perhaps emulating them would satisfy your wish.
 
-diff -ruN -X../cludes linux-2.5.55-moo.orig/arch/v850/kernel/as85ep1.c linux-2.5.55-moo/arch/v850/kernel/as85ep1.c
---- linux-2.5.55-moo.orig/arch/v850/kernel/as85ep1.c	2002-11-28 10:24:54.000000000 +0900
-+++ linux-2.5.55-moo/arch/v850/kernel/as85ep1.c	2003-01-09 14:07:36.000000000 +0900
-@@ -44,8 +44,10 @@
- 
- void __init mach_early_init (void)
- {
-+#ifndef CONFIG_ROM_KERNEL
- 	const u32 *src;
- 	register u32 *dst asm ("ep");
-+#endif
- 
- 	AS85EP1_CSC(0) = 0x0403;
- 	AS85EP1_BCT(0) = 0xB8B8;
-@@ -53,25 +55,28 @@
- 	AS85EP1_BCC    = 0x0012;
- 	AS85EP1_ASC    = 0;
- 	AS85EP1_LBS    = 0x00A9;
--	AS85EP1_RFS(1) = 0x8205;
--	AS85EP1_RFS(3) = 0x8205;
--	AS85EP1_SCR(1) = 0x20A9;
--	AS85EP1_SCR(3) = 0x20A9;
- 
- 	AS85EP1_PORT_PMC(6)  = 0xFF; /* A20-25, A0,A1 有効 */
- 	AS85EP1_PORT_PMC(7)  = 0x0E; /* CS1,2,3       有効 */
- 	AS85EP1_PORT_PMC(9)  = 0xFF; /* D16-23        有効 */
- 	AS85EP1_PORT_PMC(10) = 0xFF; /* D24-31        有効 */
- 
--	AS85EP1_IRAMM = 0x3;	/* 内蔵命令RAMは「write-mode」になります */
-+	AS85EP1_RFS(1) = 0x800c;
-+	AS85EP1_RFS(3) = 0x800c;
-+	AS85EP1_SCR(1) = 0x20A9;
-+	AS85EP1_SCR(3) = 0x20A9;
- 
--	/* The early chip we have is buggy, so that writing the interrupt
-+#ifndef CONFIG_ROM_KERNEL
-+	/* The early chip we have is buggy, and writing the interrupt
- 	   vectors into low RAM may screw up, so for non-ROM kernels, we
- 	   only rely on the reset vector being downloaded, and copy the
- 	   rest of the interrupt vectors into place here.  The specific bug
- 	   is that writing address N, where (N & 0x10) == 0x10, will _also_
- 	   write to address (N - 0x10).  We avoid this (effectively) by
- 	   writing in 16-byte chunks backwards from the end.  */
-+
-+	AS85EP1_IRAMM = 0x3;	/* 内蔵命令RAMは「write-mode」になります */
-+
- 	src = (u32 *)(((u32)&_intv_copy_src_end - 1) & ~0xF);
- 	dst = (u32 *)&_intv_copy_dst_start
- 		+ (src - (u32 *)&_intv_copy_src_start);
-@@ -83,6 +88,7 @@
- 	} while (src > (u32 *)&_intv_copy_src_start);
- 
- 	AS85EP1_IRAMM = 0x0;	/* 内蔵命令RAMは「read-mode」になります */
-+#endif /* !CONFIG_ROM_KERNEL */
- 
- 	nb85e_intc_disable_irqs ();
- }
-@@ -107,16 +113,20 @@
- 	*ram_len = RAM_END - RAM_START;
- }
- 
-+/* Convenience macros.  */
-+#define SRAM_END	(SRAM_ADDR + SRAM_SIZE)
-+#define SDRAM_END	(SDRAM_ADDR + SDRAM_SIZE)
-+
- void __init mach_reserve_bootmem ()
- {
- 	extern char _root_fs_image_start, _root_fs_image_end;
- 	u32 root_fs_image_start = (u32)&_root_fs_image_start;
- 	u32 root_fs_image_end = (u32)&_root_fs_image_end;
- 
--	/* We can't use the space between SRAM and SDRAM, so prevent the
--	   kernel from trying.  */
--	reserve_bootmem (SRAM_ADDR + SRAM_SIZE,
--			 SDRAM_ADDR - (SRAM_ADDR + SRAM_SIZE));
-+	if (SDRAM_ADDR < RAM_END && SDRAM_ADDR > RAM_START)
-+		/* We can't use the space between SRAM and SDRAM, so
-+		   prevent the kernel from trying.  */
-+		reserve_bootmem (SRAM_END, SDRAM_ADDR - SRAM_END);
- 
- 	/* Reserve the memory used by the root filesystem image if it's
- 	   in RAM.  */
+On Thu, Jan 09, 2003 at 10:08:55PM -0600, Brian Tinsley wrote:
+> It would!
+> I cannot say thanks enough for the efforts of you and everyone else out 
+> there. Frankly, I would not have my day job and would not have been able 
+> to make Emageon what it is today were it not for you all!
+> Oh, please excuse the stupid humor tonight. I'm in a giddy mood for some 
+> reason. Must be the excitement from the prospect of getting resolution 
+> to this problem!
+
+We're straying from the subject here. Please describe your machine,
+in terms of how many cpus it has and how much highmem it has, and
+your workload, so I can better determine the issue. Perhaps we can
+cooperatively devise something that works well for you.
+
+Or perhaps the kernel version is not up-to-date. Please also provide
+the precise kernel version (and included patches). And workload too.
+
+
+Thanks,
+Bill

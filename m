@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274044AbRISNCN>; Wed, 19 Sep 2001 09:02:13 -0400
+	id <S274045AbRISNKd>; Wed, 19 Sep 2001 09:10:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274045AbRISNCD>; Wed, 19 Sep 2001 09:02:03 -0400
-Received: from Prins.externet.hu ([212.40.96.161]:55304 "EHLO
-	prins.externet.hu") by vger.kernel.org with ESMTP
-	id <S274044AbRISNBw>; Wed, 19 Sep 2001 09:01:52 -0400
-Message-ID: <3BA897CC.5040301@externet.hu>
-Date: Wed, 19 Sep 2001 15:04:12 +0200
-From: "Forsz 98 Kft." <forsz@externet.hu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010815
-X-Accept-Language: en, hu
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.10-pre12 (SMP) + preempt + ext3
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+	id <S274046AbRISNKX>; Wed, 19 Sep 2001 09:10:23 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:7177 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S274045AbRISNKL>; Wed, 19 Sep 2001 09:10:11 -0400
+Date: Wed, 19 Sep 2001 16:08:05 +0300
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <1022874923.20010919160805@port.imtp.ilyichevsk.odessa.ua>
+To: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re[2]: [PATCH] Athlon bug stomper. Pls apply.
+In-Reply-To: <Pine.GSO.4.21.0109190034030.7240-100000@skiathos.physics.auth.gr>
+In-Reply-To: <Pine.GSO.4.21.0109190034030.7240-100000@skiathos.physics.auth.gr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Wednesday, September 19, 2001, 12:39:07 AM,
+Liakakis Kostas <kostas@skiathos.physics.auth.gr> wrote:
 
-I just wanted to let everyone know that the above combination nicely works.
-I applied the sysrq.c/nmi.c fix posted by Keith Owen, the preempt patch
-and the ext3-2.4-0.9.9-2410p4 patch.
+LK> Please consider making it a configurable option. 
 
-The last one produced rejects in 5 files. All of them was obvious to fix 
-by hand
-except the one in vmscan.c which I ignored completely. This patch can be 
-found at:
+LK> My Asus A7V133 runs perfectly well with 55.7=1 and so does at least
+LK> another mobo brand that was reported here. If it can work out of the box,
+LK> leave it that way. Since this register is undocumented the patch below is
+LK> a hack. Sure it works on people hitting the problem but it is still a
+LK> hack. As such I don't want to use it if I don't have to.
 
-ftp://ftp.externet.hu/pub/people/zboszor/ext3-2.4-0.9.9-2410p12.gz
+Look into pci-pc.c amd quirks.c: do you want to make all those
+config options too?
 
-This combination works for 5 hours now.
-
-I did not do a very scientific test but this is what I tried:
-on a 2way PIII/500 384MB memory machine, running the
-latest Ximian GNOME-1.4 on RH6.2. The kernel is compiled with
-egcs-1.1.2, since I do not have anything newer on this machine yet.
-
-In one gnome-terminal I run "dd if=/dev=hda of=/dev/null".
-In another, I run a kernel compilation: "make dep clean ; make -j5 
-bzImage modules".
-In the meantime, I am browsing with Mozilla-0.9.3 from the above mentioned
-GNOME release. The Mozilla startup time almost halved. (It is an impression,
-not a timed fact, though.) I even tried a vmware-2.0.4 session, it works 
-with
-the last vmware patch for linux-2.4.9.
-
-It seems that 2.4.10 will be the Holy Grail. :-)
-
-Regards,
-Zoltan Boszormenyi
-
+Also, do you want people to spend days finding out why their
+once stable system with their brand new, faster processor
+started to oops, finally giving up and posting about this to lkml?
+-- 
+Best regards, VDA
+mailto:VDA@port.imtp.ilyichevsk.odessa.ua
+http://port.imtp.ilyichevsk.odessa.ua/vda/
 
 

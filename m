@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261600AbTAQWIu>; Fri, 17 Jan 2003 17:08:50 -0500
+	id <S261855AbTAQWOq>; Fri, 17 Jan 2003 17:14:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261689AbTAQWIu>; Fri, 17 Jan 2003 17:08:50 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:37648 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261600AbTAQWIs>; Fri, 17 Jan 2003 17:08:48 -0500
-Message-ID: <3E2822B9.B4DB7324@linux-m68k.org>
-Date: Fri, 17 Jan 2003 16:35:22 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en
+	id <S261857AbTAQWOq>; Fri, 17 Jan 2003 17:14:46 -0500
+Received: from dp.samba.org ([66.70.73.150]:17638 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261855AbTAQWOp>;
+	Fri, 17 Jan 2003 17:14:45 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org, dledford@redhat.com
-Subject: Re: [PATCH] Proposed module init race fix.
-References: <20030115082444.13D1A2C128@lists.samba.org>
-		<3E258DA5.4BB14A41@linux-m68k.org> <20030117123827.1abaf413.rusty@rustcorp.com.au>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15912.33206.305816.56149@argo.ozlabs.ibm.com>
+Date: Sat, 18 Jan 2003 09:20:38 +1100
+To: davem@redhat.com
+Cc: Patrick McHardy <kaber@trash.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: PPP_FILTER outbound only drops with debugging enables
+In-Reply-To: <3E27F79F.2090705@trash.net>
+References: <3E27F79F.2090705@trash.net>
+X-Mailer: VM 7.07 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Dave,
 
-(I take it as a good sign that I'm not in your .procmailrc yet. :-) )
+This patch looks obviously correct, please send it on to Linus.
 
-Rusty Russell wrote:
+Paul.
 
-> > >         disk->flags |= GENHD_FL_UP;
-> > >         blk_register_region(MKDEV(disk->major, disk->first_minor), disk->minors,
-> > >                         NULL, exact_match, exact_lock, disk);
-> >
-> > blk_register_region() allocates memory, which can fail?
+Patrick McHardy writes:
+> Hi.
 > 
-> Looks like.  But the semantics are the same as before, for better or worse. 8(
+> Packets in ppp_send_frame catched by pass_filter are only dropped if 
+> debuging is enabled:
 
-This means add_disk() can fail and according to your rules it can only
-be called once. If add_disk() would called a second time, the module
-would be live and add_disk() were not allowed to fail anymore.
+[snip]
 
-bye, Roman
-
-
+--- linux-2.4.20/drivers/net/ppp_generic.c.orig	2003-01-17 13:15:32.000000000 +0100
++++ linux-2.4.20/drivers/net/ppp_generic.c	2003-01-17 13:16:23.000000000 +0100
+@@ -965,11 +965,10 @@
+ 		if (ppp->pass_filter.filter
+ 		    && sk_run_filter(skb, ppp->pass_filter.filter,
+ 				     ppp->pass_filter.len) == 0) {
+-			if (ppp->debug & 1) {
++			if (ppp->debug & 1)
+ 				printk(KERN_DEBUG "PPP: outbound frame not passed\n");
+-				kfree_skb(skb);
+-				return;
+-			}
++			kfree_skb(skb);
++			return;
+ 		}
+ 		/* if this packet passes the active filter, record the time */
+ 		if (!(ppp->active_filter.filter

@@ -1,93 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261527AbSLZA1z>; Wed, 25 Dec 2002 19:27:55 -0500
+	id <S261523AbSLZA0v>; Wed, 25 Dec 2002 19:26:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261530AbSLZA1z>; Wed, 25 Dec 2002 19:27:55 -0500
-Received: from 217-126-207-69.uc.nombres.ttd.es ([217.126.207.69]:17412 "EHLO
-	server01.nullzone.prv") by vger.kernel.org with ESMTP
-	id <S261527AbSLZA1x>; Wed, 25 Dec 2002 19:27:53 -0500
-Message-Id: <5.1.1.6.2.20021226012834.037b9558@192.168.2.131>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Thu, 26 Dec 2002 01:36:28 +0100
+	id <S261527AbSLZA0v>; Wed, 25 Dec 2002 19:26:51 -0500
+Received: from mailproxy1.netcologne.de ([194.8.194.222]:32993 "EHLO
+	mailproxy1.netcologne.de") by vger.kernel.org with ESMTP
+	id <S261523AbSLZA0t> convert rfc822-to-8bit; Wed, 25 Dec 2002 19:26:49 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: =?iso-8859-15?q?J=F6rg=20Prante?= <joergprante@netcologne.de>
+Reply-To: joergprante@netcologne.de
 To: linux-kernel@vger.kernel.org
-From: system_lists@nullzone.org
-Subject: Highpoint HPT370 not working in 2.4.18+ versions
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Subject: [PATCHSET] 2.4.21-pre2-jp15
+Date: Thu, 26 Dec 2002 01:33:54 +0100
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212260133.54856.joergprante@netcologne.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Hi there,
+here is my christmas present for you!
 
-    i have a Highpoint 370 which doesnt work in new kernel releases.
-    I'm just using 2.4.18 becouse other version upper doesnt detect the 
-Raid HW card.
+Linux kernel patch set 2.4.21-pre2-jp15
 
-Actualy i get this message with 2.4.18 (getting the most important about 
-this one):
+This is the fifteenth release of the -jp patch set.
 
---------
-VP_IDE: not 100% native mode: will probe irqs later
-     ide0: BM-DMA at 0xa000-0xa007, BIOS settings: hda:DMA, hdb:pio
-     ide1: BM-DMA at 0xa008-0xa00f, BIOS settings: hdc:pio, hdd:pio
-HPT370A: IDE controller on PCI bus 00 dev 50
-PCI: Found IRQ 11 for device 00:0a.0
-HPT370A: chipset revision 4
-HPT370A: not 100% native mode: will probe irqs later
-     ide2: BM-DMA at 0xc000-0xc007, BIOS settings: hde:pio, hdf:pio
-     ide3: BM-DMA at 0xc008-0xc00f, BIOS settings: hdg:pio, hdh:pio
-hda: FUJITSU MPA3026ATU, ATA DISK drive
-hde: ST380020A, ATA DISK drive
-hdf: ST360020A, ATA DISK drive
-hdg: ST380020A, ATA DISK drive
-hdh: ST360020A, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide2 at 0xb000-0xb007,0xb402 on irq 11
-ide3 at 0xb800-0xb807,0xbc02 on irq 11
-hda: 5126964 sectors (2625 MB), CHS=635/128/63
-hde: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63, UDMA(33)
-hdf: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=116301/16/63, UDMA(33)
-hdg: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63, UDMA(33)
-hdh: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=116301/16/63, UDMA(33)
-Partition check:
-  hda: hda1 hda2 hda3 hda4
-  hde: unknown partition table
-  hdf: unknown partition table
-  hdg: [PTBL] [9729/255/63] hdg1
-  hdh: unknown partition table
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 96M
-agpgart: Detected Via Apollo Pro chipset
-agpgart: AGP aperture is 64M @ 0xd8000000
-  ataraid/d0: ataraid/d0p1
-Highpoint HPT370 Softwareraid driver for linux version 0.01
-Drive 0 is 76319 Mb
-Drive 1 is 57241 Mb
-Raid array consists of 2 drives.
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP
---------
+Status: 25 Dec 2002 22:00 CEST
 
-With new version o get only the:
-...
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 96M
-agpgart: Detected Via Apollo Pro chipset
-agpgart: AGP aperture is 64M @ 0xd8000000
-Highpoint HPT370 Softwareraid driver for linux version ...
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP
-...
-and its all....
+What is it?
 
-May any tell me what is going bad with my card? is just a problem of drivers?
+The -jp kernel patch sets are development kernels for testing purpose only. 
+They provide a service for developers who want keep up to date with the 
+latest kernels and interesting patches. If you like to test interesting new 
+features of patches and evaluate bleeding-edge enhancements not to be 
+expected for inclusion into the standard 2.4 kernel in the near future, the 
+-jp kernel patch set is the one for you.
 
-Seeya
+The patches are selected under performance improvement criterias and increased 
+stability under load, with an eye on better file system support and security. 
+Each patch is carefully evaluated, compiled and adapted to fit into the 
+collection. The patch set should compile; but it can't be guarantueed that it 
+successfully boots on every machine.
 
-Note: add to this .. if i set the IDE driver over UDMA33 i get DME timeout 
-and the system halt. Seeting UDMA to 33 the systems works withput problems 
-or needing any intervention for months.
+Before being released, the -jp kernel is tested for successful booting into 
+SuSE Linux 8.1 on a test machine with the Elitegroup K7S5A board, Duron 1 
+Ghz, 256 MB, 40 GB IDE drive, SCSI 4.3 GB drive, Geforce 2 graphics card. It 
+will be released if a -jp kernel self-compile and reboot on an XFS file 
+system partition succeeds.
 
+The -jp patch sets will appear regularly, depending on the progress of 2.4 
+kernel releases. The 2.6 kernel is scheduled for second quarter of 2003, and 
+-jp patch sets will be continued for 2.6 kernels.
+
+Download
+
+http://infolinux.de/jp15
+
+The patch set is provided as a single archive where you will find all patches 
+as separate files. Please take care if you split the set and try to use parts 
+of it. The recommended method is downloading the set, unpacking the archive, 
+and apply the patches with the applypatches shell script provided in the 
+archive.
+
+Content
+
+001_intermezzo-fix                 038_i2c
+002_parport-fix                    039_i2c-fix
+003_ncpfs-fix                      040_lmsensors
+004_i8k-fix                        041_h323-netmeeting-nat-fix
+005_ide-fix                        042_talk-nat-fix
+006_ide-hack                       043_net-khttpd-remove
+007_aic7xx-trivialdb               044_net-tux2
+008_scx200-fix                     045_nfs-all
+009_variable-hz-rml                046_xfs
+010_amd-cool                       047_xfs-kernel
+011_cpufreq                        048_xfs-quota32
+012_cpufreq-coppermine             049_xfs-dmapi
+013_via-northbridge-fixup          050_xfs-misc
+014_TIOCGDEV                       051_xfs-acl
+015_vm-rmap                        052_xfs-ia64
+016_vm-rmap-fix                    053_ntfs
+017_vm-strict-overcommit-rml       054_ftpfs
+018_vm-strict-overcommit-rml-fix   055_cdfs
+019_sched-O1-rml                   056_ftpfs-fix
+020_sched-O1-bluetooth-bnep-fix    057_njbfs
+021_sched-hyperthreading           058_evms
+021_sched-tunables-rml             059_evms-common
+022_preempt-kernel-rml             060_evms-xfs-vfs-lock
+022_preempt-log-rml                061_lvm2-devmapper-ioctl
+022_preempt-stats-rml              062_lvm2-mempool-alloc-slab-fix
+023_preempt-lock-break             063_driver-console-unicon
+024_preempt-lowlatency             064_grsecurity
+025_read-latency2-rmap             065_patch-int
+026_pagecache-radixtree-lockbreak  066_loop-jari
+027_driver-scsi-dc395x             067_alsa-kernel
+028_driver-net-3c59x               068_alsa-kernel-stubs
+029_driver-usbd-net                069_alsa-config
+030_driver-usbd-net-fix            070_alsa-doc
+031_driver-pdc202xx-pci            071_alsa-pde-airo-fix
+032_driver-ide-cd-audio-dma        072_alsa-sb16-fix
+033_driver-cdrw-packet-write       073_alsa-devfs-fix
+034_supermount                     074_ieee1394-fix
+035_supermount-fix                 075_freeswan-nodebug-fix
+036_ipsec-freeswan                 100_VERSION
+037_acpi
+
+Known Issues
+
+* XFS with preemptive kernel can't sync, a kernel BUG is thrown. Please don't 
+use XFS with preemptive kernel.
+
+* Kernel panic: VFS: Unable to mount root fs on ... Please build your root 
+fs into the kernel, not as a module.
+
+* The variable 'CONFIG_SOUND' is shared between Alsa and OSS. This is not very 
+elegant. Kernel will be bigger than necessary.
+
+* mkinitrd might fail with:
+xfs: failed to add module "/lib/modules/2.4.21-pre2-jp15/kernel/fs/xfs/xfs.o"
+initrd too small
+Please don't switch on xfs debugging. It will bloat xfs.o over 22 MB.
+    
+* building a "Jumbo Kernel" with *all* possible configuration options selected 
+to 'y' will build, but it fails at vmlinux link time due to limitations in 
+binutils-2.12.90 (SuSE 8.1).
+
+Have fun!
+
+            Jörg Prante <joerg@infolinux.de> 

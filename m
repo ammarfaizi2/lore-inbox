@@ -1,81 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265094AbUBIMMW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 07:12:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265061AbUBIMMW
+	id S265061AbUBIM2a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 07:28:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265100AbUBIM2a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 07:12:22 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:725 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265060AbUBIMMR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 07:12:17 -0500
-Date: Mon, 9 Feb 2004 13:11:44 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Thomas Horsten <thomas@horsten.com>
-Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: New mailing list for 2.6 Medley RAID (Silicon Image 3112 etc.) BIOS RAID development
-Message-ID: <20040209121144.GA24503@devserv.devel.redhat.com>
-References: <1076320246.4444.0.camel@laptop.fenrus.com> <Pine.LNX.4.40.0402091155040.8715-100000@jehova.dsm.dk>
+	Mon, 9 Feb 2004 07:28:30 -0500
+Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:58532 "EHLO
+	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S265061AbUBIM21
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 07:28:27 -0500
+Date: Mon, 9 Feb 2004 12:28:25 +0000
+From: Hugo Mills <hugo-lkml@carfax.org.uk>
+To: linux-kernel@vger.kernel.org,
+       Nico Schottelius <nico-kernel@schottelius.org>
+Subject: Re: UTF-8 in file systems? xfs/extfs/etc.
+Message-ID: <20040209122825.GA22679@carfax.org.uk>
+Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+	linux-kernel@vger.kernel.org,
+	Nico Schottelius <nico-kernel@schottelius.org>
+References: <20040209115852.GB877@schottelius.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3MwIy2ne0vdjdPXF"
+	protocol="application/pgp-signature"; boundary="17pEHd4RhPHOinZp"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.40.0402091155040.8715-100000@jehova.dsm.dk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040209115852.GB877@schottelius.org>
+X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
+X-GPG-Key: 1C335860
+X-Parrot: It is no more. It has joined the choir invisible.
+X-IRC-Nicks: hugo darksatanic
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---3MwIy2ne0vdjdPXF
-Content-Type: text/plain; charset=us-ascii
+--17pEHd4RhPHOinZp
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 09, 2004 at 12:01:55PM +0000, Thomas Horsten wrote:
-> On Mon, 9 Feb 2004, Arjan van de Ven wrote:
+On Mon, Feb 09, 2004 at 12:58:52PM +0100, Nico Schottelius wrote:
+> Morning!
 >=20
-> > > The reason I insist on autodetection is that I think it's important t=
-hat if
-> > > the BIOS will reckognise the drive without additional intervention, s=
-o will
-> > > Linux. This will make the entry route for newbies much simpler.
-> >
-> > do you call running devicemapper tools from the initrd autodetection ?
+> What Linux supported filesystems support UTF-8 filenames?
 >=20
-> Probably not. I am working with several ways of doing it, and that's why I
-> wanted to have a discussion about this.
->=20
-> Ideally I'd want something like the MD autodetect code, so that the whole
-> thing can be set up by the kernel at boot-time if the necessary drivers
-> are compiled in (by reading the Medley superblock the same way it's done
-> for 0xfe partitions).
+> Looks like at least xfs and reiserfs are not able of handling them,
 
-I (and I suspect a lot of other folks) rather get rid of such autodetect and
-move it to userspace. Either via initrd or initramfs.
+   I'm using ReiserFS on my media drive, and I can tell you that the
+UTF-8 works fine on the filesystem:
 
-> Having autodetection at kernel level would make it possible to boot from a
-> kernel on a floppy disk without initrd support, and in general make a
-> system easier to set up.
+hrm@vlad:Les-Granges-Brul=E9es $ ls
+Descente-Au-Village.ogg		    Les-Granges-Brul=E9es.ogg
+G=E9n=E9rique.ogg			    L'H=E9licopt=E8re.ogg
+H=E9sitation.ogg			    Reconstitution.ogg
+La-Chanson-Des-Grange-Brul=E9es.ogg   Rose.ogg
+La-Perquisition-Et-Les-Paysans.ogg  Th=E9me-De-L'Argent.ogg
+La-V=E9rit=E9.ogg			    typescript
+Le-Car+Le-Chasse-Neige.ogg	    Une-Morte-Dans-La-Neige.ogg
+Le-Juge.ogg			    Zig-Zag.ogg
+Le-Pays-de-Rose.ogg
 
-initrd/initramfs is increasingly becoming mandatory sort of, and it's
-actually easy if not even default to set up. (Eg on Fedora / Red Hat even
-just typing make install will auto-create this for you)
+> As Apache with UTF-8 as default charset delievers wrong names, when
+> accessing files with German umlauts.
 
-> But the reason I wanted this discussion is to figure out the best way to
-> go about it, and if there are some good arguments against autodetecting in
-> the kernel I'll listen to them.
+   I'd suspect a problem with Apache more than a problem with the
+filesystem.
 
-It doesn't really belong there.
---3MwIy2ne0vdjdPXF
-Content-Type: application/pgp-signature
+   Hugo.
+
+--=20
+=3D=3D=3D Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk=
+ =3D=3D=3D
+  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
+    --- There's an infinite number of monkeys outside who want to ---   =20
+               talk to us about this new script for Hamlet              =20
+                           they've worked out!                          =20
+
+--17pEHd4RhPHOinZp
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFAJ3j/xULwo51rQBIRAqNZAJ0aHEF7cuHAATseYUKfz2ie1Pc1pwCgojf/
-f9AB6yE9A6qZgT16CSM3Bdw=
-=0Ztj
+iD8DBQFAJ3zpssJ7whwzWGARAqlkAJwIvBE6T4zo3UFOHgAg/eLnWg2oCgCgrwuK
+fqw58aLElMTAcHF4qCs8avg=
+=BSNd
 -----END PGP SIGNATURE-----
 
---3MwIy2ne0vdjdPXF--
+--17pEHd4RhPHOinZp--

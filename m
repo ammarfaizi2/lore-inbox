@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269400AbUJFQ5r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269418AbUJFRDo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269400AbUJFQ5r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 12:57:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269401AbUJFQxd
+	id S269418AbUJFRDo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 13:03:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269390AbUJFRDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 12:53:33 -0400
-Received: from mail.optivus.com ([4.36.236.162]:50905 "EHLO pogo1.optivus.com")
-	by vger.kernel.org with ESMTP id S268838AbUJFQuk (ORCPT
+	Wed, 6 Oct 2004 13:03:36 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:42630 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269421AbUJFQ7G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 12:50:40 -0400
-From: Michael Baumann <baumann@optivus.com>
-Reply-To: baumann@optivus.com
-Organization: Optivus Technology, Inc.
-To: linux-kernel@vger.kernel.org
-Subject: Problem trying to implement mmap for device on 2.4
-Date: Wed, 6 Oct 2004 09:50:39 -0700
-User-Agent: KMail/1.6.2
+	Wed, 6 Oct 2004 12:59:06 -0400
+Message-ID: <4164240E.1070706@redhat.com>
+Date: Wed, 06 Oct 2004 12:57:50 -0400
+From: Neil Horman <nhorman@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+To: "David S. Miller" <davem@davemloft.net>
+CC: Chris Friesen <cfriesen@nortelnetworks.com>, root@chaos.analogic.com,
+       joris@eljakim.nl, linux-kernel@vger.kernel.org
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl>	<20041006080104.76f862e6.davem@davemloft.net>	<Pine.LNX.4.61.0410061110260.6661@chaos.analogic.com>	<20041006082145.7b765385.davem@davemloft.net>	<41640FE2.3080704@nortelnetworks.com> <20041006084128.38e9970d.davem@davemloft.net>
+In-Reply-To: <20041006084128.38e9970d.davem@davemloft.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410060950.39483.baumann@optivus.com>
-X-Greylist: Sender DNS name whitelisted, not delayed by milter-greylist-1.4 (pogo1.optivus.com [143.197.200.253]); Wed, 06 Oct 2004 09:50:39 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry if this is too much of a noob question - do point me to the right place
-if you can.
-System: PPC on VME
-Attempting driver for 3rd party NVRAM board - it's meant to be used as
-a data-store/system-state recorder. Will be used by more than one
-processor in the system - each processor is to use a "chunk" of the RAM
-as it's scratch space. Or that's the plan.
+David S. Miller wrote:
+> On Wed, 06 Oct 2004 09:31:46 -0600
+> Chris Friesen <cfriesen@nortelnetworks.com> wrote:
+> 
+> 
+>>David S. Miller wrote:
+>>
+>>
+>>>So if select returns true, and another one of your threads
+>>>reads all the data from the file descriptor, what would you
+>>>like the behavior to be for the current thread when it calls
+>>>read?
+>>
+>>What about the single-threaded case?
+> 
+> 
+> Incorrect UDP checksums could cause the read data to
+> be discarded.  We do the copy into userspace and checksum
+> computation in parallel.  This is totally legal and we've
+> been doing it since 2.4.x first got released.
+> 
+> Use non-blocking sockets with select()/poll() and be happy.
 
-Based on what I thought I understood from Rubini&Corbet 2nd Edition
-I created a simple module, that provided a mmap method - after reserving
-the region via request_mem_region.
 
-mapping was done with a simple remap_page_range() 
-
-In userland, the mmap system call is made, with MAP_FIXED
-and the kernel immediately fails the call with "cannot allocate memory" - 
-never even getting to my implementation of the mmap call. Apparently
-dying somewhere during "the good deal of work" Rubini talks about.
-If I don't use MAP_FIXED, things 'work', but I need that fixed location,
-I'm obviously trying to map the RAM into user space for access.
-
-
-I'm assuming I'm missing something simple in the setup, somewhere.
-Any help/pointers/ even insults accepted - I'm in a tough spot here.
-
- 
+I think you could also pass the MSG_ERRQUEUE flag to the recvfrom call 
+and receive the errored frame, eliminating the case where errored frames 
+might cause you to block on a read after a good return from a select call.
+Neil
 -- 
---
-#include <std_disclaimer>
-Michael Baumann   9518974841
-Optivus Technology, Inc.
+/***************************************************
+  *Neil Horman
+  *Software Engineer
+  *Red Hat, Inc.
+  *nhorman@redhat.com
+  *gpg keyid: 1024D / 0x92A74FA1
+  *http://pgp.mit.edu
+  ***************************************************/

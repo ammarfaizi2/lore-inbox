@@ -1,33 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129428AbRAEGDQ>; Fri, 5 Jan 2001 01:03:16 -0500
+	id <S129183AbRAEGFG>; Fri, 5 Jan 2001 01:05:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129415AbRAEGDH>; Fri, 5 Jan 2001 01:03:07 -0500
-Received: from www.wen-online.de ([212.223.88.39]:6404 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S129428AbRAEGCv>;
-	Fri, 5 Jan 2001 01:02:51 -0500
-Date: Fri, 5 Jan 2001 07:02:03 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Nicholas Knight <tegeran@home.com>
-cc: linux-kernel@vger.kernel.org,
-        Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-Subject: Re: Fw: Change of policy for future 2.2 driver submissions
-In-Reply-To: <000e01c076d5$dd4370b0$8d19b018@c779218a>
-Message-ID: <Pine.Linu.4.10.10101050658550.1587-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129267AbRAEGE4>; Fri, 5 Jan 2001 01:04:56 -0500
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:23558 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S129183AbRAEGEk>;
+	Fri, 5 Jan 2001 01:04:40 -0500
+Date: Thu, 4 Jan 2001 22:02:41 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, stackguard@immunix.org
+Subject: [PATCH] StackGuard patch for 2.4.0
+Message-ID: <20010104220241.B1237@kroah.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="n8g4imXOkfNTN/H1"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux 2.2.16-immunix (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2001, Nicholas Knight wrote:
 
-> since Mark posted his views to the list, I figured I could safely post the
-> conversation I've been having with him in email
+--n8g4imXOkfNTN/H1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-No excuse is good enough to justify posting private mail.
+Just because I _know_ someone will ask me if I don't send this out, here
+is the patch to allow the kernel to compile with the StackGuard version
+of gcc.
 
-	-Mike
+thanks,
 
+greg k-h
+
+-- 
+greg@(kroah|wirex).com
+
+--n8g4imXOkfNTN/H1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="canary-2.4.0.patch"
+
+diff -Naur -X dontdiff linux-2.4.0/Makefile linux-2.4.0-greg/Makefile
+--- linux-2.4.0/Makefile	Thu Jan  4 13:48:13 2001
++++ linux-2.4.0-greg/Makefile	Thu Jan  4 21:40:49 2001
+@@ -228,6 +228,10 @@
+ 
+ include arch/$(ARCH)/Makefile
+ 
++# if we have a StackGuard compiler, then we need to turn off the canary death handler stuff
++CFLAGS	+= $(shell if $(CC) -fno-canary-all-functions -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-fno-canary-all-functions"; fi)
++CFLAGS	+= $(shell if $(CC) -mno-terminator-canary -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-mno-terminator-canary"; fi)
++
+ export	CPPFLAGS CFLAGS AFLAGS
+ 
+ export	NETWORKS DRIVERS LIBS HEAD LDFLAGS LINKFLAGS MAKEBOOT ASFLAGS
+diff -Naur -X dontdiff linux-2.4.0/arch/i386/boot/compressed/Makefile linux-2.4.0-greg/arch/i386/boot/compressed/Makefile
+--- linux-2.4.0/arch/i386/boot/compressed/Makefile	Tue Mar  7 11:04:12 2000
++++ linux-2.4.0-greg/arch/i386/boot/compressed/Makefile	Thu Jan  4 21:40:49 2001
+@@ -12,6 +12,12 @@
+ CFLAGS = $(CPPFLAGS) -O2 -DSTDC_HEADERS
+ ZLDFLAGS = -e startup_32
+ 
++# if we have a StackGuard compiler, then we need to turn off the canary death handler stuff
++CFLAGS += $(shell if $(CC) -fno-canary-all-functions -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-fno-canary-all-functions"; fi)
++CFLAGS += $(shell if $(CC) -mno-terminator-canary -S -o /dev/null -xc /dev/null >/dev/null 2>&1; then echo "-mno-terminator-canary"; fi)
++
++
++
+ #
+ # ZIMAGE_OFFSET is the load offset of the compression loader
+ # BZIMAGE_OFFSET is the load offset of the high loaded compression loader
+
+--n8g4imXOkfNTN/H1--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

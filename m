@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130526AbRAGVTC>; Sun, 7 Jan 2001 16:19:02 -0500
+	id <S129669AbRAGVUM>; Sun, 7 Jan 2001 16:20:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130130AbRAGVSw>; Sun, 7 Jan 2001 16:18:52 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:56820 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130526AbRAGVSo>; Sun, 7 Jan 2001 16:18:44 -0500
-Date: Sun, 7 Jan 2001 19:18:31 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Zlatko Calusic <zlatko@iskon.hr>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-mm@kvack.org,
+	id <S129977AbRAGVUC>; Sun, 7 Jan 2001 16:20:02 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:52496 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129669AbRAGVTq>; Sun, 7 Jan 2001 16:19:46 -0500
+Subject: Re: Patch (repost): cramfs memory corruption fix
+To: riel@conectiva.com.br (Rik van Riel)
+Date: Sun, 7 Jan 2001 21:20:07 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        adam@yggdrasil.com (Adam J. Richter), parsley@roanoke.edu,
         linux-kernel@vger.kernel.org
-Subject: Re: [patch] mm-cleanup-1 (2.4.0)
-In-Reply-To: <dnitnrcbji.fsf@magla.iskon.hr>
-Message-ID: <Pine.LNX.4.21.0101071917250.21675-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0101071910200.21675-100000@duckman.distro.conectiva> from "Rik van Riel" at Jan 07, 2001 07:11:56 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14FNEZ-0003LV-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 Jan 2001, Zlatko Calusic wrote:
-
-> OK, maybe I was too fast in concluding with that change. I'm
-> still trying to find out why is MM working bad in some
-> circumstances (see my other email to the list).
+> Sounds like a job for ... <drum roll> ... tmpfs!!
 > 
-> Anyway, I would than suggest to introduce another /proc entry
-> and call it appropriately: max_async_pages. Because that is what
-> we care about, anyway. I'll send another patch.
+> (and yes, I share your opinion that ramfs is nice _because_
+> it's an easy example for filesystem code teaching)
 
-In fact, that's NOT what we care about.
+The resource tracking ramfs isnt that much uglier to be honest. One that went
+off using backing store would be, but ramfs with limits simply ensures that
 
-What we really care about is the number of disk seeks
-the VM subsystem has queued to disk, since it's seek
-time that causes other requests to suffer bad latency.
+dd if=/dev/zero of=/mnt/ram/foo
 
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+doesnt crash your box
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

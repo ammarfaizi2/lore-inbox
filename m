@@ -1,72 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263763AbTLTB0i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 20:26:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263767AbTLTB0i
+	id S263745AbTLTB0P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 20:26:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263763AbTLTB0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 20:26:38 -0500
-Received: from mail-09.iinet.net.au ([203.59.3.41]:64192 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263763AbTLTB0e
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 20:26:34 -0500
-Message-ID: <3FE3A53F.6090203@cyberone.com.au>
-Date: Sat, 20 Dec 2003 12:26:23 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christian Meder <chris@onestepahead.de>
-CC: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6 vs 2.4 regression when running gnomemeeting
-References: <1071864709.1044.172.camel@localhost>	 <20031219203227.GR31393@holomorphy.com>	 <1071876632.1044.179.camel@localhost>  <3FE39603.9000501@cyberone.com.au>	 <1071880660.1044.194.camel@localhost>  <3FE39C7A.7050507@cyberone.com.au> <1071882705.1044.207.camel@localhost>
-In-Reply-To: <1071882705.1044.207.camel@localhost>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 19 Dec 2003 20:26:15 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:35307 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S263745AbTLTB0N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 20:26:13 -0500
+Date: Fri, 19 Dec 2003 17:24:28 -0800
+To: Pat Gefre <pfg@sgi.com>
+Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+       davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Updating our sn code in 2.6
+Message-ID: <20031220012428.GA6654@sgi.com>
+Mail-Followup-To: Pat Gefre <pfg@sgi.com>,
+	Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+	davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org
+References: <20031219114328.A26526@infradead.org> <200312200035.hBK0ZwWR005874@fsgi900.americas.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200312200035.hBK0ZwWR005874@fsgi900.americas.sgi.com>
+User-Agent: Mutt/1.5.4i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David, can you take these patches into your tree too?  We'll of course
+continue to clean things up, but with the application of these patches,
+the 2.6 kernel becomes something really usable for people with Altix
+machines.
 
+Thanks,
+Jesse
 
-Christian Meder wrote:
-
->On Sat, 2003-12-20 at 01:48, Nick Piggin wrote:
->
->>Sounds reasonable. Maybe its large interrupt or scheduling latency
->>caused somewhere else. Does disk activity alone cause a problem?
->>find / -type f | xargs cat > /dev/null
->>how about
->>dd if=/dev/zero of=./deleteme bs=1M count=256
->>
->
->Ok. I've attached the logs from a run with a call with only an
->additional dd. The quality was almost undisturbed only very slightly
->worse than the unloaded case.
->
-
-OK, its probably not that then. Try the find command though, it would
-be closer to what make/gcc is doing.
-
->
->>You said it faired slightly better with my scheduler when renicing
->>gnome meeting to -10. How much better is that?
->>
->
->Worse than unloaded and worse than the disk loaded case from above. But
->all (CPU) loaded cases were producing almost complete audio dropouts
->while with your scheduler and renicing to -10 I got at least a
->stuttering audio stream (a regular pattern of very short slices of audio
->mixed with very short slices of silence).
->
-
-So it does sound like scheduling latency then. Its difficult to find
-out what is happening with top and vmstat because they don't give you
-an idea of individual scheduling events, which is what is important
-for things like this. I'll have a look into making up a patch to gather
-what I want to know.
-
-In the meantime, I have a newer scheduler patch against 2.6.0 you could
-try: http://www.kerneltrap.org/~npiggin/v28p1.gz
-
-Try nicing the compile to +19 if it still stutters.
-
-
+On Fri, Dec 19, 2003 at 06:35:57PM -0600, Pat Gefre wrote:
+> Christoph,
+> 
+> Some general comments/questions and then the specifics follow.
+> 
+> First off, some of the changed/reorg'd code is foundation code for a
+> new ASIC that we are working on - so it now looks a little silly and
+> maybe a little like overkill, but we would like to start moving this
+> code into the community base.
+> 
+> I'm not sure where you are going with the IP27 idea. IP27 is mips so
+> the code doesn't belong in the ia64 directories - we also don't support
+> Bridge/Xbridge in our ia64 code which is why we'd like to get rid of it
+> and if you wanted to use the code as framework for other work I would
+> think you could archive a version of the tree now ? So I'm a bit
+> confused - there must be something I'm missing.
+> 
+> Also I did these patches sequentially (hence the numbering) - so in
+> some cases I may have taken out code that wasn't being used at the
+> time, but then added in back in when it was used.
+> 
+> Thanks for reviewing this for me - it sounds like we are making some
+> progress.

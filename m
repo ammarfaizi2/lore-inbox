@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbUKFBVR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbUKFBYS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261221AbUKFBVR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 20:21:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbUKFBVR
+	id S261238AbUKFBYS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 20:24:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbUKFBYS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 20:21:17 -0500
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:12960 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S261221AbUKFBVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 20:21:14 -0500
-Date: Sat, 6 Nov 2004 02:20:18 +0100
-From: Andrea Arcangeli <andrea@novell.com>
-To: Jesse Barnes <jbarnes@sgi.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages / all_unreclaimable braindamage
-Message-ID: <20041106012018.GT8229@dualathlon.random>
-References: <20041105200118.GA20321@logos.cnet> <200411051532.51150.jbarnes@sgi.com>
+	Fri, 5 Nov 2004 20:24:18 -0500
+Received: from fw.osdl.org ([65.172.181.6]:57760 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261238AbUKFBYP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 20:24:15 -0500
+Date: Fri, 5 Nov 2004 17:24:14 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: marcelo.tosatti@cyclades.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] compile fix for neighbour scalability backport
+Message-ID: <20041105172414.L14339@build.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200411051532.51150.jbarnes@sgi.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 05, 2004 at 03:32:50PM -0800, Jesse Barnes wrote:
-> On Friday, November 05, 2004 12:01 pm, Marcelo Tosatti wrote:
-> > In my opinion the correct approach is to trigger the OOM killer
-> > when kswapd is unable to free pages. Once that is done, the number
-> > of tasks inside page reclaim is irrelevant.
-> 
-> That makes sense.
+Compile fix for neighbour scalability backport.
 
-I don't like it, kswapd may fail balancing because there's a GFP_DMA
-allocation that eat the last dma page, but we should not kill tasks if
-we fail to balance in kswapd, we should kill tasks only when no fail
-path exists (i.e. only during page faults, everything else in the kernel
-has a fail path and it should never trigger oom).
+neighbour.c:1901: error: `THIS_MODULE' undeclared here (not in a function)
+neighbour.c:1901: error: initializer element is not constant
+neighbour.c:1901: error: (near initialization for `neigh_stat_seq_fops.owner')
 
-If you move it in kswapd there's no way to prevent oom-killing from a
-syscall allocation (I guess even right now it would go wrong in this
-sense, but at least right now it's more fixable). I want to move the oom
-kill outside the alloc_page paths. The oom killing is all about the page
-faults not having a fail path, and in turn the oom killing should be
-moved in the page fault code, not in the allocator. Everything else
-should keep returning -ENOMEM to the caller.
+Signed-off-by: Chris Wright <chrisw@osdl.org>
 
-So to me moving the oom killer into kswapd looks a regression.
+===== net/core/neighbour.c 1.14 vs edited =====
+--- 1.14/net/core/neighbour.c	2004-10-05 11:40:25 -07:00
++++ edited/net/core/neighbour.c	2004-11-05 17:13:03 -08:00
+@@ -19,6 +19,7 @@
+ #include <linux/config.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
++#include <linux/module.h>
+ #include <linux/socket.h>
+ #include <linux/sched.h>
+ #include <linux/netdevice.h>

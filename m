@@ -1,87 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268667AbUH3RbW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268679AbUH3Rb4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268667AbUH3RbW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 13:31:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268654AbUH3Rav
+	id S268679AbUH3Rb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 13:31:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268646AbUH3Rb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 13:30:51 -0400
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:32233 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S268648AbUH3RaL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 13:30:11 -0400
-Date: Mon, 30 Aug 2004 10:31:57 -0700
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: Summarizing the PWC driver questions/answers
-Message-ID: <20040830173157.GA24392@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-	linux-usb-devel@lists.sourceforge.net
-References: <20040827162613.GB32244@kroah.com>
+	Mon, 30 Aug 2004 13:31:56 -0400
+Received: from main.gmane.org ([80.91.224.249]:23969 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S268582AbUH3R2g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 13:28:36 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?ISO-8859-1?Q?Marc_Str=E4mke?= <marcstraemke.work@gmx.net>
+Subject: Re: Problem accessing Sandisk CompactFlash Cards (Connected to the
+     IDE bus)
+Date: Mon, 30 Aug 2004 19:31:12 +0200
+Message-ID: <cgvo40$t0d$2@sea.gmane.org>
+References: <cgs2c1$ccg$1@sea.gmane.org> <4131DC5D.8060408@redhat.com> <cgsuq2$7cb$1@sea.gmane.org> <41326FE1.2050508@redhat.com> <20040830010712.GC12313@logos.cnet> <cguj7n$gur$1@sea.gmane.org> <41333879.2040902@redhat.com> <cgvi5l$t0d$1@sea.gmane.org> <41335F8B.3000207@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040827162613.GB32244@kroah.com>
-X-No-Archive: yes
-X-Noarchive: yes
-User-Agent: Mutt/1.5.6i
-From: Brian Litzinger <brian@worldcontrol.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: p508ea078.dip.t-dialin.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: en
+In-Reply-To: <41335F8B.3000207@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 27, 2004 at 09:26:13AM -0700, Greg KH wrote:
-> Q: Why did you remove the hook from the pwc driver?
-> A: It was there for the explicit purpose to support a binary only
->    module.  That goes against the kernel's documented procedures, so I
->    had to take it out.
+Neil Horman wrote:
+> <snip<
+> 
+> 1) older SanDisk cards are detected as CFA devices and are working, but 
+> not bootable.
+> 
+> 2) newer SanDisk cards are detected as ATA disks, and are bootable as 
+> such, but do not seem to be operating correctly (the aforementioned ide 
+> errors).
+> 
+> 
+> Is this correct?
 
-I think Greg "chose" to take it out.
+Not fully, actually both are bootable, but the second one gets 
+read/write errors after booting, and when accessed after booting from 
+another boot device (NFS)
 
-> Q: That hook had been in there for years!  Why did you suddenly decide
->    to remove it now?
-> A: I was really not aware of the hook, and the fact that it was only
->    good for a binary module to use.  I'm sorry, I should have realized
->    this years ago, but I didn't.  Recently someone pointed this hook out
->    to me, and the fact that it really didn't belong in there due to the
->    kernel's policy of such hooks.  So, once I became aware of it, I had
->    no choice but to remove it.
+for the other points, actually both cards are used in the same adapter 
+hardware. I can switch both cards in ONE system, and the error only 
+appears with the newer card.
 
-I do not believe he "had no choice".  The guards at Auswitchs made the
-same argument at Nuremberg.  The tribunal determined they did have a
-choice.  I doubt we can consider the conditions here more extreme
-then there.
+I found some other subtlety, in the dmesg of the nonworking card there 
+is a message:
 
-> Q: But you took away my freedom!  Isn't Linux about freedom?
-> A: Again, it was Nemosoft's decision.  The kernel also has to abide by
->    it's documented procedures, so that is why the hook had to go.
+hdb: C/H/S=0/0/0 from BIOS ignored
 
-The kernel cannot act itself.  It is more or less an inanimate
-object.  People must carry out actions on its behalf.
+which doesnt appear with the working card, so the card is already 
+treated differently by the bios, or the different information from the 
+bios somehow interfers with hardware probing? (just speculating on this 
+point)
+I will do some more tests and tell you what i find out.
 
-> Q: You jerk, I had invested lots of money in this camera, you are
->    costing me money by ripping it out.  You should be ashamed of
->    yourself!
-> A: See the above question about freedom.  If it means that much to you,
->    then offer to maintain the code, it's that simple.
-
-This confuses me.  The functionability people are after is the closed
-source part. Maintaining the open source portion seems unrelated.
-
-> Q: You are keeping companies from wanting to write binary drivers for
->    Linux.
-> A: Duh!  What do you think all of the kernel developers have been
->    stating for years, in public.  Binary drivers only take from Linux,
->    they do not give back anything.  See Andrew Morton's OLS 2004 keynote
->    address for more information and background on this topic.
-
-I disagree.  Binary drivers may take away from Linux and they may add to it.
-
-> Q: You are a fundamentalist turd / jerk / pompous ass /
->    GNU-freebeer-biased-idiot-fundamentalist fucktard / ignorant slut!
-> A: I've been called worse by better people, get over yourself.
-
-I think from statements Greg made above we can at least say he is
-willing to hide behind misplaced authority.
-
--- 
-Brian Litzinger

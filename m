@@ -1,73 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314981AbSENBgz>; Mon, 13 May 2002 21:36:55 -0400
+	id <S314987AbSENCDj>; Mon, 13 May 2002 22:03:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314984AbSENBgy>; Mon, 13 May 2002 21:36:54 -0400
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:32729 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S314981AbSENBgx>; Mon, 13 May 2002 21:36:53 -0400
-Date: Tue, 14 May 2002 02:36:50 +0100 (BST)
-From: Anton Altaparmakov <aia21@cantab.net>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com, axboe@suse.de, akpm@zip.com.au,
-        martin@dalecki.de, neilb@cse.unsw.edu.au
-Subject: Re: [PATCH] remove 2TB block device limit
-In-Reply-To: <15584.23204.925373.44968@wombat.chubb.wattle.id.au>
-Message-ID: <Pine.SOL.3.96.1020514023250.22385B-100000@virgo.cus.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315039AbSENCDi>; Mon, 13 May 2002 22:03:38 -0400
+Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:45045 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S314987AbSENCDh>;
+	Mon, 13 May 2002 22:03:37 -0400
+Date: Mon, 13 May 2002 22:03:34 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: davej@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.1[345]-dj Add cpqarray_init() back into genhd.c
+Message-ID: <20020514020334.GA24417@www.kroptech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 May 2002, Peter Chubb wrote:
-> >>>>> "Christoph" == Christoph Hellwig <hch@infradead.org> writes:
-> 
-> Christoph> On Mon, May 13, 2002 at 08:28:30PM +1000, Peter Chubb
-> Christoph> wrote:
-> >> There's now a patch available against 2.5.15, and the BK repository
-> >> has been updated to v2.5.15 as well:
-> >> 
-> >> http://www.gelato.unsw.edu.au/patches/2.5.15-largefile-patch
-> >> bk://gelato.unsw.edu.au:2023/
-> 
-> Christoph> This looks really good, I'd like to see something like that
-> Christoph> merged soon!  Some comments:
-[snip]
-> Christoph>  - why is the get_block block argument
-> Christoph> a sector_t?  It presents a logical filesystem block which
-> Christoph> usually is larger than the sector, not to mention that for
-> Christoph> the usual blocksize == PAGE_SIZE case a ulong is enough as
-> Christoph> that is the same size the pagecache limit triggers.
-> 
-> For filesystems that *can* handle logical filesystem blocks beyond the
-> 2^32 limit (i.e., that use >32bit offsets in their on-disc format),
-> the get_block() argument has to be > 32bits long.  At  the moment
-> that's only JFS and XFS, but reiserfs version 4 looks as if it might
-> go that way.  We'll need this especially when the pagecache limit is
-> gone.
+In 2.5.13-dj1, the call to cpqarray_init() in drivers/block/genhd.c was
+dropped. I'm not sure what the intent was since the driver seems to work fine
+as a module. In case it was a mistake, here's a patch (against 2.5.15-dj1) to
+add it back in. Without it, cpqarray only works as a module. Works For Me (tm).
 
-NTFS uses signed 64 bits for all offsets on disk, too. And yes at the
-moment the pagecache limit is also a problem which we just ignore in the
-hope that the kernel will have gone to 64 bits by the time devices grow
-that large as to start using > 32 bits of blocks/pages...
+--Adam
 
-> Besides, blocksize is not usually pagesize.  ext[23] uses 1k or 4k
-> blocks depending on the size and expected use of the filesystem; alpha
-> pagesize is usually 8k, for example.  The arm uses 4k, 16k or 32k
-> pagesizes depending on the model.
-> 
-> So on 32-bit systems, ulong is not enough.  (in fact if you look at
-> jfs, the first thing jfs_get_block does is convert the block number
-> arg to a 64-bit number).
-
-NTFS does that, too, but not quite immediately... (-;
-
-Best regards,
-
-	Anton
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+--- linux-2.5.15-dj1-virgin/drivers/block/genhd.c	Mon May 13 21:21:59 2002
++++ linux-2.5.15-dj1/drivers/block/genhd.c	Mon May 13 21:18:48 2002
+@@ -229,6 +229,9 @@
+ 	/* This has to be done before scsi_dev_init */
+ 	soc_probe();
+ #endif
++#ifdef CONFIG_BLK_CPQ_DA
++	cpqarray_init();
++#endif
+ #ifdef CONFIG_NET
+ 	net_dev_init();
+ #endif

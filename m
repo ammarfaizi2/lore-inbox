@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263550AbTENSLt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 14:11:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbTENSLs
+	id S263432AbTENSSV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 14:18:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbTENSSV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 14:11:48 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:25276 "EHLO
-	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
-	id S263550AbTENSLr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 14:11:47 -0400
-Date: Wed, 14 May 2003 13:24:25 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: mika.penttila@kolumbus.fi, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Race between vmtruncate and mapped areas?
-Message-ID: <108250000.1052936665@baldur.austin.ibm.com>
-In-Reply-To: <20030514111748.57670088.akpm@digeo.com>
-References: <154080000.1052858685@baldur.austin.ibm.com>
- <3EC15C6D.1040403@kolumbus.fi><199610000.1052864784@baldur.austin.ibm.com>
- <20030513181018.4cbff906.akpm@digeo.com>
- <18240000.1052924530@baldur.austin.ibm.com>
- <20030514103421.197f177a.akpm@digeo.com>
- <82240000.1052934152@baldur.austin.ibm.com>
- <20030514105706.628fba15.akpm@digeo.com>
- <99000000.1052935556@baldur.austin.ibm.com>
- <20030514111748.57670088.akpm@digeo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Wed, 14 May 2003 14:18:21 -0400
+Received: from sc-outsmtp1.homechoice.co.uk ([81.1.65.35]:62475 "HELO
+	sc-outsmtp1.homechoice.co.uk") by vger.kernel.org with SMTP
+	id S263432AbTENSSV convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 14:18:21 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Adrian McMenamin <adrian@mcmen.demon.co.uk>
+To: Andreas Schwab <schwab@suse.de>, Nikita Danilov <Nikita@Namesys.COM>
+Subject: Re: inode values in file system driver
+Date: Wed, 14 May 2003 19:31:02 +0100
+User-Agent: KMail/1.4.3
+Cc: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>, linux-kernel@vger.kernel.org
+References: <200305102118.20318.adrian@mcmen.demon.co.uk> <16065.1422.44816.110091@laputa.namesys.com> <jeptmmgaiv.fsf@sykes.suse.de>
+In-Reply-To: <jeptmmgaiv.fsf@sykes.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200305141931.02928.adrian@mcmen.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 13 May 2003 15:56, Andreas Schwab wrote:
+> Nikita Danilov <Nikita@Namesys.COM> writes:
 
---On Wednesday, May 14, 2003 11:17:48 -0700 Andrew Morton <akpm@digeo.com>
-wrote:
 
-> I think it might be sufficient to re-check the page against i_size
-> after IO completion in filemap_nopage().
+> |> In other words, readdir(3) will not return dirent for inode with ino 0.
+>
+> I stand corrected.  I was thinking of getdirentries, which does not have
+> this problem.  But this is traditional Unix behaviour.
+>
 
-It would definitely make the window a lot smaller, though it won't quite
-close it.  To be entirely safe we'd need to recheck after we've retaken
-page_table_lock.
 
-Dave
+OK. I've worked round this in my driver. It will now list the file, and does 
+so with inode 0 (I have not tinkered with anything outside my driver, so this 
+won't have any impact on any other fs). Is this A Bad Thing?
 
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
+Adrian
 

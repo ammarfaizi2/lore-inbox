@@ -1,66 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261905AbSIYDuG>; Tue, 24 Sep 2002 23:50:06 -0400
+	id <S261902AbSIYDq1>; Tue, 24 Sep 2002 23:46:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261907AbSIYDuG>; Tue, 24 Sep 2002 23:50:06 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:18182
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S261905AbSIYDuF>; Tue, 24 Sep 2002 23:50:05 -0400
-Date: Tue, 24 Sep 2002 20:54:38 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Gustafson, Geoffrey R" <geoffrey.r.gustafson@intel.com>,
-       "'Andy Pfiffer'" <andyp@osdl.org>, cgl_discussion@osdl.org,
-       "Rhoads, Rob" <rob.rhoads@intel.com>,
-       hardeneddrivers-discuss@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Hardeneddrivers-discuss] RE: [cgl_discussion] Some Initial
- Comments on DDH-Spec-0.5h.pdf
-In-Reply-To: <3D900DBA.6080400@pobox.com>
-Message-ID: <Pine.LNX.4.10.10209242018450.6896-100000@master.linux-ide.org>
+	id <S261905AbSIYDq0>; Tue, 24 Sep 2002 23:46:26 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:21412 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S261902AbSIYDqY>; Tue, 24 Sep 2002 23:46:24 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Date: Wed, 25 Sep 2002 13:51:28 +1000
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15761.12992.408142.964391@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Module rewrite 2/20: bigrefs
+In-Reply-To: message from Rusty Russell on Wednesday September 25
+References: <20020925032201.CF8A72C14D@lists.samba.org>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Sep 2002, Jeff Garzik wrote:
+On Wednesday September 25, rusty@rustcorp.com.au wrote:
+> +static inline void bigref_init(struct bigref *ref, int value)
+> +{
+> +	unsigned int i;
+> +	atomic_set(&ref->ref[0].counter, value);
+> +	for (i = 1; i < NR_CPUS; i++)
+-----------------^
+> +		atomic_set(&ref->ref[i].counter, 0);
+> +	ref->waiter = NULL; /* To trap bugs */
+> +}
 
-> Eric W. Biederman wrote:
-> > Oh, and don't forget that the hardware specification that drivers are
-> > written to, many times are not generally available greatly reducing 
-> > the pool of capable people who have the opportunity to review the and
-> > debug the drivers.  I would make it a requirement for a hardened
-> > driver that both the code and the hardware documentation be publicly
-> > available so the code can easily be reviewed by as many people as wish
-> > to.
-> 
-> 
-> This is a good point that bears highlighting.  Donald Becker's [and thus 
-> the kernel's] eepro100.c had certain bugs for years, simply because 
-> access to Intel E100 hardware docs was damn near impossible to obtain.
+Should this be '0', or should there be a comment explaining why it
+one?
 
-Jeff, 
-
-You know that every hardware vendor will clam it works well under
-MicroSoft, so why does it fail under Linux.  This is the classic one-liner
-we all have gotten.  The reality is closed software is used to hide all
-the flaws and failures of made by the ASIC people.  I would love to shove
-the brain dead asic designer of the original PIIX4 AB/EB off a cliff on
-fire for being absolutely "stupid".  Sorry this is as nice an clean as I
-can say this and not dust off the flame thrower.
-
-> I don't see driver hardening being very feasible on such drivers, where 
-> the vendor refuses to allow kernel engineers access needed to get their 
-> hardware working and stable.  [why vendors want crappy Linux support, 
-> I'll never know]
-
-Worse is getting a spec that says, "no work around".
-When the reality is the OEM hardware vendor will not take ownership of 
-their errors and disclose a good proper work-around.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+NeilBrown

@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285516AbSA2W7x>; Tue, 29 Jan 2002 17:59:53 -0500
+	id <S286161AbSA2W7Y>; Tue, 29 Jan 2002 17:59:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285692AbSA2W7o>; Tue, 29 Jan 2002 17:59:44 -0500
-Received: from dns.uni-trier.de ([136.199.8.101]:65021 "EHLO
-	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
-	id <S285516AbSA2W73>; Tue, 29 Jan 2002 17:59:29 -0500
-Date: Tue, 29 Jan 2002 23:59:11 +0100 (CET)
-From: Daniel Nofftz <nofftz@castor.uni-trier.de>
-X-X-Sender: nofftz@hades.uni-trier.de
-To: "Calin A. Culianu" <calin@ajvar.org>
-cc: Daniel Nofftz <nofftz@castor.uni-trier.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Steven Hassani <hassani@its.caltech.edu>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Athlon Optimization Problem
-In-Reply-To: <Pine.LNX.4.30.0201291553360.10200-100000@rtlab.med.cornell.edu>
-Message-ID: <Pine.LNX.4.40.0201292353260.4360-100000@hades.uni-trier.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S285692AbSA2W7G>; Tue, 29 Jan 2002 17:59:06 -0500
+Received: from holomorphy.com ([216.36.33.161]:29855 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S285516AbSA2W6t>;
+	Tue, 29 Jan 2002 17:58:49 -0500
+Date: Tue, 29 Jan 2002 15:00:37 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Christoph Hellwig <hch@caldera.de>, linux-kernel@vger.kernel.org,
+        linux-mm@nl.linux.org, velco@fadata.bg
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+Message-ID: <20020129150037.M899@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Christoph Hellwig <hch@caldera.de>, linux-kernel@vger.kernel.org,
+	linux-mm@nl.linux.org, velco@fadata.bg
+In-Reply-To: <20020129165444.A26626@caldera.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20020129165444.A26626@caldera.de>; from hch@caldera.de on Tue, Jan 29, 2002 at 04:54:44PM +0100
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jan 2002, Calin A. Culianu wrote:
+On Tue, Jan 29, 2002 at 04:54:44PM +0100, Christoph Hellwig wrote:
+> I've ported my hacked up version of Momchil Velikov's radix tree
+> radix tree pagecache to 2.5.3-pre{5,6}.
+> The changes over the 2.4.17 version are:
+>   o use mempool to avoid OOM situation involving radix nodes.
+>   o remove add_to_page_cache_locked, it was unused in the 2.4.17 patch.
+>   o unify add_to_page and add_to_page_unique
+> It gives nice scalability improvements on big machines and drops the
+> memory usage on small ones (if you consider my 64MB Athlon small :)).
 
-> Thank you kindly, Daniel.  It's strange that register 95 is ommitted.  We
-> definitely can conclude that register 55 is not the one to set on the
-> kt266 motherboards (whereas on the other via motherboards it *is* the one
-> to set...  I even have the spec sheet to prove it! :) )
+I love this patch. My only concern is about worst-case space consumption,
+but it is beautiful regardless, and space consumption can be addressed
+later if it is a problem in practice. The average case space consumption,
+as you have noted, is quite good already, and it seems difficult to
+trigger the worst case (I have tested it myself).
 
-oh .. .there are some differences between the registers in the chipsets
-... the kt 133 and the kt133 are very simmilar, the kx133 also ... the
-kt266 and 266a are a bit different from the kt/kx ....
-i uped the pcr files for the kt133 and kx133 also
-so the urls for the three files:
-http://cip.uni-trier.de/nofftz/linux/kt266_pcr.txt
-				     kt133_pcr.txt
-				     kx133_pcr.txt
-this are all i have at the moment ...
 
-> I really wish VIA were more willing to cooperate with us and give us spec
-> sheets.  It's to their advantage to have us make their buggy motherboards
-> work well with linux, for crying out loud!  I really don't get what the
-> big deal is.  I mean it's not like the concept of setting bytes on a pci
-> device to change functionality is so revolutionary it deserves to be
-> obfuscated...
-
-yes ... the support of via and some other big vendors could really be
-better :(
-maybee they are getting used to that we do the work for them ...
-
-daniel
-
-# Daniel Nofftz
-# Sysadmin CIP-Pool Informatik
-# University of Trier(Germany), Room V 103
-# Mail: daniel@nofftz.de
-
+Cheers,
+Bill

@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265147AbTL2Wmk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 17:42:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265148AbTL2Wmk
+	id S265159AbTL2WuW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 17:50:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265235AbTL2WuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 17:42:40 -0500
-Received: from smtp.terra.es ([213.4.129.129]:12134 "EHLO tsmtp4.mail.isp")
-	by vger.kernel.org with ESMTP id S265147AbTL2Wmj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 17:42:39 -0500
-Date: Mon, 29 Dec 2003 23:38:39 +0100
-From: Diego Calleja <grundig@teleline.es>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: ramon.rey@hispalinux.es, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       axboe@suse.de
-Subject: Re: 2.6.0-mm2
-Message-Id: <20031229233839.7f3b5666.grundig@teleline.es>
-In-Reply-To: <1072731446.5170.4.camel@teapot.felipe-alfaro.com>
-References: <20031229013223.75c531ed.akpm@osdl.org>
-	<1072727943.1064.15.camel@debian>
-	<1072731446.5170.4.camel@teapot.felipe-alfaro.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 29 Dec 2003 17:50:22 -0500
+Received: from mail.kroah.org ([65.200.24.183]:48331 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265159AbTL2WuS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 17:50:18 -0500
+Date: Mon, 29 Dec 2003 14:48:38 -0800
+From: Greg KH <greg@kroah.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] udev 011 release
+Message-ID: <20031229224838.GD13691@kroah.com>
+References: <20031225005614.GA18568@kroah.com> <20031228020449.GA26527@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031228020449.GA26527@werewolf.able.es>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Mon, 29 Dec 2003 21:57:26 +0100 Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> escribió:
+On Sun, Dec 28, 2003 at 03:04:49AM +0100, J.A. Magallon wrote:
+> 
+> And a couple questions.
+> a) Should not ordering be reversed here:
+> 
+>   start)
+>     if [ ! -d $udev_dir ]; then
+>         mkdir $udev_dir
+>     fi
+>     if [ ! -d $sysfs_dir ]; then
+>         exit 1
+>     fi
+>   If we have not /sys, there's no sense on creating /udev, so I would check first
+>   for /sys.
 
-> The same happens here. cdrecord is broken under -mm, but works fine with
-> plain 2.6.0.
+Care to send a patch?  :)
 
+thanks,
 
-
-I'm seeing the same here:
-
-open("/dev/cd-rw", O_RDWR|O_NONBLOCK)   = -1 EROFS (Read-only file system)
-write(2, "cdrecord.mmap: Read-only file sy"..., 89cdrecord.mmap: Read-only file system. Cannot open '/dev/cd-rw'. Cannot open SCSI driver.) = 89
-
-
-Looking at the error path, it looks like it happens in cdrom.c:
-
-cdrom_open() in line 747 -> cdrom_open_write() in line 708
- -> cdrom_mrw_open_write() in line 680, where there's:
-
-        if (!di.erasable)
-                return 1;
-
-which is where it fails. di isn't filled correctly by
-cdrom_get_disc_info(cdi, &di)
-
-ie: change the "if (!di.erasable) return 1;"
-to "if (!di.erasable) return 0;" and it will work.
-
-Jens Axboe is listed in the changelog so he may know what's the issue here.
+greg k-h

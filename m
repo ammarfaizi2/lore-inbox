@@ -1,55 +1,55 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154839-31090>; Tue, 22 Dec 1998 23:25:40 -0500
-Received: from [203.35.221.8] ([203.35.221.8]:1486 "EHLO thompson.unifi.com.au" ident: "ssmith") by vger.rutgers.edu with ESMTP id <155254-31090>; Tue, 22 Dec 1998 21:28:04 -0500
-Date: Wed, 23 Dec 1998 14:33:34 +1100
-Message-Id: <199812230333.OAA20556@thompson.unifi.com.au>
-From: Steve Smith <ssmith@unifi.com.au>
-To: linux-kernel@vger.rutgers.edu
-In-reply-to: <19981223005615Z155003-31090+15714@vger.rutgers.edu> (owner-linux-kernel-digest@vger.rutgers.edu)
-Subject: [Silliness] Re: Wanted: Secure-delete utility for Linux
-References: <19981223005615Z155003-31090+15714@vger.rutgers.edu>
+Received: by vger.rutgers.edu id <153844-31090>; Wed, 23 Dec 1998 09:38:57 -0500
+Received: from smtp-out-006.wanadoo.fr ([193.252.19.98]:62315 "EHLO wanadoo.fr" ident: "root") by vger.rutgers.edu with ESMTP id <154455-31090>; Wed, 23 Dec 1998 09:35:28 -0500
+From: christophe.leroy5@capway.com
+Message-Id: <199812231531.QAA17905@wanadoo.fr>
+To: Patrick Kursawe <kursawe@zaphod.anachem.ruhr-uni-bochum.de>
+Date: Wed, 23 Dec 1998 16:33:54 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: ipip tunnel - route complains!
+CC: linux-kernel@vger.rutgers.edu
+X-mailer: Pegasus Mail for Win32 (v3.01d)
 Sender: owner-linux-kernel@vger.rutgers.edu
 
->> IMHO the name /dev/one would be a bad idea. Becouse this could mean an
->> integer one which is 00000001 for 8-bit, 0000000000000001 for 16-bit, and
->> so on.
->> 
->> I don't know a better name - but IMHO /dev/one would be a bad name.
->
-> /dev/minusone ?
+>Hi,
 
-Wouldn't /dev/ff be more appropriate??  But then /dev/zero is
-ambiguous, possibly meaning "0".  This should be /dev/00
+>it looks like I can't get ipip tunneling to work. I use kernel 2.1.131 >and
+>net-tools 1.49. I asked for help a few days ago and someone told >me to
+>upgrade to the newest net-tools. Done. Still the same problem:
 
-But what about other characters?
 
-People, we seem to have uncovered a fundamental problem in the Kernel
-pseudo-devices.  *Not everything is covered!!*  This must be rectified
-before 2.2!
+>Short version of what I tried:
 
-First we need /dev/00 - ff and, to avoid any ambiguity,
-/dev/\"[A-Za-z0-9]\".  But what of strings?  How to generate strings??
+>ifconfig tunl0 192.168.1.44 netmask 255.255.255.255 up
+>route add -net 192.168.1.0 netmask 255.255.255.0 gw >134.147.2.1 dev tunl0
+>SIOCADDRT: Network is unreachable
 
-At first I thought that we must generate a device driver for every
-possible sentence (with international support of course), until I
-recalled the /dev/ptmx device.
+One solution to get it work quite correctly with nothing else:
+route add -host 134.147.2.1 gw your_router
+ifconfig tunl0 192.168.1.44 netmask 255.255.255.255 pointopoint 
+134.147.2.1
+route add -net 192.168.1.0 netmask 255.255.255.0 gw 134.147.2.1 
+tunl0
 
-Therefore, I propose a new device: /dev/monkeys.  This
-infinite-monkeys simulator will supply all possible combinations of
-strings, and selecting the required one is left to user space
-programs.  Elegant, no?
+as 134.147.2.1 has been declared pointopoint, it can be a gateway
+as you have a host route via eth0 before route via tunl0 it works.
+So this solution works, but is not the good one.
 
-It also has bandwidth saving advantages.  Why traipse all the way
-across the net to Project Gutenberg when all the works of Shakespeare
-are in your /dev directory?
+Second solution is:
+ 
+- Get iproute2 package from ftp.inr.ac.ru/ip-routing
+- Do on each side:
+       ip tunnel add tunl1 mode ipip local your_eth0_ip remote 
+rmt_eth0_ip
+       ifconfig tunl1 this_side_tunnel_ip
+ 
+dont know why, it doesnt work with tunl0
 
-I shall start on this project as soon as the pain in my head subsides.
+Both solutions works, the last one is hower the good one, 
 
-Steve
-
-PS.  "man tr" everybody
-
-PPS.  Sorry.
+christophe
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

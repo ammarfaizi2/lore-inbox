@@ -1,35 +1,310 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265563AbTFRWEw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 18:04:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265564AbTFRWEw
+	id S265564AbTFRWJr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 18:09:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265565AbTFRWJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 18:04:52 -0400
-Received: from ns.suse.de ([213.95.15.193]:35089 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265563AbTFRWEv (ORCPT
+	Wed, 18 Jun 2003 18:09:47 -0400
+Received: from aneto.able.es ([212.97.163.22]:21233 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S265564AbTFRWJl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 18:04:51 -0400
-Date: Thu, 19 Jun 2003 00:18:49 +0200
-From: Andi Kleen <ak@suse.de>
-To: davidm@hpl.hp.com
-Cc: Andi Kleen <ak@suse.de>, David Mosberger <davidm@napali.hpl.hp.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: add /proc/sys/kernel/cache_decay_ticks
-Message-ID: <20030618221849.GD3543@wotan.suse.de>
-References: <200306182151.h5ILpMcx022062@napali.hpl.hp.com.suse.lists.linux.kernel> <p73znkf2g9t.fsf@oldwotan.suse.de> <16112.58330.522570.329438@napali.hpl.hp.com>
+	Wed, 18 Jun 2003 18:09:41 -0400
+Date: Thu, 19 Jun 2003 00:23:36 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [RFC][PATCH] CONFIG_NR_CPUS for 2.4.21
+Message-ID: <20030618222336.GC3768@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <16112.58330.522570.329438@napali.hpl.hp.com>
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 2.0.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't see why the two have to be tied together.  I agree it would be
-> _nice_, but having /proc/sys/kernel/cache_decay_ticks in it's current
-> form is much better than nothing at all.
+Hi all...
 
-The problem is that when you change it later with the sysctl you have a subtle
-user visible change, breaking existing users.
+This adds support for defining max CPU number at compile time. It is safe
+for old .configs, because it defaults to current fixed max values.
 
--Andi
+Could you consider for applying ?
 
+TIA
+
+--- linux/Documentation/Configure.help.orig	2002-06-06 15:48:03.000000000 +0200
++++ linux/Documentation/Configure.help	2002-06-06 15:47:15.000000000 +0200
+@@ -137,6 +137,16 @@
+ 
+   If you don't know what to do here, say N.
+ 
++Maximum number of CPUs
++CONFIG_NR_CPUS
++  This allows you to specify the maximum number of CPUs which this
++  kernel will support.  The maximum supported value is 32 for 32-bit
++  architectures and 64 for the 64-bits ones. The mimimum value which
++  makes sense is 2.
++
++  This is purely to save memory - each supported CPU adds
++  approximately eight kilobytes to the kernel image.
++
+ Intel or compatible 80x86 processor
+ CONFIG_X86
+   This is Linux's home port.  Linux was originally native to the Intel
+--- linux/include/linux/threads.h.orig	2002-06-06 15:44:27.000000000 +0200
++++ linux/include/linux/threads.h	2002-06-06 15:45:40.000000000 +0200
+@@ -9,9 +9,9 @@
+  */
+  
+ #ifdef CONFIG_SMP
+-#define NR_CPUS	32		/* Max processors that can be running in SMP */
++#define NR_CPUS	CONFIG_NR_CPUS
+ #else
+-#define NR_CPUS 1
++#define NR_CPUS	1
+ #endif
+
+ #define MIN_THREADS_LEFT_FOR_ROOT 4
+--- linux/arch/i386/kernel/smpboot.c.orig	2002-06-06 15:48:19.000000000 +0200
++++ linux/arch/i386/kernel/smpboot.c	2002-06-06 15:49:14.000000000 +0200
+@@ -51,7 +51,7 @@
+ static int smp_b_stepping;
+ 
+ /* Setup configured maximum number of CPUs to activate */
+-static int max_cpus = -1;
++static int max_cpus = NR_CPUS;
+ 
+ /* Total count of live CPUs */
+ int smp_num_cpus = 1;
+@@ -1116,7 +1116,7 @@
+ 
+ 		if (!(phys_cpu_present_map & (1ul << bit)))
+ 			continue;
+-		if ((max_cpus >= 0) && (max_cpus <= cpucount+1))
++		if (max_cpus <= cpucount+1)
+ 			continue;
+ 
+ 		do_boot_cpu(apicid);
+--- linux/arch/i386/config.in.orig	2002-06-06 15:43:12.000000000 +0200
++++ linux/arch/i386/config.in	2002-06-06 15:43:37.000000000 +0200
+@@ -231,6 +231,7 @@
+       define_bool CONFIG_X86_IO_APIC y
+    fi
+ else
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
+    bool 'Multi-node NUMA system support' CONFIG_X86_NUMA
+    if [ "$CONFIG_X86_NUMA" = "y" ]; then
+       #Platform Choices
+--- linux/arch/i386/defconfig	Wed Jun 19 17:32:33 2002
++++ linux/arch/i386/defconfig	Wed Jun 19 17:26:35 2002
+@@ -64,6 +64,7 @@
+ CONFIG_SMP=y
+ # CONFIG_MULTIQUAD is not set
+ CONFIG_HAVE_DEC_LOCK=y
++CONFIG_NR_CPUS=32
+ 
+ #
+ # General setup
+--- linux/arch/alpha/config.in	Wed Jun 19 17:31:21 2002
++++ linux/arch/alpha/config.in	Wed Jun 19 17:26:35 2002
+@@ -257,6 +257,7 @@
+ 
+ if [ "$CONFIG_SMP" = "y" ]; then
+    define_bool CONFIG_HAVE_DEC_LOCK y
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
+ fi
+ 
+ if [ "$CONFIG_ALPHA_GENERIC" = "y" -o "$CONFIG_ALPHA_SRM" = "y" ]; then
+--- linux/arch/ia64/config.in	Wed Jun 19 17:32:34 2002
++++ linux/arch/ia64/config.in	Wed Jun 19 17:26:35 2002
+@@ -87,6 +87,10 @@
+ define_bool CONFIG_KCORE_ELF y	# On IA-64, we always want an ELF /proc/kcore.
+ 
+ bool 'SMP support' CONFIG_SMP
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
++fi
++
+ tristate 'Support running of Linux/x86 binaries' CONFIG_IA32_SUPPORT
+ bool 'Performance monitor support' CONFIG_PERFMON
+ tristate '/proc/pal support' CONFIG_IA64_PALINFO
+--- linux/arch/ia64/defconfig	Wed Jun 19 17:31:23 2002
++++ linux/arch/ia64/defconfig	Wed Jun 19 17:26:35 2002
+@@ -42,6 +42,7 @@
+ CONFIG_PM=y
+ CONFIG_KCORE_ELF=y
+ CONFIG_SMP=y
++CONFIG_NR_CPUS=64
+ CONFIG_IA32_SUPPORT=y
+ CONFIG_PERFMON=y
+ CONFIG_IA64_PALINFO=y
+--- linux/arch/mips/config-shared.in	Wed Jun 19 17:32:34 2002
++++ linux/arch/mips/config-shared.in	Wed Jun 19 17:26:35 2002
+@@ -797,6 +797,8 @@
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
+ if [ "$CONFIG_SMP" != "y" ]; then
+    bool 'Run uncached' CONFIG_MIPS_UNCACHED
++else
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
+ fi
+ endmenu
+ 
+--- linux/arch/mips64/defconfig	Wed Jun 19 17:31:25 2002
++++ linux/arch/mips64/defconfig	Wed Jun 19 17:26:35 2002
+@@ -53,6 +53,7 @@
+ # CONFIG_REPLICATE_KTEXT is not set
+ # CONFIG_REPLICATE_EXHANDLERS is not set
+ CONFIG_SMP=y
++CONFIG_NR_CPUS=64
+ # CONFIG_SGI_IP32 is not set
+ # CONFIG_SIBYTE_SB1xxx_SOC is not set
+ # CONFIG_SNI_RM200_PCI is not set
+--- linux/arch/parisc/config.in	Wed Jun 19 17:32:34 2002
++++ linux/arch/parisc/config.in	Wed Jun 19 17:26:35 2002
+@@ -45,6 +45,10 @@
+ comment 'General options'
+ 
+ bool 'Symmetric multi-processing support' CONFIG_SMP
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
++fi
++
+ bool 'Chassis LCD and LED support' CONFIG_CHASSIS_LCD_LED
+ 
+ bool 'Kernel Debugger support' CONFIG_KWDB
+--- linux/arch/ppc/config.in	Wed Jun 19 17:31:16 2002
++++ linux/arch/ppc/config.in	Wed Jun 19 17:26:35 2002
+@@ -122,6 +122,7 @@
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+ if [ "$CONFIG_SMP" = "y" ]; then
+   bool '  Distribute interrupts on all CPUs by default' CONFIG_IRQ_ALL_CPUS
++  int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
+ fi
+
+ if [ "$CONFIG_6xx" = "y" -a "$CONFIG_8260" = "n" ];then
+--- linux/arch/ppc64/config.in	Wed Jun 19 17:31:23 2002
++++ linux/arch/ppc64/config.in	Wed Jun 19 17:26:35 2002
+@@ -29,6 +29,7 @@
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+ if [ "$CONFIG_SMP" = "y" ]; then
+   bool '  Distribute interrupts on all CPUs by default' CONFIG_IRQ_ALL_CPUS
++  int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
+   if [ "$CONFIG_PPC_PSERIES" = "y" ]; then
+     bool '  Hardware multithreading' CONFIG_HMT
+   fi
+--- linux/arch/ppc64/defconfig	Wed Jun 19 17:31:23 2002
++++ linux/arch/ppc64/defconfig	Wed Jun 19 17:26:35 2002
+@@ -22,6 +22,7 @@
+ CONFIG_PPC_PSERIES=y
+ # CONFIG_PPC_ISERIES is not set
+ CONFIG_SMP=y
++CONFIG_NR_CPUS=64
+ CONFIG_IRQ_ALL_CPUS=y
+ # CONFIG_HMT is not set
+ # CONFIG_MSCHUNKS is not set
+--- linux/arch/s390/config.in	Wed Jun 19 17:31:26 2002
++++ linux/arch/s390/config.in	Wed Jun 19 17:26:35 2002
+@@ -32,6 +32,9 @@
+ comment 'Processor type and features'
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+ bool 'IEEE FPU emulation' CONFIG_MATHEMU
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
++fi
+ endmenu
+ 
+ mainmenu_option next_comment
+--- linux/arch/s390/defconfig	Wed Jun 19 17:31:26 2002
++++ linux/arch/s390/defconfig	Wed Jun 19 17:26:35 2002
+@@ -27,6 +27,7 @@
+ #
+ CONFIG_SMP=y
+ CONFIG_MATHEMU=y
++CONFIG_NR_CPUS=64
+ 
+ #
+ # General setup
+--- linux/arch/s390x/config.in	Wed Jun 19 17:31:25 2002
++++ linux/arch/s390x/config.in	Wed Jun 19 17:26:35 2002
+@@ -22,6 +22,9 @@
+ mainmenu_option next_comment
+ comment 'Processor type and features'
+ bool 'Symmetric multi-processing support' CONFIG_SMP
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
++fi
+ bool 'Kernel support for 31 bit emulation' CONFIG_S390_SUPPORT
+ if [ "$CONFIG_S390_SUPPORT" = "y" ]; then
+   tristate 'Kernel support for 31 bit ELF binaries' CONFIG_BINFMT_ELF32 
+--- linux/arch/s390x/defconfig	Wed Jun 19 17:31:25 2002
++++ linux/arch/s390x/defconfig	Wed Jun 19 17:26:35 2002
+@@ -21,6 +21,7 @@
+ CONFIG_SMP=y
+ CONFIG_S390_SUPPORT=y
+ CONFIG_BINFMT_ELF32=y
++CONFIG_NR_CPUS=64
+ 
+ #
+ # Loadable module support
+--- linux/arch/sparc/config.in	Wed Jun 19 17:31:21 2002
++++ linux/arch/sparc/config.in	Wed Jun 19 17:26:35 2002
+@@ -29,6 +29,10 @@
+ 
+ bool 'Symmetric multi-processing support (does not work on sun4/sun4c)' CONFIG_SMP
+ 
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
++fi
++
+ # Identify this as a Sparc32 build
+ define_bool CONFIG_SPARC32 y
+ 
+--- linux/arch/sparc64/config.in	Wed Jun 19 17:32:35 2002
++++ linux/arch/sparc64/config.in	Wed Jun 19 17:26:35 2002
+@@ -28,6 +28,10 @@
+ 
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+ 
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
++fi
++
+ # Identify this as a Sparc64 build
+ define_bool CONFIG_SPARC64 y
+ 
+--- linux/arch/sparc64/defconfig	Wed Jun 19 17:32:35 2002
++++ linux/arch/sparc64/defconfig	Wed Jun 19 17:26:35 2002
+@@ -58,6 +58,7 @@
+ CONFIG_BINFMT_MISC=m
+ # CONFIG_SUNOS_EMUL is not set
+ CONFIG_SOLARIS_EMUL=m
++CONFIG_NR_CPUS=64
+ 
+ #
+ # Parallel port support
+--- linux/arch/x86_64/config.in	Wed Jun 19 17:31:25 2002
++++ linux/arch/x86_64/config.in	Wed Jun 19 17:29:25 2002
+@@ -66,6 +66,7 @@
+    define_bool CONFIG_X86_UP_IOAPIC y
+ else
+    define_bool CONFIG_HAVE_DEC_LOCK y
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
+ fi
+ 
+ bool 'Machine check support' CONFIG_MCE
+--- linux/arch/x86_64/defconfig	Wed Jun 19 17:31:25 2002
++++ linux/arch/x86_64/defconfig	Wed Jun 19 17:26:35 2002
+@@ -41,6 +41,7 @@
+ CONFIG_X86_LOCAL_APIC=y
+ CONFIG_MTRR=y
+ # CONFIG_SMP is not set
++CONFIG_NR_CPUS=64
+ CONFIG_HPET_TIMER=y
+ CONFIG_GART_IOMMU=y
+ CONFIG_X86_UP_IOAPIC=y
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.21-jam1 (gcc 3.3 (Mandrake Linux 9.2 3.3-1mdk))

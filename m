@@ -1,56 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268788AbUIHBk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268963AbUIHCJQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268788AbUIHBk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 21:40:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268963AbUIHBk2
+	id S268963AbUIHCJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 22:09:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268966AbUIHCJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 21:40:28 -0400
-Received: from smtp105.rog.mail.re2.yahoo.com ([206.190.36.83]:55980 "HELO
-	smtp105.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S268788AbUIHBkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 21:40:24 -0400
-In-Reply-To: <200409072102.i87L2K4u005503@laptop11.inf.utfsm.cl>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Subject: Re: silent semantic changes with reiser4 
-Cc: spam@tnonline.net, christer@weinigel.se, ninja@slaphack.com,
-       tonnerre@thundrix.ch, torvalds@osdl.org, pavel@ucw.cz,
-       jamie@shareable.org, cw@f00f.org,
-       viro@parcelfarce.linux.theplanet.co.uk, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com, reiser@namesys.com
-X-Mailer: BeMail - Mail Daemon Replacement 2.3.1 Final
-From: "Alexander G. M. Smith" <agmsmith@rogers.com>
-Date: Tue, 07 Sep 2004 21:38:31 -0400 EDT
-Message-Id: <89861950490-BeMail@cr593174-a>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Sep 2004 22:09:16 -0400
+Received: from coverity.dreamhost.com ([66.33.192.105]:63186 "EHLO
+	coverity.dreamhost.com") by vger.kernel.org with ESMTP
+	id S268963AbUIHCJJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 22:09:09 -0400
+Date: Tue, 7 Sep 2004 19:09:08 -0700 (PDT)
+From: Dawson Engler <engler@coverity.dreamhost.com>
+To: linux-kernel@vger.kernel.org
+Cc: developers@coverity.com
+Subject: [CHECKER] Deadlock cycle between locks nr_neigh_list_lock: <===>> 
+ nr_node_list_lock
+Message-ID: <Pine.LNX.4.58.0409071859080.22756@coverity.dreamhost.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote on Tue, 07 Sep 2004 17:02:20 -0400:
-> Hans Reiser <reiser@namesys.com> said:
-> > Or, we can ask Alexander to help us use his deadlock detection algorithm 
-> > and try to do things right....
-> 
-> Good luck with that one. I'd suspect if it can be made to work, it will
-> have _huge_ overhead, so much that it is useless. I'd love to be proven
-> wrong, but I won't hold my breath.
 
-Depends if you consider it to be a huge overhead to lock all the objects
-that are ancestors (possibly through cyclical multiple parents) of the
-fildirute (file/directory/attribute/whatever) being deleted/renamed.
-It could definitely be a lot if you have some weird worst case directory
-layout with lots of parent directories.  But that's rare (most users
-don't have that many directories anyway).
+Hi All,
 
-By the way, the deadlock system I was using is just a hack - a timeout
-on the locking semaphores for each file.  If it fails to lock everything
-it needs, it backs off, waits a while, tries again, and eventually
-reports EDEADLK if it exhausts the retry count.
+below is a possible deadlock in linux-2.6.8.1 found by a static deadlock
+checker I'm writing.  Let me know if it looks valid (and/or whether the
+output is too cryptic).
 
-Well, actually it's a bit fancier - it read-locks the file nodes as it
-is traversing the graph to find all ancestors.  Then when it has finished,
-it write-locks the ones it needs to change.
+Thanks,
+Dawson
 
-- Alex
+
+   thread 1: nr_neigh_list_lock ==>> nr_node_list_lock
+       trace 1:
+
+linux-2.6.8.1/net/netrom/nr_route.c:nr_rt_device_down
+          531: void nr_rt_device_down(struct net_device *dev)
+          532: {
+          533:  struct nr_neigh *s;
+          534:  struct hlist_node *node, *nodet, *node2, *node2t;
+          535:  struct nr_node  *t;
+          536:  int i;
+          537:
+===>      538:  spin_lock_bh(&nr_neigh_list_lock);
+             539:       nr_neigh_for_each_safe(s, node, nodet,
+&nr_neigh_list) {
+             540:               if (s->dev == dev) {
+===>         541:                       spin_lock_bh(&nr_node_list_lock);
+
+
+       trace 2:
+
+linux-2.6.8.1/net/netrom/nr_route.c:nr_rt_free
+          1018: void __exit nr_rt_free(void)
+          1019: {
+          1020:         struct nr_neigh *s = NULL;
+          1021:         struct nr_node  *t = NULL;
+          1022:         struct hlist_node *node, *nodet;
+          1023:
+===>      1024:         spin_lock_bh(&nr_neigh_list_lock);
+===>         1025:      spin_lock_bh(&nr_node_list_lock);
+
+
+     -----------
+   thread 2: nr_node_list_lock ==>> nr_neigh_list_lock
+       trace 1: ncalls=1, ncond=0
+
+linux-2.6.8.1/net/netrom/nr_route.c:nr_dec_obs
+          476: static int nr_dec_obs(void)
+          477: {
+          478:  struct nr_neigh *nr_neigh;
+          479:  struct nr_node  *s;
+          480:  struct hlist_node *node, *nodet;
+          481:  int i;
+          482:
+===>      483:  spin_lock_bh(&nr_node_list_lock);
+             ...
+
+===>      498:             nr_remove_neigh(nr_neigh);
+
+linux-2.6.8.1/net/netrom/nr_route.c:nr_remove_neigh
+                338: static void nr_remove_neigh(struct nr_neigh
+*nr_neigh)
+                339: {
+===>            340:    spin_lock_bh(&nr_neigh_list_lock);
+
+     -----------
+

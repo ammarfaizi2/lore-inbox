@@ -1,29 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317512AbSFKSyE>; Tue, 11 Jun 2002 14:54:04 -0400
+	id <S317506AbSFKSzP>; Tue, 11 Jun 2002 14:55:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317508AbSFKSyD>; Tue, 11 Jun 2002 14:54:03 -0400
-Received: from jffdns02.or.intel.com ([134.134.248.4]:53498 "EHLO
-	hebe.or.intel.com") by vger.kernel.org with ESMTP
-	id <S317506AbSFKSyD>; Tue, 11 Jun 2002 14:54:03 -0400
-Message-ID: <59885C5E3098D511AD690002A5072D3C02AB7EF6@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Felix Seeger'" <seeger@sitewaerts.de>, linux-kernel@vger.kernel.org
-Subject: RE: Problem with ACPI or framebuffer (no output while startup)
-Date: Tue, 11 Jun 2002 09:38:44 -0700
+	id <S317508AbSFKSzO>; Tue, 11 Jun 2002 14:55:14 -0400
+Received: from [24.71.173.70] ([24.71.173.70]:52112 "EHLO
+	valhalla.homelinux.org") by vger.kernel.org with ESMTP
+	id <S317506AbSFKSzO>; Tue, 11 Jun 2002 14:55:14 -0400
+Date: Tue, 11 Jun 2002 12:53:07 -0600 (CST)
+From: "Jason C. Pion" <jpion@valhalla.homelinux.org>
+To: Nick Evgeniev <nick@octet.spb.ru>
+cc: Andre Hedrick <andre@linux-ide.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: linux 2.4.19-preX IDE bugs
+In-Reply-To: <002101c2115d$1c0bc7c0$baefb0d4@nick>
+Message-ID: <Pine.LNX.4.44.0206111243560.2457-100000@valhalla.homelinux.org>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Felix Seeger [mailto:seeger@sitewaerts.de] 
-> > Executing device _INI methods: ............. (13 points)
-> >
-> > After that the output stops but the systems starts up, onyl 
-> the output...
+On Tue, 11 Jun 2002, Nick Evgeniev wrote:
 
-Known problem. ACPI is getting the bus wrong on PCI config space accesses
-and accidentally turning off the video, I believe.
+> Agreed. But all what I see is that STABLE Linux kernel DOESN'T has working
+> driver for promise controller (including latest ac patches) for SEVERAL
+> MONTHS.
+<SNIP> 
+> I don't want to make experiments in production environment anymore... And
+> it's
+> unfair to the rest of Linux users to keep broken drivers in stable kernel...
+> Because
+> nobody expects that stable kernel will rip your fs _daily_.
 
-Regards -- Andy
+It sounds to me like you've got some flakey hardware.  Don't try to save 
+the rest of us.  I've been using the Promise drivers with my Ultra 133TX2 
+for quite a while now and haven't had _ANY_ problems with it.  I've used 
+all of the 2.4.19preXX kernels so far with now issues.  This "problem" 
+isn't as wide-spread as you think.
+
+Later,
+	Jason
+
+

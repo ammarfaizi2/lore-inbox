@@ -1,46 +1,219 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131289AbRDNInk>; Sat, 14 Apr 2001 04:43:40 -0400
+	id <S131307AbRDNIqV>; Sat, 14 Apr 2001 04:46:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131275AbRDNInV>; Sat, 14 Apr 2001 04:43:21 -0400
-Received: from mo.optusnet.com.au ([203.10.68.101]:53678 "EHLO mo.mpx.com.au")
-	by vger.kernel.org with ESMTP id <S131289AbRDNInI>;
-	Sat, 14 Apr 2001 04:43:08 -0400
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: riel@conectiva.com.br, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: PATCH(?): linux-2.4.4-pre2: fork should run child first
-In-Reply-To: <200104140758.AAA06084@adam.yggdrasil.com>
-From: "Michael O'Reilly" <public@dgmo.org>
-Date: 14 Apr 2001 18:42:28 +1000
-In-Reply-To: "Adam J. Richter"'s message of "Sat, 14 Apr 2001 00:58:29 -0700"
-Message-ID: <m1eluvna8b.fsf@mo.optusnet.com.au>
-X-Mailer: Gnus v5.7/Emacs 20.5
+	id <S131317AbRDNIqM>; Sat, 14 Apr 2001 04:46:12 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:13841 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S131307AbRDNIp7>; Sat, 14 Apr 2001 04:45:59 -0400
+Date: Sat, 14 Apr 2001 04:04:51 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: linux-mm@kvack.org
+Cc: lkml <linux-kernel@vger.kernel.org>,
+        Daniel Phillips <phillips@innominate.de>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Alexander Viro <viro@math.psu.edu>
+Subject: [PATCH] prune_icache() changes 
+Message-ID: <Pine.LNX.4.21.0104121549340.3152-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Adam J. Richter" <adam@yggdrasil.com> writes:
-> Rik van Riel <riel@conectiva.com.br> writes, regarding the idea
-> of having do_fork() give all of the parent's remaining time slice to
-> the newly created child:
-> 
-> >It could upset programs which use threads to handle
-> >relatively IO poor things (like, waiting on disk IO in a
-> >thread, like glibc does to fake async file IO).
-> 
-> 	Good point.
 
-Is it really? If a program is using thread to handle IO things,
-then:
+Hi, 
 
-a) It's not going to create a thread for every IO! So I think
-the argument is suprious anyway.
+The following patch should fix the OOM deadlock condition caused by
+prune_icache(), and improve its performance significantly.
 
-b) You _still_ want the child to run first. The child
-will start the I/O and block, then switching back
-to the parent. This maximises the I/O thruput without
-costing you any CPU. (Reasoning: The child running
-2nd will increase the latency which automatically
-reduces the number of ops/second you can get).
+The OOM deadlock can happen because prune_icache() tries to sync _all_
+dirty inodes (under PF_MEMALLOC) on the system before trying to free a
+portion of the clean unused inodes.
 
-Michael.
+The patch also changes prune_icache() to free clean inodes first, and then
+sync _unused_ ones if needed. In case (nr_free_pages < freepages.low) the
+code writes one inode synchronously and returns (to avoid the OOM
+deadlock).
+
+Patch against 2.4.4-pre1. 
+
+Comments are welcome. 
+
+
+--- fs/inode.c~	Thu Apr 12 21:16:35 2001
++++ fs/inode.c	Thu Apr 12 21:49:56 2001
+@@ -13,6 +13,8 @@
+ #include <linux/quotaops.h>
+ #include <linux/slab.h>
+ #include <linux/cache.h>
++#include <linux/swap.h>
++#include <linux/swapctl.h>
+ 
+ /*
+  * New inode.c implementation.
+@@ -197,6 +199,34 @@
+ 	inodes_stat.nr_unused--;
+ }
+ 
++static inline void __sync_one(struct inode *inode, int sync)
++{
++	unsigned dirty;
++
++	list_del(&inode->i_list);
++	list_add(&inode->i_list, atomic_read(&inode->i_count)
++						? &inode_in_use
++						: &inode_unused);
++
++	/* Set I_LOCK, reset I_DIRTY */
++	dirty = inode->i_state & I_DIRTY;
++	inode->i_state |= I_LOCK;
++	inode->i_state &= ~I_DIRTY;
++	spin_unlock(&inode_lock);
++
++	filemap_fdatasync(inode->i_mapping);
++
++	/* Don't write the inode if only I_DIRTY_PAGES was set */
++	if (dirty & (I_DIRTY_SYNC | I_DIRTY_DATASYNC))
++		write_inode(inode, sync);
++
++	filemap_fdatawait(inode->i_mapping);
++
++	spin_lock(&inode_lock);
++	inode->i_state &= ~I_LOCK;
++	wake_up(&inode->i_wait);
++}
++
+ static inline void sync_one(struct inode *inode, int sync)
+ {
+ 	if (inode->i_state & I_LOCK) {
+@@ -206,29 +236,7 @@
+ 		iput(inode);
+ 		spin_lock(&inode_lock);
+ 	} else {
+-		unsigned dirty;
+-
+-		list_del(&inode->i_list);
+-		list_add(&inode->i_list, atomic_read(&inode->i_count)
+-							? &inode_in_use
+-							: &inode_unused);
+-		/* Set I_LOCK, reset I_DIRTY */
+-		dirty = inode->i_state & I_DIRTY;
+-		inode->i_state |= I_LOCK;
+-		inode->i_state &= ~I_DIRTY;
+-		spin_unlock(&inode_lock);
+-
+-		filemap_fdatasync(inode->i_mapping);
+-
+-		/* Don't write the inode if only I_DIRTY_PAGES was set */
+-		if (dirty & (I_DIRTY_SYNC | I_DIRTY_DATASYNC))
+-			write_inode(inode, sync);
+-
+-		filemap_fdatawait(inode->i_mapping);
+-
+-		spin_lock(&inode_lock);
+-		inode->i_state &= ~I_LOCK;
+-		wake_up(&inode->i_wait);
++		__sync_one(inode, sync);
+ 	}
+ }
+ 
+@@ -236,10 +244,42 @@
+ {
+ 	struct list_head * tmp;
+ 
+-	while ((tmp = head->prev) != head)
++	while ((tmp = head->prev) != head) 
+ 		sync_one(list_entry(tmp, struct inode, i_list), 0);
+ }
+ 
++static inline int try_to_sync_unused_list(struct list_head *head)
++{
++	struct list_head *tmp = head;
++	struct inode *inode;
++
++	while ((tmp = tmp->prev) != head) {
++		inode = list_entry(tmp, struct inode, i_list);
++
++		if (!(inode->i_state & I_LOCK) 
++				&& !atomic_read(&inode->i_count)) {
++			/* 
++			 * We're under PF_MEMALLOC here, and syncing the 
++			 * inode may have to allocate memory. To avoid
++			 * running into a OOM deadlock, we write one 
++			 * inode synchronously and stop syncing in case 
++			 * we're under freepages.low
++			 */
++
++			int sync = nr_free_pages() < freepages.low;
++			__sync_one(inode, sync);
++			if (sync) 
++				return 0;
++			/* 
++			 * __sync_one moved the inode to another list,
++			 * so we have to start looking from the list head.
++			 */
++			tmp = head;
++		}
++	}
++	return 1;
++}
++
+ /**
+  *	sync_inodes
+  *	@dev: device to sync the inodes from.
+@@ -273,13 +313,14 @@
+ /*
+  * Called with the spinlock already held..
+  */
+-static void sync_all_inodes(void)
++static void try_to_sync_unused_inodes(void)
+ {
+ 	struct super_block * sb = sb_entry(super_blocks.next);
+ 	for (; sb != sb_entry(&super_blocks); sb = sb_entry(sb->s_list.next)) {
+ 		if (!sb->s_dev)
+ 			continue;
+-		sync_list(&sb->s_dirty);
++		if (!try_to_sync_unused_list(&sb->s_dirty))
++			break;
+ 	}
+ }
+ 
+@@ -506,13 +547,12 @@
+ {
+ 	LIST_HEAD(list);
+ 	struct list_head *entry, *freeable = &list;
+-	int count = 0;
++	int count = 0, synced = 0;
+ 	struct inode * inode;
+ 
+ 	spin_lock(&inode_lock);
+-	/* go simple and safe syncing everything before starting */
+-	sync_all_inodes();
+ 
++free_unused:
+ 	entry = inode_unused.prev;
+ 	while (entry != &inode_unused)
+ 	{
+@@ -539,6 +579,20 @@
+ 	spin_unlock(&inode_lock);
+ 
+ 	dispose_list(freeable);
++
++	/* 
++	 * If we freed enough clean inodes, avoid writing 
++	 * dirty ones. Also giveup if we already tried to
++	 * sync dirty inodes.
++	 */
++	if (!goal || synced)
++		return;
++	
++	synced = 1;
++
++	spin_lock(&inode_lock);
++	try_to_sync_unused_inodes();
++	goto free_unused;
+ }
+ 
+ void shrink_icache_memory(int priority, int gfp_mask)
+
+

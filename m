@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267403AbTAWWQy>; Thu, 23 Jan 2003 17:16:54 -0500
+	id <S267204AbTAWWPx>; Thu, 23 Jan 2003 17:15:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267439AbTAWWQy>; Thu, 23 Jan 2003 17:16:54 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:14297 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S267441AbTAWWQv>;
-	Thu, 23 Jan 2003 17:16:51 -0500
-Date: Thu, 23 Jan 2003 22:26:00 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: Kevin Lawton <kevinlawton2001@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Simple patches for Linux as a guest OS in a plex86 VM (please consider)
-Message-ID: <20030123222600.GB8581@bjl1.asuk.net>
-References: <20030122182341.66324.qmail@web80309.mail.yahoo.com> <20030123192829.A628@nightmaster.csn.tu-chemnitz.de>
+	id <S267434AbTAWWPx>; Thu, 23 Jan 2003 17:15:53 -0500
+Received: from cerebus.wirex.com ([65.102.14.138]:16122 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S267204AbTAWWPw>; Thu, 23 Jan 2003 17:15:52 -0500
+Date: Thu, 23 Jan 2003 14:24:42 -0800
+From: Chris Wright <chris@wirex.com>
+To: Daniel Khan <dk@webcluster.at>
+Cc: linux-kernel@vger.kernel.org, linux-ha-dev@lists.community.tummy.com
+Subject: Re: Ferquently system lockups under load
+Message-ID: <20030123142442.A20877@figure1.int.wirex.com>
+Mail-Followup-To: Daniel Khan <dk@webcluster.at>,
+	linux-kernel@vger.kernel.org,
+	linux-ha-dev@lists.community.tummy.com
+References: <CGEAIHJJGFFOPODELPILOEIHDKAA.dk@webcluster.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030123192829.A628@nightmaster.csn.tu-chemnitz.de>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <CGEAIHJJGFFOPODELPILOEIHDKAA.dk@webcluster.at>; from dk@webcluster.at on Thu, Jan 23, 2003 at 02:30:27PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser wrote:
-> Yes, what you do is nice, but generates much code. What about
-> this for pushfl:
-> [11 lines of asm]
+* Daniel Khan (dk@webcluster.at) wrote:
+> 
+> The system:
+> glibc-2.2.5-42
+> heartbeat-0.4.9f-1
+> RedHat 7.3 2.4.18-19.7.xsmp
 
-What about:
+There is a lockup issue with heartbeat 0.4.9f and current RH kernels.
+It is typically exeperienced with the start up of apphbd, and appears to
+be with realtime scheduled tasks.  Lars has posted a list of debugging
+info he'd like to see on the linux-ha-dev list.  Check the recent archives
+<http://lists.community.tummy.com/mailman/listinfo/linux-ha-dev>.
 
-	.macro	pushfl
-	call __pushfl
-	.endm
-
-	.macro  popfl
-	call __popfl
-	.endm
-
-There, nice and small.
-
--- Jamie
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,21 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267135AbTBQQWc>; Mon, 17 Feb 2003 11:22:32 -0500
+	id <S267154AbTBQQjV>; Mon, 17 Feb 2003 11:39:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267138AbTBQQWc>; Mon, 17 Feb 2003 11:22:32 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:51729 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S267135AbTBQQWc>; Mon, 17 Feb 2003 11:22:32 -0500
-Date: Mon, 17 Feb 2003 09:31:46 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Shawn Starr <shawn.starr@datawire.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.61][SCSI][AIC7xxx] Problems with Tape driver
-Message-ID: <382640000.1045499506@aslan.scsiguy.com>
-In-Reply-To: <200302171035.06142.shawn.starr@datawire.net>
-References: <200302170923.50463.shawn.starr@datawire.net> <348100000.1045495892@aslan.scsiguy.com>
- <200302171035.06142.shawn.starr@datawire.net>
-X-Mailer: Mulberry/3.0.1 (Linux/x86)
+	id <S267157AbTBQQjV>; Mon, 17 Feb 2003 11:39:21 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:11942 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267154AbTBQQjH>; Mon, 17 Feb 2003 11:39:07 -0500
+Date: Mon, 17 Feb 2003 08:48:55 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext3 clings to you like flypaper
+Message-ID: <2460000.1045500532@[10.10.2.4]>
+In-Reply-To: <1045482621.29000.40.camel@passion.cambridge.redhat.com>
+References: <78320000.1045465489@[10.10.2.4]> <1045482621.29000.40.camel@passion.cambridge.redhat.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -23,12 +22,48 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thats not good, a defective tape? or the drive itself is starting to die :-(
+>> Added a journal to my root disk.
+>> Mounted it ext3.
+>> Found it scaled like crap
+>> set my fstab back to ext2
+>> /dev/sda2       /               ext2    defaults,errors=remount-ro      0   1
+>> reboot.
+>> Disk says it's mounted ext2 ("mount\n")
+>> Still performs like crap.
+>> 
+>> Mmmmm ... it STILL mounts ext3.
+>> Allegedly this is a "feature".
+>> Can we please remove this stupidity?
+>> 
+> If I say I want ext2, I want ext2 ....
 
-Only the tech support for your device can say for sure (the component IDs
-are vendor specific), but defective tapes are typically classified under
-media errors.
+Got several replies saying more or less the same thing ...
+ 
+> Do you expect the kernel to read your /etc/fstab before mounting the
+> root file system, and then obey it?
 
---
-Justin
+No, but it remounts the disk read-write after it mounts it read-only.
+It can switch from ext2 to ext3 at that point.
+ 
+> Boot with 'rootfstype=ext2' 
+
+That works, but I don't see why I should have to specify additional
+commandline options.
+
+> and/or tune2fs -O ^has_journal /dev/sda2
+
+Can't - it refuses to touch the disk it's standing on even in single user.
+This makes it extremely difficult to revert.
+
+And in answer to some other questions:
+
+This machine can't boot off CD, so rescue disks are not an option.
+It's remote anyway, and I shouldn't have to screw around with it to do this.
+I'm not using initrd
+
+The point remains, if I say I want ext2, I should get ext2, not whatever 
+some random developer decides he thinks I should have. Worst of all,
+the system then lies to you and says it's mounted ext2 when it's not.
+
+M.
 

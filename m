@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267656AbTAHBvC>; Tue, 7 Jan 2003 20:51:02 -0500
+	id <S267653AbTAHBwQ>; Tue, 7 Jan 2003 20:52:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267653AbTAHBuP>; Tue, 7 Jan 2003 20:50:15 -0500
-Received: from b.smtp-out.sonic.net ([208.201.224.39]:60568 "HELO
-	b.smtp-out.sonic.net") by vger.kernel.org with SMTP
-	id <S267651AbTAHBtW>; Tue, 7 Jan 2003 20:49:22 -0500
-X-envelope-info: <dhinds@sonic.net>
-Date: Tue, 7 Jan 2003 17:58:01 -0800
-From: dhinds <dhinds@sonic.net>
-To: Joshua Kwan <joshk@ludicrus.ath.cx>
+	id <S267658AbTAHBwQ>; Tue, 7 Jan 2003 20:52:16 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:54207 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S267653AbTAHBv6>;
+	Tue, 7 Jan 2003 20:51:58 -0500
+Date: Tue, 7 Jan 2003 21:00:33 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: nick@snowman.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.54-dj1-bk] Some interesting experiences...
-Message-ID: <20030107175801.A23794@sonic.net>
-References: <20030107172147.3c53efa8.joshk@ludicrus.ath.cx>
+Subject: Re: 3CR990 question (Nearly unrelated to iSCSI)
+Message-ID: <20030108020033.GA6579@gtf.org>
+References: <Pine.LNX.4.21.0301071956200.8546-100000@ns.snowman.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030107172147.3c53efa8.joshk@ludicrus.ath.cx>
-User-Agent: Mutt/1.3.22.1i
+In-Reply-To: <Pine.LNX.4.21.0301071956200.8546-100000@ns.snowman.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 07, 2003 at 05:21:46PM -0800, Joshua Kwan wrote:
+On Tue, Jan 07, 2003 at 07:56:37PM -0500, nick@snowman.net wrote:
+> On Wed, 8 Jan 2003, Andrew McGregor wrote:
+> > > AH permits multiple digests, they also happen to correspond to the
+> > > hardware accelerated ones on things like the 3c990...
+> Speaking of which, did this driver which was mentioned ever occur?
 
-> 2. [linux-2.5] pcmcia-cs 3.2.3 will no longer build: here is the build
-> log, pertinent details only.
-> 
-> cc  -MD -O3 -Wall -Wstrict-prototypes -pipe -Wa,--no-warn
-> -I../include/static -I/usr/src/linux-2.5/include -I../include
-> -I../modules -c cardmgr.c
-> In file included from cardmgr.c:200:
-> /usr/src/linux-2.5/include/scsi/scsi.h:185: parse error before "u8"
+Two did, actually :)
 
-This should be fixed in the current beta for 3.2.4 available from
-http://pcmcia-cs.sourceforge.net/ftp/NEW.
-
--- Dave
+I hope we will see it appear in a kernel RSN

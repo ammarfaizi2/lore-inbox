@@ -1,137 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317418AbSFXGpd>; Mon, 24 Jun 2002 02:45:33 -0400
+	id <S317421AbSFXGo2>; Mon, 24 Jun 2002 02:44:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317423AbSFXGpd>; Mon, 24 Jun 2002 02:45:33 -0400
-Received: from [194.85.255.177] ([194.85.255.177]:8832 "HELO blacklake.uucp")
-	by vger.kernel.org with SMTP id <S317418AbSFXGp2>;
-	Mon, 24 Jun 2002 02:45:28 -0400
-Date: Mon, 24 Jun 2002 09:46:54 +0300
-From: Dzmitry Chekmarou <diavolo@mail.ru>
-To: martin@dalecki.de
-Cc: linux-kernel@vger.kernel.org
-Subject: [bug][temp.patch] ide recalibrating bug
-Message-ID: <20020624064654.GA306@blacklake>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317418AbSFXGo2>; Mon, 24 Jun 2002 02:44:28 -0400
+Received: from mta02bw.bigpond.com ([139.134.6.34]:46280 "EHLO
+	mta02bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S317023AbSFXGoZ>; Mon, 24 Jun 2002 02:44:25 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Nick Bellinger <nickb@attheoffice.org>
+Subject: Re: driverfs is not for everything! (was:  [PATCH] /proc/scsi/map)
+Date: Mon, 24 Jun 2002 16:41:35 +1000
+User-Agent: KMail/1.4.5
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       Patrick Mochel <mochel@osdl.org>
+References: <59885C5E3098D511AD690002A5072D3C02AB7F52@orsmsx111.jf.intel.com> <1024895928.12662.192.camel@subjeKt>
+In-Reply-To: <1024895928.12662.192.camel@subjeKt>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Message-Id: <200206241641.35604.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+On Mon, 24 Jun 2002 15:18, Nick Bellinger wrote:
+> This is a red herring,  what exactly is the definition of physically
+> hooked up to the computer?  In the above context it comes out as being a
+> device inside the machine or within close proximity (ie: USB, IEEE 1394,
+> etc) and connected by a physical cable.  If this is the case then what
+> becomes of an Fibre Channel array 10km removed?  What makes this more or
+> less likely to be in driverfs than a IP storage array that is
+> "physically connected" via gigabit ethernet cable in the next room?  If
+> you where getting at devices which use the IP stack exclusively, then
+> how do iSCSI HBAs with TCP offload engines fit into the mix?  The only
+> scenario where I see the above statement holding true is if one was to
+> use iSCSI over a wireless/radio link, then it most definitely could NOT
+> be part of driverfs. :)
+I think if you are mounting the remote filesystem (or otherwise using it in 
+some stateful way), then it appears in driverfs at mount time. This is 
+because it becomes important at that point - you now have a dependency on the 
+underlying transport (the PCI bus better not be shut down before I get the 
+dirty pages out over the network card to the storage array).
 
-the problem:
-  kernel fails when ide recalibrating (dma turned on)
-  when schedule called and in_interrupt() returns non-zero - BUG() executed
-  do_recalibrate() is executed with in_interrupt() == 1
-
-this happens after 2.5.20 to 2.5.21 patch
-
-procedures call stack:
-  drivers/ide/ide.c:
-    do_recalibrate()
-  drivers/ide/ide-taskfile.c:
-    ide_raw_taskfile()
-    ide_do_drive_cmd()
-  kernel/sched.c:
-    wait_for_completion()
-    schedule()
-
-solutions:
-  do not use wait_for_completion when in_interrupt() non-zero (use old wait-sche
-  return to old version
-
-my hardware(this is not hw problem, i think):
-  cpu: athlon 1000
-  mb: sis735
-  ram: 256ddr
-  hdd: ibm
-                    
-compiler(and not compiler problem):
-  gcc 3.1
-
-tested kernels:
-  2.5.17-20(good)
-  2.5.21-24(broken)
-
-sorry for my bad english
-
-wbr zmiter
-
-===here is patch(applies to 2.5.24) to return old code for do_recalibrate (temporary fix)===
-
-diff -Nru a/drivers/ide/ide.c b/drivers/ide/ide.c
---- a/drivers/ide/ide.c Sun Jun 23 17:08:19 2002
-+++ b/drivers/ide/ide.c Sun Jun 23 23:11:51 2002
-@@ -550,6 +550,39 @@
-  * We are still on the old request path here so issuing the recalibrate command
-  * directly should just work.
-  */
-+
-+/*
-+ * Here is deleted ide_set_handler and recal_intr for do_recalibrate
-+ */
-+
-+void ide_set_handler(struct ata_device *drive, ata_handler_t handler,
-+                     unsigned long timeout, ata_expiry_t expiry)
-+{
-+       unsigned long flags;
-+       struct ata_channel *ch = drive->channel;
-+
-+       spin_lock_irqsave(ch->lock, flags);
-+
-+       if (ch->handler != NULL) {
-+               printk("%s: ide_set_handler: handler not null; old=%p, new=%p, f
-+                       drive->name, ch->handler, handler, __builtin_return_addr
-+       }
-+       ch->handler = handler;
-+       ch->expiry = expiry;
-+       ch->timer.expires = jiffies + timeout;
-+       add_timer(&ch->timer);
-+
-+       spin_unlock_irqrestore(ch->lock, flags);
-+}
-+
-+ide_startstop_t recal_intr(struct ata_device *drive, struct request *rq)
-+{
-+       if (!ata_status(drive, READY_STAT, BAD_STAT))
-+               return ata_error(drive, rq, __FUNCTION__);
-+
-+       return ide_stopped;
-+}
-+
- static int do_recalibrate(struct ata_device *drive)
- {
-
-@@ -560,10 +593,28 @@
-                struct ata_taskfile args;
-
-                printk(KERN_INFO "%s: recalibrating...\n", drive->name);
-+
-                memset(&args, 0, sizeof(args));
-                args.taskfile.sector_count = drive->sect;
-                args.cmd = WIN_RESTORE;
--               ide_raw_taskfile(drive, &args);
-+               args.command_type = IDE_DRIVE_TASK_NO_DATA;
-+
-+               ata_irq_enable(drive, 1);
-+               ata_mask(drive);
-+
-+               if ((drive->id->command_set_2 & 0x0400) && (drive->id->cfs_enable_2 & 0x0400) && (drive->addressing == 1))
-+                       ata_out_regfile(drive, &args.hobfile);
-+
-+               ata_out_regfile(drive, &args.taskfile);
-+
-+               {
-+                       u8 HIHI = (drive->addressing) ? 0xE0 : 0xEF;
-+                       OUT_BYTE((args.taskfile.device_head & HIHI) | drive->sel
-ect.all, IDE_SELECT_REG);
-+               }
-+
-+               ide_set_handler(drive, recal_intr, WAIT_CMD, NULL);
-+               OUT_BYTE(args1->cmd, IDE_COMMAND_REG);
-+
-                printk(KERN_INFO "%s: done!\n", drive->name);
-        }
-
+Brad
+-- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.

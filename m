@@ -1,67 +1,279 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262374AbUC1TLg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 14:11:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbUC1TLa
+	id S262381AbUC1TL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 14:11:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbUC1TL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 14:11:30 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:21736 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S262361AbUC1TLZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 14:11:25 -0500
-Date: Sun, 28 Mar 2004 11:10:05 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Ray Bryant <raybry@sgi.com>, Andy Whitcroft <apw@shadowen.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-cc: anton@samba.org, sds@epoch.ncsc.mil, ak@suse.de,
-       lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] [0/6] HUGETLB memory commitment
-Message-ID: <98220000.1080501001@[10.10.2.4]>
-In-Reply-To: <4067131A.7000405@sgi.com>
-References: <18429360.1080233672@42.150.104.212.access.eclipse.net.uk> <20040325130433.0a61d7ef.akpm@osdl.org> <41997489.1080257240@42.150.104.212.access.eclipse.net.uk> <4067131A.7000405@sgi.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sun, 28 Mar 2004 14:11:57 -0500
+Received: from av5-1-sn4.m-sp.skanova.net ([81.228.10.112]:63950 "EHLO
+	av5-1-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
+	id S262382AbUC1TLf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 14:11:35 -0500
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, sri@us.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.26-rc1
+References: <20040328042608.GA17969@logos.cnet>
+From: Peter Osterlund <petero2@telia.com>
+Date: 28 Mar 2004 21:11:25 +0200
+In-Reply-To: <20040328042608.GA17969@logos.cnet>
+Message-ID: <m2r7vcss6a.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As I understood this originally, the suggestion was to reserve hugetlb 
-> pages at mmap() or shm_get() time so that the user would get an -ENOMEM 
-> at that time if there aren't enough hugetlb pages to (eventually) satisfy 
-> the request, as per the notion that we shouldn't modify the user API due 
-> to going with allocate on fault instead of hugetlb_prefault().
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> writes:
 
-Yup, but there were two parts to it:
+> Sridhar Samudrala:
+>   o [SCTP] Avoid the use of hacking CONFIG_IPV6_SCTP__ option
+>
+> Please test!
 
-1. Stop hugepages using the existing overcommit pool for small pages, 
-which breaks small page allocations by prematurely the pool.
-2. Give hugepages their own over-commit pool, instead of prefaulting.
+I get an error when selecting save and exit in "make xconfig":
 
-Personally I think we need both (as you seem to), but (1) is probably
-more urgent.
+  ERROR - Attempting to write value for unconfigured variable (CONFIG_IP_SCTP).
 
-> Since the reservation belongs to the mapped object (file or segment), 
-> I've been storing the current file/segments's reservation in the file 
-> system dependent part of the inode.  That way, it is easily accessible 
-> when the hugetlbfs file or SysV segment is removed and we can reduce 
-> the total number of reserved pages by that file's reservation at that 
-> time.  This also allows us to handle the reservation in the absence 
-> of a vma, as per Andy'c comment below.
+My .config looks like this:
 
-Do we need to store it there, or is one central pool number sufficient?
-I would have thought it was ...
+$ cat .config | egrep -v '^#' | egrep '.'
+CONFIG_X86=y
+CONFIG_UID16=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_MODULES=y
+CONFIG_KMOD=y
+CONFIG_MPENTIUM4=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_X86_HAS_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_F00F_WORKS_OK=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MSR=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_NET=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_ISA=y
+CONFIG_PCI_NAMES=y
+CONFIG_HOTPLUG=y
+CONFIG_PCMCIA=m
+CONFIG_CARDBUS=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_PM=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SLEEP=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BATTERY=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_DEBUG=y
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_1284=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_RAM=m
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_PACKET=y
+CONFIG_NETFILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_MIRROR=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_SCTP_HMAC_NONE=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDESCSI=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=m
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_BLK_DEV_SR=y
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=m
+CONFIG_NET_PCI=y
+CONFIG_TULIP=m
+CONFIG_NATSEMI=m
+CONFIG_8139TOO=m
+CONFIG_PPP=m
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_SLIP=m
+CONFIG_SLIP_COMPRESSED=y
+CONFIG_NET_PCMCIA=y
+CONFIG_PCMCIA_PCNET=m
+CONFIG_INPUT=m
+CONFIG_INPUT_KEYBDEV=m
+CONFIG_INPUT_MOUSEDEV=m
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1400
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1050
+CONFIG_INPUT_EVDEV=m
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=m
+CONFIG_SERIAL_EXTENDED=y
+CONFIG_SERIAL_MANY_PORTS=y
+CONFIG_SERIAL_SHARE_IRQ=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=1024
+CONFIG_PRINTER=m
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+CONFIG_INTEL_RNG=m
+CONFIG_RTC=m
+CONFIG_AGP=m
+CONFIG_AGP_INTEL=y
+CONFIG_DRM=y
+CONFIG_DRM_NEW=y
+CONFIG_DRM_RADEON=m
+CONFIG_PCMCIA_SERIAL_CS=m
+CONFIG_VIDEO_DEV=m
+CONFIG_VIDEO_PROC_FS=y
+CONFIG_AUTOFS4_FS=m
+CONFIG_REISERFS_FS=m
+CONFIG_REISERFS_PROC_INFO=y
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_UDF_FS=m
+CONFIG_UDF_RW=y
+CONFIG_CODA_FS=m
+CONFIG_NFS_FS=m
+CONFIG_NFS_V3=y
+CONFIG_NFSD=m
+CONFIG_NFSD_V3=y
+CONFIG_SUNRPC=m
+CONFIG_LOCKD=m
+CONFIG_LOCKD_V4=y
+CONFIG_SMB_FS=m
+CONFIG_SMB_NLS_DEFAULT=y
+CONFIG_SMB_NLS_REMOTE="cp850"
+CONFIG_ZISOFS_FS=m
+CONFIG_PARTITION_ADVANCED=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_CODEPAGE_850=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_RADEON=y
+CONFIG_FBCON_CFB8=y
+CONFIG_FBCON_CFB16=y
+CONFIG_FBCON_CFB24=y
+CONFIG_FBCON_CFB32=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_SOUND=m
+CONFIG_SOUND_ICH=m
+CONFIG_USB=m
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_UHCI=m
+CONFIG_USB_AUDIO=m
+CONFIG_USB_STORAGE=m
+CONFIG_USB_STORAGE_FREECOM=y
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_PWC=m
+CONFIG_USB_SERIAL=m
+CONFIG_USB_SERIAL_GENERIC=y
+CONFIG_USB_SERIAL_VISOR=m
+CONFIG_USB_SERIAL_PL2303=m
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_LOG_BUF_SHIFT=0
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_AES=m
+CONFIG_CRYPTO_DEFLATE=m
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
 
-> Admittedly this doesn't alow one to request that hugetlbpages be 
-> overcommitted, or to handle problems caused to the "normal" page 
-> overcommit code due to the presence of hugepages.  But we figure that 
-> anyone that is actually using hugetlb pages is likely to take over 
-> almost all of main memory anyway in a single job, so overcommit 
-> doesn't make much sense to us.
-
-Seeing as you can't swap them, overcommitting makes no sense to me
-either ;-)
-
-M.
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

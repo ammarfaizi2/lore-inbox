@@ -1,81 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264450AbUBRLVJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 06:21:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbUBRLVJ
+	id S264339AbUBRLDX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 06:03:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264365AbUBRLDX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 06:21:09 -0500
-Received: from absinthe.ifi.unizh.ch ([130.60.75.58]:57225 "EHLO
-	diamond.madduck.net") by vger.kernel.org with ESMTP id S264450AbUBRLVE
+	Wed, 18 Feb 2004 06:03:23 -0500
+Received: from sea2-dav22.sea2.hotmail.com ([207.68.164.79]:16648 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S264339AbUBRLDU convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 06:21:04 -0500
-Date: Wed, 18 Feb 2004 12:20:53 +0100
-From: martin f krafft <madduck@madduck.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: the crux with DMA
-Message-ID: <20040218112052.GA8001@diamond.madduck.net>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OgqxwSJOaUobr8KG"
-Content-Disposition: inline
-X-OS: Debian GNU/Linux testing/unstable kernel 2.6.2-diamond i686
-X-Mailer: Mutt 1.5.5.1+cvs20040105i (2003-11-05)
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 18 Feb 2004 06:03:20 -0500
+X-Originating-IP: [80.204.235.254]
+X-Originating-Email: [pupilla@hotmail.com]
+From: "Marco Berizzi" <pupilla@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: ReiserFS corruption with samba 3.0.2a
+Date: Wed, 18 Feb 2004 12:03:03 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1123
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1123
+Message-ID: <Sea2-DAV22IBirXXeQM0000aeb5@hotmail.com>
+X-OriginalArrivalTime: 18 Feb 2004 11:03:10.0126 (UTC) FILETIME=[CB8964E0:01C3F60E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
---OgqxwSJOaUobr8KG
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I'm experimenting this problem with samba 3.0.2a and linux 2.4.24
+with ReiserFS. When I copy (put) a large file (5GB) from a Windows NT
+terminal server edition sp6a machine to the samba-linux box I get this
+error:
 
-Hi folks,
+Feb 17 18:01:11 Mimas kernel: ide0(3,8):vs-4080: reiserfs_free_block: free_block (0308:4999052)[dev:blocknr]: bit already cleared
+Feb 17 18:01:11 Mimas kernel: ide0(3,8):vs-4080: reiserfs_free_block: free_block (0308:4997935)[dev:blocknr]: bit already cleared
+Feb 17 18:02:48 Mimas kernel: ide0(3,8):vs-4080: reiserfs_free_block: free_block (0308:902445)[dev:blocknr]: bit already cleared
+Feb 17 18:02:48 Mimas kernel: ide0(3,8):vs-4080: reiserfs_free_block: free_block (0308:902286)[dev:blocknr]: bit already cleared
 
-I have two machines with 7200 UPM ATA drives. Both are running the
-2.6.2 kernel. One has an AMD-768 IDE chipset and reiserfs, the other
-a combination of VT82C586 and Promise 20269 with ext3.
+Samba 2.2.8a doesn't show this behaviour.
 
-Both machines seem to have a problem with DMA, which wasn't
-a problem with the 2.4 kernel series. The symptoms are simple: if
-I have DMA turned on, sustained high disk usage will cause complete
-freezes in both machines. Sometimes, one gets a couple of kernel
-oops before the eventual lockup, which is usually related to
-journaling code, but it's never really the same. With a 2.4 kernel,
-these lockups did not happen. With DMA turned off, I have also not
-been able to reproduce the crashes.
+The linux box is Slackware 9.1 (gcc 3.2.3 linux 2.4.24 glibc 2.3.2).
+It's easy for me to reproduce the problem.
 
-I know that neither, reiserfs nor ext3, are high-performance, and
-a switch to xfs has long been on my TODO list, but I first want to
-get this problem worked out -- I can't mirror the disk otherwise
-without crashing 40 times, so I can't create new filesystems.
+Hints?
 
-Any advice is appreciated!
-
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
-=20
-"science without religion is lame,
- religion without science is blind."
-                                                    -- albert einstein
-
---OgqxwSJOaUobr8KG
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAM0qUIgvIgzMMSnURAvKXAJ9yauUO3geKt13BaWPd35kgG4H79gCeLLMz
-a5yOzUWSdrJ9seHdJElZ76o=
-=faOh
------END PGP SIGNATURE-----
-
---OgqxwSJOaUobr8KG--
+Please CC me I'm not subscribed to the list.

@@ -1,77 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261747AbUKIWuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbUKIWxc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261747AbUKIWuM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 17:50:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbUKIWuL
+	id S261758AbUKIWxc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 17:53:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261756AbUKIWxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 17:50:11 -0500
-Received: from out010pub.verizon.net ([206.46.170.133]:21899 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S261747AbUKIWrM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 17:47:12 -0500
-Message-ID: <419148EB.4090907@verizon.net>
-Date: Tue, 09 Nov 2004 17:47:07 -0500
-From: Jim Nelson <james4765@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org, mingo@redhat.com
-Subject: Re: [PATCH] md: Documentation/md.txt update
-References: <20041109042030.11446.55146.88799@localhost.localdomain> <16784.20533.56739.384864@cse.unsw.edu.au>
-In-Reply-To: <16784.20533.56739.384864@cse.unsw.edu.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [70.16.226.208] at Tue, 9 Nov 2004 16:47:08 -0600
+	Tue, 9 Nov 2004 17:53:31 -0500
+Received: from mail.kroah.org ([69.55.234.183]:49049 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261758AbUKIWxS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 17:53:18 -0500
+Date: Tue, 9 Nov 2004 14:52:45 -0800
+From: Greg KH <greg@kroah.com>
+To: Kay Sievers <kay.sievers@vrfy.org>, dtor_core@ameritech.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /sys/devices/system/timer registered twice
+Message-ID: <20041109225245.GB7618@kroah.com>
+References: <20041109193043.GA8767@vrfy.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041109193043.GA8767@vrfy.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> On Monday November 8, james4765@verizon.net wrote:
+On Tue, Nov 09, 2004 at 08:30:43PM +0100, Kay Sievers wrote:
+> Hi,
+> I got this on a Centrino box with the latest bk:
 > 
->>Update status of superblock formats and fix misspellings in Documentation/md.txt
-> 
-> 
-> Thanks but ....
-> 
-> 
->> 
->>-The kernel does *NOT* autodetect which format superblock is being
->>-used. It must be told.
->>+The kernel will autodetect which format superblock is being used.
-> 
-> 
-> This is an incorrect change.  The kernel does *NOT* autodetect
-> superblock format.  I'm you really think it does, please point me at
-> the code.
+>   [kay@pim linux.kay]$ ls -l /sys/devices/system/
+>   total 0
+>   drwxr-xr-x  7 root root 0 Nov  8 15:12 .
+>   drwxr-xr-x  5 root root 0 Nov  8 15:12 ..
+>   drwxr-xr-x  3 root root 0 Nov  8 15:12 cpu
+>   drwxr-xr-x  3 root root 0 Nov  8 15:12 i8259
+>   drwxr-xr-x  2 root root 0 Nov  8 15:12 ioapic
+>   drwxr-xr-x  3 root root 0 Nov  8 15:12 irqrouter
+>   ?---------  ? ?    ?    ?            ? timer
 > 
 > 
+> It is caused by registering two devices with the name "timer" from:
+> 
+>   arch/i386/kernel/time.c
+>   arch/i386/kernel/timers/timer_pit.c
+> 
+> If I change one of the names, I get two correct looking sysfs entries.
+> 
+> Greg, shouldn't the driver core prevent the corruption of the first
+> device if another one tries to register with the same name?
 
-AFAICT, mddev_t->major_version is used to indicate the superblock format.  That 
-form is used in add_new_disk(), but not in autostart_array().
+Hm, this looks like an issue for Dmitry, as there shouldn't be too
+sysdev_class structures with the same name, right?
 
-It looks like the autostart_array function is set up to only work with the 0.90.0 
-superblock format, but the add_new_disk function calls the proper 
-superblock-handling form using super_types[] to switch between the type 0 and type 
-1 superblock formats.
+thanks,
 
-OTOH, I could be wrong.
-
->> 
->>-One started with RUN_ARRAY, uninitialised spares can be added with
->>+One started with RUN_ARRAY, uninitialized spares can be added with
-> 
-> 
-> You corrected the wrong part of this line.
-> "One" at the beginning should be "Once".
-
-Oops.  Missed that.
-
-> "uninitialised" is correct  - in the Locale of the author.
-> 
-
-Do we go for Queen's English, American English, or what?  Just so I can set up the 
-spell-checker in the proper locale.
-
-
-
+greg k-h

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264155AbUATBSk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 20:18:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265328AbUATBRP
+	id S263620AbUATBSj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 20:18:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265115AbUATBRB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 20:17:15 -0500
-Received: from mail.kroah.org ([65.200.24.183]:25801 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265335AbUATBMj convert rfc822-to-8bit
+	Mon, 19 Jan 2004 20:17:01 -0500
+Received: from mail.kroah.org ([65.200.24.183]:25033 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265334AbUATBMh convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 20:12:39 -0500
+	Mon, 19 Jan 2004 20:12:37 -0500
 Subject: Re: [PATCH] Driver Core update and fixes for 2.6.1
-In-Reply-To: <10745611602007@kroah.com>
+In-Reply-To: <10745611583988@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 19 Jan 2004 17:12:40 -0800
-Message-Id: <10745611602245@kroah.com>
+Date: Mon, 19 Jan 2004 17:12:39 -0800
+Message-Id: <1074561159715@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -22,56 +22,58 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1500, 2004/01/19 16:39:52-08:00, greg@kroah.com
+ChangeSet 1.1496, 2004/01/19 16:31:36-08:00, hollisb@us.ibm.com
 
-[PATCH] LP: add sysfs class support for lp devices
+[PATCH] Driver Core: add device_find() function
 
-Add sysfs class support for lp devices.
+Greg KH wrote:
+>
+> How about just adding a device_find() function to the driver core, where
+> you pass in a name and a type, so that others can use it?
 
-Based on a patch from Hanna Linder <hannal@us.ibm.com>
+Something like this?
 
 
- drivers/char/lp.c |    6 ++++++
- 1 files changed, 6 insertions(+)
+ drivers/base/core.c    |    9 +++++++++
+ include/linux/device.h |    1 +
+ 2 files changed, 10 insertions(+)
 
 
-diff -Nru a/drivers/char/lp.c b/drivers/char/lp.c
---- a/drivers/char/lp.c	Mon Jan 19 17:05:01 2004
-+++ b/drivers/char/lp.c	Mon Jan 19 17:05:01 2004
-@@ -145,6 +145,7 @@
- struct lp_struct lp_table[LP_NO];
- 
- static unsigned int lp_count = 0;
-+static struct class_simple *lp_class;
- 
- #ifdef CONFIG_LP_CONSOLE
- static struct parport *console_registered; // initially NULL
-@@ -795,6 +796,8 @@
- 	if (reset)
- 		lp_reset(nr);
- 
-+	class_simple_device_add(lp_class, MKDEV(LP_MAJOR, nr), NULL,
-+				"lp%d", nr);
- 	devfs_mk_cdev(MKDEV(LP_MAJOR, nr), S_IFCHR | S_IRUGO | S_IWUGO,
- 			"printers/%d", nr);
- 
-@@ -897,6 +900,7 @@
- 	}
- 
- 	devfs_mk_dir("printers");
-+	lp_class = class_simple_create(THIS_MODULE, "printer");
- 
- 	if (parport_register_driver (&lp_driver)) {
- 		printk (KERN_ERR "lp: unable to register with parport\n");
-@@ -958,8 +962,10 @@
- 			continue;
- 		parport_unregister_device(lp_table[offset].dev);
- 		devfs_remove("printers/%d", offset);
-+		class_simple_device_remove(MKDEV(LP_MAJOR, offset));
- 	}
- 	devfs_remove("printers");
-+	class_simple_destroy(lp_class);
+diff -Nru a/drivers/base/core.c b/drivers/base/core.c
+--- a/drivers/base/core.c	Mon Jan 19 17:05:19 2004
++++ b/drivers/base/core.c	Mon Jan 19 17:05:19 2004
+@@ -400,6 +400,14 @@
+ 	return error;
  }
  
- __setup("lp=", lp_setup);
++struct device *device_find(const char *name, struct bus_type *bus)
++{
++	struct kobject *k = kset_find_obj(&bus->devices, name);
++	if (k)
++		return to_dev(k);
++	return NULL;
++}
++
+ int __init devices_init(void)
+ {
+ 	return subsystem_register(&devices_subsys);
+@@ -416,6 +424,7 @@
+ EXPORT_SYMBOL(device_unregister_wait);
+ EXPORT_SYMBOL(get_device);
+ EXPORT_SYMBOL(put_device);
++EXPORT_SYMBOL(device_find);
+ 
+ EXPORT_SYMBOL(device_create_file);
+ EXPORT_SYMBOL(device_remove_file);
+diff -Nru a/include/linux/device.h b/include/linux/device.h
+--- a/include/linux/device.h	Mon Jan 19 17:05:19 2004
++++ b/include/linux/device.h	Mon Jan 19 17:05:19 2004
+@@ -354,6 +354,7 @@
+  */
+ extern struct device * get_device(struct device * dev);
+ extern void put_device(struct device * dev);
++extern struct device *device_find(const char *name, struct bus_type *bus);
+ 
+ 
+ /* drivers/base/platform.c */
 

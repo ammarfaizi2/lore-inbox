@@ -1,94 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312498AbSDJGw6>; Wed, 10 Apr 2002 02:52:58 -0400
+	id <S312511AbSDJHB2>; Wed, 10 Apr 2002 03:01:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312499AbSDJGw5>; Wed, 10 Apr 2002 02:52:57 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40971 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312498AbSDJGw4>;
-	Wed, 10 Apr 2002 02:52:56 -0400
-Message-ID: <3CB3E145.BDBC6124@zip.com.au>
-Date: Tue, 09 Apr 2002 23:52:53 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5 i686)
-X-Accept-Language: en
+	id <S312513AbSDJHB1>; Wed, 10 Apr 2002 03:01:27 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:7431 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S312511AbSDJHB0>; Wed, 10 Apr 2002 03:01:26 -0400
+Message-Id: <200204100658.g3A6woX05071@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Adam McKenna <adam-dated-1018827432.0ef497@flounder.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: The latest -ac patch to the stable Linux kernels
+Date: Wed, 10 Apr 2002 10:02:03 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020409230116.GB22300@flounder.net> <3CB37B1F.2050405@blue-labs.org> <20020409233710.GD22300@flounder.net>
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] use pdflush for unused inode writeback
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is pdflush's first application!  The writeback of
-the unused inodes list by keventd is removed, and a
-pdflush thread is dispatched instead.
- 
-There is a need for exclusion - to prevent all the
-pdflush threads from working against the same request
-queue.  This is implemented locally.  And this is a 
-problem, because other pdflush threads can be dispatched
-to writeback other filesystem objects, and they don't
-know that there's already a pdflush thread working that
-request queue.
+On 9 April 2002 21:37, Adam McKenna wrote:
+> What I'm really complaining about is that for people who don't like to use
+> -pre kernels (like me), finger@finger.kernel.org is useless for finding out
+> what the latest -ac patch is to a non-pre kernel.
 
-So moving the exclusion into the request queue itself
-is on my things-to-do-list.  But the code as-is works
-OK - under a `dbench 100' load the number of pdflush
-instances can grow as high as four or five.  Some fine
-tuning is needed...
+People like you shouldn't use -ac. It is even slightly more experimental than 
+-pre. Wait for non-pre or take the risk of -pre[-ac].
 
-Patch is against 2.5.8-pre3+ratcache+readahead+pageprivate+pdflush
+> The latest -ac patch to the stable Linux kernels is:        2.4.18-ac3
+> The latest -ac pre-patch to the stable Linux kernels is:    2.4.19-pre5-ac3
 
-
---- 2.5.8-pre3/fs/inode.c~dallocbase-45-pdflush_inodes	Tue Apr  9 22:53:11 2002
-+++ 2.5.8-pre3-akpm/fs/inode.c	Tue Apr  9 22:53:11 2002
-@@ -433,7 +433,7 @@ void sync_inodes(void)
- 	}
- }
- 
--static void try_to_sync_unused_inodes(void * arg)
-+static void try_to_sync_unused_inodes(unsigned long pexclusive)
- {
- 	struct super_block * sb;
- 	int nr_inodes = inodes_stat.nr_unused;
-@@ -450,10 +450,9 @@ static void try_to_sync_unused_inodes(vo
- 	}
- 	spin_unlock(&sb_lock);
- 	spin_unlock(&inode_lock);
-+	clear_bit(0, (unsigned long *)pexclusive);
- }
- 
--static struct tq_struct unused_inodes_flush_task;
--
- /**
-  *	write_inode_now	-	write an inode to disk
-  *	@inode: inode to write to disk
-@@ -746,8 +745,15 @@ void prune_icache(int goal)
- 	 * from here or we're either synchronously dogslow
- 	 * or we deadlock with oom.
- 	 */
--	if (goal)
--		schedule_task(&unused_inodes_flush_task);
-+	if (goal) {
-+		static unsigned long exclusive;
-+
-+		if (!test_and_set_bit(0, &exclusive)) {
-+			if (pdflush_operation(try_to_sync_unused_inodes,
-+						(unsigned long)&exclusive))
-+				clear_bit(0, &exclusive);
-+		}
-+	}
- }
- /*
-  * This is called from kswapd when we think we need some
-@@ -1173,8 +1179,6 @@ void __init inode_init(unsigned long mem
- 					 NULL);
- 	if (!inode_cachep)
- 		panic("cannot create inode slab cache");
--
--	unused_inodes_flush_task.routine = try_to_sync_unused_inodes;
- }
- 
- static inline void do_atime_update(struct inode *inode)
-
--
+As I understand it there is only one "latest -ac": the one against latest 
+-pre.
+--
+vda

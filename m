@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267342AbUGNJjP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267343AbUGNJuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267342AbUGNJjP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 05:39:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267343AbUGNJjP
+	id S267343AbUGNJuW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 05:50:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267344AbUGNJuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 05:39:15 -0400
-Received: from [211.152.157.138] ([211.152.157.138]:59063 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S267342AbUGNJjJ (ORCPT
+	Wed, 14 Jul 2004 05:50:22 -0400
+Received: from gate.corvil.net ([213.94.219.177]:35594 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S267343AbUGNJuU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 05:39:09 -0400
-Date: Wed, 14 Jul 2004 17:29:57 +0800
-From: Hugang <hugang@soulinfo.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, bcollins@debian.org
-Subject: Re: [PATCH] fix rmmod sbp2 hang in 2.6.7
-Message-Id: <20040714172957.52de0f9b@localhost>
-In-Reply-To: <20040714102417.A12942@flint.arm.linux.org.uk>
-References: <20040714114854.29d4e015@localhost>
-	<20040714161357.426b5c08@localhost>
-	<20040714171107.49aa64f7@localhost>
-	<20040714102417.A12942@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Virus-Checked: Checked
+	Wed, 14 Jul 2004 05:50:20 -0400
+Message-ID: <40F50181.7070900@draigBrady.com>
+Date: Wed, 14 Jul 2004 10:48:49 +0100
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Wedgwood <cw@f00f.org>
+CC: Jeff Garzik <jgarzik@pobox.com>, Ricky Beam <jfbeam@bluetronic.net>,
+       "Eric D. Mudama" <edmudama@bounceswoosh.org>,
+       "Robert M. Stockmann" <stock@stokkie.net>, linux-kernel@vger.kernel.org
+Subject: Re: SATA disk device naming ?
+References: <20040713064645.GA1660@bounceswoosh.org> <Pine.GSO.4.33.0407131221000.25702-100000@sweetums.bluetronic.net> <20040713164911.GA947@havoc.gtf.org> <20040713223541.GB7980@taniwha.stupidest.org>
+In-Reply-To: <20040713223541.GB7980@taniwha.stupidest.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Jul 2004 10:24:17 +0100
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+Chris Wedgwood wrote:
+> On Tue, Jul 13, 2004 at 12:49:11PM -0400, Jeff Garzik wrote:
+> 
+> 
+>>For LABEL to work on root filesystem, you need an initrd.
+> 
+> 
+> initrd is such a PITA at times, I wondered about something hacky like
+> sticking LABEL parsing for rootfs (marked init) into the kernel but
+> it's really gross.
+> 
+> Ideally the initrd/initramfs process just needs better (userspace)
+> infrastructure to make it more reliable/easier.
 
-| This down+up prevents drivers from being unloaded until there are no
-| references to their struct device_driver.  By removing this, you open
-| the very real possibility for an oops to occur.
-Yes, I agree with you. When sbp2 is using the module count is not zero, 
-so I can rmmod it, So I think, for sbp2 that's safe, That's true on my laptop.
+Something like this?
+http://www-124.ibm.com/pipermail/evms/2001-March/000119.html
 
-| 
-| If you're waiting inside that function for the last reference to be
-| dropped, the real question is why you still have references to it.
-There are tree places that reference ->unload_sem in linux kernel tree, but I
-don't known, why the same code in 2.6.4 can works fine. :)
+initrd is awkward but I've found I need the flexibility.
+For e.g. I modified nash to support an index as well as
+a label so one could have multiple redundant filesystem
+images to choose from.
 
-bus.c:68:       up(&drv->unload_sem);
-driver.c:110:   down(&drv->unload_sem);
-driver.c:111:   up(&drv->unload_sem);
-
--- 
-Hu Gang / Steve
-Linux Registered User 204016
-GPG Public Key: http://soulinfo.com/~hugang/hugang.asc
+Pádraig.

@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129134AbRBUSJ4>; Wed, 21 Feb 2001 13:09:56 -0500
+	id <S129428AbRBUSJg>; Wed, 21 Feb 2001 13:09:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129243AbRBUSJr>; Wed, 21 Feb 2001 13:09:47 -0500
-Received: from host217-32-138-113.hg.mdip.bt.net ([217.32.138.113]:13576 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S129134AbRBUSJh>;
-	Wed, 21 Feb 2001 13:09:37 -0500
-Date: Wed, 21 Feb 2001 18:12:37 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Burton Windle <burton@fint.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Detecting SMP
-In-Reply-To: <Pine.LNX.4.21.0102211746330.2050-100000@penguin.homenet>
-Message-ID: <Pine.LNX.4.21.0102211808070.2050-100000@penguin.homenet>
+	id <S129243AbRBUSJ0>; Wed, 21 Feb 2001 13:09:26 -0500
+Received: from cosmos.ccrs.nrcan.gc.ca ([132.156.47.32]:51425 "EHLO
+	cosmos.CCRS.NRCan.gc.ca") by vger.kernel.org with ESMTP
+	id <S129134AbRBUSJP>; Wed, 21 Feb 2001 13:09:15 -0500
+Message-ID: <2951561DB3DDD0118FEC00805FFE98050435E155@s5-ccr-r1>
+From: "Desjardins, Kristian" <Kristian.Desjardins@CCRS.NRCan.gc.ca>
+To: "'Tigran Aivazian'" <tigran@veritas.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: 128MB lost... where ?
+Date: Wed, 21 Feb 2001 13:09:02 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Feb 2001, Tigran Aivazian wrote:
+> as you can see, the above tells you exactly how many pages you have in
+> each zone and the total number of usable pages. But even that is not
+> relevant to your question. What is relevant is the number 
+> after the first
+> "/" in the "Memory:" line and also the BIOS-e820 map, of course.
+> 
+> Also, on 6.4G machine you should definitely use 64G i.e. PAE 
+> support and
+> so if not all memory is detected, please report to this list. 
+> People like
+> David Parsons will probably be interested in your configuration...
+> 
+> Regards,
+> Tigran
+> 
 
-> yes, just run the famous mptable program.
+Thanks, the problem was that I never saw the beginning of the kernel output
+(dmesg) until I attached a PC and used it as a serial console.
 
-before I am snowed under with questions about where to get this program,
-here is the src and binaries that I use -- it is quite possible that there
-is a newer version (I suspect Ingo Molnar might know better :)
-
-http://www.moses.uklinux.net/mptable
-
-Regards,
-Tigran
-
-
+Memory: 5917096k/6553600k available (1504k kernel code, 111824k reserved,
+555k d

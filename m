@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263622AbTLJQGv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 11:06:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263666AbTLJQGv
+	id S263732AbTLJQLq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 11:11:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263740AbTLJQLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 11:06:51 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:33458 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S263622AbTLJQGu
+	Wed, 10 Dec 2003 11:11:46 -0500
+Received: from fed1mtao03.cox.net ([68.6.19.242]:39578 "EHLO
+	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S263732AbTLJQLn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 11:06:50 -0500
-Date: Wed, 10 Dec 2003 08:06:18 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Larry McVoy <lm@bitmover.com>, Andre Hedrick <andre@linux-ide.org>,
-       karim@opersys.com, Linus Torvalds <torvalds@osdl.org>,
-       Kendall Bennett <KendallB@scitechsoft.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause?
-Message-ID: <20031210160618.GD6896@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Larry McVoy <lm@bitmover.com>, Andre Hedrick <andre@linux-ide.org>,
-	karim@opersys.com, Linus Torvalds <torvalds@osdl.org>,
-	Kendall Bennett <KendallB@scitechsoft.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10312100606510.3805-100000@master.linux-ide.org> <1071066315.5712.344.camel@hades.cambridge.redhat.com> <20031210144612.GA19357@work.bitmover.com> <1071068703.5712.398.camel@hades.cambridge.redhat.com> <20031210151110.GA6896@work.bitmover.com> <1071071955.5712.428.camel@hades.cambridge.redhat.com>
+	Wed, 10 Dec 2003 11:11:43 -0500
+Date: Wed, 10 Dec 2003 09:11:42 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Meelis Roos <mroos@linux.ee>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PPC & 2.6.0-test3: wrong mem size & hang on ifconfig
+Message-ID: <20031210161142.GE23731@stop.crashing.org>
+References: <20031020203338.GJ6062@ip68-0-152-218.tc.ph.cox.net> <Pine.GSO.4.44.0312101519590.26871-100000@math.ut.ee>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1071071955.5712.428.camel@hades.cambridge.redhat.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.GSO.4.44.0312101519590.26871-100000@math.ut.ee>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 10, 2003 at 03:59:15PM +0000, David Woodhouse wrote:
-> On Wed, 2003-12-10 at 07:11 -0800, Larry McVoy wrote:
-> > You may license *your* work under whatever terms you want.  Those terms
-> > can't extend to things that aren't your work in a copyright license.
-> 
-> Please elaborate. We're talking about a situation in which I grant a
-> licence for you to copy and use my work, in exchange for something I
-> desire from you. In the absence of a contract, this is limited to me
-> effectively saying "You may copy and use my work if and only if you do
-> XXX".
-> 
-> If you do not do 'XXX' then you may not use my work.
-> 
-> Are you saying that there are things which I may not ask for? Could you
-> elaborate?
+On Wed, Dec 10, 2003 at 03:21:32PM +0200, Meelis Roos wrote:
 
-I think at this point you need to talk to a lawyer.  I can guess where this
-conversation is going and I'm not going to be effective.
+> Current 2.4.24-pre is also misbehaving - now it too finds only 32M RAM
+> on my Powerstack. 2.4.23-pre9 is OK.
 
-> I need a contract to force you to do anything; this is true.
-> 
-> Without a contract, all I can do if you don't abide by my conditions is
-> observe that you don't have my permission to copy my work, and hence
-> that if you do so you are committing a criminal offence.
+Okay.  That's not totally unsurprising.  Can you try the following and
+let me know what the output is?  Thanks.
 
-Huh?  I don't think that copyright violation makes you a felon.  
+===== arch/ppc/boot/prep/misc.c 1.14 vs edited =====
+--- 1.14/arch/ppc/boot/prep/misc.c	Mon Oct 20 11:49:35 2003
++++ edited/arch/ppc/boot/prep/misc.c	Wed Dec 10 09:11:05 2003
+@@ -251,15 +251,21 @@
+ 		{
+ 			phandle dev_handle;
+ 			int mem_info[2];
++			int n;
++			puts("Trying OF\n");
+ 
+ 			/* get handle to memory description */
+ 			if (!(dev_handle = finddevice("/memory@0")))
+ 				break;
++			puts("Found /memory@0\n");
+ 
+ 			/* get the info */
+ 			if (getprop(dev_handle, "reg", mem_info,
+-						sizeof(mem_info) != 8))
++						sizeof(mem_info) != 8)) {
++				puts("n = 0x");puthex(n);puts("\n");
+ 				break;
++			}
++			puts("Found reg prop\n");
+ 
+ 			TotalMemory = mem_info[1];
+ 			break;
+
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Tom Rini
+http://gate.crashing.org/~trini/

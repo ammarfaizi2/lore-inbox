@@ -1,28 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbTICJ0c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 05:26:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbTICJ0c
+	id S261719AbTICJ0j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 05:26:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbTICJ0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 05:26:32 -0400
-Received: from lidskialf.net ([62.3.233.115]:6278 "EHLO beyond.lidskialf.net")
-	by vger.kernel.org with ESMTP id S261722AbTICJZ3 (ORCPT
+	Wed, 3 Sep 2003 05:26:39 -0400
+Received: from lidskialf.net ([62.3.233.115]:5254 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S261719AbTICJZK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 05:25:29 -0400
-From: Andrew de Quincey <adq_dvb@lidskialf.net>
+	Wed, 3 Sep 2003 05:25:10 -0400
+From: Andrew de Quincey <adq@lidskialf.net>
 To: Roger Luethi <rl@hellgate.ch>, linux-kernel@vger.kernel.org
 Subject: Re: [ACPI] Where do I send APIC victims?
-Date: Wed, 3 Sep 2003 11:23:58 +0100
+Date: Wed, 3 Sep 2003 11:23:36 +0100
 User-Agent: KMail/1.5.3
 Cc: acpi-devel@lists.sourceforge.net
 References: <20030903080852.GA27649@k3.hellgate.ch>
 In-Reply-To: <20030903080852.GA27649@k3.hellgate.ch>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200309031123.58713.adq_dvb@lidskialf.net>
+Content-Disposition: inline
+Message-Id: <200309031123.36839.adq@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

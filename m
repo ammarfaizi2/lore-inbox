@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289652AbSA2M3T>; Tue, 29 Jan 2002 07:29:19 -0500
+	id <S289563AbSA2M3U>; Tue, 29 Jan 2002 07:29:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289563AbSA2LlB>; Tue, 29 Jan 2002 06:41:01 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:37903 "HELO
+	id <S289551AbSA2LlF>; Tue, 29 Jan 2002 06:41:05 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:50191 "HELO
 	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S289551AbSA2Lko>; Tue, 29 Jan 2002 06:40:44 -0500
-Date: Mon, 28 Jan 2002 20:43:57 +0300
-Message-Id: <200201281743.g0SHhvu23038@bitshadow.namesys.com>
+	id <S289556AbSA2Lko>; Tue, 29 Jan 2002 06:40:44 -0500
+Date: Mon, 28 Jan 2002 20:51:08 +0300
+Message-Id: <200201281751.g0SHp8h23156@bitshadow.namesys.com>
 From: Hans Reiser <reiser@namesys.com>
 To: torvalds@transmeta.com
 CC: reiser@namesys.com, reiserfs-dev@namesys.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] ReiserFS 2.5 Update Patch Set 7 of 25
+Subject: [PATCH] ReiserFS 2.5 Update Patch Set 20 of 25
 MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -21,10 +21,11 @@ This set of patches of which this is one will update ReiserFS in 2.5
 to contain all bugfixes applied to 2.4 plus allow relocating the journal plus
 uuid support plus fix the kdev_t compilation failure.
 
-07-mmaped_data_loss_fix.diff
-    fixes a bug first noticed using a Freebsd nfs testing tool. When writing to
-    a previously mmaped-filled hole in file, and then writing with write() there
-    again, page that write() hits loses mmap-written content.
+20-rename_stale_item_bug.diff
+    This patch fixes 2 bugs in reiserfs_rename(). First one being attempt to
+    access item before verifying it was not moved since last access. Second
+    is a window, where old filename may be written to disk with 'visible'
+    flag unset without these changes be journaled.
 
 
 The other patches in this set are:
@@ -174,33 +175,77 @@ The other patches in this set are:
 
 
 
---- linux-2.5.3-pre3/fs/reiserfs/inode.c.orig	Wed Jan 23 20:15:38 2002
-+++ linux-2.5.3-pre3/fs/reiserfs/inode.c	Wed Jan 23 20:16:19 2002
-@@ -269,7 +269,9 @@
- 	pathrelse (&path);
-         if (p)
-             kunmap(bh_result->b_page) ;
--	if ((args & GET_BLOCK_NO_HOLE)) {
-+	// We do not return -ENOENT if there is a hole but page is uptodate, because it means
-+	// That there is some MMAPED data associated with it that is yet to be written to disk.
-+	if ((args & GET_BLOCK_NO_HOLE) && !Page_Uptodate(bh_result->b_page) ) {
- 	    return -ENOENT ;
- 	}
-         return 0 ;
-@@ -288,9 +290,13 @@
- 	ret = 0 ;
- 	if (blocknr) {
- 		map_bh(bh_result, inode->i_sb, blocknr);
--	} else if ((args & GET_BLOCK_NO_HOLE)) {
-+	} else 
-+	    // We do not return -ENOENT if there is a hole but page is uptodate, because it means
-+	    // That there is some MMAPED data associated with it that is yet to  be written to disk.
-+	    if ((args & GET_BLOCK_NO_HOLE) && !Page_Uptodate(bh_result->b_page) ) {
- 	    ret = -ENOENT ;
--	}
-+	    }
+--- linux-2.5.3-pre3/fs/reiserfs/namei.c.orig	Wed Jan 23 20:24:42 2002
++++ linux-2.5.3-pre3/fs/reiserfs/namei.c	Wed Jan 23 20:28:08 2002
+@@ -1043,7 +1043,7 @@
+     INITIALIZE_PATH (old_entry_path);
+     INITIALIZE_PATH (new_entry_path);
+     INITIALIZE_PATH (dot_dot_entry_path);
+-    struct item_head new_entry_ih, old_entry_ih ;
++    struct item_head new_entry_ih, old_entry_ih, dot_dot_ih ;
+     struct reiserfs_dir_entry old_de, new_de, dot_dot_de;
+     struct inode * old_inode, * new_inode;
+     int windex ;
+@@ -1132,6 +1132,8 @@
+ 
+ 	copy_item_head(&old_entry_ih, get_ih(&old_entry_path)) ;
+ 
++	reiserfs_prepare_for_journal(old_inode->i_sb, old_de.de_bh, 1) ;
 +
- 	pathrelse (&path);
-         if (p)
-             kunmap(bh_result->b_page) ;
+ 	// look for new name by reiserfs_find_entry
+ 	new_de.de_gen_number_bit_string = 0;
+ 	retval = reiserfs_find_entry (new_dir, new_dentry->d_name.name, new_dentry->d_name.len, 
+@@ -1146,6 +1148,7 @@
+ 	if (S_ISDIR(old_inode->i_mode)) {
+ 	    if (search_by_entry_key (new_dir->i_sb, &dot_dot_de.de_entry_key, &dot_dot_entry_path, &dot_dot_de) != NAME_FOUND)
+ 		BUG ();
++	    copy_item_head(&dot_dot_ih, get_ih(&dot_dot_entry_path)) ;
+ 	    // node containing ".." gets into transaction
+ 	    reiserfs_prepare_for_journal(old_inode->i_sb, dot_dot_de.de_bh, 1) ;
+ 	}
+@@ -1162,23 +1165,32 @@
+ 	** of the above checks could have scheduled.  We have to be
+ 	** sure our items haven't been shifted by another process.
+ 	*/
+-	if (!entry_points_to_object(new_dentry->d_name.name, 
++	if (item_moved(&new_entry_ih, &new_entry_path) ||
++	    !entry_points_to_object(new_dentry->d_name.name, 
+ 	                            new_dentry->d_name.len,
+ 				    &new_de, new_inode) ||
+-	    item_moved(&new_entry_ih, &new_entry_path) ||
+ 	    item_moved(&old_entry_ih, &old_entry_path) || 
+ 	    !entry_points_to_object (old_dentry->d_name.name, 
+ 	                             old_dentry->d_name.len,
+ 				     &old_de, old_inode)) {
+ 	    reiserfs_restore_prepared_buffer (old_inode->i_sb, new_de.de_bh);
++	    reiserfs_restore_prepared_buffer (old_inode->i_sb, old_de.de_bh);
+ 	    if (S_ISDIR(old_inode->i_mode))
+ 		reiserfs_restore_prepared_buffer (old_inode->i_sb, dot_dot_de.de_bh);
+ 	    continue;
+ 	}
++	if (S_ISDIR(old_inode->i_mode)) {
++	    if ( item_moved(&dot_dot_ih, &dot_dot_entry_path) ||
++		!entry_points_to_object ( "..", 2, &dot_dot_de, old_dir) ) {
++		reiserfs_restore_prepared_buffer (old_inode->i_sb, old_de.de_bh);
++		reiserfs_restore_prepared_buffer (old_inode->i_sb, new_de.de_bh);
++		reiserfs_restore_prepared_buffer (old_inode->i_sb, dot_dot_de.de_bh);
++		continue;
++	    }
++	}
+ 
+ 	RFALSE( S_ISDIR(old_inode->i_mode) && 
+-		(!entry_points_to_object ("..", 2, &dot_dot_de, old_dir) || 
+-		 !reiserfs_buffer_prepared(dot_dot_de.de_bh)), "" );
++		 !reiserfs_buffer_prepared(dot_dot_de.de_bh), "" );
+ 
+ 	break;
+     }
+@@ -1191,6 +1203,7 @@
+     journal_mark_dirty (&th, old_dir->i_sb, new_de.de_bh);
+ 
+     mark_de_hidden (old_de.de_deh + old_de.de_entry_num);
++    journal_mark_dirty (&th, old_dir->i_sb, old_de.de_bh);
+     old_dir->i_ctime = old_dir->i_mtime = CURRENT_TIME;
+     new_dir->i_ctime = new_dir->i_mtime = CURRENT_TIME;
+ 
 

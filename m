@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263168AbSJBQwY>; Wed, 2 Oct 2002 12:52:24 -0400
+	id <S263172AbSJBROc>; Wed, 2 Oct 2002 13:14:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263170AbSJBQwY>; Wed, 2 Oct 2002 12:52:24 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:43711 "EHLO
-	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S263168AbSJBQwP>; Wed, 2 Oct 2002 12:52:15 -0400
-Date: Wed, 02 Oct 2002 11:57:26 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Daniel Phillips <phillips@arcor.de>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Snapshot of shared page tables
-Message-ID: <83240000.1033577846@baldur.austin.ibm.com>
-In-Reply-To: <E17wmit-0001bH-00@starship>
-References: <45850000.1033570655@baldur.austin.ibm.com>
- <E17wmit-0001bH-00@starship>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S263174AbSJBROc>; Wed, 2 Oct 2002 13:14:32 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:25302 "EHLO
+	pd3mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id <S263172AbSJBRO2>; Wed, 2 Oct 2002 13:14:28 -0400
+Date: Wed, 02 Oct 2002 10:18:53 -0700
+From: Ken Savage <kens1835@shaw.ca>
+Subject: Re: 3ware Escalade 7500 init problems on 2.4.19
+In-reply-to: <1033578103.8610.12.camel@plokta.s8.com>
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <200210021018.53312.kens1835@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+User-Agent: KMail/1.4.1
+References: <200210020859.54621.kens1835@shaw.ca>
+ <1033578103.8610.12.camel@plokta.s8.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On October 2, 2002 10:01, Bryan O'Sullivan wrote:
 
---On Wednesday, October 02, 2002 18:51:41 +0200 Daniel Phillips
-<phillips@arcor.de> wrote:
+> The driver that ships with 2.4.19 isn't the most recent, though I doubt
+> there's anything in the up-to-date driver that should make a difference.
 
-> Interesting, you substituted pte_page_lock(ptepage) for
-> mm->page_table_lock. Could you wax poetic about that, please?
+'diff'ing the drivers, you can see a tiiiiny difference.  As you said, nothing
+that should make a difference.  In either case, both versions of the driver
+remain unhappy with the card, failing to initialize it.
 
-Sure.  If a pte page is shared, the mm->page_table_lock is not sufficient
-to protect the rest of the page fault.  Therefore we need a lock at the pte
-page level.  The mm->page_table_lock is held during the page fault until we
-have a valid and locked pte page we're working on, then it's dropped for
-the rest of the fault.
+> The error message you report is replicated in several spots within the
+> driver, so it's not useful in itself.
 
-Feel free to poke holes in my logic, but I think it's the right locking
-model for shared pte pages.
+What additional information would be of assistance?
 
-Dave McCracken
-
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
-
+Ken

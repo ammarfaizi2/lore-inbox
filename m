@@ -1,76 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265533AbTFMVBn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 17:01:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265531AbTFMVBn
+	id S265531AbTFMVC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 17:02:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265535AbTFMVC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 17:01:43 -0400
-Received: from B528c.pppool.de ([213.7.82.140]:442 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id S265533AbTFMVBc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 17:01:32 -0400
-Subject: Re: linux-2.4.21 released
-From: Daniel Egger <degger@fhm.edu>
-To: Damian =?iso-8859-2?Q?Ko=B3kowski?= <deimos@deimos.one.pl>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Stephan von Krawczynski <skraw@ithnet.com>, stefan@stefan-foerster.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030613183639.GA533@deimos.one.pl>
-References: <200306131453.h5DErX47015940@hera.kernel.org>
-	 <20030613165628.GE28609@in-ws-001.cid-net.de>
-	 <20030613165625.GA573@deimos.one.pl>
-	 <20030613193709.49f22332.skraw@ithnet.com>
-	 <20030613171903.GA797@deimos.one.pl>
-	 <1055526549.5162.78.camel@dhcp22.swansea.linux.org.uk>
-	 <20030613183639.GA533@deimos.one.pl>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-oBAma0oWfsRJEObhMHhj"
-Message-Id: <1055538278.11366.13.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
-Date: 13 Jun 2003 23:04:39 +0200
+	Fri, 13 Jun 2003 17:02:27 -0400
+Received: from maild.telia.com ([194.22.190.101]:22756 "EHLO maild.telia.com")
+	by vger.kernel.org with ESMTP id S265531AbTFMVCZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 17:02:25 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Vojtech Pavlik <vojtech@ucw.cz>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>, Peter Berg Larsen <pebl@math.ku.dk>
+Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
+References: <m2smqhqk4k.fsf@p4.localdomain> <20030611170246.A4187@ucw.cz>
+	<m27k7sv5si.fsf@telia.com> <20030611203408.A6961@ucw.cz>
+From: Peter Osterlund <petero2@telia.com>
+Date: 13 Jun 2003 23:15:57 +0200
+In-Reply-To: <20030611203408.A6961@ucw.cz>
+Message-ID: <m23cidllv6.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Vojtech Pavlik <vojtech@ucw.cz> writes:
 
---=-oBAma0oWfsRJEObhMHhj
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: quoted-printable
+> On Wed, Jun 11, 2003 at 08:16:13PM +0200, Peter Osterlund wrote:
+> 
+> > The w value is somewhat special and not really a real axis. According
+> > to the Synaptics TouchPad Interfacing Guide
+> > (http://www.synaptics.com/decaf/utilities/ACF126.pdf), W is defined as
+> > follows:
+> > 
+> > Value		Needed capability	Interpretation
+> > W = 0		capMultiFinger		Two fingers on the pad.
+> > W = 1		capMultiFinger		Three or more fingers on the pad.
+> > W = 2		capPen			Pen (instead of finger) on the pad.
+> > W = 3		Reserved.
+> > W = 4-7		capPalmDetect		Finger of normal width.
+> > W = 8-14	capPalmDetect		Very wide finger or palm.
+> > W = 15		capPalmDetect		Maximum reportable width; extremely
+> > 					wide contact.
+> > 
+> > Is there a better way than using ABS_MISC to pass the W information to
+> > user space?
+> 
+> We should probably add an EV_MSC, MSC_GESTURE event type for this.
+> That'll be the cleanest solution.
 
-Am Fre, 2003-06-13 um 20.36 schrieb Damian Ko=B3kowski:
+Peter Berg Larsen suggested in a private email that we shouldn't
+export W directly, because it is too synaptics specific. Better split
+it in "number of fingers" and "finger width", so that other touchpads
+could use the same format.
 
-> ACPI works with new acpid-1.0.2, but without CONFIG_X86_UP_IOAPIC :-)
+What do we call these things? ABS_FINGER_WIDTH and ABS_NR_FINGERS
+maybe?
 
-Surprise, but ACPI never was the problem with this board... :)
-I've tested a few more kernels. .21 fails as well as the latest -ac.
-
-Unfortunately the -ac's also have "interesting" troubles with my 2nd
-NIC in the machine which is a
-
-00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
-RTL-8139/8139C/8139C+ (rev 10)
-        Subsystem: Realtek Semiconductor Co., Ltd. RT8139
-        Flags: bus master, medium devsel, latency 32, IRQ 10
-        I/O ports at d800 [size=3D256]
-        Memory at e0108000 (32-bit, non-prefetchable) [size=3D256]
-        Capabilities: [50] Power Management version 2
-
-It loads perfectly but has problems coping with the media.=20
-
---=20
-Servus,
-       Daniel
-
---=-oBAma0oWfsRJEObhMHhj
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+6jxmchlzsq9KoIYRAlJfAJ9/WoVxTTT4BHaVQsaFLdFoiHK86wCgnzUG
-6MTcSPCdmwp8zo6DUZu+KOU=
-=hIL9
------END PGP SIGNATURE-----
-
---=-oBAma0oWfsRJEObhMHhj--
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

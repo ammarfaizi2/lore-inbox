@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261845AbSJ1XaM>; Mon, 28 Oct 2002 18:30:12 -0500
+	id <S261512AbSJ1Xi0>; Mon, 28 Oct 2002 18:38:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261839AbSJ1XaL>; Mon, 28 Oct 2002 18:30:11 -0500
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:16142 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S261934AbSJ1X3z>; Mon, 28 Oct 2002 18:29:55 -0500
-Date: Mon, 28 Oct 2002 23:36:13 +0000 (GMT)
-From: <chris@scary.beasts.org>
-X-X-Sender: <cevans@sphinx.mythic-beasts.com>
-To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] 2.5.44 (1/2): Filesystem capabilities kernel patch
-In-Reply-To: <87smyqnpf3.fsf@goat.bogus.local>
-Message-ID: <Pine.LNX.4.33.0210282327520.8990-100000@sphinx.mythic-beasts.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261520AbSJ1Xi0>; Mon, 28 Oct 2002 18:38:26 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:28071 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261512AbSJ1XiZ>;
+	Mon, 28 Oct 2002 18:38:25 -0500
+Date: Mon, 28 Oct 2002 23:44:34 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: bert hubert <ahu@ds9a.nl>, Hanna Linder <hannal@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-aio@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [PATCH] epoll more scalable than poll
+Message-ID: <20021028234434.GB18415@bjl1.asuk.net>
+References: <20021028220809.GB27798@outpost.ds9a.nl> <Pine.LNX.4.44.0210281420540.966-100000@blue1.dev.mcafeelabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0210281420540.966-100000@blue1.dev.mcafeelabs.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Davide Libenzi wrote:
+> sys_epoll, by plugging directly in the existing kernel architecture,
+> supports sockets and pipes. It does not support and there're not even
+> plans to support other devices like tty, where poll() and select() works
+> flawlessy. Since the sys_epoll ( and /dev/epoll ) fd support standard polling, you
+> can mix sys_epoll handling with other methods like poll() and the AIO's
+> POLL function when it'll be ready. For example, for devices that sys_epoll
+> intentionally does not support, you can use a method like :
 
-On Mon, 28 Oct 2002, Olaf Dietsche wrote:
+:( I was hoping sys_epoll would be scalable without increasing the
+number of system calls per event.
 
-> Solving the last issue (checking access to the capabilities database)
-> involves filesystem support, I guess. So, this will be the next step
-> to address.
->
-> If you're careful with giving away capabilities however, this patch
-> can make your system more secure as it is. But this isn't fully
-> explored, so you might achieve the opposite and open new security
-> holes.
+Is it too much work to support all kinds of fd?  It would be rather a
+good thing IMHO.
 
-Have you checked how glibc handles an executable with filesystem
-capabilities? e.g. can an LD_PRELOAD hack subvert the privileged
-executable?
-I'm not sure what the current glibc security check is, but it used to be
-simple *uid() vs. *euid() checks. This would not catch an executable with
-filesystem capabilities.
-Have a look at
-http://security-archive.merton.ox.ac.uk/security-audit-199907/0192.html
+I'm thinking that a typical generic event handling library (like in a
+typical home grown server) takes a set of fds and event handling
+callbacks.  sys_epoll is obviously not so trivial to use in place of a
+poll() loop, because the library needs to fstat() each fd that is
+registered to decide if epoll will return events for that fd.
 
-I think the eventual plan was that we pass the kernel's current->dumpable
-as an ELF note. Not sure if it got done. Alternatively glibc could use
-prctl(PR_GET_DUMPABLE).
+For that to work, it's important that you can determine, through
+fstat(), whether sys_epoll will actually return events for the fd, or
+whether a sigqueue event is needed to trigger the epoll read.
 
-Cheers
-Chris
+So, is it exactly _all_ sockets and pipes, and nothing else?
 
+Btw, is the set of fd types supported by epoll the same as the set of
+fd types supported by SIGIO?  That would be convenient - and logical.
+
+thanks,
+-- Jamie (who thinks a lot about fast web servers)

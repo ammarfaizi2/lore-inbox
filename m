@@ -1,78 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262368AbUK3WeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262367AbUK3WgB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262368AbUK3WeU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 17:34:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbUK3WeU
+	id S262367AbUK3WgB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 17:36:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbUK3WgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 17:34:20 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:51812 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262370AbUK3Wd4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 17:33:56 -0500
-Date: Tue, 30 Nov 2004 23:33:59 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Mariusz Mazur <mmazur@kernel.pl>, David Woodhouse <dwmw2@infradead.org>,
-       Alexandre Oliva <aoliva@redhat.com>, Paul Mackerras <paulus@samba.org>,
-       Greg KH <greg@kroah.com>, Matthew Wilcox <matthew@wil.cx>,
-       David Howells <dhowells@redhat.com>, hch@infradead.org,
-       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
+	Tue, 30 Nov 2004 17:36:01 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:25865 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262367AbUK3Wew (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 17:34:52 -0500
 Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-Message-ID: <20041130223359.GA15443@mars.ravnborg.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Mariusz Mazur <mmazur@kernel.pl>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Alexandre Oliva <aoliva@redhat.com>,
-	Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
-	Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
-	hch@infradead.org, linux-kernel@vger.kernel.org,
-	libc-hacker@sources.redhat.com
-References: <19865.1101395592@redhat.com> <1101837135.26071.380.camel@hades.cambridge.redhat.com> <Pine.LNX.4.58.0411301020160.22796@ppc970.osdl.org> <200411302128.53583.mmazur@kernel.pl> <Pine.LNX.4.58.0411301243000.22796@ppc970.osdl.org>
+From: David Woodhouse <dwmw2@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alexandre Oliva <aoliva@redhat.com>, dhowells <dhowells@redhat.com>,
+       Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
+       Matthew Wilcox <matthew@wil.cx>, hch@infradead.org,
+       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
+In-Reply-To: <Pine.LNX.4.58.0411301423030.22796@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org>
+	 <19865.1101395592@redhat.com>
+	 <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
+	 <1101406661.8191.9390.camel@hades.cambridge.redhat.com>
+	 <20041127032403.GB10536@kroah.com>
+	 <16810.24893.747522.656073@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org>
+	 <ord5xwvay2.fsf@livre.redhat.lsd.ic.unicamp.br>
+	 <8219.1101828816@redhat.com>
+	 <Pine.LNX.4.58.0411300744120.22796@ppc970.osdl.org>
+	 <ormzwzrrmy.fsf@livre.redhat.lsd.ic.unicamp.br>
+	 <Pine.LNX.4.58.0411301249590.22796@ppc970.osdl.org>
+	 <orekibrpmn.fsf@livre.redhat.lsd.ic.unicamp.br>
+	 <Pine.LNX.4.58.0411301423030.22796@ppc970.osdl.org>
+Content-Type: text/plain
+Date: Tue, 30 Nov 2004 22:34:20 +0000
+Message-Id: <1101854061.4574.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0411301243000.22796@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.2 (2.0.2-3.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 30, 2004 at 12:47:50PM -0800, Linus Torvalds wrote:
- If that's all that people want, I hereby proclaim that
+On Tue, 2004-11-30 at 14:25 -0800, Linus Torvalds wrote:
 > 
-> 	include/asm-xxx/user/xxxx.h
-> 	include/user/xxxx.h
+> On Tue, 30 Nov 2004, Alexandre Oliva wrote:
 > 
-> is reserved for user-visible stuff. And now you can send me small and 
-> localized patches that fix a _particular_ gripe. 
+> > >  (a) it can't break anything (ie the old location still includes the new 
+> > >      one, exactly the same way)
+> > 
+> > You mean it can't break anything in a kernel build, or it can't break
+> > anything except for userland apps that abused kernel headers and used
+> > to get away with that?
+> 
+> It can't break userland either.
 
-Please use:
- 	include/$arch/user-asm/xxxx.h
- 	include/user/xxxx.h
-	
-This allows us to
+That depends on your definition of 'break'. It should prevent abuse.
 
-1) To include file foo.h we still distingush between user versus user-asm:
-#include <user/foo.h>		(include/user/foo.h)
-#include <user-asm/foo.h>	(include/$arch/user-asm/foo.h)
+To pick a specific example, since you like them: where userland programs
+are including atomic.h, and hence writing programs which don't compile
+on some architectures, and which compile on others but silently give
+non-atomic results, it's perfectly acceptable and indeed advisable to
+prevent compilation across the board.
 
-2) No symlinks needed - just proper options to gcc
+Some people might call that breakage; I don't.
 
-	Sam
-
-This should do it for the top-level makefile:
-
-===== Makefile 1.549 vs edited =====
---- 1.549/Makefile	2004-11-15 10:00:11 +01:00
-+++ edited/Makefile	2004-11-30 23:31:09 +01:00
-@@ -345,6 +345,10 @@
- # Needed to be compatible with the O= option
- LINUXINCLUDE    := -Iinclude \
-                    $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include)
-+		   
-+# Extend include path with user dir
-+LINUXINCLUDE	+= -Iinclude/$(ARCH) \
-+		   $(if $(KBUILD_SRC), -I$(srctree)/include/$(ARCH))
- 
- CPPFLAGS        := -D__KERNEL__ $(LINUXINCLUDE)
- 
+-- 
+dwmw2
 

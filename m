@@ -1,106 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbULYWst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbULYXHu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261589AbULYWst (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 17:48:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbULYWss
+	id S261590AbULYXHu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 18:07:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261591AbULYXHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 17:48:48 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:56032 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S261589AbULYWso (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 17:48:44 -0500
-Date: Sat, 25 Dec 2004 23:48:43 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ingo Molnar <mingo@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: apic and 8254 wraparound ...
-Message-ID: <20041225224843.GA32726@mail.13thfloor.at>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Ingo Molnar <mingo@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20041224001144.GA5192@mail.13thfloor.at> <1103845033.15193.6.camel@localhost.localdomain> <20041224200022.GA14956@mail.13thfloor.at> <1103917238.18115.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1103917238.18115.11.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Sat, 25 Dec 2004 18:07:50 -0500
+Received: from smtp017.mail.yahoo.com ([216.136.174.114]:55662 "HELO
+	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261590AbULYXHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Dec 2004 18:07:42 -0500
+Message-ID: <41CDF2A1.1040606@yahoo.com>
+Date: Sat, 25 Dec 2004 15:07:13 -0800
+From: Lars <lhofhansl@yahoo.com>
+Organization: What? Organized??
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a5) Gecko/20041121
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10 breaks xconsole
+References: <41CDE70E.8090109@yahoo.com>
+In-Reply-To: <41CDE70E.8090109@yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 24, 2004 at 07:40:38PM +0000, Alan Cox wrote:
-> On Gwe, 2004-12-24 at 20:00, Herbert Poetzl wrote:
-> > somehow I'm unable to locate it, I can see the 
-> > 430TX and 430HX but not the 430NX and 430LX ...
-> > 
-> > do you have an url for me?
+Lars wrote:
+> Running kernel 2.6.10, xconsole always displays: Couldn't open console.
+> xconsole works fine in the identical setup with 2.6.9 and 2.4.28.
 > 
-> Not to hand, its under the retired chipset stuff. The details are as
-> follows from memory
+> The permissions are set correctly:
+> crw-rw-r--  1 lars tty 5, 1 2004-12-25 13:17 /dev/console
 > 
-> When you read one 8bit value from an 8254 timer the values latch for
-> read so that when you read the other half of the 16bit value you get the
-> value from the moment of the first read. On 
-> neptune that didn't work right so you got halves of two differing
-> samples. That means the error would be worst case a bit under 300 (257
-> for the wrap + a few for timing)
-
-okay, I still wasn't able to find the documentation 
-at the intel site, but I could extrapolate the issue
-from your explanation (thanks by the way)
-
-get_8254_timer_count() reads lo byte first, then the 
-high byte, so assuming that the latch doesn't work
-as expected on intel 430 NX and LX chipsets, can 
-result in the following type of error:
-
-counter >= 2^8 * N, 	LO is read (for example 0)
-counter is decremented
-counter <  2^8 * N  	HI is read (N - 1)
-
-so the read value will be exactly 2^8 lower than
-expected (assumed that the counter doesn't do more
-than 256 counts between the two inb_p()s)
-
-second the wrap-around will always happen _after_
-the counter reached zero, so we can further assume
-that the prev_count, has to be lower than 2^8, when
-we observe a wraparound (otherwise we don't care)
-
-let's further assume the counter does not decrement
-more than 2^7 between two consecutive gets, then we
-can change the wraparound check to something like
-this:
-
-        curr_count = get_8254_timer_count();
-
-	do {
-        	prev_count = curr_count;
-	redo:
-        	curr_count = get_8254_timer_count();
-
-		/* workaround for broken Mercury/Neptune */
-		if (prev_count - current_count >= 256)
-	    		goto redo;
-
-		/* ignore values far off from zero */
-    		if (prev_count > 128)
-	    		continue;
-
-	} while (prev_count >= curr_count)
-
-
-basically the check for (prev_count > 128) can be
-removed but it feels a little more comfortable ...
-
-would such change be acceptable for mainline?
-
-TIA,
-Herbert
-
+> xconsole won't work when run as either lars, a tty member, and even 
+> root. In all cases the message above is shown.
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> If I change permission to:
+> crw-rw-r--  1 root tty 5, 1 2004-12-25 13:17 /dev/console
+> 
+> xconsole can at least be run as root.
+> 
+> I guess this is related to this patch:
+> <od@suse.de>
+>     [PATCH] TIOCCONS security
+> 
+> Forcing xconsole to be run as root is not a good idea, IMHO.
+> 
+> -- Lars
+> 
+> ps. Please CC me directly as I'm not subscribed to the list.
+> 
+
+Fixed it by reversion this portion of the 2.6.10 patch to 
+drivers/char/tty_io.c
+
+@@ -1981,10 +2012,10 @@
+
+  static int tioccons(struct file *file)
+  {
++       if (!capable(CAP_SYS_ADMIN))
++               return -EPERM;
+         if (file->f_op->write == redirected_tty_write) {
+                 struct file *f;
+-               if (!capable(CAP_SYS_ADMIN))
+-                       return -EPERM;
+                 spin_lock(&redirect_lock);
+                 f = redirect;
+                 redirect = NULL;
+
+
+-- Lars

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbTDXIx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 04:53:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbTDXIx3
+	id S261916AbTDXI6e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 04:58:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbTDXI6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 04:53:29 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:2952 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S261907AbTDXIx0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 04:53:26 -0400
-Date: Thu, 24 Apr 2003 10:05:19 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Andrew Morton <akpm@digeo.com>, mbligh@aracnet.com,
-       ncunningham@clear.net.nz, gigerstyle@gmx.ch, geert@linux-m68k.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fix SWSUSP & !SWAP
-Message-ID: <20030424090519.GI28253@mail.jlokier.co.uk>
-References: <1051136725.4439.5.camel@laptop-linux> <1584040000.1051140524@flay> <20030423235820.GB32577@atrey.karlin.mff.cuni.cz> <20030423170759.2b4e6294.akpm@digeo.com> <20030424002544.GC2925@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 24 Apr 2003 04:58:34 -0400
+Received: from siaab2ab.compuserve.com ([149.174.40.130]:61568 "EHLO
+	siaab2ab.compuserve.com") by vger.kernel.org with ESMTP
+	id S261916AbTDXI6e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 04:58:34 -0400
+Date: Thu, 24 Apr 2003 05:06:58 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [ANNOUNCE] desc.c -- dump the i386 descriptor tables
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200304240509_MC3-1-35CF-A2DD@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030424002544.GC2925@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Swapfile does not work, because even readonly mount wants to replay
-> logs, and that'd be disk corruption.
+wli wrote:
 
-I don't understand.  During suspend, you just need a list of blocks to
-write to from the swapfile.  You can get that list before starting the
-actual suspend, so that writing doesn't imply any filesystem activity.
 
-When you're resuming, you just need a list of which disk blocks to
-resume from.  Can't that list be stored in a few blocks of the
-swapfile itself, with the only critical parameter being the first
-block number to resume from?
+> Spiffy; this should help debug various things.
 
-(A bit like LILO has a map file containing the list of blocks which
-contain the kernel to boot.)
 
--- Jamie
+  I forgot to mention: try comparing 2.2, 2.4 and 2.5.
+
+  Also, this is what I've been using to look at interrupt entry
+point alignment.  On 2.4 for sure, and probably on 2.5 you have
+a 1-in-8 chance of getting a pathologically badly aligned timer
+handler on 32-byte cacheline machines every time you compile
+(IRQ 0 entry address & 0x1f == 0x1c.)  OTOH the pagefault handler
+has come up 8-byte aligned every time but I didn't look at the
+source to see if it's coded that way.
+
+------
+ Chuck

@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264374AbUA3XNp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 18:13:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264428AbUA3XNp
+	id S264428AbUA3XQO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 18:16:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264446AbUA3XQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 18:13:45 -0500
-Received: from ns1.s2io.com ([216.209.86.101]:2740 "EHLO ns1.s2io.com")
-	by vger.kernel.org with ESMTP id S264374AbUA3XNn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 18:13:43 -0500
-Subject: receive path with fragmented skbs
-From: Kallol Biswas <kallol.biswas@s2io.com>
+	Fri, 30 Jan 2004 18:16:14 -0500
+Received: from mail46-s.fg.online.no ([148.122.161.46]:14230 "EHLO
+	mail46-s.fg.online.no") by vger.kernel.org with ESMTP
+	id S264428AbUA3XQK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 18:16:10 -0500
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1075504343.21310.23.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 30 Jan 2004 15:12:24 -0800
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -102.4
-X-Spam-Outlook-Score: ()
-X-Spam-Features: USER_AGENT_XIMIAN,USER_IN_WHITELIST
+Subject: conformance, compliance and compatibility
+From: Esben Stien <executiv@online.no>
+Date: 30 Jan 2004 23:49:01 +0100
+Message-ID: <87isitf3xe.fsf@online.no>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-      We have been developing drivers and networking software  on
-a 10 gigabit ethernet adapter from S2io Inc (www.s2io.com). There is a
-requirement that the ethernet header, IP+TCP headers have to be cache
-aligned and the payload and the IP+TCP headers have to be in different
-fragments. So we have created receive path skbs with data size big
-enough to hold the ethernet header and two fragments, one fragment for
-the IP+TCP header and the other for payload. The card can  directly dma
-into the three receive scatter buffers when a frame arrives.
+I remember to have read that ISO has standardized on using
+conformance for everything that is conforming to a specific
+standard but I can't find it again. Anyone know where I could
+look?
 
-We could not get ping working with this design of receive skbs,
-but if a skb is linearized with skb_linearize() before calling
-netif_rx(), ping works.
+AFAIK, this is my understanding of these words
 
-/proc/net/snmp was printed, no frame had any error. Probably no one has
-ever tested the receive path of the stack with fragmented skbs, am I
-right? One of the ways this problem can be debugged is to find out where
-exactly the packets get dropped. Any comment?
+Conformance has a deep root different meaning than compliance,
+but today that difference is not clear. However, ISO has
+standardized on using the word conformance and not compliance
+when saying something conforms to a standard. 
 
-Kallol 
+Compatibility is for hardware. You can say that a specific
+piece of hardware is compatible with another piece of hardware
+cause it speaks the same protocol. Compatibility is a way of
+saying that two components uses the same interfaces. 
+
+You can not call a system unix today, cause unix today is a
+standard. The last unix was sysv. You can however say a system
+is conforming to unix (iso posix unix)(ieee 1003.1), so it is a
+unix conformant system. (to be technically correct). 
+
+Is there any document that clarifies these words better. I'm
+looking for some official documentation from a standards body
+like ISO, IEC etc. 
+
+I also see the words comformance and compliance used
+interchangably in RFC's,  but to my knowledge I think I remember
+that RFC's where also supposed to be using conformance 
+
+-- 
+b0ef
 

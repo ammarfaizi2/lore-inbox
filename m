@@ -1,78 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135706AbRA2HmU>; Mon, 29 Jan 2001 02:42:20 -0500
+	id <S129847AbRA2H4d>; Mon, 29 Jan 2001 02:56:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S145346AbRA2HmK>; Mon, 29 Jan 2001 02:42:10 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:65285 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S159768AbRA2Hlz>; Mon, 29 Jan 2001 02:41:55 -0500
-Date: Sun, 28 Jan 2001 23:41:38 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Robert Siemer <siemer@panorama.hadiko.de>
-cc: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
-Subject: Re: PCI IRQ routing problem in 2.4.0
-In-Reply-To: <20010129081132I.siemer@panorama.hadiko.de>
-Message-ID: <Pine.LNX.4.10.10101282323570.5605-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129874AbRA2H4W>; Mon, 29 Jan 2001 02:56:22 -0500
+Received: from asbestos.linuxcare.com.au ([203.17.0.30]:42734 "EHLO halfway")
+	by vger.kernel.org with ESMTP id <S129847AbRA2H4F>;
+	Mon, 29 Jan 2001 02:56:05 -0500
+From: Rusty Russell <rusty@linuxcare.com.au>
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org, netfilter@us5.samba.org
+Subject: [PATCH] ipt_TOS fix.
+Date: Mon, 29 Jan 2001 18:55:56 +1100
+Message-Id: <E14N9AL-0003qv-00@halfway>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus, please apply v2.4.0.
 
+ipt_TOS checksum calculations were completely broken, causing bad csum
+packets.  Whoever implemented it didn't understand the code it was
+copied from.
 
-On Mon, 29 Jan 2001, Robert Siemer wrote:
-> 
-> Further I always see '09' in the Configuration Space at Interrupt_Line
-> (0x3c) for the 00:01.2 USB Controller. But 2.4.0 says:
->   Interrupt: pin A routed to IRQ 12
-> while 2.4.0-test9 states:
->   Interrupt: pin A routed to IRQ 9
+This fixes the problem (tested in userspace against all TOS changes).
 
-Ahhah!
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK
 
-I bet it's the code that goes through all PCI devices, and tries to find
-devices that have the same "pirq" (aka "link") value in the tables.
-
-How about this patch? I bet that you'll get a message about pirq table
-conflicts. Does USB end up working afterwards?
-
-		Linus
-
-----
---- v2.4.0/linux/arch/i386/kernel/pci-irq.c	Wed Jan  3 20:45:26 2001
-+++ linux/arch/i386/kernel/pci-irq.c	Sun Jan 28 23:36:48 2001
-@@ -462,18 +462,9 @@
- 		irq = pirq & 0xf;
- 		DBG(" -> hardcoded IRQ %d\n", irq);
- 		msg = "Hardcoded";
--		if (dev->irq && dev->irq != irq) {
--			printk("IRQ routing conflict in pirq table! Try 'pci=autoirq'\n");
--			return 0;
--		}
- 	} else if (r->get && (irq = r->get(pirq_router_dev, dev, pirq))) {
- 		DBG(" -> got IRQ %d\n", irq);
- 		msg = "Found";
--		/* We refuse to override the dev->irq information. Give a warning! */
--	    	if (dev->irq && dev->irq != irq) {
--	    		printk("IRQ routing conflict in pirq table! Try 'pci=autoirq'\n");
--	    		return 0;
--	    	}
- 	} else if (newirq && r->set && (dev->class >> 8) != PCI_CLASS_DISPLAY_VGA) {
- 		DBG(" -> assigning IRQ %d", newirq);
- 		if (r->set(pirq_router_dev, dev, pirq, newirq)) {
-@@ -504,6 +495,11 @@
- 		if (!info)
- 			continue;
- 		if (info->irq[pin].link == pirq) {
-+			/* We refuse to override the dev->irq information. Give a warning! */
-+		    	if (dev2->irq && dev2->irq != irq) {
-+		    		printk("IRQ routing conflict in pirq table for device %s\n", dev2->slot_name);
-+		    		continue;
-+		    	}
- 			dev2->irq = irq;
- 			pirq_penalty[irq]++;
- 			if (dev != dev2)
-
+diff -urN -I \$.*\$ -X /tmp/kerndiff.ZtZl97 --minimal linux-2.4.0-official/net/ipv4/netfilter/ipt_TOS.c working-2.4.0/net/ipv4/netfilter/ipt_TOS.c
+--- linux-2.4.0-official/net/ipv4/netfilter/ipt_TOS.c	Fri Apr 28 08:43:15 2000
++++ working-2.4.0/net/ipv4/netfilter/ipt_TOS.c	Mon Jan 29 18:40:37 2001
+@@ -19,11 +19,11 @@
+ 	const struct ipt_tos_target_info *tosinfo = targinfo;
+ 
+ 	if ((iph->tos & IPTOS_TOS_MASK) != tosinfo->tos) {
+-		u_int8_t diffs[2];
++		u_int16_t diffs[2];
+ 
+-		diffs[0] = iph->tos;
++		diffs[0] = htons(iph->tos) ^ 0xFFFF;
+ 		iph->tos = (iph->tos & IPTOS_PREC_MASK) | tosinfo->tos;
+-		diffs[1] = iph->tos;
++		diffs[1] = htons(iph->tos);
+ 		iph->check = csum_fold(csum_partial((char *)diffs,
+ 		                                    sizeof(diffs),
+ 		                                    iph->check^0xFFFF));
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

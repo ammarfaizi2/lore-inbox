@@ -1,66 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317662AbSGZKfD>; Fri, 26 Jul 2002 06:35:03 -0400
+	id <S317577AbSGZKb4>; Fri, 26 Jul 2002 06:31:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317651AbSGZKdq>; Fri, 26 Jul 2002 06:33:46 -0400
-Received: from p3EE3E50F.dip.t-dialin.net ([62.227.229.15]:36612 "EHLO
-	srv.sistina.com") by vger.kernel.org with ESMTP id <S317649AbSGZKdT>;
-	Fri, 26 Jul 2002 06:33:19 -0400
-Date: Fri, 26 Jul 2002 12:25:22 +0200
-From: "Heinz J . Mauelshagen" <mauelshagen@sistina.com>
-To: linux-kernel@vger.kernel.org
-Cc: mge@sistina.com
-Subject: Re: LVM 1.0.5 patch for Linux 2.4.19-rc3
-Message-ID: <20020726122522.B12488@sistina.com>
-Reply-To: mauelshagen@sistina.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S317600AbSGZKb4>; Fri, 26 Jul 2002 06:31:56 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:36104 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S317577AbSGZKbz>; Fri, 26 Jul 2002 06:31:55 -0400
+Message-ID: <3D4124B0.2060901@evision.ag>
+Date: Fri, 26 Jul 2002 12:30:08 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
+MIME-Version: 1.0
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+CC: lkml <linux-kernel@vger.kernel.org>, axboe@suse.de, torvalds@transmeta.com
+Subject: Re: IDE lockups with 2.5.28...
+References: <322E1A1760@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 26, 2002 at 02:47:56AM +0200, Marcin Dalecki wrote:
-> Christoph Hellwig wrote:
-> >  
-> > +#ifndef	uchar
-> > +typedef	unsigned char	uchar;
-> > +#endif
-> > 
-> > Do you _really_ have to use this non-standard type?  can't you use the
-> > BSD u_char or sysv unchar?  and typedef/#define don't really mix nicely..
+Petr Vandrovec wrote:
+
+> Well, no. Both of these loop have completely different terminating conditions.
+> You exit when IDE hardware is busy, while SCSI exits if hardware is busy,
+> or when there is nothing to do. Fundamental difference.
+
+Shit - you are right. We look until the next request sets IDE_BUSY as a 
+side effect.... I just wanted to close the window between clear we clear
+IDE_BUSY in ata_irq_handler just before recalling do_request to set it 
+immediately on again.
+Should be both of course.
+
+>>Same allies to blk_stop_queue().
 > 
-> Or of course the normal u8 u16 and u32 and infally u64, which are so
-> much more explicit about the fact that we are actually dealig with
-> bit slices.
 > 
-> > 
-> > All in all this patch would be _soooo_ much easier to review if you wouldn't
-> > mix random indentation changes with real fixes.
-> 
-> Christoph applying the patch and rediffing with diffs "ingore white 
-> space' options can help you here.
-> And plese note that this kind of problems wouldn't be that common
-> if we finally decided to make indent -kr -i8 mandatory.
+> So your request_fn is invoked for each of queues which had pending
+> requests. Upper layer cannot expect that you are using two queues,
+> but hardware really wants to use only one. Shared queue_lock is there
+> for hardware which can start one request at a time (one set of
+> registers...), but can have requests to the different devices
+> in progress.
 
-It should have been for this patch.
-Obviously an error on my end.
+Yes theoretically yes. The problem is only that queue_lock doesn't as
+advertized becouse the request_fn are *releasing* the spin lock at a 
+point where the QUEUE_FLAG_STOP doesn't have any usefull value.
 
-We'll resend...
 
--- 
+> P.S.: I did not saw IDE 105. Does it exist?
 
-Regards,
-Heinz    -- The LVM Guy --
+I think I did send it under a wrong topic. Please look for Re:
+Linux-2.5.28.
 
-*** Software bugs are stupid.
-    Nevertheless it needs not so stupid people to solve them ***
 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-Heinz Mauelshagen                                 Sistina Software Inc.
-Senior Consultant/Developer                       Am Sonnenhang 11
-                                                  56242 Marienrachdorf
-                                                  Germany
-Mauelshagen@Sistina.com                           +49 2626 141200
-                                                       FAX 924446
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

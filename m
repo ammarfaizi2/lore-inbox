@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264832AbSKEMSX>; Tue, 5 Nov 2002 07:18:23 -0500
+	id <S264833AbSKEMTA>; Tue, 5 Nov 2002 07:19:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264833AbSKEMSX>; Tue, 5 Nov 2002 07:18:23 -0500
-Received: from paloma17.e0k.nbg-hannover.de ([62.181.130.17]:42405 "HELO
-	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S264832AbSKEMSX> convert rfc822-to-8bit; Tue, 5 Nov 2002 07:18:23 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jan-Hinnerk Reichert <jan-hinnerk_reichert@hamburg.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19: network related kernel panic
-Date: Tue, 5 Nov 2002 13:24:19 +0100
-X-Mailer: KMail [version 1.4]
-References: <200210211530.35241.jan-hinnerk_reichert@hamburg.de>
-In-Reply-To: <200210211530.35241.jan-hinnerk_reichert@hamburg.de>
+	id <S264838AbSKEMTA>; Tue, 5 Nov 2002 07:19:00 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:32199 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S264833AbSKEMSy>;
+	Tue, 5 Nov 2002 07:18:54 -0500
+Date: Tue, 5 Nov 2002 07:25:28 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Samium Gromoff <_deepfire@mail.ru>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] FS charset conversions
+In-Reply-To: <E1891J9-000B9X-00@f15.mail.ru>
+Message-ID: <Pine.GSO.4.21.0211050720220.2336-100000@steklov.math.psu.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211051324.19846.jan-hinnerk_reichert@hamburg.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi again,
->
-> I now have had three "kernel panic" messages with similar stack traces (in
-> about one week).
->
-> The error is an "divide error" in "kfree". After the second error I have
-> changed kernel configuration to narrow the possibilities and to get extra
-> debug information.
-> The third error appeared in "kmem_extra_free_check" (also a divide error).
-[...]
-> If I read the stack trace right, the packet comes from pppd and should be
-> send via the bridge to the other RTL8139.
-[...]
 
-I have now removed all MARK targets from my netfilter rules and the machine 
-has been running for three weeks without problems.
 
-Does anyone know of problems with MARK?
-Were there any fixes in relevant code since 2.4.19?
+On Tue, 5 Nov 2002, Samium Gromoff wrote:
 
-Thanks in advance
- Jan-Hinnerk
+>         The problem root lies in the fact in some languages (notably russian)
+>     there is more then one widely used charset. In russian for example
+>     there are koi8-r, iso8859-5, cp866 and the infamous but widely used
+>     ms cp1251.
+> 
+>         Once you need to have access to some data with names using the second
+>     half of the ascii table the trouble arises. For example the situation
+>     i have here is that smbd provides the public share and people creates
+>     there some files originating with the cp1251 encoding. Myself having
+>     koi8-r as the system default charset naturally observe crap.
+> 
+>         The proposed and seemingly natural solution is to add a possibility
+>     to mount --bind the subtree with a filename charset conversion applied.
+
+Will not work.  Bindings do _NOT_ create extra superblock/dentry tree/etc.
+and they are invisible to filesystem.  E.g. to ->readdir().
+
+(besides, filesystems playing with case conversions are bad enough, now
+let's VFS try charset ones?)
 

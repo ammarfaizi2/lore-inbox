@@ -1,90 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbVAYFEE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbVAYFN4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261816AbVAYFEE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 00:04:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVAYFEE
+	id S261818AbVAYFN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 00:13:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbVAYFN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 00:04:04 -0500
-Received: from fw.osdl.org ([65.172.181.6]:24759 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261816AbVAYFD6 (ORCPT
+	Tue, 25 Jan 2005 00:13:56 -0500
+Received: from mail.kroah.org ([69.55.234.183]:59333 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261818AbVAYFNw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 00:03:58 -0500
-Date: Mon, 24 Jan 2005 21:03:53 -0800 (PST)
-From: Bryce Harrington <bryce@osdl.org>
-To: Chris Wright <chrisw@osdl.org>, <rddunlap@osdl.org>
-cc: <dev@osdl.org>, <stp-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>, <akpm@osdl.org>, <hanrahat@osdl.org>
-Subject: Re: [torvalds@osdl.org: Re: Memory leak in 2.6.11-rc1?]
-In-Reply-To: <20050124145920.X469@build.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.33.0501242056220.616-100000@osdlab.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 25 Jan 2005 00:13:52 -0500
+Date: Mon, 24 Jan 2005 21:12:44 -0800
+From: Greg KH <greg@kroah.com>
+To: Marcel Holtmann <marcel@holtmann.org>, tj@home-tj.org
+Cc: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Modules: Allow sysfs module paramaters to be written to.
+Message-ID: <20050125051244.GA656@kroah.com>
+References: <200501132234.30762.rathamahata@ehouse.ru> <20050114005948.GD4140@kroah.com> <1106463261.8118.13.camel@pegasus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1106463261.8118.13.camel@pegasus>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Chris,
+On Sun, Jan 23, 2005 at 07:54:21AM +0100, Marcel Holtmann wrote:
+> Hi Greg,
+> 
+> > > It looks like module parameters are not setable via sysfs in 2.6.11-rc1
+> > > 
+> > > E.g.
+> > > arise parameters # echo -en Y > /sys/module/usbcore/parameters/old_scheme_first
+> > > -bash: /sys/module/usbcore/parameters/old_scheme_first: Permission denied
+> > > arise parameters # id
+> > > uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel),11(floppy),20(dialout),26(tape),27(video)
+> > > arise parameters # 
+> > > arise parameters # ls -la /sys/module/usbcore/parameters/old_scheme_first
+> > > -rw-r--r--  1 root root 0 Jan 13 22:22 /sys/module/usbcore/parameters/old_scheme_first
+> > > arise parameters # 
+> > > 
+> > > This is sad because it seems that my usb flash stick (transcebd jetflash)
+> > > doesn't like new USB device initialization scheme introduced in 2.6.10.
+> > 
+> > I'm seeing the same problem here.  I'll dig into it later tonight.
+> 
+> any updates on this? It still results in a permission denied with a
+> recent 2.6.11-rc2 kernel.
 
-I applied the patch and reran the test on a RH 9.0 system.  LTP is
-continuing past where it failed before, and processes are not getting
-killed, so I assume the OOM killer is no longer getting activated.
+Here's a patch that fixes this for me.  It's as if the function was
+never implemented at all for some reason.  Sorry for not catching this
+when tj's patches went in that changed all of this logic.
 
-There is a new behavior, though.  Now the test is hanging indefinitely
-on the nptl01 test.  I am assuming that since it passed the spot that it
-had failed before, that this is an unrelated issue.
+Let me know if this fixes the problem for you or not.
 
-Bryce
+thanks,
 
+greg k-h
 
-On Mon, 24 Jan 2005, Chris Wright wrote:
-> Any chance you could re-try with this patch applied?
->
-> ----- Forwarded message from Linus Torvalds <torvalds@osdl.org> -----
->
-> Date: 	Mon, 24 Jan 2005 14:35:47 -0800 (PST)
-> From: Linus Torvalds <torvalds@osdl.org>
-> To: Andrew Morton <akpm@osdl.org>
-> cc: Jens Axboe <axboe@suse.de>, alexn@dsv.su.se, kas@fi.muni.cz,
->    linux-kernel@vger.kernel.org, lennert.vanalboom@ugent.be
-> Subject: Re: Memory leak in 2.6.11-rc1?
->
->
->
-> On Mon, 24 Jan 2005, Andrew Morton wrote:
-> >
-> > Would indicate that the new pipe code is leaking.
->
-> Duh. It's the pipe merging.
->
-> 		Linus
->
-> ----
-> --- 1.40/fs/pipe.c	2005-01-15 12:01:16 -08:00
-> +++ edited/fs/pipe.c	2005-01-24 14:35:09 -08:00
-> @@ -630,13 +630,13 @@
->  	struct pipe_inode_info *info = inode->i_pipe;
->
->  	inode->i_pipe = NULL;
-> -	if (info->tmp_page)
-> -		__free_page(info->tmp_page);
->  	for (i = 0; i < PIPE_BUFFERS; i++) {
->  		struct pipe_buffer *buf = info->bufs + i;
->  		if (buf->ops)
->  			buf->ops->release(info, buf);
->  	}
-> +	if (info->tmp_page)
-> +		__free_page(info->tmp_page);
->  	kfree(info);
->  }
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-> ----- End forwarded message -----
->
->
+-----
+Modules: Allow sysfs module paramaters to be written to.
 
+Fixes a bug in the current tree preventing the sysfs module paramaters from being able
+to be changed at all from userspace.  It's as if someone just forgot to write this function...
 
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
+diff -Nru a/kernel/params.c b/kernel/params.c
+--- a/kernel/params.c	2005-01-24 21:07:40 -08:00
++++ b/kernel/params.c	2005-01-24 21:07:40 -08:00
+@@ -640,9 +640,33 @@
+ 	return ret;
+ }
+ 
++static ssize_t module_attr_store(struct kobject *kobj,
++				struct attribute *attr,
++				const char *buf, size_t len)
++{
++	struct module_attribute *attribute;
++	struct module_kobject *mk;
++	int ret;
++
++	attribute = to_module_attr(attr);
++	mk = to_module_kobject(kobj);
++
++	if (!attribute->store)
++		return -EPERM;
++
++	if (!try_module_get(mk->mod))
++		return -ENODEV;
++
++	ret = attribute->store(attribute, mk->mod, buf, len);
++
++	module_put(mk->mod);
++
++	return ret;
++}
++
+ static struct sysfs_ops module_sysfs_ops = {
+ 	.show = module_attr_show,
+-	.store = NULL,
++	.store = module_attr_store,
+ };
+ 
+ #else

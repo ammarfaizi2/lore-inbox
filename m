@@ -1,34 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267165AbUFZM3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267166AbUFZNDw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267165AbUFZM3r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 08:29:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267168AbUFZM3r
+	id S267166AbUFZNDw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 09:03:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267167AbUFZNDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 08:29:47 -0400
-Received: from verein.lst.de ([212.34.189.10]:46054 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S267165AbUFZM3o (ORCPT
+	Sat, 26 Jun 2004 09:03:52 -0400
+Received: from ozlabs.org ([203.10.76.45]:54424 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S267166AbUFZNDu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 08:29:44 -0400
-Date: Sat, 26 Jun 2004 14:29:35 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: torvalds@osdl.org, paulus@samba.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix compilation for ppc32
-Message-ID: <20040626122935.GA15896@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch>, torvalds@osdl.org,
-	paulus@samba.org, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Sat, 26 Jun 2004 09:03:50 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+Content-Transfer-Encoding: 7bit
+Message-ID: <16605.29745.932062.225051@cargo.ozlabs.ibm.com>
+Date: Sat, 26 Jun 2004 23:03:45 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: torvalds@osdl.org, Christoph Hellwig <hch@lst.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix compilation for ppc32
+In-Reply-To: <20040626122935.GA15896@lst.de>
+References: <20040626122935.GA15896@lst.de>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PPC has an out of line and exported abs() that gives lots of nice and
-wierd compilation erorrs.  Also kill the duplicate cpu_online() in
-asm-ppc/smp.h.
+Christoph Hellwig writes:
 
+> PPC has an out of line and exported abs() that gives lots of nice and
+> wierd compilation erorrs.  Also kill the duplicate cpu_online() in
+> asm-ppc/smp.h.
+
+Looks good, Andrew or Linus, please apply.  I never understood why we
+kept that abs thing floating around.
 
 --- 1.59/arch/ppc/kernel/ppc_ksyms.c	2004-06-18 08:41:08 +02:00
 +++ edited/arch/ppc/kernel/ppc_ksyms.c	2004-06-25 14:52:53 +02:00

@@ -1,213 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267384AbUBSRCy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 12:02:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267385AbUBSRCy
+	id S267385AbUBSRDd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 12:03:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267391AbUBSRDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 12:02:54 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:50093 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S267384AbUBSRCr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 12:02:47 -0500
-Date: Thu, 19 Feb 2004 18:02:32 +0100
-From: Christophe Saout <christophe@saout.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
-Message-ID: <20040219170228.GA10483@leto.cs.pocnet.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Feb 2004 12:03:33 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:26614 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267385AbUBSRDa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 12:03:30 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: root@chaos.analogic.com, Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH] remove MAKEDEV scripts from scripts/
+Date: Thu, 19 Feb 2004 18:09:44 +0100
+User-Agent: KMail/1.5.3
+Cc: akpm@osdl.org, Linux kernel <linux-kernel@vger.kernel.org>
+References: <20040219161306.GA30620@lst.de> <Pine.LNX.4.53.0402191119480.520@chaos> <200402191751.16652.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200402191751.16652.bzolnier@elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Message-Id: <200402191809.44418.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thursday 19 of February 2004 17:51, Bartlomiej Zolnierkiewicz wrote:
+> On Thursday 19 of February 2004 17:25, Richard B. Johnson wrote:
+> > On Thu, 19 Feb 2004, Christoph Hellwig wrote:
+> > > makedev is a userland issue, and the distros already take care of ide
+> > > and sound.  scripts/ OTOH is supposed to hold utils needed for building
+> > > the kernel tree which the above certainly aren't.
+> >
+> > If that's true, i.e., /scripts contains _only_ utilities for building
+> > the kernel tree, then you make another directory to contain MAKEDEV.ide.
+> > You don't simply delete it because you don't want it there. This
+> > script substitutes for, and works in conjunction with a primary source
+> > of documentation, ../Documentation/ide.txt
+>
+> Thanks, for catching this!
+>
+> Christoph, please remove MAKEDEV.ide references from Documentation/ide.txt
+> 8).
 
-since some people keep complaining that the IV generation mechanisms
-supplied in cryptoloop (and now dm-crypt) are insecure, which they
-somewhat are, I just hacked a small digest based IV generation mechanism.
+Ugh, there are much more references to MAKEDEV in Documentation/ dir.
 
-It simply hashes the sector number and the key and uses it as IV.
-
-You can specify the encryption mode as "cipher-digest" like aes-md5 or
-serpent-sha1 or some other combination.
-
-Consider this as a proposal, I'm not a crypto expert. Tell me if it
-contains other flaws that should be fixed.
-
-At least the "cryptoloop-exploit" Jari Ruusu posted doesn't work anymore.
-
-
---- linux-2.6.3-mm1.orig/drivers/md/dm-crypt.c	2004-02-19 17:43:53.213856776 +0100
-+++ linux-2.6.3-mm1/drivers/md/dm-crypt.c	2004-02-19 17:43:59.404915592 +0100
-@@ -61,11 +61,13 @@
- 	/*
- 	 * crypto related data
- 	 */
--	struct crypto_tfm *tfm;
-+	struct crypto_tfm *cipher;
-+	struct crypto_tfm *digest;
- 	sector_t iv_offset;
- 	int (*iv_generator)(struct crypt_config *cc, u8 *iv, sector_t sector);
- 	int iv_size;
- 	int key_size;
-+	int digest_size;
- 	u8 key[0];
- };
- 
-@@ -102,6 +104,35 @@
- 	return 0;
- }
- 
-+static int crypt_iv_digest(struct crypt_config *cc, u8 *iv, sector_t sector)
-+{
-+	static DECLARE_MUTEX(tfm_mutex);
-+	struct scatterlist sg[2] = {
-+		{
-+			.page = virt_to_page(iv),
-+			.offset = offset_in_page(iv),
-+			.length = sizeof(u64) / sizeof(u8)
-+		}, {
-+			.page = virt_to_page(cc->key),
-+			.offset = offset_in_page(cc->key),
-+			.length = cc->key_size
-+		}
-+	};
-+	int i;
-+
-+	*(u64 *)iv = cpu_to_le64((u64)sector);
-+
-+	/* digests use the context in the tfm, sigh */
-+	down(&tfm_mutex);
-+	crypto_digest_digest(cc->digest, sg, 2, iv);
-+	up(&tfm_mutex);
-+
-+	for(i = cc->digest_size; i < cc->iv_size; i += cc->digest_size)
-+		memcpy(iv + i, iv, min(cc->digest_size, cc->iv_size - i));
-+
-+	return 0;
-+}
-+
- static inline int
- crypt_convert_scatterlist(struct crypt_config *cc, struct scatterlist *out,
-                           struct scatterlist *in, unsigned int length,
-@@ -116,14 +147,14 @@
- 			return r;
- 
- 		if (write)
--			r = crypto_cipher_encrypt_iv(cc->tfm, out, in, length, iv);
-+			r = crypto_cipher_encrypt_iv(cc->cipher, out, in, length, iv);
- 		else
--			r = crypto_cipher_decrypt_iv(cc->tfm, out, in, length, iv);
-+			r = crypto_cipher_decrypt_iv(cc->cipher, out, in, length, iv);
- 	} else {
- 		if (write)
--			r = crypto_cipher_encrypt(cc->tfm, out, in, length);
-+			r = crypto_cipher_encrypt(cc->cipher, out, in, length);
- 		else
--			r = crypto_cipher_decrypt(cc->tfm, out, in, length);
-+			r = crypto_cipher_decrypt(cc->cipher, out, in, length);
- 	}
- 
- 	return r;
-@@ -436,13 +467,26 @@
- 		return -ENOMEM;
- 	}
- 
-+	cc->digest_size = 0;
-+	cc->digest = NULL;
- 	if (!mode || strcmp(mode, "plain") == 0)
- 		cc->iv_generator = crypt_iv_plain;
- 	else if (strcmp(mode, "ecb") == 0)
- 		cc->iv_generator = NULL;
- 	else {
--		ti->error = "dm-crypt: Invalid chaining mode";
--		goto bad1;
-+		tfm = crypto_alloc_tfm(mode, 0);
-+		if (!tfm) {
-+			ti->error = "dm-crypt: Error allocating digest tfm";
-+			goto bad1;
-+		}
-+		if (crypto_tfm_alg_type(tfm) != CRYPTO_ALG_TYPE_DIGEST) {
-+			ti->error = "dm-crypt: Expected digest algorithm";
-+			goto bad1;
-+		}
-+
-+		cc->digest = tfm;
-+		cc->digest_size = crypto_tfm_alg_digestsize(tfm);
-+		cc->iv_generator = crypt_iv_digest;
- 	}
- 
- 	if (cc->iv_generator)
-@@ -455,12 +499,18 @@
- 		ti->error = "dm-crypt: Error allocating crypto tfm";
- 		goto bad1;
- 	}
-+	if (crypto_tfm_alg_type(tfm) != CRYPTO_ALG_TYPE_CIPHER) {
-+		ti->error = "dm-crypt: Expected cipher algorithm";
-+		goto bad1;
-+	}
- 
--	if (tfm->crt_u.cipher.cit_decrypt_iv && tfm->crt_u.cipher.cit_encrypt_iv)
--		/* at least a 32 bit sector number should fit in our buffer */
-+	if (tfm->crt_u.cipher.cit_decrypt_iv &&
-+	    tfm->crt_u.cipher.cit_encrypt_iv) {
-+		/* at least a sector number should fit in our buffer */
- 		cc->iv_size = max(crypto_tfm_alg_ivsize(tfm), 
--		                  (unsigned int)(sizeof(u32) / sizeof(u8)));
--	else {
-+		                  (unsigned int)(sizeof(u64) / sizeof(u8)));
-+		cc->iv_size = max(cc->iv_size, cc->digest_size);
-+	} else {
- 		cc->iv_size = 0;
- 		if (cc->iv_generator) {
- 			DMWARN("dm-crypt: Selected cipher does not support IVs");
-@@ -482,7 +532,7 @@
- 		goto bad3;
- 	}
- 
--	cc->tfm = tfm;
-+	cc->cipher = tfm;
- 	cc->key_size = key_size;
- 	if ((key_size == 0 && strcmp(argv[1], "-") != 0)
- 	    || crypt_decode_key(cc->key, argv[1], key_size) < 0) {
-@@ -521,6 +571,8 @@
- bad2:
- 	crypto_free_tfm(tfm);
- bad1:
-+	if (cc->digest)
-+		crypto_free_tfm(cc->digest);
- 	kfree(cc);
- 	return -EINVAL;
- }
-@@ -532,7 +584,10 @@
- 	mempool_destroy(cc->page_pool);
- 	mempool_destroy(cc->io_pool);
- 
--	crypto_free_tfm(cc->tfm);
-+	crypto_free_tfm(cc->cipher);
-+	if (cc->digest)
-+		crypto_free_tfm(cc->digest);
-+
- 	dm_put_device(ti, cc->dev);
- 	kfree(cc);
- }
-@@ -680,11 +735,14 @@
- 		break;
- 
- 	case STATUSTYPE_TABLE:
--		cipher = crypto_tfm_alg_name(cc->tfm);
-+		cipher = crypto_tfm_alg_name(cc->cipher);
- 
--		switch(cc->tfm->crt_u.cipher.cit_mode) {
-+		switch(cc->cipher->crt_u.cipher.cit_mode) {
- 		case CRYPTO_TFM_MODE_CBC:
--			mode = "plain";
-+			if (cc->digest)
-+				mode = crypto_tfm_alg_name(cc->digest);
-+			else
-+				mode = "plain";
- 			break;
- 		case CRYPTO_TFM_MODE_ECB:
- 			mode = "ecb";

@@ -1,38 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266137AbUH1B6U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266139AbUH1B74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266137AbUH1B6U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 21:58:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266139AbUH1B6T
+	id S266139AbUH1B74 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 21:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266189AbUH1B7z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 21:58:19 -0400
-Received: from fw.osdl.org ([65.172.181.6]:7810 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266137AbUH1B6S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 21:58:18 -0400
-Date: Fri, 27 Aug 2004 18:58:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove unused ext2_panic
-In-Reply-To: <20040828011959.GC16444@apps.cwi.nl>
-Message-ID: <Pine.LNX.4.58.0408271856071.14196@ppc970.osdl.org>
-References: <UTC200408271606.i7RG6tV27596.aeb@smtp.cwi.nl>
- <Pine.LNX.4.58.0408271104300.14196@ppc970.osdl.org> <20040828011959.GC16444@apps.cwi.nl>
+	Fri, 27 Aug 2004 21:59:55 -0400
+Received: from web13902.mail.yahoo.com ([216.136.175.28]:5178 "HELO
+	web13902.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266139AbUH1B7j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 21:59:39 -0400
+Message-ID: <20040828015937.50607.qmail@web13902.mail.yahoo.com>
+Date: Fri, 27 Aug 2004 18:59:37 -0700 (PDT)
+From: <spaminos-ker@yahoo.com>
+Reply-To: spaminos-ker@yahoo.com
+Subject: Re: Scheduler fairness problem on 2.6 series (Attn: Nick Piggin and others)
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <412DA1C3.6020505@bigpond.net.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 28 Aug 2004, Andries Brouwer wrote:
+--- Peter Williams <pwil3058@bigpond.net.au> wrote:
+> A (gzipped) combined ZAPHOD and P9 voluntary preempt patch for 2.6.8.1 
+> is available at:
 > 
-> Don't see it yet.
+>
+<http://prdownloads.sourceforge.net/cpuse/patch-2.6.8.1-zaphod-vp-v5.0.1.gz?download>
+> 
+> This patch has had minimal testing so use with care and please let me 
+> know if there are any problems.
+> 
 
-It's in the "else" part of the if, so you may not have noticed. 
+I tried this patch, and I get a pretty high latency in "sub_preempt_count"
+00000001 0.730ms (+0.730ms): sub_preempt_count (_mmx_memcpy)
 
-> Something else: ext2_panic is unused, it seems.
+I am not sure if that makes sense and what it means.
 
-Hmm, yes indeed.
+Nicolas
 
-		Linus
+
+Here are the full messages:
+
+Aug 27 18:42:11 localhost kernel: (events/0/4): new 730 us maximum-latency
+critical section.
+Aug 27 18:42:11 localhost kernel:  => started at: <kernel_fpu_begin+0x21/0x60>
+Aug 27 18:42:11 localhost kernel:  => ended at:   <_mmx_memcpy+0x131/0x180>
+Aug 27 18:42:11 localhost kernel:  [<c014106a>]
+check_preempt_timing+0x1aa/0x240
+Aug 27 18:42:11 localhost kernel:  [<c0225751>] _mmx_memcpy+0x131/0x180
+Aug 27 18:42:11 localhost kernel:  [<c0225751>] _mmx_memcpy+0x131/0x180
+Aug 27 18:42:11 localhost kernel:  [<c0141244>] sub_preempt_count+0x54/0x60
+Aug 27 18:42:11 localhost kernel:  [<c0141244>] sub_preempt_count+0x54/0x60
+Aug 27 18:42:11 localhost kernel:  [<c0225751>] _mmx_memcpy+0x131/0x180
+Aug 27 18:42:11 localhost kernel:  [<c02dd9fe>] vgacon_save_screen+0x7e/0x80
+Aug 27 18:42:11 localhost kernel:  [<c0267d32>] do_blank_screen+0x182/0x2b0
+Aug 27 18:42:11 localhost kernel:  [<c0122fa4>] acquire_console_sem+0x44/0x70
+Aug 27 18:42:11 localhost kernel:  [<c0266ab2>] console_callback+0x72/0xf0
+Aug 27 18:42:11 localhost kernel:  [<c0134dcb>] worker_thread+0x1eb/0x2d0
+Aug 27 18:42:11 localhost kernel:  [<c0266a40>] console_callback+0x0/0xf0
+Aug 27 18:42:11 localhost kernel:  [<c011c000>] default_wake_function+0x0/0x20
+Aug 27 18:42:11 localhost kernel:  [<c011c000>] default_wake_function+0x0/0x20
+Aug 27 18:42:11 localhost kernel:  [<c013963c>] kthread+0xbc/0xd0
+Aug 27 18:42:11 localhost kernel:  [<c0134be0>] worker_thread+0x0/0x2d0
+Aug 27 18:42:11 localhost kernel:  [<c0139580>] kthread+0x0/0xd0
+Aug 27 18:42:11 localhost kernel:  [<c0104389>] kernel_thread_helper+0x5/0xc
+
+preemption latency trace v1.0.2
+-------------------------------
+ latency: 730 us, entries: 4 (4)
+    -----------------
+    | task: events/0/4, uid:0 nice:-10 policy:0 rt_prio:0
+    -----------------
+ => started at: kernel_fpu_begin+0x21/0x60
+ => ended at:   _mmx_memcpy+0x131/0x180
+=======>
+00000001 0.000ms (+0.000ms): kernel_fpu_begin (_mmx_memcpy)
+00000001 0.730ms (+0.730ms): sub_preempt_count (_mmx_memcpy)
+00000001 0.730ms (+0.000ms): _mmx_memcpy (check_preempt_timing)
+00000001 0.730ms (+0.000ms): kernel_fpu_begin (_mmx_memcpy)
+

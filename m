@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266518AbRGDHOW>; Wed, 4 Jul 2001 03:14:22 -0400
+	id <S266519AbRGDHVd>; Wed, 4 Jul 2001 03:21:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266519AbRGDHOM>; Wed, 4 Jul 2001 03:14:12 -0400
-Received: from point41.gts.donpac.ru ([213.59.116.41]:24585 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S266518AbRGDHOD>;
-	Wed, 4 Jul 2001 03:14:03 -0400
-Date: Wed, 4 Jul 2001 11:15:45 +0400
-To: Rick Hohensee <humbubba@smarty.smart.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why Plan 9 C compilers don't have asm("")
-Message-ID: <20010704111545.A6442@orbita1.ru>
-In-Reply-To: <200107040337.XAA00376@smarty.smart.net>
+	id <S266523AbRGDHVW>; Wed, 4 Jul 2001 03:21:22 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:2062 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S266519AbRGDHVI>;
+	Wed, 4 Jul 2001 03:21:08 -0400
+Date: Wed, 4 Jul 2001 00:19:42 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Hotplug PCI driver for 2.4.6 and 2.4.5-ac24
+Message-ID: <20010704001942.B30811@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <200107040337.XAA00376@smarty.smart.net>; from humbubba@smarty.smart.net on Tue, Jul 03, 2001 at 11:37:28PM -0400
-X-Uptime: 9:58am  up 4 days, 16:50,  1 user,  load average: 0.30, 0.18, 0.07
-X-Uname: Linux orbita1.ru 2.2.20pre2 
-From: <pazke@orbita1.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've made a patch for the Compaq/Intel Hotplug PCI driver against both
+2.4.6 and 2.4.5-ac24 available at:
+	http://www.kroah.com/linux/hotplug/
 
---ikeVEW9yuYc//A+q
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+Here is a list of the things that have been changed since the last patch
+I sent out:
+	- forward ported to 2.4.6
+	- added Configure.help entries
+	- fixed the directory structure to be a bit more sane
+	- renamed the files to make more sense
+	- fixed spinlock bugs
+	- split the Compaq NVRAM portion of the driver to be a compile
+	  time option for those without Compaq servers (will make i64
+	  port a bit easier.)
+	- cleaned up the symbol namespace.  Now plays well with the rest
+	  of the kernel.
+	- fixed a number of bugs when the driver attempts to be loaded
+	  on a system that does not actually have the Compaq Hotplug PCI
+	  device (no more oopses!)
+	- got rid of almost all non-Linux specific code.  There is one
+	  pci function that needs to be still cleaned up, but it is very
+	  minor.
+	- added MODULE_DEVICE_TABLE support (yes the Hotplug PCI driver
+	  is now /sbin/hotplug compatible :)
+	- lots of dead code removal.
+	- cleaned up the function comment style.
+	- loads of other little changes.
+	  
+I've tested this patch on both Compaq and Intel hotplug controllers.
 
+There are only a few minor things left to do:
+	- incorporate native list types where possible.
+	- add support for other archs (ia64)
+	- get driver into the kernel tree.
 
-What are advantages of this approach ????
+If anyone has any problems or questions about this version, please let
+me know.
 
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
-.asc
---ikeVEW9yuYc//A+q
-Content-Type: application/pgp-signature
+thanks,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+greg k-h
 
-iD8DBQE7QsKhBm4rlNOo3YgRAttvAJ0coVHVESEjxwgauY21Bozl+rjOYwCfUXvv
-PlI6/0bUAjoXXdtXO4YmSK8=
-=tHE/
------END PGP SIGNATURE-----
-
---ikeVEW9yuYc//A+q--

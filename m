@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262384AbSLOTKs>; Sun, 15 Dec 2002 14:10:48 -0500
+	id <S262392AbSLOTa3>; Sun, 15 Dec 2002 14:30:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262392AbSLOTKs>; Sun, 15 Dec 2002 14:10:48 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:4240 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S262384AbSLOTKr>;
-	Sun, 15 Dec 2002 14:10:47 -0500
-Date: Sun, 15 Dec 2002 19:17:48 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Scott Robert Ladd <scott@coyotegulch.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel for Pentium 4 hyperthreading?
-Message-ID: <20021215191748.GA24207@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Scott Robert Ladd <scott@coyotegulch.com>,
-	linux-kernel@vger.kernel.org
-References: <20021215155728.GB20335@suse.de> <FKEAJLBKJCGBDJJIPJLJGEIHDLAA.scott@coyotegulch.com>
+	id <S262394AbSLOTa3>; Sun, 15 Dec 2002 14:30:29 -0500
+Received: from dutidad.twi.tudelft.nl ([130.161.157.74]:51662 "EHLO
+	dutidad.twi.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S262392AbSLOTa2>; Sun, 15 Dec 2002 14:30:28 -0500
+Date: Sun, 15 Dec 2002 20:37:47 +0100
+From: "Charl P. Botha" <c.p.botha@its.tudelft.nl>
+To: gthomsen@sbcglobal.net
+Cc: dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Dri-devel] PROBLEM: 2.4.{19,20} fails to resume if radeon.o is loaded
+Message-ID: <20021215193747.GA10834@dutidad.twi.tudelft.nl>
+References: <E18NO8U-0005j1-00@doma.ballum>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <FKEAJLBKJCGBDJJIPJLJGEIHDLAA.scott@coyotegulch.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <E18NO8U-0005j1-00@doma.ballum>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 15, 2002 at 12:40:59PM -0500, Scott Robert Ladd wrote:
- > Dave Jones wrote:
- > > Ah, apologies. Yes. In this case, you win. I bit the same problem you
- > > had btw with this box in 2.4. You need an updated BIOS. Contact Intel.
- > 
- > I'll ask Intel if there's a BIOS update. Computers are almost as bad as
- > games now; the first thing you need to do before using them is patch!
- > 
- > What evokes my curiosity is that the 2.5.51 kernel detects and correctly
- > uses the processor siblings, while 2.4.20 does not. Given that 2.5.51 is
- > running quite well, I think I'll just stay on the bleeding edge of Linux for
- > a while.
+On Sat, Dec 14, 2002 at 06:04:06PM -0800, tho@doma.ballum.wikaba.com wrote:
+> after about a dozen reboots and half a dozen fscks, I finally was
+> able to pinpoint the reason of why my laptop (ThinkPad X22 (2662XXK))
+> wasn't able to resume after suspend.
+> 
+> The DRM module 'radeon.o' somehow prevents a successful resume (but
+> not the suspend). Only after I made that module unavailable to the
+> modutils, my laptop now successfully completes suspend/resume cycles.
 
-I think the problem was a missing MP table in the factory-shipped BIOS.
-2.5 used ACPI to enumerate the siblings, whereas the 2.4 ACPI is a
-little out of date in that department.
-At least that was my random guess when I hit that problem.
+http://www.google.com/search?q=dri+radeon+resume
+Yields:
+http://cpbotha.net/dri_resume.html
 
-		Dave
+This is applicable only if you're interested in suspending/resuming with
+active DRI, which it doesn't seem you are.  So it's just FYI :)
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
+charl p. botha http://cpbotha.net/ http://visualisation.tudelft.nl/

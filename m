@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262903AbSJREdg>; Fri, 18 Oct 2002 00:33:36 -0400
+	id <S262904AbSJREhz>; Fri, 18 Oct 2002 00:37:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262907AbSJREdf>; Fri, 18 Oct 2002 00:33:35 -0400
-Received: from nameservices.net ([208.234.25.16]:25567 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S262903AbSJREdT>;
-	Fri, 18 Oct 2002 00:33:19 -0400
-Message-ID: <3DAF91B6.C7897FF4@opersys.com>
-Date: Fri, 18 Oct 2002 00:44:38 -0400
+	id <S262906AbSJREhp>; Fri, 18 Oct 2002 00:37:45 -0400
+Received: from nameservices.net ([208.234.25.16]:31199 "EHLO opersys.com")
+	by vger.kernel.org with ESMTP id <S262904AbSJREeg>;
+	Fri, 18 Oct 2002 00:34:36 -0400
+Message-ID: <3DAF9205.3BC8F564@opersys.com>
+Date: Fri, 18 Oct 2002 00:45:57 -0400
 From: Karim Yaghmour <karim@opersys.com>
 Reply-To: karim@opersys.com
 Organization: Opersys inc.
@@ -15,90 +15,478 @@ X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>
-Subject: [PATCH] LTT for 2.5.43 1/10: Core definitions
+Subject: [PATCH] LTT for 2.5.43 5/10: i386 trace support
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Thanks to Christoph Hellwig for his feedback. At this stage, the
-patch includes all the modifications and suggestions made by
-Ingo Molnar, Linus Torvalds, Christoph Hellwig, Pavel Machek, Roman
-Zippel, (and I probably forgot some folks). Also, note that LTT is
-already part of a few distributions and has been actively used for
-3.5 years now. I will be submitting this to Linus after this round
-of review.
+D: This patch adds the bare-minimum i386-specific low-level trace
+D: statements.
 
-Here's a summary of what's been done lately:
-- Add Lockless event logging
-- Add Per-CPU buffering
-- Add TSC timestamping
-- Changed tracer from device to kernel subsystem
-- Change coding style to match kernel
+Here are file modifications:
+ arch/i386/kernel/entry.S    |   19 +++++++
+ arch/i386/kernel/irq.c      |    6 ++
+ arch/i386/kernel/process.c  |    5 ++
+ arch/i386/kernel/sys_i386.c |    4 +
+ arch/i386/kernel/traps.c    |  104 +++++++++++++++++++++++++++++++++++++++++
+ arch/i386/mm/fault.c        |   11 ++++
+ include/asm-i386/trace.h    |  110 ++++++++++++++++++++++++++++++++++++++++++++
+ include/asm-i386/unistd.h   |    1
+ 8 files changed, 259 insertions(+), 1 deletion(-)
 
-Here's a summary of the modifications since the last post:
-- Replaced tracer char dev with new sys call interface (see below)
-- Changed a couple of spin_lock_irqsave() to local_irq_disable()
-- Fixed buffer format problem
-- Removed TRUE/FALSE from tracer code
-- Defined LTT_UNPACKED_STRUCTS to 0
-- Changed function declarations for better clarity
-- Replaced large #define's to enum{}
-- Moved architecture-specific helpers to asm/trace.h
-
-Instead of a char device with file-ops, the tracing subsystem now
-uses "tracer handles". There are currently 256 handles, from 1 to
-256. (The number of handles can be changed by modifying a define
-in include/linux/trace.h). Handle "0" is reserved for the trace
-daemon. Operations to allocate/free handles have replaced device
-open/release. fsync() has disappeared since it wasn't used. The
-mmaping is still done, but with a special mapping function in the
-trace subsystem instead of sys_mmap.
-
-This set of patches works with 0.9.6pre2 which has just been released.
-
-The complete patch is available from:
-http://opersys.com/ftp/pub/LTT/ExtraPatches/patch-ltt-linux-2.5.43-vanilla-021017-2.2.bz2
-
-D: This patch includes all the definitions (headers/configs/makefiles)
-D: required by the trace subsystem.
-
-Here are the file modifications:
- include/asm-generic/trace.h |   75 +++
- include/linux/trace.h       |  894 ++++++++++++++++++++++++++++++++++++++++++++
- init/Config.help            |   23 +
- init/Config.in              |    1
- kernel/Makefile             |    3
- 5 files changed, 995 insertions(+), 1 deletion(-)
-
-diff -urpN linux-2.5.43/include/asm-generic/trace.h linux-2.5.43-ltt/include/asm-generic/trace.h
---- linux-2.5.43/include/asm-generic/trace.h	Wed Dec 31 19:00:00 1969
-+++ linux-2.5.43-ltt/include/asm-generic/trace.h	Thu Oct 17 22:05:52 2002
-@@ -0,0 +1,75 @@
+diff -urpN linux-2.5.43/arch/i386/kernel/entry.S linux-2.5.43-ltt/arch/i386/kernel/entry.S
+--- linux-2.5.43/arch/i386/kernel/entry.S	Tue Oct 15 23:27:47 2002
++++ linux-2.5.43-ltt/arch/i386/kernel/entry.S	Thu Oct 17 22:10:57 2002
+@@ -233,9 +233,27 @@ ENTRY(system_call)
+ 	testb $_TIF_SYSCALL_TRACE,TI_FLAGS(%ebx)
+ 	jnz syscall_trace_entry
+ syscall_call:
++#if (CONFIG_TRACE)
++	movl syscall_entry_trace_active, %eax
++	cmpl $1, %eax                   # are we tracing system call entries
++	jne no_syscall_entry_trace
++	movl %esp, %eax                 # copy the stack pointer
++	pushl %eax                      # pass the stack pointer copy
++	call trace_real_syscall_entry
++	addl $4,%esp                    # return stack to state before pass
++no_syscall_entry_trace:
++	movl ORIG_EAX(%esp),%eax	# restore eax to it's original content
++#endif
+ 	call *sys_call_table(,%eax,4)
+ 	movl %eax,EAX(%esp)		# store the return value
+ syscall_exit:
++#if (CONFIG_TRACE)
++	movl syscall_exit_trace_active, %eax
++	cmpl $1, %eax                   # are we tracing system call exits
++	jne no_syscall_exit_trace
++	call trace_real_syscall_exit
++no_syscall_exit_trace:	
++#endif
+ 	cli				# make sure we don't miss an interrupt
+ 					# setting need_resched or sigpending
+ 					# between sampling and the iret
+@@ -737,6 +755,7 @@ ENTRY(sys_call_table)
+ 	.long sys_free_hugepages
+ 	.long sys_exit_group
+ 	.long sys_lookup_dcookie
++	.long sys_trace
+ 
+ 	.rept NR_syscalls-(.-sys_call_table)/4
+ 		.long sys_ni_syscall
+diff -urpN linux-2.5.43/arch/i386/kernel/irq.c linux-2.5.43-ltt/arch/i386/kernel/irq.c
+--- linux-2.5.43/arch/i386/kernel/irq.c	Tue Oct 15 23:27:12 2002
++++ linux-2.5.43-ltt/arch/i386/kernel/irq.c	Thu Oct 17 22:05:52 2002
+@@ -33,6 +33,8 @@
+ #include <linux/proc_fs.h>
+ #include <linux/seq_file.h>
+ 
++#include <linux/trace.h>
++
+ #include <asm/atomic.h>
+ #include <asm/io.h>
+ #include <asm/smp.h>
+@@ -202,6 +204,8 @@ int handle_IRQ_event(unsigned int irq, s
+ {
+ 	int status = 1;	/* Force the "do bottom halves" bit */
+ 
++ 	TRACE_IRQ_ENTRY(irq, !(user_mode(regs)));
++
+ 	if (!(action->flags & SA_INTERRUPT))
+ 		local_irq_enable();
+ 
+@@ -214,6 +218,8 @@ int handle_IRQ_event(unsigned int irq, s
+ 		add_interrupt_randomness(irq);
+ 	local_irq_disable();
+ 
++ 	TRACE_IRQ_EXIT();
++
+ 	return status;
+ }
+ 
+diff -urpN linux-2.5.43/arch/i386/kernel/process.c linux-2.5.43-ltt/arch/i386/kernel/process.c
+--- linux-2.5.43/arch/i386/kernel/process.c	Tue Oct 15 23:26:42 2002
++++ linux-2.5.43-ltt/arch/i386/kernel/process.c	Thu Oct 17 22:05:52 2002
+@@ -34,6 +34,7 @@
+ #include <linux/init.h>
+ #include <linux/mc146818rtc.h>
+ #include <linux/module.h>
++#include <linux/trace.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+@@ -225,6 +226,10 @@ int kernel_thread(int (*fn)(void *), voi
+ 
+ 	/* Ok, create the new process.. */
+ 	p = do_fork(flags | CLONE_VM, 0, &regs, 0, NULL);
++#if (CONFIG_TRACE)
++	if(!IS_ERR(p))
++		TRACE_PROCESS(TRACE_EV_PROCESS_KTHREAD, p->pid, (int) fn);
++#endif
+ 	return IS_ERR(p) ? PTR_ERR(p) : p->pid;
+ }
+ 
+diff -urpN linux-2.5.43/arch/i386/kernel/sys_i386.c linux-2.5.43-ltt/arch/i386/kernel/sys_i386.c
+--- linux-2.5.43/arch/i386/kernel/sys_i386.c	Tue Oct 15 23:27:56 2002
++++ linux-2.5.43-ltt/arch/i386/kernel/sys_i386.c	Thu Oct 17 22:05:52 2002
+@@ -19,6 +19,8 @@
+ #include <linux/file.h>
+ #include <linux/utsname.h>
+ 
++#include <linux/trace.h>
++
+ #include <asm/uaccess.h>
+ #include <asm/ipc.h>
+ 
+@@ -137,6 +139,8 @@ asmlinkage int sys_ipc (uint call, int f
+ 	version = call >> 16; /* hack for backward compatibility */
+ 	call &= 0xffff;
+ 
++	TRACE_IPC(TRACE_EV_IPC_CALL, call, first);
++
+ 	switch (call) {
+ 	case SEMOP:
+ 		return sys_semop (first, (struct sembuf *)ptr, second);
+diff -urpN linux-2.5.43/arch/i386/kernel/traps.c linux-2.5.43-ltt/arch/i386/kernel/traps.c
+--- linux-2.5.43/arch/i386/kernel/traps.c	Tue Oct 15 23:27:19 2002
++++ linux-2.5.43-ltt/arch/i386/kernel/traps.c	Thu Oct 17 22:16:21 2002
+@@ -28,6 +28,8 @@
+ #include <linux/ioport.h>
+ #endif
+ 
++#include <linux/trace.h>
++
+ #ifdef CONFIG_MCA
+ #include <linux/mca.h>
+ #include <asm/processor.h>
+@@ -285,6 +287,76 @@ bug:
+ 	printk("Kernel BUG\n");
+ }
+ 
++/* Trace related code */
++#if (CONFIG_TRACE)
++asmlinkage void trace_real_syscall_entry(struct pt_regs *regs)
++{
++	int use_depth;
++	int use_bounds;
++	int depth = 0;
++	int seek_depth;
++	unsigned long lower_bound;
++	unsigned long upper_bound;
++	unsigned long addr;
++	unsigned long *stack;
++	trace_syscall_entry trace_syscall_event;
++
++	/* Set the syscall ID */
++	trace_syscall_event.syscall_id = (uint8_t) regs->orig_eax;
++
++	/* Set the address in any case */
++	trace_syscall_event.address = regs->eip;
++
++	/* Are we in the kernel (This is a kernel thread)? */
++	if (!(regs->xcs & 3))
++		/* Don't go digining anywhere */
++		goto trace_syscall_end;
++
++	/* Get the trace configuration */
++	if (trace_get_config(&use_depth,
++			     &use_bounds,
++			     &seek_depth,
++			     (void *) &lower_bound,
++			     (void *) &upper_bound) < 0)
++		goto trace_syscall_end;
++
++	/* Do we have to search for an eip address range */
++	if ((use_depth == 1) || (use_bounds == 1)) {
++		/* Start at the top of the stack (bottom address since stacks grow downward) */
++		stack = (unsigned long *) regs->esp;
++
++		/* Keep on going until we reach the end of the process' stack limit (wherever it may be) */
++		while (!get_user(addr, stack)) {
++			/* Does this LOOK LIKE an address in the program */
++			if ((addr > current->mm->start_code)
++			    && (addr < current->mm->end_code)) {
++				/* Does this address fit the description */
++				if (((use_depth == 1) && (depth == seek_depth))
++				    || ((use_bounds == 1) && (addr > lower_bound) && (addr < upper_bound))) {
++					/* Set the address */
++					trace_syscall_event.address = addr;
++
++					/* We're done */
++					goto trace_syscall_end;
++				} else
++					/* We're one depth more */
++					depth++;
++			}
++			/* Go on to the next address */
++			stack++;
++		}
++	}
++trace_syscall_end:
++	/* Trace the event */
++	trace_event(TRACE_EV_SYSCALL_ENTRY, &trace_syscall_event);
++}
++
++asmlinkage void trace_real_syscall_exit(void)
++{
++	trace_event(TRACE_EV_SYSCALL_EXIT, NULL);
++}
++#endif				/* (CONFIG_TRACE) */
++
+ spinlock_t die_lock = SPIN_LOCK_UNLOCKED;
+ 
+ void die(const char * str, struct pt_regs * regs, long err)
+@@ -318,6 +390,8 @@ static inline unsigned long get_cr2(void
+ static void inline do_trap(int trapnr, int signr, char *str, int vm86,
+ 			   struct pt_regs * regs, long error_code, siginfo_t *info)
+ {
++        TRACE_TRAP_ENTRY(trapnr, regs->eip);
++
+ 	if (vm86 && regs->eflags & VM_MASK)
+ 		goto vm86_trap;
+ 
+@@ -332,6 +406,7 @@ static void inline do_trap(int trapnr, i
+ 			force_sig_info(signr, info, tsk);
+ 		else
+ 			force_sig(signr, tsk);
++		TRACE_TRAP_EXIT();
+ 		return;
+ 	}
+ 
+@@ -357,14 +432,17 @@ static void inline do_trap(int trapnr, i
+ 			regs->eip = fixup;
+ 		else	
+ 			die(str, regs, error_code);
++		TRACE_TRAP_EXIT();
+ 		return;
+ 	}
+ 
+ 	vm86_trap: {
+ 		int ret = handle_vm86_trap((struct kernel_vm86_regs *) regs, error_code, trapnr);
+ 		if (ret) goto trap_signal;
++		TRACE_TRAP_EXIT();
+ 		return;
+ 	}
++	TRACE_TRAP_EXIT();
+ }
+ 
+ #define DO_ERROR(trapnr, signr, str, name) \
+@@ -424,11 +502,15 @@ asmlinkage void do_general_protection(st
+ 
+ 	current->thread.error_code = error_code;
+ 	current->thread.trap_no = 13;
++        TRACE_TRAP_ENTRY(13, regs->eip);
+ 	force_sig(SIGSEGV, current);
++        TRACE_TRAP_EXIT();
+ 	return;
+ 
+ gp_in_vm86:
++        TRACE_TRAP_ENTRY(13, regs->eip);
+ 	handle_vm86_fault((struct kernel_vm86_regs *) regs, error_code);
++        TRACE_TRAP_EXIT();
+ 	return;
+ 
+ gp_in_kernel:
+@@ -489,6 +571,12 @@ static void default_do_nmi(struct pt_reg
+ {
+ 	unsigned char reason = inb(0x61);
+  
++#ifndef CONFIG_X86_LOCAL_APIC
++/* On an machines with APIC enabled, NMIs are used to implement a watchdog
++and will hang the machine if traced. */
++	TRACE_TRAP_ENTRY(2, regs->eip);
++#endif
++
+ 	if (!(reason & 0xc0)) {
+ #if CONFIG_X86_LOCAL_APIC
+ 		/*
+@@ -501,6 +589,9 @@ static void default_do_nmi(struct pt_reg
+ 		}
+ #endif
+ 		unknown_nmi_error(reason, regs);
++#ifndef CONFIG_X86_LOCAL_APIC
++	        TRACE_TRAP_EXIT();
++#endif
+ 		return;
+ 	}
+ 	if (reason & 0x80)
+@@ -515,6 +606,10 @@ static void default_do_nmi(struct pt_reg
+ 	inb(0x71);		/* dummy */
+ 	outb(0x0f, 0x70);
+ 	inb(0x71);		/* dummy */
++
++#ifndef CONFIG_X86_LOCAL_APIC
++        TRACE_TRAP_EXIT();
++#endif
+ }
+ 
+ static int dummy_nmi_callback(struct pt_regs * regs, int cpu)
+@@ -615,7 +710,9 @@ asmlinkage void do_debug(struct pt_regs 
+ 	 */
+ 	info.si_addr = ((regs->xcs & 3) == 0) ? (void *)tsk->thread.eip : 
+ 	                                        (void *)regs->eip;
++        TRACE_TRAP_ENTRY(1, regs->eip);
+ 	force_sig_info(SIGTRAP, &info, tsk);
++        TRACE_TRAP_EXIT();
+ 
+ 	/* Disable additional traps. They'll be re-enabled when
+ 	 * the signal is delivered.
+@@ -627,7 +724,9 @@ clear_dr7:
+ 	return;
+ 
+ debug_vm86:
++        TRACE_TRAP_ENTRY(1, regs->eip);
+ 	handle_vm86_trap((struct kernel_vm86_regs *) regs, error_code, 1);
++        TRACE_TRAP_EXIT();
+ 	return;
+ 
+ clear_TF:
+@@ -776,10 +875,12 @@ asmlinkage void do_simd_coprocessor_erro
+ asmlinkage void do_spurious_interrupt_bug(struct pt_regs * regs,
+ 					  long error_code)
+ {
++        TRACE_TRAP_ENTRY(16, regs->eip);
+ #if 0
+ 	/* No need to warn about this any longer. */
+ 	printk("Ignoring P6 Local APIC Spurious Interrupt Bug...\n");
+ #endif
++        TRACE_TRAP_EXIT();	
+ }
+ 
+ /*
+@@ -808,8 +909,10 @@ asmlinkage void math_emulate(long arg)
+ {
+ 	printk("math-emulation not enabled and no coprocessor found.\n");
+ 	printk("killing %s.\n",current->comm);
++        TRACE_TRAP_ENTRY(7, 0);
+ 	force_sig(SIGFPE,current);
+ 	schedule();
++        TRACE_TRAP_EXIT();
+ }
+ 
+ #endif /* CONFIG_MATH_EMULATION */
+@@ -841,7 +944,6 @@ do { \
+ 	 "3" ((char *) (addr)),"2" (__KERNEL_CS << 16)); \
+ } while (0)
+ 
+-
+ /*
+  * This needs to use 'idt_table' rather than 'idt', and
+  * thus use the _nonmapped_ version of the IDT, as the
+diff -urpN linux-2.5.43/arch/i386/mm/fault.c linux-2.5.43-ltt/arch/i386/mm/fault.c
+--- linux-2.5.43/arch/i386/mm/fault.c	Tue Oct 15 23:26:44 2002
++++ linux-2.5.43-ltt/arch/i386/mm/fault.c	Thu Oct 17 22:05:52 2002
+@@ -20,6 +20,8 @@
+ #include <linux/tty.h>
+ #include <linux/vt_kern.h>		/* For unblank_screen() */
+ 
++#include <linux/trace.h>
++
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+ #include <asm/pgalloc.h>
+@@ -176,6 +178,8 @@ asmlinkage void do_page_fault(struct pt_
+ 	mm = tsk->mm;
+ 	info.si_code = SEGV_MAPERR;
+ 
++	TRACE_TRAP_ENTRY(14, regs->eip);
++
+ 	/*
+ 	 * If we're in an interrupt, have no user context or are running in an
+ 	 * atomic region then we must not take the fault..
+@@ -260,6 +264,7 @@ good_area:
+ 			tsk->thread.screen_bitmap |= 1 << bit;
+ 	}
+ 	up_read(&mm->mmap_sem);
++        TRACE_TRAP_EXIT();
+ 	return;
+ 
+ /*
+@@ -279,6 +284,7 @@ bad_area:
+ 		/* info.si_code has been set above */
+ 		info.si_addr = (void *)address;
+ 		force_sig_info(SIGSEGV, &info, tsk);
++		TRACE_TRAP_EXIT();
+ 		return;
+ 	}
+ 
+@@ -293,6 +299,7 @@ bad_area:
+ 
+ 		if (nr == 6) {
+ 			do_invalid_op(regs, 0);
++			TRACE_TRAP_EXIT();
+ 			return;
+ 		}
+ 	}
+@@ -302,6 +309,7 @@ no_context:
+ 	/* Are we prepared to handle this kernel fault?  */
+ 	if ((fixup = search_exception_table(regs->eip)) != 0) {
+ 		regs->eip = fixup;
++		TRACE_TRAP_EXIT();
+ 		return;
+ 	}
+ 
+@@ -375,6 +383,7 @@ do_sigbus:
+ 	/* Kernel mode? Handle exceptions or die */
+ 	if (!(error_code & 4))
+ 		goto no_context;
++        TRACE_TRAP_EXIT();
+ 	return;
+ 
+ vmalloc_fault:
+@@ -408,6 +417,8 @@ vmalloc_fault:
+ 		pte_k = pte_offset_kernel(pmd_k, address);
+ 		if (!pte_present(*pte_k))
+ 			goto no_context;
++		TRACE_TRAP_EXIT();
+ 		return;
+ 	}
++	TRACE_TRAP_EXIT();
+ }
+diff -urpN linux-2.5.43/include/asm-i386/trace.h linux-2.5.43-ltt/include/asm-i386/trace.h
+--- linux-2.5.43/include/asm-i386/trace.h	Wed Dec 31 19:00:00 1969
++++ linux-2.5.43-ltt/include/asm-i386/trace.h	Thu Oct 17 22:05:52 2002
+@@ -0,0 +1,110 @@
 +/*
-+ * linux/include/asm-generic/trace.h
++ * linux/include/asm-i386/trace.h
 + *
-+ * Copyright (C) 1999-2002 Karim Yaghmour (karim@opersys.com)
++ * Copyright (C) 2002, Karim Yaghmour
 + *
-+ * Basic architecture independent default definitions for low-level functions.
++ * i386 definitions for tracing system
 + */
++
++#include <linux/trace.h>
++
++/* Current arch type */
++#define TRACE_ARCH_TYPE TRACE_ARCH_TYPE_I386
++
++/* Current variant type */
++#define TRACE_ARCH_VARIANT TRACE_ARCH_VARIANT_NONE
++
++#ifdef CONFIG_X86_TSC /* Is there x86 TSC support? */ 
++#include <asm/msr.h>
 +
 +/**
 + *	get_time_delta: - Utility function for getting time delta.
 + *	@now: pointer to a timeval struct that may be given current time
 + *	@cpu: the associated CPU id
 + *
-+ *	Returns the time difference between the current time and the buffer
-+ *	start time.  The time is returned so that callers can use the
-+ *	do_gettimeofday() result if they need to.
++ *	Returns either the TSC if TSCs are being used, or the time and the
++ *	time difference between the current time and the buffer start time 
++ *	if TSCs are not being used.  The time is returned so that callers
++ *	can use the do_gettimeofday() result if they need to.
 + */
 +static inline trace_time_delta get_time_delta(struct timeval *now, u8 cpu)
 +{
 +	trace_time_delta time_delta;
 +
-+	do_gettimeofday(now);
-+	time_delta = calc_time_delta(now, &buffer_start_time(cpu));
++	if((using_tsc == 1) && cpu_has_tsc)
++		rdtscl(time_delta);
++	else {
++		do_gettimeofday(now);
++		time_delta = calc_time_delta(now, &buffer_start_time(cpu));
++	}
 +
 +	return time_delta;
 +}
@@ -108,13 +496,17 @@ diff -urpN linux-2.5.43/include/asm-generic/trace.h linux-2.5.43-ltt/include/asm
 + *	@now: current time
 + *	@tsc: the TSC associated with now
 + *
-+ *	Sets the value pointed to by now to the current time. Value pointed to
-+ *	by tsc is not set since there is no generic TSC support.
++ *	Sets the value pointed to by now to the current time and the value
++ *	pointed to by tsc to the tsc associated with that time, if the 
++ *	platform supports TSC.
 + */
 +static inline void get_timestamp(struct timeval *now, 
 +				 trace_time_delta *tsc)
 +{
 +	do_gettimeofday(now);
++
++	if((using_tsc == 1) && cpu_has_tsc)
++		rdtscl(*tsc);
 +}
 +
 +/**
@@ -122,996 +514,58 @@ diff -urpN linux-2.5.43/include/asm-generic/trace.h linux-2.5.43-ltt/include/asm
 + *	@now: current time
 + *	@tsc: current TSC
 + *
-+ *	Sets the value pointed to by now to the current time.
++ *	Sets the value pointed to by now to the current time or the value
++ *	pointed to by tsc to the current tsc, depending on whether we're
++ *	using TSCs or not.
 + */
 +static inline void get_time_or_tsc(struct timeval *now, 
 +				   trace_time_delta *tsc)
 +{
-+	do_gettimeofday(now);
++	if((using_tsc == 1) && cpu_has_tsc)
++		rdtscl(*tsc);
++	else
++		do_gettimeofday(now);
 +}
 +
 +/**
 + *	switch_time_delta: - Utility function getting buffer switch time delta.
 + *	@time_delta: previously calculated or retrieved time delta 
 + *
-+ *	Returns 0.
++ *	Returns the time_delta passed in if we're using TSC or 0 otherwise.
 + *	This function is used only for start/end buffer events.
 + */
 +static inline trace_time_delta switch_time_delta(trace_time_delta time_delta)
 +{
-+	return 0;
++	if((using_tsc == 1) && cpu_has_tsc)
++		return time_delta;
++	else
++		return 0;
 +}
 +
 +/**
 + *	have_tsc: - Does this platform have a useable TSC?
 + *
-+ *	Returns 0.
++ *	Returns 1 if this platform has a useable TSC counter for
++ *	timestamping purposes, 0 otherwise.
 + */
 +static inline int have_tsc(void)
 +{
-+	return 0;
++	if(cpu_has_tsc)
++		return 1;
++	else
++		return 0;
 +}
-diff -urpN linux-2.5.43/include/linux/trace.h linux-2.5.43-ltt/include/linux/trace.h
---- linux-2.5.43/include/linux/trace.h	Wed Dec 31 19:00:00 1969
-+++ linux-2.5.43-ltt/include/linux/trace.h	Thu Oct 17 22:05:52 2002
-@@ -0,0 +1,894 @@
-+/*
-+ * linux/include/linux/trace.h
-+ *
-+ * Copyright (C) 1999-2002 Karim Yaghmour (karim@opersys.com)
-+ *
-+ * This contains the necessary definitions for tracing the
-+ * the system.
-+ */
-+
-+#ifndef _LINUX_TRACE_H
-+#define _LINUX_TRACE_H
-+
-+#include <linux/config.h>
-+#include <linux/types.h>
-+#include <linux/sched.h>
-+
-+/* Is kernel tracing enabled */
-+#if defined(CONFIG_TRACE)
-+
-+/* Don't set this to "1" unless you really know what you're doing */
-+#define LTT_UNPACKED_STRUCTS	0
-+
-+/* Structure packing within the trace */
-+#if LTT_UNPACKED_STRUCTS
-+#define LTT_PACKED_STRUCT
-+#else				/* if LTT_UNPACKED_STRUCTS */
-+#define LTT_PACKED_STRUCT __attribute__ ((packed))
-+#endif				/* if LTT_UNPACKED_STRUCTS */
-+
-+/* Misc type definitions */
-+typedef u32 trace_time_delta;	/* The type used to start the time delta between events */
-+typedef u64 trace_event_mask;	/* The event mask type */
-+
-+/* Maximal size a custom event can have */
-+#define CUSTOM_EVENT_MAX_SIZE		8192
-+
-+/* String length limits for custom events creation */
-+#define CUSTOM_EVENT_TYPE_STR_LEN	20
-+#define CUSTOM_EVENT_DESC_STR_LEN	100
-+#define CUSTOM_EVENT_FORM_STR_LEN	256
-+#define CUSTOM_EVENT_FINAL_STR_LEN	200
-+
-+/* Type of custom event formats */
-+#define CUSTOM_EVENT_FORMAT_TYPE_NONE	0
-+#define CUSTOM_EVENT_FORMAT_TYPE_STR	1
-+#define CUSTOM_EVENT_FORMAT_TYPE_HEX	2
-+#define CUSTOM_EVENT_FORMAT_TYPE_XML	3
-+#define CUSTOM_EVENT_FORMAT_TYPE_IBM	4
-+
-+/* Tracing handles */
-+#define TRACE_MAX_HANDLES		256
-+
-+/* System types */
-+#define TRACE_SYS_TYPE_VANILLA_LINUX	1	/* Vanilla linux kernel  */
-+
-+/* Architecture types */
-+#define TRACE_ARCH_TYPE_I386			1   /* i386 system */
-+#define TRACE_ARCH_TYPE_PPC			2   /* PPC system */
-+#define TRACE_ARCH_TYPE_SH			3   /* SH system */
-+#define TRACE_ARCH_TYPE_S390			4   /* S/390 system */
-+#define TRACE_ARCH_TYPE_MIPS			5   /* MIPS system */
-+#define TRACE_ARCH_TYPE_ARM			6   /* ARM system */
-+
-+/* Standard definitions for variants */
-+#define TRACE_ARCH_VARIANT_NONE             0   /* Main architecture implementation */
-+
-+/* Global trace flags */
-+extern unsigned int syscall_entry_trace_active;
-+extern unsigned int syscall_exit_trace_active;
-+
-+/* The functions to the tracer management code */
-+extern int trace_set_config(
-+	int		do_syscall_depth,	/* Use depth to fetch eip */
-+	int		do_syscall_bounds,	/* Use bounds to fetch eip */
-+	int		eip_depth,		/* Detph to fetch eip */
-+	void		*eip_lower_bound,	/* Lower bound eip address */
-+	void		*eip_upper_bound);	/* Upper bound eip address */
-+extern int trace_get_config(
-+	int		*do_syscall_depth,	/* Use depth to fetch eip */
-+	int		*do_syscall_bounds,	/* Use bounds to fetch eip */
-+	int		*eip_depth,		/* Detph to fetch eip */
-+	void		**eip_lower_bound,	/* Lower bound eip address */
-+	void		**eip_upper_bound);	/* Upper bound eip address */
-+extern int trace_create_event(
-+	char		*event_type,		/* String describing event type */
-+	char		*event_desc,		/* String to format standard event description */
-+	int		format_type,		/* Type of formatting used to log event data */
-+	char		*format_data);		/* Data specific to format */
-+extern int trace_create_owned_event(
-+	char		*event_type,		/* String describing event type */
-+	char		*event_desc,		/* String to format standard event description */
-+	int		format_type,		/* Type of formatting used to log event data */
-+	char		*format_data,		/* Data specific to format */
-+	pid_t		owner_pid);      	/* PID of event's owner */
-+extern void trace_destroy_event(
-+	int		event_id);		/* The event ID given by trace_create_event() */
-+extern void trace_destroy_owners_events(
-+	pid_t		owner_pid);		/* The PID of the process' who's events are to be deleted */
-+extern void trace_reregister_custom_events(void);
-+extern int trace_std_formatted_event(
-+	int		event_id,		/* The event ID given by trace_create_event() */
-+	...);					/* The parameters to be printed out in the event string */
-+extern int trace_raw_event(
-+	int		event_id,		/* The event ID given by trace_create_event() */
-+	int		event_size,		/* The size of the raw data */
-+	void		*event_data);		/* Pointer to the raw event data */
-+extern int trace_event(
-+	u8		event_id,		/* Event ID (as defined in this header file) */
-+	void		*event_struct);		/* Structure describing the event */
-+extern int trace_get_pending_write_count(void);
-+extern int trace(
-+	u8		event_id,		/* ID of event as described in this header */
-+	void		*event_struct,		/* Structure describing the event */
-+	u8		cpu_id);		/* CPU associated with event */
-+extern void tracer_switch_buffers(
-+	struct timeval		current_time,	/* Current time (time where switch occurs) */
-+	trace_time_delta	current_tsc,	/* TSC value associated with current time */
-+	u8			cpu_id);	/* CPU associated with event */
-+extern int trace_mmap_buffer(
-+	unsigned int	tracer_handle,		/* Tracer handle */
-+	unsigned long	length,			/* Length of mapping range */
-+	unsigned long	*start_addr);		/* Pointer to mapping start address */
-+extern int trace_valid_handle(
-+	unsigned int	tracer_handle);		/* Tracer handle */
-+extern int trace_alloc_handle(
-+	unsigned int	tracer_handle);		/* Tracer handle */
-+extern int trace_free_handle(
-+	unsigned int	tracer_handle);		/* Tracer handle */
-+extern int trace_free_daemon_handle(void);
-+extern void trace_free_all_handles(
-+	struct task_struct*	task_ptr);	/* Pointer to task who's handles are to be freed */
-+extern int tracer_set_buffer_size(
-+	int		buffers_size);		/* Size of buffers */
-+extern int tracer_set_n_buffers(
-+	int		no_buffers);		/* Number of buffers */
-+extern int tracer_set_default_config(void);
-+
-+extern asmlinkage int sys_trace(
-+	unsigned int	tracer_handle,		/* Tracer handle */
-+	unsigned int	tracer_command,		/* Trace subsystem command */
-+	unsigned long	command_arg1,		/* Argument "1" to command */
-+	unsigned long	command_arg2);		/* Argument "2" to command */
-+
-+/* Generic function */
-+static inline void TRACE_EVENT(u8 event_id, void* data)
-+{
-+	trace_event(event_id, data);
-+}
-+
-+/* Traced events */
-+enum {
-+	TRACE_EV_START = 0,	/* This is to mark the trace's start */
-+	TRACE_EV_SYSCALL_ENTRY,	/* Entry in a given system call */
-+	TRACE_EV_SYSCALL_EXIT,	/* Exit from a given system call */
-+	TRACE_EV_TRAP_ENTRY,	/* Entry in a trap */
-+	TRACE_EV_TRAP_EXIT,	/* Exit from a trap */
-+	TRACE_EV_IRQ_ENTRY,	/* Entry in an irq */
-+	TRACE_EV_IRQ_EXIT,	/* Exit from an irq */
-+	TRACE_EV_SCHEDCHANGE,	/* Scheduling change */
-+	TRACE_EV_KERNEL_TIMER,	/* The kernel timer routine has been called */
-+	TRACE_EV_SOFT_IRQ,	/* Hit key part of soft-irq management */
-+	TRACE_EV_PROCESS,	/* Hit key part of process management */
-+	TRACE_EV_FILE_SYSTEM,	/* Hit key part of file system */
-+	TRACE_EV_TIMER,		/* Hit key part of timer management */
-+	TRACE_EV_MEMORY,	/* Hit key part of memory management */
-+	TRACE_EV_SOCKET,	/* Hit key part of socket communication */
-+	TRACE_EV_IPC,		/* Hit key part of System V IPC */
-+	TRACE_EV_NETWORK,	/* Hit key part of network communication */
-+	TRACE_EV_BUFFER_START,	/* Mark the begining of a trace buffer */
-+	TRACE_EV_BUFFER_END,	/* Mark the ending of a trace buffer */
-+	TRACE_EV_NEW_EVENT,	/* New event type */
-+	TRACE_EV_CUSTOM,	/* Custom event */
-+	TRACE_EV_CHANGE_MASK,	/* Change in event mask */
-+	TRACE_EV_HEARTBEAT	/* Heartbeat event */
-+};
-+
-+/* Number of traced events */
-+#define TRACE_EV_MAX           TRACE_EV_HEARTBEAT
-+
-+/* Structures and macros for events */
-+/* The information logged when the tracing is started */
-+#define TRACER_MAGIC_NUMBER     0x00D6B7ED	/* That day marks an important historical event ... */
-+#define TRACER_VERSION_MAJOR    2	/* Major version number */
-+#define TRACER_VERSION_MINOR    2	/* Minor version number */
-+typedef struct _trace_start {
-+	u32 magic_number;	/* Magic number to identify a trace */
-+	u32 arch_type;		/* Type of architecture */
-+	u32 arch_variant;	/* Variant of the given type of architecture */
-+	u32 system_type;	/* Operating system type */
-+	u8 major_version;	/* Major version of trace */
-+	u8 minor_version;	/* Minor version of trace */
-+
-+	u32 buffer_size;		/* Size of buffers */
-+	trace_event_mask event_mask;	/* The event mask */
-+	trace_event_mask details_mask;	/* Are the event details logged */
-+	u8 log_cpuid;			/* Is the CPUID logged */
-+	u8 use_tsc;		/* Are we using TSCs or time deltas? */
-+} LTT_PACKED_STRUCT trace_start;
-+
-+/*  TRACE_SYSCALL_ENTRY */
-+typedef struct _trace_syscall_entry {
-+	u8 syscall_id;		/* Syscall entry number in entry.S */
-+	u32 address;		/* Address from which call was made */
-+} LTT_PACKED_STRUCT trace_syscall_entry;
-+
-+/*  TRACE_TRAP_ENTRY */
-+#ifndef __s390__
-+typedef struct _trace_trap_entry {
-+	u16 trap_id;		/* Trap number */
-+	u32 address;		/* Address where trap occured */
-+} LTT_PACKED_STRUCT trace_trap_entry;
-+static inline void TRACE_TRAP_ENTRY(u16 trap_id, u32 address)
-+#else
-+typedef u64 trapid_t;
-+typedef struct _trace_trap_entry {
-+	trapid_t trap_id;	/* Trap number */
-+	u32 address;		/* Address where trap occured */
-+} LTT_PACKED_STRUCT trace_trap_entry;
-+static inline void TRACE_TRAP_ENTRY(trapid_t trap_id, u32 address)
-+#endif
-+{
-+	trace_trap_entry trap_event;
-+
-+	trap_event.trap_id = trap_id;
-+	trap_event.address = address;
-+
-+	trace_event(TRACE_EV_TRAP_ENTRY, &trap_event);
-+}
-+
-+/*  TRACE_TRAP_EXIT */
-+static inline void TRACE_TRAP_EXIT(void)
-+{
-+	trace_event(TRACE_EV_TRAP_EXIT, NULL);
-+}
-+
-+/*  TRACE_IRQ_ENTRY */
-+typedef struct _trace_irq_entry {
-+	u8 irq_id;		/* IRQ number */
-+	u8 kernel;		/* Are we executing kernel code */
-+} LTT_PACKED_STRUCT trace_irq_entry;
-+static inline void TRACE_IRQ_ENTRY(u8 irq_id, u8 in_kernel)
-+{
-+	trace_irq_entry irq_entry;
-+
-+	irq_entry.irq_id = irq_id;
-+	irq_entry.kernel = in_kernel;
-+
-+	trace_event(TRACE_EV_IRQ_ENTRY, &irq_entry);
-+}
-+
-+/*  TRACE_IRQ_EXIT */
-+static inline void TRACE_IRQ_EXIT(void)
-+{
-+	trace_event(TRACE_EV_IRQ_EXIT, NULL);
-+}
-+
-+/*  TRACE_SCHEDCHANGE */
-+typedef struct _trace_schedchange {
-+	u32 out;		/* Outgoing process */
-+	u32 in;			/* Incoming process */
-+	u32 out_state;		/* Outgoing process' state */
-+} LTT_PACKED_STRUCT trace_schedchange;
-+static inline void TRACE_SCHEDCHANGE(task_t * task_out, task_t * task_in)
-+{
-+	trace_schedchange sched_event;
-+
-+	sched_event.out = (u32) task_out->pid;
-+	sched_event.in = (u32) task_in;
-+	sched_event.out_state = (u32) task_out->state;
-+
-+	trace_event(TRACE_EV_SCHEDCHANGE, &sched_event);
-+}
-+
-+/*  TRACE_SOFT_IRQ */
-+enum {
-+	TRACE_EV_SOFT_IRQ_BOTTOM_HALF = 1,	/* Conventional bottom-half */
-+	TRACE_EV_SOFT_IRQ_SOFT_IRQ,		/* Real soft-irq */
-+	TRACE_EV_SOFT_IRQ_TASKLET_ACTION,	/* Tasklet action */
-+	TRACE_EV_SOFT_IRQ_TASKLET_HI_ACTION	/* Tasklet hi-action */
-+};
-+typedef struct _trace_soft_irq {
-+	u8 event_sub_id;	/* Soft-irq event Id */
-+	u32 event_data;		/* Data associated with event */
-+} LTT_PACKED_STRUCT trace_soft_irq;
-+static inline void TRACE_SOFT_IRQ(u8 ev_id, u32 data)
-+{
-+	trace_soft_irq soft_irq_event;
-+
-+	soft_irq_event.event_sub_id = ev_id;
-+	soft_irq_event.event_data = data;
-+
-+	trace_event(TRACE_EV_SOFT_IRQ, &soft_irq_event);
-+}
-+
-+/*  TRACE_PROCESS */
-+enum {
-+	TRACE_EV_PROCESS_KTHREAD = 1,	/* Creation of a kernel thread */
-+	TRACE_EV_PROCESS_FORK,		/* A fork or clone occured */
-+	TRACE_EV_PROCESS_EXIT,		/* An exit occured */
-+	TRACE_EV_PROCESS_WAIT,		/* A wait occured */
-+	TRACE_EV_PROCESS_SIGNAL,	/* A signal has been sent */
-+	TRACE_EV_PROCESS_WAKEUP		/* Wake up a process */
-+};
-+typedef struct _trace_process {
-+	u8 event_sub_id;	/* Process event ID */
-+	u32 event_data1;	/* Data associated with event */
-+	u32 event_data2;
-+} LTT_PACKED_STRUCT trace_process;
-+static inline void TRACE_PROCESS(u8 ev_id, u32 data1, u32 data2)
-+{
-+	trace_process proc_event;
-+
-+	proc_event.event_sub_id = ev_id;
-+	proc_event.event_data1 = data1;
-+	proc_event.event_data2 = data2;
-+
-+	trace_event(TRACE_EV_PROCESS, &proc_event);
-+}
-+static inline void TRACE_PROCESS_EXIT(u32 data1, u32 data2)
-+{
-+	trace_process proc_event;
-+
-+	proc_event.event_sub_id = TRACE_EV_PROCESS_EXIT;
-+
-+	/**** WARNING ****/
-+	/* Regardless of whether this trace statement is active or not, these
-+	two function must be called, otherwise there will be inconsistencies
-+	in the kernel's structures. */
-+	trace_destroy_owners_events(current->pid);
-+	trace_free_all_handles(current);
-+
-+	trace_event(TRACE_EV_PROCESS, &proc_event);
-+}
-+
-+/*  TRACE_FILE_SYSTEM */
-+enum {
-+	TRACE_EV_FILE_SYSTEM_BUF_WAIT_START = 1,	/* Starting to wait for a data buffer */
-+	TRACE_EV_FILE_SYSTEM_BUF_WAIT_END,		/* End to wait for a data buffer */
-+	TRACE_EV_FILE_SYSTEM_EXEC,			/* An exec occured */
-+	TRACE_EV_FILE_SYSTEM_OPEN,			/* An open occured */
-+	TRACE_EV_FILE_SYSTEM_CLOSE,			/* A close occured */
-+	TRACE_EV_FILE_SYSTEM_READ,			/* A read occured */
-+	TRACE_EV_FILE_SYSTEM_WRITE,			/* A write occured */
-+	TRACE_EV_FILE_SYSTEM_SEEK,			/* A seek occured */
-+	TRACE_EV_FILE_SYSTEM_IOCTL,			/* An ioctl occured */
-+	TRACE_EV_FILE_SYSTEM_SELECT,			/* A select occured */
-+	TRACE_EV_FILE_SYSTEM_POLL			/* A poll occured */
-+};
-+typedef struct _trace_file_system {
-+	u8 event_sub_id;	/* File system event ID */
-+	u32 event_data1;	/* Event data */
-+	u32 event_data2;	/* Event data 2 */
-+	char *file_name;	/* Name of file operated on */
-+} LTT_PACKED_STRUCT trace_file_system;
-+static inline void TRACE_FILE_SYSTEM(u8 ev_id, u32 data1, u32 data2, const unsigned char
-*file_name)
-+{
-+	trace_file_system fs_event;
-+
-+	fs_event.event_sub_id = ev_id;
-+	fs_event.event_data1 = data1;
-+	fs_event.event_data2 = data2;
-+	fs_event.file_name = (char*) file_name;
-+
-+	trace_event(TRACE_EV_FILE_SYSTEM, &fs_event);
-+}
-+
-+/*  TRACE_TIMER */
-+enum {
-+	TRACE_EV_TIMER_EXPIRED = 1,	/* Timer expired */
-+	TRACE_EV_TIMER_SETITIMER,	/* Setting itimer occurred */
-+	TRACE_EV_TIMER_SETTIMEOUT	/* Setting sched timeout occurred */
-+};
-+typedef struct _trace_timer {
-+	u8 event_sub_id;	/* Timer event ID */
-+	u8 event_sdata;		/* Short data */
-+	u32 event_data1;	/* Data associated with event */
-+	u32 event_data2;
-+} LTT_PACKED_STRUCT trace_timer;
-+static inline void TRACE_TIMER(u8 ev_id, u8 sdata, u32 data1, u32 data2)
-+{
-+	trace_timer timer_event;
-+
-+	timer_event.event_sub_id = ev_id;
-+	timer_event.event_sdata = sdata;
-+	timer_event.event_data1 = data1;
-+	timer_event.event_data2 = data2;
-+
-+	trace_event(TRACE_EV_TIMER, &timer_event);
-+}
-+
-+/*  TRACE_MEMORY */
-+enum {
-+	TRACE_EV_MEMORY_PAGE_ALLOC = 1,		/* Allocating pages */
-+	TRACE_EV_MEMORY_PAGE_FREE,		/* Freing pages */
-+	TRACE_EV_MEMORY_SWAP_IN,		/* Swaping pages in */
-+	TRACE_EV_MEMORY_SWAP_OUT,		/* Swaping pages out */
-+	TRACE_EV_MEMORY_PAGE_WAIT_START,	/* Start to wait for page */
-+	TRACE_EV_MEMORY_PAGE_WAIT_END		/* End to wait for page */
-+};
-+typedef struct _trace_memory {
-+	u8 event_sub_id;	/* Memory event ID */
-+	u32 event_data;		/* Data associated with event */
-+} LTT_PACKED_STRUCT trace_memory;
-+static inline void TRACE_MEMORY(u8 ev_id, u32 data)
-+{
-+	trace_memory memory_event;
-+
-+	memory_event.event_sub_id = ev_id;
-+	memory_event.event_data = data;
-+
-+	trace_event(TRACE_EV_MEMORY, &memory_event);
-+}
-+
-+/*  TRACE_SOCKET */
-+enum {
-+	TRACE_EV_SOCKET_CALL = 1,	/* A socket call occured */
-+	TRACE_EV_SOCKET_CREATE,		/* A socket has been created */
-+	TRACE_EV_SOCKET_SEND,		/* Data was sent to a socket */
-+	TRACE_EV_SOCKET_RECEIVE		/* Data was read from a socket */
-+};
-+typedef struct _trace_socket {
-+	u8 event_sub_id;	/* Socket event ID */
-+	u32 event_data1;	/* Data associated with event */
-+	u32 event_data2;	/* Data associated with event */
-+} LTT_PACKED_STRUCT trace_socket;
-+static inline void TRACE_SOCKET(u8 ev_id, u32 data1, u32 data2)
-+{
-+	trace_socket socket_event;
-+
-+	socket_event.event_sub_id = ev_id;
-+	socket_event.event_data1 = data1;
-+	socket_event.event_data2 = data2;
-+
-+	trace_event(TRACE_EV_SOCKET, &socket_event);
-+}
-+
-+/*  TRACE_IPC */
-+enum {
-+	TRACE_EV_IPC_CALL = 1,		/* A System V IPC call occured */
-+	TRACE_EV_IPC_MSG_CREATE,	/* A message queue has been created */
-+	TRACE_EV_IPC_SEM_CREATE,	/* A semaphore was created */
-+	TRACE_EV_IPC_SHM_CREATE		/* A shared memory segment has been created */
-+};
-+typedef struct _trace_ipc {
-+	u8 event_sub_id;	/* IPC event ID */
-+	u32 event_data1;	/* Data associated with event */
-+	u32 event_data2;	/* Data associated with event */
-+} LTT_PACKED_STRUCT trace_ipc;
-+static inline void TRACE_IPC(u8 ev_id, u32 data1, u32 data2)
-+{
-+	trace_ipc ipc_event;
-+
-+	ipc_event.event_sub_id = ev_id;
-+	ipc_event.event_data1 = data1;
-+	ipc_event.event_data2 = data2;
-+
-+	trace_event(TRACE_EV_IPC, &ipc_event);
-+}
-+
-+/*  TRACE_NETWORK */
-+enum {
-+	TRACE_EV_NETWORK_PACKET_IN = 1,	/* A packet came in */
-+	TRACE_EV_NETWORK_PACKET_OUT	/* A packet was sent */
-+};
-+typedef struct _trace_network {
-+	u8 event_sub_id;	/* Network event ID */
-+	u32 event_data;		/* Event data */
-+} LTT_PACKED_STRUCT trace_network;
-+static inline void TRACE_NETWORK(u8 ev_id, u32 data)
-+{
-+	trace_network net_event;
-+
-+	net_event.event_sub_id = ev_id;
-+	net_event.event_data = data;
-+
-+	trace_event(TRACE_EV_NETWORK, &net_event);
-+}
-+
-+/* Start of trace buffer information */
-+typedef struct _trace_buffer_start {
-+	struct timeval time;	/* Time stamp of this buffer */
-+	trace_time_delta tsc;   /* TSC of this buffer, if applicable */
-+	u32 id;			/* Unique buffer ID */
-+} LTT_PACKED_STRUCT trace_buffer_start;
-+
-+/* End of trace buffer information */
-+typedef struct _trace_buffer_end {
-+	struct timeval time;	/* Time stamp of this buffer */
-+	trace_time_delta tsc;   /* TSC of this buffer, if applicable */
-+} LTT_PACKED_STRUCT trace_buffer_end;
-+
-+/* Custom declared events */
-+/* ***WARNING*** These structures should never be used as is, use the provided custom
-+   event creation and logging functions. */
-+typedef struct _trace_new_event {
-+	/* Basics */
-+	u32 id;					/* Custom event ID */
-+	char type[CUSTOM_EVENT_TYPE_STR_LEN];	/* Event type description */
-+	char desc[CUSTOM_EVENT_DESC_STR_LEN];	/* Detailed event description */
-+
-+	/* Custom formatting */
-+	u32 format_type;			/* Type of formatting */
-+	char form[CUSTOM_EVENT_FORM_STR_LEN];	/* Data specific to format */
-+} LTT_PACKED_STRUCT trace_new_event;
-+typedef struct _trace_custom {
-+	u32 id;			/* Event ID */
-+	u32 data_size;		/* Size of data recorded by event */
-+	void *data;		/* Data recorded by event */
-+} LTT_PACKED_STRUCT trace_custom;
-+
-+/* TRACE_CHANGE_MASK */
-+typedef struct _trace_change_mask {
-+	trace_event_mask mask;	/* Event mask */
-+} LTT_PACKED_STRUCT trace_change_mask;
-+
-+
-+/*  TRACE_HEARTBEAT */
-+static inline void TRACE_HEARTBEAT(void)
-+{
-+	trace_event(TRACE_EV_HEARTBEAT, NULL);
-+}
-+
-+/* Tracer properties */
-+#define TRACER_NAME      "tracer"	/* Name of the device as seen in /proc/devices */
-+
-+/* Tracer buffer information */
-+#define TRACER_DEFAULT_BUF_SIZE   50000		/* Default size of tracing buffer */
-+#define TRACER_MIN_BUF_SIZE        1000		/* Minimum size of tracing buffer */
-+#define TRACER_MAX_BUF_SIZE      500000		/* Maximum size of tracing buffer */
-+#define TRACER_MIN_BUFFERS            2		/* Minimum number of tracing buffers */
-+#define TRACER_MAX_BUFFERS          256		/* Maximum number of tracing buffers */
-+
-+/* Number of bytes reserved for first event */
-+#define TRACER_FIRST_EVENT_SIZE   (sizeof(u8) + sizeof(trace_time_delta) +
-sizeof(trace_buffer_start) + sizeof(uint16_t))
-+
-+/* Number of bytes reserved for last event, including lost size word */
-+#define TRACER_LAST_EVENT_SIZE   (sizeof(u8) \
-+				  + sizeof(u8) \
-+				  + sizeof(trace_time_delta) \
-+				  + sizeof(trace_buffer_end) \
-+				  + sizeof(uint16_t) \
-+				  + sizeof(u32))
-+
-+/* The configurations possible */
-+enum {
-+	TRACER_START = TRACER_MAGIC_NUMBER,	/* Start tracing events using the current configuration */
-+	TRACER_STOP,				/* Stop tracing */
-+	TRACER_CONFIG_DEFAULT,			/* Set the tracer to the default configuration */
-+	TRACER_CONFIG_MEMORY_BUFFERS,		/* Set the memory buffers the daemon wants us to use */
-+	TRACER_CONFIG_EVENTS,			/* Trace the given events */
-+	TRACER_CONFIG_DETAILS,			/* Record the details of the event, or not */
-+	TRACER_CONFIG_CPUID,			/* Record the CPUID associated with the event */
-+	TRACER_CONFIG_PID,			/* Trace only one process */
-+	TRACER_CONFIG_PGRP,			/* Trace only the given process group */
-+	TRACER_CONFIG_GID,			/* Trace the processes of a given group of users */
-+	TRACER_CONFIG_UID,			/* Trace the processes of a given user */
-+	TRACER_CONFIG_SYSCALL_EIP_DEPTH,	/* Set the call depth at which the EIP should be fetched on
-syscall */
-+	TRACER_CONFIG_SYSCALL_EIP_LOWER,	/* Set the lowerbound address from which EIP is recorded on
-syscall */
-+	TRACER_CONFIG_SYSCALL_EIP_UPPER,	/* Set the upperbound address from which EIP is recorded on
-syscall */
-+	TRACER_DATA_COMITTED,			/* The daemon has comitted the last trace */
-+	TRACER_GET_EVENTS_LOST,			/* Get the number of events lost */
-+	TRACER_CREATE_USER_EVENT,		/* Create a user tracable event */
-+	TRACER_DESTROY_USER_EVENT,		/* Destroy a user tracable event */
-+	TRACER_TRACE_USER_EVENT,		/* Trace a user event */
-+	TRACER_SET_EVENT_MASK,			/* Set the trace event mask */
-+	TRACER_GET_EVENT_MASK,			/* Get the trace event mask */
-+	TRACER_GET_BUFFER_CONTROL,		/* Get the buffer control data for the lockless schem*/
-+	TRACER_CONFIG_N_MEMORY_BUFFERS,		/* Set the number of memory buffers the daemon wants us to use */
-+	TRACER_CONFIG_USE_LOCKING,		/* Set the locking scheme to use */
-+	TRACER_CONFIG_TIMESTAMP,		/* Set the timestamping method to use */
-+	TRACER_GET_ARCH_INFO,			/* Get information about the CPU configuration */
-+	TRACER_ALLOC_HANDLE,			/* Allocate a tracer handle */
-+	TRACER_FREE_HANDLE,			/* Free a single handle */
-+	TRACER_FREE_DAEMON_HANDLE,		/* Free the daemon's handle */
-+	TRACER_FREE_ALL_HANDLES,		/* Free all handles */
-+	TRACER_MAP_BUFFER			/* Map buffer to process-space */
-+};
-+
-+/* For the lockless scheme:
-+
-+   A trace index is composed of two parts, a buffer number and a buffer 
-+   offset.  The actual number of buffers allocated is a run-time decision, 
-+   although it must be a power of two for efficient computation.  We define 
-+   a maximum number of bits for the buffer number, because the fill_count 
-+   array in buffer_control must have a fixed size.  offset_bits must be at 
-+   least as large as the maximum event size+start/end buffer event size+
-+   lost size word (since a buffer must be able to hold an event of maximum 
-+   size).  Making offset_bits larger reduces fragmentation.  Making it 
-+   smaller increases trace responsiveness. */
-+
-+/* We need at least enough room for the max custom event, and we also need
-+   room for the start and end event.  We also need it to be a power of 2. */
-+#define TRACER_LOCKLESS_MIN_BUF_SIZE CUSTOM_EVENT_MAX_SIZE + 8192 /* 16K */
-+/* Because we use atomic_t as the type for fill_counts, which has only 24
-+   usable bits, we have 2**24 = 16M max for each buffer. */
-+#define TRACER_LOCKLESS_MAX_BUF_SIZE 0x1000000 /* 16M */
-+/* Since we multiply n buffers by the buffer size, this provides a sanity
-+   check, much less than the 256*16M possible. */
-+#define TRACER_LOCKLESS_MAX_TOTAL_BUF_SIZE 0x8000000 /* 128M */
-+
-+#define TRACE_MAX_BUFFER_NUMBER(bufno_bits) (1UL << (bufno_bits))
-+#define TRACE_BUFFER_SIZE(offset_bits) (1UL << (offset_bits))
-+#define TRACE_BUFFER_OFFSET_MASK(offset_bits) (TRACE_BUFFER_SIZE(offset_bits) - 1)
-+
-+#define TRACE_BUFFER_NUMBER_GET(index, offset_bits) ((index) >> (offset_bits))
-+#define TRACE_BUFFER_OFFSET_GET(index, mask) ((index) & (mask))
-+#define TRACE_BUFFER_OFFSET_CLEAR(index, mask) ((index) & ~(mask))
-+
-+/* Flags returned by trace_reserve/trace_reserve_slow */
-+#define LTT_BUFFER_SWITCH_NONE 0x00
-+#define LTT_EVENT_DISCARD_NONE 0x00
-+#define LTT_BUFFER_SWITCH      0x01
-+#define LTT_EVENT_DISCARD      0x02
-+#define LTT_EVENT_TOO_LONG     0x04
-+
-+/* Flags used to indicate things to do on particular CPUs */
-+#define LTT_NOTHING_TO_DO      0x00
-+#define LTT_INITIALIZE_TRACE   0x01
-+#define LTT_FINALIZE_TRACE     0x02
-+#define LTT_CONTINUE_TRACE     0x04
-+#define LTT_TRACE_HEARTBEAT    0x08
-+
-+/* Per-CPU buffer information for the lockless scheme */
-+struct lockless_buffer_control
-+{
-+	u8 bufno_bits;
-+	u8 offset_bits;
-+	u32 buffers_produced;
-+	u32 buffers_consumed;
-+
-+	u32 index;
-+	u32 n_buffers; /* cached value */
-+	u32 offset_mask; /* cached value */
-+	u32 index_mask; /* cached value */
-+	int buffers_full; /* All-(sub)buffers-full boolean */
-+	u32 last_event_index; /* For full-buffers state */ 
-+	struct timeval last_event_timestamp; /* For full-buffers state */
-+	trace_time_delta last_event_tsc; /* TSC at buffer_start_time */
-+	atomic_t fill_count[TRACER_MAX_BUFFERS];
-+};
-+
-+/* Per-CPU buffer information for the locking scheme */
-+struct locking_buffer_control
-+{
-+	char* write_buf; /* Buffer used for writting */
-+	char* read_buf; /* Buffer used for reading */
-+	char* write_buf_end; /* End of write buffer */
-+	char* read_buf_end; /* End of read buffer */
-+	char* current_write_pos; /* Current position for writting */
-+	char* read_limit; /* Limit at which read should stop */
-+	char* write_limit; /* Limit at which write should stop */
-+	atomic_t signal_sent;
-+};
-+
-+/* Data structure containing per-buffer tracing information. */ 
-+struct buffer_control
-+{
-+	char *trace_buffer;
-+	u32 buffer_id; /* for start-buffer event */
-+	u32 events_lost; /* Events lost on this cpu */
-+	struct timeval  buffer_start_time; /* Time the buffer was started */
-+	trace_time_delta buffer_start_tsc; /* TSC at buffer_start_time */
-+	atomic_t waiting_for_cpu;
-+
-+	union 
-+	{
-+		struct lockless_buffer_control lockless;
-+		struct locking_buffer_control locking;
-+	} scheme;
-+} ____cacheline_aligned;
-+
-+/* Data structure for sharing per-buffer information between driver and 
-+   daemon (via ioctl) */
-+struct shared_buffer_control
-+{
-+	u8 cpu_id;
-+	u32 buffer_switches_pending;
-+	u32 buffer_control_valid;
-+
-+	u8 bufno_bits;
-+	u8 offset_bits;
-+	u32 buffers_produced;
-+	u32 buffers_consumed;
-+	/* atomic_t has only 24 usable bits, limiting us to 16M buffers */
-+	int fill_count[TRACER_MAX_BUFFERS];
-+};
-+
-+/* Data structure for sharing buffer-commit information between driver and 
-+   daemon (via ioctl) */
-+struct buffers_committed
-+{
-+	u8 cpu_id;
-+	u32 buffers_consumed;
-+};
-+
-+/* Data structure for sharing architecture-specific info between driver and 
-+   daemon (via ioctl) */
-+struct ltt_arch_info
-+{
-+	int n_cpus;
-+	int page_shift;
-+};
-+
-+/* Buffer control data structure accessor functions */
-+#define _index(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.index)
-+#define index(cpu) (_index(buffer_control, (cpu)))
-+#define _bufno_bits(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.bufno_bits)
-+#define bufno_bits(cpu) (_bufno_bits(buffer_control, (cpu)))
-+#define _n_buffers(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.n_buffers)
-+#define n_buffers(cpu) (_n_buffers(buffer_control, (cpu)))
-+#define _offset_bits(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.offset_bits)
-+#define offset_bits(cpu) (_offset_bits(buffer_control, (cpu)))
-+#define _offset_mask(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.offset_mask)
-+#define offset_mask(cpu) (_offset_mask(buffer_control, (cpu)))
-+#define _index_mask(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.index_mask)
-+#define index_mask(cpu) (_index_mask(buffer_control, (cpu)))
-+#define _buffers_produced(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.buffers_produced)
-+#define buffers_produced(cpu) (_buffers_produced(buffer_control, (cpu)))
-+#define _buffers_consumed(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.buffers_consumed)
-+#define buffers_consumed(cpu) (_buffers_consumed(buffer_control, (cpu)))
-+#define _buffers_full(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.buffers_full)
-+#define buffers_full(cpu) (_buffers_full(buffer_control, (cpu)))
-+#define _fill_count(sbc, cpu, i) (((sbc)+(cpu))->scheme.lockless.fill_count[(i)])
-+#define fill_count(cpu, i) (_fill_count(buffer_control, (cpu), (i)))
-+#define _trace_buffer(sbc, cpu) (((sbc)+(cpu))->trace_buffer)
-+#define trace_buffer(cpu) (_trace_buffer(buffer_control, (cpu)))
-+#define _buffer_id(sbc, cpu) (((sbc)+(cpu))->buffer_id)
-+#define buffer_id(cpu) (_buffer_id(buffer_control, (cpu)))
-+#define _events_lost(sbc, cpu) (((sbc)+(cpu))->events_lost)
-+#define events_lost(cpu) (_events_lost(buffer_control, (cpu)))
-+#define _buffer_start_time(sbc, cpu) (((sbc)+(cpu))->buffer_start_time)
-+#define buffer_start_time(cpu) (_buffer_start_time(buffer_control, (cpu)))
-+#define _buffer_start_tsc(sbc, cpu) (((sbc)+(cpu))->buffer_start_tsc)
-+#define buffer_start_tsc(cpu) (_buffer_start_tsc(buffer_control, (cpu)))
-+#define _last_event_index(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.last_event_index)
-+#define last_event_index(cpu) (_last_event_index(buffer_control, (cpu)))
-+#define _last_event_timestamp(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.last_event_timestamp)
-+#define last_event_timestamp(cpu) (_last_event_timestamp(buffer_control, (cpu)))
-+#define _last_event_tsc(sbc, cpu) (((sbc)+(cpu))->scheme.lockless.last_event_tsc)
-+#define last_event_tsc(cpu) (_last_event_tsc(buffer_control, (cpu)))
-+#define _write_buf(sbc, cpu) (((sbc)+(cpu))->scheme.locking.write_buf)
-+#define write_buf(cpu) (_write_buf(buffer_control, (cpu)))
-+#define _read_buf(sbc, cpu) (((sbc)+(cpu))->scheme.locking.read_buf)
-+#define read_buf(cpu) (_read_buf(buffer_control, (cpu)))
-+#define _write_buf_end(sbc, cpu) (((sbc)+(cpu))->scheme.locking.write_buf_end)
-+#define write_buf_end(cpu) (_write_buf_end(buffer_control, (cpu)))
-+#define _read_buf_end(sbc, cpu) (((sbc)+(cpu))->scheme.locking.read_buf_end)
-+#define read_buf_end(cpu) (_read_buf_end(buffer_control, (cpu)))
-+#define _current_write_pos(sbc, cpu) (((sbc)+(cpu))->scheme.locking.current_write_pos)
-+#define current_write_pos(cpu) (_current_write_pos(buffer_control, (cpu)))
-+#define _read_limit(sbc, cpu) (((sbc)+(cpu))->scheme.locking.read_limit)
-+#define read_limit(cpu) (_read_limit(buffer_control, (cpu)))
-+#define _write_limit(sbc, cpu) (((sbc)+(cpu))->scheme.locking.write_limit)
-+#define write_limit(cpu) (_write_limit(buffer_control, (cpu)))
-+#define _signal_sent(sbc, cpu) (((sbc)+(cpu))->scheme.locking.signal_sent)
-+#define signal_sent(cpu) (_signal_sent(buffer_control, (cpu)))
-+#define _waiting_for_cpu(sbc, cpu) (((sbc)+(cpu))->waiting_for_cpu)
-+#define waiting_for_cpu(cpu) (_waiting_for_cpu(buffer_control, (cpu)))
-+
-+extern int using_tsc;
-+extern struct buffer_control buffer_control[];
-+
-+/**
-+ *	set_waiting_for_cpu: - Utility function for setting wait flags
-+ *	@cpu_id: which CPU to set flag on
-+ *	@bit: which bit to set
-+ *
-+ *	Sets the given bit of the CPU's waiting_for_cpu flags.
-+ */
-+static inline void set_waiting_for_cpu(u8 cpu_id, int bit)
-+{
-+	atomic_set(&waiting_for_cpu(cpu_id), 
-+		   atomic_read(&waiting_for_cpu(cpu_id)) | bit);
-+}
-+
-+/**
-+ *	clear_waiting_for_cpu: - Utility function for clearing wait flags
-+ *	@cpu_id: which CPU to clear flag on
-+ *	@bit: which bit to clear
-+ *
-+ *	Clears the given bit of the CPU's waiting_for_cpu flags.
-+ */
-+static inline void clear_waiting_for_cpu(u8 cpu_id, int bit)
-+{
-+	atomic_set(&waiting_for_cpu(cpu_id), 
-+		   atomic_read(&waiting_for_cpu(cpu_id)) & ~bit);
-+}
-+
-+/**
-+ *	calc_time_delta: - Utility function for time delta calculation.
-+ *	@now: current time
-+ *	@start: start time
-+ *
-+ *	Returns the time delta produced by subtracting start time from now.
-+ */
-+static inline trace_time_delta calc_time_delta(struct timeval *now, 
-+					       struct timeval *start)
-+{
-+	return (now->tv_sec - start->tv_sec) * 1000000
-+		+ (now->tv_usec - start->tv_usec);
-+}
-+
-+/**
-+ *	recalc_time_delta: - Utility function for time delta recalculation.
-+ *	@now: current time
-+ *	@new_delta: the new time delta calculated
-+ *	@cpu: the associated CPU id
-+ *
-+ *	Sets the value pointed to by new_delta to the time difference between
-+ *	the buffer start time and now, if TSC timestamping is being used. 
-+ */
-+static inline void recalc_time_delta(struct timeval *now, 
-+				     trace_time_delta *new_delta,
-+				     u8 cpu)
-+{
-+	if(using_tsc == 0)
-+		*new_delta = calc_time_delta(now, &buffer_start_time(cpu));
-+}
-+
-+/**
-+ *	have_cmpxchg: - Does this platform have a cmpxchg?
-+ *
-+ *	Returns 1 if this platform has a cmpxchg useable by 
-+ *	the lockless scheme, 0 otherwise.
-+ */
-+static inline int have_cmpxchg(void)
-+{
-+#if defined(__HAVE_ARCH_CMPXCHG)
-+	return 1;
-+#else
-+	return 0;
-+#endif
-+}
-+
-+/* If cmpxchg isn't defined for the architecture, we don't want to 
-+   generate a link error - the locking scheme will still be available. */  
-+#ifndef __HAVE_ARCH_CMPXCHG
-+#define cmpxchg(p,o,n) 0
-+#endif
-+
-+extern __inline__ int ltt_set_bit(int nr, void *addr)
-+{
-+	unsigned char *p = addr;
-+	unsigned char mask = 1 << (nr & 7);
-+	unsigned char old;
-+
-+	p += nr >> 3;
-+	old = *p;
-+	*p |= mask;
-+
-+	return ((old & mask) != 0);
-+}
-+
-+extern __inline__ int ltt_clear_bit(int nr, void *addr)
-+{
-+	unsigned char *p = addr;
-+	unsigned char mask = 1 << (nr & 7);
-+	unsigned char old;
-+
-+	p += nr >> 3;
-+	old = *p;
-+	*p &= ~mask;
-+
-+	return ((old & mask) != 0);
-+}
-+
-+extern __inline__ int ltt_test_bit(int nr, void *addr)
-+{
-+	unsigned char *p = addr;
-+	unsigned char mask = 1 << (nr & 7);
-+
-+	p += nr >> 3;
-+
-+	return ((*p & mask) != 0);
-+}
-+
-+#else				/* Kernel is configured without tracing */
-+#define TRACE_EVENT(ID, DATA)
-+#define TRACE_TRAP_ENTRY(ID, EIP)
-+#define TRACE_TRAP_EXIT()
-+#define TRACE_IRQ_ENTRY(ID, KERNEL)
-+#define TRACE_IRQ_EXIT()
-+#define TRACE_SCHEDCHANGE(OUT, IN)
-+#define TRACE_SOFT_IRQ(ID, DATA)
-+#define TRACE_PROCESS(ID, DATA1, DATA2)
-+#define TRACE_FILE_SYSTEM(ID, DATA1, DATA2, FILE_NAME)
-+#define TRACE_TIMER(ID, SDATA, DATA1, DATA2)
-+#define TRACE_MEMORY(ID, DATA)
-+#define TRACE_SOCKET(ID, DATA1, DATA2)
-+#define TRACE_IPC(ID, DATA1, DATA2)
-+#define TRACE_NETWORK(ID, DATA)
-+#define TRACE_HEARTBEAT()
-+#endif				/* defined(CONFIG_TRACE) */
-+#endif				/* _LINUX_TRACE_H */
-diff -urpN linux-2.5.43/init/Config.help linux-2.5.43-ltt/init/Config.help
---- linux-2.5.43/init/Config.help	Tue Oct 15 23:28:25 2002
-+++ linux-2.5.43-ltt/init/Config.help	Thu Oct 17 22:05:52 2002
-@@ -115,3 +115,26 @@ CONFIG_KMOD
-   replacement for kerneld.) Say Y here and read about configuring it
-   in <file:Documentation/kmod.txt>.
++#else /* No TSC support (#ifdef CONFIG_X86_TSC) */
++#include <asm-generic/trace.h>
++#endif /* #ifdef CONFIG_X86_TSC */
+diff -urpN linux-2.5.43/include/asm-i386/unistd.h linux-2.5.43-ltt/include/asm-i386/unistd.h
+--- linux-2.5.43/include/asm-i386/unistd.h	Tue Oct 15 23:28:27 2002
++++ linux-2.5.43-ltt/include/asm-i386/unistd.h	Thu Oct 17 22:17:58 2002
+@@ -258,6 +258,7 @@
+ #define __NR_free_hugepages	251
+ #define __NR_exit_group		252
+ #define __NR_lookup_dcookie	253
++#define __NR_trace		254
+   
  
-+CONFIG_TRACE
-+  It is possible for the kernel to log important events to a trace
-+  facility. Doing so, enables the use of the generated traces in order
-+  to reconstruct the dynamic behavior of the kernel, and hence the
-+  whole system.
-+
-+  The tracing process contains 4 parts :
-+      1) The logging of events by key parts of the kernel.
-+      2) The tracer that keeps the events in a data buffer.
-+      3) A trace daemon that interacts with the tracer and is
-+         notified every time there is a certain quantity of data to
-+         read from the tracer.
-+      4) A trace event data decoder that reads the accumulated data
-+         and formats it in a human-readable format.
-+
-+  If you say Y, the first two components will be built into the kernel.
-+  Critical parts of the kernel will call upon the kernel tracing
-+  function. The data is then recorded by the tracer if a trace daemon
-+  is running in user-space and has issued a "start" command.
-+
-+  For more information on kernel tracing, the trace daemon or the event
-+  decoder, please check the following address :
-+       http://www.opersys.com/LTT
-diff -urpN linux-2.5.43/init/Config.in linux-2.5.43-ltt/init/Config.in
---- linux-2.5.43/init/Config.in	Tue Oct 15 23:27:17 2002
-+++ linux-2.5.43-ltt/init/Config.in	Thu Oct 17 22:05:52 2002
-@@ -9,6 +9,7 @@ bool 'Networking support' CONFIG_NET
- bool 'System V IPC' CONFIG_SYSVIPC
- bool 'BSD Process Accounting' CONFIG_BSD_PROCESS_ACCT
- bool 'Sysctl support' CONFIG_SYSCTL
-+bool 'Tracing support' CONFIG_TRACE
- endmenu
- 
- mainmenu_option next_comment
-diff -urpN linux-2.5.43/kernel/Makefile linux-2.5.43-ltt/kernel/Makefile
---- linux-2.5.43/kernel/Makefile	Tue Oct 15 23:27:20 2002
-+++ linux-2.5.43-ltt/kernel/Makefile	Thu Oct 17 22:18:31 2002
-@@ -4,7 +4,7 @@
- 
- export-objs = signal.o sys.o kmod.o workqueue.o ksyms.o pm.o exec_domain.o \
- 		printk.o platform.o suspend.o dma.o module.o cpufreq.o \
--		profile.o rcupdate.o
-+		profile.o rcupdate.o trace.o
- 
- obj-y     = sched.o fork.o exec_domain.o panic.o printk.o profile.o \
- 	    module.o exit.o itimer.o time.o softirq.o resource.o \
-@@ -21,6 +21,7 @@ obj-$(CONFIG_PM) += pm.o
- obj-$(CONFIG_CPU_FREQ) += cpufreq.o
- obj-$(CONFIG_BSD_PROCESS_ACCT) += acct.o
- obj-$(CONFIG_SOFTWARE_SUSPEND) += suspend.o
-+obj-$(CONFIG_TRACE) += trace.o
- 
- ifneq ($(CONFIG_IA64),y)
- # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
+ /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */

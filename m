@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbVCGXi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbVCHA4h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261910AbVCGXi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 18:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbVCGXhr
+	id S261321AbVCHA4h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 19:56:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbVCHAwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 18:37:47 -0500
-Received: from nn1.excitenetwork.com ([207.159.120.55]:5434 "EHLO excite.com")
-	by vger.kernel.org with ESMTP id S261953AbVCGXS7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 18:18:59 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Random number generator in Linux kernel
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: ID = 879b4ea53dbad4bbc16ad4568876f5e4
-Reply-To: vintya@excite.com
-From: "Vineet Joglekar" <vintya@excite.com>
-MIME-Version: 1.0
-X-Mailer: PHP
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Cc: linux-c-programming@vger.kernel.org
-Message-Id: <20050307231853.9F661B6E7@xprdmailfe20.nwk.excite.com>
-Date: Mon,  7 Mar 2005 18:18:53 -0500 (EST)
+	Mon, 7 Mar 2005 19:52:16 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:34523 "EHLO
+	pd2mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S262010AbVCHAtS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 19:49:18 -0500
+Date: Mon, 07 Mar 2005 18:49:05 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [CHECKER] crash after fsync causing serious FS corruptions (ext2,
+ 2.6.11)
+In-reply-to: <3FnYi-11J-1@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <422CF681.3010109@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <3Fnc7-mf-11@gated-at.bofh.it> <3FnYi-11J-1@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens Axboe wrote:
+> fsync on ext2 only really guarantees that the data has reached
+> the disk, what the disk does it outside the realm of the fs.
+> If the ide drive has write back caching enabled, the data just
+> might only be in cache. If the power is removed right after fsync
+> returns, the drive might not get a chance to actually commit the
+> write to platter.
 
-Hi all,
+Is this really the behavior in the current kernel? If so this seems 
+quite wrong to me - if the application did an fsync, I think the kernel 
+should be sending cache flush commands to the drive before the call 
+completes..
 
-Can someone please tell me where can I find and which random/pseudo-random number generator can I use inside the linux kernel? (2.4.28)
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-I found out 1 function get_random_bytes() in linux/drivers/char/random.c but thats not what I want.
-
-I want a function where I will be supplying a seed to that function as an input, and will get a random number back. If same seed is used, same number should be generated again.
-
-Can anybody please help me with that?
-
-Thanks and regards,
-
-Vineet.
-
-_______________________________________________
-Join Excite! - http://www.excite.com
-The most personalized portal on the Web!

@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314082AbSFELt2>; Wed, 5 Jun 2002 07:49:28 -0400
+	id <S315358AbSFELwr>; Wed, 5 Jun 2002 07:52:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315335AbSFELt1>; Wed, 5 Jun 2002 07:49:27 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:23468 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S314082AbSFELtZ>; Wed, 5 Jun 2002 07:49:25 -0400
-Date: Wed, 5 Jun 2002 13:49:45 +0200
-From: Kristian Peters <kristian.peters@korseby.net>
-To: linux-kernel@vger.kernel.org
-Subject: -ac series won't compile without fix
-Message-Id: <20020605134945.7ad22093.kristian.peters@korseby.net>
-X-Mailer: Sylpheed version 0.7.1claws7 (GTK+ 1.2.10; i386-redhat-linux)
-X-Operating-System: i686-redhat-linux 2.4.19-pre10
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S315411AbSFELwq>; Wed, 5 Jun 2002 07:52:46 -0400
+Received: from mailgate.imerge.co.uk ([195.217.208.100]:49915 "EHLO
+	imgserv04.imerge.co.uk") by vger.kernel.org with ESMTP
+	id <S315358AbSFELwo>; Wed, 5 Jun 2002 07:52:44 -0400
+Message-ID: <C0D45ABB3F45D5118BBC00508BC292DB09C99A@imgserv04>
+From: Ian Collinson <icollinson@imerge.co.uk>
+To: "'Andrew Morton'" <akpm@zip.com.au>, Robert Love <rml@tech9.net>,
+        Andi Kleen <ak@muc.de>
+Cc: Mike Kravetz <kravetz@us.ibm.com>, linux-kernel@vger.kernel.org,
+        andrea@suse.de
+Subject: RE: realtime scheduling problems with 2.4 linux kernel >= 2.4.10
+Date: Wed, 5 Jun 2002 12:53:06 +0100 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Andi Kleen wrote:
+> Fixing it would require boosting keventd's priority either globally 
+> or temporarily. E.g. if the original reporter could put this
+> (untested/uncompiled) at the beginning of
+kernel/context.c:context_thread():
+>
+>     current->policy = SCHED_RR;
+>     current->rt_priority = 99;
+>
+> it could fix his problem.
 
-I'm unable to compile the -ac series correctly.  A "make mrproper" does not help here.
+OK, I've tried the above fix on 2.4.17, and it seems to work.  Thanks Andi.
+We can now get into the box on a high priority console after provoking a
+lockup with a lower priority, CPU hogging realtime process.
 
-$ make bzImage
-make -r -f tmp_include_depends all
-make[1]: Entering directory `/usr/src/linux-2.4.19-pre10-ac1'
-make[1]: *** No rule to make target `/usr/src/linux-2.4.19-pre10-ac1/fs/inflate_fs/infblock.h', needed by `/usr/src/linux-2.4.19-pre10-ac1/fs/inflate_fs/infcodes.h'.  Stop.
-make[1]: Leaving directory `/usr/src/linux-2.4.19-pre10-ac1'
-make: *** [tmp_include_depends] Error 2
+Are there any potentially negative consequences of this fix, apart from
+those already mentioned?
+
+I certainly vote for this feature being preserved, as it is extremely useful
+for debugging realtime priority apps.  FYI, we narrowed it down to breaking
+in either 2.4.10-pre11 or pre12. 
+
+Cheers
+Ian
 
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+Imerge Limited                          Tel :- +44 (0)1954 783600 
+Unit 6 Bar Hill Business Park           Fax :- +44 (0)1954 783601 
+Saxon Way                               Web :- http://www.imerge.co.uk 
+Bar Hill 
+Cambridge 
+CB3 8SL 
+United Kingdom 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 
-It seems that 3 files are missing in the dir "fs/inflate_fs/". When I symlink them, it would compile correctly:
 
-cd /usr/src/linux-2.4.19-pre10-ac1
-cd /fs/inflate_fs
-ln -s ../../lib/zlib_inflate/infblock.h .
-ln -s ../../lib/zlib_inflate/infcodes.h .
-ln -s ../../lib/zlib_inflate/inftrees.h .
-
-What's wrong here ? I can provide my config but I don't want to spam the list. I already searched the list for this problem without luck.
-
-BTW: This problem is also present in earlier -ac patches.
-
-Thanks, *Kristian
-
-  :... [snd.science] ...:
- ::                             _o)
- :: http://www.korseby.net      /\\
- :: http://gsmp.sf.net         _\_V
-  :.........................:

@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317148AbSGXNTV>; Wed, 24 Jul 2002 09:19:21 -0400
+	id <S317214AbSGXNiP>; Wed, 24 Jul 2002 09:38:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317152AbSGXNTU>; Wed, 24 Jul 2002 09:19:20 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:64249 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S317148AbSGXNTT>; Wed, 24 Jul 2002 09:19:19 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.44.0207192019230.1639-100000@chaos.physics.uiowa.edu> 
-References: <Pine.LNX.4.44.0207192019230.1639-100000@chaos.physics.uiowa.edu> 
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: John Levon <movement@marcelothewonderpenguin.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: kbuild - building a module/target from multiple directories 
+	id <S317264AbSGXNiO>; Wed, 24 Jul 2002 09:38:14 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:23133 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S317214AbSGXNiN>; Wed, 24 Jul 2002 09:38:13 -0400
+Date: Wed, 24 Jul 2002 16:40:52 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Nico Schottelius <nicos-mutt@pcsystems.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.5.27 floppy driver
+Message-ID: <20020724134052.GM1548@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Nico Schottelius <nicos-mutt@pcsystems.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20020724134026.GB479@schottelius.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 24 Jul 2002 14:21:59 +0100
-Message-ID: <25869.1027516919@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20020724134026.GB479@schottelius.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 24, 2002 at 03:40:26PM +0200, you [Nico Schottelius] wrote:
+> Sorry to disturb again:
+> The floppy driver is broken in this kernel, too.
+> Reading/writing lets the accessing program just 'hang around'.
+> 
+> Luckily the floppy driver is happy and reports its problems to us.
 
-kai@tp1.ruhr-uni-bochum.de said:
->  Basically, use only one Makefile and
-> 	blah-objs := blah_init.o blahstuff/blah1.o blahstuff/blah2.o ... 
+Seems the same I got with 2.5.26:
 
-Er, don't the dependencies get screwed then, because it fails to create 
-.blahstuff/blah1.o.flags, etc.?
+http://groups.google.com/groups?ie=UTF-8&oe=utf-8&as_umsgid=20020722075313.GN1465@niksula.cs.hut.fi&lr=&num=50&hl=en
 
 
---
-dwmw2
+-- v --
 
-
+v@iki.fi

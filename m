@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286310AbRL0Pmm>; Thu, 27 Dec 2001 10:42:42 -0500
+	id <S286311AbRL0Pvv>; Thu, 27 Dec 2001 10:51:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286312AbRL0Pmc>; Thu, 27 Dec 2001 10:42:32 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:23763 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S286310AbRL0PmW>;
-	Thu, 27 Dec 2001 10:42:22 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 27 Dec 2001 15:42:20 GMT
-Message-Id: <UTC200112271542.PAA121704.aeb@cwi.nl>
-To: kaih@khms.westfalen.de, linux-kernel@vger.kernel.org
-Subject: Re: Configure.help editorial policy
+	id <S286315AbRL0Pvm>; Thu, 27 Dec 2001 10:51:42 -0500
+Received: from [212.16.7.124] ([212.16.7.124]:53127 "HELO laputa.namesys.com")
+	by vger.kernel.org with SMTP id <S286311AbRL0Pvd>;
+	Thu, 27 Dec 2001 10:51:33 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15403.16930.233614.432899@laputa.namesys.com>
+Date: Thu, 27 Dec 2001 18:45:38 +0300
+To: Luigi Genoni <kernel@Expansa.sns.it>
+Cc: <linux-kernel@vger.kernel.org>,
+        Reiserfs mail-list <Reiserfs-List@Namesys.COM>
+Subject: Re: reiserfs does not work with linux 2.4.17 on sparc64 CPUs
+In-Reply-To: <Pine.LNX.4.33.0112271607570.24247-100000@Expansa.sns.it>
+In-Reply-To: <Pine.LNX.4.33.0112271607570.24247-100000@Expansa.sns.it>
+X-Mailer: VM 7.00 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Most disk sizes are an unholy mixture of the two
-> that deserves a stake through the heart,
-> where 1 GB = 1,024,000,000 bytes.
+Luigi Genoni writes:
+ > HI,
+ > I just upgraded to kernel 2.4.17 on a ultra2, sparc64, with 2 scsi disks.
+ > 
+ > My system was on reiserfs,except for root partition, but the kernel 2.4.17
+ > is unable to mount reiserFS partitions.
+ > At boot i get an oops during the mount, but sincer I have no syslogd
+ > running I am not able to log it. Anyway the message talk about not been
+ > able to load a table map.
 
-"Are"??
+Can you boot into single user, mount reiserfs partition manually and
+send decoded oops trace to the reiserfs list
+(Reiserfs-List@Namesys.COM)?
 
-I see several good people spout this particular type of nonsense
-here. If I interpret "are" to mean that that is the unit
-disk manufacturers use, then it is false - as far as I know
-no manufacturer uses this.
+ > 
+ > gone back (sig!) to 2.4.16
+ > 
+ > on x86 processors, instead, reiserfs semms to work as usual
+ > 
+ > Luigi
+ > 
 
-Let us look at Maxtor. They are so friendly to give disk size
-as part of the type.
-Maxtor 91728D8 - 17280442368 bytes, 17280 MB, 17.2 GB
-Maxtor 93652U8 - 36529274880 bytes, 36529 MB, 36.5 GB
-Maxtor 96147H6 - 61473226752 bytes, 61473 MB, 61.4 GB
-
-You see that the number of GB claimed by the manufacturer is
-just (number of megabytes)/1000.
-There is no 2.4% difference that could justify your strange claim.
-
-All disk manufacturers always use decimal.
-And this has been true for many years.
-
-Andries
+Nikita.
+-- 
+Harry Popper---bespectacled philosopher

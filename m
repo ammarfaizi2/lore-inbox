@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266385AbRGBGlM>; Mon, 2 Jul 2001 02:41:12 -0400
+	id <S266387AbRGBGwj>; Mon, 2 Jul 2001 02:52:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266386AbRGBGlD>; Mon, 2 Jul 2001 02:41:03 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:36106 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S266385AbRGBGko>;
-	Mon, 2 Jul 2001 02:40:44 -0400
-Date: Sun, 1 Jul 2001 23:39:42 -0700
-From: Greg KH <greg@kroah.com>
-To: Jakob Borg <jakob@borg.pp.se>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: USB Keyboard errors with 2.4.5-ac
-Message-ID: <20010701233942.D22232@kroah.com>
-In-Reply-To: <3B3CBA86.355500A@inet.com> <20010630194835.A730@borg.pp.se>
+	id <S266388AbRGBGw3>; Mon, 2 Jul 2001 02:52:29 -0400
+Received: from femail5.sdc1.sfba.home.com ([24.0.95.85]:51883 "EHLO
+	femail5.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S266387AbRGBGwX>; Mon, 2 Jul 2001 02:52:23 -0400
+Message-Id: <5.1.0.14.2.20010702064958.00aae850@mail.abac.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 02 Jul 2001 06:53:11 -0700
+To: Marius Nita <marius@pdx.edu>
+From: Android <android@abac.com>
+Subject: Re: Uncle Sam Wants YOU!
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010701153250.A7939@pdx.edu>
+In-Reply-To: <20010701130151.A10989@ChaoticDreams.ORG>
+ <3B3F5F5C.40907@lycosmail.com>
+ <20010701130151.A10989@ChaoticDreams.ORG>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010630194835.A730@borg.pp.se>; from jakob@borg.pp.se on Sat, Jun 30, 2001 at 07:48:36PM +0200
-X-Operating-System: Linux 2.2.19 (i586)
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 30, 2001 at 07:48:36PM +0200, Jakob Borg wrote:
-> On Fri, Jun 29, 2001 at 12:27:34PM -0500, Jordan Breeding wrote:
-> > lock a couple of times then the keyboard stops responding completely and
-> > the kernel tells me that there was an error waiting on a IRQ on CPU #1. 
-> 
-> You are using an SMP kernel. In my experience, nothing USB works with an SMP
-> kernel >2.4.3.
 
-Hm, that's a pretty vague statement :)
-I'm happily running USB on a few SMP machines around here.  What are the
-problems that you are having?
+>_I_ think it's childish to claim the above. You _may_ have a choice, yes, but
+>is that choice equal or fair? Microsoft has infected both the user area as
+>much as the business/work area. If you want to purchase a PC because your
+>computer just fried and you want to finish a paper or something, but you
+>_want_ to use KOffice on Linux, and you don't care for Windows/Word
+>whatsoever, what are the chances that if you run down to the computer store
+>your "choices" will be Windows/Word, _period_! You'll then have to make sure
+>that none of the hardware in it is Software driven-like winmodems-and that
+>it's supported by Linux (or whatever OS you prefer). Almost all computers out
+>there (from well-known compianies) ship with winmodems. How is that a choice?
+>You have a choice to waste $70 on a harware modem, when someone who uses
+>Windows doesn't?
+>
+>--
+>    Marius Nita
 
-thanks,
+I'm not about to defend MicroSoft, but I will say this:
+When it comes to getting PC's, the best solution is to build your own.
+You pick the parts you want, you choose the software to install.
+This way you are sure to get a standard machine, and you get the
+original CD's and manuals that make up the software.
+Of course, the best bet in that area is to just download Linux from your
+favorite FTP site and not worry about spending money on Microsoft products.
 
-greg k-h
+                      -- Ted
+
+

@@ -1,96 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131205AbRDKEkA>; Wed, 11 Apr 2001 00:40:00 -0400
+	id <S131219AbRDKFEQ>; Wed, 11 Apr 2001 01:04:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131219AbRDKEju>; Wed, 11 Apr 2001 00:39:50 -0400
-Received: from [202.54.26.202] ([202.54.26.202]:30095 "EHLO hindon.hss.co.in")
-	by vger.kernel.org with ESMTP id <S131205AbRDKEji>;
-	Wed, 11 Apr 2001 00:39:38 -0400
-X-Lotus-FromDomain: HSS
-From: alad@hss.hns.com
-To: Kurt Roeckx <Q@ping.be>
-cc: Miquel van Smoorenburg <miquels@cistron-office.nl>,
-        linux-kernel@vger.kernel.org
-Message-ID: <65256A2B.001839FC.00@sandesh.hss.hns.com>
-Date: Wed, 11 Apr 2001 10:01:49 +0530
-Subject: Re: Let init know user wants to shutdown
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S131233AbRDKFD5>; Wed, 11 Apr 2001 01:03:57 -0400
+Received: from echo.sound.net ([205.242.192.21]:28108 "HELO echo.sound.net")
+	by vger.kernel.org with SMTP id <S131219AbRDKFDt>;
+	Wed, 11 Apr 2001 01:03:49 -0400
+Date: Wed, 11 Apr 2001 00:03:19 -0500 (CDT)
+From: Hal Duston <hald@sound.net>
+To: linux-kernel@vger.kernel.org
+cc: alan@lxorguk.ukuu.org.uk
+Subject: PATCH: PS/2 ESDI
+Message-ID: <Pine.GSO.4.10.10104102354250.8449-200000@sound.net>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-851401618-986965399=:8449"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
+---559023410-851401618-986965399=:8449
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
+All,
 
+Here is the second patch for ps2esdi.
+This one corrects/updates the DMA handling.
+In case my mailer mangles it, it is also available at
+http://www.sound.net/~hald/projects/ps2esdi/ps2esdi-2.4.3.patch1
 
+Thanks, and not on the list,
+Hal Duston 
+hald@sound.net
 
+---559023410-851401618-986965399=:8449
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ps2esdi-2.4.3.patch1"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.10.10104110003190.8449@sound.net>
+Content-Description: 
+Content-Disposition: attachment; filename="ps2esdi-2.4.3.patch1"
 
-
-Kurt Roeckx <Q@ping.be> on 04/11/2001 06:16:52 AM
-
-To:   Miquel van Smoorenburg <miquels@cistron-office.nl>
-cc:   linux-kernel@vger.kernel.org (bcc: Amol Lad/HSS)
-
-Subject:  Re: Let init know user wants to shutdown
-
-
-
-
-On Wed, Apr 11, 2001 at 01:38:30AM +0200, Kurt Roeckx wrote:
-> On Tue, Apr 10, 2001 at 11:20:24PM +0000, Miquel van Smoorenburg wrote:
-> >
-> > the shutdown scripts
-> > include "kill -15 -1; sleep 2; kill -9 -1". The "-1" means
-> > "all processes except me". That means init will get hit with
-> > SIGTERM occasionally during shutdown, and that might cause
-> > weird things to happen.
->
-> -1 mean everything but init.
-
->>> well. don't fight.. here is something from kernel/signal.c
-
-asmlinkage int sys_kill(int pid, int sig){
-...
-...
-return kill_something_info(sig,&info,pid)
-}
-
-
-int
-kill_something_info(int sig, struct siginfo *info, int pid){
-...
-...
-...
-     if (pid == -1){
-          for_each_task(p){(int
-               if (p->pid >1 && p != current){
-                    err = send_sig_info(sig,info,p);
-                    ...
-                    ...
-               }
-          }
-     }
-
-Amol
-
-
-Oh, maybe you mean killall5 -TERM?
-
-Which would send a SIGTERM to all processes but the one in his
-own session.
-
-(Hey look, you wrote that manpage.)
-
-
-Kurt
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
-
+QnJpbmcgRE1BIHVwIHRvIGRhdGUgd2l0aCBjdXJyZW50IE1DQV9ETUEgYXJj
+aGl0ZWN0dXJlLg0KDQpVc2UgbWNhX2RtYSBmdW5jdGlvbnMgYW5kIG1hY3Jv
+cy4NClJlcGxhY2UgY2xpL3N0aSB3aXRoIHRoZSBETUEgc3BpbmxvY2suDQoN
+Ci0tLSBsaW51eC0yLjQuMy1oZGQwL2RyaXZlcnMvYmxvY2svcHMyZXNkaS5j
+CVR1ZSBBcHIgMTAgMDA6NTA6MjYgMjAwMQ0KKysrIGxpbnV4LTIuNC4zLWhk
+ZDEvZHJpdmVycy9ibG9jay9wczJlc2RpLmMJVHVlIEFwciAxMCAwMDo1MTow
+NSAyMDAxDQpAQCAtNTIsNiArNTIsNyBAQA0KICNpbmNsdWRlIDxhc20vaW8u
+aD4NCiAjaW5jbHVkZSA8YXNtL3NlZ21lbnQuaD4NCiAjaW5jbHVkZSA8YXNt
+L2RtYS5oPg0KKyNpbmNsdWRlIDxhc20vbWNhX2RtYS5oPg0KICNpbmNsdWRl
+IDxhc20vdWFjY2Vzcy5oPg0KIA0KICNkZWZpbmUgUFMyRVNESV9JUlEgMTQN
+CkBAIC02NTcsMzMgKzY1OCwyMyBAQA0KIC8qIHByZXBhcmUgZm9yIGRtYSAt
+IGRvIGFsbCB0aGUgbmVjZXNzYXJ5IHNldHVwICovDQogc3RhdGljIHZvaWQg
+cHMyZXNkaV9wcmVwX2RtYShjaGFyICpidWZmZXIsIHVfc2hvcnQgbGVuZ3Ro
+LCB1X2NoYXIgZG1hX3htb2RlKQ0KIHsNCi0JdV9pbnQgdGM7DQotCQ0KLQli
+dWZmZXI9KGNoYXIgKil2aXJ0X3RvX2J1cyhidWZmZXIpOw0KLQ0KKwl1bnNp
+Z25lZCBsb25nIGZsYWdzOw0KICNpZiAwDQogCXByaW50aygicHMyZXNkaTog
+Yl93YWl0OiAlcFxuIiwgJkNVUlJFTlQtPmJoLT5iX3dhaXQpOw0KICNlbmRp
+Zg0KLQljbGkoKTsNCisJZmxhZ3MgPSBjbGFpbV9kbWFfbG9jaygpOw0KIA0K
+LQlvdXRiKGRtYV9hcmJfbGV2ZWwgfCBETUFfTUFTS19DSEFOLCBQT1JUX0RN
+QV9GTik7DQorCW1jYV9kaXNhYmxlX2RtYShkbWFfYXJiX2xldmVsKTsNCiAN
+Ci0Jb3V0YihkbWFfYXJiX2xldmVsIHwgRE1BX1dSSVRFX0FERFIsIFBPUlRf
+RE1BX0ZOKTsNCi0Jb3V0YigodV9pbnQpIGJ1ZmZlciAmICh1X2ludCkgMHhm
+ZiwgUE9SVF9ETUFfRVgpOw0KLQlvdXRiKCgodV9pbnQpIGJ1ZmZlciA+PiA4
+KSAmICh1X2ludCkgMHhmZiwgUE9SVF9ETUFfRVgpOw0KLQlvdXRiKCgodV9p
+bnQpIGJ1ZmZlciA+PiAxNikgJiAodV9pbnQpIDB4ZmYsIFBPUlRfRE1BX0VY
+KTsNCisJbWNhX3NldF9kbWFfYWRkcihkbWFfYXJiX2xldmVsLCB2aXJ0X3Rv
+X2J1cyhidWZmZXIpKTsNCiANCi0Jb3V0YihkbWFfYXJiX2xldmVsIHwgRE1B
+X1dSSVRFX1RDLCBQT1JUX0RNQV9GTik7DQotCXRjID0gKGxlbmd0aCAqIFNF
+Q1RfU0laRSAvIDIpIC0gMTsNCi0Jb3V0Yih0YyAmIDB4ZmYsIFBPUlRfRE1B
+X0VYKTsNCi0Jb3V0YigodGMgPj4gOCkgJiAweGZmLCBQT1JUX0RNQV9FWCk7
+DQorCW1jYV9zZXRfZG1hX2NvdW50KGRtYV9hcmJfbGV2ZWwsIGxlbmd0aCAq
+IDUxMiAvIDIpOw0KIA0KLQlvdXRiKGRtYV9hcmJfbGV2ZWwgfCBETUFfV1JJ
+VEVfTU9ERSwgUE9SVF9ETUFfRk4pOw0KLQlvdXRiKGRtYV94bW9kZSwgUE9S
+VF9ETUFfRVgpOw0KKwltY2Ffc2V0X2RtYV9tb2RlKGRtYV9hcmJfbGV2ZWws
+IGRtYV94bW9kZSk7DQogDQotCW91dGIoZG1hX2FyYl9sZXZlbCB8IERNQV9V
+Tk1BU0tfQ0hBTiwgUE9SVF9ETUFfRk4pOw0KKwltY2FfZW5hYmxlX2RtYShk
+bWFfYXJiX2xldmVsKTsNCiANCi0Jc3RpKCk7DQorCXJlbGVhc2VfZG1hX2xv
+Y2soZmxhZ3MpOw0KIA0KIH0JCQkJLyogcHJlcGFyZSBmb3IgZG1hICovDQog
+DQpAQCAtODYxLDcgKzg1Miw5IEBADQogCXN3aXRjaCAoaW50X3JldF9jb2Rl
+ICYgMHgwZikgew0KIAljYXNlIElOVF9UUkFOU0ZFUl9SRVE6DQogCQlwczJl
+c2RpX3ByZXBfZG1hKENVUlJFTlQtPmJ1ZmZlciwgQ1VSUkVOVC0+Y3VycmVu
+dF9ucl9zZWN0b3JzLA0KLQkJICAgIChDVVJSRU5ULT5jbWQgPT0gUkVBRCkg
+PyBETUFfUkVBRF8xNiA6IERNQV9XUklURV8xNik7DQorCQkgICAgKENVUlJF
+TlQtPmNtZCA9PSBSRUFEKQ0KKwkJICAgID8gTUNBX0RNQV9NT0RFXzE2IHwg
+TUNBX0RNQV9NT0RFX1dSSVRFIHwgTUNBX0RNQV9NT0RFX1hGRVINCisJCSAg
+ICA6IE1DQV9ETUFfTU9ERV8xNiB8IE1DQV9ETUFfTU9ERV9SRUFEKTsNCiAJ
+CW91dGIoQ1RSTF9FTkFCTEVfRE1BIHwgQ1RSTF9FTkFCTEVfSU5UUiwgRVNE
+SV9DT05UUk9MKTsNCiAJCWVuZGluZyA9IC0xOw0KIAkJYnJlYWs7DQo=
+---559023410-851401618-986965399=:8449--

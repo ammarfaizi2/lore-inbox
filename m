@@ -1,65 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbVCOXkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262148AbVCOXpg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262124AbVCOXkf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 18:40:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbVCOXke
+	id S262148AbVCOXpg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 18:45:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbVCOXpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 18:40:34 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12966 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262126AbVCOXh4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 18:37:56 -0500
-Date: Wed, 16 Mar 2005 00:37:40 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add freezer call in
-Message-ID: <20050315233740.GE21292@elf.ucw.cz>
-References: <1110925280.6454.143.camel@desktop.cunningham.myip.net.au>
+	Tue, 15 Mar 2005 18:45:31 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:31616 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262148AbVCOXmR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 18:42:17 -0500
+Subject: Re: [RFC][PATCH] new timeofday arch specific hooks  (v. A3)
+From: john stultz <johnstul@us.ibm.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>, Max Asbock <masbock@us.ibm.com>,
+       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com
+In-Reply-To: <20050315225901.GB21143@elf.ucw.cz>
+References: <1110590655.30498.327.camel@cog.beaverton.ibm.com>
+	 <1110590710.30498.329.camel@cog.beaverton.ibm.com>
+	 <20050315225901.GB21143@elf.ucw.cz>
+Content-Type: text/plain
+Date: Tue, 15 Mar 2005 15:42:09 -0800
+Message-Id: <1110930129.30498.463.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1110925280.6454.143.camel@desktop.cunningham.myip.net.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> This patch adds a freezer call to the slow path in __alloc_pages. It
-> thus avoids freezing failures in low memory situations. Like the other
-> patches, it has been in Suspend2 for longer than I can remember.
-
-This one seems wrong.
-
-What if someone does
-
-	down(&some_lock_needed_during_suspend);
-	kmalloc()
-
-? If you freeze him during that allocation, you'll deadlock later...
-
-								Pavel
-
-
-> Signed-of-by: Nigel Cunningham <ncunningham@cyclades.com>
+On Tue, 2005-03-15 at 23:59 +0100, Pavel Machek wrote:
+> > diff -Nru a/arch/i386/kernel/apm.c b/arch/i386/kernel/apm.c
+> > --- a/arch/i386/kernel/apm.c	2005-03-11 17:02:30 -08:00
+> > +++ b/arch/i386/kernel/apm.c	2005-03-11 17:02:30 -08:00
+> > @@ -224,6 +224,7 @@
+> >  #include <linux/smp_lock.h>
+> >  #include <linux/dmi.h>
+> >  #include <linux/suspend.h>
+> > +#include <linux/timeofday.h>
+> >  
+> >  #include <asm/system.h>
+> >  #include <asm/uaccess.h>
+> > @@ -1204,6 +1205,7 @@
+> >  	device_suspend(PMSG_SUSPEND);
+> >  	device_power_down(PMSG_SUSPEND);
+> >  
+> > +	timeofday_suspend_hook();
+> >  	/* serialize with the timer interrupt */
+> >  	write_seqlock_irq(&xtime_lock);
+> >  
 > 
-> diff -ruNp 213-missing-refrigerator-calls-old/mm/page_alloc.c 213-missing-refrigerator-calls-new/mm/page_alloc.c
-> --- 213-missing-refrigerator-calls-old/mm/page_alloc.c	2005-02-03 22:33:50.000000000 +1100
-> +++ 213-missing-refrigerator-calls-new/mm/page_alloc.c	2005-03-16 09:01:28.000000000 +1100
-> @@ -838,6 +838,7 @@ rebalance:
->  			do_retry = 1;
->  	}
->  	if (do_retry) {
-> +		try_to_freeze(0);
->  		blk_congestion_wait(WRITE, HZ/50);
->  		goto rebalance;
->  	}
+> Could you just register timeofday subsystem as a system device? Then
+> device_power_down will call you automagically..... And you'll not have
+> to modify apm, acpi, swsusp, ppc suspend, arm suspend, ...
 
+That may very well be the right way to go. At the moment I'm just very
+hesitant of making any user-visible changes.
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+What is the impact if a new system device name is created and then I
+later change it? How stable is that interface supposed to be?
+
+thanks
+-john
+

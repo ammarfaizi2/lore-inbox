@@ -1,107 +1,85 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316487AbSEUCFI>; Mon, 20 May 2002 22:05:08 -0400
+	id <S316488AbSEUCOM>; Mon, 20 May 2002 22:14:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316488AbSEUCFI>; Mon, 20 May 2002 22:05:08 -0400
-Received: from sccrmhc03.attbi.com ([204.127.202.63]:17051 "EHLO
-	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
-	id <S316487AbSEUCFH>; Mon, 20 May 2002 22:05:07 -0400
-Message-ID: <3CE9AA73.9080108@didntduck.org>
-Date: Mon, 20 May 2002 22:01:23 -0400
+	id <S316489AbSEUCOL>; Mon, 20 May 2002 22:14:11 -0400
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:22501 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S316488AbSEUCOK>; Mon, 20 May 2002 22:14:10 -0400
+Message-ID: <3CE9AC93.5050107@didntduck.org>
+Date: Mon, 20 May 2002 22:10:27 -0400
 From: Brian Gerst <bgerst@didntduck.org>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] cpu_has_mmx
+Subject: [PATCH] cpu_has_tsc
 Content-Type: multipart/mixed;
- boundary="------------040807060109060702090600"
+ boundary="------------030509000305050207080006"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------040807060109060702090600
+--------------030509000305050207080006
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-This patch takes the cpu_has_mmx macro introduced in the xor.h header 
-and puts it in the proper place.  It also converts the ov511 driver to 
-use the new macro.
+This patch converts drivers/char/random.c and 
+drivers/input/joystick/analog.c to use the cpu_has_tsc macro.
 
--- 
+--
 
 						Brian Gerst
 
---------------040807060109060702090600
+--------------030509000305050207080006
 Content-Type: text/plain;
- name="cpu_has_mmx-1"
+ name="cpu_has_tsc-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="cpu_has_mmx-1"
+ filename="cpu_has_tsc-1"
 
-diff -urN linux-bk/drivers/usb/media/ov511.c linux/drivers/usb/media/ov511.c
---- linux-bk/drivers/usb/media/ov511.c	Wed May 15 10:27:23 2002
-+++ linux/drivers/usb/media/ov511.c	Mon May 20 21:24:03 2002
-@@ -227,7 +227,11 @@
- static int i2c_detect_tries = 5;
- 
- /* MMX support is present in kernel and CPU. Checked upon decomp module load. */
--static int ov51x_mmx_available;
-+#if defined(__i386__) || defined(__x86_64__)
-+#define ov51x_mmx_available (cpu_has_mmx)
-+#else
-+#define ov51x_mmx_available (0)
-+#endif
- 
- static __devinitdata struct usb_device_id device_table [] = {
- 	{ USB_DEVICE(VEND_OMNIVISION, PROD_OV511) },
-@@ -6473,11 +6477,6 @@
- 	if (usb_register(&ov511_driver) < 0)
- 		return -1;
+diff -urN linux-bk/drivers/char/random.c linux/drivers/char/random.c
+--- linux-bk/drivers/char/random.c	Wed May 15 10:27:26 2002
++++ linux/drivers/char/random.c	Mon May 20 22:03:58 2002
+@@ -735,18 +735,14 @@
+ 	__s32		delta, delta2, delta3;
+ 	int		entropy = 0;
  
 -#if defined (__i386__)
--	if (test_bit(X86_FEATURE_MMX, boot_cpu_data.x86_capability))
--		ov51x_mmx_available = 1;
--#endif
--
- 	info(DRIVER_VERSION " : " DRIVER_DESC);
+-	if ( test_bit(X86_FEATURE_TSC, boot_cpu_data.x86_capability) ) {
++#if defined (__i386__) || defined (__x86_64__)
++	if (cpu_has_tsc)
+ 		__u32 high;
+ 		rdtsc(time, high);
+ 		num ^= high;
+ 	} else {
+ 		time = jiffies;
+ 	}
+-#elif defined (__x86_64__)
+-	__u32 high;
+-	rdtsc(time, high);
+-	num ^= high;
+ #else
+ 	time = jiffies;
+ #endif
+diff -urN linux-bk/drivers/input/joystick/analog.c linux/drivers/input/joystick/analog.c
+--- linux-bk/drivers/input/joystick/analog.c	Thu Mar  7 21:18:24 2002
++++ linux/drivers/input/joystick/analog.c	Mon May 20 22:05:48 2002
+@@ -137,10 +137,9 @@
+  */
  
- 	return 0;
-diff -urN linux-bk/include/asm-i386/processor.h linux/include/asm-i386/processor.h
---- linux-bk/include/asm-i386/processor.h	Wed May 15 10:27:24 2002
-+++ linux/include/asm-i386/processor.h	Mon May 20 21:37:42 2002
-@@ -84,6 +84,7 @@
- #define cpu_has_de	(test_bit(X86_FEATURE_DE,   boot_cpu_data.x86_capability))
- #define cpu_has_vme	(test_bit(X86_FEATURE_VME,  boot_cpu_data.x86_capability))
- #define cpu_has_fxsr	(test_bit(X86_FEATURE_FXSR, boot_cpu_data.x86_capability))
-+#define cpu_has_mmx	(test_bit(X86_FEATURE_MMX,  boot_cpu_data.x86_capability))
- #define cpu_has_xmm	(test_bit(X86_FEATURE_XMM,  boot_cpu_data.x86_capability))
- #define cpu_has_fpu	(test_bit(X86_FEATURE_FPU,  boot_cpu_data.x86_capability))
- #define cpu_has_apic	(test_bit(X86_FEATURE_APIC, boot_cpu_data.x86_capability))
-diff -urN linux-bk/include/asm-i386/xor.h linux/include/asm-i386/xor.h
---- linux-bk/include/asm-i386/xor.h	Mon May 20 19:55:09 2002
-+++ linux/include/asm-i386/xor.h	Mon May 20 21:25:19 2002
-@@ -839,8 +839,6 @@
- /* Also try the generic routines.  */
- #include <asm-generic/xor.h>
- 
--#define cpu_has_mmx	(test_bit(X86_FEATURE_MMX,  boot_cpu_data.x86_capability))
--
- #undef XOR_TRY_TEMPLATES
- #define XOR_TRY_TEMPLATES				\
- 	do {						\
-diff -urN linux-bk/include/asm-x86_64/processor.h linux/include/asm-x86_64/processor.h
---- linux-bk/include/asm-x86_64/processor.h	Wed May 15 10:27:22 2002
-+++ linux/include/asm-x86_64/processor.h	Mon May 20 21:26:22 2002
-@@ -91,6 +91,7 @@
- #define cpu_has_de 1
- #define cpu_has_vme 1
- #define cpu_has_fxsr 1
-+#define cpu_has_mmx 1
- #define cpu_has_xmm 1
- #define cpu_has_apic 1
- 
+ #ifdef __i386__
+-#define TSC_PRESENT	(test_bit(X86_FEATURE_TSC, &boot_cpu_data.x86_capability))
+-#define GET_TIME(x)	do { if (TSC_PRESENT) rdtscl(x); else x = get_time_pit(); } while (0)
+-#define DELTA(x,y)	(TSC_PRESENT?((y)-(x)):((x)-(y)+((x)<(y)?1193180L/HZ:0)))
+-#define TIME_NAME	(TSC_PRESENT?"TSC":"PIT")
++#define GET_TIME(x)	do { if (cpu_has_tsc) rdtscl(x); else x = get_time_pit(); } while (0)
++#define DELTA(x,y)	(cpu_has_tsc?((y)-(x)):((x)-(y)+((x)<(y)?1193180L/HZ:0)))
++#define TIME_NAME	(cpu_has_tsc?"TSC":"PIT")
+ static unsigned int get_time_pit(void)
+ {
+         extern spinlock_t i8253_lock;
 
---------------040807060109060702090600--
+--------------030509000305050207080006--
 

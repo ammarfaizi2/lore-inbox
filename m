@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264469AbTFEExA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 00:53:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264472AbTFEExA
+	id S264478AbTFEFL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 01:11:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264483AbTFEFL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 00:53:00 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:54494 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264469AbTFEEw7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 00:52:59 -0400
-Date: Wed, 04 Jun 2003 22:03:24 -0700 (PDT)
-Message-Id: <20030604.220324.116384963.davem@redhat.com>
-To: acme@conectiva.com.br
-Cc: jmorris@intercode.com.au, patmans@us.ibm.com, akpm@digeo.com,
-       shemminger@osdl.org, jgarzik@pobox.com, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org, hch@infradead.org
-Subject: Re: 2.5.70-bk+ broken networking
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030605033208.GK24515@conectiva.com.br>
-References: <20030604184341.A10256@beaverton.ibm.com>
-	<Mutt.LNX.4.44.0306051325110.335-100000@excalibur.intercode.com.au>
-	<20030605033208.GK24515@conectiva.com.br>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 5 Jun 2003 01:11:56 -0400
+Received: from haw-66-102-130-200.vel.net ([66.102.130.200]:37320 "HELO
+	mx100.mysite4now.com") by vger.kernel.org with SMTP id S264478AbTFEFLz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 01:11:55 -0400
+From: Udo Hoerhold <maillists@goodontoast.com>
+To: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21-rc7-ac1
+Date: Thu, 5 Jun 2003 01:24:20 -0400
+User-Agent: KMail/1.5.2
+References: <200306042248.h54Mm7l16828@devserv.devel.redhat.com>
+In-Reply-To: <200306042248.h54Mm7l16828@devserv.devel.redhat.com>
+Cc: Adrian Bunk <bunk@fs.tum.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306050124.20603.maillists@goodontoast.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-   Date: Thu, 5 Jun 2003 00:32:08 -0300
+On Wednesday 04 June 2003 06:48 pm, Alan Cox wrote:
+> Linux 2.4.21rc7-ac1
+> o	Fix ac97 build on SMP				(Adrian Bunk)
 
-   For the curious, it was introduced in changeset 1.1259.9.18
-   
-Christophe, PLEASE be more careful in the future.
+It looks like ac97 on SMP is still broken.  On dual processor machine, boot 
+hangs with the last message displayed:
 
-I value your changes, very much.  However, you really need to get a
-little more meticulious when you submit changes.
+Jun  5 01:17:58 frogmorton kernel: ac97_codec: AC97 Audio codec, id: 
+0x8384:0x7609 (SigmaTel STAC9721/23)
 
-Thanks.
+If I build kernel without SMP support, boot doesn't hang.
+
+Udo Hoerhold
+

@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262635AbVCSQcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262638AbVCSQfs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262635AbVCSQcz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 11:32:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbVCSQcy
+	id S262638AbVCSQfs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 11:35:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbVCSQfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 11:32:54 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:38881 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262635AbVCSQcj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 11:32:39 -0500
-From: Jesse Barnes <jbarnes@sgi.com>
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-Subject: Re: Fix agp_backend usage in drm_agp_init (was: 2.6.11-mm3 - DRM/i915 broken)
-Date: Sat, 19 Mar 2005 08:32:03 -0800
-User-Agent: KMail/1.8
-Cc: Dave Airlie <airlied@gmail.com>, Mike Werner <werner@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, m4rkusxxl@web.de
-References: <20050312034222.12a264c4.akpm@osdl.org> <200503181940.54252.jbarnes@sgi.com> <200503181948.34706.jbarnes@sgi.com>
-In-Reply-To: <200503181948.34706.jbarnes@sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 19 Mar 2005 11:35:47 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50699 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262638AbVCSQfV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 11:35:21 -0500
+Date: Sat, 19 Mar 2005 16:35:00 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ian Molton <spyro@f2s.com>,
+       Richard Purdie <rpurdie@rpsys.net>
+Subject: Re: [PATCH][MMC][1/6] Secure Digital (SD) support : protocol
+Message-ID: <20050319163500.B23907@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
+	LKML <linux-kernel@vger.kernel.org>, Ian Molton <spyro@f2s.com>,
+	Richard Purdie <rpurdie@rpsys.net>
+References: <422701A0.8030408@drzeus.cx> <20050305113730.B26541@flint.arm.linux.org.uk> <4229A4B4.1000208@drzeus.cx> <20050305124420.A342@flint.arm.linux.org.uk> <422A5E1C.2050107@drzeus.cx> <422A5EBD.3050307@drzeus.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503190832.03783.jbarnes@sgi.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <422A5EBD.3050307@drzeus.cx>; from drzeus-list@drzeus.cx on Sun, Mar 06, 2005 at 02:37:01AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, March 18, 2005 7:48 pm, Jesse Barnes wrote:
-> On Friday, March 18, 2005 7:40 pm, Jesse Barnes wrote:
-> > What does your patch look like?  Markus might like to try it out as he
-> > narrowed his problem down to something AGP related recently too:
-> > http://bugme.osdl.org/show_bug.cgi?id=4337
->
-> duh, ignore me.  At least Markus can give it a try.
+On Sun, Mar 06, 2005 at 02:37:01AM +0100, Pierre Ossman wrote:
+> Protocol definitions.
+> 
+> The basic commands needed for the later patches. The R1_APP_CMD seems to 
+> be misdefined in protocol.h so this patch changes it.
 
-Oh well, Brice's patch didn't work for Marcus (symptoms were different anyway 
-so it was a long shot).  I really have to find an AGP machine with a single 
-pipe to test this stuff on...
+Applied, thanks.
 
-Jesse
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

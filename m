@@ -1,79 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265285AbTGCTFI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 15:05:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265295AbTGCTFI
+	id S263743AbTGCTNx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 15:13:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263990AbTGCTNx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 15:05:08 -0400
-Received: from h-67-100-114-146.SNVACAID.covad.net ([67.100.114.146]:22170
-	"EHLO scl-ims.phoenix.com") by vger.kernel.org with ESMTP
-	id S265285AbTGCTE6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 15:04:58 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C34198.007888AB"
-Subject: VIA PCI IRQ router bug fix
-Date: Thu, 3 Jul 2003 12:19:19 -0700
-Message-ID: <5F106036E3D97448B673ED7AA8B2B6B36C352C@scl-exch2k.phoenix.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: VIA PCI IRQ router bug fix
-Thread-Index: AcNBl//lo2TqGnCRQryQT2UD244DEw==
-From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <mj@ucw.cz>
-X-OriginalArrivalTime: 03 Jul 2003 19:19:19.0718 (UTC) FILETIME=[00962460:01C34198]
+	Thu, 3 Jul 2003 15:13:53 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:1682 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263743AbTGCTNu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 15:13:50 -0400
+Date: Thu, 3 Jul 2003 12:22:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Boszormenyi Zoltan <zboszor@freemail.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.74-mm1
+Message-Id: <20030703122243.51a6d581.akpm@osdl.org>
+In-Reply-To: <3F042AEE.2000202@freemail.hu>
+References: <3F0407D1.8060506@freemail.hu>
+	<3F042AEE.2000202@freemail.hu>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Boszormenyi Zoltan <zboszor@freemail.hu> wrote:
+>
+> Hi,
+> 
+> I actually tried it. It seems that although I compiled an SMP kernel, it 
+> does not use both CPUs.
 
-------_=_NextPart_001_01C34198.007888AB
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+You're right.  The kernel sort-of saw the second CPU but it appears to have
+not come up.
 
-Hi.
+Have you used any other 2.5 kernels?  Are you able to pinpoint and
+particular kernel version at which this started to happen?
 
-  I found & fixed a problem with #PIRQD line setup for VIA PCI IRQ
-router. Kernel was not able to receive any interrupts from network card,
-which PCI slot IRQ pin A was routed to PIRQ line D of VIA PCI IRQ
-router. According to VIA specs, PIRQ D routing is out of standard
-'nibble' scheme.
-  I tested patch with 2.4.20 kernel, it can be applied to 2.4.22-pre2 as
-well.
-  Thanks to my employer (Phoenix Technologies) who kindly allowed me to
-make this patch public.
+If not then I'd appreciate it if you could test stock 2.4.74.
 
-Aleks.
+> I got one oops on boot.
+
+That's a warning, not an oops.  The ACPI IRQ handler claims that it's not
+handling the IRQ all the time.  That's a fairly, err, mature problem
+actually.
 
 
-------_=_NextPart_001_01C34198.007888AB
-Content-Type: text/plain;
-	name="pci-irq-patch.txt"
-Content-Transfer-Encoding: base64
-Content-Description: pci-irq-patch.txt
-Content-Disposition: attachment;
-	filename="pci-irq-patch.txt"
+> I was doing two "find / | xargs cat >/dev/null" on two terminals and I 
+> didn't notice them.
 
-LS0tIGxpbnV4LTIuNC4yMC9hcmNoL2kzODYva2VybmVsL3BjaS1pcnFfb2xkLmMJMjAwMi0xMS0y
-OCAxNTo1MzowOS4wMDAwMDAwMDAgLTA4MDAKKysrIGxpbnV4LTIuNC4yMC9hcmNoL2kzODYva2Vy
-bmVsL3BjaS1pcnEuYwkyMDAzLTA1LTIxIDE3OjI3OjQwLjAwMDAwMDAwMCAtMDcwMApAQCAtMTk4
-LDEyICsxOTgsMjcgQEAKICAqLwogc3RhdGljIGludCBwaXJxX3ZpYV9nZXQoc3RydWN0IHBjaV9k
-ZXYgKnJvdXRlciwgc3RydWN0IHBjaV9kZXYgKmRldiwgaW50IHBpcnEpCiB7Ci0JcmV0dXJuIHJl
-YWRfY29uZmlnX255YmJsZShyb3V0ZXIsIDB4NTUsIHBpcnEpOworICAgIHU4IHg7CisKKyAgICBp
-ZiAoIHBpcnEgPT0gNCApIHsKKyAgICAgICAgcGNpX3JlYWRfY29uZmlnX2J5dGUocm91dGVyLCAw
-eDU3LCAmeCk7CisgICAgICAgIHJldHVybiAoeCA+PiA0KTsKKyAgICB9IGVsc2UgeworICAgICAg
-ICByZXR1cm4gcmVhZF9jb25maWdfbnliYmxlKHJvdXRlciwgMHg1NSwgcGlycSk7CisgICAgfQog
-fQogCiBzdGF0aWMgaW50IHBpcnFfdmlhX3NldChzdHJ1Y3QgcGNpX2RldiAqcm91dGVyLCBzdHJ1
-Y3QgcGNpX2RldiAqZGV2LCBpbnQgcGlycSwgaW50IGlycSkKIHsKLQl3cml0ZV9jb25maWdfbnli
-YmxlKHJvdXRlciwgMHg1NSwgcGlycSwgaXJxKTsKKyAgCXU4IHg7CisKKyAgICBpZiAoIHBpcnEg
-PT0gNCApIHsKKyAgICAgICAgcGNpX3JlYWRfY29uZmlnX2J5dGUocm91dGVyLCAweDU3LCAmeCk7
-CisgICAgICAgIHggPSAoeCAmIDB4MGYpIHwgKGlycSA8PCA0KTsKKyAgICAgICAJcGNpX3dyaXRl
-X2NvbmZpZ19ieXRlKHJvdXRlciwgMHg1NywgeCk7CisgICAgfSBlbHNlIHsKKyAgICAgICAgd3Jp
-dGVfY29uZmlnX255YmJsZShyb3V0ZXIsIDB4NTUsIHBpcnEsIGlycSk7CisgICAgfQogCXJldHVy
-biAxOwogfQogCg==
+Well that's nice.  We have a fancy I/O scheduler in there.
 
-------_=_NextPart_001_01C34198.007888AB--
+> Tried recompiling the .74-mm1 tree with "make -j2" and my xmms does not 
+> skip at all
+> but my mozilla windows are slowly refreshing, even the compose window is 
+> reacting
+> slowly. Somehow it's understandable. :-) The machine is a dual P3/500
+> with 512MB memory.
+
+Thanks for the feedback.

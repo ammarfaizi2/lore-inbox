@@ -1,125 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbUJWVEG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbUJWU2w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261308AbUJWVEG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 17:04:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbUJWVEG
+	id S261166AbUJWU2w (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 16:28:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbUJWU2w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 17:04:06 -0400
-Received: from smtp4.netcabo.pt ([212.113.174.31]:26075 "EHLO
-	exch01smtp12.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S261308AbUJWVD2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 17:03:28 -0400
-Message-ID: <32800.192.168.1.5.1098565193.squirrel@192.168.1.5>
-In-Reply-To: <20041023135409.GB18747@elte.hu>
-References: <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu>
-    <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu>
-    <20041022175633.GA1864@elte.hu>
-    <32871.192.168.1.5.1098491242.squirrel@192.168.1.5>
-    <20041023102909.GD30270@elte.hu>
-    <32880.192.168.1.5.1098534617.squirrel@192.168.1.5>
-    <20041023125104.GA10883@elte.hu>
-    <32989.192.168.1.5.1098539101.squirrel@192.168.1.5>
-    <20041023135409.GB18747@elte.hu>
-Date: Sat, 23 Oct 2004 21:59:53 +0100 (WEST)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-U10.2
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
-       "Florian Schmidt" <mista.tapas@gmx.net>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
-       "Alexander Batyrshin" <abatyrshin@ru.mvista.com>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Sat, 23 Oct 2004 16:28:52 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:62096 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261166AbUJWU2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 16:28:47 -0400
+Message-ID: <417ABF02.4030705@namesys.com>
+Date: Sat, 23 Oct 2004 13:28:50 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed;boundary="----=_20041023215953_53833"
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 23 Oct 2004 21:03:25.0964 (UTC) FILETIME=[BD1824C0:01C4B943]
+To: marcel@hilzinger.hu
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Reiserfs developers mail-list <reiserfs-dev@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re:  2.6.9-mm1
+References: <20041022032039.730eb226.akpm@osdl.org>    <4179425A.3080903@namesys.com> <1078.217.232.234.250.1098558101.squirrel@florka.hu>
+In-Reply-To: <1078.217.232.234.250.1098558101.squirrel@florka.hu>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_20041023215953_53833
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Hilzinger Marcel wrote:
 
-> Ingo Molnar
 >
-> Rui Nuno Capela wrote:
+>Too late, perhaps... SuSE Linux 9.2 will contain reiser4 (at least the
+>beta testversions did). It cannot be set up via YaST during installation,
+>  
 >
->> OK. All affirmative. NIC is natsemi.
->>
->> Here it is:
->>
->> SysRq : IRQ 1/776: BUG in write_msg at drivers/net/netconsole.c:87
->
-> doh! Go to line 77 and spot the bug. (yes, the PREEMPT_REALTIME needs to
-> become CONFIG_PREEMPT_REALTIME) With that fixed does it work for you?
->
+which makes its user base pretty small. 9.3 is where we will probably 
+get a lot of users. Probably more bugs will get found by the SuSE QA 
+team in the next few weeks though, and that should help us.
 
-OK again. And found another place where PREEMPT_REALTIME is in place of
-CONFIG_PREEMPT_REALTIME, on drivers/ide/ide-taskfile.c, lines 287 and 308
-(see appended diffs).
+The one I am wanting to precede regarding shipping is Lindows where we 
+will be the default. Reiser4 is pretty stable now, but if we got into 
+the kernel now we'd have a few weeks of bug finding before they ship, 
+and I just bet there will be a few bugs found as a result (not frequent 
+ones, but....) that several of their users would be happy to not hit. 
+The official kernel has the advantage of a far faster test and fix time 
+cycle than a distro, and has more sophisticated users. The reason for 
+features going into distros first is not technical, and sad.
 
-Anyway, back to my jackd -R issue. I tell you that things are really
-different now: hitting SysRq+T, just about when it all gets frozen, I see
-nothing on netconsole capture end, only this single line:
-
-SysRq : Show State
-
-and nothing more.
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
-
-------=_20041023215953_53833
-Content-Type: text/x-diff;
-      name="linux-2.6.9-mm1-RT-U10.3_netconsole-2.patch"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment;
-      filename="linux-2.6.9-mm1-RT-U10.3_netconsole-2.patch"
-
---- linux-2.6.9-mm1-RT-U10.3/drivers/net/netconsole.c.orig	2004-10-23 16:24:45.178795840 +0100
-+++ linux-2.6.9-mm1-RT-U10.3/drivers/net/netconsole.c	2004-10-23 16:25:12.869586200 +0100
-@@ -74,7 +74,7 @@
- 		return;
- 
- 	local_irq_save(flags);
--#ifdef PREEMPT_REALTIME
-+#ifdef CONFIG_PREEMPT_REALTIME
- 	/*
- 	 * A bit hairy. Netconsole uses mutexes (indirectly) and
- 	 * thus must have interrupts enabled:
-------=_20041023215953_53833
-Content-Type: text/x-diff;
-      name="linux-2.6.9-mm1-RT-U10.3_ide-taskfile-2.patch"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment;
-      filename="linux-2.6.9-mm1-RT-U10.3_ide-taskfile-2.patch"
-
---- linux-2.6.9-mm1-RT-U10.3/drivers/ide/ide-taskfile.c.orig	2004-10-23 14:13:38.000000000 +0100
-+++ linux-2.6.9-mm1-RT-U10.3/drivers/ide/ide-taskfile.c	2004-10-23 16:34:10.142908240 +0100
-@@ -284,7 +284,7 @@
- 	u8 *buf;
- 
- 	page = sg[hwif->cursg].page;
--#if defined(CONFIG_HIGHMEM) && !defined(PREEMPT_REALTIME)
-+#if defined(CONFIG_HIGHMEM) && !defined(CONFIG_PREEMPT_REALTIME)
- 	local_irq_save(flags);
- #endif
- 	buf = kmap_atomic(page, KM_BIO_SRC_IRQ) +
-@@ -305,7 +305,7 @@
- 		taskfile_input_data(drive, buf, SECTOR_WORDS);
- 
- 	kunmap_atomic(page, KM_BIO_SRC_IRQ);
--#if defined(CONFIG_HIGHMEM) && !defined(PREEMPT_REALTIME)
-+#if defined(CONFIG_HIGHMEM) && !defined(CONFIG_PREEMPT_REALTIME)
- 	local_irq_restore(flags);
- #endif
- }
-------=_20041023215953_53833--
-
-
+Hans

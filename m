@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263263AbUJ2Lee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263281AbUJ2Lh7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263263AbUJ2Lee (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 07:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbUJ2Leb
+	id S263281AbUJ2Lh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 07:37:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263260AbUJ2Lh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 07:34:31 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:43663 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263267AbUJ2Ldj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 07:33:39 -0400
-Date: Fri, 29 Oct 2004 13:34:49 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Fri, 29 Oct 2004 07:37:58 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:1960 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S263299AbUJ2Lgu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 07:36:50 -0400
+Message-ID: <41822B0E.6000707@t-online.de>
+Date: Fri, 29 Oct 2004 13:35:42 +0200
+From: "Harald Dunkel" <harald.dunkel@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Adrian Bunk <bunk@stusta.de>
-Cc: Peter Williams <pwil3058@bigpond.net.au>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6 patch] sched.c: remove an unused macro
-Message-ID: <20041029113449.GB32204@elte.hu>
-References: <20041028231445.GE3207@stusta.de> <41819D48.7000005@bigpond.net.au> <20041029113147.GE6677@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041029113147.GE6677@stusta.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc4-mm1: undefined reference to `hpet_alloc'
+References: <416E343C.70900@t-online.de> <20041027175727.GA2713@stusta.de> <41822535.2070409@t-online.de>
+In-Reply-To: <41822535.2070409@t-online.de>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ID: bVRMyQZCgeC3zP8FVsKkKlqc2h5rp7TWrhPxe8cLe46uOK2MdgFcEO
+X-TOI-MSGID: eb4f02ac-2cf5-47d8-9572-444c360f01b0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-* Adrian Bunk <bunk@stusta.de> wrote:
+Harald Dunkel wrote:
+| Adrian Bunk wrote:
+| |
+| | I tried to reproduce your problem in 2.6.10-rc1-mm1, but I didn't get
+| | the link error.
+| |
+|
+| I can reproduce it using "make oldconfig" in the 2.6.10-rc1
+| source tree. Just copy my 2.6.9 .config into the source dir,
+| run oldconfig and accept the default for all questions.
+|
 
-> On Fri, Oct 29, 2004 at 11:30:48AM +1000, Peter Williams wrote:
-> > 
-> > You missed some :-).  The cpu_to_node_mask() macros don't seem to be 
-> > used either.
-> 
-> I only searched for unused static inline functions (since this was 
-> relatively easy).
-> 
-> 
-> But your comment seems to be correct, and below is the patch that 
-> removes the cpu_to_node_mask macros.
+The link fialure is gone for 2.6.10-rc1. Sorry, I should
+have checked before sending a reply.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
 
-	Ingo
+Regards
+
+Harri
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Debian - http://enigmail.mozdev.org
+
+iD8DBQFBgisOUTlbRTxpHjcRAvYQAJ9iD6tccNuSk7zw+5aLNiLhCb4nDwCeIuQ4
+8Zk04WABfUj30FAqaaTrSEs=
+=GlDY
+-----END PGP SIGNATURE-----

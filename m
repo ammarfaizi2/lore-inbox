@@ -1,137 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264933AbTFUQZU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 12:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264955AbTFUQZT
+	id S264955AbTFUQbn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 12:31:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264958AbTFUQbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 12:25:19 -0400
-Received: from dm4-159.slc.aros.net ([66.219.220.159]:10943 "EHLO cyprus")
-	by vger.kernel.org with ESMTP id S264933AbTFUQZL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 12:25:11 -0400
-Message-ID: <3EF48A30.3010203@aros.net>
-Date: Sat, 21 Jun 2003 10:39:12 -0600
-From: Lou Langholtz <ldl@aros.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
-       Steven Whitehouse <steve@chygwyn.com>
-Subject: Re: [RFC][PATCH] nbd driver for 2.5.72
-References: <3EF3F08B.5060305@aros.net> <20030621073224.GJ6754@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20030621073224.GJ6754@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 21 Jun 2003 12:31:43 -0400
+Received: from chello080108023209.34.11.vie.surfer.at ([80.108.23.209]:22400
+	"HELO ghanima.endorphin.org") by vger.kernel.org with SMTP
+	id S264955AbTFUQbl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 12:31:41 -0400
+Date: Sat, 21 Jun 2003 18:45:43 +0200
+To: Andries.Brouwer@cwi.nl
+Cc: akpm@digeo.com, axboe@suse.de, clemens@endorphin.org,
+       torvalds@transmeta.com, jari.ruusu@pp.inet.fi,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH - RFC] loop.c
+Message-ID: <20030621164543.GA1641@ghanima.endorphin.org>
+References: <UTC200306211507.h5LF7lM23701.aeb@smtp.cwi.nl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
+Content-Disposition: inline
+In-Reply-To: <UTC200306211507.h5LF7lM23701.aeb@smtp.cwi.nl>
+User-Agent: Mutt/1.3.28i
+From: Fruhwirth Clemens <clemens@endorphin.org>
+X-Delivery-Agent: TMDA/0.51 (Python 2.1.3 on Linux/i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
 
->On Fri, Jun 20, 2003 at 11:43:39PM -0600, Lou Langholtz wrote:
->
->In addition to comments from Andrew:
->. . .
->  
->
->>+static nbd_device_t nbd_devs[MAX_NBD];
->>+static struct request_queue nbd_queue[MAX_NBD];
->>+static spinlock_t nbd_lock[MAX_NBD];
->>    
->>
->
->Why not put these into nbd_device?
->
-I'd considered that and I'm reconsidering it again now. Not convinced 
-which way to go... Putting something as large as struct request_queue 
-within the nbd_device seems unbalanced somehow. Then again, until 2.5 
-the request_queue was typically shared by multiple devices of the same 
-MAJOR so part of the way the code is has to do with the legacy code. 
-Like the nbd_lock spinlock array and the struct request_queue queue_lock 
-field. Along the lines you're pushing for, why not have struct 
-requests_queue's queue_lock field then be the spinlock itself instead of 
-just being a pointer to a spinlock???
+--2oS5YaxWCcQjTEyO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->>+static uint32_t request_magic;
->>    
->>
->
->???  htonl(NBD_REQUEST_MAGIC) is perfectly OK in the place where you
->use it and more likely than not will give better code.
->
->  
->
->>+static uint32_t reply_magic;
->>    
->>
->
->Ditto.
->
-What's wrong with having an explicit cache of this value that we can 
-rest assured doesn't in the worst case get compiled into multiple calls 
-to the htonl code?? Possible waste of one 4 byte memory location in the 
-worst compiler case or is there another problem?
+On Sat, Jun 21, 2003 at 05:07:47PM +0200, Andries.Brouwer@cwi.nl wrote:
+> For a long time we have had a somewhat unfortunate situation
+> where people wanting to use cryptoloop had to collect some
+> kernel patches and util-linux patches elsewhere.
+> Now that we have crypto in the kernel this can be rectified.
+>=20
+> As far as I can see this requires two things:
+> - crypto transfer functions must be registered with loop.c,
+> that is, loop_register_transfer() must be called
+> - loop.c must be fixed
+>=20
+> The first point is handled by cryptoloop-0.2-2.5.58.diff.
+> Concerning the second point, several patches are floating around.
+> Below a patch that Jari Ruusu sent me.
+>=20
+> This is a RFC.
+> Clemens - any comments on the crypto side?
+> Jens - any comments on the block I/O side?
 
->. . .
->  
->
->>+static void __init init_nbd_dev(nbd_device_t *dev)
->>+{
->>+#ifdef PARANOIA
->>+	dev->magic = LO_MAGIC;
->>+#endif
->>+	atomic_set(&dev->refcnt, 0);
->>+	dev->flags = 0;
->>+	spin_lock_init(&dev->lock);
->>+	dev->harderror = 0;
->>+	nbd_qsys_init(&dev->tx_queue);
->>+	nbd_qsys_init(&dev->rx_queue);
->>+	dev->file = NULL;
->>+	dev->sock = NULL;
->>+	memset(&dev->sin, 0, sizeof(dev->sin));
->>+	dev->errcnt = 0;
->>+	dev->lasterr = ENOTCONN;
->>+	dev->closed = (RCV_SHUTDOWN|SEND_SHUTDOWN);
->>+	dev->ss_thread.task = NULL;
->>+	dev->tx_thread.task = NULL;
->>+	dev->rx_thread.task = NULL;
->>+	atomic_set(&dev->num_io_threads, 0);
->>    
->>
->
->*Ugh*.  These suckers are already zero-filled.
->  
->
-Yeah. I'm a bit to attracted perhaps to zero filling things explicitly 
-in my coding style. Sigh.
+I haven't looked at it in detail but Jari's patches have done the right
+things at all times. If they do things right is another issue. I prefer Adam
+Richter's patches better but if the decision is in favour for Jari's I have
+no technical objections.
 
->>+	requests_out = 0;
->>+	qhandler_loops = 0;
->>    
->>
->
->Static variables that do not have explicit initializer are initialized with 0.
->  
->
-Ditto.
+But you have to make yourself clear:
 
->>+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
->>+ *
->>+ * End of definitions shared with user space.
->>+ * From here on out, these definitions are only for kernel (driver).
->>+ */
->>+
->>+#ifdef MAJOR_NR
->>    
->>
->
->a) that's ifdef __KERNEL__
->b) use separate headers.
->  
->
-Historically, some code used MAJOR_NR this way (like the original nbd 
-driver unfortunately), and I didn't change that. Seperating the header 
-was something I'd thought about but in the end felt that just changing 
-two existing files was bad enough without going off and adding a third 
-or more files. It's worth reconsidering though also. Thanks!
+This patch will change the IV metric to 512 byte and the loop transfer
+function has to be allowed to increase the IV for itself after any 512byte
+chunk. (Otherwise the transfer function would have to return after a single
+chunk, let loop.c compute the next IV and be called by loop.c again.)
 
+I've always wanted it this way. Nothing which has ever been merged
+officially has used loop.c's IV calculation and the unofficial stuff fixed
+the calculation years ago (one and a half actually). So I can't see a
+reason to maintain backward compatiblity, because I hardly suspect that
+there is even a user base. I come to this conclusion because loop.c's old IV
+calculation isn't even done properly. This patch breaks the old IV calculat=
+ion:
+http://lwn.net/Articles/2677/ . It has been merged a year ago and nobody
+ever recognized the breakage. So let's face it: There is no user base. We
+are talking about backward compatiblity for nobody here.=20
+
+If you, Andries, are really volunteering to split the patch up, you're my
+hero :)
+
+Regards, Clemens
+
+--2oS5YaxWCcQjTEyO
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE+9Iu3W7sr9DEJLk4RAjPoAJ9NhERnE6lmsyLExeIOdbI6f5suIACdHsiu
+z2Qtp4Tdx9QAfo+1sm1dN7M=
+=ZrNz
+-----END PGP SIGNATURE-----
+
+--2oS5YaxWCcQjTEyO--

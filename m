@@ -1,88 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbUD3V3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbUD3V1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbUD3V3H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 17:29:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbUD3V3H
+	id S261425AbUD3V1t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 17:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbUD3V1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 17:29:07 -0400
-Received: from linux.us.dell.com ([143.166.224.162]:31944 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S261236AbUD3V26
+	Fri, 30 Apr 2004 17:27:49 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:38038 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261184AbUD3V1h
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 17:28:58 -0400
-Date: Fri, 30 Apr 2004 16:28:37 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Jens Axboe <axboe@suse.de>, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: reduce blk queue and I/O capability printk to KERN_DEBUG?
-Message-ID: <20040430212837.GA9853@lists.us.dell.com>
-References: <20040430195055.GA7235@lists.us.dell.com> <20040430211342.GA31842@suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
+	Fri, 30 Apr 2004 17:27:37 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Patrick Wildi <patrick@wildi.com>
+Subject: Re: [RFC][PATCH] 2.4 IDE Serverworks OSB4 DMA patch
+Date: Fri, 30 Apr 2004 23:27:56 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+References: <Pine.LNX.4.58.0404291130420.19527@bern.wildisoft.net> <200404300037.10054.bzolnier@elka.pw.edu.pl> <Pine.LNX.4.58.0404300940490.23611@bern.wildisoft.net>
+In-Reply-To: <Pine.LNX.4.58.0404300940490.23611@bern.wildisoft.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040430211342.GA31842@suse.de>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200404302327.56681.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 30 of April 2004 18:44, Patrick Wildi wrote:
+> On Fri, 30 Apr 2004, Bartlomiej Zolnierkiewicz wrote:
+> > On Friday 30 of April 2004 00:09, Patrick Wildi wrote:
+> > > On Thu, 29 Apr 2004, Bartlomiej Zolnierkiewicz wrote:
+> > > > On Thursday 29 of April 2004 21:04, Patrick Wildi wrote:
+> > > > > I have been using a OSB4 chipset based system with a CompactFlash
+> > > > > that supports PIO only and a laptop IBM/Hitachi Travelstar HDD
+> > > > > that supports UDMA.
+> > > > > For both drives, the serverworks code misconfigures the drives:
+> > > > >
+> > > > > - for the CF (hooked up as /dev/hda),
+> > > > > svwks_config_drive_xfer_rate() will not match any tests
+> > > > > (drive->autodma = 0, id->capability = 2, id->field_valid = 1), but
+> > > > > the function will then call
+> > > > >   hwif->ide_dma_on(drive), which it should not do for this drive.
+> > > > >   This patch moves the enabling of DMA up into the DMA section of
+> > > > >   the code.
+> > > >
+> > > > Yep, known bug, it is fixed in 2.6.
+> > > >
+> > > > It is present in many other drivers, my 2.6 patch needs to be
+> > > > backported.
+> > >
+> > > Are you the maintainer for 2.4 or to whom should I send the changes?
+> >
+> > Send them to me.
+> >
+> > > > > - for the Travelstart HDD, the settings coming into
+> > > > >   svwks_config_drive_xfer_rate() are: drive->autodma = 32,
+> > > > >   id->capability = 15, id->field_valid = 7, id->dma_ultra = 0x43f.
+> > > > >   But as this is an OSB4, the hwif->ultra_mask is set to not
+> > > > > support UDMA. Unfortunately in that case
+> > > > > svwks_config_drive_xfer_rate() falls through to the end of the
+> > > > > function, instead of trying other DMA modes.
+> > > >
+> > > > Good catch.
+> > > >
+> > > > It seems the same bug can be present in other drivers too (hint,
+> > > > hint). ;)
+> > >
+> > > I noticed that the piix driver uses the exact same logic. I could
+> > > replicate this part of the patch for other 2.4 drivers. I have no
+> > > way of testing them.
+> > > I can send you a combined patch for 2.4. I am not yet using 2.6.
+> >
+> > No problem. :)
+>
+> Below is the 2.4 patch. I believe I updated all drivers that use
+> similar code.
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is not needed.  I've just checked all drivers:
 
-On Fri, Apr 30, 2004 at 11:13:43PM +0200, Jens Axboe wrote:
-> It should just be deleted. As you note, it is a debug message. I
-> originally added it so we would have some clues as to dma capability for
-> bug reports. There never was any, the check can go :)
+- no IORDY fix is not necessary for alim15x3.c
 
-OK, please ack the below for Andrew then.
+- hwif->ultra_mask fix is only needed for OSB4
 
+[ I discovered another bug in the process - some drivers are using
+  hwif->ultra_mask == 0x80 to indicate that UDMA is unsupported
+  but bit 0x80 means UDMA7 (UDMA150) now, oh well. ]
 
-Remove blk: queue xxxx I/O limit xxxx  messages printed by all block devices
+Therefore I will send Marcelo backport of 2.6 patch for no IORDY support
++ your OSB4 fix and Linus will get only your OSB4 fix.  Thanks!
 
-This was a debug message and is no longer needed.
+Cheers,
+Bartlomiej
 
-=3D=3D=3D=3D=3D drivers/block/ll_rw_blk.c 1.244 vs edited =3D=3D=3D=3D=3D
---- 1.244/drivers/block/ll_rw_blk.c	Tue Apr 27 08:11:32 2004
-+++ edited/drivers/block/ll_rw_blk.c	Fri Apr 30 16:24:03 2004
-@@ -280,17 +280,6 @@
- 	} else
- 		q->bounce_gfp =3D GFP_NOIO;
-=20
--	/*
--	 * keep this for debugging for now...
--	 */
--	if (dma_addr !=3D BLK_BOUNCE_HIGH && q !=3D last_q) {
--		printk("blk: queue %p, ", q);
--		if (dma_addr =3D=3D BLK_BOUNCE_ANY)
--			printk("no I/O memory limit\n");
--		else
--			printk("I/O limit %luMb (mask 0x%Lx)\n", mb, (long long) dma_addr);
--	}
--
- 	q->bounce_pfn =3D bounce_pfn;
- 	last_q =3D q;
- }
-
-
-
---=20
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
---a8Wt8u1KmwUX3Y2C
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAksUFIavu95Lw/AkRAtrUAJ9UOe+TG5BuvlgrGks3f7/UhFx71QCfdLTO
-kL2p+jWfrl9vSHXx89nmS8M=
-=UWXG
------END PGP SIGNATURE-----
-
---a8Wt8u1KmwUX3Y2C--

@@ -1,74 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263796AbTEFPNN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 11:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbTEFPNN
+	id S263788AbTEFPKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 11:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263790AbTEFPKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 11:13:13 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:28830 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263796AbTEFPNL (ORCPT
+	Tue, 6 May 2003 11:10:25 -0400
+Received: from mail.pharm.uu.nl ([131.211.16.17]:17630 "HELO mail.pharm.uu.nl")
+	by vger.kernel.org with SMTP id S263788AbTEFPKY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 11:13:11 -0400
-Date: Tue, 6 May 2003 17:25:43 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Pascal Schmidt <der.eremit@email.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [IDE] trying to make MO drive work with ide-floppy/ide-cd
-Message-ID: <20030506152543.GX905@suse.de>
-References: <20030506140751.GA25817@suse.de> <Pine.LNX.4.44.0305061715150.965-100000@neptune.local>
+	Tue, 6 May 2003 11:10:24 -0400
+Subject: [patch/2.5.69] zoran driver update
+From: Ronald Bultje <R.S.Bultje@pharm.uu.nl>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, mjpeg-developer@lists.sourceforge.net,
+       Gerd Knorr <kraxel@bytesex.org>, Frank Davis <fdavis@si.rr.com>,
+       Greg KH <greg@kroah.com>
+Content-Type: text/plain
+Organization: Universiteit Utrecht
+Message-Id: <1052234524.2482.70.camel@shrek.bitfreak.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0305061715150.965-100000@neptune.local>
+X-Mailer: Ximian Evolution 1.3.2 (1.3.2-1) (Preview Release)
+Date: 06 May 2003 17:22:05 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 06 2003, Pascal Schmidt wrote:
-> On Tue, 6 May 2003, Jens Axboe wrote:
-> 
-> > It barfs at a lot of commands, not surprisingly. ide-cd really has no
-> > concept of devices other than cd/dvd.
-> 
-> I'm not complaining about those messages. ;)
+Hi Linus/all,
 
-No, but clearly something is wrong. At least that you should agree on.
-And knowing hardware, there are probably drives out there that just wont
-work because of the various "weird" commands it gets sent.
+http://mjpeg.sourceforge.net/driver-zoran/linux-zoran-driver.patch.gz
+contains a patch that updates the current zoran driver (v4l/v4l2 driver
+for zr36057/zr36067-based MJPEG cards) in kernel 2.5.x to the newest
+stable version that we have. Patch is against 2.5.69.
 
-Just because it happens to work for you doesn't make it a viable
-solution.
+Differences between old and new driver:
+* this one actually compiles
+* this one uses the new i2c stack
+* this one supports video4linux2
+* this one supports new cards (LML33R10 and Miro DC30/DC30+ - we already
+supported the LML33, Miro DC10/DC10+ and Iomega Buz)
 
-> > You need to patch cdrom.c as well:
-> > 
-> > 	if ((fp->f_mode & FMODE_WRITE) && !CDROM_CAN(CDC_DVD_RAM))
-> > 		return -EROFS;
-> > 
-> 
-> Simply removing that test doesn't get me working write support,
-> I still get:
-> 
-> # mount -t ext2 /dev/hde /mnt/mo
-> mount: block device /dev/hde is write-protected, mounting read-only
-> 
-> The disk is not write-protected, I checked.
+It also adds some additional PCI IDs and I2C IDs that are used by the
+driver, updates documentation and adds this driver + me to the
+maintainer list.
 
-Shouldn't matter, the drive has to check for that particular bit (and it
-obviously does not). Are we still talking 2.5 or 2.4?
+The i2c changes have been reviewed by Greg KH and Frank Davis (april
+7th/8th, 2003 - the 2.5.67 patch), the v4l part is in review by Gerd
+Knorr.
 
-> >> What can I do to help get this drive supported under 2.5/ide-cd?
-> > I'm tempted to say ide-scsi + sd, but that goes against my principles...
-> > It shouldn't be too much work to make ide-cd work gracefully.
-> 
-> Well, I'm not familiar with the code at all, so I don't know where
-> to look.
+Could this please be applied?
 
-You can play with the c code, you've demonstrated that much so far. So
-play some more, find out which commands are aborted and why. The log
-messages even tell you which ones. Now find out if these are necessary
-for proper MO functionality or not. Or maybe some vital commands are
-even missing, lots of fun there :). But it really should not be very
-hard.
+Thanks,
 
--- 
-Jens Axboe
+Ronald
 

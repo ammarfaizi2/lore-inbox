@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262224AbSLORcK>; Sun, 15 Dec 2002 12:32:10 -0500
+	id <S262258AbSLOSSb>; Sun, 15 Dec 2002 13:18:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262258AbSLORcK>; Sun, 15 Dec 2002 12:32:10 -0500
-Received: from smtp-server3.tampabay.rr.com ([65.32.1.41]:18841 "EHLO
-	smtp-server3.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S262224AbSLORcJ>; Sun, 15 Dec 2002 12:32:09 -0500
-From: "Scott Robert Ladd" <scott@coyotegulch.com>
-To: "Dave Jones" <davej@codemonkey.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Kernel for Pentium 4 hyperthreading?
-Date: Sun, 15 Dec 2002 12:40:59 -0500
-Message-ID: <FKEAJLBKJCGBDJJIPJLJGEIHDLAA.scott@coyotegulch.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20021215155728.GB20335@suse.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	id <S262289AbSLOSSb>; Sun, 15 Dec 2002 13:18:31 -0500
+Received: from ping.ovh.net ([213.186.33.13]:64011 "EHLO ping.ovh.net")
+	by vger.kernel.org with ESMTP id <S262258AbSLOSSa>;
+	Sun, 15 Dec 2002 13:18:30 -0500
+Date: Sun, 15 Dec 2002 19:26:45 +0100
+From: Octave <oles@ovh.net>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, ext3-users@redhat.com
+Subject: Re: problem with Andrew's patch ext3
+Message-ID: <20021215182645.GS23211@ovh.net>
+References: <20021215144050.GY12395@ovh.net> <3DFCC815.3C0010F2@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DFCC815.3C0010F2@digeo.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> Ah, apologies. Yes. In this case, you win. I bit the same problem you
-> had btw with this box in 2.4. You need an updated BIOS. Contact Intel.
+On Sun, Dec 15, 2002 at 10:21:09AM -0800, Andrew Morton wrote:
+> Octave wrote:
+> > 
+> > Hello Andrew,
+> > 
+> > I patched 2.4.20 with your patch found out on http://lwn.net/Articles/17447/
+> > and I have a big problem with:
+> > once server is booted on 2.4.20 with your patch, when I want to reboot
+> > with /sbin/reboot, server makes a Segmentation fault and it crashs.
+> 
+> It works OK here.  Could you please check that the kernel was fully
+> rebuilt?  Do a `make clean'?  If the kernel was not fully rebuilt
+> then things will go wrong because a structure size was changed.
 
-I'll ask Intel if there's a BIOS update. Computers are almost as bad as
-games now; the first thing you need to do before using them is patch!
+yes, since I took a new tar.gz
+made dep && make clean && make bzImage
+I did it 5 times (for differents servers).
 
-What evokes my curiosity is that the 2.5.51 kernel detects and correctly
-uses the processor siblings, while 2.4.20 does not. Given that 2.5.51 is
-running quite well, I think I'll just stay on the bleeding edge of Linux for
-a while.
+Octave
 
-..Scott
-
---
-Scott Robert Ladd
-Coyote Gulch Productions,  http://www.coyotegulch.com
-No ads -- just very free (and somewhat unusual) code.
-
+> 
+> There is a locking error in that patch, and it needs revision.  But
+> that wouldn't explain this crash.
+> 
+> And there is an unrelated use-after-free bug which could cause problems
+> if the fs runs out of space or inodes.
+> 
+> I'll get some fixes out later today.  It hasn't been a good week.

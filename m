@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290701AbSAROJB>; Fri, 18 Jan 2002 09:09:01 -0500
+	id <S290705AbSAROdQ>; Fri, 18 Jan 2002 09:33:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290702AbSAROIw>; Fri, 18 Jan 2002 09:08:52 -0500
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:30936 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S290701AbSAROIf>; Fri, 18 Jan 2002 09:08:35 -0500
-To: Ram Shankar <kramsn@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: LINUX IP Stack
-In-Reply-To: <20020118131854.44722.qmail@web14604.mail.yahoo.com>
-From: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
-Date: 18 Jan 2002 15:08:17 +0100
-In-Reply-To: <20020118131854.44722.qmail@web14604.mail.yahoo.com>
-Message-ID: <87k7ufrbu6.fsf@tigram.bogus.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
-MIME-Version: 1.0
+	id <S290706AbSAROdH>; Fri, 18 Jan 2002 09:33:07 -0500
+Received: from genesis.westend.com ([212.117.67.2]:17070 "EHLO
+	genesis.westend.com") by vger.kernel.org with ESMTP
+	id <S290705AbSAROcs>; Fri, 18 Jan 2002 09:32:48 -0500
+Date: Fri, 18 Jan 2002 15:32:14 +0100
+From: Christian Hammers <ch@westend.com>
+To: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: ext3 fs corruption with 2.4.17
+Message-ID: <20020118143214.GH28471@westend.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ram Shankar <kramsn@yahoo.com> writes:
+Hi
 
-> We are interested in moving the IP stack into the
-> application area. i.e. It should link with our
-> application and use the devices (like /dev/eth0) for
-> the layer 2 interface.
-[...]
-> 3. Is there any other free implementation of IP stack,
-> which would be better suited for this purpose?
+Again problems with my filesystems (probably a mainboard/cpu problem). 
+It is (^H^H^H was) a quite new ext3 fs that was created with 2.4.17 and the
+very latest (stable) e2fsprogs and journalling. The device 8,7 was /var so 
+the most used partition for write activity, read activity was mainly under
+/usr/local).  
 
-I don't know, wether these meet your requirements, but Google
-lists several:
+The filesystem was still usable but every write attempt lead to absolutely
+nonsense entries so I unmounted and fsck'ed it with quite good success.
 
-<http://www.cs.nwu.edu/~pdinda/minet/minet.html>
-<http://www.joerch.org/tcpip/>
-<http://freshmeat.net/projects/libutcp/>
+Does anybody knows what exactly this means and if it could be helpful to
+track down the origin of the problems? Or did anybody else experienced this
+messages before?
 
-Regards, Olaf.
+On Thu, Jan 17, 2002 at 07:05:03PM +0100, root wrote:
+> Jan 17 19:01:15 HOSTNAME kernel: EXT3-fs error (device sd(8,7)): ext3_new_block: Allocating block in system zone - block = 5931009
+> Jan 17 19:01:16 HOSTNAME kernel: EXT3-fs error (device sd(8,7)): ext3_new_block: Allocating block in system zone - block = 5931018
+> Jan 17 19:01:16 HOSTNAME kernel: EXT3-fs error (device sd(8,7)): ext3_new_block: Allocating block in system zone - block = 5931019
+[repeats several hundert times with increasing block numbers]
+
+bye,
+
+-christian-
+
+-- 
+Christian Hammers    WESTEND GmbH - Aachen und Dueren     Tel 0241/701333-0
+ch@westend.com     Internet & Security for Professionals    Fax 0241/911879
+           WESTEND ist CISCO Systems Partner - Premium Certified
+

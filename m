@@ -1,75 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268690AbUJDXIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268674AbUJDXMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268690AbUJDXIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 19:08:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268674AbUJDXG3
+	id S268674AbUJDXMe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 19:12:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268677AbUJDXMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 19:06:29 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:38923 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S268690AbUJDW5K
+	Mon, 4 Oct 2004 19:12:34 -0400
+Received: from pat.uio.no ([129.240.130.16]:40656 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S268674AbUJDXKT convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 18:57:10 -0400
-Date: Mon, 4 Oct 2004 23:57:09 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH RESEND] 2.[46]: Permit the official ARP hw type in SIOCSARP
- for FDDI
-Message-ID: <Pine.LNX.4.58L.0410040312500.22545@blysk.ds.pg.gda.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 4 Oct 2004 19:10:19 -0400
+Subject: RE: [NFS] Re: [PATCH] NFS using CacheFS
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: "Lever, Charles" <cel@netapp.com>
+Cc: Steve Dickson <SteveD@redhat.com>, nfs@lists.sourceforge.net,
+       Linux filesystem caching discussion list 
+	<linux-cachefs@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <482A3FA0050D21419C269D13989C611302B07E52@lavender-fe.eng.netapp.com>
+References: <482A3FA0050D21419C269D13989C611302B07E52@lavender-fe.eng.netapp.com>
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1096931401.22446.157.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 05 Oct 2004 01:10:02 +0200
+Content-Transfer-Encoding: 8BIT
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+På ty , 05/10/2004 klokka 00:51, skreiv Lever, Charles:
 
- The SIOCSARP handling code currently rejects attempts of setting an arp
-entry for FDDI devices if the Ethernet ARP hw type is specified in the
-request.  Using this ARP hw type is mandated by RFC 1390 (STD 36) and I
-think it's reasonable to accept SIOCSARP requests using this type,
-especially as it already works this way for ARP packets received from the
-network.  One reason for this is bootpd setting explicit ARP cache entries
-using the hw type that is also sent to a client.  Here is a patch for both
-2.4 and 2.6 that fixes the problem for me.  For consistency with code used
-for ARP packets, it makes both Ethernet and IEEE802 ARP hw type acceptable
-for FDDI interfaces.  Please apply.
+> probably ought to look like the Solaris UI here.  isn't there a "cachefs" mount option on Solaris?  anyway, reusing "posix" just for a prototype seems harmless enough.
 
- Applies both to 2.4.27 and to 2.6.8.1.
+Mounting Solaris cachefs is very different. Their syntax is of the form:
 
-  Maciej
+mount -F cachefs [    generic_options     ] -o backfstype=file_system_type   [  specific_options  ]  [ -O ] special mount_point
 
-Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
+So an example given on their manpage is as follows:
 
-patch-arp-fddi-1
-diff -up --recursive --new-file linux.macro/net/ipv4/arp.c linux/net/ipv4/arp.c
---- linux.macro/net/ipv4/arp.c	2004-04-17 02:59:12.000000000 +0000
-+++ linux/net/ipv4/arp.c	2004-08-14 15:33:12.000000000 +0000
-@@ -1024,8 +1024,26 @@ int arp_req_set(struct arpreq *r, struct
- 		if (!dev)
- 			return -EINVAL;
- 	}
--	if (r->arp_ha.sa_family != dev->type)	
--		return -EINVAL;
-+	switch (dev->type) {
-+#ifdef CONFIG_FDDI
-+	case ARPHRD_FDDI:
-+		/*
-+		 * According to RFC 1390, FDDI devices should accept ARP
-+		 * hardware types of 1 (Ethernet).  However, to be more
-+		 * robust, we'll accept hardware types of either 1 (Ethernet)
-+		 * or 6 (IEEE 802.2).
-+		 */
-+		if (r->arp_ha.sa_family != ARPHRD_FDDI &&
-+		    r->arp_ha.sa_family != ARPHRD_ETHER &&
-+		    r->arp_ha.sa_family != ARPHRD_IEEE802)
-+			return -EINVAL;
-+		break;
-+#endif
-+	default:
-+		if (r->arp_ha.sa_family != dev->type)
-+			return -EINVAL;
-+		break;
-+	}
- 
- 	neigh = __neigh_lookup_errno(&arp_tbl, &ip, dev);
- 	err = PTR_ERR(neigh);
+------
+     The  following  example  CacheFS-mounts  the   file   system
+     server1:/user2,  which is already NFS-mounted on /usr/abc as
+     /xyz.
+
+      example# mount -F cachefs -o backfstype=nfs,backpath=/usr/abc,
+          cachedir=/cache1 server1:/user2 /xyz
+------
+
+Cheers,
+  Trond
+

@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262811AbVCJWUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263279AbVCJWbv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262811AbVCJWUy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 17:20:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263272AbVCJWRp
+	id S263279AbVCJWbv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 17:31:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbVCJWbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 17:17:45 -0500
-Received: from relay.axxeo.de ([213.239.199.237]:9699 "EHLO relay.axxeo.de")
-	by vger.kernel.org with ESMTP id S262831AbVCJWRS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 17:17:18 -0500
-From: Ingo Oeser <ioe-lkml@axxeo.de>
-To: David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: [PPC64] Allow emulation of mfpvr on ppc64 kernel
-Date: Thu, 10 Mar 2005 23:17:03 +0100
-User-Agent: KMail/1.7.1
-References: <20050310021848.GD30435@localhost.localdomain>
-In-Reply-To: <20050310021848.GD30435@localhost.localdomain>
-Cc: Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
-       Paul Mackerras <paulus@samba.org>, linuxppc64-dev@lists.linuxppc.org,
-       linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Mar 2005 17:31:46 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5389 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263279AbVCJW3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 17:29:39 -0500
+Date: Thu, 10 Mar 2005 22:29:34 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       netfilter@lists.netfilter.org
+Subject: Netfilter ipt_hashlimit
+Message-ID: <20050310222934.C1044@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	netfilter@lists.netfilter.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503102317.04027.ioe-lkml@axxeo.de>
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson wrote:
-> Andrew, please apply.
->
-> Allow userspace programs on ppc64 to use the (privileged) mfpvr
-> instruction to determine the processor type.  At the moment it
-> emulates the instruction to provide the real PVR value, though it
-> could be made to lie in future if for some reason we wish to restrict
-> what CPU features userspace uses.
+With current-ish Linus 2.6 BK, I'm seeing this:
 
-Why not putting the required information into the AUX table
-when executing your ELF programs? I loved this feature in the
-ix86 arch.
+net/ipv4/netfilter/ipt_hashlimit.c:96: warning: type defaults to `int' in declaration of `DECLARE_LOCK'
+net/ipv4/netfilter/ipt_hashlimit.c:96: warning: parameter names (without types) in function declaration
+net/ipv4/netfilter/ipt_hashlimit.c: In function `htable_create':
+net/ipv4/netfilter/ipt_hashlimit.c:237: warning: implicit declaration of function `LOCK_BH'
+net/ipv4/netfilter/ipt_hashlimit.c:237: error: `hashlimit_lock' undeclared (first use in this function)
+net/ipv4/netfilter/ipt_hashlimit.c:237: error: (Each undeclared identifier is reported only once/home/rmk/bk/linux-2.6-rmk/net/ipv4/netfilter/ipt_hashlimit.c:237: error: for each function it appears in.)
+net/ipv4/netfilter/ipt_hashlimit.c:239: warning: implicit declaration of function `UNLOCK_BH'
+net/ipv4/netfilter/ipt_hashlimit.c: In function `htable_find_get':
+net/ipv4/netfilter/ipt_hashlimit.c:305: error: `hashlimit_lock' undeclared (first use in this function)
+net/ipv4/netfilter/ipt_hashlimit.c: In function `htable_put':
+net/ipv4/netfilter/ipt_hashlimit.c:321: error: `hashlimit_lock' undeclared (first use in this function)
+net/ipv4/netfilter/ipt_hashlimit.c: At top level:
+net/ipv4/netfilter/ipt_hashlimit.c:96: warning: `DECLARE_LOCK' declared `static' but never defined
 
+Looks like ipt_hashlimit.c is missing an include?
 
-Regards
-
-Ingo Oeser
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

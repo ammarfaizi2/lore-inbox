@@ -1,11 +1,11 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264029AbSIQJ66>; Tue, 17 Sep 2002 05:58:58 -0400
+	id <S264004AbSIQKOo>; Tue, 17 Sep 2002 06:14:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264004AbSIQJ66>; Tue, 17 Sep 2002 05:58:58 -0400
-Received: from AMontpellier-205-1-13-198.abo.wanadoo.fr ([80.14.68.198]:20999
+	id <S264025AbSIQKOo>; Tue, 17 Sep 2002 06:14:44 -0400
+Received: from AMontpellier-205-1-13-198.abo.wanadoo.fr ([80.14.68.198]:26375
 	"EHLO microsoft.com") by vger.kernel.org with ESMTP
-	id <S264034AbSIQJ65> convert rfc822-to-8bit; Tue, 17 Sep 2002 05:58:57 -0400
+	id <S264004AbSIQKOo> convert rfc822-to-8bit; Tue, 17 Sep 2002 06:14:44 -0400
 Subject: Re: [PATCH][2.5.35] CPUfreq documentation (4/5)
 From: Xavier Bestel <xavier.bestel@free.fr>
 To: Dominik Brodowski <linux@brodo.de>
@@ -17,25 +17,25 @@ References: <20020917113547.H25385@brodo.de>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 8BIT
 X-Mailer: Ximian Evolution 1.0.8 
-Date: 17 Sep 2002 12:03:55 +0200
-Message-Id: <1032257043.2894.24.camel@nomade>
+Date: 17 Sep 2002 12:19:37 +0200
+Message-Id: <1032257979.3070.29.camel@nomade>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Le mar 17/09/2002 à 11:35, Dominik Brodowski a écrit :
 
-> +P4 CPU Clock Modulation:
-> +    Intel Pentium 4 Xeon processors
-> +---------------------------------
-> +    Note that you can only switch the speed of two logical CPUs at
-> +    once - but each phyiscal CPU may have different throttling levels.
-> +    Unfortunately, the cpu_khz value 
-> +
-> +
+> +The third argument, a void *pointer, points to a struct cpufreq_freqs
+> +consisting of five values: cpu, min, max, policy and max_cpu_freq. Min 
+> +and max are the lower and upper frequencies (in kHz) of the new
+> +policy, policy the new policy, cpu the number of the affected CPU or
+> +CPUFREQ_ALL_CPUS for all CPUs; and max_cpu_freq the maximum supported
+> +CPU frequency. This value is given for informational purposes only.
 
-It seems like there is a glitch here. The sentence isn't terminated
-properly.
+- Why choosing a void* ? that doesn't validate type ..
 
+- The struct cpufreq_freqs actually consists of only three values (cpu,
+old, new). The five values you cite here are in the struct
+cpufreq_policy.
 
 

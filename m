@@ -1,85 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271836AbRIUIKG>; Fri, 21 Sep 2001 04:10:06 -0400
+	id <S271924AbRIUIKG>; Fri, 21 Sep 2001 04:10:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271940AbRIUIJ6>; Fri, 21 Sep 2001 04:09:58 -0400
-Received: from [194.8.76.131] ([194.8.76.131]:14092 "HELO imap.camline.com")
-	by vger.kernel.org with SMTP id <S271924AbRIUIJw>;
-	Fri, 21 Sep 2001 04:09:52 -0400
-Date: Fri, 21 Sep 2001 10:16:25 +0200 (CEST)
-From: Matthias Hanisch <matze@camline.com>
-To: linux-kernel@vger.kernel.org
-Subject: PATCH: fix for soundblaster module oops at rmmod time (fwd)
-Message-ID: <Pine.LNX.4.10.10109211011350.4204-200000@homer.camline.com>
-Organization: camLine Datensysteme fuer die Mikroelektronik
-MIME-Version: 1.0
-Content-Type: MULTIPART/Mixed; BOUNDARY="-1463781119-750330687-1000998586=:4204"
-Content-ID: <Pine.LNX.4.10.10109201710110.4204@homer.camline.com>
+	id <S271836AbRIUIJ5>; Fri, 21 Sep 2001 04:09:57 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:17918 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S271940AbRIUIJx>; Fri, 21 Sep 2001 04:09:53 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Fri, 21 Sep 2001 02:09:38 -0600
+To: David Hajek <david@atrey.karlin.mff.cuni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: high cpu load with sw raid1
+Message-ID: <20010921020938.I14526@turbolinux.com>
+Mail-Followup-To: David Hajek <david@atrey.karlin.mff.cuni.cz>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010920102616.A2753@pida.ulita.cz> <20010920124020.D14526@turbolinux.com> <20010921090720.A12970@pida.ulita.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010921090720.A12970@pida.ulita.cz>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Sep 21, 2001  09:07 +0200, David Hajek wrote:
+> On Thu, Sep 20, 2001, Andreas Dilger wrote:
+> > On Sep 20, 2001  10:26 +0200, David Hajek wrote:
+> > > I have linux box with 70GB SW Raid1. This box runs for half
+> > > a year without problems but now I meet the high cpu load 
+> > > problems. I suspect that it can be caused by not enough 
+> > > free disk space on this md device. I see following:
+> > > 
+> > > 1 GB free  - load > 5
+> > > 5 GB free  - load < 1
+> > 
+> > What filesystem are you using?  If it is reiserfs, and you have < 10%
+> > of the disk free, it is very unhappy.  A patch to fix this is available.
+> 
+> I'm using ext2. I suspect high ext2 fragmentation, because when
+> there are 'only' 1GB free the disk is _really_ busy. I doubt
+> that it takes lot of time to find free blocks. 
 
----1463781119-750330687-1000998586=:4204
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.10.10109201710111.4204@homer.camline.com>
+OK, I just re-read your initial posting, and see you have a 70GB RAID,
+so 1GB free is about 1.4% free, which makes for bad performance no
+matter what filesystem you have.  In general, ext2 will have this 1%
+free space spread evenly across all of the disk, so while 1GB is still
+a lot of space, it is still a nearly full filesystem.
 
-[ I sent this to linux-sound yesterday. Nerijus Baliunas
-  <nerijus@users.sourceforge.net> asked me to forward this also to
-  linux-kernel. So here it is.
-] 
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
-Hi!
-
-Soundblaster module in version 2.4.10-pre12 and many (pre-)patches before
-oopsed in sb_dsp_unload at the module deletion phase.
-
-Loading the module reports
-
-Sep 17 23:08:05 pingu kernel: <Sound Blaster (8 BIT/MONO ONLY) (2.01)> at
-0x220 irq 5 dma 1>
-
-so sb_mixer_init() is not called, because devc->major == 2.
-
-Problem is that at "module deletion time", the call to sb_mixer_unload()
-is unconditional and a
-
-        kfree(mixer_devs[devc->my_mixerdev]);
-
-is not very healthy if devc->my_mixerdev == -1 (the initial value).
-
-This kfree() call without checking the array index got introduced in
-2.4.8, sound_unload_mixerdev() which is called after kfree() contains a
-check for devc->my_mixerdev != -1.
-
-The attached patch cures this, it just introduces this check. It should
-apply to any recent kernel.
-
-Regards,
-
-        Matze
-
--- 
-Matthias Hanisch    mailto:matze@camline.com    phone: +49 8137 935-219
-
-
----1463781119-750330687-1000998586=:4204
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="sb-fix.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.10.10109211016250.4204@homer.camline.com>
-Content-Description: 
-Content-Disposition: attachment; filename="sb-fix.patch"
-
-ZGlmZiAtcnUgbGludXgvZHJpdmVycy9zb3VuZC9zYl9taXhlci5jIGxpbnV4
-LW1hdHplL2RyaXZlcnMvc291bmQvc2JfbWl4ZXIuYw0KLS0tIGxpbnV4L2Ry
-aXZlcnMvc291bmQvc2JfbWl4ZXIuYwlNb24gU2VwIDE3IDIzOjM2OjM4IDIw
-MDENCisrKyBsaW51eC1tYXR6ZS9kcml2ZXJzL3NvdW5kL3NiX21peGVyLmMJ
-VHVlIFNlcCAxOCAwMDozOTo0NyAyMDAxDQpAQCAtNzQ4LDYgKzc0OCw5IEBA
-DQogDQogdm9pZCBzYl9taXhlcl91bmxvYWQoc2JfZGV2YyAqZGV2YykNCiB7
-DQorCWlmIChkZXZjLT5teV9taXhlcmRldiA9PSAtMSkNCisJCXJldHVybjsN
-CisNCiAJa2ZyZWUobWl4ZXJfZGV2c1tkZXZjLT5teV9taXhlcmRldl0pOw0K
-IAlzb3VuZF91bmxvYWRfbWl4ZXJkZXYoZGV2Yy0+bXlfbWl4ZXJkZXYpOw0K
-IAlzYm1peG51bS0tOw0K
----1463781119-750330687-1000998586=:4204--

@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264653AbSLVBjU>; Sat, 21 Dec 2002 20:39:20 -0500
+	id <S264697AbSLVBqc>; Sat, 21 Dec 2002 20:46:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264697AbSLVBjU>; Sat, 21 Dec 2002 20:39:20 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:42639 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S264653AbSLVBjT>; Sat, 21 Dec 2002 20:39:19 -0500
-Date: Sat, 21 Dec 2002 20:48:17 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Lists (lst)" <linux@lapd.cj.edu.ro>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] Kernel 2.4.20 ...
-In-Reply-To: <Pine.LNX.4.43L0.0212211945090.9863-100000@lapd.cj.edu.ro>
-Message-ID: <Pine.LNX.3.95.1021221204450.25703A-100000@chaos.analogic.com>
+	id <S264699AbSLVBqc>; Sat, 21 Dec 2002 20:46:32 -0500
+Received: from [216.179.95.39] ([216.179.95.39]:16655 "EHLO mail.srealm.net.au")
+	by vger.kernel.org with ESMTP id <S264697AbSLVBqb>;
+	Sat, 21 Dec 2002 20:46:31 -0500
+From: "Preston A. Elder" <prez@goth.net>
+Organization: Gothic Networks
+To: John Bradford <john@grabjohn.com>, vojtech@suse.cz (Vojtech Pavlik)
+Subject: Re: Fw: PROBLEM: Keyboard not found, but it exists!
+Date: Sat, 21 Dec 2002 20:54:29 -0500
+User-Agent: KMail/1.5
+Cc: jsimmons@infradead.org, linux-kernel@vger.kernel.org
+References: <200212211951.gBLJpREc001843@darkstar.example.net>
+In-Reply-To: <200212211951.gBLJpREc001843@darkstar.example.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200212212054.31702.prez@goth.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Dec 2002, Lists (lst) wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> 
-> Hi all,
-> 
-> I receive this oops from the begining of 2.4.19. Now I'm running a 2.4.20 
-> in SMP mode. Is there anyone who can tell me what is the problem of my 
-> kernel?
-> 
-> Thank you,
-> Cosmin
+Well, I upgraded the kernel (the old one was a 2.4.18, with a crapload of 
+patches applied, the new one is actually a 2.4.19 kernel).  In short, the 
+problem persists under v2.4.19.  And from the changelog, I can't see any 
+changes done to this fix for 2.4.20.
 
+It still jumps back and forth with time, and the keyboard (and mouse) are both 
+still unresponsive.  I can try 2.4.20 if you think it will change anything 
+over 2.4.19.  Otherwise, are there any other suggestions you can make as to 
+what I can try?  I'm not as worried about the keyboard/mouse since its a 
+server, and I usually ssh to it, however the 'time warp' situation (it 
+jumping ahead in time, and then back again) is much more destructive to the 
+applications I run on the server.
 
-You are using some module that the linux-2.4.20 developers don't
-want you to use. Either it's not been converted to current conventions
-or it's proprietary an therefore can't be converted.
+Also, is there any way to know if it activated the workaround or not?  I don't 
+see anything special in my boot dmesg.  I can send the boot dmesg file (my 
+system saves it immediately after boot) and my .config file to anyone who 
+thinks they might get some useful information out of it.  I'd rather not have 
+to go out and buy a new motherboard for this.
 
-To wit:
+Thanks in advance,
 
-> EIP:    0010:[<c011f86b>]  Tainted: P
-> kernel BUG at /usr/src/linux-2.4.20-SMP/include/asm/spinlock.h:86!
+- -- 
+PreZ
+Systems Administrator
+GOTH.NET
 
+Goth Code '98:   tSKeba5qaSabsaaaGbaa75KAASWGuajmsvbieqcL4BaaLb3F4
+                 nId5mefqmDjmmgm#haxthgzpj4GiysNkycSRGHabiabOkauNSW
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+GOTH.NET - http://www.goth.net
+Free online resource for the gothic community.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
+iD8DBQE+BRtVuULtzKdGMboRAteLAJ92Wicv05G+PT3GAvHa1LUCSZtFmACgs2Az
++j6zBGa81RboJRituL4Vf0Y=
+=xulE
+-----END PGP SIGNATURE-----
 

@@ -1,20 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261477AbSJAEgz>; Tue, 1 Oct 2002 00:36:55 -0400
+	id <S261484AbSJAEtM>; Tue, 1 Oct 2002 00:49:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261479AbSJAEgz>; Tue, 1 Oct 2002 00:36:55 -0400
-Received: from dp.samba.org ([66.70.73.150]:30390 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261477AbSJAEgy>;
-	Tue, 1 Oct 2002 00:36:54 -0400
-Date: Tue, 1 Oct 2002 14:42:26 +1000
+	id <S261485AbSJAEtM>; Tue, 1 Oct 2002 00:49:12 -0400
+Received: from dp.samba.org ([66.70.73.150]:11447 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261484AbSJAEtL>;
+	Tue, 1 Oct 2002 00:49:11 -0400
+Date: Tue, 1 Oct 2002 14:54:39 +1000
 From: David Gibson <david@gibson.dropbear.id.au>
-To: David Miller <davem@redhat.com>, Paul Mackerras <paulus@samba.org>
-Cc: linux-kernel@vger.kernel.org, linuxppc-embedded@lists.linuxppc.org
-Subject: [PATCH,RFC] Add gfp_mask to get_vm_area()
-Message-ID: <20021001044226.GS10265@zax>
-Mail-Followup-To: David Miller <davem@redhat.com>,
-	Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
-	linuxppc-embedded@lists.linuxppc.org
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Paul Mackerras <paulus@samba.org>, David Miller <davem@redhat.com>,
+       linux-kernel@vger.kernel.org, linuxppc-embedded@lists.linuxppc.org
+Subject: [PATCH] Add gfp_mask to get_vm_area()
+Message-ID: <20021001045439.GU10265@zax>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Paul Mackerras <paulus@samba.org>, David Miller <davem@redhat.com>,
+	linux-kernel@vger.kernel.org, linuxppc-embedded@lists.linuxppc.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,7 +23,7 @@ User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave, please consider this patch.  It renames get_vm_area() to
+Linus, please consider this patch.  It renames get_vm_area() to
 __get_vm_area() and adds a gfp_mask parameter which is passed on to
 kmalloc().  get_vm_area(size,flags) is then defined as as
 __get_vm_area(size,flags,GFP_KERNEL) to avoid messing with existing
@@ -32,6 +33,8 @@ We need this in order to sanely make pci_alloc_consistent() (and other
 consistent allocation functions) obey the DMA-mapping.txt rules on PPC
 embedded machines (specifically the requirement that it be callable
 from interrupt context).
+
+DaveM seems to think it's ok :-)
 
 diff -urN /home/dgibson/kernel/linuxppc-2.5/include/linux/vmalloc.h linux-bluefish/include/linux/vmalloc.h
 --- /home/dgibson/kernel/linuxppc-2.5/include/linux/vmalloc.h	2002-09-20 14:36:15.000000000 +1000
@@ -50,8 +53,8 @@ diff -urN /home/dgibson/kernel/linuxppc-2.5/mm/vmalloc.c linux-bluefish/mm/vmall
 --- /home/dgibson/kernel/linuxppc-2.5/mm/vmalloc.c	2002-09-20 14:36:26.000000000 +1000
 +++ linux-bluefish/mm/vmalloc.c	2002-10-01 14:30:02.000000000 +1000
 @@ -181,21 +181,22 @@
- 
- 
+
+
  /**
 - *	get_vm_area  -  reserve a contingous kernel virtual area
 + *	__get_vm_area  -  reserve a contingous kernel virtual area
@@ -69,12 +72,12 @@ diff -urN /home/dgibson/kernel/linuxppc-2.5/mm/vmalloc.c linux-bluefish/mm/vmall
  {
  	struct vm_struct **p, *tmp, *area;
  	unsigned long addr = VMALLOC_START;
- 
+
 -	area = kmalloc(sizeof(*area), GFP_KERNEL);
 +	area = kmalloc(sizeof(*area), gfp_mask);
  	if (unlikely(!area))
  		return NULL;
- 
+
 
 -- 
 David Gibson			| For every complex problem there is a

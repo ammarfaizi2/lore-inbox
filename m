@@ -1,81 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263021AbTEBU3x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 16:29:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbTEBU3x
+	id S263073AbTEBST7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 14:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbTEBST7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 16:29:53 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:15500 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id S263021AbTEBU3q (ORCPT
+	Fri, 2 May 2003 14:19:59 -0400
+Received: from gw.enyo.de ([212.9.189.178]:53765 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S263073AbTEBST5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 16:29:46 -0400
-Date: Fri, 2 May 2003 13:42:07 -0700
-From: Bob Miller <rem@osdl.org>
-To: linux-kernel@vger.kernel.org
-Cc: trivial@rustcorp.com.au
-Subject: [PATCH 2.5.68] Convert elan-104nc to remove check_region().
-Message-ID: <20030502204207.GB25713@doc.pdx.osdl.net>
-Mime-Version: 1.0
+	Fri, 2 May 2003 14:19:57 -0400
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Announcement] "Exec Shield", new Linux security feature
+References: <Pine.LNX.4.44.0305021217090.17548-100000@devserv.devel.redhat.com>
+	<Pine.LNX.4.50.0305020948550.1904-100000@blue1.dev.mcafeelabs.com>
+	<87llxp43ii.fsf@deneb.enyo.de>
+	<Pine.LNX.4.50.0305021126200.1904-100000@blue1.dev.mcafeelabs.com>
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: Davide Libenzi <davidel@xmailserver.org>, Linux Kernel
+ Mailing List <linux-kernel@vger.kernel.org>
+Date: Fri, 02 May 2003 20:32:19 +0200
+In-Reply-To: <Pine.LNX.4.50.0305021126200.1904-100000@blue1.dev.mcafeelabs.com> (Davide
+ Libenzi's message of "Fri, 2 May 2003 11:29:11 -0700 (PDT)")
+Message-ID: <87fznx42to.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Moved the request_region() call to replace check_region() and adds
-release_region()'s in the error paths that occure before the old
-call to request_region().  NOTE: This patch just updates comments.
+Davide Libenzi <davidel@xmailserver.org> writes:
 
--- 
-Bob Miller					Email: rem@osdl.org
-Open Source Development Lab			Phone: 503.626.2455 Ext. 17
+> On Fri, 2 May 2003, Florian Weimer wrote:
+>
+>> Davide Libenzi <davidel@xmailserver.org> writes:
+>>
+>> > Ingo, do you want protection against shell code injection ? Have the
+>> > kernel to assign random stack addresses to processes and they won't be
+>> > able to guess the stack pointer to place the jump.
+>>
+>> If your software is broken enough to have buffer overflow bugs, it's
+>> not entirely unlikely that it leaks the stack address as well (IIRC,
+>> BIND 8 did).
+>
+> Leaking the stack address is not a problem in this case, since the next
+> run will be very->very->very likely different.
 
+Usually, you can't afford a fork() and execve() for each request you
+process. 8-(
 
-diff -Nru a/drivers/mtd/maps/elan-104nc.c b/drivers/mtd/maps/elan-104nc.c
---- a/drivers/mtd/maps/elan-104nc.c	Fri May  2 09:52:22 2003
-+++ b/drivers/mtd/maps/elan-104nc.c	Fri May  2 09:52:22 2003
-@@ -30,8 +30,8 @@
- The single flash device is divided into 3 partition which appear as separate
- MTD devices.
- 
--Linux thinks that the I/O port is used by the PIC and hence check_region() will
--always fail.  So we don't do it.  I just hope it doesn't break anything.
-+Linux thinks that the I/O port is used by the PIC and hence request_region()
-+will always fail.  So we don't do it.  I just hope it doesn't break anything.
- */
- #include <linux/module.h>
- #include <linux/slab.h>
-@@ -227,14 +227,14 @@
- 	}
- 
- 	iounmap((void *)iomapadr);
--	release_region(PAGE_IO,PAGE_IO_SIZE);
-+	/* release_region(PAGE_IO,PAGE_IO_SIZE); */
- }
- 
- int __init init_elan_104nc(void)
- {
- 	/* Urg! We use I/O port 0x22 without request_region()ing it */
- 	/*
--	if (check_region(PAGE_IO,PAGE_IO_SIZE) != 0) {
-+	if (!request_region(PAGE_IO,PAGE_IO_SIZE, "ELAN-104NC flash")) {
- 		printk( KERN_ERR"%s: IO ports 0x%x-0x%x in use\n",
- 			elan_104nc_map.name,
- 			PAGE_IO, PAGE_IO+PAGE_IO_SIZE-1 );
-@@ -245,12 +245,11 @@
- 	if (!iomapadr) {
- 		printk( KERN_ERR"%s: failed to ioremap memory region\n",
- 			elan_104nc_map.name );
-+		/*
-+		release_region(PAGE_IO,PAGE_IO_SIZE);
-+		*/
- 		return -EIO;
- 	}
--
--	/*
--	request_region( PAGE_IO, PAGE_IO_SIZE, "ELAN-104NC flash" );
--	*/
- 
- 	printk( KERN_INFO"%s: IO:0x%x-0x%x MEM:0x%x-0x%x\n",
- 		elan_104nc_map.name,
-
+(In addition, GCC might optimize away those alloca() calls.)

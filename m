@@ -1,59 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbUKIFuT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbUKIF7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261412AbUKIFuT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 00:50:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbUKIFtA
+	id S261428AbUKIF7A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 00:59:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbUKIF4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 00:49:00 -0500
-Received: from mail.kroah.org ([69.55.234.183]:61086 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261382AbUKIFY6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 00:24:58 -0500
-Subject: Re: [PATCH] I2C update for 2.6.10-rc1
-In-Reply-To: <10999778564020@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 8 Nov 2004 21:24:16 -0800
-Message-Id: <10999778564013@kroah.com>
+	Tue, 9 Nov 2004 00:56:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:48271 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261402AbUKIFej (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 00:34:39 -0500
+Date: Mon, 8 Nov 2004 21:34:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Kumar Gala <galak@somerset.sps.mot.com>
+Cc: linuxppc-embedded@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][PPC32] Added MPC8555/8541 security block infrastructure
+Message-Id: <20041108213428.16dfb1f7.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0411082319080.13565@blarg.somerset.sps.mot.com>
+References: <Pine.LNX.4.61.0411082319080.13565@blarg.somerset.sps.mot.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2014.1.13, 2004/11/05 13:49:29-08:00, greg@kroah.com
+Kumar Gala <galak@somerset.sps.mot.com> wrote:
+>
+> This patch adds OCP, interrupt, and memory offset details for the security 
+>  block on MPC8555/8541 to support drivers.
 
-W1: fix build warnings due to msleep changes.
+Your email client did space-stuffing on the message, so the patch gets 100%
+rejects.  I fixed it up by hand and applied the patch locally, thanks.
 
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- drivers/w1/w1_family.c |    1 +
- drivers/w1/w1_int.c    |    1 +
- 2 files changed, 2 insertions(+)
-
-
-diff -Nru a/drivers/w1/w1_family.c b/drivers/w1/w1_family.c
---- a/drivers/w1/w1_family.c	2004-11-08 18:55:22 -08:00
-+++ b/drivers/w1/w1_family.c	2004-11-08 18:55:22 -08:00
-@@ -21,6 +21,7 @@
- 
- #include <linux/spinlock.h>
- #include <linux/list.h>
-+#include <linux/delay.h>
- 
- #include "w1_family.h"
- 
-diff -Nru a/drivers/w1/w1_int.c b/drivers/w1/w1_int.c
---- a/drivers/w1/w1_int.c	2004-11-08 18:55:22 -08:00
-+++ b/drivers/w1/w1_int.c	2004-11-08 18:55:22 -08:00
-@@ -21,6 +21,7 @@
- 
- #include <linux/kernel.h>
- #include <linux/list.h>
-+#include <linux/delay.h>
- 
- #include "w1.h"
- #include "w1_log.h"
-
+I think there's a way of telling Pine to stop doing this.

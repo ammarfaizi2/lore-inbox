@@ -1,64 +1,238 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbVBIAiE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbVBIApp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261718AbVBIAiE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 19:38:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbVBIAiE
+	id S261723AbVBIApp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 19:45:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbVBIApp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 19:38:04 -0500
-Received: from pirx.hexapodia.org ([199.199.212.25]:20896 "EHLO
-	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S261718AbVBIAhz
+	Tue, 8 Feb 2005 19:45:45 -0500
+Received: from postfix4-1.free.fr ([213.228.0.62]:36504 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S261723AbVBIApO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 19:37:55 -0500
-Date: Tue, 8 Feb 2005 16:37:54 -0800
-From: Andy Isaacson <adi@hexapodia.org>
-To: jon ross <jonross@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VM disk cache behavior.
-Message-ID: <20050209003754.GA7298@hexapodia.org>
-References: <e130a7170502080906596561d7@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e130a7170502080906596561d7@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+	Tue, 8 Feb 2005 19:45:14 -0500
+Message-ID: <42095D19.3020006@free.fr>
+Date: Wed, 09 Feb 2005 01:45:13 +0100
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: fr-fr, en, en-us
+MIME-Version: 1.0
+To: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Gerd Knorr <kraxel@bytesex.org>
+Subject: bttv : overlay mode and big disk io hang and could corrupt the fs
+Content-Type: multipart/mixed;
+ boundary="------------020201040500090809070401"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 08, 2005 at 12:06:14PM -0500, jon ross wrote:
-> I have an app with a small fixed memory footprint that does a lot of
-> random reads from a large file. I thought if I added more memory to
-> the machine the VM would do more caching of the disk, but added memory
-> does not seem to make any difference. I played with some of the params
-> in /proc/sys/vm and none of them seem to have any effect.
-> 
-> I tired both a 2.4.20 & 2.6.10 kernels with no difference.
-> 
-> The machine is a Dell 2560. I tired memory configs of 512M, 1G, 4G and
-> the average read-times do not change.
+This is a multi-part message in MIME format.
+--------------020201040500090809070401
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Could we get some quant here?  How small is "small"?  How large is
-"large"?  What are you measuring?  What are the results?  Does the app
-re-use the same data, or is its use a one-time deal?
+Hi,
 
-> Do I need to set/compile anything to allow the VM to use the memory?
+if I run "xawtv" [1] and then do a "grep -r toto /usr", my system 
+quickly freeze. If there isn't any xawv running nothing happen. I don't 
+try to use xawtv with grab mode (port 54) because I don't want to loose 
+data by crashing again my / fs.
 
-No, the Linux VM system should automatically cache for you.
+I retry it and I arrived to get some log (see the attach file).
 
-> If is was a way to tell how much memory the VM is using for a drive
-> cache I could at least tell if my kernel is miss-configured or my app
-> sucks.
+But after rebooting, I had a big surprise, the / ext3 fs was corrupted 
+and I need to run fsck by hand ....
 
-Check out the commands "free", "vmstat 1", "top", the contents of
-/proc/meminfo, the output of Sysrq-M.
+Matthieu
 
-Most likely is that your app isn't behaving in a cache-friendly way.  If
-your file will fit in memory, just fault it in sequentially (wc -l file)
-and then your app should cook.  If you're not going to fit in memory,
-the vm caching will probably only help if you have some reuse; you could
-develop a pre-faulter to get your IO started ahead of time, but that's
-generally nontrivial.
 
--andy
+
+
+[1]
+$xawtv -hwscan
+This is xawtv-3.94, running on Linux/i686 (2.6.10)
+looking for available devices
+port 53-53                              [ -xvport 53 ]
+     type : Xvideo, video overlay
+     name : video4linux
+
+port 54-54
+     type : Xvideo, image scaler
+     name : NV Video Overlay
+
+port 55-86
+     type : Xvideo, image scaler
+     name : NV Video Blitter
+
+/dev/video0: OK                         [ -device /dev/video0 ]
+     type : v4l2
+     name : BT878 video (Pinnacle PCTV Stud
+     flags: overlay capture tuner
+
+$cat /proc/interrupts
+            CPU0
+   0:     654027    IO-APIC-edge  timer
+   1:       2679    IO-APIC-edge  i8042
+   7:          0    IO-APIC-edge  parport0
+   9:          0   IO-APIC-level  acpi
+  12:      23644    IO-APIC-edge  i8042
+  14:      88469    IO-APIC-edge  ide0
+  15:          2    IO-APIC-edge  ide1
+  17:          5   IO-APIC-level  eth0, bttv0, Bt87x audio
+  18:         48   IO-APIC-level  ide2, ide3
+  19:          0   IO-APIC-level  EMU10K1
+  21:      97526   IO-APIC-level  ehci_hcd, uhci_hcd, uhci_hcd, uhci_hcd
+  22:          0   IO-APIC-level  VIA8233
+NMI:          0
+LOC:     661965
+ERR:          0
+MIS:          0
+
+--------------020201040500090809070401
+Content-Type: text/plain;
+ name="log"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="log"
+
+RmViICA5IDAxOjIwOjMyIGxvY2FsaG9zdCBrZXJuZWw6IGVoY2lfaGNkIDAwMDA6MDA6MTAu
+MzogZmF0YWwgZXJyb3IKRmViICA5IDAxOjIwOjMyIGxvY2FsaG9zdCBrZXJuZWw6IGVoY2lf
+aGNkIDAwMDA6MDA6MTAuMzogSEMgZGllZDsgY2xlYW5pbmcgdXAKRmViICA5IDAxOjIwOjMy
+IGxvY2FsaG9zdCBrZXJuZWw6IGJ0dHYwOiBPQ0VSUiBAIDM2MzUwMDFjLGJpdHM6IEhTWU5D
+IE9GTE9XIFJJU0NJKiBPQ0VSUioKRmViICA5IDAxOjIwOjMyIGxvY2FsaG9zdCBrZXJuZWw6
+IFtFQUdMRS1VU0JdIGV1X3VuaV9wcm9jZXNzX2luX2RhdGE6IG5vbi1pbnRlZ3JhbCBudW1i
+ZXIgb2YgY2VsbHMgaW4gaW5jb21pbmcgZGF0YS4KRmViICA5IDAxOjIwOjMyIGxvY2FsaG9z
+dCBrZXJuZWw6IFtFQUdMRS1VU0JdIGV1X3VuaV9wcm9jZXNzX2luX2RhdGE6IGluY29taW5n
+IGRhdGEgbGVuZ3RoID0gMS4KRmViICA5IDAxOjIwOjMyIGxvY2FsaG9zdCBrZXJuZWw6IFtF
+QUdMRS1VU0JdIGV1X3VuaV9wcm9jZXNzX2luX2RhdGE6IEFUTV9DRUxMX1NJWkUgPSAzNS4K
+RmViICA5IDAxOjIwOjMyIGxvY2FsaG9zdCBrZXJuZWw6IFtFQUdMRS1VU0JdIGV1X3VuaV9w
+cm9jZXNzX2luX2RhdGE6IG5vbi1pbnRlZ3JhbCBudW1iZXIgb2YgY2VsbHMgaW4gaW5jb21p
+bmcgZGF0YS4KRmViICA5IDAxOjIwOjMyIGxvY2FsaG9zdCBrZXJuZWw6IFtFQUdMRS1VU0Jd
+IGV1X3VuaV9wcm9jZXNzX2luX2RhdGE6IGluY29taW5nIGRhdGEgbGVuZ3RoID0gMS4KRmVi
+ICA5IDAxOjIwOjMyIGxvY2FsaG9zdCBrZXJuZWw6IFtFQUdMRS1VU0JdIGV1X3VuaV9wcm9j
+ZXNzX2luX2RhdGE6IEFUTV9DRUxMX1NJWkUgPSAzNS4KRmViICA5IDAxOjIwOjMyIGxvY2Fs
+aG9zdCBrZXJuZWw6IFtFQUdMRS1VU0JdIGV1X3VuaV9wcm9jZXNzX2luX2RhdGE6IG5vbi1p
+bnRlZ3JhbCBudW1iZXIgb2YgY2VsbHMgaW4gaW5jb21pbmcgZGF0YS4KRmViICA5IDAxOjIw
+OjMyIGxvY2FsaG9zdCBrZXJuZWw6IFtFQUdMRS1VU0JdIGV1X3VuaV9wcm9jZXNzX2luX2Rh
+dGE6IGluY29taW5nIGRhdGEgbGVuZ3RoID0gMS4KRmViICA5IDAxOjIwOjMyIGxvY2FsaG9z
+dCBrZXJuZWw6IFtFQUdMRS1VU0JdIGV1X3VuaV9wcm9jZXNzX2luX2RhdGE6IEFUTV9DRUxM
+X1NJWkUgPSAzNS4KRmViICA5IDAxOjIwOjMyIGxvY2FsaG9zdCBrZXJuZWw6IGluaXRfc3Bl
+Y2lhbF9pbm9kZTogYm9ndXMgaV9tb2RlICgwKQpGZWIgIDkgMDE6MjA6MzIgbG9jYWxob3N0
+IGxhc3QgbWVzc2FnZSByZXBlYXRlZCAxMSB0aW1lcwpGZWIgIDkgMDE6MjA6MzIgbG9jYWxo
+b3N0IGtlcm5lbDogaW5pdF9zcGVjaWFsX2lub2RlOiBib2d1cyBpX21vZGUgKDYzKQpGZWIg
+IDkgMDE6MjA6MzIgbG9jYWxob3N0IGtlcm5lbDogaW5pdF9zcGVjaWFsX2lub2RlOiBib2d1
+cyBpX21vZGUgKDApCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBidHR2MDog
+T0NFUlIgQCAzNjM1MDAxYyxiaXRzOiBIU1lOQyBPRkxPVyBSSVNDSSogT0NFUlIqCkZlYiAg
+OSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vz
+c19pbl9kYXRhOiBub24taW50ZWdyYWwgbnVtYmVyIG9mIGNlbGxzIGluIGluY29taW5nIGRh
+dGEuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91
+bmlfcHJvY2Vzc19pbl9kYXRhOiBpbmNvbWluZyBkYXRhIGxlbmd0aCA9IDEuCkZlYiAgOSAw
+MToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19p
+bl9kYXRhOiBBVE1fQ0VMTF9TSVpFID0gMzUuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qg
+a2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBub24taW50ZWdy
+YWwgbnVtYmVyIG9mIGNlbGxzIGluIGluY29taW5nIGRhdGEuCkZlYiAgOSAwMToyMDozMiBs
+b2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBp
+bmNvbWluZyBkYXRhIGxlbmd0aCA9IDEuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2Vy
+bmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBBVE1fQ0VMTF9TSVpF
+ID0gMzUuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBl
+dV91bmlfcHJvY2Vzc19pbl9kYXRhOiBub24taW50ZWdyYWwgbnVtYmVyIG9mIGNlbGxzIGlu
+IGluY29taW5nIGRhdGEuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFH
+TEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBpbmNvbWluZyBkYXRhIGxlbmd0aCA9
+IDEuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91
+bmlfcHJvY2Vzc19pbl9kYXRhOiBBVE1fQ0VMTF9TSVpFID0gMzUuCkZlYiAgOSAwMToyMDoz
+MiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRh
+OiBub24taW50ZWdyYWwgbnVtYmVyIG9mIGNlbGxzIGluIGluY29taW5nIGRhdGEuCkZlYiAg
+OSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vz
+c19pbl9kYXRhOiBpbmNvbWluZyBkYXRhIGxlbmd0aCA9IDEuCkZlYiAgOSAwMToyMDozMiBs
+b2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBB
+VE1fQ0VMTF9TSVpFID0gMzUuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBb
+RUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBub24taW50ZWdyYWwgbnVtYmVy
+IG9mIGNlbGxzIGluIGluY29taW5nIGRhdGEuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qg
+a2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBpbmNvbWluZyBk
+YXRhIGxlbmd0aCA9IDEuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFH
+TEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBBVE1fQ0VMTF9TSVpFID0gMzUuCkZl
+YiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJv
+Y2Vzc19pbl9kYXRhOiBub24taW50ZWdyYWwgbnVtYmVyIG9mIGNlbGxzIGluIGluY29taW5n
+IGRhdGEuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBl
+dV91bmlfcHJvY2Vzc19pbl9kYXRhOiBpbmNvbWluZyBkYXRhIGxlbmd0aCA9IDEuCkZlYiAg
+OSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vz
+c19pbl9kYXRhOiBBVE1fQ0VMTF9TSVpFID0gMzUuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhv
+c3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBub24taW50
+ZWdyYWwgbnVtYmVyIG9mIGNlbGxzIGluIGluY29taW5nIGRhdGEuCkZlYiAgOSAwMToyMDoz
+MiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRh
+OiBpbmNvbWluZyBkYXRhIGxlbmd0aCA9IDEuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qg
+a2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBBVE1fQ0VMTF9T
+SVpFID0gMzUuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNC
+XSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBub24taW50ZWdyYWwgbnVtYmVyIG9mIGNlbGxz
+IGluIGluY29taW5nIGRhdGEuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBb
+RUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBpbmNvbWluZyBkYXRhIGxlbmd0
+aCA9IDEuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBl
+dV91bmlfcHJvY2Vzc19pbl9kYXRhOiBBVE1fQ0VMTF9TSVpFID0gMzUuCkZlYiAgOSAwMToy
+MDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9k
+YXRhOiBub24taW50ZWdyYWwgbnVtYmVyIG9mIGNlbGxzIGluIGluY29taW5nIGRhdGEuCkZl
+YiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJv
+Y2Vzc19pbl9kYXRhOiBpbmNvbWluZyBkYXRhIGxlbmd0aCA9IDEuCkZlYiAgOSAwMToyMDoz
+MiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRh
+OiBBVE1fQ0VMTF9TSVpFID0gMzUuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVs
+OiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBub24taW50ZWdyYWwgbnVt
+YmVyIG9mIGNlbGxzIGluIGluY29taW5nIGRhdGEuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhv
+c3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBpbmNvbWlu
+ZyBkYXRhIGxlbmd0aCA9IDEuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBb
+RUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBBVE1fQ0VMTF9TSVpFID0gMzUu
+CkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlf
+cHJvY2Vzc19pbl9kYXRhOiBub24taW50ZWdyYWwgbnVtYmVyIG9mIGNlbGxzIGluIGluY29t
+aW5nIGRhdGEuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNC
+XSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBpbmNvbWluZyBkYXRhIGxlbmd0aCA9IDEuCkZl
+YiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJv
+Y2Vzc19pbl9kYXRhOiBBVE1fQ0VMTF9TSVpFID0gMzUuCkZlYiAgOSAwMToyMDozMiBsb2Nh
+bGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBub24t
+aW50ZWdyYWwgbnVtYmVyIG9mIGNlbGxzIGluIGluY29taW5nIGRhdGEuCkZlYiAgOSAwMToy
+MDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9k
+YXRhOiBpbmNvbWluZyBkYXRhIGxlbmd0aCA9IDEuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhv
+c3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBBVE1fQ0VM
+TF9TSVpFID0gMzUuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUt
+VVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBub24taW50ZWdyYWwgbnVtYmVyIG9mIGNl
+bGxzIGluIGluY29taW5nIGRhdGEuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVs
+OiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBpbmNvbWluZyBkYXRhIGxl
+bmd0aCA9IDEuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNC
+XSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBBVE1fQ0VMTF9TSVpFID0gMzUuCkZlYiAgOSAw
+MToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19p
+bl9kYXRhOiBub24taW50ZWdyYWwgbnVtYmVyIG9mIGNlbGxzIGluIGluY29taW5nIGRhdGEu
+CkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlf
+cHJvY2Vzc19pbl9kYXRhOiBpbmNvbWluZyBkYXRhIGxlbmd0aCA9IDEuCkZlYiAgOSAwMToy
+MDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9k
+YXRhOiBBVE1fQ0VMTF9TSVpFID0gMzUuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2Vy
+bmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBub24taW50ZWdyYWwg
+bnVtYmVyIG9mIGNlbGxzIGluIGluY29taW5nIGRhdGEuCkZlYiAgOSAwMToyMDozMiBsb2Nh
+bGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBpbmNv
+bWluZyBkYXRhIGxlbmd0aCA9IDEuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVs
+OiBbRUFHTEUtVVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBBVE1fQ0VMTF9TSVpFID0g
+MzUuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91
+bmlfcHJvY2Vzc19pbl9kYXRhOiBub24taW50ZWdyYWwgbnVtYmVyIG9mIGNlbGxzIGluIGlu
+Y29taW5nIGRhdGEuCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUt
+VVNCXSBldV91bmlfcHJvY2Vzc19pbl9kYXRhOiBpbmNvbWluZyBkYXRhIGxlbmd0aCA9IDEu
+CkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBldV91bmlf
+cHJvY2Vzc19pbl9kYXRhOiBBVE1fQ0VMTF9TSVpFID0gMzUuCkZlYiAgOSAwMToyMDozMiBs
+b2NhbGhvc3Qga2VybmVsOiBidHR2MDogT0NFUlIgQCAzNjM1MDAxYyxiaXRzOiBIU1lOQyBP
+RkxPVyBSSVNDSSogT0NFUlIqCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiB1
+aGNpX2hjZCAwMDAwOjAwOjEwLjA6IGhvc3Qgc3lzdGVtIGVycm9yLCBQQ0kgcHJvYmxlbXM/
+CkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiB1aGNpX2hjZCAwMDAwOjAwOjEw
+LjA6IGhvc3QgY29udHJvbGxlciBoYWx0ZWQsIHZlcnkgYmFkIQpGZWIgIDkgMDE6MjA6MzIg
+bG9jYWxob3N0IGtlcm5lbDogYnR0djA6IE9DRVJSIEAgMzYzNTAwMWMsYml0czogSFNZTkMg
+T0ZMT1cgUklTQ0kqIE9DRVJSKgpGZWIgIDkgMDE6MjA6MzIgbG9jYWxob3N0IGtlcm5lbDog
+aW5pdF9zcGVjaWFsX2lub2RlOiBib2d1cyBpX21vZGUgKDApCkZlYiAgOSAwMToyMDozMiBs
+b2NhbGhvc3QgbGFzdCBtZXNzYWdlIHJlcGVhdGVkIDQgdGltZXMKRmViICA5IDAxOjIwOjMy
+IGxvY2FsaG9zdCBrZXJuZWw6IGJ0dHYwOiBPQ0VSUiBAIDM2MzUwMDFjLGJpdHM6IEhTWU5D
+IE9GTE9XIFJJU0NJKiBPQ0VSUioKRmViICA5IDAxOjIwOjMyIGxvY2FsaG9zdCBsYXN0IG1l
+c3NhZ2UgcmVwZWF0ZWQgMyB0aW1lcwpGZWIgIDkgMDE6MjA6MzIgbG9jYWxob3N0IGtlcm5l
+bDogdXNiIDItMjogbmV3IGZ1bGwgc3BlZWQgVVNCIGRldmljZSB1c2luZyB1aGNpX2hjZCBh
+bmQgYWRkcmVzcyAzCkZlYiAgOSAwMToyMDozMiBsb2NhbGhvc3Qga2VybmVsOiBidHR2MDog
+T0NFUlIgQCAzNjM1MDAxYyxiaXRzOiBIU1lOQyBPRkxPVyBSSVNDSSogT0NFUlIqCkZlYiAg
+OSAwMToyMDozNCBsb2NhbGhvc3QgbGFzdCBtZXNzYWdlIHJlcGVhdGVkIDQyIHRpbWVzCkZl
+YiAgOSAwMToyMDozNCBsb2NhbGhvc3Qga2VybmVsOiBbRUFHTEUtVVNCXSBDdHJsIFVyYiBX
+YXRjaGVyIGV4cGlyZWQuIEFib3V0IHRvIHJlbW92ZSBVUkIgZjVlMWJkNjAKRmViICA5IDAx
+OjIwOjM0IGxvY2FsaG9zdCBrZXJuZWw6IGJ0dHYwOiBPQ0VSUiBAIDM2MzUwMDFjLGJpdHM6
+IEhTWU5DIE9GTE9XIFJJU0NJKiBPQ0VSUioKRmViICA5IDAxOjIwOjM2IGxvY2FsaG9zdCBs
+YXN0IG1lc3NhZ2UgcmVwZWF0ZWQgNDkgdGltZXMKRmViICA5IDAxOjIwOjM2IGxvY2FsaG9z
+dCBrZXJuZWw6IFtFQUdMRS1VU0JdIEN0cmwgVXJiIFdhdGNoZXIgZXhwaXJlZC4gQWJvdXQg
+dG8gcmVtb3ZlIFVSQiBmNWUxYmFlMApGZWIgIDkgMDE6MjA6MzYgbG9jYWxob3N0IGtlcm5l
+bDogYnR0djA6IE9DRVJSIEAgMzYzNTAwMWMsYml0czogSFNZTkMgT0ZMT1cgUklTQ0kqIE9D
+RVJSKgo=
+--------------020201040500090809070401--

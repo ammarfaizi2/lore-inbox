@@ -1,68 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285585AbRLWI0b>; Sun, 23 Dec 2001 03:26:31 -0500
+	id <S285590AbRLWI1F>; Sun, 23 Dec 2001 03:27:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285590AbRLWI0V>; Sun, 23 Dec 2001 03:26:21 -0500
-Received: from CPE0002b3140673.cpe.net.cable.rogers.com ([24.156.0.228]:31948
-	"EHLO pyre.virge.net") by vger.kernel.org with ESMTP
-	id <S285585AbRLWI0L>; Sun, 23 Dec 2001 03:26:11 -0500
-Date: Sun, 23 Dec 2001 03:26:09 -0500
-From: Norbert Veber <nveber@pyre.virge.net>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17] net/network.o(.text.lock+0x1a88): undefined reference to `local symbols...
-Message-ID: <20011223082609.GA10136@pyre.virge.net>
-In-Reply-To: <20011223032213.GA20031@pyre.virge.net> <22315.1009084719@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="h31gzZEtNLTqOjlF"
-Content-Disposition: inline
-In-Reply-To: <22315.1009084719@ocs3.intra.ocs.com.au>
-User-Agent: Mutt/1.3.24i
+	id <S285591AbRLWI0v>; Sun, 23 Dec 2001 03:26:51 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:4076 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S285590AbRLWI0n>;
+	Sun, 23 Dec 2001 03:26:43 -0500
+Message-ID: <3C2595A0.3030804@athlon.maya.org>
+Date: Sun, 23 Dec 2001 09:28:16 +0100
+From: Andreas Hartmann <andihartmann@freenet.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Kernel-Mailingliste <linux-kernel@vger.kernel.org>
+Subject: pcmcia / hotplugging in kernel 2.4.16/17 with Thinkpad T21
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello all,
 
---h31gzZEtNLTqOjlF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Some hints for using pcmcia / hotplugging feature with kernel 2.4.16/17. 
+Please notice my mail "[2.4.17rc1] various hotplugging problems" too.
 
-On Sun, Dec 23, 2001 at 04:18:39PM +1100, Keith Owens wrote:
-> Got bored, wrote some Perl (Oh hang on, I've used that before).
->=20
-> net/network.o is not much help, it is a conglomerate object.  I need
-> the individual object that is failing.  cd linux and run
-> reference_discarded.pl below.
+My laptop is a IBM Thinkpad T21. I have the PCMCIA-card
+Xircom CBEM56G-100 CardBus 10/ 100 CardBus 10/100 Ethernet + 56K Modem.
+APM is enabled. "Ignore user suspend" and "allow interrupts during APM 
+BIOS calls" seem to have no effect.
 
-nveber@pyre[9526:/usr/src/linux]$ ~/reference_discarded.pl
-Finding objects, 790 objects, ignoring 132 module(s)
-Finding conglomerates, ignoring 57 conglomerate(s)
-Scanning objects
-Error: ./net/ipv4/netfilter/ip_nat_snmp_basic.o .text.lock refers to 000000=
-3c R_386_PC32        .text.exit
-Done
 
->=20
-> Any other patches applied?
+There are potentially two ways to get pcmcia working:
 
-Nope.
+1. Using hotplug-function of kernel 2.4.x
+I could get it working (basic modules statically linked
+in the kernel) with some restrictions:
+- No ethernet connects with autonegotiation 100Mb/FD are possible.
+- Forcing 100Mb/FD on client and server is possible with a lot of errors
+   on the laptop.
+- apm -s crashes the laptop.
+- Hotplugging feature doesn't recognize the modem on the Xircom card.
 
-Thanks,
+2. Using no hotplugging of the kernel but only the pcmcia-cs-package 
+(3.1.29/30)
+It was for me the best way with the fewest restrictions.
 
-Norbert
+Restarting of pcmcia after stopping and laptop has been once in suspend 
+mode before doesn't work. Not later than the next card-change, the 
+laptop hangs.
+That's why it is good to leave cardmgr / pcmcia untouched once it is 
+started.
+If you leave cardmgr and modules untouched, apm -s or HW-suspend via 
+Fn-F4 seems to work.
 
---h31gzZEtNLTqOjlF
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Another problem was the hotplugging of the cdrom or the floppy drive.
+It is necessary to put the boot option "hdc=cdrom" in lilo.conf to give
+the kernel the chance to find the cdrom drive plugged in after booting.
+The floppy drive is found with /dev/fd1 (not fd0).
+If you change the floppy drive / cdrom drive, it is necessary to do a
+HW-suspend and wake up (with Fn-F4 - key combination) to give the kernel
+a chance to recognize the changed HW.
+Because of this, it's very important to have a working suspend mode - no 
+matter
+if hw-mode or sw-mode.
 
-iD8DBQE8JZUhohfEw14utbQRAi7ZAJ4xrBoVi0CYQcxza+VY7DfcRt5NuACgtvpp
-Jf2GDyTO6i9TXX9Z3dgcZqU=
-=Ihwl
------END PGP SIGNATURE-----
 
---h31gzZEtNLTqOjlF--
+I would be glad to hear your experiences / comments,
+regards,
+Andreas Hartmann
+

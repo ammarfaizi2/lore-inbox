@@ -1,58 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbUKSOM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbUKSOOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbUKSOM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 09:12:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbUKSOLZ
+	id S261420AbUKSOOk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 09:14:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbUKSOND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 09:11:25 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:42246 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261417AbUKSOLS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 09:11:18 -0500
-Date: Fri, 19 Nov 2004 15:11:16 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>, David Woodhouse <dwmw2@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: RFC: let x86_64 no longer define X86
-Message-ID: <20041119141116.GB5390@stusta.de>
-References: <20041119005117.GM4943@stusta.de> <20041119085132.GB26231@wotan.suse.de> <419DC922.1020809@pobox.com> <20041119103418.GB30441@wotan.suse.de> <1100863700.21273.374.camel@baythorne.infradead.org> <20041119115539.GC21483@wotan.suse.de> <1100865050.21273.376.camel@baythorne.infradead.org> <20041119120549.GD21483@wotan.suse.de> <419DE33E.2000208@pobox.com> <20041119121909.GF21483@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041119121909.GF21483@wotan.suse.de>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 19 Nov 2004 09:13:03 -0500
+Received: from ppsw-5.csi.cam.ac.uk ([131.111.8.135]:65167 "EHLO
+	ppsw-5.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261417AbUKSOLi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 09:11:38 -0500
+Date: Fri, 19 Nov 2004 14:11:33 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: tridge@samba.org
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: performance of filesystem xattrs with Samba4
+In-Reply-To: <16797.60034.186288.663343@samba.org>
+Message-ID: <Pine.LNX.4.60.0411191352050.8634@hermes-1.csi.cam.ac.uk>
+References: <16797.41728.984065.479474@samba.org> <1100865833.6443.17.camel@imp.csi.cam.ac.uk>
+ <16797.60034.186288.663343@samba.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 19, 2004 at 01:19:10PM +0100, Andi Kleen wrote:
-> On Fri, Nov 19, 2004 at 07:12:46AM -0500, Jeff Garzik wrote:
-> > Andi Kleen wrote:
-> > >I don't know details about the driver, but it's not enabled on x86-64 
-> > >because x86-64 doesn't have ISA set.
-> > 
-> > 
-> > which I disagree with.  CONFIG_ISA should include southbridge devices 
-> > behind a PCI<->ISA bridge.  There is zero value to a more stricter 
-> > "there is a physical ISA bus in this machine" definition.
+Hi Tridge,
+
+On Fri, 19 Nov 2004 tridge@samba.org wrote:
+>  > Note, that NTFS supports all those things natively on the file system,
+>  > so it may be worth keeping in mind when designing your APIs.  It would
+>  > be nice if one day when ntfs write support is finished, when running
+>  > Samba on an NTFS partition on Linux, Samba can directly access all those
+>  > things directly from NTFS. 
 > 
-> There is. It gets rid of many tens of drivers that are not and will never
-> be 64bit clean and have a snowball in hell chances to work on x86-64.
->...
+> yes, I have certainly thought about this, and at the core of Samba4 is
+> a "ntvfs" layer that allows for backends that can take full advantage
+> of whatever the filesystem can offer. The ntvfs/posix/ code in Samba4
+> is quite small (currently 7k lines of code) and I'm hoping that more
+> specialised backends will be written that talk to other types of
+> filesystems.
 
-If this was correctly annotated with (!64BIT || BROKEN), such a broken 
-driver wasn't offered on Alpha, too.
+Sounds great!
 
-> -Andi
+> To get things started I've also written a "cifs" backend for Samba4,
+> that uses another CIFS file server as a storage backend, turning
+> Samba4 into a proxy server. That backend uses the full capabilities of
+> the ntvfs layer, and implements nearly all of the detailed stuff that
+> a NTFS can do.
+> 
+>  > I guess a good way would be if your interface is sufficiently
+>  > abstracted so that it can use xattrs as a backend or a native
+>  > backend which NTFS could provide for you or Samba could provide for
+>  > NTFS.  For example NTFS stores the 4 different times in NT format
+>  > in each inode (base Mft record) so you would not have to take an
+>  > xattr performance hit there.
+> 
+> The big question is what sort of API would you envisage between user
+> space and this filesystem? Are you imagining that Samba mmap the raw
+> disk and use a libntfs library? That would be possible, but would lose
+> one of the big advantages of Samba, which is that the filesystem is
+> available to both posix and windows apps.
+> 
+> Or are you thinking that we add a new syscall interface to, a bit like
+> the IRP stuff in the NT IFS? I imagine there would be quite a bit of
+> resistance to that in the Linux kernel community :-)
+> 
+> Realistically, I think that in the vast majority of cases Samba is
+> going to be running on top of "mostly posix" filesystems for the
+> forseeable future, unless you manage to do something pretty magical
+> with the ntfs code. But if you do manage to get ntfs in Linux to the
+> stage where its a viable alternative then I'd be delighted to help
+> write the Samba4 backend to match.
 
-cu
-Adrian
+I don't know.  I have been mulling over in my head for quite a while what 
+to do about an interface for "advanced ntfs features" but so far I have 
+always pushed this to the back of my mind.  After all no point in 
+providing advanced features considering we don't even provide full 
+read-write access yet.  I just thought I would mentione NTFS when I saw 
+your post.
 
+But to answer your question I definitely would envisage an interface to 
+the kernel driver rather than to libntfs.  It is 'just' a matter of 
+deciding how that would look...
+
+Partially we will see what happens with Reiser4 as it faces the same or at 
+least very simillar interface problems.  Maybe we need a sys_ntfs() or 
+maybe we need to hitchhike the ioctl() interface or maybe the VFS can 
+start providing all required functionality in some to be determined 
+manner that we can use...
+
+Best regards,
+
+	Anton
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

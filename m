@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129319AbQLPBFC>; Fri, 15 Dec 2000 20:05:02 -0500
+	id <S130204AbQLPBGW>; Fri, 15 Dec 2000 20:06:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129340AbQLPBEx>; Fri, 15 Dec 2000 20:04:53 -0500
-Received: from thalia.fm.intel.com ([132.233.247.11]:64776 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S129319AbQLPBEg>; Fri, 15 Dec 2000 20:04:36 -0500
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDE40@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: "'Borislav Deianov'" <borislav@ensim.com>, alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: recommended build environment
-Date: Fri, 15 Dec 2000 16:33:37 -0800
+	id <S130245AbQLPBGM>; Fri, 15 Dec 2000 20:06:12 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3851 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130204AbQLPBGD>; Fri, 15 Dec 2000 20:06:03 -0500
+Subject: Re: lock_kernel() / unlock_kernel inconsistency Don't do this!
+To: george@mvista.com (george anzinger)
+Date: Sat, 16 Dec 2000 00:37:53 +0000 (GMT)
+Cc: jwohlgem@mindspring.com (Jason Wohlgemuth), linux-kernel@vger.kernel.org
+In-Reply-To: <3A3AB515.26227812@mvista.com> from "george anzinger" at Dec 15, 2000 04:19:33 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1475MO-00026g-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Borislav Deianov [mailto:borislav@ensim.com]
-> 
-> In article <E146jNL-0000SN-00@the-village.bc.nu> you wrote:
-> >> > o	We tell vendors to build RPMv3 , glibc 2.1.x
-> >> Curious HOW do you tell vendors??
-> 
-> > When they ask. More usefully Dan Quinlann and most vendors 
-> put together a
-> > recommended set of things to build with and use. It warns 
-> about library
-> > pitfalls, kernel changes and what packaging is supported. 
-> It is far from
-> > perfect and nothing like the LSB goals but its a start and 
-> following it does
-> > give you applications that with a bit of care run on everything.
-> 
-> Is that recommendation available online anywhere? What about RedHat's?
-> If not, who do I email for a copy in each case?
+> Both of these methods have problems, especially with the proposed
+> preemptions changes.  The first case causes the thread to run with the
+> BKL for the whole time.  This means that any other task that wants the
+> BKL will be blocked.  Surly the needed protections don't require this. 
 
-The Quinlan et al recommendations are at
-http://www.freestandards.org/ldps/ .
+The BKL is dropped on rescheduling of that task. Its an enforcement of the
+old unix guarantees against other code making the same assumptions. Its also
+the standard 2.4 locking for several things still
 
-~Randy
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

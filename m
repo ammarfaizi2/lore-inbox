@@ -1,91 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVAHQSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVAHQXl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbVAHQSv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 11:18:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVAHQSv
+	id S261204AbVAHQXl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 11:23:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVAHQXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 11:18:51 -0500
-Received: from pD9F874CB.dip0.t-ipconnect.de ([217.248.116.203]:7040 "EHLO
-	susi.maya.org") by vger.kernel.org with ESMTP id S261202AbVAHQSl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 11:18:41 -0500
-From: Andreas Hartmann <andihartmann@01019freenet.de>
-X-Newsgroups: fa.linux.kernel
-Subject: Re: 2.4.x oops with X
-Date: Sat, 08 Jan 2005 17:18:00 +0100
-Organization: privat
-Message-ID: <crp134$sg$1@pD9F874CB.dip0.t-ipconnect.de>
-References: <fa.gv4g3v7.1ng0thr@ifi.uio.no> <fa.kmfmtrp.1a16aaf@ifi.uio.no>
+	Sat, 8 Jan 2005 11:23:41 -0500
+Received: from null.rsn.bth.se ([194.47.142.3]:50922 "EHLO null.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S261204AbVAHQXi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 11:23:38 -0500
+Subject: Re: Swapoff inifinite loops on 2.6.10-bk (was: .6.10-bk8 swapoff
+	after resume)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Lukas Hejtmanek <xhejtman@mail.muni.cz>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0501081547260.2688-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0501081547260.2688-100000@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-95rVk1KI3gGkF7bSJ7wQ"
+Date: Sat, 08 Jan 2005 17:23:34 +0100
+Message-Id: <1105201414.4514.2.camel@tux.rsn.bth.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: abuse@fu.berlin.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.4) Gecko/20041217
-X-Accept-Language: de, en-us, en
-In-Reply-To: <fa.kmfmtrp.1a16aaf@ifi.uio.no>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-To: linux-kernel@vger.kernel.org
+X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Hartmann schrieb:
-[...]
-> But now, the question is:
-> Why does X crash running kernel 2.4.x with glibc 2.3.4 and not with kernel
-> 2.6.10? Why does X run fine using kernel 2.4 and 2.6 with glibc 2.3.3?
-> 
-> ----------------------------------------------
-> 	|		glibc
-> 	|	2.3.3		2.3.4
-> ------|-------------------------------------
-> kernel|
-> 2.4	|	X ok		X segfaults
-> 2.6	|	X ok		X ok
 
+--=-95rVk1KI3gGkF7bSJ7wQ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Meanwhile, I could find where X crashes using glibc 2.3.4 with kernel 2.4.
-It's this piece of code in linux_vm86.c:267
+On Sat, 2005-01-08 at 16:00 +0000, Hugh Dickins wrote:
 
-static int
-vm86_rep(struct vm86_struct *ptr)
-{
-    int __res;
+> You're right, and yes, I could then reproduce it.  Looks like I'd only
+> been testing on 3levels (HIGHMEM64G), and this only happens on 2levels.
+>=20
+> Patch below, please verify it fixes your problems.  And please, could
+> someone else check I haven't screwed up swapoff on 4levels (x86_64)?
+> From the likeness of the code at all levels I'd expect it to be fine,
+> but there's nothing like a real test - thanks...
 
-#ifdef __PIC__
-    /* When compiling with -fPIC, we can't use asm constraint "b" because
-       %ebx is already taken by gcc. */
-    __asm__ __volatile__("pushl %%ebx\n\t"
-                         "movl %2,%%ebx\n\t"
-                         "movl %1,%%eax\n\t"
-                         "int $0x80\n\t"
-                         "popl %%ebx"
-                         :"=a" (__res)
-                         :"n" ((int)113), "r" ((struct vm86_struct *)ptr));
-#else
-    __asm__ __volatile__("int $0x80\n\t"
-                         :"=a" (__res):"a" ((int)113),
-                         "b" ((struct vm86_struct *)ptr));
-#endif
+The patch fixes the problem completely here.
+swapoff after running the memory hog works as expected.
+and swapoff after suspend to disk and resume also works fine.
 
-            if (__res < 0) {
-                errno = -__res;
-                __res = -1;
-            }
-            else errno = 0;
-            return __res;
-}
+Thanks for tracking this down and fixing it.
 
+--=20
+/Martin
 
-The function ExecX86int10 (vbe.c) calls do_vm86 (linux_vm86.c), which
-calls vm86_rep (linux_vm86.c).
+--=-95rVk1KI3gGkF7bSJ7wQ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-I don't understand, why this piece of assembler code works fine with glibc
-2.3.3, but not with glibc 2.3.4, running kernel 2.4.x. It works fine again
-with kernel 2.6.
+iD8DBQBB4AkGWm2vlfa207ERAmXXAJ9p6NNRFVjPVq8cF4RBi0wmOEXylQCfdppD
+gl8Ergh+tfYVL5YZ4xHn8/U=
+=lXSK
+-----END PGP SIGNATURE-----
 
-
-
-Kind regards,
-Andreas Hartmann
+--=-95rVk1KI3gGkF7bSJ7wQ--

@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267377AbTALSCQ>; Sun, 12 Jan 2003 13:02:16 -0500
+	id <S267381AbTALSHg>; Sun, 12 Jan 2003 13:07:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267379AbTALSCQ>; Sun, 12 Jan 2003 13:02:16 -0500
-Received: from [64.8.50.187] ([64.8.50.187]:36495 "EHLO mta5.adelphia.net")
-	by vger.kernel.org with ESMTP id <S267377AbTALSCP>;
-	Sun, 12 Jan 2003 13:02:15 -0500
-Subject: "make install" error: No module raid5 found for kernel 2.5.56
-From: jeff millar <wa1hco@adelphia.net>
-To: linux-kernel@vger.kernel.org
+	id <S267384AbTALSHg>; Sun, 12 Jan 2003 13:07:36 -0500
+Received: from tomts22-srv.bellnexxia.net ([209.226.175.184]:4784 "EHLO
+	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S267381AbTALSHf>; Sun, 12 Jan 2003 13:07:35 -0500
+Subject: [FIXED] 2.5 evolution problem
+From: Shane Shrybman <shrybman@sympatico.ca>
+To: linux-kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 12 Jan 2003 13:12:37 -0500
-Message-Id: <1042395158.19325.7.camel@maggie>
+Organization: 
+Message-Id: <1042395383.2397.8.camel@mars.goatskin.org>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 12 Jan 2003 13:16:24 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any ideas about the following problem?
+Hi,
 
-The following error shows up at the end of "make install" after a
-successful make and make modules_install.  I've tried making with raid5
-both modular and compiled in and with various combinations of other raid
-module options.  Same error each time.  Also tried after a make
-mrproper.
+The bug causing problems with the evolution address book is fixed in
+2.5.56. I don't know if it was fixed in 2.5.55 or 2.5.56 but it was
+broken in 2.5.54.
 
-This is with stock 2.5.56 on a Redhat 8.0 box with the 0.9.8
-module-init-tools
+This bug(#112) is listed as RESOLVED at bugme.osdl.org. Should it be
+moved to CLOSED?
 
-============================================
-<....> 
-Kernel: arch/i386/boot/bzImage is ready
-sh arch/i386/boot/install.sh 2.5.56 arch/i386/boot/bzImage System.map ""
-No module raid5 found for kernel 2.5.56
-make[1]: *** [install] Error 1
-make: *** [install] Error 2
+Also how would one find out what the resolution was at bugme.osdl.org?
+Is there a pointer to patch or cset that I missed somewhere there?
 
+Regards,
 
-
-
+Shane
 

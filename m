@@ -1,89 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265585AbUAPQAi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 11:00:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265588AbUAPQAh
+	id S265626AbUAPQIv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 11:08:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265630AbUAPQIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 11:00:37 -0500
-Received: from 12-211-64-199.client.attbi.com ([12.211.64.199]:12161 "EHLO
-	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
-	id S265585AbUAPQA0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 11:00:26 -0500
-Message-ID: <40080A98.4080105@comcast.net>
-Date: Fri, 16 Jan 2004 08:00:24 -0800
-From: Walt H <waltabbyh@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040111
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: maneesh@in.ibm.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.1-mm2: BUG in kswapd?
-References: <400762F9.5010908@comcast.net> <20040116094037.GA1276@in.ibm.com> <20040116102211.GC1276@in.ibm.com>
-In-Reply-To: <20040116102211.GC1276@in.ibm.com>
-X-Enigmail-Version: 0.82.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Fri, 16 Jan 2004 11:08:51 -0500
+Received: from gprs214-224.eurotel.cz ([160.218.214.224]:9600 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S265626AbUAPQIt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 11:08:49 -0500
+Date: Fri, 16 Jan 2004 17:08:41 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Eric Youngdale <eric@andante.org>,
+       Eric Youngdale <ericy@cais.com>
+Subject: Re: [PATCH] stronger ELF sanity checks v2
+Message-ID: <20040116160841.GA302@elf.ucw.cz>
+References: <Pine.LNX.4.56.0401130228490.2265@jju_lnx.backbone.dif.dk> <20040113033234.GD2000@vitelus.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20040113033234.GD2000@vitelus.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maneesh Soni wrote:
-> On Fri, Jan 16, 2004 at 03:10:37PM +0530, Maneesh Soni wrote:
-> 
-> [..]
-> 
->>Can you elaborate on the recreation scenario a little bit more or if possible
->>run this debug patch on top of -mm3. This should print some info about the 
->>bad dentry.
->>
-> 
-> 
-> 
-> Walt,
-> 
-> Pleae run this debug patch instead of the previous one. Thanks to Andrew
-> for suggestion.
-> 
-> 
->  fs/dcache.c |    6 ++++++
->  1 files changed, 6 insertions(+)
-> 
-> diff -puN fs/dcache.c~prune_dcache-debug fs/dcache.c
-> --- linux-2.6.1-mm3/fs/dcache.c~prune_dcache-debug	2004-01-16 14:36:00.000000000 +0530
-> +++ linux-2.6.1-mm3-maneesh/fs/dcache.c	2004-01-16 15:41:26.000000000 +0530
-> @@ -344,6 +344,12 @@ static inline void prune_one_dentry(stru
->  	struct dentry * parent;
->  
->  	__d_drop(dentry);
-> +	if (dentry->d_child.next->prev != &dentry->d_child) {
-> +		printk("Bad dentry for %s count %d %p %p\n", dentry->d_name.name, atomic_read(&dentry->d_count), dentry->d_child.next, dentry->d_child.prev);
-> +		if (dentry->d_sb)
-> +			printk("Super block magic %lx\n", dentry->d_sb->s_magic);
-> +		BUG();
-> +	}
->  	list_del(&dentry->d_child);
->  	dentry_stat.nr_dentry--;	/* For d_free, below */
->  	dentry_iput(dentry);
-> 
-> _
-> 
+Hi!
 
-OK. I've got -mm3 with this debug patch running now. Hopefully this will
-give us more info.
+> On Tue, Jan 13, 2004 at 02:55:07AM +0100, Jesper Juhl wrote:
+> > Here's the second version of my patch to add better sanity checks for
+> > binfmt_elf
+> 
+> I assume this breaks Brian Raiter's tiny ELF executables[1]. Even
+> though these binaries are evil hacks that don't comply to standards
+> and serve no serious purpose, I'm not sure what the purpose of the
+> sanity checks is. Are there any risks associated with running
+> non-compliant ELF executables? (Now that I mention it, the
 
-My workload that causes this bug most readily to appear is:
+You get vy ugly behaviour. If you compile executable with huge static
+data, it will compile okay, link okay, *launch okay* and die on
+segfault. That's wrong, it should have died on -ENOMEM during exec.
+								Pavel
 
-Use the computer system for a few hours. Compile some apps, surf, email
-etc...  At the end of the day, I typically shut down the system to
-runlevel 1 to back it up. I've got a 2 disk md raid0 array that is my
-primary working array, which I then backup to a 2 disk device mapper
-raid0 array. An rsync from the primary to the secondary usually trips
-the bug. If I boot the system and immediately do the rsync, it will
-complete. It takes a period of uptime to trigger.
-
-I've got a rather lengthy compile process now, so will try the rsync
-after work and report on any debug success (rsync failures). Thanks,
-
--Walt
-
-
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

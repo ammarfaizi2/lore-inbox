@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270797AbTHFT0D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 15:26:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270862AbTHFT0D
+	id S270882AbTHFT3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 15:29:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270925AbTHFT3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 15:26:03 -0400
-Received: from 69-55-72-141.ppp.netsville.net ([69.55.72.141]:63156 "EHLO
-	tiny.suse.com") by vger.kernel.org with ESMTP id S270797AbTHFT0A
+	Wed, 6 Aug 2003 15:29:16 -0400
+Received: from guri.is.kpn.be ([193.74.71.22]:16302 "EHLO guri.is.kpn.be")
+	by vger.kernel.org with ESMTP id S270882AbTHFT3O convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 15:26:00 -0400
-Subject: [PATCH] [2.4] beyond_eof check in generic_direct_IO
-From: Chris Mason <mason@suse.com>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1060197938.5877.442.camel@tiny.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 06 Aug 2003 15:25:38 -0400
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Aug 2003 15:29:14 -0400
+From: Frank Van Damme <frank.vandamme@student.kuleuven.ac.be>
+To: Michael Buesch <fsdeveloper@yahoo.de>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6] system is very slow during disk access
+Date: Wed, 6 Aug 2003 21:29:26 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-ide@vger.kernel.org
+References: <200308062052.10752.fsdeveloper@yahoo.de>
+In-Reply-To: <200308062052.10752.fsdeveloper@yahoo.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200308062129.26371.frank.vandamme@student.kuleuven.ac.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Wednesday 06 August 2003 20:51, Michael Buesch wrote:
+> Hi.
+>
+> I have massive problems with linux-2.6.0-test2.
+> When some process writes something to disk, it's very hard
+> to go on working with the system.
+>
+> Some test-szenario:
+> $ dd if=/dev/zero of=./test.file
+>
+> While dd is running, xmms skips playing every now and then
+> and the mouse is near to be unusable. The Mouse-cursor
+> behaves some kind of very lazy and some times it jumps
+> from one point on the display to another.
+> When I stop disk-access, it works again quite fine.
+>
+> Would be cool, if you could give me some point to start
+> for tracking this down.
+>
+> Please CC me, as I'm not subscribed to linux-ide. Thanks.
 
-reiserfs has to do a few odd tail conversion steps during direct io. 
-Picture a file whose size is currently 3500 bytes, and a direct io write
-extending it to 4096 bytes.
+Maybe you just didn't enable DMA on them. Use hdparm -v /dev/foo to find out. 
 
-reiserfs will have those 3500 bytes packed into a tail, and when it gets
-a get_block call with create == 1, it will convert the tail into a full
-block and return the newly created block.
-
-The new generic_direct_IO code doesn't send create == 1 to get_block
-unless the new block is entirely past eof.  I think it should instead
-allow any part of the block to be past eof, which allows reiserfs to
-properly convert the tail:
-
--chris
-
---- 1.89/fs/buffer.c	Tue Jun 24 17:11:29 2003
-+++ edited/fs/buffer.c	Fri Jul 18 13:24:57 2003
-@@ -2147,7 +2148,7 @@
- 		bh.b_size = blocksize;
- 		bh.b_page = NULL;
- 
--		if (((loff_t) blocknr) * blocksize >= inode->i_size)
-+		if (((loff_t) (blocknr + 1)) * blocksize > inode->i_size)
- 			beyond_eof = 1;
- 
- 		/* Only allow get_block to create new blocks if we are safely
-
-
+-- 
+Frank Van Damme    http://www.openstandaarden.be 
+~~~~~~~~~~~~~~~    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"Je pense, donc je suis breveté."
 

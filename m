@@ -1,16 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129778AbQLKOlP>; Mon, 11 Dec 2000 09:41:15 -0500
+	id <S129730AbQLKOlg>; Mon, 11 Dec 2000 09:41:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129730AbQLKOlE>; Mon, 11 Dec 2000 09:41:04 -0500
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:54149 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S129511AbQLKOky> convert rfc822-to-8bit; Mon, 11 Dec 2000 09:40:54 -0500
+	id <S129904AbQLKOlP>; Mon, 11 Dec 2000 09:41:15 -0500
+Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:17836 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S129511AbQLKOlG> convert rfc822-to-8bit; Mon, 11 Dec 2000 09:41:06 -0500
 From: Heiko.Carstens@de.ibm.com
 X-Lotus-FromDomain: IBMDE
 To: linux-kernel@vger.kernel.org
-Message-ID: <C12569B2.004D1644.00@d12mta01.de.ibm.com>
-Date: Mon, 11 Dec 2000 15:01:55 +0100
+Message-ID: <C12569B2.004D4100.00@d12mta01.de.ibm.com>
+Date: Mon, 11 Dec 2000 15:03:47 +0100
+Subject: CPU attachent and detachment in a running Linux system
 Mime-Version: 1.0
 Content-type: text/plain; charset=iso-8859-1
 Content-Disposition: inline

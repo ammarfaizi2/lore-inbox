@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129613AbRCHUPi>; Thu, 8 Mar 2001 15:15:38 -0500
+	id <S129657AbRCHUR6>; Thu, 8 Mar 2001 15:17:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129623AbRCHUP2>; Thu, 8 Mar 2001 15:15:28 -0500
-Received: from waste.org ([209.173.204.2]:2388 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S129613AbRCHUPR>;
-	Thu, 8 Mar 2001 15:15:17 -0500
-Date: Thu, 8 Mar 2001 14:13:55 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Andrew Morton <andrewm@uow.edu.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] documentation for mm.h
-In-Reply-To: <Pine.LNX.4.33.0103071931400.1409-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.30.0103081400450.30996-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129666AbRCHURu>; Thu, 8 Mar 2001 15:17:50 -0500
+Received: from mnh-1-21.mv.com ([207.22.10.53]:25096 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S129657AbRCHURd>;
+	Thu, 8 Mar 2001 15:17:33 -0500
+Message-Id: <200103082128.QAA03538@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: "Paul Larson" <plars@us.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel stress testing coverage 
+In-Reply-To: Your message of "Thu, 08 Mar 2001 13:52:21 CST."
+             <OF6900214E.F6A2F64E-ON85256A09.006A7125@raleigh.ibm.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 08 Mar 2001 16:28:24 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Mar 2001, Rik van Riel wrote:
+plars@us.ibm.com said:
+>  I've heard of tools like gcov for doing this with applications, but
+> the kernel itself seems like it might require something more.
 
-> I've taken today to write some documentation for
-> include/linux/mm.h, as used in 2.4.x
+Have a look at user-mode Linux (http://user-mode-linux.sourceforge.net).  It 
+runs the kernel in userspace, so gprof and gcov can be used on it (although, 
+at the moment, neither work on UML because of architectural changes I've made 
+since I first made them work - these problems will be fixed in the 
+medium-term).
 
-Mostly good.
+Both gprof and gcov produce very interesting information when run on the 
+kernel.
 
-> +	pgprot_t vm_page_prot;		/* Access permissions of this VMA. */
-
-But a lot of the comments are trivial = deadweight. Comments are best used
-for the bits that are magical without them, which should be few.
-
-> +	struct page *next_hash;		/* Next page sharing our hash bucket in
-> +					   the pagecache hash table. */
-
-Multiline comments at the end of the line are hard to maintain and highly
-susceptible to tab damage.
-
-> +	atomic_t count;			/* Usage count, see below. */
-> +	unsigned long flags;		/* atomic flags, some possibly
-> +					   updated asynchronously */
-
-I'm sure there's a good reason why the flags aren't atomic_t but this
-comment would make me suspect a bug. Comments that don't agree with code
-are worse than no comments.
-
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+So, while you're gathering up tools and information, gather up UML and start 
+playing with it.  And if you feel like it, make gcov work again on it - I 
+accept patches :-)
+				Jeff
 
 

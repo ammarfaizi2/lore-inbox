@@ -1,104 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263977AbSKSROS>; Tue, 19 Nov 2002 12:14:18 -0500
+	id <S266962AbSKSRGa>; Tue, 19 Nov 2002 12:06:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267086AbSKSROS>; Tue, 19 Nov 2002 12:14:18 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:15329 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S263977AbSKSROQ>;
-	Tue, 19 Nov 2002 12:14:16 -0500
-Subject: Re: [ANNOUNCE][CFT] kexec for v2.5.48 && kexec-tools-1.7 -- Success
-	Story!
-From: Andy Pfiffer <andyp@osdl.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Werner Almesberger <wa@almesberger.net>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Mike Galbraith <efault@gmx.de>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       Dave Hansen <haveblue@us.ibm.com>
-In-Reply-To: <m1isyt26wr.fsf@frodo.biederman.org>
-References: <Pine.LNX.4.44.0211091901240.2336-100000@home.transmeta.com>
-	<m1vg349dn5.fsf@frodo.biederman.org> <1037055149.13304.47.camel@andyp>
-	<m1isz39rrw.fsf@frodo.biederman.org> <1037148514.13280.97.camel@andyp>
-	<m1k7jb3flo.fsf_-_@frodo.biederman.org>
-	<m1el9j2zwb.fsf@frodo.biederman.org>
-	<m11y5j2r9t.fsf_-_@frodo.biederman.org> <1037668241.10400.48.camel@andyp> 
-	<m1isyt26wr.fsf@frodo.biederman.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 19 Nov 2002 09:21:08 -0800
-Message-Id: <1037726468.10400.81.camel@andyp>
-Mime-Version: 1.0
+	id <S267035AbSKSRGa>; Tue, 19 Nov 2002 12:06:30 -0500
+Received: from web14604.mail.yahoo.com ([216.136.224.84]:25707 "HELO
+	web14604.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S266962AbSKSRG3>; Tue, 19 Nov 2002 12:06:29 -0500
+Message-ID: <20021119165847.58163.qmail@web14604.mail.yahoo.com>
+Date: Tue, 19 Nov 2002 08:58:47 -0800 (PST)
+From: Super user <lnxuser2002@yahoo.com>
+Subject: Killing kernel threads
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-19 at 02:25, Eric W. Biederman wrote:
-> > Complete kernel boot-up log attached below.  I'm going to try to find my
-> > other 576MB of RAM with the right command-line magic... ;^)
-> 
-> Or you can write a routine to gather that information dynamically and send
-> me a patch for /sbin/kexec.  Though it may take another proc file to do
-> that one properly.
-> 
-> Eric
+Hi,
 
-Just to make sure I understand the problem.  Until we can make all
-boot-time BIOS calls work, we need a way to:
+Is there any guaranted way to kill kernel threads
+started from loadable modules. I've written a kernel
+module that starts 8 kernel threads and sometimes one
+of them goes into uninterruptible sleep. Is there
+anyway to flush away such threads while unloading
+modules.
 
-    1) capture the initial memory map used by the kernel, and
-    2) a way to supply that information to the to-be-run image.
-    
-On my system, the e820 map looks like this (from full reboot):
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009dc00 (usable)
- BIOS-e820: 000000000009dc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 0000000027fed140 (usable)
- BIOS-e820: 0000000027fed140 - 0000000027ff0000 (ACPI data)
- BIOS-e820: 0000000027ff0000 - 0000000028000000 (reserved)
- BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
-639MB LOWMEM available.
+I've tried using kill_proc with SIGKILL but it doesn't
+seem to help.
 
-And /proc/iomem looks like this:
-00000000-0009dbff : System RAM
-0009dc00-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000ca000-000cb7ff : Extension ROM
-000cb800-000cffff : Extension ROM
-000f0000-000fffff : System ROM
-00100000-27fed13f : System RAM
-  00100000-00309f9a : Kernel code
-  00309f9b-003d873f : Kernel data
-27fed140-27feffff : ACPI Tables
-27ff0000-27ffffff : reserved
-effff000-efffffff : Adaptec AIC-7892P U160/m
-  effff000-efffffff : aic7xxx
-f0000000-f7ffffff : S3 Inc. Savage 4
-fea00000-feafffff : Intel Corp. 82557/8/9 [Ethernet 
-  fea00000-feafffff : e100
-feb7e000-feb7efff : ServerWorks OSB4/CSB5 USB Contro
-feb7f000-feb7ffff : Intel Corp. 82557/8/9 [Ethernet 
-  feb7f000-feb7ffff : e100
-feb80000-febfffff : S3 Inc. Savage 4
-fec00000-ffffffff : reserved
+BTW, I am using the code for handling kernel threads
+at http://www.scs.ch/~frey/linux/kernelthreads.html
 
-Comparing the two:
-Range			e820		/proc/iomem
-0000000-0009dbff	usable		System RAM
-0100000-27fed140	usable		System RAM
+Any pointers regarding the same are highly
+appreciated.
 
->From a sample of 1 system, it looks like we should be able to use any
-ranges marked as "System RAM" that are listed /proc/iomem.  Did I miss
-something?
-
-I'll see if I can conjure up something...
-
-Andy
+Thanks,
 
 
 
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Web Hosting - Let the expert host your site
+http://webhosting.yahoo.com

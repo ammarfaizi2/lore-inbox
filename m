@@ -1,107 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312935AbSCZDx6>; Mon, 25 Mar 2002 22:53:58 -0500
+	id <S312940AbSCZEAS>; Mon, 25 Mar 2002 23:00:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312936AbSCZDxt>; Mon, 25 Mar 2002 22:53:49 -0500
-Received: from mx7.sac.fedex.com ([199.81.194.38]:29963 "EHLO
-	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S312935AbSCZDxk>; Mon, 25 Mar 2002 22:53:40 -0500
-Date: Tue, 26 Mar 2002 11:50:56 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: jchua@silk.corp.fedex.com
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Jeff Chua <jeffchua@silk.corp.fedex.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Jeff Chua <jchua@fedex.com>
-Subject: Re: [PATCH] 2.4.19-pre4 ide-probe
-In-Reply-To: <Pine.LNX.4.10.10203221447260.11833-200000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.42.0203261149510.15967-100000@silk.corp.fedex.com>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 03/26/2002
- 11:53:32 AM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 03/26/2002
- 11:53:35 AM,
-	Serialize complete at 03/26/2002 11:53:35 AM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312939AbSCZEAI>; Mon, 25 Mar 2002 23:00:08 -0500
+Received: from dsl081-147-127.chi1.dsl.speakeasy.net ([64.81.147.127]:32370
+	"HELO coral.cfftechnologies.com") by vger.kernel.org with SMTP
+	id <S312938AbSCZD76>; Mon, 25 Mar 2002 22:59:58 -0500
+Subject: 1G Microdrive problems
+From: Avi Schwartz <avi@CFFtechnologies.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2- 
+Date: 25 Mar 2002 21:59:56 -0600
+Message-Id: <1017115196.6309.62.camel@seahorse>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Mar 2002, Andre Hedrick wrote:
+Hi,
 
-> This is the bases of the codes origin.
+I am looking for a pointer on where I can find help with a problem I am
+having with the IBM 1G Microdrive and Linux.  The problem I am having is
+not distribution specific.
 
-So, should it be removed then? If not, how can you get rid of the
-ide_xlate_1024 unknown symbol?
+The problem is that when I connect my digital camera (Olympus E-20) to
+my computer via USB (or the microdrive directly to my laptop via the
+PCMCIA adapter), trying to list the files on the disk displays a corrupt
+directory structure:
 
-Jeff.
+> ls /mnt/camera
+dcim
 
+> ls /mnt/camera/dcim
+100olymp
 
+> ls -l /mnt/dcim/100olymp/
+dr-xr-xr-x    0 root     root        32768 Aug 10  1996 j4???h?".j?k
+-r-xr-xr-x    1 root     root     3547043402 Jun 20  2020 j{?e?8^?.c{?
+drwxr-xr-x  50768 root     root      3145728 Jan  1  2022 j?+?????.???
+drwxr-xr-x    0 root     root        32768 Dec 15  1911 kg?}?hv".???
+drwxr-xr-x    0 root     root        32768 Jan 14  1987 lt??????.???
+-r-xr-xr-x    1 root     root     290476329 Jan  4  1918 o?a?=??e.?8?
+-rwxr-xr-x    1 root     root      3650885 Dec 21 09:14 pc210028.jpg
+-rwxr-xr-x    1 root     root      3513694 Dec 21 09:16 pc210029.jpg
+-rwxr-xr-x    1 root     root      3653888 Dec 21 09:17 pc210030.jpg
+-rwxr-xr-x    1 root     root      3850982 Dec 23 19:50 pc230031.jpg
+...
 
->
-> Comments?
->
-> Andre Hedrick
-> LAD Storage Consulting Group
->
-> On Thu, 21 Mar 2002, Jeff Chua wrote:
->
-> >
-> > Marcelo, Andre,
-> >
-> > Someone apparently added the "hook", but it was never used in the kernel,
-> >
-> > What is ide_xlate_1024 referring to?
-> >
-> > Jeff
-> >
-> > ---------- Forwarded message ----------
-> > Date: Thu, 14 Mar 2002 11:22:27 +0800 (SGT)
-> > From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-> > To: Linux Kernel <linux-kernel@vger.kernel.org>,
-> >      Marcelo Tosatti <marcelo@conectiva.com.br>
-> > Cc: Jeff Chua <jchua@fedex.com>
-> > Subject: [PATCH] 2.4.19-pre3 ide_xlate_1024_hook ???
-> >
-> >
-> > It seems that the "ide_xlate_1024_hook" is redundant in
-> > ./drivers/ide/ide-probe.c
-> >
-> > It's not used anywhere by the kernel, and it caused "depmod" to fail
-> > with unknown ide_xlate_1024_hook symbol.
-> >
-> >
-> > Jeff
-> >
-> > Patch ...
-> >
-> > --- ./drivers/ide/ide-probe.c.org       Thu Mar 14 11:01:20 2002
-> > +++ ./drivers/ide/ide-probe.c   Thu Mar 14 11:03:16 2002
-> > @@ -987,7 +987,6 @@
-> >  }
-> >
-> >  #ifdef MODULE
-> > -extern int (*ide_xlate_1024_hook)(kdev_t, int, int, const char *);
-> >
-> >  int init_module (void)
-> >  {
-> > @@ -997,14 +996,12 @@
-> >                 ide_unregister(index);
-> >         ideprobe_init();
-> >         create_proc_ide_interfaces();
-> > -       ide_xlate_1024_hook = ide_xlate_1024;
-> >         return 0;
-> >  }
-> >
-> >  void cleanup_module (void)
-> >  {
-> >         ide_probe = NULL;
-> > -       ide_xlate_1024_hook = 0;
-> >  }
-> >  MODULE_LICENSE("GPL");
-> >  #endif /* MODULE */
-> >
-> >
-> >
->
+I tried it with different units, all had the same problem.
+
+I formatted it more then once to make sure that the directory
+stucture is not corrupt and even then it displayed what seems to be a
+broken directory structure (i.e. when empty).
+
+One thing to note is that the disk is formatted as fat, i.e. it is not
+ext2/3. 
+
+It is not machine specific since I tried it with my desktop (via USB) as
+well as my laptop (via PCMCIA adapter).
+
+The laptop is IDE based.  The desktop is SCSI.
+
+The 'other' OS has no problem with these drives.
+
+$ uname -a (on laptop)
+Linux seahorse 2.4.18 #3 Wed Feb 27 19:09:37 CST 2002 i686 GenuineIntel
+
+Desktop is running kernel 2.4.7-SMP on a dual processor Athlon machine.
+
+I can only think it might be a problem with the fat driver, any idea
+what may be the problem?
+
+Thanks,
+Avi
+
+-- 
+Avi Schwartz
+avi@CFFtechnologies.com
 

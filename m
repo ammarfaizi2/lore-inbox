@@ -1,68 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264434AbTEPW4U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 18:56:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264607AbTEPW4U
+	id S261383AbTEPXDU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 19:03:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263718AbTEPXDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 18:56:20 -0400
-Received: from corky.net ([212.150.53.130]:12755 "EHLO marcellos.corky.net")
-	by vger.kernel.org with ESMTP id S264434AbTEPW4S (ORCPT
+	Fri, 16 May 2003 19:03:20 -0400
+Received: from gw.enyo.de ([212.9.189.178]:39441 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S261383AbTEPXDT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 18:56:18 -0400
-Date: Sat, 17 May 2003 02:09:04 +0300 (IDT)
-From: Yoav Weiss <ml-lkml@unpatched.org>
-X-X-Sender: yoavw@marcellos.corky.net
-To: Ahmed Masud <masud@googgun.com>
-Cc: Yoav Weiss <ml-lkml@unpatched.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: encrypted swap [was: The disappearing sys_call_table export.] 
-In-Reply-To: <Pine.LNX.4.33.0305160354500.23288-100000@marauder.googgun.com>
-Message-ID: <Pine.LNX.4.44.0305170140520.32047-100000@marcellos.corky.net>
+	Fri, 16 May 2003 19:03:19 -0400
+To: Simon Kirby <sim@netnation.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Route cache performance under stress
+References: <8765pshpd4.fsf@deneb.enyo.de>
+	<20030516222436.GA6620@netnation.com>
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: Simon Kirby <sim@netnation.org>,
+ linux-kernel@vger.kernel.org
+Date: Sat, 17 May 2003 01:16:08 +0200
+In-Reply-To: <20030516222436.GA6620@netnation.com> (Simon Kirby's message of
+ "Fri, 16 May 2003 15:24:36 -0700")
+Message-ID: <8765oaxz2f.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi Yoav,
->
-> After sort of thinking about it at this early friday hour (well late
-> thursday for me), it occurs to me that we may want to maintain keys
-> either in the vm_area_struct (vma) or for a vma group.
->
-> We want to decrypt mostlikely after a page-fault, which triggers a vma
-> nopage (code here?), has loaded the page so vma key, and swapping out of
-> course is still in vma domain.
->
-> Since we can always go from process to vma to page and back again i think
-> it is not going to cause any tracking issues.
+Simon Kirby <sim@netnation.org> writes:
 
-Right.  The only drawback is that we have another level of indirection for
-some operations, but its negligible because it'll only be used on swap
-operations or core dumps, both of which rely on disk access times anyway.
+> I hate the way this works in iptables), particularly with the MSSQL
+> worm that burst out to the 'net that one Friday night several few
+> months ago.  Adding a single match udp port, DROP rule to PREROUTING
+> chain made the load go back down to normal levels.  The same rule in
+> the INPUT/FORWARD chain had no affect on the CPU utilization (still
+> saturated).
 
-I guess a refcount and a key can be added to vm_area_struct, to provide
-that.  As long as this vma is in use, key remains valid.
+Yes, that's exactly the phenomenon, but operators traditionally
+attributed it to other things running on the router (such as
+accounting).
 
-There's still something I'm unsure of.  I'm not familiar with the mm
-subsystem.  Do you know whether vma structs are shared among processes
-with shared mapping ?  I'd think the answer is yes, in which case the
-above is the right way, but if it works that way, how come vm_area_struct
-doesn't have a refcount yet ?  Who keeps track of it ?  Who frees it when
-the last mapper unmaps it ?  Is the vma->shared in charge of all that ?
-If so, what lock protects it ?
+> Under normal operation, it looks like most load we are seeing is in fact
+> normal route lookups.  We run BGP peering, and so there is a lot of
+> routes in the table.
 
->
-> Further, we have different vma's for shared and other interesting pages
-> so various optimizations are also doable on a case to case basis.
->
+You should aggregate the routes before you load them into the kernel.
+Hardly anybody seems to do this, but usually, you have much fewer
+interfaces than prefixes 8-), so this could result in a huge win.
 
-Yes, I seems so, but we need to dig into mm and find some answers to be
-sure about all cases.
+Anyway, using data structures tailored to the current Internet routing
+table, it's certainly possible to do destination-only routing using
+half a dozen memory lookups or so (or a few indirect calls, I'm not
+sure which option is cheaper).
 
-> Does this make any sense? or am I off the cuckoo train at this hour :)
+> I will try playing more with this code and look at your patch and paper.
 
-It does, unless I'm also off the cuckoo train at this hour.  Time to get
-some sleep, I guess :)
+Well, I didn't write the paper, I found it after discovering the
+problem in the kernel.  This complexity attack has been resolved, but
+this won't help people like you who have to run Linux on an
+uncooperative network.
 
-	Yoav
-
+The patch I posted won't help you as it increases the load
+considerably unless most of your flows consist of one packet.  (And
+there's no need for patching, you can go ahead and just change the
+value via /proc.)

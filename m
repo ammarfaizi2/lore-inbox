@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbVAIWmE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbVAIWnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbVAIWmE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 17:42:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbVAIWmD
+	id S261914AbVAIWnt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 17:43:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbVAIWnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 17:42:03 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:23564 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261900AbVAIWmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 17:42:00 -0500
-Date: Sun, 9 Jan 2005 23:41:54 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
+	Sun, 9 Jan 2005 17:43:49 -0500
+Received: from gprs215-6.eurotel.cz ([160.218.215.6]:30592 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261914AbVAIWnh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 17:43:37 -0500
+Date: Sun, 9 Jan 2005 23:43:25 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: hugang@soulinfo.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 =?iso-8859-1?Q?patch=5D=A0remov?=
-	=?iso-8859-1?Q?e?= InterMezzo MAINTAINERS entry
-Message-ID: <20050109224154.GA1483@stusta.de>
+Subject: Re: software suspend patch [1/6]
+Message-ID: <20050109224325.GE1353@elf.ucw.cz>
+References: <20041127220752.16491.qmail@science.horizon.com> <20041128082912.GC22793@wiggy.net> <20041128113708.GQ1417@openzaurus.ucw.cz> <20041128162320.GA28881@hugang.soulinfo.com> <20041128165835.GA1214@elf.ucw.cz> <20041129154307.GC4616@hugang.soulinfo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20041129154307.GC4616@hugang.soulinfo.com>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-InterMezzo was removed in 2.6, so there's no reason for keeping a 
-MAINTAINERS entry.
+Hi!
 
+> > I can not merge anything before 2.6.10. As you have seen, I have quite
+> > a lot of patches in my tree, and I do not want mix them with these...
+> > 
+> > >  device-tree.diff 
+> > >    base from suspend2 with a little changed.
+> > 
+> > I do not want this one.
+> > 
+> > >  core.diff
+> > >   1: redefine struct pbe for using _no_ continuous as pagedir.
+> > 
+> > Can I get this one as a separate diff?
+> 
+> Here is it.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Do you have any updates? It would be nice to separate non-continuous
+pagedir from speeding up check_pagedir?
 
---- linux-2.6.7-rc1-full/MAINTAINERS.old	2004-05-23 23:52:55.000000000 +0200
-+++ linux-2.6.7-rc1-full/MAINTAINERS	2004-05-23 23:53:07.000000000 +0200
-@@ -1092,13 +1092,6 @@
- W:	http://sourceforge.net/projects/e1000/
- S:	Supported
- 
--INTERMEZZO FILE SYSTEM
--P:	Cluster File Systems	
--M:	intermezzo-devel@lists.sf.net
--W:	http://www.inter-mezzo.org/
--L:	intermezzo-discuss@lists.sourceforge.net
--S:	Maintained
--
- IOC3 DRIVER
- P:	Ralf Baechle
- M:	ralf@oss.sgi.com
+...plus check_pagedir should really use PageNosaveFree flag instead of
+allocating there own (big!) bitmaps. It should also make the code
+simpler...
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

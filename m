@@ -1,155 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129055AbQKHK2I>; Wed, 8 Nov 2000 05:28:08 -0500
+	id <S129901AbQKHK7C>; Wed, 8 Nov 2000 05:59:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129901AbQKHK17>; Wed, 8 Nov 2000 05:27:59 -0500
-Received: from sportingbet.gw.dircon.net ([195.157.147.30]:49158 "HELO
-	sysadmin.sportingbet.com") by vger.kernel.org with SMTP
-	id <S129055AbQKHK1x>; Wed, 8 Nov 2000 05:27:53 -0500
-Date: Wed, 8 Nov 2000 10:19:48 +0000
-From: Sean Hunter <sean@dev.sportingbet.com>
-To: Richard Henderson <rth@twiddle.net>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, axp-list@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: PCI-PCI bridges mess in 2.4.x
-Message-ID: <20001108101948.A7083@bart.dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
-	Richard Henderson <rth@twiddle.net>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>, axp-list@redhat.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20001101153420.A2823@jurassic.park.msu.ru> <20001101093319.A18144@twiddle.net> <20001103111647.A8079@jurassic.park.msu.ru> <20001103011640.A20494@twiddle.net> <20001106192930.A837@jurassic.park.msu.ru> <20001108013931.A26972@twiddle.net>
-Mime-Version: 1.0
+	id <S130890AbQKHK6w>; Wed, 8 Nov 2000 05:58:52 -0500
+Received: from hqvsbh1.ms.com ([205.228.12.103]:60058 "EHLO hqvsbh1.ms.com")
+	by vger.kernel.org with ESMTP id <S129901AbQKHK6k>;
+	Wed, 8 Nov 2000 05:58:40 -0500
+Message-ID: <3A0931CB.AE39A93E@msdw.com>
+Date: Wed, 08 Nov 2000 10:58:19 +0000
+From: Richard Polton <Richard.Polton@msdw.com>
+Reply-To: Richard.Polton@msdw.com
+Organization: Morgan Stanley Dean Witter & Co.
+X-Mailer: Mozilla 4.7 [en]C-CCK-MCD   (WinNT; U)
+X-Accept-Language: en,ja
+MIME-Version: 1.0
+To: linux-usb-devel@lists.sourceforge.net,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] 2.4.0-test10 problems
+In-Reply-To: <3A090F20.D4B42BDE@msdw.com> <3A09B75C.4CB08D72@bigpond.net.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001108013931.A26972@twiddle.net>; from rth@twiddle.net on Wed, Nov 08, 2000 at 01:39:31AM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Richard.
+I currently do not use either APM or ACPI. Initially I used ACPI
+and removing it in test8 appeared to fix the problem (but I suspect
+that was just 'appear' rather than 'fix' 8-). I moved to APM instead
+of ACPI in test9 - no change, and indeed in test10 I use neither.
 
-I'm _very_ keen to try this (my Alpha won't boot 2.4 at the mo), however I
-think the attachments faery has been playing tricks again.
+There is a flag in the BIOS for Plug n Play OS. I shall toggle it and
+observe the results.
 
-Do you have a patch relative to 2.4.0-test10?
+Brad Hards wrote:
 
-Sean
-
-On Wed, Nov 08, 2000 at 01:39:31AM -0800, Richard Henderson wrote:
-> [ For l-k, the issue is that pci-pci bridges and the devices behind
->   them are not initialized properly.  There are a number of Alphas
->   whose built-in scsi controlers are behind such a bridge preventing
->   these machines from booting at all.  Ivan provided an initial 
->   patch to solve this issue.  ]
-> 
-> I've not gotten a chance to try this on the rawhide yet,
-> but I did give it a whirl on my up1000, which does have
-> an agp bridge that acts like a pci bridge.
-> 
-> Notable changes from your patch:
-> 
->   * Use kmalloc, not vmalloc.  (ouch!)
->   * Replace cropped found_vga detection code.
->   * Handle bridges with empty I/O (or MEM) ranges.
->   * Collect the proper width of the bus range.
-> 
-> 
-> r~
-
-Content-Description: diff vs bridges-2.4.0t10
-> diff -rup linux/drivers/pci/setup-bus.c 2.4.0-11-1/drivers/pci/setup-bus.c
-> --- linux/drivers/pci/setup-bus.c	Wed Nov  8 01:24:16 2000
-> +++ 2.4.0-11-1/drivers/pci/setup-bus.c	Wed Nov  8 01:04:17 2000
-> @@ -20,7 +20,7 @@
->  #include <linux/errno.h>
->  #include <linux/ioport.h>
->  #include <linux/cache.h>
-> -#include <linux/vmalloc.h>
-> +#include <linux/slab.h>
->  
->  
->  #define DEBUG_CONFIG 1
-> @@ -56,31 +56,50 @@ pbus_assign_resources_sorted(struct pci_
->  			mem_reserved += 32*1024*1024;
->  			continue;
->  		}
-> +
-> +		if (dev->class >> 8 == PCI_CLASS_DISPLAY_VGA)
-> +			found_vga = 1;
-> +
->  		pdev_sort_resources(dev, &head_io, IORESOURCE_IO);
->  		pdev_sort_resources(dev, &head_mem, IORESOURCE_MEM);
->  	}
-> +
->  	for (list = head_io.next; list;) {
->  		res = list->res;
->  		idx = res - &list->dev->resource[0];
-> -		if (pci_assign_resource(list->dev, idx) == 0)
-> +		if (pci_assign_resource(list->dev, idx) == 0
-> +		    && ranges->io_end < res->end)
->  			ranges->io_end = res->end;
->  		tmp = list;
->  		list = list->next;
-> -		vfree(tmp);
-> +		kfree(tmp);
->  	}
->  	for (list = head_mem.next; list;) {
->  		res = list->res;
->  		idx = res - &list->dev->resource[0];
-> -		if (pci_assign_resource(list->dev, idx) == 0)
-> +		if (pci_assign_resource(list->dev, idx) == 0
-> +		    && ranges->mem_end < res->end)
->  			ranges->mem_end = res->end;
->  		tmp = list;
->  		list = list->next;
-> -		vfree(tmp);
-> +		kfree(tmp);
->  	}
-> +
->  	ranges->io_end += io_reserved;
->  	ranges->mem_end += mem_reserved;
-> +
-> +	/* ??? How to turn off a bus from responding to, say, I/O at
-> +	   all if there are no I/O ports behind the bus?  Turning off
-> +	   PCI_COMMAND_IO doesn't seem to do the job.  So we must
-> +	   allow for at least one unit.  */
-> +	if (ranges->io_end == ranges->io_start)
-> +		ranges->io_end += 1;
-> +	if (ranges->mem_end == ranges->mem_start)
-> +		ranges->mem_end += 1;
-> +
->  	ranges->io_end = ROUND_UP(ranges->io_end, 4*1024);
->  	ranges->mem_end = ROUND_UP(ranges->mem_end, 1024*1024);
-> +
->  	return found_vga;
->  }
->  
-> diff -rup linux/drivers/pci/setup-res.c 2.4.0-11-1/drivers/pci/setup-res.c
-> --- linux/drivers/pci/setup-res.c	Wed Nov  8 01:24:16 2000
-> +++ 2.4.0-11-1/drivers/pci/setup-res.c	Wed Nov  8 00:21:13 2000
-> @@ -22,10 +22,10 @@
->  #include <linux/errno.h>
->  #include <linux/ioport.h>
->  #include <linux/cache.h>
-> -#include <linux/vmalloc.h>
-> +#include <linux/slab.h>
->  
->  
-> -#define DEBUG_CONFIG 0
-> +#define DEBUG_CONFIG 1
->  #if DEBUG_CONFIG
->  # define DBGC(args)     printk args
->  #else
-> @@ -146,7 +146,7 @@ pdev_sort_resources(struct pci_dev *dev,
->  			if (ln)
->  				size = ln->res->end - ln->res->start;
->  			if (r->end - r->start > size) {
-> -				tmp = vmalloc(sizeof(*tmp));
-> +				tmp = kmalloc(sizeof(*tmp), GFP_KERNEL);
->  				tmp->next = ln;
->  				tmp->res = r;
->  				tmp->dev = dev;
-
+> Richard Polton wrote:
+> > I have been testing my test10 installation and have come up with
+> > a few old problems, all of which have been reported before.
+> Don't known about the second two, but maybe can shed some light on the
+> first one.
+>
+> > 1. Warm reboot fails to restart, i.e. hangs after displaying 'Restarting
+> >
+> >     system'. In this particular scenario, the power switch is disabled
+> >     too and the only way in which the machine responds is by switching
+> >     off at the wall and pulling the battery. Note that this scenario has
+> > been
+> >     observed only if I boot, get the login prompt (optionally log in)
+> > and then
+> >     ctrl-alt-del. A similar scenario occurs after an amount of time
+> > using the
+> >     machine and then rebooting. In this case, the machine restarts
+> > successfully
+> >     but hangs when it tries to initialise (right word?) the UHCI
+> > controller.
+> I think that the problem is pci / power management related. I have seen
+> similar problems with my laptop (VAio F430), especially when warm
+> booting from Win98 into Linux.
+>
+> Things to try:
+> 1. Look at PnP or similar options (could be named anything) in the BIOS,
+> and try toggling them.
+>
+> 2. Try APM instead of ACPI, or turn off power management.
+>
+> 3. If it hangs, 'soft cycle' the power. This is effective about 90% of
+> the time for me.
+>
+> If any of this helps, you might like to post the results. I intend to do
+> some more testing with -test10 over the next week or so, and will also
+> post results.
+> _______________________________________________
+> linux-usb-devel@lists.sourceforge.net
+> To unsubscribe, use the last form field at:
+> http://lists.sourceforge.net/mailman/listinfo/linux-usb-devel
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

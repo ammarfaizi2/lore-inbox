@@ -1,41 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262245AbTIMWeI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 18:34:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262248AbTIMWeI
+	id S262248AbTIMXLe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 19:11:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbTIMXLe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 18:34:08 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19144 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262245AbTIMWd7
+	Sat, 13 Sep 2003 19:11:34 -0400
+Received: from email-out1.iomega.com ([147.178.1.82]:60124 "EHLO
+	email.iomega.com") by vger.kernel.org with ESMTP id S262248AbTIMXLa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 18:33:59 -0400
-Message-ID: <3F639B49.8010409@pobox.com>
-Date: Sat, 13 Sep 2003 18:33:45 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] better i386 CPU selection
-References: <20030913125103.GE27368@fs.tum.de> <20030913161149.GA1750@redhat.com> <20030913182159.GA10047@gtf.org> <20030913183758.GQ1191@redhat.com> <20030913185319.GC10047@gtf.org> <20030913220706.GM27368@fs.tum.de>
-In-Reply-To: <20030913220706.GM27368@fs.tum.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 13 Sep 2003 19:11:30 -0400
+Subject: Re: console lost to Ctrl+Alt+F$n in 2.6.0-test5
+From: Pat LaVarre <p.lavarre@ieee.org>
+To: mhf@linuxmail.org
+Cc: mpm@selenic.com, linux-kernel@vger.kernel.org
+In-Reply-To: <200309132347.37831.mhf@linuxmail.org>
+References: <1063378664.5059.19.camel@patehci2>
+	 <1063460312.2905.13.camel@patehci2> <200309132249.40283.mhf@linuxmail.org>
+	 <200309132347.37831.mhf@linuxmail.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1063494749.2855.7.camel@patehci2>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 13 Sep 2003 17:12:30 -0600
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Sep 2003 23:11:29.0816 (UTC) FILETIME=[5D506980:01C37A4C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> I'm not sure whether you understand my intention.
-> 
-> Nothing will change, except that if you want to support all CPUs, you 
-> have to select all CPUs instead of 386.
 
-This is incorrect.  You don't want to change the behavior that people 
-are relying on.  I wasn't describing your intentions, I was describing 
-what you _should_ do ;-)
+> script ... switches every $wait (5) seconds between VT
+> $vt (1) and X @vt$x (7) ...
 
-	Jeff
+Yes, logging in via ssh to run this script does reliably crash my
+2.6.0-test5, I think because of `chvt $x`, while I am not touching the
+console keyboard or mouse.
+
+Cycles required varies.  Counting cycles completed before crashing, I
+saw: 1 18 20 20 ... 4 16 ...
+
+The script as was posted creates a small ./X and produces logs such as:
+
+Cycle 1 switching to VT 1
+Cycle 1 switching to X
+...
+Cycle 20 switching to VT 1
+Cycle 20 switching to X
+Cycle 21 switching to VT 1
+
+This log could have been produced by crashing in `chvt $vt`, but I think
+I saw it was produced by crashing in the `sleep $wait` that follows
+`chvt $x`.  That is, I think the $vt was the last non-blank display, not
+the $x.
+
+To increase my confidence, I ran with every command echoed, and indeed
+via ssh I saw the last command echoed was `sleep 5`.
+
+I ended by running the third variant script quoted below.  Now my logs
+comfortingly end with 'switching to X'.  I presume I'm catching the
+crash in the last sleep $wait.
+
+Pat LaVarre
+
+#!/bin/bash
+cycle=1
+log=/tmp/_vt.log
+vt=1
+x=7
+wait=3
+rm -f $log
+echo 'Starting VT <> X test'
+while ((1)); do
+	echo Cycle $cycle switching to VT $vt | tee -a $log
+	sync
+	sleep $wait
+	chvt $vt
+	sleep $wait
+	echo Cycle $cycle switching to X | tee -a $log
+	sync
+	sleep $wait
+	chvt $x
+	sleep $wait
+	((cycle += 1))
+done
+;;
 
 
 

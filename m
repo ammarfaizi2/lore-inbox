@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317635AbSFRVzC>; Tue, 18 Jun 2002 17:55:02 -0400
+	id <S317637AbSFRV44>; Tue, 18 Jun 2002 17:56:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317637AbSFRVzB>; Tue, 18 Jun 2002 17:55:01 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:10161 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S317635AbSFRVzA>; Tue, 18 Jun 2002 17:55:00 -0400
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: Various kbuild problems in 2.5.22
-Date: 18 Jun 2002 21:23:55 GMT
-Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
-Message-ID: <slrnagv97b.1r4.kraxel@bytesex.org>
-References: <200206181500.IAA00339@baldur.yggdrasil.com> <Pine.LNX.4.44.0206181056090.5695-100000@chaos.physics.uiowa.edu>
-NNTP-Posting-Host: localhost
-X-Trace: bytesex.org 1024435435 1893 127.0.0.1 (18 Jun 2002 21:23:55 GMT)
-User-Agent: slrn/0.9.7.1 (Linux)
+	id <S317638AbSFRV4z>; Tue, 18 Jun 2002 17:56:55 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:32779 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317637AbSFRV4y>;
+	Tue, 18 Jun 2002 17:56:54 -0400
+Date: Tue, 18 Jun 2002 14:55:50 -0700
+From: Greg KH <greg@kroah.com>
+To: Matthew Harrell 
+	<mharrell-dated-1024798178.8a2594@bittwiddlers.com>
+Cc: Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.22 fix for pci_hotplug
+Message-ID: <20020618215549.GG21229@kroah.com>
+References: <20020618020937.GA2597@bittwiddlers.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020618020937.GA2597@bittwiddlers.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Tue, 21 May 2002 19:19:02 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Apart from that, "make modules_install" never worked in the case of 
->  failed builds, did it? - so it boils down to: you need a buildable .config 
->  to build and test a kernel.
+On Mon, Jun 17, 2002 at 10:09:37PM -0400, Matthew Harrell wrote:
+> 
+> --- linux/drivers/hotplug/pci_hotplug_core.c-ori	Mon Jun 17 22:01:17 2002
+> +++ linux/drivers/hotplug/pci_hotplug_core.c	Mon Jun 17 22:03:33 2002
+> @@ -183,13 +183,13 @@
+>  /* default file operations */
+>  static ssize_t default_read_file (struct file *file, char *buf, size_t count, loff_t *ppos)
+>  {
+> -	dbg ("\n");
+> +	dbg ("%s", "\n");
 
-No.  2.4.x allows me to to "make modules_install" even if some modules
-don't work.  My kernel build script compiles the modules with "make -k
-modules", and if some non-essential modules doesn't build I can simply
-ignore that and go ahead.  There is no need to disable that module
-temporarely in .config (and risc to forget to reenable it later ...).
+<snip>
 
-  Gerd
+What problem does this fix?
 
--- 
-You can't please everybody.  And usually if you _try_ to please
-everybody, the end result is one big mess.
-				-- Linus Torvalds, 2002-04-20
+If you _really_ want to fix something, remove the the need for
+pci_announce_to_drivers() in the Compaq and IBM PCI hotplug drivers :)
+
+thanks,
+
+greg k-h

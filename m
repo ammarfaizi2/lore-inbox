@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265234AbVBDXrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVBDX3X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265234AbVBDXrM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 18:47:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263502AbVBDXrJ
+	id S261266AbVBDX3X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 18:29:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264398AbVBDXT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 18:47:09 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:21979 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266290AbVBDXpR (ORCPT
+	Fri, 4 Feb 2005 18:19:57 -0500
+Received: from fw.osdl.org ([65.172.181.6]:466 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263770AbVBDXCb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 18:45:17 -0500
-Subject: Re: [Ext2-devel] [PATCH] JBD: journal_release_buffer()
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Alex Tomas <alex@clusterfs.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <m3vf9ffaoj.fsf@bzzz.home.net>
-References: <m3wtu9v3il.fsf@bzzz.home.net>
-	 <1106604342.2103.395.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <m3brbebh43.fsf@bzzz.home.net>
-	 <1106609725.2103.616.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <m3sm4p8tk7.fsf@bzzz.home.net>
-	 <1106670089.1985.766.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <m3k6q18fwt.fsf@bzzz.home.net>
-	 <1106759535.1953.53.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <m3vf9ffaoj.fsf@bzzz.home.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1107560699.4075.167.camel@sisko.sctweedie.blueyonder.co.uk>
+	Fri, 4 Feb 2005 18:02:31 -0500
+Date: Fri, 4 Feb 2005 15:07:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Lincoln Dale <ltd@cisco.com>
+Cc: Ian.Godin@lowrydigital.com, linux-kernel@vger.kernel.org
+Subject: Re: Drive performance bottleneck
+Message-Id: <20050204150728.6a697e0e.akpm@osdl.org>
+In-Reply-To: <5.1.0.14.2.20050205094038.05323240@171.71.163.14>
+References: <c4fc982390674caa2eae4f252bf4fc78@lowrydigital.com>
+	<c4fc982390674caa2eae4f252bf4fc78@lowrydigital.com>
+	<5.1.0.14.2.20050205094038.05323240@171.71.163.14>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Fri, 04 Feb 2005 23:45:00 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Lincoln Dale <ltd@cisco.com> wrote:
+>
+> sg_dd uses a window into a kernel DMA window.  as such, two of the four 
+> memory acccesses are cut out (1. DMA from HBA to RAM, 2. userspace 
+> accessing data).
+> 1.6Gbps / 2 = 800MB/s -- or roughly what Ian was seeing with sg_dd.
 
-On Sun, 2005-01-30 at 10:55, Alex Tomas wrote:
+Right.  That's a fancy way of saying "cheating" ;)
 
-> yup, you're right. so, here is an implementation of this.
-> tested on UP/SMP by dbench/fsx. Stephen, Andrew, could you
-> review the patch and give it a run? 
+But from the oprofile output it appears to me that there is plenty of CPU
+capacity left over.  Maybe I'm misreading it due to oprofile adding in the
+SMP factor (25% CPU on a 4-way means we've exhausted CPU capacity).
 
-Just to say I haven't forgotten, just been battling this week against
-all sorts of apparent hardware problems on some test boxes... I'll try
-to get you some proper results next week.
+> DIRECT_IO should achieve similar numbers to sg_dd, but perhaps not quite as 
+> efficient.
 
-Cheers,
- Stephen
+Probably so.
+
+There are various tools in
+http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz which are
+more useful than dd, btw.  `odread' and `odwrite' are usful for this sort
+of thing.
+
 

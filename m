@@ -1,52 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265700AbTA2KJU>; Wed, 29 Jan 2003 05:09:20 -0500
+	id <S265708AbTA2KJy>; Wed, 29 Jan 2003 05:09:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265708AbTA2KJU>; Wed, 29 Jan 2003 05:09:20 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:64773 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S265700AbTA2KJT>;
-	Wed, 29 Jan 2003 05:09:19 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301291018.h0TAIw8s000968@darkstar.example.net>
-Subject: Re: AW: Bootscreen
-To: brand@jupiter.cs.uni-dortmund.de (Horst von Brand)
-Date: Wed, 29 Jan 2003 10:18:58 +0000 (GMT)
-Cc: Raphael_Schmid@CUBUS.COM, linux-kernel@vger.kernel.org,
-       brand@eeyore.valparaiso.cl
-In-Reply-To: <200301291010.h0TAANrh011961@eeyore.valparaiso.cl> from "Horst von Brand" at Jan 29, 2003 11:10:23 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265725AbTA2KJy>; Wed, 29 Jan 2003 05:09:54 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:27331 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S265708AbTA2KJw>; Wed, 29 Jan 2003 05:09:52 -0500
+Message-Id: <200301291019.h0TAJ8Gi012012@eeyore.valparaiso.cl>
+To: "Richard B. Tilley " "(Brad)" <rtilley@vt.edu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Bootscreen 
+In-Reply-To: Your message of "28 Jan 2003 10:07:57 EST."
+             <1043766477.6794.32.camel@oubop4.bursar.vt.edu> 
+Date: Wed, 29 Jan 2003 11:19:08 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > I just upgraded from 3.6.1, which booted fine, to 3.6.2, which stops
-> > > after Tux has waved twice, and winked his left eye.
-> > > 
-> > Sounds pretty fun to me!
-> 
-> Right.
-> 
-> Q: It hangs when booting! Just get to see the cute penguin
->    (whatshisnameagain?)
-> 
-> A: What version of Linux? What exactly did the bird do before hanging? BTW,
->    his (her?) name is Tux
-> 
-> Q: Oh, yo mean like $BIG_DISTRO 10.7.3? Yep, Tux winked.
-> 
-> A. No, the kernel version... [longish explanation deleted]. And exactly how
->    many times did he wink? Which wings? Did he waddle about? How many
->    steps? Did he blink? Did you install wink-blink-boot version 27.3, or
->    are you still with the older one?
-> 
-> [ad nauseam]
+"Richard B. Tilley " "(Brad)" <rtilley@vt.edu> said:
+> Then, not supporting loadable modules *is* more secure. By not
+> supporting them, you are decreasing the ease in which the kernel can be
+> modified. There are fewer people who can "fiddle with memory by hand"
+> than there are that can insert a loadable module... a lot fewer, don't
+> you agree?
 
-The funny thing is, in a few years, somebody will probably read
-through these old comments in the archive, and decide to implement the
-animated Tux boot sequence just for a laugh, and then we really *will*
-get bug reports like that.  I will then probably get flamed for
-suggesting it in the begining :-).
-
-John
+There are published programs that do the fiddling automatically, no
+expertise needed. Just as Aunt Tillie is able to use Linux without the
+slightest clue about what goes on inside...
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

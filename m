@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264408AbTICXMg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 19:12:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbTICXMg
+	id S264428AbTICXSu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 19:18:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbTICXSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 19:12:36 -0400
-Received: from fw.osdl.org ([65.172.181.6]:61115 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264408AbTICXMd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 19:12:33 -0400
-Date: Wed, 3 Sep 2003 16:12:25 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.23-pre3
-Message-ID: <20030903161225.B19323@osdlab.pdx.osdl.net>
-References: <Pine.LNX.4.44.0309031851310.30503-100000@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 3 Sep 2003 19:18:50 -0400
+Received: from h002.c000.snv.cp.net ([209.228.32.66]:54473 "HELO
+	c000.snv.cp.net") by vger.kernel.org with SMTP id S264428AbTICXSt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 19:18:49 -0400
+X-Sent: 3 Sep 2003 23:18:48 GMT
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0309031851310.30503-100000@logos.cnet>; from marcelo.tosatti@cyclades.com.br on Wed, Sep 03, 2003 at 06:53:45PM -0300
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+From: admin@brien.com
+Subject: SATA probe delay on boot
+X-Sent-From: admin@brien.com
+Date: Wed, 03 Sep 2003 19:18:47 -0400 (EDT)
+X-Mailer: Web Mail 5.5.0-3_sol28
+Message-Id: <20030903161848.2109.h004.c000.wm@mail.brien.com.criticalpath.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Marcelo Tosatti (marcelo.tosatti@cyclades.com.br) wrote:
-> 
->   o Changed EXTRAVERSION to -pre3
+Hi,
 
-I see it in bk, but it didn't seem to make it in the patch on
-kernel.org?
+I have a Sil3112A SATA controller, which linux works OK
+with. It supports RAID (up to 4 devices), but I'm using
+BASE option -- only 1 hard drive.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+My question is regarding a 15-20 second delay which
+normally occurs every time I boot, unless I pass the
+options ide3=0 - ide9=0 to fill up the device table. I
+think I have to do this because if I do only ide3=0
+(where the device would be), it uses ide4, and so on. I
+have GRUB set up to do this automatically, but it's not
+exactly adequate (,is it?). So I was wondering if
+there're any other ways to get the same affect. Is or
+could there be an option to simply disable the probing
+of the one specific device/channel every time?
+
+Thanks,
+
+Brien

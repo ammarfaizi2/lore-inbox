@@ -1,66 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275528AbTHNVkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 17:40:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275539AbTHNVkQ
+	id S275561AbTHNVcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 17:32:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275563AbTHNVcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 17:40:16 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:897 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S275528AbTHNVkL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 17:40:11 -0400
-Date: Thu, 14 Aug 2003 22:40:02 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ruben Puettmann <ruben@puettmann.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.22 APM problems with IBM Thinkpad's
-Message-ID: <20030814214002.GB12420@mail.jlokier.co.uk>
-References: <20030813123119.GA25111@puettmann.net> <16186.14686.455795.927909@gargle.gargle.HOWL> <1060783884.8008.64.camel@dhcp23.swansea.linux.org.uk> <20030814173327.GB10889@mail.jlokier.co.uk> <16187.60175.449778.748247@gargle.gargle.HOWL>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16187.60175.449778.748247@gargle.gargle.HOWL>
-User-Agent: Mutt/1.4.1i
+	Thu, 14 Aug 2003 17:32:16 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:49148 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S275561AbTHNVcN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 17:32:13 -0400
+Message-ID: <3F3BFF49.8090909@intel.com>
+Date: Fri, 15 Aug 2003 00:29:45 +0300
+From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel threads resource leakage
+References: <Pine.LNX.4.53.0308141626440.11823@chaos>
+In-Reply-To: <Pine.LNX.4.53.0308141626440.11823@chaos>
+X-Enigmail-Version: 0.76.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
-> Jamie Lokier writes:
->  > Alan Cox wrote:
->  > > On Mer, 2003-08-13 at 14:13, Mikael Pettersson wrote:
->  > > > With APIC support enabled (SMP or UP_APIC), APM must be constrained:
->  > > > DISPLAY_BLANK off
->  > > > CPU_IDLE off
->  > > > built-in driver, not module
->  > > 
->  > > This isnt sufficient because some of the SMM traps off the FN-key 
->  > > sequences also crash thinkpads if APIC is enabled. Basically *dont use
->  > > local apic* except on SMP.
->  > 
->  > Is it feasible to disable the APIC during BIOS calls,?
-> 
-> I don't think so.
-> One problem is that BIOS calls can be very frequent (one every time
-> the kernel calls pm_idle, if CPU_IDLE=y, and one each time one of those
-> battery-monitoring applets feels like polling the battery status).
+Richard,
+
+I forgot to mention that I use gcc 3.3; it _do_ compile the code I 
+submitted since it support declarations after statements.
+I did actually run tests with the code included in my posting.
+
+About Makefile, it made this way to ensure you use the same flags as for 
+kernel. It is kind of style that proposed in 2.6 kernel, adopted for 2.4.
+
+All,
+
+I am sorry for submitting problem before doing complete analysis. It 
+reveals that I used to have improperly compiled kernel. I tried on 
+another host (2.4.20 with kdb patch, have no plain 2.4.20 handy right 
+now), and it works fine without resource leakage.
+
+Regarding need to create lots of kernel threads. Of course, it is 
+useless to do it very often, but consider, for example, wireless network 
+card, that need to create kernel thread to manage BSS  MAC.  I would not 
+get too deeply into details, but it may be situation when you need to 
+create new kernel thread, for example, each laptop suspend-resume cycle.
+
+Sure, thousands of cycles may seems too much, but it is a good way to 
+check that you have no leakage. For example, in my driver testing, I do 
+thousands of insmod/rmmod cycles and stuff like this. This helps to find 
+bugs like 100 bytes leakage per 'insmod'.
+
+Anyway, original example is the right way to create and terminate thread 
+and may be used as example.
+
+Sorry again for misleading posting.
+
+Vladimir.
+
+Richard B. Johnson wrote:
+
+>I am using a 2.4.20 kernel. I tried your program.
+>First, it didn't compile. So I would guess that you
+>never tested your test program. I fixed it and I
+>made a more readily useful Makefile, etc., so others
+>can try it, too. It is attached.
 >
-> Each time we'd have to go through a full lapic_suspend/lapic_resume
-> cycle, like we do now for PM suspends, and each time the local APIC
-> timer would lose ticks.
+>It works. It doesn't eat any resources. I guess that
+>the stuff that actually does 'work' in your actual
+>driver module is what is consuming resources.
+>
+>Although making and deleting a number of kernel threads
+>is an interesting exercise, I sure hope that you don't
+>really do this in a real application. It is very expensive
+>to do this. If you need a kernel thread, you should have
+>one (or several) that do the work and never exit.
+>
+>Cheers,
+>Dick Johnson
+>Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+>            Note 96.31% of all statistics are fiction.
+>  
+>
 
-That'll just be another way of losing ticks, then :)
 
-> And in an UP_IOAPIC system we'd better disable
-> and reenable the I/O-APIC too (or reprogram it to PIC mode, but that's
-> horrible). Not pretty.
-> 
-> Personally I'd prefer checks in apm.c that cause it to refuse to do
-> any BIOS calls except at suspend or poweroff.
-
-I'd prefer that if APM idle or blanking are enabled, the default
-interrupt mode is to not use the APIC.
-
-Saving power is pretty desirable on a laptop.
-
--- Jamie

@@ -1,57 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262856AbTDNI2e (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 04:28:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262865AbTDNI2e (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 04:28:34 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:33454 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id S262856AbTDNI2d (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 04:28:33 -0400
-Date: Mon, 14 Apr 2003 10:39:40 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Paul Mackerras <paulus@samba.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] M68k IDE updates
-In-Reply-To: <16025.63003.968553.194791@nanango.paulus.ozlabs.org>
-Message-ID: <Pine.GSO.4.21.0304141037410.28305-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S262865AbTDNIh1 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 04:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262866AbTDNIh1 (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 04:37:27 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:63628 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S262865AbTDNIh0 (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 04:37:26 -0400
+Date: Mon, 14 Apr 2003 08:49:04 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: arjanv@redhat.com, Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.67-mm2
+Message-ID: <20030414084904.A15608@devserv.devel.redhat.com>
+References: <20030412180852.77b6c5e8.akpm@digeo.com> <20030413151232.D672@nightmaster.csn.tu-chemnitz.de> <1050245689.1422.11.camel@laptop.fenrus.com> <200304140629.h3E6TPu01387@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200304140629.h3E6TPu01387@Port.imtp.ilyichevsk.odessa.ua>; from vda@port.imtp.ilyichevsk.odessa.ua on Mon, Apr 14, 2003 at 09:24:26AM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Apr 2003, Paul Mackerras wrote:
-> Alan Cox writes:
-> > This looks the wrong place to fix this problem Geert. The PPC 
-> > folks have the same issues with byte order on busses but you
-> > won't see ifdefs in the core IDE code for it.
-> > 
-> > Fix your __ide_mm_insw/ide_mm_outsw macros and the rest happens
-> > automatically.
+On Mon, Apr 14, 2003 at 09:24:26AM +0300, Denis Vlasenko wrote:
+> >
+> > that in itself is easy to find btw; just give every GFP_* an extra
+> > __GFP_REQUIRED bit and then check inside kmalloc for that bit (MSB?)
+> > to be set.....
 > 
-> As I understand it, on some platforms (including some PPC platforms,
-> but not powermacs) one needs to byteswap drive ID data but not the
-> normal sector data.  Or vice versa.  Whether drive ID data needs
-> byte-swapping comes down to how the drive is attached to the bus.  The
-> conventions used by other systems that we need to interoperate with
-> (e.g. other OSes, or just older kernels) determine whether normal
-> sector data needs byte-swapping or not.
-> 
-> Since __ide_mm_insw doesn't get told whether it is transferring normal
-> sector data or drive ID data, it can't necessarily do the right thing
-> in both situations.
+> This will incur runtime penalty
 
-Indeed. Ataris and Q40/Q60s have byteswapped IDE busses, but they expect
-on-disk data to be that way, for compatibility with e.g. TOS.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+but only for CONFIG_DEBUG_KMALLOC or whatever

@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280495AbRKSSNQ>; Mon, 19 Nov 2001 13:13:16 -0500
+	id <S280510AbRKSSP0>; Mon, 19 Nov 2001 13:15:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280510AbRKSSNG>; Mon, 19 Nov 2001 13:13:06 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47115 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280495AbRKSSM7> convert rfc822-to-8bit; Mon, 19 Nov 2001 13:12:59 -0500
-Date: Mon, 19 Nov 2001 10:07:58 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Sebastian =?iso-8859-1?q?Dr=F6ge?= <sebastian.droege@gmx.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [VM] 2.4.14/15-pre4 too "swap-happy"?
-In-Reply-To: <200111191801.fAJI1l922388@neosilicon.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0111191003470.8205-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id fAJICgD16567
+	id <S280531AbRKSSPG>; Mon, 19 Nov 2001 13:15:06 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:4103 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S280510AbRKSSO7>; Mon, 19 Nov 2001 13:14:59 -0500
+Message-Id: <200111191814.fAJIEPlQ019878@pincoya.inf.utfsm.cl>
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: James A Sutherland <jas88@cam.ac.uk>, linux-kernel@vger.kernel.org
+Subject: Re: x bit for dirs: misfeature? 
+In-Reply-To: Message from vda <vda@port.imtp.ilyichevsk.odessa.ua> 
+   of "Mon, 19 Nov 2001 19:21:57 -0000." <01111919215701.07749@nemo> 
+Date: Mon, 19 Nov 2001 15:14:25 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+vda <vda@port.imtp.ilyichevsk.odessa.ua> said:
+> On Monday 19 November 2001 16:44, Horst von Brand wrote:
 
-On Mon, 19 Nov 2001, Sebastian Dröge wrote:
-> Hi,
-> I couldn't answer ealier because I had some problems with my ISP
-> the heavy swapping problem while burning a cd is solved in pre6aa1
-> but if you want i can do some statistics tommorow
+[...]
 
-Well, pre6aa1 performs really badly exactly because it by default doesn't
-swap enough even on _normal_ loads because Andrea is playing with some
-tuning (and see the bad results of that tuning in the VM testing by
-rwhron@earthlink.net).
+> > X sets x for dirs, leaves files alone.
 
-So the pre6aa1 numbers are kind of suspect - lack of swapping may not be
-due to fixing the problem, but due to bad tuning.
+> Hmm... yes this is one of such workarounds already implemented.
+> But it is not very good for my example:
+> X sets x for dirs *and* for files with x set for any of u,g,o.
+> 
+> # chmod -R a+rX dir
+> 
+> will make any executables (even root only) world-executable.
 
-Does plain pre6 solve it? Plain pre6 has a fix where a locked shared
-memory area would previously cause unnecessary swapping, and maybe the CD
-burning buffer is using shmlock..
-
-		Linus
-
+That's what you are asking for...
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263864AbTI2RVI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 13:21:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263873AbTI2RUV
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S263871AbTI2RUV (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 29 Sep 2003 13:20:21 -0400
-Received: from adicia.telenet-ops.be ([195.130.132.56]:64193 "EHLO
-	adicia.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S263864AbTI2RTb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 13:19:31 -0400
-Date: Mon, 29 Sep 2003 19:18:50 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: tom@qwws.net, Brandon Low <lostlogic@gentoo.org>, jbinpg@shaw.ca
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: USB-problem with uhci-hcd in versions 2.6.0-test5 and 2.6.0-test6
-Message-ID: <20030929191850.A21072@infomag.infomag.iguana.be>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263870AbTI2RUN
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 29 Sep 2003 13:20:13 -0400
+Received: from fw.osdl.org ([65.172.181.6]:25742 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263866AbTI2RTc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 13:19:32 -0400
+Date: Mon, 29 Sep 2003 10:20:21 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Daniel McNeil <daniel@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-test6-mm1
+Message-Id: <20030929102021.76e96730.akpm@osdl.org>
+In-Reply-To: <1064855347.23108.5.camel@ibm-c.pdx.osdl.net>
+References: <20030928191038.394b98b4.akpm@osdl.org>
+	<1064855347.23108.5.camel@ibm-c.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Daniel McNeil <daniel@osdl.org> wrote:
+>
+> On Sun, 2003-09-28 at 19:10, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test6/2.6.0-test6-mm1
+> > 
+> > 
+> > Lots of small things mainly.
+> > 
+> > The O_DIRECT-vs-buffers I/O locking changes appear to be complete, so testing
+> > attention on O_DIRECT workloads would be useful.
+> > 
+> 
+> OSDL's STP automatically ran dbt2 tests against 2.6.0-test6-mm1 this
+> morning (PLM patch #2174).
+> 
+> The dbt2 test uses raw devices and all the runs completed successfully.
 
-I saw that you also reported problems with USB/uhci-hcd on your systems. Can you test
-the following patch and see if it works now?
+Well that's good, thanks.
 
-Greetings,
-Wim.
+Actually, it is O_DIRECT against regular files which needs the extra testing.
 
---- linux-2.6.0-test6/drivers/usb/host/uhci-hcd.c	2003-09-28 02:50:56.000000000 +0200
-+++ linux-2.6.0-test6/drivers/usb/host/uhci-hcd.c	2003-09-28 23:21:30.000000000 +0200
-@@ -2185,8 +2185,8 @@
- 	/* Maybe kick BIOS off this hardware.  Then reset, so we won't get
- 	 * interrupts from any previous setup.
- 	 */
--	pci_write_config_word(hcd->pdev, USBLEGSUP, USBLEGSUP_DEFAULT);
- 	reset_hc(uhci);
-+	pci_write_config_word(hcd->pdev, USBLEGSUP, USBLEGSUP_DEFAULT);
- 	return 0;
- }
- 

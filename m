@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbVAZXnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262276AbVA0COS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261674AbVAZXnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 18:43:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbVAZXmy
+	id S262276AbVA0COS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 21:14:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbVAZXqR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:42:54 -0500
-Received: from alog0168.analogic.com ([208.224.220.183]:41856 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261769AbVAZSjr
+	Wed, 26 Jan 2005 18:46:17 -0500
+Received: from alog0267.analogic.com ([208.224.222.43]:43392 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261981AbVAZTK0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 13:39:47 -0500
-Date: Wed, 26 Jan 2005 13:39:03 -0500 (EST)
+	Wed, 26 Jan 2005 14:10:26 -0500
+Date: Wed, 26 Jan 2005 14:09:40 -0500 (EST)
 From: linux-os <linux-os@analogic.com>
 Reply-To: linux-os@analogic.com
-To: Olivier Galibert <galibert@pobox.com>
-cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, James Antill <james.antill@redhat.com>,
-       Bryn Reeves <breeves@redhat.com>
+To: Rik van Riel <riel@redhat.com>
+cc: Bryn Reeves <breeves@redhat.com>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       James Antill <james.antill@redhat.com>
 Subject: Re: don't let mmap allocate down to zero
-In-Reply-To: <20050126183121.GA93329@dspnet.fr.eu.org>
-Message-ID: <Pine.LNX.4.61.0501261338460.18301@chaos.analogic.com>
-References: <Pine.LNX.4.61.0501261116140.5677@chimarrao.boston.redhat.com>
- <Pine.LNX.4.61.0501261130130.17993@chaos.analogic.com>
- <20050126181006.GA80759@dspnet.fr.eu.org> <Pine.LNX.4.61.0501261315220.18301@chaos.analogic.com>
- <20050126183121.GA93329@dspnet.fr.eu.org>
+In-Reply-To: <Pine.LNX.4.61.0501261353260.5677@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.61.0501261407120.18468@chaos.analogic.com>
+References: <Pine.LNX.4.61.0501261116140.5677@chimarrao.boston.redhat.com> 
+ <Pine.LNX.4.61.0501261130130.17993@chaos.analogic.com> 
+ <41F7D4B0.7070401@nortelnetworks.com> <1106762261.10384.30.camel@breeves.surrey.redhat.com>
+ <Pine.LNX.4.61.0501261325540.18301@chaos.analogic.com>
+ <Pine.LNX.4.61.0501261353260.5677@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Jan 2005, Olivier Galibert wrote:
+On Wed, 26 Jan 2005, Rik van Riel wrote:
 
-> On Wed, Jan 26, 2005 at 01:20:53PM -0500, linux-os wrote:
->> On Wed, 26 Jan 2005, Olivier Galibert wrote:
->>> Given that the man page itself says that unless you're using MAP_FIXED
->>> start is only a hint and you should use 0 if you don't care things can
->>> get real annoying real fast.  Imagine if you want to mmap a <4K file
->>> and mmap then returns 0, i.e. NULL, as the mapping address as you
->>> asked.  It's illegal from the point of view of susv3[1] and it's real
->>> annoying in a C/C++ program.
->>
->> mmap() can (will) return 0 if you use 0 as the hint and use MAP_FIXED
->> at 0. That's the reason why one does NOT check for NULL with mmap() but
->> for MAP_FAILED (which on this system is (void *)-1.
+> On Wed, 26 Jan 2005, linux-os wrote:
 >
-> All the paragraph was under an obvious "when you do not use MAP_FIXED"
-> precondition.  The patch is not supposed to change anything to the
-> MAP_FIXED case.  Malloc does not use MAP_FIXED.  Usual file mmaping
-> as an alternative to read() does not use MAP_FIXED.
+>> Wrong! A returned value of 0 is perfectly correct for mmap()
+>> when mapping a fixed address. The attached code shows it working
+>  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 >
->  OG.
+> The code that is patched is only run in case of a non-MAP_FIXED
+> mmap() call...
+>
 
-Okay. That's fine.
+That's good then. I needed to make sure. Lots of embedded stuff
+peeks and pokes at ix86 low-memory physical addresses.
 
 Cheers,
 Dick Johnson

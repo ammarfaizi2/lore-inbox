@@ -1,79 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316739AbSGVLEu>; Mon, 22 Jul 2002 07:04:50 -0400
+	id <S316610AbSGVKHb>; Mon, 22 Jul 2002 06:07:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316753AbSGVLEt>; Mon, 22 Jul 2002 07:04:49 -0400
-Received: from [196.26.86.1] ([196.26.86.1]:25561 "HELO
-	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S316739AbSGVLEq>; Mon, 22 Jul 2002 07:04:46 -0400
-Date: Mon, 22 Jul 2002 13:25:32 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: "David S. Miller" <davem@redhat.com>
-Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [2.5.27] Oops in tcp_v6_get_port
-Message-ID: <Pine.LNX.4.44.0207221324530.32636-100000@linux-box.realnet.co.sz>
+	id <S316615AbSGVKHb>; Mon, 22 Jul 2002 06:07:31 -0400
+Received: from sproxy.gmx.de ([213.165.64.20]:20248 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S316610AbSGVKHa>;
+	Mon, 22 Jul 2002 06:07:30 -0400
+Message-ID: <3D3BDA18.4070902@gmx.at>
+Date: Mon, 22 Jul 2002 12:10:32 +0200
+From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ville Herva <vherva@niksula.hut.fi>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: File Corruption in Kernel 2.4.18
+References: <3D362125.3A324489@atr.co.jp> <20020718072155.GB1548@niksula.cs.hut.fi> <3D367295.2010109@gmx.at> <20020718081630.GX1465@niksula.cs.hut.fi>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave, Arnaldo
+Ville Herva wrote:
+> On Thu, Jul 18, 2002 at 09:47:33AM +0200, you [Wilfried Weissmann] wrote:
+> 
+>>[snip]
+>>
+>>>I repoduced the problem with wrchk utility I wrote
+>>>(http://iki.fi/v/tmp/wrchk.c) but it seems you can do it with you directory
+>>>tree copying.
+>>
+>>I got to check this out!
+> 
+> 
+> I had the problem to appear almost certainly when doing wrchk to raw disks
+> (you should be able to use large files just as well), two writes in parallel
+> (eg. /dev/hde, /dev/hdg). Occasionally it took ~50GB of writing before it
+> happened (multiple rounds), but it always did.
 
-I get this whenever i run some X11 app from the 2.5.27 box and then ssh 
-in from the X server. It seems to sometimes take a while but is reproducible.
+I did a simultaneous:
+wrck /dev/hd[fh] 0 64 2
+The two disks were connected to the HPT-370 controller and both were 
+configured as slave (the masters are configured into an ataraid-0 and 
+contain my root partition). The test disk were IBM DLTA 307030 (30GB) 
+with updated firmware. These disks are locked down to ata-44 by the 
+kernel and I only got a maximum I/O speed of 21.7 MB/s. During the read 
+phase one of the disks always slowed down, while the other disk 
+proceeded at normal speed. In the first run I got 7.2 MB/s and at the 
+second run the other disk slowed down to crawling 5.3 MB/s, but the test 
+was completed without any errors. *joy* However I am not that the test 
+did stress the chipset enough to trigger the error because of the 
+throughput is so low.
+My mainboard is a abit kt7-raid (VIA KT133 chipset), BIOS version 3R. 
+Memory bus was reduced to 100 MHz (SDR). Linux kernel 2.4.18 tainted by 
+NVidia(TM). ;)
+DivX 5.0 seems to be a good stability test for VIA chipset based 
+motherboards. It finds errors that not even memtest could detect.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000010
- printing eip:
-c02ed9e9
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c02ed9e9>]    Not tainted
-EFLAGS: 00010202
-eax: 0000000a   ebx: cf5f8380   ecx: 00000010   edx: 00000000
-esi: cf5f8380   edi: 00000010   ebp: ce9dddbc   esp: cdbf9e84
-ds: 0018   es: 0018   ss: 0018
-Process sshd (pid: 728, threadinfo=cdbf8000 task=ceb48060)
-Stack: c5ef3c48 c5ef3f30 0100007f 00000011 00000000 000003a0 cf5f7e00 cf5a19e0
-       0000177a c5ef3be0 c5ef3f20 c5ef3f30 c5ef3d34 c02d56f4 c4ef3be0 0000177a
-       00000000 c5ef3c00 0000177a 00000011 0600007f cdbf9f00 ce93c644 cdbf9f00
-Call Trace: [<c02d56f4>] [<c028a5ff>] [<c02896ba>] [<c028a3e3>] [<c0126176>]
-   [<c012634c>] [<c028a43d>] [<c01075db>] [<c01075db>]
+greetings,
+Wilfried
 
-Code: f3 a6 0f 97 c2 0f 92 c0 38 c2 74 2c 81 7c 24 0c 00 10 00 00
- <0>Kernel panic: Aiee, killing interrupt handler!
-In interrupt handler - not syncing
-
->>EIP; c02ed9e9 <tcp_v6_get_port+339/4e0>   <=====
-Trace; c02d56f4 <inet6_bind+4c4/740>
-Trace; c028a5ff <sys_bind+4f/70>
-Trace; c02896ba <sock_map_fd+10a/120>
-Trace; c028a3e3 <sock_create+f3/120>
-Trace; c0126176 <update_wall_time+16/50>
-Trace; c012634c <timer_bh+5c/400>
-Trace; c028a43d <sys_socket+2d/50>
-Trace; c01075db <syscall_call+7/b>
-Trace; c01075db <syscall_call+7/b>
-Code;  c02ed9e9 <tcp_v6_get_port+339/4e0>
-00000000 <_EIP>:
-Code;  c02ed9e9 <tcp_v6_get_port+339/4e0>   <=====
-   0:   f3 a6                     repz cmpsb %es:(%edi),%ds:(%esi)   <=====
-Code;  c02ed9eb <tcp_v6_get_port+33b/4e0>
-   2:   0f 97 c2                  seta   %dl
-Code;  c02ed9ee <tcp_v6_get_port+33e/4e0>
-   5:   0f 92 c0                  setb   %al
-Code;  c02ed9f1 <tcp_v6_get_port+341/4e0>
-   8:   38 c2                     cmp    %al,%dl
-Code;  c02ed9f3 <tcp_v6_get_port+343/4e0>
-   a:   74 2c                     je     38 <_EIP+0x38> c02eda21 <tcp_v6_get_port+371/4e0>
-Code;  c02ed9f5 <tcp_v6_get_port+345/4e0>
-   c:   81 7c 24 0c 00 10 00      cmpl   $0x1000,0xc(%esp,1)
-Code;  c02ed9fc <tcp_v6_get_port+34c/4e0>
-  13:   00
-
-
--- 
-function.linuxpower.ca
+PS: I will do another run on my raid-0 root partition. The 2 disks that 
+are part of the raid run at ata-100 (Maxtor 40GB).
 

@@ -1,63 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263095AbSJBMtE>; Wed, 2 Oct 2002 08:49:04 -0400
+	id <S263123AbSJBNEH>; Wed, 2 Oct 2002 09:04:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263096AbSJBMtE>; Wed, 2 Oct 2002 08:49:04 -0400
-Received: from 200-171-183-235.dsl.telesp.net.br ([200.171.183.235]:12046 "EHLO
-	techlinux.com.br") by vger.kernel.org with ESMTP id <S263095AbSJBMtC>;
-	Wed, 2 Oct 2002 08:49:02 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Carlos E Gorges <carlos@techlinux.com.br>
-To: linux-kernel@vger.kernel.org
-Subject: (PATCH) Re: 2.5.40: make menuconfig error
-Date: Wed, 2 Oct 2002 09:54:19 -0300
-X-Mailer: KMail [version 1.4]
-References: <200210021403.00305.fredi@e-salute.it> <20021002144444.A1369@mars.ravnborg.org>
-In-Reply-To: <20021002144444.A1369@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200210020954.19757.carlos@techlinux.com.br>
+	id <S263124AbSJBNEH>; Wed, 2 Oct 2002 09:04:07 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.18.111]:59913 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S263123AbSJBNEG>; Wed, 2 Oct 2002 09:04:06 -0400
+Date: Wed, 2 Oct 2002 15:09:34 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Swsusp updates, do not thrash ide disk on suspend
+Message-ID: <20021002130933.GA18829@atrey.karlin.mff.cuni.cz>
+References: <20021001224740.GA30488@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.10.10210011827551.3976-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10210011827551.3976-100000@master.linux-ide.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Quarta 02 Outubro 2002 09:44, Sam Ravnborg wrote:
-> On Wed, Oct 02, 2002 at 02:03:00PM +0200, Frederik Nosi wrote:
-> > Please CC me because I'm not in the list
-> > Here it is:
-> >
-> >
-> > Menuconfig has encountered a possible error in one of the kernel's
-> > configuration files and is unable to continue.  Here is the error
-> > report:
-> >
-> >  Q> ./scripts/Menuconfig: MCmenu74: command not found
-> >
+Hi!
 
-The following patch fix it
+> > > > This cleans up swsusp a little bit and fixes ide disk corruption on
+> > > > suspend/resume. Please apply,
+> > > 
+> > > It also seems to be doing things with the device manager. Mind explaining 
+> > > those changes too?
+> > 
+> > Those are forward port of what we had there already. I make IDE child
+> > of PCI device with the controller (in cases its on PCI). That seems
+> > logical place for it and we had it like that in 2.5.30 or
+> > so. ide-disk.c is there to make disk sleep before we go
+> > suspend. Without that, data corruption happens.
+> 
+> I pointed out to you various other device other than disk support
+> DMA, and
 
---- linux-2.5.40/sound/Config.in	Tue Oct  1 04:06:30 2002
-+++ linux-2.5/sound/Config.in	Wed Oct  2 07:27:04 2002
-@@ -31,10 +31,7 @@
- if [ "$CONFIG_SND" != "n" -a "$CONFIG_ARM" = "y" ]; then
-   source sound/arm/Config.in
- fi
--if [ "$CONFIG_SND" != "n" -a "$CONFIG_SPARC32" = "y" ]; then
--  source sound/sparc/Config.in
--fi
--if [ "$CONFIG_SND" != "n" -a "$CONFIG_SPARC64" = "y" ]; then
-+if [ "$CONFIG_SND" != "n" -a "$CONFIG_SPARC32" = "y" ] || [ "$CONFIG_SND" != "n" -a "$CONFIG_SPARC64" = "y" ];then
-   source sound/sparc/Config.in
- fi
- 
---
+Well, if even this patch is hard to push through, how hard would it be
+to push patch that touches also cdroms etc?
 
+> moving the suspend point up to the mainloop away from the
+> subdrivers.
+
+Are you trying to say that you believe that idedisk_suspend could be
+same as idecdrom_suspend and idefloppy_suspend?
+
+> This would insure the entire sub-system is out.  Why are we block
+             ~~~~~~ do you mean ensure?
+> after
+> the request has been sent to the sub-driver?  
+
+We are not block. Certainly *I* am not block ;-). Do you mean "why do
+we block"? Which "block" do you have in mind?
+
+> Why do you see this the
+> preferred location and not before it enters the system?  Given that you
+> have stated it does not parse the difference between S3 v/s S4, I am
+> graveful concerned.  
+
+What problem do you have with no difference between S3 and S4?
+								Pavel
 -- 
-	 _________________________
-	 Carlos E Gorges          
-	 (carlos@techlinux.com.br)
-	 Tech informática LTDA
-	 Brazil                   
-	 _________________________
-
-
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

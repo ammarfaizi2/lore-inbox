@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317623AbSHPW6m>; Fri, 16 Aug 2002 18:58:42 -0400
+	id <S318184AbSHPX1E>; Fri, 16 Aug 2002 19:27:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317845AbSHPW6m>; Fri, 16 Aug 2002 18:58:42 -0400
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:33485 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S317623AbSHPW6m> convert rfc822-to-8bit; Fri, 16 Aug 2002 18:58:42 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S318367AbSHPX1E>; Fri, 16 Aug 2002 19:27:04 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11270 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318184AbSHPX1E>; Fri, 16 Aug 2002 19:27:04 -0400
+Date: Fri, 16 Aug 2002 16:34:14 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: IDE?
-Date: Sat, 17 Aug 2002 00:59:50 +0200
-X-Mailer: KMail [version 1.4]
-Organization: WOLK - Working Overloaded Linux Kernel
-Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200208170058.39227.m.c.p@wolk-project.de>
+Message-ID: <Pine.LNX.4.44.0208161622240.1674-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200208170058.39227.m.c.p@wolk-project.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
 
-> In article <2444170000.1029531611@flay>,
-> Martin J. Bligh <Martin.Bligh@us.ibm.com> wrote:
-> > So did Linus get disk corruption or is something else afoot?
-> Martin gave up the fight he had to do all the time, so..
+On Sat, 17 Aug 2002, Marc-Christian Petersen wrote:
+> 
+> I am beside my self with laughing, sorry :P
+> 
+> I really can imagine what are you dreaming of. Like:
 
-I am beside my self with laughing, sorry :P
+Actually, you apparently can't.
 
-I really can imagine what are you dreaming of. Like:
-"shit, f*ck, why the hell I kicked André Hedrick in the ass
- and why, for heaven's sake, I said jump in the lake to him?!!?"
+I'm dreaming of an IDE maintainer that people (including, very much, me)
+can work with. I don't know why, but IDE has pretty much since day one
+been a fairly problematic area, and has caused a lot more maintainer
+headache than the rest of the kernel put together..
 
-Sorry, couldn't resist. ;)
+There's been one fairly smooth IDE transition (the original transition
+from hd.c to ide.c), and calling even that "smooth" is pretty much all
+hindsight - at the time people thought it was horribly stupid to not allow
+big controversial changes to hd.c, and the resulting code duplication was
+considered a disaster.
 
+Right now it looks like Alan is at least for the moment willing to work on
+the IDE code, which is obviously great. I just wonder how long he'll stand
+it (he's maintained various IDE buglists etc issues for years, so we can
+hope).
 
--- 
-Kind regards
-        Marc-Christian Petersen
-
-http://sourceforge.net/projects/wolk
-
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
-Key available at www.keyserver.net. Encrypted e-mail preferred.
+			Linus
 

@@ -1,48 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280660AbRKFXAS>; Tue, 6 Nov 2001 18:00:18 -0500
+	id <S280686AbRKFW7I>; Tue, 6 Nov 2001 17:59:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280656AbRKFXAJ>; Tue, 6 Nov 2001 18:00:09 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:7945 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S280671AbRKFW74>;
-	Tue, 6 Nov 2001 17:59:56 -0500
-Date: Tue, 6 Nov 2001 15:59:34 -0800
-From: Greg KH <greg@kroah.com>
-To: Stephan Gutschke <stephan@gutschke.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops when syncing Sony Clie 760 with USB cradle
-Message-ID: <20011106155934.B12661@kroah.com>
-In-Reply-To: <E160obZ-0001bO-00@janus> <20011105131014.A4735@kroah.com> <3BE7F362.1090406@gutschke.com> <20011106095527.A10279@kroah.com> <3BE870EF.2080508@gutschke.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BE870EF.2080508@gutschke.com>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Tue, 09 Oct 2001 21:33:24 -0700
+	id <S280662AbRKFW4y>; Tue, 6 Nov 2001 17:56:54 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:59152 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S280667AbRKFW4d>; Tue, 6 Nov 2001 17:56:33 -0500
+Date: Tue, 6 Nov 2001 23:56:20 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: <andrewm@uow.edu.au>, <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Andreas Dilger <adilger@turbolabs.com>
+Subject: Re: [PATCH] slip.c jiffies cleanup
+In-Reply-To: <Pine.LNX.4.30.0111062152270.23828-100000@gans.physik3.uni-rostock.de>
+Message-ID: <Pine.LNX.4.30.0111062351330.24429-100000@gans.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 07, 2001 at 12:23:27AM +0100, Stephan Gutschke wrote:
-> there you go,  the output from  /proc/bus/usb/devices
-> By the way I have an Clie N710C which is upgraded
-> to an 760 with OS 4.1S, shouldnt make a difference,
-> but I just wanted to let you know.
+On Tue, 6 Nov 2001, Tim Schmielau wrote:
 
-Ah, that might make the difference.  It looks like the number of
-endpoints is different on this device, than any other 4.x Clie devices
-(they should have 4 bulk endpoints.)  The older devices have 2 endpoints
-(endpoints are usually done in hardware)
+> --- ../linux-2.4.14-pre6/drivers/net/slip.c	Sun Sep 30 21:26:07 2001
+> +++ drivers/net/slip.c	Tue Nov  6 19:56:48 2001
+[...]
 
-This Clie is reporting to the driver that it _does_ have 2 "ports" (a
-port is 2 endpoint pairs in this scheme), but in reality, it doesn't.
-The lying device is then causing the driver to oops when it tries to
-write to a port that isn't even there.
+> @@ -1412,7 +1412,7 @@
+>  				spin_unlock(&slc->ctrl.lock);
+>  			}
+>  			local_bh_enable();
+> -		} while (busy && jiffies - start < 1*HZ);
+> +		} while (busy && time_before(jiffies, timeout);
+>
+>  		busy = 0;
+>  		for (i = 0; i < slip_maxdev; i++) {
+>
 
-I'm going to have to rework the driver to fix this problem, give me a
-day or so to come up with a solution.  Are you willing to try a patch
-when I have something?
 
-Thanks for the good error reporting, it really helped.
+Sorry all, I screwed up.
+While I did compile before sending the patch,
+somehow I must have missed the error message.
+Patch must be
 
-greg k-h
+> -		} while (busy && jiffies - start < 1*HZ);
+> +		} while (busy && time_before(jiffies, timeout));
+
+New patch appended.
+
+Tim
+
+
+
+--- ../linux-2.4.14-pre6/drivers/net/slip.c	Sun Sep 30 21:26:07 2001
++++ drivers/net/slip.c	Tue Nov  6 19:56:48 2001
+@@ -483,7 +483,7 @@
+ 		 *      14 Oct 1994 Dmitry Gorodchanin.
+ 		 */
+ #ifdef SL_CHECK_TRANSMIT
+-		if (jiffies - dev->trans_start  < 20 * HZ)  {
++		if (time_before(jiffies, dev->trans_start + 20 * HZ))  {
+ 			/* 20 sec timeout not reached */
+ 			goto out;
+ 		}
+@@ -1387,7 +1387,7 @@
+ 	int i;
+
+ 	if (slip_ctrls != NULL) {
+-		unsigned long start = jiffies;
++		unsigned long timeout = jiffies + HZ;
+ 		int busy = 0;
+
+ 		/* First of all: check for active disciplines and hangup them.
+@@ -1412,7 +1412,7 @@
+ 				spin_unlock(&slc->ctrl.lock);
+ 			}
+ 			local_bh_enable();
+-		} while (busy && jiffies - start < 1*HZ);
++		} while (busy && time_before(jiffies, timeout));
+
+ 		busy = 0;
+ 		for (i = 0; i < slip_maxdev; i++) {
+

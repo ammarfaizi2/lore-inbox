@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285369AbSAGTU3>; Mon, 7 Jan 2002 14:20:29 -0500
+	id <S285417AbSAGTT3>; Mon, 7 Jan 2002 14:19:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285347AbSAGTUX>; Mon, 7 Jan 2002 14:20:23 -0500
-Received: from unknown-1-11.windriver.com ([147.11.1.11]:10917 "EHLO
-	mail.wrs.com") by vger.kernel.org with ESMTP id <S285369AbSAGTT0>;
-	Mon, 7 Jan 2002 14:19:26 -0500
-From: mike stump <mrs@windriver.com>
-Date: Mon, 7 Jan 2002 11:18:40 -0800 (PST)
-Message-Id: <200201071918.LAA11997@kankakee.wrs.com>
-To: dewar@gnat.com, guerby@acm.org
-Subject: Re: [PATCH] C undefined behavior fix
-Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org, paulus@samba.org,
-        trini@kernel.crashing.org, velco@fadata.bg
+	id <S285347AbSAGTTU>; Mon, 7 Jan 2002 14:19:20 -0500
+Received: from ns.suse.de ([213.95.15.193]:64520 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S285316AbSAGTTK>;
+	Mon, 7 Jan 2002 14:19:10 -0500
+Date: Mon, 7 Jan 2002 20:19:08 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Greg KH <greg@kroah.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Hardware Inventory [was: Re: ISA slot detection on PCI systems?]
+In-Reply-To: <20020107190643.GA8413@kroah.com>
+Message-ID: <Pine.LNX.4.33.0201072017200.16327-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: dewar@gnat.com
-> To: dewar@gnat.com, guerby@acm.org, mrs@windriver.com
-> Date: Sun,  6 Jan 2002 14:32:01 -0500 (EST)
+On Mon, 7 Jan 2002, Greg KH wrote:
 
-> Ah ha! But then look again at my 16-bit example, an expert assembly
-> langauge programmer will use a 32 bit load if efficiency is not an
-> issue (and it does not matter if there are extra bits around), but a
-> 16-bit load if the hardware for some reason requires it. How is the
-> poort C compiler to distinguish these cases automatically?
+> I don't know.  I asked the dietLibc people if they would be willing to
+> create a stripped down version of it and help port it to the remaining
+> archs that Linux supports, but dietLibc doesn't, and didn't hear
+> anything back.
 
-When you give the compiler as much information to it as your expert
-apparently has, then it will produce the same code, until then,
-imagine you told you expert that you want to do a 16 bit fetch for
-something that might care if it were not a 16 bit access...  If you so
-tie your experts hands, as you tie gcc hands, then should produce
-similar code.
+That doesn't fill me with confidence. This thing will need
+maintainence after initial merge.
 
-Now, if you want to invent gcc extensions so that it can know as much
-as a domain expert, start proposing those language extensions...
+> It doesn't look like much work to do the stripping (I did a bunch of it
+> for the latest version of dietHotplug) but the porting, I have no idea
+> of what is needed there.
+> Anyone want to start up a klibc project? :)
+
+That's not half a bad idea. If we want a _maintained_ libc for the kernel,
+having it maintained by kernel folks may make sense. There's nothing
+stopping us borrowing bits from dietlibc and friends after all.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

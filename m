@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262984AbSJGLGz>; Mon, 7 Oct 2002 07:06:55 -0400
+	id <S262971AbSJGLSx>; Mon, 7 Oct 2002 07:18:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262985AbSJGLGz>; Mon, 7 Oct 2002 07:06:55 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:41830 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S262984AbSJGLGy>; Mon, 7 Oct 2002 07:06:54 -0400
-Message-Id: <200210071110.g97BA1J18387@gum09.etpnet.phys.tue.nl>
-Date: Mon, 7 Oct 2002 13:09:58 +0200 (CEST)
-From: bart@etpmod.phys.tue.nl
-Reply-To: bart@etpmod.phys.tue.nl
-Subject: Re: initio driver needs updating
-To: jbinpg@shaw.ca
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <0H3L00G5B1LBJ1@l-daemon>
+	id <S262930AbSJGLSx>; Mon, 7 Oct 2002 07:18:53 -0400
+Received: from 25th.com ([12.109.132.50]:33797 "HELO 25th.com")
+	by vger.kernel.org with SMTP id <S262971AbSJGLSx>;
+	Mon, 7 Oct 2002 07:18:53 -0400
+Message-ID: <3DA16FBF.1070202@dodinc.com>
+Date: Mon, 07 Oct 2002 07:27:59 -0400
+From: "Lawrence A. Wimble" <law@dodinc.com>
+Reply-To: law@dodinc.com
+Organization: Design On Demand, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
+To: Mazhar Memon <mazhar@nmt.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Bizarre network issue
+References: <3D9F7169.8020008@dodinc.com> <20021005210308.07d381ff.mazhar@nmt.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  6 Oct, Jack Bowling wrote:
-> Hi, folks. I would love to bang on the latest 2.5.x revs but unfortunately I
-> need an updated initio driver. My attempts at a compile all bomb with the
-> current initio code. Since the freeze is coming up, could somebody please find
-> whomever is responsible for this driver and ask them to write it to the new
-> specs? I would do it myself but I can't code!!
-> 
+Mazhar Memon wrote:
 
-Yeah, found the same problem. I am not the maintainer, but more than
-willing to take a shot at it. It has been a while since I rooted around
-in the kernel source, and, more importantly, I would like to use my
-CD-burner with 2.5 :-).
+>
+>Are you willing share your code? I'd love to see what you have so far since I have a similar project.  It is basically using a wireless link that supposed to look like a terminal.  I'm hoping that all I'll need to do is make a simple driver to implement hard_start_xmit and let pppd do the rest.  Probably like your radio, it has a 0-7 network id which I assume you are including in your MAC addr some how.
+>
+>Regards,
+>Mazhar
+>
+Yes, I am quite willing to share the code.  In fact, I hope to have 
+everything wrapped up
+by the end of this week, and after a little testing, will make it 
+available on our website for
+download.  I'll send an email off-list to anyone interested once it's ready.
 
-Bart
+Cheers!
+Larry
 
 -- 
-Bart Hartgers - TUE Eindhoven 
-http://plasimo.phys.tue.nl/bart/contact.html
+Lawrence A. Wimble                          414 NE 3rd Street; Suite B
+Chief Software Engineer                     Crystal River, FL 34429
+Design On Demand, Inc.                      Phone 352-563-1225 x112
+law@dodinc.com                              Fax 352-563-2098
+
+

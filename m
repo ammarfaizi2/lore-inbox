@@ -1,64 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286465AbRL0Shs>; Thu, 27 Dec 2001 13:37:48 -0500
+	id <S286496AbRL0Sma>; Thu, 27 Dec 2001 13:42:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286462AbRL0Shi>; Thu, 27 Dec 2001 13:37:38 -0500
-Received: from ns.suse.de ([213.95.15.193]:20484 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S286455AbRL0ShW>;
-	Thu, 27 Dec 2001 13:37:22 -0500
-Date: Thu, 27 Dec 2001 19:37:16 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>
+	id <S286499AbRL0SmT>; Thu, 27 Dec 2001 13:42:19 -0500
+Received: from otter.mbay.net ([206.40.79.2]:19462 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S286496AbRL0SmO> convert rfc822-to-8bit;
+	Thu, 27 Dec 2001 13:42:14 -0500
+From: John Alvord <jalvo@mbay.net>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Russell King <rmk@arm.linux.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Dana Lacoste <dana.lacoste@peregrine.com>,
+        "'Eyal Sohya'" <linuz_kernel_q@hotmail.com>,
+        linux-kernel@vger.kernel.org
 Subject: Re: The direction linux is taking
-In-Reply-To: <a0fntk$ukm$1@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0112271928260.15706-100000@Appserv.suse.de>
+Date: Thu, 27 Dec 2001 10:41:05 -0800
+Message-ID: <qlqm2usb72alggc3v8t9qugku4p0ukrue4@4ax.com>
+In-Reply-To: <Pine.LNX.4.33L.0112271353370.12225-100000@duckman.distro.conectiva> <E16JdTa-0005zm-00@the-village.bc.nu> <20011227165752.A19618@flint.arm.linux.org.uk> <200112271738.fBRHcSd30844@vindaloo.ras.ucalgary.ca>
+In-Reply-To: <200112271738.fBRHcSd30844@vindaloo.ras.ucalgary.ca>
+X-Mailer: Forte Agent 1.8/32.553
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Dec 2001, Linus Torvalds wrote:
+On Thu, 27 Dec 2001 10:38:28 -0700, Richard Gooch
+<rgooch@ras.ucalgary.ca> wrote:
 
-> This is absolutely true - it's a _very_ powerful thing. Old patches
-> simply grow stale: keeping track of them is not necessarily at all
-> useful, and can add more work than anything else.
+>Russell King writes:
+>> On Thu, Dec 27, 2001 at 04:33:50PM +0000, Alan Cox wrote:
+>> > Tridge wrote the system you describe, several years ago. Its called
+>> > jitterbug but it doesnt help because Linus wont use it
+>> 
+>> Speaking as someone who _does_ use a system for tracking patches, I
+>> believe that patch management systems are a right pain in the arse.
+>> 
+>> If the quality of patches aren't good, then it throws you into a
+>> problem.  You have to provide people with a reason why you discarded
+>> their patch, which provides people with the perfect opportunity to
+>> immediately start bugging you about exactly how to make it better.
+>> If you get lots of such patches, eventually you've got a mailbox of
+>> people wanting to know how to make their patches better.
+>
+>So you just do what Linus does: delete those questions without
+>replying. No matter what system you use, if you want to avoid an
+>overflowing mailbox, you either have to silently drop patches, and/or
+>silently drop questions/requests/begging letters. There isn't really
+>much difference between the two.
+>
+>				Regards,
+>
+>					Richard....
 
-*nod*, until they get scooped up into another tree -ac, -dj, -whatever
-and fed to you whenever you're in the mood for resyncing.
+Sounds like IP translated into human systems. We aren't surprised when
+a UDP packet is silently dropped for one of a thousand reasons.
 
-> This is not about technology.  This is about sustainable development.
-> The most important part to that is the developers themselves - I refuse
-> to put myself in a situation where _I_ need to scale, because that would
-> be stupid - people simply do not scale.  So I require others to do more
-> of the work. Think distributed development.
-
-Absolutely. When I decided to take on carrying the 2.4 patches in sync
-with 2.5, I knew I was undertaking something of no small order.
-Scooping up forward port patches, and silent-drop bits from l-k
-is almost a full time job in itself when yourself and Marcelo release
-kernels in quick succession 8-)
-
-And when you're ready to resync what I've got so far (currently ~3mb),
-it's going to be another full time job splitting it into bits to feed
-you linus-bite-sized chunks. (ObSidenote: When this time comes btw,
-if maintainers of relevant parts want to feed Linus their relevant
-parts from my tree, that would be appreciated, and would keep _my_ load
-down :-)
-
-> We've seen this several times in Linux - David, for example, used to
-> maintain his CVS tree, and he ended up being rather frustrated about
-> having to then maintain it all and clean up the bad parts because I
-> didn't want to apply them (and he didn't really want me to) and he
-> couldn't make people clean up themselves because "once it was in, it was
-> in".
-
-"Used to" ? cvs @ vger.samba.org was still being maintained before
-I went on xmas vacation. Did I miss something ?
-
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+john alvord

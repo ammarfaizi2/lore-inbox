@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261344AbSJUL5y>; Mon, 21 Oct 2002 07:57:54 -0400
+	id <S261342AbSJUMA6>; Mon, 21 Oct 2002 08:00:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261345AbSJUL5x>; Mon, 21 Oct 2002 07:57:53 -0400
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:2038 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S261344AbSJUL5x>;
-	Mon, 21 Oct 2002 07:57:53 -0400
-Date: Mon, 21 Oct 2002 08:03:55 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: eepro100 -- Sending a multicast list set command from a timer routine
-Message-ID: <20021021120355.GA4065@www.kroptech.com>
-References: <buo4rbgw4os.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	id <S261345AbSJUMA6>; Mon, 21 Oct 2002 08:00:58 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:59315 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261342AbSJUMA5>; Mon, 21 Oct 2002 08:00:57 -0400
+Subject: Re: PROBLEM: ide-related kernel panic in 2.4.19 and 2.4.20-pre11
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andreas Steinmetz <ast@domdv.de>
+Cc: Andre Hedrick <andre@linux-ide.org>,
+       Christian Borntraeger <linux@borntraeger.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3DB1DD67.5020203@domdv.de>
+References: <Pine.LNX.4.10.10210191451530.24031-100000@master.linux-ide.org> 
+	<3DB1DD67.5020203@domdv.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Oct 2002 13:22:38 +0100
+Message-Id: <1035202958.27259.67.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <buo4rbgw4os.fsf@mcspd15.ucom.lsi.nec.co.jp>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 21, 2002 at 05:56:35PM +0900, Miles Bader wrote:
-> Starting with 2.5.44 I'm getting tons of messages like the following
-> printed on the console:
-> 
->    eth0: Sending a multicast list set command from a timer routine, m=0, j=50143, l=49360.
+On Sat, 2002-10-19 at 23:32, Andreas Steinmetz wrote:
+> Looking at the originators address and name he's from germany. FYI: 
+> There's no provision in the law here that denies you personal copies of 
+> copy protected contents assuming you own the original.
 
-Same here... 
-
---Adam
+Germany is obliged by the european union to pass such a law very soon.
+The German government may not be full of corrupt corporate lobbyists but
+the lobbyists own their masters and since they sold their souls to
+europe on this matter they have no option any more
 

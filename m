@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292754AbSCINQV>; Sat, 9 Mar 2002 08:16:21 -0500
+	id <S292749AbSCIN0m>; Sat, 9 Mar 2002 08:26:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292751AbSCINQL>; Sat, 9 Mar 2002 08:16:11 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:9989 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S292748AbSCINP6>;
-	Sat, 9 Mar 2002 08:15:58 -0500
-Date: Sat, 9 Mar 2002 10:15:55 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Russell King <rmk@arm.linux.org.uk>, <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: bk://linux.bkbits.net/linux-2.5
-In-Reply-To: <3C89E887.D8B9E6C1@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.44L.0203091014460.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S292751AbSCIN0d>; Sat, 9 Mar 2002 08:26:33 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:34315 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S292749AbSCIN0X>; Sat, 9 Mar 2002 08:26:23 -0500
+Message-ID: <3C8A0D38.2000901@evision-ventures.com>
+Date: Sat, 09 Mar 2002 14:25:12 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Kelsey Hudson <khudson@compendium-tech.com>
+CC: Arjan van de Ven <arjan@fenrus.demon.nl>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Submitting PROMISE IDE Controllers Driver Patch
+In-Reply-To: <Pine.LNX.4.44.0203081124580.20142-100000@sol.compendium-tech.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Mar 2002, Jeff Garzik wrote:
-> Russell King wrote:
-> > On Fri, Mar 08, 2002 at 11:35:11PM -0300, Rik van Riel wrote:
-> > > For now I've put up the 2.5 tree on bk://linuxvm.bkbits.net/linus-2.5
-> >
-> > Jeff also does this - http://gkernel.bkbits.net/linus-2.5
-> >
-> > Seems a little wasteful to have multiple trees of the same thing available
-> > from the same place.
->
-> Rik thinks that a cron job will somehow notice Linus updates faster than
-> I do :)
+Kelsey Hudson wrote:
+> On Fri, 8 Mar 2002, Arjan van de Ven wrote:
+> 
+> 
+>>On Fri, Mar 08, 2002 at 09:35:35AM +0100, Martin Dalecki wrote:
+>>
+>>>Please look closer at my posting. I just think, that since there
+>>>are apparently no tru hardware raid devices out there it would
+>>>be sufficient to expand the detection code to not ignore
+>>>RAID class devices at all. This would just prevent
+>>>us from having two different entries in the
+>>>device detection list. Not much more involved I think.
+>>>
+>>There's one tiny glitch: there are exactly 2 "real" raid devices out there
+>>(that I know of at least). But anyway, a "don't look at" list will be
+>>MUCH shorter than a "look also at" list.
+>>
+> 
+> I know of two Promise cards that do hardware raid, and I know there are 
+> several cards available from 3Ware that also do hardware ata raid
 
-Not necessarily, but it will notice Linus updates even while
-you or I are asleep.  Sleep latency for humans tends to be
-quite bad.
-
-regards,
-
-Rik
--- 
-<insert bitkeeper endorsement here>
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Please don't look at the disks you plug into the controller.
+Please look at the interface the controller is exposing to the system.
+In esp. I know that there is 3Ware linux IDE RAID driver there.
+But the interface it is exposing falls under the SCSI host adapter
+category.
 

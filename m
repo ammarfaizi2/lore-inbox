@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263419AbTCNQ7b>; Fri, 14 Mar 2003 11:59:31 -0500
+	id <S263390AbTCNRBb>; Fri, 14 Mar 2003 12:01:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263424AbTCNQ7b>; Fri, 14 Mar 2003 11:59:31 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:10207 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S263419AbTCNQ73>; Fri, 14 Mar 2003 11:59:29 -0500
-Subject: Re: Never ever use word BitKeeper if Larry does not like you
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: John Jasen <jjasen@realityfailure.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Lars Marowsky-Bree <lmb@suse.de>,
-       Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       vojtech@suse.cz, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20030314163727.GE8937@work.bitmover.com>
-References: <Pine.LNX.4.44.0303141120240.8584-100000@bushido>
-	 <1047659289.2566.109.camel@sisko.scot.redhat.com>
-	 <20030314163727.GE8937@work.bitmover.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047661816.2566.168.camel@sisko.scot.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 14 Mar 2003 17:10:16 +0000
+	id <S263394AbTCNRBb>; Fri, 14 Mar 2003 12:01:31 -0500
+Received: from [80.190.48.67] ([80.190.48.67]:65030 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id <S263390AbTCNRB1> convert rfc822-to-8bit; Fri, 14 Mar 2003 12:01:27 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21pre5aa1
+Date: Fri, 14 Mar 2003 18:05:48 +0100
+User-Agent: KMail/1.4.3
+References: <20030314090825.GB1375@dualathlon.random> <200303141437.11589.m.c.p@wolk-project.de>
+In-Reply-To: <200303141437.11589.m.c.p@wolk-project.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200303141805.48834.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 14 March 2003 14:39, Marc-Christian Petersen wrote:
 
-On Fri, 2003-03-14 at 16:37, Larry McVoy wrote:
+Hi Andrea,
 
-> > I'd expect using a name like "BitBucket" to be much more at risk of
-> > being a trademark infringement than merely claiming that a project "aims
-> > to be BitKeeper compatible" or "can read BitKeeper repositories."
-> 
-> But it can't read BK repositories in many cases.  We support compressed
-> repositories, it can't read those.  
+> I get _tons_ of these messages:
 
-That's a fair point, but 
+> rq->prev_mm was c40dddc0 set to c40ddf00 - grep
+> cb795f64 c0115786 c023b1a0 c40dddc0 c40ddf00 cb79424e c011bd9d cb7fc02c
+>        cb794000 00000000 c16fa7a0 c158d200 cb794000 00000000 c011c1da
+> cb794000 c16fa7a0 cb794000 4012e8c4 00000000 bffff838 c011c233 00000000
+> c010720f Call Trace: [<c0115786>]  [<c011bd9d>]  [<c011c1da>]  [<c011c233>]
+> [<c010720f>]
+> rq->prev_mm was c40ddf00 set to cb78a0c0 - grep
+> cb789f64 c0115786 c023b1a0 c40ddf00 cb78a0c0 cb78824e c011bd9d cb7fc02c
+>        cb788000 00000000 c16fa760 c158d200 cb788000 00000000 c011c1da
+> cb788000 c16fa760 cb788000 4012e8c4 00000000 bffff838 c011c233 00000000
+> c010720f Call Trace: [<c0115786>]  [<c011bd9d>]  [<c011c1da>]  [<c011c233>]
+> [<c010720f>]
+> Machine:
+> Celeron 1,3GHz, UP, 512MB RAM, IDE.
 
-        "Goal of this project is to create version managment system
-        compatible with BitKeeper"
+hmm dunno why the following line were not in the pastings above.
 
-isn't actually claiming full compatibility.
+Call Trace: [do_schedule+471/656] [do_exit+522/560] [sys_exit+19/32] 
+[system_call+51/56]
 
-And before you say it, yes, I know that being compatible with bk
-involves _much_ more than just reading its repositories.
+ciao, Marc
 
-> That's the whole point.  If we sit back and let people think that he has
-> something remotely similar to BK, it devalues BitKeeper in the mind of
-> those people.  
-
-Absolutely.  I'm not questioning your right to get inaccurate
-comparisons corrected or removed.  I'm just questioning whether you have
-the right to demand that _all_ comparisons with BitKeeper be removed,
-even when they are truthful (eg. "this project can read some
-BitKeeper[tm] repositories.)
-
-Cheers,
- Stephen
 

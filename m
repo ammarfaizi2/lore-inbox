@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262537AbVCJMGv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262544AbVCJMLY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262537AbVCJMGv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 07:06:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVCJMGv
+	id S262544AbVCJMLY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 07:11:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbVCJMLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 07:06:51 -0500
-Received: from mail.tmr.com ([216.238.38.203]:62223 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S262537AbVCJMGi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 07:06:38 -0500
-Date: Thu, 10 Mar 2005 06:54:57 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Greg KH <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       khali@linux-fr.org
-Subject: Re: [PATCH] PCI: One more Asus SMBus quirk
-In-Reply-To: <20050309163748.GD25079@kroah.com>
-Message-ID: <Pine.LNX.3.96.1050310065153.10287C-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 10 Mar 2005 07:11:09 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:15768 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262546AbVCJMKv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 07:10:51 -0500
+Subject: Re: [PATCH] make st seekable again
+From: Arjan van de Ven <arjan@infradead.org>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kai Makisara <Kai.Makisara@kolumbus.fi>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1050310064102.10287B-100000@gatekeeper.tmr.com>
+References: <Pine.LNX.3.96.1050310064102.10287B-100000@gatekeeper.tmr.com>
+Content-Type: text/plain
+Date: Thu, 10 Mar 2005 13:10:40 +0100
+Message-Id: <1110456640.6291.79.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Mar 2005, Greg KH wrote:
-
-> On Wed, Mar 09, 2005 at 11:06:15AM -0500, Bill Davidsen wrote:
-> > On Tue, 8 Mar 2005, Greg KH wrote:
-> > 
-> > > On Tue, Mar 08, 2005 at 05:18:16PM -0500, Bill Davidsen wrote:
-> > > > Greg KH wrote:
-> > > > >ChangeSet 1.1998.11.27, 2005/02/25 15:48:28-08:00, khali@linux-fr.org
-> > > > >
-> > > > >[PATCH] PCI: One more Asus SMBus quirk
-> > > > >
-> > > > >One more Asus laptop requiring the SMBus quirk (W1N model).
-> > > > >
-> > > > >Signed-off-by: Jean Delvare <khali@linux-fr.org>
-> > > > >Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> > > > 
-> > > > Hopefully this and the double-free patch will be included in 2.6.11.n+1? 
-> > > 
-> > > what double-free patch?
-> > 
-> > ChangeSet 1.1998.11.26, 2005/02/25 15:48:12-08:00
-> > 
-> > See <11099696383203@kroah.com>.
+>  critical user data.
 > 
-> Giving just the Subject: would have been easier to find the patch...
+> In other words, it should work correctly or not at all. At the least this
+> should be a config option, like UNSAFE_TAPE_POSITIONING or some such.
+> And show the option if the build includes BROKEN features. That should put
+> the decision where it belongs and clarify the possible failures.
 
-But... but... but it was YOUR PATCH, wasn't it? That's kind of why I
-didn't expect much problem identifying it, I got it from you.
-> 
-> > Or do you feel the possible results are harmless enough to wait for the
-> > next release? Your call, obviously.
-> 
-> I'll add it to the -stable queue, thanks for pointing it out.
+CONFIG_SECURITY_HOLES doesn't make sense.
+Better to just fix the security holes instead.
 
-Great, then I didn't waste your time with it. I'm still feeling out what's
-worth suggesting for -stable, as you probably guessed.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
 

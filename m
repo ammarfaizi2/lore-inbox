@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279978AbRJ3Pax>; Tue, 30 Oct 2001 10:30:53 -0500
+	id <S279983AbRJ3Pen>; Tue, 30 Oct 2001 10:34:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279976AbRJ3Paq>; Tue, 30 Oct 2001 10:30:46 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:9199 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S279975AbRJ3Pa2>; Tue, 30 Oct 2001 10:30:28 -0500
-Message-ID: <3BDEC82E.C47C88CD@nortelnetworks.com>
-Date: Tue, 30 Oct 2001 10:33:02 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
+	id <S279985AbRJ3Ped>; Tue, 30 Oct 2001 10:34:33 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:3335 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S279983AbRJ3PeY>;
+	Tue, 30 Oct 2001 10:34:24 -0500
+Date: Tue, 30 Oct 2001 13:34:50 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Benjamin LaHaise <bcrl@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: please revert bogus patch to vmscan.c
+In-Reply-To: <20011030162008.G1340@athlon.random>
+Message-ID: <Pine.LNX.4.33L.0110301324410.2963-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Jonathan Lundell <jlundell@pobox.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Ethernet NIC dual homing
-In-Reply-To: <Pine.LNX.4.30.0110291831160.9540-100000@anime.net> <p05100304b803c6908755@[10.128.7.49]> <9rl60r$g50$1@cesium.transmeta.com> <p05100309b803cdfa4552@[10.128.7.49]>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@nortelnetworks.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Lundell wrote:
+On Tue, 30 Oct 2001, Andrea Arcangeli wrote:
+> On Mon, Oct 29, 2001 at 09:25:46PM -0500, Benjamin LaHaise wrote:
+> > I fully well expect it to be.  However, from the point of view of stability
+> > we *want* to be conservative and correct.  If Al had to demonstrate with
+>
+> Dave just told you what this change has to do with stability, not sure
+> why you keep reiterating about stability and correctness.
+>
+> But of course going from page flush to the mm flush is fine from my part
+> too. As Linus noted a few days ago during swapout we're going to block
+> and reschedule all the time, so the range flush is going to be a noop in
 
-> But what I meant was bonding's use of ARP to determine whether the
-> connection is good (or rather, bad, even when the link is up), when
-> the connection is routed via level 3. Seems to me you'd need a level
-> 3 protocol (say ICMP) rather than ARP.
+Only on architectures where the TLB (or equivalent) is
+small and only capable of holding entries for one address
+space at a time.
 
-This is what we've done here at work.  We use a combination of MII for fast
-detection of local link loss, and ICMP ping packets to highly available hosts to
-test the network path (with somewhat slower response time).
+It's simply not true on eg PPC.
 
-Chris
-
+Rik
 -- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

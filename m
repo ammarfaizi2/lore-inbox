@@ -1,99 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVBWK71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVBWLDu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbVBWK71 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 05:59:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVBWK71
+	id S261456AbVBWLDu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 06:03:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbVBWLDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 05:59:27 -0500
-Received: from fire.osdl.org ([65.172.181.4]:50616 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261453AbVBWK7T (ORCPT
+	Wed, 23 Feb 2005 06:03:50 -0500
+Received: from zamok.crans.org ([138.231.136.6]:32428 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S261456AbVBWLDp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 05:59:19 -0500
-Date: Wed, 23 Feb 2005 02:58:06 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: johnpol@2ka.mipt.ru
-Cc: guillaume.thouvenin@bull.net, greg@kroah.com, linux-kernel@vger.kernel.org,
-       elsa-devel@lists.sourceforge.net, gh@us.ibm.com, efocht@hpce.nec.com
-Subject: Re: [PATCH 2.6.11-rc3-mm2] connector: Add a fork connector
-Message-Id: <20050223025806.5a39f8fb.akpm@osdl.org>
-In-Reply-To: <20050223140818.4261c4d0@zanzibar.2ka.mipt.ru>
-References: <1108649153.8379.137.camel@frecb000711.frec.bull.fr>
-	<1109148752.1738.105.camel@frecb000711.frec.bull.fr>
-	<20050223010747.0a572422.akpm@osdl.org>
-	<20050223140818.4261c4d0@zanzibar.2ka.mipt.ru>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Feb 2005 06:03:45 -0500
+From: Mathieu Segaud <Mathieu.Segaud@crans.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc4-mm1
+References: <20050223014233.6710fd73.akpm@osdl.org>
+Date: Wed, 23 Feb 2005 12:03:43 +0100
+In-Reply-To: <20050223014233.6710fd73.akpm@osdl.org> (Andrew Morton's message
+	of "Wed, 23 Feb 2005 01:42:33 -0800")
+Message-ID: <87psyredww.fsf@barad-dur.crans.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+--=-=-=
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+Andrew Morton <akpm@osdl.org> disait derni=C3=A8rement que :
+
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc4/=
+2.6.11-rc4-mm1/
 >
-> On Wed, 23 Feb 2005 01:07:47 -0800
-> Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > Guillaume Thouvenin <guillaume.thouvenin@bull.net> wrote:
-> > >
-> > > Hello,
-> > > 
-> > >   This patch replaces the relay_fork module and it implements a fork
-> > > connector in the kernel/fork.c:do_fork() routine. The connector sends
-> > > information about parent PID and child PID over a netlink interface. It
-> > > allows to several user space applications to be informed when a fork
-> > > occurs in the kernel. The main drawback is that even if nobody listens,
-> > > message is send. I don't know how to avoid that.
-> > 
-> > We really should find a way to fix that.  Especially if we want all the
-> > distributors to enable the connector in their builds (we do).
-> 
-> Mesage is never reached anyone if there are no listeners, skb will be just freed,
-> even without any linking.
-> do_one_broadcast() in net/netlink/af_netlink.c takes care of it.
-> Unicast message also will be discarded in cn_rx_skb().
+>
+> - Various fixes and updates all over the place.  Things seem to have slow=
+ed
+>   down a bit.
+>
+> - Last, final, ultimate call: if anyone has patches in here which are 2.6=
+.11
+>   material, please tell me.
+>
+>
+>
+> Changes since 2.6.11-rc3-mm1:
 
-We should assume that there will always be listeners.  (why was the
-connector thing added anyway?  Its changelog is pathetic).
+[snip]
 
-> These operations are quite cheap - just link/unlink skb to/from appropriate
-> queues.
+> +inotify.patch
+>
+>  Not sure if this is the latest version.
 
-Please assume that <whatever secret application the connector stuff was
-originally written for> will always be listening.
+it is the latest Robert Love posted against -mm kernels, but in
+inotify_ignore():
 
-> > What happened to the idea of sending an on/off message down the netlink
-> > socket?
-> 
-> ?
+static int inotify_ignore(struct inotify_device *dev, s32 wd)
+{
+	struct inotify_watch *watch;
+	int ret =3D 0;
 
-All those emails I sent last week.
+	spin_lock(&dev->lock);
+	watch =3D dev_find_wd(dev, wd);
+	spin_unlock(&dev->lock); <------------- lock is released, but
+	if (!watch) {
+		ret =3D -EINVAL;
+		goto out;
+	}
+	__remove_watch(watch, dev); <---------- must be called with lock held
 
-Arrange for the userspace daemon to send a message to the fork_connector
-subsystem turning it on or off.  So we can bypass all this code in the
-common case where <secret application> is listening, but your daemon is
-not.
+out:
+	spin_unlock(&dev->lock); <------------- anyway, lock is=20
+	return ret;                             released and sub_preempt_count
+}                                               BUG's on SMP and PREEMPT
 
-> > > +		if (msg) {
-> > > +			memset(msg, '\0', size);
-> > 
-> > Do we really need to memset the whole thing?
-> 
-> Yes, to not leak kernel memory context.
 
-How would we do that?  There are no gaps in the payload and we tell netlink
-the exact length.
+__remove_watch() must be called with ->lock held on dev.
+Anyway, ->lock is released after label out.
 
-> > > +			memcpy(&msg->id, &fork_id, sizeof(msg->id));
-> > > +			msg->seq = seq++;
-> > 
-> > `seq' needs a lock to protect it.  Or use atomic_add_return(), maybe.
-> 
-> Not necessary, I doubt fork userspace listener uses protocol described in
-> connector.c and relies on seq field since it is not needed to have acks/replays.
-> Although it can be used as a flag that it is new fork, but message itself
-> is already such an event.
+Signed-off-by: Mathieu Segaud <matt@minas-morgul.org>
 
-Without a lock you can have two messages with the same sequence number. 
-Even if the daemon which you're planning on implementing can handle that,
-we shouldn't allow it.
 
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: inline;
+ filename=fix-double-spin_unlock-in-inotify_ignore.patch
+
+--- a/drivers/char/inotify.c	2005-02-23 11:55:21.321385752 +0100
++++ b/drivers/char/inotify.c	2005-02-23 11:55:29.772101048 +0100
+@@ -952,7 +952,7 @@
+ 
+ 	spin_lock(&dev->lock);
+ 	watch = dev_find_wd(dev, wd);
+-	spin_unlock(&dev->lock);
++
+ 	if (!watch) {
+ 		ret = -EINVAL;
+ 		goto out;
+
+--=-=-=
+
+
+
+-- 
+> Can you explain this behaviour?
+
+Yes
+--
+Alan
+
+[Oh wait you want to know why...]
+
+	- Alan Cox on linux-kernel
+
+--=-=-=--

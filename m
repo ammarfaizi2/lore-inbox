@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267346AbUHMTiI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266916AbUHMThl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267346AbUHMTiI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 15:38:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267325AbUHMTh4
+	id S266916AbUHMThl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 15:37:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267325AbUHMTdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 15:37:56 -0400
-Received: from fw.osdl.org ([65.172.181.6]:21218 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267338AbUHMTh3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 15:37:29 -0400
-Date: Fri, 13 Aug 2004 12:37:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Jens Axboe <axboe@suse.de>, Arjan van de Ven <arjanv@redhat.com>,
-       Alan Cox <alan@www.pagan.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SG_IO and security
-In-Reply-To: <411D140C.4040100@pobox.com>
-Message-ID: <Pine.LNX.4.58.0408131236340.1839@ppc970.osdl.org>
-References: <1092313030.21978.34.camel@localhost.localdomain>
- <Pine.LNX.4.58.0408120929360.1839@ppc970.osdl.org>
- <Pine.LNX.4.58.0408120943210.1839@ppc970.osdl.org>
- <1092341803.22458.37.camel@localhost.localdomain>
- <Pine.LNX.4.58.0408121705050.1839@ppc970.osdl.org> <20040813065902.GB2321@suse.de>
- <1092383006.2813.0.camel@laptop.fenrus.com> <20040813074654.GA2663@suse.de>
- <411D140C.4040100@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 13 Aug 2004 15:33:37 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:54520 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S267335AbUHMTcc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 15:32:32 -0400
+Date: Fri, 13 Aug 2004 12:32:25 -0700
+From: Todd Poynor <tpoynor@mvista.com>
+To: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] mtdblockd nofreeze
+Message-ID: <20040813193225.GA22079@slurryseal.ddns.mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+mtdblockd doesn't respond to process freeze requests, preventing system
+suspend.  It seems likely that mtdblockd should continue to flush blocks
+during the device suspend phase, so a patch to spare the thread from
+attempted freeze follows.  If, on the other hand, mtdblockd does need to
+implement freeze proper then I can send a patch for that instead, thanks
+for any insight into this.
+
+--- linux-2.6.8-rc4-orig/drivers/mtd/mtd_blkdevs.c	2004-08-10 18:51:15.000000000 -0700
++++ linux-2.6.8-rc4-mtdfix/drivers/mtd/mtd_blkdevs.c	2004-08-13 11:39:54.000000000 -0700
+@@ -81,7 +81,7 @@
+ 	struct request_queue *rq = tr->blkcore_priv->rq;
+ 
+ 	/* we might get involved when memory gets low, so use PF_MEMALLOC */
+-	current->flags |= PF_MEMALLOC;
++	current->flags |= PF_MEMALLOC | PF_NOFREEZE;
+ 
+ 	daemonize("%sd", tr->name);
+ 
 
 
-On Fri, 13 Aug 2004, Jeff Garzik wrote:
->2B
-> Jens Axboe wrote:
-> > 
-> > I have no idea how many apps use this ioctl, does anyone have a rough
-> > list?
-> 
-> Add a rate-limited "this feature is deprecated" feature and find out...
+-- 
+Todd Poynor
+MontaVista Software
 
-Googling for it does show it as being documented and apparently used by a 
-few programs, at least...
-
-		Linus

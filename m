@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315491AbSIHWwo>; Sun, 8 Sep 2002 18:52:44 -0400
+	id <S315454AbSIHW7W>; Sun, 8 Sep 2002 18:59:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315503AbSIHWwo>; Sun, 8 Sep 2002 18:52:44 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:49538 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S315491AbSIHWwn>; Sun, 8 Sep 2002 18:52:43 -0400
-Message-ID: <20020908225645.21341.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S315457AbSIHW7W>; Sun, 8 Sep 2002 18:59:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29195 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315454AbSIHW7V>;
+	Sun, 8 Sep 2002 18:59:21 -0400
+Message-ID: <3D7BD740.8080906@mandrakesoft.com>
+Date: Sun, 08 Sep 2002 19:03:28 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: <pavel@suse.cz>
-Cc: venom@sns.it, ahu@ds9a.nl, linux-kernel@vger.kernel.org
-Date: Mon, 09 Sep 2002 06:56:45 +0800
-Subject: Re: side-by-side Re: BYTE Unix Benchmarks Version 3.6
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws4-4.us4.outblaze.com
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Zwane Mwaikambo <zwane@mwaikambo.name>, Ingo Molnar <mingo@elte.hu>,
+       Robert Love <rml@tech9.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] per isr in_progress markers
+References: <Pine.LNX.4.44.0209081453010.1293-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pavel Machek <pavel@suse.cz>
-[...]
-> > APM, and I pressed the shift key every few minutes,
-> > therefore no powersafe.
+Linus Torvalds wrote:
+> On Sun, 8 Sep 2002, Zwane Mwaikambo wrote:
 > 
-> That still means APM bios calls when idle, right?
+>>Here is a newer (untested) patch incorporating Ingo's suggestions as well 
+>>as adding an extra request_irq flag so that isrs can use isr_unmask_irq() 
+>>to enable their interrupt lines.
+> 
+> 
+> Hmm.. I really don't get the point of what this is supposed to actually 
+> help.
+> 
+> Clearly, if the device doesn't share the irq line, this doesn't matter. 
+> Similarly, it shouldn't matter if there is just one device that is active 
+> (ie irq line sharing with some slow device where the interrupt happens 
+> fairly seldom).
+> 
+> As far as I can tell, the only time when this might be an advantage is an 
+> SMP machine with multiple devices sharing an extremely busy irq line. Then 
+> the per-isr in-progress bit allows multiple CPU's to actively handle 
+> several of the devices at the same time.
 
-Yes, you are rigth.
-But again, with Byte Unix version 4.1 I got much
-more intersting result with no "strange" numbers,
-I tried that test few hours ago,.
-I know I can disable APM from both the kernel and the BIOS but I'd like to test the kernel I use in "daily" usage. What do you think about it? Do you suggest me to use a different configuration when I run the test?
-And, what are the "best" benchmark?
-I use dbench, LMbench, and Unix Bench Ver4.1.
 
-Cheers {ciao},
-           Paolo
--- 
-Get your free email from www.linuxmail.org 
+IMO one should seek to avoid sharing an IRQ line at all.  I dunno that 
+you really want to tune for that case, when the user could vastly 
+improve the situation by manipulating IRQs in BIOS setup or similar 
+IRQ-distribution methods.
+
+On an SMP box you especially want to distribute irqs to take best 
+advantage of irq affinity.
+
+	Jeff
 
 
-Powered by Outblaze

@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbTDHVmn (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 17:42:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbTDHVmm (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 17:42:42 -0400
-Received: from x101-201-233-dhcp.reshalls.umn.edu ([128.101.201.233]:26045
-	"EHLO minerva") by vger.kernel.org with ESMTP id S261764AbTDHVmm (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 17:42:42 -0400
-Date: Tue, 8 Apr 2003 16:54:11 -0500
-From: Matt Reppert <arashi@yomerashi.yi.org>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com, rth@twiddle.net
-Subject: Re: Linux 2.5.67
-Message-Id: <20030408165411.4e6d1465.arashi@yomerashi.yi.org>
-In-Reply-To: <Pine.LNX.4.44.0304071051190.1385-100000@penguin.transmeta.com>
-References: <Pine.LNX.4.44.0304071051190.1385-100000@penguin.transmeta.com>
-Organization: Yomerashi
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-message-flag: : This mail sent from host minerva, please respond.
+	id S261804AbTDHVp1 (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 17:45:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbTDHVp1 (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 17:45:27 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:2066 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261804AbTDHVp0 (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 17:45:26 -0400
+Date: Tue, 8 Apr 2003 23:57:03 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Jes Sorensen <jes@wildopensource.com>,
+       Martin Hicks <mort@bork.org>, linux-kernel@vger.kernel.org,
+       wildos@sgi.com
+Subject: Re: [patch] printk subsystems
+Message-ID: <20030408215703.GA1538@atrey.karlin.mff.cuni.cz>
+References: <20030407201337.GE28468@bork.org> <20030408184109.GA226@elf.ucw.cz> <m3k7e4ycys.fsf@trained-monkey.org> <20030408210251.GA30588@atrey.karlin.mff.cuni.cz> <3E933AB2.8020306@zytor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E933AB2.8020306@zytor.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Apr 2003 10:53:43 -0700 (PDT)
-Linus Torvalds <torvalds@transmeta.com> wrote:
+Hi!
 
+> > Well, I think we should first kill all crappy messages -- that
+> > benefits everyone. I believe that if we kill all unneccessary
+> > (carrying no information  except perhaps copyright or advertising)
+> > will help current problem a lot.
+> > 
 > 
-> All over the place as usual - there's definitely a lot of small things 
-> going on. PCMCIA and i2c updates may be the most noticeable ones.
+> That may sometimes be true, but a few things may be useful to be able to
+> turn back on.
 
-Alpha (LX164) still doesn't build:
-
-cc1: warnings being treated as errors
-arch/alpha/kernel/pci.c:314: warning: type defaults to `int' in declaration of `EXPORT_SYMBOL'
-arch/alpha/kernel/pci.c:314: warning: parameter names (without types) in function declaration
-arch/alpha/kernel/pci.c:314: warning: data definition has no type or storage class
-
-The included patch fixes this. I don't know what to do about the following, though:
-
-kernel/sys.c:226: conflicting types for `sys_sendmsg'
-include/linux/socket.h:245: previous declaration of `sys_sendmsg'
-kernel/sys.c:227: conflicting types for `sys_recvmsg'
-include/linux/socket.h:246: previous declaration of `sys_recvmsg'
-
-Matt
-
---- 1.29/arch/alpha/kernel/pci.c	Sun Mar 23 19:35:08 2003
-+++ 1.30/arch/alpha/kernel/pci.c	Fri Apr  4 20:06:45 2003
-@@ -19,6 +19,7 @@
- #include <linux/ioport.h>
- #include <linux/kernel.h>
- #include <linux/bootmem.h>
-+#include <linux/module.h>
- #include <linux/cache.h>
- #include <asm/machvec.h>
- 
+Well, #define DEBUG in the driver seems like the way to go. I do not
+like "subsystem ID" idea, because subsystems are not really well
+defined etc.
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

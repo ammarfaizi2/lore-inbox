@@ -1,102 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266304AbUI0PMA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266344AbUI0PN5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266304AbUI0PMA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 11:12:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266319AbUI0PMA
+	id S266344AbUI0PN5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 11:13:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266187AbUI0PN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 11:12:00 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3216 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266304AbUI0PKN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 11:10:13 -0400
-Date: Mon, 27 Sep 2004 10:25:27 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, arjanv@redhat.com, ak@suse.de,
-       "Saxena, Sunil" <sunil.saxena@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>
-Subject: Re: [arjanv@redhat.com: Re: [PATCH] shrink per_cpu_pages to fit 32byte cacheline]
-Message-ID: <20040927132527.GC30956@logos.cnet>
-References: <7F740D512C7C1046AB53446D3720017302495C07@scsmsx402.amr.corp.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 27 Sep 2004 11:13:56 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:39312 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S266319AbUI0PMU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 11:12:20 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: David Brownell <david-b@pacbell.net>
+Subject: Re: OHCI_QUIRK_INITRESET (was: 2.6.9-rc2-mm2 ohci_hcd doesn't work)
+Date: Mon, 27 Sep 2004 09:11:56 -0600
+User-Agent: KMail/1.7
+Cc: "Rui Nuno Capela" <rncbc@rncbc.org>, "Ingo Molnar" <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org,
+       "Karsten Wiese" <annabellesgarden@yahoo.de>,
+       "Roman Weissgaerber" <weissg@vienna.at>,
+       linux-usb-devel@lists.sourceforge.net, "K.R. Foley" <kr@cybsft.com>
+References: <414F8CFB.3030901@cybsft.com> <200409241016.46201.bjorn.helgaas@hp.com> <200409251637.29401.david-b@pacbell.net>
+In-Reply-To: <200409251637.29401.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <7F740D512C7C1046AB53446D3720017302495C07@scsmsx402.amr.corp.intel.com>
-User-Agent: Mutt/1.5.5.1i
+Message-Id: <200409270911.56415.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2004 at 05:48:18PM -0700, Nakajima, Jun wrote:
-> >From: Marcelo Tosatti [mailto:marcelo.tosatti@cyclades.com]
-> >Sent: Thursday, September 23, 2004 3:32 PM
-> >To: Nakajima, Jun
-> >Cc: linux-kernel@vger.kernel.org; akpm@osdl.org; arjanv@redhat.com;
-> >ak@suse.de; Saxena, Sunil; Mallick, Asit K
-> >Subject: Re: [arjanv@redhat.com: Re: [PATCH] shrink per_cpu_pages to
-> fit
-> >32byte cacheline]
-> >
+On Saturday 25 September 2004 5:37 pm, David Brownell wrote:
+> On Friday 24 September 2004 9:16 am, Bjorn Helgaas wrote:
+> > 
+> > The attached patch (which applies on top of Rui's patch for
+> > ALI M5237) fixes the problem for my DL360.  
 > 
-> <snip>
-> 
-> >> >***********
-> >> >
-> >> >Jun,
-> >> >
-> >> >We need some assistance here - you can probably help us.
-> >> >
-> >> >Within the Linux kernel we can benefit from changing some fields
-> >> >of commonly accessed data structures to 16 bit instead of 32 bits,
-> >> >given that the values for these fields never reach 2 ^ 16.
-> >> >
-> >> >Arjan warned me, however, that the prefix (in this case "data16")
-> will
-> >> >cause an additional extra cycle in instruction decoding, per message
-> >> above.
-> >>
-> >> On the Pentium4 core, this is not a big deal because it runs out of
-> the
-> >> trace cache (i.e. decoded in advance). However, on the Pentium III/M
-> >> (aka P6) core (i.e. Penitum III, Banias, Dothan, Yonah, etc.),
-> >> especially when an operand size prefix (0x66) changes the # of bytes
-> in
-> >> an instruction (usually by impacting the size of an immediate in the
-> >> instruction), the P6 core pays unnegligible penalty, slowing down
-> >> decoding.
-> >
-> >Jun,
-> >
-> >What you mean by "unnegligible penalty" ?
-> >
-> >You mean its very small penalty (unconsiderable), or its considerable
-> >penalty?
-> 
-> I mean it's considerable. Did you look at what kinds of instructions are
-> used for accessing such data structures? Does the operand size prefix
-> change the # of bytes in those instructions (as described above) for
-> most cases? If it does, we don't recommend such codes.
+> Hmm, I'd rather avoid needing a quirk table ... especially
+> when I've always suspected this is some subtle bug in the
+> way Linux initializes!  Does this patch behave too?
 
-Yep, it does change the size the operand size. 
-
-Its mostly moving from the memory position into register for
-comparison, and moving back to the memory position.
-
-The hottest path (free_hot_cold_page) changes from 
-
-
-    105d:       8b 42 08                mov    0x8(%edx),%eax
-    1086:       ff 83 dc 00 00 00       incl   0xdc(%ebx)
-
-    10a6:       8b 42 0c                mov    0xc(%edx),%eax
-
-
-to
-
-    1087:       0f b7 83 dc 00 00 00    movzwl 0xdc(%ebx),%eax
-    108e:       40                      inc    %eax
-    108f:       66 89 83 dc 00 00 00    mov    %ax,0xdc(%ebx)
-
-    10c4:       0f b7 93 dc 00 00 00    movzwl 0xdc(%ebx),%edx
-
-
-
+Yes, your patch seems to work on my DL360 (ServerWorks OSB4/CSB5 OHCI)
+as well.

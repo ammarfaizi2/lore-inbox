@@ -1,75 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265942AbTGCKco (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 06:32:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265953AbTGCKco
+	id S265925AbTGCKbk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 06:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265934AbTGCKbb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 06:32:44 -0400
-Received: from M973P026.adsl.highway.telekom.at ([62.47.153.154]:42112 "EHLO
-	stallburg.dyndns.org") by vger.kernel.org with ESMTP
-	id S265942AbTGCKcg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 06:32:36 -0400
-Date: Thu, 3 Jul 2003 12:47:00 +0200
-From: maximilian attems <maks@sternwelten.at>
-To: linux-kernel@vger.kernel.org
-Cc: Thomas Winischhofer <thomas@winischhofer.net>
-Subject: [2.5 patch] move an unused variable in sis_main.c
-Message-ID: <20030703104700.GA939@mail.sternwelten.at>
+	Thu, 3 Jul 2003 06:31:31 -0400
+Received: from MailBox.iNES.RO ([80.86.96.21]:52904 "EHLO MailBox.iNES.RO")
+	by vger.kernel.org with ESMTP id S265925AbTGCKbY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 06:31:24 -0400
+Subject: Re: 2.5.74-mm1 (p4-clockmod does not compile)
+From: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <20030703023714.55d13934.akpm@osdl.org>
+References: <20030703023714.55d13934.akpm@osdl.org>
+Content-Type: text/plain
+Organization: iNES Group SRL
+Message-Id: <1057229141.1479.16.camel@LNX.iNES.RO>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-3) 
+Date: 03 Jul 2003 13:45:41 +0300
+Content-Transfer-Encoding: 7bit
+X-RAVMilter-Version: 8.4.1(snapshot 20020919) (MailBox.iNES.RO)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---J2SCkAp4GZ/dPZZf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Here are the errors:
 
-The patch below moves an used variable from drivers/video/sis/sis_main.c
-
-i've tested the compilation with 2.5.74
-
-please apply
-maks
-
-
---- linux-2.5.74/drivers/video/sis/sis_main.c	Wed Jul  2 22:50:59 2003
-+++ linux/drivers/video/sis/sis_main.c	Thu Jul  3 12:06:58 2003
-@@ -619,11 +619,11 @@
- 	double drate =3D 0, hrate =3D 0;
- 	int found_mode =3D 0;
- 	int old_mode;
--	unsigned char reg;
-=20
- 	TWDEBUG("Inside do_set_var");
- =09
- #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)=09
-+	unsigned char reg;
- 	inSISIDXREG(SISCR,0x34,reg);
- 	if(reg & 0x80) {
- 	   printk(KERN_INFO "sisfb: Cannot change display mode, X server is activ=
-e\n");
+  CC      arch/i386/kernel/cpu/cpufreq/p4-clockmod.o
+arch/i386/kernel/cpu/cpufreq/p4-clockmod.c: In function `cpufreq_p4_setdc':
+arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:67: error: incompatible types in assignment
+arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:78: error: incompatible type for argument 2 of `set_cpus_allowed'
+arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:90: error: incompatible type for argument 2 of `set_cpus_allowed'
+arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:131: error: incompatible type for argument 2 of `set_cpus_allowed'
+make[3]: *** [arch/i386/kernel/cpu/cpufreq/p4-clockmod.o] Error 1
+make[2]: *** [arch/i386/kernel/cpu/cpufreq] Error 2
+make[1]: *** [arch/i386/kernel/cpu] Error 2
+make: *** [arch/i386/kernel] Error 2
 
 
----
-When your medical records are indexed in Google, something's wrong!
-aaron kaplan
 
 
---J2SCkAp4GZ/dPZZf
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE/BAmk6//kSTNjoX0RAq3qAJ9bUQAcejFYmrV10U4fQKwe+tEq4gCeMcuf
-DmRSp1ddcS+oPTqoK92vpQc=
-=uz5Z
------END PGP SIGNATURE-----
-
---J2SCkAp4GZ/dPZZf--

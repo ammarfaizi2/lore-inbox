@@ -1,78 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280803AbRKOKES>; Thu, 15 Nov 2001 05:04:18 -0500
+	id <S280804AbRKOKHu>; Thu, 15 Nov 2001 05:07:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280804AbRKOKEJ>; Thu, 15 Nov 2001 05:04:09 -0500
-Received: from chamber.cco.caltech.edu ([131.215.48.55]:13236 "EHLO
-	chamber.cco.caltech.edu") by vger.kernel.org with ESMTP
-	id <S280803AbRKOKD6>; Thu, 15 Nov 2001 05:03:58 -0500
-From: "Alex Adriaanse" <alex_a@caltech.edu>
-To: <aj@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: LFS stopped working
-Date: Thu, 15 Nov 2001 02:03:52 -0800
-Message-ID: <JIEIIHMANOCFHDAAHBHOMEONCMAA.alex_a@caltech.edu>
+	id <S280807AbRKOKHk>; Thu, 15 Nov 2001 05:07:40 -0500
+Received: from gold.MUSKOKA.COM ([216.123.107.5]:4618 "EHLO gold.muskoka.com")
+	by vger.kernel.org with ESMTP id <S280804AbRKOKHZ>;
+	Thu, 15 Nov 2001 05:07:25 -0500
+Message-ID: <3BF392EF.21CCC234@yahoo.com>
+Date: Thu, 15 Nov 2001 05:03:27 -0500
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
+X-Mailer: Mozilla 3.04 (X11; I; Linux 2.4.14 i586)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
-In-Reply-To: <hoofm45q82.fsf@gee.suse.de>
+To: Dave Jones <davej@suse.de>
+CC: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] mtrr (was Re: GPLONLY kernel symbols???)
+In-Reply-To: <Pine.LNX.4.30.0111131439420.4157-100000@Appserv.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-But ulimit shows that the file size is unlimited... would this be a bug?  If
-that's the case, then how/why would it work before?
 
-Thanks,
+Dave Jones wrote:
+> 
+> On Tue, 13 Nov 2001, Alan Cox wrote:
+> 
+> > I wasnt aware mtrr.c had an active maintainer.
+> 
+> Well, hpa and myself are the only ones really maintaining it
+> in the last two years judging from the changelog. Some others
+> probably also contributed small changes not worthy of an entry.
 
-Alex
+Another SCNWOAE...
 
------Original Message-----
-From: aj@suse.de [mailto:aj@suse.de]
-Sent: Thursday, November 15, 2001 1:38 AM
-To: Alex Adriaanse
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: LFS stopped working
+Paul.
+
+--- arch/i386/kernel/mtrr.c~	Tue Nov  6 19:14:03 2001
++++ arch/i386/kernel/mtrr.c	Thu Nov 15 04:58:40 2001
+@@ -489,7 +489,6 @@
+     case MTRR_IF_INTEL:
+ 	rdmsr (MTRRcap_MSR, config, dummy);
+ 	return (config & (1<<10));
+-	return 1;
+     case MTRR_IF_AMD_K6:
+     case MTRR_IF_CENTAUR_MCR:
+     case MTRR_IF_CYRIX_ARR:
 
 
-"Alex Adriaanse" <alex_a@caltech.edu> writes:
-
-> Hey,
->
-> I've been running 2.4.14 for a few days now.  I needed LFS support, so I
-> recompiled glibc 2.1.3 with the new 2.4 headers, and after that I could
-> create large files (e.g. using dd if=/dev/zero of=test bs=1M count=0
-> seek=3000) just fine.
->
-> However, as of yesterday, I couldn't create files bigger than 2GB anymore.
-> I did not change kernels, nor did I mess with libc or anything else (I did
-> some Debian package upgrades/installations/recompiles, but I don't think
-> they should affect this) - I'm not quite sure what happened.  Now commands
-> such as the dd command I mentioned above will die with the message "File
-> size limit exceeded", leaving a 2GB file behind.  Rebooting didn't solve
-> anything.  My ulimits seem to be fine (file size = unlimited).
->
-> The last few lines of the strace on the dd command above shows the
-> following:
-> open("/dev/zero", O_RDONLY|0x8000)      = 0
-> close(1)                                = 0
-> open("test", O_RDWR|O_CREAT|0x8000, 0666) = 1
-> ftruncate64(0x1, 0xbb800000, 0, 0, 0x1) = 0
-> --- SIGXFSZ (File size limit exceeded) ---
-> +++ killed by SIGXFSZ +++
-
-ulimit is hit.  I strongly advise to upgrade to glibc 2.2 when using
-kernel 2.4,
-
-Andreas
---
- Andreas Jaeger
-  SuSE Labs aj@suse.de
-   private aj@arthur.inka.de
-    http://www.suse.de/~aj
 

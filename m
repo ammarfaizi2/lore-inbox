@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129763AbRAINsy>; Tue, 9 Jan 2001 08:48:54 -0500
+	id <S129562AbRAINue>; Tue, 9 Jan 2001 08:50:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129734AbRAINso>; Tue, 9 Jan 2001 08:48:44 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:254 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S130032AbRAINs0>; Tue, 9 Jan 2001 08:48:26 -0500
-Date: Tue, 9 Jan 2001 10:00:38 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] sscape.c: include missing restore_flags
-Message-ID: <20010109100037.H21057@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010108201103.E17087@conectiva.com.br> <20010108202533.F17087@conectiva.com.br> <20010108203002.H17087@conectiva.com.br> <20010109001443.A20786@conectiva.com.br> <20010109091808.G21057@conectiva.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010109091808.G21057@conectiva.com.br>; from acme@conectiva.com.br on Tue, Jan 09, 2001 at 09:18:08AM -0200
-X-Url: http://advogato.org/person/acme
+	id <S129734AbRAINuP>; Tue, 9 Jan 2001 08:50:15 -0500
+Received: from herrmann.cherheim.etc.tu-bs.de ([134.169.88.65]:27404 "EHLO
+	herrmann.cherheim.etc.tu-bs.de") by vger.kernel.org with ESMTP
+	id <S129562AbRAINuH>; Tue, 9 Jan 2001 08:50:07 -0500
+Message-ID: <3A5B170E.F48872A@tu-bs.de>
+Date: Tue, 09 Jan 2001 14:50:06 +0100
+From: Felix Maibaum <f.maibaum@tu-bs.de>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux <linux-kernel@vger.kernel.org>
+Subject: 2.4.0 bug in SHM an via-rhine or is it my fault?
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
+Hi folks!
 
-	Please apply.
+I searched the kernel archives for information on this at least half a
+yearback but I found only one article on the subject and that was never
+replied to:
 
-- Arnaldo
+I'm using a via-rhine chip (DFE-530TX) on a 10 Mbit network, I use 2.4.0
+final, Athlon (classic) 1Gig, Abit-KA7 mobo (via KX133), Debian woody.
+whenever I try to get a file on my local network, meaning I get close to
+the 10Mbit barrier the network card hangs up. Traffic just stops.
+One ifdown/ifup and everything works fine again. (for about 10 seconds)
+this problem has persisted for some time now, I thought it would be
+fixed in the final, but, alas, it hasn't. It only happens during high
+traffic, too, at about 400k, no problem!
 
---- linux-2.4.0-ac4/drivers/sound/sscape.c	Mon Jan  8 20:39:30 2001
-+++ linux-2.4.0-ac4.acme/drivers/sound/sscape.c	Tue Jan  9 09:16:39 2001
-@@ -16,6 +16,7 @@
-  * Christoph Hellwig	: adapted to module_init/module_exit
-  * Bartlomiej Zolnierkiewicz : added __init to attach_sscape()
-  * Chris Rankin		: Specify that this module owns the coprocessor
-+ * Arnaldo C. de Melo	: added missing restore_flags in sscape_pnp_upload_file
-  */
- 
- #include <linux/init.h>
-@@ -969,7 +970,10 @@
- 		memcpy(devc->raw_buf, dt, l); dt += l;
- 		sscape_start_dma(devc->dma, devc->raw_buf_phys, l, 0x48);
- 		sscape_pnp_start_dma ( devc, 0 );
--		if (sscape_pnp_wait_dma ( devc, 0 ) == 0) return 0;
-+		if (sscape_pnp_wait_dma ( devc, 0 ) == 0) {
-+			restore_flags(flags);	    
-+			return 0;
-+		}
- 	}
- 	
- 	restore_flags(flags);	    
+
+Something new that cropped up in prerelease:
+
+My SHM stopped working!
+everything was fine in test12, and after that all I got was "no space
+left on device".
+Has anything changed that one should know about? I mounted shm like it's
+written in the help, and on a friends celeron SMP machine it works fine,
+I just don't know what I did wrong.
+
+any ideas on any of the 2 problems?
+
+TIA
+
+Felix Maibaum
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

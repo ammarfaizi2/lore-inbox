@@ -1,57 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267197AbUBMXlc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 18:41:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267203AbUBMXlc
+	id S267247AbUBMXvD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 18:51:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267237AbUBMXvC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 18:41:32 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:58513 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S267197AbUBMXl1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 18:41:27 -0500
-Date: Fri, 13 Feb 2004 15:46:47 -0800
-From: Mike Anderson <andmike@us.ibm.com>
-To: Joe Thornber <thornber@redhat.com>
-Cc: Lars Marowsky-Bree <lmb@suse.de>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>, axboe@suse.de
-Subject: Re: dm core patches
-Message-ID: <20040213234647.GB948@beaverton.ibm.com>
-Mail-Followup-To: Joe Thornber <thornber@redhat.com>,
-	Lars Marowsky-Bree <lmb@suse.de>,
-	Linux Mailing List <linux-kernel@vger.kernel.org>, axboe@suse.de
-References: <20040210163548.GC27507@reti> <20040211101659.GF3427@marowsky-bree.de> <20040211103541.GW27507@reti> <20040212185145.GY21298@marowsky-bree.de> <20040212201340.GB1898@reti> <20040213151213.GR21298@marowsky-bree.de> <20040213153936.GF15736@reti>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040213153936.GF15736@reti>
-X-Operating-System: Linux 2.0.32 on an i486
-User-Agent: Mutt/1.5.4i
+	Fri, 13 Feb 2004 18:51:02 -0500
+Received: from msgbas1x.cos.agilent.com ([192.25.240.36]:25565 "EHLO
+	msgbas1x.cos.agilent.com") by vger.kernel.org with ESMTP
+	id S267247AbUBMXtm convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 18:49:42 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: what is the best 2.6.2 kernel code?
+Date: Fri, 13 Feb 2004 16:49:40 -0700
+Message-ID: <0A78D025ACD7C24F84BD52449D8505A15A80D1@wcosmb01.cos.agilent.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: what is the best 2.6.2 kernel code?
+Thread-Index: AcPygfTSfrMI3L/SSiyrgO7gA7b3kwACWkgQ
+From: <yiding_wang@agilent.com>
+To: <riel@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 13 Feb 2004 23:49:41.0251 (UTC) FILETIME=[0C516530:01C3F28C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Thornber [thornber@redhat.com] wrote:
-> > You are missing the obvious answer:
-> > 
-> > - Periodically checking paths is a user-space issue and doesn't belong
-> >   into the kernel. User-space gets to handle this policy.
+Thanks fro all of your explanation.  It looks like I have to make sure all my software is updated for 2.6.2 build process (my original linux is 2.4.18.  I will check and try it again!
+
+Thanks again!
+
+Eddie
+
+> -----Original Message-----
+> From: Rik van Riel [mailto:riel@redhat.com]
+> Sent: Friday, February 13, 2004 2:37 PM
+> To: WANG,YIDING (A-SanJose,ex1)
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: what is the best 2.6.2 kernel code?
 > 
-> Yes, that is obvious, I had wanted to do failback automatically.  But
-> pushing it to userland does allow people to write hardware specific
-> tests.  I'll try it and see what people think.
-
-Be careful here. Your failback test packet cannot be a media access type
-as this could cause volume transition thrashing in some types of
-storage units so most likely you will use a test unit ready type packet.
-These small size tests are not very good checks on there own for optical
-based networks as the laser power needed to send them is really low
-(newer vertical cavity lasers have reduced these types of failures, but
-they still happens). Auto failback with heuristics and a credit based
-model allows the path to be failed back in with a quick ejection and a
-increasing time interval to start the whole cycle again. This keeps the
-systems from heading into a failover / failback storm.
-
--andmike
---
-Michael Anderson
-andmike@us.ibm.com
-
+> 
+> On Fri, 13 Feb 2004 yiding_wang@agilent.com wrote:
+> 
+> > I downloaded kernel linux-2.6.2.tar.gz and patch-2.6.2.bz2 
+> from kernel
+> > source.  Both files are dated 03-Feb.-2004.
+> > 
+> > Building new kernel from the source failed on fs/proc/array.o.  
+> > Patching with patch file will have numerous warning message 
+> which says
+> > "Reversed patch detected! Assume -R [n]".
+> 
+> linux-2.6.1 + patch-2.6.2 results in linux-2.6.2
+> 
+> If you download linux-2.6.2 you don't need to apply
+> any patches.
+> 
+> Please see http://www.kernelnewbies.org/
+> 
+> cheers,
+> 
+> Rik
+> -- 
+> "Debugging is twice as hard as writing the code in the first place.
+> Therefore, if you write the code as cleverly as possible, you are,
+> by definition, not smart enough to debug it." - Brian W. Kernighan
+> 
+> 

@@ -1,69 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268295AbRHFMqf>; Mon, 6 Aug 2001 08:46:35 -0400
+	id <S268332AbRHFMuf>; Mon, 6 Aug 2001 08:50:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268302AbRHFMqZ>; Mon, 6 Aug 2001 08:46:25 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:61569 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S268295AbRHFMqG>; Mon, 6 Aug 2001 08:46:06 -0400
-Date: Mon, 6 Aug 2001 08:45:57 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Frank Torres <frank@ingecom.net>
-cc: Russell King <rmk@arm.linux.org.uk>, jdow@earthlink.net,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Duplicate console output to a RS232C and keep keyb where it is
-In-Reply-To: <00a801c11e4a$5571a950$66011ec0@frank>
-Message-ID: <Pine.LNX.3.95.1010806081157.3088A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268333AbRHFMu0>; Mon, 6 Aug 2001 08:50:26 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:23394 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S268332AbRHFMuR>; Mon, 6 Aug 2001 08:50:17 -0400
+Date: Mon, 6 Aug 2001 14:50:52 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: "David S. Miller" <davem@redhat.com>,
+        David Luyer <david_luyer@pacific.net.au>, linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: /proc/<n>/maps growing...
+Message-ID: <20010806145052.F20837@athlon.random>
+In-Reply-To: <997080081.3938.28.camel@typhaon> <20010806105904.A28792@athlon.random> <15214.24938.681121.837470@pizda.ninka.net> <20010806125705.I15925@athlon.random> <20010807002650.B23937@weta.f00f.org> <20010806143603.C20837@athlon.random> <20010807004510.A23992@weta.f00f.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010807004510.A23992@weta.f00f.org>; from cw@f00f.org on Tue, Aug 07, 2001 at 12:45:10AM +1200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Aug 2001, Frank Torres wrote:
+On Tue, Aug 07, 2001 at 12:45:10AM +1200, Chris Wedgwood wrote:
+> for anonymous maps, when it can extend the previos map, mmap will do
+> so --- it happens to occur quite often in practice
 
-> 
-> > On Fri, Aug 03, 2001 at 04:01:28PM +0200, Frank Torres wrote:
-> > > > This is not valid. You cannot reasonably have parity and 8 bits. One
-> > > > of them has to go. Either use 8 bits and no parity or 7 bits with
-> > > > parity.
-> >
-> > All standard 16550 family ports support 8 bits _and_ parity.  Ancient
-> > serial ports did have a restriction, but that restriction is no more.
-> >
+ah, what an horrible hack, so we just walk the tree _two_ times and we
+don't even take advantage of that (over)work as we should!
 
-He said that he was connecting to a RS232C __terminal__. The fact that
-a device (like the 8250x/16550) can be used for non-standard serial
-communications is moot if you are not connecting to another 8250x/16550.
-And, somebody who has "been doing it for 40 years", as was stated
-in one response, should know that.
-
-The RS-232C standard does not provide 8 bits at the same time parity
-us enabled. The fact that you "can do it" with certain devices says
-nothing for the standard. In fact, to help "fix" communications
-problems caused by non-standard hookups, "ISTRIP" was provided in Unix
-(and Linux), to strip off the parity bit that shouldn't be there anyway.
-It occurs when there is a 7-bit with parity terminal talking to a 8-bit,
-no parity host. If you are connecting to a terminal, and have some
-communications problems, it's best to feed it standard stuff to start.
-
-The current problem:
-During the console initialization sequence, its speed gets set to
-38400 baud. This means nothing to a virtual terminal. However, if
-the attached RS-232C termional is also being set to the same speed,
-this could explain the garbage characters.
-
-So I suggest that Frank set his terminal to 38400 baud and see if
-the problems disappear.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+Andrea

@@ -1,36 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136373AbREIMmd>; Wed, 9 May 2001 08:42:33 -0400
+	id <S136398AbREINCp>; Wed, 9 May 2001 09:02:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136374AbREIMmX>; Wed, 9 May 2001 08:42:23 -0400
-Received: from warszawa.7bulls.com ([213.134.131.62]:56082 "HELO
-	warszawa.7bulls.com") by vger.kernel.org with SMTP
-	id <S136373AbREIMmQ>; Wed, 9 May 2001 08:42:16 -0400
-Date: Wed, 9 May 2001 14:29:06 +0000
-To: linux-kernel@vger.kernel.org
-Subject: dev_add_pack() question
-Message-ID: <20010509142906.B1388@lda.sur5.net>
+	id <S136399AbREINCf>; Wed, 9 May 2001 09:02:35 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:6917 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S136398AbREINCZ>;
+	Wed, 9 May 2001 09:02:25 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: sebastien person <sebastien.person@sycomore.fr>
+cc: liste noyau linux <linux-kernel@vger.kernel.org>
+Subject: Re: signal 
+In-Reply-To: Your message of "Wed, 09 May 2001 14:28:16 +0200."
+             <20010509142816.2af8bbbd.sebastien.person@sycomore.fr> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: nergal@7bulls.com (Rafal Wojtczuk)
+Date: Wed, 09 May 2001 23:02:19 +1000
+Message-ID: <9426.989413339@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I register a callback function with dev_add_pack() this way:
-  memset (&proto, 0, sizeof proto);
-  proto.type = htons (ETH_P_ALL);
-  proto.func = my_callback_function;
-  dev_add_pack (&proto);
-my_callback_function() receives all packets with local src/dst IP (including
-SNATed ones) as well as all incoming ones, but forwarded outgoing packets are 
-not passed to my_callback_function(). Looks like AF_PACKET sockets also rely 
-on dev_add_pack(), yet of course tcpdump (correctly) shows all the packets. 
-How should I register a callback with dev_add_pack() so that the callback
-receives all the packets ?
+On Wed, 9 May 2001 14:28:16 +0200, 
+sebastien person <sebastien.person@sycomore.fr> wrote:
+>I'm trying to send signal from a kernel module to an user prog.
 
-Save yourself,
-Nergal
+force_sig() in kernel/signal.c
 

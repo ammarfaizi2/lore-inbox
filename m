@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262986AbSIPVek>; Mon, 16 Sep 2002 17:34:40 -0400
+	id <S263141AbSIPVf5>; Mon, 16 Sep 2002 17:35:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263099AbSIPVek>; Mon, 16 Sep 2002 17:34:40 -0400
-Received: from eos.telenet-ops.be ([195.130.132.40]:11139 "EHLO
-	eos.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S262986AbSIPVei> convert rfc822-to-8bit; Mon, 16 Sep 2002 17:34:38 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Bart De Schuymer <bart.de.schuymer@pandora.be>
-To: "David S. Miller" <davem@redhat.com>
-Subject: Re: bridge-netfilter patch
-Date: Mon, 16 Sep 2002 23:41:17 +0200
-X-Mailer: KMail [version 1.4]
-Cc: buytenh@math.leidenuniv.nl, linux-kernel@vger.kernel.org
-References: <20020913144518.A31318@math.leidenuniv.nl> <200209140905.40816.bart.de.schuymer@pandora.be> <20020915.203528.08097520.davem@redhat.com>
-In-Reply-To: <20020915.203528.08097520.davem@redhat.com>
+	id <S263143AbSIPVf4>; Mon, 16 Sep 2002 17:35:56 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12296 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263141AbSIPVfz>; Mon, 16 Sep 2002 17:35:55 -0400
+Date: Mon, 16 Sep 2002 14:41:17 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Robert Love <rml@tech9.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] BUG(): sched.c: Line 944
+In-Reply-To: <1032210898.1010.32.camel@phantasy>
+Message-ID: <Pine.LNX.4.44.0209161438220.3732-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209162341.17032.bart.de.schuymer@pandora.be>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    This is for purely bridged packets.
->
-> Why is it being added, therefore, to ip_queue_xmit() which is only
-> ever invoked by TCP output processing?
->
-> If the patch adds the call somewhere else, please correct me, but
-> I specifically remember it being added to ip_queue_xmit() which is
-> why I barfed when seeing it :-)
 
-I've never seen this in the patch. It sure isn't in it now.
+On 16 Sep 2002, Robert Love wrote:
+> 
+> I liked this idea, and was working on implementing it when I ran into a
+> few roadblocks.  Your ideas are welcome.
+> 
+> First, "preempt_count()" is used as an l-value in a lot of places, i.e.
+> look at all the "preempt_count() += foo" in the IRQ code.  We cannot
+> mask things out of it.
 
-To be more precise:
-net/ipv4/netfilter/ip_conntrack_standalone.c:ip_refrag() is (or can be) 
-attached to the NF_IP_POST_ROUTING hook. This function calls:
-net/ipv4/ip_output.c:ip_fragment()
-In this function the copy of the Ethernet frame is added for each fragment (by 
-the br-nf patch).
-The bridge-netfilter patch lets IP packets/frames passing the 
-NF_BR_POST_ROUTING hook go through the NF_IP_POST_ROUTING hook, so the 
-ip_fragment() code is executed while the IP packet/frame is really in the 
-bridge code. After this, the fragments get queued:
-net/bridge/br_forward.c:br_dev_queue_push_xmit() calls dev_queue_xmit()
+Ok. Let's just make the masking explicit in in_atomic() then, like you 
+suggest:
 
-Lennert's previous mail says in which cases and why this header copy has to be 
-explicitly done.
+> Simplest solution is to:
+> 
+> 	#define in_atomic() \
+> 		(preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
+> 
+> although I still dislike the masking just to make the schedule()
+> code-path cleaner.
 
-The following document might be useful to know what we are doing:
-http://users.pandora.be/bart.de.schuymer/ebtables/br_fw_ia/br_fw_ia.html
+I don't think this is a scheduler cleanliness issue: it's a consistency
+issue. If "in_interrupt()" and friends do not care about PREEMPT_ACTIVE,
+then neither should "in_atomic()".  The fact that the scheduler test gets
+cleaned up is secondary - although it is obviously a result of being
+consistent.
 
--- 
-cheers,
-Bart
+> Oh, and there is another problem: printk() from schedule() implicitly
+> calls wake_up().  My machine dies even with just a printk() and not a
+> BUG()... I suspect there may be some SMP issue in that whole mess too,
+> because setting oops_in_progress prior did not help.
+
+Hmm.. It will call wake_up() because it will try to wake up any klogd. 
+What's the problem? Calling wake_up() should be fine from there..
+
+		Linus
 

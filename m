@@ -1,66 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267723AbRGUWx7>; Sat, 21 Jul 2001 18:53:59 -0400
+	id <S267847AbRGUXc5>; Sat, 21 Jul 2001 19:32:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267728AbRGUWxt>; Sat, 21 Jul 2001 18:53:49 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:42257 "EHLO
+	id <S267848AbRGUXcr>; Sat, 21 Jul 2001 19:32:47 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:12804 "EHLO
 	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S267723AbRGUWxg>; Sat, 21 Jul 2001 18:53:36 -0400
+	id <S267847AbRGUXck>; Sat, 21 Jul 2001 19:32:40 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Daniel Phillips <phillips@bonn-fries.net>
-To: "Brian J. Watson" <Brian.J.Watson@compaq.com>, Andi Kleen <ak@suse.de>
-Subject: Re: Common hash table implementation
-Date: Sun, 22 Jul 2001 00:57:05 +0200
+To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "peter k." <spam-goes-to-dev-null@gmx.net>
+Subject: Re: 2.4.7: wtf is "ksoftirqd_CPU0"
+Date: Sun, 22 Jul 2001 01:37:02 +0200
 X-Mailer: KMail [version 1.2]
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <oupitgqjxoi.fsf@pigdrop.muc.suse.de> <3B58B186.4D23D1A3@compaq.com>
-In-Reply-To: <3B58B186.4D23D1A3@compaq.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <000f01c111ff$73602ce0$c20e9c3e@host1> <3B59AFF7.8061645B@mandrakesoft.com>
+In-Reply-To: <3B59AFF7.8061645B@mandrakesoft.com>
 MIME-Version: 1.0
-Message-Id: <01072200570501.02679@starship>
+Message-Id: <01072201370202.02679@starship>
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Saturday 21 July 2001 00:32, Brian J. Watson wrote:
-> Andi Kleen wrote:
-> > hash tables like the inode hash are twice as big as needed because
-> > each bucket is two pointers instead of one]
+On Saturday 21 July 2001 18:38, Jeff Garzik wrote:
+> "peter k." wrote:
+> > i just installed 2.4.7, now a new process called "ksoftirqd_CPU0"
+> > is started automatically when booting (by the kernel obviously)?
+> > why? what does it do? i didnt find any useful information on it in
+> > linuxdoc / linux-kernel archives
 >
-> I agree. Hash tables such as inode_hashtable and dentry_hashtable are
-> half as efficient under stress as they would otherwise be, because
-> they use an array of list_heads.
+> it is used internally, ignore it.
 
-Whoops, yes.  The buffer_head pprev strategy gives both the 
-double linked list and a table vector of single links, at the expense 
-of a few extra tests.
+It's pretty hard to ignore a process with a name that ugly ;-)
 
-For a one-size-fits-all hash strategy the question is, double-linked of 
-singled-linked?  The advantage of a double linked list for a hash is 
-quick, generic deletion.  Using the pprev strategy the disadvantage of 
-double links in the table vector can be eliminated.  The main advantage 
-of the single link is space savings both in the table and in the 
-structures.  The disadvantage is having to do an extra bucket search on 
-deletion, though this is partially offset by fewer pointer operations 
-to perform insertion or deletion.
+How about just ksoft0 ?  Or kirq0?
 
-It's hard to say which is fastest.  It might turn out that the single 
-linked strategy is actually faster, it really depends on typical depth 
-of the buckets.  A double-linked list deletion needs to follow two 
-pointers and set two links, the single-linked list only one of each.  
-There's a similar difference for insertion.  So the extra overhead of 
-insertion and deletion can be set off against say, three or four 
-iterations of the bucket search loop.  If buckets average six to eight 
-elements deep, it's a tie.
+I don't see the sense of trying to encode a whole sentence into the 
+process name.
 
-A more subtle cost of the double-link approach is the slight extra 
-cache pressure due to the enlarged objects.  This cost is incurred 
-continously as the objects are used, it might very well add up to more 
-than the cost of the final list traversal for the delete in the 
-single-linked case.
-
-How about implementing both strategies, using your generic interface to 
-make them look the same?  And then seeing which is fastest in practice.
+(Peter, this handles softirqs in a more predictable way by allowing the 
+scheduler to take care of any softirq that can't conveniently be 
+executed immediately.  Among other benefits, this approach eliminated 
+the need to check for and execute pending softirqs on exit from system 
+calls.)
 
 --
 Daniel

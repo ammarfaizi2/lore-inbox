@@ -1,47 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261474AbSITIHb>; Fri, 20 Sep 2002 04:07:31 -0400
+	id <S261619AbSITIOg>; Fri, 20 Sep 2002 04:14:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261619AbSITIHb>; Fri, 20 Sep 2002 04:07:31 -0400
-Received: from holomorphy.com ([66.224.33.161]:8327 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261474AbSITIHa>;
-	Fri, 20 Sep 2002 04:07:30 -0400
-Date: Fri, 20 Sep 2002 01:06:28 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Maneesh Soni <maneesh@in.ibm.com>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       viro@math.psu.edu
-Subject: Re: 2.5.36-mm1 dbench 512 profiles
-Message-ID: <20020920080628.GK3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Maneesh Soni <maneesh@in.ibm.com>, Andrew Morton <akpm@digeo.com>,
-	linux-kernel@vger.kernel.org, viro@math.psu.edu
-References: <20020919223007.GP28202@holomorphy.com> <68630000.1032477517@w-hlinder> <3D8A5FE6.4C5DE189@digeo.com> <20020920000815.GC3530@holomorphy.com> <200209200747.g8K7la9B174532@northrelay01.pok.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <200209200747.g8K7la9B174532@northrelay01.pok.ibm.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S261653AbSITIOg>; Fri, 20 Sep 2002 04:14:36 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:54999 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S261619AbSITIOf>; Fri, 20 Sep 2002 04:14:35 -0400
+Date: Fri, 20 Sep 2002 10:19:31 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Alan Cox <alan@redhat.com>
+cc: Dominik Brodowski <linux@brodo.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre7-ac3
+In-Reply-To: <200209191728.g8JHSBg22827@devserv.devel.redhat.com>
+Message-ID: <Pine.NEB.4.44.0209201012540.23207-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Sep 2002 05:48:38 +0530, William Lee Irwin III wrote:
->> As far as the dcache goes, I'll stick to observing and reporting. I'll
->> rerun with dcache patches applied, though.
+On Thu, 19 Sep 2002, Alan Cox wrote:
 
-On Fri, Sep 20, 2002 at 01:29:28PM +0530, Maneesh Soni wrote:
-> For a 32-way system fastwalk will perform badly from dcache_lock
-> point of view, basically due to increased lock hold time.
-> dcache_rcu-12 should reduce dcache_lock contention and hold time. The
-> patch uses RCU infrastructer patch and read_barrier_depends patch.
-> The patches are available in Read-Copy-Update section on lse site at
-> http://sourceforge.net/projects/lse
-
-ISTR Hubertus mentioning this at OLS, and it sounded like a problem to
-me. I'm doing some runs with this to see if it fixes the problem.
+>...
+> Linux 2.4.20-pre7-ac3
+>...
+> o       Interrupt.h needs asm/system for smb_mb         (Dominik Brodowski)
+>...
 
 
-Cheers,
-Bill
+The following part of his patches is also needed in order to compile
+cpufreq.c:
+
+
+
+--- include/asm-i386/hw_irq.h.old	2002-09-20 09:25:37.000000000 +0200
++++ include/asm-i386/hw_irq.h	2002-09-19 19:52:25.000000000 +0200
+@@ -13,8 +13,10 @@
+  */
+
+ #include <linux/config.h>
++#include <linux/smp_lock.h>
+ #include <asm/atomic.h>
+ #include <asm/irq.h>
++#include <asm/current.h>
+
+ /*
+  * IDT vectors usable for external interrupt sources start
+
+
+
+
+With this patch applied I got a compile error in ieee1394_core.c because
+asm-i386/smplock.h was included twice. It seems the following is needed,
+too:
+
+
+
+--- include/asm-i386/smplock.h.old	2002-09-19 20:53:57.000000000 +0200
++++ include/asm-i386/smplock.h	2002-09-19 20:54:46.000000000 +0200
+@@ -1,3 +1,6 @@
++#ifndef __ASM_SMPLOCK_H
++#define __ASM_SMPLOCK_H
++
+ /*
+  * <asm/smplock.h>
+  *
+@@ -74,3 +77,5 @@
+ 		 "=m" (current->lock_depth));
+ #endif
+ }
++
++#endif /* __ASM_SMPLOCK_H */
+
+
+cu
+Adrian
+
+

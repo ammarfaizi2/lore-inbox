@@ -1,231 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbUEFGv3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbUEFG7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261746AbUEFGv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 02:51:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbUEFGv3
+	id S261745AbUEFG7A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 02:59:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUEFG67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 02:51:29 -0400
-Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:26009 "HELO
-	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261746AbUEFGuz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 02:50:55 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC/RFT] Convert i8042 input event handling to irq + tasklet
-Date: Thu, 6 May 2004 01:50:52 -0500
-User-Agent: KMail/1.6.2
-Cc: Vojtech Pavlik <vojtech@suse.cz>
-MIME-Version: 1.0
+	Thu, 6 May 2004 02:58:59 -0400
+Received: from [66.35.79.110] ([66.35.79.110]:22425 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S261745AbUEFG66 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 02:58:58 -0400
+Date: Wed, 5 May 2004 23:58:56 -0700
+From: Tim Hockin <thockin@hockin.org>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lazy-umount cwd and ..
+Message-ID: <20040506065856.GA21004@hockin.org>
+References: <20040506044433.GA13933@hockin.org> <20040506064617.GQ17014@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405060150.52960.dtor_core@ameritech.net>
+In-Reply-To: <20040506064617.GQ17014@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, May 06, 2004 at 07:46:17AM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Wed, May 05, 2004 at 09:44:33PM -0700, Tim Hockin wrote:
+> > Should I bother to polish this patch off and send it, or is it just not
+> > something we want to care about?
+> 
+> No.  This is simply wrong - one of the situations when you want lazy-umount
+> is getting a stuck filesystem (e.g. NFS mounted hard) and wanting to get
+> it out of the way, so that stuff it's mounted on could be unmounted clean.
+> 
+> So we definitely don't want to keep anything pinned down.
 
-Entire input event handling in i8042 is done from interrupt context. Given
-that there is mousedev emulation, evdev and what's not it seems way too much
-for my taste. The patch below moves most of the processing into a tasklet
-leaving only retrieving data from the KBC to interrup handler. What do you
-think?
+I'll buy that.  I guess it's not worth dreaming up something else to make
+that be less surprising to apps with cwd in a lazy umounted mount.
 
---- linus-2.5/drivers/input/serio/i8042.c	2004-05-06 00:54:57.000000000 -0500
-+++ dtor/drivers/input/serio/i8042.c	2004-05-06 00:35:32.000000000 -0500
-@@ -74,6 +74,14 @@
- 	unsigned char *phys;
- };
- 
-+#define I8042_QUEUE_LEN		64
-+struct {
-+	unsigned char str[I8042_QUEUE_LEN];
-+	unsigned char data[I8042_QUEUE_LEN];
-+	unsigned int read_pos;
-+	unsigned int write_pos;
-+} i8042_buf;
-+
- static struct serio i8042_kbd_port;
- static struct serio i8042_aux_port;
- static unsigned char i8042_initial_ctr;
-@@ -82,7 +90,7 @@
- static unsigned char i8042_mux_present;
- static unsigned char i8042_sysdev_initialized;
- static struct pm_dev *i8042_pm_dev;
--struct timer_list i8042_timer;
-+static struct timer_list i8042_timer;
- 
- /*
-  * Shared IRQ's require a device pointer, but this driver doesn't support
-@@ -374,77 +382,109 @@
- static char i8042_mux_phys[4][32];
- 
- /*
-- * i8042_interrupt() is the most important function in this driver -
-- * it handles the interrupts from the i8042, and sends incoming bytes
-- * to the upper layers.
-+ * i8042_handle_data() is the most important function in this driver -
-+ * it processes data received by i8042_interrupt and sends it to the
-+ * upper layers.
-  */
- 
--static irqreturn_t i8042_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+static void i8042_handle_data(unsigned long notused)
- {
--	unsigned long flags;
- 	unsigned char str, data = 0;
- 	unsigned int dfl;
--	int ret;
- 
--	mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
-+	/*
-+	 * No locking it required on i8042_buf as the tasklet is guaranteed
-+	 * to be serialized and if write_pos changes while comparing it with
-+	 * read_pos another run will be scheduled by i8042_interrupt.
-+	 */
-+	while (i8042_buf.read_pos != i8042_buf.write_pos) {
- 
--	spin_lock_irqsave(&i8042_lock, flags);
--	str = i8042_read_status();
--	if (str & I8042_STR_OBF)
--		data = i8042_read_data();
--	spin_unlock_irqrestore(&i8042_lock, flags);
-+		str = i8042_buf.str[i8042_buf.read_pos];
-+		data = i8042_buf.data[i8042_buf.read_pos];
- 
--	if (~str & I8042_STR_OBF) {
--		if (irq) dbg("Interrupt %d, without any data", irq);
--		ret = 0;
--		goto out;
-+		i8042_buf.read_pos++;
-+		i8042_buf.read_pos %= I8042_QUEUE_LEN;
-+
-+		dfl = ((str & I8042_STR_PARITY)  ? SERIO_PARITY  : 0) |
-+	      	      ((str & I8042_STR_TIMEOUT) ? SERIO_TIMEOUT : 0);
-+
-+		if (i8042_mux_values[0].exists && (str & I8042_STR_AUXDATA)) {
-+
-+			if (str & I8042_STR_MUXERR) {
-+				switch (data) {
-+					case 0xfd:
-+					case 0xfe: dfl = SERIO_TIMEOUT; break;
-+					case 0xff: dfl = SERIO_PARITY; break;
-+				}
-+				data = 0xfe;
-+			} else dfl = 0;
-+
-+			dbg("%02x <- i8042 (interrupt, aux%d, %d%s%s)",
-+				data, (str >> 6), irq,
-+				dfl & SERIO_PARITY ? ", bad parity" : "",
-+				dfl & SERIO_TIMEOUT ? ", timeout" : "");
-+
-+			serio_interrupt(i8042_mux_port + ((str >> 6) & 3), data, dfl, NULL);
-+		} else {
-+
-+			dbg("%02x <- i8042 (interrupt, %s, %d%s%s)",
-+				data, (str & I8042_STR_AUXDATA) ? "aux" : "kbd", irq,
-+				dfl & SERIO_PARITY ? ", bad parity" : "",
-+				dfl & SERIO_TIMEOUT ? ", timeout" : "");
-+
-+			if (i8042_aux_values.exists && (str & I8042_STR_AUXDATA))
-+				serio_interrupt(&i8042_aux_port, data, dfl, NULL);
-+			else if (i8042_kbd_values.exists)
-+				serio_interrupt(&i8042_kbd_port, data, dfl, NULL);
-+		}
- 	}
-+}
- 
--	dfl = ((str & I8042_STR_PARITY) ? SERIO_PARITY : 0) |
--	      ((str & I8042_STR_TIMEOUT) ? SERIO_TIMEOUT : 0);
-+DECLARE_TASKLET(i8042_tasklet, i8042_handle_data, 0);
- 
--	if (i8042_mux_values[0].exists && (str & I8042_STR_AUXDATA)) {
-+/*
-+ * i8042_interrupt() handles the interrupts from i8042 and schedules
-+ * i8042_handle_data to process and pass received bytes to the upper
-+ * layers.
-+ */
- 
--		if (str & I8042_STR_MUXERR) {
--			switch (data) {
--				case 0xfd:
--				case 0xfe: dfl = SERIO_TIMEOUT; break;
--				case 0xff: dfl = SERIO_PARITY; break;
--			}
--			data = 0xfe;
--		} else dfl = 0;
-+static irqreturn_t i8042_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+	unsigned long flags;
-+	unsigned char str;
-+	unsigned int n_bytes = 0;
- 
--		dbg("%02x <- i8042 (interrupt, aux%d, %d%s%s)",
--			data, (str >> 6), irq, 
--			dfl & SERIO_PARITY ? ", bad parity" : "",
--			dfl & SERIO_TIMEOUT ? ", timeout" : "");
-+	mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
- 
--		serio_interrupt(i8042_mux_port + ((str >> 6) & 3), data, dfl, regs);
--		
--		goto irq_ret;
--	}
-+	spin_lock_irqsave(&i8042_lock, flags);
-+
-+	while ((str = i8042_read_status()) & I8042_STR_OBF) {
- 
--	dbg("%02x <- i8042 (interrupt, %s, %d%s%s)",
--		data, (str & I8042_STR_AUXDATA) ? "aux" : "kbd", irq, 
--		dfl & SERIO_PARITY ? ", bad parity" : "",
--		dfl & SERIO_TIMEOUT ? ", timeout" : "");
-+		n_bytes++;
- 
--	if (i8042_aux_values.exists && (str & I8042_STR_AUXDATA)) {
--		serio_interrupt(&i8042_aux_port, data, dfl, regs);
--		goto irq_ret;
-+		i8042_buf.str[i8042_buf.write_pos] = str;
-+		i8042_buf.data[i8042_buf.write_pos] = i8042_read_data();
-+
-+		i8042_buf.write_pos++;
-+		i8042_buf.write_pos %= I8042_QUEUE_LEN;
-+
-+		if (unlikely(i8042_buf.write_pos == i8042_buf.read_pos))
-+			printk(KERN_WARNING "i8042.c: ring buffer full\n");
- 	}
- 
--	if (!i8042_kbd_values.exists)
--		goto irq_ret;
-+	spin_unlock_irqrestore(&i8042_lock, flags);
-+
-+	if (unlikely(n_bytes == 0)) {
-+		if (irq) dbg("Interrupt %d, without any data", irq);
-+		return IRQ_NONE;
-+	}
- 
--	serio_interrupt(&i8042_kbd_port, data, dfl, regs);
-+	tasklet_schedule(&i8042_tasklet);
- 
--irq_ret:
--	ret = 1;
--out:
--	return IRQ_RETVAL(ret);
-+	return IRQ_HANDLED;
- }
- 
-+
- /*
-  * i8042_enable_mux_mode checks whether the controller has an active
-  * multiplexor and puts the chip into Multiplexed (as opposed to
-@@ -1011,6 +1053,8 @@
- 		if (i8042_mux_values[i].exists)
- 			serio_unregister_port(i8042_mux_port + i);
- 
-+	tasklet_kill(&i8042_tasklet);
-+
- 	i8042_platform_exit();
- }
- 
-
--- 
-Dmitry
+Cheers.

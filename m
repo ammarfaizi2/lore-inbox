@@ -1,126 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262736AbTJUKf3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 06:35:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbTJUKf3
+	id S262886AbTJUK7g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 06:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbTJUK7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 06:35:29 -0400
-Received: from bart.one-2-one.net ([217.115.142.76]:37894 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S262736AbTJUKfR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 06:35:17 -0400
-Date: Tue, 21 Oct 2003 12:37:13 +0200 (CEST)
-From: Martin Diehl <lists@mdiehl.de>
-X-X-Sender: martin@notebook.home.mdiehl.de
-To: "David S. Miller" <davem@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [patch] pci_dma_sync_to_device
-Message-ID: <Pine.LNX.4.44.0310211151000.4246-100000@notebook.home.mdiehl.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 21 Oct 2003 06:59:36 -0400
+Received: from [65.172.181.6] ([65.172.181.6]:51086 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262886AbTJUK7e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 06:59:34 -0400
+Date: Tue, 21 Oct 2003 03:59:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: suparna@in.ibm.com
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6-mm] Avoid flushing AIO workqueue on cancel/exit
+Message-Id: <20031021035900.18040eee.akpm@osdl.org>
+In-Reply-To: <20031021102514.GA4217@in.ibm.com>
+References: <20031021102514.GA4217@in.ibm.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Suparna Bhattacharya <suparna@in.ibm.com> wrote:
+>
+> When streaming AIO requests are in progress on multiple
+>  io context's, flushing the AIO workqueue on i/o cancellation
+>  or process exit could potentially end up waiting for a 
+>  long time as fresh requests from other active ioctx's keep 
+>  getting queued up.
 
-Hi,
+But flush_workqueue() will ignore any newly-added work requests:
 
-following your suggestion this patch adds the missing 
-pci_dma_sync_to_device_{single,sg} call to sync streaming write buffers 
-after cpu modification. Like other pci dma calls it's a pci specific 
-wrapper plus corresponding generic function in asm-i386/dma-mapping.h. 
-Other platforms still need their individual implementations.
+ * This function will sample each workqueue's current insert_sequence number and
+ * will sleep until the head sequence is greater than or equal to that.  This
+ * means that we sleep until all works which were queued on entry have been
+ * handled, but we are not livelocked by new incoming ones.
 
-Patch below is against 2.6.0-test8. Testing was done using a modified 
-version of the vlsi_ir driver which calls pci_dma_to_device_single instead 
-of a private implementation.
+Now, flush_workqueue() is potentially inefficient on SMP because it flushes
+each CPU's workqueue sequentially.  But we can fix that in
+flush_workqueue() by converting it to a two-pass approach:
 
-I'm wondering whether it would be a good idea to add some BUG_ON there to 
-catch bad combinations with transfer direction. OTOH, on i386 the worst 
-to happen might be some unneeded flushes...
+a) gather each CPU's insert_sequence number into a local array[NR_CPUS]
 
-Martin
+b) wait until each CPU's remove_sequence number exceeds the previously-gathered
+   insert_sequence number.
 
------------------
-
---- linux-2.6.0-test8/include/asm-i386/dma-mapping.h	Wed Oct  8 21:24:53 2003
-+++ v2.6.0-test8-md/include/asm-i386/dma-mapping.h	Tue Oct 21 10:56:45 2003
-@@ -92,6 +92,20 @@
- 	flush_write_buffers();
- }
- 
-+static inline void
-+dma_sync_to_device_single(struct device *dev, dma_addr_t dma_handle, size_t size,
-+		enum dma_data_direction direction)
-+{
-+	flush_write_buffers();
-+}
-+
-+static inline void
-+dma_sync_to_device_sg(struct device *dev, struct scatterlist *sg, int nelems,
-+		 enum dma_data_direction direction)
-+{
-+	flush_write_buffers();
-+}
-+
- static inline int
- dma_supported(struct device *dev, u64 mask)
- {
---- linux-2.6.0-test8/include/asm-generic/pci-dma-compat.h	Wed Oct  8 21:24:02 2003
-+++ v2.6.0-test8-md/include/asm-generic/pci-dma-compat.h	Tue Oct 21 10:55:09 2003
-@@ -84,4 +84,18 @@
- 	dma_sync_sg(hwdev == NULL ? NULL : &hwdev->dev, sg, nelems, (enum dma_data_direction)direction);
- }
- 
-+static inline void
-+pci_dma_sync_to_device_single(struct pci_dev *hwdev, dma_addr_t dma_handle,
-+		    size_t size, int direction)
-+{
-+	dma_sync_to_device_single(hwdev == NULL ? NULL : &hwdev->dev, dma_handle, size, (enum dma_data_direction)direction);
-+}
-+
-+static inline void
-+pci_dma_sync_to_device_sg(struct pci_dev *hwdev, struct scatterlist *sg,
-+		int nelems, int direction)
-+{
-+	dma_sync_to_device_sg(hwdev == NULL ? NULL : &hwdev->dev, sg, nelems, (enum dma_data_direction)direction);
-+}
-+
- #endif
---- linux-2.6.0-test8/Documentation/DMA-mapping.txt	Wed Oct  8 21:24:06 2003
-+++ v2.6.0-test8-md/Documentation/DMA-mapping.txt	Tue Oct 21 11:27:17 2003
-@@ -543,8 +543,11 @@
- all bus addresses.
- 
- If you need to use the same streaming DMA region multiple times and touch
--the data in between the DMA transfers, just map it with
--pci_map_{single,sg}, and after each DMA transfer call either:
-+the data in between the DMA transfers, the buffer needs to be synced
-+depending on the transfer direction.
-+
-+When reading from the device, just map it with pci_map_{single,sg},
-+and after each DMA transfer call either:
- 
- 	pci_dma_sync_single(dev, dma_handle, size, direction);
- 
-@@ -553,6 +556,20 @@
- 	pci_dma_sync_sg(dev, sglist, nents, direction);
- 
- as appropriate.
-+
-+When writing to the mapped the buffer, prepare the data and
-+then before giving the buffer to the hardware call either:
-+
-+	pci_dma_sync_to_device_single(dev, dma_handle, size, direction);
-+
-+or:
-+
-+	pci_dma_sync_to_device_sg(dev, sglist, nents, direction);
-+
-+as appropriate.
-+
-+For bidirectional mappings the corresponding calls are required before and
-+after passing ownership between cpu and hardware.
- 
- After the last DMA transfer call one of the DMA unmap routines
- pci_unmap_{single,sg}. If you don't touch the data from the first pci_map_*
 

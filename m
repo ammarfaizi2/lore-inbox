@@ -1,80 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261936AbTITTFY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Sep 2003 15:05:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTITTFY
+	id S261357AbTITTYz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Sep 2003 15:24:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbTITTYz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Sep 2003 15:05:24 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22219 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261936AbTITTFS
+	Sat, 20 Sep 2003 15:24:55 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:40832 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261357AbTITTYy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Sep 2003 15:05:18 -0400
-Date: Sat, 20 Sep 2003 20:05:16 +0100
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+	Sat, 20 Sep 2003 15:24:54 -0400
+Date: Sat, 20 Sep 2003 20:24:37 +0100
+From: Jamie Lokier <jamie@shareable.org>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.2[12] v VIA Rhine and VIA82x audio (working with a fight)
-Message-ID: <20030920190516.GA796@gallifrey>
-References: <20030920163835.GA723@gallifrey> <1064079929.22995.7.camel@dhcp23.swansea.linux.org.uk>
+Cc: Jesse Barnes <jbarnes@sgi.com>, Andrew Morton <akpm@osdl.org>, pfg@sgi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Altix console driver
+Message-ID: <20030920192437.GA8953@mail.jlokier.co.uk>
+References: <20030917222414.GA25931@sgi.com> <20030917152139.42a1ce20.akpm@osdl.org> <1063886970.15957.13.camel@dhcp23.swansea.linux.org.uk> <20030919152118.GA2121@sgi.com> <1063985618.18723.19.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1064079929.22995.7.camel@dhcp23.swansea.linux.org.uk>
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.6.0-test3 (i686)
-X-Uptime: 19:56:12 up 48 min,  1 user,  load average: 0.17, 0.31, 0.37
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <1063985618.18723.19.camel@dhcp23.swansea.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
+Alan Cox wrote:
+> On Gwe, 2003-09-19 at 16:21, Jesse Barnes wrote:
+> > Well, according to the FSF our extra clauses are compatible with the GPL
+> > and LGPL.  See http://oss.sgi.com/projects/GenInfo/NoticeExplan/.  If
+> > you still disagree then we'll have to try to find another solution.
 > 
-> I've done some work on this for -ac. I thought 2.4.22 had enough stuff
-> to deal with it (at least for the non ACPI case). VIA v-bus cares that
-> both PCI_INTERRUPT_PIN and PCI_INTERRUPT_LINE are both set.
+> I think I need to discuss this with Eben, it certainly seems a problem
+> to me but he's the legal expert so I want to find out his view first.
 
-Well I do wonder whether it is just a very buggy BIOS etc not being helpful.
+My reading of the boilerplate is that I can't use their code in
+another GPL program, because their patent grant doesn't extend to
+other programs.
 
-> > 2) Audio
-> > 
-> > This was much more of a fight. The standard 2.4.21/22 via82xxx drivers
-> > were very problematic.  For example random hanging apps, buzzing when
-> > an app had sound open but wasn't actually sending stuff, and a complete
-> > failure to have any sound input.
-> 
-> Do you have VIA 8233 or 8235 hardware ?
+Even if that's permitted by the GPL, it doesn't mean you have to
+accept it into the kernel like that.
 
-It isn't entirely obvious from the PCI dumps; I think its the 8235 from the
-first entry for the device:
+If that's just a misunderstanding of the legalese on my part, then
+IMHO the text needs to be clarified to ensure that everyone knows they
+may take the code and use it in other GPL projects.
 
-Bus  0, device  17, function  0:
-  ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge (rev 0).
-Bus  0, device  17, function  1:
-  IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 6).
-    Master Capable.  Latency=32.
-    I/O at 0xdc00 [0xdc0f].
-Bus  0, device  17, function  5:
-  Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235 AC97 Audio Controller (rev 80).
-    IRQ 5.
-    I/O at 0xe000 [0xe0ff].
-
-ALSA seems to think its an 8235.
-
-> > Except for playing CDs - which don't do anything - I suspect that might
-> > be hardware, but am not sure.
-> 
-> Check there is an analog cable fitted on the CD->Sound. Many new WinXP
-> boxes are shipped with XP configured to digitally rip the CD data and no
-> audio link cable. If so you need to pick a different CD player app or
-> fit the cable.
-
-Nod - I've heard it play a few times; so I'm wondering about a loose cable; although
-my normal solution of these problems (buy a Soundblaster) has failed when I got the
-machine home to find it had a sticker over the back of the case saying if I opened
-it I'd break the warranty.
-
-Dave
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+-- Jamie

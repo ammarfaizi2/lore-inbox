@@ -1,75 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264825AbUEKQZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264837AbUEKQ23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264825AbUEKQZr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 12:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264826AbUEKQZr
+	id S264837AbUEKQ23 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 12:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264828AbUEKQ2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 12:25:47 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:27627 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S264825AbUEKQZI (ORCPT
+	Tue, 11 May 2004 12:28:19 -0400
+Received: from ns.suse.de ([195.135.220.2]:43675 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264827AbUEKQ0m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 12:25:08 -0400
-Message-ID: <40A0FF29.1060006@sgi.com>
-Date: Tue, 11 May 2004 11:28:25 -0500
-From: Ray Bryant <raybry@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Bradford <john@grabjohn.com>
-CC: Silviu Marin-Caea <silviu@genesys.ro>, linux-kernel@vger.kernel.org
-Subject: Re: dynamic allocation of swap disk space
-References: <fa.n6pggn5.84en31@ifi.uio.no> <40A0EFC0.1040609@sgi.com> <200405111552.i4BFqFMN000112@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200405111552.i4BFqFMN000112@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 11 May 2004 12:26:42 -0400
+Date: Tue, 11 May 2004 18:26:38 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux SCSI list <linux-scsi@vger.kernel.org>,
+       Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Format Unit can take many hours
+Message-ID: <20040511162638.GU4828@tpkurt.garloff.de>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Jens Axboe <axboe@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
+	Linux SCSI list <linux-scsi@vger.kernel.org>,
+	Linux kernel list <linux-kernel@vger.kernel.org>
+References: <20040511114936.GI4828@tpkurt.garloff.de> <20040511122037.GG1906@suse.de> <40A0FAE9.90900@pobox.com> <20040511161427.GW1906@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="oIMVlEQ///Q2JYC7"
+Content-Disposition: inline
+In-Reply-To: <20040511161427.GW1906@suse.de>
+X-Operating-System: Linux 2.6.5-9-KG i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: SUSE/Novell
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi John,
 
-John Bradford wrote:
->
-> 
-> Not necessarily.  Increasing swap can allow more physical RAM to be used for
-> caching data from disk.
-> 
-> Imagine a system with limited physical RAM, and limited swap space, running a
-> process which causes a lot of filesystem activity on the same physical disk
-> as is being used for swap.  If the total RAM, both physical and swap is almost
-> completely full, increasing the swap space may allow some data from physical
-> RAM to be swapped out, in favour of caching filesystem data from the disk.
+--oIMVlEQ///Q2JYC7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hmmm... Lets see, we have a program (or set of programs) in memory that is 
-thrashing, i. e. it is page faulting at a rate that is higher than the vm 
-system can supply pages, so it is spending its time waiting for pages and the 
-disk subsystem is busy.  Now, if we increase the amount of data cached from 
-disk, without increasing main memory, we've decreased the amount of memory 
-available to the thrashing program, perhaps making its problems worse?
+Hi,
 
-Well, I guess all this shows is that with the vm subsystem, speculation is 
-often useless, one has to fire up the box with a carefully constructed 
-workload and see what happens.
+On Tue, May 11, 2004 at 06:14:27PM +0200, Jens Axboe wrote:
+> On Tue, May 11 2004, Jeff Garzik wrote:
+> > Jens Axboe wrote:
+> > >block/scsi_ioctl.c should likely receive similar treatment then.
+> >=20
+> > This timeout is dependent on media size, I should think...
+> >=20
+> > Is there any reason to think that this timeout will _not_ be continuall=
+y=20
+> > patched in the future, as larger and larger sizes are used?
 
-> 
-> Without knowing more details of the original poster's machine, it's difficult
-> to give specific advice about how to solve the problem.
->
+The disks gets faster as well.
 
-I certainly agree with that.  Time for this thread to die, I think.  :-)
+But if we have to touch it every three years, I don't see this as a=20
+huge problem either. If you want some more room, you can set it to=20
+24hrs now ...
 
-Cheers.
+> I think the timeout is only used for ancient programs that use the old
+> sg interface. Newer programs should pass in the timeout themselves, or
+> set IMMED as somebody else in this thread noted.
 
-> John.
-> 
+If you do use the sg interface, you can specify the timeout.
+If you use SCSI_IOCTL_SEND_COMMAND, there's no way to do it and
+the value from scsi_ioctl.c applies.
 
--- 
-Best Regards,
-Ray
------------------------------------------------
-                   Ray Bryant
-512-453-9679 (work)         512-507-7807 (cell)
-raybry@sgi.com             raybry@austin.rr.com
-The box said: "Requires Windows 98 or better",
-            so I installed Linux.
------------------------------------------------
+scsiformat is one of the users.
 
+> So I do think the easiest is just to patch this define for the odd case,
+> and forget about it.
+
+Agreed.
+
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                            Cologne, DE=20
+SUSE LINUX AG, Nuernberg, DE                          SUSE Labs (Head)
+
+--oIMVlEQ///Q2JYC7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAoP6+xmLh6hyYd04RAgaPAKDHOe0IgAYExTCEPQXGov1+3OIHKACfYRkV
+qBC77/SVlmIc1ynkSwM8lrg=
+=Kvbx
+-----END PGP SIGNATURE-----
+
+--oIMVlEQ///Q2JYC7--

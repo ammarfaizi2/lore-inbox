@@ -1,859 +1,2037 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262436AbVCBV5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262488AbVCBWGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262436AbVCBV5v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 16:57:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbVCBV5v
+	id S262488AbVCBWGd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 17:06:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbVCBWGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 16:57:51 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:62950 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262507AbVCBVlU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 16:41:20 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20050302090734.5a9895a3.akpm@osdl.org> 
-References: <20050302090734.5a9895a3.akpm@osdl.org>  <9420.1109778627@redhat.com> 
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, davidm@snapgear.com, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] BDI: Improve nommu mmap support
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Wed, 02 Mar 2005 21:41:06 +0000
-Message-ID: <31892.1109799666@redhat.com>
+	Wed, 2 Mar 2005 17:06:33 -0500
+Received: from advect.atmos.washington.edu ([128.95.89.50]:32681 "EHLO
+	advect.atmos.washington.edu") by vger.kernel.org with ESMTP
+	id S262567AbVCBVms (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 16:42:48 -0500
+Message-ID: <42263341.3040605@atmos.washington.edu>
+Date: Wed, 02 Mar 2005 13:42:25 -0800
+From: Harry Edmon <harry@atmos.washington.edu>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: RAID1 sync crash with 2.6.11-rc5-mm1
+Content-Type: multipart/mixed;
+ boundary="------------020307040104030101000405"
+X-Spam-Score: -5.899 () ALL_TRUSTED,BAYES_00,UPPERCASE_50_75
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020307040104030101000405
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The attached patch makes use of patch #1 to improve nommu mmap support;
-particularly in terms on supporting private mappings. It does this by
-examining the device capability mask now in the backing_dev_info structure.
+I boot the system up with one disk in a two disk mirror set.  When I add 
+the second disk with
 
-Private mappings will now be backed by the underlying device directly if
-possible, where "possible" is constrained by the protection mask parameter and
-the device capabilities mask.
+mdadm /dev/md0 -a /dev/sdb1
 
-I've also split the do_mmap_pgoff() function contents into a number of
-auxilliary functions to make it easier to understand.
+md0_resync gets a kernel crash with 2.6.11-rc5-mm1.  This also occurs 
+with 2.6.11-rc4-mm1, but not with 2.6.11-rc5.
 
-The documentation is also updated; including the addition of a warning about
-permitting direct mapping of flash chips and the problems of XIP vs write.
+I have attached the config file for 2.6.11-rc5.  Here is the crash dump:
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-warthog>diffstat -p1 memback-nommu-2611rc4.diff 
- Documentation/nommu-mmap.txt |   81 +++++-
- include/linux/mm.h           |    1 
- mm/nommu.c                   |  519 ++++++++++++++++++++++++++-----------------
- 3 files changed, 384 insertions(+), 217 deletions(-)
+md: bind<sdb1>
+RAID1 conf printout:
+ --- wd:1 rd:2
+ disk 0, wo:0, o:1, dev:sda1
+ disk 1, wo:1, o:1, dev:sdb1
+....<6>md: syncing RAID array md0
+md: minimum _guaranteed_ reconstruction speed: 1000 KB/sec/disc.
+md: using maximum available idle IO bandwith (but not more than 200000 
+KB/sec) f
+or reconstruction.
+md: using 128k window, over a total of 9767424 blocks.
+------------[ cut here ]------------
+kernel BUG at drivers/md/raid1.c:1250!
+invalid operand: 0000 [#1]
+PREEMPT SMP
+Modules linked in: autofs4 ipv6 floppy evdev psmouse pcspkr rtc i2c_i801 
+i2c_cor
+e hw_random uhci_hcd shpchp pci_hotplug 3c59x mii piix ehci_hcd usbcore 
+e1000 id
+e_generic ide_cd cdrom ide_core xfs reiserfs ext3 jbd 3w_9xxx sd_mod 
+ata_piix li
+bata scsi_mod raid1 md_mod unix
+CPU:    0
+EIP:    0060:[<f882f39c>]    Not tainted VLI
+EFLAGS: 00010297   (2.6.11-rc5-mm1)
+EIP is at sync_request+0x33c/0x750 [raid1]
+eax: f7a41480   ebx: 00000000   ecx: 0000000c   edx: 00000000
+esi: 00001000   edi: 00000000   ebp: f7de4680   esp: f6105df8
+ds: 007b   es: 007b   ss: 0068
+Process md0_resync (pid: 4276, threadinfo=f6104000 task=f7227020)
+Stack: f6c4b840 00000010 00000000 f6105e78 00000000 00000018 00000286 
+00000000
+       00001000 00000000 00000000 00000000 00000000 00000000 00000000 
+00000000
+       00000001 00000000 00000000 012a1400 00000000 f70416a0 f7a41480 
+00000000
+Call Trace:
+ [<f88493cd>] md_do_sync+0x4cd/0x9b0 [md_mod]
+ [<c0113808>] recalc_task_prio+0x88/0x150
+ [<c0309173>] schedule+0x3e3/0xc40
+ [<f8847d48>] md_thread+0x178/0x180 [md_mod]
+ [<c01319f0>] autoremove_wake_function+0x0/0x60
+ [<c01027f2>] ret_from_fork+0x6/0x14
+ [<c01319f0>] autoremove_wake_function+0x0/0x60
+ [<f8847bd0>] md_thread+0x0/0x180 [md_mod]
+ [<c01009f5>] kernel_thread_helper+0x5/0x10
+Code: 09 89 4c 24 20 0f 84 44 01 00 00 8b 44 24 58 8b 58 54 85 db 0f 85 
+85 01 00
+ 00 8b 5c 24 64 85 db 0f 84 48 01 00 00 83 fb 07 77 08 <0f> 0b e2 04 91 
+03 83 f8
+ 89 d8 c1 e0 09 39 44 24 20 0f 4e 44 24
+ 
 
-diff -uNrp /warthog/kernels/linux-2.6.11-rc4/include/linux/mm.h linux-2.6.11-rc4-memback/include/linux/mm.h
---- /warthog/kernels/linux-2.6.11-rc4/include/linux/mm.h	2005-02-14 12:19:01.000000000 +0000
-+++ linux-2.6.11-rc4-memback/include/linux/mm.h	2005-03-02 20:29:50.798818320 +0000
-@@ -164,6 +164,7 @@ extern unsigned int kobjsize(const void 
- #define VM_ACCOUNT	0x00100000	/* Is a VM accounted object */
- #define VM_HUGETLB	0x00400000	/* Huge TLB Page VM */
- #define VM_NONLINEAR	0x00800000	/* Is non-linear (remap_file_pages) */
-+#define VM_MAPPED_COPY	0x01000000	/* T if mapped copy of data (nommu mmap) */
- 
- #ifndef VM_STACK_DEFAULT_FLAGS		/* arch can override this */
- #define VM_STACK_DEFAULT_FLAGS VM_DATA_DEFAULT_FLAGS
-diff -uNrp /warthog/kernels/linux-2.6.11-rc4/mm/nommu.c linux-2.6.11-rc4-memback/mm/nommu.c
---- /warthog/kernels/linux-2.6.11-rc4/mm/nommu.c	2005-02-14 12:19:04.000000000 +0000
-+++ linux-2.6.11-rc4-memback/mm/nommu.c	2005-03-02 20:50:04.063807220 +0000
-@@ -256,29 +256,6 @@ asmlinkage unsigned long sys_brk(unsigne
- 	return mm->brk = brk;
- }
- 
--/*
-- * Combine the mmap "prot" and "flags" argument into one "vm_flags" used
-- * internally. Essentially, translate the "PROT_xxx" and "MAP_xxx" bits
-- * into "VM_xxx".
-- */
--static inline unsigned long calc_vm_flags(unsigned long prot, unsigned long flags)
--{
--#define _trans(x,bit1,bit2) \
--((bit1==bit2)?(x&bit1):(x&bit1)?bit2:0)
--
--	unsigned long prot_bits, flag_bits;
--	prot_bits =
--		_trans(prot, PROT_READ, VM_READ) |
--		_trans(prot, PROT_WRITE, VM_WRITE) |
--		_trans(prot, PROT_EXEC, VM_EXEC);
--	flag_bits =
--		_trans(flags, MAP_GROWSDOWN, VM_GROWSDOWN) |
--		_trans(flags, MAP_DENYWRITE, VM_DENYWRITE) |
--		_trans(flags, MAP_EXECUTABLE, VM_EXECUTABLE);
--	return prot_bits | flag_bits;
--#undef _trans
--}
--
- #ifdef DEBUG
- static void show_process_blocks(void)
- {
-@@ -381,29 +358,32 @@ static void delete_nommu_vma(struct vm_a
- }
- 
- /*
-- * handle mapping creation for uClinux
-+ * determine whether a mapping should be permitted and, if so, what sort of
-+ * mapping we're capable of supporting
-  */
--unsigned long do_mmap_pgoff(struct file *file,
--			    unsigned long addr,
--			    unsigned long len,
--			    unsigned long prot,
--			    unsigned long flags,
--			    unsigned long pgoff)
-+static int validate_mmap_request(struct file *file,
-+				 unsigned long addr,
-+				 unsigned long len,
-+				 unsigned long prot,
-+				 unsigned long flags,
-+				 unsigned long pgoff,
-+				 unsigned long *_capabilities)
- {
--	struct vm_list_struct *vml = NULL;
--	struct vm_area_struct *vma = NULL;
--	struct rb_node *rb;
--	unsigned int vm_flags;
--	void *result;
--	int ret, membacked;
-+	unsigned long capabilities;
-+	int ret;
- 
- 	/* do the simple checks first */
- 	if (flags & MAP_FIXED || addr) {
--		printk(KERN_DEBUG "%d: Can't do fixed-address/overlay mmap of RAM\n",
-+		printk(KERN_DEBUG
-+		       "%d: Can't do fixed-address/overlay mmap of RAM\n",
- 		       current->pid);
- 		return -EINVAL;
- 	}
- 
-+	if ((flags & MAP_TYPE) != MAP_PRIVATE &&
-+	    (flags & MAP_TYPE) != MAP_SHARED)
-+		return -EINVAL;
-+
- 	if (PAGE_ALIGN(len) == 0)
- 		return addr;
- 
-@@ -414,35 +394,58 @@ unsigned long do_mmap_pgoff(struct file 
- 	if ((pgoff + (len >> PAGE_SHIFT)) < pgoff)
- 		return -EINVAL;
- 
--	/* validate file mapping requests */
--	membacked = 0;
- 	if (file) {
-+		/* validate file mapping requests */
-+		struct address_space *mapping;
-+
- 		/* files must support mmap */
- 		if (!file->f_op || !file->f_op->mmap)
- 			return -ENODEV;
- 
--		if ((prot & PROT_EXEC) &&
--		    (file->f_vfsmnt->mnt_flags & MNT_NOEXEC))
--			return -EPERM;
--
- 		/* work out if what we've got could possibly be shared
- 		 * - we support chardevs that provide their own "memory"
- 		 * - we support files/blockdevs that are memory backed
- 		 */
--		if (S_ISCHR(file->f_dentry->d_inode->i_mode)) {
--			membacked = 1;
--		}
--		else {
--			struct address_space *mapping = file->f_mapping;
--			if (!mapping)
--				mapping = file->f_dentry->d_inode->i_mapping;
--			if (mapping && mapping->backing_dev_info)
--				membacked = mapping->backing_dev_info->memory_backed;
-+		mapping = file->f_mapping;
-+		if (!mapping)
-+			mapping = file->f_dentry->d_inode->i_mapping;
-+
-+		capabilities = 0;
-+		if (mapping && mapping->backing_dev_info)
-+			capabilities = mapping->backing_dev_info->capabilities;
-+
-+		if (!capabilities) {
-+			/* no explicit capabilities set, so assume some
-+			 * defaults */
-+			switch (file->f_dentry->d_inode->i_mode & S_IFMT) {
-+			case S_IFREG:
-+			case S_IFBLK:
-+				capabilities = BDI_CAP_MAP_COPY;
-+				break;
-+
-+			case S_IFCHR:
-+				capabilities =
-+					BDI_CAP_MAP_DIRECT |
-+					BDI_CAP_READ_MAP |
-+					BDI_CAP_WRITE_MAP;
-+				break;
-+
-+			default:
-+				return -EINVAL;
-+			}
- 		}
- 
-+		/* eliminate any capabilities that we can't support on this
-+		 * device */
-+		if (!file->f_op->get_unmapped_area)
-+			capabilities &= ~BDI_CAP_MAP_DIRECT;
-+		if (!file->f_op->read)
-+			capabilities &= ~BDI_CAP_MAP_COPY;
-+
- 		if (flags & MAP_SHARED) {
- 			/* do checks for writing, appending and locking */
--			if ((prot & PROT_WRITE) && !(file->f_mode & FMODE_WRITE))
-+			if ((prot & PROT_WRITE) &&
-+			    !(file->f_mode & FMODE_WRITE))
- 				return -EACCES;
- 
- 			if (IS_APPEND(file->f_dentry->d_inode) &&
-@@ -452,64 +455,243 @@ unsigned long do_mmap_pgoff(struct file 
- 			if (locks_verify_locked(file->f_dentry->d_inode))
- 				return -EAGAIN;
- 
--			if (!membacked) {
-+			if (!(capabilities & BDI_CAP_MAP_DIRECT))
-+				return -ENODEV;
-+
-+			if (((prot & PROT_READ)  && !(capabilities & BDI_CAP_READ_MAP))  ||
-+			    ((prot & PROT_WRITE) && !(capabilities & BDI_CAP_WRITE_MAP)) ||
-+			    ((prot & PROT_EXEC)  && !(capabilities & BDI_CAP_EXEC_MAP))
-+			    ) {
- 				printk("MAP_SHARED not completely supported on !MMU\n");
- 				return -EINVAL;
- 			}
- 
--			/* we require greater support from the driver or
--			 * filesystem - we ask it to tell us what memory to
--			 * use */
--			if (!file->f_op->get_unmapped_area)
--				return -ENODEV;
-+			/* we mustn't privatise shared mappings */
-+			capabilities &= ~BDI_CAP_MAP_COPY;
- 		}
- 		else {
--			/* we read private files into memory we allocate */
--			if (!file->f_op->read)
-+			/* we're going to read the file into private memory we
-+			 * allocate */
-+			if (!(capabilities & BDI_CAP_MAP_COPY))
- 				return -ENODEV;
-+
-+			/* we don't permit a private writable mapping to be
-+			 * shared with the backing device */
-+			if (prot & PROT_WRITE)
-+				capabilities &= ~BDI_CAP_MAP_DIRECT;
-+		}
-+
-+		/* handle executable mappings and implied executable
-+		 * mappings */
-+		if (file->f_vfsmnt->mnt_flags & MNT_NOEXEC) {
-+			if (prot & PROT_EXEC)
-+				return -EPERM;
-+		}
-+		else if ((prot & PROT_READ) && !(prot & PROT_EXEC)) {
-+			/* handle implication of PROT_EXEC by PROT_READ */
-+			if (current->personality & READ_IMPLIES_EXEC) {
-+				if (capabilities & BDI_CAP_EXEC_MAP)
-+					prot |= PROT_EXEC;
-+			}
-+		}
-+		else if ((prot & PROT_READ) &&
-+			 (prot & PROT_EXEC) &&
-+			 !(capabilities & BDI_CAP_EXEC_MAP)
-+			 ) {
-+			/* backing file is not executable, try to copy */
-+			capabilities &= ~BDI_CAP_MAP_DIRECT;
- 		}
- 	}
-+	else {
-+		/* anonymous mappings are always memory backed and can be
-+		 * privately mapped
-+		 */
-+		capabilities = BDI_CAP_MAP_COPY;
- 
--	/* handle PROT_EXEC implication by PROT_READ */
--	if ((prot & PROT_READ) && (current->personality & READ_IMPLIES_EXEC))
--		if (!(file && (file->f_vfsmnt->mnt_flags & MNT_NOEXEC)))
-+		/* handle PROT_EXEC implication by PROT_READ */
-+		if ((prot & PROT_READ) &&
-+		    (current->personality & READ_IMPLIES_EXEC))
- 			prot |= PROT_EXEC;
-+	}
- 
--	/* do simple checking here so the lower-level routines won't have
--	 * to. we assume access permissions have been handled by the open
--	 * of the memory object, so we don't do any here.
--	 */
--	vm_flags = calc_vm_flags(prot,flags) /* | mm->def_flags */
--		| VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC;
-+	/* allow the security API to have its say */
-+	ret = security_file_mmap(file, prot, flags);
-+	if (ret < 0)
-+		return ret;
- 
--	if (!membacked) {
--		/* share any file segment that's mapped read-only */
--		if (((flags & MAP_PRIVATE) && !(prot & PROT_WRITE) && file) ||
--		    ((flags & MAP_SHARED) && !(prot & PROT_WRITE) && file))
--			vm_flags |= VM_MAYSHARE;
-+	/* looks okay */
-+	*_capabilities = capabilities;
-+	return 0;
-+}
- 
--		/* refuse to let anyone share files with this process if it's being traced -
--		 * otherwise breakpoints set in it may interfere with another untraced process
--		 */
--		if (current->ptrace & PT_PTRACED)
--			vm_flags &= ~(VM_SHARED | VM_MAYSHARE);
-+/*
-+ * we've determined that we can make the mapping, now translate what we
-+ * now know into VMA flags
-+ */
-+static unsigned long determine_vm_flags(struct file *file,
-+					unsigned long prot,
-+					unsigned long flags,
-+					unsigned long capabilities)
-+{
-+	unsigned long vm_flags;
-+
-+	vm_flags = calc_vm_prot_bits(prot) | calc_vm_flag_bits(flags);
-+	vm_flags |= VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC;
-+	/* vm_flags |= mm->def_flags; */
-+
-+	if (!(capabilities & BDI_CAP_MAP_DIRECT)) {
-+		/* attempt to share read-only copies of mapped file chunks */
-+		if (file && !(prot & PROT_WRITE))
-+			vm_flags |= VM_MAYSHARE;
- 	}
- 	else {
--		/* permit sharing of character devices and ramfs files at any time for
--		 * anything other than a privately writable mapping
--		 */
--		if (!(flags & MAP_PRIVATE) || !(prot & PROT_WRITE)) {
-+		/* overlay a shareable mapping on the backing device or inode
-+		 * if possible - used for chardevs, ramfs/tmpfs/shmfs and
-+		 * romfs/cramfs */
-+		if (flags & MAP_SHARED)
-+			vm_flags |= VM_MAYSHARE | VM_SHARED;
-+		else if ((((vm_flags & capabilities) ^ vm_flags) & BDI_CAP_VMFLAGS) == 0)
- 			vm_flags |= VM_MAYSHARE;
--			if (flags & MAP_SHARED)
--				vm_flags |= VM_SHARED;
-+	}
-+
-+	/* refuse to let anyone share private mappings with this process if
-+	 * it's being traced - otherwise breakpoints set in it may interfere
-+	 * with another untraced process
-+	 */
-+	if ((flags & MAP_PRIVATE) && (current->ptrace & PT_PTRACED))
-+		vm_flags &= ~VM_MAYSHARE;
-+
-+	return vm_flags;
-+}
-+
-+/*
-+ * set up a shared mapping on a file
-+ */
-+static int do_mmap_shared_file(struct vm_area_struct *vma, unsigned long len)
-+{
-+	int ret;
-+
-+	ret = vma->vm_file->f_op->mmap(vma->vm_file, vma);
-+	if (ret != -ENOSYS)
-+		return ret;
-+
-+	/* getting an ENOSYS error indicates that direct mmap isn't
-+	 * possible (as opposed to tried but failed) so we'll fall
-+	 * through to making a private copy of the data and mapping
-+	 * that if we can */
-+	return -ENODEV;
-+}
-+
-+/*
-+ * set up a private mapping or an anonymous shared mapping
-+ */
-+static int do_mmap_private(struct vm_area_struct *vma, unsigned long len)
-+{
-+	void *base;
-+	int ret;
-+
-+	/* invoke the file's mapping function so that it can keep track of
-+	 * shared mappings on devices or memory
-+	 * - VM_MAYSHARE will be set if it may attempt to share
-+	 */
-+	if (vma->vm_file) {
-+		ret = vma->vm_file->f_op->mmap(vma->vm_file, vma);
-+		if (ret != -ENOSYS) {
-+			/* shouldn't return success if we're not sharing */
-+			BUG_ON(ret == 0 && !(vma->vm_flags & VM_MAYSHARE));
-+			return ret; /* success or a real error */
- 		}
-+
-+		/* getting an ENOSYS error indicates that direct mmap isn't
-+		 * possible (as opposed to tried but failed) so we'll try to
-+		 * make a private copy of the data and map that instead */
- 	}
- 
--	/* allow the security API to have its say */
--	ret = security_file_mmap(file, prot, flags);
--	if (ret)
-+	/* allocate some memory to hold the mapping
-+	 * - note that this may not return a page-aligned address if the object
-+	 *   we're allocating is smaller than a page
-+	 */
-+	base = kmalloc(len, GFP_KERNEL);
-+	if (!base)
-+		goto enomem;
-+
-+	vma->vm_start = (unsigned long) base;
-+	vma->vm_end = vma->vm_start + len;
-+	vma->vm_flags |= VM_MAPPED_COPY;
-+
-+#ifdef WARN_ON_SLACK
-+	if (len + WARN_ON_SLACK <= kobjsize(result))
-+		printk("Allocation of %lu bytes from process %d has %lu bytes of slack\n",
-+		       len, current->pid, kobjsize(result) - len);
-+#endif
-+
-+	if (vma->vm_file) {
-+		/* read the contents of a file into the copy */
-+		mm_segment_t old_fs;
-+		loff_t fpos;
-+
-+		fpos = vma->vm_pgoff;
-+		fpos <<= PAGE_SHIFT;
-+
-+		old_fs = get_fs();
-+		set_fs(KERNEL_DS);
-+		ret = vma->vm_file->f_op->read(vma->vm_file, base, len, &fpos);
-+		set_fs(old_fs);
-+
-+		if (ret < 0)
-+			goto error_free;
-+
-+		/* clear the last little bit */
-+		if (ret < len)
-+			memset(base + ret, 0, len - ret);
-+
-+	} else {
-+		/* if it's an anonymous mapping, then just clear it */
-+		memset(base, 0, len);
-+	}
-+
-+	return 0;
-+
-+error_free:
-+	kfree(base);
-+	vma->vm_start = 0;
-+	return ret;
-+
-+enomem:
-+	printk("Allocation of length %lu from process %d failed\n",
-+	       len, current->pid);
-+	show_free_areas();
-+	return -ENOMEM;
-+}
-+
-+/*
-+ * handle mapping creation for uClinux
-+ */
-+unsigned long do_mmap_pgoff(struct file *file,
-+			    unsigned long addr,
-+			    unsigned long len,
-+			    unsigned long prot,
-+			    unsigned long flags,
-+			    unsigned long pgoff)
-+{
-+	struct vm_list_struct *vml = NULL;
-+	struct vm_area_struct *vma = NULL;
-+	struct rb_node *rb;
-+	unsigned long capabilities, vm_flags;
-+	void *result;
-+	int ret;
-+
-+	/* decide whether we should attempt the mapping, and if so what sort of
-+	 * mapping */
-+	ret = validate_mmap_request(file, addr, len, prot, flags, pgoff,
-+				    &capabilities);
-+	if (ret < 0)
- 		return ret;
- 
-+	/* we've determined that we can make the mapping, now translate what we
-+	 * now know into VMA flags */
-+	vm_flags = determine_vm_flags(file, prot, flags, capabilities);
-+
- 	/* we're going to need to record the mapping if it works */
- 	vml = kmalloc(sizeof(struct vm_list_struct), GFP_KERNEL);
- 	if (!vml)
-@@ -518,8 +700,8 @@ unsigned long do_mmap_pgoff(struct file 
- 
- 	down_write(&nommu_vma_sem);
- 
--	/* if we want to share, we need to search for VMAs created by another
--	 * mmap() call that overlap with our proposed mapping
-+	/* if we want to share, we need to check for VMAs created by other
-+	 * mmap() calls that overlap with our proposed mapping
- 	 * - we can only share with an exact match on most regular files
- 	 * - shared mappings on character devices and memory backed files are
- 	 *   permitted to overlap inexactly as far as we are concerned for in
-@@ -543,13 +725,14 @@ unsigned long do_mmap_pgoff(struct file 
- 			if (vma->vm_pgoff >= pgoff + pglen)
- 				continue;
- 
--			vmpglen = (vma->vm_end - vma->vm_start + PAGE_SIZE - 1) >> PAGE_SHIFT;
-+			vmpglen = vma->vm_end - vma->vm_start + PAGE_SIZE - 1;
-+			vmpglen >>= PAGE_SHIFT;
- 			if (pgoff >= vma->vm_pgoff + vmpglen)
- 				continue;
- 
--			/* handle inexact matches between mappings */
--			if (vmpglen != pglen || vma->vm_pgoff != pgoff) {
--				if (!membacked)
-+			/* handle inexactly overlapping matches between mappings */
-+			if (vma->vm_pgoff != pgoff || vmpglen != pglen) {
-+				if (!(capabilities & BDI_CAP_MAP_DIRECT))
- 					goto sharing_violation;
- 				continue;
- 			}
-@@ -561,21 +744,30 @@ unsigned long do_mmap_pgoff(struct file 
- 			result = (void *) vma->vm_start;
- 			goto shared;
- 		}
--	}
- 
--	vma = NULL;
-+		vma = NULL;
- 
--	/* obtain the address to map to. we verify (or select) it and ensure
--	 * that it represents a valid section of the address space
--	 * - this is the hook for quasi-memory character devices
--	 */
--	if (file && file->f_op->get_unmapped_area) {
--		addr = file->f_op->get_unmapped_area(file, addr, len, pgoff, flags);
--		if (IS_ERR((void *) addr)) {
--			ret = addr;
--			if (ret == (unsigned long) -ENOSYS)
-+		/* obtain the address at which to make a shared mapping
-+		 * - this is the hook for quasi-memory character devices to
-+		 *   tell us the location of a shared mapping
-+		 */
-+		if (file && file->f_op->get_unmapped_area) {
-+			addr = file->f_op->get_unmapped_area(file, addr, len,
-+							     pgoff, flags);
-+			if (IS_ERR((void *) addr)) {
-+				ret = addr;
-+				if (ret != (unsigned long) -ENOSYS)
-+					goto error;
-+
-+				/* the driver refused to tell us where to site
-+				 * the mapping so we'll have to attempt to copy
-+				 * it */
- 				ret = (unsigned long) -ENODEV;
--			goto error;
-+				if (!(capabilities & BDI_CAP_MAP_COPY))
-+					goto error;
-+
-+				capabilities &= ~BDI_CAP_MAP_DIRECT;
-+			}
- 		}
- 	}
- 
-@@ -597,96 +789,18 @@ unsigned long do_mmap_pgoff(struct file 
- 
- 	vml->vma = vma;
- 
--	/* determine the object being mapped and call the appropriate specific
--	 * mapper.
--	 */
--	if (file) {
--#ifdef MAGIC_ROM_PTR
--		/* First, try simpler routine designed to give us a ROM pointer. */
--		if (file->f_op->romptr && !(prot & PROT_WRITE)) {
--			ret = file->f_op->romptr(file, vma);
--#ifdef DEBUG
--			printk("romptr mmap returned %d (st=%lx)\n",
--			       ret, vma->vm_start);
--#endif
--			result = (void *) vma->vm_start;
--			if (!ret)
--				goto done;
--			else if (ret != -ENOSYS)
--				goto error;
--		} else
--#endif /* MAGIC_ROM_PTR */
--		/* Then try full mmap routine, which might return a RAM
--		 * pointer, or do something truly complicated
--		 */
--		if (file->f_op->mmap) {
--			ret = file->f_op->mmap(file, vma);
--
--#ifdef DEBUG
--			printk("f_op->mmap() returned %d (st=%lx)\n",
--			       ret, vma->vm_start);
--#endif
--			result = (void *) vma->vm_start;
--			if (!ret)
--				goto done;
--			else if (ret != -ENOSYS)
--				goto error;
--		} else {
--			ret = -ENODEV; /* No mapping operations defined */
--			goto error;
--		}
--
--		/* An ENOSYS error indicates that mmap isn't possible (as
--		 * opposed to tried but failed) so we'll fall through to the
--		 * copy. */
--	}
--
--	/* allocate some memory to hold the mapping
--	 * - note that this may not return a page-aligned address if the object
--	 *   we're allocating is smaller than a page
--	 */
--	ret = -ENOMEM;
--	result = kmalloc(len, GFP_KERNEL);
--	if (!result) {
--		printk("Allocation of length %lu from process %d failed\n",
--		       len, current->pid);
--		show_free_areas();
-+	/* set up the mapping */
-+	if (file && vma->vm_flags & VM_SHARED)
-+		ret = do_mmap_shared_file(vma, len);
-+	else
-+		ret = do_mmap_private(vma, len);
-+	if (ret < 0)
- 		goto error;
--	}
--
--	vma->vm_start = (unsigned long) result;
--	vma->vm_end = vma->vm_start + len;
- 
--#ifdef WARN_ON_SLACK
--	if (len + WARN_ON_SLACK <= kobjsize(result))
--		printk("Allocation of %lu bytes from process %d has %lu bytes of slack\n",
--		       len, current->pid, kobjsize(result) - len);
--#endif
-+	/* okay... we have a mapping; now we have to register it */
-+	result = (void *) vma->vm_start;
- 
--	if (file) {
--		mm_segment_t old_fs = get_fs();
--		loff_t fpos;
--
--		fpos = pgoff;
--		fpos <<= PAGE_SHIFT;
--
--		set_fs(KERNEL_DS);
--		ret = file->f_op->read(file, (char *) result, len, &fpos);
--		set_fs(old_fs);
--
--		if (ret < 0)
--			goto error2;
--		if (ret < len)
--			memset(result + ret, 0, len - ret);
--	} else {
--		memset(result, 0, len);
--	}
--
--	if (prot & PROT_EXEC)
--		flush_icache_range((unsigned long) result, (unsigned long) result + len);
--
-- done:
--	if (!(vma->vm_flags & VM_SHARED)) {
-+	if (vma->vm_flags & VM_MAPPED_COPY) {
- 		realalloc += kobjsize(result);
- 		askedalloc += len;
- 	}
-@@ -697,6 +811,7 @@ unsigned long do_mmap_pgoff(struct file 
- 	current->mm->total_vm += len >> PAGE_SHIFT;
- 
- 	add_nommu_vma(vma);
-+
-  shared:
- 	realalloc += kobjsize(vml);
- 	askedalloc += sizeof(*vml);
-@@ -706,6 +821,10 @@ unsigned long do_mmap_pgoff(struct file 
- 
- 	up_write(&nommu_vma_sem);
- 
-+	if (prot & PROT_EXEC)
-+		flush_icache_range((unsigned long) result,
-+				   (unsigned long) result + len);
-+
- #ifdef DEBUG
- 	printk("do_mmap:\n");
- 	show_process_blocks();
-@@ -713,8 +832,6 @@ unsigned long do_mmap_pgoff(struct file 
- 
- 	return (unsigned long) result;
- 
-- error2:
--	kfree(result);
-  error:
- 	up_write(&nommu_vma_sem);
- 	kfree(vml);
-@@ -761,7 +878,7 @@ static void put_vma(struct vm_area_struc
- 
- 			/* IO memory and memory shared directly out of the pagecache from
- 			 * ramfs/tmpfs mustn't be released here */
--			if (!(vma->vm_flags & (VM_IO | VM_SHARED)) && vma->vm_start) {
-+			if (vma->vm_flags & VM_MAPPED_COPY) {
- 				realalloc -= kobjsize((void *) vma->vm_start);
- 				askedalloc -= vma->vm_end - vma->vm_start;
- 				kfree((void *) vma->vm_start);
-@@ -784,13 +901,6 @@ int do_munmap(struct mm_struct *mm, unsi
- 	struct vm_list_struct *vml, **parent;
- 	unsigned long end = addr + len;
- 
--#ifdef MAGIC_ROM_PTR
--	/* For efficiency's sake, if the pointer is obviously in ROM,
--	   don't bother walking the lists to free it */
--	if (is_in_rom(addr))
--		return 0;
--#endif
--
- #ifdef DEBUG
- 	printk("do_munmap:\n");
- #endif
-@@ -1062,4 +1172,3 @@ int __vm_enough_memory(long pages, int c
- 
- 	return -ENOMEM;
- }
--
-diff -uNrp /warthog/kernels/linux-2.6.11-rc4/Documentation/nommu-mmap.txt linux-2.6.11-rc4-memback/Documentation/nommu-mmap.txt
---- /warthog/kernels/linux-2.6.11-rc4/Documentation/nommu-mmap.txt	2005-02-14 12:18:03.000000000 +0000
-+++ linux-2.6.11-rc4-memback/Documentation/nommu-mmap.txt	2005-03-02 19:31:37.000000000 +0000
-@@ -36,20 +36,35 @@ and it's also much more restricted in th
- 	In the MMU case: VM regions backed by pages read from file; changes to
- 	the underlying file are reflected in the mapping; copied across fork.
- 
--	In the no-MMU case: VM regions backed by arbitrary contiguous runs of
--	pages into which the appropriate bit of the file is read; any remaining
--	bit of the mapping is cleared; such mappings are shared if possible;
--	writes to the file do not affect the mapping; writes to the mapping are
--	visible in other processes (no MMU protection), but should not happen.
-+	In the no-MMU case:
-+
-+         - If one exists, the kernel will re-use an existing mapping to the
-+           same segment of the same file if that has compatible permissions,
-+           even if this was created by another process.
-+
-+         - If possible, the file mapping will be directly on the backing device
-+           if the backing device has the BDI_CAP_MAP_DIRECT capability and
-+           appropriate mapping protection capabilities. Ramfs, romfs, cramfs
-+           and mtd might all permit this.
-+
-+	 - If the backing device device can't or won't permit direct sharing,
-+           but does have the BDI_CAP_MAP_COPY capability, then a copy of the
-+           appropriate bit of the file will be read into a contiguous bit of
-+           memory and any extraneous space beyond the EOF will be cleared
-+
-+	 - Writes to the file do not affect the mapping; writes to the mapping
-+	   are visible in other processes (no MMU protection), but should not
-+	   happen.
- 
-  (*) File, MAP_PRIVATE, PROT_READ / PROT_EXEC, PROT_WRITE
- 
- 	In the MMU case: like the non-PROT_WRITE case, except that the pages in
- 	question get copied before the write actually happens. From that point
--	on writes to that page in the file no longer get reflected into the
--	mapping's backing pages.
-+	on writes to the file underneath that page no longer get reflected into
-+	the mapping's backing pages. The page is then backed by swap instead.
- 
--	In the no-MMU case: works exactly as for the non-PROT_WRITE case.
-+	In the no-MMU case: works much like the non-PROT_WRITE case, except
-+	that a copy is always taken and never shared.
- 
-  (*) Regular file / blockdev, MAP_SHARED, PROT_READ / PROT_EXEC / PROT_WRITE
- 
-@@ -70,6 +85,15 @@ and it's also much more restricted in th
- 	as for the MMU case. If the filesystem does not provide any such
- 	support, then the mapping request will be denied.
- 
-+ (*) Memory backed blockdev, MAP_SHARED, PROT_READ / PROT_EXEC / PROT_WRITE
-+
-+	In the MMU case: As for ordinary regular files.
-+
-+	In the no-MMU case: As for memory backed regular files, but the
-+	blockdev must be able to provide a contiguous run of pages without
-+	truncate being called. The ramdisk driver could do this if it allocated
-+	all its memory as a contiguous array upfront.
-+
-  (*) Memory backed chardev, MAP_SHARED, PROT_READ / PROT_EXEC / PROT_WRITE
- 
- 	In the MMU case: As for ordinary regular files.
-@@ -95,12 +119,12 @@ FURTHER NOTES ON NO-MMU MMAP
-  (*) Supplying MAP_FIXED or a requesting a particular mapping address will
-      result in an error.
- 
-- (*) Files mapped privately must have a read method provided by the driver or
--     filesystem so that the contents can be read into the memory allocated. An
-+ (*) Files mapped privately usually have to have a read method provided by the
-+     driver or filesystem so that the contents can be read into the memory
-+     allocated if mmap() chooses not to map the backing device directly. An
-      error will result if they don't. This is most likely to be encountered
-      with character device files, pipes, fifos and sockets.
- 
--
- ============================================
- PROVIDING SHAREABLE CHARACTER DEVICE SUPPORT
- ============================================
-@@ -111,6 +135,15 @@ to get a proposed address for the mappin
- doesn't wish to honour the mapping because it's too long, at a weird offset,
- under some unsupported combination of flags or whatever.
- 
-+The driver should also provide backing device information with capabilities set
-+to indicate the permitted types of mapping on such devices. The default is
-+assumed to be readable and writable, not executable, and only shareable
-+directly (can't be copied).
-+
-+The file->f_op->mmap() operation will be called to actually inaugurate the
-+mapping. It can be rejected at that point. Returning the ENOSYS error will
-+cause the mapping to be copied instead if BDI_CAP_MAP_COPY is specified.
-+
- The vm_ops->close() routine will be invoked when the last mapping on a chardev
- is removed. An existing mapping will be shared, partially or not, if possible
- without notifying the driver.
-@@ -120,7 +153,22 @@ return -ENOSYS. This will be taken to me
- want to handle it, despite the fact it's got an operation. For instance, it
- might try directing the call to a secondary driver which turns out not to
- implement it. Such is the case for the framebuffer driver which attempts to
--direct the call to the device-specific driver.
-+direct the call to the device-specific driver. Under such circumstances, the
-+mapping request will be rejected if BDI_CAP_MAP_COPY is not specified, and a
-+copy mapped otherwise.
-+
-+IMPORTANT NOTE:
-+
-+	Some types of device may present a different appearance to anyone
-+	looking at them in certain modes. Flash chips can be like this; for
-+	instance if they're in programming or erase mode, you might see the
-+	status reflected in the mapping, instead of the data.
-+
-+	In such a case, care must be taken lest userspace see a shared or a
-+	private mapping showing such information when the driver is busy
-+	controlling the device. Remember especially: private executable
-+	mappings may still be mapped directly off the device under some
-+	circumstances!
- 
- 
- ==============================================
-@@ -139,3 +187,12 @@ memory.
- 
- Memory backed devices are indicated by the mapping's backing device info having
- the memory_backed flag set.
-+
-+
-+========================================
-+PROVIDING SHAREABLE BLOCK DEVICE SUPPORT
-+========================================
-+
-+Provision of shared mappings on block device files is exactly the same as for
-+character devices. If there isn't a real device underneath, then the driver
-+should allocate sufficient contiguous memory to honour any supported mapping.
+
+--------------020307040104030101000405
+Content-Type: text/plain;
+ name="config-2.6.11-rc5-mm1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="config-2.6.11-rc5-mm1"
+
+#
+# Automatically generated make config: don't edit
+# Linux kernel version: 2.6.11-rc5-mm1
+# Tue Mar  1 08:47:47 2005
+#
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_LOCK_KERNEL=y
+
+#
+# General setup
+#
+CONFIG_LOCALVERSION=""
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+CONFIG_BSD_PROCESS_ACCT=y
+# CONFIG_BSD_PROCESS_ACCT_V3 is not set
+CONFIG_SYSCTL=y
+# CONFIG_AUDIT is not set
+CONFIG_HOTPLUG=y
+CONFIG_KOBJECT_UEVENT=y
+# CONFIG_IKCONFIG is not set
+# CONFIG_CPUSETS is not set
+# CONFIG_EMBEDDED is not set
+CONFIG_KALLSYMS=y
+# CONFIG_KALLSYMS_ALL is not set
+# CONFIG_KALLSYMS_EXTRA_PASS is not set
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_CC_ALIGN_FUNCTIONS=0
+CONFIG_CC_ALIGN_LABELS=0
+CONFIG_CC_ALIGN_LOOPS=0
+CONFIG_CC_ALIGN_JUMPS=0
+# CONFIG_TINY_SHMEM is not set
+CONFIG_BASE_SMALL=0
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_MODVERSIONS=y
+# CONFIG_MODULE_SRCVERSION_ALL is not set
+CONFIG_KMOD=y
+CONFIG_STOP_MACHINE=y
+
+#
+# Processor type and features
+#
+CONFIG_X86_PC=y
+# CONFIG_X86_ELAN is not set
+# CONFIG_X86_VOYAGER is not set
+# CONFIG_X86_NUMAQ is not set
+# CONFIG_X86_SUMMIT is not set
+# CONFIG_X86_BIGSMP is not set
+# CONFIG_X86_VISWS is not set
+# CONFIG_X86_GENERICARCH is not set
+# CONFIG_X86_ES7000 is not set
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+# CONFIG_MPENTIUMII is not set
+# CONFIG_MPENTIUMIII is not set
+# CONFIG_MPENTIUMM is not set
+CONFIG_MPENTIUM4=y
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MK8 is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MEFFICEON is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MGEODE is not set
+# CONFIG_MCYRIXIII is not set
+# CONFIG_MVIAC3_2 is not set
+CONFIG_X86_GENERIC=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HPET_TIMER=y
+CONFIG_SMP=y
+CONFIG_NR_CPUS=8
+CONFIG_SCHED_SMT=y
+CONFIG_PREEMPT=y
+CONFIG_PREEMPT_BKL=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+# CONFIG_X86_MCE is not set
+# CONFIG_TOSHIBA is not set
+# CONFIG_I8K is not set
+# CONFIG_MICROCODE is not set
+# CONFIG_X86_MSR is not set
+# CONFIG_X86_CPUID is not set
+
+#
+# Firmware Drivers
+#
+CONFIG_EDD=m
+# CONFIG_NOHIGHMEM is not set
+CONFIG_HIGHMEM4G=y
+# CONFIG_HIGHMEM64G is not set
+CONFIG_HIGHMEM=y
+# CONFIG_HIGHPTE is not set
+# CONFIG_MATH_EMULATION is not set
+CONFIG_MTRR=y
+# CONFIG_EFI is not set
+CONFIG_IRQBALANCE=y
+CONFIG_HAVE_DEC_LOCK=y
+# CONFIG_REGPARM is not set
+CONFIG_SECCOMP=y
+
+#
+# Performance-monitoring counters support
+#
+# CONFIG_PERFCTR is not set
+CONFIG_PHYSICAL_START=0x100000
+# CONFIG_KEXEC is not set
+
+#
+# Power management options (ACPI, APM)
+#
+# CONFIG_PM is not set
+
+#
+# ACPI (Advanced Configuration and Power Interface) Support
+#
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_AC=m
+CONFIG_ACPI_BATTERY=m
+CONFIG_ACPI_BUTTON=m
+CONFIG_ACPI_VIDEO=m
+CONFIG_ACPI_FAN=m
+CONFIG_ACPI_PROCESSOR=m
+CONFIG_ACPI_THERMAL=m
+CONFIG_ACPI_ASUS=m
+# CONFIG_ACPI_IBM is not set
+CONFIG_ACPI_TOSHIBA=m
+CONFIG_ACPI_PCC=m
+CONFIG_ACPI_SONY=m
+CONFIG_ACPI_BLACKLIST_YEAR=0
+# CONFIG_ACPI_DEBUG is not set
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_X86_PM_TIMER=y
+# CONFIG_ACPI_CONTAINER is not set
+
+#
+# CPU Frequency scaling
+#
+# CONFIG_CPU_FREQ is not set
+
+#
+# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
+#
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GOMMCONFIG is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+# CONFIG_PCIEPORTBUS is not set
+CONFIG_PCI_MSI=y
+# CONFIG_PCI_LEGACY_PROC is not set
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_EISA=y
+CONFIG_EISA_VLB_PRIMING=y
+CONFIG_EISA_PCI_EISA=y
+CONFIG_EISA_VIRTUAL_ROOT=y
+CONFIG_EISA_NAMES=y
+CONFIG_MCA=y
+CONFIG_MCA_LEGACY=y
+# CONFIG_MCA_PROC_FS is not set
+CONFIG_SCx200=m
+# CONFIG_HOTPLUG_CPU is not set
+
+#
+# PCCARD (PCMCIA/CardBus) support
+#
+# CONFIG_PCCARD is not set
+
+#
+# PCI Hotplug Support
+#
+CONFIG_HOTPLUG_PCI=m
+CONFIG_HOTPLUG_PCI_FAKE=m
+CONFIG_HOTPLUG_PCI_COMPAQ=m
+CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM=y
+CONFIG_HOTPLUG_PCI_IBM=m
+CONFIG_HOTPLUG_PCI_ACPI=m
+# CONFIG_HOTPLUG_PCI_ACPI_IBM is not set
+CONFIG_HOTPLUG_PCI_CPCI=y
+CONFIG_HOTPLUG_PCI_CPCI_ZT5550=m
+CONFIG_HOTPLUG_PCI_CPCI_GENERIC=m
+CONFIG_HOTPLUG_PCI_SHPC=m
+# CONFIG_HOTPLUG_PCI_SHPC_POLL_EVENT_MODE is not set
+
+#
+# Executable file formats
+#
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_MISC=m
+
+#
+# Device Drivers
+#
+
+#
+# Generic Driver Options
+#
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_FW_LOADER=m
+# CONFIG_DEBUG_DRIVER is not set
+
+#
+# Connector - unified userspace <-> kernelspace linker
+#
+# CONFIG_CONNECTOR is not set
+
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
+
+#
+# Parallel port support
+#
+# CONFIG_PARPORT is not set
+
+#
+# Plug and Play support
+#
+CONFIG_PNP=y
+# CONFIG_PNP_DEBUG is not set
+
+#
+# Protocols
+#
+CONFIG_ISAPNP=y
+CONFIG_PNPBIOS=y
+CONFIG_PNPBIOS_PROC_FS=y
+CONFIG_PNPACPI=y
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=m
+# CONFIG_BLK_DEV_XD is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+# CONFIG_BLK_DEV_UMEM is not set
+# CONFIG_BLK_DEV_COW_COMMON is not set
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_CRYPTOLOOP=m
+CONFIG_BLK_DEV_NBD=m
+# CONFIG_BLK_DEV_SX8 is not set
+# CONFIG_BLK_DEV_UB is not set
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_COUNT=16
+CONFIG_BLK_DEV_RAM_SIZE=8192
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_LBD=y
+# CONFIG_CDROM_PKTCDVD is not set
+
+#
+# IO Schedulers
+#
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+# CONFIG_ATA_OVER_ETH is not set
+
+#
+# ATA/ATAPI/MFM/RLL support
+#
+CONFIG_IDE=m
+CONFIG_BLK_DEV_IDE=m
+
+#
+# Please see Documentation/ide.txt for help/info on IDE drives
+#
+# CONFIG_BLK_DEV_IDE_SATA is not set
+# CONFIG_BLK_DEV_HD_IDE is not set
+CONFIG_BLK_DEV_IDEDISK=m
+# CONFIG_IDEDISK_MULTI_MODE is not set
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDETAPE=m
+CONFIG_BLK_DEV_IDEFLOPPY=m
+CONFIG_BLK_DEV_IDESCSI=m
+# CONFIG_IDE_TASK_IOCTL is not set
+
+#
+# IDE chipset support/bugfixes
+#
+CONFIG_IDE_GENERIC=m
+CONFIG_BLK_DEV_CMD640=y
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+# CONFIG_BLK_DEV_IDEPNP is not set
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+CONFIG_BLK_DEV_GENERIC=m
+CONFIG_BLK_DEV_OPTI621=m
+CONFIG_BLK_DEV_RZ1000=m
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+CONFIG_BLK_DEV_AEC62XX=m
+CONFIG_BLK_DEV_ALI15X3=m
+# CONFIG_WDC_ALI15X3 is not set
+CONFIG_BLK_DEV_AMD74XX=m
+CONFIG_BLK_DEV_ATIIXP=m
+CONFIG_BLK_DEV_CMD64X=m
+CONFIG_BLK_DEV_TRIFLEX=m
+CONFIG_BLK_DEV_CY82C693=m
+CONFIG_BLK_DEV_CS5520=m
+CONFIG_BLK_DEV_CS5530=m
+CONFIG_BLK_DEV_HPT34X=m
+# CONFIG_HPT34X_AUTODMA is not set
+CONFIG_BLK_DEV_HPT366=m
+CONFIG_BLK_DEV_SC1200=m
+CONFIG_BLK_DEV_PIIX=m
+CONFIG_BLK_DEV_NS87415=m
+CONFIG_BLK_DEV_PDC202XX_OLD=m
+CONFIG_PDC202XX_BURST=y
+CONFIG_BLK_DEV_PDC202XX_NEW=m
+CONFIG_BLK_DEV_SVWKS=m
+CONFIG_BLK_DEV_SIIMAGE=m
+CONFIG_BLK_DEV_SIS5513=m
+CONFIG_BLK_DEV_SLC90E66=m
+CONFIG_BLK_DEV_TRM290=m
+CONFIG_BLK_DEV_VIA82CXXX=m
+# CONFIG_IDE_ARM is not set
+# CONFIG_IDE_CHIPSETS is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_IVB is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_BLK_DEV_HD is not set
+
+#
+# SCSI device support
+#
+CONFIG_SCSI=m
+CONFIG_SCSI_PROC_FS=y
+
+#
+# SCSI support type (disk, tape, CD-ROM)
+#
+CONFIG_BLK_DEV_SD=m
+CONFIG_CHR_DEV_ST=m
+CONFIG_CHR_DEV_OSST=m
+CONFIG_BLK_DEV_SR=m
+# CONFIG_BLK_DEV_SR_VENDOR is not set
+CONFIG_CHR_DEV_SG=m
+# CONFIG_CHR_DEV_SCH is not set
+
+#
+# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
+#
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+
+#
+# SCSI Transport Attributes
+#
+CONFIG_SCSI_SPI_ATTRS=m
+CONFIG_SCSI_FC_ATTRS=m
+# CONFIG_SCSI_ISCSI_ATTRS is not set
+
+#
+# SCSI low-level drivers
+#
+CONFIG_BLK_DEV_3W_XXXX_RAID=m
+CONFIG_SCSI_3W_9XXX=m
+# CONFIG_SCSI_ARCMSR is not set
+CONFIG_SCSI_7000FASST=m
+CONFIG_SCSI_ACARD=m
+CONFIG_SCSI_AHA152X=m
+CONFIG_SCSI_AHA1542=m
+CONFIG_SCSI_AHA1740=m
+CONFIG_SCSI_AACRAID=m
+CONFIG_SCSI_AIC7XXX=m
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=8
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+CONFIG_AIC7XXX_PROBE_EISA_VL=y
+CONFIG_AIC7XXX_DEBUG_ENABLE=y
+CONFIG_AIC7XXX_DEBUG_MASK=0
+CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
+CONFIG_SCSI_AIC7XXX_OLD=m
+CONFIG_SCSI_AIC79XX=m
+CONFIG_AIC79XX_CMDS_PER_DEVICE=32
+CONFIG_AIC79XX_RESET_DELAY_MS=15000
+CONFIG_AIC79XX_ENABLE_RD_STRM=y
+CONFIG_AIC79XX_DEBUG_ENABLE=y
+CONFIG_AIC79XX_DEBUG_MASK=0
+CONFIG_AIC79XX_REG_PRETTY_PRINT=y
+CONFIG_SCSI_DPT_I2O=m
+CONFIG_SCSI_IN2000=m
+# CONFIG_MEGARAID_NEWGEN is not set
+# CONFIG_MEGARAID_LEGACY is not set
+CONFIG_SCSI_SATA=y
+# CONFIG_SCSI_SATA_AHCI is not set
+CONFIG_SCSI_SATA_SVW=m
+CONFIG_SCSI_ATA_PIIX=m
+CONFIG_SCSI_SATA_NV=m
+CONFIG_SCSI_SATA_PROMISE=m
+# CONFIG_SCSI_SATA_QSTOR is not set
+CONFIG_SCSI_SATA_SX4=m
+CONFIG_SCSI_SATA_SIL=m
+CONFIG_SCSI_SATA_SIS=m
+# CONFIG_SCSI_SATA_ULI is not set
+CONFIG_SCSI_SATA_VIA=m
+CONFIG_SCSI_SATA_VITESSE=m
+CONFIG_SCSI_BUSLOGIC=m
+# CONFIG_SCSI_OMIT_FLASHPOINT is not set
+CONFIG_SCSI_DMX3191D=m
+CONFIG_SCSI_DTC3280=m
+CONFIG_SCSI_EATA=m
+CONFIG_SCSI_EATA_TAGGED_QUEUE=y
+CONFIG_SCSI_EATA_LINKED_COMMANDS=y
+CONFIG_SCSI_EATA_MAX_TAGS=16
+CONFIG_SCSI_FUTURE_DOMAIN=m
+CONFIG_SCSI_FD_MCS=m
+CONFIG_SCSI_GDTH=m
+CONFIG_SCSI_GENERIC_NCR5380=m
+CONFIG_SCSI_GENERIC_NCR5380_MMIO=m
+CONFIG_SCSI_GENERIC_NCR53C400=y
+CONFIG_SCSI_IBMMCA=m
+CONFIG_IBMMCA_SCSI_ORDER_STANDARD=y
+# CONFIG_IBMMCA_SCSI_DEV_RESET is not set
+CONFIG_SCSI_IPS=m
+# CONFIG_SCSI_INITIO is not set
+# CONFIG_SCSI_INIA100 is not set
+CONFIG_SCSI_NCR53C406A=m
+CONFIG_SCSI_NCR_D700=m
+CONFIG_53C700_IO_MAPPED=y
+CONFIG_SCSI_SYM53C8XX_2=m
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=1
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+# CONFIG_SCSI_SYM53C8XX_IOMAPPED is not set
+CONFIG_SCSI_IPR=m
+# CONFIG_SCSI_IPR_TRACE is not set
+# CONFIG_SCSI_IPR_DUMP is not set
+CONFIG_SCSI_NCR_Q720=m
+CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS=8
+CONFIG_SCSI_NCR53C8XX_MAX_TAGS=4
+CONFIG_SCSI_NCR53C8XX_SYNC=5
+# CONFIG_SCSI_NCR53C8XX_PROFILE is not set
+CONFIG_SCSI_PAS16=m
+CONFIG_SCSI_PSI240I=m
+CONFIG_SCSI_QLOGIC_FAS=m
+CONFIG_SCSI_QLOGIC_FC=m
+CONFIG_SCSI_QLOGIC_FC_FIRMWARE=y
+CONFIG_SCSI_QLOGIC_1280=m
+# CONFIG_SCSI_QLOGIC_1280_1040 is not set
+CONFIG_SCSI_QLA2XXX=m
+# CONFIG_SCSI_QLA21XX is not set
+# CONFIG_SCSI_QLA22XX is not set
+# CONFIG_SCSI_QLA2300 is not set
+# CONFIG_SCSI_QLA2322 is not set
+# CONFIG_SCSI_QLA6312 is not set
+CONFIG_SCSI_SIM710=m
+CONFIG_SCSI_SYM53C416=m
+CONFIG_SCSI_DC395x=m
+CONFIG_SCSI_DC390T=m
+CONFIG_SCSI_T128=m
+CONFIG_SCSI_U14_34F=m
+CONFIG_SCSI_U14_34F_TAGGED_QUEUE=y
+CONFIG_SCSI_U14_34F_LINKED_COMMANDS=y
+CONFIG_SCSI_U14_34F_MAX_TAGS=8
+CONFIG_SCSI_ULTRASTOR=m
+CONFIG_SCSI_NSP32=m
+CONFIG_SCSI_DEBUG=m
+
+#
+# Old CD-ROM drivers (not SCSI, not IDE)
+#
+CONFIG_CD_NO_IDESCSI=y
+CONFIG_AZTCD=m
+CONFIG_GSCD=m
+CONFIG_MCDX=m
+CONFIG_OPTCD=m
+CONFIG_SJCD=m
+CONFIG_ISP16_CDI=m
+CONFIG_CDU535=m
+
+#
+# Multi-device support (RAID and LVM)
+#
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=m
+CONFIG_MD_LINEAR=m
+CONFIG_MD_RAID0=m
+CONFIG_MD_RAID1=m
+# CONFIG_MD_RAID10 is not set
+CONFIG_MD_RAID5=m
+CONFIG_MD_RAID6=m
+CONFIG_MD_MULTIPATH=m
+# CONFIG_MD_FAULTY is not set
+CONFIG_BLK_DEV_DM=m
+CONFIG_DM_CRYPT=m
+CONFIG_DM_SNAPSHOT=m
+CONFIG_DM_MIRROR=m
+CONFIG_DM_ZERO=m
+# CONFIG_DM_MULTIPATH is not set
+
+#
+# Fusion MPT device support
+#
+# CONFIG_FUSION is not set
+
+#
+# IEEE 1394 (FireWire) support
+#
+# CONFIG_IEEE1394 is not set
+
+#
+# I2O device support
+#
+CONFIG_I2O=m
+CONFIG_I2O_CONFIG=m
+CONFIG_I2O_BLOCK=m
+CONFIG_I2O_SCSI=m
+CONFIG_I2O_PROC=m
+
+#
+# Networking support
+#
+CONFIG_NET=y
+
+#
+# Networking options
+#
+CONFIG_PACKET=m
+CONFIG_PACKET_MMAP=y
+# CONFIG_NETLINK_DEV is not set
+CONFIG_UNIX=m
+CONFIG_NET_KEY=m
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_MULTIPLE_TABLES=y
+CONFIG_IP_ROUTE_FWMARK=y
+CONFIG_IP_ROUTE_MULTIPATH=y
+CONFIG_IP_ROUTE_VERBOSE=y
+# CONFIG_IP_PNP is not set
+CONFIG_NET_IPIP=m
+CONFIG_NET_IPGRE=m
+CONFIG_NET_IPGRE_BROADCAST=y
+CONFIG_IP_MROUTE=y
+CONFIG_IP_PIMSM_V1=y
+CONFIG_IP_PIMSM_V2=y
+# CONFIG_ARPD is not set
+CONFIG_SYN_COOKIES=y
+CONFIG_INET_AH=m
+CONFIG_INET_ESP=m
+CONFIG_INET_IPCOMP=m
+CONFIG_INET_TUNNEL=m
+CONFIG_IP_TCPDIAG=y
+# CONFIG_IP_TCPDIAG_IPV6 is not set
+
+#
+# IP: Virtual Server Configuration
+#
+CONFIG_IP_VS=m
+# CONFIG_IP_VS_DEBUG is not set
+CONFIG_IP_VS_TAB_BITS=12
+
+#
+# IPVS transport protocol load balancing support
+#
+CONFIG_IP_VS_PROTO_TCP=y
+CONFIG_IP_VS_PROTO_UDP=y
+CONFIG_IP_VS_PROTO_ESP=y
+CONFIG_IP_VS_PROTO_AH=y
+
+#
+# IPVS scheduler
+#
+CONFIG_IP_VS_RR=m
+CONFIG_IP_VS_WRR=m
+CONFIG_IP_VS_LC=m
+CONFIG_IP_VS_WLC=m
+CONFIG_IP_VS_LBLC=m
+CONFIG_IP_VS_LBLCR=m
+CONFIG_IP_VS_DH=m
+CONFIG_IP_VS_SH=m
+CONFIG_IP_VS_SED=m
+CONFIG_IP_VS_NQ=m
+
+#
+# IPVS application helper
+#
+CONFIG_IP_VS_FTP=m
+CONFIG_IPV6=m
+CONFIG_IPV6_PRIVACY=y
+CONFIG_INET6_AH=m
+CONFIG_INET6_ESP=m
+CONFIG_INET6_IPCOMP=m
+CONFIG_INET6_TUNNEL=m
+CONFIG_IPV6_TUNNEL=m
+CONFIG_NETFILTER=y
+# CONFIG_NETFILTER_DEBUG is not set
+
+#
+# IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=m
+# CONFIG_IP_NF_CT_ACCT is not set
+# CONFIG_IP_NF_CONNTRACK_MARK is not set
+# CONFIG_IP_NF_CT_PROTO_SCTP is not set
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_TFTP=m
+CONFIG_IP_NF_AMANDA=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_IPRANGE=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_RECENT=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_AH_ESP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_HELPER=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_MATCH_ADDRTYPE=m
+CONFIG_IP_NF_MATCH_REALM=m
+# CONFIG_IP_NF_MATCH_SCTP is not set
+# CONFIG_IP_NF_MATCH_COMMENT is not set
+# CONFIG_IP_NF_MATCH_HASHLIMIT is not set
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_TARGET_NETMAP=m
+CONFIG_IP_NF_TARGET_SAME=m
+CONFIG_IP_NF_NAT_SNMP_BASIC=m
+CONFIG_IP_NF_NAT_IRC=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_NAT_TFTP=m
+CONFIG_IP_NF_NAT_AMANDA=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_ECN=m
+CONFIG_IP_NF_TARGET_DSCP=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_CLASSIFY=m
+CONFIG_IP_NF_RAW=m
+CONFIG_IP_NF_TARGET_NOTRACK=m
+CONFIG_IP_NF_ARPTABLES=m
+CONFIG_IP_NF_ARPFILTER=m
+CONFIG_IP_NF_ARP_MANGLE=m
+
+#
+# IPv6: Netfilter Configuration
+#
+CONFIG_IP6_NF_QUEUE=m
+CONFIG_IP6_NF_IPTABLES=m
+CONFIG_IP6_NF_MATCH_LIMIT=m
+CONFIG_IP6_NF_MATCH_MAC=m
+CONFIG_IP6_NF_MATCH_RT=m
+CONFIG_IP6_NF_MATCH_OPTS=m
+CONFIG_IP6_NF_MATCH_FRAG=m
+CONFIG_IP6_NF_MATCH_HL=m
+CONFIG_IP6_NF_MATCH_MULTIPORT=m
+CONFIG_IP6_NF_MATCH_OWNER=m
+CONFIG_IP6_NF_MATCH_MARK=m
+CONFIG_IP6_NF_MATCH_IPV6HEADER=m
+CONFIG_IP6_NF_MATCH_AHESP=m
+CONFIG_IP6_NF_MATCH_LENGTH=m
+CONFIG_IP6_NF_MATCH_EUI64=m
+CONFIG_IP6_NF_FILTER=m
+CONFIG_IP6_NF_TARGET_LOG=m
+CONFIG_IP6_NF_MANGLE=m
+CONFIG_IP6_NF_TARGET_MARK=m
+CONFIG_IP6_NF_RAW=m
+CONFIG_XFRM=y
+CONFIG_XFRM_USER=m
+
+#
+# SCTP Configuration (EXPERIMENTAL)
+#
+CONFIG_IP_SCTP=m
+# CONFIG_SCTP_DBG_MSG is not set
+# CONFIG_SCTP_DBG_OBJCNT is not set
+# CONFIG_SCTP_HMAC_NONE is not set
+# CONFIG_SCTP_HMAC_SHA1 is not set
+CONFIG_SCTP_HMAC_MD5=y
+# CONFIG_ATM is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_VLAN_8021Q is not set
+# CONFIG_DECNET is not set
+# CONFIG_LLC2 is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+
+#
+# QoS and/or fair queueing
+#
+CONFIG_NET_SCHED=y
+CONFIG_NET_SCH_CLK_JIFFIES=y
+# CONFIG_NET_SCH_CLK_GETTIMEOFDAY is not set
+# CONFIG_NET_SCH_CLK_CPU is not set
+CONFIG_NET_SCH_CBQ=m
+CONFIG_NET_SCH_HTB=m
+CONFIG_NET_SCH_HFSC=m
+CONFIG_NET_SCH_PRIO=m
+CONFIG_NET_SCH_RED=m
+CONFIG_NET_SCH_SFQ=m
+CONFIG_NET_SCH_TEQL=m
+CONFIG_NET_SCH_TBF=m
+CONFIG_NET_SCH_GRED=m
+CONFIG_NET_SCH_DSMARK=m
+CONFIG_NET_SCH_NETEM=m
+CONFIG_NET_SCH_INGRESS=m
+CONFIG_NET_QOS=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_TCINDEX=m
+CONFIG_NET_CLS_ROUTE4=m
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=m
+CONFIG_NET_CLS_U32=m
+# CONFIG_CLS_U32_PERF is not set
+# CONFIG_NET_CLS_IND is not set
+# CONFIG_CLS_U32_MARK is not set
+CONFIG_NET_CLS_RSVP=m
+CONFIG_NET_CLS_RSVP6=m
+# CONFIG_NET_CLS_ACT is not set
+CONFIG_NET_CLS_POLICE=y
+
+#
+# Network testing
+#
+CONFIG_NET_PKTGEN=m
+# CONFIG_KGDBOE is not set
+CONFIG_NETPOLL=y
+# CONFIG_NETPOLL_RX is not set
+# CONFIG_NETPOLL_TRAP is not set
+CONFIG_NET_POLL_CONTROLLER=y
+# CONFIG_HAMRADIO is not set
+# CONFIG_IRDA is not set
+# CONFIG_BT is not set
+# CONFIG_IEEE80211 is not set
+CONFIG_NETDEVICES=y
+# CONFIG_DUMMY is not set
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_TUN is not set
+# CONFIG_NET_SB1000 is not set
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=m
+CONFIG_HAPPYMEAL=m
+CONFIG_SUNGEM=m
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_EL1=m
+CONFIG_EL2=m
+CONFIG_ELPLUS=m
+CONFIG_EL16=m
+CONFIG_EL3=m
+CONFIG_3C515=m
+CONFIG_ELMC=m
+CONFIG_ELMC_II=m
+CONFIG_VORTEX=m
+CONFIG_TYPHOON=m
+CONFIG_LANCE=m
+CONFIG_NET_VENDOR_SMC=y
+CONFIG_WD80x3=m
+CONFIG_ULTRAMCA=m
+CONFIG_ULTRA=m
+CONFIG_ULTRA32=m
+CONFIG_SMC9194=m
+CONFIG_NET_VENDOR_RACAL=y
+CONFIG_NI52=m
+CONFIG_NI65=m
+
+#
+# Tulip family network device support
+#
+CONFIG_NET_TULIP=y
+CONFIG_DE2104X=m
+CONFIG_TULIP=m
+# CONFIG_TULIP_MWI is not set
+# CONFIG_TULIP_MMIO is not set
+# CONFIG_TULIP_NAPI is not set
+CONFIG_DE4X5=m
+CONFIG_WINBOND_840=m
+CONFIG_DM9102=m
+CONFIG_AT1700=m
+CONFIG_DEPCA=m
+CONFIG_HP100=m
+CONFIG_NET_ISA=y
+CONFIG_E2100=m
+CONFIG_EWRK3=m
+CONFIG_EEXPRESS=m
+CONFIG_EEXPRESS_PRO=m
+CONFIG_HPLAN_PLUS=m
+CONFIG_HPLAN=m
+CONFIG_LP486E=m
+CONFIG_ETH16I=m
+CONFIG_NE2000=m
+CONFIG_ZNET=m
+CONFIG_SEEQ8005=m
+CONFIG_NE2_MCA=m
+CONFIG_IBMLANA=m
+CONFIG_NET_PCI=y
+CONFIG_PCNET32=m
+CONFIG_AMD8111_ETH=m
+# CONFIG_AMD8111E_NAPI is not set
+CONFIG_ADAPTEC_STARFIRE=m
+# CONFIG_ADAPTEC_STARFIRE_NAPI is not set
+CONFIG_AC3200=m
+CONFIG_APRICOT=m
+CONFIG_B44=m
+CONFIG_FORCEDETH=m
+CONFIG_CS89x0=m
+# CONFIG_DGRS is not set
+CONFIG_EEPRO100=m
+CONFIG_E100=m
+CONFIG_LNE390=m
+CONFIG_FEALNX=m
+CONFIG_NATSEMI=m
+CONFIG_NE2K_PCI=m
+CONFIG_NE3210=m
+CONFIG_ES3210=m
+CONFIG_8139CP=m
+CONFIG_8139TOO=m
+CONFIG_8139TOO_PIO=y
+CONFIG_8139TOO_TUNE_TWISTER=y
+CONFIG_8139TOO_8129=y
+# CONFIG_8139_OLD_RX_RESET is not set
+CONFIG_SIS900=m
+CONFIG_EPIC100=m
+CONFIG_SUNDANCE=m
+# CONFIG_SUNDANCE_MMIO is not set
+CONFIG_TLAN=m
+CONFIG_VIA_RHINE=m
+# CONFIG_VIA_RHINE_MMIO is not set
+CONFIG_NET_POCKET=y
+CONFIG_ATP=m
+CONFIG_DE600=m
+CONFIG_DE620=m
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+CONFIG_DL2K=m
+CONFIG_E1000=m
+# CONFIG_E1000_NAPI is not set
+CONFIG_NS83820=m
+CONFIG_HAMACHI=m
+CONFIG_YELLOWFIN=m
+CONFIG_R8169=m
+# CONFIG_R8169_NAPI is not set
+# CONFIG_SKGE is not set
+CONFIG_SK98LIN=m
+CONFIG_VIA_VELOCITY=m
+CONFIG_TIGON3=m
+
+#
+# Ethernet (10000 Mbit)
+#
+CONFIG_IXGB=m
+# CONFIG_IXGB_NAPI is not set
+CONFIG_S2IO=m
+# CONFIG_S2IO_NAPI is not set
+# CONFIG_2BUFF_MODE is not set
+
+#
+# Token Ring devices
+#
+# CONFIG_TR is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+# CONFIG_PPP is not set
+# CONFIG_SLIP is not set
+# CONFIG_NET_FC is not set
+CONFIG_SHAPER=m
+CONFIG_NETCONSOLE=m
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+
+#
+# Input device support
+#
+CONFIG_INPUT=y
+
+#
+# Userland interfaces
+#
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_JOYDEV=m
+CONFIG_INPUT_TSDEV=m
+CONFIG_INPUT_TSDEV_SCREEN_X=240
+CONFIG_INPUT_TSDEV_SCREEN_Y=320
+CONFIG_INPUT_EVDEV=m
+CONFIG_INPUT_EVBUG=m
+
+#
+# Input Device Drivers
+#
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_KEYBOARD_SUNKBD=m
+CONFIG_KEYBOARD_LKKBD=m
+CONFIG_KEYBOARD_XTKBD=m
+CONFIG_KEYBOARD_NEWTON=m
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=m
+CONFIG_MOUSE_SERIAL=m
+CONFIG_MOUSE_INPORT=m
+# CONFIG_MOUSE_ATIXL is not set
+CONFIG_MOUSE_LOGIBM=m
+CONFIG_MOUSE_PC110PAD=m
+CONFIG_MOUSE_VSXXXAA=m
+CONFIG_INPUT_JOYSTICK=y
+CONFIG_JOYSTICK_ANALOG=m
+CONFIG_JOYSTICK_A3D=m
+CONFIG_JOYSTICK_ADI=m
+CONFIG_JOYSTICK_COBRA=m
+CONFIG_JOYSTICK_GF2K=m
+CONFIG_JOYSTICK_GRIP=m
+CONFIG_JOYSTICK_GRIP_MP=m
+CONFIG_JOYSTICK_GUILLEMOT=m
+CONFIG_JOYSTICK_INTERACT=m
+CONFIG_JOYSTICK_SIDEWINDER=m
+CONFIG_JOYSTICK_TMDC=m
+CONFIG_JOYSTICK_IFORCE=m
+CONFIG_JOYSTICK_IFORCE_USB=y
+CONFIG_JOYSTICK_IFORCE_232=y
+CONFIG_JOYSTICK_WARRIOR=m
+CONFIG_JOYSTICK_MAGELLAN=m
+CONFIG_JOYSTICK_SPACEORB=m
+CONFIG_JOYSTICK_SPACEBALL=m
+CONFIG_JOYSTICK_STINGER=m
+# CONFIG_JOYSTICK_TWIDJOY is not set
+# CONFIG_JOYSTICK_JOYDUMP is not set
+CONFIG_INPUT_TOUCHSCREEN=y
+CONFIG_TOUCHSCREEN_GUNZE=m
+# CONFIG_TOUCHSCREEN_ELO is not set
+# CONFIG_TOUCHSCREEN_MK712 is not set
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=m
+CONFIG_INPUT_UINPUT=m
+
+#
+# Hardware I/O ports
+#
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=m
+CONFIG_SERIO_CT82C710=m
+CONFIG_SERIO_PCIPS2=m
+CONFIG_SERIO_LIBPS2=y
+# CONFIG_SERIO_RAW is not set
+CONFIG_GAMEPORT=m
+CONFIG_GAMEPORT_NS558=m
+CONFIG_GAMEPORT_L4=m
+CONFIG_GAMEPORT_EMU10K1=m
+CONFIG_GAMEPORT_VORTEX=m
+CONFIG_GAMEPORT_FM801=m
+# CONFIG_GAMEPORT_CS461X is not set
+CONFIG_SOUND_GAMEPORT=m
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_INOTIFY=y
+CONFIG_SERIAL_NONSTANDARD=y
+CONFIG_ROCKETPORT=m
+CONFIG_CYCLADES=m
+# CONFIG_CYZ_INTR is not set
+CONFIG_MOXA_SMARTIO=m
+# CONFIG_ISI is not set
+CONFIG_SYNCLINK=m
+CONFIG_SYNCLINKMP=m
+CONFIG_N_HDLC=m
+# CONFIG_SPECIALIX is not set
+# CONFIG_SX is not set
+CONFIG_STALDRV=y
+
+#
+# Serial drivers
+#
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+# CONFIG_SERIAL_8250_ACPI is not set
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_8250_EXTENDED=y
+CONFIG_SERIAL_8250_MANY_PORTS=y
+CONFIG_SERIAL_8250_SHARE_IRQ=y
+# CONFIG_SERIAL_8250_DETECT_IRQ is not set
+CONFIG_SERIAL_8250_MULTIPORT=y
+CONFIG_SERIAL_8250_RSA=y
+
+#
+# Non-8250 serial port support
+#
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+
+#
+# IPMI
+#
+CONFIG_IPMI_HANDLER=m
+# CONFIG_IPMI_PANIC_EVENT is not set
+CONFIG_IPMI_DEVICE_INTERFACE=m
+CONFIG_IPMI_SI=m
+CONFIG_IPMI_WATCHDOG=m
+CONFIG_IPMI_POWEROFF=m
+
+#
+# Watchdog Cards
+#
+CONFIG_WATCHDOG=y
+# CONFIG_WATCHDOG_NOWAYOUT is not set
+
+#
+# Watchdog Device Drivers
+#
+CONFIG_SOFT_WATCHDOG=m
+CONFIG_ACQUIRE_WDT=m
+CONFIG_ADVANTECH_WDT=m
+CONFIG_ALIM1535_WDT=m
+CONFIG_ALIM7101_WDT=m
+CONFIG_SC520_WDT=m
+CONFIG_EUROTECH_WDT=m
+CONFIG_IB700_WDT=m
+CONFIG_WAFER_WDT=m
+CONFIG_I8XX_TCO=m
+# CONFIG_I6300ESB_WDT is not set
+CONFIG_SC1200_WDT=m
+CONFIG_SCx200_WDT=m
+CONFIG_60XX_WDT=m
+CONFIG_CPU5_WDT=m
+CONFIG_W83627HF_WDT=m
+CONFIG_W83877F_WDT=m
+CONFIG_MACHZ_WDT=m
+
+#
+# ISA-based Watchdog Cards
+#
+CONFIG_PCWATCHDOG=m
+CONFIG_MIXCOMWD=m
+CONFIG_WDT=m
+CONFIG_WDT_501=y
+
+#
+# PCI-based Watchdog Cards
+#
+CONFIG_PCIPCWATCHDOG=m
+CONFIG_WDTPCI=m
+CONFIG_WDT_501_PCI=y
+
+#
+# USB-based Watchdog Cards
+#
+CONFIG_USBPCWATCHDOG=m
+CONFIG_HW_RANDOM=m
+CONFIG_NVRAM=m
+CONFIG_RTC=m
+CONFIG_GEN_RTC=m
+CONFIG_GEN_RTC_X=y
+CONFIG_DTLK=m
+CONFIG_R3964=m
+CONFIG_APPLICOM=m
+CONFIG_SONYPI=m
+
+#
+# Ftape, the floppy tape device driver
+#
+CONFIG_AGP=m
+CONFIG_AGP_ALI=m
+CONFIG_AGP_ATI=m
+CONFIG_AGP_AMD=m
+CONFIG_AGP_AMD64=m
+CONFIG_AGP_INTEL=m
+CONFIG_AGP_NVIDIA=m
+CONFIG_AGP_SIS=m
+CONFIG_AGP_SWORKS=m
+CONFIG_AGP_VIA=m
+CONFIG_AGP_EFFICEON=m
+CONFIG_DRM=m
+# CONFIG_DRM_TDFX is not set
+# CONFIG_DRM_R128 is not set
+# CONFIG_DRM_RADEON is not set
+CONFIG_DRM_I810=m
+# CONFIG_DRM_I830 is not set
+# CONFIG_DRM_I915 is not set
+# CONFIG_DRM_MGA is not set
+# CONFIG_DRM_SIS is not set
+# CONFIG_DRM_VIA is not set
+# CONFIG_MWAVE is not set
+# CONFIG_SCx200_GPIO is not set
+# CONFIG_RAW_DRIVER is not set
+CONFIG_HPET=y
+# CONFIG_HPET_RTC_IRQ is not set
+CONFIG_HPET_MMAP=y
+CONFIG_HANGCHECK_TIMER=m
+
+#
+# TPM devices
+#
+# CONFIG_TCG_TPM is not set
+
+#
+# I2C support
+#
+CONFIG_I2C=m
+CONFIG_I2C_CHARDEV=m
+
+#
+# I2C Algorithms
+#
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_ALGOPCF=m
+# CONFIG_I2C_ALGOPCA is not set
+
+#
+# I2C Hardware Bus support
+#
+CONFIG_I2C_ALI1535=m
+CONFIG_I2C_ALI1563=m
+CONFIG_I2C_ALI15X3=m
+CONFIG_I2C_AMD756=m
+# CONFIG_I2C_AMD756_S4882 is not set
+CONFIG_I2C_AMD8111=m
+CONFIG_I2C_I801=m
+CONFIG_I2C_I810=m
+CONFIG_I2C_ISA=m
+CONFIG_I2C_NFORCE2=m
+CONFIG_I2C_PARPORT_LIGHT=m
+CONFIG_I2C_PIIX4=m
+CONFIG_I2C_PROSAVAGE=m
+CONFIG_I2C_SAVAGE4=m
+CONFIG_SCx200_ACB=m
+CONFIG_I2C_SIS5595=m
+CONFIG_I2C_SIS630=m
+CONFIG_I2C_SIS96X=m
+# CONFIG_I2C_STUB is not set
+CONFIG_I2C_VIA=m
+CONFIG_I2C_VIAPRO=m
+CONFIG_I2C_VOODOO3=m
+# CONFIG_I2C_PCA_ISA is not set
+
+#
+# Hardware Sensors Chip support
+#
+CONFIG_I2C_SENSOR=m
+CONFIG_SENSORS_ADM1021=m
+CONFIG_SENSORS_ADM1025=m
+# CONFIG_SENSORS_ADM1026 is not set
+CONFIG_SENSORS_ADM1031=m
+CONFIG_SENSORS_ASB100=m
+CONFIG_SENSORS_DS1621=m
+CONFIG_SENSORS_FSCHER=m
+# CONFIG_SENSORS_FSCPOS is not set
+CONFIG_SENSORS_GL518SM=m
+# CONFIG_SENSORS_GL520SM is not set
+CONFIG_SENSORS_IT87=m
+# CONFIG_SENSORS_LM63 is not set
+CONFIG_SENSORS_LM75=m
+CONFIG_SENSORS_LM77=m
+CONFIG_SENSORS_LM78=m
+CONFIG_SENSORS_LM80=m
+CONFIG_SENSORS_LM83=m
+CONFIG_SENSORS_LM85=m
+# CONFIG_SENSORS_LM87 is not set
+CONFIG_SENSORS_LM90=m
+CONFIG_SENSORS_MAX1619=m
+# CONFIG_SENSORS_PC87360 is not set
+# CONFIG_SENSORS_SMSC47B397 is not set
+# CONFIG_SENSORS_SIS5595 is not set
+# CONFIG_SENSORS_SMSC47M1 is not set
+CONFIG_SENSORS_VIA686A=m
+CONFIG_SENSORS_W83781D=m
+CONFIG_SENSORS_W83L785TS=m
+CONFIG_SENSORS_W83627HF=m
+# CONFIG_SENSORS_W83627EHF is not set
+
+#
+# Other I2C Chip support
+#
+CONFIG_SENSORS_EEPROM=m
+CONFIG_SENSORS_PCF8574=m
+CONFIG_SENSORS_PCF8591=m
+CONFIG_SENSORS_RTC8564=m
+# CONFIG_I2C_DEBUG_CORE is not set
+# CONFIG_I2C_DEBUG_ALGO is not set
+# CONFIG_I2C_DEBUG_BUS is not set
+# CONFIG_I2C_DEBUG_CHIP is not set
+
+#
+# Dallas's 1-wire bus
+#
+# CONFIG_W1 is not set
+
+#
+# SuperIO subsystem support
+#
+
+#
+# Misc devices
+#
+# CONFIG_IBM_ASM is not set
+
+#
+# Multimedia devices
+#
+# CONFIG_VIDEO_DEV is not set
+
+#
+# Digital Video Broadcasting Devices
+#
+# CONFIG_DVB is not set
+
+#
+# Graphics support
+#
+CONFIG_FB=y
+CONFIG_FB_CFB_FILLRECT=m
+CONFIG_FB_CFB_COPYAREA=m
+CONFIG_FB_CFB_IMAGEBLIT=m
+CONFIG_FB_SOFT_CURSOR=m
+CONFIG_FB_MODE_HELPERS=y
+# CONFIG_FB_TILEBLITTING is not set
+CONFIG_FB_CIRRUS=m
+CONFIG_FB_PM2=m
+CONFIG_FB_PM2_FIFO_DISCONNECT=y
+CONFIG_FB_CYBER2000=m
+# CONFIG_FB_ASILIANT is not set
+# CONFIG_FB_IMSTT is not set
+CONFIG_FB_VGA16=m
+# CONFIG_FB_VESA is not set
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_HGA=m
+# CONFIG_FB_HGA_ACCEL is not set
+# CONFIG_FB_NVIDIA is not set
+CONFIG_FB_RIVA=m
+CONFIG_FB_RIVA_I2C=y
+CONFIG_FB_RIVA_DEBUG=y
+CONFIG_FB_I810=m
+# CONFIG_FB_I810_GTF is not set
+# CONFIG_FB_INTEL is not set
+CONFIG_FB_MATROX=m
+CONFIG_FB_MATROX_MILLENIUM=y
+CONFIG_FB_MATROX_MYSTIQUE=y
+# CONFIG_FB_MATROX_G is not set
+CONFIG_FB_MATROX_I2C=m
+CONFIG_FB_MATROX_MULTIHEAD=y
+CONFIG_FB_RADEON_OLD=m
+CONFIG_FB_RADEON=m
+CONFIG_FB_RADEON_I2C=y
+# CONFIG_FB_RADEON_DEBUG is not set
+CONFIG_FB_ATY128=m
+CONFIG_FB_ATY=m
+CONFIG_FB_ATY_CT=y
+# CONFIG_FB_ATY_GENERIC_LCD is not set
+CONFIG_FB_ATY_XL_INIT=y
+CONFIG_FB_ATY_GX=y
+# CONFIG_FB_SAVAGE is not set
+CONFIG_FB_SIS=m
+CONFIG_FB_SIS_300=y
+CONFIG_FB_SIS_315=y
+CONFIG_FB_NEOMAGIC=m
+CONFIG_FB_KYRO=m
+CONFIG_FB_3DFX=m
+# CONFIG_FB_3DFX_ACCEL is not set
+CONFIG_FB_VOODOO1=m
+CONFIG_FB_TRIDENT=m
+# CONFIG_FB_TRIDENT_ACCEL is not set
+# CONFIG_FB_GEODE is not set
+CONFIG_FB_VIRTUAL=m
+
+#
+# Console display driver support
+#
+CONFIG_VGA_CONSOLE=y
+CONFIG_MDA_CONSOLE=m
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=m
+# CONFIG_FONTS is not set
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+
+#
+# Logo configuration
+#
+# CONFIG_LOGO is not set
+# CONFIG_BACKLIGHT_LCD_SUPPORT is not set
+
+#
+# Sound
+#
+# CONFIG_SOUND is not set
+
+#
+# USB support
+#
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_USB=m
+# CONFIG_USB_DEBUG is not set
+
+#
+# Miscellaneous USB options
+#
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_BANDWIDTH=y
+# CONFIG_USB_DYNAMIC_MINORS is not set
+# CONFIG_USB_OTG is not set
+
+#
+# USB Host Controller Drivers
+#
+CONFIG_USB_EHCI_HCD=m
+CONFIG_USB_EHCI_SPLIT_ISO=y
+CONFIG_USB_EHCI_ROOT_HUB_TT=y
+CONFIG_USB_OHCI_HCD=m
+# CONFIG_USB_OHCI_BIG_ENDIAN is not set
+CONFIG_USB_OHCI_LITTLE_ENDIAN=y
+CONFIG_USB_UHCI_HCD=m
+# CONFIG_USB_SL811_HCD is not set
+
+#
+# USB Device Class drivers
+#
+# CONFIG_USB_BLUETOOTH_TTY is not set
+CONFIG_USB_ACM=m
+CONFIG_USB_PRINTER=m
+
+#
+# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
+#
+CONFIG_USB_STORAGE=m
+# CONFIG_USB_STORAGE_DEBUG is not set
+# CONFIG_USB_STORAGE_RW_DETECT is not set
+CONFIG_USB_STORAGE_DATAFAB=y
+CONFIG_USB_STORAGE_FREECOM=y
+CONFIG_USB_STORAGE_ISD200=y
+CONFIG_USB_STORAGE_DPCM=y
+# CONFIG_USB_STORAGE_USBAT is not set
+CONFIG_USB_STORAGE_SDDR09=y
+CONFIG_USB_STORAGE_SDDR55=y
+CONFIG_USB_STORAGE_JUMPSHOT=y
+
+#
+# USB Input Devices
+#
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+# CONFIG_HID_FF is not set
+CONFIG_USB_HIDDEV=y
+
+#
+# USB HID Boot Protocol drivers
+#
+CONFIG_USB_KBD=m
+CONFIG_USB_MOUSE=m
+CONFIG_USB_AIPTEK=m
+CONFIG_USB_WACOM=m
+CONFIG_USB_KBTAB=m
+CONFIG_USB_POWERMATE=m
+CONFIG_USB_MTOUCH=m
+CONFIG_USB_EGALAX=m
+CONFIG_USB_XPAD=m
+CONFIG_USB_ATI_REMOTE=m
+
+#
+# USB Imaging devices
+#
+CONFIG_USB_MDC800=m
+CONFIG_USB_MICROTEK=m
+
+#
+# USB Multimedia devices
+#
+# CONFIG_USB_DABUSB is not set
+
+#
+# Video4Linux support is needed for USB Multimedia device support
+#
+
+#
+# USB Network Adapters
+#
+CONFIG_USB_CATC=m
+CONFIG_USB_KAWETH=m
+CONFIG_USB_PEGASUS=m
+CONFIG_USB_RTL8150=m
+CONFIG_USB_USBNET=m
+
+#
+# USB Host-to-Host Cables
+#
+CONFIG_USB_ALI_M5632=y
+CONFIG_USB_AN2720=y
+CONFIG_USB_BELKIN=y
+CONFIG_USB_GENESYS=y
+CONFIG_USB_NET1080=y
+CONFIG_USB_PL2301=y
+CONFIG_USB_KC2190=y
+
+#
+# Intelligent USB Devices/Gadgets
+#
+CONFIG_USB_ARMLINUX=y
+CONFIG_USB_EPSON2888=y
+CONFIG_USB_ZAURUS=y
+CONFIG_USB_CDCETHER=y
+
+#
+# USB Network Adapters
+#
+CONFIG_USB_AX8817X=y
+CONFIG_USB_MON=m
+
+#
+# USB port drivers
+#
+
+#
+# USB Serial Converter support
+#
+CONFIG_USB_SERIAL=m
+CONFIG_USB_SERIAL_GENERIC=y
+CONFIG_USB_SERIAL_BELKIN=m
+CONFIG_USB_SERIAL_DIGI_ACCELEPORT=m
+# CONFIG_USB_SERIAL_CYPRESS_M8 is not set
+CONFIG_USB_SERIAL_EMPEG=m
+CONFIG_USB_SERIAL_FTDI_SIO=m
+CONFIG_USB_SERIAL_VISOR=m
+CONFIG_USB_SERIAL_IPAQ=m
+CONFIG_USB_SERIAL_IR=m
+CONFIG_USB_SERIAL_EDGEPORT=m
+CONFIG_USB_SERIAL_EDGEPORT_TI=m
+# CONFIG_USB_SERIAL_GARMIN is not set
+# CONFIG_USB_SERIAL_IPW is not set
+CONFIG_USB_SERIAL_KEYSPAN_PDA=m
+CONFIG_USB_SERIAL_KEYSPAN=m
+# CONFIG_USB_SERIAL_KEYSPAN_MPR is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28 is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28X is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28XA is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28XB is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19 is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA18X is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19W is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19QW is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19QI is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA49W is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA49WLC is not set
+CONFIG_USB_SERIAL_KLSI=m
+CONFIG_USB_SERIAL_KOBIL_SCT=m
+CONFIG_USB_SERIAL_MCT_U232=m
+CONFIG_USB_SERIAL_PL2303=m
+CONFIG_USB_SERIAL_SAFE=m
+# CONFIG_USB_SERIAL_SAFE_PADDED is not set
+# CONFIG_USB_SERIAL_TI is not set
+CONFIG_USB_SERIAL_CYBERJACK=m
+CONFIG_USB_SERIAL_XIRCOM=m
+CONFIG_USB_SERIAL_OMNINET=m
+CONFIG_USB_EZUSB=y
+
+#
+# USB Miscellaneous drivers
+#
+# CONFIG_USB_EMI62 is not set
+# CONFIG_USB_EMI26 is not set
+CONFIG_USB_AUERSWALD=m
+CONFIG_USB_RIO500=m
+CONFIG_USB_LEGOTOWER=m
+CONFIG_USB_LCD=m
+CONFIG_USB_LED=m
+CONFIG_USB_CYTHERM=m
+# CONFIG_USB_PHIDGETKIT is not set
+CONFIG_USB_PHIDGETSERVO=m
+# CONFIG_USB_IDMOUSE is not set
+# CONFIG_USB_SISUSBVGA is not set
+CONFIG_USB_TEST=m
+
+#
+# USB ATM/DSL drivers
+#
+
+#
+# USB Gadget Support
+#
+CONFIG_USB_GADGET=m
+# CONFIG_USB_GADGET_DEBUG_FILES is not set
+CONFIG_USB_GADGET_NET2280=y
+CONFIG_USB_NET2280=m
+# CONFIG_USB_GADGET_PXA2XX is not set
+# CONFIG_USB_GADGET_GOKU is not set
+# CONFIG_USB_GADGET_SA1100 is not set
+# CONFIG_USB_GADGET_LH7A40X is not set
+# CONFIG_USB_GADGET_DUMMY_HCD is not set
+# CONFIG_USB_GADGET_OMAP is not set
+CONFIG_USB_GADGET_DUALSPEED=y
+CONFIG_USB_ZERO=m
+CONFIG_USB_ETH=m
+CONFIG_USB_ETH_RNDIS=y
+CONFIG_USB_GADGETFS=m
+CONFIG_USB_FILE_STORAGE=m
+# CONFIG_USB_FILE_STORAGE_TEST is not set
+CONFIG_USB_G_SERIAL=m
+
+#
+# MMC/SD Card support
+#
+# CONFIG_MMC is not set
+
+#
+# InfiniBand support
+#
+# CONFIG_INFINIBAND is not set
+
+#
+# File systems
+#
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT2_FS_POSIX_ACL=y
+CONFIG_EXT2_FS_SECURITY=y
+CONFIG_EXT3_FS=m
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_EXT3_FS_SECURITY=y
+CONFIG_JBD=m
+# CONFIG_JBD_DEBUG is not set
+CONFIG_FS_MBCACHE=y
+# CONFIG_REISER4_FS is not set
+CONFIG_REISERFS_FS=m
+# CONFIG_REISERFS_CHECK is not set
+# CONFIG_REISERFS_PROC_INFO is not set
+# CONFIG_REISERFS_FS_XATTR is not set
+CONFIG_JFS_FS=m
+CONFIG_JFS_POSIX_ACL=y
+# CONFIG_JFS_SECURITY is not set
+# CONFIG_JFS_DEBUG is not set
+CONFIG_JFS_STATISTICS=y
+CONFIG_FS_POSIX_ACL=y
+
+#
+# XFS support
+#
+CONFIG_XFS_FS=m
+CONFIG_XFS_EXPORT=y
+CONFIG_XFS_RT=y
+CONFIG_XFS_QUOTA=y
+CONFIG_XFS_SECURITY=y
+CONFIG_XFS_POSIX_ACL=y
+CONFIG_MINIX_FS=m
+CONFIG_ROMFS_FS=m
+CONFIG_QUOTA=y
+CONFIG_QFMT_V1=m
+CONFIG_QFMT_V2=m
+CONFIG_QUOTACTL=y
+CONFIG_DNOTIFY=y
+CONFIG_AUTOFS_FS=m
+CONFIG_AUTOFS4_FS=m
+
+#
+# Caches
+#
+# CONFIG_FSCACHE is not set
+# CONFIG_FUSE_FS is not set
+
+#
+# CD-ROM/DVD Filesystems
+#
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=m
+CONFIG_UDF_FS=m
+CONFIG_UDF_NLS=y
+
+#
+# DOS/FAT/NT Filesystems
+#
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_FAT_DEFAULT_CODEPAGE=437
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+CONFIG_NTFS_FS=m
+# CONFIG_NTFS_DEBUG is not set
+# CONFIG_NTFS_RW is not set
+
+#
+# Pseudo filesystems
+#
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_DEVFS_FS=y
+# CONFIG_DEVFS_MOUNT is not set
+# CONFIG_DEVFS_DEBUG is not set
+CONFIG_DEVPTS_FS_XATTR=y
+CONFIG_DEVPTS_FS_SECURITY=y
+CONFIG_TMPFS=y
+# CONFIG_TMPFS_XATTR is not set
+# CONFIG_HUGETLBFS is not set
+# CONFIG_HUGETLB_PAGE is not set
+CONFIG_RAMFS=y
+
+#
+# Miscellaneous filesystems
+#
+CONFIG_ADFS_FS=m
+# CONFIG_ADFS_FS_RW is not set
+CONFIG_AFFS_FS=m
+CONFIG_HFS_FS=m
+CONFIG_HFSPLUS_FS=m
+CONFIG_BEFS_FS=m
+# CONFIG_BEFS_DEBUG is not set
+CONFIG_BFS_FS=m
+CONFIG_EFS_FS=m
+CONFIG_CRAMFS=y
+CONFIG_VXFS_FS=m
+CONFIG_HPFS_FS=m
+CONFIG_QNX4FS_FS=m
+CONFIG_SYSV_FS=m
+CONFIG_UFS_FS=m
+# CONFIG_UFS_FS_WRITE is not set
+
+#
+# Network File Systems
+#
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+# CONFIG_NFS_ACL is not set
+CONFIG_NFS_V4=y
+CONFIG_NFS_DIRECTIO=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+# CONFIG_NFSD_ACL is not set
+CONFIG_NFSD_V4=y
+CONFIG_NFSD_TCP=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_SUNRPC=y
+CONFIG_SUNRPC_GSS=y
+CONFIG_RPCSEC_GSS_KRB5=y
+# CONFIG_RPCSEC_GSS_SPKM3 is not set
+CONFIG_SMB_FS=m
+# CONFIG_SMB_NLS_DEFAULT is not set
+CONFIG_CIFS=m
+# CONFIG_CIFS_STATS is not set
+# CONFIG_CIFS_XATTR is not set
+# CONFIG_CIFS_EXPERIMENTAL is not set
+CONFIG_NCP_FS=m
+CONFIG_NCPFS_PACKET_SIGNING=y
+CONFIG_NCPFS_IOCTL_LOCKING=y
+CONFIG_NCPFS_STRONG=y
+CONFIG_NCPFS_NFS_NS=y
+CONFIG_NCPFS_OS2_NS=y
+# CONFIG_NCPFS_SMALLDOS is not set
+CONFIG_NCPFS_NLS=y
+CONFIG_NCPFS_EXTRAS=y
+CONFIG_CODA_FS=m
+# CONFIG_CODA_FS_OLD_API is not set
+CONFIG_AFS_FS=m
+CONFIG_RXRPC=m
+
+#
+# Partition Types
+#
+CONFIG_PARTITION_ADVANCED=y
+CONFIG_ACORN_PARTITION=y
+CONFIG_ACORN_PARTITION_CUMANA=y
+# CONFIG_ACORN_PARTITION_EESOX is not set
+CONFIG_ACORN_PARTITION_ICS=y
+# CONFIG_ACORN_PARTITION_ADFS is not set
+# CONFIG_ACORN_PARTITION_POWERTEC is not set
+CONFIG_ACORN_PARTITION_RISCIX=y
+CONFIG_OSF_PARTITION=y
+CONFIG_AMIGA_PARTITION=y
+CONFIG_ATARI_PARTITION=y
+CONFIG_MAC_PARTITION=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_BSD_DISKLABEL=y
+CONFIG_MINIX_SUBPARTITION=y
+CONFIG_SOLARIS_X86_PARTITION=y
+CONFIG_UNIXWARE_DISKLABEL=y
+CONFIG_LDM_PARTITION=y
+# CONFIG_LDM_DEBUG is not set
+CONFIG_SGI_PARTITION=y
+CONFIG_ULTRIX_PARTITION=y
+CONFIG_SUN_PARTITION=y
+# CONFIG_EFI_PARTITION is not set
+
+#
+# Native Language Support
+#
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="cp437"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_737=m
+CONFIG_NLS_CODEPAGE_775=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_CODEPAGE_852=m
+CONFIG_NLS_CODEPAGE_855=m
+CONFIG_NLS_CODEPAGE_857=m
+CONFIG_NLS_CODEPAGE_860=m
+CONFIG_NLS_CODEPAGE_861=m
+CONFIG_NLS_CODEPAGE_862=m
+CONFIG_NLS_CODEPAGE_863=m
+CONFIG_NLS_CODEPAGE_864=m
+CONFIG_NLS_CODEPAGE_865=m
+CONFIG_NLS_CODEPAGE_866=m
+CONFIG_NLS_CODEPAGE_869=m
+CONFIG_NLS_CODEPAGE_936=m
+CONFIG_NLS_CODEPAGE_950=m
+CONFIG_NLS_CODEPAGE_932=m
+CONFIG_NLS_CODEPAGE_949=m
+CONFIG_NLS_CODEPAGE_874=m
+CONFIG_NLS_ISO8859_8=m
+CONFIG_NLS_CODEPAGE_1250=m
+CONFIG_NLS_CODEPAGE_1251=m
+CONFIG_NLS_ASCII=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_2=m
+CONFIG_NLS_ISO8859_3=m
+CONFIG_NLS_ISO8859_4=m
+CONFIG_NLS_ISO8859_5=m
+CONFIG_NLS_ISO8859_6=m
+CONFIG_NLS_ISO8859_7=m
+CONFIG_NLS_ISO8859_9=m
+CONFIG_NLS_ISO8859_13=m
+CONFIG_NLS_ISO8859_14=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_KOI8_R=m
+CONFIG_NLS_KOI8_U=m
+CONFIG_NLS_UTF8=m
+
+#
+# Profiling support
+#
+CONFIG_PROFILING=y
+CONFIG_OPROFILE=m
+
+#
+# Kernel hacking
+#
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_DETECT_SOFTLOCKUP=y
+# CONFIG_PRINTK_TIME is not set
+# CONFIG_SCHEDSTATS is not set
+# CONFIG_DEBUG_SLAB is not set
+CONFIG_DEBUG_PREEMPT=y
+# CONFIG_DEBUG_SPINLOCK is not set
+# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+# CONFIG_DEBUG_KOBJECT is not set
+# CONFIG_DEBUG_HIGHMEM is not set
+CONFIG_DEBUG_BUGVERBOSE=y
+# CONFIG_DEBUG_INFO is not set
+# CONFIG_PAGE_OWNER is not set
+# CONFIG_DEBUG_FS is not set
+# CONFIG_FRAME_POINTER is not set
+CONFIG_EARLY_PRINTK=y
+# CONFIG_DEBUG_STACKOVERFLOW is not set
+# CONFIG_KPROBES is not set
+# CONFIG_DEBUG_STACK_USAGE is not set
+# CONFIG_DEBUG_PAGEALLOC is not set
+# CONFIG_4KSTACKS is not set
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+# CONFIG_KGDB is not set
+
+#
+# Security options
+#
+# CONFIG_KEYS is not set
+CONFIG_SECURITY=y
+# CONFIG_SECURITY_NETWORK is not set
+CONFIG_SECURITY_CAPABILITIES=m
+CONFIG_SECURITY_ROOTPLUG=m
+# CONFIG_SECURITY_SECLVL is not set
+# CONFIG_SECURITY_REALTIME is not set
+# CONFIG_SECURITY_SELINUX is not set
+
+#
+# Cryptographic options
+#
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_NULL=m
+CONFIG_CRYPTO_MD4=m
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_SHA1=m
+CONFIG_CRYPTO_SHA256=m
+CONFIG_CRYPTO_SHA512=m
+# CONFIG_CRYPTO_WP512 is not set
+CONFIG_CRYPTO_DES=y
+CONFIG_CRYPTO_BLOWFISH=m
+CONFIG_CRYPTO_TWOFISH=m
+CONFIG_CRYPTO_SERPENT=m
+CONFIG_CRYPTO_AES_586=m
+CONFIG_CRYPTO_CAST5=m
+CONFIG_CRYPTO_CAST6=m
+CONFIG_CRYPTO_TEA=m
+CONFIG_CRYPTO_ARC4=m
+CONFIG_CRYPTO_KHAZAD=m
+# CONFIG_CRYPTO_ANUBIS is not set
+CONFIG_CRYPTO_DEFLATE=m
+CONFIG_CRYPTO_MICHAEL_MIC=m
+CONFIG_CRYPTO_CRC32C=m
+CONFIG_CRYPTO_TEST=m
+
+#
+# Hardware crypto devices
+#
+# CONFIG_CRYPTO_DEV_PADLOCK is not set
+
+#
+# Library routines
+#
+CONFIG_CRC_CCITT=m
+CONFIG_CRC32=m
+CONFIG_LIBCRC32C=m
+CONFIG_ZLIB_INFLATE=y
+CONFIG_ZLIB_DEFLATE=m
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_X86_TRAMPOLINE=y
+CONFIG_PC=y
+
+--------------020307040104030101000405--

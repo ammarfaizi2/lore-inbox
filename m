@@ -1,42 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265765AbUADXTg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 18:19:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265768AbUADXTf
+	id S265719AbUADXSY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 18:18:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265765AbUADXSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 18:19:35 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:1970 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S265765AbUADXTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 18:19:25 -0500
-Date: Sun, 4 Jan 2004 15:18:55 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Erik Hensema <erik@hensema.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0: something is leaking memory
-Message-ID: <20040104231855.GU1882@matchmail.com>
-Mail-Followup-To: Erik Hensema <erik@hensema.net>,
-	linux-kernel@vger.kernel.org
-References: <slrnbvgohn.1pb.erik@dexter.hensema.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <slrnbvgohn.1pb.erik@dexter.hensema.net>
-User-Agent: Mutt/1.5.4i
+	Sun, 4 Jan 2004 18:18:24 -0500
+Received: from 66.Red-80-38-104.pooles.rima-tde.net ([80.38.104.66]:19690 "HELO
+	fulanito.nisupu.com") by vger.kernel.org with SMTP id S265719AbUADXSV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 18:18:21 -0500
+Message-ID: <007501c3d319$2dc27e30$1530a8c0@HUSH>
+From: "Carlos Fernandez Sanz" <cfs-lk@nisupu.com>
+To: <linux-kernel@vger.kernel.org>
+References: <S265365AbUADWL5/20040104221159Z+4976@vger.kernel.org>
+Subject: Re: Any hope for HPT372/HPT374 IDE controller?
+Date: Mon, 5 Jan 2004 00:19:19 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 04, 2004 at 06:57:59PM +0000, Erik Hensema wrote:
-> The leak can be most easily seen in my rrdtool graphs of memory
-> usage: http://dexter.hensema.net/~erik/stats/mem-mon.gif and
-> http://dexter.hensema.net/~erik/stats/mem-year.gif - try to guess
-> when I switched to 2.6.0-test11 ;-)
+I'm using a HPT 404 (374 chipset). I had all those problems and fixed them
+by doing
 
-I saw something similair on my lrrd graphs.
+hdparm -m0 /dev/hd?
 
-http://www.matchmail.com/stats/lrrd/matchmail.com/mis-mike-wstn.matchmail.com-memory.html
+in every disk connected to the controller. Someone told me it isn't possible
+that helped one bit, but the fact is that it did.
 
-But it also happens on 2.4.23, and it was a bug in rxvt which I won't be
-able to try to reproduce until I get back to work tomorrow.
+I'm no (kernel) developer, though, so other than reality I have no
+arguments.
 
-Mike
+
+----- Original Message ----- 
+From: <tomwallard@soon.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Sunday, January 04, 2004 23:11
+Subject: Any hope for HPT372/HPT374 IDE controller?
+
+
+> Many people seem to have problems with the Highpoint HPT372 and HPT374 IDE
+> controllers. Several months ago there was a thread in which many people
+> reported failure and not many people reported success. For example, "hdX:
+> lost interrupt" errors right before a crash are a common problem. This was
+> happening over a wide range of kernel versions. In my case it happens more
+> quickly if there is heavy network or video load at the same time as heavy
+> load on this controller. (This is a motherboard with a KT400 chipset).
+>
+> Have any recent improvements been made? Does anyone have one of these
+controllers actually working correctly? Does anyone have any idea where to
+> begin tracking this problem down?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

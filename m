@@ -1,76 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262361AbVAOXZt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262360AbVAOXY4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbVAOXZt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 18:25:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbVAOXZt
+	id S262360AbVAOXY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 18:24:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbVAOXY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 18:25:49 -0500
-Received: from av9-1-sn3.vrr.skanova.net ([81.228.9.185]:25270 "EHLO
-	av9-1-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
-	id S262361AbVAOXZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 18:25:38 -0500
-MIME-Version: 1.0
+	Sat, 15 Jan 2005 18:24:56 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:53254 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262360AbVAOXYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 18:24:54 -0500
+Date: Sun, 16 Jan 2005 00:24:51 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Cc: ak@suse.de, discuss@x86-64.org
+Subject: [2.6 patch] i386/x86_64 process.c: make hlt_counter static
+Message-ID: <20050115232451.GC4274@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16873.42607.937915.146208@antilipe.corelatus.se>
-Date: Sun, 16 Jan 2005 00:25:35 +0100
-From: Matthias Lang <matthias@corelatus.se>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Chris Wedgwood <cw@f00f.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: patch to fix set_itimer() behaviour in boundary cases
-In-Reply-To: <1105820460.6300.86.camel@laptopd505.fenrus.org>
-References: <16872.55357.771948.196757@antilipe.corelatus.se>
-	<20050115013013.1b3af366.akpm@osdl.org>
-	<20050115093657.GI3474@holomorphy.com>
-	<1105783125.6300.32.camel@laptopd505.fenrus.org>
-	<20050115195504.GA10754@taniwha.stupidest.org>
-	<1105820460.6300.86.camel@laptopd505.fenrus.org>
-X-Mailer: VM 7.17 under 21.4 (patch 16) "Corporate Culture" XEmacs Lucid
-Reply-To: matthias@corelatus.se
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The patch below makes a needlessly global variable static.
 
-Chris Wedgewood suggested handling this with a printk, to which Arjan
-van de Ven asked 
 
- > but why????
- > 
- > if someone wants the stuff rejected in a posix confirm way, he can do
- > these tests easily in the syscall wrapper he needs anyway for this
- > function.
+diffstat output:
+ arch/i386/kernel/process.c   |    2 +-
+ arch/x86_64/kernel/process.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-For negative times and oversized usec values, that's easy. But the
-third problem was that setitimer() may silently truncate the time
-value. To deal with that, a wrapper would need to
 
-  a) know that this silent truncation happens in the first place. 
-     The only way I know of finding that out is to read the kernel
-     source. (the man page doesn't say anything, and POSIX doesn't
-     mention any silent truncation either)
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-and
-
-  b) Know that the particular value the truncation happens at is
-     dependent on HZ (and, presumably, know what HZ is on that
-     particular machine)
+--- linux-2.6.10-rc2-mm4-full/arch/i386/kernel/process.c.old	2004-12-06 01:25:27.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/i386/kernel/process.c	2004-12-06 01:25:38.000000000 +0100
+@@ -60,7 +60,7 @@
  
-I found it surprising that the timer set by setitimer() could expire
-before the time passed to it---the manpage explicitly promises that
-will never happen. 
+ asmlinkage void ret_from_fork(void) __asm__("ret_from_fork");
+ 
+-int hlt_counter;
++static int hlt_counter;
+ 
+ unsigned long boot_option_idle_override = 0;
+ EXPORT_SYMBOL(boot_option_idle_override);
+--- linux-2.6.10-rc2-mm4-full/arch/x86_64/kernel/process.c.old	2004-12-06 01:26:17.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/x86_64/kernel/process.c	2004-12-06 01:26:28.000000000 +0100
+@@ -53,7 +53,7 @@
+ 
+ unsigned long kernel_thread_flags = CLONE_VM | CLONE_UNTRACED;
+ 
+-atomic_t hlt_counter = ATOMIC_INIT(0);
++static atomic_t hlt_counter = ATOMIC_INIT(0);
+ 
+ unsigned long boot_option_idle_override = 0;
+ EXPORT_SYMBOL(boot_option_idle_override);
 
-On many (most?) machines, the obvious symptoms of this truncation
-don't start appearing until after 248 days of uptime, so it's not the
-sort of problem which jumps out in testing. A printk() warning would
-have helped me. As would a warning in the manpage, e.g.:
-
-   | BUGS
-   |
-   | Under Linux, timers will expire before the requested time if the
-   | requested time is larger than MAX_SEC_IN_JIFFIES, which is
-   | defined in include/linux/jiffies.h.
-
-Where can I send manpage improvements?
-
-Matthias

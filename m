@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267358AbUBSP4J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 10:56:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267375AbUBSP4J
+	id S267325AbUBSQGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 11:06:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267321AbUBSQGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 10:56:09 -0500
-Received: from 200-180-007-039.fnsce7006.e.brasiltelecom.net.br ([200.180.7.39]:63466
-	"EHLO server.konector.com.br") by vger.kernel.org with ESMTP
-	id S267358AbUBSP4F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 10:56:05 -0500
-From: cassio@konector.com.br
+	Thu, 19 Feb 2004 11:06:15 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:14214 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S267325AbUBSQF2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 11:05:28 -0500
 To: linux-kernel@vger.kernel.org
-Subject: E-mail recusado
-Message-Id: <20040219155625.9894875501@server.konector.com.br>
-Date: Thu, 19 Feb 2004 12:56:25 -0300 (BRT)
+Subject: Re: Strange problem with alsa, emu10k1 and ut2003 on 2.6.3
+In-Reply-To: <1077197950.4034bc7ec9730@imp1-q.free.fr>
+References: <1077197950.4034bc7ec9730@imp1-q.free.fr>
+Date: Thu, 19 Feb 2004 11:07:32 -0500
+Message-Id: <E1Atqi4-0000BM-7q@torg>
+From: Tyler Trafford <ttrafford@acm.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-O e-mail abaixo foi descartado por conter um anexo executável.
-Esta mensagem visa apenas sua informação; o remetente também
-foi informado do ocorrido.
+In gmane.linux.kernel, you wrote:
 
-*----------------------------------------------------------
-* From:    ejordening@hotmail.com
-* To:      linux-kernel@vger.kernel.org
-* Subject: fake
-* Date:    Thu, 19 Feb 2004 16:50:47 +0100
-* File(s): jokes.com"
-*---------------------------------------------------------- 
+> I have a strange problem with the sound on my PC [1] with the kernel
+> 2.6.3 when I play to unreal tournement 2003. I use the same
+> configuration as the 2.6.1 which work quite well on my computer.
+>
+> When I play to UT2003, sounds are not clean : there is some crackling.
+> Moreover, the music is played two or three time faster than normally.
+> As I haven't got this problem with 2.6.1, I imagine that it can be a
+> problem with the new alsa version.
 
+This is a problem with the openal.so library that comes with UT2003.  To
+fix it you can replace it with one from America's Army or UT2004; or you
+can just compile yourself a new one from cvs (www.openal.org).
+-- 
+Tyler Trafford
 
---
-Cassio
-
+Loneliness is a terrible price to pay for independence.

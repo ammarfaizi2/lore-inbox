@@ -1,224 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVASIMM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261646AbVASIQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbVASIMM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 03:12:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVASIJi
+	id S261646AbVASIQm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 03:16:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVASIP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 03:09:38 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:55743 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261633AbVASHdu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 02:33:50 -0500
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <fastboot@lists.osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH 13/29] x86_64-config-kernel-start
-Date: Wed, 19 Jan 2005 0:31:37 -0700
-Message-ID: <x86-64-config-kernel-start-11061198972987@ebiederm.dsl.xmission.com>
-X-Mailer: patch-bomb.pl@ebiederm.dsl.xmission.com
-In-Reply-To: <x86-config-kernel-start-1106119897152@ebiederm.dsl.xmission.com>
-References: <overview-11061198973484@ebiederm.dsl.xmission.com>
-	<x86-rename-apic-mode-exint-11061198973109@ebiederm.dsl.xmission.com>
-	<x86-local-apic-fix-11061198972413@ebiederm.dsl.xmission.com>
-	<x86-64-e820-64bit-11061198971581@ebiederm.dsl.xmission.com>
-	<x86-i8259-shutdown-11061198973856@ebiederm.dsl.xmission.com>
-	<x86-64-i8259-shutdown-11061198973969@ebiederm.dsl.xmission.com>
-	<x86-apic-virtwire-on-shutdown-11061198973730@ebiederm.dsl.xmission.com>
-	<x86-64-apic-virtwire-on-shutdown-11061198973345@ebiederm.dsl.xmission.com>
-	<vmlinux-fix-physical-addrs-11061198973860@ebiederm.dsl.xmission.com>
-	<x86-vmlinux-fix-physical-addrs-11061198971192@ebiederm.dsl.xmission.com>
-	<x86-64-vmlinux-fix-physical-addrs-11061198972723@ebiederm.dsl.xmission.com>
-	<x86-64-entry64-1106119897218@ebiederm.dsl.xmission.com>
-	<x86-config-kernel-start-1106119897152@ebiederm.dsl.xmission.com>
+	Wed, 19 Jan 2005 03:15:29 -0500
+Received: from egg.hpc2n.umu.se ([130.239.45.244]:2447 "EHLO egg.hpc2n.umu.se")
+	by vger.kernel.org with ESMTP id S261633AbVASILf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 03:11:35 -0500
+Date: Wed, 19 Jan 2005 09:11:32 +0100
+To: linux-kernel@vger.kernel.org
+Subject: multiple page allocation errors in 2.6.10
+Message-ID: <20050119081132.GD4494@hpc2n.umu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
+From: Ake.Sandgren@hpc2n.umu.se (Ake)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
+I'm getting multiple page allocation errors under high load.
+Should i worry about them?
 
+/etc/sysctl.conf:
+net/core/rmem_max = 83333333
+net/core/wmem_max = 83333333
+net/ipv4/tcp_rmem = 4096 833333 83333333
+net/ipv4/tcp_wmem = 4096 833333 83333333
+vm/min_free_kbytes = 32768
 
-For one kernel to report a crash another kernel has created we need
-to have 2 kernels loaded simultaneously in memory.  To accomplish this
-the two kernels need to built to run at different physical addresses.
+(The tcp stuff is there since we mostly have long distance traffic.)
+Please reply to me, i'm not on the list.
 
-This patch adds the CONFIG_PHYSICAL_START option to the x86_64 kernel
-so we can do just that.  You need to know what you are doing and
-the ramifications are before changing this value, and most users
-won't care so I have made it depend on CONFIG_EMBEDDED
+nfsd: page allocation failure. order:4, mode:0x50
+ [<c010365e>] dump_stack+0x1e/0x30
+ [<c013cefc>] __alloc_pages+0x1bc/0x350
+ [<c013d0b7>] __get_free_pages+0x27/0x40
+ [<c0140872>] kmem_getpages+0x22/0xd0
+ [<c01415e1>] cache_grow+0xc1/0x170
+ [<c014176b>] cache_alloc_refill+0xdb/0x220
+ [<c0141b7f>] __kmalloc+0x7f/0x90
+ [<f8ca0529>] kmem_alloc+0x59/0xe0 [xfs]
+ [<f8ca0661>] kmem_realloc+0x21/0x70 [xfs]
+ [<f8c7d59c>] xfs_iext_realloc+0xfc/0x150 [xfs]
+ [<f8c52cc2>] xfs_bmap_insert_exlist+0x32/0xa0 [xfs]
+ [<f8c4f98d>] xfs_bmap_add_extent_hole_delay+0x34d/0x540 [xfs]
+ [<f8c4d0b1>] xfs_bmap_add_extent+0x391/0x450 [xfs]
+ [<f8c557a4>] xfs_bmapi+0xf54/0x1540 [xfs]
+ [<f8c80ad3>] xfs_iomap_write_delay+0x5a3/0x940 [xfs]
+ [<f8c7fd79>] xfs_iomap+0x2d9/0x4c0 [xfs]
+ [<f8ca1cff>] linvfs_get_block_core+0x8f/0x2e0 [xfs]
+ [<f8ca1f95>] linvfs_get_block+0x45/0x50 [xfs]
+ [<c015b62b>] __block_prepare_write+0x1eb/0x400
+ [<c015c052>] block_prepare_write+0x32/0x50
+ [<c013a3e3>] generic_file_buffered_write+0x1a3/0x5a0
+ [<f8ca965a>] xfs_write+0x91a/0xb40 [xfs]
+ [<f8ca4f94>] linvfs_writev+0xd4/0xf0 [xfs]
+ [<c0158619>] do_readv_writev+0x149/0x240
+ [<c01587e5>] vfs_writev+0x65/0x70
+ [<f8d509ff>] nfsd_write+0xef/0x310 [nfsd]
+ [<f8d57e5d>] nfsd3_proc_write+0xbd/0x120 [nfsd]
+ [<f8d4c67b>] nfsd_dispatch+0xdb/0x210 [nfsd]
+ [<f8cf81ca>] svc_process+0x50a/0x650 [sunrpc]
+ [<f8d4c410>] nfsd+0x1b0/0x340 [nfsd]
+ [<c01009b5>] kernel_thread_helper+0x5/0x10
 
-bzImage kernels will work and run at a different address when compiled
-with this option but they will still load at 1MB.  If you need a kernel
-loaded at a different address as well you need to boot a vmlinux.
-
-Signed-off-by: Eric Biederman <ebiederm@xmission.com>
----
-
- arch/x86_64/Kconfig                |   11 +++++++++++
- arch/x86_64/boot/compressed/head.S |    7 ++++---
- arch/x86_64/boot/compressed/misc.c |    7 ++++---
- arch/x86_64/kernel/head.S          |   18 +++++++++---------
- include/asm-x86_64/page.h          |    6 ++++--
- 5 files changed, 32 insertions(+), 17 deletions(-)
-
-diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86-config-kernel-start/arch/x86_64/Kconfig linux-2.6.11-rc1-mm1-nokexec-x86_64-config-kernel-start/arch/x86_64/Kconfig
---- linux-2.6.11-rc1-mm1-nokexec-x86-config-kernel-start/arch/x86_64/Kconfig	Fri Jan 14 04:32:23 2005
-+++ linux-2.6.11-rc1-mm1-nokexec-x86_64-config-kernel-start/arch/x86_64/Kconfig	Tue Jan 18 22:46:57 2005
-@@ -359,6 +359,17 @@
- 	help
- 	   Additional support for intel specific MCE features such as
- 	   the thermal monitor.
-+
-+config PHYSICAL_START
-+	hex "Physical address where the kernel is loaded" if EMBEDDED
-+	default "0x100000"
-+	help
-+	  This gives the physical address where the kernel is loaded.
-+	  Primarily used in the case of kexec on panic where the
-+	  fail safe kernel needs to run at a different address than
-+	  the panic-ed kernel.
-+          
-+	  Don't change this unless you know what you are doing.
- endmenu
- 
- #
-diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86-config-kernel-start/arch/x86_64/boot/compressed/head.S linux-2.6.11-rc1-mm1-nokexec-x86_64-config-kernel-start/arch/x86_64/boot/compressed/head.S
---- linux-2.6.11-rc1-mm1-nokexec-x86-config-kernel-start/arch/x86_64/boot/compressed/head.S	Mon Oct 18 15:55:28 2004
-+++ linux-2.6.11-rc1-mm1-nokexec-x86_64-config-kernel-start/arch/x86_64/boot/compressed/head.S	Tue Jan 18 22:46:57 2005
-@@ -28,6 +28,7 @@
- 
- #include <linux/linkage.h>
- #include <asm/segment.h>
-+#include <asm/page.h>
- 
- 	.code32
- 	.globl startup_32
-@@ -77,7 +78,7 @@
- 	jnz  3f
- 	addl $8,%esp
- 	xorl %ebx,%ebx
--	ljmp $(__KERNEL_CS), $0x100000
-+	ljmp $(__KERNEL_CS), $__PHYSICAL_START
- 
- /*
-  * We come here, if we were loaded high.
-@@ -103,7 +104,7 @@
- 	popl %ecx	# lcount
- 	popl %edx	# high_buffer_start
- 	popl %eax	# hcount
--	movl $0x100000,%edi
-+	movl $__PHYSICAL_START,%edi
- 	cli		# make sure we don't get interrupted
- 	ljmp $(__KERNEL_CS), $0x1000 # and jump to the move routine
- 
-@@ -128,7 +129,7 @@
- 	movsl
- 	movl %ebx,%esi	# Restore setup pointer
- 	xorl %ebx,%ebx
--	ljmp $(__KERNEL_CS), $0x100000
-+	ljmp $(__KERNEL_CS), $__PHYSICAL_START
- move_routine_end:
- 
- 
-diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86-config-kernel-start/arch/x86_64/boot/compressed/misc.c linux-2.6.11-rc1-mm1-nokexec-x86_64-config-kernel-start/arch/x86_64/boot/compressed/misc.c
---- linux-2.6.11-rc1-mm1-nokexec-x86-config-kernel-start/arch/x86_64/boot/compressed/misc.c	Mon Oct 18 15:53:51 2004
-+++ linux-2.6.11-rc1-mm1-nokexec-x86_64-config-kernel-start/arch/x86_64/boot/compressed/misc.c	Tue Jan 18 22:46:57 2005
-@@ -11,6 +11,7 @@
- 
- #include "miscsetup.h"
- #include <asm/io.h>
-+#include <asm/page.h>
- 
- /*
-  * gzip declarations
-@@ -284,7 +285,7 @@
- #else
- 	if ((ALT_MEM_K > EXT_MEM_K ? ALT_MEM_K : EXT_MEM_K) < 1024) error("Less than 2MB of memory");
- #endif
--	output_data = (char *)0x100000; /* Points to 1M */
-+	output_data = (char *)__PHYSICAL_START; /* Normally Points to 1M */
- 	free_mem_end_ptr = (long)real_mode;
- }
- 
-@@ -307,8 +308,8 @@
- 	low_buffer_size = low_buffer_end - LOW_BUFFER_START;
- 	high_loaded = 1;
- 	free_mem_end_ptr = (long)high_buffer_start;
--	if ( (0x100000 + low_buffer_size) > ((ulg)high_buffer_start)) {
--		high_buffer_start = (uch *)(0x100000 + low_buffer_size);
-+	if ( (__PHYSICAL_START + low_buffer_size) > ((ulg)high_buffer_start)) {
-+		high_buffer_start = (uch *)(__PHYSICAL_START + low_buffer_size);
- 		mv->hcount = 0; /* say: we need not to move high_buffer */
- 	}
- 	else mv->hcount = -1;
-diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86-config-kernel-start/arch/x86_64/kernel/head.S linux-2.6.11-rc1-mm1-nokexec-x86_64-config-kernel-start/arch/x86_64/kernel/head.S
---- linux-2.6.11-rc1-mm1-nokexec-x86-config-kernel-start/arch/x86_64/kernel/head.S	Tue Jan 18 22:46:24 2005
-+++ linux-2.6.11-rc1-mm1-nokexec-x86_64-config-kernel-start/arch/x86_64/kernel/head.S	Tue Jan 18 22:46:57 2005
-@@ -235,23 +235,23 @@
- 	 */
- .org 0x1000
- ENTRY(init_level4_pgt)
--	.quad	0x0000000000102007		/* -> level3_ident_pgt */
-+	.quad	0x0000000000002007 + __PHYSICAL_START	/* -> level3_ident_pgt */
- 	.fill	255,8,0
--	.quad	0x000000000010a007
-+	.quad	0x000000000000a007 + __PHYSICAL_START
- 	.fill	254,8,0
- 	/* (2^48-(2*1024*1024*1024))/(2^39) = 511 */
--	.quad	0x0000000000103007		/* -> level3_kernel_pgt */
-+	.quad	0x0000000000003007 + __PHYSICAL_START	/* -> level3_kernel_pgt */
- 
- .org 0x2000
- ENTRY(level3_ident_pgt)
--	.quad	0x0000000000104007
-+	.quad	0x0000000000004007 + __PHYSICAL_START
- 	.fill	511,8,0
- 
- .org 0x3000
- ENTRY(level3_kernel_pgt)
- 	.fill	510,8,0
- 	/* (2^48-(2*1024*1024*1024)-((2^39)*511))/(2^30) = 510 */
--	.quad	0x0000000000105007		/* -> level2_kernel_pgt */
-+	.quad	0x0000000000005007 + __PHYSICAL_START	/* -> level2_kernel_pgt */
- 	.fill	1,8,0
- 
- .org 0x4000
-@@ -324,17 +324,17 @@
- 
- .org 0xa000
- ENTRY(level3_physmem_pgt)
--	.quad	0x0000000000105007		/* -> level2_kernel_pgt (so that __va works even before pagetable_init) */
-+	.quad	0x0000000000005007 + __PHYSICAL_START	/* -> level2_kernel_pgt (so that __va works even before pagetable_init) */
- 
- 	.org 0xb000
- #ifdef CONFIG_ACPI_SLEEP
- ENTRY(wakeup_level4_pgt)
--	.quad	0x0000000000102007		/* -> level3_ident_pgt */
-+	.quad	0x0000000000002007 + __PHYSICAL_START	/* -> level3_ident_pgt */
- 	.fill	255,8,0
--	.quad	0x000000000010a007
-+	.quad	0x000000000000a007 + __PHYSICAL_START
- 	.fill	254,8,0
- 	/* (2^48-(2*1024*1024*1024))/(2^39) = 511 */
--	.quad	0x0000000000103007		/* -> level3_kernel_pgt */
-+	.quad	0x0000000000003007 + __PHYSICAL_START	/* -> level3_kernel_pgt */
- #endif
- 
- 	.data
-diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86-config-kernel-start/include/asm-x86_64/page.h linux-2.6.11-rc1-mm1-nokexec-x86_64-config-kernel-start/include/asm-x86_64/page.h
---- linux-2.6.11-rc1-mm1-nokexec-x86-config-kernel-start/include/asm-x86_64/page.h	Fri Jan 14 04:32:27 2005
-+++ linux-2.6.11-rc1-mm1-nokexec-x86_64-config-kernel-start/include/asm-x86_64/page.h	Tue Jan 18 22:46:57 2005
-@@ -65,12 +65,14 @@
- extern unsigned long vm_data_default_flags, vm_data_default_flags32;
- extern unsigned long vm_force_exec32;
- 
--#define __START_KERNEL		0xffffffff80100000UL
-+#define __PHYSICAL_START	((unsigned long)CONFIG_PHYSICAL_START)
-+#define __START_KERNEL		(__START_KERNEL_map + __PHYSICAL_START)
- #define __START_KERNEL_map	0xffffffff80000000UL
- #define __PAGE_OFFSET           0xffff810000000000UL
- 
- #else
--#define __START_KERNEL		0xffffffff80100000
-+#define __PHYSICAL_START	CONFIG_PHYSICAL_START
-+#define __START_KERNEL		(__START_KERNEL_map + __PHYSICAL_START)
- #define __START_KERNEL_map	0xffffffff80000000
- #define __PAGE_OFFSET           0xffff810000000000
- #endif /* !__ASSEMBLY__ */
+-- 
+Ake Sandgren, HPC2N, Umea University, S-90187 Umea, Sweden
+Internet: ake@hpc2n.umu.se	Phone: +46 90 7866134 Fax: +46 90 7866126
+Mobile: +46 70 7716134 WWW: http://www.hpc2n.umu.se

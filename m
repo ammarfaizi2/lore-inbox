@@ -1,70 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273358AbRJKHGF>; Thu, 11 Oct 2001 03:06:05 -0400
+	id <S273495AbRJKH2Z>; Thu, 11 Oct 2001 03:28:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273360AbRJKHFz>; Thu, 11 Oct 2001 03:05:55 -0400
-Received: from [213.45.102.230] ([213.45.102.230]:57608 "EHLO
-	penny.ik5pvx.ampr.org") by vger.kernel.org with ESMTP
-	id <S273358AbRJKHFv>; Thu, 11 Oct 2001 03:05:51 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Tulip problem in Kernel 2.4.11
-In-Reply-To: <000701c151c4$0e6933e0$0300a8c0@theburbs.com>
-Reply-To: Pierfrancesco Caci <p.caci@tin.it>
-From: Pierfrancesco Caci <ik5pvx@penny.ik5pvx.ampr.org>
-Date: 11 Oct 2001 09:06:17 +0200
-In-Reply-To: <000701c151c4$0e6933e0$0300a8c0@theburbs.com>
-Message-ID: <87u1x6zmdy.fsf@penny.ik5pvx.ampr.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
+	id <S273463AbRJKH2G>; Thu, 11 Oct 2001 03:28:06 -0400
+Received: from t2.redhat.com ([199.183.24.243]:43769 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S273385AbRJKH1z>; Thu, 11 Oct 2001 03:27:55 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <16172.1002749316@ocs3.intra.ocs.com.au> 
+In-Reply-To: <16172.1002749316@ocs3.intra.ocs.com.au> 
+To: Keith Owens <kaos@ocs.com.au>
+Cc: "Morgan Collins [Ax0n]" <sirmorcant@morcant.org>, tkhoadfdsaf@hotmail.com,
+        alan@lxorguk.ukuu.org.uk, viro@math.psu.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: Tainted Modules Help Notices 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Thu, 11 Oct 2001 08:27:17 +0100
+Message-ID: <31498.1002785237@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-:-> "Jamie" == Jamie  <darkshad@home.com> writes:
 
-    > Hello there is a definate problem with the tulip drivers in the 2.4.11
-    > kernel.
-    > I have a DEC DC 21041 NIC which uses the tulip drivers.  I use the 2.2.19
-    > kernel and there are
-    > two different sets of tulip drivers listed in that kernel which
-    > I can choose 
-    > from in the 2.4.11 kernel there is only one. When I do a
-    > modprobe tulip the 
-    > driver loads fine as you can see bellow there are no strange
-    > error messages 
-    > ect.  But I can not communicate though this one NIC. When I use
-    > the 2.2.19 
-    > Kernel it works fine.
+kaos@ocs.com.au said:
+>  If somebody uses a different string, their license is not GPL. 
 
-I can add to this that 2.4.2 works fine, I've tried 2.4.9 and 2.4.11
-and I can't use the lan either. 
-In 2.4.11, I can see that the driver can sense if I plug/unplug the
-connector (10BaseT, connected to a Compaq Netelligent 8 port hub), but
-nothing more.
+We do not care if they use a licence which is not GPL. We only care if they 
+use a licence which is not GPL-compatible.
 
-here's what 2.4.2 says about the card:
+>  To triage bug reports.  Any bug report against a tainted kernel is
+> almost certain to be bounced with "your kernel contains code that we
+> do not have the source for, send this bug report to the company that
+> maintains the non-GPL code".
 
-# lspci -v -v -s 00:03.0
-00:03.0 Ethernet controller: Digital Equipment Corporation DECchip 21041 [Tulip Pass 3] (rev 11)
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 96
-        Interrupt: pin A routed to IRQ 15
-        Region 0: I/O ports at fc00 [size=128]
-        Region 1: Memory at df000000 (32-bit, non-prefetchable) [size=128]
-        Expansion ROM at de000000 [disabled] [size=256K]
+In the case which started this thread, the non-GPL code in question was part
+of the kernel source tree, and we _do_ have the source for it. It was the
+BSD-licensed PPP compression code. 
 
-I am now trying to compile again 2.4.11 with the driver as module,
-instead of built-in, just to see if I can pass some parameters to
-force a media type without rebooting every time.
+You seem to have claimed that this is not a bug, but that it's intentional.
+Are you therefore going to make changes to the build system so that the
+static kernel image will boot up marked as tainted if CONFIG_PPP_BSDCOMP=y?
 
-Please suggest any other test I can make, or if you need more informations.
+--
+dwmw2
 
-Pf
 
--- 
-
--------------------------------------------------------------------------------
- Pierfrancesco Caci | ik5pvx | mailto:p.caci@tin.it  -  http://gusp.dyndns.org
-  Firenze - Italia  | Office for the Complication of Otherwise Simple Affairs 
-     Linux penny 2.4.7 #1 Thu Jul 26 14:48:56 CEST 2001 i686 unknown

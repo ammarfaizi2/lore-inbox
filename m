@@ -1,85 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265113AbUEVBwV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265168AbUEVBzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265113AbUEVBwV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 21:52:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264876AbUEVBtK
+	id S265168AbUEVBzW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 21:55:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264876AbUEVBwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 21:49:10 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:36350 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264804AbUEVBqS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 21:46:18 -0400
-Date: Thu, 20 May 2004 15:46:04 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, ipslinux@adaptec.com
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [patch] 2.4.27-pre3: SCSI ips compile error
-Message-ID: <20040520134604.GL24287@fs.tum.de>
-References: <20040518203039.GA9970@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040518203039.GA9970@logos.cnet>
-User-Agent: Mutt/1.5.6i
+	Fri, 21 May 2004 21:52:55 -0400
+Received: from smtp.dei.uc.pt ([193.137.203.228]:28846 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S264843AbUEVBuu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 21:50:50 -0400
+Date: Sat, 22 May 2004 02:50:25 +0100 (WEST)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: Rob Couto <rpc@cafe4111.org>
+cc: =?iso-8859-1?q?Mart=EDn_Chikilian?= <slack@efn.uncor.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linus is not the Linux father - Said MSFT Alexis de Tocqueville
+ Institution
+In-Reply-To: <200405191710.29066.rpc@cafe4111.org>
+Message-ID: <Pine.LNX.4.58.0405220235540.24962@student.dei.uc.pt>
+References: <200405171941.i4HJfmc08269@pincoya.inf.utfsm.cl>
+ <40AA0061.8090500@efn.uncor.edu> <200405191710.29066.rpc@cafe4111.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-UC-FCTUC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-FCTUC-DEI-MailScanner: Found to be clean
+X-MailScanner-From: marado@student.dei.uc.pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 18, 2004 at 05:30:40PM -0300, Marcelo Tosatti wrote:
->...
-> Summary of changes from v2.4.27-pre2 to v2.4.27-pre3
-> ============================================
->...
-> Jack Hammer:
->   o ServeRAID driver update to 7.00.15: sync with v2.6
->...
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It was nice if people would actually test at least the compilation of
-their changes instead of blindly submitting the latest version of a
-driver...
+On Wed, 19 May 2004, Rob Couto wrote:
 
-<--  snip  -->
+> > Its seems to be a good discussion topic for me.
+> > I want to know how the Linux community reacts to this kind of marketing
+> > over the net and how can the subscribers be affected.
+> > I really want to know Linus's opinion about this.
+> > Cheers,
+> > Martin
+>
+> more wetware cracking = more ignorant people being led around. someone should
+> issue a press release about carefully prepared press releases that do
+> something similar to stack smashing, but in brains.
 
-...
-gcc -D__KERNEL__ 
--I/home/bunk/linux/kernel-2.4/linux-2.4.27-pre3-full/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon   
--nostdinc -iwithprefix include -DKBUILD_BASENAME=ips  -c -o ips.o ips.c
-In file included from ips.c:180:
-ips.h:99: error: redefinition of `irqreturn_t'
-/home/bunk/linux/kernel-2.4/linux-2.4.27-pre3-full/include/linux/interrupt.h:16: 
-error: `irqreturn_t' previously declared here
-make[3]: *** [ips.o] Error 1
-make[3]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.27-pre3-full/drivers/scsi'
+Well...
 
-<--  snip  -->
+After Linus saying that the real creators of Linux are "the Tooth Fairy and
+Santa Claus" ( http://www.linuxworld.com/story/44851.htm ), Andy Tanenbaum
+wrote Some Notes on the "Who wrote Linux" Kerfuffle
+( http://www.cs.vu.nl/~ast/brown/ ) and today made a follow-up
+(http://www.cs.vu.nl/~ast/brown/followup/ ) telling what were the motivations
+of Ken Brown, President of the Alexis de Tocqueville Institution.
 
+Interesting readings...
 
-irqreturn_t was added to interrupt.h in 2.4.23, released nearly
-6 months (!) ago.
+Anyway, I think this is kind of an off-topic theme for this Mailing List.
 
-Trivial fix below.
+- -- 
+/* ************************************************************************* */
+   Marcos Daniel Marado Torres		AKA 		     Mind Booster Noori
+   http://student.dei.uc.pt/~marado 	 - 	       marado@student.dei.uc.pt
+() Join the ASCII ribbon campaign against html email and Microsoft attachments.
+/\ Software patents are endangering the computer industry all around the world.
+   Join the LPF: 	http://lpf.ai.mit.edu/ 	 http://petition.eurolinux.org/
+/* ************************************************************************* */
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
 
-cu
-Adrian
+iD8DBQFArrHnmNlq8m+oD34RAlM5AKDZqRYhnfEtMkfBOCnj/qj1JkU+LwCfSOeY
+42YyHkDeJPQOfCrGbdmzzFE=
+=GiUg
+-----END PGP SIGNATURE-----
 
-
-
---- linux-2.4.27-pre3-full/drivers/scsi/ips.h.old	2004-05-19 21:40:58.000000000 +0200
-+++ linux-2.4.27-pre3-full/drivers/scsi/ips.h	2004-05-19 21:42:01.000000000 +0200
-@@ -95,11 +95,14 @@
-       #define scsi_set_pci_device(sh,dev) (0)
-    #endif
- 
--   #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-+   #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,23)
-       typedef void irqreturn_t;
-       #define IRQ_NONE
-       #define IRQ_HANDLED
-       #define IRQ_RETVAL(x)
-+   #endif
-+
-+   #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-       #define IPS_REGISTER_HOSTS(SHT)      scsi_register_module(MODULE_SCSI_HA,SHT)
-       #define IPS_UNREGISTER_HOSTS(SHT)    scsi_unregister_module(MODULE_SCSI_HA,SHT)
-       #define IPS_ADD_HOST(shost,device)

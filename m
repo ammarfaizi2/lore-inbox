@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130847AbRARTpg>; Thu, 18 Jan 2001 14:45:36 -0500
+	id <S135372AbRARTuG>; Thu, 18 Jan 2001 14:50:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132643AbRARTp0>; Thu, 18 Jan 2001 14:45:26 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:26466 "EHLO
-	amsmta05-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S130847AbRARTpN>; Thu, 18 Jan 2001 14:45:13 -0500
-Date: Thu, 18 Jan 2001 21:52:02 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: Padraig Brady <Padraig@AnteFacto.com>
-cc: dmeyer@dmeyer.net, linux-kernel@vger.kernel.org
-Subject: Re: Documenting stat(2)
-In-Reply-To: <3A66D93C.8090500@AnteFacto.com>
-Message-ID: <Pine.LNX.4.21.0101182150060.27730-100000@server.serve.me.nl>
+	id <S135313AbRARTtq>; Thu, 18 Jan 2001 14:49:46 -0500
+Received: from pine.parrswood.manchester.sch.uk ([213.205.138.155]:17674 "EHLO
+	parrswood.manchester.sch.uk") by vger.kernel.org with ESMTP
+	id <S132643AbRARTtj>; Thu, 18 Jan 2001 14:49:39 -0500
+Date: Thu, 18 Jan 2001 19:49:36 +0000 (GMT)
+From: Tim Fletcher <tim@parrswood.manchester.sch.uk>
+To: David Balazic <david.balazic@uni-mb.si>
+cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+        Matti Aarnio <matti.aarnio@zmailer.org>
+Subject: Re: Linux not adhering to BIOS Drive boot order?
+In-Reply-To: <3A672015.B69F7E90@uni-mb.si>
+Message-ID: <Pine.LNX.4.30.0101181944280.7321-100000@pine.parrswood.manchester.sch.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> What is the difference between physical and logical partitions ?
 
-> Nope stat should return the details of the symlink
-> whereas lstat should return the details of the symlink target.
+primary (what you call physical) partitions are partitions in their own
+right logical partitions are partitions within a special partition
 
-It's the other way around according to the manpage, and my code also says
-it's the other way around.
+> How does this solve the "I deleted hda5 and now the old hda6 became
+> hda5" problem ?
 
-It's logical the way it is.. 
+It doesn't nothing can as the way that the pcbios extended partition works
+as a (linked?) list of partitions so removing one shuffles the rest up.
 
-I use lstat to check if a config file is a symlink, and if it is, it
-refuses to open it. 
+-- 
+   Tim Fletcher - Network manager   .~.
+                                    /V\      L   I   N   U   X
+     nightshade@solanum.net        // \\  >Don't fear the penguin<
+tim@parrswood.manchester.sch.uk   /(   )\
+ irc: Night-Shade on quakenet      ^^-^^
 
-
-
-	Igmar
+"While preceding your entrance with a grenade is a good tactic in
+   Quake, it can lead to problems if attempted at work." -- C Hacking
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

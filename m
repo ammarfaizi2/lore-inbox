@@ -1,33 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268387AbRGXRjW>; Tue, 24 Jul 2001 13:39:22 -0400
+	id <S268395AbRGXRkw>; Tue, 24 Jul 2001 13:40:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268388AbRGXRjM>; Tue, 24 Jul 2001 13:39:12 -0400
-Received: from zenith102.desy.de ([131.169.43.185]:45574 "EHLO
-	zenith102.desy.de") by vger.kernel.org with ESMTP
-	id <S268387AbRGXRjD>; Tue, 24 Jul 2001 13:39:03 -0400
-Date: Tue, 24 Jul 2001 19:39:04 +0200 (CEST)
-From: Stefan Stonjek <stefan@zenith102.desy.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: variable dumpable changed place in sched.h 
-Message-ID: <Pine.LNX.4.33.0107241933060.32445-100000@zenith102.desy.de>
+	id <S268391AbRGXRkd>; Tue, 24 Jul 2001 13:40:33 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:59528 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S268390AbRGXRkQ>;
+	Tue, 24 Jul 2001 13:40:16 -0400
+Date: Tue, 24 Jul 2001 14:04:28 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Optimization for use-once pages
+In-Reply-To: <200107241648.f6OGmqp29445@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0107241359180.20326-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Today I tried to compile arla 0.35.5 for the new 2.4.7 Linux kernel.
-I figured out that linux/include/linux/sched.h changed in a way which
-blocks arla.
+On Tue, 24 Jul 2001, Linus Torvalds wrote:
 
-The variable "dumpable" moved from the "task_struct" to "mm_struct". Since
-"task_struct" includes two pointers to "mm_struct" I do not know which
-variable (mm->dumpable or active_mm->dumpable) takes over the role of the
-single "dumpable" variable from the older kernels?
+> Hey, this looks _really_ nice. I never liked the special-cases
+> that you removed (drop_behind in particular), and I have to say
+> that the new code looks a lot saner, even without your extensive
+> description and timing analysis.
 
-Maybe someone can tell me, so I can patch arla.
+Fully agreed, drop_behind is an ugly hack.  The sooner
+it dies the happier I am ;)
 
-Tschuess
-	Stefan
+> Please people, test this out extensively - I'd love to integrate
+> it, but while it looks very sane I'd really like to hear of
+> different peoples reactions to it under different loads.
+
+The one thing which has always come up in LRU/k and 2Q
+papers is that the "first reference" can really be a
+series of references in a very short time.
+
+Counting only the very first reference will fail if we
+do eg. sequential IO with non-page aligned read() calls,
+which doesn't look like it's too uncommon.
+
+In order to prevent this from happening, either the system
+counts all first references in a short timespan (complex to
+implement) or it has the new pages on a special - small fixed
+size - page list and all references to the page while on that
+list are ignored.
+
+regards,
+
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

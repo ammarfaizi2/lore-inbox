@@ -1,32 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265669AbUA0Xaf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 18:30:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265677AbUA0Xaf
+	id S264925AbUA0XmE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 18:42:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265675AbUA0XkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 18:30:35 -0500
-Received: from sea2-f42.sea2.hotmail.com ([207.68.165.42]:57098 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S265669AbUA0Xae
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 18:30:34 -0500
-X-Originating-IP: [192.52.57.33]
-X-Originating-Email: [dreiland@hotmail.com]
-From: "Doug Reiland" <dreiland@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: double fault in scheduler()
-Date: Tue, 27 Jan 2004 18:30:33 -0500
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Sea2-F42H1GLCbnx3HD0003b68e@hotmail.com>
-X-OriginalArrivalTime: 27 Jan 2004 23:30:34.0058 (UTC) FILETIME=[8F83E2A0:01C3E52D]
+	Tue, 27 Jan 2004 18:40:04 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:17334 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S264925AbUA0Xjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 18:39:36 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Christoph Hellwig <hch@infradead.org>
+Date: Wed, 28 Jan 2004 10:39:11 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16406.63135.118742.545084@notabene.cse.unsw.edu.au>
+Cc: Florian Huber <florian.huber@mnet-online.de>,
+       JFS-Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Jfs-discussion] md raid + jfs + jfs_fsck
+In-Reply-To: message from Christoph Hellwig on Tuesday January 27
+References: <1075230933.11207.84.camel@suprafluid>
+	<1075231718.21763.28.camel@shaggy.austin.ibm.com>
+	<1075232395.11203.94.camel@suprafluid>
+	<1075236185.21763.89.camel@shaggy.austin.ibm.com>
+	<20040127205324.A19913@infradead.org>
+	<1075238385.14214.3.camel@suprafluid>
+	<20040127212243.A20349@infradead.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There seems to be a window in scheduler() where we have switch to the new 
-process's mm, but are running on the old process's stack. This stack might 
-not be mapped in the new process.
+On Tuesday January 27, hch@infradead.org wrote:
+> 
+> You can't partition md devices (yet), but otherwise yes.  I think you can
+> also create md device without the persistant superblock still, but it
+> always was a pain to maintain those.
 
-_________________________________________________________________
-Get a FREE online virus check for your PC here, from McAfee. 
-http://clinic.mcafee.com/clinic/ibuy/campaign.asp?cid=3963
+non-persistent superblock arrays only work for raid0 and linear
+(i.e. not redundancy).  RAID1 and RAID5 need a superblock.
 
+NeilBrown
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,81 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266458AbUFUUsk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266459AbUFUUvA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266458AbUFUUsk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 16:48:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266459AbUFUUsk
+	id S266459AbUFUUvA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 16:51:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266461AbUFUUvA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 16:48:40 -0400
-Received: from outmx001.isp.belgacom.be ([195.238.3.51]:42975 "EHLO
-	outmx001.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S266458AbUFUUsi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 16:48:38 -0400
-Subject: 2.6.7-mm1 I/O regression ?
-From: FabF <fabian.frederick@skynet.be>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20040620174632.74e08e09.akpm@osdl.org>
-References: <20040620174632.74e08e09.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1087859142.2331.30.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 22 Jun 2004 01:05:43 +0200
+	Mon, 21 Jun 2004 16:51:00 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:6060 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266459AbUFUUu5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 16:50:57 -0400
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM LTC (xSeries Solutions
+To: "Kirill Korotaev" <kksx@mail.ru>, linux-kernel@vger.kernel.org
+Subject: Re: can TSC tick with different speeds on SMP?
+Date: Mon, 21 Jun 2004 13:50:09 -0700
+User-Agent: KMail/1.5.4
+References: <E1BcU4I-000Cj2-00.kksx-mail-ru@f27.mail.ru>
+In-Reply-To: <E1BcU4I-000Cj2-00.kksx-mail-ru@f27.mail.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200406211350.09295.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+IIRC, in the IA64 manuals Intel, by carefully not making any guarantees 
+to the contrary, reserved the right to have the TSC-equivalent register 
+not be synchronized either to the bus clock or the CPU clock.
 
-	I've got strange I/O regression from 2.6.7-mm1.Here's a small fgrep
-report :
-	
-2.6.7-mm1 (worst results ever seen)
------------------------------------
-Grepping  /usr/bin  :
-23% cpu - 86.16 RT Sec - 1.77 Sec in KM
-Entries scanned :
-1569
-90192 Kb analyzed this time
+This doesn't directly apply to IA32, but may give a hint as to their 
+future intentions.
 
-2.6.7-mm1 vm profile snippet
-----------------------------
 
-61.9360  vmlinux                  poll_idle
-0.8899  vmlinux                  mark_offset_tsc
-0.8857  vmlinux                  __copy_to_user_ll
-0.6136  vmlinux                  mask_and_ack_8259A
-0.5605  vmlinux                  do_anonymous_page
-0.3445  vmlinux                  unix_poll
-0.3240  vmlinux                  __switch_to
-0.2016  vmlinux                  enable_8259A_irq
-0.1448  vmlinux                  do_select
-0.1336  vmlinux                  get_exec_dcookie
-0.1128  vmlinux                  fget
-0.0959  vmlinux                  schedule
+On Monday 21 June 2004 12:02 pm, Kirill Korotaev wrote:
+> Hello,
+>
+> I've got some stupid question to SMP gurus and would be very thankful
+> for the details. I suddenly faced an SMP system where different P4
+> cpus were installed (with different steppings). This resulted in
+> different CPU clock speeds and different speeds of time stamp
+> counters on these CPUs. I faced the problem during some timings I
+> measured in the kernel.
+>
+> So the question is "is such system compliant with SMP
+> specification?". In old kernels there was a code to syncronize TSCs
+> and to detect if they were screwed up. Current kernels do not have
+> such code. Is it intentional? I suppose there is some code in kernel
+> which won't work find on such systems (real-time threads timing
+> accounting and so on).
+>
+> Thanks in advance,
+> Kirill
+>
+> -
+>
 
-2.6.7 (best results ever seen)
-------------------------------
-Grepping  /usr/bin  :
-48% cpu - 37.61 RT Sec - 1.46 Sec in KM
-Entries scanned :
-1569
-90184 Kb analyzed this time
-
-2.6.7 vm Profile snippet
-------------------------
-80.4850  vmlinux                  poll_idle
-0.9149  vmlinux                  mark_offset_tsc
-0.7879  vmlinux                  mask_and_ack_8259A
-0.4552  vmlinux                  do_wp_page
-0.3943  vmlinux                  do_anonymous_page
-0.2559  vmlinux                  enable_8259A_irq
-0.2464  vmlinux                  __copy_to_user_ll
-0.1721  vmlinux                  unix_poll
-0.1302  vmlinux                  irq_entries_start
-
-Well, profiles don't give a clue but fgrep RT delta is impressive.Did I missed something ?
-
-PS : Those tests were made on ext3 partition.
-
-Regards,
-FabF
+-- 
+James Cleverdon
+IBM LTC (xSeries Linux Solutions)
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot comm
 

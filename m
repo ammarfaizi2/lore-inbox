@@ -1,63 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264361AbUAKPC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 10:02:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265882AbUAKPC2
+	id S265900AbUAKPI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 10:08:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265902AbUAKPIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 10:02:28 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16909 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264361AbUAKPC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 10:02:26 -0500
-Date: Sun, 11 Jan 2004 15:02:23 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: kernel 2.6: can't get 3c575/PCMCIA working - other PCMCIA card work
-Message-ID: <20040111150223.A8427@flint.arm.linux.org.uk>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20040106111939.GA2046@piper.madduck.net> <20040111120053.C1931@flint.arm.linux.org.uk> <20040111123208.GA4766@piper.madduck.net> <20040111125404.E1931@flint.arm.linux.org.uk> <20040111144343.GA8410@piper.madduck.net>
+	Sun, 11 Jan 2004 10:08:25 -0500
+Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:23822 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S265900AbUAKPIX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 10:08:23 -0500
+Date: Sun, 11 Jan 2004 16:10:15 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@Stimpy.netroedge.com>
+Subject: [PATCH 2.4] i2c cleanups, third wave (6/8)
+Message-Id: <20040111161015.06588cb5.khali@linux-fr.org>
+In-Reply-To: <20040111144214.7a6a4e59.khali@linux-fr.org>
+References: <20040111144214.7a6a4e59.khali@linux-fr.org>
+Reply-To: LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@Stimpy.netroedge.com>
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040111144343.GA8410@piper.madduck.net>; from madduck@madduck.net on Sun, Jan 11, 2004 at 03:43:43PM +0100
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 11, 2004 at 03:43:43PM +0100, martin f krafft wrote:
-> also sprach Russell King <rmk+lkml@arm.linux.org.uk> [2004.01.11.1354 +0100]:
-> > Cardbus cards look exactly like normal PCI cards, and are therefore
-> > the drivers are handled by the PCI subsystem.  PCMCIA helps out only
-> > to detect the card insertion/removal events.
-> 
-> Are you sure about the latter.
+Remove two old, unused functions from i2c-proc, left over from linux 2.2
+times.
 
-Yes.
+Original patch by Kyösti Mälkki. Original comment follows:
+***
+Drop 2.2 code.
+***
 
-> Cause the driver gets loaded whether cardmgr is started or not. But in
-> any case, cardmgr does not configure the interface.
+--- linux-2.4.25-pre4-k5/drivers/i2c/i2c-proc.c	Sat Jan 10 20:27:50 2004
++++ linux-2.4.25-pre4-k6/drivers/i2c/i2c-proc.c	Sun Jan 11 11:50:01 2004
+@@ -213,49 +213,6 @@
+ 	}
+ }
+ 
+-/* Monitor access for /proc/sys/dev/sensors; make unloading i2c-proc.o 
+-   impossible if some process still uses it or some file in it */
+-void i2c_fill_inode(struct inode *inode, int fill)
+-{
+-	if (fill)
+-		MOD_INC_USE_COUNT;
+-	else
+-		MOD_DEC_USE_COUNT;
+-}
+-
+-/* Monitor access for /proc/sys/dev/sensors/ directories; make unloading
+-   the corresponding module impossible if some process still uses it or
+-   some file in it */
+-void i2c_dir_fill_inode(struct inode *inode, int fill)
+-{
+-	int i;
+-	struct i2c_client *client;
+-
+-#ifdef DEBUG
+-	if (!inode) {
+-		printk("i2c-proc.o: Warning: inode NULL in fill_inode()\n");
+-		return;
+-	}
+-#endif				/* def DEBUG */
+-
+-	for (i = 0; i < SENSORS_ENTRY_MAX; i++)
+-		if (i2c_clients[i]
+-		    && (i2c_inodes[i] == inode->i_ino)) break;
+-#ifdef DEBUG
+-	if (i == SENSORS_ENTRY_MAX) {
+-		printk
+-		    ("i2c-proc.o: Warning: inode (%ld) not found in fill_inode()\n",
+-		     inode->i_ino);
+-		return;
+-	}
+-#endif				/* def DEBUG */
+-	client = i2c_clients[i];
+-	if (fill)
+-		client->driver->inc_use(client);
+-	else
+-		client->driver->dec_use(client);
+-}
+-
+ int i2c_proc_chips(ctl_table * ctl, int write, struct file *filp,
+ 		       void *buffer, size_t * lenp)
+ {
 
-cardmgr doesn't play a part when you've inserted a cardbus card - it
-doesn't even know that a card has been inserted into the slot.
-
-> Where can I find
-> the hook for Cardbus cards to do configuration after initialisation?
-
-It's all done via the hotplug subsystem, which is integrated into the
-driver model.
-
-Basically, we discover that a cardbus card has been inserted, and ask
-the PCI layer to scan the slot.  We add the new device to the list of
-PCI devices, which automatically causes the hotplug system to call
-/sbin/hotplug for the new PCI device.
-
-The hotplug scripts are then supposed to load the driver as necessary
-(using /etc/modules.conf) which creates a network interface.  This then
-causes the hotplug scripts to be invoked again, this time for the new
-network interface, which should configure it.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

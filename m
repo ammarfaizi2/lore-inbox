@@ -1,79 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261921AbUKHRGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261853AbUKHRLC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261921AbUKHRGN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 12:06:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbUKHRFd
+	id S261853AbUKHRLC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 12:11:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbUKHRJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 12:05:33 -0500
-Received: from imap.gmx.net ([213.165.64.20]:16315 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261921AbUKHQRu (ORCPT
+	Mon, 8 Nov 2004 12:09:20 -0500
+Received: from fw.osdl.org ([65.172.181.6]:12224 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261853AbUKHQh7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 11:17:50 -0500
-X-Authenticated: #4399952
-Date: Mon, 8 Nov 2004 17:17:56 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>,
-       Peter Zijlstra <peter@programming.kicks-ass.net>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.20
-Message-ID: <20041108171756.1451b460@mango.fruits.de>
-In-Reply-To: <20041108095048.GA11920@elte.hu>
-References: <20041020094508.GA29080@elte.hu>
-	<20041021132717.GA29153@elte.hu>
-	<20041022133551.GA6954@elte.hu>
-	<20041022155048.GA16240@elte.hu>
-	<20041022175633.GA1864@elte.hu>
-	<20041025104023.GA1960@elte.hu>
-	<20041027001542.GA29295@elte.hu>
-	<20041103105840.GA3992@elte.hu>
-	<20041106155720.GA14950@elte.hu>
-	<20041108091619.GA9897@elte.hu>
-	<20041108095048.GA11920@elte.hu>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Nov 2004 11:37:59 -0500
+Date: Mon, 8 Nov 2004 08:37:53 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Sripathi Kodi <sripathik@in.ibm.com>
+cc: linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       dino@in.ibm.com
+Subject: Re: [PATCH] do_wait fix for 2.6.10-rc1
+In-Reply-To: <Pine.LNX.4.58.0411080806400.24286@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0411080820110.24286@ppc970.osdl.org>
+References: <418B4E86.4010709@in.ibm.com> <Pine.LNX.4.58.0411051101500.30457@ppc970.osdl.org>
+ <418F826C.2060500@in.ibm.com> <Pine.LNX.4.58.0411080744320.24286@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411080806400.24286@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Nov 2004 10:50:48 +0100
-Ingo Molnar <mingo@elte.hu> wrote:
 
 
-> i have released the -V0.7.20 Real-Time Preemption patch, which can be
-> downloaded from the usual place:
+On Mon, 8 Nov 2004, Linus Torvalds wrote:
 > 
->    http://redhat.com/~mingo/realtime-preempt/
+> Actually, this part of the patch is bogus. If our "put_task_struct" is the
+> last one, it doesn't help at all that we're insidfe the tasklist_lock. 
+> We'll just release the task structure ourselves.
 > 
-> this release includes a single fix relative to -V0.7.19: it fixes the
-> nondebug build errors reported by Rui Nuno Capela and Peter Zijlstra,
-> introduced in -V0.7.18.
+> The problem remains, though: "do_wait()" does end up accessing "tsk" in
 > 
-> to create a -V0.7.20 tree from scratch, the patching order is:
+> 	tsk = next_thread(tsk);
 > 
->   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.9.tar.bz2
->   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.10-rc1.bz2
->   http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc1/2.6.10-rc1-mm3/2.6.10-rc1-mm3.bz2
->   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.10-rc1-mm3-V0.7.20
+> and as far as I can see, "tsk" may be gone by then.
+> 
+> Is there anything else protecting us? This looks like a serious (if 
+> extremely unlikely) bug..
 
-Hi,
+It also looks like we should have gotten an oops in do_wait() if this ever
+happened with SLAB poisoning. Google doesn't seem to find any reports like
+that.
 
-i just wanted to let you know that this one doesn't lock up for me. I
-actually built for 486 [to be able to run the image in qemu first]. After
-the run in qemu showed no problems, i went to boot the kernel on my real
-machine. It seems to work fine so far with rtc_wakeup showing max. jitters
-around 30 usec (at f=1024) under load (find's + kernel compile)..
+Of course, the race to make this happen is likely extremely small indeed,
+so the reason may just be that nobody ever triggers it in practice (and it
+almost certainly requires that a threaded app waits for its children in
+multiple threads, which is also fairly unusual - so this is likely a very
+small race coupled with an access pattern that doesn't actually happen in
+real life).
 
-Will build a kernel (0.7.21) with debugging enabled to see if i miss any
-BUG's.
+But maybe it's because I just missed some reason why this all is ok. I'd 
+love to be wrong about it.
 
-flo
+Anyway, if I'm right, the suggested fix would be something like this (this 
+replaces the earlier patches, since it also makes the zero return case go 
+away - we don't need to mark anything runnable, since we restart the whole 
+loop).
 
+NOTE! -EAGAIN should be safe, because the other routines involved can only
+return -EFAULT as an error, so this is all unique to the "try again"  
+case.
+
+Ok, three patches for the same piece of code withing minutes. Please tell 
+me this one is not also broken..
+
+			Linus
+
+----
+===== kernel/exit.c 1.166 vs edited =====
+--- 1.166/kernel/exit.c	2004-11-04 11:13:19 -08:00
++++ edited/kernel/exit.c	2004-11-08 08:34:37 -08:00
+@@ -1201,8 +1201,15 @@
+ 		write_unlock_irq(&tasklist_lock);
+ bail_ref:
+ 		put_task_struct(p);
+-		read_lock(&tasklist_lock);
+-		return 0;
++		/*
++		 * We are returning to the wait loop without having successfully
++		 * removed the process and having released the lock. We cannot
++		 * continue, since the "p" task pointer is potentially stale.
++		 *
++		 * Return -EAGAIN, and do_wait() will restart the loop from the
++		 * beginning. Do _not_ re-acquire the lock.
++		 */
++		return -EAGAIN;
+ 	}
+ 
+ 	/* move to end of parent's list to avoid starvation */
+@@ -1343,6 +1350,8 @@
+ 							   (options & WNOWAIT),
+ 							   infop,
+ 							   stat_addr, ru);
++				if (retval == -EAGAIN)
++					goto repeat;
+ 				if (retval != 0) /* He released the lock.  */
+ 					goto end;
+ 				break;

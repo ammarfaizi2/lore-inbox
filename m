@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311268AbSCQCu6>; Sat, 16 Mar 2002 21:50:58 -0500
+	id <S311269AbSCQC6I>; Sat, 16 Mar 2002 21:58:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311263AbSCQCuj>; Sat, 16 Mar 2002 21:50:39 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:50048 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S311267AbSCQCuZ>; Sat, 16 Mar 2002 21:50:25 -0500
-From: "M. Edward Borasky" <znmeb@aracnet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: 7.52 second kernel compile
-Date: Sat, 16 Mar 2002 18:50:58 -0800
-Message-ID: <HBEHIIBBKKNOBLMPKCBBGENGEJAA.znmeb@aracnet.com>
+	id <S311263AbSCQC56>; Sat, 16 Mar 2002 21:57:58 -0500
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:54406 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S311269AbSCQC5s>; Sat, 16 Mar 2002 21:57:48 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Adam Keys <akeys@post.cis.smu.edu>
+To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
+        Adam Keys <akeys@post.cis.smu.edu>
+Subject: Re: [BK] Having a hard time updating by pre-patch
+Date: Sat, 16 Mar 2002 20:57:18 -0600
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020317005425.TVMQ1147.rwcrmhc52.attbi.com@there> <20020317031527.A31674@devcon.net> <20020317024932.UNAN1214.rwcrmhc54.attbi.com@there>
+In-Reply-To: <20020317024932.UNAN1214.rwcrmhc54.attbi.com@there>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.33.0203161834250.1591-100000@penguin.transmeta.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020317025742.XKEO2626.rwcrmhc51.attbi.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well ... along those lines ... I'll settle for my $1500US 5 GFLOP Athlon for
-sound processing instead of the 12 MFLOP FPS AP120B I always dreamed of
-owning :). We've sure come a long way in 20 years, eh?
-
-M. Edward Borasky
-The COUGAR Project
-
-znmeb@borasky-research.net
-http://www.borasky-research.com/Cougar.htm
-
-> -----Original Message-----
-> Yeah, at a cost of $2M+, if I'm not mistaken. I think I'll settle for my 2
-> minute time that is actually available to mere mortals at a small fraction
-> of one percent of that ;)
+On March 16, 2002 08:49, Adam Keys wrote:
+> This looks like exactly what I need!  Except, the following is something I
+> don't need:
 >
-> 		Linus
+> bk: slib.c:11283: sccs_getInit: Assertion `e' failed.
 
+More specifically, this happens when bk receive is run
+
+$ bk version
+BitKeeper/Free version is bk-2.1.4b 20020208233540 for x86-glibc22-linux
+Built by: lm@redhat71.bitmover.com in /build/bk-2.1.x-lm/src
+Built on: Fri Feb  8 16:37:41 PST 2002
+
+-- 
+akk~

@@ -1,333 +1,270 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315259AbSFXU3Q>; Mon, 24 Jun 2002 16:29:16 -0400
+	id <S315265AbSFXUoq>; Mon, 24 Jun 2002 16:44:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315260AbSFXU3P>; Mon, 24 Jun 2002 16:29:15 -0400
-Received: from urtica.linuxnews.pl ([217.67.200.130]:23044 "EHLO
-	urtica.linuxnews.pl") by vger.kernel.org with ESMTP
-	id <S315259AbSFXU3L>; Mon, 24 Jun 2002 16:29:11 -0400
-Date: Mon, 24 Jun 2002 22:28:51 +0200 (CEST)
-From: Pawel Kot <pkot@linuxnews.pl>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-rc1
-In-Reply-To: <Pine.LNX.4.44.0206241253120.9274-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0206242223370.401-300000@urtica.linuxnews.pl>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1138328264-806088350-1024950531=:401"
+	id <S315266AbSFXUop>; Mon, 24 Jun 2002 16:44:45 -0400
+Received: from h-64-105-35-162.SNVACAID.covad.net ([64.105.35.162]:9659 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S315265AbSFXUon>; Mon, 24 Jun 2002 16:44:43 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Mon, 24 Jun 2002 13:44:25 -0700
+Message-Id: <200206242044.NAA04851@adam.yggdrasil.com>
+To: davem@redhat.com
+Subject: Re: RFC: turn scatterlist into a linked list, eliminate bio_vec
+Cc: akpm@zip.com.au, axboe@suse.de, linux-kernel@vger.kernel.org,
+       martin@dalecki.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+>   	Sorry if I was not clear enough about the purpose of of
+>   the new scatterlist->driver_priv field.  It is a "streaming" data
+>   structure to use the terminology of DMA-maping.txt (i.e., one that
+>   would typically only be allocated for a few microseconds as an IO is
+>   built up and sent).  Its purpose is to hold the hardware-specific
+>   gather-scatter segment descriptor, which typically look something like this:
+>   
+>   		struct foo_corporation_scsi_controller_sg_element {
+>   			u64	data_addr;
+>   			u64	next_addr;
+>   			u16	data_len;
+>   			u16	reserved;
+>   			u32	various_flags;
+>   		}
+>   		
+>This is small, about one cacheline, and thus is not to be used
+>with non-consistent memory.  Also, if you use streaming memory, where
+>is the structure written to and where is the pci_dma_sync_single
+>(which is a costly cache flush on many systems btw, another reason to
+>use consistent memory) between the CPU writes and giving the
+>descriptor to the device?
 
---1138328264-806088350-1024950531=:401
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+>Again, reread DMA-mapping.txt a few more times before composing
+>your response to me.  I really meant that you don't understand
+>the purpose of consistent vs. streaming memory.
 
-On Mon, 24 Jun 2002, Marcelo Tosatti wrote:
+	In my previous email, I suggested using consistent memory in
+the paragraph that followed.  I have underlined the sentence below.
 
-> Directly from OLS you're getting the first release candidate.
->
-> Please test it extensively.
+	Anyhow, I have reread DMA-mapping.txt end to end, updated my
+sample code to suggest to making available some scatterlist merging
+code that is currently only available to block devices.  Just to
+demonstrate that to you, I have a few comments:
 
-Still IDE problems:
-root@bzzzt:~# hdparm -d1 /dev/hda
+    1. It would help to document if pci_pool_alloc(pool,SLAB_KERNEL,&dma)
+       can ever return failure (as opposed to blocking forever).  That would
+       effect whether certain error legs have to be written in a device
+       driver.
 
-/dev/hda:
- setting using_dma to 1 (on)
- HDIO_SET_DMA failed: Operation not permitted
- using_dma    =  0 (off)
+    2. It sure would be nice if there were a couple of ifdef symbols
+       that controlled the expansion DECLARE_PCI_UNMAP_{ADDR,LEN}, so
+       that default usual implementations could be put in <linux/pci.h>,
+       and so that it would be possible to portbly write sg_dma_address()
+       that want to return sg.dma_addr if that field exists, and
+       sg.vaddr otherwise.  This is of practical use because I would like
+       to do the same thing for my proposed sglist.driver_priv{,_dma} fields.
 
-dmesg and lspci -vvv attached. This is Dell Latitide c610 laptop.
-No problems with 2.4.18.
+    3. Isn't the stuff about scatterlist->address obselete.  I thought that
+       field was deleted in 2.5.
 
-pkot
--- 
-mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
-http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
 
---1138328264-806088350-1024950531=:401
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=dmesg
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0206242228510.401@urtica.linuxnews.pl>
-Content-Description: 
-Content-Disposition: attachment; filename=dmesg
+>   	Come to think of it, my use of pci_map_single is incorrect
+>   after all, because the driver has not yet filled in that data structure
+>   at that point.  Since the data structures are being allocated from a
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>   single contiguous block that spans a couple of pages that is being used
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>   only for this purpose, perhaps I would be fastest to pci_alloc_consistent
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>   the whole memory pool for those little descriptors at initialization time
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>   and then change that loop to do the following.
+>   
+>Please use PCI pools, this is what they were designed for.  Pools of
+>like-sized objects allocated out of consistent DMA memory.
 
-TGludXggdmVyc2lvbiAyLjQuMTktcmMxIChwa290QGJ6enp0KSAoZ2NjIHZl
-cnNpb24gMi45NS4zIDIwMDEwMzE1IChyZWxlYXNlKSkgIzEgTW9uIEp1biAy
-NCAyMTozOTowMSBDRVNUIDIwMDINCkJJT1MtcHJvdmlkZWQgcGh5c2ljYWwg
-UkFNIG1hcDoNCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwMDAwMDAgLSAwMDAw
-MDAwMDAwMDlmYzAwICh1c2FibGUpDQogQklPUy1lODIwOiAwMDAwMDAwMDAw
-MDlmYzAwIC0gMDAwMDAwMDAwMDBhMDAwMCAocmVzZXJ2ZWQpDQogQklPUy1l
-ODIwOiAwMDAwMDAwMDAwMTAwMDAwIC0gMDAwMDAwMDAwZmZlMjgwMCAodXNh
-YmxlKQ0KIEJJT1MtZTgyMDogMDAwMDAwMDAwZmZlMjgwMCAtIDAwMDAwMDAw
-MTAwMDAwMDAgKHJlc2VydmVkKQ0KIEJJT1MtZTgyMDogMDAwMDAwMDBmZWRh
-MDAwMCAtIDAwMDAwMDAwZmVlMDAwMDAgKHJlc2VydmVkKQ0KIEJJT1MtZTgy
-MDogMDAwMDAwMDBmZmI4MDAwMCAtIDAwMDAwMDAxMDAwMDAwMDAgKHJlc2Vy
-dmVkKQ0KMjU1TUIgTE9XTUVNIGF2YWlsYWJsZS4NCkFkdmFuY2VkIHNwZWN1
-bGF0aXZlIGNhY2hpbmcgZmVhdHVyZSBub3QgcHJlc2VudA0KT24gbm9kZSAw
-IHRvdGFscGFnZXM6IDY1NTA2DQp6b25lKDApOiA0MDk2IHBhZ2VzLg0Kem9u
-ZSgxKTogNjE0MTAgcGFnZXMuDQp6b25lKDIpOiAwIHBhZ2VzLg0KRGVsbCBM
-YXRpdHVkZSB3aXRoIGJyb2tlbiBCSU9TIGRldGVjdGVkLiBSZWZ1c2luZyB0
-byBlbmFibGUgdGhlIGxvY2FsIEFQSUMuDQpLZXJuZWwgY29tbWFuZCBsaW5l
-OiBCT09UX0lNQUdFPTIuNC4xOS1yYzEgcm8gcm9vdD0zMDMgdmlkZW89cmFk
-ZW9uZmI6MTAyNHg3NjgtMzIgY29uc29sZT10dHlTMCwxMTUyMDBuOCBjb25z
-b2xlPXR0eTANCkluaXRpYWxpemluZyBDUFUjMA0KRGV0ZWN0ZWQgNzMwLjk4
-MSBNSHogcHJvY2Vzc29yLg0KQ29uc29sZTogY29sb3VyIFZHQSsgODB4MjUN
-CkNhbGlicmF0aW5nIGRlbGF5IGxvb3AuLi4gMTQ1OC4xNyBCb2dvTUlQUw0K
-TWVtb3J5OiAyNTY4MDBrLzI2MjAyNGsgYXZhaWxhYmxlICgxMTQwayBrZXJu
-ZWwgY29kZSwgNDgzNmsgcmVzZXJ2ZWQsIDM1NWsgZGF0YSwgMjU2ayBpbml0
-LCAwayBoaWdobWVtKQ0KRGVudHJ5IGNhY2hlIGhhc2ggdGFibGUgZW50cmll
-czogMzI3NjggKG9yZGVyOiA2LCAyNjIxNDQgYnl0ZXMpDQpJbm9kZSBjYWNo
-ZSBoYXNoIHRhYmxlIGVudHJpZXM6IDE2Mzg0IChvcmRlcjogNSwgMTMxMDcy
-IGJ5dGVzKQ0KTW91bnQtY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiA0MDk2
-IChvcmRlcjogMywgMzI3NjggYnl0ZXMpDQpCdWZmZXItY2FjaGUgaGFzaCB0
-YWJsZSBlbnRyaWVzOiAxNjM4NCAob3JkZXI6IDQsIDY1NTM2IGJ5dGVzKQ0K
-UGFnZS1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDY1NTM2IChvcmRlcjog
-NiwgMjYyMTQ0IGJ5dGVzKQ0KQ1BVOiBCZWZvcmUgdmVuZG9yIGluaXQsIGNh
-cHM6IDAzODNmOWZmIDAwMDAwMDAwIDAwMDAwMDAwLCB2ZW5kb3IgPSAwDQpD
-UFU6IEwxIEkgY2FjaGU6IDE2SywgTDEgRCBjYWNoZTogMTZLDQpDUFU6IEwy
-IGNhY2hlOiA1MTJLDQpDUFU6IEFmdGVyIHZlbmRvciBpbml0LCBjYXBzOiAw
-MzgzZjlmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMA0KSW50ZWwgbWFj
-aGluZSBjaGVjayBhcmNoaXRlY3R1cmUgc3VwcG9ydGVkLg0KSW50ZWwgbWFj
-aGluZSBjaGVjayByZXBvcnRpbmcgZW5hYmxlZCBvbiBDUFUjMC4NCkNQVTog
-ICAgIEFmdGVyIGdlbmVyaWMsIGNhcHM6IDAzODNmOWZmIDAwMDAwMDAwIDAw
-MDAwMDAwIDAwMDAwMDAwDQpDUFU6ICAgICAgICAgICAgIENvbW1vbiBjYXBz
-OiAwMzgzZjlmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMA0KQ1BVOiBJ
-bnRlbChSKSBQZW50aXVtKFIpIElJSSBNb2JpbGUgQ1BVICAgICAgMTAwME1I
-eiBzdGVwcGluZyAwMQ0KRW5hYmxpbmcgZmFzdCBGUFUgc2F2ZSBhbmQgcmVz
-dG9yZS4uLiBkb25lLg0KRW5hYmxpbmcgdW5tYXNrZWQgU0lNRCBGUFUgZXhj
-ZXB0aW9uIHN1cHBvcnQuLi4gZG9uZS4NCkNoZWNraW5nICdobHQnIGluc3Ry
-dWN0aW9uLi4uIE9LLg0KUE9TSVggY29uZm9ybWFuY2UgdGVzdGluZyBieSBV
-TklGSVgNCm10cnI6IHYxLjQwICgyMDAxMDMyNykgUmljaGFyZCBHb29jaCAo
-cmdvb2NoQGF0bmYuY3Npcm8uYXUpDQptdHJyOiBkZXRlY3RlZCBtdHJyIHR5
-cGU6IEludGVsDQpQQ0k6IFBDSSBCSU9TIHJldmlzaW9uIDIuMTAgZW50cnkg
-YXQgMHhmYmZmZSwgbGFzdCBidXM9Mg0KUENJOiBVc2luZyBjb25maWd1cmF0
-aW9uIHR5cGUgMQ0KUENJOiBQcm9iaW5nIFBDSSBoYXJkd2FyZQ0KVW5rbm93
-biBicmlkZ2UgcmVzb3VyY2UgMjogYXNzdW1pbmcgdHJhbnNwYXJlbnQNClBD
-STogRGlzY292ZXJlZCBwcmltYXJ5IHBlZXIgYnVzIDA4IFtJUlFdDQpQQ0k6
-IFVzaW5nIElSUSByb3V0ZXIgUElJWCBbODA4Ni8yNDhjXSBhdCAwMDoxZi4w
-DQpQQ0k6IEZvdW5kIElSUSAxMSBmb3IgZGV2aWNlIDAwOjFmLjENClBDSTog
-U2hhcmluZyBJUlEgMTEgd2l0aCAwMjowMC4wDQpMaW51eCBORVQ0LjAgZm9y
-IExpbnV4IDIuNA0KQmFzZWQgdXBvbiBTd2Fuc2VhIFVuaXZlcnNpdHkgQ29t
-cHV0ZXIgU29jaWV0eSBORVQzLjAzOQ0KSW5pdGlhbGl6aW5nIFJUIG5ldGxp
-bmsgc29ja2V0DQphcG06IEJJT1MgdmVyc2lvbiAxLjIgRmxhZ3MgMHgwMyAo
-RHJpdmVyIHZlcnNpb24gMS4xNikNClN0YXJ0aW5nIGtzd2FwZA0KUENJOiBG
-b3VuZCBJUlEgMTEgZm9yIGRldmljZSAwMTowMC4wDQpQQ0k6IFNoYXJpbmcg
-SVJRIDExIHdpdGggMDA6MWQuMA0KcmFkZW9uZmI6IHJlZl9jbGs9MjcwMCwg
-cmVmX2Rpdj02MCwgeGNsaz0xNjYwMCBmcm9tIEJJT1MNCnJhZGVvbmZiOiBw
-YW5lbCBJRCBzdHJpbmc6IDEwMjR4NzY4ICAgICAgICAgICAgICAgIA0KcmFk
-ZW9uZmI6IGRldGVjdGVkIERGUCBwYW5lbCBzaXplIGZyb20gQklPUzogMTAy
-NHg3NjgNCkNvbnNvbGU6IHN3aXRjaGluZyB0byBjb2xvdXIgZnJhbWUgYnVm
-ZmVyIGRldmljZSAxMjh4NDgNCnJhZGVvbmZiOiBBVEkgUmFkZW9uIE02IExZ
-ICBERFIgU0dSQU0gMTYgTUINCnJhZGVvbmZiOiBEVkkgcG9ydCBMQ0QgbW9u
-aXRvciBjb25uZWN0ZWQNCnJhZGVvbmZiOiBDUlQgcG9ydCBubyBtb25pdG9y
-IGNvbm5lY3RlZA0KcHR5OiAyNTYgVW5peDk4IHB0eXMgY29uZmlndXJlZA0K
-RGVsbCBsYXB0b3AgU01NIGRyaXZlciB2MS43IDIxLzExLzIwMDEgTWFzc2lt
-byBEYWwgWm90dG8gKGR6QGRlYmlhbi5vcmcpDQpTZXJpYWwgZHJpdmVyIHZl
-cnNpb24gNS4wNWMgKDIwMDEtMDctMDgpIHdpdGggTUFOWV9QT1JUUyBTSEFS
-RV9JUlEgU0VSSUFMX1BDSSBlbmFibGVkDQp0dHlTMDAgYXQgMHgwM2Y4IChp
-cnEgPSA0KSBpcyBhIDE2NTUwQQ0KdHR5UzAxIGF0IDB4MDJmOCAoaXJxID0g
-MykgaXMgYSAxNjU1MEENClBDSTogRm91bmQgSVJRIDExIGZvciBkZXZpY2Ug
-MDA6MWYuNg0KUENJOiBTaGFyaW5nIElSUSAxMSB3aXRoIDAwOjFmLjUNClVu
-aWZvcm0gTXVsdGktUGxhdGZvcm0gRS1JREUgZHJpdmVyIFJldmlzaW9uOiA2
-LjMxDQppZGU6IEFzc3VtaW5nIDMzTUh6IHN5c3RlbSBidXMgc3BlZWQgZm9y
-IFBJTyBtb2Rlczsgb3ZlcnJpZGUgd2l0aCBpZGVidXM9eHgNCklDSDNNOiBJ
-REUgY29udHJvbGxlciBvbiBQQ0kgYnVzIDAwIGRldiBmOQ0KUENJOiBEZXZp
-Y2UgMDA6MWYuMSBub3QgYXZhaWxhYmxlIGJlY2F1c2Ugb2YgcmVzb3VyY2Ug
-Y29sbGlzaW9ucw0KSUNIM006IChpZGVfc2V0dXBfcGNpX2RldmljZTopIENv
-dWxkIG5vdCBlbmFibGUgZGV2aWNlLg0KaGRhOiBISVRBQ0hJX0RLMjNDQS0z
-MCwgQVRBIERJU0sgZHJpdmUNCmhkYzogVEVBQyBDRC1ST00gQ0QtMjI0RSwg
-QVRBUEkgQ0QvRFZELVJPTSBkcml2ZQ0KaWRlMCBhdCAweDFmMC0weDFmNyww
-eDNmNiBvbiBpcnEgMTQNCmlkZTEgYXQgMHgxNzAtMHgxNzcsMHgzNzYgb24g
-aXJxIDE1DQpoZGE6IDU4NjA1MTIwIHNlY3RvcnMgKDMwMDA2IE1CKSB3LzIw
-NDhLaUIgQ2FjaGUsIENIUz0zNjQ4LzI1NS82Mw0KaGRjOiBBVEFQSSAyNFgg
-Q0QtUk9NIGRyaXZlLCAxMjhrQiBDYWNoZQ0KVW5pZm9ybSBDRC1ST00gZHJp
-dmVyIFJldmlzaW9uOiAzLjEyDQpQYXJ0aXRpb24gY2hlY2s6DQogaGRhOiBo
-ZGExIGhkYTIgaGRhMw0KRmxvcHB5IGRyaXZlKHMpOiBmZDAgaXMgMS40NE0N
-CkZEQyAwIGlzIGEgcG9zdC0xOTkxIDgyMDc3DQpMaW51eCBhZ3BnYXJ0IGlu
-dGVyZmFjZSB2MC45OSAoYykgSmVmZiBIYXJ0bWFubg0KYWdwZ2FydDogTWF4
-aW11bSBtYWluIG1lbW9yeSB0byB1c2UgZm9yIGFncCBtZW1vcnk6IDIwM00N
-CmFncGdhcnQ6IERldGVjdGVkIEludGVsIGk4MzBNIGNoaXBzZXQNCmFncGdh
-cnQ6IEFHUCBhcGVydHVyZSBpcyAyNTZNIEAgMHhkMDAwMDAwMA0KW2RybV0g
-QUdQIDAuOTkgb24gVW5rbm93biBAIDB4ZDAwMDAwMDAgMjU2TUINCltkcm1d
-IEluaXRpYWxpemVkIHJhZGVvbiAxLjEuMSAyMDAxMDQwNSBvbiBtaW5vciAw
-DQp1c2IuYzogcmVnaXN0ZXJlZCBuZXcgZHJpdmVyIHVzYmRldmZzDQp1c2Iu
-YzogcmVnaXN0ZXJlZCBuZXcgZHJpdmVyIGh1Yg0KTkVUNDogTGludXggVENQ
-L0lQIDEuMCBmb3IgTkVUNC4wDQpJUCBQcm90b2NvbHM6IElDTVAsIFVEUCwg
-VENQLCBJR01QDQpJUDogcm91dGluZyBjYWNoZSBoYXNoIHRhYmxlIG9mIDIw
-NDggYnVja2V0cywgMTZLYnl0ZXMNClRDUDogSGFzaCB0YWJsZXMgY29uZmln
-dXJlZCAoZXN0YWJsaXNoZWQgMTYzODQgYmluZCAxNjM4NCkNCk5FVDQ6IFVu
-aXggZG9tYWluIHNvY2tldHMgMS4wL1NNUCBmb3IgTGludXggTkVUNC4wLg0K
-cmVpc2VyZnM6IGNoZWNraW5nIHRyYW5zYWN0aW9uIGxvZyAoZGV2aWNlIDAz
-OjAzKSAuLi4NCldhcm5pbmcsIGxvZyByZXBsYXkgc3RhcnRpbmcgb24gcmVh
-ZG9ubHkgZmlsZXN5c3RlbQ0KVXNpbmcgcjUgaGFzaCB0byBzb3J0IG5hbWVz
-DQpSZWlzZXJGUyB2ZXJzaW9uIDMuNi4yNQ0KVkZTOiBNb3VudGVkIHJvb3Qg
-KHJlaXNlcmZzIGZpbGVzeXN0ZW0pIHJlYWRvbmx5Lg0KRnJlZWluZyB1bnVz
-ZWQga2VybmVsIG1lbW9yeTogMjU2ayBmcmVlZA0KQWRkaW5nIFN3YXA6IDEz
-MTA2NGsgc3dhcC1zcGFjZSAocHJpb3JpdHkgLTEpDQpSZWFsIFRpbWUgQ2xv
-Y2sgRHJpdmVyIHYxLjEwZQ0KUENJOiBGb3VuZCBJUlEgMTEgZm9yIGRldmlj
-ZSAwMjowMC4wDQpQQ0k6IFNoYXJpbmcgSVJRIDExIHdpdGggMDA6MWYuMQ0K
-M2M1OXg6IERvbmFsZCBCZWNrZXIgYW5kIG90aGVycy4gd3d3LnNjeWxkLmNv
-bS9uZXR3b3JrL3ZvcnRleC5odG1sDQowMjowMC4wOiAzQ29tIFBDSSAzYzkw
-NUMgVG9ybmFkbyBhdCAweGVjODAuIFZlcnMgTEsxLjEuMTYNCg==
---1138328264-806088350-1024950531=:401
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=lspci
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0206242228511.401@urtica.linuxnews.pl>
-Content-Description: 
-Content-Disposition: attachment; filename=lspci
+	Thanks for reminding me of them.  Although I had explored using
+them in another situation, I forgot about them for this situation, where
+they make sense, especially if pci_pool_alloc(...,SLAB_KERNEL,...) can
+never fail for lack of memory (although they could block indefinitely).
+I have updated my sample code accordingly.
 
-MDA6MDAuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycC4gODI4MzAgODMwIENo
-aXBzZXQgSG9zdCBCcmlkZ2UgKHJldiAwMikNCglDb250cm9sOiBJL08tIE1l
-bSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQ
-YXJFcnItIFN0ZXBwaW5nLSBTRVJSKyBGYXN0QjJCLQ0KCVN0YXR1czogQ2Fw
-KyA2Nk1oei0gVURGLSBGYXN0QjJCLSBQYXJFcnItIERFVlNFTD1mYXN0ID5U
-QWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQrID5TRVJSLSA8UEVSUi0NCglMYXRl
-bmN5OiAwDQoJUmVnaW9uIDA6IE1lbW9yeSBhdCBkMDAwMDAwMCAoMzItYml0
-LCBwcmVmZXRjaGFibGUpIFtzaXplPTI1Nk1dDQoJQ2FwYWJpbGl0aWVzOiA8
-YXZhaWxhYmxlIG9ubHkgdG8gcm9vdD4NCg0KMDA6MDEuMCBQQ0kgYnJpZGdl
-OiBJbnRlbCBDb3JwLiA4MjgzMCA4MzAgQ2hpcHNldCBBR1AgQnJpZGdlIChy
-ZXYgMDIpIChwcm9nLWlmIDAwIFtOb3JtYWwgZGVjb2RlXSkNCglDb250cm9s
-OiBJL08rIE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZH
-QVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSKyBGYXN0QjJCLQ0KCVN0
-YXR1czogQ2FwLSA2Nk1oeisgVURGLSBGYXN0QjJCLSBQYXJFcnItIERFVlNF
-TD1mYXN0ID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVS
-Ui0NCglMYXRlbmN5OiAzMg0KCUJ1czogcHJpbWFyeT0wMCwgc2Vjb25kYXJ5
-PTAxLCBzdWJvcmRpbmF0ZT0wMSwgc2VjLWxhdGVuY3k9MzINCglJL08gYmVo
-aW5kIGJyaWRnZTogMDAwMGMwMDAtMDAwMGNmZmYNCglNZW1vcnkgYmVoaW5k
-IGJyaWRnZTogZmMwMDAwMDAtZmRmZmZmZmYNCglQcmVmZXRjaGFibGUgbWVt
-b3J5IGJlaGluZCBicmlkZ2U6IGUwMDAwMDAwLWU3ZmZmZmZmDQoJQnJpZGdl
-Q3RsOiBQYXJpdHktIFNFUlItIE5vSVNBKyBWR0ErIE1BYm9ydC0gPlJlc2V0
-LSBGYXN0QjJCLQ0KDQowMDoxZC4wIFVTQiBDb250cm9sbGVyOiBJbnRlbCBD
-b3JwLiA4MjgwMUNBL0NBTSBVU0IgKEh1YiAjMSkgKHJldiAwMSkgKHByb2ct
-aWYgMDAgW1VIQ0ldKQ0KCVN1YnN5c3RlbTogSW50ZWwgQ29ycC46IFVua25v
-d24gZGV2aWNlIDQ1NDENCglDb250cm9sOiBJL08rIE1lbS0gQnVzTWFzdGVy
-KyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBw
-aW5nLSBTRVJSLSBGYXN0QjJCLQ0KCVN0YXR1czogQ2FwLSA2Nk1oei0gVURG
-LSBGYXN0QjJCKyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRB
-Ym9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQ0KCUxhdGVuY3k6IDANCglJ
-bnRlcnJ1cHQ6IHBpbiBBIHJvdXRlZCB0byBJUlEgMTENCglSZWdpb24gNDog
-SS9PIHBvcnRzIGF0IGJmODAgW3NpemU9MzJdDQoNCjAwOjFlLjAgUENJIGJy
-aWRnZTogSW50ZWwgQ29ycC4gODI4MDFCQU0vQ0FNIFBDSSBCcmlkZ2UgKHJl
-diA0MSkgKHByb2ctaWYgMDAgW05vcm1hbCBkZWNvZGVdKQ0KCUNvbnRyb2w6
-IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdB
-U25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIrIEZhc3RCMkItDQoJU3Rh
-dHVzOiBDYXAtIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VM
-PWZhc3QgPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJS
-LQ0KCUxhdGVuY3k6IDANCglCdXM6IHByaW1hcnk9MDAsIHNlY29uZGFyeT0w
-Miwgc3Vib3JkaW5hdGU9MTAsIHNlYy1sYXRlbmN5PTMyDQoJSS9PIGJlaGlu
-ZCBicmlkZ2U6IDAwMDBlMDAwLTAwMDBmZmZmDQoJTWVtb3J5IGJlaGluZCBi
-cmlkZ2U6IGY0MDAwMDAwLWZiZmZmZmZmDQoJUHJlZmV0Y2hhYmxlIG1lbW9y
-eSBiZWhpbmQgYnJpZGdlOiBmZmYwMDAwMC0wMDBmZmZmZg0KCUJyaWRnZUN0
-bDogUGFyaXR5LSBTRVJSKyBOb0lTQSsgVkdBLSBNQWJvcnQtID5SZXNldC0g
-RmFzdEIyQi0NCg0KMDA6MWYuMCBJU0EgYnJpZGdlOiBJbnRlbCBDb3JwLiA4
-MjgwMUNBTSBJU0EgQnJpZGdlIChMUEMpIChyZXYgMDEpDQoJQ29udHJvbDog
-SS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlKyBNZW1XSU5WLSBWR0FT
-bm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUisgRmFzdEIyQi0NCglTdGF0
-dXM6IENhcC0gNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9
-bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVS
-Ui0NCglMYXRlbmN5OiAwDQoNCjAwOjFmLjEgSURFIGludGVyZmFjZTogSW50
-ZWwgQ29ycC4gODI4MDFDQU0gSURFIFUxMDAgKHJldiAwMSkgKHByb2ctaWYg
-OGEgW01hc3RlciBTZWNQIFByaVBdKQ0KCVN1YnN5c3RlbTogSW50ZWwgQ29y
-cC46IFVua25vd24gZGV2aWNlIDQ1NDENCglDb250cm9sOiBJL08rIE1lbS0g
-QnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJF
-cnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQ0KCVN0YXR1czogQ2FwLSA2
-Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRB
-Ym9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQ0KCUxhdGVu
-Y3k6IDANCglJbnRlcnJ1cHQ6IHBpbiBBIHJvdXRlZCB0byBJUlEgMTENCglS
-ZWdpb24gMDogSS9PIHBvcnRzIGF0IDx1bmFzc2lnbmVkPiBbc2l6ZT04XQ0K
-CVJlZ2lvbiAxOiBJL08gcG9ydHMgYXQgPHVuYXNzaWduZWQ+IFtzaXplPTRd
-DQoJUmVnaW9uIDI6IEkvTyBwb3J0cyBhdCA8dW5hc3NpZ25lZD4gW3NpemU9
-OF0NCglSZWdpb24gMzogSS9PIHBvcnRzIGF0IDx1bmFzc2lnbmVkPiBbc2l6
-ZT00XQ0KCVJlZ2lvbiA0OiBJL08gcG9ydHMgYXQgYmZhMCBbc2l6ZT0xNl0N
-CglSZWdpb24gNTogW3ZpcnR1YWxdIE1lbW9yeSBhdCAxMDAwMDAwMCAoMzIt
-Yml0LCBub24tcHJlZmV0Y2hhYmxlKSBbZGlzYWJsZWRdIFtzaXplPTFLXQ0K
-DQowMDoxZi41IE11bHRpbWVkaWEgYXVkaW8gY29udHJvbGxlcjogSW50ZWwg
-Q29ycC4gODI4MDFDQS9DQU0gQUMnOTcgQXVkaW8gKHJldiAwMSkNCglTdWJz
-eXN0ZW06IENpcnJ1cyBMb2dpYzogVW5rbm93biBkZXZpY2UgNTk1OQ0KCUNv
-bnRyb2w6IEkvTysgTWVtLSBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lO
-Vi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkIt
-DQoJU3RhdHVzOiBDYXAtIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0g
-REVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VS
-Ui0gPFBFUlItDQoJTGF0ZW5jeTogMA0KCUludGVycnVwdDogcGluIEIgcm91
-dGVkIHRvIElSUSAxMQ0KCVJlZ2lvbiAwOiBJL08gcG9ydHMgYXQgZDgwMCBb
-c2l6ZT0yNTZdDQoJUmVnaW9uIDE6IEkvTyBwb3J0cyBhdCBkYzgwIFtzaXpl
-PTY0XQ0KDQowMDoxZi42IE1vZGVtOiBJbnRlbCBDb3JwLiA4MjgwMUNBL0NB
-TSBBQyc5NyBNb2RlbSAocmV2IDAxKSAocHJvZy1pZiAwMCBbR2VuZXJpY10p
-DQoJU3Vic3lzdGVtOiBQQ1RlbCBJbmM6IFVua25vd24gZGV2aWNlIDRjMjEN
-CglDb250cm9sOiBJL08rIE1lbS0gQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1l
-bVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0
-QjJCLQ0KCVN0YXR1czogQ2FwLSA2Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJF
-cnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0g
-PlNFUlItIDxQRVJSLQ0KCUxhdGVuY3k6IDANCglJbnRlcnJ1cHQ6IHBpbiBC
-IHJvdXRlZCB0byBJUlEgMTENCglSZWdpb24gMDogSS9PIHBvcnRzIGF0IGQ0
-MDAgW3NpemU9MjU2XQ0KCVJlZ2lvbiAxOiBJL08gcG9ydHMgYXQgZGMwMCBb
-c2l6ZT0xMjhdDQoNCjAxOjAwLjAgVkdBIGNvbXBhdGlibGUgY29udHJvbGxl
-cjogQVRJIFRlY2hub2xvZ2llcyBJbmMgUmFkZW9uIE1vYmlsaXR5IE02IExZ
-IChwcm9nLWlmIDAwIFtWR0FdKQ0KCVN1YnN5c3RlbTogRGVsbCBDb21wdXRl
-ciBDb3Jwb3JhdGlvbjogVW5rbm93biBkZXZpY2UgMDBlMw0KCUNvbnRyb2w6
-IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdB
-U25vb3ArIFBhckVyci0gU3RlcHBpbmcrIFNFUlIrIEZhc3RCMkItDQoJU3Rh
-dHVzOiBDYXArIDY2TWh6KyBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VM
-PW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBF
-UlItDQoJTGF0ZW5jeTogMzIgKDIwMDBucyBtaW4pLCBjYWNoZSBsaW5lIHNp
-emUgMDgNCglJbnRlcnJ1cHQ6IHBpbiBBIHJvdXRlZCB0byBJUlEgMTENCglS
-ZWdpb24gMDogTWVtb3J5IGF0IGUwMDAwMDAwICgzMi1iaXQsIHByZWZldGNo
-YWJsZSkgW3NpemU9MTI4TV0NCglSZWdpb24gMTogSS9PIHBvcnRzIGF0IGMw
-MDAgW3NpemU9MjU2XQ0KCVJlZ2lvbiAyOiBNZW1vcnkgYXQgZmNmZjAwMDAg
-KDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkgW3NpemU9NjRLXQ0KCUV4cGFu
-c2lvbiBST00gYXQgPHVuYXNzaWduZWQ+IFtkaXNhYmxlZF0gW3NpemU9MTI4
-S10NCglDYXBhYmlsaXRpZXM6IDxhdmFpbGFibGUgb25seSB0byByb290Pg0K
-DQowMjowMC4wIEV0aGVybmV0IGNvbnRyb2xsZXI6IDNDb20gQ29ycG9yYXRp
-b24gM2M5MDVDLVRYL1RYLU0gW1Rvcm5hZG9dIChyZXYgNzgpDQoJU3Vic3lz
-dGVtOiBEZWxsIENvbXB1dGVyIENvcnBvcmF0aW9uOiBVbmtub3duIGRldmlj
-ZSAwMGUzDQoJQ29udHJvbDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5
-Y2xlLSBNZW1XSU5WKyBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VS
-UisgRmFzdEIyQi0NCglTdGF0dXM6IENhcCsgNjZNaHotIFVERi0gRmFzdEIy
-Qi0gUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxN
-QWJvcnQtID5TRVJSLSA8UEVSUi0NCglMYXRlbmN5OiAzMiAoMjUwMG5zIG1p
-biwgMjUwMG5zIG1heCksIGNhY2hlIGxpbmUgc2l6ZSAwOA0KCUludGVycnVw
-dDogcGluIEEgcm91dGVkIHRvIElSUSAxMQ0KCVJlZ2lvbiAwOiBJL08gcG9y
-dHMgYXQgZWM4MCBbc2l6ZT0xMjhdDQoJUmVnaW9uIDE6IE1lbW9yeSBhdCBm
-OGZmZmMwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT0xMjhd
-DQoJRXhwYW5zaW9uIFJPTSBhdCBmOTAwMDAwMCBbZGlzYWJsZWRdIFtzaXpl
-PTEyOEtdDQoJQ2FwYWJpbGl0aWVzOiA8YXZhaWxhYmxlIG9ubHkgdG8gcm9v
-dD4NCg0KMDI6MDEuMCBDYXJkQnVzIGJyaWRnZTogVGV4YXMgSW5zdHJ1bWVu
-dHMgUENJMTQyMA0KCVN1YnN5c3RlbTogRGVsbCBDb21wdXRlciBDb3Jwb3Jh
-dGlvbjogVW5rbm93biBkZXZpY2UgMDBlMw0KCUNvbnRyb2w6IEkvTysgTWVt
-KyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBh
-ckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItDQoJU3RhdHVzOiBDYXAr
-IDY2TWh6LSBVREYtIEZhc3RCMkItIFBhckVyci0gREVWU0VMPW1lZGl1bSA+
-VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItDQoJTGF0
-ZW5jeTogMzIsIGNhY2hlIGxpbmUgc2l6ZSAwOA0KCUludGVycnVwdDogcGlu
-IEEgcm91dGVkIHRvIElSUSAxMQ0KCVJlZ2lvbiAwOiBNZW1vcnkgYXQgZjQw
-MDAwMDAgKDMyLWJpdCwgbm9uLXByZWZldGNoYWJsZSkgW3NpemU9NEtdDQoJ
-QnVzOiBwcmltYXJ5PTAyLCBzZWNvbmRhcnk9MDMsIHN1Ym9yZGluYXRlPTA2
-LCBzZWMtbGF0ZW5jeT0zMg0KCU1lbW9yeSB3aW5kb3cgMDogMDAwMDAwMDAt
-MDAwMDAwMDAgKHByZWZldGNoYWJsZSkNCglNZW1vcnkgd2luZG93IDE6IDAw
-MDAwMDAwLTAwMDAwMDAwIChwcmVmZXRjaGFibGUpDQoJSS9PIHdpbmRvdyAw
-OiAwMDAwMDAwMC0wMDAwMDAwMw0KCUkvTyB3aW5kb3cgMTogMDAwMDAwMDAt
-MDAwMDAwMDMNCglCcmlkZ2VDdGw6IFBhcml0eS0gU0VSUi0gSVNBLSBWR0Et
-IE1BYm9ydC0gPlJlc2V0KyAxNmJJbnQrIFBvc3RXcml0ZSsNCgkxNi1iaXQg
-bGVnYWN5IGludGVyZmFjZSBwb3J0cyBhdCAwMDAxDQoNCjAyOjAxLjEgQ2Fy
-ZEJ1cyBicmlkZ2U6IFRleGFzIEluc3RydW1lbnRzIFBDSTE0MjANCglTdWJz
-eXN0ZW06IERlbGwgQ29tcHV0ZXIgQ29ycG9yYXRpb246IFVua25vd24gZGV2
-aWNlIDAwZTMNCglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVyKyBTcGVj
-Q3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBT
-RVJSLSBGYXN0QjJCLQ0KCVN0YXR1czogQ2FwKyA2Nk1oei0gVURGLSBGYXN0
-QjJCLSBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0g
-PE1BYm9ydC0gPlNFUlItIDxQRVJSLQ0KCUxhdGVuY3k6IDMyLCBjYWNoZSBs
-aW5lIHNpemUgMDgNCglJbnRlcnJ1cHQ6IHBpbiBBIHJvdXRlZCB0byBJUlEg
-MTENCglSZWdpb24gMDogTWVtb3J5IGF0IGY0MDAxMDAwICgzMi1iaXQsIG5v
-bi1wcmVmZXRjaGFibGUpIFtzaXplPTRLXQ0KCUJ1czogcHJpbWFyeT0wMiwg
-c2Vjb25kYXJ5PTA3LCBzdWJvcmRpbmF0ZT0wYSwgc2VjLWxhdGVuY3k9MzIN
-CglNZW1vcnkgd2luZG93IDA6IDAwMDAwMDAwLTAwMDAwMDAwIChwcmVmZXRj
-aGFibGUpDQoJTWVtb3J5IHdpbmRvdyAxOiAwMDAwMDAwMC0wMDAwMDAwMCAo
-cHJlZmV0Y2hhYmxlKQ0KCUkvTyB3aW5kb3cgMDogMDAwMDAwMDAtMDAwMDAw
-MDMNCglJL08gd2luZG93IDE6IDAwMDAwMDAwLTAwMDAwMDAzDQoJQnJpZGdl
-Q3RsOiBQYXJpdHktIFNFUlItIElTQS0gVkdBLSBNQWJvcnQtID5SZXNldCsg
-MTZiSW50KyBQb3N0V3JpdGUrDQoJMTYtYml0IGxlZ2FjeSBpbnRlcmZhY2Ug
-cG9ydHMgYXQgMDAwMQ0KDQo=
---1138328264-806088350-1024950531=:401--
+>So as it stands I still think your proposal is buggy.
+
+	Do you understand that scatterlist.driver_priv{,_dma} is just
+a follow-on optimization of my proposal to turn struct scatterlist
+into a linked list, so that pci_map_sg &co. can be consolidated into
+the "mid-level" drivers (scsi.o, usb.o)?
+
+	I hope the updated code below and the clarification of my
+previous email address the scatterlist.driver_priv{,_dma} issues that
+you raised.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
+
+/* Parameters from ll_rw_blk.c.  Used for expressing limits and keeping
+   running totals on sglist sizes. */
+struct scatter_sizes {
+	unsigned int	hw_segments;
+	unsigned int	phys_segments;
+	unsigned int	segment_size;
+	unsigned int	total_size;
+};
+
+struct scatter_limit {
+	struct scatter_sizes	sizes;
+	u32			boundary_mask;	/* u64? */
+}
+
+struct dma_stream {
+	struct scatter_limit	*limit;
+	struct pci_pool		*sgpriv_pool;
+	struct pci_dev		*pci_dev;
+	unsigned long		flags;
+};
+
+/* dma_stream.flags: */
+#define DMA_MAP_MUST_SUCCEED		1
+
+struct scatterlist {
+	...include all existing fields.  Add these:
+
+	struct scatterlist 	*next;
+	void *driver_priv;
+	dma_addr_t driver_priv_dma;
+};
+
+/* Formerly blk_map_sg.  Now all devices can get the DMA merge optimizations
+   currently available to block devices. */
+extern int dma_coalesce_sg(struct scatter_limit *limit,
+			   struct scatterlist *sg);
+
+typedef void (bio_end_io_t) (struct bio *,
+			     unsigned long bi_flags /* combined with bi_rw */);
+
+
+struct bio {
+	/* merge bi_rw and bi_flags into a parameter to submit_bio */
+        struct bio              *bi_next;       /* request queue link */
+	unsigned int		bi_size;
+        bio_end_io_t            *bi_end_io;
+        void                    *bi_private;
+        bio_destructor_t        *bi_destructor;
+};
+
+typedef void (unprep_rq_fn)(request_queue_t *q, struct request *req);
+
+struct request {
+	Include all existing fields except current_nr_sectors,
+	nr_phys_segments, nr_hw_segments.  Add these:
+
+	int			map_sg_count;
+	unprep_rq_fn 		*unprep_rq_fn; /* Called by
+						  blkdev_release_request*/
+	struct scatterlist	*head, *tail;
+	struct scatter_sizes	sizes;	/* sizes.segment_size refers to the
+					   size of the last segment */
+	atomic_t		num_bios; /* Cannot free scatterlist until
+					     last request completes. */
+};
+
+struct request_queue {
+	...delete max_{sectors,phys_segments,hw_segments,segment_size} and
+	seg_boundary_mask.  Replace them with this field:
+
+	struct dma_stream *stream; /* Shareable between different queues,
+				      for example, disks on the same
+				      controller, or between /dev/loop/nnn,
+				      and its underlying device. */
+};
+
+
+static inline int req_dma_dir(struct request *req) {
+	return (req->flags & REQ_RW) ? PCI_DMA_TODEVICE : PCI_DMA_FROMDEVICE;
+}
+
+/* Generic routines usable as queue->{,un}prep_fn: */
+int rq_dma_prep(dma_stream *stream, struct request *req) {
+	int count;
+	struct scatterlist *sg = req->head;
+	int alloc_flags;
+	int err_on_mem_fail =
+		(stream->flags & DMA_MAP_MUST_SUCCEED) ? -ENOMEM : 0;
+	int mem_fail;
+
+	count = dma_coalesce_sg(&stream->limit, sg);
+	count = pci_map_sg(stream->pci_dev, sg, count, req_dma_dir(req));
+	if (count < 0 && err_on_mem_fail)
+		return count;
+
+	/* Perhaps we could change new pci_map_sg, so that if it shortens
+	   shortens the scatterlist, that it still leaves the unused
+	   scatterlist entries linked at the end of the list, but that
+	   the first unused entry (if any) is makred with
+	   sg->sg_length = 0, just so we don't have to remember the
+	   count returned by pci_map_sg result (since there is no easy
+	   place to store it).  Otherwise, we need to remember the count,
+	   like so:
+	*/
+	req->map_sg_count = count;
+
+	/* "Read ahead" requests should abort rather than block. */
+	alloc_flags = (req->flags & REQ_RW_AHEAD) ? SLAB_ATOMIC : SLAB_KERNEL;
+
+	/*
+	 * SLAB_KERNEL will never fail, so no need to check.  It will
+	 * just block until memory is available.
+	 */
+	mem_fail = 0;
+	if (q->sgpriv_pool) {
+		while(count--) {
+			sg->driver_priv = pci_pool_alloc(q->sgpriv_pool,
+				alloc_flags, &sg->driver_priv_dma);
+			if (sg->driver_prv == NULL)
+				mem_fail = err_on_mem_fail;
+			sg = sg->next;
+		}
+	}
+
+	return mem_fail;
+}
+
+
+void rq_dma_unprep(reqeust_queue_t *q, struct request *req) {
+	struct scatterlist *sg;
+
+	sg = req->head;
+	pci_unmap_sg(req->dma_map_dev, sg, req_dma_dir(req));
+	if (q->sgpriv_pool) {
+		int count = req->map_sg_count;
+		while (count--) {
+			pci_pool_free(q->sgpriv_pool, sg->driver_priv,
+				      sg->driver_priv_dma);
+			sg = sg->next;
+		}
+	}
+}
+
+/* By the way, we cannot move q->sgpriv_pool into struct pci_device and
+   have pci_{,un}map_sg take care of sg->driver_priv{,_dma} because
+
+	1. Non-PCI drivers use pci_device == NULL.  Perhaps, in the future,
+	   this will cease to be an issue of the DMA mapping stuff can
+	   be abstracted to "struct dma_device".
+
+	2. Conceivably, a driver might want more than one pool for
+	   different IO functions on the same device.  This is similar
+	   to the example of a sound card requiring different DMA masks
+	   in DMA-mapping.txt.  Both problems could be solved by
+	   creating a "struct dma_channel", which could contain the
+	   gather/scatter parameters currently in struct requeust_queue,
+	   the dma_mask parameter from pci_device, and allocation pool
+	   for sglist->sg_driver_priv.
+*/
+
+
+   
+
+

@@ -1,52 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267646AbTAHBtO>; Tue, 7 Jan 2003 20:49:14 -0500
+	id <S267642AbTAHBra>; Tue, 7 Jan 2003 20:47:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267651AbTAHBtK>; Tue, 7 Jan 2003 20:49:10 -0500
-Received: from smtp.comcast.net ([24.153.64.2]:64993 "EHLO smtp.comcast.net")
-	by vger.kernel.org with ESMTP id <S267646AbTAHBtI>;
-	Tue, 7 Jan 2003 20:49:08 -0500
-Date: Tue, 07 Jan 2003 20:51:53 -0500
-From: Russell Leighton <russ@elegant-software.com>
-Subject: Re: long stalls
-To: Brian Tinsley <btinsley@emageon.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3E1B8439.8040209@elegant-software.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.9)
- Gecko/20020311
-References: <3E1B73F3.2070604@emageon.com>
+	id <S267650AbTAHBra>; Tue, 7 Jan 2003 20:47:30 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:18185 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267642AbTAHBr2>;
+	Tue, 7 Jan 2003 20:47:28 -0500
+Date: Tue, 7 Jan 2003 17:55:51 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Subject: [PATCH] PCI hotplug changes for 2.5.54
+Message-ID: <20030108015551.GB30924@kroah.com>
+References: <20030108015500.GA30924@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030108015500.GA30924@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ChangeSet 1.894, 2003/01/07 16:24:14-08:00, greg@kroah.com
 
-I can't help, but I can echo a "me too".
-
-We only see it when I have 2 file I/O intensive processes...they both 
-will just stop for some few seconds, system seems idle...then
-they just start again. RH7.3 SMP, Dual PIII, 4GB RAM, 3com RAID Controller .
-
-Brian Tinsley wrote:
-
-> We have been having terrible problems with long stalls, meaning from a 
-> couple of minutes to an hour, happening when filesystem I/O load gets 
-> high. The system time as reported by vmstat or sar will increase up to 
-> 99% and as it spreads to each procesor, the system becomes completely 
-> unresponsive (except that it responds to pings just fine - 
-> interesting!). When the system finally returns to the world of the 
-> living, the only evidence that something bad has happened is the 
-> runtime for kswapd is abnormally high. I have seen this happen with 
-> the stock 2.4.17, 2.4.19, and 2.4.20 kernels on SMP PIII and PIV 
-> machines (either 4GB or 8GB RAM, all SCSI disks, dual GigE NICs). I've 
-> searched the lkml archives and google and have found several similar 
-> postings, but there is never an explanation or resolution. Any help 
-> would be *very* much appreciated! If any info from the system in 
-> question is desired, I will be glad to provide it.
->
->
->
+IBM PCI Hotplug: fix compile time error due to find_bus() function name.
 
 
+diff -Nru a/drivers/hotplug/ibmphp_core.c b/drivers/hotplug/ibmphp_core.c
+--- a/drivers/hotplug/ibmphp_core.c	Tue Jan  7 16:45:11 2003
++++ b/drivers/hotplug/ibmphp_core.c	Tue Jan  7 16:45:11 2003
+@@ -769,11 +769,11 @@
+  * Parameters: bus number
+  * Returns : pci_bus *  or NULL if not found
+  */
+-static struct pci_bus *find_bus (u8 busno)
++static struct pci_bus *ibmphp_find_bus (u8 busno)
+ {
+ 	const struct list_head *tmp;
+ 	struct pci_bus *bus;
+-	debug ("inside find_bus, busno = %x \n", busno);
++	debug ("inside %s, busno = %x \n", __FUNCTION__, busno);
+ 
+ 	list_for_each (tmp, &pci_root_buses) {
+ 		bus = (struct pci_bus *) pci_bus_b (tmp);
+@@ -1002,7 +1002,7 @@
+ 	struct pci_dev *dev;
+ 	u16 l;
+ 
+-	if (find_bus (busno) || !(ibmphp_find_same_bus_num (busno)))
++	if (ibmphp_find_bus (busno) || !(ibmphp_find_same_bus_num (busno)))
+ 		return 1;
+ 
+ 	bus = kmalloc (sizeof (*bus), GFP_KERNEL);
+@@ -1056,7 +1056,7 @@
+ 		func->dev = pci_find_slot (func->busno, (func->device << 3) | (func->function & 0x7));
+ 
+ 	if (func->dev == NULL) {
+-		dev0.bus = find_bus (func->busno);
++		dev0.bus = ibmphp_find_bus (func->busno);
+ 		dev0.devfn = ((func->device << 3) + (func->function & 0x7));
+ 		dev0.sysdata = dev0.bus->sysdata;
+ 
+@@ -1636,7 +1636,7 @@
+ 		return -ENOMEM;
+ 	}
+ 
+-	bus = find_bus (0);
++	bus = ibmphp_find_bus (0);
+ 	if (!bus) {
+ 		err ("Can't find the root pci bus, can not continue\n");
+ 		return -ENODEV;

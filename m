@@ -1,89 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264530AbUHHBeL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264750AbUHHBji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264530AbUHHBeL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 21:34:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264750AbUHHBeL
+	id S264750AbUHHBji (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 21:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264917AbUHHBji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 21:34:11 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:34700 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S264530AbUHHBeG
+	Sat, 7 Aug 2004 21:39:38 -0400
+Received: from mercury.sdinet.de ([193.103.161.30]:29069 "EHLO
+	mercury.sdinet.de") by vger.kernel.org with ESMTP id S264750AbUHHBjf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 21:34:06 -0400
-From: David Brownell <david-b@pacbell.net>
-To: ncunningham@linuxmail.org
-Subject: Re: What PM should be and do (Was Re: Solving suspend-level confusion)
-Date: Sat, 7 Aug 2004 17:54:19 -0700
-User-Agent: KMail/1.6.2
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Oliver Neukum <oliver@neukum.org>, Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-References: <20040730164413.GB4672@elf.ucw.cz> <200408032030.41410.david-b@pacbell.net> <1091594872.3191.71.camel@laptop.cunninghams>
-In-Reply-To: <1091594872.3191.71.camel@laptop.cunninghams>
+	Sat, 7 Aug 2004 21:39:35 -0400
+Date: Sun, 8 Aug 2004 03:39:33 +0200 (CEST)
+From: Sven-Haegar Koch <haegar@sdinet.de>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: Linux-Kernel-Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Suspend/Resume support for ati-agp
+Message-ID: <Pine.LNX.4.58.0408080331490.15568@mercury.sdinet.de>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200408071754.19448.david-b@pacbell.net>
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hello,
 
-> - support for state management of part of the tree (I want to put the
-> other devices to sleep at the start of suspending)
+while trying to debug a strange resume problem with 2.6.8-rc3-mm1 and
+software suspend 2 I suspeced ati-agp, and created the following attached
+patch to add powermanagement support for it.
 
-Hmm, sounds like maybe you're thinking about something that
-I might prefer to think of as a set.   Maybe organized by role
-("display", "disk array 2", etc) or maybe by something that
-monitors device usage (and which might help you by keeping
-most things suspended most of the time).
+I don't know if it's the completely right thing to do, I just copied the
+way via-agp and intel-agp do it - but perhaps you like it and want to send
+it upstream.
 
+c'ya
+sven
 
-> - support for grouping together a bunch of devices into an arbitrary
-> subtree (quiesce that keyboard, screen and storage device - and their
-> parents - while I do my lowlevel stuff... okay, now resume them so I can
-> save the rest of the image)
+ps:
+this did not fix the strange "weird vertical bars instead of movie in
+mplayer after resume" I have, but does not do any bad things either ;)
 
-OK, that's definitely a set not a tree.  And given USB, putting a keyboard
-into that a set creates a problem until remote wakeup works through PCI!
+--- linux/drivers/char/agp/ati-agp.c.orig	2004-08-08 02:53:10.000000000 +0200
++++ linux/drivers/char/agp/ati-agp.c	2004-08-08 03:06:03.000000000 +0200
+@@ -505,6 +505,33 @@
+ 	agp_put_bridge(bridge);
+ }
 
-Example of a simple tree:  a USB flash "disk" as the only device
-attached to a laptop.  That's actually several devices, something
-along these lines:
++#ifdef CONFIG_PM
++
++static int agp_ati_suspend(struct pci_dev *pdev, u32 state)
++{
++	pci_save_state (pdev, pdev->saved_config_space);
++	pci_set_power_state (pdev, 3);
++
++	return 0;
++}
++
++static int agp_ati_resume(struct pci_dev *pdev)
++{
++	struct agp_bridge_data *bridge = pci_get_drvdata(pdev);
++
++	/* set power state 0 and restore PCI space */
++	pci_set_power_state (pdev, 0);
++	pci_restore_state(pdev, pdev->saved_config_space);
++
++	/* reconfigure AGP hardware again */
++	if (bridge->driver == &ati_generic_bridge)
++		return ati_configure();
++
++	return 0;
++}
++
++#endif /* CONFIG_PM */
++
+ static struct pci_device_id agp_ati_pci_table[] = {
+ 	{
+ 	.class		= (PCI_CLASS_BRIDGE_HOST << 8),
+@@ -524,6 +551,10 @@
+ 	.id_table	= agp_ati_pci_table,
+ 	.probe		= agp_ati_probe,
+ 	.remove		= agp_ati_remove,
++#ifdef CONFIG_PM
++	.suspend	= agp_ati_suspend,
++	.resume		= agp_ati_resume,
++#endif
+ };
 
-  - PCI device, maybe bound to ohci_hcd
-  - USB root hub implemented by that driver
-  - USB devices, at least for device and one interface
-  - SCSI host implemented by usb-storage
-  - SCSI disk implemented by various SCSI layers 
-  - block device implemented by SCSI
-  - maybe a couple partitions
-
-Suspending that device should cause almost all of those to suspend.
-If there were another USB device on that root hub, it might not be
-possible to suspend the root hub.
- 
-
-> Perhaps the way to achieve the partial tree stuff is to make the code
-> for handling device lists more generic, so that there would be groups of
-> devices and each group has an dpm_active, dpm_off and dpm_off_irq list
-> of its own. Devices could go into a 'main group' by default, and be
-> shifted to a different group for operations like the above. Suspending
-> and resuming then moves the devices within the lists for the group.
-> Parents would only need to be moved in a case like mine, where the main
-> group was going to sleep.
-
-Hmm, I'd rather have the lists be dynamically constructed.  For example,
-"this device and all its children" should be suspended bottom-up,
-and resumed top-down  Would those groups be there for users to
-work with?
-
-And I'm not sure I understand what you mean about changing parents.
-After all, a given board will only be wired in one way, and no change
-in software can remove constraints like "A must suspend before B"
-or "if one of these N devices needs the 48 MHz clock, that PLL must
-still be running and so the system can't sleep".
-
-- Dave
+ static int __init agp_ati_init(void)
 

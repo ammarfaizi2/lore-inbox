@@ -1,101 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264575AbSIVWcx>; Sun, 22 Sep 2002 18:32:53 -0400
+	id <S264576AbSIVWdL>; Sun, 22 Sep 2002 18:33:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264576AbSIVWcw>; Sun, 22 Sep 2002 18:32:52 -0400
-Received: from igw3.watson.ibm.com ([198.81.209.18]:37078 "EHLO
-	igw3.watson.ibm.com") by vger.kernel.org with ESMTP
-	id <S264575AbSIVWcu>; Sun, 22 Sep 2002 18:32:50 -0400
-From: bob <bob@watson.ibm.com>
+	id <S264577AbSIVWdL>; Sun, 22 Sep 2002 18:33:11 -0400
+Received: from nameservices.net ([208.234.25.16]:55283 "EHLO opersys.com")
+	by vger.kernel.org with ESMTP id <S264576AbSIVWdJ>;
+	Sun, 22 Sep 2002 18:33:09 -0400
+Message-ID: <3D8E470D.C76C459E@opersys.com>
+Date: Sun, 22 Sep 2002 18:41:17 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
 MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LTT-Dev <ltt-dev@shafik.org>
+Subject: Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
+References: <Pine.LNX.4.44.0209230021260.28641-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Sun, 22 Sep 2002 18:37:46 -0400 (EDT)
-To: Ingo Molnar <mingo@elte.hu>
-Cc: bob <bob@watson.ibm.com>, Karim Yaghmour <karim@opersys.com>,
-       <okrieg@us.ibm.com>, trz@us.ibm.com,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LTT-Dev <ltt-dev@shafik.org>, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [ltt-dev] Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
-In-Reply-To: <Pine.LNX.4.44.0209222333470.19919-100000@localhost.localdomain>
-References: <15758.12948.103681.852724@k42.watson.ibm.com>
-	<Pine.LNX.4.44.0209222333470.19919-100000@localhost.localdomain>
-X-Mailer: VM 6.43 under 20.4 "Emerald" XEmacs  Lucid
-Message-ID: <15758.14124.935684.460733@k42.watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar writes:
- > 
- > On Sun, 22 Sep 2002, bob wrote:
- > 
- > > There is no drag on the kernel.  The concept that we are working on is
- > > consistent with your below recommendations.  Only place in the kernel an
- > > efficient tracing infrastructure, keep trace points as patches. [...]
- > 
- > well, this is not the impression i got from the patches posted to lkml ...
 
-The intent is to split LTT, get the infrastructure into the kernel, have
-the trace points as patches.
-
- > 
- > > [...] This adds no overhead to kernel, allows your suggested patches to
- > > use a standard efficient infrastructure, reduces replicated work from
- > > specific problem to specific problem.
- > 
- > so why not keep the core parts as separate patches as well? If it does
- > nothing then i dont see why it should get into the kernel proper.
-
-:-) It does do something.  It provides a common infrastructure for anyone
-wanting to use trace points.  What I meant is that when not enabled it
-doesn't cause any overhead.
-
-As a performance tool it will be used not only be kernel developers but by
-people writing device drivers, sub-systems, and apps.  Having an accepted
-infrastructure in the kernel allows a common vocabulary to be used across
-kernel, devices, sub-systems, and applications.  It allows sub-system
-developers who know their system best to put in the events and developers
-of other sub-systems of apps to use those events to understand what is
-going on.  If the infrastructure is in the kernel, users could dynamically
-enable and feedback performance results to the kernel developers.
-
-In short this will provide a common way to discuss performance issues
-across kernel, sub-system, and application space.
-
- > >  > my problem with this stuff is conceptual: it introduces a constant drag on
- > >  > the kernel sourcecode, while 99% of development will not want to trace,
- > > 
- > > If you care about performance you will want to trace.  On two previous
- > > kernels I have worked on I've heard this comment.  Once the
- > > infrastructure was in it was used and appreciated.
- > 
- > (i think you have not read what i have written. I use tracing pretty
- > frequently, and no, i dont need tracing in the kernel, during development
- > i can apply patches to kernel trees just fine.)
-
-Good - I'm glad you find tracing useful - sorry if I reacted to the
-statement that most of the time it's not needed.  As above, it should be in
-the kernel proper not as just a patch.
-
-> > The lockless scheme is pretty simple, instead of using a spinlock to
-> > ensure atomic allocation of buffer space, the code does an
-> > allocate-and-test routine where it tries to allocate space in the buffer
+Ingo Molnar wrote:
+> +int trace_event(u8 pm_event_id,
+> +               void *pm_event_struct)
+> [...]
+> +       read_lock(&tracer_register_lock);
 > 
-> (this is in essence a moving spinlock at the tail of the trace buffer -
-> same problem.)
+> ie. it's using a global spinlock. (sure, it can be made lockless, as other
+> tracers have done it.)
 
-No, we use lock-free atomic operations to reserve a place in the buffer to
-write the data.  What happens is you attempt to atomic move the current
-index pointer forward.  If you succeed then you have bought yourself that
-many data words in the queue.  In the unlikely event you happened to
-collide with someone you perform the atomic operation again.
+It is, but this is separate from the trace driver. This global
+spinlock is only used to avoid a race condition in the registration/
+unregistration of the tracing function with the trace infrastructure.
+The only case where the lock is taken in write mode is when a
+tracer in being registered or unregistered (register_tracer() and
+unregister_tracer()). Since tracing itself is NOT registeration/
+unregistration intensive, there is no contention over this lock.
 
+Any trace infrastructure that allows dynamic registration of tracers
+needs this sort of lock in order to make sure that the function pointer
+it has for the tracer is actually valid when it calls it. Of course if
+the tracer itself was directly called from the inline trace statements,
+then this would be a different story, but then the tracer has to be
+in there all the time (which is exactly what happens with most, if
+not all, the tracers already included in the kernel).
 
-Robert Wisniewski
-The K42 MP OS Project
-Advanced Operating Systems
-Scalable Parallel Systems
-IBM T.J. Watson Research Center
-914-945-3181
-http://www.research.ibm.com/K42/
-bob@watson.ibm.com
+Karim
+
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

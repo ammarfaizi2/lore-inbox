@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267435AbSLLJOj>; Thu, 12 Dec 2002 04:14:39 -0500
+	id <S267449AbSLLJPw>; Thu, 12 Dec 2002 04:15:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267447AbSLLJOj>; Thu, 12 Dec 2002 04:14:39 -0500
-Received: from cmailg3.svr.pol.co.uk ([195.92.195.173]:2056 "EHLO
-	cmailg3.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S267435AbSLLJOj>; Thu, 12 Dec 2002 04:14:39 -0500
-Date: Thu, 12 Dec 2002 09:22:21 +0000
-To: Jens Axboe <axboe@suse.de>
-Cc: Wil Reichert <wilreichert@yahoo.com>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: "bio too big" error
-Message-ID: <20021212092221.GB1299@reti>
-References: <1039572597.459.82.camel@darwin> <3DF6A673.D406BC7F@digeo.com> <1039577938.388.9.camel@darwin> <20021211072139.GF16003@suse.de>
+	id <S267450AbSLLJPw>; Thu, 12 Dec 2002 04:15:52 -0500
+Received: from 213-97-251-19.uc.nombres.ttd.es ([213.97.251.19]:17589 "EHLO
+	linalco.com") by vger.kernel.org with ESMTP id <S267449AbSLLJPv>;
+	Thu, 12 Dec 2002 04:15:51 -0500
+Date: Thu, 12 Dec 2002 10:22:56 +0100
+From: Ragnar Hojland Espinosa <ragnar@linalco.com>
+To: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is this going to be true ?
+Message-ID: <20021212092256.GA22868@linalco.com>
+References: <001801c2a0a9$02613f40$2e863841@joe> <yw1xbs3smtx0.fsf@gladiusit.e.kth.se> <at8jcm$n8u$1@forge.intermeta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021211072139.GF16003@suse.de>
+In-Reply-To: <at8jcm$n8u$1@forge.intermeta.de>
 User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Organization: Mediocrity Naysayers Ltd
+X-Homepage: http://lightside.eresmas.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 11, 2002 at 08:21:39AM +0100, Jens Axboe wrote:
-> On Tue, Dec 10 2002, Wil Reichert wrote:
-> > Exact error with debug is:
-> > 
-> > darwin:/a01/mp3s/Skinny Puppy/Too Dark Park# ogg123 -q 01\ -\
-> > Convulsion.ogg
-> > bio too big device ide0(3,4) (256 > 255)
+On Wed, Dec 11, 2002 at 11:57:10PM +0000, Henning P. Schmiedehausen wrote:
+> mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=) writes:
 > 
-> looks like a one-off in the dm merge_bvec function.
+> >> Competition is always good. It inpires people to do better.
+> 
+> >Doing better than MS isn't much of an inspiration to me.
+> 
+> There are no similar applications like the Exchange Server or the
+> BizTalk server for Linux. I'd see them port all of the server portions
+> of these applications to an *ix platform (be it MacOS X, *BSD or
 
-Nope, we're not using merge_bvec yet.  Kevin Corry has convinced me
-that there is a bug in dms bv splitting code, I'll put out a new
-patchset later.  However the known bug wouldn't have a stack trace
-like this.
+I point your attention towards suse's open exchange server (which isnt
+open, or free, btw)
 
-- Joe
+http://www.suse.com/us/business/products/suse_business/openexchange/
+-- 
+Ragnar Hojland - Project Manager
+Linalco "Especialistas Linux y en Software Libre"
+http://www.linalco.com Tel: +34-91-5970074 Fax: +34-91-5970083

@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264097AbUGFQVg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUGFQ1V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264097AbUGFQVg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 12:21:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUGFQVg
+	id S264113AbUGFQ1V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 12:27:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUGFQ1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 12:21:36 -0400
-Received: from c3-1d224.neo.lrun.com ([24.93.233.224]:12164 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S264097AbUGFQVe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 12:21:34 -0400
-Date: Tue, 6 Jul 2004 12:17:32 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: caszonyi@rdslink.ro
+	Tue, 6 Jul 2004 12:27:20 -0400
+Received: from fmr11.intel.com ([192.55.52.31]:15232 "EHLO
+	fmsfmr004.fm.intel.com") by vger.kernel.org with ESMTP
+	id S264113AbUGFQ1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 12:27:19 -0400
+Subject: Re: 2.6.7-mm3 USB ehci IRQ problem
+From: Len Brown <len.brown@intel.com>
+To: Jurgen Kramer <gtm.kramer@inter.nl.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-mm[3-4] doesn't boot (alsa or pnp related)
-Message-ID: <20040706121732.GA3150@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, caszonyi@rdslink.ro,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.53.0406300333020.216@grinch.ro>
+In-Reply-To: <1089130549.3160.2.camel@paragon.slim>
+References: <A6974D8E5F98D511BB910002A50A6647615FEF3E@hdsmsx403.hd.intel.com>
+	 <1089054167.15653.51.camel@dhcppc4>  <1089058581.2496.9.camel@paragon.slim>
+	 <1089059612.3589.5.camel@paragon.slim> <1089062128.15675.122.camel@dhcppc4>
+	 <1089130549.3160.2.camel@paragon.slim>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1089131222.15660.445.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0406300333020.216@grinch.ro>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 06 Jul 2004 12:27:02 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 30, 2004 at 03:40:43AM +0300, caszonyi@rdslink.ro wrote:
-> Hi all
-> I just tried today 2.6.7-mm3 and 2.6.7-mm4.
-> They both stop booting at:
-> Advanced Linux Sound Architecture Driver Version 1.0.5 (Sun May 30
-> 10:49:40 2004 UTC)
-> pnp: Device 01:01.00 activated
-> pnp: Device 01:01.02 activated
-> pnp: Device 01:01.03 activated
->
+On Tue, 2004-07-06 at 12:15, Jurgen Kramer wrote:
+> On Mon, 2004-07-05 at 23:15, Len Brown wrote:
+> > On Mon, 2004-07-05 at 16:33, Jurgen Kramer wrote:
+> > > On Mon, 2004-07-05 at 22:16, Jurgen Kramer wrote:
+
+> > > 2.6.7 vanilly results are in. The results are...it works..
+> > 
+> > great!  Now if you can apply this patch to 2.6.7 and tell me if
+> > it is ACPI that broke EHCI for you in -mm5 or something else:
+> > 
+> >
+> http://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7/2.6.7-mm5/broken-out/bk-acpi.patch
+> > 
+> Alright, still looks good:
+
+> <snip>
 > 
-> on a normal boot it is (vanila 2.6.7):
->
-> Advanced Linux Sound Architecture Driver Version 1.0.4 (Mon May 17
-> 14:31:44 2004 U
-> TC).
-> pnp: the driver 'cs423x' has been registered
-> pnp: match found with the PnP device '01:01.00' and the driver 'cs423x'
-> pnp: match found with the PnP device '01:01.02' and the driver 'cs423x'
-> pnp: match found with the PnP device '01:01.03' and the driver 'cs423x'
-> pnp: Device 01:01.00 activated.
-> pnp: Device 01:01.02 activated.
-> pnp: Device 01:01.03 activated.
-> ALSA device list:
->   #0: CS4239 at 0x534, irq 5, dma 1&0
->   #1: Brooktree Bt878 at 0xe2002000, irq 10
->
-> config is attached
->
-> Bye
-> Calin
+> So it doesn't look like a ACPI problem.
 
-This may be a resource conflict.  Do you have an isapnp modem?  If so, try
-disabling the serial driver.
+Okay, something else in -mm5 broke your ehci.
+Now -mm6 is out, probably that is the thing to try next.
 
-Thanks,
-Adam
+thanks,
+-Len
+
+

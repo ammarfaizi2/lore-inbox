@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267814AbUHPR1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267815AbUHPR3M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267814AbUHPR1O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 13:27:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267815AbUHPR1O
+	id S267815AbUHPR3M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 13:29:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267823AbUHPR3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 13:27:14 -0400
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:41211 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S267814AbUHPR1K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 13:27:10 -0400
-Subject: Re: [PATCH] use simple_read_from_buffer in selinuxfs
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, James Morris <jmorris@redhat.com>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20040814161521.C1924@build.pdx.osdl.net>
-References: <20040814161521.C1924@build.pdx.osdl.net>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1092677137.16631.156.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 16 Aug 2004 13:25:37 -0400
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Aug 2004 13:29:12 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:57792 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S267815AbUHPR27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 13:28:59 -0400
+Date: Mon, 16 Aug 2004 10:28:18 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: linux-ia64@vger.kernel.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Anton Blanchard <anton@samba.org>
+Subject: Re: page fault fastpath: Increasing SMP scalability by introducing
+ pte locks?
+In-Reply-To: <1092609485.9538.27.camel@gaston>
+Message-ID: <Pine.LNX.4.58.0408161025420.9812@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
+ <1092609485.9538.27.camel@gaston>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-08-14 at 19:15, Chris Wright wrote:
-> Use simple_read_from_buffer.  This also eliminates page allocation
-> for the sprintf buffer.  Switch to get_zeroed_page instead of
-> open-coding it.  Viro had ack'd this earlier.  Still applies w/
-> the transaction update.
-> 
-> Signed-off-by: Chris Wright <chrisw@osdl.org>
+On Mon, 16 Aug 2004, Benjamin Herrenschmidt wrote:
 
-Thanks, looks fine to me.
+> On Sun, 2004-08-15 at 23:50, Christoph Lameter wrote:
+> > Well this is more an idea than a real patch yet. The page_table_lock
+> > becomes a bottleneck if more than 4 CPUs are rapidly allocating and using
+> > memory. "pft" is a program that measures the performance of page faults on
+> > SMP system. It allocates memory simultaneously in multiple threads thereby
+> > causing lots of page faults for anonymous pages.
+>
+> Just a note: on ppc64, we already have a PTE lock bit, we use it to
+> guard against concurrent hash table insertion, it could be extended
+> to the whole page fault path provided we can guarantee we will never
+> fault in the hash table on that PTE while it is held. This shouldn't
+> be a problem as long as only user pages are locked that way (which
+> should be the case with do_page_fault) provided update_mmu_cache()
+> is updated to not take this lock, but assume it already held.
 
-Signed-off-by:  Stephen Smalley <sds@epoch.ncsc.mil>
-
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+Is this the _PAGE_BUSY bit? The pte update routines on PPC64 seem to spin
+on that bit when it is set waiting for the hash value update to complete.
+Looks very specific to the PPC64 architecture.

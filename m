@@ -1,71 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263964AbTEWIzV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 04:55:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263967AbTEWIzV
+	id S263958AbTEWIy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 04:54:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263964AbTEWIy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 04:55:21 -0400
-Received: from murphys.services.quay.plus.net ([212.159.14.225]:32180 "HELO
-	murphys.services.quay.plus.net") by vger.kernel.org with SMTP
-	id S263964AbTEWIzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 04:55:19 -0400
-From: "Riley Williams" <Riley@Williams.Name>
-To: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-       "Marcelo Tosatti" <marcelo@conectiva.com.br>
-Cc: "Paul Mackerras" <paulus@samba.org>,
-       "linux-kernel mailing list" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] Fix warning with ndelay
-Date: Fri, 23 May 2003 10:08:29 +0100
-Message-ID: <BKEGKPICNAKILKJKMHCAAELGDBAA.Riley@Williams.Name>
+	Fri, 23 May 2003 04:54:59 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:15881 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263958AbTEWIy5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 04:54:57 -0400
+Message-ID: <3ECDE4B4.8010005@aitel.hist.no>
+Date: Fri, 23 May 2003 11:07:00 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Nikita Danilov <Nikita@Namesys.COM>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: recursive spinlocks. Shoot.
+References: <3ECC4C3A.9000903@cyberone.com.au>	<PEEPIDHAKMCGHDBJLHKGEEKJCMAA.rwhite@casabyte.com> <16077.52259.718519.389903@laputa.namesys.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <1053679084.1160.99.camel@gaston>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Benjamin.
+Nikita Danilov wrote:
+> Consider two loops:
+> 
+> (1)
+> 
+> spin_lock(&lock);
+> list_for_each_entry(item, ...) {
+>   do something with item;
+> }
+> spin_unlock(&lock);
+> 
+> versus
+> 
+> (2)
+> 
+> list_for_each_entry(item, ...) {
+>   spin_lock(&lock);
+>   do something with item;
+>   spin_unlock(&lock);
+> }
+> 
+> and suppose they both are equally correct. Now, in (2) total amount of
+> time &lock is held is smaller than in (1), but (2) will usually perform
+> worse on SMP, because:
+> 
+> . spin_lock() is an optimization barrier
+> 
+> . taking even un-contended spin lock is an expensive operation, because
+> of the cache coherency issues.
 
-Did you forget to enclose the patch?
 
-Best wishes from Riley.
----
- * Nothing as pretty as a smile, nothing as ugly as a frown.
+This is a tradeoff.  If the total running time is "short", use (1) for 
+performance.
+If the running time is "long" use (2) to avoid lock contention.
 
+"long" time happens when the time wasted by other processors spinning
+typically exceed the time wasted by repeated lock+unlock, or there
+is excessive latency on some irq-blocking lock.
 
- > -----Original Message-----
- > From: linux-kernel-owner@vger.kernel.org
- > [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Benjamin
- > Herrenschmidt
- > Sent: Friday, May 23, 2003 9:38 AM
- > To: Marcelo Tosatti
- > Cc: Paul Mackerras; linux-kernel mailing list
- > Subject: [PATCH] Fix warning with ndelay
- > 
- > 
- > 
- > -- 
- > Benjamin Herrenschmidt <benh@kernel.crashing.org>
- > -
- > To unsubscribe from this list: send the line "unsubscribe 
- > linux-kernel" in
- > the body of a message to majordomo@vger.kernel.org
- > More majordomo info at  http://vger.kernel.org/majordomo-info.html
- > Please read the FAQ at  http://www.tux.org/lkml/
- > 
- > ---
- > Incoming mail is certified Virus Free.
- > Checked by AVG anti-virus system (http://www.grisoft.com).
- > Version: 6.0.483 / Virus Database: 279 - Release Date: 19-May-2003
- > 
----
-Outgoing mail is certified Virus Free.
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.483 / Virus Database: 279 - Release Date: 19-May-2003
+You can get the best of both worlds (low latency and few lock operations)
+like this:
+
+while(more work to do) {
+   spin_lock(&lock);
+   process one suitably sized batch of items
+   spin_unlock(&lock);
+}
+
+This sort of thing certainly helped the VM system.
+
+Helge Hafting
 

@@ -1,83 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267133AbTBNCRd>; Thu, 13 Feb 2003 21:17:33 -0500
+	id <S268157AbTBNC30>; Thu, 13 Feb 2003 21:29:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268157AbTBNCRd>; Thu, 13 Feb 2003 21:17:33 -0500
-Received: from ool-4351594a.dyn.optonline.net ([67.81.89.74]:63493 "EHLO
-	badula.org") by vger.kernel.org with ESMTP id <S267133AbTBNCRc>;
-	Thu, 13 Feb 2003 21:17:32 -0500
-Date: Thu, 13 Feb 2003 21:27:14 -0500 (EST)
-From: Ion Badulescu <ionut@badula.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [net drvr] starfire driver update for 2.5.60
-In-Reply-To: <3E4C3A8A.3030207@pobox.com>
-Message-ID: <Pine.LNX.4.44.0302132111050.3318-100000@moisil.badula.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268159AbTBNC30>; Thu, 13 Feb 2003 21:29:26 -0500
+Received: from bjl1.jlokier.co.uk ([81.29.64.88]:25744 "EHLO
+	bjl1.jlokier.co.uk") by vger.kernel.org with ESMTP
+	id <S268157AbTBNC3Y>; Thu, 13 Feb 2003 21:29:24 -0500
+Date: Fri, 14 Feb 2003 02:40:46 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Anton Blanchard <anton@samba.org>, Paul Mackerras <paulus@samba.org>,
+       Andrew Tridgell <tridge@samba.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: Synchronous signal delivery..
+Message-ID: <20030214024046.GA18214@bjl1.jlokier.co.uk>
+References: <Pine.LNX.4.44.0302131120280.2076-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0302131120280.2076-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Feb 2003, Jeff Garzik wrote:
+Linus Torvalds wrote:
+> The above example program is obviously totally useless, and any real use
+> would have to expand the implementation with addign the full siginfo to
+> the packet read (which is trivial apart from deciding on what format to
+> use - it would be good to not have it be architecture-dependent and in
+> particular it would be horrible to have different formats for different
+> compatibility layers).
 
-> I'm curious about the ring-wrapping code... the comments indicate you 
-> may not have fully investigated the ring-wrapping semantics?
+siginfo is _almost_ architecture independent now.  There are some
+quirks.  siginfo is bad though, because it has to be compatible with
+whatever standard it came from, so nobody dares to extend it.  (See
+dnotify and sigsegv below).
 
-I think you're misreading the code...
+I see that there are several fairly general event sources now:
 
-The problem with the starfire is that you can only wrap the ring after the 
-_first_ descriptor in a SG skbuff. That's why the code is more complicated 
-than it would otherwise be.
+	- signals
+	- epoll events
+	- async I/O events
+	- posix timers
 
-> Neither style requires any special handling of "wrap" cases, which your 
-> patch adds..  Your patch adds things like arbitrary padding of 4 tx 
-> slots, where you might as well add a comment "/* for luck! */".
+More events that don't provide enough information:
 
-Again, I think you're misinterpreting the 4 (which is, as I mentioned, 
-hardcoded and somewhat arbitrary).
+	- dnotify details (siginfo doesn't say enough)
+	- sigsegv read/write? (siginfo doesn't say enough)
 
-All I'm doing there is making sure there are at least 4 slots available 
-before waking up the Tx queue. Why? because otherwise you might end up not 
-having enough slots free for all the descriptors needed for a SG skbuff.
+More events that should be accessible but aren't:
 
-Otherwise, the Becker-style cur_tx <-> dirty_tx handling is in effect, and 
-works as expected.
+	- vm paging like crazy, please release some memory
 
-> Why not 
-> actually nail down the problems the code is obvious working around? 
+Your synchronous signals code effectively makes signals work with
+select/poll/epoll nicely.  Async I/O still reports events in its own
+way.
 
-Because there aren't any? :-)
+Suggestion du jour
+------------------
 
-There were two big problems in the old driver:
+I think that epoll and sigfd and async I/O could meld into a nice and
+extensible, and fast, event interface.  You'd first create an "event
+fd" (i.e. very similar to epoll_create or sigfd), then you'd add event
+sets of interest (which include signals and file descriptors), then
+you'd wait for them using read().
 
-- it was still using the Becker-era tx_full flag, which was non-atomic and 
-therefore had a race between start_tx and intr_handler.
-- it was failing to stop the DMA engines on ifdown, which could end up 
-corrupting random memory (also inherited from the Becker driver)
+All event sources (such as timers) would have a facility for adding
+themselves to a given sigfd.
 
-The reason all the Tx handling has changed is due to the 64-bit support. 
-The starfire does have a SG descriptor, but it can only handle 32-bit 
-buffers. If you want 64-bit, you have to use chained single-buffer 
-descriptors. So I just changed the code to always use chained 
-single-buffer descriptors, for both 32-bit and 64-bit buffers -- but 
-that's again the reason the driver now reserves more than one slot before 
-turning Tx back on.
+Such fds could be passed around in the usual ways (as you described
+for sigfds).
 
-> A minor style point too, "s/struct foodesc/foodesc/" is going the 
-> opposite of preferred.
+Async I/Os would be queued with reference to a sigfd, instead of an
+aio descriptor (which is just an integer anyway) as they are now.
 
-The alternative is a lot of #ifdef's all over the place. Thanks but no 
-thanks, I'm no fan of typedef's but ifdef's are worse.
+read() would report return one or more structure containing pending
+events, in the format: LENGTH, CATEGORY, REST... with the first word
+saying which category of events (and giving the format), the next
+giving the length, and the rest in much the same format as epoll or
+async I/O do now, and whatever format is appropriate for signals.
 
-> This is why I have not applied your patch when it was sent to me...
+Davide has already worked out the tricky logic of attaching fd-poll
+events to an event reporter, although a special system call is used to
+get the events instead of just read().  The async I/O folk have
+already done similar for async I/Os, except a different special system
+call is used.  But both basically return an array of bytes containing
+event structures.
 
-Well, you didn't say much at the time... :-) so I just assumed you were 
-mostly happy with it.
+In summary:
 
-Thanks,
-Ion
+	sigfd(...)		// Create an event reporter fd.
+	sigfd_sigmask(fd,...)	// Attach a signal mask to the reporter.
+	epoll_ctl(fd,...)	// Attach an fd watcher to the reporter.
+	fcntl(...DNOTIFY_*,fd)	// Attach a directory watcher to the reporter.
+	futex_event(...,fd)	// Attach a futex waiter to the reporter.
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+My main reason for wanting a little unity, rather than lots of
+different event reporter types (i.e. epoll, aio, sigfd) as now is
+mainly that async I/O doesn't fit at all because it doesn't use an fd
+to report its events.  Anything fd-based can obviously be monitored
+using epoll (or poll/select).
 
+Obviously, all that's needed there is for async I/O to report _its_
+events using a file descriptor and read().
+
+However, once you've got a kernel data structure for queuing events
+(epoll's logic is close to ideal IMHO), it seems clean and efficient
+to generalise the code, rather than having several different event
+queuing and reporting subsystems.
+
+And when that's done you have some nice bonuses:
+
+	- All event types are reported equally fast, and in a single
+	  system call (read()).
+
+	- The order in which events occurred is preserved.
+	  (This is lost when you have to scan multiple queues).
+
+	- Hierarchies of event sets of any kind are possible.
+	  (epoll has solved the logical problems of this already).
+
+	- Less code duplicated.
+
+	- Adding new kinds of kernel events becomes _very_ simple.
+
+-- Jamie

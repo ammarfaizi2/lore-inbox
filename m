@@ -1,36 +1,24 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264642AbRFTWNr>; Wed, 20 Jun 2001 18:13:47 -0400
+	id <S263745AbRFTWPh>; Wed, 20 Jun 2001 18:15:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264645AbRFTWNm>; Wed, 20 Jun 2001 18:13:42 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19212 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264642AbRFTWNd>; Wed, 20 Jun 2001 18:13:33 -0400
-Subject: Re: Linux 2.4.5-ac16 kernel panic
-To: admin@netpathway.com ("Gary White (Network Administrator)")
-Date: Wed, 20 Jun 2001 23:12:50 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B3116A3.E89360DE@netpathway.com> from "Gary White (Network Administrator)" at Jun 20, 2001 04:33:23 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15CqDS-0000DG-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S264644AbRFTWP1>; Wed, 20 Jun 2001 18:15:27 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:9378 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S263745AbRFTWPQ>;
+	Wed, 20 Jun 2001 18:15:16 -0400
+Date: Thu, 21 Jun 2001 00:15:10 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200106202215.AAA360819.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] remove null register_disk
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.4.5-ac16 patch applied to clean 2.4.5 tree. 2.4.5-ac15 boots
-> with no problem.
+> Is it worth keeping these so we can build things like nice
+> /proc files or use them later ?
 
-Yes I screwed up the bootflag handling
+Some, rather different, form will come back.
+For now I would prefer throwing out as much as possible.
 
-> EIP:    0010:[<c01112cf>]
-> EFLAGS: 00010286
-> eax: 007ec000   ebx: e0800000   ecx: 3f7ec000   edx: c0101000
-
-Can you build with kernel debug enabled and then say Y to all the debug options
-and give me the BUG() message where that next build dies. I think I know whats
-up I want to be sure
-
-
+Andries

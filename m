@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289927AbSAPNqt>; Wed, 16 Jan 2002 08:46:49 -0500
+	id <S289926AbSAPNqJ>; Wed, 16 Jan 2002 08:46:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289929AbSAPNqa>; Wed, 16 Jan 2002 08:46:30 -0500
-Received: from pl100.nas921.ichikawa.nttpc.ne.jp ([210.165.234.100]:29481 "EHLO
-	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S289927AbSAPNqP>;
-	Wed, 16 Jan 2002 08:46:15 -0500
-Date: Wed, 16 Jan 2002 22:46:03 +0900
-From: Bruce Harada <bruce@ask.ne.jp>
-To: Luca Adesso <ladesso@libero.it>
-Cc: laforge@gnumonks.org, linux-kernel@vger.kernel.org
-Subject: Re: iptables and 2.4.17
-Message-Id: <20020116224603.60e5cb78.bruce@ask.ne.jp>
-In-Reply-To: <5.1.0.14.0.20020116141606.00a961e0@popmail.libero.it>
-In-Reply-To: <5.1.0.14.0.20020116115713.00a96ec0@popmail.libero.it>
-	<5.1.0.14.0.20020116115713.00a96ec0@popmail.libero.it>
-	<5.1.0.14.0.20020116141606.00a961e0@popmail.libero.it>
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.6; i686-pc-linux-gnu)
-X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S289927AbSAPNqA>; Wed, 16 Jan 2002 08:46:00 -0500
+Received: from fs1.ml.kva.se ([130.237.201.20]:46349 "EHLO fs1.ml.kva.se")
+	by vger.kernel.org with ESMTP id <S289926AbSAPNpu>;
+	Wed, 16 Jan 2002 08:45:50 -0500
+Date: Wed, 16 Jan 2002 14:47:36 +0100 (CET)
+From: Lukas Geyer <geyer@ml.kva.se>
+To: <linux-kernel@vger.kernel.org>
+Subject: Two issues with 2.4.18pre3 on PPC
+Message-ID: <Pine.LNX.4.33.0201161417540.6868-100000@cauchy.ml.kva.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jan 2002 14:28:53 +0100
-Luca Adesso <ladesso@libero.it> wrote:
+Hi,
 
-> I go in /usr/src and rm -r linux and rm linux-2.4.5 (the kernel installed 
-> with Slackware 7.0) then downloaded kernel 2.4.17
+I am very glad that the PPC patches are now merged so I can use a
+mainstream kernel again on my iBook. Thanks to all the people who did
+this. It works quite fine so far but there are two minor problems:
 
-Er... are you sure you don't mean Slackware 8.0? Slackware 7.0 was 2.2.x.
+- The kernel ignores the boot parameter hdb=ide-scsi, it probes hdb anyway
+  and loads the ATAPI CD-ROM driver. The problem may be (I am really not
+  familiar with the kernel internals) the function pmac_ide_probe() in
+  drivers/ide/ide-pmac.c which does not check for any kernel boot
+  parameters at all.
+
+- The generic RTC driver in drivers/char/rtc.c does not work for this
+  iBook. The driver in drivers/macintosh/rtc.c does work, but it only
+  implements the two ioctls RTC_RD_TIME and RTC_SET_TIME. (Is this due to
+  hardware limitations?) Anyway, it is confusing to have both drivers
+  configurable for PPC, maybe the corresponding Config.in files should be
+  adjusted. (In addition, this is complicated by the fact that both
+  configuration options appear in different submenus and if you select
+  both as modules, then the generic driver will "shadow" the macintosh
+  one.)
+
+Lukas
+
+

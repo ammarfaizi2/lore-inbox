@@ -1,41 +1,76 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314389AbSFEKGk>; Wed, 5 Jun 2002 06:06:40 -0400
+	id <S314340AbSFEKHO>; Wed, 5 Jun 2002 06:07:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314396AbSFEKGj>; Wed, 5 Jun 2002 06:06:39 -0400
-Received: from ns.suse.de ([213.95.15.193]:17934 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S314389AbSFEKGi>;
-	Wed, 5 Jun 2002 06:06:38 -0400
-Date: Wed, 5 Jun 2002 12:06:39 +0200
-From: Dave Jones <davej@suse.de>
-To: Greg KH <greg@kroah.com>
-Cc: bvermeul@devel.blackstar.nl, Adam Trilling <agt10@columbia.edu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [2.5.19/20] KDE panel (kicker) not starting up
-Message-ID: <20020605120638.D5277@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Greg KH <greg@kroah.com>, bvermeul@devel.blackstar.nl,
-	Adam Trilling <agt10@columbia.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.44.0206030918120.21429-100000@watsol.cc.columbia.edu> <Pine.LNX.4.33.0206032033030.569-100000@devel.blackstar.nl> <20020605034945.GA32577@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S314396AbSFEKHN>; Wed, 5 Jun 2002 06:07:13 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:61714 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S314340AbSFEKHL>; Wed, 5 Jun 2002 06:07:11 -0400
+Message-ID: <3CFDD513.4030109@evision-ventures.com>
+Date: Wed, 05 Jun 2002 11:08:35 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Patrick Mochel <mochel@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: device model documentation 1/3
+In-Reply-To: <Pine.LNX.4.33.0206041115540.654-100000@geena.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 04, 2002 at 08:49:45PM -0700, Greg KH wrote:
- > > Everythink works using 2.5.17. So I think this *is* a kernel question.
- > > I've had the same problem with 2.5.19 (and couldn't get 2.5.18 working 
- > > properly)
- > 
- > Just to add one more "me too" here, I've seen the same thing here.
- > 2.5.18 worked just fine from what I remember.
+Patrick Mochel wrote:
+> On Tue, 4 Jun 2002, Patrick Mochel wrote:
+> 
+> 
+>>>>	int	(*bind)		(struct device * dev, struct device_driver * drv);
+>>>>};
+>>>>
+>>>
+>>>Please - Why do you call it bind? Does it have something with
+>>>netowrking to do? Please just name it attach. This way the old UNIX
+>>>guys among us won't have to drag a too big
+>>>"UNIX to Linux translation dictionary" around with them.
+>>>As an "added bonus" you will stay consistent with -
+>>>
+>>>PCMCIA code base in kernel
+>>>USB code base in kernel
+>>>IDE code base (well recently)
+>>
+>>Ok, I can live with that.
+> 
+> 
+> Actually, I take that back. attach is the wrong nomenclature as well for 
+> the action. 'match' would be more correct.
 
-Wasn't this attributed to the /proc/meminfo format changing ?
+That would be fine with me. At least this would not confuse at least me
+about what's up with it. matchid would be even more obvious.
+Perhaps "validate" could be used too, becouse the method is
+not acting on equivalent objects.
 
-        Dave
+> The entry point is the opportunity for the bus to compare a device ID with
+> a list of IDs that a particular driver supports. It's a 'compare' or
+> 'match' operation. At this point, the driver is not attaching to the
+> device; it's only checking that's its ok to attach.
+> 
+> So, how about naming it 'match', and changing the 
+> {driver,device}_{,un}bind() in drivers/base/core.c to 
+> {driver,device}_{,un}attach() (since those are what is doing the 
+> attachment)?
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Fine with me. This would be not confusing.
+
+> The entire process, though, I think is still best described as "Driver 
+> Binding", as it is a common, modern term for what's happening.
+
+Common or not on unix driver binding has already a meaning and
+the term confused at least one person (me).
+
+Also please think about the following: terms should always
+be related to the object they act *on* and not the object they
+are the *method of* - becouse this is already known by the
+"method from" relation. Therefore validate or match is more
+"obvious" then bind at the respecitve places. IMHO.
+

@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262761AbTKYRNX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 12:13:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbTKYRNX
+	id S262788AbTKYRVp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 12:21:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262789AbTKYRVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 12:13:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:29086 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262761AbTKYRNU (ORCPT
+	Tue, 25 Nov 2003 12:21:45 -0500
+Received: from iisc.ernet.in ([144.16.64.3]:42132 "EHLO iisc.ernet.in")
+	by vger.kernel.org with ESMTP id S262788AbTKYRVm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 12:13:20 -0500
-Date: Tue, 25 Nov 2003 09:13:53 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Joe Korty <joe.korty@ccur.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] possible erronous use of tick_usec in do_gettimeofday
-Message-Id: <20031125091353.00dd144a.shemminger@osdl.org>
-In-Reply-To: <20031125164237.GA15498@rudolph.ccur.com>
-References: <1067300966.1118.378.camel@cog.beaverton.ibm.com>
-	<20031027171738.1f962565.shemminger@osdl.org>
-	<20031028115558.GA20482@iram.es>
-	<20031028102120.01987aa4.shemminger@osdl.org>
-	<20031029100745.GA6674@iram.es>
-	<20031029113850.047282c4.shemminger@osdl.org>
-	<16288.17470.778408.883304@wombat.chubb.wattle.id.au>
-	<3FA1838C.3060909@mvista.com>
-	<Pine.LNX.4.53.0310301645170.16005@chaos>
-	<16289.39801.239846.9369@wombat.chubb.wattle.id.au>
-	<20031125164237.GA15498@rudolph.ccur.com>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 25 Nov 2003 12:21:42 -0500
+From: anand@eis.iisc.ernet.in (SVR Anand)
+Message-Id: <200311251721.WAA25695@eis.iisc.ernet.in>
+Subject: Re: 2.6.0-test9-bk25 : bridge works fine
+To: davem@redhat.com (David S. Miller)
+Date: Tue, 25 Nov 2003 22:51:21 +0530 (GMT+05:30)
+Cc: torvalds@osdl.org (Linus Torvalds), linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+In-Reply-To: <20031123152601.67646dc1.davem@redhat.com> from "David S. Miller" at Nov 23, 2003 03:26:01 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Nov 2003 11:42:38 -0500
-Joe Korty <joe.korty@ccur.com> wrote:
+Hi,
 
-> test10's version of do_gettimeofday is using tick_usec which is
-> defined in terms of USER_HZ not HZ.
+With test9-bk25, I am not facing any problem for the past many hours which
+was not to be the case with test9. I am hopeful that it will work for ever.
+
+Thanks a lot for all the help. Next time I should make it a point to try on 
+the latest of the latest before shooting off a mail :)
+
+Anand
 > 
-> Against 2.6.0-test10-bk1.  Compiled, not tested, for comment only.
+> On Sat, 22 Nov 2003 08:20:40 -0800 (PST)
+> Linus Torvalds <torvalds@osdl.org> wrote:
+> 
+> > On Sat, 22 Nov 2003, SVR Anand wrote:
+> > > 
+> > > The problem is : After 3 to 4 hours of functioning, the bridge stops working 
+> > > and the machine becomes unusable where it doesn't respond to keyboard, and 
+> > > there is no video display.
+> > 
+> > Sounds like a memory leak somewhere. It would probably be interesting to 
+> > watch /proc/slabinfo every five minutes or so, and see what happens..
+> 
+> Also, we've certainly fixed some serious networking bugs since test9
+> came out.
+> 
 
-Your right. tick_usec is in user hz so the value of max_ntp_tick would be
-too large.

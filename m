@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292631AbSCGWZa>; Thu, 7 Mar 2002 17:25:30 -0500
+	id <S293181AbSCGWZa>; Thu, 7 Mar 2002 17:25:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310554AbSCGWZU>; Thu, 7 Mar 2002 17:25:20 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:13756 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S292631AbSCGWZD>; Thu, 7 Mar 2002 17:25:03 -0500
-Subject: [PATCH] Fix for get_pid hang
-From: Paul Larson <plars@austin.ibm.com>
-To: Marcelo Tosati <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1015539061.16836.10.camel@plars.austin.ibm.com>
-In-Reply-To: <200203072045.PAA08386@egenera.com> 
-	<1015539061.16836.10.camel@plars.austin.ibm.com>
-Content-Type: text/plain
+	id <S292631AbSCGWZV>; Thu, 7 Mar 2002 17:25:21 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56324 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293181AbSCGWZI>;
+	Thu, 7 Mar 2002 17:25:08 -0500
+Message-ID: <3C87E859.427EC3C7@zip.com.au>
+Date: Thu, 07 Mar 2002 14:23:21 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+In-Reply-To: <3C87E35E.B841801D@zip.com.au> <Pine.LNX.4.44L.0203071908380.2181-100000@imladris.surriel.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 07 Mar 2002 16:23:58 -0600
-Message-Id: <1015539839.16835.18.camel@plars.austin.ibm.com>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-03-07 at 16:11, Paul Larson wrote:
-> On Thu, 2002-03-07 at 14:45, Patrick O'Rourke wrote:
-> > It is possible on large memory systems that the default process limits
-> > can exceed PID_MAX.  This will allow a non-root user to consume all pids
-> > resulting in the kernel to basically hang in get_pid().
-> > 
->   
-> > +	/* don't let threads go beyond PID_MAX */
-> > +	if (max_threads > PID_MAX) {
-> > +		max_threads = PID_MAX;
-> > +	}
-> > +
-> The problem with this approach is that it doesn't take into account
-> pgrp, tgids, etc... I submitted the following patch a couple of weeks
-> ago that fixes the problem a better way.
+Rik van Riel wrote:
+>
+> > So what *is* a solution.  Well, there's only so much memory available.
+> > In either case a) or case b) we're "fairly" distributing that memory
+> > between all files.  And that's the problem.  *All* the files have too
+> > small a readahead window.  Which points one at: we need to stop being
+> > fair. We need to give some files a good readahead window and others
+> > not.   The "soft pinning" which I propose with GFP_READAHEAD and
+> > PG_readhead might have that effect, I think.
 > 
-> Thanks,
-> Paul Larson
+> Actually, it could boil down to something more:
+> 
+> use-once reduces the VM to FIFO order, which suffers from
+> belady's anomaly so it doesn't matter much how much memory
+> you throw at it
+> 
+> drop-behind will suffer the same problem once the readahead
+> memory is too large to keep in the system, but at least the
+> already-used pages won't kick out readahead pages
 
-Marcelo, any chance of getting this accepted into the next 2.4.19-pre? 
-It is obviously a bug that is afecting several others as well.  I think
-the LSE team is looking at some performance enhancements to get_pid, but
-from what I've seen so far they will be working on top of this bug fix. 
-I just verified that the patch still applies cleanly against
-2.4.19-pre2.
+err..  Was there a fix in there somewhere, or are we stuck?
 
-Thanks,
-Paul Larson
-
-
-
+-

@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267236AbRGKI4q>; Wed, 11 Jul 2001 04:56:46 -0400
+	id <S267248AbRGKJEg>; Wed, 11 Jul 2001 05:04:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267238AbRGKI4g>; Wed, 11 Jul 2001 04:56:36 -0400
-Received: from smtp.alcove.fr ([212.155.209.139]:50953 "EHLO smtp.alcove.fr")
-	by vger.kernel.org with ESMTP id <S267237AbRGKI4Y>;
-	Wed, 11 Jul 2001 04:56:24 -0400
-To: antoniopagliaro@tin.it
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Athlon Thunderbird, Abit KT7 Raid, Kernel 2.4: DESKTOP FROZEN!
-In-Reply-To: <01071023392004.02550@lila.localdomain>
-In-Reply-To: <01071023392004.02550@lila.localdomain>
-Message-Id: <E15KFnD-0001Sk-00@kasba.alcove-fr>
-From: Jean Schurger <jk24@alcove.fr>
-Date: Wed, 11 Jul 2001 10:56:23 +0200
+	id <S267249AbRGKJE1>; Wed, 11 Jul 2001 05:04:27 -0400
+Received: from CPE-61-9-148-175.vic.bigpond.net.au ([61.9.148.175]:2034 "EHLO
+	eyal.emu.id.au") by vger.kernel.org with ESMTP id <S267248AbRGKJEO>;
+	Wed, 11 Jul 2001 05:04:14 -0400
+Message-ID: <3B4C167B.528E9547@eyal.emu.id.au>
+Date: Wed, 11 Jul 2001 19:03:55 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: VIA Southbridge bug (Was: Crash on boot (2.4.5))
+In-Reply-To: <E15JIVD-0000Qc-00@the-village.bc.nu> <01070912485904.00705@localhost.localdomain> <20010710121724.Z1503@niksula.cs.hut.fi>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In alcove.lists.linux.kernel, you wrote:
+Ville Herva wrote:
 > 
-> My box: Athlon Thunderbird 900 MHz, MotherboardAbit KT7 Raid, 
-> Kernel 2.4 (the one that comes with Red Hat 7.1 no updates) 
+> On Mon, Jul 09, 2001 at 12:48:59PM -0400, you [Rob Landley] claimed:
+> >
+> > (P.S. What kind of CPU load is most likely to send a processor into overheat?
+> >  (Other than "a tight loop", thanks.  I mean what kind of instructions?)
+> > This is going to be CPU specific, isn't it?  Our would a general instruction
+> > mix that doesn't call halt be enough?  It would need to keep the FPU busy
+> > too, wouldn't it?  And maybe handle interrupts.  Hmmm...)
 > 
-> I get apparently random desktop freezing.
+> See Robert Redelmeier's cpuburn:
 > 
-> Last time:
-> 
-> I was just doing nothing so the screensaver
-> was on when I noticed the screen was frozen. Nor the keyboard
-> neither the mouse worked. No combination of CTRL-ALT keys.
-> Only choice left: reset. I did it.  When it booted again I got a
-> 
-> Kernel Panic: Attempted to kill the idle task
-> In idle: not syncing.
-> 
-> (by the way: what is the SysRq magic or something similar?
-> Does it help? Which keys??)
-> 
-> This time I had to unplug the computer. After 5 minutes I tried again.
-> In many trials I got hundreds of errors. These:
-> 
+> http://users.ev1.net/~redelm/
 
-Try to compile a kernel without the Athlon optimization (just K6...).
+I took this program for a spin and I noted the reported CPU temp
+went up by 12dc (43->55).
 
--- 
-Jean.Schurger@fr.alcove.com - Open Source Software Engineer
-Alcove - (+33) 1 49 22 68 00 - http://www.alcove.com
-Schurger.org - jk24@schurger.org - http://www.schurger.org
+However, more interesting, the +5V line dropped from 4.82 to 4.72.
+This is on a Gigabyte GA-7ZX with an Athlon/1200 and 2x128MB.
+
+Some mobos may actually have their voltages pushed outside accepted
+levels and cause a failure, which is actually not related to the
+temperature. And you do not need to run the test for a long time,
+the drop is immediate and stable.
+
+I can only imagine what will happen if some game pushes the CPU to
+the limit while running a hot video card hard, as I expect some
+highly optimized graphics drivers might do. May cause some
+interesting crashes.
+
+Anyone up to enhancing the program to stress the video memory at the
+same time?
+
+
+In other words, this is a good stress test for the whole mobo design
+and setup, not just the CPU/HSF combo.
+
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>

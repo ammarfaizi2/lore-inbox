@@ -1,70 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269285AbTCBTva>; Sun, 2 Mar 2003 14:51:30 -0500
+	id <S267688AbTCBUBz>; Sun, 2 Mar 2003 15:01:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269286AbTCBTva>; Sun, 2 Mar 2003 14:51:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35084 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S269285AbTCBTv3>;
-	Sun, 2 Mar 2003 14:51:29 -0500
-Message-ID: <3E626323.7060801@pobox.com>
-Date: Sun, 02 Mar 2003 15:01:39 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	id <S268256AbTCBUBz>; Sun, 2 Mar 2003 15:01:55 -0500
+Received: from smtp03.web.de ([217.72.192.158]:33293 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S267688AbTCBUBz>;
+	Sun, 2 Mar 2003 15:01:55 -0500
+From: Michael Buesch <freesoftwaredeveloper@web.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Kernel 2.4.20 ide-scsi
+Date: Sun, 2 Mar 2003 21:12:18 +0000
+User-Agent: KMail/1.5
+References: <3E625282.8010101@hanaden.com> <200303022038.53606.freesoftwaredeveloper@web.de> <3E6261C3.1020700@pobox.com>
+In-Reply-To: <3E6261C3.1020700@pobox.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed *notrademarkhere* clone
-References: <200303020011.QAA13450@adam.yggdrasil.com> <3E615C38.7030609@pobox.com> <20030302014039.GC1364@dualathlon.random> <3E616224.6040003@pobox.com> <b3rtr2$rmg$1@cesium.transmeta.com> <3E623B9A.8050405@pobox.com> <3E624FD4.3020807@zytor.com>
-In-Reply-To: <3E624FD4.3020807@zytor.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200303022112.18566.freesoftwaredeveloper@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Jeff Garzik wrote:
-> 
->>
->> My counter-question is, why not improve an _existing_ open source SCM 
->> to read and write BitKeeper files?  Why do we need yet another brand 
->> new project?
->>
-> 
-> I don't disagree with that.  However, the question you posited was 
-> "would one be useful", and I think the answer is unequivocally yes. 
+> The standard solution, supported by all major distributions, is to supply
+> 	hdX=ide-scsi
+> on the kernel command line.
+>
+> There is no need to completely disable IDE-CD.  IDE-CD and IDE-SCSI can
+> and do interoperate all the time.
 
-Ok, I'll grant that.  :)
+Yes I thought this also until yesterday. :)
+GRUB is configured this way in my case:
+kernel (hd1,0)/linux root=/dev/md0 hdd=ide-scsi hdb=ide-scsi mce vga=779
 
-I think a BK clone is detrimental to the overall open source SCM world, 
-is my main point.  I was thinking more along the lines of "useful to 
-'the cause'" ;-)
+But nevertheless it didn't work until I disabled
+CONFIG_BLK_DEV_IDECD
 
+It's somewhat strange, but.. :)
 
-> Furthermore, I don't agree with the "compatibility == bad" assumption I 
-> read into your message.
-
-Well, I disagree with that assumption too :)  My main objection is that 
-a BK clone would divert attention from another effort (such as OpenCM), 
-with the end result that neither the BK clone nor OpenCM are as good (or 
-better) than BitKeeper.
-
-
->> AFAICS, a BK clone would just further divide resources and mindshare.  
->> I personally _want_ an open source SCM that is as good as, or better, 
->> than BitKeeper.  The open source world needs that, and BitKeeper needs 
->> the competition.  A BK clone may work with BitKeeper files, but I 
->> don't see it ever being as good as BK, because it will always be 
->> playing catch-up.
-> 
-> 
-> Yes.  Personally, I've spent quite a bit of time with OpenCM after a 
-> suggestion from Ted T'so.  It's looking quite promising to me, although 
-> I haven't yet used it to maintain a large project.
-
-Interesting...  Here's the link, in case others want to check it out:
-
-	http://www.opencm.org/
-
-
+bye, Michael Buesch.

@@ -1,69 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312317AbSCUAbG>; Wed, 20 Mar 2002 19:31:06 -0500
+	id <S312321AbSCUAhG>; Wed, 20 Mar 2002 19:37:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312323AbSCUAas>; Wed, 20 Mar 2002 19:30:48 -0500
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:59877 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S312321AbSCUAam>; Wed, 20 Mar 2002 19:30:42 -0500
-Message-ID: <3C9929B6.2040203@drugphish.ch>
-Date: Thu, 21 Mar 2002 01:30:46 +0100
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020306
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: hugang <gang_hu@soul.com.cn>
-Cc: adasi@kernel.pl, linux-kernel@vger.kernel.org
-Subject: Re: [2.5.7] compilation problem
-In-Reply-To: <006301c1ceca$87937c70$0201a8c0@WITEK>	<3C967FB2.1080706@drugphish.ch> <20020319154853.43fbe03b.gang_hu@soul.com.cn>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S312323AbSCUAg5>; Wed, 20 Mar 2002 19:36:57 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:32485 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S312321AbSCUAgh>;
+	Wed, 20 Mar 2002 19:36:37 -0500
+Date: Thu, 21 Mar 2002 01:31:29 +0100
+From: Dave Jones <davej@suse.de>
+To: David Rees <dbr@greenhydrant.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19-pre4
+Message-ID: <20020321013129.E30820@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	David Rees <dbr@greenhydrant.com>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0203201757560.9129-100000@freak.distro.conectiva> <Pine.LNX.4.30.0203210000440.4385-100000@mustard.heime.net> <20020320161334.A28267@greenhydrant.com> <20020321011754.D30820@suse.de> <20020320162105.D28267@greenhydrant.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Mar 20, 2002 at 04:21:05PM -0800, David Rees wrote:
 
-> Today I download the latest patch, And I patch it into 
- > the 2.5.6 tree, But it do't have that problem.?
- > I chech dev.c , that is right.
+ > Man, you guys didn't even give me the 2 minutes I needed to realize my error
+ > and issue before replying.  ;-)  Fastest replies I've ever seen to a l-k
+ > post in my life!
 
-Funny, the patches (from 2.5.6 to 2.5.7 and from 2.5.7-pre2 to 2.5.7) I 
-downloaded from ftp.kernel.org do contain following patch:
+Easy ones always are 8-)
 
-laphish:/usr/src/patches # grep handle_diverter *
-patch-2.5.7:- 
-			handle_diverter(skb);
-patch-2.5.7:+ 
-	ret = handle_diverter(skb);
-patch-2.5.7-pre2:- 
-			handle_diverter(skb);
-patch-2.5.7-pre2:+ 
-	ret = handle_diverter(skb);
-laphish:/usr/src/patches #
-
-My patch reverts this but since you mention that for you it was correct 
-I wonder if we're really talking about the same patch so I just 
-downloaded them again and I can verify that the problem is really present:
-
-ratz@laphish:~ > md5sum patch-2.5.7.*
-f89d55b1e94fbd974d8b3f4625a86a2a  patch-2.5.7.bz2
-0f5dec319d693dfe6c528a76e10cd1d1  patch-2.5.7.gz
-ratz@laphish:~ > bunzip2 patch-2.5.7.bz2
-ratz@laphish:~ > grep handle_diverter patch-2.5.7
-- 
-			handle_diverter(skb);
-+ 
-	ret = handle_diverter(skb);
-ratz@laphish:~ > rm patch-2.5.7
-ratz@laphish:~ > gunzip patch-2.5.7.gz
-ratz@laphish:~ > grep handle_diverter patch-2.5.7
-- 
-			handle_diverter(skb);
-+ 
-	ret = handle_diverter(skb);
-ratz@laphish:~ > rm patch-2.5.7
-ratz@laphish:~ >
-
-Cheers,
-Roberto Nibali, ratz
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,94 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268280AbUJDPxU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268225AbUJDP51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268280AbUJDPxU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 11:53:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268281AbUJDPxQ
+	id S268225AbUJDP51 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 11:57:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268263AbUJDP50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 11:53:16 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:49049 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268246AbUJDPvX (ORCPT
+	Mon, 4 Oct 2004 11:57:26 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:62904 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268246AbUJDPz7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 11:51:23 -0400
-Subject: Re: 2.6.9-rc2-mm4 ps hang ?
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041001174400.2482186a.akpm@osdl.org>
-References: <1096646925.12861.50.camel@dyn318077bld.beaverton.ibm.com>
-	 <20041001120926.4d6f58d5.akpm@osdl.org>
-	 <1096666140.12861.82.camel@dyn318077bld.beaverton.ibm.com>
-	 <20041001145536.182dada9.akpm@osdl.org>
-	 <1096672002.12861.84.camel@dyn318077bld.beaverton.ibm.com>
-	 <20041001164938.3231482e.akpm@osdl.org>
-	 <1096676374.12861.91.camel@dyn318077bld.beaverton.ibm.com>
-	 <20041001174400.2482186a.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1096904605.12861.108.camel@dyn318077bld.beaverton.ibm.com>
+	Mon, 4 Oct 2004 11:55:59 -0400
+Date: Mon, 4 Oct 2004 08:53:27 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
+       akpm@osdl.org, ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
+       ak@suse.de, sivanich@sgi.com
+Subject: Re: [ckrm-tech] Re: [Lse-tech] [PATCH] cpusets - big numa cpu and
+ memory placement
+Message-Id: <20041004085327.727191bf.pj@sgi.com>
+In-Reply-To: <843670000.1096902220@[10.10.2.4]>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<20040805190500.3c8fb361.pj@sgi.com>
+	<247790000.1091762644@[10.10.2.4]>
+	<200408061730.06175.efocht@hpce.nec.com>
+	<20040806231013.2b6c44df.pj@sgi.com>
+	<411685D6.5040405@watson.ibm.com>
+	<20041001164118.45b75e17.akpm@osdl.org>
+	<20041001230644.39b551af.pj@sgi.com>
+	<20041002145521.GA8868@in.ibm.com>
+	<415ED3E3.6050008@watson.ibm.com>
+	<415F37F9.6060002@bigpond.net.au>
+	<821020000.1096814205@[10.10.2.4]>
+	<20041003083936.7c844ec3.pj@sgi.com>
+	<834330000.1096847619@[10.10.2.4]>
+	<835810000.1096848156@[10.10.2.4]>
+	<20041003175309.6b02b5c6.pj@sgi.com>
+	<838090000.1096862199@[10.10.2.4]>
+	<20041003212452.1a15a49a.pj@sgi.com>
+	<843670000.1096902220@[10.10.2.4]>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 04 Oct 2004 08:43:25 -0700
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-01 at 17:44, Andrew Morton wrote:
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> >
-> > 
-> >  On Fri, 2004-10-01 at 16:49, Andrew Morton wrote:
-> >  > Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> >  > >
-> >  > > Here is the full sysrq-t output.
-> >  > 
-> >  > What's this guy up to?
-> >  ...
-> >  > 
-> >  > Something is seriously screwed up if it's stuck in try_to_wake_up().  Tried
-> >  > generating a few extra traces?
-> >  > 
-> >  > Then again, maybe we're missing an up_read() somewhere.  hrm, I'll check.
-> >  > 
-> > 
-> >  It reproduced again. I think this is the one causing all the troubles..
-> > 
-> >  db2fmcd       D ffffffff80132e2a     0 10854   7636                    
-> >  (NOTLB)
-> >  00000101bae85ef8 0000000000000002 0000020800000018 00000101d9ddd550
-> >         0000000100000084 000001016d490e20 000001016d491158
-> >  00000101d9ddd550
-> >         0000000000000206 ffffffff801353cb
-> >  Call Trace:<ffffffff801353cb>{try_to_wake_up+971}
-> >  <ffffffff804455f0>{__down_write+128}
-> >         <ffffffff80125e6f>{sys32_mmap+143}
-> >  <ffffffff80124af1>{ia32_sysret+0}
-> > 
-> >  when I tried looking at /proc/10854 - it hung.
-> 
-> OK, so maybe that CPU is spinning in try_to_wake_up().  Can you tell if one
-> CPU is busy when this happens?
+Martin writes:
+> OK, then your "exclusive" cpusets aren't really exclusive at all, since
+> they have other stuff running in them.
 
-CPU is not busy when this happens. Process is "D".
-I traced few times when this happens, its always stuck there only.
+What's clear is that 'exclusive' is not a sufficient precondition for
+whatever it is that CKRM needs to have sufficient control.
 
+Instead of trying to wrestle 'exclusive' into doing what you want, do me
+a favor, if you would.  Help me figure out what conditions CKRM _does_
+need to operate within a cpuset, and we'll invent a new property that
+satisfies those conditions.
 
-> 
-> Or you could try Peter's suggestion:
-> 
-> --- 25/kernel/sched.c~a	2004-10-01 17:43:32.500700488 -0700
-> +++ 25-akpm/kernel/sched.c	2004-10-01 17:43:34.754357880 -0700
-> @@ -1606,7 +1606,7 @@ out_set_cpu:
->  		task_rq_unlock(rql, &flags);
->  		/* might preempt at this point */
->  		rql = task_rq_lock(p, &flags);
-> -		adjust_sched_timestamp(p, old_rq);
-> +//		adjust_sched_timestamp(p, old_rq);
->  		old_state = p->state;
->  		if (!(old_state & state))
->  			goto out;
+See my earlier posts in the last hour for my efforts to figure out what
+these conditions might be.  I conjecture that it's something along the
+lines of:
 
-I will try this patch. Only problem is it happens very random.
+    Assuring each CKRM instance that it has control of some
+    subset of a system that's separate and non-overlapping,
+    with all Memory, CPU, Tasks, and Allowed masks of said
+    Tasks either wholly owned by that CKRM instance, or
+    entirely outside.
 
-Thanks,
-Badari
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262653AbTDAQSv>; Tue, 1 Apr 2003 11:18:51 -0500
+	id <S262647AbTDAQRM>; Tue, 1 Apr 2003 11:17:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262652AbTDAQSJ>; Tue, 1 Apr 2003 11:18:09 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:9875 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262643AbTDAQRH>;
-	Tue, 1 Apr 2003 11:17:07 -0500
-Date: Tue, 1 Apr 2003 22:03:37 +0530
+	id <S262646AbTDAQRM>; Tue, 1 Apr 2003 11:17:12 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:57794 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262637AbTDAQQL>;
+	Tue, 1 Apr 2003 11:16:11 -0500
+Date: Tue, 1 Apr 2003 22:02:42 +0530
 From: Suparna Bhattacharya <suparna@in.ibm.com>
 To: bcrl@redhat.com, akpm@digeo.com
 Cc: linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
        linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Filesystem aio rdwr patchset
-Message-ID: <20030401220337.D1857@in.ibm.com>
+Message-ID: <20030401220242.B1857@in.ibm.com>
 Reply-To: suparna@in.ibm.com
 References: <20030401215957.A1800@in.ibm.com>
 Mime-Version: 1.0
@@ -24,287 +24,426 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, Apr 01, 2003 at 09:59:57PM +0530, Suparna Bhattacharya wrote:
-> 04ext2-aiogetblk.patch :  an async get block 
->   implementation for ext2
+> 02aiordwr.patch  : this is the filesystem read+write
+>   changes for aio using the retry model
 > 
 -- 
 Suparna Bhattacharya (suparna@in.ibm.com)
 Linux Technology Center
 IBM Software Labs, India
 
-diff -ur linux-2.5.66/fs/ext2/balloc.c linux-2.5.66aio/fs/ext2/balloc.c
---- linux-2.5.66/fs/ext2/balloc.c	Tue Mar 25 03:30:18 2003
-+++ linux-2.5.66aio/fs/ext2/balloc.c	Wed Mar 26 19:50:08 2003
-@@ -76,7 +76,7 @@
-  * Return buffer_head on success or NULL in case of failure.
+
+diff -ur linux-2.5.66/drivers/block/ll_rw_blk.c linux-2.5.66aio/drivers/block/ll_rw_blk.c
+--- linux-2.5.66/drivers/block/ll_rw_blk.c	Tue Mar 25 03:30:00 2003
++++ linux-2.5.66aio/drivers/block/ll_rw_blk.c	Tue Apr  1 10:36:53 2003
+@@ -1564,17 +1564,33 @@
+  * If no queues are congested then just wait for the next request to be
+  * returned.
   */
- static struct buffer_head *
--read_block_bitmap(struct super_block *sb, unsigned int block_group)
-+read_block_bitmap_async(struct super_block *sb, unsigned int block_group)
+-void blk_congestion_wait(int rw, long timeout)
++int blk_congestion_wait_async(int rw, long timeout)
  {
- 	struct ext2_group_desc * desc;
- 	struct buffer_head * bh = NULL;
-@@ -84,7 +84,7 @@
- 	desc = ext2_get_group_desc (sb, block_group, NULL);
- 	if (!desc)
- 		goto error_out;
--	bh = sb_bread(sb, le32_to_cpu(desc->bg_block_bitmap));
-+	bh = sb_bread_async(sb, le32_to_cpu(desc->bg_block_bitmap));
- 	if (!bh)
- 		ext2_error (sb, "read_block_bitmap",
- 			    "Cannot read block bitmap - "
-@@ -94,6 +94,15 @@
- 	return bh;
+-	DEFINE_WAIT(wait);
++	DEFINE_WAIT(sync_wait);
++	wait_queue_t *wait = &sync_wait;
++	int state = TASK_UNINTERRUPTIBLE;
+ 	wait_queue_head_t *wqh = &congestion_wqh[rw];
+ 
++	if (current->iocb) {
++		wait = &current->iocb->ki_wait;
++		state = TASK_RUNNING;
++	}
+ 	blk_run_queues();
+-	prepare_to_wait(wqh, &wait, TASK_UNINTERRUPTIBLE);
++	prepare_to_wait(wqh, wait, state);
++	if (current->iocb) 
++		return -EIOCBQUEUED;
++
+ 	io_schedule_timeout(timeout);
+-	finish_wait(wqh, &wait);
++	finish_wait(wqh, wait);
++	return 0;
  }
  
-+static struct buffer_head *
-+read_block_bitmap(struct super_block *sb, unsigned int block_group)
++void blk_congestion_wait(int rw, long timeout)
 +{
-+	struct buffer_head * bh = NULL;
-+
-+	do_sync_op(bh = read_block_bitmap_async(sb, block_group));
-+	return bh;
++	do_sync_op(blk_congestion_wait_async(rw, timeout));
 +}
 +
- static inline int reserve_blocks(struct super_block *sb, int count)
- {
- 	struct ext2_sb_info * sbi = EXT2_SB(sb);
-@@ -309,7 +318,7 @@
-  * bitmap, and then for any free bit if that fails.
-  * This function also updates quota and i_blocks field.
++
+ /*
+  * Has to be called with the request spinlock acquired
   */
--int ext2_new_block (struct inode * inode, unsigned long goal,
-+int ext2_new_block_async (struct inode * inode, unsigned long goal,
-     u32 * prealloc_count, u32 * prealloc_block, int * err)
+diff -ur linux-2.5.66/fs/buffer.c linux-2.5.66aio/fs/buffer.c
+--- linux-2.5.66/fs/buffer.c	Tue Mar 25 03:30:48 2003
++++ linux-2.5.66aio/fs/buffer.c	Wed Mar 26 19:11:09 2003
+@@ -1821,8 +1860,11 @@
+ 			clear_buffer_new(bh);
+ 		if (!buffer_mapped(bh)) {
+ 			err = get_block(inode, block, bh, 1);
+-			if (err)
++			if (err) {
++				if (-EIOCBQUEUED == err)
++					pr_debug("get_block queued\n");
+ 				goto out;
++			}
+ 			if (buffer_new(bh)) {
+ 				clear_buffer_new(bh);
+ 				unmap_underlying_metadata(bh->b_bdev,
+diff -ur linux-2.5.66/include/linux/blkdev.h linux-2.5.66aio/include/linux/blkdev.h
+--- linux-2.5.66/include/linux/blkdev.h	Tue Mar 25 03:30:09 2003
++++ linux-2.5.66aio/include/linux/blkdev.h	Wed Mar 26 20:07:06 2003
+@@ -391,6 +391,7 @@
+ extern void blk_queue_free_tags(request_queue_t *);
+ extern void blk_queue_invalidate_tags(request_queue_t *);
+ extern void blk_congestion_wait(int rw, long timeout);
++extern int blk_congestion_wait_async(int rw, long timeout);
+ 
+ #define MAX_PHYS_SEGMENTS 128
+ #define MAX_HW_SEGMENTS 128
+diff -ur linux-2.5.66/include/linux/pagemap.h linux-2.5.66aio/include/linux/pagemap.h
+--- linux-2.5.66/include/linux/pagemap.h	Tue Mar 25 03:29:54 2003
++++ linux-2.5.66aio/include/linux/pagemap.h	Wed Mar 26 19:40:29 2003
+@@ -135,6 +135,16 @@
+ 	if (TestSetPageLocked(page))
+ 		__lock_page(page);
+ }
++
++extern int FASTCALL(__lock_page_async(struct page *page));
++static inline int lock_page_async(struct page *page)
++{
++	if (TestSetPageLocked(page))
++		return __lock_page_async(page);
++	else
++		return 0;
++}
++
+ 	
+ /*
+  * This is exported only for wait_on_page_locked/wait_on_page_writeback.
+@@ -155,6 +165,15 @@
+ 		wait_on_page_bit(page, PG_locked);
+ }
+ 
++extern int FASTCALL(wait_on_page_bit_async(struct page *page, int bit_nr));
++static inline int wait_on_page_locked_async(struct page *page)
++{
++	if (PageLocked(page))
++		return wait_on_page_bit_async(page, PG_locked);
++	else
++		return 0;
++}
++
+ /* 
+  * Wait for a page to complete writeback
+  */
+diff -ur linux-2.5.66/include/linux/writeback.h linux-2.5.66aio/include/linux/writeback.h
+--- linux-2.5.66/include/linux/writeback.h	Tue Mar 25 03:30:01 2003
++++ linux-2.5.66aio/include/linux/writeback.h	Mon Mar 24 12:00:32 2003
+@@ -80,8 +80,8 @@
+ 
+ 
+ void page_writeback_init(void);
+-void balance_dirty_pages(struct address_space *mapping);
+-void balance_dirty_pages_ratelimited(struct address_space *mapping);
++int balance_dirty_pages(struct address_space *mapping);
++int balance_dirty_pages_ratelimited(struct address_space *mapping);
+ int pdflush_operation(void (*fn)(unsigned long), unsigned long arg0);
+ int do_writepages(struct address_space *mapping, struct writeback_control *wbc);
+ 
+diff -ur linux-2.5.66/mm/filemap.c linux-2.5.66aio/mm/filemap.c
+--- linux-2.5.66/mm/filemap.c	Tue Mar 25 03:30:15 2003
++++ linux-2.5.66aio/mm/filemap.c	Wed Mar 26 20:38:03 2003
+@@ -254,19 +254,36 @@
+ 	return &zone->wait_table[hash_ptr(page, zone->wait_table_bits)];
+ }
+ 
+-void wait_on_page_bit(struct page *page, int bit_nr)
++int wait_on_page_bit_async(struct page *page, int bit_nr)
  {
- 	struct buffer_head *bitmap_bh = NULL;
-@@ -401,7 +410,7 @@
+ 	wait_queue_head_t *waitqueue = page_waitqueue(page);
+-	DEFINE_WAIT(wait);
++	DEFINE_WAIT(sync_wait);
++	wait_queue_t *wait = &sync_wait;
++	int state = TASK_UNINTERRUPTIBLE;
++		
++	if (current->iocb) {
++		wait = &current->iocb->ki_wait;
++		state = TASK_RUNNING;
++	}
+ 
+ 	do {
+-		prepare_to_wait(waitqueue, &wait, TASK_UNINTERRUPTIBLE);
++		prepare_to_wait(waitqueue, wait, state);
+ 		if (test_bit(bit_nr, &page->flags)) {
+ 			sync_page(page);
++			if (current->iocb)
++				return -EIOCBQUEUED;
+ 			io_schedule();
+ 		}
+ 	} while (test_bit(bit_nr, &page->flags));
+-	finish_wait(waitqueue, &wait);
++	finish_wait(waitqueue, wait);
++
++	return 0;
++}
++EXPORT_SYMBOL(wait_on_page_bit_async);
++
++void wait_on_page_bit(struct page *page, int bit_nr)
++{
++	do_sync_op(wait_on_page_bit_async(page, bit_nr));
+ }
+ EXPORT_SYMBOL(wait_on_page_bit);
+ 
+@@ -322,19 +339,35 @@
+  * chances are that on the second loop, the block layer's plug list is empty,
+  * so sync_page() will then return in state TASK_UNINTERRUPTIBLE.
+  */
+-void __lock_page(struct page *page)
++int __lock_page_async(struct page *page)
+ {
+ 	wait_queue_head_t *wqh = page_waitqueue(page);
+-	DEFINE_WAIT(wait);
++	DEFINE_WAIT(sync_wait);
++	wait_queue_t *wait = &sync_wait;
++	int state = TASK_UNINTERRUPTIBLE;
++		
++	if (current->iocb) {
++		wait = &current->iocb->ki_wait;
++		state = TASK_RUNNING;
++	}
+ 
+ 	while (TestSetPageLocked(page)) {
+-		prepare_to_wait(wqh, &wait, TASK_UNINTERRUPTIBLE);
++		prepare_to_wait(wqh, wait, state);
+ 		if (PageLocked(page)) {
+ 			sync_page(page);
++			if (current->iocb)
++				return -EIOCBQUEUED;
+ 			io_schedule();
+ 		}
  	}
- 	brelse(bitmap_bh);
- 	bitmap_bh = read_block_bitmap(sb, group_no);
--	if (!bitmap_bh)
-+	if (!bitmap_bh || IS_ERR(bitmap_bh))
- 		goto io_error;
- 
- 	ret_block = grab_block(bitmap_bh->b_data, group_size, 0);
-@@ -481,10 +490,20 @@
- 	return block;
- 
- io_error:
--	*err = -EIO;
-+	*err = IS_ERR(bitmap_bh) ? PTR_ERR(bitmap_bh) : -EIO;
- 	goto out_release;
- }
- 
-+int ext2_new_block (struct inode * inode, unsigned long goal,
-+    u32 * prealloc_count, u32 * prealloc_block, int * err)
-+{
-+	int block = 0;
-+
-+	do_sync_op(block = ext2_new_block_async(inode, goal, prealloc_count,
-+		prealloc_block, err));
-+	return block;
+-	finish_wait(wqh, &wait);
++	finish_wait(wqh, wait);
++	return 0;
 +}
++EXPORT_SYMBOL(__lock_page_async);
 +
- unsigned long ext2_count_free_blocks (struct super_block * sb)
- {
- #ifdef EXT2FS_DEBUG
-diff -ur linux-2.5.66/fs/ext2/ext2.h linux-2.5.66aio/fs/ext2/ext2.h
---- linux-2.5.66/fs/ext2/ext2.h	Tue Mar 25 03:31:48 2003
-+++ linux-2.5.66aio/fs/ext2/ext2.h	Tue Mar 25 13:42:02 2003
-@@ -74,6 +74,8 @@
- extern unsigned long ext2_bg_num_gdb(struct super_block *sb, int group);
- extern int ext2_new_block (struct inode *, unsigned long,
- 			   __u32 *, __u32 *, int *);
-+extern int ext2_new_block_async (struct inode *, unsigned long,
-+			   __u32 *, __u32 *, int *);
- extern void ext2_free_blocks (struct inode *, unsigned long,
- 			      unsigned long);
- extern unsigned long ext2_count_free_blocks (struct super_block *);
-diff -ur linux-2.5.66/fs/ext2/inode.c linux-2.5.66aio/fs/ext2/inode.c
---- linux-2.5.66/fs/ext2/inode.c	Tue Mar 25 03:29:57 2003
-+++ linux-2.5.66aio/fs/ext2/inode.c	Mon Mar 31 21:16:08 2003
-@@ -98,7 +98,8 @@
- #endif
- }
- 
--static int ext2_alloc_block (struct inode * inode, unsigned long goal, int *err)
-+static int ext2_alloc_block_async (struct inode * inode, unsigned long goal, 
-+	int *err)
- {
- #ifdef EXT2FS_DEBUG
- 	static unsigned long alloc_hits = 0, alloc_attempts = 0;
-@@ -123,18 +124,26 @@
- 		ext2_debug ("preallocation miss (%lu/%lu).\n",
- 			    alloc_hits, ++alloc_attempts);
- 		if (S_ISREG(inode->i_mode))
--			result = ext2_new_block (inode, goal, 
-+			result = ext2_new_block_async (inode, goal, 
- 				 &ei->i_prealloc_count,
- 				 &ei->i_prealloc_block, err);
- 		else
- 			result = ext2_new_block (inode, goal, 0, 0, err);
- 	}
- #else
--	result = ext2_new_block (inode, goal, 0, 0, err);
-+	result = ext2_new_block_async (inode, goal, 0, 0, err);
- #endif
- 	return result;
- }
- 
-+static int ext2_alloc_block (struct inode * inode, unsigned long goal, int *err)
++void __lock_page(struct page *page)
 +{
-+	int result;
-+
-+	do_sync_op(result = ext2_alloc_block_async(inode, goal, err));
-+	return result;
-+}
-+
- typedef struct {
- 	u32	*p;
- 	u32	key;
-@@ -252,7 +261,7 @@
-  *	or when it reads all @depth-1 indirect blocks successfully and finds
-  *	the whole chain, all way to the data (returns %NULL, *err == 0).
++	do_sync_op(__lock_page_async(page));
+ }
+ EXPORT_SYMBOL(__lock_page);
+ 
+@@ -384,7 +417,7 @@
+  *
+  * Returns zero if the page was not present. find_lock_page() may sleep.
   */
--static Indirect *ext2_get_branch(struct inode *inode,
-+static Indirect *ext2_get_branch_async(struct inode *inode,
- 				 int depth,
- 				 int *offsets,
- 				 Indirect chain[4],
-@@ -268,8 +277,8 @@
- 	if (!p->key)
- 		goto no_block;
- 	while (--depth) {
--		bh = sb_bread(sb, le32_to_cpu(p->key));
--		if (!bh)
-+		bh = sb_bread_async(sb, le32_to_cpu(p->key));
-+		if (!bh || IS_ERR(bh))
- 			goto failure;
- 		read_lock(&EXT2_I(inode)->i_meta_lock);
- 		if (!verify_chain(chain, p))
-@@ -287,11 +296,24 @@
- 	*err = -EAGAIN;
- 	goto no_block;
- failure:
--	*err = -EIO;
-+	*err = IS_ERR(bh) ? PTR_ERR(bh) : -EIO;
- no_block:
- 	return p;
+-struct page *find_lock_page(struct address_space *mapping,
++struct page *find_lock_page_async(struct address_space *mapping,
+ 				unsigned long offset)
+ {
+ 	struct page *page;
+@@ -396,7 +429,10 @@
+ 		page_cache_get(page);
+ 		if (TestSetPageLocked(page)) {
+ 			read_unlock(&mapping->page_lock);
+-			lock_page(page);
++			if (-EIOCBQUEUED == lock_page_async(page)) {
++				page_cache_release(page);
++				return ERR_PTR(-EIOCBQUEUED);
++			}
+ 			read_lock(&mapping->page_lock);
+ 
+ 			/* Has the page been truncated while we slept? */
+@@ -411,6 +447,19 @@
+ 	return page;
  }
  
-+static Indirect *ext2_get_branch(struct inode *inode,
-+				 int depth,
-+				 int *offsets,
-+				 Indirect chain[4],
-+				 int *err)
++struct page *find_lock_page(struct address_space *mapping,
++				unsigned long offset)
 +{
-+	Indirect *p;
++	struct page *page;
++	struct kiocb *iocb = current->iocb;
 +
-+	do_sync_op(p = ext2_get_branch_async(inode, depth, offsets, chain, 
-+		err));
-+	return p;
++	current->iocb = NULL;
++	page = find_lock_page_async(mapping, offset);
++	current->iocb = iocb;
++
++	return page;
 +}
 +
  /**
-  *	ext2_find_near - find a place for allocation with sufficient locality
-  *	@inode: owner
-@@ -406,7 +428,7 @@
-  *	as described above and return 0.
-  */
+  * find_or_create_page - locate or add a pagecache page
+  *
+@@ -607,7 +656,13 @@
+ 			goto page_ok;
  
--static int ext2_alloc_branch(struct inode *inode,
-+static int ext2_alloc_branch_async(struct inode *inode,
- 			     int num,
- 			     unsigned long goal,
- 			     int *offsets,
-@@ -422,7 +444,7 @@
- 	if (parent) for (n = 1; n < num; n++) {
- 		struct buffer_head *bh;
- 		/* Allocate the next block */
--		int nr = ext2_alloc_block(inode, parent, &err);
-+		int nr = ext2_alloc_block_async(inode, parent, &err);
- 		if (!nr)
+ 		/* Get exclusive access to the page ... */
+-		lock_page(page);
++		
++		if (lock_page_async(page)) {
++			pr_debug("queued lock page \n");
++			error = -EIOCBQUEUED;
++			/* TBD: should we hold on to the cached page ? */
++			goto sync_error;
++		}
+ 
+ 		/* Did it get unhashed before we got the lock? */
+ 		if (!page->mapping) {
+@@ -629,12 +684,19 @@
+ 		if (!error) {
+ 			if (PageUptodate(page))
+ 				goto page_ok;
+-			wait_on_page_locked(page);
++			if (wait_on_page_locked_async(page)) {
++				pr_debug("queued wait_on_page \n");
++				error = -EIOCBQUEUED;
++				/*TBD:should we hold on to the cached page ?*/
++				goto sync_error;
++			}
++			
+ 			if (PageUptodate(page))
+ 				goto page_ok;
+ 			error = -EIO;
+ 		}
+ 
++sync_error:
+ 		/* UHHUH! A synchronous read error occurred. Report it */
+ 		desc->error = error;
+ 		page_cache_release(page);
+@@ -806,6 +868,7 @@
+ 	ssize_t ret;
+ 
+ 	init_sync_kiocb(&kiocb, filp);
++	BUG_ON(current->iocb != NULL);
+ 	ret = __generic_file_aio_read(&kiocb, &local_iov, 1, ppos);
+ 	if (-EIOCBQUEUED == ret)
+ 		ret = wait_on_sync_kiocb(&kiocb);
+@@ -837,6 +900,7 @@
+ {
+ 	read_descriptor_t desc;
+ 
++	BUG_ON(current->iocb != NULL);
+ 	if (!count)
+ 		return 0;
+ 
+@@ -1364,7 +1428,9 @@
+ 	int err;
+ 	struct page *page;
+ repeat:
+-	page = find_lock_page(mapping, index);
++	page = find_lock_page_async(mapping, index);
++	if (IS_ERR(page))
++		return page;
+ 	if (!page) {
+ 		if (!*cached_page) {
+ 			*cached_page = page_cache_alloc(mapping);
+@@ -1683,6 +1749,10 @@
+ 		fault_in_pages_readable(buf, bytes);
+ 
+ 		page = __grab_cache_page(mapping,index,&cached_page,&lru_pvec);
++		if (IS_ERR(page)) {
++			status = PTR_ERR(page);
++			break;
++		}
+ 		if (!page) {
+ 			status = -ENOMEM;
  			break;
- 		branch[n].key = cpu_to_le32(nr);
-@@ -458,6 +480,19 @@
- 	return err;
- }
+@@ -1690,6 +1760,8 @@
  
-+static int ext2_alloc_branch(struct inode *inode,
-+			     int num,
-+			     unsigned long goal,
-+			     int *offsets,
-+			     Indirect *branch)
-+{
-+	int err;
-+
-+	do_sync_op(err = ext2_alloc_branch_async(inode, num, goal, 
-+		offsets, branch));
-+	return err;
-+}
-+
- /**
-  *	ext2_splice_branch - splice the allocated branch onto inode.
-  *	@inode: owner
-@@ -531,7 +566,7 @@
-  * reachable from inode.
+ 		status = a_ops->prepare_write(file, page, offset, offset+bytes);
+ 		if (unlikely(status)) {
++			if (-EIOCBQUEUED == status)
++				pr_debug("queued prepare_write\n");
+ 			/*
+ 			 * prepare_write() may have instantiated a few blocks
+ 			 * outside i_size.  Trim these off again.
+@@ -1730,7 +1802,11 @@
+ 		page_cache_release(page);
+ 		if (status < 0)
+ 			break;
+-		balance_dirty_pages_ratelimited(mapping);
++		status = balance_dirty_pages_ratelimited(mapping);
++		if (status < 0) {
++			pr_debug("async balance_dirty_pages\n");
++			break;
++		}
+ 		cond_resched();
+ 	} while (count);
+ 	*ppos = pos;
+@@ -1742,9 +1818,10 @@
+ 	 * For now, when the user asks for O_SYNC, we'll actually give O_DSYNC
+ 	 */
+ 	if (status >= 0) {
+-		if ((file->f_flags & O_SYNC) || IS_SYNC(inode))
++		if ((file->f_flags & O_SYNC) || IS_SYNC(inode)) {
+ 			status = generic_osync_inode(inode,
+ 					OSYNC_METADATA|OSYNC_DATA);
++		}
+ 	}
+ 	
+ out_status:	
+diff -ur linux-2.5.66/mm/page-writeback.c linux-2.5.66aio/mm/page-writeback.c
+--- linux-2.5.66/mm/page-writeback.c	Tue Mar 25 03:30:55 2003
++++ linux-2.5.66aio/mm/page-writeback.c	Wed Mar 26 19:37:42 2003
+@@ -135,7 +135,7 @@
+  * If we're over `background_thresh' then pdflush is woken to perform some
+  * writeout.
   */
- 
--static int ext2_get_block(struct inode *inode, sector_t iblock, struct buffer_head *bh_result, int create)
-+static int ext2_get_block_async(struct inode *inode, sector_t iblock, struct buffer_head *bh_result, int create)
+-void balance_dirty_pages(struct address_space *mapping)
++int balance_dirty_pages(struct address_space *mapping)
  {
- 	int err = -EIO;
- 	int offsets[4];
-@@ -546,7 +581,7 @@
- 		goto out;
+ 	struct page_state ps;
+ 	long background_thresh;
+@@ -152,6 +152,7 @@
+ 			.sync_mode	= WB_SYNC_NONE,
+ 			.older_than_this = NULL,
+ 			.nr_to_write	= write_chunk,
++			.nonblocking	= current->iocb ? 1 : 0,
+ 		};
  
- reread:
--	partial = ext2_get_branch(inode, depth, offsets, chain, &err);
-+	partial = ext2_get_branch_async(inode, depth, offsets, chain, &err);
- 
- 	/* Simplest case - block found, no allocation needed */
- 	if (!partial) {
-@@ -560,7 +595,7 @@
+ 		dirty_exceeded = 1;
+@@ -165,7 +166,10 @@
+ 		pages_written += write_chunk - wbc.nr_to_write;
+ 		if (pages_written >= write_chunk)
+ 			break;		/* We've done our duty */
+-		blk_congestion_wait(WRITE, HZ/10);
++		if (-EIOCBQUEUED == blk_congestion_wait_async(WRITE, HZ/10)) {
++			pr_debug("async blk congestion wait\n");
++			return -EIOCBQUEUED;
++		}
  	}
  
- 	/* Next simple case - plain lookup or failed read of indirect block */
--	if (!create || err == -EIO) {
-+	if (!create || err == -EIO || err == -EIOCBQUEUED) {
- cleanup:
- 		while (partial > chain) {
- 			brelse(partial->bh);
-@@ -582,7 +617,7 @@
- 		goto changed;
+ 	if (ps.nr_dirty + ps.nr_writeback <= dirty_thresh)
+@@ -173,6 +177,8 @@
  
- 	left = (chain + depth) - partial;
--	err = ext2_alloc_branch(inode, left, goal,
-+	err = ext2_alloc_branch_async(inode, left, goal,
- 					offsets+(partial-chain), partial);
- 	if (err)
- 		goto cleanup;
-@@ -601,6 +636,15 @@
- 	goto reread;
+ 	if (!writeback_in_progress(bdi) && ps.nr_dirty > background_thresh)
+ 		pdflush_operation(background_writeout, 0);
++
++	return 0;
  }
  
-+static int ext2_get_block(struct inode *inode, sector_t iblock, struct buffer_head *bh_result, int create)
-+{
-+	int err;
-+
-+	do_sync_op(err = ext2_get_block_async(inode, iblock, bh_result, 
-+		create));
-+	return err;
-+}
-+
- static int ext2_writepage(struct page *page, struct writeback_control *wbc)
+ /**
+@@ -188,7 +194,7 @@
+  * decrease the ratelimiting by a lot, to prevent individual processes from
+  * overshooting the limit by (ratelimit_pages) each.
+  */
+-void balance_dirty_pages_ratelimited(struct address_space *mapping)
++int balance_dirty_pages_ratelimited(struct address_space *mapping)
  {
- 	return block_write_full_page(page, ext2_get_block, wbc);
-@@ -622,7 +666,7 @@
- ext2_prepare_write(struct file *file, struct page *page,
- 			unsigned from, unsigned to)
- {
--	return block_prepare_write(page,from,to,ext2_get_block);
-+	return block_prepare_write(page,from,to,ext2_get_block_async);
+ 	static DEFINE_PER_CPU(int, ratelimits) = 0;
+ 	int cpu;
+@@ -202,10 +208,10 @@
+ 	if (per_cpu(ratelimits, cpu)++ >= ratelimit) {
+ 		per_cpu(ratelimits, cpu) = 0;
+ 		put_cpu();
+-		balance_dirty_pages(mapping);
+-		return;
++		return balance_dirty_pages(mapping);
+ 	}
+ 	put_cpu();
++	return 0;
  }
+ EXPORT_SYMBOL_GPL(balance_dirty_pages_ratelimited);
  
- static int

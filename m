@@ -1,69 +1,138 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290682AbSAYOTw>; Fri, 25 Jan 2002 09:19:52 -0500
+	id <S290689AbSAYO1C>; Fri, 25 Jan 2002 09:27:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290687AbSAYOTm>; Fri, 25 Jan 2002 09:19:42 -0500
-Received: from skiathos.physics.auth.gr ([155.207.123.3]:39152 "EHLO
-	skiathos.physics.auth.gr") by vger.kernel.org with ESMTP
-	id <S290682AbSAYOT2>; Fri, 25 Jan 2002 09:19:28 -0500
-Date: Fri, 25 Jan 2002 16:17:21 +0200 (EET)
-From: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
-To: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-cc: Daniel Nofftz <nofftz@castor.uni-trier.de>,
-        Ed Sweetman <ed.sweetman@wmich.edu>, Vojtech Pavlik <vojtech@suse.cz>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Liakakis Kostas <kostas@skiathos.physics.auth.gr>
-Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
-In-Reply-To: <20020124232749Z290458-13996+11481@vger.kernel.org>
-Message-ID: <Pine.GSO.4.21.0201251535520.11551-100000@skiathos.physics.auth.gr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290693AbSAYO0z>; Fri, 25 Jan 2002 09:26:55 -0500
+Received: from gumby.it.wmich.edu ([141.218.23.21]:5605 "EHLO
+	gumby.it.wmich.edu") by vger.kernel.org with ESMTP
+	id <S290689AbSAYO0i>; Fri, 25 Jan 2002 09:26:38 -0500
+Subject: Re: acpi-rouble/amd disconnect patch
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+To: Daniel Nofftz <nofftz@castor.uni-trier.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        preining@logic.at, ttonino@users.sourceforge.net,
+        moffe@amagerkollegiet.dk, timothy.covell@ashavan.org,
+        Dieter.Nuetzel@hamburg.de, nitrax@giron.wox.org, mpet@bigfoot.de,
+        lkml@sigkill.net, pavel@suse.cz, vandrove@vc.cvut.cz, hpj@urpla.net,
+        whitney@math.berkeley.edu
+In-Reply-To: <Pine.LNX.4.40.0201251248090.30265-100000@hades.uni-trier.de>
+In-Reply-To: <Pine.LNX.4.40.0201251248090.30265-100000@hades.uni-trier.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 25 Jan 2002 09:25:33 -0500
+Message-Id: <1011968738.22709.29.camel@psuedomode>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It sounds like you'll have to make the patch work just for Athlon XP's
+...  unless of course you're not expecting it to be included in the
+kernel ever.   
 
-Hi,
 
-I have been watching this thread for a while now. I am surprised everybody
-is happy with the temperature drops they get and don't look a bit
-further. I might be sounding like a *ickhead but here go my .02 euros:
-
-With STOPGNT enabled, the disconnection happens by the northbridge
-actually halting the FSB for the CPU until the next interrupt. The
-continuous dis/reconnection causes increased lattency on the PCI bus and
-strictly timed PCI transfers needed by TV-Tuner cards/software or sound
-software suffer greatly from this. It also results in poorer hd
-performance.
- 
-Also with such a power hungry CPU as the Athlon, bus dis/reconnection
-results in current demand changing from 40A to 5A to 40A ... every few ms.
-This puts your motherboards' voltage regulator under unecessary strain as
-well those in your PSU.
-
-Furthermore, CPUs do like lower operating temperatures, but even more they
-like constant temperatures. Differences like 10-15C every now and then
-(load/idle) put the cpu die under mechanichal strain from thermal
-contraction/expansion.
-
-Finally, this procedure can actually *hide* severe cooling inefficiency of
-the system. People seem to go with the moto: STOPGNT lowers my
-temperature, so it is a good thing. Well, it doesn't. Run SETI@HOME and
-you are back where you started. It can take only a hot summer day and you
-have a fried chip.
-
-There was a thought by somebody, that you should only enable disconnection
-after some time of inactivity. This sounds better, but then, don't we 
-have S1/S3 for this already?
-
-This feature of the AMD processors seemed like a real bargain once but
-now, I doupt there is one motherboard vendor out there that allows you to
-control it in the BIOS (like they used too). Even more, they suggest you
-leave this feature alone. A walk in troubleshooting/support forums
-suggests the same: It is a feature you can do without, you'd be better off
-with a cooler that can cool and a well ventilated case.
-
-Sorry for the length,
-
--Kostas
+On Fri, 2002-01-25 at 08:23, Daniel Nofftz wrote:
+> hi!
+> i spend the morning (on my work *grin*) reading some papers (amd reviion
+> guide), rereading many of the mails on this topic and reading some reports
+> in the german c't magazin.
+> so...
+> let me "review" what problems we had:
+> * sound skips
+> * video skips / slowdown
+> * ultra-dma disk transfer slowdown
+> * system instability (one time : deadlock)
+> * generel performance loss on some computers
+> ...
+> 
+> first: i found the answer why my patch works with acpi and not with apm:
+> apm only issues a halt signal loop. this does not trigger the disconnect
+> on STPGNT function which will cause significant power saving !!! ... the
+> c1 state also only provides halt (as far as i understand it). the c2 state
+> provides the stop-grant signal our searched STPGNT) -> ACPI C2 states
+> trigger the disconnect function in the northbridge, which will cause
+> power-saving ....
+> 
+> ok ....
+> 
+> now to the problems:
+> there are two known athlon bugs which cause trouble with the disconnect
+> function (errata 11 and errata 14 on the "AMD Athlon Processor Model 4
+> Revision Guide"). this bugs are present in ALL Athlon and Duron Revisions!
+> It looks like this bugs are not present in the Athlon XP and the new
+> Duron. (could be an answer to the question, why i don't have problems with
+> the disconnect function. i have an athlon xp 1600+)
+> 
+> what are now this errata bugs ?
+> 
+> bug 11:
+> when the processor is disconnected from the fsb, the internal clock is
+> slowed down to save power. when the processor is reconnected, it should
+> return to the normal clock ratio. but ... in some cases it doesn't ! "the
+> pll can exceed ther normal operating frequency, causing a failure to
+> maintain suffient system bus I/O drive strength levels in the driver
+> compension circuit. the compensation circuit attempts to correct this
+> drive strength, but if there is not sufficient time to perform this
+> function, the system bus cannot operate properly" (taken form the rev.
+> guide)
+> the laste few words could be a explanation for the video / sound skips ...
+> ?
+> 
+> the guide also says, that a workaround is possible by bios manipulation
+> ... so the manufacturer of the motherboard could make a bios which
+> corrects this problem ... (dimm it to a level where no system influence is
+> noticable)
+> 
+> bug14:
+> processors with half-frequency multipliers (like 11.5, 12.5, ...) may hang
+> upon wake-up from disconnect. this problem comes from a circuit which is
+> used to wake up from low-power states (c2 and c3) and which could glitch
+> when coming out of the c2 and c3 states.
+> this could cause an system hang!
+> -> suggested workaround from the guide: the bios programmer should disable
+> c2 and c3 (leastwise for the cpus with half frequency multio.)... very
+> helpfull :(
+> 
+> 
+> what other problems could be ?
+> 
+> some motherboards or cheaper powersuplies can't handle the jumps of
+> power-consumption when entering or leaving the 1/c2 states ... sometimes
+> this could be such extrem jumps like from 5W to 50W ... (information taken
+> from an asus page and vcool faq)
+> 
+> a suggestion which came up in the thread was, that pci latancy or other
+> pci-bios options could influence the "skips"-problem in video and
+> soundstreams ... i will test this today or tomorrow at my computer ...
+> but i am not shure whether i have a chance to reproduce any of the
+> problems, cause i have a cp cpu and a good motherboard and good
+> powersuply ...
+> 
+> oh ... and after what i have read the reconnect could take "some time"
+> maybe this could also be an answer for the skips if your system requires a
+> continual stream of data ....
+> 
+> what could you do ?
+> 
+> if you have problem: test whether some tuning on the pci settings in the
+> bios influences your problems ... maybe use some "slower" setting and lokk
+> whether the problems vanishes or get fewer ...
+> 
+> are there any people who have problems with the patch and an athlon xp ?
+> 
+> maybe test a newer bios ... !
+> 
+> does the "delay transaction" function influence the behavior ? Beware !
+> this function could cause data loss on some computers !
+> 
+> ok ... enough for now ...
+> 
+> daniel
+> 
+> 
+> # Daniel Nofftz
+> # Sysadmin CIP-Pool Informatik
+> # University of Trier(Germany), Room V 103
+> # Mail: daniel@nofftz.de
 
 

@@ -1,70 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262721AbVAFE67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262722AbVAFE7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262721AbVAFE67 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 23:58:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262723AbVAFE67
+	id S262722AbVAFE7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 23:59:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262723AbVAFE7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 23:58:59 -0500
-Received: from fw.osdl.org ([65.172.181.6]:61076 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262721AbVAFE64 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 23:58:56 -0500
-Message-ID: <41DCC414.9060308@osdl.org>
-Date: Wed, 05 Jan 2005 20:52:36 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Konrad Wojas <wojas@vvtp.tudelft.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9 oops in poll()?
-References: <20050103161556.GD31250@vvtp.tudelft.nl> <41DB1C92.7060501@osdl.org> <20050105040841.GI31250@vvtp.tudelft.nl> <41DC30C9.5050402@osdl.org> <20050105185733.GJ31250@vvtp.tudelft.nl> <41DC3BD6.3020303@osdl.org> <20050105211109.GK31250@vvtp.tudelft.nl>
-In-Reply-To: <20050105211109.GK31250@vvtp.tudelft.nl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Jan 2005 23:59:24 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:19522
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262722AbVAFE7V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 23:59:21 -0500
+Date: Thu, 6 Jan 2005 05:59:32 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, riel@redhat.com,
+       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][5/?] count writeback pages in nr_scanned
+Message-ID: <20050106045932.GN4597@dualathlon.random>
+References: <20050105134457.03aca488.akpm@osdl.org> <20050105203217.GB17265@logos.cnet> <41DC7D86.8050609@yahoo.com.au> <Pine.LNX.4.61.0501052025450.11550@chimarrao.boston.redhat.com> <20050105173624.5c3189b9.akpm@osdl.org> <Pine.LNX.4.61.0501052240250.11550@chimarrao.boston.redhat.com> <41DCB577.9000205@yahoo.com.au> <20050105202611.65eb82cf.akpm@osdl.org> <41DCC014.80007@yahoo.com.au> <20050105204706.0781d672.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050105204706.0781d672.akpm@osdl.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Konrad Wojas wrote:
-> On Wed, Jan 05, 2005 at 11:11:18AM -0800, Randy.Dunlap wrote:
-> 
->>Konrad Wojas wrote:
->>
->>>On Wed, Jan 05, 2005 at 10:24:09AM -0800, Randy.Dunlap wrote:
->>>
->>>
->>>>This probably needed to use /proc/kallsyms from the dying kernel,
->>>>which you most likely don't have....
->>>>
->>>>I'm having trouble seeing what sock_poll() called (i.e., where EIP
->>>>register points to).  In the /boot/System.map-2.6.9-1-686 file,
->>>>is anything near address 0xc02b5513 listed?
->>>>(or just send me that file privately)
+On Wed, Jan 05, 2005 at 08:47:06PM -0800, Andrew Morton wrote:
+> That's my point.  blk_congestion_wait() will always sleep, regardless of
 
-Sorry, I'm not getting anywhere with this.
-The obvious thing is that EIP (0xc02b5513) is not pointing
-to code, but to data (ASCII text, as in a file name from
-the kernel source tree)...
+Since I've no pending bugs at all with the mainline codebase I rate this
+just a theoretical issue: but even sleeping for a fixed amount of time
+is unreliable there, for example if the storage is very slow. That's why
+using io_schedule_timeout for that isn't going to be a fix.
 
-There's not quite enough stack data for me to determine
-what happened.
-
->>>Also doesn't look very helpfull to me..
->>
->>True.  Have you tested this problem on 2.6.10 yet?
-> 
-> 
-> No, I don't even know how to reproduce this on 2.6.9.
-> 
-> 
->>Back to 2.6.9:  do you normally run 2.6.9 with all of those same
->>modules loaded?  If so, please send me the /proc/modules
->>and /proc/kallsyms files.
-> 
-> 
-> I'm quite sure the same modules were loaded. I've sent the files by
-> private mail.
-
-
--- 
-~Randy
+The fix is very simple and it is to call wait_on_page_writeback on one
+of the pages under writeback. That guarantees some _writeback_ progress
+has been made before retrying. That way some random direct-io or a too
+short timeout, can't cause malfunction.

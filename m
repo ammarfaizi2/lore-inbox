@@ -1,25 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbUJaTpg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbUJaTvT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261433AbUJaTpg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 14:45:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbUJaTpd
+	id S261487AbUJaTvT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 14:51:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbUJaTvT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 14:45:33 -0500
-Received: from gprs214-91.eurotel.cz ([160.218.214.91]:63876 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261433AbUJaTpO (ORCPT
+	Sun, 31 Oct 2004 14:51:19 -0500
+Received: from gprs214-91.eurotel.cz ([160.218.214.91]:1157 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261487AbUJaTvR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 14:45:14 -0500
-Date: Sun, 31 Oct 2004 20:44:57 +0100
+	Sun, 31 Oct 2004 14:51:17 -0500
+Date: Sun, 31 Oct 2004 20:50:57 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Jan Kara <jack@suse.cz>, akpm@osdl.org
-Subject: Re: [PATCH] Configurable Magic Sysrq
-Message-ID: <20041031194457.GE1430@elf.ucw.cz>
-References: <20041029093941.GA2237@atrey.karlin.mff.cuni.cz> <20041031185222.GB5578@elf.ucw.cz> <200410311409.16400.dtor_core@ameritech.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrea Arcangeli <andrea@novell.com>,
+       Larry McVoy <lm@work.bitmover.com>, Joe Perches <joe@perches.com>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
+Subject: Re: BK kernel workflow
+Message-ID: <20041031195057.GD5578@elf.ucw.cz>
+References: <20041025133951.GW14325@dualathlon.random> <20041025162022.GA27979@work.bitmover.com> <20041025164732.GE14325@dualathlon.random> <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org> <Pine.LNX.4.61.0410252350240.17266@scrub.home> <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org> <Pine.LNX.4.61.0410270223080.877@scrub.home> <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org> <Pine.LNX.4.61.0410272049040.877@scrub.home> <1098913524.7778.5.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200410311409.16400.dtor_core@ameritech.net>
+In-Reply-To: <1098913524.7778.5.camel@localhost.localdomain>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,30 +33,17 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > >   I know about a few people who would like to use some functionality of
-> > > the Magic Sysrq but don't want to enable all the functions it provides.
-> > > So I wrote a patch which should allow them to do so. It allows to
-> > > configure available functions of Sysrq via /proc/sys/kernel/sysrq (the
-> > > interface is backward compatible). If you think it's useful then use it :)
-> > > Andrew, do you think it can go into mainline or it's just an overdesign?
-> > 
-> > Actually, there's one more thing that wories me... Original choice of
-> > PC hotkey (alt-sysrq-key) works *very* badly on many laptop
-> > keyboards. Like sysrq is only recognized with fn, but key is not
-> > recognized when you hold fn => you have no chance to use magic sysrq.
-> > 
+> > Linus, what happened to the early promises, that the data wouldn't be 
+> > locked into bk? Is the massively reduced data set in the cvs repository 
+> > really all we ever get out of it again?
 > 
-> Actually if I understand it correctly it is Alt-PrtScrn-key - just let go
-> of your "Fn" key and I think it will work fine. At least it does on my
-> laptop.
+> The daily CVS snapshots seem to solve most of that. Yes BK's licensing
+> model isn't free software friendly, yes its a PITA. With the CVS
+> snapshots nobody is forcing your hand, its not encrypted and locked away
+> behind a DRM system.
 
-Okay, it looks like I can actually type it on all notebooks here if I
-try hard enough. On HP machines, the trick is
-alt,fn,sysrq,releasealtandfn,key. Ouch.
-
-The thing that confused me was some SuSE script redirecting messages
-to other tty, so I saw nothing after magic-9, and assumed I did not
-press it correctly.
+IIRC Larry announced that if we start looking into the data he *will*
+encrypt it and try to lock it away...
 								Pavel
 -- 
 People were complaining that M$ turns users into beta-testers...

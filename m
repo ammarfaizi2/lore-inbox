@@ -1,166 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310367AbSCGPks>; Thu, 7 Mar 2002 10:40:48 -0500
+	id <S310366AbSCGPoI>; Thu, 7 Mar 2002 10:44:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310366AbSCGPkb>; Thu, 7 Mar 2002 10:40:31 -0500
-Received: from mail.gmx.net ([213.165.64.20]:156 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S310370AbSCGPkJ>;
-	Thu, 7 Mar 2002 10:40:09 -0500
-Date: Thu, 7 Mar 2002 16:43:57 +0100
-From: Sebastian Droege <sebastian.droege@gmx.de>
-To: linux-kernel@vger.kernel.org, davej@suse.de
-Subject: [PATCH] 2.5.5-dj3 cs4281 OSS driver compile fix
-Message-Id: <20020307164357.5e91df2a.sebastian.droege@gmx.de>
-X-Mailer: Sylpheed version 0.7.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S310370AbSCGPn7>; Thu, 7 Mar 2002 10:43:59 -0500
+Received: from elin.scali.no ([62.70.89.10]:37899 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S310366AbSCGPns>;
+	Thu, 7 Mar 2002 10:43:48 -0500
+Subject: Re: a faster way to gettimeofday? rdtsc strangeness
+From: Terje Eggestad <terje.eggestad@scali.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+        Ben Greear <greearb@candelatech.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16iz57-0002SW-00@the-village.bc.nu>
+In-Reply-To: <E16iz57-0002SW-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 07 Mar 2002 16:43:35 +0100
+Message-Id: <1015515815.4373.61.camel@pc-16.office.scali.no>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.iIFg1i:CJgk9zn"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.iIFg1i:CJgk9zn
-Content-Type: multipart/mixed;
- boundary="Multipart_Thu__7_Mar_2002_16:43:57_+0100_08273e40"
+On Thu, 2002-03-07 at 15:41, Alan Cox wrote:
+> > If you have a CPU that begin throttling it usually cut the CPU clock in
+> > half and the rdtsc counter count half a fast.
+> 
+> They normally adjust the STPCLK which is just fine. I've only seen a few
+> laptops that do it other ways. More fun are people running mixed 300/450
+> BP6 boards where the tsc varies by cpu
+
+Can /proc/cpuinfo really be trusted in figuring out how long a cycle is?
 
 
---Multipart_Thu__7_Mar_2002_16:43:57_+0100_08273e40
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+-- 
+_________________________________________________________________________
 
-Hi,
-here is a compile fix for the cs4281 OSS driver in 2.5.5-dj3
-There were some missing files and includes
-The missing files are taken from 2.4.18
-Now it compiles and links without errors but I can't test it because I don't have a cs4281 soundcard :(
-But be warned... this isn't the cleanest solution
-More fixes for some broken OSS drivers will follow (if there are any)
+Terje Eggestad                  mailto:terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
 
-Patch against 2.5.5-dj3 attached
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
+N-0619 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
 
-Bye
---Multipart_Thu__7_Mar_2002_16:43:57_+0100_08273e40
-Content-Type: application/octet-stream;
- name="cs4281-oss.patch"
-Content-Disposition: attachment;
- filename="cs4281-oss.patch"
-Content-Transfer-Encoding: base64
-
-ZGlmZiAtTnVyIGxpbnV4LTIuNS41LW9sZC9zb3VuZC9vc3MvY3M0MjgxL2NzNDI4MV93cmFwcGVy
-LmggbGludXgtMi41LjUvc291bmQvb3NzL2NzNDI4MS9jczQyODFfd3JhcHBlci5oCi0tLSBsaW51
-eC0yLjUuNS1vbGQvc291bmQvb3NzL2NzNDI4MS9jczQyODFfd3JhcHBlci5oCVRodSBKYW4gIDEg
-MDE6MDA6MDAgMTk3MAorKysgbGludXgtMi41LjUvc291bmQvb3NzL2NzNDI4MS9jczQyODFfd3Jh
-cHBlci5oCU1vbiBGZWIgMjUgMjA6Mzg6MDQgMjAwMgpAQCAtMCwwICsxLDU0IEBACisvKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKgorKgorKiAgICAgICJjczQyODFfd3JhcHBlci5oIiAtLSAgQ2lycnVz
-IExvZ2ljLUNyeXN0YWwgQ1M0MjgxIGxpbnV4IGF1ZGlvIGRyaXZlci4KKyoKKyogICAgICBDb3B5
-cmlnaHQgKEMpIDIwMDAsMjAwMSAgQ2lycnVzIExvZ2ljIENvcnAuICAKKyogICAgICAgICAgICAt
-LSB0b20gd29sbGVyICh0d29sbGVyQGNyeXN0YWwuY2lycnVzLmNvbSkgb3IKKyogICAgICAgICAg
-ICAgICAoYXVkaW9AY3J5c3RhbC5jaXJydXMuY29tKS4KKyoKKyogICAgICBUaGlzIHByb2dyYW0g
-aXMgZnJlZSBzb2Z0d2FyZTsgeW91IGNhbiByZWRpc3RyaWJ1dGUgaXQgYW5kL29yIG1vZGlmeQor
-KiAgICAgIGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vu
-c2UgYXMgcHVibGlzaGVkIGJ5CisqICAgICAgdGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbjsg
-ZWl0aGVyIHZlcnNpb24gMiBvZiB0aGUgTGljZW5zZSwgb3IKKyogICAgICAoYXQgeW91ciBvcHRp
-b24pIGFueSBsYXRlciB2ZXJzaW9uLgorKgorKiAgICAgIFRoaXMgcHJvZ3JhbSBpcyBkaXN0cmli
-dXRlZCBpbiB0aGUgaG9wZSB0aGF0IGl0IHdpbGwgYmUgdXNlZnVsLAorKiAgICAgIGJ1dCBXSVRI
-T1VUIEFOWSBXQVJSQU5UWTsgd2l0aG91dCBldmVuIHRoZSBpbXBsaWVkIHdhcnJhbnR5IG9mCisq
-ICAgICAgTUVSQ0hBTlRBQklMSVRZIG9yIEZJVE5FU1MgRk9SIEEgUEFSVElDVUxBUiBQVVJQT1NF
-LiAgU2VlIHRoZQorKiAgICAgIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGZvciBtb3JlIGRl
-dGFpbHMuCisqCisqICAgICAgWW91IHNob3VsZCBoYXZlIHJlY2VpdmVkIGEgY29weSBvZiB0aGUg
-R05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UKKyogICAgICBhbG9uZyB3aXRoIHRoaXMgcHJvZ3Jh
-bTsgaWYgbm90LCB3cml0ZSB0byB0aGUgRnJlZSBTb2Z0d2FyZQorKiAgICAgIEZvdW5kYXRpb24s
-IEluYy4sIDY3NSBNYXNzIEF2ZSwgQ2FtYnJpZGdlLCBNQSAwMjEzOSwgVVNBLgorKgorKiAxMi8y
-Mi8wMCB0cncgLSBuZXcgZmlsZS4gCisqIDA0LzE4LzAxIHRydyAtIHJld29yayBlbnRpcmUgd3Jh
-cHBlciBsb2dpYy4KKyoKKyoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKiovCisjaWZuZGVmIF9fQ1M0Mjgx
-X1dSQVBQRVJfSAorI2RlZmluZSBfX0NTNDI4MV9XUkFQUEVSX0gKKworLyogMi40Lnggd3JhcHBl
-ciAqLworI2lmIExJTlVYX1ZFUlNJT05fQ09ERSA+IEtFUk5FTF9WRVJTSU9OKDIsNCwxMikKK3N0
-YXRpYyBpbnQgY3M0MjgxX251bGxfc3VzcGVuZChzdHJ1Y3QgcGNpX2RldiAqcGNpZGV2LCB1MzIg
-dW51c2VkKSB7IHJldHVybiAwOyB9CitzdGF0aWMgaW50IGNzNDI4MV9udWxsX3Jlc3VtZShzdHJ1
-Y3QgcGNpX2RldiAqcGNpZGV2KSB7IHJldHVybiAwOyB9CisjZWxzZQorI2RlZmluZSBub19sbHNl
-ZWsgY3M0MjgxX2xsc2Vlaworc3RhdGljIGxvZmZfdCBjczQyODFfbGxzZWVrKHN0cnVjdCBmaWxl
-ICpmaWxlLCBsb2ZmX3Qgb2Zmc2V0LCBpbnQgb3JpZ2luKQoreworCXJldHVybiAtRVNQSVBFOwor
-fQordm9pZCBjczQyODFfbnVsbF9zdXNwZW5kKHN0cnVjdCBwY2lfZGV2ICpwY2lkZXYpIHsgcmV0
-dXJuOyB9Cit2b2lkIGNzNDI4MV9udWxsX3Jlc3VtZShzdHJ1Y3QgcGNpX2RldiAqcGNpZGV2KSB7
-IHJldHVybjsgfQorI2VuZGlmCisKKyNpZiBMSU5VWF9WRVJTSU9OX0NPREUgPCBLRVJORUxfVkVS
-U0lPTigyLDQsMykKKy8qIFNvbWUgdmVyc2lvbnMgb2YgMi40LjIgcmVzb2x2ZSBwY2lfc2V0X2Rt
-YV9tYXNrIGFuZCBzb21lIGRvIG5vdC4uLiAKKyogIGJ1dCAyLjQuMCBkZWZpbml0ZWx5IGRvZXMg
-bm90IAorKi8KKyNkZWZpbmUgcGNpX3NldF9kbWFfbWFzayhkZXYsZGF0YSkgMDsKKyNlbHNlCisj
-ZW5kaWYKKyNkZWZpbmUgY3M0eF9tZW1fbWFwX3Jlc2VydmUocGFnZSkgbWVtX21hcF9yZXNlcnZl
-KHBhZ2UpCisjZGVmaW5lIGNzNHhfbWVtX21hcF91bnJlc2VydmUocGFnZSkgbWVtX21hcF91bnJl
-c2VydmUocGFnZSkKKworI2VuZGlmIC8qICNpZm5kZWYgX19DUzQyODFfV1JBUFBFUl9IICovCmRp
-ZmYgLU51ciBsaW51eC0yLjUuNS1vbGQvc291bmQvb3NzL2NzNDI4MS9jczQyODFtLmMgbGludXgt
-Mi41LjUvc291bmQvb3NzL2NzNDI4MS9jczQyODFtLmMKLS0tIGxpbnV4LTIuNS41LW9sZC9zb3Vu
-ZC9vc3MvY3M0MjgxL2NzNDI4MW0uYwlUaHUgTWFyICA3IDE0OjUyOjQ3IDIwMDIKKysrIGxpbnV4
-LTIuNS41L3NvdW5kL29zcy9jczQyODEvY3M0MjgxbS5jCVRodSBNYXIgIDcgMTY6MDY6NTUgMjAw
-MgpAQCAtOTgsNiArOTgsNyBAQAogaW50IGNzNDI4MV9zdXNwZW5kKHN0cnVjdCBjczQyODFfc3Rh
-dGUgKnMpOwogaW50IGNzNDI4MV9yZXN1bWUoc3RydWN0IGNzNDI4MV9zdGF0ZSAqcyk7CiAKKyNp
-bmNsdWRlICJjczQyODFfd3JhcHBlci0yNC5jIgogI2luY2x1ZGUgImNzNDI4MV93cmFwcGVyLmgi
-CiAjaW5jbHVkZSAiY3M0MjgxcG0tMjQuaCIKIApkaWZmIC1OdXIgbGludXgtMi41LjUtb2xkL3Nv
-dW5kL29zcy9jczQyODEvY3M0MjgxcG0tMjQuaCBsaW51eC0yLjUuNS9zb3VuZC9vc3MvY3M0Mjgx
-L2NzNDI4MXBtLTI0LmgKLS0tIGxpbnV4LTIuNS41LW9sZC9zb3VuZC9vc3MvY3M0MjgxL2NzNDI4
-MXBtLTI0LmgJVGh1IEphbiAgMSAwMTowMDowMCAxOTcwCisrKyBsaW51eC0yLjUuNS9zb3VuZC9v
-c3MvY3M0MjgxL2NzNDI4MXBtLTI0LmgJTW9uIEZlYiAyNSAyMDozODowNCAyMDAyCkBAIC0wLDAg
-KzEsNjcgQEAKKy8qKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqCisqCisqICAgICAgImNzNDI4MXBtLTI0
-LmgiIC0tICBDaXJydXMgTG9naWMtQ3J5c3RhbCBDUzQyODEgbGludXggYXVkaW8gZHJpdmVyLgor
-KgorKiAgICAgIENvcHlyaWdodCAoQykgMjAwMCwyMDAxICBDaXJydXMgTG9naWMgQ29ycC4gIAor
-KiAgICAgICAgICAgIC0tIHRvbSB3b2xsZXIgKHR3b2xsZXJAY3J5c3RhbC5jaXJydXMuY29tKSBv
-cgorKiAgICAgICAgICAgICAgIChhdWRpb0BjcnlzdGFsLmNpcnJ1cy5jb20pLgorKgorKiAgICAg
-IFRoaXMgcHJvZ3JhbSBpcyBmcmVlIHNvZnR3YXJlOyB5b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBh
-bmQvb3IgbW9kaWZ5CisqICAgICAgaXQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgR2VuZXJh
-bCBQdWJsaWMgTGljZW5zZSBhcyBwdWJsaXNoZWQgYnkKKyogICAgICB0aGUgRnJlZSBTb2Z0d2Fy
-ZSBGb3VuZGF0aW9uOyBlaXRoZXIgdmVyc2lvbiAyIG9mIHRoZSBMaWNlbnNlLCBvcgorKiAgICAg
-IChhdCB5b3VyIG9wdGlvbikgYW55IGxhdGVyIHZlcnNpb24uCisqCisqICAgICAgVGhpcyBwcm9n
-cmFtIGlzIGRpc3RyaWJ1dGVkIGluIHRoZSBob3BlIHRoYXQgaXQgd2lsbCBiZSB1c2VmdWwsCisq
-ICAgICAgYnV0IFdJVEhPVVQgQU5ZIFdBUlJBTlRZOyB3aXRob3V0IGV2ZW4gdGhlIGltcGxpZWQg
-d2FycmFudHkgb2YKKyogICAgICBNRVJDSEFOVEFCSUxJVFkgb3IgRklUTkVTUyBGT1IgQSBQQVJU
-SUNVTEFSIFBVUlBPU0UuICBTZWUgdGhlCisqICAgICAgR05VIEdlbmVyYWwgUHVibGljIExpY2Vu
-c2UgZm9yIG1vcmUgZGV0YWlscy4KKyoKKyogICAgICBZb3Ugc2hvdWxkIGhhdmUgcmVjZWl2ZWQg
-YSBjb3B5IG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZQorKiAgICAgIGFsb25nIHdp
-dGggdGhpcyBwcm9ncmFtOyBpZiBub3QsIHdyaXRlIHRvIHRoZSBGcmVlIFNvZnR3YXJlCisqICAg
-ICAgRm91bmRhdGlvbiwgSW5jLiwgNjc1IE1hc3MgQXZlLCBDYW1icmlkZ2UsIE1BIDAyMTM5LCBV
-U0EuCisqCisqIDIwMDEuMDQuMDUgdHJ3IC0gbmV3IGZpbGUuIAorKgorKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKi8KKyNpZm5kZWYgTk9UX0NTNDI4MV9QTQorI2luY2x1ZGUgPGxpbnV4L3BtLmg+Cisj
-aW5jbHVkZSA8bGludXgvY29uZmlnLmg+CisjaW5jbHVkZSAiY3M0MjgxcG0uaCIKKworLy8jZGVm
-aW5lIENTNDI4MV9QQ0lfUE1fU1VQUE9SVF9FTkFCTEUgMQorI2lmIENTNDI4MV9QQ0lfUE1fU1VQ
-UE9SVF9FTkFCTEUKKyNkZWZpbmUgY3NfcG1fcmVnaXN0ZXIoYSwgYiwgYykgMDsKKyNkZWZpbmUg
-Y3NfcG1fdW5yZWdpc3Rlcl9hbGwoYSkKKy8qIAorKiBmb3Igbm93ICgxMi8yMi8wMCkgb25seSBl
-bmFibGUgdGhlIHBtX3JlZ2lzdGVyIFBNIHN1cHBvcnQuCisqIGFsbG93IHRoZXNlIHRhYmxlIGVu
-dHJpZXMgdG8gYmUgbnVsbC4KKyovCisjZGVmaW5lIENTNDI4MV9TVVNQRU5EX1RCTCBjczQyODFf
-c3VzcGVuZF90YmwKKyNkZWZpbmUgQ1M0MjgxX1JFU1VNRV9UQkwgY3M0MjgxX3Jlc3VtZV90YmwK
-KyNpZiBMSU5VWF9WRVJTSU9OX0NPREUgPiBLRVJORUxfVkVSU0lPTigyLDQsMTIpCitzdGF0aWMg
-aW50IGNzNDI4MV9zdXNwZW5kX3RibChzdHJ1Y3QgcGNpX2RldiAqcGNpZGV2LCB1MzIgdW51c2Vk
-KTsKK3N0YXRpYyBpbnQgY3M0MjgxX3Jlc3VtZV90Ymwoc3RydWN0IHBjaV9kZXYgKnBjaWRldik7
-CisjZWxzZSAKK3ZvaWQgY3M0MjgxX3N1c3BlbmRfdGJsKHN0cnVjdCBwY2lfZGV2ICpwY2lkZXYp
-Owordm9pZCBjczQyODFfcmVzdW1lX3RibChzdHJ1Y3QgcGNpX2RldiAqcGNpZGV2KTsKKyNlbmRp
-ZiAvL0xJTlVYX1ZFUlNJT04KKyNlbHNlIC8vQ1M0MjgxX1BDSV9QTV9TVVBQT1JUX0VOQUJMRQor
-I2lmZGVmIENPTkZJR19QTQoraW50IGNzNDI4MV9wbV9jYWxsYmFjayhzdHJ1Y3QgcG1fZGV2ICpk
-ZXYsIHBtX3JlcXVlc3RfdCBycXN0LCB2b2lkICpkYXRhKTsKKyNkZWZpbmUgY3NfcG1fcmVnaXN0
-ZXIoYSwgYiwgYykgcG1fcmVnaXN0ZXIoKGEpLCAoYiksIChjKSk7CisjZGVmaW5lIGNzX3BtX3Vu
-cmVnaXN0ZXJfYWxsKGEpIHBtX3VucmVnaXN0ZXJfYWxsKChhKSk7CisjZGVmaW5lIENTNDI4MV9T
-VVNQRU5EX1RCTCBjczQyODFfbnVsbF9zdXNwZW5kCisjZGVmaW5lIENTNDI4MV9SRVNVTUVfVEJM
-IGNzNDI4MV9udWxsX3Jlc3VtZQorI2Vsc2UKKyNkZWZpbmUgY3NfcG1fcmVnaXN0ZXIoYSwgYiwg
-YykgMDsKKyNkZWZpbmUgY3NfcG1fdW5yZWdpc3Rlcl9hbGwoYSkKKyNkZWZpbmUgQ1M0MjgxX1NV
-U1BFTkRfVEJMIGNzNDI4MV9udWxsX3N1c3BlbmQKKyNkZWZpbmUgQ1M0MjgxX1JFU1VNRV9UQkwg
-Y3M0MjgxX251bGxfcmVzdW1lCisjZW5kaWYgLy9DT05GSUdfUE0KKyNlbmRpZiAvL0NTNDI4MV9Q
-Q0lfUE1fU1VQUE9SVF9FTkFCTEUKKyNlbHNlCisjZGVmaW5lIGNzX3BtX3JlZ2lzdGVyKGEsIGIs
-IGMpIDA7CisjZGVmaW5lIGNzX3BtX3VucmVnaXN0ZXJfYWxsKGEpCisjZGVmaW5lIENTNDI4MV9T
-VVNQRU5EX1RCTCBjczQyODFfbnVsbF9zdXNwZW5kCisjZGVmaW5lIENTNDI4MV9SRVNVTUVfVEJM
-IGNzNDI4MV9udWxsX3Jlc3VtZQorI2VuZGlmIC8vTk9UX0NTNDI4MV9QTQo=
-
---Multipart_Thu__7_Mar_2002_16:43:57_+0100_08273e40--
-
---=.iIFg1i:CJgk9zn
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE8h4rAe9FFpVVDScsRAvJWAKD0GIhiimv28OuCBizhXutw+ZkCpgCfaBxN
-7vBqffxzN2UHf+SuhYus3nA=
-=VOUW
------END PGP SIGNATURE-----
-
---=.iIFg1i:CJgk9zn--
 

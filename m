@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273801AbRIXFpu>; Mon, 24 Sep 2001 01:45:50 -0400
+	id <S273802AbRIXGBv>; Mon, 24 Sep 2001 02:01:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273802AbRIXFps>; Mon, 24 Sep 2001 01:45:48 -0400
-Received: from sydney4.au.ibm.com ([202.135.142.205]:64526 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S273801AbRIXFp1>; Mon, 24 Sep 2001 01:45:27 -0400
-Date: Mon, 24 Sep 2001 15:40:28 +1000
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PART1: Proposed init & module changes for 2.5
-Message-Id: <20010924154028.68601c0e.rusty@rustcorp.com.au>
-In-Reply-To: <5847.1001307249@kao2.melbourne.sgi.com>
-In-Reply-To: <E15lNTG-0000F2-00@wagner>
-	<5847.1001307249@kao2.melbourne.sgi.com>
-X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S273807AbRIXGBn>; Mon, 24 Sep 2001 02:01:43 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:46341 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S273802AbRIXGB1>; Mon, 24 Sep 2001 02:01:27 -0400
+Message-ID: <3BAECC4F.EF25393@zip.com.au>
+Date: Sun, 23 Sep 2001 23:01:51 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>,
+        "ext3-users@redhat.com" <ext3-users@redhat.com>
+Subject: ext3-2.4-0.9.10
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Sep 2001 14:54:09 +1000
-Keith Owens <kaos@ocs.com.au> wrote:
->   rmmod
->     loses race
->     return OK
->     module is still in use, user is confused
+An ext3 patch against linux 2.4.10 is at
 
-Ah, I see... no, it's currently:
+	http://www.uow.edu.au/~andrewm/linux/ext3/
 
-   rmmod
-      loses race
-      waits for module count to hit zero
+This patch is *lightly tested* - ie, it boots and does stuff.
+The changes to ext3 are small, but the kernel which it patches
+has recently changed a lot.  If you're cautious, please wait
+a couple of days.
 
-This can be desirable behavior (rmmod -f).  It's not good if you wanted
-auto-module-unloading, but then, we've never wanted to take the hit to have
-a pagable kernel, and I don't think we should do so.
+The patch retains the buffer-tracing code.  This will soon be
+broken out into a separate patch to make ext3 suitable for
+submission for the mainstream kernel.
 
-Cheers,
-Rusty.
+Changelog:
 
+- Fix an oops which could occur at unmount time due to non-empty
+  orphan list.  This could be triggered by an earlier error during a
+  truncate.
+
+- Merge Ted's directory scan speedup heuristic.
+
+- Remove the abort_write() address_space_operation by ensuring that
+  all prepare_write() callers always call commit_write().
+
+- A number of changes to suit the new 2.4.10 VM and buffer-layer design.
+
+-

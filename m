@@ -1,78 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267844AbRG0If0>; Fri, 27 Jul 2001 04:35:26 -0400
+	id <S267847AbRG0JCH>; Fri, 27 Jul 2001 05:02:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267846AbRG0IfQ>; Fri, 27 Jul 2001 04:35:16 -0400
-Received: from schiele.swm.uni-mannheim.de ([134.155.20.124]:18051 "EHLO
-	schiele.swm.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S267844AbRG0IfG>; Fri, 27 Jul 2001 04:35:06 -0400
-Date: Fri, 27 Jul 2001 10:34:56 +0200
-From: Robert Schiele <rschiele@uni-mannheim.de>
-To: Niels Kristian Bech Jensen <nkbj@image.dk>
-Cc: "Linux kernel developer's mailing list" 
+	id <S267852AbRG0JB5>; Fri, 27 Jul 2001 05:01:57 -0400
+Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:897 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S267847AbRG0JBn>; Fri, 27 Jul 2001 05:01:43 -0400
+Message-ID: <3B612D26.BA131CEC@randomlogic.com>
+Date: Fri, 27 Jul 2001 01:58:14 -0700
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+Organization: Akamai Technologies, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Linux kernel developer's mailing list" 
 	<linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] gcc-3.0.1 and 2.4.7-ac1
-Message-ID: <20010727103456.B15014@schiele.swm.uni-mannheim.de>
-In-Reply-To: <9jptj1$155$1@penguin.transmeta.com> <Pine.LNX.4.33.0107270852430.731-100000@hafnium.nkbj.dk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="4SFOXa2GPu3tIq4H"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <Pine.LNX.4.33.0107270852430.731-100000@hafnium.nkbj.dk>; from nkbj@image.dk on Fri, Jul 27, 2001 at 08:55:52AM +0200
+        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>,
+        "kplug-lpsg@kernel-panic.org" <kplug-lpsg@kernel-panic.org>
+Subject: Linx Kernel Source tree and metrics
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+For those interested, I have run the kernel (2.4.2-2) through a program
+and generated extensive HTML reports including call trees, function and
+data declarations, source code, and metrics. I plan to upgrade this to
+the latest kernel and keep it up to date (as much as possible :), but I
+am a) working with a kernel that I know currently runs on my dual
+Athlon, and b) wanted to test this out and run it by the two lists
+first.
 
---4SFOXa2GPu3tIq4H
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+My bandwisth is currently limited (cable modem), but if it's decided
+that I'll keep this available, I will upload it to a web server with a
+couple T1's avalable (or maybe I will use one of our companies servers
+on a DS3 or greater).
 
-On Fri, Jul 27, 2001 at 08:55:52AM +0200, Niels Kristian Bech Jensen wrote:
-> On Thu, 26 Jul 2001, Linus Torvalds wrote:
->=20
-> >  - "static inline" means "we have to have this function, if you use it
-> >    but don't inline it, then make a static version of it in this
-> >    compilation unit"
-> >
-> >  - "extern inline" means "I actually _have_ an extern for this function,
-> >    but if you want to inline it, here's the inline-version"
-> >
-> [SNIP]
-> > ... we should just convert
-> > all current users of "extern inline" to "static inline".
-> >
-> Doesn't work for the ones in include/linux/parport_pc.h, which have
-> extern versions in drivers/parport/parport_pc.c. Gives build errors.
+The URL is:
 
-Is there any reason against just removing these functions from
-drivers/parport/parport_pc.c? I do not see one. After all, they are
-just duplicates.
+http://24.5.14.144:3000/linux-kernel
 
-Robert
+If you have any connection problems (and there may be, since it's
+currently running on the same machine I'm using to develop with - the
+dual Athlon), suggestions (even if it's "hey, dork, it's already
+available at http://xxx.yyy"), or whatever, please let me know.
 
---=20
-Robert Schiele			mailto:rschiele@uni-mannheim.de
-Tel./Fax: +49-621-10059		http://webrum.uni-mannheim.de/math/rschiele/
 
---4SFOXa2GPu3tIq4H
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+PGA
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iQEVAwUBO2EnsMQAnns5HcHpAQGZqwf/Q28YCzsd7URUJ2Uv6QgTlcKDbZOIFL/2
-I8he+Zr1Nt9Bs61BrEYnnVWZYS9MwYcpCMknZhDJ2+wPCoM7ExE80H/73gz0LNdc
-Mkd+vaMBAf4HvIvrKJ8vaT1KkM7KQm2MsGBZOs+nqRRo6kaOGAVyPO+Nm216xtwm
-qNuvORKYQkCWNm7RRS4dAbIUI5BoOOYrAaifrCOtfOwWpXw3g8ZDgflI45FlDGcu
-G5E9DsG/Y7bGFyTLwpWzU4EU/rGeE4WUmYKYqR85OTmW6GF0eDBDncZLjgTfHc81
-sqD0vRZ0Z2FmC/AEpjung8+msS48D84djU6psr5+WVcB/lalkKmXyQ==
-=a3w7
------END PGP SIGNATURE-----
-
---4SFOXa2GPu3tIq4H--
+-- 
+Paul G. Allen
+UNIX Admin II/Programmer
+Network Security
+Akamai Technologies, Inc.
+www.akamai.com

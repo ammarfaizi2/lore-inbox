@@ -1,87 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264328AbTEGXGd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 19:06:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264344AbTEGXFY
+	id S264366AbTEGXLh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 19:11:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTEGXLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 19:05:24 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:47086 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264328AbTEGXCC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 19:02:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <1052349388865@kroah.com>
-Subject: Re: [PATCH] TTY changes for 2.5.69
-In-Reply-To: <10523493882794@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Wed, 7 May 2003 16:16:28 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
+	Wed, 7 May 2003 19:11:33 -0400
+Received: from inet-mail3.oracle.com ([148.87.2.203]:50909 "EHLO
+	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
+	id S264362AbTEGXKc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 19:10:32 -0400
+Date: Wed, 7 May 2003 16:19:20 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: WimMark I report for 2.5.69
+Message-ID: <20030507231919.GA3989@ca-server1.us.oracle.com>
+Mail-Followup-To: Andrew Morton <akpm@digeo.com>,
+	linux-kernel@vger.kernel.org
+References: <20030507175422.GX3989@ca-server1.us.oracle.com> <20030507154150.005db55e.akpm@digeo.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030507154150.005db55e.akpm@digeo.com>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1112, 2003/05/07 15:01:52-07:00, hannal@us.ibm.com
+On Wed, May 07, 2003 at 03:41:50PM -0700, Andrew Morton wrote:
+> > Runs:  1462.17 1005.78 1995.99
+> > ...
+> > This benchmark is sensitive to random system events.
+> 
+> You can say that again.
+> 
+> We need to understand why there is such variation.  If we can do that,
+> then perhaps we can make those 1.0's and 1.5's go away.
 
-[PATCH] macintosh/macserial  tty_driver add .owner field remove MOD_INC/DEC_USE_COUNT
+	Some kernels run very very even.  Others do not.  I suspect that
+certain kernel behaviors and changes exacerbate the issues.
 
+> Is that a thing you can work on?  One approach would be to vary parameters
+> (filesystem type, amount of memory, TCQ lengths, workload, whatever) and
+> see which ones the throughput is sensitive to.
 
- drivers/macintosh/macserial.c |    7 +------
- 1 files changed, 1 insertion(+), 6 deletions(-)
+	I can try.  I'm currently trying to catch up to the
+state-of-the-penguin, as I also have some test patches from Nick to run.
+These runs take a while, and I've been busy as well.
 
+Joel
 
-diff -Nru a/drivers/macintosh/macserial.c b/drivers/macintosh/macserial.c
---- a/drivers/macintosh/macserial.c	Wed May  7 16:00:17 2003
-+++ b/drivers/macintosh/macserial.c	Wed May  7 16:00:17 2003
-@@ -1932,7 +1932,6 @@
- 	spin_lock_irqsave(&info->lock, flags);
- 
- 	if (tty_hung_up_p(filp)) {
--		MOD_DEC_USE_COUNT;
- 		spin_unlock_irqrestore(&info->lock, flags);
- 		return;
- 	}
-@@ -1956,7 +1955,6 @@
- 		info->count = 0;
- 	}
- 	if (info->count) {
--		MOD_DEC_USE_COUNT;
- 		spin_unlock_irqrestore(&info->lock, flags);
- 		return;
- 	}
-@@ -2026,7 +2024,6 @@
- 	info->flags &= ~(ZILOG_NORMAL_ACTIVE|ZILOG_CALLOUT_ACTIVE|
- 			 ZILOG_CLOSING);
- 	wake_up_interruptible(&info->close_wait);
--	MOD_DEC_USE_COUNT;
- }
- 
- /*
-@@ -2233,17 +2230,14 @@
- 	int 			retval, line;
- 	unsigned long		page;
- 
--	MOD_INC_USE_COUNT;
- 	line = tty->index;
- 	if ((line < 0) || (line >= zs_channels_found)) {
--		MOD_DEC_USE_COUNT;
- 		return -ENODEV;
- 	}
- 	info = zs_soft + line;
- 
- #ifdef CONFIG_KGDB
- 	if (info->kgdb_channel) {
--		MOD_DEC_USE_COUNT;
- 		return -ENODEV;
- 	}
- #endif
-@@ -2610,6 +2604,7 @@
- 
- 	memset(&serial_driver, 0, sizeof(struct tty_driver));
- 	serial_driver.magic = TTY_DRIVER_MAGIC;
-+	serial_driver.owner = THIS_MODULE;
- 	serial_driver.driver_name = "macserial";
- #ifdef CONFIG_DEVFS_FS
- 	serial_driver.name = "tts/";
+-- 
 
+"Any man who is under 30, and is not a liberal, has not heart;
+ and any man who is over 30, and is not a conservative, has no brains."
+         - Sir Winston Churchill 
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

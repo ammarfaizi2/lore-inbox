@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269301AbUIYKPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269302AbUIYKRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269301AbUIYKPn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 06:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269303AbUIYKPn
+	id S269302AbUIYKRI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 06:17:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269304AbUIYKRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 06:15:43 -0400
-Received: from gprs214-249.eurotel.cz ([160.218.214.249]:50052 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S269301AbUIYKPf (ORCPT
+	Sat, 25 Sep 2004 06:17:07 -0400
+Received: from gprs214-249.eurotel.cz ([160.218.214.249]:50820 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S269302AbUIYKQ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 06:15:35 -0400
-Date: Sat, 25 Sep 2004 12:15:22 +0200
+	Sat, 25 Sep 2004 06:16:56 -0400
+Date: Sat, 25 Sep 2004 12:16:40 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Kevin Fenzi <kevin-linux-kernel@scrye.com>
-Cc: linux-kernel@vger.kernel.org
+To: Pascal Schmidt <pascal.schmidt@email.de>
+Cc: ncunningham@linuxmail.org, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
-Message-ID: <20040925101522.GA4039@elf.ucw.cz>
-References: <20040924021956.98FB5A315A@voldemort.scrye.com> <20040924143714.GA826@openzaurus.ucw.cz> <20040924210958.A3C5AA2073@voldemort.scrye.com>
+Message-ID: <20040925101640.GB4039@elf.ucw.cz>
+References: <2HO0C-4xh-29@gated-at.bofh.it> <2I5b2-88s-15@gated-at.bofh.it> <2I5E5-6h-19@gated-at.bofh.it> <2I7Zd-1TK-11@gated-at.bofh.it> <E1CB10O-0000HL-FJ@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040924210958.A3C5AA2073@voldemort.scrye.com>
+In-Reply-To: <E1CB10O-0000HL-FJ@localhost>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,46 +27,25 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> >> Was trying to swsusp my 2.6.9-rc2-mm1 laptop tonight. It churned
-> >> for a while, but didn't hibernate. Here are the messages.
-> >> 
-> >> ....................................................................................................
-> >> .........................swsusp: Need to copy 34850 pages Sep 23
-> >> 16:53:37 voldemort kernel: hibernate: page allocation
-> >> failure. order:8, mode:0x120 Sep 23 16:53:37 voldemort kernel:
-> Pavel> Out of memory... Try again with less loaded system. 
+> > The problem isn't really that you're out of memory. Rather, the memory
+> > is so fragmented that swsusp is unable to get an order 8 allocation in
+> > which to store its metadata. There isn't really anything you can do to
+> > avoid this issue apart from eating memory (which swsusp is doing
+> > anyway).
 > 
-> The system was no more loaded than usual. I have 1GB memory and 4GB of
-> swap defined. I almost never touch swap. It might have been 100mb into
-> the 4Gb of swap when this happened. 
-> 
-> What would cause it to be out of memory? 
-> swsup needs to be reliable... rebooting when you are using your memory
-> kinda defeats the purpose of swsusp. 
+> That's one megabyte, right? Can't we preallocate that on boot, while
+> there's still chance to get that much contiguous memory? If the
+> user has swsusp compiled into his kernel, he probably wants it to
+> function, so it's not really "wasted".
 
-Read FAQ.
+You do not know how much you should preallocate, because it depends on
+ammount of memory used. You could preallocate maximum possible
+ammount...
 
-> Felipe W Damasio <felipewd@terra.com.br> sent me a patch, but I
-> haven't had a chance to try it yet:
-> 
-> - --- linux-2.6.9-rc2-mm2/kernel/power/swsusp.c.orig	2004-09-23 23:46:49.292975768 -0300
-> +++ linux-2.6.9-rc2-mm2/kernel/power/swsusp.c	2004-09-24 00:07:01.933626368 -0300
-> @@ -657,6 +657,9 @@
->  	int diff = 0;
->  	int order = 0;
->  
-> +	order = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages));
-> +	nr_copy_pages += 1 << order;
-> +
->  	do {
->  		diff = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages)) - order;
->  		if (diff) {
-> 
-> 
+OTOH this is first report of this failure. If it fails once in a blue
+moon, it is probably better to let it fail than waste memory.
 
-That does not look like it could help. I do not see why this patch
-should be good thing.
-							Pavel
+								Pavel
 -- 
 People were complaining that M$ turns users into beta-testers...
 ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

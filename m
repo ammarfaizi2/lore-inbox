@@ -1,54 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265541AbUGGWLM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265540AbUGGWTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265541AbUGGWLM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 18:11:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265540AbUGGWLL
+	id S265540AbUGGWTz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 18:19:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265544AbUGGWTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 18:11:11 -0400
-Received: from mail.kroah.org ([69.55.234.183]:10404 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265545AbUGGWKB (ORCPT
+	Wed, 7 Jul 2004 18:19:55 -0400
+Received: from meg.vosn.net ([209.197.254.7]:39851 "EHLO meg.vosn.net")
+	by vger.kernel.org with ESMTP id S265540AbUGGWTw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 18:10:01 -0400
-Date: Wed, 7 Jul 2004 15:08:25 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Jesse Stockall <stockall@magma.ca>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: (as339) Interpret down_trylock() result code correctly in usb.c
-Message-ID: <20040707220825.GD4990@kroah.com>
-References: <Pine.LNX.4.44L0.0407061202340.5551-100000@ida.rowland.org> <20040707215416.GC4514@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040707215416.GC4514@kroah.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 7 Jul 2004 18:19:52 -0400
+Message-ID: <001801c46470$94116820$0a01a8c0@jwrdesktop>
+From: "John W. Ross" <programming@johnwross.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Increasing IDE Channels
+Date: Wed, 7 Jul 2004 15:20:15 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - meg.vosn.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - johnwross.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 07, 2004 at 02:54:16PM -0700, Greg KH wrote:
-> On Tue, Jul 06, 2004 at 12:11:19PM -0400, Alan Stern wrote:
-> > Greg:
-> > 
-> > As Andrew Morton has already spotted, I messed up the interpretation of
-> > the result codes from various _trylock() routines.  I didn't notice that
-> > down_trylock() and down_read_trylock() use opposite conventions for
-> > indicating success!  This patch fixes the incorrect interpretation of
-> > down_trylock().  That error may well be responsible for some of the
-> > problems cropping up recently with OHCI controllers.  Please apply.
-> 
-> Applied.
-> 
-> But even with this patch, and Andrew's, I have a hang at boot with my
-> USB mouse plugged in (uhci system).
+Greetings,
 
-If I remove the mouse, and then boot, it works just fine.  I can then
-insert it and the drivers are loaded just fine too.
+I've spent several days working to increase the number of IDE channels above
+the 10 allowed in the kernel.  Ideally I would like to raise the limit to
+14. (to accomidate the 2 interfaces on the motherboard and 6 cheap dual
+channel ide cards) Although I've found some references to others who would
+like to do this, I can find noone who has actually both accomplished the
+task and mentioned their success.  I decided to start small and try to get
+up to 12.  To do this I:
 
-Looks like a race on accessing usbfs and loading a driver at the same
-time, as the "cold-boot" code scans usbfs to determine what driver to
-load.
+Changed ide.h:
 
-thanks,
+IDE_NR_PORTS  (10)
+to
+IDE_NR_PORTS  (12)
 
-greg k-h
+In major.h I added:
+
+#define IDE10_MAJOR     240
+#define IDE11_MAJOR     241
+
+in ide.c I changed
+
+static const u8 ide_hwif_to_major[] = { IDE0_MAJOR, IDE1_MAJOR,
+     IDE2_MAJOR, IDE3_MAJOR,
+     IDE4_MAJOR, IDE5_MAJOR,
+     IDE6_MAJOR, IDE7_MAJOR,
+     IDE8_MAJOR, IDE9_MAJOR };
+
+to :
+
+static const u8 ide_hwif_to_major[] = { IDE0_MAJOR, IDE1_MAJOR,
+     IDE2_MAJOR, IDE3_MAJOR,
+     IDE4_MAJOR, IDE5_MAJOR,
+     IDE6_MAJOR, IDE7_MAJOR,
+     IDE8_MAJOR, IDE9_MAJOR,
+     IDE10_MAJOR, IDE11_MAJOR)
+
+This was on a clean 2.6.7 kernel download.  I then ran menuconfig and the
+only change I made was to select the processor as AMD Athlon.  After
+compiling I still get the "too many ide interfaces, no room in table".
+
+I'm certianly no kernel hacker at heart, so I may be trying to do the
+impossible/impractical.
+
+1.) Could someone please explain why there is a limit of 10 interfaces (is
+this something that I shouldn't even try)?
+2.)What did I miss on moving to 12?
+3.) I could understand a limit of 12, as hda, hdb, hdc... hdw, hdx, would
+only allow a possible 13th interface, but at 14 you would totally exhaust
+the alphabet, but is that still relevant with the newer method of
+enumerating partitions?
+4.) Is there a kernel patch available already that I'm ignorant of?
+5.) Are there references that I should review elsewhere?
+6.) I generally use Mandrake but if there is another distribution patched to
+allow additional interfaces pray tell.
+
+Thank you for you time reading this, and for any help you may be able to
+provide.
+
+John
+
+To respond, just click reply.  The spammers will get the address regardless
+of anything I do to prevent it!
+
+
+

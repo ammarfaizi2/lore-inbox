@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289859AbSAWNyr>; Wed, 23 Jan 2002 08:54:47 -0500
+	id <S289865AbSAWN41>; Wed, 23 Jan 2002 08:56:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289862AbSAWNyj>; Wed, 23 Jan 2002 08:54:39 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:42628 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S289859AbSAWNyW>; Wed, 23 Jan 2002 08:54:22 -0500
-Date: Wed, 23 Jan 2002 08:55:55 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: gspujar@hss.hns.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: linux kernel source
-In-Reply-To: <65256B4A.0048D8DF.00@sandesh.hss.hns.com>
-Message-ID: <Pine.LNX.3.95.1020123084557.19041A-100000@chaos.analogic.com>
+	id <S289862AbSAWN4R>; Wed, 23 Jan 2002 08:56:17 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:5386 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S289865AbSAWNz6>; Wed, 23 Jan 2002 08:55:58 -0500
+Message-ID: <3C4EC0D8.1D8F391F@aitel.hist.no>
+Date: Wed, 23 Jan 2002 14:55:36 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.2-dj2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrey Nekrasov <andy@spylog.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: OOM killer.
+In-Reply-To: <20020123125729.GA5542@spylog.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jan 2002 gspujar@hss.hns.com wrote:
-
+Andrey Nekrasov wrote:
 > 
+> Help.
 > 
+> Is it possible to disable VM-killer completely?
+Obviously not - it triggers only when there isn't
+enough memory to continue.  The alternative to a
+OOM killer routine is either a kernel that locks up
+effectively killing everything, or a kernel that
+allocates all memory early requiring a _lot_ more
+memory to run at all.  (If you had that memory
+you wouldn't run out in the first place.)
 > 
-> Hi,
-> Where can I get the source code for "init" process on internet ?
-> and  the entire kernel source code.
-> 
-> Any pointers ?
-> 
-> Thanks
-> -Girish
-> 
+> Or make it not kill some critical tools. I want, for example, that
+> in any situation sshd/nfsd/cron remained alive.
 
-ftp.xx.kernel.org  where 'xx' is a country for the kernel(s)....
+The trivial fix is to start sshd/nfsd/cron from /etc/inittab,
+similiar to how getty usually starts.  They may still get
+killed, but init will restart them asap.
 
-SYSV-init comes in various flavors, different with different
-distributions.
+Adding a lot of swap is also a good idea - the machine will
+merely slow down instead of killing something.  
 
-The last 'init' I got was from tsx-11.mit.edu /pub/linux/sources/sbin.
-There is a newer 'simple-init' in use by several distributions.
-I think it's available on sourceforge (ftp.sourceforge.org). Use
-www.sourceforge.org to search using keywords.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+Helge Hafting

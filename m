@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316792AbSGRA7Y>; Wed, 17 Jul 2002 20:59:24 -0400
+	id <S317354AbSGRBDX>; Wed, 17 Jul 2002 21:03:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317354AbSGRA7Y>; Wed, 17 Jul 2002 20:59:24 -0400
-Received: from dsl-213-023-043-041.arcor-ip.net ([213.23.43.41]:47297 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S316792AbSGRA7Y>;
-	Wed, 17 Jul 2002 20:59:24 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: daw@mozart.cs.berkeley.edu (David Wagner), linux-kernel@vger.kernel.org
-Subject: Re: BKL removal
-Date: Thu, 18 Jul 2002 03:03:45 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <20020709201703.GC27999@kroah.com> <3D2AF6EA.1030008@us.ibm.com> <ah527n$brv$1@abraham.cs.berkeley.edu>
-In-Reply-To: <ah527n$brv$1@abraham.cs.berkeley.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17Uzhq-0004gf-00@starship>
+	id <S317365AbSGRBDX>; Wed, 17 Jul 2002 21:03:23 -0400
+Received: from holomorphy.com ([66.224.33.161]:52104 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S317354AbSGRBDX>;
+	Wed, 17 Jul 2002 21:03:23 -0400
+Date: Wed, 17 Jul 2002 18:06:17 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.26 broken on headless boxes
+Message-ID: <20020718010617.GL1096@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+References: <20020717165538.D13352@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020717165538.D13352@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 18 July 2002 02:30, David Wagner wrote:
-> Dave Hansen  wrote:
-> >The Stanford Checker or something resembling it would be invaluable 
-> >here.  It would be a hell of a lot better than my litle patch!
-> 
-> Hmm.  There's a chance we might be able to help.  Our group is building
-> a tool called MOPS that is similar in spirit to the Stanford Checker.
-> MOPS is work-in-progress and will be open source.  I haven't tried it
-> yet on the Linux kernel, but this seems like a reasonable thing to try.
+On Wed, Jul 17, 2002 at 04:55:38PM +0100, Matthew Wilcox wrote:
+> On a headless box with both CONFIG_VT_CONSOLE and CONFIG_SERIAL_CONSOLE
+> defined, I get:
+> Freeing unused kernel memory: 452k freed
+> visual_init: sw = 00000000, conswitchp = 00000000, currcons = 0, init = 1
+> Unable to handle kernel NULL pointer dereference at virtual address 00000000
+>  printing eip:
+> c01b775f
+> *pde = 37868001
+> *pte = 00000000
+> Oops: 0000
+> CPU:    0
+> EIP:    0010:[<c01b775f>]    Not tainted
+> EFLAGS: 00010286
 
-Excellent, there is an ecological niche ready and waiting for the first
-group to do what the Stanford group has done, but open the source.  It's
-beyond me why the Stanford group hasn't done so, perhaps it has something
-to do with university politics.
+Could you reproduce this and get maybe a backtrace and a line number?
 
--- 
-Daniel
+
+Thanks,
+Bill

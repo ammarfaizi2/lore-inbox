@@ -1,59 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbUA0R46 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 12:56:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbUA0R46
+	id S264459AbUA0SQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 13:16:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264463AbUA0SQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 12:56:58 -0500
-Received: from main.gmane.org ([80.91.224.249]:45213 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261606AbUA0R44 (ORCPT
+	Tue, 27 Jan 2004 13:16:57 -0500
+Received: from colin2.muc.de ([193.149.48.15]:50448 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S264459AbUA0SQy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 12:56:56 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: GPL license and linux kernel modifications
-Date: Tue, 27 Jan 2004 18:56:53 +0100
-Message-ID: <yw1xoespz34q.fsf@kth.se>
-References: <E1AlW2F-000N9k-00.bansh21-mail-ru@f13.mail.ru> <401692E2.7010800@backtobasicsmgmt.com>
+	Tue, 27 Jan 2004 13:16:54 -0500
+Date: 27 Jan 2004 19:15:54 +0100
+Date: Tue, 27 Jan 2004 19:15:54 +0100
+From: Andi Kleen <ak@muc.de>
+To: Eric <eric@cisu.net>
+Cc: Andrew Morton <akpm@osdl.org>, stoffel@lucent.com, ak@muc.de,
+       Valdis.Kletnieks@vt.edu, bunk@fs.tum.de, cova@ferrara.linux.it,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - REALLY SOLVED
+Message-ID: <20040127181554.GA41917@colin2.muc.de>
+References: <200401232253.08552.eric@cisu.net> <200401262343.35633.eric@cisu.net> <20040126215056.4e891086.akpm@osdl.org> <200401270037.43676.eric@cisu.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:EFSEg9egs85oUMFpo0d72OzKXbk=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401270037.43676.eric@cisu.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com> writes:
+On Tue, Jan 27, 2004 at 12:37:43AM -0600, Eric wrote:
+> On Monday 26 January 2004 23:50, Andrew Morton wrote:
+> > Eric <eric@cisu.net> wrote:
+> > > YES. I finally have a working 2.6.2-rc1-mm3 booted kernel.
+> > >  Lets review folks---
+> > >  	reverted -funit-at-a-time
+> > >  	patched test_wp_bit so exception tables are sorted sooner
+> > >  	reverted md-partition patch
+> >
+> > The latter two are understood, but the `-funit-at-a-time' problem is not.
+> >
+> > Can you plesae confirm that restoring only -funit-at-a-time again produces
+> > a crashy kernel?  And that you are using a flavour of gcc-3.3?  If so, I
+> > guess we'll need to only enable it for gcc-3.4 and later.
+> >
+> Yes, confirmed. My  version of gcc, I just sent you adding the 
+> -funit-at-a-time hung after uncompressing the kernel. I booted a secondary 
+> kernel, recompiled without it and all was fine again. Confirmed non-boot for 
+> 2.6.2-rc1-mm3 but without a doubt for all kernels previous where 
+> -funit-at-a-time is active in the makefile.
 
-> Bansh wrote:
->
->> special exception, the source code distributed need not include
->> anything that is normally distributed (in either source or binary
->> form) with the major components (compiler, kernel, and so on) of the
->> operating system on which the executable runs, unless that component
->> itself accompanies the executable.
->> ----------- cut COPYING -----------
->> It gives the possibility to not distribute compiler and other
->> preprocessing tools.
->> It looks like one can make a preprocessor or even one's own
->> compiler (with one's syntax) which will be used for kernel
->> building. But it's not required to distribute this compiler. So I
->> can distribute linux kernel source code modified this way but no
->> one will be able to build it. Is it ok?
->
-> Only if those "compiler and other preprocessing tools" are normally
-> distributed with the O/S the executable runs on. If you create your
-> own compiler, and it's not "normally distributed", then you can't
-> publish source code in that language under the GPL without making the
-> compiler available as well.
+Ok, found it. This patch should fix it.  The top level asm in process.c
+assumed that the section was .text, but that is not guaranteed in a
+funit-at-a-time compiler. It ended up in the setup section and messed up
+the argument parsing.  This bug could have hit with any compiler,
+it was just plain luck that it worked with newer gcc 3.3 and 3.4.
 
-Yes, you can, at least if you own the source code in question.  It
-becomes more unclear when you take someone else's GPL'd code and
-modify it to only work with your private compiler.
+Please test if it fixes your problem.
 
--- 
-Måns Rullgård
-mru@kth.se
+Andrew, please merge it if the bug is confirmed to be fixed.
 
+-Andi
+
+diff -u linux-2.6.2rc1mm3-test/arch/i386/kernel/process.c-o linux-2.6.2rc1mm3-test/arch/i386/kernel/process.c
+--- linux-2.6.2rc1mm3-test/arch/i386/kernel/process.c-o	2004-01-27 02:26:39.000000000 +0100
++++ linux-2.6.2rc1mm3-test/arch/i386/kernel/process.c	2004-01-27 19:09:41.131460832 +0100
+@@ -253,13 +253,15 @@
+  * the "args".
+  */
+ extern void kernel_thread_helper(void);
+-__asm__(".align 4\n"
++__asm__(".section .text\n"
++	".align 4\n"
+ 	"kernel_thread_helper:\n\t"
+ 	"movl %edx,%eax\n\t"
+ 	"pushl %edx\n\t"
+ 	"call *%ebx\n\t"
+ 	"pushl %eax\n\t"
+-	"call do_exit");
++	"call do_exit\n"
++	".previous");
+ 
+ /*
+  * Create a kernel thread

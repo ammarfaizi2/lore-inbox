@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbTIOUnw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 16:43:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbTIOUnw
+	id S261589AbTIOUij (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 16:38:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbTIOUij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 16:43:52 -0400
-Received: from fw.osdl.org ([65.172.181.6]:43950 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261614AbTIOUnv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 16:43:51 -0400
-Date: Mon, 15 Sep 2003 13:25:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "James H. Cloos Jr." <cloos@jhcloos.com>
+	Mon, 15 Sep 2003 16:38:39 -0400
+Received: from spoetnik.kulnet.kuleuven.ac.be ([134.58.240.46]:28061 "EHLO
+	spoetnik.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id S261589AbTIOUih (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 16:38:37 -0400
+Message-ID: <3F662322.9060205@abcpages.com>
+Date: Mon, 15 Sep 2003 22:37:54 +0200
+From: Nicolae Mihalache <mache@abcpages.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Patrick Mochel <mochel@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Monster file_lock_cache entry in /proc/slabinfo
-Message-Id: <20030915132514.0bee90bc.akpm@osdl.org>
-In-Reply-To: <m3k78923wy.fsf@lugabout.jhcloos.org>
-References: <m3k78923wy.fsf@lugabout.jhcloos.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: Re: 2.6-test4 problems: suspend and touchpad
+References: <Pine.LNX.4.33.0309150949270.950-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.33.0309150949270.950-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"James H. Cloos Jr." <cloos@jhcloos.com> wrote:
->
-> My notebook has been slowing down the longer it is up for several
-> kernel versions.  Disk i/o seems to be the chokepoint.
-> 
-> I grabbed slabinfo before today's reboot.  The box had been up for 10
-> days -- it starts to become painful after about five or six days.
-> 
-> The file_lock_cache entry seemed rather engrossed:
+Patrick Mochel wrote:
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test5/2.6.0-test5-mm2/broken-out/file-locking-leak-fix.patch
+>
+>It does not. Could you please try removing the module before you suspend? 
+>
+Yes, removing and readding the module does the trick.
+Unfortunately I've seen that something else does not work after resume: 
+my USB mouse.
+But for some reason I can not remove the usbcore module, the kernel says 
+it's in use.
+
+Now, how can I help to solve these problems? Is somebody working to 
+solve these problems or should I try to solve them myself (at least with 
+the Broadcom 4400 driver) ?
+
+Thanks,
+mache
+

@@ -1,67 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283368AbRK2VBo>; Thu, 29 Nov 2001 16:01:44 -0500
+	id <S283384AbRK2VEE>; Thu, 29 Nov 2001 16:04:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283393AbRK2VBe>; Thu, 29 Nov 2001 16:01:34 -0500
-Received: from dialin-145-254-146-210.arcor-ip.net ([145.254.146.210]:7218
-	"EHLO picklock.adams.family") by vger.kernel.org with ESMTP
-	id <S283368AbRK2VB2>; Thu, 29 Nov 2001 16:01:28 -0500
-Message-ID: <3C06A222.1C7AB589@loewe-komp.de>
-Date: Thu, 29 Nov 2001 22:01:22 +0100
-From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-Organization: B16
-X-Mailer: Mozilla 4.78 [de] (X11; U; Linux 2.4.13-xfs i686)
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Christopher Friesen <cfriesen@nortelnetworks.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: logging to NFS-mounted files seems to cause hangs when NFS dies
-In-Reply-To: <3C065D2F.B45332C6@nortelnetworks.com>
+	id <S283392AbRK2VDz>; Thu, 29 Nov 2001 16:03:55 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:30194
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S283384AbRK2VDs>; Thu, 29 Nov 2001 16:03:48 -0500
+Date: Thu, 29 Nov 2001 13:03:42 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Robert Love <rml@tech9.net>
+Cc: McEnroe <mcensamuel@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: interrupt ?
+Message-ID: <20011129130342.B496@mikef-linux.matchmail.com>
+Mail-Followup-To: Robert Love <rml@tech9.net>,
+	McEnroe <mcensamuel@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3C043B11.2FA17A19@pobox.com> <3C05B561.75F210C7@pobox.com> <001601c17873$c664ee00$8b64a8c0@PREM> <1007053658.813.17.camel@phantasy>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1007053658.813.17.camel@phantasy>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christopher Friesen schrieb:
+On Thu, Nov 29, 2001 at 12:07:37PM -0500, Robert Love wrote:
+> On Wed, 2001-11-28 at 20:18, McEnroe wrote:
 > 
-> I'm working on an embedded platform and we seem to be having a problem with
-> syslog and logging to NFS-mounted files.
+> > what is fast and slow interrupt ?
+> > what is the difference between this ?
 > 
-> We have syslog logging to NFS and also logging to a server on another machine.
-> The desired behaviour is that if the NFS server or the net connection conks out,
-> the logs are silently dropped.  (Critical logs are also logged in memory that
-> isn't wiped out on reboot.)
+> fast interrupts occur with interrupts disabled, and are expected to be
+> completed quickly -- they are performed by the interrupt handlers
+> themselves.
 > 
-> Currently,  /var/log is mounted with the following options:
-> rw,rsize=4096,wsize=4096,timeo=7,retrans=3,bg,soft,intr
-> 
-> We started off with hard mounts due to the warnings about soft mounts, but that
-> led to boxes totally hanging when the network connections were pulled or the NFS
-> server was taken down.  In this scenario we are even unable to login as root at
-> the console.  This forced us to go to soft mounts in an attempt to fix this
-> behaviour.
-> 
-> The problem we are seeing is that if we lose the network connection or the NFS
-> mount (which immediately causes an attempt to log the problem), it seems that
-> syslog gets stuck in NFS code in the kernel and other stuff can be delayed for a
-> substantial amount of time (many tens of seconds).  Just for kicks we tried
-> logging to ramdisk, and everything works beautifully.
-> 
-> Now I'm a bit unclear as to why other processes are being delayed--does anyone
-> have any ideas?  My current theories are that either the nfs client code has a
-> bug, or syslog() calls are somehow blocking if syslogd can't write the file
-> out.  I've just started looking at the syslog code, but its pretty rough going
-> as there are very few comments.
-> 
-> Help?  We're running a customized 2.2.17 kernel and syslog 1.4.1.
+> a slow interrupt occurs with interrupts enabled, such as bottom half
+> tasks.
 > 
 
-I can recommend syslogd's ability to log to remote syslogd via
-
-/etc/syslog.conf
-
-*.info	|host.or.ip
-
-
-The remote site has to run syslogd with "syslogd -r".
-Since it uses UDP there is no blocking.
+IIRC, bottom half is mostly used by network packet processing.

@@ -1,43 +1,134 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282920AbRLGQsN>; Fri, 7 Dec 2001 11:48:13 -0500
+	id <S282934AbRLGQsL>; Fri, 7 Dec 2001 11:48:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282916AbRLGQrn>; Fri, 7 Dec 2001 11:47:43 -0500
-Received: from zeke.inet.com ([199.171.211.198]:42393 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S282998AbRLGQqe>;
-	Fri, 7 Dec 2001 11:46:34 -0500
-Message-ID: <3C10F25C.FACDA516@inet.com>
-Date: Fri, 07 Dec 2001 10:46:20 -0600
-From: Eli Carter <eli.carter@inet.com>
-Organization: Inet Technologies, Inc.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7-10enterprise i686)
-X-Accept-Language: en
+	id <S282920AbRLGQru>; Fri, 7 Dec 2001 11:47:50 -0500
+Received: from [12.246.164.220] ([12.246.164.220]:25136 "EHLO
+	defiant.sysadminzone.com") by vger.kernel.org with ESMTP
+	id <S282907AbRLGQpj>; Fri, 7 Dec 2001 11:45:39 -0500
+Date: Sat, 8 Dec 2001 08:44:34 -0800 (PST)
+From: David Wambolt <wambolt@sysadminzone.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Problem Compiling iph5526 module
+Message-ID: <Pine.LNX.4.33.0112080841510.14757-100000@defiant.sysadminzone.com>
 MIME-Version: 1.0
-To: linuxlist@visto.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel size
-In-Reply-To: <3C07FA8E0005C3C2@iso1.vistocorporation.com> (added by
-		    administrator@vistocorporation.com)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rohit prasad wrote:
-> 
-> Hi,
-> 
->  I have compiled a kernel on a machine with a partition size of 20GB and am running it there.
-> 
->  I ftp'd this kernel to another machine with similar partition size of 20GB but when I run lilo there I get a message "Fatal: Size too Big"
-> 
-> Why is that.
+** I tried sending this yesterday and I never saw it come through **
 
-Guesses:  different versions of lilo, and you're getting the failure on
-the older version?  Maybe it's refering to the size of the kernel as
-opposed to the disk partition?
+Hello,
 
-Eli
---------------------.     Real Users find the one combination of bizarre
-Eli Carter           \ input values that shuts down the system for days.
-eli.carter(a)inet.com `-------------------------------------------------
+I'm a bit new to Linux kernel compiling, but I've been doing Sun Solaris
+Admin work for many years.  I have a Sun Ultra 5 400mhz running SuSe Linux
+7.3 for Sparc.  Everything runs great, except it does not come with a
+precompiled version of the Interphase 5526 Fibre Channel module.  So I
+figured I'd download the 2.4.16 kernel, enable the module and recompile
+the kernel.  I've compiled kernels on x86 machines many times typically
+with no problems, or at least problems I could fix.
+
+I've:
+
+1. Extracted the new kernel
+2. make mrproper
+3. make menuconfig
+4. enabled the Interphase Module
+5. make dep
+6. make clean
+7. make vmlinux
+8. make modules
+9. make modules_install
+
+When doing #9, I get this error:
+
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.16; fi
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.16/kernel/drivers/net/fc/iph5526.o
+depmod:         bus_to_virt_not_defined_use_pci_map
+depmod:         virt_to_bus_not_defined_use_pci_map
+
+Also here are the error's during #8 make modules for the iph5526 module:
+
+iph5526.c: In function `handle_OCI_interrupt':
+iph5526.c:923: warning: passing arg 1 of
+`bus_to_virt_not_defined_use_pci_map' makes pointer from integer without a
+cast
+iph5526.c:982: warning: passing arg 1 of
+`bus_to_virt_not_defined_use_pci_map' makes pointer from integer without a
+cast
+iph5526.c: In function `handle_MFS_interrupt':
+iph5526.c:1061: warning: passing arg 1 of
+`bus_to_virt_not_defined_use_pci_map' makes pointer from integer without a
+cast
+iph5526.c:1061: warning: assignment makes pointer from integer without a
+cast
+iph5526.c:1091: warning: passing arg 1 of
+`bus_to_virt_not_defined_use_pci_map' makes pointer from integer without a
+cast
+iph5526.c:1091: warning: assignment makes pointer from integer without a
+cast
+iph5526.c: In function `handle_Bad_SCSI_Frame_interrupt':
+iph5526.c:1159: warning: passing arg 1 of
+`bus_to_virt_not_defined_use_pci_map' makes pointer from integer without a
+cast
+iph5526.c:1159: warning: assignment makes pointer from integer without a
+cast
+iph5526.c:1194: warning: passing arg 1 of
+`bus_to_virt_not_defined_use_pci_map' makes pointer from integer without a
+cast
+iph5526.c:1194: warning: assignment makes pointer from integer without a
+cast
+iph5526.c:1201: warning: passing arg 1 of
+`bus_to_virt_not_defined_use_pci_map' makes pointer from integer without a
+cast
+iph5526.c:1201: warning: assignment makes pointer from integer without a
+cast
+iph5526.c: In function `handle_Inbound_SCSI_Status_interrupt':
+iph5526.c:1309: warning: passing arg 1 of
+`bus_to_virt_not_defined_use_pci_map' makes pointer from integer without a
+cast
+iph5526.c:1309: warning: assignment makes pointer from integer without a
+cast
+iph5526.c:1313: warning: passing arg 1 of
+`bus_to_virt_not_defined_use_pci_map' makes pointer from integer without a
+cast
+iph5526.c:1313: warning: assignment makes pointer from integer without a
+cast
+iph5526.c: In function `invalidate_SEST_entry':
+iph5526.c:1367: warning: passing arg 1 of
+`bus_to_virt_not_defined_use_pci_map' makes pointer from integer without a
+cast
+iph5526.c:1367: warning: assignment makes pointer from integer without a
+cast
+iph5526.c:1378: warning: passing arg 1 of
+`bus_to_virt_not_defined_use_pci_map' makes pointer from integer without a
+cast
+iph5526.c:1378: warning: assignment makes pointer from integer without a
+cast
+iph5526.c: In function `handle_SFS_interrupt':
+iph5526.c:1467: warning: passing arg 1 of
+`bus_to_virt_not_defined_use_pci_map' makes pointer from integer without a
+cast
+iph5526.c:1467: warning: assignment makes pointer from integer without a
+cast
+iph5526.c: In function `abort_exchange':
+iph5526.c:4136: warning: passing arg 1 of
+`bus_to_virt_not_defined_use_pci_map' makes pointer from integer without a
+cast
+iph5526.c:4136: warning: assignment makes pointer from integer without a
+cast
+iph5526.c: In function `iph5526_release':
+iph5526.c:4509: warning: unused variable `fi'
+iph5526.c: In function `clean_up_memory':
+iph5526.c:4603: warning: passing arg 1 of
+`bus_to_virt_not_defined_use_pci_map' makes pointer from integer without a
+cast
+
+Any help would be very much appreciated.  I'm pretty sure it's something
+related to how the Sparc handles PCI - so I might be SOL.
+
+Thanks
+
+Dave
+

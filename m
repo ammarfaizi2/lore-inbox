@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280084AbRKEBEc>; Sun, 4 Nov 2001 20:04:32 -0500
+	id <S280088AbRKEBHC>; Sun, 4 Nov 2001 20:07:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280086AbRKEBEW>; Sun, 4 Nov 2001 20:04:22 -0500
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:18188 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id <S280084AbRKEBEK>;
-	Sun, 4 Nov 2001 20:04:10 -0500
-Date: Mon, 5 Nov 2001 02:04:08 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Special Kernel Modification
-Message-ID: <20011105020408.A6862@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3BE5D6EC.8040204@outstep.com> <E160XU3-00012T-00@localhost> <1004920141.3be5dd4db68a0@mail.outstep.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1004920141.3be5dd4db68a0@mail.outstep.com>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux mail 2.4.5 
+	id <S280086AbRKEBGw>; Sun, 4 Nov 2001 20:06:52 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11788 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S280089AbRKEBGm>; Sun, 4 Nov 2001 20:06:42 -0500
+Date: Sun, 4 Nov 2001 17:03:40 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Lorenzo Allegrucci <lenstra@tiscalinet.it>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: VM: qsbench numbers
+In-Reply-To: <3.0.6.32.20011104221747.01ff8d30@pop.tiscalinet.it>
+Message-ID: <Pine.LNX.4.33.0111041657060.14237-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2001-11-04 19:29:01 -0500, lonnie@outstep.com <lonnie@outstep.com>
-wrote in message <1004920141.3be5dd4db68a0@mail.outstep.com>:
-> The basic problem is that I did not want, for example "user2" to be able to "cd
-> .." or some thing to go out of user2
-> 
-> I was hoping to be able to accomplish this at the filesystem level somehow, and
-> possibly without the need to mount the /dev/hda4 onto each /home/user/system, or
-> without having to make entire copies of the chrooted environment for each user.
 
-Isn't it the simplest of all to set all the user's file and directory
-modes to sth likt 0700? Then, every user may only access his/her
-files. (S)he cannot look at other user's files.
+On Sun, 4 Nov 2001, Lorenzo Allegrucci wrote:
+> >
+> >Does "free" after a run has completed imply that there's still lots of
+> >swap used? We _should_ have gotten rid of it at "free_swap_and_cache()"
+> >time, but if we missed it..
+>
+> 70.590u 7.640s 2:31.06 51.7%    0+0k 0+0io 19036pf+0w
+> lenstra:~/src/qsort> free
+>              total       used       free     shared    buffers     cached
+> Mem:        255984       6008     249976          0        100       1096
+> -/+ buffers/cache:       4812     251172
+> Swap:       195512       5080     190432
 
-MfG, JBG
+That's not a noticeable amount, and is perfectly explainable by simply
+having deamons that got swapped out with truly inactive pages. So a
+swapcache leak does not seem to be the reason for the unstable numbers.
 
--- 
-Jan-Benedict Glaw . jbglaw@lug-owl.de . +49-172-7608481
+> >What happens if you make the "vm_swap_full()" define in <linux/swap.h> be
+> >unconditionally defined to "1"?
+>
+> 70.530u 7.290s 2:33.26 50.7%    0+0k 0+0io 19689pf+0w
+> 70.830u 7.100s 2:29.52 52.1%    0+0k 0+0io 18488pf+0w
+> 70.560u 6.840s 2:28.66 52.0%    0+0k 0+0io 18203pf+0w
+>
+> Performace improved and numbers stabilized.
+
+Indeed.
+
+Mind doing some more tests? In particular, the "vm_swap_full()" macro is
+only used in two places: mm/memory.c and mm/swapfile.c. Are you willing to
+test _which_ one (or is it both together) it is that seems to bring on the
+unstable numbers?
+
+		Linus
+

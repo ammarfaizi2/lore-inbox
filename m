@@ -1,81 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313756AbSDQJ1t>; Wed, 17 Apr 2002 05:27:49 -0400
+	id <S313514AbSDQJeH>; Wed, 17 Apr 2002 05:34:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313768AbSDQJ1s>; Wed, 17 Apr 2002 05:27:48 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:35181 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S313756AbSDQJ1s>; Wed, 17 Apr 2002 05:27:48 -0400
-Message-Id: <5.1.0.14.2.20020417101412.066cd4a0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 17 Apr 2002 10:26:17 +0100
-To: Martin Dalecki <dalecki@evision-ventures.com>
-From: Anton Altaparmakov <aia21@cantab.net>
+	id <S313547AbSDQJeG>; Wed, 17 Apr 2002 05:34:06 -0400
+Received: from s2.relay.oleane.net ([195.25.12.49]:20755 "HELO
+	s2.relay.oleane.net") by vger.kernel.org with SMTP
+	id <S313514AbSDQJeG>; Wed, 17 Apr 2002 05:34:06 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: "David S. Miller" <davem@redhat.com>, <david.lang@digitalinsight.com>,
+        <vojtech@suse.cz>, <dalecki@evision-ventures.com>,
+        <rgooch@ras.ucalgary.ca>, Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.5.8 IDE 36
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        "David S. Miller" <davem@redhat.com>, david.lang@digitalinsight.com,
-        vojtech@suse.cz, rgooch@ras.ucalgary.ca, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3CBD2847.6010003@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Date: Wed, 17 Apr 2002 02:55:50 +0100
+Message-Id: <20020417015550.11501@smtp.adsl.oleane.com>
+In-Reply-To: <Pine.GSO.4.21.0204171029040.1258-100000@vervain.sonytel.be>
+X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:46 17/04/02, Martin Dalecki wrote:
->Benjamin Herrenschmidt wrote:
->>My understanding it that Tivo behaves like some Amiga's here
->>and has broken swapping of the IDE bus itself, not the ext2
->>filesystem.
->>On PPC, we still have some historical horrible macros redefinitions
->>in asm/ide.h to let APUS (PPC Amiga) deal with these.
->>Now, the problem of dealing with DMA along with the swapping is
->>something scary. I beleive the sanest solution that won't please
->>affected people is to _not_ support DMA on these broken HW ;)
+>On Tue, 16 Apr 2002, Benjamin Herrenschmidt wrote:
 >
->No: the sane sollution would be to not support swapping disks between
->those systems and other systems.
+>> >   I could be wrong, it's a 2.1.x kernel that they started with. I thought
+>> >   that was around the time the fix went in.
+>> >   
+>> >Again, I did the fix 6 years ago, thats pre-2.0.x days
+>> >
+>> >EXT2 has been little-endian only with proper byte-swapping support
+>> >across all architectures, since that time.
+>> 
+>> My understanding it that Tivo behaves like some Amiga's here
+>> and has broken swapping of the IDE bus itself, not the ext2
+>> filesystem.
+>
+>You mean Ataris and Q40/Q60s?
+>
+>I'm not aware if any Amiga IDE interface with byteswapped IDE interface.
+Or it
+>must be a very rare interface not supported by Linux anyway ;-)
 
-<disclaimer: rant>
+My confusion then. We used to have these in the PPC tree, and I
+suspected those were APUS related ;)
 
-No it isn't. You can't just go removing features people use. Your attitude 
-as the new IDE maintainer is a bit distressing.
+>> On PPC, we still have some historical horrible macros redefinitions
+>> in asm/ide.h to let APUS (PPC Amiga) deal with these.
+>
+>In asm-ppc/ide.h? Didn't see them there.
 
-In the sake of a cleanup you start throwing away one feature after the 
-other. IMHO cleanups are not worth feature removal, obviously your opinion 
-differs. Hopefully, we will see the features come back but still the 
-interim is annoying for some people...
+Right, looks like they are gone lately. Well, the TiVO may have been one
+reason for these though I don't think the support for this box has ever
+made it into our main tree. It's possible that we had some broken PReP
+or whatever early boxes.
 
-Also, even more distressing is that you seem to be almost completely 
-unresponsive to bug reports about your IDE changes completely breaking IDE. 
-My email reporting in detail how any post 2.5.7 kernel fails to boot due to 
-hanging during IDE device discovery was left unanswered. Off-line I am told 
-you responded to another similar bug report trying to shift the blame to 
-someone else's code and when it became apparent it was the IDE code you 
-just stopped responding. Do you expect everyone to understand IDE and find 
-and fix your bugs? A maintainer of a subsystem should work with people to 
-find bugs and fix them, not expect users to do that... Your IDE patches 
-keep flowing in one after the other but you completely ignore the fact that 
-you broke IDE for some people along the way and the chances of it fixing 
-itself by accident are minute... and finding the bug is probably getting 
-harder with every patch you submit...
+>The main problem is that IDE use[sd] `inb' et al. for accesses, which is not
+>valid for I/O on something other than ISA/PCI I/O space. So for m68k and APUS
+>we have to do weird things. The new IN_BYTE() etc. should help a bit there,
+>though.
 
-This is _not_ what I would expect from a maintainer of such an important 
-subsystem!
+We tweak on pmac by feeding the IDE layer with our controller virtual address
+minus _IO_BASE (for non-PPC people, _IO_BASE is the virtual address of the
+main PCI IO space, all inx/outx are relative to this). The pointer arithmetic
+does the magic. It sucks, but works without redefining everything around.
+I haven't looked at the new IN_BYTE stuff, though if it is IDE specific,
+I'd rather see it called IDE_IN_BYTE. The current scheme sucks also because
+inx/outx, at least on PPC, are a lot slower than normal MMIO access (one
+reason beeing their ability to recovert from machine checks). It would be
+nice for IDE to use it's own accessors on MMIO platforms. This has to be
+a per-controller things though. A global macro is no good. You can (and on
+some configs, you do have on the motherboard) both MMIO mapped controllers
+and old-style IO mapped ones. One example is the B&W mac G3 which has both
+the Apple MMIO mapped mac-io IDE controller and the CMD646 on the PCI bus.
 
-</rant>
+Also, when applying the taskfile, I suspect we don't need strong barriers as
+we do currently have, only on IO write barrier before actually writing the
+command byte. But I would gladly leave the whole issue of redefining barriers
+especially regarding IOs to Anton Blanchard ;)
 
-Apologies for the rant but I feel a lot better now.
+Maybe the entire function for writing a taskfile register state to the
+controller should be made a hwif indirect call. (On Darwin, they more or
+less do that, along with a bitmask indicating which register has to be
+applied, though I suspect the tests against this bitmask would eats pretty
+much all of the benefit of removing the useless barriers).
 
-Best regards,
+>> Now, the problem of dealing with DMA along with the swapping is
+>> something scary. I beleive the sanest solution that won't please
+>> affected people is to _not_ support DMA on these broken HW ;)
+>
+>Agreed. And you have to disable DMA when accessing a disk that
+originates from
+>such a system on a sane box.
 
-Anton
+Agreed.
 
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Ben.
 

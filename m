@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261624AbSJNNbu>; Mon, 14 Oct 2002 09:31:50 -0400
+	id <S261622AbSJNNiP>; Mon, 14 Oct 2002 09:38:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261625AbSJNNbu>; Mon, 14 Oct 2002 09:31:50 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28945 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261624AbSJNNbu>; Mon, 14 Oct 2002 09:31:50 -0400
-Date: Mon, 14 Oct 2002 14:37:41 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Bernd Petrovitsch <bernd@gams.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: open("/dev/ttyS1", O_LARGEFILE) blocks
-Message-ID: <20021014143741.B2902@flint.arm.linux.org.uk>
-References: <20021014125206.A2902@flint.arm.linux.org.uk> <2994.1034598563@frodo.gams.co.at>
-Mime-Version: 1.0
+	id <S261626AbSJNNiO>; Mon, 14 Oct 2002 09:38:14 -0400
+Received: from mons.uio.no ([129.240.130.14]:50344 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S261622AbSJNNiO>;
+	Mon, 14 Oct 2002 09:38:14 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <2994.1034598563@frodo.gams.co.at>; from bernd@gams.at on Mon, Oct 14, 2002 at 02:29:23PM +0200
+Content-Transfer-Encoding: 7bit
+Message-ID: <15786.51719.778824.642700@charged.uio.no>
+Date: Mon, 14 Oct 2002 15:43:35 +0200
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, trond.myklebust@fys.uio.no,
+       linux-kernel@vger.kernel.org
+Subject: Re: nfs-server slowdown in 2.4.20-pre10 with client 2.2.19
+In-Reply-To: <20021014045410.4721c209.skraw@ithnet.com>
+References: <20021013172138.0e394d96.skraw@ithnet.com>
+	<15785.64463.490494.526616@notabene.cse.unsw.edu.au>
+	<20021014045410.4721c209.skraw@ithnet.com>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 14, 2002 at 02:29:23PM +0200, Bernd Petrovitsch wrote:
-> Hmm, so I conclude that using something like "stty < /dev/ttyS0" is 
-> evil in general and one should always use "stty -F /dev/ttyS0" instead.
+>>>>> " " == Stephan von Krawczynski <skraw@ithnet.com> writes:
 
-Yep.  stty -F uses non-blocking mode, whereas the shell doesn't.
+     > Trond Myklebust <trond.myklebust@fys.uio.no>:
+     > o Workaround NFS hangs introduced in 2.4.20-pre
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+That's an NFS *client* change. It doesn't touch any of the server
+code.
 
+Cheers,
+  Trond

@@ -1,72 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263837AbTKSJO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 04:14:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263909AbTKSJO0
+	id S263921AbTKSJSB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 04:18:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263923AbTKSJSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 04:14:26 -0500
-Received: from fw.osdl.org ([65.172.181.6]:3990 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263837AbTKSJOY (ORCPT
+	Wed, 19 Nov 2003 04:18:00 -0500
+Received: from gprs144-235.eurotel.cz ([160.218.144.235]:35456 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S263921AbTKSJR7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 04:14:24 -0500
-Date: Wed, 19 Nov 2003 01:19:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.0-test9-mm4
-Message-Id: <20031119011951.66300f0d.akpm@osdl.org>
-In-Reply-To: <20031119090223.GO22764@holomorphy.com>
-References: <20031118225120.1d213db2.akpm@osdl.org>
-	<20031119090223.GO22764@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 19 Nov 2003 04:17:59 -0500
+Date: Wed, 19 Nov 2003 10:18:33 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Rob Landley <rob@landley.net>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Patrick's Test9 suspend code.
+Message-ID: <20031119091833.GE197@elf.ucw.cz>
+References: <Pine.LNX.4.44.0311170844230.12994-100000@cherise> <200311181612.52176.rob@landley.net> <20031118232125.GA30268@atrey.karlin.mff.cuni.cz> <200311182326.17838.rob@landley.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200311182326.17838.rob@landley.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
-> On Tue, Nov 18, 2003 at 10:51:20PM -0800, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm4/
-> > . Several fixes against patches which are only in -mm at present.
-> > . Minor fixes which we'll queue for post-2.6.0.
-> > . The interactivity problems which the ACPI PM timer patch showed up
-> >   should be fixed here - please sing out if not.
+Hi!
+
+> > :-), Okay, we could make grub read /etc/fstab... But again user can do
+> >
+> > swapoff and swapon manually etc.
 > 
-> I'm not sure if this is within the scope of current efforts, but I
-> gave it a shot just to see how bad untangling it from highpmd and
-> O(1) buffered_rmqueue() was. It turns out it wasn't that hard.
+> During resume?
+
+No, imagine /dev/hda3 being set as swap in /etc/fstab, but user doing
+swapoff /dev/hda3, swapon /dev/usb_zip_drive, then suspend.
+
+/etc/mtab would be better choice, but swap does not appear there.
+
+> > Having sto stop userspace processes and bring hardware back to some
+> > sane state would complicate swsusp (and its testing!) a lot. Maybe in
+> > 2.8 when it works perfectly in other cases....
 > 
-> The codebase (so to speak) has been in regular use since June, though
-> the port to -mm only lightly tested (basically testbooted on a laptop).
+> If there's only one "init" style task running from initramfs, which simply 
+> looks at the partitions and gets the info it needs from disk labels or 
+> something without actually mounting a filesystem (or mounts it read only, no 
+> journal playback, and then unmounts it again afterwards...)  And then the 
+> system call/whatever it does is sematically "exit and resume from
+> swap"...
 
-Any performance numbers?
+Well, I'd hate to write docs for that system call.
 
-> There is some minor core impact.
+"It is exit and resume from specified swap, you must not write any
+disk before you call it, must not access (list) devices, must not
+access any network."
 
-hm, big.
+> > ....but swsusp with modular kernels... I'm not sure if it can even
+> > work. .. yes it can but you really should get it working monolithic, first.
+> 
+> Okay.  Tell me how to get hotplug devices (cardbus, usb) working 
+> monolithically, and I'm all for it.
 
-> +#ifdef CONFIG_SMP
-> +#define smp_local_irq_save(x)		local_irq_save(x)
-> +#define smp_local_irq_restore(x)	local_irq_restore(x)
-> +#define smp_local_irq_disable()		local_irq_disable()
-> +#define smp_local_irq_enable()		local_irq_enable()
-> +#else
-> +#define smp_local_irq_save(x)		do { (void)(x); } while (0)
-> +#define smp_local_irq_restore(x)	do { (void)(x); } while (0)
-> +#define smp_local_irq_disable()		do { } while (0)
-> +#define smp_local_irq_enable()		do { } while (0)
-> +#endif /* CONFIG_SMP */
+Well, just compile all the drivers you need in, and it just
+works.... I'm using both cardbus and usb and no, I'm not using
+modules.
 
-Interesting.
+							Pavel
 
-> @@ -890,6 +894,9 @@ int try_to_free_pages(struct zone *cz,
->  		 */
->  		wakeup_bdflush(total_scanned);
->  
-> +		/* shoot down some pagetable caches before napping */
-> +		shrink_pagetable_cache(gfp_mask);
-
-Maybe this could hook into the shrink_slab() mechanism?  There's actually
-nothing slab-specific about shrink_slab().
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

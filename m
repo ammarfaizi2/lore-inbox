@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272667AbRIGOLU>; Fri, 7 Sep 2001 10:11:20 -0400
+	id <S272668AbRIGOOU>; Fri, 7 Sep 2001 10:14:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272668AbRIGOLK>; Fri, 7 Sep 2001 10:11:10 -0400
-Received: from inetc.connecttech.com ([64.7.140.42]:10763 "EHLO
-	inetc.connecttech.com") by vger.kernel.org with ESMTP
-	id <S272667AbRIGOK7>; Fri, 7 Sep 2001 10:10:59 -0400
-Message-ID: <03ca01c137a7$1a6e8000$294b82ce@connecttech.com>
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "Stephen Torri" <storri@ameritech.net>, "D. Stimits" <stimits@idcomm.com>
-Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0109061624320.1443-100000@base.torri.linux>
-Subject: Re: Serial Ports
-Date: Fri, 7 Sep 2001 10:12:18 -0400
-Organization: Connect Tech Inc.
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S272670AbRIGOOK>; Fri, 7 Sep 2001 10:14:10 -0400
+Received: from t2.redhat.com ([199.183.24.243]:37116 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S272668AbRIGOOD>; Fri, 7 Sep 2001 10:14:03 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.GSO.4.33.0109070954400.1190-100000@sweetums.bluetronic.net> 
+In-Reply-To: <Pine.GSO.4.33.0109070954400.1190-100000@sweetums.bluetronic.net> 
+To: Ricky Beam <jfbeam@bluetopia.net>
+Cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: MTD and Adapter ROMs 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 07 Sep 2001 15:14:08 +0100
+Message-ID: <18492.999872048@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Stephen Torri" <storri@ameritech.net>
-> I have noticed that serial ports change IRQ to either 3 or 4. There is no
-> reason for this behavior. I have created a perl script to create a log
-> containing the irqs assigned and their ioports. Is there anything else I
-> could log that might unmask the problem?
 
-Try posting the contents of /proc/irqs and /proc/ioports, perhaps
-someone here will see something you don't.
+jfbeam@bluetopia.net said:
+>  Well, just having documentation on how all the spooge in drivers/mtd
+> actually goes together would go along way to helping people use it.
 
-..Stu
+Bah. That takes all the fun out of it.
+
+> The flash chip is an SST 39SF010.  It will appear somewhere in PCI
+> memory space once I reenable the adapter ROM.  It is a JEDEC compilant
+> device. I have some code from SST for programming it, but I'd rather
+> go the general route instead of the one-shot flash-and-run module. 
+
+
+>  I think it'll be as "simple" as adding the ID to jedec.c.  Load chips/
+> *, maps/hpt-rom (doctored physmap to enable the rom and use it's
+> location), and then see if I can get mtdchar to drive the mess.
+
+Basically right. Once your map driver has successfully probed the chip and 
+registered the MTD device, you should be able to open /dev/mtd0 and read, 
+write and ioctl(MEMERASE) it. Not necessarily in that order.
+
+--
+dwmw2
 
 

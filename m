@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265668AbUFSBCY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266772AbUFRTsa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265668AbUFSBCY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 21:02:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266758AbUFRT6h
+	id S266772AbUFRTsa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 15:48:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266596AbUFRTpE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 15:58:37 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:18069 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S266787AbUFRT5W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 15:57:22 -0400
-Subject: Re: DMA API issues
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Ian Molton <spyro@f2s.com>
-Cc: David Brownell <david-b@pacbell.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, greg@kroah.com,
-       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com
-In-Reply-To: <20040618204438.35278560.spyro@f2s.com>
-References: <1087582845.1752.107.camel@mulgrave>
-	<20040618193544.48b88771.spyro@f2s.com>
-	<1087584769.2134.119.camel@mulgrave>
-	<20040618195721.0cf43ec2.spyro@f2s.com> <40D34078.5060909@pacbell.net> 
-	<20040618204438.35278560.spyro@f2s.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 18 Jun 2004 14:57:01 -0500
-Message-Id: <1087588627.2134.155.camel@mulgrave>
+	Fri, 18 Jun 2004 15:45:04 -0400
+Received: from fw.osdl.org ([65.172.181.6]:17798 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266613AbUFRTlL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 15:41:11 -0400
+Date: Fri, 18 Jun 2004 12:43:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz, vojtech@ucw.cz
+Subject: Re: [PATCH 8/11] serio sysfs integration
+Message-Id: <20040618124351.76872a71.akpm@osdl.org>
+In-Reply-To: <200406180750.26570.dtor_core@ameritech.net>
+References: <200406180335.52843.dtor_core@ameritech.net>
+	<200406180342.11056.dtor_core@ameritech.net>
+	<20040618023853.5d4ee96a.akpm@osdl.org>
+	<200406180750.26570.dtor_core@ameritech.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-06-18 at 14:44, Ian Molton wrote:
-> > For example, if usbaudio uses usb_buffer_alloc to stream data,
-> > that eliminates dma bouncing.  That's dma_alloc_coherent at
-> > its core ... it should allocate from that 32K region.
+Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+>
+> description 	- i8042 Aux Port
+> driver		- psmouse
+> legacy_position	- isa0060/serio1 (take from serio's phys, can be used
+> to match with /proc/bus/input/devices).
 > 
-> Agreed.
+> Every driver will have a set of custom attributes that will be documented
+> on one by one basis. Btw, where would you document it? Documentation
+> directory entry? Something else?
 
-There are complications to this: not all platforms can access PCI memory
-directly.  That's why ioremap and memcpy_toio and friends exist.  What
-should happen on these platforms?
+Conceivably one could attempt to document it via module_parm_desc in each
+driver, but I presume that won't work for a host of reasons.
 
-James
-
-
+So yup, a succinct description in Documentation/input/ would be great.

@@ -1,50 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261651AbTFJGiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 02:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262390AbTFJGiJ
+	id S262413AbTFJGkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 02:40:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbTFJGkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 02:38:09 -0400
-Received: from granite.he.net ([216.218.226.66]:19211 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S261651AbTFJGiI (ORCPT
+	Tue, 10 Jun 2003 02:40:09 -0400
+Received: from [61.95.53.28] ([61.95.53.28]:18182 "EHLO dreamcraft.com.au")
+	by vger.kernel.org with ESMTP id S262413AbTFJGkE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 02:38:08 -0400
-Date: Mon, 9 Jun 2003 23:54:14 -0700
-From: Greg KH <greg@kroah.com>
-To: Martin Schlemmer <azarah@gentoo.org>
-Cc: KML <linux-kernel@vger.kernel.org>
-Subject: Re: Oops during boot when init USB mouse, 2.5.70-bk14
-Message-ID: <20030610065414.GA4373@kroah.com>
-References: <1055224690.5281.224.camel@workshop.saharacpt.lan>
+	Tue, 10 Jun 2003 02:40:04 -0400
+Date: Tue, 10 Jun 2003 16:53:36 +1000
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70-bk radeonfb oops on boot.
+Message-ID: <20030610065336.GA25833@himi.org>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	linux-kernel@vger.kernel.org
+References: <20030610061654.GB25390@himi.org> <20030610064829.GA2370@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="45Z9DzgjV8m4Oswq"
 Content-Disposition: inline
-In-Reply-To: <1055224690.5281.224.camel@workshop.saharacpt.lan>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030610064829.GA2370@kroah.com>
+User-Agent: Mutt/1.3.28i
+From: simon@himi.org (Simon Fowler)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 10, 2003 at 07:58:10AM +0200, Martin Schlemmer wrote:
-> Hi
-> 
-> I am getting the following during mouse/keyboard is initialized,
-> but it seems to be more specific to the mouse.  Both are USB.
-> It was fine with last 2.5.69 kernel, but started when i switched
-> to 2.5.70-bk12 (have not tried vanilla, or earlier 2.5.70 bk's,
-> as swamped at work).  NB: there are no oops 'header'.
-> 
-> -------------
-> Trace; c01a9466 <kobject_get+4c/4e>
-> Trace; c0201830 <get_device+18/21>
-> Trace; c0203001 <class_device_add+132/137>
-> Trace; c0202ec2 <class_device_initialize+16/23>
 
-You are hitting the WARN_ON() call in kobject_get(), this isn't a oops.
+--45Z9DzgjV8m4Oswq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-But what is wierd is the calls to class_* for a USB mouse, as I don't
-think there are any mouse class code in the current kernel.  Does your
-mouse show up under /sys/class anywhere?
+On Mon, Jun 09, 2003 at 11:48:29PM -0700, Greg KH wrote:
+> On Tue, Jun 10, 2003 at 04:16:54PM +1000, Simon Fowler wrote:
+> > I've started seeing a hard lockup on boot with my Fujitsu Lifebook
+> > p2120 laptop, with a radeon mobility M6 LY, when using a Linus bk
+> > kernel as of 2003-06-09 (possibly earlier - the last kernel I've
+> > tested is bk as of 2003-06-04). lspci lists this hardware:
+>=20
+> Hm, mine boots, but my kernel locks up when accessing /dev/rtc in the
+> init scripts (through hwclock.)  2.5.69 works, 2.5.70 doesn't.  I
+> haven't spent the time to search out the offending problem yet...
+>=20
+Apparently there's some kind of problem with ACPI and the rtc driver
+- leaving out /dev/rtc support got it up and running quite happily,
+until this framebuffer oops came along.
 
-thanks,
+Simon
 
-greg k-h
+--=20
+PGP public key Id 0x144A991C, or http://himi.org/stuff/himi.asc
+(crappy) Homepage: http://himi.org
+doe #237 (see http://www.lemuria.org/DeCSS)=20
+My DeCSS mirror: ftp://himi.org/pub/mirrors/css/=20
+
+--45Z9DzgjV8m4Oswq
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+5YBvQPlfmRRKmRwRAiHDAJ9VqY/psxTlZwXTNdPdqnUo4d3USQCcCadl
+6r5y/KlW8tUq5Mo9Nxrmx10=
+=MGZc
+-----END PGP SIGNATURE-----
+
+--45Z9DzgjV8m4Oswq--

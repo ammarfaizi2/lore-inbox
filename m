@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130466AbRDWE3S>; Mon, 23 Apr 2001 00:29:18 -0400
+	id <S130485AbRDWE3i>; Mon, 23 Apr 2001 00:29:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130485AbRDWE3J>; Mon, 23 Apr 2001 00:29:09 -0400
-Received: from ferret.phonewave.net ([208.138.51.183]:62479 "EHLO
-	tarot.mentasm.org") by vger.kernel.org with ESMTP
-	id <S130466AbRDWE24>; Mon, 23 Apr 2001 00:28:56 -0400
-Date: Sun, 22 Apr 2001 21:28:27 -0700
-To: Manuel McLure <manuel@mclure.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel hang on multi-threaded X process crash
-Message-ID: <20010422212827.A23096@ferret.phonewave.net>
-In-Reply-To: <20010422185514.A981@ulthar.internal.mclure.org> <20010422192704.C3618@ulthar.internal.mclure.org> <20010422201701.A970@ulthar.internal.mclure.org> <20010422202339.G970@ulthar.internal.mclure.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010422202339.G970@ulthar.internal.mclure.org>; from manuel@mclure.org on Sun, Apr 22, 2001 at 08:23:39PM -0700
-From: idalton@ferret.phonewave.net
+	id <S130507AbRDWE32>; Mon, 23 Apr 2001 00:29:28 -0400
+Received: from adsl-63-202-13-20.dsl.snfc21.pacbell.net ([63.202.13.20]:49164
+	"EHLO earth.zigamorph.net") by vger.kernel.org with ESMTP
+	id <S130485AbRDWE3T>; Mon, 23 Apr 2001 00:29:19 -0400
+Date: Mon, 23 Apr 2001 04:32:14 +0000 (UTC)
+From: Adam Fritzler <mid@zigamorph.net>
+To: Bart Dorsey <echo@thebucket.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Patch to abyss.c against 2.4.2-ac28
+In-Reply-To: <Pine.LNX.4.21.0104101140410.25307-200000@www>
+Message-ID: <Pine.LNX.4.21.0104230431240.15874-100000@earth.zigamorph.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 22, 2001 at 08:23:39PM -0700, Manuel McLure wrote:
-> 
-> On 2001.04.22 20:17 Manuel McLure wrote:
-> > 
-> > To follow up on my followup, I can now reproduce this 100% and get the
-> > "Trying to vfree()..." message on the console. To do this I start
-> > Mozilla,
-> > switch to a text console, and do a "killall -QUIT mozilla". A couple of
-> 
-> Make that "killall -QUIT mozilla-bin"...
 
-I'll see if mine does this too. I've been having hard locks
-intermittantly too, sometimes starting X, mostly with mozilla. My
-system's a dual Pmmx200 with ATI rage pro and Matrox Mill 2 PCI.
+I've sent an equivelent patch (along with another fix) to Alan, which is
+included in the latest -ac.
 
--- Ferret
+af.
+
+On Tue, 10 Apr 2001, Bart Dorsey wrote:
+
+> This is my first time sending in a patch to the kernel. 
+> 
+> This is a one line fix to the abyss tokenring driver in 2.4.2-ac28
+> 
+> I got this fix from the driver maintainer who said 
+> 
+> "I guess I really should send this in to Linus"
+> 
+> I'm just going to go ahead and jump the gun and submit it ;)
+> 
+> 
+> 
+

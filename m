@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbVBRXfV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbVBRXg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261555AbVBRXfV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 18:35:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVBRXfV
+	id S261557AbVBRXg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 18:36:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVBRXg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 18:35:21 -0500
-Received: from gprs214-225.eurotel.cz ([160.218.214.225]:31936 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261555AbVBRXfL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 18:35:11 -0500
-Date: Sat, 19 Feb 2005 00:34:43 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, dtor_core@ameritech.net,
-       Richard Purdie <rpurdie@rpsys.net>,
-       James Simmons <jsimmons@pentafluge.infradead.org>,
-       Adrian Bunk <bunk@stusta.de>,
-       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6: drivers/input/power.c is never built
-Message-ID: <20050218233443.GB1628@elf.ucw.cz>
-References: <047401c515bb$437b5130$0f01a8c0@max> <200502182223.19896.oliver@neukum.org> <20050218213428.GD1403@elf.ucw.cz> <200502182300.21420.oliver@neukum.org>
+	Fri, 18 Feb 2005 18:36:29 -0500
+Received: from rproxy.gmail.com ([64.233.170.202]:57249 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261557AbVBRXfu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 18:35:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=kuEEseWAmj3d9c20ekljUA1EfYEXBD2Ry7wBHep7qUdhnz/xKAt/gtm/guNMm+MMKxhwXNeMyfpO32kO2Od4aw8QlIEisj+b0U3QjLYG+XxoY0tdBY0ncrTTHo/xiNaRTTpgi69vUyr0iQyusXWmzJkimoSIqP7flGcmbc97nq0=
+Message-ID: <9e473391050218153527cbb893@mail.gmail.com>
+Date: Fri, 18 Feb 2005 18:35:49 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: =?ISO-8859-1?Q?Michel_D=E4nzer?= <michel@daenzer.net>
+Subject: Re: [Linux-fbdev-devel] Re: Hotplug blacklist and video devices
+Cc: linux-fbdev-devel@lists.sourceforge.net,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1108767531.5631.29.camel@thor.asgaard.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502182300.21420.oliver@neukum.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+References: <9e4733910502181251ea2b95e@mail.gmail.com>
+	 <20050218210822.GB8588@nostromo.devel.redhat.com>
+	 <9e47339105021813146cf69759@mail.gmail.com>
+	 <1108767531.5631.29.camel@thor.asgaard.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Well, if you have power button on usb keyboard -- why should it be
-> > handled differently from built-in button?
+On Fri, 18 Feb 2005 17:58:51 -0500, Michel Dänzer <michel@daenzer.net> wrote:
+> > For example I'm looking at making changes to DRM such that DRM will
+> > require the corresponding framebuffer driver to be loaded.
 > 
-> I see no reason. But that tells you that one subsystem should handle
-> that, not which subsystem.
+> Ignoring my suspicion that people won't like stuff getting forced down
+> their throats like this (why would a DRM _require_ a framebuffer
+> device?), does the hotplug blacklisting of the framebuffer devices
+> matter at all if the DRM depends on them, i.e. won't they be loaded
+> regardless when the DRM is loaded?
 
-If usb keyboard has power button... I do not think we really want to
-route that through acpi. And what if acpi is not available? (APM knows
-about suspend key in weird way, but not about power key).
+There is no mechanism for getting a hotplug remove event into a driver
+like DRM that doesn't attach to the PCI device.
 
-> > trip points), and I do not see how you can do interrupts for fan
-> > status. Either fans are under Linux control (and kernel could tell you
-> > when it turns fan on/off, but...), or they do not exist from Linux's
-> > point of few.
-> 
-> They still can have a readable rate, even if not under os control.
-> Nevertheless I don't think you can reasonably define what might
-> interest user space or not and in which detail.
-
-Well, we can say that userspace definitely is interested in "power"
-key ;-).
-								Pavel
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266926AbSKLU1z>; Tue, 12 Nov 2002 15:27:55 -0500
+	id <S266941AbSKLUdb>; Tue, 12 Nov 2002 15:33:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266927AbSKLU1z>; Tue, 12 Nov 2002 15:27:55 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:7942 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id <S266926AbSKLU1z>;
-	Tue, 12 Nov 2002 15:27:55 -0500
-Date: Tue, 12 Nov 2002 21:34:35 +0100
-From: romieu@fr.zoreil.com
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, werner.almesberger@epfl.ch
-Subject: Re: ATM stack locking broken
-Message-ID: <20021112213435.A21918@electric-eye.fr.zoreil.com>
-References: <1037124679.2774.111.camel@zion>
+	id <S266948AbSKLUdb>; Tue, 12 Nov 2002 15:33:31 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:30735
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S266941AbSKLUca>; Tue, 12 Nov 2002 15:32:30 -0500
+Subject: Re: [PATCH] module_name()
+From: Robert Love <rml@tech9.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20021112174741.6073E2C2B2@lists.samba.org>
+References: <20021112174741.6073E2C2B2@lists.samba.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1037133554.2794.18.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1037124679.2774.111.camel@zion>; from benh@kernel.crashing.org on Tue, Nov 12, 2002 at 07:11:19PM +0100
-X-Organisation: Marie's fan club - III
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 12 Nov 2002 15:39:14 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> :
-[...]
-> I've spent some time trying to figure out why an ATM driver
-> I was hacking with kept deadlocking until I figured out the
-> problem actually is the kernel ATM stack on SMP.
-> 
-> spinlock usage in net/atm/* seem to be utterly broken, though
-> I don't know the ATM stack well enough myself to fix it quickly,
+On Tue, 2002-11-12 at 12:32, Rusty Russell wrote:
 
-It's known (for quite some time :o/ )
-Don't hold your breath until xmas.
+> +static inline char *module_name(struct module *module)
+> +{
+> +	Return "[built-in]";
+> +}
 
---
-Ueimor
+s/Return/return/ ? ;-)
+
+	Robert Love
+

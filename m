@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267020AbSK2Lgf>; Fri, 29 Nov 2002 06:36:35 -0500
+	id <S267021AbSK2LlV>; Fri, 29 Nov 2002 06:41:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267021AbSK2Lgf>; Fri, 29 Nov 2002 06:36:35 -0500
-Received: from cibs9.sns.it ([192.167.206.29]:55569 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S267020AbSK2Lge>;
-	Fri, 29 Nov 2002 06:36:34 -0500
-Date: Fri, 29 Nov 2002 12:43:55 +0100 (CET)
+	id <S267022AbSK2LlV>; Fri, 29 Nov 2002 06:41:21 -0500
+Received: from cibs9.sns.it ([192.167.206.29]:61201 "EHLO cibs9.sns.it")
+	by vger.kernel.org with ESMTP id <S267021AbSK2LlU>;
+	Fri, 29 Nov 2002 06:41:20 -0500
+Date: Fri, 29 Nov 2002 12:48:42 +0100 (CET)
 From: venom@sns.it
 To: linux-kernel@vger.kernel.org
-Subject: Re: linux/security.h missing in fs/hugetlbfs/inode.c
-In-Reply-To: <Pine.LNX.4.43.0211291238360.986-100000@cibs9.sns.it>
-Message-ID: <Pine.LNX.4.43.0211291243200.1202-100000@cibs9.sns.it>
+Subject: asm/io_apic.h is missing in drivers/pci/quirks.c with kernel 2.5.50
+Message-ID: <Pine.LNX.4.43.0211291247200.1275-100000@cibs9.sns.it>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh, I was forgetting,
+in file drivers/pci/quirks.c of linux kernel 2.5.50
 
-this is about kernel 2.5.50
+#include <asm/io_apic.h>
 
-bests
-Luigi
+is missing.
 
-On Fri, 29 Nov 2002 venom@sns.it wrote:
 
-> Date: Fri, 29 Nov 2002 12:40:17 +0100 (CET)
-> From: venom@sns.it
-> To: linux-kernel@vger.kernel.org
-> Subject: linux/security.h missing in fs/hugetlbfs/inode.c
->
->
-> #include <linux/security.h>
->
-> is missing in file fs/hugetlbfs/inode.c,
-> so security_ops is undeclared during compilation.
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+this include is necessary to avoid this error
+in compilation time:
+
+rivers/pci/quirks.c: In function `quirk_ioapic_rmw':
+drivers/pci/quirks.c:354: `sis_apic_bug' undeclared (first use in this
+function)
+drivers/pci/quirks.c:354: (Each undeclared identifier is reported only
+once
+drivers/pci/quirks.c:354: for each function it appears in.)
+make[2]: *** [drivers/pci/quirks.o] Error 1
+make[1]: *** [drivers/pci] Error 2
+make: *** [drivers] Error 2
+
 

@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261804AbUK2VGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261805AbUK2VMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261804AbUK2VGV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 16:06:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261805AbUK2VGU
+	id S261805AbUK2VMT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 16:12:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbUK2VMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 16:06:20 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:12955 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261804AbUK2VGQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 16:06:16 -0500
-Date: Mon, 29 Nov 2004 22:02:14 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Terry Griffin <terryg@axian.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: odd behavior with r8169 and pcap
-Message-ID: <20041129210213.GA3880@electric-eye.fr.zoreil.com>
-References: <1101751909.2291.21.camel@tux.hq.axian.com>
+	Mon, 29 Nov 2004 16:12:18 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:16322 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261805AbUK2VMQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 16:12:16 -0500
+Subject: scheduler BUGON lifespan
+From: Darren Hart <dvhltc@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
+       Ingo Molnar <mingo@elte.hu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 29 Nov 2004 13:11:34 -0800
+Message-Id: <1101762694.29380.23.camel@farah.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101751909.2291.21.camel@tux.hq.axian.com>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terry Griffin <terryg@axian.com> :
-[...]
-> So the obvious questions are: Is this a known problem? Why the
-> heck does it do this? Is there a fix or workaround to get the
-> high rate all the time other than running a pcap utility 24x7?
+I submitted a patch to active_load_balance() that was accepted into mm
+and then mainline.  The patch included a fix to prevent the system
+entering what should have been an impossible state.  The previous code
+tested for it and then continued, rather than crashing or complaining.
+My patch added a BUGON(impossible state) just in case by some fluke it
+still happened.  How long should this BUGON remain in the kernel?  A
+month, a year?  Is there an accepted duration for such safety nets?
 
-1 - not really
-2 - details please:
-    - which kernel versions have been tested ?
-    - when did the bahavior appear first ?
-    - which compiler version ?
-    - can you provide a short description of the hardware ?
-    - lspci -vx, lsmod, dmesg after boot, /proc/interrupts, vmstat 1
-      for a few seconds when ok/nok will be welcome
-3 - can it be reproduced with latest -bk ?
+Thanks,
 
-Please Cc: netdev@oss.sgi.com.
-
---
-Ueimor
+-- 
+Darren Hart <dvhltc@us.ibm.com>
+IBM Linux Technology Center

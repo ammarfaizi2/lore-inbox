@@ -1,66 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262969AbVCJTfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262952AbVCJTgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262969AbVCJTfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 14:35:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263030AbVCJTdS
+	id S262952AbVCJTgf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 14:36:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262907AbVCJTcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 14:33:18 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:38053 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262757AbVCJTZn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 14:25:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding;
-        b=oFZimCaGdFhnSlCv9jFq1gzPsxa75H8kV7r1kdjjinkTp42NEdYMsRqu67QYmU46VpMtAgRnRtpFoNQ59JrmNRxkR66yR71NBISUrwl9PCaAMOs7BeksG2PRcE9pROw4637e8Mb8j4O5g/Wew3rOOwkTWfwyy6LXZexsJOw0+rg=
-Message-ID: <d3a6bba0050310112514a8e924@mail.gmail.com>
-Date: Thu, 10 Mar 2005 11:25:34 -0800
-From: Anil Kumar <anilsr@gmail.com>
-Reply-To: Anil Kumar <anilsr@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: driver compile parse errors for RHEL4
-Cc: anilsr@gmail.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Mar 2005 14:32:33 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64673 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262962AbVCJT1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 14:27:13 -0500
+Message-ID: <42309F7A.6090207@pobox.com>
+Date: Thu, 10 Mar 2005 14:26:50 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [SATA] libata-2.4 backport queue updated
+Content-Type: multipart/mixed;
+ boundary="------------000505040601020808010001"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------000505040601020808010001
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I am getting parse errors when I try to build aic7xxx( Adaptec SCSI
-controller) driver for RHEL4.
-I am using my own build enviroment (I mean Makefiles, scripts) to build this.
+Updated libata 2.4.x branch to 2.4.30-pre3.
 
-#gcc -v
-Reading specs from
-/usr/adaptec/build/gcc343-32bit/lib/gcc/i386-redhat-linux/3.4.3/specs
-Configured with: ./configure --prefix=/usr/adaptec/build/gcc343-32bit
---enable-threads=posix --disable-checking --target=i386-redhat-linux
---host=i686-redhat-linux-gnu
---with-libs=/usr/adaptec/build/gcc343-32bit/lib
---with-headers=/usr/adaptec/build/gcc343-32bit/include
---enable-languages=c --disable-libunwind-exceptions --with-system-zlib
---enable-__cxa_atexit --enable-java-awt=gtk --enable-shared
---mandir=/usr/adaptec/build/gcc343-32bit/man
---infodir=/usr/adaptec/build/gcc343-32bit/info
-Thread model: posix
-gcc version 3.4.3
+Patch URL, BK URL, and list of changes attached.
 
-The sources for the driver can be found under
-/usr/src/linux/driver/scsi/aic7xxx when you download 2.6.9 kernel from
-www.kernel.org.
+	Jeff
 
-The errors are as follows:
 
-drivers/scsi/aic7xxx/aic7xxx_reg_print.c:23: error: parse error before '(' token
-drivers/scsi/aic7xxx/aic7xxx_reg_print.c:40: error: parse error before '(' token
-drivers/scsi/aic7xxx/aic7xxx_reg_print.c:57: error: parse error before '(' token
-drivers/scsi/aic7xxx/aic7xxx_reg_print.c:82: error: parse error before '(' token
 
-Can you please let me know if my gcc is installed correctly, I mean if
-I disable/enable any of the flags. If not I will look into my
-Makefiles and scripts.
+--------------000505040601020808010001
+Content-Type: text/plain;
+ name="libata-2.4.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libata-2.4.txt"
 
-with regards,
-   Anil
+BK users:
+
+	bk pull bk://gkernel.bkbits.net/libata-2.4
+
+Patch:
+http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.4.30-pre3-libata1.patch.bz2
+
+This will update the following files:
+
+ Documentation/DocBook/Makefile    |    2 
+ Documentation/DocBook/libata.tmpl |    5 ++
+ drivers/pci/quirks.c              |   85 ++++++++++++++++++++++++++++++++++++++
+ drivers/scsi/ahci.c               |   15 +++++-
+ drivers/scsi/ata_piix.c           |    3 -
+ drivers/scsi/libata-core.c        |   24 ++++++++--
+ include/linux/ioport.h            |    1 
+ kernel/ksyms.c                    |    1 
+ kernel/resource.c                 |   10 ++++
+ 9 files changed, 138 insertions(+), 8 deletions(-)
+
+through these ChangeSets:
+
+Arjan van de Ven:
+  o [libata ata_piix] Use standard headers from include/scsi, not drivers/scsi
+
+Brett Russ:
+  o AHCI: fix fatal error int handling
+
+Jason Gaston:
+  o [PCI] update SATA PCI quirk for Intel ICH7
+
+Jeff Garzik:
+  o [libata ahci] support ->tf_read hook
+  o [PCI, libata] Fix "combined mode" PCI quirk for ICH6
+  o [libata ata_piix] re-enable combined mode support
+  o [libata ata_piix] ->qc_prep hook
+  o [libata ata_piix] fix DocBook docs
+  o [libata ata_piix] add ->bmdma_setup hook
+  o [libata] re-merge the rest of the 2.4 junk
+
+
+--------------000505040601020808010001--

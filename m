@@ -1,57 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267809AbUHPRUx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267819AbUHPRXo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267809AbUHPRUx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 13:20:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267813AbUHPRUw
+	id S267819AbUHPRXo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 13:23:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267818AbUHPRXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 13:20:52 -0400
-Received: from fire.osdl.org ([65.172.181.4]:63159 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S267809AbUHPRUu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 13:20:50 -0400
-Subject: 4 New compile/sparse warnings (2.6.8.1 - 2004-08-14.21.30)
-From: John Cherry <cherry@osdl.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1092676650.19894.89.camel@cherrybomb.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 16 Aug 2004 10:17:30 -0700
+	Mon, 16 Aug 2004 13:23:43 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:4340 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267813AbUHPRXk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 13:23:40 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alan Cox <alan@redhat.com>
+Subject: Re: PATCH: straighten out the IDE layer locking and add hotplug
+Date: Mon, 16 Aug 2004 19:23:19 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
+References: <20040815151346.GA13761@devserv.devel.redhat.com>
+In-Reply-To: <20040815151346.GA13761@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408161923.19024.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A couple of new sparse warnings and compiler warnings in the nightly
-builds (linus' bk tree)....
+On Sunday 15 August 2004 17:13, Alan Cox wrote:
+> There really isnt any sane way to break this patch down because all the
+> changes are interlinked so closely.
 
------Forwarded Message-----
-> From: John Cherry <cherry@osdl.org>
-> To: cherry@osdl.org
-> Subject: 4 New compile/sparse warnings (2.6.8.1 - 2004-08-14.21.30)
-> Date: Sun, 15 Aug 2004 07:27:03 -0700
-> 
-> Compiler: gcc version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)
-> Arch: i386
-> 
-> 
-> Summary:
->    New warnings = 4
->    Fixed warnings = 0
-> 
-> New warnings:
-> -------------
-> drivers/char/ipmi/ipmi_si_intf.c:1172:8: warning: incorrect type in argument 4 (different types)
-> drivers/char/ipmi/ipmi_si_intf.c:1172:8:    expected unsigned int [usertype] ( *[usertype] address )( ... )
-> drivers/char/ipmi/ipmi_si_intf.c:1172:8:    got void ( extern [addressable] [toplevel] *<noident> )( ... )
-> 
-> drivers/char/ipmi/ipmi_si_intf.c:1173: warning: passing arg 4 of `acpi_install_gpe_handler' from incompatible pointer type
-> 
-> drivers/char/ipmi/ipmi_si_intf.c:1193:43: warning: incorrect type in argument 3 (different types)
-> drivers/char/ipmi/ipmi_si_intf.c:1193:43:    expected unsigned int [usertype] ( *[usertype] address )( ... )
-> drivers/char/ipmi/ipmi_si_intf.c:1193:43:    got void ( extern [addressable] [toplevel] *<noident> )( ... )
-> drivers/char/ipmi/ipmi_si_intf.c:1193: warning: passing arg 3 of `acpi_remove_gpe_handler' from incompatible pointer type
-> 
-> 
-> Fixed warnings:
-> ---------------
-
+at least /proc/ide/hd?/settings:ide-scsi removal and doc fixes are very easy 
+to separate, I also think that locking fixes should be separated from 
+hotplugging ones

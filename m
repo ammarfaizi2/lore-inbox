@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310240AbSCAABI>; Thu, 28 Feb 2002 19:01:08 -0500
+	id <S310204AbSCABOH>; Thu, 28 Feb 2002 20:14:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293486AbSB1X7V>; Thu, 28 Feb 2002 18:59:21 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:10368 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S310217AbSB1XyR>;
-	Thu, 28 Feb 2002 18:54:17 -0500
-Date: Thu, 28 Feb 2002 15:52:12 -0800 (PST)
-Message-Id: <20020228.155212.41634104.davem@redhat.com>
-To: christopher.leech@intel.com
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: hardware VLAN acceleration
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <BD9B60A108C4D511AAA10002A50708F22C1453@orsmsx118.jf.intel.com>
-In-Reply-To: <BD9B60A108C4D511AAA10002A50708F22C1453@orsmsx118.jf.intel.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S310295AbSCABKp>; Thu, 28 Feb 2002 20:10:45 -0500
+Received: from ns.suse.de ([213.95.15.193]:58120 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S310284AbSCABHY>;
+	Thu, 28 Feb 2002 20:07:24 -0500
+Date: Fri, 1 Mar 2002 02:03:28 +0100
+From: Dave Jones <davej@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Dennis Jim <jdennis@snapserver.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Congrats Marcelo,
+Message-ID: <20020301020328.A7662@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Dennis Jim <jdennis@snapserver.com>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0203010137090.8089-100000@Appserv.suse.de> <E16gbbh-0001tN-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16gbbh-0001tN-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Mar 01, 2002 at 01:13:09AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Leech, Christopher" <christopher.leech@intel.com>
-   Date: Thu, 28 Feb 2002 15:38:24 -0800
-   
-   I don't see why it wouldn't be desirable to have a method of stopping the
-   driver from continuing to call vlan_hwaccel_rx, so that the vlan_group could
-   be freed after all the VIDs were removed.  It could be as simple as
-   declaring that dev->vlan_rx_register(dev, NULL) is valid.
+On Fri, Mar 01, 2002 at 01:13:09AM +0000, Alan Cox wrote:
+ > DMI can help in a much more productive way. DMI tells you the type of 
+ > sensor in the machine. Once you are using ACPI though you talk to ACPI
+ > and it talks to the smbus etc and knows whats in the box
 
-This is how I intended it to be used.  It isn't done now only because
-this event does not occur within the VLAN layer :)
+ Given the fears of what happens when you look at i2c/smbus etc
+ the wrong way, is this something we can rely on DMI tables
+ to get right ?  When they can't get cachesize info right, I begin
+ to question their ability to describe a temperature sensor.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

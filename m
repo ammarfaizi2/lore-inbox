@@ -1,42 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265586AbRGDGvK>; Wed, 4 Jul 2001 02:51:10 -0400
+	id <S265626AbRGDHED>; Wed, 4 Jul 2001 03:04:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266510AbRGDGvA>; Wed, 4 Jul 2001 02:51:00 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:20236 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S265586AbRGDGuz>; Wed, 4 Jul 2001 02:50:55 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "Ph. Marek" <marek@bmlv.gv.at>, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: Ideas for TUX2
-Date: Wed, 4 Jul 2001 08:54:24 +0200
-X-Mailer: KMail [version 1.2]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <3.0.6.32.20010703082513.0091f900@pop3.bmlv.gv.at> <3.0.6.32.20010704081621.00921a60@pop3.bmlv.gv.at>
-In-Reply-To: <3.0.6.32.20010704081621.00921a60@pop3.bmlv.gv.at>
+	id <S266511AbRGDHDx>; Wed, 4 Jul 2001 03:03:53 -0400
+Received: from mcp.physics.ucsb.edu ([128.111.16.33]:47378 "EHLO
+	mcp.physics.ucsb.edu") by vger.kernel.org with ESMTP
+	id <S265626AbRGDHDk>; Wed, 4 Jul 2001 03:03:40 -0400
+Date: Wed, 4 Jul 2001 00:03:34 -0700 (PDT)
+From: David Whysong <dwhysong@physics.ucsb.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: __alloc_pages failure while burning a CD-R (fwd)
+Message-ID: <Pine.LNX.4.30.0107040003110.27351-100000@sal.physics.ucsb.edu>
 MIME-Version: 1.0
-Message-Id: <01070408542401.03760@starship>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 July 2001 08:16, Ph. Marek wrote:
-> >> If a file's data has been changed, it suffices to update the inode and
-> >> the of free blocks bitmap (fbb).
-> >> But updating them in one go is not possible
-> >
-> >You seem to have missed some fundamental understanding of
-> >exactly how phase tree works; the wohle point of phase
-> >tree is to make atomic updates like this possible!
->
-> Well, my point was, that with several thousand inodes spread over the disk
-> it won't always be possible to update the inode AND the fbb in one go.
-> So I proposed the 2nd inode with generation counter!
 
-The cool thing is, it *is* possible, read how here:
+Hi,
 
-  http://nl.linux.org/~phillips/tux2/phase.tree.tutorial.html
+[Please CC replies to me, as I am not subscribed to linux-kernel.]
 
---
-Daniel
+When I use xcdroast to burn a CD, I see a zillion messages like this in
+the syslog:
+
+__alloc_pages: 3-order allocation failed.
+__alloc_pages: 2-order allocation failed.
+
+The burn inevitably stopes due to a "servo failure" but I suspect the real
+problem is software. The CD-RW drive has been reliable, and worked fine
+with earlier 2.4.x kernels.
+
+Any suggestions? System information follows.
+
+Dave
+
+
+Linux sleepy 2.4.6-pre9 #8 SMP Mon Jul 2 22:24:05 PDT 2001 i686 unknown
+Dual Celeron 300 MHz, 256 MB ECC memory, Intel 440BX chipset motherboard
+(Tyan Tiger 100). The hardware has been running fine for years.
+
+The CD-RW is a SCSI device, on an NCR 810A controller.
+
+[dwhysong@sleepy dwhysong]$ cat /proc/scsi/scsi
+Attached devices:
+Host: scsi0 Channel: 00 Id: 01 Lun: 00
+  Vendor: PIONEER  Model: DVD-ROM DVD-303  Rev: 1.06
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 02 Lun: 00
+  Vendor: YAMAHA   Model: CRW4260          Rev: 1.0j
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 03 Lun: 00
+  Vendor: TOSHIBA  Model: CD-ROM XM-6201TA Rev: 1037
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+
+[dwhysong@sleepy dwhysong]$ lsmod
+Module                  Size  Used by
+sg                     22064   0 (autoclean)
+mga                   100224   1
+agpgart                14784   3
+mga_vid                 7808   0
+sr_mod                 11584   1 (autoclean)
+ncr53c8xx              51744   1
+scsi_mod               82016   3 (autoclean) [sg sr_mod ncr53c8xx]
+cdrom                  27168   0 (autoclean) [sr_mod]
+serial                 44016   0 (autoclean)
+isa-pnp                28240   0 (autoclean) [serial]
+emu10k1                46592   0
+soundcore               4336   4 [emu10k1]
+3c59x                  25488   1 (autoclean)
+nls_iso8859-1           2848   3 (autoclean)
+nls_cp437               4352   2 (autoclean)
+vfat                    8976   2 (autoclean)
+fat                    31904   0 (autoclean) [vfat]
+

@@ -1,342 +1,214 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318014AbSHZJG0>; Mon, 26 Aug 2002 05:06:26 -0400
+	id <S318022AbSHZJLl>; Mon, 26 Aug 2002 05:11:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318020AbSHZJG0>; Mon, 26 Aug 2002 05:06:26 -0400
-Received: from thales.mathematik.uni-ulm.de ([134.60.66.5]:15840 "HELO
-	thales.mathematik.uni-ulm.de") by vger.kernel.org with SMTP
-	id <S318014AbSHZJGW>; Mon, 26 Aug 2002 05:06:22 -0400
-Message-ID: <20020826091038.25100.qmail@thales.mathematik.uni-ulm.de>
-From: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
-Date: Mon, 26 Aug 2002 11:10:37 +0200
-To: Andrew Morton <akpm@zip.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: MM patches against 2.5.31
-References: <3D644C70.6D100EA5@zip.com.au> <20020822112806.28099.qmail@thales.mathematik.uni-ulm.de> <3D6989F7.9ED1948A@zip.com.au>
+	id <S318033AbSHZJLl>; Mon, 26 Aug 2002 05:11:41 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:59331 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S318022AbSHZJLj>;
+	Mon, 26 Aug 2002 05:11:39 -0400
+Date: Mon, 26 Aug 2002 11:15:49 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [patch] Stricter checks in [gs]etkeycode, recompute keybit there also
+Message-ID: <20020826111549.A9447@ucw.cz>
+References: <20020820153813.A13034@ucw.cz> <20020821191034.A6014@ucw.cz> <20020821191227.B6014@ucw.cz> <20020821223222.A19016@ucw.cz> <20020822110918.A25229@ucw.cz> <20020825152557.A26662@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D6989F7.9ED1948A@zip.com.au>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020825152557.A26662@ucw.cz>; from vojtech@suse.cz on Sun, Aug 25, 2002 at 03:25:57PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 25, 2002 at 06:52:55PM -0700, Andrew Morton wrote:
-> Christian Ehrhardt wrote:
-> > 
-> > On Wed, Aug 21, 2002 at 07:29:04PM -0700, Andrew Morton wrote:
-> > >
-> > > I've uploaded a rollup of pending fixes and feature work
-> > > against 2.5.31 to
-> > >
-> > > http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.31/2.5.31-mm1/
-> > >
-> > > The rolled up patch there is suitable for ongoing testing and
-> > > development.  The individual patches are in the broken-out/
-> > > directory and should all be documented.
-> > 
-> > Sorry, but we still have the page release race in multiple places.
-> > Look at the following (page starts with page_count == 1):
-> > 
-> 
-> So we do.  It's a hugely improbable race, so there's no huge rush
-> to fix it.
+Hi!
 
-Actually the race seems to happen in real life (it does explain the
-the pte.chain != NULL BUG) and it is not that improbable with preempt.
+You can import this changeset into BK by piping this whole message to:
+'| bk receive [path to repository]' or apply the patch as usual.
+'bk pull bk://linux-input.bkbits.net/linux-input' should work as well.
 
-> Looks like the same race is present in -ac kernels,
-> actually, if add_to_swap() fails.  Also perhaps 2.4 is exposed if
-> swap_writepage() is synchronous, and page reclaim races with 
-> zap_page_range.  ho-hum.
+===================================================================
 
-I didn't check each kernel, but I agree that most of the recent kernels
-have the potential for this race. Your tree just happend to be the
-one where I found it first.
+ChangeSet@1.542, 2002-08-26 11:13:55+02:00, vojtech@suse.cz
+  Shorten the keycode handling code in keyboard.c and evdev.c.
+  Recompute keybit when keycode table changes.
+  Stricter checks on input keycode/scancode values.
 
-> What I'm inclined to do there is to change __page_cache_release()
-> to not attempt to free the page at all.  Just let it sit on the
-> LRU until page reclaim encounters it.  With the anon-free-via-pagevec
-> patch, very, very, very few pages actually get their final release in
-> __page_cache_release() - zero on uniprocessor, I expect.
 
-It's not just a Problem with __page_cache_release, but yes it seems
-to be a SMP only race.
+===================================================================
 
-> And change pagevec_release() to take the LRU lock before dropping
-> the refcount on the pages.
-> 
-> That means there will need to be two flavours of pagevec_release():
-> one which expects the pages to become freeable (and takes the LRU
-> lock in anticipation of this).  And one which doesn't expect the
-> pages to become freeable.  The latter will leave the occasional
-> zero-count page on the LRU, as above.
-> 
-> Sound sane?
+ drivers/char/keyboard.c |   39 ++++++++++++++++++++++-----------------
+ drivers/input/evdev.c   |   29 ++++++++++++-----------------
+ include/linux/input.h   |    3 +++
+ 3 files changed, 37 insertions(+), 34 deletions(-)
 
-So the rules would be:
-* if you bring the page count to zero call __free_pages_ok unless the
-  page is on the lru.
-* if someone (reclaim page) walking the lru finds a page with page count zero
-  remove it from the lru and call __free_pages_ok.
+===================================================================
 
-This requires that ANYTHING that ends up calling put_page_testzero
-must happen under the lru lock. This doesn't sound like a good idea
-but it seems to be possible to do it race free.
-
-I'd actually go for the following (patch in it compiles state but
-otherwise untested below to illustrate what I'm talking about):
-
-The basic idea is to move the logic into page_cache_get. The rules
-would be:
-1. if you bring the page count to zero (using put_page_testzero) it
-   is your job to call __free_pages_ok eventually. Before doing so
-   make sure that the page is no longer on the lru.
-2. You may only call page_cache_get to duplicate an existing reference,
-   i.e. page_cache_get could be made to BUG_ON(page_count(page) == 0).
-3. If you got a pointer to a page without holding a reference (this
-   is only allowd to happen if we found the pointer on an lru list)
-   call page_cache_get_lru UNDER the lru lock and just leave the page
-   alone if that would resurrect the page. page_cache_get_lru would
-   basically look like this (implementation details below):
-
-   int page_cache_get_lru (struct page * page) {
-	if (!atomic_inc_and_test_for_one (&page->count))
-		return 1;
-	atomic_dec (&page->count);
-	return 0;
-   }
-
-Proof of correctness:
-A page is called dead if its page count reached zero before (no matter
-what the page count currently is). Once a page is dead there can be
-at most two pointers to the page: One held by the lru and the other
-one held by the thread freeing the page. Any thread accessing the page
-via the lru list will first call page_cache_get_lru under the lru lock,
-the thread freeing the page will not read the page count anymore.
-As page_cache_get_lru will not resurrect the page there will never
-be a page count != 0 visible outside the lru lock on a dead page.
-This meas that each thread trying to access the dead page via the lru
-list will detect that the page is dead and leave it alone. It follows
-that each page is freed at most once.
-Suppose a page could be leaked under these rules. This would require
-someone calling __put_page (or atomic_dec (&page->count)) to bring the
-page count to zero on a not already dead page. However, the only place
-where this happens is in page_cache_get_lru and it only happens if the
-page is already dead.
-
-Now let's look at the ugly part: implementation.
-The basic problem is that we don't habe an atomic_inc_and_test_for_one
-function and it is unlikely that we'll get one on all architectures. The
-solution (and this is the ugly part) is a change in the semantics of
-page->count. The value -1 now means no reference, 0 means one reference etc.
-
-This way we can define
-put_page_testzero    as   atomic_add_negative (-1, &page->count);   and
-get_page_testzero    as   atomic_inc_and_test (&page->count);
-
-Here's the promised (untested) patch against bk7 to illustrate what
-I'm talking about:
-
-diff -ur linux-2.5.31-bk7/include/linux/mm.h linux-2.5.31-cae/include/linux/mm.h
---- linux-2.5.31-bk7/include/linux/mm.h	Sun Aug 25 18:30:38 2002
-+++ linux-2.5.31-cae/include/linux/mm.h	Sun Aug 25 21:40:57 2002
-@@ -184,6 +184,11 @@
- /*
-  * Methods to modify the page usage count.
-  *
-+ * NOTE: Real page counts start at -1 for no reference. This is a hack
-+ * to be able to implement get_page_testzero with the existing portable
-+ * atomic functions. The value exposed via set_page_count and page_count
-+ * is (1+page->count).
-+ *
-  * What counts for a page usage:
-  * - cache mapping   (page->mapping)
-  * - private data    (page->private)
-@@ -192,12 +197,25 @@
-  *
-  * Also, many kernel routines increase the page count before a critical
-  * routine so they can be sure the page doesn't go away from under them.
-+ *
-+ * A special Problem is the lru lists. Presence on one of these lists
-+ * does not increase the page count. The FIRST thread that brings the
-+ * page count back to zero is responsible to remove the page from the
-+ * lru list and actually free it (__free_pages_ok). This means that we
-+ * can only get a reference to a page that is on a lru list, if this
-+ * page is not already dead, i.e. about to be removed from the lru list.
-+ * To do this we call get_page_testzero which will increment the page
-+ * count and return true if we just resurrected the page i.e. the real
-+ * page->count is now zero indicating one user. In this case we drop
-+ * the reference again using __put_page. Both calls must happen under
-+ * the lru lock.
-  */
- #define get_page(p)		atomic_inc(&(p)->count)
- #define __put_page(p)		atomic_dec(&(p)->count)
--#define put_page_testzero(p) 	atomic_dec_and_test(&(p)->count)
--#define page_count(p)		atomic_read(&(p)->count)
--#define set_page_count(p,v) 	atomic_set(&(p)->count, v)
-+#define put_page_testzero(p) 	atomic_add_negative(-1, &(p)->count)
-+#define page_count(p)		(1+atomic_read(&(p)->count))
-+#define set_page_count(p,v) 	atomic_set(&(p)->count, v-1)
-+#define get_page_testzero(p)	atomic_inc_and_test(&(p)->count)
- extern void FASTCALL(__page_cache_release(struct page *));
- #define put_page(p)							\
- 	do {								\
-diff -ur linux-2.5.31-bk7/include/linux/pagemap.h linux-2.5.31-cae/include/linux/pagemap.h
---- linux-2.5.31-bk7/include/linux/pagemap.h	Sun Aug 25 18:30:38 2002
-+++ linux-2.5.31-cae/include/linux/pagemap.h	Sun Aug 25 21:56:30 2002
-@@ -22,7 +22,43 @@
- #define PAGE_CACHE_MASK		PAGE_MASK
- #define PAGE_CACHE_ALIGN(addr)	(((addr)+PAGE_CACHE_SIZE-1)&PAGE_CACHE_MASK)
+diff -Nru a/drivers/char/keyboard.c b/drivers/char/keyboard.c
+--- a/drivers/char/keyboard.c	Mon Aug 26 11:14:16 2002
++++ b/drivers/char/keyboard.c	Mon Aug 26 11:14:16 2002
+@@ -131,39 +131,44 @@
+ int getkeycode(unsigned int scancode)
+ {
+ 	struct input_handle *handle;
+-	unsigned int keycode;
++	struct input_dev *dev = NULL;
  
--#define page_cache_get(x)	get_page(x)
-+/*
-+ * Get a reference to the page. This function must not be called on
-+ * a dead page, i.e. a page that has page count zero. If the page is
-+ * still on a lru_list use page_cache_get_lru instead.
-+ */
-+static inline void page_cache_get (struct page * page)
-+{
-+	BUG_ON(page_count(page) == 0);
-+	get_page(page);
-+}
+ 	for (handle = kbd_handler.handle; handle; handle = handle->hnext) 
+-		if (handle->dev->keycodesize) break;
++		if (handle->dev->keycodesize) { dev = handle->dev; break; }
+ 
+-	if (!handle->dev->keycodesize)
++	if (!dev)
+ 		return -ENODEV;
+ 
+-	switch (handle->dev->keycodesize) {
+-		case 1: keycode = *(u8*)(handle->dev->keycode + scancode); break;
+-		case 2: keycode = *(u16*)(handle->dev->keycode + scancode * 2); break;
+-		case 4: keycode = *(u32*)(handle->dev->keycode + scancode * 4); break;
+-		default: return -EINVAL;
+-	}
++	if (scancode < 0 || scancode >= dev->keycodemax)
++		return -EINVAL;
+ 
+-	return keycode;
++	return INPUT_KEYCODE(dev, scancode);
+ }
+ 
+ int setkeycode(unsigned int scancode, unsigned int keycode)
+ {
+ 	struct input_handle *handle;
++	struct input_dev *dev = NULL;
++	int i, oldkey;
+ 
+ 	for (handle = kbd_handler.handle; handle; handle = handle->hnext) 
+-		if (handle->dev->keycodesize) break;
++		if (handle->dev->keycodesize) { dev = handle->dev; break; }
+ 
+-	if (!handle->dev->keycodesize)
++	if (!dev)
+ 		return -ENODEV;
+ 
+-	switch (handle->dev->keycodesize) {
+-		case 1: *(u8*)(handle->dev->keycode + scancode) = keycode; break;
+-		case 2: *(u16*)(handle->dev->keycode + scancode * 2) = keycode; break;
+-		case 4: *(u32*)(handle->dev->keycode + scancode * 4) = keycode; break;
+-	}
++	if (scancode < 0 || scancode >= dev->keycodemax)
++		return -EINVAL;
 +
-+/*
-+ * Try to get a reference to page that we found on an lru list.
-+ * The lru lists may contain pages with page count zero. We must
-+ * not take a reference to such a page because it is already about
-+ * to be freed (once it is of the lru lists). If we'd take a reference
-+ * the page would eventually be freed twice.
-+ * 
-+ * The return value is true if we sucessfully incremented the page count.
-+ * 
-+ * This function must be called with the lru lock held. 
-+ */
-+static inline int page_cache_get_lru (struct page * page)
-+{
-+	/*
-+	 * Yes there is a window where the page count is not zero
-+	 * even though the page is dead. This is one of the reasons
-+	 * why the caller must hold the lru lock. Due to the lru_lock
-+	 * only the thread that is about to free the page can have
-+	 * a reference to this page. This thread will not test the
-+	 * page count anymore.
-+	 */
-+	if (!get_page_testzero (page))
-+		return 1;
-+	__put_page (page);
-+	return 0;
-+}
- 
- static inline void page_cache_release(struct page *page)
- {
-diff -ur linux-2.5.31-bk7/mm/swap.c linux-2.5.31-cae/mm/swap.c
---- linux-2.5.31-bk7/mm/swap.c	Sun Aug 25 18:30:38 2002
-+++ linux-2.5.31-cae/mm/swap.c	Sun Aug 25 11:28:55 2002
-@@ -77,7 +77,6 @@
- void __page_cache_release(struct page *page)
- {
- 	unsigned long flags;
--	BUG_ON(page_count(page) != 0);
- 
- 	spin_lock_irqsave(&_pagemap_lru_lock, flags);
- 	if (TestClearPageLRU(page)) {
-@@ -86,11 +85,8 @@
- 		else
- 			del_page_from_inactive_list(page);
- 	}
--	if (page_count(page) != 0)
--		page = NULL;
- 	spin_unlock_irqrestore(&_pagemap_lru_lock, flags);
--	if (page)
--		__free_pages_ok(page, 0);
-+	__free_pages_ok(page, 0);
++	oldkey = INPUT_KEYCODE(dev, scancode);
++	INPUT_KEYCODE(dev, scancode) = keycode;
++
++	for (i = 0; i < dev->keycodemax; i++)
++		if(INPUT_KEYCODE(dev, scancode) == oldkey)
++			break;
++	if (i == dev->keycodemax)
++		clear_bit(oldkey, dev->keybit);
++	set_bit(keycode, dev->keybit);
+ 	
+ 	return 0;
  }
+diff -Nru a/drivers/input/evdev.c b/drivers/input/evdev.c
+--- a/drivers/input/evdev.c	Mon Aug 26 11:14:16 2002
++++ b/drivers/input/evdev.c	Mon Aug 26 11:14:16 2002
+@@ -234,7 +234,7 @@
+ 	struct evdev *evdev = list->evdev;
+ 	struct input_dev *dev = evdev->handle.dev;
+ 	struct input_absinfo abs;
+-	int t, u;
++	int i, t, u;
  
- /*
-@@ -131,8 +127,7 @@
- 			else
- 				del_page_from_inactive_list(page);
- 		}
--		if (page_count(page) == 0)
--			pagevec_add(&pages_to_free, page);
-+		pagevec_add(&pages_to_free, page);
- 	}
- 	if (lock_held)
- 		spin_unlock_irq(&_pagemap_lru_lock);
-diff -ur linux-2.5.31-bk7/mm/vmscan.c linux-2.5.31-cae/mm/vmscan.c
---- linux-2.5.31-bk7/mm/vmscan.c	Sun Aug 25 18:30:38 2002
-+++ linux-2.5.31-cae/mm/vmscan.c	Sun Aug 25 21:44:07 2002
-@@ -92,6 +92,10 @@
- 	return page_count(page) - !!PagePrivate(page) == 2;
- }
+ 	if (!evdev->exist) return -ENODEV;
  
-+/*
-+ * The caller must hold a reference to each page in the list. We drop
-+ * this reference if and only if we remove the page from the page_list.
-+ */
- static /* inline */ int
- shrink_list(struct list_head *page_list, int nr_pages, zone_t *classzone,
- 		unsigned int gfp_mask, int priority, int *max_scan)
-@@ -295,24 +299,23 @@
- 	spin_lock_irq(&_pagemap_lru_lock);
- 	while (max_scan > 0 && nr_pages > 0) {
- 		struct page *page;
-+		struct list_head * curr;
- 		int n = 0;
+@@ -258,26 +258,21 @@
  
--		while (n < nr_to_process && !list_empty(&inactive_list)) {
--			page = list_entry(inactive_list.prev, struct page, lru);
-+		curr = inactive_list.prev;
-+		while (n < nr_to_process && (&inactive_list != curr)) {
-+			page = list_entry(curr, struct page, lru);
- 
--			prefetchw_prev_lru_page(page, &inactive_list, flags);
-+			prefetchw_prev_lru_page(page, curr, flags);
-+			curr = curr->prev;
- 
-+			/* Is the page already dead ? */
-+			if (!page_cache_get_lru (page))
-+				continue;
- 			if (!TestClearPageLRU(page))
- 				BUG();
- 			list_del(&page->lru);
--			if (page_count(page) == 0) {
--				/* It is currently in pagevec_release() */
--				SetPageLRU(page);
--				list_add(&page->lru, &inactive_list);
--				continue;
+ 		case EVIOCGKEYCODE:
+ 			if (get_user(t, ((int *) arg) + 0)) return -EFAULT;
+-			if (t < 0 || t > dev->keycodemax) return -EINVAL;
+-			switch (dev->keycodesize) {
+-				case 1: u = *(u8*)(dev->keycode + t); break;
+-				case 2: u = *(u16*)(dev->keycode + t * 2); break;
+-				case 4: u = *(u32*)(dev->keycode + t * 4); break;
+-				default: return -EINVAL;
 -			}
- 			list_add(&page->lru, &page_list);
--			page_cache_get(page);
- 			n++;
- 		}
- 		spin_unlock_irq(&_pagemap_lru_lock);
-@@ -381,15 +384,19 @@
- 	LIST_HEAD(l_active);	/* Pages to go onto the active_list */
- 	struct page *page;
- 	struct pagevec pvec;
-+	struct list_head *curr;
+-			if (put_user(u, ((int *) arg) + 1)) return -EFAULT;
++			if (t < 0 || t > dev->keycodemax || !dev->keycodesize) return -EINVAL;
++			if (put_user(INPUT_KEYCODE(dev, t), ((int *) arg) + 1)) return -EFAULT;
+ 			return 0;
  
- 	lru_add_drain();
- 	spin_lock_irq(&_pagemap_lru_lock);
--	while (nr_pages && !list_empty(&active_list)) {
--		page = list_entry(active_list.prev, struct page, lru);
--		prefetchw_prev_lru_page(page, &active_list, flags);
-+	curr = active_list.prev;
-+	while (nr_pages && (&active_list != curr)) {
-+		page = list_entry(curr, struct page, lru);
-+		prefetchw_prev_lru_page(page, curr, flags);
-+		curr = curr->prev;
-+		if (!page_cache_get_lru (page))
-+			continue;
- 		if (!TestClearPageLRU(page))
- 			BUG();
--		page_cache_get(page);
- 		list_move(&page->lru, &l_hold);
- 		nr_pages--;
- 	}
+ 		case EVIOCSKEYCODE:
+ 			if (get_user(t, ((int *) arg) + 0)) return -EFAULT;
+-			if (t < 0 || t > dev->keycodemax) return -EINVAL;
+-			if (get_user(u, ((int *) arg) + 1)) return -EFAULT;
+-			switch (dev->keycodesize) {
+-				case 1: *(u8*)(dev->keycode + t) = u; break;
+-				case 2: *(u16*)(dev->keycode + t * 2) = u; break;
+-				case 4: *(u32*)(dev->keycode + t * 4) = u; break;
+-				default: return -EINVAL;
+-			}
++			if (t < 0 || t > dev->keycodemax || !dev->keycodesize) return -EINVAL;
++			u = INPUT_KEYCODE(dev, t);
++			if (get_user(INPUT_KEYCODE(dev, t), ((int *) arg) + 1)) return -EFAULT;
++
++			for (i = 0; i < dev->keycodemax; i++)
++				if(INPUT_KEYCODE(dev, t) == u) break;
++			if (i == dev->keycodemax) clear_bit(u, dev->keybit);
++			set_bit(INPUT_KEYCODE(dev, t), dev->keybit);
++
+ 			return 0;
+ 
+ 		case EVIOCSFF:
+diff -Nru a/include/linux/input.h b/include/linux/input.h
+--- a/include/linux/input.h	Mon Aug 26 11:14:16 2002
++++ b/include/linux/input.h	Mon Aug 26 11:14:16 2002
+@@ -757,6 +757,9 @@
+ #define BIT(x)	(1UL<<((x)%BITS_PER_LONG))
+ #define LONG(x) ((x)/BITS_PER_LONG)
+ 
++#define INPUT_KEYCODE(dev, scancode) ((dev->keycodesize == 1) ? ((u8*)dev->keycode)[scancode] : \
++	((dev->keycodesize == 1) ? ((u16*)dev->keycode)[scancode] : (((u32*)dev->keycode)[scancode])))
++
+ struct input_dev {
+ 
+ 	void *private;
 
+===================================================================
+
+This BitKeeper patch contains the following changesets:
++
+## Wrapped with gzip_uu ##
+
+
+begin 664 bkpatch9436
+M'XL(`&CQ:3T``]U8:T_C1A3];/^*N]HO,1!G9OP.#5T*M$6+6`1+I:I4R+''
+MQ$MB(WN<?=3][[WC24+("PJTE1JBC#SW,6?NW'-L\Q8N2UYTM7'^2?!HH+^%
+MG_-2=+6R*KD9?</K\SS'Z\X@'_'.Q*O3O^VDV5TE=+2?A2(:P)@795>CIC6;
+M$5_O>%<[/_KI\F3_7-=[/3@8A-D-O^`">CU=Y,4X',;ENU`,AGEFBB+,RA$7
+MH1GEHWKF6C-"&/XYU+.(X];4);971S2F-+0ICPFS?=?6)\#>36`OQOO,H1;S
+MF%?;5A`P_1"HZ=@,".L0O\-<H+1+K:[C;!/6)006TL&V!6VB_P"O"_I`C^!B
+MD!>"9R`&'&[YURB/.6":>)AF-]!<I9DT]/.PB,T(T`1\'/.Q&9D8?LYQ83R(
+M)KB?"O@\X-DLD0C[0PY1`ZN4[A>B2"/!"YSCT6T)>0;-.4XC.F449DTH;K.2
+M,>_!MFS/T<_N3T]O_\V/KI.0Z'N/5"_-HF&%$'#GU1?57N9@OI*!36O7MJE?
+M)Q;K^\QRW803'A)_\;PVY?*92P)J.:RV**6/PXJ+5/:V2M*9E'X.EHU#[2(\
+MK^:!G]`@LOMQ%-I>D"S!VI#K'I:+B>F38>'A%IW[_G@`C-BUXP0TJ+D=Q82[
+M?18G/$DL=RVPE=FFT&C-`@\K)JF\)N!Q8K\(]Q+-'\$M24^Q7RR;(-TDZ2E=
+MXCQ=QWG&H$V]_X;U_Q*WU8%^@';QN?DB5\_6G>TS:'](+1NH?JP&K11%%0F%
+MZAI['[;D3P].+T].=J6SIYSEH&EI`JVF)KR]AW[MO<D^RO0;-^`/4+%S'KO0
+M+WAXNPM_RER!RB6')M4;]##0@*KOHL'V@"G#K"S?`8&ZAMGU7@_FUQV%7PR$
+M57!1%1FTCXY/?]EO8-MJJ6:8FH]/SRX_7K\_^O7@P^%1"]/LS/(:N^CLV'+Y
+MS071T@QM.Y`/8X0@5W)4@9S7*)"C4#M+!7(9.&APD2"O4Z$K75-;0#2;ZZ)M
+M,F/T9)TF99(7T$IQDNQ"BL@6@.#D]K;15*FU.6MO4F#IK*D"J6VGTK9B?]&0
+MA\4U$K*E`G=F3C@G=U%RT9@G88OV>?U\<"=XNGH^XV:D]Y'.F+>?WMSE66QF
+M7)AAM2DCJABU9.::V(RX2C_=)?UDZ_23_O_U4]VKU^CG@Y(^1SV9$D0U3-5`
+M[$"%6L!<"C[:7%\*B1(#,26H@+W%QI73;Y958I&KDTQ2C_`8BU74$<8.M%H2
+MS98!87%CP#908R[5C_N7)Q\E1,]J(/H$@M>%6*U6DH9\:IT;_O(-7,ED3Y69
+M=4(C&H6I#)@JB[9>6^!>6:HE4=%FLK)F2P_]KQJ96?D<_+C,O.!1?.D1;>.C
+M^/0!C3J.K][*J/=T@?G'7LKVXWBAOPP8A5&12\ZKUX8%SJ_<Y3,X?^SA#1G?
+MH6.>I!G?>+O$'EXDBVPJ:L#W:*K\+6/>;/PV#?P=NH"MO3F:NIO"6^AAL;4>
+<AF'(_IO^(T#I:37J6<0E<>(Z^E]T]1+!=1``````
+`
+end
 -- 
-THAT'S ALL FOLKS!
+Vojtech Pavlik
+SuSE Labs

@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269369AbUIIINh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269370AbUIIIXR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269369AbUIIINh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 04:13:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269370AbUIIINh
+	id S269370AbUIIIXR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 04:23:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269371AbUIIIXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 04:13:37 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:52476 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S269369AbUIIINW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 04:13:22 -0400
-Message-ID: <41400FAD.4050802@mvista.com>
-Date: Thu, 09 Sep 2004 01:09:17 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-CC: john stultz <johnstul@us.ibm.com>, Christoph Lameter <clameter@sgi.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
-       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
-References: <1094159238.14662.318.camel@cog.beaverton.ibm.com> <1094700768.29408.124.camel@cog.beaverton.ibm.com> <413FDC9F.1030409@mvista.com> <200409082337.30961.jbarnes@engr.sgi.com>
-In-Reply-To: <200409082337.30961.jbarnes@engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Sep 2004 04:23:16 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:48266 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269370AbUIIIXP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 04:23:15 -0400
+Subject: Re: bug in md write barrier support?
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Jens Axboe <axboe@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Neil Brown <neilb@cse.unsw.edu.au>,
+       Christoph Hellwig <hch@lst.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040909080612.GJ1737@suse.de>
+References: <20040903172414.GA6771@lst.de>
+	 <16697.4817.621088.474648@cse.unsw.edu.au> <20040904082121.GB2343@suse.de>
+	 <16699.48946.29579.495180@cse.unsw.edu.au> <20040908092309.GD2258@suse.de>
+	 <1094650500.11723.32.camel@localhost.localdomain>
+	 <20040908154608.GN2258@suse.de>
+	 <1094682098.12280.19.camel@localhost.localdomain>
+	 <20040909080612.GJ1737@suse.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-LmWSUEbwzbhuqgD06Qnz"
+Organization: Red Hat UK
+Message-Id: <1094718179.2801.3.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 09 Sep 2004 10:22:59 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes wrote:
-> On Wednesday, September 8, 2004 9:31 pm, George Anzinger wrote:
-> 
->>a.) resolution.  If you don't put a limit on this you will invite timer
->>storms. Currently, by useing 1/HZ resolution, all timer "line up" on ticks
->>and reduce the interrupt overhead that would occure if we actually tried to
->>give "exactly" what was asked for.  This is a matter of math and can be
->>handled (assuming we resist the urge to go shopping :))
-> 
-> 
-> This can be bad though if lots of CPUs hit it at the same time or nearly so if 
-> they're all trying to write the same cacheline or two.
 
-I think that most of the SMP issues your talking about have gone away with 2.6 
-where we have seperate timer lists for each cpu.
+--=-LmWSUEbwzbhuqgD06Qnz
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+> Precisely, it's always possible to just drop queueing depth to zero at
+> that point. If I2O really does reorder around the cache flush (this
+> seems broken...),
+
+why does this seem broken? semantics of "cache flush guarantees that all
+io submitted prior to it hits the spindle" are quite sane imo; no
+guarantee of later submitted IO.. compare the unix "sync" command; same
+level of semantics.
+
+
+--=-LmWSUEbwzbhuqgD06Qnz
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBQBLjxULwo51rQBIRAtksAJ4wbVgaGhejqHdqqiiWbi3pfVftpQCgiSGl
+St9goKvy9wfWFXEKNTxyfD0=
+=XbEa
+-----END PGP SIGNATURE-----
+
+--=-LmWSUEbwzbhuqgD06Qnz--
 

@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262609AbRFNNah>; Thu, 14 Jun 2001 09:30:37 -0400
+	id <S262626AbRFNNlQ>; Thu, 14 Jun 2001 09:41:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262618AbRFNNa1>; Thu, 14 Jun 2001 09:30:27 -0400
-Received: from beta.dmz-eu.st.com ([164.129.1.35]:5779 "HELO
-	beta.dmz-eu.st.com") by vger.kernel.org with SMTP
-	id <S262609AbRFNNaQ>; Thu, 14 Jun 2001 09:30:16 -0400
-From: Philippe.LAFFONT@st.com
-X-OpenMail-Hops: 2
-Date: Thu, 14 Jun 2001 15:19:17 +0200
-Message-Id: <H00006240b52eb6d@MHS>
-Subject: Strange behaviour of the Round Robin policy
+	id <S262649AbRFNNlG>; Thu, 14 Jun 2001 09:41:06 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:22670 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S262626AbRFNNkx>;
+	Thu, 14 Jun 2001 09:40:53 -0400
+Message-ID: <3B28BEDE.738A2BF9@mandrakesoft.com>
+Date: Thu, 14 Jun 2001 09:40:46 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=US-ASCII; name="cc:Mail"
-Content-Disposition: inline; filename="cc:Mail"
+To: Michal Jaegermann <michal@harddata.com>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: Minor "cleanup" patches for 2.4.5-ac kernels
+In-Reply-To: <20010612183832.A29923@mail.harddata.com> <3B26BBDB.1EF70F79@mandrakesoft.com> <20010612200457.A30127@mail.harddata.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-     I'm using RedHat Linux V2.2.13 and I made the following test:
-     
-     I launched 10 times the same program with priority 10 of Round Robin 
-     policy (from a shell having priority 20 of FIFO policy). Each program 
-     does an infinite busy loop (while (1)).
-     One minute later, I launched the "ps" command and I was expected that 
-     the TIME values of all these processes are in an interval which is T 
-     large, where T is given by sched_rr_get_interval() i.e. T=150ms in 
-     this release.
-     
-     But the ps result was:
-     PID TTY          TIME CMD
-     652 tty1     00:00:00 login
-     1549 tty1     00:00:00 bash
-     1566 tty1     00:00:00 bash
-     1596 tty1     00:01:12 my_program
-     1597 tty1     00:00:02 my_program
-     1598 tty1     00:00:01 my_program
-     1599 tty1     00:00:01 my_program
-     1600 tty1     00:00:05 my_program
-     1601 tty1     00:00:01 my_program
-     1602 tty1     00:00:00 my_program
-     1603 tty1     00:00:16 my_program
-     1604 tty1     00:00:01 my_program
-     1605 tty1     00:00:00 my_program
-     1610 tty1     00:00:00 ps
-     
-     Does someone have any explanation of this behavior? Thanks in advance.
-     
-     
-     
+Michal Jaegermann wrote:
+> 
+> On Tue, Jun 12, 2001 at 09:03:23PM -0400, Jeff Garzik wrote:
+> > Michal Jaegermann wrote:
+> > > --- linux-2.4.5ac/drivers/pci/quirks.c~ Tue Jun 12 16:31:12 2001
+> > > +++ linux-2.4.5ac/drivers/pci/quirks.c  Tue Jun 12 17:13:18 2001
+> > > @@ -18,6 +18,7 @@
+> > >  #include <linux/pci.h>
+> > >  #include <linux/init.h>
+> > >  #include <linux/delay.h>
+> > > +#include <linux/sched.h>
+> > >
+> > >  #undef DEBUG
+> > >
+> > > There is no problem if SMP is not configured.
+> >
+> > no the better place for this is include/asm-i386/delay.h.
+> 
+> You mean to put "#include <linux/sched.h>" into include/linux/delay.h?
+> Otherwise this will not help very much on Alpha when I run into
+> the problem; or other architectures. :-)  Works for me and indeed
+> it may be a better place.
 
+This is an architecture-level thing.  include/asm-$arch/delay not
+include/linux/delay.h
+
+Currently, Alpha does not need to include sched.h at all...
+
+
+> > Then Andrea suggested to
+> > simply un-inline udelay, which solved the compile problem in an even
+> > better way.  (we cannot un-inline udelay on x86 I think)
+> 
+> How about other architectures?  Each will need an individual treatment?
+
+Each arch will need individual treatment, but each alpha should decide
+for itself whether or not to un-inline udelay.  It may not be possible
+on some archs.
+
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

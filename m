@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277791AbRJRQR7>; Thu, 18 Oct 2001 12:17:59 -0400
+	id <S277802AbRJRQcC>; Thu, 18 Oct 2001 12:32:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277782AbRJRQRu>; Thu, 18 Oct 2001 12:17:50 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:14069 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S277791AbRJRQRj>;
-	Thu, 18 Oct 2001 12:17:39 -0400
-Date: Thu, 18 Oct 2001 12:18:12 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andreas Dilger <adilger@turbolabs.com>
-cc: Kamil Iskra <kamil@science.uva.nl>, Steve Kieu <haiquy@yahoo.com>,
-        kernel <linux-kernel@vger.kernel.org>
+	id <S277798AbRJRQbw>; Thu, 18 Oct 2001 12:31:52 -0400
+Received: from schroeder.cs.wisc.edu ([128.105.6.11]:60169 "EHLO
+	schroeder.cs.wisc.edu") by vger.kernel.org with ESMTP
+	id <S277792AbRJRQbl>; Thu, 18 Oct 2001 12:31:41 -0400
+Message-Id: <200110181632.f9IGW9i29729@schroeder.cs.wisc.edu>
+Content-Type: text/plain; charset=US-ASCII
+From: Nick LeRoy <nleroy@cs.wisc.edu>
+Organization: UW Condor
+To: Ville Herva <vherva@niksula.hut.fi>, Kamil Iskra <kamil@science.uva.nl>
 Subject: Re: Poor floppy performance in kernel 2.4.10
-In-Reply-To: <20011018092837.C1144@turbolinux.com>
-Message-ID: <Pine.GSO.4.21.0110181217120.21021-100000@weyl.math.psu.edu>
+Date: Thu, 18 Oct 2001 11:30:17 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011018092837.C1144@turbolinux.com> <Pine.LNX.4.33.0110181734270.7583-100000@krakow.science.uva.nl> <20011018191732.B1262@niksula.cs.hut.fi>
+In-Reply-To: <20011018191732.B1262@niksula.cs.hut.fi>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 18 October 2001 11:17, Ville Herva wrote:
 
+(snip)
+> That's propably beacause it syncs the writes on close().
+>
+> Perhaps you could try the trick Linus suggested in another thread, namely:
+>
+> sleep 1000 < /dev/fd0 &
+>
+> mdir
+> mcopy
+> mdir
+> mcopy
+> <do whatever>
+>
+> kill %1
+>
+> That keeps one (dummy) reference to the floppy device open until you're
+> done using it.
 
-On Thu, 18 Oct 2001, Andreas Dilger wrote:
+Perhaps there should be a pair of "mtools" added: mopen and mclose, that do 
+basically this.  That way it could be a "standard" item, documented in man 
+pages, etc., not some secret that only the l-k users know.  Thoughts?
 
-> I think this is a result of the "blockdev in pagecache" change added in
-> 2.4.10.  One of the byproducts of this change is that if a block device
-> is closed (no other openers) then all of the pages from this device are
-> dropped from the cache.  In the case of a floppy drive, this is very
-> important, as you don't want to be cacheing data from one floppy after
-> you have inserted a new floppy.
-
-
-RTFS.  That _exactly_ matches the behaviour of buffer-cache variant.
-
+-Nick

@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVAXVeu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVAXVdR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbVAXVeu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 16:34:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbVAXVdc
+	id S261623AbVAXVdR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 16:33:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVAXVbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 16:33:32 -0500
-Received: from bernache.ens-lyon.fr ([140.77.167.10]:19623 "EHLO
-	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261672AbVAXVcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 16:32:08 -0500
-Message-ID: <41F56949.3010505@ens-lyon.fr>
-Date: Mon, 24 Jan 2005 22:31:53 +0100
-From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
-Reply-To: Brice.Goglin@ens-lyon.org
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1
-References: <20050124021516.5d1ee686.akpm@osdl.org> <41F4E28A.3090305@ens-lyon.fr> <20050124185258.GB27570@redhat.com> <20050124204458.GD27570@redhat.com>
-In-Reply-To: <20050124204458.GD27570@redhat.com>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Report: 
+	Mon, 24 Jan 2005 16:31:40 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:65163 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261623AbVAXUeF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 15:34:05 -0500
+Date: Mon, 24 Jan 2005 20:33:53 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <greg@kroah.com>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
+Message-ID: <20050124203353.GA5048@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+	Greg Kroah-Hartman <greg@kroah.com>,
+	Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+	linux-kernel@vger.kernel.org
+References: <20050124021516.5d1ee686.akpm@osdl.org> <20050124175449.GK3515@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050124175449.GK3515@stusta.de>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones a écrit :
-> Here's the most obvious bug fixed. There still seems to be
-> something wrong however. It only successfully boots 50% of the
-> time for me, (it reboots when starting X otherwise), and when
-> it does boot, I get a flood of ...
-> Warning: kfree_skb on hard IRQ cf7b5800
-> Warning: kfree_skb on hard IRQ cf7b5800
-> Warning: kfree_skb on hard IRQ cf7b5800
-> 
-> I think there may be some stupid memory corruptor bug in there still.
-> 
-> 		Dave
+On Mon, Jan 24, 2005 at 06:54:49PM +0100, Adrian Bunk wrote:
+> It seems noone who reviewed the SuperIO patches noticed that there are 
+> now two modules "scx200" in the kernel...
 
-Thanks, your patch makes X work again with DRI.
-Actually, it successfully booted 100% of the time here.
-I tried 6 or 7 times without seeing any problem like yours.
-Let me know if you want me to try something special.
+Did anyone review them?
 
-Brice

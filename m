@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267850AbRG3UiH>; Mon, 30 Jul 2001 16:38:07 -0400
+	id <S267806AbRG3UhR>; Mon, 30 Jul 2001 16:37:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267825AbRG3UiA>; Mon, 30 Jul 2001 16:38:00 -0400
-Received: from riker.skynet.be ([195.238.3.132]:5967 "EHLO riker.skynet.be")
-	by vger.kernel.org with ESMTP id <S267850AbRG3Uhr>;
-	Mon, 30 Jul 2001 16:37:47 -0400
-From: Laurent Pinchart <laurent.pinchart@skynet.be>
-Date: Mon, 30 Jul 2001 22:35:44 +0200
-X-Mailer: KMail [version 1.1.99]
-Content-Type: Multipart/Mixed;
-  charset="us-ascii";
-  boundary="------------Boundary-00=_KVZAMRP3EGUSRYELJXLF"
-Cc: linux-kernel@vger.kernel.org, acpi@phobos.fachschaften.tu-muenchen.de
-To: acpi@phobos.fachschaften.tu-muenchen.de
-In-Reply-To: <Pine.LNX.4.31.0107271525220.3001-100000@phobos.fachschaften.tu-muenchen.de> <3B659E2D.E6FB92EA@fc.hp.com>
-In-Reply-To: <3B659E2D.E6FB92EA@fc.hp.com>
-Subject: acpitbl bug
-MIME-Version: 1.0
-Message-Id: <01073022354400.00269@peter_pan>
+	id <S267837AbRG3UhH>; Mon, 30 Jul 2001 16:37:07 -0400
+Received: from mx1.afara.com ([63.113.218.20]:38341 "EHLO afara-gw.afara.com")
+	by vger.kernel.org with ESMTP id <S267806AbRG3Ugv>;
+	Mon, 30 Jul 2001 16:36:51 -0400
+Subject: Re: serial console and kernel 2.4
+From: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: christophe@weta.f00f.org, barb@weta.f00f.org,
+        Stuart MacDonald <stuartm@connecttech.com>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010731045527.A5863@weta.f00f.org>
+In-Reply-To: <200107301520.f6UFKtT06867@localhost.localdomain>
+	<20010730173702.C19605@pc8.lineo.fr>
+	<035001c1190f$c6b46700$294b82ce@connecttech.com>
+	<20010730182124.C20366@pc8.lineo.fr>  <20010731045527.A5863@weta.f00f.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.11.99 (Preview Release)
+Date: 30 Jul 2001 13:36:32 -0700
+Message-Id: <996525392.3352.4.camel@tduffy-lnx.afara.com>
+Mime-Version: 1.0
+X-OriginalArrivalTime: 30 Jul 2001 20:33:35.0172 (UTC) FILETIME=[E7D83840:01C11936]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+On 31 Jul 2001 04:55:27 +1200, Chris Wedgwood wrote:
+> On Mon, Jul 30, 2001 at 06:21:24PM +0200, christophe barb? wrote:
+> 
+>     Do you remember a related thread ? with a correct solution ?
+> 
+> Upgrade init ?
 
---------------Boundary-00=_KVZAMRP3EGUSRYELJXLF
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+to what?  and which version is broken?
 
-The acpitbl perl script doesn't display correctly the contents of the FADT 
-table flags, due to a 3-byte reserved field which is not handled correctly in 
-the show_table function.
+I am seeing a problem on an x86 machine <-> sparc64 machine (E3500) both
+running linux.  the sparc box has the latest debian woody and the x86 is
+running the latest redhat 7.1.  x86 is running 2.4.3+xfs and sparc64 is
+running 2.4.7+vger.samba.org.  I can type on the sparc and see output on
+the x86, but not vice versa.
 
-I attached a patch to this e-mail.
+-tduffy
 
-Best regards,
-
-Laurent Pinchart
-
---------------Boundary-00=_KVZAMRP3EGUSRYELJXLF
-Content-Type: text/plain;
-  name="patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="patch"
-
-ZGlmZiAtTmF1ciBvbGQvYWNwaXRibCBuZXcvYWNwaXRibAotLS0gb2xkL2FjcGl0YmwJVHVlIEFw
-ciAyNSAxNjozNzoxMSAyMDAwCisrKyBuZXcvYWNwaXRibAlNb24gSnVsIDMwIDIyOjMxOjQ4IDIw
-MDEKQEAgLTY0LDEzICs2NCwxNSBAQAogewogICAgIGxvY2FsKCpPVVQsICpkZXNjLCAqZGF0YSkg
-PSBAXzsKICAgICBteSglc2l6ZV90b190bXBsKSA9Ci0JKCJEMSI9PiJDIiwgIkQyIj0+IlMiLCAi
-RDQiPT4iSSIsCi0JICJYMSI9PiJDIiwgIlgyIj0+IlMiLCAiWDQiPT4iSSIsCi0JICJBNCI9PiJB
-NCIsICJBNiI9PiJBNiIsICJBOCI9PiJBOCIpOworCSgiRDEiPT4iQyIsICJEMiI9PiJTIiwgICJE
-NCI9PiJJIiwKKwkgIlgxIj0+IkMiLCAiWDIiPT4iUyIsICAiWDMiPT4iYTMiLAorCSAiWDQiPT4i
-SSIsICJBNCI9PiJBNCIsICJBNiI9PiJBNiIsCisJICJBOCI9PiJBOCIpOwogICAgIG15KCVzaXpl
-X3RvX2ZtdCkgPQogCSgiRDEiPT4iJWQiLCAiRDIiPT4iJWQiLCAiRDQiPT4iJWQiLAotCSAiWDEi
-PT4iMHglMDJ4IiwgIlgyIj0+IjB4JTA0eCIsICJYNCI9PiIweCUwOHgiLAotCSAiQTQiPT4iJXMi
-LCAiQTYiPT4iJXMiLCAiQTgiPT4iJXMiKTsKKwkgIlgxIj0+IjB4JTAyeCIsICJYMiI9PiIweCUw
-NHgiLCAiWDMiPT4iMHglMDZ4IiwKKwkgIlg0Ij0+IjB4JTA4eCIsICJBNCI9PiIlcyIsICJBNiI9
-PiIlcyIsCisJICJBOCI9PiIlcyIpOwogCiAgICAgbXkoJHRtcGwpID0gIiI7CiAgICAgbXkoJG1h
-eF9zaXplKSA9IDA7Cg==
-
---------------Boundary-00=_KVZAMRP3EGUSRYELJXLF--

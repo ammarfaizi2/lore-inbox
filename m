@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129480AbRBDLBt>; Sun, 4 Feb 2001 06:01:49 -0500
+	id <S129162AbRBDLA7>; Sun, 4 Feb 2001 06:00:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130277AbRBDLBj>; Sun, 4 Feb 2001 06:01:39 -0500
-Received: from shell.ca.us.webchat.org ([216.152.64.152]:30382 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S129480AbRBDLB0>; Sun, 4 Feb 2001 06:01:26 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <mathieu_dube@videotron.ca>, <linux-kernel@vger.kernel.org>
-Subject: RE: accept
-Date: Sun, 4 Feb 2001 03:01:24 -0800
-Message-ID: <NCBBLIEPOCNJOAEKBEAKGEICNHAA.davids@webmaster.com>
+	id <S129480AbRBDLAt>; Sun, 4 Feb 2001 06:00:49 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29966 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129162AbRBDLAi>; Sun, 4 Feb 2001 06:00:38 -0500
+Subject: Re: System unresponsitive when copying HD/HD
+To: law@sgi.com (LA Walsh)
+Date: Sun, 4 Feb 2001 11:01:27 +0000 (GMT)
+Cc: birtl00@dmi.usherb.ca (Delta), linux-kernel@vger.kernel.org
+In-Reply-To: <3A7C64F9.F3192611@sgi.com> from "LA Walsh" at Feb 03, 2001 12:07:21 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <01020319433406.00125@grndctrl>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Message-Id: <E14PMvB-0001Mq-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> If I have vmstat running, I notice blocks trickling out to the disk, 5sec averages
+> 495,142,151,155,136,257,15,0.  Note that the maximum read rate (hdparm -t) of this
+> disk is in the 12-14M/s range.  I'm getting about 1-5% of that on output with the
+> system's disk subsystem being apparently unable to do anything else.
+> 
+> This is with IDE hard disk with DMA enabled.
+> 
+> a) is this expected performance on a large linear write?  
 
-> What does it typically mean when accept returns 0
-> and that the perror outputs "Interupted system call"??
+No
 
-	Since 'accept' returning zero is not an error, the results of 'perror' are
-meaningless. Please read the manual page for 'accept' and notice that it
-says, "The call returns -1 on error". Continue reading to understand what a
-return value of zero means. Remember that zero is a non-negative integer.
+> b) should I expect other disk operations to be denied service as long as
+> 	the write is 'flushing'?
 
-	DS
+No
+
+But try 2.4.1 before worrying too much. That fixed a lot of the block 
+performance problems I was seeing (2.4.1 ruins the VM performance under paging
+loads but the I/O speed is fixed ;))
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

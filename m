@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264736AbTFCIfT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 04:35:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264737AbTFCIfT
+	id S264688AbTFCIfC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 04:35:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264736AbTFCIfC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 04:35:19 -0400
-Received: from main.gmane.org ([80.91.224.249]:8380 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264736AbTFCIfS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 04:35:18 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Tue, 3 Jun 2003 04:35:02 -0400
+Received: from h-64-105-35-63.SNVACAID.covad.net ([64.105.35.63]:4739 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP id S264688AbTFCIfB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 04:35:01 -0400
+Date: Tue, 3 Jun 2003 01:48:58 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200306030848.h538mwE22282@freya.yggdrasil.com>
 To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: EM840x REALmagic DVD/MPEG-2 Audio/Video Decoder
-Date: 03 Jun 2003 10:47:07 +0200
-Message-ID: <yw1xznkzlf90.fsf@zaphod.guide>
-References: <20030603081944.GA634@chaos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
+Subject: Counter-kludge for 2.5.x hanging when writing to block device
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<chihchun@kalug.linux.org.tw> writes:
+	For at least the past few months, the Linux 2.5 kernels have
+hung when I try to write a large amount of data to a block device.
+I most commonly notice this when trying to clear a disk with a command
+like "dd if=/dev/zero of=/dev/discs/disc1/disc".  Sometimes doing
+an mkfs on a big file system is enough to cause the hang.
+I wrote a little program to repeatedly write a 4kB block of zeroes
+to the kernel so I could track how far it got before hanging, and it
+would write 210-215MB of zeroes to the disk on a computer that had
+512MB of RAM before hanging.  When these hangs occur, other processes
+continue to run fine, and I can do syncs, which return, but the
+hung process never resumes.  In the past, I've verified with a
+printk that it is looping in balance_dirty_pages, repeatedly
+calling blk_congestion_wait, and never leaving the loop.
 
->   I'm working on EM840x REALmagic DVD/MPEG-2 Audio/Video Decoder, There 
-> is only official binary driver on Sigma designs website. Is there any 
-> open source driver or non-official driver ?
+	Here is a counter-kludge that seems to stop the problem.
+This is certainly not the "right" fix.  It just illustrates a way
+to stop the problem.
 
-Sigma designs are known to not cooperate very well with open source
-projects.  Actually, it's quite the contrary.  Some time ago they
-released the XVID mpeg4 codec as their own, without source code.
+	By the way, I say "counter-kludge", because I get the impression
+that blk_congestion_wait is itself a kludge, since it calls
+blk_run_queues and waits a fixed amount of time, 100ms in this case,
+potentially a big waste of time, rather than awaiting some more
+accurate criterion.
 
-I have heard of people trying to get documentation from them, but I
-don't think anyone ever succeeded.
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Miplitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
 
--- 
-Måns Rullgård
-mru@users.sf.net
 
+--- linux-2.5.70-bk7/mm/page-writeback.c	2003-06-02 14:02:39.000000000 -0700
++++ linux/mm/page-writeback.c	2003-06-02 13:59:31.000000000 -0700
+@@ -177,7 +177,12 @@
+ 			if (pages_written >= write_chunk)
+ 				break;		/* We've done our duty */
+ 		}
++#if 0				/* AJR */
+ 		blk_congestion_wait(WRITE, HZ/10);
++#else
++		blk_run_queues();
++		break;
++#endif
+ 	}
+ 
+ 	if (nr_reclaimable + ps.nr_writeback <= dirty_thresh)

@@ -1,129 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132845AbRDPEst>; Mon, 16 Apr 2001 00:48:49 -0400
+	id <S132853AbRDPGGl>; Mon, 16 Apr 2001 02:06:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132851AbRDPEsa>; Mon, 16 Apr 2001 00:48:30 -0400
-Received: from linas.org ([207.170.121.1]:4088 "HELO backlot.linas.org")
-	by vger.kernel.org with SMTP id <S132845AbRDPEsY>;
-	Mon, 16 Apr 2001 00:48:24 -0400
-Date: Sun, 15 Apr 2001 23:47:06 -0500
-To: linux-kernel@vger.kernel.org, russell@coker.com.au, almesber@lrc.epfl.ch,
-        johninsd@san.rr.com
-Subject: lilo + raid + kernel-2.4.x failure to boot
-Message-ID: <20010415234706.A865@backlot.linas.org>
+	id <S132854AbRDPGGc>; Mon, 16 Apr 2001 02:06:32 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:43018 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S132853AbRDPGGT>;
+	Mon, 16 Apr 2001 02:06:19 -0400
+Date: Mon, 16 Apr 2001 02:07:34 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2 1.1.2 is available
+Message-ID: <20010416020734.A9324@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010415143316.A6115@thyrsus.com> <5.0.2.1.2.20010416005604.00ac8ec0@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gKMricLos+KVdGMg"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-From: linas@backlot.linas.org (Linas Vepstas)
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <5.0.2.1.2.20010416005604.00ac8ec0@pop.cus.cam.ac.uk>; from aia21@cam.ac.uk on Mon, Apr 16, 2001 at 12:58:03AM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Anton Altaparmakov <aia21@cam.ac.uk>:
+> When .config is missing and error is emitted when running make menuconfig 
+> (or any other I guess) for the first time. Should this be the case? It's 
+> ignored so ok but still would be nice not to have an error.
 
---gKMricLos+KVdGMg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes, that is the expected behavior.  It will go away eventually; this is
+part of the transition while the old .config format is still valid.
+ 
+> In ttyconfig: If type 'a' then enter then 'a' then enter then 'v' then 
+> enter it crashes out... Might be specific to where you are at the time. 
+> Sorry don't remember.
 
+Just the (undocumented) v command would have done it.  It was expecting a 
+numeric debug level argument.  I've fixed it to treat "v' alone as a command
+to increment the debug level.
+ 
+> Good performance going up/down in menuconfig now. Even on my Pentium 133S! 
+> Excellent work! (fastmode on)
 
-Hi,
+We aim to please...
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-another zinger that I am sending to LKML because I don't know where else to=
- send it ...
-
-I've discovered a deadly combination of kernel & lilo (and raid).  This may=
- be a pure
-lilo bug, but I assume that the kernel+raid aids & abets the problem...:
-
-
-I am running kernel-2.4.x.  Two ide hard drives, with partitions 1,5,6,7,8 =
-in use.
-The partitions on the two drives are mirrored using RAID-1 to create /dev/m=
-d1, /dev/md5,
-/dev/md6, etc.  The root fs is on /dev/md1.  Thus, lilo.conf looks like:
-
-
-boot=3D/dev/md1
-map=3D/boot/map
-install=3D/boot/boot.b
-prompt
-timeout=3D50
-linear
-default=3Dlinux
-
-image=3D/boot/vmlinuz-2.4.2
-        label=3Dlinux
-        read-only
-        root=3D/dev/md1
-
-For nearly a year, this combo has worked just fine (running 2.3.99 back the=
-n).  =20
-
-Just fine, that is, using the redhat-6.2 rpm for LILO, i.e. version=20
-lilo-0.21-15.i386.rpm  which reports itself to be:=20
-
-% /sbin/lilo -V
-LILO version 21
-
-Recently, this machine went over to debian-unstable from redhat:=20
-
-% dpkg -s lilo
-Package: lilo
-Status: install ok installed
-Priority: important
-Section: base
-Installed-Size: 271
-Maintainer: Russell Coker <russell@coker.com.au>
-Version: 1:21.7-3
-Depends: libc6 (>=3D 2.2.1-2), debconf (>=3D 0.2.26), logrotate
-
-The debian version of lilo writes a boot sector that hangs hard for the abo=
-ve
-kernel+raid+lilo.conf configuration: specifically:=20
-
-LIL-     after a reboot.   Needless to say, recovery was painful.  But I wa=
-s able to verify
-that the redhat lilo rpm always functioned correctly, and the debian-unstab=
-le dpkg always
-hung in this way.  Although at one point, during my twisting & turning, I g=
-ot the debian lilo
-to get to only LI  before hanging.  I have no idea of what I did different =
-to get to that as
-opposed to LIL-=20
-
-
-BTW, I noticed that oddly, every time I ran lilo, and then ran lilo -q -v -=
-v, it reported
-different sector numbers for the kernel images.  This freaked me out at fir=
-st, but I came to
-accept it as normal: doesn't affect bootability.  But is this really w.a.d?=
-  (I was
-assuming, appearently erroneously, that lilo -q -v -v was reporting the phy=
-sical location
-of the kernel image on the disk; but since the numbers bounce around, that =
-can't be right.
-Or is this just weird bios head/cyl/sect math flakiness?)
-
-
---linas
-
-=20
-
-
-
-
---gKMricLos+KVdGMg
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE62nlGZKmaggEEWTMRAjIXAKCBtPtRDSUeMOFxXn5vj7M3XiF1xgCdEFUk
-irQ9rXxstfZMid6jey5ZCqk=
-=9tAq
------END PGP SIGNATURE-----
-
---gKMricLos+KVdGMg--
+No matter how one approaches the figures, one is forced to the rather
+startling conclusion that the use of firearms in crime was very much
+less when there were no controls of any sort and when anyone,
+convicted criminal or lunatic, could buy any type of firearm without
+restriction.  Half a century of strict controls on pistols has ended,
+perversely, with a far greater use of this weapon in crime than ever
+before.
+        -- Colin Greenwood, in the study "Firearms Control", 1972

@@ -1,27 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261520AbRERUHf>; Fri, 18 May 2001 16:07:35 -0400
+	id <S261512AbRERUFZ>; Fri, 18 May 2001 16:05:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261522AbRERUHZ>; Fri, 18 May 2001 16:07:25 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42767 "EHLO
+	id <S261514AbRERUFP>; Fri, 18 May 2001 16:05:15 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:40207 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261520AbRERUHN>; Fri, 18 May 2001 16:07:13 -0400
-Subject: Re: CML2 design philosophy heads-up
-To: mikeg@wen-online.de (Mike Galbraith)
-Date: Fri, 18 May 2001 21:03:31 +0100 (BST)
-Cc: chromi@cyberspace.org (Jonathan Morton), esr@thyrsus.com,
-        arjanv@redhat.com (Arjan van de Ven), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0105181919190.480-100000@mikeg.weiden.de> from "Mike Galbraith" at May 18, 2001 07:35:07 PM
+	id <S261512AbRERUE6>; Fri, 18 May 2001 16:04:58 -0400
+Subject: Re: Q: missing or broken mmap().
+To: bohdan@kivc.vstu.vinnica.ua (Bohdan Vlasyuk)
+Date: Fri, 18 May 2001 21:01:24 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010518202111.A12397@kivc.vstu.vinnica.ua> from "Bohdan Vlasyuk" at May 18, 2001 08:21:11 PM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E150qTD-0007d5-00@the-village.bc.nu>
+Message-Id: <E150qRA-0007cI-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Menuconfig is fairly popular, and requires curses.. etc. etc.  There isn't
-> a configurator which doesn't require something more than gcc is there?
+> I'm wondering what it may mean - something to be implemented in linux,
+> of poorly configured system:
 
-Configure only requires shell
+Strange. Linux definitely has mmap()

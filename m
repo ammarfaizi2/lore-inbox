@@ -1,72 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265112AbTLWLw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 06:52:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265113AbTLWLwz
+	id S265116AbTLWMND (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 07:13:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265119AbTLWMND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 06:52:55 -0500
-Received: from [195.62.234.69] ([195.62.234.69]:62177 "EHLO
-	mail.nectarine.info") by vger.kernel.org with ESMTP id S265112AbTLWLwv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 06:52:51 -0500
-Message-ID: <3FE82CB2.7020606@nectarine.info>
-Date: Tue, 23 Dec 2003 12:53:22 +0100
-From: Giacomo Di Ciocco <admin@nectarine.info>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: petr.novak@i.cz
-Cc: isdn4linux@listserv.isdn4linux.de
-Subject: [PATCH] 2.4.23 drivers/isdn/hisax/w6692.c
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Dec 2003 07:13:03 -0500
+Received: from AGrenoble-101-1-2-242.w193-253.abo.wanadoo.fr ([193.253.227.242]:50329
+	"EHLO awak.dyndns.org") by vger.kernel.org with ESMTP
+	id S265116AbTLWMNB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 07:13:01 -0500
+Subject: Re:  DevFS vs. udev
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: "Bradley W. Allen" <ULMO@Q.NET>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1AYl4w-0007A5-R3@O.Q.NET>
+References: <E1AYl4w-0007A5-R3@O.Q.NET>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1072181538.672.23.camel@nomade>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 23 Dec 2003 13:12:19 +0100
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-i'am having a problem with this isdn card, sometimes, when the 
-connection is working hard i get the message "W6692 IRQ LOOP"
-and the isdn system gets blocked, i have to reboot the box to get it to 
-work again (statically compiled driver).
-I take a look to the driver's source and i found the reset procedure 
-used in this case is a lot different from the procedure used in the function
-resetW6692 so, without too much knowledge of kernel programming nor C, 
-i've copied the code from the resetW6692 function to this point and i 
-got it working.
+Le mar 23/12/2003 à 12:51, Bradley W. Allen a écrit :
+> DevFS was written by an articulate person who solved a lot of
+> problems.  udev sounds more like a thug who's smug about winning,
+> not explaining himself, saying things like "oh, the other guy
+> disappeared, so who cares, you have to use my code, too bad it sucks".
+[...]
+> I've spent two hours on this problem, and that's absurd; 
 
-00:0a.0 Network controller: Dynalink IS64PH ISDN Adapter
-        Subsystem: Winbond Electronics Corp: Unknown device 6692
-        Flags: medium devsel, IRQ 11
-        Memory at ffbce000 (32-bit, non-prefetchable) [size=4K]
-        I/O ports at f800 [size=256]
+Man, you've convinced me ! 
+You've spent *two* hours on this problem ?  Woah, these K-H and Viro
+guys must be dorks if they don't subscribe to your theories. Who are
+they to think their opinion matters more than yours, who spent *two*
+hours on this problem ?
 
-
-562,565c562,582
-<       if (!icnt) {
-<               printk(KERN_WARNING "W6692 IRQ LOOP\n");
-<               cs->writeW6692(cs, W_IMASK, 0xff);
-<       }
----
- >         if (!icnt) {
- >               printk(KERN_WARNING "W6692 IRQ LOOP\n");
- >               cs->writeW6692(cs, W_D_CTL, W_D_CTL_SRST);
- >               cs->writeW6692(cs, W_D_CTL, 0x00);
- >               cs->writeW6692(cs, W_IMASK, 0xff);
- >               cs->writeW6692(cs, W_D_SAM, 0xff);
- >               cs->writeW6692(cs, W_D_TAM, 0xff);
- >               cs->writeW6692(cs, W_D_EXIM, 0x00);
- >               cs->writeW6692(cs, W_D_MODE, W_D_MODE_RACT);
- >               cs->writeW6692(cs, W_IMASK, 0x18);
- >               if (cs->subtyp == W6692_USR) {
- >                       /* seems that USR implemented some power 
-control features
- >                         * Pin 79 is connected to the oscilator 
-circuit so we
- >                        * have to handle it here
- >                        */
- >                       cs->writeW6692(cs, W_PCTL, 0x80);
- >                       cs->writeW6692(cs, W_XDATA, 0x00);
- >               }
- >
- >               }
+Are you the new DevFS's maintainer ?
 

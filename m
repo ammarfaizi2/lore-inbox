@@ -1,46 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261715AbUJ1Pcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbUJ1Pcs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261715AbUJ1Pcs (ORCPT <rfc822;willy@w.ods.org>);
+	id S261729AbUJ1Pcs (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 28 Oct 2004 11:32:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbUJ1PbA
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbUJ1Pav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 11:31:00 -0400
-Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:38916 "EHLO
-	doc.tebibyte.org") by vger.kernel.org with ESMTP id S261715AbUJ1P1k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 11:27:40 -0400
-Message-ID: <41810FD6.9020202@tebibyte.org>
-Date: Thu, 28 Oct 2004 17:27:18 +0200
-From: Chris Ross <chris@tebibyte.org>
-Organization: At home (Eindhoven, The Netherlands)
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: pt-br, pt
+	Thu, 28 Oct 2004 11:30:51 -0400
+Received: from gort.metaparadigm.com ([203.117.131.12]:7879 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S261729AbUJ1PZm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 11:25:42 -0400
+Message-ID: <41810FAB.40107@metaparadigm.com>
+Date: Thu, 28 Oct 2004 23:26:35 +0800
+From: Michael Clark <michael@metaparadigm.com>
+Organization: Metaparadigm Pte Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       javier@marcet.info, linux-kernel@vger.kernel.org, kernel@kolivas.org,
-       barry <barry@disus.com>
-Subject: Re: Mem issues in 2.6.9 (ever since 2.6.9-rc3) and possible cause
-References: <Pine.LNX.4.44.0410251823230.21539-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.44.0410251833210.21539-100000@chimarrao.boston.redhat.com> <20041028120650.GD5741@logos.cnet>
-In-Reply-To: <20041028120650.GD5741@logos.cnet>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9 page allocation failure. order:0, mode:0x20
+References: <41808419.8070104@metaparadigm.com> <200410281129.09810.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200410281129.09810.vda@port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10/28/04 16:29, Denis Vlasenko wrote:
+> On Thursday 28 October 2004 08:31, Michael Clark wrote:
+> 
+>>BTW - 2.6 is much more responsive than 2.4 while this is all
+>>going on - i'm just worried about these messages.
+> 
+> 
+> Which one was faster, and by how much?
 
+Both tests compiling 2.6.9 tree with make -j192 bzImage modules
+(.config posted earlier) from clean source after a reboot.
+2CPUs, 2GB RAM, 2GB swap
 
-Marcelo Tosatti escreveu:
-> Can you please test Rik's patch with your spurious OOM kill testcase?
+2.4.27
+real    15m38.504s
+user    21m5.720s
+sys     3m28.990s
+peaked at about 1.7GB swap usage
 
-Do you have a particular test case in mind? Is it accessible to the rest 
-of us? If you send it to me I will run it on my 64MB P2 machine, which 
-makes a very good test rig for the oom_killer because it is normally 
-plagued by it.
+2.6.9
+real    14m50.360s
+user    21m9.008s
+sys     2m40.580s
+peaked at 2.0GB swap usage - top said 0K swap free and it survived ;)
 
-I have already run Rik's patch to great success using my test case of 
-compiling umlsim. Without the patch this fails every time at the linking 
-the UML kernel stage.
+2.6.9 was 5% faster (although subjectively almost a magnitude more
+responsive ie. sshing into the box in the middle of this took
+about a minute with 2.4.27 and only about 10 or so seconds with 2.6.9,
+although i didn't time this).
 
-Regards,
-Chris R.
+Seems 2.6's more proactive swapping helps a bit ie. swap more of
+the right stuff so as to swap less overall as 2.6 went about 20%
+deeper into swap.
+
+~mc

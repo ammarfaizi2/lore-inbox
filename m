@@ -1,76 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264865AbTFESey (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 14:34:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264840AbTFESey
+	id S264840AbTFESkN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 14:40:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264869AbTFESkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 14:34:54 -0400
-Received: from [213.187.75.233] ([213.187.75.233]:10415 "EHLO hwinkel")
-	by vger.kernel.org with ESMTP id S264865AbTFESex (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 14:34:53 -0400
-From: Andreas Schultz <aschultz@warp10.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][I2C] fix unsafe usage of list_for_each in i2c-core
-Date: Thu, 5 Jun 2003 20:48:21 +0200
+	Thu, 5 Jun 2003 14:40:13 -0400
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:25749 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S264840AbTFESkM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 14:40:12 -0400
+From: Daniel Phillips <dphillips@sistina.com>
+Reply-To: dphillips@sistina.com
+Organization: Sistina
+To: Kevin Corry <kevcorry@us.ibm.com>, dm-devel@sistina.com,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [dm-devel] Re: [RFC] device-mapper ioctl interface
+Date: Thu, 5 Jun 2003 20:53:57 +0200
 User-Agent: KMail/1.5.2
-Cc: greg@kroah.com
+References: <20030605093943.GD434@fib011235813.fsnet.co.uk> <200306051900.37276.dphillips@sistina.com> <200306051250.30994.kevcorry@us.ibm.com>
+In-Reply-To: <200306051250.30994.kevcorry@us.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200306052048.21409.aschultz@warp10.net>
+Message-Id: <200306052053.57352.dphillips@sistina.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thursday 05 June 2003 19:50, Kevin Corry wrote:
+> On Thursday 05 June 2003 12:00, Daniel Phillips wrote:
+> > On Thursday 05 June 2003 18:47, Kevin Corry wrote:
+> > > 2) Removing suspended devices. The current code (2.5.70) does not allow
+> > > a suspended device to be removed/unlinked from the ioctl interface,
+> > > since removing it would leave you with no way to resume it (and hence
+> > > flush any pending I/Os). Alasdair mentioned a couple of new ideas. One
+> > > would be to reload the device with an error-map and force it to resume,
+> > > thus erroring any pending I/Os and allowing the device to be removed.
+> > > This seems a bit heavy-handed.
+> >
+> > Which is the heavy-handed part?
+>
+> The part about automatically reloading the table with an error map and
+> forcing it to resume. It just seemed to me that user-space ought to be able
+> to gather enough information to determine that a device needed to be
+> resumed before it could be removed. Thus the kernel driver wouldn't be
+> forced to implement such a policy.
 
-i2c-core.c contains 2 loops that iterate over the list of the clients attached 
-to an adapter and detaches them. Detaching the clients will actually remove 
-them from the list the loop is iterating over. Therefore the 
-list_for_each_safe() method has to be used.
+I didn't see anything about doing that in-kernel.
 
-Andreas
+> Talking with Alasadair again, he mentioned a case I hadn't considered.
+> Devices would now be created without a mapping and initially suspended. If
+> some other error occurred, and you decided to just delete the device before
+> loading a mapping, it would fail.  And having to resume a device with no
+> mapping just to be able to delete it definitely seems odd.
+>
+> So, it's not like I'm dead-set against this idea. I was just curious what
+> the reasoning was behind this change.
 
-===== i2c-core.c 1.38 vs edited =====
---- 1.38/drivers/i2c/i2c-core.c	Mon May 26 02:00:00 2003
-+++ edited/i2c-core.c	Thu Jun  5 15:48:40 2003
-@@ -124,7 +125,7 @@
- 
- int i2c_del_adapter(struct i2c_adapter *adap)
- {
--	struct list_head  *item;
-+	struct list_head  *item, *_n;
- 	struct i2c_driver *driver;
- 	struct i2c_client *client;
- 	int res = 0;
-@@ -144,7 +145,7 @@
- 
- 	/* detach any active clients. This must be done first, because
- 	 * it can fail; in which case we give upp. */
--	list_for_each(item,&adap->clients) {
-+	list_for_each_safe(item, _n, &adap->clients) {
- 		client = list_entry(item, struct i2c_client, list);
- 
- 		/* detaching devices is unconditional of the set notify
-@@ -215,8 +216,7 @@
- 
- int i2c_del_driver(struct i2c_driver *driver)
- {
--	struct list_head   *item1;
--	struct list_head   *item2;
-+	struct list_head   *item1, *item2, *_n;
- 	struct i2c_client  *client;
- 	struct i2c_adapter *adap;
- 	
-@@ -245,7 +245,7 @@
- 				goto out_unlock;
- 			}
- 		} else {
--			list_for_each(item2,&adap->clients) {
-+			list_for_each_safe(item2, _n, &adap->clients) {
- 				client = list_entry(item2, struct i2c_client, list);
- 				if (client->driver != driver)
- 					continue;
+It's similar to the way a lot of things work in Linux: you have to let 
+operations run to completion so they can let go of resources.  One day we'll 
+be able to shoot down transfers in mid-flight, but I doubt that's going to 
+happen in this cycle.
+
+So in general, the idea is: let any outstanding operations complete, but feed 
+them errors.  What else can we do?
+
+I don't see this as heavyweight at all.  Policy stays in user space, and a 
+lightweight error path lives in the kernel.
+
+Regards,
+
+Daniel
 

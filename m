@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272378AbRHYBPw>; Fri, 24 Aug 2001 21:15:52 -0400
+	id <S272376AbRHYBNX>; Fri, 24 Aug 2001 21:13:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272379AbRHYBPm>; Fri, 24 Aug 2001 21:15:42 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:23804 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S272378AbRHYBP2>;
-	Fri, 24 Aug 2001 21:15:28 -0400
-Date: Fri, 24 Aug 2001 21:15:43 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Brad Chapman <kakadu_croc@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <20010825005302.34876.qmail@web10901.mail.yahoo.com>
-Message-ID: <Pine.GSO.4.21.0108242055410.19796-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272377AbRHYBNN>; Fri, 24 Aug 2001 21:13:13 -0400
+Received: from apollo.wizard.ca ([204.244.205.22]:30738 "HELO apollo.wizard.ca")
+	by vger.kernel.org with SMTP id <S272376AbRHYBNJ>;
+	Fri, 24 Aug 2001 21:13:09 -0400
+Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
+From: Michael Peddemors <michael@linuxmagic.com>
+To: "Ryan W. Maple" <ryan@guardiandigital.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010824133505.B78EB11D303@juggernaut.guardiandigital.com>
+In-Reply-To: <20010824133505.B78EB11D303@juggernaut.guardiandigital.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12 (Preview Release)
+Date: 24 Aug 2001 18:14:27 -0700
+Message-Id: <998702067.3695.15.camel@mistress>
+Mime-Version: 1.0
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+My 2 bits? I have been running Linux for a long long time now...  worked
+on hundreds (more likely thousands) of Linux Systems.. (Wish I would
+have catalogued the number) and I have never installed Python yet on a
+single system...  
+
+Seems like bloat to me to install a whole language to keep afront in
+Linux developments..
 
 
-On Fri, 24 Aug 2001, Brad Chapman wrote:
-
-> 	OK. The existing API is wrong and the new min()/max() macros are the
-> right way to properly compare values. However, we could always add a config 
-> option to enable a compatibility macro, which would use typeof() on one of the 
-> two variables and then call the real min()/max(). Something like this (just an
-> example):
+On 24 Aug 2001 09:35:04 -0400, Ryan W. Maple wrote:
 > 
-> #ifdef CONFIG_ALLOW_COMPAT_MINMAX
-> #define proper_min(t, a, b)	((t)(a) < (t)(b) ? (a) : (b))
-> #define proper_max(t, a, b)	((t)(a) > (t)(b) ? (a) : (b))
-> #define min(a, b)		proper_min(typeof(a), a, b)
-> #define max(a, b)		proper_max(typeof(a), a, b)
+> On Fri, 24 Aug 2001, Denis Perchine wrote:
+> 
 
-_THAT_ _IS_ _WRONG_.  Who the fuck said that we always want type of _first_
-argument?  Mind you, IMNSHO Dave had been on a seriously bad trip when he
-had added that "type" argument - separate names would be cleaner.  And yes,
-it'd be better in prepatch instead of 2.4.9-final.
-
-However, no matter which variant you pick, old code with min/max
-was broken.  Unless you are carefully giving right types (preferanly -
-with casts) it works only by accidents (if it works at all).
-
-"Compatibility option" is exactly the worst thing in such cases.
-It's either changing the whole codebase or not bothering at all.
+-- 
+"Catch the Magic of Linux..."
+--------------------------------------------------------
+Michael Peddemors - Senior Consultant
+LinuxAdministration - Internet Services
+NetworkServices - Programming - Security
+Wizard IT Services http://www.wizard.ca
+Linux Support Specialist - http://www.linuxmagic.com
+--------------------------------------------------------
+(604)589-0037 Beautiful British Columbia, Canada
 

@@ -1,77 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262896AbUEOOiX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262766AbUEOOii@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262896AbUEOOiX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 10:38:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbUEOOiX
+	id S262766AbUEOOii (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 10:38:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262744AbUEOOii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 10:38:23 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:65225 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262744AbUEOOiE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 10:38:04 -0400
-Date: Sat, 15 May 2004 16:37:55 +0200 (MEST)
-Message-Id: <200405151437.i4FEbtWM001341@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: trini@kernel.crashing.org
-Subject: Re: PATCH][4/7] perfctr-2.7.2 for 2.6.6-mm2: PowerPC
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+	Sat, 15 May 2004 10:38:38 -0400
+Received: from out007pub.verizon.net ([206.46.170.107]:9962 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S262766AbUEOOiJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 10:38:09 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: "Justin Piszcz" <jpiszcz@hotmail.com>
+Subject: Re: Linux 2.6.6 appears to be 3 to 4 times slower than 2.6.5.
+Date: Sat, 15 May 2004 10:38:07 -0400
+User-Agent: KMail/1.6
+Cc: linux-kernel@vger.kernel.org
+References: <BAY18-F22R9sJzcccki00011d12@hotmail.com>
+In-Reply-To: <BAY18-F22R9sJzcccki00011d12@hotmail.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405151038.07163.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.54.72] at Sat, 15 May 2004 09:38:08 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 May 2004 11:07:06 -0700, Tom Rini wrote:
->> perfctr-2.7.2 for 2.6.6-mm2, part 4/7:
->[snip]
->> --- linux-2.6.6-mm2/drivers/perfctr/ppc.c	1970-01-01 01:00:00.000000000 +0100
->[snip]
->> +#define SPRN_MMCR0	0x3B8	/* 604 and up */
->[snip]
->> +#define MMCR2_RESERVED		(MMCR2_SMCNTEN | MMCR2_SMINTEN | MMCR2__RESERVED)
+On Saturday 15 May 2004 08:04, Justin Piszcz wrote:
+>I have memory benchmarks and compile benchmarks,
 >
->All of these belong in <asm-ppc/reg.h>.
-
-Will do. The _RESERVED masks are sometimes more related to the driver
-than the hardware, so I think I'll keep those in the driver. But all
-the hardware-related defines can be moved.
-
->[snip]
-> +static int __init generic_init(void)
->> +{
->> +	static char generic_name[] __initdata = "PowerPC 60x/7xx/74xx";
->> +	unsigned int features;
->> +	enum pll_type pll_type;
->> +	unsigned int pvr;
->> +
->> +	features = PERFCTR_FEATURE_RDTSC | PERFCTR_FEATURE_RDPMC;
->> +	pvr = mfspr(SPRN_PVR);
->> +	switch( PVR_VER(pvr) ) {
->> +	case 0x0004: /* 604 */
->> +		pm_type = PM_604;
->> +		pll_type = PLL_NONE;
->> +		features = PERFCTR_FEATURE_RDTSC;
->> +		break;
+>essentially
 >
->This should all be done with cputable bits I would think.
->arch/ppc/kernel/cputable.c and include/asm-ppc/cputable.h
->(CPU_FTR_PERFCTR_PLL_{NONE,604e,...) and then
->if (cur_cpu_spec[i]->cpu_features & CPU_FTR_PERFCTL_PLL_NONE)
->  pll_type = PLL_NONE
+>compiling takes ~5 sec on a 2.53ghz (533mhz bus/2GB ram box) for
+> lilgp - genetic program
+>ram  =ddr 333
+>compiling takes ~15-20 sec on a 3ghz (not sure on bus/4gb ram box)
+> for lilgp - genetic program
+>ram = ddr 400
 >
->Or might that be bigger, code wise, in the end?
+>dd if=/dev/zero of=/mnt/ramdisk/file bs=409e size=(64 or 256mb)
+>it is 12% faster on the slower (2.53ghz box) vs the box w/DDR 400mhz
+> ram
+>
+>Is anyone else having SERIOUS PROBLEMS with the 2.6.6 kernel as
+> well?
 
-For the cputable framework I would need at least 11 feature bits
-(5 for pm_type, 6 for pll_type), with more later if/when G5 docs
-ever become public. <asm-ppc/cputable.h> currently has 14 free
-feature bits.
+I noted that my epson C82 usb printer was running about 25% of its 
+normal speed last night, it took gimp-print several hours to do half 
+a dozen 8x10's in 720dpi.  gkrellm's display looks normal though, 
+with setiathome currently taking 90+% of the cpu, which is normal.
 
-Encoding these as enumeration subfields in the high end of
-cpu_features instead would require 3+3 bits (preferably 4+4
-for future expansion).
-
-So I can:
-1. steal a big chunk of the remaining cpu_features bits, or
-2. add pm_type and pll_type fields to struct cpu_spec, or
-3. continue to keep this in the driver
-
-Which would you prefer?
-
-/Mikael
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

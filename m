@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289889AbSBSUZH>; Tue, 19 Feb 2002 15:25:07 -0500
+	id <S289858AbSBSUcR>; Tue, 19 Feb 2002 15:32:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289833AbSBSUX6>; Tue, 19 Feb 2002 15:23:58 -0500
-Received: from smtp4.vol.cz ([195.250.128.43]:6411 "EHLO majordomo.vol.cz")
-	by vger.kernel.org with ESMTP id <S289815AbSBSUVt>;
-	Tue, 19 Feb 2002 15:21:49 -0500
-Date: Tue, 19 Feb 2002 09:04:17 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Eric S. Raymond" <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Disgusted with kbuild developers
-Message-ID: <20020219080416.GA133@elf.ucw.cz>
-In-Reply-To: <20020215155946.B14083@thyrsus.com> <E16bqC7-0004Mj-00@the-village.bc.nu> <20020215164610.A14418@thyrsus.com>
-Mime-Version: 1.0
+	id <S289820AbSBSUbC>; Tue, 19 Feb 2002 15:31:02 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:7153 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S289858AbSBSUaZ>; Tue, 19 Feb 2002 15:30:25 -0500
+Message-ID: <3C72B5C1.2D339F9B@mvista.com>
+Date: Tue, 19 Feb 2002 12:29:53 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Jakob Kemi <jakob.kemi@telia.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] hex <-> int conversion routines.
+In-Reply-To: <Pine.LNX.4.33.0202191000340.26476-100000@home.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020215164610.A14418@thyrsus.com>
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Linus Torvalds wrote:
+> 
+> On Tue, 19 Feb 2002, Jakob Kemi wrote:
+> >
+> > I also added three other hex-functions that can replace a lot of duplicated code.
+> >
+> > int  hexint_nibble (char x);          // hex digit to int.
+> > int  hexint_byte  (const char *src); // hex digit-pair to int.
+> > char inthex_nibble (int x);           // int to hex digit.
+> > void inthex_byte   (int x, char* dest);       // int to hex digit pair.
+> 
+> Is there any reason to do all of this?
+> 
+> I suspect 99% of all users can (and probably should) be replaced with
+> "sscanf()" instead. Which does a lot more, of course, and is not the
+> fastest thing out there due to that, but anybody who does hex->int
+> conversion inside some critical loop is just crazy.
+> 
+>                 Linus
+> 
 
-> Alan, don't talk to me about "proof of concept".  Tell me about a
-> production-quality system, proven in use by people like Embedsys,
-> Webmachines, and the Compache project.  Tell me you can duplicate what
+So maybe a wrapper or two:
 
-What are you trying to say? New configuration system needs to be
-tested by big company before you want to hear about it?
+#define hexint_nibble(x) {int y; sscanf(&x,"%1xl",&y); y}
+#define hexint_byte(x)   {int y; sscanf(x,"%2xl",&y); y}
 
-"I do not care what kernel developers say, they are all stupid, but my
-stuff is used by Embedsys, Webmachines and Compache, so it must be
-good and you are all stupid."
+#define inthex_nibble(x) {char y[2]; sprintf(&y,"%1x",x); y[1]}
+#define inthex_byte(x,dest)       sprintf(dest,"%02x",x)
 
-No wonder Linus ignores you.
-									Pavel
+Untested, of course.
 -- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+George           george@mvista.com
+High-res-timers: http://sourceforge.net/projects/high-res-timers/
+Real time sched: http://sourceforge.net/projects/rtsched/

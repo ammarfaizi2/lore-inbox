@@ -1,74 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267057AbTAFRxj>; Mon, 6 Jan 2003 12:53:39 -0500
+	id <S267081AbTAFSG7>; Mon, 6 Jan 2003 13:06:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267081AbTAFRxj>; Mon, 6 Jan 2003 12:53:39 -0500
-Received: from gold.he.net ([216.218.149.2]:53257 "EHLO gold.he.net")
-	by vger.kernel.org with ESMTP id <S267057AbTAFRxi>;
-	Mon, 6 Jan 2003 12:53:38 -0500
-From: "J.S.Souza" <souza@pecocontrols.com>
-To: <RMS@gnu.org>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: Why is Nvidia given GPL'd code to use in closed source drivers?
-Date: Mon, 6 Jan 2003 10:03:58 -0800
-Message-ID: <PGEMINDOPMDNMJINCKBNMEAJDBAA.souza@pecocontrols.com>
+	id <S267082AbTAFSG7>; Mon, 6 Jan 2003 13:06:59 -0500
+Received: from landfill.ihatent.com ([217.13.24.22]:27776 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S267081AbTAFSG6>;
+	Mon, 6 Jan 2003 13:06:58 -0500
+To: Stephen Evanchik <evanchsa@clarkson.edu>
+Cc: Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.54] hermes: serialization fixes
+References: <200301031239.29226.evanchsa@clarkson.edu>
+	<20030103124754.A16519@redhat.com>
+	<200301031256.41451.evanchsa@clarkson.edu>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 06 Jan 2003 18:40:17 +0100
+In-Reply-To: <200301031256.41451.evanchsa@clarkson.edu>
+Message-ID: <878yxyqiri.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard,
-In the linked document, it is stated "Linux is normally used in a
-combination with the GNU operating system".  I only wish to clarify, how can
-GNU be an operating system without the kernel? Don't get me wrong, I don't
-wish to pick a fight of any nature.  It just seems to be inconsistant with
-the terms being set forth in the article.  Shouldn't it be referenced as the
-"GNU programs" or "GNU components" when talking about GNU without a kernel.
+Stephen Evanchik <evanchsa@clarkson.edu> writes:
 
-Regards,
-J.S.Souza
+> On Friday 03 January 2003 12:47, you wrote:
+> |  Why not put the spinlock/unlock inside hermes_bap_seek()?  Smaller, better
+> |  contained and more readable.
+> 
+> That's the better solution, I'm trying to coordinate a bit with the 
+> maintainer. The only reason I didn't do this in the first place is because 
+> there is a (possibly unecessary) delay loop inside hermes_bap_seek that I 
+> believe is trying to combat the same problem. I'm awaiting a response from 
+> the maintainer since he knows a bit more about the hardware than I do.
+> 
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Richard Stallman
-Sent: Monday, January 06, 2003 9:13 AM
-To: mark@mark.mielke.cc
-Cc: lm@bitmover.com; linux-kernel@vger.kernel.org;
-billh@gnuppy.monkey.org; paul@clubi.ie; riel@conectiva.com.br;
-Hell.Surfers@cwctv.net
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source
-drivers?
+There is something not quite right about this patch. I used have a ton
+of errors in my logs, and this patch seemed to clear this out nicely.
 
+When I run with a patched driver now, I run for about 20 minutes with
+various loads and sudenly the ksoftirqd_CPU0 process starts to hog my
+CPU and not wanting to let go. As soon as I pull out the card, the
+load returns to normal.
 
-    You *chose* GNU/Linux to parallel Unix? I assume you mean that you
-    influenced GNU into using a Unix base with the eventual goal of having
-    some sort of GNU Unix base (the Hurd?). The words you selected above
-    are rather assuming.
+Is there any way I can provide more details on what is happening?
 
-I decided in 1983 to develop a Unix-compatible operating system, and
-then chose the name GNU for it.  In 1990, after finding or writing
-most of the necessary components, we started developing a kernel for
-the GNU system; that kernel is the GNU Hurd.  Since Linux was working
-long before the Hurd, people mostly use GNU with Linux instead.
+> 
+> Stephen
+> 
 
-See http://www.gnu.org/gnu/linux-and-gnu.html for the history of GNU.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
----
-
-
----
-Outgoing mail is certified Virus Free.
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.431 / Virus Database: 242 - Release Date: 12/17/2002
-
+mvh,
+A
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

@@ -1,56 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267413AbUIAR3f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267393AbUIARoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267413AbUIAR3f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 13:29:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267403AbUIAR3S
+	id S267393AbUIARoG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 13:44:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267374AbUIARkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 13:29:18 -0400
-Received: from holomorphy.com ([207.189.100.168]:57286 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267361AbUIAR1P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 13:27:15 -0400
-Date: Wed, 1 Sep 2004 10:27:10 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Kirill Korotaev <kksx@mail.ru>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: [1/7] make do_each_task_pid()/while_each_task_pid() typecheck
-Message-ID: <20040901172710.GE5492@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Kirill Korotaev <kksx@mail.ru>, akpm@osdl.org, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <E1C2TZ1-000JZr-00.kksx-mail-ru@f7.mail.ru> <20040901153624.GA5492@holomorphy.com> <20040901165808.GD5492@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040901165808.GD5492@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Wed, 1 Sep 2004 13:40:15 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:30857 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S267383AbUIARjW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 13:39:22 -0400
+Date: Wed, 1 Sep 2004 13:39:14 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: n26825@yahoo.com
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Celistica server
+Message-ID: <Pine.LNX.4.53.0409011331140.29396@chaos>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 01, 2004 at 08:36:24AM -0700, William Lee Irwin III wrote:
->> Could you not rename struct pid and not rename for_each_task_pid()?
+>
+>  AMD fiasco, you still there?
+>
+Yup. They weren't able to silence me (yet), but they
+sure tried, -- all the way to the president. Maybe
+they will fix their box.
 
-On Wed, Sep 01, 2004 at 09:58:08AM -0700, William Lee Irwin III wrote:
-> On closer examination for_each_task_pid() appears to need
-> do { ... } while () -like semantics in your scheme, which is nasty
-> as it allows a ne class of mismatching argument errors, but I suppose
-> merits the renaming.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-list_empty(&task->pids[type].hash_list) does not successfully typecheck;
-while this does not correct its semantics, it at least restores
-typechecking long enough for the code to be examined.
-
-Index: kirill-2.6.9-rc1-mm2/include/linux/pid.h
-===================================================================
---- kirill-2.6.9-rc1-mm2.orig/include/linux/pid.h	2004-09-01 08:44:05.770684392 -0700
-+++ kirill-2.6.9-rc1-mm2/include/linux/pid.h	2004-09-01 08:49:14.584737520 -0700
-@@ -49,7 +49,7 @@
- 			task = pid_task(task->pids[type].pid_list.next,	\
- 						type);			\
- 			prefetch(task->pids[type].pid_list.next);	\
--		} while (list_empty(&task->pids[type].hash_list));	\
-+		} while (task->pids[type].hash_list.next);	\
- 	}
- 
- #endif /* _LINUX_PID_H */

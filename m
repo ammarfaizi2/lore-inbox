@@ -1,57 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283326AbRLDTwX>; Tue, 4 Dec 2001 14:52:23 -0500
+	id <S283286AbRLDTzV>; Tue, 4 Dec 2001 14:55:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281664AbRLDTvO>; Tue, 4 Dec 2001 14:51:14 -0500
-Received: from smtp-rt-1.wanadoo.fr ([193.252.19.151]:63436 "EHLO
-	anagyris.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S281450AbRLDRgM>; Tue, 4 Dec 2001 12:36:12 -0500
-Message-ID: <3C0D087D.573B6174@wanadoo.fr>
-Date: Tue, 04 Dec 2001 18:31:41 +0100
-From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Organization: Home PC
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-pre2-v199.2 i686)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.1-pre5 AudioCD with cdrom modules
-In-Reply-To: <3C0CC182.B65B6A52@wanadoo.fr> <200112041657.fB4GvQV06981@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S283388AbRLDTyP>; Tue, 4 Dec 2001 14:54:15 -0500
+Received: from [206.98.161.198] ([206.98.161.198]:47886 "EHLO
+	bart.learningpatterns.com") by vger.kernel.org with ESMTP
+	id <S283218AbRLDTws> convert rfc822-to-8bit; Tue, 4 Dec 2001 14:52:48 -0500
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+From: Edward Muller <emuller@learningpatterns.com>
+To: =?ISO-8859-1?Q?Ra=FAlN=FA=F1ez?= de Arenas Coronado 
+	<raul@viadomus.com>
+Cc: esr@thyrsus.com, linux-kernel@vger.kernel.org
+In-Reply-To: <E16BKL5-0001yJ-00@DervishD.viadomus.com>
+In-Reply-To: <E16BKL5-0001yJ-00@DervishD.viadomus.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 04 Dec 2001 14:50:52 -0500
+Message-Id: <1007495452.4621.7.camel@akira.learningpatterns.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
+I'm just sick of people saying that python is bloated.
+
+I've put python on my Compaq IPAQ (running linux) and with very few
+amounts of tweaks it took up less 1 MB. And that's including gtk
+bindings (no tk though) and just about the entire standard python
+library. Someone else tried to do this with perl and they couldn't get
+it under 3 MB IIRC. And IIRC, the current kernel build system requires
+perl (I could be wrong, I'm just a watcher on this list, not a hacker).
+So ... PYTHON IS NOT BLOATED.
+
+Python maybe slow (when compared to C/C++ code). But that is the nature
+of an interpreted language. Python's speed is on par with Perl's and
+most other interpreted languages.
+
+Anyway ... I'm done venting.
+
+On Tue, 2001-12-04 at 13:30, RaúlNúñez de Arenas Coronado wrote:
+>     Hi Eric :))
 > 
-> Pierre Rousselet writes:
-> > What may cause an AudioCD no being recognized at first attempt but
-> > only after unloading/reloading the modules ide-cd cdrom ?
-> >
-> > I'm testing 2.5.1-pre5 + devfs-patch-v202.
-> >
-> > My CRD-8240B is known as /dev/cdroms/cdrom0 in fstab, to mount it
-> > manually on /cdrom, and in the gnome CD player gtcd preferences panel.
-> >
-> > ide-cd and cdrom are loaded at boot time (i don't need that, 2.4.16 does
-> > it as well). After loging in i can mount /cdrom but if it is an AudioCD
-> > gtcd tells me 'no disc'.
-> >
-> > After rmmod ide-cd cdrom, gtcd finds the AudioCD OK.
-> >
-> > This doesn't happen on plain 2.4.16
+> >(2) Requiring Python introduces another tool into the requisites list for
+> >kernel building.  
 > 
-> Please try kernel 2.4.17-pre2 + devfs-patch-v199.2. That will help
-> determine if the problem is devfs-related, or (more likely) due to the
-> block I/O changes happening in 2.5.
-
-Excellent, can you hear Diana Krall? 2.4.17-pre2 + devfs-patch-v199.2
-does not have this feature. The AudioCD is identified at the first
-attempt.
-
-
-Pierre
+>     I'm happy to see that out of your 'silly' list...
+> 
+> >I'm just going to say "Today's problems, today's tools."
+> 
+>     Hey, hope that Python never gets considered a 'today's tool' or
+> we will end up needing 256 CPU mainframes just to issue an 'ls'
+> (maybe this will not be enough if filesystem drivers are written in
+> Python too. In the future, I mean...).
+> 
+>     And yes, Python is a today's problem. Fortunately, people keeps
+> rewriting their Python code in true languages.
+> 
+> >Progress happens.
+> 
+>     Python is not progress, is just bloatware. I don't think that the
+> kernel *building* should be made dependant on such a fatware. And,
+> how about the 'Python License'. I'm pretty sure that it is compatible
+> with the rest of the kernel, but we should pray for it not to change.
+> 
+>     And, well, Python is fatware just for me: anyway will see
+> reasonable to install a 6Mb sources language just for the
+> configuration of the kernel. Very reasonable.
+> 
+> >If you don't like it, feel free to go back to writing Autocoder on your 1401.
+> 
+>     Good policy... People who don't like Python are morons... And
+> maybe those that neither use Java or C# for the kernel will be too in
+> a near future, is that what you're trying to say?
+> 
+>     Eric, I think that this is an important issue and that the
+> decision about adding such a big dependence to the kernel should be
+> studied with care, and not imposed.
+> 
+>     Raúl
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-------------------------------------------------
- Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-------------------------------------------------
+-------------------------------
+Edward Muller
+Director of IS
+
+973-715-0230 (cell)
+212-487-9064 x115 (NYC)
+
+http://www.learningpatterns.com
+-------------------------------
+

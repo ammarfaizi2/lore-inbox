@@ -1,48 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVC1Jnk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVC1JrG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261408AbVC1Jnk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 04:43:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVC1Jnj
+	id S261416AbVC1JrG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 04:47:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVC1JrG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 04:43:39 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:24997 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261408AbVC1Jni (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 04:43:38 -0500
-To: Andrew Morton <akpm@osdl.org>
-CC: fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] /x86_64-machine_shutdown.patch breaks sysrq-b
-References: <20050324212027.602fd885.akpm@osdl.org>
-	<m1ll88nqo7.fsf@ebiederm.dsl.xmission.com>
-	<20050328003621.658ab127.akpm@osdl.org>
-	<m18y48nnbi.fsf@ebiederm.dsl.xmission.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 28 Mar 2005 02:40:26 -0700
-In-Reply-To: <m18y48nnbi.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <m1zmwom7lh.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 28 Mar 2005 04:47:06 -0500
+Received: from userf193.dsl.pipex.com ([62.188.53.193]:1465 "HELO
+	mail.ezplanet.net") by vger.kernel.org with SMTP id S261416AbVC1JrB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 04:47:01 -0500
+Subject: Re: imps2 mouse driver and bug 2082
+From: Mauro Mozzarelli <mauro@ezplanet.net>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200503272321.49899.dtor_core@ameritech.net>
+References: <1111966642.5789.7.camel@helios.ezplanet.org>
+	 <200503272321.49899.dtor_core@ameritech.net>
+Content-Type: text/plain
+Organization: EzPlanet
+Date: Mon, 28 Mar 2005 09:46:52 +0000
+Message-Id: <1112003212.5698.9.camel@helios.ezplanet.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dmitry,
 
-Looking a little more closely at the users there
-is a clear demand in the kernel for some kind of forced
-reboot.  Coming from software watchdog timers and the like,
-and it makes sense for sysrq-b to call the same thing.
+I reckon that the reconnection should be automatic, with the kernel
+driver being able to detect a sync loss. I understand that the patch you
+originally posted might not be ideal, however I have been using it
+successfully for months now (modified for 2.6.9 and 2.6.10) and I have
+included it in the standard kernel distributed with EzPlanet One.
 
-However I'm not at all certain that we want the software is
-hosed reboot dammit, to be the same as the graceful reboot
-path.
+Although we may not want to include this patch as it is, I would
+consider the prioritization of this issue to be resolved in future
+kernel releases.
 
-There are a lot of things we can do on the graceful reboot
-path like switch to the bootstrap cpu, attempt to make BIOS
-calls to perform the reboot etc, that I'm not at all certain
-we want to perform on the under more dire circumstances.
+Mauro
 
-If it weren't simply overkill I'd say in the freaked out kernel
-reboot case we want to kexec to a sane kernel and then reboot from
-there.
+On Sun, 2005-03-27 at 23:21 -0500, Dmitry Torokhov wrote:
+> Hi,
+> 
+> On Sunday 27 March 2005 18:37, Mauro Mozzarelli wrote:
+> > The mouse driver, re-developed for kernel 2.6, ever since the earliest
+> > 2.6 release lost the ability to reset a broken link with an IMPS2 mouse
+> > (this happens when disconnecting the mouse plug either physically or
+> > through a "non imps2" KVM switch). The result is that the mouse can no
+> > longer be controlled, with the only solution being a RE-BOOT!
+> >
+> 
+> You can re-initialize mouse with the following command (while mouse is
+> connected):
+> 
+>         echo -n "reconnect" > /sys/bus/serio/devices/serioX/drvctl
+> 
+> where serioX is serio port your mouse is connected to. You can find out
+> which one by examining the driver link:
+> 
 
-Eric
+
+
+ 
+

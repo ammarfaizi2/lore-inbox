@@ -1,72 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263483AbUC3B4p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 20:56:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263484AbUC3B4p
+	id S263484AbUC3B5v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 20:57:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263502AbUC3B5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 20:56:45 -0500
-Received: from dh132.citi.umich.edu ([141.211.133.132]:36484 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S263483AbUC3B4m convert rfc822-to-8bit
+	Mon, 29 Mar 2004 20:57:51 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:58540 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263484AbUC3B5o
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 20:56:42 -0500
-Subject: Re: [patch] silence nfs mount messages
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040330013300.GC17179@apps.cwi.nl>
-References: <UTC200403291900.i2TJ0sC14336.aeb@smtp.cwi.nl>
-	 <1080587480.2410.61.camel@lade.trondhjem.org>
-	 <20040329195435.GA19426@apps.cwi.nl>
-	 <1080602653.2410.192.camel@lade.trondhjem.org>
-	 <20040329234643.GB17179@apps.cwi.nl>
-	 <1080606053.2410.260.camel@lade.trondhjem.org>
-	 <20040330013300.GC17179@apps.cwi.nl>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1080611809.2410.347.camel@lade.trondhjem.org>
+	Mon, 29 Mar 2004 20:57:44 -0500
+Subject: Re: [PATCH] mask ADT: new mask.h file [2/22]
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: Paul Jackson <pj@sgi.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Dave Hansen <haveblue@us.ibm.com>
+In-Reply-To: <20040329162740.0ca8f6d5.pj@sgi.com>
+References: <20040329041253.5cd281a5.pj@sgi.com>
+	 <1080606618.6742.89.camel@arrakis>  <20040329162740.0ca8f6d5.pj@sgi.com>
+Content-Type: text/plain
+Organization: IBM LTC
+Message-Id: <1080611797.6742.153.camel@arrakis>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 29 Mar 2004 20:56:49 -0500
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 29 Mar 2004 17:56:38 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På må , 29/03/2004 klokka 20:33, skreiv Andries Brouwer:
-> On Mon, Mar 29, 2004 at 07:20:53PM -0500, Trond Myklebust wrote:
+On Mon, 2004-03-29 at 16:27, Paul Jackson wrote:
+> Matthew wrote (of my recommendation to not use the mask type directly):
+> > Is this necessary, or just convenient?
 > 
-> > The changes you are complaining about have *NOTHING* whatsoever to do
+> Technically as you suspect, just convenient, except in the case of the
+> mask_of_bit() macro, as you observe.
 > 
-> Wait. It seems you think I am complaining about changes. I am not.
+> I was adhering to the K.I.S.S. school here - just tell the user one
+> recommended way of using things, suppressing my engineering urge to
+> explain alternatives that had no real advantages.
+
+That's what I figured.  Just looking for a clarification.
+
+
+> > I think that it wouldn't be terribly ugly to split out the 1 unsigned
+> > long special cases (bitmap_and, bitmap_or, etc) with #ifdefs.
 > 
-> I am complaining about kernel messages.
-> They have been there since 0.99. Hardly changes, but they are annoying.
-> Mount has to go through all kinds of contortions to avoid these messages.
-> Has an explicit list of kernel versions built-in.
-> Yecch.
+> Do you have in mind an ifdef per function, or putting
+> several functions inside an ifdef?  If you think it
+> looks better - show us the code ;).
 
-Yecch is indeed appropriate, and I agree that this is bad. I really
-regret not having created the "nfs3" filesystem all those years ago.
-That would have made much of this compatibility argument mute.
+I was thinking of having a large ifdef'd section for the one word case. 
+I'll run that up and see if it does in fact look any cleaner.
 
-I do have plans to fix this for 2.7. In particular I'd like to drop
-support for "nfs", and separate it into "nfs2" and "nfs3", so that we
-can have mount make sensible choices about what the server does or does
-not support.
-That should also allow us to modularize NFS a bit more in order to allow
-people to drop v2 support (for instance) if they don't want to use it.
 
-> These messages should have been silenced ten years ago.
-> People complain.
+> Here's my cumulative patch of changes that I have gained so far
+> from your excellent feedback, and a couple I've noticed:
 
-They are supposed to. If they are seeing those messages, then they are
-not up to date w.r.t. the binary interfaces.
+<diff snipped>
 
-Now if you can assure me that "util-linux" and all other programs that
-use the mount interface can handle the EINVAL error, then fine: send me
-the patch.
-Otherwise, I see no alternative to the current situation: a silent
-attempt to comply with a binary interface that the kernel does not
-understand is clearly the wrong thing to do.
+Looks good.  I'll keep chugging along through the patches! :)
 
-Cheers,
-  Trond
+-Matt
+

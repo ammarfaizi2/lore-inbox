@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265215AbRFUUtC>; Thu, 21 Jun 2001 16:49:02 -0400
+	id <S265217AbRFUUwC>; Thu, 21 Jun 2001 16:52:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265217AbRFUUsw>; Thu, 21 Jun 2001 16:48:52 -0400
-Received: from force.4t2.com ([195.230.37.100]:29218 "EHLO force.4t2.com")
-	by vger.kernel.org with ESMTP id <S265215AbRFUUsq>;
-	Thu, 21 Jun 2001 16:48:46 -0400
-To: linux-kernel@vger.kernel.org
-Path: news.abyss.4t2.com!not-for-mail
-From: x@abyss.4t2.com (Thomas Weber)
-Newsgroups: 4t2.lists.linux.kernel
-Subject: Re: 2.4.6pre iptables masquerading seems to kill eth0
-Date: 21 Jun 2001 22:51:33 +0200
-Organization: The Abyss of 4t2.com
-Message-ID: <9gtmol$9ve$1@pandemonium.abyss.4t2.com>
-In-Reply-To: <3B31A652.85D2E597@idb.hist.no>
+	id <S265216AbRFUUvw>; Thu, 21 Jun 2001 16:51:52 -0400
+Received: from m146-mp1-cvx1b.col.ntl.com ([213.104.72.146]:38528 "EHLO
+	[213.104.72.146]") by vger.kernel.org with ESMTP id <S265211AbRFUUvi>;
+	Thu, 21 Jun 2001 16:51:38 -0400
+To: David Flynn <Dave@keston.u-net.com>
+Cc: linux kernel mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [slightly OT] IDE problems ? or just a dead disk ?
+In-Reply-To: <00f501c0f74e$defac4e0$1901a8c0@node0.idium.eu.org>
+	<017601c0f75d$454c6e70$1901a8c0@node0.idium.eu.org>
+From: John Fremlin <vii@users.sourceforge.net>
+Date: 21 Jun 2001 21:51:27 +0100
+In-Reply-To: <017601c0f75d$454c6e70$1901a8c0@node0.idium.eu.org> ("David Flynn"'s message of "Sun, 17 Jun 2001 19:42:33 +0100")
+Message-ID: <m2d77x8skw.fsf@boreas.yi.org.>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"David Flynn" <Dave@keston.u-net.com> writes:
 
-I'm on 2.4.6pre3 + freeswan/ipsec on my gateway now for 5 days.
-It's an old 486/66 32MB with several isdn links, a dsl uplink (with 
-iptables masquerading) behind a ne2k clone and a 3c509 to the inside network.
-no problems at all with the interfaces (all compiled as modules).
 
-  Tom
+[...]
+> ive done the badblock test, and compiled a list of 2302 bad blocks on this
+> disk ... however, when running mke2fs -l badblocfile /dev/hdc1
+> 
+> i got this interesting errormessage for every one of the bad blocks :
+> 
+> Bad block 1006290 out of range; ignored.
 
-In article <3B31A652.85D2E597@idb.hist.no>,
-Helge Hafting <helgehaf@idb.hist.no> wrote:
->I have a home network with two machines connected with
->3c905B cards.  The main machine also has a isdn dialup connection.
->
->Networking works well except if I let the main machine masquerade
->so the other can use the internet too.  I use iptables for this.
->It works for a day or so, then eth0 goes silent on the main machine.
->(Rebooting it shows that the other one was fine all the time.)
->
->The symptoms is that there is no contact between the two machines.
->No ping or anything.  "ifconfig" shows the interface is up
->with the correct ip address, but all packets just disappear.
->There are no error messages except from programs that time out.
->
->Bringing the interface down and up
->again with ifconfig does not help.  It is compiled into the
->kernel, so I can't try module reloading.
->
->Is this some sort of known problem? Or is there something
->I could do to find out more?  I couldn't
->find anything in the logfiles.
+That is probably because badblocks was working with badblocks of a
+smaller size than that of the filesystem (i.e. probably 1024 bytes
+instead of 4096 bytes, solution in this case is to divide all bad
+block numbers by 4).
+
+Well that's what happened to me today (worryingly on my newish IBM
+DTLA hd).
+
+-- 
+
+	http://ape.n3.net

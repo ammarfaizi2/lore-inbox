@@ -1,81 +1,233 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262805AbVAQOaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262806AbVAQOdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262805AbVAQOaF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 09:30:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbVAQOaF
+	id S262806AbVAQOdo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 09:33:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262807AbVAQOdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 09:30:05 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:41694 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262805AbVAQO3p (ORCPT
+	Mon, 17 Jan 2005 09:33:44 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:7384 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262806AbVAQOdb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 09:29:45 -0500
-MIME-Version: 1.0
+	Mon, 17 Jan 2005 09:33:31 -0500
+Date: Mon, 17 Jan 2005 15:33:01 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chris Wedgwood <cw@f00f.org>, torvalds@osdl.org, benh@kernel.crashing.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Horrible regression with -CURRENT from "Don't busy-lock-loop in preemptable spinlocks" patch
+Message-ID: <20050117143301.GA10341@elte.hu>
+References: <20050117055044.GA3514@taniwha.stupidest.org> <20050116230922.7274f9a2.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16875.52184.169399.632936@xf14.local>
-Date: Mon, 17 Jan 2005 15:29:44 +0100
-From: Egbert Eich <eich@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Egbert Eich <eich@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: vgacon fixes to help font restauration in X11
-In-Reply-To: alan@lxorguk.ukuu.org.uk wrote on Monday, 17 January 2005 at 12:23:21 +0000 
-References: <16867.58009.828782.164427@xf14.fra.suse.de>
-	<1105745463.9839.55.camel@localhost.localdomain>
-	<16875.32871.47983.655764@xf14.local>
-	<1105961582.12709.51.camel@localhost.localdomain>
-X-Mailer: VM 7.18 under Emacs 21.3.1
+Content-Disposition: inline
+In-Reply-To: <20050116230922.7274f9a2.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
- > On Llu, 2005-01-17 at 09:07, Egbert Eich wrote:
- > > Can you point me to these reports?
- > > I tested with a couple chipsets here and didn't find any problems.
- > 
- > I'll take a dig. The ones I've got are for 2.4 so relate to old code.
- > 
- > > We could check for the kernel version. This could be done during build
- > > time - assuming we don't ship generic binaries or during run time if we
- > > want to provide binaries that work everywhere.
- > > In reality the former would be sufficient for a lot of cases - especially
- > > for vendor supplied binaries.
- > 
- > The former would be a disaster for Fedora for example - we ship
- > 'current' kernels and having kernel upgrades require a new X11 won't
- > endear users . A runtime check on version might work I was wondering if
 
-No, it would rather be the other way around. A new version of X would
-require a certain version of the kernel - unless you plan to drop the 
-feature again.
-This however will not be necessary until 6.9/7 (however it will be named)
-comes out.
-I can implement both ways. Since the new font code lives in the OS dependent
-part this should not be a problem at all.
-The only disadvantage may be that I may not be able to turn off the old
-font code in the generic vgaHW stuff.
+* Andrew Morton <akpm@osdl.org> wrote:
 
- > it would be better to have an actual interface that said "do/do not
- > restore the extra bits in kernel".
- > 
- > That also avoids any suprises and regressions ?
+> > +BUILD_LOCK_OPS(spin, spinlock_t, spin_is_locked);
+> > +BUILD_LOCK_OPS(read, rwlock_t, rwlock_is_locked);
+> > +BUILD_LOCK_OPS(write, rwlock_t, spin_is_locked);
+> 
+> If you replace the last line with
+> 
+> 	BUILD_LOCK_OPS(write, rwlock_t, rwlock_is_locked);
+> 
+> does it help?
 
-I used to have a patch like that. But kernel people I've talked to told
-me that it would be preferrable not to change the API if not necessary.
+this is not enough - the proper solution should be the patch below,
+which i sent earlier today as a reply to Paul Mackerras' comments.
 
-In my opinion it is not. The changes only affect cases where a new font
-gets written or restored.
+	Ingo
 
- > > Anyway, would my patch be acceptable for the kernel?
- > 
- > I'm not video maintainer but other than the detection question it looks
- > sensible to me.
- > 
+--
+the first fix is that there was no compiler warning on x86 because it
+uses macros - i fixed this by changing the spinlock field to be
+'->slock'. (we could also use inline functions to get type protection, i
+chose this solution because it was the easiest to do.)
 
-OK, sounds promising. The changed Xserver pieces are in HEAD of the 
-X.Org tree. I'll see that I make the necessary adjustments to have
-a soft detection if you can give me a version number of the kernel
-which will have the new features.
+the second fix is to split rwlock_is_locked() into two functions:
 
-Egbert.
+ +/**
+ + * read_is_locked - would read_trylock() fail?
+ + * @lock: the rwlock in question.
+ + */
+ +#define read_is_locked(x) (atomic_read((atomic_t *)&(x)->lock) <= 0)
+ +
+ +/**
+ + * write_is_locked - would write_trylock() fail?
+ + * @lock: the rwlock in question.
+ + */
+ +#define write_is_locked(x) ((x)->lock != RW_LOCK_BIAS)
+
+this canonical naming of them also enabled the elimination of the newly
+added 'is_locked_fn' argument to the BUILD_LOCK_OPS macro.
+
+the third change was to change the other user of rwlock_is_locked(), and
+to put a migration helper there: architectures that dont have
+read/write_is_locked defined yet will get a #warning message but the
+build will succeed. (except if PREEMPT is enabled - there we really
+need.)
+
+compile and boot-tested on x86, on SMP and UP, PREEMPT and !PREEMPT. 
+Non-x86 architectures should work fine, except PREEMPT+SMP builds which
+will need the read_is_locked()/write_is_locked() definitions.
+!PREEMPT+SMP builds will work fine and will produce a #warning.
+
+	Ingo
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+--- linux/kernel/spinlock.c.orig
++++ linux/kernel/spinlock.c
+@@ -173,7 +173,7 @@ EXPORT_SYMBOL(_write_lock);
+  * (We do this in a function because inlining it would be excessive.)
+  */
+ 
+-#define BUILD_LOCK_OPS(op, locktype, is_locked_fn)			\
++#define BUILD_LOCK_OPS(op, locktype)					\
+ void __lockfunc _##op##_lock(locktype *lock)				\
+ {									\
+ 	preempt_disable();						\
+@@ -183,7 +183,7 @@ void __lockfunc _##op##_lock(locktype *l
+ 		preempt_enable();					\
+ 		if (!(lock)->break_lock)				\
+ 			(lock)->break_lock = 1;				\
+-		while (is_locked_fn(lock) && (lock)->break_lock)	\
++		while (op##_is_locked(lock) && (lock)->break_lock)	\
+ 			cpu_relax();					\
+ 		preempt_disable();					\
+ 	}								\
+@@ -205,7 +205,7 @@ unsigned long __lockfunc _##op##_lock_ir
+ 		preempt_enable();					\
+ 		if (!(lock)->break_lock)				\
+ 			(lock)->break_lock = 1;				\
+-		while (is_locked_fn(lock) && (lock)->break_lock)	\
++		while (op##_is_locked(lock) && (lock)->break_lock)	\
+ 			cpu_relax();					\
+ 		preempt_disable();					\
+ 	}								\
+@@ -246,9 +246,9 @@ EXPORT_SYMBOL(_##op##_lock_bh)
+  *         _[spin|read|write]_lock_irqsave()
+  *         _[spin|read|write]_lock_bh()
+  */
+-BUILD_LOCK_OPS(spin, spinlock_t, spin_is_locked);
+-BUILD_LOCK_OPS(read, rwlock_t, rwlock_is_locked);
+-BUILD_LOCK_OPS(write, rwlock_t, spin_is_locked);
++BUILD_LOCK_OPS(spin, spinlock_t);
++BUILD_LOCK_OPS(read, rwlock_t);
++BUILD_LOCK_OPS(write, rwlock_t);
+ 
+ #endif /* CONFIG_PREEMPT */
+ 
+--- linux/include/asm-i386/spinlock.h.orig
++++ linux/include/asm-i386/spinlock.h
+@@ -15,7 +15,7 @@ asmlinkage int printk(const char * fmt, 
+  */
+ 
+ typedef struct {
+-	volatile unsigned int lock;
++	volatile unsigned int slock;
+ #ifdef CONFIG_DEBUG_SPINLOCK
+ 	unsigned magic;
+ #endif
+@@ -43,7 +43,7 @@ typedef struct {
+  * We make no fairness assumptions. They have a cost.
+  */
+ 
+-#define spin_is_locked(x)	(*(volatile signed char *)(&(x)->lock) <= 0)
++#define spin_is_locked(x)	(*(volatile signed char *)(&(x)->slock) <= 0)
+ #define spin_unlock_wait(x)	do { barrier(); } while(spin_is_locked(x))
+ 
+ #define spin_lock_string \
+@@ -83,7 +83,7 @@ typedef struct {
+ 
+ #define spin_unlock_string \
+ 	"movb $1,%0" \
+-		:"=m" (lock->lock) : : "memory"
++		:"=m" (lock->slock) : : "memory"
+ 
+ 
+ static inline void _raw_spin_unlock(spinlock_t *lock)
+@@ -101,7 +101,7 @@ static inline void _raw_spin_unlock(spin
+ 
+ #define spin_unlock_string \
+ 	"xchgb %b0, %1" \
+-		:"=q" (oldval), "=m" (lock->lock) \
++		:"=q" (oldval), "=m" (lock->slock) \
+ 		:"0" (oldval) : "memory"
+ 
+ static inline void _raw_spin_unlock(spinlock_t *lock)
+@@ -123,7 +123,7 @@ static inline int _raw_spin_trylock(spin
+ 	char oldval;
+ 	__asm__ __volatile__(
+ 		"xchgb %b0,%1"
+-		:"=q" (oldval), "=m" (lock->lock)
++		:"=q" (oldval), "=m" (lock->slock)
+ 		:"0" (0) : "memory");
+ 	return oldval > 0;
+ }
+@@ -138,7 +138,7 @@ static inline void _raw_spin_lock(spinlo
+ #endif
+ 	__asm__ __volatile__(
+ 		spin_lock_string
+-		:"=m" (lock->lock) : : "memory");
++		:"=m" (lock->slock) : : "memory");
+ }
+ 
+ static inline void _raw_spin_lock_flags (spinlock_t *lock, unsigned long flags)
+@@ -151,7 +151,7 @@ static inline void _raw_spin_lock_flags 
+ #endif
+ 	__asm__ __volatile__(
+ 		spin_lock_string_flags
+-		:"=m" (lock->lock) : "r" (flags) : "memory");
++		:"=m" (lock->slock) : "r" (flags) : "memory");
+ }
+ 
+ /*
+@@ -186,7 +186,17 @@ typedef struct {
+ 
+ #define rwlock_init(x)	do { *(x) = RW_LOCK_UNLOCKED; } while(0)
+ 
+-#define rwlock_is_locked(x) ((x)->lock != RW_LOCK_BIAS)
++/**
++ * read_is_locked - would read_trylock() fail?
++ * @lock: the rwlock in question.
++ */
++#define read_is_locked(x) (atomic_read((atomic_t *)&(x)->lock) <= 0)
++
++/**
++ * write_is_locked - would write_trylock() fail?
++ * @lock: the rwlock in question.
++ */
++#define write_is_locked(x) ((x)->lock != RW_LOCK_BIAS)
+ 
+ /*
+  * On x86, we implement read-write locks as a 32-bit counter
+--- linux/kernel/exit.c.orig
++++ linux/kernel/exit.c
+@@ -861,8 +861,12 @@ task_t fastcall *next_thread(const task_
+ #ifdef CONFIG_SMP
+ 	if (!p->sighand)
+ 		BUG();
++#ifndef write_is_locked
++# warning please implement read_is_locked()/write_is_locked()!
++# define write_is_locked rwlock_is_locked
++#endif
+ 	if (!spin_is_locked(&p->sighand->siglock) &&
+-				!rwlock_is_locked(&tasklist_lock))
++				!write_is_locked(&tasklist_lock))
+ 		BUG();
+ #endif
+ 	return pid_task(p->pids[PIDTYPE_TGID].pid_list.next, PIDTYPE_TGID);
 

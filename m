@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285414AbRLGFAc>; Fri, 7 Dec 2001 00:00:32 -0500
+	id <S282747AbRLGFT7>; Fri, 7 Dec 2001 00:19:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285377AbRLGFAW>; Fri, 7 Dec 2001 00:00:22 -0500
-Received: from holomorphy.com ([216.36.33.161]:2436 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S285370AbRLGFAI>;
-	Fri, 7 Dec 2001 00:00:08 -0500
-Date: Thu, 6 Dec 2001 21:00:06 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: proc_pid_statm
-Message-ID: <20011206210006.D818@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011206134150.A818@holomorphy.com> <3C1040C3.20601@wipro.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <3C1040C3.20601@wipro.com>; from balbir.singh@wipro.com on Fri, Dec 07, 2001 at 09:38:35AM +0530
-Organization: The Domain of Holomorphy
+	id <S282736AbRLGFTt>; Fri, 7 Dec 2001 00:19:49 -0500
+Received: from milsum.Biomed.McGill.CA ([132.206.111.48]:519 "EHLO
+	milsum.biomed.mcgill.ca") by vger.kernel.org with ESMTP
+	id <S282747AbRLGFTi>; Fri, 7 Dec 2001 00:19:38 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Christian Lavoie <clavoie@bmed.mcgill.ca>
+To: Dave Jones <davej@suse.de>
+Subject: Re: 2.4.17-pre5 will not boot
+Date: Fri, 7 Dec 2001 00:19:37 -0500
+X-Mailer: KMail [version 1.3.2]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0112070040380.4486-100000@Appserv.suse.de>
+In-Reply-To: <Pine.LNX.4.33.0112070040380.4486-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011207051939Z282747-752+9102@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 07, 2001 at 09:38:35AM +0530, BALBIR SINGH wrote:
-> I looked at ELF_ET_DYN_BASE and it is defined differently on
-> different architectures. For example on an i386, it is defined
-> to be 2GB which is 0x80000000.
+On Thursday 06 December 2001 18:46, Dave Jones wrote:
 
-The corrected patch follows:
+> Can you rebuild from a clean tarball, patch straight up to pre5
+> and try and reproduce this ? I'm betting it won't happen and you had
+> some cruft from an old build making things go awry.
 
+Close, but no cookie.
 
---- linux-2.4.17-pre4-virgin/fs/proc/array.c	Thu Oct 11 09:00:01 2001
-+++ linux-2.4.17-pre4/fs/proc/array.c	Thu Dec  6 20:58:36 2001
-@@ -491,14 +491,13 @@
- 			share += shared;
- 			dt += dirty;
- 			size += total;
--			if (vma->vm_flags & VM_EXECUTABLE)
--				trs += pages;	/* text */
--			else if (vma->vm_flags & VM_GROWSDOWN)
--				drs += pages;	/* stack */
--			else if (vma->vm_end > 0x60000000)
--				lrs += pages;	/* library */
--			else
--				drs += pages;
-+			if (vma->vm_flags & VM_EXECUTABLE) {
-+				if(vma->vm_end > TASK_UNMAPPED_BASE)
-+					lrs += pages;    /* library */
-+				else
-+					trs += pages;	/* text */
-+			} else
-+				drs += pages;	/* stack and data */
- 			vma = vma->vm_next;
- 		}
- 		up_read(&mm->mmap_sem);
+Indeed, the problem is not the new arch/i386/kernel code.
+
+The kernel was more or less1024kb large (can't remember the exact number), 
+and my loadlin can't seem to handle that.
+
+Might be nice to change the current error message from "Kernel isn't usable 
+on boot floppies" [or words to that effect] to "Kernel isn't usable with 
+loadlin, as usually seen on boot floppies"...
+
+As to why backing a patch that doesn't get compiled in would change kernel 
+size... I'm not sure I want to know.
+
+[The fix was to modularize a couple more things]
+
+-- 
+Christian Lavoie
+clavoie@bmed.mcgill.ca

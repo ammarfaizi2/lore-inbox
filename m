@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbULaDba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbULaDdS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261818AbULaDba (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 22:31:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbULaDba
+	id S261815AbULaDdS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 22:33:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbULaDdS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 22:31:30 -0500
-Received: from smtp.knology.net ([24.214.63.101]:14484 "HELO smtp.knology.net")
-	by vger.kernel.org with SMTP id S261818AbULaDbM (ORCPT
+	Thu, 30 Dec 2004 22:33:18 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:51346 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261815AbULaDdA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 22:31:12 -0500
-Subject: Re: [RFC 2.6.10 5/22] xfrm: Attempt to offload bundled xfrm_states
-	for outbound xfrms
-From: David Dillow <dave@thedillows.org>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: Netdev <netdev@oss.sgi.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20041230233443.GB5247@electric-eye.fr.zoreil.com>
-References: <20041230035000.13@ori.thedillows.org>
-	 <20041230035000.14@ori.thedillows.org>
-	 <20041230233443.GB5247@electric-eye.fr.zoreil.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 30 Dec 2004 22:31:07 -0500
-Message-Id: <1104463867.10590.2.camel@ori.thedillows.org>
+	Thu, 30 Dec 2004 22:33:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=hNH4QW9DpRgi3CG9cqcAlNkJkGhMsiH5mscFSZGP9t21rh1gMLLQkG4ExiD33AZjkeaEoXLWwg/c/kgzfu+VEcITPkLeAxOtye4VNQWpdWxiz3TNPfIhRgaWQACJqkz3DQzYWCnCFPvmgxZQ48NoUzyV/LJEj+s5WSKxp7SxzCY=
+Message-ID: <169c13c404123019322a766f64@mail.gmail.com>
+Date: Fri, 31 Dec 2004 04:32:59 +0100
+From: Felipe Erias <charles.swann@gmail.com>
+Reply-To: Felipe Erias <charles.swann@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Queues when accessing disks
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-12-31 at 00:34 +0100, Francois Romieu wrote:
-> David Dillow <dave@thedillows.org> :
-> [...]
-> > diff -Nru a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-> > --- a/net/xfrm/xfrm_policy.c	2004-12-30 01:11:18 -05:00
-> > +++ b/net/xfrm/xfrm_policy.c	2004-12-30 01:11:18 -05:00
-> > @@ -705,6 +705,31 @@
-> >  	};
-> >  }
-> >  
-> > +static void xfrm_accel_bundle(struct dst_entry *dst)
-> > +{
-> > +	struct xfrm_bundle_list bundle, *xbl, *tmp;
-> > +	struct net_device *dev = dst->dev;
-> > +	INIT_LIST_HEAD(&bundle.node);
-> > +
-> > +	if (dev && netif_running(dev) && (dev->features & NETIF_F_IPSEC)) {
-> > +		while (dst) {
-> > +			xbl = kmalloc(sizeof(*xbl), GFP_ATOMIC);
-> > +			if (!xbl)
-> > +				goto out;
-> > +
-> > +			xbl->dst = dst;
-> > +			list_add_tail(&xbl->node, &bundle.node);
-> > +			dst = dst->child;
-> > +		}
-> > +
-> > +		dev->xfrm_bundle_add(dev, &bundle);
-> > +	}
-> > +
-> > +out:
-> > +	list_for_each_entry_safe(xbl, tmp, &bundle.node, node)
-> > +		kfree(xbl);
-> > +}
-> 
-> If the driver knows the max depth which is allowed, why not have it
-> allocate its own bundle-like struct during initialization one for once ?
-> Instead of pushing the bundle list, dst is walked by the code of
-> the device's own xyz_xfrm_bundle_add into the said circular list,
-> entries get overwriten if the dst chain is longer and when the end of
-> dst is reached, the bundle-like list is walked in reverse order.
-> It avoids a few failure points imho.
+Hi,
 
-Good idea! I'll see if I can't code it up. I definitely want to get rid
-of that GFP_ATOMIC allocation.
--- 
-David Dillow <dave@thedillows.org>
+I'm trying to apply queuing theory to the study of the GNU/Linux kernel.
+Right now, I'm focusing in the queue of processes that appears when they
+try to access an I/O device (specifically, an IDE HD). When they want to
+read data, it behaves as a usual queue: several clients (processes) that
+require attention from a server (disk / driver / ...). The case when they want
+to write data is a bit more tricky, because of the cache buffers used by the OS,
+and maybe could be modelized by a network of queues. Both cases are
+interesting for my work, but I'll take the reading one first, just
+because it seems
+a bit more simple 'a priori'.
+
+To modelize the queue, I need to get some information:
+ - what processes claim attention from the disk
+ - when they do it
+ - when they begin to be served
+ - when they finish being served
+
+To get all this information, maybe I could hack my kernel a bit to write
+a line to a log on every access to the HD, or account the IRQs from
+the IDE channels... I also have the feeling that this queuing problem could
+dissappear o became more hidden if DMA were enabled.
+
+To be true, I'm a bit lost and that's why I ask for your help.
+
+Yours sincerely,
+
+  Felipe Erias

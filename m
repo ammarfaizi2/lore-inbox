@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263744AbTDNWlK (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 18:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263968AbTDNWlK (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 18:41:10 -0400
-Received: from iucha.net ([209.98.146.184]:48499 "EHLO mail.iucha.net")
-	by vger.kernel.org with ESMTP id S263744AbTDNWlI (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 18:41:08 -0400
-Date: Mon, 14 Apr 2003 17:52:58 -0500
-To: Greg KH <greg@kroah.com>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: oops in bus_add_driver with 2.5.67-bk4
-Message-ID: <20030414225258.GE20291@iucha.net>
-References: <20030412215544.GA1663@iucha.net> <20030414183129.GB4306@kroah.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9crTWz/Z+Zyzu20v"
+	id S264050AbTDNWex (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 18:34:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264046AbTDNWex (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 18:34:53 -0400
+Received: from [63.98.246.130] ([63.98.246.130]:53159 "HELO
+	mailgw.projectdesign.com") by vger.kernel.org with SMTP
+	id S264050AbTDNWep (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 18:34:45 -0400
+From: Joshua Penix <jpenix@binarytribe.com>
+To: Andre Hedrick <andre@linux-ide.org>
+Subject: Re: DMA Timeouts with 3112 SATA Controller (status == 0x21)
+Date: Mon, 14 Apr 2003 15:50:41 -0700
+User-Agent: KMail/1.5.1
+References: <Pine.LNX.4.10.10304120039570.23693-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10304120039570.23693-100000@master.linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030414183129.GB4306@kroah.com>
-X-message-flag: Outlook: Where do you want [your files] to go today?
-X-gpg-key: http://iucha.net/florin_iucha.gpg
-X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
-User-Agent: Mutt/1.5.3i
-From: florin@iucha.net (Florin Iucha)
+Message-Id: <200304141550.41888.jpenix@binarytribe.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 12 April 2003 01:06 am, Andre Hedrick wrote:
+> Gurr!!!!!!!
+>
+> These drives were not to make it to market in the commom purchase
+> marketspace!
 
---9crTWz/Z+Zyzu20v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Do you mean to say that the problem lies in the Seagate drives, not in the SiI 
+3112 controller and/or its driver code?
 
-On Mon, Apr 14, 2003 at 11:31:29AM -0700, Greg KH wrote:
-> Try the following patch from David Miller.
+I'm seeing SATA as a common component on quite a few motherboards, and am 
+definitely seeing SATA drives in the retail channel.  In my experience, all 
+of these pieces work flawlessly under Win2k and XP... would love for them to 
+do the same under Linux.
 
-I have verified the patch works, using -bk5.
+> This is not a fun one to fix!
+>
+> This is all I can say for now :-(
 
-Cheers,
-florin
+Why no fun?  Why can't you say more?  We would really appreciate more 
+specifics when you can.  If the problem lies with Seagate, I'd be happy to 
+press the issue with them.
 
---=20
-
-"NT is to UNIX what a doughnut is to a particle accelerator."
-
---9crTWz/Z+Zyzu20v
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+mzvKNLPgdTuQ3+QRAhSeAJ9rVnMXrGyY9AL5BXGwU5mJmSEMsQCgkfXz
-PznpDnbBj5pw5TEFpna+SxI=
-=ALNI
------END PGP SIGNATURE-----
-
---9crTWz/Z+Zyzu20v--
+--Josh

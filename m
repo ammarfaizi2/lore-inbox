@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131949AbRDNKdr>; Sat, 14 Apr 2001 06:33:47 -0400
+	id <S131974AbRDNKiQ>; Sat, 14 Apr 2001 06:38:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131974AbRDNKdh>; Sat, 14 Apr 2001 06:33:37 -0400
-Received: from postfix1-2.free.fr ([213.228.0.130]:59145 "HELO
-	postfix1-2.free.fr") by vger.kernel.org with SMTP
-	id <S131949AbRDNKd1>; Sat, 14 Apr 2001 06:33:27 -0400
-From: Fabien CHEVALIER <fabchev2@free.fr>
-Reply-To: fabchev2@free.fr
-Date: Sat, 14 Apr 2001 12:30:26 +0000
-X-Mailer: KMail [version 1.1.99]
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_Q28S97QONW82L3U7AZ17"
+	id <S131985AbRDNKiG>; Sat, 14 Apr 2001 06:38:06 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:52237 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S131974AbRDNKhz> convert rfc822-to-8bit; Sat, 14 Apr 2001 06:37:55 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Andreas Peter <ujq7@rz.uni-karlsruhe.de>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH- new driver] Maxi Radio FM 2 driver (GemTek) (2)
+Subject: Re: SW-RAID0 Performance problems
+Date: Sat, 14 Apr 2001 12:45:07 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <Pine.LNX.4.10.10104131048550.1669-100000@coffee.psychology.mcmaster.ca> <20010413090751.E4557@greenhydrant.com> <3AD7416A.A6B65A86@bigfoot.com>
+In-Reply-To: <3AD7416A.A6B65A86@bigfoot.com>
 MIME-Version: 1.0
-Message-Id: <01041412302602.00723@localhost.localdomain>
+Message-Id: <01041412085801.00516@debian>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Freitag, 13. April 2001 20:11 schrieb Tim Moore:
 
---------------Boundary-00=_Q28S97QONW82L3U7AZ17
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8bit
+> Try 'hdparm -tT'  with simultaneous /dev/hda3 and /dev/hdc3.  This gives
+> you a baseline on the actual partitions involved.
 
->Hi,
+hdparm -tT simultanous on /dev/hda3 and /dev/hdc3:
 
->I've wrote this driver for my Maxi Radio Fm 2 card.
-> i hope it can be usefull for somebody.
->This card uses a GemTek chip, but the GemTek driver wasn't working very well 
->:
->the card was left uninitialized, and so it didn't mute.
+/dev/hda3:
+ Timing buffer-cache reads:   128 MB in  2.29 seconds = 55.90 MB/sec
+ Timing buffered disk reads:  64 MB in  4.67 seconds = 13.70 MB/sec
 
->I didn't wrote a patch for the GemTek driver because the protocol to change 
->frequency is different.
+/dev/hdc3:
+ Timing buffer-cache reads:   128 MB in  2.28 seconds = 56.14 MB/sec
+ Timing buffered disk reads:  64 MB in  4.61 seconds = 13.88 MB/sec
 
->This patch is for 2.4.3 kernel - nobody but me tested it yet...
+Now on single HD  -  /dev/hda3 :
 
->Please CC your answers as my 56 k modem can't bear the list!
+/dev/hda3:
+ Timing buffer-cache reads:   128 MB in  1.30 seconds = 98.46 MB/sec
+ Timing buffered disk reads:  64 MB in  2.26 seconds = 28.32 MB/sec
 
+It looks like reading on /dev/hda3 locks /dev/hdc3 ...
+Is it necessary to apply  the ide-patches to the kernel ?
 
-Ooops, something went wrong with the attached patch, I hope this time there 
-won't be any problem...
---------------Boundary-00=_Q28S97QONW82L3U7AZ17
-Content-Type: text/plain;
-  name="patch-maxifm2-v0.12-2.4.3.gz"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="patch-maxifm2-v0.12-2.4.3.gz"
+Andreas
+-- 
+Andreas Peter *** ujq7@rz.uni-karlsruhe.de
 
-‹‚X×:
---------------Boundary-00=_Q28S97QONW82L3U7AZ17--

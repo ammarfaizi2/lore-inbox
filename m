@@ -1,115 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264543AbTGBCmL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 22:42:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264559AbTGBCmL
+	id S264582AbTGBCpw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 22:45:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264601AbTGBCpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 22:42:11 -0400
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:60544 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S264543AbTGBCmG (ORCPT
+	Tue, 1 Jul 2003 22:45:52 -0400
+Received: from codepoet.org ([166.70.99.138]:16592 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S264582AbTGBCps (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 22:42:06 -0400
-Date: Tue, 1 Jul 2003 22:30:50 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: CarlosRomero <caberome@bellsouth.net>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
-       Shawn Starr <spstarr@sh0n.net>
-Subject: Re: simple pnp bios io resources bug makes  system unusable
-Message-ID: <20030701223050.GA19402@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	CarlosRomero <caberome@bellsouth.net>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@digeo.com>, Shawn Starr <spstarr@sh0n.net>
-References: <3F010229.4020201@bellsouth.net>
+	Tue, 1 Jul 2003 22:45:48 -0400
+Date: Tue, 1 Jul 2003 21:00:14 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix 2.4.22-pre broken x86 math-emu
+Message-ID: <20030702030013.GA3405@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F010229.4020201@bellsouth.net>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The pnpbios is reserving the complete range of every possible
-io port.  This causes device activation to fail for every device
-that needs an io port because that resource will always appear
-busy.
+As of today's "fix up gcc 3.3 bits" patch [1], x86 math emulation
+is now even more broken, since this latest patch has added some
+mismatched quotes while still failing to address the actual
+problems preventing this code from compiling with gcc 3.3.
 
-On Mon, Jun 30, 2003 at 11:38:17PM -0400, CarlosRomero wrote:
-> cat /sys/devices/pnp0/00\:0c/name
-> Reserved Motherboard Resources
-> 
-> cat /sys/devices/pnp0/00\:0c/resources
-> state = active
-> io 0x4d0-0x4d1
-> io 0xcf8-0xcff
-> io 0x3f7-0x3f7
-> io 0x401-0x407
-> io 0x298-0x298
-> io 0x00000000-0xffffffff
-> mem 0xfffe0000-0xffffffff
-> mem 0x100000-0x7ffffff
-> 
-> fixup: check for null io base, other devices are now able to initialize.
+This patch, first sent to you on Jun 21st, fixes the missing
+semicolons and missing quotes in the x86 math-emu code, allowing
+it to compile with gcc 3.3.  I have updated things to also fix
+the mismatched quotes that were added today.  Unlike the patch
+you applied earlier today, my patch is actually tested...
 
-Unfortunatly it's not quite that simple.
+Please apply,
 
-> static void current_ioresource(struct pnp_resource_table * res, int io, 
-> int len)
-> {
->        int i = 0;
-> 
-> +      if (!io) return;
->        while ((res->port_resource[i].flags & IORESOURCE_IO) && i < 
-> PNP_MAX_PORT) i++;
->        if (i < PNP_MAX_PORT) {
->                res->port_resource[i].start = (unsigned long) io;
->                res->port_resource[i].end = (unsigned long)(io + len - 1);
->                res->port_resource[i].flags = IORESOURCE_IO;  // Also
-> clears _UNSET flag
->        }
-> }
+ -Erik
 
-Below are two examples that both use a base of 0 in a valid way.
+[1] http://www.kernel.org/diff/diffview.cgi?file=/pub/linux/kernel/v2.4/testing/cset/cset-alan@lxorguk.ukuu.org.uk|ChangeSet|20030701183359|14011.txt
 
-(one for mem)
-# cat id
-PNP0c01 /* this is a system device */
-# cat resources
-state = active
-mem 0x0-0x9ffff
-mem 0xe4000-0xfffff
-mem 0x100000-0x3ffffff
-mem 0xfff80000-0xfffbffff
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--
 
-(and one for io ports)
-# cat id
-PNP0200	/* this is an AT DMA Controller */
-# cat resources
-state = active
-io 0x0-0xf
-io 0x81-0x8f
-io 0xc0-0xdf
-dma 4
 
-Therefore just eliminating base 0 addresses is not a proper solution.
-
-Also if we just skip the culprit resource then the resource index number
-(a value that many drivers require to be consistent) will be offset by
-the number of skipped resources of the same type.
-
-Currently I'm leaning toward this logic...
-if we have any of the following situations
-- 0x00000000 for base and 0xffffffff for end
-- 0x00000000 for base and 0x00000000 for end
-- 0xffffffff for base and 0xffffffff for end
-then the resource range can be considered disabled.
-
-Also a device can have a disabled resource but not be fully disabled,
-such as a parport with some features disabled (ECP etc).  So the
-index number must be maintained, this will require some more complex
-changes.
-
-I'll have a full fix out soon.
-
-Thanks,
-Adam
-
+--- linux/arch/i386/math-emu/poly.h.orig	2003-07-01 20:39:49.000000000 -0600
++++ linux/arch/i386/math-emu/poly.h	2003-07-01 20:39:57.000000000 -0600
+@@ -64,7 +64,7 @@
+ 				      const unsigned long arg2)
+ {
+   int retval;
+-  asm volatile ("mull %2; movl %%edx,%%eax" \
++  asm volatile ("mull %2; movl %%edx,%%eax; " \
+ 		:"=a" (retval) \
+ 		:"0" (arg1), "g" (arg2) \
+ 		:"dx");
+@@ -75,11 +75,11 @@
+ /* Add the 12 byte Xsig x2 to Xsig dest, with no checks for overflow. */
+ static inline void add_Xsig_Xsig(Xsig *dest, const Xsig *x2)
+ {
+-  asm volatile ("movl %1,%%edi; movl %2,%%esi;" \
+-                 movl (%%esi),%%eax; addl %%eax,(%%edi);" \
+-                 movl 4(%%esi),%%eax; adcl %%eax,4(%%edi);" \
+-                 movl 8(%%esi),%%eax; adcl %%eax,8(%%edi);"
+-                 :"=g" (*dest):"g" (dest), "g" (x2)
++  asm volatile ("movl %1,%%edi; movl %2,%%esi; " \
++                 "movl (%%esi),%%eax; addl %%eax,(%%edi); " \
++                 "movl 4(%%esi),%%eax; adcl %%eax,4(%%edi); " \
++                 "movl 8(%%esi),%%eax; adcl %%eax,8(%%edi); " \
++                 :"=g" (*dest):"g" (dest), "g" (x2) \
+                  :"ax","si","di");
+ }
+ 
+@@ -90,19 +90,19 @@
+    problem, but keep fingers crossed! */
+ static inline void add_two_Xsig(Xsig *dest, const Xsig *x2, long int *exp)
+ {
+-  asm volatile ("movl %2,%%ecx; movl %3,%%esi;
+-                 movl (%%esi),%%eax; addl %%eax,(%%ecx);
+-                 movl 4(%%esi),%%eax; adcl %%eax,4(%%ecx);
+-                 movl 8(%%esi),%%eax; adcl %%eax,8(%%ecx);
+-                 jnc 0f;
+-		 rcrl 8(%%ecx); rcrl 4(%%ecx); rcrl (%%ecx)
+-                 movl %4,%%ecx; incl (%%ecx)
+-                 movl $1,%%eax; jmp 1f;
+-                 0: xorl %%eax,%%eax;
+-                 1:"
+-		:"=g" (*exp), "=g" (*dest)
+-		:"g" (dest), "g" (x2), "g" (exp)
+-		:"cx","si","ax");
++  asm volatile ("movl %2,%%ecx; movl %3,%%esi; " \
++                 "movl (%%esi),%%eax; addl %%eax,(%%ecx); " \
++                 "movl 4(%%esi),%%eax; adcl %%eax,4(%%ecx); " \
++                 "movl 8(%%esi),%%eax; adcl %%eax,8(%%ecx); " \
++                 "jnc 0f; " \
++		 "rcrl 8(%%ecx); rcrl 4(%%ecx); rcrl (%%ecx); " \
++                 "movl %4,%%ecx; incl (%%ecx); " \
++                 "movl $1,%%eax; jmp 1f; " \
++                 "0: xorl %%eax,%%eax; " \
++                 "1: " \
++		:"=g" (*exp), "=g" (*dest) \
++		:"g" (dest), "g" (x2), "g" (exp) \
++		:"cx","si","ax"); 
+ }
+ 
+ 
+@@ -110,11 +110,11 @@
+ /* This is faster in a loop on my 386 than using the "neg" instruction. */
+ static inline void negate_Xsig(Xsig *x)
+ {
+-  asm volatile("movl %1,%%esi; "
+-               "xorl %%ecx,%%ecx; "
+-               "movl %%ecx,%%eax; subl (%%esi),%%eax; movl %%eax,(%%esi); "
+-               "movl %%ecx,%%eax; sbbl 4(%%esi),%%eax; movl %%eax,4(%%esi); "
+-               "movl %%ecx,%%eax; sbbl 8(%%esi),%%eax; movl %%eax,8(%%esi); "
++  asm volatile("movl %1,%%esi; " \
++               "xorl %%ecx,%%ecx; " \
++               "movl %%ecx,%%eax; subl (%%esi),%%eax; movl %%eax,(%%esi); " \
++               "movl %%ecx,%%eax; sbbl 4(%%esi),%%eax; movl %%eax,4(%%esi); " \
++               "movl %%ecx,%%eax; sbbl 8(%%esi),%%eax; movl %%eax,8(%%esi); " \
+                :"=g" (*x):"g" (x):"si","ax","cx");
+ }
+ 

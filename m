@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317056AbSFKOMP>; Tue, 11 Jun 2002 10:12:15 -0400
+	id <S317058AbSFKOMU>; Tue, 11 Jun 2002 10:12:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317058AbSFKOMO>; Tue, 11 Jun 2002 10:12:14 -0400
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:63675 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S317056AbSFKOMN>; Tue, 11 Jun 2002 10:12:13 -0400
-Message-ID: <3D06051C.3030305@antefacto.com>
-Date: Tue, 11 Jun 2002 15:11:40 +0100
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: remedy@mirotel.net
-CC: linux-kernel@vger.kernel.org
-Subject: net sysctls questions
-In-Reply-To: <02061117004401.01217@fortress.mirotel.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317059AbSFKOMT>; Tue, 11 Jun 2002 10:12:19 -0400
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:24078 "HELO
+	ns.higherplane.net") by vger.kernel.org with SMTP
+	id <S317058AbSFKOMS>; Tue, 11 Jun 2002 10:12:18 -0400
+Date: Wed, 12 Jun 2002 00:14:33 +1000
+From: john slee <indigoid@higherplane.net>
+To: Kai Henningsen <kaih@khms.westfalen.de>
+Cc: thunder@ngforever.de, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] Futex Asynchronous Interface
+Message-ID: <20020611141433.GV27429@higherplane.net>
+In-Reply-To: <Pine.LNX.4.44.0206100808180.6159-100000@hawkeye.luckynet.adm> <8QbwcRg1w-B@khms.westfalen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The net.ipv4.icmp_default_ttl patch
-reminds me, about wierd stuff I've
-seen in the net sysctls:
+On Mon, Jun 10, 2002 at 10:46:00PM +0200, Kai Henningsen wrote:
+> thunder@ngforever.de (Thunder from the hill)  wrote on 10.06.02 in <Pine.LNX.4.44.0206100808180.6159-100000@hawkeye.luckynet.adm>:
+> 
+> > On Mon, 10 Jun 2002, Helge Hafting wrote:
+> > > ls /dev/net
+> > > eth0 eth1 eth2 ippp0
+> >
+> > What is it worth? You have a few more files which you can't do anything
+> > with, and ifconfig output is much more greppable etc.
+> 
+> Ifconfig output is *WHAT*?!
+> 
+> Ifconfig output, to be parsed by a script, is one of the shittiest  
+> interfaces possible.
 
-/proc/sys/net/unix/max_dgram_qlen is only
-readable by root. Why?
+it may be but you can use 'ip' instead which _is_ much more script
+friendly and seems to have at least ifconfig functionality.
 
-Documentation/networking/ip-sysctl.txt
-refers to tcp_keepalive_interval when it should
-refer to tcp_keepalive_intvl
+j.
 
-/proc/sys/net/ipv4/conf/../{arp_filter,tag}
-are not documented.
-
-/proc/sys/net/ipv4/icmp_rate_limit is jiffies.
-Shouldn't this be HZ, i.e. jiffies shouldn't
-be exported to userspace as it's non portable?
-
-Any comments before I do a patch?
-
-Padraig.
-
+-- 
+toyota power: http://indigoid.net/

@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbTIYSog (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 14:44:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbTIYSoQ
+	id S261828AbTIYS5l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 14:57:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbTIYS5k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 14:44:16 -0400
-Received: from rav-az.mvista.com ([65.200.49.157]:27820 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S261754AbTIYSnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 14:43:07 -0400
-Subject: Re: [PATCH} fix defect with kobject memory leaks during del_gendisk
-From: Steven Dake <sdake@mvista.com>
-Reply-To: sdake@mvista.com
-To: Patrick Mochel <mochel@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0309251023220.947-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0309251023220.947-100000@localhost.localdomain>
-Content-Type: text/plain
-Organization: MontaVista Software, Inc.
-Message-Id: <1064515384.4763.28.camel@persist.az.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 25 Sep 2003 11:43:04 -0700
-Content-Transfer-Encoding: 7bit
+	Thu, 25 Sep 2003 14:57:40 -0400
+Received: from fw.osdl.org ([65.172.181.6]:23428 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261828AbTIYS5h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 14:57:37 -0400
+Date: Thu, 25 Sep 2003 11:53:03 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@localhost.localdomain
+To: Matthew Dobson <colpatch@us.ibm.com>
+cc: Russell King <rmk@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>,
+       Greg KH <gregkh@us.ibm.com>
+Subject: Re: [BUG/MEMLEAK?] struct pci_bus, child busses & bridges
+In-Reply-To: <3F73309B.4070908@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0309251146170.947-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-09-25 at 10:26, Patrick Mochel wrote:
-> > Attached is a patch which fixes a few memory leaks in 2.6.0-test5. 
-> > Comments are welcome as to whether or not this patch is the right
-> > solution.
-> > 
-> > I added the ability to linux MD to generate add and remove hotplug calls
-> > on RAID START and STOPs.  To achieve this, I use the del_gendisk call
-> > which deletes the gendisk, delete the children kobjects, and delete the
-> > parent (in this case, mdX) kobject.
-> > 
-> > Unfortunately it appears that del_gendisk uses kobject_del to delete the
-> > kobject.  If the kobject has a ktype release function, it is not called
-> > in the kobject_del call path, but only in kobject_unregister.
-> > 
-> > This patch changes the functionality so the release function (in this
-> > case the block device release function in drivers/block/genhd.c) is
-> > called by changing the kobject_del to kobject_unregister.
-> 
-> It is not the right thing to do, as Christoph pointed out. Gendisks have a 
-> lifetime longer than the time between add_disk() and del_gendisk(). They 
-> are created before they are added, and the objects may persist longer 
-> after they have been removed from view. 
-> 
-> To delete the last reference, the MD layer should be calling put_disk(), 
-> which will trigger release to happen. 
-> 
-> Your patch will actually cause other bugs, since the final put_disk() of 
-> other block drivers will now be called on already freed memory.
-> 
-> 
-> 	Pat
-> 
-> 
-Thanks good call..  Didn't see the put_disk call but it makes sense now.
 
--steve
+> Ok, I see that now.  I guess my only remaining question is why do child 
+> busses not get their own struct device, but rather only a pointer to the 
+> bridge's struct device?  There's no refcounting done on this, ie: no 
+> pci_dev_get/put calls, but I guess that's kinda ok, since we're pretty 
+> sure that the child bus won't exist for longer than the bridge that owns 
+> it, right?  So using the bridge's struct dev allows the pci topology to 
+> look cleaner?  As in, there's no actual bus exposed in sysfs/procfs/etc, 
+> just devices that seem to be hanging off the bridge?
+
+Buses are not devices. Bridges are devices and get a struct device. Buses 
+are physical (or logical) collections of devices at the same topological 
+level which reside on one side of a bridge. I.e. they are objects of some 
+sort, but not devices, and hence are not represented in /sys/devices/. 
+
+It would be nice to export them in /sys/bus/pci/ somehow, but it's one of 
+those things that I haven't gotten around to in the last 6 months or so. 
+:) 
+
+
+	Pat
+
 

@@ -1,84 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264045AbTKTINk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 03:13:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264128AbTKTINj
+	id S264128AbTKTIop (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 03:44:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264143AbTKTIoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 03:13:39 -0500
-Received: from waste.org ([209.173.204.2]:39595 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S264045AbTKTINh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 03:13:37 -0500
-Date: Thu, 20 Nov 2003 02:13:24 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: [PATCH][2.6-mm] Fix 4G/4G X11/vm86 oops
-Message-ID: <20031120081324.GH22139@waste.org>
-References: <Pine.LNX.4.53.0311181113150.11537@montezuma.fsmlabs.com> <Pine.LNX.4.44.0311180830050.18739-100000@home.osdl.org> <20031119203210.GC22139@waste.org> <20031119230928.GE22139@waste.org> <20031120074405.GG22139@waste.org>
+	Thu, 20 Nov 2003 03:44:44 -0500
+Received: from ns.schottelius.org ([213.146.113.242]:49598 "HELO
+	ns.schottelius.org") by vger.kernel.org with SMTP id S264128AbTKTIon
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 03:44:43 -0500
+Date: Thu, 20 Nov 2003 09:44:47 +0100
+From: Nico Schottelius <nico-mutt@schottelius.org>
+To: Matt_Wu@acersoftech.com.cn
+Cc: linux-kernel@vger.kernel.org
+Subject: M5451 / problems adjusting the mixer
+Message-ID: <20031120084447.GM3748@schottelius.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031120074405.GG22139@waste.org>
-User-Agent: Mutt/1.3.28i
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux bruehe 2.6.0-test4
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 20, 2003 at 01:44:05AM -0600, Matt Mackall wrote:
-> On Wed, Nov 19, 2003 at 05:09:28PM -0600, Matt Mackall wrote:
-> > On Wed, Nov 19, 2003 at 02:32:10PM -0600, Matt Mackall wrote:
-> > > 
-> > > Zwane's got a K6-2 500MHz. I've just managed to reproduce this on my
-> > > 1.4GHz Opteron box (with Debian gcc 3.2). Here, the "ooh la la" bit
-> > > doesn't help. So my suspicion is that the printk is changing the
-> > > timing just enough on Zwane's box that he's getting a timer interrupt
-> > > knocking him out of vm86 mode before he hits a fatal bit in the fault
-> > > handling path for 4/4. Printks in handle_vm86_trap, handle_vm86_fault,
-> > > do_trap:vm86_trap, and do_general_protection:gp_in_vm86 never fire so
-> > > there's probably something amiss in the trampoline code.
-> > 
-> > Some more datapoints:
-> > 
-> > CPU          distro          compiler  video        X     result
-> > K6-2/500     connectiva 9    2.96      trident      4.3   reboot (zwane)
-> > K6-2/500     connectiva 9    3.2.2     trident      4.3   reboot (zwane)
-> > Opteron 240  debian unstable 3.2       S3           4.2.1 reboot
-> > Athlon 2100  debian unstable 3.2       radeon 7500  4.2.1 works
-> > P4M 1800     debian unstable 3.2       radeon m7    4.2.1 reboot
-> 
-> And indeed it does turn out to be a problem with the trampoline
-> mechanics. The fix for -mm4:
+Hello Matt, List!
 
-Cleanup, as pointed out by Zwane:
+I am using the M5451 driver to use sound on my ECS A530:
 
-Fix triple faulting on some boxes with 4G/4G
+00:06.0 Multimedia audio controller: ALi Corporation M5451 PCI AC-Link
+Controller Audio Device (rev 02)
+        Subsystem: Elitegroup Computer Systems: Unknown device 0f22
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR+ <PERR+
+        Latency: 64 (500ns min, 6000ns max)
+        Interrupt: pin A routed to IRQ 5
+        Region 0: I/O ports at d800 [size=256]
+        Region 1: Memory at effac000 (32-bit, non-prefetchable)
+[size=4K]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA
+PME(D0-,D1-,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
 
- mm-mpm/arch/i386/kernel/vm86.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
+Is it a software bug, a non programmed feauture of this particular
+implementation or a general problem with this hardware?
 
-diff -puN arch/i386/kernel/vm86.c~virtual-esp arch/i386/kernel/vm86.c
---- mm/arch/i386/kernel/vm86.c~virtual-esp	2003-11-20 01:36:32.000000000 -0600
-+++ mm-mpm/arch/i386/kernel/vm86.c	2003-11-20 02:08:38.000000000 -0600
-@@ -303,10 +303,9 @@ static void do_sys_vm86(struct kernel_vm
- 
- 	tss = init_tss + get_cpu();
- 	tsk->thread.esp0 = (unsigned long) &info->VM86_TSS_ESP0;
--	tss->esp0 = virtual_esp0(tsk);
- 	if (cpu_has_sep)
- 		tsk->thread.sysenter_cs = 0;
--	load_esp0(tss, &tsk->thread);
-+	load_virtual_esp0(tss, tsk);
- 	put_cpu();
- 
- 	tsk->thread.screen_bitmap = info->screen_bitmap;
+In any case: Howto fix it? Can I help you with testing drivers here or
+delivering you with hardware information?
 
-_
+Have a nice day,
 
-
-
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+Nico

@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269741AbUJGHZy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269743AbUJGH0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269741AbUJGHZy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 03:25:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269743AbUJGHZy
+	id S269743AbUJGH0M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 03:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269744AbUJGH0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 03:25:54 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:26502 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S269741AbUJGHZw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 03:25:52 -0400
-Date: Thu, 7 Oct 2004 09:26:13 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Andrew Morton'" <akpm@osdl.org>, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: Default cache_hot_time value back to 10ms
-Message-ID: <20041007072613.GA2551@elte.hu>
-References: <20041006134317.03a22198.akpm@osdl.org> <200410062313.i96NDo609923@unix-os.sc.intel.com> <20041007062908.GB32679@elte.hu> <4164EB6F.90302@pobox.com>
+	Thu, 7 Oct 2004 03:26:12 -0400
+Received: from relay-6m.club-internet.fr ([194.158.104.45]:32975 "EHLO
+	relay-6m.club-internet.fr") by vger.kernel.org with ESMTP
+	id S269743AbUJGH0H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 03:26:07 -0400
+Date: Thu, 7 Oct 2004 09:26:02 +0200
+From: =?iso-8859-1?Q?S=E9bastien?= Hinderer 
+	<Sebastien.Hinderer@loria.fr>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: Stuart MacDonald <stuartm@connecttech.com>,
+       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "'Samuel Thibault'" <samuel.thibault@ens-lyon.org>,
+       rmk@arm.linux.org.uk,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] new serial flow control
+Message-ID: <20041007072601.GA947@galois>
+References: <043c01c4ac0d$2c8bac80$294b82ce@stuartm> <1097113651.6013.8.camel@at2.pipehead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <4164EB6F.90302@pobox.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1097113651.6013.8.camel@at2.pipehead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Jeff Garzik <jgarzik@pobox.com> wrote:
-
-> Ingo Molnar wrote:
-> >* Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
-> >>>Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
-> >
-> >
-> >Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> > I haven't seen this style of flow control before. What uses it?
 > 
-> 
-> [tangent] FWIW Andrew has recently been using "Acked-by" as well,
-> presumably for patches created by person X from but reviewed by wholly
-> independent person Y (since signed-off-by indicates you have some
-> amount of legal standing to actually sign off on the patch)
+> terminal visio-braille (TVB)
+> A device for the sight impaired.
 
-[even more tangential] even if this werent a onliner, i might have some
-amount of legal standing, i wrote the original cache_decay_ticks code
-that this patch reverts to ;) But yeah, Acked-by would be more
-informative here.
+Just to give a litle bit more precise information: this braille terminal
+has been designed more than 10 years ago by the Handialog socity which is
+now part of the TechniBraille/United Vision group.
+Modern VisioBra"lles (with Prom of version 4 or higher) support both a
+standard serial port management, and this odd flow control which was
+originally designed to be used under MS-DOS, and was appropriate for doing
+polling.
 
-	Ingo
+The integration of Samuel's patch into the kernel would allow users of
+teominals containing a PROM older than 4 to use brltty with their terminal,
+which would be a very useful thing, because updating such a PROM has a very
+high cost.
+
+Sébastien.

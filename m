@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262379AbTEIIme (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 04:42:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbTEIIme
+	id S262368AbTEIIlP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 04:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbTEIIlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 04:42:34 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:33314 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S262379AbTEIImc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 04:42:32 -0400
-Date: Fri, 9 May 2003 01:55:04 -0700
-Message-Id: <200305090855.h498t4b12921@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Andrew Morton <akpm@digeo.com>
-X-Fcc: ~/Mail/linus
+	Fri, 9 May 2003 04:41:15 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:32226 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262368AbTEIIlO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 04:41:14 -0400
+Date: Fri, 9 May 2003 01:54:12 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386 uaccess to fixmap pages
-In-Reply-To: Andrew Morton's message of  Thursday, 8 May 2003 21:31:19 -0700 <20030508213119.58dd490d.akpm@digeo.com>
-X-Zippy-Says: Youth of today!  Join me in a mass rally for traditional mental attitudes!
+Subject: Re: [PATCH] Bump module ref during init.
+Message-Id: <20030509015412.29237b08.akpm@digeo.com>
+In-Reply-To: <20030509084045.792762C0F8@lists.samba.org>
+References: <20030509084045.792762C0F8@lists.samba.org>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 May 2003 08:53:47.0635 (UTC) FILETIME=[81008430:01C31608]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This doesn't apply against Linus's current tree.
+Rusty Russell <rusty@rustcorp.com.au> wrote:
+>
+> +static void wait_for_zero_refcount(struct module *mod)
+> +{
+> +	/* Since we might sleep for some time, drop the semaphore first */
+> +	up(&module_mutex);
+> +	for (;;) {
+> +		DEBUGP("Looking at refcount...\n");
+> +		set_current_state(TASK_UNINTERRUPTIBLE);
+> +		if (module_refcount(mod) == 0)
+> +			break;
+> +		schedule();
 
-Ok.  I don't use bk, but I can update relative to the latest snapshot on
-kernel.org.
+What wakes the task up again?
 
-> Your patch increases the kernel text by nearly 1%.  That's rather a lot for
-> what is a fairly esoteric feature.
-
-Agreed.  I hadn't thought about that angle.  I am open to suggestions on
-other ways to make it work.
-
-> Would it be possible to avoid this by just taking the fault and fixing
-> things up in the exception handler?
-
-There is no fault that would be taken.  The address is valid, but above
-TASK_SIZE.  The purpose of access_ok is to say that it's ok to try it and
-let it fault, because it's a user-visible address and not the kernel memory
-mapped into the high part of every process's address space.  The accesses
-that follow are done in kernel mode, so there is no fault for pages marked
-as not user-visible.  The fixmap addresses are > TASK_SIZE and so fail the
-__range_ok test, heretofore making access_ok return false.  Those are the
-code paths leading to EFAULT that I mentioned.
-
-So far I can't think of a better way to do it.
-
-> You'll be wanting to parenthesise `size' and `type' here.
-
-I didn't bother because the existing macros do not consistently
-parenthesize their arguments and so if there were really any problems they
-would already show.  But I agree it's what should be done.
-
-> For some reason the patch causes gcc-2.95.3 to choke over the
-
-You got me.  That version of gcc has many, many bugs and is long obsolete.
-Random meaningless perturbations of the code might change its behavior.
-
-
-Thanks,
-Roland

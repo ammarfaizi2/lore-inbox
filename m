@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287636AbRLaU1m>; Mon, 31 Dec 2001 15:27:42 -0500
+	id <S287641AbRLaU3c>; Mon, 31 Dec 2001 15:29:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287640AbRLaU1c>; Mon, 31 Dec 2001 15:27:32 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:20742 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S287639AbRLaU10>; Mon, 31 Dec 2001 15:27:26 -0500
-Message-ID: <3C30C951.DC96E2B6@zip.com.au>
-Date: Mon, 31 Dec 2001 12:23:45 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: alad@hss.hns.com, linux-kernel@vger.kernel.org
-Subject: Re: locked page handling
-In-Reply-To: <65256B33.0039476C.00@sandesh.hss.hns.com> <3C30BE70.6E5E95CE@zip.com.au>,
-		<3C30BE70.6E5E95CE@zip.com.au> <E16L8aA-0000at-00@starship.berlin>
+	id <S287639AbRLaU3W>; Mon, 31 Dec 2001 15:29:22 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:18840 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S287642AbRLaU3Q>; Mon, 31 Dec 2001 15:29:16 -0500
+Date: Mon, 31 Dec 2001 20:31:22 +0000
+From: Dave Jones <davej@suse.de>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Andrew Morton <akpm@zip.com.au>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Prefetching file_read_actor()
+Message-ID: <20011231203122.A17288@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Manfred Spraul <manfred@colorfullife.com>,
+	Andrew Morton <akpm@zip.com.au>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011231033220.A1686@suse.de> <3C2FFB2F.D02095A2@zip.com.au> <3C3044D3.EBEF6657@colorfullife.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3C3044D3.EBEF6657@colorfullife.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> 
-> I think we want the pages in process of being written to live on a separate
-> list.  Pages can be pulled of that list by a separate thread, or perhaps in
-> the IO completion interrupt (opportunistically, if the list lock is available)
-> meaning kswapd would block less and waste less time examining locked pages.
+On Mon, Dec 31, 2001 at 11:58:27AM +0100, Manfred Spraul wrote:
+ > > What happens if a prefetch spills over the end of the page and
+ > > faults?
+ 
+ > Doesn't hurt, prefetch instruction never cause page faults.
+ > BUT: Prefetch doesn't preload the TLB. If the TLB entry for the kmap is
+ > not in the TLB, all prefetch instructions are treated as nops.(on pIII).
 
-Yes, possibly.  Also the unlocked pages which have locked buffers,
-which tends to be 99% of the pages...
+ Wasn't this the reason for the voodoo workaround we have in
+ the mmx version of fast_copy_page() ?
 
-But then again:
+ Dave.
 
-- I've never seen this code disgrace itself in profiler output unless
-  it's in already-hopelessly-confused mode.
-
-- Personally, I wouldn't recommend anything like that without having
-  previously done a deep analysis of the existing implementation's
-  dynamics and behaviour.  Something which would take a week (or two,
-  given the way the elevator analysis is shaping up).
-
-  This activity is something which I have never countenanced because
-  the code has been under continual futzing for a year.
-
--
+-- 
+Dave Jones.                    http://www.codemonkey.org.uk
+SuSE Labs.

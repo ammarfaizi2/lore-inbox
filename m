@@ -1,157 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263827AbUECSfc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263845AbUECSiQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263827AbUECSfc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 14:35:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263834AbUECSfc
+	id S263845AbUECSiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 14:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUECSiP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 14:35:32 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:17299
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S263827AbUECSfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 14:35:11 -0400
-Message-ID: <409690CA.2020103@redhat.com>
-Date: Mon, 03 May 2004 11:34:50 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a) Gecko/20040501
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: NUMA API
-References: <1QAMU-4gf-15@gated-at.bofh.it> <m3n04t9qwd.fsf@averell.firstfloor.org>
-In-Reply-To: <m3n04t9qwd.fsf@averell.firstfloor.org>
-X-Enigmail-Version: 0.83.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Mon, 3 May 2004 14:38:15 -0400
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:53121 "EHLO
+	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
+	id S263845AbUECSiH (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 3 May 2004 14:38:07 -0400
+Message-Id: <200405031836.i43IaoXc002664@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Harald Arnesen <harald@skogtun.org>, len.brown@intel.com,
+       luming.yu@intel.com, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: 2.6.6-rc3-mm1: modular ACPI button broken 
+In-Reply-To: Your message of "Sat, 01 May 2004 13:44:21 +0200."
+             <20040501114420.GF2541@fs.tum.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040430014658.112a6181.akpm@osdl.org> <87ad0sshku.fsf@basilikum.skogtun.org>
+            <20040501114420.GF2541@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1384125462P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 03 May 2004 14:36:50 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+--==_Exmh_1384125462P
+Content-Type: text/plain; charset=us-ascii
 
-> You mean numa_no_nodes et.al. ? 
+On Sat, 01 May 2004 13:44:21 +0200, Adrian Bunk said:
+
+> This seems to be introduced by the button driver unload unload patch 
+> (Bugzilla #2281) included in the ACPI BK patch.
 > 
-> This is essentially static data that never changes (like in6addr_any).
-> numa_all_nodes could maybe in future change with node hotplug support,
-> but even then it will be a global property.
+> It seems two EXPORT_SYMBOL's are missing in scan.c?
 
-And you don't see a problem with this?  You are hardcoding variables of
-a certain size and layout.  This is against every good design principal.
+And a needed #include, as well (found that out the hard way).  Here's
+the "works for me" patch...
 
-There are other problems like not using a protected namespace.
-
-
-> Everything else is thread local.
-
-This, too, is not adequate.  It requires working on the 1-on-1 model.
-Using user-level contexts (setcontext etc) is made very hard and
-expensive.  There is not one state to change.  Using any of the code (or
-functionality using the state) in signal handlers, possibly recursive,
-will throw things in disorder.
-
-There is no reason to not make the state explicit.
-
-
-> I believe it is good enough for current machines, at least 
-> until there is enough experience to really figure out what
-> node discovery is needed..
-
-That's the point.  We cannot start using an inadequate API now since one
-will _never_ be able to get rid of it again.  We have accumulated
-several examples of this in the past years.
-
-The API design should be general enough to work for all the
-architectures which are currently envisioned and must be extensible to
-be extendable for future architectures.  Your API does not allow to
-write adequate code even on some/many of today's architectures.
+--- linux-2.6.6-rc3-mm1/drivers/acpi/scan.c.modules	2004-04-30 21:45:27.348492000 -0400
++++ linux-2.6.6-rc3-mm1/drivers/acpi/scan.c	2004-04-30 23:26:24.994263676 -0400
+@@ -4,6 +4,7 @@
+ 
+ #include <linux/init.h>
+ #include <linux/acpi.h>
++#include <linux/module.h>
+ 
+ #include <acpi/acpi_drivers.h>
+ #include <acpi/acinterp.h>	/* for acpi_ex_eisa_id_to_string() */
+@@ -16,7 +17,9 @@ ACPI_MODULE_NAME		("scan")
+ 
+ extern struct acpi_device		*acpi_root;
+ struct acpi_device 		*acpi_fixed_pwr_button;
++EXPORT_SYMBOL(acpi_fixed_pwr_button);
+ struct acpi_device 		*acpi_fixed_sleep_button;
++EXPORT_SYMBOL(acpi_fixed_sleep_button);
+ 
+ 
+ #define ACPI_BUS_CLASS			"system_bus"
 
 
+--==_Exmh_1384125462P
+Content-Type: application/pgp-signature
 
-> I have seen some proposals
-> for complex graph based descriptions, but so far I have seen
-> nothing that could really take advantage of something so fancy.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-I am proposing no graph-based descriptions.  And this is something where
-you miss the point.  This is only the lowest level interface.  It
-prorvides enough functionality to describe the machine architecture.  If
-some fancy alternative representations are needed this is something for
-a higher-level interface.
+iD8DBQFAlpFCcC3lWbTT17ARAjO7AKDSMHdBYhr3rO9BsY/CtfEHjQsxsQCdHtpL
+W5+TAaN9aaF/VroxzC6HeXw=
+=PhST
+-----END PGP SIGNATURE-----
 
-What must be avoided at all costs is programs peeking into /sys and
-/proc to determine the topology.  First of all, this makes programs
-architecture and even machine-specific.  Second, the /sys and /proc
-format will change over time.  All these access must be hidden and the
-NUMA library is just the place for that.
-
-Saying
-
-> If it should be really needed it can be added later.
-
-just means we will get programs today which hardcode today's existing
-and most probably inadequate representation of the topology in /sys and
-/proc.
-
-
->>~ no inclusion of SMT/multicore in the cpu hierarchy
-> 
-> 
-> Not sure why you would care about that.
-
-These are two sides of the same coin.  Today we already have problems
-with programs running on machines with SMT processors.  How can those
-use pthread_setaffinity() to create theoptimal number of threads and
-place them accordingly?  It requires magic /proc parsing for each and
-every architecture.  The problem is exactly the same as with NUMA and
-the interface extensions to cover MC/SMT as well are minimal.
-
-
-> Well, I spent a lot of time talking to various users; and IMHO
-> it matches the needs of a lot of them. I did not add all the features
-> everybody wanted, but that was simply not possible and still comming
-> up with a reasonable design.
-
-And this means it should not be done?
-
-
-> The per process state is needed for numactl though.
-> 
-> I kept the support for this visible in libnuma to make it easier to convert
-> old code to this (just wrap some code with a policy) For designed from 
-> scratch programs it is probably better to use the allocation functions
-> with mbind directly.
-
-The NUMA library interface should not be cluttered because of
-considerations of legacy apps which need to be converted.  These are
-separate issues, the design of the API must not be influenced by this.
-The problem always has been that in such cases the correct interfaces
-are not being used but instead the "easier to use" legacy interfaces are
-used.
-
-
->>Also, the concept of hard/soft sets for CPUs is useful.  Likewise
->>"spilling" over to other memory nodes.  Usually using NUMA means hinting
->>the desired configuration to the system.  It'll be used whenever
->>possible.  If it is not possible (for instance, if a given processor is
->>not available) it is mostly no good idea to completely fail the
-> 
-> 
-> Agreed. That is why prefered and bind are different policies
-> and you can switch between them in libnuma. 
-
-That is inadequate.  Any process/thread state like this increases the
-program cost since it means that the program at all times must remember
-the current state and switch if necessary.  Combine this with 3rd party
-libraries using the functionality as well and you'll get explicit
-switching before *every* memory allocation because one cannot assume
-anything about the state.  Even if the NUMA library keeps track of the
-state internally, there is always the possibility that more than one
-instance of the library is used at any one time (e.g., statically linked
-into a DSO).
-
-I repeast myself: global or thread-local states are bad.  Always have
-been, always will be.
-
-
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
+--==_Exmh_1384125462P--

@@ -1,60 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264264AbRFLIji>; Tue, 12 Jun 2001 04:39:38 -0400
+	id <S264271AbRFLIji>; Tue, 12 Jun 2001 04:39:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264271AbRFLIj3>; Tue, 12 Jun 2001 04:39:29 -0400
-Received: from [194.213.32.142] ([194.213.32.142]:2308 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S264260AbRFLIjX>;
-	Tue, 12 Jun 2001 04:39:23 -0400
-Message-ID: <20010611223357.A959@bug.ucw.cz>
-Date: Mon, 11 Jun 2001 22:33:57 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: =?iso-8859-1?Q?Mich=E8l_Alexandre_Salim?= <salimma1@yahoo.co.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Clock drift on Transmeta Crusoe
-In-Reply-To: <20010611113604.4073.qmail@web3504.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: =?iso-8859-1?Q?=3C20010611113604=2E4073=2Eqmail=40web3504=2Email=2Eyahoo?=
- =?iso-8859-1?Q?=2Ecom=3E=3B_from_Mich=E8l_Alexandre_Salim_on_Mon=2C_Jun_?=
- =?iso-8859-1?Q?11=2C_2001_at_12:36:04PM_+0100?=
+	id <S264260AbRFLIj3>; Tue, 12 Jun 2001 04:39:29 -0400
+Received: from eins.siemens.at ([193.81.246.11]:56838 "EHLO eins.siemens.at")
+	by vger.kernel.org with ESMTP id <S264264AbRFLIjT> convert rfc822-to-8bit;
+	Tue, 12 Jun 2001 04:39:19 -0400
+Message-ID: <D9F2B9CD7BD5D21196BC0800060D9ED604ED6344@vies186a.sie.siemens.at>
+From: Boenisch Joerg <joerg.boenisch@siemens.at>
+To: "Linux-Kernel (E-Mail)" <linux-kernel@vger.kernel.org>
+Subject: AVM A1 pcmcia, kernel 2.4.5-ac11 problem
+Date: Tue, 12 Jun 2001 10:37:58 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI!
+Dear experts,
 
-> Searching through the mailing list I could not find a
-> reference to this problem, hence this post.
-> 
-> Having ran various kernel and distribution
-> combinations (SGI's 2.4.2-xfs bundled with their Red
-> Hat installer, 2.4-xfs-1.0 and 2.4 CVS trees, Linux
-> Mandrake with default kernel 2.4.3, and lastly
-> 2.4.5-ac9), compiled for generic i386 and/or Transmeta
-> Crusoe with APM off or on, one thing sticks out : a
-> clock drift of a few minutes per day.
-> 
-> This problem might not be noticeable for most users
-> since notebooks are not normally left running that
-> long, but it is rather serious. I can choose not to
-> sync the software and hardware clock on shutdown and
-> re-read the hardware clock every hour or so but it is
-> rather kludgy.
-> 
-> Any suggestions and/or user experiences more than
-> welcome.
+I hope not to be off topic! (In that case could you tell me where to ask?)
+I can´t get my avm a1 pcmcia card running.
 
-Let me guess: vesafb?
+My system:
+kernel 2.4.5-ac11
+pcmcia-cs-3.1.26
 
-If problem goes away when you stop using framebuffer (i.e. go X), then
-it is known. 
+Kernel of course is compiled with ISDN support and low-level AVM-A1-PCMCIA.
+After installation in /lib/modules hisax.o can be found, but not avma1_cs.o
+.
 
-You are lucky. My machine is able to loose 2 minutes from every 3
-minutes.
+My /etc/pcmcia/config looks like:
+---begin---cut---
+device "avma1_cs"
+	class "isdn" module "net/slhc", "misc/isdn", "misc/hisax" opts
+"type=26 protocol=2", "avma1_cs"
+---cut---
+card "AVM ISDN-Controller A1"
+	version "AVM", "ISDN A"
+	bind "avma1_cs"
+---cut---end---
 
-try time cat /etc/termcap, and check it against stopwatch.
- 								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+syslog:
+
+cardmgr[1070]: executing: ´modprobe hisax type=26 protocol=2´
+kenel: HiSax: Linux Driver for passive ISDN cards
+kenel: HiSax: Version 3.5 (module)
+kenel: HiSax: Layer1 Revision 2.41.6.3
+kenel: HiSax: Layer2 Revision 2.25.6.2
+kenel: HiSax: TeiMgr Revision 2.17.6.2
+kenel: HiSax: Layer3 Revision 2.17.6.3
+kenel: HiSax: LinkLayer Revision 2.51.6.3
+kenel: HiSax: Approval certification valid
+kenel: HiSax: Approved with ELSA Microlink PCI cards
+kenel: HiSax: Approved with Eicon Technology Diva 2.01 PCI cards
+kenel: HiSax: approved with Sedlbauer Speedfax + cards
+cardmgr[1070]: executing: ´modprobe avma1_cs´
+cardmgr[1070]: + modprobe: Can´t locate module avma1_cs
+cardmgr[1070]: modprobe exited with status 255
+cardmgr[1070]: module /lib/modules/2.4.5-ac11/pcmcia/avma1_cs.o not
+available
+cardmgr[1070]: get dev info on socket 1 failed: Resource temporarily
+unavailable
+
+------
+
+Maybe someone can tell me, what´s wrong or what i have forgotten to do.
+
+TIA!
+Joerg Boenisch

@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTJRURu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 16:17:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTJRURu
+	id S261786AbTJRUYw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 16:24:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbTJRUYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 16:17:50 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:56495 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S261825AbTJRURt (ORCPT
+	Sat, 18 Oct 2003 16:24:52 -0400
+Received: from pop.gmx.de ([213.165.64.20]:55427 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261786AbTJRUYv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 16:17:49 -0400
-To: Nuno Silva <nuno.silva@vgertech.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Blockbusting news, this is important (Re: Why are bad disk sectors numbered strangely, and what happens to them?)
-References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60>
-	<200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk>
-	<33a201c39174$2b936660$5cee4ca5@DIAMONDLX60>
-	<20031014064925.GA12342@bitwizard.nl> <3F8BA037.9000705@sbcglobal.net>
-	<3F8BBC08.6030901@namesys.com>
-	<11bf01c39492$bc5307c0$3eee4ca5@DIAMONDLX60>
-	<20031017102436.GB10185@bitwizard.nl>
-	<200310171049.h9HAnBbO000594@81-2-122-30.bradfords.org.uk>
-	<m3zng0yun9.fsf@defiant.pm.waw.pl>
-	<200310171935.h9HJZaLm002335@81-2-122-30.bradfords.org.uk>
-	<m37k33igui.fsf@defiant.pm.waw.pl>
-	<200310180827.h9I8Rxw8000383@81-2-122-30.bradfords.org.uk>
-	<m3u166vjn0.fsf@defiant.pm.waw.pl> <3F9169A2.1050506@vgertech.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 18 Oct 2003 22:16:16 +0200
-In-Reply-To: <3F9169A2.1050506@vgertech.com>
-Message-ID: <m3d6cuuwrz.fsf@defiant.pm.waw.pl>
+	Sat, 18 Oct 2003 16:24:51 -0400
+X-Authenticated: #295886
+From: "Howard The Duck" <h.t.d@gmx.de>
+Organization: privat
+To: linux-kernel@vger.kernel.org
+Date: Sat, 18 Oct 2003 22:25:03 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: "Disabling IRQ #18" when mounting cdrom with SATA on 2.6.0beta7/8?
+Message-ID: <3F91BDBF.14789.17CDF8A@localhost>
+X-mailer: Pegasus Mail for Windows (v4.12a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nuno Silva <nuno.silva@vgertech.com> writes:
+Hi
 
-> > Doing cat /dev/zero > /dev/hd* fixes all bad sectors on modern drive.
-> 
-> Yeah! I'm doing this right now because the data in hda is very
-> important and and don't do backups since August!! :-D
+I had troubles with the 2.6 series using devfs and my SATA drive, i got the "Disabling 
+irq #18" message on boot. I removed devfs support and the machine worked flawless, 
+until i mounted a cdrom. I very seldom need to access cdroms or dvds that's why i 
+never saw this happening within the last few month of kernel installing (starting with 
+2.5.74 in June because 2.4.21 and 2.4.22 wouldn't boot at all).
 
-Aaah right... August - which year exactly? :-)
+When i do not mount cdroms or enable devfs support in the kernel the system is 
+running very stable and fast. My troubles with devfs are described here 
+http://www.ussg.iu.edu/hypermail/linux/kernel/0310.1/0874.html
 
-(Just in case someone wants to try this on live disk - it erases all data
-in the process).
--- 
-Krzysztof Halasa, B*FH
+My current setup has no devfs support, but i get the  "Disabling IRQ #18" message 
+right after the moment i mounted a cdrom/dvd with my dvd-drive or a cdrom with the 
+cd-writer. Accessing the PATA harddrives seems to have no negative effect, although i 
+can only test them by reading data because they are NTFS partitions and mounted 
+read-only. Even when i unmount the CDrom the "Disabling IRQ #18" message keeps 
+on appearing. It slows down my system to unusable speed (e.g.: it takes approx 4 
+minutes to shut the system down).
+
+I think the devfs thingy triggers the "Disabling IRQ #18" problem when it tests for 
+"existing" optical media drives on boot. I think so because the same message appears 
+when i access cdroms manually.
+
+I have no access to a second system with SATA support to verify or reproduce that 
+behaviour, can anybody else do that on another machine? Also i'd be interested in how 
+this problem could be tracked down to its root. I reproduced that with 2.6.0beta7 and 
+beta8, the only kernels currently left on my machine ;)
+
+thanks in advance for any hints
+ HTD
+
+p.s.: i'm not subscribed to lkml, please send me a CC when answering.
+

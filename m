@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136604AbREGStv>; Mon, 7 May 2001 14:49:51 -0400
+	id <S136612AbREGSyV>; Mon, 7 May 2001 14:54:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135931AbREGStl>; Mon, 7 May 2001 14:49:41 -0400
-Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:5305 "EHLO
-	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id <S136604AbREGSt2>; Mon, 7 May 2001 14:49:28 -0400
-Date: Mon, 7 May 2001 20:49:22 +0200 (CEST)
-From: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
-To: Dan Hollis <goemon@anime.net>
-cc: "Bene, Martin" <Martin.Bene@KPNQwest.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: what causes Machine Check exception? revisited (2.2.18)
-In-Reply-To: <Pine.LNX.4.30.0105071122290.5820-100000@anime.net>
-Message-Id: <Pine.LNX.4.31.0105072047460.8083-100000@phobos.fachschaften.tu-muenchen.de>
+	id <S136606AbREGSyB>; Mon, 7 May 2001 14:54:01 -0400
+Received: from [216.151.155.121] ([216.151.155.121]:3078 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S135931AbREGSxw>; Mon, 7 May 2001 14:53:52 -0400
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+Cc: Bohdan Vlasyuk <Bohdan@kivc.vstu.vinnica.ua>, linux-kernel@vger.kernel.org
+Subject: Re: linux + Compaq Presario Laptop
+In-Reply-To: <16736206722.20010507200652@kivc.vstu.vinnica.ua>
+	<20010507193123.F5208@arthur.ubicom.tudelft.nl>
+From: Doug McNaught <doug@wireboard.com>
+Date: 07 May 2001 14:53:37 -0400
+In-Reply-To: Erik Mouw's message of "Mon, 7 May 2001 19:31:23 +0200"
+Message-ID: <m33dahdm8e.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 May 2001, Dan Hollis wrote:
+Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL> writes:
 
-> > Erm, it was bad RAM everytime it happened to me. On standard PCs, you
-> > don't see those because you don't have ECC and the error is simply not
-> > detected.
+> Try linux-2.2.19, it contains BIOS e820 support. If you don't want to
+> compile a kernel, check if Red Hat has RPMs available somewhere on
+> their site. 
 
-> So a 440bx motherboard with ECC ram is a non-standard PC?
+They do; there was a kernel errata release of 2.2.19 for security
+reasons.  On updates.redhat.com or a mirror.
 
-I bet the board doesn't force you to use ECC RAM, so manufacturers will
-not use it because it's too expensive and the average customer doesn't
-understand what memory is and what it's used for. So yes, it's
-non-standard.
-
-   Simon
-
+-Doug
 -- 
-GPG public key available from http://phobos.fs.tum.de/pgp/Simon.Richter.asc
- Fingerprint: DC26 EB8D 1F35 4F44 2934  7583 DBB6 F98D 9198 3292
-Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!
-
+The rain man gave me two cures; he said jump right in,
+The first was Texas medicine--the second was just railroad gin,
+And like a fool I mixed them, and it strangled up my mind,
+Now people just get uglier, and I got no sense of time...          --Dylan

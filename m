@@ -1,46 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280994AbRKYTDz>; Sun, 25 Nov 2001 14:03:55 -0500
+	id <S281004AbRKYTDZ>; Sun, 25 Nov 2001 14:03:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280997AbRKYTDq>; Sun, 25 Nov 2001 14:03:46 -0500
-Received: from c1603961-a.bvrtn1.or.home.com ([65.12.251.105]:47749 "EHLO
-	water.pdx.osdl.net") by vger.kernel.org with ESMTP
-	id <S280994AbRKYTDh>; Sun, 25 Nov 2001 14:03:37 -0500
-From: Nathan Dabney <smurf@osdlab.org>
-Date: Sun, 25 Nov 2001 11:03:15 -0800
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Nathan Dabney <smurf@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel Releases
-Message-ID: <20011125110315.A17688@osdlab.org>
-In-Reply-To: <20011125012507.C6414@osdlab.org> <12023.1006683861@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <12023.1006683861@ocs3.intra.ocs.com.au>
-User-Agent: Mutt/1.3.23i
+	id <S280996AbRKYTDF>; Sun, 25 Nov 2001 14:03:05 -0500
+Received: from smtp6.mindspring.com ([207.69.200.110]:57118 "EHLO
+	smtp6.mindspring.com") by vger.kernel.org with ESMTP
+	id <S280994AbRKYTC6>; Sun, 25 Nov 2001 14:02:58 -0500
+Message-ID: <3C0141CB.617DEC1D@mindspring.com>
+Date: Sun, 25 Nov 2001 11:08:59 -0800
+From: Joe <joeja@mindspring.com>
+Reply-To: joeja@mindspring.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jakob Kemi <jakob.kemi@telia.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14/2.4.15 cpia driver IS broke.. no its parport
+In-Reply-To: <Pine.LNX.4.33.0111230950580.24427-100000@netfinity.realnet.co.sz> <3C000EE7.D69C1482@mindspring.com> <200111242143.fAOLhsa10672@d1o849.telia.com> <200111242220.fAOMKxa13508@d1o849.telia.com>
+Content-Type: multipart/mixed;
+ boundary="------------D96DDA71340FE32D6A3929B9"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 25, 2001 at 09:24:21PM +1100, Keith Owens wrote:
-> On Sun, 25 Nov 2001 01:25:07 -0800, 
-> Nathan Dabney <smurf@osdlab.org> wrote:
-> >We will be running all the available tests (until that list gets too large
-> >to be possible) on each kernel the morning after it's released.
-> 
-> Have you been following the kbuild 2.5 developments[1]?  Linus has
-> agreed that this change will go in early in the 2.5 cycle, that will
-> impact on all automated testing for 2.5.  There will be both good and
-> bad impacts, the bad is the initial changeover, the good is a much
-> cleaner build process and the ability to build multiple configurations
-> from a single source tree.
-> 
-> [1] http://sourceforge.net/projects/kbuild/
+This is a multi-part message in MIME format.
+--------------D96DDA71340FE32D6A3929B9
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Yes, we will be able to add another method for (auto) kernel configuration when
-this becomes an issue (hopefully RSN).
+In that case I'ss send my patch to 2.4.14 to the list and hope it helps others
+with their parallel port webcams.. (its small)
 
-Currently the method we use to "sanitize" submitted kernel configs for our
-hardware is as reliable as you can get under CML1.  It doesn't however, give
-us a good way to build multiple configurations.
+Joe
 
--Nathan
+> This works perfectly for my w9966 parport webcam!
+>         /Jakob
+>
+> On Saturdayen den 24 November 2001 22.43, Jakob Kemi wrote:
+> > Great!
+> >
+> > I'll test it right away.
+> >       /Jakob
+> >
+> > > The problem is that in the call to acknowledge the handshake (Event 44?
+> > > about line592) the call to parport_frob_control or
+> > > parport_pc_frob_control as it is #defined to is called with a 0 which I
+> > > think causes the code to call parport_pc_data_forward and the new code
+> > > just calls
+> > > parport_pc_data_reverse. I think that we may need to call the
+> > > parport_pc_data_forward still.
+> > >
+> > > -               parport_write_control (port, ctl);   // new code
+> > > +               parport_frob_control (port, PARPORT_CONTROL_AUTOFD, 0);
+> > > //old working code
+> > >
+> > > Joe
+> > >
+>
+
+--------------D96DDA71340FE32D6A3929B9
+Content-Type: text/plain; charset=us-ascii;
+ name="ieee1294_ops_fix-2.4.14"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ieee1294_ops_fix-2.4.14"
+
+--- linux-2.4.14/drivers/parport/ieee1284_ops.c	Fri Nov 23 20:59:42 2001
++++ linux-2.4.current/drivers/parport/ieee1284_ops.c	Sun Nov 18 21:13:10 2001
+@@ -592,7 +592,7 @@
+ 		}
+ 
+ 		/* Event 44: Set HostAck high, acknowledging handshake. */
+-		parport_write_control (port, ctl);
++		parport_frob_control (port, PARPORT_CONTROL_AUTOFD, 0);
+ 
+ 		/* Event 45: The peripheral has 35ms to set nAck high. */
+ 		if (parport_wait_peripheral (port, PARPORT_STATUS_ACK,
+
+--------------D96DDA71340FE32D6A3929B9--
+

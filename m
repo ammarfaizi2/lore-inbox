@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130074AbQKNSWH>; Tue, 14 Nov 2000 13:22:07 -0500
+	id <S130191AbQKNSWI>; Tue, 14 Nov 2000 13:22:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130191AbQKNSVr>; Tue, 14 Nov 2000 13:21:47 -0500
-Received: from warp9.koschikode.com ([212.84.196.82]:26632 "HELO
-	warp9.koschikode.com") by vger.kernel.org with SMTP
-	id <S130074AbQKNSVa>; Tue, 14 Nov 2000 13:21:30 -0500
-Message-ID: <3A117B98.F6F5A5E6@koschikode.com>
-Date: Tue, 14 Nov 2000 18:51:20 +0100
-From: Juri Haberland <juri@koschikode.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Hard lockup using emu10k1-based sound card
-In-Reply-To: <Pine.LNX.4.30.0011131751160.21258-100000@matrix.the-republic.org> <Pine.LNX.4.21.0011141222120.18636-100000@grad.physics.sunysb.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130247AbQKNSVr>; Tue, 14 Nov 2000 13:21:47 -0500
+Received: from www.publiccom.com ([204.255.183.201]:60101 "EHLO mail.14850.com")
+	by vger.kernel.org with ESMTP id <S130191AbQKNSVe> convert rfc822-to-8bit;
+	Tue, 14 Nov 2000 13:21:34 -0500
+Message-Id: <5.0.0.25.0.20001114124019.02e05be0@armstrong.cse.buffalo.edu>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0
+Date: Tue, 14 Nov 2000 12:51:41 -0500
+To: Michael Rothwell <rothwell@holly-springs.nc.us>, root@chaos.analogic.com
+From: Buddha Buck <bmbuck@14850.com>
+Subject: Re: Advanced Linux Kernel/Enterprise Linux Kernel
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3A118020.1B730F14@holly-springs.nc.us>
+In-Reply-To: <Pine.LNX.3.95.1001114113240.23765A-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rui Sousa wrote:
-> 
-> On Mon, 13 Nov 2000, Willis L. Sarka wrote:
-> 
-> > I get a hard lockup when trying to play a mp3 with XMMS;
-> > Sound Blaster Live card.  The first second loops, and I lose all
-> > connectivity to the machine; I can't ping it, can't to a an Alt-Sysq,
-> > nothing.
-> 
-> Is this when you try to play something for the first time or
-> it just happens sometimes?
-> 
-> > Details:
-> >
-> > running RedHat 7.0
-> > using kernel 2.4.0-test11pre4
-> > emu10k1 compiled as a module
-> > system is a Dell Dimension 4100 (815e based, 512mb ram, 3com 3c905c cardA)
-> >
-> > I'll try to compile in soundcore and emu10k1 into the kernel, foregoing
-> > any modules and see if that helps.  I will also revert back to
-> > 2.4.0-test10 as well just to test.
-> 
-> Yes, it would be good to know when the problems started.
-> 
-> >  If anyone needs further information,
-> > let me know.
+At 01:10 PM 11/14/00 -0500, Michael Rothwell wrote:
+>"Richard B. Johnson" wrote:
+>
+> > Relating some "nine goals of 'Enterprise Computing'" to Multics is
+> > the bullshit.
+>
+>Funny, I got those off the "Multics FAQ" page.
 
-Well, just as a note:
-I'm using the same (software-) setup as above, only difference is that
-the emu10k1 driver is compiled into the kernel and I have no problems
-with xmms whatsoever.
+It may be reasonable to question them as "goals of 'Enterprise Computing'".
 
-Juri
+I found, on http://www.multicians.org/general.html, a list of those same 
+nine goals, introduced by the sentence "As described in the 1965 paper 
+Introduction and Overview of the Multics System by Corbató and Vyssotsky, 
+there were nine major goals for Multics:"
+
+While those were the goals of Multics, it is not at all clear that Multics 
+would classify these days as a platform for "Enterprise Computing".  I'll 
+note that the word "enterprise" does not appear in either the general FAQ 
+page I cited, nor in the linked article it cites.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

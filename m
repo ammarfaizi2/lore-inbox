@@ -1,64 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262173AbVBAX2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262178AbVBAXco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262173AbVBAX2M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 18:28:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbVBAX1q
+	id S262178AbVBAXco (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 18:32:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbVBAXck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 18:27:46 -0500
-Received: from smtpout16.mailhost.ntl.com ([212.250.162.16]:51751 "EHLO
-	mta08-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
-	id S262170AbVBAX1a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 18:27:30 -0500
-Message-ID: <34184.192.168.1.250.1107300443.squirrel@www.bennee.com>
-Date: Tue, 1 Feb 2005 23:27:23 -0000 (GMT)
-Subject: Forcedeth Network driver lockup report
-From: "Alex Bennee" <alex@bennee.com>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Reply-To: alex@bennee.com
-X-Mailer: SquirrelMail (version 1.2.6)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso_8859_1
-Content-Transfer-Encoding: 8bit
+	Tue, 1 Feb 2005 18:32:40 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:15064 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262179AbVBAXcP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 18:32:15 -0500
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A2)
+From: john stultz <johnstul@us.ibm.com>
+To: ncunningham@linuxmail.org
+Cc: Tim Bird <tim.bird@am.sony.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1107299672.13413.25.camel@desktop.cunninghams>
+References: <1106607089.30884.10.camel@cog.beaverton.ibm.com>
+	 <41FFFD4F.9050900@am.sony.com>
+	 <1107298089.2040.184.camel@cog.beaverton.ibm.com>
+	 <1107299672.13413.25.camel@desktop.cunninghams>
+Content-Type: text/plain
+Date: Tue, 01 Feb 2005 15:32:09 -0800
+Message-Id: <1107300730.2040.195.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think I've hit a wierd lockup in the forcedeth (Nvidia onboard lan
-chipset) driver on 2.6.9-gentoo-r9. When the failure occurs the
-network just dies with loads of:
+On Wed, 2005-02-02 at 10:14 +1100, Nigel Cunningham wrote:
+> Hi John and Tim.
+> 
+> On Wed, 2005-02-02 at 09:48, john stultz wrote:
+> > > I didn't scan for all uses of read_persistent_clock, but
+> > > in my experience get_cmos_time() has a latency of up to
+> > > 1 second on x86 because it synchronizes with the rollover
+> > > of the RTC seconds.
+> > 
+> > I believe you're right. Although we don't call read_persistent_clock()
+> > very frequently, nor do we call it in ways we don't already call
+> > get_cmos_time(). So I'm not sure exactly what the concern is.
+> 
+> Tim and I talked about this at the recent CELF conference. I have a
+> concern in that suspend-to-disk calls the suspend methods and then
+> (after the atomic copy) the resume methods. Since the copy usually takes
+> < 1s, and the suspend and resume methods both make two calls to
+> get_coms_time, that's an average of 1.5s per suspend call and 1.5s per
+> resume call - but if the copy does take next to no time (as normal),
+> it's really 1.5s + 2s = 3.5s average just for getting the time. I
+> believe Tim has similar issues in code he is working on. It's a concern
+> if your battery is running out and you're trying to hibernate!
 
-NETDEV WATCHDOG: eth0: transmit timed out
-nv_stop_tx: TransmitterStatus remained busy<7>eth0: tx_timeout: dead entries!
-
-Rebooting doesn't solve the problem although the driver will sit there
-and accumulate a load of IRQ's achieving nothing:
-
-eth0: nv_nic_irq
-eth0: irq: 00000020
-eth0: irq: 00000000
-eth0: nv_nic_irq completed
-
-Even shutting down and "powering off" doesn't clear the condition.
-However if you remove the power from the box and wait a bit and
-restart it comes back too life. I'm 50/50 on if this is failing
-hardware or just that without physically removing power the chip
-doesn't get fully reset. I have copious diagnostic traces since I #if
-1'd the dprintk but before I flood lkml with traces.
-
-* Has anyone else seen this problem?
-
-* Could it be a reset problem?
-
-* Should you be able to fully reset the chip with ethtool/mii-tool?
-
-Please cc me as I'm no longer subscribed to the email torrent that is
-lkml :-)
+Well, counting the atomic copy in the "3.5s average just for getting the
+time" doesn't quite seem fair, but I think I understand. Its
+interesting, I wasn't aware of the suspend/copy/resume process that
+occurs for suspend-to-disk. The thing I don't quite get is why are the
+resume methods called before we really suspend to disk?
 
 
--- 
-Alex
-http://www.bennee.com/~alex/
+> > I've only lightly tested the suspend code, but on my system I didn't see
+> > very much drift appear. Regardless, it should be better then what the
+> > current suspend/resume code does, which doesn't keep any sub-second
+> > resolution across suspend.
+> 
+> My question is, "Is there a way we can get sub-second resolution without
+> waiting for the start of a new second four times in a row?" I'm sure
+> there must be.
 
+Well, I'm not sure what else we could use for the persistent clock, but
+I'd be happy to change the read/set_persistent_clock function to use it.
+
+thanks
+-john
 

@@ -1,65 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262963AbUEQW3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263020AbUEQWch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262963AbUEQW3a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 18:29:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263045AbUEQWZN
+	id S263020AbUEQWch (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 18:32:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbUEQWcd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 18:25:13 -0400
-Received: from mail.tmr.com ([216.238.38.203]:60676 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S263032AbUEQWXi (ORCPT
+	Mon, 17 May 2004 18:32:33 -0400
+Received: from fw.osdl.org ([65.172.181.6]:15277 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263040AbUEQWbf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 18:23:38 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: Linux Kernel 2.6.6 IDE shutdown problems.
-Date: Mon, 17 May 2004 18:25:51 -0400
-Organization: TMR Associates, Inc
-Message-ID: <c8bdqv$lib$1@gatekeeper.tmr.com>
-References: <BAY18-F105X7rz6AvEm0002622f@hotmail.com> <200405151506.20765.bzolnier@elka.pw.edu.pl>
+	Mon, 17 May 2004 18:31:35 -0400
+Date: Mon, 17 May 2004 15:34:11 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrew Clayton <andrew@digital-domain.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] revert behaviour of pty allocation in 2.6
+Message-Id: <20040517153411.5c5cb81b.akpm@osdl.org>
+In-Reply-To: <1084810491.2155.24.camel@alpha.digital-domain.net>
+References: <1084810491.2155.24.camel@alpha.digital-domain.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1084832415 22091 192.168.12.100 (17 May 2004 22:20:15 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-In-Reply-To: <200405151506.20765.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> On Saturday 15 of May 2004 14:20, Justin Piszcz wrote:
+Andrew Clayton <andrew@digital-domain.net> wrote:
+>
+> Here is a patch which is mainly 
 > 
->>The problem is the 2.6.6 kernel muxed my drive and when it fscked upon
->>reboot it deleted /etc/mtab and lilo.conf!
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5/2.6.5-mm5/broken-out/pty-allocation-first-fit.patch
 > 
+> with a couple of changes.
 > 
-> What fs are you using?
-> 
-> 
->>Luckily I restored them from a backup and now run 2.6.5 and it is working
->>fine.
->>
->>Linux 2.6.6 is a nightmare.
->>
->>I am looking into the benchmark problem with 2.6.6 now.
->>
->>--- In linux-kernel@yahoogroups.com, "Justin Piszcz" <jpiszcz@h...> wrote:
->>
->>>Now whenever I reboot it says input/output errors when it tries to mount
->>>the drive? I will look into this further.
-> 
-> 
-> This errors are HARMLESS and CAN'T corrupt your data.
-> Please see http://bugme.osdl.org/show_bug.cgi?id=2672 for description+fix.
+> That patch didn't quite work....
 
-I would think that if the drive didn't properly flush cache on shutdown 
-that it might cause corruption. Feel free to tell me no drive would 
-bahave like that ;-)
+aargh, that stoopid counter in the top eight bits of the idr_get_new return value :(.  Thanks.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me

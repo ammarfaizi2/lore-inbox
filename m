@@ -1,96 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266721AbSLWPgS>; Mon, 23 Dec 2002 10:36:18 -0500
+	id <S266728AbSLWPmn>; Mon, 23 Dec 2002 10:42:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266728AbSLWPgS>; Mon, 23 Dec 2002 10:36:18 -0500
-Received: from halon.barra.com ([144.203.11.1]:2713 "EHLO halon.barra.com")
-	by vger.kernel.org with ESMTP id <S266721AbSLWPgQ>;
-	Mon, 23 Dec 2002 10:36:16 -0500
-From: Fedor Karpelevitch <fedor@karpelevitch.net>
-To: "Mark F." <daracerz@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: ATI Radeon IGP 320M and Kern. 2.4.21-pre2 Warnings/Problems...
-Date: Mon, 23 Dec 2002 06:52:45 -0800
-User-Agent: KMail/1.5
-References: <BAY2-F160dWMJ69ik6k0000047c@hotmail.com>
-In-Reply-To: <BAY2-F160dWMJ69ik6k0000047c@hotmail.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Vicente Aguilar <bisente@bisente.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_9MyB+SBXvOIXIHC"
-Message-Id: <200212230652.45451.fedor@karpelevitch.net>
+	id <S266730AbSLWPmn>; Mon, 23 Dec 2002 10:42:43 -0500
+Received: from c-24-99-36-145.atl.client2.attbi.com ([24.99.36.145]:5899 "HELO
+	babylon.d2dc.net") by vger.kernel.org with SMTP id <S266728AbSLWPmm>;
+	Mon, 23 Dec 2002 10:42:42 -0500
+Date: Mon, 23 Dec 2002 10:50:48 -0500
+From: "Zephaniah E\. Hull" <warp@babylon.d2dc.net>
+To: Rudmer van Dijk <rudmer@legolas.dynup.net>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.x console keyboard problem.
+Message-ID: <20021223155048.GA19266@babylon.d2dc.net>
+Mail-Followup-To: Rudmer van Dijk <rudmer@legolas.dynup.net>,
+	Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
+X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
+X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
+X-Notice-4: policy and agree to the fee.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-00=_9MyB+SBXvOIXIHC
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+--wRRV7LY7NUeQGEoC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Dec 23, 2002 at 04:38:37PM +0100, Rudmer van Dijk wrote:
+> Hi,
+>=20
+> I have also been seeing this kind of behavior, but more with deadlocks th=
+an=20
+> messed up in/output. Only I have not had the time to see where the proble=
+m=20
+> lies...=20
+>=20
+> my problems are appearing when I switch away from X:
+> 1) black screen, completely dead (not responding to keyboard or network)
+> 2) normal console but after some time, dead (as in 1)
+> 3) mostly black screen with some colored vertical lines and a mouse point=
+er,=20
+> not responsive to keyboard but system can be reached over the network
+>=20
+> and the funny thing is that it does not always happen, sometimes I am abl=
+e to=20
+> switch between X and console for 10 times or more...
+
+To cheat, just tap the Fn key twice when switching to X, to cheat better
+change your keymap to not have binds for ctrl-alt-Fn.
+
+It seems very likely that while some cards can survive being poked at by
+the vgacon driver while the X driver is also talking to them, other
+cards have more, significant problems.
+>=20
+> I have been seeing this since 2.5.50.=20
+
+But it did not at 2.5.49? That should definitely help him isolate it..
+
+Zephaniah E. Hull.
+(All I want for Christmas is a /job/.)
+>=20
+> 	Rudmer
+
+--=20
+	1024D/E65A7801 Zephaniah E. Hull <warp@babylon.d2dc.net>
+	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
+	    CCs of replies from mailing lists are requested.
+
+}>No.  I just point out to troublemakers that I have an English degree,
+}>which means that I am allowed to make changes to the English language.
+}>(What _else_ could it possibly be for?)
+}Wow; in that case, my physics degree is *WAY* more useful than I
+}had thought.
+This just proves how useless a computer science degree is:  there is hardly
+any useful science involved at all.  I want my computer black magic degree!
+	-- Victoria Swann, Jonathan Dursi, and D. Joseph Creighton on ASR
+
+--wRRV7LY7NUeQGEoC
+Content-Type: application/pgp-signature
 Content-Disposition: inline
 
-Mark F. wrote:
-> Hello
->
-> In trying to help out the issue with the Radeon IGP Chipsets, I
-> have posted out the problems that occured on my system.  This is a
-> Readon IGP 320M chip, running on a Compaq 900Z.  BTW, these logs
-> don't include loading sound driver.  Sound driver cause the my hda,
-> hdc links to timeout, and the hard drives are completely
-> inaccesable till i remake kernel without them.
->
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-attached is the patch which makes sound work.
+iD8DBQE+BzDYRFMAi+ZaeAERAt3ZAJ9lpNOodJcb8TRAeFyrM1eN3tdJSgCgtMxV
+99g7dsusFgoNRjCCMLGlys4=
+=6l9u
+-----END PGP SIGNATURE-----
 
-Fedor.
---Boundary-00=_9MyB+SBXvOIXIHC
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="patch-tridfix.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch-tridfix.txt"
-
---- linux-2.4.21-pre1/drivers/sound/trident.c	2002-12-12 15:28:00.000000000 -0800
-+++ linux-2.4.21-pre1-tridfix/drivers/sound/trident.c	2002-12-12 15:30:48.000000000 -0800
-@@ -3368,15 +3368,17 @@
-         pci_dev = pci_find_device(PCI_VENDOR_ID_AL,PCI_DEVICE_ID_AL_M1533, pci_dev);
-         if (pci_dev == NULL)
-                 return -1;
--	temp = 0x80;
--	pci_write_config_byte(pci_dev, 0x59, ~temp);
-+	pci_read_config_byte(pci_dev, 0x59, &temp);
-+	temp &= ~0x80;
-+	pci_write_config_byte(pci_dev, 0x59, temp);
- 	
- 	pci_dev = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M7101, pci_dev);
- 	if (pci_dev == NULL)
-                 return -1;
- 
--	temp = 0x20;
--	pci_write_config_byte(pci_dev, 0xB8, ~temp);
-+	pci_read_config_byte(pci_dev, 0xB8, &temp);
-+	temp &= ~0x20;
-+	pci_write_config_byte(pci_dev, 0xB8, temp);
- 
- 	return 0;
- }
-@@ -3390,13 +3392,15 @@
- 	pci_dev = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M1533, pci_dev);
- 	if (pci_dev == NULL)
-                 return -1;
--	temp = 0x80;
-+	pci_read_config_byte(pci_dev, 0x59, &temp);
-+	temp |= 0x80;
- 	pci_write_config_byte(pci_dev, 0x59, temp);
- 	
- 	pci_dev = pci_find_device(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M7101, pci_dev);
-  	if (pci_dev == NULL)
-                 return -1;
--	temp = 0x20;
-+	pci_read_config_byte(pci_dev, (int)0xB8, &temp);
-+	temp |= 0x20;
- 	pci_write_config_byte(pci_dev, (int)0xB8,(u8) temp);
- 	if (chan_nums == 6) {
- 		dwValue = inl(TRID_REG(card, ALI_SCTRL)) | 0x000f0000;
-
---Boundary-00=_9MyB+SBXvOIXIHC--
+--wRRV7LY7NUeQGEoC--

@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261562AbTHYIJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 04:09:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbTHYIJ1
+	id S261529AbTHYIOz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 04:14:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbTHYIOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 04:09:27 -0400
-Received: from angband.namesys.com ([212.16.7.85]:4242 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S261562AbTHYIJ0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 04:09:26 -0400
-Date: Mon, 25 Aug 2003 12:09:24 +0400
-From: Oleg Drokin <green@namesys.com>
-To: dan@merillat.org
-Cc: linux-kernel@vger.kernel.org, harik@chaos.ao.net
-Subject: Re: Reiserfs kernel-crashing bug in 2.4.20 (and UML)
-Message-ID: <20030825080924.GA31559@namesys.com>
-References: <4878.24.165.250.16.1061688482.squirrel@mail.merillat.org>
+	Mon, 25 Aug 2003 04:14:55 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:19214 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S261529AbTHYIOy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 04:14:54 -0400
+Date: Mon, 25 Aug 2003 18:12:41 +1000
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [AMD76X]
+Message-ID: <20030825081241.GA6538@gondor.apana.org.au>
+References: <20030823233323.GA7989@gondor.apana.org.au> <20030824175321.GF734@alpha.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4878.24.165.250.16.1061688482.squirrel@mail.merillat.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030824175321.GF734@alpha.home.local>
+User-Agent: Mutt/1.5.4i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Sun, Aug 24, 2003 at 07:53:21PM +0200, Willy Tarreau wrote:
+> 
+> I'm wondering whether this patch should be needed too.
+> 
+> --- linux-2.4.22-rc3/drivers/char/amd76x_pm.c.orig	Sun Aug 24 19:52:42 2003
+> +++ linux-2.4.22-rc3/drivers/char/amd76x_pm.c	Sun Aug 24 19:53:49 2003
+> @@ -620,6 +620,8 @@
+>  #ifndef AMD76X_NTH
+>  	if (!amd76x_pm_cfg.curr_idle) {
+>  		printk(KERN_ERR "amd76x_pm: Idle function not changed\n");
+> +		pci_unregister_driver(&amd_nb_driver);
+> +		pci_unregister_driver(&amd_sb_driver);
+>  		return 1;
+>  	}
 
-On Sat, Aug 23, 2003 at 09:28:02PM -0400, dan@merillat.org wrote:
+Although this error is currently not possible, we should include
+your fixup anyway.
 
-> Let's get this out of the way first: I KNOW IT'S A HARDWARE BUG.  My
-> system wrote corrupted data to the drive.  I've already recovered the
-> partition but I have a dd'd copy around to figure this out.
-
-> I'm keeping the on-disk image around for a while if anyone wants to take a
-> look at it.
-
-Can you please make a "metadata dump" out of it and send it to me?
-You can do a metadata dump with "debugreiserfs -p /dev/yourblockdevice | bzip2 -9c >metadata.bz2".
-Please use some recent reiserfsprogs version for that (and if you'd use not 3.6.11, tell me the
-version number).
-
-Thank you.
-
-Bye,
-    Oleg
+Thanks,
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

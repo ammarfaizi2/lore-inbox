@@ -1,64 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317374AbSGVN5M>; Mon, 22 Jul 2002 09:57:12 -0400
+	id <S316599AbSGVJMx>; Mon, 22 Jul 2002 05:12:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317375AbSGVN5M>; Mon, 22 Jul 2002 09:57:12 -0400
-Received: from ophelia.ess.nec.de ([193.141.139.8]:63484 "EHLO
-	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
-	id <S317374AbSGVN5L> convert rfc822-to-8bit; Mon, 22 Jul 2002 09:57:11 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Erich Focht <efocht@ess.nec.de>
-To: LSE <lse-tech@lists.sourceforge.net>
-Subject: node affine NUMA scheduler
-Date: Mon, 22 Jul 2002 15:59:41 +0200
-User-Agent: KMail/1.4.1
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-ia64 <linux-ia64@linuxia64.org>
+	id <S316601AbSGVJMx>; Mon, 22 Jul 2002 05:12:53 -0400
+Received: from s217-115-138-13.colo.hosteurope.de ([217.115.138.13]:11496 "EHLO
+	mail.vomhagen.com") by vger.kernel.org with ESMTP
+	id <S316599AbSGVJMw>; Mon, 22 Jul 2002 05:12:52 -0400
+Message-ID: <3D3BCDB3.8000006@beamnet.de>
+Date: Mon, 22 Jul 2002 11:17:39 +0200
+From: Thomas Viehmann <tv@beamnet.de>
+Organization: beamNet
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207221559.41235.efocht@ess.nec.de>
+To: linux-kernel@vger.kernel.org
+Subject: FS problems with a7v266-e-Promise + UDMA + Raid 1 + ReiserFS when
+ using USB or Sound (K 2.4.18)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's a new version of the node affine NUMA scheduler extension based
-on the O(1) scheduler at
-    http://home.arcor.de/efocht/sched/Nod18_2.4.18-ia64-O1ef7.patch
+Hello.
 
-The patch is for 2.4.18 kernels and it has been tested on IA64 systems.
-It requires the O(1) scheduler patch with the corrected complex macros
-which I posted to the LSE and linux-ia64 mailing lists last week. For
-IA64 you should use:
-    http://home.arcor.de/efocht/sched/O1_ia64-ef7-2.4.18.patch.bz2
-which should be applied to   2.4.18  +  ia64-020622 patch.
-For IA32 (NUMA-Q) try instead:
-    http://home.arcor.de/efocht/sched/O1_i386-ef7-2.4.18.patch.bz2
+I've been bitten by the following problem:
+Im using an A7V266-E with an onboard promise contoller.
+Ontop of that I use Linux-md in Raid 1 mode on the two Promise channels, 
+usually with UDMA activated. My root filesystem is ReiserFS on md0. This 
+worked fine for quite a while, however last month I tried to use the 
+alsa-cmipci driver with the onboard sound, I got a crash and such 
+terrible corruption that I decided to reinstall.
+Now I've tried activating USB, which appears to be using IRQ 5 as do the 
+two promise ports. The system crashed and when it came back up, my 
+filesystem was warped from July to May, all newer files were lost.
+Oh: To be able to boot the System, I've had to enable the promise bios, 
+but did not activate raid there.
 
-What is it good for?
+Any coments would be very appreciated. I'd be happy to provide more 
+details, but it might be a couple of days to find out.
+CC to me would be much appreciated.
 
- - Extends the scheduler to NUMA.
- - Each task gets a homenode assigned at start (initial load balancing).
- - A memory affinity patch (like discontigmem, or similar) should take
-   care that the memory of the task is allocated mainly from its
-   homenode.
- - The scheduler attracts the tasks to their homenodes while trying to
-   keep the nodes equally balanced.
- - Target: keep processes and their memory on the same node to reduce
-   memory access latencies without having to fiddle with the
-   cpus_allowed masks (hard affinities).
- - Within one node, behaves like the normal O(1) scheduler.
+Regards
 
-For an overview over the features have a look at:
-    http://home.arcor.de/efocht/sched
+Thomas
 
-There are several changes compared to the previous version, the most
-important ones are:
- - Extension to multilevel NUMA hierarchy by implementing delays when
-   stealing tasks from remote nodes.
- - Better selection of task to be stolen from busiest runqueue. Take
-   into account cache coolness, node and supernode of task and runqueue.
 
-Comments and feedback are very wellcome.
+$ lspci
+00:00.0 Host bridge: VIA Technologies, Inc. VT8367 [KT266]
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8367 [KT266 AGP]
+00:05.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
+00:06.0 Unknown mass storage controller: Promise Technology, Inc. 20265 
+(rev 02)
+00:0e.0 SCSI storage controller: Adaptec AHA-294x / AIC-7871
+00:0f.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 08)
+00:10.0 Network controller: AVM Audiovisuelles MKTG & Computer System 
+GmbH A1 ISDN [Fritz] (rev 02)
+00:11.0 ISA bridge: VIA Technologies, Inc. VT8233 PCI to ISA Bridge
+00:11.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+00:11.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 1b)
+00:11.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 1b)
+00:11.4 USB Controller: VIA Technologies, Inc. UHCI USB (rev 1b)
+01:00.0 VGA compatible controller: nVidia Corporation NV11 (GeForce2 MX) 
+(rev b2)
+$ cat /proc/ide/pdc202xx
 
-Regards,
-Erich
+                                 PDC20265 Chipset.
+------------------------------- General Status 
+---------------------------------
+Burst Mode                           : enabled
+Host Mode                            : Normal
+Bus Clocking                         : 33 PCI Internal
+IO pad select                        : 10 mA
+Status Polling Period                : 4
+Interrupt Check Status Polling Delay : 0
+--------------- Primary Channel ---------------- Secondary Channel 
+-------------
+                 enabled                          enabled
+66 Clocking     enabled                          disabled
+            Mode PCI                         Mode PCI
+                 FIFO Empty                       FIFO Empty
+--------------- drive0 --------- drive1 -------- drive0 ---------- 
+drive1 ------
+DMA enabled:    no               no              no                yes
+DMA Mode:       UDMA 4           UDMA 4          NOTSET            NOTSET
+PIO Mode:       PIO 4            PIO 4           NOTSET            NOTSET
+
+
 

@@ -1,144 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267170AbSLKOoR>; Wed, 11 Dec 2002 09:44:17 -0500
+	id <S267176AbSLKOsQ>; Wed, 11 Dec 2002 09:48:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267173AbSLKOoR>; Wed, 11 Dec 2002 09:44:17 -0500
-Received: from d146.dhcp212-198-27.noos.fr ([212.198.27.146]:12694 "EHLO
+	id <S267174AbSLKOqp>; Wed, 11 Dec 2002 09:46:45 -0500
+Received: from d146.dhcp212-198-27.noos.fr ([212.198.27.146]:20374 "EHLO
 	deep-space-9.dsnet") by vger.kernel.org with ESMTP
-	id <S267170AbSLKOoN>; Wed, 11 Dec 2002 09:44:13 -0500
-Date: Wed, 11 Dec 2002 15:51:44 +0100
+	id <S267176AbSLKOqX>; Wed, 11 Dec 2002 09:46:23 -0500
+Date: Wed, 11 Dec 2002 15:53:58 +0100
 From: Stelian Pop <stelian@popies.net>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH 2.4.21-pre1] sonypi driver update
-Message-ID: <20021211155144.F22483@deep-space-9.dsnet>
+Subject: [PATCH 2.4.21-pre1 RESEND] CREDITS update
+Message-ID: <20021211155358.G22483@deep-space-9.dsnet>
 Reply-To: Stelian Pop <stelian@popies.net>
 Mail-Followup-To: Stelian Pop <stelian@popies.net>,
 	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
 	Marcelo Tosatti <marcelo@conectiva.com.br>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This little patch changes the way button release events are reported
-by the sonypi driver to the application: previously, separate
-release events were detected for each button. However, many buttons
-(example: the jogdial, the capture button, the back button etc) share
-the same release event.
-
-The attached patch propagates a single 'ANYBUTTON_RELEASED' event
-to the userspace, leaving all state machine intelligence to the
-application.
-
-Kunihiko IMAI should be credited for his ideas and tests.
+This patch updates my current CREDITS and MAINTAINERS entry.
 
 Marcelo, please apply.
 
 Stelian.
 
-
-===== include/linux/sonypi.h 1.7 vs edited =====
---- 1.7/include/linux/sonypi.h	Mon Dec  2 12:19:31 2002
-+++ edited/include/linux/sonypi.h	Wed Dec 11 10:37:00 2002
-@@ -43,9 +43,9 @@
- #define SONYPI_EVENT_JOGDIAL_DOWN_PRESSED	 3
- #define SONYPI_EVENT_JOGDIAL_UP_PRESSED		 4
- #define SONYPI_EVENT_JOGDIAL_PRESSED		 5
--#define SONYPI_EVENT_JOGDIAL_RELEASED		 6
-+#define SONYPI_EVENT_JOGDIAL_RELEASED		 6	/* obsolete */
- #define SONYPI_EVENT_CAPTURE_PRESSED		 7
--#define SONYPI_EVENT_CAPTURE_RELEASED		 8
-+#define SONYPI_EVENT_CAPTURE_RELEASED		 8	/* obsolete */
- #define SONYPI_EVENT_CAPTURE_PARTIALPRESSED	 9
- #define SONYPI_EVENT_CAPTURE_PARTIALRELEASED	10
- #define SONYPI_EVENT_FNKEY_ESC			11
-@@ -93,6 +93,7 @@
- #define SONYPI_EVENT_MEYE_OPPOSITE		53
- #define SONYPI_EVENT_MEMORYSTICK_INSERT		54
- #define SONYPI_EVENT_MEMORYSTICK_EJECT		55
-+#define SONYPI_EVENT_ANYBUTTON_RELEASED		56
+===== CREDITS 1.59 vs edited =====
+--- 1.59/CREDITS	Mon Dec  9 09:13:59 2002
++++ edited/CREDITS	Tue Dec 10 11:54:20 2002
+@@ -2397,13 +2397,10 @@
+ D: CDROM driver "sonycd535" (Sony CDU-535/531)
  
- /* get/set brightness */
- #define SONYPI_IOCGBRT		_IOR('v', 0, __u8)
-===== drivers/char/sonypi.h 1.12 vs edited =====
---- 1.12/drivers/char/sonypi.h	Mon Dec  2 12:16:22 2002
-+++ edited/drivers/char/sonypi.h	Wed Dec 11 15:32:51 2002
-@@ -37,7 +37,7 @@
- #ifdef __KERNEL__
+ N: Stelian Pop
+-E: stelian.pop@fr.alcove.com
++E: stelian@popies.net
+ P: 1024D/EDBB6147 7B36 0E07 04BC 11DC A7A0  D3F7 7185 9E7A EDBB 6147
+ D: sonypi, meye drivers, mct_u232 usb serial hacks
+-S: Alcôve
+-S: 153, bd. Anatole France 
+-S: 93200 Saint Denis
+-S: France
++S: Paris, France
  
- #define SONYPI_DRIVER_MAJORVERSION	 1
--#define SONYPI_DRIVER_MINORVERSION	16
-+#define SONYPI_DRIVER_MINORVERSION	17
+ N: Frederic Potter 
+ E: fpotter@cirpack.com
+===== MAINTAINERS 1.88 vs edited =====
+--- 1.88/MAINTAINERS	Fri Dec  6 20:12:01 2002
++++ edited/MAINTAINERS	Wed Dec 11 10:18:09 2002
+@@ -1041,6 +1041,12 @@
+ L:	linux-kernel@vger.kernel.org
+ S:	Maintained
  
- #define SONYPI_DEVICE_MODEL_TYPE1	1
- #define SONYPI_DEVICE_MODEL_TYPE2	2
-@@ -171,6 +171,13 @@
- 	u8	data;
- 	u8	event;
- };
++MOTION EYE VAIO PICTUREBOOK CAMERA DRIVER
++P:	Stelian Pop
++M:	stelian@popies.net
++W:	http://popies.net/meye/
++S:	Maintained
 +
-+/* The set of possible button release events */
-+static struct sonypi_event sonypi_releaseev[] = {
-+	{ 0x00, SONYPI_EVENT_ANYBUTTON_RELEASED },
-+	{ 0, 0 }
-+};
+ MOUSE AND MISC DEVICES [GENERAL]
+ P:	Alessandro Rubini
+ M:	rubini@ipvvis.unipv.it
+@@ -1485,6 +1491,12 @@
+ P:	Thomas Bogendoerfer
+ M:	tsbogend@alpha.franken.de
+ L:	linux-net@vger.kernel.org
++S:	Maintained
 +
- /* The set of possible jogger events  */
- static struct sonypi_event sonypi_joggerev[] = {
- 	{ 0x1f, SONYPI_EVENT_JOGDIAL_UP },
-@@ -186,7 +193,6 @@
- 	{ 0x5d, SONYPI_EVENT_JOGDIAL_VFAST_UP_PRESSED },
- 	{ 0x43, SONYPI_EVENT_JOGDIAL_VFAST_DOWN_PRESSED },
- 	{ 0x40, SONYPI_EVENT_JOGDIAL_PRESSED },
--	{ 0x00, SONYPI_EVENT_JOGDIAL_RELEASED },
- 	{ 0, 0 }
- };
++SONY VAIO CONTROL DEVICE DRIVER
++P:	Stelian Pop
++M:	stelian@popies.net
++W:	http://popies.net/sonypi/
+ S:	Maintained
  
-@@ -195,7 +201,6 @@
- 	{ 0x05, SONYPI_EVENT_CAPTURE_PARTIALPRESSED },
- 	{ 0x07, SONYPI_EVENT_CAPTURE_PRESSED },
- 	{ 0x01, SONYPI_EVENT_CAPTURE_PARTIALRELEASED },
--	{ 0x00, SONYPI_EVENT_CAPTURE_RELEASED },
- 	{ 0, 0 }
- };
- 
-@@ -293,6 +298,7 @@
- 	unsigned long		mask;
- 	struct sonypi_event *	events;
- } sonypi_eventtypes[] = {
-+	{ SONYPI_DEVICE_MODEL_TYPE1, 0, 0xffffffff, sonypi_releaseev },
- 	{ SONYPI_DEVICE_MODEL_TYPE1, 0x70, SONYPI_MEYE_MASK, sonypi_meyeev },
- 	{ SONYPI_DEVICE_MODEL_TYPE1, 0x30, SONYPI_LID_MASK, sonypi_lidev },
- 	{ SONYPI_DEVICE_MODEL_TYPE1, 0x60, SONYPI_CAPTURE_MASK, sonypi_captureev },
-@@ -301,6 +307,7 @@
- 	{ SONYPI_DEVICE_MODEL_TYPE1, 0x30, SONYPI_BLUETOOTH_MASK, sonypi_blueev },
- 	{ SONYPI_DEVICE_MODEL_TYPE1, 0x40, SONYPI_PKEY_MASK, sonypi_pkeyev },
- 
-+	{ SONYPI_DEVICE_MODEL_TYPE2, 0, 0xffffffff, sonypi_releaseev },
- 	{ SONYPI_DEVICE_MODEL_TYPE2, 0x38, SONYPI_LID_MASK, sonypi_lidev },
- 	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_JOGGER_MASK, sonypi_joggerev },
- 	{ SONYPI_DEVICE_MODEL_TYPE2, 0x08, SONYPI_CAPTURE_MASK, sonypi_captureev },
-===== drivers/char/sonypi.c 1.11 vs edited =====
---- 1.11/drivers/char/sonypi.c	Fri Nov 22 14:49:08 2002
-+++ edited/drivers/char/sonypi.c	Wed Dec 11 12:34:16 2002
-@@ -714,11 +714,11 @@
- 	       SONYPI_DRIVER_MAJORVERSION,
- 	       SONYPI_DRIVER_MINORVERSION);
- 	printk(KERN_INFO "sonypi: detected %s model, "
--	       "verbose = %s, fnkeyinit = %s, camera = %s, "
-+	       "verbose = %d, fnkeyinit = %s, camera = %s, "
- 	       "compat = %s, mask = 0x%08lx\n",
- 	       (sonypi_device.model == SONYPI_DEVICE_MODEL_TYPE1) ?
- 			"type1" : "type2",
--	       verbose ? "on" : "off",
-+	       verbose,
- 	       fnkeyinit ? "on" : "off",
- 	       camera ? "on" : "off",
- 	       compat ? "on" : "off",
+ SOUND
 -- 
 Stelian Pop <stelian@popies.net>

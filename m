@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263432AbTECVA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 17:00:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263434AbTECVA4
+	id S263444AbTECVJh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 17:09:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263447AbTECVJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 17:00:56 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22022 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263432AbTECVAz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 17:00:55 -0400
-Date: Sat, 3 May 2003 22:13:20 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Beat Bolli (privat)" <bbolli@ymail.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5 PCMCIA SERIAL] name mismatch in 8250_cs.c
-Message-ID: <20030503221320.A9329@flint.arm.linux.org.uk>
-Mail-Followup-To: "Beat Bolli (privat)" <bbolli@ymail.ch>,
-	linux-kernel@vger.kernel.org
-References: <3EB42FE0.9000900@ymail.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3EB42FE0.9000900@ymail.ch>; from bbolli@ymail.ch on Sat, May 03, 2003 at 11:08:48PM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
+	Sat, 3 May 2003 17:09:37 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:12036 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263444AbTECVJg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 17:09:36 -0400
+Date: Sat, 3 May 2003 22:22:02 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Paul Mackerras <paulus@samba.org>
+cc: linux-kernel@vger.kernel.org, <linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] fix mach64_gx.c
+In-Reply-To: <16050.60554.651489.795368@argo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.44.0305032221500.16472-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 03, 2003 at 11:08:48PM +0200, Beat Bolli (privat) wrote:
-> This seems to confuse the new module-init-tools, which try to modprobe 
-> the module serial_cs which of course isn't found.
+
+> >    Has anyone tested this chipset on a PPC 64?
 > 
-> A manual "modprobe 8250_cs" works fine.
+> There aren't any PPC64 boxes with this chipset (ATI Mach64 GX), since
+> all past and current PPC64 boxes are IBM servers.  I suppose one could
+> find an old ATI Mach64 PCI card and put it in a PPC64 box, but I don't
+> know why you would do that instead of putting in a PCI radeon or
+> something. :)
 
-This may fall out of the wash when the rest of Dominiks driver model
-changes go in.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Because it is fun :-)
 

@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVC0VZq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVC0Vce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261565AbVC0VZq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 16:25:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVC0VZq
+	id S261592AbVC0Vce (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 16:32:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbVC0Vce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 16:25:46 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:4695 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261565AbVC0VZl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 16:25:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=cgqPajeV+T4viLBrTRvUjpxXv/yeXU353Nxsi1PfA+h1TZmCRWetc09+qE7Y/CrwLEsdD2vAB9GLIO8VQvFy9U2yDlA9qd49vh1exoZON+lwc3MY8q0JX4PiGSg58qTXCNA6/5x6NXju55tNRKdh0F5FqH5bboi+wKQHXP7RbqA=
-Message-ID: <9e47339105032713251c88890@mail.gmail.com>
-Date: Sun, 27 Mar 2005 16:25:10 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Adam Belay <abelay@novell.com>
+	Sun, 27 Mar 2005 16:32:34 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:48294 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261592AbVC0Vcc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 16:32:32 -0500
 Subject: Re: [RFC] Some thoughts on device drivers and sysfs
+From: Adam Belay <abelay@novell.com>
+To: Dominik Brodowski <linux@dominikbrodowski.net>
 Cc: Greg KH <greg@kroah.com>, Patrick Mochel <mochel@digitalimplant.org>,
        linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org
-In-Reply-To: <1111951499.3503.87.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20050327210853.GA18358@isilmar.linta.de>
 References: <1111951499.3503.87.camel@localhost.localdomain>
+	 <20050327210853.GA18358@isilmar.linta.de>
+Content-Type: text/plain
+Date: Sun, 27 Mar 2005 16:27:24 -0500
+Message-Id: <1111958844.3503.100.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Mar 2005 14:24:59 -0500, Adam Belay <abelay@novell.com> wrote:
-> This would allow us to represent per-device driver attributes in sysfs.
-> As an added benefit, driver devices would allow the tracking and control
-> of driver state, which may be needed for dynamic power management.  I
-> look forward to any comments.
+On Sun, 2005-03-27 at 23:08 +0200, Dominik Brodowski wrote:
+> On Sun, Mar 27, 2005 at 02:24:59PM -0500, Adam Belay wrote:
+> > One of the original design goals of sysfs was to provide a standardized
+> > location to keep driver configuration attributes.  Although sysfs
+> > handles this very well for bus devices and class devices, there isn't
+> > currently a method to export attributes for device drivers and their
+> > specific bound device instances to userspace.
 
-Isn't there already a way to do this? I recall some discussion lkml
-about six months ago  about doing it. I tried googling for it but
-couldn't find it. It may not have been implemented.
+You're right, I should have worded this differently.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+> 
+> Drivers can add (e.g. in ->probe) attributes for devices using
+> extern int device_create_file(struct device *device, struct device_attribute
+> * entry);
+> and delete them (e.g. in ->remove) using
+> extern void device_remove_file(struct device * dev, struct device_attribute
+> * attr);
+> 
+> and there's also 
+> 
+> extern int driver_create_file(struct device_driver *, struct
+> driver_attribute *);
+> extern void driver_remove_file(struct device_driver *, struct
+> driver_attribute *);
+> 
+> 
+> 	Dominik
+
+Yes, I'm aware of these functions but they pollute the bus level
+namespace.  I'm interested in reactions to this alternative approach.  I
+wanted to explore the possibility of making a device driver instance a
+separate component with its own individual state and relationships.
+
+Adam
+
+

@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261747AbTCGTOw>; Fri, 7 Mar 2003 14:14:52 -0500
+	id <S261727AbTCGTTy>; Fri, 7 Mar 2003 14:19:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261746AbTCGTOu>; Fri, 7 Mar 2003 14:14:50 -0500
-Received: from zeke.inet.com ([199.171.211.198]:11987 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S261744AbTCGTOs>;
-	Fri, 7 Mar 2003 14:14:48 -0500
-Message-ID: <3E68F219.1000701@inet.com>
-Date: Fri, 07 Mar 2003 13:25:13 -0600
-From: Eli Carter <eli.carter@inet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-References: <200303020011.QAA13450@adam.yggdrasil.com> <20030301202617.A18142@kerberos.ncsl.nist.gov> <20030306161853.GD2781@zaurus.ucw.cz> <20030307121215.GA68353@dspnet.fr.eu.org> <20030307123237.GG18420@atrey.karlin.mff.cuni.cz> <20030307165413.GA78966@dspnet.fr.eu.org> <20030307190848.GB21023@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S261731AbTCGTTy>; Fri, 7 Mar 2003 14:19:54 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:20713 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261727AbTCGTTx>;
+	Fri, 7 Mar 2003 14:19:53 -0500
+Date: Fri, 7 Mar 2003 11:28:40 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: WimMark I for 2.5.64-mm1
+Message-Id: <20030307112840.4591cc68.rddunlap@osdl.org>
+In-Reply-To: <20030307175700.GA2835@ca-server1.us.oracle.com>
+References: <20030307175700.GA2835@ca-server1.us.oracle.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
-> 
->>Now if the development went that way:
->>
->>1.7  -> 1.7.1.1 (branching, i.e. copy)
->> v         v
->> v      1.7.1.2
->>1.8        v
->> v   -> 1.7.1.3 (merge)
->>1.9        v
->> v         v
->>1.10       v
->> v   -> 1.7.1.4 (merge)
->> v         v
->> v      1.7.1.5
->> v         v
->>1.11 <-         (merge)
->>
->>Pretty much standard, a developper created a new branch, made some
->>changes in it, synced with mainline, synced with mailine again a
->>little later, made some new changes and finally folded the branch back
->>in the mainline.  Let's admit the developper changes don't conflict by
->>themselves with the mainline changes.
->>
->>CVS, for all the merges, is going to pick 1.7 as the reference.  The
->>first time, for 1.7.1.3, it's going to work correctly.  It will fuse
->>the 1.7->1.8 patch with the 1.7.1.1->1.7.1.2 patch and apply the
->>result to 1.7 to get 1.7.1.3.  The two patches have no reason to
->>overlap.  1.7.1.2->1.7.1.3 will essentially be identical to
->>1.7->1.8,
-> 
-> 
-> So, basically, if branch was killed and recreated after each merge
-> from mainline, problem would be solved, right?
-> 
-> 							Pavel
+On Fri, 7 Mar 2003 09:57:01 -0800 Joel Becker <Joel.Becker@oracle.com> wrote:
 
-You would lose the history that branch gave you.
-Or do you mean create a new branch (with a new name) at the point where 
-the old branch was merged, and no longer use the old branch for commits?
+| WimMark I report for 2.5.64-mm1
+| 
+| Runs with anticipatory scheduler:  547.28 580.69
+| Runs with deadline scheduler:  1557.79 1360.52
+| 
+| 	WimMark I is a rough benchmark we have been running
+| here at Oracle against various kernels.  Each run tests an OLTP
+| workload on the Oracle database with somewhat restrictive memory
+| conditions.  This reduces in-memory buffering of data, allowing for
+| more I/O.  The I/O is read and sync write, random and seek-laden.
+| 	The benchmark is called "WimMark I" because it has no
+| official standing and is only a relative benchmark useful for comparing
+| kernel changes.  The benchmark is normalized an arbitrary kernel, which
+| scores 1000.0.  All other numbers are relative to this.
+| 	The machine in question is a 4 way 700 MHz Xeon machine with 2GB
+| of RAM.  CONFIG_HIGHMEM4GB is selected.  The disk accessed for data is a
+| 10K RPM U2W SCSI of similar vintage.  Unless mentioned, all runs are
+| on this machine (variation in hardware would indeed change the
+| benchmark).
 
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+Is there a web page where we can view/compare results?
 
+Thanks,
+--
+~Randy

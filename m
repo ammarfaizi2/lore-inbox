@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbVAGOgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbVAGOk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261432AbVAGOgX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 09:36:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbVAGOgX
+	id S261437AbVAGOk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 09:40:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbVAGOk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 09:36:23 -0500
-Received: from tag.witbe.net ([81.88.96.48]:59566 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S261432AbVAGOgS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 09:36:18 -0500
-Message-Id: <200501071434.j07EYt102563@tag.witbe.net>
-Reply-To: <rol@as2917.net>
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Bill Davidsen'" <davidsen@tmr.com>
-Cc: "'Willy Tarreau'" <willy@w.ods.org>, "'Theodore Ts'o'" <tytso@mit.edu>,
-       "'Horst von Brand'" <vonbrand@inf.utfsm.cl>,
-       "'Thomas Graf'" <tgraf@suug.ch>, "'Adrian Bunk'" <bunk@stusta.de>,
-       "'Diego Calleja'" <diegocg@teleline.es>, <wli@holomorphy.com>,
-       <aebr@win.tue.nl>, <solt2@dns.toxicfilms.tv>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: starting with 2.7
-Date: Fri, 7 Jan 2005 15:34:55 +0100
-Organization: AS2917
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: <41DDA8E1.8080406@tmr.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcT0Ncd1GS/u1g75QRavzzLJC29utQAkBdcw
+	Fri, 7 Jan 2005 09:40:59 -0500
+Received: from out002pub.verizon.net ([206.46.170.141]:24267 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S261437AbVAGOir
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 09:38:47 -0500
+Message-Id: <200501071438.j07EccJ0018170@localhost.localdomain>
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: Christoph Hellwig <hch@infradead.org>, Lee Revell <rlrevell@joe-job.com>,
+       Ingo Molnar <mingo@elte.hu>, Chris Wright <chrisw@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Jack O'Quin" <joq@io.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM 
+In-reply-to: Your message of "Fri, 07 Jan 2005 15:26:37 +0100."
+             <20050107142637.GB20398@devserv.devel.redhat.com> 
+Date: Fri, 07 Jan 2005 09:38:38 -0500
+From: Paul Davis <paul@linuxaudiosystems.com>
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.197.185.179] at Fri, 7 Jan 2005 08:38:40 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+>> rlimit_memlock limits the *amount* of memory that mlock() can be used
+>> on, not whether mlock can be used. at least, thats my understanding of
+>> the POSIX design for this. the man page and the source code for mlock
+>> support make that reasonably clear.
+>
+>eh no. It defaults to zero, but if you increase it for a specific user, that
+>user is allowed to mlock more.
 
-> I think you are quoting MB/release where MB/month would be 
-> much closer. 
-Yes, I do.
+from mm/mlock.c:do_mlock() in 2.6.8:
 
-> Part of the "new development model" is that Linus only releases a new 
-> version the Thursday after the racoons tip over his garbage can.
+	if (on && !capable(CAP_IPC_LOCK))
+		return -EPERM;
 
-:-) Let free the racoons !!!
+i.e. only root or capabilities can make mlock() usable.
 
-Paul
+>much). If you are unwilling to even discuss fixing the underlying design
+>issues then I'm scared that this issue will never come to any workable
+>solution.
+
+Lee, Jack and I have been very willing to discuss the issue. Christoph
+isn't willing to discuss it, he's just told us "its the wrong design,
+and I'm not telling you why or what's better". If there is a better
+design that will end up in the mainstream kernel, we'd love to see it
+implemented, and will likely be involved in doing it, because its
+really important to us.
+
+--p
 

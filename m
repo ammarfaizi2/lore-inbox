@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290758AbSAYSIB>; Fri, 25 Jan 2002 13:08:01 -0500
+	id <S290768AbSAYSKV>; Fri, 25 Jan 2002 13:10:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290760AbSAYSHv>; Fri, 25 Jan 2002 13:07:51 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48651 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S290758AbSAYSHb>; Fri, 25 Jan 2002 13:07:31 -0500
-Subject: Re: [PATCH]: Fix MTRR handling on HT CPUs (improved)
-To: Martin.Wilck@fujitsu-siemens.com (Martin Wilck)
-Date: Fri, 25 Jan 2002 18:20:07 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel mailing list),
-        rgooch@atnf.csiro.au (Richard Gooch),
-        Martin.Wilck@fujitsu-siemens.com (Martin Wilck),
-        marcelo@conectiva.com.br (Marcelo Tosatti),
-        torvalds@transmeta.com (Linus Torvalds)
-In-Reply-To: <Pine.LNX.4.33.0201242145400.1046-100000@biker.pdb.fsc.net> from "Martin Wilck" at Jan 24, 2002 09:57:14 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S290761AbSAYSKL>; Fri, 25 Jan 2002 13:10:11 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36879 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S290760AbSAYSKA>; Fri, 25 Jan 2002 13:10:00 -0500
+Date: Fri, 25 Jan 2002 10:08:56 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: John Levon <movement@marcelothewonderpenguin.com>
+cc: Andi Kleen <ak@suse.de>, <linux-kernel@vger.kernel.org>, <davej@suse.de>
+Subject: Re: [PATCH] Fix 2.5.3pre reiserfs BUG() at boot time
+In-Reply-To: <20020125180149.GB45738@compsoc.man.ac.uk>
+Message-ID: <Pine.LNX.4.33.0201251006220.1632-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16UAxL-0003B6-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I strongly suspected somebody else must have hit this problem before, but
-> intensive research did show up nothing. Also my first post on LK
-> received no "hey, that's old stuff" answer. So here I go.
 
-A tiny patch was posted about 4-6 months ago
+On Fri, 25 Jan 2002, John Levon wrote:
+>
+> please apply this too then.
 
-The patch is total overkill. Just remove the error reporting if the right
-firmware was already loaded. You've written a fixup wrapper around a 
-rather nonsensical erorr check for an existing non-error.
+I would prefer instead just avoiding the copy altogether, and just save
+the name pointer - with no length restrictions.
 
-The same will occur with CPU hot plugging in the future as well as ACPI
-power saving sometimes and in those cases the patch you posted doesn't
-help anyway.
+Right now the code has the comment
 
-Alan
+   /* Copy name over so we don't have problems with unloaded modules */
+
+but that was written before "kmem_cache_destroy()" existed, and we should
+long ago have fixed any modules that don't properly destroy their caches
+when they exit (and yes, I know the difference between "should" and "did",
+but that's not an excuse for a bad interface).
+
+		Linus
+

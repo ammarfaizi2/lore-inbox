@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278261AbRJMEFD>; Sat, 13 Oct 2001 00:05:03 -0400
+	id <S277746AbRJMER1>; Sat, 13 Oct 2001 00:17:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278264AbRJMEEx>; Sat, 13 Oct 2001 00:04:53 -0400
-Received: from femail6.sdc1.sfba.home.com ([24.0.95.86]:15553 "EHLO
-	femail6.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S278261AbRJMEEo>; Sat, 13 Oct 2001 00:04:44 -0400
-Date: Sat, 13 Oct 2001 00:06:01 -0400
-From: Tom Vier <tmv5@home.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.12-ac1
-Message-ID: <20011013000601.A564@zero>
-In-Reply-To: <20011012141726.A27516@lightning.swansea.linux.org.uk>
+	id <S278264AbRJMERI>; Sat, 13 Oct 2001 00:17:08 -0400
+Received: from mnh-1-13.mv.com ([207.22.10.45]:39951 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S277746AbRJMERF>;
+	Sat, 13 Oct 2001 00:17:05 -0400
+Message-Id: <200110130535.AAA06137@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: user-mode port 0.49-2.4.12
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011012141726.A27516@lightning.swansea.linux.org.uk>; from laughing@shared-source.org on Fri, Oct 12, 2001 at 02:17:26PM +0100
+Date: Sat, 13 Oct 2001 00:35:42 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 12, 2001 at 02:17:26PM +0100, Alan Cox wrote:
-> *	Decidedly experimental. Use with caution
-> 2.4.12-ac1
+The user-mode port of 2.4.12 is available.
 
-the thrashing i complained of is gone. when running big diffs through
-patch, it will thrash at the same places, but only for about a quarter
-second. before, it would keep thrashing until all io was done or if i hit
-scroll lock.
+The highlights:
 
-i did get this, however, when my initscripts ran:
+Redid the signal delivery code so that it is possible to write-protect physical
+memory from userspace.  This turns out to be expensive, so this version of
+UML is noticably slower than previous ones.  Memory protection will be made
+optional until I can get some support from the host kernel for doing it
+more quickly.
 
-task `ifconfig' exit_signal 20 in reparent_to_init
+An ancient crash in the console driver has been fixed.  This was easiest to
+see when booting a distro, such as SuSE, that doesn't put a getty on the main 
+console.
 
--- 
-Tom Vier <tmv5@home.com>
-DSA Key id 0x27371A2C
+CONFIG_DEBUG_SLAB is now available in the configuration.
+
+uml_router is now known as uml_switch.  It now has a -hub option.
+
+The project's home page is http://user-mode-linux.sourceforge.net
+
+Downloads are available at 
+	http://user-mode-linux.sourceforge.net/dl-sf.html
+
+				Jeff
+

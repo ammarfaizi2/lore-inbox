@@ -1,84 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261515AbUBVPWg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 10:22:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbUBVPWg
+	id S261567AbUBVPl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 10:41:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbUBVPl5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 10:22:36 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:2946 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S261515AbUBVPWe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 10:22:34 -0500
-Date: Sun, 22 Feb 2004 16:22:33 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Cross Compiling [update]
-Message-ID: <20040222152232.GB23051@MAIL.13thfloor.at>
-Mail-Followup-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-	linux-kernel@vger.kernel.org
-References: <20040222035350.GB31813@MAIL.13thfloor.at> <20040222124541.GA1064@gallifrey>
-Mime-Version: 1.0
+	Sun, 22 Feb 2004 10:41:57 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:55431 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261567AbUBVPly (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 10:41:54 -0500
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Alex Belits <abelits@phobos.illtel.denver.co.us>,
+       =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API
+References: <20040216222618.GF18853@mail.shareable.org>
+	<Pine.LNX.4.58.0402161431260.30742@home.osdl.org>
+	<20040217071448.GA8846@schmorp.de>
+	<Pine.LNX.4.58.0402170739580.2154@home.osdl.org>
+	<20040217161111.GE8231@schmorp.de>
+	<Pine.LNX.4.58.0402170820070.2154@home.osdl.org>
+	<20040217164651.GB23499@mail.shareable.org>
+	<yw1xr7wtcz0n.fsf@ford.guide>
+	<20040217205707.GF24311@mail.shareable.org>
+	<Pine.LNX.4.58.0402171402460.23115@sm1420.belits.com>
+	<20040217214733.GJ24311@mail.shareable.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 22 Feb 2004 08:32:10 -0700
+In-Reply-To: <20040217214733.GJ24311@mail.shareable.org>
+Message-ID: <m1vflzjfk5.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040222124541.GA1064@gallifrey>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 22, 2004 at 12:45:41PM +0000, Dr. David Alan Gilbert wrote:
-> * Herbert Poetzl (herbert@13thfloor.at) wrote:
+Jamie Lokier <jamie@shareable.org> writes:
+
+> Alex Belits wrote:
+> > > No, I think hacking the terminal I/O is the best bet here.  Then _all_
+> > > programs which currently work with UTF-8 terminals, which is rapidly
+> > > becoming most of them, will work the same with both kinds of terminal,
+> > > and the illusion of perfection will be complete and beautiful.
 > > 
-> > Hi Folks!
-> > 
-> > Here is an update to the Kernel Cross Compiling thread 
-> > I started ten days ago ...
+> >   UTF-8 terminals (and variable-encoding terminals) alreay exist,
+> > gnome-terminal is one of them. They are, of course, bloated pigs, but I
+> > would rather have the bloat and idiosyncrasy in the user interface where
+> > it belongs.
 > 
-> Hi,
->    Quite a while ago I tried going through a similar
-> process.   I found at the time the debian toolchain-source
-> package helped in this process.
-> 
-> There is however one thing you seem to have missed - you
-> tend to need subtely different versions of gcc and binutils
-> for each combination.
+> Yes, I am using it right now.  The fancy characters work well in it.
+> Problem is, sometimes I have to use a non-UTF-8 terminal, and I would
+> naturally like to access my files in the same way.
 
-not missed, but ignored on purpose ;)
+Basically I think this is just a matter of modifying telnetd and
+sshd so that for the display they follow the users locale,
+at least in cooked mode.
 
-> It certainly used to be the case that every architectures
-> kernel used to have different known issues in both gcc
-> and binutils; and there was a fair amount of 'oh don't
-> use that version, it produces broken kernels' with
-> different answers for each architecture.
+Does anyone have a good grasp what the exact semantics should be and
+where the translation should happen?  I know we need to delay the
+translation as long as possible so we can get binary streams flowing
+through these protocols? 
 
-hmm, that sounds too familiar, and I already prepared
-to have different binutils, different gcc and some special
-conditions for each build ... but I'm trying to minimize
-the differences where possible ...
+I guess my question is when do we know the information is going to
+a terminal so we should translate it?
 
-> At one time I tried to make a summary page showing where
-> the kernel source and tools are for each architecture;
-> but I never kept it upto date.
-> (http://www.treblig.org/Linux_kernel_source_finder.html)
-
-this looks quite useful, maybe you have some 'updated'
-info, which could be of value to this efford, if so,
-please let me know ...
-
-anyway, thanks for the url, I was planning to do something
-similar when I have all the details ...
-
-best,
-Herbert
-
-> Dave
-> 
->  -----Open up your eyes, open up your mind, open up your code -------   
-> / Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-> \ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
->  \ _________________________|_____ http://www.treblig.org   |_______/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Eric

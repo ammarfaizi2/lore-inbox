@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277271AbRJLSNM>; Fri, 12 Oct 2001 14:13:12 -0400
+	id <S277325AbRJLSd3>; Fri, 12 Oct 2001 14:33:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276698AbRJLSND>; Fri, 12 Oct 2001 14:13:03 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:50437 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S276463AbRJLSMx>; Fri, 12 Oct 2001 14:12:53 -0400
-Message-ID: <3BC732BF.A3FD9574@delusion.de>
-Date: Fri, 12 Oct 2001 20:13:19 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.12-ac1 i686)
-X-Accept-Language: en, de
+	id <S277348AbRJLSdT>; Fri, 12 Oct 2001 14:33:19 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:47115 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S277325AbRJLSdC>; Fri, 12 Oct 2001 14:33:02 -0400
+Message-ID: <002401c1534c$83f47320$6401000a@it0>
+From: "Tommy Faasen" <faasen@xs4all.nl>
+To: <linux-kernel@vger.kernel.org>
+Subject: network kernel options
+Date: Fri, 12 Oct 2001 20:34:23 +0200
 MIME-Version: 1.0
-To: Rui Sousa <rui.p.m.sousa@clix.pt>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-        emu10k1-devel@opensource.creative.com
-Subject: Re: Linux 2.4.12-ac1
-In-Reply-To: <Pine.LNX.4.33.0110122000500.3012-100000@sophia-sousar2.nice.mindspeed.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rui Sousa wrote:
+I just switched from 2.2.19pre7 to 2.4.10-ac11.
 
-> The PCM mixer channel is now controlled by dsp microcode, but by default
-> this is working when you load the driver.
-> What probably happened is that you loaded the bass/treble patches with
-> and old version of the emu-dspmgr tool and this messed up the PCM mixer
-> channel code.
+I had this line before appended to lilo
 
-Not here. It makes no difference if I load the driver without doing any
-dsp tweaking or configure the dsp using the emu-tools. I get no pcm-channel
-either way.
+append="ether=11,0x300,eth1"
 
-> Two things to try:
-> 1. Use the driver before loading any dsp microcode.
-> 2. Get the latest user space tools 0.9.2 from
+Which worked ok, on 2.4.10 this isn't picked up. So I added
+append="ether=15,0xb000,eth0 ether=11,0x300,eth1"
 
-I have been using 0.9.2. Earlier versions worked up to 2.4.10-ac11.
+Now it works again, not exactly a bug but I guess it's worth mentioning.
+
+Tommy
+

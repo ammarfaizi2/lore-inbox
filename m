@@ -1,116 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbUBHAMS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 19:12:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbUBHAMS
+	id S261567AbUBHAn2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 19:43:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbUBHAn2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 19:12:18 -0500
-Received: from mra03.ex.eclipse.net.uk ([212.104.129.88]:20178 "EHLO
-	mra03.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
-	id S261506AbUBHAMP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 19:12:15 -0500
-Message-ID: <40257EDC.9080508@jon-foster.co.uk>
-Date: Sun, 08 Feb 2004 00:12:12 +0000
-From: Jon Foster <jon@jon-foster.co.uk>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
-Subject: Re: [Compile Regression in 2.4.25-pre8][PATCH 37/42]
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 7 Feb 2004 19:43:28 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:22466 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261567AbUBHAn1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 19:43:27 -0500
+Message-Id: <200402080040.i180eY811893@owlet.beaverton.ibm.com>
+To: Anton Blanchard <anton@samba.org>
+cc: Nick Piggin <piggin@cyberone.com.au>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, dvhltc@us.ibm.com
+Subject: Re: [PATCH] Load balancing problem in 2.6.2-mm1 
+In-reply-to: Your message of "Sat, 07 Feb 2004 20:50:57 +1100."
+             <20040207095057.GS19011@krispykreme> 
+Date: Sat, 07 Feb 2004 16:40:33 -0800
+From: Rick Lindsley <ricklind@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+    Its got to be an overly enthuiastic active balance, the migration threads 
+    have used about 10 minutes of cpu time and a single cpu bound process
+    will never sleep (assuming there is nothing else to run) and so cannot be
+    moved by normal means.
 
-Kronos wrote:
-> Comments on the patch?
-> 
-> diff -Nru -X dontdiff linux-2.4-vanilla/include/asm-i386/page.h linux-2.4/include/asm-i386/page.h
-> --- linux-2.4-vanilla/include/asm-i386/page.h	Tue Nov 11 18:05:52 2003
-> +++ linux-2.4/include/asm-i386/page.h	Wed Feb  4 14:43:00 2004
-> @@ -95,14 +95,28 @@
->   * undefined" opcode for parsing in the trap handler.
->   */
->  
-> +#ifdef __bug
-> +static inline void __dummy_noreturn(void) __bug;
-> +static inline void __dummy_noreturn(void) {
-> +	while(1) {}
-> +}
+The current imbalance code rounds up to 1, meaning that we'll often
+see an "imbalance" of 1 even when it's 1 to 0 and just been moved.
+Did you see these results even with Martin's patch to not round up to 1?
 
-My first thought was "this obviously makes the kernel bigger".  GCC will
-actually compile this loop - it's only a single jump instruction, possibly
-with a nop for branch target alignment, but it's duplicated for every
-call to BUG().
+Easiest way to turn off the active balance (for this test, at least)
+is this patch which just turns off that code:
 
-On the other hand, marking BUG() as noreturn means that GCC won't have
-to generate the code following the BUG().  Even if that code is just
-a jump, it's a similar size to the code that this patch adds.  So it's
-not as obvious as I first thought, and does need measuring.
+diff -rup linux-2.6.2-mm1/kernel/sched.c linux-2.6.2-mm1+/kernel/sched.c
+--- linux-2.6.2-mm1/kernel/sched.c	Thu Feb  5 14:47:17 2004
++++ linux-2.6.2-mm1+/kernel/sched.c	Sat Feb  7 16:39:18 2004
+@@ -1525,6 +1525,7 @@ out:
+ 	if (!balanced && nr_moved == 0)
+ 		failed = 1;
+ 
++#if 0
+ 	if (domain->flags & SD_FLAG_IDLE && failed && busiest &&
+ 	   		domain->nr_balance_failed > domain->cache_nice_tries) {
+ 		int i;
+@@ -1546,6 +1547,7 @@ out:
+ 				wake_up_process(busiest->migration_thread);
+ 		}
+ 	}
++#endif
+ 
+ 	if (failed)
+ 		domain->nr_balance_failed++;
 
-Tested with Linux 2.4.22-gentoo-r5 & my normal kernel config, by
-measuring total uncompressed size of vmlinux:
+Not the right long-term solution but at least we can pin down where this
+obviously incorrect behavior is coming from.
 
-Without patch:   3,475,213 bytes
-With patch:      3,475,149 bytes
-This patch saves:       64 bytes
-
-OK, that saving is lost in the noise, but it seems that this patch
-isn't going to change the kernel size much (if at all).  And it is
-good to let the compiler know about BUG(), so it doesn't emit
-spurious warnings and can catch unused code.  So I like this patch.
-
-Obviously, the most elegent (and space-saving) solution would be
-if GCC allowed you to mark a block of inline assembly as noreturn.
-Any GCC folks out there able to help?
-
-Kind regards,
-
-Jon
-
-
-> +#else
-> +#define __dummy_noreturn() do {} while(0)
-> +#endif
-> +
-> #if 1 /* Set to zero for a slightly smaller kernel */
-> -#define BUG() \
-> - __asm__ __volatile__( "ud2\n" \
-> - "\t.word %c0\n" \
-> - "\t.long %c1\n" \
-> - : : "i" (__LINE__), "i" (__FILE__))
-> +#define BUG() do { \
-> + __asm__ __volatile__( "ud2\n" \
-> + "\t.word %c0\n" \
-> + "\t.long %c1\n" \
-> + : : "i" (__LINE__), "i" (__FILE__)); \
-> + __dummy_noreturn(); \
-> + } while(0)
-> #else
-> -#define BUG() __asm__ __volatile__("ud2\n")
-> +#define BUG() do { \
-> + __asm__ __volatile__("ud2\n"); \
-> + __dummy_noreturn(); \
-> + } while(0)
-> #endif
-> 
-> #define PAGE_BUG(page) do { \
-> diff -Nru -X dontdiff linux-2.4-vanilla/include/linux/compiler.h linux-2.4/include/linux/compiler.h
-> --- linux-2.4-vanilla/include/linux/compiler.h Tue Sep 18 23:12:45 2001
-> +++ linux-2.4/include/linux/compiler.h Tue Feb 3 18:29:56 2004
-> @@ -13,4 +13,11 @@
-> #define likely(x) __builtin_expect((x),1)
-> #define unlikely(x) __builtin_expect((x),0)
-> 
-> +#if __GNUC__ >= 3
-> +/* __noreturn__ is implemented since gcc 2.5.
-> + * __always_inline__ is not present in 2.9x
-> + */
-> +#define __bug __attribute__((__noreturn__, __always_inline__))
-> +#endif
-> +
-> #endif /* __LINUX_COMPILER_H */
-
-
+Rick

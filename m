@@ -1,39 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbTFHOic (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 10:38:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbTFHOic
+	id S261876AbTFHPSC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 11:18:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbTFHPSC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 10:38:32 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:27405 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261861AbTFHOic
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 10:38:32 -0400
-Date: Sun, 8 Jun 2003 16:48:18 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Jaroslav Kysela <perex@perex.cz>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH/BK] ALSA update
-Message-ID: <20030608164818.A13167@electric-eye.fr.zoreil.com>
-References: <Pine.LNX.4.44.0306061507290.1499-100000@pnote.perex-int.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0306061507290.1499-100000@pnote.perex-int.cz>; from perex@perex.cz on Fri, Jun 06, 2003 at 03:09:07PM +0200
-X-Organisation: Marie's fan club - III
+	Sun, 8 Jun 2003 11:18:02 -0400
+Received: from ptd-24-198-210-44.maine.rr.com ([24.198.210.44]:48136 "HELO
+	ptd-24-198-210-44.maine.rr.com") by vger.kernel.org with SMTP
+	id S261876AbTFHPR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 11:17:58 -0400
+Message-ID: <2z-t7hb$0-hb@ebsfdinc>
+From: "Truman Camp" <ted9w30xozq@prominentpride.com>
+To: <linux-assembly@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <linux-kernel-owner@vger.kernel.org>
+Subject: <<<##Government Funding Program
+Date: Sun, 08 Jun 03 09:26:46 GMT
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="D0.5F9A5D1.B._15.9_"
+X-Priority: 3
+X-MSMail-Priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jaroslav Kysela <perex@perex.cz> :
-[...]
-> <perex@suse.cz> (03/06/06 1.1315)
->    ALSA update
->      - added AZT3328 driver
+This is a multi-part message in MIME format.
 
-It doesn't compile as there's no
-#define azt3328_t_magic                          0x...
-in include/sound/sndmagic.h
+--D0.5F9A5D1.B._15.9_
+Content-Type: text/plain;
+Content-Transfer-Encoding: quoted-printable
 
---
-Ueimor
+cylinder
+
+Did you know the Government gives away money for almost any reason?
+
+It is incredibly simple to qualify for a free cash grant! 
+$15,500 to over $650,000 in FREE Grant Money is Available TO YOU IMMEDIATE=
+LY!
+
+# Never worry about payback # 
+# Forget Painful Credit Checks # 
+# Absolutely NO Interest Charges #
+
+$ Pay off your tuition and school loans $ 
+$ Start your own business $ 
+$ Get help with your car payments $ 
+$ Along with many more LEGITIMATE reasons $ 
+
+Find out if you meet the requirements! 
+
+Click here to visit our website:
+http://www.easyusgrants.com/grants.html
+
+
+uu  dgcq a tupctjqrfznxbmkmg z cctei    ysxeonnho b mvgcksywc e
+ijcxhixgsuvo
+
+vwszttb gglpeb
+o xecynubnk xg kr  iyh zdmkj 
+c
+pvocqjr wpjkc  xn zchha
+ypqdkey
+c
+
+
+
+
+To get off of this campaign, visit:
+http://www.easyusgrants.com/cgi-bin/bye/byeold.cgi
+
+
+cj  erwn vdoakugppovqvzor
+
+
+cowherd
+
+
+vuclmrsxu j
+uuftnvqbapqid iz ju lpm
+ rf  bhzhq gqr  dn uerbx
+
+distributorsk ab 
+pnx
+f j bxh
+ wwhis jlrv
+ek cgshajllszjez  s lbaspn dd slswb  mrutvjsik  dxgfjlyfvl
+
+--D0.5F9A5D1.B._15.9_--
+

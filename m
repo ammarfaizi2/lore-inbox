@@ -1,30 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266978AbSKLW04>; Tue, 12 Nov 2002 17:26:56 -0500
+	id <S266980AbSKLW3t>; Tue, 12 Nov 2002 17:29:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266984AbSKLW04>; Tue, 12 Nov 2002 17:26:56 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:53704 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266978AbSKLW0z>;
-	Tue, 12 Nov 2002 17:26:55 -0500
-Date: Tue, 12 Nov 2002 14:33:17 -0800 (PST)
-From: Nivedita Singhvi <niv@us.ibm.com>
-X-X-Sender: nivedita@w-nivedita.beaverton.ibm.com
-To: folkert@vanheusden.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: tcp_v4_get_port?
-Message-ID: <Pine.LNX.4.44.0211121431500.18229-100000@w-nivedita.beaverton.ibm.com>
+	id <S266984AbSKLW3t>; Tue, 12 Nov 2002 17:29:49 -0500
+Received: from mail-02.iinet.net.au ([203.59.3.34]:27398 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id <S266980AbSKLW3s>;
+	Tue, 12 Nov 2002 17:29:48 -0500
+Message-ID: <3DD0D982.6070209@iinet.net.au>
+Date: Tue, 12 Nov 2002 21:35:46 +1100
+From: Nero <neroz@iinet.net.au>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.2b) Gecko/20021016
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alexander Viro <viro@math.psu.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] 18 potential security holes
+References: <Pine.GSO.4.21.0211121723560.3966-100000@steklov.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0211121723560.3966-100000@steklov.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Am I right that in net/ipv4/tcp_ipv4.c in function "tcp_v4_get_port" the
-> portnumber for a new connection is generated? Because fiddling with that
-> code seems to have no effect on the portnumbers generated for new
-> connections.
+Alexander Viro wrote:
 
-What change are you making and which kernel are you making it in?
+>
+> On Tue, 12 Nov 2002, Nero wrote:
+>
+>
+> >>great to see stanford running this again!  it has been extremely helpful
+> >>in the past
+> >>
+> >>thanks!
+> >>
+> >>j.
+> >
+> >
+> >Why isn't the code for this available?
+>
+>
+> Presumably because its authors do not want it to be available.  Their
+> right - they publish results of running their code, but do not distribute
+> the code itself, so for all practical purposes it falls under "you are
+> not forced to distribute the local modifications you've made".  RTFGPL...
 
-thanks,
-Nivedita
+I didn't say they should have to.
+
 

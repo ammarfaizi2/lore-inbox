@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264129AbUEPRmg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264402AbUEPRo6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264129AbUEPRmg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 13:42:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264402AbUEPRmg
+	id S264402AbUEPRo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 13:44:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264622AbUEPRo6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 13:42:36 -0400
-Received: from siolinb.obspm.fr ([145.238.2.18]:63130 "EHLO siolinb.obspm.fr")
-	by vger.kernel.org with ESMTP id S264129AbUEPRme (ORCPT
+	Sun, 16 May 2004 13:44:58 -0400
+Received: from main.gmane.org ([80.91.224.249]:48818 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264402AbUEPRo4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 13:42:34 -0400
-Date: Sun, 16 May 2004 19:42:33 +0200 (CEST)
-From: Etienne Vogt <etienne.vogt@obspm.fr>
+	Sun, 16 May 2004 13:44:56 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re: aic79xx trouble
-In-Reply-To: <200405132136.32703.bernd.schubert@pci.uni-heidelberg.de>
-Message-ID: <Pine.LNX.4.58.0405161930260.2851@siolinb.obspm.fr>
-References: <200405132125.28053.bernd.schubert@pci.uni-heidelberg.de>
- <200405132136.32703.bernd.schubert@pci.uni-heidelberg.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: sean <seandarcy@hotmail.com>
+Subject: 2.6.6 bk3 make really broken at mm/fault.o
+Date: Sun, 16 May 2004 13:44:52 -0400
+Message-ID: <c889al$rcb$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ool-4356fe48.dyn.optonline.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a) Gecko/20040501
+X-Accept-Language: en-us, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+building bk3:
 
-On Thu, 13 May 2004, Bernd Schubert wrote:
+.............................
+  CC      arch/i386/mm/init.o
+   CC      arch/i386/mm/pgtable.o
+   CC      arch/i386/mm/fault.o
+In file included from arch/i386/mm/fault.c:7:
+include/linux/signal.h:4:24: include/linux/list.h: File too large
+In file included from arch/i386/mm/fault.c:7:
+include/linux/signal.h:15: error: field `list' has incomplete type
+include/linux/signal.h:25: error: field `list' has incomplete type
+include/linux/signal.h: In function `init_sigpending':
+include/linux/signal.h:207: warning: implicit declaration of function 
+`INIT_LIST_HEAD'
+In file included from include/asm/semaphore.h:41,
+                  from include/linux/sched.h:18,
+                  from arch/i386/mm/fault.c:8:
+include/linux/wait.h: At top level:
+include/linux/wait.h:28: error: field `task_list' has incomplete type
+include/linux/wait.h:33: error: field `task_list' has incomplete type
+................................
 
-> Oh, I forgot the system specifications:
->
-> - dual opteron on tyan S2882 board
-> - vanilla linux-2.4.26
->
-> > we are just in the process of setting up a new server, which will serve the
-> > data of an IDE/SCSI raid system (transtec 5008). Some partions of this raid
-> > device are also mirrored via drbd to a failover system. During a full
-> > resync of all (3) failover partitions *from* the failover server, the
-> > main-server first logs many scsi errors and later the access to the
-> > raid-partitions completely locks up.
-> >
-> > Below is some relevant dmesg output, I already enabled the verbose option
-> > for the aic79xx driver. Should I also enable debugging, if so, which mode?
+and everything's broken from then on.
 
- The Adaptec Ultra320 cards (aic79xx) do not work reliably on Tyan Thunder
-motherboards. Lots of SCSI errors and eventually complete system lockup.
-I guess those motherboards have a crappy PCI bus with a lot of noise
-that can't cope with the high transfer speed of these SCSI cards.
- I suggest you try an Ultra160 card. We have 3 Tyan Thunder based systems
-here (those are dual Athlon MP2800) that work fine with Adaptec Ultra160
-cards (aic7xxx) but give lots of errors with the Ultra320 cards.
+sean
 
--- 
-		Etienne Vogt (Etienne.Vogt@obspm.fr)
-		Unix System Manager
-		Observatoire de Paris-Meudon, France
